@@ -217,3 +217,77 @@ categoria "CRM" viraram a mesma coisa, e só nós tratamos assim.
    `lead scoring` (1.000 / KD 36). O ângulo do Pipe é ligar cada termo à operação de WhatsApp,
    que é onde o Agendor não vai.
 7. **Conteúdo sazonal**: dia do cliente e dia do consumidor, 49.500 cada.
+
+---
+
+## 9. Correção: quatro das seis ferramentas que eu propus não têm demanda
+
+Busca dedicada por ferramenta com KD abaixo de 19 e volume acima de 300, em oito frentes.
+Duas conclusões, uma boa e uma que invalida trabalho anterior deste mesmo documento.
+
+### O achado que muda a conta do gerador de link
+
+A seção 8 mandava atacar `gerador de link whatsapp` (40.500 / KD 39), que é onde Kommo e Digisac
+estão entrincheiradas. Existe uma **segunda porta para a mesma ferramenta**, muito mais barata:
+
+| Palavra | Volume | KD |
+|---|---|---|
+| whatsapp sem salvar contato | 5.400 | 17 |
+| (cauda do mesmo tema) | ~4.000 | ≤ 17 |
+
+São cerca de 9.400 buscas somadas, nada acima de KD 17, e é **a mesma página e a mesma função**:
+mandar mensagem para um número sem adicioná-lo à agenda é exatamente o que um link `wa.me` faz. O
+custo marginal é praticamente zero se o gerador de link já estiver sendo construído. A página deve
+responder às duas intenções.
+
+### A frente de atendimento e call center está vazia no Brasil
+
+Confirmado uma a uma, e nenhuma passa de 100 buscas por mês:
+
+`erlang c` 90 · `dimensionamento de call center` 20 · `calculo de tma` 20 ·
+`calculadora de sla` 20 · `taxa de ocupacao call center` 0 · `quanto custa whatsapp business api` 20
+· `gerador de escala de trabalho` 50
+
+**Isso invalida quatro das seis ferramentas propostas na seção 3**: calculadora de custo do
+WhatsApp, dimensionamento de atendentes, calculadora de TMA/TMR/TME e simulador de SLA. Elas
+continuam boas como material de reunião comercial e como prova de competência, mas não são aposta
+de SEO. Construí-las esperando tráfego seria erro.
+
+A única peça dessa frente com volume real é a **calculadora de NPS**, 2.900 / KD 15, e essa tem
+ligação forte com o produto.
+
+Vendas e CRM (comissão, proposta, meta) também não rendeu nada acima de 480 buscas. Marketing
+rendeu só gerador de UTM.
+
+### As dez melhores por volume dividido por dificuldade
+
+| # | Ferramenta | Palavra principal | Volume | KD | Ligação com o Pipe |
+|---|---|---|---|---|---|
+| 1 | Calculadora de taxas do iFood | calculadora ifood | 8.100 | 8 | média |
+| 2 | Calculadora de horas trabalhadas | calculadora horas trabalhadas | 8.100 | 14 | fraca |
+| 3 | Gerador de recibo | como preencher um recibo | 8.100 | 18 | fraca |
+| 4 | Mensagem sem salvar contato | whatsapp sem salvar contato | 5.400 | 17 | **forte** |
+| 5 | Calculadora do Simples Nacional | calculadora simples nacional | 4.400 | 13 | nenhuma |
+| 6 | Calculadora de precificação | tabela de precificação | 4.400 | 17 | fraca |
+| 7 | Validador de CPF e CNPJ | validador de cpf | 4.400 | 18 | média |
+| 8 | Agendador de mensagem | como programar mensagem no whatsapp | 3.600 | 15 | **forte** |
+| 9 | Calculadora de NPS | calculadora de nps | 2.900 | 15 | **forte** |
+| 10 | Calculadora de taxas da Shopee | calculadora shopee | 2.900 | 7 | média |
+
+### A decisão que não é dos números
+
+Metade dessa lista traz volume alto com ligação fraca ou nenhuma com o produto. Calculadora do
+Simples Nacional traz contador, não gestor de atendimento. Isso é escolha de estratégia, não de
+SEO: tráfego grande e desqualificado enche relatório e não enche funil.
+
+A recomendação é construir primeiro as três de **ligação forte**, que trazem exatamente quem compra:
+
+1. **Mensagem no WhatsApp sem salvar contato** (junto com o gerador de link, mesma página)
+2. **Agendador de mensagem do WhatsApp** — e a limitação da ferramenta grátis é o próprio
+   argumento de venda: programar mensagem sem API oficial é caminho para banimento, que é o
+   melhor ativo de conteúdo da Poli
+3. **Calculadora de NPS** — a única da frente de atendimento com demanda real
+
+Depois disso, **calculadora de taxas do iFood** como aposta de topo de funil: KD 8, CPC 2,07 e
+público dono de restaurante, que é persona central de atendimento por WhatsApp. Fecha com o
+argumento de que o mesmo pedido feito pelo WhatsApp não paga comissão de marketplace.
