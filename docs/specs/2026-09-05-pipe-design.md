@@ -137,6 +137,22 @@ booleana espalhada pelo código.
 O `tenant` carrega a personalização: nome, logo, cor primária, fuso, idioma. White-label é
 configuração, nunca build separado.
 
+**Entrada por SSO desde cedo, em três degraus.** Senha própria continua existindo, mas ninguém
+grande adota ferramenta em que precisa criar mais uma senha para vinte atendentes:
+
+1. **Entrar com Google e com Microsoft.** Cobre a esmagadora maioria das empresas brasileiras, e
+   resolve o problema real do atendente que esquece a senha na segunda-feira.
+2. **SAML por tenant**, para empresa que já tem provedor de identidade próprio. É requisito de
+   compra em cliente médio para cima, e costuma aparecer no meio da negociação, não no começo.
+3. **Provisionamento automático de usuário** por SCIM, para o time de TI do cliente criar e
+   desligar atendente do lado dele. É o que impede o problema clássico de gente demitida
+   continuar com acesso.
+
+Regras que valem para os três: o domínio de e-mail decide o tenant, e um e-mail só pertence a um
+tenant; papel e permissão continuam sendo do Pipe, nunca vêm do provedor, porque quem define quem
+pode encerrar uma conversa é o gestor do atendimento e não o administrador do Active Directory; e
+toda entrada por SSO deixa registro na auditoria, com o provedor usado.
+
 ### 4.2 CRM
 
 `conta` · `contato` · `lead` · `oportunidade` · `formulario` · `formulario_versao` ·
