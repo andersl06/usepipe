@@ -150,3 +150,33 @@ Relatórios de mensagens ativas:
   e consumo de tokens.
 - **Transparência automática (EU AI Act art. 50)**: aviso quando a IA assume/transfere a conversa.
 - Descontinuação da API de Broadcast em favor da API de Growth nativa.
+
+## 5. Comunidade Blip — segunda passada (Tips & Tutorials)
+
+O "Ideas & Feedback" e o "General Q&A" renderam pouco: o Q&A está tomado por posts de evento
+respondidos por um agente de IA da própria comunidade. O valor real está em **Tips & Tutorials**,
+que é onde a Blip documenta o que a central de ajuda não cobre.
+
+Achados que viram requisito no Pipe:
+
+- **Reação a mensagem e indicador de "digitando" no WhatsApp.** Existe e é usado. O Desk do Pipe
+  precisa dos dois: enviar reação (emoji) a uma mensagem específica, e emitir o indicador de
+  digitação enquanto o atendente escreve. É sinal de presença barato e muda a percepção de espera.
+- **Como checar o status de uma mensagem via API.** Confirma que status por mensagem é operação de
+  API de primeira classe, não detalhe de tela — reforça o modelo de outbox com estado próprio.
+- **Formatos de arquivo aceitos.** Artigo dedicado. É a raiz do bug do áudio que o atendente ouve e
+  o cliente não recebe: o formato sai do gravador do navegador em ogg/opus e nem todo caminho
+  aceita. O Pipe valida formato e tamanho ANTES de chamar a Meta, e converte quando necessário.
+- **Nome de usuário no WhatsApp para empresas (BSUID).** O identificador do contato deixa de ser
+  só o telefone. `contato_identidade` já prevê isso: identificador por canal, não telefone fixo.
+- **Exportação de base de contatos para campanha.** Extração é caso de uso declarado, não extra.
+- **O CNPJ vai mudar.** A partir de 2026 o CNPJ passa a ser alfanumérico. Impacto direto no modelo:
+  o campo `documento` de `contato` e `conta` é `text` com validação que aceita a forma alfanumérica,
+  nunca coluna numérica nem máscara fixa. Deduplicação por documento precisa normalizar as duas
+  formas durante a transição.
+- **Gerenciamento de token e troca automática de modelo de IA.** Confirma que metering e escolha de
+  modelo por funcionalidade são preocupação de produto — é o `consumo_ia` do Pipe.
+
+Categorias da comunidade e volume, para calibrar expectativa: General Q&A 56 (baixo sinal),
+Tips & Tutorials 15 (alto sinal), Studio & APIs 13, Bugs 15 (alto sinal), Ideas & Feedback 15
+(quase tudo post de apresentação), Channels & Integrations 2.

@@ -17,6 +17,9 @@ migrations em `packages/db`.
 - Duração: inteiro em **segundos**. Nada de `interval` em coluna que entra em cálculo — a aritmética
   fica ambígua na hora de agregar.
 - Texto livre do cliente é `text`. `varchar(n)` só quando o limite é regra de negócio real.
+- **Documento (CPF/CNPJ) é `text`, sempre.** O CNPJ brasileiro passa a ser alfanumérico a partir de
+  2026, então coluna numérica ou máscara fixa quebra na virada. A deduplicação normaliza as duas
+  formas durante a transição, e a validação aceita a forma nova.
 - Índice de busca textual e de atributo em JSONB: `gin`.
 
 ### Isolamento por tenant
