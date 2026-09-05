@@ -132,6 +132,11 @@ O mínimo honesto desde a primeira versão em produção:
 - **Página de status pública**, porque plataforma de atendimento que cai sem avisar perde cliente
   duas vezes.
 
+**Observabilidade exportável, não só interna.** Cliente médio para cima quer ver a saúde da
+plataforma nas ferramentas dele. A métrica sai em formato Prometheus, e o tenant pode apontar um
+destino externo (Grafana, New Relic, Datadog). Sem isso, a resposta numa RFP é "não atende", e é um
+item que aparece com frequência.
+
 ## 9. Publicação
 
 Migration roda **antes** do código novo subir, e toda migration precisa ser compatível com a versão

@@ -40,6 +40,20 @@ escolha exigir mudar a marca.
 Termos de uso, política de privacidade e o contrato de tratamento de dados exigido pela LGPD, já
 que no modelo SaaS você é operador. Sem isso não há venda para empresa que tem jurídico.
 
+A estrutura do contrato comercial (ciclos, escopo, fora de escopo, RACI, níveis de suporte) e a
+matriz de resposta a RFP estão desenhadas em
+[`2026-09-05-comercial.md`](2026-09-05-comercial.md), vindas da mentoria de 03/09. Falta escrever
+os documentos em si.
+
+### 5.1 Teste de invasão
+Não foi feito. Uma plataforma que guarda conversa de cliente final e token da Meta precisa de teste
+por terceiro **antes** da primeira venda, e o relatório vira anexo de RFP.
+
+### 5.2 Nicho
+Continua indefinido, e foi o ponto que a mentoria mais insistiu. O nicho define o formulário de
+avaliação padrão da monitoria, os modelos de resposta pronta que vêm de fábrica e o argumento de
+venda inteiro. Sem ele, o produto tenta servir todo mundo e não convence ninguém.
+
 ---
 
 ## Bloqueia a operação depois de vender
