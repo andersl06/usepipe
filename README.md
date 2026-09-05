@@ -78,6 +78,17 @@ tem `bypassrls`, então nem por engano a política é ignorada.
 
 Consulta fora do `comTenant` não é atalho, é defeito.
 
+**Nunca use `Promise.all` dentro de uma transação.** Consultas em paralelo na mesma conexão caem no
+caminho depreciado do driver `pg`, e o `set_config('pipe.tenant_id')` da transação **desaparece**.
+O resultado não é erro: é consulta rodando sem tenant definido. Dentro do `comTenant`, as consultas
+vão em série. Paralelizar aqui troca alguns milissegundos por vazamento entre clientes.
+
+Duas outras armadilhas já encontradas e resolvidas, para não serem redescobertas:
+
+- `timestamptz` volta como **texto** dentro do bundle do Next. Normalize na camada de consulta.
+- `mensagem` é particionada, então algumas chaves estrangeiras que apontariam para ela não existem
+  (a unicidade lá é `(id, criada_em)`). Isso é decisão, não esquecimento.
+
 ### Migrations
 
 Geradas pelo drizzle-kit, versionadas em `packages/db/migrations`. Duas coisas para saber antes de
