@@ -1,0 +1,933 @@
+<title>Pipe — Atendimento, CRM e Monitoria</title>
+<meta name="description" content="Pipe é o sistema de atendimento no WhatsApp com API oficial, CRM e monitoria por IA. Desk enxuto para quem atende, gestão completa para quem mede.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Familjen+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap">
+<style>
+:root{
+  --ground:#F2F1EC; --paper:#FFFFFF; --paper-2:#FAF9F4; --paper-3:#EAE8DF;
+  --line:#DEDBD1; --line-2:#C9C5B7;
+  --ink:#14150F; --ink-2:#4E4D45; --ink-3:#77766C;
+  --moss:#4A5D23; --moss-deep:#33411A; --moss-soft:#E7EDD7; --sage:#8A9A5B;
+  --terra:#C4442E; --terra-soft:#F7E2DD;
+  --slate:#2E4A5D; --forest:#1F3A2E;
+  --dark:#15180F; --dark-2:#1D2115; --dark-line:#2E3324; --dark-ink:#E9E9DE; --dark-ink-2:#9D9C90;
+  --moss-lit:#A9BD6E;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#12140D; --paper:#191C12; --paper-2:#1F2318; --paper-3:#272B1E;
+    --line:#31362473; --line-2:#414736;
+    --ink:#EDEDE2; --ink-2:#A6A599; --ink-3:#838278;
+    --moss:#A9BD6E; --moss-deep:#C2D392; --moss-soft:#242E17; --sage:#8A9A5B;
+    --terra:#E4816D; --terra-soft:#38201A;
+    --slate:#93B4C6; --forest:#7FB394;
+    --dark:#0C0E08; --dark-2:#141709; --dark-line:#272B1C; --dark-ink:#EDEDE2; --dark-ink-2:#9D9C90;
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#12140D; --paper:#191C12; --paper-2:#1F2318; --paper-3:#272B1E;
+  --line:#313624; --line-2:#414736;
+  --ink:#EDEDE2; --ink-2:#A6A599; --ink-3:#838278;
+  --moss:#A9BD6E; --moss-deep:#C2D392; --moss-soft:#242E17; --sage:#8A9A5B;
+  --terra:#E4816D; --terra-soft:#38201A;
+  --slate:#93B4C6; --forest:#7FB394;
+  --dark:#0C0E08; --dark-2:#141709; --dark-line:#272B1C; --dark-ink:#EDEDE2; --dark-ink-2:#9D9C90;
+}
+
+*{box-sizing:border-box}
+body{
+  background:var(--ground); color:var(--ink); margin:0;
+  font-family:"IBM Plex Sans",-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+  font-size:16px; line-height:1.6; -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,h4{font-family:"Familjen Grotesk","Familjen Grotesk Fallback",Helvetica,Arial,sans-serif; margin:0; text-wrap:balance; letter-spacing:-.02em; font-weight:600}
+p{margin:0}
+a{color:inherit}
+.mono{font-family:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace}
+.lbl{font-family:"IBM Plex Mono",ui-monospace,monospace; font-size:11px; font-weight:500; letter-spacing:.16em; text-transform:uppercase; color:var(--ink-3)}
+:focus-visible{outline:2px solid var(--moss); outline-offset:3px; border-radius:3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+img{max-width:100%}
+
+.shell{max-width:1180px; margin:0 auto; padding:0 28px}
+section{padding:76px 0; border-top:1px solid var(--line)}
+section.flush{border-top:0}
+.eyebrow{display:flex; align-items:center; gap:12px; margin-bottom:20px}
+.eyebrow .rule{height:1px; flex:1; background:var(--line); max-width:80px}
+
+.btn{
+  display:inline-flex; align-items:center; gap:8px; font:inherit; font-size:15px; font-weight:500;
+  padding:12px 22px; border-radius:6px; border:1px solid var(--moss); background:var(--moss);
+  color:#F4F5EC; text-decoration:none; cursor:pointer; transition:background .15s,border-color .15s;
+}
+.btn:hover{background:var(--moss-deep); border-color:var(--moss-deep)}
+.btn.ghost{background:transparent; color:var(--ink); border-color:var(--line-2)}
+.btn.ghost:hover{background:var(--paper); border-color:var(--ink-3)}
+.btn.sm{font-size:13.5px; padding:9px 16px}
+.btn.onDark{background:var(--moss-lit); border-color:var(--moss-lit); color:#15180F}
+.btn.onDark:hover{background:#BCCE85; border-color:#BCCE85}
+
+/* header */
+header.top{position:sticky; top:0; z-index:20; background:color-mix(in srgb, var(--ground) 88%, transparent); backdrop-filter:blur(8px); border-bottom:1px solid var(--line)}
+.topin{display:flex; align-items:center; gap:28px; padding:14px 0}
+.logo{display:flex; align-items:center; gap:0; text-decoration:none; color:var(--ink)}
+.logo svg{width:88px; height:auto; display:block}
+nav.main{display:flex; gap:22px; margin-left:12px}
+nav.main a{font-size:14.5px; color:var(--ink-2); text-decoration:none}
+nav.main a:hover{color:var(--ink)}
+.topcta{margin-left:auto; display:flex; gap:10px; align-items:center}
+
+/* hero */
+.hero{display:grid; grid-template-columns:minmax(0,.92fr) minmax(0,1.08fr); gap:56px; align-items:center; padding:60px 0 68px}
+.hero h1{font-size:clamp(38px,5vw,60px); line-height:1.03}
+.hero .sub{margin-top:22px; font-size:18px; color:var(--ink-2); max-width:44ch}
+.hero .acts{margin-top:30px; display:flex; gap:12px; flex-wrap:wrap}
+.hero .fine{margin-top:16px; font-size:13px; color:var(--ink-3)}
+.hl{color:var(--moss)}
+
+/* product frame */
+.frame{border:1px solid var(--line); border-radius:10px; overflow:hidden; background:var(--paper); box-shadow:0 1px 2px rgba(20,21,15,.04), 0 24px 48px -32px rgba(20,21,15,.35)}
+.frame .bar{display:flex; align-items:center; gap:8px; padding:8px 12px; background:var(--paper-2); border-bottom:1px solid var(--line)}
+.frame .bar i{width:8px;height:8px;border-radius:50%;background:var(--line-2);display:block}
+.frame .bar span{margin-left:6px; font-size:11px; color:var(--ink-3); font-family:"IBM Plex Mono",monospace}
+.mini{display:grid; grid-template-columns:38px 1fr; min-height:330px}
+.mrail{background:#191C12; display:flex; flex-direction:column; align-items:center; gap:5px; padding:10px 0}
+.mrail i{width:22px;height:22px;border-radius:5px;background:#2C3021;display:block}
+.mrail i:first-child{background:var(--moss-lit)}
+.mbody{display:grid; grid-template-columns:minmax(0,1fr) 168px}
+.mlist{border-right:1px solid var(--line); display:flex; flex-direction:column}
+.mhead{padding:9px 12px; border-bottom:1px solid var(--line); background:var(--paper-2); display:flex; align-items:center; gap:7px}
+.mhead b{font-size:12.5px; font-weight:600}
+.mrow{padding:9px 12px; border-bottom:1px solid var(--line); display:grid; grid-template-columns:1fr auto; gap:2px 8px}
+.mrow.on{background:var(--moss-soft); box-shadow:inset 3px 0 0 var(--moss)}
+.mrow b{font-size:12.5px; font-weight:500}
+.mrow .t{font-size:11px; color:var(--ink-3); font-family:"IBM Plex Mono",monospace}
+.mrow .s{grid-column:1/-1; font-size:11.5px; color:var(--ink-2); overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+.mrow .tg{grid-column:1/-1; display:flex; gap:4px; margin-top:3px}
+.mside{padding:11px; display:flex; flex-direction:column; gap:10px}
+.mscore{display:flex; align-items:baseline; gap:7px}
+.mscore b{font-family:"IBM Plex Mono",monospace; font-size:24px; color:var(--moss); font-weight:600; line-height:1}
+.msum{font-size:11.5px; color:var(--ink-2); background:var(--paper-2); border-left:2px solid var(--sage); padding:7px 9px; border-radius:0 5px 5px 0}
+.mfail{font-size:11px; color:var(--terra); background:var(--terra-soft); border-radius:5px; padding:6px 8px; display:flex; gap:6px; align-items:center}
+
+.tag{font-family:"IBM Plex Mono",monospace; font-size:9.5px; letter-spacing:.05em; padding:2px 5px; border-radius:3px; border:1px solid var(--line); color:var(--ink-2); background:var(--paper-2); white-space:nowrap}
+.tag.moss{background:var(--moss-soft); color:var(--moss); border-color:transparent}
+.tag.terra{background:var(--terra-soft); color:var(--terra); border-color:transparent}
+
+/* strip of definitions */
+.defs{display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:1px; background:var(--line); border-top:1px solid var(--line); border-bottom:1px solid var(--line)}
+.def{background:var(--ground); padding:22px 20px; display:flex; flex-direction:column; gap:5px}
+.def .k{font-family:"IBM Plex Mono",monospace; font-size:12px; color:var(--moss); letter-spacing:.04em}
+.def .v{font-size:14.5px; color:var(--ink)}
+.def .n{font-size:12.5px; color:var(--ink-3)}
+
+/* generic grids */
+.two{display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:40px}
+.three{display:grid; grid-template-columns:repeat(auto-fit,minmax(260px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden}
+.cell{background:var(--paper); padding:26px 24px; display:flex; flex-direction:column; gap:10px}
+.cell h3{font-size:19px}
+.cell p{font-size:14.5px; color:var(--ink-2)}
+.cell .num{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--moss); letter-spacing:.1em}
+
+.head{max-width:60ch}
+.head h2{font-size:clamp(28px,3.4vw,40px); line-height:1.08}
+.head p{margin-top:16px; font-size:17px; color:var(--ink-2)}
+
+/* modules */
+.mods{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-top:36px}
+.mod{background:var(--paper); padding:26px 24px; display:flex; flex-direction:column; gap:12px}
+.mod header{display:flex; align-items:baseline; gap:10px}
+.mod header .i{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--moss); border:1px solid var(--moss); border-radius:3px; padding:1px 5px}
+.mod h3{font-size:18px}
+.mod ul{margin:0; padding:0; list-style:none; display:grid; gap:7px}
+.mod li{font-size:14px; color:var(--ink-2); padding-left:16px; position:relative}
+.mod li::before{content:""; position:absolute; left:0; top:9px; width:6px; height:6px; border-radius:1px; background:var(--sage)}
+
+/* split desk/gestao */
+.split{display:grid; grid-template-columns:repeat(auto-fit,minmax(300px,1fr)); gap:28px; margin-top:38px}
+.card{border:1px solid var(--line); border-radius:10px; background:var(--paper); overflow:hidden; display:flex; flex-direction:column}
+.card .top{padding:22px 24px; display:flex; flex-direction:column; gap:9px}
+.card .top h3{font-size:21px}
+.card .top p{font-size:14.5px; color:var(--ink-2)}
+.card ul{margin:0; padding:18px 24px 22px; list-style:none; display:grid; gap:8px; border-top:1px solid var(--line)}
+.card li{font-size:14px; color:var(--ink-2); display:flex; gap:9px}
+.card li b{color:var(--ink); font-weight:600}
+.card .chk{color:var(--moss); flex:none; font-family:"IBM Plex Mono",monospace; font-size:12px; margin-top:2px}
+
+/* dark band */
+.band{background:var(--dark); color:var(--dark-ink); border-top:0}
+.band .lbl{color:var(--dark-ink-2)}
+.band .head p{color:var(--dark-ink-2)}
+.band h2,.band h3{color:var(--dark-ink)}
+.evalbox{border:1px solid var(--dark-line); border-radius:10px; background:var(--dark-2); overflow:hidden; margin-top:34px}
+.evalbox .eh{display:flex; align-items:center; gap:10px; padding:14px 18px; border-bottom:1px solid var(--dark-line); flex-wrap:wrap}
+.evalbox .eh b{font-size:14.5px}
+.egrp{padding:8px 18px; background:#11140B; border-bottom:1px solid var(--dark-line); display:flex; gap:10px; align-items:center}
+.egrp .lbl{color:var(--moss-lit)}
+.egrp .w{margin-left:auto; font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--dark-ink-2)}
+.ecrit{padding:12px 18px; border-bottom:1px solid var(--dark-line); display:grid; grid-template-columns:1fr auto; gap:6px 14px}
+.ecrit .t{font-size:14px}
+.ecrit .sc{font-family:"IBM Plex Mono",monospace; font-size:13px; font-weight:600; text-align:right}
+.ecrit .ev{grid-column:1/-1; font-size:12.5px; color:var(--dark-ink-2); border-left:2px solid var(--terra); padding:7px 11px; background:#11140B; border-radius:0 5px 5px 0}
+.tag.dk{background:#232819; color:var(--dark-ink-2); border-color:var(--dark-line)}
+.tag.dkm{background:#26301A; color:var(--moss-lit); border-color:transparent}
+
+/* video */
+.video{border:1px solid var(--dark-line); border-radius:10px; background:var(--dark-2); aspect-ratio:16/9; display:grid; place-items:center; gap:14px; text-align:center; padding:30px; margin-top:34px}
+.video .play{width:62px; height:62px; border-radius:50%; border:1px solid var(--moss-lit); display:grid; place-items:center; color:var(--moss-lit)}
+.video p{color:var(--dark-ink-2); font-size:14px; max-width:44ch}
+
+/* casos */
+.casos{display:grid; grid-template-columns:repeat(auto-fit,minmax(290px,1fr)); gap:24px; margin-top:34px}
+.caso{border:1px solid var(--line); border-radius:10px; background:var(--paper); display:flex; flex-direction:column; overflow:hidden}
+.retrato{aspect-ratio:4/3; background:
+   linear-gradient(140deg, var(--moss-soft) 0%, var(--paper-3) 55%, var(--paper-2) 100%);
+   display:grid; place-items:center; border-bottom:1px solid var(--line); position:relative}
+.retrato span{font-family:"IBM Plex Mono",monospace; font-size:10px; letter-spacing:.14em; color:var(--ink-3); text-transform:uppercase; text-align:center; padding:0 18px}
+.retrato svg{width:56px; height:56px; color:var(--sage); opacity:.55; position:absolute; top:22px}
+.caso .in{padding:20px 22px 24px; display:flex; flex-direction:column; gap:11px}
+.caso h3{font-size:17.5px}
+.caso p{font-size:14px; color:var(--ink-2)}
+.caso dl{display:grid; grid-template-columns:auto 1fr; gap:5px 14px; margin:4px 0 0; font-size:13px}
+.caso dt{color:var(--ink-3)}
+.caso dd{margin:0; text-align:right; font-family:"IBM Plex Mono",monospace; color:var(--ink)}
+.aviso{margin-top:22px; font-size:12.5px; color:var(--ink-3); border-left:2px solid var(--line-2); padding-left:14px; max-width:74ch}
+
+/* ferramentas + blog */
+.tools{display:grid; grid-template-columns:repeat(auto-fit,minmax(270px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-top:34px}
+.tool{background:var(--paper); padding:24px 22px; display:flex; flex-direction:column; gap:9px; text-decoration:none; color:inherit}
+.tool:hover{background:var(--paper-2)}
+.tool h3{font-size:17px}
+.tool p{font-size:14px; color:var(--ink-2)}
+.tool .kw{font-family:"IBM Plex Mono",monospace; font-size:10.5px; color:var(--moss); letter-spacing:.06em; margin-top:auto; padding-top:8px}
+
+.posts{display:grid; gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-top:34px}
+.post{background:var(--paper); padding:18px 22px; display:grid; grid-template-columns:1fr auto; gap:4px 20px; text-decoration:none; color:inherit; align-items:center}
+.post:hover{background:var(--paper-2)}
+.post h3{font-size:16.5px; font-weight:500; font-family:"IBM Plex Sans",sans-serif; letter-spacing:0}
+.post .m{font-family:"IBM Plex Mono",monospace; font-size:11px; color:var(--ink-3); white-space:nowrap}
+.post p{grid-column:1/-1; font-size:13.5px; color:var(--ink-3)}
+
+/* preço */
+.planos{display:grid; grid-template-columns:repeat(auto-fit,minmax(250px,1fr)); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:10px; overflow:hidden; margin-top:34px}
+.plano{background:var(--paper); padding:26px 24px; display:flex; flex-direction:column; gap:12px}
+.plano.dest{background:var(--moss-soft)}
+.plano h3{font-size:19px}
+.plano .p{font-family:"IBM Plex Mono",monospace; font-size:15px; color:var(--moss)}
+.plano ul{margin:0; padding:0; list-style:none; display:grid; gap:7px}
+.plano li{font-size:14px; color:var(--ink-2); padding-left:15px; position:relative}
+.plano li::before{content:""; position:absolute; left:0; top:9px; width:5px; height:5px; border-radius:50%; background:var(--sage)}
+
+/* faq */
+.faq{margin-top:32px; border-top:1px solid var(--line)}
+.faq details{border-bottom:1px solid var(--line)}
+.faq summary{padding:18px 0; font-size:17px; font-weight:500; cursor:pointer; list-style:none; display:flex; gap:16px; align-items:baseline; font-family:"Familjen Grotesk",sans-serif}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+"; margin-left:auto; color:var(--moss); font-family:"IBM Plex Mono",monospace}
+.faq details[open] summary::after{content:"–"}
+.faq .a{padding:0 0 20px; font-size:15px; color:var(--ink-2); max-width:70ch}
+
+/* cta final */
+.final{background:var(--moss); color:#F4F5EC; border-top:0; text-align:left}
+.final h2{color:#F4F5EC; font-size:clamp(28px,3.4vw,40px)}
+.final p{color:#DCE3C6; font-size:17px; margin-top:14px; max-width:52ch}
+.final .acts{margin-top:28px; display:flex; gap:12px; flex-wrap:wrap}
+.final .btn{background:#F4F5EC; border-color:#F4F5EC; color:var(--moss-deep)}
+.final .btn:hover{background:#fff; border-color:#fff}
+.final .btn.ghost{background:transparent; color:#F4F5EC; border-color:#8C9E5F}
+
+footer.foot{background:var(--dark); color:var(--dark-ink-2); padding:52px 0 40px}
+.footgrid{display:grid; grid-template-columns:1.4fr repeat(3,1fr); gap:32px}
+footer.foot h4{font-family:"IBM Plex Mono",monospace; font-size:11px; letter-spacing:.16em; text-transform:uppercase; color:var(--dark-ink-2); font-weight:500; margin-bottom:12px}
+footer.foot a{display:block; font-size:14px; color:var(--dark-ink); text-decoration:none; padding:4px 0}
+footer.foot a:hover{color:var(--moss-lit)}
+footer.foot .logo svg{width:78px; color:var(--dark-ink)}
+.legal{margin-top:36px; padding-top:20px; border-top:1px solid var(--dark-line); font-size:12.5px; display:flex; gap:18px; flex-wrap:wrap}
+
+@media (max-width:900px){
+  .hero{grid-template-columns:1fr; gap:36px; padding:40px 0 48px}
+  nav.main{display:none}
+  .footgrid{grid-template-columns:1fr 1fr}
+  .mbody{grid-template-columns:1fr}
+  .mside{display:none}
+}
+</style>
+
+<header class="top">
+  <div class="shell topin">
+    <a class="logo" href="#" aria-label="Pipe">
+      <svg viewBox="0 0 420 190" role="img" aria-label="Pipe">
+        <g transform="translate(24,48)" fill="none" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9,99 V36 Q9,9 36,9 H63" stroke="currentColor"></path>
+          <path d="M99,9 V72 Q99,99 72,99 H36" stroke="#8A9A5B"></path>
+        </g>
+        <g transform="translate(174,14)" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M0,150 V54 Q0,40 14,40 H26 Q40,40 40,54 V86 Q40,100 26,100 H0"></path>
+          <path d="M76,40 V100"></path>
+          <path d="M112,150 V54 Q112,40 126,40 H138 Q152,40 152,54 V86 Q152,100 138,100 H112"></path>
+          <path d="M222,86 Q222,100 208,100 H196 Q182,100 182,86 V54 Q182,40 196,40 H208 Q222,40 222,54 V70 H182"></path>
+        </g>
+        <circle cx="250" cy="34" r="7" fill="#8A9A5B"></circle>
+      </svg>
+    </a>
+    <nav class="main">
+      <a href="#produto">Produto</a>
+      <a href="#monitoria">Monitoria</a>
+      <a href="#precos">Preços</a>
+      <a href="#ferramentas">Ferramentas</a>
+      <a href="#blog">Blog</a>
+    </nav>
+    <div class="topcta">
+      <a class="btn ghost sm" href="#demo">Entrar</a>
+      <a class="btn sm" href="#demo">Falar com a gente</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- HERO -->
+<section class="flush" style="border-top:0; padding-bottom:0">
+  <div class="shell hero">
+    <div>
+      <div class="lbl">Atendimento · CRM · Monitoria</div>
+      <h1 style="margin-top:18px">O atendimento no WhatsApp, <span class="hl">medido de verdade.</span></h1>
+      <p class="sub">
+        API oficial da Meta, para o número ser seu. Uma tela enxuta para quem atende e um painel
+        completo para quem mede. E uma IA que avalia cada atendimento com a evidência na mão —
+        não por amostragem.
+      </p>
+      <div class="acts">
+        <a class="btn" href="#demo">Agendar uma demonstração</a>
+        <a class="btn ghost" href="#produto">Ver como funciona</a>
+      </div>
+      <p class="fine">Sem fidelidade. Migração da sua base e do seu histórico incluída.</p>
+    </div>
+
+    <div class="frame" aria-label="Prévia da tela do atendente">
+      <div class="bar"><i></i><i></i><i></i><span>desk.pipe.app</span></div>
+      <div class="mini">
+        <div class="mrail"><i></i><i></i><i></i><i></i><i></i></div>
+        <div class="mbody">
+          <div class="mlist">
+            <div class="mhead">
+              <b>Atendimentos</b>
+              <span class="tag moss" style="margin-left:auto">JANELA 21h48</span>
+            </div>
+            <div class="mrow on">
+              <b>Marcelo Tavares</b><span class="t">00:42</span>
+              <span class="s">E tem desconto se eu pagar à vista?</span>
+              <span class="tg"><span class="tag">COMERCIAL</span><span class="tag">WHATSAPP</span><span class="tag terra">ALTA</span></span>
+            </div>
+            <div class="mrow">
+              <b>Juliana Prado</b><span class="t">03:15</span>
+              <span class="s">não consigo acessar minha conta desde ontem</span>
+              <span class="tg"><span class="tag">SUPORTE</span><span class="tag">WHATSAPP</span></span>
+            </div>
+            <div class="mrow">
+              <b>Renata Alencar</b><span class="t">12:08</span>
+              <span class="s">Segue em anexo o comprovante</span>
+              <span class="tg"><span class="tag">BANKING</span><span class="tag">E-MAIL</span></span>
+            </div>
+            <div class="mrow">
+              <b>Diego Matos</b><span class="t">18:33</span>
+              <span class="s">vim pelo anúncio, queria falar com alguém</span>
+              <span class="tg"><span class="tag">COMERCIAL</span><span class="tag">SITE</span></span>
+            </div>
+          </div>
+          <div class="mside">
+            <div class="lbl">Lead</div>
+            <div class="mscore"><b>74</b><span class="tag moss">FAIXA CLOSER</span></div>
+            <div class="lbl" style="margin-top:2px">Resumo da IA</div>
+            <div class="msum">Veio do anúncio, quer plano anual, negocia desconto à vista. Objeção: preço.</div>
+            <div class="mfail">
+              <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7.5v5M12 16h.01"/></svg>
+              Áudio recusado pela Meta · reenviar
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DEFINIÇÕES -->
+<div class="shell" style="padding-top:56px">
+  <div class="defs">
+    <div class="def">
+      <span class="k">tempo na fila</span>
+      <span class="v">atribuída − criada</span>
+      <span class="n">só o que chegou a ser atribuído</span>
+    </div>
+    <div class="def">
+      <span class="k">até a 1ª resposta</span>
+      <span class="v">1ª resposta − atribuída</span>
+      <span class="n">exibido com o denominador</span>
+    </div>
+    <div class="def">
+      <span class="k">perdida ≠ abandonada</span>
+      <span class="v">a fronteira é a atribuição</span>
+      <span class="n">capacidade ou atendimento</span>
+    </div>
+    <div class="def">
+      <span class="k">esforço por ticket</span>
+      <span class="v">200 e 1.000 char/min</span>
+      <span class="n">escrever, ler, ouvir e falar</span>
+    </div>
+  </div>
+</div>
+
+<!-- PROBLEMA -->
+<section>
+  <div class="shell">
+    <div class="head">
+      <div class="eyebrow"><span class="lbl">O que está quebrado</span><span class="rule"></span></div>
+      <h2>Três coisas que toda operação de WhatsApp aceita como normal — e não são.</h2>
+    </div>
+    <div class="three" style="margin-top:36px">
+      <div class="cell">
+        <span class="num">01</span>
+        <h3>O número não é seu</h3>
+        <p>Conexão não oficial funciona até o dia em que para. Aí some o número, o histórico e a
+        base de clientes junto. Pipe usa a API oficial da Meta: o número fica no seu Business
+        Manager e sai com você.</p>
+      </div>
+      <div class="cell">
+        <span class="num">02</span>
+        <h3>A mensagem falha em silêncio</h3>
+        <p>O atendente grava o áudio, ouve, e o cliente nunca recebe. O template com imagem
+        volta com erro genérico. Aqui cada mensagem tem estado próprio, e falha aparece na tela
+        com o motivo e o botão de reenviar.</p>
+      </div>
+      <div class="cell">
+        <span class="num">03</span>
+        <h3>A qualidade é medida por amostragem</h3>
+        <p>Cinco atendimentos por mês, por atendente, avaliados na mão. Com IA dá para avaliar
+        todos — critério a critério, com o trecho da conversa que justifica cada nota.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRODUTO / MÓDULOS -->
+<section id="produto">
+  <div class="shell">
+    <div class="head">
+      <div class="eyebrow"><span class="lbl">O que tem dentro</span><span class="rule"></span></div>
+      <h2>Seis módulos que conversam entre si.</h2>
+      <p>Um lead entra pelo formulário, o score decide a fila, a conversa acontece no WhatsApp, a IA
+      resume e avalia, e o resumo sobe para a ficha do lead. Ponta a ponta, sem integração no meio.</p>
+    </div>
+
+    <div class="mods">
+      <div class="mod">
+        <header><span class="i">01</span><h3>Atendimento</h3></header>
+        <ul>
+          <li>WhatsApp pela API oficial, e-mail e chat do site na mesma tela</li>
+          <li>Filas por setor com distribuição pela carga real do atendente</li>
+          <li>Respostas prontas da empresa e do próprio atendente, com <span class="mono">#</span></li>
+          <li>Janela de 24 h visível: quando fecha, o template entra no lugar</li>
+          <li>Status por mensagem, com motivo e reenvio quando falha</li>
+        </ul>
+      </div>
+      <div class="mod">
+        <header><span class="i">02</span><h3>Gestão</h3></header>
+        <ul>
+          <li>Monitoramento em tempo real separado do fechado do dia</li>
+          <li>TMR, TME, TMA e CSAT com a definição escrita e o denominador à vista</li>
+          <li>Relatório semanal de esforço individual por atendente</li>
+          <li>Regras de fila, de SLA e de horário, versionadas</li>
+          <li>Motivos de pausa e ocupação real da equipe</li>
+        </ul>
+      </div>
+      <div class="mod">
+        <header><span class="i">03</span><h3>CRM</h3></header>
+        <ul>
+          <li>Leads, contas, contatos e funil de oportunidades</li>
+          <li>Score explicável: cada ponto aponta a regra e a versão que o deu</li>
+          <li>Formulários versionados — pergunta não vira coluna</li>
+          <li>Importação de Salesforce, HubSpot, RD Station e CSV</li>
+          <li>Histórico de conversa com resumo automático na ficha</li>
+        </ul>
+      </div>
+      <div class="mod">
+        <header><span class="i">04</span><h3>Monitoria com IA</h3></header>
+        <ul>
+          <li>Avaliação automática de todos os atendimentos, não de uma amostra</li>
+          <li>Formulário com grupos, critérios, pesos e critério fatal</li>
+          <li>Evidência citada em cada nota, para contestar com fato</li>
+          <li>Calibração: quanto a IA desvia do avaliador humano, por critério</li>
+          <li>Consumo de IA em tokens e em reais, por funcionalidade</li>
+        </ul>
+      </div>
+      <div class="mod">
+        <header><span class="i">05</span><h3>Automação</h3></header>
+        <ul>
+          <li>Construtor de fluxo com versão publicada separada da versão em edição</li>
+          <li>Ações no chat: o atendente dispara automação sem sair da conversa</li>
+          <li>Workflows por evento, agendamento, webhook ou botão</li>
+          <li>Toda execução registrada com entrada, saída, duração e erro</li>
+        </ul>
+      </div>
+      <div class="mod">
+        <header><span class="i">06</span><h3>Dados e integração</h3></header>
+        <ul>
+          <li>Consulta com seleção de campos e agregação, sem escrever SQL</li>
+          <li>Dicionário de dados navegável — o nome do campo deixa de ser adivinhação</li>
+          <li>Exportação em CSV, JSON e Parquet, agendável</li>
+          <li>Webhooks assinados e API REST com filtro rico</li>
+          <li>Servidor MCP: sua IA consulta e opera o Pipe direto</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPLIT -->
+<section>
+  <div class="shell">
+    <div class="head">
+      <div class="eyebrow"><span class="lbl">A decisão que muda o dia</span><span class="rule"></span></div>
+      <h2>Quem atende e quem mede não precisam da mesma tela.</h2>
+      <p>Esconder menu por permissão não resolve: sobra caminho morto e o atendente carrega uma
+      interface que nunca usa. São dois aplicativos, com o mesmo banco atrás.</p>
+    </div>
+    <div class="split">
+      <div class="card">
+        <div class="top">
+          <span class="lbl">Pipe Desk</span>
+          <h3>Seis ícones. Nada mais.</h3>
+          <p>A tela do atendente cabe na cabeça em cinco minutos. Sem relatório, sem regra, sem
+          configuração de fila.</p>
+        </div>
+        <ul>
+          <li><span class="chk">→</span><span><b>Atalhos de teclado</b> desde o primeiro dia. Quem atende bem, atende no teclado.</span></li>
+          <li><span class="chk">→</span><span><b>Pausa com motivo</b> da lista do gestor, e nenhum status expira sozinho.</span></li>
+          <li><span class="chk">→</span><span><b>Copiloto que cita a fonte</b> — a sugestão diz de qual documento saiu e quando ele foi atualizado.</span></li>
+          <li><span class="chk">→</span><span><b>Transferir preserva tudo:</b> a conversa é a mesma, com etiquetas e histórico.</span></li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="top">
+          <span class="lbl">Pipe Gestão</span>
+          <h3>Denso de propósito.</h3>
+          <p>O supervisor precisa ver a operação inteira num olhar, e mudar a regra sem abrir chamado.</p>
+        </div>
+        <ul>
+          <li><span class="chk">→</span><span><b>Agora e Hoje separados</b> — conversa aberta com cronômetro correndo não se mistura com conversa encerrada.</span></li>
+          <li><span class="chk">→</span><span><b>Média com denominador.</b> 11:47 sobre 289 de 312 é uma informação; 11:47 sozinho é propaganda.</span></li>
+          <li><span class="chk">→</span><span><b>Carga por atendente na tela</b>, que é o que decide a distribuição.</span></li>
+          <li><span class="chk">→</span><span><b>Esforço individual semanal</b> medindo escrever, ler, ouvir e falar.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MONITORIA (banda escura) -->
+<section class="band" id="monitoria">
+  <div class="shell">
+    <div class="head">
+      <div class="eyebrow"><span class="lbl">Monitoria com IA</span><span class="rule" style="background:var(--dark-line)"></span></div>
+      <h2>A nota aponta a mensagem que a justifica.</h2>
+      <p>Sem isso, avaliação por IA é chute com aparência de método. Cada critério vem com o trecho
+      da conversa que embasou a nota, a confiança do modelo, e a comparação contínua com o avaliador
+      humano.</p>
+    </div>
+
+    <div class="evalbox">
+      <div class="eh">
+        <b>Marcelo Tavares · #68412</b>
+        <span class="tag dk">COMERCIAL — CONSULTIVO V3</span>
+        <span class="tag dkm">AVALIADO PELA IA</span>
+        <span class="mono" style="margin-left:auto; font-size:12px; color:var(--dark-ink-2)">confiança 0,86</span>
+      </div>
+      <div class="egrp"><span class="lbl">Diagnóstico</span><span class="w">peso 35</span></div>
+      <div class="ecrit">
+        <span class="t">Confirmou faixa de patrimônio</span>
+        <span class="sc" style="color:var(--moss-lit)">15 / 15</span>
+      </div>
+      <div class="egrp"><span class="lbl">Condução</span><span class="w">peso 30</span></div>
+      <div class="ecrit">
+        <span class="t">Ofereceu próximo passo claro</span>
+        <span class="sc" style="color:var(--terra)">0 / 12</span>
+        <span class="ev">Não conforme — a conversa terminou em “posso te mandar a proposta agora?” sem confirmação de data nem combinado de retorno. Evidência: mensagem de 14:07.</span>
+      </div>
+      <div class="ecrit" style="border-bottom:0; background:#11140B">
+        <span class="t" style="color:var(--dark-ink-2)">Nota final · conceito Bom</span>
+        <span class="sc" style="color:var(--moss-lit); font-size:20px">72</span>
+      </div>
+    </div>
+
+    <div class="three" style="margin-top:28px; background:var(--dark-line); border-color:var(--dark-line)">
+      <div class="cell" style="background:var(--dark-2)">
+        <span class="num" style="color:var(--moss-lit)">CALIBRAÇÃO</span>
+        <h3 style="font-size:17px">A IA é medida contra gente</h3>
+        <p style="color:var(--dark-ink-2)">Uma amostra é avaliada pelos dois, e o desvio por critério
+        fica exposto. Critério que desvia demais é sinalizado para revisão — não fica escondido na média.</p>
+      </div>
+      <div class="cell" style="background:var(--dark-2)">
+        <span class="num" style="color:var(--moss-lit)">CONTESTAÇÃO</span>
+        <h3 style="font-size:17px">O atendente pode discordar</h3>
+        <p style="color:var(--dark-ink-2)">Com a evidência à vista, a contestação vira debate sobre
+        fato. Quem decide é gente, e a decisão fica registrada.</p>
+      </div>
+      <div class="cell" style="background:var(--dark-2)">
+        <span class="num" style="color:var(--moss-lit)">DEMANDAS</span>
+        <h3 style="font-size:17px">O que dá para parar de fazer na mão</h3>
+        <p style="color:var(--dark-ink-2)">Os resumos viram categorias com volume e tendência. É a
+        tela onde se decide o que automatizar — com número, não com achismo.</p>
+      </div>
+    </div>
+
+    <!-- VÍDEO -->
+    <div style="margin-top:56px">
+      <div class="eyebrow"><span class="lbl">Em três minutos</span><span class="rule" style="background:var(--dark-line)"></span></div>
+      <h2 style="font-size:clamp(24px,3vw,32px)">Do formulário preenchido à avaliação da conversa.</h2>
+    </div>
+    <div class="video">
+      <div class="play" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M8 5v14l11-7L8 5Z"/></svg>
+      </div>
+      <p>Espaço reservado para o vídeo do produto — o caminho completo de um atendimento, da
+      chegada do lead até a nota da monitoria.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CASOS -->
+<section>
+  <div class="shell">
+    <div class="head">
+      <div class="eyebrow"><span class="lbl">Cenários ilustrativos</span><span class="rule"></span></div>
+      <h2>Como isso se parece em três operações diferentes.</h2>
+      <p>Os cenários abaixo são construídos a partir de operações reais que conhecemos, mas as
+      empresas e os números são exemplos — servem para mostrar onde cada função entra, não como
+      resultado prometido.</p>
+    </div>
+
+    <div class="casos">
+      <div class="caso">
+        <div class="retrato">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+          <span>retrato a inserir<br>consultora comercial</span>
+        </div>
+        <div class="in">
+          <span class="lbl">Comercial · 18 atendentes</span>
+          <h3>O lead quente chega no closer certo</h3>
+          <p>O formulário do site alimenta o score, a faixa decide a fila, e o closer recebe a
+          conversa já com o resumo do diagnóstico na lateral. Ninguém copia dado entre sistemas.</p>
+          <dl>
+            <dt>Faixa de corte</dt><dd>60 pontos</dd>
+            <dt>Fila destino</dt><dd>Closer / Comercial</dd>
+            <dt>Resumo na ficha</dt><dd>automático</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div class="caso">
+        <div class="retrato">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+          <span>retrato a inserir<br>supervisora de suporte</span>
+        </div>
+        <div class="in">
+          <span class="lbl">Suporte · 40 atendentes</span>
+          <h3>A fila para de acumular no mesmo lugar</h3>
+          <p>A distribuição olha a carga real — conversa esperando resposta do atendente pesa mais
+          que conversa esperando o cliente. E o segundo teto impede acumular ticket sem responder
+          ninguém.</p>
+          <dl>
+            <dt>Critério</dt><dd>carga ponderada</dd>
+            <dt>Teto sem 1ª resposta</dt><dd>configurável</dd>
+            <dt>SLA por fila</dt><dd>com horário</dd>
+          </dl>
+        </div>
+      </div>
+
+      <div class="caso">
+        <div class="retrato">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+          <span>retrato a inserir<br>analista de qualidade</span>
+        </div>
+        <div class="in">
+          <span class="lbl">Qualidade · 1 analista</span>
+          <h3>De cinco avaliações por mês para todas</h3>
+          <p>A IA avalia o volume inteiro e o analista revisa o que desvia. A calibração mostra em
+          qual critério o modelo está discordando de gente, e o prompt é ajustado com base nisso.</p>
+          <dl>
+            <dt>Cobertura</dt><dd>100% das conversas</dd>
+            <dt>Papel do humano</dt><dd>revisar e calibrar</dd>
+            <dt>Consumo de IA</dt><dd>em tokens e R$</dd>
+          </dl>
+        </div>
+      </div>
+    </div>
+
+    <p class="aviso">
+      Empresas, pessoas e números destes cenários são ilustrativos. Quando houver cliente em
+      produção, o depoimento entra aqui com nome, cargo e autorização — e os números virão do
+      painel dele, não de estimativa.
+    </p>
+  </div>
+</section>
+
+<!-- FERRAMENTAS -->
+<section id="ferramentas">
+  <div class="shell">
+    <div class="head">
+      <div class="eyebrow"><span class="lbl">Ferramentas gratuitas</span><span class="rule"></span></div>
+      <h2>Úteis mesmo para quem não é cliente.</h2>
+      <p>Cinco calculadoras que resolvem contas que hoje todo mundo faz em planilha — e faz errado.
+      Sem cadastro para usar.</p>
+    </div>
+    <div class="tools">
+      <a class="tool" href="#">
+        <h3>Calculadora de custo do WhatsApp</h3>
+        <p>Quanto sua operação gasta por mês em template, separado por categoria, e quanto disso
+        some quando a conversa acontece dentro da janela de 24 horas.</p>
+        <span class="kw">quanto custa whatsapp business api</span>
+      </a>
+      <a class="tool" href="#">
+        <h3>Dimensionamento de atendentes</h3>
+        <p>Quantos atendentes a sua operação precisa, a partir do volume, do tempo médio e da
+        ocupação que você aceita. Com a régua de esforço por trás.</p>
+        <span class="kw">produtividade de atendentes</span>
+      </a>
+      <a class="tool" href="#">
+        <h3>Simulador de SLA</h3>
+        <p>Defina o prazo por fila e veja quanto do seu histórico teria estourado — considerando
+        horário de funcionamento, não relógio corrido.</p>
+        <span class="kw">sla de atendimento</span>
+      </a>
+      <a class="tool" href="#">
+        <h3>Validador de template</h3>
+        <p>Cola o template e a ferramenta aponta o que a Meta costuma reprovar — inclusive o
+        deslocamento das variáveis quando há mídia no cabeçalho.</p>
+        <span class="kw">template whatsapp</span>
+      </a>
+      <a class="tool" href="#">
+        <h3>Gerador de script de atendimento</h3>
+        <p>Monta um roteiro por setor, com abertura, diagnóstico, contorno de objeção e
+        encerramento — pronto para virar resposta pronta.</p>
+        <span class="kw">script de atendimento</span>
+      </a>
+      <a class="tool" href="#">
+        <h3>Calculadora de TMA, TMR e TME</h3>
+        <p>Cole a exportação da sua plataforma atual e receba as métricas calculadas com a
+        definição escrita ao lado de cada número.</p>
+        <span class="kw">relatório de atendimento</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- BLOG -->
+<section id="blog">
+  <div class="shell">
+    <div class="head">
+      <div class="eyebrow"><span class="lbl">Blog</span><span class="rule"></span></div>
+      <h2>O que a documentação das plataformas não conta.</h2>
+    </div>
+    <div class="posts">
+      <a class="post" href="#">
+        <h3>A janela de 24 horas do WhatsApp, explicada sem enrolação</h3>
+        <span class="m">Operação · 8 min</span>
+        <p>Quando abre, o que reinicia, o que pode ser enviado dentro e fora — e onde a conta de custo costuma estar errada.</p>
+      </a>
+      <a class="post" href="#">
+        <h3>Como colocar horário de atendimento no WhatsApp Business</h3>
+        <span class="m">Tutorial · 5 min</span>
+        <p>O caminho no aplicativo, o que muda na API oficial, e por que o horário precisa parar o relógio do SLA.</p>
+      </a>
+      <a class="post" href="#">
+        <h3>Script de atendimento: estrutura que funciona e modelos por setor</h3>
+        <span class="m">Operação · 11 min</span>
+        <p>Abertura, diagnóstico, contorno de objeção e encerramento — e como transformar cada bloco em resposta pronta.</p>
+      </a>
+      <a class="post" href="#">
+        <h3>Relatório de atendimento: as sete métricas que importam</h3>
+        <span class="m">Gestão · 9 min</span>
+        <p>A fórmula de cada uma, o denominador que quase todo painel esconde, e a diferença entre perdida e abandonada.</p>
+      </a>
+      <a class="post" href="#">
+        <h3>SLA de atendimento: como definir prazo que a equipe consegue cumprir</h3>
+        <span class="m">Gestão · 10 min</span>
+        <p>Alvo, escopo, alerta e estouro. E por que SLA que corre de madrugada não mede nada.</p>
+      </a>
+      <a class="post" href="#">
+        <h3>Template do WhatsApp: criar, aprovar e não ser reprovado de novo</h3>
+        <span class="m">Tutorial · 7 min</span>
+        <p>Categorias, variáveis, botões e a armadilha do parâmetro deslocado quando há imagem no cabeçalho.</p>
+      </a>
+      <a class="post" href="#">
+        <h3>Multiatendimento no WhatsApp: um número, vários atendentes</h3>
+        <span class="m">Operação · 6 min</span>
+        <p>O que a API oficial permite, o que a conexão não oficial arrisca, e como dividir fila sem perder histórico.</p>
+      </a>
+      <a class="post" href="#">
+        <h3>Monitoria de qualidade com IA: o que dá certo e o que ainda não</h3>
+        <span class="m">Qualidade · 12 min</span>
+        <p>Como montar formulário com peso e critério fatal, e por que calibrar contra avaliador humano não é opcional.</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- PREÇOS -->
+<section id="precos">
+  <div class="shell">
+    <div class="head">
+      <div class="eyebrow"><span class="lbl">Modelo comercial</span><span class="rule"></span></div>
+      <h2>Você paga pelo que usa, e vê o quanto usou.</h2>
+      <p>O consumo de IA aparece em tokens e em reais dentro do produto, por funcionalidade. Sem
+      caixa-preta e sem surpresa no fim do mês.</p>
+    </div>
+    <div class="planos">
+      <div class="plano">
+        <h3>Atendimento</h3>
+        <span class="p">por atendente / mês</span>
+        <ul>
+          <li>WhatsApp oficial, e-mail e chat do site</li>
+          <li>Filas, distribuição por carga e SLA</li>
+          <li>Desk e Gestão completos</li>
+          <li>Relatórios e esforço individual</li>
+        </ul>
+      </div>
+      <div class="plano dest">
+        <h3>Atendimento + Monitoria</h3>
+        <span class="p">por atendente / mês + consumo</span>
+        <ul>
+          <li>Tudo do plano Atendimento</li>
+          <li>Avaliação automática de todas as conversas</li>
+          <li>Calibração, contestação e coach</li>
+          <li>Demandas recorrentes e insights</li>
+        </ul>
+      </div>
+      <div class="plano">
+        <h3>Monitoria avulsa</h3>
+        <span class="p">por avaliação</span>
+        <ul>
+          <li>Plugado na plataforma que você já usa</li>
+          <li>Sem trocar de sistema de atendimento</li>
+          <li>Formulário, calibração e relatórios</li>
+          <li>Exportação e API inclusas</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section>
+  <div class="shell">
+    <div class="head">
+      <div class="eyebrow"><span class="lbl">Perguntas frequentes</span><span class="rule"></span></div>
+      <h2>O que costumam perguntar antes de trocar de plataforma.</h2>
+    </div>
+    <div class="faq">
+      <details open>
+        <summary>Preciso trocar meu número de WhatsApp?</summary>
+        <div class="a">Não. O número migra para a API oficial da Meta dentro do seu próprio Business
+        Manager, e o histórico anterior é importado. Depois da migração ele deixa de funcionar no
+        aplicativo comum do celular — é a contrapartida de ter um número que ninguém derruba.</div>
+      </details>
+      <details>
+        <summary>O que é a janela de 24 horas e por que ela importa no custo?</summary>
+        <div class="a">Quando o cliente manda uma mensagem, abre uma janela de 24 horas contada a
+        partir da última mensagem dele. Dentro dela você responde em texto livre. Fora dela, só sai
+        template aprovado pela Meta — e é o template que é cobrado. O Pipe mostra o tempo restante
+        na conversa e o custo do template antes de você enviar.</div>
+      </details>
+      <details>
+        <summary>Dá para usar só a monitoria, sem trocar meu sistema de atendimento?</summary>
+        <div class="a">Dá. A monitoria se conecta à plataforma que você já usa, lê as conversas
+        encerradas e devolve avaliação, insights e relatórios. Se depois você quiser o atendimento
+        também, o histórico de avaliação continua o mesmo.</div>
+      </details>
+      <details>
+        <summary>Como vocês evitam que a IA invente nota?</summary>
+        <div class="a">Cada critério avaliado vem com o trecho da conversa que embasou a nota, e a
+        nota carrega a confiança do modelo. Abaixo do limiar que você define, ela vira sugestão para
+        um avaliador humano em vez de nota efetiva. E a calibração mede continuamente quanto a IA
+        desvia de gente, critério a critério.</div>
+      </details>
+      <details>
+        <summary>Consigo tirar meus dados de dentro do Pipe?</summary>
+        <div class="a">Sim, e isso é parte do produto, não favor. Há consulta com seleção de campos e
+        agregação, exportação em CSV, JSON e Parquet, relatórios agendados, webhooks assinados, API
+        REST e um servidor MCP para a sua própria IA consultar. Um dicionário de dados navegável
+        mostra cada objeto e campo disponível.</div>
+      </details>
+      <details>
+        <summary>Meu time consegue usar sem treinamento longo?</summary>
+        <div class="a">A tela do atendente tem seis seções e nada mais — sem relatório, sem regra,
+        sem configuração de fila, que é o que costuma confundir. Toda a parte de gestão fica num
+        aplicativo separado, para quem precisa dela.</div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="final" id="demo">
+  <div class="shell">
+    <div style="max-width:60ch">
+      <h2>Leve uma conversa real da sua operação.</h2>
+      <p>Na demonstração a gente pega um atendimento seu, mostra o resumo, a avaliação critério a
+      critério e o cálculo do esforço. Trinta minutos, sem apresentação de slides.</p>
+      <div class="acts">
+        <a class="btn" href="#">Agendar demonstração</a>
+        <a class="btn ghost" href="#ferramentas">Começar pelas ferramentas</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">
+  <div class="shell">
+    <div class="footgrid">
+      <div>
+        <a class="logo" href="#" aria-label="Pipe">
+          <svg viewBox="0 0 420 190" role="img" aria-label="Pipe">
+            <g transform="translate(24,48)" fill="none" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9,99 V36 Q9,9 36,9 H63" stroke="currentColor"></path>
+              <path d="M99,9 V72 Q99,99 72,99 H36" stroke="#A9BD6E"></path>
+            </g>
+            <g transform="translate(174,14)" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M0,150 V54 Q0,40 14,40 H26 Q40,40 40,54 V86 Q40,100 26,100 H0"></path>
+              <path d="M76,40 V100"></path>
+              <path d="M112,150 V54 Q112,40 126,40 H138 Q152,40 152,54 V86 Q152,100 138,100 H112"></path>
+              <path d="M222,86 Q222,100 208,100 H196 Q182,100 182,86 V54 Q182,40 196,40 H208 Q222,40 222,54 V70 H182"></path>
+            </g>
+            <circle cx="250" cy="34" r="7" fill="#A9BD6E"></circle>
+          </svg>
+        </a>
+        <p style="font-size:14px; margin-top:14px; max-width:34ch">
+          Atendimento no WhatsApp com API oficial, CRM e monitoria por IA.
+        </p>
+      </div>
+      <div>
+        <h4>Produto</h4>
+        <a href="#produto">Atendimento</a><a href="#produto">Gestão</a><a href="#produto">CRM</a>
+        <a href="#monitoria">Monitoria com IA</a><a href="#produto">Automação</a><a href="#precos">Preços</a>
+      </div>
+      <div>
+        <h4>Recursos</h4>
+        <a href="#ferramentas">Ferramentas gratuitas</a><a href="#blog">Blog</a>
+        <a href="#">Documentação</a><a href="#">API e MCP</a><a href="#">Dicionário de dados</a>
+      </div>
+      <div>
+        <h4>Empresa</h4>
+        <a href="#demo">Falar com a gente</a><a href="#">Sobre</a>
+        <a href="#">Privacidade</a><a href="#">Termos</a><a href="#">Status</a>
+      </div>
+    </div>
+    <div class="legal">
+      <span>© 2026 Pipe</span>
+      <span>WhatsApp é marca da Meta Platforms. O Pipe não é afiliado à Meta.</span>
+    </div>
+  </div>
+</footer>
