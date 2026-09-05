@@ -1,0 +1,400 @@
+import { sql } from 'drizzle-orm';
+import {
+  boolean,
+  index,
+  integer,
+  jsonb,
+  pgTable,
+  text,
+  uniqueIndex,
+  uuid,
+} from 'drizzle-orm/pg-core';
+import { carimbos, id, listaCheck, momento } from './comum.js';
+import { refTenant, usuario } from './identidade.js';
+import { canal, contato, conversa } from './conversas.js';
+
+/**
+ * Módulo 6 — Automação e extração. Três peças distintas que costumam ser confundidas:
+ * construtor de fluxo (a conversa automática), motor de workflow (a automação do
+ * sistema) e a linguagem de consulta com o dicionário de dados.
+ */
+
+export const ESTADOS_FLUXO = ['rascunho', 'publicado', 'arquivado'] as const;
+
+export const fluxo = pgTable(
+  'fluxo',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    nome: text('nome').notNull(),
+    canalId: uuid('canal_id').references(() => canal.id, { onDelete: 'set null' }),
+    estado: text('estado').notNull().default('rascunho'),
+    ...carimbos(),
+  },
+  (t) => [listaCheck('fluxo_estado_ck', t.estado, ESTADOS_FLUXO)],
+);
+
+export const ESTADOS_FLUXO_VERSAO = ['rascunho', 'publicada', 'arquivada'] as const;
+
+/** Versão publicada é separada da versão em edição — copiado da Blip porque está certo. */
+export const fluxoVersao = pgTable(
+  'fluxo_versao',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    fluxoId: uuid('fluxo_id')
+      .notNull()
+      .references(() => fluxo.id, { onDelete: 'cascade' }),
+    versao: integer('versao').notNull(),
+    estado: text('estado').notNull().default('rascunho'),
+    publicadaEm: momento('publicada_em'),
+    publicadaPor: uuid('publicada_por').references(() => usuario.id, { onDelete: 'set null' }),
+    ...carimbos(),
+  },
+  (t) => [
+    listaCheck('fluxo_versao_estado_ck', t.estado, ESTADOS_FLUXO_VERSAO),
+    uniqueIndex('fluxo_versao_uk').on(t.fluxoId, t.versao),
+  ],
+);
+
+export const TIPOS_BLOCO = [
+  'inicio',
+  'mensagem',
+  'pergunta',
+  'condicao',
+  'chamada_externa',
+  'script',
+  'ia',
+  'transferencia',
+  'fim',
+] as const;
+
+export const bloco = pgTable(
+  'bloco',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    versaoId: uuid('versao_id')
+      .notNull()
+      .references(() => fluxoVersao.id, { onDelete: 'cascade' }),
+    codigo: text('codigo').notNull(),
+    nome: text('nome').notNull(),
+    tipo: text('tipo').notNull(),
+    conteudo: jsonb('conteudo')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    posicao: jsonb('posicao')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+  },
+  (t) => [
+    listaCheck('bloco_tipo_ck', t.tipo, TIPOS_BLOCO),
+    uniqueIndex('bloco_uk').on(t.versaoId, t.codigo),
+  ],
+);
+
+export const transicao = pgTable(
+  'transicao',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    versaoId: uuid('versao_id')
+      .notNull()
+      .references(() => fluxoVersao.id, { onDelete: 'cascade' }),
+    deBlocoId: uuid('de_bloco_id')
+      .notNull()
+      .references(() => bloco.id, { onDelete: 'cascade' }),
+    paraBlocoId: uuid('para_bloco_id')
+      .notNull()
+      .references(() => bloco.id, { onDelete: 'cascade' }),
+    condicao: jsonb('condicao')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    /** Condições de saída são avaliadas nesta ordem; a primeira que casar vence. */
+    ordem: integer('ordem').notNull().default(0),
+  },
+  (t) => [index('transicao_de_bloco_idx').on(t.versaoId, t.deBlocoId, t.ordem)],
+);
+
+export const ESTADOS_EXECUCAO = [
+  'executando',
+  'aguardando',
+  'concluida',
+  'falhou',
+  'cancelada',
+] as const;
+
+export const execucaoFluxo = pgTable(
+  'execucao_fluxo',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    fluxoVersaoId: uuid('fluxo_versao_id')
+      .notNull()
+      .references(() => fluxoVersao.id, { onDelete: 'restrict' }),
+    conversaId: uuid('conversa_id').references(() => conversa.id, { onDelete: 'cascade' }),
+    contatoId: uuid('contato_id').references(() => contato.id, { onDelete: 'set null' }),
+    estado: text('estado').notNull().default('executando'),
+    /**
+     * Mapa de variáveis que atravessa o fluxo e sobrevive à transferência para humano:
+     * é o que faz o atendente receber o cliente já sabendo o que o robô coletou.
+     */
+    contexto: jsonb('contexto')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    blocoAtualId: uuid('bloco_atual_id').references(() => bloco.id, { onDelete: 'set null' }),
+    iniciadaEm: momento('iniciada_em').notNull().defaultNow(),
+    encerradaEm: momento('encerrada_em'),
+  },
+  (t) => [
+    listaCheck('execucao_fluxo_estado_ck', t.estado, ESTADOS_EXECUCAO),
+    index('execucao_fluxo_conversa_idx').on(t.tenantId, t.conversaId),
+    index('execucao_fluxo_estado_idx').on(t.tenantId, t.estado, t.iniciadaEm),
+  ],
+);
+
+export const execucaoPasso = pgTable(
+  'execucao_passo',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    execucaoId: uuid('execucao_id')
+      .notNull()
+      .references(() => execucaoFluxo.id, { onDelete: 'cascade' }),
+    blocoId: uuid('bloco_id').references(() => bloco.id, { onDelete: 'set null' }),
+    entrada: jsonb('entrada'),
+    saida: jsonb('saida'),
+    erro: text('erro'),
+    duracaoMs: integer('duracao_ms'),
+    tokens: integer('tokens'),
+    em: momento('em').notNull().defaultNow(),
+  },
+  (t) => [index('execucao_passo_execucao_idx').on(t.tenantId, t.execucaoId, t.em)],
+);
+
+export const workflow = pgTable(
+  'workflow',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    nome: text('nome').notNull(),
+    versao: integer('versao').notNull().default(1),
+    ativo: boolean('ativo').notNull().default(false),
+    ...carimbos(),
+  },
+  (t) => [uniqueIndex('workflow_uk').on(t.tenantId, t.nome, t.versao)],
+);
+
+export const TIPOS_GATILHO = ['evento', 'agendado', 'manual', 'webhook'] as const;
+
+export const gatilho = pgTable(
+  'gatilho',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    workflowId: uuid('workflow_id')
+      .notNull()
+      .references(() => workflow.id, { onDelete: 'cascade' }),
+    tipo: text('tipo').notNull(),
+    config: jsonb('config')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+  },
+  (t) => [
+    listaCheck('gatilho_tipo_ck', t.tipo, TIPOS_GATILHO),
+    index('gatilho_workflow_idx').on(t.tenantId, t.workflowId, t.tipo),
+  ],
+);
+
+export const TIPOS_ACAO = [
+  'criar_registro',
+  'atualizar_registro',
+  'enviar_mensagem',
+  'enviar_template',
+  'atribuir_proprietario',
+  'mover_fila',
+  'criar_avaliacao',
+  'http',
+  'funcao',
+  'agente_ia',
+] as const;
+export const POLITICAS_ERRO = ['parar', 'continuar', 'repetir'] as const;
+
+export const acao = pgTable(
+  'acao',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    workflowId: uuid('workflow_id')
+      .notNull()
+      .references(() => workflow.id, { onDelete: 'cascade' }),
+    ordem: integer('ordem').notNull().default(0),
+    tipo: text('tipo').notNull(),
+    config: jsonb('config')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    onErro: text('on_erro').notNull().default('parar'),
+  },
+  (t) => [
+    listaCheck('acao_tipo_ck', t.tipo, TIPOS_ACAO),
+    listaCheck('acao_on_erro_ck', t.onErro, POLITICAS_ERRO),
+    uniqueIndex('acao_uk').on(t.workflowId, t.ordem),
+  ],
+);
+
+/** Workflow que falha em silêncio é pior que workflow que não existe. */
+export const execucaoWorkflow = pgTable(
+  'execucao_workflow',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    workflowId: uuid('workflow_id')
+      .notNull()
+      .references(() => workflow.id, { onDelete: 'cascade' }),
+    payloadGatilho: jsonb('payload_gatilho')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    estado: text('estado').notNull().default('executando'),
+    iniciadaEm: momento('iniciada_em').notNull().defaultNow(),
+    encerradaEm: momento('encerrada_em'),
+    erro: text('erro'),
+  },
+  (t) => [
+    listaCheck('execucao_workflow_estado_ck', t.estado, ESTADOS_EXECUCAO),
+    index('execucao_workflow_idx').on(t.tenantId, t.workflowId, t.iniciadaEm.desc()),
+  ],
+);
+
+export const execucaoAcao = pgTable(
+  'execucao_acao',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    execucaoWorkflowId: uuid('execucao_workflow_id')
+      .notNull()
+      .references(() => execucaoWorkflow.id, { onDelete: 'cascade' }),
+    acaoId: uuid('acao_id').references(() => acao.id, { onDelete: 'set null' }),
+    entrada: jsonb('entrada'),
+    saida: jsonb('saida'),
+    erro: text('erro'),
+    duracaoMs: integer('duracao_ms'),
+    em: momento('em').notNull().defaultNow(),
+  },
+  (t) => [index('execucao_acao_execucao_idx').on(t.tenantId, t.execucaoWorkflowId, t.em)],
+);
+
+export const consultaSalva = pgTable(
+  'consulta_salva',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    nome: text('nome').notNull(),
+    /**
+     * Consulta estruturada, analisada contra o dicionário de dados do tenant. Nunca
+     * vira SQL cru vindo do cliente, e o `tenant_id` é imposto pelo servidor.
+     */
+    texto: text('texto').notNull(),
+    parametros: jsonb('parametros')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    criadaPor: uuid('criada_por').references(() => usuario.id, { onDelete: 'set null' }),
+    ...carimbos(),
+  },
+  (t) => [uniqueIndex('consulta_salva_uk').on(t.tenantId, t.nome)],
+);
+
+export const FORMATOS_EXPORTACAO = ['csv', 'json', 'parquet'] as const;
+
+export const agendamentoConsulta = pgTable(
+  'agendamento_consulta',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    consultaId: uuid('consulta_id')
+      .notNull()
+      .references(() => consultaSalva.id, { onDelete: 'cascade' }),
+    cron: text('cron').notNull(),
+    formato: text('formato').notNull().default('csv'),
+    destino: jsonb('destino')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    ativo: boolean('ativo').notNull().default(true),
+    ultimaExecucaoEm: momento('ultima_execucao_em'),
+    ...carimbos(),
+  },
+  (t) => [listaCheck('agendamento_consulta_formato_ck', t.formato, FORMATOS_EXPORTACAO)],
+);
+
+export const dicionarioObjeto = pgTable(
+  'dicionario_objeto',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    codigo: text('codigo').notNull(),
+    rotulo: text('rotulo').notNull(),
+    descricao: text('descricao'),
+    ...carimbos(),
+  },
+  (t) => [uniqueIndex('dicionario_objeto_uk').on(t.tenantId, t.codigo)],
+);
+
+/** Não é documentação: é o que a linguagem de consulta lê para decidir o que é permitido. */
+export const dicionarioCampo = pgTable(
+  'dicionario_campo',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    objetoCodigo: text('objeto_codigo').notNull(),
+    codigo: text('codigo').notNull(),
+    rotulo: text('rotulo').notNull(),
+    tipo: text('tipo').notNull(),
+    descricao: text('descricao'),
+    consultavel: boolean('consultavel').notNull().default(true),
+    agregavel: boolean('agregavel').notNull().default(false),
+  },
+  (t) => [uniqueIndex('dicionario_campo_uk').on(t.tenantId, t.objetoCodigo, t.codigo)],
+);
+
+export const webhookSaida = pgTable(
+  'webhook_saida',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    url: text('url').notNull(),
+    eventos: text('eventos')
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
+    /** Segredo do HMAC de assinatura; cifrado em repouso, como o segredo de canal. */
+    segredo: text('segredo').notNull(),
+    ativo: boolean('ativo').notNull().default(true),
+    ...carimbos(),
+  },
+  (t) => [index('webhook_saida_tenant_idx').on(t.tenantId, t.ativo)],
+);
+
+export const ESTADOS_ENTREGA_WEBHOOK = ['pendente', 'entregue', 'falhou', 'descartada'] as const;
+
+export const entregaWebhook = pgTable(
+  'entrega_webhook',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    webhookId: uuid('webhook_id')
+      .notNull()
+      .references(() => webhookSaida.id, { onDelete: 'cascade' }),
+    evento: text('evento').notNull(),
+    payload: jsonb('payload')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    tentativas: integer('tentativas').notNull().default(0),
+    estado: text('estado').notNull().default('pendente'),
+    ultimoErro: text('ultimo_erro'),
+    proximaTentativaEm: momento('proxima_tentativa_em'),
+    criadoEm: momento('criado_em').notNull().defaultNow(),
+  },
+  (t) => [
+    listaCheck('entrega_webhook_estado_ck', t.estado, ESTADOS_ENTREGA_WEBHOOK),
+    index('entrega_webhook_pendente_idx').on(t.estado, t.proximaTentativaEm),
+  ],
+);
