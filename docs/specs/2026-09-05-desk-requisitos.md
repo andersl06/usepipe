@@ -76,6 +76,26 @@ recorrentes contra o Blip, e é irritação diária de quem atende.
 O conteúdo inserido a partir de resposta pronta é marcado, para que o relatório de esforço possa
 descontá-lo (ver anexo de métricas).
 
+## 5.1 A janela de 24 horas na tela
+
+A conversa de WhatsApp mostra o tempo restante da janela de atendimento no cabeçalho, e a lista
+destaca as que estão perto de expirar. O estado do campo de mensagem muda com a janela:
+
+| Estado | O que o atendente vê |
+|---|---|
+| Janela aberta | Campo de texto livre, mídia, áudio, respostas prontas — tudo disponível |
+| Faltando menos de 1 hora | Campo normal, com aviso do tempo restante ao lado do botão de enviar |
+| Janela fechada | Campo de texto livre desabilitado, com a explicação no lugar dele e o seletor de template aprovado em primeiro plano |
+
+A regra é dizer antes, não depois. Bloquear na hora do envio, com erro da API, é a experiência que
+o atendente tem hoje nas plataformas de mercado, e ela custa uma mensagem perdida e a confiança na
+ferramenta.
+
+Ao escolher um template fora da janela, a tela mostra a **categoria** (utilidade, marketing ou
+autenticação) e o custo estimado antes de enviar — quem decide gastar precisa saber que está
+gastando. E quando o cliente responde ao template, a janela reabre e o campo de texto livre volta
+sozinho, sem o atendente precisar recarregar nada.
+
 ## 6. Mídia
 
 Imagem, documento, áudio, vídeo e localização. Colar imagem da área de transferência, arrastar

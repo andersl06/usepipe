@@ -185,6 +185,26 @@ da Blip é literalmente a lista de requisitos. Portanto:
 - o estado da conversa é máquina de estados explícita, e evento do usuário final não pode levá-la
   a estado inválido.
 
+**A janela de 24 horas é conceito de primeira classe, não detalhe de integração.** No WhatsApp, a
+mensagem do cliente abre uma janela de atendimento de 24 horas contada a partir da última mensagem
+*dele*. Dentro dela a empresa responde em texto livre. Fora dela só sai **template aprovado pela
+Meta**, e a resposta do cliente ao template reabre a janela. Isso governa três coisas ao mesmo
+tempo, e por isso não pode ficar escondido no adaptador do canal:
+
+- **A tela.** O Desk mostra o tempo restante da janela na conversa. Quando ela fecha, o campo de
+  texto livre é substituído pelo seletor de template, com o motivo escrito — não um erro depois do
+  envio. Conversa perto de expirar aparece destacada na lista.
+- **O custo.** Cada mensagem de saída registra se foi livre ou template, e em qual categoria
+  (utilidade, marketing ou autenticação). É o que permite o relatório de custo por fila, por
+  campanha e por atendente. A tabela de preços da Meta muda com frequência e entra como
+  configuração por categoria, nunca embutida no código.
+- **O relatório.** A janela é contada **a partir do envio**, não pelo dia do calendário. Esse é
+  exatamente o defeito que a comunidade da Blip reclama: disparo às 17h do dia 25 perde as
+  respostas do dia 26 na exportação. No Pipe, a resposta pertence ao disparo que a originou.
+
+O mesmo conceito vale, com outro relógio, para os demais canais: e-mail e widget não têm janela,
+e o modelo guarda `janela_expira_em` nulo — a regra é do canal, a tela é a mesma.
+
 **Distribuição por carga real**, não round-robin. Cada atendente tem capacidade configurável, e a
 carga é a soma ponderada das conversas abertas atribuídas a ele — conversa aguardando resposta do
 atendente pesa mais que conversa aguardando o cliente. A escolha: entre os atendentes online,
