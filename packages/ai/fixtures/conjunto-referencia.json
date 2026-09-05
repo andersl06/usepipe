@@ -1,0 +1,879 @@
+{
+  "nome": "Conjunto de referência — atendimento padrão (fictício)",
+  "casos": [
+    {
+      "id": "boleto-resolvido",
+      "descricao": "Segunda via de boleto resolvida na hora, com prazo informado e confirmação de resolução.",
+      "contexto": "Fila Financeiro · WhatsApp",
+      "mensagens": [
+        {
+          "id": "boleto-01",
+          "criadaEm": "2026-03-02T13:00:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Marcos Vieira",
+          "tipo": "texto",
+          "conteudo": "Bom dia, perdi o boleto deste mês, consigo a segunda via?"
+        },
+        {
+          "id": "boleto-02",
+          "criadaEm": "2026-03-02T13:01:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Camila",
+          "tipo": "texto",
+          "conteudo": "Bom dia, Marcos! Aqui é a Camila do financeiro. Vou providenciar a segunda via para o senhor."
+        },
+        {
+          "id": "boleto-03",
+          "criadaEm": "2026-03-02T13:02:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Camila",
+          "tipo": "texto",
+          "conteudo": "Só confirmando: é o boleto com vencimento em 10/03, do contrato de manutenção, correto?"
+        },
+        {
+          "id": "boleto-04",
+          "criadaEm": "2026-03-02T13:03:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Marcos Vieira",
+          "tipo": "texto",
+          "conteudo": "Isso mesmo"
+        },
+        {
+          "id": "boleto-05",
+          "criadaEm": "2026-03-02T13:06:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Camila",
+          "tipo": "documento",
+          "conteudo": "Segue a segunda via em PDF. O código de barras está na última página.",
+          "anexo": { "nomeArquivo": "segunda-via-marco.pdf" }
+        },
+        {
+          "id": "boleto-06",
+          "criadaEm": "2026-03-02T13:07:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Camila",
+          "tipo": "texto",
+          "conteudo": "O pagamento cai no sistema em até 2 dias úteis. Se precisar de comprovante depois disso, é só chamar aqui."
+        },
+        {
+          "id": "boleto-07",
+          "criadaEm": "2026-03-02T13:09:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Marcos Vieira",
+          "tipo": "texto",
+          "conteudo": "Perfeito, consegui abrir aqui. Obrigado!"
+        },
+        {
+          "id": "boleto-08",
+          "criadaEm": "2026-03-02T13:10:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Camila",
+          "tipo": "texto",
+          "conteudo": "Que bom! Posso encerrar então? Ficou mais alguma dúvida?"
+        },
+        {
+          "id": "boleto-09",
+          "criadaEm": "2026-03-02T13:11:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Marcos Vieira",
+          "tipo": "texto",
+          "conteudo": "Pode encerrar, era só isso."
+        }
+      ],
+      "formulario": {
+        "id": "form-padrao-v1",
+        "nome": "Padrão de atendimento v1",
+        "notaMaxima": 100,
+        "grupos": [
+          {
+            "id": "g-abertura",
+            "nome": "Abertura",
+            "peso": 1,
+            "criterios": [
+              {
+                "id": "c-saudacao",
+                "nome": "Saudou e se identificou",
+                "descricao": "Cumprimentou o cliente e disse o próprio nome ou a área.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": false
+              },
+              {
+                "id": "c-necessidade",
+                "nome": "Confirmou a necessidade",
+                "descricao": "Repetiu ou confirmou com o cliente o que ele precisava antes de agir.",
+                "peso": 2,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          },
+          {
+            "id": "g-conducao",
+            "nome": "Condução",
+            "peso": 2,
+            "criterios": [
+              {
+                "id": "c-clareza",
+                "nome": "Clareza da explicação",
+                "descricao": "0 quando o cliente ficou sem entender; 5 quando a explicação foi direta e sem jargão.",
+                "peso": 2,
+                "tipo": "escala",
+                "fatal": false
+              },
+              {
+                "id": "c-prazo",
+                "nome": "Informou prazo ou próximo passo",
+                "descricao": "Disse ao cliente o que acontece depois e em quanto tempo.",
+                "peso": 2,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          },
+          {
+            "id": "g-conformidade",
+            "nome": "Conformidade",
+            "peso": 3,
+            "criterios": [
+              {
+                "id": "c-dados",
+                "nome": "Protegeu dado sensível",
+                "descricao": "Não expôs dado de terceiro nem dado sensível sem necessidade.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": true
+              }
+            ]
+          },
+          {
+            "id": "g-encerramento",
+            "nome": "Encerramento",
+            "peso": 1,
+            "criterios": [
+              {
+                "id": "c-encerramento",
+                "nome": "Confirmou resolução antes de encerrar",
+                "descricao": "Perguntou se ficou alguma dúvida antes de fechar a conversa.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          }
+        ]
+      },
+      "gabarito": [
+        { "criterioId": "c-saudacao", "valor": "conforme" },
+        { "criterioId": "c-necessidade", "valor": "conforme" },
+        { "criterioId": "c-clareza", "valor": "5" },
+        { "criterioId": "c-prazo", "valor": "conforme" },
+        { "criterioId": "c-dados", "valor": "conforme" },
+        { "criterioId": "c-encerramento", "valor": "conforme" }
+      ]
+    },
+    {
+      "id": "troca-sem-prazo",
+      "descricao": "Troca de produto encaminhada, mas o atendente nunca disse o prazo e a explicação ficou confusa.",
+      "contexto": "Fila Suporte · WhatsApp",
+      "mensagens": [
+        {
+          "id": "troca-01",
+          "criadaEm": "2026-03-03T17:20:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Renata Alves",
+          "tipo": "texto",
+          "conteudo": "Boa tarde, recebi o aparelho com a tela trincada. Como faço a troca?"
+        },
+        {
+          "id": "troca-02",
+          "criadaEm": "2026-03-03T17:21:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Renata Alves",
+          "tipo": "imagem",
+          "conteudo": "Olha como chegou",
+          "anexo": { "nomeArquivo": "tela-trincada.jpg" }
+        },
+        {
+          "id": "troca-03",
+          "criadaEm": "2026-03-03T17:24:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Diego",
+          "tipo": "texto",
+          "conteudo": "Boa tarde, Renata, aqui é o Diego do suporte. Deixa eu ver o pedido."
+        },
+        {
+          "id": "troca-04",
+          "criadaEm": "2026-03-03T17:26:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Diego",
+          "tipo": "texto",
+          "conteudo": "Então, o fluxo é a logística reversa via RMA, aí abre o chamado no portal, gera a etiqueta e o SLA da transportadora conta a partir da coleta."
+        },
+        {
+          "id": "troca-05",
+          "criadaEm": "2026-03-03T17:28:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Renata Alves",
+          "tipo": "texto",
+          "conteudo": "Desculpa, não entendi nada. Eu preciso fazer alguma coisa ou vocês fazem?"
+        },
+        {
+          "id": "troca-06",
+          "criadaEm": "2026-03-03T17:30:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Diego",
+          "tipo": "texto",
+          "conteudo": "Eu abro pra senhora. Já abri aqui."
+        },
+        {
+          "id": "troca-07",
+          "criadaEm": "2026-03-03T17:31:00.000Z",
+          "direcao": "interna",
+          "autorTipo": "atendente",
+          "autorNome": "Diego",
+          "tipo": "texto",
+          "conteudo": "Abri o RMA 4471. Cliente não entendeu o processo, avisar a logística para ligar."
+        },
+        {
+          "id": "troca-08",
+          "criadaEm": "2026-03-03T17:33:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Renata Alves",
+          "tipo": "texto",
+          "conteudo": "E quando alguém vem buscar?"
+        },
+        {
+          "id": "troca-09",
+          "criadaEm": "2026-03-03T17:40:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Diego",
+          "tipo": "texto",
+          "conteudo": "Está tudo encaminhado. Qualquer coisa é só chamar."
+        }
+      ],
+      "formulario": {
+        "id": "form-padrao-v1",
+        "nome": "Padrão de atendimento v1",
+        "notaMaxima": 100,
+        "grupos": [
+          {
+            "id": "g-abertura",
+            "nome": "Abertura",
+            "peso": 1,
+            "criterios": [
+              {
+                "id": "c-saudacao",
+                "nome": "Saudou e se identificou",
+                "descricao": "Cumprimentou o cliente e disse o próprio nome ou a área.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": false
+              },
+              {
+                "id": "c-necessidade",
+                "nome": "Confirmou a necessidade",
+                "descricao": "Repetiu ou confirmou com o cliente o que ele precisava antes de agir.",
+                "peso": 2,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          },
+          {
+            "id": "g-conducao",
+            "nome": "Condução",
+            "peso": 2,
+            "criterios": [
+              {
+                "id": "c-clareza",
+                "nome": "Clareza da explicação",
+                "descricao": "0 quando o cliente ficou sem entender; 5 quando a explicação foi direta e sem jargão.",
+                "peso": 2,
+                "tipo": "escala",
+                "fatal": false
+              },
+              {
+                "id": "c-prazo",
+                "nome": "Informou prazo ou próximo passo",
+                "descricao": "Disse ao cliente o que acontece depois e em quanto tempo.",
+                "peso": 2,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          },
+          {
+            "id": "g-conformidade",
+            "nome": "Conformidade",
+            "peso": 3,
+            "criterios": [
+              {
+                "id": "c-dados",
+                "nome": "Protegeu dado sensível",
+                "descricao": "Não expôs dado de terceiro nem dado sensível sem necessidade.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": true
+              }
+            ]
+          },
+          {
+            "id": "g-encerramento",
+            "nome": "Encerramento",
+            "peso": 1,
+            "criterios": [
+              {
+                "id": "c-encerramento",
+                "nome": "Confirmou resolução antes de encerrar",
+                "descricao": "Perguntou se ficou alguma dúvida antes de fechar a conversa.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          }
+        ]
+      },
+      "gabarito": [
+        { "criterioId": "c-saudacao", "valor": "conforme" },
+        { "criterioId": "c-necessidade", "valor": "nao_conforme" },
+        { "criterioId": "c-clareza", "valor": "1" },
+        { "criterioId": "c-prazo", "valor": "nao_conforme" },
+        { "criterioId": "c-dados", "valor": "conforme" },
+        { "criterioId": "c-encerramento", "valor": "nao_conforme" }
+      ]
+    },
+    {
+      "id": "dado-de-terceiro",
+      "descricao": "Atendente lê em voz alta o CPF e o telefone de outro cliente. Critério fatal reprovado: nota zero.",
+      "contexto": "Fila Cadastro · WhatsApp",
+      "mensagens": [
+        {
+          "id": "dado-01",
+          "criadaEm": "2026-03-04T11:05:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Paulo Nogueira",
+          "tipo": "texto",
+          "conteudo": "Oi, meu cadastro está com o endereço errado."
+        },
+        {
+          "id": "dado-02",
+          "criadaEm": "2026-03-04T11:06:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Bianca",
+          "tipo": "texto",
+          "conteudo": "Oi, Paulo! Bianca do cadastro falando. Vamos corrigir, é o endereço de entrega ou o de cobrança?"
+        },
+        {
+          "id": "dado-03",
+          "criadaEm": "2026-03-04T11:07:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Paulo Nogueira",
+          "tipo": "texto",
+          "conteudo": "O de entrega"
+        },
+        {
+          "id": "dado-04",
+          "criadaEm": "2026-03-04T11:09:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Bianca",
+          "tipo": "texto",
+          "conteudo": "Achei aqui dois Paulo Nogueira. Um é CPF 123.456.789-00, telefone (11) 98888-7777, mora na Rua das Acácias. O outro é o senhor?"
+        },
+        {
+          "id": "dado-05",
+          "criadaEm": "2026-03-04T11:10:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Paulo Nogueira",
+          "tipo": "texto",
+          "conteudo": "Esse não sou eu não"
+        },
+        {
+          "id": "dado-06",
+          "criadaEm": "2026-03-04T11:12:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Bianca",
+          "tipo": "texto",
+          "conteudo": "Então é o outro. Já corrigi o endereço de entrega. A alteração vale para os próximos pedidos, a partir de hoje."
+        },
+        {
+          "id": "dado-07",
+          "criadaEm": "2026-03-04T11:13:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Bianca",
+          "tipo": "texto",
+          "conteudo": "Ficou alguma dúvida antes de eu encerrar?"
+        },
+        {
+          "id": "dado-08",
+          "criadaEm": "2026-03-04T11:14:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Paulo Nogueira",
+          "tipo": "texto",
+          "conteudo": "Nenhuma, obrigado"
+        }
+      ],
+      "formulario": {
+        "id": "form-padrao-v1",
+        "nome": "Padrão de atendimento v1",
+        "notaMaxima": 100,
+        "grupos": [
+          {
+            "id": "g-abertura",
+            "nome": "Abertura",
+            "peso": 1,
+            "criterios": [
+              {
+                "id": "c-saudacao",
+                "nome": "Saudou e se identificou",
+                "descricao": "Cumprimentou o cliente e disse o próprio nome ou a área.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": false
+              },
+              {
+                "id": "c-necessidade",
+                "nome": "Confirmou a necessidade",
+                "descricao": "Repetiu ou confirmou com o cliente o que ele precisava antes de agir.",
+                "peso": 2,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          },
+          {
+            "id": "g-conducao",
+            "nome": "Condução",
+            "peso": 2,
+            "criterios": [
+              {
+                "id": "c-clareza",
+                "nome": "Clareza da explicação",
+                "descricao": "0 quando o cliente ficou sem entender; 5 quando a explicação foi direta e sem jargão.",
+                "peso": 2,
+                "tipo": "escala",
+                "fatal": false
+              },
+              {
+                "id": "c-prazo",
+                "nome": "Informou prazo ou próximo passo",
+                "descricao": "Disse ao cliente o que acontece depois e em quanto tempo.",
+                "peso": 2,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          },
+          {
+            "id": "g-conformidade",
+            "nome": "Conformidade",
+            "peso": 3,
+            "criterios": [
+              {
+                "id": "c-dados",
+                "nome": "Protegeu dado sensível",
+                "descricao": "Não expôs dado de terceiro nem dado sensível sem necessidade.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": true
+              }
+            ]
+          },
+          {
+            "id": "g-encerramento",
+            "nome": "Encerramento",
+            "peso": 1,
+            "criterios": [
+              {
+                "id": "c-encerramento",
+                "nome": "Confirmou resolução antes de encerrar",
+                "descricao": "Perguntou se ficou alguma dúvida antes de fechar a conversa.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          }
+        ]
+      },
+      "gabarito": [
+        { "criterioId": "c-saudacao", "valor": "conforme" },
+        { "criterioId": "c-necessidade", "valor": "conforme" },
+        { "criterioId": "c-clareza", "valor": "4" },
+        { "criterioId": "c-prazo", "valor": "conforme" },
+        { "criterioId": "c-dados", "valor": "nao_conforme" },
+        { "criterioId": "c-encerramento", "valor": "conforme" }
+      ]
+    },
+    {
+      "id": "audio-nao-transcrito",
+      "descricao": "Cliente some no meio. Um áudio ficou sem transcrição e o encerramento não pôde ser avaliado.",
+      "contexto": "Fila Comercial · WhatsApp",
+      "mensagens": [
+        {
+          "id": "audio-01",
+          "criadaEm": "2026-03-05T09:00:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Silvana Rocha",
+          "tipo": "audio",
+          "anexo": {
+            "nomeArquivo": "pergunta.ogg",
+            "duracaoSeg": 18,
+            "transcricao": "Oi, bom dia, eu queria saber se vocês fazem instalação também ou é só a venda do equipamento."
+          }
+        },
+        {
+          "id": "audio-02",
+          "criadaEm": "2026-03-05T09:03:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Rafael",
+          "tipo": "texto",
+          "conteudo": "Bom dia, Silvana! Rafael do comercial. Fazemos os dois: a venda e a instalação."
+        },
+        {
+          "id": "audio-03",
+          "criadaEm": "2026-03-05T09:04:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Rafael",
+          "tipo": "texto",
+          "conteudo": "Só para eu confirmar: a senhora quer o orçamento do equipamento com a instalação incluída?"
+        },
+        {
+          "id": "audio-04",
+          "criadaEm": "2026-03-05T09:11:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Silvana Rocha",
+          "tipo": "audio",
+          "anexo": { "nomeArquivo": "resposta.ogg", "duracaoSeg": 34 }
+        },
+        {
+          "id": "audio-05",
+          "criadaEm": "2026-03-05T09:16:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Rafael",
+          "tipo": "texto",
+          "conteudo": "Perfeito. Vou montar o orçamento e mando aqui ainda hoje, até as 18h."
+        },
+        {
+          "id": "audio-06",
+          "criadaEm": "2026-03-05T09:17:00.000Z",
+          "direcao": "interna",
+          "autorTipo": "atendente",
+          "autorNome": "Rafael",
+          "tipo": "texto",
+          "conteudo": "Não consegui ouvir o áudio dela, chiado. Vou pelo que entendi."
+        },
+        {
+          "id": "audio-07",
+          "criadaEm": "2026-03-05T18:02:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Rafael",
+          "tipo": "documento",
+          "conteudo": "Segue o orçamento com instalação.",
+          "anexo": { "nomeArquivo": "orcamento-silvana.pdf" }
+        },
+        {
+          "id": "audio-08",
+          "criadaEm": "2026-03-06T12:00:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "sistema",
+          "tipo": "texto",
+          "conteudo": "Conversa encerrada automaticamente por inatividade de 24 horas."
+        }
+      ],
+      "formulario": {
+        "id": "form-padrao-v1",
+        "nome": "Padrão de atendimento v1",
+        "notaMaxima": 100,
+        "grupos": [
+          {
+            "id": "g-abertura",
+            "nome": "Abertura",
+            "peso": 1,
+            "criterios": [
+              {
+                "id": "c-saudacao",
+                "nome": "Saudou e se identificou",
+                "descricao": "Cumprimentou o cliente e disse o próprio nome ou a área.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": false
+              },
+              {
+                "id": "c-necessidade",
+                "nome": "Confirmou a necessidade",
+                "descricao": "Repetiu ou confirmou com o cliente o que ele precisava antes de agir.",
+                "peso": 2,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          },
+          {
+            "id": "g-conducao",
+            "nome": "Condução",
+            "peso": 2,
+            "criterios": [
+              {
+                "id": "c-clareza",
+                "nome": "Clareza da explicação",
+                "descricao": "0 quando o cliente ficou sem entender; 5 quando a explicação foi direta e sem jargão.",
+                "peso": 2,
+                "tipo": "escala",
+                "fatal": false
+              },
+              {
+                "id": "c-prazo",
+                "nome": "Informou prazo ou próximo passo",
+                "descricao": "Disse ao cliente o que acontece depois e em quanto tempo.",
+                "peso": 2,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          },
+          {
+            "id": "g-conformidade",
+            "nome": "Conformidade",
+            "peso": 3,
+            "criterios": [
+              {
+                "id": "c-dados",
+                "nome": "Protegeu dado sensível",
+                "descricao": "Não expôs dado de terceiro nem dado sensível sem necessidade.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": true
+              }
+            ]
+          },
+          {
+            "id": "g-encerramento",
+            "nome": "Encerramento",
+            "peso": 1,
+            "criterios": [
+              {
+                "id": "c-encerramento",
+                "nome": "Confirmou resolução antes de encerrar",
+                "descricao": "Perguntou se ficou alguma dúvida antes de fechar a conversa.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          }
+        ]
+      },
+      "gabarito": [
+        { "criterioId": "c-saudacao", "valor": "conforme" },
+        { "criterioId": "c-necessidade", "valor": "conforme" },
+        { "criterioId": "c-clareza", "valor": "4" },
+        { "criterioId": "c-prazo", "valor": "conforme" },
+        { "criterioId": "c-dados", "valor": "conforme" },
+        { "criterioId": "c-encerramento", "valor": "nao_se_aplica" }
+      ]
+    },
+    {
+      "id": "cliente-irritado",
+      "descricao": "Cobrança em duplicidade. Atendente não se identifica e é seco, mas resolve e informa o prazo.",
+      "contexto": "Fila Financeiro · WhatsApp",
+      "mensagens": [
+        {
+          "id": "irritado-01",
+          "criadaEm": "2026-03-06T20:12:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Jorge Menezes",
+          "tipo": "texto",
+          "conteudo": "É a terceira vez que eu escrevo. Vocês cobraram duas vezes o mesmo mês e ninguém resolve."
+        },
+        {
+          "id": "irritado-02",
+          "criadaEm": "2026-03-06T20:19:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Tiago",
+          "tipo": "texto",
+          "conteudo": "Qual o número do pedido?"
+        },
+        {
+          "id": "irritado-03",
+          "criadaEm": "2026-03-06T20:20:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Jorge Menezes",
+          "tipo": "texto",
+          "conteudo": "88213"
+        },
+        {
+          "id": "irritado-04",
+          "criadaEm": "2026-03-06T20:26:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Tiago",
+          "tipo": "texto",
+          "conteudo": "Confirmado, houve duas cobranças do mesmo mês. Já pedi o estorno da segunda."
+        },
+        {
+          "id": "irritado-05",
+          "criadaEm": "2026-03-06T20:27:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Tiago",
+          "tipo": "texto",
+          "conteudo": "O valor volta no cartão em até duas faturas, é o prazo da operadora. O protocolo é 88213-E."
+        },
+        {
+          "id": "irritado-06",
+          "criadaEm": "2026-03-06T20:29:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Jorge Menezes",
+          "tipo": "texto",
+          "conteudo": "Duas faturas? Isso é um absurdo, o dinheiro é meu."
+        },
+        {
+          "id": "irritado-07",
+          "criadaEm": "2026-03-06T20:33:00.000Z",
+          "direcao": "saida",
+          "autorTipo": "atendente",
+          "autorNome": "Tiago",
+          "tipo": "texto",
+          "conteudo": "É o prazo da operadora do cartão, não depende de nós. O estorno já está pedido."
+        },
+        {
+          "id": "irritado-08",
+          "criadaEm": "2026-03-06T20:35:00.000Z",
+          "direcao": "entrada",
+          "autorTipo": "contato",
+          "autorNome": "Jorge Menezes",
+          "tipo": "texto",
+          "conteudo": "Tá bom."
+        }
+      ],
+      "formulario": {
+        "id": "form-padrao-v1",
+        "nome": "Padrão de atendimento v1",
+        "notaMaxima": 100,
+        "grupos": [
+          {
+            "id": "g-abertura",
+            "nome": "Abertura",
+            "peso": 1,
+            "criterios": [
+              {
+                "id": "c-saudacao",
+                "nome": "Saudou e se identificou",
+                "descricao": "Cumprimentou o cliente e disse o próprio nome ou a área.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": false
+              },
+              {
+                "id": "c-necessidade",
+                "nome": "Confirmou a necessidade",
+                "descricao": "Repetiu ou confirmou com o cliente o que ele precisava antes de agir.",
+                "peso": 2,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          },
+          {
+            "id": "g-conducao",
+            "nome": "Condução",
+            "peso": 2,
+            "criterios": [
+              {
+                "id": "c-clareza",
+                "nome": "Clareza da explicação",
+                "descricao": "0 quando o cliente ficou sem entender; 5 quando a explicação foi direta e sem jargão.",
+                "peso": 2,
+                "tipo": "escala",
+                "fatal": false
+              },
+              {
+                "id": "c-prazo",
+                "nome": "Informou prazo ou próximo passo",
+                "descricao": "Disse ao cliente o que acontece depois e em quanto tempo.",
+                "peso": 2,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          },
+          {
+            "id": "g-conformidade",
+            "nome": "Conformidade",
+            "peso": 3,
+            "criterios": [
+              {
+                "id": "c-dados",
+                "nome": "Protegeu dado sensível",
+                "descricao": "Não expôs dado de terceiro nem dado sensível sem necessidade.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": true
+              }
+            ]
+          },
+          {
+            "id": "g-encerramento",
+            "nome": "Encerramento",
+            "peso": 1,
+            "criterios": [
+              {
+                "id": "c-encerramento",
+                "nome": "Confirmou resolução antes de encerrar",
+                "descricao": "Perguntou se ficou alguma dúvida antes de fechar a conversa.",
+                "peso": 1,
+                "tipo": "conforme",
+                "fatal": false
+              }
+            ]
+          }
+        ]
+      },
+      "gabarito": [
+        { "criterioId": "c-saudacao", "valor": "nao_conforme" },
+        { "criterioId": "c-necessidade", "valor": "conforme" },
+        { "criterioId": "c-clareza", "valor": "3" },
+        { "criterioId": "c-prazo", "valor": "conforme" },
+        { "criterioId": "c-dados", "valor": "conforme" },
+        { "criterioId": "c-encerramento", "valor": "nao_conforme" }
+      ]
+    }
+  ]
+}
