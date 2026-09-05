@@ -36,6 +36,13 @@
       "when": 1788631913924,
       "tag": "0004_canal_instagram",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1788650586605,
+      "tag": "0005_mensagem_dados",
+      "breakpoints": true
     }
   ]
 }

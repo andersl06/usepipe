@@ -310,6 +310,18 @@ export const mensagem = pgTable(
      * contar a janela a partir do envio, e não pelo dia do calendário.
      */
     disparoId: uuid('disparo_id'),
+    /**
+     * O que não cabe em coluna própria e é específico do canal ou do tipo.
+     *
+     * Guarda os valores posicionais do template, que precisam sobreviver ao envio: sem
+     * isso eles só existem dentro do job da fila, e um job perdido leva junto a
+     * possibilidade de reenviar ou de auditar o que foi mandado.
+     *
+     * No Instagram, guarda a origem da conversa: mensagem direta, resposta a story com a
+     * referência do story, menção, ou comentário promovido a conversa privada com o
+     * vínculo à publicação.
+     */
+    dados: jsonb('dados'),
   },
   (t) => [
     primaryKey({ columns: [t.id, t.criadaEm] }),
