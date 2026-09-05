@@ -1,0 +1,728 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Calculadora do iFood: taxas, quanto sobra e preço de cardápio | Pipe</title>
+<meta name="description" content="Calculadora do iFood grátis: veja a comissão, a taxa de transação e quanto sobra por pedido, e o preço de cardápio para a margem que você quer.">
+<link rel="canonical" href="https://pipe.com.br/ferramentas/calculadora-de-taxas-do-ifood/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#4A5D23" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12140E" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Pipe">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://pipe.com.br/ferramentas/calculadora-de-taxas-do-ifood/">
+<meta property="og:title" content="Calculadora do iFood: taxas, quanto sobra e preço de cardápio">
+<meta property="og:description" content="Veja a comissão, a taxa de transação e o lucro por pedido. E compare com o mesmo pedido feito pelo WhatsApp.">
+<meta property="og:image" content="https://pipe.com.br/assets/og-pipe.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Calculadora de taxas do iFood | Pipe">
+<meta name="twitter:description" content="Quanto sobra por pedido no iFood e qual preço colocar no cardápio.">
+<meta name="twitter:image" content="https://pipe.com.br/assets/og-pipe.png">
+
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/favicon.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
+<link rel="stylesheet" href="/assets/site.css">
+<script>
+  try {
+    var t = localStorage.getItem("pipe-theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Pipe", "item": "https://pipe.com.br/" },
+        { "@type": "ListItem", "position": 2, "name": "Ferramentas grátis", "item": "https://pipe.com.br/ferramentas/" },
+        { "@type": "ListItem", "position": 3, "name": "Calculadora de taxas do iFood", "item": "https://pipe.com.br/ferramentas/calculadora-de-taxas-do-ifood/" }
+      ]
+    },
+    {
+      "@type": "WebApplication",
+      "name": "Calculadora de taxas do iFood",
+      "url": "https://pipe.com.br/ferramentas/calculadora-de-taxas-do-ifood/",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Qualquer navegador",
+      "inLanguage": "pt-BR",
+      "description": "Calcula a comissão, a taxa de transação e o lucro por pedido no iFood, encontra o preço de cardápio para a margem desejada e compara com o mesmo pedido feito pelo WhatsApp.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+      "publisher": { "@type": "Organization", "name": "Pipe", "url": "https://pipe.com.br/" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Quanto o iFood cobra por pedido?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A cobrança tem duas partes. A comissão sobre o valor do pedido muda conforme o plano: no plano em que o restaurante entrega, a referência publicada é de 12%; no plano em que a entrega é feita pela logística do iFood, a referência sobe para 27%. Sobre isso incide ainda a taxa de transação de pagamento online, com referência de 3,2%. Comissões são negociadas por praça e por categoria, então o número do seu contrato pode ser diferente e é ele que vale."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Como calcular o preço de venda no iFood?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Some tudo que sai do seu bolso por pedido: custo do produto, embalagem e entrega quando ela é sua. Depois divida esse valor por 1 menos a soma dos percentuais que saem do preço, que são comissão, taxa de transação, imposto, cupom que você banca e a margem que você quer. O resultado é o preço que precisa estar no cardápio. A calculadora desta página faz essa divisão e mostra a conta aberta."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Posso cobrar mais caro no iFood do que no balcão?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Pode. O preço no aplicativo é definido por você e a prática de trabalhar com um cardápio de preços diferentes é comum no setor, justamente porque os custos do canal são diferentes. O que o Código de Defesa do Consumidor exige é que o preço esteja informado de forma clara e correta em cada canal, sem cobrar do cliente valor diferente do anunciado."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Quem paga o cupom de desconto do iFood?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Depende da campanha. Existem cupons bancados pela plataforma, existem os bancados pelo restaurante e existem os divididos entre os dois. Na hora de calcular, o que importa é a sua parte, porque ela sai do preço antes da comissão. Um cupom de 20% bancado por você em um pedido de R$ 60 tira R$ 12 do seu bolso, e a comissão continua sendo calculada sobre o valor cheio."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Vale a pena atender pelo WhatsApp em vez do iFood?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "O pedido pelo WhatsApp não paga comissão de marketplace, então a margem é bem maior no mesmo preço. Em compensação, o iFood traz demanda que você não teria e o WhatsApp exige que alguém atenda. A conta que decide não é qual canal é melhor, e sim quanto do seu volume já vem de cliente recorrente, porque cliente que já conhece o restaurante custa caro no marketplace e barato no canal próprio."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "A comissão do iFood incide sobre a taxa de entrega?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "A base de cálculo da comissão é o valor dos itens do pedido. A taxa de entrega cobrada do cliente tem tratamento próprio e varia conforme o plano contratado e a praça. Como esse detalhe muda por contrato, a calculadora trabalha com o valor dos itens e deixa a entrega como um custo separado, que você preenche quando a entrega é sua."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Pular para o conteúdo</a>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.52 0-10 4.48-10 10 0 1.77.46 3.45 1.27 4.9L2 22l5.25-1.38a9.95 9.95 0 0 0 4.79 1.22h.01c5.52 0 10-4.48 10-10s-4.48-9.84-10.02-9.84Zm5.86 14.3c-.25.7-1.24 1.29-1.98 1.44-.53.11-1.22.2-3.55-.76-2.98-1.23-4.9-4.24-5.05-4.44-.15-.2-1.2-1.6-1.2-3.05 0-1.46.76-2.17 1.03-2.46.27-.29.6-.36.8-.36h.58c.19 0 .44-.07.68.53.25.6.86 2.07.94 2.22.08.15.13.33.03.53-.1.2-.16.33-.31.5-.15.18-.32.4-.46.53-.15.15-.31.31-.14.61.18.3.79 1.31 1.7 2.12 1.17 1.04 2.15 1.37 2.45 1.52.3.15.48.13.66-.08.18-.2.76-.89.97-1.19.2-.3.4-.25.68-.15.28.1 1.77.84 2.08.99.3.15.5.23.58.36.08.13.08.75-.17 1.45Z"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+</svg>
+
+<header class="hdr">
+  <div class="hdr__bar">
+    <a class="hdr__logo" href="/" aria-label="Pipe, página inicial">
+      <img src="/assets/pipe-lockup-cream.svg" width="420" height="190" alt="Pipe">
+    </a>
+    <nav class="hdr__nav" aria-label="Principal">
+      <a href="/#produto">Produto</a>
+      <a href="/#monitoria">Monitoria</a>
+      <a href="/#precos">Preços</a>
+      <a href="/ferramentas/" aria-current="page">Ferramentas</a>
+      <a href="/blog/">Blog</a>
+    </nav>
+    <div class="hdr__act">
+      <button class="hdr__theme" type="button" data-theme-toggle aria-label="Alternar tema claro e escuro">
+        <svg aria-hidden="true" data-icon-sun><use href="#i-sun"></use></svg>
+        <svg aria-hidden="true" data-icon-moon hidden><use href="#i-moon"></use></svg>
+      </button>
+      <a class="btn btn--primary btn--sm" href="/#demo">Agendar demonstração</a>
+    </div>
+    <button class="hdr__toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+      <svg aria-hidden="true" width="22" height="22"><use href="#i-menu"></use></svg>
+    </button>
+  </div>
+  <div class="hdr__panel" id="menu" hidden>
+    <a href="/#produto">Produto</a>
+    <a href="/#monitoria">Monitoria</a>
+    <a href="/#precos">Preços</a>
+    <a href="/ferramentas/">Ferramentas</a>
+    <a href="/blog/">Blog</a>
+    <hr>
+    <a class="btn btn--primary" href="/#demo">Agendar demonstração</a>
+    <button class="btn btn--night" type="button" data-theme-toggle style="width:100%;margin-top:8px">Alternar tema</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="hero__glow" aria-hidden="true"></div>
+    <div class="wrap page-head">
+      <nav aria-label="Trilha">
+        <p class="label label--muted"><a href="/" style="text-decoration:none">Pipe</a> / <a href="/ferramentas/" style="text-decoration:none">Ferramentas</a> / Calculadora do iFood</p>
+      </nav>
+      <h1>Calculadora de taxas do iFood</h1>
+      <p>
+        Veja quanto sobra de cada pedido depois da comissão, da taxa de transação, do cupom e do
+        imposto. Ou faça o caminho inverso: diga a margem que você quer e descubra o preço que
+        precisa estar no cardápio.
+      </p>
+      <div class="tool-meta">
+        <span>Atualizado em setembro de 2026</span>
+        <i aria-hidden="true"></i>
+        <span>Percentuais editáveis, para bater com o seu contrato</span>
+        <i aria-hidden="true"></i>
+        <span>Cálculo no navegador</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap tool-wrap">
+    <div class="tool-grid tool-grid--wide">
+
+      <div class="panel">
+        <p class="panel__h">1. O pedido</p>
+
+        <div class="seg" role="group" aria-label="O que calcular" style="margin-bottom:18px">
+          <button type="button" data-modo="sobra" aria-pressed="true">Quanto sobra deste preço</button>
+          <button type="button" data-modo="preco" aria-pressed="false">Qual preço para a minha margem</button>
+        </div>
+
+        <div class="fields">
+          <div class="fields fields--2">
+            <label class="field" for="preco" id="wrapPreco">
+              <span class="field__l">Preço no cardápio do iFood</span>
+              <span class="field__box"><span class="field__fix field__fix--pre">R$</span><input id="preco" type="text" inputmode="decimal" value="62,00"></span>
+            </label>
+            <label class="field" for="margemAlvo" id="wrapMargem" hidden>
+              <span class="field__l">Margem que você quer</span>
+              <span class="field__box"><input id="margemAlvo" type="text" inputmode="decimal" value="20"><span class="field__fix">%</span></span>
+              <span class="field__help">Margem sobre o preço de venda, depois de todos os custos e taxas.</span>
+            </label>
+            <label class="field" for="custo">
+              <span class="field__l">Custo dos ingredientes</span>
+              <span class="field__box"><span class="field__fix field__fix--pre">R$</span><input id="custo" type="text" inputmode="decimal" value="18,60"></span>
+            </label>
+          </div>
+
+          <div class="fields fields--2">
+            <label class="field" for="embalagem">
+              <span class="field__l">Embalagem e descartáveis</span>
+              <span class="field__box"><span class="field__fix field__fix--pre">R$</span><input id="embalagem" type="text" inputmode="decimal" value="2,40"></span>
+            </label>
+            <label class="field" for="pedidosMes">
+              <span class="field__l">Pedidos por mês</span>
+              <span class="field__box"><input id="pedidosMes" type="text" inputmode="numeric" value="600"><span class="field__fix">ped.</span></span>
+            </label>
+          </div>
+
+          <hr class="rule">
+          <p class="panel__h" style="margin:4px 0 0">2. O plano e as taxas</p>
+
+          <label class="field" for="plano">
+            <span class="field__l">Plano contratado</span>
+            <span class="field__box field__box--sel">
+              <select id="plano">
+                <option value="basico" selected>Entrega feita pelo restaurante</option>
+                <option value="entrega">Entrega feita pelo iFood</option>
+                <option value="custom">Percentual do meu contrato</option>
+              </select>
+            </span>
+            <span class="field__help">
+              Referências publicadas: 12% quando a entrega é sua e 27% quando a entrega é do iFood.
+              A comissão é negociada por praça e por categoria, então confira o seu contrato.
+            </span>
+          </label>
+
+          <div class="fields fields--2">
+            <label class="field" for="comissao">
+              <span class="field__l">Comissão</span>
+              <span class="field__box"><input id="comissao" type="text" inputmode="decimal" value="12"><span class="field__fix">%</span></span>
+            </label>
+            <label class="field" for="transacao">
+              <span class="field__l">Taxa de transação online</span>
+              <span class="field__box"><input id="transacao" type="text" inputmode="decimal" value="3,2"><span class="field__fix">%</span></span>
+            </label>
+          </div>
+
+          <div class="fields fields--2">
+            <label class="field" for="entrega">
+              <span class="field__l">Custo da sua entrega</span>
+              <span class="field__box"><span class="field__fix field__fix--pre">R$</span><input id="entrega" type="text" inputmode="decimal" value="7,00"></span>
+              <span class="field__help">Só quando a entrega é do restaurante. Some combustível, entregador e desgaste.</span>
+            </label>
+            <label class="field" for="cupom">
+              <span class="field__l">Cupom que você banca</span>
+              <span class="field__box"><input id="cupom" type="text" inputmode="decimal" value="0"><span class="field__fix">%</span></span>
+            </label>
+          </div>
+
+          <label class="field" for="imposto">
+            <span class="field__l">Imposto sobre a venda</span>
+            <span class="field__box"><input id="imposto" type="text" inputmode="decimal" value="6"><span class="field__fix">%</span></span>
+            <span class="field__help">Alíquota efetiva do seu regime. No Simples Nacional, bar e restaurante costumam ficar no Anexo I ou III conforme a atividade.</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <div class="res">
+          <div class="res__top">
+            <p class="res__lbl" id="resLbl">Sobra por pedido</p>
+            <p class="res__val" id="resVal">R$ 0,00</p>
+            <p class="res__sub" id="resSub"></p>
+          </div>
+          <dl>
+            <div><dt>Preço no cardápio</dt><dd id="dPreco">–</dd></div>
+            <div><dt>Cupom bancado por você</dt><dd id="dCupom">–</dd></div>
+            <div><dt>Comissão do iFood</dt><dd id="dCom">–</dd></div>
+            <div><dt>Taxa de transação</dt><dd id="dTra">–</dd></div>
+            <div><dt>Repasse que cai na sua conta</dt><dd id="dRep">–</dd></div>
+            <div><dt>Ingredientes e embalagem</dt><dd id="dCmv">–</dd></div>
+            <div><dt>Sua entrega</dt><dd id="dEnt">–</dd></div>
+            <div><dt>Imposto</dt><dd id="dImp">–</dd></div>
+            <div class="is-hi"><dt>Lucro por pedido</dt><dd id="dLuc">–</dd></div>
+            <div><dt>Margem sobre o preço</dt><dd id="dMar">–</dd></div>
+            <div><dt>Lucro no mês</dt><dd id="dMes">–</dd></div>
+          </dl>
+          <p class="res__foot" id="resFoot"></p>
+        </div>
+
+        <div class="panel" style="margin-top:16px">
+          <p class="panel__h">O mesmo pedido, vendido pelo WhatsApp</p>
+          <dl class="res" style="border:0;box-shadow:none">
+            <div><dt>Preço cobrado</dt><dd id="wPreco">–</dd></div>
+            <div><dt>Taxa do meio de pagamento</dt><dd id="wTaxa">–</dd></div>
+            <div><dt>Ingredientes, embalagem e entrega</dt><dd id="wCusto">–</dd></div>
+            <div><dt>Imposto</dt><dd id="wImp">–</dd></div>
+            <div class="is-hi"><dt>Lucro por pedido</dt><dd id="wLuc">–</dd></div>
+            <div><dt>Diferença por pedido</dt><dd id="wDif">–</dd></div>
+            <div class="is-hi"><dt>Diferença no mês</dt><dd id="wMes">–</dd></div>
+          </dl>
+          <label class="field" for="taxaPix" style="margin-top:14px">
+            <span class="field__l">Taxa do seu meio de pagamento</span>
+            <span class="field__box"><input id="taxaPix" type="text" inputmode="decimal" value="0,99"><span class="field__fix">%</span></span>
+            <span class="field__help">Pix costuma ficar perto de 1% ou zero, cartão de crédito na maquininha fica bem acima disso.</span>
+          </label>
+        </div>
+      </div>
+    </div>
+
+    <p class="note" style="margin-top:20px">
+      <b>Confira os percentuais no seu contrato antes de decidir preço.</b> As taxas do iFood variam
+      por plano, praça, categoria e negociação, e mudam com o tempo. Os valores que já vêm
+      preenchidos são referências públicas e servem de ponto de partida; o número que vale para o
+      seu negócio está no seu extrato semanal.
+    </p>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <div class="head scroll-reveal scroll-reveal--fade-up">
+        <h2>Como calcular o preço de venda no iFood</h2>
+        <p>A conta erra sempre no mesmo ponto: somar o percentual em cima do custo em vez de dividir pelo que sobra.</p>
+      </div>
+      <ol class="steps scroll-reveal scroll-reveal--fade-up" style="margin-top:26px">
+        <li>
+          <b>1</b>
+          <div>
+            <h3>Junte tudo que sai em reais</h3>
+            <p>Ingredientes, embalagem, descartáveis e, quando a entrega é sua, o custo real dela. Esse bloco não muda com o preço, então ele fica no numerador da conta.</p>
+          </div>
+        </li>
+        <li>
+          <b>2</b>
+          <div>
+            <h3>Junte tudo que sai em percentual</h3>
+            <p>Comissão, taxa de transação, imposto sobre a venda, cupom que você banca e a margem que você quer. Todos incidem sobre o preço, então eles vão para o denominador.</p>
+          </div>
+        </li>
+        <li>
+          <b>3</b>
+          <div>
+            <h3>Divida, não some</h3>
+            <p>Preço igual a custos em reais dividido por 1 menos a soma dos percentuais. Com R$ 28,00 de custo e 41,2% em percentuais, o preço é 28 dividido por 0,588, ou seja, R$ 47,62. Somar 41,2% sobre os R$ 28,00 daria R$ 39,54, e nesse preço você trabalha de graça.</p>
+          </div>
+        </li>
+        <li>
+          <b>4</b>
+          <div>
+            <h3>Confira contra o preço do balcão</h3>
+            <p>Se o preço do aplicativo ficou muito acima do preço da loja, o cliente percebe e a conversão cai. Nesse caso a saída é mexer na ficha técnica ou no plano, e não fingir que a comissão não existe.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec sec--tight sec--soft">
+    <div class="wrap">
+      <div class="head scroll-reveal scroll-reveal--fade-up">
+        <h2>Onde some o dinheiro de um pedido de R$ 62,00</h2>
+        <p>O mesmo pedido, nos dois planos e no canal próprio. Ingredientes de R$ 18,60, embalagem de R$ 2,40, entrega própria de R$ 7,00 e imposto de 6%.</p>
+      </div>
+      <div class="tbl-wrap scroll-reveal scroll-reveal--fade-up" style="margin-top:26px">
+        <table class="tbl">
+          <caption>
+            Comissões de referência de 12% e 27%, taxa de transação de 3,2% e taxa de Pix de 0,99%
+            no canal próprio. No plano com entrega do iFood o custo de R$ 7,00 de entrega sai da
+            conta do restaurante, o que explica parte da comissão maior.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Item</th>
+              <th scope="col" class="num">Entrega sua</th>
+              <th scope="col" class="num">Entrega do iFood</th>
+              <th scope="col" class="num">WhatsApp, entrega sua</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Preço cobrado</td><td class="num">R$ 62,00</td><td class="num">R$ 62,00</td><td class="num">R$ 62,00</td></tr>
+            <tr><td>Comissão</td><td class="num">R$ 7,44</td><td class="num">R$ 16,74</td><td class="num">R$ 0,00</td></tr>
+            <tr><td>Taxa de transação ou de pagamento</td><td class="num">R$ 1,98</td><td class="num">R$ 1,98</td><td class="num">R$ 0,61</td></tr>
+            <tr><td>Ingredientes e embalagem</td><td class="num">R$ 21,00</td><td class="num">R$ 21,00</td><td class="num">R$ 21,00</td></tr>
+            <tr><td>Entrega</td><td class="num">R$ 7,00</td><td class="num">R$ 0,00</td><td class="num">R$ 7,00</td></tr>
+            <tr><td>Imposto de 6%</td><td class="num">R$ 3,72</td><td class="num">R$ 3,72</td><td class="num">R$ 3,72</td></tr>
+            <tr><td><b>Lucro por pedido</b></td><td class="num">R$ 20,86</td><td class="num">R$ 18,56</td><td class="num">R$ 29,67</td></tr>
+            <tr><td><b>Margem</b></td><td class="num">33,6%</td><td class="num">29,9%</td><td class="num">47,9%</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="note scroll-reveal scroll-reveal--fade-up" style="margin-top:22px">
+        <b>A diferença por pedido é de R$ 8,81 entre o plano de entrega própria e o WhatsApp.</b>
+        Com 600 pedidos por mês, isso dá R$ 5.286,00. O número não quer dizer que o iFood deva sair
+        do jogo; quer dizer que cada cliente recorrente que migra para o canal próprio vale bastante
+        dinheiro, e que faz sentido pagar pelo primeiro pedido no marketplace e trabalhar para o
+        segundo vir direto.
+      </p>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <div class="head scroll-reveal scroll-reveal--fade-up">
+        <h2>Como levar o cliente do aplicativo para o WhatsApp sem quebrar regra</h2>
+        <p>O contrato do marketplace proíbe usar a plataforma para desviar pedido. O que sobra é bastante, e é legítimo.</p>
+      </div>
+      <div class="grid grid--3">
+        <div class="card scroll-reveal scroll-reveal--fade-up">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-check"></use></svg></span></div>
+          <h3>Coloque o WhatsApp na embalagem</h3>
+          <p>Um adesivo com QR code na sacola ou na caixa é seu, não da plataforma. Quem já recebeu o pedido e gostou é o público mais barato de converter que existe.</p>
+        </div>
+        <div class="card scroll-reveal scroll-reveal--fade-up" style="--reveal-delay:.08s">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-wa"></use></svg></span></div>
+          <h3>Anuncie o canal próprio fora do app</h3>
+          <p>Instagram, fachada, cardápio de mesa e Google Empresas são canais seus. Coloque o link do WhatsApp com a mensagem já pronta em todos eles.</p>
+        </div>
+        <div class="card scroll-reveal scroll-reveal--fade-up" style="--reveal-delay:.16s">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-check"></use></svg></span></div>
+          <h3>Dê motivo, não só endereço</h3>
+          <p>Combo exclusivo, entrega mais rápida no bairro ou item que não está no aplicativo. Mudança de canal sem vantagem clara não acontece.</p>
+        </div>
+      </div>
+      <p style="margin-top:22px;font-size:.9375rem;color:var(--ink-2);max-width:70ch">
+        Precisa do adesivo?
+        <a href="/ferramentas/gerador-de-qr-code-whatsapp/" style="color:var(--moss);font-weight:600">Gere o QR code do seu WhatsApp em SVG</a>,
+        no tamanho certo para colar na embalagem.
+      </p>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap faq">
+      <div class="head head--center scroll-reveal scroll-reveal--fade-up">
+        <p class="label">Perguntas frequentes</p>
+        <h2>Dúvidas sobre as taxas do iFood</h2>
+      </div>
+      <div class="faq__list scroll-reveal scroll-reveal--fade-up">
+        <details>
+          <summary>Quanto o iFood cobra por pedido?</summary>
+          <p>A cobrança tem duas partes. A comissão sobre o valor do pedido muda conforme o plano: no plano em que o restaurante entrega, a referência publicada é de 12%; no plano em que a entrega é feita pela logística do iFood, a referência sobe para 27%. Sobre isso incide ainda a taxa de transação de pagamento online, com referência de 3,2%. Comissões são negociadas por praça e por categoria, então o número do seu contrato pode ser diferente e é ele que vale.</p>
+        </details>
+        <details>
+          <summary>Como calcular o preço de venda no iFood?</summary>
+          <p>Some tudo que sai do seu bolso por pedido: custo do produto, embalagem e entrega quando ela é sua. Depois divida esse valor por 1 menos a soma dos percentuais que saem do preço, que são comissão, taxa de transação, imposto, cupom que você banca e a margem que você quer. O resultado é o preço que precisa estar no cardápio. A calculadora desta página faz essa divisão e mostra a conta aberta.</p>
+        </details>
+        <details>
+          <summary>Posso cobrar mais caro no iFood do que no balcão?</summary>
+          <p>Pode. O preço no aplicativo é definido por você e a prática de trabalhar com um cardápio de preços diferentes é comum no setor, justamente porque os custos do canal são diferentes. O que o Código de Defesa do Consumidor exige é que o preço esteja informado de forma clara e correta em cada canal, sem cobrar do cliente valor diferente do anunciado.</p>
+        </details>
+        <details>
+          <summary>Quem paga o cupom de desconto do iFood?</summary>
+          <p>Depende da campanha. Existem cupons bancados pela plataforma, existem os bancados pelo restaurante e existem os divididos entre os dois. Na hora de calcular, o que importa é a sua parte, porque ela sai do preço antes da comissão. Um cupom de 20% bancado por você em um pedido de R$ 60 tira R$ 12 do seu bolso, e a comissão continua sendo calculada sobre o valor cheio.</p>
+        </details>
+        <details>
+          <summary>Vale a pena atender pelo WhatsApp em vez do iFood?</summary>
+          <p>O pedido pelo WhatsApp não paga comissão de marketplace, então a margem é bem maior no mesmo preço. Em compensação, o iFood traz demanda que você não teria e o WhatsApp exige que alguém atenda. A conta que decide não é qual canal é melhor, e sim quanto do seu volume já vem de cliente recorrente, porque cliente que já conhece o restaurante custa caro no marketplace e barato no canal próprio.</p>
+        </details>
+        <details>
+          <summary>A comissão do iFood incide sobre a taxa de entrega?</summary>
+          <p>A base de cálculo da comissão é o valor dos itens do pedido. A taxa de entrega cobrada do cliente tem tratamento próprio e varia conforme o plano contratado e a praça. Como esse detalhe muda por contrato, a calculadora trabalha com o valor dos itens e deixa a entrega como um custo separado, que você preenche quando a entrega é sua.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <p class="label">Fontes</p>
+      <ul class="sources" style="margin-top:16px">
+        <li><a href="https://parceiros.ifood.com.br/" target="_blank" rel="noopener noreferrer">Planos e taxas para parceiros</a> <span>· iFood</span></li>
+        <li><a href="https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm" target="_blank" rel="noopener noreferrer">Código de Defesa do Consumidor, artigos 30 e 31</a> <span>· Presidência da República</span></li>
+        <li><a href="http://normas.receita.fazenda.gov.br/" target="_blank" rel="noopener noreferrer">Anexos e alíquotas do Simples Nacional</a> <span>· Receita Federal</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <div class="cta">
+        <p class="label label--night">O canal próprio precisa de gente</p>
+        <h2 style="margin-top:14px">Pedido pelo WhatsApp rende mais e dá mais trabalho</h2>
+        <p>
+          Sem comissão a margem sobe, e o custo aparece do outro lado: alguém precisa responder,
+          anotar, confirmar e lembrar quem já comprou. O Pipe atende pela API oficial, mantém o
+          histórico de cada cliente e transforma a conversa em cadastro no CRM.
+        </p>
+        <div class="cta__act">
+          <a class="btn btn--primary" href="/#demo">Agendar demonstração</a>
+          <a class="btn btn--night" href="/ferramentas/gerador-de-link-whatsapp/">Criar o link do meu WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="ft">
+  <div class="wrap">
+    <div class="ft__grid">
+      <div class="ft__brand">
+        <img src="/assets/pipe-lockup-cream.svg" width="420" height="190" alt="Pipe">
+        <p>Atendimento no WhatsApp pela API oficial, com CRM alimentado pelas conversas e monitoria de qualidade por IA.</p>
+      </div>
+      <div>
+        <p class="ft__h">Produto</p>
+        <nav aria-label="Produto">
+          <a href="/#produto">Atendimento</a>
+          <a href="/#produto">CRM pelas conversas</a>
+          <a href="/#monitoria">Monitoria com IA</a>
+          <a href="/#precos">Preços</a>
+        </nav>
+      </div>
+      <div>
+        <p class="ft__h">Ferramentas</p>
+        <nav aria-label="Ferramentas">
+          <a href="/ferramentas/gerador-de-link-whatsapp/">Gerador de link do WhatsApp</a>
+          <a href="/ferramentas/gerador-de-qr-code-whatsapp/">Gerador de QR code</a>
+          <a href="/ferramentas/agendador-de-mensagem-whatsapp/">Agendador de mensagem</a>
+          <a href="/ferramentas/calculadora-de-nps/">Calculadora de NPS</a>
+          <a href="/ferramentas/calculadora-de-taxas-do-ifood/">Calculadora de taxas do iFood</a>
+        </nav>
+      </div>
+      <div>
+        <p class="ft__h">Empresa</p>
+        <nav aria-label="Empresa">
+          <a href="/blog/">Blog</a>
+          <a href="/#demo">Falar com a gente</a>
+          <a href="/privacidade/">Privacidade</a>
+          <a href="/termos/">Termos de uso</a>
+        </nav>
+      </div>
+    </div>
+    <div class="ft__bar">
+      <p>© 2026 Pipe. Todos os direitos reservados.</p>
+      <p>WhatsApp é marca da Meta Platforms. O Pipe não tem vínculo com a Meta.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+<script>
+/* Calculadora de taxas do iFood.
+   O que sai em reais (ingredientes, embalagem, entrega) fica fixo; o que sai em
+   percentual (comissão, transação, imposto, cupom) incide sobre o preço. Daí as
+   duas contas:
+     lucro = P*(1 - com - tra - cup - imp) - custosFixos
+     preço = custosFixos / (1 - com - tra - cup - imp - margem)
+   Somar percentual sobre o custo, em vez de dividir, é o erro que faz o
+   restaurante trabalhar de graça. */
+(function () {
+  "use strict";
+
+  var modo = "sobra";
+  var ids = ["preco", "margemAlvo", "custo", "embalagem", "pedidosMes", "plano",
+             "comissao", "transacao", "entrega", "cupom", "imposto", "taxaPix"];
+  var el = {};
+  ids.forEach(function (id) { el[id] = document.getElementById(id); });
+
+  var wrapPreco = document.getElementById("wrapPreco");
+  var wrapMargem = document.getElementById("wrapMargem");
+
+  function num(v) {
+    var s = String(v == null ? "" : v).trim().replace(/\./g, "").replace(",", ".");
+    var n = parseFloat(s);
+    return Number.isFinite(n) && n >= 0 ? n : 0;
+  }
+
+  var moeda = function (n) {
+    return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  };
+  var pct = function (n) {
+    return n.toLocaleString("pt-BR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + "%";
+  };
+  var texto = function (id, v) { document.getElementById(id).textContent = v; };
+
+  /* Guarda o custo da entrega própria para devolver quando o usuário sai e
+     volta do plano com entrega do iFood. Sem isso o campo volta zerado e a
+     conta do canal próprio sai errada sem ninguém perceber. */
+  var custoEntregaPropria = el.entrega.value;
+
+  function aplicarPlano() {
+    var p = el.plano.value;
+    if (p === "entrega") {
+      if (!el.entrega.disabled) custoEntregaPropria = el.entrega.value;
+      el.comissao.value = "27";
+      el.entrega.value = "0,00";
+      el.entrega.disabled = true;
+    } else {
+      if (el.entrega.disabled) el.entrega.value = custoEntregaPropria;
+      el.entrega.disabled = false;
+      if (p === "basico") el.comissao.value = "12";
+    }
+  }
+
+  function atualizar() {
+    var custo = num(el.custo.value);
+    var emb = num(el.embalagem.value);
+    var ent = el.plano.value === "entrega" ? 0 : num(el.entrega.value);
+    var pedidos = Math.round(num(el.pedidosMes.value));
+
+    var com = num(el.comissao.value) / 100;
+    var tra = num(el.transacao.value) / 100;
+    var cup = num(el.cupom.value) / 100;
+    var imp = num(el.imposto.value) / 100;
+    var pix = num(el.taxaPix.value) / 100;
+
+    var fixos = custo + emb + ent;
+    var percentuais = com + tra + cup + imp;
+
+    var preco;
+    var margemAlvo = num(el.margemAlvo.value) / 100;
+
+    if (modo === "preco") {
+      var divisor = 1 - percentuais - margemAlvo;
+      if (divisor <= 0) {
+        texto("resLbl", "Preço para a margem pedida");
+        texto("resVal", "impossível");
+        texto("resSub", "A soma das taxas, do imposto, do cupom e da margem passou de 100% do preço. Nenhum preço fecha essa conta: é preciso reduzir a margem pedida, o cupom ou o plano.");
+        texto("resFoot", "Taxas e margem somam " + pct((percentuais + margemAlvo) * 100) + " do preço de venda.");
+        ["dPreco","dCupom","dCom","dTra","dRep","dCmv","dEnt","dImp","dLuc","dMar","dMes",
+         "wPreco","wTaxa","wCusto","wImp","wLuc","wDif","wMes"].forEach(function (i) { texto(i, "–"); });
+        return;
+      }
+      preco = fixos / divisor;
+    } else {
+      preco = num(el.preco.value);
+    }
+
+    if (preco <= 0) {
+      texto("resVal", "R$ 0,00");
+      texto("resSub", "Preencha o preço do cardápio.");
+      return;
+    }
+
+    var vCupom = preco * cup;
+    var vCom = preco * com;
+    var vTra = preco * tra;
+    var vImp = preco * imp;
+    var repasse = preco - vCupom - vCom - vTra;
+    var lucro = repasse - custo - emb - ent - vImp;
+    var margem = (lucro / preco) * 100;
+
+    if (modo === "preco") {
+      texto("resLbl", "Preço para o cardápio");
+      texto("resVal", moeda(preco));
+      texto("resSub", "Com esse preço sobram " + moeda(lucro) + " por pedido, o que dá " +
+        pct(margem) + " de margem sobre a venda.");
+    } else {
+      texto("resLbl", "Sobra por pedido");
+      texto("resVal", moeda(lucro));
+      texto("resSub", lucro >= 0
+        ? "São " + pct(margem) + " de margem sobre o preço de " + moeda(preco) + "."
+        : "Este pedido dá prejuízo de " + moeda(Math.abs(lucro)) + ". O preço não cobre custo mais taxas.");
+    }
+
+    texto("resFoot", "Taxas e imposto tomam " + pct(percentuais * 100) + " do preço, o que dá " +
+      moeda(preco * percentuais) + " neste pedido. Custos em reais somam " + moeda(fixos) + ".");
+
+    texto("dPreco", moeda(preco));
+    texto("dCupom", cup > 0 ? "-" + moeda(vCupom) : moeda(0));
+    texto("dCom", "-" + moeda(vCom) + " · " + pct(com * 100));
+    texto("dTra", "-" + moeda(vTra) + " · " + pct(tra * 100));
+    texto("dRep", moeda(repasse));
+    texto("dCmv", "-" + moeda(custo + emb));
+    texto("dEnt", ent > 0 ? "-" + moeda(ent) : "entrega do iFood");
+    texto("dImp", "-" + moeda(vImp));
+    texto("dLuc", moeda(lucro));
+    texto("dMar", pct(margem));
+    texto("dMes", pedidos > 0 ? moeda(lucro * pedidos) : "–");
+
+    /* Canal próprio: mesmo preço, mesmos custos, sem comissão e sem taxa de
+       transação do marketplace. A entrega continua sendo do restaurante. */
+    var entProprio = el.plano.value === "entrega" ? num(custoEntregaPropria) : ent;
+    var wTaxa = preco * pix;
+    var wLucro = preco - wTaxa - custo - emb - entProprio - vImp;
+    var dif = wLucro - lucro;
+
+    texto("wPreco", moeda(preco));
+    texto("wTaxa", "-" + moeda(wTaxa) + " · " + pct(pix * 100));
+    texto("wCusto", "-" + moeda(custo + emb + entProprio));
+    texto("wImp", "-" + moeda(vImp));
+    texto("wLuc", moeda(wLucro));
+    texto("wDif", (dif >= 0 ? "+" : "") + moeda(dif));
+    texto("wMes", pedidos > 0 ? (dif >= 0 ? "+" : "") + moeda(dif * pedidos) : "–");
+  }
+
+  document.querySelectorAll("[data-modo]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      modo = b.getAttribute("data-modo");
+      document.querySelectorAll("[data-modo]").forEach(function (o) {
+        o.setAttribute("aria-pressed", String(o === b));
+      });
+      wrapPreco.hidden = modo === "preco";
+      wrapMargem.hidden = modo !== "preco";
+      atualizar();
+    });
+  });
+
+  el.plano.addEventListener("change", function () { aplicarPlano(); atualizar(); });
+  el.entrega.addEventListener("input", function () {
+    if (!el.entrega.disabled) custoEntregaPropria = el.entrega.value;
+  });
+  ids.forEach(function (id) {
+    if (id === "plano") return;
+    el[id].addEventListener("input", atualizar);
+    el[id].addEventListener("change", atualizar);
+  });
+
+  atualizar();
+})();
+</script>
+</body>
+</html>
