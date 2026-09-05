@@ -100,6 +100,21 @@ Duas lições caras que vêm de graça junto, registradas no próprio `blip-dash
   fundo/borda/texto num token só, porque duas cópias de um hex sempre viram duas cores diferentes.
   O Pipe usa o mesmo padrão no monitoramento e na fila de avaliação.
 
+**O que o `twenty-ui` dá e o que ele não dá.** Ele entrega a arquitetura de tema (objeto TypeScript
+tipado, `spacing()` como múltiplo de 4px, tokens de componente centralizados), a escala de raio
+(2/4/8/16/999), a fachada de ícones sobre o Tabler Icons, e os primitivos: Button, IconButton,
+Checkbox, Radio, Toggle, Avatar, Modal, Tooltip, Loader e a família `MenuItem*` que compõe dropdown.
+
+Ele **não** entrega tabela nem board — isso mora no `twenty-front`, que é AGPL e está fora do que
+podemos copiar. Também não há virtualização em nenhuma das duas referências: o Chatwoot faz rolagem
+infinita por `IntersectionObserver`. Como as filas e listas do Pipe serão genuinamente grandes,
+tabela e virtualização entram por bibliotecas MIT próprias — **TanStack Table** e **TanStack
+Virtual** — e não por cópia.
+
+Uma lacuna comum às duas referências que o Pipe resolve desde o início: nenhuma tem um
+**Chip/Badge genérico**; cada uma reimplementa o seu por contexto. No Pipe é um componente só,
+porque etiqueta, faixa de score, status de SLA e conceito de avaliação são todos a mesma forma.
+
 ### Por que a lógica vive em `packages/core`
 
 Score, esforço, SLA, distribuição por carga e cálculo de métrica são funções puras: entram dados,
