@@ -1,3 +1,5 @@
-// Filas BullMQ: entrega de mensagem, IA, agregações
-// Esqueleto da fase 1: o conteúdo entra nas fases seguintes do roteiro (§9 da spec).
-export {};
+export * from './agregacao.js';
+export * from './banco.js';
+export * from './entrega.js';
+export * from './filas.js';
+export * from './whatsapp/index.js';
