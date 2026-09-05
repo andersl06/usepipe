@@ -46,6 +46,51 @@ export const EMAIL_ATENDENTE_DEMO = 'ana.ribeiro@demo.pipe.app';
 const MIN = 60_000;
 const HORA = 60 * MIN;
 
+/**
+ * O que esta semente considera "dela". É por estas listas que a limpeza acontece — e é
+ * por isso que acrescentar gente nova aqui exige acrescentar o e-mail na lista também.
+ */
+const EMAILS_CONTATO = [
+  'marcelo.tavares@exemplo.com.br',
+  'juliana.prado@exemplo.com.br',
+  'financeiro@alencarcontabil.com.br',
+  'diego.matos@exemplo.com',
+  'cassia.bernardes@exemplo.com.br',
+  'psmuniz@exemplo.com.br',
+];
+
+const NOMES_CANAL = ['WhatsApp Oficial', 'E-mail de atendimento', 'Chat do site'];
+
+const ATALHOS_RESPOSTA = [
+  'saudacao',
+  'proposta-anual',
+  'desconto-avista',
+  'horario',
+  'comprovante',
+  'agendar-call',
+  'obrigado',
+];
+
+const NOMES_ETIQUETA = [
+  'proposta-enviada',
+  'desconto',
+  'anual',
+  'primeiro-contato',
+  'cliente-antigo',
+  'resolvido',
+  'nao-resolvido',
+  'sem-resposta-do-cliente',
+  'fora-de-escopo',
+];
+
+const NOMES_MOTIVO_PAUSA = [
+  'Almoço',
+  'Banheiro',
+  'Reunião',
+  'Treinamento',
+  'Feedback com supervisor',
+];
+
 export interface ResultadoSementeDemo {
   tenantId: string;
   atendenteId: string;
@@ -62,45 +107,79 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
   const agora = new Date();
   const atras = (ms: number) => new Date(agora.getTime() - ms);
 
-  // --- limpeza do que esta semente cria, na ordem das chaves estrangeiras ---
-  const conversasAntigas = await db
-    .select({ id: conversa.id })
-    .from(conversa)
-    .where(eq(conversa.tenantId, tenantId));
-  const idsConversa = conversasAntigas.map((c) => c.id);
-  if (idsConversa.length > 0) {
-    await db.delete(mensagem).where(inArray(mensagem.conversaId, idsConversa));
-    await db.delete(notaInterna).where(inArray(notaInterna.conversaId, idsConversa));
-    await db.delete(conversaEtiqueta).where(inArray(conversaEtiqueta.conversaId, idsConversa));
-    await db
-      .delete(classificacaoConversa)
-      .where(inArray(classificacaoConversa.conversaId, idsConversa));
-    await db.delete(conversa).where(eq(conversa.tenantId, tenantId));
+  // --- limpeza escopada ao que esta semente cria, na ordem das chaves estrangeiras ---
+  //
+  // Apaga por nome e por e-mail, e não por tenant: o banco de desenvolvimento é
+  // compartilhado com o Pipe Gestão, e uma semente de demonstração que limpa o tenant
+  // inteiro apaga o trabalho de quem está do lado.
+  const contatosAntigos = await db
+    .select({ id: contato.id })
+    .from(contato)
+    .where(inArray(contato.email, EMAILS_CONTATO));
+  const idsContato = contatosAntigos.map((c) => c.id);
+  if (idsContato.length > 0) {
+    const conversasAntigas = await db
+      .select({ id: conversa.id })
+      .from(conversa)
+      .where(inArray(conversa.contatoId, idsContato));
+    const idsConversa = conversasAntigas.map((c) => c.id);
+    if (idsConversa.length > 0) {
+      await db.delete(mensagem).where(inArray(mensagem.conversaId, idsConversa));
+      await db.delete(notaInterna).where(inArray(notaInterna.conversaId, idsConversa));
+      await db.delete(conversaEtiqueta).where(inArray(conversaEtiqueta.conversaId, idsConversa));
+      await db
+        .delete(classificacaoConversa)
+        .where(inArray(classificacaoConversa.conversaId, idsConversa));
+      await db.delete(conversa).where(inArray(conversa.id, idsConversa));
+    }
+    await db.delete(contatoEtiqueta).where(inArray(contatoEtiqueta.contatoId, idsContato));
+    await db.delete(contato).where(inArray(contato.id, idsContato));
   }
-  await db.delete(contatoEtiqueta).where(eq(contatoEtiqueta.tenantId, tenantId));
-  await db.delete(contato).where(eq(contato.tenantId, tenantId));
-  await db.delete(inbox).where(eq(inbox.tenantId, tenantId));
-  await db.delete(templateMensagem).where(eq(templateMensagem.tenantId, tenantId));
-  await db.delete(canal).where(eq(canal.tenantId, tenantId));
-  await db.delete(respostaPronta).where(eq(respostaPronta.tenantId, tenantId));
-  await db.delete(etiqueta).where(eq(etiqueta.tenantId, tenantId));
-  await db.delete(statusAtendente).where(eq(statusAtendente.tenantId, tenantId));
-  await db.delete(filaAtendente).where(eq(filaAtendente.tenantId, tenantId));
-  await db.delete(motivoPausa).where(eq(motivoPausa.tenantId, tenantId));
-  await db.delete(usuario).where(eq(usuario.tenantId, tenantId));
+
+  const canaisAntigos = await db
+    .select({ id: canal.id })
+    .from(canal)
+    .where(inArray(canal.nome, NOMES_CANAL));
+  const idsCanal = canaisAntigos.map((c) => c.id);
+  if (idsCanal.length > 0) {
+    await db.delete(inbox).where(inArray(inbox.canalId, idsCanal));
+    await db.delete(templateMensagem).where(inArray(templateMensagem.canalId, idsCanal));
+    await db.delete(canal).where(inArray(canal.id, idsCanal));
+  }
+
+  await db.delete(respostaPronta).where(inArray(respostaPronta.atalho, ATALHOS_RESPOSTA));
+  await db.delete(etiqueta).where(inArray(etiqueta.nome, NOMES_ETIQUETA));
+  await db.delete(motivoPausa).where(inArray(motivoPausa.nome, NOMES_MOTIVO_PAUSA));
 
   // --- gente ---
-  const anaId = randomUUID();
-  const brunoId = randomUUID();
-  const carlaId = randomUUID();
-  await db.insert(usuario).values([
-    { id: anaId, tenantId, nome: 'Ana Ribeiro', email: EMAIL_ATENDENTE_DEMO },
-    { id: brunoId, tenantId, nome: 'Bruno Faria', email: 'bruno.faria@demo.pipe.app' },
-    { id: carlaId, tenantId, nome: 'Carla Nunes', email: 'carla.nunes@demo.pipe.app' },
-  ]);
+  //
+  // Usuário é reaproveitado pelo e-mail, nunca recriado: apagar um atendente solta o
+  // `atendente_id` de toda conversa que ele já tinha, e num banco de desenvolvimento
+  // compartilhado isso é apagar o trabalho alheio.
+  const garantirUsuario = async (nome: string, email: string): Promise<string> => {
+    const [existente] = await db
+      .select({ id: usuario.id })
+      .from(usuario)
+      .where(eq(usuario.email, email))
+      .limit(1);
+    if (existente) return existente.id;
+    const id = randomUUID();
+    await db.insert(usuario).values({ id, tenantId, nome, email });
+    return id;
+  };
+
+  const anaId = await garantirUsuario('Ana Ribeiro', EMAIL_ATENDENTE_DEMO);
+  await garantirUsuario('Bruno Faria', 'bruno.faria@demo.pipe.app');
+  await garantirUsuario('Carla Nunes', 'carla.nunes@demo.pipe.app');
 
   // O padrão ao entrar é Invisível: ninguém recebe conversa sem afirmar que está pronto.
-  await db.insert(statusAtendente).values({ usuarioId: anaId, tenantId, estado: 'invisivel' });
+  await db
+    .insert(statusAtendente)
+    .values({ usuarioId: anaId, tenantId, estado: 'invisivel' })
+    .onConflictDoUpdate({
+      target: statusAtendente.usuarioId,
+      set: { estado: 'invisivel', desde: agora },
+    });
 
   await db.insert(motivoPausa).values([
     { tenantId, nome: 'Almoço', duracaoSugeridaMin: 60 },
@@ -127,7 +206,7 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
       filaId,
       usuarioId: anaId,
     })),
-  );
+  ).onConflictDoNothing();
 
   // --- canais e inboxes ---
   const canalWhatsId = randomUUID();
