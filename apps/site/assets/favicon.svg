@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-14 -14 136 136" role="img" aria-label="Pipe">
+  <rect x="-14" y="-14" width="136" height="136" rx="26" fill="#F2F1EC"/>
+  <g fill="none" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9,99 V36 Q9,9 36,9 H63" stroke="#111111"/>
+    <path d="M99,9 V72 Q99,99 72,99 H36" stroke="#4A5D23"/>
+  </g>
+</svg>

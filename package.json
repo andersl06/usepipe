@@ -1,0 +1,32 @@
+{
+  "name": "pipe",
+  "version": "0.1.0",
+  "private": true,
+  "description": "CRM + atendimento + monitoria com IA",
+  "packageManager": "pnpm@10.34.5",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "build": "turbo run build",
+    "typecheck": "turbo run typecheck",
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "format": "prettier --write .",
+    "banco:subir": "docker compose up -d postgres redis",
+    "banco:descer": "docker compose down",
+    "banco:migrar": "pnpm --filter @pipe/db migrar",
+    "banco:semear": "pnpm --filter @pipe/db semear"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@types/node": "^22.10.2",
+    "eslint": "^9.39.0",
+    "eslint-config-prettier": "^10.1.8",
+    "prettier": "^3.6.2",
+    "turbo": "^2.5.8",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.46.0",
+    "vitest": "^3.2.4"
+  }
+}

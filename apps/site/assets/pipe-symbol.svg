@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="-12 -12 132 132" role="img" aria-label="Pipe">
+  <g fill="none" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9,99 V36 Q9,9 36,9 H63" stroke="#111111"/>
+    <path d="M99,9 V72 Q99,99 72,99 H36" stroke="#4A5D23"/>
+  </g>
+</svg>
