@@ -138,9 +138,11 @@ a {
 .side {
   background: var(--surface-2);
   border-right: 1px solid var(--line);
-  padding: 12px 10px 24px;
+  padding: 12px 10px 12px;
   overflow-y: auto;
-  max-height: 100vh;
+  /* Altura exata da janela, não teto: é o que põe a engrenagem no rodapé em vez
+     de a empurrar para fora quando o conteúdo da tela é mais alto que o menu. */
+  height: 100vh;
   position: sticky;
   top: 0;
 }
@@ -290,10 +292,8 @@ a {
 }
 
 .pill {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
+  font-size: 10.5px;
   font-weight: 500;
-  letter-spacing: 0.06em;
   padding: 2px 6px;
   border-radius: 4px;
   border: 1px solid transparent;
@@ -677,7 +677,7 @@ tr.critico td {
 
   .side {
     position: static;
-    max-height: none;
+    height: auto;
     border-right: 0;
     border-bottom: 1px solid var(--line);
   }
@@ -989,16 +989,14 @@ tr.critico td {
   border-bottom: 0;
 }
 
+/* Rótulo de campo em sans e caixa normal: a monoespaçada em caixa alta é a
+   assinatura da marca, mas repetida em toda linha vira barulho. */
 .campos dt,
 .campos .k {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: 11.5px;
   color: var(--ink-3);
-  width: 116px;
+  width: 124px;
   flex: none;
-  /* Código de campo não tem espaço para quebrar: sem isto ele invade o valor. */
   overflow-wrap: anywhere;
 }
 
@@ -1109,4 +1107,214 @@ tr.critico td {
   .ficha {
     grid-template-columns: 1fr;
   }
+}
+
+/* ==========================================================================
+   Estrutura: o menu enxuto, as configurações atrás da engrenagem, e um painel
+   com hierarquia. Cada bloco aqui existe para tirar peso visual de algum lugar.
+   ========================================================================== */
+
+/* ------------------------------------------------------ engrenagem e voltar */
+.side .engrenagem {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: auto;
+  padding: 7px 8px;
+  border-top: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--ink-3);
+  font-size: 12.5px;
+  text-decoration: none;
+}
+
+.side .engrenagem:hover {
+  background: var(--surface-3);
+  color: var(--ink-2);
+}
+
+.side .engrenagem svg {
+  width: 14px;
+  height: 14px;
+  flex: none;
+}
+
+.side .voltar-menu {
+  display: block;
+  padding: 5px 8px 12px;
+  font-size: 12px;
+  color: var(--ink-3);
+  text-decoration: none;
+}
+
+.side .voltar-menu:hover {
+  color: var(--moss);
+  background: transparent;
+}
+
+/* O menu de trabalho é curto: a engrenagem precisa do rodapé, não do fim da lista. */
+.side {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ----------------------------------------------- painel: a linha de resumo */
+/* Sem caixa, sem borda, tipografia menor que a do funil. É legenda, não assunto. */
+.resumo {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0 28px;
+  padding: 2px 2px 6px;
+}
+
+.resumo > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.resumo b {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 17px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.resumo span {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+/* ------------------------------------------------ painel: o funil em destaque */
+.destaque {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.destaque > header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.destaque > header h3 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.destaque > header .sub {
+  margin-right: auto;
+}
+
+.destaque > footer {
+  padding: 11px 18px;
+  border-top: 1px solid var(--line);
+  background: var(--surface-2);
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.funil-barras {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 18px;
+}
+
+.etapa {
+  display: grid;
+  grid-template-columns: 108px minmax(0, 1fr) 108px 46px;
+  align-items: center;
+  gap: 14px;
+}
+
+.etapa .nome {
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.etapa .track {
+  height: 22px;
+  border-radius: 5px;
+  background: var(--surface-3);
+  overflow: hidden;
+  display: block;
+}
+
+.etapa .fill {
+  height: 100%;
+  border-radius: 5px;
+  background: var(--sage);
+  display: block;
+}
+
+.etapa .valor,
+.etapa .qtd {
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  font-size: 12.5px;
+}
+
+.etapa .valor {
+  color: var(--ink);
+}
+
+.etapa .qtd {
+  color: var(--ink-3);
+  font-size: 11px;
+}
+
+/* --------------------------------------------- painel: o apoio, abaixo do funil */
+.apoio {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 12px;
+  align-items: start;
+}
+
+/* ------------------------------------------------------- lista: agrupamento */
+.tblhead .campo {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+tr.grupo th {
+  background: var(--surface-2);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ink);
+  padding: 8px 12px;
+  border-top: 1px solid var(--line);
+}
+
+/* Contagem ao lado do rótulo: número é monoespaçado, texto não. */
+.qt {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  color: var(--ink-3);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Nome de fase é nome, não rótulo de seção: sans, caixa normal. */
+.lane header .fase {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ink);
 }
