@@ -70,7 +70,7 @@ Permissão é capacidade nomeada (`conversa.transferir`, `relatorio.esforco.ver`
 
 | Tabela | Colunas principais |
 |---|---|
-| `canal` | `tenant_id`, `tipo` (`whatsapp_cloud`\|`email`\|`widget`), `nome`, `config jsonb` **cifrada**, `ativo` |
+| `canal` | `tenant_id`, `tipo` (`whatsapp_cloud`\|`instagram`\|`email`\|`widget`), `nome`, `config jsonb` **cifrada**, `ativo` |
 | `inbox` | `tenant_id`, `canal_id`, `nome`, `fila_padrao_id` |
 | `fila` | `tenant_id`, `nome`, `cor`, `horario_id`, `capacidade_padrao`, `ordem`, `ativa` |
 | `fila_atendente` | `fila_id`, `usuario_id`, `capacidade_override` |
@@ -102,9 +102,15 @@ Mais `janela_expira_em timestamptz` e `janela_aberta_por_mensagem_id`.
 `ultima_mensagem_de` não é conveniência: é o que sustenta a trava do fechamento automático —
 não fecha quando quem deve resposta é o atendente.
 
-`janela_expira_em` é a janela de atendimento de 24 horas do WhatsApp, recalculada a cada mensagem
-de entrada do contato. Nulo significa canal sem janela (e-mail, widget). É lido pelo Desk para
-decidir se o campo é texto livre ou seletor de template, e pelo relatório de custo.
+`janela_expira_em` é a janela de atendimento, recalculada a cada mensagem de entrada do contato.
+Nulo significa canal sem janela (e-mail, widget). É lido pelo Desk para decidir se o campo é texto
+livre ou seletor de template, e pelo relatório de custo. O prazo e a ação disponível quando a
+janela fecha são **do canal**, não fixos: no WhatsApp reabre por template aprovado; no Instagram
+não existe template, então o Desk oferece outra saída.
+
+Para o Instagram, `mensagem` carrega ainda a origem da conversa em `dados jsonb`: mensagem direta,
+resposta a story (com a referência do story), menção, ou comentário promovido a conversa privada
+(com o vínculo à publicação de origem).
 
 Índices: `(tenant_id, estado, fila_id)`, `(tenant_id, atendente_id, estado)`,
 `(tenant_id, encerrada_em)`, `(tenant_id, contato_id, criada_em desc)`.

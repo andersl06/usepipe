@@ -189,9 +189,6 @@ Duas diferenças de regra que o modelo precisa suportar sem gambiarra:
 Os requisitos da tela do atendente estão detalhados em
 [`2026-09-05-desk-requisitos.md`](2026-09-05-desk-requisitos.md).
 
-Os requisitos da tela do atendente estão detalhados em
-[`2026-09-05-desk-requisitos.md`](2026-09-05-desk-requisitos.md).
-
 **Entrega de mensagem é o coração, e é onde a concorrência falha.** A lista de bugs da comunidade
 da Blip é literalmente a lista de requisitos. Portanto:
 
@@ -232,7 +229,10 @@ está há mais tempo sem receber. Vive em `packages/core`, testado com tabela de
 ### 4.4 Gestão
 
 `evento_atendimento` · `metrica_diaria` · `regra_fila` · `regra_sla` · `horario_atendimento` ·
-`esforco_atendente` · `relatorio_agendado`
+`esforco_atendente`
+
+Relatório agendado não é tabela deste módulo: quem cobre o caso é `agendamento_consulta`, no
+módulo de automação e extração, porque relatório agendado é uma consulta salva com um cron.
 
 Cada transição relevante da conversa grava um `evento_atendimento` imutável: entrou na fila,
 atribuída, primeira resposta do atendente, resposta do cliente, transferida, pausada, encerrada,
