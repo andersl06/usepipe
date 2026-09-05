@@ -1,3 +1,16 @@
-// Regras puras: score, esforço, SLA, distribuição, métricas
-// Esqueleto da fase 1: o conteúdo entra nas fases seguintes do roteiro (§9 da spec).
-export {};
+/**
+ * `@pipe/core` — regras de negócio puras do Pipe.
+ *
+ * Sem banco, sem HTTP, sem relógio implícito: toda função recebe o instante de
+ * referência por parâmetro. É o pacote onde erro de cálculo vira número errado
+ * em relatório que o cliente usa para decidir sobre gente.
+ */
+export * from './comum/tipos.js';
+export * from './comum/tempo.js';
+export * from './metricas/index.js';
+export * from './esforco/index.js';
+export * from './score/index.js';
+export * from './distribuicao/index.js';
+export * from './sla/index.js';
+export * from './conversa/index.js';
+export * from './janela/index.js';

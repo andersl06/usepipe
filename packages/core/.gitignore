@@ -1,1 +1,4 @@
 node_modules/
+dist/
+# O gerenciador do monorepo é o pnpm; lockfile de npm aqui é lixo local.
+package-lock.json
