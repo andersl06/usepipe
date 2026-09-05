@@ -1,3 +1,8 @@
-// REST + WebSocket; dono das regras de domínio
-// Esqueleto da fase 1: o conteúdo entra nas fases seguintes do roteiro (§9 da spec).
-export {};
+export * from './autenticacao.js';
+export * from './banco.js';
+export * from './dominio/entrada.js';
+export * from './dominio/envio.js';
+export * from './erros.js';
+export * from './paginacao.js';
+export * from './servidor.js';
+export * from './webhooks-saida.js';

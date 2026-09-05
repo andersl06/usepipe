@@ -2,7 +2,12 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": "src",
-    "outDir": "dist"
+    "outDir": "dist",
+    // NestJS lê os decoradores de rota em tempo de execução. `emitDecoratorMetadata`
+    // fica desligado de propósito: nenhum controlador usa injeção por tipo de
+    // construtor, então não há metadado de parâmetro para emitir — e com ele ligado
+    // o `verbatimModuleSyntax` da base obrigaria import de valor só para o decorador.
+    "experimentalDecorators": true
   },
   "include": ["src"]
 }
