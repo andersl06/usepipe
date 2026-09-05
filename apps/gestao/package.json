@@ -2,19 +2,29 @@
   "name": "@pipe/gestao",
   "version": "0.1.0",
   "private": true,
-  "description": "Monitoramento, relatórios, regras e monitoria",
+  "description": "Pipe Gestão — monitoramento, relatórios, regras e monitoria",
   "type": "module",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
-  "exports": {
-    ".": {
-      "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
-    }
-  },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "dev": "next dev --port 3100",
+    "build": "next build",
+    "start": "next start --port 3100",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint src"
+    "lint": "eslint src",
+    "seed:gestao": "tsx semente/semente-gestao.ts"
+  },
+  "dependencies": {
+    "@pipe/core": "workspace:*",
+    "@pipe/db": "workspace:*",
+    "next": "^15.5.4",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.13",
+    "@types/react-dom": "^19.1.9",
+    "dotenv": "^17.2.3",
+    "drizzle-orm": "^0.44.6",
+    "tsx": "^4.20.6",
+    "typescript": "^5.9.3"
   }
 }
