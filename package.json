@@ -17,7 +17,9 @@
     "banco:subir": "docker compose up -d postgres redis",
     "banco:descer": "docker compose down",
     "banco:migrar": "pnpm --filter @pipe/db migrar",
-    "banco:semear": "pnpm --filter @pipe/db semear"
+    "banco:semear": "pnpm --filter @pipe/db semear",
+    "seed:demo": "pnpm --filter @pipe/db semear:demo",
+    "desk": "pnpm --filter @pipe/desk dev"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",
