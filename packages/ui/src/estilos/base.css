@@ -1,0 +1,765 @@
+/* ==========================================================================
+   Pipe — base compartilhada dos três aplicativos.
+
+   Antes desta folha, `apps/desk`, `apps/gestao` e `apps/crm` tinham cada um a
+   sua cópia: 48,5 KB somados, com as linhas 1–688 do CRM idênticas byte a byte
+   às da Gestão. Tokens triplicados divergem — e divergiram.
+
+   O que muda de comportamento em relação àquelas cópias, e por quê:
+
+   - `th` deixa de ser monoespaçada. Passa a ser caixa alta na família do
+     corpo, 11px/600 — que é exatamente o que o Salesforce faz (12px/700,
+     mesma família do corpo). A monoespaçada fica para número.
+   - `.etiqueta` (a antiga `.pill`) nasce NEUTRA. Fila, canal e origem não têm
+     cor. Cor de estado é `.etiqueta.alerta` / `.erro` / `.ok`, e só entra no
+     que exige ação.
+   - Borda usa `--p-linha`, que é tinta translúcida. Ver o topo de tokens.css.
+   ========================================================================== */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--p-fundo);
+  color: var(--p-tinta);
+  font-family: var(--p-fonte);
+  font-size: var(--p-t-md);
+  line-height: var(--p-altura-linha);
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--p-destaque);
+  outline-offset: 2px;
+  border-radius: var(--p-r-xs);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* --------------------------------------------------------------- tipografia */
+
+/* Número. Tabular, para coluna alinhar. É o único papel da monoespaçada. */
+.mono,
+.num {
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Rótulo de seção e cabeçalho de coluna. Família do CORPO, caixa alta.
+   Não é monoespaçada — essa era a origem do ruído que o dono viu. */
+.lbl {
+  font-size: var(--p-rotulo-tamanho);
+  font-weight: var(--p-rotulo-peso);
+  letter-spacing: var(--p-rotulo-espaco);
+  text-transform: uppercase;
+  color: var(--p-tinta-3);
+}
+
+.sub {
+  font-size: var(--p-t-sm);
+  color: var(--p-tinta-3);
+}
+
+/* ================================================================ estrutura
+   Navegação de módulo no TOPO, horizontal. Lateral só com o contexto do
+   módulo aberto, e curta. É o que Salesforce e Blip fazem: no Salesforce a
+   tela de lista não tem lateral nenhuma (medido: zero elementos encostados à
+   esquerda com mais de 300px de altura).
+   ========================================================================= */
+
+.p-app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ------------------------------------------------------------------- topo */
+.p-topo {
+  height: var(--p-altura-topo);
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-4);
+  padding: 0 var(--p-e-4);
+  background: var(--p-superficie);
+  border-bottom: 1px solid var(--p-linha);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.p-marca {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  text-decoration: none;
+  color: var(--p-tinta);
+  flex: none;
+}
+
+.p-marca svg {
+  width: 22px;
+  height: 22px;
+  flex: none;
+}
+
+.p-marca b {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+/* Navegação horizontal de módulos. Poucos itens, e todos funcionam. */
+.p-modulos {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-1);
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.p-modulos::-webkit-scrollbar {
+  display: none;
+}
+
+.p-modulos a {
+  display: block;
+  padding: 6px 10px;
+  border-radius: var(--p-r-md);
+  font-size: var(--p-t-md);
+  color: var(--p-tinta-2);
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background var(--p-dur-instantanea) ease;
+}
+
+.p-modulos a:hover {
+  background: var(--p-superficie-3);
+}
+
+.p-modulos a[aria-current='page'] {
+  background: var(--p-destaque-fundo);
+  color: var(--p-destaque-tinta);
+  font-weight: var(--p-peso-medio);
+}
+
+/* Tudo daqui para a direita: ações da conta, não do trabalho. */
+.p-topo-fim {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-1);
+  flex: none;
+}
+
+/* ---------------------------------------------------------------- miolo */
+.p-miolo {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Lateral CONTEXTUAL: só os itens do módulo aberto. Curta por regra —
+   se passar de meia dúzia de itens, o módulo está grande demais. */
+.p-lateral {
+  width: var(--p-largura-lateral);
+  flex: none;
+  background: var(--p-superficie-2);
+  border-right: 1px solid var(--p-linha);
+  padding: var(--p-e-3) var(--p-e-2);
+  overflow-y: auto;
+  position: sticky;
+  top: var(--p-altura-topo);
+  max-height: calc(100vh - var(--p-altura-topo));
+}
+
+.p-lateral .lbl {
+  display: block;
+  padding: 0 var(--p-e-2) var(--p-e-1);
+}
+
+.p-lateral a {
+  display: block;
+  padding: 5px var(--p-e-2);
+  border-radius: var(--p-r-md);
+  font-size: var(--p-t-md);
+  color: var(--p-tinta-2);
+  text-decoration: none;
+}
+
+.p-lateral a:hover {
+  background: var(--p-superficie-3);
+}
+
+.p-lateral a[aria-current='page'] {
+  background: var(--p-destaque-fundo);
+  color: var(--p-destaque-tinta);
+  font-weight: var(--p-peso-medio);
+}
+
+.p-conteudo {
+  flex: 1;
+  min-width: 0;
+  padding: var(--p-e-4) var(--p-e-5) var(--p-e-10);
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-4);
+}
+
+/* Cabeçalho de tela. Cada tela tem UMA coisa principal; este é o rótulo dela. */
+.p-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-3);
+  flex-wrap: wrap;
+}
+
+.p-cabecalho h1,
+.p-cabecalho h2 {
+  margin: 0;
+  font-size: var(--p-t-xl);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: -0.015em;
+}
+
+.p-cabecalho-fim {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  flex-wrap: wrap;
+}
+
+/* ============================================================== primitivos */
+
+.btn {
+  font: inherit;
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-medio);
+  line-height: 1;
+  cursor: pointer;
+  padding: 7px 11px;
+  border-radius: var(--p-r-md);
+  border: 1px solid var(--p-linha-media);
+  background: var(--p-superficie);
+  color: var(--p-tinta-2);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  transition: background var(--p-dur-instantanea) ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--p-superficie-3);
+}
+
+.btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.btn.primary,
+.btn.primario {
+  background: var(--p-destaque);
+  border-color: var(--p-destaque);
+  color: var(--p-tinta-inversa);
+}
+
+.btn.primary:hover:not(:disabled),
+.btn.primario:hover:not(:disabled) {
+  background: var(--p-destaque-tinta);
+}
+
+.btn.perigo {
+  border-color: var(--p-erro-linha);
+  color: var(--p-erro-tinta);
+}
+
+.btn.perigo:hover:not(:disabled) {
+  background: var(--p-erro-fundo);
+}
+
+/* Filtro salvo da lista. É aqui que "relatório" vive agora — como recorte
+   guardado na própria lista, não como item de menu. */
+.btn.chip {
+  border-radius: var(--p-r-pilula);
+  padding: 5px 12px;
+}
+
+.btn.chip[aria-current='true'] {
+  background: var(--p-destaque-fundo);
+  border-color: var(--p-destaque-linha);
+  color: var(--p-destaque-tinta);
+}
+
+.iconbtn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie);
+  color: var(--p-tinta-2);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  flex: none;
+  transition: background var(--p-dur-instantanea) ease;
+}
+
+.iconbtn:hover:not(:disabled) {
+  background: var(--p-superficie-3);
+}
+
+.iconbtn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.iconbtn svg {
+  width: var(--p-icone-md);
+  height: var(--p-icone-md);
+}
+
+/* Etiqueta. NASCE NEUTRA — fila, canal, origem e fase não são coloridos.
+   Só ganha cor quando o que ela diz exige uma ação. */
+.etiqueta,
+.pill {
+  font-size: var(--p-t-xs);
+  font-weight: var(--p-peso-medio);
+  padding: 2px 7px;
+  border-radius: var(--p-r-sm);
+  border: 1px solid var(--p-linha);
+  background: var(--p-superficie-3);
+  color: var(--p-tinta-2);
+  white-space: nowrap;
+  display: inline-block;
+  line-height: 1.45;
+}
+
+.etiqueta.ok,
+.pill.ok {
+  background: var(--p-sucesso-fundo);
+  border-color: var(--p-sucesso-linha);
+  color: var(--p-sucesso-tinta);
+}
+
+.etiqueta.alerta,
+.pill.med {
+  background: var(--p-alerta-fundo);
+  border-color: var(--p-alerta-linha);
+  color: var(--p-alerta-tinta);
+}
+
+.etiqueta.erro,
+.pill.hi {
+  background: var(--p-erro-fundo);
+  border-color: var(--p-erro-linha);
+  color: var(--p-erro-tinta);
+}
+
+/* As antigas variantes coloridas de fila/canal/informação passam a ser
+   neutras. Os seletores continuam existindo para não quebrar marcação
+   espalhada; o que muda é que deixaram de pintar. */
+.pill.q,
+.pill.ch,
+.pill.info {
+  background: var(--p-superficie-3);
+  border-color: var(--p-linha);
+  color: var(--p-tinta-2);
+}
+
+.campo,
+.seletor {
+  font: inherit;
+  font-size: var(--p-t-md);
+  padding: 6px 10px;
+  background: var(--p-superficie);
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  color: var(--p-tinta);
+  min-width: 0;
+}
+
+.campo::placeholder {
+  color: var(--p-tinta-3);
+}
+
+.campo:focus-visible,
+.seletor:focus-visible {
+  border-color: var(--p-destaque);
+}
+
+/* ---------------------------------------------------------------- cartão */
+.card {
+  background: var(--p-superficie);
+  border: 1px solid var(--p-linha);
+  border-radius: var(--p-r-lg);
+  padding: var(--p-e-3) var(--p-e-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+}
+
+.card > h3 {
+  margin: 0;
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+}
+
+/* Número de destaque. Monoespaçada porque é número. */
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.metric .v {
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--p-t-2xl);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: -0.02em;
+  line-height: var(--p-altura-linha-curta);
+}
+
+.metric .k {
+  font-size: var(--p-t-sm);
+  color: var(--p-tinta-2);
+}
+
+/* O denominador ao lado de toda média — decisão da spec de métricas. */
+.metric .den {
+  font-family: var(--p-fonte-mono);
+  font-size: var(--p-t-xs);
+  color: var(--p-tinta-3);
+}
+
+/* Um número só fica colorido quando pede ação. `accent` some de propósito:
+   número não é lugar de cor de marca. */
+.metric.warn .v {
+  color: var(--p-alerta-tinta);
+}
+
+.metric.bad .v {
+  color: var(--p-erro-tinta);
+}
+
+.sw {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+  display: inline-block;
+}
+
+.note {
+  font-size: var(--p-t-sm);
+  color: var(--p-tinta-3);
+  border-top: 1px solid var(--p-linha);
+  padding-top: var(--p-e-2);
+  margin-top: auto;
+}
+
+/* --------------------------------------------------------------- tabela */
+.tblwrap {
+  border: 1px solid var(--p-linha);
+  border-radius: var(--p-r-lg);
+  overflow: hidden;
+  background: var(--p-superficie);
+}
+
+.tblhead {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  padding: var(--p-e-3) var(--p-e-4) 0;
+  flex-wrap: wrap;
+}
+
+.tblhead h3 {
+  margin: 0;
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+}
+
+.tblhead input,
+.tblhead select {
+  font: inherit;
+  font-size: var(--p-t-sm);
+  padding: 5px 10px;
+  background: var(--p-superficie-2);
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  color: var(--p-tinta);
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding: var(--p-e-2) var(--p-e-3) 0;
+  border-bottom: 1px solid var(--p-linha);
+  overflow-x: auto;
+}
+
+.tabs a {
+  font-size: var(--p-t-md);
+  padding: 6px 11px;
+  color: var(--p-tinta-3);
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  text-decoration: none;
+}
+
+.tabs a[aria-current='true'] {
+  color: var(--p-destaque-tinta);
+  font-weight: var(--p-peso-medio);
+  border-bottom-color: var(--p-destaque);
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: var(--p-t-md);
+}
+
+/* Cabeçalho de coluna: caixa alta na família do corpo. Ver nota no topo. */
+th {
+  text-align: left;
+  padding: var(--p-e-1) var(--p-celula-x);
+  height: 28px;
+  border-bottom: 1px solid var(--p-linha);
+  background: var(--p-superficie);
+  font-size: var(--p-rotulo-tamanho);
+  font-weight: var(--p-rotulo-peso);
+  letter-spacing: var(--p-rotulo-espaco);
+  text-transform: uppercase;
+  color: var(--p-tinta-3);
+  white-space: nowrap;
+}
+
+td {
+  padding: var(--p-celula-y) var(--p-celula-x);
+  height: var(--p-altura-linha-tabela);
+  border-bottom: 1px solid var(--p-linha);
+  color: var(--p-tinta-2);
+  white-space: nowrap;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+td.num {
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--p-tinta);
+}
+
+td.who {
+  color: var(--p-tinta);
+  font-weight: var(--p-peso-medio);
+}
+
+td.acts {
+  display: flex;
+  gap: var(--p-e-1);
+}
+
+/* Severidade na linha inteira, não só no texto. */
+tr.grave td {
+  background: var(--p-alerta-fundo);
+}
+
+tr.critico td {
+  background: var(--p-erro-fundo);
+}
+
+/* ---------------------------------------------------------- estado vazio */
+.vazio {
+  padding: var(--p-e-6) var(--p-e-4);
+  font-size: var(--p-t-md);
+  color: var(--p-tinta-3);
+  text-align: center;
+}
+
+.vazio b {
+  display: block;
+  color: var(--p-tinta-2);
+  font-weight: var(--p-peso-medio);
+  margin-bottom: var(--p-e-1);
+}
+
+/* ------------------------------------------------------------- carregando */
+.carregando {
+  display: inline-block;
+  width: var(--p-icone-md);
+  height: var(--p-icone-md);
+  border: 2px solid var(--p-linha-media);
+  border-top-color: var(--p-destaque);
+  border-radius: 50%;
+  animation: p-girar 700ms linear infinite;
+}
+
+@keyframes p-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ------------------------------------------------------------------ barra
+   Barra de dado. Usa `--p-dado`, o matiz cercado: gráfico pode, cromo não. */
+.trilho {
+  height: 7px;
+  border-radius: var(--p-r-sm);
+  background: var(--p-dado-trilho);
+  overflow: hidden;
+  display: block;
+}
+
+.trilho > .fill,
+.fill {
+  height: 100%;
+  border-radius: var(--p-r-sm);
+  background: var(--p-dado);
+  display: block;
+}
+
+.fill.warn {
+  background: var(--p-alerta-tinta);
+}
+
+.fill.bad {
+  background: var(--p-erro-tinta);
+}
+
+/* ----------------------------------------------------------------- avatar */
+.avatar {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--p-superficie-3);
+  color: var(--p-tinta-2);
+  display: grid;
+  place-items: center;
+  font-size: var(--p-t-xs);
+  font-weight: var(--p-peso-forte);
+  flex: none;
+  border: 1px solid var(--p-linha);
+}
+
+/* ------------------------------------------------------------------ modal */
+dialog {
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-lg);
+  background: var(--p-superficie);
+  color: var(--p-tinta);
+  padding: 0;
+  box-shadow: var(--p-sombra-2);
+  max-width: 420px;
+  width: calc(100vw - 32px);
+}
+
+dialog::backdrop {
+  background: rgba(17, 17, 17, 0.42);
+}
+
+/* =========================================================== configurações
+   Tela própria, atrás da engrenagem. No Salesforce a configuração troca de
+   DOMÍNIO, corta a navegação de topo de 7 itens para 3 e só então cria um
+   lateral. Aqui: rota própria, lateral própria, e um caminho de volta claro.
+   ========================================================================= */
+
+.p-config-topo {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  height: var(--p-altura-topo);
+  padding: 0 var(--p-e-4);
+  background: var(--p-superficie);
+  border-bottom: 1px solid var(--p-linha);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.p-config-topo b {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+}
+
+.p-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--p-t-md);
+  color: var(--p-tinta-2);
+  text-decoration: none;
+  padding: 5px var(--p-e-2);
+  border-radius: var(--p-r-md);
+}
+
+.p-voltar:hover {
+  background: var(--p-superficie-3);
+}
+
+.p-config-lateral {
+  width: var(--p-largura-lateral-config);
+}
+
+/* --------------------------------------------------------------- responsivo */
+@media (max-width: 860px) {
+  .p-miolo {
+    flex-direction: column;
+  }
+
+  .p-lateral {
+    width: auto;
+    position: static;
+    max-height: none;
+    border-right: 0;
+    border-bottom: 1px solid var(--p-linha);
+    display: flex;
+    gap: var(--p-e-1);
+    overflow-x: auto;
+  }
+
+  .p-lateral .lbl {
+    display: none;
+  }
+
+  .p-conteudo {
+    padding: var(--p-e-3) var(--p-e-3) var(--p-e-8);
+  }
+}

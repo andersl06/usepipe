@@ -1,0 +1,8 @@
+/*
+ * Ponto único de entrada do estilo do Pipe.
+ * Os três aplicativos importam este arquivo e mais nada de token.
+ *
+ * A ordem importa: token antes de base, porque base lê os token.
+ */
+@import './estilos/tokens.css';
+@import './estilos/base.css';

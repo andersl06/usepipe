@@ -1,0 +1,249 @@
+/* ==========================================================================
+   Pipe — camada de token. Fonte única dos três aplicativos.
+
+   Autoridade da identidade: docs/marca/MARCA.md.
+   Decisões e medições que produziram estes valores:
+     docs/pesquisa/visual-blip-salesforce.md
+     docs/specs/2026-09-05-design-system.md
+
+   Três regras que este arquivo existe para impor, e que vieram de medir
+   Salesforce, Blip e Twenty:
+
+   1. UMA cor de destaque (moss). Ela pinta ação primária, estado ativo e foco.
+      Nada mais. No Salesforce o azul de destaque aparece só em link e item
+      ativo; a tela inteira tem 8 cores e três delas cobrem 97% do texto.
+
+   2. Borda é TINTA TRANSLÚCIDA, não hex opaco. A Blip usa preto em três
+      opacidades (.20/.16/.06) e o blip-dash já pagou o preço de não fazer
+      isso: um cinza esverdeado opaco virava "grade verde cruzando fundo
+      vermelho" nas linhas de severidade. Tinta translúcida escurece o que
+      estiver embaixo e nunca briga com o fundo.
+
+   3. Escala tipográfica em PX, nunca rem. Lição registrada em
+      blip-dash/app/globals.css: token de fonte em rem depende do font-size da
+      raiz, e ancorar a raiz encolhe junto todo o espaçamento. Só a fonte
+      precisa ser ancorada, e ela é ancorada em px.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* ---------------------------------------------------------- superfície
+     Escala neutra de cinco degraus, como a da Blip (surface-0..4). O creme da
+     marca fica no fundo da aplicação; da superfície de cartão para cima é
+     branco, para que a cor que aparecer em cima seja lida como informação. */
+  --p-fundo: #f2f1ec;
+  --p-superficie: #ffffff;
+  --p-superficie-2: #faf9f5;
+  --p-superficie-3: #efede6;
+  --p-superficie-inversa: #1a1d15;
+
+  /* -------------------------------------------------------------- tinta
+     Quatro degraus. Mais do que isso não se distingue em texto de 13px. */
+  --p-tinta: #16150f;
+  --p-tinta-2: #55544d;
+  --p-tinta-3: #7a7970;
+  --p-tinta-inversa: #ffffff;
+
+  /* -------------------------------------------------------------- linha
+     Tinta translúcida em três forças. Ver regra 2 no topo. */
+  --p-linha: rgba(17, 17, 17, 0.1);
+  --p-linha-media: rgba(17, 17, 17, 0.17);
+  --p-linha-forte: rgba(17, 17, 17, 0.28);
+
+  /* ----------------------------------------------------------- destaque
+     Moss, e só moss. Quatro papéis do mesmo matiz, não quatro matizes. */
+  --p-destaque: #4a5d23;
+  --p-destaque-tinta: #3d4d1c;
+  --p-destaque-fundo: #eaeedd;
+  --p-destaque-linha: rgba(74, 93, 35, 0.34);
+
+  /* ------------------------------------------------------------- estado
+     Três estados, cada um um TRIO fundo/linha/texto. Um estado não é uma cor:
+     é três, e as três precisam viajar juntas, senão viram duas cores
+     diferentes em dois arquivos (lição do blip-dash).
+     Reservados ao que exige AÇÃO. Meta de ocupação: ~1% da tela. */
+  --p-sucesso-fundo: #e7f0e3;
+  --p-sucesso-linha: rgba(31, 90, 46, 0.3);
+  --p-sucesso-tinta: #1f5a2e;
+
+  --p-alerta-fundo: #f7eeda;
+  --p-alerta-linha: rgba(122, 88, 12, 0.32);
+  --p-alerta-tinta: #79570c;
+
+  --p-erro-fundo: #f8e4df;
+  --p-erro-linha: rgba(160, 46, 28, 0.32);
+  --p-erro-tinta: #a02e1c;
+
+  /* --------------------------------------------------------------- dado
+     Matiz só para gráfico e barra de dado. NUNCA para cromo, etiqueta de
+     fila, canal ou origem. É a paleta "extended" da Blip: existe, mas vive
+     cercada. */
+  --p-dado: #8a9a5b;
+  --p-dado-trilho: #e8e6dd;
+
+  /* ---------------------------------------------------------- tipografia
+     Uma família no corpo. A monoespaçada é recurso de NÚMERO — tabular,
+     alinha coluna — nunca de rótulo. */
+  --p-fonte: 'IBM Plex Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  --p-fonte-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+
+  /* Régua em px. 13 é o corpo (a régua do Salesforce e do Twenty); 12 é o
+     miúdo. Esses dois carregam a tela — os outros degraus são exceção. */
+  --p-t-xs: 11px;
+  --p-t-sm: 12px;
+  --p-t-md: 13px;
+  --p-t-lg: 15px;
+  --p-t-xl: 19px;
+  --p-t-2xl: 24px;
+
+  --p-peso-normal: 400;
+  --p-peso-medio: 500;
+  --p-peso-forte: 600;
+
+  --p-altura-linha: 1.5;
+  --p-altura-linha-curta: 1.2;
+
+  /* Rótulo de seção e cabeçalho de coluna. Caixa alta na família do CORPO,
+     como o Salesforce faz (12px/700, e nunca monoespaçada). */
+  --p-rotulo-tamanho: 11px;
+  --p-rotulo-peso: 600;
+  --p-rotulo-espaco: 0.07em;
+
+  /* ---------------------------------------------------- espaço (base 4px)
+     Múltiplo de 4, como o spacing() do Twenty. */
+  --p-e-1: 4px;
+  --p-e-2: 8px;
+  --p-e-3: 12px;
+  --p-e-4: 16px;
+  --p-e-5: 20px;
+  --p-e-6: 24px;
+  --p-e-8: 32px;
+  --p-e-10: 40px;
+
+  /* ---------------------------------------------------------------- raio */
+  --p-r-xs: 2px;
+  --p-r-sm: 4px;
+  --p-r-md: 6px;
+  --p-r-lg: 10px;
+  --p-r-pilula: 999px;
+
+  /* -------------------------------------------------------------- sombra
+     Duas elevações. Tinta translúcida, como as três referências. */
+  --p-sombra-1: 0 1px 2px rgba(17, 17, 17, 0.05);
+  --p-sombra-2: 0 2px 4px rgba(17, 17, 17, 0.06), 0 8px 24px -12px rgba(17, 17, 17, 0.16);
+
+  /* ----------------------------------------------------------- transição */
+  --p-dur-instantanea: 75ms;
+  --p-dur-rapida: 150ms;
+  --p-dur-normal: 300ms;
+
+  /* ------------------------------------------------------------ densidade
+     Medido no Salesforce: linha de tabela 35px, célula com padding 8px,
+     corpo 13px. Adotamos 34px. */
+  --p-altura-topo: 48px;
+  --p-altura-linha-tabela: 34px;
+  --p-celula-y: 8px;
+  --p-celula-x: 12px;
+  --p-largura-lateral: 200px;
+  --p-largura-lateral-config: 232px;
+  --p-icone-sm: 14px;
+  --p-icone-md: 16px;
+  --p-icone-lg: 20px;
+  --p-icone-traco: 1.75;
+}
+
+/* ==========================================================================
+   Tema escuro. Os PAPÉIS não mudam — só o degrau para onde apontam. Nenhum
+   componente sabe de tema (arquitetura do twenty-ui).
+
+   Os dois blocos abaixo são idênticos de propósito: o primeiro atende quem
+   nunca escolheu (preferência do sistema), o segundo atende a escolha
+   explícita. Sem os dois, o alternador só funciona num sentido.
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema='claro']) {
+    color-scheme: dark;
+
+    --p-fundo: #12140e;
+    --p-superficie: #1a1d15;
+    --p-superficie-2: #20241b;
+    --p-superficie-3: #272b20;
+    --p-superficie-inversa: #edede4;
+
+    --p-tinta: #edede4;
+    --p-tinta-2: #a7a69a;
+    --p-tinta-3: #84837a;
+    --p-tinta-inversa: #12140e;
+
+    --p-linha: rgba(237, 237, 228, 0.12);
+    --p-linha-media: rgba(237, 237, 228, 0.2);
+    --p-linha-forte: rgba(237, 237, 228, 0.32);
+
+    --p-destaque: #a3b76a;
+    --p-destaque-tinta: #b7c983;
+    --p-destaque-fundo: #26301a;
+    --p-destaque-linha: rgba(163, 183, 106, 0.36);
+
+    --p-sucesso-fundo: #1b2c1f;
+    --p-sucesso-linha: rgba(122, 197, 141, 0.34);
+    --p-sucesso-tinta: #7ac58d;
+
+    --p-alerta-fundo: #332714;
+    --p-alerta-linha: rgba(203, 164, 83, 0.34);
+    --p-alerta-tinta: #cba453;
+
+    --p-erro-fundo: #3a211b;
+    --p-erro-linha: rgba(228, 129, 109, 0.34);
+    --p-erro-tinta: #e4816d;
+
+    --p-dado: #8a9a5b;
+    --p-dado-trilho: #2c3123;
+
+    --p-sombra-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --p-sombra-2: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
+  }
+}
+
+:root[data-tema='escuro'] {
+  color-scheme: dark;
+
+  --p-fundo: #12140e;
+  --p-superficie: #1a1d15;
+  --p-superficie-2: #20241b;
+  --p-superficie-3: #272b20;
+  --p-superficie-inversa: #edede4;
+
+  --p-tinta: #edede4;
+  --p-tinta-2: #a7a69a;
+  --p-tinta-3: #84837a;
+  --p-tinta-inversa: #12140e;
+
+  --p-linha: rgba(237, 237, 228, 0.12);
+  --p-linha-media: rgba(237, 237, 228, 0.2);
+  --p-linha-forte: rgba(237, 237, 228, 0.32);
+
+  --p-destaque: #a3b76a;
+  --p-destaque-tinta: #b7c983;
+  --p-destaque-fundo: #26301a;
+  --p-destaque-linha: rgba(163, 183, 106, 0.36);
+
+  --p-sucesso-fundo: #1b2c1f;
+  --p-sucesso-linha: rgba(122, 197, 141, 0.34);
+  --p-sucesso-tinta: #7ac58d;
+
+  --p-alerta-fundo: #332714;
+  --p-alerta-linha: rgba(203, 164, 83, 0.34);
+  --p-alerta-tinta: #cba453;
+
+  --p-erro-fundo: #3a211b;
+  --p-erro-linha: rgba(228, 129, 109, 0.34);
+  --p-erro-tinta: #e4816d;
+
+  --p-dado: #8a9a5b;
+  --p-dado-trilho: #2c3123;
+
+  --p-sombra-1: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --p-sombra-2: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
+}
