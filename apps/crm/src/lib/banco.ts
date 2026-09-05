@@ -20,12 +20,13 @@ import { tenant } from '@pipe/db/schema';
 const globalComPool = globalThis as unknown as {
   __pipeCrmBanco?: BancoPipe;
   __pipeCrmTenantId?: Promise<string>;
+  __pipeCrmFuso?: Promise<string>;
 };
 
 export function banco(): BancoPipe {
   if (!globalComPool.__pipeCrmBanco) {
     const url = process.env['DATABASE_URL_APP'] ?? process.env['DATABASE_URL'];
-    globalComPool.__pipeCrmBanco = criarBanco({ url, maxConexoes: 5 });
+    globalComPool.__pipeCrmBanco = criarBanco({ url, maxConexoes: 10 });
   }
   return globalComPool.__pipeCrmBanco;
 }
@@ -61,12 +62,18 @@ export async function consultar<T>(fn: (tx: TransacaoPipe) => Promise<T>): Promi
   return comTenant(banco(), await tenantId(), fn);
 }
 
-/** O fuso do tenant, para o "mês" dos indicadores não ser o fuso do servidor. */
-export async function fusoDoTenant(): Promise<string> {
-  return consultar(async (tx) => {
+/**
+ * O fuso do tenant, para o "mês" dos indicadores não ser o fuso do servidor.
+ *
+ * Guardado no processo: ele não muda enquanto o app roda, e como toda página começa
+ * por ele, sem o cache seria uma transação inteira antes de qualquer trabalho útil.
+ */
+export function fusoDoTenant(): Promise<string> {
+  globalComPool.__pipeCrmFuso ??= consultar(async (tx) => {
     const [linha] = await tx.select({ fuso: tenant.fuso }).from(tenant).limit(1);
     return linha?.fuso ?? 'America/Sao_Paulo';
   });
+  return globalComPool.__pipeCrmFuso;
 }
 
 export interface Janela {

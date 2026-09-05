@@ -1,4 +1,4 @@
-import { and, desc, eq, inArray, isNull, isNotNull, lt, sql } from 'drizzle-orm';
+import { and, desc, eq, inArray, isNull, lt, sql } from 'drizzle-orm';
 import type { ItemExplicacao } from '@pipe/core';
 import {
   atividade,
@@ -85,7 +85,65 @@ async function filasPorFaixa(tx: Parameters<Parameters<typeof consultar>[0]>[0])
   return mapa;
 }
 
-export async function listarLeads(aba: Aba, busca: string): Promise<LinhaLead[]> {
+/**
+ * Como agrupar a lista. É o que substitui os quatro relatórios que eram item de
+ * menu: "por proprietário" e "origem e campanha" são a mesma lista, dobrada por uma
+ * coluna. Relatório que é recorte de lista mora na lista.
+ */
+export const AGRUPAMENTOS = [
+  { chave: 'nenhum', rotulo: 'Sem agrupamento' },
+  { chave: 'proprietario', rotulo: 'Proprietário' },
+  { chave: 'origem', rotulo: 'Origem' },
+  { chave: 'fase', rotulo: 'Fase' },
+  { chave: 'faixa', rotulo: 'Faixa de score' },
+] as const;
+
+export type Agrupamento = (typeof AGRUPAMENTOS)[number]['chave'];
+
+export function agrupamentoValido(valor: string | undefined): Agrupamento {
+  return (AGRUPAMENTOS.find((a) => a.chave === valor)?.chave ?? 'nenhum') as Agrupamento;
+}
+
+export interface Grupo {
+  titulo: string;
+  linhas: LinhaLead[];
+}
+
+/** Dobra a lista pela coluna escolhida, preservando a ordem de dentro do grupo. */
+export function agrupar(linhas: LinhaLead[], por: Agrupamento): Grupo[] {
+  if (por === 'nenhum') return [{ titulo: '', linhas }];
+  const chaveDe = (l: LinhaLead) =>
+    por === 'proprietario'
+      ? (l.proprietario ?? 'Sem proprietário')
+      : por === 'origem'
+        ? (l.origem ?? 'Sem origem')
+        : por === 'fase'
+          ? (l.fase ?? 'Sem fase')
+          : (l.faixa ?? 'Sem score');
+
+  const mapa = new Map<string, LinhaLead[]>();
+  for (const l of linhas) {
+    const chave = chaveDe(l);
+    const atual = mapa.get(chave);
+    if (atual) atual.push(l);
+    else mapa.set(chave, [l]);
+  }
+  return [...mapa.entries()]
+    .map(([titulo, dela]) => ({ titulo, linhas: dela }))
+    .sort((a, b) => b.linhas.length - a.linhas.length);
+}
+
+export interface ListaDeLeads {
+  linhas: LinhaLead[];
+  contagens: Record<Aba, number>;
+}
+
+/**
+ * Lista e contagem das abas na **mesma** transação. Eram duas, mais a do fuso: três
+ * transações e três conexões do pool para desenhar uma tela. Dentro daqui as
+ * consultas continuam em série, que é obrigatório (README).
+ */
+export async function carregarListaDeLeads(aba: Aba, busca: string): Promise<ListaDeLeads> {
   return consultar(async (tx) => {
     const recorte = {
       todos: undefined,
@@ -131,9 +189,22 @@ export async function listarLeads(aba: Aba, busca: string): Promise<LinhaLead[]>
       tx,
       cru.map((l) => l.id),
     );
+    const [contagem] = await tx
+      .select({
+        todos: sql<number>`count(*)::int`,
+        novos: sql<number>`count(*) filter (where ${lead.status} = 'novo')::int`,
+        qualificados: sql<number>`count(*) filter (where ${lead.status} = 'qualificado')::int`,
+        semProprietario: sql<number>`count(*) filter (where ${lead.proprietarioId} is null)::int`,
+        parados: sql<number>`count(*) filter (where ${lead.faseDesde} < now() - interval '7 days'
+                                and ${lead.status} not in ('convertido','desqualificado'))::int`,
+        desqualificados: sql<number>`count(*) filter (where ${lead.status} = 'desqualificado')::int`,
+      })
+      .from(lead)
+      .where(isNull(lead.excluidoEm));
+
     const agora = Date.now();
 
-    return cru.map((l) => {
+    const linhas = cru.map((l) => {
       const desdeFase = paraData(l.faseDesde);
       const ult = ultimas.get(l.id);
       return {
@@ -151,6 +222,18 @@ export async function listarLeads(aba: Aba, busca: string): Promise<LinhaLead[]>
         ultimaAtividadeTipo: ult?.tipo ?? null,
       };
     });
+
+    return {
+      linhas,
+      contagens: {
+        todos: contagem?.todos ?? 0,
+        novos: contagem?.novos ?? 0,
+        qualificados: contagem?.qualificados ?? 0,
+        'sem-proprietario': contagem?.semProprietario ?? 0,
+        parados: contagem?.parados ?? 0,
+        desqualificados: contagem?.desqualificados ?? 0,
+      },
+    };
   });
 }
 
@@ -512,42 +595,4 @@ async function carregarLinhaDoTempo(
   }
 
   return itens.sort((a, b) => b.em.getTime() - a.em.getTime()).slice(0, 40);
-}
-
-/** Contagem por aba, para o número aparecer ao lado do nome sem abrir cada uma. */
-export async function contarAbas(): Promise<Record<Aba, number>> {
-  return consultar(async (tx) => {
-    const [linha] = await tx
-      .select({
-        todos: sql<number>`count(*)::int`,
-        novos: sql<number>`count(*) filter (where ${lead.status} = 'novo')::int`,
-        qualificados: sql<number>`count(*) filter (where ${lead.status} = 'qualificado')::int`,
-        semProprietario: sql<number>`count(*) filter (where ${lead.proprietarioId} is null)::int`,
-        parados: sql<number>`count(*) filter (where ${lead.faseDesde} < now() - interval '7 days'
-                                and ${lead.status} not in ('convertido','desqualificado'))::int`,
-        desqualificados: sql<number>`count(*) filter (where ${lead.status} = 'desqualificado')::int`,
-      })
-      .from(lead)
-      .where(isNull(lead.excluidoEm));
-
-    return {
-      todos: linha?.todos ?? 0,
-      novos: linha?.novos ?? 0,
-      qualificados: linha?.qualificados ?? 0,
-      'sem-proprietario': linha?.semProprietario ?? 0,
-      parados: linha?.parados ?? 0,
-      desqualificados: linha?.desqualificados ?? 0,
-    };
-  });
-}
-
-/** Usado pelo painel: quantos leads têm score, para o cartão não mentir sobre a base. */
-export async function leadsComScore(): Promise<number> {
-  return consultar(async (tx) => {
-    const [linha] = await tx
-      .select({ n: sql<number>`count(*)::int` })
-      .from(lead)
-      .where(and(isNull(lead.excluidoEm), isNotNull(lead.scoreAtual)));
-    return linha?.n ?? 0;
-  });
 }
