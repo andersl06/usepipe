@@ -137,6 +137,9 @@ RD Station e CSV.
 Canais do dia 1: **WhatsApp Cloud API oficial**, **e-mail** e **widget de site**. Os três caem na
 mesma tela do Desk — um dos pedidos explícitos.
 
+Os requisitos da tela do atendente estão detalhados em
+[`2026-09-05-desk-requisitos.md`](2026-09-05-desk-requisitos.md).
+
 **Entrega de mensagem é o coração, e é onde a concorrência falha.** A lista de bugs da comunidade
 da Blip é literalmente a lista de requisitos. Portanto:
 
@@ -163,6 +166,10 @@ Cada transição relevante da conversa grava um `evento_atendimento` imutável: 
 atribuída, primeira resposta do atendente, resposta do cliente, transferida, pausada, encerrada,
 avaliada. Toda métrica é derivada desses eventos, nunca de campo mutável na conversa — é isso que
 permite recalcular o passado quando a definição de uma métrica muda.
+
+A definição exata de cada métrica, dos status de encerramento, da elegibilidade e do SLA está em
+[`2026-09-05-metricas-atendimento.md`](2026-09-05-metricas-atendimento.md), que é vinculante: todo
+número em tela obedece àquele documento e tem teste correspondente em `packages/core`.
 
 **Monitoramento em tempo real** replica os cartões da Blip, porque eles estão certos: na fila,
 tempo máximo na fila, tempo máximo até a primeira resposta, em atendimento, média de tickets por
@@ -261,7 +268,7 @@ A lista de bugs reclamados na comunidade da Blip vira critério de aceite:
 | Respostas prontas não carregam | Respostas prontas em cache local; funcionam com a rede oscilando |
 | Ticket encerrado pelo usuário em fluxo humano | Máquina de estados explícita; evento do usuário não corrompe estado |
 | Travamento do Desk web | Orçamento de performance por tela e reconexão de WebSocket com backoff |
-| Loop infinito entre canais | Detector de laço: mesma origem e destino acima de N mensagens no intervalo T pausa e alerta |
+| Loop infinito entre canais | Detector de laço: 10 mensagens entre o mesmo par origem/destino em 60 segundos pausa o canal e alerta |
 
 ## 8. Testes
 
@@ -282,6 +289,11 @@ A lista de bugs reclamados na comunidade da Blip vira critério de aceite:
 | 3 | Gestão: eventos, monitoramento em tempo real, métricas, esforço, regras e SLA | 2 |
 | 4 | Monitoria com IA: formulário, avaliação automática, calibração, insights, consumo | 3 |
 | 5 | CRM: leads, formulários versionados, score, importação, e a ponte com Conversas | 1 |
+
+O CRM fica por último de propósito, e isso não trava as fases anteriores: o Desk da fase 2 atende
+conversa que chega pelo canal, sem depender de lead cadastrado, e o contato já existe em Conversas.
+O fluxo do §5 só fecha inteiro na fase 5, quando o lead passa a nascer de formulário com score e o
+resumo do atendimento passa a subir para a linha do tempo dele.
 
 A Monitoria (fase 4) é o único módulo que também funciona sozinho, plugado na Blip, na Digisac ou
 no Chatwoot que o cliente já usa. Se aparecer oportunidade de receita antes da fase 4, ela pode ser
