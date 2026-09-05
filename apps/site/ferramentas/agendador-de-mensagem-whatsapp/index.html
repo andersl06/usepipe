@@ -1,0 +1,772 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Agendador de mensagem do WhatsApp: como programar mensagem grátis | Pipe</title>
+<meta name="description" content="Como programar mensagem no WhatsApp sem aplicativo pirata: monte o texto, escolha data e hora e leve o lembrete com a conversa pronta para a sua agenda.">
+<link rel="canonical" href="https://pipe.com.br/ferramentas/agendador-de-mensagem-whatsapp/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#4A5D23" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12140E" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Pipe">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://pipe.com.br/ferramentas/agendador-de-mensagem-whatsapp/">
+<meta property="og:title" content="Agendador de mensagem do WhatsApp: programe sem arriscar o número">
+<meta property="og:description" content="Monte a mensagem, escolha data e hora e leve o lembrete para a agenda. Sem aplicativo modificado e sem risco de banimento.">
+<meta property="og:image" content="https://pipe.com.br/assets/og-pipe.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Agendador de mensagem do WhatsApp | Pipe">
+<meta name="twitter:description" content="Programe a mensagem sem aplicativo pirata: lembrete na agenda e conversa pré-preenchida.">
+<meta name="twitter:image" content="https://pipe.com.br/assets/og-pipe.png">
+
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/favicon.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
+<link rel="stylesheet" href="/assets/site.css">
+<script>
+  try {
+    var t = localStorage.getItem("pipe-theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Pipe", "item": "https://pipe.com.br/" },
+        { "@type": "ListItem", "position": 2, "name": "Ferramentas grátis", "item": "https://pipe.com.br/ferramentas/" },
+        { "@type": "ListItem", "position": 3, "name": "Agendador de mensagem do WhatsApp", "item": "https://pipe.com.br/ferramentas/agendador-de-mensagem-whatsapp/" }
+      ]
+    },
+    {
+      "@type": "WebApplication",
+      "name": "Agendador de mensagem do WhatsApp",
+      "url": "https://pipe.com.br/ferramentas/agendador-de-mensagem-whatsapp/",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Qualquer navegador",
+      "inLanguage": "pt-BR",
+      "description": "Monta a mensagem com o nome de cada contato, define data e hora, exporta o lembrete para a agenda em arquivo .ics e abre cada conversa já preenchida no WhatsApp.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+      "publisher": { "@type": "Organization", "name": "Pipe", "url": "https://pipe.com.br/" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Como programar uma mensagem no WhatsApp?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "O WhatsApp comum e o WhatsApp Business não têm agendamento nativo de mensagem para clientes. Existem três caminhos legítimos: agendar um lembrete na sua própria agenda com a conversa já pré-preenchida, que é o que esta ferramenta faz; usar o agendamento nativo do Android em alguns aparelhos Samsung e Xiaomi, que agenda pelo teclado do sistema; ou conectar o número à API oficial do WhatsApp Business, que é o único caminho que envia sozinho."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Aplicativo de agendar mensagem no WhatsApp pode banir meu número?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Pode, e é a causa mais comum de banimento em número comercial. Aplicativos como GBWhatsApp, WhatsApp Plus e a maioria dos agendadores de loja pedem que você entre com a sua conta dentro de uma versão modificada do WhatsApp. A Meta detecta essa versão e bloqueia a conta, muitas vezes de forma permanente e sem aviso. O aviso está na própria política de uso do WhatsApp."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Dá para fazer disparo em massa no WhatsApp de graça?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "De graça e sem risco, não em escala. A lista de transmissão do aplicativo entrega para no máximo 256 contatos por lista, e só chega em quem tem o seu número salvo na agenda. Ferramenta de terceiros que promete envio ilimitado quase sempre usa aplicativo modificado. O caminho que envia em volume sem ilegalidade é a API oficial, com templates aprovados pela Meta e com opt-in do cliente."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "O arquivo .ics funciona em qual agenda?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "O .ics é o formato padrão de calendário e é aceito pelo Google Agenda, Apple Calendário, Outlook e praticamente qualquer aplicativo de agenda. Ao abrir o arquivo, cada contato vira um evento com o link da conversa dentro da descrição, e com um alarme configurado para o horário escolhido."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Quantas mensagens posso mandar por dia sem risco?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Não existe número oficial publicado pela Meta para conta comum, porque o critério é comportamento, não volume puro. O que derruba número é o padrão: muitas mensagens iguais, para contatos que não têm você salvo, em pouco tempo, e com bloqueios e denúncias em seguida. Um número novo tem tolerância bem menor que um número com histórico de conversas de duas vias. Na API oficial existem limites explícitos de conversas iniciadas por dia, que sobem conforme a qualidade do número."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Por que esta ferramenta não envia sozinha?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Porque enviar sozinha exigiria acesso à sua conta do WhatsApp, e a única forma legítima de ter esse acesso é pela API oficial, que depende de conta comercial verificada, número dedicado e templates aprovados. Qualquer ferramenta grátis que prometa enviar sozinha pelo seu número comum está usando aplicativo modificado ou automação de navegador, e as duas coisas colocam o número na fila do banimento."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Pular para o conteúdo</a>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.52 0-10 4.48-10 10 0 1.77.46 3.45 1.27 4.9L2 22l5.25-1.38a9.95 9.95 0 0 0 4.79 1.22h.01c5.52 0 10-4.48 10-10s-4.48-9.84-10.02-9.84Zm5.86 14.3c-.25.7-1.24 1.29-1.98 1.44-.53.11-1.22.2-3.55-.76-2.98-1.23-4.9-4.24-5.05-4.44-.15-.2-1.2-1.6-1.2-3.05 0-1.46.76-2.17 1.03-2.46.27-.29.6-.36.8-.36h.58c.19 0 .44-.07.68.53.25.6.86 2.07.94 2.22.08.15.13.33.03.53-.1.2-.16.33-.31.5-.15.18-.32.4-.46.53-.15.15-.31.31-.14.61.18.3.79 1.31 1.7 2.12 1.17 1.04 2.15 1.37 2.45 1.52.3.15.48.13.66-.08.18-.2.76-.89.97-1.19.2-.3.4-.25.68-.15.28.1 1.77.84 2.08.99.3.15.5.23.58.36.08.13.08.75-.17 1.45Z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v12M7.5 11l4.5 4.5 4.5-4.5M4.5 20.5h15"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2.2"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+</svg>
+
+<header class="hdr">
+  <div class="hdr__bar">
+    <a class="hdr__logo" href="/" aria-label="Pipe, página inicial">
+      <img src="/assets/pipe-lockup-cream.svg" width="420" height="190" alt="Pipe">
+    </a>
+    <nav class="hdr__nav" aria-label="Principal">
+      <a href="/#produto">Produto</a>
+      <a href="/#monitoria">Monitoria</a>
+      <a href="/#precos">Preços</a>
+      <a href="/ferramentas/" aria-current="page">Ferramentas</a>
+      <a href="/blog/">Blog</a>
+    </nav>
+    <div class="hdr__act">
+      <button class="hdr__theme" type="button" data-theme-toggle aria-label="Alternar tema claro e escuro">
+        <svg aria-hidden="true" data-icon-sun><use href="#i-sun"></use></svg>
+        <svg aria-hidden="true" data-icon-moon hidden><use href="#i-moon"></use></svg>
+      </button>
+      <a class="btn btn--primary btn--sm" href="/#demo">Agendar demonstração</a>
+    </div>
+    <button class="hdr__toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+      <svg aria-hidden="true" width="22" height="22"><use href="#i-menu"></use></svg>
+    </button>
+  </div>
+  <div class="hdr__panel" id="menu" hidden>
+    <a href="/#produto">Produto</a>
+    <a href="/#monitoria">Monitoria</a>
+    <a href="/#precos">Preços</a>
+    <a href="/ferramentas/">Ferramentas</a>
+    <a href="/blog/">Blog</a>
+    <hr>
+    <a class="btn btn--primary" href="/#demo">Agendar demonstração</a>
+    <button class="btn btn--night" type="button" data-theme-toggle style="width:100%;margin-top:8px">Alternar tema</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="hero__glow" aria-hidden="true"></div>
+    <div class="wrap page-head">
+      <nav aria-label="Trilha">
+        <p class="label label--muted"><a href="/" style="text-decoration:none">Pipe</a> / <a href="/ferramentas/" style="text-decoration:none">Ferramentas</a> / Agendador de mensagem</p>
+      </nav>
+      <h1>Agendador de mensagem do WhatsApp</h1>
+      <p>
+        Monte a mensagem com o nome de cada cliente, escolha data e hora e leve tudo para a sua
+        agenda. Na hora marcada o celular avisa e a conversa abre já preenchida, com um clique por
+        contato. Sem aplicativo modificado e sem colocar o seu número em risco.
+      </p>
+      <div class="tool-meta">
+        <span>Atualizado em setembro de 2026</span>
+        <i aria-hidden="true"></i>
+        <span>Nenhum número sai do seu navegador</span>
+        <i aria-hidden="true"></i>
+        <span>Exporta para Google Agenda, Apple e Outlook</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap tool-wrap">
+    <div class="tool-grid tool-grid--wide">
+
+      <div class="panel">
+        <p class="panel__h">1. A mensagem e o horário</p>
+        <div class="fields">
+          <label class="field" for="mensagem">
+            <span class="field__l">Mensagem</span>
+            <span class="field__box">
+              <textarea id="mensagem" rows="5"></textarea>
+            </span>
+            <span class="field__help">
+              Escreva <code>{nome}</code> onde entra o primeiro nome do contato. <span id="contador">0</span> de 1.000 caracteres.
+            </span>
+          </label>
+
+          <div class="fields fields--2">
+            <label class="field" for="data">
+              <span class="field__l">Data</span>
+              <span class="field__box"><input id="data" type="date"></span>
+            </label>
+            <label class="field" for="hora">
+              <span class="field__l">Hora</span>
+              <span class="field__box"><input id="hora" type="time" value="09:00"></span>
+            </label>
+          </div>
+
+          <label class="field" for="titulo">
+            <span class="field__l">Nome do lembrete na agenda</span>
+            <span class="field__box">
+              <input id="titulo" type="text" value="Mandar mensagem no WhatsApp">
+            </span>
+          </label>
+
+          <label class="field" for="contatos">
+            <span class="field__l">Contatos</span>
+            <span class="field__box">
+              <textarea id="contatos" rows="6" spellcheck="false"></textarea>
+            </span>
+            <span class="field__help">
+              Um por linha, no formato <code>número, nome</code>. O nome é opcional. Aceita número
+              com ou sem o 55 na frente, e ignora parênteses, traços e espaços.
+            </span>
+            <span class="field__err" id="erroContatos" hidden></span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <div class="res">
+          <div class="res__top">
+            <p class="res__lbl">Fila montada</p>
+            <p class="res__val" id="resumoQtd">0 mensagens</p>
+            <p class="res__sub" id="resumoQuando">Escolha a data e a hora para montar o lembrete.</p>
+          </div>
+          <dl id="resumoLista">
+            <div><dt>Contatos válidos</dt><dd id="mVal">0</dd></div>
+            <div><dt>Linhas com problema</dt><dd id="mInv">0</dd></div>
+            <div><dt>Caracteres por mensagem</dt><dd id="mChars">0</dd></div>
+          </dl>
+          <div class="res__act">
+            <button class="copy" type="button" id="baixarIcs" disabled>
+              <svg aria-hidden="true"><use href="#i-down"></use></svg> Baixar lembrete (.ics)
+            </button>
+            <button class="copy" type="button" id="baixarCsv" disabled>
+              <svg aria-hidden="true"><use href="#i-down"></use></svg> Baixar planilha (.csv)
+            </button>
+          </div>
+          <p class="res__foot">
+            O arquivo .ics cria um evento por contato, com o link da conversa dentro e alarme no
+            horário escolhido. Abra no Google Agenda, no Calendário do iPhone ou no Outlook.
+          </p>
+        </div>
+
+        <p class="note note--warn" style="margin-top:16px">
+          <b>Esta ferramenta não envia sozinha, e isso é de propósito.</b> Enviar sozinha pelo seu
+          número comum exigiria um aplicativo modificado do WhatsApp, que é a principal causa de
+          banimento permanente de número comercial. Aqui você recebe o lembrete e a conversa
+          pré-preenchida; o envio continua sendo seu.
+          <a href="/blog/numero-de-whatsapp-banido/">Veja o que derruba um número.</a>
+        </p>
+      </div>
+    </div>
+
+    <div class="panel" style="margin-top:16px">
+      <p class="panel__h">2. A fila, contato por contato</p>
+      <div class="tbl-wrap">
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th scope="col" class="num">#</th>
+              <th scope="col">Nome</th>
+              <th scope="col">Número</th>
+              <th scope="col">Mensagem</th>
+              <th scope="col">Ação</th>
+            </tr>
+          </thead>
+          <tbody id="corpoFila">
+            <tr><td colspan="5" style="color:var(--ink-3)">Preencha a lista de contatos para montar a fila.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="field__help">
+        Abra uma conversa por vez, no ritmo de gente. Trinta mensagens iguais em dois minutos é
+        exatamente o padrão que a Meta usa para identificar disparo automático.
+      </p>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <div class="head scroll-reveal scroll-reveal--fade-up">
+        <h2>As três formas de programar mensagem no WhatsApp</h2>
+        <p>Duas são gratuitas e limitadas. A terceira é a única que envia sozinha sem risco.</p>
+      </div>
+      <div class="tbl-wrap scroll-reveal scroll-reveal--fade-up" style="margin-top:26px">
+        <table class="tbl">
+          <caption>
+            O agendamento nativo do Android existe em parte dos aparelhos Samsung e Xiaomi, pelo
+            teclado ou pelo app de mensagens do fabricante, e depende de versão do sistema. Não é
+            recurso do WhatsApp e pode sumir em uma atualização.
+          </caption>
+          <thead>
+            <tr>
+              <th scope="col">Caminho</th>
+              <th scope="col">Envia sozinho</th>
+              <th scope="col">Risco para o número</th>
+              <th scope="col">Quando faz sentido</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Lembrete na agenda com conversa pré-preenchida</td>
+              <td>Não, você dá um clique</td>
+              <td>Nenhum</td>
+              <td>Até algumas dezenas de contatos por dia</td>
+            </tr>
+            <tr>
+              <td>Agendamento nativo de alguns Android</td>
+              <td>Sim, um contato por vez</td>
+              <td>Baixo</td>
+              <td>Mensagens pontuais, um aparelho só</td>
+            </tr>
+            <tr>
+              <td>API oficial do WhatsApp Business</td>
+              <td>Sim, em volume</td>
+              <td>Nenhum, é o caminho previsto</td>
+              <td>Operação com time e volume constante</td>
+            </tr>
+            <tr>
+              <td>Aplicativo modificado ou automação de navegador</td>
+              <td>Sim, até o bloqueio</td>
+              <td>Alto, banimento permanente</td>
+              <td>Nunca, para número de empresa</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec--tight sec--soft">
+    <div class="wrap">
+      <div class="head scroll-reveal scroll-reveal--fade-up">
+        <h2>Como usar o agendador em quatro passos</h2>
+        <p>O arquivo .ics é o que transforma a lista em compromisso no seu dia.</p>
+      </div>
+      <ol class="steps scroll-reveal scroll-reveal--fade-up" style="margin-top:26px">
+        <li>
+          <b>1</b>
+          <div>
+            <h3>Escreva a mensagem com o nome dentro</h3>
+            <p>Use <code>{nome}</code> no lugar do primeiro nome. Mensagem com nome próprio tem resposta bem maior que texto genérico, e leva menos denúncia de spam, porque parece o que é: uma conversa.</p>
+          </div>
+        </li>
+        <li>
+          <b>2</b>
+          <div>
+            <h3>Cole a lista de contatos</h3>
+            <p>Um por linha, número e nome separados por vírgula. Se você exportou de uma planilha, cole as duas colunas direto. Linhas com número inválido aparecem marcadas em vez de sumir em silêncio.</p>
+          </div>
+        </li>
+        <li>
+          <b>3</b>
+          <div>
+            <h3>Baixe o .ics e abra na sua agenda</h3>
+            <p>Cada contato vira um evento no horário escolhido, com o link da conversa na descrição. No celular, tocar no link abre o WhatsApp com a mensagem pronta. No Google Agenda, importe em Configurações, Importar e exportar.</p>
+          </div>
+        </li>
+        <li>
+          <b>4</b>
+          <div>
+            <h3>Envie no ritmo de gente</h3>
+            <p>Abra as conversas com intervalo, não em sequência. Se o volume passar de umas poucas dezenas por dia, ou se as mensagens forem para quem não tem o seu número salvo, o caminho certo deixa de ser este e passa a ser a API oficial.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <div class="head scroll-reveal scroll-reveal--fade-up">
+        <h2>Por que o disparo em massa derruba número</h2>
+        <p>A Meta não olha só volume. Ela olha o formato do comportamento, e disparo tem formato reconhecível.</p>
+      </div>
+      <div class="split split--wide" style="margin-top:28px">
+        <div class="scroll-reveal scroll-reveal--fade-up">
+          <ul class="checks">
+            <li><svg aria-hidden="true" width="17" height="17"><use href="#i-clock"></use></svg><span><b>Mensagens iguais em sequência.</b> Trinta textos idênticos em dois minutos não é comportamento de pessoa.</span></li>
+            <li><svg aria-hidden="true" width="17" height="17"><use href="#i-clock"></use></svg><span><b>Contatos que não têm você salvo.</b> É o sinal mais forte de lista comprada.</span></li>
+            <li><svg aria-hidden="true" width="17" height="17"><use href="#i-clock"></use></svg><span><b>Conversas de mão única.</b> Muitos envios e quase nenhuma resposta derrubam a nota de qualidade do número.</span></li>
+            <li><svg aria-hidden="true" width="17" height="17"><use href="#i-clock"></use></svg><span><b>Bloqueios e denúncias.</b> Três ou quatro denúncias em pouco tempo bastam para abrir revisão da conta.</span></li>
+            <li><svg aria-hidden="true" width="17" height="17"><use href="#i-clock"></use></svg><span><b>Número novo com volume alto.</b> Chip comprado hoje disparando amanhã é o caso clássico de bloqueio em 24 horas.</span></li>
+          </ul>
+        </div>
+        <div class="scroll-reveal scroll-reveal--fade-up" style="--reveal-delay:.08s">
+          <div class="exemplo">
+            <p class="exemplo__cap">
+              Uma clínica de estética com 1.400 clientes na base quis avisar sobre a agenda de
+              dezembro. Comparação entre os dois caminhos, com o mesmo texto e a mesma lista.
+            </p>
+            <dl>
+              <div><dt>Lista de transmissão, alcance real</dt><dd>412 de 1.400</dd></div>
+              <div><dt>Motivo do corte</dt><dd>Só chega a quem tem o número salvo</dd></div>
+              <div><dt>Listas necessárias, a 256 por lista</dt><dd>6 listas</dd></div>
+              <div><dt>API oficial, alcance</dt><dd>1.400 de 1.400</dd></div>
+              <div class="is-hi"><dt>Diferença de alcance</dt><dd>988 pessoas</dd></div>
+            </dl>
+            <p class="exemplo__end">
+              O limite não é de envio, é de entrega. A lista de transmissão só chega em quem já
+              salvou o seu número, e essa é a informação que quase ninguém confere antes de montar
+              a campanha.
+              <a href="/blog/lista-de-transmissao-no-whatsapp/">Entenda o limite da lista de transmissão.</a>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap faq">
+      <div class="head head--center scroll-reveal scroll-reveal--fade-up">
+        <p class="label">Perguntas frequentes</p>
+        <h2>Dúvidas sobre agendar mensagem no WhatsApp</h2>
+      </div>
+      <div class="faq__list scroll-reveal scroll-reveal--fade-up">
+        <details>
+          <summary>Como programar uma mensagem no WhatsApp?</summary>
+          <p>O WhatsApp comum e o WhatsApp Business não têm agendamento nativo de mensagem para clientes. Existem três caminhos legítimos: agendar um lembrete na sua própria agenda com a conversa já pré-preenchida, que é o que esta ferramenta faz; usar o agendamento nativo do Android em alguns aparelhos Samsung e Xiaomi, que agenda pelo teclado do sistema; ou conectar o número à API oficial do WhatsApp Business, que é o único caminho que envia sozinho.</p>
+        </details>
+        <details>
+          <summary>Aplicativo de agendar mensagem no WhatsApp pode banir meu número?</summary>
+          <p>Pode, e é a causa mais comum de banimento em número comercial. Aplicativos como GBWhatsApp, WhatsApp Plus e a maioria dos agendadores de loja pedem que você entre com a sua conta dentro de uma versão modificada do WhatsApp. A Meta detecta essa versão e bloqueia a conta, muitas vezes de forma permanente e sem aviso. O aviso está na própria política de uso do WhatsApp.</p>
+        </details>
+        <details>
+          <summary>Dá para fazer disparo em massa no WhatsApp de graça?</summary>
+          <p>De graça e sem risco, não em escala. A lista de transmissão do aplicativo entrega para no máximo 256 contatos por lista, e só chega em quem tem o seu número salvo na agenda. Ferramenta de terceiros que promete envio ilimitado quase sempre usa aplicativo modificado. O caminho que envia em volume sem ilegalidade é a API oficial, com templates aprovados pela Meta e com opt-in do cliente.</p>
+        </details>
+        <details>
+          <summary>O arquivo .ics funciona em qual agenda?</summary>
+          <p>O .ics é o formato padrão de calendário e é aceito pelo Google Agenda, Apple Calendário, Outlook e praticamente qualquer aplicativo de agenda. Ao abrir o arquivo, cada contato vira um evento com o link da conversa dentro da descrição, e com um alarme configurado para o horário escolhido.</p>
+        </details>
+        <details>
+          <summary>Quantas mensagens posso mandar por dia sem risco?</summary>
+          <p>Não existe número oficial publicado pela Meta para conta comum, porque o critério é comportamento, não volume puro. O que derruba número é o padrão: muitas mensagens iguais, para contatos que não têm você salvo, em pouco tempo, e com bloqueios e denúncias em seguida. Um número novo tem tolerância bem menor que um número com histórico de conversas de duas vias. Na API oficial existem limites explícitos de conversas iniciadas por dia, que sobem conforme a qualidade do número.</p>
+        </details>
+        <details>
+          <summary>Por que esta ferramenta não envia sozinha?</summary>
+          <p>Porque enviar sozinha exigiria acesso à sua conta do WhatsApp, e a única forma legítima de ter esse acesso é pela API oficial, que depende de conta comercial verificada, número dedicado e templates aprovados. Qualquer ferramenta grátis que prometa enviar sozinha pelo seu número comum está usando aplicativo modificado ou automação de navegador, e as duas coisas colocam o número na fila do banimento.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <p class="label">Fontes</p>
+      <ul class="sources" style="margin-top:16px">
+        <li><a href="https://www.whatsapp.com/legal/terms-of-service" target="_blank" rel="noopener noreferrer">Termos de Serviço do WhatsApp</a> <span>· WhatsApp</span></li>
+        <li><a href="https://faq.whatsapp.com/general/security-and-privacy/about-unofficial-apps" target="_blank" rel="noopener noreferrer">Sobre aplicativos não oficiais</a> <span>· Central de Ajuda do WhatsApp</span></li>
+        <li><a href="https://developers.facebook.com/docs/whatsapp/messaging-limits" target="_blank" rel="noopener noreferrer">Limites de mensagens da Plataforma do WhatsApp Business</a> <span>· Meta for Developers</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <div class="cta">
+        <p class="label label--night">O passo seguinte</p>
+        <h2 style="margin-top:14px">Quando o clique por contato vira trabalho de duas horas</h2>
+        <p>
+          Trinta contatos por dia ainda cabem no clique manual. Trezentos não cabem, e é aí que
+          aparece a tentação do aplicativo pirata. O Pipe envia pela API oficial, com template
+          aprovado, no horário marcado, e devolve quem respondeu e quem não respondeu.
+        </p>
+        <div class="cta__act">
+          <a class="btn btn--primary" href="/#demo">Agendar demonstração</a>
+          <a class="btn btn--night" href="/blog/lista-de-transmissao-no-whatsapp/">Entender o limite da transmissão</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="ft">
+  <div class="wrap">
+    <div class="ft__grid">
+      <div class="ft__brand">
+        <img src="/assets/pipe-lockup-cream.svg" width="420" height="190" alt="Pipe">
+        <p>Atendimento no WhatsApp pela API oficial, com CRM alimentado pelas conversas e monitoria de qualidade por IA.</p>
+      </div>
+      <div>
+        <p class="ft__h">Produto</p>
+        <nav aria-label="Produto">
+          <a href="/#produto">Atendimento</a>
+          <a href="/#produto">CRM pelas conversas</a>
+          <a href="/#monitoria">Monitoria com IA</a>
+          <a href="/#precos">Preços</a>
+        </nav>
+      </div>
+      <div>
+        <p class="ft__h">Ferramentas</p>
+        <nav aria-label="Ferramentas">
+          <a href="/ferramentas/gerador-de-link-whatsapp/">Gerador de link do WhatsApp</a>
+          <a href="/ferramentas/gerador-de-qr-code-whatsapp/">Gerador de QR code</a>
+          <a href="/ferramentas/agendador-de-mensagem-whatsapp/">Agendador de mensagem</a>
+          <a href="/ferramentas/calculadora-de-nps/">Calculadora de NPS</a>
+          <a href="/ferramentas/calculadora-de-taxas-do-ifood/">Calculadora de taxas do iFood</a>
+        </nav>
+      </div>
+      <div>
+        <p class="ft__h">Empresa</p>
+        <nav aria-label="Empresa">
+          <a href="/blog/">Blog</a>
+          <a href="/#demo">Falar com a gente</a>
+          <a href="/privacidade/">Privacidade</a>
+          <a href="/termos/">Termos de uso</a>
+        </nav>
+      </div>
+    </div>
+    <div class="ft__bar">
+      <p>© 2026 Pipe. Todos os direitos reservados.</p>
+      <p>WhatsApp é marca da Meta Platforms. O Pipe não tem vínculo com a Meta.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+<script>
+/* Agendador de mensagem. Monta a fila de links wa.me personalizados e exporta
+   um arquivo .ics com um evento por contato. Nada sai do navegador: a lista de
+   números é lida, montada e baixada localmente. */
+(function () {
+  "use strict";
+
+  var elMensagem = document.getElementById("mensagem");
+  var elData = document.getElementById("data");
+  var elHora = document.getElementById("hora");
+  var elTitulo = document.getElementById("titulo");
+  var elContatos = document.getElementById("contatos");
+  var elContador = document.getElementById("contador");
+  var elErro = document.getElementById("erroContatos");
+  var corpoFila = document.getElementById("corpoFila");
+  var resumoQtd = document.getElementById("resumoQtd");
+  var resumoQuando = document.getElementById("resumoQuando");
+  var mVal = document.getElementById("mVal");
+  var mInv = document.getElementById("mInv");
+  var mChars = document.getElementById("mChars");
+  var btnIcs = document.getElementById("baixarIcs");
+  var btnCsv = document.getElementById("baixarCsv");
+
+  var fila = [];
+
+  function escapar(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  /* Aceita 8 a 15 dígitos. Sem DDI explícito e com 10 ou 11 dígitos, assume 55,
+     que cobre praticamente toda lista brasileira colada de planilha. */
+  function normalizar(bruto) {
+    var d = (bruto || "").replace(/\D+/g, "");
+    if (!d) return null;
+    if (d.length === 10 || d.length === 11) d = "55" + d;
+    if (d.length < 10 || d.length > 15) return null;
+    return d;
+  }
+
+  function primeiroNome(nome) {
+    return (nome || "").trim().split(/\s+/)[0] || "";
+  }
+
+  function montarTexto(nome) {
+    var texto = elMensagem.value;
+    var n = primeiroNome(nome);
+    return texto.replace(/\{nome\}/g, n).replace(/\s{2,}/g, " ").trim();
+  }
+
+  function formatarBr(d) {
+    if (d.slice(0, 2) === "55" && (d.length === 12 || d.length === 13)) {
+      var resto = d.slice(2);
+      return "(" + resto.slice(0, 2) + ") " + resto.slice(2, resto.length - 4) + "-" + resto.slice(-4);
+    }
+    return "+" + d;
+  }
+
+  function dobrarIcs(linha) {
+    /* O padrão iCalendar limita a linha a 75 octetos; quebrar com espaço no
+       começo da continuação é o que manda a especificação. */
+    var saida = "";
+    while (linha.length > 73) {
+      saida += linha.slice(0, 73) + "\r\n ";
+      linha = linha.slice(73);
+    }
+    return saida + linha;
+  }
+
+  function escaparIcs(s) {
+    return s.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+  }
+
+  function carimbo() {
+    var d = new Date();
+    var p = function (n) { return String(n).padStart(2, "0"); };
+    return d.getUTCFullYear() + p(d.getUTCMonth() + 1) + p(d.getUTCDate()) + "T" +
+      p(d.getUTCHours()) + p(d.getUTCMinutes()) + p(d.getUTCSeconds()) + "Z";
+  }
+
+  function baixar(texto, tipo, nome) {
+    var blob = new Blob([texto], { type: tipo });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = nome;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function atualizar() {
+    var texto = elMensagem.value.slice(0, 1000);
+    if (texto !== elMensagem.value) elMensagem.value = texto;
+    elContador.textContent = texto.length;
+
+    var linhas = elContatos.value.split(/\r?\n/);
+    var invalidas = 0;
+    fila = [];
+
+    linhas.forEach(function (linha) {
+      if (!linha.trim()) return;
+      var partes = linha.split(/[,;\t]/);
+      var numero = normalizar(partes[0]);
+      var nome = (partes[1] || "").trim();
+      if (!numero) { invalidas++; return; }
+      var msg = montarTexto(nome);
+      fila.push({
+        numero: numero,
+        nome: nome,
+        mensagem: msg,
+        link: "https://wa.me/" + numero + (msg ? "?text=" + encodeURIComponent(msg) : "")
+      });
+    });
+
+    mVal.textContent = fila.length;
+    mInv.textContent = invalidas;
+    mChars.textContent = fila.length ? fila[0].mensagem.length : texto.length;
+    resumoQtd.textContent = fila.length + (fila.length === 1 ? " mensagem" : " mensagens");
+
+    elErro.hidden = invalidas === 0;
+    if (invalidas) {
+      elErro.textContent = invalidas + (invalidas === 1 ? " linha foi ignorada" : " linhas foram ignoradas") +
+        ": o número precisa ter de 10 a 15 dígitos.";
+    }
+
+    var quando = null;
+    if (elData.value && elHora.value) {
+      var partesData = elData.value.split("-");
+      var partesHora = elHora.value.split(":");
+      quando = new Date(+partesData[0], +partesData[1] - 1, +partesData[2], +partesHora[0], +partesHora[1], 0);
+      resumoQuando.textContent = "Lembrete para " +
+        quando.toLocaleDateString("pt-BR", { day: "2-digit", month: "long", year: "numeric" }) +
+        " às " + elHora.value + ", no horário do seu aparelho.";
+    } else {
+      resumoQuando.textContent = "Escolha a data e a hora para montar o lembrete.";
+    }
+
+    btnIcs.disabled = !(fila.length && quando);
+    btnCsv.disabled = fila.length === 0;
+
+    if (!fila.length) {
+      corpoFila.innerHTML = '<tr><td colspan="5" style="color:var(--ink-3)">Preencha a lista de contatos para montar a fila.</td></tr>';
+      return;
+    }
+
+    corpoFila.innerHTML = fila.map(function (c, i) {
+      return "<tr>" +
+        '<td class="num">' + (i + 1) + "</td>" +
+        "<td>" + (c.nome ? escapar(c.nome) : '<span style="color:var(--ink-3)">sem nome</span>') + "</td>" +
+        "<td>" + escapar(formatarBr(c.numero)) + "</td>" +
+        "<td>" + escapar(c.mensagem.slice(0, 90)) + (c.mensagem.length > 90 ? "…" : "") + "</td>" +
+        '<td style="white-space:nowrap">' +
+        '<a class="copy" style="padding:5px 11px;font-size:.75rem" href="' + escapar(c.link) + '" target="_blank" rel="noopener">Abrir</a> ' +
+        '<button class="copy" style="padding:5px 11px;font-size:.75rem" type="button" data-copy-text="' + escapar(c.link) + '"><span data-copy-label>Copiar</span></button>' +
+        "</td></tr>";
+    }).join("");
+  }
+
+  btnIcs.addEventListener("click", function () {
+    if (!fila.length || !elData.value || !elHora.value) return;
+    var p2 = function (n) { return String(n).padStart(2, "0"); };
+    var local = function (d) {
+      return d.getFullYear() + p2(d.getMonth() + 1) + p2(d.getDate()) + "T" +
+        p2(d.getHours()) + p2(d.getMinutes()) + "00";
+    };
+    var pd = elData.value.split("-");
+    var ph = elHora.value.split(":");
+    var dInicio = new Date(+pd[0], +pd[1] - 1, +pd[2], +ph[0], +ph[1], 0);
+    var dFim = new Date(dInicio.getTime() + 15 * 60 * 1000);
+    var inicio = local(dInicio);
+    var fim = local(dFim);
+    var linhas = [
+      "BEGIN:VCALENDAR",
+      "VERSION:2.0",
+      "PRODID:-//Pipe//Agendador de mensagem do WhatsApp//PT-BR",
+      "CALSCALE:GREGORIAN",
+      "METHOD:PUBLISH"
+    ];
+    fila.forEach(function (c, i) {
+      var titulo = elTitulo.value.trim() || "Mandar mensagem no WhatsApp";
+      linhas.push("BEGIN:VEVENT");
+      linhas.push("UID:pipe-" + Date.now() + "-" + i + "@pipe.com.br");
+      linhas.push("DTSTAMP:" + carimbo());
+      linhas.push("DTSTART:" + inicio);
+      linhas.push("DTEND:" + fim);
+      linhas.push(dobrarIcs("SUMMARY:" + escaparIcs(titulo + (c.nome ? " para " + c.nome : " para " + formatarBr(c.numero)))));
+      linhas.push(dobrarIcs("DESCRIPTION:" + escaparIcs(c.mensagem + "\n\nAbrir a conversa: " + c.link)));
+      linhas.push(dobrarIcs("URL:" + c.link));
+      linhas.push("BEGIN:VALARM");
+      linhas.push("TRIGGER:PT0M");
+      linhas.push("ACTION:DISPLAY");
+      linhas.push(dobrarIcs("DESCRIPTION:" + escaparIcs(titulo)));
+      linhas.push("END:VALARM");
+      linhas.push("END:VEVENT");
+    });
+    linhas.push("END:VCALENDAR");
+    baixar(linhas.join("\r\n"), "text/calendar;charset=utf-8", "mensagens-whatsapp.ics");
+  });
+
+  btnCsv.addEventListener("click", function () {
+    var aspas = function (s) { return '"' + String(s).replace(/"/g, '""') + '"'; };
+    var linhas = [["nome", "numero", "mensagem", "link"].map(aspas).join(";")];
+    fila.forEach(function (c) {
+      linhas.push([c.nome, "+" + c.numero, c.mensagem, c.link].map(aspas).join(";"));
+    });
+    baixar("\ufeff" + linhas.join("\r\n"), "text/csv;charset=utf-8", "mensagens-whatsapp.csv");
+  });
+
+  [elMensagem, elContatos, elData, elHora, elTitulo].forEach(function (el) {
+    el.addEventListener("input", atualizar);
+    el.addEventListener("change", atualizar);
+  });
+
+  var amanha = new Date();
+  amanha.setDate(amanha.getDate() + 1);
+  elData.value = amanha.getFullYear() + "-" +
+    String(amanha.getMonth() + 1).padStart(2, "0") + "-" +
+    String(amanha.getDate()).padStart(2, "0");
+  elMensagem.value = "Oi {nome}, tudo bem? Aqui é da equipe. Passando para confirmar seu horário de amanhã. Pode confirmar por aqui?";
+  elContatos.value = "11999998888, Maria Souza\n21988887777, João Pereira\n(31) 97777-6666, Ana Lima";
+  atualizar();
+})();
+</script>
+</body>
+</html>
