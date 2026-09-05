@@ -1,0 +1,53 @@
+# Site do Pipe, atrás do Traefik que já roda na VPS OVH (149.56.12.166, /opt/stack).
+#
+# O DOMÍNIO AINDA NÃO FOI DEFINIDO. Antes de subir, crie um arquivo `.env` ao lado
+# deste, com a linha abaixo, trocando o valor pelo domínio que o dono escolher:
+#
+#     SITE_HOST=pipe.com.br
+#
+# Se o domínio final tiver www, acrescente a segunda regra na label `rule`, assim:
+#     Host(`${SITE_HOST}`) || Host(`www.${SITE_HOST}`)
+#
+# O nome da rede externa abaixo precisa bater com a rede que o Traefik já usa na VPS.
+# Confira com: docker network ls
+
+services:
+  pipe-site:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: pipe-site:latest
+    container_name: pipe-site
+    restart: unless-stopped
+    networks:
+      - traefik
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik"
+
+      # HTTP: só redireciona para HTTPS
+      - "traefik.http.routers.pipe-site.rule=Host(`${SITE_HOST}`)"
+      - "traefik.http.routers.pipe-site.entrypoints=web"
+      - "traefik.http.routers.pipe-site.middlewares=pipe-site-https"
+      - "traefik.http.middlewares.pipe-site-https.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.pipe-site-https.redirectscheme.permanent=true"
+
+      # HTTPS: o site de verdade
+      - "traefik.http.routers.pipe-site-secure.rule=Host(`${SITE_HOST}`)"
+      - "traefik.http.routers.pipe-site-secure.entrypoints=websecure"
+      - "traefik.http.routers.pipe-site-secure.tls=true"
+      - "traefik.http.routers.pipe-site-secure.tls.certresolver=letsencrypt"
+      - "traefik.http.routers.pipe-site-secure.middlewares=pipe-site-headers"
+      - "traefik.http.services.pipe-site.loadbalancer.server.port=80"
+
+      # HSTS e cabeçalhos de segurança
+      - "traefik.http.middlewares.pipe-site-headers.headers.stsSeconds=31536000"
+      - "traefik.http.middlewares.pipe-site-headers.headers.stsIncludeSubdomains=true"
+      - "traefik.http.middlewares.pipe-site-headers.headers.contentTypeNosniff=true"
+      - "traefik.http.middlewares.pipe-site-headers.headers.browserXssFilter=true"
+
+networks:
+  traefik:
+    external: true
+    # Se a rede do Traefik na VPS tiver outro nome, ajuste aqui:
+    name: traefik

@@ -1,0 +1,293 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Blog do Pipe: operação de atendimento no WhatsApp na prática</title>
+<meta name="description" content="Conteúdo de operação para quem atende no WhatsApp: número banido, frases prontas, mensagem de ausência, lista de transmissão, atendimento omnichannel e customer service.">
+<link rel="canonical" href="https://pipe.com.br/blog/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#4A5D23" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12140E" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Pipe">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://pipe.com.br/blog/">
+<meta property="og:title" content="Blog do Pipe: operação de atendimento no WhatsApp na prática">
+<meta property="og:description" content="O que a documentação das plataformas não conta sobre atender no WhatsApp.">
+<meta property="og:image" content="https://pipe.com.br/assets/og-pipe.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Blog do Pipe">
+<meta name="twitter:description" content="O que a documentação das plataformas não conta sobre atender no WhatsApp.">
+<meta name="twitter:image" content="https://pipe.com.br/assets/og-pipe.png">
+
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/favicon.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
+<link rel="stylesheet" href="/assets/site.css">
+<script>
+  try {
+    var t = localStorage.getItem("pipe-theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Pipe", "item": "https://pipe.com.br/" },
+        { "@type": "ListItem", "position": 2, "name": "Blog", "item": "https://pipe.com.br/blog/" }
+      ]
+    },
+    {
+      "@type": "Blog",
+      "name": "Blog do Pipe",
+      "url": "https://pipe.com.br/blog/",
+      "inLanguage": "pt-BR",
+      "description": "Conteúdo de operação de atendimento no WhatsApp, CRM e qualidade no atendimento ao cliente.",
+      "publisher": { "@type": "Organization", "name": "Pipe", "url": "https://pipe.com.br/" },
+      "blogPost": [
+        { "@type": "BlogPosting", "headline": "Número de WhatsApp banido: o que fazer e como evitar", "url": "https://pipe.com.br/blog/numero-de-whatsapp-banido/", "inLanguage": "pt-BR" },
+        { "@type": "BlogPosting", "headline": "Frases prontas para atendimento no WhatsApp, por situação", "url": "https://pipe.com.br/blog/frases-prontas-para-atendimento-no-whatsapp/", "inLanguage": "pt-BR" },
+        { "@type": "BlogPosting", "headline": "Mensagem de ausência no WhatsApp: como escrever e quando disparar", "url": "https://pipe.com.br/blog/mensagem-de-ausencia-no-whatsapp/", "inLanguage": "pt-BR" },
+        { "@type": "BlogPosting", "headline": "Lista de transmissão no WhatsApp: como funciona e onde ela trava", "url": "https://pipe.com.br/blog/lista-de-transmissao-no-whatsapp/", "inLanguage": "pt-BR" },
+        { "@type": "BlogPosting", "headline": "O que é atendimento omnichannel e o que ele exige da sua operação", "url": "https://pipe.com.br/blog/o-que-e-atendimento-omnichannel/", "inLanguage": "pt-BR" },
+        { "@type": "BlogPosting", "headline": "Customer service: o que é e como estruturar a área", "url": "https://pipe.com.br/blog/customer-service-o-que-e/", "inLanguage": "pt-BR" }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Pular para o conteúdo</a>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5.6c0 4.2 2.9 7.6 7 9.4 4.1-1.8 7-5.2 7-9.4V6Z"/><path d="M9.3 12.2 11.3 14l3.6-3.7"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a8.5 8.5 0 0 1-12.4 7.6L3.5 21l1.4-4.6A8.5 8.5 0 1 1 20.5 12Z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-megaphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4a2 2 0 0 0 2 2h1.5l9 4.5v-17L7.5 8H6a2 2 0 0 0-2 2Z"/><path d="M7.5 8v8M20 10.5v3"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19c0-3.1 2.7-5.4 6-5.4s6 2.3 6 5.4"/><path d="M16 6.4a3.1 3.1 0 0 1 0 6M17.5 13.9c2.1.7 3.5 2.6 3.5 5.1"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.5H7a1.8 1.8 0 0 0-1.8 1.8v13.4A1.8 1.8 0 0 0 7 20.5h10a1.8 1.8 0 0 0 1.8-1.8V8.3Z"/><path d="M14 3.5V8.3h4.8M8.6 13h6.8M8.6 16.4h4.4"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+</svg>
+
+<header class="hdr">
+  <div class="hdr__bar">
+    <a class="hdr__logo" href="/" aria-label="Pipe, página inicial">
+      <img src="/assets/pipe-lockup-cream.svg" width="420" height="190" alt="Pipe">
+    </a>
+    <nav class="hdr__nav" aria-label="Principal">
+      <a href="/#produto">Produto</a>
+      <a href="/#monitoria">Monitoria</a>
+      <a href="/#precos">Preços</a>
+      <a href="/ferramentas/">Ferramentas</a>
+      <a href="/blog/" aria-current="page">Blog</a>
+    </nav>
+    <div class="hdr__act">
+      <button class="hdr__theme" type="button" data-theme-toggle aria-label="Alternar tema claro e escuro">
+        <svg aria-hidden="true" data-icon-sun><use href="#i-sun"></use></svg>
+        <svg aria-hidden="true" data-icon-moon hidden><use href="#i-moon"></use></svg>
+      </button>
+      <a class="btn btn--primary btn--sm" href="/#demo">Agendar demonstração</a>
+    </div>
+    <button class="hdr__toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+      <svg aria-hidden="true" width="22" height="22"><use href="#i-menu"></use></svg>
+    </button>
+  </div>
+  <div class="hdr__panel" id="menu" hidden>
+    <a href="/#produto">Produto</a>
+    <a href="/#monitoria">Monitoria</a>
+    <a href="/#precos">Preços</a>
+    <a href="/ferramentas/">Ferramentas</a>
+    <a href="/blog/">Blog</a>
+    <hr>
+    <a class="btn btn--primary" href="/#demo">Agendar demonstração</a>
+    <button class="btn btn--night" type="button" data-theme-toggle style="width:100%;margin-top:8px">Alternar tema</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="hero__glow" aria-hidden="true"></div>
+    <div class="wrap page-head">
+      <nav aria-label="Trilha">
+        <p class="label label--muted"><a href="/" style="text-decoration:none">Pipe</a> / Blog</p>
+      </nav>
+      <h1>O que a documentação das plataformas não conta</h1>
+      <p>
+        Seis pautas de operação de atendimento no WhatsApp, escritas por quem já quebrou a cara nas
+        plataformas do mercado. Cada uma responde uma pergunta que o suporte delas não responde.
+      </p>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <div class="grid grid--3" style="margin-top:0">
+
+        <a class="card post" href="/blog/numero-de-whatsapp-banido/">
+          <div class="post__cover"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
+          <div class="post__body">
+            <p class="post__meta">Operação · 9 min</p>
+            <h2>Número de WhatsApp banido: o que fazer e como evitar</h2>
+            <p>
+              Os três motivos reais de banimento, o passo a passo do recurso dentro do Business
+              Manager, e por que a API oficial tira o seu número da roleta.
+            </p>
+            <span class="post__go">Ler artigo</span>
+          </div>
+        </a>
+
+        <a class="card post" href="/blog/frases-prontas-para-atendimento-no-whatsapp/">
+          <div class="post__cover"><svg aria-hidden="true"><use href="#i-chat"></use></svg></div>
+          <div class="post__body">
+            <p class="post__meta">Modelos · 12 min</p>
+            <h2>Frases prontas para atendimento no WhatsApp, por situação</h2>
+            <p>
+              Abertura, espera, cobrança, contorno de objeção e encerramento. Modelos prontos para
+              copiar e para virar resposta pronta dentro do sistema.
+            </p>
+            <span class="post__go">Ler artigo</span>
+          </div>
+        </a>
+
+        <a class="card post" href="/blog/mensagem-de-ausencia-no-whatsapp/">
+          <div class="post__cover"><svg aria-hidden="true"><use href="#i-clock"></use></svg></div>
+          <div class="post__body">
+            <p class="post__meta">Tutorial · 6 min</p>
+            <h2>Mensagem de ausência no WhatsApp: como escrever e quando disparar</h2>
+            <p>
+              O texto que reduz cobrança, o horário que faz sentido, e como a mensagem automática
+              conversa com o SLA de atendimento para não contar tempo fora do expediente.
+            </p>
+            <span class="post__go">Ler artigo</span>
+          </div>
+        </a>
+
+        <a class="card post" href="/blog/lista-de-transmissao-no-whatsapp/">
+          <div class="post__cover"><svg aria-hidden="true"><use href="#i-megaphone"></use></svg></div>
+          <div class="post__body">
+            <p class="post__meta">Operação · 8 min</p>
+            <h2>Lista de transmissão no WhatsApp: como funciona e onde ela trava</h2>
+            <p>
+              O limite de 256 contatos, a exigência de o cliente ter o seu número salvo, e o caminho
+              para fazer disparo em massa no WhatsApp sem colocar a conta em risco.
+            </p>
+            <span class="post__go">Ler artigo</span>
+          </div>
+        </a>
+
+        <a class="card post" href="/blog/o-que-e-atendimento-omnichannel/">
+          <div class="post__cover"><svg aria-hidden="true"><use href="#i-users"></use></svg></div>
+          <div class="post__body">
+            <p class="post__meta">Conceito · 10 min</p>
+            <h2>O que é atendimento omnichannel e o que ele exige da sua operação</h2>
+            <p>
+              A diferença prática entre multicanal e omnichannel, e as quatro coisas que precisam
+              ser iguais nos canais para o nome valer alguma coisa.
+            </p>
+            <span class="post__go">Ler artigo</span>
+          </div>
+        </a>
+
+        <a class="card post" href="/blog/customer-service-o-que-e/">
+          <div class="post__cover"><svg aria-hidden="true"><use href="#i-doc"></use></svg></div>
+          <div class="post__body">
+            <p class="post__meta">Gestão · 11 min</p>
+            <h2>Customer service: o que é e como estruturar a área</h2>
+            <p>
+              Papéis, níveis de atendimento, métricas de qualidade no atendimento ao cliente, e o
+              ponto exato em que a área passa a precisar de um sistema de tickets.
+            </p>
+            <span class="post__go">Ler artigo</span>
+          </div>
+        </a>
+
+      </div>
+
+      <p style="margin-top:28px;font-size:.8125rem;color:var(--ink-3);max-width:70ch">
+        As seis pautas estão em produção. Assim que cada artigo for publicado, o link acima abre o
+        texto completo.
+      </p>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <div class="cta">
+        <p class="label label--night">Enquanto o blog não sai</p>
+        <h2 style="margin-top:14px">Comece pelas ferramentas grátis</h2>
+        <p>
+          O gerador de link do WhatsApp, o gerador de QR code e mais seis calculadoras de operação
+          já estão disponíveis, sem cadastro.
+        </p>
+        <div class="cta__act">
+          <a class="btn btn--primary" href="/ferramentas/">Ver as ferramentas</a>
+          <a class="btn btn--night" href="/">Conhecer o Pipe</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="ft">
+  <div class="wrap">
+    <div class="ft__grid">
+      <div class="ft__brand">
+        <img src="/assets/pipe-lockup-cream.svg" width="420" height="190" alt="Pipe">
+        <p>Atendimento no WhatsApp pela API oficial, com CRM alimentado pelas conversas e monitoria de qualidade por IA.</p>
+      </div>
+      <div>
+        <p class="ft__h">Produto</p>
+        <nav aria-label="Produto">
+          <a href="/#produto">Atendimento</a>
+          <a href="/#produto">CRM pelas conversas</a>
+          <a href="/#monitoria">Monitoria com IA</a>
+          <a href="/#precos">Preços</a>
+        </nav>
+      </div>
+      <div>
+        <p class="ft__h">Recursos</p>
+        <nav aria-label="Recursos">
+          <a href="/ferramentas/">Ferramentas grátis</a>
+          <a href="/ferramentas/gerador-de-link-do-whatsapp/">Gerador de link do WhatsApp</a>
+          <a href="/blog/">Blog</a>
+        </nav>
+      </div>
+      <div>
+        <p class="ft__h">Empresa</p>
+        <nav aria-label="Empresa">
+          <a href="/#demo">Falar com a gente</a>
+          <a href="/privacidade/">Privacidade</a>
+          <a href="/termos/">Termos de uso</a>
+        </nav>
+      </div>
+    </div>
+    <div class="ft__bar">
+      <p>© 2026 Pipe. Todos os direitos reservados.</p>
+      <p>WhatsApp é marca da Meta Platforms. O Pipe não tem vínculo com a Meta.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+</body>
+</html>

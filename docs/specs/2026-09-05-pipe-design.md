@@ -168,8 +168,26 @@ RD Station e CSV.
 `canal` · `inbox` · `conversa` · `mensagem` · `anexo` · `fila` · `atribuicao` · `pausa` ·
 `resposta_pronta` · `etiqueta` · `nota_interna`
 
-Canais do dia 1: **WhatsApp Cloud API oficial**, **e-mail** e **widget de site**. Os três caem na
-mesma tela do Desk — um dos pedidos explícitos.
+Canais do dia 1: **WhatsApp Cloud API oficial**, **Instagram Direct**, **e-mail** e **widget de
+site**. Os quatro caem na mesma tela do Desk, que é um dos pedidos explícitos.
+
+**Instagram merece parágrafo próprio porque não é "mais um canal".** Ele entra pela plataforma de
+mensagens da Meta, com conta profissional vinculada a uma página, e traz três origens de conversa
+que o WhatsApp não tem: mensagem direta, **resposta a story** (que chega com a referência do story
+respondido) e **menção**. Some a isso o **comentário em publicação**, que não é conversa mas
+precisa virar uma, porque é onde a intenção de compra aparece primeiro: o Pipe transforma
+comentário em conversa privada com um clique, mantendo o vínculo com a publicação de origem.
+
+Duas diferenças de regra que o modelo precisa suportar sem gambiarra:
+- A janela de atendimento existe também aqui, com prazo próprio, e **não há template aprovado**
+  para reabrir conversa como no WhatsApp. Fora da janela as opções são outras, então
+  `janela_expira_em` continua servindo, mas a ação disponível ao atendente muda por canal.
+- O identificador do contato é a conta do Instagram, não o telefone. `contato_identidade` já
+  resolve isso: identificador por canal. E o mesmo contato pode chegar pelo Instagram hoje e pelo
+  WhatsApp amanhã — a unificação dos dois numa ficha só é trabalho do CRM, não do canal.
+
+Os requisitos da tela do atendente estão detalhados em
+[`2026-09-05-desk-requisitos.md`](2026-09-05-desk-requisitos.md).
 
 Os requisitos da tela do atendente estão detalhados em
 [`2026-09-05-desk-requisitos.md`](2026-09-05-desk-requisitos.md).
@@ -237,13 +255,16 @@ atribuído/aguardando, atendentes, filas e etiquetas.
 - caracteres escritos pelo atendente ÷ 200/min (digitação)
 - caracteres recebidos do cliente ÷ 1.000/min (leitura)
 - duração dos áudios recebidos (escuta em 1×) e dos áudios gravados (fala)
-- duração de áudio estimada por tamanho quando não vier no metadado: Opus a ~16 kbps → 2 KB/s
+- duração de áudio estimada por tamanho quando não vier no metadado: Opus a ~16 kbps, o que dá
+  **2.000 bytes por segundo**, não 2.048. O "2 KB/s" do relatório original é decimal; tratar como
+  binário infla a duração estimada em 2,4%
 - régua de apoio: tempo em sessão, somando intervalos entre mensagens consecutivas de até 10 min
 - média ponderada por construção: esforço total ÷ tickets total, para que dia cheio pese mais
 
 Ressalva registrada no relatório original, que o produto precisa expor: a régua assume texto
-digitado à mão, então template e resposta pronta inflam o esforço. O Pipe desconta o conteúdo
-originado de resposta pronta e o exibe em coluna separada.
+digitado à mão, então template e resposta pronta inflam o esforço. O Pipe desconta **os dois** e os
+exibe em coluna separada. Só resposta pronta seria desconto pela metade, já que template também é
+texto que o atendente não digitou.
 
 **Regras** são condição → ação versionada, em três famílias separadas, como na Blip: regra de fila
 (decide para onde a conversa vai), regra de SLA (o que dispara e o que acontece ao estourar) e
@@ -430,7 +451,7 @@ Adiados de propósito, para não inflar a fundação:
 - Aplicativo móvel nativo. O Desk é web responsivo.
 - Metadata engine com DDL em tempo de execução, no estilo Twenty. Campo customizado em JSONB
   resolve por muito tempo, sem a complexidade de migração de schema por tenant.
-- Instagram, Messenger e Telegram. A arquitetura de canal já prevê, mas não entram no dia 1.
+- Messenger e Telegram. A arquitetura de canal já prevê, mas não entram no dia 1.
 
 ## 11. Em aberto
 

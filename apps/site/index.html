@@ -1,0 +1,1083 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sistema de atendimento no WhatsApp com CRM e monitoria por IA | Pipe</title>
+<meta name="description" content="Sistema de atendimento no WhatsApp com API oficial da Meta. Cada conversa cadastra o cliente no CRM, guarda o histórico e gera resumo por IA. Fila, SLA e relatório em tempo real.">
+<link rel="canonical" href="https://pipe.com.br/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#4A5D23" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12140E" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Pipe">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://pipe.com.br/">
+<meta property="og:title" content="Sistema de atendimento no WhatsApp com CRM e monitoria por IA | Pipe">
+<meta property="og:description" content="Cada conversa cadastra o cliente no CRM, guarda o histórico e gera resumo por IA. API oficial da Meta, fila em tempo real e SLA de atendimento na tela.">
+<meta property="og:image" content="https://pipe.com.br/assets/og-pipe.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Pipe, sistema de atendimento no WhatsApp com CRM">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Sistema de atendimento no WhatsApp com CRM e monitoria por IA | Pipe">
+<meta name="twitter:description" content="Cada conversa cadastra o cliente no CRM, guarda o histórico e gera resumo por IA. API oficial da Meta, fila e SLA em tempo real.">
+<meta name="twitter:image" content="https://pipe.com.br/assets/og-pipe.png">
+
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/favicon.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
+<link rel="preconnect" href="https://images.pexels.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
+<link rel="stylesheet" href="/assets/site.css">
+<script>
+  // aplica o tema salvo antes da pintura, para não piscar branco em tela escura
+  try {
+    var t = localStorage.getItem("pipe-theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": "https://pipe.com.br/#org",
+      "name": "Pipe",
+      "url": "https://pipe.com.br/",
+      "logo": "https://pipe.com.br/assets/pipe-lockup.svg",
+      "description": "Plataforma brasileira de atendimento no WhatsApp com CRM alimentado pelas conversas e monitoria de qualidade por IA.",
+      "areaServed": "BR",
+      "knowsLanguage": "pt-BR"
+    },
+    {
+      "@type": "WebSite",
+      "@id": "https://pipe.com.br/#site",
+      "url": "https://pipe.com.br/",
+      "name": "Pipe",
+      "inLanguage": "pt-BR",
+      "publisher": { "@id": "https://pipe.com.br/#org" }
+    },
+    {
+      "@type": "SoftwareApplication",
+      "@id": "https://pipe.com.br/#app",
+      "name": "Pipe",
+      "applicationCategory": "BusinessApplication",
+      "applicationSubCategory": "Sistema de atendimento no WhatsApp e CRM",
+      "operatingSystem": "Web",
+      "url": "https://pipe.com.br/",
+      "inLanguage": "pt-BR",
+      "publisher": { "@id": "https://pipe.com.br/#org" },
+      "description": "Sistema de atendimento no WhatsApp pela API oficial da Meta, com CRM alimentado pelas conversas, filas com distribuição por carga, SLA de atendimento e monitoria de qualidade por IA.",
+      "featureList": [
+        "WhatsApp pela API oficial da Meta",
+        "Atendimento omnichannel com WhatsApp, e-mail e widget de site",
+        "CRM alimentado pelas conversas, com resumo automático por IA",
+        "Multiatendimento no WhatsApp com vários atendentes no mesmo número",
+        "Distribuição de conversa por carga real do atendente",
+        "SLA de atendimento por fila, com horário de funcionamento",
+        "Relatório de atendimento com base de cálculo visível",
+        "Disparo em massa no WhatsApp com template aprovado",
+        "Monitoria de qualidade com avaliação por IA e calibração"
+      ],
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "BRL",
+        "availability": "https://schema.org/PreOrder",
+        "url": "https://pipe.com.br/#precos"
+      }
+    },
+    {
+      "@type": "FAQPage",
+      "@id": "https://pipe.com.br/#faq",
+      "inLanguage": "pt-BR",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Preciso trocar o meu número de WhatsApp?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Não. O número migra para a API oficial do WhatsApp dentro do seu próprio Business Manager da Meta, e o histórico vai junto. Depois da migração ele para de funcionar no aplicativo comum do celular. Em troca, o número passa a ser seu de verdade: se um dia você sair do Pipe, ele vai com você."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "O que é a janela de 24 horas e por que ela mexe no custo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Quando o cliente manda uma mensagem, abre uma janela de 24 horas contada a partir da última mensagem dele. Dentro dela você responde em texto livre, sem custo por mensagem. Fora dela só sai template aprovado pela Meta, e é o template que é cobrado. O Pipe mostra o tempo que resta na conversa e o custo do template antes do envio."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Como o CRM é preenchido sem ninguém digitar?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Na primeira mensagem o Pipe cria o contato com telefone, nome de perfil e canal de origem. Dados coletados no fluxo automático viram campo do cadastro. Ao encerrar, a IA escreve o resumo da conversa e classifica o assunto, e tudo isso fica na ficha do cliente junto com a transcrição."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Dá para usar vários atendentes no mesmo número de WhatsApp?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sim. O multiatendimento no WhatsApp é o modo padrão do Pipe. A conversa entra numa fila e vai para o atendente com menor carga real entre os que estão online e habilitados naquela fila. Transferir não perde etiqueta, nota interna nem histórico."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Como vocês evitam que a IA invente uma nota de qualidade?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Cada critério vem com o trecho da conversa que embasou a nota e com a confiança do modelo. Abaixo do limite que você define, a nota vira sugestão para um avaliador humano. A calibração compara uma amostra avaliada por gente com a mesma amostra avaliada pela IA e mostra o desvio critério a critério."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Consigo tirar os meus dados de dentro do Pipe?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sim, e isso faz parte do produto. Tem consulta com escolha de campos e agregação, exportação em CSV, JSON e Parquet, relatório de atendimento agendado, webhook assinado, API REST e um servidor MCP para a sua própria IA consultar. Um dicionário de dados navegável lista cada campo e o que ele significa."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Pular para o conteúdo</a>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M20.5 12a8.5 8.5 0 0 1-12.4 7.6L3.5 21l1.4-4.6A8.5 8.5 0 1 1 20.5 12Z"/></symbol>
+  <symbol id="i-ticket" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5A2 2 0 0 1 5 6.5h14a2 2 0 0 1 2 2V10a2 2 0 0 0 0 4v1.5a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V14a2 2 0 0 0 0-4Z"/><path d="M14 6.5v11" stroke-dasharray="2 2.6"/></symbol>
+  <symbol id="i-scale" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v16M5 8h14M5 8l-2.5 6a2.8 2.8 0 0 0 5 0Zm14 0-2.5 6a2.8 2.8 0 0 0 5 0Z"/></symbol>
+  <symbol id="i-sent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12.5 6 16l7-8"/><path d="M11 14.5 13 16l7-8"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M13.5 3 5 13.5h5.5L10 21l8.5-10.5H13Z"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8.5" r="3.2"/><path d="M3 19c0-3.1 2.7-5.4 6-5.4s6 2.3 6 5.4"/><path d="M16 6.4a3.1 3.1 0 0 1 0 6M17.5 13.9c2.1.7 3.5 2.6 3.5 5.1"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19V10M10 19V5M16 19v-6M22 19H2"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 5 6v5.6c0 4.2 2.9 7.6 7 9.4 4.1-1.8 7-5.2 7-9.4V6Z"/><path d="M9.3 12.2 11.3 14l3.6-3.7"/></symbol>
+  <symbol id="i-ai" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5 13.6 8 18 9.6 13.6 11.2 12 15.7 10.4 11.2 6 9.6 10.4 8Z"/><path d="M18.5 15.5 19.3 17.7 21.5 18.5 19.3 19.3 18.5 21.5 17.7 19.3 15.5 18.5 17.7 17.7Z"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M10.5 13.5a4 4 0 0 0 5.7 0l2.8-2.8a4 4 0 0 0-5.7-5.7l-1.6 1.6"/><path d="M13.5 10.5a4 4 0 0 0-5.7 0L5 13.3a4 4 0 0 0 5.7 5.7l1.6-1.6"/></symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="3.5" width="6.5" height="6.5" rx="1.4"/><rect x="14" y="3.5" width="6.5" height="6.5" rx="1.4"/><rect x="3.5" y="14" width="6.5" height="6.5" rx="1.4"/><path d="M14 14h3v3h-3ZM20.5 14v3M17.5 20.5h3M14 20.5h.01"/></symbol>
+  <symbol id="i-calc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="4.5" y="3" width="15" height="18" rx="2.4"/><path d="M8 7.5h8M8.5 12h.01M12 12h.01M15.5 12h.01M8.5 16h.01M12 16h.01M15.5 16h.01"/></symbol>
+  <symbol id="i-gauge" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M3.6 17a9 9 0 1 1 16.8 0"/><path d="M12 17l4.2-4.6"/></symbol>
+  <symbol id="i-doc" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3.5H7a1.8 1.8 0 0 0-1.8 1.8v13.4A1.8 1.8 0 0 0 7 20.5h10a1.8 1.8 0 0 0 1.8-1.8V8.3Z"/><path d="M14 3.5V8.3h4.8M8.6 13h6.8M8.6 16.4h4.4"/></symbol>
+  <symbol id="i-template" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="4.5" width="17" height="15" rx="2.2"/><path d="M3.5 9.5h17M8.5 9.5v10"/></symbol>
+  <symbol id="i-megaphone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10v4a2 2 0 0 0 2 2h1.5l9 4.5v-17L7.5 8H6a2 2 0 0 0-2 2Z"/><path d="M7.5 8v8M20 10.5v3"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+</svg>
+
+<header class="hdr">
+  <div class="hdr__bar">
+    <a class="hdr__logo" href="/" aria-label="Pipe, página inicial">
+      <img src="/assets/pipe-lockup-cream.svg" width="420" height="190" alt="Pipe">
+    </a>
+
+    <nav class="hdr__nav" aria-label="Principal">
+      <a href="#produto">Produto</a>
+      <a href="#monitoria">Monitoria</a>
+      <a href="#precos">Preços</a>
+      <a href="/ferramentas/">Ferramentas</a>
+      <a href="/blog/">Blog</a>
+    </nav>
+
+    <div class="hdr__act">
+      <button class="hdr__theme" type="button" data-theme-toggle aria-label="Alternar tema claro e escuro">
+        <svg aria-hidden="true" data-icon-sun><use href="#i-sun"></use></svg>
+        <svg aria-hidden="true" data-icon-moon hidden><use href="#i-moon"></use></svg>
+      </button>
+      <a class="btn btn--night btn--sm" href="#demo">Entrar</a>
+      <a class="btn btn--primary btn--sm" href="#demo">Agendar demonstração</a>
+    </div>
+
+    <button class="hdr__toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+      <svg aria-hidden="true" width="22" height="22"><use href="#i-menu"></use></svg>
+    </button>
+  </div>
+
+  <div class="hdr__panel" id="menu" hidden>
+    <a href="#produto">Produto</a>
+    <a href="#monitoria">Monitoria</a>
+    <a href="#precos">Preços</a>
+    <a href="/ferramentas/">Ferramentas</a>
+    <a href="/blog/">Blog</a>
+    <hr>
+    <a class="btn btn--primary" href="#demo">Agendar demonstração</a>
+    <button class="btn btn--night" type="button" data-theme-toggle style="width:100%;margin-top:8px">Alternar tema</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <!-- ============================================================ HERO -->
+  <section class="hero">
+    <div class="hero__glow" aria-hidden="true"></div>
+    <div class="wrap hero__grid">
+      <div>
+        <span class="pill">
+          <svg aria-hidden="true"><use href="#i-shield"></use></svg>
+          Feito para operação de WhatsApp no Brasil
+        </span>
+
+        <h1>O sistema de atendimento no WhatsApp que <em>preenche o seu CRM</em></h1>
+
+        <p class="hero__sub">
+          Cada conversa cadastra o cliente, guarda o histórico e gera o resumo por IA.
+          Seu time atende numa tela simples. Você vê a fila e o SLA em tempo real.
+        </p>
+
+        <div class="hero__cta">
+          <a class="btn btn--primary" href="#demo">Agendar demonstração</a>
+          <a class="btn btn--ghost" href="/ferramentas/">Usar as ferramentas grátis</a>
+        </div>
+
+        <p class="hero__fine">
+          API oficial do WhatsApp, sem contrato de fidelidade. A gente migra a sua base e o seu histórico.
+        </p>
+
+        <p class="hero__meta">
+          <b>WhatsApp, e-mail e site</b>
+          <i aria-hidden="true"></i>
+          <span>CRM incluso</span>
+          <i aria-hidden="true"></i>
+          <span>Monitoria com IA</span>
+        </p>
+      </div>
+
+      <figure class="shot" style="margin:0">
+        <img
+          src="https://images.unsplash.com/photo-1766066014237-00645c74e9c6?auto=format&fit=crop&w=900&h=1125&q=70&blur=22&sat=-35"
+          width="900" height="1125" fetchpriority="high"
+          alt="Atendente com headset respondendo clientes no computador">
+        <span class="shot__wash" aria-hidden="true"></span>
+        <span class="shot__mark" aria-hidden="true"><img src="/assets/pipe-lockup-cream.svg" width="420" height="190" alt=""></span>
+
+        <figcaption class="glass">
+          <div class="glass__top">
+            <span class="glass__av" aria-hidden="true">MT</span>
+            <span class="glass__who">
+              <b>Marcelo Tavares</b>
+              <span>Fila comercial</span>
+            </span>
+            <span class="glass__win">21h48 de janela</span>
+          </div>
+
+          <p class="msg">Vi o anúncio de vocês e queria entender o plano anual.</p>
+          <p class="msg msg--out">
+            O plano anual sai por R$ 4.788; dá R$ 399 por mês.
+            <small>Entregue e lida, 14:07</small>
+          </p>
+
+          <p class="glass__foot">
+            Fila agora, 12 esperando
+            <span class="tag-ok">1ª resposta 02:38</span>
+          </p>
+        </figcaption>
+      </figure>
+    </div>
+  </section>
+
+  <!-- ===================================================== FAIXA DE PROVA -->
+  <div class="proof">
+    <div class="wrap">
+      <ul>
+        <li><svg aria-hidden="true"><use href="#i-check"></use></svg>API oficial da Meta</li>
+        <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Sem contrato de fidelidade</li>
+        <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Migração de base e histórico</li>
+        <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Produto e suporte feitos no Brasil</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ============================================== A PROMESSA: CRM VIVO -->
+  <section class="sec" id="produto">
+    <div class="wrap split">
+      <div>
+        <p class="label">O que muda</p>
+        <h2 style="font-size:clamp(1.9rem,1.35rem + 2.2vw,2.9rem);margin-top:12px">
+          A conversa vira cadastro no seu CRM para WhatsApp
+        </h2>
+        <p style="margin-top:14px;color:var(--ink-2);font-size:1.0625rem">
+          O cliente manda a primeira mensagem e o Pipe já cria o contato e a empresa.
+          A conversa fica na ficha dele. Ao encerrar, a IA escreve o resumo em três linhas
+          e classifica o assunto.
+        </p>
+
+        <ul class="checks">
+          <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>Contato e empresa criados na primeira mensagem</b>, sem ninguém digitar.</span></li>
+          <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>Histórico completo na ficha</b>, com transcrição, anexo, etiqueta e nota interna.</span></li>
+          <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>Resumo automático ao encerrar</b>, com o assunto classificado por IA.</span></li>
+          <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>Demandas recorrentes agregadas por período</b>, com volume, tendência e conversas de exemplo.</span></li>
+        </ul>
+      </div>
+
+      <div class="win">
+        <div class="win__bar" aria-hidden="true">
+          <span class="win__dot"></span><span class="win__dot"></span><span class="win__dot"></span>
+          <span class="win__url">app.pipe.com.br/crm/contatos</span>
+        </div>
+        <div class="win__body">
+          <p class="label label--night">Criados hoje pelo atendimento</p>
+          <div style="margin-top:14px">
+            <div class="row">
+              <span class="glass__av" aria-hidden="true">MT</span>
+              <span class="row__name"><b>Marcelo Tavares</b><span>Criado pela conversa das 14:02</span></span>
+              <span class="chip chip--moss">Novo</span>
+            </div>
+            <div class="row">
+              <span class="glass__av" aria-hidden="true">RF</span>
+              <span class="row__name"><b>Renata Fioravanti</b><span>3 conversas, última há 2 dias</span></span>
+              <span class="chip chip--ok">Resumo pronto</span>
+            </div>
+            <div class="row">
+              <span class="glass__av" aria-hidden="true">GT</span>
+              <span class="row__name"><b>Grupo Tavares Materiais</b><span>Empresa criada pelo CNPJ da conversa</span></span>
+              <span class="chip chip--moss">Empresa</span>
+            </div>
+          </div>
+
+          <p class="label label--night" style="margin-top:22px">Demanda recorrente do mês</p>
+          <div class="row" style="margin-top:12px">
+            <span class="row__name"><b>Segunda via de boleto</b><span>214 conversas, 9,4% do volume</span></span>
+            <span class="chip chip--warn">+38% no mês</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================== POSICIONAMENTO -->
+  <section class="sec sec--soft">
+    <div class="wrap">
+      <header class="head head--center">
+        <p class="label">Posicionamento</p>
+        <h2>Plataforma de WhatsApp e CRM viraram a mesma coisa</h2>
+        <p>
+          Quem vende chat guarda a conversa e esquece o cliente. Quem vende CRM guarda o cliente
+          e nunca viu a conversa. Você paga os dois e digita o mesmo dado duas vezes.
+        </p>
+      </header>
+
+      <div class="grid grid--3">
+        <article class="card">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-chat"></use></svg></span></div>
+          <h3>Só o chat</h3>
+          <p>
+            A conversa encerra e o dado vai embora com ela. Quando o cliente volta em outro mês,
+            ninguém sabe o que foi combinado. O que sobra é print colado no grupo interno.
+          </p>
+        </article>
+
+        <article class="card">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-doc"></use></svg></span></div>
+          <h3>Só o CRM</h3>
+          <p>
+            O cadastro existe, mas alguém precisa alimentar. Na prática o vendedor escreve três
+            palavras no campo de observação e o histórico real continua no celular dele.
+          </p>
+        </article>
+
+        <article class="card card--flag">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></span></div>
+          <h3>O Pipe</h3>
+          <p>
+            Um banco de dados só. A conversa escreve o cadastro, e o cadastro abre a próxima
+            conversa com o contexto do lado. É o que ninguém copia sem construir os dois lados.
+          </p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================== CANAIS -->
+  <section class="sec">
+    <div class="wrap">
+      <header class="head head--center">
+        <p class="label">Canais e filas</p>
+        <h2>Atendimento omnichannel com WhatsApp, e-mail e site na mesma fila</h2>
+        <p>
+          Os três canais caem na mesma tela do atendente, com a mesma fila, a mesma etiqueta
+          e o mesmo relatório de atendimento.
+        </p>
+      </header>
+
+      <div class="grid grid--3">
+        <article class="card">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-shield"></use></svg></span></div>
+          <h3>WhatsApp pela API oficial</h3>
+          <p>O número fica no seu Business Manager da Meta. Se um dia você sair do Pipe, ele vai com você.</p>
+        </article>
+
+        <article class="card">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-ticket"></use></svg></span></div>
+          <h3>Sistema de tickets com estado explícito</h3>
+          <p>Cada conversa tem máquina de estados própria. Evento do cliente não corrompe o estado do ticket nem fecha atendimento no meio.</p>
+        </article>
+
+        <article class="card">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-scale"></use></svg></span></div>
+          <h3>Distribuição por carga real</h3>
+          <p>A próxima conversa vai para quem tem menos conversa aberta. Conversa esperando o atendente pesa mais que conversa esperando o cliente.</p>
+        </article>
+
+        <article class="card">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-sent"></use></svg></span></div>
+          <h3>Entrega visível mensagem a mensagem</h3>
+          <p>Pendente, enviada, entregue, lida ou falhou. Quando falha, aparece o motivo e o botão de reenviar na tela do atendente.</p>
+        </article>
+
+        <article class="card">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-bolt"></use></svg></span></div>
+          <h3>Respostas prontas em cache</h3>
+          <p>Digite <b>#</b> e escolha. Ficam salvas no navegador, então continuam funcionando com a rede oscilando.</p>
+        </article>
+
+        <article class="card">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-clock"></use></svg></span></div>
+          <h3>Janela de 24 horas na tela</h3>
+          <p>O tempo que resta aparece na conversa. Quando a janela fecha, o campo livre vira seletor de template, com o motivo escrito.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ==================================================== COMO FUNCIONA -->
+  <section class="sec sec--soft">
+    <div class="wrap">
+      <header class="head head--center">
+        <p class="label">Como funciona</p>
+        <h2>Da API oficial do WhatsApp até a nota da conversa</h2>
+        <p>Quatro passos dentro do mesmo sistema. Sem copiar dado de uma tela para outra.</p>
+      </header>
+
+      <div class="grid grid--2" style="--wrap:1120px">
+        <article class="card">
+          <div class="card__top">
+            <span class="card__ico"><svg aria-hidden="true"><use href="#i-link"></use></svg></span>
+            <span class="card__n">01</span>
+          </div>
+          <h3>O lead chega</h3>
+          <p>Pelo formulário do site, por anúncio ou direto no WhatsApp. O Pipe cria o cadastro e calcula a nota do lead na hora, com a explicação regra a regra.</p>
+        </article>
+
+        <article class="card">
+          <div class="card__top">
+            <span class="card__ico"><svg aria-hidden="true"><use href="#i-scale"></use></svg></span>
+            <span class="card__n">02</span>
+          </div>
+          <h3>Vai para a fila certa</h3>
+          <p>A faixa da nota decide a fila e o responsável. De 60 pontos para cima o lead vai para o closer; abaixo disso vai para o comercial.</p>
+        </article>
+
+        <article class="card">
+          <div class="card__top">
+            <span class="card__ico"><svg aria-hidden="true"><use href="#i-chat"></use></svg></span>
+            <span class="card__n">03</span>
+          </div>
+          <h3>O atendente resolve</h3>
+          <p>Tela com seis seções e nada mais. Resposta pronta digitando #. Sugestão da IA quando ele pedir, sempre com o documento de origem citado.</p>
+        </article>
+
+        <article class="card">
+          <div class="card__top">
+            <span class="card__ico"><svg aria-hidden="true"><use href="#i-chart"></use></svg></span>
+            <span class="card__n">04</span>
+          </div>
+          <h3>Você vê o resultado</h3>
+          <p>Resumo na ficha do cliente, nota da monitoria e o esforço de cada atendente na semana, medido em minutos de escrita, leitura, escuta e fala.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== DUAS TELAS -->
+  <section class="sec">
+    <div class="wrap">
+      <header class="head">
+        <p class="label">Duas telas</p>
+        <h2>Multiatendimento no WhatsApp com vários atendentes no mesmo número</h2>
+        <p>
+          WhatsApp com múltiplos atendentes pede duas telas diferentes. Quem atende usa o Desk.
+          Quem mede usa o Gestão. Os dois falam com o mesmo banco de dados.
+        </p>
+      </header>
+
+      <div class="grid grid--2">
+        <article class="card">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-chat"></use></svg></span></div>
+          <p class="label" style="margin-top:16px">Pipe Desk</p>
+          <h3 style="margin-top:6px">Para quem atende</h3>
+          <ul class="checks">
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>Seis ícones e nada mais.</b> Um atendente novo aprende em cinco minutos.</span></li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>Atalhos de teclado</b> desde o primeiro dia, porque quem atende bem atende no teclado.</span></li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>Pausa com motivo</b> da lista que o gestor cadastrou. Nenhum status expira sozinho.</span></li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>Transferir não perde nada.</b> Etiqueta, nota interna e histórico continuam os mesmos.</span></li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-chart"></use></svg></span></div>
+          <p class="label" style="margin-top:16px">Pipe Gestão</p>
+          <h3 style="margin-top:6px">Para quem mede</h3>
+          <ul class="checks">
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>Agora e Hoje separados.</b> Conversa com o relógio correndo não se mistura com conversa encerrada.</span></li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>Toda média mostra a base.</b> "11:47 sobre 289 de 312 conversas" é informação; o número sozinho é propaganda.</span></li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>A carga de cada atendente na tela</b>, que é o que decide para quem vai a próxima conversa.</span></li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span><b>Relatório semanal de esforço</b> medindo o que cada um escreveu, leu, ouviu e falou.</span></li>
+          </ul>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================= MONITORIA -->
+  <section class="sec sec--soft" id="monitoria">
+    <div class="wrap split">
+      <div>
+        <p class="label">Monitoria com IA</p>
+        <h2 style="font-size:clamp(1.9rem,1.35rem + 2.2vw,2.9rem);margin-top:12px">
+          Qualidade no atendimento ao cliente medida em todas as conversas
+        </h2>
+        <p style="margin-top:14px;color:var(--ink-2);font-size:1.0625rem">
+          Hoje o analista de qualidade sorteia cinco conversas por mês de cada atendente.
+          A IA do Pipe avalia todas, dá a nota critério a critério e cita o trecho que justifica
+          cada uma.
+        </p>
+
+        <ul class="checks">
+          <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span>Cada critério vem com a <b>evidência citada</b> e a confiança do modelo.</span></li>
+          <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span>Abaixo do limite que você define, a nota vira <b>sugestão para um humano</b>.</span></li>
+          <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span>A <b>calibração</b> compara IA e avaliador e mostra o desvio critério a critério.</span></li>
+          <li><svg aria-hidden="true"><use href="#i-check"></use></svg><span>O atendente <b>contesta com a evidência na tela</b>, e a decisão fica registrada.</span></li>
+        </ul>
+      </div>
+
+      <div class="win">
+        <div class="win__bar" aria-hidden="true">
+          <span class="win__dot"></span><span class="win__dot"></span><span class="win__dot"></span>
+          <span class="win__url">app.pipe.com.br/monitoria/68412</span>
+        </div>
+        <div class="win__body">
+          <div style="display:flex;align-items:flex-start;gap:12px">
+            <div>
+              <p style="font-weight:600;font-size:.9375rem">Marcelo Tavares, conversa 68412</p>
+              <p class="label label--night" style="margin-top:5px">Comercial consultivo v3</p>
+            </div>
+            <span class="chip chip--moss" style="margin-left:auto">Confiança 0,86</span>
+          </div>
+
+          <ul class="score">
+            <li><span>Confirmou a faixa de patrimônio</span><b class="good">15/15</b></li>
+            <li><span>Contornou a objeção de preço</span><b class="good">18/18</b></li>
+            <li><span>Ofereceu um próximo passo claro</span><b class="bad">0/12</b></li>
+          </ul>
+
+          <p style="margin-top:14px;font-size:.8125rem;color:var(--night-ink-2);line-height:1.55">
+            A conversa terminou em "posso te mandar a proposta agora?" sem confirmar data nem
+            combinar retorno. Evidência na mensagem das 14:07.
+          </p>
+
+          <div class="row" style="margin-top:16px">
+            <span class="row__name"><b>Nota final</b><span>Conceito bom</span></span>
+            <span class="chip chip--ok">72 de 100</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========================================================== NÚMEROS -->
+  <section class="sec">
+    <div class="wrap">
+      <header class="head">
+        <p class="label">Números</p>
+        <h2>SLA de atendimento e relatório de atendimento com a conta aberta</h2>
+        <p>
+          Toda métrica nasce de evento imutável, não de campo que alguém edita depois.
+          Quando a definição de uma métrica muda, o passado é recalculado.
+        </p>
+      </header>
+
+      <div class="stat-row">
+        <div class="stat">
+          <p class="big-num">02:38</p>
+          <p>Tempo até a primeira resposta, contado só dentro do horário de atendimento que você cadastrou. SLA que corre de madrugada não mede nada.</p>
+        </div>
+        <div class="stat">
+          <p class="big-num">289/312</p>
+          <p>A base de cálculo aparece do lado da média. Conversa que o cliente nunca respondeu não entra na conta de tempo de resposta.</p>
+        </div>
+        <div class="stat">
+          <p class="big-num">7</p>
+          <p>Métricas fechadas, cada uma com definição escrita e teste automatizado: TME, TMA, TMR, abandono, perda, reabertura e ocupação.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== CAMPANHAS -->
+  <section class="sec sec--soft">
+    <div class="wrap">
+      <header class="head head--center">
+        <p class="label">Campanhas</p>
+        <h2>Disparo em massa no WhatsApp com template aprovado e custo na tela</h2>
+        <p>
+          Você escolhe o público, vê o custo antes de enviar e acompanha a resposta ligada ao
+          disparo que a originou.
+        </p>
+      </header>
+
+      <div class="grid grid--3">
+        <article class="card">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-calc"></use></svg></span></div>
+          <h3>Custo antes do envio</h3>
+          <p>O Pipe soma a categoria de cada template do WhatsApp e mostra o valor do disparo antes de você confirmar. A tabela da Meta é configuração, não número embutido no código.</p>
+        </article>
+
+        <article class="card">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-megaphone"></use></svg></span></div>
+          <h3>A resposta pertence ao disparo</h3>
+          <p>Disparo às 17h do dia 25 leva junto as respostas do dia 26. A janela é contada a partir do envio, não pelo dia do calendário.</p>
+        </article>
+
+        <article class="card">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-template"></use></svg></span></div>
+          <h3>Template validado antes</h3>
+          <p>A mídia do cabeçalho e a posição das variáveis são conferidas antes de ir para a Meta. Imagem no cabeçalho desloca todos os parâmetros, e isso é checado.</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================================================== NA PRÁTICA -->
+  <section class="sec">
+    <div class="wrap">
+      <header class="head head--center">
+        <p class="label">Na prática</p>
+        <h2>Três operações, do funil de vendas no WhatsApp ao controle de qualidade</h2>
+        <p>Os exemplos abaixo mostram onde cada recurso entra no dia a dia.</p>
+      </header>
+
+      <div class="grid grid--3">
+        <article class="card case">
+          <div class="case__img">
+            <img loading="lazy" width="800" height="500"
+              src="https://images.pexels.com/photos/6560572/pexels-photo-6560572.jpeg?auto=compress&cs=tinysrgb&w=800&h=500&fit=crop"
+              alt="Consultora comercial sorrindo em escritório">
+            <span class="case__tag">Comercial, 18 atendentes</span>
+          </div>
+          <div class="case__body">
+            <h3>O funil de vendas no WhatsApp para de morar na cabeça do vendedor</h3>
+            <p>O formulário do site alimenta a nota do lead. A faixa decide a fila e o dono. O vendedor abre a conversa com o diagnóstico do lado.</p>
+            <dl>
+              <div><dt>Corte da faixa</dt><dd>60 pontos</dd></div>
+              <div><dt>Fila de destino</dt><dd>Comercial</dd></div>
+              <div><dt>Resumo na ficha</dt><dd>Automático</dd></div>
+            </dl>
+          </div>
+        </article>
+
+        <article class="card case">
+          <div class="case__img">
+            <img loading="lazy" width="800" height="500"
+              src="https://images.pexels.com/photos/7709141/pexels-photo-7709141.jpeg?auto=compress&cs=tinysrgb&w=800&h=500&fit=crop"
+              alt="Supervisor de suporte trabalhando no computador">
+            <span class="case__tag">Suporte, 40 atendentes</span>
+          </div>
+          <div class="case__body">
+            <h3>A fila para de empilhar sempre na mesma pessoa</h3>
+            <p>A distribuição olha a carga real de cada um. Conversa esperando o atendente pesa mais do que conversa esperando o cliente.</p>
+            <dl>
+              <div><dt>Critério</dt><dd>Carga real</dd></div>
+              <div><dt>Limite sem resposta</dt><dd>Configurável</dd></div>
+              <div><dt>SLA por fila</dt><dd>Com horário</dd></div>
+            </dl>
+          </div>
+        </article>
+
+        <article class="card case">
+          <div class="case__img">
+            <img loading="lazy" width="800" height="500"
+              src="https://images.pexels.com/photos/8190818/pexels-photo-8190818.jpeg?auto=compress&cs=tinysrgb&w=800&h=500&fit=crop"
+              alt="Analista de qualidade revisando relatórios na mesa de trabalho">
+            <span class="case__tag">Qualidade, 1 analista</span>
+          </div>
+          <div class="case__body">
+            <h3>De cinco avaliações por mês para todas as conversas</h3>
+            <p>A IA avalia o volume inteiro e o analista revisa só o que desvia. A calibração aponta o critério em que o modelo discorda de gente.</p>
+            <dl>
+              <div><dt>Cobertura</dt><dd>Todas as conversas</dd></div>
+              <div><dt>Papel do analista</dt><dd>Revisar e calibrar</dd></div>
+              <div><dt>Consumo de IA</dt><dd>Em tokens e reais</dd></div>
+            </dl>
+          </div>
+        </article>
+      </div>
+
+      <p style="margin-top:26px;font-size:.8125rem;color:var(--ink-3);max-width:72ch">
+        As empresas e os números destes três exemplos são fictícios e servem para explicar o produto.
+        Quando tivermos cliente em produção, o depoimento entra aqui com nome, cargo e autorização,
+        e os números virão do painel dele.
+      </p>
+    </div>
+  </section>
+
+  <!-- ====================================================== FERRAMENTAS -->
+  <section class="sec sec--soft" id="ferramentas">
+    <div class="wrap">
+      <header class="head head--center">
+        <p class="label">Ferramentas grátis</p>
+        <h2>Ferramentas grátis para quem atende no WhatsApp</h2>
+        <p>Sem cadastro e sem limite de uso. Resolve a conta no navegador e volta para o trabalho.</p>
+      </header>
+
+      <div class="grid grid--3">
+        <a class="card tool tool--hero card--flag" href="/ferramentas/gerador-de-link-do-whatsapp/">
+          <div class="tool__body">
+            <div class="card__top">
+              <span class="card__ico"><svg aria-hidden="true"><use href="#i-link"></use></svg></span>
+              <span class="card__n">01</span>
+            </div>
+            <h3>Gerador de link do WhatsApp</h3>
+            <p>Monte o link wa.me com a mensagem já escrita, veja a pré-visualização, gere o QR code e copie o botão pronto para o seu site. É a ferramenta mais usada do setor.</p>
+            <span class="card__go">Gerar meu link</span>
+          </div>
+        </a>
+
+        <a class="card tool" href="/ferramentas/gerador-de-qr-code-do-whatsapp/">
+          <div class="tool__body">
+            <span class="card__ico"><svg aria-hidden="true"><use href="#i-qr"></use></svg></span>
+            <h3>Gerador de QR code do WhatsApp</h3>
+            <p>Baixe o QR code em PNG e em SVG, com a mensagem inicial já embutida no link.</p>
+            <span class="card__go">Gerar QR code</span>
+          </div>
+        </a>
+
+        <a class="card tool" href="/ferramentas/calculadora-de-custo-do-whatsapp/">
+          <div class="tool__body">
+            <span class="card__ico"><svg aria-hidden="true"><use href="#i-calc"></use></svg></span>
+            <h3>Calculadora de custo do WhatsApp</h3>
+            <p>Informe o volume por categoria de template e veja quanto some quando a conversa acontece dentro da janela de 24 horas.</p>
+            <span class="card__go">Calcular custo</span>
+          </div>
+        </a>
+
+        <a class="card tool" href="/ferramentas/dimensionamento-de-atendentes/">
+          <div class="tool__body">
+            <span class="card__ico"><svg aria-hidden="true"><use href="#i-users"></use></svg></span>
+            <h3>Dimensionamento de atendentes</h3>
+            <p>Volume de conversas, tempo médio e ocupação aceitável. A ferramenta devolve o tamanho do time.</p>
+            <span class="card__go">Dimensionar time</span>
+          </div>
+        </a>
+
+        <a class="card tool" href="/ferramentas/calculadora-de-tma-tmr-tme/">
+          <div class="tool__body">
+            <span class="card__ico"><svg aria-hidden="true"><use href="#i-chart"></use></svg></span>
+            <h3>Calculadora de TMA, TMR e TME</h3>
+            <p>Suba a exportação da sua plataforma atual e receba as métricas do relatório de atendimento, com a definição escrita do lado de cada número.</p>
+            <span class="card__go">Calcular métricas</span>
+          </div>
+        </a>
+
+        <a class="card tool" href="/ferramentas/simulador-de-sla/">
+          <div class="tool__body">
+            <span class="card__ico"><svg aria-hidden="true"><use href="#i-gauge"></use></svg></span>
+            <h3>Simulador de SLA de atendimento</h3>
+            <p>Defina o prazo por fila e veja quanto do seu histórico teria estourado, contando só o horário de funcionamento.</p>
+            <span class="card__go">Simular SLA</span>
+          </div>
+        </a>
+      </div>
+
+      <p style="text-align:center;margin-top:32px">
+        <a class="btn btn--ghost" href="/ferramentas/">Ver as oito ferramentas</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ============================================================= BLOG -->
+  <section class="sec">
+    <div class="wrap">
+      <header class="head head--center">
+        <p class="label">Blog</p>
+        <h2>O que a documentação das plataformas não conta</h2>
+        <p>Conteúdo de operação, escrito por quem já quebrou a cara nas plataformas do mercado.</p>
+      </header>
+
+      <div class="grid grid--3">
+        <a class="card post" href="/blog/numero-de-whatsapp-banido/">
+          <div class="post__cover"><svg aria-hidden="true"><use href="#i-shield"></use></svg></div>
+          <div class="post__body">
+            <p class="post__meta">Operação · 9 min</p>
+            <h3>Número de WhatsApp banido: o que fazer e como evitar</h3>
+            <p>Os três motivos reais de banimento, o passo a passo do recurso e por que a API oficial tira o seu número da roleta.</p>
+            <span class="post__go">Ler artigo</span>
+          </div>
+        </a>
+
+        <a class="card post" href="/blog/frases-prontas-para-atendimento-no-whatsapp/">
+          <div class="post__cover"><svg aria-hidden="true"><use href="#i-chat"></use></svg></div>
+          <div class="post__body">
+            <p class="post__meta">Modelos · 12 min</p>
+            <h3>Frases prontas para atendimento no WhatsApp, por situação</h3>
+            <p>Abertura, espera, cobrança, objeção e encerramento. Modelos prontos para virar resposta pronta dentro do sistema.</p>
+            <span class="post__go">Ler artigo</span>
+          </div>
+        </a>
+
+        <a class="card post" href="/blog/mensagem-de-ausencia-no-whatsapp/">
+          <div class="post__cover"><svg aria-hidden="true"><use href="#i-clock"></use></svg></div>
+          <div class="post__body">
+            <p class="post__meta">Tutorial · 6 min</p>
+            <h3>Mensagem de ausência no WhatsApp: como escrever e quando disparar</h3>
+            <p>O texto que reduz cobrança, o horário que faz sentido e como a mensagem automática conversa com o SLA de atendimento.</p>
+            <span class="post__go">Ler artigo</span>
+          </div>
+        </a>
+
+        <a class="card post" href="/blog/lista-de-transmissao-no-whatsapp/">
+          <div class="post__cover"><svg aria-hidden="true"><use href="#i-megaphone"></use></svg></div>
+          <div class="post__body">
+            <p class="post__meta">Operação · 8 min</p>
+            <h3>Lista de transmissão no WhatsApp: como funciona e onde ela trava</h3>
+            <p>O limite de 256 contatos, a exigência de o cliente ter o seu número salvo, e o caminho para fazer disparo em massa sem risco.</p>
+            <span class="post__go">Ler artigo</span>
+          </div>
+        </a>
+
+        <a class="card post" href="/blog/o-que-e-atendimento-omnichannel/">
+          <div class="post__cover"><svg aria-hidden="true"><use href="#i-users"></use></svg></div>
+          <div class="post__body">
+            <p class="post__meta">Conceito · 10 min</p>
+            <h3>O que é atendimento omnichannel e o que ele exige da sua operação</h3>
+            <p>A diferença prática entre multicanal e omnichannel, e as quatro coisas que precisam ser iguais nos canais para valer o nome.</p>
+            <span class="post__go">Ler artigo</span>
+          </div>
+        </a>
+
+        <a class="card post" href="/blog/customer-service-o-que-e/">
+          <div class="post__cover"><svg aria-hidden="true"><use href="#i-doc"></use></svg></div>
+          <div class="post__body">
+            <p class="post__meta">Gestão · 11 min</p>
+            <h3>Customer service: o que é e como estruturar a área</h3>
+            <p>Papéis, níveis de atendimento, métricas de qualidade no atendimento ao cliente e o ponto em que a área passa a precisar de um sistema.</p>
+            <span class="post__go">Ler artigo</span>
+          </div>
+        </a>
+      </div>
+
+      <p style="text-align:center;margin-top:32px">
+        <a class="btn btn--ghost" href="/blog/">Ver todos os artigos</a>
+      </p>
+    </div>
+  </section>
+
+  <!-- =========================================================== PREÇOS -->
+  <section class="sec sec--soft" id="precos">
+    <div class="wrap">
+      <header class="head head--center">
+        <p class="label">Preços</p>
+        <h2>Software de atendimento ao cliente que você paga pelo uso</h2>
+        <p>
+          O consumo de IA aparece dentro do produto, em tokens e em reais, separado por
+          funcionalidade e por fila. Você vê a conta subindo, não descobre no fim do mês.
+        </p>
+      </header>
+
+      <div class="grid grid--3">
+        <article class="card plan">
+          <p class="label">Atendimento</p>
+          <div class="plan__price"><b>Por atendente</b><span>ao mês</span></div>
+          <ul>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>WhatsApp pela API oficial, e-mail e chat do site</li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Filas, distribuição por carga e SLA de atendimento</li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Desk e Gestão completos</li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>CRM com resumo automático das conversas</li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Relatório de atendimento e esforço por atendente</li>
+          </ul>
+          <a class="btn btn--ghost" href="#demo">Ver na demonstração</a>
+        </article>
+
+        <article class="card plan card--flag">
+          <p class="label">Atendimento e Monitoria</p>
+          <div class="plan__price"><b>Por atendente</b><span>mais o consumo de IA</span></div>
+          <ul>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Tudo do plano Atendimento</li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Avaliação automática de todas as conversas</li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Calibração, contestação e plano de coach</li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Demandas recorrentes com volume e tendência</li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Painel de consumo em tokens e em reais</li>
+          </ul>
+          <a class="btn btn--primary" href="#demo">Agendar demonstração</a>
+        </article>
+
+        <article class="card plan">
+          <p class="label">Só a Monitoria</p>
+          <div class="plan__price"><b>Por avaliação</b><span>sem trocar de sistema</span></div>
+          <ul>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Conecta na plataforma de atendimento que você já usa</li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Formulário de avaliação, calibração e relatórios</li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Insights e demandas recorrentes das conversas</li>
+            <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Exportação, API REST e servidor MCP inclusos</li>
+          </ul>
+          <a class="btn btn--ghost" href="#demo">Falar sobre a monitoria</a>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== FAQ -->
+  <section class="sec">
+    <div class="wrap faq">
+      <p class="label">Dúvidas frequentes</p>
+      <h2 style="font-size:clamp(1.9rem,1.35rem + 2.2vw,2.9rem);margin-top:12px">
+        Perguntas sobre trocar de sistema de atendimento no WhatsApp
+      </h2>
+
+      <div class="faq__list">
+        <details>
+          <summary>Preciso trocar o meu número de WhatsApp?</summary>
+          <p>
+            Não. O número migra para a API oficial do WhatsApp dentro do seu próprio Business
+            Manager da Meta, e o histórico vai junto. Depois da migração ele para de funcionar no
+            aplicativo comum do celular. Em troca, o número passa a ser seu de verdade: se um dia
+            você sair do Pipe, ele vai com você.
+          </p>
+        </details>
+
+        <details>
+          <summary>O que é a janela de 24 horas e por que ela mexe no custo?</summary>
+          <p>
+            Quando o cliente manda uma mensagem, abre uma janela de 24 horas contada a partir da
+            última mensagem dele. Dentro dela você responde em texto livre, sem custo por mensagem.
+            Fora dela só sai template aprovado pela Meta, e é o template que é cobrado. O Pipe
+            mostra o tempo que resta na conversa e o custo do template antes do envio.
+          </p>
+        </details>
+
+        <details>
+          <summary>Como o CRM é preenchido sem ninguém digitar?</summary>
+          <p>
+            Na primeira mensagem o Pipe cria o contato com telefone, nome de perfil e canal de
+            origem. Dado coletado no fluxo automático vira campo do cadastro. Ao encerrar, a IA
+            escreve o resumo da conversa e classifica o assunto, e tudo isso fica na ficha do
+            cliente junto com a transcrição.
+          </p>
+        </details>
+
+        <details>
+          <summary>Dá para usar vários atendentes no mesmo número de WhatsApp?</summary>
+          <p>
+            Sim. O multiatendimento no WhatsApp é o modo padrão do Pipe. A conversa entra numa fila
+            e vai para o atendente com menor carga real entre os que estão online e habilitados
+            naquela fila. Transferir não perde etiqueta, nota interna nem histórico.
+          </p>
+        </details>
+
+        <details>
+          <summary>Como vocês evitam que a IA invente uma nota de qualidade?</summary>
+          <p>
+            Cada critério vem com o trecho da conversa que embasou a nota e com a confiança do
+            modelo. Abaixo do limite que você define, a nota vira sugestão para um avaliador
+            humano. A calibração compara uma amostra avaliada por gente com a mesma amostra
+            avaliada pela IA e mostra o desvio critério a critério.
+          </p>
+        </details>
+
+        <details>
+          <summary>Consigo tirar os meus dados de dentro do Pipe?</summary>
+          <p>
+            Sim, e isso faz parte do produto. Tem consulta com escolha de campos e agregação,
+            exportação em CSV, JSON e Parquet, relatório de atendimento agendado, webhook assinado,
+            API REST e um servidor MCP para a sua própria IA consultar. Um dicionário de dados
+            navegável lista cada campo e o que ele significa.
+          </p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============================================================== CTA -->
+  <section class="sec sec--tight" id="demo">
+    <div class="wrap">
+      <div class="cta">
+        <p class="label label--night">Demonstração</p>
+        <h2 style="margin-top:14px">Traga uma conversa real da sua operação</h2>
+        <p>
+          A gente pega um atendimento seu e mostra o resumo na ficha do cliente, a avaliação
+          critério a critério e o cálculo do esforço. Trinta minutos, sem apresentação de slides.
+        </p>
+        <div class="cta__act">
+          <a class="btn btn--primary" href="mailto:contato@pipe.com.br?subject=Demonstra%C3%A7%C3%A3o%20do%20Pipe">Agendar demonstração</a>
+          <a class="btn btn--night" href="/ferramentas/">Começar pelas ferramentas</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="ft">
+  <div class="wrap">
+    <div class="ft__grid">
+      <div class="ft__brand">
+        <img src="/assets/pipe-lockup-cream.svg" width="420" height="190" alt="Pipe">
+        <p>Atendimento no WhatsApp pela API oficial, com CRM alimentado pelas conversas e monitoria de qualidade por IA.</p>
+      </div>
+
+      <div>
+        <p class="ft__h">Produto</p>
+        <nav aria-label="Produto">
+          <a href="#produto">Atendimento</a>
+          <a href="#produto">CRM pelas conversas</a>
+          <a href="#monitoria">Monitoria com IA</a>
+          <a href="#precos">Preços</a>
+        </nav>
+      </div>
+
+      <div>
+        <p class="ft__h">Recursos</p>
+        <nav aria-label="Recursos">
+          <a href="/ferramentas/">Ferramentas grátis</a>
+          <a href="/ferramentas/gerador-de-link-do-whatsapp/">Gerador de link do WhatsApp</a>
+          <a href="/blog/">Blog</a>
+        </nav>
+      </div>
+
+      <div>
+        <p class="ft__h">Empresa</p>
+        <nav aria-label="Empresa">
+          <a href="#demo">Falar com a gente</a>
+          <a href="/privacidade/">Privacidade</a>
+          <a href="/termos/">Termos de uso</a>
+        </nav>
+      </div>
+    </div>
+
+    <div class="ft__bar">
+      <p>© 2026 Pipe. Todos os direitos reservados.</p>
+      <p>WhatsApp é marca da Meta Platforms. O Pipe não tem vínculo com a Meta.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="/assets/site.js" defer></script>
+
+</body>
+</html>

@@ -142,6 +142,7 @@ body {
 }
 
 img, svg { max-width: 100%; display: block; }
+[hidden] { display: none !important; }
 img { height: auto; }
 
 a { color: inherit; }
@@ -308,7 +309,6 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   background: rgba(22, 25, 15, .95);
   border: 1px solid rgba(255, 255, 255, .1);
   box-shadow: 0 12px 34px -16px rgba(17, 17, 17, .55);
-  backdrop-filter: blur(12px);
 }
 .hdr__logo { display: flex; align-items: center; flex-shrink: 0; color: var(--night-ink); }
 .hdr__logo img { height: 24px; width: auto; }
@@ -427,7 +427,7 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 
 .hero h1 {
   margin-top: 20px;
-  font-size: clamp(2.6rem, 1.5rem + 4.6vw, 4.25rem);
+  font-size: clamp(2.35rem, 1.35rem + 3.1vw, 3.6rem);
   letter-spacing: -.022em;
   line-height: 1.02;
 }
@@ -471,8 +471,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: blur(1.5px) saturate(.72);
-  transform: scale(1.06);
+  /* o desfoque e a dessaturação vêm da CDN (&blur&sat), não de filter(): filtro em
+     imagem grande cria camada composta cara e trava a rolagem */
 }
 .shot__wash {
   position: absolute;
@@ -496,9 +496,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   bottom: 14px;
   padding: 14px;
   border-radius: var(--r-lg);
-  background: rgba(12, 14, 8, .74);
+  background: rgba(12, 14, 8, .82);
   border: 1px solid rgba(255, 255, 255, .14);
-  backdrop-filter: blur(14px);
   color: var(--night-ink);
 }
 .glass__top {
@@ -911,7 +910,7 @@ a.card { text-decoration: none; }
 @media (min-width: 980px) { .ft__grid { grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 40px; } }
 .ft__brand img { height: 26px; width: auto; }
 .ft__brand p { margin-top: 16px; font-size: .875rem; max-width: 30ch; }
-.ft h2 {
+.ft .ft__h {
   font-family: "IBM Plex Mono", monospace;
   font-size: 11px;
   font-weight: 600;
@@ -970,7 +969,7 @@ a.card { text-decoration: none; }
   text-transform: uppercase;
   color: var(--ink-3);
 }
-.post__body h2 {
+.post__body h3, .post__body h2 {
   margin-top: 12px;
   font-family: "IBM Plex Sans", Helvetica, Arial, sans-serif;
   font-size: 1.125rem;
