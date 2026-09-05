@@ -1,0 +1,915 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Gerador de link do WhatsApp grátis: crie o link wa.me com mensagem | Pipe</title>
+<meta name="description" content="Gerador de link do WhatsApp grátis: crie o link wa.me com mensagem pronta, baixe o QR code e copie o botão do site. Serve para falar sem salvar o contato.">
+<link rel="canonical" href="https://pipe.com.br/ferramentas/gerador-de-link-whatsapp/">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<meta name="theme-color" content="#4A5D23" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#12140E" media="(prefers-color-scheme: dark)">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Pipe">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:url" content="https://pipe.com.br/ferramentas/gerador-de-link-whatsapp/">
+<meta property="og:title" content="Gerador de link do WhatsApp grátis: link wa.me, QR code e botão para o site">
+<meta property="og:description" content="Crie o link do WhatsApp com mensagem pronta, baixe o QR code e copie o botão para o site. Sem cadastro, sem limite, e o número não entra na sua agenda.">
+<meta property="og:image" content="https://pipe.com.br/assets/og-pipe.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Gerador de link do WhatsApp grátis | Pipe">
+<meta name="twitter:description" content="Link wa.me com mensagem pronta, QR code e botão para o site. Sem cadastro.">
+<meta name="twitter:image" content="https://pipe.com.br/assets/og-pipe.png">
+
+<link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/assets/favicon.svg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
+<link rel="stylesheet" href="/assets/site.css">
+<script>
+  try {
+    var t = localStorage.getItem("pipe-theme");
+    if (t === "dark" || t === "light") document.documentElement.setAttribute("data-theme", t);
+  } catch (e) {}
+</script>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Pipe", "item": "https://pipe.com.br/" },
+        { "@type": "ListItem", "position": 2, "name": "Ferramentas grátis", "item": "https://pipe.com.br/ferramentas/" },
+        { "@type": "ListItem", "position": 3, "name": "Gerador de link do WhatsApp", "item": "https://pipe.com.br/ferramentas/gerador-de-link-whatsapp/" }
+      ]
+    },
+    {
+      "@type": "WebApplication",
+      "name": "Gerador de link do WhatsApp",
+      "url": "https://pipe.com.br/ferramentas/gerador-de-link-whatsapp/",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Qualquer navegador",
+      "inLanguage": "pt-BR",
+      "description": "Cria o link wa.me com mensagem pré-preenchida, gera o QR code em SVG e PNG e entrega o código do botão de WhatsApp para colar no site. Funciona no navegador, sem cadastro.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "BRL" },
+      "publisher": { "@type": "Organization", "name": "Pipe", "url": "https://pipe.com.br/" }
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Como criar um link do WhatsApp com mensagem pronta?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "O formato é https://wa.me/DDIDDDNUMERO?text=MENSAGEM. Para o número (11) 99999-8888 no Brasil, o link fica https://wa.me/5511999998888?text=Ol%C3%A1. O texto precisa estar codificado para URL, ou seja, espaço vira %20 e acento vira uma sequência começada por %. O gerador desta página faz essa codificação sozinho enquanto você digita."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Como mandar mensagem no WhatsApp sem salvar o contato?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Gere o link wa.me com o número da pessoa e abra esse link. O WhatsApp abre a conversa direto, sem que o número entre na sua agenda. Funciona no celular Android, no iPhone e no WhatsApp Web. É o mesmo recurso oficial usado pelo botão de WhatsApp dos sites, então não exige aplicativo de terceiros nem permissão extra."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Preciso colocar o 55 antes do número?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sim. O link wa.me exige o número no formato internacional, com o código do país na frente e sem sinal de mais, sem zero, sem parêntese e sem traço. Para o Brasil o código é 55, então (11) 99999-8888 vira 5511999998888. O erro mais comum é manter o zero do DDD, o que faz o WhatsApp responder que o número é inválido."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "O link do WhatsApp funciona no computador?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Funciona. No computador o link wa.me abre o WhatsApp Web ou o aplicativo de desktop, dependendo do que estiver instalado, e a mensagem aparece pré-preenchida do mesmo jeito. Se você usa o WhatsApp Web, precisa estar com a sessão conectada ao celular antes de clicar."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Quantos caracteres a mensagem do link aceita?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Na prática, links com até 1.000 caracteres de mensagem abrem sem problema em todos os navegadores. Acima disso alguns navegadores e aplicativos de terceiros cortam a URL, porque o limite não é do WhatsApp e sim do tamanho de link que cada programa aceita. Como regra de operação, mensagem de primeiro contato com 2 a 4 linhas converte mais do que texto longo."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "O link do WhatsApp pode fazer meu número ser banido?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "O link em si não. Ele é um recurso oficial e é a própria Meta que documenta o formato wa.me. O que causa banimento é o comportamento depois: mandar mensagem em massa para quem não pediu, usar aplicativo modificado ou disparar de um número novo sem histórico. Quando o cliente é quem clica no link e inicia a conversa, o risco é baixo, porque a Meta trata isso como contato solicitado."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Qual a diferença entre wa.me e api.whatsapp.com/send?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "As duas fazem a mesma coisa. O wa.me é a versão curta e é a recomendada para material impresso e para bio de rede social. O api.whatsapp.com/send?phone=&text= é a versão longa, útil quando algum sistema de terceiros exige parâmetros nomeados. Nenhuma das duas usa a API oficial do WhatsApp Business, apesar do nome; as duas apenas abrem o aplicativo."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Dá para gerar um link do WhatsApp para grupo?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "O link de grupo não é gerado por fora. Ele sai de dentro do próprio grupo, em Dados do grupo, Convidar via link, e tem o formato chat.whatsapp.com. O link wa.me desta página é para conversa individual com um número, que é o caso de atendimento e de venda."
+          }
+        }
+      ]
+    }
+  ]
+}
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main">Pular para o conteúdo</a>
+
+<svg width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute">
+  <symbol id="i-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24" fill="currentColor"><path d="M12.04 2c-5.52 0-10 4.48-10 10 0 1.77.46 3.45 1.27 4.9L2 22l5.25-1.38a9.95 9.95 0 0 0 4.79 1.22h.01c5.52 0 10-4.48 10-10s-4.48-9.84-10.02-9.84Zm5.86 14.3c-.25.7-1.24 1.29-1.98 1.44-.53.11-1.22.2-3.55-.76-2.98-1.23-4.9-4.24-5.05-4.44-.15-.2-1.2-1.6-1.2-3.05 0-1.46.76-2.17 1.03-2.46.27-.29.6-.36.8-.36h.58c.19 0 .44-.07.68.53.25.6.86 2.07.94 2.22.08.15.13.33.03.53-.1.2-.16.33-.31.5-.15.18-.32.4-.46.53-.15.15-.31.31-.14.61.18.3.79 1.31 1.7 2.12 1.17 1.04 2.15 1.37 2.45 1.52.3.15.48.13.66-.08.18-.2.76-.89.97-1.19.2-.3.4-.25.68-.15.28.1 1.77.84 2.08.99.3.15.5.23.58.36.08.13.08.75-.17 1.45Z"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3.5v12M7.5 11l4.5 4.5 4.5-4.5M4.5 20.5h15"/></symbol>
+  <symbol id="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M18.7 5.3l-1.4 1.4M6.7 17.3l-1.4 1.4"/></symbol>
+  <symbol id="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 0 1 9.5 4a8.5 8.5 0 1 0 10.5 10.5Z"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="m6 6 12 12M18 6 6 18"/></symbol>
+</svg>
+
+<header class="hdr">
+  <div class="hdr__bar">
+    <a class="hdr__logo" href="/" aria-label="Pipe, página inicial">
+      <img src="/assets/pipe-lockup-cream.svg" width="420" height="190" alt="Pipe">
+    </a>
+    <nav class="hdr__nav" aria-label="Principal">
+      <a href="/#produto">Produto</a>
+      <a href="/#monitoria">Monitoria</a>
+      <a href="/#precos">Preços</a>
+      <a href="/ferramentas/" aria-current="page">Ferramentas</a>
+      <a href="/blog/">Blog</a>
+    </nav>
+    <div class="hdr__act">
+      <button class="hdr__theme" type="button" data-theme-toggle aria-label="Alternar tema claro e escuro">
+        <svg aria-hidden="true" data-icon-sun><use href="#i-sun"></use></svg>
+        <svg aria-hidden="true" data-icon-moon hidden><use href="#i-moon"></use></svg>
+      </button>
+      <a class="btn btn--primary btn--sm" href="/#demo">Agendar demonstração</a>
+    </div>
+    <button class="hdr__toggle" type="button" data-menu-toggle aria-expanded="false" aria-controls="menu" aria-label="Abrir menu">
+      <svg aria-hidden="true" width="22" height="22"><use href="#i-menu"></use></svg>
+    </button>
+  </div>
+  <div class="hdr__panel" id="menu" hidden>
+    <a href="/#produto">Produto</a>
+    <a href="/#monitoria">Monitoria</a>
+    <a href="/#precos">Preços</a>
+    <a href="/ferramentas/">Ferramentas</a>
+    <a href="/blog/">Blog</a>
+    <hr>
+    <a class="btn btn--primary" href="/#demo">Agendar demonstração</a>
+    <button class="btn btn--night" type="button" data-theme-toggle style="width:100%;margin-top:8px">Alternar tema</button>
+  </div>
+</header>
+
+<main id="main">
+
+  <section class="hero">
+    <div class="hero__glow" aria-hidden="true"></div>
+    <div class="wrap page-head">
+      <nav aria-label="Trilha">
+        <p class="label label--muted"><a href="/" style="text-decoration:none">Pipe</a> / <a href="/ferramentas/" style="text-decoration:none">Ferramentas</a> / Gerador de link</p>
+      </nav>
+      <h1>Gerador de link do WhatsApp</h1>
+      <p>
+        Crie o link <b>wa.me</b> com a mensagem já escrita, baixe o QR code e copie o botão pronto
+        para colar no site. A mesma ferramenta resolve o outro pedido mais comum: mandar mensagem
+        no WhatsApp sem salvar o contato na agenda.
+      </p>
+      <div class="tool-meta">
+        <span>Atualizado em setembro de 2026</span>
+        <i aria-hidden="true"></i>
+        <span>Tudo roda no seu navegador</span>
+        <i aria-hidden="true"></i>
+        <span>Sem cadastro e sem limite de uso</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap tool-wrap">
+    <div class="tool-grid tool-grid--wide">
+
+      <div class="panel">
+        <p class="panel__h">1. Preencha</p>
+        <form class="fields" id="form" novalidate>
+          <div class="fields fields--2">
+            <label class="field" for="ddi">
+              <span class="field__l">País</span>
+              <span class="field__box field__box--sel">
+                <select id="ddi" name="ddi">
+                  <option value="55" selected>Brasil (+55)</option>
+                  <option value="351">Portugal (+351)</option>
+                  <option value="1">Estados Unidos e Canadá (+1)</option>
+                  <option value="54">Argentina (+54)</option>
+                  <option value="56">Chile (+56)</option>
+                  <option value="57">Colômbia (+57)</option>
+                  <option value="52">México (+52)</option>
+                  <option value="595">Paraguai (+595)</option>
+                  <option value="598">Uruguai (+598)</option>
+                  <option value="34">Espanha (+34)</option>
+                  <option value="44">Reino Unido (+44)</option>
+                  <option value="outro">Outro código</option>
+                </select>
+              </span>
+            </label>
+            <label class="field" for="ddiLivre" id="wrapDdiLivre" hidden>
+              <span class="field__l">Código do país</span>
+              <span class="field__box">
+                <span class="field__fix field__fix--pre">+</span>
+                <input id="ddiLivre" type="text" inputmode="numeric" maxlength="4" placeholder="49">
+              </span>
+            </label>
+          </div>
+
+          <label class="field" for="numero">
+            <span class="field__l">Número com DDD</span>
+            <span class="field__box">
+              <input id="numero" type="tel" inputmode="tel" autocomplete="tel-national"
+                     placeholder="(11) 99999-8888" aria-describedby="ajudaNumero">
+            </span>
+            <span class="field__help" id="ajudaNumero">Digite como quiser. Parênteses, traço e espaço são descartados na hora de montar o link.</span>
+            <span class="field__err" id="erroNumero" hidden></span>
+          </label>
+
+          <label class="field" for="mensagem">
+            <span class="field__l">Mensagem que já vem escrita <span style="font-weight:400;color:var(--ink-3)">(opcional)</span></span>
+            <span class="field__box">
+              <textarea id="mensagem" rows="4" placeholder="Olá! Vi o site de vocês e quero saber mais sobre os planos."></textarea>
+            </span>
+            <span class="field__help"><span id="contador">0</span> de 1.000 caracteres. Duas a quatro linhas convertem mais do que texto longo.</span>
+          </label>
+
+          <div class="field">
+            <span class="field__l">Modelos rápidos</span>
+            <div class="chips" role="group" aria-label="Modelos de mensagem">
+              <button type="button" data-modelo="Olá! Vim pelo site e quero saber mais sobre os planos de vocês.">Site</button>
+              <button type="button" data-modelo="Oi! Vim pelo Instagram e queria falar com alguém do atendimento.">Instagram</button>
+              <button type="button" data-modelo="Olá! Gostaria de fazer um orçamento. Pode me ajudar?">Orçamento</button>
+              <button type="button" data-modelo="Oi! Quero fazer um pedido pelo WhatsApp.">Pedido</button>
+              <button type="button" data-modelo="">Limpar</button>
+            </div>
+          </div>
+        </form>
+      </div>
+
+      <div>
+        <div class="res">
+          <div class="res__top">
+            <p class="res__lbl">Seu link do WhatsApp</p>
+            <p class="res__val res__val--code" id="saidaLink">Digite o número para gerar o link</p>
+            <p class="res__sub" id="saidaResumo">O link abre a conversa direto, e o número não entra na sua agenda.</p>
+          </div>
+          <div class="res__act">
+            <button class="copy" type="button" data-copy="saidaLink" id="btnCopiar" disabled>
+              <svg aria-hidden="true"><use href="#i-copy"></use></svg>
+              <span data-copy-label>Copiar link</span>
+            </button>
+            <a class="btn btn--primary btn--sm" id="btnAbrir" href="#" target="_blank" rel="noopener" aria-disabled="true">
+              <svg aria-hidden="true" width="16" height="16"><use href="#i-wa"></use></svg>
+              Abrir conversa
+            </a>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:16px">
+          <p class="panel__h">Como o cliente recebe</p>
+          <div class="preview">
+            <div class="preview__who">
+              <span class="preview__av" aria-hidden="true">PI</span>
+              <span>
+                <b id="previewNome">Seu número</b>
+                <span>online</span>
+              </span>
+            </div>
+            <p class="preview__msg" id="previewMsg">Olá! Vim pelo site e quero saber mais sobre os planos de vocês.<small>agora</small></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tool-grid" style="margin-top:16px">
+      <div class="panel">
+        <p class="panel__h">2. QR code do link</p>
+        <div class="qr" id="qrBox"><p>O QR code aparece aqui assim que o número estiver completo.</p></div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
+          <button class="copy" type="button" id="baixarSvg" disabled>
+            <svg aria-hidden="true"><use href="#i-down"></use></svg> Baixar SVG
+          </button>
+          <button class="copy" type="button" id="baixarPng" disabled>
+            <svg aria-hidden="true"><use href="#i-down"></use></svg> Baixar PNG
+          </button>
+        </div>
+        <p class="field__help">
+          O SVG não perde qualidade em nenhum tamanho, então é o arquivo certo para cardápio,
+          adesivo de vitrine e banner. Use o PNG quando o programa não aceitar SVG.
+        </p>
+      </div>
+
+      <div class="panel">
+        <p class="panel__h">3. Botão para colar no seu site</p>
+        <pre class="code code--wrap" id="saidaBotao">Preencha o número para gerar o código do botão.</pre>
+        <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px">
+          <button class="copy" type="button" data-copy="saidaBotao" id="btnCopiarBotao" disabled>
+            <svg aria-hidden="true"><use href="#i-copy"></use></svg>
+            <span data-copy-label>Copiar código</span>
+          </button>
+        </div>
+        <p class="field__help">
+          É HTML puro, com o estilo escrito no próprio elemento. Cole em qualquer site, incluindo
+          WordPress, Wix e loja virtual, sem instalar plugin.
+        </p>
+      </div>
+    </div>
+
+    <p class="note" style="margin-top:20px">
+      <b>Nada é enviado para lugar nenhum.</b> O número, a mensagem e o QR code são montados dentro
+      do seu navegador. Esta página não guarda, não registra e não manda esses dados para nenhum
+      servidor.
+    </p>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <div class="head scroll-reveal scroll-reveal--fade-up">
+        <h2>Como criar o link do WhatsApp em quatro passos</h2>
+        <p>O formato do link é fixo e público. Quem erra, erra sempre no mesmo lugar: o formato do número.</p>
+      </div>
+      <ol class="steps scroll-reveal scroll-reveal--fade-up" style="margin-top:26px;--reveal-delay:.08s">
+        <li>
+          <b>1</b>
+          <div>
+            <h3>Escreva o número no formato internacional</h3>
+            <p>Código do país, DDD e número, tudo junto e só com dígitos. O celular (11) 99999-8888 vira 5511999998888. Sem o sinal de mais, sem o zero do DDD, sem parêntese e sem traço.</p>
+          </div>
+        </li>
+        <li>
+          <b>2</b>
+          <div>
+            <h3>Escolha a mensagem que já vem digitada</h3>
+            <p>A mensagem entra depois de <code>?text=</code> e precisa estar codificada para URL. Espaço vira %20 e acento vira sequência com %. O gerador acima faz essa conversão enquanto você digita, então escreva normal.</p>
+          </div>
+        </li>
+        <li>
+          <b>3</b>
+          <div>
+            <h3>Teste no celular e no computador antes de publicar</h3>
+            <p>Clique no botão Abrir conversa nos dois aparelhos. No computador o link abre o WhatsApp Web ou o aplicativo de desktop; no celular abre o aplicativo direto. Se aparecer aviso de número inválido, o problema está no passo 1.</p>
+          </div>
+        </li>
+        <li>
+          <b>4</b>
+          <div>
+            <h3>Publique no lugar onde o cliente já está</h3>
+            <p>Bio do Instagram, botão fixo do site, assinatura de e-mail, ficha do Google Empresas e QR code impresso no balcão. Um link só, usado em todos esses lugares, vira um número só para medir depois.</p>
+          </div>
+        </li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec sec--tight sec--soft">
+    <div class="wrap">
+      <div class="head scroll-reveal scroll-reveal--fade-up">
+        <h2>Como mandar mensagem no WhatsApp sem salvar o contato</h2>
+        <p>
+          É a mesma função. Quando você abre um link wa.me, o WhatsApp abre a conversa com aquele
+          número sem adicionar ninguém à sua agenda. Serve para responder um cliente que ligou uma
+          vez, para falar com um fornecedor pontual e para não encher o celular de contato morto.
+        </p>
+      </div>
+
+      <div class="split split--wide" style="margin-top:30px">
+        <div class="scroll-reveal scroll-reveal--fade-up">
+          <h3 style="font-size:1.125rem">No celular, Android ou iPhone</h3>
+          <ol class="prose" style="margin-top:14px">
+            <li>Preencha o número no gerador desta página.</li>
+            <li>Toque em <b>Abrir conversa</b>.</li>
+            <li>O WhatsApp abre a conversa. Mande a mensagem normalmente.</li>
+          </ol>
+          <p class="field__help" style="margin-top:12px">
+            A conversa fica no seu histórico com o número aparecendo no lugar do nome. Nenhum
+            contato novo é criado na agenda do aparelho.
+          </p>
+        </div>
+        <div class="scroll-reveal scroll-reveal--fade-up" style="--reveal-delay:.08s">
+          <h3 style="font-size:1.125rem">No computador, pelo WhatsApp Web</h3>
+          <ol class="prose" style="margin-top:14px">
+            <li>Deixe o WhatsApp Web conectado ao celular.</li>
+            <li>Gere o link aqui e clique em <b>Abrir conversa</b>.</li>
+            <li>A conversa abre em uma aba nova, com a mensagem já escrita.</li>
+          </ol>
+          <p class="field__help" style="margin-top:12px">
+            Se a sessão do WhatsApp Web tiver caído, o link mostra a tela do QR code de login antes
+            de abrir a conversa. Reconecte e clique de novo.
+          </p>
+        </div>
+      </div>
+
+      <div class="note scroll-reveal scroll-reveal--fade-up" style="margin-top:26px">
+        <b>Não instale aplicativo de terceiros para isso.</b> Existem dezenas de apps de
+        "mensagem sem salvar contato" que pedem acesso à sua conta do WhatsApp. Eles usam versões
+        modificadas do aplicativo, que é justamente o comportamento que mais derruba número.
+        O link wa.me é o recurso oficial e não pede permissão nenhuma.
+        <a href="/blog/numero-de-whatsapp-banido/">Entenda o que realmente derruba um número.</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <div class="head scroll-reveal scroll-reveal--fade-up">
+        <h2>Os formatos de link que o WhatsApp aceita</h2>
+        <p>Quatro endereços diferentes, com finalidades diferentes. Os dois primeiros fazem exatamente a mesma coisa.</p>
+      </div>
+      <div class="tbl-wrap scroll-reveal scroll-reveal--fade-up" style="margin-top:26px">
+        <table class="tbl">
+          <caption>
+            O wa.me e o api.whatsapp.com são endereços do próprio WhatsApp e apenas abrem o
+            aplicativo. Nenhum dos dois usa a API oficial do WhatsApp Business, apesar do nome do
+            segundo.
+          </caption>
+          <thead>
+            <tr><th scope="col">Formato</th><th scope="col">Exemplo</th><th scope="col">Quando usar</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Link curto</td>
+              <td><code>wa.me/5511999998888</code></td>
+              <td>O padrão. Abre a conversa sem mensagem pronta.</td>
+            </tr>
+            <tr>
+              <td>Link curto com mensagem</td>
+              <td><code>wa.me/5511999998888?text=Ol%C3%A1</code></td>
+              <td>Quando você quer que o cliente já chegue dizendo o assunto.</td>
+            </tr>
+            <tr>
+              <td>Link longo</td>
+              <td><code>api.whatsapp.com/send?phone=5511999998888&amp;text=Ol%C3%A1</code></td>
+              <td>Quando um sistema de terceiros exige parâmetros nomeados.</td>
+            </tr>
+            <tr>
+              <td>Link do WhatsApp Business</td>
+              <td><code>wa.me/message/XXXXXXXXXX</code></td>
+              <td>Gerado dentro do app Business, em Ferramentas comerciais. Esconde o número.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <div class="head scroll-reveal scroll-reveal--fade-up">
+        <h2>Os cinco erros que fazem o link não abrir</h2>
+        <p>Praticamente todo link quebrado cai em um destes casos.</p>
+      </div>
+      <div class="tbl-wrap scroll-reveal scroll-reveal--fade-up" style="margin-top:26px">
+        <table class="tbl">
+          <thead>
+            <tr><th scope="col">O erro</th><th scope="col">O que o cliente vê</th><th scope="col">A correção</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Zero na frente do DDD</td>
+              <td>Aviso de número de telefone inválido</td>
+              <td>Use 5511, nunca 55011</td>
+            </tr>
+            <tr>
+              <td>Número sem o código do país</td>
+              <td>Abre a busca de contato vazia</td>
+              <td>Comece sempre pelo 55 no Brasil</td>
+            </tr>
+            <tr>
+              <td>Parêntese, traço ou espaço no link</td>
+              <td>O link corta no primeiro caractere estranho</td>
+              <td>Só dígitos entre a barra e a interrogação</td>
+            </tr>
+            <tr>
+              <td>Acento na mensagem sem codificar</td>
+              <td>O texto chega truncado no primeiro acento</td>
+              <td>Codifique para URL, que é o que esta página faz</td>
+            </tr>
+            <tr>
+              <td>Celular sem o nono dígito</td>
+              <td>Conversa não abre ou abre no número errado</td>
+              <td>Celular tem 9 dígitos depois do DDD</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec--tight sec--soft">
+    <div class="wrap">
+      <div class="head scroll-reveal scroll-reveal--fade-up">
+        <h2>Onde colocar o link para ele render</h2>
+        <p>O link é o mesmo. O que muda é o formato de quem recebe.</p>
+      </div>
+      <div class="grid grid--3">
+        <div class="card scroll-reveal scroll-reveal--fade-up">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-wa"></use></svg></span></div>
+          <h3>Bio do Instagram e do TikTok</h3>
+          <p>Cole o link wa.me direto no campo de site do perfil. Escreva a chamada na bio dizendo o que a pessoa recebe ao clicar, porque link sem promessa não é clicado.</p>
+        </div>
+        <div class="card scroll-reveal scroll-reveal--fade-up" style="--reveal-delay:.08s">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-copy"></use></svg></span></div>
+          <h3>Botão fixo no site</h3>
+          <p>Use o código gerado acima. Um botão flutuante no canto da tela costuma render mais contato que um botão no rodapé, porque acompanha a rolagem.</p>
+        </div>
+        <div class="card scroll-reveal scroll-reveal--fade-up" style="--reveal-delay:.16s">
+          <div class="card__top"><span class="card__ico"><svg aria-hidden="true"><use href="#i-down"></use></svg></span></div>
+          <h3>QR code impresso</h3>
+          <p>Balcão, cardápio, embalagem, adesivo de vitrine e crachá de vendedor. Baixe o SVG, que não borra em nenhum tamanho de impressão.</p>
+        </div>
+      </div>
+      <p style="margin-top:22px;font-size:.9375rem;color:var(--ink-2);max-width:70ch">
+        Precisa só do QR code, sem o resto?
+        <a href="/ferramentas/gerador-de-qr-code-whatsapp/" style="color:var(--moss);font-weight:600">Use o gerador de QR code do WhatsApp</a>,
+        que entrega os arquivos prontos para impressão em uma tela só.
+      </p>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap faq">
+      <div class="head head--center scroll-reveal scroll-reveal--fade-up">
+        <p class="label">Perguntas frequentes</p>
+        <h2>Dúvidas sobre o link do WhatsApp</h2>
+      </div>
+      <div class="faq__list scroll-reveal scroll-reveal--fade-up">
+        <details>
+          <summary>Como criar um link do WhatsApp com mensagem pronta?</summary>
+          <p>O formato é <code>https://wa.me/DDIDDDNUMERO?text=MENSAGEM</code>. Para o número (11) 99999-8888 no Brasil, o link fica <code>https://wa.me/5511999998888?text=Ol%C3%A1</code>. O texto precisa estar codificado para URL, ou seja, espaço vira %20 e acento vira uma sequência começada por %. O gerador desta página faz essa codificação sozinho enquanto você digita.</p>
+        </details>
+        <details>
+          <summary>Como mandar mensagem no WhatsApp sem salvar o contato?</summary>
+          <p>Gere o link wa.me com o número da pessoa e abra esse link. O WhatsApp abre a conversa direto, sem que o número entre na sua agenda. Funciona no celular Android, no iPhone e no WhatsApp Web. É o mesmo recurso oficial usado pelo botão de WhatsApp dos sites, então não exige aplicativo de terceiros nem permissão extra.</p>
+        </details>
+        <details>
+          <summary>Preciso colocar o 55 antes do número?</summary>
+          <p>Sim. O link wa.me exige o número no formato internacional, com o código do país na frente e sem sinal de mais, sem zero, sem parêntese e sem traço. Para o Brasil o código é 55, então (11) 99999-8888 vira 5511999998888. O erro mais comum é manter o zero do DDD, o que faz o WhatsApp responder que o número é inválido.</p>
+        </details>
+        <details>
+          <summary>O link do WhatsApp funciona no computador?</summary>
+          <p>Funciona. No computador o link wa.me abre o WhatsApp Web ou o aplicativo de desktop, dependendo do que estiver instalado, e a mensagem aparece pré-preenchida do mesmo jeito. Se você usa o WhatsApp Web, precisa estar com a sessão conectada ao celular antes de clicar.</p>
+        </details>
+        <details>
+          <summary>Quantos caracteres a mensagem do link aceita?</summary>
+          <p>Na prática, links com até 1.000 caracteres de mensagem abrem sem problema em todos os navegadores. Acima disso alguns navegadores e aplicativos de terceiros cortam a URL, porque o limite não é do WhatsApp e sim do tamanho de link que cada programa aceita. Como regra de operação, mensagem de primeiro contato com 2 a 4 linhas converte mais do que texto longo.</p>
+        </details>
+        <details>
+          <summary>O link do WhatsApp pode fazer meu número ser banido?</summary>
+          <p>O link em si não. Ele é um recurso oficial e é a própria Meta que documenta o formato wa.me. O que causa banimento é o comportamento depois: mandar mensagem em massa para quem não pediu, usar aplicativo modificado ou disparar de um número novo sem histórico. Quando o cliente é quem clica no link e inicia a conversa, o risco é baixo, porque a Meta trata isso como contato solicitado.</p>
+        </details>
+        <details>
+          <summary>Qual a diferença entre wa.me e api.whatsapp.com/send?</summary>
+          <p>As duas fazem a mesma coisa. O wa.me é a versão curta e é a recomendada para material impresso e para bio de rede social. O api.whatsapp.com/send?phone=&amp;text= é a versão longa, útil quando algum sistema de terceiros exige parâmetros nomeados. Nenhuma das duas usa a API oficial do WhatsApp Business, apesar do nome; as duas apenas abrem o aplicativo.</p>
+        </details>
+        <details>
+          <summary>Dá para gerar um link do WhatsApp para grupo?</summary>
+          <p>O link de grupo não é gerado por fora. Ele sai de dentro do próprio grupo, em Dados do grupo, Convidar via link, e tem o formato chat.whatsapp.com. O link wa.me desta página é para conversa individual com um número, que é o caso de atendimento e de venda.</p>
+        </details>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <p class="label">Fontes</p>
+      <ul class="sources" style="margin-top:16px">
+        <li>
+          <a href="https://faq.whatsapp.com/5913398998672934" target="_blank" rel="noopener noreferrer">Como usar links de clique para conversar</a>
+          <span>· Central de Ajuda do WhatsApp</span>
+        </li>
+        <li>
+          <a href="https://faq.whatsapp.com/general/security-and-privacy/about-unofficial-apps" target="_blank" rel="noopener noreferrer">Sobre aplicativos não oficiais do WhatsApp</a>
+          <span>· Central de Ajuda do WhatsApp</span>
+        </li>
+        <li>
+          <a href="https://www.gov.br/anatel/pt-br" target="_blank" rel="noopener noreferrer">Plano de numeração e o nono dígito nos celulares</a>
+          <span>· Anatel</span>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec sec--tight">
+    <div class="wrap">
+      <div class="cta">
+        <p class="label label--night">Depois do primeiro clique</p>
+        <h2 style="margin-top:14px">O link traz a conversa. Depois disso, alguém precisa cuidar dela.</h2>
+        <p>
+          Um link resolve o primeiro contato. Com cinco vendedores usando o mesmo número, ninguém
+          sabe quem respondeu o quê, e o histórico do cliente some junto com o celular de quem saiu
+          da empresa. O Pipe atende pela API oficial, guarda cada conversa e cadastra o cliente no
+          CRM a partir dela.
+        </p>
+        <div class="cta__act">
+          <a class="btn btn--primary" href="/#demo">Agendar demonstração</a>
+          <a class="btn btn--night" href="/ferramentas/">Ver as outras ferramentas</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="ft">
+  <div class="wrap">
+    <div class="ft__grid">
+      <div class="ft__brand">
+        <img src="/assets/pipe-lockup-cream.svg" width="420" height="190" alt="Pipe">
+        <p>Atendimento no WhatsApp pela API oficial, com CRM alimentado pelas conversas e monitoria de qualidade por IA.</p>
+      </div>
+      <div>
+        <p class="ft__h">Produto</p>
+        <nav aria-label="Produto">
+          <a href="/#produto">Atendimento</a>
+          <a href="/#produto">CRM pelas conversas</a>
+          <a href="/#monitoria">Monitoria com IA</a>
+          <a href="/#precos">Preços</a>
+        </nav>
+      </div>
+      <div>
+        <p class="ft__h">Ferramentas</p>
+        <nav aria-label="Ferramentas">
+          <a href="/ferramentas/gerador-de-link-whatsapp/">Gerador de link do WhatsApp</a>
+          <a href="/ferramentas/gerador-de-qr-code-whatsapp/">Gerador de QR code</a>
+          <a href="/ferramentas/agendador-de-mensagem-whatsapp/">Agendador de mensagem</a>
+          <a href="/ferramentas/calculadora-de-nps/">Calculadora de NPS</a>
+          <a href="/ferramentas/calculadora-de-taxas-do-ifood/">Calculadora de taxas do iFood</a>
+        </nav>
+      </div>
+      <div>
+        <p class="ft__h">Empresa</p>
+        <nav aria-label="Empresa">
+          <a href="/blog/">Blog</a>
+          <a href="/#demo">Falar com a gente</a>
+          <a href="/privacidade/">Privacidade</a>
+          <a href="/termos/">Termos de uso</a>
+        </nav>
+      </div>
+    </div>
+    <div class="ft__bar">
+      <p>© 2026 Pipe. Todos os direitos reservados.</p>
+      <p>WhatsApp é marca da Meta Platforms. O Pipe não tem vínculo com a Meta.</p>
+    </div>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" integrity="sha512-ZDSPMa/JM1D+7kdg2x3BsruQ6T/JpJo3jWDWkCZsP+5yVyp1KfESqLI+7RqB5k24F7p2cV7i2YHh/890y6P6Sw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="/assets/site.js" defer></script>
+<script>
+/* Gerador de link do WhatsApp. Tudo no navegador: nenhum dado sai daqui.
+   O link wa.me exige o número no formato internacional, só com dígitos, e a
+   mensagem codificada para URL. As duas conversões acontecem a cada tecla. */
+(function () {
+  "use strict";
+
+  var elDdi = document.getElementById("ddi");
+  var elDdiLivre = document.getElementById("ddiLivre");
+  var wrapDdiLivre = document.getElementById("wrapDdiLivre");
+  var elNumero = document.getElementById("numero");
+  var elMensagem = document.getElementById("mensagem");
+  var elContador = document.getElementById("contador");
+  var elErro = document.getElementById("erroNumero");
+
+  var saidaLink = document.getElementById("saidaLink");
+  var saidaResumo = document.getElementById("saidaResumo");
+  var saidaBotao = document.getElementById("saidaBotao");
+  var previewMsg = document.getElementById("previewMsg");
+  var previewNome = document.getElementById("previewNome");
+
+  var btnCopiar = document.getElementById("btnCopiar");
+  var btnCopiarBotao = document.getElementById("btnCopiarBotao");
+  var btnAbrir = document.getElementById("btnAbrir");
+  var qrBox = document.getElementById("qrBox");
+  var baixarSvgBtn = document.getElementById("baixarSvg");
+  var baixarPngBtn = document.getElementById("baixarPng");
+
+  var qrAtual = null;
+  var svgAtual = "";
+
+  function soDigitos(v) { return (v || "").replace(/\D+/g, ""); }
+
+  function ddiEscolhido() {
+    if (elDdi.value === "outro") return soDigitos(elDdiLivre.value);
+    return elDdi.value;
+  }
+
+  /* Formata o número brasileiro enquanto a pessoa digita, para ela conferir o
+     que preencheu. Fora do Brasil o formato varia demais, então fica cru. */
+  function mascara(d, ddi) {
+    if (ddi !== "55") return d;
+    if (d.length <= 2) return d.length ? "(" + d : d;
+    if (d.length <= 6) return "(" + d.slice(0, 2) + ") " + d.slice(2);
+    if (d.length <= 10) return "(" + d.slice(0, 2) + ") " + d.slice(2, 6) + "-" + d.slice(6);
+    return "(" + d.slice(0, 2) + ") " + d.slice(2, 7) + "-" + d.slice(7, 11);
+  }
+
+  function validar(d, ddi) {
+    if (!ddi) return "Escolha ou digite o código do país.";
+    if (!d) return null;
+    if (ddi === "55") {
+      if (d.length < 10) return "Falta dígito. No Brasil são 10 dígitos para fixo e 11 para celular, contando o DDD.";
+      if (d.length > 11) return "Dígitos demais. Confira se você não repetiu o 55 dentro do campo.";
+      if (d.charAt(0) === "0") return "Tire o zero da frente do DDD. O link usa 5511, nunca 55011.";
+      if (d.length === 11 && d.charAt(2) !== "9") return "Número de 11 dígitos precisa começar com 9 depois do DDD.";
+      return null;
+    }
+    if (d.length < 6) return "Número curto demais para montar o link.";
+    if (d.length > 14) return "Número longo demais para montar o link.";
+    return null;
+  }
+
+  function escaparHtml(s) {
+    return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+  function montarBotao(link) {
+    return '<a href="' + escaparHtml(link) + '" target="_blank" rel="noopener"\n' +
+      '   style="display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;' +
+      'background:#25D366;color:#fff;font:600 15px/1 system-ui,-apple-system,Segoe UI,Helvetica,Arial,sans-serif;' +
+      'text-decoration:none;box-shadow:0 6px 18px -8px rgba(37,211,102,.9)">\n' +
+      '  <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">\n' +
+      '    <path d="M12.04 2c-5.52 0-10 4.48-10 10 0 1.77.46 3.45 1.27 4.9L2 22l5.25-1.38a9.95 9.95 0 0 0 4.79 1.22c5.52 0 10-4.48 10-10s-4.48-9.84-10.02-9.84Zm5.86 14.3c-.25.7-1.24 1.29-1.98 1.44-.53.11-1.22.2-3.55-.76-2.98-1.23-4.9-4.24-5.05-4.44-.15-.2-1.2-1.6-1.2-3.05 0-1.46.76-2.17 1.03-2.46.27-.29.6-.36.8-.36h.58c.19 0 .44-.07.68.53.25.6.86 2.07.94 2.22.08.15.13.33.03.53-.1.2-.16.33-.31.5-.15.18-.32.4-.46.53-.15.15-.31.31-.14.61.18.3.79 1.31 1.7 2.12 1.17 1.04 2.15 1.37 2.45 1.52.3.15.48.13.66-.08.18-.2.76-.89.97-1.19.2-.3.4-.25.68-.15.28.1 1.77.84 2.08.99.3.15.5.23.58.36.08.13.08.75-.17 1.45Z"/>\n' +
+      '  </svg>\n' +
+      '  Falar no WhatsApp\n' +
+      '</a>';
+  }
+
+  function desenharQr(texto) {
+    if (typeof qrcode !== "function") {
+      qrBox.innerHTML = '<p>O gerador de QR code não carregou. Recarregue a página para tentar de novo.</p>';
+      return false;
+    }
+    var qr = qrcode(0, "M");
+    qr.addData(texto);
+    try { qr.make(); } catch (e) {
+      qrBox.innerHTML = '<p>Mensagem longa demais para caber em um QR code. Encurte o texto.</p>';
+      return false;
+    }
+    var n = qr.getModuleCount();
+    var margem = 4;
+    var lado = n + margem * 2;
+    var d = "";
+    for (var r = 0; r < n; r++) {
+      for (var c = 0; c < n; c++) {
+        if (qr.isDark(r, c)) d += "M" + (c + margem) + " " + (r + margem) + "h1v1h-1z";
+      }
+    }
+    svgAtual = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ' + lado + " " + lado + '" ' +
+      'shape-rendering="crispEdges" role="img" aria-label="QR code que abre a conversa no WhatsApp">' +
+      '<rect width="' + lado + '" height="' + lado + '" fill="#ffffff"/>' +
+      '<path d="' + d + '" fill="#111111"/></svg>';
+    qrBox.innerHTML = svgAtual;
+    qrAtual = { qr: qr, n: n, margem: margem };
+    return true;
+  }
+
+  function baixar(blob, nome) {
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    a.href = url;
+    a.download = nome;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+  }
+
+  function atualizar() {
+    var ddi = ddiEscolhido();
+    var d = soDigitos(elNumero.value);
+    var posCursorNoFim = elNumero.selectionStart === elNumero.value.length;
+    var formatado = mascara(d, ddi);
+    if (formatado !== elNumero.value) {
+      elNumero.value = formatado;
+      if (posCursorNoFim) elNumero.setSelectionRange(formatado.length, formatado.length);
+    }
+
+    var msg = elMensagem.value.slice(0, 1000);
+    if (msg !== elMensagem.value) elMensagem.value = msg;
+    elContador.textContent = msg.length;
+
+    var erro = validar(d, ddi);
+    elErro.hidden = !erro;
+    if (erro) elErro.textContent = erro;
+
+    previewMsg.innerHTML = msg
+      ? escaparHtml(msg) + "<small>agora</small>"
+      : "<span style=\"opacity:.6\">Sem mensagem pronta. A conversa abre em branco.</span><small>agora</small>";
+
+    var valido = !erro && d.length >= 6 && ddi;
+
+    if (!valido) {
+      saidaLink.textContent = "Digite o número para gerar o link";
+      saidaResumo.textContent = "O link abre a conversa direto, e o número não entra na sua agenda.";
+      saidaBotao.textContent = "Preencha o número para gerar o código do botão.";
+      previewNome.textContent = "Seu número";
+      qrBox.innerHTML = "<p>O QR code aparece aqui assim que o número estiver completo.</p>";
+      btnCopiar.disabled = true;
+      btnCopiarBotao.disabled = true;
+      baixarSvgBtn.disabled = true;
+      baixarPngBtn.disabled = true;
+      btnAbrir.setAttribute("aria-disabled", "true");
+      btnAbrir.removeAttribute("href");
+      qrAtual = null;
+      svgAtual = "";
+      return;
+    }
+
+    var completo = ddi + d;
+    var link = "https://wa.me/" + completo + (msg ? "?text=" + encodeURIComponent(msg) : "");
+
+    saidaLink.textContent = link;
+    saidaResumo.textContent = "Número internacional +" + completo + ". " +
+      (msg ? "A conversa abre com a mensagem já escrita." : "A conversa abre em branco, sem mensagem pronta.");
+    saidaBotao.textContent = montarBotao(link);
+    previewNome.textContent = "+" + completo;
+
+    btnCopiar.disabled = false;
+    btnCopiarBotao.disabled = false;
+    btnAbrir.setAttribute("href", link);
+    btnAbrir.setAttribute("aria-disabled", "false");
+
+    var ok = desenharQr(link);
+    baixarSvgBtn.disabled = !ok;
+    baixarPngBtn.disabled = !ok;
+  }
+
+  elDdi.addEventListener("change", function () {
+    var livre = elDdi.value === "outro";
+    wrapDdiLivre.hidden = !livre;
+    if (livre) elDdiLivre.focus();
+    atualizar();
+  });
+  elDdiLivre.addEventListener("input", atualizar);
+  elNumero.addEventListener("input", atualizar);
+  elMensagem.addEventListener("input", atualizar);
+
+  document.querySelectorAll("[data-modelo]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      elMensagem.value = b.getAttribute("data-modelo");
+      atualizar();
+      elMensagem.focus();
+    });
+  });
+
+  baixarSvgBtn.addEventListener("click", function () {
+    if (!svgAtual) return;
+    baixar(new Blob([svgAtual], { type: "image/svg+xml;charset=utf-8" }), "qr-code-whatsapp.svg");
+  });
+
+  baixarPngBtn.addEventListener("click", function () {
+    if (!qrAtual) return;
+    var escala = 12;
+    var lado = (qrAtual.n + qrAtual.margem * 2) * escala;
+    var canvas = document.createElement("canvas");
+    canvas.width = lado;
+    canvas.height = lado;
+    var ctx = canvas.getContext("2d");
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, lado, lado);
+    ctx.fillStyle = "#111111";
+    for (var r = 0; r < qrAtual.n; r++) {
+      for (var c = 0; c < qrAtual.n; c++) {
+        if (qrAtual.qr.isDark(r, c)) {
+          ctx.fillRect((c + qrAtual.margem) * escala, (r + qrAtual.margem) * escala, escala, escala);
+        }
+      }
+    }
+    canvas.toBlob(function (blob) { if (blob) baixar(blob, "qr-code-whatsapp.png"); });
+  });
+
+  elMensagem.value = "Olá! Vim pelo site e quero saber mais sobre os planos de vocês.";
+  atualizar();
+})();
+</script>
+</body>
+</html>
