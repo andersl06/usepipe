@@ -144,7 +144,10 @@ export function calcularEsforcoConversa(
         else audioGravadoSeg += duracao;
       } else {
         const caracteres = contarCaracteres(mensagem.conteudo);
-        if (mensagem.respostaProntaId) charsDeRespostaPronta += caracteres;
+        // Resposta pronta e template não foram digitados à mão: saem do esforço
+        // e vão para a coluna separada, como manda a ressalva do relatório.
+        const veioPronto = !!mensagem.respostaProntaId || mensagem.tipo === 'template';
+        if (veioPronto) charsDeRespostaPronta += caracteres;
         else charsEscritos += caracteres;
       }
       continue;
