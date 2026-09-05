@@ -1,0 +1,1112 @@
+/* ==========================================================================
+   Pipe CRM — folha de estilo única.
+   Copiada da Gestão sem retoque: as três telas precisam parecer o mesmo produto.
+   Tokens da marca (docs/marca/MARCA.md) na mesma régua do mockup aprovado
+   (docs/mockup/pipe-telas.html): moss #4A5D23, sage #8A9A5B, terracota #C4442E,
+   creme #F2F1EC, tinta #111111. Densidade de ferramenta, não de site.
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+  --ground: #f2f1ec;
+  --surface: #ffffff;
+  --surface-2: #faf9f4;
+  --surface-3: #edebe3;
+  --line: #e2e0d8;
+  --line-strong: #d2cfc3;
+  --ink: #111111;
+  --ink-2: #55544d;
+  --ink-3: #7a7970;
+  --moss: #4a5d23;
+  --moss-soft: #e8edd9;
+  --sage: #8a9a5b;
+  --terracotta: #c4442e;
+  --terracotta-soft: #f8e3de;
+  --ochre: #9a7420;
+  --ochre-soft: #f5ebd3;
+  --blue: #2e4a5d;
+  --blue-soft: #e0e8ed;
+  --online: #5fa84b;
+  --shadow: 0 1px 2px rgba(17, 17, 17, 0.05), 0 8px 24px -16px rgba(17, 17, 17, 0.18);
+}
+
+/* Escuro: o supervisor deixa o painel aberto o dia inteiro. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema='claro']) {
+    color-scheme: dark;
+    --ground: #12140e;
+    --surface: #1a1d15;
+    --surface-2: #20241b;
+    --surface-3: #272b20;
+    --line: #31362a;
+    --line-strong: #414736;
+    --ink: #edede4;
+    --ink-2: #a7a69a;
+    --ink-3: #84837a;
+    --moss: #a3b76a;
+    --moss-soft: #26301a;
+    --terracotta: #e4816d;
+    --terracotta-soft: #3a211b;
+    --ochre: #cba453;
+    --ochre-soft: #332714;
+    --blue: #93b4c6;
+    --blue-soft: #1c2830;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -16px rgba(0, 0, 0, 0.7);
+  }
+}
+
+:root[data-tema='escuro'] {
+  color-scheme: dark;
+  --ground: #12140e;
+  --surface: #1a1d15;
+  --surface-2: #20241b;
+  --surface-3: #272b20;
+  --line: #31362a;
+  --line-strong: #414736;
+  --ink: #edede4;
+  --ink-2: #a7a69a;
+  --ink-3: #84837a;
+  --moss: #a3b76a;
+  --moss-soft: #26301a;
+  --terracotta: #e4816d;
+  --terracotta-soft: #3a211b;
+  --ochre: #cba453;
+  --ochre-soft: #332714;
+  --blue: #93b4c6;
+  --blue-soft: #1c2830;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -16px rgba(0, 0, 0, 0.7);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--ground);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--moss);
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+.mono {
+  font-family: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+}
+
+/* Assinatura visual da marca: rótulo em Plex Mono, caixa alta, 0.15em. */
+.lbl {
+  font-family: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
+  font-size: 10.5px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+
+/* --------------------------------------------------------------- estrutura */
+.app {
+  display: grid;
+  grid-template-columns: 224px minmax(0, 1fr);
+  min-height: 100vh;
+}
+
+.side {
+  background: var(--surface-2);
+  border-right: 1px solid var(--line);
+  padding: 12px 10px 24px;
+  overflow-y: auto;
+  max-height: 100vh;
+  position: sticky;
+  top: 0;
+}
+
+.side .marca {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 4px 8px 14px;
+}
+
+.side .marca svg {
+  width: 26px;
+  height: 26px;
+  color: var(--ink);
+  flex: none;
+}
+
+.side .marca b {
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.side .marca span {
+  display: block;
+  font-size: 10px;
+  color: var(--ink-3);
+}
+
+.side .grp {
+  margin-bottom: 13px;
+}
+
+.side .grp > .lbl {
+  padding: 0 8px 5px;
+  display: block;
+}
+
+.side a {
+  display: block;
+  padding: 5px 8px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--ink-2);
+  text-decoration: none;
+}
+
+.side a:hover {
+  background: var(--surface-3);
+}
+
+.side a[aria-current='page'] {
+  background: var(--moss-soft);
+  color: var(--moss);
+  font-weight: 500;
+}
+
+.side a[aria-disabled='true'] {
+  color: var(--ink-3);
+  opacity: 0.65;
+  cursor: default;
+}
+
+.side .sep {
+  height: 1px;
+  background: var(--line);
+  margin: 0 8px 13px;
+}
+
+.board {
+  padding: 16px 18px 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.board-head {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.board-head h2 {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+}
+
+.board-head .sub {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.filters {
+  margin-left: auto;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.quickfilters {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex-wrap: wrap;
+}
+
+.quickfilters .lbl {
+  margin-right: 2px;
+}
+
+/* -------------------------------------------------------------- primitivos */
+.btn {
+  font: inherit;
+  font-size: 11.5px;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 5px 11px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: var(--surface);
+  color: var(--ink-2);
+  text-decoration: none;
+  display: inline-block;
+}
+
+.btn.primary {
+  background: var(--moss);
+  border-color: var(--moss);
+  color: #fff;
+}
+
+.btn.chip {
+  border-radius: 14px;
+  padding: 4px 12px;
+}
+
+.btn.chip[aria-current='true'] {
+  background: var(--moss-soft);
+  border-color: var(--moss);
+  color: var(--moss);
+}
+
+.pill {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  padding: 2px 6px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  display: inline-block;
+}
+
+.pill.q {
+  background: var(--surface-3);
+  color: var(--ink-2);
+  border-color: var(--line);
+}
+
+.pill.hi {
+  background: var(--terracotta-soft);
+  color: var(--terracotta);
+}
+
+.pill.med {
+  background: var(--ochre-soft);
+  color: var(--ochre);
+}
+
+.pill.ok {
+  background: var(--moss-soft);
+  color: var(--moss);
+}
+
+.pill.info {
+  background: var(--blue-soft);
+  color: var(--blue);
+}
+
+/* ------------------------------------------------- cartões do monitoramento */
+/* Dois blocos por linha, como na Blip. A separação entre "agora" e "hoje" é o
+   .bloco que os envolve: misturar aberto com encerrado é o erro que a spec proíbe. */
+.bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bloco > header {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.bloco > header .lbl {
+  color: var(--moss);
+}
+
+.bloco > header .quando {
+  font-size: 11.5px;
+  color: var(--ink-3);
+}
+
+.mon {
+  display: grid;
+  grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr);
+  gap: 12px;
+}
+
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  padding: 13px 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+}
+
+.card > h3 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
+  gap: 14px;
+}
+
+.metric {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.metric .v {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.15;
+}
+
+.metric .k {
+  font-size: 11px;
+  color: var(--ink-2);
+}
+
+/* O denominador. Obrigatório ao lado de toda média — decisão central da spec. */
+.metric .den {
+  font-size: 10px;
+  color: var(--ink-3);
+  font-family: 'IBM Plex Mono', monospace;
+}
+
+.metric.accent .v {
+  color: var(--moss);
+}
+
+.metric.warn .v {
+  color: var(--ochre);
+}
+
+.metric.bad .v {
+  color: var(--terracotta);
+}
+
+.statuses {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.statuses div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.statuses b {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.15;
+}
+
+.statuses span {
+  font-size: 11px;
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.sw {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex: none;
+  display: inline-block;
+}
+
+.note {
+  font-size: 11px;
+  color: var(--ink-3);
+  border-top: 1px solid var(--line);
+  padding-top: 9px;
+  margin-top: auto;
+}
+
+/* ------------------------------------------------------------------ tabelas */
+.tblwrap {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  overflow: hidden;
+  background: var(--surface);
+}
+
+.tblhead {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px 0;
+  flex-wrap: wrap;
+}
+
+.tblhead h3 {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.tblhead input,
+.tblhead select {
+  font: inherit;
+  font-size: 11.5px;
+  padding: 5px 10px;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  color: var(--ink);
+}
+
+.tabs {
+  display: flex;
+  gap: 2px;
+  padding: 9px 12px 0;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+
+.tabs a {
+  font-size: 12px;
+  padding: 6px 11px;
+  border-radius: 6px 6px 0 0;
+  color: var(--ink-3);
+  white-space: nowrap;
+  border-bottom: 2px solid transparent;
+  text-decoration: none;
+}
+
+.tabs a[aria-current='true'] {
+  color: var(--moss);
+  font-weight: 500;
+  border-bottom-color: var(--moss);
+}
+
+.scroll {
+  overflow-x: auto;
+}
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 880px;
+  font-size: 12.5px;
+}
+
+th {
+  text-align: left;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  white-space: nowrap;
+}
+
+td {
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+td.num {
+  font-family: 'IBM Plex Mono', monospace;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+
+td.who {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+td.acts {
+  display: flex;
+  gap: 5px;
+}
+
+/* Severidade na linha, não só no texto — a lição do blip-dash (§3 do desenho). */
+tr.grave td {
+  background: var(--ochre-soft);
+}
+
+tr.critico td {
+  background: var(--terracotta-soft);
+}
+
+.iconbtn {
+  width: 24px;
+  height: 24px;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--surface);
+  color: var(--ink-3);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+}
+
+.iconbtn svg {
+  width: 13px;
+  height: 13px;
+}
+
+.vazio {
+  padding: 22px 14px;
+  font-size: 12.5px;
+  color: var(--ink-3);
+}
+
+/* ------------------------------------------------------ carga por atendente */
+.bars {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 12px 14px;
+}
+
+.bar-row {
+  display: grid;
+  grid-template-columns: 140px 1fr 74px;
+  align-items: center;
+  gap: 9px;
+  font-size: 11.5px;
+}
+
+.bar-row .track {
+  height: 7px;
+  border-radius: 4px;
+  background: var(--surface-3);
+  overflow: hidden;
+  display: block;
+}
+
+.bar-row .fill {
+  height: 100%;
+  border-radius: 4px;
+  background: var(--sage);
+  display: block;
+}
+
+.bar-row .fill.warn {
+  background: var(--ochre);
+}
+
+.bar-row .fill.bad {
+  background: var(--terracotta);
+}
+
+.bar-row .n {
+  font-family: 'IBM Plex Mono', monospace;
+  text-align: right;
+  color: var(--ink);
+}
+
+.bar-row .nome {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.bar-row .nome span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------- responsivo */
+@media (max-width: 1240px) {
+  .mon {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 860px) {
+  .app {
+    grid-template-columns: 1fr;
+  }
+
+  .side {
+    position: static;
+    max-height: none;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .side .grp {
+    margin-bottom: 8px;
+  }
+}
+
+/* ==========================================================================
+   Daqui para baixo é do CRM. Vem da aba "CRM" do mockup aprovado.
+   ========================================================================== */
+
+/* ------------------------------------------------------------ indicadores */
+.kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1px;
+  background: var(--line);
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  overflow: hidden;
+}
+
+.kpi {
+  background: var(--surface);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.kpi .v {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 21px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.kpi .k {
+  font-size: 11px;
+  color: var(--ink-2);
+}
+
+.kpi .d {
+  font-size: 10.5px;
+  font-family: 'IBM Plex Mono', monospace;
+  color: var(--ink-3);
+}
+
+.up {
+  color: var(--moss);
+}
+
+.down {
+  color: var(--terracotta);
+}
+
+/* -------------------------------------------------------- painel e funil */
+.crmgrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 292px;
+  gap: 12px;
+  align-items: start;
+}
+
+.funnel {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.funnel .fh {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.funnel .fh h3 {
+  margin: 0;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.lanes {
+  display: flex;
+  gap: 1px;
+  background: var(--line);
+  overflow-x: auto;
+  align-items: stretch;
+}
+
+.lane {
+  background: var(--surface-2);
+  min-width: 186px;
+  flex: 1;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* O alvo do arraste precisa se anunciar, senão o vendedor solta o cartão no vazio. */
+.lane.alvo {
+  background: var(--moss-soft);
+  outline: 2px dashed var(--moss);
+  outline-offset: -4px;
+}
+
+.lane header {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+}
+
+.lane header .lbl {
+  color: var(--ink-2);
+}
+
+.lane header .c {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+  margin-left: auto;
+}
+
+.opp {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  padding: 9px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-decoration: none;
+  color: inherit;
+  cursor: grab;
+}
+
+.opp:hover {
+  border-color: var(--line-strong);
+}
+
+.opp.arrastando {
+  opacity: 0.45;
+}
+
+.opp b {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.opp .val {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  color: var(--ink);
+}
+
+.opp .ow {
+  font-size: 10.5px;
+  color: var(--ink-3);
+}
+
+.lane .total {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px;
+  color: var(--ink-3);
+  border-top: 1px solid var(--line);
+  padding-top: 7px;
+  margin-top: auto;
+}
+
+/* --------------------------------------------- o painel que explica o score */
+.explain {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.explain > header {
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.explain > header b {
+  font-size: 13.5px;
+}
+
+.rules {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.rules li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12px;
+}
+
+.rules li span {
+  flex: 1;
+  color: var(--ink-2);
+}
+
+.rules li .v {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  color: var(--ink-3);
+  flex: none;
+}
+
+.rules li em {
+  font-style: normal;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px;
+  font-weight: 600;
+  flex: none;
+}
+
+.rules li em.p {
+  color: var(--moss);
+}
+
+.rules li em.n {
+  color: var(--terracotta);
+}
+
+.explain .tot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+  background: var(--surface-2);
+}
+
+.explain .tot .n {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--moss);
+}
+
+/* ------------------------------------------------------------- ficha do lead */
+.ficha {
+  display: grid;
+  grid-template-columns: 316px minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+
+.bloco-card {
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.bloco-card > header {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 11px 14px;
+  border-bottom: 1px solid var(--line);
+  flex-wrap: wrap;
+}
+
+.bloco-card > header b {
+  font-size: 13.5px;
+  font-weight: 600;
+}
+
+.bloco-card > header .lbl {
+  margin-left: auto;
+}
+
+.campos {
+  display: grid;
+  grid-template-columns: 1fr;
+}
+
+.campos div {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  padding: 7px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: 12.5px;
+}
+
+.campos div:last-child {
+  border-bottom: 0;
+}
+
+.campos dt,
+.campos .k {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  width: 116px;
+  flex: none;
+  /* Código de campo não tem espaço para quebrar: sem isto ele invade o valor. */
+  overflow-wrap: anywhere;
+}
+
+.campos .v {
+  color: var(--ink);
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 11px 14px;
+}
+
+/* Respostas de formulário: agrupadas por formulário e versão, nunca soltas. */
+.form-versao {
+  border-bottom: 1px solid var(--line);
+}
+
+.form-versao:last-child {
+  border-bottom: 0;
+}
+
+.form-versao > .cab {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 9px 14px;
+  background: var(--surface-2);
+  flex-wrap: wrap;
+}
+
+.form-versao > .cab b {
+  font-size: 12.5px;
+  font-weight: 600;
+}
+
+/* ----------------------------------------------------------- linha do tempo */
+.tempo {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tempo li {
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr);
+  gap: 4px 12px;
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.tempo li:last-child {
+  border-bottom: 0;
+}
+
+.tempo .quando {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10.5px;
+  color: var(--ink-3);
+  padding-top: 2px;
+}
+
+.tempo .t {
+  font-size: 12.5px;
+  color: var(--ink);
+  font-weight: 500;
+}
+
+.tempo .quem {
+  font-size: 11px;
+  color: var(--ink-3);
+}
+
+/* O resumo do atendimento entra recuado: é texto de máquina, não do vendedor. */
+.tempo .resumo {
+  grid-column: 2;
+  font-size: 11.5px;
+  color: var(--ink-2);
+  background: var(--surface-2);
+  border-left: 2px solid var(--sage);
+  padding: 7px 10px;
+  border-radius: 0 5px 5px 0;
+  margin-top: 3px;
+}
+
+.mensagem {
+  padding: 10px 14px;
+  font-size: 11.5px;
+  color: var(--ink-3);
+  border-top: 1px solid var(--line);
+}
+
+.voltar {
+  font-size: 11.5px;
+  color: var(--ink-3);
+  text-decoration: none;
+}
+
+.voltar:hover {
+  color: var(--moss);
+}
+
+@media (max-width: 1240px) {
+  .crmgrid,
+  .ficha {
+    grid-template-columns: 1fr;
+  }
+}
