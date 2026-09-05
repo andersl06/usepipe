@@ -296,16 +296,20 @@ export function avancarNoExpediente(
 ): Date | null {
   if (segundos <= 0) return de;
 
-  const limite = new Date(de.getTime() + LIMITE_DIAS_VARREDURA * MS_DIA);
-  const disponiveis = subtrairEsperas(intervalosUteis(de, limite, horario), esperas);
+  // Janelas crescentes: o caso comum resolve em dois dias e não paga a varredura
+  // de um ano inteiro.
+  for (const dias of [2, 8, 32, 128, LIMITE_DIAS_VARREDURA]) {
+    const limite = new Date(de.getTime() + dias * MS_DIA);
+    const disponiveis = subtrairEsperas(intervalosUteis(de, limite, horario), esperas);
 
-  let restante = segundos;
-  for (const intervalo of disponiveis) {
-    const duracao = (intervalo.fim.getTime() - intervalo.inicio.getTime()) / 1000;
-    if (duracao >= restante) {
-      return new Date(intervalo.inicio.getTime() + restante * 1000);
+    let restante = segundos;
+    for (const intervalo of disponiveis) {
+      const duracao = (intervalo.fim.getTime() - intervalo.inicio.getTime()) / 1000;
+      if (duracao >= restante) {
+        return new Date(intervalo.inicio.getTime() + restante * 1000);
+      }
+      restante -= duracao;
     }
-    restante -= duracao;
   }
   return null;
 }
@@ -319,9 +323,12 @@ export function proximaAbertura(
   horario: HorarioAtendimento | null | undefined,
 ): Date | null {
   if (!horario) return instante;
-  const limite = new Date(instante.getTime() + LIMITE_DIAS_VARREDURA * MS_DIA);
-  const intervalos = intervalosUteis(instante, limite, horario);
-  return intervalos[0]?.inicio ?? null;
+  for (const dias of [2, 8, 32, 128, LIMITE_DIAS_VARREDURA]) {
+    const limite = new Date(instante.getTime() + dias * MS_DIA);
+    const primeiro = intervalosUteis(instante, limite, horario)[0];
+    if (primeiro) return primeiro.inicio;
+  }
+  return null;
 }
 
 /** Está dentro do expediente neste instante? */
