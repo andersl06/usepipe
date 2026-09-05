@@ -65,6 +65,7 @@ pipe/
     core        regras puras e testáveis: score, esforço, SLA, distribuição, métricas
     ai          resumo, classificação e avaliação — Claude
     contracts   tipos e schemas Zod compartilhados entre api e fronts
+    mcp         servidor MCP: expõe consulta e ações do Pipe a agentes de IA
 ```
 
 - **Postgres** único. `tenant_id` em toda tabela de negócio, com Row Level Security ligada.
@@ -81,6 +82,24 @@ produz uma tela cheia de caminhos mortos e um bundle que carrega código que o a
 
 Os três fronts compartilham `packages/ui` e `packages/contracts`, e falam com a mesma `api`.
 
+### A base visual: `twenty-ui` com os tokens do Pipe por cima
+
+Decisão tomada com precedente próprio. O `blip-dash` já faz exatamente isso: usa o `twenty-ui`
+(MIT) como base estrutural e sobrescreve os tokens `--t-*` com a paleta da marca, e com isso
+Button, Tag, MenuItem, TabButton e Checkbox passam a renderizar na identidade certa **sem que
+nenhum componente do pacote seja tocado ou forkado**. O Pipe repete o método com a paleta moss.
+
+Duas lições caras que vêm de graça junto, registradas no próprio `blip-dash/app/globals.css`:
+
+- **A densidade do Twenty é ancorada em 13px.** Os tokens de fonte são `rem` e o app deles roda com
+  `html { font-size: 13px }`. Trocar essa régua por uma escala de 16px alarga cada coluna e joga
+  tabela para a rolagem horizontal. Desk e Gestão são ferramentas densas: mantemos a régua de 13px.
+  Espaçamento e raio do Twenty já são px e não precisam de âncora.
+- **Severidade na linha, não só no texto.** O `blip-dash` colore a linha inteira da tabela por
+  tempo de espera, com três degraus (atenção, grave, crítico) e cada degrau definido como um trio
+  fundo/borda/texto num token só, porque duas cópias de um hex sempre viram duas cores diferentes.
+  O Pipe usa o mesmo padrão no monitoramento e na fila de avaliação.
+
 ### Por que a lógica vive em `packages/core`
 
 Score, esforço, SLA, distribuição por carga e cálculo de métrica são funções puras: entram dados,
@@ -90,7 +109,7 @@ sobre gente.
 
 ## 4. Módulos e fronteiras
 
-Cinco módulos. Cada um com dono claro, interface explícita, e compreensível sozinho.
+Seis módulos. Cada um com dono claro, interface explícita, e compreensível sozinho.
 
 ### 4.1 Identidade e Tenancy
 
@@ -224,7 +243,66 @@ automatizar — o pedido original, e o `case-sync` generalizado.
 **Consumo** registra tokens e chamadas por tenant, por funcionalidade e por modelo. Sem isso o
 produto vende IA no prejuízo. Aparece como painel para o cliente e como base de cobrança.
 
-## 5. O fluxo que costura os cinco
+### 4.6 Automação e extração
+
+`fluxo` · `fluxo_versao` · `bloco` · `transicao` · `variavel_contexto` · `execucao_fluxo` ·
+`workflow` · `gatilho` · `acao` · `execucao_workflow` · `consulta_salva` · `chave_api` · `webhook_saida`
+
+Este módulo é o que transforma o Pipe de "sistema onde o dado entra" em "sistema de onde o dado
+sai e onde o trabalho acontece sozinho". Três peças distintas, que costumam ser confundidas:
+
+**1. Construtor de fluxo — a conversa automática.** Equivalente ao Builder da Blip. Um fluxo é um
+grafo de blocos versionado: cada bloco tem entrada, conteúdo (mensagem, pergunta, chamada externa,
+script), condições de saída avaliadas em ordem, e ações que gravam no contexto. O contexto da
+conversa é um mapa de variáveis que atravessa o fluxo e sobrevive à transferência para humano —
+é o que permite o atendente receber o cliente já sabendo o que o robô coletou.
+
+Duas coisas que a Blip faz e nós copiamos porque estão certas: fluxo tem **versão publicada
+separada da versão em edição**, e existe **teste do fluxo antes de publicar**, com histórico das
+últimas execuções, payload e consumo de tokens. Uma que fazemos diferente: o bloco que chama IA
+declara qual base de conhecimento usa e a resposta cita o documento — a mesma regra do copiloto do
+Desk (§4.3).
+
+**2. Ações no chat — automação na mão do atendente.** Dentro da conversa, o atendente aciona uma
+automação com um clique: segunda via de boleto, consulta de pedido, agendamento. A automação pode
+conversar com o cliente para coletar o que falta e devolve o controle ao atendente ao terminar,
+sempre com o que fez registrado na linha do tempo da conversa. É o Desk Actions da Blip, que lá
+ainda está em beta.
+
+**3. Motor de workflow — automação do sistema, não da conversa.** Espelha o modelo do Twenty, que
+é o mais completo do mercado aberto. Um workflow tem gatilho e uma cadeia de ações:
+
+| Gatilho | Exemplo no Pipe |
+|---|---|
+| Evento de dado | lead criado, score mudou de faixa, conversa encerrada, avaliação abaixo de 60 |
+| Agendado | relatório semanal de esforço toda segunda às 7h |
+| Manual | botão "reprocessar score" numa lista de leads |
+| Webhook | formulário do site publica um lead |
+
+Ações: criar ou atualizar registro, enviar mensagem ou template, atribuir proprietário, mover de
+fila, criar avaliação, chamar HTTP externo, rodar função de lógica em sandbox, e **acionar um
+agente de IA**. Toda execução fica registrada com entrada, saída, duração e erro — workflow que
+falha em silêncio é pior que workflow que não existe.
+
+**4. Extração — a linguagem de consulta.** O que torna o SOQL bom não é ser SQL: é selecionar
+campos explicitamente, atravessar relacionamento pai-filho sem escrever junção, e agregar. O Pipe
+oferece uma linguagem com esse espírito, mas que **nunca vira SQL cru vindo do cliente**: a consulta
+é analisada contra o dicionário de dados do tenant, e o `tenant_id` é imposto pelo servidor, não
+pelo texto da consulta. Toda consulta pode ser salva, agendada e exportada em CSV, JSON ou Parquet,
+e existe um **dicionário de dados** navegável que lista cada objeto, campo, tipo e significado —
+inspirado no Dicionário de Dados da Blip, que resolve o problema real de ninguém saber o nome da
+coluna.
+
+**5. Servidor MCP — o Pipe como ferramenta de agente.** O mesmo catálogo de consultas e ações é
+exposto como servidor MCP, com autenticação por chave de escopo limitado. Um agente de IA — Claude
+no terminal do cliente, ou um agente dentro do próprio Pipe — consulta leads, conversas, avaliações
+e métricas, e executa ações permitidas, sem que ninguém escreva integração. Isso é diferencial
+concreto: nenhuma das plataformas de referência oferece.
+
+A regra de segurança é a mesma da API: a chave carrega tenant e escopos, escopo de escrita é
+separado de escopo de leitura, e toda chamada entra no log de auditoria com a chave que a fez.
+
+## 5. O fluxo que costura os módulos
 
 ```
 formulário do site
@@ -289,6 +367,14 @@ A lista de bugs reclamados na comunidade da Blip vira critério de aceite:
 | 3 | Gestão: eventos, monitoramento em tempo real, métricas, esforço, regras e SLA | 2 |
 | 4 | Monitoria com IA: formulário, avaliação automática, calibração, insights, consumo | 3 |
 | 5 | CRM: leads, formulários versionados, score, importação, e a ponte com Conversas | 1 |
+| 6 | Automação e extração: workflow, construtor de fluxo, ações no chat, consulta e MCP | 2 e 5 |
+
+O módulo 6 não é sobremesa. O **motor de workflow** e a **linguagem de consulta** entram cedo, no
+fim da fase 3, porque metade das "funcionalidades" pedidas depois — relatório agendado, roteamento
+por score, avaliação disparada no encerramento, alerta de SLA — são workflows, e construí-las uma a
+uma na mão é o caminho para um sistema que não se estende. O **construtor visual de fluxo** e as
+**ações no chat** são a parte cara e vêm depois, na fase 6. O **servidor MCP** é barato assim que a
+consulta existir: ele é uma fachada sobre o mesmo catálogo.
 
 O CRM fica por último de propósito, e isso não trava as fases anteriores: o Desk da fase 2 atende
 conversa que chega pelo canal, sem depender de lead cadastrado, e o contato já existe em Conversas.
@@ -304,8 +390,6 @@ transcrição.
 
 Adiados de propósito, para não inflar a fundação:
 
-- Construtor visual de fluxo / chatbot. O Pipe recebe e atende; automação de fluxo fica no n8n que
-  já existe, via webhook.
 - Telefonia e voz.
 - Marketplace de extensões.
 - Aplicativo móvel nativo. O Desk é web responsivo.
