@@ -10,11 +10,46 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./transcricao": {
+      "types": "./dist/transcricao/index.d.ts",
+      "default": "./dist/transcricao/index.js"
+    },
+    "./resumo": {
+      "types": "./dist/resumo/index.d.ts",
+      "default": "./dist/resumo/index.js"
+    },
+    "./classificacao": {
+      "types": "./dist/classificacao/index.d.ts",
+      "default": "./dist/classificacao/index.js"
+    },
+    "./avaliacao": {
+      "types": "./dist/avaliacao/index.d.ts",
+      "default": "./dist/avaliacao/index.js"
+    },
+    "./consumo": {
+      "types": "./dist/consumo/index.d.ts",
+      "default": "./dist/consumo/index.js"
+    },
+    "./bancada": {
+      "types": "./dist/bancada/index.d.ts",
+      "default": "./dist/bancada/index.js"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "typecheck": "tsc -p tsconfig.json --noEmit",
-    "lint": "eslint src"
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.testes.json",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:observar": "vitest",
+    "bancada": "node dist/bancada/cli.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.124.0",
+    "zod": "^4.1.12"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.4"
   }
 }
