@@ -79,7 +79,7 @@ export function QuadroFunil({ fases, cartoes }: Props) {
               coluna, o número do rodapé nasce fora da tela e ninguém o vê.
             */}
             <header>
-              <span className="lbl">{fase}</span>
+              <span className="fase">{fase}</span>
               <span className="c">
                 {numero(daFase.length)} · {dinheiroCurto(total)}
               </span>

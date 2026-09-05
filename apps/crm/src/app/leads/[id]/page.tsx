@@ -49,11 +49,11 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
         <div className="filters">
           {ficha.score ? (
             <span className={classeDaFaixa(ficha.score.valor)}>
-              SCORE {numero(ficha.score.valor)}
-              {ficha.score.faixa ? ` · ${ficha.score.faixa.toUpperCase()}` : ''}
+              Score {numero(ficha.score.valor)}
+              {ficha.score.faixa ? ` · ${ficha.score.faixa}` : ''}
             </span>
           ) : (
-            <span className="pill q">SEM SCORE</span>
+            <span className="pill q">Sem score</span>
           )}
         </div>
       </div>
@@ -80,7 +80,6 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
           <div className="bloco-card">
             <header>
               <b>Atributos</b>
-              <span className="lbl">jsonb, sem alter table</span>
             </header>
             {atributos.length === 0 && utm.length === 0 ? (
               <div className="vazio">Nenhum atributo personalizado.</div>
@@ -106,7 +105,7 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
               <div className="etiquetas">
                 {ficha.etiquetas.map((e) => (
                   <span key={e.nome} className="pill info">
-                    {e.nome.toUpperCase()}
+                    {e.nome}
                   </span>
                 ))}
               </div>
@@ -158,7 +157,7 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
                 <span className="n">{numero(ficha.score.valor)}</span>
                 <div>
                   <span className={classeDaFaixa(ficha.score.valor)}>
-                    FAIXA {(ficha.score.faixa ?? 'sem faixa').toUpperCase()}
+                    Faixa {ficha.score.faixa ?? 'não definida'}
                   </span>
                   <div className="lbl" style={{ marginTop: '3px' }}>
                     {ficha.score.corte !== null ? `corte em ${ficha.score.corte}` : 'sem corte'}
@@ -185,7 +184,7 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
                 <div className="form-versao" key={`${f.formulario}-${f.versao}`}>
                   <div className="cab">
                     <b>{f.formulario}</b>
-                    <span className="pill q">VERSÃO {f.versao}</span>
+                    <span className="pill q">versão {f.versao}</span>
                     <span className="lbl" style={{ marginLeft: 'auto' }}>
                       {data(f.respondidoEm, fuso)}
                     </span>

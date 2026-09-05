@@ -1,6 +1,6 @@
 import { QuadroFunil, type CartaoView } from '../../componentes/quadro-funil';
 import { carregarFunil, FASES } from '../../lib/funil';
-import { dinheiro, dinheiroCurto, numero } from '../../lib/formato';
+import { dinheiro, numero } from '../../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
@@ -35,19 +35,18 @@ export default async function PaginaOportunidades() {
         </span>
       </div>
 
-      <div className="kpis">
-        <div className="kpi">
-          <span className="v">{numero(funil.quantidadeGeral)}</span>
-          <span className="k">Oportunidades abertas</span>
+      <div className="resumo">
+        <div>
+          <b>{numero(funil.quantidadeGeral)}</b>
+          <span>oportunidades abertas</span>
         </div>
-        <div className="kpi">
-          <span className="v">{dinheiroCurto(funil.totalGeral)}</span>
-          <span className="k">Valor em negociação</span>
+        <div>
+          <b>{dinheiro(funil.totalGeral)}</b>
+          <span>valor em negociação</span>
         </div>
-        <div className="kpi">
-          <span className="v">{dinheiroCurto(funil.ponderadoGeral)}</span>
-          <span className="k">Valor ponderado</span>
-          <span className="d">soma de valor × probabilidade</span>
+        <div>
+          <b>{dinheiro(funil.ponderadoGeral)}</b>
+          <span>ponderado pela probabilidade</span>
         </div>
       </div>
 
