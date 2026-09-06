@@ -493,6 +493,241 @@ sistemas maduros, sem relação entre si, chegaram sozinhos".
 
 ---
 
+## 7. Produção, medida por JWT
+
+Levantamento feito em 06/09/2026 na org **de produção** (`auvp.my.salesforce.com`, confirmado pelo
+`instance_url` devolvido pelo próprio token, nunca fixado no código), via **JWT Bearer Flow** (External
+Client App `Interno_Capital`, usuário `apiuser@auvp.com.br`), somente leitura, só metadado. Todas as
+consultas abaixo foram feitas por REST API (`/query`), Tooling API (`/tooling/query`) ou `describe` de
+objeto; nenhuma leu registro de negócio (Lead, Contact, Account, Case, Opportunity ou qualquer objeto
+com dado de cliente), nenhuma escreveu, atualizou, apagou ou fez deploy.
+
+### 7.1 Campos por objeto: números confirmados, com uma divergência real
+
+| Objeto | Playground | Produção | Diferença |
+|---|---|---|---|
+| Lead | 353 total, 304 custom (86%) | **383 total, 323 custom (84%)** | próxima, produção com mais 30 campos |
+| Opportunity | 251 total, 203 custom (81%) | **257 total, 209 custom (81%)** | confirma, quase idêntica |
+| Account | 171 total, 110 custom (64%) | **185 total, 106 custom (57%)** | **corrige**: produção tem mais campos totais, mas proporção customizada menor |
+| Case | 111 total, 62 custom (56%) | **105 total, 57 custom (54%)** | confirma, próxima |
+| Contact | 54 total, 4 custom (7%) | **50 total, 4 custom (8%)** | confirma |
+
+Contagem feita pelo flag `custom` do `describe` de cada objeto (não pelo padrão `LIKE '%__c'`, que já
+tinha o falso positivo documentado na seção 1.3), e cruzada com `FieldDefinition.QualifiedApiName`
+terminando exatamente em `__c`; os dois métodos batem a poucas unidades (a diferença de Account, 106
+vs 102, é de campos compostos que o `describe` conta e o `FieldDefinition` não).
+
+**O que muda no Pipe:** nada no diagnóstico. Os quatro de cinco objetos que confirmam a proporção do
+sandbox mostram que o padrão "objeto de negócio vira depósito de formulário" não é artefato de cópia
+de sandbox desatualizada, é a org real. Account com proporção menor em produção (57% vs 64%) é a única
+correção, e ainda assim mais da metade dos campos são customizados: não muda a recomendação de
+`resposta_formulario` como linha, só reduz um pouco a urgência relativa desse objeto especificamente.
+
+### 7.2 Case: campos, RecordTypes vivos e mortos, status
+
+Case em produção tem **105 campos** (57 customizados, ver acima).
+
+**RecordType**: `SELECT` em `RecordType` devolve **16** registros reais para Case (o `describe` soma
+mais 1, o pseudo-tipo `Mestre`, que não é uma linha real e não existia no levantamento do sandbox).
+**8 ativos, 8 inativos** — o sandbox media 18 no total com 8 inativos; produção tem **2 a menos no
+total, mas a mesma contagem de mortos**, o que **confirma o achado central** (metade dos RecordTypes de
+Case morreram) com um número um pouco menor de RecordTypes vivos por nome de pessoa/campanha do que o
+sandbox tinha copiado:
+
+- Ativos: `AUVP`, `AUVP Capital` (mapping padrão), `Danielle Noce`, `O Portal`, `Paulo Cuenca`,
+  `Paulo Cuenca - FEC`, `Paulo Cuenca - O Superpoder`, `Relacionamento com o Cliente`.
+- Inativos: `Paulo Cuenca - Comunidade`, `Paulo Cuenca - Reels Superpoderoso`,
+  `Paulo Cuenca - Temperatura do Algoritmo`, `Raul Sena - AUVP Analítica`,
+  `Raul Sena - AUVP Investimentos`, `Raul Sena - AUVP IR`, `Raul Sena - AUVP Sempre`,
+  `Raul Sena - Consultoria`.
+
+Todos os inativos continuam nomeados por pessoa ou campanha, nenhum por processo: o antipadrão da
+seção 2.3 é o mesmo em produção.
+
+**Status de Case** (picklist real, 6 valores): `Aberto` (default) → `Em Atendimento` → `On Hold` →
+`Em Análise` → `Pendente` → `Closed`. É uma máquina de estado rasa (nenhum status intermediário de
+"aguardando cliente" separado de "aguardando interno", por exemplo), consistente com o Pipe manter seu
+próprio `status_atendimento` mais granular e não tentar espelhar 1:1 o de cada org de cliente.
+
+**O que muda no Pipe:** nada de novo, produção confirma a recomendação de RecordType/fila/etiqueta por
+processo, nunca por pessoa (item 7 do "O que aplicar", abaixo).
+
+### 7.3 Filas: 11, quase as mesmas do sandbox
+
+`Group` com `Type = 'Queue'`: **11** filas, mesmos 11 nomes do sandbox (`Casos Paulo Cuenca` e as 3
+variantes de nível, `Closer de Vendas`, `Fila de Atendimento - ISaEx`, `Gestão de Clientes`,
+`Leads Raul Sena`, `Caso de serviço`, `Suporte AUVP`, `Suporte AUVP Investimentos`). **Confirma**
+exatamente.
+
+`QueueSobject`: **12** vínculos, mesma distribuição do sandbox exceto **Case com 6 em produção contra
+5 no sandbox** (um vínculo de fila a mais que o sandbox não tinha copiado): `Case` (6), `Lead` (3),
+`GestaoClientes__c` (1), `PatrimonioOrientado__c` (1), `MessagingSession` (1, a fila de atendimento
+omnichannel).
+
+### 7.4 Atribuição e escalonamento: confirma o quase-vazio
+
+`AssignmentRule`: **1** regra no org inteiro, para `Case` (`Atendimento Escola`), **inativa**.
+**Confirma exatamente** o número do sandbox. O roteamento real continua acontecendo por Flow, não pela
+ferramenta declarativa nativa para isso.
+
+**Regra de escalonamento (`Escalation Rules`)**: **não pôde ser consultada por SOQL/REST**. Diferente
+de `AssignmentRule`, o Salesforce não expõe um objeto (`sObject`) de escalonamento na API REST/Tooling
+(confirmado consultando a lista completa de objetos da org, `/sobjects`, e testando o nome; nenhum
+`EscalationRule`/`CaseEscalationRule` existe como tipo consultável). Só é recuperável via **Metadata
+API** (retrieve do tipo `EscalationRules`, sessão SOAP), fora do padrão simples de REST usado neste
+levantamento. Registrado em "Não executei", não é recusa por alçada, é limitação técnica da via
+escolhida.
+
+**O que muda no Pipe:** nada muda na recomendação (regra de fila como camada declarativa própria,
+seção 2.1); a limitação só significa que "quantas regras de escalonamento existem" fica sem resposta
+numérica nesta rodada.
+
+### 7.5 Entitlement e Milestone: o SLA nativo existe pela metade
+
+**Confirma o "não usado" do sandbox, com um detalhe novo**: `Entitlement` = **0** registros,
+`EntitlementTemplate` = **0**, `CaseMilestone` (instância de prazo aplicada a um caso) = **0**. Mas
+**`MilestoneType` (o molde, "que tipo de prazo existe") tem 4 registros configurados**, que o sandbox
+não media:
+
+- `Primeira resposta` (sem recorrência)
+- `Resolver em` (sem recorrência)
+- `Acompanhar` (recorrência independente)
+- `Atualização periódica` (recorrência encadeada)
+
+Ou seja: alguém desenhou os **tipos** de prazo de SLA (o molde), mas nunca ligou isso a um
+`Entitlement`/`SlaProcess` ativo nem a nenhum Case real. É uma peça pela metade: o vocabulário existe,
+o motor que aplicaria relógio a um caso nunca foi ativado.
+
+**O que muda no Pipe:** isso é a validação mais direta do par `regra_sla`/`horario_atendimento`
+(§4.4 do design). O Salesforce nativo já separa corretamente "o que foi contratado" (Entitlement),
+"o tipo de prazo" (MilestoneType) e "o prazo aplicado a este caso" (CaseMilestone) em três entidades, e
+mesmo assim a AUVP não conseguiu operacionalizar isso: só desenhou o meio (o tipo), nunca o contrato
+nem a instância. **O risco a evitar no Pipe não é o modelo de dado (que está certo), é deixar o SLA
+existir só como configuração nunca ligada** exatamente como aconteceu aqui.
+
+### 7.6 Regras de validação: 25, confirma a escassez, com uma no Lead
+
+`ValidationRule` via Tooling API: **25** no org inteiro (sandbox: 23), **21 ativas, 4 inativas**.
+**Nenhuma em Case** (confirma o sandbox). Diferente do sandbox, produção tem **1 em Lead**
+(`AUVPSeguros_MotivoDesqualObrigatorio`, ativa) — pequena correção, mas não muda a conclusão. Por
+objeto: `Opportunity` (9, 7 ativas), `GestaoClientes__c` (4, 3 ativas), `PatrimonioOrientado__c` (3),
+`Reuniao__c` (2), `Account` (1, inativa), `Lead` (1), `Fila_de_Atendimento__c` (1),
+`Relacionamento__c` (1), `Faixa_de_Brinde__c` (1), e 2 em objetos do pacote Marketing Cloud (`et4ae5`).
+
+**O que muda no Pipe:** nada, confirma a recomendação de separar "regra simples" (ValidationRule) de
+"automação geral" (Flow) como camadas distintas e visíveis.
+
+### 7.7 Perfis e permission sets: mais numerosos em produção
+
+`Profile`: **38** no total (sandbox: 36). Além do padrão "Usuário - <Área>" já visto, produção revela
+**mais dois exemplos do mesmo antipadrão de perfil vazio/duplicado**: `Usuário Padrão Vazio` (par do já
+conhecido `Novos Negócios Vazio`) e um par `FormETFsProdutosAUVP Perfil` / `FormETFsProdutosAUVP
+Profile` (o mesmo perfil, nomeado uma vez em português e uma em inglês, quase certamente duplicata por
+engano). `AvaliacaoEntrega Perfil` é mais um perfil de propósito único e estreito.
+
+`PermissionSet` (`IsOwnedByProfile = false`): **238** no total (sandbox: 224) — **115 sem namespace**
+(próprios da org, sandbox tinha 114) e **123 de pacotes gerenciados** (sandbox tinha 110).
+`PermissionSetGroup`: **23**, **confirma exatamente** o número do sandbox.
+
+**O que muda no Pipe:** reforça o achado do sandbox (perfil por departamento é caro e usado em excesso;
+permission set granular já é o padrão adotado, mas cresce sem tela de auditoria) e adiciona um exemplo
+concreto do custo de manter perfil por nome livre: duplicata por grafia (`Perfil` vs `Profile`) sobrevive
+em produção porque nada barra a criação de um perfil com nome quase igual a outro.
+
+### 7.8 Layout: números idênticos onde o sandbox media, mais um objeto novo
+
+`Layout` via Tooling API: **Case 7**, **Lead 10**, **Account 1** — os três **idênticos** ao sandbox.
+**Opportunity 6** (não medido no sandbox). Confirma a leitura da seção 2.4: layout como proxy de
+"quantos processos diferentes" segue o mesmo padrão em produção.
+
+### 7.9 External ID e campos únicos: já existe, e é o achado mais valioso desta rodada
+
+Esta é a correção mais importante ao documento anterior. A seção 5.4 registrava que, depois da
+migração de org (`asupernova` → `auvp`), o único campo que sobreviveu para casar registro antigo com
+novo foi `Subject` (texto livre, já causou duplicata), e recomendava que o Pipe gravasse desde o início
+um campo próprio marcado como **External ID**. **Produção já tem isso, hoje, em quatro dos cinco
+objetos medidos**:
+
+| Objeto | Campos External ID | Campos únicos (`unique`) |
+|---|---|---|
+| Lead | `Bext_Deal_Id__c`, `Formsort_Responder_Uuid__c`, `Legacy_Id__c`, `BSUID__c`, `Telefone_E164__c` | os 4 primeiros |
+| Opportunity | `Bext_Deal_Id__c`, `Legacy_Id__c` | os 2 |
+| Account | `ID_do_Cliente_ISaEx__c`, `Legacy_Id__c`, `BSUID__c` | só `Legacy_Id__c` |
+| Case | `Legacy_Id__c` | `Legacy_Id__c` |
+| Contact | nenhum | nenhum |
+
+`Legacy_Id__c` existe em Lead, Opportunity, Account e Case: é quase certamente o campo criado
+especificamente para resolver a própria migração de org que a seção 5.4 descreve, o que quer dizer que
+**a AUVP já tinha a peça certa disponível** quando precisou casar registro antigo com novo, e mesmo
+assim o `case-sync` (seção 5.1) usa a cascata telefone → CPF/CNPJ → e-mail, não `Legacy_Id__c`/upsert.
+O problema documentado na seção 5.4 não é "falta o campo", é **"o campo existe e o pipeline não o usa
+como chave principal"**. `Contact`, sem nenhum campo de External ID, é o único dos cinco sem essa
+proteção.
+
+**O que muda no Pipe:** a recomendação do item 6 ("gravar o Id do Pipe como External ID desde a
+primeira escrita") continua certa, mas o exemplo real muda de "criar o campo que falta" para "criar o
+campo E o hábito de usá-lo por upsert desde o primeiro sync", porque a org de referência mostra que ter
+o campo sem o hábito de usá-lo já aconteceu uma vez e não resolveu o problema de duplicata sozinho.
+
+---
+
+### Comandos executados
+
+Todos via REST/Tooling API do Salesforce, autenticados por JWT Bearer Flow (chave privada do App
+`Interno_Capital`), contra a org resolvida pelo `instance_url` do próprio token (`auvp.my.salesforce.com`).
+Nenhum comando abaixo leu, criou, alterou ou apagou registro de negócio ou metadado.
+
+1. `POST /services/oauth2/token` (grant_type `jwt-bearer`) — autenticação.
+2. `SELECT COUNT() FROM EntityDefinition` — total de entidades no org.
+3. `GET /sobjects/{Lead,Opportunity,Account,Case,Contact}/describe` — total e customizado por objeto
+   (via flag `custom` de cada campo), RecordTypeInfos, picklist de Status, External ID e campos únicos.
+4. `SELECT QualifiedApiName FROM FieldDefinition WHERE EntityDefinition.QualifiedApiName = '<objeto>'`
+   — checagem cruzada da contagem de campos por objeto (para os mesmos cinco objetos).
+5. `SELECT SobjectType, IsActive FROM RecordType` e `SELECT Name, DeveloperName, IsActive FROM
+   RecordType WHERE SobjectType = 'Case' ORDER BY IsActive DESC, Name` — RecordTypes por objeto e
+   detalhe de Case.
+6. `SELECT Id, Name FROM Group WHERE Type = 'Queue'` — filas.
+7. `SELECT QueueId, SobjectType FROM QueueSobject` — vínculo fila-objeto.
+8. `SELECT SobjectType, Name, Active FROM AssignmentRule` — regras de atribuição.
+9. Tentativa de `SELECT ... FROM AutoResponseRule` e `SELECT ... FROM SlaProcess` (Tooling API) —
+   ambos recusados pela API com `INVALID_TYPE` (tipo não suportado via SOQL/Tooling).
+10. `SELECT COUNT() FROM Entitlement`, `SELECT COUNT() FROM EntitlementTemplate`, `SELECT COUNT() FROM
+    EntitlementContact`, `SELECT COUNT() FROM ProductEntitlementTemplate`, `SELECT COUNT() FROM
+    EntityMilestone`, `SELECT COUNT() FROM QueueRoutingConfig` — todos zero.
+11. `SELECT COUNT() FROM CaseMilestone` — zero.
+12. `SELECT Name, RecurrenceType FROM MilestoneType` — os 4 moldes de prazo configurados.
+13. `SELECT Id, ValidationName, Active, EntityDefinitionId FROM ValidationRule` (Tooling API) — regras
+    de validação, seguido de `SELECT DurableId, QualifiedApiName FROM EntityDefinition WHERE DurableId
+    IN (...)` para resolver os `EntityDefinitionId` numéricos em nome de objeto.
+14. `SELECT COUNT() FROM Profile` e `SELECT Name FROM Profile ORDER BY Name` — perfis.
+15. `SELECT COUNT() FROM PermissionSet WHERE IsOwnedByProfile = false`, com filtro adicional por
+    `NamespacePrefix = null` / `!= null` — permission sets próprios vs. de pacote.
+16. `SELECT COUNT() FROM PermissionSetGroup` — grupos de permission set.
+17. `SELECT Id, Name FROM Layout WHERE EntityDefinitionId = '<objeto>'` (Tooling API) — Case, Lead,
+    Account, Opportunity.
+18. `GET /sobjects` (global describe) — lista de todos os sObjects da org, usada só para confirmar que
+    não existe tipo consultável de regra de escalonamento (`Escalation`) nem de resposta automática.
+
+### Não executei
+
+- **Regras de escalonamento (`EscalationRules`)**: não são um `sObject` consultável por SOQL/REST nem
+  Tooling API nesta org (confirmado pela lista completa de `sobjects` e por duas tentativas de nome
+  recusadas com `INVALID_TYPE`). Só seriam recuperáveis via **Metadata API** (retrieve SOAP do tipo
+  `EscalationRules`), que decidi não implementar nesta rodada por ser uma via bem mais pesada (sessão
+  SOAP, `package.xml`, job assíncrono de retrieve) para um único número; isso é limitação de método, não
+  recusa por alçada, porque um retrieve de metadado também seria leitura pura.
+- **`SELECT` em qualquer objeto com dado de cliente** (Lead, Contact, Account, Case, Opportunity e
+  qualquer objeto customizado que os referencie): fora do alçado por instrução explícita, mesmo que só
+  para `COUNT()`.
+- **Qualquer `create`, `update`, `delete`, `deploy` ou chamada de Metadata API de escrita**: não
+  cogitado.
+- **External ID / campos únicos além dos cinco objetos já medidos em todo o resto do documento** (os
+  ~70 objetos customizados da seção 1.3, por exemplo): levantar isso exigiria `describe` de cada um dos
+  1346 `EntityDefinition` da org, custo que não se justificava para responder ao pedido, que era sobre
+  os objetos centrais de atendimento e vendas.
+
+---
+
 ## O que aplicar no Pipe
 
 Em ordem de valor. Mudança de interface primeiro, porque foi o que o dono reprovou; mudança de dado
