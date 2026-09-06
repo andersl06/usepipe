@@ -196,8 +196,18 @@ function BarraInferior({ dados, caminho }: { dados: DadosDoCabecalho; caminho: s
     <div className="g-barra g-barra-inf">
       <details className="g-menu g-canal">
         <summary>
-          <Avatar nome={canal?.nome ?? 'Pipe'} className="g-av-sm" />
-          <span>{canal?.nome ?? 'Sem canal'}</span>
+          {/* O ponto de status monta sobre o canto do ícone, como na barra
+              deles: 13px no vértice, verde ligado e vermelho desligado. */}
+          <span className="g-canal-av">
+            <Avatar nome={canal?.nome ?? 'Pipe'} className="g-av-sm" />
+            {canal ? (
+              <i
+                className={canal.ativo ? 'g-ponto g-ponto-on' : 'g-ponto'}
+                title={canal.ativo ? 'Canal ligado' : 'Canal desligado'}
+              />
+            ) : null}
+          </span>
+          <span className="g-canal-nome">{canal?.nome ?? 'Sem canal'}</span>
           <IconeGestao nome="baixo" tamanho={20} />
         </summary>
         <div className="g-painel">
@@ -207,7 +217,8 @@ function BarraInferior({ dados, caminho }: { dados: DadosDoCabecalho; caminho: s
           ) : (
             dados.canais.map((c) => (
               <p key={c.id}>
-                {c.nome} <span className="g-tipo">{c.tipo}</span>
+                {c.nome}{' '}
+                <span className="g-tipo">{c.ativo ? c.tipo : `${c.tipo} · desligado`}</span>
               </p>
             ))
           )}

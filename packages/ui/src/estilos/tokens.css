@@ -95,6 +95,14 @@
   --p-info-linha: rgba(46, 74, 93, 0.3);
   --p-info-conteudo: #2e4a5d;
 
+  /* Tinta de estado para CROMO ESCURO — a barra da Gestão é escura nos dois
+     temas, e a tinta de estado do tema claro (verde e terracota fechados) não
+     se lê ali. Nenhuma cor nova: são os mesmos valores do tema escuro, porque
+     o caso é o mesmo, conteúdo claro sobre fundo escuro. No tema escuro o par
+     aponta para a própria tinta de estado, que já é este valor. */
+  --p-sucesso-sobre-escuro: #7ac58d;
+  --p-erro-sobre-escuro: #e4816d;
+
   /* ================================================= paleta estendida
      EXCLUSIVA DE GRÁFICO E ILUSTRAÇÃO. Nenhuma destas entra em cromo,
      etiqueta, borda, ícone ou texto de interface. É a `extended` da Blip:
@@ -235,6 +243,11 @@
     --p-info-linha: rgba(126, 173, 199, 0.34);
     --p-info-conteudo: #7eadc7;
 
+    /* No escuro é a própria tinta de estado: mesmo valor, dito de novo para o
+       verificador enxergar o par. */
+    --p-sucesso-sobre-escuro: var(--p-sucesso-conteudo);
+    --p-erro-sobre-escuro: var(--p-erro-conteudo);
+
     --p-grafico-1: #9fae74;
     --p-grafico-2: #6d9ab5;
     --p-grafico-3: #d3a352;
@@ -286,6 +299,9 @@
   --p-info-fundo: #1a2a33;
   --p-info-linha: rgba(126, 173, 199, 0.34);
   --p-info-conteudo: #7eadc7;
+
+  --p-sucesso-sobre-escuro: var(--p-sucesso-conteudo);
+  --p-erro-sobre-escuro: var(--p-erro-conteudo);
 
   --p-grafico-1: #9fae74;
   --p-grafico-2: #6d9ab5;

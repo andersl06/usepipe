@@ -58,6 +58,8 @@
   --g-barra-2: color-mix(in srgb, var(--p-superficie-4) 91%, var(--p-conteudo-claro));
   --g-barra-tinta: var(--p-conteudo-claro);
   --g-barra-marca: color-mix(in srgb, var(--p-marca) 55%, var(--p-marca-suave));
+  --g-ponto-on: var(--p-sucesso-sobre-escuro);
+  --g-ponto-off: var(--p-erro-sobre-escuro);
 
   /* As medidas deles, sem desconto. Ver `blip-medidas-monitoramento.md` §1.
      O critério antigo — "a tabela precisa caber na primeira dobra em
@@ -373,6 +375,8 @@
   border-radius: var(--p-r-md);
   cursor: pointer;
   font-size: var(--g-t-modulo);
+  /* 25,6px de entrelinha: é o 1,6 da barra deles, não o 1,5 herdado. */
+  line-height: 1.6;
   font-weight: var(--g-peso-leve);
   color: var(--g-barra-tinta);
 }
@@ -381,10 +385,33 @@
   background: var(--g-barra-hover);
 }
 
-.g-canal > summary > span {
+.g-canal-nome {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Ponto de status do canal, montado no vértice do ícone. */
+.g-canal-av {
+  position: relative;
+  display: flex;
+  flex: none;
+}
+
+.g-ponto {
+  position: absolute;
+  top: 0;
+  right: -3px;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--g-ponto-off);
+  border: 2px solid var(--g-barra-2);
+  box-sizing: border-box;
+}
+
+.g-ponto-on {
+  background: var(--g-ponto-on);
 }
 
 .g-canal .g-painel {
