@@ -1,101 +1,131 @@
 /* ==========================================================================
    Pipe — camada de token. Fonte única dos três aplicativos.
 
-   Autoridade da identidade: docs/marca/MARCA.md.
-   Decisões e medições que produziram estes valores:
-     docs/pesquisa/visual-blip-salesforce.md
-     docs/specs/2026-09-05-design-system.md
+   Arquitetura de tema (papel constante, valor trocado por bloco de tema)
+   adaptada de twenty-ui (MIT):
+   https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeLight.ts
+   Os valores são os do Pipe (docs/marca/MARCA.md). Só a forma veio de lá.
 
-   Três regras que este arquivo existe para impor, e que vieram de medir
-   Salesforce, Blip e Twenty:
+   Estrutura de token copiada do método da Blip, medido no bundle real do Blip
+   Desk (docs/pesquisa/blip-design-system.md): 31 tokens de cor na aplicação
+   inteira, organizados por PAPEL e nunca por matiz.
 
-   1. UMA cor de destaque (moss). Ela pinta ação primária, estado ativo e foco.
-      Nada mais. No Salesforce o azul de destaque aparece só em link e item
-      ativo; a tela inteira tem 8 cores e três delas cobrem 97% do texto.
+   Cinco regras que este arquivo existe para impor:
 
-   2. Borda é TINTA TRANSLÚCIDA, não hex opaco. A Blip usa preto em três
-      opacidades (.20/.16/.06) e o blip-dash já pagou o preço de não fazer
-      isso: um cinza esverdeado opaco virava "grade verde cruzando fundo
-      vermelho" nas linhas de severidade. Tinta translúcida escurece o que
-      estiver embaixo e nunca briga com o fundo.
+   1. CINCO SUPERFÍCIES e QUATRO DEGRAUS DE CONTEÚDO. O fundo é branco e
+      cinza; o texto é preto e cinza. Toda a tela sai daqui.
 
-   3. Escala tipográfica em PX, nunca rem. Lição registrada em
-      blip-dash/app/globals.css: token de fonte em rem depende do font-size da
-      raiz, e ancorar a raiz encolhe junto todo o espaçamento. Só a fonte
-      precisa ser ancorada, e ela é ancorada em px.
+   2. UMA COR DE MARCA (moss). Ela pinta ação primária e estado ativo, e nada
+      mais. Foi espalhar verde, terracota, ocre e azul ao mesmo tempo em
+      etiqueta, número, borda e barra que fez a tela parecer um carrossel.
+
+   3. ESTADO É PAR: fundo pastel com conteúdo escuro por cima. Nunca cor
+      saturada em texto corrido. Quatro estados, e só quatro.
+
+   4. A PALETA ESTENDIDA É CERCADA. Terracota, ocre, azul e sage vivem em
+      `--p-grafico-*` e só podem aparecer em gráfico e ilustração. Nenhum
+      cromo, nenhuma etiqueta, nenhuma borda, nenhum ícone.
+
+   5. ESCALA TIPOGRÁFICA EM PX, nunca rem. Lição registrada no blip-dash:
+      token de fonte em rem depende do `font-size` da raiz, e ancorar a raiz
+      encolhe junto todo o espaçamento.
+
+   Borda é TINTA TRANSLÚCIDA, não hex opaco. Uma borda opaca escolhe um fundo
+   e briga com todos os outros: sobre uma linha de severidade, uma grade opaca
+   cruza a cor do estado.
    ========================================================================== */
 
 :root {
   color-scheme: light;
 
-  /* ---------------------------------------------------------- superfície
-     Escala neutra de cinco degraus, como a da Blip (surface-0..4). O creme da
-     marca fica no fundo da aplicação; da superfície de cartão para cima é
-     branco, para que a cor que aparecer em cima seja lida como informação. */
-  --p-fundo: #f2f1ec;
-  --p-superficie: #ffffff;
-  --p-superficie-2: #faf9f5;
-  --p-superficie-3: #efede6;
-  --p-superficie-inversa: #1a1d15;
+  /* ======================================================== superfície
+     Cinco degraus, do claro ao escuro, na mesma ordem da Blip
+     (surface-0..4). O creme da marca é o degrau 1, o fundo da aplicação;
+     cartão é branco, para que a cor que aparecer em cima seja lida como
+     informação. */
+  --p-superficie-0: #ffffff; /* cartão, campo, tabela */
+  --p-superficie-1: #f2f1ec; /* fundo da aplicação (creme da marca) */
+  --p-superficie-2: #e9e7df; /* recesso: lateral, hover, etiqueta neutra */
+  --p-superficie-3: #dedbd0; /* pressionado, trilho, divisória sólida */
+  --p-superficie-4: #16150f; /* superfície contrastante: dica, sobreposição */
 
-  /* -------------------------------------------------------------- tinta
-     Quatro degraus. Mais do que isso não se distingue em texto de 13px. */
-  --p-tinta: #16150f;
-  --p-tinta-2: #55544d;
-  --p-tinta-3: #7a7970;
-  --p-tinta-inversa: #ffffff;
+  /* ========================================================== conteúdo
+     Quatro degraus, na ordem da Blip (default / disable / ghost / bright).
+     Mais do que quatro não se distingue em texto de 14px. */
+  --p-conteudo: #16150f; /* texto corrente, título */
+  --p-conteudo-desabilitado: #55544d; /* apoio, controle sem ação disponível */
+  --p-conteudo-fantasma: #83817a; /* rótulo, marca d'água, texto de dica */
+  --p-conteudo-claro: #ffffff; /* texto sobre a superfície 4 */
 
-  /* -------------------------------------------------------------- linha
-     Tinta translúcida em três forças. Ver regra 2 no topo. */
+  /* ============================================================= linha
+     Tinta translúcida em três forças. Ver a nota do topo. */
   --p-linha: rgba(17, 17, 17, 0.1);
   --p-linha-media: rgba(17, 17, 17, 0.17);
   --p-linha-forte: rgba(17, 17, 17, 0.28);
 
-  /* ----------------------------------------------------------- destaque
-     Moss, e só moss. Quatro papéis do mesmo matiz, não quatro matizes. */
-  --p-destaque: #4a5d23;
-  --p-destaque-tinta: #3d4d1c;
-  --p-destaque-fundo: #eaeedd;
-  --p-destaque-linha: rgba(74, 93, 35, 0.34);
+  /* ============================================================= marca
+     UMA cor. Quatro papéis do mesmo matiz, não quatro matizes.
+     Pode: ação primária, estado ativo de navegação, anel de foco, borda de
+     campo em foco. Não pode: rótulo, número, título, barra de gráfico,
+     etiqueta de fila, canal, origem ou fase, ícone decorativo. */
+  --p-marca: #4a5d23;
+  --p-marca-forte: #3d4d1c; /* passagem do cursor e pressionado */
+  --p-marca-suave: #eaeedd; /* fundo do estado ativo */
+  --p-marca-linha: rgba(74, 93, 35, 0.34);
+  --p-marca-conteudo: #ffffff; /* texto por cima da marca */
 
-  /* ------------------------------------------------------------- estado
-     Três estados, cada um um TRIO fundo/linha/texto. Um estado não é uma cor:
-     é três, e as três precisam viajar juntas, senão viram duas cores
-     diferentes em dois arquivos (lição do blip-dash).
+  /* ============================================================ estado
+     Cada estado é um PAR de fundo pastel com conteúdo escuro, mais a linha
+     que os une. As três variáveis viajam juntas, senão viram duas cores
+     diferentes em dois arquivos.
      Reservados ao que exige AÇÃO. Meta de ocupação: ~1% da tela. */
-  --p-sucesso-fundo: #e7f0e3;
-  --p-sucesso-linha: rgba(31, 90, 46, 0.3);
-  --p-sucesso-tinta: #1f5a2e;
-
-  --p-alerta-fundo: #f7eeda;
-  --p-alerta-linha: rgba(122, 88, 12, 0.32);
-  --p-alerta-tinta: #79570c;
-
   --p-erro-fundo: #f8e4df;
-  --p-erro-linha: rgba(160, 46, 28, 0.32);
-  --p-erro-tinta: #a02e1c;
+  --p-erro-linha: rgba(156, 47, 29, 0.32);
+  --p-erro-conteudo: #9c2f1d;
 
-  /* --------------------------------------------------------------- dado
-     Matiz só para gráfico e barra de dado. NUNCA para cromo, etiqueta de
-     fila, canal ou origem. É a paleta "extended" da Blip: existe, mas vive
-     cercada. */
-  --p-dado: #8a9a5b;
-  --p-dado-trilho: #e8e6dd;
+  --p-alerta-fundo: #f8efd9;
+  --p-alerta-linha: rgba(121, 87, 12, 0.32);
+  --p-alerta-conteudo: #79570c;
 
-  /* ---------------------------------------------------------- tipografia
+  --p-sucesso-fundo: #e5efe6;
+  --p-sucesso-linha: rgba(31, 58, 46, 0.3);
+  --p-sucesso-conteudo: #1f3a2e;
+
+  --p-info-fundo: #e3ebf0;
+  --p-info-linha: rgba(46, 74, 93, 0.3);
+  --p-info-conteudo: #2e4a5d;
+
+  /* ================================================= paleta estendida
+     EXCLUSIVA DE GRÁFICO E ILUSTRAÇÃO. Nenhuma destas entra em cromo,
+     etiqueta, borda, ícone ou texto de interface. É a `extended` da Blip:
+     existe, mas vive cercada.
+     A ordem é a ordem das séries de um gráfico. */
+  --p-grafico-1: #8a9a5b; /* sage */
+  --p-grafico-2: #2e4a5d; /* azul profundo */
+  --p-grafico-3: #c08a2e; /* ocre */
+  --p-grafico-4: #c4442e; /* terracota */
+  --p-grafico-5: #1f3a2e; /* verde escuro */
+  --p-grafico-trilho: #e5e3da; /* fundo de barra */
+
+  /* ======================================================= tipografia
      Uma família no corpo. A monoespaçada é recurso de NÚMERO — tabular,
-     alinha coluna — nunca de rótulo. */
+     alinha coluna — e de rótulo de seção. Nunca de nome de fase, fila,
+     origem ou campo. */
   --p-fonte: 'IBM Plex Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
   --p-fonte-mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
 
-  /* Régua em px. 13 é o corpo (a régua do Salesforce e do Twenty); 12 é o
-     miúdo. Esses dois carregam a tela — os outros degraus são exceção. */
-  --p-t-xs: 11px;
-  --p-t-sm: 12px;
-  --p-t-md: 13px;
-  --p-t-lg: 15px;
-  --p-t-xl: 19px;
-  --p-t-2xl: 24px;
+  /* TRÊS degraus carregam a aplicação inteira: 16, 14 e 12. É a régua medida
+     na Blip, onde os três somam 109 das 117 ocorrências de tamanho. O de 10
+     serve só ao verdadeiramente secundário. Em px, nunca em rem. */
+  --p-t-lg: 16px; /* corpo destacado, título de cartão */
+  --p-t-md: 14px; /* corpo, tabela, campo, botão */
+  --p-t-sm: 12px; /* rótulo, apoio, etiqueta */
+  --p-t-xs: 10px; /* verdadeiramente secundário, e nada mais */
+
+  /* Duas exceções contadas a dedo, nomeadas pelo papel para que continuem
+     sendo exceção e não virem dois degraus a mais na régua. */
+  --p-t-titulo: 20px; /* a coisa principal da tela */
+  --p-t-numero: 28px; /* métrica de cartão, em monoespaçada tabular */
 
   --p-peso-normal: 400;
   --p-peso-medio: 500;
@@ -104,14 +134,13 @@
   --p-altura-linha: 1.5;
   --p-altura-linha-curta: 1.2;
 
-  /* Rótulo de seção e cabeçalho de coluna. Caixa alta na família do CORPO,
-     como o Salesforce faz (12px/700, e nunca monoespaçada). */
-  --p-rotulo-tamanho: 11px;
+  /* Rótulo de seção e cabeçalho de coluna: caixa alta, 12px/600. */
+  --p-rotulo-tamanho: 12px;
   --p-rotulo-peso: 600;
-  --p-rotulo-espaco: 0.07em;
+  --p-rotulo-espaco: 0.06em;
 
-  /* ---------------------------------------------------- espaço (base 4px)
-     Múltiplo de 4, como o spacing() do Twenty. */
+  /* ================================================ espaço (base 4px)
+     Múltiplo de 4, no formato do `spacing()` do twenty-ui. */
   --p-e-1: 4px;
   --p-e-2: 8px;
   --p-e-3: 12px;
@@ -121,28 +150,31 @@
   --p-e-8: 32px;
   --p-e-10: 40px;
 
-  /* ---------------------------------------------------------------- raio */
-  --p-r-xs: 2px;
-  --p-r-sm: 4px;
-  --p-r-md: 6px;
-  --p-r-lg: 10px;
-  --p-r-pilula: 999px;
+  /* ============================================================== raio
+     Um raio domina e as outras duas são exceção com propósito. Na Blip o de
+     8px aparece 48 vezes, o de 5px 26 e a pílula 22. */
+  --p-r-md: 8px; /* padrão: cartão, caixa, botão, campo, tabela */
+  --p-r-sm: 5px; /* controle pequeno: botão de ícone, caixa de seleção */
+  --p-r-pilula: 999px; /* avatar e etiqueta redonda */
 
-  /* -------------------------------------------------------------- sombra
-     Duas elevações. Tinta translúcida, como as três referências. */
+  /* ============================================================ sombra
+     Duas elevações. Tinta translúcida, como nas três referências. */
   --p-sombra-1: 0 1px 2px rgba(17, 17, 17, 0.05);
   --p-sombra-2: 0 2px 4px rgba(17, 17, 17, 0.06), 0 8px 24px -12px rgba(17, 17, 17, 0.16);
 
-  /* ----------------------------------------------------------- transição */
+  /* ========================================================= transição */
   --p-dur-instantanea: 75ms;
   --p-dur-rapida: 150ms;
   --p-dur-normal: 300ms;
 
-  /* ------------------------------------------------------------ densidade
-     Medido no Salesforce: linha de tabela 35px, célula com padding 8px,
-     corpo 13px. Adotamos 34px. */
+  /* ========================================================= densidade
+     Variável de layout com nome de papel, não número solto no CSS — é o que
+     a Blip faz com `--sidenav-header-min-height`. Valor que aparece em dois
+     lugares vira token, senão vira dois valores diferentes.
+     Com corpo de 14px a linha de tabela passa de 34px para 36px: 14 × 1,4 de
+     entrelinha mais 8px de folga em cima e embaixo. */
   --p-altura-topo: 48px;
-  --p-altura-linha-tabela: 34px;
+  --p-altura-linha-tabela: 36px;
   --p-celula-y: 8px;
   --p-celula-x: 12px;
   --p-largura-lateral: 200px;
@@ -155,7 +187,7 @@
 
 /* ==========================================================================
    Tema escuro. Os PAPÉIS não mudam — só o degrau para onde apontam. Nenhum
-   componente sabe de tema (arquitetura do twenty-ui).
+   componente sabe que tema existe.
 
    Os dois blocos abaixo são idênticos de propósito: o primeiro atende quem
    nunca escolheu (preferência do sistema), o segundo atende a escolha
@@ -166,40 +198,49 @@
   :root:not([data-tema='claro']) {
     color-scheme: dark;
 
-    --p-fundo: #12140e;
-    --p-superficie: #1a1d15;
-    --p-superficie-2: #20241b;
-    --p-superficie-3: #272b20;
-    --p-superficie-inversa: #edede4;
+    --p-superficie-0: #1a1d15;
+    --p-superficie-1: #12140e;
+    --p-superficie-2: #232619;
+    --p-superficie-3: #2e3222;
+    --p-superficie-4: #edece3;
 
-    --p-tinta: #edede4;
-    --p-tinta-2: #a7a69a;
-    --p-tinta-3: #84837a;
-    --p-tinta-inversa: #12140e;
+    --p-conteudo: #edece3;
+    --p-conteudo-desabilitado: #a5a398;
+    --p-conteudo-fantasma: #7d7b72;
+    --p-conteudo-claro: #12140e;
 
-    --p-linha: rgba(237, 237, 228, 0.12);
-    --p-linha-media: rgba(237, 237, 228, 0.2);
-    --p-linha-forte: rgba(237, 237, 228, 0.32);
+    --p-linha: rgba(237, 236, 227, 0.12);
+    --p-linha-media: rgba(237, 236, 227, 0.2);
+    --p-linha-forte: rgba(237, 236, 227, 0.32);
 
-    --p-destaque: #a3b76a;
-    --p-destaque-tinta: #b7c983;
-    --p-destaque-fundo: #26301a;
-    --p-destaque-linha: rgba(163, 183, 106, 0.36);
-
-    --p-sucesso-fundo: #1b2c1f;
-    --p-sucesso-linha: rgba(122, 197, 141, 0.34);
-    --p-sucesso-tinta: #7ac58d;
-
-    --p-alerta-fundo: #332714;
-    --p-alerta-linha: rgba(203, 164, 83, 0.34);
-    --p-alerta-tinta: #cba453;
+    --p-marca: #a3b76a;
+    --p-marca-forte: #b7c983;
+    --p-marca-suave: #26301a;
+    --p-marca-linha: rgba(163, 183, 106, 0.36);
+    --p-marca-conteudo: #12140e;
 
     --p-erro-fundo: #3a211b;
     --p-erro-linha: rgba(228, 129, 109, 0.34);
-    --p-erro-tinta: #e4816d;
+    --p-erro-conteudo: #e4816d;
 
-    --p-dado: #8a9a5b;
-    --p-dado-trilho: #2c3123;
+    --p-alerta-fundo: #332714;
+    --p-alerta-linha: rgba(203, 164, 83, 0.34);
+    --p-alerta-conteudo: #cba453;
+
+    --p-sucesso-fundo: #1b2c1f;
+    --p-sucesso-linha: rgba(122, 197, 141, 0.34);
+    --p-sucesso-conteudo: #7ac58d;
+
+    --p-info-fundo: #1a2a33;
+    --p-info-linha: rgba(126, 173, 199, 0.34);
+    --p-info-conteudo: #7eadc7;
+
+    --p-grafico-1: #9fae74;
+    --p-grafico-2: #6d9ab5;
+    --p-grafico-3: #d3a352;
+    --p-grafico-4: #d9705c;
+    --p-grafico-5: #5f9c7c;
+    --p-grafico-trilho: #2a2e20;
 
     --p-sombra-1: 0 1px 2px rgba(0, 0, 0, 0.4);
     --p-sombra-2: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
@@ -209,41 +250,90 @@
 :root[data-tema='escuro'] {
   color-scheme: dark;
 
-  --p-fundo: #12140e;
-  --p-superficie: #1a1d15;
-  --p-superficie-2: #20241b;
-  --p-superficie-3: #272b20;
-  --p-superficie-inversa: #edede4;
+  --p-superficie-0: #1a1d15;
+  --p-superficie-1: #12140e;
+  --p-superficie-2: #232619;
+  --p-superficie-3: #2e3222;
+  --p-superficie-4: #edece3;
 
-  --p-tinta: #edede4;
-  --p-tinta-2: #a7a69a;
-  --p-tinta-3: #84837a;
-  --p-tinta-inversa: #12140e;
+  --p-conteudo: #edece3;
+  --p-conteudo-desabilitado: #a5a398;
+  --p-conteudo-fantasma: #7d7b72;
+  --p-conteudo-claro: #12140e;
 
-  --p-linha: rgba(237, 237, 228, 0.12);
-  --p-linha-media: rgba(237, 237, 228, 0.2);
-  --p-linha-forte: rgba(237, 237, 228, 0.32);
+  --p-linha: rgba(237, 236, 227, 0.12);
+  --p-linha-media: rgba(237, 236, 227, 0.2);
+  --p-linha-forte: rgba(237, 236, 227, 0.32);
 
-  --p-destaque: #a3b76a;
-  --p-destaque-tinta: #b7c983;
-  --p-destaque-fundo: #26301a;
-  --p-destaque-linha: rgba(163, 183, 106, 0.36);
-
-  --p-sucesso-fundo: #1b2c1f;
-  --p-sucesso-linha: rgba(122, 197, 141, 0.34);
-  --p-sucesso-tinta: #7ac58d;
-
-  --p-alerta-fundo: #332714;
-  --p-alerta-linha: rgba(203, 164, 83, 0.34);
-  --p-alerta-tinta: #cba453;
+  --p-marca: #a3b76a;
+  --p-marca-forte: #b7c983;
+  --p-marca-suave: #26301a;
+  --p-marca-linha: rgba(163, 183, 106, 0.36);
+  --p-marca-conteudo: #12140e;
 
   --p-erro-fundo: #3a211b;
   --p-erro-linha: rgba(228, 129, 109, 0.34);
-  --p-erro-tinta: #e4816d;
+  --p-erro-conteudo: #e4816d;
 
-  --p-dado: #8a9a5b;
-  --p-dado-trilho: #2c3123;
+  --p-alerta-fundo: #332714;
+  --p-alerta-linha: rgba(203, 164, 83, 0.34);
+  --p-alerta-conteudo: #cba453;
+
+  --p-sucesso-fundo: #1b2c1f;
+  --p-sucesso-linha: rgba(122, 197, 141, 0.34);
+  --p-sucesso-conteudo: #7ac58d;
+
+  --p-info-fundo: #1a2a33;
+  --p-info-linha: rgba(126, 173, 199, 0.34);
+  --p-info-conteudo: #7eadc7;
+
+  --p-grafico-1: #9fae74;
+  --p-grafico-2: #6d9ab5;
+  --p-grafico-3: #d3a352;
+  --p-grafico-4: #d9705c;
+  --p-grafico-5: #5f9c7c;
+  --p-grafico-trilho: #2a2e20;
 
   --p-sombra-1: 0 1px 2px rgba(0, 0, 0, 0.4);
   --p-sombra-2: 0 2px 4px rgba(0, 0, 0, 0.4), 0 8px 24px -12px rgba(0, 0, 0, 0.7);
+}
+
+/* ==========================================================================
+   PONTE DE MIGRAÇÃO — nomes antigos, apontando para os novos.
+
+   Existe só enquanto `apps/desk`, `apps/gestao` e `apps/crm` ainda escrevem
+   os nomes da primeira versão do pacote. A tabela de renomeação está em
+   `docs/specs/2026-09-05-design-system.md`, seção 6.
+
+   Apague este bloco inteiro quando `grep -r -- '--p-tinta\|--p-fundo\|--p-destaque\|--p-dado' apps/`
+   não devolver nada. Nenhum código novo deve usar os nomes daqui.
+   ========================================================================== */
+
+:root,
+:root[data-tema='escuro'] {
+  --p-fundo: var(--p-superficie-1);
+  --p-superficie: var(--p-superficie-0);
+  --p-superficie-inversa: var(--p-superficie-4);
+
+  --p-tinta: var(--p-conteudo);
+  --p-tinta-2: var(--p-conteudo-desabilitado);
+  --p-tinta-3: var(--p-conteudo-fantasma);
+  --p-tinta-inversa: var(--p-conteudo-claro);
+
+  --p-destaque: var(--p-marca);
+  --p-destaque-tinta: var(--p-marca-forte);
+  --p-destaque-fundo: var(--p-marca-suave);
+  --p-destaque-linha: var(--p-marca-linha);
+
+  --p-erro-tinta: var(--p-erro-conteudo);
+  --p-alerta-tinta: var(--p-alerta-conteudo);
+  --p-sucesso-tinta: var(--p-sucesso-conteudo);
+
+  --p-dado: var(--p-grafico-1);
+  --p-dado-trilho: var(--p-grafico-trilho);
+
+  --p-t-xl: var(--p-t-titulo);
+  --p-t-2xl: var(--p-t-numero);
+  --p-r-xs: var(--p-r-sm);
+  --p-r-lg: var(--p-r-md);
 }

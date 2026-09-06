@@ -12,12 +12,12 @@
 
 import type {
   ButtonHTMLAttributes,
-  HTMLAttributes,
   InputHTMLAttributes,
   ReactNode,
   SelectHTMLAttributes,
 } from 'react';
 import { Icone, type NomeDeIcone } from '../icones';
+import { Ilustracao, type NomeDeIlustracao } from '../ilustracoes';
 
 /* ------------------------------------------------------------------ botão */
 
@@ -67,26 +67,66 @@ export function BotaoDeIcone({ nome, rotulo, className, ...resto }: PropsDeBotao
 /* --------------------------------------------------------------- etiqueta */
 
 /**
- * O Chip/Badge genérico. Nem Chatwoot nem Twenty têm um, e a nossa pesquisa
- * apontou a lacuna — então este é desenhado, não copiado.
+ * A etiqueta do Pipe, e a única. Componente de primeira classe.
+ *
+ * Nem Chatwoot nem Twenty têm um genérico, e é por isso que cada tela
+ * reimplementa a sua e o conjunto fica inconsistente. A Blip empacota
+ * `bds-chip-clickable` justamente para não cair nisso — é a forma que
+ * copiamos, não o desenho.
+ *
+ * Este mesmo componente serve os quatro usos do produto:
+ *   etiqueta de fila (neutra) · faixa de score (neutra) ·
+ *   status de SLA (estado) · conceito de avaliação (estado)
  *
  * Nasce NEUTRA de propósito. Fila, canal, origem e fase não recebem cor:
- * quando tudo é colorido, nada é. Cor só entra quando o que a etiqueta diz
- * exige uma ação, e aí ela é um dos três estados.
+ * categoria não é estado, e quando tudo é colorido nada é. Cor só entra
+ * quando o que a etiqueta diz exige uma ação, e aí ela é um dos quatro
+ * estados — sempre o par fundo pastel com conteúdo escuro.
  */
-export type TomDeEtiqueta = 'neutro' | 'ok' | 'alerta' | 'erro';
+export type TomDeEtiqueta = 'neutro' | 'sucesso' | 'alerta' | 'erro' | 'info';
+
+export type PropsDeEtiqueta = {
+  tom?: TomDeEtiqueta;
+  /** Pílula. Só para contagem redonda e para o que acompanha avatar. */
+  redonda?: boolean;
+  /**
+   * Variante clicável: recorte salvo de lista, filtro que liga e desliga,
+   * valor que navega. Com `aoClicar` a etiqueta vira `<button>` de verdade —
+   * teclado, foco e `aria-pressed` de graça. Sem ele, é um `<span>`.
+   */
+  aoClicar?: () => void;
+  /** Estado ligado. É o único lugar em que a cor de marca toca uma etiqueta. */
+  ativa?: boolean;
+  titulo?: string;
+  className?: string;
+  children: ReactNode;
+};
 
 export function Etiqueta({
   tom = 'neutro',
+  redonda,
+  aoClicar,
+  ativa,
+  titulo,
   className,
   children,
-  ...resto
-}: { tom?: TomDeEtiqueta; children: ReactNode } & Omit<HTMLAttributes<HTMLSpanElement>, 'children'>) {
+}: PropsDeEtiqueta) {
   const classes = ['etiqueta'];
   if (tom !== 'neutro') classes.push(tom);
+  if (redonda) classes.push('redonda');
   if (className) classes.push(className);
+  const classe = classes.join(' ');
+
+  if (aoClicar) {
+    return (
+      <button type="button" className={classe} title={titulo} aria-pressed={ativa} onClick={aoClicar}>
+        {children}
+      </button>
+    );
+  }
+
   return (
-    <span className={classes.join(' ')} {...resto}>
+    <span className={classe} title={titulo}>
       {children}
     </span>
   );
@@ -129,9 +169,26 @@ export function Abas({ abas, atual }: { abas: readonly Aba[]; atual: string }) {
 
 /* ------------------------------------------------------- estado da tela */
 
-export function EstadoVazio({ titulo, children }: { titulo: string; children?: ReactNode }) {
+/**
+ * Estado vazio com ilustração desenhada, nunca com foto. Ilustração é
+ * componente (`Ilustracao`), não imagem solta — é como a Blip preenche estado
+ * vazio, e é o que mantém o desenho respondendo ao tema escuro.
+ *
+ * `ilustracao={false}` para o vazio que aparece dentro de uma tabela, onde uma
+ * cena de 96px empurra a linha seguinte para fora da tela.
+ */
+export function EstadoVazio({
+  titulo,
+  ilustracao = 'vazio',
+  children,
+}: {
+  titulo: string;
+  ilustracao?: NomeDeIlustracao | false;
+  children?: ReactNode;
+}) {
   return (
     <div className="vazio">
+      {ilustracao ? <Ilustracao nome={ilustracao} /> : null}
       <b>{titulo}</b>
       {children}
     </div>

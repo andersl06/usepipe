@@ -8,11 +8,17 @@
    O que muda de comportamento em relação àquelas cópias, e por quê:
 
    - `th` deixa de ser monoespaçada. Passa a ser caixa alta na família do
-     corpo, 11px/600 — que é exatamente o que o Salesforce faz (12px/700,
-     mesma família do corpo). A monoespaçada fica para número.
-   - `.etiqueta` (a antiga `.pill`) nasce NEUTRA. Fila, canal e origem não têm
-     cor. Cor de estado é `.etiqueta.alerta` / `.erro` / `.ok`, e só entra no
-     que exige ação.
+     corpo, 12px/600 — que é exatamente o que o Salesforce faz. A monoespaçada
+     fica em dois lugares e só dois: número tabular (`.num`) e rótulo de seção
+     (`.lbl`).
+   - `.etiqueta` (a antiga `.pill`) nasce NEUTRA e é o único componente de
+     etiqueta do Pipe, com variante clicável. Fila, canal, origem e fase não
+     têm cor. Cor de estado é `.etiqueta.erro` / `.alerta` / `.sucesso` /
+     `.info`, e só entra no que exige ação.
+   - O corpo passa de 13px para 14px, e a régua inteira para 16/14/12 (+10),
+     que é a medida na Blip. A linha de tabela acompanha: 34px → 36px.
+   - Raio: 8px em tudo, 5px em controle pequeno, pílula em avatar e etiqueta
+     redonda. Três valores, e os dois últimos são exceção com propósito.
    - Borda usa `--p-linha`, que é tinta translúcida. Ver o topo de tokens.css.
    ========================================================================== */
 
@@ -30,8 +36,8 @@ body {
 }
 
 body {
-  background: var(--p-fundo);
-  color: var(--p-tinta);
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo);
   font-family: var(--p-fonte);
   font-size: var(--p-t-md);
   line-height: var(--p-altura-linha);
@@ -43,9 +49,9 @@ a {
 }
 
 :focus-visible {
-  outline: 2px solid var(--p-destaque);
+  outline: 2px solid var(--p-marca);
   outline-offset: 2px;
-  border-radius: var(--p-r-xs);
+  border-radius: var(--p-r-sm);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -59,26 +65,31 @@ a {
 
 /* --------------------------------------------------------------- tipografia */
 
-/* Número. Tabular, para coluna alinhar. É o único papel da monoespaçada. */
+/* Número. Tabular, para coluna alinhar. Primeiro dos DOIS papéis da
+   monoespaçada, e o principal. */
 .mono,
 .num {
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
 }
 
-/* Rótulo de seção e cabeçalho de coluna. Família do CORPO, caixa alta.
-   Não é monoespaçada — essa era a origem do ruído que o dono viu. */
+/* Rótulo de SEÇÃO — o segundo papel da monoespaçada, e o último. São poucos
+   por tela: o título miúdo que abre um grupo. Nunca nome de fase, de fila, de
+   origem nem de campo; esses são texto corrente na família do corpo.
+   Cabeçalho de coluna (`th`) fica de fora de propósito: são muitos por tela,
+   e mono em todos foi parte do ruído que o dono reprovou. */
 .lbl {
+  font-family: var(--p-fonte-mono);
   font-size: var(--p-rotulo-tamanho);
   font-weight: var(--p-rotulo-peso);
   letter-spacing: var(--p-rotulo-espaco);
   text-transform: uppercase;
-  color: var(--p-tinta-3);
+  color: var(--p-conteudo-fantasma);
 }
 
 .sub {
   font-size: var(--p-t-sm);
-  color: var(--p-tinta-3);
+  color: var(--p-conteudo-fantasma);
 }
 
 /* ================================================================ estrutura
@@ -102,7 +113,7 @@ a {
   align-items: center;
   gap: var(--p-e-4);
   padding: 0 var(--p-e-4);
-  background: var(--p-superficie);
+  background: var(--p-superficie-0);
   border-bottom: 1px solid var(--p-linha);
   position: sticky;
   top: 0;
@@ -114,7 +125,7 @@ a {
   align-items: center;
   gap: var(--p-e-2);
   text-decoration: none;
-  color: var(--p-tinta);
+  color: var(--p-conteudo);
   flex: none;
 }
 
@@ -150,7 +161,7 @@ a {
   padding: 6px 10px;
   border-radius: var(--p-r-md);
   font-size: var(--p-t-md);
-  color: var(--p-tinta-2);
+  color: var(--p-conteudo-desabilitado);
   text-decoration: none;
   white-space: nowrap;
   transition: background var(--p-dur-instantanea) ease;
@@ -161,8 +172,8 @@ a {
 }
 
 .p-modulos a[aria-current='page'] {
-  background: var(--p-destaque-fundo);
-  color: var(--p-destaque-tinta);
+  background: var(--p-marca-suave);
+  color: var(--p-marca-forte);
   font-weight: var(--p-peso-medio);
 }
 
@@ -207,7 +218,7 @@ a {
   padding: 5px var(--p-e-2);
   border-radius: var(--p-r-md);
   font-size: var(--p-t-md);
-  color: var(--p-tinta-2);
+  color: var(--p-conteudo-desabilitado);
   text-decoration: none;
 }
 
@@ -216,8 +227,8 @@ a {
 }
 
 .p-lateral a[aria-current='page'] {
-  background: var(--p-destaque-fundo);
-  color: var(--p-destaque-tinta);
+  background: var(--p-marca-suave);
+  color: var(--p-marca-forte);
   font-weight: var(--p-peso-medio);
 }
 
@@ -241,7 +252,7 @@ a {
 .p-cabecalho h1,
 .p-cabecalho h2 {
   margin: 0;
-  font-size: var(--p-t-xl);
+  font-size: var(--p-t-titulo);
   font-weight: var(--p-peso-forte);
   letter-spacing: -0.015em;
 }
@@ -265,8 +276,8 @@ a {
   padding: 7px 11px;
   border-radius: var(--p-r-md);
   border: 1px solid var(--p-linha-media);
-  background: var(--p-superficie);
-  color: var(--p-tinta-2);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo-desabilitado);
   text-decoration: none;
   display: inline-flex;
   align-items: center;
@@ -286,19 +297,19 @@ a {
 
 .btn.primary,
 .btn.primario {
-  background: var(--p-destaque);
-  border-color: var(--p-destaque);
-  color: var(--p-tinta-inversa);
+  background: var(--p-marca);
+  border-color: var(--p-marca);
+  color: var(--p-marca-conteudo);
 }
 
 .btn.primary:hover:not(:disabled),
 .btn.primario:hover:not(:disabled) {
-  background: var(--p-destaque-tinta);
+  background: var(--p-marca-forte);
 }
 
 .btn.perigo {
   border-color: var(--p-erro-linha);
-  color: var(--p-erro-tinta);
+  color: var(--p-erro-conteudo);
 }
 
 .btn.perigo:hover:not(:disabled) {
@@ -313,18 +324,19 @@ a {
 }
 
 .btn.chip[aria-current='true'] {
-  background: var(--p-destaque-fundo);
-  border-color: var(--p-destaque-linha);
-  color: var(--p-destaque-tinta);
+  background: var(--p-marca-suave);
+  border-color: var(--p-marca-linha);
+  color: var(--p-marca-forte);
 }
 
+/* Controle pequeno: raio de 5px, a primeira das duas exceções ao raio padrão. */
 .iconbtn {
   width: 28px;
   height: 28px;
   border: 1px solid var(--p-linha-media);
-  border-radius: var(--p-r-md);
-  background: var(--p-superficie);
-  color: var(--p-tinta-2);
+  border-radius: var(--p-r-sm);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo-desabilitado);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -347,41 +359,96 @@ a {
   height: var(--p-icone-md);
 }
 
-/* Etiqueta. NASCE NEUTRA — fila, canal, origem e fase não são coloridos.
-   Só ganha cor quando o que ela diz exige uma ação. */
+/* ========================================================== etiqueta
+   Componente de PRIMEIRA CLASSE, e o único do Pipe. Nem Chatwoot nem Twenty
+   têm um genérico, e é por isso que cada tela reimplementa o seu e fica
+   inconsistente. Aqui um só serve etiqueta de fila, faixa de score, status de
+   SLA e conceito de avaliação. Referência de forma: `bds-chip-clickable` da
+   Blip, que empacota a etiqueta junto com a sua versão clicável.
+
+   NASCE NEUTRA. Fila, canal, origem e fase não recebem cor: categoria não é
+   estado, e quando tudo é colorido nada é. Cor só entra quando o que a
+   etiqueta diz exige uma ação, e aí ela é um dos quatro estados — sempre o
+   PAR de fundo pastel com conteúdo escuro, nunca texto saturado solto. */
 .etiqueta,
 .pill {
-  font-size: var(--p-t-xs);
+  font-size: var(--p-t-sm);
   font-weight: var(--p-peso-medio);
-  padding: 2px 7px;
+  padding: 1px 8px;
   border-radius: var(--p-r-sm);
   border: 1px solid var(--p-linha);
-  background: var(--p-superficie-3);
-  color: var(--p-tinta-2);
+  background: var(--p-superficie-2);
+  color: var(--p-conteudo-desabilitado);
   white-space: nowrap;
-  display: inline-block;
-  line-height: 1.45;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-e-1);
+  line-height: 1.5;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
+.etiqueta.sucesso,
 .etiqueta.ok,
 .pill.ok {
   background: var(--p-sucesso-fundo);
   border-color: var(--p-sucesso-linha);
-  color: var(--p-sucesso-tinta);
+  color: var(--p-sucesso-conteudo);
 }
 
 .etiqueta.alerta,
 .pill.med {
   background: var(--p-alerta-fundo);
   border-color: var(--p-alerta-linha);
-  color: var(--p-alerta-tinta);
+  color: var(--p-alerta-conteudo);
 }
 
 .etiqueta.erro,
 .pill.hi {
   background: var(--p-erro-fundo);
   border-color: var(--p-erro-linha);
-  color: var(--p-erro-tinta);
+  color: var(--p-erro-conteudo);
+}
+
+.etiqueta.info {
+  background: var(--p-info-fundo);
+  border-color: var(--p-info-linha);
+  color: var(--p-info-conteudo);
+}
+
+/* Pílula. Só para contagem redonda e para o que acompanha avatar. O resto da
+   interface usa o raio de controle. */
+.etiqueta.redonda {
+  border-radius: var(--p-r-pilula);
+  padding: 1px 10px;
+}
+
+/* Versão clicável: recorte salvo de lista, filtro que liga e desliga, valor
+   que navega. É `<button>` de verdade, então já vem com teclado e foco. O
+   estado ligado é o único lugar onde a cor de marca toca uma etiqueta, e ela
+   toca porque ali a etiqueta virou ação. */
+button.etiqueta {
+  font-family: inherit;
+  cursor: pointer;
+  transition: background var(--p-dur-instantanea) ease;
+}
+
+button.etiqueta:hover {
+  background: var(--p-superficie-3);
+}
+
+button.etiqueta[aria-pressed='true'] {
+  background: var(--p-marca-suave);
+  border-color: var(--p-marca-linha);
+  color: var(--p-marca-forte);
+}
+
+button.etiqueta.sucesso:hover,
+button.etiqueta.alerta:hover,
+button.etiqueta.erro:hover,
+button.etiqueta.info:hover {
+  filter: brightness(0.97);
 }
 
 /* As antigas variantes coloridas de fila/canal/informação passam a ser
@@ -390,9 +457,9 @@ a {
 .pill.q,
 .pill.ch,
 .pill.info {
-  background: var(--p-superficie-3);
+  background: var(--p-superficie-2);
   border-color: var(--p-linha);
-  color: var(--p-tinta-2);
+  color: var(--p-conteudo-desabilitado);
 }
 
 .campo,
@@ -400,27 +467,27 @@ a {
   font: inherit;
   font-size: var(--p-t-md);
   padding: 6px 10px;
-  background: var(--p-superficie);
+  background: var(--p-superficie-0);
   border: 1px solid var(--p-linha-media);
   border-radius: var(--p-r-md);
-  color: var(--p-tinta);
+  color: var(--p-conteudo);
   min-width: 0;
 }
 
 .campo::placeholder {
-  color: var(--p-tinta-3);
+  color: var(--p-conteudo-fantasma);
 }
 
 .campo:focus-visible,
 .seletor:focus-visible {
-  border-color: var(--p-destaque);
+  border-color: var(--p-marca);
 }
 
 /* ---------------------------------------------------------------- cartão */
 .card {
-  background: var(--p-superficie);
+  background: var(--p-superficie-0);
   border: 1px solid var(--p-linha);
-  border-radius: var(--p-r-lg);
+  border-radius: var(--p-r-md);
   padding: var(--p-e-3) var(--p-e-4);
   display: flex;
   flex-direction: column;
@@ -429,7 +496,7 @@ a {
 
 .card > h3 {
   margin: 0;
-  font-size: var(--p-t-md);
+  font-size: var(--p-t-lg);
   font-weight: var(--p-peso-forte);
 }
 
@@ -444,7 +511,7 @@ a {
 .metric .v {
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
-  font-size: var(--p-t-2xl);
+  font-size: var(--p-t-numero);
   font-weight: var(--p-peso-forte);
   letter-spacing: -0.02em;
   line-height: var(--p-altura-linha-curta);
@@ -452,24 +519,24 @@ a {
 
 .metric .k {
   font-size: var(--p-t-sm);
-  color: var(--p-tinta-2);
+  color: var(--p-conteudo-desabilitado);
 }
 
 /* O denominador ao lado de toda média — decisão da spec de métricas. */
 .metric .den {
   font-family: var(--p-fonte-mono);
   font-size: var(--p-t-xs);
-  color: var(--p-tinta-3);
+  color: var(--p-conteudo-fantasma);
 }
 
 /* Um número só fica colorido quando pede ação. `accent` some de propósito:
    número não é lugar de cor de marca. */
 .metric.warn .v {
-  color: var(--p-alerta-tinta);
+  color: var(--p-alerta-conteudo);
 }
 
 .metric.bad .v {
-  color: var(--p-erro-tinta);
+  color: var(--p-erro-conteudo);
 }
 
 .sw {
@@ -482,7 +549,7 @@ a {
 
 .note {
   font-size: var(--p-t-sm);
-  color: var(--p-tinta-3);
+  color: var(--p-conteudo-fantasma);
   border-top: 1px solid var(--p-linha);
   padding-top: var(--p-e-2);
   margin-top: auto;
@@ -491,9 +558,9 @@ a {
 /* --------------------------------------------------------------- tabela */
 .tblwrap {
   border: 1px solid var(--p-linha);
-  border-radius: var(--p-r-lg);
+  border-radius: var(--p-r-md);
   overflow: hidden;
-  background: var(--p-superficie);
+  background: var(--p-superficie-0);
 }
 
 .tblhead {
@@ -518,7 +585,7 @@ a {
   background: var(--p-superficie-2);
   border: 1px solid var(--p-linha-media);
   border-radius: var(--p-r-md);
-  color: var(--p-tinta);
+  color: var(--p-conteudo);
 }
 
 .tabs {
@@ -532,16 +599,16 @@ a {
 .tabs a {
   font-size: var(--p-t-md);
   padding: 6px 11px;
-  color: var(--p-tinta-3);
+  color: var(--p-conteudo-fantasma);
   white-space: nowrap;
   border-bottom: 2px solid transparent;
   text-decoration: none;
 }
 
 .tabs a[aria-current='true'] {
-  color: var(--p-destaque-tinta);
+  color: var(--p-marca-forte);
   font-weight: var(--p-peso-medio);
-  border-bottom-color: var(--p-destaque);
+  border-bottom-color: var(--p-marca);
 }
 
 .scroll {
@@ -554,18 +621,19 @@ table {
   font-size: var(--p-t-md);
 }
 
-/* Cabeçalho de coluna: caixa alta na família do corpo. Ver nota no topo. */
+/* Cabeçalho de coluna: caixa alta na família do CORPO, não monoespaçada.
+   São muitos por tela; mono em todos foi parte do ruído. Ver `.lbl`. */
 th {
   text-align: left;
   padding: var(--p-e-1) var(--p-celula-x);
-  height: 28px;
+  height: 32px;
   border-bottom: 1px solid var(--p-linha);
-  background: var(--p-superficie);
+  background: var(--p-superficie-0);
   font-size: var(--p-rotulo-tamanho);
   font-weight: var(--p-rotulo-peso);
   letter-spacing: var(--p-rotulo-espaco);
   text-transform: uppercase;
-  color: var(--p-tinta-3);
+  color: var(--p-conteudo-fantasma);
   white-space: nowrap;
 }
 
@@ -573,7 +641,7 @@ td {
   padding: var(--p-celula-y) var(--p-celula-x);
   height: var(--p-altura-linha-tabela);
   border-bottom: 1px solid var(--p-linha);
-  color: var(--p-tinta-2);
+  color: var(--p-conteudo-desabilitado);
   white-space: nowrap;
 }
 
@@ -584,11 +652,11 @@ tbody tr:last-child td {
 td.num {
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
-  color: var(--p-tinta);
+  color: var(--p-conteudo);
 }
 
 td.who {
-  color: var(--p-tinta);
+  color: var(--p-conteudo);
   font-weight: var(--p-peso-medio);
 }
 
@@ -606,19 +674,32 @@ tr.critico td {
   background: var(--p-erro-fundo);
 }
 
-/* ---------------------------------------------------------- estado vazio */
+/* ---------------------------------------------------------- estado vazio
+   Ilustração desenhada, nunca foto. É o que a Blip empacota como
+   `bds-illustration`: um componente, não uma imagem solta. */
 .vazio {
-  padding: var(--p-e-6) var(--p-e-4);
+  padding: var(--p-e-8) var(--p-e-4);
   font-size: var(--p-t-md);
-  color: var(--p-tinta-3);
+  color: var(--p-conteudo-fantasma);
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--p-e-2);
 }
 
 .vazio b {
   display: block;
-  color: var(--p-tinta-2);
+  color: var(--p-conteudo);
+  font-size: var(--p-t-lg);
   font-weight: var(--p-peso-medio);
-  margin-bottom: var(--p-e-1);
+}
+
+/* A ilustração herda `currentColor` no traço neutro e usa a paleta estendida
+   no acento — é o outro lugar, além do gráfico, onde ela pode aparecer. */
+.ilustracao {
+  color: var(--p-linha-forte);
+  margin-bottom: var(--p-e-2);
 }
 
 /* ------------------------------------------------------------- carregando */
@@ -627,7 +708,7 @@ tr.critico td {
   width: var(--p-icone-md);
   height: var(--p-icone-md);
   border: 2px solid var(--p-linha-media);
-  border-top-color: var(--p-destaque);
+  border-top-color: var(--p-marca);
   border-radius: 50%;
   animation: p-girar 700ms linear infinite;
 }
@@ -643,7 +724,7 @@ tr.critico td {
 .trilho {
   height: 7px;
   border-radius: var(--p-r-sm);
-  background: var(--p-dado-trilho);
+  background: var(--p-grafico-trilho);
   overflow: hidden;
   display: block;
 }
@@ -652,28 +733,29 @@ tr.critico td {
 .fill {
   height: 100%;
   border-radius: var(--p-r-sm);
-  background: var(--p-dado);
+  background: var(--p-grafico-1);
   display: block;
 }
 
 .fill.warn {
-  background: var(--p-alerta-tinta);
+  background: var(--p-alerta-conteudo);
 }
 
 .fill.bad {
-  background: var(--p-erro-tinta);
+  background: var(--p-erro-conteudo);
 }
 
-/* ----------------------------------------------------------------- avatar */
+/* ----------------------------------------------------------------- avatar
+   Pílula: a segunda e última exceção ao raio padrão. */
 .avatar {
   width: 26px;
   height: 26px;
-  border-radius: 50%;
-  background: var(--p-superficie-3);
-  color: var(--p-tinta-2);
+  border-radius: var(--p-r-pilula);
+  background: var(--p-superficie-2);
+  color: var(--p-conteudo-desabilitado);
   display: grid;
   place-items: center;
-  font-size: var(--p-t-xs);
+  font-size: var(--p-t-sm);
   font-weight: var(--p-peso-forte);
   flex: none;
   border: 1px solid var(--p-linha);
@@ -682,9 +764,9 @@ tr.critico td {
 /* ------------------------------------------------------------------ modal */
 dialog {
   border: 1px solid var(--p-linha-media);
-  border-radius: var(--p-r-lg);
-  background: var(--p-superficie);
-  color: var(--p-tinta);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
   padding: 0;
   box-shadow: var(--p-sombra-2);
   max-width: 420px;
@@ -707,7 +789,7 @@ dialog::backdrop {
   gap: var(--p-e-2);
   height: var(--p-altura-topo);
   padding: 0 var(--p-e-4);
-  background: var(--p-superficie);
+  background: var(--p-superficie-0);
   border-bottom: 1px solid var(--p-linha);
   position: sticky;
   top: 0;
@@ -724,7 +806,7 @@ dialog::backdrop {
   align-items: center;
   gap: 5px;
   font-size: var(--p-t-md);
-  color: var(--p-tinta-2);
+  color: var(--p-conteudo-desabilitado);
   text-decoration: none;
   padding: 5px var(--p-e-2);
   border-radius: var(--p-r-md);

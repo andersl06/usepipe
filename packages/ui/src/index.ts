@@ -9,7 +9,15 @@
  * Decisões que este pacote existe para impor estão em
  * `docs/specs/2026-09-05-design-system.md`; a identidade continua sendo
  * `docs/marca/MARCA.md`; os números que as justificam estão em
- * `docs/pesquisa/visual-blip-salesforce.md`.
+ * `docs/pesquisa/visual-blip-salesforce.md` e em
+ * `docs/pesquisa/blip-design-system.md`.
+ *
+ * As três regras que a API pública impõe, e que nenhum aplicativo pode
+ * contornar declarando cor própria:
+ *   1. UMA cor de marca (moss), em ação primária e estado ativo. Mais nada.
+ *   2. Estado é PAR: fundo pastel com conteúdo escuro. Quatro estados.
+ *   3. A paleta estendida (`TEMA.grafico`) é exclusiva de gráfico e
+ *      ilustração. Fora dali ela não existe.
  */
 
 export { TEMA, espaco } from './tema';
@@ -17,6 +25,9 @@ export type { Tema, NomeDeEstado } from './tema';
 
 export { Icone, Simbolo } from './icones';
 export type { NomeDeIcone, PropsDeIcone } from './icones';
+
+export { Ilustracao } from './ilustracoes';
+export type { NomeDeIlustracao, PropsDeIlustracao } from './ilustracoes';
 
 export {
   Botao,
@@ -35,6 +46,7 @@ export type {
   PropsDeBotao,
   PropsDeBotaoDeIcone,
   VarianteDeBotao,
+  PropsDeEtiqueta,
   TomDeEtiqueta,
   Aba,
 } from './componentes/primitivos';

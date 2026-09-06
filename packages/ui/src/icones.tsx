@@ -97,7 +97,7 @@ export function Simbolo({ tamanho = 22, ...resto }: { tamanho?: number } & SVGPr
       {...resto}
     >
       <path d="M9,99 V36 Q9,9 36,9 H63" stroke="currentColor" />
-      <path d="M99,9 V72 Q99,99 72,99 H36" stroke="var(--p-destaque)" />
+      <path d="M99,9 V72 Q99,99 72,99 H36" stroke="var(--p-marca)" />
     </svg>
   );
 }
