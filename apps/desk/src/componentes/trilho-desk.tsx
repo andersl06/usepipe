@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { Simbolo } from '@pipe/ui';
-import { IconeDesk } from './icones-desk';
-import { AlternarTema } from './alternar-tema';
+import { IconeDesk, type NomeDeIconeDesk } from './icones-desk';
+import { BotaoAjuda, BotaoPreferencias } from './dialogos-trilho';
 import { BotaoDeStatus } from './barra-status';
 import type { EstadoAtendente } from '../servidor/consultas';
 
@@ -17,15 +17,17 @@ import type { EstadoAtendente } from '../servidor/consultas';
  * própria barra a 10%, do mesmo jeito que a Gestão deriva os dois degraus das
  * suas duas barras.
  *
- * **Nenhum item desabilitado**, e é por isso que este trilho tem quatro
- * controles e não os cinco módulos deles. Eles têm cinco destinos porque têm
- * cinco produtos; o Desk do Pipe tem um. O trilho é a forma; quantos itens ele
- * carrega é função do produto.
+ * São **cinco destinos em cima e três embaixo**, na ordem lida do `tooltip-text`
+ * de cada ícone deles (`docs/pesquisa/blip-desk-dom.md`, §2). O trilho é o mapa
+ * do produto, e um mapa com um destino só não é mapa: guardar os cinco é o que
+ * mostra ao atendente que Mensagens ativas e Métricas existem, ainda que hoje
+ * quem as sirva seja outro aplicativo.
  *
- * O topo leva ao único destino que existe. O rodapé leva ao que é da conta: a
- * Gestão, que vive noutra origem, o tema, e o avatar com o ponto do estado —
- * que abre o mesmo diálogo do botão "Trocar status" da coluna, exatamente como
- * o avatar do rodapé deles.
+ * Onde o destino ainda não existe aqui, o ícone aponta para quem faz a mesma
+ * coisa hoje, e é a spec que decide para quem: disparo em massa e relatório são
+ * do Pipe Gestão (`docs/specs/2026-09-05-desk-requisitos.md`, §7 e princípio da
+ * tela), e a ficha do contato é do Pipe CRM. Nenhum item fica desabilitado —
+ * ícone que não abre nada é ruído, não promessa.
  *
  * Não há barra superior. O Desk deles não tem, e o motivo é bom: com o trilho
  * ocupando a altura inteira, uma barra em cima rouba dobra da conversa para
@@ -33,8 +35,9 @@ import type { EstadoAtendente } from '../servidor/consultas';
  * tela de referência dela, o Monitoramento, tem duas barras.
  */
 
-/** Onde vive a supervisão. O rodapé do trilho aponta para lá. */
+/** Onde vive a supervisão, e onde vive a ficha do contato. */
 const URL_GESTAO = process.env['NEXT_PUBLIC_PIPE_GESTAO_URL'] ?? 'http://localhost:3100';
+const URL_CRM = process.env['NEXT_PUBLIC_PIPE_CRM_URL'] ?? 'http://localhost:3300';
 
 export const COR_DO_ESTADO: Record<EstadoAtendente, string> = {
   online: 'var(--p-sucesso-conteudo)',
@@ -49,6 +52,51 @@ const ROTULO_DO_ESTADO: Record<EstadoAtendente, string> = {
   invisivel: 'Invisível',
   offline: 'Offline',
 };
+
+/**
+ * `fora` marca o destino que hoje mora noutro aplicativo. Serve para abrir em
+ * outra aba e para o título dizer onde a pessoa vai parar — clicar num ícone do
+ * Desk e cair no Gestão sem aviso é o tipo de surpresa que custa confiança.
+ */
+interface Destino {
+  chave: string;
+  rotulo: string;
+  icone: NomeDeIconeDesk;
+  href: string;
+  fora?: string;
+}
+
+const DESTINOS: Destino[] = [
+  { chave: 'atendimentos', rotulo: 'Atendimentos', icone: 'conversa', href: '/' },
+  {
+    chave: 'ativas',
+    rotulo: 'Mensagens ativas',
+    icone: 'paperplane',
+    href: URL_GESTAO,
+    fora: 'Pipe Gestão',
+  },
+  {
+    chave: 'metricas',
+    rotulo: 'Métricas de atendimento',
+    icone: 'metricas',
+    href: URL_GESTAO,
+    fora: 'Pipe Gestão',
+  },
+  {
+    chave: 'contatos',
+    rotulo: 'Contatos',
+    icone: 'contatos',
+    href: `${URL_CRM}/contatos`,
+    fora: 'Pipe CRM',
+  },
+  {
+    chave: 'massa',
+    rotulo: 'Ações em massa',
+    icone: 'massa',
+    href: URL_GESTAO,
+    fora: 'Pipe Gestão',
+  },
+];
 
 export function TrilhoDesk({
   iniciais,
@@ -66,32 +114,49 @@ export function TrilhoDesk({
       </Link>
 
       <div className="trilho-itens">
-        {/* O Desk tem uma rota só: o caminho atual é constante e não precisa
-            de `usePathname` nem de componente de cliente. */}
-        <Link className="trilho-item" href="/" aria-current="page" title="Atendimentos">
-          <IconeDesk nome="conversa" />
-          <span className="sr">Atendimentos</span>
-        </Link>
+        {DESTINOS.map((destino) => {
+          const titulo = destino.fora ? `${destino.rotulo} · no ${destino.fora}` : destino.rotulo;
+          const conteudo = (
+            <>
+              <IconeDesk nome={destino.icone} />
+              <span className="sr">{titulo}</span>
+            </>
+          );
+          // O Desk tem uma rota só: o caminho atual é constante e não precisa
+          // de `usePathname` nem de componente de cliente.
+          return destino.fora ? (
+            <a
+              className="trilho-item"
+              key={destino.chave}
+              href={destino.href}
+              target="_blank"
+              rel="noreferrer"
+              title={titulo}
+            >
+              {conteudo}
+            </a>
+          ) : (
+            <Link
+              className="trilho-item"
+              key={destino.chave}
+              href={destino.href}
+              aria-current="page"
+              title={titulo}
+            >
+              {conteudo}
+            </Link>
+          );
+        })}
       </div>
 
       <div className="trilho-conta">
-        <a
-          className="trilho-item"
-          href={URL_GESTAO}
-          target="_blank"
-          rel="noreferrer"
-          title="Abrir o Pipe Gestão"
-        >
-          <IconeDesk nome="externo" />
-          <span className="sr">Abrir o Pipe Gestão</span>
-        </a>
-
-        <AlternarTema />
-
+        <BotaoAjuda />
+        <BotaoPreferencias urlGestao={URL_GESTAO} />
         <BotaoDeStatus
-          titulo={`${nome} · ${ROTULO_DO_ESTADO[estado]}`}
+          titulo={`Seu status é: ${ROTULO_DO_ESTADO[estado]}`}
           cor={COR_DO_ESTADO[estado]}
           iniciais={iniciais}
+          nome={nome}
         />
       </div>
     </nav>

@@ -43,17 +43,19 @@ export function BotaoDeStatus({
   titulo,
   cor,
   iniciais,
+  nome,
 }: {
   titulo: string;
   cor: string;
   iniciais: string;
+  nome: string;
 }) {
   return (
     <button
       type="button"
       className="trilho-eu"
       title={titulo}
-      aria-label={`${titulo}. Trocar status`}
+      aria-label={`${nome}. ${titulo}. Trocar status`}
       onClick={abrirDialogoStatus}
       style={{ ['--estado-cor' as string]: cor }}
     >
