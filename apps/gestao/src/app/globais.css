@@ -1520,3 +1520,13 @@ tr.grupo th {
     grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
   }
 }
+
+/* ============================ relatório de Atendimento (/relatorios/atendimento)
+   O denominador da métrica também entra DENTRO da célula da tabela de quebra:
+   por fila e por atendente a média sem o número de conversas descartadas engana
+   do mesmo jeito que engana no cartão. Na célula ele cola no valor, e volta para
+   a fonte de texto: monoespaçada de 10px em duas linhas de célula vira ruído. */
+.cartao-rel.tabela .den {
+  margin-top: 2px;
+  font-family: var(--p-fonte);
+}
