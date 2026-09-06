@@ -1,12 +1,18 @@
 import Link from 'next/link';
+import { Icone } from '@pipe/ui';
 import type { LinhaConversaAberta, Monitoramento } from '../lib/monitoramento';
 import { duracao, numero } from '../lib/formato';
+import { IconeGestao } from './icones-gestao';
 
 /**
- * Monitoramento detalhado: a tabela com abas do mockup.
+ * Monitoramento detalhado: o cartão do fim da tela deles.
  *
- * A aba vive na querystring, como o filtro — assim a recarga periódica não joga o
- * supervisor de volta para a primeira aba a cada 30 segundos.
+ * Disposição copiada: o título à esquerda e o CAMPO DE BUSCA à direita, dentro
+ * do cartão; abaixo as abas; abaixo a tabela, com a coluna de Ações no fim.
+ *
+ * A aba e a busca vivem na querystring, como o filtro — assim a recarga
+ * periódica não joga o supervisor de volta para a primeira aba nem apaga o que
+ * ele digitou a cada 30 segundos.
  *
  * Severidade colore a linha inteira, não só o texto: a lição do `blip-dash`
  * registrada no §3 do desenho.
@@ -20,15 +26,20 @@ const ABAS = [
   { chave: 'etiquetas', rotulo: 'Etiquetas' },
 ] as const;
 
-type Filtro = { fila?: string; atendente?: string; busca?: string };
+/** O app do atendente vive em outra origem; a ação da linha aponta para lá. */
+const URL_DESK = process.env['NEXT_PUBLIC_PIPE_DESK_URL'] ?? 'http://localhost:3200';
 
-function comAba(filtro: Filtro, aba: string): string {
+type Filtro = { fila?: string; atendente?: string; contato?: string; status?: string; busca?: string };
+
+function querystring(filtro: Filtro, aba: string): URLSearchParams {
   const p = new URLSearchParams();
   if (filtro.fila) p.set('fila', filtro.fila);
   if (filtro.atendente) p.set('atendente', filtro.atendente);
+  if (filtro.contato) p.set('contato', filtro.contato);
+  if (filtro.status) p.set('status', filtro.status);
   if (filtro.busca) p.set('busca', filtro.busca);
   p.set('aba', aba);
-  return `/?${p.toString()}`;
+  return p;
 }
 
 function classeDaLinha(linha: LinhaConversaAberta): string | undefined {
@@ -42,8 +53,6 @@ function classeDaLinha(linha: LinhaConversaAberta): string | undefined {
  * erro, alerta é alerta. Sem regra e cumprido são neutros, porque não há o que
  * fazer a respeito deles — e pintar o que está normal foi o que tirou o
  * significado da cor na tela inteira.
- *
- * A caixa alta também saiu: o rótulo é conteúdo, não título de seção.
  */
 function PillSlaView({ linha }: { linha: LinhaConversaAberta }) {
   const { estado, rotulo, excedidoSeg } = linha.sla;
@@ -55,11 +64,11 @@ function PillSlaView({ linha }: { linha: LinhaConversaAberta }) {
   return <span className="etiqueta">{rotulo}</span>;
 }
 
-/*
- * A coluna "Ações" saiu inteira. Ela tinha dois botões, "Abrir no Desk" e
- * "Transferir", e os dois estavam desabilitados em toda linha da tabela —
- * duas caveiras cinzas repetidas por conversa aberta. Item que não funciona
- * não aparece; os dois voltam quando abrirem alguma coisa.
+/**
+ * A coluna de Ações voltou, e voltou com uma ação que FUNCIONA: abrir a
+ * conversa no Pipe Desk, que é `?conversa=<id>` na outra origem. Ela tinha
+ * saído porque os dois botões de antes estavam desabilitados em toda linha, e
+ * item que não funciona não aparece. Transferir entra aqui quando abrir.
  */
 function TabelaConversas({ linhas }: { linhas: readonly LinhaConversaAberta[] }) {
   if (linhas.length === 0) {
@@ -78,6 +87,7 @@ function TabelaConversas({ linhas }: { linhas: readonly LinhaConversaAberta[] })
             <th>Fila</th>
             <th>Atendente</th>
             <th>SLA</th>
+            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -99,6 +109,18 @@ function TabelaConversas({ linhas }: { linhas: readonly LinhaConversaAberta[] })
               <td>
                 {l.emEspera ? <span className="etiqueta">Em espera</span> : <PillSlaView linha={l} />}
               </td>
+              <td className="acts">
+                <a
+                  className="iconbtn"
+                  href={`${URL_DESK}/?conversa=${encodeURIComponent(l.id)}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="Abrir a conversa no Pipe Desk"
+                  aria-label="Abrir a conversa no Pipe Desk"
+                >
+                  <IconeGestao nome="externo" tamanho={14} />
+                </a>
+              </td>
             </tr>
           ))}
         </tbody>
@@ -119,10 +141,23 @@ export function MonitoramentoDetalhado({
   filtro: Filtro;
 }) {
   const termo = busca.trim().toLowerCase();
-  const casa = (l: LinhaConversaAberta) =>
-    termo === '' ||
-    l.ticket.toLowerCase().includes(termo) ||
-    l.contatoNome.toLowerCase().includes(termo);
+  const contato = (filtro.contato ?? '').trim().toLowerCase();
+
+  /* Estado do atendente por id: `carga` já traz o estado de cada um, então o
+     filtro "Status do atendente" da segunda faixa não custa consulta nova. */
+  const estadoPorAtendente = new Map(monitoramento.carga.map((a) => [a.id, a.estado]));
+
+  const casa = (l: LinhaConversaAberta) => {
+    if (termo && !l.ticket.toLowerCase().includes(termo) && !l.contatoNome.toLowerCase().includes(termo)) {
+      return false;
+    }
+    if (contato && !l.contatoNome.toLowerCase().includes(contato)) return false;
+    if (filtro.status) {
+      const estado = l.atendenteId ? estadoPorAtendente.get(l.atendenteId) : undefined;
+      if (estado !== filtro.status) return false;
+    }
+    return true;
+  };
 
   const atribuidas = monitoramento.abertas.filter((l) => l.atendenteId !== null).filter(casa);
   const aguardando = monitoramento.abertas.filter((l) => l.atendenteId === null).filter(casa);
@@ -131,16 +166,32 @@ export function MonitoramentoDetalhado({
     <div className="tblwrap">
       <div className="tblhead">
         <h3>Monitoramento detalhado</h3>
-        <span className="sub" style={{ marginLeft: 'auto' }}>
-          {numero(monitoramento.abertas.length)} conversas abertas
-        </span>
+        <span className="qt">{numero(monitoramento.abertas.length)} conversas abertas</span>
+
+        {/* A busca da Blip mora AQUI, dentro do cartão, e não na faixa de
+            filtros. Ela varre ticket e contato da tabela. */}
+        <form className="tbl-busca" method="get" action="/">
+          {[...querystring(filtro, aba)]
+            .filter(([chave]) => chave !== 'busca')
+            .map(([chave, valor]) => (
+              <input key={chave} type="hidden" name={chave} value={valor} />
+            ))}
+          <Icone nome="busca" tamanho={14} />
+          <input
+            type="search"
+            name="busca"
+            defaultValue={busca}
+            placeholder="Buscar ticket ou contato"
+            aria-label="Buscar ticket ou contato"
+          />
+        </form>
       </div>
 
       <div className="tabs" role="tablist">
         {ABAS.map((a) => (
           <Link
             key={a.chave}
-            href={comAba(filtro, a.chave)}
+            href={`/?${querystring(filtro, a.chave).toString()}`}
             aria-current={aba === a.chave ? 'true' : undefined}
           >
             {a.rotulo}

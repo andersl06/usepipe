@@ -2,7 +2,9 @@ import { fusoDoTenant, janelaDeHoje } from '../lib/banco';
 import { carregarMonitoramento } from '../lib/monitoramento';
 import { denominador, duracao, numero } from '../lib/formato';
 import { RecargaPeriodica } from '../componentes/recarga-periodica';
-import { FiltrosRapidos } from '../componentes/filtros-rapidos';
+import { TelaCheia } from '../componentes/tela-cheia';
+import { FiltrosDaLista, FiltrosDaOperacao } from '../componentes/filtros-rapidos';
+import { Metrica, Status } from '../componentes/metrica';
 import { MonitoramentoDetalhado } from '../componentes/monitoramento-detalhado';
 import { CargaPorAtendente } from '../componentes/carga-por-atendente';
 
@@ -11,10 +13,29 @@ export const dynamic = 'force-dynamic';
 interface Busca {
   fila?: string;
   atendente?: string;
+  contato?: string;
+  status?: string;
   aba?: string;
   busca?: string;
 }
 
+/**
+ * Monitoramento — a mesma disposição da tela deles, de cima para baixo:
+ * linha do título com atualizar e tela cheia, faixa de filtros rápidos, grade
+ * 2×2 com o cartão largo à esquerda e o estreito à direita nas duas linhas,
+ * segunda faixa de filtros, e o cartão do monitoramento detalhado com a busca
+ * dentro dele.
+ *
+ * O que NÃO copiamos é a tinta. Eles pintam de azul os dois números que dizem
+ * como está a operação agora; nós pintamos os mesmos dois de moss. Os pontos
+ * de status usam os nossos quatro token de estado, e nenhum azul entra.
+ *
+ * A separação entre "agora" e "hoje" que a spec de métricas exige (§3) é feita
+ * pelas LINHAS da grade e pelos títulos dos cartões — "em tempo real" em cima,
+ * "hoje" embaixo. Os cabeçalhos de bloco que faziam esse papel saíram: eles
+ * custavam duas faixas de altura que a tela deles não gasta, e a tabela caía
+ * para fora da primeira dobra por causa disso.
+ */
 export default async function PaginaMonitoramento({
   searchParams,
 }: {
@@ -41,182 +62,123 @@ export default async function PaginaMonitoramento({
         </span>
         <div className="filters">
           <RecargaPeriodica segundos={30} />
+          <TelaCheia />
         </div>
       </div>
 
-      <FiltrosRapidos filas={m.filas} atendentes={m.listaAtendentes} atual={params} />
+      <FiltrosDaOperacao filas={m.filas} atendentes={m.listaAtendentes} atual={params} />
 
-      {/* ------------------------------------------------ bloco 1: AGORA */}
-      <section className="bloco" aria-label="Agora">
-        <header>
-          <span className="lbl">Agora</span>
-          <span className="quando">
-            Conversas ainda abertas neste instante, com o cronômetro correndo.
-          </span>
-        </header>
-
-        <div className="mon">
-          <div className="card">
-            <h3>Atendimentos em tempo real</h3>
-            {/*
-              A cor de marca marca O NÚMERO QUE IMPORTA, e são dois: quantos
-              esperam e quantos estão sendo atendidos. É como a Blip usa o azul
-              dela nesta mesma tela — o resto dos números fica em tinta escura.
-              A regra da classe está em `globais.css`.
-            */}
-            <div className="metrics">
-              <div className="metric agora">
-                <span className="v">{numero(tempoReal.naFila)}</span>
-                <span className="k">Na fila</span>
-              </div>
-              <div className="metric">
-                <span className="v">{duracao(tempoReal.maiorEsperaNaFilaSeg)}</span>
-                <span className="k">Tempo máximo na fila</span>
-              </div>
-              <div className="metric">
-                <span className="v">{duracao(tempoReal.maiorEsperaPrimeiraRespostaSeg)}</span>
-                <span className="k">Máximo até 1ª resposta</span>
-              </div>
-              <div className="metric agora">
-                <span className="v">{numero(tempoReal.emAtendimento)}</span>
-                <span className="k">Em atendimento</span>
-              </div>
-              <div className="metric">
-                <span className="v">{numero(tempoReal.mediaPorAtendente, 1)}</span>
-                <span className="k">Média por atendente</span>
-                <span className="den">
-                  {numero(tempoReal.emAtendimento)} ÷ {numero(tempoReal.atendentesOnline)} online
-                </span>
-              </div>
-            </div>
-            {/*
-              A nota daqui saiu: dizia "cronômetro correndo, conversas ainda
-              abertas neste instante", que é palavra por palavra o cabeçalho do
-              bloco logo acima. Repetida em cartão de 930px ela custava 35px de
-              altura para não informar nada.
-            */}
-          </div>
-
-          <div className="card">
-            <h3>Status dos atendentes</h3>
-            {/*
-              Os números voltaram ao neutro. Estar online é o normal, e moss em
-              coisa que não pede ação é o que o dono leu como carrossel. Só a
-              pausa acima do tempo pede ação, e ela já aparece na nota abaixo.
-            */}
-            <div className="statuses">
-              <div>
-                <b>{numero(atendentes.online)}</b>
-                <span>Online</span>
-              </div>
-              <div>
-                <b>{numero(atendentes.pausa)}</b>
-                <span>Pausa</span>
-              </div>
-              <div>
-                <b>{numero(atendentes.invisivel)}</b>
-                <span>Invisível</span>
-              </div>
-            </div>
-            <div className="note">
-              {atendentes.pausasEstouradas > 0
-                ? `${numero(atendentes.pausasEstouradas)} pausa(s) acima da duração sugerida pelo motivo.`
-                : 'Nenhuma pausa acima da duração sugerida pelo motivo.'}
-            </div>
+      {/* ---------------------------------------------------- grade 2×2 */}
+      <div className="mon">
+        <div className="card">
+          <h3>Atendimentos em tempo real</h3>
+          <div className="metrics">
+            <Metrica
+              destaque
+              valor={numero(tempoReal.naFila)}
+              rotulo="Na fila"
+              dica="Conversas abertas que ainda não foram atribuídas a nenhum atendente. Contagem deste instante, com o cronômetro correndo."
+            />
+            <Metrica
+              valor={duracao(tempoReal.maiorEsperaNaFilaSeg)}
+              rotulo="Tempo máximo na fila"
+              dica="A maior espera entre as conversas ainda não atribuídas: agora menos criada_em. Fechada, a métrica é atribuida_em menos criada_em."
+            />
+            <Metrica
+              valor={duracao(tempoReal.maiorEsperaPrimeiraRespostaSeg)}
+              rotulo="Tempo máximo até 1ª resposta"
+              dica="A maior espera entre as conversas já atribuídas e ainda sem resposta do atendente: agora menos atribuida_em."
+            />
+            <Metrica
+              destaque
+              valor={numero(tempoReal.emAtendimento)}
+              rotulo="Em atendimento"
+              dica="Conversas abertas com atendente atribuído, neste instante."
+            />
+            <Metrica
+              valor={numero(tempoReal.mediaPorAtendente, 1)}
+              rotulo="Média de tickets por atendente"
+              dica="Conversas em atendimento divididas pelos atendentes online. Ponderada por volume, nunca média de médias."
+              denominador={`${numero(tempoReal.emAtendimento)} ÷ ${numero(tempoReal.atendentesOnline)} online`}
+            />
           </div>
         </div>
-      </section>
 
-      {/* ------------------------------------------------ bloco 2: HOJE */}
-      {/*
-        Bloco secundário: o assunto desta tela é o tempo real, e "hoje" existe
-        para dar contexto a ele. Quem desce de peso é o secundário — inflar o
-        principal só aumentaria a tela inteira.
-      */}
-      <section className="bloco secundario" aria-label="Hoje">
-        <header>
-          <span className="lbl">Hoje</span>
-          <span className="quando">
-            Conversas encerradas dentro do período, com o cronômetro parado. Toda média vem com o
-            denominador.
-          </span>
-        </header>
-
-        <div className="mon">
-          <div className="card">
-            <h3>Atendimento hoje</h3>
-            <div className="metrics">
-              <div className="metric">
-                <span className="v">{duracao(hoje.esperaDoCliente.valor)}</span>
-                <span className="k">Espera do cliente</span>
-                <span className="den">{denominador(hoje.esperaDoCliente, 'sem início')}</span>
-              </div>
-              <div className="metric">
-                <span className="v">{duracao(hoje.atePrimeiraResposta.valor)}</span>
-                <span className="k">Até a 1ª resposta</span>
-                <span className="den">{denominador(hoje.atePrimeiraResposta)}</span>
-              </div>
-              <div className="metric">
-                <span className="v">{duracao(hoje.tempoDeAtendimento.valor)}</span>
-                <span className="k">Tempo de atendimento</span>
-                <span className="den">{denominador(hoje.tempoDeAtendimento)}</span>
-              </div>
-              <div className="metric">
-                <span className="v">{duracao(hoje.tempoDeResposta.valor)}</span>
-                <span className="k">Tempo de resposta</span>
-                <span className="den">
-                  {numero(hoje.tempoDeResposta.conversasConsideradas)} com troca completa ·{' '}
-                  {numero(hoje.tempoDeResposta.populacao)} intervalos
-                </span>
-              </div>
-            </div>
-            {/*
-              A nota saiu pelo mesmo motivo da do cartão de cima: repetia o
-              cabeçalho do bloco. O que ela dizia de próprio — que o
-              denominador é obrigatório — não é aviso de tela, é regra da spec
-              de métricas, e quem a cumpre é o `.den` embaixo de cada média.
-            */}
+        <div className="card">
+          <h3>Status dos atendentes</h3>
+          <div className="statuses">
+            <Status valor={numero(atendentes.online)} rotulo="Online" estado="sucesso" />
+            <Status valor={numero(atendentes.pausa)} rotulo="Pausa" estado="alerta" />
+            <Status valor={numero(atendentes.invisivel)} rotulo="Invisível" estado="neutro" />
           </div>
-
-          <div className="card">
-            <h3>Status dos tickets hoje</h3>
-            {/*
-              Quatro números, e antes quatro cores — terracota, ocre, moss e
-              neutro lado a lado, o que é a definição de carrossel. Perdido e
-              abandonado continuam sendo os dois que o supervisor caça, e é a
-              etiqueta de estado que os marca; o número é número.
-            */}
-            <div className="statuses">
-              <div>
-                <b>{numero(hoje.encerramentos.perdida)}</b>
-                <span>
-                  <span className="etiqueta erro">Perdidos</span>
-                </span>
-              </div>
-              <div>
-                <b>{numero(hoje.encerramentos.abandonada)}</b>
-                <span>
-                  <span className="etiqueta alerta">Abandonados</span>
-                </span>
-              </div>
-              <div>
-                <b>{numero(hoje.encerramentos.finalizada)}</b>
-                <span>Finalizados</span>
-              </div>
-              <div>
-                <b>{numero(hoje.encerramentos.fechada)}</b>
-                <span>Fechados</span>
-              </div>
-            </div>
-            <div className="note">
-              Perdido saiu <b>antes</b> da atribuição, e é capacidade ou fila. Abandonado saiu
-              <b>depois</b>, e é atendimento.
-            </div>
+          <div className="note">
+            {atendentes.pausasEstouradas > 0
+              ? `${numero(atendentes.pausasEstouradas)} pausa(s) acima da duração sugerida pelo motivo.`
+              : 'Nenhuma pausa acima da duração sugerida pelo motivo.'}
           </div>
         </div>
-      </section>
 
-      <MonitoramentoDetalhado monitoramento={m} aba={params.aba ?? 'atribuido'} busca={params.busca ?? ''} filtro={params} />
+        <div className="card">
+          <h3>Atendimento hoje</h3>
+          <div className="metrics">
+            <Metrica
+              valor={duracao(hoje.esperaDoCliente.valor)}
+              rotulo="Tempo médio de espera"
+              dica="Espera total do cliente. Com resposta: primeira_resposta_em menos criada_em. Sem resposta: encerrada_em menos criada_em. População: todas as conversas encerradas no período."
+              denominador={denominador(hoje.esperaDoCliente, 'sem início')}
+            />
+            <Metrica
+              valor={duracao(hoje.tempoDeResposta.valor)}
+              rotulo="Tempo médio de resposta"
+              dica="Média dos intervalos entre a mensagem do cliente e a próxima mensagem do atendente. População: conversas com pelo menos uma troca completa."
+              denominador={`${numero(hoje.tempoDeResposta.conversasConsideradas)} com troca completa · ${numero(hoje.tempoDeResposta.populacao)} intervalos`}
+            />
+            <Metrica
+              valor={duracao(hoje.atePrimeiraResposta.valor)}
+              rotulo="Tempo médio até 1ª resposta"
+              dica="primeira_resposta_em menos atribuida_em. População: conversas que tiveram resposta do atendente. As que nunca foram respondidas ficam de fora, e o número delas vem ao lado."
+              denominador={denominador(hoje.atePrimeiraResposta)}
+            />
+            <Metrica
+              valor={duracao(hoje.tempoDeAtendimento.valor)}
+              rotulo="Tempo médio de atendimento"
+              dica="encerrada_em menos primeira_resposta_em. População: conversas que tiveram 1ª resposta. A contagem das excluídas é obrigatória ao lado: métrica que esconde o próprio denominador não entra neste produto."
+              denominador={denominador(hoje.tempoDeAtendimento)}
+            />
+          </div>
+        </div>
+
+        <div className="card">
+          <h3>Status dos tickets hoje</h3>
+          <div className="statuses">
+            <Status valor={numero(hoje.encerramentos.perdida)} rotulo="Perdidos" estado="erro" />
+            <Status
+              valor={numero(hoje.encerramentos.abandonada)}
+              rotulo="Abandonados"
+              estado="alerta"
+            />
+            <Status
+              valor={numero(hoje.encerramentos.finalizada)}
+              rotulo="Finalizados"
+              estado="sucesso"
+            />
+            <Status valor={numero(hoje.encerramentos.fechada)} rotulo="Fechados" estado="neutro" />
+          </div>
+          <div className="note">
+            Perdido saiu <b>antes</b> da atribuição, e é capacidade ou fila. Abandonado saiu{' '}
+            <b>depois</b>, e é atendimento. Fechados é a soma dos três.
+          </div>
+        </div>
+      </div>
+
+      <FiltrosDaLista atendentes={m.listaAtendentes} atual={params} />
+
+      <MonitoramentoDetalhado
+        monitoramento={m}
+        aba={params.aba ?? 'atribuido'}
+        busca={params.busca ?? ''}
+        filtro={params}
+      />
 
       <CargaPorAtendente carga={m.carga} />
     </>
