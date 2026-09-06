@@ -35,6 +35,16 @@ function semAcento(texto: string): string {
   return texto.normalize('NFD').replace(/\p{Diacritic}/gu, '').toLowerCase();
 }
 
+/**
+ * O que a busca da coluna varre. O telefone entra sem pontuação dos dois lados
+ * porque ninguém digita `+55 (31) 9...` no campo: o atendente cola o número do
+ * jeito que veio, e o banco guarda em E.164.
+ */
+function alvoDaBusca(conversa: { contatoNome: string | null; contatoTelefone: string | null; filaNome: string | null }): string {
+  const telefone = (conversa.contatoTelefone ?? '').replace(/\D/g, '');
+  return `${semAcento(`${conversa.contatoNome ?? ''} ${conversa.filaNome ?? ''}`)} ${telefone}`;
+}
+
 interface Parametros {
   conversa?: string;
   busca?: string;
@@ -66,10 +76,13 @@ export default async function PaginaDesk({
     // Duas listas, e as duas viajam para a coluna: a busca define sobre o que as
     // fichas contam, e a ficha define o que a lista mostra. Contar depois da
     // ficha faria "Todos (0)" aparecer ao lado de uma fila cheia.
+    const termo = semAcento(busca);
+    const termoDigitos = busca.replace(/\D/g, '');
     const filtradas = busca
-      ? conversas.filter((c) =>
-          semAcento(`${c.contatoNome ?? ''} ${c.filaNome ?? ''}`).includes(semAcento(busca)),
-        )
+      ? conversas.filter((c) => {
+          const alvo = alvoDaBusca(c);
+          return alvo.includes(termo) || (termoDigitos.length >= 3 && alvo.includes(termoDigitos));
+        })
       : conversas;
     const visiveis = filtradas.filter((c) => naFicha(c, ficha, agora));
 

@@ -38,6 +38,7 @@ export interface ConversaDaLista {
   ultimaMensagemDe: string | null;
   janelaExpiraEm: Date | null;
   contatoNome: string | null;
+  contatoTelefone: string | null;
   filaNome: string | null;
   canalTipo: TipoCanalBanco;
   ultimaMensagem: string | null;
@@ -56,13 +57,15 @@ export async function listarConversas(
     ultima_mensagem_de: string | null;
     janela_expira_em: Date | string | null;
     contato_nome: string | null;
+    contato_telefone: string | null;
     fila_nome: string | null;
     canal_tipo: TipoCanalBanco;
     ultima_mensagem: string | null;
     ultima_mensagem_tipo: string | null;
   }>(sql`
     select c.id, c.estado, c.prioridade, c.ultima_mensagem_em, c.ultima_mensagem_de,
-           c.janela_expira_em, ct.nome as contato_nome, f.nome as fila_nome,
+           c.janela_expira_em, ct.nome as contato_nome, ct.telefone_e164 as contato_telefone,
+           f.nome as fila_nome,
            ca.tipo as canal_tipo, m.conteudo as ultima_mensagem, m.tipo as ultima_mensagem_tipo
       from conversa c
       join contato ct on ct.id = c.contato_id
@@ -87,6 +90,7 @@ export async function listarConversas(
     ultimaMensagemDe: r.ultima_mensagem_de,
     janelaExpiraEm: dataOuNulo(r.janela_expira_em),
     contatoNome: r.contato_nome,
+    contatoTelefone: r.contato_telefone,
     filaNome: r.fila_nome,
     canalTipo: r.canal_tipo,
     ultimaMensagem: r.ultima_mensagem,
