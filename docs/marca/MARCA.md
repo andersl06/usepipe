@@ -151,3 +151,27 @@ espaçamento em múltiplos de 4px · duas elevações de sombra.
 **Raio: três valores, e um domina.** 8px em tudo (cartão, caixa, botão, campo, tabela), 5px em
 controle pequeno (botão de ícone, caixa de seleção), pílula em avatar e etiqueta redonda. Um quarto
 raio é um degrau sem papel.
+
+## Estrutura de cada aplicativo
+
+Decidido em 06/09/2026: **cada aplicativo é fiel à referência do seu domínio.** A coerência entre
+eles vem do vocabulário compartilhado, não da moldura.
+
+| Aplicativo | Referência | Estrutura |
+|---|---|---|
+| Desk | Blip Desk | trilho de ícones em altura cheia, sem barra superior, colunas 25/50/25 |
+| Gestão | Blip Portal | duas barras no topo, lateral contextual com ícones |
+| CRM | Salesforce Lightning | barra única no topo com abas de objeto |
+
+O que **é comum aos três e não se negocia**: os tokens do `@pipe/ui`, os primitivos, a régua
+tipográfica de 16/14/12, o raio de 8px, uma cor de marca, e a paleta estendida cercada para gráfico.
+
+O que **é de cada um**: a moldura de navegação.
+
+O motivo é que a estrutura serve o trabalho, não a marca. A tela do atendente precisa de conversa
+larga e nenhum cromo; a do supervisor precisa de navegação profunda; a do vendedor precisa de troca
+rápida entre objetos. Blip e Salesforce chegaram sozinhos a soluções diferentes porque os problemas
+são diferentes, e copiar a moldura de um para o outro pioraria os dois.
+
+Corolário prático: ao mexer numa tela, a pergunta é "como a referência **dela** faz", nunca "como
+o nosso outro aplicativo faz".
