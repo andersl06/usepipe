@@ -30,6 +30,18 @@ export interface CartaoRegra {
   ativa: boolean;
   /** Tudo que a busca varre, já em minúsculas. */
   procura: string;
+  /**
+   * Cor do próprio registro, já como `var(--p-…)` — nunca hex. Ocupa a primeira
+   * coluna do cartão, que nasceu vazia justamente para isto. Só a fila usa: cor
+   * ali é dado do cliente, não estado, e por isso não vira etiqueta colorida.
+   */
+  cor?: string | null;
+  /**
+   * Tira do pé do cartão, para a lista que pertence ao registro — os atendentes
+   * de uma fila, as filas de um horário. Fica no `.cl-rodape` porque o
+   * `.cl-campos` é grade de valor único e uma lista dentro dele vira truncagem.
+   */
+  rodape?: readonly string[];
 }
 
 export interface SecaoDeRegras {
@@ -41,7 +53,7 @@ export interface SecaoDeRegras {
 function Cartao({ cartao }: { cartao: CartaoRegra }) {
   return (
     <article className="cartao-lista">
-      <span />
+      {cartao.cor ? <span className="sw" style={{ background: cartao.cor }} /> : <span />}
       <div
         className="cl-campos"
         style={{ '--cl-colunas': cartao.campos.length } as React.CSSProperties}
@@ -58,6 +70,16 @@ function Cartao({ cartao }: { cartao: CartaoRegra }) {
       <div className="cl-acoes">
         <span className={cartao.ativa ? 'etiqueta' : 'etiqueta alerta'}>{cartao.situacao}</span>
       </div>
+
+      {cartao.rodape && cartao.rodape.length > 0 ? (
+        <div className="cl-rodape">
+          {cartao.rodape.map((item) => (
+            <span key={item} className="etiqueta">
+              {item}
+            </span>
+          ))}
+        </div>
+      ) : null}
     </article>
   );
 }
@@ -75,7 +97,10 @@ export function ListaRegras({
   const filtradas = useMemo(() => {
     const alvo = busca.trim().toLowerCase();
     if (!alvo) return secoes;
-    return secoes.map((s) => ({ ...s, cartoes: s.cartoes.filter((c) => c.procura.includes(alvo)) }));
+    return secoes.map((s) => ({
+      ...s,
+      cartoes: s.cartoes.filter((c) => c.procura.includes(alvo)),
+    }));
   }, [secoes, busca]);
 
   const nenhuma = filtradas.every((s) => s.cartoes.length === 0);

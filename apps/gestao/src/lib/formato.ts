@@ -22,7 +22,10 @@ export function duracaoLonga(segundos: number | null | undefined): string {
 
 export function numero(valor: number | null | undefined, casas = 0): string {
   if (valor === null || valor === undefined || Number.isNaN(valor)) return '—';
-  return valor.toLocaleString('pt-BR', { minimumFractionDigits: casas, maximumFractionDigits: casas });
+  return valor.toLocaleString('pt-BR', {
+    minimumFractionDigits: casas,
+    maximumFractionDigits: casas,
+  });
 }
 
 export function percentual(fracao: number | null | undefined): string {
@@ -57,4 +60,26 @@ export function dataHora(instante: Date | null | undefined, fuso: string): strin
 export function dataIso(instante: Date, fuso: string): string {
   // `en-CA` devolve `AAAA-MM-DD`, que é o formato aceito por `<input type="date">`.
   return instante.toLocaleDateString('en-CA', { timeZone: fuso });
+}
+
+/**
+ * 0 = domingo, como o `extract(dow)` do Postgres e o `getUTCDay` do core.
+ *
+ * Mora aqui, e não em `cadastros.ts`, porque o formulário de horário é
+ * componente de cliente: importar valor de `cadastros.ts` arrastaria o drizzle
+ * e o pool do Postgres para o pacote do navegador.
+ */
+export const DIAS_DA_SEMANA = [
+  'Domingo',
+  'Segunda',
+  'Terça',
+  'Quarta',
+  'Quinta',
+  'Sexta',
+  'Sábado',
+] as const;
+
+/** `HH:MM:SS`, que é como o tipo `time` do Postgres volta, vira `HH:MM`. */
+export function relogio(valor: string): string {
+  return valor.slice(0, 5);
 }

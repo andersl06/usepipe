@@ -1550,3 +1550,46 @@ tr.grupo th {
   white-space: normal;
   color: var(--p-conteudo-desabilitado);
 }
+
+/* ================== formulários de cadastro (/atendentes/filas, /atendentes/pausas,
+   /regras/horarios)
+   O design system não tem "campo de formulário com rótulo" — `.cl-campo` é
+   rótulo acima de valor de LEITURA e `.lbl` é proibido em nome de campo pelo
+   comentário de `base.css`. A tela de respostas prontas resolveu isso com
+   estilo em linha; com três formulários e vinte campos, o estilo em linha
+   repetido vira ruído, então as quatro regras viram classe aqui. Nada de cor:
+   é só disposição. */
+.form-cadastro {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+}
+
+/* Campos que cabem lado a lado quebram sozinhos antes de espremer. */
+.form-linha {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--p-e-3);
+}
+
+.form-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  flex: 1 1 160px;
+  min-width: 0;
+}
+
+/* Caixa de marcar com a explicação ao lado, e não abaixo de um rótulo de duas
+   palavras: `conta como produtivo` é a decisão que muda relatório, e ela só
+   fica compreensível com a frase inteira colada na caixa. */
+.form-caixa {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-e-2);
+}
+
+.form-caixa input {
+  margin-top: 3px;
+  flex: none;
+}
