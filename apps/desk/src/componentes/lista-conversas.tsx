@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { DIA, janelaAberta, pertoDeExpirar, segundosRestantes } from '@pipe/core';
 import { EstadoVazio } from '@pipe/ui';
 import { decorrido, duracaoCurta } from '../servidor/formato';
-import type { ConversaDaLista, TipoCanalBanco } from '../servidor/consultas';
+import type { ConversaDaLista, EstadoAtendente, TipoCanalBanco } from '../servidor/consultas';
 
 /**
  * As quatro fichas de filtro da coluna, na ordem deles: Todos, Não lidos, Em
@@ -73,12 +73,56 @@ function resumoDaUltima(conversa: ConversaDaLista): string {
   return conversa.ultimaMensagem ?? 'Sem mensagem ainda';
 }
 
+/**
+ * O vazio da coluna tem quatro causas, e cada uma pede uma frase diferente.
+ * Uma frase só para as quatro é o que faz o atendente ficar olhando a tela sem
+ * saber se a fila está vazia, se ele filtrou demais ou se ninguém o vê.
+ *
+ * A ordem importa: a busca é a causa mais recente, depois a ficha, e só então o
+ * estado do atendente. Dizer "fique online" para quem acabou de buscar por um
+ * nome que não existe responde a pergunta errada.
+ */
+function vazioDaLista(
+  busca: string,
+  ficha: ChaveDeFicha,
+  estado: EstadoAtendente,
+): { titulo: string; ilustracao: 'vazio' | 'busca' | 'concluido'; explica: string } {
+  if (busca) {
+    return {
+      titulo: 'Nenhum resultado encontrado',
+      ilustracao: 'busca',
+      explica: `Nada na sua fila para “${busca}”.`,
+    };
+  }
+  if (ficha !== 'todos') {
+    const rotulo = FICHAS.find((f) => f.chave === ficha)?.rotulo ?? '';
+    return {
+      titulo: `Nenhum atendimento em ${rotulo.toLowerCase()}`,
+      ilustracao: 'vazio',
+      explica: 'Volte para "Todos" para ver o resto da sua fila.',
+    };
+  }
+  if (estado !== 'online') {
+    return {
+      titulo: 'Você precisa ficar online para atender um novo cliente',
+      ilustracao: 'vazio',
+      explica: 'Só quem está Online entra na distribuição. Use o botão acima.',
+    };
+  }
+  return {
+    titulo: 'Nenhum atendimento aberto',
+    ilustracao: 'concluido',
+    explica: 'Você está online e a fila está zerada. A próxima conversa cai aqui sozinha.',
+  };
+}
+
 export function ListaConversas({
   conversas,
   visiveis,
   selecionadaId,
   busca,
   ficha,
+  estado,
   agora,
 }: {
   /** Tudo o que a busca deixou passar. É sobre isto que as fichas contam. */
@@ -88,8 +132,11 @@ export function ListaConversas({
   selecionadaId: string | null;
   busca: string;
   ficha: ChaveDeFicha;
+  estado: EstadoAtendente;
   agora: Date;
 }) {
+  const vazio = vazioDaLista(busca, ficha, estado);
+
   return (
     <>
       <form className="busca" action="/">
@@ -129,19 +176,8 @@ export function ListaConversas({
 
       {visiveis.length === 0 ? (
         <div className="lista-vazia">
-          <EstadoVazio
-            titulo={busca ? 'Nenhum resultado encontrado' : 'Nenhum atendimento aberto'}
-            ilustracao={busca ? 'busca' : 'vazio'}
-          >
-            <p>
-              {busca ? (
-                <>Nada na sua fila para “{busca}”.</>
-              ) : (
-                <>
-                  Rode <code>pnpm seed:demo</code> se você esperava ver a demonstração.
-                </>
-              )}
-            </p>
+          <EstadoVazio titulo={vazio.titulo} ilustracao={vazio.ilustracao}>
+            <p>{vazio.explica}</p>
           </EstadoVazio>
         </div>
       ) : (

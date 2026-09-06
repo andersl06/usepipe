@@ -135,6 +135,7 @@ export default async function PaginaDesk({
             selecionadaId={dados.aberta?.conversa.id ?? null}
             busca={busca}
             ficha={ficha}
+            estado={dados.status.estado}
             agora={agora}
           />
         </div>
@@ -154,14 +155,27 @@ export default async function PaginaDesk({
           // Estado sem conversa escolhida, na receita deles: ilustração, uma
           // linha que nomeia o estado, uma linha que diz o que fazer. Texto
           // centrado no vazio, sem caixa e sem borda.
+          //
+          // Duas frases, não uma: ficar sem conversa porque a fila zerou e
+          // ficar sem conversa porque ninguém te vê são dois problemas, e só o
+          // segundo tem uma ação óbvia do outro lado.
           <div className="thread">
             <div className="msgs vazio-conversa">
-              <EstadoVazio titulo="Nenhuma conversa aberta">
-                <p>
-                  Escolha um atendimento na coluna da esquerda. Se a lista está vazia, rode{' '}
-                  <code>pnpm seed:demo</code>.
-                </p>
-              </EstadoVazio>
+              {dados.status.estado === 'online' ? (
+                <EstadoVazio titulo="Nenhuma conversa aberta" ilustracao="concluido">
+                  <p>
+                    Você está online e a fila está zerada. Escolha um atendimento à esquerda ou
+                    espere o próximo cair aqui.
+                  </p>
+                </EstadoVazio>
+              ) : (
+                <EstadoVazio titulo="Fique online para atender">
+                  <p>
+                    Enquanto o seu status não for Online, a distribuição não te enxerga e nenhuma
+                    conversa nova chega.
+                  </p>
+                </EstadoVazio>
+              )}
             </div>
           </div>
         )}
