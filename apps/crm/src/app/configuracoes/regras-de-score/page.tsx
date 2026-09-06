@@ -70,10 +70,16 @@ export default async function PaginaRegras() {
                         </td>
                         <td className="num">v{r.versao}</td>
                         <td>
+                          {/*
+                            Ativa é o normal: dez regras ativas pintavam dez
+                            etiquetas verdes e o verde deixava de querer dizer
+                            alguma coisa. Quem foge do normal é a regra
+                            desligada, e é ela que ganha cor.
+                          */}
                           {r.ativa ? (
-                            <span className="pill ok">ATIVA</span>
+                            <span className="etiqueta">Ativa</span>
                           ) : (
-                            <span className="pill q">INATIVA</span>
+                            <span className="etiqueta alerta">Inativa</span>
                           )}
                         </td>
                         <td className="num">{numero(r.leadsAfetados)}</td>

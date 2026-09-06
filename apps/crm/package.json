@@ -15,6 +15,7 @@
   "dependencies": {
     "@pipe/core": "workspace:*",
     "@pipe/db": "workspace:*",
+    "@pipe/ui": "workspace:*",
     "drizzle-orm": "^0.44.6",
     "next": "^15.5.4",
     "react": "^19.1.1",

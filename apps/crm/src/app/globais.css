@@ -1,226 +1,46 @@
 /* ==========================================================================
-   Pipe CRM — folha de estilo única.
-   Copiada da Gestão sem retoque: as três telas precisam parecer o mesmo produto.
-   Tokens da marca (docs/marca/MARCA.md) na mesma régua do mockup aprovado
-   (docs/mockup/pipe-telas.html): moss #4A5D23, sage #8A9A5B, terracota #C4442E,
-   creme #F2F1EC, tinta #111111. Densidade de ferramenta, não de site.
+   Pipe CRM — só o que é do CRM.
+
+   O token, o reset e os primitivos (.btn, .pill/.etiqueta, .card, .metric,
+   .tblwrap, .tabs, table/th/td, .iconbtn, .vazio, .lbl, .mono) vivem em
+   `@pipe/ui`, importado antes desta folha no layout raiz.
+
+   Esta folha tinha 1320 linhas e as 688 primeiras eram cópia byte a byte da
+   folha da Gestão — o próprio cabeçalho do arquivo admitia: "Copiada da Gestão
+   sem retoque". Essa parte saiu inteira.
    ========================================================================== */
 
+/*
+ * Nomes antigos apontando para os token novos, para não reescrever cada
+ * referência do CSS abaixo. O que o mapeamento faz de propósito: eram quatro
+ * matizes de destaque disputando a tela e sobra um. Terracota e ocre deixam de
+ * ser cor de marca e viram os estados de erro e de alerta; o azul deixa de ser
+ * cor. Nenhum tema é declarado aqui — os dois chegam prontos do @pipe/ui.
+ */
 :root {
-  color-scheme: light;
-  --ground: #f2f1ec;
-  --surface: #ffffff;
-  --surface-2: #faf9f4;
-  --surface-3: #edebe3;
-  --line: #e2e0d8;
-  --line-strong: #d2cfc3;
-  --ink: #111111;
-  --ink-2: #55544d;
-  --ink-3: #7a7970;
-  --moss: #4a5d23;
-  --moss-soft: #e8edd9;
-  --sage: #8a9a5b;
-  --terracotta: #c4442e;
-  --terracotta-soft: #f8e3de;
-  --ochre: #9a7420;
-  --ochre-soft: #f5ebd3;
-  --blue: #2e4a5d;
-  --blue-soft: #e0e8ed;
-  --online: #5fa84b;
-  --shadow: 0 1px 2px rgba(17, 17, 17, 0.05), 0 8px 24px -16px rgba(17, 17, 17, 0.18);
+  --ground: var(--p-fundo);
+  --surface: var(--p-superficie);
+  --surface-2: var(--p-superficie-2);
+  --surface-3: var(--p-superficie-3);
+  --line: var(--p-linha);
+  --line-strong: var(--p-linha-media);
+  --ink: var(--p-tinta);
+  --ink-2: var(--p-tinta-2);
+  --ink-3: var(--p-tinta-3);
+  --moss: var(--p-destaque);
+  --moss-soft: var(--p-destaque-fundo);
+  --sage: var(--p-dado);
+  --terracotta: var(--p-erro-tinta);
+  --terracotta-soft: var(--p-erro-fundo);
+  --ochre: var(--p-alerta-tinta);
+  --ochre-soft: var(--p-alerta-fundo);
+  --blue: var(--p-tinta-2);
+  --blue-soft: var(--p-superficie-3);
+  --online: var(--p-sucesso-tinta);
+  --shadow: var(--p-sombra-1);
 }
 
-/* Escuro: o supervisor deixa o painel aberto o dia inteiro. */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-tema='claro']) {
-    color-scheme: dark;
-    --ground: #12140e;
-    --surface: #1a1d15;
-    --surface-2: #20241b;
-    --surface-3: #272b20;
-    --line: #31362a;
-    --line-strong: #414736;
-    --ink: #edede4;
-    --ink-2: #a7a69a;
-    --ink-3: #84837a;
-    --moss: #a3b76a;
-    --moss-soft: #26301a;
-    --terracotta: #e4816d;
-    --terracotta-soft: #3a211b;
-    --ochre: #cba453;
-    --ochre-soft: #332714;
-    --blue: #93b4c6;
-    --blue-soft: #1c2830;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -16px rgba(0, 0, 0, 0.7);
-  }
-}
-
-:root[data-tema='escuro'] {
-  color-scheme: dark;
-  --ground: #12140e;
-  --surface: #1a1d15;
-  --surface-2: #20241b;
-  --surface-3: #272b20;
-  --line: #31362a;
-  --line-strong: #414736;
-  --ink: #edede4;
-  --ink-2: #a7a69a;
-  --ink-3: #84837a;
-  --moss: #a3b76a;
-  --moss-soft: #26301a;
-  --terracotta: #e4816d;
-  --terracotta-soft: #3a211b;
-  --ochre: #cba453;
-  --ochre-soft: #332714;
-  --blue: #93b4c6;
-  --blue-soft: #1c2830;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -16px rgba(0, 0, 0, 0.7);
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  margin: 0;
-  padding: 0;
-  height: 100%;
-}
-
-body {
-  background: var(--ground);
-  color: var(--ink);
-  font-family: 'IBM Plex Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
-  font-size: 14px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
-
-a {
-  color: inherit;
-}
-
-:focus-visible {
-  outline: 2px solid var(--moss);
-  outline-offset: 2px;
-  border-radius: 3px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-    animation: none !important;
-  }
-}
-
-.mono {
-  font-family: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
-}
-
-/* Assinatura visual da marca: rótulo em Plex Mono, caixa alta, 0.15em. */
-.lbl {
-  font-family: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
-  font-size: 10.5px;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-
-/* --------------------------------------------------------------- estrutura */
-.app {
-  display: grid;
-  grid-template-columns: 224px minmax(0, 1fr);
-  min-height: 100vh;
-}
-
-.side {
-  background: var(--surface-2);
-  border-right: 1px solid var(--line);
-  padding: 12px 10px 12px;
-  overflow-y: auto;
-  /* Altura exata da janela, não teto: é o que põe a engrenagem no rodapé em vez
-     de a empurrar para fora quando o conteúdo da tela é mais alto que o menu. */
-  height: 100vh;
-  position: sticky;
-  top: 0;
-}
-
-.side .marca {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  padding: 4px 8px 14px;
-}
-
-.side .marca svg {
-  width: 26px;
-  height: 26px;
-  color: var(--ink);
-  flex: none;
-}
-
-.side .marca b {
-  font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.side .marca span {
-  display: block;
-  font-size: 10px;
-  color: var(--ink-3);
-}
-
-.side .grp {
-  margin-bottom: 13px;
-}
-
-.side .grp > .lbl {
-  padding: 0 8px 5px;
-  display: block;
-}
-
-.side a {
-  display: block;
-  padding: 5px 8px;
-  border-radius: 6px;
-  font-size: 12.5px;
-  color: var(--ink-2);
-  text-decoration: none;
-}
-
-.side a:hover {
-  background: var(--surface-3);
-}
-
-.side a[aria-current='page'] {
-  background: var(--moss-soft);
-  color: var(--moss);
-  font-weight: 500;
-}
-
-.side a[aria-disabled='true'] {
-  color: var(--ink-3);
-  opacity: 0.65;
-  cursor: default;
-}
-
-.side .sep {
-  height: 1px;
-  background: var(--line);
-  margin: 0 8px 13px;
-}
-
-.board {
-  padding: 16px 18px 40px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  min-width: 0;
-}
-
+/* -------------------------------------------------------- cabeçalho de tela */
 .board-head {
   display: flex;
   align-items: center;
@@ -230,13 +50,13 @@ a {
 
 .board-head h2 {
   margin: 0;
-  font-size: 19px;
+  font-size: var(--p-t-xl);
   font-weight: 600;
   letter-spacing: -0.015em;
 }
 
 .board-head .sub {
-  font-size: 11.5px;
+  font-size: var(--p-t-sm);
   color: var(--ink-3);
 }
 
@@ -259,353 +79,8 @@ a {
   margin-right: 2px;
 }
 
-/* -------------------------------------------------------------- primitivos */
-.btn {
-  font: inherit;
-  font-size: 11.5px;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 5px 11px;
-  border-radius: 6px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--ink-2);
-  text-decoration: none;
-  display: inline-block;
-}
 
-.btn.primary {
-  background: var(--moss);
-  border-color: var(--moss);
-  color: #fff;
-}
-
-.btn.chip {
-  border-radius: 14px;
-  padding: 4px 12px;
-}
-
-.btn.chip[aria-current='true'] {
-  background: var(--moss-soft);
-  border-color: var(--moss);
-  color: var(--moss);
-}
-
-.pill {
-  font-size: 10.5px;
-  font-weight: 500;
-  padding: 2px 6px;
-  border-radius: 4px;
-  border: 1px solid transparent;
-  white-space: nowrap;
-  display: inline-block;
-}
-
-.pill.q {
-  background: var(--surface-3);
-  color: var(--ink-2);
-  border-color: var(--line);
-}
-
-.pill.hi {
-  background: var(--terracotta-soft);
-  color: var(--terracotta);
-}
-
-.pill.med {
-  background: var(--ochre-soft);
-  color: var(--ochre);
-}
-
-.pill.ok {
-  background: var(--moss-soft);
-  color: var(--moss);
-}
-
-.pill.info {
-  background: var(--blue-soft);
-  color: var(--blue);
-}
-
-/* ------------------------------------------------- cartões do monitoramento */
-/* Dois blocos por linha, como na Blip. A separação entre "agora" e "hoje" é o
-   .bloco que os envolve: misturar aberto com encerrado é o erro que a spec proíbe. */
-.bloco {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.bloco > header {
-  display: flex;
-  align-items: baseline;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-
-.bloco > header .lbl {
-  color: var(--moss);
-}
-
-.bloco > header .quando {
-  font-size: 11.5px;
-  color: var(--ink-3);
-}
-
-.mon {
-  display: grid;
-  grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr);
-  gap: 12px;
-}
-
-.card {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  padding: 13px 15px;
-  display: flex;
-  flex-direction: column;
-  gap: 11px;
-}
-
-.card > h3 {
-  margin: 0;
-  font-size: 13px;
-  font-weight: 600;
-}
-
-.metrics {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
-  gap: 14px;
-}
-
-.metric {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  min-width: 0;
-}
-
-.metric .v {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 22px;
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.15;
-}
-
-.metric .k {
-  font-size: 11px;
-  color: var(--ink-2);
-}
-
-/* O denominador. Obrigatório ao lado de toda média — decisão central da spec. */
-.metric .den {
-  font-size: 10px;
-  color: var(--ink-3);
-  font-family: 'IBM Plex Mono', monospace;
-}
-
-.metric.accent .v {
-  color: var(--moss);
-}
-
-.metric.warn .v {
-  color: var(--ochre);
-}
-
-.metric.bad .v {
-  color: var(--terracotta);
-}
-
-.statuses {
-  display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-.statuses div {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.statuses b {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 22px;
-  font-weight: 600;
-  line-height: 1.15;
-}
-
-.statuses span {
-  font-size: 11px;
-  color: var(--ink-2);
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.sw {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  flex: none;
-  display: inline-block;
-}
-
-.note {
-  font-size: 11px;
-  color: var(--ink-3);
-  border-top: 1px solid var(--line);
-  padding-top: 9px;
-  margin-top: auto;
-}
-
-/* ------------------------------------------------------------------ tabelas */
-.tblwrap {
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  overflow: hidden;
-  background: var(--surface);
-}
-
-.tblhead {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 14px 0;
-  flex-wrap: wrap;
-}
-
-.tblhead h3 {
-  margin: 0;
-  font-size: 13.5px;
-  font-weight: 600;
-}
-
-.tblhead input,
-.tblhead select {
-  font: inherit;
-  font-size: 11.5px;
-  padding: 5px 10px;
-  background: var(--surface-2);
-  border: 1px solid var(--line);
-  border-radius: 6px;
-  color: var(--ink);
-}
-
-.tabs {
-  display: flex;
-  gap: 2px;
-  padding: 9px 12px 0;
-  border-bottom: 1px solid var(--line);
-  overflow-x: auto;
-}
-
-.tabs a {
-  font-size: 12px;
-  padding: 6px 11px;
-  border-radius: 6px 6px 0 0;
-  color: var(--ink-3);
-  white-space: nowrap;
-  border-bottom: 2px solid transparent;
-  text-decoration: none;
-}
-
-.tabs a[aria-current='true'] {
-  color: var(--moss);
-  font-weight: 500;
-  border-bottom-color: var(--moss);
-}
-
-.scroll {
-  overflow-x: auto;
-}
-
-table {
-  border-collapse: collapse;
-  width: 100%;
-  min-width: 880px;
-  font-size: 12.5px;
-}
-
-th {
-  text-align: left;
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--line);
-  background: var(--surface);
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.13em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  white-space: nowrap;
-}
-
-td {
-  padding: 9px 12px;
-  border-bottom: 1px solid var(--line);
-  color: var(--ink-2);
-  white-space: nowrap;
-}
-
-tbody tr:last-child td {
-  border-bottom: 0;
-}
-
-td.num {
-  font-family: 'IBM Plex Mono', monospace;
-  font-variant-numeric: tabular-nums;
-  color: var(--ink);
-}
-
-td.who {
-  color: var(--ink);
-  font-weight: 500;
-}
-
-td.acts {
-  display: flex;
-  gap: 5px;
-}
-
-/* Severidade na linha, não só no texto — a lição do blip-dash (§3 do desenho). */
-tr.grave td {
-  background: var(--ochre-soft);
-}
-
-tr.critico td {
-  background: var(--terracotta-soft);
-}
-
-.iconbtn {
-  width: 24px;
-  height: 24px;
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  background: var(--surface);
-  color: var(--ink-3);
-  display: grid;
-  place-items: center;
-  cursor: pointer;
-  padding: 0;
-}
-
-.iconbtn svg {
-  width: 13px;
-  height: 13px;
-}
-
-.vazio {
-  padding: 22px 14px;
-  font-size: 12.5px;
-  color: var(--ink-3);
-}
-
-/* ------------------------------------------------------ carga por atendente */
+/* ------------------------------------------------------ barras de carga */
 .bars {
   display: flex;
   flex-direction: column;
@@ -618,7 +93,7 @@ tr.critico td {
   grid-template-columns: 140px 1fr 74px;
   align-items: center;
   gap: 9px;
-  font-size: 11.5px;
+  font-size: var(--p-t-sm);
 }
 
 .bar-row .track {
@@ -663,32 +138,7 @@ tr.critico td {
   white-space: nowrap;
 }
 
-/* ---------------------------------------------------------------- responsivo */
-@media (max-width: 1240px) {
-  .mon {
-    grid-template-columns: 1fr;
-  }
-}
 
-@media (max-width: 860px) {
-  .app {
-    grid-template-columns: 1fr;
-  }
-
-  .side {
-    position: static;
-    height: auto;
-    border-right: 0;
-    border-bottom: 1px solid var(--line);
-  }
-
-  .side .grp {
-    margin-bottom: 8px;
-  }
-}
-
-/* ==========================================================================
-   Daqui para baixo é do CRM. Vem da aba "CRM" do mockup aprovado.
    ========================================================================== */
 
 /* ------------------------------------------------------------ indicadores */
@@ -712,19 +162,19 @@ tr.critico td {
 
 .kpi .v {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 21px;
+  font-size: var(--p-t-2xl);
   font-weight: 600;
   letter-spacing: -0.02em;
   font-variant-numeric: tabular-nums;
 }
 
 .kpi .k {
-  font-size: 11px;
+  font-size: var(--p-t-xs);
   color: var(--ink-2);
 }
 
 .kpi .d {
-  font-size: 10.5px;
+  font-size: var(--p-t-xs);
   font-family: 'IBM Plex Mono', monospace;
   color: var(--ink-3);
 }
@@ -763,7 +213,7 @@ tr.critico td {
 
 .funnel .fh h3 {
   margin: 0;
-  font-size: 13.5px;
+  font-size: var(--p-t-md);
   font-weight: 600;
 }
 
@@ -804,7 +254,7 @@ tr.critico td {
 
 .lane header .c {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: var(--p-t-xs);
   color: var(--ink-3);
   margin-left: auto;
 }
@@ -831,25 +281,25 @@ tr.critico td {
 }
 
 .opp b {
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
   font-weight: 500;
   color: var(--ink);
 }
 
 .opp .val {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: var(--p-t-sm);
   color: var(--ink);
 }
 
 .opp .ow {
-  font-size: 10.5px;
+  font-size: var(--p-t-xs);
   color: var(--ink-3);
 }
 
 .lane .total {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 11px;
+  font-size: var(--p-t-xs);
   color: var(--ink-3);
   border-top: 1px solid var(--line);
   padding-top: 7px;
@@ -870,7 +320,7 @@ tr.critico td {
 }
 
 .explain > header b {
-  font-size: 13.5px;
+  font-size: var(--p-t-md);
 }
 
 .rules {
@@ -885,7 +335,7 @@ tr.critico td {
   gap: 10px;
   padding: 8px 14px;
   border-bottom: 1px solid var(--line);
-  font-size: 12px;
+  font-size: var(--p-t-sm);
 }
 
 .rules li span {
@@ -895,7 +345,7 @@ tr.critico td {
 
 .rules li .v {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10px;
+  font-size: var(--p-t-xs);
   color: var(--ink-3);
   flex: none;
 }
@@ -903,7 +353,7 @@ tr.critico td {
 .rules li em {
   font-style: normal;
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 12px;
+  font-size: var(--p-t-sm);
   font-weight: 600;
   flex: none;
 }
@@ -926,7 +376,7 @@ tr.critico td {
 
 .explain .tot .n {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 24px;
+  font-size: var(--p-t-2xl);
   font-weight: 600;
   color: var(--moss);
 }
@@ -963,7 +413,7 @@ tr.critico td {
 }
 
 .bloco-card > header b {
-  font-size: 13.5px;
+  font-size: var(--p-t-md);
   font-weight: 600;
 }
 
@@ -982,7 +432,7 @@ tr.critico td {
   align-items: baseline;
   padding: 7px 14px;
   border-bottom: 1px solid var(--line);
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
 }
 
 .campos div:last-child {
@@ -993,7 +443,7 @@ tr.critico td {
    assinatura da marca, mas repetida em toda linha vira barulho. */
 .campos dt,
 .campos .k {
-  font-size: 11.5px;
+  font-size: var(--p-t-sm);
   color: var(--ink-3);
   width: 124px;
   flex: none;
@@ -1032,7 +482,7 @@ tr.critico td {
 }
 
 .form-versao > .cab b {
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
   font-weight: 600;
 }
 
@@ -1057,26 +507,26 @@ tr.critico td {
 
 .tempo .quando {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10.5px;
+  font-size: var(--p-t-xs);
   color: var(--ink-3);
   padding-top: 2px;
 }
 
 .tempo .t {
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
   color: var(--ink);
   font-weight: 500;
 }
 
 .tempo .quem {
-  font-size: 11px;
+  font-size: var(--p-t-xs);
   color: var(--ink-3);
 }
 
 /* O resumo do atendimento entra recuado: é texto de máquina, não do vendedor. */
 .tempo .resumo {
   grid-column: 2;
-  font-size: 11.5px;
+  font-size: var(--p-t-sm);
   color: var(--ink-2);
   background: var(--surface-2);
   border-left: 2px solid var(--sage);
@@ -1087,13 +537,13 @@ tr.critico td {
 
 .mensagem {
   padding: 10px 14px;
-  font-size: 11.5px;
+  font-size: var(--p-t-sm);
   color: var(--ink-3);
   border-top: 1px solid var(--line);
 }
 
 .voltar {
-  font-size: 11.5px;
+  font-size: var(--p-t-sm);
   color: var(--ink-3);
   text-decoration: none;
 }
@@ -1102,6 +552,7 @@ tr.critico td {
   color: var(--moss);
 }
 
+
 @media (max-width: 1240px) {
   .crmgrid,
   .ficha {
@@ -1109,54 +560,6 @@ tr.critico td {
   }
 }
 
-/* ==========================================================================
-   Estrutura: o menu enxuto, as configurações atrás da engrenagem, e um painel
-   com hierarquia. Cada bloco aqui existe para tirar peso visual de algum lugar.
-   ========================================================================== */
-
-/* ------------------------------------------------------ engrenagem e voltar */
-.side .engrenagem {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: auto;
-  padding: 7px 8px;
-  border-top: 1px solid var(--line);
-  border-radius: 0;
-  color: var(--ink-3);
-  font-size: 12.5px;
-  text-decoration: none;
-}
-
-.side .engrenagem:hover {
-  background: var(--surface-3);
-  color: var(--ink-2);
-}
-
-.side .engrenagem svg {
-  width: 14px;
-  height: 14px;
-  flex: none;
-}
-
-.side .voltar-menu {
-  display: block;
-  padding: 5px 8px 12px;
-  font-size: 12px;
-  color: var(--ink-3);
-  text-decoration: none;
-}
-
-.side .voltar-menu:hover {
-  color: var(--moss);
-  background: transparent;
-}
-
-/* O menu de trabalho é curto: a engrenagem precisa do rodapé, não do fim da lista. */
-.side {
-  display: flex;
-  flex-direction: column;
-}
 
 /* ----------------------------------------------- painel: a linha de resumo */
 /* Sem caixa, sem borda, tipografia menor que a do funil. É legenda, não assunto. */
@@ -1176,7 +579,7 @@ tr.critico td {
 
 .resumo b {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 17px;
+  font-size: var(--p-t-xl);
   font-weight: 600;
   letter-spacing: -0.015em;
   font-variant-numeric: tabular-nums;
@@ -1184,7 +587,7 @@ tr.critico td {
 }
 
 .resumo span {
-  font-size: 11px;
+  font-size: var(--p-t-xs);
   color: var(--ink-3);
 }
 
@@ -1207,7 +610,7 @@ tr.critico td {
 
 .destaque > header h3 {
   margin: 0;
-  font-size: 15px;
+  font-size: var(--p-t-lg);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -1220,7 +623,7 @@ tr.critico td {
   padding: 11px 18px;
   border-top: 1px solid var(--line);
   background: var(--surface-2);
-  font-size: 11.5px;
+  font-size: var(--p-t-sm);
   color: var(--ink-3);
 }
 
@@ -1239,7 +642,7 @@ tr.critico td {
 }
 
 .etapa .nome {
-  font-size: 13px;
+  font-size: var(--p-t-md);
   color: var(--ink);
 }
 
@@ -1263,7 +666,7 @@ tr.critico td {
   font-family: 'IBM Plex Mono', monospace;
   font-variant-numeric: tabular-nums;
   text-align: right;
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
 }
 
 .etapa .valor {
@@ -1272,7 +675,7 @@ tr.critico td {
 
 .etapa .qtd {
   color: var(--ink-3);
-  font-size: 11px;
+  font-size: var(--p-t-xs);
 }
 
 /* --------------------------------------------- painel: o apoio, abaixo do funil */
@@ -1288,14 +691,14 @@ tr.critico td {
   display: flex;
   align-items: center;
   gap: 6px;
-  font-size: 11.5px;
+  font-size: var(--p-t-sm);
   color: var(--ink-3);
 }
 
 tr.grupo th {
   background: var(--surface-2);
   font-family: inherit;
-  font-size: 12px;
+  font-size: var(--p-t-sm);
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
@@ -1307,14 +710,14 @@ tr.grupo th {
 /* Contagem ao lado do rótulo: número é monoespaçado, texto não. */
 .qt {
   font-family: 'IBM Plex Mono', monospace;
-  font-size: 10.5px;
+  font-size: var(--p-t-xs);
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;
 }
 
 /* Nome de fase é nome, não rótulo de seção: sans, caixa normal. */
 .lane header .fase {
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
   font-weight: 600;
   color: var(--ink);
 }

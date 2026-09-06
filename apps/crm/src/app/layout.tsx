@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
-import { MenuLateral } from '../componentes/menu-lateral';
+import { EstruturaCrm } from '../componentes/estrutura-crm';
+// A ordem importa: o token e a base do design system entram antes da folha do
+// aplicativo, para que a folha local sobrescreva a base e nunca o contrário.
+import '@pipe/ui/estilos.css';
 import './globais.css';
 
 export const metadata: Metadata = {
@@ -19,10 +22,7 @@ export default function LayoutRaiz({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <div className="app">
-          <MenuLateral />
-          <main className="board">{children}</main>
-        </div>
+        <EstruturaCrm>{children}</EstruturaCrm>
       </body>
     </html>
   );
