@@ -21,7 +21,25 @@ export interface DadosDoCabecalho {
   avisos: number;
 }
 
+/** O cabeçalho sem banco: a Gestão não pode deixar de abrir por causa do cromo. */
+const VAZIO: DadosDoCabecalho = { tenant: { nome: 'Pipe', plano: 'padrao' }, canais: [], avisos: 0 };
+
+/**
+ * Nunca lança. O cabeçalho vive no layout raiz, então ele roda em TODA rota,
+ * inclusive nas duas que o `next build` prerrenderiza (`/_not-found` e o
+ * redirecionamento de `/configuracoes`) — e build de front-end não pode
+ * depender de Postgres no ar. Sem banco, as barras aparecem com o nome
+ * genérico; as telas de dados continuam falhando alto, como devem.
+ */
 export async function carregarCabecalho(): Promise<DadosDoCabecalho> {
+  try {
+    return await consultarCabecalho();
+  } catch {
+    return VAZIO;
+  }
+}
+
+async function consultarCabecalho(): Promise<DadosDoCabecalho> {
   const agora = new Date();
   return consultar(async (tx) => {
     const [linha] = await tx
