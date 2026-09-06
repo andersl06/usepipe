@@ -12,10 +12,15 @@ interface Busca {
   etiqueta?: string;
 }
 
+/**
+ * Finalizada é o desfecho normal e fica neutra: era verde em cada linha da
+ * lista, e o verde repetido deixa de significar. Perdida e abandonada seguem
+ * coloridas, porque são as duas que o supervisor precisa caçar.
+ */
 const ROTULO_STATUS: Record<string, { texto: string; classe: string }> = {
-  perdida: { texto: 'PERDIDA', classe: 'pill hi' },
-  abandonada: { texto: 'ABANDONADA', classe: 'pill med' },
-  finalizada: { texto: 'FINALIZADA', classe: 'pill ok' },
+  perdida: { texto: 'Perdida', classe: 'etiqueta erro' },
+  abandonada: { texto: 'Abandonada', classe: 'etiqueta alerta' },
+  finalizada: { texto: 'Finalizada', classe: 'etiqueta' },
 };
 
 export default async function PaginaHistorico({ searchParams }: { searchParams: Promise<Busca> }) {
@@ -139,7 +144,7 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
                         {status ? (
                           <span className={status.classe}>{status.texto}</span>
                         ) : (
-                          <span className="pill q">ABERTA</span>
+                          <span className="etiqueta">Aberta</span>
                         )}
                       </td>
                       <td>{l.etiquetas.join(', ') || '—'}</td>

@@ -37,15 +37,22 @@ function classeDaLinha(linha: LinhaConversaAberta): string | undefined {
   return undefined;
 }
 
+/**
+ * Etiqueta de SLA. Só os dois estados que pedem ação recebem cor: estourado é
+ * erro, alerta é alerta. Sem regra e cumprido são neutros, porque não há o que
+ * fazer a respeito deles — e pintar o que está normal foi o que tirou o
+ * significado da cor na tela inteira.
+ *
+ * A caixa alta também saiu: o rótulo é conteúdo, não título de seção.
+ */
 function PillSlaView({ linha }: { linha: LinhaConversaAberta }) {
   const { estado, rotulo, excedidoSeg } = linha.sla;
-  if (estado === 'sem_regra') return <span className="pill q">SEM REGRA</span>;
+  if (estado === 'sem_regra') return <span className="etiqueta">Sem regra</span>;
   if (estado === 'estourado') {
-    return <span className="pill hi">{`${rotulo} ${duracao(excedidoSeg)}`}</span>;
+    return <span className="etiqueta erro">{`${rotulo} ${duracao(excedidoSeg)}`}</span>;
   }
-  if (estado === 'alerta') return <span className="pill med">{rotulo}</span>;
-  if (estado === 'cumprido') return <span className="pill info">{rotulo}</span>;
-  return <span className="pill ok">{rotulo}</span>;
+  if (estado === 'alerta') return <span className="etiqueta alerta">{rotulo}</span>;
+  return <span className="etiqueta">{rotulo}</span>;
 }
 
 function Acoes() {
@@ -102,7 +109,7 @@ function TabelaConversas({ linhas }: { linhas: readonly LinhaConversaAberta[] })
               <td>{l.filaNome ?? '—'}</td>
               <td>{l.atendenteNome ?? '—'}</td>
               <td>
-                {l.emEspera ? <span className="pill info">EM ESPERA</span> : <PillSlaView linha={l} />}
+                {l.emEspera ? <span className="etiqueta">Em espera</span> : <PillSlaView linha={l} />}
               </td>
               <Acoes />
             </tr>
@@ -175,9 +182,9 @@ export function MonitoramentoDetalhado({
                 <tr key={a.id}>
                   <td className="who">{a.nome}</td>
                   <td>
-                    <span className={a.estado === 'online' ? 'pill ok' : 'pill q'}>
-                      {a.estado.toUpperCase()}
-                    </span>
+                    {/* Estado de atendente é informação, não alerta: o gestor age pelo número
+                        de tickets ao lado, não pela cor da palavra. */}
+                    <span className="etiqueta">{a.estado}</span>
                   </td>
                   <td className="num">{numero(a.ativas)}</td>
                   <td className="num">{numero(a.aguardandoAtendente)}</td>
