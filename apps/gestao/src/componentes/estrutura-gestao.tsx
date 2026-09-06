@@ -55,9 +55,8 @@ const ITENS: readonly ItemLateral[] = [
  *
  * - Relatórios ├ Calls, Vendas — não temos telefonia, e funil de vendas é do CRM,
  *   não da gestão de atendimento.
- * - Regras ├ Atendimento, Horários — só SLA virou tela.
- * - Atendentes ├ Filas de atendimento, Pausas personalizadas — o que elas
- *   mostrariam está na tela de Operação e no cartão "Status dos atendentes".
+ * - Regras ├ Atendimento — a regra de entrada ainda não tem tela; SLA e
+ *   Horários têm.
  * - Preferências ├ Configurações gerais — está diluída na tela de Dados.
  */
 const GRUPOS: readonly GrupoLateral[] = [
@@ -81,12 +80,19 @@ const GRUPOS: readonly GrupoLateral[] = [
   {
     rotulo: 'Regras',
     icone: 'funil',
-    filhos: [{ rotulo: 'SLA', href: '/configuracoes/regras' }],
+    filhos: [
+      { rotulo: 'SLA', href: '/configuracoes/regras' },
+      { rotulo: 'Horários', href: '/regras/horarios' },
+    ],
   },
   {
     rotulo: 'Atendentes',
     icone: 'pessoas',
-    filhos: [{ rotulo: 'Operação', href: '/configuracoes/operacao' }],
+    filhos: [
+      { rotulo: 'Filas de atendimento', href: '/atendentes/filas' },
+      { rotulo: 'Pausas personalizadas', href: '/atendentes/pausas' },
+      { rotulo: 'Operação', href: '/configuracoes/operacao' },
+    ],
   },
   {
     rotulo: 'Preferências',

@@ -128,11 +128,17 @@ export const PAPEIS_DIA_1 = [
  * As duas primeiras replicam o roteamento por faixa de score do §4.2: 60 ou mais vai
  * para closer, abaixo disso para o Comercial.
  */
+/*
+ * A cor guarda NOME DE TOKEN da paleta de gráfico, nunca hex. Hex em coluna de
+ * dado volta a virar cor fora do sistema na hora de pintar, que é o que a régua
+ * do @pipe/ui proíbe — e foi assim que a etiqueta acabou com nove matizes que
+ * ninguém escolheu. A tela de Filas lê estes mesmos nomes.
+ */
 export const FILAS_EXEMPLO = [
-  { nome: 'Comercial', cor: '#4C6B4F', ordem: 1, capacidadePadrao: 8 },
-  { nome: 'Closer', cor: '#2F4F3A', ordem: 2, capacidadePadrao: 5 },
-  { nome: 'Suporte', cor: '#3F6E8C', ordem: 3, capacidadePadrao: 10 },
-  { nome: 'Financeiro', cor: '#8C6B3F', ordem: 4, capacidadePadrao: 6 },
+  { nome: 'Comercial', cor: 'grafico-1', ordem: 1, capacidadePadrao: 8 },
+  { nome: 'Closer', cor: 'grafico-5', ordem: 2, capacidadePadrao: 5 },
+  { nome: 'Suporte', cor: 'grafico-2', ordem: 3, capacidadePadrao: 10 },
+  { nome: 'Financeiro', cor: 'grafico-3', ordem: 4, capacidadePadrao: 6 },
 ] as const;
 
 export interface ResultadoSemente {
