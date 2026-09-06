@@ -298,7 +298,7 @@
 .campos .k {
   font-size: var(--p-t-sm);
   color: var(--p-conteudo-fantasma);
-  width: 124px;
+  width: 104px;
   flex: none;
   overflow-wrap: anywhere;
 }
@@ -337,56 +337,6 @@
 .form-versao > .cab b {
   font-size: var(--p-t-md);
   font-weight: var(--p-peso-forte);
-}
-
-/* ========================================================= linha do tempo */
-.tempo {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-
-.tempo li {
-  display: grid;
-  grid-template-columns: 104px minmax(0, 1fr);
-  gap: var(--p-e-1) var(--p-e-3);
-  padding: var(--p-e-3) var(--p-e-4);
-  border-bottom: 1px solid var(--p-linha);
-}
-
-.tempo li:last-child {
-  border-bottom: 0;
-}
-
-.tempo .quando {
-  font-family: var(--p-fonte-mono);
-  font-variant-numeric: tabular-nums;
-  font-size: var(--p-t-sm);
-  color: var(--p-conteudo-fantasma);
-}
-
-.tempo .t {
-  font-size: var(--p-t-md);
-  color: var(--p-conteudo);
-  font-weight: var(--p-peso-medio);
-}
-
-.tempo .quem {
-  font-size: var(--p-t-sm);
-  color: var(--p-conteudo-fantasma);
-}
-
-/* O resumo do atendimento entra recuado: é texto de máquina, não do vendedor.
-   A barra da esquerda é linha translúcida, não matiz de gráfico. */
-.tempo .resumo {
-  grid-column: 2;
-  font-size: var(--p-t-sm);
-  color: var(--p-conteudo-desabilitado);
-  background: var(--p-superficie-1);
-  border-left: 2px solid var(--p-linha-media);
-  padding: var(--p-e-2) var(--p-e-3);
-  border-radius: 0 var(--p-r-sm) var(--p-r-sm) 0;
-  margin-top: 3px;
 }
 
 .mensagem {
@@ -811,4 +761,285 @@ code {
   font-size: var(--p-t-sm);
   color: var(--p-conteudo-fantasma);
   white-space: nowrap;
+}
+
+/* ================================================== cabeçalho de destaque
+   A faixa de identidade e a tira de campos principais. O Salesforce chama de
+   "highlight panel" e o Twenty de "identifier bar"; os dois chegaram ao mesmo
+   desenho sem se falarem, o que faz disto regra e não gosto.
+
+   Sem caixa e sem borda de cartão: o destaque é a primeira coisa da tela, e a
+   primeira coisa da tela não precisa de moldura para ser encontrada. */
+.destaque {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+  padding: var(--p-e-1) 2px var(--p-e-4);
+  border-bottom: 1px solid var(--p-linha);
+  margin-bottom: var(--p-e-4);
+}
+
+.destaque .identidade {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  flex-wrap: wrap;
+}
+
+.destaque .trilha {
+  font-size: var(--p-t-md);
+  color: var(--p-conteudo-fantasma);
+  text-decoration: none;
+}
+
+.destaque .trilha:hover {
+  color: var(--p-conteudo);
+}
+
+.destaque .identidade .barra {
+  color: var(--p-conteudo-fantasma);
+}
+
+.destaque h2 {
+  margin: 0 var(--p-e-1) 0 0;
+  font-size: var(--p-t-titulo);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: -0.015em;
+  line-height: var(--p-altura-linha-curta);
+}
+
+.destaque .criado {
+  margin-left: auto;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+  white-space: nowrap;
+}
+
+/* A tira. Cinco campos, no máximo: é a régua do destaque do Salesforce, e
+   passar disso é deixar de ser destaque. Rótulo em cima, valor embaixo, ao
+   contrário da lateral — aqui a leitura é horizontal e o rótulo precisa sair
+   da frente do número. */
+.destaque .principais {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--p-e-2) var(--p-e-8);
+  margin: 0;
+}
+
+.destaque .principais > div {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.destaque dt {
+  font-size: var(--p-rotulo-tamanho);
+  font-weight: var(--p-rotulo-peso);
+  letter-spacing: var(--p-rotulo-espaco);
+  text-transform: uppercase;
+  color: var(--p-conteudo-fantasma);
+}
+
+.destaque dd {
+  margin: 0;
+  font-size: var(--p-t-md);
+  color: var(--p-conteudo);
+  display: flex;
+  align-items: baseline;
+  gap: var(--p-e-2);
+}
+
+/* O score é número, e número usa a monoespaçada tabular. É o único valor da
+   tira que a recebe. */
+.destaque dd.n {
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--p-t-lg);
+  font-weight: var(--p-peso-forte);
+}
+
+/* O complemento do valor: a faixa ao lado do score, os dias ao lado da fase.
+   Menor e apagado, porque é qualificação e não o dado. */
+.destaque dd em {
+  font-style: normal;
+  font-family: var(--p-fonte);
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-normal);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* ================================================ seção que abre e fecha
+   `<details>` nativo. O navegador já sabe abrir, fechar, responder ao teclado
+   e contar para o leitor de tela; reescrever isso em React seria trocar zero
+   linha por trinta e perder a busca na página. */
+.secao > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  padding: var(--p-e-3) var(--p-e-4);
+  cursor: pointer;
+  list-style: none;
+  user-select: none;
+}
+
+.secao[open] > summary {
+  border-bottom: 1px solid var(--p-linha);
+}
+
+.secao > summary::-webkit-details-marker {
+  display: none;
+}
+
+.secao > summary b {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+}
+
+/* A seta, desenhada em CSS. Um chevron de 5px que gira ao abrir: um SVG só
+   para isto seria uma requisição a mais por um triângulo. */
+.secao > summary::after {
+  content: '';
+  margin-left: auto;
+  width: 5px;
+  height: 5px;
+  border-right: 1.5px solid var(--p-conteudo-fantasma);
+  border-bottom: 1.5px solid var(--p-conteudo-fantasma);
+  transform: rotate(-45deg);
+  transition: transform var(--p-dur-rapida) ease;
+}
+
+.secao[open] > summary::after {
+  transform: rotate(45deg);
+}
+
+.secao > summary:hover {
+  background: var(--p-superficie-1);
+}
+
+/* ========================================================= linha do tempo
+   Trilho de 26px com o ícone do tipo e um fio ligando um evento ao seguinte.
+   É o que faz a coluna ser lida como sequência em vez de pilha de linhas. */
+.tempo section {
+  padding: var(--p-e-3) var(--p-e-4) 0;
+}
+
+.tempo section:last-child {
+  padding-bottom: var(--p-e-4);
+}
+
+/* Separador de mês: o nome à esquerda e uma régua ocupando o resto da linha. */
+.tempo h4 {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-3);
+  margin: 0 0 var(--p-e-3);
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-forte);
+  color: var(--p-conteudo-fantasma);
+}
+
+.tempo h4::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--p-linha);
+}
+
+.tempo ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tempo li {
+  display: flex;
+  gap: var(--p-e-3);
+}
+
+.tempo .marca {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: var(--trilho);
+  flex: none;
+}
+
+.tempo .slot {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--trilho);
+  height: var(--trilho);
+  flex: none;
+  border-radius: var(--p-r-md);
+  border: 1px solid var(--p-linha);
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* O fio usa a linha MÉDIA, não a fina. A fina desaparece com 2px de largura
+   no tema escuro, e um trilho invisível é o mesmo que não ter trilho. */
+.tempo .fio {
+  width: 2px;
+  flex: 1;
+  min-height: var(--p-e-2);
+  background: var(--p-linha-media);
+  border-radius: var(--p-r-pilula);
+}
+
+.tempo .corpo {
+  flex: 1;
+  min-width: 0;
+  padding-bottom: var(--p-e-4);
+}
+
+.tempo .cab {
+  display: flex;
+  align-items: baseline;
+  gap: var(--p-e-2);
+  min-height: var(--trilho);
+  flex-wrap: wrap;
+}
+
+.tempo .t {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-medio);
+  color: var(--p-conteudo);
+}
+
+.tempo .quem {
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* A hora relativa fica à direita, e a absoluta no `title`. "há 3 dias" é o
+   que a pessoa quer saber; a data exata é o que ela confere uma vez a cada
+   vinte. */
+.tempo .quando {
+  margin-left: auto;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+  white-space: nowrap;
+  cursor: help;
+}
+
+/* O resumo do atendimento entra recuado: é texto de máquina, não do vendedor. */
+.tempo .resumo {
+  margin: var(--p-e-1) 0 0;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-desabilitado);
+  background: var(--p-superficie-1);
+  border-left: 2px solid var(--p-linha-media);
+  padding: var(--p-e-2) var(--p-e-3);
+  border-radius: 0 var(--p-r-sm) var(--p-r-sm) 0;
+}
+
+/* A contagem ao lado do rótulo da aba precisa de um respiro. O primitivo do
+   pacote não declara `gap` no link, e sem ele "Score" e "5" encostam. Local
+   até o pacote abrir; é uma linha que sobe junto quando abrir. */
+.tabs a {
+  display: inline-flex;
+  align-items: baseline;
+  gap: var(--p-e-1);
 }
