@@ -6,6 +6,7 @@ import { criarBanco, fecharBanco, type BancoPipe } from '@pipe/db';
 import {
   atividade,
   classificacaoConversa,
+  conta,
   contato,
   contatoEtiqueta,
   conversa,
@@ -93,6 +94,38 @@ const CAMPANHAS: Record<string, string | null> = {
   'Webinar 08/26': 'Webinar agosto 2026',
   'Importado RD': 'Base RD Station',
 };
+
+/**
+ * Contas. A semente da Gestão cria contato e conversa, e a base deste CRM cria
+ * lead e oportunidade — ninguém criava `conta`, e por isso a coluna `conta_id`
+ * do lead vinha nula em toda linha. A tela de Contas nascia vazia, o que é a
+ * pior maneira de descobrir que a tabela nunca foi preenchida.
+ *
+ * Nomes fictícios de propósito: é tenant de demonstração, e cliente real de
+ * ninguém entra em semente que vai para o repositório.
+ */
+const CONTAS = [
+  { nome: 'Almeida Participações', dominio: 'almeidapar.com.br' },
+  { nome: 'Barreto Engenharia', dominio: 'barretoeng.com.br' },
+  { nome: 'Clínica Vida Plena', dominio: 'vidaplena.med.br' },
+  { nome: 'Coelho Transportes', dominio: 'coelhotransportes.com.br' },
+  { nome: 'Cordeiro Alimentos', dominio: 'cordeiroalimentos.com.br' },
+  { nome: 'Faria Contabilidade', dominio: 'fariacontabil.com.br' },
+  { nome: 'Matos Comércio de Peças', dominio: 'matospecas.com.br' },
+  { nome: 'Moura Agro', dominio: 'mouraagro.com.br' },
+  { nome: 'Muniz Consultoria', dominio: 'munizconsult.com.br' },
+  { nome: 'Nunes Tecnologia', dominio: 'nunestec.com.br' },
+  { nome: 'Prates Imóveis', dominio: 'pratesimoveis.com.br' },
+  { nome: 'Rezende Educação', dominio: 'rezendeeducacao.com.br' },
+  { nome: 'Ribeiro Logística', dominio: 'ribeirolog.com.br' },
+  { nome: 'Salgado Indústria', dominio: 'salgadoind.com.br' },
+] as const;
+
+/** CNPJ fictício e determinístico. Catorze dígitos, sem dígito verificador real. */
+function cnpjDe(indice: number): string {
+  const base = String(10_000_000 + indice * 137_911).padStart(8, '0');
+  return `${base}0001${String(10 + indice).slice(0, 2)}`;
+}
 
 const FASES = ['Novo', 'Qualificado', 'Reunião', 'Proposta', 'Fechamento'] as const;
 const PROBABILIDADE: Record<string, number> = {
@@ -349,6 +382,7 @@ async function semearCrm(db: BancoPipe) {
   const idsRegra = REGRAS.map((r) => idDe(`regra:${VERSAO_REGRA}:${r.nome}`));
   const idsFaixa = FAIXAS.map((f) => idDe(`faixa:${VERSAO_REGRA}:${f.nome}`));
   const idsEtiqueta = ETIQUETAS_CRM.map((e) => idDe(`etiqueta:${e.nome}`));
+  const idsConta = CONTAS.map((c) => idDe(`conta:${c.nome}`));
   const idsClassificacao = comConversa.map((c) => idDe(`classificacao:${c.id}`));
 
   // Ordem: oportunidade e lead antes do formulário, senão a resposta segura a versão.
@@ -359,6 +393,30 @@ async function semearCrm(db: BancoPipe) {
   await db.delete(faixaScore).where(inArray(faixaScore.id, idsFaixa));
   await db.delete(etiqueta).where(inArray(etiqueta.id, idsEtiqueta));
   await db.delete(classificacaoConversa).where(inArray(classificacaoConversa.id, idsClassificacao));
+
+  /*
+   * O contato é de outra semente: só o vínculo com a conta é meu, e é só ele
+   * que a limpeza desfaz. Solto o vínculo antes de apagar a conta, senão a
+   * chave estrangeira segura a linha.
+   */
+  await db
+    .update(contato)
+    .set({ contaId: null })
+    .where(and(eq(contato.tenantId, tenantId), inArray(contato.contaId, idsConta)));
+  await db.delete(conta).where(inArray(conta.id, idsConta));
+
+  /* ------------------------------------------------------------------ contas */
+
+  await db.insert(conta).values(
+    CONTAS.map((c, i) => ({
+      id: idsConta[i] as string,
+      tenantId,
+      nome: c.nome,
+      documento: cnpjDe(i),
+      dominio: c.dominio,
+      proprietarioId: (usuarios[i % usuarios.length] as { id: string }).id,
+    })),
+  );
 
   /* ------------------------------------------------- regras, faixas, etiquetas */
 
@@ -485,9 +543,17 @@ async function semearCrm(db: BancoPipe) {
   const linhasClassificacao: (typeof classificacaoConversa.$inferInsert)[] = [];
 
   const faixaPorContato = new Map<string, string | null>();
+  /** Conta → contatos dela. Vira um `update` por conta, não sessenta. */
+  const contatosPorConta = new Map<string, string[]>();
 
   for (const [indice, c] of comConversa.entries()) {
     const leadId = idDe(`lead:${c.id}`);
+    // Rodízio pelas contas: cada uma fica com três ou quatro contatos, que é o
+    // bastante para a ficha da conta ter mais de uma linha em cada bloco.
+    const contaId = idsConta[indice % idsConta.length] as string;
+    const contatosDaConta = contatosPorConta.get(contaId);
+    if (contatosDaConta) contatosDaConta.push(c.id);
+    else contatosPorConta.set(contaId, [c.id]);
     // Metade entrou nos últimos dias e metade nos meses anteriores: sem isso o painel
     // compara um mês cheio com um mês de cinco dias e a variação vira ruído.
     const criadoEm = new Date(
@@ -560,6 +626,7 @@ async function semearCrm(db: BancoPipe) {
       id: leadId,
       tenantId,
       contatoId: c.id,
+      contaId,
       origem,
       campanha: CAMPANHAS[origem] ?? null,
       utm:
@@ -748,6 +815,7 @@ async function semearCrm(db: BancoPipe) {
         id: idDe(`oportunidade:${c.id}:1`),
         tenantId,
         leadId,
+        contaId,
         nome: c.nome ?? `Oportunidade ${indice + 1}`,
         valor: valor.toFixed(2),
         moeda: 'BRL',
@@ -767,6 +835,7 @@ async function semearCrm(db: BancoPipe) {
           id: idDe(`oportunidade:${c.id}:2`),
           tenantId,
           leadId,
+          contaId,
           nome: `${c.nome ?? 'Cliente'} · renovação`,
           valor: (valor * 0.8).toFixed(2),
           moeda: 'BRL',
@@ -780,6 +849,14 @@ async function semearCrm(db: BancoPipe) {
         });
       }
     }
+  }
+
+  // Um `update` por conta, não um por contato: catorze consultas em vez de sessenta.
+  for (const [contaId, ids] of contatosPorConta) {
+    await db
+      .update(contato)
+      .set({ contaId })
+      .where(and(eq(contato.tenantId, tenantId), inArray(contato.id, ids)));
   }
 
   await db.insert(lead).values(linhasLead);
@@ -843,6 +920,7 @@ async function semearCrm(db: BancoPipe) {
     oportunidades: linhasOportunidade.length,
     atividades: linhasAtividade.length,
     regras: REGRAS.length,
+    contas: CONTAS.length,
     resumos: linhasClassificacao.length,
   };
 }
@@ -907,7 +985,7 @@ semearCrm(db)
     process.stdout.write(
       `semente do CRM: ${r.leads} leads (${r.comScore} com score explicado), ` +
         `${r.respostas} respostas de formulário, ${r.oportunidades} oportunidades, ` +
-        `${r.atividades} atividades, ${r.regras} regras de score, ${r.resumos} resumos de atendimento\n`,
+        `${r.atividades} atividades, ${r.contas} contas, ${r.regras} regras de score, ${r.resumos} resumos de atendimento\n`,
     );
   })
   .catch((erro: unknown) => {

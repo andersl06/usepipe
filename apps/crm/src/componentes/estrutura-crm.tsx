@@ -7,10 +7,14 @@ import { Aplicacao, AreaConfiguracoes, Cabecalho, type ItemDeNavegacao } from '@
 /**
  * Estrutura do CRM, em dois modos.
  *
- * **Trabalho**: cabeçalho horizontal com os três objetos que a pessoa usa no
- * dia. Sem lateral: com três módulos não há o que pôr nela, e o Salesforce
- * mostra que a tela de lista não precisa de uma (medido: zero elementos
- * encostados à esquerda com mais de 300px de altura).
+ * **Trabalho**: cabeçalho horizontal com os cinco objetos que a pessoa usa no
+ * dia. Sem lateral: a tela de lista não precisa de uma, e o Salesforce mostra
+ * isso (medido: zero elementos encostados à esquerda com mais de 300px de
+ * altura).
+ *
+ * Contas e Contatos voltaram ao menu quando ganharam tela. Estavam fora pela
+ * regra de que item que não funciona não aparece — que continua valendo, e é
+ * por isso que a volta deles exigiu construir as duas listas antes.
  *
  * **Configuração**: atrás da engrenagem, em tela própria, com lateral própria
  * e um caminho de volta claro. É o corte que o Salesforce faz ao sair para
@@ -28,6 +32,8 @@ const MODULOS: readonly ItemDeNavegacao[] = [
   { rotulo: 'Painel', href: '/' },
   { rotulo: 'Leads', href: '/leads' },
   { rotulo: 'Oportunidades', href: '/oportunidades' },
+  { rotulo: 'Contas', href: '/contas' },
+  { rotulo: 'Contatos', href: '/contatos' },
 ];
 
 const CONFIGURACOES: readonly ItemDeNavegacao[] = [
