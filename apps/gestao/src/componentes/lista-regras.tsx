@@ -62,7 +62,14 @@ function Cartao({ cartao }: { cartao: CartaoRegra }) {
   );
 }
 
-export function ListaRegras({ secoes }: { secoes: readonly SecaoDeRegras[] }) {
+export function ListaRegras({
+  secoes,
+  placeholder = 'Buscar regra, fila ou escopo',
+}: {
+  secoes: readonly SecaoDeRegras[];
+  /** A lista serve outras telas além de Regras; o texto da busca é o único ponto de variação. */
+  placeholder?: string;
+}) {
   const [busca, setBusca] = useState('');
 
   const filtradas = useMemo(() => {
@@ -81,8 +88,8 @@ export function ListaRegras({ secoes }: { secoes: readonly SecaoDeRegras[] }) {
           type="search"
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
-          placeholder="Buscar regra, fila ou escopo"
-          aria-label="Buscar nas regras"
+          placeholder={placeholder}
+          aria-label={placeholder}
         />
       </div>
 
