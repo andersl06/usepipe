@@ -110,7 +110,10 @@ export function TrilhoDesk({
   return (
     <nav className="trilho-desk" aria-label="Módulos">
       <Link className="trilho-marca" href="/" aria-label="Pipe Desk">
-        <Simbolo tamanho={26} />
+        {/* 40×40 dentro do bloco de 64, que é a proporção medida no topo do
+            trilho deles. Em 26 a marca ficava menor que os ícones abaixo dela,
+            e um trilho onde a marca é o menor elemento não tem topo. */}
+        <Simbolo tamanho={40} />
       </Link>
 
       <div className="trilho-itens">
