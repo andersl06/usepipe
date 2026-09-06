@@ -66,8 +66,8 @@ export default async function PaginaEsforco({ searchParams }: { searchParams: Pr
           </div>
           <div className="note">
             A régua assume texto digitado à mão. Por isso o conteúdo vindo de resposta pronta e de
-            template sai do esforço e aparece em coluna separada — contá-lo infla o esforço de quem
-            só clicou.
+            template sai do esforço e aparece em coluna separada, porque contá-lo infla o esforço de
+            quem só clicou.
           </div>
         </div>
       </div>

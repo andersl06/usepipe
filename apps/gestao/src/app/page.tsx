@@ -51,7 +51,7 @@ export default async function PaginaMonitoramento({
         <header>
           <span className="lbl">Agora</span>
           <span className="quando">
-            Conversas ainda abertas neste instante — o cronômetro está correndo.
+            Conversas ainda abertas neste instante, com o cronômetro correndo.
           </span>
         </header>
 
@@ -128,7 +128,7 @@ export default async function PaginaMonitoramento({
         <header>
           <span className="lbl">Hoje</span>
           <span className="quando">
-            Conversas encerradas dentro do período — o cronômetro parou. Toda média vem com o
+            Conversas encerradas dentro do período, com o cronômetro parado. Toda média vem com o
             denominador.
           </span>
         </header>
@@ -199,8 +199,8 @@ export default async function PaginaMonitoramento({
               </div>
             </div>
             <div className="note">
-              Perdido saiu <b>antes</b> de ser atribuído — problema de capacidade ou de fila.
-              Abandonado saiu <b>depois</b> — problema de atendimento.
+              Perdido saiu <b>antes</b> da atribuição, e é capacidade ou fila. Abandonado saiu
+              <b>depois</b>, e é atendimento.
             </div>
           </div>
         </div>

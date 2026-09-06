@@ -59,7 +59,7 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
       <div className="board-head">
         <h2>Histórico</h2>
         <span className="sub">
-          Conversas encerradas — o cronômetro parou. Status e tempos derivados dos eventos.
+          Conversas encerradas, com o cronômetro parado. Status e tempos derivados dos eventos.
         </span>
       </div>
 

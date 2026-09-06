@@ -26,7 +26,7 @@ export default async function PaginaOperacao() {
       <div className="board-head">
         <h2>Operação</h2>
         <span className="sub">
-          Motivo de pausa e quadro de atendentes — o mesmo cadastro que o Desk oferece e que o
+          Motivo de pausa e quadro de atendentes. É o mesmo cadastro que o Desk oferece e que o
           Monitoramento cobra.
         </span>
       </div>
@@ -41,7 +41,7 @@ export default async function PaginaOperacao() {
 
         {motivos.length === 0 ? (
           <div className="vazio">
-            Nenhum motivo cadastrado — sem motivo, o atendente não consegue entrar em pausa.
+            Nenhum motivo cadastrado. Sem motivo, o atendente não consegue entrar em pausa.
           </div>
         ) : (
           <div className="scroll">

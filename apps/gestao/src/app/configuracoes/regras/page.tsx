@@ -33,7 +33,7 @@ export default async function PaginaRegras() {
 
         {regras.length === 0 ? (
           <div className="vazio">
-            Nenhuma regra de SLA cadastrada — toda conversa aparece como “Sem regra”.
+            Nenhuma regra de SLA cadastrada. Toda conversa aparece como “Sem regra”.
           </div>
         ) : (
           <div className="scroll">
@@ -96,7 +96,7 @@ export default async function PaginaRegras() {
                     <td className="who">{f.nome}</td>
                     <td className="num">{numero(f.capacidadePadrao)}</td>
                     <td className="num">{numero(f.ordem)}</td>
-                    <td>{f.temHorario ? 'Definido' : 'Sem horário — o relógio corre sempre'}</td>
+                    <td>{f.temHorario ? 'Definido' : 'Sem horário, o relógio corre sempre'}</td>
                     <td>{f.ativa ? 'Ativa' : <span className="etiqueta">Desativada</span>}</td>
                   </tr>
                 ))}
