@@ -64,18 +64,30 @@ export function desde(instante: Date | null | undefined, fuso: string, agora = n
   return data(instante, fuso);
 }
 
+/**
+ * CPF ou CNPJ com máscara. O documento é guardado em `text` sem pontuação —
+ * o CNPJ alfanumérico de 2026 quebra coluna numérica e máscara fixa —, então
+ * a máscara é da tela e não do banco. Documento com tamanho fora do esperado
+ * sai como veio, em vez de sair picado errado.
+ */
+export function documento(valor: string | null | undefined): string {
+  if (!valor) return '—';
+  const cru = valor.replace(/[^0-9A-Za-z]/g, '');
+  if (cru.length === 11) return cru.replace(/^(.{3})(.{3})(.{3})(.{2})$/, '$1.$2.$3-$4');
+  if (cru.length === 14) return cru.replace(/^(.{2})(.{3})(.{3})(.{4})(.{2})$/, '$1.$2.$3/$4-$5');
+  return valor;
+}
+
 /** Pontos da explicação do score: sinal explícito, porque a regra pode tirar ponto. */
 export function pontos(valor: number): string {
   return valor >= 0 ? `+${valor}` : `−${Math.abs(valor)}`;
 }
 
-/**
- * A cor da faixa. Acima do corte de 60 é verde, entre 40 e 59 é âmbar, abaixo é
- * neutro: a mesma leitura do mockup, sem depender do nome que o tenant deu à faixa.
+/*
+ * Não há `classeDaFaixa` aqui, e a ausência é a decisão: faixa de score é
+ * categoria, não estado. Ela diz para onde o lead foi roteado, não que alguém
+ * precise agir — e categoria usa a `Etiqueta` neutra do `@pipe/ui`, como fase,
+ * origem e fila. A função existia para escolher entre verde e ocre, o que
+ * pintava uma coluna inteira da lista e disputava atenção com as duas que
+ * realmente pedem ação: dias na fase e desqualificação.
  */
-export function classeDaFaixa(score: number | null): string {
-  if (score === null) return 'pill q';
-  if (score >= 60) return 'pill ok';
-  if (score >= 40) return 'pill med';
-  return 'pill q';
-}

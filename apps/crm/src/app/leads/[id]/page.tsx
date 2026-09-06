@@ -1,18 +1,11 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { Etiqueta } from '@pipe/ui';
 import { fusoDoTenant } from '../../../lib/banco';
-import { carregarFicha } from '../../../lib/leads';
-import { classeDaFaixa, data, dataHora, numero, pontos } from '../../../lib/formato';
+import { carregarFicha, ROTULO_STATUS } from '../../../lib/leads';
+import { data, dataHora, documento, numero, pontos } from '../../../lib/formato';
 
 export const dynamic = 'force-dynamic';
-
-const ROTULO_STATUS: Record<string, string> = {
-  novo: 'Novo',
-  em_contato: 'Em contato',
-  qualificado: 'Qualificado',
-  convertido: 'Convertido',
-  desqualificado: 'Desqualificado',
-};
 
 function Campo({ k, v }: { k: string; v: React.ReactNode }) {
   return (
@@ -31,36 +24,50 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
   const fuso = await fusoDoTenant();
   const atributos = Object.entries(ficha.customizados);
   const utm = Object.entries(ficha.utm);
+  const parado = ficha.diasNaFase !== null && ficha.diasNaFase >= 7;
+  const desqualificado = ficha.status === 'desqualificado';
 
   return (
     <>
-      <div className="board-head">
+      <div className="p-cabecalho">
         <div>
           <Link href="/leads" className="voltar">
             ← Leads
           </Link>
           <h2>{ficha.nome}</h2>
         </div>
-        <span className="sub">
-          {ROTULO_STATUS[ficha.status] ?? ficha.status}
-          {ficha.fase ? ` · fase ${ficha.fase}` : ''}
-          {ficha.diasNaFase !== null ? ` há ${numero(ficha.diasNaFase)} dias` : ''}
-        </span>
-        <div className="filters">
+        <div className="p-cabecalho-fim">
+          {/*
+            O estado do lead em etiquetas, e só duas delas podem ter cor: a
+            desqualificação, que é o único estado terminal, e a parada de mais
+            de sete dias, que é o que alguém resolve hoje. Fase e faixa são
+            categoria, e categoria é neutra.
+          */}
+          {desqualificado ? (
+            <Etiqueta tom="erro">{ROTULO_STATUS['desqualificado']}</Etiqueta>
+          ) : (
+            <Etiqueta>{ROTULO_STATUS[ficha.status] ?? ficha.status}</Etiqueta>
+          )}
+          {ficha.fase ? <Etiqueta>{ficha.fase}</Etiqueta> : null}
+          {ficha.diasNaFase === null ? null : parado && !desqualificado ? (
+            <Etiqueta tom="alerta">parado há {numero(ficha.diasNaFase)} dias</Etiqueta>
+          ) : (
+            <Etiqueta>há {numero(ficha.diasNaFase)} dias na fase</Etiqueta>
+          )}
           {ficha.score ? (
-            <span className={classeDaFaixa(ficha.score.valor)}>
+            <Etiqueta>
               Score {numero(ficha.score.valor)}
               {ficha.score.faixa ? ` · ${ficha.score.faixa}` : ''}
-            </span>
+            </Etiqueta>
           ) : (
-            <span className="pill q">Sem score</span>
+            <Etiqueta>Sem score</Etiqueta>
           )}
         </div>
       </div>
 
       <div className="ficha">
         <div className="coluna">
-          <div className="bloco-card">
+          <div className="tblwrap">
             <header>
               <b>Dados</b>
             </header>
@@ -68,16 +75,25 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
               <Campo k="Proprietário" v={ficha.proprietario ?? 'sem proprietário'} />
               <Campo k="E-mail" v={ficha.email ?? '—'} />
               <Campo k="Telefone" v={ficha.telefone ?? '—'} />
-              <Campo k="Documento" v={ficha.documento ?? '—'} />
-              <Campo k="Conta" v={ficha.contaNome ?? '—'} />
-              <Campo k="Origem" v={ficha.origem ?? '—'} />
+              <Campo k="Documento" v={documento(ficha.documento)} />
+              <Campo
+                k="Conta"
+                v={
+                  ficha.contaId ? (
+                    <Link href={`/contas/${ficha.contaId}`}>{ficha.contaNome}</Link>
+                  ) : (
+                    (ficha.contaNome ?? '—')
+                  )
+                }
+              />
+              <Campo k="Origem" v={ficha.origem ? <Etiqueta>{ficha.origem}</Etiqueta> : '—'} />
               <Campo k="Campanha" v={ficha.campanha ?? '—'} />
               <Campo k="Criado em" v={data(ficha.criadoEm, fuso)} />
               <Campo k="Fase desde" v={data(ficha.faseDesde, fuso)} />
             </div>
           </div>
 
-          <div className="bloco-card">
+          <div className="tblwrap">
             <header>
               <b>Atributos</b>
             </header>
@@ -95,7 +111,7 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
             )}
           </div>
 
-          <div className="bloco-card">
+          <div className="tblwrap">
             <header>
               <b>Etiquetas</b>
             </header>
@@ -104,9 +120,7 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
             ) : (
               <div className="etiquetas">
                 {ficha.etiquetas.map((e) => (
-                  <span key={e.nome} className="pill info">
-                    {e.nome}
-                  </span>
+                  <Etiqueta key={e.nome}>{e.nome}</Etiqueta>
                 ))}
               </div>
             )}
@@ -118,15 +132,19 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
             O painel que explica o número. Regra por regra, quanto entrou e quanto
             saiu, com a versão da regra e a hora do cálculo — lido de
             `score_lead.explicacao`, não recalculado na tela.
+
+            É a única tela do CRM em que a cor não indica ação e continua valendo:
+            aqui o verde e o vermelho SÃO a informação, e é a tela que justifica o
+            produto.
           */}
-          <div className="explain">
+          <div className="tblwrap">
             <header>
               <b>{ficha.score ? `Como ${ficha.nome} tirou ${ficha.score.valor}` : 'Score'}</b>
               {ficha.score ? (
-                <div className="lbl" style={{ marginTop: '3px' }}>
+                <span className="lbl">
                   Regra de score v{ficha.score.versaoRegra} ·{' '}
                   {dataHora(ficha.score.calculadoEm, fuso)}
-                </div>
+                </span>
               ) : null}
             </header>
 
@@ -156,9 +174,7 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
               <div className="tot">
                 <span className="n">{numero(ficha.score.valor)}</span>
                 <div>
-                  <span className={classeDaFaixa(ficha.score.valor)}>
-                    Faixa {ficha.score.faixa ?? 'não definida'}
-                  </span>
+                  <Etiqueta>Faixa {ficha.score.faixa ?? 'não definida'}</Etiqueta>
                   <div className="lbl" style={{ marginTop: '3px' }}>
                     {ficha.score.corte !== null ? `corte em ${ficha.score.corte}` : 'sem corte'}
                     {ficha.score.fila ? ` · fila ${ficha.score.fila}` : ' · sem fila'}
@@ -172,7 +188,7 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
             Respostas de formulário: por formulário e por versão. Nunca como colunas
             soltas — é a decisão que evita os 304 campos customizados do Lead de hoje.
           */}
-          <div className="bloco-card">
+          <div className="tblwrap">
             <header>
               <b>Respostas de formulário</b>
               <span className="lbl">{numero(ficha.formularios.length)} versões respondidas</span>
@@ -184,7 +200,7 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
                 <div className="form-versao" key={`${f.formulario}-${f.versao}`}>
                   <div className="cab">
                     <b>{f.formulario}</b>
-                    <span className="pill q">versão {f.versao}</span>
+                    <Etiqueta>versão {f.versao}</Etiqueta>
                     <span className="lbl" style={{ marginLeft: 'auto' }}>
                       {data(f.respondidoEm, fuso)}
                     </span>
@@ -199,7 +215,7 @@ export default async function PaginaFicha({ params }: { params: Promise<{ id: st
             )}
           </div>
 
-          <div className="bloco-card">
+          <div className="tblwrap">
             <header>
               <b>Linha do tempo</b>
               <span className="lbl">atividades e conversas</span>

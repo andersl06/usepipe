@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { Etiqueta } from '@pipe/ui';
 import { fusoDoTenant, janelaDoMes } from '../lib/banco';
 import { carregarIndicadores, leadsPorFase, leadsPorOrigem } from '../lib/painel';
 import { carregarFunil } from '../lib/funil';
@@ -6,12 +7,18 @@ import { dinheiro, dinheiroCurto, numero, percentual } from '../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
-/** Variação contra o mês anterior. Só aparece quando há base de comparação. */
+/**
+ * Variação contra o mês anterior. Só aparece quando há base de comparação.
+ *
+ * Vem com sinal e sem cor: um mês pior que o anterior não é um erro que
+ * alguém resolva clicando, e pintar de vermelho o que a pessoa não pode
+ * consertar é o que gasta a cor antes da hora.
+ */
 function Variacao({ atual, anterior }: { atual: number; anterior: number }) {
   if (anterior === 0) return null;
   const delta = (atual - anterior) / anterior;
   return (
-    <span className={delta >= 0 ? 'up' : 'down'}>
+    <span className="var">
       {delta >= 0 ? '+' : '−'}
       {percentual(Math.abs(delta))}
     </span>
@@ -38,11 +45,9 @@ export default async function PaginaPainel() {
 
   return (
     <>
-      <div className="board-head">
+      <div className="p-cabecalho">
         <h2>Painel</h2>
-        <span className="sub">
-          {nomeDoMes.charAt(0).toUpperCase() + nomeDoMes.slice(1)}
-        </span>
+        <span className="sub">{nomeDoMes.charAt(0).toUpperCase() + nomeDoMes.slice(1)}</span>
       </div>
 
       {/*
@@ -84,13 +89,13 @@ export default async function PaginaPainel() {
       </div>
 
       {/* O assunto da tela: como está o mês. Ocupa a largura porque é o que se lê primeiro. */}
-      <div className="destaque">
+      <div className="tblwrap">
         <header>
           <h3>Funil de oportunidades</h3>
           <span className="sub">
             {numero(funil.quantidadeGeral)} abertas · {dinheiro(funil.totalGeral)}
           </span>
-          <Link href="/oportunidades" className="btn">
+          <Link href="/oportunidades" className="btn" style={{ marginLeft: 'auto' }}>
             Abrir o quadro
           </Link>
         </header>
@@ -118,7 +123,7 @@ export default async function PaginaPainel() {
       </div>
 
       <div className="apoio">
-        <div className="bloco-card">
+        <div className="tblwrap">
           <header>
             <b>Origem dos leads</b>
             <span className="lbl">no mês</span>
@@ -129,9 +134,7 @@ export default async function PaginaPainel() {
             <div className="bars">
               {origens.map((o) => (
                 <div className="bar-row" key={o.origem}>
-                  <span className="nome">
-                    <span>{o.origem}</span>
-                  </span>
+                  <span className="nome">{o.origem}</span>
                   <span className="track">
                     <span
                       className="fill"
@@ -147,7 +150,7 @@ export default async function PaginaPainel() {
           )}
         </div>
 
-        <div className="bloco-card">
+        <div className="tblwrap">
           <header>
             <b>Leads por fase</b>
             <span className="lbl">parados há 7 dias</span>
@@ -164,8 +167,13 @@ export default async function PaginaPainel() {
                     {f.parados > 0 ? (
                       <>
                         {' '}
-                        <Link href="/leads?aba=parados" className="pill hi">
-                          {numero(f.parados)} parados
+                        {/*
+                          A única cor deste cartão. Lead parado é o que custa dinheiro
+                          e é o que alguém resolve clicando — o resto da linha é
+                          contagem, e contagem não pede ação.
+                        */}
+                        <Link href="/leads?aba=parados">
+                          <Etiqueta tom="alerta">{numero(f.parados)} parados</Etiqueta>
                         </Link>
                       </>
                     ) : null}

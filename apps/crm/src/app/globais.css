@@ -1,279 +1,166 @@
 /* ==========================================================================
    Pipe CRM — só o que é do CRM.
 
-   O token, o reset e os primitivos (.btn, .pill/.etiqueta, .card, .metric,
-   .tblwrap, .tabs, table/th/td, .iconbtn, .vazio, .lbl, .mono) vivem em
+   Token, reset e primitivos (.btn, .etiqueta, .card, .tblwrap, .tblhead,
+   .tabs, table/th/td, .iconbtn, .vazio, .lbl, .num, .p-cabecalho) vivem em
    `@pipe/ui`, importado antes desta folha no layout raiz.
 
-   Esta folha tinha 1320 linhas e as 688 primeiras eram cópia byte a byte da
-   folha da Gestão — o próprio cabeçalho do arquivo admitia: "Copiada da Gestão
-   sem retoque". Essa parte saiu inteira.
+   Esta folha não declara **nenhuma** cor própria e não usa mais a ponte de
+   nomes antigos (`--ground`, `--ink`, `--moss`, `--terracotta`, ...): todo
+   valor daqui vem de um token do pacote, com o nome de papel dele.
+
+   Duas regras que esta folha existe para obedecer, e que ela quebrava:
+
+   - Uma família no corpo. `'IBM Plex Mono'` aparecia escrito à mão em treze
+     regras, várias delas em texto que não é número (nome de fase, rótulo de
+     campo, contagem ao lado de rótulo). Ficou só onde há número tabular, e
+     sempre por `var(--p-fonte-mono)`.
+   - Cor é para o que exige ação. O verde do ponto positivo e o vermelho do
+     negativo continuam no painel do score, porque ali a cor é a informação.
+     Fora dali, quem pinta é o estado: lead parado, fechamento vencido,
+     lead desqualificado.
    ========================================================================== */
 
-/*
- * Nomes antigos apontando para os token novos, para não reescrever cada
- * referência do CSS abaixo. O que o mapeamento faz de propósito: eram quatro
- * matizes de destaque disputando a tela e sobra um. Terracota e ocre deixam de
- * ser cor de marca e viram os estados de erro e de alerta; o azul deixa de ser
- * cor. Nenhum tema é declarado aqui — os dois chegam prontos do @pipe/ui.
- */
-:root {
-  --ground: var(--p-fundo);
-  --surface: var(--p-superficie);
-  --surface-2: var(--p-superficie-2);
-  --surface-3: var(--p-superficie-3);
-  --line: var(--p-linha);
-  --line-strong: var(--p-linha-media);
-  --ink: var(--p-tinta);
-  --ink-2: var(--p-tinta-2);
-  --ink-3: var(--p-tinta-3);
-  --moss: var(--p-destaque);
-  --moss-soft: var(--p-destaque-fundo);
-  --sage: var(--p-dado);
-  --terracotta: var(--p-erro-tinta);
-  --terracotta-soft: var(--p-erro-fundo);
-  --ochre: var(--p-alerta-tinta);
-  --ochre-soft: var(--p-alerta-fundo);
-  --blue: var(--p-tinta-2);
-  --blue-soft: var(--p-superficie-3);
-  --online: var(--p-sucesso-tinta);
-  --shadow: var(--p-sombra-1);
-}
-
-/* -------------------------------------------------------- cabeçalho de tela */
-.board-head {
+/* ==================================================== bloco com cabeçalho
+   `.tblwrap` do pacote dá a caixa (borda, raio, recorte, superfície). O que
+   falta é a divisória do cabeçalho, e é só isso que mora aqui. Antes eram
+   quatro caixas locais quase iguais — `.bloco-card`, `.funnel`, `.explain` e
+   `.destaque` — com três raios diferentes entre elas. */
+.tblwrap > header {
   display: flex;
-  align-items: center;
-  gap: 12px;
+  align-items: baseline;
+  gap: var(--p-e-2);
+  padding: var(--p-e-3) var(--p-e-4);
+  border-bottom: 1px solid var(--p-linha);
   flex-wrap: wrap;
 }
 
-.board-head h2 {
+.tblwrap > header b,
+.tblwrap > header h3 {
   margin: 0;
-  font-size: var(--p-t-xl);
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
 }
 
-.board-head .sub {
-  font-size: var(--p-t-sm);
-  color: var(--ink-3);
-}
-
-.filters {
+.tblwrap > header .lbl {
   margin-left: auto;
-  display: flex;
-  gap: 6px;
-  flex-wrap: wrap;
-  align-items: center;
 }
 
-.quickfilters {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  flex-wrap: wrap;
+.tblwrap > footer {
+  padding: var(--p-e-3) var(--p-e-4);
+  border-top: 1px solid var(--p-linha);
+  background: var(--p-superficie-1);
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
 }
-
-.quickfilters .lbl {
-  margin-right: 2px;
-}
-
 
 /* ------------------------------------------------------ barras de carga */
 .bars {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  padding: 12px 14px;
+  gap: var(--p-e-2);
+  padding: var(--p-e-3) var(--p-e-4);
 }
 
 .bar-row {
   display: grid;
   grid-template-columns: 140px 1fr 74px;
   align-items: center;
-  gap: 9px;
+  gap: var(--p-e-2);
   font-size: var(--p-t-sm);
 }
 
 .bar-row .track {
   height: 7px;
-  border-radius: 4px;
-  background: var(--surface-3);
+  border-radius: var(--p-r-sm);
+  background: var(--p-grafico-trilho);
   overflow: hidden;
   display: block;
 }
 
 .bar-row .fill {
   height: 100%;
-  border-radius: 4px;
-  background: var(--sage);
+  border-radius: var(--p-r-sm);
+  background: var(--p-grafico-1);
   display: block;
 }
 
-.bar-row .fill.warn {
-  background: var(--ochre);
-}
-
-.bar-row .fill.bad {
-  background: var(--terracotta);
-}
-
 .bar-row .n {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
   text-align: right;
-  color: var(--ink);
+  color: var(--p-conteudo);
 }
 
 .bar-row .nome {
-  display: flex;
-  align-items: center;
-  gap: 6px;
   min-width: 0;
-}
-
-.bar-row .nome span {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-
-   ========================================================================== */
-
-/* ------------------------------------------------------------ indicadores */
-.kpis {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  overflow: hidden;
-}
-
-.kpi {
-  background: var(--surface);
-  padding: 12px 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.kpi .v {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: var(--p-t-2xl);
-  font-weight: 600;
-  letter-spacing: -0.02em;
-  font-variant-numeric: tabular-nums;
-}
-
-.kpi .k {
-  font-size: var(--p-t-xs);
-  color: var(--ink-2);
-}
-
-.kpi .d {
-  font-size: var(--p-t-xs);
-  font-family: 'IBM Plex Mono', monospace;
-  color: var(--ink-3);
-}
-
-.up {
-  color: var(--moss);
-}
-
-.down {
-  color: var(--terracotta);
-}
-
-/* -------------------------------------------------------- painel e funil */
-.crmgrid {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) 292px;
-  gap: 12px;
-  align-items: start;
-}
-
-.funnel {
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  background: var(--surface);
-  overflow: hidden;
-}
-
-.funnel .fh {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 11px 14px;
-  border-bottom: 1px solid var(--line);
-  flex-wrap: wrap;
-}
-
-.funnel .fh h3 {
-  margin: 0;
-  font-size: var(--p-t-md);
-  font-weight: 600;
-}
-
+/* ============================================================== o funil */
 .lanes {
   display: flex;
   gap: 1px;
-  background: var(--line);
+  background: var(--p-linha);
   overflow-x: auto;
   align-items: stretch;
 }
 
 .lane {
-  background: var(--surface-2);
+  background: var(--p-superficie-1);
   min-width: 186px;
   flex: 1;
-  padding: 10px;
+  padding: var(--p-e-3);
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--p-e-2);
 }
 
-/* O alvo do arraste precisa se anunciar, senão o vendedor solta o cartão no vazio. */
+/* O alvo do arraste precisa se anunciar, senão o vendedor solta o cartão no
+   vazio. É estado ativo de uma ação em curso: é onde a marca pode entrar. */
 .lane.alvo {
-  background: var(--moss-soft);
-  outline: 2px dashed var(--moss);
+  background: var(--p-marca-suave);
+  outline: 2px dashed var(--p-marca);
   outline-offset: -4px;
 }
 
 .lane header {
   display: flex;
   align-items: baseline;
-  gap: 6px;
+  gap: var(--p-e-1);
 }
 
-.lane header .lbl {
-  color: var(--ink-2);
+/* Nome de fase é nome, não rótulo de seção: família do corpo, caixa normal. */
+.lane header .fase {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+  color: var(--p-conteudo);
 }
 
 .lane header .c {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: var(--p-t-xs);
-  color: var(--ink-3);
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
   margin-left: auto;
 }
 
 .opp {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 7px;
-  padding: 9px 10px;
+  background: var(--p-superficie-0);
+  border: 1px solid var(--p-linha);
+  border-radius: var(--p-r-md);
+  padding: var(--p-e-2) var(--p-e-3);
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  text-decoration: none;
+  gap: var(--p-e-1);
   color: inherit;
   cursor: grab;
 }
 
 .opp:hover {
-  border-color: var(--line-strong);
+  border-color: var(--p-linha-media);
 }
 
 .opp.arrastando {
@@ -282,47 +169,27 @@
 
 .opp b {
   font-size: var(--p-t-md);
-  font-weight: 500;
-  color: var(--ink);
+  font-weight: var(--p-peso-medio);
+  color: var(--p-conteudo);
 }
 
 .opp .val {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
   font-size: var(--p-t-sm);
-  color: var(--ink);
+  color: var(--p-conteudo);
 }
 
 .opp .ow {
-  font-size: var(--p-t-xs);
-  color: var(--ink-3);
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
 }
 
-.lane .total {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: var(--p-t-xs);
-  color: var(--ink-3);
-  border-top: 1px solid var(--line);
-  padding-top: 7px;
-  margin-top: auto;
-}
-
-/* --------------------------------------------- o painel que explica o score */
-.explain {
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  background: var(--surface);
-  overflow: hidden;
-}
-
-.explain > header {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--line);
-}
-
-.explain > header b {
-  font-size: var(--p-t-md);
-}
-
+/* ================================================ o painel que explica o score
+   A ÚNICA tela do CRM em que a cor não indica ação, e ela fica: aqui o verde
+   e o vermelho SÃO a informação — que regra somou e que regra tirou. É a tela
+   que justifica o produto, e sem os dois sinais ela vira uma lista de números
+   sem direção. Cor de sucesso e de erro do pacote, não hex solto. */
 .rules {
   list-style: none;
   margin: 0;
@@ -332,93 +199,80 @@
 .rules li {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 8px 14px;
-  border-bottom: 1px solid var(--line);
-  font-size: var(--p-t-sm);
+  gap: var(--p-e-3);
+  padding: var(--p-e-2) var(--p-e-4);
+  border-bottom: 1px solid var(--p-linha);
+  font-size: var(--p-t-md);
+}
+
+.rules li:last-child {
+  border-bottom: 0;
 }
 
 .rules li span {
   flex: 1;
-  color: var(--ink-2);
+  color: var(--p-conteudo-desabilitado);
 }
 
 .rules li .v {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: var(--p-t-xs);
-  color: var(--ink-3);
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
   flex: none;
 }
 
 .rules li em {
   font-style: normal;
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: var(--p-t-sm);
-  font-weight: 600;
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
   flex: none;
 }
 
 .rules li em.p {
-  color: var(--moss);
+  color: var(--p-sucesso-conteudo);
 }
 
 .rules li em.n {
-  color: var(--terracotta);
+  color: var(--p-erro-conteudo);
 }
 
-.explain .tot {
+/* O total. O número não é colorido: ele é o assunto, e o assunto não precisa
+   de cor para ser encontrado — precisa de tamanho. */
+.tot {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 11px 14px;
-  background: var(--surface-2);
+  gap: var(--p-e-3);
+  padding: var(--p-e-3) var(--p-e-4);
+  background: var(--p-superficie-1);
+  border-top: 1px solid var(--p-linha);
 }
 
-.explain .tot .n {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: var(--p-t-2xl);
-  font-weight: 600;
-  color: var(--moss);
+.tot .n {
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--p-t-numero);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: -0.02em;
+  line-height: var(--p-altura-linha-curta);
+  color: var(--p-conteudo);
 }
 
-/* ------------------------------------------------------------- ficha do lead */
+/* ========================================================== ficha do lead */
 .ficha {
   display: grid;
   grid-template-columns: 316px minmax(0, 1fr);
-  gap: 12px;
+  gap: var(--p-e-3);
   align-items: start;
 }
 
 .coluna {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: var(--p-e-3);
   min-width: 0;
-}
-
-.bloco-card {
-  border: 1px solid var(--line);
-  border-radius: 9px;
-  background: var(--surface);
-  overflow: hidden;
-}
-
-.bloco-card > header {
-  display: flex;
-  align-items: baseline;
-  gap: 8px;
-  padding: 11px 14px;
-  border-bottom: 1px solid var(--line);
-  flex-wrap: wrap;
-}
-
-.bloco-card > header b {
-  font-size: var(--p-t-md);
-  font-weight: 600;
-}
-
-.bloco-card > header .lbl {
-  margin-left: auto;
 }
 
 .campos {
@@ -426,32 +280,31 @@
   grid-template-columns: 1fr;
 }
 
-.campos div {
+.campos > div {
   display: flex;
-  gap: 10px;
+  gap: var(--p-e-3);
   align-items: baseline;
-  padding: 7px 14px;
-  border-bottom: 1px solid var(--line);
+  padding: var(--p-e-2) var(--p-e-4);
+  border-bottom: 1px solid var(--p-linha);
   font-size: var(--p-t-md);
 }
 
-.campos div:last-child {
+.campos > div:last-child {
   border-bottom: 0;
 }
 
-/* Rótulo de campo em sans e caixa normal: a monoespaçada em caixa alta é a
-   assinatura da marca, mas repetida em toda linha vira barulho. */
-.campos dt,
+/* Rótulo de campo na família do corpo e em caixa normal. A monoespaçada em
+   caixa alta é assinatura da marca, mas repetida em toda linha vira barulho. */
 .campos .k {
   font-size: var(--p-t-sm);
-  color: var(--ink-3);
+  color: var(--p-conteudo-fantasma);
   width: 124px;
   flex: none;
   overflow-wrap: anywhere;
 }
 
 .campos .v {
-  color: var(--ink);
+  color: var(--p-conteudo);
   min-width: 0;
   overflow-wrap: anywhere;
 }
@@ -459,13 +312,13 @@
 .etiquetas {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  padding: 11px 14px;
+  gap: var(--p-e-1);
+  padding: var(--p-e-3) var(--p-e-4);
 }
 
 /* Respostas de formulário: agrupadas por formulário e versão, nunca soltas. */
 .form-versao {
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--p-linha);
 }
 
 .form-versao:last-child {
@@ -475,18 +328,18 @@
 .form-versao > .cab {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  padding: 9px 14px;
-  background: var(--surface-2);
+  gap: var(--p-e-2);
+  padding: var(--p-e-2) var(--p-e-4);
+  background: var(--p-superficie-1);
   flex-wrap: wrap;
 }
 
 .form-versao > .cab b {
   font-size: var(--p-t-md);
-  font-weight: 600;
+  font-weight: var(--p-peso-forte);
 }
 
-/* ----------------------------------------------------------- linha do tempo */
+/* ========================================================= linha do tempo */
 .tempo {
   list-style: none;
   margin: 0;
@@ -495,10 +348,10 @@
 
 .tempo li {
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr);
-  gap: 4px 12px;
-  padding: 10px 14px;
-  border-bottom: 1px solid var(--line);
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: var(--p-e-1) var(--p-e-3);
+  padding: var(--p-e-3) var(--p-e-4);
+  border-bottom: 1px solid var(--p-linha);
 }
 
 .tempo li:last-child {
@@ -506,68 +359,63 @@
 }
 
 .tempo .quando {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: var(--p-t-xs);
-  color: var(--ink-3);
-  padding-top: 2px;
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
 }
 
 .tempo .t {
   font-size: var(--p-t-md);
-  color: var(--ink);
-  font-weight: 500;
+  color: var(--p-conteudo);
+  font-weight: var(--p-peso-medio);
 }
 
 .tempo .quem {
-  font-size: var(--p-t-xs);
-  color: var(--ink-3);
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
 }
 
-/* O resumo do atendimento entra recuado: é texto de máquina, não do vendedor. */
+/* O resumo do atendimento entra recuado: é texto de máquina, não do vendedor.
+   A barra da esquerda é linha translúcida, não matiz de gráfico. */
 .tempo .resumo {
   grid-column: 2;
   font-size: var(--p-t-sm);
-  color: var(--ink-2);
-  background: var(--surface-2);
-  border-left: 2px solid var(--sage);
-  padding: 7px 10px;
-  border-radius: 0 5px 5px 0;
+  color: var(--p-conteudo-desabilitado);
+  background: var(--p-superficie-1);
+  border-left: 2px solid var(--p-linha-media);
+  padding: var(--p-e-2) var(--p-e-3);
+  border-radius: 0 var(--p-r-sm) var(--p-r-sm) 0;
   margin-top: 3px;
 }
 
 .mensagem {
-  padding: 10px 14px;
+  padding: var(--p-e-3) var(--p-e-4);
   font-size: var(--p-t-sm);
-  color: var(--ink-3);
-  border-top: 1px solid var(--line);
+  color: var(--p-conteudo-fantasma);
+  border-top: 1px solid var(--p-linha);
 }
 
 .voltar {
   font-size: var(--p-t-sm);
-  color: var(--ink-3);
+  color: var(--p-conteudo-fantasma);
   text-decoration: none;
 }
 
 .voltar:hover {
-  color: var(--moss);
+  color: var(--p-conteudo);
 }
 
-
-@media (max-width: 1240px) {
-  .crmgrid,
-  .ficha {
-    grid-template-columns: 1fr;
-  }
-}
-
-
-/* ----------------------------------------------- painel: a linha de resumo */
-/* Sem caixa, sem borda, tipografia menor que a do funil. É legenda, não assunto. */
+/* ================================================ painel: a linha de resumo
+   Sem caixa, sem borda, tipografia menor que a do funil. É legenda, não
+   assunto: quando cinco cartões têm o peso do funil, o olho não sabe onde
+   começar. A variação contra o mês anterior vem com sinal, não com cor —
+   um mês pior não é um erro que alguém resolva clicando. */
 .resumo {
   display: flex;
   flex-wrap: wrap;
-  gap: 0 28px;
-  padding: 2px 2px 6px;
+  gap: 0 var(--p-e-8);
+  padding: 2px 2px var(--p-e-2);
 }
 
 .resumo > div {
@@ -578,146 +426,146 @@
 }
 
 .resumo b {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: var(--p-t-xl);
-  font-weight: 600;
-  letter-spacing: -0.015em;
+  font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
-  line-height: 1.2;
+  font-size: var(--p-t-titulo);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: -0.015em;
+  line-height: var(--p-altura-linha-curta);
 }
 
 .resumo span {
-  font-size: var(--p-t-xs);
-  color: var(--ink-3);
-}
-
-/* ------------------------------------------------ painel: o funil em destaque */
-.destaque {
-  background: var(--surface);
-  border: 1px solid var(--line);
-  border-radius: 10px;
-  overflow: hidden;
-}
-
-.destaque > header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 18px;
-  border-bottom: 1px solid var(--line);
-  flex-wrap: wrap;
-}
-
-.destaque > header h3 {
-  margin: 0;
-  font-size: var(--p-t-lg);
-  font-weight: 600;
-  letter-spacing: -0.01em;
-}
-
-.destaque > header .sub {
-  margin-right: auto;
-}
-
-.destaque > footer {
-  padding: 11px 18px;
-  border-top: 1px solid var(--line);
-  background: var(--surface-2);
   font-size: var(--p-t-sm);
-  color: var(--ink-3);
+  color: var(--p-conteudo-fantasma);
 }
 
+.resumo .var {
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  color: var(--p-conteudo-desabilitado);
+}
+
+/* ================================================ painel: o funil em destaque */
 .funil-barras {
   display: flex;
   flex-direction: column;
-  gap: 14px;
-  padding: 20px 18px;
+  gap: var(--p-e-4);
+  padding: var(--p-e-5) var(--p-e-4);
 }
 
 .etapa {
   display: grid;
   grid-template-columns: 108px minmax(0, 1fr) 108px 46px;
   align-items: center;
-  gap: 14px;
+  gap: var(--p-e-4);
 }
 
 .etapa .nome {
   font-size: var(--p-t-md);
-  color: var(--ink);
+  color: var(--p-conteudo);
 }
 
 .etapa .track {
   height: 22px;
-  border-radius: 5px;
-  background: var(--surface-3);
+  border-radius: var(--p-r-sm);
+  background: var(--p-grafico-trilho);
   overflow: hidden;
   display: block;
 }
 
 .etapa .fill {
   height: 100%;
-  border-radius: 5px;
-  background: var(--sage);
+  border-radius: var(--p-r-sm);
+  background: var(--p-grafico-1);
   display: block;
 }
 
 .etapa .valor,
 .etapa .qtd {
-  font-family: 'IBM Plex Mono', monospace;
+  font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
   text-align: right;
   font-size: var(--p-t-md);
 }
 
 .etapa .valor {
-  color: var(--ink);
+  color: var(--p-conteudo);
 }
 
 .etapa .qtd {
-  color: var(--ink-3);
-  font-size: var(--p-t-xs);
+  color: var(--p-conteudo-fantasma);
+  font-size: var(--p-t-sm);
 }
 
-/* --------------------------------------------- painel: o apoio, abaixo do funil */
+/* ------------------------------------------- painel: o apoio, abaixo do funil */
 .apoio {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-  gap: 12px;
+  gap: var(--p-e-3);
   align-items: start;
 }
 
-/* ------------------------------------------------------- lista: agrupamento */
-.tblhead .campo {
+/* =========================================================== lista: agrupamento
+   O cabeçalho do grupo é a resposta: quando a lista está dobrada por uma
+   coluna, essa coluna sai da tabela — repeti-la em cada linha é dizer a mesma
+   coisa duas vezes e roubar largura de quem ainda tem algo a dizer. */
+/* O rótulo do seletor de agrupamento. Nome próprio, e não `.campo`: `.campo` é
+   o primitivo de entrada do pacote, e usá-lo num `<label>` dava a ele borda e
+   fundo de caixa de texto. */
+.agrupador {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: var(--p-e-1);
   font-size: var(--p-t-sm);
-  color: var(--ink-3);
+  color: var(--p-conteudo-fantasma);
+  white-space: nowrap;
 }
 
 tr.grupo th {
-  background: var(--surface-2);
+  background: var(--p-superficie-1);
   font-family: inherit;
-  font-size: var(--p-t-sm);
-  font-weight: 600;
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
   letter-spacing: 0;
   text-transform: none;
-  color: var(--ink);
-  padding: 8px 12px;
-  border-top: 1px solid var(--line);
+  color: var(--p-conteudo);
+  padding: var(--p-e-2) var(--p-celula-x);
+  border-top: 1px solid var(--p-linha);
 }
 
-/* Contagem ao lado do rótulo: número é monoespaçado, texto não. */
+/* Contagem ao lado de um rótulo. Monoespaçada porque é número. */
 .qt {
-  font-family: 'IBM Plex Mono', monospace;
-  font-size: var(--p-t-xs);
-  color: var(--ink-3);
+  font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
 }
 
-/* Nome de fase é nome, não rótulo de seção: sans, caixa normal. */
-.lane header .fase {
-  font-size: var(--p-t-md);
-  font-weight: 600;
-  color: var(--ink);
+/* ============================================================= texto de tela
+   `code` é o único lugar da interface com monoespaçada que não é número: é
+   comando de terminal literal, e o elemento nativo já diz isso ao leitor de
+   tela. Não existe uma classe `.mono` para tentar a sorte com o resto. */
+code {
+  font-family: var(--p-fonte-mono);
+  font-size: var(--p-t-sm);
+}
+
+/* Primeira coluna de tabela: o nome do registro é o que se procura na varredura. */
+.forte {
+  color: var(--p-conteudo);
+  font-weight: var(--p-peso-medio);
+}
+
+/* Condição de regra em português. Quebra linha e tem teto de largura, senão
+   uma condição composta empurra as outras seis colunas para a rolagem. */
+.condicao {
+  display: inline-block;
+  white-space: normal;
+  max-width: 460px;
+}
+
+@media (max-width: 1240px) {
+  .ficha {
+    grid-template-columns: 1fr;
+  }
 }

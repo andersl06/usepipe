@@ -39,6 +39,15 @@ const ROTULO_ATIVIDADE: Record<string, string> = {
   mudanca_fase: 'Mudança de fase',
 };
 
+/** O status cru vira rótulo aqui, uma vez só para a listagem e para a ficha. */
+export const ROTULO_STATUS: Record<string, string> = {
+  novo: 'Novo',
+  em_contato: 'Em contato',
+  qualificado: 'Qualificado',
+  convertido: 'Convertido',
+  desqualificado: 'Desqualificado',
+};
+
 export const ABAS = [
   { chave: 'todos', rotulo: 'Todos' },
   { chave: 'novos', rotulo: 'Novos' },
@@ -102,6 +111,18 @@ export type Agrupamento = (typeof AGRUPAMENTOS)[number]['chave'];
 
 export function agrupamentoValido(valor: string | undefined): Agrupamento {
   return (AGRUPAMENTOS.find((a) => a.chave === valor)?.chave ?? 'nenhum') as Agrupamento;
+}
+
+/**
+ * Qual coluna da tabela o cabeçalho do grupo já está dizendo.
+ *
+ * Lista agrupada por proprietário com uma coluna "Proprietário" repete o mesmo
+ * nome em cada linha do grupo: é largura gasta para dizer o que o cabeçalho
+ * acabou de dizer. As chaves do agrupamento e as das colunas são as mesmas de
+ * propósito — é o que mantém as duas listas casadas sem uma tabela de-para.
+ */
+export function colunaDoAgrupamento(por: Agrupamento): string | null {
+  return por === 'nenhum' ? null : por;
 }
 
 export interface Grupo {
@@ -307,6 +328,7 @@ export interface Ficha {
   email: string | null;
   telefone: string | null;
   documento: string | null;
+  contaId: string | null;
   contaNome: string | null;
   origem: string | null;
   campanha: string | null;
@@ -357,6 +379,7 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
         email: contato.email,
         telefone: contato.telefoneE164,
         documento: contato.documento,
+        contaId: lead.contaId,
         contaNome: conta.nome,
         origem: lead.origem,
         campanha: lead.campanha,
@@ -398,6 +421,7 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
       email: cabeca.email,
       telefone: cabeca.telefone,
       documento: cabeca.documento,
+      contaId: cabeca.contaId,
       contaNome: cabeca.contaNome,
       origem: cabeca.origem,
       campanha: cabeca.campanha,

@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useOptimistic, useState, useTransition } from 'react';
 import { moverOportunidade } from '../app/oportunidades/acoes';
+import { Etiqueta, Seletor } from '@pipe/ui';
 import { dinheiroCurto, numero } from '../lib/formato';
 
 /**
@@ -24,6 +25,8 @@ export interface CartaoView {
   detalhe: string;
   leadId: string | null;
   fase: string;
+  /** Dias de atraso do fechamento previsto, ou `null` quando não venceu. */
+  diasVencido: number | null;
 }
 
 interface Props {
@@ -100,8 +103,19 @@ export function QuadroFunil({ fases, cartoes }: Props) {
                 <b>{c.leadId ? <Link href={`/leads/${c.leadId}`}>{c.nome}</Link> : c.nome}</b>
                 <span className="val">{c.valor}</span>
                 <span className="ow">{c.detalhe}</span>
-                <select
-                  className="btn"
+                {/*
+                  A única cor do quadro. Fechamento previsto no passado com a
+                  oportunidade ainda aberta é a coisa que alguém resolve hoje —
+                  ou fecha, ou remarca. Tudo o mais aqui é categoria.
+                */}
+                {c.diasVencido !== null ? (
+                  <span>
+                    <Etiqueta tom="alerta">
+                      fechamento vencido há {numero(c.diasVencido)} dias
+                    </Etiqueta>
+                  </span>
+                ) : null}
+                <Seletor
                   value={c.fase}
                   aria-label={`Fase de ${c.nome}`}
                   onChange={(e) => mover(c.id, e.target.value)}
@@ -111,7 +125,7 @@ export function QuadroFunil({ fases, cartoes }: Props) {
                       {o}
                     </option>
                   ))}
-                </select>
+                </Seletor>
               </div>
             ))}
           </div>
