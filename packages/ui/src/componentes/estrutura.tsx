@@ -23,9 +23,9 @@
  *   32 itens de menu com 29 apagados.
  */
 
-import type { ReactNode } from 'react';
-import { Icone } from '../icones.js';
-import { Simbolo } from '../icones.js';
+import type { ComponentType, ReactNode } from 'react';
+import { Icone } from '../icones';
+import { Simbolo } from '../icones';
 
 /**
  * Um destino de navegação. Repare que não existe `desabilitado`:
@@ -36,13 +36,45 @@ export type ItemDeNavegacao = {
   href: string;
 };
 
+/**
+ * O componente de link do aplicativo.
+ *
+ * Existe para que este pacote continue sem depender de `next`: cada aplicativo
+ * passa o seu `next/link` e a navegação segue no cliente, sem recarregar a
+ * página. Sem isso, um `<a>` cru transformaria toda troca de módulo num
+ * recarregamento completo — uma regressão de sensação que ninguém pediu.
+ */
+export type ComponenteDeLink = ComponentType<{
+  href: string;
+  className?: string;
+  children: ReactNode;
+  'aria-current'?: 'page' | undefined;
+  title?: string;
+  'aria-label'?: string;
+}>;
+
+/** Link padrão: âncora comum, para quem não passar um. */
+const LinkPadrao: ComponenteDeLink = ({ href, children, ...resto }) => (
+  <a href={href} {...resto}>
+    {children}
+  </a>
+);
+
 /** Marca no canto superior esquerdo. Leva sempre para a raiz do aplicativo. */
-export function Marca({ nome, href = '/' }: { nome: string; href?: string }) {
+export function Marca({
+  nome,
+  href = '/',
+  Link = LinkPadrao,
+}: {
+  nome: string;
+  href?: string;
+  Link?: ComponenteDeLink;
+}) {
   return (
-    <a className="p-marca" href={href}>
+    <Link className="p-marca" href={href}>
       <Simbolo />
       <b>{nome}</b>
-    </a>
+    </Link>
   );
 }
 
@@ -60,20 +92,22 @@ export function estaAtivo(href: string, caminhoAtual: string): boolean {
 export function NavModulos({
   itens,
   caminhoAtual,
+  Link = LinkPadrao,
 }: {
   itens: readonly ItemDeNavegacao[];
   caminhoAtual: string;
+  Link?: ComponenteDeLink;
 }) {
   return (
     <nav className="p-modulos" aria-label="Módulos">
       {itens.map((item) => (
-        <a
+        <Link
           key={item.href}
           href={item.href}
           aria-current={estaAtivo(item.href, caminhoAtual) ? 'page' : undefined}
         >
           {item.rotulo}
-        </a>
+        </Link>
       ))}
     </nav>
   );
@@ -90,6 +124,7 @@ export function Cabecalho({
   caminhoAtual,
   hrefConfiguracoes,
   fim,
+  Link = LinkPadrao,
 }: {
   nome: string;
   itens: readonly ItemDeNavegacao[];
@@ -97,22 +132,23 @@ export function Cabecalho({
   /** Omitido quando o aplicativo ainda não tem nenhuma tela de configuração. */
   hrefConfiguracoes?: string;
   fim?: ReactNode;
+  Link?: ComponenteDeLink;
 }) {
   return (
     <header className="p-topo">
-      <Marca nome={nome} />
-      <NavModulos itens={itens} caminhoAtual={caminhoAtual} />
+      <Marca nome={nome} Link={Link} />
+      <NavModulos itens={itens} caminhoAtual={caminhoAtual} Link={Link} />
       <div className="p-topo-fim">
         {fim}
         {hrefConfiguracoes ? (
-          <a
+          <Link
             className="iconbtn"
             href={hrefConfiguracoes}
             title="Configurações"
             aria-label="Configurações"
           >
             <Icone nome="engrenagem" />
-          </a>
+          </Link>
         ) : null}
       </div>
     </header>
@@ -130,11 +166,13 @@ export function LateralContexto({
   itens,
   caminhoAtual,
   className,
+  Link = LinkPadrao,
 }: {
   titulo?: string;
   itens: readonly ItemDeNavegacao[];
   caminhoAtual: string;
   className?: string;
+  Link?: ComponenteDeLink;
 }) {
   if (itens.length < 2) return null;
 
@@ -145,13 +183,13 @@ export function LateralContexto({
     >
       {titulo ? <span className="lbl">{titulo}</span> : null}
       {itens.map((item) => (
-        <a
+        <Link
           key={item.href}
           href={item.href}
           aria-current={estaAtivo(item.href, caminhoAtual) ? 'page' : undefined}
         >
           {item.rotulo}
-        </a>
+        </Link>
       ))}
     </nav>
   );
@@ -183,20 +221,22 @@ export function AreaConfiguracoes({
   caminhoAtual,
   hrefVoltar = '/',
   children,
+  Link = LinkPadrao,
 }: {
   nome: string;
   itens: readonly ItemDeNavegacao[];
   caminhoAtual: string;
   hrefVoltar?: string;
   children: ReactNode;
+  Link?: ComponenteDeLink;
 }) {
   return (
     <div className="p-app">
       <header className="p-config-topo">
-        <a className="p-voltar" href={hrefVoltar}>
+        <Link className="p-voltar" href={hrefVoltar}>
           <Icone nome="esquerda" tamanho={14} />
           Voltar para {nome}
-        </a>
+        </Link>
         <b>Configurações</b>
       </header>
       <div className="p-miolo">
@@ -204,6 +244,7 @@ export function AreaConfiguracoes({
           itens={itens}
           caminhoAtual={caminhoAtual}
           className="p-config-lateral"
+          Link={Link}
         />
         <main className="p-conteudo">{children}</main>
       </div>

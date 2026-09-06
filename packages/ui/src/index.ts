@@ -12,11 +12,11 @@
  * `docs/pesquisa/visual-blip-salesforce.md`.
  */
 
-export { TEMA, espaco } from './tema.js';
-export type { Tema, NomeDeEstado } from './tema.js';
+export { TEMA, espaco } from './tema';
+export type { Tema, NomeDeEstado } from './tema';
 
-export { Icone, Simbolo } from './icones.js';
-export type { NomeDeIcone, PropsDeIcone } from './icones.js';
+export { Icone, Simbolo } from './icones';
+export type { NomeDeIcone, PropsDeIcone } from './icones';
 
 export {
   Botao,
@@ -30,14 +30,14 @@ export {
   Avatar,
   Cartao,
   iniciais,
-} from './componentes/primitivos.js';
+} from './componentes/primitivos';
 export type {
   PropsDeBotao,
   PropsDeBotaoDeIcone,
   VarianteDeBotao,
   TomDeEtiqueta,
   Aba,
-} from './componentes/primitivos.js';
+} from './componentes/primitivos';
 
 export {
   Marca,
@@ -47,8 +47,8 @@ export {
   Aplicacao,
   AreaConfiguracoes,
   estaAtivo,
-} from './componentes/estrutura.js';
-export type { ItemDeNavegacao } from './componentes/estrutura.js';
+} from './componentes/estrutura';
+export type { ItemDeNavegacao, ComponenteDeLink } from './componentes/estrutura';
 
-export { Tabela } from './componentes/tabela.js';
-export type { Coluna } from './componentes/tabela.js';
+export { Tabela } from './componentes/tabela';
+export type { Coluna } from './componentes/tabela';

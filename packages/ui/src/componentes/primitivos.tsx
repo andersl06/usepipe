@@ -17,7 +17,7 @@ import type {
   ReactNode,
   SelectHTMLAttributes,
 } from 'react';
-import { Icone, type NomeDeIcone } from '../icones.js';
+import { Icone, type NomeDeIcone } from '../icones';
 
 /* ------------------------------------------------------------------ botão */
 
