@@ -16,9 +16,9 @@ import type { EstadoAtendente } from '../servidor/consultas';
  */
 
 export const COR_DO_ESTADO: Record<EstadoAtendente, string> = {
-  online: 'var(--p-sucesso-tinta)',
-  pausa: 'var(--p-alerta-tinta)',
-  invisivel: 'var(--p-tinta-3)',
+  online: 'var(--p-sucesso-conteudo)',
+  pausa: 'var(--p-alerta-conteudo)',
+  invisivel: 'var(--p-conteudo-fantasma)',
   offline: 'var(--p-linha-forte)',
 };
 
