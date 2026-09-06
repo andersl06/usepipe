@@ -34,7 +34,17 @@ export function PainelContato({
   const nome = conversa.contatoNome ?? 'Sem nome';
 
   return (
+    // Painel recuado com cartões por cima, na disposição medida no painel deles
+    // (`docs/pesquisa/blip-desk-medidas.md`, §6): fundo em superfície 2, 8px de
+    // folga em volta, cartões de 8px de espaço com recuo 16px 24px.
+    //
+    // O que NÃO copiamos é o painel em abas. Três abas para três seções curtas é
+    // um clique a mais para ver dado que cabe numa rolagem só.
     <aside className="col panel" aria-label="Contato">
+      <header className="panel-topo">
+        <h2>Contato</h2>
+      </header>
+      <div className="panel-corpo">
       <section>
         <div className="who-card">
           <div className="av">{iniciaisDe(nome)}</div>
@@ -45,11 +55,11 @@ export function PainelContato({
         </div>
         <dl className="kv">
           <dt>E-mail</dt>
-          <dd>{conversa.contatoEmail ?? '—'}</dd>
+          <dd>{conversa.contatoEmail ?? 'não informado'}</dd>
           <dt>Documento</dt>
-          <dd>{conversa.contatoDocumento ?? '—'}</dd>
+          <dd>{conversa.contatoDocumento ?? 'não informado'}</dd>
           <dt>Fila</dt>
-          <dd>{conversa.filaNome ?? '—'}</dd>
+          <dd>{conversa.filaNome ?? 'não informado'}</dd>
           <dt>Aberta em</dt>
           <dd>{diaEHora(conversa.criadaEm)}</dd>
         </dl>
@@ -127,6 +137,7 @@ export function PainelContato({
           </dl>
         )}
       </section>
+      </div>
     </aside>
   );
 }

@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { janelaAberta, pertoDeExpirar, segundosRestantes } from '@pipe/core';
+import { Avatar } from '@pipe/ui';
 import { AcoesDaConversa } from './acoes-conversa';
 import { Compositor } from './compositor';
 import type { VariaveisDoContato } from './compositor';
@@ -66,6 +67,30 @@ function CorpoDaMensagem({ item }: { item: Extract<ItemDaConversa, { genero: 'me
   return <>{item.conteudo ?? ''}</>;
 }
 
+type LadoDoGrupo = 'entrada' | 'saida' | 'nota';
+type GrupoDeMensagens = { lado: LadoDoGrupo; itens: ItemDaConversa[] };
+
+/**
+ * Mensagens seguidas do mesmo autor viram um grupo, como no Desk deles: 3px
+ * entre balões dentro do grupo e 20px entre grupos, com os cantos que se
+ * encostam encolhendo de 13px para 2px (medidas em
+ * `docs/pesquisa/blip-desk-medidas.md`, §4).
+ *
+ * Nota interna nunca agrupa: ela é um aparte no meio da conversa, e empilhar
+ * duas notas como se fossem uma fala só apaga que são dois momentos.
+ */
+function agrupar(itens: ItemDaConversa[]): GrupoDeMensagens[] {
+  const grupos: GrupoDeMensagens[] = [];
+  for (const item of itens) {
+    const lado: LadoDoGrupo =
+      item.genero === 'nota' ? 'nota' : item.direcao === 'saida' ? 'saida' : 'entrada';
+    const ultimo = grupos[grupos.length - 1];
+    if (ultimo && ultimo.lado === lado && lado !== 'nota') ultimo.itens.push(item);
+    else grupos.push({ lado, itens: [item] });
+  }
+  return grupos;
+}
+
 export function Conversa({
   conversa,
   itens,
@@ -103,6 +128,8 @@ export function Conversa({
         <Link className="voltar" href="/">
           ← Atendimentos
         </Link>
+        {/* Avatar do contato à esquerda do nome, como no cabeçalho deles. */}
+        <Avatar nome={conversa.contatoNome ?? 'Sem nome'} className="av-contato" />
         <div>
           <h3>{conversa.contatoNome ?? 'Sem nome'}</h3>
           {/*
@@ -123,57 +150,70 @@ export function Conversa({
       </div>
 
       <div className="msgs">
-        {itens.map((item) => {
-          if (item.genero === 'nota') {
-            return (
-              <div className="msg nota" key={`n-${item.id}`}>
-                <div className="bub">{item.corpo}</div>
-                <div className="st">
-                  nota interna · {item.autor ?? 'sistema'} · {hora(item.criadaEm)}
+        {agrupar(itens).map((grupo, indiceDoGrupo) => (
+          <div className="grupo" data-lado={grupo.lado} key={`g-${grupo.itens[0]?.id ?? indiceDoGrupo}`}>
+            {grupo.itens.map((item, indice) => {
+              if (item.genero === 'nota') {
+                return (
+                  <div className="msg nota" key={`n-${item.id}`}>
+                    <div className="bub">
+                      {item.corpo}
+                      <span className="st">
+                        nota interna · {item.autor ?? 'sistema'} · {hora(item.criadaEm)}
+                      </span>
+                    </div>
+                  </div>
+                );
+              }
+              const saida = item.direcao === 'saida';
+              const falhou = item.estadoEntrega === 'falhou';
+              return (
+                <div
+                  className={`msg${saida ? ' out' : ''}${falhou ? ' falhou' : ''}`}
+                  data-primeiro={indice === 0 ? 'true' : 'false'}
+                  key={`m-${item.id}`}
+                >
+                  <div className="bub">
+                    <CorpoDaMensagem item={item} />
+                    {/* O horário e o estado de entrega vivem DENTRO do balão,
+                        encostados no canto de baixo, como no Desk deles. É o que
+                        permite empilhar as mensagens do mesmo autor a 3px sem
+                        uma linha de texto entre cada duas. */}
+                    <span className="st">
+                      {hora(item.criadaEm)}
+                      {saida && item.estadoEntrega
+                        ? ` · ${ENTREGA[item.estadoEntrega] ?? item.estadoEntrega}`
+                        : ''}
+                      {item.deRespostaPronta ? ' · resposta pronta' : ''}
+                      {item.deTemplate ? ' · template' : ''}
+                    </span>
+                  </div>
+                  {falhou ? (
+                    <div className="fail-note">
+                      <svg
+                        viewBox="0 0 24 24"
+                        width="15"
+                        height="15"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="1.9"
+                        aria-hidden="true"
+                      >
+                        <circle cx="12" cy="12" r="9" />
+                        <path d="M12 7.5v5M12 16h.01" />
+                      </svg>
+                      <span>
+                        {item.erroTexto ?? 'Falha na entrega, sem motivo informado.'}
+                        {item.erroCodigo ? ` (${item.erroCodigo})` : ''}
+                      </span>
+                      <BotaoReenviar mensagemId={item.id} />
+                    </div>
+                  ) : null}
                 </div>
-              </div>
-            );
-          }
-          const saida = item.direcao === 'saida';
-          const falhou = item.estadoEntrega === 'falhou';
-          return (
-            <div
-              className={`msg${saida ? ' out' : ''}${falhou ? ' falhou' : ''}`}
-              key={`m-${item.id}`}
-            >
-              <div className="bub">
-                <CorpoDaMensagem item={item} />
-              </div>
-              {falhou ? (
-                <div className="fail-note">
-                  <svg
-                    viewBox="0 0 24 24"
-                    width="15"
-                    height="15"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="1.9"
-                    aria-hidden="true"
-                  >
-                    <circle cx="12" cy="12" r="9" />
-                    <path d="M12 7.5v5M12 16h.01" />
-                  </svg>
-                  <span>{item.erroTexto ?? 'Falha na entrega, sem motivo informado.'}</span>
-                  <BotaoReenviar mensagemId={item.id} />
-                </div>
-              ) : null}
-              <div className="st">
-                {hora(item.criadaEm)}
-                {saida && item.estadoEntrega
-                  ? ` · ${ENTREGA[item.estadoEntrega] ?? item.estadoEntrega}`
-                  : ''}
-                {item.deRespostaPronta ? ' · resposta pronta' : ''}
-                {item.deTemplate ? ' · template' : ''}
-                {falhou && item.erroCodigo ? ` · ${item.erroCodigo}` : ''}
-              </div>
-            </div>
-          );
-        })}
+              );
+            })}
+          </div>
+        ))}
       </div>
 
       <Compositor

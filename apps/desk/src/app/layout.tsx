@@ -13,21 +13,25 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#F2F1EC' },
-    { media: '(prefers-color-scheme: dark)', color: '#12140E' },
-  ],
+  themeColor: '#F2F1EC',
 };
 
 /**
- * Aplica o tema escolhido antes da primeira pintura. Sem isto o atendente que escolheu
- * escuro vê um lampejo claro a cada navegação — e é o tipo de detalhe que faz a
- * ferramenta parecer improvisada.
+ * Tema aplicado antes da primeira pintura.
+ *
+ * O CLARO É O PADRÃO, e o `data-tema="claro"` no `<html>` abaixo é quem garante
+ * isso: sem ele o bloco `@media (prefers-color-scheme: dark)` do `@pipe/ui`
+ * assume, e o Desk abre escuro na máquina de quem configurou o sistema em
+ * escuro. É a mesma decisão que a Gestão já tomou, e as três referências
+ * (Blip, Salesforce, Twenty) são claras.
+ *
+ * O escuro continua disponível: quem clicar no alternador grava a escolha, e
+ * este script a devolve antes de pintar, sem lampejo claro a cada navegação.
  */
 const TEMA_ANTES_DE_PINTAR = `
 try {
   var t = localStorage.getItem('pipe-tema');
-  if (t) document.documentElement.dataset.tema = t;
+  if (t === 'claro' || t === 'escuro') document.documentElement.dataset.tema = t;
 } catch (e) {}
 `;
 
@@ -35,7 +39,7 @@ export default function LayoutRaiz({ children }: { children: ReactNode }) {
   return (
     // O script acima escreve `data-tema` antes da hidratação, e extensão de navegador
     // costuma escrever atributo aqui também: avisar sobre isso é ruído, não defeito.
-    <html lang="pt-BR" suppressHydrationWarning>
+    <html lang="pt-BR" data-tema="claro" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

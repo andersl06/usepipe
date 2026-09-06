@@ -389,34 +389,6 @@ export function Compositor({
         </div>
       ) : null}
 
-      <div className="quick">
-        <button
-          type="button"
-          className="etiqueta"
-          onMouseDown={(e) => e.preventDefault()}
-          onClick={() => {
-            setGatilho({ tipo: '#', termo: '', inicio: texto.length });
-            setAtivo(0);
-          }}
-        >
-          # respostas prontas
-        </button>
-        {/*
-          Interruptor de nota interna: etiqueta clicável com `aria-pressed`, que
-          é o único lugar onde a marca toca uma etiqueta — ali ela virou ação.
-          Antes era ocre quando ligada e "NOTA INTERNA — ligada" em caixa alta,
-          o que dava a um interruptor o peso de um alerta.
-        */}
-        <button
-          type="button"
-          className="etiqueta"
-          aria-pressed={modo === 'nota'}
-          onClick={() => setModo(modo === 'nota' ? 'resposta' : 'nota')}
-        >
-          Nota interna
-        </button>
-      </div>
-
       <form action={enviar} ref={formulario}>
         <input type="hidden" name="conversaId" value={conversaId} />
         <input type="hidden" name="modo" value={modo} />
@@ -441,7 +413,7 @@ export function Compositor({
               {templates.length === 0 ? <option value="">Nenhum template aprovado</option> : null}
               {templates.map((template) => (
                 <option key={template.id} value={template.id}>
-                  {template.nome} — {template.categoria}
+                  {template.nome} · {template.categoria}
                 </option>
               ))}
             </select>
@@ -453,7 +425,7 @@ export function Compositor({
                   {/* Frase inteira em caixa alta era grito. `.lbl` é rótulo de
                       seção; isto é uma nota. */}
                   <span className="sub">
-                    Custo pela tabela da Meta — a tabela de preço por categoria ainda não está
+                    Custo pela tabela da Meta. A tabela de preço por categoria ainda não está
                     configurada neste ambiente
                   </span>
                   <button
@@ -469,6 +441,9 @@ export function Compositor({
             ) : null}
           </div>
         ) : (
+          // Duas faixas, como no compositor deles: o campo em cima e a barra de
+          // ações de 56px embaixo. Os controles ficam ABAIXO do campo, não ao
+          // lado dele, e o envio encosta à direita.
           <div className="box">
             <textarea
               ref={area}
@@ -477,15 +452,42 @@ export function Compositor({
               value={texto}
               placeholder={
                 modo === 'nota'
-                  ? 'Nota interna — o cliente não vê. @ menciona colega'
+                  ? 'Nota interna. O cliente não vê. Use @ para mencionar colega'
                   : '# resposta pronta · / comando · @ mencionar colega'
               }
               onChange={(e) => trocarTexto(e.target.value, e.target.selectionStart)}
               onKeyDown={aoTeclar}
             />
-            <button type="submit" className="btn primary" disabled={enviando || !texto.trim()}>
-              {enviando ? 'Enviando…' : modo === 'nota' ? 'Salvar nota' : 'Enviar'}
-            </button>
+            <div className="acoes">
+              <button
+                type="button"
+                className="etiqueta"
+                onMouseDown={(e) => e.preventDefault()}
+                onClick={() => {
+                  setGatilho({ tipo: '#', termo: '', inicio: texto.length });
+                  setAtivo(0);
+                }}
+              >
+                # respostas prontas
+              </button>
+              {/*
+                Interruptor de nota interna: etiqueta clicável com `aria-pressed`,
+                que é o único lugar onde a marca toca uma etiqueta, porque ali ela
+                virou ação. Anexo e áudio entram nesta mesma faixa quando
+                existirem; enquanto não enviam arquivo nenhum, não ocupam lugar.
+              */}
+              <button
+                type="button"
+                className="etiqueta"
+                aria-pressed={modo === 'nota'}
+                onClick={() => setModo(modo === 'nota' ? 'resposta' : 'nota')}
+              >
+                Nota interna
+              </button>
+              <button type="submit" className="btn primary" disabled={enviando || !texto.trim()}>
+                {enviando ? 'Enviando…' : modo === 'nota' ? 'Salvar nota' : 'Enviar'}
+              </button>
+            </div>
           </div>
         )}
 

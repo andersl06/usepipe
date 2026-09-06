@@ -16,7 +16,8 @@ import { BarraStatus } from '../componentes/barra-status';
 import { Conversa } from '../componentes/conversa';
 import { ListaConversas } from '../componentes/lista-conversas';
 import { PainelContato } from '../componentes/painel-contato';
-import { CabecalhoDesk } from '../componentes/cabecalho-desk';
+import { EstadoVazio } from '@pipe/ui';
+import { TrilhoDesk } from '../componentes/trilho-desk';
 
 /**
  * A tela do atendente inteira em uma rota. A conversa aberta é `?conversa=<id>`, e não
@@ -95,67 +96,73 @@ export default async function PaginaDesk({
   const selecionadaNaUrl = Boolean(parametros.conversa);
 
   return (
-    <div className="p-app">
-      <CabecalhoDesk
+    // Trilho de altura cheia à esquerda e três colunas à direita, na disposição
+    // medida no Desk deles. Não há barra superior: ela repetiria o que o trilho
+    // já diz e roubaria dobra da conversa.
+    <div className="desk-app">
+      <TrilhoDesk
         iniciais={sessao.iniciais}
         nome={sessao.nome}
         estado={dados.status.estado}
       />
 
-      <div className="p-miolo">
-        <main className="desk" data-selecionada={selecionadaNaUrl ? 'true' : 'false'}>
-          <div className="col list">
-            <div className="col-head">
-              <h2>Atendimentos</h2>
-              <span className="contagem">{dados.conversas.length}</span>
-            </div>
-            <BarraStatus
-              nome={sessao.nome}
-              estado={dados.status.estado}
-              motivoPausa={dados.status.motivoPausa}
-              motivos={dados.motivos}
-            />
-            <ListaConversas
-              conversas={dados.conversas}
-              selecionadaId={dados.aberta?.conversa.id ?? null}
-              busca={busca}
-              agora={agora}
-            />
-          </div>
+      <main className="desk" data-selecionada={selecionadaNaUrl ? 'true' : 'false'}>
+        <div className="col list">
+          <header className="col-topo">
+            <h1>Atendimentos</h1>
+            <span className="contagem">{dados.conversas.length}</span>
+          </header>
+          <BarraStatus
+            nome={sessao.nome}
+            estado={dados.status.estado}
+            motivoPausa={dados.status.motivoPausa}
+            motivos={dados.motivos}
+          />
+          <ListaConversas
+            conversas={dados.conversas}
+            selecionadaId={dados.aberta?.conversa.id ?? null}
+            busca={busca}
+            agora={agora}
+          />
+        </div>
 
-          {dados.aberta ? (
-            <Conversa
-              conversa={dados.aberta.conversa}
-              itens={dados.aberta.itens}
-              etiquetas={dados.etiquetas}
-              respostas={dados.respostas}
-              templates={dados.aberta.templates}
-              colegas={dados.colegas}
-              atendente={{ nome: sessao.nome, email: sessao.email }}
-              agora={agora}
-            />
-          ) : (
-            <div className="thread">
-              <div className="msgs">
-                <p className="vazio">
-                  Escolha um atendimento na lista. Se a lista está vazia, rode{' '}
+        {dados.aberta ? (
+          <Conversa
+            conversa={dados.aberta.conversa}
+            itens={dados.aberta.itens}
+            etiquetas={dados.etiquetas}
+            respostas={dados.respostas}
+            templates={dados.aberta.templates}
+            colegas={dados.colegas}
+            atendente={{ nome: sessao.nome, email: sessao.email }}
+            agora={agora}
+          />
+        ) : (
+          // Estado sem conversa escolhida, na receita deles: ilustração, uma
+          // linha que nomeia o estado, uma linha que diz o que fazer. Texto
+          // centrado no vazio, sem caixa e sem borda.
+          <div className="thread">
+            <div className="msgs vazio-conversa">
+              <EstadoVazio titulo="Nenhuma conversa aberta">
+                <p>
+                  Escolha um atendimento na coluna da esquerda. Se a lista está vazia, rode{' '}
                   <code>pnpm seed:demo</code>.
                 </p>
-              </div>
+              </EstadoVazio>
             </div>
-          )}
+          </div>
+        )}
 
-          {dados.aberta ? (
-            <PainelContato
-              conversa={dados.aberta.conversa}
-              etiquetas={dados.aberta.etiquetasDaConversa}
-              historico={dados.aberta.historico}
-            />
-          ) : (
-            <aside className="col panel" aria-label="Contato" />
-          )}
-        </main>
-      </div>
+        {dados.aberta ? (
+          <PainelContato
+            conversa={dados.aberta.conversa}
+            etiquetas={dados.aberta.etiquetasDaConversa}
+            historico={dados.aberta.historico}
+          />
+        ) : (
+          <aside className="col panel" aria-label="Contato" />
+        )}
+      </main>
     </div>
   );
 }

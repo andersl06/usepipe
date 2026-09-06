@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { janelaAberta, pertoDeExpirar, segundosRestantes } from '@pipe/core';
+import { EstadoVazio } from '@pipe/ui';
 import { decorrido, duracaoCurta } from '../servidor/formato';
 import type { ConversaDaLista, TipoCanalBanco } from '../servidor/consultas';
 
@@ -53,16 +54,28 @@ export function ListaConversas({
           type="search"
           name="busca"
           defaultValue={busca}
-          placeholder="Buscar por nome do contato ou por fila"
+          placeholder="Busque pelo nome ou pela fila"
           aria-label="Buscar atendimento"
         />
       </form>
 
       {conversas.length === 0 ? (
-        <p className="vazio">
-          Nenhum atendimento na sua fila{busca ? ` para “${busca}”` : ''}. Rode{' '}
-          <code>pnpm seed:demo</code> se você esperava ver a demonstração.
-        </p>
+        <div className="lista-vazia">
+          <EstadoVazio
+            titulo={busca ? 'Nenhum resultado encontrado' : 'Nenhum atendimento aberto'}
+            ilustracao={busca ? 'busca' : 'vazio'}
+          >
+            <p>
+              {busca ? (
+                <>Nada na sua fila para “{busca}”.</>
+              ) : (
+                <>
+                  Rode <code>pnpm seed:demo</code> se você esperava ver a demonstração.
+                </>
+              )}
+            </p>
+          </EstadoVazio>
+        </div>
       ) : (
         <ul className="convs">
           {conversas.map((conversa) => {
@@ -79,9 +92,12 @@ export function ListaConversas({
                 >
                   <span className="nm">{conversa.contatoNome ?? 'Sem nome'}</span>
                   <span className="t">
-                    {conversa.ultimaMensagemEm ? decorrido(conversa.ultimaMensagemEm, agora) : '—'}
+                    {conversa.ultimaMensagemEm ? decorrido(conversa.ultimaMensagemEm, agora) : '·'}
                   </span>
                   <span className="sn">{resumoDaUltima(conversa)}</span>
+                  {/* A faixa de metadados fica abaixo de uma linha de 1px, como
+                      no cartão deles: o conteúdo em cima, o que classifica a
+                      conversa embaixo. */}
                   <span className="meta">
                     {conversa.filaNome ? (
                       <span className="etiqueta">{conversa.filaNome}</span>
