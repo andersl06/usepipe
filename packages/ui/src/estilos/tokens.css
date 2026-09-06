@@ -1,10 +1,10 @@
 /* ==========================================================================
    Pipe — camada de token. Fonte única dos três aplicativos.
 
-   Arquitetura de tema (papel constante, valor trocado por bloco de tema)
-   adaptada de twenty-ui (MIT):
-   https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeLight.ts
-   Os valores são os do Pipe (docs/marca/MARCA.md). Só a forma veio de lá.
+   Adaptado de twenty-ui (MIT) — https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeLight.ts
+   O que veio de lá é a arquitetura de tema: papel constante, valor trocado por
+   bloco de tema, e nenhum componente sabendo que tema existe. Os valores são
+   os do Pipe (docs/marca/MARCA.md).
 
    Estrutura de token copiada do método da Blip, medido no bundle real do Blip
    Desk (docs/pesquisa/blip-design-system.md): 31 tokens de cor na aplicação
