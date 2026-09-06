@@ -25,7 +25,11 @@ export type VarianteDeBotao = 'padrao' | 'primario' | 'perigo';
 
 export type PropsDeBotao = {
   variante?: VarianteDeBotao;
-  /** Recorte salvo de lista (o antigo "chip"). */
+  /**
+   * @deprecated Use `<Etiqueta aoClicar ativa>`. O recorte salvo de lista é
+   * papel da etiqueta clicável, que é o componente único de etiqueta do
+   * produto. Fica só enquanto os três aplicativos migram.
+   */
   chip?: boolean;
   icone?: NomeDeIcone;
 } & ButtonHTMLAttributes<HTMLButtonElement>;

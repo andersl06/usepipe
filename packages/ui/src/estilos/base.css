@@ -316,8 +316,11 @@ a {
   background: var(--p-erro-fundo);
 }
 
-/* Filtro salvo da lista. É aqui que "relatório" vive agora — como recorte
-   guardado na própria lista, não como item de menu. */
+/* OBSOLETO: use `<Etiqueta aoClicar={...} ativa={...}>`.
+   O recorte salvo de lista virou responsabilidade da etiqueta clicável, que é
+   o componente único de etiqueta do produto. Duas formas de desenhar a mesma
+   coisa é como o conjunto volta a ficar inconsistente.
+   Fica só enquanto os três aplicativos migram. */
 .btn.chip {
   border-radius: var(--p-r-pilula);
   padding: 5px 12px;
