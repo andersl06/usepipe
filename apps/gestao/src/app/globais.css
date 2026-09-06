@@ -5,9 +5,15 @@
    .tblwrap, .tabs, table/th/td, .iconbtn, .vazio, .lbl, .mono, .sw, .note)
    vivem em `@pipe/ui`, importado antes desta folha no layout raiz.
 
-   Esta folha tinha 687 linhas, das quais as 688 primeiras do CRM eram cópia
-   byte a byte. O que sobra aqui é o desenho das telas de monitoramento e de
-   carga — o resto era duplicata.
+   O que esta folha desenha é a DISPOSIÇÃO da tela de Monitoramento da Blip,
+   medida na captura e descrita em `docs/pesquisa/plataformas-referencia.md`
+   §1: duas barras escuras no topo, lateral clara de 170px com ícone e grupo,
+   grade 2×2, duas faixas de filtro, busca dentro do cartão da tabela.
+
+   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. Nenhum valor de cor da Blip
+   aparece aqui: tudo sai de `--p-*`, e onde a estrutura deles pede um degrau
+   que a nossa paleta não nomeia, ele é DERIVADO de um token com `color-mix`,
+   nunca inventado.
    ========================================================================== */
 
 /*
@@ -17,10 +23,6 @@
  * ocre deixam de ser cor de marca e viram os estados de erro e de alerta;
  * o azul deixa de ser cor. Nenhum tema é declarado aqui — os dois temas
  * chegam prontos do @pipe/ui.
- *
- * Sage saiu do apelidário. Era o matiz de gráfico usado como cromo, e a régua
- * cerca a paleta estendida: `--p-grafico-*` só entra em barra e série, e por
- * isso é referenciado direto onde a barra é desenhada.
  */
 :root {
   --ground: var(--p-superficie-1);
@@ -42,7 +44,401 @@
   --shadow: var(--p-sombra-1);
 }
 
-/* -------------------------------------------------------- cabeçalho de tela */
+/* ==================================================== o cromo das barras
+   Duas barras escuras, como na tela deles, e ESCURAS NOS DOIS TEMAS: cromo
+   que inverte junto com o conteúdo deixa de ser cromo. No tema claro os dois
+   degraus saem da superfície contrastante (`--p-superficie-4`); no escuro,
+   das superfícies 1 e 2, que já são escuras. Nenhum hex novo.
+
+   `--g-barra-marca` é o moss legível sobre preto: no claro, a mistura do moss
+   com o seu próprio fundo suave; no escuro, o moss do tema, que já é claro.
+   É o papel que o azul cumpre na barra deles. */
+:root {
+  --g-barra-1: var(--p-superficie-4);
+  --g-barra-2: color-mix(in srgb, var(--p-superficie-4) 91%, var(--p-conteudo-claro));
+  --g-barra-tinta: var(--p-conteudo-claro);
+  --g-barra-marca: color-mix(in srgb, var(--p-marca) 55%, var(--p-marca-suave));
+
+  --g-barra-sup-h: 44px;
+  --g-barra-inf-h: 40px;
+  --g-topo-h: 84px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema='claro']) {
+    --g-barra-1: var(--p-superficie-1);
+    --g-barra-2: var(--p-superficie-2);
+    --g-barra-tinta: var(--p-conteudo);
+    --g-barra-marca: var(--p-marca);
+  }
+}
+
+:root[data-tema='escuro'] {
+  --g-barra-1: var(--p-superficie-1);
+  --g-barra-2: var(--p-superficie-2);
+  --g-barra-tinta: var(--p-conteudo);
+  --g-barra-marca: var(--p-marca);
+}
+
+/* Derivados da tinta da barra: um só lugar, para não virarem cinco cinzas. */
+:root {
+  --g-barra-fraca: color-mix(in srgb, var(--g-barra-tinta) 64%, transparent);
+  --g-barra-linha: color-mix(in srgb, var(--g-barra-tinta) 14%, transparent);
+  --g-barra-hover: color-mix(in srgb, var(--g-barra-tinta) 11%, transparent);
+}
+
+.g-barra {
+  flex: none;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  gap: var(--p-e-3);
+  padding: 0 var(--p-e-4);
+  position: sticky;
+  color: var(--g-barra-tinta);
+}
+
+/* Barra da CONTA: tenant, marca, ajuda, avisos e avatar. */
+.g-barra-sup {
+  height: var(--g-barra-sup-h);
+  background: var(--g-barra-1);
+  top: 0;
+  z-index: 31;
+}
+
+/* Barra do PRODUTO: canal, módulos e atalhos. */
+.g-barra-inf {
+  height: var(--g-barra-inf-h);
+  background: var(--g-barra-2);
+  top: var(--g-barra-sup-h);
+  z-index: 30;
+  border-bottom: 1px solid var(--g-barra-linha);
+}
+
+/* Nome e plano, duas linhas, encostados à esquerda. */
+.g-tenant {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  line-height: 1.15;
+  min-width: 0;
+}
+
+.g-tenant b {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.g-tenant span {
+  font-size: var(--p-t-xs);
+  color: var(--g-barra-fraca);
+}
+
+/* A marca no centro. O segundo traço do símbolo é `--p-marca`, que sobre
+   preto some: aqui ele recebe o moss legível da barra. */
+.g-marca {
+  --p-marca: var(--g-barra-marca);
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  text-decoration: none;
+  color: inherit;
+}
+
+.g-marca b {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.g-barra-fim {
+  justify-self: end;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-1);
+}
+
+/* Botão de ícone da barra: sem borda e sem fundo, porque o fundo já é escuro. */
+.g-iconbtn,
+.g-barra .iconbtn {
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: var(--p-r-sm);
+  background: transparent;
+  color: var(--g-barra-fraca);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  padding: 0;
+  flex: none;
+  position: relative;
+  text-decoration: none;
+  list-style: none;
+}
+
+.g-iconbtn::-webkit-details-marker {
+  display: none;
+}
+
+.g-iconbtn:hover,
+.g-barra .iconbtn:hover {
+  background: var(--g-barra-hover);
+  color: var(--g-barra-tinta);
+}
+
+/* Selo de contagem do sino. Só aparece com aviso de verdade. */
+.g-selo {
+  position: absolute;
+  top: 3px;
+  right: 2px;
+  min-width: 15px;
+  height: 15px;
+  padding: 0 4px;
+  border-radius: var(--p-r-pilula);
+  background: var(--p-erro-conteudo);
+  color: var(--p-conteudo-claro);
+  font-family: var(--p-fonte-mono);
+  font-size: var(--p-t-xs);
+  font-weight: var(--p-peso-forte);
+  line-height: 15px;
+  text-align: center;
+}
+
+/* ------------------------------------------------- menus das duas barras
+   `<details>` puro: abre no clique e no teclado, fecha no Esc, e não custa
+   uma linha de JavaScript. O painel é claro porque é conteúdo, não cromo. */
+.g-menu {
+  position: relative;
+}
+
+.g-menu > summary {
+  list-style: none;
+}
+
+.g-menu > summary::-webkit-details-marker {
+  display: none;
+}
+
+.g-painel {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 40;
+  width: 268px;
+  padding: var(--p-e-3);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  border: 1px solid var(--p-linha);
+  border-radius: var(--p-r-md);
+  box-shadow: var(--p-sombra-2);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--p-t-sm);
+}
+
+.g-painel b {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+}
+
+.g-painel p {
+  margin: 0;
+  color: var(--p-conteudo-desabilitado);
+  line-height: 1.45;
+}
+
+.g-painel a {
+  color: var(--p-marca-forte);
+  text-decoration: none;
+  font-weight: var(--p-peso-medio);
+}
+
+.g-painel a:hover {
+  text-decoration: underline;
+}
+
+.g-painel .g-tipo {
+  font-size: var(--p-t-xs);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* O canal, com a seta, à esquerda da barra de baixo. */
+.g-canal {
+  justify-self: start;
+  min-width: 0;
+}
+
+.g-canal > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  padding: 4px 8px;
+  border-radius: var(--p-r-md);
+  cursor: pointer;
+  font-size: var(--p-t-md);
+  color: var(--g-barra-tinta);
+}
+
+.g-canal > summary:hover {
+  background: var(--g-barra-hover);
+}
+
+.g-canal > summary > span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.g-canal .g-painel {
+  left: 0;
+  right: auto;
+}
+
+.g-av-sm {
+  width: 22px;
+  height: 22px;
+  font-size: var(--p-t-xs);
+}
+
+/* Os módulos, centralizados na barra de baixo. */
+.g-modulos {
+  justify-self: center;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-1);
+}
+
+.g-modulos a {
+  padding: 5px 12px;
+  border-radius: var(--p-r-md);
+  font-size: var(--p-t-md);
+  color: var(--g-barra-fraca);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.g-modulos a:hover {
+  background: var(--g-barra-hover);
+}
+
+.g-modulos a[aria-current='page'] {
+  background: color-mix(in srgb, var(--g-barra-marca) 22%, transparent);
+  color: var(--g-barra-marca);
+  font-weight: var(--p-peso-medio);
+}
+
+/* ============================================================== lateral
+   Clara, 170px, ícone à esquerda do rótulo, grupo que abre pela seta à
+   direita, subitem recuado e sem ícone, item ativo com fundo suave e barra
+   vertical à esquerda. Rodapé com o atalho para o app do atendente. */
+.g-lateral {
+  width: 170px;
+  flex: none;
+  background: var(--p-superficie-0);
+  border-right: 1px solid var(--p-linha);
+  padding: var(--p-e-2);
+  position: sticky;
+  top: var(--g-topo-h);
+  height: calc(100vh - var(--g-topo-h));
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.g-lateral-itens {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.g-item {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  padding: 6px 8px;
+  border-left: 3px solid transparent;
+  border-radius: var(--p-r-sm);
+  font-size: var(--p-t-md);
+  color: var(--p-conteudo-desabilitado);
+  text-decoration: none;
+  cursor: pointer;
+  list-style: none;
+}
+
+.g-item::-webkit-details-marker {
+  display: none;
+}
+
+.g-item svg {
+  flex: none;
+}
+
+.g-item:hover,
+.g-subitem:hover {
+  background: var(--p-superficie-2);
+}
+
+.g-item[aria-current='page'],
+.g-subitem[aria-current='page'] {
+  background: var(--p-marca-suave);
+  border-left-color: var(--p-marca);
+  color: var(--p-marca-forte);
+  font-weight: var(--p-peso-medio);
+}
+
+/* A seta do grupo gira ao abrir — é o mesmo gesto da tela deles. */
+.g-grupo > summary > svg:last-child {
+  margin-left: auto;
+  transition: transform var(--p-dur-rapida) ease;
+}
+
+.g-grupo[open] > summary > svg:last-child {
+  transform: rotate(180deg);
+}
+
+/* Subitem: recuado até o rótulo do pai, e sem ícone. */
+.g-subitem {
+  display: block;
+  padding: 5px 8px 5px 32px;
+  border-left: 3px solid transparent;
+  border-radius: var(--p-r-sm);
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-desabilitado);
+  text-decoration: none;
+}
+
+.g-lateral-rodape {
+  margin-top: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  padding: var(--p-e-2);
+  border-top: 1px solid var(--p-linha);
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+  text-decoration: none;
+}
+
+.g-lateral-rodape:hover {
+  color: var(--p-conteudo);
+}
+
+/* -------------------------------------------------------- cabeçalho de tela
+   O conteúdo respira menos que o padrão do pacote: são quatro cartões, duas
+   faixas de filtro e uma tabela na mesma dobra, e é o gap que decide se a
+   tabela aparece em 1440x900 ou cai para fora. */
+.p-conteudo {
+  gap: var(--p-e-3);
+  padding-top: var(--p-e-3);
+}
+
 .board-head {
   display: flex;
   align-items: center;
@@ -62,6 +458,7 @@
   color: var(--p-conteudo-fantasma);
 }
 
+/* Os dois ícones da direita da linha do título: atualizar e tela cheia. */
 .filters {
   margin-left: auto;
   display: flex;
@@ -70,6 +467,33 @@
   align-items: center;
 }
 
+/* Controle de texto sem moldura: o "Auto 30s" ao lado dos dois ícones. */
+.btn-sutil {
+  font: inherit;
+  font-size: var(--p-t-sm);
+  padding: 4px 6px;
+  border: 0;
+  border-radius: var(--p-r-sm);
+  background: transparent;
+  color: var(--p-conteudo-fantasma);
+  cursor: pointer;
+}
+
+.btn-sutil:hover {
+  background: var(--p-superficie-2);
+  color: var(--p-conteudo);
+}
+
+.btn-sutil[aria-pressed='true'] {
+  color: var(--p-conteudo-desabilitado);
+  font-weight: var(--p-peso-medio);
+}
+
+/* ================================================= faixas de filtro rápido
+   São DUAS na tela deles: uma acima da grade e outra entre a grade e a
+   tabela. Mesmo desenho nas duas — rótulo em caixa alta pequena, pílulas, e
+   o botão "Filtros" com funil encostado à direita. */
+.faixa-filtros,
 .quickfilters {
   display: flex;
   align-items: center;
@@ -77,81 +501,112 @@
   flex-wrap: wrap;
 }
 
+.faixa-filtros > .lbl,
 .quickfilters .lbl {
   margin-right: 2px;
 }
 
-/* ================================================== blocos do monitoramento
-   A tela do Monitoramento tem UMA coisa principal: o tempo real. O `.bloco`
-   é o que separa "agora" de "hoje" — misturar aberto com encerrado é o erro
-   que a spec proíbe.
-   ========================================================================= */
-.bloco {
+.faixa-fim {
+  margin-left: auto;
   display: flex;
-  flex-direction: column;
+  align-items: center;
   gap: var(--p-e-2);
 }
 
-.bloco > header {
-  display: flex;
-  align-items: baseline;
-  gap: var(--p-e-3);
-  flex-wrap: wrap;
-}
-
-/*
- * O rótulo do bloco não é mais moss. Era a cor de destaque marcando dois
- * títulos de seção que não são clicáveis nem ativos — e destaque em coisa que
- * não recebe ação é justamente o que fazia a tela parecer um carrossel.
- */
-.bloco > header .lbl {
-  color: var(--p-conteudo-desabilitado);
-}
-
-.bloco > header .quando {
+/* Pílula de filtro. Neutra vazia, moss quando tem valor — é o papel que o
+   azul cumpre na pílula deles. */
+.pilula {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 28px;
+  padding: 0 10px 0 12px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-pilula);
+  background: var(--p-superficie-0);
   font-size: var(--p-t-sm);
+  color: var(--p-conteudo-desabilitado);
+  cursor: pointer;
+  max-width: 260px;
+}
+
+.pilula.ativa {
+  background: var(--p-marca-suave);
+  border-color: var(--p-marca-linha);
+  color: var(--p-marca-forte);
+}
+
+.pilula-rotulo {
+  font-weight: var(--p-peso-medio);
+  white-space: nowrap;
+}
+
+.pilula select,
+.pilula input {
+  font: inherit;
+  font-size: var(--p-t-sm);
+  color: inherit;
+  background: transparent;
+  border: 0;
+  outline: none;
+  padding: 0;
+  margin: 0;
+  max-width: 140px;
+  min-width: 0;
+  appearance: none;
+  cursor: pointer;
+}
+
+.pilula input {
+  cursor: text;
+}
+
+.pilula input::placeholder {
   color: var(--p-conteudo-fantasma);
 }
 
-/* ============================================================ a grade
-   DUAS COLUNAS, como na Blip: o cartão largo de métricas à esquerda e o
-   estreito de status à direita, na MESMA linha. Empilhar em largura cheia
-   gasta o dobro de altura e joga a tabela para fora da primeira dobra.
+.pilula svg {
+  flex: none;
+  opacity: 0.7;
+}
 
-   A proporção 2,1 : 1 é o que dá cinco métricas de um lado e três números do
-   outro sem que nenhum dos dois aperte. */
+/* ============================================================ a grade 2×2
+   Cartão largo à esquerda e estreito à direita, nas DUAS linhas, como na
+   tela deles. A separação entre "agora" e "hoje" que a spec de métricas
+   exige é feita pelas linhas da grade e pelos títulos dos cartões. */
 .mon {
   display: grid;
   grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr);
   gap: var(--p-e-3);
 }
 
-/*
- * Densidade do cartão. O `.card` do @pipe/ui separa título, corpo e nota com
- * 12px; aqui são quatro cartões um sobre o outro na mesma tela, e 8px é o que
- * faz os quatro mais a tabela caberem na primeira dobra em 1440x900 — que é a
- * régua da Blip.
- */
 .mon .card {
   gap: var(--p-e-2);
 }
 
+/* Métricas lado a lado em partes iguais, não em grade de largura mínima:
+   cinco de um lado e quatro do outro, sem coluna vazia sobrando. */
 .metrics {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(112px, 1fr));
-  gap: var(--p-e-4);
+  display: flex;
+  gap: var(--p-e-3);
+}
+
+.metrics > .metric {
+  flex: 1 1 0;
+  min-width: 0;
 }
 
 .statuses {
-  display: flex;
-  gap: var(--p-e-4);
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+  gap: var(--p-e-2);
 }
 
 .statuses div {
   display: flex;
   flex-direction: column;
   gap: 2px;
+  min-width: 0;
 }
 
 .statuses b {
@@ -168,6 +623,106 @@
   display: flex;
   align-items: center;
   gap: 5px;
+  min-width: 0;
+}
+
+/* ================================================ os pontos de status
+   O ponto colorido antes do rótulo, e é aqui que a cor de estado toca a
+   tela sem pedir ação — cabem na régua porque são sete pontos de 7px, e são
+   eles que deixam o supervisor achar "perdidos" sem ler os quatro rótulos.
+   NENHUM AZUL: sucesso, alerta, erro e o neutro dos nossos token. */
+.sw.sucesso {
+  background: var(--p-sucesso-conteudo);
+}
+
+.sw.alerta {
+  background: var(--p-alerta-conteudo);
+}
+
+.sw.erro {
+  background: var(--p-erro-conteudo);
+}
+
+.sw.neutro {
+  background: var(--p-conteudo-fantasma);
+}
+
+/* ====================================== a explicação de cada métrica
+   O ícone de informação ao lado do rótulo, com a fórmula e a população que
+   saem de `docs/specs/2026-09-05-metricas-atendimento.md`. `<details>` puro:
+   abre no clique e no teclado, sem JavaScript. */
+.dica {
+  display: inline-block;
+  position: relative;
+  margin-left: 4px;
+  vertical-align: -2px;
+}
+
+.dica > summary {
+  display: inline-flex;
+  list-style: none;
+  cursor: help;
+  color: var(--p-conteudo-fantasma);
+  border-radius: var(--p-r-pilula);
+}
+
+.dica > summary::-webkit-details-marker {
+  display: none;
+}
+
+.dica > summary:hover,
+.dica[open] > summary {
+  color: var(--p-conteudo);
+}
+
+.dica-balao {
+  position: absolute;
+  z-index: 25;
+  top: calc(100% + 6px);
+  left: -10px;
+  width: 232px;
+  padding: var(--p-e-2) var(--p-e-3);
+  background: var(--p-superficie-4);
+  color: var(--p-conteudo-claro);
+  border-radius: var(--p-r-md);
+  box-shadow: var(--p-sombra-2);
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-normal);
+  line-height: 1.45;
+}
+
+/* Nas duas últimas colunas o balão abre para a esquerda, senão escapa do
+   cartão e some na borda da janela. */
+.metrics > .metric:nth-last-child(-n + 2) .dica-balao {
+  left: auto;
+  right: -10px;
+}
+
+/* ------------------------------------------------- busca dentro do cartão
+   Na tela deles a busca do "Monitoramento detalhado" mora dentro do cartão,
+   à direita do título — não na faixa de filtros. */
+.tblhead .tbl-busca {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo-fantasma);
+}
+
+.tblhead .tbl-busca input {
+  width: 200px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo);
+  outline: none;
 }
 
 /* ------------------------------------------------------ carga por atendente */
@@ -231,13 +786,36 @@
 }
 
 /* --------------------------------------------------------------- responsivo
-   O limiar caiu de 1240px para 1080px porque a lateral contextual voltou: ela
-   come 200px, e a 1240 a grade de duas colunas desabava justamente na tela de
-   1440 que é a nossa régua. A 1080 o cartão largo ainda fica com ~560px, que
-   é o que as cinco métricas pedem. */
+   A lateral encolheu de 200px para 170px, mas a grade continua desabando na
+   mesma faixa: abaixo de 1080 o cartão largo fica com menos do que as cinco
+   métricas pedem. */
 @media (max-width: 1080px) {
   .mon {
     grid-template-columns: 1fr;
+  }
+
+  .metrics {
+    flex-wrap: wrap;
+  }
+
+  .metrics > .metric {
+    flex: 1 1 120px;
+  }
+}
+
+/* Abaixo de 900px a lateral vira uma faixa: sticky de 170px numa tela dessas
+   come metade do conteúdo. */
+@media (max-width: 900px) {
+  .g-lateral {
+    position: static;
+    height: auto;
+    width: 100%;
+    border-right: 0;
+    border-bottom: 1px solid var(--p-linha);
+  }
+
+  .p-miolo {
+    flex-direction: column;
   }
 }
 
@@ -266,25 +844,11 @@ tr.grupo th {
   color: var(--p-conteudo-fantasma);
 }
 
-/* ==================================================== hierarquia da tela
-   Cada tela tem UMA coisa principal. No Monitoramento é o tempo real, e o
-   resto desce de peso — encolher o secundário cria a hierarquia sem inflar a
-   tela, que é o que aconteceria aumentando o principal.
-   ========================================================================= */
-.bloco.secundario .metric .v,
-.bloco.secundario .statuses b {
-  font-size: var(--p-t-titulo);
-}
-
-.bloco.secundario > header .lbl {
-  color: var(--p-conteudo-fantasma);
-}
-
 /* ================================================ o número que importa
    Na captura da Blip, dois números da tela de monitoramento saem na cor de
    marca deles — o que está na fila e o que está em atendimento — e todo o
    resto fica em tinta escura. É o meio-termo entre colorir tudo (carrossel) e
-   não colorir nada (a tela perde a ênfase, que foi o que aconteceu aqui).
+   não colorir nada (a tela perde a ênfase).
 
    A regra: moss só nos números que respondem "como está a operação AGORA".
    São dois, e continuam sendo dois. Média por atendente, tempo máximo e todo
@@ -292,8 +856,7 @@ tr.grupo th {
    a respeito enquanto se olha.
 
    Isto sobrescreve de propósito a nota do `@pipe/ui` ("número não é lugar de
-   cor de marca"), que continua valendo para as outras telas: ali a cor
-   marcaria número sem hierarquia entre si. */
+   cor de marca"), que continua valendo para as outras telas. */
 .metric.agora .v {
   color: var(--p-marca);
 }

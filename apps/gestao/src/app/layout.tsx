@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { EstruturaGestao } from '../componentes/estrutura-gestao';
+import { carregarCabecalho } from '../lib/cabecalho';
 // A ordem importa: o token e a base do design system entram antes da folha do
 // aplicativo, para que a folha local sobrescreva a base e nunca o contrário.
 import '@pipe/ui/estilos.css';
@@ -35,7 +36,10 @@ try {
 } catch (e) {}
 `;
 
-export default function LayoutRaiz({ children }: { children: React.ReactNode }) {
+export default async function LayoutRaiz({ children }: { children: React.ReactNode }) {
+  // As duas barras do topo mostram tenant, canal e aviso reais: três consultas
+  // curtas, nenhuma sobre a tabela de eventos.
+  const cabecalho = await carregarCabecalho();
   return (
     // O script acima reescreve `data-tema` antes da hidratação, e extensão de
     // navegador costuma escrever atributo aqui também: avisar sobre isso é
@@ -51,7 +55,7 @@ export default function LayoutRaiz({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: TEMA_ANTES_DE_PINTAR }} />
       </head>
       <body>
-        <EstruturaGestao>{children}</EstruturaGestao>
+        <EstruturaGestao dados={cabecalho}>{children}</EstruturaGestao>
       </body>
     </html>
   );

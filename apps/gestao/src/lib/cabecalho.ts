@@ -1,0 +1,56 @@
+import { eq, isNull } from 'drizzle-orm';
+import { segundosEntre } from '@pipe/core';
+import { canal, motivoPausa, pausa, tenant } from '@pipe/db/schema';
+import { consultar } from './banco';
+
+/**
+ * O que as duas barras do cabeçalho mostram.
+ *
+ * Três consultas curtas, todas sobre tabela pequena: o tenant (uma linha), os
+ * canais ativos (unidades, não milhares) e as pausas abertas. Nenhuma delas
+ * toca `evento_atendimento`, que é a tabela cara do monitoramento — o cabeçalho
+ * aparece em toda rota da Gestão e não pode custar o preço de um painel.
+ *
+ * O aviso é REAL: conta pausa aberta que já passou da duração sugerida pelo
+ * motivo, exatamente a mesma regra do cartão "Status dos atendentes". Sino que
+ * não conta nada é item desabilitado com outro nome, e isso a régua proíbe.
+ */
+export interface DadosDoCabecalho {
+  tenant: { nome: string; plano: string };
+  canais: { id: string; nome: string; tipo: string }[];
+  avisos: number;
+}
+
+export async function carregarCabecalho(): Promise<DadosDoCabecalho> {
+  const agora = new Date();
+  return consultar(async (tx) => {
+    const [linha] = await tx
+      .select({ nome: tenant.nome, plano: tenant.plano })
+      .from(tenant)
+      .limit(1);
+
+    const canais = await tx
+      .select({ id: canal.id, nome: canal.nome, tipo: canal.tipo })
+      .from(canal)
+      .where(eq(canal.ativo, true));
+
+    const pausasAbertas = await tx
+      .select({ iniciadaEm: pausa.iniciadaEm, sugeridaMin: motivoPausa.duracaoSugeridaMin })
+      .from(pausa)
+      .leftJoin(motivoPausa, eq(motivoPausa.id, pausa.motivoId))
+      .where(isNull(pausa.encerradaEm));
+
+    let avisos = 0;
+    for (const p of pausasAbertas) {
+      const limite = p.sugeridaMin;
+      if (typeof limite !== 'number') continue;
+      if (segundosEntre(p.iniciadaEm, agora) > limite * 60) avisos += 1;
+    }
+
+    return {
+      tenant: { nome: linha?.nome ?? 'Pipe', plano: linha?.plano ?? 'padrao' },
+      canais,
+      avisos,
+    };
+  });
+}
