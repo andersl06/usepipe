@@ -16,11 +16,11 @@ import { BarraStatus } from '../componentes/barra-status';
 import { Conversa } from '../componentes/conversa';
 import { ListaConversas } from '../componentes/lista-conversas';
 import { PainelContato } from '../componentes/painel-contato';
-import { Trilho } from '../componentes/trilho';
+import { CabecalhoDesk } from '../componentes/cabecalho-desk';
 
 /**
  * A tela do atendente inteira em uma rota. A conversa aberta é `?conversa=<id>`, e não
- * uma rota filha, porque as quatro colunas são um estado só: trocar de conversa não
+ * uma rota filha, porque as três colunas são um estado só: trocar de conversa não
  * troca de tela, troca de foco.
  *
  * Sem cache: fila de atendimento cacheada é fila errada. O realtime por WebSocket é a
@@ -95,59 +95,67 @@ export default async function PaginaDesk({
   const selecionadaNaUrl = Boolean(parametros.conversa);
 
   return (
-    <main className="desk" data-selecionada={selecionadaNaUrl ? 'true' : 'false'}>
-      <Trilho iniciais={sessao.iniciais} nome={sessao.nome} estado={dados.status.estado} />
+    <div className="p-app">
+      <CabecalhoDesk
+        iniciais={sessao.iniciais}
+        nome={sessao.nome}
+        estado={dados.status.estado}
+      />
 
-      <div className="col list">
-        <div className="col-head">
-          <h2>Atendimentos</h2>
-          <span className="contagem">{dados.conversas.length}</span>
-        </div>
-        <BarraStatus
-          nome={sessao.nome}
-          estado={dados.status.estado}
-          motivoPausa={dados.status.motivoPausa}
-          motivos={dados.motivos}
-        />
-        <ListaConversas
-          conversas={dados.conversas}
-          selecionadaId={dados.aberta?.conversa.id ?? null}
-          busca={busca}
-          agora={agora}
-        />
-      </div>
-
-      {dados.aberta ? (
-        <Conversa
-          conversa={dados.aberta.conversa}
-          itens={dados.aberta.itens}
-          etiquetas={dados.etiquetas}
-          respostas={dados.respostas}
-          templates={dados.aberta.templates}
-          colegas={dados.colegas}
-          atendente={{ nome: sessao.nome, email: sessao.email }}
-          agora={agora}
-        />
-      ) : (
-        <div className="thread">
-          <div className="msgs">
-            <p className="vazio">
-              Escolha um atendimento na lista. Se a lista está vazia, rode{' '}
-              <code>pnpm seed:demo</code>.
-            </p>
+      <div className="p-miolo">
+        <main className="desk" data-selecionada={selecionadaNaUrl ? 'true' : 'false'}>
+          <div className="col list">
+            <div className="col-head">
+              <h2>Atendimentos</h2>
+              <span className="contagem">{dados.conversas.length}</span>
+            </div>
+            <BarraStatus
+              nome={sessao.nome}
+              estado={dados.status.estado}
+              motivoPausa={dados.status.motivoPausa}
+              motivos={dados.motivos}
+            />
+            <ListaConversas
+              conversas={dados.conversas}
+              selecionadaId={dados.aberta?.conversa.id ?? null}
+              busca={busca}
+              agora={agora}
+            />
           </div>
-        </div>
-      )}
 
-      {dados.aberta ? (
-        <PainelContato
-          conversa={dados.aberta.conversa}
-          etiquetas={dados.aberta.etiquetasDaConversa}
-          historico={dados.aberta.historico}
-        />
-      ) : (
-        <aside className="col panel" aria-label="Contato" />
-      )}
-    </main>
+          {dados.aberta ? (
+            <Conversa
+              conversa={dados.aberta.conversa}
+              itens={dados.aberta.itens}
+              etiquetas={dados.etiquetas}
+              respostas={dados.respostas}
+              templates={dados.aberta.templates}
+              colegas={dados.colegas}
+              atendente={{ nome: sessao.nome, email: sessao.email }}
+              agora={agora}
+            />
+          ) : (
+            <div className="thread">
+              <div className="msgs">
+                <p className="vazio">
+                  Escolha um atendimento na lista. Se a lista está vazia, rode{' '}
+                  <code>pnpm seed:demo</code>.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {dados.aberta ? (
+            <PainelContato
+              conversa={dados.aberta.conversa}
+              etiquetas={dados.aberta.etiquetasDaConversa}
+              historico={dados.aberta.historico}
+            />
+          ) : (
+            <aside className="col panel" aria-label="Contato" />
+          )}
+        </main>
+      </div>
+    </div>
   );
 }

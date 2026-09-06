@@ -1,220 +1,82 @@
 /*
- * Sistema visual do Pipe Desk.
+ * Sistema visual do Pipe Desk — só o que é do Desk.
  *
- * Os tokens vêm do mockup aprovado (`docs/mockup/pipe-telas.html`) e da identidade
- * (`docs/marca/MARCA.md`): moss é marca e ação primária, terracota é só erro. A régua
- * é 13–14px porque Desk é ferramenta densa — trocar por escala de 16px joga a coluna
- * de atendimentos para a rolagem.
- *
- * Tema: claro por padrão, escuro por preferência do sistema, e `data-theme` no <html>
- * vence os dois quando o atendente escolhe na mão.
+ * Reset, tipografia, botão, etiqueta, estado vazio e modal saíram daqui: vivem
+ * em `@pipe/ui/estilos/base.css`, importado antes deste arquivo no layout raiz.
+ * O que sobra é a tela de três colunas do atendente, e nada mais.
  */
 
+/*
+ * Os token vivem em @pipe/ui. Este bloco só reapresenta os nomes antigos
+ * apontando para eles, para que o CSS abaixo não precise ser reescrito linha
+ * a linha. Quatro matizes de destaque viram um: terracota e ocre passam a ser
+ * os estados de erro e alerta, e o azul deixa de ser cor.
+ */
 :root {
-  --ground: #f2f1ec;
-  --surface: #ffffff;
-  --surface-2: #faf9f4;
-  --surface-3: #edebe3;
-  --line: #e2e0d8;
-  --line-strong: #d2cfc3;
-  --ink: #111111;
-  --ink-2: #55544d;
-  --ink-3: #7a7970;
-  --moss: #4a5d23;
-  --moss-soft: #e8edd9;
-  --sage: #8a9a5b;
-  --terracotta: #c4442e;
-  --terracotta-soft: #f8e3de;
-  --ochre: #9a7420;
-  --ochre-soft: #f5ebd3;
-  --blue: #2e4a5d;
-  --blue-soft: #e0e8ed;
-  --rail: #191c12;
-  --rail-ink: #c9c7ba;
-  --rail-line: #2c3021;
-  --shadow: 0 1px 2px rgba(17, 17, 17, 0.05), 0 8px 24px -16px rgba(17, 17, 17, 0.18);
-  --sans: 'IBM Plex Sans', -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif;
-  --mono: 'IBM Plex Mono', ui-monospace, Menlo, Consolas, monospace;
-  color-scheme: light;
+  --ground: var(--p-fundo);
+  --surface: var(--p-superficie);
+  --surface-2: var(--p-superficie-2);
+  --surface-3: var(--p-superficie-3);
+  --line: var(--p-linha);
+  --line-strong: var(--p-linha-media);
+  --ink: var(--p-tinta);
+  --ink-2: var(--p-tinta-2);
+  --ink-3: var(--p-tinta-3);
+  --moss: var(--p-destaque);
+  --moss-soft: var(--p-destaque-fundo);
+  --sage: var(--p-dado);
+  --terracotta: var(--p-erro-tinta);
+  --terracotta-soft: var(--p-erro-fundo);
+  --ochre: var(--p-alerta-tinta);
+  --ochre-soft: var(--p-alerta-fundo);
+  --blue: var(--p-tinta-2);
+  --blue-soft: var(--p-superficie-3);
+  --shadow: var(--p-sombra-1);
+  --sans: var(--p-fonte);
+  --mono: var(--p-fonte-mono);
+  --rail: var(--p-superficie-2);
+  --rail-ink: var(--p-tinta-2);
+  --rail-line: var(--p-linha);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='claro']) {
-    --ground: #12140e;
-    --surface: #1a1d15;
-    --surface-2: #20241b;
-    --surface-3: #272b20;
-    --line: #31362a;
-    --line-strong: #414736;
-    --ink: #edede4;
-    --ink-2: #a7a69a;
-    --ink-3: #84837a;
-    --moss: #a3b76a;
-    --moss-soft: #26301a;
-    --sage: #8a9a5b;
-    --terracotta: #e4816d;
-    --terracotta-soft: #3a211b;
-    --ochre: #cba453;
-    --ochre-soft: #332714;
-    --blue: #93b4c6;
-    --blue-soft: #1c2830;
-    --rail: #0d0f09;
-    --rail-ink: #9e9c90;
-    --rail-line: #23271a;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -16px rgba(0, 0, 0, 0.7);
-    color-scheme: dark;
-  }
-}
-
-:root[data-theme='escuro'] {
-  --ground: #12140e;
-  --surface: #1a1d15;
-  --surface-2: #20241b;
-  --surface-3: #272b20;
-  --line: #31362a;
-  --line-strong: #414736;
-  --ink: #edede4;
-  --ink-2: #a7a69a;
-  --ink-3: #84837a;
-  --moss: #a3b76a;
-  --moss-soft: #26301a;
-  --sage: #8a9a5b;
-  --terracotta: #e4816d;
-  --terracotta-soft: #3a211b;
-  --ochre: #cba453;
-  --ochre-soft: #332714;
-  --blue: #93b4c6;
-  --blue-soft: #1c2830;
-  --rail: #0d0f09;
-  --rail-ink: #9e9c90;
-  --rail-line: #23271a;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px -16px rgba(0, 0, 0, 0.7);
-  color-scheme: dark;
-}
-
-* {
-  box-sizing: border-box;
-}
-
-html,
-body {
-  height: 100%;
-}
-
-body {
-  margin: 0;
-  background: var(--ground);
-  color: var(--ink);
-  font-family: var(--sans);
-  font-size: 14px;
-  line-height: 1.5;
-  -webkit-font-smoothing: antialiased;
-}
-
-a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.mono {
-  font-family: var(--mono);
-}
-
-.lbl {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  font-weight: 500;
-  letter-spacing: 0.15em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-}
-
-:focus-visible {
-  outline: 2px solid var(--moss);
-  outline-offset: 2px;
-  border-radius: 3px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  * {
-    transition: none !important;
-    animation: none !important;
-  }
-}
-
-/* ---------- estrutura ---------- */
+/* ---------- estrutura ----------
+   Três colunas, dentro do `.p-miolo` da base: lista de atendimentos, conversa
+   e painel do contato. O trilho vertical de 52px foi embora junto com os
+   quatro ícones desabilitados que ele carregava. */
 .desk {
   display: grid;
-  grid-template-columns: 52px 300px minmax(0, 1fr) 300px;
-  height: 100dvh;
+  grid-template-columns: 300px minmax(0, 1fr) 300px;
+  flex: 1;
+  min-width: 0;
+  height: calc(100dvh - var(--p-altura-topo));
   background: var(--surface);
 }
 
-.rail {
-  background: var(--rail);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 14px 0;
-  gap: 6px;
-}
-.rail .mark {
-  width: 22px;
-  height: 22px;
-  color: #f2f1ec;
-  margin-bottom: 12px;
-}
-.rail button,
-.rail .item {
-  width: 34px;
-  height: 34px;
-  border: 0;
-  border-radius: 7px;
-  background: transparent;
-  cursor: pointer;
-  color: var(--rail-ink);
-  display: grid;
-  place-items: center;
-  padding: 0;
-}
-.rail button svg,
-.rail .item svg {
-  width: 17px;
-  height: 17px;
-}
-.rail button[aria-current='true'] {
-  background: var(--rail-line);
-  color: #edefe2;
-}
-.rail button:hover:not([aria-current='true']) {
-  color: #edefe2;
-}
-.rail .spacer {
-  flex: 1;
-}
-.rail .me {
-  width: 30px;
-  height: 30px;
+/* Avatar do atendente, no canto direito do cabeçalho. O ponto de estado fica
+   nele porque o estado é da pessoa, não da tela. */
+.me {
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: var(--moss);
-  color: #fff;
+  background: var(--p-destaque);
+  color: var(--p-tinta-inversa);
   display: grid;
   place-items: center;
-  font-size: 11px;
-  font-weight: 600;
+  font-size: var(--p-t-xs);
+  font-weight: var(--p-peso-forte);
   position: relative;
-  margin-top: 8px;
+  flex: none;
 }
-.rail .me::after {
+.me::after {
   content: '';
   position: absolute;
   right: -1px;
   bottom: -1px;
-  width: 9px;
-  height: 9px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
-  background: var(--estado-cor, #7a7970);
-  border: 2px solid var(--rail);
+  background: var(--estado-cor, var(--p-tinta-3));
+  border: 2px solid var(--p-superficie);
 }
 
 .col {
@@ -245,83 +107,6 @@ a {
   color: var(--ink-3);
 }
 
-/* ---------- etiquetas visuais ---------- */
-.pill {
-  font-family: var(--mono);
-  font-size: 10px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  padding: 2px 6px;
-  border-radius: 4px;
-  border: 1px solid transparent;
-  white-space: nowrap;
-  display: inline-block;
-}
-.pill.q {
-  background: var(--surface-3);
-  color: var(--ink-2);
-  border-color: var(--line);
-}
-.pill.ch {
-  background: transparent;
-  color: var(--ink-3);
-  border-color: var(--line);
-}
-.pill.hi {
-  background: var(--terracotta-soft);
-  color: var(--terracotta);
-}
-.pill.med {
-  background: var(--ochre-soft);
-  color: var(--ochre);
-}
-.pill.ok {
-  background: var(--moss-soft);
-  color: var(--moss);
-}
-.pill.info {
-  background: var(--blue-soft);
-  color: var(--blue);
-}
-
-.btn {
-  font: inherit;
-  font-size: 11.5px;
-  font-weight: 500;
-  cursor: pointer;
-  padding: 5px 11px;
-  border-radius: 6px;
-  border: 1px solid var(--line);
-  background: var(--surface);
-  color: var(--ink-2);
-}
-.btn:hover:not(:disabled) {
-  border-color: var(--line-strong);
-  color: var(--ink);
-}
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.btn.primary {
-  background: var(--moss);
-  border-color: var(--moss);
-  color: #fff;
-}
-.btn.primary:hover:not(:disabled) {
-  color: #fff;
-  filter: brightness(1.08);
-}
-.btn.perigo {
-  border-color: var(--terracotta);
-  color: var(--terracotta);
-  background: transparent;
-}
-.btn.chip {
-  border-radius: 14px;
-  padding: 4px 12px;
-}
-
 /* ---------- coluna de atendimentos ---------- */
 .status-bar {
   display: flex;
@@ -335,7 +120,7 @@ a {
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--estado-cor, #7a7970);
+  background: var(--estado-cor, var(--ink-3));
   flex: none;
 }
 .status-bar .who {
@@ -356,7 +141,7 @@ a {
   font-size: 11.5px;
   color: var(--ink-2);
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   border-radius: 5px;
   padding: 3px 8px;
   cursor: pointer;
@@ -374,7 +159,7 @@ a {
   padding: 7px 10px;
   color: var(--ink);
   background: var(--surface-2);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   border-radius: 6px;
 }
 .busca input::placeholder {
@@ -395,6 +180,7 @@ a {
   padding: 11px 14px;
   border-bottom: 1px solid var(--line);
   position: relative;
+  text-decoration: none;
 }
 .conv:hover {
   background: var(--surface-2);
@@ -440,11 +226,6 @@ a {
   margin-top: 3px;
   flex-wrap: wrap;
 }
-.vazio {
-  padding: 24px 16px;
-  color: var(--ink-3);
-  font-size: 12.5px;
-}
 
 /* ---------- conversa ---------- */
 .thread {
@@ -482,9 +263,10 @@ a {
   display: none;
   font-size: 12px;
   color: var(--ink-2);
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   border-radius: 6px;
   padding: 4px 9px;
+  text-decoration: none;
 }
 
 .msgs {
@@ -526,7 +308,7 @@ a {
 }
 .msg.falhou .bub {
   background: var(--terracotta-soft);
-  border-color: var(--terracotta);
+  border-color: var(--p-erro-linha);
 }
 .msg.nota {
   align-self: center;
@@ -534,7 +316,7 @@ a {
 }
 .msg.nota .bub {
   background: var(--ochre-soft);
-  border-color: var(--ochre);
+  border-color: var(--p-alerta-linha);
   color: var(--ink);
 }
 .fail-note {
@@ -548,7 +330,7 @@ a {
   padding: 7px 10px;
 }
 .fail-note .btn {
-  border-color: var(--terracotta);
+  border-color: var(--p-erro-linha);
   color: var(--terracotta);
   background: transparent;
   padding: 3px 9px;
@@ -590,19 +372,18 @@ a {
 }
 .quick button.pill {
   cursor: pointer;
-  font-family: var(--mono);
 }
 .composer .box {
   display: flex;
   align-items: flex-end;
   gap: 10px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   border-radius: 8px;
   padding: 8px 10px;
   background: var(--surface-2);
 }
 .composer .box:focus-within {
-  border-color: var(--line-strong);
+  border-color: var(--moss);
 }
 .composer textarea {
   flex: 1;
@@ -625,7 +406,7 @@ a {
 }
 .modo-nota .box {
   background: var(--ochre-soft);
-  border-color: var(--ochre);
+  border-color: var(--p-alerta-linha);
 }
 
 .bloqueio {
@@ -647,7 +428,7 @@ a {
   font-size: 12.5px;
   padding: 6px 8px;
   border-radius: 6px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--line-strong);
   background: var(--surface);
   color: var(--ink);
   width: 100%;
@@ -743,6 +524,12 @@ a {
   flex-direction: column;
   gap: 9px;
 }
+/* Rótulo de bloco no painel. Não usa `.lbl`: caixa alta a cada duas linhas,
+   numa coluna de 300px, vira ruído em vez de hierarquia. */
+.panel .rotulo {
+  font-size: var(--p-t-sm);
+  color: var(--p-tinta-3);
+}
 .who-card {
   display: flex;
   align-items: center;
@@ -752,8 +539,8 @@ a {
   width: 38px;
   height: 38px;
   border-radius: 50%;
-  background: var(--blue-soft);
-  color: var(--blue);
+  background: var(--surface-3);
+  color: var(--ink-2);
   display: grid;
   place-items: center;
   font-weight: 600;
@@ -796,7 +583,6 @@ a {
   margin-top: 7px;
   font-size: 10.5px;
   color: var(--ink-3);
-  font-family: var(--mono);
 }
 .tags {
   display: flex;
@@ -804,19 +590,8 @@ a {
   flex-wrap: wrap;
 }
 
-/* ---------- diálogos ---------- */
-dialog {
-  border: 1px solid var(--line-strong);
-  border-radius: 10px;
-  background: var(--surface);
-  color: var(--ink);
-  padding: 0;
-  box-shadow: var(--shadow);
-  width: min(420px, calc(100vw - 32px));
-}
-dialog::backdrop {
-  background: rgba(17, 17, 17, 0.42);
-}
+/* ---------- diálogos ----------
+   A moldura, o fundo e a sombra vêm da base; aqui fica só o miolo. */
 dialog form,
 dialog .conteudo {
   display: flex;
@@ -859,7 +634,6 @@ dialog label.opcao input {
 }
 dialog label.opcao .sug {
   margin-left: auto;
-  font-family: var(--mono);
   font-size: 10.5px;
   color: var(--ink-3);
 }
@@ -880,7 +654,7 @@ dialog .rodape {
 /* ---------- responsivo ---------- */
 @media (max-width: 1240px) {
   .desk {
-    grid-template-columns: 52px 272px minmax(0, 1fr);
+    grid-template-columns: 272px minmax(0, 1fr);
   }
   .panel {
     display: none;
@@ -888,7 +662,7 @@ dialog .rodape {
 }
 @media (max-width: 860px) {
   .desk {
-    grid-template-columns: 52px minmax(0, 1fr);
+    grid-template-columns: minmax(0, 1fr);
   }
   .desk[data-selecionada='true'] .col.list {
     display: none;

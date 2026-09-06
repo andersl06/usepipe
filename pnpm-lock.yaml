@@ -105,6 +105,9 @@ importers:
       '@pipe/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@pipe/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       drizzle-orm:
         specifier: ^0.44.6
         version: 0.44.7(@types/pg@8.23.1)(pg@8.23.0)
@@ -142,6 +145,9 @@ importers:
       '@pipe/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@pipe/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       drizzle-orm:
         specifier: ^0.44.6
         version: 0.44.7(@types/pg@8.23.1)(pg@8.23.0)
@@ -173,6 +179,9 @@ importers:
       '@pipe/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@pipe/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       next:
         specifier: ^15.5.4
         version: 15.5.25(@types/node@22.20.1)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)

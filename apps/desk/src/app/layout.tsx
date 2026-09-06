@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from 'next';
 import type { ReactNode } from 'react';
+// A ordem importa: a base compartilhada primeiro, o app depois. Quem sobrescreve
+// é sempre o aplicativo, nunca o contrário.
+import '@pipe/ui/estilos.css';
 import './globais.css';
 
 export const metadata: Metadata = {
@@ -24,13 +27,13 @@ export const viewport: Viewport = {
 const TEMA_ANTES_DE_PINTAR = `
 try {
   var t = localStorage.getItem('pipe-tema');
-  if (t) document.documentElement.dataset.theme = t;
+  if (t) document.documentElement.dataset.tema = t;
 } catch (e) {}
 `;
 
 export default function LayoutRaiz({ children }: { children: ReactNode }) {
   return (
-    // O script acima escreve `data-theme` antes da hidratação, e extensão de navegador
+    // O script acima escreve `data-tema` antes da hidratação, e extensão de navegador
     // costuma escrever atributo aqui também: avisar sobre isso é ruído, não defeito.
     <html lang="pt-BR" suppressHydrationWarning>
       <head>

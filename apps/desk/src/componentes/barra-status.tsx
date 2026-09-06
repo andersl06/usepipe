@@ -2,7 +2,7 @@
 
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { definirStatus } from '../app/acoes';
-import { COR_DO_ESTADO } from './trilho';
+import { COR_DO_ESTADO } from './cabecalho-desk';
 import type { EstadoAtendente, MotivoDePausa } from '../servidor/consultas';
 
 /**
@@ -39,7 +39,7 @@ export function BarraStatus({
     if (resultado.ok) dialogo.current?.close();
   }, [resultado]);
 
-  const descricao = estado === 'pausa' && motivoPausa ? `Pausa — ${motivoPausa}` : ROTULO[estado];
+  const descricao = estado === 'pausa' && motivoPausa ? `Pausa · ${motivoPausa}` : ROTULO[estado];
 
   return (
     <div className="status-bar">

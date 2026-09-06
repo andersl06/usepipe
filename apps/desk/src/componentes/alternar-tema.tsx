@@ -12,7 +12,7 @@ export function AlternarTema() {
   const [tema, setTema] = useState<Tema | null>(null);
 
   useEffect(() => {
-    const guardado = document.documentElement.dataset['theme'];
+    const guardado = document.documentElement.dataset['tema'];
     if (guardado === 'claro' || guardado === 'escuro') setTema(guardado);
   }, []);
 
@@ -23,7 +23,7 @@ export function AlternarTema() {
         ? ('escuro' as const)
         : ('claro' as const));
     const novo: Tema = atual === 'escuro' ? 'claro' : 'escuro';
-    document.documentElement.dataset['theme'] = novo;
+    document.documentElement.dataset['tema'] = novo;
     try {
       localStorage.setItem('pipe-tema', novo);
     } catch {
@@ -33,7 +33,13 @@ export function AlternarTema() {
   }
 
   return (
-    <button type="button" onClick={alternar} title="Alternar tema claro e escuro">
+    <button
+      type="button"
+      className="iconbtn"
+      onClick={alternar}
+      title="Alternar tema claro e escuro"
+      aria-label="Alternar tema claro e escuro"
+    >
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8">
         <circle cx="12" cy="12" r="4.2" />
         <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.2 5.2l1.4 1.4M17.4 17.4l1.4 1.4M18.8 5.2l-1.4 1.4M6.6 17.4l-1.4 1.4" />

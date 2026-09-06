@@ -56,7 +56,7 @@ export function PainelContato({
       </section>
 
       <section>
-        <span className="lbl">Resumo do atendimento</span>
+        <span className="rotulo">Resumo do atendimento</span>
         {conversa.resumo ? (
           <div className="summary">
             {conversa.resumo}
@@ -74,7 +74,7 @@ export function PainelContato({
       </section>
 
       <section>
-        <span className="lbl">Atributos</span>
+        <span className="rotulo">Atributos</span>
         {atributos.length === 0 ? (
           <p className="vazio" style={{ padding: 0 }}>
             Nenhum atributo cadastrado.
@@ -92,7 +92,7 @@ export function PainelContato({
       </section>
 
       <section>
-        <span className="lbl">Etiquetas</span>
+        <span className="rotulo">Etiquetas</span>
         {etiquetas.length === 0 ? (
           <p className="vazio" style={{ padding: 0 }}>
             Sem etiqueta nesta conversa.
@@ -109,7 +109,7 @@ export function PainelContato({
       </section>
 
       <section>
-        <span className="lbl">Histórico</span>
+        <span className="rotulo">Histórico</span>
         {historico.length === 0 ? (
           <p className="vazio" style={{ padding: 0 }}>
             Primeira conversa deste contato.
