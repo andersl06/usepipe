@@ -17,27 +17,28 @@
  * ocre deixam de ser cor de marca e viram os estados de erro e de alerta;
  * o azul deixa de ser cor. Nenhum tema é declarado aqui — os dois temas
  * chegam prontos do @pipe/ui.
+ *
+ * Sage saiu do apelidário. Era o matiz de gráfico usado como cromo, e a régua
+ * cerca a paleta estendida: `--p-grafico-*` só entra em barra e série, e por
+ * isso é referenciado direto onde a barra é desenhada.
  */
 :root {
-  --ground: var(--p-fundo);
-  --surface: var(--p-superficie);
+  --ground: var(--p-superficie-1);
+  --surface: var(--p-superficie-0);
   --surface-2: var(--p-superficie-2);
   --surface-3: var(--p-superficie-3);
   --line: var(--p-linha);
   --line-strong: var(--p-linha-media);
-  --ink: var(--p-tinta);
-  --ink-2: var(--p-tinta-2);
-  --ink-3: var(--p-tinta-3);
-  --moss: var(--p-destaque);
-  --moss-soft: var(--p-destaque-fundo);
-  --sage: var(--p-dado);
-  --terracotta: var(--p-erro-tinta);
+  --ink: var(--p-conteudo);
+  --ink-2: var(--p-conteudo-desabilitado);
+  --ink-3: var(--p-conteudo-fantasma);
+  --moss: var(--p-marca);
+  --moss-soft: var(--p-marca-suave);
+  --terracotta: var(--p-erro-conteudo);
   --terracotta-soft: var(--p-erro-fundo);
-  --ochre: var(--p-alerta-tinta);
+  --ochre: var(--p-alerta-conteudo);
   --ochre-soft: var(--p-alerta-fundo);
-  --blue: var(--p-tinta-2);
-  --blue-soft: var(--p-superficie-3);
-  --online: var(--p-sucesso-tinta);
+  --online: var(--p-sucesso-conteudo);
   --shadow: var(--p-sombra-1);
 }
 
@@ -51,14 +52,14 @@
 
 .board-head h2 {
   margin: 0;
-  font-size: var(--p-t-xl);
+  font-size: var(--p-t-titulo);
   font-weight: var(--p-peso-forte);
   letter-spacing: -0.015em;
 }
 
 .board-head .sub {
   font-size: var(--p-t-sm);
-  color: var(--p-tinta-3);
+  color: var(--p-conteudo-fantasma);
 }
 
 .filters {
@@ -104,12 +105,12 @@
  * não recebe ação é justamente o que fazia a tela parecer um carrossel.
  */
 .bloco > header .lbl {
-  color: var(--p-tinta-2);
+  color: var(--p-conteudo-desabilitado);
 }
 
 .bloco > header .quando {
   font-size: var(--p-t-sm);
-  color: var(--p-tinta-3);
+  color: var(--p-conteudo-fantasma);
 }
 
 /* O bloco de tempo real fica maior que o resto: é o assunto da tela. */
@@ -140,14 +141,14 @@
 .statuses b {
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
-  font-size: var(--p-t-2xl);
+  font-size: var(--p-t-numero);
   font-weight: var(--p-peso-forte);
   line-height: var(--p-altura-linha-curta);
 }
 
 .statuses span {
   font-size: var(--p-t-sm);
-  color: var(--p-tinta-2);
+  color: var(--p-conteudo-desabilitado);
   display: flex;
   align-items: center;
   gap: 5px;
@@ -172,7 +173,7 @@
 .bar-row .track {
   height: 7px;
   border-radius: var(--p-r-sm);
-  background: var(--p-dado-trilho);
+  background: var(--p-grafico-trilho);
   overflow: hidden;
   display: block;
 }
@@ -180,24 +181,24 @@
 .bar-row .fill {
   height: 100%;
   border-radius: var(--p-r-sm);
-  background: var(--p-dado);
+  background: var(--p-grafico-1);
   display: block;
 }
 
 /* Barra colorida só quando o número pede ação. */
 .bar-row .fill.warn {
-  background: var(--p-alerta-tinta);
+  background: var(--p-alerta-conteudo);
 }
 
 .bar-row .fill.bad {
-  background: var(--p-erro-tinta);
+  background: var(--p-erro-conteudo);
 }
 
 .bar-row .n {
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
   text-align: right;
-  color: var(--p-tinta);
+  color: var(--p-conteudo);
 }
 
 .bar-row .nome {
@@ -218,4 +219,43 @@
   .mon {
     grid-template-columns: 1fr;
   }
+}
+
+/* ================================================== agrupamento da listagem
+   Cabeçalho de grupo e contagem. Vivem aqui e no CRM até o `@pipe/ui` ganhar
+   uma `Tabela` agrupada — dois consumidores é onde o token vira componente.
+   ========================================================================= */
+tr.grupo th {
+  background: var(--p-superficie-1);
+  font-family: inherit;
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--p-conteudo);
+  padding: var(--p-e-2) var(--p-celula-x);
+  border-top: 1px solid var(--p-linha);
+  text-align: left;
+}
+
+/* Contagem ao lado de um rótulo. Monoespaçada porque é número. */
+.qt {
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* ==================================================== hierarquia da tela
+   Cada tela tem UMA coisa principal. No Monitoramento é o tempo real, e o
+   resto desce de peso — encolher o secundário cria a hierarquia sem inflar a
+   tela, que é o que aconteceria aumentando o principal.
+   ========================================================================= */
+.bloco.secundario .metric .v,
+.bloco.secundario .statuses b {
+  font-size: var(--p-t-titulo);
+}
+
+.bloco.secundario > header .lbl {
+  color: var(--p-conteudo-fantasma);
 }

@@ -44,7 +44,7 @@ export default async function PaginaEsforco({ searchParams }: { searchParams: Pr
         <div className="card">
           <h3>Total do período</h3>
           <div className="metrics">
-            <div className="metric accent">
+            <div className="metric">
               <span className="v">{duracaoLonga(totalEsforco)}</span>
               <span className="k">Esforço somado</span>
               <span className="den">{numero(totalTickets)} tickets</span>
@@ -75,7 +75,7 @@ export default async function PaginaEsforco({ searchParams }: { searchParams: Pr
       <div className="tblwrap">
         <div className="tblhead">
           <h3>Por atendente</h3>
-          <span className="lbl" style={{ marginLeft: 'auto' }}>
+          <span className="sub" style={{ marginLeft: 'auto' }}>
             {de} → {ate}
           </span>
         </div>

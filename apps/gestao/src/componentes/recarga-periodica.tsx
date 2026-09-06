@@ -45,7 +45,7 @@ export function RecargaPeriodica({ segundos = 30 }: { segundos?: number }) {
       >
         {ligado ? `Auto ${segundos}s: ligado` : `Auto ${segundos}s: pausado`}
       </button>
-      <span className="lbl">{ultima ? `atualizado ${ultima}` : 'aguardando'}</span>
+      <span className="sub">{ultima ? `atualizado ${ultima}` : 'aguardando'}</span>
     </>
   );
 }

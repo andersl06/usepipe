@@ -1,5 +1,12 @@
 import { fusoDoTenant, janelaDeDatas, janelaDeHoje } from '../../lib/banco';
-import { carregarCatalogos, carregarHistorico, LIMITE_HISTORICO } from '../../lib/historico';
+import {
+  AGRUPAMENTOS,
+  agrupamentoValido,
+  agruparHistorico,
+  carregarCatalogos,
+  carregarHistorico,
+  LIMITE_HISTORICO,
+} from '../../lib/historico';
 import { dataHora, dataIso, duracao, numero } from '../../lib/formato';
 
 export const dynamic = 'force-dynamic';
@@ -10,7 +17,11 @@ interface Busca {
   fila?: string;
   atendente?: string;
   etiqueta?: string;
+  agrupar?: string;
 }
+
+/** Colunas da tabela, para o cabeçalho de grupo atravessar a linha inteira. */
+const COLUNAS = 10;
 
 /**
  * Finalizada é o desfecho normal e fica neutra: era verde em cada linha da
@@ -39,6 +50,9 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
     atendenteId: params.atendente || undefined,
     etiquetaId: params.etiqueta || undefined,
   });
+
+  const por = agrupamentoValido(params.agrupar);
+  const grupos = agruparHistorico(linhas, por);
 
   return (
     <>
@@ -91,6 +105,19 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
           ))}
         </select>
 
+        {/*
+          Agrupamento no lugar dos relatórios: "por fila", "por atendente" e
+          "por etiqueta" eram item de menu e são a mesma lista dobrada por uma
+          coluna.
+        */}
+        <select name="agrupar" defaultValue={por} className="btn" aria-label="Agrupar por">
+          {AGRUPAMENTOS.map((a) => (
+            <option key={a.chave} value={a.chave}>
+              {a.chave === 'nenhum' ? a.rotulo : `Agrupar por ${a.rotulo.toLowerCase()}`}
+            </option>
+          ))}
+        </select>
+
         <button type="submit" className="btn primary">
           Aplicar
         </button>
@@ -102,7 +129,7 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
       <div className="tblwrap">
         <div className="tblhead">
           <h3>Conversas encerradas</h3>
-          <span className="lbl" style={{ marginLeft: 'auto' }}>
+          <span className="sub" style={{ marginLeft: 'auto' }}>
             {numero(linhas.length)} linhas
             {truncado ? ` · mostrando as ${LIMITE_HISTORICO} mais recentes` : ''}
           </span>
@@ -127,31 +154,40 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
                   <th>Etiquetas</th>
                 </tr>
               </thead>
-              <tbody>
-                {linhas.map((l) => {
-                  const status = l.status ? ROTULO_STATUS[l.status] : undefined;
-                  return (
-                    <tr key={l.id} className={l.status === 'perdida' ? 'critico' : undefined}>
-                      <td className="num">{dataHora(l.encerradaEm, fuso)}</td>
-                      <td className="num">{l.ticket}</td>
-                      <td className="who">{l.contatoNome}</td>
-                      <td>{l.filaNome ?? '—'}</td>
-                      <td>{l.atendenteNome ?? '—'}</td>
-                      <td className="num">{duracao(l.esperaSeg)}</td>
-                      <td className="num">{duracao(l.primeiraRespostaSeg)}</td>
-                      <td className="num">{duracao(l.atendimentoSeg)}</td>
-                      <td>
-                        {status ? (
-                          <span className={status.classe}>{status.texto}</span>
-                        ) : (
-                          <span className="etiqueta">Aberta</span>
-                        )}
-                      </td>
-                      <td>{l.etiquetas.join(', ') || '—'}</td>
+              {grupos.map((grupo) => (
+                <tbody key={grupo.titulo || 'todos'}>
+                  {grupo.titulo ? (
+                    <tr className="grupo">
+                      <th colSpan={COLUNAS} scope="colgroup">
+                        {grupo.titulo} <span className="qt">{numero(grupo.linhas.length)}</span>
+                      </th>
                     </tr>
-                  );
-                })}
-              </tbody>
+                  ) : null}
+                  {grupo.linhas.map((l) => {
+                    const status = l.status ? ROTULO_STATUS[l.status] : undefined;
+                    return (
+                      <tr key={l.id} className={l.status === 'perdida' ? 'critico' : undefined}>
+                        <td className="num">{dataHora(l.encerradaEm, fuso)}</td>
+                        <td className="num">{l.ticket}</td>
+                        <td className="who">{l.contatoNome}</td>
+                        <td>{l.filaNome ?? '—'}</td>
+                        <td>{l.atendenteNome ?? '—'}</td>
+                        <td className="num">{duracao(l.esperaSeg)}</td>
+                        <td className="num">{duracao(l.primeiraRespostaSeg)}</td>
+                        <td className="num">{duracao(l.atendimentoSeg)}</td>
+                        <td>
+                          {status ? (
+                            <span className={status.classe}>{status.texto}</span>
+                          ) : (
+                            <span className="etiqueta">Aberta</span>
+                          )}
+                        </td>
+                        <td>{l.etiquetas.join(', ') || '—'}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              ))}
             </table>
           </div>
         )}

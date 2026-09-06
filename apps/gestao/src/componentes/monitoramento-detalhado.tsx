@@ -55,23 +55,12 @@ function PillSlaView({ linha }: { linha: LinhaConversaAberta }) {
   return <span className="etiqueta">{rotulo}</span>;
 }
 
-function Acoes() {
-  return (
-    <td className="acts">
-      <button type="button" className="iconbtn" title="Abrir no Desk" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5" />
-        </svg>
-      </button>
-      <button type="button" className="iconbtn" title="Transferir" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-          <path d="M4 8h13m0 0-4-4m4 4-4 4M20 16H7m0 0 4-4m-4 4 4 4" />
-        </svg>
-      </button>
-    </td>
-  );
-}
-
+/*
+ * A coluna "Ações" saiu inteira. Ela tinha dois botões, "Abrir no Desk" e
+ * "Transferir", e os dois estavam desabilitados em toda linha da tabela —
+ * duas caveiras cinzas repetidas por conversa aberta. Item que não funciona
+ * não aparece; os dois voltam quando abrirem alguma coisa.
+ */
 function TabelaConversas({ linhas }: { linhas: readonly LinhaConversaAberta[] }) {
   if (linhas.length === 0) {
     return <div className="vazio">Nenhuma conversa nesta aba com os filtros atuais.</div>;
@@ -89,7 +78,6 @@ function TabelaConversas({ linhas }: { linhas: readonly LinhaConversaAberta[] })
             <th>Fila</th>
             <th>Atendente</th>
             <th>SLA</th>
-            <th>Ações</th>
           </tr>
         </thead>
         <tbody>
@@ -111,7 +99,6 @@ function TabelaConversas({ linhas }: { linhas: readonly LinhaConversaAberta[] })
               <td>
                 {l.emEspera ? <span className="etiqueta">Em espera</span> : <PillSlaView linha={l} />}
               </td>
-              <Acoes />
             </tr>
           ))}
         </tbody>
@@ -144,7 +131,7 @@ export function MonitoramentoDetalhado({
     <div className="tblwrap">
       <div className="tblhead">
         <h3>Monitoramento detalhado</h3>
-        <span className="lbl" style={{ marginLeft: 'auto' }}>
+        <span className="sub" style={{ marginLeft: 'auto' }}>
           {numero(monitoramento.abertas.length)} conversas abertas
         </span>
       </div>
@@ -236,9 +223,10 @@ export function MonitoramentoDetalhado({
             <tbody>
               {monitoramento.etiquetas.map((e) => (
                 <tr key={e.id}>
-                  <td className="who">
-                    <i className="sw" style={{ background: e.cor ?? 'var(--sage)' }} /> {e.nome}
-                  </td>
+                  {/* Sem o quadradinho colorido: a cor da etiqueta é escolha de
+                      cadastro, e repetida por linha ela põe na tela tantos
+                      matizes quantas etiquetas o tenant criou. O nome informa. */}
+                  <td className="who">{e.nome}</td>
                   <td className="num">{numero(e.abertas)}</td>
                 </tr>
               ))}

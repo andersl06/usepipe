@@ -59,15 +59,15 @@ export default async function PaginaMonitoramento({
           <div className="card">
             <h3>Atendimentos em tempo real</h3>
             <div className="metrics">
-              <div className="metric accent">
+              <div className="metric">
                 <span className="v">{numero(tempoReal.naFila)}</span>
                 <span className="k">Na fila</span>
               </div>
-              <div className="metric warn">
+              <div className="metric">
                 <span className="v">{duracao(tempoReal.maiorEsperaNaFilaSeg)}</span>
                 <span className="k">Tempo máximo na fila</span>
               </div>
-              <div className="metric bad">
+              <div className="metric">
                 <span className="v">{duracao(tempoReal.maiorEsperaPrimeiraRespostaSeg)}</span>
                 <span className="k">Máximo até 1ª resposta</span>
               </div>
@@ -90,27 +90,23 @@ export default async function PaginaMonitoramento({
 
           <div className="card">
             <h3>Status dos atendentes</h3>
+            {/*
+              Os números voltaram ao neutro. Estar online é o normal, e moss em
+              coisa que não pede ação é o que o dono leu como carrossel. Só a
+              pausa acima do tempo pede ação, e ela já aparece na nota abaixo.
+            */}
             <div className="statuses">
               <div>
-                <b style={{ color: 'var(--moss)' }}>{numero(atendentes.online)}</b>
-                <span>
-                  <i className="sw" style={{ background: 'var(--online)' }} />
-                  Online
-                </span>
+                <b>{numero(atendentes.online)}</b>
+                <span>Online</span>
               </div>
               <div>
-                <b style={{ color: 'var(--ochre)' }}>{numero(atendentes.pausa)}</b>
-                <span>
-                  <i className="sw" style={{ background: 'var(--ochre)' }} />
-                  Pausa
-                </span>
+                <b>{numero(atendentes.pausa)}</b>
+                <span>Pausa</span>
               </div>
               <div>
                 <b>{numero(atendentes.invisivel)}</b>
-                <span>
-                  <i className="sw" style={{ background: 'var(--ink-3)' }} />
-                  Invisível
-                </span>
+                <span>Invisível</span>
               </div>
             </div>
             <div className="note">
@@ -123,7 +119,12 @@ export default async function PaginaMonitoramento({
       </section>
 
       {/* ------------------------------------------------ bloco 2: HOJE */}
-      <section className="bloco" aria-label="Hoje">
+      {/*
+        Bloco secundário: o assunto desta tela é o tempo real, e "hoje" existe
+        para dar contexto a ele. Quem desce de peso é o secundário — inflar o
+        principal só aumentaria a tela inteira.
+      */}
+      <section className="bloco secundario" aria-label="Hoje">
         <header>
           <span className="lbl">Hoje</span>
           <span className="quando">
@@ -169,29 +170,28 @@ export default async function PaginaMonitoramento({
 
           <div className="card">
             <h3>Status dos tickets hoje</h3>
+            {/*
+              Quatro números, e antes quatro cores — terracota, ocre, moss e
+              neutro lado a lado, o que é a definição de carrossel. Perdido e
+              abandonado continuam sendo os dois que o supervisor caça, e é a
+              etiqueta de estado que os marca; o número é número.
+            */}
             <div className="statuses">
               <div>
-                <b style={{ color: 'var(--terracotta)' }}>
-                  {numero(hoje.encerramentos.perdida)}
-                </b>
+                <b>{numero(hoje.encerramentos.perdida)}</b>
                 <span>
-                  <i className="sw" style={{ background: 'var(--terracotta)' }} />
-                  Perdidos
+                  <span className="etiqueta erro">Perdidos</span>
                 </span>
               </div>
               <div>
-                <b style={{ color: 'var(--ochre)' }}>{numero(hoje.encerramentos.abandonada)}</b>
+                <b>{numero(hoje.encerramentos.abandonada)}</b>
                 <span>
-                  <i className="sw" style={{ background: 'var(--ochre)' }} />
-                  Abandonados
+                  <span className="etiqueta alerta">Abandonados</span>
                 </span>
               </div>
               <div>
-                <b style={{ color: 'var(--moss)' }}>{numero(hoje.encerramentos.finalizada)}</b>
-                <span>
-                  <i className="sw" style={{ background: 'var(--moss)' }} />
-                  Finalizados
-                </span>
+                <b>{numero(hoje.encerramentos.finalizada)}</b>
+                <span>Finalizados</span>
               </div>
               <div>
                 <b>{numero(hoje.encerramentos.fechada)}</b>

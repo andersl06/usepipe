@@ -14,7 +14,7 @@ export function CargaPorAtendente({ carga }: { carga: readonly CargaAtendente[] 
     <div className="tblwrap">
       <div className="tblhead">
         <h3>Carga por atendente</h3>
-        <span className="lbl" style={{ marginLeft: 'auto' }}>
+        <span className="sub" style={{ marginLeft: 'auto' }}>
           carga ponderada · aguardando o atendente pesa 2
         </span>
       </div>
@@ -34,14 +34,15 @@ export function CargaPorAtendente({ carga }: { carga: readonly CargaAtendente[] 
               ocupacaoVagas >= 1 ? 'fill bad' : ocupacaoVagas >= 0.75 ? 'fill warn' : 'fill';
             return (
               <div className="bar-row" key={a.id}>
+                {/*
+                  Antes havia um ponto verde em toda linha para dizer "online",
+                  que é o estado normal — verde repetido deixa de significar.
+                  Agora só o desvio aparece, e em etiqueta neutra: quem não está
+                  online é a informação, e ela é textual.
+                */}
                 <span className="nome">
-                  <i
-                    className="sw"
-                    style={{
-                      background: a.estado === 'online' ? 'var(--online)' : 'var(--ink-3)',
-                    }}
-                  />
                   <span>{a.nome}</span>
+                  {a.estado === 'online' ? null : <span className="etiqueta">{a.estado}</span>}
                 </span>
                 <span className="track">
                   <span className={classe} style={{ width: `${largura}%` }} />
