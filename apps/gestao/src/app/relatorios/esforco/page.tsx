@@ -31,59 +31,67 @@ export default async function PaginaEsforco({ searchParams }: { searchParams: Pr
         </span>
       </div>
 
+      {/* Faixa de filtros de 56px, no lugar e na ordem da faixa deles:
+          rótulo e controles à esquerda, período e ação à direita. */}
       <form className="quickfilters" method="get" action="/relatorios/esforco">
-        <span className="lbl">Semana</span>
+        <span className="lbl">Filtros rápidos:</span>
         <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
-        <button type="submit" className="btn primary">
-          Aplicar
-        </button>
+        <div className="faixa-fim">
+          <button type="submit" className="btn primary">
+            Aplicar
+          </button>
+        </div>
       </form>
 
-      <div className="mon" style={{ gridTemplateColumns: 'minmax(0,1fr)' }}>
-        <div className="card">
-          <h3>Total do período</h3>
-          <div className="metrics">
-            <div className="metric">
-              <span className="v">{duracaoLonga(totalEsforco)}</span>
-              <span className="k">Esforço somado</span>
-              <span className="den">{numero(totalTickets)} tickets</span>
-            </div>
-            <div className="metric">
-              <span className="v">
-                {duracaoLonga(totalTickets > 0 ? totalEsforco / totalTickets : null)}
-              </span>
-              <span className="k">Esforço médio por ticket</span>
-              <span className="den">soma ÷ soma, nunca média de médias</span>
-            </div>
-            <div className="metric">
-              <span className="v">{numero(relatorio.conversasConsideradas)}</span>
-              <span className="k">Conversas no período</span>
-              <span className="den">
-                {numero(relatorio.conversasSemAtendente)} sem atendente identificado
-              </span>
-            </div>
+      {/* ------------------------------------------------------ bloco 1
+          A estrutura de bloco dos relatórios deles, medida em
+          `docs/pesquisa/blip-medidas-monitoramento.md` §6: um cartão que
+          CONTÉM cartões. O rótulo vem em cima em 14/600 e o valor embaixo em
+          20/700 — o oposto do cartão de Monitoramento, onde o valor vem
+          primeiro e é 24/400. */}
+      <section className="bloco-rel">
+        <h3>Total do período</h3>
+        <div className="bloco-rel-grade" style={{ '--rel-colunas': 3 } as React.CSSProperties}>
+          <div className="cartao-rel">
+            <span className="r">Esforço somado</span>
+            <span className="v">{duracaoLonga(totalEsforco)}</span>
+            <span className="den">{numero(totalTickets)} tickets</span>
           </div>
-          <div className="note">
-            A régua assume texto digitado à mão. Por isso o conteúdo vindo de resposta pronta e de
-            template sai do esforço e aparece em coluna separada, porque contá-lo infla o esforço de
-            quem só clicou.
+          <div className="cartao-rel">
+            <span className="r">Esforço médio por ticket</span>
+            <span className="v">
+              {duracaoLonga(totalTickets > 0 ? totalEsforco / totalTickets : null)}
+            </span>
+            <span className="den">soma ÷ soma, nunca média de médias</span>
+          </div>
+          <div className="cartao-rel">
+            <span className="r">Conversas no período</span>
+            <span className="v">{numero(relatorio.conversasConsideradas)}</span>
+            <span className="den">
+              {numero(relatorio.conversasSemAtendente)} sem atendente identificado
+            </span>
           </div>
         </div>
-      </div>
+        <p className="note">
+          A régua assume texto digitado à mão. Por isso o conteúdo vindo de resposta pronta e de
+          template sai do esforço e aparece em coluna separada, porque contá-lo infla o esforço de
+          quem só clicou.
+        </p>
+      </section>
 
-      <div className="tblwrap">
-        <div className="tblhead">
-          <h3>Por atendente</h3>
-          <span className="sub" style={{ marginLeft: 'auto' }}>
-            {de} → {ate}
-          </span>
-        </div>
+      {/* ------------------------------------------------------ bloco 2 */}
+      <section className="bloco-rel">
+        <h3>
+          Por atendente <span className="sub">{`${de} → ${ate}`}</span>
+        </h3>
 
         {relatorio.atendentes.length === 0 ? (
-          <div className="vazio">Nenhuma conversa encerrada com atendente neste período.</div>
+          <div className="cartao-rel">
+            <div className="vazio">Nenhuma conversa encerrada com atendente neste período.</div>
+          </div>
         ) : (
-          <div className="scroll">
+          <div className="cartao-rel tabela scroll">
             <table>
               <thead>
                 <tr>
@@ -123,7 +131,7 @@ export default async function PaginaEsforco({ searchParams }: { searchParams: Pr
             </table>
           </div>
         )}
-      </div>
+      </section>
     </>
   );
 }
