@@ -11,32 +11,30 @@
  * apontando para eles, para que o CSS abaixo não precise ser reescrito linha
  * a linha. Quatro matizes de destaque viram um: terracota e ocre passam a ser
  * os estados de erro e alerta, e o azul deixa de ser cor.
+ *
+ * Sage saiu do apelidário junto com os três apelidos do trilho, que morreram
+ * com o trilho. A paleta de gráfico é cercada: `--p-grafico-*` não entra em
+ * cromo, e o Desk não desenha gráfico nenhum.
  */
 :root {
-  --ground: var(--p-fundo);
-  --surface: var(--p-superficie);
+  --ground: var(--p-superficie-1);
+  --surface: var(--p-superficie-0);
   --surface-2: var(--p-superficie-2);
   --surface-3: var(--p-superficie-3);
   --line: var(--p-linha);
   --line-strong: var(--p-linha-media);
-  --ink: var(--p-tinta);
-  --ink-2: var(--p-tinta-2);
-  --ink-3: var(--p-tinta-3);
-  --moss: var(--p-destaque);
-  --moss-soft: var(--p-destaque-fundo);
-  --sage: var(--p-dado);
-  --terracotta: var(--p-erro-tinta);
+  --ink: var(--p-conteudo);
+  --ink-2: var(--p-conteudo-desabilitado);
+  --ink-3: var(--p-conteudo-fantasma);
+  --moss: var(--p-marca);
+  --moss-soft: var(--p-marca-suave);
+  --terracotta: var(--p-erro-conteudo);
   --terracotta-soft: var(--p-erro-fundo);
-  --ochre: var(--p-alerta-tinta);
+  --ochre: var(--p-alerta-conteudo);
   --ochre-soft: var(--p-alerta-fundo);
-  --blue: var(--p-tinta-2);
-  --blue-soft: var(--p-superficie-3);
   --shadow: var(--p-sombra-1);
   --sans: var(--p-fonte);
   --mono: var(--p-fonte-mono);
-  --rail: var(--p-superficie-2);
-  --rail-ink: var(--p-tinta-2);
-  --rail-line: var(--p-linha);
 }
 
 /* ---------- estrutura ----------
@@ -58,8 +56,8 @@
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  background: var(--p-destaque);
-  color: var(--p-tinta-inversa);
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
   display: grid;
   place-items: center;
   font-size: var(--p-t-xs);
@@ -75,8 +73,8 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--estado-cor, var(--p-tinta-3));
-  border: 2px solid var(--p-superficie);
+  background: var(--estado-cor, var(--p-conteudo-fantasma));
+  border: 2px solid var(--p-superficie-0);
 }
 
 .col {
@@ -96,14 +94,14 @@
 }
 .col-head h2 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--p-t-lg);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
 .col-head .contagem {
   margin-left: auto;
   font-family: var(--mono);
-  font-size: 11px;
+  font-size: var(--p-t-xs);
   color: var(--ink-3);
 }
 
@@ -124,7 +122,7 @@
   flex: none;
 }
 .status-bar .who {
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
   color: var(--ink-2);
   min-width: 0;
   overflow: hidden;
@@ -138,11 +136,11 @@
 .status-bar .trocar {
   margin-left: auto;
   font: inherit;
-  font-size: 11.5px;
+  font-size: var(--p-t-sm);
   color: var(--ink-2);
   background: var(--surface);
   border: 1px solid var(--line-strong);
-  border-radius: 5px;
+  border-radius: var(--p-r-sm);
   padding: 3px 8px;
   cursor: pointer;
   flex: none;
@@ -155,12 +153,12 @@
 .busca input {
   width: 100%;
   font: inherit;
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
   padding: 7px 10px;
   color: var(--ink);
   background: var(--surface-2);
   border: 1px solid var(--line-strong);
-  border-radius: 6px;
+  border-radius: var(--p-r-md);
 }
 .busca input::placeholder {
   color: var(--ink-3);
@@ -198,21 +196,21 @@
   background: var(--moss);
 }
 .conv .nm {
-  font-size: 13px;
+  font-size: var(--p-t-md);
   font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 .conv .t {
-  font-size: 11px;
+  font-size: var(--p-t-xs);
   color: var(--ink-3);
   font-variant-numeric: tabular-nums;
   font-family: var(--mono);
 }
 .conv .sn {
   grid-column: 1/-1;
-  font-size: 12px;
+  font-size: var(--p-t-sm);
   color: var(--ink-2);
   white-space: nowrap;
   overflow: hidden;
@@ -246,11 +244,11 @@
 }
 .thread-head h3 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--p-t-lg);
   font-weight: 600;
 }
 .thread-head .sub {
-  font-size: 11.5px;
+  font-size: var(--p-t-sm);
   color: var(--ink-3);
 }
 .thread-head .acts {
@@ -261,10 +259,10 @@
 }
 .voltar {
   display: none;
-  font-size: 12px;
+  font-size: var(--p-t-sm);
   color: var(--ink-2);
   border: 1px solid var(--line-strong);
-  border-radius: 6px;
+  border-radius: var(--p-r-md);
   padding: 4px 9px;
   text-decoration: none;
 }
@@ -285,25 +283,32 @@
 }
 .msg .bub {
   padding: 9px 12px;
-  border-radius: 10px;
-  font-size: 13px;
+  border-radius: var(--p-r-md);
+  font-size: var(--p-t-md);
   background: var(--surface);
   border: 1px solid var(--line);
   color: var(--ink);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
+/* A linha de estado é "16:22 · lida · resposta pronta": um horário e três
+   palavras. Estava inteira em monoespaçada, o que punha máquina de escrever
+   embaixo de cada balão da conversa. A mono é recurso de NÚMERO — o horário
+   ganha o tabular e o resto volta para a família do corpo. */
 .msg .st {
-  font-size: 10.5px;
+  font-size: var(--p-t-xs);
   color: var(--ink-3);
-  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
 }
 .msg.out {
   align-self: flex-end;
   align-items: flex-end;
 }
+/* Balão de saída em superfície neutra, não em moss. O lado já diz quem
+   falou — o alinhamento carrega a informação —, e moss é cor de ação
+   primária e de estado ativo, não de conteúdo repetido a cada mensagem. */
 .msg.out .bub {
-  background: var(--moss-soft);
+  background: var(--surface-3);
   border-color: transparent;
 }
 .msg.falhou .bub {
@@ -314,19 +319,23 @@
   align-self: center;
   max-width: 88%;
 }
+/* Nota interna em superfície, não em ocre. Ocre é alerta, e uma nota que o
+   próprio atendente escreveu não é alerta nenhum: ela só não é mensagem. A
+   borda tracejada é o que a separa da conversa. */
 .msg.nota .bub {
-  background: var(--ochre-soft);
-  border-color: var(--p-alerta-linha);
+  background: var(--surface-2);
+  border-style: dashed;
+  border-color: var(--line-strong);
   color: var(--ink);
 }
 .fail-note {
   display: flex;
   align-items: center;
   gap: 8px;
-  font-size: 11.5px;
+  font-size: var(--p-t-sm);
   color: var(--terracotta);
   background: var(--terracotta-soft);
-  border-radius: 7px;
+  border-radius: var(--p-r-md);
   padding: 7px 10px;
 }
 .fail-note .btn {
@@ -339,12 +348,12 @@
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
 }
 .audio .bar {
   width: 96px;
   height: 3px;
-  border-radius: 2px;
+  border-radius: var(--p-r-pilula);
   background: var(--line-strong);
   position: relative;
 }
@@ -353,7 +362,7 @@
   position: absolute;
   inset: 0 62% 0 0;
   background: var(--ink-3);
-  border-radius: 2px;
+  border-radius: var(--p-r-pilula);
 }
 
 /* ---------- compositor ---------- */
@@ -378,7 +387,7 @@
   align-items: flex-end;
   gap: 10px;
   border: 1px solid var(--line-strong);
-  border-radius: 8px;
+  border-radius: var(--p-r-md);
   padding: 8px 10px;
   background: var(--surface-2);
 }
@@ -388,7 +397,7 @@
 .composer textarea {
   flex: 1;
   font: inherit;
-  font-size: 13px;
+  font-size: var(--p-t-md);
   color: var(--ink);
   background: transparent;
   border: 0;
@@ -404,14 +413,18 @@
 .composer textarea:disabled {
   color: var(--ink-3);
 }
+/* Mesmo raciocínio do balão de nota: escrever nota interna não é estado de
+   alerta. O que precisa ficar claro é que a caixa mudou de modo, e o
+   tracejado diz isso sem gastar cor. */
 .modo-nota .box {
-  background: var(--ochre-soft);
-  border-color: var(--p-alerta-linha);
+  background: var(--surface-3);
+  border-style: dashed;
+  border-color: var(--line-strong);
 }
 
 .bloqueio {
   border: 1px dashed var(--line-strong);
-  border-radius: 8px;
+  border-radius: var(--p-r-md);
   background: var(--surface-2);
   padding: 11px 12px;
   display: flex;
@@ -420,25 +433,25 @@
 }
 .bloqueio p {
   margin: 0;
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
   color: var(--ink-2);
 }
 .bloqueio select {
   font: inherit;
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
   padding: 6px 8px;
-  border-radius: 6px;
+  border-radius: var(--p-r-md);
   border: 1px solid var(--line-strong);
   background: var(--surface);
   color: var(--ink);
   width: 100%;
 }
 .bloqueio .previa {
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
   color: var(--ink);
   background: var(--surface);
   border: 1px solid var(--line);
-  border-radius: 6px;
+  border-radius: var(--p-r-md);
   padding: 8px 10px;
   white-space: pre-wrap;
 }
@@ -457,7 +470,7 @@
   bottom: calc(100% - 4px);
   background: var(--surface);
   border: 1px solid var(--line-strong);
-  border-radius: 9px;
+  border-radius: var(--p-r-md);
   box-shadow: var(--shadow);
   max-height: 288px;
   overflow-y: auto;
@@ -483,7 +496,7 @@
   font: inherit;
   cursor: pointer;
   padding: 7px 9px;
-  border-radius: 6px;
+  border-radius: var(--p-r-md);
   color: var(--ink);
   display: grid;
   gap: 2px;
@@ -500,11 +513,11 @@
   display: flex;
   align-items: baseline;
   gap: 8px;
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
   font-weight: 500;
 }
 .gatilho .corpo {
-  font-size: 11.5px;
+  font-size: var(--p-t-sm);
   color: var(--ink-2);
   overflow: hidden;
   text-overflow: ellipsis;
@@ -528,7 +541,7 @@
    numa coluna de 300px, vira ruído em vez de hierarquia. */
 .panel .rotulo {
   font-size: var(--p-t-sm);
-  color: var(--p-tinta-3);
+  color: var(--p-conteudo-fantasma);
 }
 .who-card {
   display: flex;
@@ -544,22 +557,22 @@
   display: grid;
   place-items: center;
   font-weight: 600;
-  font-size: 13px;
+  font-size: var(--p-t-md);
   flex: none;
 }
 .who-card b {
   display: block;
-  font-size: 13.5px;
+  font-size: var(--p-t-md);
 }
 .who-card span {
-  font-size: 11.5px;
+  font-size: var(--p-t-sm);
   color: var(--ink-3);
 }
 .kv {
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 5px 12px;
-  font-size: 12px;
+  font-size: var(--p-t-sm);
   margin: 0;
 }
 .kv dt {
@@ -571,17 +584,20 @@
   color: var(--ink);
   overflow-wrap: anywhere;
 }
+/* A barra da esquerda era sage, que é matiz de gráfico usado como cromo — o
+   caso que a régua da MARCA cerca por nome. Linha translúcida faz o mesmo
+   trabalho de separar a citação do resto. */
 .summary {
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
   color: var(--ink-2);
   background: var(--surface-2);
-  border-left: 2px solid var(--sage);
+  border-left: 2px solid var(--line-strong);
   padding: 9px 11px;
-  border-radius: 0 6px 6px 0;
+  border-radius: 0 var(--p-r-md) var(--p-r-md) 0;
 }
 .cite {
   margin-top: 7px;
-  font-size: 10.5px;
+  font-size: var(--p-t-xs);
   color: var(--ink-3);
 }
 .tags {
@@ -601,12 +617,12 @@ dialog .conteudo {
 }
 dialog h4 {
   margin: 0;
-  font-size: 14px;
+  font-size: var(--p-t-lg);
   font-weight: 600;
 }
 dialog p {
   margin: 0;
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
   color: var(--ink-2);
 }
 dialog .opcoes {
@@ -620,10 +636,10 @@ dialog label.opcao {
   display: flex;
   align-items: center;
   gap: 9px;
-  font-size: 12.5px;
+  font-size: var(--p-t-md);
   padding: 7px 9px;
   border: 1px solid var(--line);
-  border-radius: 7px;
+  border-radius: var(--p-r-md);
   cursor: pointer;
 }
 dialog label.opcao:hover {
@@ -634,7 +650,7 @@ dialog label.opcao input {
 }
 dialog label.opcao .sug {
   margin-left: auto;
-  font-size: 10.5px;
+  font-size: var(--p-t-xs);
   color: var(--ink-3);
 }
 dialog .rodape {
@@ -644,10 +660,10 @@ dialog .rodape {
 }
 
 .erro {
-  font-size: 12px;
+  font-size: var(--p-t-sm);
   color: var(--terracotta);
   background: var(--terracotta-soft);
-  border-radius: 6px;
+  border-radius: var(--p-r-md);
   padding: 6px 9px;
 }
 

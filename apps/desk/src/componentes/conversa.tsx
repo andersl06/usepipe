@@ -56,8 +56,10 @@ function CorpoDaMensagem({ item }: { item: Extract<ItemDaConversa, { genero: 'me
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" strokeWidth="1.8">
           <path d="M8 5v14l11-7L8 5Z" />
         </svg>
+        {/* O conteúdo do áudio é a transcrição, ou a descrição dele: texto
+            corrido, e por isso sem monoespaçada. */}
         <span className="bar" />
-        <span className="mono">{item.conteudo ?? 'áudio'}</span>
+        <span>{item.conteudo ?? 'áudio'}</span>
       </div>
     );
   }
@@ -103,8 +105,15 @@ export function Conversa({
         </Link>
         <div>
           <h3>{conversa.contatoNome ?? 'Sem nome'}</h3>
-          <div className="sub mono">
-            #{conversa.id.slice(0, 8)} · {conversa.filaNome ?? 'sem fila'} ·{' '}
+          {/*
+            A linha inteira estava em monoespaçada por causa do identificador
+            que a abre. Nome de fila e nome de canal não são número e não
+            alinham coluna nenhuma: a mono fica só no identificador, que é o
+            que a pessoa copia e compara.
+          */}
+          <div className="sub">
+            <span className="mono">#{conversa.id.slice(0, 8)}</span> ·{' '}
+            {conversa.filaNome ?? 'sem fila'} ·{' '}
             {CANAL[conversa.canalTipo] ?? conversa.canalTipo}
             {conversa.emEsperaDesde ? ' · em espera' : ''}
           </div>

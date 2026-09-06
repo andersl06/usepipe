@@ -87,9 +87,19 @@ export function ListaConversas({
                       <span className="etiqueta">{conversa.filaNome}</span>
                     ) : null}
                     <span className="etiqueta">{CANAL[conversa.canalTipo]}</span>
-                    {conversa.prioridade === 'alta' ? <span className="etiqueta erro">Alta</span> : null}
+                    {/*
+                      Prioridade em etiqueta neutra. Era vermelha em "Alta" e
+                      ocre em "Média", duas cores de estado repetidas em quase
+                      toda linha da fila — e prioridade é categoria fixa, não
+                      alerta: o atendente não resolve a prioridade clicando
+                      nela. A cor da coluna fica reservada ao que ele resolve,
+                      que é a janela expirando e a janela fechada, logo abaixo.
+                    */}
+                    {conversa.prioridade === 'alta' ? (
+                      <span className="etiqueta">Prioridade alta</span>
+                    ) : null}
                     {conversa.prioridade === 'media' ? (
-                      <span className="etiqueta alerta">Média</span>
+                      <span className="etiqueta">Prioridade média</span>
                     ) : null}
                     {conversa.estado === 'em_espera' ? (
                       <span className="etiqueta">Em espera</span>

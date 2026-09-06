@@ -38,11 +38,16 @@ interface Gatilho {
   inicio: number;
 }
 
+/**
+ * Comando do paletão da barra. Repare que não existe `disponivel`: o paletão
+ * é menu de trabalho, e menu de trabalho não mostra caminho morto. Transferir,
+ * Etiquetar e Acionar automação moravam aqui apagados — três de seis linhas —
+ * e voltam quando executarem alguma coisa.
+ */
 interface Comando {
   chave: string;
   titulo: string;
   descricao: string;
-  disponivel: boolean;
 }
 
 function aplicarVariaveis(corpo: string, variaveis: VariaveisDoContato): string {
@@ -115,37 +120,16 @@ export function Compositor({
       chave: 'encerrar',
       titulo: 'Encerrar atendimento',
       descricao: 'Pede a etiqueta de encerramento antes de fechar',
-      disponivel: true,
     },
     {
       chave: 'espera',
       titulo: emEspera ? 'Retomar atendimento' : 'Colocar em espera',
       descricao: 'Pausa o SLA e a inatividade do cliente',
-      disponivel: true,
     },
     {
       chave: 'nota',
       titulo: 'Escrever nota interna',
       descricao: 'Some para o cliente; use @ para mencionar colega',
-      disponivel: true,
-    },
-    {
-      chave: 'transferir',
-      titulo: 'Transferir',
-      descricao: 'Entra na próxima etapa',
-      disponivel: false,
-    },
-    {
-      chave: 'etiquetar',
-      titulo: 'Etiquetar',
-      descricao: 'Entra na próxima etapa',
-      disponivel: false,
-    },
-    {
-      chave: 'automacao',
-      titulo: 'Acionar automação',
-      descricao: 'Entra junto com o n8n',
-      disponivel: false,
     },
   ];
 
@@ -186,7 +170,7 @@ export function Compositor({
       : gatilho.tipo === '/'
         ? comandosFiltrados.map((c) => ({
             chave: c.chave,
-            ativavel: c.disponivel,
+            ativavel: true,
             executar: () => executarComando(c),
           }))
         : colegasFiltrados.map((c) => ({
@@ -235,7 +219,6 @@ export function Compositor({
   }
 
   function executarComando(comando: Comando) {
-    if (!comando.disponivel) return;
     substituirGatilho('');
     if (comando.chave === 'encerrar') {
       abrirDialogoEncerrar();
@@ -318,7 +301,8 @@ export function Compositor({
                           }}
                         >
                           <span className="linha1">
-                            <span className="mono">{template.nome}</span>
+                            {/* Nome de template é nome, não identificador. */}
+                            <span>{template.nome}</span>
                             <span className="etiqueta">Template · {template.categoria}</span>
                           </span>
                           <span className="corpo">{template.corpo}</span>
@@ -344,8 +328,13 @@ export function Compositor({
                     >
                       <span className="linha1">
                         <span className="mono">#{resposta.atalho}</span>
-                        <span className={resposta.escopo === 'pessoal' ? 'pill info' : 'pill q'}>
-                          {resposta.escopo === 'pessoal' ? 'MINHA' : 'EMPRESA'}
+                        {/*
+                          Escopo da resposta pronta em etiqueta neutra e caixa
+                          normal. Era azul contra cinza e em caixa alta, para
+                          dizer de quem é o texto — categoria, não estado.
+                        */}
+                        <span className="etiqueta">
+                          {resposta.escopo === 'pessoal' ? 'Minha' : 'Empresa'}
                         </span>
                         <span className="corpo">{resposta.titulo}</span>
                       </span>
@@ -361,7 +350,6 @@ export function Compositor({
                   <li key={comando.chave}>
                     <button
                       type="button"
-                      disabled={!comando.disponivel}
                       data-ativo={itens[ativo]?.chave === comando.chave}
                       onMouseDown={(e) => {
                         e.preventDefault();
@@ -413,12 +401,19 @@ export function Compositor({
         >
           # respostas prontas
         </button>
+        {/*
+          Interruptor de nota interna: etiqueta clicável com `aria-pressed`, que
+          é o único lugar onde a marca toca uma etiqueta — ali ela virou ação.
+          Antes era ocre quando ligada e "NOTA INTERNA — ligada" em caixa alta,
+          o que dava a um interruptor o peso de um alerta.
+        */}
         <button
           type="button"
-          className={modo === 'nota' ? 'pill med' : 'pill ch'}
+          className="etiqueta"
+          aria-pressed={modo === 'nota'}
           onClick={() => setModo(modo === 'nota' ? 'resposta' : 'nota')}
         >
-          {modo === 'nota' ? 'NOTA INTERNA — ligada' : 'Nota interna'}
+          Nota interna
         </button>
       </div>
 
@@ -455,7 +450,9 @@ export function Compositor({
                 <div className="previa">{aplicarVariaveis(templateEscolhido.corpo, variaveis)}</div>
                 <div className="rodape">
                   <span className="etiqueta">Categoria · {templateEscolhido.categoria}</span>
-                  <span className="lbl">
+                  {/* Frase inteira em caixa alta era grito. `.lbl` é rótulo de
+                      seção; isto é uma nota. */}
+                  <span className="sub">
                     Custo pela tabela da Meta — a tabela de preço por categoria ainda não está
                     configurada neste ambiente
                   </span>
