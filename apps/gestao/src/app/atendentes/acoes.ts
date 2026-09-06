@@ -2,12 +2,12 @@
 
 import { revalidatePath } from 'next/cache';
 import { and, eq } from 'drizzle-orm';
-import { fila, horarioAtendimento } from '@pipe/db/schema';
+import { fila, horarioAtendimento, motivoPausa } from '@pipe/db/schema';
 import { consultar, tenantId } from '../../lib/banco';
 import { corValida } from './filas/cores';
 
 /**
- * Server Actions de Atendentes — por ora, filas.
+ * Server Actions de Atendentes — filas e motivos de pausa.
  *
  * Mesmo formato `Resultado` de `app/comunicacao/acoes.ts`: o erro esperado de
  * formulário volta como valor, não como exceção, para o `useActionState` da
@@ -96,6 +96,46 @@ export async function salvarFila(_anterior: Resultado, dados: FormData): Promise
 
     revalidatePath('/atendentes/filas');
     revalidatePath('/regras/horarios');
+    return OK;
+  });
+}
+
+// ------------------------------------------------------------------- pausas
+
+export async function salvarMotivoPausa(_anterior: Resultado, dados: FormData): Promise<Resultado> {
+  const nome = String(dados.get('nome') ?? '').trim();
+  // 480 minutos = uma jornada. Pausa sugerida maior que o expediente é erro de
+  // digitação, não configuração.
+  const duracaoSugeridaMin = inteiro(dados.get('duracaoSugeridaMin'), 1, 480);
+  const duracaoInformada = String(dados.get('duracaoSugeridaMin') ?? '').trim();
+
+  if (!nome) return falha('Informe o nome do motivo.');
+  if (duracaoInformada && duracaoSugeridaMin === null) {
+    return falha('A duração sugerida é um inteiro de 1 a 480 minutos.');
+  }
+
+  const tid = await tenantId();
+
+  return consultar(async (tx) => {
+    // `motivo_pausa` não tem índice único de nome — a unicidade é regra desta
+    // tela. Sem ela, dois "Almoço" partem o relatório de uso em duas linhas que
+    // deveriam ser uma.
+    const [conflito] = await tx
+      .select({ id: motivoPausa.id })
+      .from(motivoPausa)
+      .where(and(eq(motivoPausa.tenantId, tid), eq(motivoPausa.nome, nome)))
+      .limit(1);
+    if (conflito) return falha(`Já existe um motivo chamado "${nome}".`);
+
+    await tx.insert(motivoPausa).values({
+      tenantId: tid,
+      nome,
+      duracaoSugeridaMin,
+      contaComoProdutivo: marcado(dados, 'contaComoProdutivo'),
+      ativo: marcado(dados, 'ativo'),
+    });
+
+    revalidatePath('/atendentes/pausas');
     return OK;
   });
 }
