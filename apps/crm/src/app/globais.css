@@ -73,7 +73,7 @@
 .bar-row .track {
   height: 7px;
   border-radius: var(--p-r-sm);
-  background: var(--p-grafico-trilho);
+  background: var(--p-superficie-3);
   overflow: hidden;
   display: block;
 }
@@ -468,7 +468,7 @@
 .etapa .track {
   height: 22px;
   border-radius: var(--p-r-sm);
-  background: var(--p-grafico-trilho);
+  background: var(--p-superficie-3);
   overflow: hidden;
   display: block;
 }
