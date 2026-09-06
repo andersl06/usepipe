@@ -108,6 +108,7 @@ mexer:
 | [Modelo de dados](docs/specs/2026-09-05-modelo-de-dados.md) | tabelas, estados, eventos, isolamento |
 | [Métricas](docs/specs/2026-09-05-metricas-atendimento.md) | a definição exata de cada número. Vinculante |
 | [Requisitos do Desk](docs/specs/2026-09-05-desk-requisitos.md) | como a tela do atendente se comporta |
+| [Mensagem ativa e janelas](docs/specs/2026-09-06-mensagem-ativa-e-janelas.md) | as duas janelas, e por que disparo não é atendimento. Vinculante |
 | [Infraestrutura](docs/specs/2026-09-05-infraestrutura.md) | como roda em produção, LGPD, backup |
 | [Comercial](docs/specs/2026-09-05-comercial.md) | contrato, RFP, cobrança, argumento de venda |
 | [O que falta](docs/specs/2026-09-05-o-que-falta.md) | as lacunas conhecidas, sem maquiagem |
