@@ -59,9 +59,68 @@
   --g-barra-tinta: var(--p-conteudo-claro);
   --g-barra-marca: color-mix(in srgb, var(--p-marca) 55%, var(--p-marca-suave));
 
-  --g-barra-sup-h: 44px;
-  --g-barra-inf-h: 40px;
-  --g-topo-h: 84px;
+  /* As medidas deles, sem desconto. Ver `blip-medidas-monitoramento.md` §1.
+     O critério antigo — "a tabela precisa caber na primeira dobra em
+     1440×900" — está REVOGADO: era ele que comprimia 136px de cromo em 84 e
+     262px de lateral em 170. Fidelidade ganha de densidade; se a tabela sair
+     da dobra, a pessoa rola, como rola na tela deles. */
+  --g-barra-sup-h: 80px;
+  --g-barra-inf-h: 56px;
+  --g-topo-h: 136px;
+  --g-lateral-w: 262px;
+  --g-lateral-recuo: 16px;
+}
+
+/* ============================================== a escala de fonte por papel
+   Tamanho e PESO são os deles, medidos no shadow DOM em
+   `blip-medidas-monitoramento.md` §5; o desenho da letra é o nosso IBM Plex.
+   Cinco degraus de tamanho (12, 14, 16, 20, 24) e quatro de peso (300, 400,
+   600, 700) resolvem a aplicação inteira.
+
+   Estes tokens são LOCAIS da Gestão de propósito: o `@pipe/ui` continua com a
+   régua 16/14/12 e os pesos 400/500/600 das outras telas. */
+:root {
+  --g-peso-leve: 300;
+  --g-peso-normal: 400;
+  --g-peso-forte: 600;
+  --g-peso-negrito: 700;
+
+  --g-t-titulo: 24px; /* título de tela, peso 400 */
+  --g-t-bloco: 16px; /* título de bloco de relatório, peso 700 */
+  --g-t-cartao: 14px; /* título de cartão de métrica, peso 600 */
+  --g-t-valor: 24px; /* valor de métrica no monitoramento, peso 400 */
+  --g-t-valor-rel: 20px; /* valor de métrica no relatório, peso 700 */
+  --g-t-rotulo: 12px; /* rótulo de métrica, peso 400 */
+  --g-t-item: 14px; /* item de lateral, peso 600 (ativo 700) */
+  --g-t-modulo: 16px; /* módulo do topo, peso 300 */
+  --g-t-celula: 14px; /* célula de tabela, peso 400 */
+  --g-t-coluna: 14px; /* cabeçalho de coluna, peso 600 */
+  --g-t-aba: 16px; /* aba, peso 400 (ativa 700) */
+
+  --g-lh-rotulo: 18px;
+  --g-lh-cartao: 21px;
+  --g-lh-bloco: 24px;
+
+  /* Geometria do cartão deles, com a NOSSA tinta na sombra. */
+  --g-r-cartao: 16px;
+  --g-cartao-pad: 20px;
+  --g-cartao-gap: 20px;
+  --g-grade-gap: 10px;
+  --g-sombra-cartao: 0 2px 8px -2px rgba(17, 17, 17, 0.16);
+
+  /* Realce do item ativo de lateral: onde eles põem 8% de preto, nós pomos o
+     fundo de estado ativo da marca. O papel é o mesmo, a tinta é nossa. */
+  --g-ativo-fundo: var(--p-marca-suave);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema='claro']) {
+    --g-sombra-cartao: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+  }
+}
+
+:root[data-tema='escuro'] {
+  --g-sombra-cartao: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -93,7 +152,8 @@
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
   gap: var(--p-e-3);
-  padding: 0 var(--p-e-4);
+  /* O avatar do contrato começa em x=32 na barra deles. */
+  padding: 0 var(--p-e-8);
   position: sticky;
   color: var(--g-barra-tinta);
 }
@@ -112,29 +172,40 @@
   background: var(--g-barra-2);
   top: var(--g-barra-sup-h);
   z-index: 30;
-  border-bottom: 1px solid var(--g-barra-linha);
+  /* Sem fio embaixo: o módulo ativo precisa dos 56px inteiros para o
+     sublinhado de 4px encostar no pé da barra, como no deles. */
 }
 
-/* Nome e plano, duas linhas, encostados à esquerda. */
+/* Nome e plano, duas linhas, encostados à esquerda.
+   Nome 16/700 com entrelinha 24; plano 12/400 com entrelinha 18. */
 .g-tenant {
   display: flex;
   flex-direction: column;
   justify-content: center;
-  line-height: 1.15;
   min-width: 0;
 }
 
 .g-tenant b {
-  font-size: var(--p-t-md);
-  font-weight: var(--p-peso-forte);
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-bloco);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .g-tenant span {
-  font-size: var(--p-t-xs);
+  font-size: var(--g-t-rotulo);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-lh-rotulo);
   color: var(--g-barra-fraca);
+}
+
+/* O avatar do contrato: 32×32 na barra de cima, 36×36 o do canal na de baixo. */
+.g-barra-sup .avatar {
+  width: 32px;
+  height: 32px;
+  font-size: var(--p-t-md);
 }
 
 /* A marca no centro. O segundo traço do símbolo é `--p-marca`, que sobre
@@ -150,24 +221,43 @@
 }
 
 .g-marca b {
-  font-size: var(--p-t-md);
-  font-weight: var(--p-peso-forte);
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
   letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
+/* Passo de 50px entre os botões de ícone da barra de cima: 40 de botão e 10
+   de respiro. */
 .g-barra-fim {
   justify-self: end;
   display: flex;
   align-items: center;
-  gap: var(--p-e-1);
+  gap: 10px;
+}
+
+/* Na barra de baixo os atalhos andam de 38 em 38: o ícone é solto, de 20×28,
+   sem a moldura de 40 da barra de cima. */
+.g-barra-inf .g-barra-fim {
+  gap: 18px;
+}
+
+.g-barra-inf .g-iconbtn {
+  width: 20px;
+  height: 28px;
+  border-radius: 0;
+}
+
+.g-barra-inf .g-iconbtn:hover {
+  background: transparent;
+  color: var(--g-barra-tinta);
 }
 
 /* Botão de ícone da barra: sem borda e sem fundo, porque o fundo já é escuro. */
 .g-iconbtn,
 .g-barra .iconbtn {
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   border: 0;
   border-radius: var(--p-r-sm);
   background: transparent;
@@ -278,11 +368,12 @@
 .g-canal > summary {
   display: flex;
   align-items: center;
-  gap: var(--p-e-2);
+  gap: 15px;
   padding: 4px 8px;
   border-radius: var(--p-r-md);
   cursor: pointer;
-  font-size: var(--p-t-md);
+  font-size: var(--g-t-modulo);
+  font-weight: var(--g-peso-leve);
   color: var(--g-barra-tinta);
 }
 
@@ -302,23 +393,32 @@
 }
 
 .g-av-sm {
-  width: 22px;
-  height: 22px;
-  font-size: var(--p-t-xs);
+  width: 36px;
+  height: 36px;
+  font-size: var(--p-t-md);
 }
 
-/* Os módulos, centralizados na barra de baixo. */
+/* ------------------------------------------------ navegação de cima
+   Os módulos, centralizados na barra de baixo. O item ocupa a barra INTEIRA
+   (56px), tem 20px de padding de cada lado — o que deixa 40px entre rótulos
+   vizinhos — e o ativo é um sublinhado de 4px na largura toda do item.
+   O peso NÃO muda no ativo: só a tinta, que passa de fraca a plena. */
 .g-modulos {
   justify-self: center;
   display: flex;
-  align-items: center;
-  gap: var(--p-e-1);
+  align-items: stretch;
+  align-self: stretch;
+  gap: 0;
 }
 
 .g-modulos a {
-  padding: 5px 12px;
-  border-radius: var(--p-r-md);
-  font-size: var(--p-t-md);
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--p-e-5);
+  border-radius: 0;
+  font-size: var(--g-t-modulo);
+  font-weight: var(--g-peso-leve);
   color: var(--g-barra-fraca);
   text-decoration: none;
   white-space: nowrap;
@@ -329,21 +429,36 @@
 }
 
 .g-modulos a[aria-current='page'] {
-  background: color-mix(in srgb, var(--g-barra-marca) 22%, transparent);
-  color: var(--g-barra-marca);
-  font-weight: var(--p-peso-medio);
+  background: transparent;
+  color: var(--g-barra-tinta);
+  font-weight: var(--g-peso-leve);
+}
+
+.g-modulos a[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--g-barra-marca);
 }
 
 /* ============================================================== lateral
-   Clara, 170px, ícone à esquerda do rótulo, grupo que abre pela seta à
-   direita, subitem recuado e sem ícone, item ativo com fundo suave e barra
-   vertical à esquerda. Rodapé com o atalho para o app do atendente. */
+   262px, clara, com 16px de recuo dos dois lados. Item de 42px com ícone de
+   24 e 8px até o rótulo; grupo que abre pela seta à direita; subitem de 39px
+   recuado 37px, com barra vertical de 2px no ativo. Rodapé de 72px com o
+   atalho para o app do atendente.
+
+   Tudo medido em `blip-medidas-monitoramento.md` §3. O que muda é a tinta: o
+   realce do ativo, que lá é 8% de preto, aqui é o fundo de estado ativo da
+   marca; e o ícone e a barra, que lá são azuis, aqui são moss. */
 .g-lateral {
-  width: 170px;
+  width: var(--g-lateral-w);
   flex: none;
   background: var(--p-superficie-0);
   border-right: 1px solid var(--p-linha);
-  padding: var(--p-e-2);
+  padding: var(--g-lateral-recuo);
   position: sticky;
   top: var(--g-topo-h);
   height: calc(100vh - var(--g-topo-h));
@@ -352,21 +467,23 @@
   flex-direction: column;
 }
 
+/* 8px entre itens e entre grupos, sem exceção. */
 .g-lateral-itens {
   display: flex;
   flex-direction: column;
-  gap: 1px;
+  gap: var(--p-e-2);
 }
 
 .g-item {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
-  padding: 6px 8px;
-  border-left: 3px solid transparent;
-  border-radius: var(--p-r-sm);
-  font-size: var(--p-t-md);
-  color: var(--p-conteudo-desabilitado);
+  height: 42px;
+  padding: var(--p-e-2);
+  border-radius: var(--p-r-md);
+  font-size: var(--g-t-item);
+  font-weight: var(--g-peso-forte);
+  color: var(--p-conteudo);
   text-decoration: none;
   cursor: pointer;
   list-style: none;
@@ -378,6 +495,7 @@
 
 .g-item svg {
   flex: none;
+  color: var(--p-conteudo-desabilitado);
 }
 
 .g-item:hover,
@@ -385,12 +503,31 @@
   background: var(--p-superficie-2);
 }
 
-.g-item[aria-current='page'],
-.g-subitem[aria-current='page'] {
-  background: var(--p-marca-suave);
-  border-left-color: var(--p-marca);
-  color: var(--p-marca-forte);
-  font-weight: var(--p-peso-medio);
+/* Ativo: fundo de estado, rótulo 700 e o ícone na cor de marca. */
+.g-item[aria-current='page'] {
+  background: var(--g-ativo-fundo);
+  font-weight: var(--g-peso-negrito);
+}
+
+.g-item[aria-current='page'] svg {
+  color: var(--p-marca);
+}
+
+/* O grupo aberto também recebe o realce, como na lateral deles. */
+.g-grupo[open] > .g-item {
+  background: var(--g-ativo-fundo);
+  font-weight: var(--g-peso-negrito);
+}
+
+.g-grupo[open] > .g-item svg:first-child {
+  color: var(--p-marca);
+}
+
+/* Cabeçalho e filhos separados por 8px, como todo o resto da lateral. */
+.g-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
 }
 
 /* A seta do grupo gira ao abrir — é o mesmo gesto da tela deles. */
@@ -403,15 +540,37 @@
   transform: rotate(180deg);
 }
 
-/* Subitem: recuado até o rótulo do pai, e sem ícone. */
+/* Subitem: caixa recuada 37px, rótulo alinhado 5px à direita do rótulo do
+   pai, e a barra de 2px do ativo encostada 15px à esquerda da caixa. */
 .g-subitem {
-  display: block;
-  padding: 5px 8px 5px 32px;
-  border-left: 3px solid transparent;
-  border-radius: var(--p-r-sm);
-  font-size: var(--p-t-sm);
-  color: var(--p-conteudo-desabilitado);
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 39px;
+  margin-left: 37px;
+  padding: var(--p-e-2);
+  border-radius: var(--p-r-md);
+  font-size: var(--g-t-item);
+  font-weight: var(--g-peso-forte);
+  color: var(--p-conteudo);
   text-decoration: none;
+}
+
+.g-subitem[aria-current='page'] {
+  background: var(--g-ativo-fundo);
+  font-weight: var(--g-peso-negrito);
+}
+
+.g-subitem[aria-current='page']::before {
+  content: '';
+  position: absolute;
+  left: -15px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 2px;
+  height: 21px;
+  border-radius: var(--p-r-md);
+  background: var(--p-marca);
 }
 
 .g-lateral-rodape {
@@ -419,10 +578,11 @@
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
-  padding: var(--p-e-2);
-  border-top: 1px solid var(--p-linha);
-  font-size: var(--p-t-sm);
-  color: var(--p-conteudo-fantasma);
+  height: 72px;
+  padding: var(--p-e-6);
+  font-size: var(--g-t-item);
+  font-weight: var(--g-peso-forte);
+  color: var(--p-conteudo-desabilitado);
   text-decoration: none;
 }
 
@@ -431,30 +591,40 @@
 }
 
 /* -------------------------------------------------------- cabeçalho de tela
-   O conteúdo respira menos que o padrão do pacote: são quatro cartões, duas
-   faixas de filtro e uma tabela na mesma dobra, e é o gap que decide se a
-   tabela aparece em 1440x900 ou cai para fora. */
+   O esqueleto vertical deles, medido: 32px de folga no topo, linha do título
+   de 40px dentro de um bloco de 73px, faixa de filtros de 56px, e 10px até o
+   primeiro cartão. O gap da coluna é 10px; os 23px de margem abaixo do título
+   completam os 33px que o bloco de 73 pede.
+
+   O critério de densidade que apertava isso está revogado — ver o comentário
+   dos token de barra lá em cima. */
 .p-conteudo {
-  gap: var(--p-e-3);
-  padding-top: var(--p-e-3);
+  gap: var(--g-grade-gap);
+  padding: var(--p-e-8) 28px var(--p-e-10);
 }
 
 .board-head {
   display: flex;
   align-items: center;
   gap: var(--p-e-3);
+  min-height: 40px;
+  margin-bottom: 23px;
   flex-wrap: wrap;
 }
 
+/* Título de tela: 24px com peso 400. Título deles não é negrito, e o nosso
+   também deixa de ser. */
 .board-head h2 {
   margin: 0;
-  font-size: var(--p-t-titulo);
-  font-weight: var(--p-peso-forte);
-  letter-spacing: -0.015em;
+  font-size: var(--g-t-titulo);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-t-titulo);
+  letter-spacing: 0;
 }
 
 .board-head .sub {
-  font-size: var(--p-t-sm);
+  font-size: var(--g-t-rotulo);
+  line-height: var(--g-lh-rotulo);
   color: var(--p-conteudo-fantasma);
 }
 
@@ -498,12 +668,22 @@
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
+  min-height: 56px;
   flex-wrap: wrap;
 }
 
+/* "Filtros rápidos:" sai em 16/700, na caixa normal. Caixa alta com
+   espaçamento de letra era invenção nossa: eles não usam. */
 .faixa-filtros > .lbl,
 .quickfilters .lbl {
   margin-right: 2px;
+  font-family: var(--p-fonte);
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-bloco);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--p-conteudo);
 }
 
 .faixa-fim {
@@ -519,13 +699,14 @@
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  height: 28px;
-  padding: 0 10px 0 12px;
-  border: 1px solid var(--p-linha-media);
-  border-radius: var(--p-r-pilula);
-  background: var(--p-superficie-0);
-  font-size: var(--p-t-sm);
-  color: var(--p-conteudo-desabilitado);
+  height: 40px;
+  padding: 0 var(--p-e-2);
+  border: 1px solid var(--p-linha-forte);
+  border-radius: var(--p-r-md);
+  background: transparent;
+  font-size: var(--g-t-item);
+  font-weight: var(--g-peso-negrito);
+  color: var(--p-conteudo);
   cursor: pointer;
   max-width: 260px;
 }
@@ -544,7 +725,7 @@
 .pilula select,
 .pilula input {
   font: inherit;
-  font-size: var(--p-t-sm);
+  font-size: var(--g-t-item);
   color: inherit;
   background: transparent;
   border: 0;
@@ -576,19 +757,34 @@
    exige é feita pelas linhas da grade e pelos títulos dos cartões. */
 .mon {
   display: grid;
-  grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr);
-  gap: var(--p-e-3);
+  grid-template-columns: minmax(0, 840fr) minmax(0, 515fr);
+  gap: var(--g-grade-gap);
 }
 
-.mon .card {
-  gap: var(--p-e-2);
+/* ================================================== o cartão, na medida deles
+   Padding 20, raio 16, SEM borda, e a sombra `0 2px 8px -2px` — a geometria é
+   a deles, a tinta da sombra é a nossa. O título do cartão é 14/600 com 10px
+   até a primeira métrica. */
+.card {
+  padding: var(--g-cartao-pad);
+  border: 0;
+  border-radius: var(--g-r-cartao);
+  box-shadow: var(--g-sombra-cartao);
+  gap: 0;
+}
+
+.card > h3 {
+  font-size: var(--g-t-cartao);
+  font-weight: var(--g-peso-forte);
+  line-height: var(--g-lh-cartao);
+  margin-bottom: 10px;
 }
 
 /* Métricas lado a lado em partes iguais, não em grade de largura mínima:
    cinco de um lado e quatro do outro, sem coluna vazia sobrando. */
 .metrics {
   display: flex;
-  gap: var(--p-e-3);
+  gap: var(--p-e-4);
 }
 
 .metrics > .metric {
@@ -596,30 +792,61 @@
   min-width: 0;
 }
 
+/* Valor 24/400 com entrelinha 24; 10px até o rótulo; rótulo 12/400 com
+   entrelinha 18. A monoespaçada fica: alinhar coluna de número é função, não
+   enfeite, e ela é da nossa casa. */
+.metric {
+  gap: 0;
+}
+
+.metric .v {
+  font-size: var(--g-t-valor);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-t-valor);
+  letter-spacing: -0.01em;
+  color: var(--p-conteudo);
+}
+
+.metric .k {
+  margin-top: 10px;
+  font-size: var(--g-t-rotulo);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-lh-rotulo);
+  color: var(--p-conteudo);
+}
+
+.metric .den {
+  margin-top: 4px;
+  font-size: var(--p-t-xs);
+  line-height: 14px;
+}
+
 .statuses {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-  gap: var(--p-e-2);
+  gap: var(--p-e-4);
 }
 
 .statuses div {
   display: flex;
   flex-direction: column;
-  gap: 2px;
   min-width: 0;
 }
 
 .statuses b {
   font-family: var(--p-fonte-mono);
   font-variant-numeric: tabular-nums;
-  font-size: var(--p-t-numero);
-  font-weight: var(--p-peso-forte);
-  line-height: var(--p-altura-linha-curta);
+  font-size: var(--g-t-valor);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-t-valor);
 }
 
 .statuses span {
-  font-size: var(--p-t-sm);
-  color: var(--p-conteudo-desabilitado);
+  margin-top: 10px;
+  font-size: var(--g-t-rotulo);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-lh-rotulo);
+  color: var(--p-conteudo);
   display: flex;
   align-items: center;
   gap: 5px;
@@ -698,6 +925,84 @@
   right: -10px;
 }
 
+/* ================================================ o cartão da tabela
+   Mesma geometria do cartão de métricas: padding 20, raio 16, sem borda e com
+   a sombra da casa. A tabela deles vive dentro de um `bds-paper` igual. */
+.tblwrap {
+  border: 0;
+  border-radius: var(--g-r-cartao);
+  box-shadow: var(--g-sombra-cartao);
+  padding: var(--g-cartao-pad);
+  overflow: visible;
+}
+
+.tblhead {
+  padding: 0;
+  min-height: 42px;
+}
+
+.tblhead h3 {
+  font-size: var(--g-t-valor-rel);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-t-valor-rel);
+}
+
+/* Abas: faixa de 56px com 4px/16px de padding, item de 48px, texto 16/400 e
+   o ativo em 16/700 com o fio de 2px embaixo. */
+.tabs {
+  padding: var(--p-e-1) var(--p-e-4);
+  gap: 0;
+  border-bottom: 1px solid var(--p-linha);
+}
+
+.tabs a {
+  display: flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 var(--p-e-4);
+  font-size: var(--g-t-aba);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-lh-bloco);
+  color: var(--p-conteudo);
+  border-bottom-width: 2px;
+}
+
+.tabs a[aria-current='true'] {
+  font-weight: var(--g-peso-negrito);
+  color: var(--p-conteudo);
+  border-bottom-color: var(--p-marca);
+}
+
+/* Cabeçalho de coluna: 14/600 na caixa normal. A caixa alta com espaçamento
+   de letra era invenção nossa — a coluna deles tem o mesmo corpo da célula e
+   se separa só pelo peso. */
+.tblwrap th {
+  height: 48px;
+  padding: 0 var(--p-e-2);
+  font-size: var(--g-t-coluna);
+  font-weight: var(--g-peso-forte);
+  line-height: var(--g-lh-cartao);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--p-conteudo);
+  border-bottom: 0;
+}
+
+.tblwrap td {
+  height: 49px;
+  padding: 0 var(--p-e-2);
+  font-size: var(--g-t-celula);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-lh-cartao);
+  color: var(--p-conteudo);
+  border-bottom: 1px solid var(--p-linha-media);
+}
+
+.tblwrap th:first-child,
+.tblwrap td:first-child {
+  padding-left: var(--p-e-4);
+}
+
 /* ------------------------------------------------- busca dentro do cartão
    Na tela deles a busca do "Monitoramento detalhado" mora dentro do cartão,
    à direita do título — não na faixa de filtros. */
@@ -706,8 +1011,8 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  height: 30px;
-  padding: 0 10px;
+  height: 40px;
+  padding: 0 var(--p-e-3);
   border: 1px solid var(--p-linha-media);
   border-radius: var(--p-r-md);
   background: var(--p-superficie-0);
@@ -720,7 +1025,7 @@
   border: 0;
   background: transparent;
   font: inherit;
-  font-size: var(--p-t-sm);
+  font-size: var(--g-t-item);
   color: var(--p-conteudo);
   outline: none;
 }
@@ -785,11 +1090,148 @@
   white-space: nowrap;
 }
 
+/* ================================================= o bloco de relatório
+   A estrutura de bloco das telas de Relatório deles, medida em
+   `blip-medidas-monitoramento.md` §6.2: um cartão que CONTÉM cartões.
+
+   Lá: página branca, bloco `#f6f6f6`, cartão interno branco — três degraus,
+   com o bloco no meio. Aqui a página é o creme da marca, então o bloco desce
+   para o recesso (`--p-superficie-2`) e o cartão interno sobe para o branco
+   (`--p-superficie-0`). O que se copia é a RELAÇÃO — o bloco é a bandeja, o
+   cartão é o que está em cima dela — e não o sentido, que depende de qual é o
+   fundo de cada casa.
+
+   Título 16/700, 44px do topo do título ao topo do conteúdo, grade interna
+   com 20px nos dois eixos, e 20px entre blocos. */
+.bloco-rel {
+  background: var(--p-superficie-2);
+  padding: var(--g-cartao-pad);
+  border-radius: var(--g-r-cartao);
+  box-shadow: var(--g-sombra-cartao);
+}
+
+.bloco-rel + .bloco-rel {
+  margin-top: var(--g-cartao-gap);
+}
+
+.bloco-rel > h3 {
+  margin: 0 0 var(--g-cartao-gap);
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-bloco);
+  color: var(--p-conteudo);
+}
+
+/* O intervalo do relatório fica ao lado do título do bloco, em 12/400. */
+.bloco-rel > h3 .sub {
+  margin-left: var(--p-e-2);
+  font-size: var(--g-t-rotulo);
+  font-weight: var(--g-peso-normal);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* A nota de método fecha o bloco, depois do mesmo respiro de 20px. */
+.bloco-rel .note {
+  margin: var(--g-cartao-gap) 0 0;
+  border-top: 0;
+  padding-top: 0;
+  font-size: var(--g-t-rotulo);
+  line-height: var(--g-lh-rotulo);
+}
+
+.bloco-rel-grade {
+  display: grid;
+  grid-template-columns: repeat(var(--rel-colunas, 4), minmax(0, 1fr));
+  gap: var(--g-cartao-gap);
+}
+
+/* Cartão interno: mesma geometria do de fora, uma superfície acima. */
+.cartao-rel {
+  background: var(--p-superficie-0);
+  padding: var(--g-cartao-pad);
+  border-radius: var(--g-r-cartao);
+  min-width: 0;
+}
+
+/* Métrica de relatório: rótulo 14/600 em cima, valor 20/700 embaixo, com
+   41px do topo de um ao topo do outro. É o oposto da métrica do
+   Monitoramento, onde o valor vem primeiro e é 24/400. */
+.cartao-rel .r {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-1);
+  font-size: var(--g-t-cartao);
+  font-weight: var(--g-peso-forte);
+  line-height: var(--g-lh-cartao);
+  color: var(--p-conteudo);
+}
+
+.cartao-rel .v {
+  display: block;
+  margin-top: var(--g-cartao-gap);
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--g-t-valor-rel);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-t-valor-rel);
+  color: var(--p-conteudo);
+}
+
+.cartao-rel .den {
+  display: block;
+  margin-top: var(--p-e-2);
+  font-size: var(--p-t-xs);
+  line-height: 14px;
+  color: var(--p-conteudo-fantasma);
+}
+
+/* O cartão interno que carrega uma tabela não repete o padding: a célula já
+   tem o dela, e 20px de cada lado empurrariam a primeira coluna para fora do
+   alinhamento das outras telas. */
+.cartao-rel.tabela {
+  padding: 0;
+  overflow: hidden;
+}
+
+.cartao-rel.tabela th {
+  height: 48px;
+  padding: 0 var(--p-e-2);
+  font-size: var(--g-t-coluna);
+  font-weight: var(--g-peso-forte);
+  line-height: var(--g-lh-cartao);
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--p-conteudo);
+  border-bottom: 0;
+}
+
+.cartao-rel.tabela td {
+  height: 49px;
+  padding: 0 var(--p-e-2);
+  font-size: var(--g-t-celula);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-lh-cartao);
+  color: var(--p-conteudo);
+  border-bottom: 1px solid var(--p-linha-media);
+}
+
+.cartao-rel.tabela th:first-child,
+.cartao-rel.tabela td:first-child {
+  padding-left: var(--p-e-4);
+}
+
+/* Abaixo de 1180 os quatro cartões de métrica do bloco não cabem em linha. */
+@media (max-width: 1180px) {
+  .bloco-rel-grade {
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  }
+}
+
 /* --------------------------------------------------------------- responsivo
-   A lateral encolheu de 200px para 170px, mas a grade continua desabando na
-   mesma faixa: abaixo de 1080 o cartão largo fica com menos do que as cinco
-   métricas pedem. */
-@media (max-width: 1080px) {
+   A lateral voltou para os 262px deles, então a grade desaba mais cedo:
+   abaixo de 1180 o cartão largo fica com menos do que as cinco métricas
+   pedem. */
+@media (max-width: 1180px) {
   .mon {
     grid-template-columns: 1fr;
   }
@@ -803,7 +1245,7 @@
   }
 }
 
-/* Abaixo de 900px a lateral vira uma faixa: sticky de 170px numa tela dessas
+/* Abaixo de 900px a lateral vira uma faixa: sticky de 262px numa tela dessas
    come metade do conteúdo. */
 @media (max-width: 900px) {
   .g-lateral {
@@ -874,14 +1316,14 @@ tr.grupo th {
    (`--p-superficie-0`). O que copiamos é a RELAÇÃO — um degrau de separação —
    e não o sentido, que depende de qual é o fundo de cada casa.
 
-   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. O raio é o nosso padrão de 8px,
-   não os 16px deles: raio não muda disposição, e o `@pipe/ui` já decidiu que
-   um raio domina. A régua de texto é a nossa 16/14/12.
+   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. Raio 16, padding 20, rótulo
+   12/400 e valor 16/700: a medida inteira é a deles. O que continua sendo
+   nosso é a cor e a monoespaçada dos números.
    ========================================================================= */
 .lista-cartoes {
   display: flex;
   flex-direction: column;
-  gap: var(--p-e-2);
+  gap: var(--g-grade-gap);
 }
 
 .cartao-lista {
@@ -889,10 +1331,10 @@ tr.grupo th {
   grid-template-columns: auto minmax(0, 1fr) auto;
   align-items: center;
   gap: var(--p-e-3);
-  padding: var(--p-e-5);
-  border-radius: var(--p-r-md);
+  padding: var(--g-cartao-pad);
+  border-radius: var(--g-r-cartao);
   background: var(--p-superficie-0);
-  box-shadow: var(--p-sombra-1);
+  box-shadow: var(--g-sombra-cartao);
 }
 
 /* A conversa perdida é a que o supervisor precisa caçar: ganha um fio na
@@ -923,21 +1365,21 @@ tr.grupo th {
 /* Rótulo: 12px, peso normal, acima. O oposto do cabeçalho de tabela, que é
    caixa alta e distante. */
 .cl-campo .r {
-  font-size: var(--p-t-sm);
-  font-weight: var(--p-peso-normal);
-  color: var(--p-conteudo-desabilitado);
-  line-height: 1.5;
+  font-size: var(--g-t-rotulo);
+  font-weight: var(--g-peso-normal);
+  color: var(--p-conteudo);
+  line-height: var(--g-lh-rotulo);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Valor: 16px e forte. É o que o olho pega primeiro. */
+/* Valor: 16/700 com entrelinha 24. É o que o olho pega primeiro. */
 .cl-campo .v {
-  font-size: var(--p-t-lg);
-  font-weight: var(--p-peso-forte);
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
   color: var(--p-conteudo);
-  line-height: 1.5;
+  line-height: var(--g-lh-bloco);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1033,7 +1475,7 @@ tr.grupo th {
   gap: var(--p-e-2);
   width: 100%;
   max-width: 410px;
-  height: 38px;
+  height: 42px;
   padding: 0 var(--p-e-3);
   border: 1px solid var(--p-linha-media);
   border-radius: var(--p-r-md);
