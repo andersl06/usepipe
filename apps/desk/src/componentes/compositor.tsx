@@ -5,6 +5,7 @@ import type { KeyboardEvent } from 'react';
 import { enviarMensagem } from '../app/acoes';
 import type { Resultado } from '../app/acoes';
 import { abrirDialogoEncerrar } from './dialogo-encerrar';
+import { IconeDesk } from './icones-desk';
 import type { RespostaProntaDoDesk, TemplateAprovado } from '../servidor/consultas';
 
 /**
@@ -146,8 +147,19 @@ export function Compositor({
     ? colegas.filter((c) => combina(gatilho.termo, c.nome))
     : [];
 
-  /** Itens na ordem em que a lista mostra — é o que a seta do teclado percorre. */
-  const itens: { chave: string; executar: () => void; ativavel: boolean }[] = !gatilho
+  /**
+   * Itens na ordem em que a lista mostra — é o que a seta do teclado percorre,
+   * e é de onde a pré-visualização tira o que exibe. Cada um carrega o texto
+   * que vai entrar na mensagem, e não um resumo: o painel deles existe para o
+   * atendente ler a resposta inteira antes de inserir, e um resumo não serve
+   * para isso.
+   */
+  const itens: {
+    chave: string;
+    executar: () => void;
+    ativavel: boolean;
+    previa: { titulo: string; corpo: string };
+  }[] = !gatilho
     ? []
     : gatilho.tipo === '#'
       ? [
@@ -155,6 +167,7 @@ export function Compositor({
             ? templatesFiltrados.map((t) => ({
                 chave: `t-${t.id}`,
                 ativavel: true,
+                previa: { titulo: `${t.nome} · ${t.categoria}`, corpo: t.corpo },
                 executar: () => {
                   setTemplateId(t.id);
                   fecharGatilho();
@@ -164,6 +177,10 @@ export function Compositor({
           ...respostasFiltradas.map((r) => ({
             chave: `r-${r.id}`,
             ativavel: !somenteTemplate,
+            previa: {
+              titulo: r.titulo,
+              corpo: aplicarVariaveis(r.corpo, variaveis),
+            },
             executar: () => inserirResposta(r),
           })),
         ]
@@ -171,13 +188,25 @@ export function Compositor({
         ? comandosFiltrados.map((c) => ({
             chave: c.chave,
             ativavel: true,
+            previa: { titulo: c.titulo, corpo: c.descricao },
             executar: () => executarComando(c),
           }))
         : colegasFiltrados.map((c) => ({
             chave: c.id,
             ativavel: true,
+            previa: { titulo: c.nome, corpo: 'A menção vira nota interna.' },
             executar: () => mencionar(c.nome),
           }));
+
+  /**
+   * A frase de "não achei" é diferente por gatilho, porque o que a pessoa
+   * procurava é diferente. A do `#` é a deles, ao pé da letra.
+   */
+  const SEM_RESULTADO: Record<Gatilho['tipo'], string> = {
+    '#': 'Não há título de resposta pronta que contenha este texto.',
+    '/': 'Nenhum comando com este nome.',
+    '@': 'Nenhum colega com este nome.',
+  };
 
   function fecharGatilho() {
     setGatilho(null);
@@ -285,107 +314,125 @@ export function Compositor({
               <span className="etiqueta erro">Janela fechada · só template</span>
             ) : null}
           </div>
-          <ul>
-            {gatilho.tipo === '#' ? (
-              <>
-                {somenteTemplate
-                  ? templatesFiltrados.map((template) => (
-                      <li key={template.id}>
-                        <button
-                          type="button"
-                          data-ativo={itens[ativo]?.chave === `t-${template.id}`}
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            setTemplateId(template.id);
-                            fecharGatilho();
-                          }}
-                        >
-                          <span className="linha1">
-                            {/* Nome de template é nome, não identificador. */}
-                            <span>{template.nome}</span>
-                            <span className="etiqueta">Template · {template.categoria}</span>
-                          </span>
-                          <span className="corpo">{template.corpo}</span>
-                        </button>
-                      </li>
-                    ))
-                  : null}
-                {respostasFiltradas.map((resposta) => (
-                  <li key={resposta.id}>
-                    <button
-                      type="button"
-                      disabled={somenteTemplate}
-                      title={
-                        somenteTemplate
-                          ? 'Texto livre indisponível: a janela de 24 horas fechou'
-                          : undefined
-                      }
-                      data-ativo={itens[ativo]?.chave === `r-${resposta.id}`}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        inserirResposta(resposta);
-                      }}
-                    >
-                      <span className="linha1">
-                        <span className="mono">#{resposta.atalho}</span>
-                        {/*
-                          Escopo da resposta pronta em etiqueta neutra e caixa
-                          normal. Era azul contra cinza e em caixa alta, para
-                          dizer de quem é o texto — categoria, não estado.
-                        */}
-                        <span className="etiqueta">
-                          {resposta.escopo === 'pessoal' ? 'Minha' : 'Empresa'}
-                        </span>
-                        <span className="corpo">{resposta.titulo}</span>
-                      </span>
-                      <span className="corpo">{aplicarVariaveis(resposta.corpo, variaveis)}</span>
-                    </button>
-                  </li>
-                ))}
-              </>
+          <div className="gatilho-corpo" data-vazio={itens.length === 0 ? 'true' : 'false'}>
+            {itens.length === 0 ? (
+              <p className="sem-resultado">{SEM_RESULTADO[gatilho.tipo]}</p>
             ) : null}
+            <ul>
+              {gatilho.tipo === '#' ? (
+                <>
+                  {somenteTemplate
+                    ? templatesFiltrados.map((template) => (
+                        <li key={template.id}>
+                          <button
+                            type="button"
+                            data-ativo={itens[ativo]?.chave === `t-${template.id}`}
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              setTemplateId(template.id);
+                              fecharGatilho();
+                            }}
+                          >
+                            <span className="linha1">
+                              {/* Nome de template é nome, não identificador. */}
+                              <span>{template.nome}</span>
+                              <span className="etiqueta">Template · {template.categoria}</span>
+                            </span>
+                            <span className="corpo">{template.corpo}</span>
+                          </button>
+                        </li>
+                      ))
+                    : null}
+                  {respostasFiltradas.map((resposta) => (
+                    <li key={resposta.id}>
+                      <button
+                        type="button"
+                        disabled={somenteTemplate}
+                        title={
+                          somenteTemplate
+                            ? 'Texto livre indisponível: a janela de 24 horas fechou'
+                            : undefined
+                        }
+                        data-ativo={itens[ativo]?.chave === `r-${resposta.id}`}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          inserirResposta(resposta);
+                        }}
+                      >
+                        <span className="linha1">
+                          <span className="mono">#{resposta.atalho}</span>
+                          {/*
+                            Escopo da resposta pronta em etiqueta neutra e caixa
+                            normal. Era azul contra cinza e em caixa alta, para
+                            dizer de quem é o texto — categoria, não estado.
+                          */}
+                          <span className="etiqueta">
+                            {resposta.escopo === 'pessoal' ? 'Minha' : 'Empresa'}
+                          </span>
+                          <span className="corpo">{resposta.titulo}</span>
+                        </span>
+                        <span className="corpo">{aplicarVariaveis(resposta.corpo, variaveis)}</span>
+                      </button>
+                    </li>
+                  ))}
+                </>
+              ) : null}
 
-            {gatilho.tipo === '/'
-              ? comandosFiltrados.map((comando) => (
-                  <li key={comando.chave}>
-                    <button
-                      type="button"
-                      data-ativo={itens[ativo]?.chave === comando.chave}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        executarComando(comando);
-                      }}
-                    >
-                      <span className="linha1">
-                        <span className="mono">/{comando.chave}</span>
-                        <span>{comando.titulo}</span>
-                      </span>
-                      <span className="corpo">{comando.descricao}</span>
-                    </button>
-                  </li>
-                ))
-              : null}
+              {gatilho.tipo === '/'
+                ? comandosFiltrados.map((comando) => (
+                    <li key={comando.chave}>
+                      <button
+                        type="button"
+                        data-ativo={itens[ativo]?.chave === comando.chave}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          executarComando(comando);
+                        }}
+                      >
+                        <span className="linha1">
+                          <span className="mono">/{comando.chave}</span>
+                          <span>{comando.titulo}</span>
+                        </span>
+                        <span className="corpo">{comando.descricao}</span>
+                      </button>
+                    </li>
+                  ))
+                : null}
 
-            {gatilho.tipo === '@'
-              ? colegasFiltrados.map((colega) => (
-                  <li key={colega.id}>
-                    <button
-                      type="button"
-                      data-ativo={itens[ativo]?.chave === colega.id}
-                      onMouseDown={(e) => {
-                        e.preventDefault();
-                        mencionar(colega.nome);
-                      }}
-                    >
-                      <span className="linha1">
-                        <span>@{colega.nome}</span>
-                      </span>
-                      <span className="corpo">A menção vira nota interna</span>
-                    </button>
-                  </li>
-                ))
-              : null}
-          </ul>
+              {gatilho.tipo === '@'
+                ? colegasFiltrados.map((colega) => (
+                    <li key={colega.id}>
+                      <button
+                        type="button"
+                        data-ativo={itens[ativo]?.chave === colega.id}
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          mencionar(colega.nome);
+                        }}
+                      >
+                        <span className="linha1">
+                          <span>@{colega.nome}</span>
+                        </span>
+                        <span className="corpo">A menção vira nota interna</span>
+                      </button>
+                    </li>
+                  ))
+                : null}
+            </ul>
+
+            {/* Pré-visualização ao lado da lista, com o texto já resolvido: o
+                atendente lê o que vai sair antes de inserir, e não depois de
+                mandar. É a segunda parte do painel deles. */}
+            {itens[ativo] ? (
+              <aside className="previa-gatilho">
+                <span className="lbl">Pré-visualização</span>
+                <b>{itens[ativo].previa.titulo}</b>
+                <p>{itens[ativo].previa.corpo}</p>
+              </aside>
+            ) : null}
+          </div>
+
+          <div className="gatilho-rodape">Pressione Enter para selecionar</div>
         </div>
       ) : null}
 
@@ -459,22 +506,28 @@ export function Compositor({
               onKeyDown={aoTeclar}
             />
             <div className="acoes">
+              {/*
+                Resposta pronta é SECUNDÁRIO, com o ícone "ab" deles e o nome
+                acessível por extenso: o ícone sozinho não diz o que faz, e o
+                rótulo escrito na barra roubava o peso do botão que importa.
+              */}
               <button
                 type="button"
-                className="etiqueta"
+                className="btn"
+                aria-label="Enviar resposta pronta"
+                title="Resposta pronta (#)"
                 onMouseDown={(e) => e.preventDefault()}
                 onClick={() => {
                   setGatilho({ tipo: '#', termo: '', inicio: texto.length });
                   setAtivo(0);
                 }}
               >
-                # respostas prontas
+                <span aria-hidden="true">ab</span>
               </button>
               {/*
                 Interruptor de nota interna: etiqueta clicável com `aria-pressed`,
                 que é o único lugar onde a marca toca uma etiqueta, porque ali ela
-                virou ação. Anexo e áudio entram nesta mesma faixa quando
-                existirem; enquanto não enviam arquivo nenhum, não ocupam lugar.
+                virou ação.
               */}
               <button
                 type="button"
@@ -484,9 +537,33 @@ export function Compositor({
               >
                 Nota interna
               </button>
-              <button type="submit" className="btn primary" disabled={enviando || !texto.trim()}>
-                {enviando ? 'Enviando…' : modo === 'nota' ? 'Salvar nota' : 'Enviar'}
-              </button>
+              {/*
+                O botão de maior peso da barra deles é o de ÁUDIO, e ele é o de
+                maior peso porque com o campo vazio é a única coisa que dá para
+                fazer. Aqui ele troca de lugar com o envio conforme o campo:
+                vazio, manda gravar; com texto, manda enviar. Dois primários ao
+                mesmo tempo seriam nenhum.
+
+                Ele está desabilitado, e o título diz por quê: gravar áudio
+                depende do storage de mídia, que ainda não está ligado. É a
+                única exceção à regra de não mostrar caminho morto nesta tela, e
+                ela existe porque o lugar do botão na barra é a informação.
+              */}
+              {texto.trim() ? (
+                <button type="submit" className="btn primary enviar" disabled={enviando}>
+                  {enviando ? 'Enviando…' : modo === 'nota' ? 'Salvar nota' : 'Enviar'}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="btn primary enviar"
+                  aria-label="Gravar áudio"
+                  title="Gravar áudio — depende do storage de mídia, ainda não ligado"
+                  disabled
+                >
+                  <IconeDesk nome="microfone" tamanho={16} />
+                </button>
+              )}
             </div>
           </div>
         )}

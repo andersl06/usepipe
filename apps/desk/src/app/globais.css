@@ -739,8 +739,22 @@
   cursor: pointer;
 }
 
-.composer .acoes .btn.primary {
+/* O botão "ab" da resposta pronta: quadrado, do tamanho do alvo de ícone, e
+   com as duas letras em monoespaçada para lerem como um símbolo, e não como
+   uma palavra cortada. */
+.composer .acoes .btn[aria-label='Enviar resposta pronta'] {
+  font-family: var(--mono);
+  font-size: var(--p-t-md);
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  justify-content: center;
+}
+
+/* O primário da barra encosta à direita, seja ele o áudio ou o envio. */
+.composer .acoes .btn.enviar {
   margin-left: auto;
+  min-height: 32px;
 }
 
 /* Modo de nota: o que precisa ficar claro é que a caixa mudou de modo, e o
@@ -806,25 +820,42 @@
 }
 
 /* --------------------------------------------------- gatilhos: # / @ */
+/*
+  Três partes, como o painel de resposta pronta deles: a lista, a
+  pré-visualização ao lado e o rodapé que ensina o gesto. O painel inteiro não
+  rola — quem rola é a lista e a prévia, cada uma no seu lado, senão o rodapé
+  sobe e some justo quando há muita resposta para escolher.
+*/
 .gatilho {
   position: absolute;
   left: var(--p-e-6);
   right: var(--p-e-6);
-  bottom: calc(100% - 4px);
+  bottom: calc(100% - var(--p-e-1));
   background: var(--surface);
   border: 1px solid var(--line-strong);
   border-radius: var(--p-r-md);
   box-shadow: var(--p-sombra-2);
-  max-height: 288px;
-  overflow-y: auto;
+  max-height: 320px;
   z-index: 20;
-  padding: 5px;
+  padding: var(--p-e-1);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
 }
 
 .gatilho .titulo {
-  padding: 6px 9px 4px;
+  flex: none;
+  padding: var(--p-e-2) var(--p-e-2) var(--p-e-1);
   display: flex;
   align-items: center;
+  gap: var(--p-e-2);
+}
+
+.gatilho-corpo {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: var(--p-e-2);
 }
 
@@ -832,6 +863,53 @@
   list-style: none;
   margin: 0;
   padding: 0;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* Sem resultado, o painel volta a ser uma coluna só com a frase no meio: uma
+   prévia vazia ao lado de uma lista vazia é duas vezes nada. */
+.gatilho-corpo[data-vazio='true'] {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.sem-resultado {
+  margin: 0;
+  padding: var(--p-e-2);
+  font-size: var(--p-t-md);
+  color: var(--ink-3);
+}
+
+.previa-gatilho {
+  overflow-y: auto;
+  min-height: 0;
+  border-left: 1px solid var(--line);
+  padding: var(--p-e-2) var(--p-e-2) var(--p-e-2) var(--p-e-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-1);
+}
+
+.previa-gatilho b {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-medio);
+}
+
+.previa-gatilho p {
+  margin: 0;
+  font-size: var(--p-t-md);
+  color: var(--ink-2);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.gatilho-rodape {
+  flex: none;
+  border-top: 1px solid var(--line);
+  margin-top: var(--p-e-1);
+  padding: var(--p-e-2);
+  font-size: var(--p-t-sm);
+  color: var(--ink-3);
 }
 
 .gatilho li button {
@@ -841,7 +919,7 @@
   background: transparent;
   font: inherit;
   cursor: pointer;
-  padding: 7px 9px;
+  padding: var(--p-e-2);
   border-radius: var(--p-r-md);
   color: var(--ink);
   display: grid;
@@ -1155,5 +1233,15 @@ dialog .rodape {
   .gatilho {
     left: var(--p-e-4);
     right: var(--p-e-4);
+  }
+
+  /* Numa coluna só, a prévia ao lado da lista deixa as duas ilegíveis. Some a
+     prévia; a lista já mostra o começo de cada resposta. */
+  .gatilho-corpo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .previa-gatilho {
+    display: none;
   }
 }
