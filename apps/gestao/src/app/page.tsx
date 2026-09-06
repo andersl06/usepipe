@@ -58,8 +58,14 @@ export default async function PaginaMonitoramento({
         <div className="mon">
           <div className="card">
             <h3>Atendimentos em tempo real</h3>
+            {/*
+              A cor de marca marca O NÚMERO QUE IMPORTA, e são dois: quantos
+              esperam e quantos estão sendo atendidos. É como a Blip usa o azul
+              dela nesta mesma tela — o resto dos números fica em tinta escura.
+              A regra da classe está em `globais.css`.
+            */}
             <div className="metrics">
-              <div className="metric">
+              <div className="metric agora">
                 <span className="v">{numero(tempoReal.naFila)}</span>
                 <span className="k">Na fila</span>
               </div>
@@ -71,7 +77,7 @@ export default async function PaginaMonitoramento({
                 <span className="v">{duracao(tempoReal.maiorEsperaPrimeiraRespostaSeg)}</span>
                 <span className="k">Máximo até 1ª resposta</span>
               </div>
-              <div className="metric">
+              <div className="metric agora">
                 <span className="v">{numero(tempoReal.emAtendimento)}</span>
                 <span className="k">Em atendimento</span>
               </div>
@@ -83,9 +89,12 @@ export default async function PaginaMonitoramento({
                 </span>
               </div>
             </div>
-            <div className="note">
-              Cronômetro correndo — conversas ainda abertas neste instante.
-            </div>
+            {/*
+              A nota daqui saiu: dizia "cronômetro correndo, conversas ainda
+              abertas neste instante", que é palavra por palavra o cabeçalho do
+              bloco logo acima. Repetida em cartão de 930px ela custava 35px de
+              altura para não informar nada.
+            */}
           </div>
 
           <div className="card">
@@ -161,11 +170,12 @@ export default async function PaginaMonitoramento({
                 </span>
               </div>
             </div>
-            <div className="note">
-              Cronômetro parado — conversas encerradas dentro do período. O denominador ao lado de
-              cada média é obrigatório: sem ele, o número melhora justamente quando o atendimento
-              piora.
-            </div>
+            {/*
+              A nota saiu pelo mesmo motivo da do cartão de cima: repetia o
+              cabeçalho do bloco. O que ela dizia de próprio — que o
+              denominador é obrigatório — não é aviso de tela, é regra da spec
+              de métricas, e quem a cumpre é o `.den` embaixo de cada média.
+            */}
           </div>
 
           <div className="card">

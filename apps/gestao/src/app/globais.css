@@ -113,11 +113,27 @@
   color: var(--p-conteudo-fantasma);
 }
 
-/* O bloco de tempo real fica maior que o resto: é o assunto da tela. */
+/* ============================================================ a grade
+   DUAS COLUNAS, como na Blip: o cartão largo de métricas à esquerda e o
+   estreito de status à direita, na MESMA linha. Empilhar em largura cheia
+   gasta o dobro de altura e joga a tabela para fora da primeira dobra.
+
+   A proporção 2,1 : 1 é o que dá cinco métricas de um lado e três números do
+   outro sem que nenhum dos dois aperte. */
 .mon {
   display: grid;
   grid-template-columns: minmax(0, 2.1fr) minmax(0, 1fr);
   gap: var(--p-e-3);
+}
+
+/*
+ * Densidade do cartão. O `.card` do @pipe/ui separa título, corpo e nota com
+ * 12px; aqui são quatro cartões um sobre o outro na mesma tela, e 8px é o que
+ * faz os quatro mais a tabela caberem na primeira dobra em 1440x900 — que é a
+ * régua da Blip.
+ */
+.mon .card {
+  gap: var(--p-e-2);
 }
 
 .metrics {
@@ -214,8 +230,12 @@
   white-space: nowrap;
 }
 
-/* --------------------------------------------------------------- responsivo */
-@media (max-width: 1240px) {
+/* --------------------------------------------------------------- responsivo
+   O limiar caiu de 1240px para 1080px porque a lateral contextual voltou: ela
+   come 200px, e a 1240 a grade de duas colunas desabava justamente na tela de
+   1440 que é a nossa régua. A 1080 o cartão largo ainda fica com ~560px, que
+   é o que as cinco métricas pedem. */
+@media (max-width: 1080px) {
   .mon {
     grid-template-columns: 1fr;
   }
@@ -258,4 +278,22 @@ tr.grupo th {
 
 .bloco.secundario > header .lbl {
   color: var(--p-conteudo-fantasma);
+}
+
+/* ================================================ o número que importa
+   Na captura da Blip, dois números da tela de monitoramento saem na cor de
+   marca deles — o que está na fila e o que está em atendimento — e todo o
+   resto fica em tinta escura. É o meio-termo entre colorir tudo (carrossel) e
+   não colorir nada (a tela perde a ênfase, que foi o que aconteceu aqui).
+
+   A regra: moss só nos números que respondem "como está a operação AGORA".
+   São dois, e continuam sendo dois. Média por atendente, tempo máximo e todo
+   número de "hoje" seguem neutros — hoje já aconteceu, e não há o que fazer
+   a respeito enquanto se olha.
+
+   Isto sobrescreve de propósito a nota do `@pipe/ui` ("número não é lugar de
+   cor de marca"), que continua valendo para as outras telas: ali a cor
+   marcaria número sem hierarquia entre si. */
+.metric.agora .v {
+  color: var(--p-marca);
 }
