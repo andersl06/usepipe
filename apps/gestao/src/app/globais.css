@@ -860,3 +860,221 @@ tr.grupo th {
 .metric.agora .v {
   color: var(--p-marca);
 }
+
+/* ==================================================== a lista de cartões
+   O idioma de lista da Blip, medido em `docs/pesquisa/blip-telas-atendimento.md`
+   §3: seis das oito telas do módulo Atendimento deles usam ESTE cartão, e
+   nenhuma usa tabela. Cartão de 88px, rótulo pequeno ACIMA do valor forte,
+   controles encostados à direita, e o cartão a UM DEGRAU de distância da
+   página — que é o que faz a lista ler como lista sem precisar de borda.
+
+   O degrau inverte de direção, e é de propósito. A página deles é branca e o
+   cartão é o cinza `surface-1`; a nossa é o creme da marca (`--p-superficie-1`
+   é o fundo da aplicação), então o cartão sobe para o branco
+   (`--p-superficie-0`). O que copiamos é a RELAÇÃO — um degrau de separação —
+   e não o sentido, que depende de qual é o fundo de cada casa.
+
+   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. O raio é o nosso padrão de 8px,
+   não os 16px deles: raio não muda disposição, e o `@pipe/ui` já decidiu que
+   um raio domina. A régua de texto é a nossa 16/14/12.
+   ========================================================================= */
+.lista-cartoes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
+}
+
+.cartao-lista {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--p-e-3);
+  padding: var(--p-e-5);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  box-shadow: var(--p-sombra-1);
+}
+
+/* A conversa perdida é a que o supervisor precisa caçar: ganha um fio na
+   borda esquerda, e é o único lugar da lista onde cor entra sem ser pedida. */
+.cartao-lista.critico {
+  box-shadow:
+    inset 3px 0 0 var(--p-erro-conteudo),
+    var(--p-sombra-1);
+}
+
+/* Os campos, em partes iguais. Cada um carrega o próprio rótulo, e é isso
+   que permite jogar o `<thead>` fora. */
+.cl-campos {
+  display: grid;
+  grid-template-columns: repeat(var(--cl-colunas, 6), minmax(0, 1fr));
+  gap: var(--p-e-3);
+  align-items: center;
+  min-width: 0;
+}
+
+.cl-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+/* Rótulo: 12px, peso normal, acima. O oposto do cabeçalho de tabela, que é
+   caixa alta e distante. */
+.cl-campo .r {
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-normal);
+  color: var(--p-conteudo-desabilitado);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Valor: 16px e forte. É o que o olho pega primeiro. */
+.cl-campo .v {
+  font-size: var(--p-t-lg);
+  font-weight: var(--p-peso-forte);
+  color: var(--p-conteudo);
+  line-height: 1.5;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Número do ticket sai um degrau menor e sem peso, como na tela deles: é
+   identificador, não é o dado que se lê. */
+.cl-campo .v.id {
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-normal);
+  color: var(--p-conteudo-desabilitado);
+}
+
+/* Duração e contagem, tabulares para alinhar o olho na coluna. */
+.cl-campo .v.num {
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--p-t-md);
+}
+
+.cl-acoes {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  justify-self: end;
+}
+
+/* Etiquetas: uma tira no pé do cartão, e só quando existem. É o mesmo
+   recurso que o cartão de Horários deles usa para a descrição. */
+.cl-rodape {
+  grid-column: 2 / -1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--p-e-1);
+  margin-top: var(--p-e-2);
+  padding-top: var(--p-e-2);
+  border-top: 1px solid var(--p-linha);
+}
+
+/* ------------------------------------------- seleção múltipla e ação em massa
+   A barra fica ACIMA da lista, como na deles. A ação em massa só aparece com
+   seleção de verdade: botão que não faz nada é item desabilitado com outro
+   nome, e a régua da casa proíbe. */
+.barra-selecao {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-3);
+  min-height: 30px;
+  padding: 0 var(--p-e-2);
+}
+
+.barra-selecao label {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  font-size: var(--p-t-md);
+  color: var(--p-conteudo-desabilitado);
+  cursor: pointer;
+}
+
+.barra-selecao .qt-sel {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+}
+
+.cl-sel {
+  display: grid;
+  place-items: center;
+}
+
+.cl-sel input,
+.barra-selecao input {
+  width: 16px;
+  height: 16px;
+  accent-color: var(--p-marca);
+  cursor: pointer;
+  margin: 0;
+}
+
+/* ------------------------------------------------ busca no topo da tela
+   Sozinha na linha, à esquerda, logo abaixo do título — a mesma ordem das
+   telas de Regras, SLA e Atendentes deles. */
+.busca-topo {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  width: 100%;
+  max-width: 410px;
+  height: 38px;
+  padding: 0 var(--p-e-3);
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo-fantasma);
+}
+
+.busca-topo input {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  font-size: var(--p-t-md);
+  color: var(--p-conteudo);
+  outline: none;
+}
+
+/* Cabeçalho de grupo acima dos cartões dele. Faz na lista o papel que o
+   `tr.grupo` fazia na tabela: o agrupamento é a nossa resposta aos seis
+   itens de relatório que nunca viraram tela. */
+.grupo-cartoes {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  margin-top: var(--p-e-2);
+  padding: 0 var(--p-e-2);
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+  color: var(--p-conteudo);
+}
+
+.grupo-cartoes:first-child {
+  margin-top: 0;
+}
+
+/* Abaixo de 1180 os oito campos não cabem em linha; viram duas fileiras
+   antes de virar ilegíveis. */
+@media (max-width: 1180px) {
+  .cl-campos {
+    grid-template-columns: repeat(auto-fit, minmax(118px, 1fr));
+  }
+}
