@@ -1,8 +1,45 @@
 import Link from 'next/link';
-import { janelaAberta, pertoDeExpirar, segundosRestantes } from '@pipe/core';
+import { DIA, janelaAberta, pertoDeExpirar, segundosRestantes } from '@pipe/core';
 import { EstadoVazio } from '@pipe/ui';
 import { decorrido, duracaoCurta } from '../servidor/formato';
 import type { ConversaDaLista, TipoCanalBanco } from '../servidor/consultas';
+
+/**
+ * As quatro fichas de filtro da coluna, na ordem deles: Todos, Não lidos, Em
+ * espera, Inativos. **A contagem vai dentro do rótulo** — "Todos (0)" —, e não
+ * numa bolinha ao lado: assim a ficha diz de uma vez o que filtra e quanto
+ * sobra, e a coluna não precisa de um contador separado no cabeçalho.
+ *
+ * O que cada uma quer dizer, já que o nome sozinho é ambíguo:
+ *
+ * - **Não lidos** — a última palavra é do cliente. Não temos marca de leitura
+ *   por mensagem, e "quem deve resposta" é a pergunta que o atendente faz de
+ *   verdade ao olhar a fila.
+ * - **Inativos** — nada foi dito há mais de 24 horas. É a mesma janela do
+ *   WhatsApp, e por isso não inventa um número novo na tela.
+ */
+export type ChaveDeFicha = 'todos' | 'nao_lidos' | 'em_espera' | 'inativos';
+
+export const FICHAS: { chave: ChaveDeFicha; rotulo: string }[] = [
+  { chave: 'todos', rotulo: 'Todos' },
+  { chave: 'nao_lidos', rotulo: 'Não lidos' },
+  { chave: 'em_espera', rotulo: 'Em espera' },
+  { chave: 'inativos', rotulo: 'Inativos' },
+];
+
+export function ehFicha(valor: string | undefined): valor is ChaveDeFicha {
+  return FICHAS.some((ficha) => ficha.chave === valor);
+}
+
+export function naFicha(conversa: ConversaDaLista, ficha: ChaveDeFicha, agora: Date): boolean {
+  if (ficha === 'nao_lidos') return conversa.ultimaMensagemDe === 'contato';
+  if (ficha === 'em_espera') return conversa.estado === 'em_espera';
+  if (ficha === 'inativos') {
+    if (!conversa.ultimaMensagemEm) return true;
+    return agora.getTime() - conversa.ultimaMensagemEm.getTime() > DIA * 1000;
+  }
+  return true;
+}
 
 /**
  * Rótulo curto do canal, do jeito que o atendente fala.
@@ -38,28 +75,59 @@ function resumoDaUltima(conversa: ConversaDaLista): string {
 
 export function ListaConversas({
   conversas,
+  visiveis,
   selecionadaId,
   busca,
+  ficha,
   agora,
 }: {
+  /** Tudo o que a busca deixou passar. É sobre isto que as fichas contam. */
   conversas: ConversaDaLista[];
+  /** O que a ficha escolhida deixou passar. É isto que a lista mostra. */
+  visiveis: ConversaDaLista[];
   selecionadaId: string | null;
   busca: string;
+  ficha: ChaveDeFicha;
   agora: Date;
 }) {
   return (
     <>
       <form className="busca" action="/">
+        {/* A ficha escolhida sobrevive a uma nova busca: quem estava vendo os
+            não lidos não quer voltar para todos por ter digitado um nome. */}
+        <input type="hidden" name="filtro" value={ficha} />
         <input
           type="search"
           name="busca"
           defaultValue={busca}
-          placeholder="Busque pelo nome ou pela fila"
+          placeholder="Busque pelo nome ou telefone..."
           aria-label="Buscar atendimento"
         />
       </form>
 
-      {conversas.length === 0 ? (
+      {/* Fichas com a contagem DENTRO do rótulo, como no Desk deles. Abaixo de
+          certa largura elas viram um menu suspenso na tela deles; aqui elas
+          quebram a linha, que resolve o mesmo problema sem um segundo
+          componente. */}
+      <nav className="fichas" aria-label="Filtrar atendimentos">
+        {FICHAS.map((opcao) => {
+          const quantas = conversas.filter((c) => naFicha(c, opcao.chave, agora)).length;
+          const parametros = new URLSearchParams({ filtro: opcao.chave });
+          if (busca) parametros.set('busca', busca);
+          return (
+            <Link
+              key={opcao.chave}
+              className="etiqueta"
+              href={`/?${parametros.toString()}`}
+              aria-current={opcao.chave === ficha ? 'true' : undefined}
+            >
+              {opcao.rotulo} ({quantas})
+            </Link>
+          );
+        })}
+      </nav>
+
+      {visiveis.length === 0 ? (
         <div className="lista-vazia">
           <EstadoVazio
             titulo={busca ? 'Nenhum resultado encontrado' : 'Nenhum atendimento aberto'}
@@ -78,16 +146,20 @@ export function ListaConversas({
         </div>
       ) : (
         <ul className="convs">
-          {conversas.map((conversa) => {
+          {visiveis.map((conversa) => {
             const temJanela = conversa.canalTipo === 'whatsapp_cloud';
             const aberta = janelaAberta(conversa.janelaExpiraEm, agora);
             const expirando = temJanela && pertoDeExpirar(conversa.janelaExpiraEm, agora);
             const fechada = temJanela && !aberta;
+            // Abrir uma conversa não pode desfazer a busca nem a ficha: o
+            // atendente estava filtrando por um motivo.
+            const parametros = new URLSearchParams({ conversa: conversa.id, filtro: ficha });
+            if (busca) parametros.set('busca', busca);
             return (
               <li key={conversa.id}>
                 <Link
                   className="conv"
-                  href={`/?conversa=${conversa.id}`}
+                  href={`/?${parametros.toString()}`}
                   aria-current={conversa.id === selecionadaId ? 'true' : undefined}
                 >
                   <span className="nm">{conversa.contatoNome ?? 'Sem nome'}</span>

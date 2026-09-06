@@ -14,7 +14,8 @@ import {
 } from '../servidor/consultas';
 import { BarraStatus } from '../componentes/barra-status';
 import { Conversa } from '../componentes/conversa';
-import { ListaConversas } from '../componentes/lista-conversas';
+import { ehFicha, ListaConversas, naFicha } from '../componentes/lista-conversas';
+import { SeletorDeModo } from '../componentes/seletor-de-modo';
 import { PainelContato } from '../componentes/painel-contato';
 import { EstadoVazio } from '@pipe/ui';
 import { TrilhoDesk } from '../componentes/trilho-desk';
@@ -37,6 +38,7 @@ function semAcento(texto: string): string {
 interface Parametros {
   conversa?: string;
   busca?: string;
+  filtro?: string;
 }
 
 export default async function PaginaDesk({
@@ -46,6 +48,7 @@ export default async function PaginaDesk({
 }) {
   const parametros = await searchParams;
   const busca = (parametros.busca ?? '').trim();
+  const ficha = ehFicha(parametros.filtro) ? parametros.filtro : 'todos';
   const agora = new Date();
   const sessao = await sessaoAtual();
 
@@ -60,22 +63,32 @@ export default async function PaginaDesk({
     const colegas = await listarColegas(tx, sessao.atendenteId);
     const respostas = await listarRespostasProntas(tx, sessao.atendenteId);
 
+    // Duas listas, e as duas viajam para a coluna: a busca define sobre o que as
+    // fichas contam, e a ficha define o que a lista mostra. Contar depois da
+    // ficha faria "Todos (0)" aparecer ao lado de uma fila cheia.
     const filtradas = busca
       ? conversas.filter((c) =>
           semAcento(`${c.contatoNome ?? ''} ${c.filaNome ?? ''}`).includes(semAcento(busca)),
         )
       : conversas;
+    const visiveis = filtradas.filter((c) => naFicha(c, ficha, agora));
 
     // Sem `?conversa=`, abre a primeira da fila: ninguém entra no Desk para olhar tela vazia.
-    const escolhida = parametros.conversa ?? filtradas[0]?.id ?? null;
-    if (!escolhida) {
-      return { conversas: filtradas, status, motivos, etiquetas, colegas, respostas, aberta: null };
-    }
+    const escolhida = parametros.conversa ?? visiveis[0]?.id ?? null;
+    const semConversa = {
+      conversas: filtradas,
+      visiveis,
+      status,
+      motivos,
+      etiquetas,
+      colegas,
+      respostas,
+      aberta: null,
+    };
+    if (!escolhida) return semConversa;
 
     const conversa = await carregarConversa(tx, escolhida, sessao.atendenteId);
-    if (!conversa) {
-      return { conversas: filtradas, status, motivos, etiquetas, colegas, respostas, aberta: null };
-    }
+    if (!conversa) return semConversa;
 
     const itens = await listarItensDaConversa(tx, conversa.id);
     const templates = await listarTemplatesAprovados(tx, conversa.canalId);
@@ -83,12 +96,7 @@ export default async function PaginaDesk({
     const historico = await listarHistoricoDoContato(tx, conversa.contatoId, conversa.id);
 
     return {
-      conversas: filtradas,
-      status,
-      motivos,
-      etiquetas,
-      colegas,
-      respostas,
+      ...semConversa,
       aberta: { conversa, itens, templates, etiquetasDaConversa, historico },
     };
   });
@@ -108,9 +116,12 @@ export default async function PaginaDesk({
 
       <main className="desk" data-selecionada={selecionadaNaUrl ? 'true' : 'false'}>
         <div className="col list">
+          {/* Título e seletor de modo lado a lado, como no cabeçalho deles. A
+              contagem que ficava aqui saiu: ela agora vive dentro do rótulo de
+              cada ficha, que é onde diz mais. */}
           <header className="col-topo">
             <h1>Atendimentos</h1>
-            <span className="contagem">{dados.conversas.length}</span>
+            <SeletorDeModo />
           </header>
           <BarraStatus
             nome={sessao.nome}
@@ -120,8 +131,10 @@ export default async function PaginaDesk({
           />
           <ListaConversas
             conversas={dados.conversas}
+            visiveis={dados.visiveis}
             selecionadaId={dados.aberta?.conversa.id ?? null}
             busca={busca}
+            ficha={ficha}
             agora={agora}
           />
         </div>

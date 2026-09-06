@@ -243,12 +243,14 @@
   letter-spacing: -0.015em;
 }
 
-.col-topo .contagem {
+/* Seletor de modo colado ao título, e não numa linha própria: é o mesmo par
+   "Atendimentos + Lista ⌄" do cabeçalho deles. */
+.col-topo .seletor.modo {
   margin-left: auto;
-  font-family: var(--mono);
+  width: auto;
+  height: 32px;
+  padding: 0 var(--p-e-2);
   font-size: var(--p-t-sm);
-  color: var(--ink-3);
-  font-variant-numeric: tabular-nums;
 }
 
 /* Bloco de estado: altura mínima de 111px, linha em cima e embaixo, conteúdo
@@ -286,6 +288,14 @@
   color: var(--p-alerta-conteudo);
 }
 
+.acoes-status {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
 .bloco-status .quem {
   margin: 0;
   font-size: var(--p-t-sm);
@@ -321,6 +331,37 @@
 .busca input:focus-visible {
   outline: none;
   border-color: var(--moss);
+}
+
+/* Fichas de filtro. A contagem vai DENTRO do rótulo — "Todos (0)" —, que é o
+   que dispensa um contador separado no cabeçalho da coluna. Reusam a
+   `.etiqueta` do pacote: ficha é etiqueta clicável, e o produto só tem uma
+   etiqueta. Aqui elas são link, e não botão, porque a ficha escolhida mora na
+   URL: recarregar a página não perde o filtro, e o botão de voltar funciona. */
+.fichas {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--p-e-1);
+  padding: var(--p-e-2) var(--p-e-2) 0;
+}
+
+.fichas .etiqueta {
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--p-dur-instantanea) ease;
+}
+
+.fichas .etiqueta:hover {
+  background: var(--surface-3);
+}
+
+/* Ligado é o mesmo par da etiqueta clicável do pacote — a marca em estado
+   ativo, que é exatamente o papel que o token reserva para ela. */
+.fichas .etiqueta[aria-current='true'] {
+  background: var(--moss-soft);
+  border-color: var(--p-marca-linha);
+  color: var(--p-marca-forte);
 }
 
 /* ------------------------------------------------------ o item da lista

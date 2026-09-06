@@ -91,16 +91,35 @@ export function BarraStatus({
       <p className="frase">
         Seu status é <b data-estado={estado}>{descricao}</b>
       </p>
-      <button
-        type="button"
-        className="btn"
-        onClick={() => {
-          setEscolhido(estado);
-          dialogo.current?.showModal();
-        }}
-      >
-        Trocar status
-      </button>
+      {/*
+        "Ficar Online" é o botão do bloco no Desk deles, e ele é primário por um
+        motivo: enquanto o atendente não está online, ficar online é a única
+        coisa que a tela quer dele. Vai direto, sem passar pelo diálogo — pausa
+        exige motivo, ficar online não exige nada.
+
+        Quando ele já está online o botão sai, porque não há ação óbvia
+        sobrando, e o que fica é o "Trocar status" de sempre.
+      */}
+      <div className="acoes-status">
+        {estado !== 'online' ? (
+          <form action={enviar}>
+            <input type="hidden" name="estado" value="online" />
+            <button type="submit" className="btn primary" disabled={enviando}>
+              {enviando ? 'Salvando…' : 'Ficar Online'}
+            </button>
+          </form>
+        ) : null}
+        <button
+          type="button"
+          className="btn"
+          onClick={() => {
+            setEscolhido(estado);
+            dialogo.current?.showModal();
+          }}
+        >
+          Trocar status
+        </button>
+      </div>
       <p className="quem">{nome}</p>
 
       {/* Ao fechar, a escolha volta ao estado real: o avatar do trilho abre este
