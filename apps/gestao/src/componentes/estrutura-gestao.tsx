@@ -53,12 +53,9 @@ const ITENS: readonly ItemLateral[] = [
  * temos tela, fica a lacuna registrada — nenhum item desabilitado, nenhuma
  * funcionalidade inventada:
  *
- * - Relatórios ├ Atendimento, Satisfação, Calls, Vendas — não temos pesquisa de
- *   satisfação, telefonia nem funil de vendas no modelo.
- * - Comunicação ├ Respostas prontas, Modelos de mensagens — o grupo inteiro é
- *   lacuna: isso vive no app do atendente, não na gestão. Por isso ele não
- *   aparece na lista abaixo.
- * - Regras ├ Atendimento, Horários — só SLA e filas viraram tela.
+ * - Relatórios ├ Calls, Vendas — não temos telefonia, e funil de vendas é do CRM,
+ *   não da gestão de atendimento.
+ * - Regras ├ Atendimento, Horários — só SLA virou tela.
  * - Atendentes ├ Filas de atendimento, Pausas personalizadas — o que elas
  *   mostrariam está na tela de Operação e no cartão "Status dos atendentes".
  * - Preferências ├ Configurações gerais — está diluída na tela de Dados.
@@ -67,7 +64,19 @@ const GRUPOS: readonly GrupoLateral[] = [
   {
     rotulo: 'Relatórios',
     icone: 'grade',
-    filhos: [{ rotulo: 'Esforço por atendente', href: '/relatorios/esforco' }],
+    filhos: [
+      { rotulo: 'Atendimento', href: '/relatorios/atendimento' },
+      { rotulo: 'Satisfação', href: '/relatorios/satisfacao' },
+      { rotulo: 'Esforço por atendente', href: '/relatorios/esforco' },
+    ],
+  },
+  {
+    rotulo: 'Comunicação',
+    icone: 'balao',
+    filhos: [
+      { rotulo: 'Respostas prontas', href: '/comunicacao/respostas-prontas' },
+      { rotulo: 'Modelos de mensagens', href: '/comunicacao/modelos' },
+    ],
   },
   {
     rotulo: 'Regras',
