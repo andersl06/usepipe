@@ -142,7 +142,11 @@ export function useLarguras(chaveDeArmazenamento: string, padroes: Larguras) {
   /** Volta a coluna ao padrão. É o duplo clique na alça, como em toda planilha. */
   function aoRestaurar(coluna: string) {
     return () => {
-      const { [coluna]: _descartada, ...resto } = ajustadas;
+      // Apagar a chave, e não gravar o padrão por cima: assim a coluna volta a
+      // seguir o padrão da tela se ele mudar num deploy futuro.
+      const resto = Object.fromEntries(
+        Object.entries(ajustadas).filter(([chave]) => chave !== coluna),
+      );
       guardar(resto);
     };
   }

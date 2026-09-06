@@ -15,6 +15,23 @@ import { dinheiroCurto, numero } from '../lib/formato';
  *
  * O cartão chega com o valor já formatado *e* o número cru: o formatado é o que
  * aparece, o cru é o que soma o total da coluna enquanto o servidor não responde.
+ *
+ * O que a leitura do quadro do Twenty mudou aqui:
+ *
+ * - **Cabeçalho de coluna grudado no topo.** Com dezesseis cartões, rolar a
+ *   coluna fazia o nome da fase e o total saírem da tela, e o quadro virava uma
+ *   lista de cartões sem colunas.
+ * - **O seletor de fase só aparece no hover ou no foco.** Eles usam a mesma
+ *   técnica (largura máxima animada, não `display:none`) e pela mesma razão: um
+ *   controle repetido em cada cartão é ruído em repouso. Como o gatilho inclui
+ *   `:focus-within`, o caminho do teclado continua inteiro.
+ * - **Coluna vazia diz que está vazia.** Antes era um retângulo em branco, que
+ *   se lê como "ainda carregando" e não como "não há nada aqui".
+ *
+ * O que NÃO copiamos: o indicador de inserção entre cartões. Ele promete uma
+ * ordem dentro da coluna, e a nossa oportunidade não guarda posição — a coluna
+ * é ordenada por valor pelo servidor. Desenhar o indicador seria prometer um
+ * controle que a escrita não tem.
  */
 
 export interface CartaoView {
@@ -83,10 +100,14 @@ export function QuadroFunil({ fases, cartoes }: Props) {
             */}
             <header>
               <span className="fase">{fase}</span>
-              <span className="c">
+              <span className="c" title={`${numero(daFase.length)} oportunidades, ${dinheiroCurto(total)} em jogo`}>
                 {numero(daFase.length)} · {dinheiroCurto(total)}
               </span>
             </header>
+
+            {daFase.length === 0 ? (
+              <p className="lane-vazia">Nada nesta fase.</p>
+            ) : null}
 
             {daFase.map((c) => (
               <div
@@ -115,17 +136,25 @@ export function QuadroFunil({ fases, cartoes }: Props) {
                     </Etiqueta>
                   </span>
                 ) : null}
-                <Seletor
-                  value={c.fase}
-                  aria-label={`Fase de ${c.nome}`}
-                  onChange={(e) => mover(c.id, e.target.value)}
-                >
-                  {fases.map((o) => (
-                    <option key={o} value={o}>
-                      {o}
-                    </option>
-                  ))}
-                </Seletor>
+                {/*
+                  O seletor é a alternativa de teclado ao arraste, e é ele que
+                  faz o quadro não excluir metade do time. Fica recolhido em
+                  repouso e abre no hover ou no foco: recolhido por altura
+                  animada, nunca por `display:none`, senão o foco não o alcança.
+                */}
+                <div className="acao">
+                  <Seletor
+                    value={c.fase}
+                    aria-label={`Fase de ${c.nome}`}
+                    onChange={(e) => mover(c.id, e.target.value)}
+                  >
+                    {fases.map((o) => (
+                      <option key={o} value={o}>
+                        {o}
+                      </option>
+                    ))}
+                  </Seletor>
+                </div>
               </div>
             ))}
           </div>

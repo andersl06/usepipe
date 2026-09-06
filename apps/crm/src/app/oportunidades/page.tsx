@@ -1,3 +1,5 @@
+import Link from 'next/link';
+import { EstadoVazio } from '@pipe/ui';
 import { QuadroFunil, type CartaoView } from '../../componentes/quadro-funil';
 import { carregarFunil, FASES } from '../../lib/funil';
 import { dinheiro, numero } from '../../lib/formato';
@@ -63,10 +65,22 @@ export default async function PaginaOportunidades() {
           <span className="lbl">quadro</span>
         </header>
         {funil.quantidadeGeral === 0 ? (
-          <div className="vazio">
-            Nenhuma oportunidade aberta. Rode <code>pnpm --filter @pipe/crm seed:crm</code> para
-            semear o tenant demo.
-          </div>
+          /*
+            O vazio do quadro falava em `pnpm seed:crm`, que é comando de quem
+            constrói o produto e não de quem o usa. Aqui ele diz de onde vem uma
+            oportunidade, que é a única coisa útil quando não há nenhuma.
+          */
+          <EstadoVazio titulo="Nenhuma oportunidade aberta." ilustracao="concluido">
+            <span>
+              Oportunidade nasce de um lead qualificado. Assim que a primeira for aberta, ela
+              aparece na coluna da fase em que estiver.
+            </span>
+            <span className="acoes-erro">
+              <Link className="btn" href="/leads?aba=qualificados">
+                Ver os leads qualificados
+              </Link>
+            </span>
+          </EstadoVazio>
         ) : (
           <QuadroFunil fases={FASES} cartoes={cartoes} />
         )}
