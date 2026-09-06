@@ -299,7 +299,7 @@ export function Compositor({
                   : 'Mencionar colega'}
             </span>
             {gatilho.tipo === '#' && somenteTemplate ? (
-              <span className="pill hi">JANELA FECHADA · SÓ TEMPLATE</span>
+              <span className="etiqueta erro">Janela fechada · só template</span>
             ) : null}
           </div>
           <ul>
@@ -319,7 +319,7 @@ export function Compositor({
                         >
                           <span className="linha1">
                             <span className="mono">{template.nome}</span>
-                            <span className="pill ok">TEMPLATE · {template.categoria}</span>
+                            <span className="etiqueta">Template · {template.categoria}</span>
                           </span>
                           <span className="corpo">{template.corpo}</span>
                         </button>
@@ -404,7 +404,7 @@ export function Compositor({
       <div className="quick">
         <button
           type="button"
-          className="pill ok"
+          className="etiqueta"
           onMouseDown={(e) => e.preventDefault()}
           onClick={() => {
             setGatilho({ tipo: '#', termo: '', inicio: texto.length });
@@ -454,7 +454,7 @@ export function Compositor({
               <>
                 <div className="previa">{aplicarVariaveis(templateEscolhido.corpo, variaveis)}</div>
                 <div className="rodape">
-                  <span className="pill med">CATEGORIA · {templateEscolhido.categoria}</span>
+                  <span className="etiqueta">Categoria · {templateEscolhido.categoria}</span>
                   <span className="lbl">
                     Custo pela tabela da Meta — a tabela de preço por categoria ainda não está
                     configurada neste ambiente

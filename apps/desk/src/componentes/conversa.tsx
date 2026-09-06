@@ -40,13 +40,13 @@ function PilulaDaJanela({
   expiraEm: Date | null;
   agora: Date;
 }) {
-  if (!temJanela) return <span className="pill ch">CANAL SEM JANELA</span>;
-  if (!janelaAberta(expiraEm, agora)) return <span className="pill hi">JANELA FECHADA</span>;
+  if (!temJanela) return <span className="etiqueta">Canal sem janela</span>;
+  if (!janelaAberta(expiraEm, agora)) return <span className="etiqueta erro">Janela fechada</span>;
   const restante = duracaoCurta(segundosRestantes(expiraEm, agora));
   if (pertoDeExpirar(expiraEm, agora)) {
-    return <span className="pill med">JANELA FECHA EM {restante}</span>;
+    return <span className="etiqueta alerta">Janela fecha em {restante}</span>;
   }
-  return <span className="pill info">JANELA ABERTA · {restante}</span>;
+  return <span className="etiqueta">Janela aberta · {restante}</span>;
 }
 
 function CorpoDaMensagem({ item }: { item: Extract<ItemDaConversa, { genero: 'mensagem' }> }) {

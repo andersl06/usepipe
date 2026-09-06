@@ -3,12 +3,22 @@ import { janelaAberta, pertoDeExpirar, segundosRestantes } from '@pipe/core';
 import { decorrido, duracaoCurta } from '../servidor/formato';
 import type { ConversaDaLista, TipoCanalBanco } from '../servidor/consultas';
 
-/** Rótulo curto do canal, do jeito que o atendente fala. */
+/**
+ * Rótulo curto do canal, do jeito que o atendente fala.
+ *
+ * Em caixa normal: canal é conteúdo da linha, não título de seção. Estava em
+ * caixa alta e repetido em toda conversa da lista, o que dava à coluna o peso
+ * de um cabeçalho. A caixa alta fica para rótulo de seção e cabeçalho de
+ * coluna (ver docs/marca/MARCA.md, regras de interface).
+ *
+ * Os mesmos rótulos existem em `conversa.tsx` — quando o terceiro consumidor
+ * aparecer, isto vira uma constante compartilhada.
+ */
 const CANAL: Record<TipoCanalBanco, string> = {
-  whatsapp_cloud: 'WHATSAPP',
-  instagram: 'INSTAGRAM',
-  email: 'E-MAIL',
-  widget: 'SITE',
+  whatsapp_cloud: 'WhatsApp',
+  instagram: 'Instagram',
+  email: 'E-mail',
+  widget: 'Site',
 };
 
 const RESUMO_POR_TIPO: Record<string, string> = {
@@ -74,22 +84,22 @@ export function ListaConversas({
                   <span className="sn">{resumoDaUltima(conversa)}</span>
                   <span className="meta">
                     {conversa.filaNome ? (
-                      <span className="pill q">{conversa.filaNome.toUpperCase()}</span>
+                      <span className="etiqueta">{conversa.filaNome}</span>
                     ) : null}
-                    <span className="pill ch">{CANAL[conversa.canalTipo]}</span>
-                    {conversa.prioridade === 'alta' ? <span className="pill hi">ALTA</span> : null}
+                    <span className="etiqueta">{CANAL[conversa.canalTipo]}</span>
+                    {conversa.prioridade === 'alta' ? <span className="etiqueta erro">Alta</span> : null}
                     {conversa.prioridade === 'media' ? (
-                      <span className="pill med">MÉDIA</span>
+                      <span className="etiqueta alerta">Média</span>
                     ) : null}
                     {conversa.estado === 'em_espera' ? (
-                      <span className="pill info">EM ESPERA</span>
+                      <span className="etiqueta">Em espera</span>
                     ) : null}
                     {expirando ? (
-                      <span className="pill med">
-                        JANELA {duracaoCurta(segundosRestantes(conversa.janelaExpiraEm, agora))}
+                      <span className="etiqueta alerta">
+                        Janela {duracaoCurta(segundosRestantes(conversa.janelaExpiraEm, agora))}
                       </span>
                     ) : null}
-                    {fechada ? <span className="pill hi">JANELA FECHADA</span> : null}
+                    {fechada ? <span className="etiqueta erro">Janela fechada</span> : null}
                   </span>
                 </Link>
               </li>

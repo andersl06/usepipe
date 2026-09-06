@@ -100,7 +100,7 @@ export function PainelContato({
         ) : (
           <div className="tags">
             {etiquetas.map((etiqueta) => (
-              <span className="pill q" key={etiqueta.id}>
+              <span className="etiqueta" key={etiqueta.id}>
                 {etiqueta.nome}
               </span>
             ))}
