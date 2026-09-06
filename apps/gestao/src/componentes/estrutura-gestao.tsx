@@ -2,32 +2,47 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Aplicacao, AreaConfiguracoes, Cabecalho, type ItemDeNavegacao } from '@pipe/ui';
+import {
+  Aplicacao,
+  AreaConfiguracoes,
+  Cabecalho,
+  LateralContexto,
+  type ItemDeNavegacao,
+} from '@pipe/ui';
+import { AlternarTema } from './alternar-tema';
 
 /**
- * Estrutura da Gestão, em dois modos — o mesmo corte que o CRM já faz.
+ * Estrutura da Gestão, em duas camadas — o modelo real da Blip, medido em
+ * `docs/pesquisa/blip-portal-telas.md` e resumido no §3.2 do design system.
  *
- * **Trabalho**: cabeçalho horizontal com os módulos que a pessoa usa no dia, e
- * nada mais. O que havia antes: um menu lateral de 224px com **32 itens em 7
- * grupos, dos quais 29 estavam desabilitados** — 91% do menu era caminho morto
- * em cinza. O comentário do arquivo antigo defendia a escolha dizendo que
- * "esconder o mapa da ferramenta é o que faz o gestor achar que ela não tem a
- * função". A medição das referências derruba o argumento: Blip, Salesforce e
- * Twenty não mostram um único item desabilitado. Um mapa em que 29 das 32
- * estradas estão interditadas não informa, cansa — e foi exatamente isso que o
- * dono leu como "parece que foi construído por IA".
+ * **Topo: os módulos.** Na Blip são Builder, Atendimento, Análise, Growth e
+ * Canais — os produtos da plataforma. O nosso, hoje, é um: Atendimento. Um
+ * módulo no topo não é item morto nem moldura: é o mapa honesto do que existe,
+ * e é onde Monitoria e Análise entram quando tiverem tela. A Blip mostra cinco
+ * porque tem cinco.
  *
- * Com três módulos não há o que pôr numa lateral: `LateralContexto` do
- * @pipe/ui devolveria nulo de qualquer jeito, e por isso nem é montada aqui.
+ * **Lateral: os itens do módulo aberto.** Dentro de Atendimento, a lateral da
+ * Blip tem Monitoramento, Histórico, Relatórios, Comunicação, Regras,
+ * Atendentes e Preferências. A nossa tem os três que abrem de verdade. Foi a
+ * passada anterior que a removeu inteira, com o argumento de que três itens
+ * cabiam no topo; cabiam, mas aí a tela perdeu a camada de contexto e ficou
+ * sem navegação nenhuma. A lateral é constante nas três telas de trabalho, e
+ * por isso não some nem empurra o conteúdo ao trocar de tela.
  *
- * **Configuração**: atrás da engrenagem, em tela própria, sem navegação de
- * módulo — quem configura não está trabalhando. Os quatro grupos que saíram do
- * menu de trabalho (Regras, Operação, Dados e Conta) viram três seções, e não
- * quatro: Conta ainda não tem nada que se leia do banco, e seção vazia é o
- * mesmo item morto mudado de lugar.
+ * Continua valendo, e é o que impede a volta dos 32 itens com 29 apagados:
+ * **nenhum item desabilitado** (`ItemDeNavegacao` não tem o campo), e
+ * **configuração atrás da engrenagem**, em tela própria — quem configura não
+ * está trabalhando.
  */
 
-const MODULOS: readonly ItemDeNavegacao[] = [
+/*
+ * Um módulo. O `caminhoAtual` do cabeçalho é normalizado para `/` logo abaixo:
+ * toda tela de trabalho pertence a Atendimento, e sem isso o módulo apagaria
+ * ao abrir Histórico ou Esforço.
+ */
+const MODULOS: readonly ItemDeNavegacao[] = [{ rotulo: 'Atendimento', href: '/' }];
+
+const SECOES: readonly ItemDeNavegacao[] = [
   { rotulo: 'Monitoramento', href: '/' },
   { rotulo: 'Histórico', href: '/historico' },
   /*
@@ -38,7 +53,7 @@ const MODULOS: readonly ItemDeNavegacao[] = [
    * esse caso. Os recortes que a lista dá conta (por fila, por atendente, por
    * etiqueta) viraram agrupamento no Histórico.
    */
-  { rotulo: 'Esforço', href: '/relatorios/esforco' },
+  { rotulo: 'Esforço por atendente', href: '/relatorios/esforco' },
 ];
 
 const CONFIGURACOES: readonly ItemDeNavegacao[] = [
@@ -69,8 +84,17 @@ export function EstruturaGestao({ children }: { children: React.ReactNode }) {
         <Cabecalho
           nome="Pipe Gestão"
           itens={MODULOS}
-          caminhoAtual={caminho}
+          caminhoAtual="/"
           hrefConfiguracoes="/configuracoes"
+          fim={<AlternarTema />}
+          Link={Link}
+        />
+      }
+      lateral={
+        <LateralContexto
+          titulo="Atendimento"
+          itens={SECOES}
+          caminhoAtual={caminho}
           Link={Link}
         />
       }
