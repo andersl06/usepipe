@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Avatar, Icone, Simbolo, estaAtivo, AreaConfiguracoes, type ItemDeNavegacao, type NomeDeIcone } from '@pipe/ui';
+import { Avatar, Icone, Simbolo, estaAtivo, type ItemDeNavegacao, type NomeDeIcone } from '@pipe/ui';
 import { IconeGestao } from './icones-gestao';
 import { AlternarTema } from './alternar-tema';
 import type { DadosDoCabecalho } from '../lib/cabecalho';
@@ -45,9 +45,23 @@ const ITENS: readonly ItemLateral[] = [
 ];
 
 /*
- * Relatórios é grupo porque é grupo na Blip, e porque é onde Satisfação e
- * Vendas entram quando tiverem tela. Hoje abre um item — o "Esforço por
- * atendente", que lê a operação por um eixo que a lista de encerradas não tem.
+ * Os grupos, na ordem e com os nomes da lateral deles, medida em
+ * `docs/pesquisa/blip-medidas-monitoramento.md` §3.5: dois itens soltos e cinco
+ * grupos, e NADA de configuração no primeiro nível.
+ *
+ * Cada filho abaixo é uma tela que EXISTE aqui. Onde eles têm item e nós não
+ * temos tela, fica a lacuna registrada — nenhum item desabilitado, nenhuma
+ * funcionalidade inventada:
+ *
+ * - Relatórios ├ Atendimento, Satisfação, Calls, Vendas — não temos pesquisa de
+ *   satisfação, telefonia nem funil de vendas no modelo.
+ * - Comunicação ├ Respostas prontas, Modelos de mensagens — o grupo inteiro é
+ *   lacuna: isso vive no app do atendente, não na gestão. Por isso ele não
+ *   aparece na lista abaixo.
+ * - Regras ├ Atendimento, Horários — só SLA e filas viraram tela.
+ * - Atendentes ├ Filas de atendimento, Pausas personalizadas — o que elas
+ *   mostrariam está na tela de Operação e no cartão "Status dos atendentes".
+ * - Preferências ├ Configurações gerais — está diluída na tela de Dados.
  */
 const GRUPOS: readonly GrupoLateral[] = [
   {
@@ -55,12 +69,21 @@ const GRUPOS: readonly GrupoLateral[] = [
     icone: 'grade',
     filhos: [{ rotulo: 'Esforço por atendente', href: '/relatorios/esforco' }],
   },
-];
-
-const CONFIGURACOES: readonly ItemDeNavegacao[] = [
-  { rotulo: 'Regras', href: '/configuracoes/regras' },
-  { rotulo: 'Operação', href: '/configuracoes/operacao' },
-  { rotulo: 'Dados', href: '/configuracoes/dados' },
+  {
+    rotulo: 'Regras',
+    icone: 'funil',
+    filhos: [{ rotulo: 'SLA', href: '/configuracoes/regras' }],
+  },
+  {
+    rotulo: 'Atendentes',
+    icone: 'pessoas',
+    filhos: [{ rotulo: 'Operação', href: '/configuracoes/operacao' }],
+  },
+  {
+    rotulo: 'Preferências',
+    icone: 'engrenagem',
+    filhos: [{ rotulo: 'Dados', href: '/configuracoes/dados' }],
+  },
 ];
 
 /** Onde vive o app do atendente. O rodapé da lateral aponta para lá. */
@@ -77,14 +100,14 @@ function BarraSuperior({ dados }: { dados: DadosDoCabecalho }) {
       </div>
 
       <Link className="g-marca" href="/">
-        <Simbolo tamanho={20} />
+        <Simbolo tamanho={29} />
         <b>Pipe Gestão</b>
       </Link>
 
       <div className="g-barra-fim">
         <details className="g-menu">
           <summary className="g-iconbtn" title="Ajuda" aria-label="Ajuda">
-            <IconeGestao nome="ajuda" />
+            <IconeGestao nome="ajuda" tamanho={20} />
           </summary>
           <div className="g-painel">
             <b>Como ler esta tela</b>
@@ -105,7 +128,7 @@ function BarraSuperior({ dados }: { dados: DadosDoCabecalho }) {
 
         <details className="g-menu">
           <summary className="g-iconbtn" title="Avisos" aria-label={`Avisos (${dados.avisos})`}>
-            <IconeGestao nome="sino" />
+            <IconeGestao nome="sino" tamanho={20} />
             {dados.avisos > 0 ? <span className="g-selo">{dados.avisos}</span> : null}
           </summary>
           <div className="g-painel">
@@ -160,7 +183,7 @@ function BarraInferior({ dados, caminho }: { dados: DadosDoCabecalho; caminho: s
         <summary>
           <Avatar nome={canal?.nome ?? 'Pipe'} className="g-av-sm" />
           <span>{canal?.nome ?? 'Sem canal'}</span>
-          <IconeGestao nome="baixo" tamanho={14} />
+          <IconeGestao nome="baixo" tamanho={20} />
         </summary>
         <div className="g-painel">
           <b>Canais do tenant</b>
@@ -188,7 +211,7 @@ function BarraInferior({ dados, caminho }: { dados: DadosDoCabecalho; caminho: s
       <nav className="g-barra-fim" aria-label="Atalhos">
         {ATALHOS.map((a) => (
           <Link key={a.href} className="g-iconbtn" href={a.href} title={a.rotulo} aria-label={a.rotulo}>
-            <Icone nome={a.icone} />
+            <Icone nome={a.icone} tamanho={20} />
           </Link>
         ))}
       </nav>
@@ -209,7 +232,7 @@ function Lateral({ caminho }: { caminho: string }) {
             className="g-item"
             aria-current={estaAtivo(i.href, caminho) ? 'page' : undefined}
           >
-            <Icone nome={i.icone} tamanho={15} />
+            <Icone nome={i.icone} tamanho={24} />
             {i.rotulo}
           </Link>
         ))}
@@ -219,9 +242,9 @@ function Lateral({ caminho }: { caminho: string }) {
           return (
             <details key={g.rotulo} className="g-grupo" open={aberto}>
               <summary className="g-item">
-                <Icone nome={g.icone} tamanho={15} />
+                <Icone nome={g.icone} tamanho={24} />
                 {g.rotulo}
-                <IconeGestao nome="baixo" tamanho={14} />
+                <IconeGestao nome="baixo" tamanho={20} />
               </summary>
               {g.filhos.map((f) => (
                 <Link
@@ -240,7 +263,7 @@ function Lateral({ caminho }: { caminho: string }) {
 
       {/* Rodapé: o app do atendente vive em outra origem, como o "blipdesk" deles. */}
       <a className="g-lateral-rodape" href={URL_DESK} target="_blank" rel="noreferrer">
-        <IconeGestao nome="externo" tamanho={15} />
+        <IconeGestao nome="externo" tamanho={20} />
         Pipe Desk
       </a>
     </nav>
@@ -258,14 +281,12 @@ export function EstruturaGestao({
 }) {
   const caminho = usePathname();
 
-  if (caminho.startsWith('/configuracoes')) {
-    return (
-      <AreaConfiguracoes nome="Pipe Gestão" itens={CONFIGURACOES} caminhoAtual={caminho} Link={Link}>
-        {children}
-      </AreaConfiguracoes>
-    );
-  }
-
+  /*
+   * UMA estrutura para todas as telas. A área de configurações separada saiu:
+   * na lateral deles, Regras, Atendentes e Preferências são grupos da MESMA
+   * lateral, e trocar de casco no meio da navegação era a nossa divergência
+   * mais visível contra a tela medida.
+   */
   return (
     <div className="p-app">
       <BarraSuperior dados={dados} />

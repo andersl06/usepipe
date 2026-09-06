@@ -48,9 +48,13 @@ export default async function LayoutRaiz({ children }: { children: React.ReactNo
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        {/* A escala de PESO é a da Blip, medida em
+            `docs/pesquisa/blip-medidas-monitoramento.md` §5: 300 no módulo do
+            topo, 400 no corpo, 600 no rótulo e no item de lateral, 700 no
+            ativo e no título de bloco. O desenho da letra é o nosso IBM Plex. */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;450;500;600&display=swap"
+          href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;450;500;600;700&display=swap"
         />
         <script dangerouslySetInnerHTML={{ __html: TEMA_ANTES_DE_PINTAR }} />
       </head>
