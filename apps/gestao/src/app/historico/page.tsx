@@ -6,8 +6,10 @@ import {
   carregarCatalogos,
   carregarHistorico,
   LIMITE_HISTORICO,
+  type LinhaHistorico,
 } from '../../lib/historico';
 import { dataHora, dataIso, duracao, numero } from '../../lib/formato';
+import { ListaHistorico, type CartaoHistorico } from '../../componentes/lista-historico';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,9 +22,6 @@ interface Busca {
   agrupar?: string;
 }
 
-/** Colunas da tabela, para o cabeçalho de grupo atravessar a linha inteira. */
-const COLUNAS = 10;
-
 /**
  * Finalizada é o desfecho normal e fica neutra: era verde em cada linha da
  * lista, e o verde repetido deixa de significar. Perdida e abandonada seguem
@@ -34,6 +33,22 @@ const ROTULO_STATUS: Record<string, { texto: string; classe: string }> = {
   finalizada: { texto: 'Finalizada', classe: 'etiqueta' },
 };
 
+/**
+ * Histórico — lista de CARTÕES, como na tela deles.
+ *
+ * Era tabela de dez colunas. Virou cartão porque é o que a Blip faz em seis
+ * das oito telas do módulo Atendimento, e a razão é boa: cada campo carrega o
+ * próprio rótulo, então o olho não precisa subir até o cabeçalho e descer de
+ * volta, e a lista sobrevive a qualquer largura de tela.
+ *
+ * A ordem da tela é a deles, medida em `docs/pesquisa/blip-telas-atendimento.md`
+ * §4: linha do título, faixa de filtros, barra de seleção, lista. A tinta e o
+ * conteúdo são nossos.
+ *
+ * O agrupamento continua — é o nosso, não deles, e é a resposta aos seis itens
+ * de relatório que nunca viraram tela. O título do grupo virou um cabeçalho
+ * acima dos cartões dele, no lugar da linha que atravessava a tabela.
+ */
 export default async function PaginaHistorico({ searchParams }: { searchParams: Promise<Busca> }) {
   const params = await searchParams;
   const fuso = await fusoDoTenant();
@@ -52,7 +67,36 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
   });
 
   const por = agrupamentoValido(params.agrupar);
-  const grupos = agruparHistorico(linhas, por);
+
+  /*
+   * O cartão é componente de cliente, porque a seleção múltipla e a exportação
+   * moram no navegador. Então tudo atravessa a fronteira já formatado: nenhuma
+   * Date e nenhum nulo passam para lá, e o formato do fuso do tenant fica
+   * decidido de um lado só.
+   */
+  const emCartao = (l: LinhaHistorico): CartaoHistorico => {
+    const status = l.status ? ROTULO_STATUS[l.status] : undefined;
+    return {
+      id: l.id,
+      ticket: l.ticket,
+      encerrada: dataHora(l.encerradaEm, fuso),
+      contato: l.contatoNome,
+      fila: l.filaNome ?? '—',
+      atendente: l.atendenteNome ?? '—',
+      espera: duracao(l.esperaSeg),
+      primeiraResposta: duracao(l.primeiraRespostaSeg),
+      atendimento: duracao(l.atendimentoSeg),
+      statusTexto: status?.texto ?? 'Aberta',
+      statusClasse: status?.classe ?? 'etiqueta',
+      critico: l.status === 'perdida',
+      etiquetas: l.etiquetas,
+    };
+  };
+
+  const grupos = agruparHistorico(linhas, por).map((g) => ({
+    titulo: g.titulo,
+    cartoes: g.linhas.map(emCartao),
+  }));
 
   return (
     <>
@@ -60,6 +104,10 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
         <h2>Histórico</h2>
         <span className="sub">
           Conversas encerradas, com o cronômetro parado. Status e tempos derivados dos eventos.
+        </span>
+        <span className="sub filters">
+          {numero(linhas.length)} conversas
+          {truncado ? ` · as ${LIMITE_HISTORICO} mais recentes` : ''}
         </span>
       </div>
 
@@ -126,72 +174,11 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
         </a>
       </form>
 
-      <div className="tblwrap">
-        <div className="tblhead">
-          <h3>Conversas encerradas</h3>
-          <span className="sub" style={{ marginLeft: 'auto' }}>
-            {numero(linhas.length)} linhas
-            {truncado ? ` · mostrando as ${LIMITE_HISTORICO} mais recentes` : ''}
-          </span>
-        </div>
-
-        {linhas.length === 0 ? (
-          <div className="vazio">Nenhuma conversa encerrada com esses filtros.</div>
-        ) : (
-          <div className="scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Encerrada</th>
-                  <th>Ticket</th>
-                  <th>Contato</th>
-                  <th>Fila</th>
-                  <th>Atendente</th>
-                  <th>Espera do cliente</th>
-                  <th>1ª resposta</th>
-                  <th>Atendimento</th>
-                  <th>Status</th>
-                  <th>Etiquetas</th>
-                </tr>
-              </thead>
-              {grupos.map((grupo) => (
-                <tbody key={grupo.titulo || 'todos'}>
-                  {grupo.titulo ? (
-                    <tr className="grupo">
-                      <th colSpan={COLUNAS} scope="colgroup">
-                        {grupo.titulo} <span className="qt">{numero(grupo.linhas.length)}</span>
-                      </th>
-                    </tr>
-                  ) : null}
-                  {grupo.linhas.map((l) => {
-                    const status = l.status ? ROTULO_STATUS[l.status] : undefined;
-                    return (
-                      <tr key={l.id} className={l.status === 'perdida' ? 'critico' : undefined}>
-                        <td className="num">{dataHora(l.encerradaEm, fuso)}</td>
-                        <td className="num">{l.ticket}</td>
-                        <td className="who">{l.contatoNome}</td>
-                        <td>{l.filaNome ?? '—'}</td>
-                        <td>{l.atendenteNome ?? '—'}</td>
-                        <td className="num">{duracao(l.esperaSeg)}</td>
-                        <td className="num">{duracao(l.primeiraRespostaSeg)}</td>
-                        <td className="num">{duracao(l.atendimentoSeg)}</td>
-                        <td>
-                          {status ? (
-                            <span className={status.classe}>{status.texto}</span>
-                          ) : (
-                            <span className="etiqueta">Aberta</span>
-                          )}
-                        </td>
-                        <td>{l.etiquetas.join(', ') || '—'}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              ))}
-            </table>
-          </div>
-        )}
-      </div>
+      {linhas.length === 0 ? (
+        <div className="vazio">Nenhuma conversa encerrada com esses filtros.</div>
+      ) : (
+        <ListaHistorico grupos={grupos} />
+      )}
     </>
   );
 }
