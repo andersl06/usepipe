@@ -1,6 +1,7 @@
 import Link from 'next/link';
-import type { ReactNode } from 'react';
-import { Campo, Etiqueta, Seletor, EstadoVazio } from '@pipe/ui';
+import { Campo, Seletor } from '@pipe/ui';
+import { ListaDeLeads } from '../../componentes/lista-de-leads';
+import { VisoesSalvas } from '../../componentes/visoes-salvas';
 import { fusoDoTenant } from '../../lib/banco';
 import {
   ABAS,
@@ -9,13 +10,12 @@ import {
   agrupamentoValido,
   agrupar,
   carregarListaDeLeads,
-  colunaDoAgrupamento,
+  direcaoValida,
   LIMITE_LISTA,
-  ROTULO_STATUS,
-  type Agrupamento,
-  type LinhaLead,
+  listarProprietarios,
+  ordemValida,
 } from '../../lib/leads';
-import { desde, numero } from '../../lib/formato';
+import { numero } from '../../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,101 +23,42 @@ interface Busca {
   aba?: string;
   q?: string;
   agrupar?: string;
-}
-
-interface ColunaLead {
-  chave: string;
-  rotulo: string;
-  numerica?: boolean;
-  celula: (l: LinhaLead, fuso: string, agora: Date) => ReactNode;
+  ordem?: string;
+  dir?: string;
 }
 
 /**
- * As colunas da listagem, numa lista só — o cabeçalho e a linha saem da mesma
- * definição, então não há como uma existir sem a outra.
+ * A listagem de leads.
  *
- * Categoria vira etiqueta neutra: origem, faixa, fila e fase são o mesmo tipo
- * de coisa (um nome que classifica) e passam a ter a mesma forma, a do pacote.
- * Nenhuma delas recebe cor: categoria não é estado.
+ * A tela é servidor: o recorte, a busca e a ordenação vivem na URL e viram
+ * `where` e `order by`. Só o que exige o navegador (largura de coluna, seleção,
+ * visão salva) desce para o cliente, e desce em componente separado.
  *
- * Cor entra em duas células e em nenhuma outra — o lead parado há mais de sete
- * dias, que é o que custa dinheiro, e o lead desqualificado, que é o único
- * estado terminal. Antes a linha inteira do lead parado ficava ocre, o que
- * pintava um terço da tabela e fazia o sinal deixar de ser sinal.
+ * A ordenação NÃO acontece sobre as linhas já buscadas. A lista tem teto de 200,
+ * e ordenar depois de buscar responderia "os 200 leads mais novos, dispostos por
+ * score" quando a pergunta é "os 200 de maior score".
  */
-const COLUNAS: readonly ColunaLead[] = [
-  {
-    chave: 'lead',
-    rotulo: 'Lead',
-    celula: (l) => <Link href={`/leads/${l.id}`}>{l.nome}</Link>,
-  },
-  { chave: 'origem', rotulo: 'Origem', celula: (l) => (l.origem ? <Etiqueta>{l.origem}</Etiqueta> : '—') },
-  {
-    chave: 'score',
-    rotulo: 'Score',
-    numerica: true,
-    celula: (l) => (l.score === null ? '—' : numero(l.score)),
-  },
-  { chave: 'faixa', rotulo: 'Faixa', celula: (l) => (l.faixa ? <Etiqueta>{l.faixa}</Etiqueta> : '—') },
-  { chave: 'fila', rotulo: 'Fila', celula: (l) => (l.fila ? <Etiqueta>{l.fila}</Etiqueta> : '—') },
-  { chave: 'proprietario', rotulo: 'Proprietário', celula: (l) => l.proprietario ?? '—' },
-  {
-    chave: 'fase',
-    rotulo: 'Fase',
-    celula: (l) =>
-      l.status === 'desqualificado' ? (
-        <Etiqueta tom="erro">{ROTULO_STATUS['desqualificado']}</Etiqueta>
-      ) : l.fase ? (
-        <Etiqueta>{l.fase}</Etiqueta>
-      ) : (
-        <Etiqueta>{ROTULO_STATUS[l.status] ?? l.status}</Etiqueta>
-      ),
-  },
-  {
-    chave: 'dias',
-    rotulo: 'Dias na fase',
-    numerica: true,
-    celula: (l) =>
-      l.diasNaFase === null ? (
-        '—'
-      ) : l.diasNaFase >= 7 && l.status !== 'desqualificado' ? (
-        <Etiqueta tom="alerta">{numero(l.diasNaFase)}</Etiqueta>
-      ) : (
-        numero(l.diasNaFase)
-      ),
-  },
-  {
-    chave: 'atividade',
-    rotulo: 'Última atividade',
-    celula: (l, fuso, agora) =>
-      l.ultimaAtividade
-        ? `${l.ultimaAtividadeTipo ?? 'atividade'} · ${desde(l.ultimaAtividade, fuso, agora)}`
-        : '—',
-  },
-];
-
-/** A coluna que o agrupamento já diz sai da tabela. Ver `colunaDoAgrupamento`. */
-function colunasVisiveis(por: Agrupamento): readonly ColunaLead[] {
-  const redundante = colunaDoAgrupamento(por);
-  return redundante ? COLUNAS.filter((c) => c.chave !== redundante) : COLUNAS;
-}
-
 export default async function PaginaLeads({ searchParams }: { searchParams: Promise<Busca> }) {
   const params = await searchParams;
   const aba = abaValida(params.aba);
   const busca = params.q ?? '';
   const por = agrupamentoValido(params.agrupar);
+  const ordem = ordemValida(params.ordem);
+  const direcao = direcaoValida(params.dir);
 
   const fuso = await fusoDoTenant();
-  const { linhas, contagens } = await carregarListaDeLeads(aba, busca);
+  const { linhas, contagens } = await carregarListaDeLeads(aba, busca, ordem, direcao);
+  const proprietarios = await listarProprietarios();
   const grupos = agrupar(linhas, por);
-  const colunas = colunasVisiveis(por);
-  const agora = new Date();
 
-  const comFiltros = (extra: Record<string, string>) => {
+  const consulta = (extra: Record<string, string> = {}) => {
     const p = new URLSearchParams({ aba, ...(busca ? { q: busca } : {}), ...extra });
     if (por !== 'nenhum' && !('agrupar' in extra)) p.set('agrupar', por);
-    return `/leads?${p.toString()}`;
+    if (ordem !== 'nenhuma') {
+      p.set('ordem', ordem);
+      p.set('dir', direcao);
+    }
+    return p.toString();
   };
 
   return (
@@ -125,7 +66,7 @@ export default async function PaginaLeads({ searchParams }: { searchParams: Prom
       <div className="p-cabecalho">
         <h2>Leads</h2>
         <span className="sub">
-          Dias na fase na listagem — o lead que trava é o que custa dinheiro.
+          Dias na fase na listagem. O lead que trava é o que custa dinheiro.
         </span>
       </div>
 
@@ -134,7 +75,7 @@ export default async function PaginaLeads({ searchParams }: { searchParams: Prom
           {ABAS.map((a) => (
             <Link
               key={a.chave}
-              href={comFiltros({ aba: a.chave })}
+              href={`/leads?${consulta({ aba: a.chave })}`}
               role="tab"
               aria-current={a.chave === aba ? 'true' : undefined}
             >
@@ -149,6 +90,12 @@ export default async function PaginaLeads({ searchParams }: { searchParams: Prom
         */}
         <form className="tblhead" method="get" action="/leads">
           <input type="hidden" name="aba" value={aba} />
+          {ordem !== 'nenhuma' ? (
+            <>
+              <input type="hidden" name="ordem" value={ordem} />
+              <input type="hidden" name="dir" value={direcao} />
+            </>
+          ) : null}
           <Campo
             type="search"
             name="q"
@@ -169,52 +116,25 @@ export default async function PaginaLeads({ searchParams }: { searchParams: Prom
           <button type="submit" className="btn">
             Aplicar
           </button>
+          <VisoesSalvas consultaAtual={consulta()} />
           <span className="sub" style={{ marginLeft: 'auto' }}>
             {numero(linhas.length)} leads
             {linhas.length === LIMITE_LISTA ? ` · teto de ${LIMITE_LISTA}` : ''}
           </span>
         </form>
 
-        {linhas.length === 0 ? (
-          <EstadoVazio titulo="Nenhum lead nesta aba." ilustracao={busca ? 'busca' : 'vazio'}>
-            {busca ? <span>Nenhum resultado para “{busca}”.</span> : null}
-          </EstadoVazio>
-        ) : (
-          <div className="scroll">
-            <table>
-              <thead>
-                <tr>
-                  {colunas.map((c) => (
-                    <th key={c.chave}>{c.rotulo}</th>
-                  ))}
-                </tr>
-              </thead>
-              {grupos.map((grupo) => (
-                <tbody key={grupo.titulo || 'todos'}>
-                  {grupo.titulo ? (
-                    <tr className="grupo">
-                      <th colSpan={colunas.length} scope="colgroup">
-                        {grupo.titulo} <span className="qt">{numero(grupo.linhas.length)}</span>
-                      </th>
-                    </tr>
-                  ) : null}
-                  {grupo.linhas.map((l) => (
-                    <tr key={l.id}>
-                      {colunas.map((c) => (
-                        <td
-                          key={c.chave}
-                          className={c.numerica ? 'num' : c.chave === 'lead' ? 'who' : undefined}
-                        >
-                          {c.celula(l, fuso, agora)}
-                        </td>
-                      ))}
-                    </tr>
-                  ))}
-                </tbody>
-              ))}
-            </table>
-          </div>
-        )}
+        <ListaDeLeads
+          grupos={grupos}
+          fuso={fuso}
+          agora={new Date()}
+          aba={aba}
+          busca={busca}
+          por={por}
+          ordem={ordem}
+          direcao={direcao}
+          proprietarios={proprietarios}
+          total={linhas.length}
+        />
       </div>
     </>
   );

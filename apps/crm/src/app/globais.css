@@ -569,3 +569,246 @@ code {
     grid-template-columns: 1fr;
   }
 }
+
+/* ================================================ esqueleto de carregamento
+   A tabela com a altura certa antes do dado chegar, para a tela não pular
+   quando ele chega. O pulso é lento (1,4s) e de baixo contraste: animação de
+   espera que chama atenção compete com o conteúdo que está prestes a entrar.
+
+   `.barra` é o único desenho aqui — a estrutura reaproveita `table`, `td` e
+   `.campos`, que já têm a densidade certa. */
+.barra {
+  display: block;
+  height: 9px;
+  border-radius: var(--p-r-sm);
+  background: var(--p-superficie-2);
+  animation: p-pulso 1400ms ease-in-out infinite;
+}
+
+.esqueleto td {
+  border-bottom-color: transparent;
+}
+
+@keyframes p-pulso {
+  50% {
+    background: var(--p-superficie-3);
+  }
+}
+
+/* Quem pediu menos movimento no sistema não recebe o pulso. A barra continua
+   lá — é ela que segura a altura da tela — só parada. */
+@media (prefers-reduced-motion: reduce) {
+  .barra {
+    animation: none;
+  }
+}
+
+/* ================================================================ erro e vazio
+   O botão dentro do bloco de estado. Sem isto ele herda o `align-items:center`
+   do `.vazio` e estica na largura toda. */
+.acoes-erro {
+  display: flex;
+  gap: var(--p-e-2);
+  margin-top: var(--p-e-2);
+}
+
+/* Texto só para leitor de tela. O esqueleto é `aria-hidden`, então alguém
+   precisa dizer em voz alta que a tela está carregando. */
+.sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ==================================================== a lista de registros
+   Ordenação por coluna, coluna redimensionável e seleção múltipla. A leitura
+   do Twenty deu a mecânica; as medidas continuam sendo as nossas (linha de
+   36px, célula 8px/12px, cabeçalho em caixa alta na família do corpo).
+
+   `table-layout: fixed` é obrigatório: sem ele o navegador ignora a largura
+   do `<col>` e negocia sozinho, e a coluna arrastada volta ao lugar. Com ele,
+   a última coluna do `<colgroup>` fica sem largura declarada e absorve a
+   sobra da tela larga, para que as outras mantenham o valor arrastado. */
+.listagem {
+  table-layout: fixed;
+  min-width: 100%;
+}
+
+.listagem td {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ----------------------------------------------------- cabeçalho que ordena */
+.listagem th {
+  position: relative;
+}
+
+.listagem th .ord {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-e-1);
+  color: inherit;
+  text-decoration: none;
+}
+
+.listagem th .ord:hover {
+  color: var(--p-conteudo);
+}
+
+/* A seta reserva a própria largura mesmo vazia: sem isso o rótulo desliza
+   para o lado a cada clique, e a coluna parece piscar. */
+.listagem th .seta {
+  display: inline-block;
+  min-width: 9px;
+  font-family: var(--p-fonte-mono);
+  color: var(--p-marca-forte);
+}
+
+.listagem th[aria-sort] .ord {
+  color: var(--p-conteudo);
+}
+
+/* --------------------------------------------------------- alça de arraste
+   Alvo de 9px encostado na divisa da coluna, com 1px visível. Alvo estreito
+   demais é alça que ninguém pega; larga demais rouba o clique do rótulo. */
+.listagem th .redim {
+  position: absolute;
+  top: 0;
+  right: -4px;
+  width: 9px;
+  height: 100%;
+  cursor: col-resize;
+  touch-action: none;
+  user-select: none;
+  z-index: 1;
+}
+
+.listagem th .redim::after {
+  content: '';
+  position: absolute;
+  top: 20%;
+  bottom: 20%;
+  left: 4px;
+  width: 1px;
+  background: transparent;
+  transition: background var(--p-dur-rapida) ease;
+}
+
+.listagem th .redim:hover::after,
+.listagem th .redim:focus-visible::after,
+.listagem th.arrastando .redim::after {
+  background: var(--p-marca);
+}
+
+.listagem th .redim:focus-visible {
+  outline: none;
+}
+
+/* Enquanto arrasta, a coluna inteira se anuncia: sem isso a pessoa perde de
+   vista qual coluna está mudando quando o cursor sai do cabeçalho. */
+.listagem th.arrastando {
+  background: var(--p-superficie-1);
+}
+
+/* -------------------------------------------------------- seleção múltipla
+   32px é a largura da coluna de caixa no Twenty, e cai bem na nossa linha de
+   36px. A caixa some no repouso e volta no hover ou quando marcada: uma
+   coluna de caixas vazias é a primeira coisa que o olho tem de aprender a
+   ignorar numa lista. */
+.listagem .sel {
+  width: 32px;
+  padding-left: var(--p-e-3);
+  padding-right: 0;
+  overflow: visible;
+}
+
+.listagem .sel input {
+  accent-color: var(--p-marca);
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+.listagem tbody .sel input:not(:checked) {
+  opacity: 0;
+  transition: opacity var(--p-dur-rapida) ease;
+}
+
+.listagem tbody tr:hover .sel input,
+.listagem tbody .sel input:focus-visible {
+  opacity: 1;
+}
+
+.listagem tbody tr:hover td {
+  background: var(--p-superficie-1);
+}
+
+/* A linha marcada usa a marca em versão suave. É estado ativo de uma ação em
+   curso, que é onde a cor de marca pode entrar. */
+.listagem tbody tr.marcada td {
+  background: var(--p-marca-suave);
+}
+
+/* --------------------------------------------- a barra de ação em massa
+   Só existe quando há seleção. Presa embaixo e centrada, longe do texto que
+   a pessoa está lendo. */
+.em-massa {
+  position: fixed;
+  left: 50%;
+  bottom: var(--p-e-5);
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  padding: var(--p-e-2) var(--p-e-3);
+  background: var(--p-superficie-0);
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  box-shadow: var(--p-sombra-2);
+  max-width: calc(100vw - var(--p-e-8));
+  flex-wrap: wrap;
+}
+
+.em-massa b {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+  white-space: nowrap;
+  margin-right: var(--p-e-1);
+}
+
+/* O resultado da ação em massa. Fica acima da tabela porque é resposta a uma
+   coisa que a pessoa acabou de fazer, e resposta abaixo da dobra não é lida. */
+.recado {
+  margin: 0 0 var(--p-e-2);
+  padding: var(--p-e-2) var(--p-e-4);
+  font-size: var(--p-t-md);
+  color: var(--p-sucesso-conteudo);
+  background: var(--p-sucesso-fundo);
+  border-bottom: 1px solid var(--p-linha);
+}
+
+/* ------------------------------------------------------------ visões salvas */
+.visoes {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.visoes label {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-1);
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+  white-space: nowrap;
+}

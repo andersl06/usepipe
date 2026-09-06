@@ -28,58 +28,47 @@ import { consultar, paraData, paraNumero } from './banco';
  * `pipe.tenant_id` e a consulta passa a rodar sem tenant (README).
  */
 
-/** O tipo cru vira rótulo aqui: `mudanca_fase` não é texto de tela. */
-const ROTULO_ATIVIDADE: Record<string, string> = {
-  nota: 'Nota',
-  ligacao: 'Ligação',
-  reuniao: 'Reunião',
-  email: 'E-mail',
-  conversa: 'Conversa',
-  tarefa: 'Tarefa',
-  mudanca_fase: 'Mudança de fase',
-};
+/*
+ * Rótulo, recorte, agrupamento e ordenação moram em `leads-visao.ts`, que não
+ * importa banco nenhum. É de lá que o componente de cliente da listagem lê:
+ * importar deste arquivo arrastaria o driver do Postgres para o navegador.
+ * Aqui eles são reexportados, para que a tela continue tendo um endereço só.
+ */
+export {
+  ABAS,
+  abaValida,
+  AGRUPAMENTOS,
+  agrupamentoValido,
+  agrupar,
+  colunaDoAgrupamento,
+  colunaOrdenavel,
+  direcaoInicial,
+  direcaoValida,
+  LIMITE_LISTA,
+  ordemValida,
+  ROTULO_ATIVIDADE,
+  ROTULO_STATUS,
+} from './leads-visao';
+export type {
+  Aba,
+  Agrupamento,
+  Direcao,
+  Grupo,
+  LinhaLead,
+  Ordem,
+  Proprietario,
+} from './leads-visao';
 
-/** O status cru vira rótulo aqui, uma vez só para a listagem e para a ficha. */
-export const ROTULO_STATUS: Record<string, string> = {
-  novo: 'Novo',
-  em_contato: 'Em contato',
-  qualificado: 'Qualificado',
-  convertido: 'Convertido',
-  desqualificado: 'Desqualificado',
-};
-
-export const ABAS = [
-  { chave: 'todos', rotulo: 'Todos' },
-  { chave: 'novos', rotulo: 'Novos' },
-  { chave: 'qualificados', rotulo: 'Qualificados' },
-  { chave: 'sem-proprietario', rotulo: 'Sem proprietário' },
-  { chave: 'parados', rotulo: 'Parados há 7 dias' },
-  { chave: 'desqualificados', rotulo: 'Desqualificados' },
-] as const;
-
-export type Aba = (typeof ABAS)[number]['chave'];
-
-export function abaValida(valor: string | undefined): Aba {
-  return (ABAS.find((a) => a.chave === valor)?.chave ?? 'todos') as Aba;
-}
-
-/** A listagem é tela de trabalho, não de exportação. */
-export const LIMITE_LISTA = 200;
-
-export interface LinhaLead {
-  id: string;
-  nome: string;
-  origem: string | null;
-  score: number | null;
-  faixa: string | null;
-  fila: string | null;
-  proprietario: string | null;
-  status: string;
-  fase: string | null;
-  diasNaFase: number | null;
-  ultimaAtividade: Date | null;
-  ultimaAtividadeTipo: string | null;
-}
+// Reexportar não traz o nome para o escopo deste arquivo, e as consultas abaixo
+// usam quase todos. Por isso a segunda linha, que parece redundante e não é.
+import { LIMITE_LISTA, ROTULO_ATIVIDADE } from './leads-visao';
+import type {
+  Aba,
+  Direcao,
+  LinhaLead,
+  Ordem,
+  Proprietario,
+} from './leads-visao';
 
 /** Nome da fila por faixa, da versão mais recente de `faixa_score`. */
 async function filasPorFaixa(tx: Parameters<Parameters<typeof consultar>[0]>[0]) {
@@ -95,64 +84,21 @@ async function filasPorFaixa(tx: Parameters<Parameters<typeof consultar>[0]>[0])
 }
 
 /**
- * Como agrupar a lista. É o que substitui os quatro relatórios que eram item de
- * menu: "por proprietário" e "origem e campanha" são a mesma lista, dobrada por uma
- * coluna. Relatório que é recorte de lista mora na lista.
+ * Nome de coluna da tela para coluna do Postgres. A lista de nomes ordenáveis
+ * mora em `leads-visao.ts`, porque a tela precisa dela; a tradução mora aqui,
+ * porque precisa do esquema.
  */
-export const AGRUPAMENTOS = [
-  { chave: 'nenhum', rotulo: 'Sem agrupamento' },
-  { chave: 'proprietario', rotulo: 'Proprietário' },
-  { chave: 'origem', rotulo: 'Origem' },
-  { chave: 'fase', rotulo: 'Fase' },
-  { chave: 'faixa', rotulo: 'Faixa de score' },
-] as const;
-
-export type Agrupamento = (typeof AGRUPAMENTOS)[number]['chave'];
-
-export function agrupamentoValido(valor: string | undefined): Agrupamento {
-  return (AGRUPAMENTOS.find((a) => a.chave === valor)?.chave ?? 'nenhum') as Agrupamento;
-}
-
-/**
- * Qual coluna da tabela o cabeçalho do grupo já está dizendo.
- *
- * Lista agrupada por proprietário com uma coluna "Proprietário" repete o mesmo
- * nome em cada linha do grupo: é largura gasta para dizer o que o cabeçalho
- * acabou de dizer. As chaves do agrupamento e as das colunas são as mesmas de
- * propósito — é o que mantém as duas listas casadas sem uma tabela de-para.
- */
-export function colunaDoAgrupamento(por: Agrupamento): string | null {
-  return por === 'nenhum' ? null : por;
-}
-
-export interface Grupo {
-  titulo: string;
-  linhas: LinhaLead[];
-}
-
-/** Dobra a lista pela coluna escolhida, preservando a ordem de dentro do grupo. */
-export function agrupar(linhas: LinhaLead[], por: Agrupamento): Grupo[] {
-  if (por === 'nenhum') return [{ titulo: '', linhas }];
-  const chaveDe = (l: LinhaLead) =>
-    por === 'proprietario'
-      ? (l.proprietario ?? 'Sem proprietário')
-      : por === 'origem'
-        ? (l.origem ?? 'Sem origem')
-        : por === 'fase'
-          ? (l.fase ?? 'Sem fase')
-          : (l.faixa ?? 'Sem score');
-
-  const mapa = new Map<string, LinhaLead[]>();
-  for (const l of linhas) {
-    const chave = chaveDe(l);
-    const atual = mapa.get(chave);
-    if (atual) atual.push(l);
-    else mapa.set(chave, [l]);
-  }
-  return [...mapa.entries()]
-    .map(([titulo, dela]) => ({ titulo, linhas: dela }))
-    .sort((a, b) => b.linhas.length - a.linhas.length);
-}
+const COLUNA_SQL = {
+  lead: contato.nome,
+  origem: lead.origem,
+  score: lead.scoreAtual,
+  faixa: lead.faixaAtual,
+  proprietario: usuario.nome,
+  fase: lead.fase,
+  /** Mais dias na fase é `fase_desde` mais antigo. O sentido inverte, e o
+   *  `desc` da coluna vira `asc` da data, resolvido em `ordenacaoSql`. */
+  dias: lead.faseDesde,
+} as const;
 
 export interface ListaDeLeads {
   linhas: LinhaLead[];
@@ -160,11 +106,38 @@ export interface ListaDeLeads {
 }
 
 /**
+ * A cláusula `order by`, com três cuidados que a versão ingênua não tem:
+ *
+ * - **Nulo por último, sempre.** Lead sem score no topo da lista ordenada por
+ *   score é a primeira coisa que alguém reclama. `nulls last` nos dois sentidos.
+ * - **Dias na fase inverte.** "Mais dias" é `fase_desde` mais antigo, então o
+ *   `desc` da coluna é `asc` da data.
+ * - **Desempate estável.** Sem um segundo critério, dois leads de score 60
+ *   trocam de lugar entre recargas, e a lista pisca sem nada ter mudado.
+ */
+function ordenacaoSql(ordem: Ordem, direcao: Direcao) {
+  const recente = desc(lead.criadoEm);
+  if (ordem === 'nenhuma') return [recente];
+
+  const coluna = COLUNA_SQL[ordem];
+  const crescente = ordem === 'dias' ? direcao === 'desc' : direcao === 'asc';
+  return [
+    crescente ? sql`${coluna} asc nulls last` : sql`${coluna} desc nulls last`,
+    recente,
+  ];
+}
+
+/**
  * Lista e contagem das abas na **mesma** transação. Eram duas, mais a do fuso: três
  * transações e três conexões do pool para desenhar uma tela. Dentro daqui as
  * consultas continuam em série, que é obrigatório (README).
  */
-export async function carregarListaDeLeads(aba: Aba, busca: string): Promise<ListaDeLeads> {
+export async function carregarListaDeLeads(
+  aba: Aba,
+  busca: string,
+  ordem: Ordem = 'nenhuma',
+  direcao: Direcao = 'desc',
+): Promise<ListaDeLeads> {
   return consultar(async (tx) => {
     const recorte = {
       todos: undefined,
@@ -202,7 +175,7 @@ export async function carregarListaDeLeads(aba: Aba, busca: string): Promise<Lis
       .leftJoin(contato, eq(contato.id, lead.contatoId))
       .leftJoin(usuario, eq(usuario.id, lead.proprietarioId))
       .where(and(isNull(lead.excluidoEm), recorte, filtroBusca))
-      .orderBy(desc(lead.criadoEm))
+      .orderBy(...ordenacaoSql(ordem, direcao))
       .limit(LIMITE_LISTA);
 
     const filas = await filasPorFaixa(tx);
@@ -619,4 +592,68 @@ async function carregarLinhaDoTempo(
   }
 
   return itens.sort((a, b) => b.em.getTime() - a.em.getTime()).slice(0, 40);
+}
+
+/* ------------------------------------------------------- ações em massa */
+
+/** Quem pode receber um lead: usuário ativo do tenant, em ordem alfabética. */
+export async function listarProprietarios(): Promise<Proprietario[]> {
+  return consultar(async (tx) =>
+    tx
+      .select({ id: usuario.id, nome: usuario.nome })
+      .from(usuario)
+      .where(eq(usuario.ativo, true))
+      .orderBy(usuario.nome),
+  );
+}
+
+/**
+ * Passar N leads para um proprietário.
+ *
+ * O `where` repete `excluido_em is null` mesmo com os ids vindo de uma lista que
+ * a tela acabou de desenhar: entre desenhar e clicar cabe uma exclusão, e a
+ * escrita é a última chance de recusá-la.
+ *
+ * Devolve quantas linhas mudaram — é o que a tela precisa para dizer "3 de 4",
+ * em vez de afirmar sucesso sobre linhas que não existem mais.
+ */
+export async function atribuirProprietario(ids: string[], proprietarioId: string): Promise<number> {
+  if (ids.length === 0) return 0;
+  return consultar(async (tx) => {
+    const mudadas = await tx
+      .update(lead)
+      .set({ proprietarioId, atualizadoEm: sql`now()` })
+      .where(and(inArray(lead.id, ids), isNull(lead.excluidoEm)))
+      .returning({ id: lead.id });
+    return mudadas.length;
+  });
+}
+
+/**
+ * Desqualificar N leads.
+ *
+ * Lead já convertido não volta atrás: virou oportunidade, e desqualificar o que
+ * já virou receita é o tipo de escrita em massa que ninguém desfaz. Ele é
+ * excluído do `where`, e a contagem devolvida mostra a diferença.
+ */
+export async function desqualificarLeads(ids: string[]): Promise<number> {
+  if (ids.length === 0) return 0;
+  return consultar(async (tx) => {
+    const mudadas = await tx
+      .update(lead)
+      .set({
+        status: 'desqualificado',
+        desqualificadoEm: sql`now()`,
+        atualizadoEm: sql`now()`,
+      })
+      .where(
+        and(
+          inArray(lead.id, ids),
+          isNull(lead.excluidoEm),
+          sql`${lead.status} <> 'convertido'`,
+        ),
+      )
+      .returning({ id: lead.id });
+    return mudadas.length;
+  });
 }
