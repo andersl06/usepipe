@@ -27,14 +27,14 @@ async function chavesDeTeste() {
 }
 
 async function assinar(
-  privateKey: CryptoKey | Uint8Array,
+  privateKey: Parameters<SignJWT['sign']>[0],
   reivindicacoes: Record<string, unknown>,
 ): Promise<string> {
   return new SignJWT(reivindicacoes)
     .setProtectedHeader({ alg: 'RS256' })
     .setIssuedAt()
     .setExpirationTime('5m')
-    .sign(privateKey as Parameters<SignJWT['sign']>[0]);
+    .sign(privateKey);
 }
 
 describe('login com Google', () => {

@@ -47,8 +47,10 @@ export const RECUSAS_DE_ENTRADA = [
   'sem_convite',
   /** Estava dentro e o acesso foi desativado. Saída: falar com o administrador. */
   'usuario_inativo',
-  /** O Google não confirmou o e-mail. Saída: verificar a conta no Google. */
+  /** O provedor não confirmou o e-mail. Saída: verificar a conta no provedor. */
   'email_nao_verificado',
+  /** A empresa exige SSO. Saída: entrar pelo provedor de identidade dela. */
+  'sso_obrigatorio',
   /** Falha na conversa com o Google. Saída: tentar de novo. */
   'falha_no_provedor',
 ] as const;

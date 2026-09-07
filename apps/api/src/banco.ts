@@ -60,7 +60,7 @@ const cacheDeCanal = new Map<string, CanalResolvido>();
  */
 let chaveiroGuardado: Chaveiro | null = null;
 
-function chaveiro(): Chaveiro {
+export function chaveiro(): Chaveiro {
   chaveiroGuardado ??= chaveiroDoAmbiente();
   return chaveiroGuardado;
 }

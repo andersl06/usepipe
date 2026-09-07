@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { criarToken, hashDoToken } from '@pipe/autenticacao';
+import { EntradaRecusada, criarToken, hashDoToken } from '@pipe/autenticacao';
 import type { PessoaDoGoogle } from '@pipe/autenticacao';
 import type { TransacaoPipe } from '@pipe/db';
 import { bancoDono, noTenant } from '../banco.js';
@@ -325,6 +325,20 @@ async function ligarEEntrar(
             ${pessoa.email}, now())
     on conflict (emissor, sujeito) do nothing
   `);
+
+  // §6 da pesquisa de SSO: a política é conferida NO SERVIDOR em todo caminho
+  // que emite sessão, e o convite por link é um deles. Sem esta linha, um tenant
+  // que exige SSO continua entrando pelo Google se alguém tiver um convite na
+  // mão — é a porta dos fundos clássica, irmã do "esqueci minha senha".
+  const { rows: politica } = await tx.execute<{ politica: string }>(
+    sql`select politica from conexao_sso where tenant_id = ${tenantId}::uuid limit 1`,
+  );
+  if (politica[0]?.politica === 'obrigatorio') {
+    throw new EntradaRecusada(
+      'sso_obrigatorio',
+      'Esta empresa entra pelo provedor de identidade dela. Use o link de SSO.',
+    );
+  }
 
   const novo = criarToken();
   await tx.execute(sql`

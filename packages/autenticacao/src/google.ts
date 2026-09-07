@@ -98,14 +98,26 @@ export function urlDeAutorizacao(config: ConfigDoGoogle, desafio: DesafioDeLogin
   return `${GOOGLE.autorizacao}?${parametros.toString()}`;
 }
 
-export interface PessoaDoGoogle {
+/**
+ * Quem o provedor disse que é — Google ou o IdP do cliente, o formato é o mesmo.
+ *
+ * `sujeito` é o identificador estável da conta NO PROVEDOR, e junto com `emissor`
+ * forma a chave real: `sub` no Google e no OIDC comum, `{tid}:{oid}` no Entra
+ * (ver `oidc.ts`). `emailVerificado` é a resposta do provedor à pergunta "o dono
+ * do domínio confirmou este endereço?", e é o que autoriza — ou não — casar esta
+ * identidade com um usuário que já existe.
+ */
+export interface PessoaExterna {
   emissor: string;
-  /** O `sub`. É ele que identifica a conta, e ele nunca muda. */
   sujeito: string;
   email: string;
+  emailVerificado: boolean;
   nome: string | undefined;
   avatarUrl: string | undefined;
 }
+
+/** O Google é um caso de `PessoaExterna`, não um formato à parte. */
+export type PessoaDoGoogle = PessoaExterna;
 
 const jwks = createRemoteJWKSet(new URL(GOOGLE.jwks));
 
@@ -188,6 +200,8 @@ export async function verificarIdToken(
     emissor: GOOGLE.emissor,
     sujeito,
     email,
+    // Sempre `true`: a linha acima recusa qualquer outra coisa.
+    emailVerificado: true,
     nome: typeof payload['name'] === 'string' ? payload['name'] : undefined,
     avatarUrl: typeof payload['picture'] === 'string' ? payload['picture'] : undefined,
   };

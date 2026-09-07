@@ -11,6 +11,7 @@ import {
 import { ControladorConvites, ControladorDominios } from './controladores/convites.js';
 import { ControladorEntrada, ControladorEu } from './controladores/entrar.js';
 import { ControladorOperacao } from './controladores/operacao.js';
+import { ControladorConexaoSso, ControladorEntradaSso } from './controladores/sso.js';
 import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js';
 
 /**
@@ -30,7 +31,9 @@ import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js
   controllers: [
     ControladorWebhookWhatsApp,
     ControladorEntrada,
+    ControladorEntradaSso,
     ControladorEu,
+    ControladorConexaoSso,
     ControladorConvites,
     ControladorDominios,
     ControladorOperacao,

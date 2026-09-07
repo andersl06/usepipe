@@ -37,7 +37,7 @@ import type { RequisicaoComSessao } from '../sessao.js';
  */
 
 /** Onde o desafio espera a volta do Google. Cinco minutos é a vida útil de um login. */
-const COOKIE_DESAFIO = 'pipe_desafio';
+export const COOKIE_DESAFIO = 'pipe_desafio';
 const DESAFIO_SEGUNDOS = 300;
 
 /** `Path` do desafio: ele só serve às duas rotas de `/v1/auth`, e não sai delas. */
@@ -58,7 +58,7 @@ function urlDoApp(): string {
   return (process.env['PIPE_URL_APP'] ?? 'http://localhost:3000').replace(/\/$/, '');
 }
 
-function urlDeErro(codigo: RecusaDeEntrada): string {
+export function urlDeErro(codigo: RecusaDeEntrada): string {
   const url = new URL(process.env['PIPE_URL_ENTRADA'] ?? `${urlDoApp()}/entrar`);
   url.searchParams.set('erro', codigo);
   return url.toString();
@@ -70,7 +70,7 @@ function urlDeErro(codigo: RecusaDeEntrada): string {
  * destino absoluto vira redirecionamento aberto, que é phishing usando o nosso
  * domínio como trampolim.
  */
-function destinoAbsoluto(destino: string): string {
+export function destinoAbsoluto(destino: string): string {
   const interno = destino.startsWith('/') && !destino.startsWith('//') ? destino : '/';
   return `${urlDoApp()}${interno}`;
 }
@@ -82,9 +82,15 @@ function destinoAbsoluto(destino: string): string {
  * Google e voltar: sem isso, a volta não teria como saber que aquela conta acabou
  * de ser convidada, e cairia na recusa por domínio desconhecido.
  */
-type DesafioComConvite = DesafioDeLogin & { convite?: string };
+export type DesafioComConvite = DesafioDeLogin & {
+  convite?: string;
+  /** O tenant que iniciou o fluxo de SSO. É ele que decide de quem é a pessoa. */
+  tenantId?: string;
+  /** Fluxo de teste da conexão: valida tudo e NÃO cria sessão. */
+  teste?: boolean;
+};
 
-function cookieDoDesafio(desafio: DesafioComConvite | null): string {
+export function cookieDoDesafio(desafio: DesafioComConvite | null): string {
   const opcoes = opcoesDeCookie();
   const valor = desafio ? Buffer.from(JSON.stringify(desafio)).toString('base64url') : '';
   const partes = [
@@ -108,7 +114,7 @@ function cookieDoDesafio(desafio: DesafioComConvite | null): string {
  * próprio dono do navegador forjar o próprio login — que é o que ele já pode fazer.
  * `HttpOnly` mantém o valor fora do alcance de script, que é o que importa.
  */
-function lerDesafio(requisicao: Request): DesafioComConvite | null {
+export function lerDesafio(requisicao: Request): DesafioComConvite | null {
   const cru = lerCookie(requisicao.header('cookie'), COOKIE_DESAFIO);
   if (!cru) return null;
   try {
@@ -122,7 +128,12 @@ function lerDesafio(requisicao: Request): DesafioComConvite | null {
 
 /** Traduz o erro para um código do contrato. É o que a tela de entrada sabe ler. */
 export function codigoDaRecusa(erro: unknown): RecusaDeEntrada {
-  if (erro instanceof EntradaRecusada) return erro.codigo;
+  if (erro instanceof EntradaRecusada) {
+    // Conta do provedor que já é de outro cliente: para quem está entrando é a
+    // mesma coisa que não ter sido convidado, e dizer mais contaria que aquele
+    // e-mail existe em outra empresa do Pipe.
+    return erro.codigo === 'outro_tenant' ? 'sem_convite' : erro.codigo;
+  }
   if (erro instanceof LoginErro && erro.codigo === 'email_nao_verificado') {
     return 'email_nao_verificado';
   }
@@ -136,7 +147,7 @@ export function codigoDaRecusa(erro: unknown): RecusaDeEntrada {
   return 'falha_no_provedor';
 }
 
-function textoDaQuery(requisicao: Request, campo: string): string | undefined {
+export function textoDaQuery(requisicao: Request, campo: string): string | undefined {
   const valor = requisicao.query[campo];
   return typeof valor === 'string' ? valor : undefined;
 }

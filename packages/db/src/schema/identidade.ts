@@ -297,6 +297,59 @@ export const dominioTenant = pgTable(
 );
 
 /**
+ * A conexão de SSO do tenant — o espelho fino da configuração do IdP dele.
+ *
+ * **Uma por tenant**, e por isso o único em `tenant_id`: a empresa entra por um
+ * diretório, não por três, e permitir vários transformaria a descoberta por
+ * domínio numa escolha ambígua justo no momento em que ninguém está logado para
+ * desempatar.
+ *
+ * **Estado e política são dois campos, não um.** `estado` diz se a conexão
+ * funciona (`rascunho` → `testada` → `ativa`); `politica` diz se a senha ainda
+ * vale (`desligado` → `opcional` → `obrigatorio`). Todo incidente de "o cliente
+ * inteiro ficou de fora" nasce de serem o mesmo botão — ver
+ * `docs/pesquisa/sso-multi-tenant.md` §3 e §6.
+ *
+ * **Segredo não mora aqui em claro.** O `clientSecret` vive dentro de `config`,
+ * cifrado por `cifrarConfig` (`packages/db/src/segredo.ts`), que já trata
+ * `clientSecret` como campo secreto justamente para isto. O que um `pg_dump`
+ * entrega é envelope, não credencial.
+ */
+export const TIPOS_CONEXAO_SSO = ['oidc'] as const;
+export const ESTADOS_CONEXAO_SSO = ['rascunho', 'testada', 'ativa'] as const;
+export const POLITICAS_SSO = ['desligado', 'opcional', 'obrigatorio'] as const;
+export const PROVEDORES_SSO = ['generico', 'entra', 'google_workspace', 'okta'] as const;
+
+export const conexaoSso = pgTable(
+  'conexao_sso',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    tipo: text('tipo').notNull().default('oidc'),
+    /** Qual IdP. Muda a leitura dos claims — no Entra o sujeito é `{tid}:{oid}`. */
+    provedor: text('provedor').notNull().default('generico'),
+    /** O emissor OIDC, de onde sai `.well-known/openid-configuration`. */
+    emissor: text('emissor').notNull(),
+    clienteId: text('cliente_id').notNull(),
+    /** `{ clientSecret }` cifrado. Nunca texto claro. */
+    config: jsonb('config').notNull().default(sql`'{}'::jsonb`),
+    estado: text('estado').notNull().default('rascunho'),
+    politica: text('politica').notNull().default('desligado'),
+    /** Quando o teste passou. Vale 30 dias: conexão testada em 2024 não prova nada hoje. */
+    testadaEm: momento('testada_em'),
+    ativadaEm: momento('ativada_em'),
+    ...carimbos(),
+  },
+  (t) => [
+    uniqueIndex('conexao_sso_tenant_uk').on(t.tenantId),
+    listaCheck('conexao_sso_tipo_ck', t.tipo, TIPOS_CONEXAO_SSO),
+    listaCheck('conexao_sso_provedor_ck', t.provedor, PROVEDORES_SSO),
+    listaCheck('conexao_sso_estado_ck', t.estado, ESTADOS_CONEXAO_SSO),
+    listaCheck('conexao_sso_politica_ck', t.politica, POLITICAS_SSO),
+  ],
+);
+
+/**
  * Chave de API e de MCP. O segredo nunca é guardado em claro: fica o `hash` e um
  * `prefixo` visível, que é o que a tela mostra para o cliente reconhecer a chave.
  * Escopo de escrita é separado de escopo de leitura (§4.6 da spec).

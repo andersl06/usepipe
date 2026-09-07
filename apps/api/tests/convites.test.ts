@@ -93,6 +93,7 @@ function pessoaDoGoogle(email: string, sujeito = randomUUID()) {
     emissor: 'https://accounts.google.com',
     sujeito,
     email,
+    emailVerificado: true,
     nome: 'Convidada Teste',
     avatarUrl: undefined,
   };
