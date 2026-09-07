@@ -87,6 +87,18 @@ const MODULOS: readonly Modulo[] = [
   },
 ];
 
+/*
+ * A barra deles mostra CINCO módulos e joga o resto no "…". O corte é por
+ * CONTAGEM, não por largura disponível: eles fatiam a lista em cinco e o que
+ * sobra vira o menu do "…", que só é renderizado quando sobra alguma coisa.
+ *
+ * Registrado aqui porque é a regra que decide o que a barra faz no dia em que
+ * o sexto módulo nascer — e, com cinco, ela faz o "…" sumir.
+ */
+const LIMITE_VISIVEL = 5;
+const VISIVEIS = MODULOS.slice(0, LIMITE_VISIVEL);
+const EXCEDENTES = MODULOS.slice(LIMITE_VISIVEL);
+
 /** O módulo dono do caminho. A raiz mais longa ganha, senão `/` levaria tudo. */
 function moduloDoCaminho(caminho: string): Modulo {
   let escolhido = MODULOS[1]!;
@@ -235,10 +247,11 @@ function BarraSuperior({ dados }: { dados: DadosDoCabecalho }) {
           </summary>
           <div className="g-painel">
             <b>Avisos</b>
+            {/* O estado vazio é o deles, literal. */}
             <p>
               {dados.avisos > 0
                 ? `${dados.avisos} pausa(s) acima da duração sugerida pelo motivo.`
-                : 'Nenhuma pausa acima da duração sugerida pelo motivo.'}
+                : 'Você não tem nenhuma notificação'}
             </p>
             <Link href="/">Ver o status dos atendentes</Link>
           </div>
@@ -334,27 +347,30 @@ function BarraInferior({ dados, caminho }: { dados: DadosDoCabecalho; caminho: s
       </details>
 
       <nav className="g-modulos" aria-label="Módulos">
-        {MODULOS.map((m) => (
+        {VISIVEIS.map((m) => (
           <Link key={m.href} href={m.href} aria-current={m === ativo ? 'page' : undefined}>
             {m.rotulo}
           </Link>
         ))}
 
-        {/* O "…" deles, no fim da fileira. Aqui ele abre o mapa dos módulos —
-            uma linha por módulo dizendo o que mora lá. */}
-        <details className="g-menu g-mais">
-          <summary className="g-iconbtn" title="Todos os módulos" aria-label="Todos os módulos">
-            <IconeGestao nome="reticencias" tamanho={24} />
-          </summary>
-          <div className="g-painel">
-            <b>Os módulos</b>
-            {MODULOS.map((m) => (
-              <Link key={m.href} href={m.href}>
-                {m.rotulo} <span className="g-tipo">{m.resumo}</span>
-              </Link>
-            ))}
-          </div>
-        </details>
+        {/* O "…" só existe quando SOBRA módulo, e mostra exatamente o que
+            sobrou. Ver a nota de `LIMITE_VISIVEL`. Com cinco módulos ele não
+            aparece, e é assim que tem de ser: um "…" que abre a mesma fileira
+            que já está na tela é cromo fingindo que há mais coisa. */}
+        {EXCEDENTES.length > 0 ? (
+          <details className="g-menu g-mais">
+            <summary className="g-iconbtn" title="Mais módulos" aria-label="Mais módulos">
+              <IconeGestao nome="reticencias" tamanho={24} />
+            </summary>
+            <div className="g-painel">
+              {EXCEDENTES.map((m) => (
+                <Link key={m.href} href={m.href}>
+                  {m.rotulo} <span className="g-tipo">{m.resumo}</span>
+                </Link>
+              ))}
+            </div>
+          </details>
+        ) : null}
       </nav>
 
       <nav className="g-barra-fim" aria-label="Atalhos">
@@ -403,9 +419,11 @@ function Lateral({ caminho }: { caminho: string }) {
           ))}
         </div>
 
+        {/* Marca à esquerda, ícone de "abre fora" à direita — os dois extremos
+            do rodapé deles. Ver `blip-gestao-medidas.md` §4.2. */}
         <a className="g-lateral-rodape" href={URL_DESK} target="_blank" rel="noreferrer">
-          <IconeGestao nome="externo" tamanho={20} />
           Pipe Desk
+          <IconeGestao nome="externo" tamanho={20} />
         </a>
       </nav>
     );
@@ -436,16 +454,25 @@ function Lateral({ caminho }: { caminho: string }) {
                 {g.rotulo}
                 <IconeGestao nome="baixo" tamanho={20} />
               </summary>
-              {g.filhos.map((f) => (
-                <Link
-                  key={f.href}
-                  href={f.href}
-                  className="g-subitem"
-                  aria-current={estaAtivo(f.href, caminho) ? 'page' : undefined}
-                >
-                  {f.rotulo}
-                </Link>
-              ))}
+              {/* Os filhos vivem num contêiner próprio porque o grupo aberto
+                  deles NÃO é uma lista solta: é uma lista recuada 23px ao lado
+                  de uma GUIA VERTICAL de 2px que corre do primeiro ao último
+                  filho. A guia é o que diz "estes pertencem àquele" quando dois
+                  grupos estão abertos ao mesmo tempo, e a barra do item ativo
+                  monta em cima dela, no mesmo x. Sem um contêiner não há onde
+                  ancorar a guia. Medida em `blip-gestao-medidas.md` §4. */}
+              <div className="g-grupo-filhos">
+                {g.filhos.map((f) => (
+                  <Link
+                    key={f.href}
+                    href={f.href}
+                    className="g-subitem"
+                    aria-current={estaAtivo(f.href, caminho) ? 'page' : undefined}
+                  >
+                    {f.rotulo}
+                  </Link>
+                ))}
+              </div>
             </details>
           );
         })}
@@ -453,8 +480,8 @@ function Lateral({ caminho }: { caminho: string }) {
 
       {/* Rodapé: o app do atendente vive em outra origem, como o "blipdesk" deles. */}
       <a className="g-lateral-rodape" href={URL_DESK} target="_blank" rel="noreferrer">
-        <IconeGestao nome="externo" tamanho={20} />
         Pipe Desk
+        <IconeGestao nome="externo" tamanho={20} />
       </a>
     </nav>
   );

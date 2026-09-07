@@ -146,6 +146,18 @@
   --g-barra-fraca: color-mix(in srgb, var(--g-barra-tinta) 64%, transparent);
   --g-barra-linha: color-mix(in srgb, var(--g-barra-tinta) 14%, transparent);
   --g-barra-hover: color-mix(in srgb, var(--g-barra-tinta) 11%, transparent);
+
+  /* CAMADA DE TINTA — a regra de estado do design system deles, lida na folha
+     dos componentes e registrada em `blip-gestao-medidas.md` §3.
+
+     Passagem do cursor e pressionado NÃO trocam a superfície: sobrepõem tinta
+     do conteúdo a 8% e a 16%. É por isso que o mesmo item se lê igual sobre o
+     branco do cartão, sobre o creme da página e sobre a linha de uma tabela —
+     uma troca de superfície escolhe um fundo e erra em todos os outros.
+
+     8% e 16% são os dois degraus deles, e são só dois. */
+  --g-tinta-hover: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+  --g-tinta-pressao: color-mix(in srgb, var(--p-conteudo) 16%, transparent);
 }
 
 .g-barra {
@@ -174,8 +186,12 @@
   background: var(--g-barra-2);
   top: var(--g-barra-sup-h);
   z-index: 30;
-  /* Sem fio embaixo: o módulo ativo precisa dos 56px inteiros para o
-     sublinhado de 4px encostar no pé da barra, como no deles. */
+  /* Sem FIO embaixo — o módulo ativo precisa dos 56px inteiros para o
+     sublinhado de 4px encostar no pé da barra —, mas com SOMBRA: a folha deles
+     põe uma de 12px de raio sob esta barra, e é ela que separa o cromo do
+     conteúdo quando a página rola por baixo. Um fio de 1px faria o sublinhado
+     do módulo ativo parecer que parou 1px antes do fim. */
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--p-conteudo) 15%, transparent);
 }
 
 /* Nome e plano, duas linhas, encostados à esquerda.
@@ -255,13 +271,15 @@
   color: var(--g-barra-tinta);
 }
 
-/* Botão de ícone da barra: sem borda e sem fundo, porque o fundo já é escuro. */
+/* Botão de ícone da barra: sem borda e sem fundo, porque o fundo já é escuro.
+   40×40 é o que o botão de ícone deles mede — 8px de padding em volta de um
+   ícone de 24 — e o raio é o de 8px do padrão, não o do controle pequeno. */
 .g-iconbtn,
 .g-barra .iconbtn {
   width: 40px;
   height: 40px;
   border: 0;
-  border-radius: var(--p-r-sm);
+  border-radius: var(--p-r-md);
   background: transparent;
   color: var(--g-barra-fraca);
   display: grid;
@@ -322,7 +340,9 @@
   right: 0;
   top: calc(100% + 6px);
   z-index: 40;
-  width: 268px;
+  /* 240px é a largura do menu suspenso do design system deles, e não um número
+     escolhido por caber. Ver `blip-gestao-medidas.md` §6. */
+  width: 240px;
   padding: var(--p-e-3);
   background: var(--p-superficie-0);
   color: var(--p-conteudo);
@@ -463,6 +483,11 @@
   font-weight: var(--g-peso-leve);
 }
 
+/* O sublinhado do ativo ENTRA CRESCENDO: nasce em `left: 25%` com largura zero
+   e abre para a largura inteira em 0,3s. É o gesto da barra deles, e ele existe
+   para dizer que a barra reagiu ao clique enquanto o módulo novo ainda carrega.
+   A animação vale só na entrada — quem já chega com o módulo ativo vê o traço
+   pronto, porque o `@keyframes` roda uma vez. */
 .g-modulos > a[aria-current='page']::before {
   content: '';
   position: absolute;
@@ -471,6 +496,18 @@
   width: 100%;
   height: 4px;
   background: var(--g-barra-marca);
+  animation: g-sublinhado var(--p-dur-normal) ease;
+}
+
+@keyframes g-sublinhado {
+  from {
+    left: 25%;
+    width: 0;
+  }
+  to {
+    left: 0;
+    width: 100%;
+  }
 }
 
 /* O "…" no fim da fileira, com o ícone de 24 que eles usam. O painel abre
@@ -478,7 +515,8 @@
 .g-mais {
   display: flex;
   align-items: center;
-  margin-left: var(--p-e-2);
+  /* 10px, que é o recuo do "…" na fileira deles — não os 8 do nosso passo. */
+  margin-left: 10px;
 }
 
 .g-barra-inf .g-mais > summary {
@@ -540,12 +578,17 @@
   gap: var(--p-e-2);
 }
 
+/* O item tem MOLDURA de 1px, transparente em repouso. Ela é o que faz os
+   42px fecharem — 8 + 24 de ícone + 8 + 2 de moldura — e é ela que acende no
+   hover e no ativo, na tinta de 16%. Sem a moldura declarada, ligar a borda no
+   hover empurraria o conteúdo 1px e o item tremeria sob o cursor. */
 .g-item {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
   height: 42px;
   padding: var(--p-e-2);
+  border: 1px solid transparent;
   border-radius: var(--p-r-md);
   font-size: var(--g-t-item);
   font-weight: var(--g-peso-forte);
@@ -564,14 +607,22 @@
   color: var(--p-conteudo-desabilitado);
 }
 
-.g-item:hover,
-.g-subitem:hover {
-  background: var(--p-superficie-2);
+/* Hover e pressionado são CAMADA DE TINTA, não troca de superfície: 8% e
+   16% do conteúdo, os dois degraus deles. Ver o comentário de
+   `--g-tinta-hover` lá em cima. */
+.g-item:hover {
+  background: var(--g-tinta-hover);
+  border-color: var(--g-tinta-pressao);
 }
 
-/* Ativo: fundo de estado, rótulo 700 e o ícone na cor de marca. */
+.g-item:active {
+  background: var(--g-tinta-pressao);
+}
+
+/* Ativo: fundo de estado, moldura acesa, rótulo 700 e o ícone na cor de marca. */
 .g-item[aria-current='page'] {
   background: var(--g-ativo-fundo);
+  border-color: var(--g-tinta-pressao);
   font-weight: var(--g-peso-negrito);
 }
 
@@ -582,6 +633,7 @@
 /* O grupo aberto também recebe o realce, como na lateral deles. */
 .g-grupo[open] > .g-item {
   background: var(--g-ativo-fundo);
+  border-color: var(--g-tinta-pressao);
   font-weight: var(--g-peso-negrito);
 }
 
@@ -589,11 +641,38 @@
   color: var(--p-marca);
 }
 
-/* Cabeçalho e filhos separados por 8px, como todo o resto da lateral. */
+/* O grupo não separa nada por conta própria: quem dá o respiro de 8px acima
+   do primeiro filho e abaixo do último é o contêiner dos filhos, com o seu
+   `padding: 8px 0`. Somar um `gap` aqui dobraria esse respiro para 16px. */
 .g-grupo {
   display: flex;
   flex-direction: column;
+  gap: 0;
+}
+
+/* ---------------------------------------------- os filhos do grupo aberto
+   Recuo de 23px e a GUIA VERTICAL de 2px encostada na borda do recuo, indo do
+   topo do primeiro filho ao pé do último. Ela é tinta de 8% a 80% de
+   opacidade — presente, e discreta o bastante para a barra do item ativo
+   montar em cima dela sem disputa. */
+.g-grupo-filhos {
+  position: relative;
+  display: flex;
+  flex-direction: column;
   gap: var(--p-e-2);
+  padding: var(--p-e-2) 0 var(--p-e-2) 23px;
+}
+
+.g-grupo-filhos::before {
+  content: '';
+  position: absolute;
+  left: 23px;
+  top: var(--p-e-2);
+  bottom: var(--p-e-2);
+  width: 2px;
+  border-radius: var(--p-r-md);
+  background: var(--g-tinta-hover);
+  opacity: 0.8;
 }
 
 /* A seta do grupo gira ao abrir — é o mesmo gesto da tela deles. */
@@ -606,20 +685,54 @@
   transform: rotate(180deg);
 }
 
-/* Subitem: caixa recuada 37px, rótulo alinhado 5px à direita do rótulo do
-   pai, e a barra de 2px do ativo encostada 15px à esquerda da caixa. */
+/* Subitem: 22px de padding à esquerda dentro do recuo de 23px do contêiner —
+   os 45px que põem o rótulo do filho 5px à direita do rótulo do pai, que fica
+   em 40px (8 de padding + 24 de ícone + 8 de gap).
+
+   A barra de 2px NÃO é exclusiva do ativo: ela existe sempre, encostada em
+   `left: 0` — exatamente sobre a guia do grupo —, transparente em repouso, na
+   tinta de 16% sob o cursor e na cor de marca no ativo. É o mesmo gesto de
+   três estados da lateral deles; ter só o estado ativo fazia o subitem sob o
+   cursor não dizer para onde ia. */
 .g-subitem {
   position: relative;
   display: flex;
   align-items: center;
   height: 39px;
-  margin-left: 37px;
-  padding: var(--p-e-2);
+  padding: var(--p-e-2) var(--p-e-2) var(--p-e-2) 22px;
   border-radius: var(--p-r-md);
   font-size: var(--g-t-item);
   font-weight: var(--g-peso-forte);
   color: var(--p-conteudo);
   text-decoration: none;
+}
+
+.g-subitem::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: var(--p-e-2);
+  bottom: var(--p-e-2);
+  width: 2px;
+  border-radius: var(--p-r-md);
+  background: transparent;
+  /* Acende depressa e apaga devagar, como na deles: 0,3s para entrar e 0,8s
+     para sair. É o que impede a lateral de piscar quando o cursor atravessa
+     a lista para chegar no item de baixo. */
+  transition: background-color 0.8s ease;
+}
+
+.g-subitem:hover {
+  background: var(--g-tinta-hover);
+}
+
+.g-subitem:hover::before {
+  background: var(--g-tinta-pressao);
+  transition-duration: var(--p-dur-normal);
+}
+
+.g-subitem:active {
+  background: var(--g-tinta-pressao);
 }
 
 .g-subitem[aria-current='page'] {
@@ -628,24 +741,23 @@
 }
 
 .g-subitem[aria-current='page']::before {
-  content: '';
-  position: absolute;
-  left: -15px;
-  top: 50%;
-  transform: translateY(-50%);
-  width: 2px;
-  height: 21px;
-  border-radius: var(--p-r-md);
   background: var(--p-marca);
+  transition-duration: var(--p-dur-normal);
 }
 
+/* Rodapé da lateral: 72px, 24px de padding, FIO EM CIMA e os dois extremos
+   afastados — a marca do outro app à esquerda, o ícone de "abre fora" à
+   direita. O fio e o `space-between` estavam faltando; sem eles o rodapé
+   flutuava colado no último item do menu e parecia mais um item da lista. */
 .g-lateral-rodape {
   margin-top: auto;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: var(--p-e-2);
   height: 72px;
   padding: var(--p-e-6);
+  border-top: 1px solid var(--p-linha);
   font-size: var(--g-t-item);
   font-weight: var(--g-peso-forte);
   color: var(--p-conteudo-desabilitado);
@@ -664,9 +776,29 @@
 
    O critério de densidade que apertava isso está revogado — ver o comentário
    dos token de barra lá em cima. */
+/* O padding lateral da área de conteúdo é PROPORCIONAL, não fixo: `32px 2%`.
+   Era isto que produzia os 28,47px medidos no DOM em 1707px de largura — 2% da
+   área que sobra depois da lateral. Fixar em 28px acertava aquela largura e
+   errava todas as outras. */
 .p-conteudo {
   gap: var(--g-grade-gap);
-  padding: var(--p-e-8) 28px var(--p-e-10);
+  padding: var(--p-e-8) 2% var(--p-e-10);
+}
+
+/* E a área de conteúdo tem TETO: em tela muito larga ela para de crescer e
+   centraliza. É a regra deles, e existe porque uma tabela de 2400px de largura
+   não se lê — o olho perde a linha entre a primeira coluna e a última. */
+@media (min-width: 1920px) {
+  .p-conteudo {
+    width: 90%;
+    margin: 0 auto;
+  }
+}
+
+@media (min-width: 2560px) {
+  .p-conteudo {
+    width: 85%;
+  }
 }
 
 .board-head {
@@ -1011,7 +1143,7 @@
 
 /* ================================================ o cartão da tabela
    Mesma geometria do cartão de métricas: padding 20, raio 16, sem borda e com
-   a sombra da casa. A tabela deles vive dentro de um `bds-paper` igual. */
+   a sombra da casa. A tabela deles vive dentro do mesmo cartão. */
 .tblwrap {
   border: 0;
   border-radius: var(--g-r-cartao);
@@ -1085,6 +1217,58 @@
 .tblwrap th:first-child,
 .tblwrap td:first-child {
   padding-left: var(--p-e-4);
+}
+
+/* Estado vazio em três partes — título, explicação e saída —, na disposição
+   deles: empilhado e centralizado, com o botão embaixo. */
+.tblwrap .vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--p-e-2);
+  text-align: center;
+}
+
+.tblwrap .vazio b {
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-bloco);
+  color: var(--p-conteudo);
+}
+
+.tblwrap .vazio p {
+  margin: 0;
+  max-width: 44ch;
+}
+
+/* A legenda do destaque amarelo, sob a tabela. */
+.tbl-legenda {
+  margin: var(--p-e-3) 0 0;
+  font-size: var(--g-t-rotulo);
+  line-height: var(--g-lh-rotulo);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* "Aguardando..." no lugar do número que ainda não existe: é texto, não
+   medida, então sai da monoespaçada e da tinta cheia. */
+.g-vazio-espera {
+  color: var(--p-conteudo-fantasma);
+}
+
+/* A coluna de tempo de atendimento carrega o indicador de SLA ao lado do
+   número, e não numa coluna própria — é onde ele mora na tela deles. O número
+   continua monoespaçado e tabular, porque ele ainda é uma coluna de tempo que
+   precisa alinhar de cima a baixo. */
+.tblwrap td.tempo-sla {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  white-space: nowrap;
+}
+
+.tblwrap td.tempo-sla > .num {
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
 }
 
 /* ------------------------------------------------- busca dentro do cartão
@@ -1178,7 +1362,7 @@
    A estrutura de bloco das telas de Relatório deles, medida em
    `blip-medidas-monitoramento.md` §6.2: um cartão que CONTÉM cartões.
 
-   Lá: página branca, bloco `#f6f6f6`, cartão interno branco — três degraus,
+   Lá: página branca, bloco um degrau abaixo, cartão interno branco — três degraus,
    com o bloco no meio. Aqui a página é o creme da marca, então o bloco desce
    para o recesso (`--p-superficie-2`) e o cartão interno sobe para o branco
    (`--p-superficie-0`). O que se copia é a RELAÇÃO — o bloco é a bandeja, o

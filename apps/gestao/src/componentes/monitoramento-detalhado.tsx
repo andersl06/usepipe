@@ -18,8 +18,16 @@ import { IconeGestao } from './icones-gestao';
  * registrada no §3 do desenho.
  */
 
+/*
+ * Os rótulos das abas são os DELES, literais, lidos no pacote do módulo de
+ * Atendimento (`blip-gestao-medidas.md` §8). A última é a exceção consciente:
+ * lá ela se chama "Tags" e aqui se chama "Etiquetas", porque `etiqueta` é o
+ * nome do componente e da coluna no nosso domínio inteiro — trocar só o rótulo
+ * desta aba daria dois nomes para a mesma coisa, que é justamente a confusão
+ * que manter o vocabulário deles evita.
+ */
 const ABAS = [
-  { chave: 'atribuido', rotulo: 'Atribuído / em andamento' },
+  { chave: 'atribuido', rotulo: 'Atribuído/Em andamento' },
   { chave: 'aguardando', rotulo: 'Aguardando atendimento' },
   { chave: 'atendentes', rotulo: 'Atendentes' },
   { chave: 'filas', rotulo: 'Filas' },
@@ -42,10 +50,81 @@ function querystring(filtro: Filtro, aba: string): URLSearchParams {
   return p;
 }
 
+/**
+ * Severidade da linha, em três degraus e nesta ordem de precedência.
+ *
+ * O terceiro degrau é regra deles, e estava faltando: **a linha fica destacada
+ * enquanto o contato aguarda a 1ª resposta do atendente**
+ * (`blip-gestao-funcoes.md` §1). É o único destaque da tela que não vem de SLA,
+ * e existe porque a espera pela primeira resposta é a que o cliente sente e a
+ * que a régua de SLA às vezes ainda considera dentro do prazo.
+ *
+ * O SLA estourado ganha do resto porque já passou do prazo; o alerta e a espera
+ * pela 1ª resposta dividem o mesmo degrau amarelo, e ter os dois na mesma cor é
+ * de propósito — os dois pedem a mesma coisa do supervisor.
+ */
 function classeDaLinha(linha: LinhaConversaAberta): string | undefined {
   if (linha.sla.estado === 'estourado') return 'critico';
   if (linha.sla.estado === 'alerta') return 'grave';
+  if (linha.primeiraRespostaCorrendo) return 'grave';
   return undefined;
+}
+
+/** Prioridade por extenso, na ordem da régua: baixa, média, alta. */
+const PRIORIDADE: Record<string, string> = {
+  baixa: 'Baixa',
+  media: 'Média',
+  alta: 'Alta',
+};
+
+/**
+ * A prioridade nasce NEUTRA, como toda etiqueta de categoria. Só a alta recebe
+ * tinta, porque só ela muda o que o supervisor faz agora; pintar os três níveis
+ * transformaria a coluna inteira num carrossel e tiraria o significado do
+ * vermelho no resto da tela.
+ */
+function PillPrioridade({ nivel }: { nivel: string }) {
+  const rotulo = PRIORIDADE[nivel] ?? nivel;
+  return <span className={nivel === 'alta' ? 'etiqueta alerta' : 'etiqueta'}>{rotulo}</span>;
+}
+
+/**
+ * O estado vazio deles, com o texto literal e o botão de redefinir. Título,
+ * explicação e SAÍDA — as três partes. O nosso antigo tinha só a primeira
+ * ("Nenhuma conversa nesta aba com os filtros atuais"), e deixava a pessoa
+ * olhando para a tela sem dizer o que fazer a respeito.
+ */
+function SemDados({ aba }: { aba: string }) {
+  return (
+    <div className="vazio">
+      <b>Nenhum dado encontrado</b>
+      <p>
+        Não encontramos dados com os filtros aplicados. Tente ajustar os filtros ou redefinir a
+        busca para ver outros resultados.
+      </p>
+      <Link className="btn" href={`/?aba=${encodeURIComponent(aba)}`}>
+        Redefinir filtros
+      </Link>
+    </div>
+  );
+}
+
+/** O atalho para abrir a conversa no app do atendente, igual nas duas tabelas. */
+function AcaoAbrir({ id }: { id: string }) {
+  return (
+    <td className="acts">
+      <a
+        className="iconbtn"
+        href={`${URL_DESK}/?conversa=${encodeURIComponent(id)}`}
+        target="_blank"
+        rel="noreferrer"
+        title="Abrir a conversa no Pipe Desk"
+        aria-label="Abrir a conversa no Pipe Desk"
+      >
+        <IconeGestao nome="externo" tamanho={14} />
+      </a>
+    </td>
+  );
 }
 
 /**
@@ -65,28 +144,42 @@ function PillSlaView({ linha }: { linha: LinhaConversaAberta }) {
 }
 
 /**
- * A coluna de Ações voltou, e voltou com uma ação que FUNCIONA: abrir a
- * conversa no Pipe Desk, que é `?conversa=<id>` na outra origem. Ela tinha
- * saído porque os dois botões de antes estavam desabilitados em toda linha, e
- * item que não funciona não aparece. Transferir entra aqui quando abrir.
+ * As duas abas de conversa têm COLUNAS DIFERENTES, e isso é regra deles, não
+ * economia nossa (`blip-gestao-funcoes.md` §1).
+ *
+ * Uma tabela só para as duas era a nossa divergência mais cara: na aba
+ * "Aguardando atendimento" nenhum ticket tem atendente, então as colunas
+ * Atendente, 1ª resposta e Atendimento saíam com travessão em TODA linha, e
+ * três colunas mortas empurravam para fora da tela a única que importa ali —
+ * a prioridade, que é o que decide quem sai da fila primeiro.
+ *
+ * A coluna de Ações é nossa em ambas, e vale nas duas: eles também deixam o
+ * gestor abrir a conversa de um ticket que ainda está na fila.
  */
-function TabelaConversas({ linhas }: { linhas: readonly LinhaConversaAberta[] }) {
-  if (linhas.length === 0) {
-    return <div className="vazio">Nenhuma conversa nesta aba com os filtros atuais.</div>;
-  }
+
+/**
+ * Atribuído / em andamento — na ordem de coluna deles: os dois tempos de
+ * espera, depois quem é e onde está, e o tempo de atendimento no fim, junto do
+ * ticket.
+ *
+ * **O indicador de SLA mora DENTRO da coluna de atendimento**, e não numa
+ * coluna própria. É onde ele fica na tela deles, e faz sentido: SLA é um juízo
+ * sobre aquele tempo, não um dado ao lado dele.
+ */
+function TabelaAtribuidas({ linhas }: { linhas: readonly LinhaConversaAberta[] }) {
+  if (linhas.length === 0) return <SemDados aba="atribuido" />;
   return (
     <div className="scroll">
       <table>
         <thead>
           <tr>
-            <th>Na fila</th>
-            <th>1ª resposta</th>
-            <th>Atendimento</th>
-            <th>Ticket</th>
+            <th>Tempo na fila</th>
+            <th>Tempo de 1ª resposta</th>
             <th>Contato</th>
             <th>Fila</th>
             <th>Atendente</th>
-            <th>SLA</th>
+            <th>Tempo de atendimento</th>
+            <th>Ticket</th>
             <th>Ações</th>
           </tr>
         </thead>
@@ -101,26 +194,75 @@ function TabelaConversas({ linhas }: { linhas: readonly LinhaConversaAberta[] })
                 {duracao(l.primeiraRespostaSeg)}
                 {l.primeiraRespostaCorrendo ? ' ⟳' : ''}
               </td>
-              <td className="num">{duracao(l.atendimentoSeg)}</td>
-              <td className="num">{l.ticket}</td>
               <td className="who">{l.contatoNome}</td>
               <td>{l.filaNome ?? '—'}</td>
               <td>{l.atendenteNome ?? '—'}</td>
+              <td className="tempo-sla">
+                {/* Enquanto não houve 1ª resposta não existe tempo de
+                    atendimento para medir, e o vazio deles não é travessão: é
+                    "Aguardando...". Travessão diz "não se aplica"; "Aguardando"
+                    diz "o cronômetro ainda não começou", que é o caso. */}
+                {l.atendimentoSeg === null ? (
+                  <span className="g-vazio-espera">Aguardando...</span>
+                ) : (
+                  <span className="num">{duracao(l.atendimentoSeg)}</span>
+                )}
+                {l.emEspera ? (
+                  <span className="etiqueta">Em espera</span>
+                ) : (
+                  <PillSlaView linha={l} />
+                )}
+              </td>
+              <td className="num">{l.ticket}</td>
+              <AcaoAbrir id={l.id} />
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      {/* A legenda do destaque amarelo, com a frase deles. Ela mora sob a
+          tabela e existe porque a cor sozinha não diz o que significa. */}
+      <p className="tbl-legenda">
+        O destaque amarelo sinaliza que um ticket foi atribuído a um atendente, mas o contato ainda
+        não recebeu a primeira resposta.
+      </p>
+    </div>
+  );
+}
+
+/**
+ * Aguardando atendimento — as cinco colunas deles: tempo na fila, contato,
+ * fila, ticket e PRIORIDADE. Nada de atendente, porque por definição não há.
+ */
+function TabelaAguardando({ linhas }: { linhas: readonly LinhaConversaAberta[] }) {
+  if (linhas.length === 0) return <SemDados aba="aguardando" />;
+  return (
+    <div className="scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>Tempo na fila</th>
+            <th>Contato</th>
+            <th>Fila</th>
+            <th>Ticket</th>
+            <th>Prioridade</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody>
+          {linhas.map((l) => (
+            <tr key={l.id} className={classeDaLinha(l)}>
+              <td className="num">
+                {duracao(l.naFilaSeg)}
+                {l.filaCorrendo ? ' ⟳' : ''}
+              </td>
+              <td className="who">{l.contatoNome}</td>
+              <td>{l.filaNome ?? '—'}</td>
+              <td className="num">{l.ticket}</td>
               <td>
-                {l.emEspera ? <span className="etiqueta">Em espera</span> : <PillSlaView linha={l} />}
+                <PillPrioridade nivel={l.prioridade} />
               </td>
-              <td className="acts">
-                <a
-                  className="iconbtn"
-                  href={`${URL_DESK}/?conversa=${encodeURIComponent(l.id)}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  title="Abrir a conversa no Pipe Desk"
-                  aria-label="Abrir a conversa no Pipe Desk"
-                >
-                  <IconeGestao nome="externo" tamanho={14} />
-                </a>
-              </td>
+              <AcaoAbrir id={l.id} />
             </tr>
           ))}
         </tbody>
@@ -148,9 +290,11 @@ export function MonitoramentoDetalhado({
   const estadoPorAtendente = new Map(monitoramento.carga.map((a) => [a.id, a.estado]));
 
   const casa = (l: LinhaConversaAberta) => {
-    if (termo && !l.ticket.toLowerCase().includes(termo) && !l.contatoNome.toLowerCase().includes(termo)) {
-      return false;
-    }
+    /* A busca do cartão é PELO NÚMERO DO TICKET, e só. Nome de contato tem
+       campo próprio na faixa de filtros, e é lá que ele mora na tela deles —
+       fazer a busca varrer os dois deixava dois caminhos para a mesma coisa e
+       nenhum dos dois exato. */
+    if (termo && !l.ticket.toLowerCase().includes(termo)) return false;
     if (contato && !l.contatoNome.toLowerCase().includes(contato)) return false;
     if (filtro.status) {
       const estado = l.atendenteId ? estadoPorAtendente.get(l.atendenteId) : undefined;
@@ -169,7 +313,7 @@ export function MonitoramentoDetalhado({
         <span className="qt">{numero(monitoramento.abertas.length)} conversas abertas</span>
 
         {/* A busca da Blip mora AQUI, dentro do cartão, e não na faixa de
-            filtros. Ela varre ticket e contato da tabela. */}
+            filtros. Ela procura pelo número do ticket. */}
         <form className="tbl-busca" method="get" action="/">
           {[...querystring(filtro, aba)]
             .filter(([chave]) => chave !== 'busca')
@@ -181,8 +325,8 @@ export function MonitoramentoDetalhado({
             type="search"
             name="busca"
             defaultValue={busca}
-            placeholder="Buscar ticket ou contato"
-            aria-label="Buscar ticket ou contato"
+            placeholder="Buscar pelo Nº do ticket"
+            aria-label="Buscar pelo Nº do ticket"
           />
         </form>
       </div>
@@ -199,8 +343,8 @@ export function MonitoramentoDetalhado({
         ))}
       </div>
 
-      {aba === 'aguardando' ? <TabelaConversas linhas={aguardando} /> : null}
-      {aba === 'atribuido' ? <TabelaConversas linhas={atribuidas} /> : null}
+      {aba === 'aguardando' ? <TabelaAguardando linhas={aguardando} /> : null}
+      {aba === 'atribuido' ? <TabelaAtribuidas linhas={atribuidas} /> : null}
 
       {aba === 'atendentes' ? (
         <div className="scroll">
@@ -241,8 +385,8 @@ export function MonitoramentoDetalhado({
             <thead>
               <tr>
                 <th>Fila</th>
-                <th>Na fila</th>
-                <th>Em atendimento</th>
+                <th>Tickets aguardando</th>
+                <th>Tickets em atendimento</th>
                 <th>Maior espera</th>
                 <th>Atendentes online</th>
               </tr>
