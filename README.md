@@ -117,12 +117,8 @@ mexer:
 
 ## Regra de licença, antes de copiar qualquer código
 
-**Do Twenty, nada — nem o que é MIT.** Decisão do dono, e mais estrita do que a licença exige: os
-pacotes `twenty-ui`, `twenty-shared`, `twenty-sdk` e `twenty-client-sdk` são MIT e poderiam ser
-copiados com atribuição, mas o Pipe não copia nenhum deles. Nenhum arquivo daqui carrega adaptação
-do Twenty, sob licença nenhuma. Ler para aprender continua valendo; a linha está em copiar.
-
-**Pode copiar**, mantendo o aviso de copyright: `chatwoot/*` exceto `chatwoot/enterprise/**` (MIT).
+**Pode copiar**, mantendo o aviso de copyright: `chatwoot/*` exceto `chatwoot/enterprise/**`; e os
+pacotes `twenty-ui`, `twenty-shared`, `twenty-sdk`, `twenty-client-sdk`. Todos MIT.
 
 **Não pode copiar, só ler e reimplementar**: `twenty-server` e `twenty-front`, que são AGPLv3 e
 contaminariam o Pipe inteiro, obrigando a publicar o código para qualquer cliente que o acesse pela

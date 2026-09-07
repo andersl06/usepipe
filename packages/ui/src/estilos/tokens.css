@@ -1,15 +1,14 @@
 /* ==========================================================================
    Pipe — camada de token. Fonte única dos três aplicativos.
 
-   Escrito aqui, sem base em código de terceiro. Os valores são os do Pipe
-   (docs/marca/MARCA.md); o método veio de MEDIR as referências, que é fato e
-   não expressão.
+   Adaptado de twenty-ui (MIT) — https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeLight.ts
+   O que veio de lá é a arquitetura de tema: papel constante, valor trocado por
+   bloco de tema, e nenhum componente sabendo que tema existe. Os valores são
+   os do Pipe (docs/marca/MARCA.md).
 
-   Estrutura de token pelo método da Blip, medido no bundle real do Blip Desk
-   (docs/pesquisa/blip-design-system.md): 31 tokens de cor na aplicação
-   inteira, organizados por PAPEL e nunca por matiz. O papel fica constante e
-   só o valor troca por bloco de tema — assim nenhum componente precisa saber
-   que tema existe.
+   Estrutura de token copiada do método da Blip, medido no bundle real do Blip
+   Desk (docs/pesquisa/blip-design-system.md): 31 tokens de cor na aplicação
+   inteira, organizados por PAPEL e nunca por matiz.
 
    Cinco regras que este arquivo existe para impor:
 
@@ -149,9 +148,7 @@
   --p-rotulo-espaco: 0.06em;
 
   /* ================================================ espaço (base 4px)
-     Múltiplo de 4: é a régua das duas referências — 4, 8, 12 e 16 dominam o
-     bundle da Blip, e a escala do SLDS tem oito degraus, todos múltiplos de
-     4. Ver `espaco()` em `tema.ts`. */
+     Múltiplo de 4, no formato do `spacing()` do twenty-ui. */
   --p-e-1: 4px;
   --p-e-2: 8px;
   --p-e-3: 12px;
