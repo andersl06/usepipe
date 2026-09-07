@@ -4,12 +4,14 @@ import {
   DIAS_DA_SEMANA,
   dataHora,
   dataIso,
+  dataOuNada,
   denominador,
   duracao,
   duracaoLonga,
   numero,
   percentual,
   relogio,
+  uuidOuNada,
 } from '../src/lib/formato.ts';
 
 /**
@@ -118,4 +120,28 @@ test('a semana começa no domingo, como o Postgres conta', () => {
   assert.equal(DIAS_DA_SEMANA[0], 'Domingo');
   assert.equal(DIAS_DA_SEMANA[6], 'Sábado');
   assert.equal(DIAS_DA_SEMANA.length, 7);
+});
+
+test('filtro da URL que não é UUID vira "sem filtro", nunca consulta', () => {
+  /* `?fila=abc` chegava ao Postgres como `abc::uuid` e derrubava a tela em 500.
+     Filtro torto é, no máximo, filtro ignorado — não é erro de servidor. */
+  assert.equal(
+    uuidOuNada('bed9a832-13d2-456e-a623-5f8de4a91e73'),
+    'bed9a832-13d2-456e-a623-5f8de4a91e73',
+  );
+  assert.equal(uuidOuNada('abc'), undefined);
+  assert.equal(uuidOuNada(''), undefined);
+  assert.equal(uuidOuNada(undefined), undefined);
+  // Quase-UUID: um dígito a mais continua não sendo UUID.
+  assert.equal(uuidOuNada('bed9a832-13d2-456e-a623-5f8de4a91e733'), undefined);
+});
+
+test('data da URL passa só no formato que o Postgres aceita, e existindo no calendário', () => {
+  assert.equal(dataOuNada('2026-09-07'), '2026-09-07');
+  assert.equal(dataOuNada('abc'), undefined);
+  assert.equal(dataOuNada('07/09/2026'), undefined);
+  // 31 de fevereiro passa no formato e não existe: o `::date` recusaria com 500.
+  assert.equal(dataOuNada('2026-02-31'), undefined);
+  assert.equal(dataOuNada('2026-13-01'), undefined);
+  assert.equal(dataOuNada(undefined), undefined);
 });

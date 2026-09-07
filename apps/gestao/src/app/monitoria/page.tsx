@@ -2,7 +2,15 @@ import Link from 'next/link';
 import { fusoDoTenant, janelaDeDatas, janelaDeHoje } from '../../lib/banco';
 import { carregarMonitoria, ROTULO_AVALIADOR, ROTULO_ESTADO_AVALIACAO } from '../../lib/monitoria';
 import { carregarCatalogos } from '../../lib/historico';
-import { dataHora, dataIso, denominador, numero, percentual } from '../../lib/formato';
+import {
+  dataHora,
+  dataIso,
+  dataOuNada,
+  denominador,
+  numero,
+  percentual,
+  uuidOuNada,
+} from '../../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,7 +39,15 @@ interface Busca {
  * cronômetro parado — a mesma separação de §3 que vale para os relatórios.
  */
 export default async function PaginaMonitoria({ searchParams }: { searchParams: Promise<Busca> }) {
-  const params = await searchParams;
+  const crus = await searchParams;
+  /* Conferido na entrada: id torto e data torta viram "sem filtro", em vez de
+     virarem 500 no `::uuid` e no `::date` do Postgres. */
+  const params: Busca = {
+    ...crus,
+    atendente: uuidOuNada(crus.atendente),
+    de: dataOuNada(crus.de),
+    ate: dataOuNada(crus.ate),
+  };
   const fuso = await fusoDoTenant();
   const hoje = await janelaDeHoje(fuso);
 
@@ -41,7 +57,7 @@ export default async function PaginaMonitoria({ searchParams }: { searchParams: 
 
   const catalogos = await carregarCatalogos();
   const painel = await carregarMonitoria(janela, {
-    atendenteId: params.atendente || undefined,
+    atendenteId: params.atendente,
     avaliadorTipo: params.avaliador || undefined,
   });
 

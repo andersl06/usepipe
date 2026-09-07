@@ -4,7 +4,7 @@ import {
   LIMITE_COMENTARIOS,
   type GrupoSatisfacao,
 } from '../../../lib/satisfacao';
-import { dataHora, dataIso, numero, percentual } from '../../../lib/formato';
+import { dataHora, dataIso, dataOuNada, numero, percentual } from '../../../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
@@ -125,7 +125,9 @@ function Bloco({ grupo, encerradas }: { grupo: GrupoSatisfacao; encerradas: numb
  * valor 20/700 embaixo.
  */
 export default async function PaginaSatisfacao({ searchParams }: { searchParams: Promise<Busca> }) {
-  const params = await searchParams;
+  const crus = await searchParams;
+  /* Data torta vira "sem filtro", em vez de virar 500 no `::date` do Postgres. */
+  const params: Busca = { de: dataOuNada(crus.de), ate: dataOuNada(crus.ate) };
   const fuso = await fusoDoTenant();
   const hoje = await janelaDeHoje(fuso);
 

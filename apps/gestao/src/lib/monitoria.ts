@@ -14,6 +14,7 @@ import {
   usuario,
 } from '@pipe/db/schema';
 import { consultar, type Janela } from './banco';
+import { uuidOuNada } from './formato';
 import { fatalReprovado } from './nota-avaliacao';
 
 /**
@@ -266,6 +267,11 @@ export interface FichaDeAvaliacao {
 }
 
 export async function carregarFicha(id: string): Promise<FichaDeAvaliacao | null> {
+  /* O id vem do caminho da URL, que é entrada de fora. Sem esta linha,
+     `/monitoria/abc` chegava ao Postgres como `abc::uuid` e a tela devolvia
+     500 — "não existe" é 404, e é isso que o `null` daqui vira lá em cima. */
+  if (!uuidOuNada(id)) return null;
+
   return consultar(async (tx) => {
     const [cabeca] = await tx
       .select({

@@ -8,7 +8,7 @@ import {
   LIMITE_HISTORICO,
   type LinhaHistorico,
 } from '../../lib/historico';
-import { dataHora, dataIso, duracao, numero } from '../../lib/formato';
+import { dataHora, dataIso, dataOuNada, duracao, numero, uuidOuNada } from '../../lib/formato';
 import { ListaHistorico, type CartaoHistorico } from '../../componentes/lista-historico';
 
 export const dynamic = 'force-dynamic';
@@ -50,7 +50,17 @@ const ROTULO_STATUS: Record<string, { texto: string; classe: string }> = {
  * acima dos cartões dele, no lugar da linha que atravessava a tabela.
  */
 export default async function PaginaHistorico({ searchParams }: { searchParams: Promise<Busca> }) {
-  const params = await searchParams;
+  const crus = await searchParams;
+  /* Conferido na entrada: id torto e data torta viram "sem filtro", em vez de
+     virarem erro de servidor no `::uuid` e no `::date` do Postgres. */
+  const params: Busca = {
+    ...crus,
+    fila: uuidOuNada(crus.fila),
+    atendente: uuidOuNada(crus.atendente),
+    etiqueta: uuidOuNada(crus.etiqueta),
+    de: dataOuNada(crus.de),
+    ate: dataOuNada(crus.ate),
+  };
   const fuso = await fusoDoTenant();
   const hoje = await janelaDeHoje(fuso);
 
@@ -61,9 +71,9 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
   const janela = await janelaDeDatas(fuso, de, ate);
   const catalogos = await carregarCatalogos();
   const { linhas, truncado } = await carregarHistorico(janela, {
-    filaId: params.fila || undefined,
-    atendenteId: params.atendente || undefined,
-    etiquetaId: params.etiqueta || undefined,
+    filaId: params.fila,
+    atendenteId: params.atendente,
+    etiquetaId: params.etiqueta,
   });
 
   const por = agrupamentoValido(params.agrupar);

@@ -1,6 +1,6 @@
 import { fusoDoTenant, janelaDeDatas, janelaDeHoje } from '../../../lib/banco';
 import { carregarEsforco } from '../../../lib/esforco';
-import { dataIso, duracaoLonga, numero, percentual } from '../../../lib/formato';
+import { dataIso, dataOuNada, duracaoLonga, numero, percentual } from '../../../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
@@ -10,7 +10,10 @@ interface Busca {
 }
 
 export default async function PaginaEsforco({ searchParams }: { searchParams: Promise<Busca> }) {
-  const params = await searchParams;
+  const crus = await searchParams;
+  /* Data torta vira "sem filtro": `?de=abc` chegava ao `::date` do Postgres e
+     derrubava a tela inteira em 500. */
+  const params: Busca = { de: dataOuNada(crus.de), ate: dataOuNada(crus.ate) };
   const fuso = await fusoDoTenant();
   const hoje = await janelaDeHoje(fuso);
 

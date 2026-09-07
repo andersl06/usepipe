@@ -1,4 +1,4 @@
-import type { Eu } from '@pipe/contracts';
+import type { ConviteVisivel, Eu, RespostaDaDescoberta } from '@pipe/contracts';
 
 /**
  * A fronteira com a `api` para tudo que é entrada: quem está logado, por onde
@@ -15,8 +15,14 @@ import type { Eu } from '@pipe/contracts';
  * inventado, e nada é reimplementado.
  */
 
-/** A API vista por ESTE servidor. Atrás de proxy é o nome interno do serviço. */
-const URL_API = (process.env['PIPE_URL_API'] ?? 'http://localhost:3100').replace(/\/$/, '');
+/**
+ * A API vista por ESTE servidor. Atrás de proxy é o nome interno do serviço.
+ *
+ * O padrão é a porta 3000, que é onde a `api` mora — 3100 é ESTE aplicativo, e
+ * o padrão apontado para si mesmo fazia `GET /v1/eu` cair em 404: sem sessão
+ * resolvida, toda tela voltava para `/entrar` e o login "não fazia nada".
+ */
+const URL_API = (process.env['PIPE_URL_API'] ?? 'http://localhost:3000').replace(/\/$/, '');
 
 /**
  * A mesma API vista pelo NAVEGADOR.
@@ -43,22 +49,22 @@ const ORIGEM_DESTE_APP = (
 /** O cookie de sessão emitido pela API. `HttpOnly`; a tela só o repassa. */
 export const COOKIE_SESSAO = 'pipe_sessao';
 
-/** O que `POST /v1/auth/descobrir` responde, mais os dois modos de falha da tela. */
+/**
+ * O que `POST /v1/auth/descobrir` responde, mais os dois modos de falha da tela.
+ *
+ * O `metodo` vem de `RespostaDaDescoberta`, do contrato, e NÃO de uma lista
+ * escrita à mão aqui: enquanto era cópia, ela dizia `senha` e a API respondia
+ * `google` — o "Continuar" voltava para a tela de entrada sem aviso nenhum,
+ * porque o mapa de recados não tinha a chave que chegava. Cópia de contrato é
+ * um segundo contrato, e o que quebra é sempre o que ninguém atualizou.
+ */
 export interface EntradaDescoberta {
-  /** `sso` manda ao IdP da empresa; `senha` mostra o caminho do Google. */
-  metodo: 'sso' | 'senha' | 'invalido' | 'falha';
+  metodo: RespostaDaDescoberta['metodo'] | 'invalido' | 'falha';
   /** Caminho na API, quando `sso`. Falta só a base pública. */
   irPara?: string;
 }
 
-/** O mínimo que `GET /v1/convites/:token` mostra a quem ainda está do lado de fora. */
-export interface ConviteVisivel {
-  email: string;
-  papel: string;
-  tenant: { nome: string; slug: string };
-  /** ISO-8601, como sai da API. Quem formata é a tela. */
-  expiraEm: string;
-}
+export type { ConviteVisivel };
 
 function cabecalhoDeSessao(cookie: string): HeadersInit {
   return { cookie, accept: 'application/json' };

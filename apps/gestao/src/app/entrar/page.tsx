@@ -76,7 +76,7 @@ const RECUSAS: Record<RecusaDeEntrada, { titulo: string; saida: string }> = {
 
 /** O que a descoberta por e-mail devolve para a tela quando não roteia. */
 const AVISOS: Record<string, { titulo: string; saida: string }> = {
-  senha: {
+  google: {
     titulo: 'Esta empresa não entra por provedor de identidade',
     saida: 'Use o botão "Entrar com Google" aqui em cima, com o seu e-mail corporativo.',
   },

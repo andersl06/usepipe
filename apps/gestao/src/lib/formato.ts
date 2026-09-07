@@ -69,6 +69,31 @@ export function dataIso(instante: Date, fuso: string): string {
 }
 
 /**
+ * Os dois filtros que vêm da URL, conferidos ANTES de virar consulta.
+ *
+ * A querystring é entrada de fora: link colado, marcador antigo, robô. Sem
+ * conferência, `?fila=abc` chegava ao Postgres como `abc::uuid` e a tela
+ * inteira devolvia 500 — erro de servidor para o que é, no máximo, um filtro
+ * torto. Valor que não passa vira `undefined`, e `undefined` é "sem filtro":
+ * a tela abre, e abre mostrando tudo.
+ *
+ * Ficam aqui, e não num arquivo novo, porque `formato.ts` já é o módulo puro
+ * que todas essas telas importam — e é ele que já sabe o formato `AAAA-MM-DD`.
+ */
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export function uuidOuNada(bruto: string | undefined): string | undefined {
+  return bruto && UUID.test(bruto) ? bruto : undefined;
+}
+
+/** `AAAA-MM-DD` que o Postgres aceita — inclusive 31/02, que ele mesmo recusa. */
+export function dataOuNada(bruto: string | undefined): string | undefined {
+  if (!bruto || !/^\d{4}-\d{2}-\d{2}$/.test(bruto)) return undefined;
+  const data = new Date(`${bruto}T00:00:00Z`);
+  return Number.isNaN(data.getTime()) || dataIso(data, 'UTC') !== bruto ? undefined : bruto;
+}
+
+/**
  * 0 = domingo, como o `extract(dow)` do Postgres e o `getUTCDay` do core.
  *
  * Mora aqui, e não em `cadastros.ts`, porque o formulário de horário é

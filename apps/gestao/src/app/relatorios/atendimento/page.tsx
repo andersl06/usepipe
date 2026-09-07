@@ -6,7 +6,14 @@ import {
   type LinhaDeQuebra,
 } from '../../../lib/atendimento';
 import { carregarCatalogos } from '../../../lib/historico';
-import { dataIso, denominador, duracao, numero } from '../../../lib/formato';
+import {
+  dataIso,
+  dataOuNada,
+  denominador,
+  duracao,
+  numero,
+  uuidOuNada,
+} from '../../../lib/formato';
 
 export const dynamic = 'force-dynamic';
 
@@ -147,7 +154,15 @@ export default async function PaginaAtendimento({
 }: {
   searchParams: Promise<Busca>;
 }) {
-  const params = await searchParams;
+  const crus = await searchParams;
+  /* Conferido na entrada: id torto e data torta viram "sem filtro". Sem isso,
+     um link colado com `?fila=abc` derruba o relatório inteiro em 500. */
+  const params: Busca = {
+    fila: uuidOuNada(crus.fila),
+    atendente: uuidOuNada(crus.atendente),
+    de: dataOuNada(crus.de),
+    ate: dataOuNada(crus.ate),
+  };
   const fuso = await fusoDoTenant();
   const hoje = await janelaDeHoje(fuso);
 
@@ -157,8 +172,8 @@ export default async function PaginaAtendimento({
 
   const catalogos = await carregarCatalogos();
   const relatorio = await carregarAtendimento(janela, {
-    filaId: params.fila || undefined,
-    atendenteId: params.atendente || undefined,
+    filaId: params.fila,
+    atendenteId: params.atendente,
   });
   const geral: BlocoDeTempos = relatorio.geral;
   const enc = geral.encerramentos;

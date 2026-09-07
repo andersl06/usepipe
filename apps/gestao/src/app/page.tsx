@@ -1,6 +1,6 @@
 import { fusoDoTenant, janelaDeHoje } from '../lib/banco';
 import { carregarMonitoramento } from '../lib/monitoramento';
-import { denominador, duracao, numero } from '../lib/formato';
+import { denominador, duracao, numero, uuidOuNada } from '../lib/formato';
 import { RecargaPeriodica } from '../componentes/recarga-periodica';
 import { TelaCheia } from '../componentes/tela-cheia';
 import { FiltrosDaLista, FiltrosDaOperacao } from '../componentes/filtros-rapidos';
@@ -41,12 +41,20 @@ export default async function PaginaMonitoramento({
 }: {
   searchParams: Promise<Busca>;
 }) {
-  const params = await searchParams;
+  const crus = await searchParams;
+  /* O que veio da URL, já conferido: id que não é UUID vira "sem filtro" em vez
+     de virar 500 no `::uuid` do Postgres. Uma passagem só, e daqui para baixo
+     ninguém mais toca no parâmetro cru. */
+  const params: Busca = {
+    ...crus,
+    fila: uuidOuNada(crus.fila),
+    atendente: uuidOuNada(crus.atendente),
+  };
   const fuso = await fusoDoTenant();
   const janela = await janelaDeHoje(fuso);
   const m = await carregarMonitoramento(janela, fuso, {
-    filaId: params.fila || undefined,
-    atendenteId: params.atendente || undefined,
+    filaId: params.fila,
+    atendenteId: params.atendente,
   });
 
   const { tempoReal, atendentes, hoje } = m;
