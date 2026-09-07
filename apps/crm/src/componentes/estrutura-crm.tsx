@@ -3,12 +3,12 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  Aplicacao,
   AreaConfiguracoes,
   Icone,
   Simbolo,
   estaAtivo,
   type ItemDeNavegacao,
+  type NomeDeIcone,
 } from '@pipe/ui';
 
 /**
@@ -35,14 +35,6 @@ import {
  * lugar.
  */
 
-const MODULOS: readonly ItemDeNavegacao[] = [
-  { rotulo: 'Painel', href: '/' },
-  { rotulo: 'Leads', href: '/leads' },
-  { rotulo: 'Oportunidades', href: '/oportunidades' },
-  { rotulo: 'Contas', href: '/contas' },
-  { rotulo: 'Contatos', href: '/contatos' },
-];
-
 const CONFIGURACOES: readonly ItemDeNavegacao[] = [
   { rotulo: 'Regras de score', href: '/configuracoes/regras-de-score' },
   { rotulo: 'Faixas e roteamento', href: '/configuracoes/faixas' },
@@ -64,59 +56,89 @@ export function EstruturaCrm({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return <Aplicacao cabecalho={<CabecalhoCrm caminho={caminho} />}>{children}</Aplicacao>;
+  return (
+    <div className="c-app">
+      <LateralCrm caminho={caminho} />
+      <main className="c-conteudo">{children}</main>
+    </div>
+  );
 }
 
 /**
- * O cromo em DUAS camadas do Lightning, medido em
- * `docs/pesquisa/salesforce-estrutura-e-visual.md` §4.4 e §4.5: cabeçalho
- * global de **50px** mais barra de objetos de **40px**, 90px de cromo fixo.
+ * A lateral do Twenty, medida no código de `twenty-front` em 07/09/2026.
  *
- * A divisão não é decorativa, e é o que o nosso cabeçalho de 48px numa camada
- * perdia. Em cima fica o que vale para a CONTA — quem sou eu, o que estou
- * procurando, onde configuro. Embaixo, os OBJETOS do trabalho. Trocar de
- * objeto é o gesto do dia inteiro; trocar de conta, quase nunca.
+ * A DISPOSIÇÃO É DELES, A TINTA É NOSSA — o mesmo método da Gestão e do Desk
+ * com a Blip. O que se copia aqui:
  *
- * A tinta é nossa e é clara, ao contrário das barras escuras da Gestão: são
- * produtos diferentes com referências diferentes, e o Lightning não pinta
- * cromo escuro. O que se copia é a divisão, a altura e a densidade.
+ * - **navegação em coluna à esquerda, de 220px**, e nenhuma barra no topo. A
+ *   tela de trabalho começa no alto da janela e usa a altura inteira; numa
+ *   listagem de 60 leads isso é uma linha e meia a mais por dobra.
+ * - **item de 28px** com ícone à esquerda, raio 8 e realce por FUNDO, não por
+ *   sublinhado — o sublinhado era do Lightning e saiu junto com as barras.
+ * - **seções nomeadas em caixa alta**, que agrupam objetos em vez de empilhar
+ *   tudo numa lista só.
+ * - **contagem à direita do item**, que é o que faz a lateral informar em vez
+ *   de só navegar.
  *
- * A aba ativa é sublinhado de 3px com peso 700, não pílula com fundo: no
- * Lightning a marcação de aba é o fio embaixo, e a pílula era a nossa
- * divergência mais visível contra a tela medida.
+ * Onde eles põem o seletor de espaço de trabalho, nós pomos o nome do produto:
+ * o Pipe resolve o tenant pelo login, e trocar de espaço não é um gesto que
+ * exista aqui.
  */
-function CabecalhoCrm({ caminho }: { caminho: string }) {
+
+/** Seção da lateral: um rótulo e os objetos embaixo dele. */
+type SecaoLateral = { rotulo: string; itens: readonly ItemLateralCrm[] };
+type ItemLateralCrm = { rotulo: string; href: string; icone: NomeDeIcone };
+
+const SECOES: readonly SecaoLateral[] = [
+  {
+    rotulo: 'Trabalho',
+    itens: [
+      { rotulo: 'Painel', href: '/', icone: 'painel' },
+      { rotulo: 'Leads', href: '/leads', icone: 'funil' },
+      { rotulo: 'Oportunidades', href: '/oportunidades', icone: 'grade' },
+    ],
+  },
+  {
+    rotulo: 'Registros',
+    itens: [
+      { rotulo: 'Contas', href: '/contas', icone: 'pessoas' },
+      { rotulo: 'Contatos', href: '/contatos', icone: 'pessoa' },
+    ],
+  },
+];
+
+function LateralCrm({ caminho }: { caminho: string }) {
   return (
-    <div className="c-cromo">
-      <header className="c-topo">
-        <Link className="c-marca" href="/">
-          <Simbolo tamanho={22} />
-          <b>Pipe CRM</b>
+    <nav className="c-lateral" aria-label="Navegação">
+      <div className="c-lateral-topo">
+        <Simbolo tamanho={20} />
+        <b>Pipe CRM</b>
+        <Link
+          className="c-iconbtn"
+          href="/configuracoes"
+          title="Configurações"
+          aria-label="Configurações"
+        >
+          <Icone nome="engrenagem" tamanho={16} />
         </Link>
+      </div>
 
-        <div className="c-topo-fim">
-          <Link
-            className="c-iconbtn"
-            href="/configuracoes"
-            title="Configurações"
-            aria-label="Configurações"
-          >
-            <Icone nome="engrenagem" tamanho={20} />
-          </Link>
+      {SECOES.map((secao) => (
+        <div key={secao.rotulo}>
+          <div className="c-secao">{secao.rotulo}</div>
+          {secao.itens.map((item) => (
+            <Link
+              key={item.href}
+              href={item.href}
+              className="c-item"
+              aria-current={estaAtivo(item.href, caminho) ? 'page' : undefined}
+            >
+              <Icone nome={item.icone} tamanho={16} />
+              {item.rotulo}
+            </Link>
+          ))}
         </div>
-      </header>
-
-      <nav className="c-objetos" aria-label="Objetos">
-        {MODULOS.map((m) => (
-          <Link
-            key={m.href}
-            href={m.href}
-            aria-current={estaAtivo(m.href, caminho) ? 'page' : undefined}
-          >
-            {m.rotulo}
-          </Link>
-        ))}
-      </nav>
-    </div>
+      ))}
+    </nav>
   );
 }

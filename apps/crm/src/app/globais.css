@@ -1132,101 +1132,104 @@ code {
   border-color: var(--p-linha);
 }
 
-/* ==================================================== o cromo do Lightning
-   Duas camadas, 50 + 40 = **90px** de cromo fixo, medidas em
-   `docs/pesquisa/salesforce-estrutura-e-visual.md` §4.4. A nossa era uma só,
-   de 48px, e era ela que fazia a tela parecer chapada: sem a divisão, o nome
-   do produto, a busca da conta e os objetos do trabalho disputavam a mesma
-   linha e nenhum ganhava peso.
+/* ================================================= o casco do Twenty
+   Medido no código de `twenty-front` e `twenty-ui` do fork, em 07/09/2026.
 
-   Em cima, o que é da CONTA. Embaixo, os OBJETOS. A tinta é clara, ao
-   contrário das barras da Gestão: o Lightning não pinta cromo escuro, e são
-   produtos com referências diferentes. Copia-se a divisão, a altura e a
-   densidade — nunca a cor deles.
+   A DISPOSIÇÃO É DELES, A TINTA É NOSSA — o mesmo método que a Gestão e o
+   Desk usam com a Blip, agora aplicado ao Twenty.
 
-   Aqui o raio é **4px**, não os 8px do resto da casa: medido, 4px domina 77%
-   dos elementos com raio no Lightning, e é a assinatura de forma que separa
-   esta tela das outras duas. */
+   O que muda em relação ao que estava aqui: sai o cromo de duas barras do
+   Lightning e entra a LATERAL. No Twenty a navegação é uma coluna à esquerda,
+   redimensionável, e não há barra de abas no topo — a tela de trabalho começa
+   no alto da janela e usa a altura inteira. Numa listagem de 60 leads isso é
+   uma linha e meia a mais por dobra, e é a razão de eles terem escolhido
+   assim.
+
+   Medidas, do código deles:
+   - largura da lateral: 220px (mínimo 180, máximo 350)
+   - item: altura 28px (`spacing[7]`), padding 4px, raio 8px
+   - título de seção: mesma altura de 28px, com o mesmo padding
+   - régua de espaço: múltiplo de 4 — a mesma nossa
+   - raio: 2 / 4 / 8 / 16 / 20 / 999
+   - tipografia: 0.625 / 0.85 / 0.92 / 1 / 1.23rem, pesos 400, 500 e 600 */
 :root {
-  --c-topo-h: 50px;
-  --c-objetos-h: 40px;
-  --c-r: 4px;
+  --c-lateral-w: 220px;
+  --c-item-h: 28px;
+  /* O raio do Twenty é 8px, o mesmo da casa — o 4px do Lightning saiu junto
+     com o cromo dele. */
+  --c-r: 8px;
+  --c-r-sm: 4px;
 }
 
-.c-cromo {
+.c-app {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* A lateral. Fundo um degrau acima da página, sem sombra e sem borda forte:
+   no Twenty a separação é de superfície, não de linha. */
+.c-lateral {
+  width: var(--c-lateral-w);
   flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-1);
+  padding: var(--p-e-2);
+  background: var(--p-superficie-1);
+  border-right: 1px solid var(--p-linha);
   position: sticky;
   top: 0;
-  z-index: 20;
+  height: 100vh;
+  overflow-y: auto;
 }
 
-.c-topo {
-  height: var(--c-topo-h);
-  display: flex;
-  align-items: center;
-  gap: var(--p-e-4);
-  padding: 0 var(--p-e-4);
-  background: var(--p-superficie-0);
-  border-bottom: 1px solid var(--p-linha);
-}
-
-.c-marca {
+/* O cabeçalho da lateral: marca e o atalho de configuração. Onde eles põem o
+   seletor de espaço de trabalho, nós pomos o nome do produto — o Pipe resolve
+   o tenant pelo login, e trocar de espaço não é um gesto que exista aqui. */
+.c-lateral-topo {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
-  text-decoration: none;
-  color: var(--p-conteudo);
-  flex: none;
+  height: 40px;
+  padding: 0 var(--p-e-1);
+  margin-bottom: var(--p-e-2);
 }
 
-.c-marca b {
+.c-lateral-topo b {
   font-size: var(--p-t-md);
   font-weight: var(--p-peso-forte);
   letter-spacing: -0.01em;
   white-space: nowrap;
 }
 
-.c-topo-fim {
+.c-lateral-topo .c-iconbtn {
   margin-left: auto;
-  display: flex;
-  align-items: center;
-  gap: var(--p-e-1);
 }
 
-.c-iconbtn {
-  width: 32px;
-  height: 32px;
-  display: grid;
-  place-items: center;
+/* Título de seção: 28px de altura, caixa alta, e a cor mais apagada da escala.
+   É rótulo, não item — não clica e não compete com o que está embaixo. */
+.c-secao {
+  display: flex;
+  align-items: center;
+  height: var(--c-item-h);
+  padding: var(--p-e-1);
+  margin-top: var(--p-e-2);
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-medio);
+  color: var(--p-conteudo-fantasma);
+  text-transform: uppercase;
+  letter-spacing: var(--p-rotulo-espaco);
+}
+
+/* O item. 28px, ícone à esquerda, raio 8, e o realce do ativo é FUNDO — não
+   sublinhado, que era o do Lightning. */
+.c-item {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  height: var(--c-item-h);
+  padding: 0 var(--p-e-1);
   border-radius: var(--c-r);
-  color: var(--p-conteudo-desabilitado);
-  text-decoration: none;
-}
-
-.c-iconbtn:hover {
-  background: var(--p-superficie-2);
-  color: var(--p-conteudo);
-}
-
-/* A barra dos objetos. Plana e horizontal, sem submenu: cada aba é um objeto,
-   não uma árvore — é o que separa esta camada da lateral da Gestão. */
-.c-objetos {
-  height: var(--c-objetos-h);
-  display: flex;
-  align-items: stretch;
-  gap: 0;
-  padding: 0 var(--p-e-4);
-  background: var(--p-superficie-1);
-  border-bottom: 1px solid var(--p-linha);
-  overflow-x: auto;
-  scrollbar-width: none;
-}
-
-.c-objetos a {
-  position: relative;
-  display: flex;
-  align-items: center;
-  padding: 0 var(--p-e-3);
   font-size: var(--p-t-md);
   font-weight: var(--p-peso-normal);
   color: var(--p-conteudo-desabilitado);
@@ -1234,43 +1237,84 @@ code {
   white-space: nowrap;
 }
 
-.c-objetos a:hover {
+.c-item svg {
+  flex: none;
+  color: var(--p-conteudo-fantasma);
+}
+
+.c-item:hover {
+  background: var(--p-superficie-2);
   color: var(--p-conteudo);
 }
 
-/* Aba ativa: fio embaixo e peso 700. Sem pílula e sem fundo — a marcação de
-   aba do Lightning é o fio, e a pílula era a nossa divergência mais visível. */
-.c-objetos a[aria-current='page'] {
+.c-item[aria-current='page'] {
+  background: var(--p-superficie-2);
   color: var(--p-conteudo);
-  font-weight: var(--p-peso-forte);
+  font-weight: var(--p-peso-medio);
 }
 
-.c-objetos a[aria-current='page']::after {
-  content: '';
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -1px;
-  height: 3px;
-  background: var(--p-marca);
+.c-item[aria-current='page'] svg {
+  color: var(--p-marca);
 }
 
-/* --------------------------------------------------- densidade Lightning
-   Linha de 35px, célula 13px com padding 8, cabeçalho de coluna 12/700 em
-   caixa alta. A nossa linha estava em 36 com célula de 14 — perto, mas a
-   tela inteira ganha uma linha a mais por dobra com os números certos. */
+/* A contagem à direita do item, quando existe. Tabular para não dançar. */
+.c-item .c-conta {
+  margin-left: auto;
+  font-family: var(--p-fonte-mono);
+  font-variant-numeric: tabular-nums;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+}
+
+.c-iconbtn {
+  width: var(--c-item-h);
+  height: var(--c-item-h);
+  display: grid;
+  place-items: center;
+  border-radius: var(--c-r);
+  color: var(--p-conteudo-fantasma);
+  text-decoration: none;
+  flex: none;
+}
+
+.c-iconbtn:hover {
+  background: var(--p-superficie-2);
+  color: var(--p-conteudo);
+}
+
+/* O rodapé da lateral fica colado embaixo, como o deles. */
+.c-lateral-rodape {
+  margin-top: auto;
+  padding-top: var(--p-e-2);
+  border-top: 1px solid var(--p-linha);
+}
+
+/* A área de trabalho. Sem barra em cima: começa no alto da janela. */
+.c-conteudo {
+  flex: 1;
+  min-width: 0;
+  padding: var(--p-e-5) var(--p-e-6);
+  background: var(--p-superficie-0);
+}
+
+/* ------------------------------------------------------ densidade do Twenty
+   Linha de 32px e célula de 0.92rem. Mais apertada que a do Lightning (35px /
+   13px) porque a tela ganhou a altura que as duas barras ocupavam. */
 .tblwrap,
 .card {
   border-radius: var(--c-r);
 }
 
 table td {
-  height: 35px;
-  padding: var(--p-e-2);
-  font-size: 13px;
+  height: 32px;
+  padding: 0 var(--p-e-2);
+  font-size: 0.92rem;
 }
 
 table th {
-  padding: var(--p-e-1) var(--p-e-2);
-  font-weight: var(--p-peso-forte);
+  height: var(--c-item-h);
+  padding: 0 var(--p-e-2);
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-medio);
+  color: var(--p-conteudo-fantasma);
 }
