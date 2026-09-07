@@ -13,6 +13,7 @@
     "test": "node --experimental-strip-types --test tests/*.test.ts"
   },
   "dependencies": {
+    "@pipe/contracts": "workspace:*",
     "@pipe/core": "workspace:*",
     "@pipe/db": "workspace:*",
     "@pipe/ui": "workspace:*",

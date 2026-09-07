@@ -143,6 +143,8 @@ export default async function PaginaDesk({
       <TrilhoDesk
         iniciais={sessao.iniciais}
         nome={sessao.nome}
+        email={sessao.email}
+        tenantNome={sessao.tenantNome}
         estado={dados.status.estado}
       />
 

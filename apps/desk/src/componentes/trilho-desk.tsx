@@ -101,10 +101,14 @@ const DESTINOS: Destino[] = [
 export function TrilhoDesk({
   iniciais,
   nome,
+  email,
+  tenantNome,
   estado,
 }: {
   iniciais: string;
   nome: string;
+  email: string;
+  tenantNome: string;
   estado: EstadoAtendente;
 }) {
   return (
@@ -154,7 +158,7 @@ export function TrilhoDesk({
 
       <div className="trilho-conta">
         <BotaoAjuda />
-        <BotaoPreferencias urlGestao={URL_GESTAO} />
+        <BotaoPreferencias urlGestao={URL_GESTAO} nome={nome} email={email} tenant={tenantNome} />
         <BotaoDeStatus
           titulo={`Seu status é: ${ROTULO_DO_ESTADO[estado]}`}
           cor={COR_DO_ESTADO[estado]}

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { iniciaisDe } from '../src/servidor/banco.ts';
+import { iniciaisDe } from '../src/lib/nome.ts';
 import { data, dataOuNulo } from '../src/servidor/consultas.ts';
 
 /**

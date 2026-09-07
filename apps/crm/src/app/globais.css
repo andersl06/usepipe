@@ -1899,3 +1899,204 @@ table th {
 .c-conteudo .listagem th {
   border-bottom: 1px solid var(--p-linha);
 }
+
+/* ======================================================= tela de entrada
+
+   A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
+
+   Sem cromo de propósito — quem chega aqui não tem sessão, então não há barra,
+   trilho nem lateral para pintar, e não há nome de cliente para mostrar. Um
+   cartão centrado, na largura de leitura, e nada mais.
+
+   Toda cor sai de token, como em todo o resto: nenhum literal entra aqui. */
+
+.entrar {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: var(--p-e-6) var(--p-e-4);
+  background: var(--p-fundo);
+}
+
+.entrar-cartao {
+  width: 100%;
+  /* 26rem é a largura de um formulário de uma coluna: mais do que isso e o
+     rótulo perde o campo de vista no fim da linha. */
+  max-width: 26rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+  padding: var(--p-e-6);
+  background: var(--p-superficie-0);
+  border: 1px solid var(--p-linha);
+  border-radius: var(--p-r-lg);
+  box-shadow: var(--p-sombra-1);
+}
+
+.entrar-marca {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  color: var(--p-conteudo);
+}
+
+.entrar-marca b {
+  font-size: var(--p-t-lg);
+  font-weight: var(--p-peso-forte);
+}
+
+.entrar-cartao h1 {
+  margin: 0;
+  font-size: var(--p-t-xl);
+  font-weight: var(--p-peso-forte);
+  line-height: var(--p-altura-linha-curta);
+  color: var(--p-conteudo);
+}
+
+.entrar-sub {
+  margin: 0;
+  font-size: var(--p-t-sm);
+  line-height: var(--p-altura-linha);
+  color: var(--p-conteudo-claro);
+}
+
+/* O motivo da recusa, com a saída da pessoa. Vem ANTES dos botões na ordem de
+   leitura: quem usa leitor de tela precisa do motivo antes da ação. */
+.entrar-alerta {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-1);
+  padding: var(--p-e-3);
+  background: var(--p-alerta-fundo);
+  border: 1px solid var(--p-alerta-linha);
+  border-radius: var(--p-r-md);
+  color: var(--p-alerta-conteudo);
+}
+
+.entrar-alerta h2 {
+  margin: 0;
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-forte);
+  line-height: var(--p-altura-linha-curta);
+}
+
+.entrar-alerta p {
+  margin: 0;
+  font-size: var(--p-t-sm);
+  line-height: var(--p-altura-linha);
+}
+
+/* Ação principal da tela: largura cheia, e não divide a linha com ninguém. */
+.entrar-google {
+  width: 100%;
+  justify-content: center;
+  padding: 10px 12px;
+}
+
+.entrar-ou {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  font-size: var(--p-t-xs);
+  color: var(--p-conteudo-fantasma);
+}
+
+.entrar-ou::before,
+.entrar-ou::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--p-linha);
+}
+
+.entrar-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
+}
+
+.entrar-form label {
+  font-size: var(--p-rotulo-tamanho);
+  font-weight: var(--p-rotulo-peso);
+  letter-spacing: var(--p-rotulo-espaco);
+  color: var(--p-conteudo-claro);
+}
+
+.entrar-ajuda {
+  margin: 0;
+  font-size: var(--p-t-xs);
+  line-height: var(--p-altura-linha);
+  color: var(--p-conteudo-fantasma);
+}
+
+.entrar-form .btn {
+  justify-content: center;
+}
+
+/* Os dados do convite: rótulo à esquerda, valor à direita. */
+.entrar-dados {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--p-e-1) var(--p-e-3);
+  margin: 0;
+  font-size: var(--p-t-sm);
+}
+
+.entrar-dados dt {
+  color: var(--p-conteudo-fantasma);
+}
+
+.entrar-dados dd {
+  margin: 0;
+  font-weight: var(--p-peso-medio);
+  color: var(--p-conteudo);
+  /* E-mail longo quebra em vez de esticar o cartão. */
+  overflow-wrap: anywhere;
+}
+
+.entrar-rodape {
+  margin: 0;
+  font-size: var(--p-t-xs);
+  line-height: var(--p-altura-linha);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* A conta em vigor, no menu de quem está logado. Serve às três telas. */
+.eu-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-bottom: var(--p-e-2);
+  border-bottom: 1px solid var(--p-linha);
+}
+
+.eu-bloco b {
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-forte);
+  color: var(--p-conteudo);
+}
+
+.eu-bloco span {
+  font-size: var(--p-t-xs);
+  color: var(--p-conteudo-claro);
+  overflow-wrap: anywhere;
+}
+
+.eu-sair {
+  display: flex;
+}
+
+.eu-sair .btn {
+  width: 100%;
+  justify-content: center;
+}
+
+/* A conta em vigor, no pé da lateral. `margin-top: auto` empurra para baixo
+   sem precisar que a lateral saiba a altura do resto. */
+.c-lateral-eu {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
+  padding-top: var(--p-e-3);
+}

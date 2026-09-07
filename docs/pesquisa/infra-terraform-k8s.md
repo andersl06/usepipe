@@ -131,7 +131,7 @@ cofre e sincronizar com o External Secrets Operator, mantendo os manifestos igua
 |---|---|---|
 | Senha do Postgres, chave da Anthropic, chave do bucket | `infra/compose/segredos/*.enc.env` (SOPS) | `deploy.sh` decifra para `/opt/pipe-dados/.env`, modo 600, e o compose lê |
 | **Token da Meta e segredo de app do cliente** | `canal.config`, cifrado no banco | a aplicação decifra em memória, por canal |
-| Chave que cifra `canal.config` (`PIPE_CHAVE_CANAIS`) | SOPS | ambiente |
+| Chave que cifra `canal.config` (`PIPE_CHAVES_SEGREDO`) | SOPS | ambiente |
 | Chave `age` privada | máquina do operador + cópia offline; a de deploy só na VPS | não entra em contêiner nenhum |
 | Token de API do provedor e da Cloudflare | SOPS, exportado no shell do `apply` | não entra em contêiner nenhum |
 
@@ -143,8 +143,9 @@ só — em produção multi-tenant ele fica vazio.
 
 ### Rotação
 
-- **Chave de canal (`PIPE_CHAVE_CANAIS`)**: envelope. Cada valor cifrado carrega o
-  id da chave que o gerou (`PIPE_CHAVE_CANAIS_ID`). Rotacionar é publicar a chave
+- **Chave de canal (`PIPE_CHAVES_SEGREDO`)**: envelope. Cada valor cifrado carrega o
+  id da chave que o gerou (`PIPE_CHAVE_SEGREDO_ATUAL` diz qual cifra o que for gravado
+  agora; o id da que decifra viaja dentro do valor). Rotacionar é publicar a chave
   nova como corrente, manter a antiga para leitura, e recifrar em segundo plano.
   Sem o id junto do dado cifrado, rotação vira parada programada.
 - **Token da Meta**: é do cliente e expira na conta dele. O produto precisa avisar

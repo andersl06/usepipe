@@ -21,7 +21,7 @@ import {
   usuario,
 } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria, type TransacaoPipe } from '@pipe/db';
-import { ATOR_DO_CRM, consultar, paraData, paraNumero, tenantId } from './banco';
+import { atorDoCrm, consultar, paraData, paraNumero, tenantId } from './banco';
 // Só o tipo, e de um arquivo sem banco: é o mesmo catálogo que a célula inline
 // lê no navegador, e é ele que fecha a lista de colunas graváveis.
 import type { ChaveCampo } from './campos-editaveis';
@@ -871,7 +871,7 @@ async function anotar(
   const mudou = diferenca(antes, depois);
   if (Object.keys(mudou.depois).length === 0) return;
   await registrarAuditoria(tx, tid, {
-    ator: ATOR_DO_CRM,
+    ator: await atorDoCrm(),
     acao: 'alterou',
     objetoTipo,
     objetoId,

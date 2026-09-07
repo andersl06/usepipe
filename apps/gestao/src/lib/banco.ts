@@ -1,6 +1,11 @@
-import { eq, sql } from 'drizzle-orm';
+import { cache } from 'react';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { sql } from 'drizzle-orm';
 import { criarBanco, comTenant, type Ator, type BancoPipe, type TransacaoPipe } from '@pipe/db';
 import { tenant } from '@pipe/db/schema';
+import type { Eu } from '@pipe/contracts';
+import { COOKIE_SESSAO, buscarEu } from './sessao';
 
 /**
  * Conexão única do Pipe Gestão.
@@ -9,12 +14,17 @@ import { tenant } from '@pipe/db/schema';
  * consulta passa por `comTenant`, que fixa `pipe.tenant_id` na transação. Sem
  * isso a RLS devolve zero linha — e é assim que tem de ser.
  *
+ * **Qual tenant é resolvido pela SESSÃO**, não por `PIPE_TENANT_SLUG`. Enquanto
+ * saía do ambiente, qualquer pessoa que abrisse a tela entrava como o cliente
+ * da semente de demonstração — e não havia login para impedir. Agora quem
+ * responde é o cookie `pipe_sessao`, pela `api`, e sem ele a saída é `/entrar`.
+ *
  * O pool vive num global porque o `next dev` recarrega o módulo a cada mudança
- * de arquivo, e um pool novo por recarga esgota as conexões do Postgres.
+ * de arquivo, e um pool novo por recarga esgota as conexões do Postgres. O
+ * tenant NÃO vive: cache global de tenant é o cliente errado na tela de alguém.
  */
 const globalComPool = globalThis as unknown as {
   __pipeGestaoBanco?: BancoPipe;
-  __pipeGestaoTenantId?: Promise<string>;
 };
 
 export function banco(): BancoPipe {
@@ -26,33 +36,38 @@ export function banco(): BancoPipe {
 }
 
 /**
- * Qual tenant esta instância atende.
+ * Quem está logado, pelo cookie.
  *
- * Numa instalação real vem da sessão do usuário. Aqui vem de `PIPE_TENANT_ID`; sem
- * ele, uma única consulta de bootstrap resolve o slug pelo papel dono — porque a
- * política de `tenant` filtra por `id`, e ninguém consegue descobrir o próprio id
- * sem já o conhecer.
+ * `cache` do React porque numa mesma renderização o layout, a página e cada
+ * consulta perguntam a mesma coisa — e `GET /v1/eu` é ida à rede. O cache vale
+ * por requisição, nunca entre requisições.
  */
-export function tenantId(): Promise<string> {
-  const fixo = process.env['PIPE_TENANT_ID'];
-  if (fixo) return Promise.resolve(fixo);
+const carregarEu = cache(async (): Promise<Eu | null> => {
+  const cookie = (await cookies()).get(COOKIE_SESSAO);
+  if (!cookie) return null;
+  return buscarEu(`${COOKIE_SESSAO}=${cookie.value}`);
+});
 
-  globalComPool.__pipeGestaoTenantId ??= (async () => {
-    const dono = criarBanco({ url: process.env['DATABASE_URL'], maxConexoes: 1 });
-    try {
-      const slug = process.env['PIPE_TENANT_SLUG'] ?? 'demo';
-      const [linha] = await dono
-        .select({ id: tenant.id })
-        .from(tenant)
-        .where(eq(tenant.slug, slug));
-      if (!linha) throw new Error(`tenant "${slug}" não existe: rode a semente antes.`);
-      return linha.id;
-    } finally {
-      await dono.$client.end();
-    }
-  })();
+/** Quem está logado, ou `null`. Para quem sabe lidar com a ausência — o cabeçalho. */
+export async function euAtual(): Promise<Eu | null> {
+  return carregarEu();
+}
 
-  return globalComPool.__pipeGestaoTenantId;
+/**
+ * Quem está logado, ou a tela de entrada.
+ *
+ * Cobre o cookie vencido e o forjado, que o middleware não pega: ele só confere
+ * se o cookie EXISTE, e quem diz se ele vale é a `api`.
+ */
+export async function exigirEu(): Promise<Eu> {
+  const eu = await carregarEu();
+  if (!eu) redirect('/entrar');
+  return eu;
+}
+
+/** Qual tenant esta requisição atende: o de quem está logado, e nenhum outro. */
+export async function tenantId(): Promise<string> {
+  return (await exigirEu()).tenant.id;
 }
 
 /** Açúcar: abre a transação já com o tenant desta instância fixado. */
@@ -110,12 +125,16 @@ export async function janelaDeHoje(fuso: string): Promise<{ inicio: Date; fim: D
 /**
  * Quem assina o que a Gestão grava, no log de auditoria.
  *
- * A Gestão ainda não tem sessão — `tenantId()` sai do ambiente, não de um
- * usuário logado. Então o ator é `sistema`, que é a verdade: foi a instância, e
- * não uma pessoa identificada. Mentir aqui seria pior do que não registrar,
- * porque alguém confiaria no nome.
+ * Era `sistema` porque não havia sessão: registrar uma pessoa que não se sabia
+ * qual era seria mentira, e log que mente é pior do que log nenhum. Agora há
+ * sessão, então o log passa a dizer QUEM — que é a única razão de alguém abrir
+ * a auditoria depois.
  *
- * Quando a sessão existir, este valor vira `{ tipo: 'usuario', id, ip }` e
- * nenhuma escrita precisa mudar: todas já passam por aqui.
+ * Continua sem `ip`: quem o tem é a `api`, e o Next atrás de proxy vê o do
+ * proxy. ponytail: quando importar, ele vem de um cabeçalho confiável, não de
+ * `x-forwarded-for` cru.
  */
-export const ATOR_DA_GESTAO = { tipo: 'sistema' } as const satisfies Ator;
+export async function atorDaGestao(): Promise<Ator> {
+  const eu = await exigirEu();
+  return { tipo: 'usuario', id: eu.usuario.id };
+}

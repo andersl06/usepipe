@@ -21,7 +21,7 @@ import {
   usuario,
 } from '@pipe/db/schema';
 import { registrarAuditoria } from '@pipe/db';
-import { ATOR_DA_GESTAO, consultar, tenantId } from './banco';
+import { atorDaGestao, consultar, tenantId } from './banco';
 import { relogio } from './formato';
 import type { OperadorDeRegra, RegraDeFila } from './regra-fila';
 
@@ -519,7 +519,7 @@ export async function gravarRegraFila(entrada: NovaRegraDeFila): Promise<Gravaca
       .values(entrada.condicoes.map((c) => ({ tenantId: tid, regraId: criada.id, ...c })));
 
     await registrarAuditoria(tx, tid, {
-      ator: ATOR_DA_GESTAO,
+      ator: await atorDaGestao(),
       acao: 'criou',
       objetoTipo: 'regra_fila',
       objetoId: criada.id,
@@ -545,7 +545,7 @@ export async function alternarAtivaDaRegraFila(id: string): Promise<Gravacao> {
     await tx.update(regraFila).set({ ativa: !atual.ativa }).where(eq(regraFila.id, id));
 
     await registrarAuditoria(tx, tid, {
-      ator: ATOR_DA_GESTAO,
+      ator: await atorDaGestao(),
       acao: atual.ativa ? 'desativou' : 'ativou',
       objetoTipo: 'regra_fila',
       objetoId: id,

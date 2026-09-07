@@ -11,6 +11,7 @@ import {
   type NomeDeIcone,
 } from '@pipe/ui';
 import { MenuDeComando } from './menu-de-comando';
+import { sair } from '../app/entrar/acoes';
 
 /**
  * Estrutura do CRM, em dois modos.
@@ -54,8 +55,29 @@ const CONFIGURACOES: readonly ItemDeNavegacao[] = [
   { rotulo: 'Chaves e webhooks', href: '/configuracoes/api' },
 ];
 
-export function EstruturaCrm({ children }: { children: React.ReactNode }) {
+/** Quem está logado. `null` nas duas rotas públicas, e só nelas. */
+export interface UsuarioNaLateral {
+  nome: string;
+  email: string;
+  tenant: string;
+}
+
+/**
+ * As duas rotas públicas do produto. Elas não têm lateral: quem chega nelas não
+ * está logado, e a lateral inteira é navegação de dado de tenant.
+ */
+const PUBLICO = /^\/(entrar|convite)(\/|$)/;
+
+export function EstruturaCrm({
+  usuario,
+  children,
+}: {
+  usuario: UsuarioNaLateral | null;
+  children: React.ReactNode;
+}) {
   const caminho = usePathname();
+
+  if (PUBLICO.test(caminho)) return <>{children}</>;
 
   if (caminho.startsWith('/configuracoes')) {
     return (
@@ -72,7 +94,7 @@ export function EstruturaCrm({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="c-app">
-      <LateralCrm caminho={caminho} />
+      <LateralCrm caminho={caminho} usuario={usuario} />
       <main className="c-conteudo">{children}</main>
       {/* Fora do <main> de propósito: o menu de comando não é de uma tela, é
           do aplicativo inteiro — ele alcança a pessoa onde ela estiver. */}
@@ -124,7 +146,13 @@ const SECOES: readonly SecaoLateral[] = [
   },
 ];
 
-function LateralCrm({ caminho }: { caminho: string }) {
+function LateralCrm({
+  caminho,
+  usuario,
+}: {
+  caminho: string;
+  usuario: UsuarioNaLateral | null;
+}) {
   return (
     <nav className="c-lateral" aria-label="Navegação">
       <div className="c-lateral-topo">
@@ -156,6 +184,24 @@ function LateralCrm({ caminho }: { caminho: string }) {
           ))}
         </div>
       ))}
+
+      {/* No RODAPÉ da lateral, e não no topo: quem está logado é referência,
+          não navegação — e o topo é do produto. É o mesmo lugar em que o
+          Twenty põe a conta. */}
+      {usuario ? (
+        <div className="c-lateral-eu">
+          <div className="eu-bloco">
+            <b>{usuario.nome}</b>
+            <span>{usuario.email}</span>
+            <span>{usuario.tenant}</span>
+          </div>
+          <form className="eu-sair" action={sair}>
+            <button type="submit" className="btn">
+              Sair
+            </button>
+          </form>
+        </div>
+      ) : null}
     </nav>
   );
 }

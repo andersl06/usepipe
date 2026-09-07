@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { EstruturaCrm } from '../componentes/estrutura-crm';
+import { euAtual } from '../lib/banco';
 import { CHAVE_TEMA } from '../lib/configuracoes-comum';
 // A ordem importa: o token e a base do design system entram antes da folha do
 // aplicativo, para que a folha local sobrescreva a base e nunca o contrário.
@@ -26,7 +27,11 @@ export const metadata: Metadata = {
  */
 const APLICAR_TEMA = `try{var t=localStorage.getItem(${JSON.stringify(CHAVE_TEMA)});if(t==='claro'||t==='escuro'){document.documentElement.dataset.tema=t}}catch(e){}`;
 
-export default function LayoutRaiz({ children }: { children: React.ReactNode }) {
+export default async function LayoutRaiz({ children }: { children: React.ReactNode }) {
+  /* `euAtual` e não `exigirEu`: este layout também embrulha `/entrar` e
+     `/convite`, que são públicas. Exigir sessão aqui mandaria quem não a tem
+     para `/entrar` a partir do layout da própria `/entrar`, em círculo. */
+  const eu = await euAtual();
   return (
     <html lang="pt-BR">
       <head>
@@ -39,7 +44,13 @@ export default function LayoutRaiz({ children }: { children: React.ReactNode }) 
         />
       </head>
       <body>
-        <EstruturaCrm>{children}</EstruturaCrm>
+        <EstruturaCrm
+          usuario={
+            eu ? { nome: eu.usuario.nome, email: eu.usuario.email, tenant: eu.tenant.nome } : null
+          }
+        >
+          {children}
+        </EstruturaCrm>
       </body>
     </html>
   );

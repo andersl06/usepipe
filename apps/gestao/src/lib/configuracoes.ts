@@ -14,7 +14,7 @@ import {
   tenant,
   usuario,
 } from '@pipe/db/schema';
-import { ATOR_DA_GESTAO, consultar, tenantId } from './banco';
+import { atorDaGestao, consultar, tenantId } from './banco';
 
 /**
  * O que está configurado no tenant: o retrato, e o que o muda.
@@ -400,7 +400,7 @@ export async function gravarIdentidade(entrada: IdentidadeParaGravar): Promise<G
 
     const mudou = diferenca(antes, entrada);
     await registrarAuditoria(tx, tid, {
-      ator: ATOR_DA_GESTAO,
+      ator: await atorDaGestao(),
       acao: 'alterou',
       objetoTipo: 'tenant',
       objetoId: tid,
@@ -436,7 +436,7 @@ export async function gravarPesquisa(entrada: PesquisaParaGravar): Promise<Grava
       if (!criada) return { ok: false, erro: 'Não consegui gravar a pesquisa.' };
 
       await registrarAuditoria(tx, tid, {
-        ator: ATOR_DA_GESTAO,
+        ator: await atorDaGestao(),
         acao: 'criou',
         objetoTipo: 'pesquisa',
         objetoId: criada.id,
@@ -463,7 +463,7 @@ export async function gravarPesquisa(entrada: PesquisaParaGravar): Promise<Grava
 
     const mudou = diferenca(antes, valores);
     await registrarAuditoria(tx, tid, {
-      ator: ATOR_DA_GESTAO,
+      ator: await atorDaGestao(),
       acao: 'alterou',
       objetoTipo: 'pesquisa',
       objetoId: id,
@@ -524,7 +524,7 @@ export async function gravarEtiquetasDeEncerramento(
       .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.obrigatoriaNoEncerramento, true)));
 
     await registrarAuditoria(tx, tid, {
-      ator: ATOR_DA_GESTAO,
+      ator: await atorDaGestao(),
       acao: 'alterou',
       objetoTipo: 'etiqueta',
       /* Não é uma etiqueta: é a política de encerramento do tenant inteiro. O

@@ -1,6 +1,11 @@
-import { eq, sql } from 'drizzle-orm';
+import { cache } from 'react';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
+import { sql } from 'drizzle-orm';
 import { criarBanco, comTenant, type Ator, type BancoPipe, type TransacaoPipe } from '@pipe/db';
 import { tenant } from '@pipe/db/schema';
+import type { Eu } from '@pipe/contracts';
+import { COOKIE_SESSAO, buscarEu } from './sessao';
 
 /**
  * Conexão única do Pipe CRM. Mesma camada da Gestão, de propósito: as três telas
@@ -19,8 +24,6 @@ import { tenant } from '@pipe/db/schema';
  */
 const globalComPool = globalThis as unknown as {
   __pipeCrmBanco?: BancoPipe;
-  __pipeCrmTenantId?: Promise<string>;
-  __pipeCrmFuso?: Promise<string>;
 };
 
 export function banco(): BancoPipe {
@@ -32,29 +35,38 @@ export function banco(): BancoPipe {
 }
 
 /**
- * Qual tenant esta instância atende.
+ * Quem está logado, pelo cookie.
  *
- * Numa instalação real vem da sessão do usuário. Aqui vem de `PIPE_TENANT_ID`; sem
- * ele, uma única consulta de bootstrap resolve o slug pelo papel dono — porque a
- * política de `tenant` filtra por `id`, e ninguém descobre o próprio id sem já o ter.
+ * `cache` do React porque numa mesma renderização a lateral, a página e cada
+ * consulta perguntam a mesma coisa — e `GET /v1/eu` é ida à rede. O cache vale
+ * por requisição, nunca entre requisições.
  */
-export function tenantId(): Promise<string> {
-  const fixo = process.env['PIPE_TENANT_ID'];
-  if (fixo) return Promise.resolve(fixo);
+const carregarEu = cache(async (): Promise<Eu | null> => {
+  const cookie = (await cookies()).get(COOKIE_SESSAO);
+  if (!cookie) return null;
+  return buscarEu(`${COOKIE_SESSAO}=${cookie.value}`);
+});
 
-  globalComPool.__pipeCrmTenantId ??= (async () => {
-    const dono = criarBanco({ url: process.env['DATABASE_URL'], maxConexoes: 1 });
-    try {
-      const slug = process.env['PIPE_TENANT_SLUG'] ?? 'demo';
-      const [linha] = await dono.select({ id: tenant.id }).from(tenant).where(eq(tenant.slug, slug));
-      if (!linha) throw new Error(`tenant "${slug}" não existe: rode a semente antes.`);
-      return linha.id;
-    } finally {
-      await dono.$client.end();
-    }
-  })();
+/** Quem está logado, ou `null`. Para quem sabe lidar com a ausência. */
+export async function euAtual(): Promise<Eu | null> {
+  return carregarEu();
+}
 
-  return globalComPool.__pipeCrmTenantId;
+/**
+ * Quem está logado, ou a tela de entrada.
+ *
+ * Cobre o cookie vencido e o forjado, que o middleware não pega: ele só confere
+ * se o cookie EXISTE, e quem diz se ele vale é a `api`.
+ */
+export async function exigirEu(): Promise<Eu> {
+  const eu = await carregarEu();
+  if (!eu) redirect('/entrar');
+  return eu;
+}
+
+/** Qual tenant esta requisição atende: o de quem está logado, e nenhum outro. */
+export async function tenantId(): Promise<string> {
+  return (await exigirEu()).tenant.id;
 }
 
 /** Açúcar: abre a transação já com o tenant desta instância fixado. */
@@ -65,30 +77,30 @@ export async function consultar<T>(fn: (tx: TransacaoPipe) => Promise<T>): Promi
 /**
  * O fuso do tenant, para o "mês" dos indicadores não ser o fuso do servidor.
  *
- * Guardado no processo: ele não muda enquanto o app roda, e como toda página começa
- * por ele, sem o cache seria uma transação inteira antes de qualquer trabalho útil.
+ * O cache de processo SAIU junto com o tenant fixo: guardado num global, ele
+ * era o fuso do primeiro cliente que abrisse a tela servindo a todos os
+ * seguintes. `cache` do React põe o limite certo — uma consulta por
+ * requisição, e nada atravessando requisições.
  */
-export function fusoDoTenant(): Promise<string> {
-  globalComPool.__pipeCrmFuso ??= consultar(async (tx) => {
+export const fusoDoTenant = cache(async (): Promise<string> => {
+  return consultar(async (tx) => {
     const [linha] = await tx.select({ fuso: tenant.fuso }).from(tenant).limit(1);
     return linha?.fuso ?? 'America/Sao_Paulo';
   });
-  return globalComPool.__pipeCrmFuso;
-}
+});
 
 /**
  * Quem assina o que o CRM grava, no log de auditoria.
  *
- * O CRM ainda não tem sessão — `tenantId()` sai do ambiente, não de um usuário
- * logado. Então o ator é `sistema`, que é a verdade: foi a instância, e não uma
- * pessoa identificada. Mentir aqui seria pior do que não registrar, porque
- * alguém confiaria no nome.
- *
- * Quando a sessão existir, este valor vira `{ tipo: 'usuario', id, ip }` e
- * nenhuma escrita precisa mudar: todas já passam por aqui. É a mesma decisão,
- * pelo mesmo motivo, que a Gestão tomou em `ATOR_DA_GESTAO`.
+ * Era `sistema` porque não havia sessão: registrar uma pessoa que não se sabia
+ * qual era seria mentira. Agora há sessão, e o log diz quem — que é a única
+ * razão de alguém abrir a auditoria depois. Mesma decisão, mesmo motivo, que a
+ * Gestão tomou em `atorDaGestao`.
  */
-export const ATOR_DO_CRM = { tipo: 'sistema' } as const satisfies Ator;
+export async function atorDoCrm(): Promise<Ator> {
+  const eu = await exigirEu();
+  return { tipo: 'usuario', id: eu.usuario.id };
+}
 
 export interface Janela {
   inicio: Date;

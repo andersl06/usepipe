@@ -1,5 +1,5 @@
 import { dia, diaEHora } from '../servidor/formato';
-import { iniciaisDe } from '../servidor/banco';
+import { iniciaisDe } from '../lib/nome';
 import type { ConversaAberta, ConversaDoHistorico } from '../servidor/consultas';
 
 /**

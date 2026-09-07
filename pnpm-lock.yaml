@@ -105,6 +105,9 @@ importers:
 
   apps/crm:
     dependencies:
+      '@pipe/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@pipe/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -145,6 +148,9 @@ importers:
 
   apps/desk:
     dependencies:
+      '@pipe/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@pipe/core':
         specifier: workspace:*
         version: link:../../packages/core
@@ -179,6 +185,9 @@ importers:
 
   apps/gestao:
     dependencies:
+      '@pipe/contracts':
+        specifier: workspace:*
+        version: link:../../packages/contracts
       '@pipe/core':
         specifier: workspace:*
         version: link:../../packages/core

@@ -1,13 +1,13 @@
 import { desc, eq, isNull } from 'drizzle-orm';
 import { segundosEntre } from '@pipe/core';
-import { canal, motivoPausa, pausa, tenant } from '@pipe/db/schema';
-import { consultar } from './banco';
+import { canal, motivoPausa, pausa } from '@pipe/db/schema';
+import { consultar, euAtual } from './banco';
 
 /**
  * O que as duas barras do cabeçalho mostram.
  *
- * Três consultas curtas, todas sobre tabela pequena: o tenant (uma linha), os
- * canais (unidades, não milhares) e as pausas abertas. Nenhuma delas
+ * Duas consultas curtas, ambas sobre tabela pequena: os canais (unidades, não
+ * milhares) e as pausas abertas — o tenant e a pessoa vêm da sessão. Nenhuma delas
  * toca `evento_atendimento`, que é a tabela cara do monitoramento — o cabeçalho
  * aparece em toda rota da Gestão e não pode custar o preço de um painel.
  *
@@ -23,34 +23,48 @@ export interface DadosDoCabecalho {
   tenant: { nome: string; plano: string };
   canais: { id: string; nome: string; tipo: string; ativo: boolean }[];
   avisos: number;
+  /** Quem está logado. `null` na tela de entrada, que é pública. */
+  usuario: { nome: string; email: string } | null;
 }
 
 /** O cabeçalho sem banco: a Gestão não pode deixar de abrir por causa do cromo. */
-const VAZIO: DadosDoCabecalho = { tenant: { nome: 'Pipe', plano: 'padrao' }, canais: [], avisos: 0 };
+const VAZIO: DadosDoCabecalho = {
+  tenant: { nome: 'Pipe', plano: 'padrao' },
+  canais: [],
+  avisos: 0,
+  usuario: null,
+};
 
 /**
- * Nunca lança. O cabeçalho vive no layout raiz, então ele roda em TODA rota,
- * inclusive nas duas que o `next build` prerrenderiza (`/_not-found` e o
- * redirecionamento de `/configuracoes`) — e build de front-end não pode
- * depender de Postgres no ar. Sem banco, as barras aparecem com o nome
- * genérico; as telas de dados continuam falhando alto, como devem.
+ * Nunca lança, e nunca redireciona. O cabeçalho vive no layout raiz, então ele
+ * roda em TODA rota — inclusive na `/entrar`, que é pública. Se ele exigisse
+ * sessão, quem não tem sessão seria mandado para `/entrar` pelo layout da
+ * própria `/entrar`, em círculo.
+ *
+ * Por isso `euAtual()` e não `exigirEu()`: sem sessão, as barras aparecem com o
+ * nome genérico e o miolo é que decide o que fazer. As telas de dados continuam
+ * falhando alto (ou indo para `/entrar`), como devem.
+ *
+ * O `try` continua valendo pelo outro motivo: `next build` prerrenderiza
+ * `/_not-found`, e build de front-end não pode depender de Postgres no ar.
  */
 export async function carregarCabecalho(): Promise<DadosDoCabecalho> {
+  const eu = await euAtual();
+  if (!eu) return VAZIO;
+
+  const usuario = { nome: eu.usuario.nome, email: eu.usuario.email };
+  const tenant = { nome: eu.tenant.nome, plano: eu.tenant.plano };
   try {
-    return await consultarCabecalho();
+    return { ...(await consultarCabecalho()), tenant, usuario };
   } catch {
-    return VAZIO;
+    return { ...VAZIO, tenant, usuario };
   }
 }
 
-async function consultarCabecalho(): Promise<DadosDoCabecalho> {
+/** Só o que ainda depende do banco: o tenant agora vem da sessão, sem consulta. */
+async function consultarCabecalho(): Promise<Pick<DadosDoCabecalho, 'canais' | 'avisos'>> {
   const agora = new Date();
   return consultar(async (tx) => {
-    const [linha] = await tx
-      .select({ nome: tenant.nome, plano: tenant.plano })
-      .from(tenant)
-      .limit(1);
-
     const canais = await tx
       .select({ id: canal.id, nome: canal.nome, tipo: canal.tipo, ativo: canal.ativo })
       .from(canal)
@@ -69,10 +83,6 @@ async function consultarCabecalho(): Promise<DadosDoCabecalho> {
       if (segundosEntre(p.iniciadaEm, agora) > limite * 60) avisos += 1;
     }
 
-    return {
-      tenant: { nome: linha?.nome ?? 'Pipe', plano: linha?.plano ?? 'padrao' },
-      canais,
-      avisos,
-    };
+    return { canais, avisos };
   });
 }

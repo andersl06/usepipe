@@ -1,15 +1,25 @@
-import { sql } from 'drizzle-orm';
+import { cache } from 'react';
+import { cookies } from 'next/headers';
+import { redirect } from 'next/navigation';
 import { criarBanco, comTenant } from '@pipe/db';
 import type { BancoPipe, TransacaoPipe } from '@pipe/db';
+import type { Eu } from '@pipe/contracts';
+import { COOKIE_SESSAO, buscarEu } from '../lib/sessao';
+import { iniciaisDe } from '../lib/nome';
 
 /**
  * Acesso ao banco a partir dos Server Components e Server Actions do Desk.
  *
- * Nesta etapa não existe login: o Desk assume um tenant e um atendente fixos, vindos
- * de variável de ambiente e com o padrão apontando para a semente de demonstração.
- * **Este é o ponto de extensão da autenticação** — quando a sessão existir, é só
- * `sessaoAtual()` passar a ler o cookie em vez de ler o ambiente; nada mais na tela
- * precisa mudar.
+ * **O tenant e o atendente vêm da SESSÃO**, não do ambiente. Até aqui os dois
+ * saíam de `PIPE_TENANT_SLUG` e `PIPE_ATENDENTE_EMAIL`, com o padrão apontando
+ * para a semente de demonstração — o que significava que qualquer pessoa que
+ * abrisse a tela entraria como o cliente de demonstração. Agora quem responde
+ * "de quem é esta tela" é o cookie `pipe_sessao`, resolvido pela `api` em
+ * `GET /v1/eu`, e sem ele a pessoa vai para `/entrar`.
+ *
+ * A conexão com o Postgres continua aqui porque a tela ainda consulta o banco
+ * direto (dívida conhecida do README, que a migração para Vite paga). O que
+ * mudou é que o `tenant_id` da transação é o da pessoa logada.
  */
 
 /** Papel da aplicação: sem `bypassrls`, sujeito à política `tenant_isolado`. */
@@ -17,23 +27,11 @@ const URL_APP =
   process.env['DATABASE_URL_APP'] ?? 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 
 /**
- * Papel dono. Usado só para descobrir o tenant pelo slug: a política de `tenant` é
- * escrita sobre o próprio `id`, então achar o tenant antes de haver tenant em vigor
- * não passa pelo papel da aplicação. É a lacuna registrada na migration `0001_rls`.
- */
-const URL_DONO = process.env['DATABASE_URL'] ?? 'postgres://pipe:pipe@localhost:5433/pipe';
-
-const SLUG = process.env['PIPE_TENANT_SLUG'] ?? 'demo';
-const EMAIL_ATENDENTE = process.env['PIPE_ATENDENTE_EMAIL'] ?? 'ana.ribeiro@demo.pipe.app';
-
-/**
  * O `next dev` recarrega o módulo a cada edição; sem isto cada recarga abriria um pool
  * novo e o Postgres acabaria recusando conexão.
  */
 const guardado = globalThis as typeof globalThis & {
   pipeBancoApp?: BancoPipe;
-  pipeBancoDono?: BancoPipe;
-  pipeTenantId?: string;
 };
 
 function bancoApp(): BancoPipe {
@@ -41,30 +39,41 @@ function bancoApp(): BancoPipe {
   return guardado.pipeBancoApp;
 }
 
-function bancoDono(): BancoPipe {
-  guardado.pipeBancoDono ??= criarBanco({ url: URL_DONO, maxConexoes: 1 });
-  return guardado.pipeBancoDono;
+/**
+ * Quem está logado, pelo cookie.
+ *
+ * `cache` do React porque numa mesma renderização a página, o trilho e cada
+ * ação perguntam a mesma coisa — e `GET /v1/eu` é ida à rede, não leitura
+ * local. O cache vale por requisição, e não entre requisições: sessão em cache
+ * global é sessão de outra pessoa aparecendo na tela de alguém.
+ */
+const carregarEu = cache(async (): Promise<Eu | null> => {
+  const cookie = (await cookies()).get(COOKIE_SESSAO);
+  if (!cookie) return null;
+  return buscarEu(`${COOKIE_SESSAO}=${cookie.value}`);
+});
+
+/** Quem está logado, ou `null`. Para quem sabe lidar com a ausência. */
+export async function euAtual(): Promise<Eu | null> {
+  return carregarEu();
 }
 
-async function resolverTenantId(): Promise<string> {
-  if (guardado.pipeTenantId) return guardado.pipeTenantId;
-  const { rows } = await bancoDono().execute<{ id: string }>(
-    sql`select id from tenant where slug = ${SLUG} limit 1`,
-  );
-  const id = rows[0]?.id;
-  if (!id) {
-    throw new Error(
-      `tenant "${SLUG}" não existe. Rode "pnpm banco:migrar", "pnpm banco:semear" e "pnpm seed:demo".`,
-    );
-  }
-  guardado.pipeTenantId = id;
-  return id;
+/**
+ * Quem está logado, ou a tela de entrada.
+ *
+ * Cobre o cookie vencido e o forjado, que o middleware não pega: ele só confere
+ * se o cookie EXISTE, e quem diz se ele vale é a `api`.
+ */
+export async function exigirEu(): Promise<Eu> {
+  const eu = await carregarEu();
+  if (!eu) redirect('/entrar');
+  return eu;
 }
 
-/** Roda o trabalho dentro da transação com `pipe.tenant_id` fixado. */
+/** Roda o trabalho dentro da transação com o `pipe.tenant_id` de quem está logado. */
 export async function noTenant<T>(fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> {
-  const tenantId = await resolverTenantId();
-  return comTenant(bancoApp(), tenantId, fn);
+  const eu = await exigirEu();
+  return comTenant(bancoApp(), eu.tenant.id, fn);
 }
 
 export interface Sessao {
@@ -74,34 +83,24 @@ export interface Sessao {
   email: string;
   /** Iniciais para o avatar do trilho. */
   iniciais: string;
+  /** O nome do cliente, para o menu de conta do trilho. */
+  tenantNome: string;
 }
 
-/** O atendente em vigor. Ponto de extensão da autenticação (ver topo do arquivo). */
+/**
+ * O atendente em vigor. Uma chamada de rede, não uma consulta: `GET /v1/eu` já
+ * devolve usuário e tenant juntos, e repetir isso em SQL aqui seria manter duas
+ * definições de "quem está logado".
+ */
 export async function sessaoAtual(): Promise<Sessao> {
-  const tenantId = await resolverTenantId();
-  return noTenant(async (tx) => {
-    const { rows } = await tx.execute<{ id: string; nome: string; email: string }>(
-      sql`select id, nome, email from usuario where email = ${EMAIL_ATENDENTE} limit 1`,
-    );
-    const usuario = rows[0];
-    if (!usuario) {
-      throw new Error(
-        `atendente "${EMAIL_ATENDENTE}" não existe no tenant "${SLUG}". Rode "pnpm seed:demo".`,
-      );
-    }
-    return {
-      tenantId,
-      atendenteId: usuario.id,
-      nome: usuario.nome,
-      email: usuario.email,
-      iniciais: iniciaisDe(usuario.nome),
-    };
-  });
+  const eu = await exigirEu();
+  return {
+    tenantId: eu.tenant.id,
+    atendenteId: eu.usuario.id,
+    nome: eu.usuario.nome,
+    email: eu.usuario.email,
+    iniciais: iniciaisDe(eu.usuario.nome),
+    tenantNome: eu.tenant.nome,
+  };
 }
 
-export function iniciaisDe(nome: string): string {
-  const partes = nome.trim().split(/\s+/);
-  const primeira = partes[0]?.[0] ?? '?';
-  const ultima = partes.length > 1 ? (partes[partes.length - 1]?.[0] ?? '') : '';
-  return (primeira + ultima).toUpperCase();
-}

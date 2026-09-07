@@ -12,6 +12,7 @@ import {
 } from '@pipe/ui';
 import { IconeGestao } from './icones-gestao';
 import { AlternarTema } from './alternar-tema';
+import { sair } from '../app/entrar/acoes';
 import type { DadosDoCabecalho } from '../lib/cabecalho';
 
 /**
@@ -245,21 +246,40 @@ function BarraSuperior({ dados }: { dados: DadosDoCabecalho }) {
 
         <AlternarTema />
 
+        {/* O avatar é de QUEM ESTÁ LOGADO, não do cliente: é o gesto que a
+            pessoa procura para conferir com que conta entrou e para sair. O
+            nome do cliente continua na ponta esquerda desta mesma barra. */}
         <details className="g-menu">
           <summary
             className="g-iconbtn g-avatar"
-            title={dados.tenant.nome}
-            aria-label={`Conta de ${dados.tenant.nome}`}
+            title={dados.usuario?.nome ?? dados.tenant.nome}
+            aria-label={`Conta de ${dados.usuario?.nome ?? dados.tenant.nome}`}
           >
-            <Avatar nome={dados.tenant.nome} />
+            <Avatar nome={dados.usuario?.nome ?? dados.tenant.nome} />
           </summary>
           <div className="g-painel">
-            <b>{dados.tenant.nome}</b>
-            <p>Plano {dados.tenant.plano}</p>
+            {dados.usuario ? (
+              <div className="eu-bloco">
+                <b>{dados.usuario.nome}</b>
+                <span>{dados.usuario.email}</span>
+                <span>
+                  {dados.tenant.nome} · plano {dados.tenant.plano}
+                </span>
+              </div>
+            ) : (
+              <b>{dados.tenant.nome}</b>
+            )}
             <Link href="/configuracoes">Configurações</Link>
             <a href={URL_DESK} target="_blank" rel="noreferrer">
               Abrir o Pipe Desk
             </a>
+            {dados.usuario ? (
+              <form className="eu-sair" action={sair}>
+                <button type="submit" className="btn">
+                  Sair
+                </button>
+              </form>
+            ) : null}
           </div>
         </details>
       </div>
@@ -442,6 +462,13 @@ function Lateral({ caminho }: { caminho: string }) {
 
 /* ========================================================== estrutura */
 
+/**
+ * As duas rotas públicas do produto. Elas não têm barra, nem lateral, nem
+ * canal: quem chega nelas não está logado, e todo o cromo desta estrutura
+ * mostra dado de tenant.
+ */
+const PUBLICO = /^\/(entrar|convite)(\/|$)/;
+
 export function EstruturaGestao({
   dados,
   children,
@@ -450,6 +477,8 @@ export function EstruturaGestao({
   children: React.ReactNode;
 }) {
   const caminho = usePathname();
+
+  if (PUBLICO.test(caminho)) return <>{children}</>;
 
   /*
    * UMA estrutura para todas as telas. A área de configurações separada saiu:

@@ -5,6 +5,7 @@ import { Icone } from '@pipe/ui';
 import { AlternarTema } from './alternar-tema';
 import { ATALHOS_GLOBAIS, ID_FOLHA_ATALHOS } from './atalhos';
 import { IconeDesk } from './icones-desk';
+import { sair } from '../app/entrar/acoes';
 
 /**
  * Os dois destinos de conta do rodapé do trilho — Ajuda e Preferências.
@@ -101,9 +102,28 @@ export function BotaoAjuda() {
   );
 }
 
-export function BotaoPreferencias({ urlGestao }: { urlGestao: string }) {
+export function BotaoPreferencias({
+  urlGestao,
+  nome,
+  email,
+  tenant,
+}: {
+  urlGestao: string;
+  nome: string;
+  email: string;
+  tenant: string;
+}) {
   return (
     <BotaoDeDialogo rotulo="Preferências" icone="preferencias">
+      {/* A conta em vigor vem PRIMEIRO: quem abre este diálogo com dúvida sobre
+          com qual conta entrou não devia ter de ler as preferências antes. O
+          avatar do trilho já mostra as iniciais desta mesma pessoa. */}
+      <div className="eu-bloco">
+        <b>{nome}</b>
+        <span>{email}</span>
+        <span>{tenant}</span>
+      </div>
+
       <p>
         O Desk não configura fila, regra nem relatório — isso é do Pipe Gestão. Aqui fica só o
         que é da sua tela.
@@ -116,6 +136,12 @@ export function BotaoPreferencias({ urlGestao }: { urlGestao: string }) {
         <IconeDesk nome="externo" tamanho={14} />
         Abrir o Pipe Gestão
       </a>
+
+      <form className="eu-sair" action={sair}>
+        <button type="submit" className="btn">
+          Sair
+        </button>
+      </form>
     </BotaoDeDialogo>
   );
 }
