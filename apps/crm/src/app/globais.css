@@ -451,8 +451,39 @@
 }
 
 .campos > div:hover .inline .lapis,
+.listagem tbody tr:hover .inline .lapis,
 .inline:focus-within .lapis {
   visibility: visible;
+}
+
+/* A mesma célula dentro da listagem. Duas diferenças, e só duas:
+   - a célula da tabela já tem recuo próprio, então o campo de edição ocupa a
+     largura toda dela em vez de a do valor;
+   - a queixa não pode quebrar a linha da tabela em duas alturas diferentes, e
+     por isso ela vira dica sobre a célula seguinte em vez de empurrar a linha.
+   O resto (o lápis no hover, o Enter que grava, o Esc que desiste) é o mesmo
+   comportamento da ficha, e é de propósito: quem aprendeu num lugar já sabe o
+   outro. */
+.listagem .inline {
+  position: relative;
+  width: 100%;
+}
+
+.listagem .inline .queixa {
+  position: absolute;
+  z-index: 10;
+  margin-top: var(--p-e-5);
+  padding: 2px var(--p-e-2);
+  background: var(--p-erro-fundo);
+  border: 1px solid var(--p-erro-linha);
+  border-radius: var(--p-r-sm);
+  max-width: 260px;
+  white-space: normal;
+}
+
+/* A célula que hospeda edição não pode recortar o `<select>` nem a dica. */
+.listagem td:has(.inline) {
+  overflow: visible;
 }
 
 /* Gravando: o valor novo já está na tela, e a opacidade diz que ainda não
@@ -955,6 +986,250 @@ code {
   font-size: var(--p-t-sm);
   color: var(--p-conteudo-fantasma);
   white-space: nowrap;
+}
+
+/* ------------------------------------------------------- filtro por coluna
+   O menu de dois passos do Twenty (campo → valor), com as medidas do painel
+   de campos deles: 200px de largura, item de 32px, 4px de recuo lateral.
+   `<details>` nativo abre e fecha, e cada valor é um link — a tela inteira do
+   filtro não tem uma linha de JavaScript. */
+.filtros {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  flex-wrap: wrap;
+}
+
+.menu-filtro {
+  position: relative;
+}
+
+.menu-filtro > summary {
+  list-style: none;
+}
+
+.menu-filtro > summary::-webkit-details-marker {
+  display: none;
+}
+
+.menu-filtro[open] > summary {
+  background: var(--p-superficie-3);
+}
+
+.menu-painel {
+  position: absolute;
+  top: calc(100% + var(--p-e-1));
+  left: 0;
+  z-index: 30;
+  width: 200px;
+  padding: var(--p-e-1);
+  background: var(--p-superficie-0);
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  box-shadow: var(--p-sombra-2);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.menu-painel > details > summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  padding: 0 var(--p-e-1);
+  border-radius: calc(var(--p-r-md) - var(--p-e-1));
+  font-size: var(--p-t-md);
+  cursor: pointer;
+}
+
+.menu-painel > details > summary:hover {
+  background: var(--p-superficie-2);
+}
+
+.menu-painel ul {
+  list-style: none;
+  margin: 0 0 var(--p-e-1);
+  padding: 0 0 0 var(--p-e-3);
+}
+
+.menu-painel li a {
+  display: block;
+  height: 28px;
+  line-height: 28px;
+  padding: 0 var(--p-e-1);
+  border-radius: calc(var(--p-r-md) - var(--p-e-1));
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-desabilitado);
+  text-decoration: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.menu-painel li a:hover {
+  background: var(--p-superficie-2);
+  color: var(--p-conteudo);
+}
+
+/* O valor já escolhido. A marca aqui é estado ativo, que é onde ela pode. */
+.menu-painel li a[aria-current='true'] {
+  background: var(--p-marca-suave);
+  color: var(--p-marca-forte);
+}
+
+/* O chip do filtro ativo é o próprio botão de remover: um alvo, uma ação, e
+   nenhum "x" de 8px pedindo pontaria. */
+.filtro-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-e-1);
+  padding: 4px var(--p-e-2);
+  font-size: var(--p-t-sm);
+  border-radius: var(--p-r-pilula);
+  background: var(--p-marca-suave);
+  border: 1px solid var(--p-marca-linha);
+  color: var(--p-marca-forte);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.filtro-chip:hover {
+  background: var(--p-superficie-3);
+}
+
+/* ------------------------------------------------- painel de colunas
+   As medidas são do Twenty, do dropdown de campos: painel de 200px
+   (`GenericDropdownContentWidth.Medium`), item de 32px, 4px de recuo lateral,
+   8px entre alça, rótulo e botão, e raio concêntrico — o do item é o do painel
+   menos o recuo, que é a fórmula deles escrita nos nossos tokens.
+
+   A barra existe só para encostar o botão à direita, acima da tabela. */
+.barra-lista {
+  display: flex;
+  justify-content: flex-end;
+  padding: var(--p-e-2) var(--p-e-4) 0;
+}
+
+.colunas {
+  position: relative;
+}
+
+.colunas-painel {
+  position: absolute;
+  top: calc(100% + var(--p-e-1));
+  right: 0;
+  z-index: 30;
+  width: 200px;
+  padding: var(--p-e-1);
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-1);
+  background: var(--p-superficie-0);
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  box-shadow: var(--p-sombra-2);
+}
+
+.colunas-painel .lbl {
+  margin: 0;
+  padding: var(--p-e-1) var(--p-e-2) 0;
+}
+
+.colunas-painel ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.colunas-painel li {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  height: 32px;
+  padding: 0 var(--p-e-1);
+  border-radius: calc(var(--p-r-md) - var(--p-e-1));
+  font-size: var(--p-t-md);
+  color: var(--p-conteudo);
+}
+
+.colunas-painel li:hover {
+  background: var(--p-superficie-2);
+}
+
+.colunas-painel li .rot {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* A coluna que não se move nem se oculta. Tom apagado e alça sem cursor de
+   arraste: o item continua na lista para dizer que ela É a primeira, e não
+   promete um movimento que não acontece. */
+.colunas-painel li.travada {
+  color: var(--p-conteudo-fantasma);
+}
+
+.colunas-painel li.travada:hover {
+  background: transparent;
+}
+
+.colunas-painel li.oculta .rot {
+  color: var(--p-conteudo-fantasma);
+}
+
+.colunas-painel .pega {
+  display: grid;
+  place-items: center;
+  color: var(--p-conteudo-fantasma);
+  cursor: grab;
+  flex: none;
+  border-radius: var(--p-r-sm);
+}
+
+.colunas-painel li.travada .pega {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.colunas-painel .pega:focus-visible {
+  outline: 2px solid var(--p-marca);
+  outline-offset: 1px;
+}
+
+/* O olho só aparece no item sob o cursor ou com foco dentro — a mesma regra do
+   lápis da célula inline. Uma coluna de ícones em repouso é ruído. */
+.colunas-painel .olho {
+  display: grid;
+  place-items: center;
+  flex: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo-desabilitado);
+  cursor: pointer;
+  opacity: 0;
+  transition: opacity var(--p-dur-rapida) ease;
+}
+
+.colunas-painel li:hover .olho,
+.colunas-painel .olho:focus-visible {
+  opacity: 1;
+}
+
+/* O item sendo arrastado fica apagado, e o que vai receber ganha um fio em
+   cima: dois sinais diferentes para as duas pontas do movimento. */
+.colunas-painel li.pegada {
+  opacity: 0.45;
+}
+
+.colunas-painel li.alvo {
+  box-shadow: inset 0 2px 0 var(--p-marca);
+}
+
+.colunas-painel > .btn {
+  justify-content: center;
+  margin-top: var(--p-e-1);
 }
 
 /* ================================================== cabeçalho de destaque

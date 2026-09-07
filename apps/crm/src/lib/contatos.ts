@@ -117,6 +117,8 @@ export interface FichaContato {
   contaId: string | null;
   contaNome: string | null;
   criadoEm: Date | null;
+  /** Campo customizado por tenant, em JSONB. A ficha o mostra na lateral. */
+  atributos: Record<string, unknown>;
   leadId: string | null;
   leadStatus: string | null;
   leadFase: string | null;
@@ -139,6 +141,7 @@ export async function carregarContato(id: string): Promise<FichaContato | null> 
         contaId: contato.contaId,
         contaNome: conta.nome,
         criadoEm: contato.criadoEm,
+        atributos: contato.atributos,
         leadId: lead.id,
         leadStatus: lead.status,
         leadFase: lead.fase,
@@ -179,6 +182,7 @@ export async function carregarContato(id: string): Promise<FichaContato | null> 
       ...cabeca,
       nome: cabeca.nome ?? 'Contato sem nome',
       criadoEm: paraData(cabeca.criadoEm),
+      atributos: (cabeca.atributos ?? {}) as Record<string, unknown>,
       conversas: conversas.map((c) => ({
         ...c,
         criadaEm: paraData(c.criadaEm),

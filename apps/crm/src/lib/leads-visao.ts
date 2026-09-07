@@ -58,6 +58,8 @@ export interface LinhaLead {
   faixa: string | null;
   fila: string | null;
   proprietario: string | null;
+  /** O id do dono. A listagem edita por id; o nome é só o que ela mostra. */
+  proprietarioId: string | null;
   status: string;
   fase: string | null;
   diasNaFase: number | null;
@@ -170,6 +172,75 @@ export function direcaoValida(valor: string | undefined): Direcao {
 
 export function colunaOrdenavel(chave: string): boolean {
   return ORDENAVEIS.some((o) => o === chave);
+}
+
+/* --------------------------------------------------------- filtro por coluna
+ *
+ * O filtro vive na URL, como a ordenação e o agrupamento, e por isso **a visão
+ * salva o guarda de graça**: a visão é um nome dado a uma consulta, e o filtro
+ * já é parte dela. Foi a razão de ele não virar estado de componente.
+ *
+ * O prefixo `f.` separa o filtro do resto dos parâmetros sem uma lista de nomes
+ * reservados: `f.origem=Anúncio Meta` é filtro, `origem` não seria — e amanhã
+ * uma coluna nova entra sem risco de colidir com `aba`, `q` ou `dir`.
+ *
+ * Quatro colunas, e são as categóricas. Score e Dias na fase pedem faixa ("de
+ * 60 a 80"), que é outro controle e outra conversa; texto livre já é a busca.
+ * Coluna que não filtra simplesmente não aparece no menu.
+ */
+export const FILTRAVEIS = [
+  { chave: 'origem', rotulo: 'Origem' },
+  { chave: 'faixa', rotulo: 'Faixa de score' },
+  { chave: 'fase', rotulo: 'Fase' },
+  { chave: 'proprietario', rotulo: 'Proprietário' },
+] as const;
+
+export type ChaveDeFiltro = (typeof FILTRAVEIS)[number]['chave'];
+
+/** Coluna filtrada → valor exigido. `SEM_VALOR` pede as linhas em branco. */
+export type Filtros = Partial<Record<ChaveDeFiltro, string>>;
+
+/**
+ * O valor que representa "em branco".
+ *
+ * Filtrar por "sem proprietário" é uma das perguntas mais feitas da tela, e uma
+ * string vazia na URL some no caminho — `?f.proprietario=` volta como `''` em
+ * alguns navegadores e como ausente em outros. Uma palavra explícita não some.
+ */
+export const SEM_VALOR = '—';
+
+export function filtroValido(chave: string): chave is ChaveDeFiltro {
+  return FILTRAVEIS.some((f) => f.chave === chave);
+}
+
+/** Lê os `f.*` do que veio na URL, jogando fora o que não é coluna filtrável. */
+export function lerFiltros(params: Record<string, string | string[] | undefined>): Filtros {
+  const saida: Filtros = {};
+  for (const [chave, valor] of Object.entries(params)) {
+    if (!chave.startsWith('f.')) continue;
+    const coluna = chave.slice(2);
+    // Um parâmetro repetido vira array; o primeiro vale, porque o filtro é de
+    // um valor só e dois valores para a mesma coluna é URL adulterada.
+    const texto = Array.isArray(valor) ? valor[0] : valor;
+    if (filtroValido(coluna) && texto !== undefined && texto !== '') saida[coluna] = texto;
+  }
+  return saida;
+}
+
+/** Escreve os filtros de volta numa consulta, no mesmo formato que se lê. */
+export function escreverFiltros(p: URLSearchParams, filtros: Filtros): URLSearchParams {
+  for (const { chave } of FILTRAVEIS) {
+    const valor = filtros[chave];
+    if (valor === undefined) p.delete(`f.${chave}`);
+    else p.set(`f.${chave}`, valor);
+  }
+  return p;
+}
+
+/** O texto do chip: "Origem: Anúncio Meta", ou "Origem: sem origem". */
+export function rotuloDoFiltro(chave: ChaveDeFiltro, valor: string): string {
+  const rotulo = FILTRAVEIS.find((f) => f.chave === chave)?.rotulo ?? chave;
+  return `${rotulo}: ${valor === SEM_VALOR ? 'em branco' : valor}`;
 }
 
 /**

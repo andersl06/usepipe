@@ -1,4 +1,5 @@
 import { and, desc, eq, inArray, isNull, lt, sql } from 'drizzle-orm';
+import type { PgColumn } from 'drizzle-orm/pg-core';
 import type { ItemExplicacao } from '@pipe/core';
 import {
   atividade,
@@ -19,7 +20,8 @@ import {
   scoreLead,
   usuario,
 } from '@pipe/db/schema';
-import { consultar, paraData, paraNumero } from './banco';
+import { diferenca, registrarAuditoria, type TransacaoPipe } from '@pipe/db';
+import { ATOR_DO_CRM, consultar, paraData, paraNumero, tenantId } from './banco';
 // Só o tipo, e de um arquivo sem banco: é o mesmo catálogo que a célula inline
 // lê no navegador, e é ele que fecha a lista de colunas graváveis.
 import type { ChaveCampo } from './campos-editaveis';
@@ -47,15 +49,23 @@ export {
   colunaOrdenavel,
   direcaoInicial,
   direcaoValida,
+  escreverFiltros,
+  FILTRAVEIS,
+  filtroValido,
+  lerFiltros,
   LIMITE_LISTA,
   ordemValida,
   ROTULO_ATIVIDADE,
   ROTULO_STATUS,
+  rotuloDoFiltro,
+  SEM_VALOR,
 } from './leads-visao';
 export type {
   Aba,
   Agrupamento,
+  ChaveDeFiltro,
   Direcao,
+  Filtros,
   Grupo,
   LinhaLead,
   Ordem,
@@ -64,10 +74,12 @@ export type {
 
 // Reexportar não traz o nome para o escopo deste arquivo, e as consultas abaixo
 // usam quase todos. Por isso a segunda linha, que parece redundante e não é.
-import { LIMITE_LISTA, ROTULO_ATIVIDADE } from './leads-visao';
+import { filtroValido, LIMITE_LISTA, ROTULO_ATIVIDADE, SEM_VALOR } from './leads-visao';
 import type {
   Aba,
+  ChaveDeFiltro,
   Direcao,
+  Filtros,
   LinhaLead,
   Ordem,
   Proprietario,
@@ -131,15 +143,84 @@ function ordenacaoSql(ordem: Ordem, direcao: Direcao) {
 }
 
 /**
+ * A coluna do Postgres que cada filtro interroga, e o que "em branco" significa
+ * em cada uma.
+ *
+ * O nome da coluna **não vem da tela**: `chave` é do catálogo fechado de
+ * `FILTRAVEIS`, e é este mapa que decide onde a comparação cai. Só o VALOR vem
+ * de fora, e ele entra como parâmetro do driver, nunca concatenado.
+ *
+ * `proprietario` compara pelo nome, e não pelo id, porque é o nome que a tela
+ * mostra e é dele que o menu de valores é feito. Trocar por id exigiria o menu
+ * carregar id e nome só para esconder um dos dois.
+ */
+function condicaoDeFiltro(chave: ChaveDeFiltro, valor: string) {
+  const vazio = valor === SEM_VALOR;
+  if (chave === 'origem') return vazio ? isNull(lead.origem) : eq(lead.origem, valor);
+  if (chave === 'faixa') return vazio ? isNull(lead.faixaAtual) : eq(lead.faixaAtual, valor);
+  if (chave === 'fase') return vazio ? isNull(lead.fase) : eq(lead.fase, valor);
+  return vazio ? isNull(lead.proprietarioId) : eq(usuario.nome, valor);
+}
+
+/**
+ * Os valores que cada coluna filtrável tem hoje, para o menu de filtro.
+ *
+ * Sai do banco, e não das 200 linhas já carregadas: a lista com teto mostraria
+ * só as origens que couberam, e filtrar por uma origem que existe mas não
+ * apareceu seria impossível pela tela.
+ *
+ * Em série dentro do mesmo `consultar` (README), e com teto por coluna: um menu
+ * de trezentas origens não é um menu, é uma segunda listagem.
+ */
+const TETO_DE_OPCOES = 40;
+
+export async function opcoesDeFiltro(): Promise<Record<ChaveDeFiltro, string[]>> {
+  return consultar(async (tx) => {
+    const distintos = async (coluna: PgColumn) => {
+      const linhas = await tx
+        .selectDistinct({ v: coluna })
+        .from(lead)
+        .where(and(isNull(lead.excluidoEm), sql`${coluna} is not null`))
+        .orderBy(coluna)
+        .limit(TETO_DE_OPCOES);
+      // O `is not null` já está no `where`; o filtro aqui é só para o tipo.
+      return linhas.map((l) => String(l.v)).filter((v) => v !== 'null');
+    };
+
+    const origem = await distintos(lead.origem);
+    const faixa = await distintos(lead.faixaAtual);
+    const fase = await distintos(lead.fase);
+    const donos = await tx
+      .selectDistinct({ v: usuario.nome })
+      .from(lead)
+      .innerJoin(usuario, eq(usuario.id, lead.proprietarioId))
+      .where(isNull(lead.excluidoEm))
+      .orderBy(usuario.nome)
+      .limit(TETO_DE_OPCOES);
+
+    return { origem, faixa, fase, proprietario: donos.map((d) => d.v) };
+  });
+}
+
+/**
  * Lista e contagem das abas na **mesma** transação. Eram duas, mais a do fuso: três
  * transações e três conexões do pool para desenhar uma tela. Dentro daqui as
  * consultas continuam em série, que é obrigatório (README).
+ *
+ * O filtro entra no `where`, e não sobre as linhas já buscadas, pelo mesmo
+ * motivo da ordenação: com teto de 200, filtrar depois responderia "dos 200
+ * mais novos, os da origem X" quando a pergunta é "os 200 leads da origem X".
+ *
+ * As contagens das abas, essas, **ignoram o filtro de propósito**: elas dizem
+ * quantos leads existem em cada recorte, e um número que muda conforme o filtro
+ * não serve para escolher para qual recorte ir.
  */
 export async function carregarListaDeLeads(
   aba: Aba,
   busca: string,
   ordem: Ordem = 'nenhuma',
   direcao: Direcao = 'desc',
+  filtros: Filtros = {},
 ): Promise<ListaDeLeads> {
   return consultar(async (tx) => {
     const recorte = {
@@ -162,6 +243,10 @@ export async function carregarListaDeLeads(
              or ${contato.email} ilike ${'%' + termo + '%'})`
       : undefined;
 
+    const condicoes = Object.entries(filtros)
+      .filter((par): par is [ChaveDeFiltro, string] => filtroValido(par[0]))
+      .map(([chave, valor]) => condicaoDeFiltro(chave, valor));
+
     const cru = await tx
       .select({
         id: lead.id,
@@ -170,6 +255,9 @@ export async function carregarListaDeLeads(
         score: lead.scoreAtual,
         faixa: lead.faixaAtual,
         proprietario: usuario.nome,
+        // O id, e não só o nome: a célula editável da listagem grava o id, e
+        // nome muda sem que a atribuição mude junto.
+        proprietarioId: lead.proprietarioId,
         status: lead.status,
         fase: lead.fase,
         faseDesde: lead.faseDesde,
@@ -177,7 +265,7 @@ export async function carregarListaDeLeads(
       .from(lead)
       .leftJoin(contato, eq(contato.id, lead.contatoId))
       .leftJoin(usuario, eq(usuario.id, lead.proprietarioId))
-      .where(and(isNull(lead.excluidoEm), recorte, filtroBusca))
+      .where(and(isNull(lead.excluidoEm), recorte, filtroBusca, ...condicoes))
       .orderBy(...ordenacaoSql(ordem, direcao))
       .limit(LIMITE_LISTA);
 
@@ -212,6 +300,7 @@ export async function carregarListaDeLeads(
         faixa: l.faixa,
         fila: l.faixa ? (filas.get(l.faixa) ?? null) : null,
         proprietario: l.proprietario,
+        proprietarioId: l.proprietarioId,
         status: l.status,
         fase: l.fase,
         diasNaFase: desdeFase ? Math.floor((agora - desdeFase.getTime()) / 86_400_000) : null,
@@ -535,8 +624,13 @@ async function carregarRespostas(
  * Atividades e conversas na mesma linha do tempo. A conversa entra com o resumo do
  * atendimento quando a monitoria já classificou — é a promessa do produto: o CRM se
  * alimenta das conversas, e o vendedor lê o que aconteceu sem abrir o Desk.
+ *
+ * Exportada porque a ficha da oportunidade mostra a mesma linha: o histórico de
+ * uma negociação É o histórico do lead que a originou, e `atividade` não tem
+ * coluna de oportunidade. Recebe a `tx` de quem chama, então continua cabendo
+ * na transação da ficha que a pediu.
  */
-async function carregarLinhaDoTempo(
+export async function carregarLinhaDoTempo(
   tx: Parameters<Parameters<typeof consultar>[0]>[0],
   leadId: string,
   contatoId: string | null,
@@ -685,14 +779,33 @@ export async function desqualificarLeads(ids: string[]): Promise<number> {
  *
  * Devolve `false` quando nenhuma linha mudou. É o que faz a tela **restaurar o
  * valor anterior** em vez de afirmar que gravou o que não gravou.
+ *
+ * **A auditoria é gravada na MESMA transação** (`registrarAuditoria` do
+ * `@pipe/db`): log em transação separada some quando a mudança falha e sobra
+ * quando ela é desfeita, e nos dois casos passa a mentir. O `antes` sai de uma
+ * leitura feita aqui dentro, não do que a tela mandou — a tela pode estar
+ * mostrando um valor de dois minutos atrás.
  */
 export async function atualizarCampoDoLead(
   id: string,
   campo: ChaveCampo,
   valor: string | null,
 ): Promise<boolean> {
+  const tid = await tenantId();
+
   return consultar(async (tx) => {
     if (campo === 'origem' || campo === 'campanha' || campo === 'proprietario') {
+      const [antes] = await tx
+        .select({
+          origem: lead.origem,
+          campanha: lead.campanha,
+          proprietarioId: lead.proprietarioId,
+        })
+        .from(lead)
+        .where(and(eq(lead.id, id), isNull(lead.excluidoEm)))
+        .limit(1);
+      if (!antes) return false;
+
       const mudanca =
         campo === 'origem'
           ? { origem: valor }
@@ -704,7 +817,10 @@ export async function atualizarCampoDoLead(
         .set({ ...mudanca, atualizadoEm: sql`now()` })
         .where(and(eq(lead.id, id), isNull(lead.excluidoEm)))
         .returning({ id: lead.id });
-      return mudadas.length > 0;
+      if (mudadas.length === 0) return false;
+
+      await anotar(tx, tid, 'lead', id, antes, { ...antes, ...mudanca });
+      return true;
     }
 
     const [dono] = await tx
@@ -714,12 +830,52 @@ export async function atualizarCampoDoLead(
       .limit(1);
     if (!dono?.contatoId) return false;
 
+    const [antes] = await tx
+      .select({ email: contato.email, telefoneE164: contato.telefoneE164 })
+      .from(contato)
+      .where(and(eq(contato.id, dono.contatoId), isNull(contato.excluidoEm)))
+      .limit(1);
+    if (!antes) return false;
+
     const mudanca = campo === 'email' ? { email: valor } : { telefoneE164: valor };
     const mudadas = await tx
       .update(contato)
       .set({ ...mudanca, atualizadoEm: sql`now()` })
       .where(and(eq(contato.id, dono.contatoId), isNull(contato.excluidoEm)))
       .returning({ id: contato.id });
-    return mudadas.length > 0;
+    if (mudadas.length === 0) return false;
+
+    // O objeto do log é `contato`, e não `lead`: é a linha que mudou de verdade,
+    // e quem for ler o log procura pela tabela que tem o dado.
+    await anotar(tx, tid, 'contato', dono.contatoId, antes, { ...antes, ...mudanca });
+    return true;
+  });
+}
+
+/**
+ * Registra a alteração, só com o que de fato mudou.
+ *
+ * Gravar todo o objeto dos dois lados incha a tabela e esconde a mudança, que é
+ * o que `diferenca` existe para evitar. E quando nada mudou não há linha
+ * nenhuma: a escrita de um valor igual ao que já estava lá é um clique, não um
+ * evento.
+ */
+async function anotar(
+  tx: TransacaoPipe,
+  tid: string,
+  objetoTipo: string,
+  objetoId: string,
+  antes: Record<string, unknown>,
+  depois: Record<string, unknown>,
+): Promise<void> {
+  const mudou = diferenca(antes, depois);
+  if (Object.keys(mudou.depois).length === 0) return;
+  await registrarAuditoria(tx, tid, {
+    ator: ATOR_DO_CRM,
+    acao: 'alterou',
+    objetoTipo,
+    objetoId,
+    antes: mudou.antes,
+    depois: mudou.depois,
   });
 }

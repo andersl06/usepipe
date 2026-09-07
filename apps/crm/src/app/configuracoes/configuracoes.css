@@ -1,0 +1,480 @@
+/* ==========================================================================
+   Pipe CRM — área de configurações.
+
+   Só existe aqui. `globais.css` continua sendo do trabalho do dia a dia; esta
+   folha entra pelo `layout.tsx` de `/configuracoes` e não alcança mais nada.
+
+   Como o resto do CRM, ela NÃO declara nenhuma cor própria: todo valor vem de
+   um token `--p-*` do `@pipe/ui`, com o nome de papel dele. Os `--c-*` daqui
+   são medidas, não tinta.
+
+   As medidas são do Twenty, lidas no fork em 07/09/2026 — a disposição é
+   deles, a tinta é nossa, o mesmo método da lateral em `globais.css`:
+
+   - conteúdo de configuração com **760px** de largura máxima, centrado
+     (`SETTINGS_CONTENT_MAX_WIDTH`);
+   - **32px** entre blocos, que é o `spacing[8]` deles e o nosso `--p-e-8`;
+   - **80px** de respiro no rodapé, para o último bloco não colar na dobra;
+   - linha de tabela de 32px, que a `Tabela` do `@pipe/ui` já entrega.
+
+   Uma medida é nossa e não deles: `--c-campo` a 420px. O Twenty deixa o campo
+   ocupar a largura inteira dos 760px, e um campo de 760px para digitar um nome
+   convida a linha de texto de 100 caracteres que ninguém consegue reler.
+   ========================================================================== */
+
+.cfg {
+  --c-conteudo: 760px;
+  --c-campo: 420px;
+  --c-caixa: 16px;
+
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-8);
+  max-width: var(--c-conteudo);
+  width: 100%;
+  padding-bottom: var(--p-e-10);
+}
+
+/* ============================================================== cabeçalho */
+
+.cfg-cabecalho {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-1);
+}
+
+.cfg-cabecalho h2 {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  font-size: var(--p-t-titulo);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: -0.015em;
+}
+
+.cfg-cabecalho p {
+  margin: 0;
+  max-width: 62ch;
+}
+
+/* O caminho de volta vem antes do título no DOM: é o primeiro alvo do Tab de
+   quem entrou na seção errada. */
+.cfg-voltar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-e-1);
+  align-self: flex-start;
+  padding: 2px var(--p-e-1);
+  margin-left: calc(-1 * var(--p-e-1));
+  border-radius: var(--p-r-sm);
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+  text-decoration: none;
+}
+
+.cfg-voltar:hover {
+  color: var(--p-conteudo);
+  background: var(--p-superficie-2);
+}
+
+/* ================================================================= índice */
+
+.cfg-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
+}
+
+.cfg-grupo > .lbl {
+  margin: 0;
+  font-size: var(--p-rotulo-tamanho);
+  font-weight: var(--p-rotulo-peso);
+  letter-spacing: var(--p-rotulo-espaco);
+  text-transform: uppercase;
+  color: var(--p-conteudo-fantasma);
+}
+
+.cfg-indice {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: var(--p-e-2);
+}
+
+.cfg-indice a {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  height: 100%;
+  padding: var(--p-e-3) var(--p-e-4);
+  border: 1px solid var(--p-linha);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  text-decoration: none;
+  color: var(--p-conteudo);
+}
+
+.cfg-indice a:hover {
+  border-color: var(--p-linha-media);
+  background: var(--p-superficie-1);
+}
+
+/* ================================================================== bloco */
+
+.cfg-bloco {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+}
+
+.cfg-bloco > header {
+  display: flex;
+  align-items: baseline;
+  gap: var(--p-e-2);
+}
+
+.cfg-bloco > header h3 {
+  margin: 0;
+  font-size: var(--p-t-lg);
+  font-weight: var(--p-peso-forte);
+}
+
+.cfg-bloco > .sub {
+  margin: calc(-1 * var(--p-e-2)) 0 0;
+  max-width: 72ch;
+}
+
+.cfg-nota {
+  margin: 0;
+  padding: var(--p-e-3) var(--p-e-4);
+  border: 1px solid var(--p-info-linha);
+  border-radius: var(--p-r-md);
+  background: var(--p-info-fundo);
+  color: var(--p-info-conteudo);
+  font-size: var(--p-t-sm);
+}
+
+/* ============================================================= formulário */
+
+.cfg-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-4);
+}
+
+/* Campos lado a lado (convidar, criar papel, criar campo). Quebra sozinho na
+   janela estreita: `wrap` mais uma base de 220px, sem media query. */
+.cfg-form-linha {
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.cfg-form-linha > .cfg-campo {
+  flex: 1 1 220px;
+}
+
+.cfg-form-fim {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-3);
+  flex-wrap: wrap;
+}
+
+.cfg-campo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-1);
+  max-width: var(--c-campo);
+}
+
+/* O primeiro `<span>` do label é o rótulo; os seguintes são a explicação. */
+.cfg-campo > span:first-child {
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-medio);
+  color: var(--p-conteudo-desabilitado);
+}
+
+.cfg-campo > .sub {
+  max-width: 60ch;
+}
+
+.cfg-avatar {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--p-e-3);
+}
+
+.cfg-avatar > .cfg-campo {
+  flex: 1;
+}
+
+/* --------------------------------------------------------------- resposta */
+
+.cfg-aviso {
+  font-size: var(--p-t-sm);
+  padding: 2px var(--p-e-2);
+  border-radius: var(--p-r-sm);
+}
+
+.cfg-aviso.erro {
+  background: var(--p-erro-fundo);
+  color: var(--p-erro-conteudo);
+  border: 1px solid var(--p-erro-linha);
+}
+
+.cfg-aviso.ok {
+  background: var(--p-sucesso-fundo);
+  color: var(--p-sucesso-conteudo);
+  border: 1px solid var(--p-sucesso-linha);
+}
+
+/* O segredo que aparece uma vez. Fundo de alerta porque a janela é essa: sair
+   da tela sem copiar custa emitir outra chave. */
+.cfg-segredo {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--p-e-2);
+  flex: 1 1 100%;
+  padding: var(--p-e-3);
+  border: 1px solid var(--p-alerta-linha);
+  border-radius: var(--p-r-md);
+  background: var(--p-alerta-fundo);
+  color: var(--p-alerta-conteudo);
+}
+
+.cfg-segredo label {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-1);
+  flex: 1;
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-medio);
+}
+
+.cfg-confirmar {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  flex-wrap: wrap;
+  font-size: var(--p-t-sm);
+}
+
+/* Formulário dentro de célula de tabela: sem quebra de linha própria, o botão
+   ao lado do controle. */
+.cfg-linha-form {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  flex-wrap: wrap;
+}
+
+.cfg-linha-form .cfg-aviso {
+  flex: 1 1 100%;
+}
+
+/* ================================================================== tema */
+
+.cfg-temas,
+.cfg-permissoes {
+  margin: 0;
+  padding: var(--p-e-3) var(--p-e-4);
+  border: 1px solid var(--p-linha);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+}
+
+/* `legend` dentro de `fieldset` com `display:flex` ou `grid` vira item do
+   contexto e senta ao lado do primeiro controle. As duas declarações abaixo o
+   devolvem à própria linha, sem tirá-lo do `fieldset` — que é o que dá o nome
+   acessível ao grupo inteiro. */
+.cfg-temas > legend,
+.cfg-permissoes > legend {
+  padding: 0 var(--p-e-1) var(--p-e-2);
+  flex: 1 1 100%;
+  grid-column: 1 / -1;
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-forte);
+  color: var(--p-conteudo-desabilitado);
+}
+
+.cfg-temas {
+  display: flex;
+  gap: var(--p-e-2);
+  flex-wrap: wrap;
+}
+
+/* O rádio continua no DOM e continua focável — só sai da vista. Esconder com
+   `display:none` o tiraria da ordem de tabulação, que é o defeito clássico do
+   controle segmentado. */
+.cfg-tema input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.cfg-tema > span {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  padding: var(--p-e-2) var(--p-e-3);
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-desabilitado);
+  cursor: pointer;
+}
+
+.cfg-tema > span:hover {
+  background: var(--p-superficie-2);
+}
+
+.cfg-tema input:checked + span {
+  background: var(--p-marca-suave);
+  border-color: var(--p-marca-linha);
+  color: var(--p-marca-forte);
+  font-weight: var(--p-peso-medio);
+}
+
+/* O foco tem de aparecer no rótulo, já que o controle está fora da vista. */
+.cfg-tema input:focus-visible + span {
+  outline: 2px solid var(--p-marca);
+  outline-offset: 2px;
+}
+
+/* =========================================================== permissões */
+
+.cfg-permissoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--p-e-2) var(--p-e-4);
+}
+
+.cfg-permissoes label {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-e-2);
+  padding: var(--p-e-1);
+  border-radius: var(--p-r-sm);
+  cursor: pointer;
+}
+
+.cfg-permissoes label:hover {
+  background: var(--p-superficie-1);
+}
+
+.cfg-permissoes input {
+  width: var(--c-caixa);
+  height: var(--c-caixa);
+  margin: 2px 0 0;
+  accent-color: var(--p-marca);
+  flex: none;
+}
+
+.cfg-permissoes input:disabled + span {
+  color: var(--p-conteudo-fantasma);
+}
+
+.cfg-permissoes label > span {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--p-t-sm);
+}
+
+/* ================================================================ listas */
+
+.cfg-lista {
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: var(--p-e-3);
+}
+
+.cfg-lista > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--p-e-3);
+  border: 1px solid var(--p-linha);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-1);
+}
+
+.cfg-lista dt {
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+}
+
+.cfg-lista dd {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  flex-wrap: wrap;
+  font-size: var(--p-t-md);
+}
+
+.cfg-dominios,
+.cfg-pessoas {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--p-e-2);
+}
+
+.cfg-dominios li {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  padding: var(--p-e-2) var(--p-e-3);
+  border: 1px solid var(--p-linha);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-1);
+}
+
+.cfg-pessoa {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.cfg-pessoa > span {
+  display: flex;
+  flex-direction: column;
+}
+
+.cfg-entregas {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  flex-wrap: wrap;
+}
+
+.cfg-link-forte {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  font-weight: var(--p-peso-medio);
+  color: var(--p-conteudo);
+}
+
+/* ==================================================== só para leitor de tela
+   O rótulo de um controle dentro de célula de tabela: a coluna já diz o que
+   é para quem vê, e quem ouve precisa saber de QUEM é a linha. `clip-path`
+   em vez de `display:none` porque o segundo tira o elemento da árvore de
+   acessibilidade junto. */
+.cfg-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

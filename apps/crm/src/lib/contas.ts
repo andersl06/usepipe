@@ -124,6 +124,8 @@ export interface FichaConta {
   dominio: string | null;
   proprietario: string | null;
   criadoEm: Date | null;
+  /** Campo customizado por tenant, em JSONB. A ficha o mostra na lateral. */
+  atributos: Record<string, unknown>;
   contatos: ContatoDaConta[];
   oportunidades: OportunidadeDaConta[];
   valorAberto: number;
@@ -140,6 +142,7 @@ export async function carregarConta(id: string): Promise<FichaConta | null> {
         dominio: conta.dominio,
         proprietario: usuario.nome,
         criadoEm: conta.criadoEm,
+        atributos: conta.atributos,
       })
       .from(conta)
       .leftJoin(usuario, eq(usuario.id, conta.proprietarioId))
@@ -205,6 +208,7 @@ export async function carregarConta(id: string): Promise<FichaConta | null> {
       dominio: cabeca.dominio,
       proprietario: cabeca.proprietario,
       criadoEm: paraData(cabeca.criadoEm),
+      atributos: (cabeca.atributos ?? {}) as Record<string, unknown>,
       contatos: contatos.map((c) => ({ ...c, nome: c.nome ?? 'Contato sem nome' })),
       oportunidades: linhas,
       valorAberto: linhas

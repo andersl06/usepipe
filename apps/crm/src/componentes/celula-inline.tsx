@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useRef, useState, useTransition } from 'react';
+import { useEffect, useRef, useState, useTransition, type ReactNode } from 'react';
 import { salvarCampoDoLead } from '../app/leads/acoes';
 import { CAMPOS_EDITAVEIS, normalizar, recusar, type ChaveCampo } from '../lib/campos-editaveis';
 import type { Proprietario } from '../lib/leads-visao';
@@ -44,9 +44,18 @@ interface Props {
   opcoes?: Proprietario[];
   /** O que aparece quando não há valor. Padrão: o rótulo do campo. */
   vazio?: string;
+  /**
+   * Como desenhar o valor em repouso.
+   *
+   * Existe por causa da listagem: lá `origem` é uma etiqueta, e trocá-la por
+   * texto cru ao tornar a célula editável seria perder informação de forma para
+   * ganhar edição. É o que o `record-table-cell` do Twenty faz — o display da
+   * célula continua sendo o do campo, e só a edição é comum.
+   */
+  pintar?: (texto: string) => ReactNode;
 }
 
-export function CelulaInline({ leadId, campo, valor, opcoes = [], vazio }: Props) {
+export function CelulaInline({ leadId, campo, valor, opcoes = [], vazio, pintar }: Props) {
   const { rotulo, tipo, maximo } = CAMPOS_EDITAVEIS[campo];
   const [gravado, setGravado] = useState<string | null>(valor);
   const [editando, setEditando] = useState(false);
@@ -181,7 +190,7 @@ export function CelulaInline({ leadId, campo, valor, opcoes = [], vazio }: Props
         onClick={abrir}
         title={`Editar ${rotulo.toLowerCase()}`}
       >
-        {texto ?? placeholder}
+        {texto === null ? placeholder : (pintar?.(texto) ?? texto)}
       </button>
       {texto ? (
         <span className="lapis" aria-hidden="true">

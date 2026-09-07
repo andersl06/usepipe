@@ -5,13 +5,16 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from 'react';
 import { Etiqueta, EstadoVazio } from '@pipe/ui';
 import { atribuirEmMassa, desqualificarEmMassa } from '../app/leads/acoes';
+import { CelulaInline } from './celula-inline';
 import {
   colunaDoAgrupamento,
   colunaOrdenavel,
   direcaoInicial,
+  escreverFiltros,
   ROTULO_STATUS,
   type Agrupamento,
   type Direcao,
+  type Filtros,
   type Grupo,
   type LinhaLead,
   type Ordem,
@@ -19,6 +22,7 @@ import {
 } from '../lib/leads-visao';
 import { desde, numero } from '../lib/formato';
 import { useLarguras } from './redimensionar';
+import { ControleDeColunas, useColunas } from './colunas';
 
 /**
  * A lista de leads: ordenação por coluna, coluna redimensionável, seleção
@@ -62,6 +66,15 @@ function ehCampoDeTexto(alvo: EventTarget | null): boolean {
   return ['INPUT', 'SELECT', 'TEXTAREA'].includes(alvo.tagName);
 }
 
+/** O que a célula sabe além da própria linha. Um objeto, e não três argumentos
+ *  posicionais: a terceira coluna que precisar de mais um dado não muda a
+ *  assinatura das outras nove. */
+interface Contexto {
+  fuso: string;
+  agora: Date;
+  proprietarios: Proprietario[];
+}
+
 interface ColunaLead {
   chave: string;
   rotulo: string;
@@ -69,7 +82,7 @@ interface ColunaLead {
   numerica?: boolean;
   /** Largura de partida, em px. O usuário muda e a mudança fica guardada. */
   largura: number;
-  celula: (l: LinhaLead, fuso: string, agora: Date) => ReactNode;
+  celula: (l: LinhaLead, ctx: Contexto) => ReactNode;
 }
 
 /**
@@ -95,7 +108,17 @@ const COLUNAS: readonly ColunaLead[] = [
     chave: 'origem',
     rotulo: 'Origem',
     largura: 132,
-    celula: (l) => (l.origem ? <Etiqueta>{l.origem}</Etiqueta> : '—'),
+    // Editável na própria lista. A etiqueta continua sendo a forma em repouso —
+    // é o `record-table-cell` deles: o display é o do campo, só a edição é comum.
+    celula: (l) => (
+      <CelulaInline
+        leadId={l.id}
+        campo="origem"
+        valor={l.origem}
+        vazio="—"
+        pintar={(t) => <Etiqueta>{t}</Etiqueta>}
+      />
+    ),
   },
   {
     chave: 'score',
@@ -120,7 +143,17 @@ const COLUNAS: readonly ColunaLead[] = [
     chave: 'proprietario',
     rotulo: 'Proprietário',
     largura: 160,
-    celula: (l) => l.proprietario ?? '—',
+    // A troca de dono na própria lista, que é o motivo mais comum de alguém
+    // abrir a ficha. A ação em massa continua servindo para muitos de uma vez.
+    celula: (l, ctx) => (
+      <CelulaInline
+        leadId={l.id}
+        campo="proprietario"
+        valor={l.proprietarioId}
+        opcoes={ctx.proprietarios}
+        vazio="—"
+      />
+    ),
   },
   {
     chave: 'fase',
@@ -153,14 +186,21 @@ const COLUNAS: readonly ColunaLead[] = [
     chave: 'atividade',
     rotulo: 'Última atividade',
     largura: 190,
-    celula: (l, fuso, agora) =>
+    celula: (l, ctx) =>
       l.ultimaAtividade
-        ? `${l.ultimaAtividadeTipo ?? 'atividade'} · ${desde(l.ultimaAtividade, fuso, agora)}`
+        ? `${l.ultimaAtividadeTipo ?? 'atividade'} · ${desde(l.ultimaAtividade, ctx.fuso, ctx.agora)}`
         : '—',
   },
 ];
 
 const PADROES = Object.fromEntries(COLUNAS.map((c) => [c.chave, c.largura]));
+const ROTULOS = Object.fromEntries(COLUNAS.map((c) => [c.chave, c.rotulo]));
+
+/**
+ * A coluna que não se oculta nem se move. É o `labelIdentifier` do Twenty: a
+ * que diz quem é a linha, e a única que leva à ficha.
+ */
+const COLUNA_FIXA = 'lead';
 
 interface Props {
   grupos: Grupo[];
@@ -171,6 +211,7 @@ interface Props {
   por: Agrupamento;
   ordem: Ordem;
   direcao: Direcao;
+  filtros: Filtros;
   proprietarios: Proprietario[];
   /** Quantas linhas vieram, para o rodapé da seleção falar em números reais. */
   total: number;
@@ -185,6 +226,7 @@ export function ListaDeLeads({
   por,
   ordem,
   direcao,
+  filtros,
   proprietarios,
   total,
 }: Props) {
@@ -201,10 +243,31 @@ export function ListaDeLeads({
 
   // A coluna que o cabeçalho do grupo já está dizendo sai da tabela: repeti-la
   // em cada linha é gastar largura para dizer o que acabou de ser dito.
-  const colunas = useMemo(() => {
+  const disponiveis = useMemo(() => {
     const redundante = colunaDoAgrupamento(por);
     return redundante ? COLUNAS.filter((c) => c.chave !== redundante) : COLUNAS;
   }, [por]);
+
+  const contexto = useMemo<Contexto>(
+    () => ({ fuso, agora, proprietarios }),
+    [fuso, agora, proprietarios],
+  );
+
+  const arranjo = useColunas(
+    'pipe.crm.leads.colunas',
+    useMemo(() => disponiveis.map((c) => c.chave), [disponiveis]),
+    COLUNA_FIXA,
+  );
+
+  // A fixa vem primeiro sempre, e o resto na ordem que a pessoa arrumou. O
+  // `<colgroup>`, o cabeçalho e a linha saem daqui, então não há como um
+  // desandar em relação ao outro.
+  const colunas = useMemo(() => {
+    const porChave = new Map(disponiveis.map((c) => [c.chave, c]));
+    return [COLUNA_FIXA, ...arranjo.visiveis]
+      .map((chave) => porChave.get(chave))
+      .filter((c): c is ColunaLead => c !== undefined);
+  }, [disponiveis, arranjo.visiveis]);
 
   const todos = useMemo(() => grupos.flatMap((g) => g.linhas), [grupos]);
   /** Posição de cada lead na lista achatada, para o intervalo do Shift saber
@@ -315,8 +378,9 @@ export function ListaDeLeads({
     setMarcados(todosMarcados ? new Set() : new Set(todos.map((l) => l.id)));
   }
 
-  /** Endereço desta mesma lista com um parâmetro trocado. */
-  function endereco(extra: Record<string, string | null>) {
+  /** Endereço desta mesma lista com um parâmetro trocado. `comFiltros` só muda
+   *  quando a saída é justamente largar o filtro. */
+  function endereco(extra: Record<string, string | null>, comFiltros: Filtros = filtros) {
     const p = new URLSearchParams({ aba });
     if (busca) p.set('q', busca);
     if (por !== 'nenhum') p.set('agrupar', por);
@@ -324,6 +388,9 @@ export function ListaDeLeads({
       p.set('ordem', ordem);
       p.set('dir', direcao);
     }
+    // O filtro acompanha: 'Limpar a busca' que apagasse o filtro junto mandaria
+    // a pessoa procurar o lead sumido no lugar errado.
+    escreverFiltros(p, comFiltros);
     for (const [chave, valor] of Object.entries(extra)) {
       if (valor === null) p.delete(chave);
       else p.set(chave, valor);
@@ -357,11 +424,28 @@ export function ListaDeLeads({
     });
   }
 
-  // O vazio tem três causas e três saídas, que o Twenty separa e nós não
-  // separávamos: a busca que não achou, o recorte que não tem ninguém, e a base
-  // realmente vazia. Um texto só para os três manda a pessoa procurar o
-  // problema no lugar errado.
+  // O vazio tem QUATRO causas e quatro saídas, que o Twenty separa e nós não
+  // separávamos: a busca que não achou, o filtro que não casou, o recorte que
+  // não tem ninguém, e a base realmente vazia. Um texto só para os quatro manda
+  // a pessoa procurar o problema no lugar errado — e o filtro é o caso mais
+  // traiçoeiro, porque ele fica ativo entre visitas dentro da mesma visão.
   if (total === 0) {
+    const filtrado = Object.keys(filtros).length > 0;
+    if (filtrado && !busca) {
+      return (
+        <EstadoVazio titulo="Nenhum lead para este filtro." ilustracao="busca">
+          <span>
+            O filtro está ativo e nenhum lead casa com ele. A base não está vazia — o recorte
+            está.
+          </span>
+          <span className="acoes-erro">
+            <Link className="btn" href={endereco({}, {})}>
+              Limpar o filtro
+            </Link>
+          </span>
+        </EstadoVazio>
+      );
+    }
     if (busca) {
       return (
         <EstadoVazio titulo="Nenhum lead para esta busca." ilustracao="busca">
@@ -405,6 +489,22 @@ export function ListaDeLeads({
           {recado}
         </p>
       ) : null}
+
+      {/* Encostado à direita, logo acima da tabela que ele governa. O Twenty
+          põe o mesmo controle no fim da barra de visão, pela mesma razão: é
+          ajuste, não filtro, e ajuste não disputa espaço com a busca. */}
+      <div className="barra-lista">
+        <ControleDeColunas
+          rotulos={ROTULOS}
+          fixa={COLUNA_FIXA}
+          visiveis={arranjo.visiveis}
+          ocultas={arranjo.ocultas}
+          aoOcultar={arranjo.ocultar}
+          aoMostrar={arranjo.mostrar}
+          aoMover={arranjo.mover}
+          aoRestaurar={arranjo.restaurar}
+        />
+      </div>
 
       <div className="scroll">
         <table className="listagem" ref={tabela}>
@@ -511,7 +611,7 @@ export function ListaDeLeads({
                       key={c.chave}
                       className={c.numerica ? 'num' : c.chave === 'lead' ? 'who' : undefined}
                     >
-                      {c.celula(l, fuso, agora)}
+                      {c.celula(l, contexto)}
                     </td>
                   ))}
                   <td />

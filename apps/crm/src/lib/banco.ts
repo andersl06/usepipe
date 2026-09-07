@@ -1,5 +1,5 @@
 import { eq, sql } from 'drizzle-orm';
-import { criarBanco, comTenant, type BancoPipe, type TransacaoPipe } from '@pipe/db';
+import { criarBanco, comTenant, type Ator, type BancoPipe, type TransacaoPipe } from '@pipe/db';
 import { tenant } from '@pipe/db/schema';
 
 /**
@@ -75,6 +75,20 @@ export function fusoDoTenant(): Promise<string> {
   });
   return globalComPool.__pipeCrmFuso;
 }
+
+/**
+ * Quem assina o que o CRM grava, no log de auditoria.
+ *
+ * O CRM ainda não tem sessão — `tenantId()` sai do ambiente, não de um usuário
+ * logado. Então o ator é `sistema`, que é a verdade: foi a instância, e não uma
+ * pessoa identificada. Mentir aqui seria pior do que não registrar, porque
+ * alguém confiaria no nome.
+ *
+ * Quando a sessão existir, este valor vira `{ tipo: 'usuario', id, ip }` e
+ * nenhuma escrita precisa mudar: todas já passam por aqui. É a mesma decisão,
+ * pelo mesmo motivo, que a Gestão tomou em `ATOR_DA_GESTAO`.
+ */
+export const ATOR_DO_CRM = { tipo: 'sistema' } as const satisfies Ator;
 
 export interface Janela {
   inicio: Date;

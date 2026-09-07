@@ -1,7 +1,14 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { Avatar, Etiqueta } from '@pipe/ui';
+import { Etiqueta } from '@pipe/ui';
 import { CelulaInline } from '../../../componentes/celula-inline';
+import {
+  AbasDaFicha,
+  Campo,
+  Destaque,
+  Secao,
+  SecaoAtributos,
+} from '../../../componentes/ficha';
 import { LinhaDoTempo } from '../../../componentes/linha-do-tempo';
 import { fusoDoTenant } from '../../../lib/banco';
 import {
@@ -51,118 +58,58 @@ function abaValida(valor: string | undefined): AbaFicha {
   return (ABAS.find((a) => a.chave === valor)?.chave ?? 'score') as AbaFicha;
 }
 
-function Campo({ k, v }: { k: string; v: React.ReactNode }) {
-  return (
-    <div>
-      <span className="k">{k}</span>
-      <span className="v">{v}</span>
-    </div>
-  );
-}
-
-/**
- * Uma seção da coluna lateral, que abre e fecha.
- *
- * `<details>` nativo: o navegador já sabe abrir, fechar, responder ao teclado e
- * contar para o leitor de tela. Escrever isso em React seria trocar zero linha
- * por trinta e perder o comportamento de busca na página.
- */
-function Secao({
-  titulo,
-  aberta = true,
-  children,
-}: {
-  titulo: string;
-  aberta?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <details className="secao" open={aberta}>
-      <summary>
-        <b>{titulo}</b>
-      </summary>
-      {children}
-    </details>
-  );
-}
-
-/** A tira de campos principais do cabeçalho. Cinco, no máximo: é a régua do
- *  destaque do Salesforce, e mais do que isso deixa de ser destaque. */
-function Destaque({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
+/** O destaque do lead, montado sobre a peça comum das três fichas. */
+function DestaqueDoLead({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
   const parado = ficha.diasNaFase !== null && ficha.diasNaFase >= 7;
   const desqualificado = ficha.status === 'desqualificado';
 
   return (
-    <div className="destaque">
-      <div className="identidade">
-        <Link href="/leads" className="trilha">
-          Leads
-        </Link>
-        <span className="barra" aria-hidden="true">
-          /
-        </span>
-        <Avatar nome={ficha.nome} />
-        <h2>{ficha.nome}</h2>
-
-        {/*
-          O estado em etiquetas, e só duas podem ter cor: a desqualificação, que
-          é o único estado terminal, e a parada de mais de sete dias, que é o que
-          alguém resolve hoje. Fase e faixa são categoria, e categoria é neutra.
-        */}
-        {desqualificado ? (
-          <Etiqueta tom="erro">{ROTULO_STATUS['desqualificado']}</Etiqueta>
-        ) : (
-          <Etiqueta>{ROTULO_STATUS[ficha.status] ?? ficha.status}</Etiqueta>
-        )}
-        {ficha.diasNaFase !== null && parado && !desqualificado ? (
-          <Etiqueta tom="alerta">parado há {numero(ficha.diasNaFase)} dias</Etiqueta>
-        ) : null}
-
-        <span className="criado">
-          criado {desde(ficha.criadoEm, fuso)}
-        </span>
-      </div>
-
-      <dl className="principais">
-        <div>
-          <dt>Score</dt>
-          <dd className="n">
-            {ficha.score ? numero(ficha.score.valor) : '—'}
-            {ficha.score?.faixa ? <em>{ficha.score.faixa}</em> : null}
-          </dd>
-        </div>
-        <div>
-          <dt>Fase</dt>
-          <dd>
-            {ficha.fase ?? '—'}
-            {ficha.diasNaFase === null ? null : (
-              <em>há {numero(ficha.diasNaFase)} dias</em>
-            )}
-          </dd>
-        </div>
-        <div>
-          <dt>Proprietário</dt>
-          <dd>{ficha.proprietario ?? 'sem proprietário'}</dd>
-        </div>
-        <div>
-          <dt>Origem</dt>
-          <dd>
-            {ficha.origem ?? '—'}
-            {ficha.campanha ? <em>{ficha.campanha}</em> : null}
-          </dd>
-        </div>
-        <div>
-          <dt>Conta</dt>
-          <dd>
-            {ficha.contaId ? (
-              <Link href={`/contas/${ficha.contaId}`}>{ficha.contaNome}</Link>
-            ) : (
-              (ficha.contaNome ?? '—')
-            )}
-          </dd>
-        </div>
-      </dl>
-    </div>
+    <Destaque
+      trilha={{ href: '/leads', rotulo: 'Leads' }}
+      nome={ficha.nome}
+      nota={`criado ${desde(ficha.criadoEm, fuso)}`}
+      etiquetas={
+        <>
+          {/*
+            O estado em etiquetas, e só duas podem ter cor: a desqualificação,
+            que é o único estado terminal, e a parada de mais de sete dias, que é
+            o que alguém resolve hoje. Fase e faixa são categoria, e categoria é
+            neutra.
+          */}
+          {desqualificado ? (
+            <Etiqueta tom="erro">{ROTULO_STATUS['desqualificado']}</Etiqueta>
+          ) : (
+            <Etiqueta>{ROTULO_STATUS[ficha.status] ?? ficha.status}</Etiqueta>
+          )}
+          {ficha.diasNaFase !== null && parado && !desqualificado ? (
+            <Etiqueta tom="alerta">parado há {numero(ficha.diasNaFase)} dias</Etiqueta>
+          ) : null}
+        </>
+      }
+      principais={[
+        {
+          rotulo: 'Score',
+          numerico: true,
+          valor: ficha.score ? numero(ficha.score.valor) : '—',
+          nota: ficha.score?.faixa,
+        },
+        {
+          rotulo: 'Fase',
+          valor: ficha.fase ?? '—',
+          nota: ficha.diasNaFase === null ? null : `há ${numero(ficha.diasNaFase)} dias`,
+        },
+        { rotulo: 'Proprietário', valor: ficha.proprietario ?? 'sem proprietário' },
+        { rotulo: 'Origem', valor: ficha.origem ?? '—', nota: ficha.campanha },
+        {
+          rotulo: 'Conta',
+          valor: ficha.contaId ? (
+            <Link href={`/contas/${ficha.contaId}`}>{ficha.contaNome}</Link>
+          ) : (
+            (ficha.contaNome ?? '—')
+          ),
+        },
+      ]}
+    />
   );
 }
 
@@ -185,8 +132,12 @@ export default async function PaginaFicha({
   // a mesma para os cinco campos da lateral, e uma consulta serve os cinco.
   const proprietarios = await listarProprietarios();
   const agora = new Date();
-  const atributos = Object.entries(ficha.customizados);
-  const utm = Object.entries(ficha.utm);
+  // UTM e campo customizado dividem a mesma seção, e o prefixo é o que os
+  // mantém distinguíveis sem duas caixas para dizer a mesma coisa.
+  const atributos = {
+    ...ficha.customizados,
+    ...Object.fromEntries(Object.entries(ficha.utm).map(([k, v]) => [`utm ${k}`, v])),
+  };
 
   const contagem: Record<AbaFicha, number | null> = {
     score: ficha.score?.itens.length ?? null,
@@ -196,7 +147,7 @@ export default async function PaginaFicha({
 
   return (
     <>
-      <Destaque ficha={ficha} fuso={fuso} />
+      <DestaqueDoLead ficha={ficha} fuso={fuso} />
 
       <div className="ficha">
         {/*
@@ -254,20 +205,7 @@ export default async function PaginaFicha({
           </div>
 
           <div className="tblwrap">
-            <Secao titulo="Atributos" aberta={atributos.length + utm.length > 0}>
-              {atributos.length === 0 && utm.length === 0 ? (
-                <div className="vazio">Nenhum atributo personalizado.</div>
-              ) : (
-                <div className="campos">
-                  {atributos.map(([k, v]) => (
-                    <Campo key={k} k={k} v={String(v)} />
-                  ))}
-                  {utm.map(([k, v]) => (
-                    <Campo key={`utm-${k}`} k={`utm ${k}`} v={String(v)} />
-                  ))}
-                </div>
-              )}
-            </Secao>
+            <SecaoAtributos atributos={atributos} />
           </div>
 
           <div className="tblwrap">
@@ -287,22 +225,12 @@ export default async function PaginaFicha({
 
         <div className="coluna">
           <div className="tblwrap">
-            <div className="tabs" role="tablist">
-              {ABAS.map((a) => (
-                <Link
-                  key={a.chave}
-                  href={`/leads/${ficha.id}?aba=${a.chave}`}
-                  role="tab"
-                  aria-current={a.chave === aba ? 'true' : undefined}
-                  scroll={false}
-                >
-                  {a.rotulo}
-                  {contagem[a.chave] === null ? null : (
-                    <span className="qt">{numero(contagem[a.chave] ?? 0)}</span>
-                  )}
-                </Link>
-              ))}
-            </div>
+            <AbasDaFicha
+              base={`/leads/${ficha.id}`}
+              aba={aba}
+              abas={ABAS.map((a) => ({ ...a, contagem: contagem[a.chave] }))}
+              formatar={numero}
+            />
 
             {aba === 'score' ? <PainelScore ficha={ficha} fuso={fuso} /> : null}
             {aba === 'formularios' ? <Formularios ficha={ficha} fuso={fuso} /> : null}

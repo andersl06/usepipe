@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Campo, Seletor } from '@pipe/ui';
+import { Filtro } from '../../componentes/filtros';
 import { ListaDeLeads } from '../../componentes/lista-de-leads';
 import { VisoesSalvas } from '../../componentes/visoes-salvas';
 import { fusoDoTenant } from '../../lib/banco';
@@ -11,9 +12,13 @@ import {
   agrupar,
   carregarListaDeLeads,
   direcaoValida,
+  escreverFiltros,
+  lerFiltros,
   LIMITE_LISTA,
   listarProprietarios,
+  opcoesDeFiltro,
   ordemValida,
+  type Filtros,
 } from '../../lib/leads';
 import { numero } from '../../lib/formato';
 
@@ -25,6 +30,8 @@ interface Busca {
   agrupar?: string;
   ordem?: string;
   dir?: string;
+  /** Os `f.*` do filtro por coluna. `lerFiltros` decide quais valem. */
+  [chave: string]: string | string[] | undefined;
 }
 
 /**
@@ -40,25 +47,29 @@ interface Busca {
  */
 export default async function PaginaLeads({ searchParams }: { searchParams: Promise<Busca> }) {
   const params = await searchParams;
-  const aba = abaValida(params.aba);
-  const busca = params.q ?? '';
-  const por = agrupamentoValido(params.agrupar);
-  const ordem = ordemValida(params.ordem);
-  const direcao = direcaoValida(params.dir);
+  const aba = abaValida(typeof params.aba === 'string' ? params.aba : undefined);
+  const busca = typeof params.q === 'string' ? params.q : '';
+  const por = agrupamentoValido(typeof params.agrupar === 'string' ? params.agrupar : undefined);
+  const ordem = ordemValida(typeof params.ordem === 'string' ? params.ordem : undefined);
+  const direcao = direcaoValida(typeof params.dir === 'string' ? params.dir : undefined);
+  const filtros = lerFiltros(params);
 
   const fuso = await fusoDoTenant();
-  const { linhas, contagens } = await carregarListaDeLeads(aba, busca, ordem, direcao);
+  const { linhas, contagens } = await carregarListaDeLeads(aba, busca, ordem, direcao, filtros);
   const proprietarios = await listarProprietarios();
+  const opcoes = await opcoesDeFiltro();
   const grupos = agrupar(linhas, por);
 
-  const consulta = (extra: Record<string, string> = {}) => {
+  const consulta = (extra: Record<string, string> = {}, comFiltros: Filtros = filtros) => {
     const p = new URLSearchParams({ aba, ...(busca ? { q: busca } : {}), ...extra });
     if (por !== 'nenhum' && !('agrupar' in extra)) p.set('agrupar', por);
     if (ordem !== 'nenhuma') {
       p.set('ordem', ordem);
       p.set('dir', direcao);
     }
-    return p.toString();
+    // O filtro entra por último, e por isso a visão salva o guarda: `consulta()`
+    // sem argumento é exatamente o endereço da tela como ela está agora.
+    return escreverFiltros(p, comFiltros).toString();
   };
 
   return (
@@ -96,6 +107,12 @@ export default async function PaginaLeads({ searchParams }: { searchParams: Prom
               <input type="hidden" name="dir" value={direcao} />
             </>
           ) : null}
+          {/* O filtro sobrevive ao envio da busca. Sem estes campos, digitar no
+              campo de busca apagaria o filtro em silêncio — e o formulário GET
+              só manda o que ele mesmo carrega. */}
+          {Object.entries(filtros).map(([chave, valor]) => (
+            <input key={chave} type="hidden" name={`f.${chave}`} value={valor} />
+          ))}
           <Campo
             type="search"
             name="q"
@@ -116,6 +133,11 @@ export default async function PaginaLeads({ searchParams }: { searchParams: Prom
           <button type="submit" className="btn">
             Aplicar
           </button>
+          <Filtro
+            filtros={filtros}
+            opcoes={opcoes}
+            href={(proximos) => `/leads?${consulta({}, proximos)}`}
+          />
           <VisoesSalvas consultaAtual={consulta()} />
           {/* Atalho que ninguém descobre é atalho que ninguém usa: a régua fica
               escrita ao lado da contagem, na mesma linha, sem ocupar tela. */}
@@ -135,6 +157,7 @@ export default async function PaginaLeads({ searchParams }: { searchParams: Prom
           por={por}
           ordem={ordem}
           direcao={direcao}
+          filtros={filtros}
           proprietarios={proprietarios}
           total={linhas.length}
         />

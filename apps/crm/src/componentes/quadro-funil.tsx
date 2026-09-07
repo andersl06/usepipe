@@ -40,7 +40,6 @@ export interface CartaoView {
   valorNum: number;
   valor: string;
   detalhe: string;
-  leadId: string | null;
   fase: string;
   /** Dias de atraso do fechamento previsto, ou `null` quando não venceu. */
   diasVencido: number | null;
@@ -121,7 +120,12 @@ export function QuadroFunil({ fases, cartoes }: Props) {
                 }}
                 onDragEnd={() => setArrastando(null)}
               >
-                <b>{c.leadId ? <Link href={`/leads/${c.leadId}`}>{c.nome}</Link> : c.nome}</b>
+                <b>
+                  {/* O cartão leva à ficha da PRÓPRIA oportunidade, e não mais à do
+                      lead: a negociação agora tem endereço, e é o dela que se cola
+                      no chat quando alguém pergunta por esta negociação. */}
+                  <Link href={`/oportunidades/${c.id}`}>{c.nome}</Link>
+                </b>
                 <span className="val">{c.valor}</span>
                 <span className="ow">{c.detalhe}</span>
                 {/*
