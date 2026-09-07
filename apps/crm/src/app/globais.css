@@ -383,6 +383,106 @@
   overflow-wrap: anywhere;
 }
 
+/* =========================================== célula que se edita no lugar
+   O `record-inline-cell` do Twenty, medido no fork em
+   `RecordInlineCellDisplayMode.tsx` e `RecordInlineCellEditMode.tsx`:
+
+     folga lateral do valor      4px   (spacing[1], multiplicador 4px)
+     folga vertical do valor     2px
+     altura mínima em leitura   16px
+     altura do campo em edição  24px
+     raio da caixa               4px   (radius.sm; o nosso --p-r-sm é 5px)
+     ícone do botão de editar   16px
+     folga entre valor e ícone   4px
+
+   A folga lateral vem com margem negativa do mesmo tamanho: sem ela o texto
+   anda 4px ao virar editável, e campo que pula ao ser tocado é o que faz
+   alguém desconfiar de que gravou errado. */
+.inline {
+  display: inline-flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--p-e-1);
+  min-width: 0;
+  max-width: 100%;
+}
+
+.inline .ver {
+  min-height: 16px;
+  min-width: 0;
+  padding: 2px var(--p-e-1);
+  margin-inline: calc(-1 * var(--p-e-1));
+  border: 0;
+  border-radius: var(--p-r-sm);
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.inline .ver:hover {
+  background: var(--p-superficie-2);
+}
+
+.inline .ver:focus-visible {
+  outline: 2px solid var(--p-marca);
+  outline-offset: 1px;
+}
+
+/* Campo vazio: mostra o próprio rótulo em tinta fantasma, que é o
+   "Empty" deles. Convite a clicar sem precisar de ícone nenhum. */
+.inline .ver.sem {
+  color: var(--p-conteudo-fantasma);
+}
+
+/* O lápis só aparece no hover da linha. Ele ocupa lugar o tempo todo
+   (`visibility`, não `display`) para o valor não encolher quando o ponteiro
+   entra — o mesmo motivo da margem negativa acima. */
+.inline .lapis {
+  display: flex;
+  align-items: center;
+  flex: none;
+  color: var(--p-conteudo-fantasma);
+  visibility: hidden;
+}
+
+.campos > div:hover .inline .lapis,
+.inline:focus-within .lapis {
+  visibility: visible;
+}
+
+/* Gravando: o valor novo já está na tela, e a opacidade diz que ainda não
+   voltou do servidor. Não é bloqueio — só um aviso de que está em curso. */
+.inline.gravando .ver {
+  opacity: 0.55;
+}
+
+.inline .editar {
+  width: 100%;
+  height: 24px;
+  padding: 0 var(--p-e-1);
+  margin-inline: calc(-1 * var(--p-e-1));
+  border: 1px solid var(--p-marca);
+  border-radius: var(--p-r-sm);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font: inherit;
+  outline: none;
+}
+
+/* A queixa quebra a linha e fica embaixo, em vermelho. Enquanto ela está na
+   tela, o valor ao lado já voltou a ser o anterior: a mensagem explica uma
+   coisa que a pessoa consegue ver. */
+.inline .queixa {
+  flex-basis: 100%;
+  font-size: var(--p-t-sm);
+  color: var(--p-erro-conteudo);
+}
+
 .etiquetas {
   display: flex;
   flex-wrap: wrap;
@@ -779,6 +879,26 @@ code {
 /* A linha marcada usa a marca em versão suave. É estado ativo de uma ação em
    curso, que é onde a cor de marca pode entrar. */
 .listagem tbody tr.marcada td {
+  background: var(--p-marca-suave);
+}
+
+/* A linha sob o cursor do teclado (`j`/`k`). A forma é a deles, medida em
+   `record-table-row/components/RecordTableRowDiv.tsx`: fundo mais escuro que o
+   repouso, mais um fio de 1px embaixo em linha média. Um fio, e não contorno
+   inteiro, porque a tabela já tem linhas horizontais — o realce engrossa a que
+   já existe em vez de desenhar uma caixa nova.
+
+   A cor é que muda: eles usam a marca (`accent.quaternary`), nós usamos
+   superfície. Marca aqui colidiria com a linha MARCADA, que já é marca suave, e
+   as duas coisas precisam ser distinguíveis — uma é onde o olho está, a outra é
+   um compromisso que a pessoa assumiu. O fio embaixo é o que sobrevive quando
+   as duas coincidem. */
+.listagem tbody tr.focada td {
+  background: var(--p-superficie-2);
+  box-shadow: inset 0 -1px 0 var(--p-linha-media);
+}
+
+.listagem tbody tr.marcada.focada td {
   background: var(--p-marca-suave);
 }
 
@@ -1375,7 +1495,11 @@ table th {
   color: var(--p-conteudo-fantasma);
 }
 
-.c-cmd kbd {
+/* A mesma tecla desenhada nos dois lugares que anunciam atalho: o menu de
+   comando e a régua da listagem. Um desenho só, senão a mesma tecla vira duas
+   coisas diferentes na mesma tela. */
+.c-cmd kbd,
+.tblhead kbd {
   padding: 2px 6px;
   border: 1px solid var(--p-linha-media);
   border-radius: var(--c-r-sm);

@@ -20,6 +20,9 @@ import {
   usuario,
 } from '@pipe/db/schema';
 import { consultar, paraData, paraNumero } from './banco';
+// Só o tipo, e de um arquivo sem banco: é o mesmo catálogo que a célula inline
+// lê no navegador, e é ele que fecha a lista de colunas graváveis.
+import type { ChaveCampo } from './campos-editaveis';
 
 /**
  * Leads: a listagem e a ficha.
@@ -312,6 +315,8 @@ export interface Ficha {
   faseDesde: Date | null;
   diasNaFase: number | null;
   proprietario: string | null;
+  /** O id, e não só o nome: a seleção inline grava id, porque nome muda. */
+  proprietarioId: string | null;
   criadoEm: Date | null;
   etiquetas: { nome: string; cor: string | null }[];
   score: ScoreExplicado | null;
@@ -362,6 +367,7 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
         fase: lead.fase,
         faseDesde: lead.faseDesde,
         proprietario: usuario.nome,
+        proprietarioId: lead.proprietarioId,
         criadoEm: lead.criadoEm,
       })
       .from(lead)
@@ -405,6 +411,7 @@ export async function carregarFicha(id: string): Promise<Ficha | null> {
       faseDesde: desdeFase,
       diasNaFase: desdeFase ? Math.floor((Date.now() - desdeFase.getTime()) / 86_400_000) : null,
       proprietario: cabeca.proprietario,
+      proprietarioId: cabeca.proprietarioId,
       criadoEm: paraData(cabeca.criadoEm),
       etiquetas,
       score,
@@ -655,5 +662,64 @@ export async function desqualificarLeads(ids: string[]): Promise<number> {
       )
       .returning({ id: lead.id });
     return mudadas.length;
+  });
+}
+
+/* ------------------------------------------------ escrita de campo da ficha */
+
+/**
+ * Gravar um campo da ficha, o que a célula inline faz a cada Enter.
+ *
+ * Três cuidados que a versão ingênua não tem:
+ *
+ * - **A coluna nunca vem da tela.** `campo` é chave do catálogo fechado de
+ *   `campos-editaveis.ts`, e é o `switch` daqui que decide qual coluna recebe a
+ *   escrita. Não existe caminho em que um nome vindo do navegador vire coluna.
+ * - **E-mail e telefone moram em `contato`, não em `lead`.** A ficha junta os
+ *   dois numa tela só; a escrita tem de separar de novo — e um lead sem contato
+ *   simplesmente não tem onde guardar e-mail, por isso ele recusa em vez de
+ *   inventar um contato.
+ * - **`excluido_em is null` no `where`**, pelo mesmo motivo da ação em massa:
+ *   entre desenhar a ficha e clicar no campo cabe uma exclusão, e a escrita é a
+ *   última chance de recusá-la.
+ *
+ * Devolve `false` quando nenhuma linha mudou. É o que faz a tela **restaurar o
+ * valor anterior** em vez de afirmar que gravou o que não gravou.
+ */
+export async function atualizarCampoDoLead(
+  id: string,
+  campo: ChaveCampo,
+  valor: string | null,
+): Promise<boolean> {
+  return consultar(async (tx) => {
+    if (campo === 'origem' || campo === 'campanha' || campo === 'proprietario') {
+      const mudanca =
+        campo === 'origem'
+          ? { origem: valor }
+          : campo === 'campanha'
+            ? { campanha: valor }
+            : { proprietarioId: valor };
+      const mudadas = await tx
+        .update(lead)
+        .set({ ...mudanca, atualizadoEm: sql`now()` })
+        .where(and(eq(lead.id, id), isNull(lead.excluidoEm)))
+        .returning({ id: lead.id });
+      return mudadas.length > 0;
+    }
+
+    const [dono] = await tx
+      .select({ contatoId: lead.contatoId })
+      .from(lead)
+      .where(and(eq(lead.id, id), isNull(lead.excluidoEm)))
+      .limit(1);
+    if (!dono?.contatoId) return false;
+
+    const mudanca = campo === 'email' ? { email: valor } : { telefoneE164: valor };
+    const mudadas = await tx
+      .update(contato)
+      .set({ ...mudanca, atualizadoEm: sql`now()` })
+      .where(and(eq(contato.id, dono.contatoId), isNull(contato.excluidoEm)))
+      .returning({ id: contato.id });
+    return mudadas.length > 0;
   });
 }

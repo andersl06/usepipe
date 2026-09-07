@@ -1,9 +1,15 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Avatar, Etiqueta } from '@pipe/ui';
+import { CelulaInline } from '../../../componentes/celula-inline';
 import { LinhaDoTempo } from '../../../componentes/linha-do-tempo';
 import { fusoDoTenant } from '../../../lib/banco';
-import { carregarFicha, ROTULO_STATUS, type Ficha } from '../../../lib/leads';
+import {
+  carregarFicha,
+  listarProprietarios,
+  ROTULO_STATUS,
+  type Ficha,
+} from '../../../lib/leads';
 import { data, dataHora, desde, documento, numero, pontos } from '../../../lib/formato';
 
 export const dynamic = 'force-dynamic';
@@ -175,6 +181,9 @@ export default async function PaginaFicha({
   if (!ficha) notFound();
 
   const fuso = await fusoDoTenant();
+  // Quem pode receber o lead. Vem aqui e não dentro da célula porque a lista é
+  // a mesma para os cinco campos da lateral, e uma consulta serve os cinco.
+  const proprietarios = await listarProprietarios();
   const agora = new Date();
   const atributos = Object.entries(ficha.customizados);
   const utm = Object.entries(ficha.utm);
@@ -196,10 +205,47 @@ export default async function PaginaFicha({
         */}
         <aside className="coluna">
           <div className="tblwrap">
+            {/*
+              A lateral é onde se EDITA, como no Twenty: os campos simples
+              trocam de valor no lugar, sem formulário e sem sair da página. A
+              tira do cabeçalho continua sendo resumo — é a divisão que o
+              Salesforce e o Twenty fazem, e repetir o campo nos dois lugares é
+              deles também: um repete para ler de relance, o outro para mexer.
+
+              Documento, "criado em" e "fase desde" ficam de fora: o primeiro
+              precisa de validação de CPF/CNPJ que ainda não existe, e os dois
+              últimos são carimbo do sistema — data que a pessoa digita é data
+              que deixa de significar quando a coisa aconteceu.
+            */}
             <Secao titulo="Dados">
               <div className="campos">
-                <Campo k="E-mail" v={ficha.email ?? '—'} />
-                <Campo k="Telefone" v={ficha.telefone ?? '—'} />
+                <Campo
+                  k="E-mail"
+                  v={<CelulaInline leadId={ficha.id} campo="email" valor={ficha.email} />}
+                />
+                <Campo
+                  k="Telefone"
+                  v={<CelulaInline leadId={ficha.id} campo="telefone" valor={ficha.telefone} />}
+                />
+                <Campo
+                  k="Proprietário"
+                  v={
+                    <CelulaInline
+                      leadId={ficha.id}
+                      campo="proprietario"
+                      valor={ficha.proprietarioId}
+                      opcoes={proprietarios}
+                    />
+                  }
+                />
+                <Campo
+                  k="Origem"
+                  v={<CelulaInline leadId={ficha.id} campo="origem" valor={ficha.origem} />}
+                />
+                <Campo
+                  k="Campanha"
+                  v={<CelulaInline leadId={ficha.id} campo="campanha" valor={ficha.campanha} />}
+                />
                 <Campo k="Documento" v={documento(ficha.documento)} />
                 <Campo k="Criado em" v={data(ficha.criadoEm, fuso)} />
                 <Campo k="Fase desde" v={data(ficha.faseDesde, fuso)} />

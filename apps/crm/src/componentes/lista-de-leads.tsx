@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { useMemo, useState, useTransition, type ReactNode } from 'react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useMemo, useRef, useState, useTransition, type ReactNode } from 'react';
 import { Etiqueta, EstadoVazio } from '@pipe/ui';
 import { atribuirEmMassa, desqualificarEmMassa } from '../app/leads/acoes';
 import {
@@ -41,6 +42,25 @@ import { useLarguras } from './redimensionar';
  * registro" no fim da tabela. A primeira só paga a pena com mais colunas do que
  * temos; a segunda pressupõe criação inline, que ainda não existe aqui.
  */
+
+/**
+ * Os atalhos da listagem.
+ *
+ * `j`/`k` e as setas são os deles, lidos em
+ * `record-table/hooks/useRecordTableRowFocusHotkeys.ts` — eles casam `ArrowDown`
+ * com `j` e `ArrowUp` com `k` no mesmo gancho, que é a convenção de terminal
+ * que o Gmail e o GitHub também usam. `/` para a busca e `Enter` para abrir são
+ * a mesma família.
+ *
+ * O ouvinte é um só, no documento, e sai fora quando o foco está dentro de um
+ * campo de texto: quem está digitando "j" na busca quer a letra, não a linha
+ * seguinte. `/` é a única exceção que se ganha, e só de fora de um campo.
+ */
+function ehCampoDeTexto(alvo: EventTarget | null): boolean {
+  if (!(alvo instanceof HTMLElement)) return false;
+  if (alvo.isContentEditable) return true;
+  return ['INPUT', 'SELECT', 'TEXTAREA'].includes(alvo.tagName);
+}
 
 interface ColunaLead {
   chave: string;
@@ -174,6 +194,10 @@ export function ListaDeLeads({
   const [recado, setRecado] = useState<string | null>(null);
   const [emCurso, iniciar] = useTransition();
   const larguras = useLarguras('pipe.crm.leads.larguras', PADROES);
+  /** A linha sob o cursor do teclado. `null` é "ninguém", que é o estado inicial. */
+  const [focada, setFocada] = useState<number | null>(null);
+  const tabela = useRef<HTMLTableElement | null>(null);
+  const router = useRouter();
 
   // A coluna que o cabeçalho do grupo já está dizendo sai da tabela: repeti-la
   // em cada linha é gastar largura para dizer o que acabou de ser dito.
@@ -187,6 +211,74 @@ export function ListaDeLeads({
    *  contar através da fronteira dos grupos. */
   const posicao = useMemo(() => new Map(todos.map((l, i) => [l.id, i])), [todos]);
   const todosMarcados = todos.length > 0 && marcados.size === todos.length;
+
+  /**
+   * Um ouvinte só, no documento. Ele registra de novo a cada movimento porque
+   * `Enter` precisa saber onde o cursor está agora — e trocar um `addEventListener`
+   * por tecla apertada custa menos do que a `ref` que evitaria isso.
+   */
+  useEffect(() => {
+    function aoTeclar(e: KeyboardEvent) {
+      if (e.metaKey || e.ctrlKey || e.altKey) return;
+
+      if (e.key === '/' && !ehCampoDeTexto(e.target)) {
+        const busca = document.querySelector<HTMLInputElement>('input[type="search"][name="q"]');
+        if (!busca) return;
+        e.preventDefault();
+        busca.focus();
+        busca.select();
+        return;
+      }
+
+      if (ehCampoDeTexto(e.target)) return;
+      if (todos.length === 0) return;
+
+      const desce = e.key === 'j' || e.key === 'ArrowDown';
+      const sobe = e.key === 'k' || e.key === 'ArrowUp';
+
+      if (desce || sobe) {
+        e.preventDefault();
+        setFocada((atual) => {
+          // Sem cursor ainda: `j` começa na primeira, `k` na última. É o que
+          // faz o primeiro toque fazer algo visível em vez de nada.
+          if (atual === null) return desce ? 0 : todos.length - 1;
+          const proximo = atual + (desce ? 1 : -1);
+          // Sem dar a volta: a lista tem começo e fim, e passar do fim para o
+          // começo sem avisar é como se perde o lugar numa lista de 200.
+          return Math.min(Math.max(proximo, 0), todos.length - 1);
+        });
+        return;
+      }
+
+      if (e.key === 'Enter' && focada !== null) {
+        const alvo = todos[focada];
+        if (!alvo) return;
+        e.preventDefault();
+        router.push(`/leads/${alvo.id}`);
+        return;
+      }
+
+      if (e.key === 'Escape') setFocada(null);
+    }
+
+    document.addEventListener('keydown', aoTeclar);
+    return () => document.removeEventListener('keydown', aoTeclar);
+  }, [todos, focada, router]);
+
+  // A linha focada entra na tela sozinha. `block: 'nearest'` rola o mínimo:
+  // com `'center'` a lista dá um pulo a cada tecla e o olho perde o lugar.
+  useEffect(() => {
+    if (focada === null) return;
+    const alvo = todos[focada];
+    if (!alvo) return;
+    tabela.current
+      ?.querySelector(`tr[data-lead="${alvo.id}"]`)
+      ?.scrollIntoView({ block: 'nearest' });
+  }, [focada, todos]);
+
+  // Trocar de recorte, de busca ou de ordenação refaz a lista: um cursor
+  // apontando para a posição 12 da lista antiga não aponta para nada.
+  useEffect(() => setFocada(null), [todos]);
 
   /**
    * Marcar de um a outro com Shift, como em qualquer lista de arquivos.
@@ -315,7 +407,7 @@ export function ListaDeLeads({
       ) : null}
 
       <div className="scroll">
-        <table className="listagem">
+        <table className="listagem" ref={tabela}>
           <colgroup>
             <col style={{ width: '32px' }} />
             {colunas.map((c) => (
@@ -387,7 +479,18 @@ export function ListaDeLeads({
                 </tr>
               ) : null}
               {grupo.linhas.map((l) => (
-                <tr key={l.id} className={marcados.has(l.id) ? 'marcada' : undefined}>
+                <tr
+                  key={l.id}
+                  data-lead={l.id}
+                  className={
+                    [
+                      marcados.has(l.id) ? 'marcada' : '',
+                      focada !== null && todos[focada]?.id === l.id ? 'focada' : '',
+                    ]
+                      .filter(Boolean)
+                      .join(' ') || undefined
+                  }
+                >
                   <td className="sel">
                     {/*
                       A marcação vem do `click`, não do `change`: só o clique

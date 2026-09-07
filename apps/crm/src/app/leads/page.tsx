@@ -117,9 +117,12 @@ export default async function PaginaLeads({ searchParams }: { searchParams: Prom
             Aplicar
           </button>
           <VisoesSalvas consultaAtual={consulta()} />
+          {/* Atalho que ninguém descobre é atalho que ninguém usa: a régua fica
+              escrita ao lado da contagem, na mesma linha, sem ocupar tela. */}
           <span className="sub" style={{ marginLeft: 'auto' }}>
             {numero(linhas.length)} leads
-            {linhas.length === LIMITE_LISTA ? ` · teto de ${LIMITE_LISTA}` : ''}
+            {linhas.length === LIMITE_LISTA ? ` · teto de ${LIMITE_LISTA}` : ''} ·{' '}
+            <kbd>/</kbd> busca, <kbd>j</kbd>/<kbd>k</kbd> anda, <kbd>Enter</kbd> abre
           </span>
         </form>
 
