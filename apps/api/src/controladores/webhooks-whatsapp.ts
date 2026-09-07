@@ -89,6 +89,28 @@ export class ControladorWebhookWhatsApp {
    * 2. O tenant sai do payload, e payload que não casa com canal nenhum é
    *    **descartado**, nunca processado no melhor palpite.
    */
+  /**
+   * O desafio de inscrição da rota guarda-chuva.
+   *
+   * A Meta chama esta URL uma vez, quando o webhook é cadastrado **no aplicativo**.
+   * Aqui o token é o do ambiente e não o do canal: não há canal no caminho, e o
+   * webhook do aplicativo é um só. Sem esta rota o cadastro do webhook do app não
+   * passa, e sem ele não chega template rejeitado nem queda de qualidade.
+   */
+  @Get()
+  async verificarDaConta(
+    @Query('hub.mode') modo: string | undefined,
+    @Query('hub.verify_token') token: string | undefined,
+    @Query('hub.challenge') desafio: string | undefined,
+    @Res() resposta: Response,
+  ): Promise<void> {
+    const esperado = process.env['WHATSAPP_VERIFY_TOKEN'] ?? '';
+    if (modo !== 'subscribe' || !esperado || !igual(token ?? '', esperado)) {
+      throw new ErroPipe(403, 'verificacao_recusada', 'hub.verify_token não confere.');
+    }
+    resposta.status(200).type('text/plain').send(desafio ?? '');
+  }
+
   @Post()
   @HttpCode(200)
   async receberDaConta(@Req() requisicao: RequisicaoComCorpoCru): Promise<{ recebido: true }> {

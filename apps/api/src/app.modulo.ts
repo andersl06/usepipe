@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { APP_GUARD, Reflector } from '@nestjs/core';
 import { GuardaChaveApi } from './autenticacao.js';
 import { GuardaSessao } from './sessao.js';
+import { ControladorCanais } from './controladores/canais.js';
 import { ControladorConversas } from './controladores/conversas.js';
 import {
   ControladorAtendentes,
@@ -38,6 +39,7 @@ import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js
     ControladorDominios,
     ControladorOperacao,
     ControladorConversas,
+    ControladorCanais,
     ControladorContatos,
     ControladorFilas,
     ControladorAtendentes,

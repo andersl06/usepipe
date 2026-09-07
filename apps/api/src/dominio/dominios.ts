@@ -196,7 +196,7 @@ export async function verificarDominio(
  * pode estar uma camada abaixo — e é justamente o caso do `23505` que separa
  * "domínio de outro cliente" (409) de erro interno (500).
  */
-function codigoDoPostgres(erro: unknown): string | undefined {
+export function codigoDoPostgres(erro: unknown): string | undefined {
   for (let atual = erro; atual != null; atual = (atual as { cause?: unknown }).cause) {
     if (typeof atual === 'object' && 'code' in atual && typeof atual.code === 'string') {
       return atual.code;
