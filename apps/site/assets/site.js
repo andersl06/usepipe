@@ -8,12 +8,12 @@
   var root = document.documentElement;
   var reduzido = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-  /* ---------------------------------------------------------------- tema */
+  /* ---------------------------------------------------------------- tema
+     O claro é o padrão do site. O escuro só entra quando a pessoa clica no
+     botão, e a escolha fica salva no navegador. A preferência do sistema
+     operacional não decide nada aqui, de propósito. */
   function isDark() {
-    var attr = root.getAttribute("data-theme");
-    if (attr === "dark") return true;
-    if (attr === "light") return false;
-    return window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return root.getAttribute("data-theme") === "dark";
   }
 
   function paintThemeIcons() {
@@ -31,6 +31,23 @@
     });
   });
   paintThemeIcons();
+
+  /* ------------------------------------------------ palavra que gira
+     Só troca qual palavra está visível. A largura da caixa já vem reservada
+     no CSS por uma cópia invisível da maior palavra, então o texto ao redor
+     não pula. Com movimento reduzido nada roda e fica a primeira palavra. */
+  var gira = document.querySelector("[data-gira]");
+  if (gira && !reduzido) {
+    var palavras = gira.querySelectorAll("[data-gira] b");
+    if (palavras.length > 1) {
+      var atual = 0;
+      window.setInterval(function () {
+        palavras[atual].classList.remove("is-on");
+        atual = (atual + 1) % palavras.length;
+        palavras[atual].classList.add("is-on");
+      }, 2300);
+    }
+  }
 
   /* ---------------------------------------------------------------- menu */
   var toggle = document.querySelector("[data-menu-toggle]");

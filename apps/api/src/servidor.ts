@@ -62,7 +62,10 @@ export interface ApiNoAr {
 }
 
 /** Sobe e escuta. `porta = 0` deixa o sistema escolher — é o que o teste usa. */
-export async function subirApi(porta = Number(process.env['PORT'] ?? 3100)): Promise<ApiNoAr> {
+// 3000, e não 3100: a Gestão roda em 3100, o Desk em 3200 e o CRM em 3300. Com o
+// padrão antigo, quem subisse a api antes da Gestão tomava a porta dela, e a
+// Gestão morria em EADDRINUSE — que é o que acontecia nesta máquina.
+export async function subirApi(porta = Number(process.env['PORT'] ?? 3000)): Promise<ApiNoAr> {
   const app = await criarAplicacao();
   consumirEntrada();
   await app.listen(porta);

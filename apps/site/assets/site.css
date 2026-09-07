@@ -52,41 +52,15 @@
   --r-md: 16px;
   --r-lg: 22px;
   --r-xl: 28px;
-}
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    color-scheme: dark;
-    --bg: #12140e;
-    --bg-soft: #191c13;
-    --bg-soft-2: #21251a;
-    --card: #191c13;
-    --line: #2c3122;
-    --line-strong: #3d432f;
-    --ink: #f2f1ec;
-    --ink-2: #b4b3a8;
-    --ink-3: #94938a;
-    --moss: #a8be6b;
-    --moss-deep: #c1d488;
-    --moss-tint: #212a15;
-    --moss-line: #3b4726;
-    --sage: #8a9a5b;
-    --terra: #e88a76;
-    --terra-tint: #33201b;
-    --info: #8fb6ce;
-    --ok: #8fcaa8;
-    --night: #0c0e08;
-    --night-2: #14170f;
-    --night-line: #262b1b;
-    --sh-1: 0 1px 2px rgba(0, 0, 0, .5);
-    --sh-2: 0 12px 32px -14px rgba(0, 0, 0, .7);
-    --sh-3: 0 40px 90px -44px rgba(0, 0, 0, .85);
-    --sh-moss: 0 10px 24px -12px rgba(168, 190, 107, .35);
-  }
+  /* fundo da moldura de prévia: as capturas são do produto em modo claro,
+     então o fundo fica branco nos dois temas para não sobrar borda escura em volta */
+  --previa-bg: #ffffff;
 }
 
 :root[data-theme="dark"] {
   color-scheme: dark;
+  --previa-bg: #ffffff;
   --bg: #12140e;
   --bg-soft: #191c13;
   --bg-soft-2: #21251a;
@@ -285,9 +259,6 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
 
 .btn--sm { min-height: 40px; padding: 9px 18px; font-size: .875rem; }
 
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .btn--primary { color: #12140e; }
-}
 :root[data-theme="dark"] .btn--primary { color: #12140e; }
 
 /* --------------------------------------------------------- 5. cabeçalho */
@@ -382,13 +353,6 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   background:
     radial-gradient(46% 58% at 26% 0%, rgba(74, 93, 35, .16) 0%, transparent 68%),
     radial-gradient(38% 48% at 82% 4%, rgba(196, 68, 46, .11) 0%, transparent 70%);
-}
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .hero__glow {
-    background:
-      radial-gradient(46% 58% at 26% 0%, rgba(168, 190, 107, .14) 0%, transparent 68%),
-      radial-gradient(38% 48% at 82% 4%, rgba(232, 138, 118, .09) 0%, transparent 70%);
-  }
 }
 :root[data-theme="dark"] .hero__glow {
   background:
@@ -1197,9 +1161,6 @@ a.card { text-decoration: none; }
 }
 .seg button[aria-pressed="true"] { background: var(--moss); color: #fff; box-shadow: var(--sh-1); }
 :root[data-theme="dark"] .seg button[aria-pressed="true"] { color: #12140e; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .seg button[aria-pressed="true"] { color: #12140e; }
-}
 
 /* ---- painel de resultado ---- */
 .res {
@@ -1561,9 +1522,6 @@ a.card { text-decoration: none; }
 .chips button:hover { border-color: var(--moss); color: var(--moss); }
 .chips button[aria-pressed="true"] { background: var(--moss); border-color: var(--moss); color: #fff; }
 :root[data-theme="dark"] .chips button[aria-pressed="true"] { color: #12140e; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) .chips button[aria-pressed="true"] { color: #12140e; }
-}
 .explorer__empty {
   margin-top: 32px;
   border: 1px dashed var(--line-strong);
@@ -1766,4 +1724,274 @@ a.card { text-decoration: none; }
 .feature__grid > .cover { height: 100%; aspect-ratio: 16 / 9; }
 @media (min-width: 860px) {
   .feature__grid > .cover { aspect-ratio: auto; min-height: 260px; }
+}
+
+/* ==========================================================================
+   20. Herói novo: palavra que gira, prévia real do produto, prova por
+   tecnologia, faixa de números e carrossel de depoimentos.
+   Tudo funciona no tema claro e no escuro pelas variáveis do bloco 1.
+   ========================================================================== */
+
+/* ---- herói em coluna única: texto em cima, captura larga embaixo ---- */
+.hero__stack {
+  display: grid;
+  gap: 34px;
+  padding-block: 40px 24px;
+}
+@media (min-width: 900px) {
+  .hero__stack { gap: 44px; padding-block: 56px 32px; }
+}
+
+/* Com a captura ocupando a largura inteira embaixo, o texto centralizado
+   fica em pé sobre ela; alinhado à esquerda o herói ficaria torto. */
+.hero__lede { max-width: 64ch; }
+.hero__stack h1 { max-width: 22ch; }
+.hero__stack .hero__sub { max-width: 58ch; }
+@media (min-width: 780px) {
+  .hero__lede { margin-inline: auto; text-align: center; }
+  .hero__stack h1 { margin-inline: auto; font-size: clamp(2.4rem, 1.1rem + 3.4vw, 3.9rem); }
+  .hero__stack .hero__sub { margin-inline: auto; }
+  .hero__stack .hero__cta,
+  .hero__stack .hero__meta { justify-content: center; }
+}
+
+/* ---- palavra que gira ----
+   A caixa recebe a largura da maior palavra por uma cópia invisível que
+   ocupa espaço mas não aparece nem é lida. As palavras de verdade ficam
+   empilhadas por cima, e só a que tem .is-on está visível. Assim a troca
+   nunca mexe na linha do texto. */
+.gira {
+  position: relative;
+  display: inline-block;
+  vertical-align: baseline;
+  color: var(--moss);
+}
+.gira__medida { visibility: hidden; }
+.gira b {
+  position: absolute;
+  inset-inline-start: 0;
+  top: 0;
+  font-weight: inherit;
+  white-space: nowrap;
+  opacity: 0;
+  transform: translateY(.22em);
+  transition: opacity .34s ease, transform .34s ease;
+}
+.gira b.is-on { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .gira b { transition: none; }
+}
+
+/* ---- moldura de prévia ----
+   As capturas têm 1568x773, mas a tela do produto ocupa só o canto superior
+   esquerdo, 1170x575. A moldura tem a proporção da área útil e a imagem é
+   ampliada até que esse recorte preencha a moldura inteira; o resto sai pelo
+   overflow. Sem faixa branca e sem redimensionar arquivo. */
+.previa {
+  margin: 0;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line);
+  background: var(--bg-soft-2);
+  box-shadow: var(--sh-3);
+  overflow: hidden;
+}
+.previa__chrome {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  background: var(--bg-soft);
+  border-bottom: 1px solid var(--line);
+}
+.previa__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: var(--line-strong);
+}
+.previa__url {
+  margin-left: 8px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 11px;
+  letter-spacing: .04em;
+  color: var(--ink-3);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.previa__frame {
+  position: relative;
+  aspect-ratio: 1170 / 575;
+  overflow: hidden;
+  background: var(--previa-bg);
+}
+.previa__frame img {
+  display: block;
+  /* 1568 / 1170 = 134.017% e 773 / 575 = 134.435%: a caixa da imagem mantém a
+     proporção do arquivo, então o cover não corta nada e o recorte é só o que
+     a moldura esconde. */
+  width: 134.017%;
+  height: 134.435%;
+  object-fit: cover;
+  object-position: left top;
+}
+.previa figcaption,
+.previa__cap {
+  padding: 16px 18px 18px;
+  border-top: 1px solid var(--line);
+  background: var(--card);
+  font-size: .9375rem;
+  color: var(--ink-2);
+}
+.previa__cap b {
+  display: block;
+  color: var(--ink);
+  font-weight: 600;
+  font-size: 1rem;
+  margin-bottom: 4px;
+}
+
+.previa--hero { box-shadow: var(--sh-3); }
+
+/* grade de prévias */
+.previa-grid { display: grid; gap: 20px; margin-top: 36px; }
+@media (min-width: 900px) { .previa-grid { grid-template-columns: 1fr 1fr; gap: 24px; } }
+
+/* ---- faixa de prova por tecnologia ---- */
+.tech { border-block: 1px solid var(--line); background: var(--bg-soft); }
+.tech__wrap { padding-block: 26px 28px; }
+.tech__lead {
+  margin: 0 auto;
+  max-width: 62ch;
+  text-align: center;
+  font-size: .9375rem;
+  color: var(--ink-2);
+}
+.tech__lead b { color: var(--ink); font-weight: 600; }
+.tech ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 18px;
+}
+.tech li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  font-size: .8125rem;
+  font-weight: 500;
+  color: var(--ink-2);
+}
+.tech li svg { width: 15px; height: 15px; color: var(--moss); flex-shrink: 0; }
+.tech__note {
+  margin-top: 16px;
+  text-align: center;
+  font-size: .75rem;
+  color: var(--ink-3);
+}
+
+/* ---- faixa de números ---- */
+.nums { display: grid; gap: 14px; margin-top: 34px; }
+@media (min-width: 620px) { .nums { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 980px) { .nums { grid-template-columns: repeat(4, 1fr); } }
+.nums__item {
+  padding: 22px 20px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--sh-1);
+}
+.nums__n {
+  display: block;
+  font-family: "IBM Plex Sans Condensed", "IBM Plex Sans", sans-serif;
+  font-size: clamp(1.9rem, 1.4rem + 1.6vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: -.015em;
+  color: var(--moss);
+}
+.nums__lbl { margin-top: 10px; font-size: .875rem; color: var(--ink-2); }
+
+/* marcador do que ainda falta preencher: some sozinho quando o texto for
+   trocado pelo número real, porque o estilo depende do atributo */
+[data-preencher] {
+  border-radius: 6px;
+  padding: 2px 8px;
+  border: 1px dashed var(--terra);
+  background: var(--terra-tint);
+  color: var(--terra);
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .8em;
+  letter-spacing: .06em;
+}
+
+/* ---- carrossel de depoimentos ---- */
+.marq {
+  margin-top: 34px;
+  overflow: hidden;
+  /* as pontas somem no fundo em vez de cortarem o cartão na régua */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.marq__trilha {
+  display: flex;
+  gap: 18px;
+  width: max-content;
+  animation: marq-desliza 48s linear infinite;
+}
+.marq:hover .marq__trilha,
+.marq:focus-within .marq__trilha { animation-play-state: paused; }
+
+@keyframes marq-desliza {
+  from { transform: translateX(0); }
+  /* a lista está duplicada: andar metade da trilha volta ao mesmo quadro */
+  to { transform: translateX(-50%); }
+}
+
+.depo {
+  flex: 0 0 auto;
+  width: min(84vw, 360px);
+  display: flex;
+  flex-direction: column;
+  padding: 22px;
+  border-radius: var(--r-md);
+  border: 1px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--sh-1);
+}
+.depo__txt { margin: 0 0 18px; font-size: .9375rem; color: var(--ink-2); }
+.depo__quem { display: flex; align-items: center; gap: 11px; margin-top: auto; }
+.depo__av {
+  width: 36px; height: 36px;
+  flex-shrink: 0;
+  border-radius: 999px;
+  background: var(--moss-tint);
+  border: 1px solid var(--moss-line);
+  color: var(--moss);
+  display: grid; place-items: center;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .6875rem;
+  font-weight: 600;
+}
+.depo__quem b { display: block; font-size: .875rem; font-weight: 600; color: var(--ink); }
+.depo__quem span { display: block; font-size: .75rem; color: var(--ink-3); }
+.marq__nota { margin-top: 16px; font-size: .75rem; color: var(--ink-3); text-align: center; }
+
+/* Sem movimento a marquise vira uma lista que a pessoa rola com o dedo ou
+   com o teclado, sem nada dependendo de hover para ser lido. */
+@media (prefers-reduced-motion: reduce) {
+  .marq {
+    overflow-x: auto;
+    -webkit-mask-image: none;
+    mask-image: none;
+    padding-bottom: 8px;
+  }
+  .marq__trilha { animation: none; }
+  .marq__trilha > .depo:nth-child(n + 5) { display: none; }
 }

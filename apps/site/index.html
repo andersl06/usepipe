@@ -7,8 +7,8 @@
 <meta name="description" content="Sistema de atendimento no WhatsApp com API oficial da Meta. Cada conversa cadastra o cliente no CRM, guarda o histórico e gera resumo por IA. Fila, SLA e relatório em tempo real.">
 <link rel="canonical" href="https://pipe.com.br/">
 <meta name="robots" content="index,follow,max-image-preview:large">
-<meta name="theme-color" content="#4A5D23" media="(prefers-color-scheme: light)">
-<meta name="theme-color" content="#12140E" media="(prefers-color-scheme: dark)">
+<!-- o site abre no tema claro; o escuro só entra quando a pessoa clica no botão -->
+<meta name="theme-color" content="#4A5D23">
 
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Pipe">
@@ -31,7 +31,6 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://images.unsplash.com" crossorigin>
 <link rel="preconnect" href="https://images.pexels.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@600;700&display=swap">
 <link rel="stylesheet" href="/assets/site.css">
@@ -227,18 +226,21 @@
   <!-- ============================================================ HERO -->
   <section class="hero">
     <div class="hero__glow" aria-hidden="true"></div>
-    <div class="wrap hero__grid">
-      <div>
+    <div class="wrap hero__stack">
+      <div class="hero__lede">
         <span class="pill">
           <svg aria-hidden="true"><use href="#i-shield"></use></svg>
-          Feito para operação de WhatsApp no Brasil
+          API oficial do WhatsApp, operação brasileira
         </span>
 
-        <h1>O sistema de atendimento no WhatsApp que <em>preenche o seu CRM</em></h1>
+        <h1>
+          Sua equipe atende no WhatsApp. O Pipe transforma cada conversa em
+          <span class="gira" data-gira><span class="gira__medida" aria-hidden="true">avaliação</span><b class="is-on" aria-hidden="true">cadastro</b><b aria-hidden="true">histórico</b><b aria-hidden="true">resumo</b><b aria-hidden="true">avaliação</b><b aria-hidden="true">indicador</b><span class="sr">cadastro, histórico, resumo, avaliação e indicador</span></span>.
+        </h1>
 
         <p class="hero__sub">
-          Cada conversa cadastra o cliente, guarda o histórico e gera o resumo por IA.
-          Seu time atende numa tela simples. Você vê a fila e o SLA em tempo real.
+          O atendente responde numa tela só. O cliente vira ficha com histórico e resumo escrito
+          pela IA. O gestor vê a fila, o SLA e a nota de cada conversa sem pedir planilha para ninguém.
         </p>
 
         <div class="hero__cta">
@@ -247,60 +249,57 @@
         </div>
 
         <p class="hero__fine">
-          API oficial do WhatsApp, sem contrato de fidelidade. A gente migra a sua base e o seu histórico.
+          Sem contrato de fidelidade. A gente migra a sua base e o seu histórico.
         </p>
 
         <p class="hero__meta">
-          <b>WhatsApp, e-mail e site</b>
+          <b>Desk</b>
           <i aria-hidden="true"></i>
-          <span>CRM incluso</span>
+          <span>Gestão</span>
           <i aria-hidden="true"></i>
-          <span>Monitoria com IA</span>
+          <span>CRM</span>
+          <i aria-hidden="true"></i>
+          <span>Um banco de dados só</span>
         </p>
       </div>
 
-      <figure class="shot" style="margin:0">
-        <img
-          src="https://images.unsplash.com/photo-1766066014237-00645c74e9c6?auto=format&fit=crop&w=900&h=1125&q=70&blur=22&sat=-35"
-          width="900" height="1125" fetchpriority="high"
-          alt="Atendente com headset respondendo clientes no computador">
-        <span class="shot__wash" aria-hidden="true"></span>
-        <span class="shot__mark" aria-hidden="true"><img src="/assets/pipe-lockup-cream.svg" width="420" height="190" alt=""></span>
-
-        <figcaption class="glass">
-          <div class="glass__top">
-            <span class="glass__av" aria-hidden="true">MT</span>
-            <span class="glass__who">
-              <b>Marcelo Tavares</b>
-              <span>Fila comercial</span>
-            </span>
-            <span class="glass__win">21h48 de janela</span>
-          </div>
-
-          <p class="msg">Vi o anúncio de vocês e queria entender o plano anual.</p>
-          <p class="msg msg--out">
-            O plano anual sai por R$ 4.788; dá R$ 399 por mês.
-            <small>Entregue e lida, 14:07</small>
-          </p>
-
-          <p class="glass__foot">
-            Fila agora, 12 esperando
-            <span class="tag-ok">1ª resposta 02:38</span>
-          </p>
-        </figcaption>
+      <figure class="previa previa--hero">
+        <div class="previa__chrome" aria-hidden="true">
+          <span class="previa__dot"></span><span class="previa__dot"></span><span class="previa__dot"></span>
+          <span class="previa__url">app.pipe.com.br/desk</span>
+        </div>
+        <div class="previa__frame">
+          <img src="/assets/previa-desk.jpg" width="1568" height="773" fetchpriority="high"
+            alt="Tela do Pipe Desk em modo claro: à esquerda a lista de atendimentos com filtros e etiquetas de fila; no centro a conversa de WhatsApp com o aviso de que a janela de 24 horas fechou e o seletor de template aprovado; à direita a ficha do contato com resumo do atendimento escrito pela IA, atributos, etiquetas e histórico.">
+        </div>
       </figure>
     </div>
   </section>
 
-  <!-- ===================================================== FAIXA DE PROVA -->
-  <div class="proof">
-    <div class="wrap">
+  <!-- ============================== FAIXA DE PROVA POR TECNOLOGIA ==============================
+       ONDE ENTRAM OS LOGOTIPOS DE CLIENTE: quando existir cliente em produção com contrato
+       assinado e autorização de uso de marca, trocar o <ul> abaixo por uma faixa de <img> com
+       o logotipo de cada empresa e o nome dela no alt, mantendo o parágrafo de tecnologia
+       acima. Até lá nenhum logotipo de terceiro entra aqui: logotipo em landing page é lido
+       como "estes são nossos clientes", e isso seria afirmação falsa.
+       ========================================================================================= -->
+  <div class="tech">
+    <div class="wrap tech__wrap">
+      <p class="tech__lead">
+        O Pipe conversa com o WhatsApp pela <b>WhatsApp Business Platform</b>, a API oficial da Meta.
+        É a mesma infraestrutura oficial que as grandes plataformas de atendimento do Brasil usam
+        por baixo, e o número fica no <b>seu</b> Business Manager, não no nosso.
+      </p>
       <ul>
-        <li><svg aria-hidden="true"><use href="#i-check"></use></svg>API oficial da Meta</li>
-        <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Sem contrato de fidelidade</li>
-        <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Migração de base e histórico</li>
-        <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Produto e suporte feitos no Brasil</li>
+        <li><svg aria-hidden="true"><use href="#i-shield"></use></svg>API oficial da Meta</li>
+        <li><svg aria-hidden="true"><use href="#i-check"></use></svg>Número verificado</li>
+        <li><svg aria-hidden="true"><use href="#i-template"></use></svg>Template aprovado pela Meta</li>
+        <li><svg aria-hidden="true"><use href="#i-shield"></use></svg>Criptografia em repouso</li>
+        <li><svg aria-hidden="true"><use href="#i-link"></use></svg>Migração de base e histórico</li>
       </ul>
+      <p class="tech__note">
+        WhatsApp é marca da Meta Platforms. O Pipe não tem vínculo com a Meta.
+      </p>
     </div>
   </div>
 
@@ -516,6 +515,32 @@
           Quem mede usa o Gestão. Os dois falam com o mesmo banco de dados.
         </p>
       </header>
+
+      <div class="previa-grid">
+        <figure class="previa">
+          <div class="previa__frame">
+            <img loading="lazy" src="/assets/previa-desk.jpg" width="1568" height="773"
+              alt="Pipe Desk em modo claro: lista de atendimentos, conversa de WhatsApp com o seletor de template e a ficha do contato aberta ao lado.">
+          </div>
+          <figcaption class="previa__cap">
+            <b>Pipe Desk</b>
+            A tela de quem atende: fila à esquerda, conversa no meio, ficha do cliente à direita.
+            Quando a janela de 24 horas fecha, o campo livre vira seletor de template com o motivo escrito.
+          </figcaption>
+        </figure>
+
+        <figure class="previa">
+          <div class="previa__frame">
+            <img loading="lazy" src="/assets/previa-gestao.jpg" width="1568" height="773"
+              alt="Pipe Gestão em modo claro: painel de monitoramento com atendimentos em tempo real, tempo máximo na fila, status dos atendentes e monitoramento detalhado por ticket.">
+          </div>
+          <figcaption class="previa__cap">
+            <b>Pipe Gestão</b>
+            A tela de quem mede: o que está acontecendo agora separado do que já fechou hoje,
+            com a base de cálculo escrita embaixo de cada média.
+          </figcaption>
+        </figure>
+      </div>
 
       <div class="grid grid--2">
         <article class="card">
@@ -733,6 +758,135 @@
         As empresas e os números destes três exemplos são fictícios e servem para explicar o produto.
         Quando tivermos cliente em produção, o depoimento entra aqui com nome, cargo e autorização,
         e os números virão do painel dele.
+      </p>
+    </div>
+  </section>
+
+  <!-- ========================================================== A CONTA ==========================
+       PREENCHER: cada <span data-preencher> abaixo espera o número real do painel. Trocar o texto
+       "PREENCHER" pelo número e apagar o atributo data-preencher tira a moldura tracejada.
+       Nenhum número aqui pode ser estimativa: se não sai de relatório, o cartão sai da faixa.
+       =========================================================================================== -->
+  <section class="sec sec--soft">
+    <div class="wrap">
+      <header class="head head--center">
+        <p class="label">A conta</p>
+        <h2>Os números que a gente vai publicar aqui</h2>
+        <p>
+          Cada um destes números sai do painel de um cliente em produção, com o período escrito
+          do lado. Enquanto o primeiro ciclo não fecha, eles ficam marcados em vermelho de propósito.
+        </p>
+      </header>
+
+      <div class="nums">
+        <div class="nums__item">
+          <span class="nums__n"><span data-preencher>PREENCHER</span></span>
+          <p class="nums__lbl">Conversas atendidas por mês dentro do Pipe</p>
+        </div>
+        <div class="nums__item">
+          <span class="nums__n"><span data-preencher>PREENCHER</span></span>
+          <p class="nums__lbl">Tempo médio até a primeira resposta, contado só no horário de atendimento</p>
+        </div>
+        <div class="nums__item">
+          <span class="nums__n"><span data-preencher>PREENCHER</span></span>
+          <p class="nums__lbl">Conversas avaliadas pela monitoria, sobre o total do período</p>
+        </div>
+        <div class="nums__item">
+          <span class="nums__n"><span data-preencher>PREENCHER</span></span>
+          <p class="nums__lbl">Cadastros criados pela própria conversa, sem ninguém digitar</p>
+        </div>
+      </div>
+
+      <p style="margin-top:22px;font-size:.8125rem;color:var(--ink-3);max-width:72ch">
+        A faixa fica assim até existir relatório fechado para copiar. Número de landing page que
+        ninguém consegue reproduzir no painel é o tipo de coisa que a gente não escreve.
+      </p>
+    </div>
+  </section>
+
+  <!-- ===================================================== DEPOIMENTOS ==========================
+       PREENCHER: os quatro cartões são reservas. Trocar nome, cargo, empresa, iniciais do avatar
+       e o texto marcado data-preencher pelo depoimento real, sempre com autorização por escrito.
+       A trilha está duplicada para o laço não ter emenda: o que mudar no primeiro grupo tem de
+       mudar igual no segundo, que é o aria-hidden.
+       =========================================================================================== -->
+  <section class="sec">
+    <div class="wrap">
+      <header class="head head--center">
+        <p class="label">Quem usa</p>
+        <h2>Depoimentos de quem atende no Pipe</h2>
+        <p>
+          Os cartões abaixo estão reservados. Cada depoimento entra com nome, cargo, empresa e
+          autorização por escrito, e nenhum antes disso.
+        </p>
+      </header>
+
+      <div class="marq" role="region" aria-label="Depoimentos de clientes" tabindex="0">
+        <div class="marq__trilha">
+          <figure class="depo">
+            <blockquote class="depo__txt"><span data-preencher>PREENCHER</span> depoimento sobre a troca de sistema de atendimento.</blockquote>
+            <figcaption class="depo__quem">
+              <span class="depo__av" aria-hidden="true">NC</span>
+              <span><b>Nome do cliente</b><span>Cargo · Empresa</span></span>
+            </figcaption>
+          </figure>
+          <figure class="depo">
+            <blockquote class="depo__txt"><span data-preencher>PREENCHER</span> depoimento sobre o CRM preenchido pela própria conversa.</blockquote>
+            <figcaption class="depo__quem">
+              <span class="depo__av" aria-hidden="true">NC</span>
+              <span><b>Nome do cliente</b><span>Cargo · Empresa</span></span>
+            </figcaption>
+          </figure>
+          <figure class="depo">
+            <blockquote class="depo__txt"><span data-preencher>PREENCHER</span> depoimento sobre a monitoria de qualidade com IA.</blockquote>
+            <figcaption class="depo__quem">
+              <span class="depo__av" aria-hidden="true">NC</span>
+              <span><b>Nome do cliente</b><span>Cargo · Empresa</span></span>
+            </figcaption>
+          </figure>
+          <figure class="depo">
+            <blockquote class="depo__txt"><span data-preencher>PREENCHER</span> depoimento sobre a fila e o SLA em tempo real.</blockquote>
+            <figcaption class="depo__quem">
+              <span class="depo__av" aria-hidden="true">NC</span>
+              <span><b>Nome do cliente</b><span>Cargo · Empresa</span></span>
+            </figcaption>
+          </figure>
+
+          <!-- cópia do laço: mesma lista, escondida do leitor de tela -->
+          <figure class="depo" aria-hidden="true">
+            <blockquote class="depo__txt"><span data-preencher>PREENCHER</span> depoimento sobre a troca de sistema de atendimento.</blockquote>
+            <figcaption class="depo__quem">
+              <span class="depo__av">NC</span>
+              <span><b>Nome do cliente</b><span>Cargo · Empresa</span></span>
+            </figcaption>
+          </figure>
+          <figure class="depo" aria-hidden="true">
+            <blockquote class="depo__txt"><span data-preencher>PREENCHER</span> depoimento sobre o CRM preenchido pela própria conversa.</blockquote>
+            <figcaption class="depo__quem">
+              <span class="depo__av">NC</span>
+              <span><b>Nome do cliente</b><span>Cargo · Empresa</span></span>
+            </figcaption>
+          </figure>
+          <figure class="depo" aria-hidden="true">
+            <blockquote class="depo__txt"><span data-preencher>PREENCHER</span> depoimento sobre a monitoria de qualidade com IA.</blockquote>
+            <figcaption class="depo__quem">
+              <span class="depo__av">NC</span>
+              <span><b>Nome do cliente</b><span>Cargo · Empresa</span></span>
+            </figcaption>
+          </figure>
+          <figure class="depo" aria-hidden="true">
+            <blockquote class="depo__txt"><span data-preencher>PREENCHER</span> depoimento sobre a fila e o SLA em tempo real.</blockquote>
+            <figcaption class="depo__quem">
+              <span class="depo__av">NC</span>
+              <span><b>Nome do cliente</b><span>Cargo · Empresa</span></span>
+            </figcaption>
+          </figure>
+        </div>
+      </div>
+
+      <p class="marq__nota">
+        A faixa passa sozinha e para quando o ponteiro do mouse encosta ou o foco do teclado entra.
+        Com movimento reduzido no sistema, ela vira uma lista que você rola.
       </p>
     </div>
   </section>
