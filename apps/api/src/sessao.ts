@@ -28,6 +28,31 @@ export const CHAVE_SESSAO = 'pipe:sessao';
 /** Marca a rota como exigindo sessão de navegador. */
 export const ComSessao = () => SetMetadata(CHAVE_SESSAO, true);
 
+/**
+ * Marca a rota como aceitando **chave de API OU sessão** — não as duas juntas.
+ *
+ * Sem esta marca, declarar `@Escopos(...)` e `@ComSessao()` na mesma rota exigiria as
+ * DUAS credenciais, porque os dois guardas são globais e independentes. Com ela, vale
+ * a regra "quem se apresentou manda":
+ *
+ * - veio `Authorization: Bearer pipe_…` → o guarda da chave confere, o da sessão sai;
+ * - não veio → o guarda da chave sai, e o da sessão confere o cookie;
+ * - não veio nenhum dos dois → 401 pelo guarda da sessão.
+ *
+ * O Bearer ganha do cookie de propósito: uma integração que também tenha cookie no
+ * mesmo navegador (o caso de quem testa a API logado no Desk) tem de ser tratada como
+ * integração, e não silenciosamente como a pessoa.
+ *
+ * O decorador composto vive em `autenticacao.ts`, junto de `@Escopos`; aqui fica só a
+ * chave, para os dois guardas a enxergarem sem ciclo de import.
+ */
+export const CHAVE_QUALQUER_CREDENCIAL = 'pipe:qualquer-credencial';
+
+/** Há `Authorization: Bearer` na requisição? É o que desempata as duas credenciais. */
+export function temBearer(requisicao: Request): boolean {
+  return /^Bearer\s+\S/i.test(requisicao.header('authorization') ?? '');
+}
+
 export type RequisicaoComSessao = Request & { sessao?: SessaoAtiva };
 
 export function sessaoDe(requisicao: RequisicaoComSessao): SessaoAtiva {
@@ -95,6 +120,15 @@ export class GuardaSessao implements CanActivate {
     if (!exige) return true;
 
     const requisicao = contexto.switchToHttp().getRequest<RequisicaoComSessao>();
+
+    // Rota que aceita as duas credenciais e recebeu Bearer: quem confere é o guarda
+    // da chave. Ver `CHAVE_QUALQUER_CREDENCIAL`.
+    const qualquer = this.reflector.getAllAndOverride<boolean | undefined>(
+      CHAVE_QUALQUER_CREDENCIAL,
+      [contexto.getHandler(), contexto.getClass()],
+    );
+    if (qualquer && temBearer(requisicao)) return true;
+
     const token = tokenDaSessao(requisicao);
     if (!token) throw recusa();
 

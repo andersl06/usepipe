@@ -5,6 +5,7 @@ import type { INestApplication } from '@nestjs/common';
 import type { Request } from 'express';
 import { origemPermitida, origensPermitidas } from '@pipe/autenticacao';
 import { AppModulo } from './app.modulo.js';
+import { MAX_BYTES_POR_ARQUIVO } from '@pipe/armazenamento';
 import { fecharBancos } from './banco.js';
 import { FiltroDeErro } from './erros.js';
 import {
@@ -47,6 +48,20 @@ export async function criarAplicacao(): Promise<INestApplication> {
 
   // Antes de tudo: o que não casa com rota nenhuma também precisa aparecer no gráfico.
   app.use(medirRequisicao);
+
+  // Upload de anexo entra como corpo CRU, e só nesta rota.
+  //
+  // Antes do `express.json` porque o parser que casa primeiro ganha, e escopado ao
+  // caminho porque o teto aqui é de 100 MB — aplicá-lo a tudo transformaria o webhook
+  // da Meta numa porta para mandar 100 MB de JSON.
+  //
+  // Corpo cru, e não multipart: `multipart/form-data` exigiria `multer`, e um upload
+  // de UM arquivo cabe inteiro em `POST` com `Content-Type` do próprio arquivo — que
+  // é, aliás, a forma do `PUT Object` do S3.
+  app.use(
+    '/v1/anexos',
+    express.raw({ type: () => true, limit: MAX_BYTES_POR_ARQUIVO }),
+  );
 
   app.use(
     express.json({

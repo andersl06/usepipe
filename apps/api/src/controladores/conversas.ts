@@ -2,8 +2,10 @@ import { Body, Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestj
 import { sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import { noTenant } from '../banco.js';
-import { Escopos, contextoDe } from '../autenticacao.js';
+import { ChaveOuSessao, Escopos, atorDe, contextoDe } from '../autenticacao.js';
 import type { RequisicaoAutenticada } from '../autenticacao.js';
+import type { RequisicaoComSessao } from '../sessao.js';
+import { alternarEspera, encerrarConversa } from '../dominio/conversa.js';
 import { enviarMensagem } from '../dominio/envio.js';
 import type { TipoEnvio } from '../dominio/envio.js';
 import { ErroPipe } from '../erros.js';
@@ -210,19 +212,28 @@ export class ControladorConversas {
     return { data: pagina.data.map(comoMensagem), page_info: pagina.page_info };
   }
 
+  /**
+   * A MESMA rota serve à integração e ao Desk — ver `ChaveOuSessao`.
+   *
+   * A diferença está em quem assina a mensagem, e ela nunca vem do corpo quando é
+   * gente: com sessão, o autor é o `usuario_id` do cookie, e um `atendente_id` no
+   * corpo é ignorado. Aceitá-lo deixaria qualquer pessoa logada mandar mensagem em
+   * nome de outra, com o nome do colega na tela do cliente.
+   */
   @Post(':id/mensagens')
   @HttpCode(201)
-  @Escopos('mensagens:escrever')
+  @ChaveOuSessao('mensagens:escrever')
   async enviar(
-    @Req() requisicao: RequisicaoAutenticada,
+    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
     @Param('id') id: string,
     @Body() corpo: CorpoDeEnvio,
   ): Promise<Record<string, unknown>> {
-    const { tenantId } = contextoDe(requisicao);
+    const ator = atorDe(requisicao);
     const enfileirada = await enviarMensagem({
-      tenantId,
+      tenantId: ator.tenantId,
       conversaId: id,
-      atendenteId: corpo.atendente_id ?? null,
+      atendenteId: ator.viaSessao ? ator.usuarioId : (corpo.atendente_id ?? null),
+      exigirAtribuicao: ator.viaSessao,
       ...(corpo.tipo ? { tipo: corpo.tipo } : {}),
       texto: corpo.texto ?? null,
       templateId: corpo.template_id ?? null,
@@ -237,6 +248,51 @@ export class ControladorConversas {
       categoria_cobranca: enfileirada.categoriaCobranca,
       conteudo: enfileirada.conteudo,
     };
+  }
+
+  /**
+   * Encerrar. A etiqueta é obrigatória: conversa fechada sem motivo é relatório que
+   * não explica nada depois.
+   */
+  @Post(':id/encerrar')
+  @ChaveOuSessao('conversas:escrever')
+  async encerrar(
+    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: { etiqueta_id?: string },
+  ): Promise<Record<string, unknown>> {
+    const ator = atorDe(requisicao);
+    if (!corpo.etiqueta_id) {
+      throw ErroPipe.requisicao('etiqueta_obrigatoria', 'Escolha a etiqueta de encerramento.');
+    }
+    const r = await encerrarConversa(
+      {
+        tenantId: ator.tenantId,
+        atendenteId: ator.usuarioId,
+        exigirAtribuicao: ator.viaSessao,
+      },
+      { conversaId: id, etiquetaId: corpo.etiqueta_id },
+    );
+    return { estado: r.estado, motivo_encerramento: r.motivo };
+  }
+
+  /** Entra em espera, ou sai dela. A mesma rota nos dois sentidos, como o botão. */
+  @Post(':id/espera')
+  @ChaveOuSessao('conversas:escrever')
+  async espera(
+    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
+    @Param('id') id: string,
+  ): Promise<Record<string, unknown>> {
+    const ator = atorDe(requisicao);
+    const r = await alternarEspera(
+      {
+        tenantId: ator.tenantId,
+        atendenteId: ator.usuarioId,
+        exigirAtribuicao: ator.viaSessao,
+      },
+      id,
+    );
+    return { estado: r.estado, pausado_seg: r.pausadoSeg };
   }
 }
 

@@ -38,6 +38,17 @@ export interface PedidoDeEnvio {
   anexoId?: string | null;
   /** URL pública da mídia do cabeçalho do template. É ela que ocupa a posição 1. */
   midiaUrl?: string | null;
+  /**
+   * Exige que a conversa esteja atribuída a `atendenteId`.
+   *
+   * Ligado quando quem pede é uma PESSOA num navegador: atendente responde no que é
+   * dele. Desligado para integração, que não tem dono e fala pelo sistema.
+   *
+   * A regra mora aqui, e não no controlador, de propósito: qualquer caminho que
+   * chegue a `enviarMensagem` obedece. Confiar na tela lembrar é como o Desk chegou
+   * a gravar mensagem sem outbox.
+   */
+  exigirAtribuicao?: boolean;
 }
 
 export interface MensagemEnfileirada {
@@ -96,6 +107,21 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
       throw ErroPipe.conflito(
         'conversa_encerrada',
         'A conversa está encerrada. Reabra antes de responder.',
+      );
+    }
+
+    // Atendente responde no que é dele. Conversa na fila (sem dono) também é recusada:
+    // pegar a conversa é uma ação com evento próprio (`atribuida`), e deixar o envio
+    // atribuir por tabela faria o relatório de TMR perder o marco.
+    if (pedido.exigirAtribuicao && conversa.atendente_id !== pedido.atendenteId) {
+      throw new ErroPipe(
+        403,
+        'conversa_de_outro_atendente',
+        // O texto segue o da Blip ("Contato sendo atendido por outra pessoa. Para
+        // atender, solicite a transferência a…"): diz o que houve e o que fazer.
+        conversa.atendente_id
+          ? 'Contato sendo atendido por outra pessoa. Para atender, solicite a transferência.'
+          : 'Esta conversa não está atribuída a você. Assuma a conversa antes de responder.',
       );
     }
 

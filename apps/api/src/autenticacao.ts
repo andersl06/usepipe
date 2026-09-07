@@ -1,11 +1,13 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
-import { SetMetadata } from '@nestjs/common';
+import { applyDecorators, SetMetadata } from '@nestjs/common';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import type { Reflector } from '@nestjs/core';
 import { sql } from 'drizzle-orm';
 import type { Request } from 'express';
 import { bancoDono } from './banco.js';
 import { ErroPipe } from './erros.js';
+import { CHAVE_QUALQUER_CREDENCIAL, CHAVE_SESSAO, temBearer } from './sessao.js';
+import type { RequisicaoComSessao } from './sessao.js';
 
 /**
  * Autenticação por `chave_api`, no formato recomendado em `apis.md` §5.2:
@@ -46,6 +48,49 @@ export const CHAVE_ESCOPOS = 'pipe:escopos';
 /** Marca o escopo exigido por rota. Sem a marca, a rota é pública (webhook). */
 export const Escopos = (...escopos: Escopo[]) => SetMetadata(CHAVE_ESCOPOS, escopos);
 
+/**
+ * A rota serve aos dois clientes: integração por chave de API **ou** gente logada no
+ * navegador. Quem se apresentou manda — ver `CHAVE_QUALQUER_CREDENCIAL` em `sessao.ts`.
+ *
+ * Existe porque `POST /v1/conversas/:id/mensagens` é a MESMA operação nos dois casos, e
+ * duplicá-la numa rota `/v1/desk/...` seria duas implementações da regra de janela de
+ * 24 horas, de outbox e de evento — ou seja, duas para divergir.
+ */
+export const ChaveOuSessao = (...escopos: Escopo[]) =>
+  applyDecorators(
+    SetMetadata(CHAVE_ESCOPOS, escopos),
+    SetMetadata(CHAVE_SESSAO, true),
+    SetMetadata(CHAVE_QUALQUER_CREDENCIAL, true),
+  );
+
+/**
+ * Quem está pedindo: uma integração ou uma pessoa.
+ *
+ * O `tenantId` sai da credencial nos dois casos, nunca do corpo nem da URL. O
+ * `usuarioId` só existe quando é gente — chave de API não tem dono, e mensagem
+ * enviada por integração é do sistema.
+ */
+export interface Ator {
+  tenantId: string;
+  usuarioId: string | null;
+  /** `true` quando veio de navegador. É o que liga as regras de atendente. */
+  viaSessao: boolean;
+}
+
+export function atorDe(requisicao: RequisicaoAutenticada & RequisicaoComSessao): Ator {
+  if (requisicao.contexto) {
+    return { tenantId: requisicao.contexto.tenantId, usuarioId: null, viaSessao: false };
+  }
+  if (requisicao.sessao) {
+    return {
+      tenantId: requisicao.sessao.tenantId,
+      usuarioId: requisicao.sessao.usuarioId,
+      viaSessao: true,
+    };
+  }
+  throw ErroPipe.naoAutorizado();
+}
+
 export function contextoDe(requisicao: RequisicaoAutenticada): ContextoDaChave {
   if (!requisicao.contexto) throw ErroPipe.naoAutorizado();
   return requisicao.contexto;
@@ -73,6 +118,15 @@ export class GuardaChaveApi implements CanActivate {
     if (!exigidos || exigidos.length === 0) return true;
 
     const requisicao = contexto.switchToHttp().getRequest<RequisicaoAutenticada>();
+
+    // Rota que aceita as duas credenciais e NÃO recebeu Bearer: quem confere é o
+    // guarda da sessão. Ver `CHAVE_QUALQUER_CREDENCIAL` em `sessao.ts`.
+    const qualquer = this.reflector.getAllAndOverride<boolean | undefined>(
+      CHAVE_QUALQUER_CREDENCIAL,
+      [contexto.getHandler(), contexto.getClass()],
+    );
+    if (qualquer && !temBearer(requisicao)) return true;
+
     const chave = await autenticar(requisicao.header('authorization'));
     requisicao.contexto = chave;
 
