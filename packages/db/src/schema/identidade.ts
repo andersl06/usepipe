@@ -31,6 +31,59 @@ import { carimbos, id, listaCheck, momento } from './comum.js';
  */
 export const IMPLANTACOES = ['compartilhada', 'dedicada'] as const;
 
+/**
+ * Os três planos, com os limites que a cobrança usa.
+ *
+ * Decididos em `docs/specs/2026-09-07-preco.md`. Ficam aqui, e não em
+ * configuração, porque plano é regra: o teto de conversa analisada por IA
+ * precisa estar no mesmo lugar que o código que corta, e preço em variável de
+ * ambiente vira divergência entre o que a tela mostra e o que a fatura cobra.
+ *
+ * `conversasIaPorAtendente` é a franquia, e é o número que segura a margem: a IA
+ * é o único custo que escala com uso, e sem teto um cliente de volume alto come
+ * a margem inteira sem ninguém perceber até a fatura chegar.
+ */
+export const PLANOS = ['essencial', 'operacao', 'escala'] as const;
+export type Plano = (typeof PLANOS)[number];
+
+export interface LimitesDoPlano {
+  precoPorAtendenteCentavos: number;
+  minimoDeAtendentes: number;
+  conversasIaPorAtendente: number;
+  /** Fração das conversas que a monitoria avalia. 1 é todas. */
+  amostragemDeMonitoria: number;
+  excedenteCentavosPorConversa: number;
+  sso: boolean;
+}
+
+export const LIMITES_DO_PLANO: Readonly<Record<Plano, LimitesDoPlano>> = {
+  essencial: {
+    precoPorAtendenteCentavos: 9_700,
+    minimoDeAtendentes: 3,
+    conversasIaPorAtendente: 300,
+    amostragemDeMonitoria: 0.2,
+    excedenteCentavosPorConversa: 25,
+    sso: false,
+  },
+  operacao: {
+    precoPorAtendenteCentavos: 17_900,
+    minimoDeAtendentes: 5,
+    conversasIaPorAtendente: 1_000,
+    amostragemDeMonitoria: 1,
+    excedenteCentavosPorConversa: 18,
+    sso: false,
+  },
+  /* Sob contrato: preço e franquia entram no registro do tenant, não na tabela. */
+  escala: {
+    precoPorAtendenteCentavos: 0,
+    minimoDeAtendentes: 20,
+    conversasIaPorAtendente: 0,
+    amostragemDeMonitoria: 1,
+    excedenteCentavosPorConversa: 0,
+    sso: true,
+  },
+};
+
 export const tenant = pgTable(
   'tenant',
   {
@@ -41,12 +94,15 @@ export const tenant = pgTable(
     idioma: text('idioma').notNull().default('pt-BR'),
     logoUrl: text('logo_url'),
     corPrimaria: text('cor_primaria'),
-    plano: text('plano').notNull().default('padrao'),
+    plano: text('plano').notNull().default('essencial'),
     implantacao: text('implantacao').notNull().default('compartilhada'),
     ativo: boolean('ativo').notNull().default(true),
     ...carimbos(),
   },
-  (t) => [listaCheck('tenant_implantacao_ck', t.implantacao, IMPLANTACOES)],
+  (t) => [
+    listaCheck('tenant_implantacao_ck', t.implantacao, IMPLANTACOES),
+    listaCheck('tenant_plano_ck', t.plano, PLANOS),
+  ],
 );
 
 /**
@@ -167,13 +223,77 @@ export const sessao = pgTable(
     expiraEm: momento('expira_em').notNull(),
     ip: text('ip'),
     agente: text('agente'),
+    /** Por onde a pessoa entrou. Auditoria pede, e a revogação por IdP depende. */
+    origem: text('origem').notNull().default('senha'),
     criadoEm: momento('criado_em').notNull().defaultNow(),
     encerradaEm: momento('encerrada_em'),
   },
   (t) => [
     uniqueIndex('sessao_token_hash_uk').on(t.tokenHash),
     index('sessao_usuario_idx').on(t.tenantId, t.usuarioId, t.expiraEm),
+    listaCheck('sessao_origem_ck', t.origem, ORIGENS_DE_SESSAO),
   ],
+);
+
+export const ORIGENS_DE_SESSAO = ['senha', 'google', 'sso'] as const;
+
+/**
+ * A conta da pessoa no provedor externo.
+ *
+ * **A chave NUNCA é o e-mail.** É o par `(emissor, sujeito)` — no Google,
+ * `https://accounts.google.com` e o `sub` do `id_token`. E-mail muda de dono
+ * dentro de uma empresa: quem herda o endereço de quem saiu herdaria a conta
+ * junto. O `sub` é estável e é do Google, não do endereço.
+ *
+ * `emailNoProvedor` fica só para exibição e diagnóstico; nunca para casar conta.
+ *
+ * Único e GLOBAL em `(emissor, sujeito)`: uma conta do Google pertence a um
+ * usuário, e usuário pertence a um tenant. Deixar duas linhas para o mesmo par
+ * seria a mesma pessoa entrando em dois clientes com o mesmo login — e a decisão
+ * de qual vale ficaria com quem consultasse primeiro.
+ */
+export const identidadeExterna = pgTable(
+  'identidade_externa',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    usuarioId: uuid('usuario_id')
+      .notNull()
+      .references(() => usuario.id, { onDelete: 'cascade' }),
+    emissor: text('emissor').notNull(),
+    sujeito: text('sujeito').notNull(),
+    emailNoProvedor: text('email_no_provedor'),
+    ultimoAcessoEm: momento('ultimo_acesso_em'),
+    ...carimbos(),
+  },
+  (t) => [
+    uniqueIndex('identidade_externa_emissor_sujeito_uk').on(t.emissor, t.sujeito),
+    index('identidade_externa_usuario_idx').on(t.tenantId, t.usuarioId),
+  ],
+);
+
+/**
+ * Domínio de e-mail que pertence a um tenant.
+ *
+ * É o que permite descobrir o cliente a partir do login, já que o tenant não vem
+ * do subdomínio (`infraestrutura.md` §3). Só entra depois de VERIFICADO por
+ * registro TXT no DNS: sem isso, quem criasse conta com `@banco.com.br` entraria
+ * no tenant do banco.
+ *
+ * Domínio público — gmail, hotmail, outlook — nunca é cadastrável, e a lista
+ * dessas exceções vive no código, não aqui.
+ */
+export const dominioTenant = pgTable(
+  'dominio_tenant',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    dominio: text('dominio').notNull(),
+    verificadoEm: momento('verificado_em'),
+    tokenVerificacao: text('token_verificacao'),
+    ...carimbos(),
+  },
+  (t) => [uniqueIndex('dominio_tenant_dominio_uk').on(t.dominio)],
 );
 
 /**

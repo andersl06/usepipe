@@ -1,0 +1,29 @@
+{
+  "name": "@pipe/autenticacao",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Login com provedor externo (OIDC), sessão e resolução de tenant",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.test.json",
+    "lint": "eslint src tests",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@pipe/db": "workspace:*",
+    "drizzle-orm": "^0.44.6",
+    "jose": "^6.0.11"
+  },
+  "devDependencies": {
+    "vitest": "^3.2.4"
+  }
+}

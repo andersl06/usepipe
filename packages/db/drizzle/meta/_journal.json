@@ -64,6 +64,13 @@
       "when": 1788787673948,
       "tag": "0008_canal_roteamento",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1788788929403,
+      "tag": "0009_login",
+      "breakpoints": true
     }
   ]
 }
