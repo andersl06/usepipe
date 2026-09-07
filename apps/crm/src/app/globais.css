@@ -1565,3 +1565,62 @@ table th {
 .c-cmd-atual {
   background: var(--p-superficie-2);
 }
+
+/* ============================================ mais medidas do Twenty
+   Segunda passada, com o que ficou de fora da primeira. Todas lidas no
+   código do fork em 07/09/2026.
+
+   **Etiqueta** (`Tag.module.scss`): altura 20px (`spacing-5`), padding
+   0 8px, raio 4px (`sm-round`), gap 4px, e SEM BORDA — a separação é o
+   fundo. A nossa tinha borda de 1px e padding vertical, o que a deixava
+   2px mais alta e visualmente mais pesada que a deles.
+
+   Divergência anotada: eles usam fonte de 1rem numa altura de 20px. Com
+   o IBM Plex, que é mais largo que o Inter, 16px em 20px estoura. Fica
+   12px, que é o nosso `--p-t-sm`. Medida deles, letra nossa. */
+.c-conteudo .etiqueta,
+.c-conteudo .pill {
+  height: 20px;
+  padding: 0 var(--p-e-2);
+  border: 0;
+  border-radius: var(--c-r-sm);
+  gap: var(--p-e-1);
+  line-height: 1;
+}
+
+/* **Cabeçalho de página** (`PageHeader.tsx` + `PageBarMinHeight.ts`):
+   altura mínima 32px, padding 12px, gap 8px, título em `font.size.lg`.
+   O nosso `board-head` tinha 40px e margem de 23px — mais alto e mais
+   solto que o deles. */
+.c-conteudo .board-head {
+  min-height: 32px;
+  gap: var(--p-e-2);
+  margin-bottom: var(--p-e-3);
+}
+
+.c-conteudo .board-head h2 {
+  font-size: 1.23rem;
+  font-weight: var(--p-peso-forte);
+  letter-spacing: -0.01em;
+}
+
+/* **Coluna da caixa de seleção**: 28px, do
+   `RecordTableColumnCheckboxWidth.ts`. Estava em 32. */
+.c-conteudo .listagem .sel {
+  width: 28px;
+}
+
+/* **A tabela do Twenty não tem moldura.** O `tblwrap` do pacote põe
+   borda e raio em volta, e no Twenty a lista encosta na área de
+   conteúdo: o que separa uma linha da outra é o fio de 1px, e nada
+   mais. Cartão em volta de lista é peso visual sem informação. */
+.c-conteudo .tblwrap {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.c-conteudo .listagem td,
+.c-conteudo .listagem th {
+  border-bottom: 1px solid var(--p-linha);
+}
