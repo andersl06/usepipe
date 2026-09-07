@@ -74,15 +74,12 @@ services:
 
   api:
     <<: *app
+    # Construída por infra/construir-imagens.sh a partir de apps/api/Dockerfile.
     image: ghcr.io/pipe/api:${PIPE_VERSAO}
-    healthcheck:
-      # PENDÊNCIA: apps/api ainda não expõe /saude nem /metrics. Enquanto não
-      # expuser, este healthcheck mente e a publicação gradual fica sem juiz.
-      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3100/saude']
-      interval: 15s
-      timeout: 5s
-      retries: 4
-      start_period: 30s
+    # Sem `healthcheck:` aqui de propósito: quem manda é o HEALTHCHECK da imagem,
+    # para não haver duas verdades. O que estava escrito neste lugar chamava
+    # /saude, que apps/api ainda não expõe (pendência 1 do infra/README) — o
+    # contêiner nascia unhealthy e o `up -d --wait` do deploy.sh nunca fechava.
     labels:
       - traefik.enable=true
       - traefik.http.routers.api.rule=Host(`api.pipe.com.br`)
@@ -116,13 +113,11 @@ services:
 
   desk:
     <<: *app
+    # Construída por infra/construir-imagens.sh a partir de apps/desk/Dockerfile.
+    # A imagem escuta na 3000 (a 3200 é só do `pnpm dev`).
     image: ghcr.io/pipe/desk:${PIPE_VERSAO}
-    healthcheck:
-      test: ['CMD', 'wget', '-qO-', 'http://127.0.0.1:3000/api/saude']
-      interval: 15s
-      timeout: 5s
-      retries: 4
-      start_period: 30s
+    # Healthcheck vem da imagem. O que estava aqui chamava /api/saude, rota que o
+    # Desk não tem — nascia unhealthy e travava a publicação.
     labels:
       - traefik.enable=true
       - traefik.http.routers.desk.rule=Host(`app.pipe.com.br`)
@@ -140,12 +135,17 @@ services:
       - traefik.http.routers.gestao.tls.certresolver=le
       - traefik.http.services.gestao.loadbalancer.server.port=3000
 
-  # O CRM é o fork AGPLv3: serviço separado, repositório separado, imagem própria,
-  # conversando por rede. Aqui ele é só mais uma imagem atrás do mesmo Traefik.
-  # A fronteira de licença mora exatamente nesta ausência de `build: ../..`.
+  # O CRM que existe HOJE é `apps/crm`, Next 15, código nosso, dentro do monorepo —
+  # e é ele que esta imagem empacota (infra/construir-imagens.sh, apps/crm/Dockerfile).
+  #
+  # O fork AGPLv3 do Twenty (docs/specs/2026-09-07-fork-do-twenty.md) ainda não tem
+  # imagem publicada. Quando tiver, esta linha vira
+  # `image: ghcr.io/pipe/crm-fork:${PIPE_CRM_VERSAO}` e nada mais muda: a fronteira
+  # de licença é justamente esta — serviço separado, imagem separada, conversa por
+  # rede, e nenhum `build: ../..` apontando para o monorepo.
   crm:
     <<: *padrao
-    image: ghcr.io/pipe/crm-fork:${PIPE_CRM_VERSAO}
+    image: ghcr.io/pipe/crm:${PIPE_VERSAO}
     env_file: [/opt/pipe-dados/.env.crm]
     networks: [borda, dados]
     deploy:
@@ -367,7 +367,11 @@ services:
     profiles: [tarefa]
     restart: 'no'
     env_file: [/opt/pipe-dados/.env]
-    command: ['pnpm', '--filter', '@pipe/db', 'migrar']
+    # `pnpm --filter @pipe/db migrar` NÃO roda aqui: a imagem de produção não tem
+    # pnpm, tsx nem devDependencies. O `dist/migrar.js` compilado faz o mesmo —
+    # aplica as migrations e garante as partições — e os .sql viajam junto em
+    # packages/db/drizzle.
+    command: ['node', '/app/packages/db/dist/migrar.js']
     networks: [dados]
 
 networks:

@@ -4,7 +4,7 @@ Atendimento no WhatsApp com API oficial, CRM alimentado pelas conversas, e monit
 
 ## Começar
 
-Requisitos: Node 20 ou superior, pnpm 9, Docker.
+Requisitos: Node 22 ou superior, pnpm 9, Docker. O `engines` da raiz exige `>=22`.
 
 ```bash
 pnpm install
