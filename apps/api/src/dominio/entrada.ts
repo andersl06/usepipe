@@ -5,6 +5,10 @@ import type { TransacaoPipe } from '@pipe/db';
 import { noTenant } from '../banco.js';
 import type { CanalResolvido } from '../banco.js';
 import { contar } from '../metricas.js';
+// Ciclo consciente: `filas.ts` importa `processarPayload` daqui e daqui sai
+// `enfileirarEspelhoCrm`. As duas são declarações de função, então o hoisting do ESM
+// resolve — nenhuma é chamada durante a avaliação do módulo.
+import { enfileirarEspelhoCrm } from '../filas.js';
 import { escolherParaFila } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
@@ -344,6 +348,11 @@ async function acharOuCriarContato(
   `);
 
   await emitir(tx, canal.tenantId, 'contato.criado', { contato_id: contatoId, nome, telefone });
+
+  // O espelho no CRM é trabalho de fila, e enfileirar não pode derrubar o
+  // atendimento: `enfileirarEspelhoCrm` engole a própria falha, e a varredura de
+  // 5 minutos recupera o que não entrou. Ver `dominio/espelho-crm.ts`.
+  await enfileirarEspelhoCrm({ tenantId: canal.tenantId, contatoId });
   return contatoId;
 }
 

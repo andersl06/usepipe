@@ -97,6 +97,21 @@ export const tenant = pgTable(
     plano: text('plano').notNull().default('essencial'),
     implantacao: text('implantacao').notNull().default('compartilhada'),
     ativo: boolean('ativo').notNull().default(true),
+    /**
+     * A instância do Twenty deste cliente, e a chave para falar com ela.
+     *
+     * Uma instância POR CLIENTE, decidido em `docs/specs/2026-09-07-integracao-twenty.md`
+     * §5: o isolamento do CRM é físico, e não há instância padrão. Vazio significa
+     * "este cliente não tem CRM", e a integração inteira não acontece — nunca um
+     * fallback, porque fallback silencioso é como o dado de um cliente vai parar no
+     * CRM de outro.
+     *
+     * `twentyChave` é a chave de API, CIFRADA em repouso pelo mesmo chaveiro do token
+     * da Meta (`PIPE_CHAVES_SEGREDO`). Diferente do token da Meta, esta também LÊ: quem
+     * a tiver tem a base de clientes daquele tenant inteira.
+     */
+    twentyUrl: text('twenty_url'),
+    twentyChave: text('twenty_chave'),
     ...carimbos(),
   },
   (t) => [

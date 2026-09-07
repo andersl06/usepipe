@@ -7,7 +7,12 @@ import { origemPermitida, origensPermitidas } from '@pipe/autenticacao';
 import { AppModulo } from './app.modulo.js';
 import { fecharBancos } from './banco.js';
 import { FiltroDeErro } from './erros.js';
-import { consumirEntrada, fecharFilas } from './filas.js';
+import {
+  agendarVarreduraEspelhoCrm,
+  consumirEntrada,
+  consumirEspelhoCrm,
+  fecharFilas,
+} from './filas.js';
 import { medirRequisicao } from './metricas.js';
 
 /**
@@ -68,6 +73,8 @@ export interface ApiNoAr {
 export async function subirApi(porta = Number(process.env['PORT'] ?? 3000)): Promise<ApiNoAr> {
   const app = await criarAplicacao();
   consumirEntrada();
+  consumirEspelhoCrm();
+  await agendarVarreduraEspelhoCrm();
   await app.listen(porta);
   const url = (await app.getUrl()).replace('[::1]', '127.0.0.1');
   return {

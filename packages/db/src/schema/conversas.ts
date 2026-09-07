@@ -158,6 +158,14 @@ export const contato = pgTable(
     bloqueado: boolean('bloqueado').notNull().default(false),
     /** Conversa é dado pessoal: a exclusão a pedido do titular existe desde o começo. */
     excluidoEm: momento('excluido_em'),
+    /**
+     * O `id` da `person` correspondente no Twenty. É o que permite o link direto do
+     * Desk cair na FICHA do cliente em vez da home do CRM.
+     *
+     * Nulo enquanto o espelho não aconteceu — e enquanto for nulo, o Desk não mostra
+     * link nenhum. Ver `docs/specs/2026-09-07-integracao-twenty.md` §4.
+     */
+    twentyPessoaId: text('twenty_pessoa_id'),
     ...carimbos(),
   },
   (t) => [
@@ -165,6 +173,10 @@ export const contato = pgTable(
     index('contato_tenant_email_idx').on(t.tenantId, t.email),
     index('contato_tenant_documento_idx').on(t.tenantId, t.documento),
     index('contato_atributos_gin').using('gin', t.atributos),
+    // A varredura do espelho procura exatamente por `twenty_pessoa_id is null`.
+    index('contato_espelho_pendente_idx')
+      .on(t.tenantId, t.atualizadoEm)
+      .where(sql`twenty_pessoa_id is null and excluido_em is null`),
   ],
 );
 

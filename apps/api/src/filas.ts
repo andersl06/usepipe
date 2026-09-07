@@ -1,9 +1,10 @@
 import { Queue, Worker } from 'bullmq';
 import IORedis from 'ioredis';
-import { FILA_ENTRADA, FILA_ENTREGA, conexaoRedis } from '@pipe/workers';
-import type { JobEntrada, JobEntrega } from '@pipe/workers';
+import { FILA_ENTRADA, FILA_ENTREGA, FILA_ESPELHO_CRM, conexaoRedis } from '@pipe/workers';
+import type { JobEntrada, JobEntrega, JobEspelhoCrm } from '@pipe/workers';
 import { resolverCanal } from './banco.js';
 import { processarPayload } from './dominio/entrada.js';
+import { contatosSemEspelho, sincronizarContato } from './dominio/espelho-crm.js';
 
 /**
  * A API só empurra trabalho para a fila; quem executa é `apps/workers`.
@@ -26,6 +27,7 @@ export function modo(): ModoFila {
 let conexao: IORedis | null = null;
 let filaEntrada: Queue | null = null;
 let filaEntrega: Queue<JobEntrega> | null = null;
+let filaEspelhoCrm: Queue | null = null;
 
 function redis(): IORedis {
   conexao ??= new IORedis(conexaoRedis().url, { maxRetriesPerRequest: null });
@@ -50,6 +52,77 @@ export async function enfileirarEntrega(job: JobEntrega): Promise<void> {
   if (modo() === 'memoria') return;
   filaEntrega ??= new Queue(FILA_ENTREGA, { connection: redis() });
   await filaEntrega.add('entrega', job, { removeOnComplete: 1_000 });
+}
+
+/**
+ * Empurra um contato para o espelho no CRM.
+ *
+ * Falhar aqui **não pode derrubar o atendimento**: uma mensagem que chegou vale mais
+ * que o espelho dela no CRM, e a varredura recupera o que não entrou. Por isso o erro
+ * é registrado e engolido em vez de propagado.
+ *
+ * No modo memória não espelha: a integração fala com um serviço externo, e o modo
+ * memória existe justamente para rodar sem serviço externo nenhum.
+ */
+export async function enfileirarEspelhoCrm(job: JobEspelhoCrm): Promise<void> {
+  if (modo() === 'memoria') return;
+  try {
+    filaEspelhoCrm ??= new Queue(FILA_ESPELHO_CRM, { connection: redis() });
+    await filaEspelhoCrm.add('espelhar', job, {
+      removeOnComplete: 1_000,
+      // Um contato por vez, e o mesmo id de job: se a conversa mudar o contato três
+      // vezes em segundos, isso vira UM espelho, não três corridas concorrentes
+      // escrevendo no mesmo registro do CRM.
+      jobId: `espelho:${job.contatoId}`,
+      attempts: 5,
+      backoff: { type: 'exponential', delay: 5_000 },
+    });
+  } catch (erro) {
+    console.error(`[espelho-crm] não enfileirou ${job.contatoId}: ${(erro as Error).message}`);
+  }
+}
+
+let consumidorEspelhoCrm: Worker | null = null;
+
+/**
+ * Consome o espelho do CRM — na `api`, e não em `apps/workers`, pelo mesmo motivo da
+ * `pipe-entrada`: **quem fala com serviço externo é a `api`**, regra do dono.
+ *
+ * Dois tipos de job na mesma fila, como na entrega: `espelhar` faz um contato, e
+ * `varredura` reenfileira quem ficou para trás. A varredura existe porque a fila pode
+ * perder job e o contato não pode ficar sem link para a ficha.
+ */
+export function consumirEspelhoCrm(): void {
+  if (modo() === 'memoria' || consumidorEspelhoCrm) return;
+  consumidorEspelhoCrm = new Worker(
+    FILA_ESPELHO_CRM,
+    async (job) => {
+      if (job.name === 'varredura') {
+        const pendentes = await contatosSemEspelho();
+        // Em série: o objetivo é reenfileirar, não competir com o próprio consumidor.
+        for (const p of pendentes) await enfileirarEspelhoCrm(p);
+        return pendentes.length;
+      }
+      const dados = job.data as JobEspelhoCrm;
+      const r = await sincronizarContato(dados.tenantId, dados.contatoId);
+      return r.estado;
+    },
+    {
+      connection: redis(),
+      concurrency: Number(process.env['PIPE_ESPELHO_CRM_CONCORRENCIA'] ?? 2),
+    },
+  );
+}
+
+/** A varredura de segurança do espelho. Ver `contatosSemEspelho`. */
+export async function agendarVarreduraEspelhoCrm(): Promise<void> {
+  if (modo() === 'memoria') return;
+  filaEspelhoCrm ??= new Queue(FILA_ESPELHO_CRM, { connection: redis() });
+  await filaEspelhoCrm.upsertJobScheduler(
+    'varredura-espelho-crm',
+    { every: Number(process.env['PIPE_ESPELHO_CRM_VARREDURA_MS'] ?? 300_000) },
+    { name: 'varredura', data: {} },
+  );
 }
 
 let consumidorEntrada: Worker<JobEntrada> | null = null;
@@ -104,6 +177,10 @@ export async function estadoDasFilas(): Promise<EstadoDaFila[]> {
   const alvos: [string, Queue][] = [
     [FILA_ENTRADA, (filaEntrada ??= new Queue(FILA_ENTRADA, { connection: redis() }))],
     [FILA_ENTREGA, (filaEntrega ??= new Queue(FILA_ENTREGA, { connection: redis() }))],
+    [
+      FILA_ESPELHO_CRM,
+      (filaEspelhoCrm ??= new Queue(FILA_ESPELHO_CRM, { connection: redis() })),
+    ],
   ];
 
   return Promise.all(
@@ -125,11 +202,15 @@ export async function estadoDasFilas(): Promise<EstadoDaFila[]> {
 
 export async function fecharFilas(): Promise<void> {
   await consumidorEntrada?.close();
+  await consumidorEspelhoCrm?.close();
   await filaEntrada?.close();
   await filaEntrega?.close();
+  await filaEspelhoCrm?.close();
   await conexao?.quit();
   consumidorEntrada = null;
+  consumidorEspelhoCrm = null;
   filaEntrada = null;
   filaEntrega = null;
+  filaEspelhoCrm = null;
   conexao = null;
 }

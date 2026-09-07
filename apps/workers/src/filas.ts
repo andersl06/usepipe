@@ -11,6 +11,7 @@
 export const FILA_ENTRADA = 'pipe-entrada';
 export const FILA_ENTREGA = 'pipe-entrega';
 export const FILA_AGREGACAO = 'pipe-agregacao';
+export const FILA_ESPELHO_CRM = 'pipe-espelho-crm';
 
 export interface JobEntrega {
   /** Só um empurrão: o worker varre o outbox de qualquer jeito. */
@@ -22,6 +23,22 @@ export interface JobEntrega {
 export interface JobEntrada {
   canalId: string;
   payload: unknown;
+}
+
+/**
+ * Espelhar um contato no CRM do cliente.
+ *
+ * Quem CONSOME esta fila é a `api`, não os workers — mesma razão da `pipe-entrada`:
+ * quem fala com o CRM é a `api`, e a regra de domínio mora lá. Os workers só rodam a
+ * varredura que reenfileira o que ficou para trás.
+ *
+ * O job carrega só os identificadores. O worker relê o contato dentro do `comTenant`
+ * daquele tenant, e é isso que impede um `contatoId` de outro cliente de virar
+ * escrita no CRM errado — sem tenant em vigor, a consulta não retorna linha.
+ */
+export interface JobEspelhoCrm {
+  tenantId: string;
+  contatoId: string;
 }
 
 export function conexaoRedis(): { url: string } {

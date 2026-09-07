@@ -36,6 +36,8 @@ export const conta = pgTable(
       .default(sql`'{}'::jsonb`),
     proprietarioId: uuid('proprietario_id').references(() => usuario.id, { onDelete: 'set null' }),
     excluidoEm: momento('excluido_em'),
+    /** O `id` da `company` correspondente no Twenty. Ver `contato.twenty_pessoa_id`. */
+    twentyEmpresaId: text('twenty_empresa_id'),
     ...carimbos(),
   },
   (t) => [

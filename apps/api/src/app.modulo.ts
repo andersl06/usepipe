@@ -4,6 +4,7 @@ import { GuardaChaveApi } from './autenticacao.js';
 import { GuardaSessao } from './sessao.js';
 import { ControladorCanais } from './controladores/canais.js';
 import { ControladorConversas } from './controladores/conversas.js';
+import { ControladorCrm } from './controladores/crm.js';
 import {
   ControladorAtendentes,
   ControladorContatos,
@@ -39,6 +40,7 @@ import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js
     ControladorDominios,
     ControladorOperacao,
     ControladorConversas,
+    ControladorCrm,
     ControladorCanais,
     ControladorContatos,
     ControladorFilas,
