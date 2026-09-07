@@ -6,3 +6,6 @@ dist/
 !.env.example
 *.log
 .turbo/
+
+# Capturas de tela feitas para revisar visual. Não versionadas.
+.capturas/

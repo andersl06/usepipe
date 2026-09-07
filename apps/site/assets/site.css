@@ -269,6 +269,8 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   padding-inline: 16px;
   margin-top: 12px;
 }
+/* A barra acompanha o tema da página. Ela era uma pastilha preta fixa sobre
+   fundo creme: pesada, e lia como pedaço de outro site colado no topo. */
 .hdr__bar {
   max-width: var(--wrap);
   margin-inline: auto;
@@ -277,39 +279,46 @@ ul, ol { margin: 0; padding: 0; list-style: none; }
   gap: 14px;
   padding: 9px 10px 9px 20px;
   border-radius: 999px;
-  background: rgba(22, 25, 15, .95);
-  border: 1px solid rgba(255, 255, 255, .1);
-  box-shadow: 0 12px 34px -16px rgba(17, 17, 17, .55);
+  background: color-mix(in srgb, var(--card) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--line);
+  box-shadow: 0 10px 30px -20px rgba(17, 17, 17, .45);
 }
-.hdr__logo { display: flex; align-items: center; flex-shrink: 0; color: var(--night-ink); }
+.hdr__logo { display: flex; align-items: center; flex-shrink: 0; color: var(--ink); }
 .hdr__logo img { height: 24px; width: auto; }
+
+/* O lockup tem duas versões de arte (tinta escura e creme) e `<img>` não herda
+   cor; então trocam-se os arquivos, não a cor. */
+.so-escuro { display: none; }
+:root[data-theme="dark"] .so-claro { display: none; }
+:root[data-theme="dark"] .so-escuro { display: block; }
 .hdr__nav { display: none; gap: 24px; margin-left: 12px; }
 .hdr__nav a {
   font-size: .9rem;
   font-weight: 500;
-  color: #c9cabd;
+  color: var(--ink-2);
   text-decoration: none;
   transition: color .18s ease;
 }
-.hdr__nav a:hover { color: var(--night-ink); }
+.hdr__nav a:hover { color: var(--ink); }
 .hdr__act { display: none; gap: 8px; margin-left: auto; }
 .hdr__toggle {
   margin-left: auto;
   width: 42px; height: 42px;
   display: inline-flex; align-items: center; justify-content: center;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, .18);
-  background: rgba(255, 255, 255, .05);
-  color: var(--night-ink);
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+  color: var(--ink);
   cursor: pointer;
 }
 .hdr__theme {
   width: 42px; height: 42px;
   display: inline-flex; align-items: center; justify-content: center;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, .18);
-  background: rgba(255, 255, 255, .05);
-  color: var(--night-ink);
+  border: 1px solid var(--line);
+  background: var(--bg-soft);
+  color: var(--ink);
   cursor: pointer;
   flex-shrink: 0;
 }
@@ -1743,13 +1752,18 @@ a.card { text-decoration: none; }
 }
 
 /* Com a captura ocupando a largura inteira embaixo, o texto centralizado
-   fica em pé sobre ela; alinhado à esquerda o herói ficaria torto. */
-.hero__lede { max-width: 64ch; }
-.hero__stack h1 { max-width: 22ch; }
-.hero__stack .hero__sub { max-width: 58ch; }
+   fica em pé sobre ela; alinhado à esquerda o herói ficaria torto.
+
+   A manchete cabe em DUAS linhas na largura de leitura, e não em quatro: com
+   quatro ela sozinha come a dobra e a captura do produto — que é o argumento —
+   fica abaixo do que se vê ao abrir. Por isso a medida é larga (32ch) e o corpo
+   é menor do que o instinto pede. */
+.hero__lede { max-width: 60ch; }
+.hero__stack h1 { max-width: 32ch; }
+.hero__stack .hero__sub { max-width: 54ch; }
 @media (min-width: 780px) {
   .hero__lede { margin-inline: auto; text-align: center; }
-  .hero__stack h1 { margin-inline: auto; font-size: clamp(2.4rem, 1.1rem + 3.4vw, 3.9rem); }
+  .hero__stack h1 { margin-inline: auto; font-size: clamp(2.1rem, 1.2rem + 2.1vw, 2.95rem); }
   .hero__stack .hero__sub { margin-inline: auto; }
   .hero__stack .hero__cta,
   .hero__stack .hero__meta { justify-content: center; }
@@ -1826,13 +1840,14 @@ a.card { text-decoration: none; }
   overflow: hidden;
   background: var(--previa-bg);
 }
+/* O arquivo JÁ vem recortado em 1170x575 (o recorte é feito na captura, não
+   aqui): ampliar por porcentagem para esconder faixa branca deixava a imagem
+   fora de registro com a moldura, e era o que aparecia como borda clara à
+   direita. Imagem inteira, sem truque. */
 .previa__frame img {
   display: block;
-  /* 1568 / 1170 = 134.017% e 773 / 575 = 134.435%: a caixa da imagem mantém a
-     proporção do arquivo, então o cover não corta nada e o recorte é só o que
-     a moldura esconde. */
-  width: 134.017%;
-  height: 134.435%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   object-position: left top;
 }
