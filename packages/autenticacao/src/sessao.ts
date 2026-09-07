@@ -50,31 +50,74 @@ export function tokensIguais(a: string, b: string): boolean {
   return timingSafeEqual(bufferA, bufferB);
 }
 
+export interface OpcoesDeCookie {
+  /**
+   * O domínio-pai, com ponto na frente: `.pipe.com.br`.
+   *
+   * É o que faz o cookie emitido por `api.pipe.com.br` viajar para
+   * `gestao.pipe.com.br`, `app.pipe.com.br` e `crm.pipe.com.br`. Cada aplicativo
+   * mora numa URL própria, e sem isto cada um precisaria do próprio login.
+   *
+   * A alternativa seria `SameSite=None` com CORS de credencial, e ela é pior:
+   * `None` manda o cookie em requisição de QUALQUER site, e é justamente o que
+   * o `Lax` existe para impedir. Subdomínio do mesmo pai é o mesmo site.
+   *
+   * Em desenvolvimento fica indefinido: `localhost` não aceita domínio de
+   * cookie, e as portas diferentes já são a mesma origem para este fim.
+   */
+  dominio?: string | undefined;
+  /** Fora só em `http://localhost`, onde não existe HTTPS para exigir. */
+  seguro?: boolean;
+}
+
 /**
  * O cookie, com os atributos que importam.
  *
- * `httpOnly` tira o token do alcance de qualquer script — sem ele, um XSS vira
- * sequestro de sessão. `sameSite=lax` deixa o retorno do Google funcionar (é
- * navegação de topo) e barra envio em requisição de terceiro. `secure` fica de
- * fora só em `http://localhost`, porque lá não existe HTTPS para exigir.
+ * `HttpOnly` tira o token do alcance de qualquer script — sem ele, um XSS vira
+ * sequestro de sessão. `SameSite=Lax` deixa o retorno do Google funcionar (é
+ * navegação de topo) e barra envio em requisição de terceiro.
  */
-export function cookieDeSessao(token: string, expiraEm: Date, seguro = true): string {
-  const partes = [
-    `${NOME_DO_COOKIE}=${token}`,
-    'Path=/',
-    'HttpOnly',
-    'SameSite=Lax',
-    `Expires=${expiraEm.toUTCString()}`,
-  ];
-  if (seguro) partes.push('Secure');
-  return partes.join('; ');
+export function cookieDeSessao(
+  token: string,
+  expiraEm: Date,
+  opcoes: OpcoesDeCookie = {},
+): string {
+  return montarCookie(token, opcoes, `Expires=${expiraEm.toUTCString()}`);
 }
 
 /** O cookie que apaga o cookie. `Max-Age=0` some com ele em qualquer navegador. */
-export function cookieDeSaida(seguro = true): string {
-  const partes = [`${NOME_DO_COOKIE}=`, 'Path=/', 'HttpOnly', 'SameSite=Lax', 'Max-Age=0'];
-  if (seguro) partes.push('Secure');
+export function cookieDeSaida(opcoes: OpcoesDeCookie = {}): string {
+  return montarCookie('', opcoes, 'Max-Age=0');
+}
+
+function montarCookie(valor: string, opcoes: OpcoesDeCookie, prazo: string): string {
+  const partes = [`${NOME_DO_COOKIE}=${valor}`, 'Path=/', 'HttpOnly', 'SameSite=Lax', prazo];
+  // O domínio precisa vir ANTES do Secure? Não — a ordem é livre. Mas ele só
+  // entra quando existe: `Domain=localhost` invalida o cookie em vários
+  // navegadores, e o sintoma é login que "não faz nada".
+  if (opcoes.dominio) partes.push(`Domain=${opcoes.dominio}`);
+  if (opcoes.seguro ?? true) partes.push('Secure');
   return partes.join('; ');
+}
+
+/**
+ * As origens que podem chamar a API com credencial.
+ *
+ * Lista fechada, montada do ambiente. Nunca `*`: com credencial, curinga é
+ * recusado pelo navegador — e mesmo que não fosse, seria abrir a API para
+ * qualquer site fazer requisição autenticada em nome de quem está logado.
+ */
+export function origensPermitidas(env: NodeJS.ProcessEnv = process.env): string[] {
+  const cru = env['PIPE_ORIGENS'] ?? '';
+  return cru
+    .split(',')
+    .map((o) => o.trim().replace(/\/$/, ''))
+    .filter(Boolean);
+}
+
+export function origemPermitida(origem: string | undefined, permitidas: string[]): boolean {
+  if (!origem) return false;
+  return permitidas.includes(origem.replace(/\/$/, ''));
 }
 
 export interface SessaoAtiva {

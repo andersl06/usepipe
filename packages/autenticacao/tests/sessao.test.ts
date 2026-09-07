@@ -7,6 +7,8 @@ import {
   criarToken,
   estaValida,
   hashDoToken,
+  origemPermitida,
+  origensPermitidas,
   tokensIguais,
 } from '../src/sessao.js';
 
@@ -50,12 +52,39 @@ describe('sessão', () => {
     expect(c).toContain('Secure');
   });
 
-  it('em localhost o cookie sai sem Secure, senão não funciona em desenvolvimento', () => {
-    expect(cookieDeSessao('abc', new Date(), false)).not.toContain('Secure');
+  it('em localhost o cookie sai sem Secure e SEM Domain', () => {
+    //  invalida o cookie em vários navegadores, e o sintoma é
+    // login que "não faz nada".
+    const c = cookieDeSessao('abc', new Date(), { seguro: false });
+    expect(c).not.toContain('Secure');
+    expect(c).not.toContain('Domain=');
   });
 
-  it('o cookie de saída apaga o valor', () => {
+  it('com domínio-pai o cookie viaja entre os subdomínios dos aplicativos', () => {
+    // A api mora em api.pipe.com.br e as telas em gestao/app/crm.pipe.com.br.
+    // Sem o domínio-pai, cada uma precisaria do próprio login.
+    const c = cookieDeSessao('abc', new Date(), { dominio: '.pipe.com.br' });
+    expect(c).toContain('Domain=.pipe.com.br');
+    // E continua Lax:  mandaria o cookie em requisição de qualquer site.
+    expect(c).toContain('SameSite=Lax');
+  });
+
+  it('o cookie de saída apaga o valor no mesmo domínio', () => {
     expect(cookieDeSaida()).toContain('Max-Age=0');
+    expect(cookieDeSaida({ dominio: '.pipe.com.br' })).toContain('Domain=.pipe.com.br');
+  });
+
+  it('origem de fora da lista não fala com a api', () => {
+    const permitidas = origensPermitidas({
+      PIPE_ORIGENS: 'https://gestao.pipe.com.br, https://app.pipe.com.br/',
+    } as NodeJS.ProcessEnv);
+    expect(permitidas).toEqual(['https://gestao.pipe.com.br', 'https://app.pipe.com.br']);
+    expect(origemPermitida('https://app.pipe.com.br', permitidas)).toBe(true);
+    // Barra final não pode virar recusa: o navegador manda sem, mas o ambiente
+    // costuma ser escrito com.
+    expect(origemPermitida('https://app.pipe.com.br/', permitidas)).toBe(true);
+    expect(origemPermitida('https://malicioso.example', permitidas)).toBe(false);
+    expect(origemPermitida(undefined, permitidas)).toBe(false);
   });
 
   it('comparação de token não vaza tamanho de acerto', () => {
