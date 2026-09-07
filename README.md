@@ -112,6 +112,7 @@ mexer:
 | [Infraestrutura](docs/specs/2026-09-05-infraestrutura.md) | como roda em produção, LGPD, backup |
 | [Comercial](docs/specs/2026-09-05-comercial.md) | contrato, RFP, cobrança, argumento de venda |
 | [O que falta](docs/specs/2026-09-05-o-que-falta.md) | as lacunas conhecidas, sem maquiagem |
+| [Fork do Twenty](docs/specs/2026-09-07-fork-do-twenty.md) | por que o CRM é AGPL, e a fronteira que segura isso. Vinculante |
 | [Marca](docs/marca/MARCA.md) | símbolo, paleta, tipografia |
 | [Pesquisa](docs/pesquisa/) | levantamento de Blip, Chatwoot, Twenty, 2clix e concorrentes |
 
@@ -120,9 +121,17 @@ mexer:
 **Pode copiar**, mantendo o aviso de copyright: `chatwoot/*` exceto `chatwoot/enterprise/**`; e os
 pacotes `twenty-ui`, `twenty-shared`, `twenty-sdk`, `twenty-client-sdk`. Todos MIT.
 
-**Não pode copiar, só ler e reimplementar**: `twenty-server` e `twenty-front`, que são AGPLv3 e
-contaminariam o Pipe inteiro, obrigando a publicar o código para qualquer cliente que o acesse pela
-rede; e `chatwoot/enterprise/**`, que é proprietário pago.
+**O CRM é um fork AGPLv3 do Twenty**, por decisão do dono — ver
+[Fork do Twenty](docs/specs/2026-09-07-fork-do-twenty.md). O fork vive em repositório PRÓPRIO
+(`pipe-crm-fork`) e conversa com o Pipe por rede. **Nenhuma linha dele pode ser importada por
+`apps/*` ou `packages/*`**: no dia em que for, a AGPL passa a alcançar o Desk, a Gestão e a monitoria
+também, e aí o produto inteiro vira código aberto obrigatório para todo cliente que o acessar. A
+fronteira é a regra técnica mais importante do projeto.
+
+**Não pode copiar, de jeito nenhum**: os 347 arquivos marcados `/* @license Enterprise */` no Twenty,
+e `chatwoot/enterprise/**`. Não são open source — são licença comercial fechada. Copiar não é assumir
+uma obrigação, como na AGPL: é usar código de outra empresa sem permissão. Ler para saber o que fazem
+é permitido, e reimplementar do zero também.
 
 Arquivo com código adaptado carrega no topo:
 `Adaptado de <projeto> (<licença>) — <url do arquivo original>`
