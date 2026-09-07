@@ -19,7 +19,9 @@ process.env['PIPE_METRICS_TOKEN'] = 'token-de-metricas';
 const { EntradaRecusada, LoginErro, NOME_DO_COOKIE, criarToken } =
   await import('@pipe/autenticacao');
 const { subirApi } = await import('../src/servidor.js');
-const { codigoDaRecusa } = await import('../src/controladores/entrar.js');
+const { baseDoApp, codigoDaRecusa, destinoAbsoluto, urlDeErro } = await import(
+  '../src/controladores/entrar.js',
+);
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
@@ -334,10 +336,54 @@ describe('GET /metrics', () => {
   });
 });
 
-function lerDesafioDoCookie(cabecalho: string): { state: string; destino: string } {
+function lerDesafioDoCookie(cabecalho: string): {
+  state: string;
+  destino: string;
+  origem?: string;
+} {
   const valor = /pipe_desafio=([^;]*)/.exec(cabecalho)?.[1] ?? '';
   return JSON.parse(Buffer.from(valor, 'base64url').toString('utf8')) as {
     state: string;
     destino: string;
+    origem?: string;
   };
 }
+
+/**
+ * A volta do login com TRÊS fronts.
+ *
+ * `PIPE_URL_APP` é um valor só e a API atende Gestão, Desk e CRM. Sem a origem
+ * viajando no desafio, quem entra pelo CRM volta na Gestão — e o sintoma na VPS
+ * seria "o login funciona, mas me joga no aplicativo errado".
+ */
+describe('a origem de quem começou o login', () => {
+  it('origem da lista manda a volta para o aplicativo certo', () => {
+    expect(destinoAbsoluto('/leads', 'http://gestao.teste')).toBe('http://gestao.teste/leads');
+    expect(urlDeErro('sem_convite', 'http://gestao.teste')).toBe(
+      'http://gestao.teste/entrar?erro=sem_convite',
+    );
+  });
+
+  it('origem fora da lista é ignorada — senão o login vira redirecionamento aberto', () => {
+    expect(baseDoApp('https://malvado.example')).toBe('http://telas.teste');
+    expect(destinoAbsoluto('/', 'https://malvado.example')).toBe('http://telas.teste/');
+  });
+
+  it('sem origem, cai no fallback do ambiente', () => {
+    expect(destinoAbsoluto('/conversas')).toBe('http://telas.teste/conversas');
+  });
+
+  it('a barra final não separa a mesma origem em duas', () => {
+    expect(baseDoApp('http://gestao.teste/')).toBe('http://gestao.teste');
+  });
+
+  it('a ida guarda a origem no cookie do desafio', async () => {
+    const resposta = await fetch(
+      `${api.url}/v1/auth/google?origem=${encodeURIComponent('http://gestao.teste')}`,
+      { redirect: 'manual' },
+    );
+    expect(lerDesafioDoCookie(resposta.headers.get('set-cookie') ?? '').origem).toBe(
+      'http://gestao.teste',
+    );
+  });
+});

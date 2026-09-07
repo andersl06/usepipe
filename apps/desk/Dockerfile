@@ -43,6 +43,14 @@ COPY tsconfig.base.json ./
 # silêncio. O peso de verdade — os aplicativos irmãos — segue de fora.
 COPY packages packages
 COPY apps/desk apps/desk
+# O trilho leva a pessoa aos outros dois módulos, e `NEXT_PUBLIC_*` é ASSADA no
+# pacote do navegador: sem estes `ARG`, a imagem de produção sai com `localhost`
+# nos links e os botões não saem do lugar na VPS. O padrão continua sendo o de
+# desenvolvimento, para `docker build` sem argumento nenhum continuar servindo.
+ARG NEXT_PUBLIC_PIPE_GESTAO_URL=http://localhost:3100
+ARG NEXT_PUBLIC_PIPE_CRM_URL=http://localhost:3300
+ENV NEXT_PUBLIC_PIPE_GESTAO_URL=$NEXT_PUBLIC_PIPE_GESTAO_URL
+ENV NEXT_PUBLIC_PIPE_CRM_URL=$NEXT_PUBLIC_PIPE_CRM_URL
 # A telemetria do Next tenta sair para a rede a cada build e polui o log de CI.
 ENV NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production
 RUN pnpm --filter "@pipe/desk..." build

@@ -161,6 +161,13 @@ services:
     # Construída por infra/construir-imagens.sh a partir de apps/desk/Dockerfile.
     # A imagem escuta na 3000 (a 3200 é só do `pnpm dev`).
     image: ghcr.io/pipe/desk:${PIPE_VERSAO}
+    # A ÚNICA variável que não pode vir do `.env` compartilhado: ela responde
+    # "qual dos três aplicativos sou eu". Vai na ida do login como `?origem=`, e é
+    # o que faz a volta do Google cair aqui e não na Gestão. A API só aceita
+    # origem que esteja em `PIPE_ORIGENS` — fora da lista, a volta vai para
+    # `PIPE_URL_APP` e a pessoa entra no aplicativo errado.
+    environment:
+      PIPE_URL_ESTE_APP: https://app.usepipe.com.br
     healthcheck: *saude-next
     # O Desk renderiza no servidor e fala com o Postgres direto, por isso está na
     # rede `dados`. Ele não depende do Redis para servir tela.
@@ -177,6 +184,8 @@ services:
   gestao:
     <<: *app
     image: ghcr.io/pipe/gestao:${PIPE_VERSAO}
+    environment:
+      PIPE_URL_ESTE_APP: https://gestao.usepipe.com.br
     healthcheck: *saude-next
     depends_on:
       postgres:
@@ -206,6 +215,8 @@ services:
     # ganha o arquivo próprio — aí a separação existe por licença, não por hábito.
     env_file: [/opt/pipe-dados/.env]
     networks: [borda, dados]
+    environment:
+      PIPE_URL_ESTE_APP: https://crm.usepipe.com.br
     healthcheck: *saude-next
     depends_on:
       postgres:

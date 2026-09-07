@@ -17,6 +17,7 @@ import {
   destinoAbsoluto,
   lerDesafio,
   opcoesDeCookie,
+  origemDaQuery,
   textoDaQuery,
   urlDeErro,
 } from './entrar.js';
@@ -185,7 +186,7 @@ export class ControladorEntradaSso {
         apagarDesafio,
         cookieDeSessao(entrada.token, entrada.expiraEm, opcoesDeCookie()),
       ]);
-      resposta.redirect(302, destinoAbsoluto(desafio.destino));
+      resposta.redirect(302, destinoAbsoluto(desafio.destino, desafio.origem));
     } catch (erro) {
       const codigo = codigoDaRecusa(erro);
       if (codigo === 'falha_no_provedor') console.error('[api] falha ao entrar por SSO', erro);
@@ -195,7 +196,7 @@ export class ControladorEntradaSso {
         resposta.status(200).json({ resultado: 'falhou', codigo, motivo: mensagem(erro) });
         return;
       }
-      resposta.redirect(302, urlDeErro(codigo));
+      resposta.redirect(302, urlDeErro(codigo, desafio.origem));
     }
   }
 
@@ -214,15 +215,17 @@ export class ControladorEntradaSso {
     try {
       const tenantId = await tenantPorSlug(slug);
       const fluxo = await conexaoParaFluxo(tenantId, { exigirAtiva: true });
+      const origem = origemDaQuery(requisicao);
       const desafio: DesafioComConvite = {
         ...criarDesafio(textoDaQuery(requisicao, 'destino') ?? '/'),
         tenantId,
+        ...(origem ? { origem } : {}),
       };
       resposta.setHeader('set-cookie', cookieDoDesafio(desafio));
       resposta.redirect(302, urlDeAutorizacaoOidc(fluxo.config, fluxo.descoberta, desafio));
     } catch (erro) {
       console.error('[api] falha ao iniciar SSO', erro);
-      resposta.redirect(302, urlDeErro('falha_no_provedor'));
+      resposta.redirect(302, urlDeErro('falha_no_provedor', origemDaQuery(requisicao)));
     }
   }
 }

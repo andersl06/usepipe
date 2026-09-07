@@ -43,6 +43,12 @@ COPY tsconfig.base.json ./
 # silêncio. O peso de verdade — os aplicativos irmãos — segue de fora.
 COPY packages packages
 COPY apps/gestao apps/gestao
+# A barra superior e a coluna de Ações levam ao Desk, e `NEXT_PUBLIC_*` é ASSADA
+# no pacote do navegador: sem este `ARG`, a imagem de produção sai com
+# `localhost` no link e o botão não sai do lugar na VPS. O padrão continua sendo
+# o de desenvolvimento, para `docker build` sem argumento continuar servindo.
+ARG NEXT_PUBLIC_PIPE_DESK_URL=http://localhost:3200
+ENV NEXT_PUBLIC_PIPE_DESK_URL=$NEXT_PUBLIC_PIPE_DESK_URL
 # A telemetria do Next tenta sair para a rede a cada build e polui o log de CI.
 ENV NEXT_TELEMETRY_DISABLED=1 NODE_ENV=production
 RUN pnpm --filter "@pipe/gestao..." build

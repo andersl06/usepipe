@@ -549,12 +549,11 @@ As causas, em ordem:
 
 Honestidade sobre o que você vai encontrar depois do segundo marco:
 
-1. **Os links entre as telas apontam para `localhost`.** `NEXT_PUBLIC_PIPE_GESTAO_URL`,
-   `NEXT_PUBLIC_PIPE_CRM_URL` e `NEXT_PUBLIC_PIPE_DESK_URL` são embutidas no bundle **em tempo de
-   build**, e nenhum dos três Dockerfiles Next aceita `ARG`. Pôr as variáveis no `.env` de runtime
-   não corrige. Login, atendimento e webhook funcionam; o que quebra é clicar em "Gestão" a partir
-   do Desk. Conserto: três linhas de `ARG`/`ENV` nos Dockerfiles e três `--build-arg` no
-   `construir-imagens.sh` — território de quem cuida de `apps/`.
+1. ~~**Os links entre as telas apontam para `localhost`.**~~ **Resolvido em 07/09/2026.**
+   `NEXT_PUBLIC_PIPE_GESTAO_URL`, `NEXT_PUBLIC_PIPE_CRM_URL` e `NEXT_PUBLIC_PIPE_DESK_URL` são
+   embutidas no bundle **em tempo de build**, e por isso não adianta pô-las no `.env` de runtime.
+   Os Dockerfiles do Desk e da Gestão agora aceitam `ARG`, e `construir-imagens.sh` passa os
+   `--build-arg` com o domínio de produção por padrão (`PIPE_DOMINIO` muda os três de uma vez).
 2. **`apps/workers` não expõe métrica.** Não há `/metrics` nem porta HTTP. O alvo `pipe-workers` e
    o alerta `WorkerParado` foram **removidos** de `infra/observabilidade/`: eles ficariam em
    disparo permanente, tocando o telefone toda madrugada sem nada a fazer, que é o mecanismo pelo

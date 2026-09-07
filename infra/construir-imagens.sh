@@ -32,6 +32,18 @@ export DOCKER_BUILDKIT=1
 PULL=()
 [[ "${SEM_PULL:-0}" == "1" ]] && PULL=(--pull=false)
 
+# Os links ENTRE os módulos são assados no pacote do navegador durante a build:
+# `NEXT_PUBLIC_*` não é lida em tempo de execução, e por isso não adianta pô-la no
+# `.env` da VPS. Sem estas duas linhas a imagem sai apontando para `localhost` e o
+# botão que leva do Desk à Gestão não sai do lugar em produção.
+#
+# O padrão é o domínio de produção, e não o de desenvolvimento: quem constrói
+# imagem está publicando. Para uma imagem local, passe as três por ambiente.
+DOMINIO="${PIPE_DOMINIO:-usepipe.com.br}"
+URL_DESK="${PIPE_URL_DESK:-https://app.${DOMINIO}}"
+URL_GESTAO="${PIPE_URL_GESTAO:-https://gestao.${DOMINIO}}"
+URL_CRM="${PIPE_URL_CRM:-https://crm.${DOMINIO}}"
+
 for app in "${APPS[@]}"; do
   # O site é estático e mora no próprio diretório, sem workspace pnpm nenhum.
   if [[ "$app" == "site" ]]; then
@@ -40,12 +52,22 @@ for app in "${APPS[@]}"; do
     contexto="."
   fi
 
+  ARGS=()
+  case "$app" in
+    desk)
+      ARGS=(--build-arg "NEXT_PUBLIC_PIPE_GESTAO_URL=${URL_GESTAO}"
+            --build-arg "NEXT_PUBLIC_PIPE_CRM_URL=${URL_CRM}") ;;
+    gestao)
+      ARGS=(--build-arg "NEXT_PUBLIC_PIPE_DESK_URL=${URL_DESK}") ;;
+  esac
+
   echo "==> ${REGISTRO}/${app}:${VERSAO}"
   docker build \
     --file "apps/${app}/Dockerfile" \
     --tag "${REGISTRO}/${app}:${VERSAO}" \
     --tag "${REGISTRO}/${app}:latest" \
     --provenance=false \
+    "${ARGS[@]}" \
     "${PULL[@]}" \
     "$contexto"
 done

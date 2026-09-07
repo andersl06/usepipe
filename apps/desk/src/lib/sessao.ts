@@ -28,6 +28,18 @@ const URL_API = (process.env['PIPE_URL_API'] ?? 'http://localhost:3100').replace
  */
 const URL_API_PUBLICA = (process.env['PIPE_URL_API_PUBLICA'] ?? URL_API).replace(/\/$/, '');
 
+/**
+ * ESTE aplicativo, visto pelo navegador.
+ *
+ * Vai na ida do login como `?origem=`, e é o que faz a volta cair aqui e não no
+ * front de outro módulo: a API atende os três e não tem como adivinhar de qual
+ * deles a pessoa saiu. Do lado de lá só é aceita origem que esteja em
+ * `PIPE_ORIGENS` — a mesma lista fechada do CORS.
+ */
+const ORIGEM_DESTE_APP = (
+  process.env['PIPE_URL_ESTE_APP'] ?? 'http://localhost:3200'
+).replace(/\/$/, '');
+
 /** O cookie de sessão emitido pela API. `HttpOnly`; a tela só o repassa. */
 export const COOKIE_SESSAO = 'pipe_sessao';
 
@@ -140,6 +152,7 @@ export function urlDeEntradaComGoogle(opcoes: { destino?: string; convite?: stri
   const url = new URL(`${URL_API_PUBLICA}/v1/auth/google`);
   if (opcoes.convite) url.searchParams.set('convite', opcoes.convite);
   url.searchParams.set('destino', caminhoInterno(opcoes.destino));
+  url.searchParams.set('origem', ORIGEM_DESTE_APP);
   return url.toString();
 }
 
@@ -147,5 +160,6 @@ export function urlDeEntradaComGoogle(opcoes: { destino?: string; convite?: stri
 export function urlNaApi(caminho: string, destino?: string): string {
   const url = new URL(`${URL_API_PUBLICA}${caminho}`);
   url.searchParams.set('destino', caminhoInterno(destino));
+  url.searchParams.set('origem', ORIGEM_DESTE_APP);
   return url.toString();
 }

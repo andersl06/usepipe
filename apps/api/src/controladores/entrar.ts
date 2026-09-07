@@ -10,6 +10,8 @@ import {
   criarDesafio,
   entrarComGoogle,
   hashDoToken,
+  origemPermitida,
+  origensPermitidas,
   sair as encerrarSessao,
   trocarCodigo,
   urlDeAutorizacao,
@@ -55,11 +57,34 @@ export function opcoesDeCookie(): OpcoesDeCookie {
 }
 
 function urlDoApp(): string {
-  return (process.env['PIPE_URL_APP'] ?? 'http://localhost:3000').replace(/\/$/, '');
+  return (process.env['PIPE_URL_APP'] ?? 'http://localhost:3100').replace(/\/$/, '');
 }
 
-export function urlDeErro(codigo: RecusaDeEntrada): string {
-  const url = new URL(process.env['PIPE_URL_ENTRADA'] ?? `${urlDoApp()}/entrar`);
+/**
+ * De qual dos três aplicativos saiu este login.
+ *
+ * São TRÊS fronts em três origens e uma API só. Sem esta pergunta, quem entra
+ * pelo CRM volta na Gestão: `PIPE_URL_APP` é um valor único e não tem como ser o
+ * certo para os três ao mesmo tempo.
+ *
+ * A origem vem em `?origem=` e é conferida contra `PIPE_ORIGENS`, a MESMA lista
+ * fechada do CORS. Aceitar o que vem na query sem conferir seria transformar o
+ * login em redirecionamento aberto: qualquer site mandaria a pessoa ao Google e
+ * receberia a volta dela já logada. Origem fora da lista cai em `PIPE_URL_APP`,
+ * e o login continua funcionando.
+ */
+export function baseDoApp(origem: string | undefined): string {
+  const limpa = origem?.replace(/\/$/, '');
+  return limpa && origemPermitida(limpa, origensPermitidas()) ? limpa : urlDoApp();
+}
+
+export function urlDeErro(codigo: RecusaDeEntrada, origem?: string): string {
+  const base = baseDoApp(origem);
+  // `PIPE_URL_ENTRADA` só decide quando NÃO se sabe de onde a pessoa veio: fixá-la
+  // por cima de uma origem conhecida devolveria todo mundo ao mesmo lugar de novo.
+  const url = new URL(
+    origem ? `${base}/entrar` : (process.env['PIPE_URL_ENTRADA'] ?? `${base}/entrar`),
+  );
   url.searchParams.set('erro', codigo);
   return url.toString();
 }
@@ -70,9 +95,9 @@ export function urlDeErro(codigo: RecusaDeEntrada): string {
  * destino absoluto vira redirecionamento aberto, que é phishing usando o nosso
  * domínio como trampolim.
  */
-export function destinoAbsoluto(destino: string): string {
+export function destinoAbsoluto(destino: string, origem?: string): string {
   const interno = destino.startsWith('/') && !destino.startsWith('//') ? destino : '/';
-  return `${urlDoApp()}${interno}`;
+  return `${baseDoApp(origem)}${interno}`;
 }
 
 /**
@@ -84,6 +109,8 @@ export function destinoAbsoluto(destino: string): string {
  */
 export type DesafioComConvite = DesafioDeLogin & {
   convite?: string;
+  /** De qual dos três aplicativos saiu o login. É para lá que a volta vai. */
+  origem?: string;
   /** O tenant que iniciou o fluxo de SSO. É ele que decide de quem é a pessoa. */
   tenantId?: string;
   /** Fluxo de teste da conexão: valida tudo e NÃO cria sessão. */
@@ -152,6 +179,12 @@ export function textoDaQuery(requisicao: Request, campo: string): string | undef
   return typeof valor === 'string' ? valor : undefined;
 }
 
+/** A origem pedida, sem a barra final. Quem a confere é `baseDoApp`. */
+export function origemDaQuery(requisicao: Request): string | undefined {
+  const crua = textoDaQuery(requisicao, 'origem');
+  return crua ? crua.replace(/\/$/, '') : undefined;
+}
+
 /**
  * Aceita o convite com a identidade do Google em mãos e devolve a sessão.
  *
@@ -184,14 +217,16 @@ export class ControladorEntrada {
     try {
       config = configDoAmbiente();
     } catch {
-      resposta.redirect(302, urlDeErro('falha_no_provedor'));
+      resposta.redirect(302, urlDeErro('falha_no_provedor', origemDaQuery(requisicao)));
       return;
     }
 
     const convite = textoDaQuery(requisicao, 'convite');
+    const origem = origemDaQuery(requisicao);
     const desafio: DesafioComConvite = {
       ...criarDesafio(textoDaQuery(requisicao, 'destino') ?? '/'),
       ...(convite ? { convite } : {}),
+      ...(origem ? { origem } : {}),
     };
     resposta.setHeader('set-cookie', cookieDoDesafio(desafio));
     resposta.redirect(302, urlDeAutorizacao(config, desafio));
@@ -226,12 +261,12 @@ export class ControladorEntrada {
         apagarDesafio,
         cookieDeSessao(entrada.token, entrada.expiraEm, opcoesDeCookie()),
       ]);
-      resposta.redirect(302, destinoAbsoluto(desafio.destino));
+      resposta.redirect(302, destinoAbsoluto(desafio.destino, desafio.origem));
     } catch (erro) {
       const codigo = codigoDaRecusa(erro);
       if (codigo === 'falha_no_provedor') console.error('[api] falha ao entrar', erro);
       resposta.setHeader('set-cookie', apagarDesafio);
-      resposta.redirect(302, urlDeErro(codigo));
+      resposta.redirect(302, urlDeErro(codigo, desafio.origem));
     }
   }
 
