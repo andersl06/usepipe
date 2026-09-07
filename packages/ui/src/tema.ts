@@ -1,11 +1,11 @@
 /**
- * Adaptado de twenty-ui (MIT) — https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeCommon.ts
+ * O tema do Pipe, em TypeScript. Escrito aqui, sem base em código de terceiro.
  *
- * O que veio de lá é a FORMA, não os valores: tema como objeto TypeScript
- * tipado, `espaco()` como função de múltiplo de 4px, escala de raio e tokens
- * de densidade centralizados. Os valores são os do Pipe (docs/marca/MARCA.md),
- * e a organização por papel veio de medir a Blip
- * (docs/pesquisa/blip-design-system.md).
+ * A organização por PAPEL — superfície, conteúdo, linha, marca, estado —
+ * saiu de medir o design system da Blip
+ * (`docs/pesquisa/blip-design-system.md`): 31 tokens de cor na aplicação
+ * inteira, nomeados pelo que fazem e nunca pelo tom que têm. Os valores são
+ * os do Pipe (`docs/marca/MARCA.md`).
  *
  * Este objeto é o espelho tipado de `estilos/tokens.css`. Ele existe para o
  * código que precisa de um valor em TypeScript (cálculo de layout, gráfico
@@ -162,7 +162,11 @@ export const TEMA = {
  * `espaco(2)` → `'8px'`; `espaco(1, 2)` → `'4px 8px'`.
  *
  * Existe para tornar impossível escrever um espaçamento fora do múltiplo de 4
- * por acidente. Mesmo truque do `spacing()` do twenty-ui.
+ * por acidente. O múltiplo de 4 não é escolha de gosto: é a régua medida nas
+ * duas referências do Pipe — no bundle da Blip o espaço entre elementos cai
+ * em 4, 8, 12 e 16 (`blip-pacotes-inventario.md` §3), e a escala pública do
+ * SLDS tem oito degraus, todos múltiplos de 4
+ * (`salesforce-estrutura-e-visual.md` §4.3).
  */
 export function espaco(...multiplos: number[]): string {
   return multiplos.map((m) => `${m * TEMA.multiplicadorDeEspaco}px`).join(' ');

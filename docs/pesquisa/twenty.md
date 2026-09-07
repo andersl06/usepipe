@@ -1,5 +1,9 @@
 # Twenty CRM — Relatório de Extensibilidade (para o projeto Pipe)
 
+> **Somente leitura, em 07/09/2026.** Este levantamento continua útil para entender decisões de
+> arquitetura, mas o Pipe não copia código do Twenty sob licença nenhuma, MIT inclusive. Ver a
+> regra de licença no `README.md`.
+
 Fonte: clone raso de `github.com/twentyhq/twenty` (sparse-checkout de `twenty-server`, `twenty-front`, `twenty-shared`, `twenty-ui`) + scripts reais em `C:/Users/anderson.linhares/twenty-crm/*.mjs`. Versão de referência: `twenty-sdk@2.39.0` (`packages/twenty-sdk/package.json`).
 
 ## 1. Monorepo e stack

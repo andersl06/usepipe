@@ -1,20 +1,18 @@
 'use client';
 
 /*
- * Adaptado de twenty-ui (MIT) —
- * https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/layout/ResizeHandle/hooks/useResizeHandle.ts
+ * Arraste de largura de coluna, escrito sobre a API de ponteiro da plataforma
+ * (`setPointerCapture`), do jeito que a documentação dela descreve: captura o
+ * ponteiro no `pointerdown`, mede o delta contra a posição inicial e limita o
+ * resultado nas duas pontas.
  *
- * Copyright (c) 2023 Twenty. Licenciado sob MIT.
+ * Capturar o ponteiro é o detalhe que separa um arraste que funciona de um que
+ * solta a coluna quando o cursor passa por cima de um link — sem a captura, o
+ * elemento de baixo rouba os eventos no meio do gesto.
  *
- * O que veio de lá, e é o que interessa: a mecânica de arraste com
- * `setPointerCapture`, o delta contra a posição inicial e o limite de tamanho
- * nas duas pontas. Capturar o ponteiro é o detalhe que faz a diferença entre
- * um arraste que funciona e um que solta a coluna quando o cursor passa por
- * cima de um link.
- *
- * O que mudou aqui: o deles guarda UM tamanho, o nosso guarda um por coluna, e
- * o nosso persiste. A largura da coluna que a pessoa ajustou tem de sobreviver
- * ao recarregamento, senão o ajuste é trabalho jogado fora a cada visita.
+ * Duas decisões nossas, e a segunda é a que importa: a largura é POR COLUNA, e
+ * ela PERSISTE. Ajuste que não sobrevive ao recarregamento é trabalho jogado
+ * fora a cada visita.
  */
 
 import { useCallback, useEffect, useRef, useState, type PointerEvent } from 'react';

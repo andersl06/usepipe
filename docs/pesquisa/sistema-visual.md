@@ -1,5 +1,11 @@
 # Sistema visual — Chatwoot e Twenty como base para `packages/ui` do Pipe
 
+> **REVOGADO como fonte de código, em 07/09/2026.** O Pipe não copia NADA do Twenty, nem os
+> pacotes MIT — decisão do dono, mais estrita do que a licença exige. Os trechos de código do
+> `twenty-ui` abaixo ficam como REGISTRO DE LEITURA e comparação; nenhum deles é receita a
+> adaptar, e nenhum arquivo do Pipe carrega adaptação do Twenty. Ver a regra de licença no
+> `README.md`. O que veio de Chatwoot (MIT) continua valendo.
+
 Fontes: clone raso `chatwoot/chatwoot` (HEAD `8314676`, MIT fora de `enterprise/**`) e clone parcial
 `twentyhq/twenty` limitado a `packages/twenty-ui`, `twenty-shared`, `twenty-sdk` (MIT — `twenty-front`
 e `twenty-server` são AGPLv3 e não foram abertos nem citados nesta pesquisa).

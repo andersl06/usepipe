@@ -2,11 +2,15 @@
  * Fachada de ícone — desenhos do Tabler Icons (MIT), © Paweł Kuna.
  * https://github.com/tabler/tabler-icons — licença MIT.
  *
- * Por que uma fachada e não o pacote `@tabler/icons-react`: o Twenty usa a
- * fachada justamente para que nenhum componente importe o pacote direto, e o
- * conjunto que os três aplicativos do Pipe usam de verdade é pequeno. Copiar
- * o caminho SVG dos que usamos custa menos do que carregar a biblioteca
- * inteira, e mantém o traço e o tamanho sob um controle só.
+ * Por que uma fachada e não o pacote `@tabler/icons-react`: o conjunto que os
+ * três aplicativos do Pipe usam de verdade é pequeno, e copiar o caminho SVG
+ * dos que usamos custa menos do que carregar a biblioteca inteira. A fachada
+ * também impede que um componente importe o pacote direto e escape do nosso
+ * traço e da nossa régua de tamanho.
+ *
+ * O contra-exemplo está medido: o `bds-icon` da Blip sozinho tem 3,6 MB
+ * porque empacota a biblioteca inteira em vez do que usa
+ * (`blip-pacotes-inventario.md` §2).
  *
  * Trocar por `@tabler/icons-react` depois é substituir o corpo deste arquivo;
  * a interface `<Icone nome="..." />` não muda.
@@ -51,7 +55,7 @@ export type NomeDeIcone = keyof typeof CAMINHOS;
 
 export type PropsDeIcone = {
   nome: NomeDeIcone;
-  /** Tamanho em px. Padrão 16 — a régua de ícone do Twenty é 14/16/20/24. */
+  /** Tamanho em px. Padrão 16 — a régua do Pipe é 14/16/20/24. */
   tamanho?: number;
 } & Omit<SVGProps<SVGSVGElement>, 'name'>;
 
