@@ -2,7 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Aplicacao, AreaConfiguracoes, Cabecalho, type ItemDeNavegacao } from '@pipe/ui';
+import {
+  Aplicacao,
+  AreaConfiguracoes,
+  Icone,
+  Simbolo,
+  estaAtivo,
+  type ItemDeNavegacao,
+} from '@pipe/ui';
 
 /**
  * Estrutura do CRM, em dois modos.
@@ -57,19 +64,59 @@ export function EstruturaCrm({ children }: { children: React.ReactNode }) {
     );
   }
 
+  return <Aplicacao cabecalho={<CabecalhoCrm caminho={caminho} />}>{children}</Aplicacao>;
+}
+
+/**
+ * O cromo em DUAS camadas do Lightning, medido em
+ * `docs/pesquisa/salesforce-estrutura-e-visual.md` §4.4 e §4.5: cabeçalho
+ * global de **50px** mais barra de objetos de **40px**, 90px de cromo fixo.
+ *
+ * A divisão não é decorativa, e é o que o nosso cabeçalho de 48px numa camada
+ * perdia. Em cima fica o que vale para a CONTA — quem sou eu, o que estou
+ * procurando, onde configuro. Embaixo, os OBJETOS do trabalho. Trocar de
+ * objeto é o gesto do dia inteiro; trocar de conta, quase nunca.
+ *
+ * A tinta é nossa e é clara, ao contrário das barras escuras da Gestão: são
+ * produtos diferentes com referências diferentes, e o Lightning não pinta
+ * cromo escuro. O que se copia é a divisão, a altura e a densidade.
+ *
+ * A aba ativa é sublinhado de 3px com peso 700, não pílula com fundo: no
+ * Lightning a marcação de aba é o fio embaixo, e a pílula era a nossa
+ * divergência mais visível contra a tela medida.
+ */
+function CabecalhoCrm({ caminho }: { caminho: string }) {
   return (
-    <Aplicacao
-      cabecalho={
-        <Cabecalho
-          nome="Pipe CRM"
-          itens={MODULOS}
-          caminhoAtual={caminho}
-          hrefConfiguracoes="/configuracoes"
-          Link={Link}
-        />
-      }
-    >
-      {children}
-    </Aplicacao>
+    <div className="c-cromo">
+      <header className="c-topo">
+        <Link className="c-marca" href="/">
+          <Simbolo tamanho={22} />
+          <b>Pipe CRM</b>
+        </Link>
+
+        <div className="c-topo-fim">
+          <Link
+            className="c-iconbtn"
+            href="/configuracoes"
+            title="Configurações"
+            aria-label="Configurações"
+          >
+            <Icone nome="engrenagem" tamanho={20} />
+          </Link>
+        </div>
+      </header>
+
+      <nav className="c-objetos" aria-label="Objetos">
+        {MODULOS.map((m) => (
+          <Link
+            key={m.href}
+            href={m.href}
+            aria-current={estaAtivo(m.href, caminho) ? 'page' : undefined}
+          >
+            {m.rotulo}
+          </Link>
+        ))}
+      </nav>
+    </div>
   );
 }

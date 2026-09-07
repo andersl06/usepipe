@@ -1131,3 +1131,146 @@ code {
 .esqueleto-cartao:hover {
   border-color: var(--p-linha);
 }
+
+/* ==================================================== o cromo do Lightning
+   Duas camadas, 50 + 40 = **90px** de cromo fixo, medidas em
+   `docs/pesquisa/salesforce-estrutura-e-visual.md` §4.4. A nossa era uma só,
+   de 48px, e era ela que fazia a tela parecer chapada: sem a divisão, o nome
+   do produto, a busca da conta e os objetos do trabalho disputavam a mesma
+   linha e nenhum ganhava peso.
+
+   Em cima, o que é da CONTA. Embaixo, os OBJETOS. A tinta é clara, ao
+   contrário das barras da Gestão: o Lightning não pinta cromo escuro, e são
+   produtos com referências diferentes. Copia-se a divisão, a altura e a
+   densidade — nunca a cor deles.
+
+   Aqui o raio é **4px**, não os 8px do resto da casa: medido, 4px domina 77%
+   dos elementos com raio no Lightning, e é a assinatura de forma que separa
+   esta tela das outras duas. */
+:root {
+  --c-topo-h: 50px;
+  --c-objetos-h: 40px;
+  --c-r: 4px;
+}
+
+.c-cromo {
+  flex: none;
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.c-topo {
+  height: var(--c-topo-h);
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-4);
+  padding: 0 var(--p-e-4);
+  background: var(--p-superficie-0);
+  border-bottom: 1px solid var(--p-linha);
+}
+
+.c-marca {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  text-decoration: none;
+  color: var(--p-conteudo);
+  flex: none;
+}
+
+.c-marca b {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+}
+
+.c-topo-fim {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-1);
+}
+
+.c-iconbtn {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--c-r);
+  color: var(--p-conteudo-desabilitado);
+  text-decoration: none;
+}
+
+.c-iconbtn:hover {
+  background: var(--p-superficie-2);
+  color: var(--p-conteudo);
+}
+
+/* A barra dos objetos. Plana e horizontal, sem submenu: cada aba é um objeto,
+   não uma árvore — é o que separa esta camada da lateral da Gestão. */
+.c-objetos {
+  height: var(--c-objetos-h);
+  display: flex;
+  align-items: stretch;
+  gap: 0;
+  padding: 0 var(--p-e-4);
+  background: var(--p-superficie-1);
+  border-bottom: 1px solid var(--p-linha);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.c-objetos a {
+  position: relative;
+  display: flex;
+  align-items: center;
+  padding: 0 var(--p-e-3);
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-normal);
+  color: var(--p-conteudo-desabilitado);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.c-objetos a:hover {
+  color: var(--p-conteudo);
+}
+
+/* Aba ativa: fio embaixo e peso 700. Sem pílula e sem fundo — a marcação de
+   aba do Lightning é o fio, e a pílula era a nossa divergência mais visível. */
+.c-objetos a[aria-current='page'] {
+  color: var(--p-conteudo);
+  font-weight: var(--p-peso-forte);
+}
+
+.c-objetos a[aria-current='page']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 3px;
+  background: var(--p-marca);
+}
+
+/* --------------------------------------------------- densidade Lightning
+   Linha de 35px, célula 13px com padding 8, cabeçalho de coluna 12/700 em
+   caixa alta. A nossa linha estava em 36 com célula de 14 — perto, mas a
+   tela inteira ganha uma linha a mais por dobra com os números certos. */
+.tblwrap,
+.card {
+  border-radius: var(--c-r);
+}
+
+table td {
+  height: 35px;
+  padding: var(--p-e-2);
+  font-size: 13px;
+}
+
+table th {
+  padding: var(--p-e-1) var(--p-e-2);
+  font-weight: var(--p-peso-forte);
+}
