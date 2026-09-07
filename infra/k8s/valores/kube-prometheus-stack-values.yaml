@@ -1,0 +1,47 @@
+# Observabilidade do cluster. As MESMAS regras de alerta do degrau pequeno, para
+# que a resposta a um incidente não dependa de lembrar em qual degrau o cliente
+# está.
+
+prometheus:
+  prometheusSpec:
+    retention: 15d
+    resources:
+      requests: { cpu: 200m, memory: 1Gi }
+      limits: { memory: 3Gi }
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          resources:
+            requests:
+              storage: 50Gi
+    # Sem isto, o Prometheus só enxerga ServiceMonitor com o rótulo do chart, e o
+    # monitor que você escreveu à mão é ignorado em silêncio.
+    serviceMonitorSelectorNilUsesHelmValues: false
+    ruleSelectorNilUsesHelmValues: false
+
+alertmanager:
+  config:
+    route:
+      receiver: email
+      group_by: [alertname, namespace]
+      repeat_interval: 4h
+      routes:
+        - matchers: [severidade="acorda"]
+          receiver: telefone
+          repeat_interval: 30m
+    receivers:
+      - name: email
+        email_configs:
+          - to: infra@pipe.com.br
+      - name: telefone
+        webhook_configs:
+          - url: https://ntfy.sh/pipe-plantao-TROQUE-ISTO
+
+grafana:
+  enabled: true
+  defaultDashboardsTimezone: America/Sao_Paulo
+
+# Regras de alerta próprias: o arquivo é o mesmo de infra/observabilidade/alertas.yml,
+# aplicado como PrometheusRule pelo Kustomize. Manter duas cópias é garantir que
+# uma delas fica velha.
+additionalPrometheusRulesMap: {}

@@ -1,0 +1,65 @@
+# Postgres DENTRO do cluster — o plano B, não o padrão.
+#
+# O padrão é banco gerenciado fora do cluster (ver o módulo k8s-cluster). Este
+# manifesto existe para dois casos concretos:
+#   1. o provedor não oferece pgvector no Postgres gerenciado — e sem pgvector o
+#      pacote @pipe/ai não sobe;
+#   2. o cliente exigiu que o dado não saia do cluster dele.
+#
+# O CloudNativePG é bom software (CNCF, backup por plugin Barman, failover
+# automático, upgrade de versão maior declarativo). O que ele não resolve é quem
+# vai depurar às 3h um failover que não completou. Enquanto a resposta for "uma
+# pessoa só", pague o gerenciado.
+# https://cloudnative-pg.io/docs/  |  https://cloudnative-pg.io/plugin-barman-cloud/docs/intro/
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: pipe-pg
+spec:
+  instances: 3
+  imageName: ghcr.io/cloudnative-pg/postgresql:16
+
+  postgresql:
+    parameters:
+      archive_timeout: '60s' # o mesmo RPO de 5 minutos prometido no degrau pequeno
+      max_connections: '200'
+      shared_buffers: '2GB'
+    # RLS depende de o papel da aplicação não ser dono e não ter bypassrls; quem
+    # garante isso é a migration, não o operador.
+    pg_hba:
+      - host pipe pipe_app all scram-sha-256
+    # Réplica síncrona: com 3 instâncias, confirmar a escrita em uma réplica
+    # significa que a queda do primário não perde transação já confirmada. Custa
+    # latência de escrita, e é o preço de RPO zero para o que foi confirmado.
+    synchronous:
+      method: any
+      number: 1
+
+  bootstrap:
+    initdb:
+      database: pipe
+      owner: pipe
+      postInitSQL:
+        - CREATE EXTENSION IF NOT EXISTS vector;
+
+  storage:
+    size: 100Gi
+    storageClass: do-block-storage
+
+  resources:
+    requests: { cpu: '1', memory: 4Gi }
+    limits: { cpu: '2', memory: 4Gi }
+
+  # Uma instância por nó: três réplicas no mesmo nó é uma réplica com passos extras.
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
+
+  # Backup contínuo para storage de objetos, pelo plugin Barman Cloud. Sem isto o
+  # cluster tem alta disponibilidade e NÃO tem backup — são coisas diferentes, e
+  # confundi-las é como se perde dado apagado por engano.
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: pipe-backup

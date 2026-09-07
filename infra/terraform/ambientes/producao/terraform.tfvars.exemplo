@@ -1,4 +1,5 @@
-# Copie para terraform.tfvars (que está no .gitignore) e preencha.
+# Copie para terraform.tfvars e preencha. ACRESCENTE `*.tfvars` ao .gitignore da
+# raiz antes: hoje ele não está lá.
 # Nada de segredo aqui: token de API sai do ambiente, não de arquivo.
 zone_id         = "0000000000000000000000000000"
 email_acme      = "infra@pipe.com.br"

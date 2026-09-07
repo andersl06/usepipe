@@ -104,4 +104,94 @@ describe('isolamento por tenant', () => {
       comTenant(cenario.app, "' or true --", async (tx) => tenantAtual(tx)),
     ).rejects.toThrow(/tenant_id inválido/);
   });
+
+  /*
+   * Os quatro acima provam a política numa tabela. Os cinco abaixo provam as
+   * PREMISSAS da política — cada um deles falhando significa que os outros
+   * passariam sem provar nada.
+   */
+
+  it('o papel da aplicação não é dono das tabelas e não tem bypassrls', async () => {
+    const { rows } = await cenario.dono.execute<{
+      bypassrls: boolean;
+      superusuario: boolean;
+      tabelas_proprias: string;
+    }>(sql`
+      select r.rolbypassrls as bypassrls,
+             r.rolsuper as superusuario,
+             (select count(*) from pg_tables where tableowner = 'pipe_app')::text as tabelas_proprias
+        from pg_roles r
+       where r.rolname = 'pipe_app'
+    `);
+    expect(rows[0]?.bypassrls).toBe(false);
+    expect(rows[0]?.superusuario).toBe(false);
+    expect(rows[0]?.tabelas_proprias).toBe('0');
+  });
+
+  it('toda tabela com tenant_id tem a política ligada — nenhuma escapa', async () => {
+    const { rows } = await cenario.dono.execute<{ tabela: string }>(sql`
+      select c.relname as tabela
+        from pg_class c
+        join pg_namespace n on n.oid = c.relnamespace
+        join pg_attribute a on a.attrelid = c.oid and a.attname = 'tenant_id'
+       where n.nspname = 'public'
+         and c.relkind in ('r', 'p')
+         and a.attisdropped = false
+         and (c.relrowsecurity = false
+              or not exists (select 1 from pg_policies p
+                              where p.schemaname = 'public' and p.tablename = c.relname))
+       order by c.relname
+    `);
+    // Falha nomeando as tabelas: tabela nova sem política é o defeito que essa
+    // suíte existe para pegar no dia em que alguém a criar.
+    expect(rows.map((r) => r.tabela)).toEqual([]);
+  });
+
+  it('a partição criada agora nasce com a política, e não é porta dos fundos', async () => {
+    const mes = new Date();
+    mes.setMonth(mes.getMonth() + 2);
+    const primeiro = `${mes.getFullYear()}-${String(mes.getMonth() + 1).padStart(2, '0')}-01`;
+    const { rows: criada } = await cenario.dono.execute<{ pipe_criar_particao_mes: string }>(
+      sql`select pipe_criar_particao_mes('mensagem', ${primeiro}::date)`,
+    );
+    const nome = criada[0]?.pipe_criar_particao_mes ?? '';
+    expect(nome).toMatch(/^mensagem_\d{4}_\d{2}$/);
+
+    const { rows: politica } = await cenario.dono.execute<{ n: string }>(sql`
+      select count(*)::text as n
+        from pg_policies
+       where schemaname = 'public' and tablename = ${nome} and policyname = 'tenant_isolado'
+    `);
+    expect(politica[0]?.n).toBe('1');
+  });
+
+  it('a política avalia current_setting uma vez, não por linha', async () => {
+    // A forma com subconsulta escalar é o que o planejador promove a InitPlan.
+    // Sem ela a política volta a rodar a função em cada linha examinada, e a
+    // varredura de `mensagem` fica cara sem ninguém perceber.
+    const { rows } = await cenario.dono.execute<{ tabela: string }>(sql`
+      select tablename as tabela
+        from pg_policies
+       where schemaname = 'public'
+         and policyname = 'tenant_isolado'
+         and qual::text not like '%( SELECT %'
+       order by tablename
+    `);
+    expect(rows.map((r) => r.tabela)).toEqual([]);
+  });
+
+  it('o tenant de uma transação não sobrevive ao erro da anterior', async () => {
+    // Conexão devolvida ao pool com variável suja seria vazamento silencioso:
+    // a consulta seguinte enxergaria o tenant de quem falhou antes.
+    await expect(
+      comTenant(cenario.app, cenario.tenantA, async () => {
+        throw new Error('falha proposital');
+      }),
+    ).rejects.toThrow('falha proposital');
+
+    const vazou = await falhouFechada(() =>
+      cenario.app.execute(sql`select id from fila`),
+    );
+    expect(vazou).toBe(true);
+  });
 });

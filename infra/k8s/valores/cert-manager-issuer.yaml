@@ -1,0 +1,33 @@
+# Emissor de certificado. Dois: o de teste existe porque a Let's Encrypt limita
+# emissões por semana, e descobrir o limite durante um incidente significa ficar
+# sem certificado até a semana seguinte.
+# https://cert-manager.io/docs/configuration/acme/
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt
+spec:
+  acme:
+    server: https://acme-v02.api.letsencrypt.org/directory
+    email: infra@pipe.com.br
+    privateKeySecretRef:
+      name: letsencrypt-conta
+    solvers:
+      - http01:
+          ingress:
+            ingressClassName: traefik
+---
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: letsencrypt-teste
+spec:
+  acme:
+    server: https://acme-staging-v02.api.letsencrypt.org/directory
+    email: infra@pipe.com.br
+    privateKeySecretRef:
+      name: letsencrypt-teste-conta
+    solvers:
+      - http01:
+          ingress:
+            ingressClassName: traefik

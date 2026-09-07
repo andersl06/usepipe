@@ -1,0 +1,34 @@
+# Regras do SOPS. Rode `sops` a partir de `infra/` para que este arquivo valha.
+#
+# age em vez de GPG: chave de 60 caracteres, sem chaveiro, sem agente, sem data de
+# validade que expira no feriado. O segredo cifrado é versionado no repositório e
+# o diff continua legível — muda uma linha, aparece uma linha.
+#
+# Duas destinatárias em toda regra, sempre:
+#  - a do operador, que fica na máquina dele e numa cópia offline;
+#  - a de deploy, que fica na VPS em /opt/pipe-dados/age.key e SÓ decifra.
+# Uma só significa que perder o notebook é perder produção.
+#
+# Rotacionar destinatária: edite as chaves abaixo e rode
+#   sops updatekeys compose/segredos/producao.enc.env
+# O conteúdo não muda; muda quem consegue abrir.
+
+creation_rules:
+  - path_regex: compose/segredos/producao.*\.enc\.env$
+    age: >-
+      age1operador000000000000000000000000000000000000000000000000000,
+      age1deployprod0000000000000000000000000000000000000000000000000
+
+  - path_regex: compose/segredos/homologacao.*\.enc\.env$
+    age: >-
+      age1operador000000000000000000000000000000000000000000000000000,
+      age1deployhml00000000000000000000000000000000000000000000000000
+
+  # Segredos do cluster: o kustomize-controller do Flux decifra sozinho, com a
+  # chave guardada como Secret no cluster. Não é preciso outro operador para isso.
+  # https://fluxcd.io/flux/security/secrets-management/
+  - path_regex: ../infra/k8s/.*\.enc\.yaml$
+    encrypted_regex: ^(data|stringData)$
+    age: >-
+      age1operador000000000000000000000000000000000000000000000000000,
+      age1fluxcluster000000000000000000000000000000000000000000000000

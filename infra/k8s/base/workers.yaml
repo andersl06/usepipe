@@ -1,0 +1,77 @@
+# Workers: entrega de mensagem, IA e agregação. Não recebe tráfego de fora.
+#
+# Escala por tamanho de fila, não por CPU: um worker esperando resposta da Meta ou
+# do provedor de IA fica com CPU baixa e fila crescendo. Escalar por CPU aqui é
+# escalar pelo sinal errado.
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: workers
+  labels: { app: workers }
+spec:
+  replicas: 2
+  selector:
+    matchLabels: { app: workers }
+  template:
+    metadata:
+      labels: { app: workers }
+    spec:
+      containers:
+        - name: workers
+          image: ghcr.io/pipe/workers:latest
+          ports:
+            - { name: metricas, containerPort: 9464 }
+          envFrom:
+            - secretRef: { name: pipe-segredos }
+            - configMapRef: { name: pipe-config }
+          resources:
+            requests: { cpu: 200m, memory: 512Mi }
+            limits: { cpu: '1', memory: 1Gi }
+          livenessProbe:
+            httpGet: { path: /vivo, port: metricas }
+            periodSeconds: 20
+            failureThreshold: 5
+      # Um job de entrega no meio do caminho precisa terminar ou voltar para a
+      # fila; matar em 30s produz mensagem duplicada ou perdida.
+      terminationGracePeriodSeconds: 120
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: workers
+spec:
+  clusterIP: None
+  selector: { app: workers }
+  ports:
+    - { name: metricas, port: 9464, targetPort: metricas }
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: workers
+spec:
+  scaleTargetRef: { apiVersion: apps/v1, kind: Deployment, name: workers }
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    # Métrica externa vinda do Prometheus (adapter). Se o adapter não estiver
+    # instalado, o HPA fica parado no mínimo em silêncio — confira o `describe hpa`
+    # antes de acreditar que ele está escalando.
+    - type: External
+      external:
+        metric: { name: pipe_fila_profundidade }
+        target:
+          type: AverageValue
+          averageValue: '200'
+  behavior:
+    scaleDown:
+      stabilizationWindowSeconds: 900
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: workers
+spec:
+  minAvailable: 1
+  selector:
+    matchLabels: { app: workers }

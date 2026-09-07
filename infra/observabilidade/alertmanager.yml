@@ -1,0 +1,42 @@
+# Roteamento. A única coisa que importa aqui: `acorda` sai por um canal que
+# realmente acorda alguém, e `ticket` sai por e-mail. Se os dois saírem pelo mesmo
+# lugar, em duas semanas os dois estão silenciados.
+
+global:
+  resolve_timeout: 5m
+
+route:
+  receiver: email
+  group_by: [alertname, ambiente]
+  group_wait: 30s
+  group_interval: 5m
+  # 4 horas entre repetições: alerta que repete de 5 em 5 minutos ensina a ignorar.
+  repeat_interval: 4h
+  routes:
+    - matchers: [severidade="acorda"]
+      receiver: telefone
+      repeat_interval: 30m
+
+receivers:
+  - name: email
+    email_configs:
+      - to: infra@pipe.com.br
+        from: alertas@pipe.com.br
+        smarthost: smtp.provedor.com.br:587
+        auth_username: alertas@pipe.com.br
+        auth_password_file: /run/secrets/smtp
+
+  # Webhook para um serviço de plantão (ntfy, Pushover, Telegram, PagerDuty).
+  # Requisito: precisa furar o modo silencioso do celular. Notificação que respeita
+  # o "não perturbe" não é plantão, é histórico.
+  - name: telefone
+    webhook_configs:
+      - url: https://ntfy.sh/pipe-plantao-TROQUE-ISTO
+        send_resolved: true
+
+inhibit_rules:
+  # Quando a máquina inteira cai, tudo cai junto. Sem isto, o celular recebe doze
+  # mensagens e a primeira — a que diz o que houve — some no meio.
+  - source_matchers: [alertname="ApiForaDoAr"]
+    target_matchers: [severidade="ticket"]
+    equal: [ambiente]

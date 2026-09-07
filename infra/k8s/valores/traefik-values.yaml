@@ -1,0 +1,61 @@
+# Traefik como ingress do cluster.
+#
+# Escolha forçada por um fato, não por preferência: o ingress-nginx mantido pelo
+# projeto Kubernetes foi aposentado em março de 2026 — sem release, sem correção
+# de bug e sem correção de segurança.
+# https://www.kubernetes.dev/blog/2025/11/12/ingress-nginx-retirement/
+# Entre os que sobraram, o Traefik é o mesmo do degrau pequeno: um jeito só de
+# escrever rota nos dois degraus.
+
+deployment:
+  replicas: 2
+
+# Sem PDB, a drenagem de um nó pode tirar as duas réplicas de ingress ao mesmo
+# tempo — indisponibilidade total durante uma manutenção rotineira.
+podDisruptionBudget:
+  enabled: true
+  minAvailable: 1
+
+resources:
+  requests: { cpu: 100m, memory: 128Mi }
+  limits: { cpu: '1', memory: 512Mi }
+
+service:
+  type: LoadBalancer
+  annotations:
+    # O IP precisa ser estável: é ele que está no DNS e, quando o cliente restringe
+    # saída por IP, na lista de permissão dele.
+    service.beta.kubernetes.io/do-loadbalancer-name: 'pipe-lb'
+
+ports:
+  web:
+    redirections:
+      entryPoint:
+        to: websecure
+        scheme: https
+        permanent: true
+  websecure:
+    # TLS vem do cert-manager (Secret), não do ACME embutido: com duas réplicas, o
+    # armazenamento em arquivo do ACME do Traefik não é compartilhável e as duas
+    # brigam pelo mesmo desafio.
+    tls:
+      enabled: true
+
+providers:
+  kubernetesIngress:
+    enabled: true
+  kubernetesCRD:
+    enabled: true
+  # Gateway API desligado por ora; ligar é o caminho de migração quando os
+  # manifestos virarem HTTPRoute.
+  kubernetesGateway:
+    enabled: false
+
+metrics:
+  prometheus:
+    serviceMonitor:
+      enabled: true
+
+logs:
+  access:
+    enabled: true

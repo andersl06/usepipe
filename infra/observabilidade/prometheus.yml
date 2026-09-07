@@ -1,0 +1,43 @@
+# Coleta do degrau pequeno. Vale para o grande também, trocando os alvos fixos
+# por descoberta de serviço — as regras de alerta são as mesmas nos dois.
+
+global:
+  scrape_interval: 30s
+  evaluation_interval: 30s
+  external_labels:
+    ambiente: producao
+
+rule_files:
+  - /etc/prometheus/alertas.yml
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: ['alertmanager:9093']
+
+scrape_configs:
+  - job_name: pipe-api
+    # PENDÊNCIA: apps/api ainda não expõe /metrics. Sem esse alvo, metade dos
+    # alertas abaixo nunca dispara — é a primeira dívida a pagar.
+    metrics_path: /metrics
+    static_configs:
+      - targets: ['api:3100']
+
+  - job_name: pipe-workers
+    static_configs:
+      - targets: ['workers:9464']
+
+  - job_name: traefik
+    static_configs:
+      - targets: ['traefik:8080']
+
+  - job_name: postgres
+    static_configs:
+      - targets: ['postgres-exporter:9187']
+
+  - job_name: no
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # O node-exporter lê /metricas via textfile collector: é por onde entram as
+  # métricas de backup e de teste de restauração escritas pelos scripts.

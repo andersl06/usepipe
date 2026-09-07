@@ -314,10 +314,15 @@ services:
   node-exporter:
     <<: *padrao
     image: prom/node-exporter:v1.8.2
-    command: ['--path.rootfs=/host']
+    command:
+      - --path.rootfs=/host
+      # É por aqui que "o backup falhou" e "a restauração não valida" viram série
+      # temporal e, no passo seguinte, alerta.
+      - --collector.textfile.directory=/metricas
     pid: host
     volumes:
       - /:/host:ro,rslave
+      - metricas:/metricas:ro
     networks: [dados]
     deploy:
       resources:

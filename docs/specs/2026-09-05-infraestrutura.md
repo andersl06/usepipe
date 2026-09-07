@@ -63,6 +63,41 @@ Um banco, uma tabela por entidade, `tenant_id` em tudo, RLS ligada. A `api` abre
 
 Migrations rodam com outro papel, que é o dono.
 
+A suíte `packages/db/tests/rls.test.ts` prova as três, e mais cinco premissas sem as quais elas
+passariam sem valer nada: que `pipe_app` não é dono de tabela nenhuma e não tem `bypassrls`; que
+**nenhuma tabela com `tenant_id` ficou sem política** (o teste falha nomeando a tabela nova); que a
+partição criada agora nasce com política; que toda política usa a forma de subconsulta escalar; e
+que o tenant não sobrevive ao erro da transação anterior, porque conexão devolvida ao pool com
+variável suja seria vazamento silencioso.
+
+### O que a RLS NÃO cobre, e por isso precisa de regra própria
+
+Auditado em 07/09/2026. A RLS protege a linha do banco. Estas três superfícies estão fora do
+alcance dela, e são onde um vazamento entre clientes aconteceria de verdade:
+
+**1. O storage de objetos.** `anexo.chave_storage` guarda a chave, e o arquivo mora fora do banco.
+A política protege a linha que aponta para o arquivo, nunca o arquivo. Hoje `urlDaMidia()` monta
+`PIPE_STORAGE_URL_BASE/<chave>` — uma URL direta. O storage ainda não está ligado, e é por isso que
+a regra entra aqui antes:
+
+- O bucket **nasce privado**. Nenhum objeto com leitura anônima, em nenhum ambiente.
+- O acesso é por **URL assinada de curta duração**, emitida pela `api` **depois** de ler a linha do
+  `anexo` sob RLS. Se a linha não aparece para aquele tenant, a assinatura não é emitida.
+- A chave do objeto **começa pelo `tenant_id`** (`<tenant>/<ano>/<mes>/<uuid>`). Não é a proteção —
+  a proteção é a assinatura — mas torna auditável quem deveria ter cada arquivo, e transforma um
+  vazamento em algo que se vê no log.
+- Chave adivinhável nunca é defesa. Se a única coisa entre um cliente e o anexo do vizinho for o
+  tamanho de um UUID, o desenho está errado.
+
+**2. Redis e as filas.** BullMQ compartilha fila entre tenants e carrega o `tenant_id` no payload
+do job. O consumo precisa **reafirmar o tenant** ao processar (é o que `noTenant(linha.tenant_id)`
+faz na entrega), e nenhum job pode carregar dado de negócio no payload além do necessário para
+buscá-lo de novo sob RLS.
+
+**3. O CRM forkado.** Banco próprio e isolamento por schema, fora do alcance das nossas políticas.
+Vale a regra da spec do fork: ele é um serviço de terceiro do ponto de vista do Pipe, e a fronteira
+entre os dois é a rede.
+
 ### Quando isso deixa de bastar
 
 Banco compartilhado é a escolha certa até o momento em que um cliente sozinho representa risco de

@@ -1,0 +1,30 @@
+# Base compartilhada. O overlay de cada instalação (a compartilhada e a de cada
+# cliente dedicado) só troca imagem, réplicas e hostname.
+#
+# Kustomize e não Helm para a aplicação: não há terceiros consumindo isto como
+# chart, e template dentro de YAML é a fonte de metade dos incidentes de deploy.
+# Helm continua sendo usado para o que é de terceiros (Traefik, cert-manager).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+resources:
+  - api.yaml
+  - workers.yaml
+  - web.yaml
+  - rotas.yaml
+  - rede.yaml
+
+configMapGenerator:
+  - name: pipe-config
+    literals:
+      - PIPE_FILAS=bullmq
+      - PIPE_FUSO_PADRAO=America/Sao_Paulo
+      - PIPE_WHATSAPP_CLIENTE=real
+
+# O Secret `pipe-segredos` NÃO nasce aqui: ele é o arquivo SOPS cifrado que o
+# kustomize-controller do Flux decifra na hora de aplicar. Gerar segredo no
+# kustomize é colocá-lo em texto claro no repositório.
+#
+# O sufixo de hash do configMapGenerator fica LIGADO (padrão): é ele que faz uma
+# mudança de configuração reiniciar os pods. Desligar dá o bug clássico de "mudei
+# a variável e nada aconteceu".

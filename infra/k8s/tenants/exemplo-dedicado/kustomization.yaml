@@ -1,0 +1,60 @@
+# Overlay de um cliente que exigiu separação física (a saída prevista na §4 da
+# spec de infraestrutura).
+#
+# É a MESMA base: mesma imagem, mesmo manifesto, mesma migration. O que muda é
+# namespace, hostname e o fato de que aquela instalação atende um tenant só. Se
+# algum dia este overlay precisar de um manifesto que a base não tem, a
+# separação deixou de ser de infraestrutura e virou fork de produto — e aí o
+# preço muda.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: pipe-acme # criado pelo módulo tenant-dedicado do Terraform
+
+resources:
+  - ../../base
+
+images:
+  - name: ghcr.io/pipe/api
+    newTag: v1.4.2
+  - name: ghcr.io/pipe/workers
+    newTag: v1.4.2
+  - name: ghcr.io/pipe/desk
+    newTag: v1.4.2
+  - name: ghcr.io/pipe/gestao
+    newTag: v1.4.2
+
+# Cliente dedicado é, por definição, cliente grande — mas "grande" dele é menor que
+# o compartilhado inteiro. Réplica fixa aqui, sem HPA: o volume é previsível e a
+# cota do namespace é pequena.
+replicas:
+  - name: api
+    count: 2
+  - name: workers
+    count: 2
+
+patches:
+  - target: { kind: Ingress, name: pipe }
+    patch: |
+      - op: replace
+        path: /spec/rules/0/host
+        value: acme.pipe.com.br
+      - op: replace
+        path: /spec/rules/1/host
+        value: gestao.acme.pipe.com.br
+      - op: replace
+        path: /spec/rules/2/host
+        value: api.acme.pipe.com.br
+  - target: { kind: Certificate, name: pipe-tls }
+    patch: |
+      - op: replace
+        path: /spec/dnsNames
+        value: [acme.pipe.com.br, gestao.acme.pipe.com.br, api.acme.pipe.com.br]
+
+configMapGenerator:
+  - name: pipe-config
+    behavior: merge
+    literals:
+      # A instalação sabe que atende um tenant só: é o que permite negar, na
+      # aplicação, qualquer requisição com outro tenant_id, além da RLS.
+      - PIPE_TENANT_UNICO=acme

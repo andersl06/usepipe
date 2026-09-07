@@ -1,0 +1,58 @@
+# Equivalente k8s da rede `dados: internal: true` do compose.
+#
+# Sem NetworkPolicy, qualquer pod de qualquer namespace alcança o banco e o Redis.
+# Namespace NÃO é fronteira de rede por padrão — é o engano mais caro de quem
+# acha que "namespace por tenant" já isola alguma coisa.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: negar-entrada-por-padrao
+spec:
+  podSelector: {}
+  policyTypes: [Ingress]
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: permitir-ingress-e-metrica
+spec:
+  podSelector:
+    matchExpressions:
+      - { key: app, operator: In, values: [api, desk, gestao] }
+  policyTypes: [Ingress]
+  ingress:
+    - from:
+        - namespaceSelector:
+            matchLabels: { kubernetes.io/metadata.name: traefik }
+    - from:
+        - namespaceSelector:
+            matchLabels: { kubernetes.io/metadata.name: observabilidade }
+      ports:
+        - { port: 9464 }
+---
+# Saída restrita nos workers: eles falam com a Meta, com o provedor de IA, com o
+# banco e com o Redis. Mais do que isso é exfiltração ou dependência que ninguém
+# declarou.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: saida-dos-workers
+spec:
+  podSelector:
+    matchLabels: { app: workers }
+  policyTypes: [Egress]
+  egress:
+    - to:
+        - namespaceSelector: {}
+          podSelector:
+            matchLabels: { k8s-app: kube-dns }
+      ports:
+        - { port: 53, protocol: UDP }
+    - to:
+        - ipBlock:
+            cidr: 0.0.0.0/0
+            except: [169.254.169.254/32] # metadados da nuvem: credencial do nó de graça
+      ports:
+        - { port: 443 }
+        - { port: 5432 }
+        - { port: 6379 }
