@@ -71,6 +71,13 @@
       "when": 1788788929403,
       "tag": "0009_login",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1788797016955,
+      "tag": "0010_convite",
+      "breakpoints": true
     }
   ]
 }

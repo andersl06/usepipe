@@ -343,3 +343,39 @@ export const logAuditoria = pgTable(
   ],
 );
 
+
+/**
+ * Convite para entrar num tenant.
+ *
+ * É a **única** porta para quem não tem domínio verificado — e é de propósito. A
+ * quarta pergunta de `packages/autenticacao/src/entrada.ts` recusa quem não foi
+ * convidado, porque criar usuário do nada transforma "descobri um domínio" em
+ * "entrei no cliente".
+ *
+ * Como a sessão e a chave de API, **o banco guarda o hash, nunca o token**: quem
+ * lê a tabela não consegue aceitar convite de ninguém. Prazo curto (7 dias) e uso
+ * único, marcado por `aceito_em` — reaproveitar link é o defeito clássico, e é o
+ * que a leitura `for update` na hora de aceitar fecha.
+ */
+export const convite = pgTable(
+  'convite',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    email: text('email').notNull(),
+    papelId: uuid('papel_id')
+      .notNull()
+      .references(() => papel.id, { onDelete: 'cascade' }),
+    tokenHash: text('token_hash').notNull(),
+    expiraEm: momento('expira_em').notNull(),
+    criadoPor: uuid('criado_por').references(() => usuario.id, { onDelete: 'set null' }),
+    aceitoEm: momento('aceito_em'),
+    /** Quem nasceu do convite. Fica para auditoria: o convite não some ao ser usado. */
+    usuarioId: uuid('usuario_id').references(() => usuario.id, { onDelete: 'set null' }),
+    ...carimbos(),
+  },
+  (t) => [
+    uniqueIndex('convite_token_hash_uk').on(t.tokenHash),
+    index('convite_tenant_email_idx').on(t.tenantId, t.email, t.expiraEm),
+  ],
+);

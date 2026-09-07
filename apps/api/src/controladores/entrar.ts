@@ -14,9 +14,11 @@ import {
   trocarCodigo,
   urlDeAutorizacao,
 } from '@pipe/autenticacao';
-import type { DesafioDeLogin, OpcoesDeCookie } from '@pipe/autenticacao';
+import type { DesafioDeLogin, OpcoesDeCookie, PessoaDoGoogle } from '@pipe/autenticacao';
 import type { Eu, OrigemDeSessao, Plano, RecusaDeEntrada } from '@pipe/contracts';
 import { bancoApp, bancoDono, noTenant } from '../banco.js';
+import { aceitarConvite } from '../dominio/convites.js';
+import type { EntradaPorConvite } from '../dominio/convites.js';
 import { ErroPipe } from '../erros.js';
 import { ComSessao, lerCookie, sessaoDe, tokenDaSessao } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
@@ -44,7 +46,7 @@ const CAMINHO_DESAFIO = '/v1/auth';
 export function opcoesDeCookie(): OpcoesDeCookie {
   const dominio = process.env['PIPE_COOKIE_DOMINIO'];
   return {
-    // `Domain=.pipe.com.br` é o que faz o cookie emitido por `api.pipe.com.br` valer
+    // `Domain=.usepipe.com.br` é o que faz o cookie emitido por `api.usepipe.com.br` valer
     // em `app.`, `gestao.` e `crm.`. Vazio em desenvolvimento: `Domain=localhost`
     // invalida o cookie em vários navegadores, e o sintoma é login que "não faz nada".
     dominio: dominio && dominio.length > 0 ? dominio : undefined,
@@ -73,7 +75,16 @@ function destinoAbsoluto(destino: string): string {
   return `${urlDoApp()}${interno}`;
 }
 
-function cookieDoDesafio(desafio: DesafioDeLogin | null): string {
+/**
+ * O desafio do Pipe é o do provedor MAIS o convite, quando a entrada vem de um.
+ *
+ * O token do convite viaja no mesmo cookie porque ele precisa sobreviver à ida ao
+ * Google e voltar: sem isso, a volta não teria como saber que aquela conta acabou
+ * de ser convidada, e cairia na recusa por domínio desconhecido.
+ */
+type DesafioComConvite = DesafioDeLogin & { convite?: string };
+
+function cookieDoDesafio(desafio: DesafioComConvite | null): string {
   const opcoes = opcoesDeCookie();
   const valor = desafio ? Buffer.from(JSON.stringify(desafio)).toString('base64url') : '';
   const partes = [
@@ -97,11 +108,11 @@ function cookieDoDesafio(desafio: DesafioDeLogin | null): string {
  * próprio dono do navegador forjar o próprio login — que é o que ele já pode fazer.
  * `HttpOnly` mantém o valor fora do alcance de script, que é o que importa.
  */
-function lerDesafio(requisicao: Request): DesafioDeLogin | null {
+function lerDesafio(requisicao: Request): DesafioComConvite | null {
   const cru = lerCookie(requisicao.header('cookie'), COOKIE_DESAFIO);
   if (!cru) return null;
   try {
-    const objeto = JSON.parse(Buffer.from(cru, 'base64url').toString('utf8')) as DesafioDeLogin;
+    const objeto = JSON.parse(Buffer.from(cru, 'base64url').toString('utf8')) as DesafioComConvite;
     if (!objeto.state || !objeto.nonce || !objeto.verificadorPkce) return null;
     return objeto;
   } catch {
@@ -115,6 +126,10 @@ export function codigoDaRecusa(erro: unknown): RecusaDeEntrada {
   if (erro instanceof LoginErro && erro.codigo === 'email_nao_verificado') {
     return 'email_nao_verificado';
   }
+  // Convite vencido, já usado, de outro e-mail, ou conta do Google que já é de
+  // outra pessoa: para quem está entrando é tudo a mesma coisa — o convite não
+  // serve, peça outro. `sem_convite` é o código que a tela já sabe explicar.
+  if (erro instanceof ErroPipe && erro.status !== 500) return 'sem_convite';
   // Todo o resto — `state` errado, troca de código falhada, config ausente — é
   // problema nosso ou do provedor, e para quem está entrando a saída é uma só:
   // tentar de novo.
@@ -126,9 +141,32 @@ function textoDaQuery(requisicao: Request, campo: string): string | undefined {
   return typeof valor === 'string' ? valor : undefined;
 }
 
+/**
+ * Aceita o convite com a identidade do Google em mãos e devolve a sessão.
+ *
+ * O `if` existe para o tipo, não para o caso: `aceitarConvite` sempre abre sessão
+ * quando recebe a pessoa. Virar 500 aqui seria melhor do que redirecionar como se
+ * tivesse dado certo.
+ */
+async function entrarPorConvite(
+  token: string,
+  pessoa: PessoaDoGoogle,
+  contexto: { ip?: string; agente?: string },
+): Promise<EntradaPorConvite> {
+  const aceito = await aceitarConvite(token, pessoa, contexto);
+  if (!aceito.sessao) throw new Error('convite aceito sem abrir sessão');
+  return aceito.sessao;
+}
+
 @Controller('v1/auth')
 export class ControladorEntrada {
-  /** Começa o login: cria o desafio, guarda em cookie e manda para o Google. */
+  /**
+   * Começa o login: cria o desafio, guarda em cookie e manda para o Google.
+   *
+   * `?convite=<token>` é a entrada de quem foi convidado e cujo domínio ainda não
+   * está verificado. Sem ele, esse login morreria em `dominio_desconhecido` — a
+   * segunda pergunta da entrada não tem como saber de que cliente é a pessoa.
+   */
   @Get('google')
   ir(@Req() requisicao: Request, @Res() resposta: Response): void {
     let config;
@@ -139,7 +177,11 @@ export class ControladorEntrada {
       return;
     }
 
-    const desafio = criarDesafio(textoDaQuery(requisicao, 'destino') ?? '/');
+    const convite = textoDaQuery(requisicao, 'convite');
+    const desafio: DesafioComConvite = {
+      ...criarDesafio(textoDaQuery(requisicao, 'destino') ?? '/'),
+      ...(convite ? { convite } : {}),
+    };
     resposta.setHeader('set-cookie', cookieDoDesafio(desafio));
     resposta.redirect(302, urlDeAutorizacao(config, desafio));
   }
@@ -163,10 +205,12 @@ export class ControladorEntrada {
         state: textoDaQuery(requisicao, 'state'),
         error: textoDaQuery(requisicao, 'error'),
       });
-      const entrada = await entrarComGoogle(bancoDono(), bancoApp(), pessoa, {
-        ip: requisicao.ip,
-        agente: requisicao.header('user-agent'),
-      });
+      const contexto = { ip: requisicao.ip, agente: requisicao.header('user-agent') };
+      // Com convite no desafio, é o convite que decide o tenant e liga a conta do
+      // Google — e não o domínio. É a única porta de quem não tem domínio verificado.
+      const entrada = desafio.convite
+        ? await entrarPorConvite(desafio.convite, pessoa, contexto)
+        : await entrarComGoogle(bancoDono(), bancoApp(), pessoa, contexto);
       resposta.setHeader('set-cookie', [
         apagarDesafio,
         cookieDeSessao(entrada.token, entrada.expiraEm, opcoesDeCookie()),

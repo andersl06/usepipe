@@ -1,9 +1,11 @@
 import { SetMetadata } from '@nestjs/common';
 import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import type { Reflector } from '@nestjs/core';
+import { sql } from 'drizzle-orm';
 import type { Request } from 'express';
 import { NOME_DO_COOKIE, hashDoToken, resolverSessao } from '@pipe/autenticacao';
 import type { SessaoAtiva } from '@pipe/autenticacao';
+import type { TransacaoPipe } from '@pipe/db';
 import { bancoDono } from './banco.js';
 import { ErroPipe } from './erros.js';
 
@@ -54,6 +56,32 @@ export function lerCookie(cabecalho: string | undefined, nome: string): string |
 
 export function tokenDaSessao(requisicao: Request): string | undefined {
   return lerCookie(requisicao.header('cookie'), NOME_DO_COOKIE);
+}
+
+/**
+ * A pessoa tem a permissão? Se não tiver, a requisição para aqui.
+ *
+ * Função, e não decorador com guarda própria: a permissão mora numa tabela do
+ * tenant, e conferir antes de fixar `pipe.tenant_id` exigiria uma segunda consulta
+ * com o papel dono só para repetir o que a transação já pode responder. Chame
+ * dentro do `noTenant`, antes de escrever qualquer coisa.
+ *
+ * A permissão é a UNIÃO dos papéis — a mesma regra do `GET /v1/eu`.
+ */
+export async function exigirPermissao(
+  tx: TransacaoPipe,
+  usuarioId: string,
+  codigo: string,
+): Promise<void> {
+  const { rows } = await tx.execute<{ tem: boolean }>(sql`
+    select exists (
+      select 1
+        from usuario_papel up
+        join papel_permissao pp on pp.papel_id = up.papel_id
+       where up.usuario_id = ${usuarioId}::uuid and pp.permissao_codigo = ${codigo}
+    ) as tem
+  `);
+  if (!rows[0]?.tem) throw ErroPipe.semPermissao(codigo);
 }
 
 export class GuardaSessao implements CanActivate {

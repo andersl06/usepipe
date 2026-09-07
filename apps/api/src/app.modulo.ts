@@ -8,6 +8,7 @@ import {
   ControladorContatos,
   ControladorFilas,
 } from './controladores/catalogo.js';
+import { ControladorConvites, ControladorDominios } from './controladores/convites.js';
 import { ControladorEntrada, ControladorEu } from './controladores/entrar.js';
 import { ControladorOperacao } from './controladores/operacao.js';
 import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js';
@@ -30,6 +31,8 @@ import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js
     ControladorWebhookWhatsApp,
     ControladorEntrada,
     ControladorEu,
+    ControladorConvites,
+    ControladorDominios,
     ControladorOperacao,
     ControladorConversas,
     ControladorContatos,

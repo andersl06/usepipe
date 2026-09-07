@@ -40,6 +40,13 @@ export class ErroPipe extends Error {
     return new ErroPipe(403, 'sem_escopo', `A chave não tem o escopo "${escopo}".`, { escopo });
   }
 
+  /** Irmã de `semEscopo`, para gente logada: escopo é chave de API, permissão é pessoa. */
+  static semPermissao(codigo: string): ErroPipe {
+    return new ErroPipe(403, 'sem_permissao', `Você não tem a permissão "${codigo}".`, {
+      permissao: codigo,
+    });
+  }
+
   static naoEncontrado(oQue: string): ErroPipe {
     return new ErroPipe(404, 'nao_encontrado', `${oQue} não encontrado.`);
   }
