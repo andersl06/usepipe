@@ -362,7 +362,7 @@ trabalhando na primeira.
 
 | Regra | Chave | Valor | No nosso Desk |
 |---|---|---|---|
-| Recarga da fila | `POLLING_INTERVAL` | 15 s | **não existe** — hoje quem atualiza é a navegação |
+| Recarga da fila | `POLLING_INTERVAL` | 15 s | **cumpre**, `apps/desk/src/componentes/recarga-fila.tsx` — refaz só os componentes de servidor, preservando o texto meio escrito no compositor; para com a aba em segundo plano e recarrega na volta |
 | Aviso de versão nova do aplicativo | `VERSION_CHECK_INTERVAL_MINUTES` | 5 min | **não existe** |
 | Teste de conexão | `CONNECTION_TEST_INTERVAL` | 15 s | **não existe** |
 | Aviso de instabilidade da plataforma | `INSTABILITY_CHECK_INTERVAL` | 5 min | **não existe** |

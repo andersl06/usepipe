@@ -47,6 +47,16 @@ export const INATIVIDADE_CHECAGEM_MS = 5 * SEGUNDO;
  */
 export const INATIVIDADE_REINICIO_MINIMO_MS = 1 * SEGUNDO;
 
+/* ----------------------------------------------------------------- fila */
+
+/**
+ * De quanto em quanto tempo a fila é recarregada. Quinze segundos.
+ *
+ * É sondagem, e sondagem é a etapa intermediária: quando o tempo real por
+ * WebSocket entrar, quem empurra a fila é o servidor e este número sai.
+ */
+export const RECARGA_FILA_MS = 15 * SEGUNDO;
+
 /* -------------------------------------------------------------- conversa */
 
 /**

@@ -22,6 +22,7 @@ import type { AbaDoPainel } from '../componentes/painel-contato';
 import { EstadoVazio } from '@pipe/ui';
 import { TrilhoDesk } from '../componentes/trilho-desk';
 import { VigiaDeInatividade } from '../componentes/inatividade';
+import { RecargaDaFila } from '../componentes/recarga-fila';
 
 /**
  * A tela do atendente inteira em uma rota. A conversa aberta é `?conversa=<id>`, e não
@@ -163,6 +164,8 @@ export default async function PaginaDesk({
           Offline. Fica fora das colunas pelo mesmo motivo dos atalhos: a regra
           vale com ou sem conversa aberta. */}
       <VigiaDeInatividade estado={dados.status.estado} />
+      {/* Recarrega a fila a cada 15s, preservando o estado do cliente. */}
+      <RecargaDaFila />
       <TrilhoDesk
         iniciais={sessao.iniciais}
         nome={sessao.nome}
