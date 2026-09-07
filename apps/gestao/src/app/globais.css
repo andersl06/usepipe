@@ -457,13 +457,13 @@
   background: var(--g-barra-hover);
 }
 
-.g-modulos > a[aria-current="page"] {
+.g-modulos > a[aria-current='page'] {
   background: transparent;
   color: var(--g-barra-tinta);
   font-weight: var(--g-peso-leve);
 }
 
-.g-modulos > a[aria-current="page"]::before {
+.g-modulos > a[aria-current='page']::before {
   content: '';
   position: absolute;
   left: 0;
@@ -1693,4 +1693,113 @@ tr.grupo th {
 .form-caixa input {
   margin-top: 3px;
   flex: none;
+}
+
+/* ================ o interruptor do cartão-linha (/regras/atendimento)
+   Medido em `blip-telas-cadastro.md` §2: o toggle liga e desliga o registro NA
+   LISTA, sem abrir formulário. É a única forma de controle que o cartão deles
+   tem além de lápis e lixeira, e a que carrega a decisão do dia a dia.
+
+   Aqui ele é um `<button role="switch">` dentro de um formulário de Server
+   Action: funciona sem JavaScript, tem foco e teclado de graça, e o estado
+   vive no `aria-checked` em vez de num atributo inventado. Nenhuma cor nova —
+   ligado é o moss da marca, desligado é a linha. */
+.interruptor {
+  display: inline-flex;
+  align-items: center;
+  width: 38px;
+  height: 22px;
+  padding: 2px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--p-linha-media);
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+
+.interruptor[aria-checked='true'] {
+  background: var(--p-marca);
+}
+
+.interruptor-bolinha {
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: var(--p-superficie-0);
+  box-shadow: var(--p-sombra-1);
+  transition: transform 120ms ease;
+}
+
+.interruptor[aria-checked='true'] .interruptor-bolinha {
+  transform: translateX(16px);
+}
+
+/* ============== o cartão de configuração (/configuracoes/gerais)
+   `blip-telas-cadastro.md` §3, e a lacuna que o §7.3 do mesmo documento
+   registrava: título 20/700, explicação 14/400 logo abaixo, o interruptor da
+   seção à direita na altura do título, e o **Salvar do próprio cartão** no
+   canto inferior direito — a tela NÃO tem um Salvar geral.
+
+   O Salvar nasce desabilitado e só acorda quando alguma coisa muda: cartão sem
+   alteração não oferece ação. É a mesma régua que proíbe item de menu
+   desabilitado, aplicada ao botão. */
+.cartao-config {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+  padding: var(--g-cartao-pad);
+  border-radius: var(--g-r-cartao);
+  background: var(--p-superficie-0);
+  box-shadow: var(--g-sombra-cartao);
+}
+
+.cartao-config + .cartao-config {
+  margin-top: var(--g-cartao-gap);
+}
+
+.cartao-config > header {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--p-e-3);
+}
+
+.cartao-config > header > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.cartao-config h3 {
+  margin: 0;
+  font-size: var(--g-t-valor-rel);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-t-valor-rel);
+  color: var(--p-conteudo);
+}
+
+.cartao-config h3 + p {
+  margin: var(--p-e-2) 0 0;
+  font-size: var(--g-t-celula);
+  font-weight: var(--g-peso-normal);
+  line-height: 21px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+/* O rodapé do cartão: o Salvar dele, à direita, com a mensagem à esquerda. */
+.cartao-config footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--p-e-3);
+  padding-top: var(--p-e-3);
+  border-top: 1px solid var(--p-linha);
+}
+
+.cartao-config footer .sub {
+  margin-right: auto;
+}
+
+/* Seção desligada continua legível, mas o conteúdo dela sai de foco: o toggle
+   do cabeçalho é o que manda, e o corpo é consequência. */
+.cartao-config[data-ligado='false'] .cartao-config-corpo {
+  opacity: 0.55;
 }

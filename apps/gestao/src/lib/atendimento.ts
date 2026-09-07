@@ -14,7 +14,15 @@ import {
   type ResultadoTempoDeResposta,
   type TipoEvento,
 } from '@pipe/core';
-import { conversa, eventoAtendimento, fila, usuario } from '@pipe/db/schema';
+import {
+  conversa,
+  conversaEtiqueta,
+  etiqueta,
+  eventoAtendimento,
+  fila,
+  inbox,
+  usuario,
+} from '@pipe/db/schema';
 import { consultar, type Janela } from './banco';
 
 /**
@@ -48,6 +56,20 @@ export interface RelatorioAtendimento {
   geral: BlocoDeTempos;
   porFila: LinhaDeQuebra[];
   porAtendente: LinhaDeQuebra[];
+  /**
+   * As duas dimensões que o Chatwoot tem e nós não tínhamos: caixa de entrada e
+   * rótulo (aqui, etiqueta). Ver `docs/pesquisa/chatwoot.md`.
+   *
+   * A de etiqueta é a que mais vale, e a que lá é mais frágil: o relatório
+   * deles conta *taggings* em vez de conversas distintas e mistura duas janelas
+   * de tempo — as contagens filtram pela data do evento e as médias, pela data
+   * de criação da conversa. Aqui as duas populações são a mesma do resto do
+   * relatório: conversas ENCERRADAS no período.
+   */
+  porInbox: LinhaDeQuebra[];
+  porEtiqueta: LinhaDeQuebra[];
+  /** Conversas encerradas no período que não têm nenhuma etiqueta. */
+  semEtiqueta: number;
 }
 
 export interface FiltroAtendimento {
@@ -77,9 +99,14 @@ function medir(conversas: readonly ConversaEventos[]): BlocoDeTempos {
  * `ResultadoMetrica`. Então a dobra é feita aqui e a conta continua toda no
  * core, com a mesma ordenação determinística por chave que ele usa.
  */
+type EixoDeQuebra = 'fila' | 'atendente' | 'inbox';
+
 function quebrar(
-  conversas: readonly { chaves: { fila: string; atendente: string }; eventos: ConversaEventos }[],
-  eixo: 'fila' | 'atendente',
+  conversas: readonly {
+    chaves: Record<EixoDeQuebra, string>;
+    eventos: ConversaEventos;
+  }[],
+  eixo: EixoDeQuebra,
 ): LinhaDeQuebra[] {
   const grupos = new Map<string, ConversaEventos[]>();
   for (const c of conversas) {
@@ -87,6 +114,34 @@ function quebrar(
     const atual = grupos.get(chave);
     if (atual) atual.push(c.eventos);
     else grupos.set(chave, [c.eventos]);
+  }
+  return [...grupos.keys()]
+    .sort()
+    .map((chave) => ({ chave, ...medir(grupos.get(chave) as ConversaEventos[]) }));
+}
+
+/**
+ * Quebra por chave de MUITOS PARA UM — a etiqueta.
+ *
+ * Uma conversa com três etiquetas entra em três linhas, e por isso a soma das
+ * linhas passa do total do período. Isso é correto e precisa estar escrito na
+ * tela: a pergunta "quanto tempo leva um atendimento de cobrança" não tem como
+ * ser respondida sem contar a mesma conversa em cada assunto que ela teve.
+ *
+ * O que NÃO fazemos é o que o Chatwoot faz: lá a coluna de contagem conta
+ * marcações (`taggings`), não conversas distintas, e ninguém avisa.
+ */
+function quebrarPorMuitas(
+  eventosPorConversa: ReadonlyMap<string, ConversaEventos>,
+  vinculos: readonly { conversaId: string; chave: string }[],
+): LinhaDeQuebra[] {
+  const grupos = new Map<string, ConversaEventos[]>();
+  for (const v of vinculos) {
+    const eventos = eventosPorConversa.get(v.conversaId);
+    if (!eventos) continue;
+    const atual = grupos.get(v.chave);
+    if (atual) atual.push(eventos);
+    else grupos.set(v.chave, [eventos]);
   }
   return [...grupos.keys()]
     .sort()
@@ -113,15 +168,24 @@ export async function carregarAtendimento(
         id: conversa.id,
         filaNome: fila.nome,
         atendenteNome: usuario.nome,
+        inboxNome: inbox.nome,
       })
       .from(conversa)
       .leftJoin(fila, eq(fila.id, conversa.filaId))
       .leftJoin(usuario, eq(usuario.id, conversa.atendenteId))
+      .innerJoin(inbox, eq(inbox.id, conversa.inboxId))
       .where(and(...recorte));
 
     if (linhas.length === 0) {
       const vazio = medir([]);
-      return { geral: vazio, porFila: [], porAtendente: [] };
+      return {
+        geral: vazio,
+        porFila: [],
+        porAtendente: [],
+        porInbox: [],
+        porEtiqueta: [],
+        semEtiqueta: 0,
+      };
     }
 
     // Os eventos vêm pelo mesmo recorte, e não por lista de ids: o período
@@ -153,18 +217,35 @@ export async function carregarAtendimento(
       else porConversa.set(e.conversaId, [evento]);
     }
 
+    // As etiquetas das mesmas conversas, pelo mesmo recorte. Uma consulta, em
+    // série como as outras — e ela vem depois porque só faz sentido se houver
+    // conversa no período.
+    const vinculos = await tx
+      .select({ conversaId: conversaEtiqueta.conversaId, chave: etiqueta.nome })
+      .from(conversaEtiqueta)
+      .innerJoin(etiqueta, eq(etiqueta.id, conversaEtiqueta.etiquetaId))
+      .innerJoin(conversa, eq(conversa.id, conversaEtiqueta.conversaId))
+      .where(and(...recorte));
+
     const conversas = linhas.map((l) => ({
       chaves: {
         fila: l.filaNome ?? 'Sem fila',
         atendente: l.atendenteNome ?? 'Sem atendente',
+        inbox: l.inboxNome,
       },
       eventos: { conversaId: l.id, eventos: porConversa.get(l.id) ?? [] } as ConversaEventos,
     }));
+
+    const eventosPorConversa = new Map(conversas.map((c) => [c.eventos.conversaId, c.eventos]));
+    const etiquetadas = new Set(vinculos.map((v) => v.conversaId));
 
     return {
       geral: medir(conversas.map((c) => c.eventos)),
       porFila: quebrar(conversas, 'fila'),
       porAtendente: quebrar(conversas, 'atendente'),
+      porInbox: quebrar(conversas, 'inbox'),
+      porEtiqueta: quebrarPorMuitas(eventosPorConversa, vinculos),
+      semEtiqueta: conversas.filter((c) => !etiquetadas.has(c.eventos.conversaId)).length,
     };
   });
 }

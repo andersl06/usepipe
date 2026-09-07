@@ -4,6 +4,8 @@ import { revalidatePath } from 'next/cache';
 import { and, eq } from 'drizzle-orm';
 import { horarioAtendimento, horarioExcecao, horarioFaixa } from '@pipe/db/schema';
 import { consultar, tenantId } from '../../lib/banco';
+import { alternarAtivaDaRegraFila, gravarRegraFila } from '../../lib/cadastros';
+import { campoValido, operadorValido, type OperadorDeRegra } from '../../lib/regra-fila';
 
 /**
  * Server Actions de Regras — horário de atendimento, suas faixas e exceções.
@@ -205,4 +207,84 @@ export async function salvarExcecao(_anterior: Resultado, dados: FormData): Prom
     revalidatePath('/regras/horarios');
     return OK;
   });
+}
+
+// ---------------------------------------------------------- regra de entrada
+
+/**
+ * A regra de entrada — §8 da spec de métricas.
+ *
+ * A ação faz só o que é da tela: lê o `FormData`, valida, chama a função de
+ * `lib/cadastros.ts` e revalida a rota. A conversa com o Postgres mora lá, sem
+ * saber que o Next existe — quando a `apps/api` virar a única porta do banco, é
+ * um arquivo que muda de lugar (README, "Quem fala com o banco").
+ *
+ * O formulário manda de uma vez o cabeçalho da regra e as condições dela:
+ * diferente do horário, aqui o cadastro incremental não serve. Regra sem
+ * condição nunca casa (`filaDeDestino`), então salvar a cabeça e depois as
+ * condições deixaria, entre os dois passos, uma regra ativa que não faz nada.
+ *
+ * As condições chegam como três listas paralelas (`campo[]`, `operador[]`,
+ * `valor[]`), que é como o `FormData` devolve campos repetidos.
+ */
+export async function salvarRegraFila(_anterior: Resultado, dados: FormData): Promise<Resultado> {
+  const nome = String(dados.get('nome') ?? '').trim();
+  const filaDestinoId = String(dados.get('filaDestinoId') ?? '').trim();
+  const combinador = String(dados.get('combinador') ?? 'e').trim();
+  const ordemBruta = String(dados.get('ordem') ?? '').trim();
+
+  if (!nome) return falha('Informe o nome da regra.');
+  if (!filaDestinoId) return falha('Escolha a fila de destino.');
+  if (combinador !== 'e' && combinador !== 'ou') return falha('Combinador inválido.');
+
+  const ordem = Number(ordemBruta || '0');
+  if (!Number.isInteger(ordem) || ordem < 0 || ordem > 999) {
+    return falha('A ordem é um inteiro de 0 a 999 — é ela que decide qual regra é avaliada antes.');
+  }
+
+  const campos = dados.getAll('campo').map((v) => String(v).trim());
+  const operadores = dados.getAll('operador').map((v) => String(v).trim());
+  const valores = dados.getAll('valor').map((v) => String(v).trim());
+
+  const condicoes: { campo: string; operador: OperadorDeRegra; valor: string }[] = [];
+  for (let i = 0; i < campos.length; i += 1) {
+    const campo = campos[i] ?? '';
+    const operador = operadores[i] ?? '';
+    const valor = valores[i] ?? '';
+    // Linha em branco é linha que a pessoa não preencheu, não erro: o
+    // formulário nasce com uma e ninguém é obrigado a usar as que acrescentou.
+    if (!campo && !valor) continue;
+    if (!campoValido(campo)) {
+      return falha(
+        `"${campo}" não é um campo válido. Use um dos fixos ou um campo extra como contato.atributos.plano.`,
+      );
+    }
+    if (!operadorValido(operador)) return falha('Operador inválido.');
+    if (!valor) return falha(`A condição sobre "${campo}" ficou sem valor.`);
+    condicoes.push({ campo, operador, valor });
+  }
+
+  if (condicoes.length === 0) {
+    return falha('Uma regra sem condição nunca casa. Preencha pelo menos uma.');
+  }
+
+  const gravado = await gravarRegraFila({ nome, ordem, combinador, filaDestinoId, condicoes });
+  if (!gravado.ok) return falha(gravado.erro);
+
+  revalidatePath('/regras/atendimento');
+  return OK;
+}
+
+/**
+ * O interruptor da própria lista, sem abrir formulário — o controle do
+ * cartão-linha deles (`blip-telas-cadastro.md` §2).
+ *
+ * Ele existe agora porque a auditoria existe agora: é exatamente a condição que
+ * o comentário de `componentes/lista-regras.tsx` registrou.
+ */
+export async function alternarRegraFila(dados: FormData): Promise<void> {
+  const id = String(dados.get('id') ?? '').trim();
+  if (!id) return;
+  await alternarAtivaDaRegraFila(id);
+  revalidatePath('/regras/atendimento');
 }

@@ -2,7 +2,14 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Avatar, Icone, Simbolo, estaAtivo, type ItemDeNavegacao, type NomeDeIcone } from '@pipe/ui';
+import {
+  Avatar,
+  Icone,
+  Simbolo,
+  estaAtivo,
+  type ItemDeNavegacao,
+  type NomeDeIcone,
+} from '@pipe/ui';
 import { IconeGestao } from './icones-gestao';
 import { AlternarTema } from './alternar-tema';
 import type { DadosDoCabecalho } from '../lib/cabecalho';
@@ -62,8 +69,8 @@ const MODULOS: readonly Modulo[] = [
   {
     rotulo: 'Análise',
     href: '/relatorios/atendimento',
-    raizes: ['/relatorios'],
-    resumo: 'Os relatórios do período, com a população de cada número.',
+    raizes: ['/relatorios', '/monitoria'],
+    resumo: 'Os relatórios do período e a monitoria, com a população de cada número.',
   },
   {
     rotulo: 'Growth',
@@ -118,6 +125,11 @@ const ITENS_ANALISE: readonly ItemLateral[] = [
   { rotulo: 'Atendimento', href: '/relatorios/atendimento', icone: 'painel' },
   { rotulo: 'Satisfação', href: '/relatorios/satisfacao', icone: 'cheque' },
   { rotulo: 'Esforço por atendente', href: '/relatorios/esforco', icone: 'pessoas' },
+  /* A monitoria mora em Análise, e não em Atendimento, porque ela olha conversa
+     já encerrada: é leitura do passado, como os três relatórios acima. A rota
+     fica fora de `/relatorios/*` porque a ficha de uma avaliação não é
+     relatório de período — é o registro de um caso. */
+  { rotulo: 'Monitoria com IA', href: '/monitoria', icone: 'cheque' },
 ];
 
 /*
@@ -132,9 +144,11 @@ const ITENS_ANALISE: readonly ItemLateral[] = [
  *
  * - Relatórios ├ Calls, Vendas — não temos telefonia, e funil de vendas é do CRM,
  *   não da gestão de atendimento.
- * - Regras ├ Atendimento — a regra de entrada ainda não tem tela; SLA e
- *   Horários têm.
- * - Preferências ├ Configurações gerais — está diluída na tela de Dados.
+ *
+ * As duas lacunas que estavam registradas aqui — Regras ├ Atendimento e
+ * Preferências ├ Configurações gerais — viraram tela. A primeira é a regra de
+ * entrada da §8 da spec de métricas; a segunda é o cartão de configuração
+ * medido em `blip-telas-cadastro.md` §3, com o Salvar próprio de cada cartão.
  */
 const GRUPOS: readonly GrupoLateral[] = [
   {
@@ -149,6 +163,7 @@ const GRUPOS: readonly GrupoLateral[] = [
     rotulo: 'Regras',
     icone: 'funil',
     filhos: [
+      { rotulo: 'Atendimento', href: '/regras/atendimento' },
       { rotulo: 'SLA', href: '/configuracoes/regras' },
       { rotulo: 'Horários', href: '/regras/horarios' },
     ],
@@ -165,7 +180,10 @@ const GRUPOS: readonly GrupoLateral[] = [
   {
     rotulo: 'Preferências',
     icone: 'engrenagem',
-    filhos: [{ rotulo: 'Dados', href: '/configuracoes/dados' }],
+    filhos: [
+      { rotulo: 'Configurações gerais', href: '/configuracoes/gerais' },
+      { rotulo: 'Dados', href: '/configuracoes/dados' },
+    ],
   },
 ];
 
@@ -321,7 +339,13 @@ function BarraInferior({ dados, caminho }: { dados: DadosDoCabecalho; caminho: s
 
       <nav className="g-barra-fim" aria-label="Atalhos">
         {ATALHOS.map((a) => (
-          <Link key={a.href} className="g-iconbtn" href={a.href} title={a.rotulo} aria-label={a.rotulo}>
+          <Link
+            key={a.href}
+            className="g-iconbtn"
+            href={a.href}
+            title={a.rotulo}
+            aria-label={a.rotulo}
+          >
             <Icone nome={a.icone} tamanho={20} />
           </Link>
         ))}

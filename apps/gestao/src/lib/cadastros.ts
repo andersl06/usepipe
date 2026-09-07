@@ -12,22 +12,32 @@ import {
   horarioAtendimento,
   horarioExcecao,
   horarioFaixa,
+  inbox,
   motivoPausa,
   pausa,
+  regraFila,
+  regraFilaCondicao,
   statusAtendente,
   usuario,
 } from '@pipe/db/schema';
-import { consultar } from './banco';
+import { registrarAuditoria } from '@pipe/db';
+import { ATOR_DA_GESTAO, consultar, tenantId } from './banco';
 import { relogio } from './formato';
+import type { OperadorDeRegra, RegraDeFila } from './regra-fila';
 
 /**
  * Leitura das três telas de cadastro: filas, motivos de pausa e horários.
  *
  * Diferente de `configuracoes.ts`, que é o retrato somente-leitura do tenant,
- * aqui a leitura existe para alimentar um formulário que escreve. Continua
- * valendo o mesmo limite: cadastra-se e desativa-se no ato do cadastro, mas não
- * se edita nem se apaga — mexer em configuração sem log de auditoria com autor,
- * valor anterior e horário é passivo, e a auditoria ainda não existe.
+ * aqui a leitura existe para alimentar um formulário que escreve. O limite que
+ * este comentário registrava — "cadastra-se, mas não se edita nem se apaga,
+ * porque a auditoria não existe" — caiu: `registrarAuditoria` do `@pipe/db`
+ * grava autor, valor anterior e horário na MESMA transação da mudança, e é isso
+ * que destrava o interruptor da regra de entrada aqui embaixo.
+ *
+ * Nada neste arquivo sabe que o Next existe: sem `revalidatePath`, sem JSX. A
+ * consulta recebe parâmetro e devolve dado, para virar endpoint da `apps/api`
+ * por movimentação e não por reescrita (README, "Quem fala com o banco").
  *
  * Toda consulta abaixo roda EM SÉRIE dentro de um único `comTenant`. Nada de
  * `Promise.all` aqui: consulta paralela na mesma conexão apaga o
@@ -353,5 +363,196 @@ export async function carregarHorarios(): Promise<Horarios> {
       filasSemHorario: filas.filter((f) => f.ativa && f.horarioId === null).map((f) => f.nome),
       agora,
     };
+  });
+}
+
+// ------------------------------------------------------- regras de entrada
+
+/**
+ * As regras de entrada, com as condições de cada uma — §8 da spec de métricas.
+ *
+ * Ordenadas por `ordem` e depois por id, que é a MESMA ordem que
+ * `ordenarRegras` de `regra-fila.ts` aplica: a tela não pode listar numa ordem
+ * e o motor avaliar noutra, senão o gestor testa a regra pela lista e conclui
+ * que o produto está quebrado.
+ *
+ * As filas vêm juntas porque o formulário precisa delas, e porque a tela avisa
+ * quando a regra aponta para uma fila desativada — regra que manda conversa
+ * para fila desativada é regra que engole conversa.
+ */
+export interface FilaParaEscolher {
+  id: string;
+  nome: string;
+  ativa: boolean;
+}
+
+/** A regra do banco carrega uma coisa a mais que o motor: se a fila de destino está de pé. */
+export interface RegraDeFilaCadastrada extends RegraDeFila {
+  filaDestinoAtiva: boolean;
+}
+
+export async function carregarRegrasDeFila(): Promise<{
+  regras: RegraDeFilaCadastrada[];
+  filas: FilaParaEscolher[];
+  /** Nomes das caixas de entrada e a fila padrão delas: o destino de quem não casa nenhuma regra. */
+  padroes: { inbox: string; fila: string | null }[];
+}> {
+  return consultar(async (tx) => {
+    const cabecas = await tx
+      .select({
+        id: regraFila.id,
+        nome: regraFila.nome,
+        ordem: regraFila.ordem,
+        combinador: regraFila.combinador,
+        filaDestinoId: regraFila.filaDestinoId,
+        filaDestinoNome: fila.nome,
+        filaDestinoAtiva: fila.ativa,
+        ativa: regraFila.ativa,
+      })
+      .from(regraFila)
+      .innerJoin(fila, eq(fila.id, regraFila.filaDestinoId))
+      .orderBy(asc(regraFila.ordem), asc(regraFila.id));
+
+    const condicoes = await tx
+      .select({
+        regraId: regraFilaCondicao.regraId,
+        campo: regraFilaCondicao.campo,
+        operador: regraFilaCondicao.operador,
+        valor: regraFilaCondicao.valor,
+      })
+      .from(regraFilaCondicao)
+      .orderBy(asc(regraFilaCondicao.campo), asc(regraFilaCondicao.id));
+
+    const filas = await tx
+      .select({ id: fila.id, nome: fila.nome, ativa: fila.ativa })
+      .from(fila)
+      .orderBy(asc(fila.ordem), asc(fila.nome));
+
+    const caixas = await tx
+      .select({ inbox: inbox.nome, fila: fila.nome })
+      .from(inbox)
+      .leftJoin(fila, eq(fila.id, inbox.filaPadraoId))
+      .orderBy(asc(inbox.nome));
+
+    return {
+      regras: cabecas.map((c) => ({
+        id: c.id,
+        nome: c.nome,
+        ordem: c.ordem,
+        combinador: c.combinador as 'e' | 'ou',
+        filaDestinoId: c.filaDestinoId,
+        filaDestinoNome: c.filaDestinoNome,
+        filaDestinoAtiva: c.filaDestinoAtiva,
+        ativa: c.ativa,
+        condicoes: condicoes
+          .filter((cond) => cond.regraId === c.id)
+          .map((cond) => ({
+            campo: cond.campo,
+            operador: cond.operador as OperadorDeRegra,
+            valor: cond.valor ?? '',
+          })),
+      })),
+      filas,
+      padroes: caixas,
+    };
+  });
+}
+
+/**
+ * Escrita da regra de entrada.
+ *
+ * Mora aqui, e não na Server Action, porque **front é front e banco é da
+ * `api`** (README, "Quem fala com o banco — a fronteira"): esta função recebe
+ * parâmetro e devolve dado, sem `revalidatePath`, sem JSX, sem saber que o Next
+ * existe. Quando a `apps/api` virar a única porta do Postgres, ela é MOVIDA, não
+ * reescrita.
+ *
+ * A auditoria é gravada na MESMA transação (`registrarAuditoria` do `@pipe/db`):
+ * log em transação separada some quando a mudança falha e sobra quando ela é
+ * desfeita, e nos dois casos passa a mentir.
+ */
+export interface NovaRegraDeFila {
+  nome: string;
+  ordem: number;
+  combinador: 'e' | 'ou';
+  filaDestinoId: string;
+  condicoes: readonly { campo: string; operador: OperadorDeRegra; valor: string }[];
+}
+
+export type Gravacao = { ok: true } | { ok: false; erro: string };
+
+export async function gravarRegraFila(entrada: NovaRegraDeFila): Promise<Gravacao> {
+  const tid = await tenantId();
+
+  return consultar(async (tx) => {
+    // `regra_fila` não tem índice único de nome; a unicidade é regra desta
+    // tela. Duas "Cobrança" fazem o gestor editar a que não está valendo.
+    const [conflito] = await tx
+      .select({ id: regraFila.id })
+      .from(regraFila)
+      .where(and(eq(regraFila.tenantId, tid), eq(regraFila.nome, entrada.nome)))
+      .limit(1);
+    if (conflito) return { ok: false, erro: `Já existe uma regra chamada "${entrada.nome}".` };
+
+    const [destino] = await tx
+      .select({ id: fila.id })
+      .from(fila)
+      .where(and(eq(fila.tenantId, tid), eq(fila.id, entrada.filaDestinoId)))
+      .limit(1);
+    if (!destino) return { ok: false, erro: 'Fila de destino não encontrada.' };
+
+    const [criada] = await tx
+      .insert(regraFila)
+      .values({
+        tenantId: tid,
+        nome: entrada.nome,
+        ordem: entrada.ordem,
+        combinador: entrada.combinador,
+        filaDestinoId: entrada.filaDestinoId,
+        ativa: true,
+      })
+      .returning({ id: regraFila.id });
+    if (!criada) return { ok: false, erro: 'Não consegui gravar a regra.' };
+
+    await tx
+      .insert(regraFilaCondicao)
+      .values(entrada.condicoes.map((c) => ({ tenantId: tid, regraId: criada.id, ...c })));
+
+    await registrarAuditoria(tx, tid, {
+      ator: ATOR_DA_GESTAO,
+      acao: 'criou',
+      objetoTipo: 'regra_fila',
+      objetoId: criada.id,
+      depois: { ...entrada, ativa: true, condicoes: entrada.condicoes.length },
+    });
+
+    return { ok: true };
+  });
+}
+
+/** O interruptor do cartão-linha: liga e desliga a regra na própria lista. */
+export async function alternarAtivaDaRegraFila(id: string): Promise<Gravacao> {
+  const tid = await tenantId();
+
+  return consultar(async (tx) => {
+    const [atual] = await tx
+      .select({ nome: regraFila.nome, ativa: regraFila.ativa })
+      .from(regraFila)
+      .where(and(eq(regraFila.tenantId, tid), eq(regraFila.id, id)))
+      .limit(1);
+    if (!atual) return { ok: false, erro: 'Regra não encontrada.' };
+
+    await tx.update(regraFila).set({ ativa: !atual.ativa }).where(eq(regraFila.id, id));
+
+    await registrarAuditoria(tx, tid, {
+      ator: ATOR_DA_GESTAO,
+      acao: atual.ativa ? 'desativou' : 'ativou',
+      objetoTipo: 'regra_fila',
+      objetoId: id,
+      antes: { nome: atual.nome, ativa: atual.ativa },
+      depois: { nome: atual.nome, ativa: !atual.ativa },
+    });
+
+    return { ok: true };
   });
 }

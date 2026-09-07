@@ -10,14 +10,13 @@ import { Icone } from '@pipe/ui';
  * §5.3: linha do título, busca sozinha na linha logo abaixo, e a lista de
  * cartões. Rótulo pequeno acima do valor forte, situação encostada à direita.
  *
- * **O que a Blip tem aqui e nós não, e por quê.** No cartão deles há criar,
- * editar, excluir e um interruptor por linha. O nosso `lib/configuracoes.ts` é
- * somente leitura por decisão registrada: editar configuração exige log de
- * auditoria com autor, valor anterior e horário, e configurar sem rastro é
- * passivo. Botão que não salva é item desabilitado com outro nome, e a régua
- * da casa proíbe. Então o cartão nasce com a FORMA deles e com a situação em
- * etiqueta no lugar do interruptor. Quando a auditoria existir, o interruptor
- * entra no `.cl-acoes` sem mexer em mais nada.
+ * **O interruptor por linha, e por que ele demorou.** No cartão deles há criar,
+ * editar, excluir e um interruptor. O nosso nasceu só com a situação em
+ * etiqueta, porque mexer em configuração sem log de auditoria com autor, valor
+ * anterior e horário é passivo — e a auditoria não existia. Ela existe agora
+ * (`lib/auditoria.ts`), então o interruptor entrou no `.cl-acoes`, como o
+ * comentário anterior previa, sem mexer em mais nada: quem tem `acao` mostra o
+ * controle, quem não tem continua com a etiqueta sozinha.
  *
  * A busca, essa sim, funciona: filtra as duas listas já carregadas, no
  * navegador, sem ida ao servidor.
@@ -42,6 +41,13 @@ export interface CartaoRegra {
    * `.cl-campos` é grade de valor único e uma lista dentro dele vira truncagem.
    */
   rodape?: readonly string[];
+  /**
+   * Controle do registro, à direita, ao lado da situação — o interruptor do
+   * cartão-linha deles. Vem pronto de fora porque é ele que carrega a Server
+   * Action, e esta lista é componente de cliente: montar o formulário aqui
+   * arrastaria a ação para o pacote do navegador.
+   */
+  acao?: React.ReactNode;
 }
 
 export interface SecaoDeRegras {
@@ -69,6 +75,7 @@ function Cartao({ cartao }: { cartao: CartaoRegra }) {
       </div>
       <div className="cl-acoes">
         <span className={cartao.ativa ? 'etiqueta' : 'etiqueta alerta'}>{cartao.situacao}</span>
+        {cartao.acao}
       </div>
 
       {cartao.rodape && cartao.rodape.length > 0 ? (

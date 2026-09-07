@@ -1,5 +1,5 @@
 import { eq, sql } from 'drizzle-orm';
-import { criarBanco, comTenant, type BancoPipe, type TransacaoPipe } from '@pipe/db';
+import { criarBanco, comTenant, type Ator, type BancoPipe, type TransacaoPipe } from '@pipe/db';
 import { tenant } from '@pipe/db/schema';
 
 /**
@@ -41,7 +41,10 @@ export function tenantId(): Promise<string> {
     const dono = criarBanco({ url: process.env['DATABASE_URL'], maxConexoes: 1 });
     try {
       const slug = process.env['PIPE_TENANT_SLUG'] ?? 'demo';
-      const [linha] = await dono.select({ id: tenant.id }).from(tenant).where(eq(tenant.slug, slug));
+      const [linha] = await dono
+        .select({ id: tenant.id })
+        .from(tenant)
+        .where(eq(tenant.slug, slug));
       if (!linha) throw new Error(`tenant "${slug}" não existe: rode a semente antes.`);
       return linha.id;
     } finally {
@@ -103,3 +106,16 @@ export async function janelaDeHoje(fuso: string): Promise<{ inicio: Date; fim: D
     return { inicio: new Date(linha.inicio), fim: new Date(linha.fim) };
   });
 }
+
+/**
+ * Quem assina o que a Gestão grava, no log de auditoria.
+ *
+ * A Gestão ainda não tem sessão — `tenantId()` sai do ambiente, não de um
+ * usuário logado. Então o ator é `sistema`, que é a verdade: foi a instância, e
+ * não uma pessoa identificada. Mentir aqui seria pior do que não registrar,
+ * porque alguém confiaria no nome.
+ *
+ * Quando a sessão existir, este valor vira `{ tipo: 'usuario', id, ip }` e
+ * nenhuma escrita precisa mudar: todas já passam por aqui.
+ */
+export const ATOR_DA_GESTAO = { tipo: 'sistema' } as const satisfies Ator;

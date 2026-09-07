@@ -58,16 +58,20 @@ function Quebra({
   eixo,
   linhas,
   recorte,
+  nota,
 }: {
   titulo: string;
   eixo: string;
   linhas: LinhaDeQuebra[];
   /** `null` quando não há filtro além do período. Muda a causa do vazio. */
   recorte: string | null;
+  /** Aviso de população, quando ela não é a mesma do bloco geral. */
+  nota?: React.ReactNode;
 }) {
   return (
     <section className="bloco-rel">
       <h3>{titulo}</h3>
+      {nota ? <p className="note">{nota}</p> : null}
       {linhas.length === 0 ? (
         /* Culpar o período quando o corte foi de fila ou atendente manda o
            gestor alargar a data e continuar sem ver nada. */
@@ -296,6 +300,46 @@ export default async function PaginaAtendimento({
         eixo="Atendente"
         linhas={relatorio.porAtendente}
         recorte={recorte}
+      />
+
+      {/* ---------------------------------------------------- as duas do Chatwoot
+          O Chatwoot tem relatório por agente, por equipe, por rótulo e por caixa
+          de entrada (`docs/pesquisa/chatwoot.md`). Agente já tínhamos; equipe
+          não existe no nosso modelo — quem recorta grupo de gente aqui é a
+          FILA, e um "por equipe" seria a mesma tabela com outro nome. Faltavam
+          estas duas, e as duas respondem pergunta que as de cima não respondem:
+          "de qual canal vem o atendimento mais lento" e "qual assunto custa
+          mais tempo". */}
+      <Quebra
+        titulo="Por caixa de entrada"
+        eixo="Caixa de entrada"
+        linhas={relatorio.porInbox}
+        recorte={recorte}
+        nota={
+          <>
+            A caixa de entrada é por onde a conversa chegou — o canal e a conexão. É ela, e não o
+            canal, que carrega a fila padrão, então uma caixa lenta com fila certa é problema de
+            volume, e uma caixa lenta com fila errada é problema de roteamento.
+          </>
+        }
+      />
+
+      <Quebra
+        titulo="Por etiqueta"
+        eixo="Etiqueta"
+        linhas={relatorio.porEtiqueta}
+        recorte={recorte}
+        nota={
+          <>
+            <b>População diferente das tabelas acima.</b> Conversa com três etiquetas entra em três
+            linhas, então a soma das linhas passa do total do período — é o preço de perguntar
+            “quanto custa um atendimento de cobrança”, e ele fica dito em vez de escondido.{' '}
+            {numero(relatorio.semEtiqueta)} conversa(s) encerrada(s) no período não têm etiqueta
+            nenhuma e não aparecem em linha alguma; enquanto esse número for grande, esta tabela
+            mede o que sobrou. A exigência de etiqueta no encerramento se liga em Preferências ├
+            Configurações gerais.
+          </>
+        }
       />
     </>
   );
