@@ -10,6 +10,7 @@ import {
   type ItemDeNavegacao,
   type NomeDeIcone,
 } from '@pipe/ui';
+import { MenuDeComando } from './menu-de-comando';
 
 /**
  * Estrutura do CRM, em dois modos.
@@ -60,6 +61,9 @@ export function EstruturaCrm({ children }: { children: React.ReactNode }) {
     <div className="c-app">
       <LateralCrm caminho={caminho} />
       <main className="c-conteudo">{children}</main>
+      {/* Fora do <main> de propósito: o menu de comando não é de uma tela, é
+          do aplicativo inteiro — ele alcança a pessoa onde ela estiver. */}
+      <MenuDeComando />
     </div>
   );
 }

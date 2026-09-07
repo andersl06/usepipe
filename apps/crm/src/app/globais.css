@@ -1318,3 +1318,126 @@ table th {
   font-weight: var(--p-peso-medio);
   color: var(--p-conteudo-fantasma);
 }
+
+/* ============================================== o menu de comando (Ctrl+K)
+   Medido no `command-menu` do `twenty-front`. É a funcionalidade que mais
+   define o produto deles: você não navega até o registro, chama pelo nome — e
+   é por isso que a lateral pode ser curta.
+
+   **Painel à direita, altura inteira** (`height: 100%; top: 0`), como o deles,
+   e não caixa flutuante no meio. O painel deixa a tela de trás visível, e quem
+   busca costuma estar comparando com o que já está vendo. */
+.c-cmd-veu {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  /* Sem tinta: o painel já separa menu de tela, e escurecer tudo esconderia
+     justamente o que a pessoa quer comparar. */
+}
+
+.c-cmd {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 420px;
+  max-width: 100vw;
+  z-index: 41;
+  display: flex;
+  flex-direction: column;
+  background: var(--p-superficie-0);
+  border-left: 1px solid var(--p-linha);
+  box-shadow: var(--p-sombra-2);
+}
+
+.c-cmd-campo {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  padding: var(--p-e-3) var(--p-e-4);
+  border-bottom: 1px solid var(--p-linha);
+  flex: none;
+  color: var(--p-conteudo-fantasma);
+}
+
+.c-cmd-campo input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: var(--p-t-lg);
+  outline: none;
+}
+
+.c-cmd-campo input::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+
+.c-cmd kbd {
+  padding: 2px 6px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--c-r-sm);
+  background: var(--p-superficie-1);
+  font-family: var(--p-fonte-mono);
+  font-size: var(--p-t-xs);
+  color: var(--p-conteudo-fantasma);
+}
+
+.c-cmd-lista {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--p-e-2);
+}
+
+.c-cmd-dica {
+  margin: 0;
+  padding: var(--p-e-4);
+  font-size: var(--p-t-sm);
+  line-height: 1.6;
+  color: var(--p-conteudo-fantasma);
+}
+
+.c-cmd-grupo {
+  padding: var(--p-e-2) var(--p-e-2) var(--p-e-1);
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-medio);
+  color: var(--p-conteudo-fantasma);
+  text-transform: uppercase;
+  letter-spacing: var(--p-rotulo-espaco);
+}
+
+/* O item é `button` e não `a` de propósito: a navegação é do roteador, e um
+   link aqui dispararia recarga completa ao ser clicado com o botão do meio. */
+.c-cmd-item {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  width: 100%;
+  padding: var(--p-e-2);
+  border: 0;
+  border-radius: var(--c-r);
+  background: transparent;
+  color: var(--p-conteudo);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.c-cmd-item b {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-medio);
+}
+
+.c-cmd-item span {
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* O realce segue o TECLADO, não o cursor — por isso é classe e não `:hover`.
+   O `onMouseEnter` do componente move o índice, então os dois concordam. */
+.c-cmd-atual {
+  background: var(--p-superficie-2);
+}

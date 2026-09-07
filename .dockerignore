@@ -1,0 +1,30 @@
+# O contexto de build de toda imagem do Pipe é a raiz do monorepo — é a única
+# forma de o pnpm ver o lockfile e os pacotes do workspace. Sem este arquivo o
+# daemon recebe ~1 GB de node_modules e .next a cada build.
+#
+# Cada aplicativo tem ainda o seu `apps/<app>/Dockerfile.dockerignore`, que o
+# BuildKit usa NO LUGAR deste e corta também os aplicativos irmãos. Este aqui é
+# o piso: vale no builder clássico e em `docker build .` na mão.
+
+# Nunca vão para dentro da imagem: são reconstruídos no estágio de build.
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+**/*.tsbuildinfo
+
+# Segredo. `apps/gestao/.env` e `apps/crm/.env` estão versionados com credencial
+# de desenvolvimento; dentro da imagem eles sobrescreveriam o ambiente de
+# produção do contêiner, porque o Next carrega `.env` antes de `process.env`.
+**/.env
+**/.env.*
+
+.git
+.gitignore
+.github
+*.log
+
+# Não entram em imagem nenhuma.
+docs
+infra
+apps/site
