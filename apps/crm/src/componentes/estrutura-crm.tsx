@@ -36,9 +36,22 @@ import { MenuDeComando } from './menu-de-comando';
  * lugar.
  */
 
+/**
+ * A lateral da área de configuração, na ordem dos grupos do Twenty: o que é da
+ * PESSOA primeiro, o que é da EMPRESA depois, e o que se liga a fora por último.
+ *
+ * Cada item abre tela que existe — a régua contra item apagado vale aqui como
+ * vale nas barras da Gestão.
+ */
 const CONFIGURACOES: readonly ItemDeNavegacao[] = [
+  { rotulo: 'Perfil', href: '/configuracoes/perfil' },
+  { rotulo: 'Espaço de trabalho', href: '/configuracoes/espaco' },
+  { rotulo: 'Membros', href: '/configuracoes/membros' },
+  { rotulo: 'Papéis', href: '/configuracoes/papeis' },
+  { rotulo: 'Campos personalizados', href: '/configuracoes/campos' },
   { rotulo: 'Regras de score', href: '/configuracoes/regras-de-score' },
   { rotulo: 'Faixas e roteamento', href: '/configuracoes/faixas' },
+  { rotulo: 'Chaves e webhooks', href: '/configuracoes/api' },
 ];
 
 export function EstruturaCrm({ children }: { children: React.ReactNode }) {
