@@ -20,10 +20,10 @@ route:
 receivers:
   - name: email
     email_configs:
-      - to: infra@pipe.com.br
-        from: alertas@pipe.com.br
+      - to: infra@usepipe.com.br
+        from: alertas@usepipe.com.br
         smarthost: smtp.provedor.com.br:587
-        auth_username: alertas@pipe.com.br
+        auth_username: alertas@usepipe.com.br
         auth_password_file: /run/secrets/smtp
 
   # Webhook para um serviço de plantão (ntfy, Pushover, Telegram, PagerDuty).

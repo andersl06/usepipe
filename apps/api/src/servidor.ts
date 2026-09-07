@@ -22,7 +22,7 @@ export async function criarAplicacao(): Promise<INestApplication> {
   const app = await NestFactory.create(AppModulo, { bodyParser: false });
 
   /**
-   * CORS com credencial: a API mora em `api.pipe.com.br` e as telas em `app.`,
+   * CORS com credencial: a API mora em `api.usepipe.com.br` e as telas em `app.`,
    * `gestao.` e `crm.`. A lista vem de `PIPE_ORIGENS` e **nunca é curinga** — com
    * `credentials: true` o navegador recusa `*`, e mesmo que aceitasse seria abrir a
    * API para qualquer site fazer requisição autenticada em nome de quem está logado.

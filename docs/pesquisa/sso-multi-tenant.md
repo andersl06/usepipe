@@ -38,7 +38,7 @@ O resto deste documento é o que se faz quando o gatilho chega.
 Isso é mais estreito do que "adotar Keycloak" e é a parte que importa:
 
 ```
-navegador ──► api.pipe.com.br          (dono da sessão, da RLS e do usuário)
+navegador ──► api.usepipe.com.br          (dono da sessão, da RLS e do usuário)
                    │  OIDC, um único cliente, para sempre
                    ▼
               Keycloak (realm único `pipe`)
@@ -157,7 +157,7 @@ consultor. Três regras:
 2. **E-mail pessoal nunca entra por JIT.** Ele existe porque um admin convidou, e entra por senha
    — ou pelo IdP, se a empresa colocou aquele endereço como convidado no diretório dela; aí o IdP
    responde por ele, e o vínculo é por `sub`, não por domínio.
-3. **Saída para o tenant:** o link direto `app.pipe.com.br/e/<slug>` — que é a mesma descoberta,
+3. **Saída para o tenant:** o link direto `app.usepipe.com.br/e/<slug>` — que é a mesma descoberta,
    feita pela URL em vez do e-mail — e, na tela de senha, um "minha empresa usa SSO" que pede o
    código do tenant. Código digitado é a terceira opção porque ninguém decora código; ele existe
    para o caso em que o e-mail não resolve.
@@ -200,8 +200,8 @@ parou num sábado".
 
 | O que damos | Nome no Entra ID | Nome no Okta | Nome no Google Workspace |
 |---|---|---|---|
-| `https://sso.pipe.com.br/realms/pipe/broker/<alias>/endpoint` | Reply URL (ACS) | Single sign-on URL | ACS URL |
-| `https://sso.pipe.com.br/realms/pipe` | Identifier (Entity ID) | Audience URI (SP Entity ID) | Entity ID |
+| `https://sso.usepipe.com.br/realms/pipe/broker/<alias>/endpoint` | Reply URL (ACS) | Single sign-on URL | ACS URL |
+| `https://sso.usepipe.com.br/realms/pipe` | Identifier (Entity ID) | Audience URI (SP Entity ID) | Entity ID |
 | URL de metadata do SP, mais um botão "baixar XML" | — | — | — |
 
 Nomes conferidos na documentação de cada um: o Entra ID pede *Identifier (Entity ID)* e *Reply URL*

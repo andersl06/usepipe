@@ -29,7 +29,7 @@ definido, então ele vem de variável.
 
 ```bash
 # na VPS, dentro de /opt/stack/pipe-site
-echo "SITE_HOST=pipe.com.br" > .env     # trocar pelo domínio escolhido
+echo "SITE_HOST=usepipe.com.br" > .env     # trocar pelo domínio escolhido
 docker compose up -d --build
 ```
 
@@ -48,10 +48,10 @@ docker compose up -d --build
 
 ## Pendências antes de ir ao ar
 
-- Definir o domínio e trocar `https://pipe.com.br/` nas tags `canonical`, `og:url` e no JSON-LD
+- Definir o domínio e trocar `https://usepipe.com.br/` nas tags `canonical`, `og:url` e no JSON-LD
   das três páginas.
 - Gerar `assets/og-pipe.png` em 1200x630 (é a imagem de compartilhamento; hoje o caminho existe
   no `<meta>`, mas o arquivo ainda não).
 - Publicar as páginas internas de ferramenta e de blog. Hoje os links apontam para URLs que
   ainda não existem e retornam a home, por causa do `error_page 404 /index.html` do nginx.
-- Trocar `contato@pipe.com.br` no botão de demonstração pelo e-mail ou link de agenda real.
+- Trocar `contato@usepipe.com.br` no botão de demonstração pelo e-mail ou link de agenda real.

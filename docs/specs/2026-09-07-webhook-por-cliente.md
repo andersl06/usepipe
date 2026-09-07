@@ -120,7 +120,7 @@ número, qualidade — e não os campos de configuração, que são coisa nossa.
 - A rota B não existe no código. Enquanto não existir, **não sabemos quando um template é rejeitado**
   nem quando a qualidade do número cai — e os dois viram surpresa no dia do disparo.
 - O limite de 200 caracteres na URL de override cabe folgado hoje
-  (`https://api.pipe.com.br/webhooks/whatsapp/<uuid>` tem 62), mas fecha a porta para caminho longo
+  (`https://api.usepipe.com.br/webhooks/whatsapp/<uuid>` tem 62), mas fecha a porta para caminho longo
   com subdomínio de cliente.
 - Rotação: se um `canalId` precisar mudar, o override precisa ser reconfigurado na Meta. Vale
   considerar um `webhook_slug` separado do id, rotacionável sem trocar o canal.

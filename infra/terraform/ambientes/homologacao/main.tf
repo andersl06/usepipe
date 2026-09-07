@@ -26,7 +26,7 @@ module "vps" {
   plano           = "hostingercom-vps-kvm2-usd-1m"
   data_center_id  = 13
   template_id     = 1002
-  fqdn_traefik    = "traefik.hml.pipe.com.br"
+  fqdn_traefik    = "traefik.hml.usepipe.com.br"
   email_acme      = var.email_acme
   repositorio_git = var.repositorio_git
 }

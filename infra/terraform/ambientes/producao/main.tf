@@ -34,7 +34,7 @@ module "vps" {
   plano           = "hostingercom-vps-kvm4-usd-1m"
   data_center_id  = 13
   template_id     = 1002
-  fqdn_traefik    = "traefik.pipe.com.br"
+  fqdn_traefik    = "traefik.usepipe.com.br"
   email_acme      = var.email_acme
   repositorio_git = var.repositorio_git
 }
@@ -44,7 +44,7 @@ module "dns" {
 
   zone_id = var.zone_id
   destino = module.vps.ipv4
-  apex    = "pipe.com.br"
+  apex    = "usepipe.com.br"
 }
 
 output "ip" { value = module.vps.ipv4 }

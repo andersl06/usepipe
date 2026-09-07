@@ -3,7 +3,7 @@
 # O DOMÍNIO AINDA NÃO FOI DEFINIDO. Antes de subir, crie um arquivo `.env` ao lado
 # deste, com a linha abaixo, trocando o valor pelo domínio que o dono escolher:
 #
-#     SITE_HOST=pipe.com.br
+#     SITE_HOST=usepipe.com.br
 #
 # Se o domínio final tiver www, acrescente a segunda regra na label `rule`, assim:
 #     Host(`${SITE_HOST}`) || Host(`www.${SITE_HOST}`)

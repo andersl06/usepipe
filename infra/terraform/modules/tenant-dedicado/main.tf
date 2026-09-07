@@ -44,7 +44,7 @@ resource "kubernetes_namespace" "tenant" {
     name = "pipe-${var.tenant}"
     labels = {
       "app.kubernetes.io/part-of" = "pipe"
-      "pipe.com.br/tenant"        = var.tenant
+      "usepipe.com.br/tenant"        = var.tenant
     }
   }
 }

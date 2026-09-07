@@ -43,16 +43,16 @@ Quatro coisas dão a performance deles, e três já são nossas ou custam pouco:
 ## 3. As URLs
 
 ```
-pipe.com.br          →  lp        Vite estático, é a única que precisa de SEO
-app.pipe.com.br      →  desk      Vite SPA
-gestao.pipe.com.br   →  gestao    Vite SPA
-crm.pipe.com.br      →  crm       Vite SPA
-api.pipe.com.br      →  api       NestJS — a ÚNICA porta para o banco
+usepipe.com.br          →  lp        Vite estático, é a única que precisa de SEO
+app.usepipe.com.br      →  desk      Vite SPA
+gestao.usepipe.com.br   →  gestao    Vite SPA
+crm.usepipe.com.br      →  crm       Vite SPA
+api.usepipe.com.br      →  api       NestJS — a ÚNICA porta para o banco
 ```
 
 **A consequência que quase derruba isso, e que já está resolvida:** com o front em
-`gestao.pipe.com.br` e a API em `api.pipe.com.br`, o cookie de sessão precisa atravessar
-subdomínios. A saída é `Domain=.pipe.com.br` mantendo `SameSite=Lax` — subdomínio do mesmo pai é o
+`gestao.usepipe.com.br` e a API em `api.usepipe.com.br`, o cookie de sessão precisa atravessar
+subdomínios. A saída é `Domain=.usepipe.com.br` mantendo `SameSite=Lax` — subdomínio do mesmo pai é o
 mesmo site para o navegador.
 
 A alternativa seria `SameSite=None` com CORS de credencial, e ela é **pior**: `None` manda o cookie

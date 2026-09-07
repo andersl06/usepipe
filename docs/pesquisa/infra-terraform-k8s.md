@@ -356,7 +356,7 @@ Aí sim há Terraform, e a ordem importa:
 
 1. `terraform apply` do módulo `tenant-dedicado` → namespace, cota, LimitRange.
 2. Banco: instância gerenciada nova, ou `Cluster` do CNPG no namespace.
-3. DNS: `acme.pipe.com.br` e irmãos, pelo módulo `dns`.
+3. DNS: `acme.usepipe.com.br` e irmãos, pelo módulo `dns`.
 4. Segredo: `sops` cria `k8s/tenants/acme/segredos.enc.yaml`; o Flux decifra.
 5. `kubectl apply -k k8s/tenants/acme` → a mesma base, outro namespace.
 6. Migration na base nova, seed, usuário — os passos 2 a 4 da tabela acima.

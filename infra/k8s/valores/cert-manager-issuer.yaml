@@ -9,7 +9,7 @@ metadata:
 spec:
   acme:
     server: https://acme-v02.api.letsencrypt.org/directory
-    email: infra@pipe.com.br
+    email: infra@usepipe.com.br
     privateKeySecretRef:
       name: letsencrypt-conta
     solvers:
@@ -24,7 +24,7 @@ metadata:
 spec:
   acme:
     server: https://acme-staging-v02.api.letsencrypt.org/directory
-    email: infra@pipe.com.br
+    email: infra@usepipe.com.br
     privateKeySecretRef:
       name: letsencrypt-teste-conta
     solvers:

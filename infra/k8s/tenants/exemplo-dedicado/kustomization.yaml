@@ -38,18 +38,18 @@ patches:
     patch: |
       - op: replace
         path: /spec/rules/0/host
-        value: acme.pipe.com.br
+        value: acme.usepipe.com.br
       - op: replace
         path: /spec/rules/1/host
-        value: gestao.acme.pipe.com.br
+        value: gestao.acme.usepipe.com.br
       - op: replace
         path: /spec/rules/2/host
-        value: api.acme.pipe.com.br
+        value: api.acme.usepipe.com.br
   - target: { kind: Certificate, name: pipe-tls }
     patch: |
       - op: replace
         path: /spec/dnsNames
-        value: [acme.pipe.com.br, gestao.acme.pipe.com.br, api.acme.pipe.com.br]
+        value: [acme.usepipe.com.br, gestao.acme.usepipe.com.br, api.acme.usepipe.com.br]
 
 configMapGenerator:
   - name: pipe-config

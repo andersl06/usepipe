@@ -41,11 +41,11 @@ economia que custa caro uma vez só.
 
 ## 3. Domínios e como o cliente chega
 
-- `app.pipe.com.br` → Desk, a tela do atendente
-- `gestao.pipe.com.br` → Gestão
-- `crm.pipe.com.br` → CRM
-- `api.pipe.com.br` → API, webhooks e servidor MCP
-- `pipe.com.br` → site, blog e ferramentas
+- `app.usepipe.com.br` → Desk, a tela do atendente
+- `gestao.usepipe.com.br` → Gestão
+- `crm.usepipe.com.br` → CRM
+- `api.usepipe.com.br` → API, webhooks e servidor MCP
+- `usepipe.com.br` → site, blog e ferramentas
 
 O tenant é resolvido **pelo login**, não pelo subdomínio. Um usuário pertence a um tenant, e a
 sessão carrega qual é. Subdomínio por cliente entra depois, se e quando o white-label exigir, e é

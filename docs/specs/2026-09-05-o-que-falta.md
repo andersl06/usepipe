@@ -29,12 +29,18 @@ Não há cadastro. Hoje um tenant nasce por semente no banco. Falta: criar conta
 conectar o WhatsApp pelo fluxo da Meta, convidar a equipe, importar contatos e histórico, e chegar
 na primeira conversa atendida. É a diferença entre vender e implantar na mão, um por um.
 
-### 4. Domínio
-`pipe.com.br` está registrado por terceiro, assim como `pipe.com`, `pipe.app`, `pipe.io` e
-`pipe.app.br`. A landing page já aponta canonical para um domínio que não é nosso.
-Disponíveis em 05/09: `usepipe.com.br`, `usepipe.app`, `pipeatendimento.com.br`,
-`pipeatendimento.com`, `pipecrm.app`. Decisão pendente, e ela também afeta o nome do produto se a
-escolha exigir mudar a marca.
+### 4. Domínio — RESOLVIDO em 07/09/2026
+
+**`usepipe.com.br`**, escolhido pelo dono. Disponibilidade confirmada na consulta de 07/09, junto
+com `usepipe.app`, `usepipe.io`, `usepipe.dev` e `usepipe.net.br`. O `.com` está tomado.
+
+O nome antigo (`pipe.com.br`) é de terceiro e saiu de toda a configuração: subdomínios, origens de
+CORS, domínio do cookie, Terraform, manifestos, compose e specs.
+
+**Falta comprar** — registro é ato do dono, não meu. Vale registrar `usepipe.com.br` e `usepipe.app`
+no mesmo dia: o `.app` é HSTS preload por padrão, então força HTTPS em todo navegador, e custa pouco
+impedir que alguém compre o seu nome pela metade depois. O `.com.br` exige CPF ou CNPJ — como é a PJ
+que vende, isso é a favor.
 
 ### 5. Documentos legais
 Termos de uso, política de privacidade e o contrato de tratamento de dados exigido pela LGPD, já
