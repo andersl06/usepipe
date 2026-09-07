@@ -427,14 +427,49 @@ indicador em percentual.
    volume de tickets. É média simples entre bots, cada bot pesando igual tenha ele 1 ou
    500 tickets. Para leitura gerencial isso distorce, e o nosso deve ponderar por volume.
 
-### O que isso pede do nosso lado
+### O que foi construído
 
-O Pipe Gestão já tem `/relatorios`, mas com recorte de **supervisor**. O que falta é a
-mesma leitura com recorte da **própria pessoa**, dentro do Desk — hoje o ícone de
-"Métricas de atendimento" no nosso trilho manda o atendente para o Gestão, que mostra a
-operação inteira. Tamanho: uma rota nova no Desk, seis contagens e três médias sobre
-`conversa` e `mensagem` filtradas pelo `atendenteId` da sessão, mais a barra de seis
-períodos. A análise por IA depende do `@pipe/ai`, que ainda não entrou.
+A tela existe: **`/metricas` no Desk**, e o ícone do trilho passou a apontar para ela em
+vez de mandar o atendente para o Gestão. Título "Minhas métricas: {nome}", os seis
+cartões de situação, a série diária em barras, os três tempos médios, os cinco atalhos de
+período com "Hoje" como padrão e o intervalo à mão limitado a 90 dias. Sem filtro de
+colega e sem exportação, como lá.
+
+**Isolamento**: a transação roda em `noTenant`, com a RLS valendo, e toda consulta filtra
+por `atendente_id` vindo da **sessão**, nunca da URL. Não existe parâmetro que faça a tela
+mostrar o número de outra pessoa.
+
+Arquivos: `app/metricas/page.tsx`, `servidor/metricas.ts`, `lib/periodo.ts` (com teste).
+
+**Sem biblioteca de gráfico.** Duas séries em no máximo 90 pontos não pagam o custo de
+trazer um empacotado de gráfico para dentro do Desk: as barras são `div` com altura em
+porcentagem, funcionam sem JavaScript, imprimem e acompanham o tema sozinhas.
+
+### O que falta, e o tamanho
+
+| O que | Por quê | Tamanho |
+|---|---|---|
+| **Transferidos** | não há coluna que diga que a conversa mudou de atendente | uma tabela de eventos de transferência, ou uma coluna de contagem em `conversa`; muda o domínio, não a tela |
+| **Perdidos** | não existe o conceito no nosso domínio, e nem na tela deles ele é definido | precisa de definição de produto antes de código |
+| **Abandonados** | está aproximado por "encerrada sem autor" — junta o cliente que saiu com o fechamento automático por inatividade | uma coluna dizendo **quem** encerrou (cliente, atendente, sistema); é o mesmo dado que faltaria para as três situações de encerramento da aba de Contatos |
+| **Nota do atendimento por IA** | depende do `@pipe/ai`, que ainda não entrou | tela inteira, com a etapa de IA antes |
+
+Os dois primeiros aparecem como **traço**, não como zero: zero seria dizer que houve
+medição e deu nada. O cartão explica em uma linha que o Pipe ainda não guarda o dado.
+
+### As duas divergências deliberadas
+
+Marcadas no código e mantidas por decisão:
+
+1. **Total que encolhe em silêncio.** Lá as consultas são disparadas uma por robô e, se
+   uma falhar, o total sai menor sem aviso. Aqui é uma consulta só, na mesma transação:
+   ou o número está certo, ou a tela quebra e a pessoa sabe.
+2. **Média simples entre robôs.** Lá cada robô pesa igual, tenha ele 1 ou 500
+   atendimentos. Aqui a média é sobre os atendimentos.
+
+Consequência a registrar: **o nosso número pode não bater com o deles** para a mesma
+operação, e a diferença não é defeito nosso. Quem comparar as duas telas lado a lado vai
+ver médias diferentes sempre que houver mais de um robô com volumes desiguais.
 
 ---
 
@@ -503,7 +538,11 @@ gravar **quem** encerrou, que hoje ele não grava.
 A identidade de um contato, para essa tela, é o par **bot + identidade do cliente**. O
 mesmo telefone atendido por dois bots aparece **duas vezes na lista**, e não há mesclar,
 bloquear nem avisar. A lista também não deduplica o que o servidor devolver repetido.
-**Isto não vale copiar**: é ausência de regra, não regra.
+
+**Decisão do dono: replicar a ausência.** Não inventamos deduplicação. Se o mesmo
+telefone chega por dois canais, são dois contatos, como lá. Fica registrado aqui que
+**isto é ausência de regra deles, e não esquecimento nosso** — quem ler depois não deve
+"consertar" achando que faltou.
 
 ### Três defeitos deles, para não herdar
 
@@ -525,7 +564,59 @@ Desk — e essa fronteira é decisão de produto, não de anatomia.
 
 ---
 
-## 12. O que ainda falta do produto deles
+## 12. Aba de Preferências
+
+Levantamento em `blip-desk-preferencias.md`. Construída: as cinco preferências vivem no
+diálogo que o item "Preferências" do rodapé do trilho já abria, com os rótulos deles,
+nas seções deles, **sem botão "Salvar"** — cada interruptor vale no instante em que é
+tocado.
+
+| Preferência | Chave deles | Padrão | O que ela liga aqui |
+|---|---|---|---|
+| Alertas sonoros para novos tickets | `TICKET_ALERT` | ligado | bipe alto quando um atendimento novo aparece na fila |
+| Alertas sonoros na aba ativa do navegador | `MESSAGE_ALERT` / `ALERT_DESK_ACTIVE` | desligado | bipe baixo quando o cliente responde, só com a aba visível |
+| Notificações do navegador | `BROWSER_NOTIFICATION` | desligado | cartão do sistema, que fecha em 5 s |
+| Continuar online ao fechar o Pipe Desk | `KEEP_AGENT_ONLINE` | desligado | **desliga a queda por inatividade** (§9) |
+| Corretor ortográfico | — | ligado | o corretor do próprio navegador no campo de mensagem |
+
+### Onde a preferência mora, e por quê
+
+**No navegador, uma chave por preferência — não no banco.** As cinco dizem respeito à
+MÁQUINA em que a pessoa está sentada, não à pessoa: se sai som, se o sistema deixa
+notificar, se o corretor está carregado, se esta aba deve segurar o status. A mesma
+pessoa no computador do escritório e no de casa quer respostas diferentes para as cinco,
+e uma preferência guardada no banco daria a mesma resposta nas duas.
+
+Quando aparecer uma preferência que é da PESSOA e não da máquina — idioma, fuso,
+assinatura —, aí nasce a tabela com tenant e usuário sob RLS, e a camada passa a ler dos
+dois lugares. O da máquina continua no navegador.
+
+O levantamento deles marcou este ponto como não confirmado, e a tela não deixa ver.
+
+### Como o alerta sabe que chegou coisa nova, sem tempo real
+
+A fila é recarregada a cada 15 s (§9) e a recarga entrega props novas ao componente de
+avisos **sem apagar o estado dele** — então basta guardar o que já foi visto e comparar.
+Atendimento que não estava lá é ticket novo; conversa cujo último instante avançou **e**
+cuja última palavra é do cliente é mensagem nova. Nada dispara no primeiro desenho, e
+sai **um aviso por rodada**: dez bipes não dizem mais que um.
+
+O atraso é de até 15 segundos. Quando o WebSocket entrar, muda o gatilho e o resto fica.
+
+### Som gerado, não tocado
+
+Duas notas de um oscilador do próprio navegador — a de ticket sobe, a de mensagem é mais
+baixa e mais curta. **Não há arquivo de áudio no repositório**: som de terceiro não entra,
+e um bipe de duas notas não justifica um binário.
+
+### O que não entrou
+
+"Ver mensagens por ordem de abertura do ticket" — no nosso Desk a ordem da lista já é uma
+escolha na coluna, na URL. Duas formas de dizer a mesma coisa seriam duas que divergem.
+
+---
+
+## 13. O que ainda falta do produto deles
 
 A tela é montada por **oito micro-frontends**, e eles só baixam quando a aba é aberta.
 Sete já chegaram nos salvamentos; **falta um**:
@@ -547,7 +638,7 @@ molde do de Métricas.
 
 ---
 
-## 13. O que copiamos, o que não, e o que ficou de propósito diferente
+## 14. O que copiamos, o que não, e o que ficou de propósito diferente
 
 **Copiado, e agora conferido na folha:**
 
