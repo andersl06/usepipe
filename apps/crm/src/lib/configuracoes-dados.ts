@@ -302,8 +302,21 @@ function novoToken(): { token: string; hash: string } {
   return { token, hash: createHash('sha256').update(token).digest('hex') };
 }
 
+/**
+ * O link que a tela mostra uma vez, e a única forma de o convidado entrar.
+ *
+ * `PIPE_URL_APP` é a base das TELAS (a Gestão, quando o convite é aceito lá).
+ * O padrão era `http://localhost:3000`, que é a **api** — e a api não serve
+ * `/convite/:token`: o convidado tomava 404 e o convite morria sem que ninguém
+ * soubesse. Quando a variável não está posta, o destino honesto é ESTE
+ * aplicativo, que tem a rota (`app/convite/[token]/page.tsx`).
+ */
 export function urlDoConvite(token: string): string {
-  const base = (process.env['PIPE_URL_APP'] ?? 'http://localhost:3000').replace(/\/$/, '');
+  const base = (
+    process.env['PIPE_URL_APP'] ??
+    process.env['PIPE_URL_ESTE_APP'] ??
+    'http://localhost:3300'
+  ).replace(/\/$/, '');
   return `${base}/convite/${token}`;
 }
 

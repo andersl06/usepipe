@@ -16,7 +16,11 @@ import type { Eu } from '@pipe/contracts';
  */
 
 /** A API vista por ESTE servidor. Atrás de proxy é o nome interno do serviço. */
-const URL_API = (process.env['PIPE_URL_API'] ?? 'http://localhost:3100').replace(/\/$/, '');
+/* 3000, e não 3100: a `api` mora na 3000 — a 3100 é a Gestão. O padrão errado
+   aqui é meia hora atrás de um login que "não faz nada", porque `GET /v1/eu`
+   bate num front que não serve a rota e volta 404. É o mesmo valor que a
+   Gestão e o Desk já usam. */
+const URL_API = (process.env['PIPE_URL_API'] ?? 'http://localhost:3000').replace(/\/$/, '');
 
 /**
  * A mesma API vista pelo NAVEGADOR.
@@ -43,10 +47,15 @@ const ORIGEM_DESTE_APP = (
 /** O cookie de sessão emitido pela API. `HttpOnly`; a tela só o repassa. */
 export const COOKIE_SESSAO = 'pipe_sessao';
 
-/** O que `POST /v1/auth/descobrir` responde, mais os dois modos de falha da tela. */
+/** O que `POST /v1/auth/descobrir` responde, mais os dois modos de falha da tela.
+ *
+ * Os dois primeiros são o contrato (`MetodoDeEntrada` em
+ * `packages/contracts/src/sessao.ts`): `sso` manda ao IdP da empresa, `google`
+ * é o caminho de todo o resto. Os outros dois nunca vêm da API — são o que
+ * ESTA tela precisa dizer quando não houve resposta para rotear.
+ */
 export interface EntradaDescoberta {
-  /** `sso` manda ao IdP da empresa; `senha` mostra o caminho do Google. */
-  metodo: 'sso' | 'senha' | 'invalido' | 'falha';
+  metodo: 'sso' | 'google' | 'invalido' | 'falha';
   /** Caminho na API, quando `sso`. Falta só a base pública. */
   irPara?: string;
 }

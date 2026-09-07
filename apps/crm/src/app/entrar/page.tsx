@@ -74,9 +74,15 @@ const RECUSAS: Record<RecusaDeEntrada, { titulo: string; saida: string }> = {
   },
 };
 
-/** O que a descoberta por e-mail devolve para a tela quando não roteia. */
+/**
+ * O que a descoberta por e-mail devolve para a tela quando não roteia.
+ *
+ * A chave é o `metodo` que volta da API, e ele é `google` — não `senha`. Com a
+ * chave errada o `AVISOS[...]` dava `undefined`, e "Continuar" recarregava a
+ * tela idêntica, sem uma palavra: um botão que, para quem usa, não fazia nada.
+ */
 const AVISOS: Record<string, { titulo: string; saida: string }> = {
-  senha: {
+  google: {
     titulo: 'Esta empresa não entra por provedor de identidade',
     saida: 'Use o botão "Entrar com Google" aqui em cima, com o seu e-mail corporativo.',
   },
