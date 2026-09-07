@@ -374,6 +374,29 @@
   color: var(--p-marca-forte);
 }
 
+/* Ordem e fila, na linha abaixo das fichas. São dois seletores nativos e não
+   mais duas fileiras de etiquetas: ficha é escolha ENTRE POUCAS e sempre
+   visível, e a fila de um tenant grande tem doze nomes — doze etiquetas
+   empurrariam a primeira conversa para fora da dobra da coluna.
+
+   Os dois dividem a linha ao meio; com uma fila só, o de ordem some do
+   componente e este fica ocupando a largura inteira, que é o certo. */
+.filtros-lista {
+  flex: none;
+  display: flex;
+  gap: var(--p-e-1);
+  padding: var(--p-e-2) var(--p-e-2) 0;
+}
+
+.filtros-lista .seletor {
+  flex: 1;
+  font-size: var(--p-t-sm);
+  padding: var(--p-e-1) var(--p-e-2);
+  background: var(--surface);
+  border-color: var(--line);
+  color: var(--ink-2);
+}
+
 /* ------------------------------------------------------ o item da lista
    Cartão, não linha de tabela: raio 8, recuo 8, espaço 8, borda de 1px sobre
    o fundo recuado. É a mesma figura que a Gestão já usa, e é o que faz os
@@ -622,6 +645,19 @@
 
 .msg.out .st {
   color: color-mix(in srgb, var(--d-balao-saida-tinta) 72%, transparent);
+}
+
+/* Os tiques de entrega herdam a tinta do horário ao lado — enviada e entregue
+   não são estado, são o caminho normal. Só LIDA muda de cor, porque só ela
+   responde uma pergunta que alguém faz. */
+.msg .st .entrega {
+  display: inline-flex;
+  vertical-align: -1px;
+  margin-left: var(--p-e-1);
+}
+
+.msg .st .entrega[data-lida='true'] {
+  color: var(--p-info-conteudo);
 }
 
 /*

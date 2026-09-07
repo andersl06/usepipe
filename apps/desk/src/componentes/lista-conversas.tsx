@@ -1,8 +1,10 @@
 import Link from 'next/link';
 import { DIA, janelaAberta, pertoDeExpirar, segundosRestantes } from '@pipe/core';
 import { EstadoVazio } from '@pipe/ui';
+import { FiltrosDaLista } from './filtros-lista';
 import { decorrido, duracaoCurta } from '../servidor/formato';
 import type { ConversaDaLista, EstadoAtendente, TipoCanalBanco } from '../servidor/consultas';
+import type { ChaveDeOrdem } from '../lib/ordem';
 
 /**
  * As quatro fichas de filtro da coluna, na ordem deles: Todos, Não lidos, Em
@@ -15,14 +17,20 @@ import type { ConversaDaLista, EstadoAtendente, TipoCanalBanco } from '../servid
  * - **Não lidos** — a última palavra é do cliente. Não temos marca de leitura
  *   por mensagem, e "quem deve resposta" é a pergunta que o atendente faz de
  *   verdade ao olhar a fila.
+ * - **Sem resposta** — o atendente nunca respondeu esta conversa. É o escopo
+ *   `unattended` do Chatwoot (`first_reply_created_at IS NULL`), e é diferente
+ *   de "não lidos": aqui entra também a conversa que o cliente já cobrou duas
+ *   vezes e ninguém abriu. Adaptado de chatwoot (MIT) —
+ *   https://github.com/chatwoot/chatwoot/blob/develop/app/models/conversation.rb
  * - **Inativos** — nada foi dito há mais de 24 horas. É a mesma janela do
  *   WhatsApp, e por isso não inventa um número novo na tela.
  */
-export type ChaveDeFicha = 'todos' | 'nao_lidos' | 'em_espera' | 'inativos';
+export type ChaveDeFicha = 'todos' | 'nao_lidos' | 'sem_resposta' | 'em_espera' | 'inativos';
 
 export const FICHAS: { chave: ChaveDeFicha; rotulo: string }[] = [
   { chave: 'todos', rotulo: 'Todos' },
   { chave: 'nao_lidos', rotulo: 'Não lidos' },
+  { chave: 'sem_resposta', rotulo: 'Sem resposta' },
   { chave: 'em_espera', rotulo: 'Em espera' },
   { chave: 'inativos', rotulo: 'Inativos' },
 ];
@@ -33,6 +41,7 @@ export function ehFicha(valor: string | undefined): valor is ChaveDeFicha {
 
 export function naFicha(conversa: ConversaDaLista, ficha: ChaveDeFicha, agora: Date): boolean {
   if (ficha === 'nao_lidos') return conversa.ultimaMensagemDe === 'contato';
+  if (ficha === 'sem_resposta') return conversa.primeiraRespostaEm === null;
   if (ficha === 'em_espera') return conversa.estado === 'em_espera';
   if (ficha === 'inativos') {
     if (!conversa.ultimaMensagemEm) return true;
@@ -90,8 +99,8 @@ function vazioDaLista(
   titulo: string;
   ilustracao: 'vazio' | 'busca' | 'concluido';
   explica: string;
-  /** A saída do vazio, quando ele foi o atendente que causou. */
-  saida?: { href: string; rotulo: string };
+  /** A saída do vazio, quando ele foi o atendente que causou. Parâmetro vazio apaga. */
+  saida?: { alvo: Record<string, string>; rotulo: string };
 } {
   if (busca) {
     return {
@@ -101,7 +110,7 @@ function vazioDaLista(
       // Sem esta saída, a única forma de voltar é apagar o campo na mão e
       // apertar Enter de novo — e quem esqueceu que buscou lê a tela como
       // "não tenho atendimento nenhum".
-      saida: { href: `/?filtro=${ficha}`, rotulo: 'Limpar busca' },
+      saida: { alvo: { busca: '' }, rotulo: 'Limpar busca' },
     };
   }
   if (ficha !== 'todos') {
@@ -110,7 +119,7 @@ function vazioDaLista(
       titulo: `Nenhum atendimento em ${rotulo.toLowerCase()}`,
       ilustracao: 'vazio',
       explica: 'O resto da sua fila continua em "Todos".',
-      saida: { href: '/?filtro=todos', rotulo: 'Ver todos' },
+      saida: { alvo: { filtro: 'todos' }, rotulo: 'Ver todos' },
     };
   }
   if (estado !== 'online') {
@@ -133,6 +142,9 @@ export function ListaConversas({
   selecionadaId,
   busca,
   ficha,
+  ordem,
+  fila,
+  filas,
   estado,
   agora,
 }: {
@@ -143,10 +155,34 @@ export function ListaConversas({
   selecionadaId: string | null;
   busca: string;
   ficha: ChaveDeFicha;
+  ordem: ChaveDeOrdem;
+  /** Nome da fila escolhida, ou vazio para todas. */
+  fila: string;
+  /** As filas que existem na lista, para o seletor. */
+  filas: string[];
   estado: EstadoAtendente;
   agora: Date;
 }) {
   const vazio = vazioDaLista(busca, ficha, estado);
+
+  /**
+   * Todo link da coluna carrega o estado inteiro. Sem isto, clicar numa ficha
+   * devolve a lista à ordem padrão e à fila cheia — e o atendente que estava
+   * caçando o mais antigo da fila do Financeiro volta ao começo a cada clique.
+   */
+  function comEstado(extra: Record<string, string>): string {
+    const parametros = new URLSearchParams({ filtro: ficha });
+    if (busca) parametros.set('busca', busca);
+    if (ordem !== 'recentes') parametros.set('ordem', ordem);
+    if (fila) parametros.set('fila', fila);
+    // Valor vazio APAGA o parâmetro: é assim que "Limpar busca" limpa a busca
+    // sem precisar de um segundo construtor de URL só para ela.
+    for (const [chave, valor] of Object.entries(extra)) {
+      if (valor) parametros.set(chave, valor);
+      else parametros.delete(chave);
+    }
+    return `/?${parametros.toString()}`;
+  }
 
   return (
     <>
@@ -154,6 +190,8 @@ export function ListaConversas({
         {/* A ficha escolhida sobrevive a uma nova busca: quem estava vendo os
             não lidos não quer voltar para todos por ter digitado um nome. */}
         <input type="hidden" name="filtro" value={ficha} />
+        {ordem !== 'recentes' ? <input type="hidden" name="ordem" value={ordem} /> : null}
+        {fila ? <input type="hidden" name="fila" value={fila} /> : null}
         <input
           type="search"
           name="busca"
@@ -170,13 +208,11 @@ export function ListaConversas({
       <nav className="fichas" aria-label="Filtrar atendimentos">
         {FICHAS.map((opcao) => {
           const quantas = conversas.filter((c) => naFicha(c, opcao.chave, agora)).length;
-          const parametros = new URLSearchParams({ filtro: opcao.chave });
-          if (busca) parametros.set('busca', busca);
           return (
             <Link
               key={opcao.chave}
               className="etiqueta"
-              href={`/?${parametros.toString()}`}
+              href={comEstado({ filtro: opcao.chave })}
               aria-current={opcao.chave === ficha ? 'true' : undefined}
             >
               {opcao.rotulo} ({quantas})
@@ -185,12 +221,14 @@ export function ListaConversas({
         })}
       </nav>
 
+      <FiltrosDaLista ordem={ordem} fila={fila} filas={filas} busca={busca} ficha={ficha} />
+
       {visiveis.length === 0 ? (
         <div className="lista-vazia">
           <EstadoVazio titulo={vazio.titulo} ilustracao={vazio.ilustracao}>
             <p>{vazio.explica}</p>
             {vazio.saida ? (
-              <Link className="btn" href={vazio.saida.href}>
+              <Link className="btn" href={comEstado(vazio.saida.alvo)}>
                 {vazio.saida.rotulo}
               </Link>
             ) : null}
@@ -203,15 +241,13 @@ export function ListaConversas({
             const aberta = janelaAberta(conversa.janelaExpiraEm, agora);
             const expirando = temJanela && pertoDeExpirar(conversa.janelaExpiraEm, agora);
             const fechada = temJanela && !aberta;
-            // Abrir uma conversa não pode desfazer a busca nem a ficha: o
-            // atendente estava filtrando por um motivo.
-            const parametros = new URLSearchParams({ conversa: conversa.id, filtro: ficha });
-            if (busca) parametros.set('busca', busca);
             return (
               <li key={conversa.id}>
+                {/* Abrir uma conversa não pode desfazer a busca, a ficha, a
+                    ordem nem a fila: o atendente estava filtrando por um motivo. */}
                 <Link
                   className="conv"
-                  href={`/?${parametros.toString()}`}
+                  href={comEstado({ conversa: conversa.id })}
                   aria-current={conversa.id === selecionadaId ? 'true' : undefined}
                 >
                   <span className="nm">{conversa.contatoNome ?? 'Sem nome'}</span>

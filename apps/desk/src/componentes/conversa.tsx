@@ -31,6 +31,53 @@ const ENTREGA: Record<string, string> = {
   falhou: 'falhou',
 };
 
+/**
+ * Adaptado de chatwoot (MIT) —
+ * https://github.com/chatwoot/chatwoot/blob/develop/app/javascript/dashboard/components-next/message/MessageStatus.vue
+ *
+ * A confirmação de entrega e de leitura, no gesto que o atendente já conhece do
+ * WhatsApp: um tique é enviada, dois tiques é entregue, e dois tiques na tinta
+ * de informação é lida. Mesmo mapa do Chatwoot (`check` / `check-check`, com o
+ * lido tingido), com a tinta saindo do nosso token em vez do azul literal deles.
+ *
+ * O horário exato de cada degrau vai para o `title`: `lida_em` e `entregue_em`
+ * já vinham do banco e a tela jogava fora, e é justamente essa hora que resolve
+ * a discussão de "eu mandei" contra "não chegou".
+ */
+function MarcaDeEntrega({
+  item,
+}: {
+  item: Extract<ItemDaConversa, { genero: 'mensagem' }>;
+}) {
+  const estado = item.estadoEntrega;
+  if (!estado || estado === 'falhou') return null;
+
+  const lida = estado === 'lida';
+  const duplo = lida || estado === 'entregue';
+  const quando = lida ? item.lidaEm : item.entregueEm;
+  const rotulo = `${ENTREGA[estado] ?? estado}${quando ? ` às ${hora(quando)}` : ''}`;
+
+  return (
+    <span className="entrega" data-lida={lida ? 'true' : 'false'} title={rotulo}>
+      <svg
+        viewBox="0 0 20 12"
+        width="15"
+        height="10"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.9"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        role="img"
+        aria-label={rotulo}
+      >
+        <path d="M1 6.5 4.5 10 11 2" />
+        {duplo ? <path d="M8 6.5 11.5 10 18 2" /> : null}
+      </svg>
+    </span>
+  );
+}
+
 /** O cabeçalho diz o tempo restante da janela antes de o atendente escrever, não depois. */
 function PilulaDaJanela({
   temJanela,
@@ -181,11 +228,13 @@ export function Conversa({
                         uma linha de texto entre cada duas. */}
                     <span className="st">
                       {hora(item.criadaEm)}
-                      {saida && item.estadoEntrega
-                        ? ` · ${ENTREGA[item.estadoEntrega] ?? item.estadoEntrega}`
-                        : ''}
                       {item.deRespostaPronta ? ' · resposta pronta' : ''}
                       {item.deTemplate ? ' · template' : ''}
+                      {/* Falha continua por escrito, e logo abaixo com o motivo:
+                          um tique cortado no canto do balão não dá para ler
+                          numa conversa longa. */}
+                      {saida && falhou ? ' · falhou' : ''}
+                      {saida ? <MarcaDeEntrega item={item} /> : null}
                     </span>
                   </div>
                   {falhou ? (

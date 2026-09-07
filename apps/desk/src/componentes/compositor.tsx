@@ -1,9 +1,10 @@
 'use client';
 
-import { useActionState, useRef, useState } from 'react';
+import { useActionState, useEffect, useRef, useState } from 'react';
 import type { KeyboardEvent } from 'react';
 import { enviarMensagem } from '../app/acoes';
 import type { Resultado } from '../app/acoes';
+import { EVENTO_NOTA, EVENTO_RESPOSTA_PRONTA } from './atalhos';
 import { abrirDialogoEncerrar } from './dialogo-encerrar';
 import { IconeDesk } from './icones-desk';
 import type { RespostaProntaDoDesk, TemplateAprovado } from '../servidor/consultas';
@@ -212,6 +213,36 @@ export function Compositor({
     setGatilho(null);
     setAtivo(0);
   }
+
+  /**
+   * Abre a lista de respostas prontas com o campo focado. Lê o tamanho do texto
+   * pelo `ref`, e não pelo estado, para que o atalho de teclado possa chamá-la
+   * de dentro de um `useEffect` sem depender do texto atual.
+   */
+  function abrirRespostasProntas() {
+    setGatilho({ tipo: '#', termo: '', inicio: area.current?.value.length ?? 0 });
+    setAtivo(0);
+    area.current?.focus();
+  }
+
+  /**
+   * Os atalhos globais (`/` e `n`) falam com o compositor por evento no
+   * `document`, e não por propriedade vinda da página: o componente de atalhos
+   * é montado uma vez na raiz e não sabe qual conversa está aberta. É o mesmo
+   * arranjo que `abrirDialogoEncerrar` já usa com o `id` do diálogo.
+   */
+  useEffect(() => {
+    function paraNota() {
+      setModo('nota');
+      area.current?.focus();
+    }
+    document.addEventListener(EVENTO_NOTA, paraNota);
+    document.addEventListener(EVENTO_RESPOSTA_PRONTA, abrirRespostasProntas);
+    return () => {
+      document.removeEventListener(EVENTO_NOTA, paraNota);
+      document.removeEventListener(EVENTO_RESPOSTA_PRONTA, abrirRespostasProntas);
+    };
+  }, []);
 
   function trocarTexto(valor: string, caret: number) {
     setTexto(valor);
@@ -515,12 +546,9 @@ export function Compositor({
                 type="button"
                 className="btn"
                 aria-label="Enviar resposta pronta"
-                title="Resposta pronta (#)"
+                title="Resposta pronta (# no campo, / fora dele)"
                 onMouseDown={(e) => e.preventDefault()}
-                onClick={() => {
-                  setGatilho({ tipo: '#', termo: '', inicio: texto.length });
-                  setAtivo(0);
-                }}
+                onClick={abrirRespostasProntas}
               >
                 <span aria-hidden="true">ab</span>
               </button>

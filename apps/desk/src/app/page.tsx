@@ -12,9 +12,11 @@ import {
   listarRespostasProntas,
   listarTemplatesAprovados,
 } from '../servidor/consultas';
+import { AtalhosDeTeclado } from '../componentes/atalhos';
 import { BarraStatus } from '../componentes/barra-status';
 import { Conversa } from '../componentes/conversa';
 import { ehFicha, ListaConversas, naFicha } from '../componentes/lista-conversas';
+import { ehOrdem, filasDe, naFila, ordenar } from '../lib/ordem';
 import { SeletorDeModo } from '../componentes/seletor-de-modo';
 import { PainelContato } from '../componentes/painel-contato';
 import { EstadoVazio } from '@pipe/ui';
@@ -49,6 +51,8 @@ interface Parametros {
   conversa?: string;
   busca?: string;
   filtro?: string;
+  ordem?: string;
+  fila?: string;
 }
 
 export default async function PaginaDesk({
@@ -59,6 +63,8 @@ export default async function PaginaDesk({
   const parametros = await searchParams;
   const busca = (parametros.busca ?? '').trim();
   const ficha = ehFicha(parametros.filtro) ? parametros.filtro : 'todos';
+  const ordem = ehOrdem(parametros.ordem) ? parametros.ordem : 'recentes';
+  const fila = (parametros.fila ?? '').trim();
   const agora = new Date();
   const sessao = await sessaoAtual();
 
@@ -76,21 +82,31 @@ export default async function PaginaDesk({
     // Duas listas, e as duas viajam para a coluna: a busca define sobre o que as
     // fichas contam, e a ficha define o que a lista mostra. Contar depois da
     // ficha faria "Todos (0)" aparecer ao lado de uma fila cheia.
+    //
+    // A fila entra junto da busca, e não junto da ficha: quem recortou o
+    // Financeiro quer as fichas contando o Financeiro. A ordem vem por último,
+    // porque ordenar o que vai ser descartado é trabalho jogado fora.
     const termo = semAcento(busca);
     const termoDigitos = busca.replace(/\D/g, '');
-    const filtradas = busca
-      ? conversas.filter((c) => {
-          const alvo = alvoDaBusca(c);
-          return alvo.includes(termo) || (termoDigitos.length >= 3 && alvo.includes(termoDigitos));
-        })
-      : conversas;
-    const visiveis = filtradas.filter((c) => naFicha(c, ficha, agora));
+    const filtradas = conversas.filter((c) => {
+      if (!naFila(c, fila)) return false;
+      if (!busca) return true;
+      const alvo = alvoDaBusca(c);
+      return alvo.includes(termo) || (termoDigitos.length >= 3 && alvo.includes(termoDigitos));
+    });
+    const visiveis = ordenar(
+      filtradas.filter((c) => naFicha(c, ficha, agora)),
+      ordem,
+    );
 
     // Sem `?conversa=`, abre a primeira da fila: ninguém entra no Desk para olhar tela vazia.
     const escolhida = parametros.conversa ?? visiveis[0]?.id ?? null;
     const semConversa = {
       conversas: filtradas,
       visiveis,
+      // Do conjunto INTEIRO, e não do recortado: um seletor de fila que só
+      // oferece a fila já escolhida é um beco sem saída.
+      filas: filasDe(conversas),
       status,
       motivos,
       etiquetas,
@@ -121,6 +137,9 @@ export default async function PaginaDesk({
     // medida no Desk deles. Não há barra superior: ela repetiria o que o trilho
     // já diz e roubaria dobra da conversa.
     <div className="desk-app">
+      {/* Escuta o teclado da tela inteira. Fica fora das colunas de propósito:
+          o atalho vale mesmo sem conversa aberta. */}
+      <AtalhosDeTeclado />
       <TrilhoDesk
         iniciais={sessao.iniciais}
         nome={sessao.nome}
@@ -148,6 +167,9 @@ export default async function PaginaDesk({
             selecionadaId={dados.aberta?.conversa.id ?? null}
             busca={busca}
             ficha={ficha}
+            ordem={ordem}
+            fila={fila}
+            filas={dados.filas}
             estado={dados.status.estado}
             agora={agora}
           />

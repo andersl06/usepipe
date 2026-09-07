@@ -34,6 +34,9 @@ export interface ConversaDaLista {
   id: string;
   estado: EstadoConversa;
   prioridade: Prioridade;
+  criadaEm: Date;
+  /** Nulo é conversa que o atendente ainda não respondeu — é a ficha "Sem resposta". */
+  primeiraRespostaEm: Date | null;
   ultimaMensagemEm: Date | null;
   ultimaMensagemDe: string | null;
   janelaExpiraEm: Date | null;
@@ -53,6 +56,8 @@ export async function listarConversas(
     id: string;
     estado: EstadoConversa;
     prioridade: Prioridade;
+    criada_em: Date | string;
+    primeira_resposta_em: Date | string | null;
     ultima_mensagem_em: Date | string | null;
     ultima_mensagem_de: string | null;
     janela_expira_em: Date | string | null;
@@ -63,7 +68,8 @@ export async function listarConversas(
     ultima_mensagem: string | null;
     ultima_mensagem_tipo: string | null;
   }>(sql`
-    select c.id, c.estado, c.prioridade, c.ultima_mensagem_em, c.ultima_mensagem_de,
+    select c.id, c.estado, c.prioridade, c.criada_em, c.primeira_resposta_em,
+           c.ultima_mensagem_em, c.ultima_mensagem_de,
            c.janela_expira_em, ct.nome as contato_nome, ct.telefone_e164 as contato_telefone,
            f.nome as fila_nome,
            ca.tipo as canal_tipo, m.conteudo as ultima_mensagem, m.tipo as ultima_mensagem_tipo
@@ -86,6 +92,8 @@ export async function listarConversas(
     id: r.id,
     estado: r.estado,
     prioridade: r.prioridade,
+    criadaEm: data(r.criada_em),
+    primeiraRespostaEm: dataOuNulo(r.primeira_resposta_em),
     ultimaMensagemEm: dataOuNulo(r.ultima_mensagem_em),
     ultimaMensagemDe: r.ultima_mensagem_de,
     janelaExpiraEm: dataOuNulo(r.janela_expira_em),

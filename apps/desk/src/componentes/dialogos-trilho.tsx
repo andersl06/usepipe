@@ -3,6 +3,7 @@
 import { useRef, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
 import { AlternarTema } from './alternar-tema';
+import { ATALHOS_GLOBAIS, ID_FOLHA_ATALHOS } from './atalhos';
 import { IconeDesk } from './icones-desk';
 
 /**
@@ -18,7 +19,7 @@ import { IconeDesk } from './icones-desk';
  * nenhum atalho, e o `#`, o `/` e o `@` do compositor não se descobrem sozinhos.
  */
 
-const ATALHOS: { tecla: string; faz: string }[] = [
+const ATALHOS_DO_CAMPO: { tecla: string; faz: string }[] = [
   { tecla: '#', faz: 'Abre as respostas prontas — as da empresa e as suas, na mesma lista' },
   { tecla: '/', faz: 'Abre os comandos da conversa: encerrar, colocar em espera, nota interna' },
   { tecla: '@', faz: 'Menciona um colega, e o compositor vira nota interna' },
@@ -31,10 +32,13 @@ const ATALHOS: { tecla: string; faz: string }[] = [
 function BotaoDeDialogo({
   rotulo,
   icone,
+  id,
   children,
 }: {
   rotulo: string;
   icone: 'ajuda' | 'preferencias';
+  /** Só a folha de atalhos precisa: é por ele que a tecla `?` a abre. */
+  id?: string;
   children: ReactNode;
 }) {
   const dialogo = useRef<HTMLDialogElement>(null);
@@ -50,7 +54,7 @@ function BotaoDeDialogo({
       >
         {icone === 'ajuda' ? <IconeDesk nome="ajuda" /> : <Icone nome="engrenagem" tamanho={24} />}
       </button>
-      <dialog ref={dialogo} aria-label={rotulo}>
+      <dialog id={id} ref={dialogo} aria-label={rotulo}>
         <div className="conteudo">
           <h4>{rotulo}</h4>
           {children}
@@ -67,10 +71,26 @@ function BotaoDeDialogo({
 
 export function BotaoAjuda() {
   return (
-    <BotaoDeDialogo rotulo="Ajuda" icone="ajuda">
+    <BotaoDeDialogo rotulo="Ajuda" icone="ajuda" id={ID_FOLHA_ATALHOS}>
       <p>Os atalhos do Desk. Nenhum deles envia nada sozinho.</p>
+
+      {/* Dois grupos, porque a mesma tecla faz coisas diferentes conforme o
+          foco: com o cursor no campo, `/` é texto e abre os comandos; fora
+          dele, `/` abre as respostas prontas. Uma lista só faria as duas
+          linhas parecerem contraditórias. */}
+      <span className="lbl">Com o cursor no campo de mensagem</span>
       <dl className="atalhos">
-        {ATALHOS.map((atalho) => [
+        {ATALHOS_DO_CAMPO.map((atalho) => [
+          <dt key={`t-${atalho.tecla}`} className="mono">
+            {atalho.tecla}
+          </dt>,
+          <dd key={`d-${atalho.tecla}`}>{atalho.faz}</dd>,
+        ])}
+      </dl>
+
+      <span className="lbl">Com o foco fora de qualquer campo</span>
+      <dl className="atalhos">
+        {ATALHOS_GLOBAIS.map((atalho) => [
           <dt key={`t-${atalho.tecla}`} className="mono">
             {atalho.tecla}
           </dt>,
