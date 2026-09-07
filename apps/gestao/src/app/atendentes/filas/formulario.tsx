@@ -6,6 +6,7 @@ import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
 import { salvarFila } from '../acoes';
 import { CORES_DE_FILA } from './cores';
 import type { HorarioParaEscolher } from '../../../lib/cadastros';
+import { envioQuePreserva } from '../../../componentes/envio-de-formulario';
 
 /**
  * Cadastro de fila.
@@ -31,7 +32,7 @@ export function FormularioFila({ horarios }: { horarios: readonly HorarioParaEsc
         que está habilitado. Depois de criada, quem entra nela é definido em <b>Operação</b>.
       </p>
 
-      <form ref={formRef} action={enviar} className="form-cadastro">
+      <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
         <div className="form-linha">
           <label className="form-campo" style={{ flexBasis: '260px' }}>
             <span className="sub">Nome</span>

@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { Botao, BotaoDeIcone, Campo, Etiqueta, Seletor } from '@pipe/ui';
 import { salvarModelo } from '../acoes';
+import { envioQuePreserva } from '../../../componentes/envio-de-formulario';
 
 /**
  * Duplica, de propósito, os três catálogos e a conta de deslocamento de
@@ -58,8 +59,8 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
       <h3>Novo modelo de mensagem</h3>
       <p className="sub">
         O texto do modelo vive na Meta, não aqui. O que este cadastro guarda é nome, idioma,
-        categoria e o mapeamento de posição das variáveis — o corpo abaixo é cópia para consulta
-        de quem for usar o modelo, não é o que decide o que sai no disparo.
+        categoria e o mapeamento de posição das variáveis — o corpo abaixo é cópia para consulta de
+        quem for usar o modelo, não é o que decide o que sai no disparo.
       </p>
 
       {canais.length === 0 ? (
@@ -67,7 +68,7 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
           Nenhum canal WhatsApp ativo neste tenant. Cadastre o canal antes de cadastrar o modelo.
         </Etiqueta>
       ) : (
-        <form ref={formRef} action={enviar} style={coluna}>
+        <form ref={formRef} onSubmit={envioQuePreserva(enviar)} style={coluna}>
           <input type="hidden" name="variaveis" value={JSON.stringify(variaveis)} />
 
           <label style={rotulo}>
@@ -126,10 +127,9 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
 
           {midia ? (
             <Etiqueta tom="alerta">
-              Cabeçalho de {ROTULO_CABECALHO[cabecalhoTipo].toLowerCase()}: a mídia ocupa a
-              posição 1 do disparo, e TODA variável do corpo desliza +1 — é o erro que só aparece
-              na hora do disparo em produção. A posição real de cada variável está anotada
-              abaixo.
+              Cabeçalho de {ROTULO_CABECALHO[cabecalhoTipo].toLowerCase()}: a mídia ocupa a posição
+              1 do disparo, e TODA variável do corpo desliza +1 — é o erro que só aparece na hora do
+              disparo em produção. A posição real de cada variável está anotada abaixo.
             </Etiqueta>
           ) : null}
 
@@ -160,7 +160,9 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
                 <Campo
                   value={v}
                   onChange={(e) =>
-                    setVariaveis((atual) => atual.map((x, i) => (i === indice ? e.target.value : x)))
+                    setVariaveis((atual) =>
+                      atual.map((x, i) => (i === indice ? e.target.value : x)),
+                    )
                   }
                   placeholder="contato.nome"
                   disabled={enviando}

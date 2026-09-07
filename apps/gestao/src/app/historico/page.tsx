@@ -68,6 +68,10 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
 
   const por = agrupamentoValido(params.agrupar);
 
+  /* Período sempre existe; fila, atendente e etiqueta são o recorte opcional.
+     A distinção decide a frase do estado vazio. */
+  const temFiltro = Boolean(params.fila || params.atendente || params.etiqueta);
+
   /*
    * O cartão é componente de cliente, porque a seleção múltipla e a exportação
    * moram no navegador. Então tudo atravessa a fronteira já formatado: nenhuma
@@ -175,7 +179,34 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
       </form>
 
       {linhas.length === 0 ? (
-        <div className="vazio">Nenhuma conversa encerrada com esses filtros.</div>
+        /* Duas causas, duas frases: recorte que não achou ninguém e período sem
+           movimento pedem ações opostas — uma se resolve tirando filtro, a
+           outra alargando a data. Uma frase só para as duas manda o gestor
+           mexer no controle errado. */
+        <div className="vazio">
+          {temFiltro ? (
+            <>
+              <b>Nenhuma conversa encerrada neste recorte.</b>
+              <p>
+                Entre {de} e {ate}, nenhuma conversa passa por fila, atendente e etiqueta ao mesmo
+                tempo. Tire um filtro de cada vez para achar qual deles corta tudo.
+              </p>
+              <a href={`/historico?de=${de}&ate=${ate}`} className="btn">
+                Manter o período e limpar os filtros
+              </a>
+            </>
+          ) : (
+            <>
+              <b>
+                Nenhuma conversa encerrada entre {de} e {ate}.
+              </b>
+              <p>Só entra aqui conversa já encerrada — as abertas estão em Monitoramento.</p>
+              <a href="/" className="btn">
+                Ver o que está aberto agora
+              </a>
+            </>
+          )}
+        </div>
       ) : (
         <ListaHistorico grupos={grupos} />
       )}

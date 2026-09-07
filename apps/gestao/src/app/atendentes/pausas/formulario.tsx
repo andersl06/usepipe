@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useActionState } from 'react';
 import { Botao, Campo, Etiqueta } from '@pipe/ui';
 import { salvarMotivoPausa } from '../acoes';
+import { envioQuePreserva } from '../../../componentes/envio-de-formulario';
 
 /**
  * Cadastro de motivo de pausa.
@@ -30,7 +31,7 @@ export function FormularioMotivoPausa() {
         seguintes.
       </p>
 
-      <form ref={formRef} action={enviar} className="form-cadastro">
+      <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
         <div className="form-linha">
           <label className="form-campo" style={{ flexBasis: '260px' }}>
             <span className="sub">Nome</span>

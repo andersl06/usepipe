@@ -11,12 +11,18 @@ export function duracao(segundos: number | null | undefined): string {
   return h > 0 ? `${h}:${dois(m)}:${dois(s)}` : `${dois(m)}:${dois(s)}`;
 }
 
-/** Duração longa, para relatório: `4h 12min`. */
+/**
+ * Duração longa, para relatório: `4h 12min`.
+ *
+ * O arredondamento é feito sobre o total de minutos, e não sobre o resto da
+ * hora: arredondando o resto separado, 7.190 segundos viravam `1h 60min` —
+ * 59,8 minutos sobem para 60 e a hora não acompanha.
+ */
 export function duracaoLonga(segundos: number | null | undefined): string {
-  if (segundos === null || segundos === undefined) return '—';
-  const total = Math.max(0, Math.round(segundos));
-  const h = Math.floor(total / 3600);
-  const m = Math.round((total % 3600) / 60);
+  if (segundos === null || segundos === undefined || Number.isNaN(segundos)) return '—';
+  const minutos = Math.round(Math.max(0, segundos) / 60);
+  const h = Math.floor(minutos / 60);
+  const m = minutos % 60;
   return h > 0 ? `${h}h ${String(m).padStart(2, '0')}min` : `${m}min`;
 }
 
@@ -29,7 +35,7 @@ export function numero(valor: number | null | undefined, casas = 0): string {
 }
 
 export function percentual(fracao: number | null | undefined): string {
-  if (fracao === null || fracao === undefined) return '—';
+  if (fracao === null || fracao === undefined || Number.isNaN(fracao)) return '—';
   return `${(fracao * 100).toLocaleString('pt-BR', { maximumFractionDigits: 0 })}%`;
 }
 

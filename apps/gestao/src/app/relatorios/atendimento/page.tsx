@@ -57,17 +57,37 @@ function Quebra({
   titulo,
   eixo,
   linhas,
+  recorte,
 }: {
   titulo: string;
   eixo: string;
   linhas: LinhaDeQuebra[];
+  /** `null` quando não há filtro além do período. Muda a causa do vazio. */
+  recorte: string | null;
 }) {
   return (
     <section className="bloco-rel">
       <h3>{titulo}</h3>
       {linhas.length === 0 ? (
+        /* Culpar o período quando o corte foi de fila ou atendente manda o
+           gestor alargar a data e continuar sem ver nada. */
         <div className="cartao-rel">
-          <div className="vazio">Nenhuma conversa encerrada neste período.</div>
+          <div className="vazio">
+            {recorte ? (
+              <>
+                <b>Nada dentro deste recorte.</b>
+                <p>
+                  O recorte <b>{recorte}</b> não tem conversa encerrada no período. Volte o filtro
+                  para “todas” e o bloco reaparece.
+                </p>
+              </>
+            ) : (
+              <>
+                <b>Nenhuma conversa encerrada neste período.</b>
+                <p>Conversa ainda aberta não entra aqui — ela está em Monitoramento.</p>
+              </>
+            )}
+          </div>
         </div>
       ) : (
         <div className="cartao-rel tabela scroll">
@@ -138,6 +158,15 @@ export default async function PaginaAtendimento({
   });
   const geral: BlocoDeTempos = relatorio.geral;
   const enc = geral.encerramentos;
+
+  /* Quem foi escolhido no filtro, escrito por extenso — é o que o estado vazio
+     precisa nomear para o gestor saber em qual controle mexer. */
+  const nomeDaFila = catalogos.filas.find((f) => f.id === params.fila)?.nome;
+  const nomeDoAtendente = catalogos.atendentes.find((a) => a.id === params.atendente)?.nome;
+  const recorte =
+    [nomeDaFila && `fila ${nomeDaFila}`, nomeDoAtendente && `atendente ${nomeDoAtendente}`]
+      .filter(Boolean)
+      .join(' + ') || null;
 
   return (
     <>
@@ -261,8 +290,13 @@ export default async function PaginaAtendimento({
         </p>
       </section>
 
-      <Quebra titulo="Por fila" eixo="Fila" linhas={relatorio.porFila} />
-      <Quebra titulo="Por atendente" eixo="Atendente" linhas={relatorio.porAtendente} />
+      <Quebra titulo="Por fila" eixo="Fila" linhas={relatorio.porFila} recorte={recorte} />
+      <Quebra
+        titulo="Por atendente"
+        eixo="Atendente"
+        linhas={relatorio.porAtendente}
+        recorte={recorte}
+      />
     </>
   );
 }

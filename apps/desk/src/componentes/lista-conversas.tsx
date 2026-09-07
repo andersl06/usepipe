@@ -86,12 +86,22 @@ function vazioDaLista(
   busca: string,
   ficha: ChaveDeFicha,
   estado: EstadoAtendente,
-): { titulo: string; ilustracao: 'vazio' | 'busca' | 'concluido'; explica: string } {
+): {
+  titulo: string;
+  ilustracao: 'vazio' | 'busca' | 'concluido';
+  explica: string;
+  /** A saída do vazio, quando ele foi o atendente que causou. */
+  saida?: { href: string; rotulo: string };
+} {
   if (busca) {
     return {
       titulo: 'Nenhum resultado encontrado',
       ilustracao: 'busca',
       explica: `Nada na sua fila para “${busca}”.`,
+      // Sem esta saída, a única forma de voltar é apagar o campo na mão e
+      // apertar Enter de novo — e quem esqueceu que buscou lê a tela como
+      // "não tenho atendimento nenhum".
+      saida: { href: `/?filtro=${ficha}`, rotulo: 'Limpar busca' },
     };
   }
   if (ficha !== 'todos') {
@@ -99,7 +109,8 @@ function vazioDaLista(
     return {
       titulo: `Nenhum atendimento em ${rotulo.toLowerCase()}`,
       ilustracao: 'vazio',
-      explica: 'Volte para "Todos" para ver o resto da sua fila.',
+      explica: 'O resto da sua fila continua em "Todos".',
+      saida: { href: '/?filtro=todos', rotulo: 'Ver todos' },
     };
   }
   if (estado !== 'online') {
@@ -178,6 +189,11 @@ export function ListaConversas({
         <div className="lista-vazia">
           <EstadoVazio titulo={vazio.titulo} ilustracao={vazio.ilustracao}>
             <p>{vazio.explica}</p>
+            {vazio.saida ? (
+              <Link className="btn" href={vazio.saida.href}>
+                {vazio.saida.rotulo}
+              </Link>
+            ) : null}
           </EstadoVazio>
         </div>
       ) : (

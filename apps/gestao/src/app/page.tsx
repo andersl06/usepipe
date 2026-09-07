@@ -56,9 +56,8 @@ export default async function PaginaMonitoramento({
       <div className="board-head">
         <h2>Monitoramento</h2>
         <span className="sub">
-          Hoje ·{' '}
-          {janela.inicio.toLocaleDateString('pt-BR', { timeZone: fuso, dateStyle: 'long' })} ·{' '}
-          {fuso}
+          Hoje · {janela.inicio.toLocaleDateString('pt-BR', { timeZone: fuso, dateStyle: 'long' })}{' '}
+          · {fuso}
         </span>
         <div className="filters">
           <RecargaPeriodica segundos={30} />
@@ -83,11 +82,15 @@ export default async function PaginaMonitoramento({
               valor={duracao(tempoReal.maiorEsperaNaFilaSeg)}
               rotulo="Tempo máximo na fila"
               dica="A maior espera entre as conversas ainda não atribuídas: agora menos criada_em. Fechada, a métrica é atribuida_em menos criada_em."
+              /* Máximo também carrega população: 40 minutos entre duas
+                 conversas e entre duzentas pedem reações opostas. */
+              denominador={`entre ${numero(tempoReal.naFila)} na fila`}
             />
             <Metrica
               valor={duracao(tempoReal.maiorEsperaPrimeiraRespostaSeg)}
               rotulo="Tempo máximo até 1ª resposta"
               dica="A maior espera entre as conversas já atribuídas e ainda sem resposta do atendente: agora menos atribuida_em."
+              denominador={`entre ${numero(tempoReal.aguardandoPrimeiraResposta)} aguardando`}
             />
             <Metrica
               destaque

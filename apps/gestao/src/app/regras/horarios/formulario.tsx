@@ -6,6 +6,7 @@ import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
 import { salvarExcecao, salvarFaixa, salvarHorario } from '../acoes';
 import { DIAS_DA_SEMANA } from '../../../lib/formato';
 import type { HorarioParaEscolher } from '../../../lib/cadastros';
+import { envioQuePreserva } from '../../../componentes/envio-de-formulario';
 
 /**
  * Cadastro de horário, em três formulários.
@@ -29,7 +30,7 @@ function FormularioNovoHorario() {
   }, [resultado]);
 
   return (
-    <form ref={formRef} action={enviar} className="form-cadastro">
+    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
       <div className="form-linha">
         <label className="form-campo" style={{ flexBasis: '260px' }}>
           <span className="sub">Nome</span>
@@ -73,7 +74,7 @@ function FormularioFaixa({ horarios }: { horarios: readonly HorarioParaEscolher[
   }, [resultado]);
 
   return (
-    <form ref={formRef} action={enviar} className="form-cadastro">
+    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
       <div className="form-linha">
         <label className="form-campo" style={{ flexBasis: '220px' }}>
           <span className="sub">Horário</span>
@@ -133,7 +134,7 @@ function FormularioExcecao({ horarios }: { horarios: readonly HorarioParaEscolhe
   }, [resultado]);
 
   return (
-    <form ref={formRef} action={enviar} className="form-cadastro">
+    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
       <div className="form-linha">
         <label className="form-campo" style={{ flexBasis: '220px' }}>
           <span className="sub">Horário</span>

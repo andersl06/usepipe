@@ -961,8 +961,16 @@
   vertical-align: -2px;
 }
 
+/* O ícone tem 13px, e o alvo não pode ter 13px: é o controle que abre a
+   definição da métrica, e ele aparece ao lado de todo número da tela. O piso
+   de 24 vem com margem negativa para o rótulo ao lado não crescer. */
 .dica > summary {
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  margin: -5px -5px -5px -6px;
   list-style: none;
   cursor: help;
   color: var(--p-conteudo-fantasma);
@@ -1539,9 +1547,15 @@ tr.grupo th {
   color: var(--p-conteudo-fantasma);
 }
 
+/* A caixa em si tem 16px, e a coluna da grade é `auto`: sem o piso abaixo, o
+   alvo de clique inteiro tinha 16×16 — abaixo dos 24px mínimos, e é este o
+   controle que escolhe o que vai para o CSV. O rótulo cresce, a caixa não. */
 .cl-sel {
   display: grid;
   place-items: center;
+  min-width: 24px;
+  min-height: 24px;
+  cursor: pointer;
 }
 
 .cl-sel input,

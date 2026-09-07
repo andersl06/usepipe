@@ -33,7 +33,12 @@ import {
   usuario,
 } from '@pipe/db/schema';
 import { consultar } from './banco';
-import { avaliarSlaDaConversa, carregarRegrasSla, type PillSla, type RegraSlaCarregada } from './sla';
+import {
+  avaliarSlaDaConversa,
+  carregarRegrasSla,
+  type PillSla,
+  type RegraSlaCarregada,
+} from './sla';
 
 /**
  * Consultas do monitoramento.
@@ -82,6 +87,12 @@ export interface LinhaConversaAberta {
 export interface CartoesTempoReal {
   naFila: number;
   maiorEsperaNaFilaSeg: number | null;
+  /**
+   * De quantas conversas o máximo acima saiu. Máximo sem população é a mesma
+   * armadilha da média sem denominador (§2 da spec de métricas): "40 minutos"
+   * entre duas conversas e entre duzentas pedem reações opostas.
+   */
+  aguardandoPrimeiraResposta: number;
   maiorEsperaPrimeiraRespostaSeg: number | null;
   emAtendimento: number;
   atendentesOnline: number;
@@ -371,6 +382,7 @@ export async function carregarMonitoramento(
     const tempoReal: CartoesTempoReal = {
       naFila: naFila.length,
       maiorEsperaNaFilaSeg: maiorDe(naFila.map((c) => c.naFilaSeg)),
+      aguardandoPrimeiraResposta: semResposta.length,
       maiorEsperaPrimeiraRespostaSeg: maiorDe(semResposta.map((c) => c.primeiraRespostaSeg)),
       emAtendimento: emAtendimento.length,
       atendentesOnline: cartaoAtendentes.online,
@@ -472,7 +484,11 @@ export async function carregarMonitoramento(
           limite,
           carga: cargaPonderada(disponivel),
           // O teto da barra: o limite todo ocupado por conversa que aguarda o atendente.
-          cargaMaxima: cargaPonderada({ ...disponivel, ativas: limite, aguardandoAtendente: limite }),
+          cargaMaxima: cargaPonderada({
+            ...disponivel,
+            ativas: limite,
+            aguardandoAtendente: limite,
+          }),
         };
       })
       .sort((a, b) => b.carga - a.carga || a.nome.localeCompare(b.nome, 'pt-BR'));

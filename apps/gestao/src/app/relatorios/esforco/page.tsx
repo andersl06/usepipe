@@ -88,7 +88,16 @@ export default async function PaginaEsforco({ searchParams }: { searchParams: Pr
 
         {relatorio.atendentes.length === 0 ? (
           <div className="cartao-rel">
-            <div className="vazio">Nenhuma conversa encerrada com atendente neste período.</div>
+            <div className="vazio">
+              <b>
+                Nenhuma conversa encerrada com atendente entre {de} e {ate}.
+              </b>
+              <p>
+                {relatorio.conversasSemAtendente > 0
+                  ? `${numero(relatorio.conversasSemAtendente)} conversa(s) do período fecharam sem atendente identificado — elas não têm a quem atribuir esforço.`
+                  : 'Só entra aqui conversa já encerrada. Alargue o período acima para alcançar o movimento anterior.'}
+              </p>
+            </div>
           </div>
         ) : (
           <div className="cartao-rel tabela scroll">

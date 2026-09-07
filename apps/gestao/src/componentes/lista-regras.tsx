@@ -119,7 +119,17 @@ export function ListaRegras({
       </div>
 
       {nenhuma && busca.trim() ? (
-        <div className="vazio">Nada encontrado para “{busca.trim()}”.</div>
+        /* Vazio de BUSCA, que é causa diferente de vazio de cadastro — e por
+           isso frase diferente, com a saída junto. Sem o botão, a única forma
+           de voltar à lista é apagar o texto na mão, e quem não percebeu que
+           filtrou conclui que a base está vazia. */
+        <div className="vazio">
+          <b>Nada encontrado para “{busca.trim()}”.</b>
+          <p>Os cadastros continuam lá — é a busca que não achou este texto.</p>
+          <button type="button" className="btn" onClick={() => setBusca('')}>
+            Limpar busca
+          </button>
+        </div>
       ) : (
         filtradas.map((secao) => (
           <div key={secao.titulo} className="lista-cartoes">

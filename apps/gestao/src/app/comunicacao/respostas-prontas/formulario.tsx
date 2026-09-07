@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useActionState } from 'react';
 import { Botao, Campo, Etiqueta } from '@pipe/ui';
 import { salvarRespostaPronta } from '../acoes';
+import { envioQuePreserva } from '../../../componentes/envio-de-formulario';
 
 /**
  * Cadastro de resposta pronta — só `escopo = 'empresa'` (ver comentário de
@@ -27,14 +28,14 @@ export function FormularioRespostaPronta() {
     <section className="card">
       <h3>Nova resposta pronta</h3>
       <p className="sub">
-        O atalho é o que o atendente digita depois do <b>#</b> no compositor do Desk (ver
-        §5 de <code>2026-09-05-desk-requisitos.md</code>). A tabela não tem índice único de
-        atalho por tenant — só um índice de busca —, então o conflito é checado aqui, ao salvar.
+        O atalho é o que o atendente digita depois do <b>#</b> no compositor do Desk (ver §5 de{' '}
+        <code>2026-09-05-desk-requisitos.md</code>). A tabela não tem índice único de atalho por
+        tenant — só um índice de busca —, então o conflito é checado aqui, ao salvar.
       </p>
 
       <form
         ref={formRef}
-        action={enviar}
+        onSubmit={envioQuePreserva(enviar)}
         style={{ display: 'flex', flexDirection: 'column', gap: 'var(--p-e-3)' }}
       >
         <label style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
