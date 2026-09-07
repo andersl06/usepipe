@@ -17,18 +17,37 @@ import { carimbos, id, listaCheck, momento } from './comum.js';
  * configuração, nunca build separado.
  */
 
-export const tenant = pgTable('tenant', {
-  id: id(),
-  nome: text('nome').notNull(),
-  slug: text('slug').notNull().unique(),
-  fuso: text('fuso').notNull().default('America/Sao_Paulo'),
-  idioma: text('idioma').notNull().default('pt-BR'),
-  logoUrl: text('logo_url'),
-  corPrimaria: text('cor_primaria'),
-  plano: text('plano').notNull().default('padrao'),
-  ativo: boolean('ativo').notNull().default(true),
-  ...carimbos(),
-});
+/**
+ * Onde o tenant está hospedado.
+ *
+ * `compartilhada` é o banco de todo mundo, com RLS — é o padrão e serve à
+ * esmagadora maioria. `dedicada` é o cliente que saiu para instância própria,
+ * por contrato ou por peso. Ver `docs/pesquisa/arquitetura-multi-tenant.md`.
+ *
+ * O campo nasce agora, com todo mundo em `compartilhada`, porque criar coluna
+ * em tabela pequena é barato hoje e caro na véspera da primeira migração — que
+ * é exatamente quando ele vai fazer falta, para o código saber a quem
+ * perguntar sem consultar planilha.
+ */
+export const IMPLANTACOES = ['compartilhada', 'dedicada'] as const;
+
+export const tenant = pgTable(
+  'tenant',
+  {
+    id: id(),
+    nome: text('nome').notNull(),
+    slug: text('slug').notNull().unique(),
+    fuso: text('fuso').notNull().default('America/Sao_Paulo'),
+    idioma: text('idioma').notNull().default('pt-BR'),
+    logoUrl: text('logo_url'),
+    corPrimaria: text('cor_primaria'),
+    plano: text('plano').notNull().default('padrao'),
+    implantacao: text('implantacao').notNull().default('compartilhada'),
+    ativo: boolean('ativo').notNull().default(true),
+    ...carimbos(),
+  },
+  (t) => [listaCheck('tenant_implantacao_ck', t.implantacao, IMPLANTACOES)],
+);
 
 /**
  * Toda tabela de negócio referencia o tenant por aqui. Fica em identidade e não em

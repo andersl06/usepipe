@@ -43,6 +43,20 @@
       "when": 1788650586605,
       "tag": "0005_mensagem_dados",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1788785950920,
+      "tag": "0006_rls_initplan",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1788786008798,
+      "tag": "0007_tenant_implantacao",
+      "breakpoints": true
     }
   ]
 }

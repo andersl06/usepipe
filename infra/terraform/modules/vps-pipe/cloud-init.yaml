@@ -1,0 +1,72 @@
+#cloud-config
+# Estado inicial da máquina. Só o que não muda: Docker, firewall, diretórios e os
+# dois timers. Código e segredo chegam depois, pelo deploy — não pelo cloud-init,
+# senão recriar a máquina viraria um jeito acidental de publicar versão velha.
+
+package_update: true
+packages:
+  - ca-certificates
+  - curl
+  - git
+  - ufw
+  - age        # decifra os segredos SOPS no deploy
+  - unattended-upgrades
+
+write_files:
+  # O backup roda como timer do sistema, não como container em laço: se o Docker
+  # cair, o timer ainda dispara e o alerta de "backup não rodou" aparece.
+  - path: /etc/systemd/system/pipe-backup.service
+    content: |
+      [Unit]
+      Description=Backup do Postgres do Pipe (pgBackRest)
+      [Service]
+      Type=oneshot
+      WorkingDirectory=/opt/pipe/infra/compose
+      ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml run --rm backup /scripts/backup.sh
+  - path: /etc/systemd/system/pipe-backup.timer
+    content: |
+      [Unit]
+      Description=Backup diário
+      [Timer]
+      OnCalendar=*-*-* 03:20:00
+      Persistent=true
+      [Install]
+      WantedBy=timers.target
+  # Restauração testada é requisito da §7 da spec de infraestrutura. Semanal, não
+  # mensal: o custo é um container efêmero e a diferença é descobrir o problema
+  # três semanas antes.
+  - path: /etc/systemd/system/pipe-restauracao-teste.service
+    content: |
+      [Unit]
+      Description=Restaura o último backup num container descartável e valida
+      [Service]
+      Type=oneshot
+      WorkingDirectory=/opt/pipe/infra/compose
+      ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml run --rm backup /scripts/restaurar-teste.sh
+  - path: /etc/systemd/system/pipe-restauracao-teste.timer
+    content: |
+      [Unit]
+      Description=Teste semanal de restauração
+      [Timer]
+      OnCalendar=Sun *-*-* 05:00:00
+      Persistent=true
+      [Install]
+      WantedBy=timers.target
+
+runcmd:
+  - curl -fsSL https://get.docker.com | sh
+  # Postgres e Redis nunca escutam na rede pública; o firewall é a segunda tranca,
+  # a primeira é não publicar porta no compose.
+  - ufw default deny incoming
+  - ufw allow 22/tcp
+  - ufw allow 80/tcp
+  - ufw allow 443/tcp
+  - ufw --force enable
+  - mkdir -p /opt/pipe /opt/pipe-dados/acme
+  - touch /opt/pipe-dados/acme/acme.json && chmod 600 /opt/pipe-dados/acme/acme.json
+  - git clone ${repositorio_git} /opt/pipe || true
+  - systemctl daemon-reload
+  - systemctl enable --now pipe-backup.timer pipe-restauracao-teste.timer
+  # O que falta é manual, uma vez só, e está no passo a passo do documento:
+  # 1) colocar a chave age de deploy em /opt/pipe-dados/age.key (chmod 600)
+  # 2) rodar infra/compose/deploy.sh, que decifra o .env e sobe a pilha
