@@ -97,6 +97,51 @@ export async function resolverCanal(canalId: string): Promise<CanalResolvido | n
   return canal;
 }
 
+/**
+ * Resolve o canal a partir do PAYLOAD, para a rota guarda-chuva.
+ *
+ * Os eventos de template e de conta da Meta não aceitam URL por cliente e chegam
+ * todos no mesmo endereço. Aqui o tenant não pode vir do caminho, então vem do
+ * `phone_number_id` ou, na falta dele, do WABA — nessa ordem, porque o número é
+ * único e o WABA pode ter vários.
+ *
+ * Devolve `null` quando não casa, e quem chama DESCARTA. Evento sem dono é de
+ * outro aplicativo ou de canal removido; processar no melhor palpite é como se
+ * entrega o dado de um cliente a outro.
+ */
+export async function resolverCanalPorIdentificador(
+  numeroId: string | undefined,
+  wabaId: string | undefined,
+): Promise<CanalResolvido | null> {
+  if (!numeroId && !wabaId) return null;
+
+  const { rows } = await bancoDono().execute<{
+    id: string;
+    tenant_id: string;
+    tipo: string;
+    ativo: boolean;
+    config: Record<string, unknown> | null;
+  }>(sql`
+    select id, tenant_id, tipo, ativo, config
+      from canal
+     where ${numeroId ? sql`numero_id = ${numeroId}` : sql`false`}
+        or ${wabaId ? sql`waba_id = ${wabaId}` : sql`false`}
+     -- O número ganha do WABA: ele identifica um canal, o WABA identifica vários.
+     order by (numero_id is not null and numero_id = ${numeroId ?? null}) desc
+     limit 1
+  `);
+
+  const linha = rows[0];
+  if (!linha) return null;
+  return {
+    id: linha.id,
+    tenantId: linha.tenant_id,
+    tipo: linha.tipo,
+    ativo: linha.ativo,
+    config: decifrarConfig(linha.config ?? {}, chaveiro()),
+  };
+}
+
 export function esquecerCanal(canalId?: string): void {
   if (canalId) cacheDeCanal.delete(canalId);
   else cacheDeCanal.clear();

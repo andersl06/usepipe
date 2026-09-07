@@ -33,16 +33,43 @@ export const canal = pgTable(
     tenantId: refTenant(),
     tipo: text('tipo').notNull(),
     nome: text('nome').notNull(),
-    /** Token da Meta, senha SMTP: cifrado em repouso, com a chave fora do banco (§6). */
+    /**
+     * Token da Meta, senha SMTP: cifrado em repouso pela `packages/db/src/segredo.ts`,
+     * com a chave fora do banco (§6). Só os campos da lista `CAMPOS_SECRETOS_DE_CANAL`
+     * são cifrados — o resto continua legível para diagnóstico.
+     */
     config: jsonb('config')
       .notNull()
       .default(sql`'{}'::jsonb`),
+    /**
+     * As duas chaves de roteamento do webhook, e a razão de estarem em COLUNA e
+     * não no `config`: os eventos de template e de conta da Meta não aceitam URL
+     * por cliente e caem todos numa rota só, onde o tenant tem de sair do payload
+     * (`entry[].id` é o WABA, `metadata.phone_number_id` é o número). Resolver por
+     * payload é consulta, e consulta em jsonb sem índice é varredura.
+     *
+     * Ver `docs/specs/2026-09-07-webhook-por-cliente.md`.
+     */
+    wabaId: text('waba_id'),
+    numeroId: text('numero_id'),
     ativo: boolean('ativo').notNull().default(true),
     ...carimbos(),
   },
   (t) => [
     listaCheck('canal_tipo_ck', t.tipo, TIPOS_CANAL),
     index('canal_tenant_tipo_idx').on(t.tenantId, t.tipo),
+    /*
+     * Únicos e GLOBAIS, de propósito — não por tenant. Dois clientes com o mesmo
+     * `numero_id` é estado impossível: significaria dois donos para o mesmo
+     * número, e o banco recusa antes de a aplicação escolher errado. Parciais
+     * porque só o WhatsApp tem esses identificadores.
+     */
+    uniqueIndex('canal_numero_id_uk')
+      .on(t.numeroId)
+      .where(sql`${t.numeroId} is not null`),
+    index('canal_waba_id_idx')
+      .on(t.wabaId)
+      .where(sql`${t.wabaId} is not null`),
   ],
 );
 

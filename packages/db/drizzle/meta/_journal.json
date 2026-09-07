@@ -57,6 +57,13 @@
       "when": 1788786008798,
       "tag": "0007_tenant_implantacao",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1788787673948,
+      "tag": "0008_canal_roteamento",
+      "breakpoints": true
     }
   ]
 }
