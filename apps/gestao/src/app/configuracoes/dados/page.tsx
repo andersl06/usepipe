@@ -1,14 +1,8 @@
+import Link from 'next/link';
 import { carregarDados } from '../../../lib/configuracoes';
 import { numero } from '../../../lib/formato';
 
 export const dynamic = 'force-dynamic';
-
-const ROTULO_TIPO: Record<string, string> = {
-  whatsapp_cloud: 'WhatsApp',
-  instagram: 'Instagram',
-  email: 'E-mail',
-  widget: 'Site',
-};
 
 const ROTULO_ESCOPO_ETIQUETA: Record<string, string> = {
   conversa: 'Conversa',
@@ -69,35 +63,10 @@ export default async function PaginaDados() {
         )}
       </div>
 
-      <div className="tblwrap">
-        <div className="tblhead">
-          <h3>Canais</h3>
-        </div>
-
-        {canais.length === 0 ? (
-          <div className="vazio">Nenhum canal conectado.</div>
-        ) : (
-          <div className="scroll">
-            <table>
-              <thead>
-                <tr>
-                  <th>Canal</th>
-                  <th>Tipo</th>
-                  <th>Situação</th>
-                </tr>
-              </thead>
-              <tbody>
-                {canais.map((c) => (
-                  <tr key={c.id}>
-                    <td className="who">{c.nome}</td>
-                    <td>{ROTULO_TIPO[c.tipo] ?? c.tipo}</td>
-                    <td>{c.ativo ? 'Ativo' : <span className="etiqueta">Desativado</span>}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
+      <div className="note">
+        Os canais saíram daqui: viraram módulo próprio, na barra de cima.{' '}
+        <Link href="/canais">Ver os {numero(canais.length)} canais</Link> — com a caixa de entrada
+        de cada um e a fila para onde ela manda.
       </div>
     </>
   );

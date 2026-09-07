@@ -1,9 +1,11 @@
-import { asc, count, eq } from 'drizzle-orm';
+import { and, asc, count, eq, isNull } from 'drizzle-orm';
 import {
   canal,
+  conversa,
   conversaEtiqueta,
   etiqueta,
   fila,
+  inbox,
   motivoPausa,
   regraSla,
   statusAtendente,
@@ -184,5 +186,66 @@ export async function carregarDados(): Promise<{
       .orderBy(asc(canal.nome));
 
     return { etiquetas, canais };
+  });
+}
+
+/**
+ * O módulo Canais, que na barra deles é módulo e aqui estava diluído em
+ * Preferências ├ Dados.
+ *
+ * A caixa de entrada aparece junto porque é ela, e não o canal, que carrega a
+ * fila padrão: canal é a conexão com a operadora, caixa é para onde a conversa
+ * daquela conexão cai. Confundir os dois é o que faz alguém procurar a fila
+ * padrão na tela do WhatsApp e não achar.
+ *
+ * A contagem é de conversas ABERTAS, não do total histórico: o que interessa
+ * ao olhar um canal é se ele está entregando agora.
+ */
+export interface CaixaDoCanal {
+  id: string;
+  nome: string;
+  filaPadrao: string | null;
+  abertas: number;
+}
+
+export interface CanalDetalhado extends CanalConfigurado {
+  criadoEm: Date;
+  caixas: CaixaDoCanal[];
+}
+
+export async function carregarCanais(): Promise<CanalDetalhado[]> {
+  return consultar(async (tx) => {
+    const canais = await tx
+      .select({
+        id: canal.id,
+        nome: canal.nome,
+        tipo: canal.tipo,
+        ativo: canal.ativo,
+        criadoEm: canal.criadoEm,
+      })
+      .from(canal)
+      .orderBy(asc(canal.nome));
+
+    /* Uma consulta para todas as caixas, agrupada em memória depois. Não é
+       Promise.all dentro da transação de propósito: consulta paralela na mesma
+       conexão perde a variável de sessão do RLS. */
+    const caixas = await tx
+      .select({
+        canalId: inbox.canalId,
+        id: inbox.id,
+        nome: inbox.nome,
+        filaPadrao: fila.nome,
+        abertas: count(conversa.id),
+      })
+      .from(inbox)
+      .leftJoin(fila, eq(fila.id, inbox.filaPadraoId))
+      .leftJoin(conversa, and(eq(conversa.inboxId, inbox.id), isNull(conversa.encerradaEm)))
+      .groupBy(inbox.canalId, inbox.id, inbox.nome, fila.nome)
+      .orderBy(asc(inbox.nome));
+
+    return canais.map((c) => ({
+      ...c,
+      caixas: caixas.filter((cx) => cx.canalId === c.id).map(({ canalId: _, ...cx }) => cx),
+    }));
   });
 }

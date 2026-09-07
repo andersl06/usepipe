@@ -31,7 +31,69 @@ import type { DadosDoCabecalho } from '../lib/cabecalho';
  * da engrenagem**, em tela própria.
  */
 
-const MODULOS: readonly ItemDeNavegacao[] = [{ rotulo: 'Atendimento', href: '/' }];
+/*
+ * A fileira central da barra de baixo, na ordem medida na deles
+ * (`blip-medidas-monitoramento.md` §2): Builder, Atendimento, Análise, Growth,
+ * Canais, e o "…" no fim.
+ *
+ * `raizes` é o que decide qual módulo está sublinhado: o caminho da rota
+ * pertence ao módulo cuja raiz o prefixa. Sem isso, abrir Satisfação apagaria
+ * a barra inteira, que era o defeito de quando havia um módulo só.
+ *
+ * Builder e Growth abrem tela de verdade, e a tela diz o que ainda não existe
+ * ali. É a fronteira que a régua permite: item apagado, nunca; item que abre
+ * uma página honesta sobre o que vem, sim.
+ */
+type Modulo = ItemDeNavegacao & { raizes: readonly string[]; resumo: string };
+
+const MODULOS: readonly Modulo[] = [
+  {
+    rotulo: 'Builder',
+    href: '/builder',
+    raizes: ['/builder'],
+    resumo: 'O fluxo que atende antes da pessoa.',
+  },
+  {
+    rotulo: 'Atendimento',
+    href: '/',
+    raizes: ['/', '/historico', '/comunicacao', '/regras', '/atendentes', '/configuracoes'],
+    resumo: 'Monitoramento, histórico e as regras da operação.',
+  },
+  {
+    rotulo: 'Análise',
+    href: '/relatorios/atendimento',
+    raizes: ['/relatorios'],
+    resumo: 'Os relatórios do período, com a população de cada número.',
+  },
+  {
+    rotulo: 'Growth',
+    href: '/growth',
+    raizes: ['/growth'],
+    resumo: 'Mensagem ativa e campanha, fora da janela de 24 horas.',
+  },
+  {
+    rotulo: 'Canais',
+    href: '/canais',
+    raizes: ['/canais'],
+    resumo: 'O que está conectado, e por qual chave.',
+  },
+];
+
+/** O módulo dono do caminho. A raiz mais longa ganha, senão `/` levaria tudo. */
+function moduloDoCaminho(caminho: string): Modulo {
+  let escolhido = MODULOS[1]!;
+  let maior = -1;
+  for (const m of MODULOS) {
+    for (const raiz of m.raizes) {
+      if (!estaAtivo(raiz, caminho)) continue;
+      if (raiz.length > maior) {
+        maior = raiz.length;
+        escolhido = m;
+      }
+    }
+  }
+  return escolhido;
+}
 
 /** Item de lateral: ícone à esquerda do rótulo, como na tela deles. */
 type ItemLateral = { rotulo: string; href: string; icone: NomeDeIcone };
@@ -45,9 +107,24 @@ const ITENS: readonly ItemLateral[] = [
 ];
 
 /*
+ * A lateral do módulo Análise. Os relatórios SAÍRAM da lateral de Atendimento
+ * quando Análise virou módulo próprio — na barra deles é assim, e manter os
+ * mesmos três em dois lugares faria a pessoa procurar duas vezes.
+ *
+ * As rotas continuam em `/relatorios/*`: o módulo mudou, o endereço não, e
+ * link antigo que ninguém quebrou é link que continua funcionando.
+ */
+const ITENS_ANALISE: readonly ItemLateral[] = [
+  { rotulo: 'Atendimento', href: '/relatorios/atendimento', icone: 'painel' },
+  { rotulo: 'Satisfação', href: '/relatorios/satisfacao', icone: 'cheque' },
+  { rotulo: 'Esforço por atendente', href: '/relatorios/esforco', icone: 'pessoas' },
+];
+
+/*
  * Os grupos, na ordem e com os nomes da lateral deles, medida em
- * `docs/pesquisa/blip-medidas-monitoramento.md` §3.5: dois itens soltos e cinco
- * grupos, e NADA de configuração no primeiro nível.
+ * `docs/pesquisa/blip-medidas-monitoramento.md` §3.5, menos Relatórios, que
+ * saiu para a lateral do módulo Análise: dois itens soltos e quatro grupos, e
+ * NADA de configuração no primeiro nível.
  *
  * Cada filho abaixo é uma tela que EXISTE aqui. Onde eles têm item e nós não
  * temos tela, fica a lacuna registrada — nenhum item desabilitado, nenhuma
@@ -60,15 +137,6 @@ const ITENS: readonly ItemLateral[] = [
  * - Preferências ├ Configurações gerais — está diluída na tela de Dados.
  */
 const GRUPOS: readonly GrupoLateral[] = [
-  {
-    rotulo: 'Relatórios',
-    icone: 'grade',
-    filhos: [
-      { rotulo: 'Atendimento', href: '/relatorios/atendimento' },
-      { rotulo: 'Satisfação', href: '/relatorios/satisfacao' },
-      { rotulo: 'Esforço por atendente', href: '/relatorios/esforco' },
-    ],
-  },
   {
     rotulo: 'Comunicação',
     icone: 'balao',
@@ -192,6 +260,7 @@ const ATALHOS: readonly ItemLateral[] = [
 
 function BarraInferior({ dados, caminho }: { dados: DadosDoCabecalho; caminho: string }) {
   const canal = dados.canais[0];
+  const ativo = moduloDoCaminho(caminho);
   return (
     <div className="g-barra g-barra-inf">
       <details className="g-menu g-canal">
@@ -228,10 +297,26 @@ function BarraInferior({ dados, caminho }: { dados: DadosDoCabecalho; caminho: s
 
       <nav className="g-modulos" aria-label="Módulos">
         {MODULOS.map((m) => (
-          <Link key={m.href} href={m.href} aria-current={estaAtivo(m.href, caminho) ? 'page' : undefined}>
+          <Link key={m.href} href={m.href} aria-current={m === ativo ? 'page' : undefined}>
             {m.rotulo}
           </Link>
         ))}
+
+        {/* O "…" deles, no fim da fileira. Aqui ele abre o mapa dos módulos —
+            uma linha por módulo dizendo o que mora lá. */}
+        <details className="g-menu g-mais">
+          <summary className="g-iconbtn" title="Todos os módulos" aria-label="Todos os módulos">
+            <IconeGestao nome="reticencias" tamanho={24} />
+          </summary>
+          <div className="g-painel">
+            <b>Os módulos</b>
+            {MODULOS.map((m) => (
+              <Link key={m.href} href={m.href}>
+                {m.rotulo} <span className="g-tipo">{m.resumo}</span>
+              </Link>
+            ))}
+          </div>
+        </details>
       </nav>
 
       <nav className="g-barra-fim" aria-label="Atalhos">
@@ -247,7 +332,42 @@ function BarraInferior({ dados, caminho }: { dados: DadosDoCabecalho; caminho: s
 
 /* ============================================================= lateral */
 
+/*
+ * Cada módulo traz a sua lateral, e três deles não trazem nenhuma.
+ *
+ * Builder, Growth e Canais ocupam a largura inteira de propósito: na
+ * plataforma deles o construtor de fluxo e o roteador NÃO usam este casco — é
+ * outra tela, com outra disposição — e uma lateral de um item só seria cromo
+ * fingindo profundidade que a tela não tem.
+ */
 function Lateral({ caminho }: { caminho: string }) {
+  const modulo = moduloDoCaminho(caminho);
+  if (modulo.rotulo === 'Análise') {
+    return (
+      <nav className="g-lateral" aria-label="Análise">
+        <div className="g-lateral-itens">
+          {ITENS_ANALISE.map((i) => (
+            <Link
+              key={i.href}
+              href={i.href}
+              className="g-item"
+              aria-current={estaAtivo(i.href, caminho) ? 'page' : undefined}
+            >
+              <Icone nome={i.icone} tamanho={24} />
+              {i.rotulo}
+            </Link>
+          ))}
+        </div>
+
+        <a className="g-lateral-rodape" href={URL_DESK} target="_blank" rel="noreferrer">
+          <IconeGestao nome="externo" tamanho={20} />
+          Pipe Desk
+        </a>
+      </nav>
+    );
+  }
+  if (modulo.rotulo !== 'Atendimento') return null;
+
   return (
     <nav className="g-lateral" aria-label="Atendimento">
       <div className="g-lateral-itens">
@@ -316,9 +436,7 @@ export function EstruturaGestao({
   return (
     <div className="p-app">
       <BarraSuperior dados={dados} />
-      {/* Todo caminho de trabalho pertence a Atendimento: sem normalizar, o
-          módulo apagaria ao abrir Histórico ou Esforço. */}
-      <BarraInferior dados={dados} caminho="/" />
+      <BarraInferior dados={dados} caminho={caminho} />
       <div className="p-miolo">
         <Lateral caminho={caminho} />
         <main className="p-conteudo">{children}</main>

@@ -438,30 +438,32 @@
   gap: 0;
 }
 
-.g-modulos a {
+.g-modulos > a {
   position: relative;
   display: flex;
   align-items: center;
   padding: 0 var(--p-e-5);
   border-radius: 0;
   font-size: var(--g-t-modulo);
+  /* 25,6px, o mesmo 1,6 do nome do canal. */
+  line-height: 1.6;
   font-weight: var(--g-peso-leve);
   color: var(--g-barra-fraca);
   text-decoration: none;
   white-space: nowrap;
 }
 
-.g-modulos a:hover {
+.g-modulos > a:hover {
   background: var(--g-barra-hover);
 }
 
-.g-modulos a[aria-current='page'] {
+.g-modulos > a[aria-current="page"] {
   background: transparent;
   color: var(--g-barra-tinta);
   font-weight: var(--g-peso-leve);
 }
 
-.g-modulos a[aria-current='page']::before {
+.g-modulos > a[aria-current="page"]::before {
   content: '';
   position: absolute;
   left: 0;
@@ -469,6 +471,43 @@
   width: 100%;
   height: 4px;
   background: var(--g-barra-marca);
+}
+
+/* O "…" no fim da fileira, com o ícone de 24 que eles usam. O painel abre
+   alinhado à esquerda do botão, senão sairia da barra em tela estreita. */
+.g-mais {
+  display: flex;
+  align-items: center;
+  margin-left: var(--p-e-2);
+}
+
+.g-barra-inf .g-mais > summary {
+  /* O deles é ícone de 24, não os 20 dos atalhos da direita. */
+  width: 24px;
+  height: 24px;
+  color: var(--g-barra-fraca);
+}
+
+.g-barra-inf .g-mais[open] > summary,
+.g-barra-inf .g-mais > summary:hover {
+  color: var(--g-barra-tinta);
+}
+
+.g-mais .g-painel {
+  width: 300px;
+}
+
+.g-mais .g-painel a {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--p-e-1) var(--p-e-2);
+  border-radius: var(--p-r-sm);
+}
+
+.g-mais .g-painel a:hover {
+  background: var(--p-superficie-2);
+  text-decoration: none;
 }
 
 /* ============================================================== lateral
@@ -805,6 +844,16 @@
   font-weight: var(--g-peso-forte);
   line-height: var(--g-lh-cartao);
   margin-bottom: 10px;
+}
+
+/* Coluna de leitura dos módulos SEM lateral. Sem isso o cartão ocupa os
+   1.650px da tela e a linha de texto passa de 200 caracteres, que o olho
+   perde na volta. Não vale para tela com tabela, que quer a largura toda. */
+.g-leitura {
+  display: flex;
+  flex-direction: column;
+  gap: var(--g-cartao-gap);
+  max-width: 1000px;
 }
 
 /* Métricas lado a lado em partes iguais, não em grade de largura mínima:
@@ -1245,6 +1294,17 @@
 .cartao-rel.tabela th:first-child,
 .cartao-rel.tabela td:first-child {
   padding-left: var(--p-e-4);
+}
+
+/* Cinco módulos mais o "…" pedem 522px no meio da barra, e o canal e os
+   atalhos pedem os outros dois terços. Abaixo de 1180 a fileira não cabe e
+   passa por cima do nome do canal — então fica só o módulo ABERTO, e os
+   outros quatro continuam a um clique no "…", que já os lista.
+   É o que eles fazem com as fichas do Desk na mesma situação. */
+@media (max-width: 1180px) {
+  .g-modulos > a:not([aria-current='page']) {
+    display: none;
+  }
 }
 
 /* Abaixo de 1180 os quatro cartões de métrica do bloco não cabem em linha. */
