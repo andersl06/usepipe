@@ -76,7 +76,10 @@ const RECUSAS: Record<RecusaDeEntrada, { titulo: string; saida: string }> = {
 
 /** O que a descoberta por e-mail devolve para a tela quando não roteia. */
 const AVISOS: Record<string, { titulo: string; saida: string }> = {
-  senha: {
+  // `google`, e não `senha`: é o que a API responde (`RespostaDaDescoberta`).
+  // Com a chave errada, este era o caso MAIS COMUM — e-mail corporativo sem SSO
+  // — e a tela voltava sem alerta nenhum, como se o "Continuar" não fizesse nada.
+  google: {
     titulo: 'Esta empresa não entra por provedor de identidade',
     saida: 'Use o botão "Entrar com Google" aqui em cima, com o seu e-mail corporativo.',
   },

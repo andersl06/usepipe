@@ -1,4 +1,4 @@
-import type { Eu } from '@pipe/contracts';
+import type { Eu, RespostaDaDescoberta } from '@pipe/contracts';
 
 /**
  * A fronteira com a `api` para tudo que é entrada: quem está logado, por onde
@@ -15,8 +15,15 @@ import type { Eu } from '@pipe/contracts';
  * inventado, e nada é reimplementado.
  */
 
-/** A API vista por ESTE servidor. Atrás de proxy é o nome interno do serviço. */
-const URL_API = (process.env['PIPE_URL_API'] ?? 'http://localhost:3100').replace(/\/$/, '');
+/**
+ * A API vista por ESTE servidor. Atrás de proxy é o nome interno do serviço.
+ *
+ * O padrão é **3000**, que é a porta da `api` (`.env.example`, `PORT=3000`).
+ * 3100 é a Gestão: com ele, um ambiente sem `PIPE_URL_API` perguntava a outro
+ * front quem estava logado, `GET /v1/eu` devolvia 404 e todo mundo caía em
+ * `/entrar` para sempre.
+ */
+const URL_API = (process.env['PIPE_URL_API'] ?? 'http://localhost:3000').replace(/\/$/, '');
 
 /**
  * A mesma API vista pelo NAVEGADOR.
@@ -43,10 +50,17 @@ const ORIGEM_DESTE_APP = (
 /** O cookie de sessão emitido pela API. `HttpOnly`; a tela só o repassa. */
 export const COOKIE_SESSAO = 'pipe_sessao';
 
-/** O que `POST /v1/auth/descobrir` responde, mais os dois modos de falha da tela. */
+/**
+ * O que `POST /v1/auth/descobrir` responde, mais os dois modos de falha da tela.
+ *
+ * `metodo` reaproveita o contrato (`sso` | `google`) em vez de repetir a lista:
+ * a tela escrevia `senha`, a API nunca respondeu isso, e o resultado era o
+ * "Continuar" recarregando a página sem dizer nada. Com o tipo do contrato, um
+ * código novo do lado de lá quebra o `tsc` aqui.
+ */
 export interface EntradaDescoberta {
-  /** `sso` manda ao IdP da empresa; `senha` mostra o caminho do Google. */
-  metodo: 'sso' | 'senha' | 'invalido' | 'falha';
+  /** `sso` manda ao IdP da empresa; `google` mostra o caminho do Google. */
+  metodo: RespostaDaDescoberta['metodo'] | 'invalido' | 'falha';
   /** Caminho na API, quando `sso`. Falta só a base pública. */
   irPara?: string;
 }

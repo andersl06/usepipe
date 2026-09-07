@@ -3,7 +3,7 @@ import { janelaAberta, pertoDeExpirar, segundosRestantes } from '@pipe/core';
 import { Avatar } from '@pipe/ui';
 import { AcoesDaConversa } from './acoes-conversa';
 import { Compositor } from './compositor';
-import type { VariaveisDoContato } from './compositor';
+import type { VariaveisDoContato } from '../lib/template';
 import { DialogoEncerrar } from './dialogo-encerrar';
 import { BotaoReenviar } from './reenviar';
 import { duracaoCurta, hora } from '../servidor/formato';

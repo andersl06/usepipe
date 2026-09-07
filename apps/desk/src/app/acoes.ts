@@ -6,6 +6,7 @@ import { schema } from '@pipe/db';
 import { avaliarEnvio, classificarCusto, transitar, TransicaoInvalidaError } from '@pipe/core';
 import type { CategoriaTemplate, TipoCanal } from '@pipe/core';
 import { noTenant, sessaoAtual } from '../servidor/banco';
+import { renderizarTemplate } from '../lib/template';
 import { data, dataOuNulo } from '../servidor/consultas';
 import type { EstadoAtendente } from '../servidor/consultas';
 
@@ -91,7 +92,12 @@ export async function enviarMensagem(_anterior: Resultado, dados: FormData): Pro
   if (!conversaId) return falha('Conversa não informada.');
   if (!texto && !templateId) return falha('Escreva alguma coisa antes de enviar.');
 
-  const { atendenteId, tenantId } = await sessaoAtual();
+  const {
+    atendenteId,
+    tenantId,
+    nome: nomeDoAtendente,
+    email: emailDoAtendente,
+  } = await sessaoAtual();
   const agora = new Date();
 
   return noTenant(async (tx) => {
@@ -100,9 +106,15 @@ export async function enviarMensagem(_anterior: Resultado, dados: FormData): Pro
       janela_expira_em: Date | string | null;
       canal_tipo: string;
       primeira_resposta_em: Date | string | null;
+      contato_nome: string | null;
+      contato_email: string | null;
+      contato_telefone: string | null;
     }>(sql`
-      select c.estado, c.janela_expira_em, ca.tipo as canal_tipo, c.primeira_resposta_em
+      select c.estado, c.janela_expira_em, ca.tipo as canal_tipo, c.primeira_resposta_em,
+             ct.nome as contato_nome, ct.email as contato_email,
+             ct.telefone_e164 as contato_telefone
         from conversa c
+        join contato ct on ct.id = c.contato_id
         join inbox ib on ib.id = c.inbox_id
         join canal ca on ca.id = ib.canal_id
        where c.id = ${conversaId} and c.atendente_id = ${atendenteId}
@@ -123,14 +135,37 @@ export async function enviarMensagem(_anterior: Resultado, dados: FormData): Pro
     let categoriaTemplate: CategoriaTemplate | null = null;
     let corpo = texto;
     if (templateId) {
-      const { rows: linhas } = await tx.execute<{ categoria: CategoriaTemplate; corpo: string }>(
-        sql`select categoria, corpo from template_mensagem
+      const { rows: linhas } = await tx.execute<{
+        categoria: CategoriaTemplate;
+        corpo: string;
+        variaveis: unknown;
+      }>(
+        sql`select categoria, corpo, variaveis from template_mensagem
              where id = ${templateId} and status_meta = 'aprovado' limit 1`,
       );
       const template = linhas[0];
       if (!template) return falha('Template não encontrado ou não aprovado pela Meta.');
       categoriaTemplate = template.categoria;
-      corpo = template.corpo;
+
+      // As posições `{{1}}`, `{{2}}` são resolvidas AQUI, com a mesma função da
+      // pré-visualização. Antes o corpo ia cru para a tabela `mensagem`, e o
+      // cliente receberia literalmente "Olá {{1}}". Quando a tela não sabe
+      // preencher uma posição, o envio para com o nome do que falta — não sai
+      // meia mensagem.
+      const rendido = renderizarTemplate(template.corpo, template.variaveis, {
+        'contato.nome': conversa.contato_nome ?? '',
+        'contato.email': conversa.contato_email ?? '',
+        'contato.telefone': conversa.contato_telefone ?? '',
+        'atendente.nome': nomeDoAtendente,
+        'atendente.primeiro_nome': nomeDoAtendente.split(' ')[0] ?? nomeDoAtendente,
+        'atendente.email': emailDoAtendente,
+      });
+      if (rendido.faltando.length > 0) {
+        return falha(
+          `Este template pede ${rendido.faltando.join(', ')}, e o Desk ainda não tem campo para preencher. Dispare-o pelo Pipe Gestão.`,
+        );
+      }
+      corpo = rendido.corpo;
     }
 
     const avaliacao = avaliarEnvio({
@@ -202,14 +237,21 @@ export async function reenviarMensagem(_anterior: Resultado, dados: FormData): P
   const mensagemId = String(dados.get('mensagemId') ?? '');
   if (!mensagemId) return falha('Mensagem não informada.');
 
-  await noTenant(async (tx) => {
-    await tx.execute(sql`
+  const afetadas = await noTenant(async (tx) => {
+    // `entregue_em` NÃO é carimbado aqui. Ele é a hora que a Meta confirmou, e
+    // preenchê-lo sem confirmação nenhuma é inventar prova de entrega — de novo
+    // o defeito nº 1 da tela, agora do nosso lado.
+    const { rowCount } = await tx.execute(sql`
       update mensagem
-         set estado_entrega = 'enviada', erro_codigo = null, erro_texto = null,
-             entregue_em = now()
+         set estado_entrega = 'enviada', erro_codigo = null, erro_texto = null
        where id = ${mensagemId} and estado_entrega = 'falhou'
     `);
+    return rowCount ?? 0;
   });
+
+  // Sem linha afetada, a mensagem não existe ou já não estava falha. Devolver
+  // `ok` calado fazia o botão parecer que resolveu.
+  if (afetadas === 0) return falha('Esta mensagem não está mais em falha.');
 
   revalidatePath('/');
   return OK;

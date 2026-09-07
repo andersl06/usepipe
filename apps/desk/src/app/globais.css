@@ -253,16 +253,6 @@
   letter-spacing: -0.015em;
 }
 
-/* Seletor de modo colado ao título, e não numa linha própria: é o mesmo par
-   "Atendimentos + Lista ⌄" do cabeçalho deles. */
-.col-topo .seletor.modo {
-  margin-left: auto;
-  width: auto;
-  height: 32px;
-  padding: 0 var(--p-e-2);
-  font-size: var(--p-t-sm);
-}
-
 /* Bloco de estado: altura mínima de 111px, linha em cima e embaixo, conteúdo
    centrado em três linhas curtas. */
 .bloco-status {

@@ -7,6 +7,8 @@ import type { Resultado } from '../app/acoes';
 import { EVENTO_NOTA, EVENTO_RESPOSTA_PRONTA } from './atalhos';
 import { abrirDialogoEncerrar } from './dialogo-encerrar';
 import { IconeDesk } from './icones-desk';
+import { aplicarVariaveis, renderizarTemplate } from '../lib/template';
+import type { VariaveisDoContato } from '../lib/template';
 import type { RespostaProntaDoDesk, TemplateAprovado } from '../servidor/consultas';
 
 /**
@@ -24,14 +26,7 @@ import type { RespostaProntaDoDesk, TemplateAprovado } from '../servidor/consult
  * Inserir e enviar são dois gestos: nada é enviado automaticamente ao escolher da lista.
  */
 
-export type VariaveisDoContato = {
-  'contato.nome': string;
-  'contato.email': string;
-  'contato.telefone': string;
-  'atendente.nome': string;
-  'atendente.primeiro_nome': string;
-  'atendente.email': string;
-};
+export type { VariaveisDoContato };
 
 interface Gatilho {
   tipo: '#' | '/' | '@';
@@ -50,13 +45,6 @@ interface Comando {
   chave: string;
   titulo: string;
   descricao: string;
-}
-
-function aplicarVariaveis(corpo: string, variaveis: VariaveisDoContato): string {
-  return corpo.replace(/\{\{\s*([\w.]+)\s*\}\}/g, (inteiro, chave: string) => {
-    const valor = (variaveis as Record<string, string | undefined>)[chave];
-    return valor && valor.length > 0 ? valor : inteiro;
-  });
 }
 
 function detectarGatilho(valor: string, caret: number): Gatilho | null {
@@ -168,7 +156,10 @@ export function Compositor({
             ? templatesFiltrados.map((t) => ({
                 chave: `t-${t.id}`,
                 ativavel: true,
-                previa: { titulo: `${t.nome} · ${t.categoria}`, corpo: t.corpo },
+                previa: {
+                  titulo: `${t.nome} · ${t.categoria}`,
+                  corpo: renderizarTemplate(t.corpo, t.variaveis, variaveis).corpo,
+                },
                 executar: () => {
                   setTemplateId(t.id);
                   fecharGatilho();
@@ -328,6 +319,16 @@ export function Compositor({
   }
 
   const templateEscolhido = templates.find((t) => t.id === templateId) ?? null;
+  /**
+   * O corpo do template com `{{1}}`, `{{2}}` resolvidos — o MESMO cálculo que
+   * a Server Action refaz antes de gravar. Enquanto o compositor não tiver
+   * campo para valor de template, o que a tela não sabe preencher (`data`,
+   * `protocolo`) bloqueia o botão: mandar `{{2}}` para o cliente é o defeito,
+   * não o botão desabilitado.
+   */
+  const previaDoTemplate = templateEscolhido
+    ? renderizarTemplate(templateEscolhido.corpo, templateEscolhido.variaveis, variaveis)
+    : null;
 
   return (
     <div className={`composer${modo === 'nota' ? ' modo-nota' : ''}`}>
@@ -495,9 +496,15 @@ export function Compositor({
                 </option>
               ))}
             </select>
-            {templateEscolhido ? (
+            {templateEscolhido && previaDoTemplate ? (
               <>
-                <div className="previa">{aplicarVariaveis(templateEscolhido.corpo, variaveis)}</div>
+                <div className="previa">{previaDoTemplate.corpo}</div>
+                {previaDoTemplate.faltando.length > 0 ? (
+                  <p className="erro">
+                    Este template pede {previaDoTemplate.faltando.join(', ')}, e o Desk ainda não
+                    tem campo para preencher. Dispare-o pelo Pipe Gestão.
+                  </p>
+                ) : null}
                 <div className="rodape">
                   <span className="etiqueta">Categoria · {templateEscolhido.categoria}</span>
                   {/* Frase inteira em caixa alta era grito. `.lbl` é rótulo de
@@ -510,7 +517,7 @@ export function Compositor({
                     type="submit"
                     className="btn primary"
                     style={{ marginLeft: 'auto' }}
-                    disabled={enviando}
+                    disabled={enviando || previaDoTemplate.faltando.length > 0}
                   >
                     {enviando ? 'Enviando…' : 'Enviar template'}
                   </button>

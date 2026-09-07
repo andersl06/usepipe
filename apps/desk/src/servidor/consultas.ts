@@ -310,6 +310,12 @@ export type TemplateAprovado = {
   nome: string;
   categoria: 'utilidade' | 'marketing' | 'autenticacao';
   corpo: string;
+  /**
+   * Os nomes das variáveis NA ORDEM das posições `{{1}}`, `{{2}}`, … Sem
+   * isto a tela não tem como resolver o corpo, e era por isso que ela
+   * gravava (e mostrava) `{{1}}` cru.
+   */
+  variaveis: unknown;
 };
 
 export async function listarTemplatesAprovados(
@@ -317,7 +323,7 @@ export async function listarTemplatesAprovados(
   canalId: string,
 ): Promise<TemplateAprovado[]> {
   const { rows } = await tx.execute<TemplateAprovado>(sql`
-    select id, nome, categoria, corpo
+    select id, nome, categoria, corpo, variaveis
       from template_mensagem
      where canal_id = ${canalId}
        and status_meta = 'aprovado'

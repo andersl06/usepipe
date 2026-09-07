@@ -17,7 +17,6 @@ import { BarraStatus } from '../componentes/barra-status';
 import { Conversa } from '../componentes/conversa';
 import { ehFicha, ListaConversas, naFicha } from '../componentes/lista-conversas';
 import { ehOrdem, filasDe, naFila, ordenar } from '../lib/ordem';
-import { SeletorDeModo } from '../componentes/seletor-de-modo';
 import { PainelContato } from '../componentes/painel-contato';
 import { EstadoVazio } from '@pipe/ui';
 import { TrilhoDesk } from '../componentes/trilho-desk';
@@ -150,12 +149,13 @@ export default async function PaginaDesk({
 
       <main className="desk" data-selecionada={selecionadaNaUrl ? 'true' : 'false'}>
         <div className="col list">
-          {/* Título e seletor de modo lado a lado, como no cabeçalho deles. A
-              contagem que ficava aqui saiu: ela agora vive dentro do rótulo de
-              cada ficha, que é onde diz mais. */}
+          {/* Só o título. O seletor "Lista / Quadro" saiu: o modo Quadro não
+              existe no Pipe, a segunda opção nascia desabilitada e a primeira
+              já estava escolhida — um controle que não podia mudar nada. Ele
+              volta junto com o quadro, não antes. A contagem que ficava aqui
+              também saiu: ela vive dentro do rótulo de cada ficha. */}
           <header className="col-topo">
             <h1>Atendimentos</h1>
-            <SeletorDeModo />
           </header>
           <BarraStatus
             nome={sessao.nome}
