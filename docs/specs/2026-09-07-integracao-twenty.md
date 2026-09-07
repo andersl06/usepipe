@@ -267,31 +267,76 @@ manuais, são checklist de implantação — e o passo 2 é o que precisa de con
 
 ### 5.3 O custo por cliente, em números
 
-Medido nesta máquina, na instância parada com a semente completa de demonstração (~1000
-`workspaceMember`), com `docker stats` e `du` nos volumes:
+Medido nesta máquina com `docker stats` e `du` nos volumes, na nossa imagem
+(`pipe-crm:local`), instância **ociosa** com a semente completa de demonstração (~1000
+`workspaceMember`) e os quatro contêineres de pé:
 
-| Peça | RAM parada | Disco |
+| Peça | RAM ociosa | Disco |
 |---|---|---|
-| `server` | **285 MB** | — |
-| `worker` | não medido (o contêiner estava parado); **mesma imagem do server, contar outro tanto** — ~250 MB | — |
-| `postgres:16` | **50 MB** | **88,5 MB** (com a semente de demonstração inteira) |
-| `redis` | **19 MB** | ~0 |
-| volume `server-local-data` | — | **3,7 MB** |
-| **Total por cliente** | **~600 MB** | **~92 MB** |
+| `server` | **952 MB** | — |
+| `worker` | **798 MB** | — |
+| `postgres:16` | **109 MB** | **96 MB** (com a semente de demonstração inteira) |
+| `redis` | **49 MB** | ~0 |
+| volume `server-local-data` | — | **16 MB** |
+| **Total por cliente** | **~1,9 GB** | **~112 MB** |
 
-Mais a imagem do Twenty: **1,75 GB em disco, uma vez por host** — ela é compartilhada entre todas as
-instâncias da mesma máquina, então não multiplica por cliente.
+Mais a imagem: **1,78 GB em disco, uma vez por host** — compartilhada entre todas as instâncias da
+mesma máquina, então não multiplica por cliente.
 
-Leitura para o preço: **conte ~600 MB de RAM e ~100 MB de disco por cliente, parado.** Numa VPS de
-8 GB sobram, na conta grossa, uns 10 a 12 clientes de CRM antes de a RAM apertar — e isso **sem**
-contar o que o Pipe em si consome no mesmo host. O disco não é o gargalo; a RAM é. O número de disco
-sobe com o uso real do cliente, o de RAM quase não.
+**Atenção a um número que engana, e que quase entrou nesta spec errado.** Medido segundos depois do
+boot, o `server` marcava 285 MB e o `worker` estava parado — dava um total de ~600 MB, que é
+otimista por um fator de três. O Node cresce o heap conforme trabalha, e o `worker` do Twenty **é um
+processo do mesmo tamanho do server**, não um ajudante pequeno. O número que vale para preço é o de
+regime, com o worker no ar: **~1,9 GB**.
+
+Leitura para o preço: **conte ~2 GB de RAM e ~120 MB de disco por cliente, ocioso.** Numa VPS de
+8 GB isso é, na conta grossa, **3 a 4 clientes de CRM** — e isso **sem** contar o que o Pipe em si
+consome no mesmo host. O disco não é o gargalo; a RAM é, com folga. O disco cresce com o uso real do
+cliente; a RAM quase não, porque já nasce alta.
+
+Se 3 a 4 clientes por VPS de 8 GB inviabilizar o preço, o caminho **não** é voltar para a instância
+compartilhada sem discutir de novo: é ou máquina maior, ou aceitar o custo como parte do preço do
+isolamento que foi pedido. A decisão A foi tomada sabendo que custaria contêiner; o que ela não sabia
+é que custaria este tanto. **Vale reapresentar o número ao dono.**
 
 Dois avisos que o preço precisa carregar:
 
 - **O upgrade do Twenty passa a ser N upgrades.** Cada instância roda a própria sequência de migração
   (levou ~2 minutos nesta máquina) e cada uma pode falhar sozinha.
 - **Backup também é N backups**, com N bancos separados.
+
+## 5.4 A prova de ponta a ponta, rodada contra a instância no ar
+
+O roteiro está versionado em `apps/api/tests/prova-e2e-twenty.ts` — não é teste automatizado, é a
+evidência, para a próxima pessoa repetir em vez de acreditar:
+
+```
+PIPE_TWENTY_CHAVE=<chave> pnpm --filter @pipe/api exec tsx tests/prova-e2e-twenty.ts
+```
+
+Resultado em 07/09/2026, contra a nossa imagem (`pipe-crm:local`) em `localhost:3500`:
+
+```
+tenant  86747871-6f75-4540-a875-9d53c8eee3c3
+contato 7c646b70-9cbd-437b-89b1-dadea1958ebc  "Cliente Prova 4d9fcfb4"
+espelho: {"estado":"espelhado","pessoaId":"9f14af3c-bfc9-41e9-97bd-4780a79a527f"}
+coluna twenty_pessoa_id = 9f14af3c-bfc9-41e9-97bd-4780a79a527f
+no CRM: {"id":"9f14af3c-…","pipeContatoId":"7c646b70-…",
+         "name":{"firstName":"Cliente","lastName":"Prova 4d9fcfb4"},
+         "emails":{"primaryEmail":"prova.4d9fcfb4@exemplo.com.br"},
+         "phones":{"primaryPhoneNumber":"11977776666",
+                   "primaryPhoneCallingCode":"+55","primaryPhoneCountryCode":"BR"}}
+segunda passada: {"estado":"espelhado","pessoaId":"9f14af3c-…"} — mesmo id, sem duplicata
+```
+
+O que isso prova, ponto a ponto:
+
+- contato do Pipe virou `person` no CRM, com nome partido, telefone partido em DDI/país e e-mail;
+- o `pipeContatoId` do lado de lá é o id do nosso contato — a amarração de mão dupla fechou;
+- o `twenty_pessoa_id` voltou para a nossa coluna, que é o que faz o link direto existir;
+- **a segunda passada devolveu o MESMO id**, ou seja, o passo anti-duplicata do §4 funciona de
+  verdade e não só no teste com `fetch` de mentira;
+- o link `http://localhost:3500/object/person/9f14af3c-…` responde 200, e `…/objects/people` também.
 
 ## 6. Segredo
 
