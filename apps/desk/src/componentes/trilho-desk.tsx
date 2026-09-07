@@ -81,8 +81,10 @@ const DESTINOS: Destino[] = [
     chave: 'metricas',
     rotulo: 'Métricas de atendimento',
     icone: 'metricas',
-    href: URL_GESTAO,
-    fora: 'Pipe Gestão',
+    // Passou a ser tela do próprio Desk, com o recorte da própria pessoa. A
+    // visão da OPERAÇÃO continua sendo do Gestão, com permissão de supervisor;
+    // as duas convivem, como na tela de referência.
+    href: '/metricas',
   },
   {
     chave: 'contatos',
@@ -109,12 +111,20 @@ export function TrilhoDesk({
   email,
   tenantNome,
   estado,
+  atual = 'atendimentos',
 }: {
   iniciais: string;
   nome: string;
   email: string;
   tenantNome: string;
   estado: EstadoAtendente;
+  /**
+   * Qual destino está em vigor. Vem da página, e não de `usePathname`: o
+   * trilho é componente de servidor e cada tela sabe quem ela é. Enquanto o
+   * Desk teve uma rota só isto era constante; com a tela de métricas passou a
+   * haver duas, e sem esta prop as duas se marcavam ao mesmo tempo.
+   */
+  atual?: string;
 }) {
   return (
     <nav className="trilho-desk" aria-label="Módulos">
@@ -152,7 +162,7 @@ export function TrilhoDesk({
               className="trilho-item"
               key={destino.chave}
               href={destino.href}
-              aria-current="page"
+              aria-current={destino.chave === atual ? 'page' : undefined}
               title={titulo}
             >
               {conteudo}

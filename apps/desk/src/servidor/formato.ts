@@ -38,6 +38,28 @@ export function decorrido(desde: Date, agora: Date): string {
 }
 
 /** `21h48`, `38min` — o tempo restante da janela, do jeito que o atendente lê. */
+/**
+ * Duração em formato de relógio, para a tela de métricas: `hh:mm:ss`, e
+ * `Nd hh:mm` quando passa de um dia. É o formato da tela de referência, e o
+ * motivo de ele ser diferente do `duracaoCurta` é que aqui os números ficam
+ * empilhados numa coluna e precisam alinhar dígito com dígito.
+ *
+ * Sem valor não devolve "0", devolve um traço: zero segundos de espera e
+ * ausência de espera medida são coisas diferentes, e confundir as duas é o que
+ * faz um atendente comemorar uma média que não existe.
+ */
+export function duracaoRelogio(segundos: number | null): string {
+  if (segundos === null) return '—';
+  const total = Math.max(0, Math.round(segundos));
+  const dias = Math.floor(total / 86400);
+  const h = Math.floor((total % 86400) / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  const dois = (n: number): string => String(n).padStart(2, '0');
+  if (dias > 0) return `${dias}d ${dois(h)}:${dois(m)}`;
+  return `${dois(h)}:${dois(m)}:${dois(s)}`;
+}
+
 export function duracaoCurta(segundos: number): string {
   const total = Math.max(0, Math.floor(segundos / 60));
   const h = Math.floor(total / 60);

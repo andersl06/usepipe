@@ -1233,6 +1233,201 @@
   flex-wrap: wrap;
 }
 
+/* ================================================================ métricas
+   "Minhas métricas": uma coluna rolada ao lado do trilho, sem as três colunas
+   do atendimento — não há conversa aqui, e uma coluna vazia de cada lado só
+   estreitaria o gráfico. */
+.metricas {
+  flex: 1;
+  min-width: 0;
+  overflow-y: auto;
+  background: var(--surface-2);
+  padding: var(--p-e-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-4);
+}
+
+.metricas-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--p-e-4);
+  flex-wrap: wrap;
+}
+
+.metricas-topo h1 {
+  margin: 0;
+  font-size: var(--p-t-titulo);
+  font-weight: var(--p-peso-forte);
+  letter-spacing: -0.015em;
+}
+
+.metricas-topo .sub {
+  margin: var(--p-e-1) 0 0;
+  font-size: var(--p-t-md);
+  color: var(--ink-2);
+}
+
+/* Os cinco atalhos e o intervalo à mão dividem a mesma linha: são a mesma
+   escolha, e separá-los em duas faixas faria o personalizado parecer outra
+   coisa. */
+.periodos {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-1);
+  flex-wrap: wrap;
+}
+
+.periodos .etiqueta {
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.periodos .etiqueta[aria-current='true'] {
+  background: var(--moss-soft);
+  border-color: var(--p-marca-linha);
+  color: var(--p-marca-forte);
+}
+
+.periodo-livre {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-1);
+  margin-left: var(--p-e-2);
+}
+
+.periodo-livre input {
+  font: inherit;
+  font-size: var(--p-t-sm);
+  padding: var(--p-e-1) var(--p-e-2);
+  color: var(--ink);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--p-r-md);
+}
+
+.metricas .bloco {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--p-r-md);
+  padding: var(--p-e-4) var(--p-e-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+}
+
+.metricas .bloco h2 {
+  margin: 0;
+  font-size: var(--p-t-lg);
+  font-weight: var(--p-peso-forte);
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+/* Os seis cartões, em três por linha como na referência, mas encolhendo
+   sozinhos: `auto-fit` faz duas linhas de três virarem três de dois sem uma
+   consulta de mídia. */
+.cartoes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: var(--p-e-2);
+}
+
+.cartao-num {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--p-e-3);
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: var(--p-r-md);
+}
+
+.cartao-num .n {
+  font-size: var(--p-t-numero);
+  font-weight: var(--p-peso-forte);
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  line-height: var(--p-altura-linha-curta);
+  color: var(--ink);
+}
+
+.cartao-num .rot {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-medio);
+  color: var(--ink);
+}
+
+.cartao-num .exp {
+  font-size: var(--p-t-sm);
+  color: var(--ink-3);
+  line-height: var(--p-altura-linha);
+}
+
+/* A série diária em barras de CSS. Duas séries e no máximo 90 pontos não
+   pagam o custo de um empacotado de gráfico: barra em `div` funciona sem
+   JavaScript, imprime, e acompanha o tema sozinha. */
+.serie {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 140px;
+  padding-top: var(--p-e-2);
+  border-bottom: 1px solid var(--line-strong);
+  overflow-x: auto;
+}
+
+.serie-dia {
+  flex: 1;
+  min-width: 6px;
+  height: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 1px;
+}
+
+.serie-dia .b {
+  flex: 1;
+  max-width: 10px;
+  /* Um dia com zero ainda desenha um fio: barra de altura zero some, e some
+     junto com ela a informação de que aquele dia foi medido. */
+  min-height: 1px;
+  border-radius: var(--p-r-sm) var(--p-r-sm) 0 0;
+}
+
+.serie-dia .abertos,
+.legenda .abertos::before {
+  background: var(--moss);
+}
+
+.serie-dia .fechados,
+.legenda .fechados::before {
+  background: var(--ink-3);
+}
+
+.legenda {
+  display: flex;
+  gap: var(--p-e-3);
+  font-size: var(--p-t-sm);
+  color: var(--ink-2);
+}
+
+.legenda .chave {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-e-1);
+}
+
+.legenda .chave::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+}
+
 /* =========================================================== inatividade
    O aviso de inatividade cobre a tela. É o único elemento do Desk que faz
    isso sem a pessoa ter pedido, e o motivo é o mesmo que justifica a regra:

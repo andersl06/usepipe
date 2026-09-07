@@ -1,4 +1,7 @@
+import { cookies } from 'next/headers';
 import { noTenant, sessaoAtual } from '../servidor/banco';
+import { buscarFichaDoCrm } from '../lib/crm';
+import { COOKIE_SESSAO } from '../lib/sessao';
 import {
   carregarConversa,
   carregarStatus,
@@ -138,6 +141,26 @@ export default async function PaginaDesk({
   const selecionadaNaUrl = Boolean(parametros.conversa);
 
   /**
+   * O que o CRM sabe do cliente da conversa aberta.
+   *
+   * Vai à `api` e não ao banco, porque quem fala com o CRM é a `api` — regra do dono.
+   * É a única leitura desta tela que sai por HTTP, e por isso fica FORA do `noTenant`:
+   * segurar uma conexão de banco esperando resposta de rede é conexão que falta para
+   * todo mundo.
+   *
+   * `buscarFichaDoCrm` nunca lança: CRM fora do ar devolve `null`, o cartão some e a
+   * conversa continua. O atendimento vale mais que o cartão do CRM.
+   */
+  const cookieDaSessao = (await cookies()).get(COOKIE_SESSAO);
+  const fichaDoCrm =
+    dados.aberta && cookieDaSessao
+      ? await buscarFichaDoCrm(
+          `${COOKIE_SESSAO}=${cookieDaSessao.value}`,
+          dados.aberta.conversa.contatoId,
+        )
+      : null;
+
+  /**
    * Trocar de aba no painel não pode desfazer nada do resto da tela: a
    * conversa aberta, a busca, a ficha, a ordem e a fila continuam todas na
    * URL. É a mesma regra que a coluna de atendimentos já segue nos seus links.
@@ -251,6 +274,7 @@ export default async function PaginaDesk({
             historico={dados.aberta.historico}
             aba={aba}
             href={linkDaAba}
+            fichaDoCrm={fichaDoCrm}
           />
         ) : (
           <aside className="col panel" aria-label="Contato" />

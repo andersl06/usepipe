@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { dia, diaEHora } from '../servidor/formato';
 import { iniciaisDe } from '../lib/nome';
+import { BlocoCrm } from './bloco-crm';
+import type { FichaDoCrm } from '../lib/crm';
 import type { ConversaAberta, ConversaDoHistorico } from '../servidor/consultas';
 
 /**
@@ -60,6 +62,7 @@ export function PainelContato({
   historico,
   aba,
   href,
+  fichaDoCrm,
 }: {
   conversa: ConversaAberta;
   etiquetas: { id: string; nome: string }[];
@@ -67,6 +70,8 @@ export function PainelContato({
   aba: AbaDoPainel;
   /** Monta o link de uma aba preservando a conversa aberta e os filtros. */
   href: (aba: AbaDoPainel) => string;
+  /** O que o CRM sabe deste cliente. `null` some da tela — ver `bloco-crm.tsx`. */
+  fichaDoCrm: FichaDoCrm | null;
 }) {
   const atributos = Object.entries(conversa.contatoAtributos);
   const nome = conversa.contatoNome ?? 'Sem nome';
@@ -149,6 +154,8 @@ export function PainelContato({
                 </div>
               )}
             </section>
+
+            <BlocoCrm ficha={fichaDoCrm} />
           </>
         ) : null}
 
