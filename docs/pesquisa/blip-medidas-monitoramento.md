@@ -342,8 +342,9 @@ Cartão interno de gráfico: **653×400**, padding 20, raio 16.
 
 ## 7. O que não foi medido
 
-- **Modelos de mensagens, Filas de atendimento, Pausas personalizadas, Canais de atendimento,
-  Configurações gerais, Calls, Vendas** — telas não abertas nesta sessão.
+- **Calls e Vendas** — telas não abertas nesta sessão.
+- ~~Modelos de mensagens, Filas de atendimento, Pausas personalizadas, Canais de atendimento,
+  Configurações gerais~~ — MEDIDAS em 06/09/2026, ver `blip-telas-cadastro.md`.
 - **Estados de passagem do cursor** (`:hover`) da lateral e dos módulos.
 - **Comportamento abaixo de 1707px de largura** — nenhum ponto de quebra foi exercitado.
 - **Altura da linha do rodapé de paginação** — a tela de Monitoramento não tem paginação.
