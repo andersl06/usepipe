@@ -53,6 +53,24 @@ packages/
   mcp        servidor MCP
 ```
 
+### Quem fala com o banco — a fronteira
+
+**Front é front; banco é da `api`.** Regra de arquitetura, decidida em 07/09 junto com a migração
+para Vite (ver [Arquitetura de front](docs/specs/2026-09-07-arquitetura-de-front.md)):
+
+- **`apps/api` é a ÚNICA porta para o Postgres.** Toda leitura e toda escrita passa por ela.
+- **`apps/desk`, `apps/gestao`, `apps/crm` e a `lp` não abrem conexão.** Eles pedem à `api` por
+  HTTP e recebem o que `packages/contracts` define.
+- **`apps/workers` é a exceção**, e única: fila e agregação são trabalho de fundo, não requisição
+  de ninguém, e passar por HTTP só acrescentaria um salto para errar.
+
+Hoje as três telas ainda são Next.js e consultam o banco por server component — é dívida conhecida,
+e a migração para Vite existe para pagá-la. Enquanto ela não acontece, vale a regra de transição:
+
+**A consulta vive em `src/lib/*.ts`, isolada e sem nada de tela.** Ela recebe parâmetro e devolve
+dado, sem `useState`, sem JSX, sem `revalidatePath`. Assim virar endpoint na `api` é mover o arquivo,
+não reescrever a lógica — e é a diferença entre uma migração de um dia e uma de três semanas.
+
 ### Onde mora a regra de negócio
 
 Em `packages/core`, e só lá. Métrica, esforço, score, distribuição por carga, SLA e a janela de 24
