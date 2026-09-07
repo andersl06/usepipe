@@ -26,6 +26,17 @@ async function respondeu(url: string): Promise<boolean> {
  * `docker-compose.yml` não estiver de pé, esta rotina sobe ele e espera ficar saudável.
  */
 export async function setup(): Promise<void> {
+  /*
+   * Chave de cifra para o ambiente de teste.
+   *
+   * A cifra de segredo de canal falha alto quando não há chaveiro, e é isso que
+   * queremos em produção: melhor a API não subir do que subir gravando token da
+   * Meta em texto claro achando que não. Em teste, a chave é fixa e pública de
+   * propósito — ela não protege nada aqui, só faz o caminho existir.
+   */
+  process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 7).toString('base64')}`;
+  process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
+
   if (await respondeu(URL_DONO)) return;
 
   await executar('docker', ['compose', 'up', '-d', '--wait', 'postgres', 'redis'], { cwd: RAIZ });

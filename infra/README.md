@@ -41,3 +41,6 @@ São dívidas do produto, não do IaC — mas o IaC não funciona sem elas:
    `pipe_mensagem_entrega_total`) precisa ser emitida pelos workers.
 4. Os valores de exemplo (id de datacenter, plano, endpoint de bucket, destinatárias
    age) são inventados. Confira cada um contra o painel do provedor.
+5. O `.gitignore` da raiz ignora `.env.*` e **não** ignora `*.tfvars`. Por isso o
+   modelo aqui se chama `env.prod.exemplo`, sem ponto — e `*.tfvars` precisa ser
+   acrescentado ao `.gitignore` antes do primeiro `terraform apply`.

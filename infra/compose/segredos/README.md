@@ -11,4 +11,4 @@ sops updatekeys compose/segredos/producao.enc.env  # depois de trocar destinatá
 ```
 
 Arquivo em texto claro nesta pasta é defeito, não pressa. O modelo do conteúdo
-está em [`../.env.prod.exemplo`](../.env.prod.exemplo).
+está em [`../env.prod.exemplo`](../env.prod.exemplo).

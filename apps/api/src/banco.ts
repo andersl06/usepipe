@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
-import { criarBanco, comTenant } from '@pipe/db';
-import type { BancoPipe, TransacaoPipe } from '@pipe/db';
+import { criarBanco, comTenant, chaveiroDoAmbiente, decifrarConfig } from '@pipe/db';
+import type { BancoPipe, Chaveiro, TransacaoPipe } from '@pipe/db';
 
 /**
  * Dois pools, dois papéis — a mesma divisão do Desk e dos workers.
@@ -54,6 +54,18 @@ export interface CanalResolvido {
 const cacheDeCanal = new Map<string, CanalResolvido>();
 
 /**
+ * O chaveiro é lido do ambiente uma vez e guardado. Ler a cada evento da Meta
+ * seria trabalho repetido, e uma chave que muda em tempo de execução é reinício
+ * de processo, não recarga.
+ */
+let chaveiroGuardado: Chaveiro | null = null;
+
+function chaveiro(): Chaveiro {
+  chaveiroGuardado ??= chaveiroDoAmbiente();
+  return chaveiroGuardado;
+}
+
+/**
  * Resolve o canal do webhook. Guardado em memória porque é lido a cada evento da
  * Meta e muda quase nunca; `esquecerCanal` invalida quando a configuração mudar.
  */
@@ -76,7 +88,10 @@ export async function resolverCanal(canalId: string): Promise<CanalResolvido | n
     tenantId: linha.tenant_id,
     tipo: linha.tipo,
     ativo: linha.ativo,
-    config: linha.config ?? {},
+    // Decifrado UMA vez, aqui, e o resto do código continua lendo
+    // `config.tokenAcesso` como sempre leu. O segredo vive cifrado no banco e em
+    // texto só na memória de quem precisa dele — ver `packages/db/src/segredo.ts`.
+    config: decifrarConfig(linha.config ?? {}, chaveiro()),
   };
   cacheDeCanal.set(canalId, canal);
   return canal;
