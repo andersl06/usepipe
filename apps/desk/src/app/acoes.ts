@@ -80,6 +80,48 @@ export async function definirStatus(_anterior: Resultado, dados: FormData): Prom
   return OK;
 }
 
+/**
+ * Queda por inatividade: vinte minutos sem nenhum gesto na tela e o atendente
+ * sai da distribuição.
+ *
+ * É a mesma régua da tela de referência (dez minutos até o aviso, mais dez até
+ * a queda), registrada em `docs/pesquisa/blip-desk-medidas.md`, §9. Quem conta
+ * o tempo é o navegador, em `../componentes/inatividade`; o que chega aqui é só
+ * o veredito.
+ *
+ * A ação é **idempotente e estreita de propósito**: ela só derruba, nunca
+ * levanta, e não faz nada se o atendente já está Offline. Sem isso, uma aba
+ * esquecida aberta num segundo monitor derrubaria o atendente que está
+ * trabalhando na primeira — e a queda por inatividade viraria a causa mais
+ * comum de conversa parada, que é justamente o que ela existe para evitar.
+ *
+ * A pausa aberta é encerrada junto, pelo mesmo motivo de `definirStatus`: pausa
+ * sem fim conta o mesmo minuto para sempre no relatório de ocupação.
+ */
+export async function cairPorInatividade(): Promise<Resultado> {
+  const { atendenteId, tenantId } = await sessaoAtual();
+
+  await noTenant(async (tx) => {
+    const agora = new Date();
+    await tx
+      .insert(schema.statusAtendente)
+      .values({ usuarioId: atendenteId, tenantId, estado: 'offline', desde: agora })
+      .onConflictDoUpdate({
+        target: schema.statusAtendente.usuarioId,
+        set: { estado: 'offline', desde: agora },
+        where: sql`${schema.statusAtendente.estado} <> 'offline'`,
+      });
+
+    await tx
+      .update(schema.pausa)
+      .set({ encerradaEm: agora })
+      .where(and(eq(schema.pausa.usuarioId, atendenteId), isNull(schema.pausa.encerradaEm)));
+  });
+
+  revalidatePath('/');
+  return OK;
+}
+
 // --- envio ---
 
 export async function enviarMensagem(_anterior: Resultado, dados: FormData): Promise<Resultado> {

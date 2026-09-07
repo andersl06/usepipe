@@ -17,9 +17,11 @@ import { BarraStatus } from '../componentes/barra-status';
 import { Conversa } from '../componentes/conversa';
 import { ehFicha, ListaConversas, naFicha } from '../componentes/lista-conversas';
 import { ehOrdem, filasDe, naFila, ordenar } from '../lib/ordem';
-import { PainelContato } from '../componentes/painel-contato';
+import { ehAbaDoPainel, PainelContato } from '../componentes/painel-contato';
+import type { AbaDoPainel } from '../componentes/painel-contato';
 import { EstadoVazio } from '@pipe/ui';
 import { TrilhoDesk } from '../componentes/trilho-desk';
+import { VigiaDeInatividade } from '../componentes/inatividade';
 
 /**
  * A tela do atendente inteira em uma rota. A conversa aberta é `?conversa=<id>`, e não
@@ -52,6 +54,8 @@ interface Parametros {
   filtro?: string;
   ordem?: string;
   fila?: string;
+  /** Aba do painel do contato: perfil, historico ou metadados. */
+  painel?: string;
 }
 
 export default async function PaginaDesk({
@@ -64,6 +68,7 @@ export default async function PaginaDesk({
   const ficha = ehFicha(parametros.filtro) ? parametros.filtro : 'todos';
   const ordem = ehOrdem(parametros.ordem) ? parametros.ordem : 'recentes';
   const fila = (parametros.fila ?? '').trim();
+  const aba = ehAbaDoPainel(parametros.painel) ? parametros.painel : 'perfil';
   const agora = new Date();
   const sessao = await sessaoAtual();
 
@@ -131,6 +136,21 @@ export default async function PaginaDesk({
 
   const selecionadaNaUrl = Boolean(parametros.conversa);
 
+  /**
+   * Trocar de aba no painel não pode desfazer nada do resto da tela: a
+   * conversa aberta, a busca, a ficha, a ordem e a fila continuam todas na
+   * URL. É a mesma regra que a coluna de atendimentos já segue nos seus links.
+   */
+  function linkDaAba(destino: AbaDoPainel): string {
+    const chaves = new URLSearchParams({ filtro: ficha });
+    if (busca) chaves.set('busca', busca);
+    if (ordem !== 'recentes') chaves.set('ordem', ordem);
+    if (fila) chaves.set('fila', fila);
+    if (dados.aberta) chaves.set('conversa', dados.aberta.conversa.id);
+    if (destino !== 'perfil') chaves.set('painel', destino);
+    return `/?${chaves.toString()}`;
+  }
+
   return (
     // Trilho de altura cheia à esquerda e três colunas à direita, na disposição
     // medida no Desk deles. Não há barra superior: ela repetiria o que o trilho
@@ -139,6 +159,10 @@ export default async function PaginaDesk({
       {/* Escuta o teclado da tela inteira. Fica fora das colunas de propósito:
           o atalho vale mesmo sem conversa aberta. */}
       <AtalhosDeTeclado />
+      {/* Conta os 10 minutos até o aviso e os 10 seguintes até a queda para
+          Offline. Fica fora das colunas pelo mesmo motivo dos atalhos: a regra
+          vale com ou sem conversa aberta. */}
+      <VigiaDeInatividade estado={dados.status.estado} />
       <TrilhoDesk
         iniciais={sessao.iniciais}
         nome={sessao.nome}
@@ -222,6 +246,8 @@ export default async function PaginaDesk({
             conversa={dados.aberta.conversa}
             etiquetas={dados.aberta.etiquetasDaConversa}
             historico={dados.aberta.historico}
+            aba={aba}
+            href={linkDaAba}
           />
         ) : (
           <aside className="col panel" aria-label="Contato" />

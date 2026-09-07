@@ -1,295 +1,579 @@
 # Blip Desk, medido
 
-Medição da tela do atendente da Blip. Duas fontes, e as duas concordam:
+Medição da tela do atendente da Blip. **Esta versão foi conferida contra a folha de
+estilo compilada da aplicação deles** — 969 KB, 3.349 seletores, salva junto com a
+página inteira. É a primeira vez que a medida tem uma fonte que se pode reconferir:
+até aqui tudo vinha de `getComputedStyle` numa sessão viva e de captura de tela.
 
-1. **A aplicação rodando**, em `supernova.desk.blip.ai`, com a sessão ativa e o atendente
-   **Invisível** — nunca online, para não puxar cliente real. Viewport de 1920×863.
-2. **O pacote compilado** em `Downloads/blio`: a folha de 773 KB e o `app.js` de 2,4 MB,
-   que dão as regras que a tela não mostrava por falta de conversa aberta.
+Três fontes, na ordem de confiança:
 
-**Nada daqui é código copiado.** Largura, altura, raio e passo são fato medido; o que se
-aplica no Pipe são os números, com os nossos token. Nenhum valor de cor deles entra no
-nosso CSS.
+1. **A folha de estilo compilada**, em `supernova.desk.blip.ai/static/css/app.<hash>.css`.
+   É de onde sai todo número desta página que traga um seletor ao lado. Onde ela e a
+   medição por captura discordam, **a folha ganha**, e a divergência está marcada.
+2. **O arquivo de configuração**, em `supernova.desk.blip.ai/static/settings.<hash>.json`.
+   É de onde saem os tempos e limites da operação (§9).
+3. **A aplicação rodando**, medida antes com a sessão ativa e o atendente Invisível.
+   Continua valendo para o que não está na folha — o que vem de componente web
+   (`bds-*`), cujo estilo mora dentro do `shadowRoot` e não na folha.
 
-## 0. O truque de medição, de novo
+**Nada daqui é código copiado.** O seletor aparece ao lado do número como referência de
+medição — "medi aqui, deu tanto" —, do mesmo jeito que se cita a página de um livro.
+Nenhum bloco de regra deles foi colado, nenhum nome de classe deles entra no nosso CSS,
+e nenhum valor de cor deles entra em lugar nenhum. **Cor sai sempre dos nossos `--p-*`.**
 
-O aviso que o agente anterior deixou vale integralmente aqui, e foi confirmado em toda
-medição desta página: **`getComputedStyle` no elemento hospedeiro mente**. Todo
-`bds-typo` devolve `16px` no host, sempre, para qualquer texto. O tamanho real vive no
-elemento dentro do `shadowRoot`, que carrega a classe `typo__variant--fs-NN`:
+## 0. O truque de medição, e por que ele importava menos do que parecia
+
+O aviso do levantamento anterior continua válido: **`getComputedStyle` no elemento
+hospedeiro mente**. Todo `bds-typo` devolve `16px` no host, para qualquer texto; o
+tamanho real vive no elemento dentro do `shadowRoot`.
 
 | O que o host diz | O que o shadow diz | Onde aparece |
 |---|---|---|
-| 16px | `fs-20` / 600 / entrelinha 20px | Título de tela ("Atendimentos", "Fique online para atender") |
-| 16px | `fs-16` / 400 / entrelinha 24px | Corpo, rótulo, item de menu |
-| 16px | `fs-14` / 400 / entrelinha 21px | Contador de aba ("Todos (0)") |
+| 16px | 20 / 600 / entrelinha 20px | Título de tela |
+| 16px | 16 / 400 / entrelinha 24px | Corpo, rótulo, item de menu |
+| 16px | 14 / 400 / entrelinha 21px | Contador de aba |
 
-A travessia precisa descer por `el.shadowRoot.children` **e** por `el.children` no mesmo
-laço, senão metade da árvore desaparece.
+Régua de tipo deles: **20 / 16 / 14**, mais um **10px** que aparece no horário abaixo do
+balão (`.blip-card .notification`, `font-size: 10px; line-height: 14px`). A folha
+confirma os dois extremos.
 
-Régua efetiva da tela deles: **20 / 16 / 14**, mais um 10px que só aparece no horário
-abaixo do balão. Bate com a contagem do bundle já registrada em `blip-design-system.md`.
+O que mudou: quase tudo o mais **não** precisava do truque. A folha traz a medida
+direta, e é por isso que este documento pôde corrigir sete valores.
 
-## 1. Proporção geral, que não é em pixel
+---
 
-A descoberta que muda o desenho: **as colunas são percentuais, não fixas.**
+## 1. As correções
 
-```
-#container .sidenav  { width: 25% }   coluna de atendimentos
-#container .pane-chat{ width: 50% }   conversa
-#container .drawer   { width: 25%; min-width: 260px }
-```
+Sete medidas do levantamento por captura estavam erradas ou incompletas. Todas já foram
+aplicadas em `apps/desk`.
 
-Em 1920 isso deu, medido: trilho 80 · lista 460 · conversa 920 · painel 460.
+| # | O que | Estava | É | Onde medi |
+|---|---|---|---|---|
+| 1 | **Canto do balão de saída** | `13 2 13 13` — recorte em cima à direita | `13 13 2 13` — recorte **embaixo** à direita | `.blip-message-group .blip-card-group>:first-child …>.bubble.right` |
+| 2 | **Canto do balão de saída, dentro do grupo** | continuava `13 2 13 13` | `13 2 2 13` — os dois cantos da direita encolhem | `…>:not(:first-child) …>.bubble.right` |
+| 3 | **Cartão selecionado na lista** | preto 16% sobre superfície 1 | **superfície 3** + preto **12%**; com o cursor, 16% | `.active` e `.active:hover` do item de lista |
+| 4 | **Topo do painel do contato** | 57px, caindo para 49px na faixa estreita | **49px é o padrão**; 57px é que aparece **abaixo de 1440** | `.drawer-heading` e sua consulta de mídia |
+| 5 | **Cabeçalho da conversa** | recuo lido só na lateral (24px) | **24px em volta**, inclusive em cima e embaixo | `.pane-chat-header .chat-header { padding: 1.5rem }` |
+| 6 | **Bloco de busca da coluna** | "50px" | o bloco de busca custa **80px** da altura da coluna | diferença entre `.list-content` e `.list-content-with-search` |
+| 7 | **Faixa de 1440** | não existia no levantamento | o bloco de estado sobe para **117px** entre 1112 e 1440 | consulta de mídia sobre `--sidenav-header-min-height` |
 
-As faixas, na ordem em que a folha as declara:
+Duas medidas novas, que simplesmente faltavam:
 
-| Largura da janela | Lista | Conversa | Painel |
-|---|---|---|---|
-| acima de 1600 | 25% | 50% | 25% |
-| até 1600, painel fechado | 25% | 75% | escondido |
-| até 1112 | 25% | 75% | sobrepõe a conversa quando aberto (z-index 10) |
-| até 950 | 100% | 100% | 100%, e os três painéis deslizam com `left: -100%` e `-200%` |
-
-Não existe coluna de 300px em lugar nenhum. Em 1440 a coluna de atendimentos tem 340px,
-em 1920 tem 460px, e o balão da conversa acompanha porque é medido em porcentagem também.
-
-## 2. Trilho de ícones
-
-`bds-navbar` vertical, tema escuro, altura cheia. É o único cromo escuro da tela.
-
-| Medida | Valor |
-|---|---|
-| Largura do trilho | **80px** |
-| Preenchimento interno | 16px em cima e embaixo, 8px nas laterais |
-| Coluna útil | 64px |
-| Espaço entre itens | 8px |
-| Bloco da marca no topo | 64×64, com a ilustração em 40×40 |
-| Folga abaixo da marca | 24px |
-| Alvo de cada item | 64×40, com 12px de recuo lateral |
-| Passo vertical | **48px** (40 de altura mais 8 de espaço) |
-| Ícone | **24×24** |
-| Indicador de ativo | retângulo de **40×40**, raio **8px**, fundo `--color-pressed` |
-
-O indicador de ativo é `.menu-selected { background: var(--color-pressed); border-radius: 8px }`.
-Medido no tema escuro deles, `--color-pressed` resolve para branco a 8% de opacidade. Não
-há barra lateral, não há sublinhado, não há cor de marca: o ativo é **só** um retângulo um
-degrau mais claro que o fundo do trilho.
-
-Os itens, na ordem, lidos do `tooltip-text` de cada um:
-
-```
-topo      Atendimentos · Mensagens ativas · Métricas de atendimento · Contatos · Ações em massa
-rodapé    Ajuda · Preferências
-rodapé    avatar do atendente, com o ponto do estado (título "Seu status é: Invisível")
-```
-
-O rodapé usa o mesmo passo de 48px e fica colado no fim pelo `justify-content: space-between`
-do trilho. O avatar é o último elemento, abaixo dos dois ícones de conta.
-
-## 3. Coluna de atendimentos
-
-Fundo da coluna em superfície 2 (o degrau de recesso). Ela se divide em quatro blocos
-empilhados, e os dois primeiros ficam em superfície 1, um degrau acima do resto:
-
-| Bloco | Altura | Conteúdo |
+| O que | Valor | Onde |
 |---|---|---|
-| Cabeçalho | **76px**, preenchimento 16px | Título em fs-20/700 e, embaixo, o seletor de visão "Lista ⌄" (Lista / Quadro) |
-| Estado do atendente | `--sidenav-header-min-height: 111px`, máximo 160px | "Seu status é *Invisível*" com o estado na cor de marca, e um botão de 40px de altura |
-| Busca | 50px | Campo de 42px, raio 8px, borda 1px, recuo 8px 4px 8px 12px, ícone de 20px numa caixa de 24px |
-| Lista | o que sobra | `height: calc(100% - 109px)` quando há busca |
+| **Piso e teto do compositor** | `min-height: 150px`, `max-height: 420px` | `.pane-chat-message-input__container` |
+| **Piso do painel do contato** | `min-width: 260px` | `.drawer` |
 
-O `--sidenav-header-min-height` é o token que o `blip-design-system.md` já tinha
-flagrado. Ele muda de valor por contexto: **111px** na tela normal, **117px** noutra
-faixa, e **82px** no modo de mensagem ativa. É o mesmo bloco, com mais ou menos coisa
-dentro.
+E dois degraus do trilho que estavam subestimados: a passagem do cursor é **8%** e o item
+em vigor é **16%** (`--color-hover` e `--color-pressed`, com os valores de recurso
+`rgba(0,0,0,.08)` e `rgba(0,0,0,.16)`). Estavam em 6% e 10% no nosso CSS, e a diferença
+entre os dois ficava abaixo do que se enxerga.
 
-O cabeçalho e o bloco de estado são separados por linha de 1px em superfície 3, em cima e
-embaixo do bloco de estado.
+---
+
+## 2. Proporção geral, que não é em pixel
+
+Confirmado na folha, sem correção:
+
+```
+sidenav   25%
+pane-chat 50%
+drawer    25%,  min-width 260px
+```
+
+Em 1920 isso dá: trilho 80 · lista 460 · conversa 920 · painel 460.
+
+As faixas, na ordem em que a folha as declara — **são cinco, e não quatro**:
+
+| Faixa | O que muda |
+|---|---|
+| acima de **1600** | recuo do rolador de mensagens vai a 40px/64px |
+| até **1600** | com o painel fechado, a conversa vai a 75% |
+| até **1441** | troca de conjunto de itens visíveis (`show-above-large` / `show-below-large`) |
+| até **1440** | bloco de estado a 117px, topo do painel a 57px |
+| até **1112** | painel some por `z-index: -1`; se aberto, **sobrepõe** a conversa com `z-index: 10`; caixa de texto cai para 7em |
+| até **950** | as três colunas viram 100% e deslizam com `left: -100%` e `-200%` |
+| até **650** | o trilho vira gaveta de 250px sobre um véu preto a 50% |
+| até **480** | recuo do rolador cai para 26px/16px |
+
+**Não existe coluna de 300px em lugar nenhum.** Em 1440 a coluna de atendimentos tem
+340px; em 1920, 460px.
+
+---
+
+## 3. Trilho de ícones
+
+Barra vertical, tema escuro, altura cheia. Único cromo escuro da tela.
+
+| Medida | Valor | Fonte |
+|---|---|---|
+| Largura do trilho | **80px** | medida na tela; a folha não traz (vem do componente web) |
+| Recuo interno | 16px em cima/embaixo, 8px nas laterais | tela |
+| Alvo de cada item | 40px de altura, recuo de 8px, raio 8px | `.menu-button { border-radius: 8px; padding: 8px }` |
+| Recuo lateral do item | 12px | `.navbar-menu-item { padding: 0 .75rem }` |
+| Espaço entre ícone e rótulo (modo largo) | 20px | `.menu-button { gap: 20px }` |
+| Ícone | **24×24** | `.menu-icon { height: 24px; width: 24px }` |
+| Passagem do cursor | tinta a **8%** | `.menu-button:hover` → `--color-hover` |
+| Item em vigor | tinta a **16%**, raio 8px | `.menu-selected` → `--color-pressed` |
+| Marca no topo | ilustração 40×40, com **24px** de folga abaixo | `.blip-image { width/height: 40px; margin-bottom: 1.5rem }` |
+| Contador sobre o ícone | 22×22, deslocado −7px em cima e −12px à direita | `.notification` do item de menu |
+
+O item em vigor **só ganha o retângulo acima de 650px de janela** — a regra está dentro
+de uma consulta de mídia. Abaixo disso o trilho é uma gaveta com rótulo escrito, e o
+retângulo não é mais necessário para dizer onde se está.
+
+Nada de barra lateral, nada de sublinhado, nada de cor de marca: o em-vigor é **só** um
+retângulo um degrau mais claro que o fundo.
+
+Os itens, na ordem: **Atendimentos · Mensagens ativas · Métricas de atendimento ·
+Contatos · Ações em massa** em cima; **Ajuda · Preferências · avatar** no rodapé.
+A ordem é regra, não gosto.
+
+---
+
+## 4. Coluna de atendimentos
+
+Fundo em superfície 2. Quatro blocos empilhados; os dois primeiros em superfície 1.
+
+| Bloco | Altura | O que traz |
+|---|---|---|
+| Cabeçalho | **76px**, recuo 16px | Título e o seletor de visão |
+| Estado do atendente | **111px** de piso, **117px** entre 1112 e 1440, teto de 160px | "Seu status é X" e um botão |
+| Busca | **80px** de custo na coluna | Campo com raio 8 e borda de 1px |
+| Faixa de abas | **29px** de custo na coluna | Todos / Não lidos / … |
+| Lista | o que sobra | |
+
+Os custos de altura saem por subtração, e é assim que a folha os expressa: a lista sem
+busca ocupa `calc(100% - 20px)`; com busca, `calc(100% - 100px)`; com abas e busca,
+`calc(100% - 109px)`. Daí: cabeçalho da lista 20px, busca 80px, abas 29px.
+
+O bloco de estado é separado por linha de 1px em superfície 3, em cima e embaixo.
 
 ### O item da lista
 
-Cartão, não linha de tabela. É exatamente a mesma figura que a Gestão já adotou.
+Cartão, não linha de tabela.
 
-```
-.chat-list-item {
-  border-radius: 8px;
-  background:    superfície 1;
-  border:        1px sólido, superfície 3;
-  padding:       8px;
-}
-.chat-list-item:not(:last-child) { margin-bottom: 8px }
-```
+| Parte | Medida | Fonte |
+|---|---|---|
+| Cartão | raio 8, recuo 8, borda 1px em superfície 3, fundo superfície 1 | `.chat-list-item` |
+| Espaço entre cartões | 8px | `.chat-list-item:not(:last-child)` |
+| Rosto do cliente | **37×37** | `.customer-avatar` |
+| Selo do canal sobre o rosto | 24×24, raio 6, deslocado −10px nos dois eixos | `.channel` |
+| Conteúdo | 8px de folga abaixo | `.ticket-content { margin-bottom: 8px }` |
+| Faixa de metadados | linha de 1px em superfície 2, recuo de 4px no topo, 8px entre itens, entrelinha 24px | `.ticket-info` |
+| Ícones da faixa | 24×24, em conteúdo fantasma | `.ticket-info-icon` |
+| Contador de não lidas | altura 24, largura mínima 24, texto 12/20 em peso 700 | `.badge-warning` |
 
-Dentro, três faixas:
-
-- `.ticket-content`, com 8px de folga embaixo: nome do contato, prévia da última mensagem
-  e o horário.
-- Uma linha de 1px em superfície 2, que separa o conteúdo dos metadados.
-- `.ticket-info`, com 4px de recuo no topo, 8px de espaço entre os itens e entrelinha de
-  24px: ícones de 24×24 em conteúdo fantasma (canal, fila, alertas) e o contador de
-  não lidas.
-
-**O estado dos três níveis é neutro, e isso é o achado que mais contraria o que fizemos:**
+**Os três estados, corrigidos:**
 
 | Estado | Tratamento |
 |---|---|
-| Repouso | cartão em superfície 1 |
-| Passagem do cursor | preto a 4% por cima do cartão |
-| **Selecionado** | preto a **16%** por cima do cartão |
+| Repouso | superfície 1 |
+| Passagem do cursor | superfície 1 + preto a **4%** |
+| **Selecionado** | **superfície 3** + preto a **12%** |
+| Selecionado, com o cursor | superfície 3 + preto a **16%** |
 
-Nada de barra lateral colorida, nada de fundo na cor de marca. O selecionado é o mesmo
-cartão, mais escuro. Conversas fixadas ("pinned") são renderizadas num bloco acima da
-lista comum, e não recebem tratamento de cor.
+O selecionado muda **duas** coisas ao mesmo tempo — o degrau de superfície e o
+escurecimento —, e é isso que o faz ser lido de relance sem gastar cor nenhuma. A
+medição anterior tinha visto só o escurecimento.
 
-## 4. Área da conversa
+---
+
+## 5. Área da conversa
 
 ### Cabeçalho
 
-`.chat-header` com preenchimento de **24px** em volta. O avatar do contato tem **45px** por
-padrão, cai para 36px na faixa estreita e sobe para 60px na larga. À direita do nome ficam
-os botões de ação e o `#show-user-info`, que é o botão que abre e fecha o painel do contato
-— e que tem raio só do lado esquerdo (`8px 0 0 8px`), porque encosta na borda da coluna.
+Recuo de **24px em volta** (era lido como 24 só na lateral). O rosto do contato tem
+**45px**, caindo para **36px** abaixo de 950. À direita do nome ficam as ações e o botão
+que abre e fecha o painel, com raio só do lado esquerdo (`8px 0 0 8px`), recuo de 8px e
+fundo em superfície 2, deslocado 24px para dentro da borda.
+
+Uma faixa de etiquetas de **64px** aparece abaixo do cabeçalho quando há etiqueta na
+conversa, e a linha que separa cabeçalho e corpo tem **0,5px**, não 1.
 
 ### Corpo
 
-O rolador tem preenchimento **32px 24px**, que vira **40px 64px** acima de 1600px de janela.
-É a única medida da tela que muda por faixa em vez de por porcentagem, e ela existe para o
-balão não colar na borda quando a coluna fica larga.
+Recuo **32px 24px**, virando **40px 64px** acima de 1600 e **26px 16px** abaixo de 480.
+É a única medida da tela que muda por faixa em vez de por porcentagem.
 
 ### O balão
 
 ```
-.bubble {
-  max-width:   90%;
-  min-width:   160px;
-  font-size:   16px;
-  line-height: 20px;
-  padding:     10px 16px;
-  border:      1px sólido, conteúdo fantasma;
-  margin-bottom: 5px;
-}
+max-width:   90%
+min-width:   160px
+font-size:   16px / entrelinha 20px
+border:      1px sólido, conteúdo fantasma
+margin-bottom: 5px
 ```
 
-O raio é de **13px**, com **um canto de 2px** do lado de quem falou:
+O raio é 13px com **um canto de 2px**, e a correção mais importante deste levantamento
+é **onde** esse canto fica:
 
-| Direção | Raio | Fundo | Texto |
+| Direção | Fora do grupo | Primeiro do grupo | Demais do grupo |
 |---|---|---|---|
-| Entrada (`.left`) | `13 13 13 2` | superfície 1 | conteúdo padrão |
-| Saída (`.right`) | `13 2 13 13` | **conteúdo padrão** (o cinza escuro do texto) | superfície 1 |
-| Sistema (`.middle`) | `13` nos quatro | superfície 1, centralizado | conteúdo padrão |
+| Entrada | `13 13 13 2` | `13 13 13 2` | `2 13 13 2` |
+| **Saída** | `13 2 13 13` | **`13 13 2 13`** | **`13 2 2 13`** |
+| Sistema | `13` nos quatro | `13 13 2 2` | `2` nos quatro |
 
-Repare no balão de saída: ele não usa a cor de marca. Usa o **cinza escuro do texto** como
-fundo, com o texto claro por cima. O lado e o contraste carregam a informação; a cor de
-marca fica livre para a ação primária.
+Ou seja: **o recorte mora embaixo, do lado de quem fala**, nos dois lados da conversa.
+Dentro do grupo, o canto de cima do mesmo lado também encolhe, e o resultado é uma
+coluna de balões costurada por uma borda reta do lado do autor. A regra anterior punha o
+recorte da saída em cima à direita: os dois lados apontavam para direções diferentes e
+cada balão parecia abrir uma fala nova.
 
-### Agrupamento, que é o detalhe caro de acertar
+O fundo do balão de saída é o **cinza escuro do texto** (`--color-content-default`), com
+o texto claro por cima — **não** a cor de marca. O lado e o contraste carregam a
+informação; a cor de marca fica livre para a ação primária. Nós reproduzimos o par com a
+nossa superfície contrastante clareada, o que dá o mesmo degrau nos dois temas.
 
-Mensagens seguidas do mesmo autor formam um `blip-card-group`:
+### Agrupamento
 
-- **20px** entre grupos.
+- **20px** entre grupos (`.blip-card-group { margin-bottom: 20px }`).
 - **3px** entre balões dentro do grupo.
-- Os cantos que se encostam encolhem para 2px. O primeiro do grupo mantém o topo em 13px e
-  perde o canto de baixo; os seguintes ficam com os dois cantos do lado do autor em 2px.
-
-O horário fica **fora** do balão, como `.group-notification`: **10px** de tamanho, 14px de
-entrelinha, na cor de conteúdo desabilitado, alinhado ao mesmo lado do balão.
-
-O avatar (`.blip-card-photo`) é posicionado por cima, redondo, e o corpo do grupo é recuado
-**35px** do lado da entrada e **55px** do lado da saída para abrir espaço para ele.
+- O horário fica **fora** do balão, em 10/14, na cor de conteúdo desabilitado, alinhado
+  ao mesmo lado. Dentro do grupo, o horário de cada balão some e só o do grupo aparece.
+- O rosto é posicionado por cima, redondo, e o corpo do grupo é recuado **35px** do lado
+  da entrada e **55px** do lado da saída para abrir espaço.
 
 ### Entrega e falha
 
-- O estado de entrega vive na linha de metadados junto do horário.
-- **Falha** tem tratamento duplo: o balão vai a **50% de opacidade** e um ícone de **25×25**
-  na cor vermelha estendida aparece encostado no canto inferior direito, fora do balão e
-  clicável. Dentro do balão entra uma linha `.failed-message` com 8px de espaço e 8px de
-  recuo, que é onde o motivo aparece.
-
-Vale reparar que a falha não pinta o balão de vermelho. Ela **apaga** o balão e põe o
-vermelho num ícone de 25px. É bem mais barato de ler numa conversa longa.
+Falha tem tratamento duplo: o balão vai a **50% de opacidade** e um ícone de **25×25** na
+cor vermelha estendida aparece a 10px do fundo, encostado na direita, fora do balão e
+clicável. A falha **não pinta o balão de vermelho** — ela apaga o balão e põe o vermelho
+num ícone pequeno, o que é bem mais barato de ler numa conversa longa.
 
 ### Voltar ao fim
 
-Botão flutuante de 40×40, redondo, a 24px do fundo e a 5% da direita, com o contador de
-não lidas grudado no canto (deslocamento de -6px nos dois eixos).
+Botão de **40×40**, redondo, a **24px** do fundo e a **5%** da direita, com sombra
+`0 1px 7px` a 10%. O contador de não lidas gruda no canto, deslocado −6px nos dois eixos.
+O botão aparece quando a conversa está a mais de **150px** do fim (§9).
 
-## 5. Compositor
+---
 
-Duas faixas empilhadas dentro do `.pane-chat-message-input`:
+## 6. Compositor
 
-| Faixa | Medida |
-|---|---|
-| Campo | `.input-wrapper` com recuo 8px 0 8px 16px; a área de texto vai de **4em** a **11.5em** de altura, e cai para 7em e 4em nas faixas estreitas |
-| Ações | `.action-buttons`, altura fixa de **56px**, com 12px de folga acima do campo |
+A medida que faltava: o compositor é um **bloco de altura estável**, e não uma barra que
+cresce do nada.
 
-Anexo, áudio e emoji ficam **na faixa de ações, abaixo do campo**, alinhados à esquerda; o
-envio fica à direita. A barra de rolagem da área de texto tem 4px de largura.
+| Parte | Medida | Fonte |
+|---|---|---|
+| Bloco | **piso 150px**, **teto 420px**, raio 8, borda 1px em superfície 3, fundo superfície 1 | `.pane-chat-message-input__container` |
+| Área de texto | de **4em** a **11.5em**; **7em** abaixo de 1112; 4em no Firefox | `.pane-chat-message-input textarea` |
+| Barra de rolagem da área de texto | 4px de largura, alça com raio 2 | mesma regra |
+| Faixa de ações | **56px** de altura, com **12px** separando ela do campo acima de 950 | `.action-buttons` |
+| Abaixo de 1112 | o bloco vira linha: campo e ações lado a lado, piso 56px, teto 280px | consulta de mídia |
+
+Anexo, áudio e emoji ficam **na faixa de ações, abaixo do campo**, à esquerda; o envio
+fica à direita.
 
 Quando a conversa não aceita texto livre, o compositor inteiro é **substituído** por um
-`bds-paper` de elevação estática, centralizado, com uma linha em fs-16 semi-negrito e um
-botão primário. São quatro casos distintos, cada um com o seu texto: cliente encerrou,
-encerrou por inatividade, atendente encerrou, e em espera. Não existe campo desabilitado
-com dica no `title` — o campo sai da tela e o motivo ocupa o lugar dele.
+bloco centralizado com uma linha e um botão. São quatro casos, cada um com o seu texto:
+cliente encerrou, encerrou por inatividade, atendente encerrou, e em espera. **Não existe
+campo desabilitado com dica no `title`** — o campo sai da tela e o motivo ocupa o lugar.
 
-## 6. Painel do contato
+---
 
-Coluna de 25% com **mínimo de 260px**, fundo em superfície 2 — recesso, igual à coluna de
-atendimentos.
+## 7. Painel do contato
 
-| Parte | Medida |
+Coluna de 25% com **piso de 260px**, fundo em superfície 2.
+
+| Parte | Medida | Fonte |
+|---|---|---|
+| Cabeçalho | **49px**; **57px** abaixo de 1440 | `.drawer-heading` |
+| Corpo em abas | `calc(100% - 58px)`, fundo superfície 1 | `.drawer-tabs` |
+| Recuo do painel | 8px | `.drawer__profile` |
+| Cartão | recuo **16px 24px** | `.drawer__profile__paper` |
+| Espaço entre cartões | 8px | `:first-child { margin-bottom: 8px }` |
+| Altura dos dois cartões da aba de perfil | **50% cada** na tela larga | mesma regra |
+| Abaixo de 950 | o primeiro cartão vira altura automática, teto de 90% | consulta de mídia |
+| Cartão de histórico | recuo 16px 24px; **16px** na variante compacta | `.drawer__history__paper` |
+
+**O painel é em abas**, não uma pilha rolada: perfil, histórico e metadados são abas
+irmãs, e cada uma é uma pilha de cartões sobre o fundo recuado. **Nós adotamos isso** —
+uma versão anterior do nosso Desk tinha achatado as três numa rolagem só, e o efeito era
+uma coluna de um metro onde o histórico ficava sempre abaixo da dobra.
+
+---
+
+## 8. Estados vazios
+
+Os três seguem a mesma receita: ilustração, uma linha que nomeia o estado, uma linha que
+diz o que fazer. Nenhum é caixa com borda; é texto centrado no vazio.
+
+- **Atendente invisível, na coluna** — bloco de 50px de recuo, centralizado
+  (`.get-online-txt { text-align: center; padding: 50px }`).
+- **Sem conversa selecionada** — bloco de 336px de largura, centralizado na coluna.
+- **Lista vazia por busca** — mesma figura, com o termo citado.
+
+---
+
+## 9. As regras de operação, com número
+
+Tudo desta seção sai do arquivo de configuração público deles,
+`supernova.desk.blip.ai/static/settings.<hash>.json`. **O número é medido; o código é
+nosso.** A tabela completa das chaves está em `blip-desk-regras.md`; aqui ficam só as que
+mudam o comportamento da tela do atendente, com o que o nosso Desk faz hoje.
+
+### Inatividade do atendente
+
+| Regra | Chave deles | Valor | No nosso Desk |
+|---|---|---|---|
+| Sem gesto na tela → considerado inativo | `INACTIVITY_INTERVAL` | 10 min | **cumpre**, `apps/desk/src/lib/operacao.ts` |
+| Mais esse tempo → status cai para Offline | `INACTIVITY_SET_OFFLINE_INTERVAL` | 10 min | **cumpre** |
+| De quanto em quanto tempo o relógio é conferido | `CHECK_INACTIVITY_INTERVAL_MS` | 5 s | **cumpre** |
+| Piso entre dois reinícios do relógio | `MINIMUM_RESET_INTERVAL_MS` | 1 s | **cumpre** |
+| Preferência que desliga a queda automática | `KEEP_AGENT_ONLINE` | — | **não existe**; depende da tela de Preferências |
+
+Implementado em `apps/desk/src/componentes/inatividade.tsx` e na ação
+`cairPorInatividade` de `apps/desk/src/app/acoes.ts`. O aviso é bloqueante e cobre a
+tela: um aviso passivo no rodapé é lido como enfeite justamente por quem ele deveria
+acordar. A ação **só derruba, nunca levanta**, e não faz nada se o atendente já está
+Offline — sem isso, uma aba esquecida num segundo monitor derrubaria quem está
+trabalhando na primeira.
+
+### Sessão
+
+| Regra | Chave | Valor | No nosso Desk |
+|---|---|---|---|
+| Validade da sessão | `SESSION_EXPIRATION_TIME_MS` | 8 h | **número diferente** — conferir `apps/desk/src/lib/sessao.ts` |
+| Desconexão por ociosidade da sessão | `DEFAULT_LOGOUT_TIME_MINUTES` | 15 min | **não existe** |
+| Renovação do cookie | `COOKIE_UPDATE_INTERVAL_MS` | 5 s | **não existe** |
+
+### Conversa
+
+| Regra | Chave | Valor | No nosso Desk |
+|---|---|---|---|
+| Mensagens por página no histórico | `MESSAGE_HISTORY_PAGE_SIZE` | 40 | **não existe** — carregamos a conversa inteira; número já anotado em `operacao.ts` |
+| Distância do fim para o botão "voltar ao fim" aparecer | `MINIMUM_SCROLL_DISTANCE` | 150 px | **não existe** |
+| Validade do aviso de "digitando…" | `TYPING_TIMEOUT` | 4 s | **não existe** — depende de tempo real |
+| Validade do estado de conversa | `CHAT_STATE_TIMEOUT` | 20 s | **não existe** |
+| Canais que **não** recebem "digitando…" | `CHANNELS_IGNORE_CHATSTATE` | WhatsApp e Instagram | **não existe** |
+| Canais onde responder-a-mensagem funciona | `CHANNELS_REPLY_AVAILABLE` | WhatsApp e chat próprio | **não existe** |
+
+### Anexos
+
+| Regra | Chave | Valor | No nosso Desk |
+|---|---|---|---|
+| Tamanho máximo de um anexo | `MAX_ATTACHMENT_SIZE` | 100 MB | **não existe**; limite já anotado em `operacao.ts` |
+| Quantidade máxima por envio | `MAX_ATTACHMENT_COUNT` | 10 | **não existe**; idem |
+| Validade do link temporário do arquivo | `DEFAULT_FILE_TOKEN_EXPIRATION_IN_MILLISECONDS` | 15 min | **não existe** |
+
+### Atualização e conexão
+
+| Regra | Chave | Valor | No nosso Desk |
+|---|---|---|---|
+| Recarga da fila | `POLLING_INTERVAL` | 15 s | **não existe** — hoje quem atualiza é a navegação |
+| Aviso de versão nova do aplicativo | `VERSION_CHECK_INTERVAL_MINUTES` | 5 min | **não existe** |
+| Teste de conexão | `CONNECTION_TEST_INTERVAL` | 15 s | **não existe** |
+| Aviso de instabilidade da plataforma | `INSTABILITY_CHECK_INTERVAL` | 5 min | **não existe** |
+| Fechamento da notificação do navegador | `NOTIFICATION_CLOSE_TIMEOUT` | 5 s | **não existe** |
+
+### Validade de cache
+
+Configuração geral e respostas prontas: **30 min**. Etiquetas e palavras proibidas:
+**5 min**. Conta do dono e contato: **30 min**. Nenhuma dessas existe no nosso Desk —
+lemos do banco a cada navegação.
+
+---
+
+## 10. Aba de Métricas (Analytics)
+
+O miolo desta aba veio no segundo salvamento e foi levantado. O achado que muda decisão
+de produto: **a aba é do próprio atendente, não da operação.** O título da tela é
+literalmente "Minhas métricas: {nome}", e toda consulta é feita com a identidade do
+atendente logado como filtro obrigatório. Não há seletor de "ver o time".
+
+### O que ela mostra
+
+**Visão Geral de Tickets** — seis contagens, em rosca mais seis cartões: "Abertos",
+"Transferidos", "Fechados", "Abandonados", "Finalizados", "Perdidos". Atenção à
+semântica, que os rótulos escondem: **"Abandonados" é encerrado pelo cliente e
+"Finalizados" é encerrado pelo atendente**.
+
+**Total de tickets de atendimento** — linha do tempo diária com **duas** séries apenas,
+"Fechados" e "Abertos". As outras quatro situações ficam só nos cartões.
+
+**Médias de métricas de atendimento** — três tempos médios: "Primeira Resposta",
+"Espera na fila", "Espera total". Quando não há valor, mostram `-`, não zero.
+
+**Performance do último atendimento** — cartão de análise por IA do último ticket
+encerrado: nota de 0 a 5 com estrelas, tempo do atendimento, tempo médio de resposta,
+"Pontos positivos:" e "Pontos a melhorar:", uma dica em texto livre, e a pergunta "Você
+concorda com essa analise?" com joinha. Os seis critérios avaliados são **Conduta,
+Tamanho de respostas, Ortografia, Disponibilidade, Tempo de 1ª resposta, Tempo de
+atendimento**.
+
+Uma segunda tela, "Análise de tickets", lista todas as análises, paginada em 5/10/15/20
+itens, e abre cada uma numa gaveta lateral.
+
+### Recorte
+
+Períodos: **"Hoje" (padrão), "Ontem", "7 Dias", "30 dias", "90 dias", "Personalizado"**.
+O intervalo personalizado é limitado a **90 dias**. **Não há filtro** por fila, atendente,
+canal ou etiqueta, e **não há exportação** — a única ação de saída é "Atualizar".
+
+### O que não existe lá
+
+Nem TMA/TME nomeados, nem SLA (o cálculo é **explicitamente desligado** nas consultas),
+nem CSAT, NPS, satisfação do cliente, transbordo, reabertura ou taxa de abandono. Nenhum
+indicador em percentual.
+
+### Duas armadilhas para não herdar
+
+1. As consultas são feitas **uma por bot**, em paralelo e tolerantes a falha: **se uma
+   falhar, o total sai menor e a tela não avisa.** O nosso equivalente tem de dizer
+   quando o número está incompleto.
+2. A média dos tempos **divide pela quantidade de valores maiores que zero**, e não pelo
+   volume de tickets. É média simples entre bots, cada bot pesando igual tenha ele 1 ou
+   500 tickets. Para leitura gerencial isso distorce, e o nosso deve ponderar por volume.
+
+### O que isso pede do nosso lado
+
+O Pipe Gestão já tem `/relatorios`, mas com recorte de **supervisor**. O que falta é a
+mesma leitura com recorte da **própria pessoa**, dentro do Desk — hoje o ícone de
+"Métricas de atendimento" no nosso trilho manda o atendente para o Gestão, que mostra a
+operação inteira. Tamanho: uma rota nova no Desk, seis contagens e três médias sobre
+`conversa` e `mensagem` filtradas pelo `atendenteId` da sessão, mais a barra de seis
+períodos. A análise por IA depende do `@pipe/ai`, que ainda não entrou.
+
+---
+
+## 11. Aba de Contatos
+
+É a aba que mais conversa com o que já temos, porque o nosso painel do contato faz uma
+fatia do que ela faz. Ela é **inteiramente de leitura** — não há criar, editar nem apagar
+contato em lugar nenhum. Três colunas: lista de contatos à esquerda, transcrição do
+atendimento escolhido no meio, e à direita duas abas, "Histórico" e "Contato".
+
+### Regras com número
+
+| Regra | Valor | Nosso Desk |
+|---|---|---|
+| Contatos por página, com rolagem infinita | 20 | não existe |
+| Espera antes de disparar a busca | 500 ms | **diferente** — a nossa busca é por envio de formulário, não por digitação |
+| Mínimo de caracteres para buscar | 2 | não existe |
+| Janela do histórico | **90 dias** | **diferente** — mostramos tudo o que houver |
+| Mensagens por página na transcrição | 40 | não existe — carregamos a conversa inteira |
+| Agrupamento de comentários do mesmo autor | mesmo autor **e** menos de 60 s | não existe |
+
+O **40 de página da transcrição bate com `MESSAGE_HISTORY_PAGE_SIZE`** do arquivo de
+configuração (§9), o que confirma que o número é da plataforma e não desta aba.
+
+### Campos que a tela mostra
+
+Nome, Username (WhatsApp), Telefone, E-mail, ID do usuário, BSUID da Meta, WhatsApp ID,
+mais dois blocos separados: **"Dados Extras"**, que renderiza cru o que vier no campo de
+atributos (a chave vira o rótulo, sem tradução e sem tipagem), e **"Comentários"**,
+descritos como "Comentários realizados durante o atendimento humano".
+
+**Não existe** CPF, CNPJ, documento, data de nascimento, gênero nem endereço. O nosso
+painel mostra "Documento", que eles não têm — é acréscimo nosso, e fica.
+
+Quando falta valor, a tela escreve a falta em vez de deixar vazio: "Nenhum telefone
+cadastrado", "Nenhum e-mail cadastrado", "Nenhum comentário sobre este contato". É a
+mesma regra que o nosso painel já segue com "não informado".
+
+**Cadeia de recurso do nome de exibição**, que vale copiar tal e qual: nome → telefone
+formatado internacionalmente → e-mail → parte da identidade antes do `@`. Nunca fica em
+branco. O nosso cai direto em "Sem nome", que é um degrau só.
+
+### Ordenação e agrupamento da lista
+
+Duas opções, mutuamente exclusivas: **"Ordem alfabética"** (padrão) e **"Última
+interação"**. E o agrupamento muda com a ordenação — por primeira letra do nome no
+primeiro caso (com os sem-nome num grupo `#` sempre empurrado para o fim), e por data da
+última mensagem no segundo.
+
+### O histórico de atendimentos
+
+Agrupado por bot, em sanfonas que **começam todas fechadas** a cada troca de contato.
+Cada linha traz três campos: número do ticket, atendente e data de encerramento. O
+detalhe de um ticket abre em quatro blocos — "Dados do atendimento", "Origem do ticket"
+(que distingue **transferência** de **encaminhado pelo bot**), "Tempo de atendimento"
+(início, última interação e total por extenso) e "Tags".
+
+Oito situações de encerramento, escritas por extenso: "Finalizado pelo atendente",
+"Transferido", "Finalizado por inatividade do cliente", "Finalizado pelo cliente",
+"Nenhum", "Aguardando", "Aberto", "Atribuído". O nosso painel mostra cinco; as três que
+faltam — transferido, por inatividade do cliente, pelo cliente — dependem de o domínio
+gravar **quem** encerrou, que hoje ele não grava.
+
+### Contato repetido: não tratam
+
+A identidade de um contato, para essa tela, é o par **bot + identidade do cliente**. O
+mesmo telefone atendido por dois bots aparece **duas vezes na lista**, e não há mesclar,
+bloquear nem avisar. A lista também não deduplica o que o servidor devolver repetido.
+**Isto não vale copiar**: é ausência de regra, não regra.
+
+### Três defeitos deles, para não herdar
+
+1. Erro ao buscar a lista de contatos é **relançado sem aviso**: a tela fica presa em
+   carregando ou vazia, sem explicação.
+2. Erro ao buscar comentários ou dados cadastrais **falha em silêncio** e devolve vazio —
+   o atendente lê "não há dados" quando na verdade a consulta quebrou.
+3. Duas mensagens de bloqueio estão escritas nos três idiomas e **nenhuma é disparada**:
+   quando o contato não tem identidade válida, o botão de conversar novamente aborta em
+   silêncio e o clique não faz nada.
+
+### O que isso pede do nosso lado
+
+O que temos hoje cobre a aba "Contato" e uma versão curta do "Histórico". Falta, em ordem
+de tamanho: a **transcrição do atendimento antigo** (abrir uma conversa encerrada em modo
+leitura, com paginação de 40); o **detalhe do ticket** com origem e tempo total; e a
+**lista navegável de contatos** com busca e ordenação, que no Pipe é tela do CRM e não do
+Desk — e essa fronteira é decisão de produto, não de anatomia.
+
+---
+
+## 12. O que ainda falta do produto deles
+
+A tela é montada por **oito micro-frontends**, e eles só baixam quando a aba é aberta.
+Sete já chegaram nos salvamentos; **falta um**:
+
+| Aba | Chegou? |
 |---|---|
-| Cabeçalho | **57px** (49px na faixa estreita) |
-| Abas | `height: calc(100% - 58px)`, fundo superfície 1 |
-| Preenchimento do painel | 8px |
-| Cartão ("paper") | recuo **16px 24px** |
-| Espaço entre cartões | 8px |
-| Primeiro cartão | altura automática, máximo 90% da coluna |
-| Cartão de histórico | mesmo recuo 16px 24px, 16px na faixa estreita |
-| Cartão de metadados | recuo 16px, dentro de um bloco de 8px em superfície 2 |
+| Chamadas, Transcrição, Metadados do ticket | sim |
+| Mensagens Ativas | sim |
+| Métricas (Analytics) | sim |
+| Contatos | sim |
+| Preferências | sim |
+| **Ações em massa** | **não** |
 
-O painel é **em abas**, não uma pilha de seções roladas: perfil, histórico e metadados são
-abas irmãs, e cada uma é uma pilha de cartões sobre o fundo recuado.
+**Para eu conseguir levantar "Ações em massa":** abrir essa aba no Desk deles e salvar a
+página de novo (Ctrl+S, "página completa"). O micro-frontend só é baixado quando a aba
+abre, então salvar a partir da tela de Atendimentos nunca o traz. Feito isso, o arquivo
+aparece em `deskmfe.blip.ai/beagle/desk-tickets-mfe/`, e o levantamento sai no mesmo
+molde do de Métricas.
 
-## 7. Estados
+---
 
-Os dois que a sessão invisível deixou ver, medidos na tela:
+## 13. O que copiamos, o que não, e o que ficou de propósito diferente
 
-**Atendente invisível, na coluna de atendimentos** — bloco de 50px de recuo, centralizado:
-o título "Nenhum atendimento aberto" em fs-16 e, embaixo, "Você precisa ficar online para
-atender um novo cliente", também em fs-16, com um ícone acima.
+**Copiado, e agora conferido na folha:**
 
-**Sem conversa selecionada, na área da conversa** — bloco de 336px de largura, centralizado
-na coluna: ilustração, título em **fs-20/600**, e a explicação em fs-16/400. O texto deles é
-"Fique online para atender" seguido de "Você está invisível e não consigo te ver (rimou!)".
+1. A proporção 25/50/25 e as sete faixas.
+2. O cartão de 8px com recuo 8 e espaço 8, sobre fundo recuado.
+3. **O selecionado neutro** — o degrau de superfície mais o escurecimento. Reintroduzido
+   nesta rodada; a versão anterior usava a cor de marca.
+4. O balão de 13px com o recorte de 2px **embaixo**, e o agrupamento de 3px dentro e 20px
+   entre. Corrigido nesta rodada.
+5. A falha por opacidade mais ícone, em vez de balão vermelho.
+6. O compositor que some quando não há o que compor, em vez de campo desabilitado.
+7. **O piso de 150px do compositor.** Novo nesta rodada.
+8. O trilho de 80px com passo de 48px e o em-vigor como retângulo de 40×40 em raio 8.
+9. **O painel em abas.** Reintroduzido nesta rodada.
+10. Os cinco destinos do trilho e a ordem deles.
 
-**Lista vazia por busca** — "Nenhum resultado encontrado para *termo*", no mesmo desenho.
+**Diferente de propósito, e o porquê:**
 
-Os três seguem a mesma receita: ilustração, uma linha que nomeia o estado, uma linha que diz
-o que fazer. Nenhum deles é uma caixa com borda; é texto centralizado no vazio.
-
-## 8. O que vale copiar, e o que não
-
-Vale:
-
-1. **A proporção 25/50/25**, e a régua de faixas. Coluna fixa em 300px estrangula a lista
-   em tela grande e some com a conversa em tela pequena.
-2. **O cartão de 8px com 8px de recuo e 8px de espaço** na lista, sobre fundo recuado.
-   É a mesma figura da Gestão, e é o que faz os dois aplicativos parecerem um só produto.
-3. **O selecionado neutro.** Escurecer o cartão custa zero cor e é lido na hora.
-4. **O balão de 13px com um canto de 2px**, e o agrupamento de 3px dentro e 20px entre.
-   É o que separa uma conversa de uma lista de parágrafos.
-5. **A falha por opacidade mais ícone**, em vez de balão vermelho.
-6. **O compositor que some** quando não há o que compor, em vez de campo desabilitado.
-7. **O trilho de 80px com passo de 48px** e o ativo como retângulo de 40×40 em raio 8.
-
-Não vale:
-
-1. **O trilho com cinco destinos.** Eles têm cinco módulos; nós temos um. Trilho é a forma;
-   quantos itens ele carrega é função do produto, e item que não abre nada não entra.
-2. **O painel em abas.** Três abas para três seções curtas é um clique a mais para ver
-   dado que cabe numa rolagem só.
-3. **O horário de 10px.** Fica abaixo da régua 16/14/12 e não sobrevive numa tela de
-   escritório. Nosso menor é 12px.
-4. **A janela de 24 horas ausente do cabeçalho.** Eles não mostram; a nossa spec (§5.1)
-   manda mostrar, e é a diferença entre avisar antes e errar depois.
+1. **Toda cor.** Sai dos nossos `--p-*`. Onde a estrutura deles pede um degrau que a
+   nossa paleta não nomeia, ele é derivado com `color-mix`, nunca inventado.
+2. **O horário de 10px.** Fica abaixo do que se lê numa tela de escritório a um metro de
+   distância. O nosso menor de tela é 12px.
+3. **Os 37px do rosto na lista e os 45px no cabeçalho** viraram 40 e 44, que são os
+   degraus da nossa régua de 4. A diferença não se enxerga; a régua quebrada, sim.
+4. **A janela de 24 horas no cabeçalho.** Eles não mostram; a nossa especificação manda
+   mostrar, e é a diferença entre avisar antes e errar depois.
+5. **A aba escolhida do painel vive na URL**, e não em estado de cliente. O Desk já
+   guarda a conversa aberta e os filtros assim; uma quarta forma de guardar estado de
+   tela seria uma a mais do que o produto precisa.

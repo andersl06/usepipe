@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { DIA, janelaAberta, pertoDeExpirar, segundosRestantes } from '@pipe/core';
-import { EstadoVazio } from '@pipe/ui';
+import { Avatar, EstadoVazio } from '@pipe/ui';
 import { FiltrosDaLista } from './filtros-lista';
 import { decorrido, duracaoCurta } from '../servidor/formato';
 import type { ConversaDaLista, EstadoAtendente, TipoCanalBanco } from '../servidor/consultas';
@@ -250,6 +250,15 @@ export function ListaConversas({
                   href={comEstado({ conversa: conversa.id })}
                   aria-current={conversa.id === selecionadaId ? 'true' : undefined}
                 >
+                  {/* O rosto do cliente abre o cartão, como na tela de
+                      referência. Não é enfeite: numa fila de vinte linhas com
+                      o mesmo desenho, é o disco com as iniciais que dá ao olho
+                      onde parar, e é o que faz o cartão ler como pessoa em vez
+                      de linha de tabela. */}
+                  <Avatar
+                    nome={conversa.contatoNome ?? 'Sem nome'}
+                    className="av-conv"
+                  />
                   <span className="nm">{conversa.contatoNome ?? 'Sem nome'}</span>
                   <span className="t">
                     {conversa.ultimaMensagemEm ? decorrido(conversa.ultimaMensagemEm, agora) : '·'}

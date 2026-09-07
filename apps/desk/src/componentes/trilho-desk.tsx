@@ -37,7 +37,9 @@ import type { EstadoAtendente } from '../servidor/consultas';
 
 /** Onde vive a supervisão, e onde vive a ficha do contato. */
 const URL_GESTAO = process.env['NEXT_PUBLIC_PIPE_GESTAO_URL'] ?? 'http://localhost:3100';
-const URL_CRM = process.env['NEXT_PUBLIC_PIPE_CRM_URL'] ?? 'http://localhost:3300';
+// O CRM é o Twenty (3500), não mais o caseiro da 3300. Com uma instância por
+// cliente, em produção esta é a URL da instância daquele cliente.
+const URL_CRM = process.env['NEXT_PUBLIC_PIPE_CRM_URL'] ?? 'http://localhost:3500';
 
 export const COR_DO_ESTADO: Record<EstadoAtendente, string> = {
   online: 'var(--p-sucesso-conteudo)',
@@ -86,7 +88,10 @@ const DESTINOS: Destino[] = [
     chave: 'contatos',
     rotulo: 'Contatos',
     icone: 'contatos',
-    href: `${URL_CRM}/contatos`,
+    // `/objects/people` é a lista de Pessoas do Twenty. O link para a FICHA de um
+    // contato específico não é daqui: é do bloco do CRM no painel, que sabe qual
+    // contato está aberto. Ver `bloco-crm.tsx`.
+    href: `${URL_CRM}/objects/people`,
     fora: 'Pipe CRM',
   },
   {

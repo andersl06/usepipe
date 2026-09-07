@@ -11,11 +11,12 @@ import type { EstadoAtendente, MotivoDePausa } from '../servidor/consultas';
  * Nenhum estado expira sozinho, e a pausa exige motivo da lista do gestor: cortar
  * sozinho joga conversa para quem foi ao banheiro.
  *
- * A DISPOSIÇÃO É A DELES (`docs/pesquisa/blip-desk-medidas.md`, §3): o bloco de
- * estado é a segunda faixa da coluna de atendimentos, com altura mínima de
- * 111px, linha de 1px em cima e embaixo, e o conteúdo centrado em duas linhas —
- * a frase "Seu status é X" com o estado destacado, e um botão de 40px embaixo.
- * O `--sidenav-header-min-height` deles é um token nomeado, e aqui também.
+ * A DISPOSIÇÃO vem da medição em `docs/pesquisa/blip-desk-medidas.md`, §3: o
+ * bloco de estado é a segunda faixa da coluna de atendimentos, com altura
+ * mínima de 111px (117px entre 1112 e 1440 de janela), linha de 1px em cima e
+ * embaixo, e o conteúdo centrado em duas linhas — a frase "Seu status é X" com
+ * o estado destacado, e um botão de 40px embaixo. A altura é um token de
+ * layout com nome de papel, e não um número solto na folha.
  *
  * O diálogo é um só: o botão desta faixa e o avatar do rodapé do trilho abrem o
  * mesmo elemento por `id`, como o de encerramento já faz.

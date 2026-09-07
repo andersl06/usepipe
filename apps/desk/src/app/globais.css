@@ -39,26 +39,39 @@
 }
 
 /* ================================================= medidas próprias do Desk
-   Variável de layout com nome de papel, e não número solto no CSS. É o que a
-   Blip faz com `--sidenav-header-min-height`, que aqui tem o mesmo nome e o
-   mesmo valor medido. Valor que aparece em dois lugares vira token, senão
-   vira dois valores diferentes.
+   Variável de layout com nome de papel, e não número solto no CSS. Valor que
+   aparece em dois lugares vira token, senão vira dois valores diferentes.
 
    TODO ESPAÇO É MÚLTIPLO DE 4, e sai da escala `--p-e-*` do pacote. Os 7px,
    9px e 11px que estavam espalhados aqui não vinham de medição nenhuma: eram
    o resultado de alguém acertando um alinhamento no olho, e cada um deles
    fazia dois controles vizinhos ficarem meio pixel fora de linha.
 
-   As exceções são poucas e todas MEDIDAS no Desk deles, com o número dito no
-   comentário de quem a usa: os 3px entre balões do mesmo grupo, os 13px de
-   raio do balão com o canto de 2px, e as alturas de faixa (76 / 111 / 57 /
-   56). Exceção que veio de régua é exceção; exceção que veio do olho é erro. */
+   As exceções são poucas e todas MEDIDAS na tela de referência, com o número
+   dito no comentário de quem a usa: os 3px entre balões do mesmo grupo, os
+   13px de raio do balão com o canto de 2px, as alturas de faixa (76 / 111 /
+   117 / 49 / 57 / 56) e o bloco de 150px do compositor. Exceção que veio de
+   régua é exceção; exceção que veio do olho é erro. */
 :root {
   --d-trilho-largura: 80px;
   --d-trilho-item: 40px; /* alvo do ícone; o passo é 40 + 8 de espaço = 48 */
   --d-cabecalho-lista: 76px;
+
+  /* Bloco de estado do atendente. 111px é o piso na tela larga; entre 1112 e
+     1440 ele sobe para 117px, porque nessa faixa a frase de estado quebra em
+     duas linhas antes do botão. As duas bandas estão no fim desta folha. */
   --d-bloco-status: 111px;
-  --d-topo-painel: 57px;
+
+  /* Topo do painel do contato: 49px na tela larga e 57px abaixo de 1440. A
+     medição anterior, por captura numa janela estreita, tinha os dois valores
+     trocados — dizia 57 como padrão e 49 como exceção. */
+  --d-topo-painel: 49px;
+
+  /* O compositor é um BLOCO de altura estável, e não uma barra que cresce do
+     nada: 150px de piso e 420px de teto. Sem o piso, a última mensagem da
+     conversa sobe e desce a cada vez que a caixa de texto muda de tamanho. */
+  --d-compositor-min: 150px;
+  --d-compositor-max: 420px;
 
   /* O raio do balão. Treze não está na régua de raio do pacote (8 / 5 /
      pílula) porque não é raio de controle: é a forma da fala, medida na
@@ -100,11 +113,14 @@
   --d-trilho-marca: var(--p-marca);
 }
 
-/* Derivados da tinta do trilho: um só lugar, para não virarem cinco cinzas. */
+/* Derivados da tinta do trilho: um só lugar, para não virarem cinco cinzas.
+   Os dois degraus são os medidos na folha de referência — 8% para a passagem
+   do cursor e 16% para o item em vigor. Estavam em 6% e 10%, e a diferença
+   entre os dois ficava abaixo do que se enxerga num monitor de escritório. */
 :root {
   --d-trilho-fraca: color-mix(in srgb, var(--d-trilho-tinta) 64%, transparent);
-  --d-trilho-hover: color-mix(in srgb, var(--d-trilho-tinta) 6%, transparent);
-  --d-trilho-ativo: color-mix(in srgb, var(--d-trilho-tinta) 10%, transparent);
+  --d-trilho-hover: color-mix(in srgb, var(--d-trilho-tinta) 8%, transparent);
+  --d-trilho-ativo: color-mix(in srgb, var(--d-trilho-tinta) 16%, transparent);
 }
 
 /* ================================================================ estrutura
@@ -215,13 +231,18 @@
 }
 
 /* ------------------------------------------------------------ as colunas
-   25 / 50 / 25, como na folha deles. Coluna fixa em px estrangula a lista em
-   tela grande e some com a conversa em tela pequena. */
+   25 / 50 / 25, como na folha de referência. Coluna fixa em px estrangula a
+   lista em tela grande e some com a conversa em tela pequena.
+
+   O painel do contato tem PISO DE 260px, que é a medida que faltava aqui: em
+   1120 de janela os 25% dão 280, mas com o trilho descontado a coluna caía
+   abaixo de 250 e o par rótulo/valor passava a quebrar em toda linha. Quem
+   cede é a conversa, que é a coluna elástica. */
 .desk {
   flex: 1;
   min-width: 0;
   display: grid;
-  grid-template-columns: 25% minmax(0, 1fr) 25%;
+  grid-template-columns: 25% minmax(0, 1fr) minmax(260px, 25%);
   background: var(--surface);
 }
 
@@ -404,7 +425,7 @@
 
 .conv {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto minmax(0, 1fr) auto;
   gap: var(--p-e-1) var(--p-e-2);
   padding: var(--p-e-2);
   background: var(--surface);
@@ -414,20 +435,44 @@
   color: var(--ink);
 }
 
+/* O rosto do cliente abre o cartão, atravessando as duas primeiras linhas —
+   é o que a tela de referência faz, e é o que dá à fila um ponto de fixação
+   para o olho descer. Lá o disco tem 37px; aqui tem 40, que é o degrau da
+   nossa régua de alvo e a diferença não se enxerga. */
+.conv .av-conv {
+  grid-row: 1 / 3;
+  width: 40px;
+  height: 40px;
+  font-size: var(--p-t-md);
+  flex: none;
+  align-self: start;
+}
+
 .conv:hover {
   background: var(--surface-2);
 }
 
 /*
-  O selecionado deles é o mesmo cartão, 16% mais escuro: sem barra lateral,
-  sem fundo colorido. Guardamos a geometria e trocamos o escurecimento pelo
-  par da marca, porque numa fila longa o cartão selecionado precisa ser
-  achado de relance, e moss em estado ativo é exatamente o papel que o token
-  reserva para ela.
+  O SELECIONADO É NEUTRO, e este é o achado que mais contraria o que a tela
+  fazia antes. Na referência o cartão aberto não ganha barra lateral nem fundo
+  de marca: ele é o mesmo cartão, um degrau de superfície mais fundo e com o
+  conteúdo escurecido por cima — 12% em repouso e 16% com o cursor.
+
+  A versão anterior pintava o selecionado com o par da marca. Funcionava, mas
+  gastava a única cor forte da tela em algo que o atendente já sabe (qual
+  conversa ele abriu), e roubava dela o papel que o token lhe reserva, que é
+  ação primária e alerta. O escurecimento custa zero cor e é lido na hora.
+
+  A tinta continua nossa: o degrau sai de `--surface-3` e o escurecimento é a
+  nossa própria cor de conteúdo, misturada. Nenhum valor de terceiro entra.
 */
 .conv[aria-current='true'] {
-  background: var(--moss-soft);
-  border-color: var(--p-marca-linha);
+  background: color-mix(in srgb, var(--surface-3) 88%, var(--ink));
+  border-color: var(--line-strong);
+}
+
+.conv[aria-current='true']:hover {
+  background: color-mix(in srgb, var(--surface-3) 84%, var(--ink));
 }
 
 .conv .nm {
@@ -446,7 +491,7 @@
 }
 
 .conv .sn {
-  grid-column: 1 / -1;
+  grid-column: 2 / -1;
   font-size: var(--p-t-sm);
   color: var(--ink-2);
   white-space: nowrap;
@@ -455,8 +500,8 @@
 }
 
 /* Faixa de metadados, separada do conteúdo por uma linha de 1px: em cima o
-   que a conversa é, embaixo o que a classifica. Recuo e entrelinha são os
-   do `.ticket-info` deles. */
+   que a conversa é, embaixo o que a classifica. Recuo de 4px no topo, 8px
+   entre os itens e entrelinha de 24px, medidos na tela de referência. */
 .conv .meta {
   grid-column: 1 / -1;
   display: flex;
@@ -487,22 +532,29 @@
   border-right: 1px solid var(--line);
 }
 
-/* Cabeçalho de 24px de recuo, avatar à esquerda do nome. */
+/* Cabeçalho de 24px de recuo EM VOLTA, avatar à esquerda do nome. Estava com
+   12px em cima e embaixo: a medição por captura tinha lido só o recuo lateral,
+   e o cabeçalho ficava com metade da folga que a referência dá a ele — o nome
+   do cliente encostava na linha de baixo. */
 .thread-head {
   flex: none;
   display: flex;
   align-items: center;
   gap: var(--p-e-3);
-  padding: var(--p-e-3) var(--p-e-6);
+  padding: var(--p-e-6);
   border-bottom: 1px solid var(--line);
   background: var(--surface);
   flex-wrap: wrap;
 }
 
+/* O rosto no cabeçalho é MAIOR que o da lista, e é de propósito: na referência
+   ele tem 45px contra 37px do cartão, e é esse degrau que diz "esta é a pessoa
+   com quem você está falando agora". 44 e 40 aqui, que são os degraus da nossa
+   régua e ficam na mesma ordem de grandeza. Abaixo de 950 cai para 36. */
 .thread-head .av-contato {
-  width: 40px;
-  height: 40px;
-  font-size: var(--p-t-md);
+  width: 44px;
+  height: 44px;
+  font-size: var(--p-t-lg);
   flex: none;
 }
 
@@ -585,13 +637,22 @@
   color: var(--ink);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-  /* Entrada: canto pequeno embaixo à esquerda, do lado de quem falou. */
+  /* Entrada: canto pequeno EMBAIXO, do lado de quem falou. */
   border-radius: var(--d-balao-raio) var(--d-balao-raio) var(--d-balao-raio)
     var(--d-balao-canto);
 }
 
-/* Dentro do grupo, os cantos que se encostam encolhem. O primeiro guarda o
-   topo; os seguintes ficam com os dois cantos do lado do autor pequenos. */
+/*
+  O canto pequeno mora sempre EMBAIXO, do lado do autor, e é o último balão do
+  grupo que o carrega visualmente — não o primeiro. Dentro do grupo, os balões
+  que não abrem a fala também encolhem o canto de CIMA do mesmo lado, e o
+  resultado é uma coluna de balões costurada por uma borda reta do lado de quem
+  fala e arredondada do lado oposto.
+
+  A regra anterior punha o canto pequeno em cima à direita na saída, o que
+  invertia a costura: o grupo se abria virado para o lado errado e cada balão
+  parecia começar uma fala nova.
+*/
 .grupo .msg[data-primeiro='false'] .bub {
   border-top-left-radius: var(--d-balao-canto);
 }
@@ -629,7 +690,10 @@
   background: var(--d-balao-saida);
   border-color: transparent;
   color: var(--d-balao-saida-tinta);
-  border-radius: var(--d-balao-raio) var(--d-balao-canto) var(--d-balao-raio)
+  /* Saída: canto pequeno EMBAIXO à direita, espelho do de entrada. Estava em
+     cima à direita, o que deixava os dois lados da conversa apontando para
+     direções diferentes. */
+  border-radius: var(--d-balao-raio) var(--d-balao-raio) var(--d-balao-canto)
     var(--d-balao-raio);
 }
 
@@ -731,9 +795,18 @@
   position: relative;
 }
 
+/*
+  A caixa é um BLOCO de altura estável: 150px de piso e 420px de teto, medidos
+  na tela de referência. Faltava aqui, e a falta tinha consequência — sem piso,
+  a caixa nascia do tamanho de uma linha e crescia ao digitar, empurrando a
+  conversa para cima a cada quebra de linha e de volta para baixo a cada envio.
+  Com o piso, a linha de água do compositor não se mexe.
+*/
 .composer .box {
   display: flex;
   flex-direction: column;
+  min-height: var(--d-compositor-min);
+  max-height: var(--d-compositor-max);
   border: 1px solid var(--line-strong);
   border-radius: var(--p-r-md);
   padding: var(--p-e-2) 0 var(--p-e-2) var(--p-e-4);
@@ -744,6 +817,9 @@
   border-color: var(--moss);
 }
 
+/* A área de texto vai de 4em a 11.5em — as duas medidas da referência. O `1fr`
+   é o que faz ela ocupar o que sobra do bloco de 150px em vez de deixar um
+   vazio entre o texto e a barra de ações. */
 .composer textarea {
   font: inherit;
   font-size: var(--p-t-md);
@@ -752,6 +828,7 @@
   border: 0;
   resize: none;
   outline: none;
+  flex: 1;
   min-height: 4em;
   max-height: 11.5em;
   line-height: 1.5;
@@ -762,8 +839,13 @@
   color: var(--ink-3);
 }
 
+/* Faixa de ações de 56px, com 12px separando ela do campo — as duas medidas da
+   referência. Os 12px faltavam, e sem eles a barra de anexo/áudio/envio
+   encostava na última linha digitada. */
 .composer .acoes {
   height: 56px;
+  flex: none;
+  margin-top: var(--p-e-3);
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
@@ -1012,6 +1094,40 @@
   font-weight: var(--p-peso-forte);
 }
 
+/* Faixa de abas do painel. Na referência ela ocupa a largura inteira logo
+   abaixo do cabeçalho, e o corpo abaixo dela é o que rola — o cabeçalho e as
+   abas ficam parados. */
+.panel-abas {
+  flex: none;
+  display: flex;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+.panel-abas a {
+  flex: 1;
+  text-align: center;
+  padding: var(--p-e-2) var(--p-e-1);
+  font-size: var(--p-t-sm);
+  color: var(--ink-3);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  /* O sublinhado do escolhido tem 2px e some no repouso. Reservar a altura
+     desde já é o que impede a faixa de pular 2px a cada troca de aba. */
+  margin-bottom: -1px;
+}
+
+.panel-abas a:hover {
+  color: var(--ink);
+  background: var(--surface-2);
+}
+
+.panel-abas a[aria-current='true'] {
+  color: var(--ink);
+  font-weight: var(--p-peso-medio);
+  border-bottom-color: var(--moss);
+}
+
 .panel-corpo {
   flex: 1;
   min-height: 0;
@@ -1020,6 +1136,15 @@
   display: flex;
   flex-direction: column;
   gap: var(--p-e-2);
+}
+
+/* O vazio de um cartão do painel: uma frase, sem caixa e sem borda. Existe
+   como classe porque estava escrito com estilo de linha em cinco lugares, e
+   estilo de linha é o que escapa do verificador de token. */
+.panel-vazio {
+  margin: 0;
+  font-size: var(--p-t-sm);
+  color: var(--ink-3);
 }
 
 .panel section {
@@ -1106,6 +1231,52 @@
   display: flex;
   gap: var(--p-e-1);
   flex-wrap: wrap;
+}
+
+/* =========================================================== inatividade
+   O aviso de inatividade cobre a tela. É o único elemento do Desk que faz
+   isso sem a pessoa ter pedido, e o motivo é o mesmo que justifica a regra:
+   quem não está olhando a tela não lê faixa de rodapé. */
+.inativo {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: var(--p-e-4);
+  background: color-mix(in srgb, var(--p-superficie-4) 55%, transparent);
+}
+
+.inativo-caixa {
+  width: 100%;
+  max-width: 24rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+  padding: var(--p-e-6);
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--p-r-md);
+  box-shadow: var(--p-sombra-2);
+  text-align: center;
+}
+
+.inativo-caixa h4 {
+  margin: 0;
+  font-size: var(--p-t-lg);
+  font-weight: var(--p-peso-forte);
+  color: var(--ink);
+}
+
+.inativo-caixa p {
+  margin: 0;
+  font-size: var(--p-t-md);
+  line-height: var(--p-altura-linha);
+  color: var(--ink-2);
+}
+
+.inativo-caixa .btn {
+  justify-content: center;
 }
 
 /* ================================================================ diálogos
@@ -1221,11 +1392,32 @@ dialog .rodape {
 }
 
 /* ============================================================== responsivo
-   As faixas são as deles: acima de 1600 o balão respira mais; até 1112 o
-   painel do contato sai; até 950 sobra uma coluna só. */
-@media (min-width: 1601px) {
+   Cinco faixas, todas medidas na folha de referência: 1600 / 1440 / 1112 /
+   950 / 650. Acima de 1600 o balão respira mais; entre 1112 e 1440 duas
+   faixas crescem porque o texto quebra em mais linhas; até 1112 o painel do
+   contato sai; até 950 sobra uma coluna só. */
+@media (min-width: 1600px) {
   .msgs {
     padding: var(--p-e-10) 64px;
+  }
+}
+
+/* Faixa intermediária. As duas alturas mudam pelo mesmo motivo: a coluna fica
+   mais estreita, o texto quebra em mais uma linha, e a faixa que era folgada
+   passa a cortar a última linha. */
+@media (max-width: 1440px) {
+  :root {
+    --d-bloco-status: 117px;
+    --d-topo-painel: 57px;
+  }
+}
+
+@media (max-width: 1112px) {
+  /* A caixa de texto encolhe junto com a coluna: 7em de teto em vez de 11.5.
+     É a medida da referência, e sem ela o compositor come metade da conversa
+     numa janela estreita. */
+  .composer textarea {
+    max-height: 7em;
   }
 }
 
@@ -1254,6 +1446,14 @@ dialog .rodape {
 
   .voltar {
     display: inline-block;
+  }
+
+  /* Numa coluna só o rosto do cabeçalho encolhe para 36px, como na
+     referência: o nome do cliente precisa da largura mais do que o disco. */
+  .thread-head .av-contato {
+    width: 36px;
+    height: 36px;
+    font-size: var(--p-t-md);
   }
 
   .msgs {
