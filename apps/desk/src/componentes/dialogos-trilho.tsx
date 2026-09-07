@@ -5,6 +5,7 @@ import { Icone } from '@pipe/ui';
 import { AlternarTema } from './alternar-tema';
 import { ATALHOS_GLOBAIS, ID_FOLHA_ATALHOS } from './atalhos';
 import { IconeDesk } from './icones-desk';
+import { Preferencias } from './preferencias';
 import { sair } from '../app/entrar/acoes';
 
 /**
@@ -128,10 +129,17 @@ export function BotaoPreferencias({
         O Desk não configura fila, regra nem relatório — isso é do Pipe Gestão. Aqui fica só o
         que é da sua tela.
       </p>
-      <div className="preferencia">
-        <span>Tema claro e escuro</span>
-        <AlternarTema />
+
+      {/* Sem botão "Salvar": cada interruptor vale no instante em que é
+          tocado, como na tela de referência. */}
+      <div className="pref-secao">
+        <span className="lbl">Aparência</span>
+        <div className="preferencia">
+          <span>Tema claro e escuro</span>
+          <AlternarTema />
+        </div>
       </div>
+      <Preferencias />
       <a className="btn" href={urlGestao} target="_blank" rel="noreferrer">
         <IconeDesk nome="externo" tamanho={14} />
         Abrir o Pipe Gestão

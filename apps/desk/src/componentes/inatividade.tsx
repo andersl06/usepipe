@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { cairPorInatividade } from '../app/acoes';
+import { usePreferencia } from './preferencias';
 import {
   INATIVIDADE_AVISO_MS,
   INATIVIDADE_CHECAGEM_MS,
@@ -60,12 +61,22 @@ function minutos(ms: number): string {
 export function VigiaDeInatividade({ estado }: { estado: EstadoAtendente }) {
   /** Quanto falta para a queda, ou `null` enquanto o aviso não vale. */
   const [faltando, setFaltando] = useState<number | null>(null);
+  /**
+   * "Continuar online ao fechar" desliga a queda automática por completo — é o
+   * que essa preferência faz na tela de referência, e é para isso que ela
+   * existe: quem atende de outra tela e volta ao Desk de vez em quando não
+   * pode ser derrubado por não ter mexido o mouse aqui.
+   */
+  const [manterOnline] = usePreferencia('manterOnline');
   const ultimoGesto = useRef<number>(Date.now());
   /** Trava de uma só queda: a ação é idempotente, mas a rede não é de graça. */
   const caiu = useRef(false);
 
   useEffect(() => {
-    if (estado === 'offline') return;
+    if (estado === 'offline' || manterOnline) {
+      setFaltando(null);
+      return;
+    }
 
     // O relógio recomeça sempre que o estado muda: quem acabou de escolher
     // "Ficar Online" fez um gesto, e começar com o relógio corrido derrubaria a
@@ -104,7 +115,7 @@ export function VigiaDeInatividade({ estado }: { estado: EstadoAtendente }) {
       window.clearInterval(relogio);
       for (const gesto of GESTOS) document.removeEventListener(gesto, tocar);
     };
-  }, [estado]);
+  }, [estado, manterOnline]);
 
   if (faltando === null) return null;
 

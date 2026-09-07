@@ -1555,7 +1555,9 @@ dialog .rodape {
   color: var(--ink-2);
 }
 
-/* Uma preferência por linha: o que ela é à esquerda, o controle à direita. */
+/* Uma preferência por linha: o que ela é à esquerda, o controle à direita.
+   A linha inteira é o alvo — `<label>` envolvendo a caixa de seleção —, o que
+   dá um alvo de clique de largura cheia em vez de um quadrado de 13px. */
 .preferencia {
   display: flex;
   align-items: center;
@@ -1565,6 +1567,63 @@ dialog .rodape {
   border: 1px solid var(--line);
   border-radius: var(--p-r-md);
   padding: var(--p-e-2) var(--p-e-3);
+}
+
+label.preferencia {
+  cursor: pointer;
+}
+
+label.preferencia:hover {
+  border-color: var(--line-strong);
+}
+
+/* A explicação fica ABAIXO do rótulo, dentro do mesmo alvo: uma preferência
+   cujo nome não diz o que ela faz precisa da linha, e a linha não pode virar
+   um segundo item da lista. */
+.preferencia > span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.preferencia small {
+  font-size: var(--p-t-sm);
+  line-height: var(--p-altura-linha);
+  color: var(--ink-3);
+}
+
+.preferencia input[type='checkbox'] {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--moss);
+  cursor: pointer;
+}
+
+.preferencia input[type='checkbox']:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.preferencias,
+.pref-secao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
+}
+
+.preferencias {
+  gap: var(--p-e-4);
+}
+
+/* Pergunta de pré-requisito e saída de permissão negada. Não é alerta: é
+   instrução, e por isso não gasta a cor de alerta. */
+.pref-aviso {
+  margin: 0;
+  font-size: var(--p-t-sm);
+  line-height: var(--p-altura-linha);
+  color: var(--ink-3);
 }
 
 .erro {

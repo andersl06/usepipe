@@ -25,6 +25,7 @@ import type { AbaDoPainel } from '../componentes/painel-contato';
 import { EstadoVazio } from '@pipe/ui';
 import { TrilhoDesk } from '../componentes/trilho-desk';
 import { VigiaDeInatividade } from '../componentes/inatividade';
+import { Avisos } from '../componentes/avisos';
 import { RecargaDaFila } from '../componentes/recarga-fila';
 
 /**
@@ -189,6 +190,17 @@ export default async function PaginaDesk({
       <VigiaDeInatividade estado={dados.status.estado} />
       {/* Recarrega a fila a cada 15s, preservando o estado do cliente. */}
       <RecargaDaFila />
+      {/* Som e notificação de atendimento novo e mensagem nova. Compara o que
+          a recarga de 15s traz com o que já tinha sido visto — é o que dá
+          função aos interruptores da aba de Preferências. */}
+      <Avisos
+        conversas={dados.conversas.map((c) => ({
+          id: c.id,
+          contatoNome: c.contatoNome,
+          ultimaMensagemEm: c.ultimaMensagemEm?.getTime() ?? null,
+          ultimaMensagemDe: c.ultimaMensagemDe,
+        }))}
+      />
       <TrilhoDesk
         iniciais={sessao.iniciais}
         nome={sessao.nome}

@@ -7,6 +7,7 @@ import type { Resultado } from '../app/acoes';
 import { EVENTO_NOTA, EVENTO_RESPOSTA_PRONTA } from './atalhos';
 import { abrirDialogoEncerrar } from './dialogo-encerrar';
 import { IconeDesk } from './icones-desk';
+import { usePreferencia } from './preferencias';
 import { aplicarVariaveis, renderizarTemplate } from '../lib/template';
 import type { VariaveisDoContato } from '../lib/template';
 import type { RespostaProntaDoDesk, TemplateAprovado } from '../servidor/consultas';
@@ -83,6 +84,7 @@ export function Compositor({
 }) {
   const [texto, setTexto] = useState('');
   const [modo, setModo] = useState<'resposta' | 'nota'>('resposta');
+  const [corretor] = usePreferencia('corretor');
   const [respostaProntaId, setRespostaProntaId] = useState<string>('');
   const [gatilho, setGatilho] = useState<Gatilho | null>(null);
   const [ativo, setAtivo] = useState(0);
@@ -542,6 +544,10 @@ export function Compositor({
               }
               onChange={(e) => trocarTexto(e.target.value, e.target.selectionStart)}
               onKeyDown={aoTeclar}
+              /* O corretor é o do próprio navegador, ligado pela preferência do
+                 atendente. Nada de dicionário nosso: o do sistema já conhece o nome
+                 do cliente que a pessoa acabou de digitar. */
+              spellCheck={corretor}
             />
             <div className="acoes">
               {/*
