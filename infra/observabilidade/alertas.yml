@@ -39,10 +39,12 @@ groups:
         annotations:
           resumo: 'Item de {{ $labels.fila }} parado há mais de 15 minutos'
 
-      - alert: WorkerParado
-        expr: up{job="pipe-workers"} == 0
-        for: 3m
-        labels: { severidade: acorda }
+      # `WorkerParado` saiu daqui. Ele media `up{job="pipe-workers"}`, e não existe
+      # alvo `pipe-workers`: `apps/workers` não expõe HTTP. A regra ficaria em
+      # disparo permanente, tocando o telefone toda madrugada sem nada a fazer —
+      # que é o mecanismo exato pelo qual todo o resto deste arquivo passa a ser
+      # ignorado. O sintoma real de worker parado já aparece em `FilaParada`, com
+      # métrica que EXISTE. Volta quando `apps/workers` publicar /metrics.
 
       - alert: BancoForaDoAr
         expr: pg_up == 0

@@ -22,7 +22,10 @@ write_files:
       [Service]
       Type=oneshot
       WorkingDirectory=/opt/pipe/infra/compose
-      ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml run --rm backup /scripts/backup.sh
+      # `--env-file` não é opcional: sem ele o compose não resolve ${POSTGRES_SENHA}
+      # nem as chaves do bucket, o backup roda com PGPASSWORD vazio e falha todo dia
+      # com "authentication failed". `--profile tarefa` porque o serviço vive nele.
+      ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml --env-file /opt/pipe-dados/.env --profile tarefa run --rm backup /scripts/backup.sh
   - path: /etc/systemd/system/pipe-backup.timer
     content: |
       [Unit]
@@ -42,7 +45,7 @@ write_files:
       [Service]
       Type=oneshot
       WorkingDirectory=/opt/pipe/infra/compose
-      ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml run --rm backup /scripts/restaurar-teste.sh
+      ExecStart=/usr/bin/docker compose -f docker-compose.prod.yml --env-file /opt/pipe-dados/.env --profile tarefa run --rm backup /scripts/restaurar-teste.sh
   - path: /etc/systemd/system/pipe-restauracao-teste.timer
     content: |
       [Unit]
@@ -55,6 +58,11 @@ write_files:
 
 runcmd:
   - curl -fsSL https://get.docker.com | sh
+  # `sops` NÃO está no apt do Ubuntu — só o `age` está, e é por isso que o
+  # deploy.sh morria em "sops: command not found" na primeira execução. Binário
+  # único, sem dependência.
+  - curl -fsSLo /usr/local/bin/sops https://github.com/getsops/sops/releases/download/v3.9.4/sops-v3.9.4.linux.amd64
+  - chmod +x /usr/local/bin/sops
   # Postgres e Redis nunca escutam na rede pública; o firewall é a segunda tranca,
   # a primeira é não publicar porta no compose.
   - ufw default deny incoming
@@ -67,6 +75,12 @@ runcmd:
   - git clone ${repositorio_git} /opt/pipe || true
   - systemctl daemon-reload
   - systemctl enable --now pipe-backup.timer pipe-restauracao-teste.timer
-  # O que falta é manual, uma vez só, e está no passo a passo do documento:
+  # O que falta é manual, uma vez só, e está em docs/specs/2026-09-07-implantacao.md:
   # 1) colocar a chave age de deploy em /opt/pipe-dados/age.key (chmod 600)
-  # 2) rodar infra/compose/deploy.sh, que decifra o .env e sobe a pilha
+  # 2) rodar infra/compose/implantar.sh <versao>, que confere o que precisa estar
+  #    pronto, sobe a pilha na ordem certa e para com mensagem no que é seu.
+  #
+  # O `ufw` acima NÃO fecha porta publicada por contêiner: o Docker escreve direto
+  # no netfilter, antes das regras dele. Aqui isso não é problema porque só o
+  # Traefik publica porta (80 e 443) — mas vale lembrar antes de alguém acrescentar
+  # um `ports:` no compose achando que o firewall protege.

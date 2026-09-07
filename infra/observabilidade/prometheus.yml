@@ -17,15 +17,24 @@ alerting:
 
 scrape_configs:
   - job_name: pipe-api
-    # PENDÊNCIA: apps/api ainda não expõe /metrics. Sem esse alvo, metade dos
-    # alertas abaixo nunca dispara — é a primeira dívida a pagar.
+    # `/metrics` existe (apps/api/src/controladores/operacao.ts) e é daqui que saem
+    # `pipe_fila_profundidade`, `pipe_fila_idade_item_mais_velho_segundos`,
+    # `pipe_mensagem_entrega_total`, `pipe_migration_pendente` e o histograma
+    # `http_request_duration_seconds` — ou seja, quase todos os alertas.
+    #
+    # A coleta é por dentro da rede, de um IP privado, e é por isso que ela passa
+    # sem `PIPE_METRICS_TOKEN`. Se um dia o token for definido, acrescente aqui:
+    #   authorization: { credentials: <token> }
     metrics_path: /metrics
     static_configs:
       - targets: ['api:3100']
 
-  - job_name: pipe-workers
-    static_configs:
-      - targets: ['workers:9464']
+  # NÃO existe alvo `pipe-workers`. `apps/workers` não abre porta HTTP nenhuma
+  # (nenhum `createServer` no código) e o Dockerfile dele não tem EXPOSE. Um job
+  # apontando para `workers:9464` ficaria `up == 0` para sempre — e o alerta
+  # `WorkerParado`, que é `severidade: acorda`, tocaria o telefone toda noite
+  # desde o primeiro dia. Alerta que toca sem ação é como se ensina a ignorar
+  # todos os outros. Volta quando os workers expuserem métrica de verdade.
 
   - job_name: traefik
     static_configs:

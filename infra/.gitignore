@@ -1,0 +1,15 @@
+# Valor de ambiente do Terraform: sai do painel do provedor e não vai para o
+# repositório. O .gitignore da raiz cobre `.env*` e não cobre isto — pendência 5
+# do README, resolvida aqui em vez de na raiz, que é território de outro agente.
+*.tfvars
+!*.tfvars.exemplo
+
+# Estado local, para o caso de alguém rodar sem backend configurado.
+.terraform/
+*.tfstate
+*.tfstate.*
+
+# Segredo em texto claro nesta árvore é defeito, não pressa.
+*.env
+!*.env.exemplo
+!segredos/*.enc.env

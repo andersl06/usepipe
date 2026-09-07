@@ -1,5 +1,9 @@
 #!/usr/bin/env bash
-# Publicação do degrau pequeno. Roda na VPS, como root, a partir de /opt/pipe.
+# Publicação de uma versão nova. Roda na VPS, como root, a partir de /opt/pipe.
+#
+# Este script é para a SEGUNDA publicação em diante. A primeira, do zero, é
+# `implantar.sh` — ela tem passos que só acontecem uma vez (papel do banco,
+# stanza do backup, tenant, canal) e paradas para o que só o dono pode fazer.
 #
 # A ordem não é gosto: migration antes do código novo (§9 da spec), porque só
 # assim dá para voltar a versão anterior sem perder dado. Toda migration precisa
@@ -15,12 +19,18 @@ cd "$(dirname "$0")"
 export SOPS_AGE_KEY_FILE=/opt/pipe-dados/age.key
 umask 077
 sops --decrypt segredos/producao.enc.env > /opt/pipe-dados/.env
-sops --decrypt segredos/producao-crm.enc.env > /opt/pipe-dados/.env.crm
+# Depois do arquivo cifrado, de propósito: em `--env-file` vale a última
+# definição, então esta linha sobrescreve o PIPE_VERSAO que veio do SOPS.
 echo "PIPE_VERSAO=${VERSAO}" >> /opt/pipe-dados/.env
 
 COMPOSE="docker compose -f docker-compose.prod.yml --env-file /opt/pipe-dados/.env"
 
-$COMPOSE pull
+# `postgres` e `backup` são construídos aqui, não puxados: a imagem é o Postgres
+# com pgbackrest ao lado, e ela não está em registro nenhum. `--ignore-buildable`
+# impede que o `pull` pare a publicação tentando baixar justamente essas duas.
+$COMPOSE build postgres
+$COMPOSE pull --ignore-buildable
+
 $COMPOSE --profile tarefa run --rm migrar
 
 # `--wait` faz o compose esperar o healthcheck ficar verde antes de dar por feito;

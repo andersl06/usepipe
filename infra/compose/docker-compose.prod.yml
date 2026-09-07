@@ -36,6 +36,23 @@ x-app: &app
       reservations:
         memory: 256m
 
+# O HEALTHCHECK das três imagens Next sai com `exit 0` em QUALQUER resposta HTTP,
+# 500 inclusive: um front sem banco fica "healthy" para sempre. Aqui a raiz é
+# aceita só abaixo de 500. Não é `/saude` — Next não tem uma —, mas já separa
+# "o processo subiu" de "o processo consegue renderizar".
+x-saude-next: &saude-next
+  test:
+    [
+      'CMD',
+      'node',
+      '-e',
+      "require('http').get('http://127.0.0.1:'+(process.env.PORT||3000)+'/',r=>process.exit(r.statusCode<500?0:1)).on('error',()=>process.exit(1))",
+    ]
+  interval: 15s
+  timeout: 5s
+  start_period: 40s
+  retries: 4
+
 services:
   traefik:
     <<: *padrao
@@ -44,6 +61,11 @@ services:
       - --providers.docker=true
       # Sem isto, todo contêiner novo vira rota publicada por acidente.
       - --providers.docker.exposedbydefault=false
+      # `api`, `desk`, `gestao` e `crm` estão em DUAS redes. Sem esta linha o
+      # Traefik escolhe um dos dois IPs sem critério estável — e quando escolhe o
+      # da rede `dados`, onde ele não está, dá 502 que some e volta a cada
+      # recriação de contêiner. O nome tem o prefixo do projeto (`name: pipe`).
+      - --providers.docker.network=pipe_borda
       - --entrypoints.web.address=:80
       - --entrypoints.web.http.redirections.entrypoint.to=websec
       - --entrypoints.web.http.redirections.entrypoint.scheme=https
@@ -66,6 +88,11 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock:ro
       - /opt/pipe-dados/acme:/acme
     networks: [borda]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 256m
     healthcheck:
       test: ['CMD', 'traefik', 'healthcheck', '--ping']
       interval: 20s
@@ -76,13 +103,31 @@ services:
     <<: *app
     # Construída por infra/construir-imagens.sh a partir de apps/api/Dockerfile.
     image: ghcr.io/pipe/api:${PIPE_VERSAO}
-    # Sem `healthcheck:` aqui de propósito: quem manda é o HEALTHCHECK da imagem,
-    # para não haver duas verdades. O que estava escrito neste lugar chamava
-    # /saude, que apps/api ainda não expõe (pendência 1 do infra/README) — o
-    # contêiner nascia unhealthy e o `up -d --wait` do deploy.sh nunca fechava.
+    # `GET /saude` existe desde 07/09/2026 (apps/api/src/controladores/operacao.ts)
+    # e devolve 503 quando o pool da aplicação não responde. O HEALTHCHECK da
+    # imagem ainda bate na raiz `/` e aprova qualquer coisa abaixo de 500 — o que
+    # dá "healthy" com o banco fora. Este bloco sobrescreve o da imagem, e é a
+    # diferença entre "o contêiner iniciou" e "o contêiner atende".
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'node',
+          '-e',
+          "require('http').get('http://127.0.0.1:'+(process.env.PORT||3100)+'/saude',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))",
+        ]
+      interval: 15s
+      timeout: 5s
+      start_period: 40s
+      retries: 4
     labels:
       - traefik.enable=true
-      - traefik.http.routers.api.rule=Host(`api.usepipe.com.br`)
+      # `!PathPrefix('/metrics')`: o roteador é por Host, e sem esta negação
+      # `https://api.usepipe.com.br/metrics` fica público. O porteiro da própria
+      # rota libera faixa privada quando não há token, e atrás do Traefik o IP
+      # visto É privado — ou seja, a defesa da aplicação não vale aqui. O
+      # Prometheus continua coletando por dentro, em `api:3100`.
+      - traefik.http.routers.api.rule=Host(`api.usepipe.com.br`) && !PathPrefix(`/metrics`)
       - traefik.http.routers.api.entrypoints=websec
       - traefik.http.routers.api.tls.certresolver=le
       - traefik.http.services.api.loadbalancer.server.port=3100
@@ -116,8 +161,12 @@ services:
     # Construída por infra/construir-imagens.sh a partir de apps/desk/Dockerfile.
     # A imagem escuta na 3000 (a 3200 é só do `pnpm dev`).
     image: ghcr.io/pipe/desk:${PIPE_VERSAO}
-    # Healthcheck vem da imagem. O que estava aqui chamava /api/saude, rota que o
-    # Desk não tem — nascia unhealthy e travava a publicação.
+    healthcheck: *saude-next
+    # O Desk renderiza no servidor e fala com o Postgres direto, por isso está na
+    # rede `dados`. Ele não depende do Redis para servir tela.
+    depends_on:
+      postgres:
+        condition: service_healthy
     labels:
       - traefik.enable=true
       - traefik.http.routers.desk.rule=Host(`app.usepipe.com.br`)
@@ -128,6 +177,10 @@ services:
   gestao:
     <<: *app
     image: ghcr.io/pipe/gestao:${PIPE_VERSAO}
+    healthcheck: *saude-next
+    depends_on:
+      postgres:
+        condition: service_healthy
     labels:
       - traefik.enable=true
       - traefik.http.routers.gestao.rule=Host(`gestao.usepipe.com.br`)
@@ -146,8 +199,17 @@ services:
   crm:
     <<: *padrao
     image: ghcr.io/pipe/crm:${PIPE_VERSAO}
-    env_file: [/opt/pipe-dados/.env.crm]
+    # Um `.env` só, e não um `.env.crm` à parte: `apps/crm` é código nosso, lê o
+    # MESMO banco (`apps/crm/src/lib/configuracoes-dados.ts` usa
+    # `PIPE_CHAVES_SEGREDO`) e um segundo arquivo cifrado era mais uma coisa para
+    # esquecer de criar antes do primeiro `up`. Quando o fork AGPLv3 entrar, ele
+    # ganha o arquivo próprio — aí a separação existe por licença, não por hábito.
+    env_file: [/opt/pipe-dados/.env]
     networks: [borda, dados]
+    healthcheck: *saude-next
+    depends_on:
+      postgres:
+        condition: service_healthy
     deploy:
       resources:
         limits:
@@ -183,15 +245,31 @@ services:
     # aqui — não adianta deixá-lo só no contêiner de backup.
     build:
       context: ./postgres
+    image: pipe/postgres:16-pgbackrest
     environment:
       POSTGRES_USER: pipe
       POSTGRES_PASSWORD: ${POSTGRES_SENHA}
       POSTGRES_DB: pipe
       TZ: America/Sao_Paulo
+      # Lida pelo script de inicialização abaixo. É a senha do papel `pipe_app`,
+      # e precisa bater com a de DATABASE_URL_APP.
+      POSTGRES_APP_SENHA: ${POSTGRES_APP_SENHA}
+      # O `archive_command` roda DENTRO deste contêiner e fala com o bucket: sem
+      # estas três o archive-push falha em silêncio a cada segmento de WAL, o
+      # Postgres passa a acumular `pg_wal` e o disco acaba. Estavam só no serviço
+      # de backup, que não é quem arquiva.
+      PGBACKREST_REPO1_S3_KEY: ${BACKUP_S3_KEY}
+      PGBACKREST_REPO1_S3_KEY_SECRET: ${BACKUP_S3_SEGREDO}
+      PGBACKREST_REPO1_CIPHER_PASS: ${PGBACKREST_REPO1_CIPHER_PASS}
     command:
       - postgres
       - -c
-      - archive_mode=on
+      # `off` no primeiro `up`, de propósito. Arquivar antes de a stanza existir
+      # é o mesmo que não arquivar, só que enchendo o disco: o `archive_command`
+      # falha, o Postgres nunca recicla o WAL e a VPS morre em dias. O roteiro de
+      # implantação manda rodar `pgbackrest stanza-create` e SÓ ENTÃO trocar esta
+      # variável para `on` e reiniciar o banco.
+      - archive_mode=${PG_ARCHIVE_MODE:-off}
       - -c
       - archive_command=pgbackrest --stanza=pipe archive-push %p
       # WAL fechado a cada 60s: é isto que torna verdadeira a promessa de RPO de 5
@@ -204,6 +282,14 @@ services:
       - shared_buffers=2GB
     volumes:
       - pgdados:/var/lib/postgresql/data
+      # O papel `pipe_app` NÃO nasce das migrations: todo `grant` para ele em
+      # packages/db/drizzle vem embrulhado em `IF EXISTS (... pg_roles ...)` e é
+      # pulado em silêncio se o papel não existir. Em desenvolvimento quem o cria
+      # é docker/postgres/init.sql, que este compose nunca montou — e o resultado
+      # era API e fronts sem conseguir conectar com DATABASE_URL_APP.
+      # O diretório roda uma vez só, na inicialização de um PGDATA vazio, ANTES
+      # do primeiro `migrar` — que é exatamente a ordem que os grants exigem.
+      - ./postgres/init:/docker-entrypoint-initdb.d:ro
       - ./postgres/pgbackrest.conf:/etc/pgbackrest/pgbackrest.conf:ro
       # O soquete unix é compartilhado com o contêiner de backup: é assim que o
       # pgBackRest abre e fecha o backup sem que o Postgres precise escutar em TCP
@@ -258,12 +344,22 @@ services:
     # versão de Postgres e das MESMAS extensões, senão ele valida outra coisa.
     build:
       context: ./postgres
+    image: pipe/postgres:16-pgbackrest
+    # `tarefa` porque este serviço EXISTE para ser chamado com `run --rm`, pelos
+    # timers do systemd. Sem o perfil ele entrava no `up`, subia um `/bin/bash`
+    # sem terminal, saía na hora — e o `up -d --wait` do deploy.sh dava a
+    # publicação inteira como falha por causa de um contêiner que fez o certo.
+    profiles: [tarefa]
     restart: 'no' # disparado por systemd timer, não fica em laço
     user: postgres
     entrypoint: ['/bin/bash']
     environment:
       PGBACKREST_REPO1_S3_KEY: ${BACKUP_S3_KEY}
       PGBACKREST_REPO1_S3_KEY_SECRET: ${BACKUP_S3_SEGREDO}
+      # `pgbackrest.conf` declara `repo1-cipher-type=aes-256-cbc`. Sem a senha,
+      # todo comando do pgBackRest para com "repo1-cipher-pass is required" — e
+      # a descoberta vinha no primeiro backup, de madrugada.
+      PGBACKREST_REPO1_CIPHER_PASS: ${PGBACKREST_REPO1_CIPHER_PASS}
       HEALTHCHECK_URL_BACKUP: ${HEALTHCHECK_URL_BACKUP}
       HEALTHCHECK_URL_RESTAURACAO: ${HEALTHCHECK_URL_RESTAURACAO}
       PGPASSWORD: ${POSTGRES_SENHA}
@@ -373,6 +469,30 @@ services:
     # packages/db/drizzle.
     command: ['node', '/app/packages/db/dist/migrar.js']
     networks: [dados]
+    # `run --rm migrar` sobe as dependências declaradas, e sem isto ele não subia
+    # nenhuma: no primeiro deploy, com o Postgres ainda parado, a migration
+    # morria em ECONNREFUSED antes de qualquer coisa acontecer.
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Provisionar um cliente: tenant, catálogo, primeiro administrador e domínio.
+  # É comando e não rota de propósito (ver o cabeçalho de apps/api/provisionar.ts):
+  # exposto por HTTP viraria uma chave mestra na internet.
+  #
+  #   docker compose --profile tarefa run --rm provisionar \
+  #     --nome "Acme" --slug acme --plano operacao --admin ana@acme.com.br
+  provisionar:
+    <<: *padrao
+    image: ghcr.io/pipe/api:${PIPE_VERSAO}
+    profiles: [tarefa]
+    restart: 'no'
+    env_file: [/opt/pipe-dados/.env]
+    entrypoint: ['node', '/app/apps/api/dist/provisionar.js']
+    networks: [dados]
+    depends_on:
+      postgres:
+        condition: service_healthy
 
 networks:
   # Onde o Traefik alcança a aplicação e a aplicação alcança a internet

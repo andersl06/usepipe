@@ -1,8 +1,14 @@
 # segredos
 
-Aqui vivem `producao.enc.env`, `producao-crm.enc.env` e os equivalentes de
-homologação — **cifrados pelo SOPS**, e só assim. As regras de quem consegue
-decifrar estão em [`../../.sops.yaml`](../../.sops.yaml).
+Aqui vivem `producao.enc.env` e o equivalente de homologação — **cifrados pelo
+SOPS**, e só assim. As regras de quem consegue decifrar estão em
+[`../../.sops.yaml`](../../.sops.yaml).
+
+**Um arquivo por ambiente, não um por serviço.** Houve um `producao-crm.enc.env`
+aqui; ele saiu porque `apps/crm` é código nosso, no mesmo monorepo, lendo o mesmo
+banco — o segundo arquivo cifrado não separava nada e era mais uma coisa para
+esquecer de criar antes do primeiro `up`. Quando o fork AGPLv3 do Twenty entrar,
+ele ganha o próprio: aí a separação existe por licença, não por hábito.
 
 ```bash
 cd infra
