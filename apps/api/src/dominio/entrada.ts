@@ -4,6 +4,7 @@ import type { EstadoEntrega } from '@pipe/core';
 import type { TransacaoPipe } from '@pipe/db';
 import { noTenant } from '../banco.js';
 import type { CanalResolvido } from '../banco.js';
+import { contar } from '../metricas.js';
 import { escolherParaFila } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
@@ -276,6 +277,20 @@ async function aplicarStatus(canal: CanalResolvido, status: StatusDaMeta): Promi
       estado_anterior: atual,
       estado_novo: alvo,
     });
+
+    // O desfecho da entrega é aqui que vira número: é este webhook que a Meta usa
+    // para dizer se a mensagem chegou. `entregue` conta uma vez, `lida` não conta de
+    // novo — senão a taxa de falha do alerta `EntregaFalhando` seria diluída por
+    // cada leitura.
+    // ponytail: rótulo `canal` é o id do canal, uma série por número de WhatsApp.
+    // Se a base passar de alguns milhares de canais, trocar por `canal.tipo` e
+    // deixar o detalhe para o log.
+    if (alvo === 'falhou' || alvo === 'entregue') {
+      contar('pipe_mensagem_entrega_total', {
+        canal: canal.id,
+        resultado: alvo === 'falhou' ? 'falha' : 'sucesso',
+      });
+    }
 
     return true;
   });

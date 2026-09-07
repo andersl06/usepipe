@@ -24,6 +24,8 @@
     "@nestjs/common": "^11.1.6",
     "@nestjs/core": "^11.1.6",
     "@nestjs/platform-express": "^11.1.6",
+    "@pipe/autenticacao": "workspace:*",
+    "@pipe/contracts": "workspace:*",
     "@pipe/core": "workspace:*",
     "@pipe/db": "workspace:*",
     "bullmq": "^5.60.0",

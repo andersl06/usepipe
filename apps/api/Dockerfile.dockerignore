@@ -1,0 +1,36 @@
+# Contexto de build da imagem do api. O BuildKit usa este arquivo NO LUGAR do
+# .dockerignore da raiz quando o -f aponta para apps/api/Dockerfile, então ele
+# precisa ser completo — não é um complemento daquele.
+#
+# O que ele acrescenta ao da raiz: os aplicativos irmãos ficam de fora do
+# contexto inteiro, menos o `package.json` de cada um, que o
+# `--frozen-lockfile` exige para conferir o lockfile contra o workspace todo.
+
+# Reconstruídos no estágio de build; nunca vêm da máquina de quem constrói.
+**/node_modules
+**/.next
+**/dist
+**/.turbo
+**/*.tsbuildinfo
+
+# Segredo. `apps/gestao/.env` e `apps/crm/.env` estão versionados com credencial
+# de desenvolvimento, e o Next carrega `.env` antes de `process.env`: dentro da
+# imagem eles apontariam a produção para o Postgres de ninguém.
+**/.env
+**/.env.*
+
+.git
+.gitignore
+.github
+*.log
+docs
+infra
+apps/site
+
+# Aplicativos que esta imagem não constrói.
+apps/desk
+!apps/desk/package.json
+apps/gestao
+!apps/gestao/package.json
+apps/crm
+!apps/crm/package.json

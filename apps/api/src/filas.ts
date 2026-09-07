@@ -75,6 +75,54 @@ export function consumirEntrada(): void {
   );
 }
 
+/** Sonda do `/saude`. Usa a MESMA conexão do resto: sonda em canal próprio mente. */
+export async function pingRedis(): Promise<string> {
+  return redis().ping();
+}
+
+export interface EstadoDaFila {
+  fila: string;
+  /** Esperando mais adiado: o que ainda não rodou, sob qualquer motivo. */
+  profundidade: number;
+  /** Idade do item mais antigo ainda esperando. É o número do alerta `FilaParada`. */
+  idadeSegundos: number;
+}
+
+/**
+ * O estado das filas no instante da coleta.
+ *
+ * Profundidade sozinha engana — fila grande escoando é hora cheia normal. O que
+ * dói, e o que o alerta olha, é o item mais velho não sair.
+ *
+ * No modo memória não há fila: devolve vazio, e a métrica some da coleta em vez de
+ * virar um zero que parece "tudo escoando".
+ */
+export async function estadoDasFilas(): Promise<EstadoDaFila[]> {
+  if (modo() === 'memoria') return [];
+
+  const agora = Date.now();
+  const alvos: [string, Queue][] = [
+    [FILA_ENTRADA, (filaEntrada ??= new Queue(FILA_ENTRADA, { connection: redis() }))],
+    [FILA_ENTREGA, (filaEntrega ??= new Queue(FILA_ENTREGA, { connection: redis() }))],
+  ];
+
+  return Promise.all(
+    alvos.map(async ([nome, fila]) => {
+      const [esperando, adiados, maisVelho] = await Promise.all([
+        fila.getWaitingCount(),
+        fila.getDelayedCount(),
+        fila.getWaiting(0, 0),
+      ]);
+      const carimbo = maisVelho[0]?.timestamp;
+      return {
+        fila: nome,
+        profundidade: esperando + adiados,
+        idadeSegundos: carimbo ? Math.max(0, (agora - carimbo) / 1000) : 0,
+      };
+    }),
+  );
+}
+
 export async function fecharFilas(): Promise<void> {
   await consumidorEntrada?.close();
   await filaEntrada?.close();
