@@ -216,7 +216,7 @@ describe('descoberta do tenant no login', () => {
   it('domínio desconhecido responde igualzinho a um conhecido sem SSO', async () => {
     // Sem essa simetria o endpoint vira catálogo de "quais empresas usam Pipe".
     expect(await descobrirEntrada('alguem@empresa-que-nao-existe.teste')).toEqual({
-      metodo: 'senha',
+      metodo: 'google',
     });
   });
 
@@ -229,7 +229,7 @@ describe('descoberta do tenant no login', () => {
       on conflict (dominio) do nothing
     `);
     try {
-      expect(await descobrirEntrada('alguem@gmail.com')).toEqual({ metodo: 'senha' });
+      expect(await descobrirEntrada('alguem@gmail.com')).toEqual({ metodo: 'google' });
     } finally {
       await cenario.dono.execute(sql`delete from dominio_tenant where dominio = 'gmail.com'`);
     }

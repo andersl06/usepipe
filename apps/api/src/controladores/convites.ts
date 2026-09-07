@@ -1,4 +1,5 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Req } from '@nestjs/common';
+import type { ConviteVisivel } from '@pipe/contracts';
 import { noTenant } from '../banco.js';
 import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
@@ -53,7 +54,7 @@ export class ControladorConvites {
    * não é assunto de quem ainda está do lado de fora.
    */
   @Get(':token')
-  async ver(@Param('token') token: string): Promise<Record<string, unknown>> {
+  async ver(@Param('token') token: string): Promise<ConviteVisivel> {
     const convite = await lerConvite(token);
     return {
       email: convite.email,

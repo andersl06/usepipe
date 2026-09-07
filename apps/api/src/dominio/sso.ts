@@ -2,6 +2,7 @@ import { sql } from 'drizzle-orm';
 import { cifrarConfig, decifrarConfig, registrarAuditoria } from '@pipe/db';
 import { DOMINIOS_PUBLICOS, descobrir, dominioDoEmail } from '@pipe/autenticacao';
 import type { ConfigOidc, DescobertaOidc, ProvedorSso } from '@pipe/autenticacao';
+import type { RespostaDaDescoberta } from '@pipe/contracts';
 import { bancoDono, chaveiro, noTenant } from '../banco.js';
 import { ErroPipe } from '../erros.js';
 
@@ -324,11 +325,9 @@ function tenantsDoEntra(emissor: string): readonly string[] {
   return [tid];
 }
 
-export interface RespostaDaDescoberta {
-  /** `sso` manda para o IdP; `senha` mostra o campo de senha. Nunca conta qual tenant. */
-  metodo: 'sso' | 'senha';
-  irPara?: string;
-}
+// O tipo vive em @pipe/contracts: é a MESMA resposta que as três telas de entrada
+// leem, e duas definições do mesmo formato divergem no dia em que um campo muda.
+export type { RespostaDaDescoberta };
 
 /**
  * A descoberta do login: um campo de e-mail, e um "Continuar".
@@ -365,7 +364,9 @@ export async function descobrirEntrada(emailCru: string | undefined): Promise<Re
   // mesmo tempo que um domínio de empresa. Domínio público nunca roteia: quem
   // mapeasse `gmail.com` capturaria o login de meio Brasil.
   const slug = DOMINIOS_PUBLICOS.has(dominio) ? undefined : rows[0]?.slug;
-  if (!slug) return { metodo: 'senha' };
+  // `google`, e não `senha`: o Pipe não guarda senha de ninguém, e prometer um
+  // campo que não existe faz a tela desenhar o que não sabe fazer.
+  if (!slug) return { metodo: 'google' };
   return { metodo: 'sso', irPara: `/v1/auth/sso/${encodeURIComponent(slug)}` };
 }
 

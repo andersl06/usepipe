@@ -60,3 +60,35 @@ export interface ErroDaApi {
   codigo: string;
   mensagem: string;
 }
+
+/**
+ * O que `POST /v1/auth/descobrir` responde: por onde ESTE e-mail entra.
+ *
+ * `sso` manda ao provedor de identidade da empresa; `google` mostra o caminho do
+ * Google. Não existe `senha` — o Pipe nunca guardou senha de ninguém, e um valor
+ * que promete um campo que não existe faz a tela desenhar o que não sabe fazer.
+ *
+ * A resposta é a MESMA para e-mail conhecido e desconhecido, exceto quando o
+ * domínio é verificado e tem SSO ativo. Sem isso, a rota vira catálogo de "quais
+ * empresas usam Pipe".
+ */
+export interface RespostaDaDescoberta {
+  metodo: 'sso' | 'google';
+  /** Caminho na API, quando `sso`. Falta só a base pública. */
+  irPara?: string;
+}
+
+/**
+ * O que `GET /v1/convites/:token` mostra a quem ainda está do lado de fora.
+ *
+ * O mínimo para a pessoa decidir se aquele convite é dela: qual empresa, para
+ * qual e-mail, com qual papel e até quando. Nada de dado do tenant além do nome
+ * — quem chega aqui não está logado.
+ */
+export interface ConviteVisivel {
+  email: string;
+  papel: string;
+  tenant: { nome: string; slug: string };
+  /** ISO-8601, como sai da API. Quem formata é a tela. */
+  expiraEm: string;
+}
