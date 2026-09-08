@@ -21,6 +21,12 @@ rodapé numa planilha, e é a única parte do repositório onde ele pode aparece
 
 **Nada aqui é estimativa.** O que não foi lido está marcado como *não lido*.
 
+> **LEIA A §8.7 ANTES DAS SEÇÕES 1 A 7.** Elas foram escritas tratando a folha
+> de estilo como fonte, e a folha diz o **tamanho das peças**, não a
+> **montagem**. Por isso as medidas ficaram certas e a tela não ficou igual —
+> lista de materiais sem a planta. A §8.7 traz a planta, lida no pacote do
+> módulo, e diz o que ela invalida.
+
 ---
 
 ## 1. Onde cada medida foi lida
@@ -713,6 +719,121 @@ As três dezenas de mensagens de validação, o dicionário do Relatório de ven
 os textos do encerramento automático estão levantados e podem ser recuperados —
 não foram transcritos aqui porque nenhuma das telas correspondentes existe
 ainda, e vocabulário sem tela vira dicionário morto.
+
+---
+
+## 8.7 O MOLDE — o que a folha de estilo não podia dizer
+
+**Correção de método, e ela invalida a premissa dos §1 a §7.** Este documento
+tratou `portal.css` e os componentes como fonte. Eles dizem o **tamanho das
+peças** — largura, raio, espaço, tipografia. Não dizem a **montagem**: quais
+elementos existem, em que ordem, aninhados em quê, e o que é condicional.
+
+Foi por isso que as medidas ficaram certas e a tela não ficou igual. Medida sem
+montagem é a lista de materiais sem a planta.
+
+A montagem está no pacote, como árvore de componentes. O que segue foi lido lá.
+
+### 8.7.1 A pergunta que precisava de resposta: abas ou lateral?
+
+**Lateral. A nossa navegação está estruturalmente certa.**
+
+A casca do módulo de Atendimento tem **três variantes**, escolhidas por bandeira,
+e duas delas são lateral:
+
+| Variante | Montagem |
+|---|---|
+| atual (`menu-tree-sidebar`) | `contêiner externo` → **`<nav>` da árvore** + `contêiner de rolagem` → `contêiner interno` → página |
+| anterior (`attendance-menu-mfe`) | `contêiner externo` → **`<nav>` de cartões** + `contêiner` → `contêiner interno` → página |
+| sem bandeira | `contêiner` → página, **sem menu nenhum** — quem navega é o portal |
+
+O contêiner externo é `display: flex` numa caixa de `calc(100vh - 136px)`, e o
+`<nav>` é **irmão** do contêiner de conteúdo. Fileira, lado a lado: é lateral
+esquerda, não fileira de abas.
+
+A fileira de abas horizontais que apareceu na captura é de **Análise**, que é
+outro módulo e vive no portal, não neste pacote. Módulos diferentes navegam
+diferente, e o de Atendimento — o nosso espelho — navega por lateral.
+
+### 8.7.2 O que o molde revelou e a folha tinha escondido
+
+**1. A ROLAGEM não é da página; é do contêiner de conteúdo.**
+
+O contêiner externo tem altura fixa de `calc(100vh - 136px)`. Dentro dele, o
+contêiner de conteúdo é `display: flex; flex-direction: column; width: 100%;
+height: 100%; overflow-y: auto; overflow-x: hidden`, e a lateral é irmã dele,
+com rolagem própria.
+
+Ou seja: **as duas barras do topo e a lateral não rolam porque estão FORA da
+caixa que rola.** Não há nada preso, nada grudado.
+
+A nossa casca faz o oposto: a página inteira rola e as barras são
+`position: sticky`, e a lateral é `sticky` com `top: 136px`. O resultado se
+parece de longe e se comporta diferente de perto — barra grudada repinta e treme
+na rolagem, e a lateral disputa a barra de rolagem da página. **É a divergência
+estrutural mais visível da casca, e nenhuma medida a conserta.**
+
+**2. O contêiner interno é CENTRALIZADO** (`align-self: center`) dentro do
+contêiner que rola, com `flex: 1 0 auto` e o `padding: 2rem 2%` que já
+registramos. O teto de 90%/85% é a largura DELE.
+
+**3. A tela de Monitoramento tem uma árvore que a nossa não tem.** Molde lido:
+
+```
+página
+├ bloco de tema        (claro normal, ESCURO em tela cheia)
+│   ├ cabeçalho de tela        título + [atualizar] [tela cheia]
+│   ├ faixa de filtros
+│   └ contêiner de dados       (position: relative — é ele que ancora o "carregando")
+│        ├ carregando
+│        ├ LINHA de métricas   (flex, justify-between)  cartão largo + cartão estreito
+│        ├ LINHA de métricas   (flex, justify-between)  cartão largo + cartão estreito
+│        └ só em tela cheia:   bloco de tickets por hora
+└ fora do bloco de tema, e só fora da tela cheia:
+     └ cartão de abas + tabela
+```
+
+Três coisas aí são estruturais e nós não temos:
+
+- **a grade 2×2 não é uma grade.** São **duas linhas de dois**, cada uma
+  `flex` com `justify-between`, e não um `grid`. Por isso o cartão largo e o
+  estreito se comportam como se comportam quando a tela encolhe;
+- **o cartão da tabela está FORA do bloco de tema**, irmão dele. Não é mais um
+  filho da mesma coluna;
+- **o contêiner de dados existe para ancorar o "carregando"** (`position:
+  relative`), que cobre os cartões sem cobrir a tabela.
+
+**4. Tela cheia é OUTRA ÁRVORE, não um botão de tela cheia.** Ela troca o tema
+para escuro, troca o componente de cabeçalho por um com a marca, e **acrescenta**
+o bloco de tickets por hora — e o cartão de abas + tabela **some**. O nosso botão
+chama a API do navegador e não muda nada. A lacuna que eu tinha registrado em
+§8.2 item 5 é maior do que eu disse: não é "acrescentar uma métrica", é uma
+segunda montagem da tela.
+
+**5. O estado vazio tem ilustração.** Molde: `margin-top: 3.5rem`, coluna
+centralizada, ilustração de `8.5rem` de largura, e o bloco de texto com
+`width: 60%` e `margin: 2rem`. O nosso `SemDados` tem título, explicação e botão,
+e nenhuma ilustração — que é o que o `@pipe/ui` já oferece em `ilustracoes.tsx`.
+
+**6. As cinco abas confirmadas na origem**, com os nomes internos: tickets
+abertos · tickets aguardando · atendentes · **times** · tags. O terceiro nome
+interno é "times", e o rótulo é "Filas" — é a mesma confusão fila/time que o
+levantamento de funções já tinha apontado.
+
+**7. A régua de prioridade confirmada na origem**: máxima · alta · média ·
+baixa · **nenhuma**. O degrau de ausência que virou `sem_prioridade` no §8.5 é
+literalmente o que o pacote deles chama de `None`.
+
+### 8.7.3 O que fazer com isso
+
+Nada foi reescrito ainda — a ordem é montagem primeiro, medida depois, e a
+montagem acabou de mudar. O que a próxima passada precisa fazer, em ordem:
+
+1. **A casca**: trocar o modelo de rolagem. Caixa externa de altura fixa, lateral
+   e conteúdo irmãos, rolagem no conteúdo. Sai todo o `position: sticky`.
+2. **O Monitoramento**: reproduzir a árvore acima — bloco de tema, contêiner de
+   dados ancorando o carregando, duas linhas de dois, e a tabela fora do bloco.
+3. **Tela cheia**: segunda montagem, não um botão.
 
 ---
 

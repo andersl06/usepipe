@@ -554,13 +554,46 @@ telefone chega por dois canais, são dois contatos, como lá. Fica registrado aq
    quando o contato não tem identidade válida, o botão de conversar novamente aborta em
    silêncio e o clique não faz nada.
 
-### O que isso pede do nosso lado
+### O que foi construído
 
-O que temos hoje cobre a aba "Contato" e uma versão curta do "Histórico". Falta, em ordem
-de tamanho: a **transcrição do atendimento antigo** (abrir uma conversa encerrada em modo
-leitura, com paginação de 40); o **detalhe do ticket** com origem e tempo total; e a
-**lista navegável de contatos** com busca e ordenação, que no Pipe é tela do CRM e não do
-Desk — e essa fronteira é decisão de produto, não de anatomia.
+A metade que é do Desk: **o atendimento antigo abre em leitura**, em
+`/conversas/<id>`. Cada linha do histórico no painel do contato virou um link — o
+histórico deixou de ser uma lista de datas e virou a porta para o que foi dito, que é a
+pergunta que faz alguém abrir aquele painel.
+
+A tela tem a transcrição à esquerda e "Informações do ticket" à direita, nos blocos da
+referência: **Dados do atendimento** (atendente, e-mail, fila, canal, prioridade),
+**Tempo de atendimento** (início, primeira resposta, última interação, total, tempo em
+espera, situação, motivo) e **Etiquetas**.
+
+**Sem compositor, e sem como haver**: a conversa está encerrada. É a mesma regra que o
+atendimento em curso já segue — quando não há o que compor, o compositor some e o motivo
+ocupa o lugar dele. O botão de reenviar também sai: a falha continua visível e continua
+explicada, o que ela perde é a ação.
+
+O renderizador de balão foi extraído para um componente só, usado pelas duas telas. Um
+segundo renderizador seria dois lugares para acertar o canto de 2px, o agrupamento de 3px
+e a regra da falha — e eles divergiriam na primeira correção feita só num deles.
+
+**Quem atendeu não filtra a consulta**, de propósito: o histórico já lista os
+atendimentos anteriores do contato sem olhar quem atendeu, e abrir um deles não mostra
+nada que a coluna ao lado já não mostrasse. Quem fecha o cerco é a RLS, que só enxerga o
+cliente da sessão.
+
+### O que falta, e o tamanho
+
+| O que | Por quê | Tamanho |
+|---|---|---|
+| **Bloco "Origem do ticket"** | não gravamos que uma conversa nasceu de transferência | uma coluna apontando para a conversa anterior; a rota de transferência já existe na `api` e é ela quem saberia preencher |
+| **Três das oito situações de encerramento** | não gravamos QUEM encerrou quando não foi atendente | é o mesmo dado que falta para "Abandonados" nas métricas (§10) — uma coluna resolve os dois |
+| **Paginação de 40 na transcrição** | carregamos o atendimento inteiro | o número já está em `lib/operacao.ts`; entra junto com a rolagem infinita |
+| **Lista navegável de contatos** | é tela do CRM (Twenty), não do Desk | fronteira de produto, não de anatomia |
+
+### Três defeitos deles que não foram herdados
+
+Estão descritos acima e nenhum entrou: erro de lista relançado sem aviso, erro de
+comentários falhando em silêncio, e o botão que aborta calado quando o contato não tem
+identidade válida.
 
 ---
 
