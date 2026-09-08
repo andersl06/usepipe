@@ -185,9 +185,13 @@ const GRUPOS: readonly GrupoLateral[] = [
     rotulo: 'Atendentes',
     icone: 'pessoas',
     filhos: [
+      /* A ordem é a deles: Gestão de atendentes primeiro, depois filas, depois
+         pausas. "Operação" saiu — ela mostrava o quadro de atendentes, que
+         agora é o primeiro item, mais uma cópia só-leitura dos motivos de
+         pausa, que já têm tela com formulário logo abaixo. */
+      { rotulo: 'Gestão de atendentes', href: '/atendentes/gestao' },
       { rotulo: 'Filas de atendimento', href: '/atendentes/filas' },
       { rotulo: 'Pausas personalizadas', href: '/atendentes/pausas' },
-      { rotulo: 'Operação', href: '/configuracoes/operacao' },
     ],
   },
   {

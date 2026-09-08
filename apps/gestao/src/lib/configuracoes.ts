@@ -7,12 +7,9 @@ import {
   etiqueta,
   fila,
   inbox,
-  motivoPausa,
   pesquisa,
   regraSla,
-  statusAtendente,
   tenant,
-  usuario,
 } from '@pipe/db/schema';
 import { atorDaGestao, consultar, tenantId } from './banco';
 
@@ -106,53 +103,13 @@ export async function carregarRegras(): Promise<{
   });
 }
 
-export interface MotivoConfigurado {
-  id: string;
-  nome: string;
-  duracaoSugeridaMin: number | null;
-  contaComoProdutivo: boolean;
-  ativo: boolean;
-}
-
-export interface AtendenteConfigurado {
-  id: string;
-  nome: string;
-  email: string;
-  estado: string | null;
-  ativo: boolean;
-}
-
-export async function carregarOperacao(): Promise<{
-  motivos: MotivoConfigurado[];
-  atendentes: AtendenteConfigurado[];
-}> {
-  return consultar(async (tx) => {
-    const motivos = await tx
-      .select({
-        id: motivoPausa.id,
-        nome: motivoPausa.nome,
-        duracaoSugeridaMin: motivoPausa.duracaoSugeridaMin,
-        contaComoProdutivo: motivoPausa.contaComoProdutivo,
-        ativo: motivoPausa.ativo,
-      })
-      .from(motivoPausa)
-      .orderBy(asc(motivoPausa.nome));
-
-    const atendentes = await tx
-      .select({
-        id: usuario.id,
-        nome: usuario.nome,
-        email: usuario.email,
-        estado: statusAtendente.estado,
-        ativo: usuario.ativo,
-      })
-      .from(usuario)
-      .leftJoin(statusAtendente, eq(statusAtendente.usuarioId, usuario.id))
-      .orderBy(asc(usuario.nome));
-
-    return { motivos, atendentes };
-  });
-}
+/*
+ * `carregarOperacao` foi embora com a tela `/configuracoes/operacao`. Ela lia
+ * duas coisas: o quadro de atendentes, que virou `carregarAtendentes` em
+ * `cadastros.ts` com as colunas de fila e de teto que faltavam; e uma cópia
+ * só-leitura dos motivos de pausa, que já têm tela com formulário em
+ * `/atendentes/pausas`.
+ */
 
 export interface EtiquetaConfigurada {
   id: string;

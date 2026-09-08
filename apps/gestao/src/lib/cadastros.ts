@@ -556,3 +556,84 @@ export async function alternarAtivaDaRegraFila(id: string): Promise<Gravacao> {
     return { ok: true };
   });
 }
+
+// ------------------------------------------------------- gestão de atendentes
+
+export interface AtendenteCadastrado {
+  id: string;
+  nome: string;
+  email: string;
+  ativo: boolean;
+  /** `null` quando a pessoa nunca conectou: não é "offline", é "nunca esteve". */
+  estado: string | null;
+  filas: string[];
+  /**
+   * Teto de conversas simultâneas. `null` quando a pessoa não está em fila
+   * nenhuma — aí não há teto porque não há de onde receber.
+   */
+  limiteSimultaneo: number | null;
+}
+
+/**
+ * Gestão de atendentes: quem atende, por onde, e quantas conversas aguenta ao
+ * mesmo tempo.
+ *
+ * As quatro colunas são as deles (`blip-gestao-medidas.md` §8.3): atendente,
+ * e-mail, filas e tickets simultâneos. As duas nossas — status agora e situação
+ * — vinham da tela de Operação, que esta substitui.
+ *
+ * **O teto é o MAIOR entre as filas da pessoa, e não a soma.** É a mesma regra
+ * que o Monitoramento já usa para a coluna "Limite"
+ * (`monitoramento.ts`, `limitePorAtendente`), e a razão é que o teto é do
+ * ATENDENTE: quem está em duas filas não pode atender o dobro por estar em
+ * duas. Somar transformaria entrar numa fila a mais em ganhar capacidade.
+ *
+ * Divergência registrada: na plataforma deles o teto é um número por pessoa,
+ * com um padrão global e um override individual. Aqui ele nasce da fila
+ * (`fila.capacidade_padrao`) com override por participação
+ * (`fila_atendente.capacidade_override`), então uma pessoa em duas filas de
+ * capacidades diferentes tem dois números, e este é o que vale.
+ */
+export async function carregarAtendentes(): Promise<AtendenteCadastrado[]> {
+  return consultar(async (tx) => {
+    const pessoas = await tx
+      .select({
+        id: usuario.id,
+        nome: usuario.nome,
+        email: usuario.email,
+        ativo: usuario.ativo,
+        estado: statusAtendente.estado,
+      })
+      .from(usuario)
+      .leftJoin(statusAtendente, eq(statusAtendente.usuarioId, usuario.id))
+      .orderBy(asc(usuario.nome));
+
+    const membros = await tx
+      .select({
+        usuarioId: filaAtendente.usuarioId,
+        filaNome: fila.nome,
+        override: filaAtendente.capacidadeOverride,
+        padrao: fila.capacidadePadrao,
+      })
+      .from(filaAtendente)
+      .innerJoin(fila, eq(fila.id, filaAtendente.filaId))
+      .orderBy(asc(fila.ordem), asc(fila.nome));
+
+    const porPessoa = new Map<string, { filas: string[]; limite: number }>();
+    for (const m of membros) {
+      const atual = porPessoa.get(m.usuarioId) ?? { filas: [], limite: 0 };
+      atual.filas.push(m.filaNome);
+      atual.limite = Math.max(atual.limite, m.override ?? m.padrao);
+      porPessoa.set(m.usuarioId, atual);
+    }
+
+    return pessoas.map((p) => {
+      const dela = porPessoa.get(p.id);
+      return {
+        ...p,
+        filas: dela?.filas ?? [],
+        limiteSimultaneo: dela ? dela.limite : null,
+      };
+    });
+  });
+}

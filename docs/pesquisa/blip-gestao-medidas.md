@@ -623,10 +623,10 @@ diferentes se chamam "Score"** — um em Relatórios, outro em Regras.
 |---|---|---|
 | Relatórios é grupo da lateral de Atendimento | virou o módulo **Análise**, na barra de cima | decisão anterior, já escrita na casca; a barra deles tem "Análise" como módulo, então os relatórios estão nos dois lugares lá |
 | Canais de atendimento é item de Preferências | virou o módulo **Canais** | mesma decisão |
-| **Gestão de atendentes** é o primeiro item de Atendentes | **não existe** | é tela nova. Colunas deles: **Atendente · E-mail · Filas · Tickets simultâneos**, com vazio *"Sem filas"* e o estado vazio da tela *"Não existem atendentes cadastrados. Que tal adicionar alguns?"*. Temos todos os dados. **Um dia** |
+| **Gestão de atendentes** é o primeiro item de Atendentes | **FEITO** — ver §8.6 | — |
 | **Gestão de metadados** | não existe | não sabemos o que a tela faz — só o nome. **Não estimável sem ver a tela** |
 | **Blip Copilot** e **Lead Score** | não existem | são produtos, não telas de gestão |
-| Atendentes ├ Operação | só nosso | é a tela de distribuição automática, que lá vive em Configurações gerais |
+| ~~Atendentes ├ Operação~~ | **removida** | ver §8.6 — ela mostrava o quadro de atendentes (que virou Gestão de atendentes) mais uma cópia só-leitura dos motivos de pausa, que já têm tela com formulário logo abaixo |
 | Preferências ├ Dados | só nosso | não tem par na lateral deles |
 
 **Regras de menu deles que valem para nós:** item sem permissão **some** do
@@ -635,6 +635,54 @@ grupos abertos e o item ativo ficam guardados **no navegador**, e a lateral rola
 sozinha até o grupo ativo. Este último não temos: os nossos grupos abrem pelo
 caminho da rota, e nada é lembrado entre visitas. **Meio dia**, e é estado de
 navegador, não de conta — a mesma escolha que eles fazem com os filtros salvos.
+
+### 8.6 Gestão de atendentes
+
+Feito, em `/atendentes/gestao`, e agora é o **primeiro item do grupo Atendentes**,
+na ordem deles.
+
+As quatro colunas são as deles, na ordem deles — **Atendente · E-mail · Filas ·
+Tickets simultâneos** —, com o vazio *"Sem filas"* e o estado vazio *"Não existem
+atendentes cadastrados. Que tal adicionar alguns?"*. As duas do fim, Status agora
+e Situação, são nossas.
+
+**Ela não é tela nova: é a tela de Operação, com as duas colunas que faltavam.**
+Metade do trabalho foi apagar. `/configuracoes/operacao` mostrava duas coisas —
+um quadro de atendentes com Pessoa · E-mail · Status · Situação, e uma cópia
+só-leitura dos motivos de pausa que já têm tela com formulário em
+`/atendentes/pausas`. Sobravam um item de menu sem par na lateral deles e uma
+tabela repetida em dois lugares. A tela saiu, e com ela `carregarOperacao`.
+
+**A divergência que fica, e é de domínio:** na plataforma deles o teto de
+tickets simultâneos é **um número por pessoa** — um padrão global do contrato e
+um override individual. No Pipe ele nasce da FILA (`fila.capacidade_padrao`) com
+override por participação (`fila_atendente.capacidade_override`), então quem está
+em duas filas de capacidades diferentes tem dois números.
+
+A coluna mostra **o maior**, e não a soma. Não é escolha nova: é a mesma regra
+que o Monitoramento já usava na coluna "Limite" (`limitePorAtendente`), e a razão
+é que o teto é do ATENDENTE — quem está em duas filas não atende o dobro por
+estar em duas. Somar transformaria "entrar numa fila a mais" em "ganhar
+capacidade".
+
+**Não tem formulário, e é deliberado.** Adicionar atendente lá é convidar por
+e-mail, e o convite já existe no Pipe com fluxo próprio (`/convite/[token]`).
+Editar teto individual pede o override por participação em fila, que se edita em
+`/atendentes/filas`, onde a fila e a capacidade padrão estão do lado. Duplicar os
+dois aqui daria dois caminhos para a mesma gravação.
+
+**Por confirmar, quando o dono salvar a tela** (`/desk/team`):
+
+- se a lista deles mostra **todos os usuários do contrato** ou só quem está em
+  alguma fila. A nossa mostra todos, e marca "Sem filas" em alerta — quem não
+  está em fila não recebe conversa, e isso é configuração pela metade;
+- o que a etiqueta **"Não acionável"** marca, e onde. O levantamento pegou o
+  rótulo e a dica (*"Esta configuração é feita no painel do contrato"*), mas não
+  a coluna a que ela pertence;
+- se há **ações por linha** (o levantamento não achou nenhuma, mas a central de
+  ajuda fala em editar e excluir passando o mouse sobre o nome);
+- se a tela tem **busca** e **paginação** — as duas existem em outras telas
+  deles, e nenhuma apareceu no levantamento desta.
 
 ### 8.4 Vocabulário deles, registrado para as próximas telas
 
