@@ -9,12 +9,21 @@
  * não classificação: quem a faz quer a lista curta, não a lista inteira com os
  * respondidos empurrados para baixo.
  *
+ * A régua de prioridade NÃO mora aqui: ela é `pesoPrioridade`, de
+ * `@pipe/core/conversa`, que é puro e entra num componente de cliente sem
+ * arrastar nada junto. Havia um mapa paralelo de três níveis neste arquivo, e
+ * quando a régua passou a ter cinco degraus ele ordenava `maxima` e
+ * `sem_prioridade` **como se fossem média** — a fila errava justamente nos
+ * dois extremos.
+ *
  * Em `lib/` e sem uma linha de banco nem de Next: é lógica pura, tem teste em
  * `tests/ordem.test.ts`, e o seletor de filtros que a consome é `'use client'`
  * — importar `consultas.ts` daqui arrastaria o `pg` para dentro do pacote do
  * navegador. Os tipos daqui são os que vão para `packages/contracts` quando a
  * `apps/api` virar a única porta do Postgres.
  */
+
+import { pesoPrioridade } from '@pipe/core/conversa';
 
 export type ChaveDeOrdem = 'recentes' | 'antigas' | 'prioridade';
 
@@ -44,13 +53,6 @@ export interface ConversaOrdenavel {
   filaNome: string | null;
 }
 
-/** Alta primeiro. O desconhecido cai junto de "média", que é o padrão da coluna. */
-const PESO_PRIORIDADE: Record<string, number> = { alta: 0, media: 1, baixa: 2 };
-
-function peso(prioridade: string): number {
-  return PESO_PRIORIDADE[prioridade] ?? 1;
-}
-
 export function ordenar<T extends ConversaOrdenavel>(conversas: T[], ordem: ChaveDeOrdem): T[] {
   const copia = [...conversas];
   if (ordem === 'antigas') {
@@ -64,7 +66,7 @@ export function ordenar<T extends ConversaOrdenavel>(conversas: T[], ordem: Chav
     // `priority_desc_created_at_asc` deles, e é o que impede que a fila de
     // prioridade alta vire pilha, com o último a chegar sendo o primeiro a sair.
     return copia.sort((a, b) => {
-      const diferenca = peso(a.prioridade) - peso(b.prioridade);
+      const diferenca = pesoPrioridade(a.prioridade) - pesoPrioridade(b.prioridade);
       return diferenca !== 0 ? diferenca : a.criadaEm.getTime() - b.criadaEm.getTime();
     });
   }

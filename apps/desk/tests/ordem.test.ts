@@ -59,21 +59,37 @@ test('"mais antigas" olha a abertura da conversa, não a última mensagem', () =
   assert.deepEqual(nomes(ordenar(lista, 'antigas')), ['antiga', 'recente']);
 });
 
-test('a prioridade desempata pela mais antiga, e a desconhecida vale média', () => {
+test('a prioridade ordena os cinco degraus, e desempata pela mais antiga', () => {
   const lista = [
     conversa('baixa', { prioridade: 'baixa', criadaEm: t('08:00') }),
+    conversa('sem', { prioridade: 'sem_prioridade', criadaEm: t('07:00') }),
     conversa('alta-nova', { prioridade: 'alta', criadaEm: t('12:00') }),
-    conversa('sem-prioridade', { prioridade: 'urgentissima', criadaEm: t('09:00') }),
+    conversa('maxima', { prioridade: 'maxima', criadaEm: t('13:00') }),
     conversa('alta-velha', { prioridade: 'alta', criadaEm: t('09:00') }),
     conversa('media', { prioridade: 'media', criadaEm: t('11:00') }),
   ];
+  // `maxima` fura a frente mesmo sendo a mais nova de todas, e
+  // `sem_prioridade` vai para o fim mesmo sendo a mais velha: é a régua
+  // mandando, e o desempate por hora só vale DENTRO do mesmo degrau.
   assert.deepEqual(nomes(ordenar(lista, 'prioridade')), [
+    'maxima',
     'alta-velha',
     'alta-nova',
-    'sem-prioridade',
     'media',
     'baixa',
+    'sem',
   ]);
+});
+
+test('prioridade desconhecida cai no FIM da fila, e não no meio', () => {
+  const lista = [
+    conversa('conhecida', { prioridade: 'baixa', criadaEm: t('12:00') }),
+    conversa('inventada', { prioridade: 'urgentissima', criadaEm: t('08:00') }),
+  ];
+  // Um mapa paralelo antigo dava "média" ao desconhecido, e um valor que
+  // ninguém reconhece furava a frente de `baixa` e de `sem_prioridade`.
+  // Inventar prioridade para o que não se entende é pior do que rebaixar.
+  assert.deepEqual(nomes(ordenar(lista, 'prioridade')), ['conhecida', 'inventada']);
 });
 
 test('ordenar não mexe na lista que recebeu', () => {

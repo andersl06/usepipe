@@ -349,10 +349,10 @@
   color: var(--ink-3);
 }
 
-.busca input:focus-visible {
-  outline: none;
-  border-color: var(--moss);
-}
+/* Sem `outline: none` aqui: o anel de foco é o de `--p-foco`, desenhado pela
+   base, e apagá-lo deixava quem navega por teclado sem saber onde está. A
+   borda em cor de marca que ficava no lugar dele saiu junto — foco tem cor
+   própria justamente para não ser confundido com estado ativo. */
 
 /* Fichas de filtro. A contagem vai DENTRO do rótulo — "Todos (0)" —, que é o
    que dispensa um contador separado no cabeçalho da coluna. Reusam a
@@ -813,8 +813,14 @@
   background: var(--surface-2);
 }
 
+/* A caixa inteira mostra o foco da área de texto que vive dentro dela, com o
+   mesmo anel de `--p-foco` que todo controle do produto usa. É o que permite
+   à área de texto abrir mão do anel próprio logo abaixo: o alvo visual é a
+   caixa, não o retângulo de texto sem borda dentro dela. */
 .composer .box:focus-within {
-  border-color: var(--moss);
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+  border-color: var(--line-strong);
 }
 
 /* A área de texto vai de 4em a 11.5em — as duas medidas da referência. O `1fr`
@@ -827,6 +833,9 @@
   background: transparent;
   border: 0;
   resize: none;
+  /* Abre mão do anel próprio porque quem o desenha é `.box`, no
+     `:focus-within` logo acima — dois anéis a 1px um do outro ficam com
+     cara de defeito. Sem aquela regra, isto seria foco invisível. */
   outline: none;
   flex: 1;
   min-height: 4em;

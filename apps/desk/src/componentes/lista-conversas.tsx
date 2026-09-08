@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { DIA, janelaAberta, pertoDeExpirar, segundosRestantes } from '@pipe/core';
+import { ROTULOS_PRIORIDADE } from '@pipe/core/conversa';
 import { Avatar, EstadoVazio } from '@pipe/ui';
 import { FiltrosDaLista } from './filtros-lista';
 import { decorrido, duracaoCurta } from '../servidor/formato';
@@ -279,12 +280,21 @@ export function ListaConversas({
                       alerta: o atendente não resolve a prioridade clicando
                       nela. A cor da coluna fica reservada ao que ele resolve,
                       que é a janela expirando e a janela fechada, logo abaixo.
+
+                      O rótulo vem de `ROTULOS_PRIORIDADE`, e não de dois
+                      `if` escritos à mão: a régua ganhou "Máxima" e "Sem
+                      prioridade", e a versão anterior teria deixado o degrau
+                      mais urgente da fila SEM etiqueta nenhuma.
+
+                      "Sem prioridade" é o único que não vira etiqueta: é a
+                      ausência, é o padrão da coluna, e escrevê-la em quase
+                      toda linha seria ruído em vez de informação.
                     */}
-                    {conversa.prioridade === 'alta' ? (
-                      <span className="etiqueta">Prioridade alta</span>
-                    ) : null}
-                    {conversa.prioridade === 'media' ? (
-                      <span className="etiqueta">Prioridade média</span>
+                    {conversa.prioridade !== 'sem_prioridade' &&
+                    ROTULOS_PRIORIDADE[conversa.prioridade] ? (
+                      <span className="etiqueta">
+                        Prioridade {ROTULOS_PRIORIDADE[conversa.prioridade].toLowerCase()}
+                      </span>
                     ) : null}
                     {conversa.estado === 'em_espera' ? (
                       <span className="etiqueta">Em espera</span>

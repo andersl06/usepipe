@@ -1,5 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { TransacaoPipe } from '@pipe/db';
+import type { NivelPrioridade } from '@pipe/core/conversa';
 
 /**
  * Consultas de leitura do Desk.
@@ -27,7 +28,12 @@ export function dataOuNulo(valor: Date | string | null): Date | null {
 }
 
 export type EstadoConversa = 'na_fila' | 'atribuida' | 'em_atendimento' | 'em_espera' | 'encerrada';
-export type Prioridade = 'baixa' | 'media' | 'alta';
+/**
+ * A régua é uma só, e é a do core. Aqui havia `'baixa' | 'media' | 'alta'` —
+ * a terceira cópia da mesma lista, e a que fazia o `tsc` calar quando os
+ * degraus novos chegaram.
+ */
+export type Prioridade = NivelPrioridade;
 export type TipoCanalBanco = 'whatsapp_cloud' | 'instagram' | 'email' | 'widget';
 
 export interface ConversaDaLista {
