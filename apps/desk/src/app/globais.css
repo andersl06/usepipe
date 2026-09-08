@@ -1935,3 +1935,116 @@ label.preferencia:hover {
   width: 100%;
   justify-content: center;
 }
+
+/* ====================================================== ticket em leitura
+   O atendimento antigo, aberto pelo histórico do contato: a transcrição à
+   esquerda e as informações do ticket à direita. Duas colunas, e não três: não
+   há fila para escolher aqui — quem chega já escolheu o que quer ler. */
+.ticket {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+}
+
+.ticket .thread-head h1 {
+  margin: 0;
+  font-size: var(--p-t-lg);
+  font-weight: var(--p-peso-forte);
+}
+
+.ticket .thread-head .etiqueta {
+  margin-left: auto;
+}
+
+.ticket-corpo {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  /* A mesma proporção da tela de atendimento: a conversa manda, o painel
+     acompanha com piso de 260px. */
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 25%);
+}
+
+.ticket-info {
+  overflow-y: auto;
+  background: var(--surface-2);
+  border-left: 1px solid var(--line);
+  padding: var(--p-e-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
+}
+
+.ticket-info section {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--p-r-md);
+  padding: var(--p-e-4) var(--p-e-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
+}
+
+.ticket-info .rotulo {
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* O histórico do contato, no painel: cada linha abre o atendimento antigo.
+   Alvo de largura cheia, e não só o texto da data. */
+.historico {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-1);
+}
+
+.historico a {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: var(--p-e-2);
+  padding: var(--p-e-2);
+  border: 1px solid var(--line);
+  border-radius: var(--p-r-md);
+  font-size: var(--p-t-sm);
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.historico a:hover {
+  background: var(--surface-2);
+  border-color: var(--line-strong);
+}
+
+.historico .quando {
+  font-variant-numeric: tabular-nums;
+  font-family: var(--mono);
+}
+
+.historico .onde {
+  color: var(--ink-2);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.historico .situacao {
+  color: var(--ink-3);
+}
+
+@media (max-width: 1112px) {
+  /* Numa janela estreita o painel de informações sai e sobra a transcrição,
+     que é o que a pessoa veio ler. */
+  .ticket-corpo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .ticket-info {
+    display: none;
+  }
+}

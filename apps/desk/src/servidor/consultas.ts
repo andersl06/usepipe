@@ -481,3 +481,99 @@ export async function listarHistoricoDoContato(
     filaNome: r.fila_nome,
   }));
 }
+
+/**
+ * O ticket antigo, aberto em leitura a partir do histórico do contato.
+ *
+ * **Não filtra por atendente, e isso é deliberado.** O histórico do contato já
+ * lista os atendimentos anteriores dele sem olhar quem atendeu — abrir um deles
+ * não mostra nada que a coluna ao lado já não mostrasse. O que fecha o cerco é
+ * a RLS: a transação roda com o `tenant_id` da sessão, e conversa de outro
+ * cliente não existe para esta consulta.
+ *
+ * `encerrada_por` vira nome de gente aqui, e não identificador: "Atendente:
+ * 3f2a…" não responde a pergunta que alguém faz ao abrir um ticket antigo.
+ */
+export interface TicketAntigo {
+  id: string;
+  estado: EstadoConversa;
+  prioridade: Prioridade;
+  criadaEm: Date;
+  primeiraRespostaEm: Date | null;
+  ultimaMensagemEm: Date | null;
+  encerradaEm: Date | null;
+  motivoEncerramento: string | null;
+  pausadoSeg: number;
+  filaNome: string | null;
+  canalTipo: TipoCanalBanco;
+  contatoId: string;
+  contatoNome: string | null;
+  contatoTelefone: string | null;
+  /** Quem atendeu. Nulo é atendimento que nunca saiu do robô. */
+  atendenteNome: string | null;
+  atendenteEmail: string | null;
+  /** Quem encerrou. Nulo com `encerradaEm` preenchido é fim automático. */
+  encerradaPorNome: string | null;
+}
+
+export async function carregarTicketAntigo(
+  tx: TransacaoPipe,
+  conversaId: string,
+): Promise<TicketAntigo | null> {
+  const { rows } = await tx.execute<{
+    id: string;
+    estado: EstadoConversa;
+    prioridade: Prioridade;
+    criada_em: Date | string;
+    primeira_resposta_em: Date | string | null;
+    ultima_mensagem_em: Date | string | null;
+    encerrada_em: Date | string | null;
+    motivo_encerramento: string | null;
+    pausado_seg: number | string;
+    fila_nome: string | null;
+    canal_tipo: TipoCanalBanco;
+    contato_id: string;
+    contato_nome: string | null;
+    telefone_e164: string | null;
+    atendente_nome: string | null;
+    atendente_email: string | null;
+    encerrada_por_nome: string | null;
+  }>(sql`
+    select c.id, c.estado, c.prioridade, c.criada_em, c.primeira_resposta_em,
+           c.ultima_mensagem_em, c.encerrada_em, c.motivo_encerramento, c.pausado_seg,
+           f.nome as fila_nome, ca.tipo as canal_tipo,
+           ct.id as contato_id, ct.nome as contato_nome, ct.telefone_e164,
+           ua.nome as atendente_nome, ua.email as atendente_email,
+           ue.nome as encerrada_por_nome
+      from conversa c
+      join contato ct on ct.id = c.contato_id
+      join inbox ib on ib.id = c.inbox_id
+      join canal ca on ca.id = ib.canal_id
+      left join fila f on f.id = c.fila_id
+      left join usuario ua on ua.id = c.atendente_id
+      left join usuario ue on ue.id = c.encerrada_por
+     where c.id = ${conversaId}
+     limit 1
+  `);
+  const r = rows[0];
+  if (!r) return null;
+  return {
+    id: r.id,
+    estado: r.estado,
+    prioridade: r.prioridade,
+    criadaEm: data(r.criada_em),
+    primeiraRespostaEm: dataOuNulo(r.primeira_resposta_em),
+    ultimaMensagemEm: dataOuNulo(r.ultima_mensagem_em),
+    encerradaEm: dataOuNulo(r.encerrada_em),
+    motivoEncerramento: r.motivo_encerramento,
+    pausadoSeg: Number(r.pausado_seg ?? 0),
+    filaNome: r.fila_nome,
+    canalTipo: r.canal_tipo,
+    contatoId: r.contato_id,
+    contatoNome: r.contato_nome,
+    contatoTelefone: r.telefone_e164,
+    atendenteNome: r.atendente_nome,
+    atendenteEmail: r.atendente_email,
+    encerradaPorNome: r.encerrada_por_nome,
+  };
+}

@@ -218,69 +218,39 @@ export async function enviarMensagem(_anterior: Resultado, dados: FormData): Pro
     await cookieDeSessao(),
     {
       tipo: templateId ? 'template' : 'texto',
+      ...(respostaProntaId ? { resposta_pronta_id: respostaProntaId } : {}),
       ...(templateId ? { template_id: templateId } : { texto }),
       ...(parametros && parametros.length > 0 ? { parametros } : {}),
     },
   );
   if (!resposta.ok) return falha(resposta.erro.mensagem);
 
-  /*
-   * A resposta pronta não vai no corpo do envio: a api não a conhece, e ela não
-   * muda o que o cliente recebe. O que ela muda é o relatório de esforço, que
-   * precisa saber que aquele texto não foi digitado. Carimbar depois é o caminho
-   * mais barato enquanto a rota não tem o campo.
-   *
-   * ponytail: se a marcação falhar, a mensagem já saiu e o relatório perde uma
-   * marca — que é o lado certo de errar. Quando a rota aceitar o campo, esta
-   * segunda ida ao banco some.
-   */
-  if (respostaProntaId && resposta.dados && typeof resposta.dados === 'object') {
-    const enviada = resposta.dados as { id?: string };
-    if (enviada.id) {
-      const marca = enviada.id;
-      await noTenant(async (tx) => {
-        await tx.execute(
-          sql`update mensagem set resposta_pronta_id = ${respostaProntaId} where id = ${marca}`,
-        );
-      });
-    }
-  }
 
   revalidatePath('/');
   return OK;
 }
 
 /**
- * Reenvio da mensagem que falhou: devolve o estado para `pendente` e limpa o
- * erro, que é o que a máquina de entrega do core prevê (`falhou → pendente`).
+ * Reenvio da mensagem que falhou.
  *
- * Era `enviada`, e virou mentira no instante em que o envio passou pela `api`:
- * o botão dizia que a mensagem tinha saído sem nada ter saído. Com `pendente`,
- * a linha volta a ser candidata do outbox e o tique só aparece quando a Meta
- * confirmar.
+ * A escrita direta que morava aqui estava QUEBRADA de um jeito que o teste
+ * verde não pegava: ela devolvia a linha para `pendente` e não encostava na
+ * fila de saída. O botão dizia "reenviado" e nada era reentregue — o mesmo
+ * defeito do envio, um degrau adiante.
  *
- * ponytail: escrita direta porque a `api` ainda não tem rota de reenvio.
- * Quando tiver, esta função vira mais uma chamada como as outras três.
+ * Agora quem reenfileira é a `api`. Ela devolve a mensagem nova já em
+ * `pendente`, e o tique só aparece quando a Meta confirmar.
  */
 export async function reenviarMensagem(_anterior: Resultado, dados: FormData): Promise<Resultado> {
+  const conversaId = String(dados.get('conversaId') ?? '');
   const mensagemId = String(dados.get('mensagemId') ?? '');
-  if (!mensagemId) return falha('Mensagem não informada.');
+  if (!conversaId || !mensagemId) return falha('Mensagem não informada.');
 
-  const afetadas = await noTenant(async (tx) => {
-    // `entregue_em` NÃO é carimbado aqui. Ele é a hora que a Meta confirmou, e
-    // preenchê-lo sem confirmação nenhuma é inventar prova de entrega — de novo
-    // o defeito nº 1 da tela, agora do nosso lado.
-    const { rowCount } = await tx.execute(sql`
-      update mensagem
-         set estado_entrega = 'pendente', erro_codigo = null, erro_texto = null
-       where id = ${mensagemId} and estado_entrega = 'falhou'
-    `);
-    return rowCount ?? 0;
-  });
-
-  // Sem linha afetada, a mensagem não existe ou já não estava falha. Devolver
-  // `ok` calado fazia o botão parecer que resolveu.
-  if (afetadas === 0) return falha('Esta mensagem não está mais em falha.');
+  const resposta = await postNaApi(
+    `/v1/conversas/${encodeURIComponent(conversaId)}/mensagens/${encodeURIComponent(mensagemId)}/reenviar`,
+    await cookieDeSessao(),
+  );
+  if (!resposta.ok) return falha(resposta.erro.mensagem);
 
   revalidatePath('/');
   return OK;

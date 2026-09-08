@@ -165,16 +165,23 @@ export function PainelContato({
             {historico.length === 0 ? (
               <p className="panel-vazio">Primeira conversa deste contato.</p>
             ) : (
-              <dl className="kv">
+              // Cada atendimento anterior ABRE, em leitura. É o gesto da tela
+              // de referência: o histórico não é uma lista de datas, é a porta
+              // para o que foi dito — e "o que foi dito da última vez" é a
+              // pergunta que faz alguém abrir este painel.
+              <ul className="historico">
                 {historico.map((anterior) => (
-                  <div key={anterior.id} style={{ display: 'contents' }}>
-                    <dt>
-                      {dia(anterior.criadaEm)} · {anterior.filaNome ?? 'sem fila'}
-                    </dt>
-                    <dd>{ESTADO_LEGIVEL[anterior.estado] ?? anterior.estado}</dd>
-                  </div>
+                  <li key={anterior.id}>
+                    <Link href={`/conversas/${anterior.id}`}>
+                      <span className="quando">{dia(anterior.criadaEm)}</span>
+                      <span className="onde">{anterior.filaNome ?? 'sem fila'}</span>
+                      <span className="situacao">
+                        {ESTADO_LEGIVEL[anterior.estado] ?? anterior.estado}
+                      </span>
+                    </Link>
+                  </li>
                 ))}
-              </dl>
+              </ul>
             )}
           </section>
         ) : null}

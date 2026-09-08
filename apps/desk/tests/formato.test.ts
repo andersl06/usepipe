@@ -1,6 +1,13 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { decorrido, dia, diaEHora, duracaoCurta, hora } from '../src/servidor/formato.ts';
+import {
+  decorrido,
+  dia,
+  diaEHora,
+  duracaoCurta,
+  duracaoRelogio,
+  hora,
+} from '../src/servidor/formato.ts';
 
 /**
  * A formatação de tempo do Desk.
@@ -60,4 +67,23 @@ test('janela vencida mostra zero, e não tempo negativo', () => {
   /* A janela expira entre o cálculo e a renderização. "-3min restantes" é pior
      do que "0min": o atendente lê como se ainda desse tempo. */
   assert.equal(duracaoCurta(-500), '0min');
+});
+
+test('a duração de relógio alinha dígito com dígito, e o dia só aparece quando existe', () => {
+  assert.equal(duracaoRelogio(0), '00:00:00');
+  assert.equal(duracaoRelogio(9), '00:00:09');
+  assert.equal(duracaoRelogio(3661), '01:01:01');
+  // Passando de um dia a régua muda: o segundo deixa de importar e o dia entra.
+  assert.equal(duracaoRelogio(90000), '1d 01:00');
+});
+
+test('sem medida, a duração é um traço — e não zero', () => {
+  // Zero segundos de espera e ausência de espera medida são coisas diferentes.
+  // Confundir as duas faz um atendente comemorar uma média que não existe.
+  assert.equal(duracaoRelogio(null), '—');
+});
+
+test('duração negativa não vira relógio ao contrário', () => {
+  // Relógio de servidor atrasado, ou encerramento gravado antes da abertura.
+  assert.equal(duracaoRelogio(-5), '00:00:00');
 });
