@@ -511,7 +511,7 @@ baixo.
 | 2 | **Desconectar atendente inativo** pela tela de monitoramento | eles avisam o atendente e, se ele não confirmar em **1 minuto**, trocam o status; tickets em curso **não** são redistribuídos | precisa de um canal vivo Gestão → Desk para o aviso e o relógio de 1 minuto. Dois a três dias, e é a primeira coisa da Gestão que empurra evento para o app do atendente |
 | 3 | **Transferir para outra fila ou atendente** pela linha do monitoramento | a coluna de Ações deles tem o atalho; a nossa só abre a conversa | um dia, e depende de a transferência existir como operação de domínio. Não vai virar botão desabilitado enquanto não existir |
 | 4 | **Encerrar o ticket pela tela de monitoramento**, com etiquetas no fechamento | idem | meio dia depois do item 3 |
-| 5 | **Modo tela cheia com "Tickets abertos por hora"** | o nosso botão de tela cheia só chama a API do navegador; o deles TROCA o conteúdo, acrescentando a média de tickets abertos por hora no dia | a consulta é nova (contagem de aberturas por hora); meio dia |
+| 5 | **Tela cheia é uma SEGUNDA MONTAGEM da tela** | o nosso botão só chama a API do navegador e não muda nada. O deles troca o tema para escuro, troca o componente de cabeçalho por um com a marca e o avatar do contrato, **acrescenta** o bloco de tickets por hora e **remove** o cartão de abas + tabela | **dois dias**, e não a meia estimada antes — ver §8.7.2 item 4. A estimativa velha supunha "acrescentar uma métrica"; o molde mostrou uma árvore diferente, um tema diferente e uma consulta nova (aberturas por hora) |
 | 6 | **Filtros salvos** | ficam no navegador, não na conta — eles avisam que não replicam entre máquinas | meio dia, e a decisão de guardar no navegador é regra deles, não limitação |
 | 7 | **Chat gestor → atendente** pela tela de monitoramento | conversa direta do supervisor com quem está atendendo | é produto novo, não um ajuste: uma semana, e depende do mesmo canal vivo do item 2 |
 | 8 | **"-" quando não há dado suficiente**, distinto de "0" | eles mostram `0` / `00:00:00` quando o valor é zero de verdade, e `-` quando não há população para calcular | o nosso `duracao(null)` já devolve travessão; o que falta é **auditar métrica por métrica** se o zero que aparece é zero medido ou população vazia. Um dia de leitura, sem código novo |
@@ -824,7 +824,66 @@ levantamento de funções já tinha apontado.
 baixa · **nenhuma**. O degrau de ausência que virou `sem_prioridade` no §8.5 é
 literalmente o que o pacote deles chama de `None`.
 
-### 8.7.3 O que fazer com isso
+### 8.7.3 Os dois moldes que se repetem em TODA tela
+
+Antes das telas uma a uma: dois componentes aparecem em todas, e é neles que a
+divergência se multiplica por vinte.
+
+**O cabeçalho de tela.**
+
+```
+cabeçalho   width 100%, flex row, padding-bottom 1rem,
+            FIO EMBAIXO de 1px na superfície 3, margin-bottom 1rem
+├ ESQUERDA  width 40%, justify-start
+│   └ título   flex, align-center, 24px / peso 400, gap 8px
+│       └ (fenda para o ícone de informação, margin-left 12px)
+└ DIREITA   width 60%, justify-end   ← as ações da tela
+```
+
+Duas coisas que a nossa `.board-head` não faz:
+
+- **o cabeçalho tem FIO embaixo**, com 1rem antes e 1rem depois. O nosso não tem
+  fio nenhum e usa `margin-bottom: 23px`;
+- **a divisão é 40% / 60% declarada**, não `margin-left: auto`. Em tela estreita
+  isso muda quem cede espaço: no deles o título é espremido primeiro; no nosso,
+  as ações.
+
+O tamanho e o peso do título (24/400) já batiam.
+
+**A faixa de filtros.**
+
+```
+provedor de filtros salvos   (guarda o estado, chaveado por uma CHAVE DA TELA)
+└ bloco
+   ├ SE há filtro salvo aplicado → botão sólido "Filtro salvo: <nome>", ACIMA da faixa
+   ├ faixa   min-height 56px, flex align-center
+   │   ├ ESQUERDA — três estados MUTUAMENTE EXCLUSIVOS:
+   │   │   a) há filtro aplicado → linha de botões de contorno (gap 8px), um por
+   │   │      filtro, cada um com o título em 14/bold e um CONTADOR de opções ao lado
+   │   │   b) há filtro salvo pelo nome → a esquerda fica VAZIA
+   │   │   c) senão → "Filtros rápidos:" em 16/bold + linha de botões de contorno
+   │   └ DIREITA   margin-left auto, gap 8px
+   │       ├ SE a tela tem período → botão de TEXTO (sem moldura) com o período,
+   │       │   ou "início - fim" quando personalizado
+   │       └ botão de CONTORNO com ícone de funil: "Filtros"
+   └ painel lateral de filtros   (abre pela direita)
+```
+
+Quatro coisas estruturais que a nossa faixa não faz:
+
+- **os três estados da esquerda são exclusivos.** Nós mostramos sempre
+  "Filtros rápidos" com as pílulas. No deles, assim que um filtro é aplicado o
+  rótulo SOME e as pílulas viram botões com contador;
+- **"Filtros" abre um PAINEL LATERAL**, não um formulário na página;
+- **período é botão de texto, "Filtros" é botão de contorno** — hierarquia
+  diferente para ações diferentes;
+- **o filtro salvo é por tela** (cada uma tem a sua chave), e o nome dele aparece
+  num botão ACIMA da faixa, não dentro dela.
+
+Isso responde de graça o item "filtros salvos" da fila: agora sei a forma, e ela
+não é um botão de salvar ao lado das pílulas.
+
+### 8.7.4 O que fazer com isso
 
 Nada foi reescrito ainda — a ordem é montagem primeiro, medida depois, e a
 montagem acabou de mudar. O que a próxima passada precisa fazer, em ordem:

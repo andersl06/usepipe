@@ -3,6 +3,8 @@ import { DIA, janelaAberta, pertoDeExpirar, segundosRestantes } from '@pipe/core
 import { ROTULOS_PRIORIDADE } from '@pipe/core/conversa';
 import { Avatar, EstadoVazio } from '@pipe/ui';
 import { FiltrosDaLista } from './filtros-lista';
+import { IconeDesk } from './icones-desk';
+import type { NomeDeIconeDesk } from './icones-desk';
 import { decorrido, duracaoCurta } from '../servidor/formato';
 import type { ConversaDaLista, EstadoAtendente, TipoCanalBanco } from '../servidor/consultas';
 import type { ChaveDeOrdem } from '../lib/ordem';
@@ -62,11 +64,11 @@ export function naFicha(conversa: ConversaDaLista, ficha: ChaveDeFicha, agora: D
  * Os mesmos rótulos existem em `conversa.tsx` — quando o terceiro consumidor
  * aparecer, isto vira uma constante compartilhada.
  */
-const CANAL: Record<TipoCanalBanco, string> = {
-  whatsapp_cloud: 'WhatsApp',
-  instagram: 'Instagram',
-  email: 'E-mail',
-  widget: 'Site',
+const CANAL: Record<TipoCanalBanco, { rotulo: string; icone: NomeDeIconeDesk }> = {
+  whatsapp_cloud: { rotulo: 'WhatsApp', icone: 'canal_whatsapp' },
+  instagram: { rotulo: 'Instagram', icone: 'canal_instagram' },
+  email: { rotulo: 'E-mail', icone: 'canal_email' },
+  widget: { rotulo: 'Site', icone: 'canal_site' },
 };
 
 const RESUMO_POR_TIPO: Record<string, string> = {
@@ -250,16 +252,28 @@ export function ListaConversas({
                   className="conv"
                   href={comEstado({ conversa: conversa.id })}
                   aria-current={conversa.id === selecionadaId ? 'true' : undefined}
+                  /* Última palavra do cliente = alguém esperando resposta. Na
+                     referência isso ENGROSSA o nome e a prévia do cartão, e é
+                     o sinal que faz a fila ser lida de cima a baixo sem
+                     abrir nada. Fica num atributo, e não numa classe, porque
+                     é estado do dado e não variante de componente. */
+                  data-aguardando={conversa.ultimaMensagemDe === 'contato' ? 'true' : 'false'}
                 >
-                  {/* O rosto do cliente abre o cartão, como na tela de
-                      referência. Não é enfeite: numa fila de vinte linhas com
-                      o mesmo desenho, é o disco com as iniciais que dá ao olho
-                      onde parar, e é o que faz o cartão ler como pessoa em vez
-                      de linha de tabela. */}
-                  <Avatar
-                    nome={conversa.contatoNome ?? 'Sem nome'}
-                    className="av-conv"
-                  />
+                  {/* O rosto do cliente abre o cartão, e o SELO DO CANAL fica
+                      por cima dele, encostado no canto — é assim que a tela de
+                      referência monta o cartão, e é o que faz o canal ser lido
+                      de relance em vez de virar mais uma etiqueta de texto na
+                      faixa de baixo, competindo com fila e prioridade. */}
+                  <span className="av-canal">
+                    <Avatar
+                      nome={conversa.contatoNome ?? 'Sem nome'}
+                      className="av-conv"
+                    />
+                    <span className="selo" title={CANAL[conversa.canalTipo].rotulo}>
+                      <IconeDesk nome={CANAL[conversa.canalTipo].icone} tamanho={14} />
+                      <span className="sr">{CANAL[conversa.canalTipo].rotulo}</span>
+                    </span>
+                  </span>
                   <span className="nm">{conversa.contatoNome ?? 'Sem nome'}</span>
                   <span className="t">
                     {conversa.ultimaMensagemEm ? decorrido(conversa.ultimaMensagemEm, agora) : '·'}
@@ -272,7 +286,6 @@ export function ListaConversas({
                     {conversa.filaNome ? (
                       <span className="etiqueta">{conversa.filaNome}</span>
                     ) : null}
-                    <span className="etiqueta">{CANAL[conversa.canalTipo]}</span>
                     {/*
                       Prioridade em etiqueta neutra. Era vermelha em "Alta" e
                       ocre em "Média", duas cores de estado repetidas em quase

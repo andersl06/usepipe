@@ -649,7 +649,84 @@ escolha na coluna, na URL. Duas formas de dizer a mesma coisa seriam duas que di
 
 ---
 
-## 13. O que ainda falta do produto deles
+## 13. O molde: o que a folha de estilo não contava
+
+A folha de estilo diz o **tamanho das peças** — largura, raio, espaçamento, tipografia.
+Ela **não diz a montagem**: quais elementos existem, em que ordem, aninhados em quê. Foi
+por isso que as medidas ficaram certas e a tela não parecia a mesma.
+
+A montagem está no pacote da aplicação deles. É Vue 2, e as funções de desenho
+sobreviveram à minificação: cada elemento aparece com as classes dele, na ordem em que o
+componente monta. Dá para remontar a árvore de cada tela — 1.635 elementos com classe
+fixa no pacote inteiro.
+
+**Método**: lê-se a função de desenho do componente, anota-se a árvore em português, e
+compara-se com a nossa. Nenhuma linha é copiada; o que sai de lá é a forma, e a forma de
+uma tela é fato sobre como o produto funciona.
+
+### O cartão da lista, remontado
+
+O cartão é um `<article>` clicável (com `tabindex` e Enter), em coluna, com **duas
+seções irmãs**:
+
+**Seção de cima** — o conteúdo, em duas colunas:
+
+- **Coluna do rosto**: o disco do cliente, e **por cima dele, encostado no canto, o selo
+  do canal**. O disco cai para meia opacidade quando o atendimento foi encerrado pelo
+  cliente.
+- **Coluna do texto**, em três linhas:
+  1. nome à esquerda (**em negrito quando há não lida**), e à direita o horário relativo
+     mais um ícone de situação;
+  2. a prévia da última mensagem, também em negrito quando há não lida;
+  3. **uma linha só de alertas, alinhada à direita** — e é a que nós não tínhamos:
+     selo de erro de envio, ficha "Novo", contador de não lidas, indicador de ação
+     automática em curso, ficha do chat interno, e temporizador do modo de espera.
+
+**Seção de baixo** — a faixa de metadados, irmã da primeira e atravessando o cartão
+inteiro.
+
+### O que o molde revelou, e a folha tinha escondido
+
+| O que | O que a folha dizia | O que o molde mostrou |
+|---|---|---|
+| **Canal** | uma classe de selo com 24×24 e raio 6 | é um **selo sobre o rosto**, não uma etiqueta de texto na faixa de baixo |
+| **Não lida** | uma classe de contador | além do contador, o **nome e a prévia engrossam** |
+| **Alertas** | classes soltas | ocupam uma **terceira linha própria**, alinhada à direita, dentro da coluna do texto |
+| **Fixados** | nada | os fixados são um **bloco separado, acima** dos comuns, e não uma marca no cartão |
+| **Pastas** | nada | há uma lista de pastas acima de tudo, para quem tem a permissão |
+
+### O que foi corrigido
+
+1. **O canal virou selo sobre o rosto** e saiu da faixa de metadados — repetir a mesma
+   informação duas vezes no mesmo cartão é ruído, e como etiqueta ele disputava espaço
+   com fila e prioridade. Os quatro desenhos são **nossos**, na grade e no traço do resto
+   do produto: forma de marca é protegida, e um envelope, um globo e um balão dizem a
+   mesma coisa sem pedir licença.
+2. **Nome e prévia engrossam quando a última palavra foi do cliente.** É o sinal de
+   "esperando resposta", e é o que permite ler a fila de cima a baixo sem abrir nada —
+   sem gastar cor, que aqui está reservada à janela expirando.
+
+### O que continuou impossível, ou ficou de fora
+
+| O que | Por quê |
+|---|---|
+| **Contador de não lidas** | não guardamos a CONTAGEM de mensagens não lidas, só quem falou por último. O negrito carrega o "há algo novo"; o número precisa de coluna nova |
+| **Ficha "Novo"** e ícone de situação | dependem de estados que o nosso domínio não distingue |
+| **Bloco de fixados** e **pastas** | fixar e agrupar em pasta não existem no Pipe — item que não funciona não entra |
+| **Ação automática em curso** | não temos automação por ticket |
+
+### O modelo de rolagem, conferido
+
+A casca do Desk deles é de **altura fixa com rolagem interna**: o contêiner das colunas
+não rola, e cada coluna tem o seu próprio rolador. Nada de `sticky`.
+
+**A nossa casca do Desk já é assim** — altura de viewport com `overflow: hidden`, e a
+lista, a conversa e o painel rolando cada um por conta. Nenhum ajuste foi necessário
+aqui; o defeito de rolagem encontrado no portal é de lá, e o Desk não o herdou.
+
+---
+
+## 14. O que ainda falta do produto deles
 
 A tela é montada por **oito micro-frontends**, e eles só baixam quando a aba é aberta.
 Sete já chegaram nos salvamentos; **falta um**:
@@ -671,7 +748,7 @@ molde do de Métricas.
 
 ---
 
-## 14. O que copiamos, o que não, e o que ficou de propósito diferente
+## 15. O que copiamos, o que não, e o que ficou de propósito diferente
 
 **Copiado, e agora conferido na folha:**
 

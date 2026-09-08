@@ -23,6 +23,21 @@ const CAMINHOS = {
   metricas: 'M4 19h16M4 15l4 -6l4 2l4 -5l4 4',
   microfone:
     'M9 2m0 3a3 3 0 0 1 3 -3h0a3 3 0 0 1 3 3v5a3 3 0 0 1 -3 3h0a3 3 0 0 1 -3 -3zM5 10a7 7 0 0 0 14 0M8 21h8M12 17v4',
+  /*
+   * Os quatro canais, para o selo sobre o rosto do cliente no cartão da lista.
+   *
+   * São desenhos NOSSOS, não os logotipos das plataformas: forma de marca é
+   * protegida, e um envelope, um globo e um balão dizem a mesma coisa sem
+   * pedir licença a ninguém. Mesma grade de 24 e mesmo traço do resto do
+   * arquivo, para o selo não destoar dos ícones do trilho.
+   */
+  canal_whatsapp: 'M21 11.5a8.38 8.38 0 0 1 -9 8.5a8.5 8.5 0 0 1 -3.8 -.9L3 21l1.9 -5.2a8.5 8.5 0 0 1 -.9 -3.8a8.38 8.38 0 0 1 8.5 -9a8.38 8.38 0 0 1 8.5 8.5zM9 9.5c0 3 2.5 5.5 5.5 5.5M9 9.5h1.5l1 2l-1.2 1M14.5 15v-1.5l2 -1l1 1',
+  canal_instagram:
+    'M4 8a4 4 0 0 1 4 -4h8a4 4 0 0 1 4 4v8a4 4 0 0 1 -4 4h-8a4 4 0 0 1 -4 -4zM12 8.5a3.5 3.5 0 1 0 0 7a3.5 3.5 0 0 0 0 -7M16.5 7.5v.01',
+  canal_email: 'M3 7a2 2 0 0 1 2 -2h14a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2zM3 7.5l9 6l9 -6',
+  canal_site:
+    'M12 3a9 9 0 1 0 0 18a9 9 0 0 0 0 -18M3.6 9h16.8M3.6 15h16.8M12 3a15 15 0 0 1 0 18a15 15 0 0 1 0 -18',
+
   /* Avião de papel: é o ícone de "mensagem ativa" deles. */
   paperplane: 'M10 14l11 -11M21 3l-6.5 18a.55 .55 0 0 1 -1 0l-3.5 -7l-7 -3.5a.55 .55 0 0 1 0 -1l18 -6.5',
 } as const;
