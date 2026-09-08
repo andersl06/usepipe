@@ -28,6 +28,9 @@ test('template resolve as posições pelos nomes da coluna `variaveis`', () => {
   );
   assert.equal(rendido.corpo, 'Olá Marcelo, aqui é Ana da Pipe.');
   assert.deepEqual(rendido.faltando, []);
+  // É esta lista que vai para a `api` em `parametros`, e ela é POSICIONAL:
+  // trocar a ordem aqui manda o nome do atendente no lugar do nome do cliente.
+  assert.deepEqual(rendido.valores, ['Marcelo', 'Ana']);
 });
 
 test('variável que a tela não sabe preencher é reportada, e o corpo não mente', () => {
@@ -44,12 +47,15 @@ test('variável que a tela não sabe preencher é reportada, e o corpo não ment
 test('posição sem nome cadastrado não vira palpite', () => {
   const rendido = renderizarTemplate('Oi {{1}} e {{2}}', ['contato.nome'], VARIAVEIS);
   assert.deepEqual(rendido.faltando, ['posição 2']);
+  // Buraco vira string vazia, e não `undefined`: o que sobe para a rede é JSON.
+  assert.deepEqual(rendido.valores, ['Marcelo', '']);
 });
 
 test('template sem variável passa inteiro, com `variaveis` nulo', () => {
   const rendido = renderizarTemplate('Bom dia!', null, VARIAVEIS);
   assert.equal(rendido.corpo, 'Bom dia!');
   assert.deepEqual(rendido.faltando, []);
+  assert.deepEqual(rendido.valores, []);
 });
 
 test('resposta pronta usa o NOME, não a posição', () => {

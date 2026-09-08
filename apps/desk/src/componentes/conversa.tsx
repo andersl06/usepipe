@@ -51,6 +51,14 @@ function MarcaDeEntrega({
 }) {
   const estado = item.estadoEntrega;
   if (!estado || estado === 'falhou') return null;
+  /*
+    Pendente e enviando NÃO ganham tique. Desde que o envio passou pela `api`,
+    a mensagem nasce `pendente` e só vira `enviada` quando sai de verdade —
+    pintar um tique antes disso é o mesmo defeito que a tela tinha quando
+    gravava direto no banco e marcava enviada sozinha. Sem tique, o horário
+    aparece igual e o atendente vê que ainda está a caminho.
+  */
+  if (estado === 'pendente' || estado === 'enviando') return null;
 
   const lida = estado === 'lida';
   const duplo = lida || estado === 'entregue';

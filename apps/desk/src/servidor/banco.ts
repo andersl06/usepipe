@@ -53,6 +53,18 @@ const carregarEu = cache(async (): Promise<Eu | null> => {
   return buscarEu(`${COOKIE_SESSAO}=${cookie.value}`);
 });
 
+/**
+ * O cookie de sessão como TEXTO, para repassar à `api`.
+ *
+ * Quem escreve no Pipe é a `api`, e ela precisa saber quem está mandando —
+ * o mesmo cookie que o navegador mandou para cá segue adiante sem ser lido.
+ * Ausente é sessão vencida: quem chamar isto já passou por `exigirEu`.
+ */
+export async function cookieDeSessao(): Promise<string> {
+  const cookie = (await cookies()).get(COOKIE_SESSAO);
+  return cookie ? `${COOKIE_SESSAO}=${cookie.value}` : '';
+}
+
 /** Quem está logado, ou `null`. Para quem sabe lidar com a ausência. */
 export async function euAtual(): Promise<Eu | null> {
   return carregarEu();

@@ -3,20 +3,24 @@
 import { and, eq, isNull, sql } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 import { schema } from '@pipe/db';
-import { avaliarEnvio, classificarCusto, transitar, TransicaoInvalidaError } from '@pipe/core';
-import type { CategoriaTemplate, TipoCanal } from '@pipe/core';
-import { noTenant, sessaoAtual } from '../servidor/banco';
+import { cookieDeSessao, noTenant, sessaoAtual } from '../servidor/banco';
+import { postNaApi } from '../lib/api-desk';
 import { renderizarTemplate } from '../lib/template';
-import { data, dataOuNulo } from '../servidor/consultas';
 import type { EstadoAtendente } from '../servidor/consultas';
 
 /**
- * Server Actions do Desk. Nesta etapa não há API separada: a tela fala com o banco
- * pelo `comTenant`, e o envio ao WhatsApp fica **simulado** — a mensagem é gravada
- * com `estado_entrega = 'enviada'` e nada sai para a Meta.
+ * Server Actions do Desk.
  *
- * O ponto de extensão é único e está marcado em `enviarMensagem`: no lugar do
- * `estado_entrega` fixo entra uma linha em `outbox_mensagem`, que o worker consome.
+ * **Quem ESCREVE conversa e mensagem é a `api`**, não esta tela. O envio, o
+ * encerramento e a espera vão por `POST /v1/conversas/…` levando o cookie de
+ * sessão: a regra, a transição de estado e o registro do evento moram de um
+ * lado só, e é o lado que também fala com a Meta.
+ *
+ * O que continua sendo escrito daqui é o que não tem rota e não sai para o
+ * cliente: o status do atendente, a nota interna e o reenvio.
+ *
+ * Leitura continua vindo do banco pelo `noTenant`, com a RLS valendo — é dívida
+ * conhecida do README, e ela paga junto com a migração para o Vite.
  */
 
 export interface Resultado {
@@ -28,15 +32,6 @@ const OK: Resultado = { ok: true };
 
 function falha(erro: string): Resultado {
   return { ok: false, erro };
-}
-
-/**
- * `@pipe/core` só conhece canal com janela e canal sem janela. Instagram, e-mail e
- * widget caem todos no segundo grupo; se um dia o Instagram ganhar janela própria, a
- * mudança é aqui e no core, não espalhada pela tela.
- */
-function canalDoCore(tipo: string): TipoCanal {
-  return tipo === 'whatsapp_cloud' ? 'whatsapp_cloud' : 'widget';
 }
 
 // --- status do atendente ---
@@ -124,6 +119,28 @@ export async function cairPorInatividade(): Promise<Resultado> {
 
 // --- envio ---
 
+/**
+ * Enviar. **Quem grava é a `api`, não esta tela.**
+ *
+ * Antes daqui saía um `insert` direto em `mensagem` com `estado_entrega = 'enviada'`,
+ * e nada saía para a Meta. O atendente via o tique de enviada numa mensagem que
+ * o cliente nunca recebeu, que é a pior coisa que uma tela de atendimento pode
+ * fazer. Agora o envio vai para `POST /v1/conversas/:id/mensagens`, que põe a
+ * linha no outbox e devolve **`pendente`**; o tique aparece quando a Meta
+ * confirmar.
+ *
+ * O que NÃO vai no corpo: `atendente_id`. Com sessão, o autor é o dono do
+ * cookie e um `atendente_id` no corpo é ignorado do lado de lá — aceitá-lo
+ * deixaria qualquer pessoa logada mandar mensagem com o nome do colega na tela
+ * do cliente.
+ *
+ * Template também não vai renderizado: vão `template_id` e `parametros` na
+ * ordem das posições, e quem monta o corpo é a `api`. Ela é quem fala com a
+ * Meta, e o texto que o cliente recebe tem de nascer de um lugar só.
+ *
+ * Nota interna continua sendo escrita aqui, e é a única que continua: nota não
+ * é mensagem, não sai para o cliente e não tem rota na `api`.
+ */
 export async function enviarMensagem(_anterior: Resultado, dados: FormData): Promise<Resultado> {
   const conversaId = String(dados.get('conversaId') ?? '');
   const texto = String(dados.get('texto') ?? '').trim();
@@ -140,140 +157,110 @@ export async function enviarMensagem(_anterior: Resultado, dados: FormData): Pro
     nome: nomeDoAtendente,
     email: emailDoAtendente,
   } = await sessaoAtual();
-  const agora = new Date();
 
-  return noTenant(async (tx) => {
-    const { rows } = await tx.execute<{
-      estado: string;
-      janela_expira_em: Date | string | null;
-      canal_tipo: string;
-      primeira_resposta_em: Date | string | null;
-      contato_nome: string | null;
-      contato_email: string | null;
-      contato_telefone: string | null;
-    }>(sql`
-      select c.estado, c.janela_expira_em, ca.tipo as canal_tipo, c.primeira_resposta_em,
-             ct.nome as contato_nome, ct.email as contato_email,
-             ct.telefone_e164 as contato_telefone
-        from conversa c
-        join contato ct on ct.id = c.contato_id
-        join inbox ib on ib.id = c.inbox_id
-        join canal ca on ca.id = ib.canal_id
-       where c.id = ${conversaId} and c.atendente_id = ${atendenteId}
-       limit 1
-    `);
-    const conversa = rows[0];
-    if (!conversa) return falha('Conversa não encontrada para este atendente.');
-
-    // Nota interna não passa pela janela: ela nunca sai para o cliente.
-    if (modo === 'nota') {
+  // Nota interna não passa pela api nem pela janela: ela nunca sai daqui.
+  if (modo === 'nota') {
+    await noTenant(async (tx) => {
       await tx
         .insert(schema.notaInterna)
         .values({ tenantId, conversaId, usuarioId: atendenteId, corpo: texto });
-      revalidatePath('/');
-      return OK;
-    }
-
-    let categoriaTemplate: CategoriaTemplate | null = null;
-    let corpo = texto;
-    if (templateId) {
-      const { rows: linhas } = await tx.execute<{
-        categoria: CategoriaTemplate;
-        corpo: string;
-        variaveis: unknown;
-      }>(
-        sql`select categoria, corpo, variaveis from template_mensagem
-             where id = ${templateId} and status_meta = 'aprovado' limit 1`,
-      );
-      const template = linhas[0];
-      if (!template) return falha('Template não encontrado ou não aprovado pela Meta.');
-      categoriaTemplate = template.categoria;
-
-      // As posições `{{1}}`, `{{2}}` são resolvidas AQUI, com a mesma função da
-      // pré-visualização. Antes o corpo ia cru para a tabela `mensagem`, e o
-      // cliente receberia literalmente "Olá {{1}}". Quando a tela não sabe
-      // preencher uma posição, o envio para com o nome do que falta — não sai
-      // meia mensagem.
-      const rendido = renderizarTemplate(template.corpo, template.variaveis, {
-        'contato.nome': conversa.contato_nome ?? '',
-        'contato.email': conversa.contato_email ?? '',
-        'contato.telefone': conversa.contato_telefone ?? '',
-        'atendente.nome': nomeDoAtendente,
-        'atendente.primeiro_nome': nomeDoAtendente.split(' ')[0] ?? nomeDoAtendente,
-        'atendente.email': emailDoAtendente,
-      });
-      if (rendido.faltando.length > 0) {
-        return falha(
-          `Este template pede ${rendido.faltando.join(', ')}, e o Desk ainda não tem campo para preencher. Dispare-o pelo Pipe Gestão.`,
-        );
-      }
-      corpo = rendido.corpo;
-    }
-
-    const avaliacao = avaliarEnvio({
-      canal: canalDoCore(conversa.canal_tipo),
-      expiraEm: dataOuNulo(conversa.janela_expira_em),
-      agora,
-      conteudo: templateId ? 'template' : 'texto_livre',
-      categoriaTemplate,
     });
-    if (!avaliacao.permitido) {
-      return falha(
-        avaliacao.motivo === 'janela_fechada'
-          ? 'A janela de 24 horas fechou: só sai template aprovado pela Meta.'
-          : 'Template sem categoria de cobrança.',
-      );
-    }
-
-    await tx.insert(schema.mensagem).values({
-      tenantId,
-      conversaId,
-      direcao: 'saida',
-      autorTipo: 'atendente',
-      autorId: atendenteId,
-      tipo: templateId ? 'template' : 'texto',
-      conteudo: corpo,
-      respostaProntaId,
-      templateId,
-      // Ponto de extensão da entrega real: aqui entra a linha em `outbox_mensagem` e o
-      // estado nasce `pendente`. Enquanto o worker não existe, a mensagem já sai enviada.
-      estadoEntrega: 'enviada',
-      criadaEm: agora,
-      dentroDaJanela: avaliacao.dentroDaJanela,
-      categoriaCobranca: classificarCusto({
-        conteudo: templateId ? 'template' : 'texto_livre',
-        dentroDaJanela: avaliacao.dentroDaJanela,
-        categoriaTemplate,
-      }),
-    });
-
-    // Responder tira a conversa de `atribuida` e de `em_espera` — as duas transições
-    // que a máquina de estados permite para `em_atendimento`.
-    const estadoNovo =
-      conversa.estado === 'atribuida' || conversa.estado === 'em_espera'
-        ? 'em_atendimento'
-        : conversa.estado;
-    await tx
-      .update(schema.conversa)
-      .set({
-        estado: estadoNovo,
-        emEsperaDesde: null,
-        ultimaMensagemEm: agora,
-        ultimaMensagemDe: 'atendente',
-        primeiraRespostaEm: dataOuNulo(conversa.primeira_resposta_em) ?? agora,
-        atualizadoEm: agora,
-      })
-      .where(eq(schema.conversa.id, conversaId));
-
     revalidatePath('/');
     return OK;
-  });
+  }
+
+  /**
+   * Os valores das posições do template. A leitura continua sendo daqui porque
+   * é a tela que sabe o que ela consegue preencher — e é ela que precisa dizer,
+   * em português, o que está faltando. Mandar `{{2}}` para o cliente é pior do
+   * que recusar o envio.
+   */
+  let parametros: string[] | null = null;
+  if (templateId) {
+    const preparo = await noTenant(async (tx) => {
+      const { rows } = await tx.execute<{
+        corpo: string;
+        variaveis: unknown;
+        contato_nome: string | null;
+        contato_email: string | null;
+        contato_telefone: string | null;
+      }>(sql`
+        select t.corpo, t.variaveis, ct.nome as contato_nome, ct.email as contato_email,
+               ct.telefone_e164 as contato_telefone
+          from template_mensagem t
+          join conversa c on c.id = ${conversaId}
+          join contato ct on ct.id = c.contato_id
+         where t.id = ${templateId} and t.status_meta = 'aprovado'
+         limit 1
+      `);
+      return rows[0] ?? null;
+    });
+    if (!preparo) return falha('Template não encontrado ou não aprovado pela Meta.');
+
+    const rendido = renderizarTemplate(preparo.corpo, preparo.variaveis, {
+      'contato.nome': preparo.contato_nome ?? '',
+      'contato.email': preparo.contato_email ?? '',
+      'contato.telefone': preparo.contato_telefone ?? '',
+      'atendente.nome': nomeDoAtendente,
+      'atendente.primeiro_nome': nomeDoAtendente.split(' ')[0] ?? nomeDoAtendente,
+      'atendente.email': emailDoAtendente,
+    });
+    if (rendido.faltando.length > 0) {
+      return falha(
+        `Este template pede ${rendido.faltando.join(', ')}, e o Desk ainda não tem campo para preencher. Dispare-o pelo Pipe Gestão.`,
+      );
+    }
+    parametros = rendido.valores;
+  }
+
+  const resposta = await postNaApi(
+    `/v1/conversas/${encodeURIComponent(conversaId)}/mensagens`,
+    await cookieDeSessao(),
+    {
+      tipo: templateId ? 'template' : 'texto',
+      ...(templateId ? { template_id: templateId } : { texto }),
+      ...(parametros && parametros.length > 0 ? { parametros } : {}),
+    },
+  );
+  if (!resposta.ok) return falha(resposta.erro.mensagem);
+
+  /*
+   * A resposta pronta não vai no corpo do envio: a api não a conhece, e ela não
+   * muda o que o cliente recebe. O que ela muda é o relatório de esforço, que
+   * precisa saber que aquele texto não foi digitado. Carimbar depois é o caminho
+   * mais barato enquanto a rota não tem o campo.
+   *
+   * ponytail: se a marcação falhar, a mensagem já saiu e o relatório perde uma
+   * marca — que é o lado certo de errar. Quando a rota aceitar o campo, esta
+   * segunda ida ao banco some.
+   */
+  if (respostaProntaId && resposta.dados && typeof resposta.dados === 'object') {
+    const enviada = resposta.dados as { id?: string };
+    if (enviada.id) {
+      const marca = enviada.id;
+      await noTenant(async (tx) => {
+        await tx.execute(
+          sql`update mensagem set resposta_pronta_id = ${respostaProntaId} where id = ${marca}`,
+        );
+      });
+    }
+  }
+
+  revalidatePath('/');
+  return OK;
 }
 
 /**
- * Reenvio da mensagem que falhou. **Simulado**: devolve o estado para `enviada` e
- * limpa o erro. Com o worker no ar, isto vira uma volta para `pendente` no outbox,
- * que é o que a máquina de entrega do core já prevê (`falhou → pendente`).
+ * Reenvio da mensagem que falhou: devolve o estado para `pendente` e limpa o
+ * erro, que é o que a máquina de entrega do core prevê (`falhou → pendente`).
+ *
+ * Era `enviada`, e virou mentira no instante em que o envio passou pela `api`:
+ * o botão dizia que a mensagem tinha saído sem nada ter saído. Com `pendente`,
+ * a linha volta a ser candidata do outbox e o tique só aparece quando a Meta
+ * confirmar.
+ *
+ * ponytail: escrita direta porque a `api` ainda não tem rota de reenvio.
+ * Quando tiver, esta função vira mais uma chamada como as outras três.
  */
 export async function reenviarMensagem(_anterior: Resultado, dados: FormData): Promise<Resultado> {
   const mensagemId = String(dados.get('mensagemId') ?? '');
@@ -285,7 +272,7 @@ export async function reenviarMensagem(_anterior: Resultado, dados: FormData): P
     // o defeito nº 1 da tela, agora do nosso lado.
     const { rowCount } = await tx.execute(sql`
       update mensagem
-         set estado_entrega = 'enviada', erro_codigo = null, erro_texto = null
+         set estado_entrega = 'pendente', erro_codigo = null, erro_texto = null
        where id = ${mensagemId} and estado_entrega = 'falhou'
     `);
     return rowCount ?? 0;
@@ -301,105 +288,48 @@ export async function reenviarMensagem(_anterior: Resultado, dados: FormData): P
 
 // --- ações sobre a conversa ---
 
+/**
+ * Encerrar. A regra, a transição de estado e o registro do evento são da `api` —
+ * aqui ficou só o que a tela sabe: qual conversa e qual etiqueta.
+ *
+ * A etiqueta continua obrigatória, e continua conferida dos DOIS lados: a
+ * checagem daqui poupa uma ida à rede, e a de lá é a que vale.
+ */
 export async function encerrarConversa(_anterior: Resultado, dados: FormData): Promise<Resultado> {
   const conversaId = String(dados.get('conversaId') ?? '');
   const etiquetaId = String(dados.get('etiquetaId') ?? '');
   if (!conversaId) return falha('Conversa não informada.');
-  // Etiqueta de encerramento é obrigatória: conversa fechada sem motivo é relatório
-  // que não explica nada depois.
   if (!etiquetaId) return falha('Escolha a etiqueta de encerramento.');
 
-  const { atendenteId, tenantId } = await sessaoAtual();
-  const agora = new Date();
+  const resposta = await postNaApi(
+    `/v1/conversas/${encodeURIComponent(conversaId)}/encerrar`,
+    await cookieDeSessao(),
+    { etiqueta_id: etiquetaId },
+  );
+  if (!resposta.ok) return falha(resposta.erro.mensagem);
 
-  return noTenant(async (tx) => {
-    const { rows } = await tx.execute<{ estado: string }>(
-      sql`select estado from conversa where id = ${conversaId} and atendente_id = ${atendenteId} limit 1`,
-    );
-    const atual = rows[0];
-    if (!atual) return falha('Conversa não encontrada para este atendente.');
-
-    const { rows: etiquetas } = await tx.execute<{ nome: string }>(
-      sql`select nome from etiqueta where id = ${etiquetaId} limit 1`,
-    );
-    const etiqueta = etiquetas[0];
-    if (!etiqueta) return falha('Etiqueta não encontrada.');
-
-    try {
-      transitar(atual.estado as never, 'encerrada');
-    } catch (erro) {
-      if (erro instanceof TransicaoInvalidaError) return falha(erro.message);
-      throw erro;
-    }
-
-    await tx
-      .insert(schema.conversaEtiqueta)
-      .values({ tenantId, conversaId, etiquetaId, porUsuarioId: atendenteId })
-      .onConflictDoNothing();
-
-    await tx
-      .update(schema.conversa)
-      .set({
-        estado: 'encerrada',
-        encerradaEm: agora,
-        encerradaPor: atendenteId,
-        motivoEncerramento: etiqueta.nome,
-        emEsperaDesde: null,
-        atualizadoEm: agora,
-      })
-      .where(eq(schema.conversa.id, conversaId));
-
-    revalidatePath('/');
-    return OK;
-  });
+  revalidatePath('/');
+  return OK;
 }
 
-/** Modo de espera: pausa a conversa sem que a inatividade do cliente conte. */
+/**
+ * Modo de espera: pausa a conversa sem que a inatividade do cliente conte.
+ *
+ * A mesma rota nos dois sentidos, como o botão. **Quem decide o sentido é a
+ * `api`**, e quem soma o intervalo em espera também — o cálculo que morava
+ * aqui saiu. Dois lugares calculando o mesmo segundo é como o relatório de
+ * ocupação passa a discordar de si mesmo.
+ */
 export async function alternarEspera(_anterior: Resultado, dados: FormData): Promise<Resultado> {
   const conversaId = String(dados.get('conversaId') ?? '');
   if (!conversaId) return falha('Conversa não informada.');
 
-  const { atendenteId } = await sessaoAtual();
-  const agora = new Date();
+  const resposta = await postNaApi(
+    `/v1/conversas/${encodeURIComponent(conversaId)}/espera`,
+    await cookieDeSessao(),
+  );
+  if (!resposta.ok) return falha(resposta.erro.mensagem);
 
-  return noTenant(async (tx) => {
-    const { rows } = await tx.execute<{ estado: string; em_espera_desde: Date | string | null }>(
-      sql`select estado, em_espera_desde from conversa
-           where id = ${conversaId} and atendente_id = ${atendenteId} limit 1`,
-    );
-    const atual = rows[0];
-    if (!atual) return falha('Conversa não encontrada para este atendente.');
-
-    const destino = atual.estado === 'em_espera' ? 'em_atendimento' : 'em_espera';
-    try {
-      transitar(atual.estado as never, destino);
-    } catch (erro) {
-      if (erro instanceof TransicaoInvalidaError) return falha(erro.message);
-      throw erro;
-    }
-
-    if (destino === 'em_espera') {
-      await tx
-        .update(schema.conversa)
-        .set({ estado: destino, emEsperaDesde: agora, atualizadoEm: agora })
-        .where(eq(schema.conversa.id, conversaId));
-    } else {
-      // O intervalo em espera vira coluna própria no relatório: some do SLA, não do número.
-      const pausadoSeg = atual.em_espera_desde
-        ? Math.round((agora.getTime() - data(atual.em_espera_desde).getTime()) / 1000)
-        : 0;
-      await tx
-        .update(schema.conversa)
-        .set({
-          estado: destino,
-          emEsperaDesde: null,
-          pausadoSeg: sql`${schema.conversa.pausadoSeg} + ${pausadoSeg}`,
-          atualizadoEm: agora,
-        })
-        .where(eq(schema.conversa.id, conversaId));
-    }
-
-    revalidatePath('/');
-    return OK;
-  });
+  revalidatePath('/');
+  return OK;
 }

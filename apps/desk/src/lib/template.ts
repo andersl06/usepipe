@@ -43,6 +43,12 @@ export interface TemplateRenderizado {
    * que dizer ao atendente que falta um valor.
    */
   faltando: string[];
+  /**
+   * Os valores resolvidos, **na ordem das posições** — é o formato que a `api`
+   * espera em `parametros`. Quem envia manda estes; quem pré-visualiza usa o
+   * `corpo`. Os dois saem da mesma passada, e por isso não podem divergir.
+   */
+  valores: string[];
 }
 
 /**
@@ -58,6 +64,7 @@ export function renderizarTemplate(
 ): TemplateRenderizado {
   const nomes = Array.isArray(nomesPorPosicao) ? nomesPorPosicao.map(String) : [];
   const faltando: string[] = [];
+  const resolvidos: string[] = [];
   const mapa = valores as Record<string, string | undefined>;
 
   const texto = corpo.replace(/\{\{\s*(\d+)\s*\}\}/g, (inteiro, posicao: string) => {
@@ -66,15 +73,24 @@ export function renderizarTemplate(
       // Posição sem nome cadastrado: o template e a coluna `variaveis`
       // discordam. Não há palpite honesto aqui.
       faltando.push(`posição ${posicao}`);
+      resolvidos[Number(posicao) - 1] = '';
       return inteiro;
     }
     const valor = mapa[nome];
     if (!valor) {
       faltando.push(nome);
+      resolvidos[Number(posicao) - 1] = '';
       return inteiro;
     }
+    resolvidos[Number(posicao) - 1] = valor;
     return valor;
   });
 
-  return { corpo: texto, faltando: [...new Set(faltando)] };
+  // `Array.from` sobre o esparso troca buraco por string vazia: posição que o
+  // template não usa não pode virar `undefined` num JSON que vai para a rede.
+  return {
+    corpo: texto,
+    faltando: [...new Set(faltando)],
+    valores: Array.from(resolvidos, (v) => v ?? ''),
+  };
 }
