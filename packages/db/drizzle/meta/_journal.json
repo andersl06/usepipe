@@ -92,6 +92,13 @@
       "when": 1788812595400,
       "tag": "0012_espelho_twenty",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1788899000000,
+      "tag": "0013_prioridade_cinco_degraus",
+      "breakpoints": true
     }
   ]
 }

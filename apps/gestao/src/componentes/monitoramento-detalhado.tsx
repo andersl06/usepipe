@@ -1,6 +1,11 @@
 import Link from 'next/link';
 import { Icone } from '@pipe/ui';
-import type { LinhaConversaAberta, Monitoramento } from '../lib/monitoramento';
+import { ROTULOS_PRIORIDADE, type NivelPrioridade } from '@pipe/core/conversa';
+import {
+  ordenarFilaDeEspera,
+  type LinhaConversaAberta,
+  type Monitoramento,
+} from '../lib/monitoramento';
 import { duracao, numero } from '../lib/formato';
 import { IconeGestao } from './icones-gestao';
 
@@ -70,22 +75,23 @@ function classeDaLinha(linha: LinhaConversaAberta): string | undefined {
   return undefined;
 }
 
-/** Prioridade por extenso, na ordem da régua: baixa, média, alta. */
-const PRIORIDADE: Record<string, string> = {
-  baixa: 'Baixa',
-  media: 'Média',
-  alta: 'Alta',
-};
-
 /**
- * A prioridade nasce NEUTRA, como toda etiqueta de categoria. Só a alta recebe
- * tinta, porque só ela muda o que o supervisor faz agora; pintar os três níveis
- * transformaria a coluna inteira num carrossel e tiraria o significado do
- * vermelho no resto da tela.
+ * A prioridade nasce NEUTRA, como toda etiqueta de categoria. Só os dois
+ * degraus de cima recebem tinta, porque só eles mudam o que o supervisor faz
+ * agora; pintar os cinco níveis transformaria a coluna num carrossel e tiraria
+ * o significado do vermelho no resto da tela.
+ *
+ * Máxima é erro e Alta é alerta — a distância entre as duas é o ponto de existir
+ * um degrau acima de "alta". Os três de baixo, inclusive a ausência, ficam
+ * neutros.
+ *
+ * O rótulo sai de `ROTULOS_PRIORIDADE`, e não de um mapa local: a régua tem um
+ * dono só, que é quem também define a ordem da fila.
  */
 function PillPrioridade({ nivel }: { nivel: string }) {
-  const rotulo = PRIORIDADE[nivel] ?? nivel;
-  return <span className={nivel === 'alta' ? 'etiqueta alerta' : 'etiqueta'}>{rotulo}</span>;
+  const rotulo = ROTULOS_PRIORIDADE[nivel as NivelPrioridade] ?? nivel;
+  const tinta = nivel === 'maxima' ? ' erro' : nivel === 'alta' ? ' alerta' : '';
+  return <span className={`etiqueta${tinta}`}>{rotulo}</span>;
 }
 
 /**
@@ -304,7 +310,11 @@ export function MonitoramentoDetalhado({
   };
 
   const atribuidas = monitoramento.abertas.filter((l) => l.atendenteId !== null).filter(casa);
-  const aguardando = monitoramento.abertas.filter((l) => l.atendenteId === null).filter(casa);
+  /* A fila de espera sai ORDENADA POR PRIORIDADE; a lista de atribuídas fica na
+     ordem de criação que a consulta já devolve. Ver `ordenarFilaDeEspera`. */
+  const aguardando = ordenarFilaDeEspera(
+    monitoramento.abertas.filter((l) => l.atendenteId === null).filter(casa),
+  );
 
   return (
     <div className="tblwrap">

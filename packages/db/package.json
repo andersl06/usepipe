@@ -29,6 +29,7 @@
     "particoes": "tsx src/scripts/criar-particoes.ts"
   },
   "dependencies": {
+    "@pipe/core": "workspace:*",
     "dotenv": "^17.2.3",
     "drizzle-orm": "^0.44.6",
     "pg": "^8.16.3"

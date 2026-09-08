@@ -1,6 +1,7 @@
 import { and, asc, eq, gte, inArray, isNull, isNotNull, lt, sql } from 'drizzle-orm';
 import {
   cargaPonderada,
+  pesoPrioridade,
   contarEncerramentos,
   derivarMarcos,
   tempoAtePrimeiraResposta,
@@ -225,6 +226,34 @@ function maiorDe(valores: readonly (number | null)[]): number | null {
 export interface FiltroMonitoramento {
   filaId?: string | undefined;
   atendenteId?: string | undefined;
+}
+
+/**
+ * A ordem da FILA DE ESPERA: prioridade primeiro, e empate desempata pela mais
+ * antiga.
+ *
+ * É a regra deles, e ela só existe porque a prioridade tem um degrau de
+ * AUSÊNCIA: um ticket `baixa` fura a frente de um `sem_prioridade`. Enquanto a
+ * coluna nascia em `media`, ordenar por prioridade era ordenar por um dado que
+ * ninguém tinha escolhido, e por isso a lista saía só por data de criação.
+ *
+ * O desempate por antiguidade é o que impede a fila de virar pilha, com o
+ * último a chegar sendo o primeiro a sair. A aba "Atribuído/Em andamento"
+ * continua em ordem de criação: lá o ticket já tem dono, e prioridade não muda
+ * mais quem atende.
+ */
+export function ordenarFilaDeEspera<
+  T extends { prioridade: string; marcos: { criadaEm: Date | null } },
+>(linhas: readonly T[]): T[] {
+  return [...linhas].sort((a, b) => {
+    const diferenca = pesoPrioridade(a.prioridade) - pesoPrioridade(b.prioridade);
+    if (diferenca !== 0) return diferenca;
+    /* Sem marco de criação vai para o fim: ela não é "a mais antiga", é a que
+       não sabemos quando começou. Mesma regra do `null` na ordem do Desk. */
+    const ta = a.marcos.criadaEm?.getTime() ?? Infinity;
+    const tb = b.marcos.criadaEm?.getTime() ?? Infinity;
+    return ta - tb;
+  });
 }
 
 export async function carregarMonitoramento(

@@ -48,8 +48,10 @@ a {
   color: inherit;
 }
 
+/* O anel de foco usa `--p-foco`, e NUNCA `--p-marca`. Ver o comentário do token:
+   anel na cor da marca faz o teclado e o mouse dizerem a mesma coisa. */
 :focus-visible {
-  outline: 2px solid var(--p-marca);
+  outline: 2px solid var(--p-foco);
   outline-offset: 2px;
   border-radius: var(--p-r-sm);
 }
@@ -481,6 +483,8 @@ button.etiqueta.info:hover {
   color: var(--p-conteudo-fantasma);
 }
 
+/* A BORDA do campo em foco continua na marca — ela não é o anel, é o realce do
+   campo, e some sob o anel de `--p-foco` que a regra global desenha por cima. */
 .campo:focus-visible,
 .seletor:focus-visible {
   border-color: var(--p-marca);

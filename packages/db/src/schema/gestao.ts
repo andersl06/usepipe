@@ -1,3 +1,4 @@
+import { NIVEIS_ATRIBUIVEIS } from '@pipe/core/conversa';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -15,7 +16,6 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import {
-  NIVEIS_PRIORIDADE,
   TIPOS_DIMENSAO,
   TIPOS_EVENTO_ATENDIMENTO,
   carimbos,
@@ -192,7 +192,7 @@ export const regraPrioridade = pgTable(
     ...carimbos(),
   },
   (t) => [
-    listaCheck('regra_prioridade_nivel_ck', t.nivel, NIVEIS_PRIORIDADE),
+    listaCheck('regra_prioridade_nivel_ck', t.nivel, NIVEIS_ATRIBUIVEIS),
     listaCheck('regra_prioridade_escopo_tipo_ck', t.escopoTipo, ESCOPOS_REGRA),
   ],
 );

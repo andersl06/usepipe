@@ -51,7 +51,15 @@ export const ESTADOS_ENTREGA = [
 ] as const;
 export const CATEGORIAS_COBRANCA = ['livre', 'utilidade', 'marketing', 'autenticacao'] as const;
 export const CATEGORIAS_TEMPLATE = ['utilidade', 'marketing', 'autenticacao'] as const;
-export const NIVEIS_PRIORIDADE = ['baixa', 'media', 'alta'] as const;
+/*
+ * A régua de prioridade vive em `@pipe/core/conversa`, e não aqui.
+ *
+ * Este arquivo importa `drizzle-orm/pg-core` para montar as restrições, e quem
+ * importar dele leva o driver junto. O app do atendente ordena a coluna num
+ * componente de navegador; era por isso que ele mantinha um mapa paralelo de
+ * pesos, que divergiu. Regra pura mora no pacote de regra pura, e o esquema
+ * importa de lá para virar restrição — nunca o contrário.
+ */
 export const TIPOS_DIMENSAO = ['fila', 'atendente', 'equipe', 'inbox', 'etiqueta'] as const;
 
 /** §4 do modelo de dados: catálogo fechado de `evento_atendimento.tipo`. */

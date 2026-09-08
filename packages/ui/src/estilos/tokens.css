@@ -95,6 +95,22 @@
   --p-info-linha: rgba(46, 74, 93, 0.3);
   --p-info-conteudo: #2e4a5d;
 
+  /* ============================================================== foco
+     UMA cor, com UM papel, e é o único token da folha que não pode ser
+     reaproveitado para mais nada.
+
+     Ela existe porque o anel de foco estava em `--p-marca` — a mesma cor do
+     item ativo de navegação, da borda de campo em foco e da ação primária.
+     Com isso o teclado e o mouse diziam a mesma coisa: quem percorria a
+     lateral por Tab via o anel na cor que já marcava onde ele estava, e
+     deixava de saber qual dos dois era qual.
+
+     Foco de teclado não pode dividir cor com nada, senão para de ser sinal.
+     É a única cor do design system da Blip com papel único, e pela mesma
+     razão. Violeta porque nenhum outro papel do Pipe usa violeta — nem a
+     marca, nem os quatro estados, nem a paleta de gráfico. */
+  --p-foco: #7a3ea8;
+
   /* Tinta de estado para CROMO ESCURO — a barra da Gestão é escura nos dois
      temas, e a tinta de estado do tema claro (verde e terracota fechados) não
      se lê ali. Nenhuma cor nova: são os mesmos valores do tema escuro, porque
@@ -243,6 +259,9 @@
     --p-info-linha: rgba(126, 173, 199, 0.34);
     --p-info-conteudo: #7eadc7;
 
+    /* Violeta clara: o mesmo papel único, agora legível sobre fundo escuro. */
+    --p-foco: #c98ef0;
+
     /* No escuro é a própria tinta de estado: mesmo valor, dito de novo para o
        verificador enxergar o par. */
     --p-sucesso-sobre-escuro: var(--p-sucesso-conteudo);
@@ -299,6 +318,8 @@
   --p-info-fundo: #1a2a33;
   --p-info-linha: rgba(126, 173, 199, 0.34);
   --p-info-conteudo: #7eadc7;
+
+  --p-foco: #c98ef0;
 
   --p-sucesso-sobre-escuro: var(--p-sucesso-conteudo);
   --p-erro-sobre-escuro: var(--p-erro-conteudo);

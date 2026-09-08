@@ -1,3 +1,4 @@
+import { NIVEIS_PRIORIDADE } from '@pipe/core/conversa';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
@@ -15,7 +16,6 @@ import {
   CATEGORIAS_TEMPLATE,
   ESTADOS_CONVERSA,
   ESTADOS_ENTREGA,
-  NIVEIS_PRIORIDADE,
   TIPOS_CANAL,
   carimbos,
   id,
@@ -263,7 +263,10 @@ export const conversa = pgTable(
     filaId: uuid('fila_id').references(() => fila.id, { onDelete: 'set null' }),
     atendenteId: uuid('atendente_id').references(() => usuario.id, { onDelete: 'set null' }),
     estado: text('estado').notNull().default('na_fila'),
-    prioridade: text('prioridade').notNull().default('media'),
+    /* Nasce SEM prioridade. Quem dá prioridade é regra de priorização ou gente;
+       o padrão antigo (`media`) fazia a fila ordenar por dado que ninguém
+       escolheu. Ver `NIVEIS_PRIORIDADE`. */
+    prioridade: text('prioridade').notNull().default('sem_prioridade'),
     criadaEm: momento('criada_em').notNull().defaultNow(),
     atribuidaEm: momento('atribuida_em'),
     primeiraRespostaEm: momento('primeira_resposta_em'),

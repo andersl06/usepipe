@@ -2178,3 +2178,24 @@ tr.grupo th {
   width: 100%;
   justify-content: center;
 }
+
+/* ====================================================== o anel de foco
+   Três controles da Gestão são um `<input>` sem moldura DENTRO de uma caixa
+   que tem a moldura: a pílula de filtro, a busca do cartão de tabela e a busca
+   do topo. Os três apagavam o anel do `<input>` com `outline: none` — e a
+   caixa de fora não repunha nada.
+
+   O resultado era um controle que recebe foco de teclado e NÃO MOSTRA que
+   recebeu: quem navega por Tab digitava às cegas. O `outline: none` continua,
+   porque um anel apertado em volta do texto dentro de uma caixa que já tem
+   borda fica feio e confuso — mas agora quem desenha o foco é a CAIXA, com o
+   mesmo anel de 2px em `--p-foco` da regra global.
+
+   `:focus-within` e não `:focus`: o foco está no filho, e é a caixa que
+   precisa acender. */
+.pilula:focus-within,
+.tblhead .tbl-busca:focus-within,
+.busca-topo:focus-within {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}

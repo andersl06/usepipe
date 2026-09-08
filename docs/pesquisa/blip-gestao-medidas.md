@@ -384,14 +384,47 @@ listadas com tamanho, para o dono decidir quando as duas frentes se encontrarem.
 | 1 | `--p-r-sm` não existe na régua deles | **5px** | **4px** | uma linha em `tokens.css`; afeta Desk, Gestão e CRM ao mesmo tempo |
 | 2 | `--p-t-numero` está entre dois degraus | **28px** | **24px** (o degrau 3 deles) | uma linha; a Gestão já não usa este token — usa `--g-t-valor: 24px` |
 | 3 | Cabeçalho de coluna em caixa alta com espaçamento de letra é invenção nossa | `12px / 600`, `text-transform: uppercase`, `letter-spacing: .06em` | **14 / 600, caixa normal** | a Gestão já corrige localmente em `.tblwrap th`; o Desk não. Uma regra em `base.css`, mas ela muda TODAS as tabelas dos três apps |
-| 4 | Anel de foco na cor de marca | `outline: 2px solid --p-marca` | cor **própria**, distinta da marca | um token de cor novo mais o par no tema escuro, e uma linha em `base.css` |
+| 4 | ~~Anel de foco na cor de marca~~ | **FEITO** — ver §7.1 | — |
 | 5 | `--p-altura-linha-tabela: 36px` está abaixo das duas densidades deles | **36px** | **48px** (denso) / **64px** (padrão) | a Gestão já corrige localmente; o token compartilhado continua em 36. Uma linha, mas reaperta a densidade do Desk e do CRM |
 
-**A número 4 é a única que eu chamaria de defeito e não de divergência**, porque
-é acessibilidade: um anel de foco da mesma cor do estado ativo faz o teclado e o
-mouse dizerem a mesma coisa, e quem navega por teclado deixa de saber onde está.
-Eles resolveram isso com uma cor de foco que não é a cor de marca e não é
-nenhum dos quatro estados — é a única cor do sistema deles com um papel só.
+### 7.1 O anel de foco — o defeito é NOSSO, e não se replica de volta
+
+**A número 4 não é divergência: é defeito nosso, e aqui eles estão certos.**
+Fica explícito porque é a única linha deste documento onde a instrução se
+inverte — em todas as outras replicamos o comportamento deles; nesta, o que se
+replica é a *decisão* deles, e o que se apaga é o nosso jeito atual.
+
+O nosso anel de foco usa `--p-marca`. A mesma cor pinta o item ativo de
+navegação, a borda de campo em foco e a ação primária. Resultado: **teclado e
+mouse dizem a mesma coisa.** Quem percorre a lateral pelo Tab vê o anel na cor
+que já marca o item onde ele está, e deixa de saber qual dos dois é qual.
+
+Eles resolvem com uma **cor de foco própria** — não é a cor de marca, não é
+nenhum dos quatro estados, e é a única cor do sistema deles com um papel só.
+Existe exatamente para isso: foco de teclado não pode compartilhar cor com nada,
+senão deixa de ser sinal.
+
+**Corrigido.** `--p-foco` existe, nos dois temas, e é **o único token da folha
+com um papel só** — não pode ser reaproveitado para mais nada. Violeta porque
+nenhum outro papel do Pipe usa violeta: nem a marca, nem os quatro estados, nem
+a paleta de gráfico.
+
+| Peça | Antes | Depois |
+|---|---|---|
+| `:focus-visible` global | `outline: 2px solid var(--p-marca)` | `var(--p-foco)` |
+| Borda do campo em foco | `--p-marca` | `--p-marca` — **fica**: ela é o realce do campo, não o anel, e some sob o anel que a regra global desenha por cima |
+| Pílula de filtro, busca do cartão, busca do topo | `outline: none` no `<input>` e **nada** na caixa de fora | `:focus-within` na caixa, com o mesmo anel de 2px |
+
+**O terceiro achado foi pior que o defeito de cor.** Três controles da Gestão são
+um `<input>` sem moldura dentro de uma caixa que tem a moldura, e os três
+apagavam o anel do `<input>` com `outline: none` — sem repor nada na caixa. Eram
+três controles que recebiam foco de teclado e **não mostravam que receberam**:
+quem navega por Tab digitava às cegas. O `outline: none` continua (um anel
+apertado em volta do texto dentro de uma caixa que já tem borda fica confuso),
+mas agora quem acende é a caixa, com `:focus-within`.
+
+**Regra para as telas novas:** nenhum `outline: none` sem um `:focus-within` no
+ancestral que o reponha, e `--p-marca` nunca em anel de foco.
 
 ---
 
@@ -468,7 +501,7 @@ baixo.
 
 | # | O que falta | Por quê | Tamanho |
 |---|---|---|---|
-| 1 | **A régua de prioridade tem CINCO degraus** | os rótulos deles são **Máxima · Alta · Média · Baixa · Sem prioridade**. O nosso `conversa.prioridade` tem três (`baixa`/`media`/`alta`), é `not null` e nasce em `media` — faltam o degrau de cima e a **ausência**, que é justamente a que a regra deles usa: um ticket de prioridade *baixa* fura a frente de um *sem nenhuma* | migração de esquema (dois valores novos e a coluna anulável) + a ordenação da fila + a semente. Meio dia, e mexe em `packages/db`, que os três apps dividem |
+| 1 | ~~A régua de prioridade tem CINCO degraus~~ | **FEITO** — ver §8.5 | — |
 | 2 | **Desconectar atendente inativo** pela tela de monitoramento | eles avisam o atendente e, se ele não confirmar em **1 minuto**, trocam o status; tickets em curso **não** são redistribuídos | precisa de um canal vivo Gestão → Desk para o aviso e o relógio de 1 minuto. Dois a três dias, e é a primeira coisa da Gestão que empurra evento para o app do atendente |
 | 3 | **Transferir para outra fila ou atendente** pela linha do monitoramento | a coluna de Ações deles tem o atalho; a nossa só abre a conversa | um dia, e depende de a transferência existir como operação de domínio. Não vai virar botão desabilitado enquanto não existir |
 | 4 | **Encerrar o ticket pela tela de monitoramento**, com etiquetas no fechamento | idem | meio dia depois do item 3 |
@@ -480,6 +513,74 @@ baixo.
 O item 8 é o mais barato e o mais perigoso de deixar como está: um zero que na
 verdade é "não há o que medir" é a única classe de erro deste painel que mente
 sem parecer que mentiu.
+
+### 8.5 A régua de prioridade, com os cinco degraus
+
+Feito. A régua agora é **Máxima · Alta · Média · Baixa · Sem prioridade**, e mora
+num lugar só: `NIVEIS_PRIORIDADE`, **em ordem de precedência** — o índice é o
+peso. Junto dela nasceram `ROTULOS_PRIORIDADE` (os rótulos deles, literais) e
+`pesoPrioridade`.
+
+| Peça | Antes | Depois |
+|---|---|---|
+| Degraus | `baixa` · `media` · `alta` | `maxima` · `alta` · `media` · `baixa` · **`sem_prioridade`** |
+| Padrão da coluna | `media` | **`sem_prioridade`** |
+| Ordem da fila de espera | só por data de criação | **prioridade primeiro**, empate pela mais antiga |
+| Nível desconhecido | valia `media` | vai para o **fim** |
+| O que uma regra de priorização pode atribuir | qualquer nível | tudo **menos** a ausência (`NIVEIS_ATRIBUIVEIS`) |
+| Rótulo na tela | mapa local de três | `ROTULOS_PRIORIDADE`, compartilhado |
+| Tinta da etiqueta | só `alta` em alerta | `maxima` em erro, `alta` em alerta, o resto neutro |
+
+**O que a ausência conserta.** Com o padrão em `media`, todo ticket nascia com
+prioridade que ninguém escolheu, e ordenar a fila por prioridade era ordenar por
+um dado inventado — que é por que a nossa fila de espera saía só por data. A
+regra deles depende do degrau que faltava: **um ticket `baixa` fura a frente de
+um `sem_prioridade`**. É o que o teste `apps/gestao/tests/prioridade.test.ts`
+tranca.
+
+**Por que ausência virou VALOR e não `NULL`.** Coluna anulável obrigaria
+`prioridade: string | null` em `apps/api`, `apps/desk` e `apps/gestao` ao mesmo
+tempo — e as três estão sendo mexidas em paralelo. Um valor nomeado exprime a
+mesma coisa, mantém a restrição do banco como uma lista simples, e é o que eles
+próprios mostram na tela ("Sem prioridade" é rótulo, não vazio).
+
+**Linhas antigas não foram reescritas, e NÃO DEVEM SER.** Elas gravaram `media`
+sob o padrão antigo, quando "alguém escolheu média" e "ninguém escolheu nada"
+produziam exatamente a mesma linha. O fato se perdeu no dia em que a coluna
+nasceu com padrão, e nenhuma consulta o traz de volta.
+
+Se alguém, algum dia, olhar essas linhas e pensar em rodar um `update` para
+`sem_prioridade`: **não há o que corrigir, há dado que não existe.** Um `update`
+desses não conserta um erro — inventa um fato, e ainda por cima rebaixaria para
+o fim da fila tickets cuja prioridade pode ter sido escolhida de propósito. O
+padrão novo conserta daqui para a frente, e isso é tudo o que dá para fazer.
+A mesma advertência está no cabeçalho de `0013_prioridade_cinco_degraus.sql`.
+
+**Onde a régua mora, e por quê.** Em `@pipe/core/conversa`, não em `@pipe/db`.
+
+Ela nasceu junto da restrição do banco, em `schema/comum.ts` — e todo o
+`schema/` importa `drizzle-orm/pg-core` para montar as restrições. O app do
+atendente ordena a coluna dele num componente `'use client'`; importar a régua
+de lá arrastaria o driver do Postgres para o pacote do navegador. Foi
+exatamente por isso que o Desk manteve um **mapa paralelo de pesos**, e foi
+assim que as duas cópias divergiram.
+
+Agora `packages/db` importa de `@pipe/core/conversa` para montar a restrição —
+regra pura no pacote de regra pura, e o esquema consumindo dela, nunca o
+contrário.
+
+**O comparador fica em cada app, e isso é deliberado:** a linha da Gestão guarda
+a data em `marcos.criadaEm` e a do Desk em `criadaEm`. Uma função genérica o
+bastante para servir às duas custaria mais do que as três linhas que economiza.
+O que não pode divergir é a régua, e ela é uma só.
+
+**Fica pendente, e é em `apps/desk` (outro agente):** `src/lib/ordem.ts` ainda
+tem o mapa paralelo (`PESO_PRIORIDADE`), com três níveis e um padrão que manda o
+desconhecido para o peso de `media`. Com a régua nova ele ordena `maxima` e
+`sem_prioridade` **como se fossem média** — a fila do atendente erra nos dois
+extremos, e o de cima é o que mais custa. A correção é trocar o mapa e a função
+`peso` por `pesoPrioridade` de `@pipe/core/conversa`, que é puro e não arrasta
+banco nenhum para o navegador.
 
 ### 8.3 O menu do módulo, item a item
 

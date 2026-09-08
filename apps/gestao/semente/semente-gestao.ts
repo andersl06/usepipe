@@ -506,7 +506,17 @@ export async function semearGestao(db: BancoPipe, slug = 'demo'): Promise<Semead
         filaId: filaEscolhida.id,
         atendenteId: atribuidaEm ? atendente.id : null,
         estado: atribuidaEm ? (primeiraRespostaEm ? 'em_atendimento' : 'atribuida') : 'na_fila',
-        prioridade: sorteio(0.15) ? 'alta' : 'media',
+        /* A maioria nasce SEM prioridade, que é o padrão da coluna; só uma minoria
+           recebe um degrau, e é isso que faz a fila de espera ter o que ordenar. */
+        prioridade: sorteio(0.05)
+          ? 'maxima'
+          : sorteio(0.15)
+            ? 'alta'
+            : sorteio(0.2)
+              ? 'media'
+              : sorteio(0.2)
+                ? 'baixa'
+                : 'sem_prioridade',
         criadaEm,
         atribuidaEm,
         primeiraRespostaEm,
@@ -537,7 +547,7 @@ export async function semearGestao(db: BancoPipe, slug = 'demo'): Promise<Semead
         filaId: filaEscolhida.id,
         atendenteId: atribuidaEm ? atendente.id : null,
         estado: 'encerrada',
-        prioridade: 'media',
+        prioridade: 'sem_prioridade',
         criadaEm,
         atribuidaEm,
         primeiraRespostaEm,
