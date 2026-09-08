@@ -192,6 +192,136 @@ describe('responder pelo Desk, com cookie de sessão', () => {
   });
 });
 
+describe('reenviar mensagem em falha', () => {
+  /** Uma mensagem falha, com a linha de outbox também em falha — o estado real. */
+  async function mensagemFalha(conversaId: string): Promise<string> {
+    const { rows } = await cenario.dono.execute<{ id: string }>(sql`
+      insert into mensagem (tenant_id, conversa_id, direcao, autor_tipo, autor_id, tipo,
+                            conteudo, estado_entrega, erro_codigo, erro_texto)
+      values (${cenario.tenantId}, ${conversaId}::uuid, 'saida', 'atendente',
+              ${cenario.atendenteId}, 'texto', 'oi', 'falhou', '131026', 'sem sessão')
+      returning id
+    `);
+    const id = rows[0]!.id;
+    await cenario.dono.execute(sql`
+      insert into outbox_mensagem (tenant_id, mensagem_id, estado, tentativas,
+                                   proxima_tentativa_em, ultimo_erro)
+      values (${cenario.tenantId}, ${id}::uuid, 'falhou', 5, now() + interval '1 hour', 'erro')
+    `);
+    return id;
+  }
+
+  function reenviar(conversaId: string, mensagemId: string): Promise<Response> {
+    return fetch(`${api.url}/v1/conversas/${conversaId}/mensagens/${mensagemId}/reenviar`, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookieDoAtendente}` },
+    });
+  }
+
+  it('devolve a linha do OUTBOX para pendente — sem isso nada era reentregue', async () => {
+    const conversaId = await novaConversa(cenario.atendenteId);
+    const mensagemId = await mensagemFalha(conversaId);
+
+    const resposta = await reenviar(conversaId, mensagemId);
+
+    expect(resposta.status).toBe(201);
+    const { rows } = await cenario.dono.execute<{
+      estado: string;
+      tentativas: number;
+      proxima_tentativa_em: Date | null;
+    }>(sql`
+      select estado, tentativas, proxima_tentativa_em from outbox_mensagem
+       where mensagem_id = ${mensagemId}::uuid
+    `);
+    // Era exatamente isto que a tela não fazia: ela mexia só em `mensagem`, e o
+    // worker reivindica pelo estado do OUTBOX.
+    expect(rows[0]!.estado).toBe('pendente');
+    // Backoff zerado: quem clicou disse que a causa foi resolvida.
+    expect(rows[0]!.tentativas).toBe(0);
+    expect(rows[0]!.proxima_tentativa_em).toBeNull();
+  });
+
+  it('limpa o erro da mensagem e NÃO carimba entrega', async () => {
+    const conversaId = await novaConversa(cenario.atendenteId);
+    const mensagemId = await mensagemFalha(conversaId);
+
+    await reenviar(conversaId, mensagemId);
+
+    const { rows } = await cenario.dono.execute<{
+      estado_entrega: string;
+      erro_codigo: string | null;
+      entregue_em: Date | null;
+    }>(sql`
+      select estado_entrega, erro_codigo, entregue_em from mensagem where id = ${mensagemId}::uuid
+    `);
+    expect(rows[0]!.estado_entrega).toBe('pendente');
+    expect(rows[0]!.erro_codigo).toBeNull();
+    // `entregue_em` é a hora que a Meta confirmou. Preencher aqui é inventar prova.
+    expect(rows[0]!.entregue_em).toBeNull();
+  });
+
+  it('recria a linha de outbox de mensagem antiga que nunca teve uma', async () => {
+    // A assinatura do defeito antigo: a tela gravava a mensagem e não enfileirava nada.
+    const conversaId = await novaConversa(cenario.atendenteId);
+    const { rows } = await cenario.dono.execute<{ id: string }>(sql`
+      insert into mensagem (tenant_id, conversa_id, direcao, autor_tipo, autor_id, tipo,
+                            conteudo, estado_entrega)
+      values (${cenario.tenantId}, ${conversaId}::uuid, 'saida', 'atendente',
+              ${cenario.atendenteId}, 'texto', 'órfã', 'falhou')
+      returning id
+    `);
+    const mensagemId = rows[0]!.id;
+
+    expect((await reenviar(conversaId, mensagemId)).status).toBe(201);
+
+    const { rows: outbox } = await cenario.dono.execute<{ estado: string }>(
+      sql`select estado from outbox_mensagem where mensagem_id = ${mensagemId}::uuid`,
+    );
+    expect(outbox[0]?.estado).toBe('pendente');
+  });
+
+  it('recusa mensagem que não está em falha', async () => {
+    const conversaId = await novaConversa(cenario.atendenteId);
+    const { rows } = await cenario.dono.execute<{ id: string }>(sql`
+      insert into mensagem (tenant_id, conversa_id, direcao, autor_tipo, tipo, conteudo,
+                            estado_entrega)
+      values (${cenario.tenantId}, ${conversaId}::uuid, 'saida', 'sistema', 'texto', 'ok',
+              'entregue')
+      returning id
+    `);
+    const resposta = await reenviar(conversaId, rows[0]!.id);
+    expect(resposta.status).toBe(409);
+    expect(((await resposta.json()) as { erro: { codigo: string } }).erro.codigo).toBe(
+      'mensagem_nao_falhou',
+    );
+  });
+});
+
+describe('resposta pronta carimbada no mesmo insert', () => {
+  it('grava `resposta_pronta_id` junto da mensagem', async () => {
+    const conversaId = await novaConversa(cenario.atendenteId);
+    const { rows: r } = await cenario.dono.execute<{ id: string }>(sql`
+      insert into resposta_pronta (tenant_id, escopo, atalho, titulo, corpo)
+      values (${cenario.tenantId}, 'empresa', '/ola', 'Saudação', 'Olá!')
+      returning id
+    `);
+    const respostaProntaId = r[0]!.id;
+
+    await enviar(
+      conversaId,
+      { texto: 'Olá!', resposta_pronta_id: respostaProntaId },
+      { cookie: cookieDoAtendente },
+    );
+
+    const { rows } = await cenario.dono.execute<{ resposta_pronta_id: string | null }>(
+      sql`select resposta_pronta_id from mensagem where conversa_id = ${conversaId}::uuid limit 1`,
+    );
+    // Antes isso vinha numa SEGUNDA escrita depois do envio, e sumia toda vez que
+    // aquela escrita falhava.
+    expect(rows[0]!.resposta_pronta_id).toBe(respostaProntaId);
+  });
+});
+
 describe('a mesma rota, com chave de API — comportamento antigo intacto', () => {
   it('continua enviando, e continua aceitando atendente_id do corpo', async () => {
     const conversaId = await novaConversa(outroAtendenteId);

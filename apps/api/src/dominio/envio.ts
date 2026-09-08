@@ -39,6 +39,13 @@ export interface PedidoDeEnvio {
   /** URL pública da mídia do cabeçalho do template. É ela que ocupa a posição 1. */
   midiaUrl?: string | null;
   /**
+   * Resposta pronta usada para escrever a mensagem. Só alimenta o relatório de esforço
+   * — mas vem no MESMO insert de propósito: a tela carimbava numa segunda ida ao banco
+   * depois do envio, e toda vez que aquela segunda escrita falhava a marca sumia sem
+   * ninguém notar.
+   */
+  respostaProntaId?: string | null;
+  /**
    * Exige que a conversa esteja atribuída a `atendenteId`.
    *
    * Ligado quando quem pede é uma PESSOA num navegador: atendente responde no que é
@@ -74,6 +81,7 @@ type LinhaConversa = {
   atendente_id: string | null;
   janela_expira_em: Date | string | null;
   primeira_resposta_em: Date | string | null;
+  ultima_mensagem_em: Date | string | null;
   canal_id: string;
   canal_tipo: string;
 };
@@ -94,7 +102,7 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
   const resultado = await noTenant(pedido.tenantId, async (tx) => {
     const { rows } = await tx.execute<LinhaConversa>(sql`
       select c.id, c.estado, c.fila_id, c.atendente_id, c.janela_expira_em,
-             c.primeira_resposta_em, ca.id as canal_id, ca.tipo as canal_tipo
+             c.primeira_resposta_em, c.ultima_mensagem_em, ca.id as canal_id, ca.tipo as canal_tipo
         from conversa c
         join inbox ib on ib.id = c.inbox_id
         join canal ca on ca.id = ib.canal_id
@@ -175,11 +183,13 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
     const { rows: criada } = await tx.execute<{ id: string }>(sql`
       insert into mensagem (
         tenant_id, conversa_id, direcao, autor_tipo, autor_id, tipo, conteudo,
-        anexo_id, template_id, estado_entrega, criada_em, dentro_da_janela, categoria_cobranca
+        anexo_id, template_id, resposta_pronta_id, estado_entrega, criada_em,
+        dentro_da_janela, categoria_cobranca
       ) values (
         ${pedido.tenantId}, ${conversa.id}, 'saida',
         ${pedido.atendenteId ? 'atendente' : 'sistema'}, ${pedido.atendenteId ?? null},
         ${tipo}, ${conteudo}, ${pedido.anexoId ?? null}, ${template?.id ?? null},
+        ${pedido.respostaProntaId ?? null},
         'pendente', ${agora}, ${avaliacao.dentroDaJanela},
         ${classificarCusto({
           conteudo: template ? 'template' : 'texto_livre',
@@ -203,7 +213,14 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
       conversa.estado === 'atribuida' || conversa.estado === 'em_espera'
         ? 'em_atendimento'
         : conversa.estado;
-    const primeiraResposta = comoData(conversa.primeira_resposta_em) === null && !!pedido.atendenteId;
+    // **Resposta pressupõe pergunta.** Só conta como `primeira_resposta` se o cliente
+    // já tiver falado nesta conversa (`ultima_mensagem_em` preenchido). Numa conversa
+    // aberta por mensagem ativa quem começou fomos nós, e contar o disparo como
+    // primeira resposta cravaria um TMR de zero segundo — enfeitando justamente a
+    // métrica que a spec de métricas proíbe enfeitar.
+    const clienteJaFalou = comoData(conversa.ultima_mensagem_em) !== null;
+    const primeiraResposta =
+      comoData(conversa.primeira_resposta_em) === null && !!pedido.atendenteId && clienteJaFalou;
 
     await tx.execute(sql`
       update conversa
@@ -268,6 +285,60 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
     categoriaCobranca: resultado.categoriaCobranca,
     conteudo: resultado.conteudo,
   };
+}
+
+/**
+ * Reenviar uma mensagem que falhou.
+ *
+ * O que a tela fazia sozinha estava **quebrado**: ela devolvia `mensagem` para
+ * `pendente` e não encostava em `outbox_mensagem`. Como o worker reivindica pelo
+ * ESTADO DO OUTBOX (`where estado = 'pendente'`), a linha continuava `falhou` e nada
+ * era reentregue — o botão dizia que reenviou e o cliente seguia sem receber. É o
+ * mesmo defeito do ✓ mentiroso, um andar abaixo.
+ *
+ * `tentativas` volta a zero: quem clicou está dizendo que a causa da falha foi
+ * resolvida, e manter o backoff antigo faria o reenvio esperar 15 minutos por nada.
+ *
+ * `entregue_em` **não** é carimbado. Ele é a hora em que a Meta confirmou, e
+ * preenchê-lo sem confirmação é inventar prova de entrega.
+ */
+export async function reenviarMensagem(
+  tenantId: string,
+  mensagemId: string,
+): Promise<{ id: string; estadoEntrega: 'pendente' }> {
+  await noTenant(tenantId, async (tx) => {
+    const { rows } = await tx.execute<{ id: string }>(sql`
+      update mensagem
+         set estado_entrega = 'pendente', erro_codigo = null, erro_texto = null
+       where id = ${mensagemId}::uuid and estado_entrega = 'falhou'
+      returning id
+    `);
+    if (!rows[0]) {
+      // Sem linha afetada, a mensagem não existe ou já não estava falha. Responder
+      // 200 calado fazia o botão parecer que resolveu.
+      throw ErroPipe.conflito('mensagem_nao_falhou', 'Esta mensagem não está mais em falha.');
+    }
+
+    const { rows: outbox } = await tx.execute<{ id: string }>(sql`
+      update outbox_mensagem
+         set estado = 'pendente', tentativas = 0, proxima_tentativa_em = null,
+             ultimo_erro = null, atualizado_em = now()
+       where mensagem_id = ${mensagemId}::uuid
+      returning id
+    `);
+    if (!outbox[0]) {
+      // Mensagem falha sem linha de outbox é a assinatura do defeito antigo: a tela
+      // gravava a mensagem e não enfileirava nada. Recriar a linha é o que faz essas
+      // mensagens antigas voltarem a ter conserto pelo botão.
+      await tx.execute(sql`
+        insert into outbox_mensagem (tenant_id, mensagem_id, estado)
+        values (${tenantId}, ${mensagemId}::uuid, 'pendente')
+      `);
+    }
+  });
+
+  await enfileirarEntrega({ mensagemId });
+  return { id: mensagemId, estadoEntrega: 'pendente' };
 }
 
 /** `{{1}}`, `{{2}}`, … no corpo do template. A numeração aqui é a do **corpo**. */

@@ -4,6 +4,7 @@ import type { EstadoConversa } from '@pipe/core';
 import { noTenant } from '../banco.js';
 import { ErroPipe } from '../erros.js';
 import { registrarEvento } from './eventos.js';
+import { exigirPermissao } from '../sessao.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 
 /**
@@ -220,6 +221,223 @@ export async function alternarEspera(
     });
     return { estado: destino, pausadoSeg };
   });
+}
+
+export interface PedidoDeTransferencia {
+  conversaId: string;
+  /** Exatamente UM dos dois. Fila devolve para a fila; atendente entrega direto. */
+  paraFilaId?: string | null;
+  paraAtendenteId?: string | null;
+  motivo?: string | null;
+}
+
+export interface Transferida {
+  /** A conversa que foi ENCERRADA. */
+  deConversaId: string;
+  /** A conversa NOVA, no destino. */
+  paraConversaId: string;
+  estado: 'na_fila' | 'atribuida';
+}
+
+/**
+ * Transferir conversa, para fila ou para atendente.
+ *
+ * **Transferência não é transição de estado**: ela ENCERRA a conversa atual com
+ * `encerrada_por = transferencia` e ABRE outra no destino. Não é escolha minha — está
+ * decidido em `packages/core/src/conversa/maquina.ts`, que por isso não tem aresta de
+ * `atribuida` de volta para `na_fila`, e é a regra da Blip ("o ticket atual é
+ * encerrado com status Transferido e um novo ticket é aberto",
+ * `docs/pesquisa/blip-desk-funcoes.md` §3).
+ *
+ * O que a conversa nova HERDA, e por quê:
+ *
+ * - **A janela de 24 horas** (`janela_expira_em` e a mensagem que a abriu). A janela é
+ *   do CONTATO, não do ticket: sem herdar, quem recebe a transferência não consegue
+ *   mandar texto livre e não entende por quê. É a armadilha mais cara daqui.
+ * - **A prioridade** — a Blip herda, e prioridade é do problema, não do atendente.
+ * - **A última mensagem** (`ultima_mensagem_em`/`_de`), senão o fechamento automático
+ *   por inatividade trataria a conversa nova como recém-nascida.
+ *
+ * O que NÃO herda: **as etiquetas** (a Blip também não) e **as mensagens** — elas ficam
+ * na conversa encerrada, e o histórico do contato é quem costura as duas na tela.
+ *
+ * O efeito na métrica, escrito porque é a pergunta que sempre volta: a conversa nova
+ * começa com `criada_em = agora` e `primeira_resposta_em` nulo, então **o TMR de quem
+ * recebe mede quem recebe**, e o tempo de fila da transferência conta de novo. É o
+ * preço do modelo da Blip, e o relatório de transferências (`atribuicao`) é o que
+ * permite remontar a jornada inteira do cliente.
+ */
+export async function transferirConversa(
+  ator: AtorDaConversa,
+  pedido: PedidoDeTransferencia,
+): Promise<Transferida> {
+  const paraFila = pedido.paraFilaId ?? null;
+  const paraAtendente = pedido.paraAtendenteId ?? null;
+  if ((paraFila && paraAtendente) || (!paraFila && !paraAtendente)) {
+    throw ErroPipe.requisicao(
+      'destino_invalido',
+      'Informe `para_fila_id` OU `para_atendente_id`, um só.',
+    );
+  }
+
+  const agora = new Date();
+
+  const resultado = await noTenant(ator.tenantId, async (tx) => {
+    const { rows } = await tx.execute<
+      LinhaConversa & {
+        inbox_id: string;
+        contato_id: string;
+        prioridade: string;
+        janela_expira_em: Date | string | null;
+        janela_aberta_por_mensagem_id: string | null;
+        ultima_mensagem_em: Date | string | null;
+        ultima_mensagem_de: string | null;
+      }
+    >(sql`
+      select id, estado, fila_id, atendente_id, em_espera_desde, inbox_id, contato_id,
+             prioridade, janela_expira_em, janela_aberta_por_mensagem_id,
+             ultima_mensagem_em, ultima_mensagem_de
+        from conversa where id = ${pedido.conversaId}::uuid limit 1
+    `);
+    const conversa = rows[0];
+    if (!conversa) throw ErroPipe.naoEncontrado('Conversa');
+    if (conversa.estado === 'encerrada') {
+      throw ErroPipe.conflito('conversa_encerrada', 'A conversa já está encerrada.');
+    }
+
+    // Transferir a conversa de OUTRO é ação de supervisão, e é para isso que a
+    // permissão `conversa.transferir` existe (modelo de dados §64). Quem transfere a
+    // própria não precisa dela — como no Desk da Blip, onde o ícone fica no cabeçalho
+    // do ticket do próprio atendente.
+    const ehDono = conversa.atendente_id === ator.atendenteId && ator.atendenteId !== null;
+    if (ator.exigirAtribuicao && !ehDono) {
+      if (!ator.atendenteId) throw ErroPipe.naoAutorizado();
+      await exigirPermissao(tx, ator.atendenteId, 'conversa.transferir');
+    }
+
+    if (paraFila) {
+      const { rows: f } = await tx.execute<{ id: string }>(
+        sql`select id from fila where id = ${paraFila}::uuid and ativa limit 1`,
+      );
+      if (!f[0]) throw ErroPipe.naoEncontrado('Fila');
+      if (paraFila === conversa.fila_id && !conversa.atendente_id) {
+        throw ErroPipe.conflito('mesmo_destino', 'A conversa já está nesta fila.');
+      }
+    } else {
+      const { rows: u } = await tx.execute<{ id: string }>(
+        sql`select id from usuario where id = ${paraAtendente}::uuid and ativo limit 1`,
+      );
+      if (!u[0]) throw ErroPipe.naoEncontrado('Atendente');
+      if (paraAtendente === conversa.atendente_id) {
+        throw ErroPipe.conflito('mesmo_destino', 'A conversa já está com este atendente.');
+      }
+    }
+
+    // Espera em aberto fecha ANTES do encerramento, senão o intervalo pausado fica
+    // aberto para sempre e some do relatório de esforço.
+    const pausaEmAberto = conversa.estado === 'em_espera' && conversa.em_espera_desde !== null;
+    const pausadoSeg = pausaEmAberto
+      ? Math.round((agora.getTime() - comoData(conversa.em_espera_desde)!.getTime()) / 1000)
+      : 0;
+    if (pausaEmAberto) {
+      await registrarEvento(tx, {
+        tenantId: ator.tenantId,
+        conversaId: conversa.id,
+        tipo: 'espera_encerrada',
+        em: agora,
+        usuarioId: ator.atendenteId,
+        filaId: conversa.fila_id,
+        dados: { motivo: 'transferencia', pausado_seg: pausadoSeg },
+      });
+    }
+
+    await tx.execute(sql`
+      update conversa
+         set estado = 'encerrada', encerrada_em = ${agora}, encerrada_por = ${ator.atendenteId},
+             motivo_encerramento = 'Transferida', em_espera_desde = null,
+             pausado_seg = pausado_seg + ${pausadoSeg}, atualizado_em = ${agora}
+       where id = ${conversa.id}
+    `);
+    await registrarEvento(tx, {
+      tenantId: ator.tenantId,
+      conversaId: conversa.id,
+      tipo: 'encerrada',
+      em: agora,
+      usuarioId: ator.atendenteId,
+      filaId: conversa.fila_id,
+      // `encerrada_por = transferencia` é o que separa, no relatório, a conversa que
+      // acabou da que só mudou de mãos.
+      dados: { encerrada_por: 'transferencia', motivo: pedido.motivo ?? null },
+    });
+
+    const filaDestino = paraFila ?? conversa.fila_id;
+    const estadoNovo: 'na_fila' | 'atribuida' = paraAtendente ? 'atribuida' : 'na_fila';
+
+    const { rows: nova } = await tx.execute<{ id: string }>(sql`
+      insert into conversa (
+        tenant_id, inbox_id, contato_id, fila_id, atendente_id, estado, prioridade,
+        criada_em, atribuida_em, janela_expira_em, janela_aberta_por_mensagem_id,
+        ultima_mensagem_em, ultima_mensagem_de
+      ) values (
+        ${ator.tenantId}, ${conversa.inbox_id}, ${conversa.contato_id}, ${filaDestino},
+        ${paraAtendente}, ${estadoNovo}, ${conversa.prioridade},
+        ${agora}, ${paraAtendente ? agora : null},
+        ${conversa.janela_expira_em}, ${conversa.janela_aberta_por_mensagem_id},
+        ${conversa.ultima_mensagem_em}, ${conversa.ultima_mensagem_de}
+      )
+      returning id
+    `);
+    const novaId = nova[0]?.id;
+    if (!novaId) throw new Error('não criou a conversa de destino');
+
+    await registrarEvento(tx, {
+      tenantId: ator.tenantId,
+      conversaId: novaId,
+      tipo: 'criada',
+      em: agora,
+      usuarioId: ator.atendenteId,
+      filaId: filaDestino,
+    });
+    await registrarEvento(tx, {
+      tenantId: ator.tenantId,
+      conversaId: novaId,
+      // Para fila é `transferida_fila`; para pessoa a conversa nasce já atribuída.
+      tipo: paraAtendente ? 'atribuida' : 'transferida_fila',
+      em: agora,
+      usuarioId: paraAtendente ?? ator.atendenteId,
+      filaId: filaDestino,
+      dados: { de_conversa_id: conversa.id },
+    });
+
+    // `atribuicao` é o que costura as duas conversas: é por ela que o painel de
+    // transferências remonta a jornada do cliente depois do encerramento.
+    await tx.execute(sql`
+      insert into atribuicao (
+        tenant_id, conversa_id, de_usuario_id, para_usuario_id,
+        de_fila_id, para_fila_id, motivo, por_usuario_id, em
+      ) values (
+        ${ator.tenantId}, ${conversa.id}, ${conversa.atendente_id}, ${paraAtendente},
+        ${conversa.fila_id}, ${paraFila}, ${pedido.motivo ?? null}, ${ator.atendenteId}, ${agora}
+      )
+    `);
+
+    await emitir(tx, ator.tenantId, 'conversa.encerrada', {
+      conversa_id: conversa.id,
+      motivo: 'Transferida',
+      encerrada_por: ator.atendenteId,
+    });
+    await emitir(tx, ator.tenantId, 'conversa.criada', {
+      conversa_id: novaId,
+      contato_id: conversa.contato_id,
+      fila_id: filaDestino,
+      de_conversa_id: conversa.id,
+    });
+
+    return { deConversaId: conversa.id, paraConversaId: novaId, estado: estadoNovo };
+  });
+
+  drenarEmSegundoPlano(ator.tenantId);
+  return resultado;
 }
 
 function comoData(valor: Date | string | null): Date | null {

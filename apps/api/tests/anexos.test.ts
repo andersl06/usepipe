@@ -168,7 +168,14 @@ describe('baixar por link assinado', () => {
 
   it('recusa assinatura adulterada', async () => {
     const link = await linkDe(PNG, 'image/png', 'foto.png');
-    expect((await fetch(link.replace(/assinatura=./, 'assinatura=0'))).status).toBe(401);
+    const url = new URL(link);
+    const assinatura = url.searchParams.get('assinatura')!;
+    // Troca o primeiro dígito por OUTRO. Antes isto era `replace(/assinatura=./,
+    // 'assinatura=0')`, que não alterava nada quando o dígito já era `0` — o teste
+    // passava por sorte em 15 de 16 execuções.
+    url.searchParams.set('assinatura', (assinatura[0] === '0' ? '1' : '0') + assinatura.slice(1));
+
+    expect((await fetch(url.toString())).status).toBe(401);
   });
 
   it('recusa validade esticada na mão', async () => {

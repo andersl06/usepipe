@@ -5,8 +5,8 @@ import { noTenant } from '../banco.js';
 import { ChaveOuSessao, Escopos, atorDe, contextoDe } from '../autenticacao.js';
 import type { RequisicaoAutenticada } from '../autenticacao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
-import { alternarEspera, encerrarConversa } from '../dominio/conversa.js';
-import { enviarMensagem } from '../dominio/envio.js';
+import { alternarEspera, encerrarConversa, transferirConversa } from '../dominio/conversa.js';
+import { enviarMensagem, reenviarMensagem } from '../dominio/envio.js';
 import type { TipoEnvio } from '../dominio/envio.js';
 import { ErroPipe } from '../erros.js';
 import {
@@ -76,6 +76,7 @@ interface CorpoDeEnvio {
   anexo_id?: string;
   midia_url?: string;
   atendente_id?: string;
+  resposta_pronta_id?: string;
 }
 
 @Controller('v1/conversas')
@@ -240,6 +241,7 @@ export class ControladorConversas {
       ...(corpo.parametros ? { parametros: corpo.parametros } : {}),
       anexoId: corpo.anexo_id ?? null,
       midiaUrl: corpo.midia_url ?? null,
+      respostaProntaId: corpo.resposta_pronta_id ?? null,
     });
     return {
       id: enfileirada.id,
@@ -274,6 +276,59 @@ export class ControladorConversas {
       { conversaId: id, etiquetaId: corpo.etiqueta_id },
     );
     return { estado: r.estado, motivo_encerramento: r.motivo };
+  }
+
+  /**
+   * Reenviar uma mensagem que falhou.
+   *
+   * A tela fazia isto direto no banco e **não funcionava**: devolvia `mensagem` para
+   * `pendente` sem tocar em `outbox_mensagem`, e o worker reivindica pelo estado do
+   * outbox. Ver `reenviarMensagem`.
+   */
+  @Post(':id/mensagens/:mensagemId/reenviar')
+  @ChaveOuSessao('mensagens:escrever')
+  async reenviar(
+    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
+    @Param('mensagemId') mensagemId: string,
+  ): Promise<Record<string, unknown>> {
+    const ator = atorDe(requisicao);
+    const r = await reenviarMensagem(ator.tenantId, mensagemId);
+    return { id: r.id, estado_entrega: r.estadoEntrega };
+  }
+
+  /**
+   * Transferir para outra fila ou para outro atendente.
+   *
+   * **Encerra a conversa atual e abre outra no destino** — não é transição de estado.
+   * A regra está em `packages/core/src/conversa/maquina.ts` e é a da Blip. Por isso a
+   * resposta traz DOIS ids: o que foi encerrado e o novo.
+   */
+  @Post(':id/transferir')
+  @ChaveOuSessao('conversas:escrever')
+  async transferir(
+    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: { para_fila_id?: string; para_atendente_id?: string; motivo?: string },
+  ): Promise<Record<string, unknown>> {
+    const ator = atorDe(requisicao);
+    const r = await transferirConversa(
+      {
+        tenantId: ator.tenantId,
+        atendenteId: ator.usuarioId,
+        exigirAtribuicao: ator.viaSessao,
+      },
+      {
+        conversaId: id,
+        paraFilaId: corpo.para_fila_id ?? null,
+        paraAtendenteId: corpo.para_atendente_id ?? null,
+        motivo: corpo.motivo ?? null,
+      },
+    );
+    return {
+      de_conversa_id: r.deConversaId,
+      para_conversa_id: r.paraConversaId,
+      estado: r.estado,
+    };
   }
 
   /** Entra em espera, ou sai dela. A mesma rota nos dois sentidos, como o botão. */
