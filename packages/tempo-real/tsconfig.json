@@ -1,0 +1,15 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    // `DOM` porque este pacote roda no NAVEGADOR — é o único do monorepo assim. Ele
+    // usa `WebSocket`, `document.visibilityState` e o evento `online`, que não existem
+    // no `lib` padrão da base (só `ES2022`). `types: []` para NÃO puxar o Node junto:
+    // se `@types/node` entrasse, `setTimeout` viraria o do Node e o `dist` prometeria
+    // um tipo que o navegador não tem.
+    "lib": ["ES2022", "DOM"],
+    "types": []
+  },
+  "include": ["src"]
+}

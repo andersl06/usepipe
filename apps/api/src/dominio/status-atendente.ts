@@ -47,9 +47,14 @@ export async function definirStatus(pedido: PedidoDeStatus): Promise<{ estado: E
     // desconectar quem ficou inativo. Quem mexe no próprio não precisa de permissão.
     //
     // A permissão é `monitoramento.tempo_real.ver`, e não uma nova: é a que o papel
-    // `supervisor` já tem e é exatamente a tela de onde a ação parte. Criar
-    // `atendente.gerenciar` exigiria mexer no catálogo em `packages/db`, que não é
-    // desta área — se o dono quiser a permissão própria, é uma linha lá e uma aqui.
+    // `supervisor` já tem e é exatamente a tela de onde a ação parte.
+    //
+    // ponytail: permissão emprestada. O certo é `atendente.gerenciar` própria, e o
+    // custo é UMA linha em `CATALOGO_PERMISSOES` de `packages/db/src/semente.ts`
+    // (mais o papel do supervisor) e UMA linha aqui. Ficou de fora hoje só para não
+    // haver dois agentes no mesmo arquivo de catálogo. Enquanto for assim, quem tiver
+    // o monitoramento consegue derrubar atendente — que é o mesmo público, mas por
+    // coincidência, não por desenho.
     if (pedido.porUsuarioId && pedido.porUsuarioId !== pedido.alvoUsuarioId) {
       await exigirPermissao(tx, pedido.porUsuarioId, 'monitoramento.tempo_real.ver');
     }
