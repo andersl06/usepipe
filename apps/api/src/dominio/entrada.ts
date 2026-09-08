@@ -12,6 +12,7 @@ import { enfileirarEspelhoCrm } from '../filas.js';
 import { escolherParaFila } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
+import { evento, publicar } from '../tempo-real.js';
 
 /**
  * Entrada vinda da Meta: mensagem recebida, status de entrega e erro.
@@ -113,23 +114,43 @@ export async function processarPayload(
   const resumo: ResultadoEntrada = { mensagensRecebidas: 0, statusAplicados: 0, ignorados: 0 };
   const valores = extrairValores(payload);
 
+  // As conversas tocadas, para avisar as telas DEPOIS do commit. `Set` porque duas
+  // mensagens do mesmo cliente no mesmo lote são um aviso só.
+  const tocadas = new Set<string>();
+  let entrouNaFila = false;
+
   // Em série: cada valor abre a própria transação com tenant fixado.
   for (const valor of valores) {
     for (const mensagem of valor.messages ?? []) {
-      const criou = await receberMensagem(canal, valor, mensagem);
-      if (criou) resumo.mensagensRecebidas += 1;
-      else resumo.ignorados += 1;
+      const conversaId = await receberMensagem(canal, valor, mensagem);
+      if (conversaId) {
+        resumo.mensagensRecebidas += 1;
+        tocadas.add(conversaId);
+        entrouNaFila = true;
+      } else resumo.ignorados += 1;
     }
     for (const status of valor.statuses ?? []) {
-      const aplicou = await aplicarStatus(canal, status);
-      if (aplicou) resumo.statusAplicados += 1;
-      else resumo.ignorados += 1;
+      const conversaId = await aplicarStatus(canal, status);
+      if (conversaId) {
+        resumo.statusAplicados += 1;
+        tocadas.add(conversaId);
+      } else resumo.ignorados += 1;
     }
   }
 
   if (resumo.mensagensRecebidas > 0 || resumo.statusAplicados > 0) {
     drenarEmSegundoPlano(canal.tenantId);
   }
+
+  // **Depois do commit.** Publicar dentro da transação avisaria a tela antes de o
+  // dado existir: ela buscaria o valor velho e não receberia segundo aviso — que é
+  // o próprio defeito que o tempo real existe para consertar.
+  for (const conversaId of tocadas) {
+    await publicar(canal.tenantId, evento('conversa', conversaId));
+  }
+  // Mensagem nova mexe no tamanho e na ordem da fila; a lista do Desk repinta por isto.
+  if (entrouNaFila) await publicar(canal.tenantId, evento('fila'));
+
   return resumo;
 }
 
@@ -148,10 +169,10 @@ async function receberMensagem(
   canal: CanalResolvido,
   valor: ValorDoWebhook,
   mensagem: MensagemDaMeta,
-): Promise<boolean> {
+): Promise<string | null> {
   const idProvedor = mensagem.id;
   const de = mensagem.from;
-  if (!idProvedor || !de) return false;
+  if (!idProvedor || !de) return null;
 
   const em = mensagem.timestamp ? new Date(Number(mensagem.timestamp) * 1000) : new Date();
   const nomeDoPerfil = valor.contacts?.find((c) => c.wa_id === de)?.profile?.name ?? null;
@@ -164,7 +185,7 @@ async function receberMensagem(
     const { rows: jaVista } = await tx.execute<{ existe: number }>(
       sql`select 1 as existe from mensagem where id_provedor = ${idProvedor} limit 1`,
     );
-    if (jaVista.length > 0) return false;
+    if (jaVista.length > 0) return null;
 
     const inbox = await acharInbox(tx, canal.id);
     const contatoId = await acharOuCriarContato(tx, canal, de, nomeDoPerfil);
@@ -220,14 +241,14 @@ async function receberMensagem(
       await distribuir(tx, canal.tenantId, conversa.id, conversa.filaId, em);
     }
 
-    return true;
+    return conversa.id;
   });
 }
 
-async function aplicarStatus(canal: CanalResolvido, status: StatusDaMeta): Promise<boolean> {
+async function aplicarStatus(canal: CanalResolvido, status: StatusDaMeta): Promise<string | null> {
   const idProvedor = status.id;
   const alvo = STATUS_DA_META[status.status ?? ''];
-  if (!idProvedor || !alvo) return false;
+  if (!idProvedor || !alvo) return null;
 
   const em = status.timestamp ? new Date(Number(status.timestamp) * 1000) : new Date();
   const erro = status.errors?.[0];
@@ -242,13 +263,13 @@ async function aplicarStatus(canal: CanalResolvido, status: StatusDaMeta): Promi
        where id_provedor = ${idProvedor} limit 1
     `);
     const mensagem = rows[0];
-    if (!mensagem) return false;
+    if (!mensagem) return null;
 
     // Status fora de ordem é rotina na Meta: `delivered` pode chegar depois de `read`.
     // Transição não permitida é descartada em silêncio — nunca vira erro nem regressão.
     const atual = mensagem.estado_entrega;
-    if (atual === alvo) return false;
-    if (atual !== null && !transicaoEntregaPermitida(atual, alvo)) return false;
+    if (atual === alvo) return null;
+    if (atual !== null && !transicaoEntregaPermitida(atual, alvo)) return null;
 
     // `coalesce` nos carimbos: `read` que chega antes de `delivered` não pode apagar
     // nem reescrever a hora da entrega. Carimbo já gravado é histórico.
@@ -296,7 +317,7 @@ async function aplicarStatus(canal: CanalResolvido, status: StatusDaMeta): Promi
       });
     }
 
-    return true;
+    return mensagem.conversa_id;
   });
 }
 

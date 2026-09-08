@@ -7,6 +7,7 @@ import { noTenant } from '../banco.js';
 import { ErroPipe } from '../erros.js';
 import { registrarEvento } from './eventos.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
+import { evento, publicar } from '../tempo-real.js';
 import { enfileirarEntrega } from '../filas.js';
 
 /**
@@ -277,6 +278,8 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
     ...(resultado.valores ? { parametros: resultado.valores } : {}),
   });
   drenarEmSegundoPlano(pedido.tenantId);
+  // Depois do commit, sempre. Ver `tempo-real.ts`.
+  await publicar(pedido.tenantId, evento('conversa', pedido.conversaId));
 
   return {
     id: resultado.mensagemId,

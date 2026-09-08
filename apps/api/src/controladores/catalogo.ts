@@ -2,8 +2,10 @@ import { Body, Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestj
 import { sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
 import { noTenant } from '../banco.js';
-import { Escopos, contextoDe } from '../autenticacao.js';
+import { ChaveOuSessao, Escopos, atorDe, contextoDe } from '../autenticacao.js';
 import type { RequisicaoAutenticada } from '../autenticacao.js';
+import type { RequisicaoComSessao } from '../sessao.js';
+import { definirStatus, ehEstadoAtendente } from '../dominio/status-atendente.js';
 import { ErroPipe } from '../erros.js';
 import {
   condicaoDeCursor,
@@ -209,6 +211,38 @@ export class ControladorFilas {
 
 @Controller('v1/atendentes')
 export class ControladorAtendentes {
+  /**
+   * Muda o status de presença. Sem `usuario_id` é o próprio; com ele é supervisão
+   * (a Gestão desconectando quem ficou inativo), e aí exige permissão.
+   */
+  @Post('status')
+  @ChaveOuSessao('atendentes:ler')
+  async status(
+    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
+    @Body() corpo: { estado?: string; motivo_pausa_id?: string; usuario_id?: string },
+  ): Promise<Record<string, unknown>> {
+    const ator = atorDe(requisicao);
+    const estado = corpo.estado ?? '';
+    if (!ehEstadoAtendente(estado)) {
+      throw ErroPipe.requisicao(
+        'estado_desconhecido',
+        `"${estado}" não é um status válido.`,
+      );
+    }
+    const alvo = corpo.usuario_id ?? ator.usuarioId;
+    if (!alvo) {
+      throw ErroPipe.requisicao('usuario_obrigatorio', 'Informe `usuario_id`.');
+    }
+    const r = await definirStatus({
+      tenantId: ator.tenantId,
+      porUsuarioId: ator.usuarioId,
+      alvoUsuarioId: alvo,
+      estado,
+      motivoPausaId: corpo.motivo_pausa_id ?? null,
+    });
+    return { usuario_id: alvo, estado: r.estado };
+  }
+
   @Get()
   @Escopos('atendentes:ler')
   async listar(

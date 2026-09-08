@@ -6,6 +6,7 @@ import { ErroPipe } from '../erros.js';
 import { registrarEvento } from './eventos.js';
 import { exigirPermissao } from '../sessao.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
+import { evento, publicar } from '../tempo-real.js';
 
 /**
  * Encerrar e pausar conversa.
@@ -153,6 +154,9 @@ export async function encerrarConversa(
   });
 
   drenarEmSegundoPlano(ator.tenantId);
+  // Depois do commit. A conversa mudou e saiu da fila do atendente.
+  await publicar(ator.tenantId, evento('conversa', pedido.conversaId));
+  await publicar(ator.tenantId, evento('fila'));
   return { estado: 'encerrada', motivo: resultado.motivo };
 }
 
@@ -173,7 +177,7 @@ export async function alternarEspera(
 ): Promise<EsperaAlternada> {
   const agora = new Date();
 
-  return noTenant(ator.tenantId, async (tx) => {
+  const resultado = await noTenant(ator.tenantId, async (tx) => {
     const conversa = await carregar(tx, conversaId, ator);
     const destino: EstadoConversa = conversa.estado === 'em_espera' ? 'em_atendimento' : 'em_espera';
     exigirTransicao(conversa.estado, destino);
@@ -221,6 +225,10 @@ export async function alternarEspera(
     });
     return { estado: destino, pausadoSeg };
   });
+
+  // Depois do commit, como em toda ação de domínio. Ver `tempo-real.ts`.
+  await publicar(ator.tenantId, evento('conversa', conversaId));
+  return resultado;
 }
 
 export interface PedidoDeTransferencia {
@@ -437,6 +445,10 @@ export async function transferirConversa(
   });
 
   drenarEmSegundoPlano(ator.tenantId);
+  // Duas conversas mudaram: a que encerrou e a que nasceu no destino.
+  await publicar(ator.tenantId, evento('conversa', resultado.deConversaId));
+  await publicar(ator.tenantId, evento('conversa', resultado.paraConversaId));
+  await publicar(ator.tenantId, evento('fila'));
   return resultado;
 }
 

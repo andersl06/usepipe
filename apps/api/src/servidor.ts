@@ -3,11 +3,14 @@ import express from 'express';
 import { NestFactory } from '@nestjs/core';
 import type { INestApplication } from '@nestjs/common';
 import type { Request } from 'express';
+import type { Server } from 'node:http';
 import { origemPermitida, origensPermitidas } from '@pipe/autenticacao';
 import { AppModulo } from './app.modulo.js';
 import { MAX_BYTES_POR_ARQUIVO } from '@pipe/armazenamento';
 import { fecharBancos } from './banco.js';
 import { FiltroDeErro } from './erros.js';
+import { ligarCanalDeEventos } from './eventos-ws.js';
+import { fecharTempoReal } from './tempo-real.js';
 import {
   agendarVarreduraEspelhoCrm,
   consumirEntrada,
@@ -91,10 +94,17 @@ export async function subirApi(porta = Number(process.env['PORT'] ?? 3000)): Pro
   consumirEspelhoCrm();
   await agendarVarreduraEspelhoCrm();
   await app.listen(porta);
+  // Depois do `listen`: o canal se pendura no `upgrade` do servidor HTTP que já está
+  // no ar, e não abre porta própria. Uma porta só para o Desk, a Gestão e o CRM.
+  const canal = ligarCanalDeEventos(app.getHttpServer() as Server);
   const url = (await app.getUrl()).replace('[::1]', '127.0.0.1');
   return {
     url,
     fechar: async () => {
+      // O canal primeiro: socket vivo segura o `close` do servidor HTTP e o
+      // desligamento pendura até o timeout.
+      await canal.fechar();
+      await fecharTempoReal();
       await app.close();
       await fecharFilas();
       await fecharBancos();
