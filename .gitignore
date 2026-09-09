@@ -12,3 +12,6 @@ dist/
 
 # Storage de anexo em desenvolvimento (PIPE_STORAGE_DIR). Em produção é volume.
 .dados/
+
+# Worktrees locais de desenvolvimento.
+.worktrees/
