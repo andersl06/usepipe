@@ -41,6 +41,18 @@ export interface JobEspelhoCrm {
   contatoId: string;
 }
 
+/**
+ * Sincronizar o dicionário de dados de um tenant com os metadados do CRM dele.
+ *
+ * Mesmo desenho do espelho: quem CONSOME é a `api` (quem fala com o CRM), o job leva só
+ * o `tenantId`, e a sincronização relê a configuração dentro do `comTenant` dele.
+ */
+export const FILA_DICIONARIO_CRM = 'pipe-dicionario-crm';
+
+export interface JobDicionarioCrm {
+  tenantId: string;
+}
+
 export function conexaoRedis(): { url: string } {
   return { url: process.env['REDIS_URL'] ?? 'redis://localhost:6380' };
 }

@@ -12,7 +12,9 @@ import { FiltroDeErro } from './erros.js';
 import { ligarCanalDeEventos } from './eventos-ws.js';
 import { fecharTempoReal } from './tempo-real.js';
 import {
+  agendarVarreduraDicionarioCrm,
   agendarVarreduraEspelhoCrm,
+  consumirDicionarioCrm,
   consumirEntrada,
   consumirEspelhoCrm,
   fecharFilas,
@@ -93,6 +95,8 @@ export async function subirApi(porta = Number(process.env['PORT'] ?? 3000)): Pro
   consumirEntrada();
   consumirEspelhoCrm();
   await agendarVarreduraEspelhoCrm();
+  consumirDicionarioCrm();
+  await agendarVarreduraDicionarioCrm();
   await app.listen(porta);
   // Depois do `listen`: o canal se pendura no `upgrade` do servidor HTTP que já está
   // no ar, e não abre porta própria. Uma porta só para o Desk, a Gestão e o CRM.

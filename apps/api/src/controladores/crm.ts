@@ -1,7 +1,10 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Get, HttpCode, Param, Post } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import { noTenant } from '../banco.js';
+import { lerDicionario } from '../dominio/dicionario-crm.js';
+import type { ObjetoDoDicionario } from '../dominio/dicionario-crm.js';
 import { configDoTenant, lerFicha, linkDaPessoa } from '../dominio/twenty.js';
+import { enfileirarDicionarioCrm } from '../filas.js';
 import { ComSessao, sessaoDe } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
 import { Req } from '@nestjs/common';
@@ -32,6 +35,31 @@ export interface FichaDoCrm {
 
 @Controller('v1/crm')
 export class ControladorCrm {
+  /**
+   * O dicionário de dados do CRM do tenant da sessão: objetos e campos, no formato dos
+   * metadados do Twenty. É o que o builder de fluxo e a IA consomem. Lido do nosso banco,
+   * sob RLS — não chama o CRM.
+   */
+  @Get('dicionario')
+  @ComSessao()
+  async dicionario(
+    @Req() requisicao: RequisicaoComSessao,
+  ): Promise<{ objetos: ObjetoDoDicionario[] }> {
+    const sessao = sessaoDe(requisicao);
+    return { objetos: await noTenant(sessao.tenantId, lerDicionario) };
+  }
+
+  /** Pede a sincronização agora — para depois que o admin cria um campo no CRM. */
+  @Post('dicionario/sincronizar')
+  @ComSessao()
+  @HttpCode(202)
+  async sincronizarDicionario(
+    @Req() requisicao: RequisicaoComSessao,
+  ): Promise<{ enfileirado: boolean }> {
+    const sessao = sessaoDe(requisicao);
+    return { enfileirado: await enfileirarDicionarioCrm({ tenantId: sessao.tenantId }) };
+  }
+
   @Get('contato/:contatoId')
   @ComSessao()
   async doContato(

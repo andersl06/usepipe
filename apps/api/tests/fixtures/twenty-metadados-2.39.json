@@ -1,0 +1,706 @@
+{
+  "_origem": "Gravado de http://localhost:3500 (Twenty 2.39.0, imagem pipe-crm:local) em 2026-09-11 com uma chave do papel \"Integracao Pipe\", e enxugado: 4 dos 30 objetos, parte dos campos, e a página única partida em duas para exercitar a paginação. Só metadado — nenhum registro, nenhum dado pessoal.",
+  "introspeccao": {
+    "data": {
+      "o": {
+        "fields": [
+          {
+            "name": "id"
+          },
+          {
+            "name": "universalIdentifier"
+          },
+          {
+            "name": "nameSingular"
+          },
+          {
+            "name": "namePlural"
+          },
+          {
+            "name": "labelSingular"
+          },
+          {
+            "name": "labelPlural"
+          },
+          {
+            "name": "description"
+          },
+          {
+            "name": "icon"
+          },
+          {
+            "name": "shortcut"
+          },
+          {
+            "name": "color"
+          },
+          {
+            "name": "isRemote"
+          },
+          {
+            "name": "isActive"
+          },
+          {
+            "name": "isSystem"
+          },
+          {
+            "name": "isUIEditable"
+          },
+          {
+            "name": "isUICreatable"
+          },
+          {
+            "name": "isSearchable"
+          },
+          {
+            "name": "openRecordIn"
+          },
+          {
+            "name": "readability"
+          },
+          {
+            "name": "writability"
+          },
+          {
+            "name": "applicationId"
+          },
+          {
+            "name": "createdAt"
+          },
+          {
+            "name": "updatedAt"
+          },
+          {
+            "name": "labelIdentifierFieldMetadataId"
+          },
+          {
+            "name": "imageIdentifierFieldMetadataId"
+          },
+          {
+            "name": "isLabelSyncedWithName"
+          },
+          {
+            "name": "duplicateCriteria"
+          },
+          {
+            "name": "fields"
+          },
+          {
+            "name": "indexMetadatas"
+          },
+          {
+            "name": "fieldsList"
+          },
+          {
+            "name": "indexMetadataList"
+          },
+          {
+            "name": "searchFieldMetadataList"
+          }
+        ]
+      },
+      "f": {
+        "fields": [
+          {
+            "name": "id"
+          },
+          {
+            "name": "universalIdentifier"
+          },
+          {
+            "name": "type"
+          },
+          {
+            "name": "name"
+          },
+          {
+            "name": "label"
+          },
+          {
+            "name": "description"
+          },
+          {
+            "name": "icon"
+          },
+          {
+            "name": "isActive"
+          },
+          {
+            "name": "isSystem"
+          },
+          {
+            "name": "isUIEditable"
+          },
+          {
+            "name": "writability"
+          },
+          {
+            "name": "isNullable"
+          },
+          {
+            "name": "isUnique"
+          },
+          {
+            "name": "defaultValue"
+          },
+          {
+            "name": "options"
+          },
+          {
+            "name": "settings"
+          },
+          {
+            "name": "objectMetadataId"
+          },
+          {
+            "name": "isLabelSyncedWithName"
+          },
+          {
+            "name": "morphId"
+          },
+          {
+            "name": "createdAt"
+          },
+          {
+            "name": "updatedAt"
+          },
+          {
+            "name": "applicationId"
+          },
+          {
+            "name": "object"
+          },
+          {
+            "name": "relation"
+          },
+          {
+            "name": "morphRelations"
+          }
+        ]
+      }
+    }
+  },
+  "workspace": {
+    "data": {
+      "currentWorkspace": {
+        "workspaceCustomApplicationId": "58741cab-56fc-4633-86a2-6565fa85638e"
+      }
+    }
+  },
+  "paginas": [
+    {
+      "data": {
+        "objects": {
+          "pageInfo": {
+            "hasNextPage": true,
+            "endCursor": "cursor-da-pagina-2"
+          },
+          "edges": [
+            {
+              "node": {
+                "id": "cdc376ea-e970-4851-9f96-972389f56de2",
+                "nameSingular": "person",
+                "namePlural": "people",
+                "isActive": true,
+                "isSystem": false,
+                "isRemote": false,
+                "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                "labelSingular": "Pessoa",
+                "labelPlural": "Pessoas",
+                "description": "Uma Pessoa",
+                "icon": "IconUser",
+                "fieldsList": [
+                  {
+                    "id": "9461ea78-e78a-4b51-98c3-23f475bc4ebf",
+                    "name": "id",
+                    "type": "UUID",
+                    "isActive": true,
+                    "isSystem": true,
+                    "isNullable": false,
+                    "isUnique": false,
+                    "defaultValue": "uuid",
+                    "options": null,
+                    "settings": null,
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "ID",
+                    "description": "ID",
+                    "icon": "Icon123"
+                  },
+                  {
+                    "id": "67f7fe8c-ad40-4a2d-9b90-ddb4bbdf9f06",
+                    "name": "name",
+                    "type": "FULL_NAME",
+                    "isActive": true,
+                    "isSystem": false,
+                    "isNullable": true,
+                    "isUnique": false,
+                    "defaultValue": null,
+                    "options": null,
+                    "settings": null,
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "Nome",
+                    "description": "Nome do Contato",
+                    "icon": "IconUser"
+                  },
+                  {
+                    "id": "955780c7-c78d-4a73-8013-1086b26bb586",
+                    "name": "emails",
+                    "type": "EMAILS",
+                    "isActive": true,
+                    "isSystem": false,
+                    "isNullable": true,
+                    "isUnique": true,
+                    "defaultValue": null,
+                    "options": null,
+                    "settings": {
+                      "maxNumberOfValues": 1
+                    },
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "E-mails",
+                    "description": "E-mails do Contato",
+                    "icon": "IconMail"
+                  },
+                  {
+                    "id": "eb23ebef-1e0f-4bc1-8148-658539538f2b",
+                    "name": "phones",
+                    "type": "PHONES",
+                    "isActive": true,
+                    "isSystem": false,
+                    "isNullable": true,
+                    "isUnique": false,
+                    "defaultValue": null,
+                    "options": null,
+                    "settings": {
+                      "maxNumberOfValues": 1
+                    },
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "Telefones",
+                    "description": "Números de Telefone do Contato",
+                    "icon": "IconPhone"
+                  },
+                  {
+                    "id": "3fa9645c-0195-47d8-b6d9-dc955b5aac5b",
+                    "name": "position",
+                    "type": "POSITION",
+                    "isActive": true,
+                    "isSystem": true,
+                    "isNullable": false,
+                    "isUnique": false,
+                    "defaultValue": 0,
+                    "options": null,
+                    "settings": null,
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "Posição",
+                    "description": "Posição do Registro da Pessoa",
+                    "icon": "IconHierarchy2"
+                  },
+                  {
+                    "id": "9d13b225-1fe3-4b9b-9074-30e12ca939ed",
+                    "name": "company",
+                    "type": "RELATION",
+                    "isActive": true,
+                    "isSystem": false,
+                    "isNullable": true,
+                    "isUnique": false,
+                    "defaultValue": null,
+                    "options": null,
+                    "settings": {
+                      "onDelete": "SET_NULL",
+                      "relationType": "MANY_TO_ONE",
+                      "joinColumnName": "companyId"
+                    },
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": {
+                      "type": "MANY_TO_ONE",
+                      "targetObjectMetadata": {
+                        "id": "45e87593-1410-4202-b273-9b08ba40103e",
+                        "nameSingular": "company"
+                      },
+                      "targetFieldMetadata": {
+                        "id": "847bffad-0739-489f-a9a4-973801307ee4",
+                        "name": "people"
+                      }
+                    },
+                    "morphRelations": null,
+                    "label": "Empresa",
+                    "description": "Empresa do Contato",
+                    "icon": "IconBuildingSkyscraper"
+                  },
+                  {
+                    "id": "627e93c5-a702-40d5-8d1d-4229e4b69c6f",
+                    "name": "pipeContatoId",
+                    "type": "TEXT",
+                    "isActive": true,
+                    "isSystem": false,
+                    "isNullable": true,
+                    "isUnique": false,
+                    "defaultValue": null,
+                    "options": null,
+                    "settings": null,
+                    "applicationId": "58741cab-56fc-4633-86a2-6565fa85638e",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "ID do contato no Pipe",
+                    "description": "Chave de reconciliacao com o contato do Pipe. Escrito pela integracao; nao editar a mao.",
+                    "icon": ""
+                  },
+                  {
+                    "id": "099ba86e-3940-4aeb-9fd3-5720e14c3c91",
+                    "name": "searchVector",
+                    "type": "TS_VECTOR",
+                    "isActive": true,
+                    "isSystem": true,
+                    "isNullable": true,
+                    "isUnique": false,
+                    "defaultValue": null,
+                    "options": null,
+                    "settings": null,
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "Vetor de busca",
+                    "description": "Campo usado para busca de texto completo",
+                    "icon": "IconUser"
+                  }
+                ]
+              }
+            },
+            {
+              "node": {
+                "id": "45e87593-1410-4202-b273-9b08ba40103e",
+                "nameSingular": "company",
+                "namePlural": "companies",
+                "isActive": true,
+                "isSystem": false,
+                "isRemote": false,
+                "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                "labelSingular": "Empresa",
+                "labelPlural": "Empresas",
+                "description": "Uma Empresa",
+                "icon": "IconBuildingSkyscraper",
+                "fieldsList": [
+                  {
+                    "id": "6678a875-fd2a-4e3b-a0c6-c4088a7dab68",
+                    "name": "id",
+                    "type": "UUID",
+                    "isActive": true,
+                    "isSystem": true,
+                    "isNullable": false,
+                    "isUnique": false,
+                    "defaultValue": "uuid",
+                    "options": null,
+                    "settings": null,
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "ID",
+                    "description": "ID",
+                    "icon": "Icon123"
+                  },
+                  {
+                    "id": "96e7f1e9-8cd5-430b-afaa-60b2f33feaf2",
+                    "name": "name",
+                    "type": "TEXT",
+                    "isActive": true,
+                    "isSystem": false,
+                    "isNullable": true,
+                    "isUnique": false,
+                    "defaultValue": null,
+                    "options": null,
+                    "settings": null,
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "Nome",
+                    "description": "O nome da empresa",
+                    "icon": "IconBuildingSkyscraper"
+                  },
+                  {
+                    "id": "847bffad-0739-489f-a9a4-973801307ee4",
+                    "name": "people",
+                    "type": "RELATION",
+                    "isActive": true,
+                    "isSystem": false,
+                    "isNullable": true,
+                    "isUnique": false,
+                    "defaultValue": null,
+                    "options": null,
+                    "settings": {
+                      "relationType": "ONE_TO_MANY"
+                    },
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": {
+                      "type": "ONE_TO_MANY",
+                      "targetObjectMetadata": {
+                        "id": "cdc376ea-e970-4851-9f96-972389f56de2",
+                        "nameSingular": "person"
+                      },
+                      "targetFieldMetadata": {
+                        "id": "9d13b225-1fe3-4b9b-9074-30e12ca939ed",
+                        "name": "company"
+                      }
+                    },
+                    "morphRelations": null,
+                    "label": "Pessoas",
+                    "description": "Pessoas Ligadas à Empresa.",
+                    "icon": "IconUsers"
+                  },
+                  {
+                    "id": "134b5e59-3f0b-415b-b139-9a02f16dc8c1",
+                    "name": "pipeEmpresaId",
+                    "type": "TEXT",
+                    "isActive": true,
+                    "isSystem": false,
+                    "isNullable": true,
+                    "isUnique": false,
+                    "defaultValue": null,
+                    "options": null,
+                    "settings": null,
+                    "applicationId": "58741cab-56fc-4633-86a2-6565fa85638e",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "ID da conta no Pipe",
+                    "description": "Chave de reconciliacao com a conta do Pipe. Escrito pela integracao; nao editar a mao.",
+                    "icon": ""
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "data": {
+        "objects": {
+          "pageInfo": {
+            "hasNextPage": false,
+            "endCursor": null
+          },
+          "edges": [
+            {
+              "node": {
+                "id": "de505efb-aea1-44d1-843a-32e09a07f571",
+                "nameSingular": "opportunity",
+                "namePlural": "opportunities",
+                "isActive": true,
+                "isSystem": false,
+                "isRemote": false,
+                "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                "labelSingular": "Oportunidade",
+                "labelPlural": "Oportunidades",
+                "description": "Uma Oportunidade",
+                "icon": "IconTargetArrow",
+                "fieldsList": [
+                  {
+                    "id": "0bf70796-72dc-4a52-9720-d76c1c182c12",
+                    "name": "id",
+                    "type": "UUID",
+                    "isActive": true,
+                    "isSystem": true,
+                    "isNullable": false,
+                    "isUnique": false,
+                    "defaultValue": "uuid",
+                    "options": null,
+                    "settings": null,
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "ID",
+                    "description": "ID",
+                    "icon": "Icon123"
+                  },
+                  {
+                    "id": "71299cfe-6574-454b-81ef-db0ff768fb53",
+                    "name": "name",
+                    "type": "TEXT",
+                    "isActive": true,
+                    "isSystem": false,
+                    "isNullable": true,
+                    "isUnique": false,
+                    "defaultValue": null,
+                    "options": null,
+                    "settings": null,
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "Nome",
+                    "description": "O nome da oportunidade",
+                    "icon": "IconTargetArrow"
+                  },
+                  {
+                    "id": "8ee19f50-47bc-4584-a64b-696fc1c7ec25",
+                    "name": "amount",
+                    "type": "CURRENCY",
+                    "isActive": true,
+                    "isSystem": false,
+                    "isNullable": true,
+                    "isUnique": false,
+                    "defaultValue": null,
+                    "options": null,
+                    "settings": null,
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "Valor",
+                    "description": "Valor da Oportunidade",
+                    "icon": "IconCurrencyDollar"
+                  },
+                  {
+                    "id": "c9954da0-57ed-404c-9f75-20dbf7f2915c",
+                    "name": "stage",
+                    "type": "SELECT",
+                    "isActive": true,
+                    "isSystem": false,
+                    "isNullable": false,
+                    "isUnique": false,
+                    "defaultValue": "'NEW'",
+                    "options": [
+                      {
+                        "id": "20202020-8e01-4afd-9c39-d2063097587a",
+                        "color": "red",
+                        "label": "New",
+                        "value": "NEW",
+                        "position": 0
+                      },
+                      {
+                        "id": "20202020-e685-4671-ac32-26d304dacb6e",
+                        "color": "purple",
+                        "label": "Screening",
+                        "value": "SCREENING",
+                        "position": 1
+                      },
+                      {
+                        "id": "20202020-dde9-4acc-b5ca-f6531a8ecb4a",
+                        "color": "sky",
+                        "label": "Meeting",
+                        "value": "MEETING",
+                        "position": 2
+                      },
+                      {
+                        "id": "20202020-696e-4f6b-91bc-f413e9b2f654",
+                        "color": "turquoise",
+                        "label": "Proposal",
+                        "value": "PROPOSAL",
+                        "position": 3
+                      },
+                      {
+                        "id": "20202020-0bb5-4a6f-a8b2-774bbad21104",
+                        "color": "yellow",
+                        "label": "Customer",
+                        "value": "CUSTOMER",
+                        "position": 4
+                      }
+                    ],
+                    "settings": null,
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "Fase",
+                    "description": "Estágio da Oportunidade",
+                    "icon": "IconProgressCheck"
+                  },
+                  {
+                    "id": "8660507c-756e-4fba-bdf7-d6d9b67b0061",
+                    "name": "company",
+                    "type": "RELATION",
+                    "isActive": true,
+                    "isSystem": false,
+                    "isNullable": true,
+                    "isUnique": false,
+                    "defaultValue": null,
+                    "options": null,
+                    "settings": {
+                      "onDelete": "SET_NULL",
+                      "relationType": "MANY_TO_ONE",
+                      "joinColumnName": "companyId"
+                    },
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": {
+                      "type": "MANY_TO_ONE",
+                      "targetObjectMetadata": {
+                        "id": "45e87593-1410-4202-b273-9b08ba40103e",
+                        "nameSingular": "company"
+                      },
+                      "targetFieldMetadata": {
+                        "id": "138afe70-1663-4aba-84be-ec684057ce26",
+                        "name": "opportunities"
+                      }
+                    },
+                    "morphRelations": null,
+                    "label": "Empresa",
+                    "description": "Empresa da Oportunidade",
+                    "icon": "IconBuildingSkyscraper"
+                  }
+                ]
+              }
+            },
+            {
+              "node": {
+                "id": "7fec62f5-c6ff-4b4d-b822-c8d4b770e2d5",
+                "nameSingular": "messageCampaign",
+                "namePlural": "messageCampaigns",
+                "isActive": true,
+                "isSystem": true,
+                "isRemote": false,
+                "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                "labelSingular": "Campanha",
+                "labelPlural": "Campanhas",
+                "description": "Um envio em massa de email para um público, com estatísticas de entrega",
+                "icon": "IconSend",
+                "fieldsList": [
+                  {
+                    "id": "55391543-bc7f-461e-82da-06b173dcf566",
+                    "name": "id",
+                    "type": "UUID",
+                    "isActive": true,
+                    "isSystem": true,
+                    "isNullable": false,
+                    "isUnique": false,
+                    "defaultValue": "uuid",
+                    "options": null,
+                    "settings": null,
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "ID",
+                    "description": "ID",
+                    "icon": "Icon123"
+                  },
+                  {
+                    "id": "bd9bb347-9e77-4975-a258-e6144e25380e",
+                    "name": "sentCount",
+                    "type": "NUMBER",
+                    "isActive": true,
+                    "isSystem": false,
+                    "isNullable": false,
+                    "isUnique": false,
+                    "defaultValue": 0,
+                    "options": null,
+                    "settings": null,
+                    "applicationId": "fbcc63bb-c2a0-4b34-a48e-c710cff84cba",
+                    "relation": null,
+                    "morphRelations": null,
+                    "label": "Contagem de envios",
+                    "description": "Número de emails enviados",
+                    "icon": "IconMailFast"
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

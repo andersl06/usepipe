@@ -9,7 +9,7 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core';
-import { carimbos, id, listaCheck, momento } from './comum.js';
+import { atualizadoEm, carimbos, excluidoEm, id, listaCheck, momento } from './comum.js';
 import { refTenant, usuario } from './identidade.js';
 import { canal, contato, conversa } from './conversas.js';
 
@@ -325,6 +325,13 @@ export const agendamentoConsulta = pgTable(
   (t) => [listaCheck('agendamento_consulta_formato_ck', t.formato, FORMATOS_EXPORTACAO)],
 );
 
+/**
+ * Espelho do `objectMetadata` do CRM (Twenty) do tenant — ver a migration 0015.
+ *
+ * `codigo` é o `nameSingular` e `rotulo` o `labelSingular`; as demais colunas têm o nome
+ * da propriedade do Twenty. Linha com `twentyId` veio da sincronização; sem ele, foi
+ * declarada à mão pelo CRM caseiro.
+ */
 export const dicionarioObjeto = pgTable(
   'dicionario_objeto',
   {
@@ -333,12 +340,29 @@ export const dicionarioObjeto = pgTable(
     codigo: text('codigo').notNull(),
     rotulo: text('rotulo').notNull(),
     descricao: text('descricao'),
+    twentyId: text('twenty_id'),
+    namePlural: text('name_plural'),
+    labelPlural: text('label_plural'),
+    icon: text('icon'),
+    isCustom: boolean('is_custom').notNull().default(false),
+    isActive: boolean('is_active').notNull().default(true),
+    isSystem: boolean('is_system').notNull().default(false),
+    isRemote: boolean('is_remote').notNull().default(false),
+    applicationId: text('application_id'),
+    /** Sumiu do Twenty. A linha fica, para o bloco que aponta para ela acusar a falta. */
+    excluidoEm: excluidoEm(),
     ...carimbos(),
   },
   (t) => [uniqueIndex('dicionario_objeto_uk').on(t.tenantId, t.codigo)],
 );
 
-/** Não é documentação: é o que a linguagem de consulta lê para decidir o que é permitido. */
+/**
+ * Não é documentação: é o que a linguagem de consulta lê para decidir o que é permitido.
+ *
+ * Espelho do `fieldMetadata` do Twenty: `codigo` é o `name`, `rotulo` o `label`, `tipo`
+ * o `type` literal (`TEXT`, `CURRENCY`, `RELATION`…). `options`, `defaultValue`,
+ * `settings` e `relation` ficam no formato exato que a Metadata API devolve.
+ */
 export const dicionarioCampo = pgTable(
   'dicionario_campo',
   {
@@ -351,6 +375,21 @@ export const dicionarioCampo = pgTable(
     descricao: text('descricao'),
     consultavel: boolean('consultavel').notNull().default(true),
     agregavel: boolean('agregavel').notNull().default(false),
+    twentyId: text('twenty_id'),
+    icon: text('icon'),
+    isCustom: boolean('is_custom').notNull().default(false),
+    isActive: boolean('is_active').notNull().default(true),
+    isSystem: boolean('is_system').notNull().default(false),
+    isNullable: boolean('is_nullable'),
+    isUnique: boolean('is_unique'),
+    defaultValue: jsonb('default_value'),
+    options: jsonb('options'),
+    settings: jsonb('settings'),
+    relation: jsonb('relation'),
+    morphRelations: jsonb('morph_relations'),
+    applicationId: text('application_id'),
+    atualizadoEm: atualizadoEm(),
+    excluidoEm: excluidoEm(),
   },
   (t) => [uniqueIndex('dicionario_campo_uk').on(t.tenantId, t.objetoCodigo, t.codigo)],
 );

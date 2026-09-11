@@ -1,8 +1,15 @@
 import { Queue, Worker } from 'bullmq';
 import IORedis from 'ioredis';
-import { FILA_ENTRADA, FILA_ENTREGA, FILA_ESPELHO_CRM, conexaoRedis } from '@pipe/workers';
-import type { JobEntrada, JobEntrega, JobEspelhoCrm } from '@pipe/workers';
+import {
+  FILA_DICIONARIO_CRM,
+  FILA_ENTRADA,
+  FILA_ENTREGA,
+  FILA_ESPELHO_CRM,
+  conexaoRedis,
+} from '@pipe/workers';
+import type { JobDicionarioCrm, JobEntrada, JobEntrega, JobEspelhoCrm } from '@pipe/workers';
 import { resolverCanal } from './banco.js';
+import { SEM_CRM, sincronizarDicionario, tenantsDoDicionario } from './dominio/dicionario-crm.js';
 import { processarPayload } from './dominio/entrada.js';
 import { contatosSemEspelho, sincronizarContato } from './dominio/espelho-crm.js';
 
@@ -125,6 +132,69 @@ export async function agendarVarreduraEspelhoCrm(): Promise<void> {
   );
 }
 
+let filaDicionarioCrm: Queue<JobDicionarioCrm> | null = null;
+let consumidorDicionarioCrm: Worker | null = null;
+
+/**
+ * Pede a sincronização do dicionário de um tenant — a varredura, ou o admin logo depois
+ * de criar um campo no CRM.
+ *
+ * O `jobId` por tenant faz dez pedidos seguidos virarem UMA sincronização. E o job sai
+ * da fila ao terminar (`removeOnComplete: true`), senão o id guardado engoliria o
+ * próximo pedido. No modo memória não sincroniza, pelo motivo do espelho.
+ */
+export async function enfileirarDicionarioCrm(job: JobDicionarioCrm): Promise<boolean> {
+  if (modo() === 'memoria') return false;
+  filaDicionarioCrm ??= new Queue(FILA_DICIONARIO_CRM, { connection: redis() });
+  await filaDicionarioCrm.add('sincronizar', job, {
+    // Hífen, não `:` — o BullMQ 5 recusa `:` no id customizado ("Custom Id cannot contain :").
+    jobId: `dicionario-${job.tenantId}`,
+    removeOnComplete: true,
+    removeOnFail: true,
+    attempts: 3,
+    backoff: { type: 'exponential', delay: 30_000 },
+  });
+  return true;
+}
+
+/** Consome o dicionário — na `api`, como o espelho: quem fala com o CRM é a `api`. */
+export function consumirDicionarioCrm(): void {
+  if (modo() === 'memoria' || consumidorDicionarioCrm) return;
+  consumidorDicionarioCrm = new Worker(
+    FILA_DICIONARIO_CRM,
+    async (job) => {
+      if (job.name === 'varredura') {
+        const { comCrm, semCrm } = await tenantsDoDicionario();
+        if (semCrm > 0) console.log(`[dicionario-crm] ${semCrm} tenant(s) sem CRM: pulado(s)`);
+        for (const tenantId of comCrm) await enfileirarDicionarioCrm({ tenantId });
+        return comCrm.length;
+      }
+      const { tenantId } = job.data as JobDicionarioCrm;
+      const r = await sincronizarDicionario(tenantId);
+      if (r.estado === SEM_CRM) console.log(`[dicionario-crm] tenant ${tenantId} sem CRM: pulado`);
+      return r;
+    },
+    {
+      connection: redis(),
+      concurrency: Number(process.env['PIPE_DICIONARIO_CRM_CONCORRENCIA'] ?? 1),
+    },
+  );
+  consumidorDicionarioCrm.on('failed', (job, erro) => {
+    console.error(`[dicionario-crm] ${job?.id ?? '?'} falhou: ${erro.message}`);
+  });
+}
+
+/** A varredura periódica do dicionário: de hora em hora, todo tenant com CRM. */
+export async function agendarVarreduraDicionarioCrm(): Promise<void> {
+  if (modo() === 'memoria') return;
+  filaDicionarioCrm ??= new Queue(FILA_DICIONARIO_CRM, { connection: redis() });
+  await filaDicionarioCrm.upsertJobScheduler(
+    'varredura-dicionario-crm',
+    { every: Number(process.env['PIPE_DICIONARIO_CRM_VARREDURA_MS'] ?? 3_600_000) },
+    { name: 'varredura', data: {} as JobDicionarioCrm },
+  );
+}
+
 let consumidorEntrada: Worker<JobEntrada> | null = null;
 
 /**
@@ -181,6 +251,10 @@ export async function estadoDasFilas(): Promise<EstadoDaFila[]> {
       FILA_ESPELHO_CRM,
       (filaEspelhoCrm ??= new Queue(FILA_ESPELHO_CRM, { connection: redis() })),
     ],
+    [
+      FILA_DICIONARIO_CRM,
+      (filaDicionarioCrm ??= new Queue(FILA_DICIONARIO_CRM, { connection: redis() })),
+    ],
   ];
 
   return Promise.all(
@@ -203,14 +277,18 @@ export async function estadoDasFilas(): Promise<EstadoDaFila[]> {
 export async function fecharFilas(): Promise<void> {
   await consumidorEntrada?.close();
   await consumidorEspelhoCrm?.close();
+  await consumidorDicionarioCrm?.close();
   await filaEntrada?.close();
   await filaEntrega?.close();
   await filaEspelhoCrm?.close();
+  await filaDicionarioCrm?.close();
   await conexao?.quit();
   consumidorEntrada = null;
   consumidorEspelhoCrm = null;
+  consumidorDicionarioCrm = null;
   filaEntrada = null;
   filaEntrega = null;
   filaEspelhoCrm = null;
+  filaDicionarioCrm = null;
   conexao = null;
 }
