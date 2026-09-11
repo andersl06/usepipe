@@ -106,6 +106,26 @@ export async function encerrarSessao(cookie: string): Promise<void> {
 }
 
 /**
+ * Uma chamada autenticada à API, feita do servidor com o cookie da sessão.
+ *
+ * É o caminho das ações que gravam o que é regra da `api` — conectar o WhatsApp,
+ * convidar, importar contatos. A tela não fala com o banco para isso: o token da
+ * Meta é cifrado e o convite é da regra de identidade, e os dois moram lá.
+ */
+export async function chamarApi(
+  cookie: string,
+  caminho: string,
+  init: { method?: string; body?: string; headers?: Record<string, string> } = {},
+): Promise<Response> {
+  return fetch(`${URL_API}${caminho}`, {
+    method: init.method ?? 'GET',
+    ...(init.body === undefined ? {} : { body: init.body }),
+    headers: { ...cabecalhoDeSessao(cookie), ...(init.headers ?? {}) },
+    cache: 'no-store',
+  });
+}
+
+/**
  * Por onde este e-mail entra.
  *
  * A API responde igual para e-mail conhecido e desconhecido, de propósito — só

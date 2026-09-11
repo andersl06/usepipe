@@ -1,5 +1,6 @@
 import { carregarCanais } from '../../lib/configuracoes';
 import { numero } from '../../lib/formato';
+import { ConectarWhatsApp } from '../../componentes/cadastro-embutido-whatsapp';
 
 export const dynamic = 'force-dynamic';
 
@@ -85,18 +86,14 @@ export default async function PaginaCanais() {
       )}
 
       <section className="card">
-        <h3>Sobre conectar um canal novo</h3>
+        <h3>Conectar um número de WhatsApp</h3>
         <p className="sub">
-            A conexão ainda é feita fora daqui. Quando a tela existir, ela precisa pedir{' '}
-            <b>mais de uma chave</b>: a sondagem da plataforma de referência mostrou que a chave que
-            enxerga o roteamento e a chave que enxerga o robô respondem endpoints diferentes — a
-            segunda devolve 404 no que é da primeira, e não erro de permissão. Uma chave só não vê a
-          operação inteira.
+          Pelo cadastro embutido da Meta, dentro do Business Manager do cliente: ao fim, o Pipe troca o
+          código pelo token, registra o número e aponta o webhook. Não há campo de &ldquo;token do
+          canal&rdquo; para preencher. O passo a passo inteiro, com equipe e contatos, está em{' '}
+          <a href="/implantacao">Implantação</a>.
         </p>
-        <p className="note">
-          Por isso o campo único de &ldquo;token do canal&rdquo; é a armadilha a evitar: quem
-          preencher um token e vir metade dos dados vazios vai achar que a integração falhou.
-        </p>
+        <ConectarWhatsApp />
       </section>
     </>
   );
