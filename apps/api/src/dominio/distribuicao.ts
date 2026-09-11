@@ -2,6 +2,8 @@ import { sql } from 'drizzle-orm';
 import { escolherAtendente } from '@pipe/core';
 import type { AtendenteDisponivel, EscolhaDistribuicao, EstadoAtendente } from '@pipe/core';
 import type { TransacaoPipe } from '@pipe/db';
+import { emitir } from '../webhooks-saida.js';
+import { registrarEvento } from './eventos.js';
 
 /**
  * Distribuição por carga real (§4.3 da spec, §7 da spec de métricas).
@@ -79,5 +81,47 @@ export async function escolherParaFila(
   return escolherAtendente(candidatos, {
     filaId,
     tetoSemPrimeiraResposta: tetoSemPrimeiraResposta(),
+  });
+}
+
+/**
+ * Tira da fila e atribui ao atendente que a regra escolher, se houver um.
+ *
+ * Morava em `entrada.ts`; mudou para cá porque agora são dois a chamar — a entrada e o
+ * bot, quando transfere.
+ */
+export async function distribuirConversa(
+  tx: TransacaoPipe,
+  tenantId: string,
+  conversaId: string,
+  filaId: string,
+  em: Date,
+): Promise<void> {
+  const escolha = await escolherParaFila(tx, filaId);
+  if (!escolha.escolhido) return;
+
+  const atendenteId = escolha.escolhido.id;
+  await tx.execute(sql`
+    update conversa
+       set atendente_id = ${atendenteId}, estado = 'atribuida', atribuida_em = ${em},
+           atualizado_em = now()
+     where id = ${conversaId} and estado = 'na_fila'
+  `);
+  await tx.execute(sql`
+    insert into atribuicao (tenant_id, conversa_id, para_usuario_id, de_fila_id, motivo, em)
+    values (${tenantId}, ${conversaId}, ${atendenteId}, ${filaId}, 'distribuicao_por_carga', ${em})
+  `);
+  await registrarEvento(tx, {
+    tenantId,
+    conversaId,
+    tipo: 'atribuida',
+    em,
+    usuarioId: atendenteId,
+    filaId,
+  });
+  await emitir(tx, tenantId, 'conversa.atribuida', {
+    conversa_id: conversaId,
+    atendente_id: atendenteId,
+    fila_id: filaId,
   });
 }

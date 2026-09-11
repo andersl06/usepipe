@@ -1,0 +1,252 @@
+{
+  "flow": {
+    "onboarding": {
+      "id": "onboarding",
+      "root": true,
+      "$title": "Início",
+      "$position": { "top": "40px", "left": "40px" },
+      "$tags": [],
+      "$contentActions": [
+        {
+          "input": {
+            "bypass": false,
+            "$cardContent": { "document": { "id": "c0", "type": "text/plain", "content": "" } },
+            "$invalid": false
+          },
+          "$invalid": false
+        }
+      ],
+      "$conditionOutputs": [],
+      "$enteringCustomActions": [],
+      "$leavingCustomActions": [],
+      "$inputSuggestions": [],
+      "$defaultOutput": { "stateId": "boas-vindas", "$invalid": false },
+      "$invalidContentActions": false,
+      "$invalidOutputs": false,
+      "$invalidCustomActions": false,
+      "$invalid": false
+    },
+    "boas-vindas": {
+      "id": "boas-vindas",
+      "$title": "Boas-vindas",
+      "$contentActions": [
+        {
+          "action": {
+            "$id": "a1",
+            "$typeOfContent": "chat-state",
+            "type": "SendMessage",
+            "settings": {
+              "id": "m0",
+              "type": "application/vnd.lime.chatstate+json",
+              "content": { "state": "composing", "interval": 1000 }
+            }
+          },
+          "$invalid": false
+        },
+        {
+          "action": {
+            "$id": "a2",
+            "$typeOfContent": "text",
+            "type": "SendMessage",
+            "settings": { "id": "m1", "type": "text/plain", "content": "Olá! Qual é o seu nome?" }
+          },
+          "$invalid": false
+        },
+        { "input": { "bypass": false, "variable": "nome", "$invalid": false }, "$invalid": false }
+      ],
+      "$conditionOutputs": [],
+      "$enteringCustomActions": [
+        {
+          "$id": "t1",
+          "$typeOfContent": "",
+          "type": "TrackEvent",
+          "$title": "Registro",
+          "settings": { "category": "fluxo", "action": "boas-vindas" },
+          "conditions": [],
+          "$invalid": false
+        }
+      ],
+      "$leavingCustomActions": [],
+      "$inputSuggestions": [],
+      "$defaultOutput": { "stateId": "menu", "$invalid": false },
+      "$invalid": false
+    },
+    "menu": {
+      "id": "menu",
+      "$title": "Menu",
+      "$contentActions": [
+        {
+          "action": {
+            "$id": "a3",
+            "type": "SendMessage",
+            "settings": {
+              "id": "m2",
+              "type": "application/vnd.lime.select+json",
+              "content": {
+                "text": "Prazer, {{nome}}. Como posso ajudar?",
+                "scope": "immediate",
+                "options": [{ "text": "Financeiro" }, { "text": "Suporte" }]
+              }
+            }
+          }
+        },
+        { "input": { "bypass": false } }
+      ],
+      "$conditionOutputs": [
+        {
+          "stateId": "financeiro",
+          "typeOfStateId": "state",
+          "$connId": "c1",
+          "$id": "o1",
+          "conditions": [
+            { "source": "input", "comparison": "equals", "values": ["1", "Financeiro"] }
+          ],
+          "$invalid": false
+        },
+        {
+          "stateId": "desk:suporte",
+          "typeOfStateId": "state",
+          "$connId": "c2",
+          "$id": "o2",
+          "conditions": [{ "source": "input", "comparison": "equals", "values": ["2", "Suporte"] }],
+          "$invalid": false
+        }
+      ],
+      "$enteringCustomActions": [],
+      "$leavingCustomActions": [
+        {
+          "$id": "s1",
+          "type": "SetVariable",
+          "$title": "Guarda a opção",
+          "settings": { "variable": "opcao", "value": "{{input.content}}" },
+          "conditions": []
+        }
+      ],
+      "$defaultOutput": { "stateId": "nao-entendi" }
+    },
+    "nao-entendi": {
+      "id": "nao-entendi",
+      "$title": "Não entendi",
+      "$contentActions": [
+        {
+          "action": {
+            "type": "SendMessage",
+            "settings": { "type": "text/plain", "content": "Não entendi. Responda 1 ou 2." }
+          }
+        },
+        { "input": { "bypass": true } }
+      ],
+      "$conditionOutputs": [],
+      "$enteringCustomActions": [],
+      "$leavingCustomActions": [],
+      "$defaultOutput": { "stateId": "menu" }
+    },
+    "financeiro": {
+      "id": "financeiro",
+      "$title": "Financeiro",
+      "$contentActions": [
+        {
+          "action": {
+            "type": "SendMessage",
+            "settings": { "type": "text/plain", "content": "A segunda via está no site." }
+          }
+        },
+        { "input": { "bypass": true } }
+      ],
+      "$conditionOutputs": [],
+      "$enteringCustomActions": [],
+      "$leavingCustomActions": [],
+      "$defaultOutput": { "stateId": "onboarding" }
+    },
+    "desk:suporte": {
+      "id": "desk:suporte",
+      "$title": "Atendimento humano",
+      "deskStateVersion": "3.0.0",
+      "$contentActions": [
+        {
+          "input": {
+            "bypass": false,
+            "conditions": [
+              {
+                "source": "context",
+                "variable": "desk_forwardToDeskState_status",
+                "comparison": "equals",
+                "values": ["Success"]
+              }
+            ]
+          }
+        }
+      ],
+      "$conditionOutputs": [
+        {
+          "stateId": "pos-atendimento",
+          "$isDeskOutput": true,
+          "conditions": [
+            {
+              "source": "context",
+              "variable": "input.type",
+              "comparison": "equals",
+              "values": ["application/vnd.iris.ticket+json"]
+            },
+            {
+              "source": "context",
+              "variable": "input.content@status",
+              "comparison": "equals",
+              "values": ["ClosedAttendant"]
+            }
+          ]
+        },
+        {
+          "stateId": "nao-entendi",
+          "$isDeskOutput": true,
+          "$isDeskDefaultOutput": true,
+          "conditions": [
+            {
+              "source": "context",
+              "variable": "desk_forwardToDeskState_status",
+              "comparison": "equals",
+              "values": ["Error"]
+            }
+          ]
+        }
+      ],
+      "$enteringCustomActions": [
+        { "$id": "d1", "type": "ForwardToDesk", "settings": {}, "conditions": [] }
+      ],
+      "$leavingCustomActions": [],
+      "$afterStateChangedActions": [
+        { "$id": "d2", "type": "LeavingFromDesk", "settings": {}, "conditions": [] }
+      ],
+      "$defaultOutput": { "stateId": "onboarding" }
+    },
+    "pos-atendimento": {
+      "id": "pos-atendimento",
+      "$title": "Depois do atendimento",
+      "$contentActions": [
+        {
+          "action": {
+            "type": "SendMessage",
+            "settings": {
+              "type": "text/plain",
+              "content": "Seu atendimento foi encerrado. Posso ajudar em algo mais?"
+            }
+          }
+        },
+        { "input": { "bypass": false } }
+      ],
+      "$conditionOutputs": [],
+      "$enteringCustomActions": [],
+      "$leavingCustomActions": [],
+      "$defaultOutput": { "stateId": "menu" }
+    }
+  },
+  "globalActions": {
+    "$contentActions": [],
+    "$conditionOutputs": [],
+    "$enteringCustomActions": [],
+    "$leavingCustomActions": [],
+    "$inputSuggestions": [],
+    "$defaultOutput": { "stateId": "fallback" },
+    "id": "global"
+  }
+}

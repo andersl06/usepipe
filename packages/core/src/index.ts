@@ -14,3 +14,4 @@ export * from './distribuicao/index.js';
 export * from './sla/index.js';
 export * from './conversa/index.js';
 export * from './janela/index.js';
+export * from './fluxo/index.js';
