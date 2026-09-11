@@ -5,7 +5,7 @@ export * from './dominio/convites.js';
 export * from './dominio/dominios.js';
 export * from './dominio/entrada.js';
 export * from './dominio/envio.js';
-export * from './dominio/meta.js';
+export * from './dominio/whatsapp/cliente-graph.js';
 export * from './erros.js';
 export * from './metricas.js';
 export * from './paginacao.js';
