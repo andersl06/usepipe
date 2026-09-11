@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   index,
   integer,
   jsonb,
@@ -49,6 +50,10 @@ export const fluxoVersao = pgTable(
     estado: text('estado').notNull().default('rascunho'),
     publicadaEm: momento('publicada_em'),
     publicadaPor: uuid('publicada_por').references(() => usuario.id, { onDelete: 'set null' }),
+    /** Ações globais e `configuration` do `Flow` da Blip. Migration 0014. */
+    global: jsonb('global')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
     ...carimbos(),
   },
   (t) => [
@@ -104,16 +109,22 @@ export const transicao = pgTable(
     deBlocoId: uuid('de_bloco_id')
       .notNull()
       .references(() => bloco.id, { onDelete: 'cascade' }),
-    paraBlocoId: uuid('para_bloco_id')
-      .notNull()
-      .references(() => bloco.id, { onDelete: 'cascade' }),
+    paraBlocoId: uuid('para_bloco_id').references(() => bloco.id, { onDelete: 'cascade' }),
+    /**
+     * Destino `{{variável}}` da Blip, decidido em tempo de execução. Exatamente um dos
+     * dois destinos é preenchido (migration 0014).
+     */
+    paraVariavel: text('para_variavel'),
     condicao: jsonb('condicao')
       .notNull()
       .default(sql`'{}'::jsonb`),
     /** Condições de saída são avaliadas nesta ordem; a primeira que casar vence. */
     ordem: integer('ordem').notNull().default(0),
   },
-  (t) => [index('transicao_de_bloco_idx').on(t.versaoId, t.deBlocoId, t.ordem)],
+  (t) => [
+    index('transicao_de_bloco_idx').on(t.versaoId, t.deBlocoId, t.ordem),
+    check('transicao_destino_ck', sql`(${t.paraBlocoId} is null) <> (${t.paraVariavel} is null)`),
+  ],
 );
 
 export const ESTADOS_EXECUCAO = [
@@ -169,7 +180,13 @@ export const execucaoPasso = pgTable(
     tokens: integer('tokens'),
     em: momento('em').notNull().defaultNow(),
   },
-  (t) => [index('execucao_passo_execucao_idx').on(t.tenantId, t.execucaoId, t.em)],
+  (t) => [
+    index('execucao_passo_execucao_idx').on(t.tenantId, t.execucaoId, t.em),
+    // A mesma mensagem da Meta só vira passo uma vez (migration 0014).
+    uniqueIndex('execucao_passo_entrada_uk')
+      .on(t.tenantId, sql`(${t.entrada} ->> 'id_provedor')`)
+      .where(sql`${t.entrada} ? 'id_provedor'`),
+  ],
 );
 
 export const workflow = pgTable(

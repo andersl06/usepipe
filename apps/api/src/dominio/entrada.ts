@@ -8,9 +8,10 @@ import { contar } from '../metricas.js';
 // Ciclo consciente: `filas.ts` importa `processarPayload` daqui e daqui sai
 // `enfileirarEspelhoCrm`. As duas são declarações de função, então o hoisting do ESM
 // resolve — nenhuma é chamada durante a avaliação do módulo.
-import { enfileirarEspelhoCrm } from '../filas.js';
-import { escolherParaFila } from './distribuicao.js';
+import { enfileirarEntrega, enfileirarEspelhoCrm } from '../filas.js';
+import { distribuirConversa } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
+import { fluxoPublicadoDoCanal, rodarFluxoNaEntrada } from './fluxo.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 import { evento, publicar } from '../tempo-real.js';
 
@@ -118,15 +119,17 @@ export async function processarPayload(
   // mensagens do mesmo cliente no mesmo lote são um aviso só.
   const tocadas = new Set<string>();
   let entrouNaFila = false;
+  let respostasDoBot = 0;
 
   // Em série: cada valor abre a própria transação com tenant fixado.
   for (const valor of valores) {
     for (const mensagem of valor.messages ?? []) {
-      const conversaId = await receberMensagem(canal, valor, mensagem);
-      if (conversaId) {
+      const recebida = await receberMensagem(canal, valor, mensagem);
+      if (recebida) {
         resumo.mensagensRecebidas += 1;
-        tocadas.add(conversaId);
+        tocadas.add(recebida.conversaId);
         entrouNaFila = true;
+        respostasDoBot += recebida.respostasDoBot;
       } else resumo.ignorados += 1;
     }
     for (const status of valor.statuses ?? []) {
@@ -141,6 +144,9 @@ export async function processarPayload(
   if (resumo.mensagensRecebidas > 0 || resumo.statusAplicados > 0) {
     drenarEmSegundoPlano(canal.tenantId);
   }
+  // Depois do commit: a resposta do bot já está no outbox, e o empurrão faz o worker
+  // entregar agora em vez de na próxima varredura.
+  if (respostasDoBot > 0) await enfileirarEntrega({});
 
   // **Depois do commit.** Publicar dentro da transação avisaria a tela antes de o
   // dado existir: ela buscaria o valor velho e não receberia segundo aviso — que é
@@ -169,7 +175,7 @@ async function receberMensagem(
   canal: CanalResolvido,
   valor: ValorDoWebhook,
   mensagem: MensagemDaMeta,
-): Promise<string | null> {
+): Promise<{ conversaId: string; respostasDoBot: number } | null> {
   const idProvedor = mensagem.id;
   const de = mensagem.from;
   if (!idProvedor || !de) return null;
@@ -189,7 +195,9 @@ async function receberMensagem(
 
     const inbox = await acharInbox(tx, canal.id);
     const contatoId = await acharOuCriarContato(tx, canal, de, nomeDoPerfil);
-    const conversa = await acharOuAbrirConversa(tx, canal, inbox, contatoId, em);
+    // Com fluxo publicado no canal, a conversa nova é do bot: nasce sem fila.
+    const fluxo = await fluxoPublicadoDoCanal(tx, canal.id);
+    const conversa = await acharOuAbrirConversa(tx, canal, inbox, contatoId, em, fluxo !== null);
 
     const conteudo = textoDe(mensagem);
     const tipo = TIPO_DA_META[mensagem.type ?? 'text'] ?? 'texto';
@@ -235,13 +243,28 @@ async function receberMensagem(
       conteudo,
     });
 
+    // O bot fala primeiro. Se ficou com a mensagem, a conversa é dele — ou acabou de
+    // ser transferida, e a distribuição já rodou lá dentro.
+    const bot = await rodarFluxoNaEntrada(tx, fluxo, {
+      tenantId: canal.tenantId,
+      conversa: {
+        id: conversa.id,
+        nova: conversa.nova,
+        filaId: conversa.filaId,
+        atendenteId: conversa.atendenteId,
+        filaPadraoId: inbox.filaPadraoId,
+      },
+      contatoId,
+      mensagem: { id: mensagemId, idProvedor, tipo, conteudo },
+    });
+
     // Conversa parada na fila é candidata a distribuição a cada mensagem nova: se o
     // atendente entrou online depois da primeira, ela sai da fila agora.
-    if (conversa.estado === 'na_fila' && !conversa.atendenteId && conversa.filaId) {
-      await distribuir(tx, canal.tenantId, conversa.id, conversa.filaId, em);
+    if (!bot.tratou && conversa.estado === 'na_fila' && !conversa.atendenteId && conversa.filaId) {
+      await distribuirConversa(tx, canal.tenantId, conversa.id, conversa.filaId, em);
     }
 
-    return conversa.id;
+    return { conversaId: conversa.id, respostasDoBot: bot.respostas };
   });
 }
 
@@ -382,6 +405,8 @@ interface ConversaResolvida {
   estado: string;
   atendenteId: string | null;
   filaId: string | null;
+  /** Nasceu com esta mensagem — só conversa nova começa fluxo. */
+  nova: boolean;
 }
 
 async function acharOuAbrirConversa(
@@ -390,6 +415,7 @@ async function acharOuAbrirConversa(
   inbox: InboxResolvida,
   contatoId: string,
   em: Date,
+  comBot: boolean,
 ): Promise<ConversaResolvida> {
   const { rows } = await tx.execute<{
     id: string;
@@ -409,74 +435,45 @@ async function acharOuAbrirConversa(
       estado: aberta.estado,
       atendenteId: aberta.atendente_id,
       filaId: aberta.fila_id,
+      nova: false,
     };
   }
 
+  // Com bot, a conversa nasce sem fila: só entra na fila quando o bot transferir.
+  const filaId = comBot ? null : inbox.filaPadraoId;
   const { rows: criada } = await tx.execute<{ id: string }>(sql`
     insert into conversa (tenant_id, inbox_id, contato_id, fila_id, estado, criada_em)
-    values (${canal.tenantId}, ${inbox.id}, ${contatoId}, ${inbox.filaPadraoId}, 'na_fila', ${em})
+    values (${canal.tenantId}, ${inbox.id}, ${contatoId}, ${filaId}, 'na_fila', ${em})
     returning id
   `);
   const conversaId = criada[0]?.id;
   if (!conversaId) throw new Error('não criou a conversa');
 
-  await registrarEvento(tx, {
-    tenantId: canal.tenantId,
-    conversaId,
-    tipo: 'criada',
-    em,
-    filaId: inbox.filaPadraoId,
-  });
-  await registrarEvento(tx, {
-    tenantId: canal.tenantId,
-    conversaId,
-    tipo: 'enfileirada',
-    em,
-    filaId: inbox.filaPadraoId,
-  });
+  // `criada` e `enfileirada` marcam o começo do ATENDIMENTO, e é deles que sai o tempo
+  // de fila. Conversa com bot os ganha no transbordo (`dominio/fluxo.ts`), não aqui.
+  if (!comBot) {
+    await registrarEvento(tx, {
+      tenantId: canal.tenantId,
+      conversaId,
+      tipo: 'criada',
+      em,
+      filaId,
+    });
+    await registrarEvento(tx, {
+      tenantId: canal.tenantId,
+      conversaId,
+      tipo: 'enfileirada',
+      em,
+      filaId,
+    });
+  }
   await emitir(tx, canal.tenantId, 'conversa.criada', {
     conversa_id: conversaId,
     contato_id: contatoId,
-    fila_id: inbox.filaPadraoId,
-  });
-
-  return { id: conversaId, estado: 'na_fila', atendenteId: null, filaId: inbox.filaPadraoId };
-}
-
-async function distribuir(
-  tx: TransacaoPipe,
-  tenantId: string,
-  conversaId: string,
-  filaId: string,
-  em: Date,
-): Promise<void> {
-  const escolha = await escolherParaFila(tx, filaId);
-  if (!escolha.escolhido) return;
-
-  const atendenteId = escolha.escolhido.id;
-  await tx.execute(sql`
-    update conversa
-       set atendente_id = ${atendenteId}, estado = 'atribuida', atribuida_em = ${em},
-           atualizado_em = now()
-     where id = ${conversaId} and estado = 'na_fila'
-  `);
-  await tx.execute(sql`
-    insert into atribuicao (tenant_id, conversa_id, para_usuario_id, de_fila_id, motivo, em)
-    values (${tenantId}, ${conversaId}, ${atendenteId}, ${filaId}, 'distribuicao_por_carga', ${em})
-  `);
-  await registrarEvento(tx, {
-    tenantId,
-    conversaId,
-    tipo: 'atribuida',
-    em,
-    usuarioId: atendenteId,
-    filaId,
-  });
-  await emitir(tx, tenantId, 'conversa.atribuida', {
-    conversa_id: conversaId,
-    atendente_id: atendenteId,
     fila_id: filaId,
   });
+
+  return { id: conversaId, estado: 'na_fila', atendenteId: null, filaId, nova: true };
 }
 
 function textoDe(mensagem: MensagemDaMeta): string | null {
