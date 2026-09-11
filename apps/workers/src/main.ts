@@ -3,8 +3,9 @@ import IORedis from 'ioredis';
 import { agregarDiaAnterior } from './agregacao.js';
 import { fecharBancos } from './banco.js';
 import { processarOutbox } from './entrega.js';
-import { FILA_AGREGACAO, FILA_ENTREGA, conexaoRedis } from './filas.js';
-import type { JobEntrega } from './filas.js';
+import { FILA_AGREGACAO, FILA_ENTREGA, FILA_IMPORTACAO, conexaoRedis } from './filas.js';
+import type { JobEntrega, JobImportacao } from './filas.js';
+import { processarImportacao } from './importacao-de-contatos.js';
 import { clienteWhatsApp } from './whatsapp/index.js';
 
 /**
@@ -48,6 +49,18 @@ const agregacao = new Worker(
   { connection: conexao, concurrency: 1 },
 );
 
+// Uma importação por vez: é a fila `low` do Chatwoot, e duas planilhas grandes em
+// paralelo disputariam o banco com a entrega de mensagem.
+const importacao = new Worker<JobImportacao>(
+  FILA_IMPORTACAO,
+  async (job) => {
+    const r = await processarImportacao(job.data);
+    console.log(`[importacao] ${job.data.importacaoId}: ${r.estado}, ${r.aceitos} aceitos, ${r.rejeitados} rejeitados`);
+    return r;
+  },
+  { connection: conexao, concurrency: 1 },
+);
+
 async function subir(): Promise<void> {
   // Varredura de segurança da entrega: recupera o que a fila deixou cair e o que
   // está esperando a próxima tentativa do backoff.
@@ -70,6 +83,7 @@ async function subir(): Promise<void> {
 async function descer(): Promise<void> {
   await entrega.close();
   await agregacao.close();
+  await importacao.close();
   await filaEntrega.close();
   await filaAgregacao.close();
   await conexao.quit();

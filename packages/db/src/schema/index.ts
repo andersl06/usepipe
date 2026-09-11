@@ -10,3 +10,4 @@ export * from './gestao.js';
 export * from './crm.js';
 export * from './monitoria.js';
 export * from './automacao.js';
+export * from './implantacao.js';

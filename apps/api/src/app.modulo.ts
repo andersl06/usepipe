@@ -13,6 +13,7 @@ import {
 } from './controladores/catalogo.js';
 import { ControladorConvites, ControladorDominios } from './controladores/convites.js';
 import { ControladorEntrada, ControladorEu } from './controladores/entrar.js';
+import { ControladorImportacoesDeContatos } from './controladores/importacoes.js';
 import { ControladorMensagensAtivas } from './controladores/mensagens-ativas.js';
 import { ControladorOperacao } from './controladores/operacao.js';
 import { ControladorConexaoSso, ControladorEntradaSso } from './controladores/sso.js';
@@ -49,6 +50,7 @@ import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js
     ControladorContatos,
     ControladorFilas,
     ControladorAtendentes,
+    ControladorImportacoesDeContatos,
   ],
   providers: [
     { provide: APP_GUARD, useValue: new GuardaChaveApi(new Reflector()) },

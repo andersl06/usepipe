@@ -66,6 +66,13 @@ export async function criarAplicacao(): Promise<INestApplication> {
     express.raw({ type: () => true, limit: MAX_BYTES_POR_ARQUIVO }),
   );
 
+  // Importação de contatos entra como TEXTO cru (o CSV), e só nesta rota — mesmo
+  // raciocínio do anexo: o teto de 20 MB daqui não pode valer para o webhook.
+  app.use(
+    '/v1/contatos/importacoes',
+    express.text({ type: () => true, limit: process.env['PIPE_LIMITE_IMPORTACAO'] ?? '20mb' }),
+  );
+
   app.use(
     express.json({
       limit: process.env['PIPE_LIMITE_CORPO'] ?? '2mb',

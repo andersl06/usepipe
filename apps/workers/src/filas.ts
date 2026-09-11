@@ -44,3 +44,17 @@ export interface JobEspelhoCrm {
 export function conexaoRedis(): { url: string } {
   return { url: process.env['REDIS_URL'] ?? 'redis://localhost:6380' };
 }
+
+/**
+ * Importar contatos de um CSV (`importacao-de-contatos.ts`).
+ *
+ * Quem consome são os workers: é trabalho só de banco, longo, e não fala com
+ * serviço externo. O arquivo não viaja no job — mora em `importacao_arquivo` —,
+ * e o job leva só os dois ids; o processamento relê tudo no `comTenant` do tenant.
+ */
+export const FILA_IMPORTACAO = 'pipe-importacao';
+
+export interface JobImportacao {
+  tenantId: string;
+  importacaoId: string;
+}
