@@ -1,5 +1,10 @@
 import { sql } from 'drizzle-orm';
-import { registrarMensagemDoContato, transicaoEntregaPermitida } from '@pipe/core';
+import {
+  candidatosDoTelefone,
+  normalizarWaid,
+  registrarMensagemDoContato,
+  transicaoEntregaPermitida,
+} from '@pipe/core';
 import type { EstadoEntrega } from '@pipe/core';
 import type { TransacaoPipe } from '@pipe/db';
 import { noTenant } from '../banco.js';
@@ -366,9 +371,20 @@ async function acharOuCriarContato(
   identificador: string,
   nome: string | null,
 ): Promise<string> {
+  // A Meta ainda entrega número brasileiro antigo sem o nono dígito, e o importador
+  // grava a forma canônica, com o 9: casar só a forma exata abria ficha nova para
+  // quem já estava na base. As variantes vêm do porte do Chatwoot
+  // (`phone_number_normalization_service`); a forma recebida ganha quando as duas existem.
+  const candidatos =
+    canal.tipo === 'whatsapp_cloud' ? candidatosDoTelefone(identificador) : [identificador];
   const { rows } = await tx.execute<{ contato_id: string }>(sql`
     select contato_id from contato_identidade
-     where canal_tipo = ${canal.tipo} and identificador = ${identificador}
+     where canal_tipo = ${canal.tipo}
+       and identificador in (${sql.join(
+         candidatos.map((c) => sql`${c}`),
+         sql`, `,
+       )})
+     order by identificador = ${identificador} desc
      limit 1
   `);
   const existente = rows[0]?.contato_id;
@@ -376,7 +392,7 @@ async function acharOuCriarContato(
 
   // O telefone só é preenchido no WhatsApp: no Instagram o identificador é a conta,
   // e escrever conta de Instagram em `telefone_e164` estragaria a busca por telefone.
-  const telefone = canal.tipo === 'whatsapp_cloud' ? `+${identificador}` : null;
+  const telefone = canal.tipo === 'whatsapp_cloud' ? `+${normalizarWaid(identificador)}` : null;
   const { rows: criado } = await tx.execute<{ id: string }>(sql`
     insert into contato (tenant_id, nome, telefone_e164)
     values (${canal.tenantId}, ${nome}, ${telefone})
