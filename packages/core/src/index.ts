@@ -7,6 +7,7 @@
  */
 export * from './comum/tipos.js';
 export * from './comum/tempo.js';
+export * from './telefone/index.js';
 export * from './metricas/index.js';
 export * from './esforco/index.js';
 export * from './score/index.js';

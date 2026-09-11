@@ -233,3 +233,76 @@ Não são porte, e não contêm código da Blip:
    See the License for the specific language governing permissions and
    limitations under the License.
 ```
+
+## chatwoot/chatwoot — MIT
+
+A entrada do cliente — conectar o WhatsApp pelo cadastro embutido da Meta, importar contatos
+por CSV, o nono dígito do Brasil, a flag de cadastro de conta e o roteiro do assistente de
+implantação — é porte para TypeScript de arquivos de <https://github.com/chatwoot/chatwoot>,
+distribuídos sob a licença MIT. **Nada vem de `enterprise/`**, que tem licença própria. Cada
+arquivo portado diz no topo de onde veio e o que o Pipe acrescentou.
+
+| Arquivo do Pipe | Original em `chatwoot/chatwoot` |
+|---|---|
+| `apps/api/src/dominio/whatsapp/cliente-graph.ts` | `app/services/whatsapp/facebook_api_client.rb` |
+| `apps/api/src/dominio/whatsapp/troca-de-token.ts` | `app/services/whatsapp/token_exchange_service.rb` |
+| `apps/api/src/dominio/whatsapp/info-do-numero.ts` | `app/services/whatsapp/phone_info_service.rb` |
+| `apps/api/src/dominio/whatsapp/criacao-de-canal.ts` | `app/services/whatsapp/channel_creation_service.rb` |
+| `apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts` | `app/services/whatsapp/webhook_setup_service.rb`, `setup_webhooks` de `app/models/channel/whatsapp.rb` |
+| `apps/api/src/dominio/whatsapp/canal.ts` | `app/models/channel/whatsapp.rb` (`ensure_webhook_verify_token`, `prompt_reauthorization!`, `reauthorized!`, unicidade do número) |
+| `apps/api/src/dominio/whatsapp/saude.ts` | `app/services/whatsapp/health_service.rb` (`fetch_health_status`) |
+| `apps/api/src/dominio/whatsapp/reautorizacao.ts` | `app/services/whatsapp/reauthorization_service.rb` |
+| `apps/api/src/dominio/whatsapp/desmontagem-de-webhook.ts` | `app/services/whatsapp/webhook_teardown_service.rb` |
+| `apps/api/src/dominio/whatsapp/cadastro-embutido.ts` | `app/services/whatsapp/embedded_signup_service.rb` |
+| `apps/api/src/dominio/whatsapp/validacao-da-configuracao-manual.ts` | `app/services/whatsapp/manual_setup_validation_service.rb` |
+| `apps/api/src/dominio/whatsapp/configuracao-manual.ts` | `app/services/whatsapp/manual_setup_service.rb` |
+| `apps/api/src/controladores/canais.ts` (`POST /v1/canais/whatsapp`) | `app/controllers/api/v1/accounts/whatsapp/authorizations_controller.rb` |
+| `packages/core/src/telefone/index.ts` | `app/services/whatsapp/phone_normalizers/base_phone_normalizer.rb`, `brazil_phone_normalizer.rb`, `phone_number_candidates` de `phone_number_normalization_service.rb` |
+| `apps/workers/src/importacao-de-contatos.ts` | `app/jobs/data_import_job.rb` |
+| `apps/workers/src/gerenciador-de-contatos.ts` | `app/services/data_import/contact_manager.rb`, validações de `app/models/contact.rb` |
+| `apps/api/src/dominio/importacao-de-contatos.ts` | `import` de `app/controllers/api/v1/accounts/contacts_controller.rb`, `app/models/data_import.rb` |
+| `apps/api/src/dominio/construtor-de-conta.ts` | `app/builders/account_builder.rb`, `account_signup_enabled?` de `lib/global_config_service.rb` |
+| `apps/api/src/controladores/contas.ts` | `create` de `app/controllers/api/v1/accounts_controller.rb` |
+| `apps/gestao/src/componentes/cadastro-embutido-whatsapp.tsx` | `app/javascript/dashboard/composables/useWhatsappEmbeddedSignup.js`, `app/javascript/dashboard/routes/dashboard/settings/inbox/channels/whatsapp/utils.js`, `connectWhatsapp` de `.../onboarding/inbox-setup/useChannelConnect.js` |
+| `apps/gestao/src/lib/passos-da-implantacao.ts`, `apps/gestao/src/app/implantacao/page.tsx` | os passos e a ordem de `app/javascript/dashboard/routes/dashboard/onboarding/` (`Index.vue`, `InboxSetup.vue`, `inbox-setup/ChannelRow.vue`) — o roteiro; a tela é a da Gestão |
+| `apps/api/tests/canais.test.ts`, `apps/api/tests/importacao.test.ts`, `apps/api/tests/contas.test.ts`, `apps/workers/tests/telefone-e-csv.test.ts` | casos de `spec/services/whatsapp/*_spec.rb`, `spec/services/whatsapp/phone_normalizers/brazil_phone_normalizer_spec.rb`, `spec/jobs/data_import_job_spec.rb` |
+
+Não são porte, e não contêm código do Chatwoot:
+
+- `apps/api/src/dominio/whatsapp/estado-de-conexao.ts` — o `state` contra CSRF do cadastro
+  embutido. O Chatwoot não tem; o comportamento de `state` por abertura é o da Blip, usada só
+  como referência de comportamento.
+- `apps/workers/src/csv.ts` — leitor de CSV escrito para reproduzir o comportamento do `CSV` do
+  Ruby que o `DataImportJob` usa.
+- Os dublês do Graph (`ClienteGraphDuble`) e a leitura dos passos a partir do banco
+  (`apps/gestao/src/lib/implantacao.ts`).
+
+---
+
+```text
+Copyright (c) 2017-2026 Chatwoot Inc.
+
+Portions of this software are licensed as follows:
+
+* All content that resides under the "enterprise/" directory of this repository, if that directory exists, is licensed under the license defined in "enterprise/LICENSE".
+* All third party components incorporated into the Chatwoot Software are licensed under the original license provided by the owner of the applicable component.
+* Content outside of the above mentioned directories or restrictions above is available under the "MIT Expat" license as defined below.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+```

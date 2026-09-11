@@ -17,6 +17,9 @@ const config: NextConfig = {
   // no primeiro import de `@pipe/db`.
   outputFileTracingRoot: path.join(import.meta.dirname, '..', '..'),
   serverExternalPackages: ['pg', 'drizzle-orm', '@pipe/db'],
+  // A importação de contatos sobe o CSV por Server Action, e o teto padrão é 1 MB.
+  // 20 MB é o mesmo teto da rota da `api` que recebe o arquivo.
+  experimental: { serverActions: { bodySizeLimit: '20mb' } },
   transpilePackages: ['@pipe/ui'],
 };
 

@@ -64,7 +64,15 @@ const MODULOS: readonly Modulo[] = [
   {
     rotulo: 'Atendimento',
     href: '/',
-    raizes: ['/', '/historico', '/comunicacao', '/regras', '/atendentes', '/configuracoes'],
+    raizes: [
+      '/',
+      '/historico',
+      '/comunicacao',
+      '/regras',
+      '/atendentes',
+      '/configuracoes',
+      '/implantacao',
+    ],
     resumo: 'Monitoramento, histórico e as regras da operação.',
   },
   {
@@ -198,6 +206,8 @@ const GRUPOS: readonly GrupoLateral[] = [
     rotulo: 'Preferências',
     icone: 'engrenagem',
     filhos: [
+      /* O assistente de implantação: do contrato à primeira conversa atendida. */
+      { rotulo: 'Implantação', href: '/implantacao' },
       { rotulo: 'Configurações gerais', href: '/configuracoes/gerais' },
       { rotulo: 'Dados', href: '/configuracoes/dados' },
     ],

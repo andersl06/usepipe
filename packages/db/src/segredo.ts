@@ -143,6 +143,9 @@ export const CAMPOS_SECRETOS_DE_CANAL = [
   'verifyToken',
   'senhaSmtp',
   'clientSecret',
+  // O PIN de duas etapas que o registro do número grava (`configuracao-de-webhook.ts`).
+  // Com ele, quem tem o número migra o WhatsApp do cliente para outro provedor.
+  'pinVerificacao',
 ] as const;
 
 type Config = Record<string, unknown>;

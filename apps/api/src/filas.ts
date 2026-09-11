@@ -12,6 +12,8 @@ import { resolverCanal } from './banco.js';
 import { SEM_CRM, sincronizarDicionario, tenantsDoDicionario } from './dominio/dicionario-crm.js';
 import { processarPayload } from './dominio/entrada.js';
 import { contatosSemEspelho, sincronizarContato } from './dominio/espelho-crm.js';
+import { FILA_IMPORTACAO, processarImportacao } from '@pipe/workers';
+import type { JobImportacao } from '@pipe/workers';
 
 /**
  * A API só empurra trabalho para a fila; quem executa é `apps/workers`.
@@ -295,4 +297,28 @@ export async function fecharFilas(): Promise<void> {
   filaEspelhoCrm = null;
   filaDicionarioCrm = null;
   conexao = null;
+}
+
+let filaImportacao: Queue<JobImportacao> | null = null;
+
+/**
+ * Empurra uma importação de contatos para os workers
+ * (`apps/workers/src/importacao-de-contatos.ts`).
+ *
+ * No modo memória roda em linha, como a entrada: o caminho é o mesmo, sem o
+ * salto pelo Redis. Fora dele, a verdade é a linha em `importacao`; perder o job
+ * deixa a importação em `pronta`, visível na tela, e reenviar o arquivo não
+ * duplica contato.
+ *
+ * ponytail: a fila não entra em `estadoDasFilas` nem em `fecharFilas` (o `quit`
+ * da conexão já a encerra). Entra quando o alerta `FilaParada` precisar olhar
+ * importação parada.
+ */
+export async function enfileirarImportacao(job: JobImportacao): Promise<void> {
+  if (modo() === 'memoria') {
+    await processarImportacao(job);
+    return;
+  }
+  filaImportacao ??= new Queue(FILA_IMPORTACAO, { connection: redis() });
+  await filaImportacao.add('importar', job, { removeOnComplete: 1_000, removeOnFail: 1_000 });
 }
