@@ -80,7 +80,11 @@ export async function enfileirarEspelhoCrm(job: JobEspelhoCrm): Promise<void> {
       // Um contato por vez, e o mesmo id de job: se a conversa mudar o contato três
       // vezes em segundos, isso vira UM espelho, não três corridas concorrentes
       // escrevendo no mesmo registro do CRM.
-      jobId: `espelho:${job.contatoId}`,
+      //
+      // Hífen, NUNCA `:`. O BullMQ 5 recusa id customizado com `:` (só aceita o formato
+      // de três partes dos jobs repetidos antigos) — e como o `catch` abaixo engole o
+      // erro, `espelho:<uuid>` fazia TODO enfileiramento falhar em silêncio.
+      jobId: `espelho-${job.contatoId}`,
       attempts: 5,
       backoff: { type: 'exponential', delay: 5_000 },
     });
