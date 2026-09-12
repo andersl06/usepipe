@@ -14,6 +14,18 @@
     "./dominio/fluxo": {
       "types": "./dist/dominio/fluxo.d.ts",
       "default": "./dist/dominio/fluxo.js"
+    },
+    "./dominio/conversa": {
+      "types": "./dist/dominio/conversa.d.ts",
+      "default": "./dist/dominio/conversa.js"
+    },
+    "./dominio/envio": {
+      "types": "./dist/dominio/envio.d.ts",
+      "default": "./dist/dominio/envio.js"
+    },
+    "./dominio/assumir": {
+      "types": "./dist/dominio/assumir.d.ts",
+      "default": "./dist/dominio/assumir.js"
     }
   },
   "scripts": {
