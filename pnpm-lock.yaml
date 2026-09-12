@@ -235,6 +235,37 @@ importers:
         specifier: ^5.9.3
         version: 5.9.3
 
+  apps/ponte:
+    dependencies:
+      '@pipe/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@pipe/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      drizzle-orm:
+        specifier: ^0.44.6
+        version: 0.44.7(@types/pg@8.23.1)(pg@8.23.0)
+      express:
+        specifier: ^5.1.0
+        version: 5.2.1
+    devDependencies:
+      '@types/express':
+        specifier: ^5.0.3
+        version: 5.0.6
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.20.1
+      tsx:
+        specifier: ^4.20.6
+        version: 4.23.13
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@22.20.1)(tsx@4.23.13)
+
   apps/workers:
     dependencies:
       '@pipe/core':
