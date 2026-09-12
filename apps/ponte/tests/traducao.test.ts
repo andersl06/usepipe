@@ -134,6 +134,13 @@ describe('conta do atendente', () => {
       ['Suporte'],
     );
     expect(conta['status']).toBe('Online');
+    // Sem papel de administrador, a barra lateral não mostra os itens de gestão.
+    expect(conta['isOwner']).toBe(false);
+    const admin = comoConta(
+      { id: 'u1', nome: 'Ana', email: 'ana@demo.pipe.app', estado: 'online', ehAdministrador: true },
+      [],
+    );
+    expect(admin['isOwner']).toBe(true);
     expect(conta['identity']).toBe('ana%40demo.pipe.app@pipe.local');
     expect(conta['teams']).toEqual(['Suporte']);
 

@@ -132,12 +132,21 @@ export function comoTicket(linha: LinhaConversa, dominio?: string): Record<strin
     lastMessageSort: linha.ultima_mensagem_em ? new Date(iso(linha.ultima_mensagem_em)!).getTime() : 0,
     unreadMessages: Number(linha.nao_lidas ?? 0),
     isNew: linha.estado === 'na_fila',
+    /* Os três abaixo o Pipe não tem, e ainda assim precisam existir: a lista do
+       Desk lê esses campos ao montar cada cartão, e um deles faltando derruba a
+       lista inteira — foi o que aconteceu ao ligar a ponte. Valor neutro, nunca
+       inventado. */
+    customerEmail: null,
+    standbyModeStart: null,
+    sequentialSuffix: '',
     tags: [],
     customerAccount: {
       identity: telefone ? `${telefone.replace('+', '')}@wa.gw.msging.net` : linha.contato_id,
       name: linha.contato_nome ?? 'Sem nome',
       fullName: linha.contato_nome ?? 'Sem nome',
       phoneNumber: telefone,
+      email: null,
+      photoUri: '',
       extras: {
         // A prioridade do Pipe tem cinco degraus e a Blip não usa o mesmo
         // vocabulário. Em vez de traduzir por aproximação, ela viaja como está.
@@ -181,6 +190,8 @@ export type LinhaAtendente = {
   nome: string | null;
   email: string;
   estado?: string | null;
+  /** `isOwner` no vocabulário da tela: libera os itens de administração da barra. */
+  ehAdministrador?: boolean;
 }
 
 /** O `/account` do Desk. Sem `status` a tela quebra em `status.toLowerCase()`. */
@@ -194,7 +205,7 @@ export function comoConta(
     fullName: usuario.nome ?? usuario.email,
     email: usuario.email,
     status: STATUS_ATENDENTE_BLIP[usuario.estado ?? 'offline'] ?? 'Offline',
-    isOwner: false,
+    isOwner: usuario.ehAdministrador ?? false,
     isEnabled: true,
     phoneNumber: '',
     photoUri: '',

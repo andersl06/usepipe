@@ -97,11 +97,30 @@ const rotas: Rota[] = [
            where fa.usuario_id = ${sessao.usuarioId}::uuid
            order by f.nome
         `);
-        return { estado: estado[0]?.estado ?? 'offline', filas: filas.map((f) => f.nome) };
+        /* A tela usa `isOwner` para liberar os itens de administração da barra
+           lateral. No Pipe isso é o papel de administrador — e mandar `false`
+           para quem é admin some com metade da navbar. */
+        const { rows: admin } = await tx.execute<{ existe: number }>(sql`
+          select 1 as existe from usuario_papel up
+            join papel p on p.id = up.papel_id
+           where up.usuario_id = ${sessao.usuarioId}::uuid and p.nome = 'administrador'
+           limit 1
+        `);
+        return {
+          estado: estado[0]?.estado ?? 'offline',
+          filas: filas.map((f) => f.nome),
+          ehAdministrador: admin.length > 0,
+        };
       });
       return ok(
         comoConta(
-          { id: sessao.usuarioId, nome: sessao.nome, email: sessao.email, estado: dados.estado },
+          {
+            id: sessao.usuarioId,
+            nome: sessao.nome,
+            email: sessao.email,
+            estado: dados.estado,
+            ehAdministrador: dados.ehAdministrador,
+          },
           dados.filas,
         ),
       );
