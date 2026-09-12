@@ -1,9 +1,10 @@
 import { sql } from 'drizzle-orm';
 import { noTenant } from './banco.js';
-import { colecao, ok, partirUri, TIPO_DOCUMENTO, TIPO_TICKET } from './lime.js';
+import { ausente, colecao, ok, partirUri, TIPO_DOCUMENTO, TIPO_TICKET } from './lime.js';
 import type { ComandoLime, RespostaLime } from './lime.js';
 import { comoConta, comoDocumentos, comoTicket, comoTime } from './traducao.js';
 import type { LinhaConversa, LinhaMensagem } from './traducao.js';
+import { carregarGlobais, carregarRascunho, gravarFluxo } from './builder.js';
 
 /**
  * O roteador de comandos LIME.
@@ -29,6 +30,9 @@ interface Contexto {
 }
 
 type Manipulador = (ctx: Contexto) => Promise<RespostaLime>;
+
+/** Uma rota declara os métodos que aceita. O padrão é só leitura. */
+type Rota = [RegExp, Manipulador, string[]?];
 
 const COLUNAS = `
   c.id, c.estado, c.prioridade, c.criada_em, c.atribuida_em, c.encerrada_em,
@@ -66,7 +70,14 @@ async function conversasAbertas(sessao: Sessao, limite = 100): Promise<LinhaConv
   });
 }
 
-const rotas: [RegExp, Manipulador][] = [
+/* As três rotas do Builder usam `new RegExp` de propósito: barra escapada dentro de
+   literal de expressão regular não sobrevive às ferramentas que editam este arquivo
+   por script. Classe de caractere resolve, e lê igual. */
+const ROTA_FLUXO_RASCUNHO = new RegExp('^[/]buckets[/]blip_portal:builder_working_flow$');
+const ROTA_ACOES_GLOBAIS = new RegExp('^[/]buckets[/]blip_portal:builder_working_global_actions$');
+const ROTA_FLUXO_PUBLICADO = new RegExp('^[/]buckets[/]blip_portal:builder_published_flow$');
+
+const rotas: Rota[] = [
   /* ---- vida e relógio: a tela pergunta o tempo todo ---- */
   [/^\/ping$/, async () => ok({})],
   [/^\/now$/, async () => ok({ now: new Date().toISOString() })],
@@ -82,8 +93,8 @@ const rotas: [RegExp, Manipulador][] = [
         `);
         const { rows: filas } = await tx.execute<{ nome: string }>(sql`
           select f.nome from fila f
-            join fila_atendente fu on fu.fila_id = f.id
-           where fu.usuario_id = ${sessao.usuarioId}::uuid
+            join fila_atendente fa on fa.fila_id = f.id
+           where fa.usuario_id = ${sessao.usuarioId}::uuid
            order by f.nome
         `);
         return { estado: estado[0]?.estado ?? 'offline', filas: filas.map((f) => f.nome) };
@@ -136,7 +147,10 @@ const rotas: [RegExp, Manipulador][] = [
     /^\/tickets$/,
     async ({ sessao }) => {
       const linhas = await conversasAbertas(sessao);
-      return colecao(linhas.map((l) => comoTicket(l)), TIPO_TICKET);
+      return colecao(
+        linhas.map((l) => comoTicket(l)),
+        TIPO_TICKET,
+      );
     },
   ],
   [
@@ -144,7 +158,10 @@ const rotas: [RegExp, Manipulador][] = [
     async ({ sessao }) => {
       const linhas = await conversasAbertas(sessao);
       const minhas = linhas.filter((l) => l.atendente_id === sessao.usuarioId);
-      return colecao(minhas.map((l) => comoTicket(l)), TIPO_TICKET);
+      return colecao(
+        minhas.map((l) => comoTicket(l)),
+        TIPO_TICKET,
+      );
     },
   ],
 
@@ -182,6 +199,58 @@ const rotas: [RegExp, Manipulador][] = [
       return ok(linha ? comoTicket(linha) : {}, TIPO_TICKET);
     },
   ],
+
+  /* ---- Builder: o cliente desenhando o próprio fluxo ----
+     Estes três baldes são o Builder inteiro. Ler devolve o que está no banco;
+     gravar passa pelo mesmo importador que já grava fluxo, versão, blocos e
+     transições. Publicar é o mesmo caminho com `publicar` ligado. */
+  [
+    ROTA_FLUXO_RASCUNHO,
+    async ({ sessao, cmd }) => {
+      if (cmd.method === 'get') {
+        const mapa = await carregarRascunho(sessao);
+        return mapa ? ok(mapa) : ausente();
+      }
+      const globais = await carregarGlobais(sessao);
+      const r = await gravarFluxo(sessao, cmd.resource as Record<string, unknown>, globais, false);
+      return ok({
+        versao: r.versao,
+        naoSuportado: r.naoSuportado,
+        erroDeValidacao: r.erroDeValidacao,
+      });
+    },
+    ['get', 'set'],
+  ],
+  [
+    ROTA_ACOES_GLOBAIS,
+    async ({ sessao, cmd }) => {
+      if (cmd.method === 'get') {
+        const globais = await carregarGlobais(sessao);
+        return globais ? ok(globais) : ausente();
+      }
+      const mapa = await carregarRascunho(sessao);
+      if (!mapa) return ok({});
+      await gravarFluxo(sessao, mapa, cmd.resource as Record<string, unknown>, false);
+      return ok({});
+    },
+    ['get', 'set'],
+  ],
+  [
+    ROTA_FLUXO_PUBLICADO,
+    async ({ sessao, cmd }) => {
+      if (cmd.method === 'get') {
+        const mapa = await carregarRascunho(sessao);
+        return mapa ? ok(mapa) : ausente();
+      }
+      const globais = await carregarGlobais(sessao);
+      const r = await gravarFluxo(sessao, cmd.resource as Record<string, unknown>, globais, true);
+      /* Publicar fluxo inválido não pode passar em silêncio: o motor recusaria
+         rodar, e quem clicou em publicar precisa saber disso. */
+      if (r.erroDeValidacao) return ok({ publicado: false, erro: r.erroDeValidacao });
+      return ok({ publicado: r.publicado, versao: r.versao });
+    },
+    ['get', 'set'],
+  ],
 ];
 
 /**
@@ -191,10 +260,9 @@ const rotas: [RegExp, Manipulador][] = [
  */
 export async function despachar(cmd: ComandoLime, sessao: Sessao): Promise<RespostaLime | null> {
   const { caminho, query } = partirUri(cmd.uri);
-  for (const [padrao, manipulador] of rotas) {
+  for (const [padrao, manipulador, metodos] of rotas) {
     if (!padrao.test(caminho)) continue;
-    // Só leitura nesta etapa. Escrita entra na etapa 3 da spec da ponte.
-    if (cmd.method !== 'get') return null;
+    if (!(metodos ?? ['get']).includes(cmd.method)) return null;
     return manipulador({ sessao, caminho, query, cmd });
   }
   return null;

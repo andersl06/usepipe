@@ -10,6 +10,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./dominio/fluxo": {
+      "types": "./dist/dominio/fluxo.d.ts",
+      "default": "./dist/dominio/fluxo.js"
     }
   },
   "scripts": {

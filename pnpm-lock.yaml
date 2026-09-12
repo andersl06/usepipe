@@ -237,6 +237,9 @@ importers:
 
   apps/ponte:
     dependencies:
+      '@pipe/api':
+        specifier: workspace:*
+        version: link:../api
       '@pipe/core':
         specifier: workspace:*
         version: link:../../packages/core

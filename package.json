@@ -19,7 +19,8 @@
     "banco:migrar": "pnpm --filter @pipe/db migrar",
     "banco:semear": "pnpm --filter @pipe/db semear",
     "seed:demo": "pnpm --filter @pipe/db semear:demo",
-    "desk": "pnpm --filter @pipe/desk dev"
+    "desk": "pnpm --filter @pipe/desk dev",
+    "ponte": "pnpm --filter @pipe/ponte dev"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.0",

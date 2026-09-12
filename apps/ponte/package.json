@@ -21,6 +21,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@pipe/api": "workspace:*",
     "@pipe/core": "workspace:*",
     "@pipe/db": "workspace:*",
     "drizzle-orm": "^0.44.6",
