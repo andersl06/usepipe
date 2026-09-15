@@ -235,3 +235,19 @@
     });
   }
 })();
+
+/* O "Entrar" leva ao aplicativo, que mora em outro domínio — `app.usepipe.ai`.
+
+   Em desenvolvimento esse endereço não existe, e o botão levaria a lugar nenhum
+   justo na hora de testar o caminho inteiro. Aqui ele é reescrito para a porta
+   local do aplicativo; em produção nada acontece, porque o host não é local.
+
+   Fica no site, e não no aplicativo, porque é o site quem conhece as duas
+   pontas — e sem isto o teste do fluxo começa com um link quebrado. */
+(function () {
+  var local = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+  if (!local) return;
+  var alvo = "http://localhost:3100/entrar";
+  var botoes = document.querySelectorAll("[data-entrar]");
+  for (var i = 0; i < botoes.length; i++) botoes[i].setAttribute("href", alvo);
+})();

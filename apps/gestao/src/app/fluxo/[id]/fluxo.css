@@ -1,0 +1,978 @@
+/* ============================== a tela do contato (`/fluxo/{id}`)
+
+   Cópia de `auth.application.detail.home` do portal deles, medida regra por
+   regra na folha `supernova.blip.ai/portal.css` e nos templates embutidos no
+   `portal.js`:
+
+     módulo 57475  o casco do detalhe (`<aside class="detail-aside fl">` +
+                   `<section id="main-content-area" class="main-detail-content
+                   min-vh-flex pa0 flex relative u-full-width">`);
+     módulo 80688  a barra do contato (`.subheader-nav-div.flex.items-center.
+                   justify-between.ph5`);
+     módulo 79829  a fileira de seções (`<ul class="main-subheader ma0 flex
+                   items-center">` + o `.subheader-more-items`);
+     módulo 77021  o miolo (`.container` > cabeçalho > `<hr/>` >
+                   `.chatbot-home-content`).
+
+   Cada bloco abaixo traz o SELETOR DE ORIGEM e o número medido. Só o que é
+   DESTA tela mora aqui; o casco (`pt-app`, `pt-conteudo`, `pt-obra`) e as peças
+   de barra (`g-menu`, `g-painel`, `g-ponto`) vêm de `globais.css`.
+
+   ═══ A TINTA É A NOSSA ═══
+
+   Nenhum hex deles entra. A barra escura sai dos `--g-barra-*`, o resto dos
+   `--p-*`. As correspondências que o resto do projeto já fixou:
+
+     #282828 `--color-content-default` (fundo da barra)   → `--g-barra-2`
+     #c9dfe4 (rótulo apagado da barra)                    → `--g-barra-fraca`
+     #fff    (rótulo ativo da barra)                      → `--g-barra-tinta`
+     #3f7de8 (sublinhado do ativo)                        → `--g-barra-marca`
+     #21cc79 / #ff4c4c (ponto de status)                  → `--g-ponto-on/off`
+     #ededed `--color-surface-2` (chão do miolo)          → `--ground` (pt-app)
+     #fff    `--color-surface-0` (cartão)                 → `--p-superficie-0`
+     #202c44 (título de cartão)                           → `--p-conteudo`
+     #505f79 (corpo de cartão)                            → `--p-conteudo-desabilitado`
+     #94a3ab `.bp-c-silver` (Id, "Criado em")             → `--p-conteudo-fantasma`
+     #e1e1e1 (`<hr/>`)                                    → `--p-linha`
+     #ff4c4c `.bp-c-delete` ("Deixar projeto")            → `--p-erro-conteudo`
+     #3f7de8 / #1e6bf1 (botão, "Ver mais", preço)         → `--p-marca-forte`
+     #b3d4ff (ícone de métrica)                           → `--p-marca-suave`
+     #8ca0b3 (divisória entre métricas)                   → `--p-linha-media`
+     rgba(0,0,0,.2) `--color-border-1` (borda de campo)  → `--p-linha-media`
+     `--color-surface-1/2/3` (pilha, extensão)          → `--p-superficie-1/2/3`
+     #282828 `--color-content-default` (nome de extensão) → `--p-conteudo`
+
+   Não há alias no `:root` como em `criar.css`: aqui nenhum `--p-*` é
+   reapontado dentro da barra, então não há ciclo de variável para abrir. */
+
+/* ======================================== a barra do contato (`.subheader-nav`)
+
+   `.subheader-nav`: `background: var(--color-content-default)`,
+   `box-shadow: 0 2px 12px rgba(96,123,153,.15)`, `font-size: 1rem`,
+   `font-weight: 400`, `display: block`, `width: 100%`, `position: relative`.
+   `.subheader-nav-div`: `flex items-center justify-between ph5` — e `.ph5` é
+   `padding-left/right: 2.5rem`, ou seja 40px, NÃO os 32 da barra de baixo da
+   Gestão.
+   `.subheader-nav .bot-header-details` tem `min-height: 55px`, e o `a` da
+   fileira tem `line-height: 3.5rem` — é isso que dá os 56px da barra. */
+.fx-subbarra {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: var(--g-barra-inf-h); /* 56px */
+  padding: 0 var(--p-e-10); /* `.ph5` = 2.5rem */
+  background: var(--g-barra-2);
+  color: var(--g-barra-tinta);
+  font-size: var(--g-t-modulo); /* `.subheader-nav { font-size: 1rem }` */
+  font-weight: var(--g-peso-normal); /* `.subheader-nav { font-weight: 400 }` */
+  position: relative;
+  z-index: 30;
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--p-conteudo) 15%, transparent);
+}
+
+/* `.bot-header-details.flex.items-center` — avatar, nome e a seta. */
+.fx-contato {
+  display: flex;
+  align-items: center;
+  min-height: 55px; /* `.subheader-nav .bot-header-details` */
+  min-width: 0;
+  flex: none;
+}
+
+/* `<div class="relative pointer">` com o avatar `.icon.icon-sm.icon-avatar.round`
+   — `.icon.icon-sm` mede 2.25rem, 36px (o `icon-l` de 72 é o do miolo). O ponto
+   de status é `.u-status-on--medium` (13px, borda de 2) em `right: -3px; top: 0`,
+   que é exatamente o `.g-ponto` de `globais.css`. */
+.fx-av {
+  position: relative;
+  display: flex;
+  flex: none;
+}
+
+.fx-av img,
+.fx-av .avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  font-size: var(--p-t-md);
+}
+
+/* O `<dropdown-item>` do nome: `.bot-name.fw3` com `margin-left: 15px` e a
+   `bds-icon name="arrow-down" size="small"` logo depois. `.fw3` é peso 300 —
+   o nome é LEVE, não normal. */
+.fx-contato-menu > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-1);
+  margin-left: 15px; /* `.bot-header-details .bot-name { margin-left: 15px }` */
+  padding: 4px var(--p-e-2);
+  border-radius: var(--p-r-md);
+  cursor: pointer;
+  min-width: 0;
+}
+
+.fx-contato-menu > summary:hover {
+  background: var(--g-barra-hover);
+}
+
+.fx-contato-nome {
+  font-size: var(--g-t-modulo); /* 1rem, herdado de `.subheader-nav` */
+  font-weight: var(--g-peso-leve); /* `.fw3` */
+  line-height: 1.6;
+  color: var(--g-barra-tinta);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 22ch;
+}
+
+.fx-contato-menu > summary svg {
+  flex: none;
+  /* `.arrow-icon.transition-0-3s`: a seta gira meia volta quando abre. */
+  transition: transform var(--p-dur-normal) ease;
+}
+
+.fx-contato-menu[open] > summary svg {
+  transform: rotate(180deg);
+}
+
+/* `.subheader-nav .bot-header-details .dropdown-wrapper`: `width: 160px`,
+   `max-width: 200px`, `padding: 0`; a `<ul class="no-style ma0 ph4">` põe os
+   20px de recuo (`.ph4` = 1.25rem). O painel abre à direita do botão
+   (`dropdown-item .dropdown-item-content { right: -.5rem }`). */
+.fx-contato-menu .g-painel {
+  /* Lá é `width: 160px` fixo; aqui o selo "em breve" não cabe em 160, então o
+     painel cresce até o `max-width: 200px` que a regra deles já permite. */
+  width: max-content;
+  min-width: 160px;
+  max-width: 200px;
+  left: 0;
+  right: auto;
+  padding: var(--p-e-2) var(--p-e-5);
+  gap: var(--p-e-2);
+}
+
+/* `dropdown-item a { color: #52636c }`, hover `#3f7de8`. Aqui o link do painel
+   já é `--p-marca-forte` por `globais.css`; só o destrutivo muda de tinta. */
+.fx-contato-menu .g-painel .fx-sair {
+  color: var(--p-erro-conteudo); /* `.bp-c-delete` */
+}
+
+/* =========================== a fileira de seções (`.main-subheader`, mód. 79829)
+
+   `.subheader-nav .main-subheader > li > a`: `color: #c9dfe4`, `display: block`,
+   `font-weight: 300`, `line-height: 3.5rem` (56px, a barra inteira),
+   `padding: 0 20px`. Sem `gap` — o vão entre dois rótulos são os 20+20 de
+   padding. Ativo e hover: `color: #fff`.
+
+   É a MESMA receita da fileira de módulos do portal (`.g-modulos`), porque na
+   origem as duas barras são a mesma peça vista em dois estados. */
+.fx-menu {
+  display: flex;
+  align-items: stretch;
+  align-self: stretch;
+  gap: 0;
+  min-width: 0;
+}
+
+.fx-item {
+  display: flex;
+  align-items: center;
+  padding: 0 var(--p-e-5); /* `padding: 0 20px` */
+  font-size: var(--g-t-modulo);
+  font-weight: var(--g-peso-leve); /* 300 */
+  line-height: 1.6;
+  color: var(--g-barra-fraca); /* #c9dfe4 */
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+a.fx-item:hover {
+  color: var(--g-barra-tinta); /* #fff */
+}
+
+/* O ativo: `li.active > a { color: #fff }` e o `a:before` de 4px na cor da
+   marca, `bottom: 0`, `left: 0`, `width: 100%` (parado, é `left: 25%;
+   width: 0`, com `transition: .3s`). Na `home` nenhum item acende; na Análise
+   acende "Análise" — o `sidenav-menu-item` testa `$state.includes(sref)`. */
+.fx-item--ativo {
+  position: relative;
+  color: var(--g-barra-tinta);
+}
+
+.fx-item--ativo::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: var(--g-barra-marca);
+}
+
+/* O item apagado herda `pt-links-obra` (tinta da barra, 55% de opacidade). */
+.fx-item.pt-links-obra {
+  padding: 0 var(--p-e-5);
+  white-space: nowrap;
+}
+
+/* `.subheader-nav .subheader-more-items { padding-left: 10px }` e o ícone
+   `more-options-horizontal` dentro de um `div.h-100.flex.items-center`. */
+.fx-mais {
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+}
+
+.fx-mais > summary {
+  width: 24px;
+  height: 24px;
+  color: var(--g-barra-fraca);
+}
+
+.fx-mais[open] > summary,
+.fx-mais > summary:hover {
+  color: var(--g-barra-tinta);
+}
+
+.fx-mais .g-painel {
+  width: max-content; /* `dropdown-item min-width="max-content"` */
+  min-width: 160px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
+}
+
+/* ================================ os atalhos da direita (`.action-icons`)
+
+   `.subheader-nav .action-icons li`: `display: inline-block; margin-left: 18px`.
+   Estão dentro de um `<bds-grid gap="1">`, mas quem manda no vão é o
+   `margin-left` de cada item. */
+.fx-icones {
+  display: flex;
+  align-items: center;
+  flex: none;
+}
+
+/* `.subheader-nav .action-icons li i { color: #c9dfe4; font-size: 1.25rem }` —
+   o glifo tem avanço de 1em, então a vaga é 20×20; `[class^=icon-]:before`
+   traz `line-height: 1` e `vertical-align: middle`. */
+.fx-icone {
+  display: flex;
+  margin-left: 18px;
+  color: var(--g-barra-fraca);
+}
+
+/* O selo encosta no último ícone com o recuo que o `pt-obra-selo` já tem. */
+.fx-icones.pt-links-obra {
+  gap: 0;
+  padding: 0;
+}
+
+@media (max-width: 900px) {
+  .fx-icones {
+    display: none;
+  }
+}
+
+/* ============================= o miolo (`#main-content-area`, mód. 57475)
+
+   `<section id="main-content-area" class="main-detail-content min-vh-flex pa0
+   flex relative u-full-width">`. `.pa0` é `padding: 0` — a coluna do miolo se
+   vira sozinha, o casco não recua nada. `.main-detail-content` traz
+   `background-color: var(--color-surface-2)`, que aqui é o `--ground` que
+   `.pt-app` já pinta.
+
+   A `<aside class="detail-aside fl">` fica VAZIA na `home`: quem a preenche são
+   Atendimento, Configurações e IA. Sem lateral, sem abas — por isso não há
+   regra de `aside` nesta folha. */
+.fx-miolo {
+  padding: 0;
+}
+
+/* `<div class="container">` (Skeleton): `margin: 0 auto`, `padding: 0 20px`,
+   `width: 100%`; a partir de 550px vira `width: 90%` sem padding, e a partir
+   de 750px `width: 80%`. NÃO há `max-width` — a coluna acompanha a tela. */
+.fx-coluna {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 var(--p-e-5);
+  position: relative;
+}
+
+@media (min-width: 550px) {
+  .fx-coluna {
+    width: 90%;
+    padding: 0;
+  }
+}
+
+@media (min-width: 750px) {
+  .fx-coluna {
+    width: 80%;
+  }
+}
+
+/* `<div class="flex flex-row justify-between mt5">` — `.mt5` é 2.5rem, 40px. */
+.fx-cabecalho {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  margin-top: 2.5rem;
+}
+
+.fx-identidade {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  min-width: 0;
+}
+
+/* `.bot-image-upload > img.icon.icon-l.icon-avatar.round`: `.icon.icon-l` mede
+   4.5rem — 72px. */
+.fx-foto {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex: none;
+  font-size: var(--p-t-xl);
+}
+
+/* `<div class="flex flex-column ml3">` — `.ml3` é .625rem, 10px. E o nome e o
+   "Id:" trazem OUTRO `ml3` cada um, então o texto fica a 20px da foto. */
+.fx-titulos {
+  display: flex;
+  flex-direction: column;
+  margin-left: 10px;
+  min-width: 0;
+}
+
+/* `<bds-typo variant="fs-20" bold="bold" class="ml3 mb2">`: 20px, peso 700,
+   `line-height: 100%`, 10px de recuo e 5px (`.mb2`) até o "Id:". */
+.fx-nome {
+  margin: 0 0 5px 10px;
+  font-size: var(--p-t-xl); /* 20px */
+  font-weight: var(--g-peso-negrito); /* `bold="bold"` = 700 */
+  line-height: 100%;
+  color: var(--p-conteudo);
+}
+
+/* `<span class="bp-c-silver bp-fs-6 flex flex-row"><span class="ml3 pr1">`:
+   `.bp-fs-6` é .875rem (14px) e `.bp-c-silver` é o cinza de apoio. */
+.fx-id {
+  margin: 0 0 0 10px;
+  font-size: 14px; /* `.bp-fs-6` — não há token `--p-t-*` de 14 no miolo claro */
+  color: var(--p-conteudo-fantasma);
+}
+
+/* `<div class="self-end bp-c-silver bp-fs-6">`: encostado no PÉ da linha, não
+   no topo — é por isso que "Criado em" fica na altura do "Id:". */
+.fx-criado {
+  align-self: flex-end;
+  margin: 0;
+  font-size: 14px;
+  color: var(--p-conteudo-fantasma);
+  white-space: nowrap;
+}
+
+/* `.pr1` é .15625rem — 2,5px. */
+.fx-criado span {
+  padding-right: 2.5px;
+}
+
+/* `hr`: `border-width: 0; border-top: 1px solid #e1e1e1`, e a última regra da
+   folha deixa `margin-top: .9375rem` (15px) e `margin-bottom: 1.125rem` (18px). */
+.fx-fio {
+  border: 0;
+  border-top: 1px solid var(--p-linha);
+  margin: 15px 0 18px;
+}
+
+/* ============================== a grade (`.chatbot-home-content`, mód. 77021)
+
+   `display: grid; gap: 0 .8rem; grid-template-columns: repeat(3, 1fr);
+   grid-template-rows: repeat(3, auto); padding-bottom: 2.5rem`, com a coluna de
+   extensões (a Blip Store) ocupando as três primeiras linhas da esquerda. Sem
+   ela, a folha deles troca as áreas por faixas de largura inteira —
+   `:not(:has(.chatbot-home-content-extensions-area))`.
+
+   Os cortes de 62em e 48em vão como estão. Eles trocam colunas e áreas da regra
+   base; a variante sem extensões tem especificidade maior e continua mandando
+   nas áreas abaixo deles também, igual lá.
+
+   A variante `:has(.chatbot-home-content-ai-area)` não entrou: o cartão de IA
+   depende da flag `new-onboarding-custom-ai`, desligada para o roteador
+   capturado — a origem não desenha esse estado aqui.
+
+   `.chatbot-home-content bds-typo { color: #505f79 }` — todo texto de corpo. */
+.fx-grade {
+  display: grid;
+  gap: 0 0.8rem;
+  grid-template-areas:
+    'extensoes canais canais'
+    'extensoes equipe equipe'
+    'extensoes preferencias preferencias'
+    'metricas metricas metricas';
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, auto);
+  padding-bottom: 2.5rem;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.fx-grade:not(:has(.fx-area-extensoes)) {
+  grid-template-areas:
+    'canais canais canais'
+    'equipe equipe equipe'
+    'preferencias preferencias preferencias'
+    'metricas metricas metricas';
+}
+
+@media screen and (max-width: 62em) {
+  .fx-grade {
+    grid-template-areas:
+      'extensoes extensoes'
+      'canais equipe'
+      'preferencias preferencias'
+      'metricas metricas';
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: 1fr repeat(3, auto);
+  }
+}
+
+@media screen and (max-width: 48em) {
+  .fx-grade {
+    grid-template-areas: 'extensoes' 'canais' 'equipe' 'preferencias' 'metricas';
+    grid-template-columns: 100%;
+    grid-template-rows: 1fr repeat(4, auto);
+  }
+}
+
+/* Cada `*-area` leva `margin-bottom: .8rem` — o `gap` só vale entre colunas. */
+.fx-area-extensoes {
+  grid-area: extensoes;
+  margin-bottom: 0.8rem;
+  min-width: 500px;
+}
+
+.fx-area-canais {
+  grid-area: canais;
+  margin-bottom: 0.8rem;
+}
+
+.fx-area-equipe {
+  grid-area: equipe;
+  margin-bottom: 0.8rem;
+}
+
+.fx-area-preferencias {
+  grid-area: preferencias;
+  margin-bottom: 0.8rem;
+}
+
+.fx-area-metricas {
+  grid-area: metricas;
+  margin-bottom: 0.8rem;
+}
+
+/* ================================================= o cartão (`<bds-paper>`)
+
+   O `:host` do `bds-paper`: `display: block; border-radius: 16px`, fundo
+   `--color-surface-0` e elevação `static` (`0 2px 8px -2px
+   var(--color-shadow-1)`) — o `--g-r-cartao` e o `--g-sombra-cartao` de
+   `globais.css`. E `.chatbot-home-content bds-paper { height: 100% }`. */
+.fx-papel {
+  display: block;
+  box-sizing: border-box;
+  height: 100%;
+  background: var(--p-superficie-0);
+  border-radius: var(--g-r-cartao);
+  box-shadow: var(--g-sombra-cartao);
+}
+
+/* `<bds-typo tag="h4" variant="fs-20" bold="bold" margin="false">`: 20px, 700,
+   `line-height: 100%`; o `::part(bds-typo__text)` do h4 pinta #202c44. */
+.fx-h4 {
+  margin: 0;
+  font-size: var(--p-t-xl);
+  font-weight: var(--g-peso-negrito);
+  line-height: 100%;
+  color: var(--p-conteudo);
+}
+
+/* `.mb1` do título de Equipe: .15625rem. */
+.fx-mb1 {
+  margin-bottom: 0.15625rem;
+}
+
+/* `<bds-button size="short" variant="tertiary">`: 32px, raio 8,
+   `padding: 0 16px`, `gap: 4px`. Nesta versão do blip-ds o terciário é
+   CONTORNADO: fundo transparente, borda de 1px e texto na primária
+   (`.button__color--primary.button__variant--tertiary`). O hover é a primária
+   a 8% por cima (`:hover::before`). */
+.fx-botao {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 16px;
+  border: 1px solid var(--p-marca-forte);
+  border-radius: var(--p-r-md);
+  background: transparent;
+  color: var(--p-marca-forte);
+  font-size: var(--p-t-md);
+  font-weight: var(--g-peso-negrito);
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+a.fx-botao:hover {
+  background: var(--p-marca-suave);
+}
+
+/* O bloco em obra herda de `pt-links-obra` a tinta da BARRA; aqui é miolo claro. */
+.fx-botao.pt-links-obra {
+  padding: 0 16px;
+  color: var(--p-marca-forte);
+}
+
+/* `size="standard"` — o botão da loja. */
+.fx-botao-alto {
+  height: 40px;
+}
+
+/* ---------------------------------- Canais e Equipe: a faixa em LINHA
+
+   `__container { display: flex; flex-direction: row; justify-content:
+   space-between; min-height: 82px }` — título de um lado, conteúdo do outro. */
+.fx-faixa {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  min-height: 82px;
+}
+
+/* `__title-container { align-content: center; margin-left: 20px }` */
+.fx-faixa-titulo {
+  align-content: center;
+  margin-left: 20px;
+}
+
+/* `__sub-container { display: flex; flex-direction: row; justify-content: space-between }` */
+.fx-faixa-sub {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+/* `__button-container.self-end { align-content: center; height: 100%;
+   margin-right: 15px }` + `.chatbot-home-content__button-container { min-height: 2rem }` */
+.fx-faixa-botao {
+  align-self: flex-end;
+  align-content: center;
+  height: 100%;
+  min-height: 2rem;
+  margin-right: 15px;
+}
+
+/* `div.flex.items-center.mt1.__icons { margin-left: -.25rem; margin-right: 5px }`
+   (`.mt1` = .15625rem). Cada vaga é um `bds-icon type="logo" size="large"`:
+   28×28, sem vão entre um e outro. A cor é a do próprio logo; só o `email`, que
+   é desenho da Blip na primária dela, pinta com a nossa marca. */
+.fx-canais-logos {
+  display: flex;
+  align-items: center;
+  margin: 0.15625rem 5px 0 -0.25rem;
+}
+
+.fx-canal-logo {
+  display: flex;
+  width: 28px;
+  height: 28px;
+  color: var(--p-marca-forte);
+}
+
+/* `__description-container { align-content: center; height: 100%; margin: 0 15px }`
+   e `__description`: `fs-12` (150%) cortado em UMA linha com reticências. */
+.fx-faixa-descricao {
+  align-content: center;
+  height: 100%;
+  margin: 0 15px;
+}
+
+.fx-descricao {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  margin: 0;
+  font-size: var(--p-t-sm);
+  line-height: 150%;
+}
+
+/* ---------------------------------- a pilha da equipe (`avatar-array`)
+
+   `__avatar-container.overflow-hidden`: `position: relative; height: 100%;
+   min-height: 2rem; min-width: 55px; margin-top: 17px; margin-right: 5px`. Os
+   avatares são absolutos, então a caixa fica nos 55px mínimos e corta o resto:
+   na escala de .55 cabem dois e meio. É o desenho da origem. */
+.fx-pilha-caixa {
+  position: relative;
+  overflow: hidden;
+  height: 100%;
+  min-height: 2rem;
+  min-width: 55px;
+  margin: 17px 5px 0 0;
+}
+
+/* `.chatbot-home-content avatar-array { display: flex; transform: scale(.55);
+   transform-origin: left }` */
+.fx-pilha {
+  display: flex;
+  transform: scale(0.55);
+  transform-origin: left;
+}
+
+/* O `angular-tooltips` embrulha cada `<avatar>` num `<tooltip>`:
+   `.avatar-array tooltip { position: absolute; width: 55px; height: 55px;
+   border-radius: 50%; background: var(--color-surface-1) }`, com o `span` de
+   dentro em `padding: 2px`. */
+.fx-pilha-item {
+  position: absolute;
+  top: 0;
+  box-sizing: border-box;
+  width: 55px;
+  height: 55px;
+  padding: 2px;
+  border-radius: 50%;
+  background: var(--p-superficie-1);
+  cursor: default;
+}
+
+/* `.avatar-array tooltip img { 51px }` e `.avatar-array letter-avatar { 50px }` */
+.fx-pilha-item img {
+  display: block;
+  width: 51px;
+  height: 51px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.fx-pilha-item .avatar {
+  width: 50px;
+  height: 50px;
+  font-size: var(--p-t-xl);
+}
+
+/* ---------------------------------------- Preferências: o cartão em COLUNA
+
+   `div.flex.flex-column.justify-between.w-100.h-100.__container
+   { gap: 1rem; padding: 20px 15px 15px }` e `__inputs { display: flex;
+   flex-wrap: wrap; gap: 1rem }`, cada campo em `flex: 1 1 10rem`. */
+.fx-preferencias {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 20px 15px 15px;
+}
+
+.fx-campos {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+/* `bds-input`/`bds-autocomplete` com `label`: `.input--state-primary { border:
+   1px solid var(--color-border-1); border-radius: 8px }`, `.input--label
+   { padding: 7px 4px 8px 12px }`, rótulo `fs-12` e texto em .875rem com
+   `line-height: 22px`. Os três chegam desabilitados, e `.input--state-disabled`
+   é `opacity: 50%; cursor: not-allowed`. Sem fundo: o campo é o papel. */
+.fx-campo {
+  flex: 1 1 10rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  min-width: 0;
+  padding: 7px 4px 8px 12px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  color: var(--p-conteudo);
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.fx-campo-rotulo {
+  font-size: var(--p-t-sm);
+  line-height: 150%;
+}
+
+.fx-campo-valor {
+  font-size: var(--p-t-md);
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+/* Plano é `placeholder`, não valor: tinta de dica. E vem do banco em caixa
+   baixa (`essencial`), enquanto a barra do topo o mostra capitalizado. */
+.fx-campo-dica {
+  color: var(--p-conteudo-fantasma);
+}
+
+.fx-campo-dica::first-letter {
+  text-transform: uppercase;
+}
+
+/* ---------------------------------------- Métricas (`__metrics-area`)
+
+   `__container { display: flex; align-items: stretch; justify-content:
+   space-between; padding: 1.5rem }`; cada item `flex: 1; padding-right: 1rem;
+   position: relative`, e do segundo em diante `border-left: 1px solid #8ca0b3;
+   padding-left: 2rem`. */
+.fx-metricas {
+  display: flex;
+  align-items: stretch;
+  justify-content: space-between;
+  padding: 1.5rem;
+}
+
+.fx-metrica {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  width: 100%;
+  padding-right: 1rem;
+  position: relative;
+}
+
+.fx-metrica + .fx-metrica {
+  border-left: 1px solid var(--p-linha-media);
+  padding-left: 2rem;
+}
+
+/* `bds-icon size="brand"` (64px) com `.mr2` (.3125rem) e `color: #b3d4ff`. */
+.fx-metrica-icone {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  margin-right: 0.3125rem;
+  color: var(--p-marca-suave);
+}
+
+.fx-metrica-texto {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Rótulo `fs-16` (150%) e a dica `info` `x-small` com `.ml2.self-end`. */
+.fx-metrica-rotulo {
+  display: flex;
+  align-items: center;
+  font-size: var(--p-t-lg);
+  line-height: 150%;
+}
+
+.fx-metrica-dica {
+  display: flex;
+  align-self: flex-end;
+  margin-left: 0.3125rem;
+}
+
+/* `fs-32` negrito: 2rem, `line-height: 100%`. */
+.fx-metrica-valor {
+  font-size: 2rem;
+  font-weight: var(--g-peso-negrito);
+  line-height: 100%;
+}
+
+/* `__item__link`: `fs-12` negrito, `position: absolute; bottom: 0; right: 1rem;
+   visibility: hidden`, e visível no hover do item. Tinta #3f7de8. */
+.fx-metrica-link {
+  position: absolute;
+  right: 1rem;
+  bottom: 0;
+  visibility: hidden;
+  transition: all 0.5s ease;
+  font-size: var(--p-t-sm);
+  font-weight: var(--g-peso-negrito);
+  line-height: 150%;
+  color: var(--p-marca-forte);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.fx-metrica-link.pt-links-obra {
+  padding: 0;
+  color: var(--p-marca-forte);
+}
+
+.fx-metrica:hover .fx-metrica-link {
+  visibility: visible;
+}
+
+@media screen and (max-width: 48em) {
+  .fx-metricas {
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+    margin: 0 auto;
+    width: 60%;
+  }
+
+  .fx-metrica {
+    align-items: center;
+    flex-direction: column;
+    justify-content: flex-start;
+    text-align: center;
+  }
+
+  .fx-metrica + .fx-metrica {
+    border-left: none;
+    border-top: 1px solid var(--p-linha-media);
+    margin-top: 0.5rem;
+    padding-left: 0;
+  }
+}
+
+/* ---------------------------------------- Extensões (`__extensions-area`) */
+
+/* `__container-bds-paper { min-height: 190px }`; `__container { display: flex;
+   align-items: center; justify-content: space-between; padding: 20px 0 5px }`. */
+.fx-extensoes-papel {
+  min-height: 190px;
+}
+
+.fx-extensoes-cabeca {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 0 5px;
+}
+
+/* `__title-container { margin-left: 20px }` e `__title-box { display:
+   inline-block; height: 10px }` — a caixa de 10px com o título de 20px dentro. */
+.fx-extensoes-titulo {
+  margin-left: 20px;
+}
+
+.fx-extensoes-titulo-caixa {
+  display: inline-block;
+  height: 10px;
+}
+
+/* `__button-container { height: 100%; margin-right: 15px }` e `__button
+   { display: flex; justify-content: flex-end }`. */
+.fx-extensoes-botao {
+  display: flex;
+  justify-content: flex-end;
+  height: 100%;
+  margin-right: 15px;
+}
+
+.fx-extensoes-lista {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+}
+
+/* `.extensions-item { margin: 10px 15px 5px; position: relative }` */
+.fx-extensao-item {
+  position: relative;
+  margin: 10px 15px 5px;
+}
+
+/* `__card-container`: `inline-flex` em coluna, `min-width: 170px;
+   max-height: 96px`, fundo `surface-1`, borda de 1px `surface-2`, raio 8; no
+   hover o fundo vira `surface-2` e o cartão sobe 4px. */
+.fx-extensao {
+  display: inline-flex;
+  flex-direction: column;
+  min-width: 170px;
+  max-height: 96px;
+  background: var(--p-superficie-1);
+  border: 1px solid var(--p-superficie-2);
+  border-radius: var(--p-r-md);
+  transition: box-shadow 0.15s ease;
+}
+
+.fx-extensao:hover {
+  background: var(--p-superficie-2);
+  transform: translateY(-4px);
+}
+
+/* `__card-top-container { display: flex; margin: .5rem }` */
+.fx-extensao-topo {
+  display: flex;
+  flex-direction: row;
+  margin: 0.5rem;
+}
+
+/* `__card-image-box`: borda de 1px `surface-3`, raio 8, `min-width: 4rem;
+   max-height: 4rem; padding: .25rem`; a imagem 3.5rem, `contain`, raio 4. */
+.fx-extensao-imagem-caixa {
+  min-width: 4rem;
+  max-height: 4rem;
+  padding: 0.25rem;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: var(--p-r-md);
+}
+
+.fx-extensao-imagem {
+  display: block;
+  width: 3.5rem;
+  height: 3.5rem;
+  object-fit: contain;
+  border-radius: 4px;
+}
+
+/* `__card-title-container`: coluna centrada, `margin-left: .75rem`. */
+.fx-extensao-textos {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  margin-left: 0.75rem;
+}
+
+/* `__card-title`: `fs-16` negrito, `--color-content-default`, uma linha. */
+.fx-extensao-nome {
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  font-size: var(--p-t-lg);
+  line-height: 150%;
+  color: var(--p-conteudo);
+}
+
+/* `__card-owerview`: `fs-12`, duas linhas, `margin-right: .188rem`. */
+.fx-extensao-resumo {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  word-break: break-word;
+  margin: 0 0.188rem 0 0;
+  font-size: var(--p-t-sm);
+  line-height: 150%;
+}
+
+/* `__card-footer-text { display: inline-block; margin-top: 3px }` e o texto
+   `fs-12` negrito na primária. */
+.fx-extensao-preco {
+  display: inline-block;
+  margin-top: 3px;
+  font-size: var(--p-t-sm);
+  line-height: 150%;
+  color: var(--p-marca-forte);
+}

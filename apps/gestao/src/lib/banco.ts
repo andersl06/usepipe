@@ -1,11 +1,13 @@
 import { cache } from 'react';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
+
 import { redirect } from 'next/navigation';
 import { sql } from 'drizzle-orm';
 import { criarBanco, comTenant, type Ator, type BancoPipe, type TransacaoPipe } from '@pipe/db';
 import { tenant } from '@pipe/db/schema';
 import type { Eu } from '@pipe/contracts';
 import { COOKIE_SESSAO, buscarEu } from './sessao';
+import { CABECALHO_CAMINHO, CABECALHO_CONTA, ROTAS_DO_ONBOARDING } from './rotas';
 
 /**
  * Conexão única do Pipe Gestão.
@@ -62,6 +64,33 @@ export async function euAtual(): Promise<Eu | null> {
 export async function exigirEu(): Promise<Eu> {
   const eu = await carregarEu();
   if (!eu) redirect('/entrar');
+
+  const cabecalhos = await headers();
+  const caminho = cabecalhos.get(CABECALHO_CAMINHO) ?? '';
+
+  /* O endereço manda na conta.
+
+     Na plataforma de origem o subdomínio É a conta: quem entra por
+     `empresa.blip.ai` continua na empresa, e quem entra pelo hub cai na conta
+     pessoal — porque o login volta para a origem de onde saiu. Aqui a sessão
+     ainda é uma só, então quando o endereço pede outra conta a sessão é trocada
+     por uma nova (e a rota de troca recusa quem não tem usuário lá). */
+  const contaDoEndereco = cabecalhos.get(CABECALHO_CONTA);
+  if (
+    contaDoEndereco &&
+    contaDoEndereco !== eu.tenant.slug &&
+    !caminho.startsWith('/trocar-conta')
+  ) {
+    redirect(`/trocar-conta?para=${encodeURIComponent(contaDoEndereco)}`);
+  }
+
+  /* Conta que nasceu no login e ainda não passou por "minha conta" não abre o
+     produto: ela não tem canal, fila nem atendente, e a tela vazia não explica
+     por quê. O portão é aqui, e não no middleware, porque só a `api` sabe se o
+     onboarding fechou — o middleware vê o cookie, não o estado da conta. */
+  if (!eu.tenant.onboardingConcluido && !ROTAS_DO_ONBOARDING.test(caminho)) {
+    redirect('/bem-vindo');
+  }
   return eu;
 }
 

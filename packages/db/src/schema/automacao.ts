@@ -22,6 +22,9 @@ import { canal, contato, conversa } from './conversas.js';
 
 export const ESTADOS_FLUXO = ['rascunho', 'publicado', 'arquivado'] as const;
 
+/** Os dois papéis do mesmo contato: conversa própria, ou distribuidor. */
+export const TIPOS_FLUXO = ['fluxo', 'roteador'] as const;
+
 export const fluxo = pgTable(
   'fluxo',
   {
@@ -30,9 +33,37 @@ export const fluxo = pgTable(
     nome: text('nome').notNull(),
     canalId: uuid('canal_id').references(() => canal.id, { onDelete: 'set null' }),
     estado: text('estado').notNull().default('rascunho'),
+    /**
+     * `fluxo` ou `roteador`.
+     *
+     * É o `template` da plataforma de origem (`builder` e `master`), e é o que
+     * o cartão do portal etiqueta. Roteador é o MESMO bot sem conteúdo próprio:
+     * ele só referencia outros e decide para qual deles a conversa vai — por
+     * isso é coluna, e não tabela nova.
+     */
+    tipo: text('tipo').notNull().default('fluxo'),
+    /**
+     * O endereço da foto do contato — o `imageUri` da plataforma de origem, que
+     * é o que o cartão do portal lê para desenhar o avatar.
+     *
+     * Opcional de verdade: lá o upload roda dentro de um `try/catch` que só
+     * avisa no console e deixa a criação seguir. Migration 0020.
+     */
+    imagemUrl: text('imagem_url'),
+    /**
+     * O identificador curto, derivado do nome (`name.toLowerCase()` na origem).
+     *
+     * É ele que vai na URL do contato lá (`/application/detail/{shortName}`) e
+     * é o motivo de o nome ter de começar com letra. Sem índice único: a
+     * unicidade continua sendo conferida sobre `nome`. Migration 0020.
+     */
+    shortName: text('short_name'),
     ...carimbos(),
   },
-  (t) => [listaCheck('fluxo_estado_ck', t.estado, ESTADOS_FLUXO)],
+  (t) => [
+    listaCheck('fluxo_estado_ck', t.estado, ESTADOS_FLUXO),
+    listaCheck('fluxo_tipo_ck', t.tipo, TIPOS_FLUXO),
+  ],
 );
 
 export const ESTADOS_FLUXO_VERSAO = ['rascunho', 'publicada', 'arquivada'] as const;

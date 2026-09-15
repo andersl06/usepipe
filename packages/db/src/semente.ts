@@ -56,6 +56,37 @@ export const CATALOGO_PERMISSOES = [
   ['consulta.executar', 'automacao', 'Executar consulta'],
   ['consulta.salvar', 'automacao', 'Salvar consulta'],
   ['consulta.agendar', 'automacao', 'Agendar consulta e exportação'],
+  /*
+   * As permissões da CONTA — o que o Painel do contrato lê.
+   *
+   * São a matriz do painel deles (`docs/pesquisa/blip-painel-do-contrato.md`,
+   * §"A matriz de papéis") trazida para o nosso RBAC: lá são seis chaves
+   * (`tenant-summary`, `tenant-members`, `tenant-workspace`, `tenant-dashboard`,
+   * `tenant-billing`, `tenant-permissions-group`) com dois verbos (`read`,
+   * `write`) chumbadas no front por três papéis fixos; aqui cada par
+   * chave+verbo vira UMA permissão do catálogo, e quem distribui é o papel do
+   * banco. É a mesma matriz — só que editável sem recompilar a tela.
+   *
+   * `conta.painel.*` espelha `tenant-dashboard`, que está na matriz deles e
+   * **nenhum cartão usa**. Fica aqui pela mesma razão que fica lá: a matriz é
+   * o contrato, e buraco no meio dela vira pergunta na próxima leitura.
+   *
+   * Faturamento tem só LEITURA de propósito: na matriz deles `tenant-billing`
+   * é read para `admin` e nada para o resto — ninguém tem write. Inventar
+   * `conta.faturamento.escrever` seria inventar capacidade que a origem não
+   * tem e que nenhuma tela nossa exerce.
+   */
+  ['conta.resumo.ler', 'conta', 'Ver o resumo do contrato'],
+  ['conta.resumo.escrever', 'conta', 'Editar o nome e a foto do contrato'],
+  ['conta.membros.ler', 'conta', 'Ver quem tem acesso ao contrato'],
+  ['conta.membros.escrever', 'conta', 'Convidar, trocar o papel e remover membro do contrato'],
+  ['conta.workspace.ler', 'conta', 'Ver as configurações do espaço de trabalho'],
+  ['conta.workspace.escrever', 'conta', 'Editar as configurações do espaço de trabalho'],
+  ['conta.painel.ler', 'conta', 'Ver o painel do contrato'],
+  ['conta.painel.escrever', 'conta', 'Editar o painel do contrato'],
+  ['conta.faturamento.ler', 'conta', 'Ver o plano, o consumo e o faturamento do contrato'],
+  ['conta.grupos_acesso.ler', 'conta', 'Ver os grupos de acesso ao contrato'],
+  ['conta.grupos_acesso.escrever', 'conta', 'Criar, editar e remover grupo de acesso'],
   ['usuario.gerenciar', 'administracao', 'Criar, editar e desativar usuário'],
   ['papel.gerenciar', 'administracao', 'Criar papel e atribuir permissão'],
   ['equipe.gerenciar', 'administracao', 'Gerenciar equipe'],
@@ -65,7 +96,16 @@ export const CATALOGO_PERMISSOES = [
   ['tenant.configurar', 'administracao', 'Configurar marca, fuso e plano'],
 ] as const satisfies readonly (readonly [string, string, string])[];
 
-const TODAS = CATALOGO_PERMISSOES.map(([codigo]) => codigo);
+/**
+ * Tudo, menos as permissões da CONTA: essas vêm só do papel de conta
+ * (`PAPEIS_DA_CONTA`), desde a migração 0021.
+ */
+const TODAS = CATALOGO_PERMISSOES.map(([codigo]) => codigo).filter(
+  (codigo) => !codigo.startsWith('conta.'),
+);
+
+/** O `guest` deles — "Apenas visualiza informações do contrato". */
+const DA_CONTA_EM_LEITURA = ['conta.resumo.ler', 'conta.workspace.ler'];
 
 const DO_ATENDENTE = [
   'conversa.ver',
@@ -116,12 +156,58 @@ const DO_GESTOR = TODAS.filter(
     ),
 );
 
+/**
+ * Os três papéis da CONTA, com o `roleId` da origem como nome — a matriz de
+ * `docs/pesquisa/blip-painel-do-contrato.md`. O rótulo da tela ("Admin", "Pode
+ * editar", "Pode visualizar") mora no gestão, não aqui.
+ *
+ * Toda pessoa tem exatamente um (índice parcial em `usuario_papel`). "Cria e edita
+ * chatbots" é `automacao.fluxo.editar`, a permissão que o portal confere para criar.
+ */
+export const PAPEIS_DA_CONTA = [
+  {
+    nome: 'admin',
+    descricao: 'Edita todos os dados do contrato, gerencia membros, cria e edita chatbots.',
+    permissoes: [
+      ...CATALOGO_PERMISSOES.map(([codigo]) => codigo).filter((c) => c.startsWith('conta.')),
+      'automacao.fluxo.editar',
+    ],
+  },
+  {
+    nome: 'member',
+    descricao: 'Cria e edita chatbots, mas não gerencia os membros do contrato.',
+    permissoes: [...DA_CONTA_EM_LEITURA, 'conta.workspace.escrever', 'automacao.fluxo.editar'],
+  },
+  {
+    nome: 'guest',
+    descricao: 'Apenas visualiza informações do contrato.',
+    permissoes: DA_CONTA_EM_LEITURA,
+  },
+] as const;
+
+/** Os papéis de ATENDIMENTO. Nenhum carrega permissão `conta.*`. */
 export const PAPEIS_DIA_1 = [
-  { nome: 'administrador', descricao: 'Acesso total, inclusive identidade e cobrança', permissoes: TODAS },
-  { nome: 'gestor', descricao: 'Configura o atendimento e lê todo relatório', permissoes: DO_GESTOR },
-  { nome: 'supervisor', descricao: 'Acompanha fila, atendente e qualidade', permissoes: DO_SUPERVISOR },
+  {
+    nome: 'administrador',
+    descricao: 'Acesso total, inclusive identidade e cobrança',
+    permissoes: TODAS,
+  },
+  {
+    nome: 'gestor',
+    descricao: 'Configura o atendimento e lê todo relatório',
+    permissoes: DO_GESTOR,
+  },
+  {
+    nome: 'supervisor',
+    descricao: 'Acompanha fila, atendente e qualidade',
+    permissoes: DO_SUPERVISOR,
+  },
   { nome: 'atendente', descricao: 'Atende conversa no Desk', permissoes: DO_ATENDENTE },
-  { nome: 'avaliador', descricao: 'Avalia atendimento e decide contestação', permissoes: DO_AVALIADOR },
+  {
+    nome: 'avaliador',
+    descricao: 'Avalia atendimento e decide contestação',
+    permissoes: DO_AVALIADOR,
+  },
 ] as const;
 
 /**
@@ -157,9 +243,7 @@ export async function semear(
 
   await db
     .insert(permissao)
-    .values(
-      CATALOGO_PERMISSOES.map(([codigo, grupo, descricao]) => ({ codigo, grupo, descricao })),
-    )
+    .values(CATALOGO_PERMISSOES.map(([codigo, grupo, descricao]) => ({ codigo, grupo, descricao })))
     .onConflictDoNothing();
 
   await db.insert(tenant).values({ nome, slug }).onConflictDoNothing();
@@ -169,7 +253,11 @@ export async function semear(
   }
   const tenantId = registro.id;
 
-  for (const definicao of PAPEIS_DIA_1) {
+  const todosOsPapeis = [
+    ...PAPEIS_DA_CONTA.map((p) => ({ ...p, escopo: 'conta' as const })),
+    ...PAPEIS_DIA_1.map((p) => ({ ...p, escopo: 'atendimento' as const })),
+  ];
+  for (const definicao of todosOsPapeis) {
     await db
       .insert(papel)
       .values({
@@ -177,6 +265,7 @@ export async function semear(
         nome: definicao.nome,
         descricao: definicao.descricao,
         deSistema: true,
+        escopo: definicao.escopo,
       })
       .onConflictDoNothing();
     const [gravado] = await db
@@ -204,7 +293,7 @@ export async function semear(
 
   return {
     tenantId,
-    papeis: PAPEIS_DIA_1.length,
+    papeis: todosOsPapeis.length,
     permissoes: CATALOGO_PERMISSOES.length,
     filas: FILAS_EXEMPLO.length,
   };

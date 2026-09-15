@@ -5,7 +5,13 @@ import type { ComandoLime, RespostaLime } from './lime.js';
 import { comoConta, comoDocumentos, comoTicket, comoTime } from './traducao.js';
 import type { LinhaConversa, LinhaMensagem } from './traducao.js';
 import { carregarGlobais, carregarRascunho, gravarFluxo } from './builder.js';
-import { assumirProximo, encerrar, responder, transferirParaFila } from './acoes.js';
+import {
+  assumirProximo,
+  conversaDaIdentidade,
+  encerrar,
+  responder,
+  transferirParaFila,
+} from './acoes.js';
 
 /**
  * O roteador de comandos LIME.
@@ -159,9 +165,13 @@ const rotas: Rota[] = [
   [
     ROTA_RESPONDER,
     async ({ sessao, cmd }) => {
-      const r = (cmd.resource ?? {}) as { conversaId?: string; texto?: string };
-      if (!r.conversaId || !r.texto) return falha(5, 'faltou a conversa ou o texto');
-      return ok(await responder(sessao, r.conversaId, r.texto));
+      const r = (cmd.resource ?? {}) as { conversaId?: string; para?: string; texto?: string };
+      if (!r.texto) return falha(5, 'faltou o texto');
+      /* A tela manda para uma identidade, não para uma conversa: quando vier assim,
+         resolvemos qual conversa aberta é daquele telefone. */
+      const conversaId = r.conversaId ?? (r.para ? await conversaDaIdentidade(sessao, r.para) : null);
+      if (!conversaId) return falha(6, 'não achei conversa aberta para este contato');
+      return ok(await responder(sessao, conversaId, r.texto));
     },
     ['set'],
   ],

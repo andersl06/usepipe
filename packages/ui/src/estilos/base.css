@@ -101,8 +101,21 @@ a {
    esquerda com mais de 300px de altura).
    ========================================================================= */
 
+/* A CAIXA QUE NÃO ROLA.
+   Altura fixa e `overflow: hidden`: quem rola é a lateral e o conteúdo, cada um
+   por si, e o topo fica onde está por LAYOUT, não por `position: sticky`.
+
+   É o modelo da casca deles, lido no pacote do módulo de Atendimento
+   (`docs/pesquisa/blip-gestao-medidas.md` §8.7.2): caixa externa de altura fixa,
+   lateral e conteúdo irmãos. Antes daqui a página inteira rolava e o topo era
+   grudado — parecido de longe, diferente de perto: cromo grudado repinta na
+   rolagem, e a lateral disputava a barra de rolagem da página.
+
+   `100dvh` e não `100vh`: em navegador de celular a barra do navegador entra e
+   sai, e `vh` congela na altura maior, cortando o pé da tela. */
 .p-app {
-  min-height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
@@ -111,15 +124,15 @@ a {
 .p-topo {
   height: var(--p-altura-topo);
   flex: none;
+  /* Fica no plano de cima: menu suspenso de tela nenhuma passa por cima do topo. */
+  position: relative;
+  z-index: 20;
   display: flex;
   align-items: center;
   gap: var(--p-e-4);
   padding: 0 var(--p-e-4);
   background: var(--p-superficie-0);
   border-bottom: 1px solid var(--p-linha);
-  position: sticky;
-  top: 0;
-  z-index: 20;
 }
 
 .p-marca {
@@ -204,10 +217,11 @@ a {
   background: var(--p-superficie-2);
   border-right: 1px solid var(--p-linha);
   padding: var(--p-e-3) var(--p-e-2);
+  /* Rola por si. O `sticky` com `max-height` que estava aqui era a imitação do
+     mesmo efeito enquanto a página inteira rolava; com a caixa de altura fixa
+     ele virou enfeite, e enfeite que ninguém entende é o que sobra num arquivo
+     por anos. */
   overflow-y: auto;
-  position: sticky;
-  top: var(--p-altura-topo);
-  max-height: calc(100vh - var(--p-altura-topo));
 }
 
 .p-lateral .lbl {
@@ -234,9 +248,12 @@ a {
   font-weight: var(--p-peso-medio);
 }
 
+/* O ROLADOR. É este elemento, e só ele, que rola no corpo da aplicação. */
 .p-conteudo {
   flex: 1;
   min-width: 0;
+  overflow-y: auto;
+  overflow-x: hidden;
   padding: var(--p-e-4) var(--p-e-5) var(--p-e-10);
   display: flex;
   flex-direction: column;
@@ -792,15 +809,14 @@ dialog::backdrop {
 
 .p-config-topo {
   display: flex;
+  position: relative;
+  z-index: 20;
   align-items: center;
   gap: var(--p-e-2);
   height: var(--p-altura-topo);
   padding: 0 var(--p-e-4);
   background: var(--p-superficie-0);
   border-bottom: 1px solid var(--p-linha);
-  position: sticky;
-  top: 0;
-  z-index: 20;
 }
 
 .p-config-topo b {
@@ -829,14 +845,27 @@ dialog::backdrop {
 
 /* --------------------------------------------------------------- responsivo */
 @media (max-width: 860px) {
+  /* No estreito a lateral vira uma fileira em cima do conteúdo, e aí a caixa de
+     altura fixa atrapalha: duas áreas de rolagem empilhadas dentro de uma tela
+     de celular deixam cada uma com meia tela. Volta a rolagem de PÁGINA, que é
+     o que se espera no telefone. */
+  .p-app {
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
+  }
+
+  .p-lateral,
+  .p-conteudo {
+    overflow: visible;
+  }
+
   .p-miolo {
     flex-direction: column;
   }
 
   .p-lateral {
     width: auto;
-    position: static;
-    max-height: none;
     border-right: 0;
     border-bottom: 1px solid var(--p-linha);
     display: flex;

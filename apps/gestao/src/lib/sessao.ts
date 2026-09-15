@@ -42,9 +42,10 @@ const URL_API_PUBLICA = (process.env['PIPE_URL_API_PUBLICA'] ?? URL_API).replace
  * deles a pessoa saiu. Do lado de lá só é aceita origem que esteja em
  * `PIPE_ORIGENS` — a mesma lista fechada do CORS.
  */
-const ORIGEM_DESTE_APP = (
-  process.env['PIPE_URL_ESTE_APP'] ?? 'http://localhost:3100'
-).replace(/\/$/, '');
+const ORIGEM_DESTE_APP = (process.env['PIPE_URL_ESTE_APP'] ?? 'http://localhost:3100').replace(
+  /\/$/,
+  '',
+);
 
 /** O cookie de sessão emitido pela API. `HttpOnly`; a tela só o repassa. */
 export const COOKIE_SESSAO = 'pipe_sessao';
@@ -169,8 +170,18 @@ export async function verConvite(token: string): Promise<ConviteVisivel | null> 
  * phishing usando o nosso domínio de trampolim; a API confere de novo do lado
  * dela, e conferir dos dois lados custa uma linha.
  */
+/**
+ * Para onde a entrada leva quando ninguém pediu destino: o PORTAL.
+ *
+ * Era `/`, que é o Monitoramento — e quem acabou de entrar caía numa tela de
+ * operação sem ter um fluxo sequer. Na origem a entrada desemboca sempre na
+ * lista de contatos (`auth.application.list`), e o atendimento só existe depois
+ * de escolher um contato. O `/` continua valendo como destino explícito.
+ */
+const DESTINO_PADRAO = '/portal';
+
 export function caminhoInterno(destino: string | undefined | null): string {
-  return destino && destino.startsWith('/') && !destino.startsWith('//') ? destino : '/';
+  return destino && destino.startsWith('/') && !destino.startsWith('//') ? destino : DESTINO_PADRAO;
 }
 
 /** O botão "Entrar com Google". Com `convite`, entra aceitando o convite. */

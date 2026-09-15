@@ -72,9 +72,14 @@ export function urlDoConvite(token: string): string {
 }
 
 /**
- * Cria o convite. O papel vem pelo NOME (`administrador`, `atendente`), que é o que
+ * Cria o convite. O papel vem pelo NOME (`admin`, `member`, `guest`), que é o que
  * quem convida conhece — e a busca acontece com `pipe.tenant_id` fixado, então é
  * impossível convidar alguém para um papel de outro cliente.
+ *
+ * **Só papel de CONTA** (migração 0021), como na origem: o convite dá o papel no
+ * contrato, e supervisor, atendente e os demais são dados no atendimento, por
+ * contato. O banco também recusa (FK composta em `convite.escopo`); a conferência
+ * aqui existe para a resposta dizer o porquê em vez de estourar a FK.
  */
 export async function criarConvite(
   tenantId: string,
@@ -89,14 +94,22 @@ export async function criarConvite(
   const novo = criarToken(PRAZO_CONVITE_MS);
 
   return noTenant(tenantId, async (tx) => {
-    const { rows: papeis } = await tx.execute<{ id: string }>(
-      sql`select id from papel where nome = ${nomeDoPapel} limit 1`,
+    const { rows: papeis } = await tx.execute<{ id: string; escopo: string }>(
+      sql`select id, escopo from papel where nome = ${nomeDoPapel} limit 1`,
     );
     const papelId = papeis[0]?.id;
     if (!papelId) {
       throw ErroPipe.requisicao(
         'papel_invalido',
         `Não existe o papel "${nomeDoPapel}" nesta conta.`,
+        { papel: nomeDoPapel },
+      );
+    }
+    if (papeis[0]?.escopo !== 'conta') {
+      throw ErroPipe.requisicao(
+        'papel_de_atendimento',
+        `"${nomeDoPapel}" é papel de atendimento, dado no atendimento de cada contato. ` +
+          'O convite dá o papel no contrato: admin, member ou guest.',
         { papel: nomeDoPapel },
       );
     }
@@ -250,9 +263,17 @@ export async function aceitarConvite(
       avatarUrl: pessoa?.avatarUrl ?? null,
     });
 
+    // UM papel de conta por pessoa (índice parcial da 0021). Quem volta
+    // desativado e é convidado de novo troca o papel de conta antigo pelo do
+    // convite; os papéis de atendimento ficam.
     await tx.execute(sql`
-      insert into usuario_papel (tenant_id, usuario_id, papel_id)
-      values (${achado.tenant_id}::uuid, ${usuarioId}::uuid, ${achado.papel_id}::uuid)
+      delete from usuario_papel
+       where usuario_id = ${usuarioId}::uuid and escopo = 'conta'
+         and papel_id <> ${achado.papel_id}::uuid
+    `);
+    await tx.execute(sql`
+      insert into usuario_papel (tenant_id, usuario_id, papel_id, escopo)
+      values (${achado.tenant_id}::uuid, ${usuarioId}::uuid, ${achado.papel_id}::uuid, 'conta')
       on conflict do nothing
     `);
     await tx.execute(sql`
@@ -303,8 +324,8 @@ async function ligarEEntrar(
   pessoa: PessoaDoGoogle,
   contexto: { ip?: string; agente?: string },
 ): Promise<EntradaPorConvite> {
-  // O único de `identidade_externa` é GLOBAL em `(emissor, sujeito)`: uma conta do
-  // Google pertence a UM usuário. Se ela já é de outra pessoa, o convite não pode
+  // O único de `identidade_externa` é por tenant em `(tenant_id, emissor, sujeito)`.
+  // Se ela já é de outra pessoa no tenant, o convite não pode
   // levá-la em silêncio — falha alto, com o motivo.
   const { rows: jaLigada } = await tx.execute<{ n: string }>(sql`
     select count(*)::text as n from identidade_externa
@@ -323,7 +344,7 @@ async function ligarEEntrar(
       (tenant_id, usuario_id, emissor, sujeito, email_no_provedor, ultimo_acesso_em)
     values (${tenantId}::uuid, ${usuarioId}::uuid, ${pessoa.emissor}, ${pessoa.sujeito},
             ${pessoa.email}, now())
-    on conflict (emissor, sujeito) do nothing
+    on conflict (tenant_id, emissor, sujeito) do nothing
   `);
 
   // §6 da pesquisa de SSO: a política é conferida NO SERVIDOR em todo caminho

@@ -42,7 +42,13 @@ const ABAS = [
 /** O app do atendente vive em outra origem; a ação da linha aponta para lá. */
 const URL_DESK = process.env['NEXT_PUBLIC_PIPE_DESK_URL'] ?? 'http://localhost:3200';
 
-type Filtro = { fila?: string; atendente?: string; contato?: string; status?: string; busca?: string };
+type Filtro = {
+  fila?: string;
+  atendente?: string;
+  contato?: string;
+  status?: string;
+  busca?: string;
+};
 
 function querystring(filtro: Filtro, aba: string): URLSearchParams {
   const p = new URLSearchParams();
@@ -324,7 +330,7 @@ export function MonitoramentoDetalhado({
 
         {/* A busca da Blip mora AQUI, dentro do cartão, e não na faixa de
             filtros. Ela procura pelo número do ticket. */}
-        <form className="tbl-busca" method="get" action="/">
+        <form className="tbl-busca" method="get" action="/monitoramento">
           {[...querystring(filtro, aba)]
             .filter(([chave]) => chave !== 'busca')
             .map(([chave, valor]) => (
@@ -403,7 +409,10 @@ export function MonitoramentoDetalhado({
             </thead>
             <tbody>
               {monitoramento.filas.map((f) => (
-                <tr key={f.id} className={f.atendentesOnline === 0 && f.naFila > 0 ? 'critico' : undefined}>
+                <tr
+                  key={f.id}
+                  className={f.atendentesOnline === 0 && f.naFila > 0 ? 'critico' : undefined}
+                >
                   <td className="who">{f.nome}</td>
                   <td className="num">{numero(f.naFila)}</td>
                   <td className="num">{numero(f.emAtendimento)}</td>

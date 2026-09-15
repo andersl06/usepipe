@@ -11,7 +11,6 @@ import {
   type NomeDeIcone,
 } from '@pipe/ui';
 import { IconeGestao } from './icones-gestao';
-import { AlternarTema } from './alternar-tema';
 import { sair } from '../app/entrar/acoes';
 import type { DadosDoCabecalho } from '../lib/cabecalho';
 
@@ -63,9 +62,9 @@ const MODULOS: readonly Modulo[] = [
   },
   {
     rotulo: 'Atendimento',
-    href: '/',
+    href: '/monitoramento',
     raizes: [
-      '/',
+      '/monitoramento',
       '/historico',
       '/comunicacao',
       '/regras',
@@ -130,7 +129,7 @@ type ItemLateral = { rotulo: string; href: string; icone: NomeDeIcone };
 type GrupoLateral = { rotulo: string; icone: NomeDeIcone; filhos: readonly ItemDeNavegacao[] };
 
 const ITENS: readonly ItemLateral[] = [
-  { rotulo: 'Monitoramento', href: '/', icone: 'painel' },
+  { rotulo: 'Monitoramento', href: '/monitoramento', icone: 'painel' },
   { rotulo: 'Histórico', href: '/historico', icone: 'relogio' },
 ];
 
@@ -227,7 +226,7 @@ function BarraSuperior({ dados }: { dados: DadosDoCabecalho }) {
         <span>Plano {dados.tenant.plano}</span>
       </div>
 
-      <Link className="g-marca" href="/">
+      <Link className="g-marca" href="/portal">
         <Simbolo tamanho={29} />
         <b>Pipe Gestão</b>
       </Link>
@@ -267,11 +266,9 @@ function BarraSuperior({ dados }: { dados: DadosDoCabecalho }) {
                 ? `${dados.avisos} pausa(s) acima da duração sugerida pelo motivo.`
                 : 'Você não tem nenhuma notificação'}
             </p>
-            <Link href="/">Ver o status dos atendentes</Link>
+            <Link href="/monitoramento">Ver o status dos atendentes</Link>
           </div>
         </details>
-
-        <AlternarTema />
 
         {/* O avatar é de QUEM ESTÁ LOGADO, não do cliente: é o gesto que a
             pessoa procura para conferir com que conta entrou e para sair. O
@@ -317,7 +314,7 @@ function BarraSuperior({ dados }: { dados: DadosDoCabecalho }) {
 /* ====================================================== barra inferior */
 
 const ATALHOS: readonly ItemLateral[] = [
-  { rotulo: 'Monitoramento', href: '/', icone: 'painel' },
+  { rotulo: 'Monitoramento', href: '/monitoramento', icone: 'painel' },
   { rotulo: 'Histórico', href: '/historico', icone: 'relogio' },
   { rotulo: 'Esforço por atendente', href: '/relatorios/esforco', icone: 'grade' },
   { rotulo: 'Configurações', href: '/configuracoes', icone: 'engrenagem' },
@@ -504,11 +501,26 @@ function Lateral({ caminho }: { caminho: string }) {
 /* ========================================================== estrutura */
 
 /**
- * As duas rotas públicas do produto. Elas não têm barra, nem lateral, nem
- * canal: quem chega nelas não está logado, e todo o cromo desta estrutura
- * mostra dado de tenant.
+ * As rotas que trazem o PRÓPRIO casco, e por isso passam inteiras por aqui.
+ *
+ * `entrar` e `convite` são as duas públicas do produto: quem chega nelas não
+ * está logado, e todo o cromo desta estrutura mostra dado de tenant.
+ *
+ * `portal` é logada, mas copia outra tela: lá o cromo é UMA barra de 80px com
+ * o seletor de conta à esquerda, e não as duas barras com lateral. Empilhar as
+ * duas coisas daria 136px de cromo antes do primeiro cartão — 56px que a tela
+ * medida não tem. Ver o cabeçalho próprio em `app/portal/page.tsx`.
+ *
+ * `novidades` pendura no PORTAL, e não no produto: lá a barra escura continua e
+ * a lateral do atendimento não existe, então a tela monta o próprio casco com a
+ * `BarraDoPortal` (ver `app/novidades/page.tsx`).
+ *
+ * `bem-vindo` e `minha-conta` são os dois passos do onboarding: a conta acabou
+ * de nascer e ainda não tem canal, fila nem atendente — o cromo mostraria uma
+ * operação vazia para quem ainda nem disse de que empresa é.
  */
-const PUBLICO = /^\/(entrar|convite)(\/|$)/;
+const CASCO_PROPRIO =
+  /^\/(entrar|convite|portal|novidades|criar|contrato|fluxo|bem-vindo|minha-conta|trocar-conta)(\/|$)/;
 
 export function EstruturaGestao({
   dados,
@@ -519,7 +531,7 @@ export function EstruturaGestao({
 }) {
   const caminho = usePathname();
 
-  if (PUBLICO.test(caminho)) return <>{children}</>;
+  if (CASCO_PROPRIO.test(caminho)) return <>{children}</>;
 
   /*
    * UMA estrutura para todas as telas. A área de configurações separada saiu:

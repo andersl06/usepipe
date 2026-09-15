@@ -69,14 +69,28 @@ function recusa(): ErroPipe {
 }
 
 export function lerCookie(cabecalho: string | undefined, nome: string): string | undefined {
-  if (!cabecalho) return undefined;
+  return lerCookies(cabecalho, nome)[0];
+}
+
+/**
+ * TODOS os valores enviados com aquele nome, na ordem em que vieram.
+ *
+ * O navegador manda um cookie por escopo, e o mesmo nome pode chegar duas vezes:
+ * é o que acontece quando o `Domain` muda entre uma versão e outra (de host
+ * para domínio-pai, por exemplo) e o antigo continua guardado. O primeiro da
+ * lista nem sempre é o que vale — e ler só ele derruba o login de quem ainda
+ * carrega o cookie velho, sem erro nenhum no caminho.
+ */
+export function lerCookies(cabecalho: string | undefined, nome: string): string[] {
+  if (!cabecalho) return [];
+  const achados: string[] = [];
   for (const parte of cabecalho.split(';')) {
     const igual = parte.indexOf('=');
     if (igual < 0) continue;
     if (parte.slice(0, igual).trim() !== nome) continue;
-    return decodeURIComponent(parte.slice(igual + 1).trim());
+    achados.push(decodeURIComponent(parte.slice(igual + 1).trim()));
   }
-  return undefined;
+  return achados;
 }
 
 export function tokenDaSessao(requisicao: Request): string | undefined {

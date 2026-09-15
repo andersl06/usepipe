@@ -31,7 +31,8 @@ export class ControladorConvites {
     @Body() corpo: { email?: string; papel?: string },
   ): Promise<Record<string, unknown>> {
     const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'usuario.gerenciar');
+    // O "gerencia membros" do `admin` — a mesma permissão que a tela de Membros confere.
+    await permitido(sessao.tenantId, sessao.usuarioId, 'conta.membros.escrever');
 
     const convite = await criarConvite(sessao.tenantId, {
       email: corpo.email,

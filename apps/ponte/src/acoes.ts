@@ -47,6 +47,29 @@ export async function assumirProximo(sessao: Sessao): Promise<string | null> {
   return id;
 }
 
+/**
+ * A tela manda a mensagem para uma IDENTIDADE (`5531988887777@wa.gw.msging.net`),
+ * não para uma conversa — é assim que o protocolo dela funciona. Aqui a identidade
+ * vira conversa: a aberta daquele telefone.
+ */
+export async function conversaDaIdentidade(
+  sessao: Sessao,
+  identidade: string,
+): Promise<string | null> {
+  const telefone = '+' + String(identidade).split('@')[0]!.replace(/[^0-9]/g, '');
+  return noTenant(sessao.tenantId, async (tx) => {
+    const { rows } = await tx.execute<{ id: string }>(sql`
+      select c.id from conversa c
+        join contato ct on ct.id = c.contato_id
+       where ct.telefone_e164 = ${telefone}
+         and c.estado in ('na_fila','atribuida','em_atendimento','em_espera')
+       order by c.criada_em desc
+       limit 1
+    `);
+    return rows[0]?.id ?? null;
+  });
+}
+
 export async function responder(
   sessao: Sessao,
   conversaId: string,

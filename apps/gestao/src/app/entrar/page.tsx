@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import type { RecusaDeEntrada } from '@pipe/contracts';
-import { Simbolo } from '@pipe/ui';
 import { caminhoInterno, urlDeEntradaComGoogle } from '../../lib/sessao';
 import { continuar } from './acoes';
+import { FundoPipe } from './fundo-pipe';
 
 /**
  * A tela de entrada — a primeira coisa que um cliente vê, e a ÚNICA rota
@@ -114,62 +114,117 @@ export default async function PaginaEntrar({
 
   return (
     <main className="entrar">
-      <section className="entrar-cartao" aria-labelledby="entrar-titulo">
-        <div className="entrar-marca">
-          <Simbolo tamanho={40} />
-          <b>Pipe Gestão</b>
-        </div>
+      {/* A entrada tem letra própria — é a única tela do produto que não usa a
+          do aplicativo. O Next iça este link para o `head`. */}
+      <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600&display=swap"
+      />
+      <FundoPipe />
 
-        <h1 id="entrar-titulo">Entrar</h1>
-        <p className="entrar-sub">Monitoramento, relatórios e as regras da operação.</p>
+      <div className="entrar-palco">
+        <section className="entrar-cartao" aria-labelledby="entrar-titulo">
+          {/* A marca é imagem, e não componente: é o lockup fechado da entrega,
+              com a palavra desenhada — não o símbolo mais texto do aplicativo. */}
+          <img className="entrar-lockup" src="/pipe/lockup.svg" alt="Pipe" />
 
-        {/* Em ordem de leitura ANTES dos botões, e com título próprio: quem usa
-            leitor de tela precisa do motivo antes da ação, não depois dela. */}
-        {alerta ? (
-          <div className="entrar-alerta" role="alert">
-            <h2>{alerta.titulo}</h2>
-            <p>{alerta.saida}</p>
+          {/* Sem título escrito, como na entrega: a marca acima faz esse papel.
+              O h1 fica para quem ouve a tela, e é o alvo do aria-labelledby. */}
+          <h1 id="entrar-titulo" className="entrar-titulo-oculto">
+            Entrar no Pipe Gestão
+          </h1>
+
+          {/* Em ordem de leitura ANTES dos botões, e com título próprio: quem usa
+              leitor de tela precisa do motivo antes da ação, não depois dela. */}
+          {alerta ? (
+            <div className="entrar-alerta" role="alert">
+              <h2>{alerta.titulo}</h2>
+              <p>{alerta.saida}</p>
+            </div>
+          ) : null}
+
+          {/* Link, e não botão: entrar com o Google é navegação de topo para outra
+              origem. Um `fetch` daqui esbarraria no CORS e não traria o cookie. */}
+          <a className="entrar-google" href={urlDeEntradaComGoogle({ destino })}>
+            <LogoGoogle />
+            <span>Entrar com Google</span>
+          </a>
+
+          <div className="entrar-ou">
+            <span />
+            <span className="entrar-ou-texto">ou</span>
+            <span />
           </div>
-        ) : null}
 
-        {/* Link, e não botão: entrar com o Google é navegação de topo para outra
-            origem. Um `fetch` daqui esbarraria no CORS e não traria o cookie. */}
-        <a className="btn primario entrar-google" href={urlDeEntradaComGoogle({ destino })}>
-          Entrar com Google
-        </a>
+          <form action={continuar}>
+            <label htmlFor="entrar-email">E-mail</label>
+            <input
+              id="entrar-email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              spellCheck={false}
+              placeholder="voce@empresa.com.br"
+              defaultValue={parametros.email ?? ''}
+              aria-describedby="entrar-ajuda"
+            />
 
-        <div className="entrar-ou">
-          <span>ou, se a sua empresa usa SSO</span>
-        </div>
+            {/* O campo de senha do desenho. Ele NÃO tem `name`: o Pipe ainda não
+                tem entrada por senha (é Google ou o provedor da empresa), e um
+                campo com nome mandaria a senha digitada para uma rota que a
+                ignora. Sem nome, ela não sai desta página.
+                ponytail: ganha `name` no dia em que a API aceitar senha. */}
+            <label htmlFor="entrar-senha">Senha</label>
+            <input
+              id="entrar-senha"
+              type="password"
+              placeholder="••••••••"
+              autoComplete="current-password"
+              aria-describedby="entrar-ajuda"
+            />
 
-        <form action={continuar} className="entrar-form">
-          <label htmlFor="entrar-email">E-mail corporativo</label>
-          <input
-            id="entrar-email"
-            name="email"
-            type="email"
-            className="campo"
-            required
-            autoComplete="email"
-            spellCheck={false}
-            defaultValue={parametros.email ?? ''}
-            aria-describedby="entrar-ajuda"
-          />
-          <p id="entrar-ajuda" className="entrar-ajuda">
-            Levamos você ao provedor de identidade da sua empresa, quando ela tiver um. Não
-            guardamos nada nesta etapa.
-          </p>
-          <input type="hidden" name="destino" value={destino} />
-          <button type="submit" className="btn">
-            Continuar
-          </button>
-        </form>
+            <div className="entrar-esqueci">
+              <a href="mailto:suporte@usepipe.com.br">Esqueci minha senha</a>
+            </div>
 
-        <p className="entrar-rodape">
-          Recebeu um convite? Abra o link que chegou por e-mail — ele entra e cria a sua conta
-          no mesmo passo.
-        </p>
-      </section>
+            <p id="entrar-ajuda" className="entrar-ajuda">
+              Levamos você ao provedor de identidade da sua empresa, quando ela tiver um.
+            </p>
+            <input type="hidden" name="destino" value={destino} />
+            <button type="submit">Entrar</button>
+          </form>
+
+          <div className="entrar-pe">
+            <span>Primeiro acesso?</span>
+            <a href="mailto:suporte@usepipe.com.br">Falar com o suporte</a>
+          </div>
+        </section>
+      </div>
     </main>
+  );
+}
+
+/** O "G" oficial, inline: a tela de entrada não depende de rede de terceiro. */
+function LogoGoogle() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden focusable="false">
+      <path
+        fill="#EA4335"
+        d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"
+      />
+      <path
+        fill="#4285F4"
+        d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"
+      />
+      <path
+        fill="#34A853"
+        d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"
+      />
+    </svg>
   );
 }

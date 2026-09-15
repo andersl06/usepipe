@@ -120,6 +120,41 @@
       "when": 1789200000000,
       "tag": "0016_entrada_do_cliente",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1789240000000,
+      "tag": "0017_conta_por_autosservico",
+      "breakpoints": true
+    },
+    {
+      "idx": 18,
+      "version": "7",
+      "when": 1789247000000,
+      "tag": "0018_fluxo_e_roteador",
+      "breakpoints": true
+    },
+    {
+      "idx": 19,
+      "version": "7",
+      "when": 1789300000000,
+      "tag": "0019_permissoes_da_conta",
+      "breakpoints": true
+    },
+    {
+      "idx": 20,
+      "version": "7",
+      "when": 1789310000000,
+      "tag": "0020_fluxo_imagem_e_short_name",
+      "breakpoints": true
+    },
+    {
+      "idx": 21,
+      "version": "7",
+      "when": 1789320000000,
+      "tag": "0021_papel_da_conta",
+      "breakpoints": true
     }
   ]
 }

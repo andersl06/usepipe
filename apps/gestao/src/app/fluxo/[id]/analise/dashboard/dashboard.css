@@ -1,0 +1,1349 @@
+/* ==========================================================================
+   Análise do contato · Dashboard (/fluxo/[id]/analise/dashboard)
+
+   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. A régua é o `iN` do
+   `portal-fragment-analytics` (`cap6s/portalmfe/analytics-main.js`): o CSS
+   dele é styled-components (`Rt.default.div(_t([...]))`) mais um `<style>`
+   por componente, e os `bds-*` vêm das folhas do Stencil (`bds-grid_5` para
+   typo/paper, `bdscss/` para botão, chip e dica).
+
+   Régua de tipo (`typo__variant--fs-*`): fs-10 = 10px/150%, fs-12 = 12/150%,
+   fs-14 = 14/150%, fs-16 = 16/150%, fs-20 = 20/100%, fs-24 = 24/100%,
+   fs-32 = 32/100%. Pesos: regular 400, semi-bold 600, bold 700, extra-bold
+   800. `typo margin` (o padrão do `bds-typo`) em fs-20/24/32 = 22px embaixo.
+   `bds-paper`: raio 16, sombra `static` (0 2px 8px -2px).
+
+   O de-para das tintas:
+     color-surface-1 #F6F6F6 (papéis, faixa do filtro)     → var(--surface)
+     color-surface-2 #EDEDED (cartão escuro, listrado)     → var(--surface-2)
+     color-surface-3 #E3E3E3 (`DR`, faixa da lateral)      → var(--surface-3)
+     color-surface-4 #141414 (cabeçalho da lateral)        → var(--p-superficie-4)
+     color-content-default / -disable / -ghost             → var(--ink) / var(--ink-2) / var(--ink-3)
+     color-primary #1E6BF1 · bp-c-bot #3F7DE8 (link)       → var(--p-marca)
+     color-system #B2DFFD (chip ativo, círculo do "1º")    → var(--p-info-fundo)
+     color-border-1 #B1B1B1 (chip outline, botão terciário) → var(--p-linha-forte)
+     sombra 0 2px 8px -2px rgba(0,0,0,.16) do paper        → var(--p-sombra-1)
+     sombra da faixa rgba(7,71,166,.12)                    → var(--ink) a 12%
+     tooltip color-content-default #454545                 → var(--ink), letra var(--surface)
+     #666666 / #A3A3A3 (títulos do vazio)                  → var(--ink-2) / var(--ink-3)
+     #505F79 (explicação de Mensagens) · #8CA0B3 (cabeça dos canais) → var(--ink-2) · var(--ink-3)
+     véu da lateral rgba(235,235,235,.5)                   → var(--surface-3) a 50%
+     paleta estendida dos gráficos e fios:
+       extended_ocean #00D3E4 → var(--p-grafico-2)   extended_blue #1968F0 → var(--p-grafico-1)
+       extended_pink #FB4BC1 → var(--p-grafico-4)    extended_yellow #FBCF23 → var(--p-grafico-3)
+       extended_gray #666666 → var(--ink-2)          datalabel #292929 → var(--ink)
+   ========================================================================== */
+
+.da-raiz {
+  --da-sombra-faixa: color-mix(in srgb, var(--ink) 12%, transparent);
+  --da-passagem: color-mix(in srgb, var(--ink) 8%, transparent);
+  box-sizing: border-box;
+  width: 100%;
+  /* `eN`: `padding: 55px 0 0 0`. */
+  padding-top: 55px;
+  color: var(--ink);
+}
+
+.da-raiz *,
+.da-raiz *::before,
+.da-raiz *::after {
+  box-sizing: border-box;
+}
+
+/* `bds-typo`: sem margem própria; a de 22px só vem com `margin` em fs-20+. */
+.da-raiz p,
+.da-raiz h1,
+.da-raiz h2 {
+  margin: 0;
+}
+
+.da-t10 {
+  font-size: 10px;
+  line-height: 150%;
+}
+.da-t12 {
+  font-size: 12px;
+  line-height: 150%;
+}
+.da-t14 {
+  font-size: 14px;
+  line-height: 150%;
+}
+.da-t16 {
+  font-size: 16px;
+  line-height: 150%;
+}
+.da-t20 {
+  font-size: 20px;
+  line-height: 100%;
+}
+.da-t24 {
+  font-size: 24px;
+  line-height: 100%;
+}
+.da-t32 {
+  font-size: 32px;
+  line-height: 100%;
+}
+.da-semi {
+  font-weight: 600;
+}
+.da-negrito {
+  font-weight: 700;
+}
+.da-extra {
+  font-weight: 800;
+}
+.da-margem {
+  margin-bottom: 22px !important;
+}
+.da-mr5 {
+  margin-right: 5px;
+}
+.da-mr8 {
+  margin-right: 8px;
+}
+.da-apagado {
+  color: var(--ink-2);
+}
+
+.da-linha {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* `bds-paper` */
+.da-papel {
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--p-sombra-1);
+}
+
+/* ============================================================== o filtro */
+
+/* `bT#wrapper-color`: largura cheia, `max-height: 128px`, sombra
+   `0 10px 16px`, cantos de baixo 8. */
+.da-filtro {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  max-height: 128px;
+  margin: 0;
+  border-radius: 0 0 8px 8px;
+  background: var(--surface);
+  box-shadow: 0 10px 16px var(--da-sombra-faixa);
+}
+
+/* `pT`: 90% até 1366, `space-around`, 24px em cima e embaixo. */
+.da-filtro-miolo {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: flex-start;
+  width: 90%;
+  max-width: 1366px;
+  margin: 0 auto;
+  padding: 24px 0;
+}
+
+/* `mT`: 38px de altura; o ícone com 5px à esquerda; 150px abaixo de 1300. */
+.da-filtro-rotulo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  height: 38px;
+}
+
+.da-filtro-rotulo .da-dica {
+  margin-left: 5px;
+}
+
+@media (max-width: 1300px) {
+  .da-filtro-rotulo {
+    max-width: 150px;
+  }
+}
+
+/* `fT` (40%, `row-gap: 0.65vw`, 10 à direita) e `gT` (`column-gap: 0.65vw`). */
+.da-filtro-chips {
+  display: flex;
+  flex-direction: column;
+  row-gap: 0.65vw;
+  width: 40%;
+  margin-right: 10px;
+}
+
+.da-filtro-fileira {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  column-gap: 0.65vw;
+}
+
+/* `bds-chip-clickable size="tall"`: 40px, raio 24, `padding: 2px 4px`;
+   `outline` com borda 1px e fundo surface-1; `default` no fundo `system`.
+   O `chip_darker` escurece 10% no hover e 20% no clique. */
+.da-chip {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 40px;
+  padding: 2px 4px;
+  border: 1px solid var(--p-linha-forte);
+  border-radius: 24px;
+  background: var(--surface);
+  color: var(--ink);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.da-chip--ativo {
+  border-color: transparent;
+  background: var(--p-info-fundo);
+}
+
+.da-chip:hover {
+  filter: brightness(0.9);
+}
+
+.da-chip:active {
+  filter: brightness(0.8);
+}
+
+/* `chip_clickable--text`: `margin: 0 8px`, 20px de altura, `bds-typo fs-12 bold`. */
+.da-chip-texto {
+  display: flex;
+  align-items: center;
+  height: 20px;
+  margin: 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 150%;
+  white-space: nowrap;
+}
+
+/* `eT` + `tT.date-info` (32px, raio 10, recheio 3, 8 à direita, borda
+   surface-2) + `oT.info-date` (5px 10px) + `nT` (sem borda, 16px, 5 à esquerda). */
+.da-datas {
+  display: flex;
+  flex-direction: row;
+  margin: 0;
+}
+
+.da-datas-caixa {
+  display: flex;
+  flex-direction: row;
+  height: 32px;
+  margin-right: 8px;
+  padding: 3px;
+  overflow: hidden;
+  border: 1px solid var(--surface-2);
+  border-radius: 10px;
+}
+
+.da-data {
+  display: flex;
+  flex-direction: row;
+  padding: 5px 10px;
+  background: var(--surface);
+}
+
+.da-data input {
+  margin-left: 5px;
+  border: 0;
+  background: var(--surface);
+  color: var(--ink);
+  font: inherit;
+  font-size: 16px;
+}
+
+/* `::-webkit-calendar-picker-indicator`: 4 à esquerda, raio 6, recheio 4. */
+.da-data input::-webkit-calendar-picker-indicator {
+  margin-left: 4px;
+  padding: 4px;
+  border-radius: 6px;
+  background-color: var(--surface);
+}
+
+/* ============================================================== botões */
+
+/* `bds-button` `standard`: 40px, `padding: 9px 16px`, raio 8, `fs-14 bold`,
+   ícone de 24 com 4px de folga; hover escurece 8%; travado a 50%. */
+.da-botao {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  margin: 0;
+  padding: 9px 16px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 20px;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+
+.da-botao svg {
+  margin-right: 4px;
+}
+
+.da-botao:hover:not(:disabled) {
+  background-image: linear-gradient(var(--da-passagem), var(--da-passagem));
+}
+
+.da-botao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* `variant="tertiary"`: borda 1px border-1. */
+.da-botao--terciario {
+  border: 1px solid var(--p-linha-forte);
+}
+
+/* `size="short"`: 32px, `padding: 5px 16px`. */
+.da-botao--curto {
+  height: 32px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+/* `variant="secondary--white"`. */
+.da-botao--branco {
+  color: var(--surface);
+}
+
+/* `_S`: o botão só de ícone do CSV (`font-weight: 700`). */
+.da-botao--so-icone svg {
+  margin-right: 0;
+}
+
+.da-botoes {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+/* `dS width="20%" align="end"` do `wS`. */
+.da-csv {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  width: 20%;
+}
+
+/* =============================================================== a dica */
+
+/* `bds-tooltip`: `tooltip__wrapper` + `tooltip__tip`. */
+.da-dica {
+  position: relative;
+  display: inline-block;
+  line-height: 0;
+}
+
+.da-dica-balao {
+  position: absolute;
+  left: 50%;
+  z-index: 90000;
+  box-sizing: border-box;
+  width: max-content;
+  min-width: 32px;
+  max-width: 320px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--surface);
+  line-height: 150%;
+  white-space: normal;
+  text-align: left;
+  font-weight: 400;
+  filter: drop-shadow(0 2px 8px color-mix(in srgb, var(--ink) 40%, transparent));
+  visibility: hidden;
+  transition: all 0.2s ease-in-out;
+  cursor: default;
+}
+
+.da-dica:hover > .da-dica-balao {
+  visibility: visible;
+}
+
+.da-dica-balao::before {
+  content: '';
+  position: absolute;
+  width: 0;
+  height: 0;
+  border: 6px solid transparent;
+  pointer-events: none;
+}
+
+.da-dica-balao--bottom-center {
+  top: calc(100% + 10px);
+  transform: translateX(-50%);
+}
+
+.da-dica-balao--bottom-center::before {
+  bottom: 100%;
+  left: 50%;
+  margin-left: -6px;
+  border-bottom-color: var(--ink);
+}
+
+.da-dica-balao--top-right {
+  bottom: calc(100% + 10px);
+  left: initial;
+  right: 0;
+  transform: translateX(15%);
+}
+
+.da-dica-balao--top-right::before {
+  top: 100%;
+  left: calc(85% - 6px);
+  border-top-color: var(--ink);
+}
+
+.da-dica-balao--left-center,
+.da-dica-balao--left-bottom {
+  top: 50%;
+  left: auto;
+  right: calc(100% + 10px);
+  transform: translateY(-50%);
+}
+
+.da-dica-balao--left-bottom {
+  top: initial;
+  bottom: 0;
+  transform: none;
+}
+
+.da-dica-balao--left-center::before,
+.da-dica-balao--left-bottom::before {
+  top: 50%;
+  right: -12px;
+  border-left-color: var(--ink);
+  transform: translateY(-50%);
+}
+
+.da-dica-balao--left-bottom::before {
+  top: 60%;
+}
+
+/* ================================================== indicador de comparação */
+
+/* `JS`: 20px, raio 3, recheio 2, `inline-flex`; 50px de largura, menos no
+   transparente. Claro = surface-1, escuro = surface-2. */
+.da-var {
+  display: inline-flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  width: 50px;
+  height: 20px;
+  padding: 2px;
+  border-radius: 3px;
+  background: var(--surface);
+  color: var(--ink);
+  line-height: 150%;
+}
+
+.da-var--escuro {
+  background: var(--surface-2);
+}
+
+.da-var--transparente {
+  width: auto;
+  background: transparent;
+}
+
+/* ============================================================== miolo */
+
+/* `tN`: 1024 a 1377, 85%, `padding: 30px 0`. */
+.da-miolo {
+  min-width: 1024px;
+  max-width: 1377px;
+  width: 85%;
+  margin: 0 auto;
+  padding: 30px 0;
+}
+
+/* `nN`: 16 embaixo, `space-between`. */
+.da-cabecalho {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding-bottom: 16px;
+}
+
+/* `vE` + `yE`: título e o `info` sólido com 5px à esquerda. */
+.da-titulo {
+  display: flex;
+  flex-direction: row;
+}
+
+.da-titulo-info {
+  padding-left: 5px;
+  box-sizing: content-box;
+}
+
+/* `F_`/`CE`/`bR`/`Pw`: cabeça da seção, título à esquerda e CSV à direita. */
+.da-secao-cabeca {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+/* `M_`/`vR`: recheio 10, coluna. */
+.da-secao-titulos {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: stretch;
+  height: 100%;
+  padding: 10px;
+}
+
+/* `DE`/`Hw`: recheio 10, coluna centrada. */
+.da-canais-titulos {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 10px;
+}
+
+/* `mE`: coluna centrada; ícone de 80 com 7 em cima, título 16 em cima,
+   texto 12 em cima e 32 dos lados. */
+.da-vazio {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+}
+
+.da-vazio-icone {
+  margin-top: 7px;
+}
+
+.da-vazio-titulo {
+  margin-top: 16px;
+  color: var(--ink-2);
+  text-align: center;
+}
+
+.da-vazio-texto {
+  margin: 12px 32px 0;
+  color: var(--ink-3);
+  text-align: center;
+}
+
+.da-link {
+  color: var(--p-marca);
+  cursor: pointer;
+}
+
+/* ============================================================ Contatos */
+
+/* `C_.paper-card`: recheio 16, coluna, 16 embaixo, fundo surface-1. */
+.da-contatos {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  padding: 16px;
+}
+
+/* `D_`: linha, 10 em cima. */
+.da-contatos-corpo {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  height: 100%;
+  padding-top: 10px;
+}
+
+/* `O_`: coluna centrada, `margin: 0 12px`. */
+.da-coluna {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  margin: 0 12px;
+}
+
+/* `YE.dark-paper`: linha, `padding: 22px 16px`, `margin: 4px 0`, surface-2. */
+.da-cartao-escuro {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin: 4px 0;
+  padding: 22px 16px;
+  background: var(--surface-2);
+}
+
+.da-cartao-escuro .da-t14 {
+  margin-right: 8px;
+}
+
+.da-cartao-escuro .da-t24 {
+  margin-right: 8px;
+}
+
+/* `i_.default-card`: coluna `space-around`, recheio 16, `margin: 4px 0`. */
+.da-cartao-claro {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  margin: 4px 0;
+  padding: 16px;
+}
+
+/* `s_`: linha de largura cheia, `space-between`. */
+.da-cartao-claro-topo {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}
+
+/* `v_.stripedCard`: `padding: 16px 8px 16px 16px`, raio 8, `margin: 8px 0`,
+   até 275, surface-2. */
+.da-listrado {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: baseline;
+  max-width: 275px;
+  margin: 8px 0;
+  padding: 16px 8px 16px 16px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+.da-listrado--sombra {
+  box-shadow: var(--p-sombra-1);
+}
+
+/* O `bds-grid xxs="12" padding="b-2"` com `.content-row` (fio de 2px). */
+.da-listrado-conteudo {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  width: 100%;
+  padding-bottom: 16px;
+  border-bottom: 2px solid;
+}
+
+/* `y_`: linha de largura cheia, gap 8. */
+.da-listrado-titulo {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  width: 100%;
+}
+
+/* `S_`: a dica sobe 11 e recua 5. */
+.da-listrado-dica {
+  position: relative;
+  top: -11px;
+  right: 5px;
+}
+
+.da-borda-marca {
+  border-color: var(--p-marca);
+}
+.da-borda-oceano {
+  border-color: var(--p-grafico-2);
+}
+.da-borda-apagada {
+  border-color: var(--ink-2);
+}
+.da-borda-rosa {
+  border-color: var(--p-grafico-4);
+}
+.da-borda-amarela {
+  border-color: var(--p-grafico-3);
+}
+.da-borda-azul {
+  border-color: var(--p-grafico-1);
+}
+
+/* `E_`: o `external-file` small; travado é `not-allowed`. */
+.da-abrir {
+  display: inline-flex;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.da-abrir--travado {
+  cursor: not-allowed;
+}
+
+/* ============================================================ gráficos */
+
+.da-cor-oceano {
+  color: var(--p-grafico-2);
+}
+.da-cor-azul {
+  color: var(--p-grafico-1);
+}
+.da-cor-cinza {
+  color: var(--ink-2);
+}
+
+/* A altura da coluna na origem é a dos três cartões ao lado (~240px de área
+   de desenho); com menos, os 11 tiques do chart.js se atropelam. */
+.da-linhas {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 260px;
+}
+
+/* `plugins.title`: bold 14, alinhado ao começo, 10 em cima e embaixo. */
+.da-linhas-titulo {
+  padding: 10px 0;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.da-linhas-area {
+  display: flex;
+  flex: 1;
+  min-height: 0;
+  padding-bottom: 20px;
+}
+
+/* Tiques do chart.js: 12px, cor padrão #666, 3px de folga até o eixo. */
+.da-eixo-y {
+  position: relative;
+  width: 28px;
+  margin-right: 3px;
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.da-eixo-y span {
+  position: absolute;
+  right: 0;
+  transform: translateY(50%);
+  line-height: 1;
+}
+
+.da-plot {
+  position: relative;
+  flex: 1;
+}
+
+/* Absoluto: sem isso o `viewBox` quadrado dá altura própria ao desenho e
+   estica a seção. O canvas do chart.js (`maintainAspectRatio: false`) só
+   ocupa a altura que a coluna já tem. */
+.da-plot svg {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+/* `borderWidth: 3`, `borderJoinStyle: miter`, `pointRadius: 0`. */
+.da-plot polyline {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linejoin: miter;
+}
+
+.da-eixo-x {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.da-eixo-x span {
+  position: absolute;
+  transform: translateX(-50%);
+  line-height: 1;
+  white-space: nowrap;
+}
+
+/* `legend` embaixo: `usePointStyle` círculo 7×7, 10 de recheio, 12px #666. */
+.da-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 10px;
+  margin: 0;
+  padding: 10px 0 0;
+  list-style: none;
+  color: var(--ink-2);
+  font-size: 12px;
+}
+
+.da-legenda li {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.da-legenda i {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.da-legenda li i + * {
+  color: var(--ink-2);
+}
+
+/* `QT`: barras deitadas, raio 8, `categoryPercentage .8 × barPercentage .9`. */
+.da-barras {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 200px;
+}
+
+.da-barras-area {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  gap: 4%;
+  padding: 10% 0;
+}
+
+.da-barras-linha {
+  display: flex;
+  flex: 1;
+  align-items: center;
+  max-height: 36%;
+}
+
+.da-barra {
+  height: 100%;
+  border-radius: 8px;
+  background: currentColor;
+}
+
+/* datalabels: 24px "bolder" à direita da ponta, cor #292929. */
+.da-barra-valor {
+  color: var(--ink);
+  font-size: 24px;
+  font-weight: 800;
+  white-space: pre;
+}
+
+/* ========================================================= Recorrência */
+
+/* `AR`: linha, gap 16, 16 embaixo; `ZR`: duas colunas de 50% com gap 16. */
+.da-recorrencia {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
+  height: 100%;
+  margin-bottom: 16px;
+}
+
+.da-meia {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: 50%;
+}
+
+/* `NR.blue_paper_Card-container`: `padding: 20px 24px`, gap 12, min 114.8, surface-3. */
+.da-cartao-azul {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  min-height: 114.8px;
+  padding: 20px 24px;
+  background: var(--surface-3);
+}
+
+.da-cartao-azul-corpo {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: stretch;
+  gap: 12px;
+}
+
+.da-cartao-azul-corpo .da-t16 {
+  margin-right: 5px;
+}
+
+/* `FR`: 90px de largura. */
+.da-cartao-azul-valor {
+  display: flex;
+  width: 90px;
+}
+
+/* `sS.color-section`: coluna, `padding: 18px 16px`, min 310. */
+.da-ranking {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: baseline;
+  min-height: 310px;
+  padding: 18px 16px;
+}
+
+/* `cS` + `uS`: recheio 10. */
+.da-ranking-cabeca {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.da-ranking-titulos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
+  padding: 10px;
+}
+
+.da-ranking-vazio {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  width: 100%;
+  padding: 10px;
+}
+
+/* `gS`/`kS`/`xS`/`bS`: a cabeça é uma tabela fixa, o corpo rola sozinho. */
+.da-ranking-tabela {
+  width: 100%;
+  border-collapse: separate;
+}
+
+.da-ranking-tabela thead {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+.da-ranking-tabela tbody {
+  display: block;
+  margin-top: 12px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.da-ranking-tabela tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+  text-align: left;
+}
+
+.da-ranking-tabela tbody tr:not(:last-child) {
+  margin-bottom: 12px;
+}
+
+/* O `table` global do Pipe põe caixa-alta e fio em cada linha; os `vS`/`yS`
+   da origem não têm nem um nem outro. */
+.da-ranking-tabela th,
+.da-ranking-tabela td {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  letter-spacing: normal;
+  text-transform: none;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* `fS.color-circle`: 32px, redondo, 14 à esquerda, fundo `system`. */
+.da-posicao {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  margin-left: 14px;
+  border-radius: 50%;
+  background: var(--p-info-fundo);
+}
+
+/* =========================================================== Mensagens */
+
+/* `fR.messageSection`: recheio 16, 16 embaixo. */
+.da-mensagens {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+  padding: 16px;
+}
+
+/* `gR`: recheio 10, linha. */
+.da-mensagens-corpo {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  height: 100%;
+  padding: 10px;
+}
+
+/* `yR`: coluna `space-evenly`, 10 à direita menos na última. */
+.da-mensagens-coluna {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  min-height: 100%;
+}
+
+.da-mensagens-coluna:not(:last-child) {
+  padding-right: 10px;
+}
+
+/* `KT` + `eR` + `tR` (32px redondo) + `nR` (min 185, `padding: 0 10px`). */
+.da-metrica {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+}
+
+.da-metrica-icone {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  color: var(--ink);
+}
+
+.da-cor-fundo-oceano {
+  background: var(--p-grafico-2);
+}
+.da-cor-fundo-marca {
+  background: var(--p-marca);
+}
+
+.da-metrica-textos {
+  display: flex;
+  flex-direction: column;
+  min-width: 185px;
+  padding: 0 10px;
+}
+
+/* `aR`: o número encostado à direita. */
+.da-metrica-valor {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-items: center;
+  height: 100%;
+}
+
+/* ============================================================== Canais */
+
+/* `.channel-section`: `padding: 16px 16px`, surface-1. */
+.da-canais {
+  padding: 16px;
+}
+
+/* `ME`: recheio 10. */
+.da-canais-corpo {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: stretch;
+  height: 100%;
+  padding: 10px;
+}
+
+/* `RS` + `CS`/`FS` + `nE`/`oE`/`tE`. */
+.da-canais-tabela {
+  width: 100%;
+  height: 60%;
+  margin-top: 18px;
+}
+
+.da-canais-tabela thead tr {
+  display: table;
+  width: 100%;
+  margin-bottom: 12px;
+  table-layout: fixed;
+  border-radius: 4px;
+  color: var(--ink);
+  font-size: 14px;
+  text-align: center;
+  vertical-align: baseline;
+}
+
+/* Mesmo reset das tabelas de ranking: o `th`/`td` global do Pipe põe
+   caixa-alta, fio e recheio que o `FS`/`tE` da origem não têm. */
+.da-canais-tabela th,
+.da-canais-tabela td {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+}
+
+.da-canais-tabela thead th {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.da-canais-tabela tbody {
+  display: block;
+  height: 80%;
+  margin-top: 10px;
+}
+
+.da-canais-tabela tbody tr {
+  display: table;
+  width: 100%;
+  padding: 7px 0;
+  table-layout: fixed;
+}
+
+.da-canais-tabela tbody tr:nth-child(odd) {
+  background: var(--surface-2);
+}
+
+/* `tr:last-child` (os "Totais") e a primeira célula de cada linha em negrito. */
+.da-canais-tabela tbody tr:last-child {
+  font-weight: 700;
+}
+
+.da-canais-tabela tbody tr:last-child td:first-child {
+  font-size: 16px;
+}
+
+.da-canais-tabela td {
+  font-size: 14px;
+  text-align: center;
+}
+
+.da-canais-tabela td:first-child {
+  font-weight: 700;
+}
+
+/* ================================================ Fluxo conversacional */
+
+/* `zw`: recheio 16, 16 embaixo, e `margin-top: 16px` da folha. */
+.da-fluxo {
+  display: flex;
+  flex-direction: column;
+  margin: 16px 0;
+  padding: 16px;
+}
+
+/* `Qw` + `Jw`: linha que quebra, recheio 10. */
+.da-fluxo-corpo {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: stretch;
+  padding: 10px;
+}
+
+/* `xw`: 139px, raio 8, `margin: 4px`, `padding: 4px 16px 8px`, surface-2. */
+.da-colunas {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 139px;
+  margin: 4px;
+  padding: 4px 16px 8px;
+  border-radius: 8px;
+  background: var(--surface-2);
+}
+
+/* `Sw`: 16 embaixo e o fio de 2px. */
+.da-colunas-fio {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  height: 100%;
+  padding-bottom: 16px;
+  border-bottom: 2px solid;
+}
+
+.da-colunas-cabeca {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.da-colunas-valores {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-around;
+  align-items: stretch;
+}
+
+/* `ww`: coluna centrada, 8 dos lados. */
+.da-colunas-valor {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  margin: 0 8px;
+  text-align: center;
+}
+
+/* ============================================================== Blocos */
+
+/* `bds-grid direction="row" gap="2"`. */
+.da-blocos {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+
+/* ====================================================== a barra lateral */
+
+/* `X_#sidebar-overlay`: véu fixo de tela cheia, coluna encostada à direita. */
+.da-veu {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 39999;
+  display: flex;
+  flex-flow: column;
+  align-items: self-end;
+  width: 100vw;
+  height: 100vh;
+  background: color-mix(in srgb, var(--surface-3) 50%, transparent);
+}
+
+.da-veu-fundo {
+  position: absolute;
+  inset: 0;
+}
+
+/* `$_.sidebar-header`: 416px, `padding: 10px 0`, surface-4. */
+.da-lateral-cabeca {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 416px;
+  padding: 10px 0;
+  background: var(--p-superficie-4);
+  color: var(--surface);
+}
+
+.da-lateral-cabeca p {
+  padding-left: 6%;
+}
+
+.da-lateral-cabeca .da-botao {
+  margin-right: 4%;
+}
+
+/* `K_`: 416px de altura cheia. */
+.da-lateral {
+  position: relative;
+  width: 416px;
+  height: 100%;
+  border-radius: 0;
+}
+
+/* `ew.sub-header`: 83px, 91%, `margin: 16px 0 24px 3%`, surface-3. */
+.da-lateral-sub {
+  display: flex;
+  flex-direction: row;
+  width: 91%;
+  height: 83px;
+  margin: 16px 0 24px 3%;
+  background: var(--surface-3);
+  color: var(--ink);
+}
+
+/* `ow`: metade, 5% à esquerda, centrada. */
+.da-lateral-sub-coluna {
+  display: flex;
+  flex-direction: column;
+  align-self: center;
+  width: 50%;
+  padding-left: 5%;
+}
+
+/* `nw` (5% em cima) + `aw` (2% à esquerda). */
+.da-lateral-sub-titulo {
+  display: flex;
+  flex-direction: row;
+  padding-top: 5%;
+}
+
+.da-lateral-sub-titulo .da-t16 {
+  padding-left: 2%;
+}
+
+/* `iw`: 1% à esquerda, 4% em cima. */
+.da-lateral-sub-dado {
+  padding-top: 4%;
+  padding-left: 1%;
+}
+
+/* `lw.contacts-content`: 3% em cima, altura menos 200, rola, 96%. */
+.da-lateral-lista {
+  display: block;
+  width: 96%;
+  height: calc(100% - 200px);
+  margin-top: 3%;
+  overflow-y: auto;
+}
+
+/* `cw`: 52px, 94%, 8 embaixo, 3% à esquerda; no hover 54px, 96% e 2%. */
+.da-lateral-item {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 94%;
+  height: 52px;
+  margin: 0 0 8px 3%;
+  padding-left: 2%;
+  cursor: pointer;
+}
+
+.da-lateral-item:hover {
+  width: 96%;
+  height: 54px;
+  margin-left: 2%;
+}

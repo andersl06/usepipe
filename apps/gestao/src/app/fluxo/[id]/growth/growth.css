@@ -1,0 +1,317 @@
+/* Medidas de active-campaign-main.js (abas, cards, modal e filtros); cores mapeadas para tokens Pipe. */
+.gr-miolo {
+  min-height: calc(100vh - 136px);
+  padding: 40px 20px;
+  background: var(--ground);
+}
+.gr-container {
+  width: min(90%, 1120px);
+  margin: 0 auto;
+  color: var(--p-conteudo);
+}
+.gr-cabeca,
+.gr-filtros,
+.gr-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.gr-cabeca {
+  margin-bottom: 28px;
+}
+.gr-cabeca h1 {
+  margin: 0 0 8px;
+  font-size: 24px;
+}
+.gr-cabeca p {
+  margin: 0;
+  color: var(--p-conteudo-desabilitado);
+  font-size: 14px;
+}
+.gr-abas {
+  display: flex;
+  gap: 24px;
+  margin: 0 0 24px;
+  border-bottom: 1px solid var(--p-linha-media);
+}
+.gr-abas button {
+  padding: 12px 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--p-conteudo-desabilitado);
+  cursor: pointer;
+}
+.gr-abas button.ativa {
+  border-bottom-color: var(--p-marca-forte);
+  color: var(--p-conteudo);
+}
+.gr-botao {
+  min-height: 40px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 16px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+.gr-botao-primario {
+  border-color: var(--p-marca-forte);
+  background: var(--p-marca-forte);
+  color: var(--p-superficie-0);
+}
+.gr-filtros {
+  justify-content: flex-start;
+  padding: 20px;
+  background: var(--p-superficie-0);
+  border-radius: var(--g-r-cartao);
+  box-shadow: var(--g-sombra-cartao);
+}
+.gr-filtros label {
+  flex: 1;
+  font-size: 14px;
+}
+.gr-filtros input {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+}
+.gr-filtros select,
+.gr-formulario input:not([type='radio']):not([type='file']),
+.gr-formulario select,
+.gr-modal textarea {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font: inherit;
+}
+.gr-resumo,
+.gr-lista {
+  margin-top: 24px;
+  padding: 24px;
+  border-radius: var(--g-r-cartao);
+  background: var(--p-superficie-0);
+  box-shadow: var(--g-sombra-cartao);
+}
+.gr-resumo h2,
+.gr-lista h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+.gr-resumo > p {
+  color: var(--p-conteudo-desabilitado);
+}
+.gr-metricas {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 20px;
+}
+.gr-metrica {
+  padding: 16px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+}
+.gr-metrica span,
+.gr-metrica strong {
+  display: block;
+}
+.gr-metrica span {
+  color: var(--p-conteudo-desabilitado);
+  font-size: 14px;
+}
+.gr-metrica strong {
+  margin-top: 8px;
+  font-size: 24px;
+}
+.gr-tabela-rolagem {
+  overflow-x: auto;
+}
+.gr-tabela-rolagem table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+.gr-tabela-rolagem th,
+.gr-tabela-rolagem td {
+  padding: 14px 10px;
+  border-bottom: 1px solid var(--p-linha-media);
+}
+.gr-status {
+  display: inline-block;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: var(--p-superficie-1);
+  font-size: 12px;
+}
+.gr-sobreposicao {
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 45%);
+}
+.gr-modal {
+  width: min(100%, 600px);
+  max-height: 90vh;
+  overflow: auto;
+  padding: 24px;
+  border-radius: var(--g-r-cartao);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+}
+.gr-assistente {
+  width: min(100%, 720px);
+}
+.gr-modal-cabeca,
+.gr-modal-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+.gr-modal-cabeca {
+  margin-bottom: 20px;
+}
+.gr-modal-cabeca h2,
+.gr-modal-cabeca p {
+  margin: 0 0 6px;
+}
+.gr-icone-botao {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.gr-etapas {
+  display: flex;
+  justify-content: space-between;
+  margin: 24px 0;
+}
+.gr-etapas span {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo-desabilitado);
+}
+.gr-etapas span.concluida {
+  background: var(--p-marca-forte);
+  color: var(--p-superficie-0);
+}
+.gr-formulario {
+  display: grid;
+  gap: 18px;
+  min-height: 180px;
+}
+.gr-formulario fieldset {
+  display: grid;
+  gap: 12px;
+  border: 0;
+  padding: 0;
+}
+.gr-formulario legend {
+  margin-bottom: 12px;
+  font-weight: 600;
+}
+.gr-escolha {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+}
+.gr-previa,
+.gr-revisao {
+  padding: 16px;
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-1);
+}
+.gr-arquivo {
+  display: grid;
+  gap: 12px;
+  padding: 24px;
+  border: 1px dashed var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  text-align: center;
+}
+.gr-revisao dl {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.gr-revisao dd {
+  margin: 0;
+}
+.gr-aviso {
+  color: var(--p-erro-conteudo);
+}
+.gr-modal-acoes {
+  justify-content: flex-end;
+  margin-top: 24px;
+}
+.gr-acoes {
+  justify-content: flex-start;
+  margin: 24px 0;
+}
+.gr-vazio {
+  min-height: 280px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: var(--p-superficie-0);
+  border-radius: var(--g-r-cartao);
+  box-shadow: var(--g-sombra-cartao);
+  text-align: center;
+}
+.gr-vazio svg {
+  color: var(--p-conteudo-fantasma);
+}
+.gr-vazio h2 {
+  margin: 16px 0 0;
+  font-size: 20px;
+}
+.gr-vazio p {
+  color: var(--p-erro-conteudo);
+}
+@media (max-width: 700px) {
+  .gr-cabeca,
+  .gr-filtros {
+    align-items: stretch;
+    flex-direction: column;
+  }
+  .gr-filtros input {
+    width: 100%;
+  }
+  .gr-metricas {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .gr-revisao dl {
+    grid-template-columns: 1fr;
+  }
+}

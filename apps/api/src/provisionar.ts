@@ -77,6 +77,15 @@ export interface PedidoDeProvisionamento {
   verificar?: boolean | undefined;
   /** Deixa reaplicar sobre um slug que já existe. Sem isto, slug repetido para. */
   reaplicar?: boolean | undefined;
+  /**
+   * Cria o cliente SEM registrar domínio.
+   *
+   * É o caso da conta que nasce no login (autosserviço): quem entra com e-mail
+   * pessoal não tem domínio para reivindicar, e registrar "gmail.com" como
+   * domínio de um tenant daria a ele todo mundo que tem Gmail. Domínio ali é
+   * assunto de depois, quando a empresa quiser entrada por domínio.
+   */
+  semDominio?: boolean | undefined;
 }
 
 export interface ClienteProvisionado {
@@ -89,7 +98,13 @@ export interface ClienteProvisionado {
   permissoes: number;
   filas: number;
   motivosDePausa: number;
-  dominio: { id: string; dominio: string; verificado: boolean; registro: RegistroDeVerificacao };
+  /** Nulo quando o cliente nasceu sem domínio — ver `semDominio` no pedido. */
+  dominio: {
+    id: string;
+    dominio: string;
+    verificado: boolean;
+    registro: RegistroDeVerificacao;
+  } | null;
 }
 
 export async function provisionarCliente(
@@ -120,7 +135,7 @@ export async function provisionarCliente(
   // O domínio sai do e-mail do administrador quando não vier explícito — é o caso
   // normal, e digitar duas vezes a mesma coisa é como se erra uma delas.
   const dominioAlvo = pedido.dominio ?? dominioDoEmail(admin);
-  if (!pedido.dominio && ehDominioPublico(admin)) {
+  if (!pedido.semDominio && !pedido.dominio && ehDominioPublico(admin)) {
     throw ErroPipe.requisicao(
       'dominio_publico',
       `${admin} é e-mail pessoal e não identifica empresa. Passe --dominio, ou provisione com o e-mail corporativo do administrador.`,
@@ -167,19 +182,21 @@ export async function provisionarCliente(
     `);
     const adminId = rows[0]!.id;
 
+    // Dois papéis: `admin` na conta (o único papel de conta dele) e
+    // `administrador` no atendimento (migração 0021).
     await tx.execute(sql`
-      insert into usuario_papel (tenant_id, usuario_id, papel_id)
-      select ${semeado.tenantId}::uuid, ${adminId}::uuid, id
-        from papel where nome = 'administrador'
+      insert into usuario_papel (tenant_id, usuario_id, papel_id, escopo)
+      select ${semeado.tenantId}::uuid, ${adminId}::uuid, id, escopo
+        from papel where nome in ('admin', 'administrador')
       on conflict do nothing
     `);
 
     return adminId;
   });
 
-  const dominio = await registrarDominio(semeado.tenantId, dominioAlvo);
-  let verificado = dominio.verificadoEm !== null;
-  if (pedido.verificar && !verificado) {
+  const dominio = pedido.semDominio ? null : await registrarDominio(semeado.tenantId, dominioAlvo);
+  let verificado = dominio ? dominio.verificadoEm !== null : false;
+  if (dominio && pedido.verificar && !verificado) {
     await verificarDominio(semeado.tenantId, dominio.id);
     verificado = true;
   }
@@ -194,12 +211,9 @@ export async function provisionarCliente(
     permissoes: semeado.permissoes,
     filas: semeado.filas,
     motivosDePausa: MOTIVOS_PAUSA_PADRAO.length,
-    dominio: {
-      id: dominio.id,
-      dominio: dominio.dominio,
-      verificado,
-      registro: dominio.registro,
-    },
+    dominio: dominio
+      ? { id: dominio.id, dominio: dominio.dominio, verificado, registro: dominio.registro }
+      : null,
   };
 }
 
@@ -216,6 +230,15 @@ export function comoEntrar(cliente: ClienteProvisionado): string {
     `  administrador: ${cliente.adminEmail} (${cliente.adminId})`,
     '',
   ];
+
+  if (!cliente.dominio) {
+    linhas.push(
+      'sem domínio registrado (conta criada no login).',
+      `Diga ao cliente: entre em ${app}/entrar com a conta Google ${cliente.adminEmail}.`,
+      'Para entrada por domínio, registre um em POST /v1/dominios e verifique o TXT.',
+    );
+    return linhas.join('\n');
+  }
 
   if (cliente.dominio.verificado) {
     linhas.push(

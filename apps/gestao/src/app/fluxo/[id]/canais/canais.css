@@ -1,0 +1,178 @@
+/* `auth.application.detail.channels`, captura 8: cabeçalho claro e grade de cards. */
+.cn-miolo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--ground);
+}
+
+/* O `page-header` da origem abre a página em uma faixa branca. */
+.cn-cabecalho {
+  display: flex;
+  align-items: center;
+  min-height: 72px;
+  background: var(--p-superficie-0);
+  box-shadow: 0 2px 12px color-mix(in srgb, var(--p-conteudo) 10%, transparent);
+}
+
+.cn-coluna {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 var(--p-e-5);
+}
+
+.cn-cabecalho h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 1.25;
+  color: var(--p-conteudo);
+}
+
+.cn-conteudo {
+  padding-top: 30px;
+  padding-bottom: 40px;
+}
+
+/* `.channels-list`: margem negativa de 20 e itens de 270 (230 + 40). */
+.cn-lista {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  margin: 0 -20px;
+}
+
+.cn-item {
+  position: relative;
+  box-sizing: border-box;
+  width: 270px;
+  padding: 0 20px 30px;
+  text-align: center;
+}
+
+/* `New.svg` fica acima do card e balança quando o card sobe. */
+.cn-novo {
+  position: absolute;
+  top: -5px;
+  left: 75px;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 48% 48% 48% 16%;
+  transform: rotate(-8deg);
+  background: var(--p-marca);
+  color: var(--p-superficie-0);
+  font-size: 10px;
+  font-weight: var(--g-peso-negrito);
+}
+
+.cn-cartao {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 230px;
+  min-height: 224px;
+  margin: 9px 0;
+  overflow: hidden;
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-1);
+  box-shadow: 0 2px 20px color-mix(in srgb, var(--p-conteudo) 5%, transparent);
+  transition:
+    box-shadow 0.3s ease-out,
+    transform 0.3s ease-out;
+}
+
+.cn-cartao:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--g-sombra-cartao);
+}
+
+.cn-item:hover .cn-novo {
+  animation: cn-novo 0.8s linear infinite;
+}
+
+.cn-cartao-conteudo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  padding: 40px 15px 6px;
+}
+
+.cn-logo {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  margin-bottom: 15px;
+  object-fit: contain;
+}
+
+.cn-logo--apple {
+  fill: var(--p-conteudo);
+}
+
+.cn-cartao h2 {
+  margin: 0;
+  color: var(--p-conteudo-desabilitado);
+  font-size: var(--p-t-lg);
+  font-weight: var(--g-peso-negrito);
+  line-height: 1.25;
+}
+
+/* `button-hub`: rodapé de 64px, sem borda lateral e cheio quando conectado. */
+.cn-botao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 64px;
+  border-top: 1px solid var(--p-superficie-3);
+  color: var(--p-marca-forte);
+  font-size: var(--p-t-md);
+  font-weight: var(--g-peso-negrito);
+}
+
+.cn-botao--conectado {
+  border-color: var(--p-marca-forte);
+  background: var(--p-marca-forte);
+  color: var(--p-superficie-0);
+}
+
+@keyframes cn-novo {
+  50% {
+    transform: rotate(-8deg) translateY(-4px);
+  }
+}
+
+@media (min-width: 550px) {
+  .cn-coluna {
+    width: 90%;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+@media (min-width: 750px) {
+  .cn-coluna {
+    width: 80%;
+  }
+}
+
+@media (max-width: 549px) {
+  .cn-lista {
+    justify-content: center;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cn-item:hover .cn-novo {
+    animation: none;
+  }
+  .cn-cartao {
+    transition: none;
+  }
+}

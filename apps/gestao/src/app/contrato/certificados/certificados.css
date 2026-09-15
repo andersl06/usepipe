@@ -1,0 +1,826 @@
+/* ==========================================================================
+   Certificados de autenticação (/contrato/certificados)
+
+   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. A tela é a rota `/mtls` do
+   fragmento `{conta}.tenant.fragment.blip.ai`: o `zt` e os filhos (`xt`, `Pt`,
+   `yt`, `kt`, `St`, `Ut`) de `static/js/main.e8593b01.chunk.js`, montados com
+   peças do blip-ds cujas folhas vêm dos pedaços que a rota carrega na captura
+   (6): `49` grid/paper/typo, `29` button, `90/87/88/89/85` table, `20/19/18/17`
+   alert, `68` modal, `80/79` stepper/step, `94` upload, `8` input, `51`
+   illustration. `bds-chip-tag` e `bds-button-icon` não carregam com a lista
+   vazia; saem da captura "pessoal" (`41.71da2387.chunk.js` e
+   `scratchpad/bdscss/iconButtonCss.css`). O toast sai do blip-ds da captura do
+   Desk (`bds-toast.entry.js`).
+
+   Régua de tipo: fs-24 = 24px/100%, fs-20 = 20px/100%, fs-16 = 16px/150%,
+   fs-14 = 14px/150%, fs-12 = 12px/150%; regular 400, semi-bold 600, bold 700.
+   `typo margin` em fs-20/24 = 22px embaixo.
+
+   O de-para das tintas. As bordas deles são preto translúcido em quatro forças;
+   aqui são a NOSSA tinta de conteúdo nas mesmas forças, com `color-mix`:
+     color-surface-1 (paper, tabela, modal, alerta) → var(--surface)
+     color-surface-3 (chip disabled)                 → var(--surface-3)
+     color-border-1 20% / border-2 16% / border-3 6% → --cm-borda-1/-2/-3
+     color-hover 8%                                  → --cm-passagem
+     color-content-default / -disable / -ghost      → var(--ink) / var(--ink-2) / var(--ink-3)
+     color-content-bright                            → var(--p-conteudo-claro)
+     color-primary / surface-primary                 → var(--p-marca)
+     color-info (anel do campo em foco)              → var(--p-marca-linha)
+     color-success / color-system (chips)            → var(--p-sucesso-fundo) / var(--p-info-fundo)
+     color-warning (topo do alerta)                  → var(--p-alerta-fundo)
+     color-error (toast) / color-delete, -negative   → var(--p-erro-fundo) / var(--p-erro-conteudo)
+     paper elevation static                          → var(--p-sombra-1)
+     sombra do modal, do alerta e do toast           → var(--p-sombra-2)
+     véu do modal e do alerta (preto a 70%)          → --cm-veu
+     borda #ccc da caixa do passo a passo            → var(--line-strong)
+   ========================================================================== */
+
+.cm-cabecalho,
+.cm-grade,
+.cm-modal,
+.cm-alerta,
+.cm-aviso {
+  --cm-borda-1: color-mix(in srgb, var(--ink) 20%, transparent);
+  --cm-borda-2: color-mix(in srgb, var(--ink) 16%, transparent);
+  --cm-borda-3: color-mix(in srgb, var(--ink) 6%, transparent);
+  --cm-passagem: color-mix(in srgb, var(--ink) 8%, transparent);
+  --cm-veu: color-mix(in srgb, var(--ink) 70%, transparent);
+}
+
+/* O cabeçalho é o do portal (`setHeaderContent`), com as medidas que a tela de
+   Membros já tirou para a mesma dupla de seta e frase. */
+.cm-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  width: 93%;
+  margin: 10px auto 0;
+}
+
+.cm-cabecalho h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: var(--p-peso-forte);
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+.cm-voltar {
+  display: inline-flex;
+  color: var(--ink);
+}
+
+/* ------------------------------------------------------------ a grade */
+
+/* `bds-grid#certificates containerFluid margin="y-5" direction="column"
+   gap="2"`: 40 em cima e embaixo, 16 entre os dois papers, e o teto de largura
+   do `container-fluid` em cada degrau. */
+.cm-grade {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-sizing: border-box;
+  max-width: 100%;
+  margin: 40px auto;
+  color: var(--ink);
+}
+
+@media (min-width: 905px) {
+  .cm-grade {
+    max-width: 848px;
+  }
+}
+
+@media (min-width: 993px) {
+  .cm-grade {
+    max-width: 944px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .cm-grade {
+    max-width: 1232px;
+  }
+}
+
+@media (min-width: 1440px) {
+  .cm-grade {
+    max-width: 1328px;
+  }
+}
+
+@media (min-width: 1920px) {
+  .cm-grade {
+    max-width: 1424px;
+  }
+}
+
+/* `bds-paper`: raio 16, sem borda, elevação `static` por padrão. Item de flex,
+   então a margem de 40 do filho não vaza para fora dele. */
+.cm-papel {
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--p-sombra-1);
+}
+
+/* `xt`: `bds-grid gap="8" margin="5"` — 64 entre a ilustração e o texto, 40 de
+   respiro em volta. */
+.cm-apresentacao {
+  display: flex;
+  gap: 64px;
+  margin: 40px;
+}
+
+.cm-apresentacao-texto {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* `bds-grid direction="column" margin="b-2"`: título e subtítulo, 16 abaixo. */
+.cm-cabeca {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 16px;
+}
+
+.cm-t24 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.cm-t20 {
+  margin: 0;
+  font-size: 20px;
+  line-height: 1;
+}
+
+.cm-t20--forte {
+  font-weight: 700;
+}
+
+/* Depois do `margin: 0` das duas, senão ele apaga os 22. */
+.cm-t24--margem,
+.cm-t20--margem {
+  margin-bottom: 22px;
+}
+
+.cm-t16 {
+  margin: 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.cm-t14 {
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* `Pt`: `bds-grid padding="3"` (24) com o `xxs="12"` dentro, que soma 8 de
+   cada lado. */
+.cm-lista {
+  padding: 24px 32px;
+}
+
+/* ------------------------------------------------------------- botões */
+
+/* `bds-button`, o padrão `solid`/`primary`/`medium`: 40 de altura, 16 de lado,
+   raio 8, 4 entre ícone e texto, rótulo fs-14 bold. */
+.cm-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cm-botao:hover {
+  background: var(--p-marca-forte);
+}
+
+/* `--disabled`: `opacity: 50%; pointer-events: none`. */
+.cm-botao:disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* `variant="secondary"`: sem fundo e sem borda, texto na tinta de conteúdo. */
+.cm-botao--secundario {
+  background: transparent;
+  color: var(--ink);
+}
+
+.cm-botao--secundario:hover {
+  background: var(--cm-passagem);
+}
+
+/* `variant="delete"`: o "-" do campo de URL. */
+.cm-botao--apagar {
+  background: var(--p-erro-conteudo);
+  color: var(--p-conteudo-claro);
+}
+
+.cm-botao--apagar:hover {
+  background: var(--p-erro-conteudo);
+}
+
+/* `bds-button-icon size="short" variant="secondary"`: 40×40, recheio 8, raio
+   8, ícone `medium` (24). */
+.cm-botao-icone-so {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: all 0.5s;
+}
+
+/* ------------------------------------------------------------- tabela */
+
+/* `bds-table`: raio 8, fundo da superfície 1 e borda de 6%. */
+.cm-tabela-moldura {
+  width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--cm-borda-3);
+  border-radius: 8px;
+  background: var(--surface);
+}
+
+.cm-tabela {
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+
+/* `bds-table-header`: régua de 20% embaixo. */
+.cm-tabela thead {
+  border-bottom: 1px solid var(--cm-borda-1);
+}
+
+/* `bds-table-th`: 0 8 de lado (16 nas pontas), `th_cell` de 64 com o rótulo em
+   fs-14 semi-bold (a coluna não ordena). O `th` e o `td` globais de `@pipe/ui`
+   (caixa alta, espaçamento, tinta fantasma, fio próprio, altura de 32/36) são
+   da tabela densa da Gestão, não desta: zerados aqui. */
+.cm-tabela th {
+  height: 64px;
+  padding: 0 8px;
+  border-bottom: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.5;
+  letter-spacing: normal;
+  text-align: left;
+  text-transform: none;
+  vertical-align: middle;
+}
+
+/* `bds-table-row`: 64 de altura e fio de 16%, sem fio na última. */
+.cm-tabela tbody tr {
+  height: 64px;
+  border-bottom: 1px solid var(--cm-borda-2);
+}
+
+.cm-tabela tbody tr:last-child {
+  border-bottom: none;
+}
+
+/* `bds-table-cell`: 0 8 de lado (16 nas pontas), texto fs-14. */
+.cm-tabela td {
+  height: auto;
+  padding: 0 8px;
+  border-bottom: 0;
+  color: var(--ink);
+  white-space: normal;
+  font-size: 14px;
+  line-height: 1.5;
+  vertical-align: middle;
+}
+
+.cm-tabela th:first-child,
+.cm-tabela td:first-child {
+  padding-left: 16px;
+}
+
+.cm-tabela th:last-child,
+.cm-tabela td:last-child {
+  padding-right: 16px;
+}
+
+/* `style={{ minWidth: "20rem" }}` na descrição e no host; `maxWidth: "5rem"`
+   nas ações. */
+.cm-col-descricao {
+  min-width: 20rem;
+}
+
+.cm-col-acoes {
+  max-width: 5rem;
+}
+
+.cm-acoes {
+  display: flex;
+}
+
+/* `bds-chip-tag`: 24 de altura, raio 12, 4 de lado, texto fs-12 bold sem
+   quebra com 8 de cada lado. */
+.cm-etiqueta {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-width: 32px;
+  height: 24px;
+  padding: 0 4px;
+  border-radius: 12px;
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.cm-etiqueta > span {
+  margin: 0 8px;
+}
+
+.cm-etiqueta--sucesso {
+  background: var(--p-sucesso-fundo);
+}
+
+.cm-etiqueta--desabilitado {
+  background: var(--surface-3);
+}
+
+.cm-etiqueta--padrao {
+  background: var(--p-info-fundo);
+}
+
+/* ------------------------------------------------------------- modais */
+
+/* `bds-modal size="dynamic"`: largura do conteúdo até 1000, recheio 32, raio
+   8, coluna com o botão de fechar no alto à direita. `content-box` de
+   propósito: a folha deles vive no shadow DOM, sem o reset da página. A caixa
+   é item de flex com `margin: auto` no véu, então encolhe ao conteúdo — o
+   `width: auto` de um `<dialog>` esticaria até os 1000. */
+.cm-modal {
+  box-sizing: content-box;
+  width: fit-content;
+  max-width: 1000px;
+  padding: 32px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--p-sombra-2);
+  color: var(--ink);
+}
+
+.cm-modal[open] {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.cm-modal::backdrop,
+.cm-alerta::backdrop {
+  background: var(--cm-veu);
+}
+
+/* O `yt` reescreve a caixa do `#certificate-modal`: `margin: 0 auto; height:
+   500px`, e o véu `--dynamic` tem 40 de recheio em cima. */
+.cm-modal--cadastro {
+  height: 500px;
+  margin: 40px auto auto;
+}
+
+/* `.close-button`: ícone `close` (medium, 24), 16 abaixo, encostado à direita. */
+.cm-fechar {
+  align-self: flex-end;
+  width: 24px;
+  height: 24px;
+  margin-bottom: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+/* `#hosts-table`: `maxWidth: "40rem", maxHeight: "20rem", overflowY: "scroll"`. */
+.cm-rolagem > .cm-tabela-moldura {
+  max-width: 40rem;
+  max-height: 20rem;
+  overflow-y: scroll;
+}
+
+.cm-modal .cm-t20 {
+  max-width: 40rem;
+}
+
+/* `bds-alert`: até 424 de largura, raio 8, com o `St`/`Ut` deles empurrando a
+   caixa para 40% da altura (`position:relative;margin:auto;top:40%`). */
+.cm-alerta {
+  width: 424px;
+  max-width: calc(100vw - 32px);
+  margin: 40vh auto 0;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--p-sombra-2);
+  color: var(--ink);
+}
+
+/* `bds-alert-header variant="warning" icon="warning"`: 64 de altura mínima,
+   12 16 de recheio, ícone x-large (32) e o título fs-16 bold a 8 dele. */
+.cm-alerta-topo {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  min-height: 64px;
+  padding: 12px 16px;
+  background: var(--p-alerta-fundo);
+}
+
+.cm-alerta-topo svg {
+  min-width: 32px;
+}
+
+.cm-alerta-topo b {
+  margin-left: 8px;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+/* `bds-alert-body`: 12 16, 8 abaixo, fs-14 regular. */
+.cm-alerta-corpo {
+  margin: 0 0 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* `bds-alert-actions`: à direita, 12 16, 16 depois do primeiro botão. */
+.cm-alerta-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 12px 16px;
+}
+
+.cm-alerta-acoes > .cm-botao:first-child {
+  margin-right: 16px;
+}
+
+/* O toast (`bds-toast` com ação de ícone): 440 de largura, 8 16 de recheio com
+   mais 8 no conteúdo, raio 8, no canto de cima à direita a 24
+   (`bds-toast-container.top-right`). `popover` já vem por cima de tudo. */
+.cm-aviso {
+  box-sizing: border-box;
+  width: 440px;
+  max-width: calc(100vw - 32px);
+  margin: 0;
+  padding: 16px;
+  inset: 24px 24px auto auto;
+  border: 0;
+  border-radius: 8px;
+  background: var(--p-erro-fundo);
+  box-shadow: var(--p-sombra-2);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* -------------------------------------------------------- passo a passo */
+
+/* `bds-stepper`: 16 de recheio e os passos espalhados, com o divisor de 1,5
+   na tinta desabilitada entre eles (8 de cada lado, mínimo de 24). */
+.cm-passos {
+  display: flex;
+  justify-content: space-between;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0;
+  padding: 16px;
+  border-radius: 8px;
+  list-style: none;
+}
+
+/* `bds-step`: 8 de recheio. O divisor da origem é um irmão entre dois passos;
+   aqui é o `::after` do passo, com a margem da direita descontada do recheio. */
+.cm-passo {
+  display: flex;
+  align-items: center;
+  padding: 8px;
+}
+
+.cm-passo:not(:last-child) {
+  flex: 1 1 auto;
+  padding-right: 0;
+}
+
+.cm-passo:not(:last-child)::after {
+  content: '';
+  flex: 1 1 auto;
+  min-width: 24px;
+  height: 1.5px;
+  margin: 0 8px 0 16px;
+  background: var(--ink-2);
+}
+
+.cm-passo--feito:not(:last-child)::after {
+  border-top: 2px solid var(--p-marca);
+}
+
+/* A bola: 24, tinta de conteúdo com o número em branco; a do passo ativo na
+   cor de marca; a do concluído na tinta fantasma, com o ícone `true` no lugar do
+   número. */
+.cm-passo-bola {
+  display: inline-flex;
+  justify-content: center;
+  min-width: 24px;
+  min-height: 24px;
+  margin-right: 4px;
+  border-radius: 50%;
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.cm-passo--ativo .cm-passo-bola {
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+}
+
+.cm-passo--feito .cm-passo-bola {
+  background: var(--ink-3);
+}
+
+.cm-passo-texto {
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.cm-passo--ativo .cm-passo-texto {
+  font-weight: 700;
+}
+
+.cm-passo--feito .cm-passo-texto {
+  color: var(--ink-3);
+}
+
+/* A caixa do `yt`, com o estilo em linha deles: 40rem × 18rem (teto de 20),
+   rolagem vertical, 2rem de recheio e de margem, borda de 1 e raio 5. Ela é
+   `div` da página, não do shadow DOM, então pega o `*{box-sizing:border-box}`
+   de `main.7b59c603.chunk.css`. */
+.cm-caixa {
+  box-sizing: border-box;
+  width: 40rem;
+  max-width: 40rem;
+  height: 18rem;
+  max-height: 20rem;
+  margin: 2rem 0;
+  padding: 2rem;
+  overflow-y: scroll;
+  border: 1px solid var(--line-strong);
+  border-radius: 5px;
+}
+
+.cm-coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  height: 100%;
+}
+
+/* A fileira de botões: `display: flex`, 8 à direita do "Voltar". */
+.cm-rodape {
+  display: flex;
+}
+
+.cm-rodape > .cm-botao:not(:last-child) {
+  margin-right: 8px;
+}
+
+/* ------------------------------------------------------------- upload */
+
+/* `bds-upload`: mínimo de 400, coluna com 16 de vão. */
+.cm-upload {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 400px;
+}
+
+.cm-upload-topo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* `bds-icon name="upload" size="xxx-large"` (40). */
+.cm-upload-icone {
+  flex: 0 0 auto;
+  width: 40px;
+  height: 40px;
+}
+
+.cm-upload-textos {
+  display: flex;
+  flex-direction: column;
+}
+
+.cm-upload-textos b {
+  font-weight: 700;
+}
+
+/* `.upload__preview`: 16 em cima e embaixo, nome em fs-14 bold cortado com
+   reticências, lixeira ao lado. Antes do nome, o clipe (`attach`, 16). */
+.cm-upload-previa {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+}
+
+.cm-upload-previa p {
+  width: 100%;
+  margin: 0;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* `.upload__edit--label`: borda de 20%, raio 8, 23 16 de recheio; na
+   passagem a borda vira 2 na cor de marca e o texto sublinha. */
+.cm-upload-soltar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 23px 16px;
+  border: 1px solid var(--cm-borda-1);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.cm-upload-soltar > span {
+  width: 100%;
+  padding: 8px;
+  text-align: center;
+}
+
+.cm-upload-soltar:hover {
+  padding: 22px 16px;
+  border: 2px solid var(--p-marca);
+  color: var(--p-marca);
+  text-decoration: underline;
+}
+
+.cm-upload-soltar input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* `bds-grid xxs="6"`: a senha ocupa metade. */
+.cm-metade {
+  width: 50%;
+}
+
+/* -------------------------------------------------------------- campos */
+
+/* `bds-input` com rótulo: borda de 20% e raio 8, recheio 7 4 8 12, rótulo
+   fs-12 bold a 2 do texto, texto 14/22. Passagem e foco na cor de marca, com
+   anel de 2 no foco. */
+.cm-campo {
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  width: 100%;
+  padding: 7px 4px 8px 12px;
+  border: 1px solid var(--cm-borda-1);
+  border-radius: 8px;
+}
+
+.cm-campo:hover,
+.cm-campo:focus-within {
+  border-color: var(--p-marca);
+}
+
+.cm-campo:focus-within {
+  box-shadow: 0 0 0 2px var(--p-marca-linha);
+}
+
+.cm-campo b {
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+}
+
+.cm-campo input {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  outline: none;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+}
+
+/* `--state-danger`: borda e rótulo na tinta de erro. */
+.cm-campo--erro,
+.cm-campo--erro:hover,
+.cm-campo--erro:focus-within {
+  border-color: var(--p-erro-conteudo);
+}
+
+.cm-campo--erro:focus-within {
+  box-shadow: 0 0 0 2px var(--p-erro-fundo);
+}
+
+.cm-campo--erro b {
+  color: var(--p-erro-conteudo);
+}
+
+/* `.input__message--danger`: ícone `error` (16) e texto fs-12, a 3.7 2.5. */
+.cm-campo-erro {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  min-height: 20px;
+  margin: 3.7px 2.5px;
+  color: var(--p-erro-conteudo);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.cm-campo-erro svg {
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
+/* `vt`: cada URL numa fileira — o campo em `xxs="10"`, os botões "-" e "+" em
+   `xxs="2"` com 8 em cima. */
+.cm-linha-de-host {
+  display: flex;
+}
+
+.cm-linha-de-host-campo {
+  width: 83.32%;
+}
+
+.cm-linha-de-host-botoes {
+  display: flex;
+  width: 16.66%;
+  margin-top: 8px;
+}
+
+.cm-linha-de-host-botoes > .cm-botao {
+  margin: 0 8px;
+}
+
+/* `Ot`: rótulos fs-16 bold e cada valor num `bds-list-item` (8 16 de
+   recheio, fs-16 regular). */
+.cm-caixa b.cm-t16 {
+  display: block;
+  font-weight: 700;
+}
+
+.cm-item {
+  margin: 0;
+  padding: 8px 16px;
+  font-size: 16px;
+  line-height: 1.5;
+}

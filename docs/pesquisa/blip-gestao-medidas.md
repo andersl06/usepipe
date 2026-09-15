@@ -285,7 +285,8 @@ medida.
 |---|---|---|---|---|
 | 1 | Padding lateral | **28px** fixo | **2%** | `padding: 2rem 2%` no contêiner interno deles |
 | 2 | Teto de largura | nenhum | **90%** a partir de 1920px, **85%** a partir de 2560px, centralizada | mesma regra, nos dois pontos de quebra |
-| 3 | Altura da área | `calc(100vh - 136px)` | igual | `height: calc(100vh - 136px)` — **os 136px estão no código deles como número fixo**, o que confirma o nosso `--g-topo-h` |
+| 3 | Altura da área | `calc(100vh - 136px)` | igual | `height: calc(100vh - 136px)` — **os 136px estão no código deles como número fixo**, o que confirma o nosso `--g-topo-h`. **Mas a altura é da CAIXA EXTERNA, e é ela que segura a rolagem**: ver §8.7.2, item 1 |
+| 4 | Centralização | nenhuma | `align-self: center` no contêiner interno | o teto de 90%/85% é a largura DELE, e ele fica centrado dentro do que rola |
 
 **Por que 28px estava errado sem parecer errado.** 28,47px é exatamente 2% da
 área que sobra depois da lateral numa tela de 1707px. A medição de DOM leu o
@@ -888,11 +889,169 @@ não é um botão de salvar ao lado das pílulas.
 Nada foi reescrito ainda — a ordem é montagem primeiro, medida depois, e a
 montagem acabou de mudar. O que a próxima passada precisa fazer, em ordem:
 
-1. **A casca**: trocar o modelo de rolagem. Caixa externa de altura fixa, lateral
-   e conteúdo irmãos, rolagem no conteúdo. Sai todo o `position: sticky`.
+1. ~~**A casca**: trocar o modelo de rolagem.~~ **FEITO** — ver §8.7.5.
 2. **O Monitoramento**: reproduzir a árvore acima — bloco de tema, contêiner de
    dados ancorando o carregando, duas linhas de dois, e a tabela fora do bloco.
 3. **Tela cheia**: segunda montagem, não um botão.
+
+---
+
+### 8.7.5 A casca — o modelo de rolagem trocado
+
+Feito, e o diff é mais **remoção** do que acréscimo.
+
+| Peça | Antes | Depois |
+|---|---|---|
+| `.p-app` | `min-height: 100vh` — cresce com o conteúdo, a **página** rola | `height: 100dvh; overflow: hidden` — caixa que não rola |
+| `.p-topo` e `.p-config-topo` | `position: sticky; top: 0; z-index: 20` | só `position: relative; z-index: 20` |
+| `.p-lateral` | `position: sticky; top: 48px; max-height: calc(100vh - 48px)` | só `overflow-y: auto` |
+| `.p-conteudo` | rolava junto com a página | `overflow-y: auto; overflow-x: hidden` — **é ele, e só ele, que rola** |
+| `.g-barra` (as duas da Gestão) | `position: sticky` com `top` calculado | `position: relative`, o `z-index` fica |
+| `.g-lateral` | `position: sticky; top: 136px; height: calc(100vh - 136px)` | só `overflow-y: auto` |
+
+**`100dvh` e não `100vh`.** Em navegador de celular a barra do navegador entra e
+sai da tela; `vh` congela na altura maior e o pé da aplicação fica cortado. É a
+única divergência deliberada contra o molde deles, que usa `vh`.
+
+**O `z-index` ficou, mas por outro motivo.** Ele estava lá para o cromo grudado
+não passar por baixo do conteúdo rolando. Agora ele existe só para os menus
+suspensos das barras ficarem por cima — e continua necessário: no CRM o
+cabeçalho de fase do funil é `sticky` em `z-index: 2` e conta com o topo estar
+acima dele.
+
+**No estreito (≤860px) a rolagem volta a ser da página.** Lá a lateral vira uma
+fileira em cima do conteúdo, e duas áreas de rolagem empilhadas numa tela de
+celular deixam cada uma com meia tela. `height: auto`, `overflow: visible`, e o
+telefone rola como telefone rola.
+
+**Onde mais isto chega, conferido antes de gravar:**
+
+- **`apps/desk`** — importa a folha mas **não usa** nenhuma das três classes; a
+  casca dele é própria e já é altura fixa com colunas rolando por conta. Zero
+  efeito.
+- **`apps/crm`, funil e listas** — casca própria (`c-app`, `c-conteudo`). Zero
+  efeito. O `.lanes` do funil já tinha região de rolagem própria com
+  `max-height: calc(100dvh - 19rem)`, pelo mesmo motivo que agora vale para
+  todos.
+- **`apps/crm`, área de configurações** — usa `AreaConfiguracoes` do pacote, que
+  monta `.p-app` → `.p-config-topo` + `.p-miolo` → `.p-lateral.p-config-lateral`
+  + `.p-conteudo`. **É alcançada, e para melhor**: o cabeçalho de volta para de
+  ser grudado e passa a ser fixo por layout, e a lateral de configurações ganha
+  rolagem própria em vez de acompanhar a página. Nenhum ajuste foi preciso lá —
+  `.p-config-lateral` só define largura e herda o resto de `.p-lateral`.
+
+---
+
+## 8.8 As 21 telas do módulo são TRÊS moldes
+
+Levantei as raízes de todas as telas do pacote esperando escrever vinte árvores.
+São **três**, e cada tela é um preenchimento de uma delas. É a descoberta que
+torna o resto barato: acertar três moldes acerta vinte telas.
+
+| Molde | Forma | Telas deles | Nossas telas que deveriam segui-lo |
+|---|---|---|---|
+| **A — lista** | cabeçalho (+ botão criar) → grade de busca e paginação → estado vazio | Regras, Filas, Atendentes, SLA, Respostas prontas | Filas, Pausas, Regras, Respostas, Modelos, Gestão de atendentes |
+| **B — painel** | cabeçalho → faixa de filtros → contêiner que ancora o carregando → linhas de cartões → abas e tabelas | Monitoramento, Relatório, Qualidade, Histórico | Monitoramento, Relatórios, Histórico |
+| **C — formulário** | cabeçalho com seta de voltar → cartão → seções de DUAS COLUNAS separadas por divisor → rodapé com Cancelar e Salvar | editar regra, editar atendente, editar SLA, editar horário | os formulários de fila, pausa e regra |
+
+### 8.8.1 Molde A — a lista, e por que a nossa não se parece
+
+```
+cabeçalho de tela          título à esquerda, [+ Criar …] à direita
+grade de busca e paginação
+├ busca                    campo com lupa, largura 30% da tela, ALINHADO À ESQUERDA
+├ [se seleção múltipla]     caixa "Selecionar todos" + contador + ações em massa
+├ [se busca sem resultado]  ilustração + "Nenhum resultado encontrado" + "…Que tal refazer a sua busca?"
+├ contêiner de dados        (relative, ancora o carregando)
+│   └ LISTA de LINHAS-CARTÃO   ← não é <table>
+└ rodapé de paginação      "Resultados por página" [seletor]   …   "1-20 de 137" [páginas]
+estado vazio               ilustração 10rem + título 20/bold + subtítulo 16
+```
+
+**Quatro divergências, e as três primeiras explicam o "não estão nada iguais":**
+
+1. **Não existe cartão em volta da lista.** A grade fica solta na página. A nossa
+   embrulha tudo num `.tblwrap` com padding 20, raio 16 e sombra — uma bandeja
+   que eles não têm.
+2. **A lista não é tabela: é uma pilha de LINHAS-CARTÃO**, cada uma com os
+   valores rotulados, avatar e etiquetas. `<table>` de verdade aparece em **uma**
+   tela do módulo inteiro (Modelos de mensagens). As nossas listas são todas
+   `<table>`.
+3. **Existe rodapé de paginação em quase todas.** Nós não temos paginação em
+   lugar nenhum: carregamos tudo e rolamos.
+4. **A busca fica no topo da grade, à esquerda, com 30% da largura** — não
+   dentro do cabeçalho do cartão, à direita, como a nossa.
+
+### 8.8.2 Molde B — o painel
+
+É o do Monitoramento, já descrito em §8.7.2, e o Relatório e o Histórico usam o
+mesmo esqueleto: cabeçalho → faixa de filtros → **contêiner `relative` que ancora
+o overlay de carregando** → linhas de cartões (`flex` com `justify-between`) →
+abas e tabelas.
+
+O Histórico é o híbrido: faixa de filtros do molde B **mais** a grade do molde A,
+com seleção múltipla (é dela que sai a exportação por e-mail).
+
+### 8.8.3 Molde C — o formulário, e a divergência mais cara
+
+```
+cabeçalho com SETA DE VOLTAR à esquerda do título
+cartão (padding 40px)
+├ SEÇÃO                     flex row
+│   ├ metade ESQUERDA       título 16/bold + explicação 14 em cinza
+│   └ metade DIREITA        o campo
+├ divisor
+├ SEÇÃO                     (idem)
+├ divisor
+└ rodapé                    flex justify-end: [Cancelar secundário] [Salvar]
+```
+
+**O formulário deles é de DUAS COLUNAS: a esquerda explica, a direita coleta.**
+Os nossos são de uma coluna, com o rótulo em cima do campo e a explicação — se
+houver — abaixo. É a divergência mais visível depois da rolagem, e ela aparece em
+toda tela de cadastro.
+
+E o cabeçalho de formulário tem **seta de voltar**, que os nossos não têm.
+
+### 8.8.4 O que isso muda no plano
+
+A ordem de §8.7.4 continua, mas o alvo mudou de "telas" para "moldes":
+
+1. ~~a casca~~ — feita (§8.7.5);
+2. **o molde B**, no Monitoramento — é a tela que o dono abre primeiro;
+3. **o molde A**, uma vez, e depois aplicado às seis telas de lista;
+4. **o molde C**, uma vez, e depois aplicado aos formulários;
+5. tela cheia como segunda montagem.
+
+**A paginação (molde A, item 3) é a única que não é só CSS**: pede parâmetro de
+página nas consultas de `cadastros.ts` e um contador. **Um dia**, e vale a pena
+antes que alguma lista passe de umas centenas de linhas.
+
+### 8.8.5 O que o levantamento achou de vocabulário e regra, e ainda não temos
+
+Registro curto do que é fato de produto e não montagem:
+
+- **Regra de atendimento**: o operador entre condições é um seletor
+  **"E" / "OU"** com o rótulo "todas as condições abaixo" / "qualquer uma das
+  condições abaixo" — a lacuna nº 2 de `blip-gestao-funcoes.md` está respondida.
+  As origens são Mensagem · Nome Contato · Email Contato · **Extras Contato**, e
+  quando é Extras aparece um campo a mais para a chave. Os operadores são
+  Contém · Não contém · É igual · Não é igual.
+- **Priorização**: o grau é **"Sem prioridade" / "Baixa" / "Média" / "Alta"** —
+  quatro no formulário, e "Máxima" só existe no ticket. E a caixa
+  **"Aplicar condições a esta regra de priorização"**: desmarcada, a prioridade
+  vale para toda a fila.
+- **Fila**: não dá para excluir fila com atendentes atribuídos, e a fila padrão
+  não pode ser excluída nem desabilitada.
+- **Atendente**: existe **restrição de domínio de e-mail** por contrato, com
+  aviso na tela quando está desligada; e a tela de **Permissões por atendente**
+  é uma lista de treze interruptores (editar contato, mensagem ativa, transferir,
+  histórico, modo de espera, criar respostas prontas…), com um bloco à parte para
+  o copiloto.
+- **SLA**: as três metas são opcionais mas **pelo menos uma é obrigatória**, e a
+  regra pode ser marcada como padrão — e aí o seletor de filas é desabilitado.
+- **Horários**: um horário pode ser marcado como **regular da operação**, e só um
+  pode. Excluir um horário joga as filas dele no regular.
 
 ---
 

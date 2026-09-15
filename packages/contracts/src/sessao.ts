@@ -18,6 +18,15 @@ export interface Eu {
     nome: string;
     slug: string;
     plano: Plano;
+    /**
+     * `false` enquanto a conta não passou por "minha conta".
+     *
+     * Vive no `Eu` porque TODA tela logada precisa saber: conta que ainda não
+     * disse de que empresa é vai para o onboarding, não para o produto. Fosse
+     * uma chamada à parte, seria uma ida à rede por tela — e a consulta do
+     * `Eu` já lê a linha do tenant.
+     */
+    onboardingConcluido: boolean;
   };
   /** Códigos de permissão, do catálogo. A tela esconde o que não está aqui. */
   permissoes: string[];

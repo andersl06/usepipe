@@ -60,7 +60,13 @@ function PilulaTexto({
   return (
     <label className={valor ? 'pilula ativa' : 'pilula'}>
       <span className="pilula-rotulo">{rotulo}</span>
-      <input type="search" name={nome} defaultValue={valor} placeholder={dica} aria-label={rotulo} />
+      <input
+        type="search"
+        name={nome}
+        defaultValue={valor}
+        placeholder={dica}
+        aria-label={rotulo}
+      />
     </label>
   );
 }
@@ -125,7 +131,7 @@ export function FiltrosDaOperacao({
 }) {
   const algum = Boolean(atual.fila || atual.atendente);
   return (
-    <form className="faixa-filtros" method="get" action="/">
+    <form className="faixa-filtros" method="get" action="/monitoramento">
       <span className="lbl">Filtros rápidos</span>
       <Pilula nome="fila" rotulo="Filas" valor={atual.fila ?? ''} opcoes={filas} />
       <Pilula
@@ -135,7 +141,7 @@ export function FiltrosDaOperacao({
         opcoes={atendentes}
       />
       <Escondidos atual={atual} exceto={['fila', 'atendente']} />
-      <BotaoFiltros limpar={algum ? '/' : null} />
+      <BotaoFiltros limpar={algum ? '/monitoramento' : null} />
     </form>
   );
 }
@@ -163,9 +169,11 @@ export function FiltrosDaLista({
   atual: Parametros;
 }) {
   const algum = Boolean(atual.atendente || atual.contato || atual.status);
-  const limpar = atual.fila ? `/?fila=${encodeURIComponent(atual.fila)}` : '/';
+  const limpar = atual.fila
+    ? `/monitoramento?fila=${encodeURIComponent(atual.fila)}`
+    : '/monitoramento';
   return (
-    <form className="faixa-filtros" method="get" action="/">
+    <form className="faixa-filtros" method="get" action="/monitoramento">
       <span className="lbl">Filtros rápidos</span>
       <Pilula
         nome="atendente"

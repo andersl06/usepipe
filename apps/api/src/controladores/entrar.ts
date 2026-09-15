@@ -8,6 +8,7 @@ import {
   cookieDeSaida,
   cookieDeSessao,
   criarDesafio,
+  criarToken,
   entrarComGoogle,
   hashDoToken,
   origemPermitida,
@@ -20,9 +21,13 @@ import type { DesafioDeLogin, OpcoesDeCookie, PessoaDoGoogle } from '@pipe/auten
 import type { Eu, OrigemDeSessao, Plano, RecusaDeEntrada } from '@pipe/contracts';
 import { bancoApp, bancoDono, noTenant } from '../banco.js';
 import { aceitarConvite } from '../dominio/convites.js';
+import {
+  cadastroDeContaHabilitado,
+  construirContaDoLogin,
+} from '../dominio/construtor-de-conta.js';
 import type { EntradaPorConvite } from '../dominio/convites.js';
 import { ErroPipe } from '../erros.js';
-import { ComSessao, lerCookie, sessaoDe, tokenDaSessao } from '../sessao.js';
+import { ComSessao, lerCookies, sessaoDe, tokenDaSessao } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
 
 /**
@@ -142,15 +147,20 @@ export function cookieDoDesafio(desafio: DesafioComConvite | null): string {
  * `HttpOnly` mantém o valor fora do alcance de script, que é o que importa.
  */
 export function lerDesafio(requisicao: Request): DesafioComConvite | null {
-  const cru = lerCookie(requisicao.header('cookie'), COOKIE_DESAFIO);
-  if (!cru) return null;
-  try {
-    const objeto = JSON.parse(Buffer.from(cru, 'base64url').toString('utf8')) as DesafioComConvite;
-    if (!objeto.state || !objeto.nonce || !objeto.verificadorPkce) return null;
-    return objeto;
-  } catch {
-    return null;
+  /* Cada valor recebido com esse nome, e não só o primeiro: quando o `Domain`
+     do cookie muda entre duas versões, o navegador passa a mandar os dois, e o
+     velho costuma vir na frente. Era isso que derrubava o login sem erro. */
+  for (const cru of lerCookies(requisicao.header('cookie'), COOKIE_DESAFIO)) {
+    try {
+      const objeto = JSON.parse(
+        Buffer.from(cru, 'base64url').toString('utf8'),
+      ) as DesafioComConvite;
+      if (objeto.state && objeto.nonce && objeto.verificadorPkce) return objeto;
+    } catch {
+      // valor ilegível: tenta o próximo
+    }
   }
+  return null;
 }
 
 /** Traduz o erro para um código do contrato. É o que a tela de entrada sabe ler. */
@@ -205,6 +215,49 @@ async function entrarPorConvite(
 @Controller('v1/auth')
 export class ControladorEntrada {
   /**
+   * Login SÓ DE DESENVOLVIMENTO, sem Google.
+   *
+   * Existe para ver as telas em `localhost` quando não há OAuth configurado.
+   * **Barrado fora de desenvolvimento**: com `NODE_ENV === 'production'` responde
+   * 404, como se a rota não existisse. Nunca é porta de verdade — a porta de
+   * verdade é `google`/`sso`. Emite uma sessão real para um usuário já semeado.
+   *
+   * Uso: abrir no navegador
+   * `/v1/auth/dev?email=ana.ribeiro@demo.pipe.app&origem=http://localhost:3200`.
+   */
+  @Get('dev')
+  async dev(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
+    if (process.env['NODE_ENV'] === 'production') {
+      resposta.status(404).end();
+      return;
+    }
+    const email = (textoDaQuery(requisicao, 'email') ?? 'ana.ribeiro@demo.pipe.app')
+      .trim()
+      .toLowerCase();
+    const { rows } = await bancoDono().execute<{ id: string; tenant_id: string }>(sql`
+      select id, tenant_id from usuario where lower(email) = ${email} limit 1
+    `);
+    const u = rows[0];
+    if (!u) {
+      resposta
+        .status(404)
+        .end(`sem usuário "${email}" — rode o seed (pnpm banco:semear && pnpm seed:demo)`);
+      return;
+    }
+    const novo = criarToken();
+    await bancoDono().execute(sql`
+      insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
+      values (${u.tenant_id}::uuid, ${u.id}::uuid, ${novo.hash}, ${novo.expiraEm}, 'senha')
+    `);
+    resposta.setHeader('set-cookie', cookieDeSessao(novo.token, novo.expiraEm, opcoesDeCookie()));
+    const permitidas = origensPermitidas();
+    const origem = origemDaQuery(requisicao);
+    const base =
+      origem && permitidas.includes(origem) ? origem : (permitidas[0] ?? 'http://localhost:3200');
+    resposta.redirect(302, `${base}/`);
+  }
+
+  /**
    * Começa o login: cria o desafio, guarda em cookie e manda para o Google.
    *
    * `?convite=<token>` é a entrada de quem foi convidado e cujo domínio ainda não
@@ -240,6 +293,14 @@ export class ControladorEntrada {
     if (!desafio) {
       // Sem cookie o login não tem como ser conferido: pode ser aba velha, cookie
       // bloqueado ou tentativa forjada. Nos três casos a saída é recomeçar.
+      //
+      // O log não é ruído: este caminho devolve a MESMA tela de "falha no
+      // provedor" que um erro de rede, e sem rastro não dá para saber qual dos
+      // dois aconteceu — foi o que atrasou um diagnóstico aqui.
+      console.error(
+        '[api] retorno sem cookie de desafio',
+        JSON.stringify({ cookies: (requisicao.header('cookie') ?? '').split(';').length }),
+      );
       resposta.setHeader('set-cookie', apagarDesafio);
       resposta.redirect(302, urlDeErro('falha_no_provedor'));
       return;
@@ -256,7 +317,22 @@ export class ControladorEntrada {
       // Google — e não o domínio. É a única porta de quem não tem domínio verificado.
       const entrada = desafio.convite
         ? await entrarPorConvite(desafio.convite, pessoa, contexto)
-        : await entrarComGoogle(bancoDono(), bancoApp(), pessoa, contexto);
+        : await entrarComGoogle(
+            bancoDono(),
+            bancoApp(),
+            pessoa,
+            contexto,
+            // Com o autosserviço desligado (o padrão), nada muda: quem não tem
+            // convite nem domínio verificado continua recusado. Ligado, a conta
+            // nasce aqui e a Gestão recebe a pessoa na tela de boas-vindas.
+            cadastroDeContaHabilitado()
+              ? (quem) =>
+                  construirContaDoLogin({ email: quem.email, nome: quem.nome }).then((conta) => ({
+                    tenantId: conta.tenantId,
+                    usuarioId: conta.usuarioId,
+                  }))
+              : undefined,
+          );
       resposta.setHeader('set-cookie', [
         apagarDesafio,
         cookieDeSessao(entrada.token, entrada.expiraEm, opcoesDeCookie()),
@@ -289,6 +365,7 @@ type LinhaEu = {
   tenant_nome: string;
   slug: string;
   plano: string;
+  onboarding_concluido_em: Date | string | null;
 };
 
 @Controller('v1')
@@ -302,7 +379,8 @@ export class ControladorEu {
     const encontrado = await noTenant(sessao.tenantId, async (tx) => {
       const { rows } = await tx.execute<LinhaEu>(sql`
         select u.id, u.nome, u.email, u.avatar_url,
-               t.id as tenant_id, t.nome as tenant_nome, t.slug, t.plano
+               t.id as tenant_id, t.nome as tenant_nome, t.slug, t.plano,
+               t.onboarding_concluido_em
           from usuario u
           join tenant t on t.id = u.tenant_id
          where u.id = ${sessao.usuarioId}::uuid and u.ativo
@@ -343,10 +421,10 @@ export class ControladorEu {
         nome: usuario.tenant_nome,
         slug: usuario.slug,
         plano: usuario.plano as Plano,
+        onboardingConcluido: usuario.onboarding_concluido_em !== null,
       },
       permissoes,
       origem: sessao.origem as OrigemDeSessao,
     };
   }
 }
-

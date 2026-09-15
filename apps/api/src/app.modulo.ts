@@ -13,6 +13,7 @@ import {
 } from './controladores/catalogo.js';
 import { ControladorConvites, ControladorDominios } from './controladores/convites.js';
 import { ControladorEntrada, ControladorEu } from './controladores/entrar.js';
+import { ControladorMinhaConta } from './controladores/minha-conta.js';
 import { ControladorImportacoesDeContatos } from './controladores/importacoes.js';
 import { ControladorContas } from './controladores/contas.js';
 import { ControladorMensagensAtivas } from './controladores/mensagens-ativas.js';
@@ -39,6 +40,7 @@ import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js
     ControladorEntrada,
     ControladorEntradaSso,
     ControladorEu,
+    ControladorMinhaConta,
     ControladorConexaoSso,
     ControladorConvites,
     ControladorDominios,

@@ -8,7 +8,8 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 const { criarBanco, fecharBanco, migrar } = await import('@pipe/db');
 const { fecharBancos } = await import('../src/banco.js');
 const { ControladorContas } = await import('../src/controladores/contas.js');
-const { cadastroDeContaHabilitado, slugDaConta } = await import('../src/dominio/construtor-de-conta.js');
+const { cadastroDeContaHabilitado, slugDaConta } =
+  await import('../src/dominio/construtor-de-conta.js');
 
 /**
  * O cadastro de conta, fechado por padrão (`ENABLE_ACCOUNT_SIGNUP=false`), como
@@ -66,7 +67,9 @@ describe('POST /v1/contas (accounts_controller#create)', () => {
 
   it('ligada, e-mail inválido ou pessoal: recusado com a frase do Chatwoot', async () => {
     process.env['ENABLE_ACCOUNT_SIGNUP'] = 'true';
-    await expect(controlador.criar({ account_name: 'X', email: 'sem-arroba' })).rejects.toMatchObject({
+    await expect(
+      controlador.criar({ account_name: 'X', email: 'sem-arroba' }),
+    ).rejects.toMatchObject({
       message: 'Você digitou um email inválido',
     });
     await expect(
@@ -91,11 +94,17 @@ describe('POST /v1/contas (accounts_controller#create)', () => {
         join usuario_papel up on up.usuario_id = u.id
         join papel p on p.id = up.papel_id
        where t.slug = ${slugDaConta(`Acme ${S}`, email)} and u.email = ${email}
+       order by p.nome
     `);
-    expect(rows).toEqual([{ nome: 'Ana Ribeiro', papel: 'administrador' }]);
+    // `admin` na conta e `administrador` no atendimento (migração 0021).
+    expect(rows).toEqual([
+      { nome: 'Ana Ribeiro', papel: 'admin' },
+      { nome: 'Ana Ribeiro', papel: 'administrador' },
+    ]);
 
-    await expect(
-      controlador.criar({ account_name: `Outra ${S}`, email }),
-    ).rejects.toMatchObject({ status: 409, message: `Você já se cadastrou para uma conta com ${email}` });
+    await expect(controlador.criar({ account_name: `Outra ${S}`, email })).rejects.toMatchObject({
+      status: 409,
+      message: `Você já se cadastrou para uma conta com ${email}`,
+    });
   });
 });

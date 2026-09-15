@@ -1,0 +1,98 @@
+/* ============================ criar roteador (/criar/roteador)
+
+   Só o que é DESTA tela: o passo do convite, o módulo 22046 do `portal.js`
+   (`25.204.0-v0.43.1`) — `#create-application-router-step`.
+
+   O casco (o "x", a marca, o rodapé) e o passo do nome estão em `../criar.css`,
+   porque na origem eles são o mesmo template para o roteador e para o fluxo. A
+   página importa as duas folhas, nesta ordem. O prefixo `cr-` é de "criar". */
+
+/* `#create-application-router-step { flex flex-column items-center }` e
+   `.router-step-content`:
+     `gap: 2.5rem · margin-top: 7rem · max-width: 52.5rem · width: 100%`
+   mais o `flex items-center justify-between` do template. */
+.cr-convite {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2.5rem;
+  margin-top: 7rem;
+  max-width: 52.5rem;
+  width: 100%;
+}
+
+/* `.router-step-content img { max-width: 18.75rem; width: 40% }`.
+   Lá é `/assets/img/templates/router.svg`, um desenho do conceito; o nosso
+   miolo é o ícone `roteador` — o MESMO desenho do botão que trouxe a pessoa e
+   da etiqueta do cartão no portal —, então a caixa guarda a proporção e o
+   ícone se ajusta a ela. */
+.cr-convite-desenho {
+  flex: 0 0 40%;
+  max-width: 18.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  border-radius: var(--p-r-md);
+  background: var(--cr-hover);
+  color: var(--cr-marca);
+}
+
+/* `.router-step-description { max-width: 27.5rem }` */
+.cr-convite-texto {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  max-width: 27.5rem;
+}
+
+.cr-convite-texto h3 {
+  margin: 0 0 var(--p-e-3);
+  font-size: var(--cr-t-secao);
+  /* `bold="semi-bold"` no `bds-typo` da origem. */
+  font-weight: var(--p-peso-forte);
+}
+
+.cr-convite-texto p {
+  margin: 0;
+  font-size: var(--p-t-md); /* fs-14 */
+  line-height: var(--p-altura-linha);
+}
+
+/* `.router-step-description a { gap: .5rem; margin-top: 1rem; margin-bottom: 3rem }`
+   e `class="flex"` no template — ícone e texto lado a lado. */
+.cr-saber-mais {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  margin: var(--p-e-4) 0 3rem;
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte); /* `bold="bold"` */
+  color: var(--cr-marca);
+}
+
+/* Sem o link de saber mais, os 3rem que ele carregava até o botão sumiriam
+   junto e o botão colaria na descrição. */
+.cr-convite-texto p + .btn.cr-botao {
+  margin-top: 3rem;
+}
+
+/* --------------------------------------------------------- estreito
+   A fileira de duas colunas do convite não cabe: vira uma coluna só, com o
+   desenho em cima, que é o arranjo que a própria origem assume quando a
+   `.router-step-content` de 52.5rem não cabe na janela. */
+@media (max-width: 56rem) {
+  .cr-convite {
+    flex-direction: column;
+    margin-top: 3rem;
+  }
+
+  .cr-convite-desenho {
+    flex: none;
+    width: 12rem;
+  }
+
+  .cr-convite-texto {
+    align-self: stretch;
+  }
+}

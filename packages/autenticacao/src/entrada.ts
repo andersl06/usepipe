@@ -72,6 +72,27 @@ export interface OpcoesDeEntrada {
    * outro só por mandar o e-mail certo.
    */
   tenantId?: string | undefined;
+  /**
+   * O autosserviço: o que fazer quando a pessoa entrou e não há conta nenhuma
+   * para ela.
+   *
+   * Sem isto, a entrada é fechada — convite ou domínio verificado — e quem não
+   * tem nem um nem outro é recusado. Com isto, a conta é CRIADA na hora, que é
+   * o caminho da plataforma de origem: entra, a conta nasce, a tela de
+   * boas-vindas avisa, e "minha conta" completa os dados depois.
+   *
+   * Quem passa a função é a API (é lá que mora o provisionamento). A regra de
+   * QUANDO ela é chamada fica aqui, e é estreita de propósito: só quando não há
+   * dono para o domínio. Domínio verificado sem convite continua recusando —
+   * ali existe um cliente, e entrar sem convite seria entrar na conta dele.
+   */
+  criarConta?: ((pessoa: PessoaExterna) => Promise<ContaNova>) | undefined;
+}
+
+/** O que o autosserviço devolve: a conta recém-criada e o dono dela. */
+export interface ContaNova {
+  tenantId: string;
+  usuarioId: string;
 }
 
 /**
@@ -115,8 +136,25 @@ export async function entrarComIdentidade(
     return abrirSessao(bancoApp, ligada[0].tenantId, ligada[0].usuarioId, pessoa, opcoes, contexto);
   }
 
+  /* Antes de recusar por qualquer motivo, uma trava que vale para TODO caminho
+     novo: sem o provedor afirmar que o e-mail é da pessoa, nada aqui adiante
+     pode casar identidade com conta — nem ligar a um usuário convidado, nem
+     abrir conta nova com aquele endereço. */
+  if (!pessoa.emailVerificado) {
+    throw new EntradaRecusada(
+      'email_nao_verificado',
+      'O provedor não confirmou este e-mail. Peça a quem administra para ligar a conta.',
+    );
+  }
+
   // Primeira entrada: o domínio decide (Google) ou confirma (SSO) de quem é a pessoa.
   if (ehDominioPublico(pessoa.email)) {
+    /* E-mail pessoal não diz de que empresa a pessoa é — mas no autosserviço ele
+       não precisa dizer: a conta que nasce é dela, e o nome da empresa vem
+       depois, em "minha conta". */
+    if (opcoes.criarConta && !opcoes.tenantId) {
+      return abrirContaNova(bancoApp, pessoa, opcoes, contexto);
+    }
     throw new EntradaRecusada(
       'dominio_publico',
       'E-mail pessoal não identifica empresa. Entre pelo convite que você recebeu.',
@@ -132,19 +170,14 @@ export async function entrarComIdentidade(
 
   const tenantId = dono[0]?.tenantId;
   if (!tenantId || (opcoes.tenantId && tenantId !== opcoes.tenantId)) {
+    /* Ninguém reivindicou este domínio. No autosserviço isso não é recusa, é o
+       caso comum: é a primeira pessoa daquela empresa chegando. */
+    if (!tenantId && opcoes.criarConta && !opcoes.tenantId) {
+      return abrirContaNova(bancoApp, pessoa, opcoes, contexto);
+    }
     throw new EntradaRecusada(
       'dominio_desconhecido',
       `Nenhuma conta do Pipe usa o domínio "${dominio}".`,
-    );
-  }
-
-  // Casar identidade NOVA com usuário existente é o ponto onde o e-mail voltaria
-  // a ser chave de conta. Só passa com o provedor afirmando que o domínio do
-  // endereço foi verificado — `email_verified`, ou `xms_edov` no Entra.
-  if (!pessoa.emailVerificado) {
-    throw new EntradaRecusada(
-      'email_nao_verificado',
-      'O provedor não confirmou este e-mail. Peça a quem administra para ligar a conta.',
     );
   }
 
@@ -182,13 +215,48 @@ export async function entrarComIdentidade(
 }
 
 /** O login com Google. É `entrarComIdentidade` com o tenant vindo do domínio. */
+/**
+ * A conta que nasce no login: o autosserviço cria o tenant e o administrador, e
+ * esta função só liga a identidade do provedor a ele e abre a sessão.
+ *
+ * A identidade é gravada aqui, e não dentro do provisionamento, porque quem
+ * provisiona não conhece provedor nenhum — é o mesmo caminho do comando que
+ * cria cliente pela linha de comando.
+ */
+async function abrirContaNova(
+  bancoApp: BancoPipe,
+  pessoa: PessoaExterna,
+  opcoes: OpcoesDeEntrada,
+  contexto: { ip?: string; agente?: string },
+): Promise<EntradaConcluida> {
+  const conta = await opcoes.criarConta!(pessoa);
+  return comTenant(bancoApp, conta.tenantId, async (tx) => {
+    await tx.insert(identidadeExterna).values({
+      tenantId: conta.tenantId,
+      usuarioId: conta.usuarioId,
+      emissor: pessoa.emissor,
+      sujeito: pessoa.sujeito,
+      emailNoProvedor: pessoa.email,
+      ultimoAcessoEm: new Date(),
+    });
+    return gravarSessao(tx, conta.tenantId, conta.usuarioId, opcoes.origem, contexto);
+  });
+}
+
 export function entrarComGoogle(
   bancoDono: BancoPipe,
   bancoApp: BancoPipe,
   pessoa: PessoaExterna,
   contexto: { ip?: string; agente?: string } = {},
+  criarConta?: (pessoa: PessoaExterna) => Promise<ContaNova>,
 ): Promise<EntradaConcluida> {
-  return entrarComIdentidade(bancoDono, bancoApp, pessoa, { origem: 'google' }, contexto);
+  return entrarComIdentidade(
+    bancoDono,
+    bancoApp,
+    pessoa,
+    { origem: 'google', ...(criarConta ? { criarConta } : {}) },
+    contexto,
+  );
 }
 
 /** O login pelo IdP do cliente. O tenant vem da conexão que iniciou o fluxo. */
@@ -200,6 +268,42 @@ export function entrarComSso(
   contexto: { ip?: string; agente?: string } = {},
 ): Promise<EntradaConcluida> {
   return entrarComIdentidade(bancoDono, bancoApp, pessoa, { origem: 'sso', tenantId }, contexto);
+}
+
+/**
+ * Abre sessão numa conta em que a pessoa JÁ tem usuário — é a troca de conta do
+ * seletor do canto superior esquerdo.
+ *
+ * Não é atalho de login: quem chama precisa ter provado, antes, que o usuário
+ * daquela conta é da mesma pessoa que já está logada (mesmo e-mail, conferido
+ * no banco do dono). O que esta função garante é o resto — usuário ativo e
+ * política de SSO da conta de destino —, porque é ela que emite o token, e todo
+ * caminho que emite token passa pelas mesmas travas.
+ *
+ * A sessão antiga não é encerrada aqui: quem troca de conta costuma voltar, e
+ * derrubar a outra aba no meio de um atendimento seria pior do que manter duas
+ * sessões vivas com o mesmo prazo.
+ */
+export async function abrirSessaoEm(
+  bancoDono: BancoPipe,
+  bancoApp: BancoPipe,
+  tenantId: string,
+  usuarioId: string,
+  origem: 'google' | 'sso',
+  contexto: { ip?: string; agente?: string } = {},
+): Promise<EntradaConcluida> {
+  await exigirPoliticaCompativel(bancoDono, tenantId, origem);
+  return comTenant(bancoApp, tenantId, async (tx) => {
+    const atual = await tx
+      .select({ ativo: usuario.ativo })
+      .from(usuario)
+      .where(eq(usuario.id, usuarioId))
+      .limit(1);
+    if (!atual[0]?.ativo) {
+      throw new EntradaRecusada('usuario_inativo', 'Este acesso foi desativado.');
+    }
+    return gravarSessao(tx, tenantId, usuarioId, origem, contexto);
+  });
 }
 
 /**

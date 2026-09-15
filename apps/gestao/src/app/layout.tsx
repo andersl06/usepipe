@@ -18,23 +18,17 @@ export const viewport: Viewport = {
 };
 
 /**
- * Tema aplicado antes da primeira pintura.
+ * O produto tem UM tema: o claro.
  *
- * O CLARO É O PADRÃO, e o `data-tema="claro"` no `<html>` abaixo é quem garante
- * isso: sem ele o bloco `@media (prefers-color-scheme: dark)` do `@pipe/ui`
- * assume, e a Gestão abre escura na máquina de quem configurou o sistema em
- * escuro. Ferramenta de supervisão fica aberta o dia inteiro em escritório
- * iluminado, e as três referências (Blip, Salesforce, Twenty) são claras.
+ * O escuro existia atrás de um alternador e saiu a pedido do dono — cada
+ * superfície nova precisaria ser conferida nos dois antes de ir ao ar, e a
+ * ferramenta fica aberta o dia inteiro em escritório iluminado (as três
+ * referências — Blip, Salesforce, Twenty — são claras).
  *
- * O escuro continua disponível: quem clicar no alternador grava a escolha, e
- * este script a devolve antes de pintar — sem lampejo claro a cada navegação.
+ * O `data-tema="claro"` no `<html>` abaixo é o que desliga o bloco
+ * `@media (prefers-color-scheme: dark)` dos token do `@pipe/ui`: sem ele, quem
+ * tem o sistema no escuro abre o aplicativo escuro.
  */
-const TEMA_ANTES_DE_PINTAR = `
-try {
-  var t = localStorage.getItem('pipe-tema');
-  if (t === 'claro' || t === 'escuro') document.documentElement.dataset.tema = t;
-} catch (e) {}
-`;
 
 export default async function LayoutRaiz({ children }: { children: React.ReactNode }) {
   // As duas barras do topo mostram tenant, canal e aviso reais: três consultas
@@ -56,7 +50,6 @@ export default async function LayoutRaiz({ children }: { children: React.ReactNo
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;450;500;600;700&display=swap"
         />
-        <script dangerouslySetInnerHTML={{ __html: TEMA_ANTES_DE_PINTAR }} />
       </head>
       <body>
         <EstruturaGestao dados={cabecalho}>{children}</EstruturaGestao>

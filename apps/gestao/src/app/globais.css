@@ -168,7 +168,10 @@
   gap: var(--p-e-3);
   /* O avatar do contrato começa em x=32 na barra deles. */
   padding: 0 var(--p-e-8);
-  position: sticky;
+  /* Sem `sticky`: as duas barras ficam onde estão porque a `.p-app` tem altura
+     fixa e elas são `flex: none`. O `z-index` fica, mas por outro motivo — é
+     ele que põe os menus suspensos das barras por cima do conteúdo. */
+  position: relative;
   color: var(--g-barra-tinta);
 }
 
@@ -176,7 +179,6 @@
 .g-barra-sup {
   height: var(--g-barra-sup-h);
   background: var(--g-barra-1);
-  top: 0;
   z-index: 31;
 }
 
@@ -184,7 +186,6 @@
 .g-barra-inf {
   height: var(--g-barra-inf-h);
   background: var(--g-barra-2);
-  top: var(--g-barra-sup-h);
   z-index: 30;
   /* Sem FIO embaixo — o módulo ativo precisa dos 56px inteiros para o
      sublinhado de 4px encostar no pé da barra —, mas com SOMBRA: a folha deles
@@ -563,9 +564,9 @@
   background: var(--p-superficie-0);
   border-right: 1px solid var(--p-linha);
   padding: var(--g-lateral-recuo);
-  position: sticky;
-  top: var(--g-topo-h);
-  height: calc(100vh - var(--g-topo-h));
+  /* Rola por si, dentro da caixa de altura fixa da `.p-app`. O `sticky` com
+     `height: calc(100vh - topo)` que estava aqui era a imitação disso enquanto
+     a página rolava — e imitação que sobra depois do original vira mistério. */
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -1992,161 +1993,324 @@ tr.grupo th {
 
    A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
 
-   Sem cromo de propósito — quem chega aqui não tem sessão, então não há barra,
-   trilho nem lateral para pintar, e não há nome de cliente para mostrar. Um
-   cartão centrado, na largura de leitura, e nada mais.
+   Esta seção é a ENTREGA do desenho da tela de entrada, medida por medida:
+   cartão de 400px com canto de 20px, controles de 48px com canto de 12px, e o
+   bloco de 413x308 ao lado, que some abaixo de 1000px. O fundo vive em
+   `entrar/fundo-pipe.tsx` — um canvas que desenha o feixe de partículas; aqui
+   ele só ocupa a caixa.
 
-   Toda cor sai de token, como em todo o resto: nenhum literal entra aqui. */
+   Ela NÃO usa a escala do resto do aplicativo: a entrada tem tipografia e
+   espaço próprios (DM Sans, 15px de corpo), e forçar os token da plataforma
+   aqui desfaria o desenho. Os valores da entrega viram token locais no
+   `.entrar` abaixo, e nada fora desta seção os enxerga. */
 
 .entrar {
+  position: relative;
+  width: 100%;
   min-height: 100dvh;
-  display: grid;
-  place-items: center;
-  padding: var(--p-e-6) var(--p-e-4);
-  background: var(--p-fundo);
+  overflow: hidden;
+  font-family: 'DM Sans', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+
+  /* Os token da entrega. Ficam no escopo da tela de propósito. */
+  --pe-fundo: #f2f1ec;
+  --pe-papel: #ffffff;
+  --pe-campo: #fbfbf7;
+  --pe-conteudo: #16150f;
+  --pe-rotulo: #3f3e36;
+  --pe-apoio: #6a695e;
+  --pe-marca-dagua: #9a9a8e;
+  --pe-linha: #dfdecf;
+  --pe-linha-forte: #c9c8b8;
+  --pe-linha-fina: #edece2;
+  --pe-marca: #4a5d23;
+  --pe-marca-forte: #3d4d1c;
+
+  background: var(--pe-fundo);
+  color: var(--pe-conteudo);
+}
+
+/* O canvas do fundo. `pointer-events: none` porque ele cobre a tela inteira e
+   não pode roubar um clique do formulário. */
+.entrar-fundo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* `justify-content: flex-start`, e não `center`: o cartão fica à esquerda e o
+   feixe varre o canto oposto. Centralizar traria o cartão para cima do desenho. */
+.entrar-palco {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 96px;
+  min-height: 100dvh;
+  padding: 48px 40px;
+  box-sizing: border-box;
+}
+
+/* O cartão encostado à esquerda, a 120px da borda — a medida da tela de
+   origem. Centralizar traria o formulário para cima do feixe. */
+@media (min-width: 1000px) {
+  .entrar-palco {
+    padding-left: 120px;
+  }
 }
 
 .entrar-cartao {
-  width: 100%;
-  /* 26rem é a largura de um formulário de uma coluna: mais do que isso e o
-     rótulo perde o campo de vista no fim da linha. */
-  max-width: 26rem;
-  display: flex;
-  flex-direction: column;
-  gap: var(--p-e-3);
-  padding: var(--p-e-6);
-  background: var(--p-superficie-0);
-  border: 1px solid var(--p-linha);
-  border-radius: var(--p-r-lg);
-  box-shadow: var(--p-sombra-1);
+  width: 560px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 48px 44px 36px;
+  background: var(--pe-papel);
+  border-radius: 22px;
+  box-shadow:
+    0 1px 2px rgba(22, 21, 15, 0.05),
+    0 24px 60px -14px rgba(22, 21, 15, 0.2);
 }
 
-.entrar-marca {
-  display: flex;
-  align-items: center;
-  gap: var(--p-e-2);
-  color: var(--p-conteudo);
+.entrar-lockup {
+  display: block;
+  height: 44px;
+  margin-bottom: 32px;
 }
 
-.entrar-marca b {
-  font-size: var(--p-t-lg);
-  font-weight: var(--p-peso-forte);
-}
-
-.entrar-cartao h1 {
-  margin: 0;
-  font-size: var(--p-t-xl);
-  font-weight: var(--p-peso-forte);
-  line-height: var(--p-altura-linha-curta);
-  color: var(--p-conteudo);
-}
-
-.entrar-sub {
-  margin: 0;
-  font-size: var(--p-t-sm);
-  line-height: var(--p-altura-linha);
-  color: var(--p-conteudo-claro);
+/* A entrada não tem título escrito: a marca faz esse papel. O `h1` fica para
+   quem ouve a tela e some só para os olhos. (No convite o título É informação,
+   e lá ele continua visível.) */
+.entrar-titulo-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
 /* O motivo da recusa, com a saída da pessoa. Vem ANTES dos botões na ordem de
    leitura: quem usa leitor de tela precisa do motivo antes da ação. */
 .entrar-alerta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--p-e-1);
-  padding: var(--p-e-3);
-  background: var(--p-alerta-fundo);
-  border: 1px solid var(--p-alerta-linha);
-  border-radius: var(--p-r-md);
-  color: var(--p-alerta-conteudo);
+  margin-bottom: 22px;
+  padding: 14px 16px;
+  background: var(--pe-campo);
+  border: 1px solid var(--pe-linha);
+  border-left: 3px solid var(--pe-marca);
+  border-radius: 12px;
 }
 
 .entrar-alerta h2 {
-  margin: 0;
-  font-size: var(--p-t-sm);
-  font-weight: var(--p-peso-forte);
-  line-height: var(--p-altura-linha-curta);
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--pe-conteudo);
 }
 
 .entrar-alerta p {
   margin: 0;
-  font-size: var(--p-t-sm);
-  line-height: var(--p-altura-linha);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--pe-apoio);
 }
 
-/* Ação principal da tela: largura cheia, e não divide a linha com ninguém. */
 .entrar-google {
-  width: 100%;
+  display: flex;
+  align-items: center;
   justify-content: center;
-  padding: 10px 12px;
+  gap: 10px;
+  width: 100%;
+  height: 60px;
+  box-sizing: border-box;
+  border: 1px solid var(--pe-linha);
+  border-radius: 14px;
+  background: var(--pe-papel);
+  color: var(--pe-conteudo);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.entrar-google:hover {
+  background: var(--pe-campo);
+  border-color: var(--pe-linha-forte);
+  color: var(--pe-conteudo);
 }
 
 .entrar-ou {
   display: flex;
   align-items: center;
-  gap: var(--p-e-2);
-  font-size: var(--p-t-xs);
-  color: var(--p-conteudo-fantasma);
+  gap: 12px;
+  margin: 22px 0;
 }
 
-.entrar-ou::before,
-.entrar-ou::after {
-  content: '';
+.entrar-ou span:not(.entrar-ou-texto) {
   flex: 1;
   height: 1px;
-  background: var(--p-linha);
+  background: var(--pe-linha-fina);
 }
 
-.entrar-form {
+.entrar-ou-texto {
+  font-size: 14px;
+  color: var(--pe-apoio);
+}
+
+.entrar-cartao label {
+  display: block;
+  margin: 0 0 7px 2px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pe-rotulo);
+}
+
+.entrar-cartao input[type='email'],
+.entrar-cartao input[type='password'],
+.entrar-cartao input[type='text'] {
+  width: 100%;
+  height: 60px;
+  box-sizing: border-box;
+  padding: 0 18px;
+  border: 1px solid var(--pe-linha);
+  border-radius: 14px;
+  background: var(--pe-campo);
+  font: inherit;
+  font-size: 18px;
+  color: var(--pe-conteudo);
+  outline: none;
+}
+
+/* As margens do desenho: 16px depois do e-mail, 10px depois da senha (a
+   linha do "esqueci minha senha" vem logo abaixo dela). */
+.entrar-cartao input[type='email'] {
+  margin-bottom: 16px;
+}
+
+.entrar-cartao input[type='password'] {
+  margin-bottom: 10px;
+}
+
+.entrar-esqueci {
   display: flex;
-  flex-direction: column;
-  gap: var(--p-e-2);
+  justify-content: flex-end;
+  margin-bottom: 22px;
+  font-size: 14px;
 }
 
-.entrar-form label {
-  font-size: var(--p-rotulo-tamanho);
-  font-weight: var(--p-rotulo-peso);
-  letter-spacing: var(--p-rotulo-espaco);
-  color: var(--p-conteudo-claro);
+.entrar-esqueci a {
+  text-decoration: none;
+}
+
+.entrar-cartao input::placeholder {
+  color: var(--pe-marca-dagua);
+}
+
+.entrar-cartao input:focus {
+  border-color: var(--pe-marca);
+  background: var(--pe-papel);
 }
 
 .entrar-ajuda {
-  margin: 0;
-  font-size: var(--p-t-xs);
-  line-height: var(--p-altura-linha);
-  color: var(--p-conteudo-fantasma);
+  margin: -12px 2px 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--pe-apoio);
 }
 
-.entrar-form .btn {
+.entrar-cartao button[type='submit'] {
+  width: 100%;
+  height: 60px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--pe-marca);
+  color: var(--pe-fundo);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.entrar-cartao button[type='submit']:hover {
+  background: var(--pe-marca-forte);
+}
+
+.entrar-pe {
+  display: flex;
   justify-content: center;
+  gap: 6px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--pe-linha-fina);
+  font-size: 14px;
+  color: var(--pe-apoio);
+}
+
+.entrar a {
+  color: var(--pe-marca);
+}
+
+.entrar a:hover {
+  color: var(--pe-marca-forte);
+}
+
+.entrar-pe a {
+  text-decoration: none;
+}
+
+/* ---- o que o convite acrescenta ao mesmo cartão ---- */
+
+.entrar-cartao h1 {
+  margin: 0 0 10px;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--pe-conteudo);
+}
+
+.entrar-sub {
+  margin: 0 0 22px;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--pe-apoio);
 }
 
 /* Os dados do convite: rótulo à esquerda, valor à direita. */
 .entrar-dados {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: var(--p-e-1) var(--p-e-3);
-  margin: 0;
-  font-size: var(--p-t-sm);
+  gap: 6px 16px;
+  margin: 0 0 22px;
+  font-size: 14px;
 }
 
 .entrar-dados dt {
-  color: var(--p-conteudo-fantasma);
+  color: var(--pe-apoio);
 }
 
 .entrar-dados dd {
   margin: 0;
-  font-weight: var(--p-peso-medio);
-  color: var(--p-conteudo);
+  font-weight: 500;
+  color: var(--pe-conteudo);
   /* E-mail longo quebra em vez de esticar o cartão. */
   overflow-wrap: anywhere;
 }
 
 .entrar-rodape {
-  margin: 0;
-  font-size: var(--p-t-xs);
-  line-height: var(--p-altura-linha);
-  color: var(--p-conteudo-fantasma);
+  margin: 18px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--pe-apoio);
 }
 
 /* A conta em vigor, no menu de quem está logado. Serve às três telas. */
@@ -2164,10 +2328,39 @@ tr.grupo th {
   color: var(--p-conteudo);
 }
 
+/* `--p-conteudo-claro` é BRANCO no tema claro: dentro de um painel branco o
+   e-mail sumia. O tom certo para texto secundário é o desabilitado. */
 .eu-bloco span {
   font-size: var(--p-t-xs);
-  color: var(--p-conteudo-claro);
+  color: var(--p-conteudo-desabilitado);
   overflow-wrap: anywhere;
+}
+
+/* No portal o bloco é o `bds-menu-exibition` deles: avatar À ESQUERDA, o nome
+   em 16 e o e-mail em 10 ao lado. */
+.pt-eu .eu-bloco {
+  flex-direction: row;
+  align-items: center;
+  gap: var(--p-e-2);
+  padding: var(--p-e-2) var(--p-e-3);
+  border-bottom: 1px solid var(--p-linha);
+}
+
+.pt-eu .eu-nomes {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pt-eu .eu-nomes b {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+  color: var(--ink);
+}
+
+.pt-eu .eu-nomes > span {
+  font-size: 10px;
+  color: var(--ink-3);
 }
 
 .eu-sair {
@@ -2198,4 +2391,1152 @@ tr.grupo th {
 .busca-topo:focus-within {
   outline: 2px solid var(--p-foco);
   outline-offset: 2px;
+}
+
+/* =========================================================== o portal (/portal)
+   Medido na tela ORIGINAL rodando (o portal deles servido local, rota
+   `auth.application.list`, janela de 1920), com `getBoundingClientRect` e
+   `getComputedStyle`. A primeira versão desta folha foi lida só no CSS deles e
+   errou o principal: a tela tem DUAS barras de 80px, não uma.
+
+   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA: os degraus escuros saem de
+   `--g-barra-*` (já derivados para o cromo da Gestão) e o resto dos `--p-*`.
+   Nenhum hex deles entra. */
+.pt-app {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  /* O miolo deles é a superfície 2 (#ededed), um degrau abaixo do branco dos
+     cartões. Aqui é a nossa superfície 1 — mesma relação, tinta nossa. */
+  background: var(--ground);
+}
+
+/* ----------------------------------------------------- barra escura
+   Herda os 80px, o fundo e o recuo de 32px de `.g-barra-sup`; só a
+   distribuição muda — lá é grade de três colunas, aqui é fileira, porque a
+   marca sai do fluxo para ficar no centro EXATO da barra. */
+.pt-barra {
+  display: flex;
+  gap: 0;
+  /* Sem recuo À ESQUERDA: na barra deles o bloco da conta começa em x=0 e é
+     ELE que tem os 32px de recuo interno — o que faz o realce de passagem
+     encostar na borda da tela em vez de flutuar a 32px dela. */
+  padding: 0 var(--p-e-8) 0 0;
+}
+
+/* O seletor de conta: 285px de mínimo e CRESCE com o nome (na tela deles ele
+   media 409 com um nome longo). O teto de 40% é o que impede um nome enorme
+   de empurrar a marca para fora do centro. */
+.pt-conta {
+  min-width: 285px;
+  max-width: 40%;
+}
+
+/* Sem `gap` e sem recheio à direita: na `portal.css` deles o
+   `.group-buttom-contract` só tem `padding-left: 32px`, e cada distância
+   seguinte é de uma peça — o `pl3` do texto e o recheio da própria seta. */
+.pt-conta > summary {
+  display: flex;
+  align-items: center;
+  height: var(--g-barra-sup-h);
+  padding: 0 0 0 var(--p-e-8);
+  cursor: pointer;
+  color: var(--g-barra-tinta);
+  min-width: 0;
+}
+
+.pt-conta > summary:hover {
+  background: var(--g-barra-hover);
+}
+
+/* `.menu-contract .icon-contract-white`: o ícone escuro num círculo claro com
+   8 de recheio (40 no total), e não o ícone claro solto sobre a barra. As
+   tintas se invertem — o fundo é a tinta da barra, o traço é a barra. */
+.pt-conta-icone {
+  flex: none;
+  display: flex;
+  padding: var(--p-e-2);
+  border-radius: 50%;
+  background: var(--g-barra-tinta);
+  color: var(--g-barra-1);
+}
+
+/* O `flex flex-column pl3` deles: 0,625rem entre o círculo e o texto. */
+.pt-conta-texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding-left: 0.625rem;
+}
+
+/* Nome 16/700 com entrelinha 24; plano 12/400 com entrelinha 18. Medidos. */
+
+/* O `contractNamePanel` deles é fs-16 NEGRITO, e o tipo de conta fs-12
+   logo abaixo. */
+.pt-conta-texto b {
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-bloco);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A inicial em maiúscula como no `first-letter-tenant` deles — sem reescrever
+   o dado, que chega do banco em minúsculas. */
+.pt-plano {
+  font-size: var(--g-t-rotulo);
+  line-height: var(--g-lh-rotulo);
+  color: var(--g-barra-fraca);
+}
+
+.pt-plano::first-letter {
+  text-transform: uppercase;
+}
+
+/* `.menu-contract .arrow-icon`: 1,8rem dos DOIS lados — é esse recheio, e não
+   o do resumo, que afasta a seta do texto e da divisória. E `.icon-white`
+   pinta a seta com a tinta cheia da barra, não com a fraca. */
+.pt-conta-seta {
+  margin-left: auto;
+  padding: 0 1.8rem;
+  display: flex;
+  flex: none;
+}
+
+.pt-conta .g-painel {
+  left: 0;
+  right: auto;
+  width: 300px;
+}
+
+/* Os menus da ponta direita da barra são LISTAS DE ITENS, como os
+   `bds-menu-action` deles: ícone à esquerda, rótulo em 16, um por linha, o
+   item inteiro clicável e uma régua entre cada um. Nada de link azul solto. */
+.pt-menu {
+  width: 260px;
+  padding: var(--p-e-1) 0;
+  gap: 0;
+}
+
+.pt-menu a,
+.pt-menu button {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  width: 100%;
+  padding: var(--p-e-2) var(--p-e-3);
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-medio);
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.pt-menu a:hover,
+.pt-menu button:hover {
+  background: var(--p-superficie-2);
+  text-decoration: none;
+}
+
+/* A régua entre itens — o `bds-menu-separation` deles. */
+.pt-menu a + a,
+.pt-menu form {
+  border-top: 1px solid var(--p-linha);
+}
+
+.pt-menu svg {
+  flex: none;
+  color: var(--ink-2);
+}
+
+/* O painel do sino: uma frase centrada, que é tudo o que o deles mostra
+   enquanto não há notificação. */
+.pt-sino {
+  width: 260px;
+  text-align: center;
+}
+
+.pt-sino p {
+  margin: var(--p-e-2) 0;
+  font-size: var(--p-t-md);
+  color: var(--ink-2);
+}
+
+/* O menu do seletor tem DOIS blocos, nesta ordem, e nada mais: o "Painel do
+   contrato" e a `tenant-list`. Os atalhos soltos que havia aqui saíram — o
+   menu deles não tem nenhum. */
+.pt-conta-menu {
+  padding: var(--p-e-2) 0;
+}
+
+/* O primeiro item: ícone, "Painel da conta" em 16 e o nome da conta em vigor
+   logo abaixo, em 10 (o `contractNamePanel` deles). */
+.pt-painel {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  padding: var(--p-e-2) var(--p-e-3);
+  text-decoration: none;
+  color: var(--ink);
+}
+
+.pt-painel > span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: var(--p-t-md);
+}
+
+.pt-painel:hover {
+  background: var(--p-superficie-2);
+}
+
+.pt-painel-conta {
+  font-size: 10px;
+  line-height: 1.4;
+  color: var(--ink-3);
+}
+
+/* A lista das OUTRAS contas. A conta em vigor não entra: ela é o título do
+   botão que abriu o menu. */
+.pt-contas {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: var(--p-e-2) 0 0;
+  border-top: 1px solid var(--p-linha);
+  padding: var(--p-e-2) 0 0;
+}
+
+/* O tipo da conta, embaixo do nome, em 12: o plano quando é contrato e o
+   endereço quando é a conta pessoal. */
+.pt-conta-tipo {
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+}
+
+.pt-contas button {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  width: 100%;
+  padding: var(--p-e-2) var(--p-e-3);
+  border: 0;
+  border-radius: var(--p-r-sm);
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.pt-contas button > span {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.pt-contas button:hover:not(:disabled) {
+  background: var(--p-superficie-2);
+}
+
+/* A conta em vigor não é clicável — trocar para onde já se está não é troca. */
+.pt-contas button:disabled {
+  cursor: default;
+  background: var(--p-marca-suave);
+}
+
+/* O endereço da conta, em monoespaçada: é um identificador, não um nome. */
+.pt-slug {
+  font-family: var(--p-fonte-mono);
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* A seta `arrow-down` que fecha o seletor de conta e o avatar. Tom mais fraco
+   que o texto, como na barra deles. */
+.pt-seta {
+  flex: none;
+  color: var(--g-barra-fraca);
+}
+
+/* O avatar da ponta direita vem com a seta ao lado (`menu-user`). */
+.pt-eu-menu > summary {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-1);
+  width: auto;
+  padding: 0 var(--p-e-2);
+}
+
+/* ---------------------------------------------- o que está sendo feito
+   Item que existe na tela da origem e ainda não existe aqui: fica no lugar,
+   apagado e sem clique, com um selo que pisca — a fileira não encolhe e quem
+   procura descobre que vem aí. */
+.pt-obra,
+.pt-links-obra {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  cursor: default;
+  opacity: 0.55;
+}
+
+.pt-links-obra {
+  padding: 0 var(--p-e-2);
+  color: var(--g-barra-tinta);
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-medio);
+}
+
+.pt-obra {
+  padding: var(--p-e-2) var(--p-e-3);
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-medio);
+  color: var(--ink);
+}
+
+/* O selo. A pulsação é o "carregando" pedido: diz que está em obra sem
+   precisar de texto longo. Quem pediu menos movimento na tela não vê nada. */
+.pt-obra-selo {
+  flex: none;
+  margin-left: var(--p-e-1);
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--p-marca-suave);
+  color: var(--p-marca);
+  font-size: 10px;
+  font-weight: var(--p-peso-forte);
+  letter-spacing: 0.02em;
+  text-transform: lowercase;
+  animation: pt-respira 1.8s ease-in-out infinite;
+}
+
+@keyframes pt-respira {
+  50% {
+    opacity: 0.35;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pt-obra-selo {
+    animation: none;
+  }
+}
+
+/* O cartão em obra: mesmo desenho, sem levantar no passar do rato. */
+.pt-acao-obra {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.pt-acao-obra:hover {
+  border-color: var(--line);
+  box-shadow: none;
+  transform: none;
+}
+
+/* Divisória vertical: 2px por 40, logo depois do seletor. */
+.pt-divisoria {
+  flex: none;
+  align-self: center;
+  width: 2px;
+  height: 40px;
+  background: color-mix(in srgb, var(--g-barra-tinta) 22%, transparent);
+}
+
+.pt-barra-fim .pt-divisoria {
+  margin-left: var(--p-e-6);
+}
+
+/* Os links: 16/700 e tinta fraca, como os `nav-items` deles. O primeiro
+   começa 20px depois da divisória. */
+.pt-links {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-6);
+  margin-left: 20px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.pt-links a {
+  font-size: var(--g-t-modulo);
+  font-weight: var(--g-peso-negrito);
+  color: var(--g-barra-fraca);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.pt-links a:hover,
+.pt-links a[aria-current='page'] {
+  color: var(--g-barra-tinta);
+}
+
+/* A marca no centro exato da barra, 80px de largura — a medida da ilustração
+   deles. `z-index` porque ela passa por cima dos links quando a barra aperta. */
+.pt-marca {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  display: flex;
+  line-height: 0;
+}
+
+/* A proporção do arquivo é 420×190, então 80 de largura dão 36 de altura. */
+.pt-lockup {
+  display: block;
+  width: 80px;
+  height: 36px;
+  background: var(--g-barra-tinta);
+  -webkit-mask: url('/pipe/lockup.svg') center / contain no-repeat;
+  mask: url('/pipe/lockup.svg') center / contain no-repeat;
+}
+
+.pt-barra-fim {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  flex: none;
+}
+
+/* A foto de quem está logada, quando a sessão traz uma. Mesmo diâmetro do
+   avatar de iniciais (32px), para a barra não pular entre uma pessoa que tem
+   foto e outra que não tem. */
+.pt-foto {
+  object-fit: cover;
+}
+
+.pt-barra-fim .avatar {
+  width: 32px;
+  height: 32px;
+  font-size: var(--p-t-md);
+}
+
+/* ------------------------------------------------------ barra clara
+   A segunda barra da tela deles: 80px, fundo branco, 40px de recheio, e o
+   conteúdo alinhado à MESMA coluna do miolo. É ela que diz de qual conta é
+   tudo o que vem abaixo — e era o que faltava na primeira versão. */
+.pt-subbarra {
+  flex: none;
+  height: 80px;
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  padding: 0 40px;
+}
+
+.pt-subbarra-conteudo {
+  height: 100%;
+  margin: 0 auto;
+  width: 100%;
+  max-width: 540px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--p-e-4);
+}
+
+/* O título da barra clara é a FRASE "Espaço de trabalho de {conta}", num h2
+   de 20/700 — o `bds-typo variant="fs-20" bold tag="h2"` da `subtitle-tenant`
+   deles. Não há segunda linha: o endereço da conta que estava aqui não existe
+   na tela deles (lá o endereço é o próprio subdomínio, na barra do navegador),
+   e quem quer saber em que conta está lê o nome nesta frase. */
+.pt-subbarra-titulo {
+  min-width: 0;
+  margin: 0;
+  font-size: 20px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 20px;
+  color: var(--ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A ponta direita da barra clara: a busca e os dois botões de criar, na
+   ordem e no lugar das `action-icons` deles. */
+.pt-subbarra-acoes {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-3);
+}
+
+.pt-subbarra-acoes .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  white-space: nowrap;
+}
+
+/* A busca deles NÃO tem caixa: é a lupa de 32×32 em cinza, solta, e o campo
+   ao lado sem contorno nenhum (`search-input-container`). A nossa estava dentro
+   de uma caixa com borda e fundo, e era a diferença que o dono apontou.
+
+   Aparece SEMPRE, inclusive na conta sem nenhum contato, que é o que a origem
+   faz. É um `<form method="get">`: o filtro é do servidor, e a tela continua
+   sem estado de cliente. */
+.pt-busca {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-1);
+  color: var(--ink-3);
+}
+
+.pt-busca svg {
+  flex: none;
+}
+
+.pt-busca input {
+  border: 0;
+  outline: none;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: var(--p-t-md);
+  width: 200px;
+  max-width: 40vw;
+}
+
+/* O foco não pode virar caixa de novo: marca só a linha de baixo do campo. */
+.pt-busca input:focus {
+  border-bottom: 1px solid var(--p-marca);
+}
+
+/* --------------------------------------------------- coluna do miolo */
+.pt-conteudo {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0 var(--p-e-4) var(--p-e-10);
+}
+
+/* Os degraus da coluna deles: 540, 830 a partir de 852 e 1300 a partir de
+   1300. `max-width` e não `width` para que a tela não role na horizontal
+   abaixo de 540px — que é onde o telefone vive. */
+.pt-coluna {
+  margin: 2.5rem auto 0;
+  width: 100%;
+  max-width: 540px;
+}
+
+@media (min-width: 852px) {
+  .pt-coluna,
+  .pt-subbarra-conteudo {
+    max-width: 830px;
+  }
+}
+
+@media (min-width: 1300px) {
+  .pt-coluna,
+  .pt-subbarra-conteudo {
+    max-width: 1300px;
+  }
+}
+
+/* ------------------------------------------- estado 1: boas-vindas
+   O `welcome-banner` deles, nas medidas da folha: 56 de recheio, 72 de vão
+   entre a ilustração e o texto, 24 de margem embaixo, e o texto com
+   `flex: 1 0 200px` — é ele que cresce, não a ilustração. O título ganha 8 de
+   margem e o botão, 16.
+
+   Este bloco só existe no estado 1. É a ausência dele — e a do título de
+   seção — que dá o ar de tela nova a uma conta sem nenhum contato. */
+.pt-boasvindas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  justify-content: center;
+  gap: 72px;
+  padding: 56px;
+  margin-bottom: var(--p-e-6);
+  border-radius: var(--g-r-cartao);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--g-sombra-cartao);
+}
+
+.pt-boasvindas-desenho {
+  flex: none;
+  align-self: center;
+}
+
+.pt-boasvindas-texto {
+  flex: 1 0 200px;
+  align-self: center;
+  min-width: 0;
+}
+
+.pt-boasvindas-texto h2 {
+  margin: 0 0 var(--p-e-2);
+  font-size: 20px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 1.3;
+  color: var(--ink);
+}
+
+.pt-boasvindas-texto p {
+  margin: 0;
+  font-size: var(--g-t-bloco);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+.pt-boasvindas-acao {
+  display: flex;
+  margin-top: var(--p-e-4);
+}
+
+/* --------------------------------------------- cartões de ação
+   O `action-card-container` deles: fileira que quebra, 24 de intervalo, e
+   cada cartão elástico a partir de 300 (`flex: 1 0 300px`). Com quatro
+   cartões isso dá dois por linha até ~1300 e quatro acima — que é o que a
+   tela deles faz. O cartão tem 24 de recheio e o ícone mora numa caixa de
+   canto 8, a 24 do texto. */
+.pt-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--p-e-6);
+  margin-bottom: var(--p-e-6);
+}
+
+/* `flex: 1 0 300px` no cartão e `height: 100%` por dentro, como o
+   `.action-card` deles: a altura da fileira é a do cartão de texto mais longo,
+   e os outros esticam até ela. Altura fixa aqui seria invenção nossa. */
+.pt-acao {
+  flex: 1 0 300px;
+  display: flex;
+  align-items: center;
+  padding: var(--p-e-6);
+  border-radius: var(--g-r-cartao);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--g-sombra-cartao);
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform var(--p-dur-rapida) ease-in-out;
+}
+
+.pt-acao:hover {
+  transform: scale(1.02);
+}
+
+/* Onde eles põem o azul, vai o moss. A caixa do ícone é a deles: canto 8,
+   recheio 8, e 24 até o texto. */
+.pt-acao-icone {
+  flex: none;
+  display: flex;
+  padding: var(--p-e-2);
+  margin-right: var(--p-e-6);
+  border-radius: var(--p-r-md);
+  background: var(--p-marca-suave);
+  color: var(--moss);
+}
+
+.pt-acao-texto {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-1);
+  min-width: 0;
+}
+
+.pt-acao-texto b {
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
+  line-height: 1.6;
+}
+
+.pt-acao-texto span {
+  font-size: var(--p-t-md);
+  line-height: 1.45;
+  color: var(--ink-2);
+}
+
+/* ------------------------------------------------------ título da seção
+   `bds-typo variant="fs-24" bold` — 24px, e não os 20 que estavam aqui. É o
+   maior texto da tela, e é ele que abre a lista. A régua de 1px embaixo, com
+   8px de recuo antes e 24 depois; 40px separam a faixa de cima.
+
+   A ponta direita fica VAZIA: é onde a origem põe o botão "Mover chatbots",
+   escondido nesta conta pela flag `can-migrate-bots: false`. Não temos
+   migração entre contas, então não há o que desenhar ali — a contagem de
+   contatos que ocupava o lugar não existe na tela deles. */
+.pt-secao {
+  margin: 2.5rem 0 var(--p-e-6);
+  padding-bottom: var(--p-e-2);
+  border-bottom: 1px solid var(--p-conteudo-fantasma);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--p-e-3);
+}
+
+.pt-secao h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 1.25;
+  color: var(--ink);
+}
+
+/* O "nada por aqui" deles é uma linha de texto, não uma cena. */
+.pt-nada {
+  margin: 0;
+  font-size: var(--p-t-md);
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+
+/* ------------------------------------------------------- a paginação
+   O `bds-pagination` deles, com `page-counter`, `number-items` e `items-page`:
+   contador de itens à esquerda, escolha de quantos por página no meio e as
+   páginas à direita. Aqui é link e `<form method="get">` — a lista é do
+   servidor, e a URL já sabe paginar sem virar componente de cliente. */
+.pt-paginacao {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--p-e-4);
+  margin-top: var(--p-e-6);
+  font-size: var(--p-t-md);
+  color: var(--ink-2);
+}
+
+.pt-paginacao-tamanho {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.pt-paginacao-tamanho select {
+  height: 32px;
+  padding: 0 var(--p-e-2);
+  border: 1px solid var(--line);
+  border-radius: var(--p-r-sm);
+  background: var(--surface);
+  font: inherit;
+  font-size: var(--p-t-md);
+  color: var(--ink);
+}
+
+.pt-paginacao-tamanho button {
+  height: 32px;
+  padding: 0 var(--p-e-3);
+  border: 1px solid var(--line);
+  border-radius: var(--p-r-sm);
+  background: var(--surface);
+  font: inherit;
+  font-size: var(--p-t-md);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.pt-paginacao-paginas {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-1);
+}
+
+/* O "de N páginas" que fecha a barra deles, à direita dos números. */
+.pt-paginacao-de {
+  margin-left: var(--p-e-2);
+  font-size: var(--p-t-md);
+  color: var(--ink-3);
+}
+
+.pt-paginacao-paginas a {
+  min-width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--p-e-2);
+  border-radius: var(--p-r-sm);
+  text-decoration: none;
+  color: var(--ink-2);
+}
+
+.pt-paginacao-paginas a:hover {
+  background: var(--p-superficie-2);
+}
+
+/* A página aberta é a única marcada, e é marcada com a cor da marca — o mesmo
+   papel que ela cumpre no item ativo da navegação. */
+.pt-paginacao-paginas a[aria-current='page'] {
+  background: var(--p-marca-suave);
+  color: var(--p-marca);
+  font-weight: var(--p-peso-forte);
+}
+
+/* ------------------------------------------------------------- a grade
+   Colunas FIXAS de 188px com 24 de intervalo, distribuídas nas pontas: é
+   assim que a deles enche a linha sem esticar o cartão. Abaixo de 852 elas
+   passam a se distribuir por igual, que é a única mudança que eles fazem. */
+.pt-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 188px);
+  gap: var(--p-e-6);
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (max-width: 851px) {
+  .pt-grade {
+    justify-content: space-evenly;
+  }
+}
+
+/* O cartão: 188×196, canto 16, recheio 15. Os três andares têm altura FIXA —
+   avatar de 56, nome de 50 e etiqueta de 25 — e é isso que impede o nome de
+   duas linhas de empurrar a etiqueta para fora. */
+.pt-cartao {
+  width: 188px;
+  height: 196px;
+  padding: 15px;
+  border-radius: var(--g-r-cartao);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: var(--g-sombra-cartao);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  text-decoration: none;
+  color: var(--ink);
+  transition: transform var(--p-dur-rapida) ease-in-out;
+}
+
+.pt-cartao:hover {
+  transform: scale(1.02);
+}
+
+/* Não publicado: o cartão deles ganha um ponto vermelho no canto superior
+   esquerdo (`.chatbot-item.notPublished:after`, 12px a 30px da borda). Aqui é
+   o mesmo ponto, na nossa tinta de erro sobre superfície clara. */
+.pt-cartao-rascunho {
+  position: relative;
+}
+
+.pt-cartao-rascunho::after {
+  content: '';
+  position: absolute;
+  top: 15px;
+  left: 15px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: var(--p-erro-conteudo);
+}
+
+/* O andar de cima do cartão: 56 de lado. Sem foto, a origem põe ali o ícone
+   do produto num círculo claro (`round-avatar`), e não as iniciais do nome. */
+.pt-cartao-av {
+  width: 56px;
+  height: 56px;
+  margin-bottom: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: var(--p-marca-suave);
+  color: var(--p-marca);
+}
+
+/* A foto enche o círculo de 56 sem deformar — recorta o que sobrar. */
+.pt-cartao-foto {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.pt-cartao-nome {
+  height: 50px;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-bloco);
+  overflow-wrap: anywhere;
+  overflow: hidden;
+}
+
+/* O `chip_tag` do `bds-chip-tag`: 24 de altura com a borda, 4 de recheio, o
+   ícone numa caixa de 16 e a palavra com 8 de cada lado (`chip_tag--text`). */
+.pt-cartao-etq {
+  height: 24px;
+  margin-top: 0.625rem;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--p-e-1);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--p-r-pilula);
+  font-size: var(--p-t-sm);
+  font-weight: var(--g-peso-negrito);
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+.pt-cartao-etq > span {
+  margin: 0 var(--p-e-2);
+}
+
+/* ------------------------------------------------------- até ~400px
+   Abaixo de 852 a barra deles corta o recuo de 32 para 16 e esconde o que não
+   cabe. Aqui vale o mesmo: os links saem da barra — eles existem no menu da
+   conta —, a marca volta para o fluxo, e a faixa de abertura empilha. */
+@media (max-width: 851px) {
+  .pt-barra {
+    padding: 0 var(--p-e-4) 0 0;
+  }
+
+  .pt-conta > summary {
+    padding-left: var(--p-e-4);
+  }
+
+  .pt-links {
+    display: none;
+  }
+
+  .pt-conta {
+    min-width: 0;
+    max-width: none;
+    flex: 1;
+  }
+
+  .pt-conta > summary > svg:last-child {
+    padding-left: var(--p-e-2);
+  }
+
+  .pt-barra > .pt-divisoria {
+    display: none;
+  }
+
+  .pt-marca {
+    position: static;
+    transform: none;
+    align-items: center;
+  }
+
+  .pt-lockup {
+    width: 56px;
+    height: 25px;
+  }
+
+  .pt-subbarra {
+    height: auto;
+    padding: var(--p-e-4);
+  }
+
+  .pt-subbarra-conteudo {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--p-e-1);
+  }
+
+  .pt-busca input {
+    width: 100%;
+    max-width: none;
+  }
+
+  .pt-busca {
+    width: 100%;
+  }
+
+  .pt-coluna {
+    margin-top: var(--p-e-6);
+  }
+
+  /* O bloco de boas-vindas deles tem 56 de recheio e 72 de vão — no telefone
+     isso é meia tela de ar antes da primeira palavra. */
+  .pt-boasvindas {
+    gap: var(--p-e-6);
+    padding: var(--p-e-6);
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .pt-boasvindas-desenho {
+    align-self: center;
+  }
+
+  .pt-acoes {
+    gap: var(--p-e-3);
+  }
+
+  .pt-acao {
+    flex: 1 0 100%;
+    padding: var(--p-e-5);
+  }
+}
+
+/* No telefone a barra fica só com o seletor de conta e o avatar: tema e ajuda
+   moram no menu, e o nome do contrato precisa dos pixels mais do que eles. */
+@media (max-width: 560px) {
+  .pt-barra-fim > :not(:last-child) {
+    display: none;
+  }
+}
+
+/* ============================================== os passos do onboarding
+
+   O cartão avulso das telas entre o login e o portal — hoje o aviso de
+   `/trocar-conta/sem-acesso`.
+
+   Ele herda o cartão da tela de entrada de propósito — mesma letra, mesma
+   medida de campo, mesmo canto. É a mesma pessoa, no mesmo minuto, e trocar a
+   linguagem visual entre "entrei" e "conte de que empresa você é" faria parecer
+   que ela caiu em outro produto. O fundo animado não vem junto: ali dentro já
+   há sessão, e o canvas do login é peça de porta de entrada.
+
+   `/minha-conta` saiu daqui: a disposição dela passou a ser a da plataforma de
+   origem, medida em `minha-conta/minha-conta.css`.
+
+   As cores saem dos token locais de `.entrada-passo`, gêmeos dos de `.entrar`
+   pela mesma razão: esta é a entrega de desenho da entrada, não a escala do
+   resto do aplicativo. */
+
+.entrada-passo {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 48px 24px;
+  box-sizing: border-box;
+  font-family: 'DM Sans', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+
+  --pe-fundo: #f2f1ec;
+  --pe-papel: #ffffff;
+  --pe-campo: #fbfbf7;
+  --pe-conteudo: #16150f;
+  --pe-rotulo: #3f3e36;
+  --pe-apoio: #6a695e;
+  --pe-marca-dagua: #9a9a8e;
+  --pe-linha: #dfdecf;
+  --pe-linha-fina: #edece2;
+  --pe-marca: #4a5d23;
+  --pe-marca-forte: #3d4d1c;
+
+  background: var(--pe-fundo);
+  color: var(--pe-conteudo);
+}
+
+.entrada-passo-cartao {
+  width: 560px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 48px 44px 40px;
+  background: var(--pe-papel);
+  border-radius: 22px;
+  box-shadow:
+    0 1px 2px rgba(22, 21, 15, 0.05),
+    0 24px 60px -14px rgba(22, 21, 15, 0.2);
+}
+
+/* O formulário é mais alto que o aviso; largura maior evita a coluna de campos
+   virar uma fita estreita no meio de uma tela vazia. */
+.entrada-passo-largo {
+  width: 640px;
+}
+
+.entrada-passo h1 {
+  margin: 0 0 10px;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--pe-conteudo);
+}
+
+.entrada-passo-sub {
+  margin: 0 0 28px;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--pe-apoio);
+}
+
+.entrada-passo-botao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 60px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--pe-marca);
+  color: var(--pe-fundo);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.entrada-passo-botao:hover {
+  background: var(--pe-marca-forte);
+  color: var(--pe-fundo);
+}
+
+.entrada-passo .entrar-alerta {
+  margin-bottom: 24px;
+}
+
+/* As contas da pessoa dentro do menu do seletor. Botão, e não link: trocar de
+   conta emite sessão nova, e emissão de sessão não vai em GET. */
+.pt-contas {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: var(--p-e-2) 0;
+  padding: var(--p-e-2) 0;
+  border-top: 1px solid var(--p-linha);
+  border-bottom: 1px solid var(--p-linha);
+}
+
+.pt-contas-titulo {
+  margin: 0 0 var(--p-e-1);
+  font-size: var(--p-t-xs);
+  color: var(--p-conteudo-fantasma);
+}
+
+.pt-contas button {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: var(--p-r-md);
+  background: none;
+  font: inherit;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo);
+  text-align: left;
+  cursor: pointer;
+}
+
+.pt-contas button:hover:not(:disabled) {
+  background: var(--p-superficie-3);
+}
+
+/* A conta em vigor fica desligada, e por isso não pode parecer apagada: ela é a
+   marcação de onde a pessoa está. */
+.pt-contas button:disabled {
+  cursor: default;
+  font-weight: var(--p-peso-forte);
+  background: var(--p-marca-suave);
 }

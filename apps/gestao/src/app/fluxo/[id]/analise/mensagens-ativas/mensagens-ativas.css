@@ -1,0 +1,1017 @@
+/* ==========================================================================
+   Análise › Mensagens ativas (/fluxo/[id]/analise/mensagens-ativas)
+
+   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. A tela é o `page="activeMessages"`
+   do `portal-fragment-analytics` (`scratchpad/cap6s/portalmfe/analytics-main.js`):
+   `Lx` (56300) e os filhos `St` (filtro, 33556), `Mt`/`Ft` (números, 33870),
+   `fc` (funil), `Dl` (conversões), `Wl` (taxas), `_c` (picos) e `bc` (falhas),
+   entre 43453 e 44990. Cada um traz a própria folha num `<style>` — as medidas
+   abaixo saem dali. As peças do blip-ds saem das folhas Stencil capturadas:
+   `bdscss/chipClickableCss.css`, `bdscss/tooltipCss.css`, `bdscss/buttonCss.css`,
+   o `bds-grid_5` da cap6s (typo, paper, grid), o `bds-icon` da cap6s (tamanhos),
+   o `bds-autocomplete` da cap4 e o `bds-datepicker` do blip-ds do Desk.
+
+   Régua de tipo (`bds-typo`): fs-12 = 12px/150%, fs-14 = 14px/150%, fs-16 =
+   16px/150%, fs-20 = 20px/100%, fs-24 = 24px/100%, fs-32 = 32px/100%, fs-40 =
+   40px/100%; `margin` (padrão ligado) põe 22px embaixo de fs-20/24/32.
+   Grade (`bds-grid`): gap/padding "1" = 8px, "2" = 16px.
+
+   O de-para das tintas:
+     color-content-default #282828/#454545       → var(--ink)
+     color-content-disable #454545/#636363        → var(--ink-2)
+     color-content-ghost #8c8c8c · rgb(100,100,100) dos eixos → var(--ink-3) · var(--ink-2)
+     color-surface-1 #F6F6F6 (fundo do chip outline, do campo) → var(--ground)
+     bds-paper (sem fundo próprio)                → var(--surface), como em certificados.css
+     paper elevation static                       → var(--p-sombra-1)
+     rgba(0,0,0,.2) · color-border-1              → --ma-borda (tinta a 20%)
+     rgba(0,0,0,.1) (grade do chart.js, linha do meio dos picos) → var(--line)
+     color-system #B2DFFD (chip ativo)            → var(--p-info-fundo)
+     color-primary #1e6bf1 (botão primário, link, foco do campo) → var(--p-marca)
+     color-hover 8%                               → var(--g-tinta-hover)
+     tooltip content-default / surface-1          → var(--ink) / var(--surface)
+     As cinco séries (`Mt`, `fc`), pastéis sobre branco:
+       enviadas #fd9bdc (rosa)                    → --ma-enviadas (grafico-3 a 45%)
+       recebidas rgb(128,227,235) (color-info)     → --ma-recebidas (grafico-1 a 45%)
+       lidas rgba(25,104,240,.6) (extended-blue)   → --ma-lidas (grafico-2 a 60%)
+       respondidas rgb(132,235,188) (success)      → --ma-respondidas (grafico-5 a 35%)
+       falharam rgb(249,159,159) (color-error)     → --ma-falharam (grafico-4 a 40%)
+     Conversões (`Dl`), linha cheia e barra a 65%:
+       rgba(0,150,250) · rgba(53,222,144) · rgba(249,159,159)
+                                                  → grafico-2 · grafico-1 · grafico-4
+     Picos de resposta `vc` #0096fa               → var(--p-grafico-2)
+   ========================================================================== */
+
+.ma-tela {
+  --ma-borda: color-mix(in srgb, var(--ink) 20%, transparent);
+  --ma-enviadas: color-mix(in srgb, var(--p-grafico-3) 45%, var(--surface));
+  --ma-recebidas: color-mix(in srgb, var(--p-grafico-1) 45%, var(--surface));
+  --ma-lidas: color-mix(in srgb, var(--p-grafico-2) 60%, var(--surface));
+  --ma-respondidas: color-mix(in srgb, var(--p-grafico-5) 35%, var(--surface));
+  --ma-falharam: color-mix(in srgb, var(--p-grafico-4) 40%, var(--surface));
+  --ma-serie-enviadas: var(--p-grafico-2);
+  --ma-serie-respondidas: var(--p-grafico-1);
+  --ma-serie-falharam: var(--p-grafico-4);
+
+  box-sizing: border-box;
+  color: var(--ink); /* `.activeMessages-container` */
+}
+
+.ma-tela *,
+.ma-tela *::before,
+.ma-tela *::after {
+  box-sizing: border-box;
+}
+
+/* Especificidade zero de propósito: a margem de typo das classes vence. */
+:where(.ma-tela) :where(p, h1, h4) {
+  margin: 0;
+}
+
+/* `.active-messages-charts-container`: os recuos laterais por faixa de tela.
+   A ordem das regras é a deles — a última que casa vence. */
+@media (max-width: 2560px) {
+  .ma-tela {
+    padding: 40px 328px 0;
+  }
+}
+@media (max-width: 1920px) {
+  .ma-tela {
+    padding: 40px 248px 0;
+  }
+}
+@media (max-width: 1366px) {
+  .ma-tela {
+    padding: 40px 64px 0;
+  }
+}
+@media (max-width: 1024px) {
+  .ma-tela {
+    padding: 40px 40px 0;
+  }
+}
+
+/* ------------------------------------------------------------ tipografia */
+
+.ma-t12 {
+  font-size: 12px;
+  line-height: 150%;
+}
+.ma-t14 {
+  font-size: 14px;
+  line-height: 150%;
+}
+.ma-t16 {
+  font-size: 16px;
+  line-height: 150%;
+}
+.ma-t20 {
+  font-size: 20px;
+  line-height: 100%;
+}
+.ma-t24 {
+  font-size: 24px;
+  line-height: 100%;
+}
+.ma-t40 {
+  font-size: 40px;
+  line-height: 100%;
+}
+.ma-semi {
+  font-weight: 600;
+}
+.ma-negrito {
+  font-weight: 700;
+}
+/* `typo__margin--fs-20/24/32`. */
+.ma-margem {
+  margin-bottom: 22px !important;
+}
+
+/* ------------------------------------------------------------ cabeçalho */
+
+/* `Ox { padding-bottom: 24px }` */
+.ma-topo {
+  padding-bottom: 24px;
+}
+
+/* `Ix`: título de um lado, botão do outro, 16 embaixo. */
+.ma-cabeca {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  padding-bottom: 16px;
+}
+
+/* `Xe variant="fs-32" bold="bold"`, com a margem de typo ligada. */
+.ma-titulo {
+  font-size: 32px;
+  font-weight: 700;
+  line-height: 100%;
+  margin: 0 0 22px;
+}
+
+/* `Zx { display: flex; gap: 12px }` */
+.ma-acoes {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+}
+
+/* `bds-button`: raio 8, 16 de lado, 40 de altura (`standard`, e `large` é o
+   `tall` legado — os dois dão 40), rótulo `bds-typo fs-14 bold` lh 100%, ícone
+   24 com 4 à direita. */
+.ma-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 40px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 100%;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+
+/* `button__secondary`: sem fundo, tinta de conteúdo. */
+.ma-botao-secundario {
+  background: transparent;
+  color: var(--ink);
+}
+.ma-botao-secundario:hover {
+  background: var(--g-tinta-hover);
+}
+
+/* `button__primary`. */
+.ma-botao-primario {
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+}
+.ma-botao-primario:hover {
+  background: var(--p-marca-forte);
+}
+.ma-botao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------ filtro (`St`) */
+
+/* `Wx { padding-bottom: 16px }` */
+.ma-filtro-faixa {
+  width: 100%;
+  padding-bottom: 16px;
+}
+
+/* `.active-messages-filter-wrapper { width: 100%; max-height: 72px; margin: 0 }`.
+   O teto de 72 é deles e as duas fileiras de chip passam dele: a sobra invade
+   o recuo de baixo, como lá. */
+.ma-filtro {
+  width: 100%;
+  max-height: 72px;
+  margin: 0;
+}
+
+/* `bds-grid direction="row" gap="2" align-items="start" justify-content="center"` */
+.ma-filtro-grade {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.ma-coluna {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+/* `.chips-wrapper { margin-top: auto }` */
+.ma-chips-caixa {
+  margin-top: auto;
+}
+
+/* `.label-wrapper { max-height: 72px; margin-right: 16px; align-items: center }` */
+.ma-rotulo-caixa {
+  max-height: 72px;
+  margin-right: 16px;
+  align-items: center;
+}
+
+.ma-linha-chips {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+  align-items: center;
+}
+
+/* `bds-chip-clickable size="standard"`: 32 de altura, raio 16, `padding: 2px
+   4px`; `outline` com borda e fundo surface-1, `default` com a cor de sistema.
+   O rádio fica por baixo: é ele que leva o período no GET. */
+.ma-chip {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 2px 4px;
+  border: 1px solid var(--p-linha-forte);
+  border-radius: 16px;
+  background: var(--ground);
+  color: var(--ink);
+  cursor: pointer;
+}
+.ma-chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.ma-chip:has(input:checked) {
+  border-color: transparent;
+  background: var(--p-info-fundo);
+}
+/* `chip_darker`: o `brightness(0.9)` da passagem do cursor. */
+.ma-chip:hover {
+  filter: brightness(0.95);
+}
+.ma-chip:has(input:focus-visible) {
+  outline: 2px solid var(--p-foco);
+}
+
+/* `chip_clickable--text`: `margin: 0 8px`, `bds-typo fs-12 bold`, 20 de altura. */
+.ma-chip-texto {
+  display: flex;
+  align-items: center;
+  height: 20px;
+  margin: 0 8px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 150%;
+  white-space: nowrap;
+}
+
+/* `bds-datepicker type-of-date="period"`: `.datepicker { max-width: 608px }` e
+   `.datepicker__inputs__period { grid-template-columns: 1fr 1fr; gap: 16px }`. */
+.ma-datas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  max-width: 608px;
+}
+
+/* `bds-input` com rótulo (`.input.input--label`): `padding: 7px 4px 8px 12px`,
+   borda 20%, raio 8; primária no cursor, anel de 2px no foco. */
+.ma-campo {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  width: 100%;
+  padding: 7px 4px 8px 12px;
+  border: 1px solid var(--ma-borda);
+  border-radius: 8px;
+  background: var(--ground);
+  cursor: text;
+}
+.ma-campo:hover {
+  border-color: var(--p-marca);
+}
+.ma-campo:focus-within {
+  border-color: var(--p-marca);
+  box-shadow: 0 0 0 2px var(--p-marca-linha);
+}
+
+/* `input__icon input__icon--large`: `padding: 4px`, fundo de passagem 8% com
+   raio 8 (`::before`), ícone `medium` (24). */
+.ma-campo-icone {
+  display: flex;
+  margin-right: 8px;
+  padding: 4px;
+  border-radius: 8px;
+  background: var(--g-tinta-hover);
+  color: var(--ink);
+}
+.ma-campo:focus-within .ma-campo-icone {
+  color: var(--p-marca);
+}
+
+/* `input__container`: rótulo `bds-typo fs-12 bold` em cima do texto. */
+.ma-campo-miolo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  min-width: 0;
+}
+.ma-campo-rotulo {
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 150%;
+  color: var(--ink);
+}
+.ma-campo:focus-within .ma-campo-rotulo {
+  color: var(--p-marca);
+}
+
+/* `input__container__text`: sem borda nem fundo, `.875rem/150%`, cursor
+   primário, placeholder fantasma. */
+.ma-campo input {
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  line-height: 150%;
+  caret-color: var(--p-marca);
+  outline: none;
+}
+.ma-campo input::placeholder {
+  color: var(--ink-3);
+  opacity: 1;
+}
+
+/* `.select__icon { color: ghost; display: flex }`, `bds-icon { margin-left:
+   10px }` — o `error` sólido (só com valor) e a seta. */
+.ma-campo-sufixo {
+  display: flex;
+  color: var(--ink-3);
+}
+.ma-campo-sufixo svg {
+  margin-left: 10px;
+}
+
+/* ------------------------------------------------------------ grade do miolo */
+
+/* `bds-grid gap="2" justify-content="center" direction="column"` */
+.ma-miolo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 16px;
+}
+
+/* `bds-grid gap="2"` (fileira) */
+.ma-fileira {
+  display: flex;
+  flex-direction: row;
+  gap: 16px;
+}
+.ma-fileira-ultima {
+  padding-bottom: 16px;
+}
+
+/* `bds-paper`: raio 16, sombra `static`. */
+.ma-papel {
+  display: block;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--p-sombra-1);
+}
+.ma-papel-plano {
+  box-shadow: none;
+}
+.ma-flex1 {
+  flex: 1;
+}
+
+/* ------------------------------------------------------------ números (`Mt`) */
+
+/* `.big-numbers { flex: 1 1 50%; padding: 16px 0 16px 16px }` */
+.ma-numeros {
+  display: flex;
+  flex: 1 1 50%;
+  padding: 16px 0 16px 16px;
+}
+
+/* `.big-numbers__content-container`: borda 20%, raio 8, gap e recheio 16. */
+.ma-numeros-caixa {
+  display: flex;
+  flex: 1;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--ma-borda);
+  border-radius: 8px;
+}
+
+.ma-enviadas {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+/* `.big-numbers__sent-messages-icon`: 40 + 16 de recheio, raio 8, rosa. */
+.ma-enviadas-icone {
+  display: flex;
+  padding: 16px;
+  border-radius: 8px;
+  background: var(--ma-enviadas);
+}
+
+.ma-enviadas-textos {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.ma-par {
+  display: flex;
+  gap: 4px;
+  justify-content: space-between;
+}
+
+/* `::part(bds-typo__text) { line-height: 40px }` e `28px` do título. */
+.ma-enviadas-numero {
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 40px;
+}
+.ma-enviadas-titulo {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+}
+
+.ma-cartoes {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+}
+.ma-cartoes-linha {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+}
+
+/* `Ft` → `.big-numbers-card__content-container`: `bds-grid gap="1" padding="1"`,
+   borda 20%, raio 8, centro vertical. */
+.ma-cartao {
+  display: flex;
+  flex: 1;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border: 1px solid var(--ma-borda);
+  border-radius: 8px;
+}
+
+/* `.big-numbers-card__icon`: 32 + 8 de recheio, raio 8. */
+.ma-cartao-icone {
+  display: flex;
+  padding: 8px;
+  border-radius: 8px;
+  color: var(--ink);
+}
+.ma-cartao-textos {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+}
+.ma-cartao-numero {
+  font-size: 24px;
+  font-weight: 700;
+  line-height: 32px;
+}
+.ma-cartao-titulo {
+  font-size: 14px;
+  line-height: 22px;
+}
+
+.ma-fundo-enviadas {
+  background: var(--ma-enviadas);
+}
+.ma-fundo-recebidas {
+  background: var(--ma-recebidas);
+}
+.ma-fundo-lidas {
+  background: var(--ma-lidas);
+}
+.ma-fundo-respondidas {
+  background: var(--ma-respondidas);
+}
+.ma-fundo-falharam {
+  background: var(--ma-falharam);
+}
+
+/* ------------------------------------------------------------ dica (`bds-tooltip`) */
+
+/* `.tooltip__wrapper` + `.tooltip__tip`: raio 8, recheio 8, até 320 de
+   largura, seta de 6; `top-right` sobe 10 e encosta à direita com 15%. */
+.ma-dica {
+  position: relative;
+  display: inline-flex;
+  color: var(--ink);
+}
+.ma-dica-texto {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  right: 0;
+  z-index: 90000;
+  width: max-content;
+  min-width: 32px;
+  max-width: 320px;
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--surface);
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 150%;
+  white-space: normal;
+  transform: translateX(15%);
+  visibility: hidden;
+  transition: all 0.2s ease-in-out;
+}
+.ma-dica-texto::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: calc(85% - 6px);
+  border: 6px solid transparent;
+  border-top-color: var(--ink);
+}
+.ma-dica:hover .ma-dica-texto {
+  visibility: visible;
+}
+
+/* ------------------------------------------------------------ funil (`fc`) */
+
+/* `.conversion-funnel`: `bds-grid padding="2"`, `flex: 1 1 50%`. */
+.ma-funil {
+  display: flex;
+  flex: 1 1 50%;
+  padding: 16px;
+}
+
+/* `.conversion-funnel__container { height: 248px }`, `gap="2" padding="2"`. */
+.ma-funil-caixa {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  height: 248px;
+  padding: 16px;
+}
+
+.ma-cabeca-grafico {
+  display: flex;
+  flex-direction: column;
+}
+
+/* `__title { margin-bottom: 0 }` no host não tira a margem de typo de dentro:
+   é o `__description { margin-top: -22px }` que a devolve. */
+.ma-titulo-grafico {
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 100%;
+  margin-bottom: 22px;
+  color: var(--ink);
+}
+.ma-descricao-grafico {
+  margin-top: -22px;
+  font-size: 14px;
+  line-height: 150%;
+  color: var(--ink-2);
+}
+
+/* `.conversion-funnel__chart { height: 218px }`; o chart.js com `indexAxis: y`,
+   `layout.padding.right: 50` e as categorias com `bar/categoryPercentage .95`. */
+.ma-funil-grafico {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-auto-rows: 1fr;
+  height: 218px;
+  padding-right: 50px;
+}
+
+/* Tique do eixo y: 12px, `rgb(100,100,100)`, `crossAlign: far` (colado à
+   esquerda) e os 3px de recuo padrão do chart.js. */
+.ma-funil-rotulo {
+  display: flex;
+  align-items: center;
+  padding-right: 3px;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.ma-funil-trilho {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+/* 95% × 95% da faixa da categoria, raio 8, borda de 1 na mesma cor. */
+.ma-funil-barra {
+  height: 90.25%;
+  border-radius: 8px;
+}
+/* `datalabels`: `anchor/align: end`, `padding.left: 5` sobre o `offset` 4,
+   14px bold, `content-disable`. */
+.ma-funil-valor {
+  /* Solto do fluxo: a barra mede contra a área inteira, como no canvas. */
+  position: absolute;
+  padding-left: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 22px;
+  color: var(--ink-2);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ conversões (`Dl`) */
+
+.ma-conversoes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+/* `.conversion-chart { height: 222px }` */
+.ma-conversoes-grafico {
+  display: flex;
+  flex-direction: column;
+  height: 222px;
+  overflow: hidden;
+}
+
+/* Área do gráfico: eixo y | plotagem, e embaixo o eixo x. */
+.ma-area {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-rows: 1fr auto;
+  flex: 1;
+  min-height: 0;
+  /* O chart.js reserva meio rótulo à direita para o último dia caber. */
+  padding-right: 16px;
+}
+
+/* Eixo y do chart.js: tique 12px à esquerda, 8 de folga até a área. */
+.ma-eixo-y {
+  position: relative;
+  min-width: 32px;
+  padding-right: 8px;
+  font-size: 12px;
+  color: var(--ink-2);
+  text-align: right;
+}
+.ma-eixo-y span {
+  position: absolute;
+  right: 8px;
+  transform: translateY(-50%);
+  line-height: 1;
+}
+
+.ma-plotagem {
+  position: relative;
+  min-width: 0;
+}
+.ma-plotagem svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.ma-grade {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+.ma-linha {
+  fill: none;
+  stroke-width: 3;
+  stroke-linejoin: round;
+}
+
+.ma-eixo-x {
+  position: relative;
+  height: 20px;
+  font-size: 12px;
+  color: var(--ink-2);
+}
+.ma-eixo-x span {
+  position: absolute;
+  top: 4px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+/* As barras do dia único (`f()`): três categorias, sem eixos nem grade, raio 8
+   e sem borda (o `f()` não define `borderWidth`, e o padrão da barra é 0). */
+.ma-barras {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  align-items: end;
+  height: 100%;
+}
+.ma-barras span {
+  width: 90.25%;
+  justify-self: center;
+  border-radius: 8px;
+}
+
+/* O template do autocomplete encolhe ao tamanho natural do campo (`size` 20). */
+.ma-campo-auto input {
+  width: auto;
+}
+.ma-filtro-template {
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* A legenda (`position: bottom`, `boxWidth/boxHeight 16`, `padding 16`,
+   `rectRounded`, fonte 14). */
+.ma-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0 16px;
+  padding: 16px 0 6px;
+  font-size: 14px;
+  line-height: 20px;
+  color: var(--ink-2);
+}
+.ma-legenda span {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.ma-legenda i {
+  display: block;
+  width: 16px;
+  height: 16px;
+  border: 1px solid;
+  border-radius: 4px;
+}
+
+.ma-serie-enviadas {
+  --ma-serie: var(--ma-serie-enviadas);
+}
+.ma-serie-respondidas {
+  --ma-serie: var(--ma-serie-respondidas);
+}
+.ma-serie-falharam {
+  --ma-serie: var(--ma-serie-falharam);
+}
+.ma-linha.ma-serie-enviadas,
+.ma-linha.ma-serie-respondidas,
+.ma-linha.ma-serie-falharam {
+  stroke: var(--ma-serie);
+}
+.ma-barras span {
+  background: color-mix(in srgb, var(--ma-serie) 65%, transparent);
+}
+.ma-legenda i {
+  border-color: var(--ma-serie);
+  background: color-mix(in srgb, var(--ma-serie) 65%, transparent);
+}
+
+/* ------------------------------------------------------------ taxas (`Wl`) */
+
+/* `.conversion-failure-rate { display: flex; flex: 1 1 100% }` */
+.ma-taxas {
+  display: flex;
+  flex: 1 1 100%;
+}
+.ma-taxas-caixa {
+  display: flex;
+  flex: 1 1 100%;
+  flex-direction: column;
+  gap: 16px;
+  padding: 16px;
+}
+
+/* `.card-rate`: recheio 16, raio 8, borda `border-1`. */
+.ma-taxa {
+  display: flex;
+  flex: 1 1 50%;
+  gap: 16px;
+  padding: 16px;
+  border: 1px solid var(--ma-borda);
+  border-radius: 8px;
+}
+/* `.card-rate__icon { width: 48px; height: 48px }` */
+.ma-taxa > svg {
+  flex: none;
+}
+.ma-taxa-miolo {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+/* `fs-16 bold` e `fs-14 regular`. O `lineHeight="double"/"simple"` do código
+   não pega: o `bds-typo` é criado por string no React, que põe `lineheight`
+   como atributo, e o Stencil só lê `line-height`. Vale a altura da variante. */
+.ma-taxa-titulo {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 150%;
+}
+.ma-taxa-descricao {
+  font-size: 14px;
+  line-height: 150%;
+}
+
+/* O `bds-grid style={{ flex: 1 }}` em volta do `Wl`. */
+.ma-taxas-fora {
+  display: flex;
+}
+
+/* ------------------------------------------------------------ picos (`_c`) */
+
+/* `.response-peaks-container { padding: 16px }`; cabeça de 50 com 12 embaixo. */
+.ma-picos {
+  padding: 16px;
+}
+.ma-picos-cabeca {
+  display: flex;
+  flex-direction: column;
+  height: 50px;
+  padding-bottom: 12px;
+}
+
+/* `.response-peaks-chart { height: 214px }` */
+.ma-picos-grafico {
+  display: flex;
+  flex-direction: column;
+  height: 214px;
+}
+.ma-picos-area {
+  position: relative;
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  align-items: end;
+}
+/* A grade do x fica no meio de cada categoria (`grid.offset: false`) e a do y
+   é só a linha do meio da escala. */
+.ma-picos-area::before {
+  content: '';
+  position: absolute;
+  inset: 50% 0 auto;
+  border-top: 1px solid var(--line);
+}
+.ma-picos-coluna {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  height: 100%;
+  background: linear-gradient(var(--line), var(--line)) center / 1px 100% no-repeat;
+}
+/* 95% × 95%, raio 8 só em cima, borda 1,5 na mesma cor. */
+.ma-picos-coluna span {
+  width: 90.25%;
+  border-radius: 8px 8px 0 0;
+  background: var(--p-grafico-2);
+}
+.ma-picos-eixo {
+  display: grid;
+  grid-template-columns: repeat(24, 1fr);
+  padding-top: 4px;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--ink-2);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------ falhas (`bc`) */
+
+/* `bds-paper style={{ flex: 1, maxHeight: 400px, display: flex, column }}` */
+.ma-falhas {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  max-height: 400px;
+}
+.ma-falhas-caixa {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  padding: 16px;
+}
+
+/* O `bds-typo fs-20 bold` embrulha o de fs-14: sem `bold` próprio, o de dentro
+   herda o negrito do de fora — a descrição sai em negrito, como lá. */
+.ma-falhas-titulo {
+  margin-bottom: 22px;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 100%;
+  color: var(--ink);
+}
+.ma-falhas-descricao {
+  display: block;
+  font-size: 14px;
+  line-height: 150%;
+  color: var(--ink-2);
+}
+/* `.message-failures-link { color: #1e6bf1 }` */
+.ma-falhas-descricao a {
+  color: var(--p-marca);
+}
+
+/* `style={{ flex: 1, overflowY: auto, maxHeight: 214px, marginTop: -30px }}` */
+.ma-falhas-rolagem {
+  flex: 1;
+  max-height: 214px;
+  margin-top: -30px;
+  overflow-y: auto;
+}
+
+/* `bds-table style={{ width: 100%, tableLayout: fixed }}`; linhas e células
+   com as medidas já tiradas em `certificados.css` (64 de altura, 8 de lado e 16
+   nas pontas). Os `th`/`td` globais de `@pipe/ui` são da tabela densa: zerados. */
+.ma-tabela {
+  width: 100%;
+  table-layout: fixed;
+  border-spacing: 0;
+  border-collapse: collapse;
+}
+.ma-tabela thead {
+  border-bottom: 1px solid var(--ma-borda);
+}
+.ma-tabela tbody tr {
+  height: 64px;
+  border-bottom: 1px solid color-mix(in srgb, var(--ink) 16%, transparent);
+}
+.ma-tabela tbody tr:last-child {
+  border-bottom: none;
+}
+.ma-tabela th,
+.ma-tabela td {
+  height: 64px;
+  padding: 0 8px;
+  border-bottom: 0;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+  font-weight: 700;
+  line-height: 150%;
+  letter-spacing: normal;
+  text-align: left;
+  text-transform: none;
+  vertical-align: middle;
+  white-space: normal;
+}
+.ma-tabela th:first-child,
+.ma-tabela td:first-child {
+  padding-left: 16px;
+}
+.ma-tabela th:last-child,
+.ma-tabela td:last-child {
+  padding-right: 16px;
+}

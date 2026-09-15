@@ -211,7 +211,7 @@ export default async function PaginaHistorico({ searchParams }: { searchParams: 
                 Nenhuma conversa encerrada entre {de} e {ate}.
               </b>
               <p>Só entra aqui conversa já encerrada — as abertas estão em Monitoramento.</p>
-              <a href="/" className="btn">
+              <a href="/monitoramento" className="btn">
                 Ver o que está aberto agora
               </a>
             </>

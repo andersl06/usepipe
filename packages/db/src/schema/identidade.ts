@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  foreignKey,
   index,
   jsonb,
   pgTable,
@@ -112,6 +113,23 @@ export const tenant = pgTable(
      */
     twentyUrl: text('twenty_url'),
     twentyChave: text('twenty_chave'),
+    /**
+     * Os dados que a própria pessoa preenche em "minha conta", depois de entrar.
+     *
+     * Todos anuláveis: a conta NASCE sem eles quando vem do autosserviço, e é a
+     * tela de boas-vindas que anuncia isso. Exigi-los antes devolveria o
+     * formulário para antes do login — que é justamente o que o autosserviço
+     * evita. `funcionarios` é faixa em texto ("1 a 10"), como na origem.
+     */
+    site: text('site'),
+    funcionarios: text('funcionarios'),
+    cidade: text('cidade'),
+    estado: text('estado'),
+    pais: text('pais'),
+    telefone: text('telefone'),
+    optinWhatsapp: boolean('optin_whatsapp').notNull().default(false),
+    /** Nulo = onboarding em aberto, e a Gestão leva para "minha conta". */
+    onboardingConcluidoEm: momento('onboarding_concluido_em'),
     ...carimbos(),
   },
   (t) => [
@@ -145,6 +163,22 @@ export const usuario = pgTable(
   (t) => [uniqueIndex('usuario_tenant_email_uk').on(t.tenantId, t.email)],
 );
 
+/**
+ * De que lado o papel vale (migração 0021).
+ *
+ * `conta` é o papel no contrato — `admin`, `member`, `guest`, os três da origem
+ * ("Admin", "Pode editar", "Pode visualizar"). Toda pessoa tem UM, e é só ele que
+ * a tela de Membros e o convite oferecem. `atendimento` é o resto (gestor,
+ * supervisor, atendente, avaliador): zero ou mais por pessoa. As permissões
+ * efetivas são a união dos dois.
+ */
+export const ESCOPOS_PAPEL = ['conta', 'atendimento'] as const;
+export type EscopoPapel = (typeof ESCOPOS_PAPEL)[number];
+
+/** Os `roleId` da origem, que aqui são o NOME dos três papéis de conta. */
+export const PAPEIS_DE_CONTA = ['admin', 'member', 'guest'] as const;
+export type PapelDeConta = (typeof PAPEIS_DE_CONTA)[number];
+
 export const papel = pgTable(
   'papel',
   {
@@ -154,9 +188,15 @@ export const papel = pgTable(
     descricao: text('descricao'),
     /** Papel do dia 1 não é editável pelo cliente. */
     deSistema: boolean('de_sistema').notNull().default(false),
+    escopo: text('escopo').notNull().default('atendimento'),
     ...carimbos(),
   },
-  (t) => [uniqueIndex('papel_tenant_nome_uk').on(t.tenantId, t.nome)],
+  (t) => [
+    uniqueIndex('papel_tenant_nome_uk').on(t.tenantId, t.nome),
+    /* Alvo das FKs compostas de `usuario_papel` e `convite`. */
+    uniqueIndex('papel_id_escopo_uk').on(t.id, t.escopo),
+    listaCheck('papel_escopo_ck', t.escopo, ESCOPOS_PAPEL),
+  ],
 );
 
 /**
@@ -194,8 +234,26 @@ export const usuarioPapel = pgTable(
     papelId: uuid('papel_id')
       .notNull()
       .references(() => papel.id, { onDelete: 'cascade' }),
+    /**
+     * Cópia do `papel.escopo`, amarrada pela FK composta: é o que deixa o índice
+     * parcial abaixo garantir UM papel de conta por pessoa sem trigger. Quem
+     * grava papel de conta passa `'conta'`; errar o valor falha na FK.
+     */
+    escopo: text('escopo').notNull().default('atendimento'),
   },
-  (t) => [primaryKey({ columns: [t.usuarioId, t.papelId] })],
+  (t) => [
+    primaryKey({ columns: [t.usuarioId, t.papelId] }),
+    foreignKey({
+      name: 'usuario_papel_papel_escopo_fk',
+      columns: [t.papelId, t.escopo],
+      foreignColumns: [papel.id, papel.escopo],
+    })
+      .onDelete('cascade')
+      .onUpdate('cascade'),
+    uniqueIndex('usuario_papel_um_da_conta_uk')
+      .on(t.usuarioId)
+      .where(sql`"escopo" = 'conta'`),
+  ],
 );
 
 export const equipe = pgTable('equipe', {
@@ -282,7 +340,17 @@ export const identidadeExterna = pgTable(
     ...carimbos(),
   },
   (t) => [
-    uniqueIndex('identidade_externa_emissor_sujeito_uk').on(t.emissor, t.sujeito),
+    /**
+     * Única dentro do tenant, e não no sistema inteiro: a mesma conta do
+     * provedor administra várias contas do Pipe, e é isso que o seletor do
+     * canto superior esquerdo troca. Global, a segunda empresa da mesma pessoa
+     * esbarrava aqui (migração 0017).
+     */
+    uniqueIndex('identidade_externa_tenant_emissor_sujeito_uk').on(
+      t.tenantId,
+      t.emissor,
+      t.sujeito,
+    ),
     index('identidade_externa_usuario_idx').on(t.tenantId, t.usuarioId),
   ],
 );
@@ -434,6 +502,8 @@ export const convite = pgTable(
     papelId: uuid('papel_id')
       .notNull()
       .references(() => papel.id, { onDelete: 'cascade' }),
+    /** Sempre `conta`: convite só dá papel de conta, e a FK composta cobra isso. */
+    escopo: text('escopo').notNull().default('conta'),
     tokenHash: text('token_hash').notNull(),
     expiraEm: momento('expira_em').notNull(),
     criadoPor: uuid('criado_por').references(() => usuario.id, { onDelete: 'set null' }),
@@ -445,5 +515,13 @@ export const convite = pgTable(
   (t) => [
     uniqueIndex('convite_token_hash_uk').on(t.tokenHash),
     index('convite_tenant_email_idx').on(t.tenantId, t.email, t.expiraEm),
+    listaCheck('convite_escopo_ck', t.escopo, ['conta']),
+    foreignKey({
+      name: 'convite_papel_escopo_fk',
+      columns: [t.papelId, t.escopo],
+      foreignColumns: [papel.id, papel.escopo],
+    })
+      .onDelete('cascade')
+      .onUpdate('cascade'),
   ],
 );

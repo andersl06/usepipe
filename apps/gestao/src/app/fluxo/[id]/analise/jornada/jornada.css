@@ -1,0 +1,315 @@
+/* ============================================ Jornada dos Contatos (`jornada/`)
+
+   `contactsJourney`, template 55218 do `portal.js`, as regras
+   `#contacts-journey*`, `.labeled-color-card` da `portal.css`, e as opções
+   `Ci` do Google Sankey (nó de 15, 30 entre nós, rótulo fs-10 negrito, aresta
+   com traço de 2).
+
+   A tinta:
+     #1968f0 / #3f7de8 (nó padrão, legenda `colorPrimary`)  → `--p-marca`
+     `extended_orange` / #f06305 (nó e legenda de saída)   → `--p-alerta-conteudo`
+     #141414 (nó e legenda "outros")                        → `--p-conteudo`
+     cor `L` das arestas                                    → `--p-marca-suave`
+     #e3e3e3 `--color-surface-3` (borda da legenda)         → `--surface-3`
+     #738192 `.bp-c-rooftop` (texto do "sem dado")          → `--ink-3`
+     #1e6bf1 `.main-blip-color` (ícone do link)             → `--p-marca`
+   ========================================================================== */
+
+/* `.page-content { overflow: auto }` */
+.jr-vista {
+  overflow: auto;
+}
+
+/* `#contacts-journey-header .container { width: 90% }` */
+#contacts-journey-header .fx-coluna {
+  width: 90%;
+}
+
+/* `div.flex.flex-items-center > bds-typo.pr2.title-analytics fs-24 +
+   bds-icon.pt1 info solid small` (20). */
+.jr-titulo {
+  display: flex;
+  align-items: center;
+}
+
+/* `tag="span"`: o `typo__margin--fs-24` cai num `span` inline, e margem vertical
+   de inline não conta — o título não leva os 22px embaixo. */
+.jr-titulo-texto {
+  margin-bottom: 0;
+  padding-right: 5px;
+  color: var(--ink);
+}
+
+.jr-titulo-ajuda {
+  display: flex;
+  padding-top: 2.5px;
+  color: var(--ink);
+  cursor: pointer;
+}
+
+/* `#contacts-journey.container.w-90 { min-width: 620px }` */
+.jr-miolo {
+  position: relative;
+  box-sizing: border-box;
+  width: 90%;
+  min-width: 620px;
+  margin: 0 auto;
+}
+
+/* `#contacts-journey-filters.flex.justify-between` */
+.jr-filtros {
+  display: flex;
+  justify-content: space-between;
+}
+
+.jr-filtro-inicio {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+/* `#contacts-journey-filter-first-node { padding-right: 10px }`, fs-16
+   semi-bold. */
+.jr-filtro-rotulo {
+  padding-right: 10px;
+  font-weight: 600;
+  color: var(--ink);
+}
+
+/* `bds-autocomplete.color-content-ghost`: o `.input--state-primary` do blip-ds —
+   borda 1px `--color-border-1` (preto a 20%), raio 8, recheio 8/4/8/12. */
+.jr-autocompletar {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 8px 4px 8px 12px;
+  border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
+  border-radius: 8px;
+  color: var(--ink-3);
+}
+
+.jr-autocompletar:hover {
+  border-color: var(--p-marca);
+}
+
+.jr-autocompletar select {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  appearance: none;
+  cursor: pointer;
+}
+
+.jr-periodo {
+  display: flex;
+  align-items: center;
+}
+
+/* `#contacts-journey-container { margin-top: 14px }` */
+.jr-cartao {
+  margin-top: 14px;
+}
+
+/* `.diagram-header.flex.justify-end { line-height: 40px; padding-bottom: 14px }`
+   e `.contacts-button-view { max-height: 40px }` com o `.f3.pl2` da dica. */
+.jr-cabeca-diagrama {
+  display: flex;
+  justify-content: flex-end;
+  padding-bottom: 14px;
+  line-height: 40px;
+}
+
+.jr-botao-contatos {
+  max-height: 40px;
+  padding-left: 5px;
+}
+
+/* `#contacts-journey-content`: rolagem e sem seleção de texto. */
+.jr-conteudo {
+  overflow: auto;
+  user-select: none;
+}
+
+/* `.diagram-body.pv5` e `.diagram-body svg { margin: 0 20px 20px }`. */
+.jr-corpo {
+  padding: 40px 0;
+}
+
+.jr-corpo svg {
+  display: block;
+  width: calc(100% - 40px);
+  height: auto;
+  margin: 0 20px 20px;
+}
+
+.jr-faixa {
+  fill: var(--p-marca-suave);
+  stroke: var(--p-marca-suave);
+  stroke-width: 2;
+}
+
+/* `#contacts-journey-content .diagram-body svg g rect { cursor: pointer }` */
+.jr-no {
+  cursor: pointer;
+}
+
+.jr-no--regular {
+  fill: var(--p-marca);
+}
+
+.jr-no--saida {
+  fill: var(--p-alerta-conteudo);
+}
+
+.jr-no--outros {
+  fill: var(--p-conteudo);
+}
+
+.jr-rotulo {
+  font-size: 10px;
+  font-weight: 700;
+  fill: var(--ink);
+}
+
+/* O "sem dado": `div.pa3.mh4.flex.flex-column.items-center.justify-center` com
+   `#contacts-journey-container .communication-div { height: 550px }`. */
+.jr-comunicacao {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 550px;
+  margin: 0 20px;
+  padding: 10px;
+}
+
+/* `img.pa3.pb4` */
+.jr-comunicacao-imagem {
+  padding: 10px 10px 20px;
+  color: var(--ink-3);
+}
+
+/* `bds-typo.ma3.tc tag="span" fs-24 bold`: só os 10 do `.ma3` no hospedeiro —
+   os 22 do `typo__margin` caem no `span` inline e não contam. */
+.jr-comunicacao-titulo {
+  display: block;
+  margin: 10px;
+  font-weight: 700;
+  text-align: center;
+  color: var(--ink);
+}
+
+/* `bds-typo.bp-c-rooftop.ph7.tc fs-16`: `.ph7` é 10rem de cada lado. */
+.jr-comunicacao-texto {
+  display: block;
+  padding: 0 10rem;
+  text-align: center;
+  color: var(--ink-3);
+}
+
+/* `div.flex.flex-row.mt4 > a > bds-typo.underline fs-14` + `bds-icon
+   external-file small` na cor da marca. */
+.jr-saiba {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  margin-top: 20px;
+  color: var(--p-marca);
+}
+
+.jr-saiba-texto {
+  text-decoration: underline;
+}
+
+/* `div.pa3.flex.flex-column.justify-center.items-stretch` */
+.jr-instrucoes {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  padding: 10px;
+}
+
+.jr-instrucoes-cabeca {
+  display: flex;
+  flex-direction: column;
+  color: var(--ink);
+}
+
+.jr-negrito {
+  font-weight: 700;
+}
+
+/* `div.tl.flex.justify-between.pt4.mh0` */
+.jr-legendas {
+  display: flex;
+  justify-content: space-between;
+  margin: 0;
+  padding-top: 20px;
+  text-align: left;
+}
+
+/* `labeled-color-card.w-33.mr4` > `card.labeled-color-card.flex-column.mv0.pa3`:
+   borda 1px `--color-surface-3`, a esquerda com 10px, altura cheia. */
+.jr-legenda {
+  box-sizing: border-box;
+  width: 33%;
+  height: 100%;
+  margin: 0 20px 0 0;
+  padding: 10px;
+  border: 1px solid var(--surface-3);
+  border-left-width: 10px;
+  color: var(--ink);
+}
+
+.jr-legenda--padrao {
+  border-left-color: var(--p-marca);
+}
+
+.jr-legenda--saida {
+  border-left-color: var(--p-alerta-conteudo);
+}
+
+.jr-legenda--outros {
+  border-left-color: var(--p-conteudo);
+}
+
+/* `div.flex.flex-column.pa1` */
+.jr-legenda-texto {
+  display: flex;
+  flex-direction: column;
+  padding: 2.5px;
+}
+
+/* ---------------------------------------------- o modal de ajuda (22616)
+
+   `div.layout-center-y.flex > div.w-30.relative` (a ilustração) `+
+   div.w-60.pl4` (1.25rem à esquerda); o link é `a.flex.pt3` (.625rem em cima). */
+.jr-ajuda {
+  display: flex;
+  align-items: center;
+}
+
+.jr-ajuda-imagem {
+  position: relative;
+  width: 30%;
+}
+
+.jr-ajuda-texto {
+  width: 60%;
+  padding-left: 20px;
+  color: var(--ink);
+}
+
+.jr-ajuda-link {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding-top: 10px;
+  color: var(--p-marca);
+}
