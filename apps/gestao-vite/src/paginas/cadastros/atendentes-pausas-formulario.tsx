@@ -12,17 +12,22 @@ import { envioQuePreserva } from '../../componentes/envio-de-formulario';
  * adivinhar que a caixa marcada tira o almoço do tempo ocioso do relatório de
  * esforço. Rótulo curto aqui produziria dado errado com a melhor das intenções.
  */
-export function FormularioMotivoPausa() {
+export function FormularioMotivoPausa({ aoSalvar }: { aoSalvar?: () => void }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [resultado, enviar, enviando] = useActionState(salvarMotivoPausa, { ok: true });
+  /* Ver o comentário equivalente em `regras-atendimento-formulario.tsx`. */
+  const estadoInicial = useRef(resultado);
 
   useEffect(() => {
-    if (resultado.ok) formRef.current?.reset();
+    if (resultado === estadoInicial.current) return;
+    if (resultado.ok) {
+      formRef.current?.reset();
+      aoSalvar?.();
+    }
   }, [resultado]);
 
   return (
-    <section className="card">
-      <h3>Novo motivo de pausa</h3>
+    <>
       <p className="sub">
         É o que o atendente escolhe ao sair do <b>online</b> no Desk. O motivo fica gravado na
         pausa, então mudar de ideia depois não reescreve o passado — só vale para as pausas
@@ -81,6 +86,6 @@ export function FormularioMotivoPausa() {
           </Botao>
         </div>
       </form>
-    </section>
+    </>
   );
 }

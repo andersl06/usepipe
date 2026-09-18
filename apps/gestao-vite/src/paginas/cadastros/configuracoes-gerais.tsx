@@ -43,12 +43,9 @@ export function PaginaConfiguracoesGerais() {
 
   return (
     <>
+      {/* `FICHA-general-settings.md` §1: sem subtítulo — só o título. */}
       <div className="board-head">
         <h2>Configurações gerais</h2>
-        <span className="sub">
-          Cada cartão salva sozinho. O que você muda aqui vale para toda a operação, e fica
-          registrado com valor anterior e horário.
-        </span>
       </div>
 
       {/* ----------------------------------------------------------- cartão 1 */}

@@ -24,17 +24,24 @@ export function PaginaCanais() {
   const leitura = useLeitura<CanalDetalhado[]>('/v1/gestao/canais');
   if (!leitura.data) return null;
   const canais = leitura.data;
-  const ligados = canais.filter((c) => c.ativo).length;
 
   return (
     <>
+      {/*
+        `FICHA-channels.md` §1: sem subtítulo — só o título "Canais de
+        atendimento". O maior desalinhamento desta tela não é de layout: a
+        Blip mostra um CATÁLOGO de integrações para conectar (Pipe Desk,
+        Salesforce, Salesforce MIAW, Canal Personalizado — §2), enquanto esta
+        tela mostra o PAINEL dos canais já conectados, com caixa de entrada,
+        fila padrão e conversas abertas de verdade. Trocar uma coisa pela
+        outra faria a tela "bater" na estrutura e perder o dado real — e
+        inventar botões "Conectar Salesforce"/"Conectar Salesforce MIAW"
+        seria simular integração que este produto não tem. Por isso a tela
+        segue mostrando canal real, e este desencontro fica registrado aqui
+        e no relatório da tarefa, para decisão de produto, não de CSS.
+      */}
       <div className="board-head">
         <h2>Canais</h2>
-        <span className="sub">
-          {canais.length === 0
-            ? 'Nenhum canal conectado.'
-            : `${numero(ligados)} de ${numero(canais.length)} ligados. Canal é a conexão; caixa de entrada é para onde a conversa cai.`}
-        </span>
       </div>
 
       {canais.length === 0 ? (

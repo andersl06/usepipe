@@ -14,17 +14,30 @@ import { envioQuePreserva } from '../../componentes/envio-de-formulario';
  * tem "campo de formulário com rótulo". Mesma escolha da tela de respostas
  * prontas.
  */
-export function FormularioFila({ horarios }: { horarios: readonly HorarioParaEscolher[] }) {
+export function FormularioFila({
+  horarios,
+  aoSalvar,
+}: {
+  horarios: readonly HorarioParaEscolher[];
+  /** Fecha o modal quando o salvamento dá certo. */
+  aoSalvar?: () => void;
+}) {
   const formRef = useRef<HTMLFormElement>(null);
   const [resultado, enviar, enviando] = useActionState(salvarFila, { ok: true });
+  /* Ver o comentário equivalente em `regras-atendimento-formulario.tsx`: o
+     valor inicial do `useActionState` não é uma confirmação de envio. */
+  const estadoInicial = useRef(resultado);
 
   useEffect(() => {
-    if (resultado.ok) formRef.current?.reset();
+    if (resultado === estadoInicial.current) return;
+    if (resultado.ok) {
+      formRef.current?.reset();
+      aoSalvar?.();
+    }
   }, [resultado]);
 
   return (
-    <section className="card">
-      <h3>Nova fila</h3>
+    <>
       <p className="sub">
         A fila é o que a regra de distribuição recorta: um atendente só recebe conversa de fila em
         que está habilitado. Depois de criada, quem entra nela é definido em <b>Operação</b>.
@@ -116,6 +129,6 @@ export function FormularioFila({ horarios }: { horarios: readonly HorarioParaEsc
           </Botao>
         </div>
       </form>
-    </section>
+    </>
   );
 }

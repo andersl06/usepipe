@@ -10,7 +10,6 @@ import {
   type ModeloListado,
 } from '../../lib/comunicacao';
 import { useLeitura } from '../../lib/consulta';
-import { numero } from '../../lib/formato';
 import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
 import { FormularioModelo } from './comunicacao-modelos-formulario';
 
@@ -69,17 +68,19 @@ export function PaginaModelos() {
 
   return (
     <>
+      {/* `FICHA-message-template.md` §2.1: cabeçalho SEM botão — a área à
+          direita do título fica vazia na Blip, porque lá o modelo se cadastra
+          em "Conteúdos > Modelo de mensagem" (§5), uma tela que não existe no
+          Pipe hoje. Como não há para onde mandar essa criação, o formulário
+          continua aqui — só desceu para depois da lista, para o topo da
+          página bater com o deles antes de chegar na parte que é só nossa. */}
       <div className="board-head">
         <h2>Modelos de mensagem</h2>
-        <span className="sub">
-          {numero(modelos.length)} modelos. O texto vive na Meta — aqui fica nome, idioma, categoria
-          e o mapeamento de posição das variáveis.
-        </span>
       </div>
 
-      <FormularioModelo canais={canais} />
+      <ListaRegras secoes={secoes} placeholder="Buscar por nome, idioma ou categoria" ocultarCabecalhoDeSecao />
 
-      <ListaRegras secoes={secoes} placeholder="Buscar por nome, idioma ou categoria" />
+      <FormularioModelo canais={canais} />
     </>
   );
 }

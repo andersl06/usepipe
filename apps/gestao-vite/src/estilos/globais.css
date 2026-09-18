@@ -827,6 +827,15 @@
   color: var(--p-conteudo-fantasma);
 }
 
+/* O botão "Criar X"/"Nova X" do cabeçalho — mesma posição do `.sub` (a única
+   coisa que ficava naquele canto até aqui), para as telas em que a Blip põe
+   um botão ali em vez de subtítulo (`FICHA-rules.md`, `FICHA-queue-
+   management.md`, `FICHA-personalizedbreaks.md`, `FICHA-replies.md`, todas
+   §2: cabeçalho sem subtítulo, com botão à direita). */
+.board-head .board-acao {
+  margin-left: auto;
+}
+
 /* Os dois ícones da direita da linha do título: atualizar e tela cheia. */
 .filters {
   margin-left: auto;
@@ -3866,4 +3875,125 @@ tr.grupo th {
 
 .hist-agrupar .sub {
   margin-left: auto;
+}
+
+/* ======================================================= modal de cadastro
+   O `bds-modal` que a Blip abre pelo botão "Criar X"/"Nova X" do cabeçalho —
+   confirmado (fechado, `open="false"`) em `FICHA-queue-management.md` §2.6,
+   `FICHA-personalizedbreaks.md` §2.3 e `FICHA-replies.md` §2.3. Centralizado,
+   ao contrário do `.painel-lateral` (que é o *filtro salvo*, outra peça,
+   grudada na direita) — por isso um par de classes novo, e não o mesmo. */
+.modal-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 55;
+  background: color-mix(in srgb, var(--p-conteudo) 32%, transparent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--p-e-6);
+}
+
+.modal-caixa {
+  width: 100%;
+  max-width: 640px;
+  max-height: 88vh;
+  overflow-y: auto;
+  background: var(--p-superficie-0);
+  border-radius: var(--g-r-cartao);
+  box-shadow: var(--p-sombra-2);
+  padding: var(--p-e-6);
+}
+
+.modal-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--p-e-3);
+  margin-bottom: var(--p-e-4);
+}
+
+.modal-cabecalho h3 {
+  margin: 0;
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-bloco);
+  color: var(--p-conteudo);
+}
+
+.modal-corpo .card {
+  box-shadow: none;
+  padding: 0;
+}
+
+/* ================================================== rodapé de paginação
+   O rodapé "Resultados por página" + "X-Y de Z" + setas, medido em
+   `FICHA-rules.md` e `FICHA-queue-management.md` §5 — paginação no
+   navegador, sobre a lista que a busca já filtrou. */
+.rodape-paginacao {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-5);
+  margin-top: var(--p-e-4);
+  padding-top: var(--p-e-4);
+  border-top: 1px solid var(--p-linha);
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+}
+
+.rp-tamanho {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.rp-tamanho select {
+  height: 28px;
+  padding: 0 var(--p-e-2);
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-sm);
+  background: var(--p-superficie-0);
+  font: inherit;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo);
+}
+
+.rp-contagem {
+  margin-left: auto;
+}
+
+.rp-nav {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.rp-nav button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: var(--p-r-sm);
+  background: none;
+  color: var(--p-conteudo-fantasma);
+  cursor: pointer;
+}
+
+.rp-nav button:hover:not(:disabled) {
+  background: var(--p-superficie-2);
+  color: var(--p-conteudo);
+}
+
+.rp-nav button:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.rp-atual {
+  min-width: 16px;
+  text-align: center;
+  font-weight: var(--g-peso-forte);
+  color: var(--p-conteudo);
 }

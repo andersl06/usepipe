@@ -1,9 +1,11 @@
+import { useState } from 'react';
+import { Botao } from '@pipe/ui';
 import { useLeitura } from '../../lib/consulta';
 import type { FilaParaEscolher, RegraDeFilaCadastrada } from '../../lib/cadastros';
 import { descreverRegra, regrasInalcancaveis, rotuloDoCampo } from '../../lib/regra-fila';
-import { numero } from '../../lib/formato';
 import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
 import { alternarRegraFila } from '../../lib/acoes';
+import { Modal } from './_modal';
 import { FormularioRegraFila } from './regras-atendimento-formulario';
 
 interface RegrasDeFila {
@@ -15,17 +17,23 @@ interface RegrasDeFila {
 /**
  * Regras ├ Atendimento — a regra de entrada.
  *
- * A lacuna que `estrutura-gestao.tsx` registrava: eles têm o item, nós tínhamos
- * SLA e Horários e faltava a regra que decide para QUAL FILA a conversa cai.
+ * Esqueleto medido em `FICHA-rules.md` §2: cabeçalho com "Criar nova regra"
+ * à direita (sem subtítulo), busca sozinha embaixo, cartão-linha com só
+ * "Nome da Regra"/"Fila" como coluna (§4) e o rodapé de paginação (§2.5). O
+ * cartão-linha em si — rótulo 12/400 sobre valor 16/700, interruptor que liga
+ * e desliga o registro na própria lista — é o mesmo de sempre.
  *
- * Disposição: o cartão-linha deles (`blip-telas-cadastro.md` §2) — rótulo 12/400
- * sobre valor 16/700, controles à direita, e o interruptor que liga e desliga o
- * registro na própria lista, sem abrir formulário.
- *
- * O que a tela mostra e a deles não: a ORDEM de avaliação como primeira coluna,
- * o combinador escrito por extenso no pé do cartão, e o aviso de regra
- * inalcançável. São as duas coisas que a §8 da spec define e a documentação
- * deles não resolve — sem elas, ninguém consegue prever o que a regra faz.
+ * O combinador, a ordem de avaliação e o aviso de regra inalcançável não são
+ * coluna na ficha (ela só documenta "Nome da Regra" e "Fila"), mas continuam
+ * decisivos para prever o que a regra faz — por isso ficam no rodapé do
+ * cartão (`descreverRegra`/avisos), que é anotação por linha, não uma coluna
+ * nova nem um bloco novo na página. "Criar nova regra" abre modal — a Blip
+ * não mostra o formulário na página, ele mora dentro do modal fechado que o
+ * material capturou para as telas irmãs (`FICHA-queue-management.md` §2.6).
+ * Sem edição por id nem exclusão: `lib/acoes.ts`/a API só têm criar e
+ * alternar ativo/inativo para esta regra hoje — os ícones "Editar"/"Excluir"
+ * do cartão deles (`FICHA-rules.md` §5) ficam de fora em vez de simular uma
+ * ação que não existe.
  */
 
 /** O interruptor do cartão. Formulário de um botão: não há nada digitado a preservar. */
@@ -48,25 +56,22 @@ function Interruptor({ id, ativa, nome }: { id: string; ativa: boolean; nome: st
 }
 
 export function PaginaRegrasDeAtendimento() {
+  const [modalAberto, setModalAberto] = useState(false);
   const leitura = useLeitura<RegrasDeFila>('/v1/gestao/regras/atendimento');
   if (!leitura.data) return null;
   const { regras, filas, padroes } = leitura.data;
   const mortas = new Set(regrasInalcancaveis(regras));
-  const semDestino = regras.filter((r) => r.ativa && !r.filaDestinoAtiva);
 
   const secoes: SecaoDeRegras[] = [
     {
-      titulo: 'Ordem de avaliação',
+      titulo: 'Regras de atendimento',
       vazio:
         'Nenhuma regra de entrada. Toda conversa cai na fila padrão da caixa de entrada por onde ela chegou.',
-      cartoes: regras.map((r, i) => ({
+      cartoes: regras.map((r) => ({
         id: r.id,
         campos: [
-          { rotulo: 'Avaliada em', valor: `${numero(i + 1)}º`, classe: 'num' },
-          { rotulo: 'Nome da regra', valor: r.nome },
-          { rotulo: 'Fila de destino', valor: r.filaDestinoNome },
-          { rotulo: 'Combina com', valor: r.combinador === 'e' ? 'E — todas' : 'OU — qualquer' },
-          { rotulo: 'Condições', valor: numero(r.condicoes.length), classe: 'num' },
+          { rotulo: 'Nome da Regra', valor: r.nome },
+          { rotulo: 'Fila', valor: r.filaDestinoNome },
         ],
         situacao: r.ativa ? 'Ativa' : 'Desativada',
         ativa: r.ativa,
@@ -89,53 +94,37 @@ export function PaginaRegrasDeAtendimento() {
     <>
       <div className="board-head">
         <h2>Regras de atendimento</h2>
-        <span className="sub">
-          {numero(regras.length)} regras de entrada. Elas decidem em qual fila a conversa cai quando
-          chega, antes de qualquer atendente ver.
-        </span>
+        <Botao
+          variante="primario"
+          icone="mais"
+          className="board-acao"
+          onClick={() => setModalAberto(true)}
+        >
+          Criar nova regra
+        </Botao>
       </div>
 
-      <section className="card">
-        <h3>Como a regra é avaliada</h3>
+      <ListaRegras
+        secoes={secoes}
+        placeholder="Buscar regras de atendimento"
+        ocultarCabecalhoDeSecao
+        paginar
+      />
+
+      <Modal aberto={modalAberto} titulo="Nova regra" onFechar={() => setModalAberto(false)}>
         <p className="sub">
           As regras são avaliadas <b>de cima para baixo</b>, na ordem da lista, e a{' '}
           <b>primeira que casa vence</b> — as de baixo nem chegam a ser testadas. Dentro de cada
           regra, as condições se combinam com <b>E</b> (todas precisam casar) ou com <b>OU</b>
-          (basta uma), e o combinador aparece no cartão porque sem ele ninguém consegue prever o que
-          a regra faz.
-        </p>
-        <p className="sub">
-          Não casou nenhuma? A conversa segue para a <b>fila padrão da caixa de entrada</b> por onde
-          ela chegou —{' '}
+          (basta uma). Não casou nenhuma? A conversa segue para a fila padrão da caixa de entrada
+          por onde ela chegou —{' '}
           {padroes.length === 0
             ? 'e não há caixa de entrada cadastrada.'
             : padroes.map((p) => `${p.inbox}: ${p.fila ?? 'sem fila padrão'}`).join(' · ')}
           .
         </p>
-        <p className="note">
-          A comparação ignora acento e caixa: “BOLETO”, “boleto” e “Boléto” casam a mesma condição.
-          É a mesma normalização que o motor de score do <code>@pipe/core</code> usa — uma segunda
-          definição de “contém” seria uma segunda regra.
-        </p>
-      </section>
-
-      <FormularioRegraFila filas={filas} />
-
-      {mortas.size > 0 ? (
-        <div className="note">
-          {numero(mortas.size)} regra(s) nunca serão alcançadas: ou estão sem condição, ou repetem
-          uma regra que já vem antes na ordem. Elas estão marcadas na lista.
-        </div>
-      ) : null}
-
-      {semDestino.length > 0 ? (
-        <div className="note">
-          {numero(semDestino.length)} regra(s) ativa(s) apontam para fila desativada. Fila
-          desativada não recebe conversa nova — a conversa casa a regra e fica parada.
-        </div>
-      ) : null}
-
-      <ListaRegras secoes={secoes} placeholder="Buscar por regra, fila de destino ou condição" />
+        <FormularioRegraFila filas={filas} aoSalvar={() => setModalAberto(false)} />
+      </Modal>
     </>
   );
 }

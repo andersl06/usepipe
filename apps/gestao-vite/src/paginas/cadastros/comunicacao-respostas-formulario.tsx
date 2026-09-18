@@ -14,17 +14,22 @@ import { envioQuePreserva } from '../../componentes/envio-de-formulario';
  * nome de campo. Por isso o rótulo aqui é `.sub` (legenda pequena, já
  * existente) em vez de uma classe nova.
  */
-export function FormularioRespostaPronta() {
+export function FormularioRespostaPronta({ aoSalvar }: { aoSalvar?: () => void }) {
   const formRef = useRef<HTMLFormElement>(null);
   const [resultado, enviar, enviando] = useActionState(salvarRespostaPronta, { ok: true });
+  /* Ver o comentário equivalente em `regras-atendimento-formulario.tsx`. */
+  const estadoInicial = useRef(resultado);
 
   useEffect(() => {
-    if (resultado.ok) formRef.current?.reset();
+    if (resultado === estadoInicial.current) return;
+    if (resultado.ok) {
+      formRef.current?.reset();
+      aoSalvar?.();
+    }
   }, [resultado]);
 
   return (
-    <section className="card">
-      <h3>Nova resposta pronta</h3>
+    <>
       <p className="sub">
         O atalho é o que o atendente digita depois do <b>#</b> no compositor do Desk (ver §5 de{' '}
         <code>2026-09-05-desk-requisitos.md</code>). A tabela não tem índice único de atalho por
@@ -75,6 +80,6 @@ export function FormularioRespostaPronta() {
           </Botao>
         </div>
       </form>
-    </section>
+    </>
   );
 }

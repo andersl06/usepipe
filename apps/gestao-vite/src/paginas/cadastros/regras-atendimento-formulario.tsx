@@ -81,7 +81,15 @@ function LinhaDeCondicao({ desabilitado }: { desabilitado: boolean }) {
   );
 }
 
-export function FormularioRegraFila({ filas }: { filas: readonly FilaParaEscolher[] }) {
+export function FormularioRegraFila({
+  filas,
+  aoSalvar,
+}: {
+  filas: readonly FilaParaEscolher[];
+  /** Fecha o modal quando o salvamento dá certo — sem isso a pessoa fica
+      olhando para o próprio formulário limpo, sem saber se funcionou. */
+  aoSalvar?: () => void;
+}) {
   const formRef = useRef<HTMLFormElement>(null);
   const [linhas, setLinhas] = useState(1);
   /* O `reset()` do formulário não desfaz o estado do seletor de campo, que é
@@ -89,18 +97,27 @@ export function FormularioRegraFila({ filas }: { filas: readonly FilaParaEscolhe
      com uma linha em vez de um `useImperativeHandle` por linha. */
   const [geracao, setGeracao] = useState(0);
   const [resultado, enviar, enviando] = useActionState(salvarRegraFila, { ok: true });
+  /* `useActionState` nasce com `{ ok: true }` — o valor inicial, não uma
+     confirmação de envio. Sem esta guarda, o efeito abaixo achava que acabou
+     de salvar assim que o formulário monta (dentro do modal, por exemplo) e
+     fechava tudo na hora, antes de a pessoa digitar qualquer coisa. Compara
+     por identidade, e não por uma `ref` de "já montou": o `useEffect` do
+     StrictMode roda invoke→cleanup→invoke uma vez a mais em desenvolvimento,
+     e uma `ref` de booleano vira verdadeira cedo demais nesse replay. */
+  const estadoInicial = useRef(resultado);
 
   useEffect(() => {
+    if (resultado === estadoInicial.current) return;
     if (resultado.ok) {
       formRef.current?.reset();
       setLinhas(1);
       setGeracao((g) => g + 1);
+      aoSalvar?.();
     }
   }, [resultado]);
 
   return (
-    <section className="card">
-      <h3>Nova regra</h3>
+    <>
       <p className="sub">
         A regra manda a conversa para uma fila. A <b>ordem</b> decide quem é avaliada antes: a
         primeira que casar vence, e as de baixo não chegam a ser testadas.
@@ -190,6 +207,6 @@ export function FormularioRegraFila({ filas }: { filas: readonly FilaParaEscolhe
           </Botao>
         </div>
       </form>
-    </section>
+    </>
   );
 }
