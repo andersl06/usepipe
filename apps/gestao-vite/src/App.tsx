@@ -37,7 +37,6 @@ import { PaginaDosRelatorios } from './paginas/fluxo/analise/relatorios/pagina';
 import { PaginaDeMensagensAtivas as AnaliseMensagensAtivas } from './paginas/fluxo/analise/mensagens-ativas/pagina';
 import { PaginaDoGerenciador } from './paginas/fluxo/analise/gerenciador-de-relatorios/gerenciador';
 import { PaginaDoDicionario } from './paginas/fluxo/analise/dicionario-de-dados/dicionario';
-import { EstruturaGestao } from './componentes/estrutura-gestao';
 import { CascaDeAtendimento } from './paginas/operacao/casca';
 import { PaginaMonitoramento } from './paginas/operacao/monitoramento';
 import { PaginaHistorico } from './paginas/operacao/historico';
@@ -68,7 +67,6 @@ import { PaginaBemVindo } from './paginas/bem-vindo/page';
 import { PaginaNovidades } from './paginas/novidades/page';
 import { PaginaConvite } from './paginas/convite/page';
 import { PaginaSemAcesso } from './paginas/trocar-conta/sem-acesso/page';
-import { PaginaGrowth } from './paginas/growth-portal';
 import { PaginaBuilder } from './paginas/builder';
 
 /**
@@ -164,10 +162,19 @@ const rotasDoContato = (
 );
 
 /**
- * As rotas de Atendimento de quando viviam soltas na raiz, hoje redirecionadas
- * para o portal — ver a nota onde são usadas.
+ * As rotas que viviam soltas na raiz, sem contato, hoje redirecionadas para o
+ * portal — ver a nota onde são usadas.
+ *
+ * A maior parte é o Atendimento de antes de morar no contato. `/builder` e
+ * `/growth` entraram nesta entrega: Builder e Growth eram os dois módulos que
+ * `estrutura-gestao.tsx` desenhava fora de qualquer contato, e os dois se
+ * mudaram para dentro dele — Builder para `/fluxo/:id/builder`, Growth para
+ * `/fluxo/:id/growth/*` e `/roteador/:id/growth/*` (que já existiam; `/growth`
+ * solto, em `paginas/growth-portal.tsx`, era duplicata e foi removido).
  */
-const ROTAS_ANTIGAS_DE_ATENDIMENTO = [
+const ROTAS_ANTIGAS_SEM_CONTATO = [
+  '/builder',
+  '/growth',
   '/monitoramento',
   '/historico',
   '/relatorios/atendimento',
@@ -217,26 +224,31 @@ export function App() {
         <Route path="/criar/fluxo" element={<PaginaCriarFluxo />} />
         <Route path="/criar/roteador" element={<PaginaCriarRoteador />} />
 
-        {/* O que sobra sem contato e sem módulo (`EstruturaGestao`, ver o
-            cabeçalho do arquivo): onboarding de conta e os dois módulos que
-            ainda não têm tela de verdade. */}
-        <Route element={<EstruturaGestao />}>
-          <Route path="/implantacao" element={<PaginaImplantacao />} />
-          <Route path="/growth" element={<PaginaGrowth />} />
-          <Route path="/builder" element={<PaginaBuilder />} />
-        </Route>
+        {/* Implantação — onboarding de CONTA, sem contato nenhum para
+            pendurar. Cromo próprio (`pt-app` + `BarraDoPortal`, como
+            "Novidades" e o Painel do contrato), montado dentro da própria
+            `page.tsx`. Builder e Growth, os outros dois módulos que
+            `EstruturaGestao` desenhava fora do contato, se mudaram para
+            dentro dele (abaixo); sem os dois, aquele casco de duas barras
+            ficou sem rota nenhuma e saiu. */}
+        <Route path="/implantacao" element={<PaginaImplantacao />} />
 
-        {/* As rotas de Atendimento de antes de morarem no contato
-            (`/{tipo}/:id/atendimento/*`, acima). Nenhuma delas carrega um id
-            de contato — não há como adivinhar de qual fluxo ou roteador era o
-            link salvo — então a única saída honesta é o portal, de onde a
+        {/* As rotas de antes de morarem no contato (Atendimento em
+            `/{tipo}/:id/atendimento/*`, Builder em `/fluxo/:id/builder`,
+            Growth em `/{tipo}/:id/growth/*`, todas abaixo). Nenhuma carrega um
+            id de contato — não há como adivinhar de qual fluxo ou roteador era
+            o link salvo — então a única saída honesta é o portal, de onde a
             pessoa escolhe o contato e chega lá de novo. */}
-        {ROTAS_ANTIGAS_DE_ATENDIMENTO.map((caminho) => (
+        {ROTAS_ANTIGAS_SEM_CONTATO.map((caminho) => (
           <Route key={caminho} path={caminho} element={<Navigate to="/portal" replace />} />
         ))}
 
         <Route path="/fluxo/:id" element={<RotaDoContato />}>
           {rotasDoContato}
+          {/* Builder é escondido do menu do roteador (`ESCONDIDOS_NO_ROTEADOR`
+              em `fluxo/itens.ts`, a mesma regra da origem) — por isso a rota
+              só existe aqui, e não na árvore de `/roteador/:id` logo abaixo. */}
+          <Route path="builder" element={<PaginaBuilder />} />
         </Route>
         <Route path="/roteador/:id" element={<RotaDoContato />}>
           {rotasDoContato}

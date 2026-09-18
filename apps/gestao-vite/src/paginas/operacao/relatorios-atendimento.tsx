@@ -1,5 +1,6 @@
 import type { ResultadoMetrica } from '@pipe/core';
 import { useSearchParams } from 'react-router-dom';
+import Link from '../../componentes/link';
 import { useLeitura } from '../../lib/consulta';
 import type { Catalogos } from '../../lib/historico';
 import {
@@ -24,6 +25,8 @@ interface Busca {
   ate?: string;
   fila?: string;
   atendente?: string;
+  /** Aba do detalhamento por Atendentes/Filas/Tags — só client-side, não vai à API. */
+  aba?: string;
 }
 
 /**
@@ -62,6 +65,91 @@ function CelulaTempo({ resultado, fora }: { resultado: ResultadoMetrica; fora: s
   );
 }
 
+/**
+ * O corpo de uma quebra (tabela ou vazio), sem título — para poder viver
+ * tanto sob um `<h3>` fixo ("Por caixa de entrada") quanto sob uma aba
+ * ("Atendentes"/"Filas"/"Tags", a mesma tabela deles em `bds-tab-item`).
+ *
+ * Colunas na ordem e no texto da tabela por atendente/fila/tag deles
+ * (`FICHA-relatorio-atendimento.md` §4); "Atingimento SLA" é a coluna deles
+ * que ainda não tem consulta nossa — fica com travessão em vez de sumir, e
+ * "Fechadas/Perdidas/Abandonadas/Finalizadas" é o desfecho que JÁ buscamos e
+ * que a tabela deles não abre neste recorte — mantido, não é dado inventado.
+ */
+function CorpoDeQuebra({
+  eixo,
+  linhas,
+  recorte,
+}: {
+  eixo: string;
+  linhas: LinhaDeQuebra[];
+  /** `null` quando não há filtro além do período. Muda a causa do vazio. */
+  recorte: string | null;
+}) {
+  if (linhas.length === 0) {
+    /* Culpar o período quando o corte foi de fila ou atendente manda o
+       gestor alargar a data e continuar sem ver nada. */
+    return (
+      <div className="cartao-rel">
+        <div className="vazio">
+          {recorte ? (
+            <>
+              <b>Nada dentro deste recorte.</b>
+              <p>
+                O recorte <b>{recorte}</b> não tem conversa encerrada no período. Volte o filtro
+                para “todas” e o bloco reaparece.
+              </p>
+            </>
+          ) : (
+            <>
+              <b>Nenhuma conversa encerrada neste período.</b>
+              <p>Conversa ainda aberta não entra aqui — ela está em Monitoramento.</p>
+            </>
+          )}
+        </div>
+      </div>
+    );
+  }
+  return (
+    <div className="cartao-rel tabela scroll">
+      <table>
+        <thead>
+          <tr>
+            <th>{eixo}</th>
+            <th>Fechadas</th>
+            <th>Perdidas</th>
+            <th>Abandonadas</th>
+            <th>Finalizadas</th>
+            <th>Tempo médio de espera na fila</th>
+            <th>Tempo médio até 1ª resposta</th>
+            <th>Tempo médio de resposta</th>
+            <th>Tempo médio de atendimento</th>
+            <th title="A Blip calcula um % de conversas dentro do prazo de SLA nesta tabela; ainda não temos essa consulta agregada por período.">
+              Atingimento SLA
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {linhas.map((l) => (
+            <tr key={l.chave}>
+              <td className="who">{l.chave}</td>
+              <td className="num">{numero(l.encerramentos.fechada)}</td>
+              <td className="num">{numero(l.encerramentos.perdida)}</td>
+              <td className="num">{numero(l.encerramentos.abandonada)}</td>
+              <td className="num">{numero(l.encerramentos.finalizada)}</td>
+              <CelulaTempo resultado={l.naFila} fora="sem atribuição" />
+              <CelulaTempo resultado={l.primeiraResposta} fora="sem 1ª resposta" />
+              <CelulaTempo resultado={l.resposta} fora="sem troca completa" />
+              <CelulaTempo resultado={l.atendimento} fora="nunca respondidas" />
+              <td className="num">—</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 function Quebra({
   titulo,
   eixo,
@@ -72,7 +160,6 @@ function Quebra({
   titulo: string;
   eixo: string;
   linhas: LinhaDeQuebra[];
-  /** `null` quando não há filtro além do período. Muda a causa do vazio. */
   recorte: string | null;
   /** Aviso de população, quando ela não é a mesma do bloco geral. */
   nota?: React.ReactNode;
@@ -81,63 +168,27 @@ function Quebra({
     <section className="bloco-rel">
       <h3>{titulo}</h3>
       {nota ? <p className="note">{nota}</p> : null}
-      {linhas.length === 0 ? (
-        /* Culpar o período quando o corte foi de fila ou atendente manda o
-           gestor alargar a data e continuar sem ver nada. */
-        <div className="cartao-rel">
-          <div className="vazio">
-            {recorte ? (
-              <>
-                <b>Nada dentro deste recorte.</b>
-                <p>
-                  O recorte <b>{recorte}</b> não tem conversa encerrada no período. Volte o filtro
-                  para “todas” e o bloco reaparece.
-                </p>
-              </>
-            ) : (
-              <>
-                <b>Nenhuma conversa encerrada neste período.</b>
-                <p>Conversa ainda aberta não entra aqui — ela está em Monitoramento.</p>
-              </>
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="cartao-rel tabela scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>{eixo}</th>
-                <th>Fechadas</th>
-                <th>Perdidas</th>
-                <th>Abandonadas</th>
-                <th>Finalizadas</th>
-                <th>Na fila</th>
-                <th>Até 1ª resposta</th>
-                <th>Resposta</th>
-                <th>Atendimento</th>
-              </tr>
-            </thead>
-            <tbody>
-              {linhas.map((l) => (
-                <tr key={l.chave}>
-                  <td className="who">{l.chave}</td>
-                  <td className="num">{numero(l.encerramentos.fechada)}</td>
-                  <td className="num">{numero(l.encerramentos.perdida)}</td>
-                  <td className="num">{numero(l.encerramentos.abandonada)}</td>
-                  <td className="num">{numero(l.encerramentos.finalizada)}</td>
-                  <CelulaTempo resultado={l.naFila} fora="sem atribuição" />
-                  <CelulaTempo resultado={l.primeiraResposta} fora="sem 1ª resposta" />
-                  <CelulaTempo resultado={l.resposta} fora="sem troca completa" />
-                  <CelulaTempo resultado={l.atendimento} fora="nunca respondidas" />
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <CorpoDeQuebra eixo={eixo} linhas={linhas} recorte={recorte} />
     </section>
   );
+}
+
+/**
+ * As três abas deles sobre a mesma tabela — `<bds-tab-item label="Atendentes|
+ * Filas|Tags">` em `desk-relatorio-atendimento__pagina.html` — em vez das
+ * seções empilhadas que tínhamos para as mesmas três quebras. A aba mora na
+ * querystring, como todo filtro desta tela: assim o link "Aplicar" não perde
+ * a aba escolhida.
+ */
+const ABAS_DETALHAMENTO = [
+  { chave: 'atendentes', rotulo: 'Atendentes', eixo: 'Atendente' },
+  { chave: 'filas', rotulo: 'Filas', eixo: 'Fila' },
+  { chave: 'tags', rotulo: 'Tags', eixo: 'Etiqueta' },
+] as const;
+type AbaDetalhamento = (typeof ABAS_DETALHAMENTO)[number]['chave'];
+
+function abaValida(v: string | undefined): AbaDetalhamento {
+  return ABAS_DETALHAMENTO.some((a) => a.chave === v) ? (v as AbaDetalhamento) : 'atendentes';
 }
 
 /**
@@ -184,6 +235,16 @@ export function PaginaAtendimento() {
     [nomeDaFila && `fila ${nomeDaFila}`, nomeDoAtendente && `atendente ${nomeDoAtendente}`]
       .filter(Boolean)
       .join(' + ') || null;
+
+  /* A aba do detalhamento (Atendentes/Filas/Tags) mora na querystring, como
+     todo o resto do filtro — não vai para a API porque as três quebras já
+     vêm juntas na mesma resposta. */
+  const aba = abaValida(crus.aba);
+  const hrefAba = (chave: AbaDetalhamento) => {
+    const p = new URLSearchParams(q);
+    p.set('aba', chave);
+    return `${base}/relatorios/atendimento?${p}`;
+  };
 
   return (
     <>
@@ -234,65 +295,78 @@ export function PaginaAtendimento() {
       </form>
 
       {/* ------------------------------------------------------------ bloco 1
-          As cinco métricas de tempo da §2, na ordem da spec. Cada uma carrega o
-          próprio denominador: população usada, total candidato e quantas
-          ficaram de fora. */}
+          "Indicadores de SLA" é o primeiro bloco deles (gráfico de área, e no
+          período capturado veio vazio: "Não foram encontradas métricas de SLA
+          no período informado"). Não copiamos gráfico nenhum — só o lugar e a
+          honestidade do vazio: SLA por conversa já existe em Monitoramento,
+          mas agregado por período ainda não tem consulta própria aqui. */}
       <section className="bloco-rel">
-        <h3>
-          Tempos médios <span className="sub">{`${de} → ${ate}`}</span>
-        </h3>
-        <div className="bloco-rel-grade" style={{ '--rel-colunas': 5 } as React.CSSProperties}>
-          <Tempo rotulo="Tempo na fila" resultado={geral.naFila} fora="sem atribuição" />
-          <Tempo
-            rotulo="Até a 1ª resposta"
-            resultado={geral.primeiraResposta}
-            fora="sem 1ª resposta"
-          />
-          <Tempo
-            rotulo="Espera total do cliente"
-            resultado={geral.esperaTotal}
-            fora="sem início ou fim"
-          />
-          <Tempo rotulo="Tempo de resposta" resultado={geral.resposta} fora="sem troca completa" />
-          <Tempo
-            rotulo="Tempo de atendimento"
-            resultado={geral.atendimento}
-            fora="nunca respondidas"
-          />
+        <h3>Indicadores de SLA</h3>
+        <div className="cartao-rel">
+          <div className="vazio">
+            <b>Ainda não agregamos SLA por período nesta tela.</b>
+            <p>
+              O estado de SLA de cada conversa já existe (regra da fila, aviso e estouro, vistos em
+              Monitoramento); o indicador agregado por período — o gráfico que a Blip mostra aqui —
+              ainda não tem consulta própria.
+            </p>
+          </div>
         </div>
-        <p className="note">
-          O tempo de atendimento usa a mesma fórmula da Blip — encerramento menos 1ª resposta — para
-          ser comparável, e por isso descarta a conversa que nunca foi respondida. A contagem
-          descartada fica ao lado do número: sem ela, a média melhora justamente quando o
-          atendimento piora. Vale igual para o tempo até a 1ª resposta. O tempo de resposta é média
-          de INTERVALOS: {numero(geral.resposta.populacao)} trocas em{' '}
-          {numero(geral.resposta.conversasConsideradas)} conversas.
-        </p>
       </section>
 
       {/* ------------------------------------------------------------ bloco 2
+          "Tempo máximo": dois cartões, na ordem e no texto deles. Hoje só
+          calculamos MÉDIA (§2); o PICO do período é consulta que falta. */}
+      <section className="bloco-rel">
+        <h3>Tempo máximo</h3>
+        <div className="bloco-rel-grade" style={{ '--rel-colunas': 2 } as React.CSSProperties}>
+          <div className="cartao-rel">
+            <span className="r">Tempo máximo de espera na fila</span>
+            <span className="v">—</span>
+            <span className="den">ainda calculamos só a média do período, não o pico</span>
+          </div>
+          <div className="cartao-rel">
+            <span className="r">Tempo máximo até 1ª resposta</span>
+            <span className="v">—</span>
+            <span className="den">idem — falta a consulta de máximo</span>
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ bloco 3
           §4. Perdida e abandonada são linhas separadas e nunca somadas: a
-          fronteira entre as duas é a existência de atribuição. */}
+          fronteira entre as duas é a existência de atribuição. O nome do
+          bloco continua "Desfecho", e não "Status dos tickets" (o deles): eles
+          somam "Aberto" na mesma grade, e conversa aberta não entra aqui —
+          é o Monitoramento, de propósito (ver comentário da função). */}
       <section className="bloco-rel">
         <h3>Desfecho</h3>
         <div className="bloco-rel-grade" style={{ '--rel-colunas': 4 } as React.CSSProperties}>
           <div className="cartao-rel">
-            <span className="r">Perdidas</span>
+            <span className="r" title="Tickets perdidos (fechados pelo cliente antes de serem atribuídos a atendente)">
+              Perdidas
+            </span>
             <span className="v">{numero(enc.perdida)}</span>
             <span className="den">cliente saiu antes da atribuição — capacidade da fila</span>
           </div>
           <div className="cartao-rel">
-            <span className="r">Abandonadas</span>
+            <span className="r" title="Tickets retirados (cancelados pelo cliente após atribuição)">
+              Abandonadas
+            </span>
             <span className="v">{numero(enc.abandonada)}</span>
             <span className="den">cliente saiu depois da atribuição — atendimento</span>
           </div>
           <div className="cartao-rel">
-            <span className="r">Finalizadas</span>
+            <span className="r" title="Tickets finalizados ou transferidos por gestor/atendente">
+              Finalizadas
+            </span>
             <span className="v">{numero(enc.finalizada)}</span>
             <span className="den">encerradas pelo atendente, ou transferidas</span>
           </div>
           <div className="cartao-rel">
-            <span className="r">Fechadas</span>
+            <span className="r" title="Total de tickets fechados (soma de perdido + retirado + finalizado)">
+              Fechadas
+            </span>
             <span className="v">{numero(enc.fechada)}</span>
             <span className="den">
               soma das três · {numero(geral.conversas)} conversas no recorte
@@ -307,22 +381,91 @@ export function PaginaAtendimento() {
         </p>
       </section>
 
-      <Quebra titulo="Por fila" eixo="Fila" linhas={relatorio.porFila} recorte={recorte} />
-      <Quebra
-        titulo="Por atendente"
-        eixo="Atendente"
-        linhas={relatorio.porAtendente}
-        recorte={recorte}
-      />
+      {/* ------------------------------------------------------------ bloco 4
+          "Tempo médio" — mesmas cinco métricas da §2, agora com o texto
+          exato do card deles em cada rótulo. */}
+      <section className="bloco-rel">
+        <h3>
+          Tempo médio <span className="sub">{`${de} → ${ate}`}</span>
+        </h3>
+        <div className="bloco-rel-grade" style={{ '--rel-colunas': 5 } as React.CSSProperties}>
+          <Tempo
+            rotulo="Tempo médio de espera na fila"
+            resultado={geral.naFila}
+            fora="sem atribuição"
+          />
+          <Tempo
+            rotulo="Tempo médio até 1ª resposta"
+            resultado={geral.primeiraResposta}
+            fora="sem 1ª resposta"
+          />
+          <Tempo
+            rotulo="Tempo médio de espera total"
+            resultado={geral.esperaTotal}
+            fora="sem início ou fim"
+          />
+          <Tempo
+            rotulo="Tempo médio de resposta"
+            resultado={geral.resposta}
+            fora="sem troca completa"
+          />
+          <Tempo
+            rotulo="Tempo médio de atendimento"
+            resultado={geral.atendimento}
+            fora="nunca respondidas"
+          />
+        </div>
+        <p className="note">
+          O tempo de atendimento usa a mesma fórmula da Blip — encerramento menos 1ª resposta — para
+          ser comparável, e por isso descarta a conversa que nunca foi respondida. A contagem
+          descartada fica ao lado do número: sem ela, a média melhora justamente quando o
+          atendimento piora. Vale igual para o tempo até a 1ª resposta. O tempo de resposta é média
+          de INTERVALOS: {numero(geral.resposta.populacao)} trocas em{' '}
+          {numero(geral.resposta.conversasConsideradas)} conversas.
+        </p>
+      </section>
 
-      {/* ---------------------------------------------------- as duas do Chatwoot
+      {/* ------------------------------------------------------------ bloco 5
+          As três abas deles sobre a MESMA tabela — `bds-tab-item label=
+          "Atendentes"/"Filas"/"Tags"` — no lugar das três seções empilhadas
+          que tínhamos para as mesmas três quebras. */}
+      <section className="bloco-rel">
+        <h3>Detalhamento</h3>
+        <div className="tabs" role="tablist">
+          {ABAS_DETALHAMENTO.map((a) => (
+            <Link key={a.chave} href={hrefAba(a.chave)} aria-current={aba === a.chave ? 'true' : undefined}>
+              {a.rotulo}
+            </Link>
+          ))}
+        </div>
+        {aba === 'tags' ? (
+          <p className="note">
+            <b>População diferente das outras abas.</b> Conversa com três etiquetas entra em três
+            linhas, então a soma das linhas passa do total do período — é o preço de perguntar
+            “quanto custa um atendimento de cobrança”, e ele fica dito em vez de escondido.{' '}
+            {numero(relatorio.semEtiqueta)} conversa(s) encerrada(s) no período não têm etiqueta
+            nenhuma e não aparecem em linha alguma; enquanto esse número for grande, esta tabela
+            mede o que sobrou. A exigência de etiqueta no encerramento se liga em Preferências ├
+            Configurações gerais.
+          </p>
+        ) : null}
+        {aba === 'atendentes' ? (
+          <CorpoDeQuebra eixo="Atendente" linhas={relatorio.porAtendente} recorte={recorte} />
+        ) : null}
+        {aba === 'filas' ? (
+          <CorpoDeQuebra eixo="Fila" linhas={relatorio.porFila} recorte={recorte} />
+        ) : null}
+        {aba === 'tags' ? (
+          <CorpoDeQuebra eixo="Etiqueta" linhas={relatorio.porEtiqueta} recorte={recorte} />
+        ) : null}
+      </section>
+
+      {/* ---------------------------------------------------- bônus do Chatwoot
           O Chatwoot tem relatório por agente, por equipe, por rótulo e por caixa
-          de entrada (`docs/pesquisa/chatwoot.md`). Agente já tínhamos; equipe
-          não existe no nosso modelo — quem recorta grupo de gente aqui é a
-          FILA, e um "por equipe" seria a mesma tabela com outro nome. Faltavam
-          estas duas, e as duas respondem pergunta que as de cima não respondem:
-          "de qual canal vem o atendimento mais lento" e "qual assunto custa
-          mais tempo". */}
+          de entrada (`docs/pesquisa/chatwoot.md`). A Blip não tem aba de caixa
+          de entrada — esta seção é NOSSA, mantida como bloco à parte porque
+          responde pergunta que as abas de cima não respondem: "de qual canal
+          vem o atendimento mais lento". */}
       <Quebra
         titulo="Por caixa de entrada"
         eixo="Caixa de entrada"
@@ -337,23 +480,24 @@ export function PaginaAtendimento() {
         }
       />
 
-      <Quebra
-        titulo="Por etiqueta"
-        eixo="Etiqueta"
-        linhas={relatorio.porEtiqueta}
-        recorte={recorte}
-        nota={
-          <>
-            <b>População diferente das tabelas acima.</b> Conversa com três etiquetas entra em três
-            linhas, então a soma das linhas passa do total do período — é o preço de perguntar
-            “quanto custa um atendimento de cobrança”, e ele fica dito em vez de escondido.{' '}
-            {numero(relatorio.semEtiqueta)} conversa(s) encerrada(s) no período não têm etiqueta
-            nenhuma e não aparecem em linha alguma; enquanto esse número for grande, esta tabela
-            mede o que sobrou. A exigência de etiqueta no encerramento se liga em Preferências ├
-            Configurações gerais.
-          </>
-        }
-      />
+      {/* ------------------------------------------------------------ bloco 6
+          Último bloco deles: "Disponibilidade de atendentes" (Online, Em
+          pausa, Invisível, Tempo total). É status EM TEMPO REAL — não existe
+          "disponibilidade" de um período fechado — e por isso não temos
+          consulta para ele aqui; o retrato ao vivo é o de Monitoramento. */}
+      <section className="bloco-rel">
+        <h3>Disponibilidade de atendentes</h3>
+        <div className="cartao-rel">
+          <div className="vazio">
+            <b>Esta tabela é sobre o período fechado, e disponibilidade é status ao vivo.</b>
+            <p>
+              Online, em pausa, invisível e tempo total nesses estados não têm sentido para um
+              recorte de datas já encerrado — o retrato de agora mesmo é o de Monitoramento. Não
+              inventamos uma versão "média do período" para isso.
+            </p>
+          </div>
+        </div>
+      </section>
     </>
   );
 }

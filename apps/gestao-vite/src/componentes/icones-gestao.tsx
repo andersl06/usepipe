@@ -18,6 +18,8 @@ const CAMINHOS = {
   baixo: 'M6 9l6 6l6 -6',
   documento:
     'M14 3v4a1 1 0 0 0 1 1h4M17 21h-10a2 2 0 0 1 -2 -2v-14a2 2 0 0 1 2 -2h7l5 5v11a2 2 0 0 1 -2 2zM9 9h1M9 13h6M9 17h6',
+  desfazer: 'M9 13l-4 -4l4 -4M5 9h11a4 4 0 1 1 0 8h-1',
+  refazer: 'M15 13l4 -4l-4 -4M19 9h-11a4 4 0 1 0 0 8h1',
   email:
     'M5 7a2 2 0 0 1 2 -2h10a2 2 0 0 1 2 2v10a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-10zM3 7l9 6l9 -6',
   externo: 'M12 6h-6a2 2 0 0 0 -2 2v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-6M11 13l9 -9M15 4h5v5',

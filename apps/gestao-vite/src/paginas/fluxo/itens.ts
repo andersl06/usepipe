@@ -93,21 +93,23 @@ export function itensDoMenu(tipo: TipoDeContato, id: string): ItemDoMenu[] {
   ).map((item) => ({
     rotulo: item.rotulo,
     href:
-      item.chave === 'desk'
-        ? `${base}/atendimento/monitoramento`
-        : item.chave === 'analysis'
-          ? `${base}/analise`
-        : item.chave === 'channels'
-          ? `${base}/canais`
-          : item.chave === 'users'
-            ? `${base}/contatos`
-            : item.chave === 'growth'
-              ? `${base}/growth/mensagens-ativas`
-              : item.chave === 'contents'
-                ? `${base}/conteudos`
-                : item.chave === 'logMessages'
-                  ? `${base}/log`
-                  : item.href,
+      item.chave === 'builder'
+        ? `${base}/builder`
+        : item.chave === 'desk'
+          ? `${base}/atendimento/monitoramento`
+          : item.chave === 'analysis'
+            ? `${base}/analise`
+            : item.chave === 'channels'
+              ? `${base}/canais`
+              : item.chave === 'users'
+                ? `${base}/contatos`
+                : item.chave === 'growth'
+                  ? `${base}/growth/mensagens-ativas`
+                  : item.chave === 'contents'
+                    ? `${base}/conteudos`
+                    : item.chave === 'logMessages'
+                      ? `${base}/log`
+                      : item.href,
   }));
 
   /* `getTemplateSetupItem()`: o item do template vem na FRENTE de tudo. Só o

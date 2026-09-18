@@ -121,6 +121,22 @@ function Bloco({ grupo, encerradas }: { grupo: GrupoSatisfacao; encerradas: numb
         faixas são do modelo escolhido no cadastro da pesquisa, e recalculá-las aqui criaria uma
         segunda definição, diferente da que gerou o dado.
       </p>
+
+      {/* "Comparativo de satisfação" é o gráfico de barras por atendente que a
+          Blip mostra aqui (`FICHA-relatorio-satisfacao.md`, tabela Atendentes ×
+          Promotor/Sem resposta/Detrator/Neutro). Não temos a resposta de
+          pesquisa cruzada com o atendente do ticket nesta consulta — fica o
+          bloco com o vazio honesto, no lugar certo, em vez de sumir com ele. */}
+      <div className="cartao-rel">
+        <div className="vazio">
+          <b>Comparativo de satisfação por atendente ainda não existe aqui.</b>
+          <p>
+            A Blip cruza cada resposta com o atendente do ticket. Nossa consulta de satisfação
+            ainda não traz esse cruzamento — a média e a distribuição acima são do período inteiro,
+            não por atendente.
+          </p>
+        </div>
+      </div>
     </section>
   );
 }

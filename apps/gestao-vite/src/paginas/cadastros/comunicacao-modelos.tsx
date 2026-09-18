@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   ROTULO_CABECALHO,
   ROTULO_CATEGORIA_TEMPLATE,
@@ -12,6 +13,17 @@ import {
 import { useLeitura } from '../../lib/consulta';
 import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
 import { FormularioModelo } from './comunicacao-modelos-formulario';
+
+/**
+ * Opções do filtro "Status" — `FICHA-message-template.md` §3 documenta
+ * "Habilitado"/"Desabilitado" na origem, mas isso é o liga-desliga LOCAL
+ * deles; o nosso `statusMeta` é outra coisa (o status de aprovação do
+ * template na Meta, `ROTULO_STATUS_META`) — não existe "habilitado" aqui
+ * para traduzir. O filtro usa as opções que a tela já mostra em cada
+ * cartão (§4 "Status na Meta"), na mesma POSIÇÃO documentada ("Filtrar
+ * por:", antes da busca).
+ */
+const OPCOES_STATUS = Object.keys(ROTULO_STATUS_META);
 
 /**
  * Posições reais de disparo, para leitura direta no cartão: sem cabeçalho de
@@ -30,8 +42,10 @@ export function PaginaModelos() {
   const leitura = useLeitura<{ modelos: ModeloListado[]; canais: CanalWhatsapp[] }>(
     '/v1/gestao/comunicacao/modelos',
   );
+  const [status, setStatus] = useState('');
   if (!leitura.data) return null;
-  const { modelos, canais } = leitura.data;
+  const { modelos: todosOsModelos, canais } = leitura.data;
+  const modelos = status ? todosOsModelos.filter((m) => m.statusMeta === status) : todosOsModelos;
 
   const secoes: SecaoDeRegras[] = [
     {
@@ -75,10 +89,36 @@ export function PaginaModelos() {
           continua aqui — só desceu para depois da lista, para o topo da
           página bater com o deles antes de chegar na parte que é só nossa. */}
       <div className="board-head">
-        <h2>Modelos de mensagem</h2>
+        <h2>Modelos de mensagens</h2>
       </div>
 
-      <ListaRegras secoes={secoes} placeholder="Buscar por nome, idioma ou categoria" ocultarCabecalhoDeSecao />
+      {/* §2.2/§2.3: dentro do painel de conteúdo, o título repete e vem a
+          linha "Filtrar por:" ANTES da busca. "Fluxo de retorno" (§3) fica de
+          fora — a origem capturou esse filtro com `options="[]"` (nem eles
+          tinham dado ali), e o Pipe não tem esse conceito. "Status" também
+          não é o mesmo campo (deles é habilitado/desabilitado local; o nosso
+          é o status de aprovação na Meta), mas ocupa a mesma posição com o
+          dado real que a tela já mostra em cada cartão. */}
+      <div className="painel-modelos">
+        <h3>Modelos de mensagens</h3>
+        <div className="filtrar-por">
+          <span className="sub">Filtrar por:</span>
+          <select value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
+            <option value="">Status</option>
+            {OPCOES_STATUS.map((s) => (
+              <option key={s} value={s}>
+                {ROTULO_STATUS_META[s]}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <ListaRegras
+          secoes={secoes}
+          placeholder="Buscar por nome, idioma ou categoria"
+          ocultarCabecalhoDeSecao
+        />
+      </div>
 
       <FormularioModelo canais={canais} />
     </>

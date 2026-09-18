@@ -12,10 +12,13 @@ import { Modal } from './_modal';
  *
  * Esqueleto medido em `FICHA-personalizedbreaks.md` §2: cabeçalho com "Nova
  * Pausa" à direita (sem subtítulo), sem busca nem filtro nenhum (§3), cartão
- * com só "Nome da pausa"/"Duração" como coluna (§4) e sem paginação — só
- * `rules` e `queue-management` têm rodapé confirmado no material. O modal
- * "Criar nova pausa personalizada" (§2.3) é onde o "Nova Pausa" do cabeçalho
- * manda.
+ * com só "Nome da pausa"/"Duração" como coluna (§4). A ficha não registrou
+ * paginação, mas o HTML bruto (`personalizedbreaks.html`) tem
+ * `data-testid="pagination-test"` com "1-4 de 4" e as quatro setas — só falta
+ * o select "Resultados por página" (a origem some com ele quando o total é
+ * menor que 5, o menor tamanho de página; o nosso rodapé mostra sempre, sem
+ * essa exceção). O modal "Criar nova pausa personalizada" (§2.3) é onde o
+ * "Nova Pausa" do cabeçalho manda.
  *
  * O uso real (cadastro + dado real na mesma tela, de propósito: o motivo
  * cadastrado com "30 minutos" que na prática dura 47 é a informação que faz o
@@ -96,7 +99,7 @@ export function PaginaPausas() {
         </div>
       ) : null}
 
-      <ListaRegras secoes={secoes} ocultarCabecalhoDeSecao ocultarBusca />
+      <ListaRegras secoes={secoes} ocultarCabecalhoDeSecao ocultarBusca paginar />
 
       <Modal
         aberto={modalAberto}

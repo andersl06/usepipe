@@ -231,3 +231,269 @@
   font-size: 20px;
   font-weight: var(--g-peso-forte);
 }
+
+/* ==================== Os dois modais — a mesma CASCA (`cf-modal` de
+   `configuracoes.css` + o `icon-close` do `modal-toolbar` deles por cima) e
+   miolos diferentes:
+
+     adicionar  `add-user-modal` — DOM capturado com ele aberto em
+                `docs/capturas/blip/equipe/equipe-adicionar-modal__pagina.html`:
+                cabeça centrada (`.row.mh6.tc`), e-mail editável em traço,
+                "Permissão" + `rzslider`, rodapé centrado (`.modal-footer
+                { justify-content: center }` é global lá);
+     editar     `FICHA-equipe-editar.md` + a rota `/team/team/edit` do bundle:
+                título à esquerda, e-mail SÓ LEITURA (sem traço), o mesmo
+                `rzslider`, e a lista por recurso (`.edit-user-wrapper
+                .permission-item`, 46px por linha, rádios de 21px). Mais
+                larga porque a lista tem quatro colunas. */
+.cf-equipe-modal {
+  position: relative;
+  padding-top: 40px;
+}
+.cf-equipe-modal--editar {
+  width: min(100%, 640px);
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+}
+
+/* `.row.mh6.tc.mt3 > .mh6.mb4-1`: h1 e subtítulo centrados, só no adicionar. */
+.cf-equipe-modal-cabeca {
+  margin: 0 24px 20px;
+  text-align: center;
+}
+.cf-equipe-modal .cf-equipe-modal-cabeca h2 {
+  margin-bottom: 8px;
+}
+
+/* `.modal-footer` — na origem é centrado (`justify-content: center`), nos
+   dois modais, com `Cancelar` texto-só e `Salvar` `bp-btn--bot`. */
+.cf-equipe-modal-rodape {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+}
+.cf-equipe-fechar {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  display: inline-flex;
+  padding: 4px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo-fantasma);
+  cursor: pointer;
+}
+.cf-equipe-fechar:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+/* `<span class="body bp-c-rooftop fw5">` — o subtítulo abaixo do título.
+   Com `.cf-modal` na frente para passar por cima do `.cf-modal p`. */
+.cf-equipe-modal .cf-equipe-subtitulo {
+  margin: 0;
+  font-weight: var(--g-peso-forte);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* `material-input` do e-mail: rótulo pequeno em cima e traço embaixo, SEM
+   caixa — diferente do `cf-campo` (caixa fechada) do resto do Pipe, porque a
+   origem também não usa caixa aqui. Lá o input tem 35px, `padding: 8px 8px
+   8px 0` e o traço é `1px` na cor fantasma. */
+.cf-equipe-campo-email {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 20px 0;
+}
+.cf-equipe-campo-email span {
+  font-size: 12px;
+  font-weight: var(--g-peso-negrito);
+  color: var(--p-conteudo-fantasma);
+}
+.cf-equipe-campo-email input {
+  box-sizing: border-box;
+  height: 35px;
+  padding: 8px 8px 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--p-conteudo-fantasma);
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: 14px;
+}
+.cf-equipe-campo-email input:focus {
+  outline: none;
+  border-bottom-color: var(--p-marca);
+}
+/* `material-input input[readonly]` da origem: `border-bottom: none`. É o
+   e-mail do EDITAR — dado, não campo; fica o rótulo pequeno e o valor. */
+.cf-equipe-campo-email--leitura input {
+  border-bottom: 0;
+  cursor: default;
+}
+.cf-equipe-campo-email--leitura input:focus {
+  border-bottom: 0;
+}
+
+/* O `rzslider` "Permissão" — mesmo controle no adicionar e no editar
+   (`ControleDePermissao`, `tela.tsx`), só as legendas mudam. A origem tem
+   quatro paradas; o nosso RBAC de conta (migração 0021) tem só três papéis,
+   então o traço nasce com `papeis.length` paradas em vez de 4 — sem inventar
+   um quarto papel. Régua deles: `.rzslider` 4px de altura, `margin: 9px 0
+   35px` dentro do `add-user-modal`, bolinha de 25px, legenda 14px em caixas
+   de 170px centradas na parada. */
+.cf-equipe-permissao {
+  margin-top: 32px;
+}
+.cf-equipe-permissao-rotulo {
+  display: block;
+  margin-bottom: 9px;
+  font-size: 14px;
+  font-weight: var(--g-peso-negrito);
+  color: var(--p-conteudo);
+}
+.cf-equipe-slider {
+  width: 100%;
+  height: 25px;
+  margin: 0;
+  accent-color: var(--p-marca);
+}
+.cf-equipe-slider-niveis {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 6px;
+  font-size: 14px;
+  color: var(--p-conteudo-fantasma);
+}
+.cf-equipe-slider-nivel {
+  flex: 1;
+  text-align: center;
+}
+.cf-equipe-slider-nivel:first-child {
+  text-align: left;
+}
+.cf-equipe-slider-nivel:last-child {
+  text-align: right;
+}
+.cf-equipe-slider-nivel--ativa {
+  color: var(--p-conteudo);
+  font-weight: var(--g-peso-negrito);
+}
+
+/* ==================== A lista de permissões granulares (só no EDITAR) —
+   `PermissionsList.html` da origem dentro do `card` de "Permissões":
+   cabeçalho "Funcionalidades | Sem permissão | Visualizar | Ver e editar"
+   com `info` em cada coluna, `<hr>`, e uma linha por recurso com três
+   rádios (`.item-header` de 46px, `.w-70` para as colunas, `w-third` cada).
+   Os rádios acompanham o nível do traço e não se mexem à mão — o porquê
+   está em `permissoes.ts`. */
+.cf-equipe-granular {
+  margin-top: 32px;
+  font-size: 14px;
+}
+.cf-equipe-granular-cabecalho,
+.cf-equipe-granular-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 46px;
+  padding-left: 15px;
+}
+.cf-equipe-granular-cabecalho {
+  font-weight: var(--g-peso-forte);
+  color: var(--p-conteudo);
+}
+.cf-equipe-granular-recurso {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-weight: var(--g-peso-forte);
+  color: var(--p-conteudo);
+}
+.cf-equipe-granular-colunas {
+  display: flex;
+  flex: none;
+  width: 60%;
+}
+.cf-equipe-granular-coluna {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  flex: 1 1 0;
+  min-width: 0;
+  text-align: center;
+  line-height: normal;
+}
+.cf-equipe-granular-dica {
+  display: inline-flex;
+  flex: none;
+  color: var(--p-conteudo-fantasma);
+  cursor: help;
+}
+.cf-equipe-granular-traco {
+  margin: 0;
+  border: 0;
+  border-top: 1px solid var(--p-linha-media);
+}
+.cf-equipe-granular-lista {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.cf-equipe-granular-linha + .cf-equipe-granular-linha {
+  border-top: 1px solid var(--p-superficie-2);
+}
+
+/* `input[type=radio]` deles: 21px, aro de 1px na cor da marca, miolo
+   pintado quando marcado (`background-clip: content-box`). Desabilitado
+   porque é espelho do nível — mas sem apagar, senão lê como "quebrado". */
+.cf-equipe-radio {
+  box-sizing: border-box;
+  width: 21px;
+  height: 21px;
+  margin: 0;
+  padding: 4px;
+  border: 1px solid var(--p-marca);
+  border-radius: var(--p-r-pilula);
+  background: transparent;
+  background-clip: content-box;
+  appearance: none;
+  cursor: default;
+}
+.cf-equipe-radio:checked {
+  background-color: var(--p-marca);
+}
+.cf-equipe-radio:disabled {
+  opacity: 1;
+}
+.cf-equipe-radio-ausente {
+  color: var(--p-conteudo-fantasma);
+}
+
+/* O link do convite criado — a origem manda e-mail de verdade e fecha o
+   modal (`$ctrl.addUser()`); o Pipe não manda e-mail (ver
+   `contrato/membros/convidar.tsx`), então "Salvar" troca o formulário por
+   este link pra copiar e mandar à mão. */
+.cf-equipe-link-criado {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  padding: 12px;
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-1);
+}
+.cf-equipe-link-criado span {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 13px;
+  color: var(--p-conteudo-fantasma);
+}

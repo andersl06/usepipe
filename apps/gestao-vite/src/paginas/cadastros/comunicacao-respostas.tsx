@@ -34,7 +34,11 @@ export function PaginaRespostasProntas() {
   const secoes: SecaoDeRegras[] = [
     {
       titulo: 'Respostas prontas',
-      vazio: 'Nenhuma resposta pronta cadastrada. O atendente não tem nada para chamar com #.',
+      /* Texto literal do estado vazio deles — `FICHA-replies.md` §6, a única
+         parte do material que não é sujeita ao desalinhamento de categorias
+         descrito acima: o texto não fala de categoria nem de #, então copia
+         sem ressalva. */
+      vazio: 'Você ainda não criou respostas prontas. Crie respostas para agilizar seus atendimentos.',
       cartoes: respostas.map((r) => ({
         id: r.id,
         campos: [

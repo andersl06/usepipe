@@ -40,3 +40,29 @@
     flex-direction: column;
   }
 }
+
+/* ============================== Estado vazio dentro de cartão de métrica
+   `.tblwrap .vazio` já existe em `estilos/globais.css` para o cartão de
+   tabela do Monitoramento; os relatórios deste módulo usam o MESMO vazio de
+   três partes dentro de `.cartao-rel`, para os blocos onde a Blip mostra uma
+   métrica (SLA, disponibilidade, comparativo por atendente) que ainda não
+   temos consulta própria — em vez de sumir com o bloco, ele fica e diz por
+   quê. */
+.cartao-rel .vazio {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
+  text-align: left;
+}
+
+.cartao-rel .vazio b {
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-bloco);
+  color: var(--p-conteudo);
+}
+
+.cartao-rel .vazio p {
+  margin: 0;
+  max-width: 70ch;
+}

@@ -1,0 +1,293 @@
+/* ==========================================================================
+   Builder (/builder) — a MOLDURA, não o editor.
+
+   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA (mesma regra do dicionário de
+   dados, `fluxo/analise/dicionario-de-dados/dicionario.css`). Fonte: DOM
+   renderizado do Builder de produção (`auvpescolaprd`), capturado em
+   `docs/capturas/blip/builder/builder-fluxo__pagina.html`, e o `portal.css`
+   do mesmo pacote (`docs/capturas/blip/builder/zip19/supernova.blip.ai/
+   portal.css`) para as medidas que o DOM sozinho não dá (cor, raio, sombra).
+
+   O que saiu de lá, e para onde foi:
+     .builder-container (bg #141414, grade radial #242424 1px/16px,
+       height: calc(100vh - 136px))       → .bl-corpo (bg local, mesma grade,
+                                              altura por flex, não por calc:
+                                              o `.p-app` de cá já é a caixa
+                                              fixa — ver a nota abaixo)
+     .builder-icon-button-list (pílula fixa, esquerda 1rem, topo 50%,
+       raio 16, bg surface-2, sombra 16px/56px)
+                                           → .bl-barra (mesma pílula, mesma
+                                              posição, `--surface-2`/`--shadow`)
+     .builder-footer (pílula absoluta, esquerda/baixo 1rem)
+                                           → .bl-rodape (mesma pílula, mesma
+                                              posição)
+     .builder-saving-state (bg surface-1, raio 8, padding 10px 20px)
+                                           → .bl-status
+     .zoom-container (60px de largura — bate com a medida tirada na tela
+       real) / .zoom-display (cor #c9dfe4, 1rem)
+                                           → .bl-zoom / .bl-zoom-valor
+     .default-node (bg #3f7de8 — o bloco de Início, azul deles)
+                                           → NÃO existe aqui: não há bloco
+                                              nenhum hoje (ver builder.tsx).
+                                              Quando houver, o tom de destaque
+                                              é `var(--p-marca)`, não o azul.
+     bds-banner variant="system" (faixa branca, botão-x, link) — o texto de
+       lá era sobre BSUID/Meta, específico do cliente deles; a NOSSA faixa
+       tem o nosso aviso (o Builder não tem editor). Estrutura igual: faixa
+       dispensável, com link e X.
+
+   O de-para de cor:
+     #141414 (fundo do canvas)         → --bl-fundo (hex fixo: é o "estúdio
+                                          escuro" da tela de fluxo, igual nos
+                                          dois temas, como a barra da Gestão)
+     #242424 (ponto da grade)          → --bl-grade
+     color-surface-2 / #ededed (pílula)→ var(--surface-2)
+     color-content-default / #282828  → var(--ink)
+     #c9dfe4 (texto do zoom)           → var(--ink-3) (fantasma, sobre fundo
+                                          escuro não precisa do azul-gelo deles)
+     sombra 16px/56px rgba(0,0,0,.45)  → var(--p-sombra-2)
+     #3f7de8 (bloco de início)         → var(--p-marca) — nosso tom de
+                                          destaque, não o azul deles
+   ========================================================================== */
+
+/* Esta tela não lê relatório, é canvas — sem padding, sem rolar sozinha (quem
+   rola, se um dia houver flow grande, é o canvas). `/builder` morava fora do
+   contato, dentro do casco de duas barras de `estrutura-gestao.tsx`, e mexer
+   em `App.tsx` para tirar a rota daquele casco estava fora do escopo — a
+   saída de então era neutralizar o padding do `.p-conteudo` ancestral só
+   quando ele tinha a tela do Builder dentro, com `.p-conteudo:has(> .bl-tela)`.
+   Agora que o Builder mora em `/fluxo/:id/builder`, `.bl-tela` é filha direta
+   de `.pt-app` (a MESMA casca de `fluxo/growth/casca.tsx`, via
+   `BarrasDoContato` em `builder.tsx`) — sem `.p-conteudo` ancestral nenhum
+   para neutralizar. O `:has()` saiu daqui. */
+.bl-tela {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --------------------------------------------------------------- a faixa */
+
+.bl-aviso {
+  flex: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--p-e-4);
+  min-height: 59px;
+  padding: var(--p-e-3) var(--p-e-5);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+  font-size: var(--p-t-md);
+  color: var(--ink);
+}
+
+.bl-aviso-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.bl-aviso details {
+  display: inline;
+}
+
+.bl-aviso summary {
+  display: inline;
+  color: var(--moss);
+  cursor: pointer;
+  font-weight: var(--p-peso-medio);
+}
+
+.bl-aviso-nota {
+  margin-top: var(--p-e-2);
+  color: var(--ink-2);
+}
+
+.bl-aviso-fechar {
+  flex: none;
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--p-r-sm);
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+}
+
+.bl-aviso-fechar:hover {
+  background: var(--surface-2);
+  color: var(--ink);
+}
+
+/* --------------------------------------------------------------- o corpo */
+
+.bl-corpo {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--bl-fundo, #141414);
+  background-image: radial-gradient(var(--bl-grade, #242424) 1px, transparent 0);
+  background-size: 16px 16px;
+}
+
+.bl-vazio {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--p-e-2);
+  text-align: center;
+  padding: var(--p-e-4);
+  color: var(--p-conteudo-claro, #fff);
+}
+
+.bl-vazio svg {
+  color: color-mix(in srgb, var(--p-conteudo-claro, #fff) 45%, transparent);
+}
+
+.bl-vazio p {
+  max-width: 46ch;
+  font-size: var(--p-t-md);
+  color: color-mix(in srgb, var(--p-conteudo-claro, #fff) 70%, transparent);
+}
+
+/* --------------------------------------------------------- a barra lateral
+   (`.builder-icon-button-list` deles: pílula fixa, meio da altura, raio 16,
+   sombra grande — item único: "Adicionar bloco". Aqui os dois botões que o
+   DOM capturado confirma sempre presentes: adicionar bloco e pesquisar. Os
+   outros da lista deles (Agente, Pagamento, Catálogo, AI Answers…) são
+   opções de plano — não são chrome, são o editor que não existe aqui.) */
+.bl-barra {
+  position: absolute;
+  left: var(--p-e-4);
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-1);
+  padding: var(--p-e-2);
+  border-radius: 16px;
+  background: var(--surface-2);
+  box-shadow: var(--p-sombra-2);
+}
+
+.bl-icone-botao {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--p-r-sm);
+  background: transparent;
+  color: var(--ink);
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.bl-icone-botao:disabled {
+  cursor: not-allowed;
+}
+
+/* ------------------------------------------------------------- o rodapé */
+
+.bl-rodape {
+  position: absolute;
+  left: var(--p-e-4);
+  bottom: var(--p-e-4);
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.bl-status {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  height: 40px;
+  padding: 0 var(--p-e-4);
+  border-radius: var(--p-r-md);
+  background: var(--surface);
+  color: var(--ink);
+  font-size: var(--p-t-md);
+  box-shadow: var(--p-sombra-1);
+}
+
+.bl-controles {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  height: 40px;
+  padding: 0 var(--p-e-1);
+  border-radius: var(--p-r-md);
+  background: var(--surface-2);
+  box-shadow: var(--p-sombra-1);
+}
+
+.bl-controles .bl-icone-botao {
+  width: 32px;
+  height: 32px;
+}
+
+/* Largura de 60px: a mesma medida tirada na tela real (`--bl-zoom-largura`
+   documentado só aqui porque é a única tela que usa). */
+.bl-zoom {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  height: 40px;
+  padding: 0 var(--p-e-3);
+  border-radius: var(--p-r-md);
+  background: var(--surface-2);
+  box-shadow: var(--p-sombra-1);
+}
+
+.bl-zoom-valor {
+  width: 60px;
+  text-align: center;
+  font-size: var(--p-t-md);
+  color: var(--ink-3);
+}
+
+.bl-zoom-trilho {
+  position: relative;
+  width: 100px;
+  height: 3px;
+  border-radius: var(--p-r-pilula);
+  background: var(--line-strong);
+}
+
+.bl-zoom-preenchido {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--ink-3);
+}
+
+/* --------------------------------------------------------- o botão redondo */
+
+.bl-conversa {
+  position: absolute;
+  right: var(--p-e-5);
+  bottom: var(--p-e-5);
+  z-index: 2;
+  width: 52px;
+  height: 52px;
+  display: grid;
+  place-items: center;
+  border: 0;
+  border-radius: var(--p-r-pilula);
+  background: var(--moss);
+  color: var(--p-marca-conteudo, #fff);
+  box-shadow: var(--p-sombra-2);
+  cursor: not-allowed;
+  opacity: 0.6;
+}

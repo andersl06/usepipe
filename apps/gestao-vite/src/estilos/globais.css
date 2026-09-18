@@ -1808,6 +1808,48 @@ tr.grupo th {
   margin-top: 0;
 }
 
+/* Painel de conteúdo de "Modelos de mensagem" — `FICHA-message-template.md`
+   §2: o único cadastro em que o título repete DENTRO de um cartão, com a
+   linha "Filtrar por:" antes da busca. Raio 16 e sombra do mesmo cartão de
+   sempre (`--g-r-cartao`/`--g-sombra-cartao`), tinta nossa. */
+.painel-modelos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+  padding: var(--g-cartao-pad);
+  border-radius: var(--g-r-cartao);
+  background: var(--p-superficie-0);
+  box-shadow: var(--g-sombra-cartao);
+}
+
+.painel-modelos > h3 {
+  margin: 0;
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
+  color: var(--p-conteudo);
+}
+
+.filtrar-por {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.filtrar-por .sub {
+  white-space: nowrap;
+}
+
+.filtrar-por select {
+  height: 38px;
+  padding: 0 var(--p-e-3);
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: var(--p-t-md);
+}
+
 /* Abaixo de 1180 os oito campos não cabem em linha; viram duas fileiras
    antes de virar ilegíveis. */
 @media (max-width: 1180px) {
