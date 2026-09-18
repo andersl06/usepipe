@@ -59,7 +59,7 @@ const TIPOS_DE_ENVIO = [
   { valor: 'eventtrackings', rotulo: 'Eventos' },
 ] as const;
 
-export function TelaDoWebhook({ fluxoId }: { fluxoId: string }) {
+export function TelaDoWebhook({ base }: { base: string }) {
   const [aba, setAba] = useState<Aba>('visao');
   const [ativo, setAtivo] = useState(false);
   const [urls, setUrls] = useState<string[]>(['']);
@@ -87,7 +87,7 @@ export function TelaDoWebhook({ fluxoId }: { fluxoId: string }) {
       <header className="ph-cabecalho">
         <div className="ph-conteudo">
           <div className="ph-voltar-caixa">
-            <Link className="ph-voltar" href={`/fluxo/${fluxoId}/integracoes`} aria-label="Voltar">
+            <Link className="ph-voltar" href={`${base}/integracoes`} aria-label="Voltar">
               <IconePortal nome="voltar" tamanho={22} />
             </Link>
           </div>

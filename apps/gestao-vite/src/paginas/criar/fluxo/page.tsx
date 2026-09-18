@@ -128,7 +128,7 @@ function PassoDoMarketplace() {
             continua meio a meio sobre a borda de cima: ele é o que faz a
             pessoa olhar primeiro para este cartão. */}
         <Link className="cf-cartao" href="/criar/fluxo?passo=template">
-          <span className="cf-selo">{ROTULOS.selo}</span>
+          <span className="cf-selo-recomendado">{ROTULOS.selo}</span>
           {/* `bds-icon name="integration" size="brand"`. O nosso `loja` é o
               desenho `plugin` do mesmo conjunto — a tomada que encaixa. */}
           <IconePortal nome="loja" tamanho={48} />

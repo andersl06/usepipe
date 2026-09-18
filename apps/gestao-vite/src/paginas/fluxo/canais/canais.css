@@ -1,46 +1,13 @@
-/* `auth.application.detail.channels`, captura 8: cabeçalho claro e grade de cards. */
-.cn-miolo {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  background: var(--ground);
-}
-
-/* O `page-header` da origem abre a página em uma faixa branca. */
-.cn-cabecalho {
-  display: flex;
-  align-items: center;
-  min-height: 72px;
-  background: var(--p-superficie-0);
-  box-shadow: 0 2px 12px color-mix(in srgb, var(--p-conteudo) 10%, transparent);
-}
-
-.cn-coluna {
-  box-sizing: border-box;
-  width: 100%;
-  margin: 0 auto;
-  padding: 0 var(--p-e-5);
-}
-
-.cn-cabecalho h1 {
-  margin: 0;
-  font-size: 24px;
-  font-weight: var(--g-peso-negrito);
-  line-height: 1.25;
-  color: var(--p-conteudo);
-}
-
-.cn-conteudo {
-  padding-top: 30px;
-  padding-bottom: 40px;
-}
+/* `auth.application.detail.channels`, captura 8: cabeçalho é o `page-header`
+   padrão (`ph-cabecalho`, de Integrações — a mesma `.full-initial-section` do
+   `portal.css`, sem faixa branca própria) seguido da grade de cards. */
 
 /* `.channels-list`: margem negativa de 20 e itens de 270 (230 + 40). */
 .cn-lista {
   display: flex;
   align-items: stretch;
   flex-wrap: wrap;
-  margin: 0 -20px;
+  margin: 15px -20px 40px;
 }
 
 .cn-item {
@@ -118,7 +85,7 @@
   margin: 0;
   color: var(--p-conteudo-desabilitado);
   font-size: var(--p-t-lg);
-  font-weight: var(--g-peso-negrito);
+  font-weight: var(--g-peso-normal);
   line-height: 1.25;
 }
 
@@ -133,7 +100,7 @@
   border-top: 1px solid var(--p-superficie-3);
   color: var(--p-marca-forte);
   font-size: var(--p-t-md);
-  font-weight: var(--g-peso-negrito);
+  font-weight: var(--g-peso-forte);
 }
 
 .cn-botao--conectado {

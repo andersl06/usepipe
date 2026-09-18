@@ -850,29 +850,47 @@
   font-size: 16px;
   line-height: 25.6px;
 }
-/* Anúncios (Beta) — cartão único de onboarding, centrado, como
-   `growth/adsbuying` na origem (LEIA.md, rodada 3): logo, título, texto de
-   explicação e o botão de conectar. */
+/* Anúncios (Beta) — `growth/adsbuying` na origem, medido no DOM renderizado
+   de `docs/capturas/blip/roteador/roteador-anuncios__pagina.html`: um
+   `bds-paper` centralizado (`container xxs=8`, `margin: y-9`) com uma fileira
+   `justify-content: space-between; align-items: center` de no máximo 625px —
+   ilustração à esquerda, coluna de texto à direita (título fs-24 bold,
+   texto fs-14, botão alinhado à direita com `padding-top: 30px`). Não é um
+   cartão vertical centrado como antes: é horizontal, texto à esquerda. */
 .an-conexao {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 16px;
-  padding: 48px 32px;
-  text-align: center;
+  justify-content: center;
+  gap: 40px;
+  max-width: 625px;
+  margin: 72px auto;
+  padding: 0 24px;
+}
+.an-ilustracao {
+  flex: none;
+  color: var(--p-conteudo-fantasma);
+}
+.an-corpo {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: left;
 }
 .an-titulo {
   margin: 0;
-  font-size: 20px;
+  font-size: 24px;
   font-weight: 700;
-  line-height: 28px;
+  line-height: 1.3;
 }
 .an-texto {
-  margin: 0;
-  max-width: 520px;
+  margin: 8px 0 0;
   font-size: 14px;
   line-height: 1.6;
   color: var(--p-conteudo-fantasma);
+}
+.an-acoes {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 30px;
 }
 .an-botao {
   min-height: 40px;
@@ -888,12 +906,32 @@
 .an-botao:hover {
   filter: brightness(0.94);
 }
+@media (max-width: 700px) {
+  .an-conexao {
+    flex-direction: column;
+    text-align: center;
+    margin: 40px auto;
+  }
+  .an-corpo {
+    text-align: center;
+  }
+  .an-acoes {
+    justify-content: center;
+  }
+}
 
-/* Relatório de Pagamentos — cartões de totais e o top 5, como
-   `growth/activemessages/paymentsReport` na origem: aviso no topo,
-   `gr-metricas` para os totais e `gr-tabela-rolagem` para o top 5. A nossa
-   API não tem esse dado (nem de demonstração): estado vazio honesto em vez
-   de fabricar número. */
+/* Relatório de Pagamentos — `growth/activemessages/paymentsReport` na
+   origem: nenhum título de página (o `ui-view="content"` recebe o MFE
+   direto, sem `home-header-testid`), duas colunas lado a lado —
+   "Tráfego de mensagens" e "Pagamentos" —, cada uma com seus próprios
+   cartões (medido em `roteador-relatoriopagamentos__pagina.html`: flex-wrap,
+   gap 32, cada card com `border-radius: 12px; padding: 12px`). A origem
+   mostra números de demonstração fixos (384.302 mensagens etc.) que o Pipe
+   não reproduz — a régua aqui é a disposição, não o dado; por isso os
+   valores ficam em "—" e as barras não fabricam altura. */
+.pg-pagina {
+  padding-top: 24px;
+}
 .pg-aviso {
   margin: 0 0 20px;
   padding: 12px 16px;
@@ -902,23 +940,166 @@
   color: var(--p-conteudo-fantasma);
   font-size: 14px;
 }
-.pg-secao {
-  margin-bottom: 24px;
-  padding: 20px;
-  border-radius: var(--g-r-cartao);
+.pg-colunas {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 32px;
+}
+.pg-coluna {
+  flex: 1 1 320px;
+  min-width: 0;
+}
+.pg-coluna-titulo {
+  margin: 0 0 16px;
+  font-size: 24px;
+  font-weight: 700;
+}
+.pg-cartoes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.pg-cartao {
+  border-radius: 12px;
+  padding: 12px;
   background: var(--p-superficie-0);
   box-shadow: var(--g-sombra-cartao);
 }
-.pg-secao h2 {
-  margin: 0 0 16px;
-  font-size: 18px;
-}
-.pg-metricas {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+.pg-metrica-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   gap: 16px;
+  padding: 16px;
 }
-.pg-metricas .gr-metrica strong {
+.pg-metrica-rotulo {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 14px;
+  color: var(--p-conteudo-fantasma);
+}
+.pg-metrica-valor {
+  display: block;
+  font-size: 16px;
+  font-weight: 700;
+}
+.pg-barra {
+  width: 160px;
+  height: 8px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: var(--p-superficie-2);
+  overflow: hidden;
+}
+.pg-barra-cheia {
+  height: 100%;
+  border-radius: 999px;
+  background: var(--p-superficie-3);
+}
+.pg-metrica-icone {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo-fantasma);
+}
+.pg-grafico h3,
+.pg-top5 h3 {
+  margin: 0 0 8px;
+  padding: 8px 4px 0;
+  font-size: 18px;
+  font-weight: 600;
+}
+.pg-grafico-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 180px;
+  padding: 16px;
+  color: var(--p-conteudo-fantasma);
+  text-align: center;
+}
+.pg-grafico-vazio p {
+  margin: 0;
+  font-size: 14px;
+}
+.pg-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin: 0;
+  padding: 4px 8px 8px;
+  list-style: none;
+}
+.pg-legenda li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--p-conteudo-fantasma);
+}
+.pg-legenda-ponto {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+.pg-par {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+.pg-resumo {
+  flex: 1 1 180px;
+  min-width: 0;
+  padding: 16px;
+}
+.pg-resumo-rotulo {
+  margin: 0 0 2px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--p-conteudo-desabilitado);
+}
+.pg-resumo-legenda {
+  margin: 0;
+  font-size: 12px;
+  color: var(--p-conteudo-fantasma);
+}
+.pg-resumo-valor {
+  margin: 8px 0 0;
+  font-size: 30px;
+  font-weight: 700;
+}
+.pg-barras {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 8px 12px;
+  margin-top: 20px;
+}
+.pg-barra-vertical {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 34px;
+}
+.pg-barra-vertical-cheia {
+  display: block;
+  width: 16px;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--p-superficie-3);
+}
+.pg-barra-vertical-rotulo {
+  margin-top: 4px;
+  font-size: 12px;
   color: var(--p-conteudo-fantasma);
 }
 

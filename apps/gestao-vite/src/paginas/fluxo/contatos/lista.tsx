@@ -2,7 +2,7 @@ import Link from '../../../componentes/link';
 import { IconePortal } from '../../../componentes/icones-portal';
 import { useLeitura } from '../../../lib/consulta';
 import type { ContatoListado } from '@pipe/contracts';
-import { useContato } from '../contato';
+import { baseDoContato, useContato } from '../contato';
 import {
   formatarLimiteDoPeriodo,
   formatarUltimaInteracao,
@@ -19,6 +19,7 @@ import {
 export function ListaContatosDoBot() {
   const { contato: bot } = useContato();
   const id = bot.id;
+  const base = baseDoContato(bot.tipo, id);
   const leitura = useLeitura<ContatoListado[]>(`/v1/gestao/fluxos/${id}/contatos`);
   const contatos = leitura.data ?? [];
   const periodo = periodoPadrao(new Date());
@@ -95,7 +96,7 @@ export function ListaContatosDoBot() {
               {contatos.map((contato) => (
                 <Link
                   className="ct-usuario"
-                  href={`/fluxo/${id}/contatos/${contato.id}`}
+                  href={`${base}/contatos/${contato.id}`}
                   key={contato.id}
                 >
                   <span className="ct-secao ct-secao-avatar">

@@ -1,5 +1,6 @@
 import Link from '../../../componentes/link';
 import { useLocation } from 'react-router-dom';
+import { baseDoContato, useContato } from '../contato';
 
 /**
  * A lateral do Growth — `<aside class="detail-aside fl"><nav class="sidenav">
@@ -38,12 +39,14 @@ const ITENS: { titulo: string; descricao: string | null; beta?: true; rota: stri
 
 export function NavegacaoGrowth({ id }: { id: string }) {
   const caminho = useLocation().pathname;
+  const { contato } = useContato();
+  const base = baseDoContato(contato.tipo, id);
   return (
     <aside className="gr-lateral">
       <nav className="gr-sidenav" aria-label="Seções do Growth">
         <ol>
           {ITENS.map((item) => {
-            const href = item.rota ? `/fluxo/${id}/growth/${item.rota}` : null;
+            const href = item.rota ? `${base}/growth/${item.rota}` : null;
             const ativo = href !== null && caminho.startsWith(href);
             const miolo = (
               <>

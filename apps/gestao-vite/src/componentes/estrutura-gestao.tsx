@@ -527,7 +527,7 @@ function Lateral({ caminho }: { caminho: string }) {
  * operação vazia para quem ainda nem disse de que empresa é.
  */
 const CASCO_PROPRIO =
-  /^\/(entrar|convite|portal|novidades|criar|contrato|fluxo|bem-vindo|minha-conta|trocar-conta)(\/|$)/;
+  /^\/(entrar|convite|portal|novidades|criar|contrato|fluxo|roteador|bem-vindo|minha-conta|trocar-conta)(\/|$)/;
 
 /**
  * Como rota-pai do React Router: as telas de operação penduram aqui e saem

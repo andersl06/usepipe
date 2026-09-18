@@ -118,6 +118,10 @@ export function CampoCopiavel({
  * `<bds-input>` / `<bds-input-password>` do blip-ds: caixa de borda 1px e raio
  * 8 (`padding: 7px 4px 8px 12px`) com o rótulo (12px/700) DENTRO, em cima do
  * campo de 36px. `senha` acrescenta o olho do `bds-input-password`.
+ *
+ * `contador`: o `<span counter-for>` de `material-input` (origem) — mostra
+ * quanto FALTA, não quanto já foi digitado (`maxLength - valor.length`), como
+ * em `/configurations/basic` ("Nome do fluxo": 30 - 16 = "14").
  */
 export function CampoBds({
   id,
@@ -129,6 +133,7 @@ export function CampoBds({
   senha,
   obrigatorio,
   maxLength,
+  contador,
   linhas,
 }: {
   id?: string;
@@ -140,12 +145,18 @@ export function CampoBds({
   senha?: boolean;
   obrigatorio?: boolean;
   maxLength?: number;
+  contador?: boolean;
   /** `bds-textarea`: mesma caixa do `bds-input`, só que com `<textarea>` dentro. */
   linhas?: number;
 }) {
   return (
     <label className={desabilitado ? 'cf-campo cf-campo--desabilitado' : 'cf-campo'}>
-      <span className="cf-campo-rotulo">{rotulo}</span>
+      <span className="cf-campo-cabecalho">
+        <span className="cf-campo-rotulo">{rotulo}</span>
+        {contador && maxLength != null ? (
+          <span className="cf-campo-contador">{maxLength - valor.length}</span>
+        ) : null}
+      </span>
       <span className="cf-campo-linha">
         {linhas ? (
           <textarea
@@ -187,7 +198,9 @@ export function CampoBds({
  * `gap: 4px` até o ícone de 24. `primary` pinta com a marca; `secondary` é só
  * texto; `tertiary` tem borda 1px de conteúdo (é o "Ok" da ajuda das chaves);
  * `bot` é o `.bp-btn.bp-btn--bot.bp-btn--small` antigo (42px, raio 3) do
- * "Salvar" do formulário HTTP.
+ * "Salvar" do formulário HTTP. `perigo` é o `.bp-btn--delete` ("Excluir
+ * fluxo", "Excluir chave") — texto/borda na tinta de erro, sem fundo sólido
+ * novo pra não inventar par de contraste que a régua não tem.
  */
 export function BotaoBds({
   variante = 'primary',
@@ -195,7 +208,7 @@ export function BotaoBds({
   children,
   ...resto
 }: {
-  variante?: 'primary' | 'secondary' | 'tertiary' | 'bot';
+  variante?: 'primary' | 'secondary' | 'tertiary' | 'bot' | 'perigo';
   icone?: NomeDeIconePortal;
   children: ReactNode;
 } & Omit<React.ButtonHTMLAttributes<HTMLButtonElement>, 'children'>) {

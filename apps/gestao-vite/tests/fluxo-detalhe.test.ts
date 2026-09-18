@@ -21,25 +21,25 @@ import {
 
 const ID = '5b6843ae-b4f8-4bc0-bce2-e32318043297';
 
-test('a Análise leva à análise DO contato, nos dois tipos', () => {
+test('a Análise leva à análise DO contato, no prefixo do próprio tipo', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const analise = itensDoMenu(tipo, ID).find((i) => i.rotulo === 'Análise');
-    assert.equal(analise?.href, `/fluxo/${ID}/analise`);
+    assert.equal(analise?.href, `/${tipo}/${ID}/analise`);
   }
 });
 
-test('Canais leva aos canais DO contato, nos dois tipos', () => {
+test('Canais leva aos canais DO contato, no prefixo do próprio tipo', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const canais = itensDoMenu(tipo, ID).find((i) => i.rotulo === 'Canais');
-    assert.equal(canais?.href, `/fluxo/${ID}/canais`);
+    assert.equal(canais?.href, `/${tipo}/${ID}/canais`);
   }
 });
 
 test('Contatos e Conteúdos abrem suas áreas no contexto do contato', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const itens = itensDoMenu(tipo, ID);
-    assert.equal(itens.find((i) => i.rotulo === 'Contatos')?.href, `/fluxo/${ID}/contatos`);
-    assert.equal(itens.find((i) => i.rotulo === 'Conteúdos')?.href, `/fluxo/${ID}/conteudos`);
+    assert.equal(itens.find((i) => i.rotulo === 'Contatos')?.href, `/${tipo}/${ID}/contatos`);
+    assert.equal(itens.find((i) => i.rotulo === 'Conteúdos')?.href, `/${tipo}/${ID}/conteudos`);
   }
 });
 
@@ -48,9 +48,9 @@ test('Growth e Log abrem suas telas no contexto do contato', () => {
     const itens = itensDoMenu(tipo, ID);
     assert.equal(
       itens.find((i) => i.rotulo === 'Growth')?.href,
-      `/fluxo/${ID}/growth/mensagens-ativas`,
+      `/${tipo}/${ID}/growth/mensagens-ativas`,
     );
-    assert.equal(itens.find((i) => i.rotulo === 'Log')?.href, `/fluxo/${ID}/log`);
+    assert.equal(itens.find((i) => i.rotulo === 'Log')?.href, `/${tipo}/${ID}/log`);
   }
 });
 

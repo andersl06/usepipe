@@ -1,0 +1,158 @@
+/**
+ * `/configurations/basic`: título de seção, os dois campos com contador (cima
+ * do `cf-campo*` de `configuracoes.css`) e a área de imagem — o resto (botão,
+ * aviso, rodapé) já vem de `configuracoes.css`.
+ *
+ * `#applicationForm` na origem: `<div class="row"><div class="twelve columns">`
+ * — os campos são `u-full-width`, sem coluna estreita. O form ocupa a largura
+ * toda do `.cf-container` (776px no desktop); não há `max-width` na origem.
+ */
+/* `h4.color-neutral-dark-rooftop`: 18px, sem negrito. `rooftop` é
+   `#505f79` (cinza-azulado, não cinza puro) — a correspondência na nossa
+   régua é `--p-info-conteudo`, não `--p-conteudo-fantasma` (que é o cinza
+   quente do resto da tela e apagava demais o destaque do título). */
+.cf-basicas-secao {
+  margin: 0 0 20px;
+  font-size: 18px;
+  font-weight: var(--g-peso-normal);
+  color: var(--p-info-conteudo);
+}
+.cf-basicas-opcional {
+  font-weight: var(--g-peso-normal);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* `<material-input>` ("Nome do fluxo", "Descrição"): campo de LINHA, não a
+   caixa com borda de `.cf-campo` — a única tela de Configurações que ainda
+   usa esse padrão antigo (AngularJS), em vez de `<bds-input>`. Rótulo sobe
+   pra cima (12px, apagado) só quando há valor; vazio, ele mesmo faz de
+   placeholder. Sublinhado sob a linha toda; o contador fica na ponta
+   direita da MESMA linha do sublinhado, não no canto de um rótulo interno. */
+.cf-basicas-linha {
+  margin: 0 0 25px;
+}
+.cf-basicas-linha-rotulo {
+  display: block;
+  margin-bottom: 4px;
+  font-size: 12px;
+  color: var(--p-conteudo-fantasma);
+}
+.cf-basicas-linha-corpo {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--p-linha-media);
+}
+.cf-basicas-linha-corpo:focus-within {
+  border-color: var(--p-marca);
+}
+.cf-basicas-linha-corpo input,
+.cf-basicas-linha-corpo textarea {
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  border: 0;
+  resize: none;
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: 16px;
+  line-height: 24px;
+}
+.cf-basicas-linha-corpo input:focus,
+.cf-basicas-linha-corpo textarea:focus {
+  outline: none;
+}
+.cf-basicas-linha-corpo input::placeholder,
+.cf-basicas-linha-corpo textarea::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+.cf-basicas-linha-contador {
+  flex: none;
+  padding-bottom: 2px;
+  font-size: 12px;
+  color: var(--p-conteudo-fantasma);
+}
+.cf-basicas-imagem {
+  display: flex;
+  flex-direction: column;
+}
+.cf-basicas-solta {
+  position: relative;
+  box-sizing: border-box;
+  min-height: 180px;
+  border: 1px dashed var(--p-linha-media);
+  border-radius: 12px;
+  background: var(--p-superficie-0);
+}
+.cf-basicas-anexar {
+  display: flex;
+  width: 100%;
+  height: 100%;
+  min-height: 180px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo-fantasma);
+  font: inherit;
+  font-size: 14px;
+  cursor: pointer;
+}
+.cf-basicas-anexar:hover {
+  color: var(--p-conteudo);
+}
+.cf-basicas-previa {
+  display: block;
+  max-width: 100%;
+  max-height: 240px;
+  margin: 0 auto;
+  border-radius: 12px;
+  object-fit: contain;
+}
+/* `<a class="text"><i class="icon layout-top layout-right"></i></a>`: ícone
+   solto, sem chip nem sombra atrás — só posicionado no canto. */
+.cf-basicas-remover {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+.cf-basicas-remover:hover {
+  color: var(--p-erro-conteudo);
+}
+.cf-basicas-rodape {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 24px;
+  padding-top: 20px;
+  border-top: 1px solid var(--p-superficie-3);
+}
+.cf-basicas-rodape p {
+  margin: 0;
+  color: var(--p-conteudo-fantasma);
+}
+.cf-basicas-link {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--p-marca);
+  font: inherit;
+  font-weight: var(--g-peso-negrito);
+  text-decoration: underline;
+  cursor: pointer;
+}

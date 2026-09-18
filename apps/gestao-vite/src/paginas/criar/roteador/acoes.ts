@@ -10,7 +10,7 @@ import { RECADOS } from './regras';
 export async function criarRoteador(dados: FormData): Promise<void> {
   const resultado = await gravarContato(dados, { tipo: 'roteador', recados: RECADOS });
   if (resultado.erro) return voltarComErro(resultado.erro, String(dados.get('nome') ?? ''));
-  irPara(`/fluxo/${resultado.id}`);
+  irPara(`/roteador/${resultado.id}`);
 }
 
 function voltarComErro(motivo: string, nome: string): void {

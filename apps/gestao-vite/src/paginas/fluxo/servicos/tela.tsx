@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { IconePortal } from '../../../componentes/icones-portal';
 import type { DadosDeServicos } from '@pipe/contracts';
+import { baseDoContato } from '../contato';
 import { camposVisiveisDoServico } from './regras';
 
 export function TelaDeServicos({
@@ -20,7 +21,13 @@ export function TelaDeServicos({
 
   return (
     <div className="sv-container">
-      <h1>Serviços</h1>
+      <header className="ph-cabecalho">
+        <div className="ph-conteudo">
+          <div className="ph-titulo-caixa">
+            <h1 className="ph-titulo">Serviços</h1>
+          </div>
+        </div>
+      </header>
       <p>Adicione sub-bots como serviços do seu chatbot principal.</p>
       <p>
         Para informações sobre como configurar e utilizar o modelo Roteador, consulte nossa
@@ -107,7 +114,11 @@ export function TelaDeServicos({
               </span>
             </h2>
             <Linha rotulo="Serviço:" valor="Chatbot principal" />
-            <Linha rotulo="Chatbot:" valor={principal.nome} href={`/fluxo/${principal.id}`} />
+            <Linha
+              rotulo="Chatbot:"
+              valor={principal.nome}
+              href={baseDoContato(principal.tipo, principal.id)}
+            />
             <Linha rotulo="Contrato:" valor="Pipe" />
           </div>
           {podeEditar ? (
@@ -125,7 +136,7 @@ export function TelaDeServicos({
           <article className="sv-cartao" key={filho.id}>
             <div className="sv-cartao-corpo">
               <Linha rotulo="Serviço:" valor={filho.nome} />
-              <Linha rotulo="Chatbot:" valor={filho.nome} href={`/fluxo/${filho.id}`} />
+              <Linha rotulo="Chatbot:" valor={filho.nome} href={baseDoContato(filho.tipo, filho.id)} />
               <Linha rotulo="Contrato:" valor="Pipe" />
             </div>
           </article>

@@ -33,7 +33,9 @@ export interface Contato {
 }
 
 export function BarraDoContato({ contato, ativo }: { contato: Contato; ativo?: string }) {
-  const itens = itensDoMenu(contato.tipo === 'roteador' ? 'roteador' : 'fluxo', contato.id);
+  const tipo = contato.tipo === 'roteador' ? 'roteador' : 'fluxo';
+  const base = `/${tipo}/${contato.id}`;
+  const itens = itensDoMenu(tipo, contato.id);
   const visiveis = itens.slice(0, LIMITE_VISIVEL);
   const excedentes = itens.slice(LIMITE_VISIVEL);
 
@@ -69,7 +71,7 @@ export function BarraDoContato({ contato, ativo }: { contato: Contato; ativo?: s
               <IconePortal nome="baixo" tamanho={16} />
             </summary>
             <div className="g-painel">
-              <Link href={`/fluxo/${contato.id}`}>Home</Link>
+              <Link href={base}>Home</Link>
               <span className="pt-obra">
                 Configuração
                 <span className="pt-obra-selo">em breve</span>
@@ -121,7 +123,7 @@ export function BarraDoContato({ contato, ativo }: { contato: Contato; ativo?: s
                 key={item.rotulo}
                 className={item.rotulo === ativo ? 'fx-icone fx-icone--ativo' : 'fx-icone'}
                 aria-current={item.rotulo === ativo ? 'page' : undefined}
-                href={`/fluxo/${contato.id}${item.href}`}
+                href={`${base}${item.href}`}
                 title={item.rotulo}
                 aria-label={item.rotulo}
               >

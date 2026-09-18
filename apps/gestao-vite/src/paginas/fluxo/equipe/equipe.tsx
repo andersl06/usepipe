@@ -5,6 +5,11 @@ import { PAPEIS_DA_ORIGEM, ehPapelDeConta } from '../../contrato/catalogo';
 import { BarrasDoContato } from '../contato';
 import { TelaDeEquipe } from './tela';
 
+/* Na ordem da origem (guest, member, admin) — a mesma conta de
+   `contrato/membros/page.tsx`, pro seletor de papel do editar linha a linha
+   sair na mesma ordem da tabela cheia. */
+const ORDEM_DOS_PAPEIS = Object.keys(PAPEIS_DA_ORIGEM);
+
 /**
  * `/team` do roteador (LEIA.md, captura 1). O Pipe ainda não tem RBAC por
  * fluxo (`../itens.ts`) — a lista é a mesma conferência de `conta.membros.ler`
@@ -48,12 +53,21 @@ export function PaginaDeEquipe() {
         ) : !leitura.data ? null : (
           <TelaDeEquipe
             podeEscrever={podeEscrever}
+            papeis={leitura.data.papeis
+              .flatMap((p) =>
+                ehPapelDeConta(p.nome)
+                  ? [{ id: p.id, roleId: p.nome, rotulo: PAPEIS_DA_ORIGEM[p.nome].rotulo }]
+                  : [],
+              )
+              .sort((a, b) => ORDEM_DOS_PAPEIS.indexOf(a.roleId) - ORDEM_DOS_PAPEIS.indexOf(b.roleId))}
             membros={leitura.data.membros
               .filter((m) => !(m.tipo === 'usuario' && m.id === eu.usuario.id))
               .map((m) => ({
                 id: m.id,
+                tipo: m.tipo,
                 nome: m.nome,
                 email: m.email,
+                papelId: m.papelId,
                 papel: rotuloDoPapel(m.papelNome),
               }))}
           />

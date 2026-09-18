@@ -477,6 +477,7 @@
 .ct-linha {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
   width: 100%;
   margin-top: 20px;
 }
@@ -640,10 +641,16 @@
   padding-left: 20px;
   color: var(--p-conteudo-desabilitado);
 }
+/* `width: 70%` da origem parte de um cartão mais largo; aqui isso não sobra
+   espaço para data + hora + id sem colar. `flex: 1` toma o espaço livre da
+   fileira e o `wrap` evita a data grudar no id quando ainda não bastar. */
 .ct-ticket-dados {
   display: flex;
-  justify-content: space-between;
-  width: 70%;
+  flex: 1;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  gap: 4px 12px;
+  min-width: 0;
   color: var(--p-conteudo);
   font-size: 14px;
   line-height: 21px;

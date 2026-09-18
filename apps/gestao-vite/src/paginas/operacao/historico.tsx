@@ -8,7 +8,7 @@ import {
 } from '../../lib/historico';
 import { useSearchParams } from 'react-router-dom';
 import { useLeitura } from '../../lib/consulta';
-import { dataHora, dataOuNada, duracao, numero, uuidOuNada } from '../../lib/formato';
+import { dataHora, dataIso, dataOuNada, duracao, numero, uuidOuNada } from '../../lib/formato';
 
 interface RespostaDoHistorico {
   fuso: string;
@@ -39,6 +39,47 @@ const ROTULO_STATUS: Record<string, { texto: string; classe: string }> = {
   abandonada: { texto: 'Abandonada', classe: 'etiqueta alerta' },
   finalizada: { texto: 'Finalizada', classe: 'etiqueta' },
 };
+
+/**
+ * Atalhos de período — os rótulos exatos do filtro deles
+ * (`docs/capturas/blip/dom/history.html`). "Personalizado" é o nosso par de
+ * datas de sempre; os outros só calculam `de`/`ate` e reaproveitam o mesmo
+ * formulário GET.
+ */
+const PERIODOS = [
+  { chave: 'hoje', rotulo: 'Hoje' },
+  { chave: 'ontem', rotulo: 'Ontem' },
+  { chave: '7', rotulo: 'Últimos 7 dias' },
+  { chave: '15', rotulo: 'Últimos 15 dias' },
+  { chave: '30', rotulo: 'Últimos 30 dias' },
+  { chave: '60', rotulo: 'Últimos 60 dias' },
+  { chave: '90', rotulo: 'Últimos 90 dias' },
+  { chave: '120', rotulo: 'Últimos 120 dias' },
+  { chave: '180', rotulo: 'Últimos 180 dias' },
+] as const;
+
+function calcularPeriodo(chave: string, fuso: string): { de: string; ate: string } | undefined {
+  const agora = new Date();
+  const hoje = dataIso(agora, fuso);
+  if (chave === 'hoje') return { de: hoje, ate: hoje };
+  if (chave === 'ontem') {
+    const ontem = dataIso(new Date(agora.getTime() - 86_400_000), fuso);
+    return { de: ontem, ate: ontem };
+  }
+  const dias = Number(chave);
+  if (!Number.isInteger(dias)) return undefined;
+  const inicio = dataIso(new Date(agora.getTime() - (dias - 1) * 86_400_000), fuso);
+  return { de: inicio, ate: hoje };
+}
+
+/** Qual atalho corresponde ao `de`/`ate` atuais, se algum — senão, "personalizado". */
+function periodoAtual(de: string, ate: string, fuso: string): string {
+  const achado = PERIODOS.find((p) => {
+    const calc = calcularPeriodo(p.chave, fuso);
+    return calc !== undefined && calc.de === de && calc.ate === ate;
+  });
+  return achado?.chave ?? 'personalizado';
+}
 
 /**
  * Histórico — lista de CARTÕES, como na tela deles.
@@ -125,17 +166,30 @@ export function PaginaHistorico() {
 
       <form className="quickfilters" method="get" action="/historico">
         <span className="lbl">Período</span>
-        <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
-        <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
-
-        <select name="fila" defaultValue={params.fila ?? ''} className="btn" aria-label="Fila">
-          <option value="">Todas as filas</option>
-          {catalogos.filas.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.nome}
+        <select
+          defaultValue={periodoAtual(de, ate, fuso)}
+          className="btn"
+          aria-label="Atalho de período"
+          onChange={(evento) => {
+            const calc = calcularPeriodo(evento.currentTarget.value, fuso);
+            if (!calc) return;
+            const form = evento.currentTarget.form;
+            const campoDe = form?.elements.namedItem('de');
+            const campoAte = form?.elements.namedItem('ate');
+            if (campoDe instanceof HTMLInputElement) campoDe.value = calc.de;
+            if (campoAte instanceof HTMLInputElement) campoAte.value = calc.ate;
+            form?.requestSubmit();
+          }}
+        >
+          {PERIODOS.map((p) => (
+            <option key={p.chave} value={p.chave}>
+              {p.rotulo}
             </option>
           ))}
+          <option value="personalizado">Personalizado</option>
         </select>
+        <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
+        <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
 
         <select
           name="atendente"
@@ -165,6 +219,15 @@ export function PaginaHistorico() {
           ))}
         </select>
 
+        <select name="fila" defaultValue={params.fila ?? ''} className="btn" aria-label="Fila">
+          <option value="">Todas as filas</option>
+          {catalogos.filas.map((f) => (
+            <option key={f.id} value={f.id}>
+              {f.nome}
+            </option>
+          ))}
+        </select>
+
         {/*
           Agrupamento no lugar dos relatórios: "por fila", "por atendente" e
           "por etiqueta" eram item de menu e são a mesma lista dobrada por uma
@@ -182,7 +245,7 @@ export function PaginaHistorico() {
           Aplicar
         </button>
         <a href="/historico" className="btn">
-          Limpar
+          Limpar tudo
         </a>
       </form>
 

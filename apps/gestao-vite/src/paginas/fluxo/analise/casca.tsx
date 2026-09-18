@@ -1,5 +1,5 @@
 import { Outlet } from 'react-router-dom';
-import { BarrasDoContato, useContato } from '../contato';
+import { BarrasDoContato, baseDoContato, useContato } from '../contato';
 import { CLUSTER_DA_CAPTURA, FLAGS_DA_CAPTURA, abasDaAnalise } from './abas';
 import { VistaDaAnalise } from './vista';
 import './analise.css';
@@ -29,7 +29,7 @@ export function CascaDaAnalise() {
           é cada aba, com o `.container` dela. */}
       <main className="an-miolo">
         <VistaDaAnalise
-          base={`/fluxo/${id}/analise`}
+          base={`${baseDoContato(contato.tipo, id)}/analise`}
           abas={abasDaAnalise(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA)}
         >
           <Outlet />

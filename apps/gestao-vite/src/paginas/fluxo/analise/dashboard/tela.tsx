@@ -14,6 +14,7 @@ import {
   type Intervalo,
   type Periodo,
 } from '@pipe/core/analise';
+import { baseDoContato } from '../../contato';
 import { PeriodoPersonalizado } from './periodo-personalizado';
 
 /**
@@ -1109,7 +1110,7 @@ function CartaoDeColunas(props: {
  * No roteador o nome do bloco é texto; no fluxo, link para o Builder.
  */
 function SecaoBlocos(p: PropsDoDashboard) {
-  const dicionario = `/fluxo/${p.id}/analise/dicionario-de-dados?path=dashboard:listOfBlocks`;
+  const dicionario = `${baseDoContato(p.dados.roteador ? 'roteador' : 'fluxo', p.id)}/analise/dicionario-de-dados?path=dashboard:listOfBlocks`;
   const descricao = (fluxo: string, roteador: string, fim: string) => (
     <>
       {p.dados.roteador ? roteador : fluxo}{' '}

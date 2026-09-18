@@ -18,10 +18,6 @@ import { IconePortal, type NomeDeIconePortal } from '../../../componentes/icones
  *
  * O sexto (`xml`, "Mime Types permitidos") só aparece com
  * `isMimeTypeManagementEnable`, que a régua não tem ligado — não entra.
- *
- * ponytail: só "Configurações básicas" ainda não tem tela aqui; fica sem
- * destino (só visual), como o combinado — não há campo de nome/descrição/
- * imagem do fluxo em `gestao-fluxo` para ela ler ainda.
  */
 const ITENS: {
   icone: NomeDeIconePortal;
@@ -33,7 +29,7 @@ const ITENS: {
     icone: 'config-basicas',
     titulo: 'Configurações básicas',
     descricao: 'Defina nome, descrição e a imagem de seu fluxo',
-    rota: null,
+    rota: 'basicas',
   },
   {
     icone: 'boas-vindas',

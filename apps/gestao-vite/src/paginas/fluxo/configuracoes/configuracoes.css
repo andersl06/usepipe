@@ -406,12 +406,24 @@
   cursor: default;
 }
 /* `label.input__container__label`: `fs-12` 700, 18px, `margin-bottom: 2px`. */
-.cf-campo-rotulo {
-  display: block;
+.cf-campo-cabecalho {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
   margin-bottom: 2px;
+}
+.cf-campo-rotulo {
   font-size: 12px;
   font-weight: var(--g-peso-negrito);
   line-height: 18px;
+}
+/* `<span counter-for>` (`material-input`): caracteres que ainda cabem
+   (`maxLength - valor.length`), não os já digitados. */
+.cf-campo-contador {
+  flex: none;
+  font-size: 12px;
+  color: var(--p-conteudo-fantasma);
 }
 /* `.input__container__wrapper`: o campo de 36px e, no `bds-input-password`, o olho. */
 .cf-campo-linha {
@@ -456,6 +468,21 @@
 }
 .cf-campo textarea::placeholder {
   color: var(--p-conteudo-fantasma);
+}
+/* O mesmo campo, com um `<select>` nativo dentro em vez de `input`/`textarea`
+   — o seletor de papel do editar linha a linha da Equipe. */
+.cf-campo select {
+  width: 100%;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+}
+.cf-campo select:focus {
+  outline: none;
 }
 .cf-campo-olho {
   flex: none;
@@ -554,6 +581,13 @@
   color: var(--p-marca-conteudo);
   font-weight: var(--g-peso-forte);
   line-height: 38px;
+}
+.cf-botao--perigo {
+  border-color: var(--p-erro-conteudo);
+  color: var(--p-erro-conteudo);
+}
+.cf-botao--perigo:hover {
+  background: var(--p-erro-fundo);
 }
 .cf-botao:disabled {
   opacity: 0.5;

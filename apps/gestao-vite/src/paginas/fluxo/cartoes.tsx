@@ -1,6 +1,7 @@
 import Link from '../../componentes/link';
 import { Avatar } from '@pipe/ui';
 import { IconePortal, LogoPortal, type NomeDeIconePortal } from '../../componentes/icones-portal';
+import { baseDoContato } from './contato';
 import { numeroDaHome, pilhaDaEquipe, type Extensao, type Membro, type Metricas } from './itens';
 
 /**
@@ -125,7 +126,15 @@ const LOGOS_DE_CANAL = [
 ] as const;
 
 /** `ng-if="!showAiCard"` — sem o cartão de IA (flag desligada), é este. */
-export function CartaoCanais({ ativos, id }: { ativos: readonly string[]; id: string }) {
+export function CartaoCanais({
+  ativos,
+  id,
+  tipo,
+}: {
+  ativos: readonly string[];
+  id: string;
+  tipo: string;
+}) {
   const logos = LOGOS_DE_CANAL.filter((l) => l.sempre || ativos.includes(l.tipo));
   return (
     <div className="fx-area-canais">
@@ -153,7 +162,7 @@ export function CartaoCanais({ ativos, id }: { ativos: readonly string[]; id: st
             ))}
           </div>
           <div className="fx-faixa-botao">
-            <Botao href={`/fluxo/${id}/canais`}>Ver canais</Botao>
+            <Botao href={`${baseDoContato(tipo, id)}/canais`}>Ver canais</Botao>
           </div>
         </div>
       </section>

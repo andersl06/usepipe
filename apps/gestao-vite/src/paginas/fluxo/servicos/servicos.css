@@ -1,18 +1,8 @@
-/* Medidas de `services-list`, `.application-item-labels`, `.application-item-link` e `bds-paper`; tinta nos tokens Pipe. */
-.sv-miolo {
-  min-height: calc(100vh - 136px);
-  padding: 40px 20px;
-  background: var(--ground);
-}
-.sv-container {
-  width: min(90%, 1120px);
-  margin: 0 auto;
-}
-.sv-container h1 {
-  margin: 0 0 16px;
-  font-size: 24px;
-  color: var(--p-conteudo);
-}
+/* `master-services`: o `page-header` padrão (`ph-cabecalho`, de Integrações)
+   seguido de `page-header-description`/`additional-info` — dois parágrafos
+   FORA da caixa com borda — e do `.container > .services-list`. Medidas de
+   `application-item-labels`, `application-item-link` e `bds-paper`; tinta nos
+   tokens Pipe. */
 .sv-container > p {
   margin: 0 0 12px;
   font-size: 14px;

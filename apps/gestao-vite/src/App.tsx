@@ -21,6 +21,7 @@ import PaginaClickTracker from './paginas/fluxo/growth/clicktracker/clicktracker
 import PaginaAnuncios from './paginas/fluxo/growth/anuncios/anuncios';
 import PaginaRelatorioDePagamentos from './paginas/fluxo/growth/pagamentos/pagamentos';
 import { CascaDeConfiguracoes } from './paginas/fluxo/configuracoes/casca';
+import { PaginaDeConfiguracoesBasicas } from './paginas/fluxo/configuracoes/basicas/basicas';
 import { PaginaApiDoBot } from './paginas/fluxo/configuracoes/api/api';
 import { PaginaChavesDoBot } from './paginas/fluxo/configuracoes/keys/keys';
 import { PaginaDeBoasVindas } from './paginas/fluxo/configuracoes/boasvindas/boasvindas';
@@ -70,9 +71,74 @@ import { PaginaGrowth } from './paginas/growth-portal';
 import { PaginaBuilder } from './paginas/builder';
 
 /**
+ * As rotas-filhas do contato — o que `/fluxo/:id` e `/roteador/:id` desenham
+ * embaixo do estado-pai (`RotaDoContato`).
+ *
+ * `/fluxo/:id/*` era, até aqui, TODA a árvore capturada de um roteador
+ * (`auvpsegurosrouter`, `pipeprincipal`) — telas de roteador, moradas no
+ * prefixo errado. Elas se mudaram para `/roteador/:id/*`; `/fluxo/:id/*`
+ * continua de pé, apontando para as MESMAS telas, até o dia em que alguém
+ * desenhar o que um FLUXO (chatbot) realmente mostra aqui. `RotaDoContato`
+ * redireciona quem entra pelo prefixo que não bate com o tipo do contato —
+ * por isso é seguro as duas rotas comparilharem esta mesma árvore agora.
+ */
+const rotasDoContato = (
+  <>
+    <Route index element={<HomeDoContato />} />
+    <Route path="canais" element={<PaginaDeCanais />} />
+    <Route path="servicos" element={<PaginaDeServicos />} />
+
+    <Route path="contatos" element={<CascaDeContatos />}>
+      <Route index element={<ListaContatosDoBot />} />
+      <Route path=":contatoId" element={<DetalheContatoDoBot />} />
+    </Route>
+
+    <Route path="integracoes" element={<CascaDeIntegracoes />}>
+      <Route index element={<PaginaIntegracoes />} />
+      <Route path="webhook" element={<PaginaWebhook />} />
+    </Route>
+
+    <Route path="log" element={<PaginaLog />} />
+
+    <Route path="growth" element={<CascaDeGrowth />}>
+      <Route index element={<Navigate to="mensagens-ativas" replace />} />
+      <Route path="mensagens-ativas" element={<PaginaMensagensAtivas />} />
+      <Route path="clicktracker" element={<PaginaClickTracker />} />
+      <Route path="anuncios" element={<PaginaAnuncios />} />
+      <Route path="pagamentos" element={<PaginaRelatorioDePagamentos />} />
+    </Route>
+
+    <Route path="configuracoes" element={<CascaDeConfiguracoes />}>
+      <Route index element={<Navigate to="basicas" replace />} />
+      <Route path="basicas" element={<PaginaDeConfiguracoesBasicas />} />
+      <Route path="boasvindas" element={<PaginaDeBoasVindas />} />
+      <Route path="menu-persistente" element={<PaginaDeMenuPersistente />} />
+      <Route path="api" element={<PaginaApiDoBot />} />
+      <Route path="keys" element={<PaginaChavesDoBot />} />
+    </Route>
+
+    <Route path="equipe" element={<PaginaDeEquipe />} />
+
+    <Route path="conteudos" element={<PaginaConteudos />} />
+
+    <Route path="analise" element={<CascaDaAnalise />}>
+      <Route index element={<Navigate to={ABA_PADRAO} replace />} />
+      <Route path="dashboard" element={<PaginaDoDashboard />} />
+      <Route path="visao-geral" element={<PaginaDaVisaoGeral />} />
+      <Route path="jornada" element={<PaginaDaJornada />} />
+      <Route path="relatorios" element={<PaginaDosRelatorios />} />
+      <Route path="mensagens-ativas" element={<AnaliseMensagensAtivas />} />
+      <Route path="gerenciador-de-relatorios" element={<PaginaDoGerenciador />} />
+      <Route path="dicionario-de-dados" element={<PaginaDoDicionario />} />
+    </Route>
+  </>
+);
+
+/**
  * As rotas da Gestão — as mesmas URLs do aplicativo em Next, para link salvo
  * e histórico continuarem valendo. A árvore segue a da origem: o contato
- * (`/fluxo/:id`) é o estado-pai, e cada módulo pendura nele.
+ * (`/fluxo/:id` para chatbot, `/roteador/:id` para roteador) é o estado-pai,
+ * e cada módulo pendura nele.
  *
  * Só `/entrar` é pública. O resto fica atrás de `ExigirSessao`.
  */
@@ -123,52 +189,10 @@ export function App() {
         </Route>
 
         <Route path="/fluxo/:id" element={<RotaDoContato />}>
-          <Route index element={<HomeDoContato />} />
-          <Route path="canais" element={<PaginaDeCanais />} />
-          <Route path="servicos" element={<PaginaDeServicos />} />
-
-          <Route path="contatos" element={<CascaDeContatos />}>
-            <Route index element={<ListaContatosDoBot />} />
-            <Route path=":contatoId" element={<DetalheContatoDoBot />} />
-          </Route>
-
-          <Route path="integracoes" element={<CascaDeIntegracoes />}>
-            <Route index element={<PaginaIntegracoes />} />
-            <Route path="webhook" element={<PaginaWebhook />} />
-          </Route>
-
-          <Route path="log" element={<PaginaLog />} />
-
-          <Route path="growth" element={<CascaDeGrowth />}>
-            <Route index element={<Navigate to="mensagens-ativas" replace />} />
-            <Route path="mensagens-ativas" element={<PaginaMensagensAtivas />} />
-            <Route path="clicktracker" element={<PaginaClickTracker />} />
-            <Route path="anuncios" element={<PaginaAnuncios />} />
-            <Route path="pagamentos" element={<PaginaRelatorioDePagamentos />} />
-          </Route>
-
-          <Route path="configuracoes" element={<CascaDeConfiguracoes />}>
-            <Route index element={<Navigate to="api" replace />} />
-            <Route path="boasvindas" element={<PaginaDeBoasVindas />} />
-            <Route path="menu-persistente" element={<PaginaDeMenuPersistente />} />
-            <Route path="api" element={<PaginaApiDoBot />} />
-            <Route path="keys" element={<PaginaChavesDoBot />} />
-          </Route>
-
-          <Route path="equipe" element={<PaginaDeEquipe />} />
-
-          <Route path="conteudos" element={<PaginaConteudos />} />
-
-          <Route path="analise" element={<CascaDaAnalise />}>
-            <Route index element={<Navigate to={ABA_PADRAO} replace />} />
-            <Route path="dashboard" element={<PaginaDoDashboard />} />
-            <Route path="visao-geral" element={<PaginaDaVisaoGeral />} />
-            <Route path="jornada" element={<PaginaDaJornada />} />
-            <Route path="relatorios" element={<PaginaDosRelatorios />} />
-            <Route path="mensagens-ativas" element={<AnaliseMensagensAtivas />} />
-            <Route path="gerenciador-de-relatorios" element={<PaginaDoGerenciador />} />
-            <Route path="dicionario-de-dados" element={<PaginaDoDicionario />} />
-          </Route>
+          {rotasDoContato}
+        </Route>
+        <Route path="/roteador/:id" element={<RotaDoContato />}>
+          {rotasDoContato}
         </Route>
 
         <Route path="*" element={<NaoEncontrado />} />

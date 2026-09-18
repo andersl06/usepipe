@@ -87,6 +87,7 @@ export function HomeDoContato() {
             <CartaoCanais
               ativos={contato.canalAtivo && contato.canalTipo ? [contato.canalTipo] : []}
               id={contato.id}
+              tipo={contato.tipo}
             />
             <CartaoEquipe membros={[]} />
             <CartaoPreferencias fuso={fuso} plano={casca.tenant.plano} />

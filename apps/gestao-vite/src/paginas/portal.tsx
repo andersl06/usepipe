@@ -6,6 +6,7 @@ import { IconeBusca, IconePortal, type NomeDeIconePortal } from '../componentes/
 import Link from '../componentes/link';
 import { useCascaDoPortal, type CascaDoPortal } from '../lib/casca';
 import { useLeitura } from '../lib/consulta';
+import { baseDoContato } from './fluxo/contato';
 
 export const dynamic = 'force-dynamic';
 
@@ -481,7 +482,7 @@ function CartaoDeFluxo({ fluxo }: { fluxo: Fluxo }) {
          de lá que se escolhe Builder, Atendimento, Canais e o resto. Ir direto
          para o construtor pulava a tela que reúne tudo — e, no roteador, levava
          a um construtor que ele nem liga. */
-      href={`/fluxo/${encodeURIComponent(fluxo.id)}`}
+      href={baseDoContato(fluxo.tipo, encodeURIComponent(fluxo.id))}
       title={naoPublicado ? `${fluxo.nome} — ainda não publicado` : fluxo.nome}
     >
       {/* Com foto, ela ocupa o círculo; sem foto, entra o ícone do produto —

@@ -78,29 +78,30 @@ const ESCONDIDOS_NO_ROTEADOR: readonly string[] = ['builder', 'desk'];
  * então aplicar claims por bot antes do filtro de tipo.
  */
 export function itensDoMenu(tipo: TipoDeContato, id: string): ItemDoMenu[] {
+  const base = `/${tipo}/${id}`;
   const itens: ItemDoMenu[] = CATALOGO.filter(
     (item) => tipo === 'fluxo' || !ESCONDIDOS_NO_ROTEADOR.includes(item.chave),
   ).map((item) => ({
     rotulo: item.rotulo,
     href:
       item.chave === 'analysis'
-        ? `/fluxo/${id}/analise`
+        ? `${base}/analise`
         : item.chave === 'channels'
-          ? `/fluxo/${id}/canais`
+          ? `${base}/canais`
           : item.chave === 'users'
-            ? `/fluxo/${id}/contatos`
+            ? `${base}/contatos`
             : item.chave === 'growth'
-              ? `/fluxo/${id}/growth/mensagens-ativas`
+              ? `${base}/growth/mensagens-ativas`
               : item.chave === 'contents'
-                ? `/fluxo/${id}/conteudos`
+                ? `${base}/conteudos`
                 : item.chave === 'logMessages'
-                  ? `/fluxo/${id}/log`
+                  ? `${base}/log`
                   : item.href,
   }));
 
   /* `getTemplateSetupItem()`: o item do template vem na FRENTE de tudo. Só o
      roteador tem um entre os dois tipos que existem aqui. */
-  if (tipo === 'roteador') itens.unshift({ rotulo: 'Serviços', href: `/fluxo/${id}/servicos` });
+  if (tipo === 'roteador') itens.unshift({ rotulo: 'Serviços', href: `${base}/servicos` });
 
   return itens;
 }
@@ -117,7 +118,7 @@ export function itensDoMenu(tipo: TipoDeContato, id: string): ItemDoMenu[] {
 export const ICONES_DO_CONTATO: readonly (ItemDoMenu & { icone: NomeDeIconePortal })[] = [
   /* `getIcons(sref)`: `icon-integration`, `icon-config`, `icon-team-1`. */
   { rotulo: 'Integrações', href: '/integracoes', icone: 'integracoes' },
-  { rotulo: 'Configurações', href: '/configuracoes/api', icone: 'configuracoes' },
+  { rotulo: 'Configurações', href: '/configuracoes/basicas', icone: 'configuracoes' },
   { rotulo: 'Equipe', href: '/equipe', icone: 'equipe' },
   /* `modules.application.detail.test` — o `icon-lab` que abre o teste. */
   { rotulo: 'Testar', href: null, icone: 'testar' },

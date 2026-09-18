@@ -1,5 +1,5 @@
 import Link from '../../../componentes/link';
-import { useContato } from '../contato';
+import { baseDoContato, useContato } from '../contato';
 import { IlustracaoIntegracao, type NomeDeIlustracao } from './ilustracoes';
 
 /**
@@ -62,6 +62,7 @@ const CARTOES: readonly {
 export function PaginaIntegracoes() {
   const { contato } = useContato();
   const id = contato.id;
+  const base = baseDoContato(contato.tipo, id);
   return (
     <div className="ig-lista">
       {CARTOES.map((cartao) => {
@@ -87,7 +88,7 @@ export function PaginaIntegracoes() {
               <Link
                 className="ig-cartao"
                 id={cartao.id}
-                href={`/fluxo/${id}/integracoes/${cartao.rota}`}
+                href={`${base}/integracoes/${cartao.rota}`}
               >
                 {miolo}
               </Link>

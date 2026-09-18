@@ -78,8 +78,13 @@
      `left: 50%; position: absolute; top: -.75rem; transform: translateX(-50%)`.
 
    A tinta de sucesso do tema escuro deles; a nossa é o par "sobre escuro" que o
-   `@pipe/ui` já tem, pelo mesmo motivo do `--cr-erro` em `../criar.css`. */
-.cf-selo {
+   `@pipe/ui` já tem, pelo mesmo motivo do `--cr-erro` em `../criar.css`.
+
+   Nome `cf-selo-recomendado`, não `cf-selo`: essa classe já existe em
+   `configuracoes.css` para o selo de papel da Equipe/Chaves — mesmo nome,
+   CSS global sem módulo, a ordem de import decidia qual regra vencia e
+   jogava o selo de papel pra fora da linha (position: absolute daqui). */
+.cf-selo-recomendado {
   position: absolute;
   left: 50%;
   top: -0.75rem;

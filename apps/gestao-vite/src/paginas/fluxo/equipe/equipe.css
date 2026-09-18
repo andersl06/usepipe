@@ -1,28 +1,50 @@
 /**
- * `/team`: campo de busca com lupa + lista de linhas (avatar, Nome, E-mail,
- * badge de papel) — cima do `cf-*` de `configuracoes.css`, que já traz o
- * cabeçalho, o container centrado, `Papel` e `cf-selo`.
+ * `/team` do contato (fluxo e roteador). Medidas tiradas do DOM renderizado da
+ * origem (`docs/capturas/blip/roteador/roteador-team__pagina.html` e o
+ * `portal.css` da mesma captura) — o cabeçalho já vem do `cf-*` de
+ * `configuracoes.css` (`<page-header>`); aqui ficam a busca do
+ * `custom-content`, a lista `.row.team-cards` e o `card--mini-card` de cada
+ * membro.
+ *
+ * Régua da origem, medida a 1280×780:
+ *   `.row.team-cards`        margin 3px 0 9px
+ *   `.card--mini-card`       1024×103, padding 20px 50px 20px 60px,
+ *                            margin 0 0 10px, raio 8, superfície de cartão
+ *   `.card-content`          flex, space-between, 914×63, 14px/25.6
+ *   `.card-section label`    bloco 12px/500, line-height 25.6, padding-bottom 6
+ *   `.card-section span`     14px/400, line-height 22.4
+ *   `.divider`               1×40, margin 0 15px
+ *   `.tag-item`              90×26, raio de pílula, 14px negrito, centrado
+ *   `.card-icons`            5%, 20px, space-evenly, filhos com margin-left 15
+ *   `.no-content-found`      flex centrado, 20px/500, altura 31, padding 80 0
  */
-.cf-equipe {
+
+/* ==================== `custom-content` do `<page-header>`
+   `<div class="search-input-container flex mr3">` + `<bds-button>`. */
+.cf-equipe-acoes {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
+  align-items: center;
 }
+/* `bds-input` do `.search-input-container`: 260×54, `padding: 8px 4px 8px 12px`,
+   borda 1px e raio 8, com o ícone `avatar-user` de 24 à esquerda. O `mr3`
+   (16px) separa a busca do botão. */
 .cf-equipe-busca {
   display: flex;
   align-items: center;
   gap: 8px;
-  align-self: flex-start;
+  flex: none;
   box-sizing: border-box;
-  width: 320px;
-  max-width: 100%;
-  padding: 8px 16px;
+  width: 260px;
+  height: 54px;
+  margin-right: 16px;
+  padding: 8px 4px 8px 12px;
   border: 1px solid var(--p-linha-media);
-  border-radius: var(--p-r-pilula);
+  border-radius: var(--p-r-md);
   color: var(--p-conteudo-fantasma);
 }
 .cf-equipe-busca input {
   width: 100%;
+  height: 36px;
   border: 0;
   background: transparent;
   color: var(--p-conteudo);
@@ -32,32 +54,180 @@
 .cf-equipe-busca input:focus {
   outline: none;
 }
+
+/* ==================== `<div class="row team-cards">` */
+.cf-equipe {
+  /* `margin: 3px 0 9px` da origem, sem perder o `margin: 0 auto` do
+     `.cf-container` que centra a coluna. */
+  margin: 3px auto 9px;
+}
+
+/* `<a class="no-decoration">` em volta do cartão inteiro (`editUser`). */
+.cf-equipe-link {
+  display: block;
+  color: inherit;
+  text-decoration: none;
+}
+.cf-equipe-link--clicavel {
+  cursor: pointer;
+}
+
+/* `card.card--mini-card` */
+.cf-equipe-cartao {
+  box-sizing: border-box;
+  margin: 0 0 10px;
+  padding: 20px 50px 20px 60px;
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  box-shadow: var(--g-sombra-cartao);
+  transition: box-shadow 0.3s ease-out;
+}
+.cf-equipe-cartao:hover {
+  box-shadow: 0 13px 20px 0 color-mix(in srgb, var(--p-conteudo) 12%, transparent);
+}
+
+/* `.card-content` */
 .cf-equipe-linha {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px 24px;
+  justify-content: space-between;
+  width: 100%;
+  min-height: 63px;
+  font-size: 14px;
+  line-height: 25.6px;
 }
-.cf-equipe-avatar {
-  flex: none;
+
+/* `.card-section` e `.card-section--no-overflow` */
+.cf-equipe-secao {
+  white-space: nowrap;
 }
-.cf-equipe-dados {
+.cf-equipe-secao--corta {
+  display: table;
+  table-layout: fixed;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cf-equipe-secao--corta > .cf-equipe-valor {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.cf-equipe-rotulo {
+  display: block;
+  margin: 0;
+  padding-bottom: 6px;
+  font-size: 12px;
+  font-weight: var(--g-peso-forte);
+  line-height: 25.6px;
+  color: var(--p-conteudo-fantasma);
+}
+.cf-equipe-valor {
+  font-size: 14px;
+  line-height: 22.4px;
+  color: var(--p-conteudo);
+}
+
+/* As larguras do template (tachyons `w-5`, `w-25`, `w-20`, `w-10`). */
+.cf-equipe-w5 {
+  width: 5%;
+}
+.cf-equipe-w20 {
+  width: 20%;
+}
+.cf-equipe-w25 {
+  width: 25%;
+}
+
+/* `<div class="card-section w-5 flex justify-center"><avatar class="h3 w3">`:
+   a bolinha da origem tem 40×40. */
+.cf-equipe-avatar-secao {
   display: flex;
-  flex: 1;
-  flex-direction: column;
-  min-width: 0;
+  justify-content: center;
 }
-.cf-equipe-nome {
+/* Dois nomes de classe para passar por cima dos 26px do `.avatar` de
+   `@pipe/ui`, que tem a mesma especificidade. */
+.cf-equipe-avatar-secao .cf-equipe-avatar {
+  width: 40px;
+  height: 40px;
+  font-size: 14px;
+}
+
+/* `.divider` */
+.cf-equipe-divisor {
+  flex: none;
+  width: 1px;
+  min-height: 40px;
+  margin: 0 15px;
+  background: var(--p-superficie-3);
+}
+
+/* `bds-typo.tag-item` — o selo do papel: 90×26, raio de pílula, 14 negrito e
+   centrado. Na origem o texto é sempre "Admin", que cabe nos 90px da seção de
+   10%; o Pipe tem três papéis e "Pode visualizar" não cabe — por isso a seção
+   do selo cresce com o texto (os 10% viram piso) e o selo ganha 12px de
+   respiro dos lados. É a única medida desta linha que o nosso dado move. */
+.cf-equipe-selo {
+  display: inline-block;
+  min-width: 90px;
+  padding: 0 12px;
+  border-radius: var(--p-r-pilula);
+  background: var(--p-info-fundo);
+  color: var(--p-info-conteudo);
   font-size: 14px;
   font-weight: var(--g-peso-negrito);
+  line-height: 26px;
+  white-space: nowrap;
+  text-align: center;
 }
-.cf-equipe-email {
-  font-size: 14px;
+.cf-equipe-secao--selo {
+  flex: none;
+  min-width: 10%;
+}
+
+/* `.card-icons.card-icons--hidden`: só aparecem com o ponteiro (ou com o foco
+   do teclado) em cima do cartão. */
+.cf-equipe-icones {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-evenly;
   color: var(--p-conteudo-fantasma);
-  overflow-wrap: anywhere;
+  font-size: 20px;
 }
+.cf-equipe-oculto {
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.5s linear;
+}
+.cf-equipe-cartao:hover .cf-equipe-oculto,
+.cf-equipe-cartao:focus-within .cf-equipe-oculto {
+  opacity: 1;
+  visibility: visible;
+}
+.cf-equipe-icone {
+  display: inline-flex;
+  margin-left: 15px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+.cf-equipe-icone:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+/* `.no-content-found` */
 .cf-equipe-vazio {
-  margin: 0;
-  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 31px;
+  margin: auto;
+  padding: 80px 0;
   color: var(--p-conteudo-fantasma);
+  font-size: 20px;
+  font-weight: var(--g-peso-forte);
 }

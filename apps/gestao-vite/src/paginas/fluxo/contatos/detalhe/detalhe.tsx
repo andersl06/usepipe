@@ -5,7 +5,7 @@ import { ErroDaApi } from '../../../../lib/api';
 import { useLeitura } from '../../../../lib/consulta';
 import type { DetalheDoContato } from '@pipe/contracts';
 import { NaoEncontrado } from '../../../nao-encontrado';
-import { useContato } from '../../contato';
+import { baseDoContato, useContato } from '../../contato';
 import {
   carimboDaMensagem,
   diaEHora,
@@ -23,6 +23,7 @@ import { InformacoesContato } from './editar';
 export function DetalheContatoDoBot() {
   const { contato: bot } = useContato();
   const id = bot.id;
+  const base = baseDoContato(bot.tipo, id);
   const { contatoId = '' } = useParams();
   const [parametros] = useSearchParams();
   const ticketId = parametros.get('ticketId') ?? undefined;
@@ -40,7 +41,7 @@ export function DetalheContatoDoBot() {
       <div className="ct-detalhes-conteudo">
         <header className="ct-historico-cabeca">
           <div className="ct-nome-container">
-            <Link className="ct-voltar" href={`/fluxo/${id}/contatos`} aria-label="Voltar">
+            <Link className="ct-voltar" href={`${base}/contatos`} aria-label="Voltar">
               <IconePortal nome="esquerda" tamanho={32} />
             </Link>
             <span className="ct-avatar ct-avatar-detalhe">
@@ -98,7 +99,7 @@ export function DetalheContatoDoBot() {
                           <span className="ct-ticket-acoes">
                             <Link
                               className="ct-botao-icone ct-botao-icone--curto"
-                              href={`/fluxo/${id}/contatos/${contatoId}?ticketId=${ticket.id}`}
+                              href={`${base}/contatos/${contatoId}?ticketId=${ticket.id}`}
                               title="Ver conversa"
                               aria-label="Ver conversa"
                             >

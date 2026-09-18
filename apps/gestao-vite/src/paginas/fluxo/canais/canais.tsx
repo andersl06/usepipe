@@ -1,5 +1,6 @@
 import { LogoPortal } from '../../../componentes/icones-portal';
-import { BarrasDoContato, useContato } from '../contato';
+import { CascaDoModulo, useContato } from '../contato';
+import '../integracoes/cabecalho-de-pagina.css';
 import './canais.css';
 
 /**
@@ -32,42 +33,38 @@ export function PaginaDeCanais() {
   const ativo = contato.canalAtivo ? contato.canalTipo : null;
 
   return (
-    <div className="pt-app">
-      <BarrasDoContato ativo="Canais" />
-
-      <main className="cn-miolo">
-        <header className="cn-cabecalho">
-          <div className="cn-coluna">
-            <h1>Canais</h1>
-          </div>
-        </header>
-
-        <div className="cn-coluna cn-conteudo">
-          <div className="cn-lista">
-            {CANAIS.map((canal) => {
-              const conectado = canal.sempre || canal.chave === ativo;
-              return (
-                <div className="cn-item" key={canal.chave}>
-                  {canal.novo ? <span className="cn-novo">Novo!</span> : null}
-                  <article className="cn-cartao">
-                    <div className="cn-cartao-conteudo">
-                      <LogoDeCanal nome={canal.logo} />
-                      <h2>{canal.nome}</h2>
-                    </div>
-                    <span
-                      className={conectado ? 'cn-botao cn-botao--conectado' : 'cn-botao'}
-                      aria-disabled="true"
-                    >
-                      {conectado ? 'Conectado' : 'Conectar'}
-                    </span>
-                  </article>
-                </div>
-              );
-            })}
+    <CascaDoModulo ativo="Canais">
+      <header className="ph-cabecalho">
+        <div className="ph-conteudo">
+          <div className="ph-titulo-caixa">
+            <h1 className="ph-titulo">Canais de conversa</h1>
           </div>
         </div>
-      </main>
-    </div>
+      </header>
+
+      <div className="cn-lista">
+        {CANAIS.map((canal) => {
+          const conectado = canal.sempre || canal.chave === ativo;
+          return (
+            <div className="cn-item" key={canal.chave}>
+              {canal.novo ? <span className="cn-novo">Novo!</span> : null}
+              <article className="cn-cartao">
+                <div className="cn-cartao-conteudo">
+                  <LogoDeCanal nome={canal.logo} />
+                  <h2>{canal.nome}</h2>
+                </div>
+                <span
+                  className={conectado ? 'cn-botao cn-botao--conectado' : 'cn-botao'}
+                  aria-disabled="true"
+                >
+                  {conectado ? 'Conectado' : 'Conectar'}
+                </span>
+              </article>
+            </div>
+          );
+        })}
+      </div>
+    </CascaDoModulo>
   );
 }
 
