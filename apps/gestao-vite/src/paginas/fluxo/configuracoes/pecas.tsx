@@ -129,6 +129,7 @@ export function CampoBds({
   senha,
   obrigatorio,
   maxLength,
+  linhas,
 }: {
   id?: string;
   rotulo: string;
@@ -139,23 +140,38 @@ export function CampoBds({
   senha?: boolean;
   obrigatorio?: boolean;
   maxLength?: number;
+  /** `bds-textarea`: mesma caixa do `bds-input`, só que com `<textarea>` dentro. */
+  linhas?: number;
 }) {
   return (
     <label className={desabilitado ? 'cf-campo cf-campo--desabilitado' : 'cf-campo'}>
       <span className="cf-campo-rotulo">{rotulo}</span>
       <span className="cf-campo-linha">
-        <input
-          id={id}
-          type={senha ? 'password' : 'text'}
-          value={valor}
-          onChange={(evento) => aoMudar?.(evento.target.value)}
-          placeholder={placeholder}
-          disabled={desabilitado}
-          required={obrigatorio}
-          maxLength={maxLength}
-          autoComplete="off"
-          autoCapitalize="off"
-        />
+        {linhas ? (
+          <textarea
+            id={id}
+            value={valor}
+            onChange={(evento) => aoMudar?.(evento.target.value)}
+            placeholder={placeholder}
+            disabled={desabilitado}
+            required={obrigatorio}
+            maxLength={maxLength}
+            rows={linhas}
+          />
+        ) : (
+          <input
+            id={id}
+            type={senha ? 'password' : 'text'}
+            value={valor}
+            onChange={(evento) => aoMudar?.(evento.target.value)}
+            placeholder={placeholder}
+            disabled={desabilitado}
+            required={obrigatorio}
+            maxLength={maxLength}
+            autoComplete="off"
+            autoCapitalize="off"
+          />
+        )}
         {senha ? (
           <span className="cf-campo-olho" aria-hidden="true">
             <IconePortal nome="olho" tamanho={20} />

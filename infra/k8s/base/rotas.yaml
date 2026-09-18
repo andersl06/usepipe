@@ -39,7 +39,7 @@ spec:
     - host: gestao.usepipe.com.br
       http:
         paths:
-          - { path: /, pathType: Prefix, backend: { service: { name: gestao, port: { number: 80 } } } }
+          - { path: /, pathType: Prefix, backend: { service: { name: gestao-vite, port: { number: 80 } } } }
     - host: api.usepipe.com.br
       http:
         paths:

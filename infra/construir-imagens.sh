@@ -16,7 +16,7 @@ shift || true
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REGISTRO="${REGISTRO:-ghcr.io/pipe}"
 APPS=("$@")
-[[ ${#APPS[@]} -eq 0 ]] && APPS=(api workers desk gestao crm site)
+[[ ${#APPS[@]} -eq 0 ]] && APPS=(api workers desk gestao-vite crm site)
 
 cd "$RAIZ"
 
@@ -33,16 +33,18 @@ PULL=()
 [[ "${SEM_PULL:-0}" == "1" ]] && PULL=(--pull=false)
 
 # Os links ENTRE os módulos são assados no pacote do navegador durante a build:
-# `NEXT_PUBLIC_*` não é lida em tempo de execução, e por isso não adianta pô-la no
-# `.env` da VPS. Sem estas duas linhas a imagem sai apontando para `localhost` e o
-# botão que leva do Desk à Gestão não sai do lugar em produção.
+# `NEXT_PUBLIC_*` (Next, em `desk`) e `VITE_*` (Vite, em `gestao-vite`) não são
+# lidas em tempo de execução, e por isso não adianta pô-las no `.env` da VPS.
+# Sem estas linhas a imagem sai apontando para `localhost` e o botão que leva do
+# Desk à Gestão — ou a Gestão à `api` — não sai do lugar em produção.
 #
 # O padrão é o domínio de produção, e não o de desenvolvimento: quem constrói
-# imagem está publicando. Para uma imagem local, passe as três por ambiente.
+# imagem está publicando. Para uma imagem local, passe as quatro por ambiente.
 DOMINIO="${PIPE_DOMINIO:-usepipe.com.br}"
 URL_DESK="${PIPE_URL_DESK:-https://app.${DOMINIO}}"
 URL_GESTAO="${PIPE_URL_GESTAO:-https://gestao.${DOMINIO}}"
 URL_CRM="${PIPE_URL_CRM:-https://crm.${DOMINIO}}"
+URL_API="${PIPE_URL_API:-https://api.${DOMINIO}}"
 
 for app in "${APPS[@]}"; do
   # O site é estático e mora no próprio diretório, sem workspace pnpm nenhum.
@@ -57,8 +59,9 @@ for app in "${APPS[@]}"; do
     desk)
       ARGS=(--build-arg "NEXT_PUBLIC_PIPE_GESTAO_URL=${URL_GESTAO}"
             --build-arg "NEXT_PUBLIC_PIPE_CRM_URL=${URL_CRM}") ;;
-    gestao)
-      ARGS=(--build-arg "NEXT_PUBLIC_PIPE_DESK_URL=${URL_DESK}") ;;
+    gestao-vite)
+      ARGS=(--build-arg "VITE_PIPE_DESK_URL=${URL_DESK}"
+            --build-arg "VITE_URL_API=${URL_API}") ;;
   esac
 
   echo "==> ${REGISTRO}/${app}:${VERSAO}"
@@ -81,8 +84,11 @@ done
 echo
 # Tamanho de disco descomprimido. O que trafega no `docker pull` é bem menor —
 # a camada base do node:22-alpine, que responde por ~240 MB de cada linha acima,
-# é a MESMA em todas: baixa uma vez e as seis imagens a compartilham.
-echo "(tamanho descomprimido; a camada base node:22-alpine é compartilhada pelas cinco imagens de aplicação)"
+# é a MESMA em `api`, `workers`, `desk` e `crm`: baixa uma vez e as quatro a
+# compartilham. `gestao-vite` e `site` não entram nessa conta — a imagem final
+# dos dois é `nginx:1.27-alpine`, bem menor, porque não sobra Node nenhum depois
+# do `vite build`.
+echo "(tamanho descomprimido; a camada base node:22-alpine é compartilhada por api/workers/desk/crm — gestao-vite e site são nginx:1.27-alpine)"
 
 if [[ "${PUBLICAR:-0}" == "1" ]]; then
   for app in "${APPS[@]}"; do

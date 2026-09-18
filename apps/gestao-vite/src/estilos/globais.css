@@ -2412,16 +2412,30 @@ tr.grupo th {
 }
 
 /* ----------------------------------------------------- barra escura
-   Herda os 80px, o fundo e o recuo de 32px de `.g-barra-sup`; só a
-   distribuição muda — lá é grade de três colunas, aqui é fileira, porque a
-   marca sai do fluxo para ficar no centro EXATO da barra. */
+   Herda os 80px, o fundo E a grade de três colunas (`1fr auto 1fr`) de
+   `.g-barra` — a mesma que `estrutura-gestao.tsx` usa. É essa grade que
+   garante a coluna central (a marca) NUNCA ser invadida pelo cluster da
+   esquerda: cada um vive na própria faixa, em vez de a marca flutuar
+   `position: absolute` por cima de tudo (como era antes — e como um nome de
+   conta comprido empurrava "Início"/"Pipe Store" para debaixo dela). */
 .pt-barra {
-  display: flex;
-  gap: 0;
   /* Sem recuo À ESQUERDA: na barra deles o bloco da conta começa em x=0 e é
      ELE que tem os 32px de recuo interno — o que faz o realce de passagem
      encostar na borda da tela em vez de flutuar a 32px dela. */
   padding: 0 var(--p-e-8) 0 0;
+}
+
+/* O cluster da esquerda (conta + divisória + links), inteiro na coluna
+   `1fr`: cresce com o nome da conta, mas `overflow: hidden` garante que ele
+   trunca em vez de vazar para a coluna central. Sem `gap`: o espaçamento
+   entre conta/divisória/links já é feito por cada peça (`margin-left` do
+   `.pt-links`, por exemplo). */
+.pt-barra-inicio {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* O seletor de conta: 285px de mínimo e CRESCE com o nome (na tela deles ele
@@ -2778,15 +2792,13 @@ tr.grupo th {
   color: var(--g-barra-tinta);
 }
 
-/* A marca no centro exato da barra, 80px de largura — a medida da ilustração
-   deles. `z-index` porque ela passa por cima dos links quando a barra aperta. */
+/* A marca na coluna central do grid — 80px de largura, a medida da
+   ilustração deles. Coluna `auto` própria: não precisa de `position:
+   absolute` nem de `z-index` para ficar por cima de nada, porque o cluster
+   da esquerda não tem como entrar nesta faixa (ver `.pt-barra-inicio`). */
 .pt-marca {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
   display: flex;
+  justify-self: center;
   line-height: 0;
 }
 
@@ -3321,7 +3333,7 @@ tr.grupo th {
     padding-left: var(--p-e-2);
   }
 
-  .pt-barra > .pt-divisoria {
+  .pt-barra-inicio > .pt-divisoria {
     display: none;
   }
 

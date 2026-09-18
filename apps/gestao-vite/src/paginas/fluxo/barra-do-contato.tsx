@@ -112,8 +112,8 @@ export function BarraDoContato({ contato, ativo }: { contato: Contato; ativo?: s
           ) : null}
         </nav>
 
-        {/* `subheader-icons`: Integrações e Configurações navegam para as telas
-            do contato; Equipe e Testar ainda permanecem em breve. */}
+        {/* `subheader-icons`: Integrações, Configurações e Equipe navegam para as
+            telas do contato; só Testar ainda permanece em breve. */}
         <div className="fx-icones">
           {ICONES_DO_CONTATO.map((item) =>
             item.href ? (

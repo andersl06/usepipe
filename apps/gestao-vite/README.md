@@ -36,7 +36,23 @@ cadastros; `paginas/*/acoes.ts` para os demais).
 
 ## O que ficou de fora, de propósito
 
-- A troca de conta pelo SUBDOMÍNIO (`<conta>.usepipe…`), que era o `middleware.ts`
-  do Next: em desenvolvimento não há subdomínio; em produção é decisão de edge
-  (ver a spec, §3). A troca pelo seletor da barra do portal funciona.
+- A troca de conta pelo SUBDOMÍNIO (`<conta>.usepipe…`), que era o
+  `middleware.ts` do Next (`contaDoHost()` em `apps/gestao/src/lib/rotas.ts`).
+  **Não é pendência de infra — já foi decidido que ela não volta.** A §3 da
+  spec fixa uma URL por APLICATIVO (`gestao.usepipe.com.br`,
+  `app.usepipe.com.br`, …), não uma URL por CONTA; as duas coisas disputam o
+  mesmo subdomínio e não cabem juntas. `infra/terraform/modules/dns/main.tf`
+  já registra a escolha: *"o tenant é resolvido pelo login, não pelo
+  subdomínio"*. E o lado da API confirma que não há nada para portar: ela
+  nunca leu o cabeçalho `x-pipe-conta` que o middleware forjava — era
+  transporte interno do Next, sem uso do outro lado.
+
+  A troca de conta continua existindo, só que por `/trocar-conta` (a tela
+  já migrou, funciona). Não há Traefik para configurar aqui: nenhum
+  wildcard, nenhum roteador por subdomínio de conta, nenhum cabeçalho para
+  o edge injetar. Se um dia isto mudar (ex.: white-label por subdomínio de
+  cliente), é uma decisão de produto nova, com Ingress próprio — ver o
+  padrão já usado para cliente dedicado em
+  `infra/k8s/tenants/exemplo-dedicado/kustomization.yaml`
+  (`gestao.<cliente>.usepipe.com.br`) — e não uma continuação deste item.
 - Certificados mTLS seguem sem armazenamento (`lib/certificados.ts`).

@@ -1,0 +1,123 @@
+import assert from 'node:assert/strict';
+import { test } from 'node:test';
+import {
+  LIMITE_VISIVEL,
+  itensDoMenu,
+  numeroDaHome,
+  pilhaDaEquipe,
+} from '../src/paginas/fluxo/itens';
+
+/**
+ * A fileira da barra do contato (`/fluxo/{id}`).
+ *
+ * O que este arquivo trava é a única decisão da tela: o que o ROTEADOR mostra e
+ * o FLUXO não, e vice-versa. Na origem isso sai de dois lugares distantes um do
+ * outro — `getTemplateSetupItem()` (que prepende "Serviços" para `master`) e o
+ * `hideInTemplate` do mapa de claims (que esconde `builder` e `desk` no mesmo
+ * `master`) —, e é exatamente o tipo de regra que volta errada numa refatoração
+ * silenciosa: a tela continua carregando, só passa a oferecer ao roteador um
+ * construtor que ele não tem.
+ */
+
+const ID = '5b6843ae-b4f8-4bc0-bce2-e32318043297';
+
+test('a Análise leva à análise DO contato, nos dois tipos', () => {
+  for (const tipo of ['roteador', 'fluxo'] as const) {
+    const analise = itensDoMenu(tipo, ID).find((i) => i.rotulo === 'Análise');
+    assert.equal(analise?.href, `/fluxo/${ID}/analise`);
+  }
+});
+
+test('Canais leva aos canais DO contato, nos dois tipos', () => {
+  for (const tipo of ['roteador', 'fluxo'] as const) {
+    const canais = itensDoMenu(tipo, ID).find((i) => i.rotulo === 'Canais');
+    assert.equal(canais?.href, `/fluxo/${ID}/canais`);
+  }
+});
+
+test('Contatos e Conteúdos abrem suas áreas no contexto do contato', () => {
+  for (const tipo of ['roteador', 'fluxo'] as const) {
+    const itens = itensDoMenu(tipo, ID);
+    assert.equal(itens.find((i) => i.rotulo === 'Contatos')?.href, `/fluxo/${ID}/contatos`);
+    assert.equal(itens.find((i) => i.rotulo === 'Conteúdos')?.href, `/fluxo/${ID}/conteudos`);
+  }
+});
+
+test('Growth e Log abrem suas telas no contexto do contato', () => {
+  for (const tipo of ['roteador', 'fluxo'] as const) {
+    const itens = itensDoMenu(tipo, ID);
+    assert.equal(
+      itens.find((i) => i.rotulo === 'Growth')?.href,
+      `/fluxo/${ID}/growth/mensagens-ativas`,
+    );
+    assert.equal(itens.find((i) => i.rotulo === 'Log')?.href, `/fluxo/${ID}/log`);
+  }
+});
+
+test('a fonte da subbarra não inclui Inteligência artificial sem claims do bot', () => {
+  for (const tipo of ['roteador', 'fluxo'] as const) {
+    assert.ok(!itensDoMenu(tipo, ID).some((item) => item.rotulo === 'Inteligência artificial'));
+  }
+});
+
+test('o roteador não oferece Builder nem Atendimento', () => {
+  const rotulos = itensDoMenu('roteador', ID).map((i) => i.rotulo);
+  assert.ok(!rotulos.includes('Builder'));
+  assert.ok(!rotulos.includes('Atendimento'));
+});
+
+test('o roteador abre com "Serviços", que é o item do template', () => {
+  assert.equal(itensDoMenu('roteador', ID)[0]?.rotulo, 'Serviços');
+  /* E o fluxo não tem item de template nenhum: o `switch` da origem não tem
+     caso para `builder`. */
+  assert.equal(itensDoMenu('fluxo', ID)[0]?.rotulo, 'Builder');
+});
+
+test('o fluxo mantém os dois que o roteador perde', () => {
+  const rotulos = itensDoMenu('fluxo', ID).map((i) => i.rotulo);
+  assert.ok(rotulos.includes('Builder'));
+  assert.ok(rotulos.includes('Atendimento'));
+});
+
+test('o resto da fileira é o mesmo nos dois, e na mesma ordem', () => {
+  const semEspecificos = (tipo: 'fluxo' | 'roteador') =>
+    itensDoMenu(tipo, ID)
+      .map((i) => i.rotulo)
+      .filter((r) => !['Serviços', 'Builder', 'Atendimento'].includes(r));
+  assert.deepEqual(semEspecificos('roteador'), semEspecificos('fluxo'));
+  assert.deepEqual(semEspecificos('fluxo'), [
+    'Canais',
+    'Análise',
+    'Contatos',
+    'Growth',
+    'Conteúdos',
+    'Log',
+    'Pagamentos',
+  ]);
+});
+
+test('sobra item para o "…" nos dois tipos', () => {
+  /* Se um dia a fileira couber inteira em cinco, o "…" some da tela — e é isso
+     que o desenho espera. O teste existe para avisar quando isso mudar. */
+  assert.ok(itensDoMenu('fluxo', ID).length > LIMITE_VISIVEL);
+  assert.ok(itensDoMenu('roteador', ID).length > LIMITE_VISIVEL);
+});
+
+test('a pilha da equipe: sete rostos e um "+N" que para em 9', () => {
+  const gente = (n: number) =>
+    Array.from({ length: n }, (_, i) => ({ nome: `P ${i}`, fotoUrl: null }));
+  assert.equal(pilhaDaEquipe(gente(7)).length, 7);
+  const oito = pilhaDaEquipe(gente(8));
+  assert.equal(oito.length, 8);
+  assert.equal(oito[7]?.nome, '+ 1');
+  assert.equal(pilhaDaEquipe(gente(30))[7]?.nome, '+ 9');
+});
+
+test('o número da home arredonda para baixo, com "+", como o processNumber', () => {
+  assert.equal(numeroDaHome(10), '10');
+  assert.equal(numeroDaHome(57), '+50');
+  assert.equal(numeroDaHome(1234), '+1K');
+  assert.equal(numeroDaHome(25000), '+20K');
+  assert.equal(numeroDaHome(250000), '+200K');
+  assert.equal(numeroDaHome(3500000), '+3M');
+});

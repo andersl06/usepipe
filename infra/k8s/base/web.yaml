@@ -1,8 +1,11 @@
-# Desk e Gestão. Dois Next.js iguais em forma, diferentes em imagem e hostname.
+# Desk e Gestão.
 #
-# Ficam num arquivo só porque a diferença entre eles cabe em três linhas; separar
-# em dois arquivos idênticos é o começo do dia em que um recebe uma correção e o
-# outro não.
+# Ficam num arquivo só por histórico — eram dois Next.js iguais em forma. A
+# Gestão migrou para Vite + nginx estático (docs/specs/2026-09-07-arquitetura-de-front.md)
+# e por isso já não compartilha `envFrom` nem porta com o Desk; o que sobra em
+# comum é pouco, mas separar agora só para separar não paga o custo de mais um
+# arquivo. Quando o Desk migrar também, este arquivo vira dois de verdade —
+# um por servidor, não por app.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -47,46 +50,47 @@ spec:
   selector:
     matchLabels: { app: desk }
 ---
+# Gestão como SPA estática (Vite + nginx): sem `envFrom` — não fala com o
+# Postgres nem com o Redis, e as URLs que precisa (`api`, `desk`) já vêm
+# assadas no bundle pela imagem (`apps/gestao-vite/Dockerfile`, build-arg). A
+# porta do contêiner é a 80 do nginx, não a 3000 do Next.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gestao
-  labels: { app: gestao }
+  name: gestao-vite
+  labels: { app: gestao-vite }
 spec:
   replicas: 2
   selector:
-    matchLabels: { app: gestao }
+    matchLabels: { app: gestao-vite }
   template:
     metadata:
-      labels: { app: gestao }
+      labels: { app: gestao-vite }
     spec:
       containers:
-        - name: gestao
-          image: ghcr.io/pipe/gestao:latest
-          ports: [{ name: http, containerPort: 3000 }]
-          envFrom:
-            - secretRef: { name: pipe-segredos }
-            - configMapRef: { name: pipe-config }
+        - name: gestao-vite
+          image: ghcr.io/pipe/gestao-vite:latest
+          ports: [{ name: http, containerPort: 80 }]
           resources:
-            requests: { cpu: 100m, memory: 384Mi }
-            limits: { cpu: '1', memory: 1Gi }
+            requests: { cpu: 25m, memory: 32Mi }
+            limits: { cpu: 250m, memory: 128Mi }
           readinessProbe:
-            httpGet: { path: /api/saude, port: http }
+            httpGet: { path: /, port: http }
             periodSeconds: 5
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: gestao
+  name: gestao-vite
 spec:
-  selector: { app: gestao }
+  selector: { app: gestao-vite }
   ports: [{ name: http, port: 80, targetPort: http }]
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: gestao
+  name: gestao-vite
 spec:
   minAvailable: 1
   selector:
-    matchLabels: { app: gestao }
+    matchLabels: { app: gestao-vite }

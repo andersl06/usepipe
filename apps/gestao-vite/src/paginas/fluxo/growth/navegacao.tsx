@@ -13,11 +13,8 @@ import { useLocation } from 'react-router-dom';
  *
  *   activeMessages                 "Mensagens ativas"           → mensagens-ativas
  *   clicktracker                   "Click Tracker" / subtitle   → clicktracker
- *   adsbuying  (badge "Beta")      "Anúncios" / subtitle
- *   activeMessages.paymentsReport  "Relatório de Pagamentos" / subtitle
- *
- * ponytail: Anúncios e Relatório de Pagamentos ainda não têm tela aqui; ficam
- * apagados com o selo, como o combinado em `itens.ts`.
+ *   adsbuying  (badge "Beta")      "Anúncios" / subtitle        → anuncios
+ *   activeMessages.paymentsReport  "Relatório de Pagamentos" / subtitle → pagamentos
  */
 const ITENS: { titulo: string; descricao: string | null; beta?: true; rota: string | null }[] = [
   { titulo: 'Mensagens ativas', descricao: null, rota: 'mensagens-ativas' },
@@ -30,12 +27,12 @@ const ITENS: { titulo: string; descricao: string | null; beta?: true; rota: stri
     titulo: 'Anúncios',
     descricao: 'Crie e publique anúncios que se conectam ao seu chatbot',
     beta: true,
-    rota: null,
+    rota: 'anuncios',
   },
   {
     titulo: 'Relatório de Pagamentos',
     descricao: 'Visualize e analise os pagamentos realizados',
-    rota: null,
+    rota: 'pagamentos',
   },
 ];
 

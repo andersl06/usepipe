@@ -19,8 +19,9 @@ import { IconePortal, type NomeDeIconePortal } from '../../../componentes/icones
  * O sexto (`xml`, "Mime Types permitidos") só aparece com
  * `isMimeTypeManagementEnable`, que a régua não tem ligado — não entra.
  *
- * ponytail: Configurações básicas, Boas-vindas e Menu Persistente ainda não
- * têm tela aqui; ficam sem destino (só visual), como o combinado.
+ * ponytail: só "Configurações básicas" ainda não tem tela aqui; fica sem
+ * destino (só visual), como o combinado — não há campo de nome/descrição/
+ * imagem do fluxo em `gestao-fluxo` para ela ler ainda.
  */
 const ITENS: {
   icone: NomeDeIconePortal;
@@ -38,13 +39,13 @@ const ITENS: {
     icone: 'boas-vindas',
     titulo: 'Tela de Boas-vindas',
     descricao: 'Defina a Mensagem de Saudação e o botão Começar',
-    rota: null,
+    rota: 'boasvindas',
   },
   {
     icone: 'menu-persistente',
     titulo: 'Menu Persistente',
     descricao: 'Configure o menu persistente de seu fluxo',
-    rota: null,
+    rota: 'menu-persistente',
   },
   {
     icone: 'loja',

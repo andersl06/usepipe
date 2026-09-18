@@ -1,0 +1,63 @@
+/**
+ * `/team`: campo de busca com lupa + lista de linhas (avatar, Nome, E-mail,
+ * badge de papel) — cima do `cf-*` de `configuracoes.css`, que já traz o
+ * cabeçalho, o container centrado, `Papel` e `cf-selo`.
+ */
+.cf-equipe {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cf-equipe-busca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  box-sizing: border-box;
+  width: 320px;
+  max-width: 100%;
+  padding: 8px 16px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-pilula);
+  color: var(--p-conteudo-fantasma);
+}
+.cf-equipe-busca input {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: 14px;
+}
+.cf-equipe-busca input:focus {
+  outline: none;
+}
+.cf-equipe-linha {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 24px;
+}
+.cf-equipe-avatar {
+  flex: none;
+}
+.cf-equipe-dados {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+}
+.cf-equipe-nome {
+  font-size: 14px;
+  font-weight: var(--g-peso-negrito);
+}
+.cf-equipe-email {
+  font-size: 14px;
+  color: var(--p-conteudo-fantasma);
+  overflow-wrap: anywhere;
+}
+.cf-equipe-vazio {
+  margin: 0;
+  padding: 24px;
+  color: var(--p-conteudo-fantasma);
+}

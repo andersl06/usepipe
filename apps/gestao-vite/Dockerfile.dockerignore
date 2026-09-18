@@ -1,6 +1,6 @@
-# Contexto de build da imagem do crm. O BuildKit usa este arquivo NO LUGAR do
-# .dockerignore da raiz quando o -f aponta para apps/crm/Dockerfile, então ele
-# precisa ser completo — não é um complemento daquele.
+# Contexto de build da imagem do gestao-vite. O BuildKit usa este arquivo NO
+# LUGAR do .dockerignore da raiz quando o -f aponta para apps/gestao-vite/Dockerfile,
+# então ele precisa ser completo — não é um complemento daquele.
 #
 # O que ele acrescenta ao da raiz: os aplicativos irmãos ficam de fora do
 # contexto inteiro, menos o `package.json` de cada um, que o
@@ -32,5 +32,7 @@ apps/api
 !apps/api/package.json
 apps/workers
 !apps/workers/package.json
-apps/gestao-vite
-!apps/gestao-vite/package.json
+apps/gestao
+!apps/gestao/package.json
+apps/crm
+!apps/crm/package.json

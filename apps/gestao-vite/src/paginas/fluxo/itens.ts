@@ -118,7 +118,7 @@ export const ICONES_DO_CONTATO: readonly (ItemDoMenu & { icone: NomeDeIconePorta
   /* `getIcons(sref)`: `icon-integration`, `icon-config`, `icon-team-1`. */
   { rotulo: 'Integrações', href: '/integracoes', icone: 'integracoes' },
   { rotulo: 'Configurações', href: '/configuracoes/api', icone: 'configuracoes' },
-  { rotulo: 'Equipe', href: null, icone: 'equipe' },
+  { rotulo: 'Equipe', href: '/equipe', icone: 'equipe' },
   /* `modules.application.detail.test` — o `icon-lab` que abre o teste. */
   { rotulo: 'Testar', href: null, icone: 'testar' },
 ];

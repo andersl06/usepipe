@@ -28,9 +28,7 @@ infra
 apps/site
 
 # Aplicativos que esta imagem não constrói.
-apps/desk
-!apps/desk/package.json
-apps/gestao
-!apps/gestao/package.json
+apps/gestao-vite
+!apps/gestao-vite/package.json
 apps/crm
 !apps/crm/package.json

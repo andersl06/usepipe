@@ -26,14 +26,23 @@ export function BarraDoPortal({ dados }: { dados: CascaDoPortal }) {
 
   return (
     <header className="g-barra g-barra-sup pt-barra">
-      {/* O seletor de conta. Na tela deles ele é o primeiro gesto do dia: diz
-          em qual contrato a pessoa está e abre a lista dos outros — lá trocar é
-          ir para outro subdomínio; aqui é trocar a sessão, que a `api` emite de
-          novo para a conta escolhida.
+      {/* O cluster da esquerda (conta + divisória + links) mora num wrapper
+          próprio para virar UMA coluna do grid de três (herdado de
+          `.g-barra`: `1fr auto 1fr`), a mesma conta que `estrutura-gestao.tsx`
+          já usa. Antes disso a marca ficava `position: absolute` centrada por
+          cima de tudo (`z-index`) — e um nome de conta comprido empurrava
+          "Início"/"Pipe Store" para debaixo dela, que sempre desenhava por
+          cima. Coluna própria com `overflow: hidden` deixa o cluster crescer
+          e truncar SEM nunca invadir a coluna central. */}
+      <div className="pt-barra-inicio">
+        {/* O seletor de conta. Na tela deles ele é o primeiro gesto do dia: diz
+            em qual contrato a pessoa está e abre a lista dos outros — lá trocar é
+            ir para outro subdomínio; aqui é trocar a sessão, que a `api` emite de
+            novo para a conta escolhida.
 
-          Uma pessoa com uma conta só vê o próprio nome e nada mais: a lista de
-          um item é ruído, e o item seria ela mesma. */}
-      <details className="g-menu pt-conta">
+            Uma pessoa com uma conta só vê o próprio nome e nada mais: a lista de
+            um item é ruído, e o item seria ela mesma. */}
+        <details className="g-menu pt-conta">
         {/* O `menu-contract` deles, peça por peça: o `business` dentro de um
             círculo claro (`icon-contract-white`), o nome em 16 negrito e o tipo
             de conta em 12 embaixo (`pl3`), e a seta `arrow-down` num bloco
@@ -123,9 +132,12 @@ export function BarraDoPortal({ dados }: { dados: CascaDoPortal }) {
           <span className="pt-obra-selo">em breve</span>
         </span>
       </nav>
+      </div>
 
-      {/* A marca ocupa o bloco central da barra, fora do fluxo, para que o
-          seletor de conta possa crescer sem empurrá-la do centro.
+      {/* A marca ocupa a coluna central do grid (`auto`, entre os dois `1fr`
+          de `.pt-barra-inicio` e `.pt-barra-fim`) — sempre no centro exato da
+          barra, e sempre numa faixa própria que o cluster da esquerda não
+          alcança mesmo com um nome de conta comprido.
 
           O lockup entra como MÁSCARA e não como `<img>`: o arquivo é tinta
           escura com o traço moss, desenhado para fundo claro, e sobre a barra

@@ -18,9 +18,14 @@ import { PaginaLog } from './paginas/fluxo/log/log';
 import { CascaDeGrowth } from './paginas/fluxo/growth/casca';
 import { PaginaMensagensAtivas } from './paginas/fluxo/growth/mensagens-ativas/mensagens-ativas';
 import PaginaClickTracker from './paginas/fluxo/growth/clicktracker/clicktracker';
+import PaginaAnuncios from './paginas/fluxo/growth/anuncios/anuncios';
+import PaginaRelatorioDePagamentos from './paginas/fluxo/growth/pagamentos/pagamentos';
 import { CascaDeConfiguracoes } from './paginas/fluxo/configuracoes/casca';
 import { PaginaApiDoBot } from './paginas/fluxo/configuracoes/api/api';
 import { PaginaChavesDoBot } from './paginas/fluxo/configuracoes/keys/keys';
+import { PaginaDeBoasVindas } from './paginas/fluxo/configuracoes/boasvindas/boasvindas';
+import { PaginaDeMenuPersistente } from './paginas/fluxo/configuracoes/menu-persistente/menu-persistente';
+import { PaginaDeEquipe } from './paginas/fluxo/equipe/equipe';
 import { PaginaConteudos } from './paginas/fluxo/conteudos/conteudos';
 import { CascaDaAnalise } from './paginas/fluxo/analise/casca';
 import { ABA_PADRAO } from './paginas/fluxo/analise/abas';
@@ -138,13 +143,19 @@ export function App() {
             <Route index element={<Navigate to="mensagens-ativas" replace />} />
             <Route path="mensagens-ativas" element={<PaginaMensagensAtivas />} />
             <Route path="clicktracker" element={<PaginaClickTracker />} />
+            <Route path="anuncios" element={<PaginaAnuncios />} />
+            <Route path="pagamentos" element={<PaginaRelatorioDePagamentos />} />
           </Route>
 
           <Route path="configuracoes" element={<CascaDeConfiguracoes />}>
             <Route index element={<Navigate to="api" replace />} />
+            <Route path="boasvindas" element={<PaginaDeBoasVindas />} />
+            <Route path="menu-persistente" element={<PaginaDeMenuPersistente />} />
             <Route path="api" element={<PaginaApiDoBot />} />
             <Route path="keys" element={<PaginaChavesDoBot />} />
           </Route>
+
+          <Route path="equipe" element={<PaginaDeEquipe />} />
 
           <Route path="conteudos" element={<PaginaConteudos />} />
 

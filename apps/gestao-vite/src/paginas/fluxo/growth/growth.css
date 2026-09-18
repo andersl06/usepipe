@@ -850,6 +850,78 @@
   font-size: 16px;
   line-height: 25.6px;
 }
+/* Anúncios (Beta) — cartão único de onboarding, centrado, como
+   `growth/adsbuying` na origem (LEIA.md, rodada 3): logo, título, texto de
+   explicação e o botão de conectar. */
+.an-conexao {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 32px;
+  text-align: center;
+}
+.an-titulo {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  line-height: 28px;
+}
+.an-texto {
+  margin: 0;
+  max-width: 520px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--p-conteudo-fantasma);
+}
+.an-botao {
+  min-height: 40px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: var(--p-r-md);
+  background: var(--p-marca-forte);
+  color: var(--p-superficie-0);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+.an-botao:hover {
+  filter: brightness(0.94);
+}
+
+/* Relatório de Pagamentos — cartões de totais e o top 5, como
+   `growth/activemessages/paymentsReport` na origem: aviso no topo,
+   `gr-metricas` para os totais e `gr-tabela-rolagem` para o top 5. A nossa
+   API não tem esse dado (nem de demonstração): estado vazio honesto em vez
+   de fabricar número. */
+.pg-aviso {
+  margin: 0 0 20px;
+  padding: 12px 16px;
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo-fantasma);
+  font-size: 14px;
+}
+.pg-secao {
+  margin-bottom: 24px;
+  padding: 20px;
+  border-radius: var(--g-r-cartao);
+  background: var(--p-superficie-0);
+  box-shadow: var(--g-sombra-cartao);
+}
+.pg-secao h2 {
+  margin: 0 0 16px;
+  font-size: 18px;
+}
+.pg-metricas {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 16px;
+}
+.pg-metricas .gr-metrica strong {
+  color: var(--p-conteudo-fantasma);
+}
+
 @media (max-width: 700px) {
   .gr-cabeca,
   .gr-filtros header,

@@ -21,7 +21,7 @@ images:
     newTag: v1.4.2
   - name: ghcr.io/pipe/desk
     newTag: v1.4.2
-  - name: ghcr.io/pipe/gestao
+  - name: ghcr.io/pipe/gestao-vite
     newTag: v1.4.2
 
 # Cliente dedicado é, por definição, cliente grande — mas "grande" dele é menor que

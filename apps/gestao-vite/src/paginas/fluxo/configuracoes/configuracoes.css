@@ -438,6 +438,25 @@
 .cf-campo input::placeholder {
   color: var(--p-conteudo-fantasma);
 }
+/* `bds-textarea`: a mesma caixa, com altura livre em vez do input de 36px. */
+.cf-campo textarea {
+  width: 100%;
+  min-height: 72px;
+  padding: 0;
+  border: 0;
+  resize: vertical;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+}
+.cf-campo textarea:focus {
+  outline: none;
+}
+.cf-campo textarea::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
 .cf-campo-olho {
   flex: none;
   display: inline-flex;
@@ -696,6 +715,33 @@
 .cf-selo--info {
   background: var(--p-info-fundo);
   color: var(--p-info-conteudo);
+}
+
+/* ==================== Menu Persistente */
+.cf-menu-persistente {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cf-menu-persistente > p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--p-conteudo);
+}
+.cf-menu-aviso-boasvindas {
+  color: var(--p-conteudo-fantasma);
+}
+.cf-menu-item-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  font-size: 14px;
+  font-weight: var(--g-peso-negrito);
+}
+.cf-menu-item-corpo {
+  padding: 0 24px 24px;
 }
 
 /* Aviso controlado (`BlipToastService` warning/danger na origem). */

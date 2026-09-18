@@ -365,7 +365,7 @@ async function semearCrm(db: BancoPipe) {
 
   if (comConversa.length < 10) {
     throw new Error(
-      'poucos contatos com conversa no tenant demo: rode `pnpm --filter @pipe/gestao seed:gestao` antes.',
+      'poucos contatos com conversa no tenant demo: rode `pnpm --filter @pipe/gestao-vite seed:gestao` antes.',
     );
   }
 

@@ -36,10 +36,13 @@ x-app: &app
       reservations:
         memory: 256m
 
-# O HEALTHCHECK das três imagens Next sai com `exit 0` em QUALQUER resposta HTTP,
-# 500 inclusive: um front sem banco fica "healthy" para sempre. Aqui a raiz é
-# aceita só abaixo de 500. Não é `/saude` — Next não tem uma —, mas já separa
-# "o processo subiu" de "o processo consegue renderizar".
+# O HEALTHCHECK das duas imagens Next que restam (`desk`, `crm`) sai com
+# `exit 0` em QUALQUER resposta HTTP, 500 inclusive: um front sem banco fica
+# "healthy" para sempre. Aqui a raiz é aceita só abaixo de 500. Não é `/saude`
+# — Next não tem uma —, mas já separa "o processo subiu" de "o processo
+# consegue renderizar". `gestao-vite` não usa isto: é estático, sem banco para
+# falhar, e o HEALTHCHECK da própria imagem (`apps/gestao-vite/Dockerfile`) já
+# basta.
 x-saude-next: &saude-next
   test:
     [
@@ -61,10 +64,12 @@ services:
       - --providers.docker=true
       # Sem isto, todo contêiner novo vira rota publicada por acidente.
       - --providers.docker.exposedbydefault=false
-      # `api`, `desk`, `gestao` e `crm` estão em DUAS redes. Sem esta linha o
-      # Traefik escolhe um dos dois IPs sem critério estável — e quando escolhe o
-      # da rede `dados`, onde ele não está, dá 502 que some e volta a cada
-      # recriação de contêiner. O nome tem o prefixo do projeto (`name: pipe`).
+      # `api`, `desk` e `crm` estão em DUAS redes (`gestao-vite` não: é estático,
+      # não fala com o Postgres, e vive só na `borda`). Sem esta linha o Traefik
+      # escolhe um dos dois IPs sem critério estável nos que estão em duas — e
+      # quando escolhe o da rede `dados`, onde ele não está, dá 502 que some e
+      # volta a cada recriação de contêiner. O nome tem o prefixo do projeto
+      # (`name: pipe`).
       - --providers.docker.network=pipe_borda
       - --entrypoints.web.address=:80
       - --entrypoints.web.http.redirections.entrypoint.to=websec
@@ -181,21 +186,27 @@ services:
       - traefik.http.routers.desk.tls.certresolver=le
       - traefik.http.services.desk.loadbalancer.server.port=3000
 
-  gestao:
-    <<: *app
-    image: ghcr.io/pipe/gestao:${PIPE_VERSAO}
-    environment:
-      PIPE_URL_ESTE_APP: https://gestao.usepipe.com.br
-    healthcheck: *saude-next
-    depends_on:
-      postgres:
-        condition: service_healthy
+  # Gestão como SPA estática (Vite + nginx): não fala com o Postgres, não lê
+  # `.env`, não tem `PIPE_URL_ESTE_APP` — a origem do próprio app já sai
+  # embutida no bundle (`VITE_URL_API`, assado por `construir-imagens.sh`), e
+  # quem decide "para onde volto depois do login" é o navegador
+  # (`window.location.origin`), não uma variável de servidor. Por isso está só
+  # na rede `borda`, como o `site`, e não em `dados`.
+  gestao-vite:
+    <<: *padrao
+    image: ghcr.io/pipe/gestao-vite:${PIPE_VERSAO}
+    networks: [borda]
+    deploy:
+      resources:
+        limits:
+          cpus: '0.25'
+          memory: 128m
     labels:
       - traefik.enable=true
       - traefik.http.routers.gestao.rule=Host(`gestao.usepipe.com.br`)
       - traefik.http.routers.gestao.entrypoints=websec
       - traefik.http.routers.gestao.tls.certresolver=le
-      - traefik.http.services.gestao.loadbalancer.server.port=3000
+      - traefik.http.services.gestao.loadbalancer.server.port=80
 
   # O CRM que existe HOJE é `apps/crm`, Next 15, código nosso, dentro do monorepo —
   # e é ele que esta imagem empacota (infra/construir-imagens.sh, apps/crm/Dockerfile).
