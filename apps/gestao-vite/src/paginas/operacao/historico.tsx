@@ -1,3 +1,4 @@
+import { useCallback, useMemo, useState } from 'react';
 import {
   AGRUPAMENTOS,
   agrupamentoValido,
@@ -9,6 +10,11 @@ import {
 import { useSearchParams } from 'react-router-dom';
 import { useLeitura } from '../../lib/consulta';
 import { dataHora, dataIso, dataOuNada, duracao, numero, uuidOuNada } from '../../lib/formato';
+import { Icone, Ilustracao } from '@pipe/ui';
+import { IconeGestao } from '../../componentes/icones-gestao';
+import { CampoDoPainel, PainelFiltros } from '../../componentes/painel-filtros';
+import { montarCsv } from '../../lib/csv-historico';
+import { ListaHistorico, type CartaoHistorico } from '../../componentes/lista-historico';
 
 interface RespostaDoHistorico {
   fuso: string;
@@ -18,7 +24,6 @@ interface RespostaDoHistorico {
   linhas: LinhaHistorico[];
   truncado: boolean;
 }
-import { ListaHistorico, type CartaoHistorico } from '../../componentes/lista-historico';
 
 interface Busca {
   de?: string;
@@ -27,6 +32,11 @@ interface Busca {
   atendente?: string;
   etiqueta?: string;
   agrupar?: string;
+  /* Os dois campos abaixo não existem na consulta ao servidor: a API de
+     histórico não filtra por eles (`FiltroHistorico` só tem fila/atendente/
+     etiqueta). Filtram as linhas já carregadas, no navegador — ver `casa()`. */
+  ticket?: string;
+  contato?: string;
 }
 
 /**
@@ -42,9 +52,8 @@ const ROTULO_STATUS: Record<string, { texto: string; classe: string }> = {
 
 /**
  * Atalhos de período — os rótulos exatos do filtro deles
- * (`docs/capturas/blip/dom/history.html`). "Personalizado" é o nosso par de
- * datas de sempre; os outros só calculam `de`/`ate` e reaproveitam o mesmo
- * formulário GET.
+ * (`docs/capturas/blip/dom/FICHA-history.md` §3). "Personalizado" é o nosso
+ * par de datas de sempre; os outros só calculam `de`/`ate`.
  */
 const PERIODOS = [
   { chave: 'hoje', rotulo: 'Hoje' },
@@ -81,21 +90,57 @@ function periodoAtual(de: string, ate: string, fuso: string): string {
   return achado?.chave ?? 'personalizado';
 }
 
+function rotuloDoPeriodo(chave: string): string {
+  return PERIODOS.find((p) => p.chave === chave)?.rotulo ?? 'Personalizado';
+}
+
+function baixarCsv(cartoes: readonly CartaoHistorico[]) {
+  const url = URL.createObjectURL(
+    new Blob([montarCsv(cartoes)], { type: 'text/csv;charset=utf-8' }),
+  );
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `historico-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+/** Campos que o formulário do painel não mostra mas precisa carregar, senão some ao aplicar. */
+function CamposEscondidos({ atual, exceto }: { atual: Busca; exceto: readonly string[] }) {
+  const pares: [string, string | undefined][] = [
+    ['de', atual.de],
+    ['ate', atual.ate],
+    ['fila', atual.fila],
+    ['atendente', atual.atendente],
+    ['etiqueta', atual.etiqueta],
+    ['agrupar', atual.agrupar],
+    ['ticket', atual.ticket],
+    ['contato', atual.contato],
+  ];
+  return (
+    <>
+      {pares
+        .filter(([chave, valor]) => valor && !exceto.includes(chave))
+        .map(([chave, valor]) => (
+          <input key={chave} type="hidden" name={chave} value={valor} />
+        ))}
+    </>
+  );
+}
+
 /**
- * Histórico — lista de CARTÕES, como na tela deles.
+ * Histórico — a mesma disposição da tela deles, medida em
+ * `docs/capturas/blip/dom/FICHA-history.md`: cabeçalho com "Enviar por
+ * e-mail", faixa "Filtros rápidos:" com os três atalhos e o período à
+ * direita, painel lateral de filtros fechado por padrão, e a área de
+ * resultados — vazia com o texto e a ilustração deles, ou a nossa LISTA DE
+ * CARTÕES quando há conversa.
  *
- * Era tabela de dez colunas. Virou cartão porque é o que a Blip faz em seis
- * das oito telas do módulo Atendimento, e a razão é boa: cada campo carrega o
- * próprio rótulo, então o olho não precisa subir até o cabeçalho e descer de
- * volta, e a lista sobrevive a qualquer largura de tela.
- *
- * A ordem da tela é a deles, medida em `docs/pesquisa/blip-telas-atendimento.md`
- * §4: linha do título, faixa de filtros, barra de seleção, lista. A tinta e o
- * conteúdo são nossos.
- *
- * O agrupamento continua — é o nosso, não deles, e é a resposta aos seis itens
- * de relatório que nunca viraram tela. O título do grupo virou um cabeçalho
- * acima dos cartões dele, no lugar da linha que atravessava a tabela.
+ * A lista de cartões continua sendo nossa: seis das oito telas do módulo
+ * Atendimento da Blip usam cartão, e nenhuma usa tabela — o material não
+ * chegou a capturar esta tela com resultado, então a régua "IGUAL" não tem o
+ * que comparar aqui, e a decisão registrada em `blip-telas-atendimento.md`
+ * §3/§5.2 continua de pé.
  */
 export function PaginaHistorico() {
   const [busca] = useSearchParams();
@@ -115,15 +160,48 @@ export function PaginaHistorico() {
     if (params[chave]) q.set(chave, params[chave] as string);
   }
   const leitura = useLeitura<RespostaDoHistorico>(`/v1/gestao/historico?${q}`);
+  const [painelAberto, setPainelAberto] = useState(false);
+  const [marcados, setMarcados] = useState<ReadonlySet<string>>(new Set());
+
+  const aoAlternar = useCallback(
+    (id: string) =>
+      setMarcados((atual) => {
+        const proximo = new Set(atual);
+        if (!proximo.delete(id)) proximo.add(id);
+        return proximo;
+      }),
+    [],
+  );
+
   if (!leitura.data) return null;
   /* Padrão (na `api`): os últimos sete dias, incluindo hoje. */
-  const { fuso, de, ate, catalogos, linhas, truncado } = leitura.data;
+  const { fuso, de, ate, catalogos, linhas: linhasDoServidor, truncado } = leitura.data;
 
   const por = agrupamentoValido(params.agrupar);
 
-  /* Período sempre existe; fila, atendente e etiqueta são o recorte opcional.
-     A distinção decide a frase do estado vazio. */
-  const temFiltro = Boolean(params.fila || params.atendente || params.etiqueta);
+  /* Os dois filtros de cliente: a API não tem `?ticket=` nem `?contato=`, mas
+     as linhas já trazem `ticket` e `contatoNome` — filtrar aqui não custa uma
+     ida a mais ao servidor, e não inventa dado que a consulta não devolveu. */
+  const idsDosTickets = (params.ticket ?? '')
+    .split(/[\s,]+/)
+    .map((t) => t.trim().toLowerCase())
+    .filter(Boolean);
+  const contatoBuscado = (params.contato ?? '').trim().toLowerCase();
+  const linhas = linhasDoServidor.filter((l) => {
+    if (idsDosTickets.length > 0 && !idsDosTickets.some((id) => l.ticket.toLowerCase().includes(id))) {
+      return false;
+    }
+    if (contatoBuscado && !l.contatoNome.toLowerCase().includes(contatoBuscado)) return false;
+    return true;
+  });
+
+  /* Período sempre existe; fila, atendente, etiqueta, ticket e contato são o
+     recorte opcional. A distinção decide a frase do estado vazio do servidor
+     (truncamento) — o texto da tela em si é fixo, como na deles. */
+  const temFiltro = Boolean(
+    params.fila || params.atendente || params.etiqueta || params.ticket || params.contato,
+  );
+  const limparFiltros = `/historico?de=${de}&ate=${ate}`;
 
   /* Tudo atravessa para o cartão já formatado: nenhuma Date e nenhum nulo
      passam para lá, e o formato do fuso do tenant fica decidido de um lado só. */
@@ -151,135 +229,233 @@ export function PaginaHistorico() {
     cartoes: g.linhas.map(emCartao),
   }));
 
+  /* A lista única, sem repetir por grupo: quem manda no "selecionar todos", no
+     CSV e no botão do cabeçalho. */
+  const todos = useMemo(() => {
+    const vistos = new Map<string, CartaoHistorico>();
+    for (const g of grupos) for (const c of g.cartoes) vistos.set(c.id, c);
+    return [...vistos.values()];
+  }, [grupos]);
+  const selecionados = todos.filter((c) => marcados.has(c.id));
+
   return (
     <>
       <div className="board-head">
         <h2>Histórico</h2>
-        <span className="sub">
-          Conversas encerradas, com o cronômetro parado. Status e tempos derivados dos eventos.
-        </span>
-        <span className="sub filters">
-          {numero(linhas.length)} conversas
-          {truncado ? ` · as ${LIMITE_HISTORICO} mais recentes` : ''}
-        </span>
+        <div className="filters">
+          <button
+            type="button"
+            className="iconbtn"
+            title="Enviar por e-mail"
+            aria-label="Enviar por e-mail"
+            disabled={selecionados.length === 0}
+            onClick={() => baixarCsv(selecionados)}
+          >
+            <IconeGestao nome="email" tamanho={16} />
+          </button>
+        </div>
       </div>
 
-      <form className="quickfilters" method="get" action="/historico">
-        <span className="lbl">Período</span>
-        <select
-          defaultValue={periodoAtual(de, ate, fuso)}
-          className="btn"
-          aria-label="Atalho de período"
-          onChange={(evento) => {
-            const calc = calcularPeriodo(evento.currentTarget.value, fuso);
-            if (!calc) return;
-            const form = evento.currentTarget.form;
-            const campoDe = form?.elements.namedItem('de');
-            const campoAte = form?.elements.namedItem('ate');
-            if (campoDe instanceof HTMLInputElement) campoDe.value = calc.de;
-            if (campoAte instanceof HTMLInputElement) campoAte.value = calc.ate;
-            form?.requestSubmit();
-          }}
+      {/* "Filtros rápidos:", os três atalhos deles e o período à direita —
+          `FICHA-history.md` §2.2. Cada atalho abre o mesmo painel; nenhum é
+          consulta própria. */}
+      <div className="quickfilters">
+        <span className="lbl">Filtros rápidos:</span>
+        <button
+          type="button"
+          className={params.ticket ? 'pilula ativa' : 'pilula'}
+          onClick={() => setPainelAberto(true)}
         >
-          {PERIODOS.map((p) => (
-            <option key={p.chave} value={p.chave}>
-              {p.rotulo}
-            </option>
-          ))}
-          <option value="personalizado">Personalizado</option>
-        </select>
-        <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
-        <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
-
-        <select
-          name="atendente"
-          defaultValue={params.atendente ?? ''}
-          className="btn"
-          aria-label="Atendente"
-        >
-          <option value="">Todos os atendentes</option>
-          {catalogos.atendentes.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.nome}
-            </option>
-          ))}
-        </select>
-
-        <select
-          name="etiqueta"
-          defaultValue={params.etiqueta ?? ''}
-          className="btn"
-          aria-label="Etiqueta"
-        >
-          <option value="">Todas as etiquetas</option>
-          {catalogos.etiquetas.map((e) => (
-            <option key={e.id} value={e.id}>
-              {e.nome}
-            </option>
-          ))}
-        </select>
-
-        <select name="fila" defaultValue={params.fila ?? ''} className="btn" aria-label="Fila">
-          <option value="">Todas as filas</option>
-          {catalogos.filas.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.nome}
-            </option>
-          ))}
-        </select>
-
-        {/*
-          Agrupamento no lugar dos relatórios: "por fila", "por atendente" e
-          "por etiqueta" eram item de menu e são a mesma lista dobrada por uma
-          coluna.
-        */}
-        <select name="agrupar" defaultValue={por} className="btn" aria-label="Agrupar por">
-          {AGRUPAMENTOS.map((a) => (
-            <option key={a.chave} value={a.chave}>
-              {a.chave === 'nenhum' ? a.rotulo : `Agrupar por ${a.rotulo.toLowerCase()}`}
-            </option>
-          ))}
-        </select>
-
-        <button type="submit" className="btn primary">
-          Aplicar
+          <span className="pilula-rotulo">IDs dos tickets</span>
         </button>
-        <a href="/historico" className="btn">
-          Limpar tudo
-        </a>
-      </form>
+        <button
+          type="button"
+          className={params.atendente ? 'pilula ativa' : 'pilula'}
+          onClick={() => setPainelAberto(true)}
+        >
+          <span className="pilula-rotulo">Atendentes</span>
+          {params.atendente ? (
+            <span>{catalogos.atendentes.find((a) => a.id === params.atendente)?.nome}</span>
+          ) : null}
+        </button>
+        <button
+          type="button"
+          className={params.etiqueta ? 'pilula ativa' : 'pilula'}
+          onClick={() => setPainelAberto(true)}
+        >
+          <span className="pilula-rotulo">Tags</span>
+          {params.etiqueta ? (
+            <span>{catalogos.etiquetas.find((e) => e.id === params.etiqueta)?.nome}</span>
+          ) : null}
+        </button>
+
+        <div className="faixa-fim">
+          <button type="button" className="btn" onClick={() => setPainelAberto(true)}>
+            {rotuloDoPeriodo(periodoAtual(de, ate, fuso))}
+          </button>
+          <button type="button" className="btn" onClick={() => setPainelAberto(true)}>
+            <Icone nome="funil" tamanho={14} />
+            Filtros
+          </button>
+        </div>
+      </div>
+
+      <PainelFiltros
+        aberto={painelAberto}
+        aoFechar={() => setPainelAberto(false)}
+        acao="/historico"
+        limpar={temFiltro ? limparFiltros : null}
+      >
+        <CamposEscondidos atual={params} exceto={['de', 'ate']} />
+        <CampoDoPainel rotulo="Período" apoio="Selecione um intervalo de datas">
+          <select
+            name="periodo"
+            defaultValue={periodoAtual(de, ate, fuso)}
+            aria-label="Atalho de período"
+            onChange={(e) => {
+              const calc = calcularPeriodo(e.currentTarget.value, fuso);
+              if (!calc) return;
+              const form = e.currentTarget.form;
+              const campoDe = form?.elements.namedItem('de');
+              const campoAte = form?.elements.namedItem('ate');
+              if (campoDe instanceof HTMLInputElement) campoDe.value = calc.de;
+              if (campoAte instanceof HTMLInputElement) campoAte.value = calc.ate;
+            }}
+          >
+            {PERIODOS.map((p) => (
+              <option key={p.chave} value={p.chave}>
+                {p.rotulo}
+              </option>
+            ))}
+            <option value="personalizado">Personalizado</option>
+          </select>
+          <div className="painel-datas">
+            <input type="date" name="de" defaultValue={de} aria-label="De" />
+            <input type="date" name="ate" defaultValue={ate} aria-label="Até" />
+          </div>
+        </CampoDoPainel>
+
+        <CampoDoPainel
+          rotulo="IDs dos tickets"
+          apoio="Informe os IDs de um ou mais tickets para buscar"
+        >
+          <input
+            type="text"
+            name="ticket"
+            defaultValue={params.ticket ?? ''}
+            placeholder="Informe os IDs dos tickets"
+            aria-label="IDs dos tickets"
+          />
+        </CampoDoPainel>
+
+        <CampoDoPainel rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
+          <select name="atendente" defaultValue={params.atendente ?? ''} aria-label="Atendentes">
+            <option value="">Selecione os atendentes</option>
+            {catalogos.atendentes.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.nome}
+              </option>
+            ))}
+          </select>
+        </CampoDoPainel>
+
+        <CampoDoPainel rotulo="Tags" apoio="Selecione uma ou mais tags">
+          <select name="etiqueta" defaultValue={params.etiqueta ?? ''} aria-label="Tags">
+            <option value="">Selecione as tags</option>
+            {catalogos.etiquetas.map((e) => (
+              <option key={e.id} value={e.id}>
+                {e.nome}
+              </option>
+            ))}
+          </select>
+        </CampoDoPainel>
+
+        <CampoDoPainel rotulo="Filas" apoio="Selecione uma ou mais filas">
+          <select name="fila" defaultValue={params.fila ?? ''} aria-label="Filas">
+            <option value="">Selecione as filas</option>
+            {catalogos.filas.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.nome}
+              </option>
+            ))}
+          </select>
+        </CampoDoPainel>
+
+        <CampoDoPainel rotulo="Contato" apoio="Selecione um contato">
+          <input
+            type="text"
+            name="contato"
+            defaultValue={params.contato ?? ''}
+            placeholder="Digite parte do nome do contato"
+            aria-label="Contato"
+          />
+        </CampoDoPainel>
+      </PainelFiltros>
 
       {linhas.length === 0 ? (
-        /* Duas causas, duas frases: recorte que não achou ninguém e período sem
-           movimento pedem ações opostas — uma se resolve tirando filtro, a
-           outra alargando a data. Uma frase só para as duas manda o gestor
-           mexer no controle errado. */
-        <div className="vazio">
-          {temFiltro ? (
-            <>
-              <b>Nenhuma conversa encerrada neste recorte.</b>
-              <p>
-                Entre {de} e {ate}, nenhuma conversa passa por fila, atendente e etiqueta ao mesmo
-                tempo. Tire um filtro de cada vez para achar qual deles corta tudo.
-              </p>
-              <a href={`/historico?de=${de}&ate=${ate}`} className="btn">
-                Manter o período e limpar os filtros
-              </a>
-            </>
-          ) : (
-            <>
-              <b>
-                Nenhuma conversa encerrada entre {de} e {ate}.
-              </b>
-              <p>Só entra aqui conversa já encerrada — as abertas estão em Monitoramento.</p>
-              <a href="/monitoramento" className="btn">
-                Ver o que está aberto agora
-              </a>
-            </>
-          )}
+        /* O texto é o deles, literal — `FICHA-history.md` §6. */
+        <div className="pagina-vazia">
+          <Ilustracao nome="busca" tamanho={96} />
+          <b>Nenhum resultado encontrado</b>
+          <p>
+            Não encontramos nenhum resultado a partir da pesquisa realizada.
+            <br />
+            Que tal refazer a sua busca?
+          </p>
+          <a href={limparFiltros} className="btn">
+            Redefinir filtros
+          </a>
         </div>
       ) : (
-        <ListaHistorico grupos={grupos} />
+        <>
+          {/* "Agrupar por" é nosso, não deles — a resposta aos seis itens de
+              relatório que nunca viraram tela (`historico.ts`). Fica FORA do
+              painel de propósito: o painel só tem os campos que a ficha lista. */}
+          <form method="get" action="/historico" className="hist-agrupar">
+            <CamposEscondidos atual={params} exceto={['agrupar']} />
+            <label className="lbl" htmlFor="agrupar">
+              Agrupar por
+            </label>
+            <select
+              id="agrupar"
+              name="agrupar"
+              defaultValue={por}
+              onChange={(e) => e.currentTarget.form?.requestSubmit()}
+            >
+              {AGRUPAMENTOS.map((a) => (
+                <option key={a.chave} value={a.chave}>
+                  {a.chave === 'nenhum' ? a.rotulo : `Agrupar por ${a.rotulo.toLowerCase()}`}
+                </option>
+              ))}
+            </select>
+            {truncado ? (
+              <span className="sub">
+                {numero(linhas.length)} conversas · as {LIMITE_HISTORICO} mais recentes
+              </span>
+            ) : (
+              <span className="sub">{numero(linhas.length)} conversas</span>
+            )}
+          </form>
+
+          <ListaHistorico
+            grupos={grupos}
+            todos={todos}
+            marcados={marcados}
+            aoAlternar={aoAlternar}
+            aoAlternarTodos={() =>
+              setMarcados(
+                marcados.size === todos.length ? new Set() : new Set(todos.map((c) => c.id)),
+              )
+            }
+          />
+
+          {/* Canto inferior direito da área de resultados — `FICHA-history.md`
+              §2.5. */}
+          <a href="/termo-de-responsabilidade" className="termo-de-responsabilidade">
+            <IconeGestao nome="ajuda" tamanho={14} />
+            Termo de responsabilidade
+          </a>
+        </>
       )}
     </>
   );

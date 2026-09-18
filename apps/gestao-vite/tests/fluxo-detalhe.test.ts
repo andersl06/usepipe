@@ -86,14 +86,25 @@ test('o resto da fileira é o mesmo nos dois, e na mesma ordem', () => {
       .filter((r) => !['Serviços', 'Builder', 'Atendimento'].includes(r));
   assert.deepEqual(semEspecificos('roteador'), semEspecificos('fluxo'));
   assert.deepEqual(semEspecificos('fluxo'), [
-    'Canais',
     'Análise',
-    'Contatos',
     'Growth',
+    'Canais',
+    'Contatos',
     'Conteúdos',
     'Log',
     'Pagamentos',
   ]);
+});
+
+test('os cinco visíveis são a ordem medida na origem', () => {
+  /* `application-detail-pipeprincipal-configurations-basic.html` (builder) e
+     `roteador-team__pagina.html` (master), a fonte dos dois. */
+  const rotulos = (tipo: 'fluxo' | 'roteador') =>
+    itensDoMenu(tipo, ID)
+      .slice(0, LIMITE_VISIVEL)
+      .map((i) => i.rotulo);
+  assert.deepEqual(rotulos('fluxo'), ['Builder', 'Atendimento', 'Análise', 'Growth', 'Canais']);
+  assert.deepEqual(rotulos('roteador'), ['Serviços', 'Análise', 'Growth', 'Canais', 'Contatos']);
 });
 
 test('sobra item para o "…" nos dois tipos', () => {

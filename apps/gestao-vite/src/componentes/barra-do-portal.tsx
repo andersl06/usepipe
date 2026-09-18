@@ -111,26 +111,16 @@ export function BarraDoPortal({ dados }: { dados: CascaDoPortal }) {
 
       <div className="pt-divisoria" />
 
-      {/* A `nav-items` deles tem exatamente dois itens — "Home" (esta tela,
-          com `main-navbar__active-link`) e "Blip Store" — e NADA mais: nem
-          "Atendimento", nem "Canais", nem atalho para o Desk. Esses são do
-          contexto de UM contato, depois que se entra nele.
-
-          Aqui fica UM: "Início". A loja não existe ainda, e o Desk não entra
-          no lugar dela — a barra da origem não tem esse atalho, e inventá-lo
-          era o que deixava a nossa barra diferente. */}
+      {/* A `nav-items` deles tem UM item só — "Home" — em TODAS as 22 telas
+          capturadas (`docs/capturas/blip/dom/*.html`): nenhuma tem "Blip
+          Store" nem qualquer segundo item. Nem "Atendimento", nem "Canais",
+          nem atalho para o Desk — esses são do contexto de UM contato, depois
+          que se entra nele. Um item de loja aqui era invenção nossa contra o
+          DOM medido, não lacuna documentada. */}
       <nav className="pt-links" aria-label="Seções">
         <Link href="/portal" aria-current="page">
           Início
         </Link>
-        {/* O segundo item da `nav-items` deles é a "Blip Store". A nossa loja
-            ainda não existe — o item fica no lugar dele, apagado e com o aviso,
-            para a barra não encolher e para quem espera a loja saber que ela
-            está a caminho. */}
-        <span className="pt-links-obra" aria-disabled="true" title="Em desenvolvimento">
-          Pipe Store
-          <span className="pt-obra-selo">em breve</span>
-        </span>
       </nav>
       </div>
 

@@ -1,5 +1,6 @@
 import Link from '../../../componentes/link';
 import { useLocation } from 'react-router-dom';
+import { baseDoContato, useContato } from '../contato';
 import { IconePortal, type NomeDeIconePortal } from '../../../componentes/icones-portal';
 
 /**
@@ -59,11 +60,13 @@ const ITENS: {
 
 export function NavegacaoConfiguracoes({ id }: { id: string }) {
   const caminho = useLocation().pathname;
+  /* O prefixo sai do tipo do contato: roteador e fluxo têm árvores separadas. */
+  const base = baseDoContato(useContato().contato.tipo, id);
   return (
     <aside className="cf-lateral">
       <nav className="cf-arvore" aria-label="Configurações do fluxo">
         {ITENS.map((item) => {
-          const href = item.rota ? `/fluxo/${id}/configuracoes/${item.rota}` : null;
+          const href = item.rota ? `${base}/configuracoes/${item.rota}` : null;
           const atual = href !== null && caminho === href;
           const miolo = (
             <>

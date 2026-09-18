@@ -3552,3 +3552,250 @@ tr.grupo th {
   font-weight: var(--p-peso-forte);
   background: var(--p-marca-suave);
 }
+
+/* ========================================== cartão com ações no cabeçalho
+   Os quatro cartões de métrica do Monitoramento levam DOIS ícones no canto —
+   atualizar e expandir —, medidos em `FICHA-monitoring.md` §2: "Cada um dos 4
+   cartões de métricas tem, no canto superior direito, dois ícones". O `h3` some
+   um nível: de filho direto do `.card` para filho de `.card-cabecalho`, então
+   herda a tipografia de novo aqui — `.card > h3` não alcança um neto. */
+.card-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--p-e-2);
+  margin-bottom: 10px;
+}
+
+.card-cabecalho > h3 {
+  margin: 0;
+  font-size: var(--g-t-cartao);
+  font-weight: var(--g-peso-forte);
+  line-height: var(--g-lh-cartao);
+}
+
+.card-acoes {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.card-acoes .iconbtn {
+  width: 28px;
+  height: 28px;
+  color: var(--p-conteudo-fantasma);
+}
+
+/* ================================================== painel lateral "Filtros"
+   O `data-testid="saved-filters-sidebar"` deles, fechado por padrão e medido em
+   `FICHA-monitoring.md` e `FICHA-history.md` §2: título, subtítulo fixo, duas
+   abas, os campos da consulta, e um rodapé com o switch de filtro salvo e os
+   dois botões. A largura de 380px não é medida deles — o material não chegou a
+   trazer o número —, e é a única peça desta entrega onde a régua caiu para
+   "razoável" em vez de "medido"; revisar se a captura aparecer depois. */
+.painel-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  background: color-mix(in srgb, var(--p-conteudo) 32%, transparent);
+}
+
+.painel-lateral {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 46;
+  width: 380px;
+  max-width: 92vw;
+  display: flex;
+  flex-direction: column;
+  background: var(--p-superficie-0);
+  box-shadow: var(--p-sombra-2);
+  overflow-y: auto;
+}
+
+.painel-cabecalho {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--p-e-3);
+  padding: var(--p-e-6) var(--p-e-6) var(--p-e-4);
+}
+
+.painel-cabecalho h3 {
+  margin: 0;
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-bloco);
+  color: var(--p-conteudo);
+}
+
+.painel-cabecalho p {
+  margin: 4px 0 0;
+  font-size: var(--p-t-sm);
+  line-height: 1.45;
+  color: var(--p-conteudo-fantasma);
+}
+
+.painel-abas {
+  display: flex;
+  gap: var(--p-e-4);
+  padding: 0 var(--p-e-6);
+  border-bottom: 1px solid var(--p-linha);
+}
+
+.painel-abas button {
+  padding: var(--p-e-2) 0 var(--p-e-3);
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  font: inherit;
+  font-size: var(--p-t-md);
+  color: var(--p-conteudo-fantasma);
+  cursor: pointer;
+}
+
+.painel-abas button.ativa {
+  font-weight: var(--p-peso-forte);
+  color: var(--p-conteudo);
+  border-bottom-color: var(--p-marca);
+}
+
+.painel-form {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+}
+
+.painel-campos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-5);
+  padding: var(--p-e-5) var(--p-e-6);
+  flex: 1;
+}
+
+.painel-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.painel-rotulo {
+  font-size: var(--p-t-md);
+  font-weight: var(--p-peso-forte);
+  color: var(--p-conteudo);
+}
+
+.painel-apoio {
+  font-size: var(--p-t-xs);
+  color: var(--p-conteudo-fantasma);
+}
+
+.painel-campo select,
+.painel-campo input {
+  height: 40px;
+  padding: 0 var(--p-e-3);
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  font: inherit;
+  font-size: var(--p-t-md);
+  color: var(--p-conteudo);
+}
+
+.painel-rodape {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+  padding: var(--p-e-4) var(--p-e-6);
+  border-top: 1px solid var(--p-linha);
+}
+
+.painel-sw {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+  cursor: not-allowed;
+}
+
+.painel-botoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--p-e-2);
+}
+
+.painel-vazio-salvos {
+  padding: var(--p-e-8) var(--p-e-6);
+  text-align: center;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* =========================================== paginação da tabela detalhada
+   O rodapé deles, `FICHA-monitoring.md` §5: "Resultados por página", o
+   contador "1-5 de 8", e os quatro botões de navegação. */
+.pg {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-4);
+  margin-top: var(--p-e-3);
+  padding-top: var(--p-e-3);
+  border-top: 1px solid var(--p-linha);
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-fantasma);
+}
+
+.pg-por-pagina {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.pg-por-pagina select {
+  height: 28px;
+  padding: 0 var(--p-e-2);
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-sm);
+  background: var(--p-superficie-0);
+  font: inherit;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo);
+}
+
+.pg-contador {
+  margin-left: auto;
+}
+
+.pg-nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.pg-nav .iconbtn {
+  width: 28px;
+  height: 28px;
+}
+
+.pg-nav .iconbtn:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.pg-nav .iconbtn:disabled:hover {
+  background: transparent;
+}
+
+.pg-dupla {
+  display: inline-flex;
+}
+
+.pg-dupla svg + svg {
+  margin-left: -9px;
+}

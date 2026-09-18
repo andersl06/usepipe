@@ -1,45 +1,128 @@
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import { Icone } from '@pipe/ui';
 import type { Monitoramento } from '../../lib/monitoramento';
 import { useLeitura } from '../../lib/consulta';
 import { denominador, duracao, numero, uuidOuNada } from '../../lib/formato';
+import { IconeGestao } from '../../componentes/icones-gestao';
+import { Metrica, Status } from '../../componentes/metrica';
+import { MonitoramentoDetalhado } from '../../componentes/monitoramento-detalhado';
+import { CampoDoPainel, PainelFiltros } from '../../componentes/painel-filtros';
 
 interface RespostaDoMonitoramento {
   fuso: string;
   janela: { inicio: string; fim: string };
   dados: Monitoramento;
 }
-import { RecargaPeriodica } from '../../componentes/recarga-periodica';
-import { TelaCheia } from '../../componentes/tela-cheia';
-import { FiltrosDaLista, FiltrosDaOperacao } from '../../componentes/filtros-rapidos';
-import { Metrica, Status } from '../../componentes/metrica';
-import { MonitoramentoDetalhado } from '../../componentes/monitoramento-detalhado';
-import { CargaPorAtendente } from '../../componentes/carga-por-atendente';
 
 interface Busca {
   fila?: string;
   atendente?: string;
-  contato?: string;
   status?: string;
   aba?: string;
   busca?: string;
 }
 
 /**
- * Monitoramento — a mesma disposição da tela deles, de cima para baixo:
- * linha do título com atualizar e tela cheia, faixa de filtros rápidos, grade
- * 2×2 com o cartão largo à esquerda e o estreito à direita nas duas linhas,
- * segunda faixa de filtros, e o cartão do monitoramento detalhado com a busca
- * dentro dele.
+ * As quatro opções do dropdown "Status do atendente" no painel de filtros,
+ * literais de `FICHA-monitoring.md` §3.
+ */
+const ESTADOS_DE_ATENDENTE = [
+  { id: 'online', nome: 'Online' },
+  { id: 'pausa', nome: 'Em Pausa' },
+  { id: 'invisivel', nome: 'Invisível' },
+  { id: 'offline', nome: 'Offline' },
+] as const;
+
+/**
+ * O ícone "Atualizar tela": aparece uma vez no cabeçalho da página e de novo
+ * em cada um dos quatro cartões de métrica (`FICHA-monitoring.md` §2 e §5).
+ * É sempre o mesmo botão — invalida a leitura da `api` e a tela refaz a
+ * consulta.
+ */
+function BotaoAtualizar() {
+  const fila = useQueryClient();
+  return (
+    <button
+      type="button"
+      className="iconbtn"
+      title="Atualizar tela"
+      aria-label="Atualizar tela"
+      onClick={() => void fila.invalidateQueries({ queryKey: ['api'] })}
+    >
+      <IconeGestao nome="atualizar" tamanho={14} />
+    </button>
+  );
+}
+
+/**
+ * O cartão de métrica com os dois ícones do canto deles: atualizar e
+ * expandir. "Expandir tela" usa a `Fullscreen API` no PRÓPRIO cartão, não na
+ * página inteira — é o cartão que vira o painel de parede, não a tela toda.
+ */
+function CartaoMetrica({ titulo, children }: { titulo: string; children: ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [cheio, setCheio] = useState(false);
+
+  useEffect(() => {
+    const aoTrocar = () => setCheio(document.fullscreenElement === ref.current);
+    document.addEventListener('fullscreenchange', aoTrocar);
+    return () => document.removeEventListener('fullscreenchange', aoTrocar);
+  }, []);
+
+  function expandir() {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void ref.current?.requestFullscreen().catch(() => undefined);
+  }
+
+  return (
+    <div className="card" ref={ref}>
+      <div className="card-cabecalho">
+        <h3>{titulo}</h3>
+        <div className="card-acoes">
+          <BotaoAtualizar />
+          <button
+            type="button"
+            className="iconbtn"
+            title="Expandir tela"
+            aria-label="Expandir tela"
+            aria-pressed={cheio}
+            onClick={expandir}
+          >
+            <IconeGestao nome="telaCheia" tamanho={14} />
+          </button>
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+/**
+ * Recarrega a leitura a cada 30 segundos, em silêncio. Não é um controle da
+ * tela deles — é o ponto de extensão do realtime, registrado desde a entrega
+ * anterior — então não ganha ícone nem texto próprio: só mantém o painel
+ * fresco enquanto o supervisor olha.
+ */
+function useRecargaSilenciosa(segundos: number) {
+  const fila = useQueryClient();
+  useEffect(() => {
+    const id = setInterval(() => void fila.invalidateQueries({ queryKey: ['api'] }), segundos * 1000);
+    return () => clearInterval(id);
+  }, [fila, segundos]);
+}
+
+/**
+ * Monitoramento — a mesma disposição da tela deles, medida em
+ * `docs/capturas/blip/dom/FICHA-monitoring.md`: cabeçalho com "Atualizar
+ * tela" e "Filtros", painel lateral de filtros fechado por padrão, grade 2×2
+ * de cartões (largo à esquerda, estreito à direita, nas duas linhas) e o
+ * cartão "Monitoramento detalhado" com busca, abas, tabela e paginação.
  *
  * O que NÃO copiamos é a tinta. Eles pintam de azul os dois números que dizem
  * como está a operação agora; nós pintamos os mesmos dois de moss. Os pontos
  * de status usam os nossos quatro token de estado, e nenhum azul entra.
- *
- * A separação entre "agora" e "hoje" que a spec de métricas exige (§3) é feita
- * pelas LINHAS da grade e pelos títulos dos cartões — "em tempo real" em cima,
- * "hoje" embaixo. Os cabeçalhos de bloco que faziam esse papel saíram: eles
- * custavam duas faixas de altura que a tela deles não gasta, e a tabela caía
- * para fora da primeira dobra por causa disso.
  */
 export function PaginaMonitoramento() {
   const [busca] = useSearchParams();
@@ -57,32 +140,77 @@ export function PaginaMonitoramento() {
   const leitura = useLeitura<RespostaDoMonitoramento>(`/v1/gestao/monitoramento?${q}`, {
     staleTime: 0,
   });
-  if (!leitura.data) return null;
-  const { fuso, dados: m } = leitura.data;
-  const janela = { inicio: new Date(leitura.data.janela.inicio) };
+  const [painelAberto, setPainelAberto] = useState(false);
+  useRecargaSilenciosa(30);
 
+  if (!leitura.data) return null;
+  const { dados: m } = leitura.data;
   const { tempoReal, atendentes, hoje } = m;
+
+  const algumFiltro = Boolean(params.fila || params.atendente || params.status);
 
   return (
     <>
       <div className="board-head">
         <h2>Monitoramento</h2>
-        <span className="sub">
-          Hoje · {janela.inicio.toLocaleDateString('pt-BR', { timeZone: fuso, dateStyle: 'long' })}{' '}
-          · {fuso}
-        </span>
         <div className="filters">
-          <RecargaPeriodica segundos={30} />
-          <TelaCheia />
+          <BotaoAtualizar />
+          <button type="button" className="btn" onClick={() => setPainelAberto(true)}>
+            <Icone nome="funil" tamanho={14} />
+            Filtros
+          </button>
         </div>
       </div>
 
-      <FiltrosDaOperacao filas={m.filas} atendentes={m.listaAtendentes} atual={params} />
+      <PainelFiltros
+        aberto={painelAberto}
+        aoFechar={() => setPainelAberto(false)}
+        acao="/monitoramento"
+        limpar={algumFiltro ? '/monitoramento' : null}
+      >
+        {/* A aba e a busca do cartão de baixo não são campo do painel, mas
+            precisam sobreviver ao "Aplicar" — senão aplicar um filtro jogava
+            a tabela de volta para a primeira aba. */}
+        <input type="hidden" name="aba" value={params.aba ?? 'atribuido'} />
+        {params.busca ? <input type="hidden" name="busca" value={params.busca} /> : null}
+
+        <CampoDoPainel rotulo="Filas" apoio="Selecione uma ou mais filas">
+          <select name="fila" defaultValue={params.fila ?? ''} aria-label="Filas">
+            <option value="">Selecione as filas</option>
+            {m.filas.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.nome}
+              </option>
+            ))}
+          </select>
+        </CampoDoPainel>
+
+        <CampoDoPainel rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
+          <select name="atendente" defaultValue={params.atendente ?? ''} aria-label="Atendentes">
+            <option value="">Selecione os atendentes</option>
+            {m.listaAtendentes.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.nome}
+              </option>
+            ))}
+          </select>
+        </CampoDoPainel>
+
+        <CampoDoPainel rotulo="Status do atendente" apoio="Selecione um status">
+          <select name="status" defaultValue={params.status ?? ''} aria-label="Status do atendente">
+            <option value="">Selecione o status</option>
+            {ESTADOS_DE_ATENDENTE.map((o) => (
+              <option key={o.id} value={o.id}>
+                {o.nome}
+              </option>
+            ))}
+          </select>
+        </CampoDoPainel>
+      </PainelFiltros>
 
       {/* ---------------------------------------------------- grade 2×2 */}
       <div className="mon">
-        <div className="card">
-          <h3>Atendimentos em tempo real</h3>
+        <CartaoMetrica titulo="Atendimentos em tempo real">
           <div className="metrics">
             <Metrica
               destaque
@@ -117,10 +245,9 @@ export function PaginaMonitoramento() {
               denominador={`${numero(tempoReal.emAtendimento)} ÷ ${numero(tempoReal.atendentesOnline)} online`}
             />
           </div>
-        </div>
+        </CartaoMetrica>
 
-        <div className="card">
-          <h3>Status dos atendentes</h3>
+        <CartaoMetrica titulo="Status dos atendentes">
           <div className="statuses">
             <Status valor={numero(atendentes.online)} rotulo="Online" estado="sucesso" />
             <Status valor={numero(atendentes.pausa)} rotulo="Pausa" estado="alerta" />
@@ -131,10 +258,9 @@ export function PaginaMonitoramento() {
               ? `${numero(atendentes.pausasEstouradas)} pausa(s) acima da duração sugerida pelo motivo.`
               : 'Nenhuma pausa acima da duração sugerida pelo motivo.'}
           </div>
-        </div>
+        </CartaoMetrica>
 
-        <div className="card">
-          <h3>Atendimento hoje</h3>
+        <CartaoMetrica titulo="Atendimento hoje">
           <div className="metrics">
             <Metrica
               valor={duracao(hoje.esperaDoCliente.valor)}
@@ -161,10 +287,9 @@ export function PaginaMonitoramento() {
               denominador={denominador(hoje.tempoDeAtendimento)}
             />
           </div>
-        </div>
+        </CartaoMetrica>
 
-        <div className="card">
-          <h3>Status dos tickets hoje</h3>
+        <CartaoMetrica titulo="Status dos tickets hoje">
           <div className="statuses">
             <Status valor={numero(hoje.encerramentos.perdida)} rotulo="Perdidos" estado="erro" />
             <Status
@@ -183,10 +308,8 @@ export function PaginaMonitoramento() {
             Perdido saiu <b>antes</b> da atribuição, e é capacidade ou fila. Abandonado saiu{' '}
             <b>depois</b>, e é atendimento. Fechados é a soma dos três.
           </div>
-        </div>
+        </CartaoMetrica>
       </div>
-
-      <FiltrosDaLista atendentes={m.listaAtendentes} atual={params} />
 
       <MonitoramentoDetalhado
         monitoramento={m}
@@ -194,8 +317,6 @@ export function PaginaMonitoramento() {
         busca={params.busca ?? ''}
         filtro={params}
       />
-
-      <CargaPorAtendente carga={m.carga} />
     </>
   );
 }

@@ -1,5 +1,4 @@
-import { memo, useCallback, useMemo, useState } from 'react';
-import { montarCsv } from '../lib/csv-historico';
+import { memo } from 'react';
 
 /**
  * Histórico como LISTA DE CARTÕES, e não como tabela.
@@ -11,17 +10,13 @@ import { montarCsv } from '../lib/csv-historico';
  * rótulo colado no valor e sobrevive a qualquer largura de tela.
  *
  * A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA: barra de seleção acima da lista,
- * rótulo pequeno acima do valor forte, ação em massa no topo. A cor sai dos
- * `--p-*`, e nenhum hex deles entra aqui.
+ * rótulo pequeno acima do valor forte. A cor sai dos `--p-*`, e nenhum hex
+ * deles entra aqui.
  *
- * **A ação em massa é exportar, não enviar por e-mail.** A deles dispara um
- * e-mail; a nossa gera o CSV no próprio navegador, a partir das linhas que já
- * estão na tela. Resolve o mesmo problema — tirar estes tickets da ferramenta
- * — sem inventar fila de e-mail que ninguém pediu.
- *
- * **Nenhum item desabilitado**: o botão de exportar só existe quando há
- * seleção de verdade. Botão que não faz nada é item desabilitado com outro
- * nome.
+ * A seleção é CONTROLADA pela página (`PaginaHistorico`): o botão "Enviar por
+ * e-mail" do cabeçalho — `data-testid="bnt-export-ticket"` deles,
+ * `FICHA-history.md` §5 — precisa saber se há seleção para acender, e ele mora
+ * fora deste componente. Aqui fica só "Selecionar todos" e a contagem.
  */
 
 export interface CartaoHistorico {
@@ -43,17 +38,6 @@ export interface CartaoHistorico {
 export interface GrupoDeCartoes {
   titulo: string;
   cartoes: CartaoHistorico[];
-}
-
-function baixarCsv(cartoes: readonly CartaoHistorico[]) {
-  const url = URL.createObjectURL(
-    new Blob([montarCsv(cartoes)], { type: 'text/csv;charset=utf-8' }),
-  );
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `historico-${new Date().toISOString().slice(0, 10)}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
 }
 
 function Campo({ rotulo, valor, classe }: { rotulo: string; valor: string; classe?: string }) {
@@ -125,54 +109,33 @@ const Cartao = memo(function Cartao({
   );
 });
 
-export function ListaHistorico({ grupos }: { grupos: readonly GrupoDeCartoes[] }) {
-  const [marcados, setMarcados] = useState<ReadonlySet<string>>(new Set());
-
-  /*
-   * Agrupar por etiqueta repete a mesma conversa em mais de um grupo, de
-   * propósito. A seleção é por id, então a lista única é a que manda no
-   * "selecionar todos" e no CSV — senão o total exportado passaria do total
-   * de conversas.
-   */
-  const todos = useMemo(() => {
-    const vistos = new Map<string, CartaoHistorico>();
-    for (const g of grupos) for (const c of g.cartoes) vistos.set(c.id, c);
-    return [...vistos.values()];
-  }, [grupos]);
-
+export function ListaHistorico({
+  grupos,
+  todos,
+  marcados,
+  aoAlternar,
+  aoAlternarTodos,
+}: {
+  grupos: readonly GrupoDeCartoes[];
+  /** A lista única, sem repetição por grupo — quem manda no "selecionar todos". */
+  todos: readonly CartaoHistorico[];
+  marcados: ReadonlySet<string>;
+  aoAlternar: (id: string) => void;
+  aoAlternarTodos: () => void;
+}) {
   const selecionados = todos.filter((c) => marcados.has(c.id));
   const tudoMarcado = todos.length > 0 && selecionados.length === todos.length;
-
-  /* Estável entre renders: é o que deixa o `memo` do cartão valer alguma coisa. */
-  const alternar = useCallback(
-    (id: string) =>
-      setMarcados((atual) => {
-        const proximo = new Set(atual);
-        if (!proximo.delete(id)) proximo.add(id);
-        return proximo;
-      }),
-    [],
-  );
 
   return (
     <>
       <div className="barra-selecao">
         <label>
-          <input
-            type="checkbox"
-            checked={tudoMarcado}
-            onChange={() => setMarcados(tudoMarcado ? new Set() : new Set(todos.map((c) => c.id)))}
-          />
+          <input type="checkbox" checked={tudoMarcado} onChange={aoAlternarTodos} />
           Selecionar todos
         </label>
 
         {selecionados.length > 0 ? (
-          <span className="qt-sel">
-            {selecionados.length} selecionada(s)
-            <button type="button" className="btn primary" onClick={() => baixarCsv(selecionados)}>
-              Exportar CSV
-            </button>
-          </span>
+          <span className="qt-sel">{selecionados.length} selecionada(s)</span>
         ) : null}
       </div>
 
@@ -190,7 +153,7 @@ export function ListaHistorico({ grupos }: { grupos: readonly GrupoDeCartoes[] }
                 key={`${grupo.titulo}-${c.id}`}
                 cartao={c}
                 marcado={marcados.has(c.id)}
-                aoAlternar={alternar}
+                aoAlternar={aoAlternar}
               />
             ))}
           </div>

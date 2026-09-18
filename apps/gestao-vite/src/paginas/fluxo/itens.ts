@@ -54,14 +54,23 @@ export const LIMITE_VISIVEL = 5;
  * `href: null` não é lacuna escondida: vira bloco apagado com o selo "em breve"
  * na tela, que é o combinado para o que a origem mostra e nós ainda não temos.
  */
+/*
+ * A ORDEM É A DA ORIGEM, medida em `roteador-team__pagina.html` (master) e
+ * `application-detail-pipeprincipal-configurations-basic.html` (builder):
+ * visível é Builder · Atendimento · Análise · Growth · Canais (fluxo) e
+ * Serviços · Análise · Growth · Canais · Contatos (roteador, com Builder e
+ * Atendimento escondidos por `ESCONDIDOS_NO_ROTEADOR`). Canais e Análise
+ * vinham antes de Growth aqui — por isso a barra mostrava Contatos como
+ * sexto item disfarçado de quinto, e Growth ficava só no "...".
+ */
 const CATALOGO = [
   { chave: 'builder', rotulo: 'Builder', href: '/builder' },
   { chave: 'desk', rotulo: 'Atendimento', href: '/monitoramento' },
-  { chave: 'channels', rotulo: 'Canais', href: null },
   /* A Análise é DO contato: o destino depende do `id` e sai de `itensDoMenu`. */
   { chave: 'analysis', rotulo: 'Análise', href: null },
-  { chave: 'users', rotulo: 'Contatos', href: null },
   { chave: 'growth', rotulo: 'Growth', href: null },
+  { chave: 'channels', rotulo: 'Canais', href: null },
+  { chave: 'users', rotulo: 'Contatos', href: null },
   { chave: 'contents', rotulo: 'Conteúdos', href: null },
   { chave: 'logMessages', rotulo: 'Log', href: null },
   { chave: 'payments', rotulo: 'Pagamentos', href: null },
