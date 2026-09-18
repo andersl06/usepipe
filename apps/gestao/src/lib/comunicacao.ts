@@ -1,7 +1,7 @@
 import { and, asc, eq } from 'drizzle-orm';
-import { canal, respostaPronta, templateMensagem } from '@pipe/db/schema';
+import { canal, fluxo, respostaPronta, templateMensagem } from '@pipe/db/schema';
 import type { CATEGORIAS_TEMPLATE } from '@pipe/db/schema';
-import { consultar } from './banco';
+import { consultar, tenantId } from './banco';
 
 /**
  * Comunicação: respostas prontas e modelos de mensagem do WhatsApp.
@@ -87,6 +87,8 @@ export async function carregarRespostasProntas(): Promise<RespostaProntaListada[
 
 export interface ModeloListado {
   id: string;
+  canalId: string;
+  corpo: string;
   nome: string;
   idioma: string;
   categoria: string;
@@ -101,11 +103,13 @@ function lerVariaveis(valor: unknown): string[] {
   return Array.isArray(valor) ? valor.filter((v): v is string => typeof v === 'string') : [];
 }
 
-export async function carregarModelos(): Promise<ModeloListado[]> {
+export async function carregarModelos(canalId?: string): Promise<ModeloListado[]> {
   return consultar(async (tx) => {
     const linhas = await tx
       .select({
         id: templateMensagem.id,
+        canalId: templateMensagem.canalId,
+        corpo: templateMensagem.corpo,
         nome: templateMensagem.nome,
         idioma: templateMensagem.idioma,
         categoria: templateMensagem.categoria,
@@ -116,9 +120,22 @@ export async function carregarModelos(): Promise<ModeloListado[]> {
       })
       .from(templateMensagem)
       .innerJoin(canal, eq(canal.id, templateMensagem.canalId))
+      .where(canalId ? eq(templateMensagem.canalId, canalId) : undefined)
       .orderBy(asc(templateMensagem.nome));
 
     return linhas.map((l) => ({ ...l, variaveis: lerVariaveis(l.variaveis) }));
+  });
+}
+
+export async function carregarCanalDoFluxo(fluxoId: string): Promise<string | null> {
+  const tid = await tenantId();
+  return consultar(async (tx) => {
+    const [bot] = await tx
+      .select({ canalId: fluxo.canalId })
+      .from(fluxo)
+      .where(and(eq(fluxo.id, fluxoId), eq(fluxo.tenantId, tid)))
+      .limit(1);
+    return bot?.canalId ?? null;
   });
 }
 

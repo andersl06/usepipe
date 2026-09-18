@@ -1,0 +1,804 @@
+/* ==========================================================================
+   Dicionário de dados (/fluxo/[id]/analise/dicionario-de-dados)
+
+   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. A tela é a página
+   `dataDictionary` do `portal-fragment-analytics` (`cap6s/portalmfe/
+   analytics-main.js`): a moldura `iC` (`nC`, `oC`, `rC`, `aC`), o menu `HV`
+   (`LV`, `QV`, `ZV`, `AV`, `wV`, `SV`) e as peças das páginas (`lN`, `UN`,
+   `VN`, `CN`, `ON`, `iU`, `sN`, `dU`, `BN`…). Os componentes do blip-ds vêm
+   das folhas Stencil da mesma captura: `bds-typo`/`bds-paper`/`bds-grid` do
+   `bds-grid_5`, `bds-icon` do `bds-icon`, os quatro `bds-alert*`, e o
+   `bds-chip-tag color="outline"` da captura do Desk (`blip-calls-mfe`).
+
+   Régua de tipo (`typo__variant--*`): fs-10 = 10px/150%, fs-12 = 12px/150%,
+   fs-14 = 14px/150%, fs-16 = 16px/150%, fs-20 = 20px/100%, fs-24 = 24px/100%,
+   fs-32 = 32px/100%; regular 400, semi-bold 600, bold 700, extra-bold 800.
+   `typo margin` (padrão ligado) em fs-20/24/32 = 22px embaixo.
+   Ícones (`icon__size--*`): x-small 16, small 20, medium 24, x-large 32.
+
+   O `createGlobalStyle` do MFE (`cC`) zera `margin`, `padding` e `border` de
+   TUDO e põe `box-sizing: border-box`: é por isso que as listas cruas não têm
+   recuo e o círculo do `dU` sai com 16px. Aqui a mesma regra vai em `:where`,
+   sem especificidade, para as classes abaixo continuarem mandando.
+
+   O de-para das tintas:
+     color-content-default                      → var(--ink)
+     color-content-ghost (menu, data, th)       → var(--ink-3)
+     color-primary / color-brand / #1E6BF1      → var(--p-marca)
+     color-surface-1 (paper, alerta, etiqueta)  → var(--surface)
+     color-surface-2 (linha ímpar da tabela)    → var(--surface-2)
+     color-border-1 (etiqueta outline)          → --dd-borda-1 (tinta a 20%)
+     color-system (etiqueta default)            → var(--p-info-fundo)
+     color-error (cabeçalho do alerta)          → var(--p-erro-fundo)
+     #B9CBD3 (fio do menu) · #A5A5A5 (`BN`)     → var(--line-strong)
+     #b3d4ff (selo "Em Breve")                  → var(--p-info-fundo)
+     #202c44 / white (círculo do `dU`)          → var(--p-superficie-4) / var(--p-conteudo-claro)
+     red · #ff4c4c (avisos em vermelho)         → var(--p-erro-conteudo)
+     rolagem #f1f1f1 / #888 / #555              → var(--surface-2) / var(--ink-3) / var(--ink-2)
+     paper elevation static                     → var(--p-sombra-1)
+     sombra do alerta (shadow-0 + shadow-1)     → var(--p-sombra-2)
+     véu do alerta rgba(0,0,0,.7)               → --dd-veu (tinta a 70%)
+     color-hover do botão secundário            → --dd-passagem (tinta a 8%)
+   ========================================================================== */
+
+.dd-pagina,
+.dd-alerta {
+  --dd-borda-1: color-mix(in srgb, var(--ink) 20%, transparent);
+  --dd-passagem: color-mix(in srgb, var(--ink) 8%, transparent);
+  --dd-veu: color-mix(in srgb, var(--ink) 70%, transparent);
+}
+
+.dd-pagina :where(*),
+.dd-alerta :where(*) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-sizing: border-box;
+}
+
+/* `nC` + `.dictionary-container { color: content-default }`. O texto solto
+   (fora de um `bds-typo`) herda da página: 16px, altura normal. */
+.dd-pagina {
+  box-sizing: border-box;
+  width: 100%;
+  padding: 60px 0 0;
+  color: var(--ink);
+  font-family: var(--p-fonte);
+  font-size: 1rem;
+  line-height: normal;
+}
+
+/* `oC`: 85% da largura, entre 1024 e 2560, centrada. */
+.dd-coluna {
+  min-width: 1024px;
+  max-width: 2560px;
+  width: 85%;
+  margin: 0 auto;
+}
+
+/* `bds-typo variant="fs-32" bold` com a margem padrão de 22. */
+.dd-titulo {
+  margin-bottom: 22px;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 100%;
+}
+
+/* `rC` = `bds-paper` (raio 16, elevação static) com `padding: 10px`, em linha. */
+.dd-papel {
+  display: flex;
+  flex-direction: row;
+  padding: 10px;
+  border-radius: 16px;
+  background: var(--surface);
+  box-shadow: var(--p-sombra-1);
+}
+
+/* ------------------------------------------------------------------ o menu */
+
+/* `LV width="350px"`: coluna, 5 em cima e embaixo. Sem `flex-shrink: 0` de
+   propósito: lá o menu encolhe junto com a área (`width: 100%`), até o
+   mínimo que o acordeão aguenta. */
+.dd-menu {
+  display: flex;
+  flex-direction: column;
+  width: 350px;
+  padding: 5px 0;
+}
+
+/* `QV`: 8 em cima e embaixo e o fio à direita. */
+.dd-menu-lista {
+  height: 100%;
+  padding: 8px 0;
+  border-right: 1px solid var(--line-strong);
+}
+
+/* Cores do título: `open` na seção clicada, `active` no resto, fantasma no
+   inativo (`.accordion`, `.menu_item_single-content`, `.item_Title_menu-content`). */
+.dd-aberto {
+  color: var(--p-marca);
+}
+
+.dd-ativo {
+  color: var(--ink);
+}
+
+.dd-ativo:hover,
+a:hover > .dd-ativo,
+a:hover > .dd-unico-linha > .dd-ativo {
+  color: var(--p-marca);
+}
+
+/* `ZV`: `bds-grid.menu_item_single-content padding="x-1"` > `bds-grid xxs=12
+   direction=row justify=space-between margin="y-2"`. */
+.dd-unico {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0 8px;
+  background: none;
+  color: var(--ink-3);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dd-unico-linha {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  margin: 16px 0;
+}
+
+/* `bds-typo fs-20`, bold no ativo e extra-bold no inativo. */
+.dd-unico-titulo {
+  font-size: 1.25rem;
+  font-weight: 800;
+  line-height: 100%;
+}
+
+.dd-unico-titulo.dd-aberto,
+.dd-unico-titulo.dd-ativo {
+  font-weight: 700;
+}
+
+/* `SV` (`kV` + `xV`): o selo "Em Breve", 63 de largura, 9px bold. */
+.dd-embreve {
+  display: flex;
+  align-items: center;
+  align-self: center;
+  justify-content: center;
+  border-radius: 12px;
+  background: var(--p-info-fundo);
+  text-align: center;
+}
+
+.dd-embreve > span {
+  width: 63px;
+  font-size: 9px;
+  font-weight: 700;
+  line-height: 16px;
+}
+
+/* `DV` (`details.accordion`): 8 à esquerda, 5 à direita, no mínimo 55 de
+   altura, 16px semi-bold. Lá o `details` é `display: flex`; o Chrome põe o
+   conteúdo num slot interno, e o que se vê é a pilha — que é o que vai aqui. */
+.dd-acordeao {
+  display: flex;
+  flex-direction: column;
+  min-height: 55px;
+  margin-right: 5px;
+  padding-left: 8px;
+  color: var(--ink-3);
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 24px;
+}
+
+/* `OV` (summary) + `IV`: 15 em cima e 10 embaixo (o `details summary` do `QV`
+   vence os 25 do `OV`), título e seta nas pontas. */
+.dd-acordeao-cabeca {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  min-width: 70px;
+  margin: 15px 0 10px;
+  color: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* `bds-typo fs-20 bold margin=false`; `.accordion bds-typo { min-width: 150px }`. */
+.dd-acordeao-titulo {
+  min-width: 150px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 100%;
+}
+
+/* `WV`: o `bds-icon` medium com `margin-left: 90px !important`. */
+.dd-acordeao-seta {
+  flex: none;
+  margin-left: 90px;
+}
+
+/* `wV` (`_V`): 15 entre um item e outro (`div:not(:first-of-type)`). */
+.dd-sub {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  background: none;
+  color: var(--ink-3);
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.dd-sub + .dd-sub {
+  padding-top: 15px;
+}
+
+/* `.item_Title_menu-circle`: 8 de mínimo e 8 à direita; a bolinha é a marca. */
+.dd-sub-marca {
+  width: auto;
+  min-width: 8px;
+  padding-right: 8px;
+}
+
+.dd-sub-bolinha {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--p-marca);
+}
+
+/* `bds-typo bold="semi-bold"` sem variante: fs-16. */
+.dd-sub-texto {
+  min-width: 150px;
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 150%;
+}
+
+/* --------------------------------------------------------------- a área */
+
+/* `aC`: 20 à esquerda, rola na vertical. A origem começa em `max-height: 560px`
+   e um `ResizeObserver` passa a igualar a altura do `rC` — na prática, a
+   altura do menu quando ele é mais alto que 560. `contain: size` tira a
+   página da conta da altura da linha, e o `min-height` devolve os 560. */
+.dd-area {
+  width: 100%;
+  min-height: 560px;
+  padding-left: 20px;
+  overflow-y: auto;
+  contain: size;
+}
+
+.dd-area::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dd-area::-webkit-scrollbar-track {
+  background: var(--surface-2);
+}
+
+.dd-area::-webkit-scrollbar-thumb {
+  border-radius: 6px;
+  background: var(--ink-3);
+}
+
+.dd-area::-webkit-scrollbar-thumb:hover {
+  background: var(--ink-2);
+}
+
+/* -------------------------------------------------------------- as peças */
+
+/* `lN`: `bds-grid xxs=12` à direita, fantasma, `bds-typo fs-10`. */
+.dd-data {
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+  color: var(--ink-3);
+  font-size: 0.625rem;
+  line-height: 150%;
+}
+
+/* `bds-typo class="title" fs-24 bold`, e o `ZN` (fs-24 ou fs-20) com margem. */
+.dd-t24,
+.dd-t20 {
+  display: block;
+  margin-bottom: 22px;
+  font-weight: 700;
+  line-height: 100%;
+}
+
+.dd-t24 {
+  font-size: 1.5rem;
+}
+
+.dd-t20 {
+  font-size: 1.25rem;
+}
+
+.dd-marca {
+  color: var(--p-marca);
+}
+
+.dd-forte {
+  font-weight: 700;
+}
+
+.dd-p12 {
+  font-size: 0.75rem;
+  line-height: 150%;
+}
+
+.dd-p14 {
+  font-size: 0.875rem;
+  line-height: 150%;
+}
+
+.dd-p16 {
+  font-size: 1rem;
+  line-height: 150%;
+}
+
+/* `UN` */
+.dd-bloco {
+  width: 100%;
+  padding-bottom: 20px;
+}
+
+/* `VN`: fs-14 por padrão (`dd-p16` quando a origem não passa `variant`). */
+.dd-texto {
+  display: block;
+  align-self: flex-start;
+  width: 100%;
+  padding-bottom: 5px;
+  font-size: 0.875rem;
+  line-height: 150%;
+}
+
+/* `CN` (o último da vírgula, `gN`). */
+.dd-linha {
+  display: flex;
+  flex-direction: row;
+  align-self: flex-start;
+  width: 100%;
+  margin-bottom: 5px;
+}
+
+/* `ON`: flex sem quebra; com `fs-14 bold`, e solto (sem variante) em fs-16. */
+.dd-destaque {
+  display: flex;
+  padding-right: 3px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 150%;
+  white-space: nowrap;
+}
+
+.dd-destaque--solto {
+  display: inline-flex;
+  font-size: 1rem;
+  font-weight: 400;
+}
+
+/* `sN` = `bds-chip-tag color="outline" icon="warning"`: 24 de altura, raio 12,
+   4 de lado, ícone de 16 e a palavra fs-12 bold com 8 de cada lado. */
+.dd-etiqueta {
+  display: inline-flex;
+  align-items: center;
+  min-width: 32px;
+  height: 24px;
+  padding: 0 4px;
+  border: 1px solid var(--dd-borda-1);
+  border-radius: 12px;
+  background: var(--surface);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.dd-etiqueta > span {
+  margin: 0 8px;
+}
+
+/* `bds-chip-tag` sem `color`: o `default`. */
+.dd-etiqueta--padrao {
+  border: 0;
+  background: var(--p-info-fundo);
+}
+
+.dd-link {
+  color: var(--p-marca);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.dd-pagina a:not([class]) {
+  color: var(--p-marca);
+  text-decoration: underline;
+}
+
+/* `IN` (`ol`) e `WN` (`ul`, com 5 em cima): 15 de recuo. */
+.dd-lista {
+  padding-left: 15px;
+}
+
+.dd-lista--simples {
+  padding-top: 5px;
+}
+
+/* `AN` */
+.dd-item {
+  width: 100%;
+}
+
+/* `jN`: item alinhado ao centro; link, círculo e print com 5 de cada lado. */
+.dd-passo {
+  display: flex;
+  align-items: center;
+}
+
+.dd-passo > a,
+.dd-passo > .dd-circulo,
+.dd-passo > .dd-print {
+  margin: 0 5px;
+}
+
+/* `dU` (`uU`): 14 de largura com 8 de recheio em `border-box` — o recheio
+   ganha, e o círculo fica com 16, com o ícone small (20) transbordando. */
+.dd-circulo {
+  display: flex;
+  flex: none;
+  align-items: center;
+  align-self: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  padding: 8px;
+  border-radius: 50%;
+  background: var(--p-superficie-4);
+  color: var(--p-conteudo-claro);
+  text-align: center;
+}
+
+.dd-circulo svg {
+  flex: none;
+}
+
+/* `BN`: fio de 0,05px a 50%, 20 em cima e embaixo. */
+.dd-divisor {
+  height: 0;
+  width: 100%;
+  margin: 20px 0;
+  border-top: 0.05px solid var(--line-strong);
+  opacity: 0.5;
+}
+
+/* `FN` (`bds-paper` com `padding: 3px`, mínimo 40, até 20 de altura) — o `DN` é
+   a mesma caixa sem papel. `xU` troca o mínimo por máximo de 40. */
+.dd-indicador {
+  display: flex;
+  flex: none;
+  flex-direction: row;
+  align-content: center;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  max-height: 20px;
+  padding: 3px;
+  border-radius: 0;
+  box-shadow: var(--p-sombra-1);
+  font-size: 0.75rem;
+  font-weight: 700;
+  line-height: 150%;
+}
+
+.dd-indicador--vazio {
+  box-shadow: none;
+}
+
+.dd-indicador--solto {
+  display: inline-flex;
+  min-width: 0;
+  max-width: 40px;
+  vertical-align: middle;
+  font-size: inherit;
+  font-weight: 400;
+}
+
+/* `HN`: até 180, encostado à direita, 10 de folga. */
+.dd-rotulo {
+  display: flex;
+  align-self: flex-start;
+  justify-content: flex-end;
+  width: 100%;
+  max-width: 180px;
+  padding-right: 10px;
+}
+
+/* `MN` (o último da vírgula, `yN`). */
+.dd-descricao {
+  display: flex;
+  align-self: flex-end;
+  justify-content: flex-end;
+  width: 100%;
+  font-weight: 400;
+}
+
+/* `MU`: o rótulo dos exemplos da Recorrência, entre 83 e 100. */
+.dd-exemplo-rotulo {
+  display: flex;
+  align-self: flex-start;
+  justify-content: flex-start;
+  width: auto;
+  min-width: 83px;
+  max-width: 100px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 150%;
+}
+
+/* `mU`: o `warning` do "Atenção" do Fluxo conversacional, em vermelho. */
+.dd-atencao {
+  display: inline-flex;
+  margin: 0 2px 0 5px;
+  padding-top: 1px;
+  color: var(--p-erro-conteudo);
+}
+
+.dd-cor-erro {
+  color: var(--p-erro-conteudo);
+  vertical-align: middle;
+}
+
+/* `bds-icon name="refresh" color="blue" size="medium"` no meio do texto. */
+.dd-icone-atualizar {
+  color: var(--p-marca);
+  vertical-align: middle;
+}
+
+/* `iU`: `table` sem borda com 15 embaixo; o espaçamento de 2px entre células é
+   o do navegador, que o reset global não toca. */
+.dd-tabela {
+  width: 100%;
+  padding-bottom: 15px;
+  border-collapse: separate;
+  border-spacing: 2px;
+}
+
+/* `oU`/`rU`: 10 de recheio, primeira coluna com 20%. O resto desfaz o `th`/`td`
+   sem classe de `packages/ui/estilos/base.css` (caixa alta, `nowrap`, altura
+   fixa, fio embaixo, fundo e cor próprios), que lá não existe: o `th` da origem
+   é texto cru da página (16px, negrito do navegador) e o `td` herda a linha. */
+.dd-tabela th,
+.dd-tabela td {
+  height: auto;
+  padding: 10px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  letter-spacing: normal;
+  text-transform: none;
+  white-space: normal;
+  vertical-align: middle;
+}
+
+.dd-tabela th {
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: normal;
+}
+
+.dd-tabela th:first-child,
+.dd-tabela td:first-child {
+  width: 20%;
+}
+
+/* `.row-head` */
+.dd-tabela th {
+  color: var(--ink-3);
+  text-align: left;
+}
+
+/* `.row-body` e `.row-body:nth-child(odd)` */
+.dd-tabela tbody tr {
+  color: var(--ink);
+}
+
+.dd-tabela tbody tr:nth-child(odd) {
+  background: var(--surface-2);
+}
+
+/* `bds-typo fs-14`, bold na primeira célula. */
+.dd-celula {
+  display: block;
+  font-size: 0.875rem;
+  line-height: 150%;
+}
+
+/* `aU`: cada chave da célula-objeto vira um parágrafo com 15 embaixo. */
+.dd-celula-paragrafo {
+  display: flex;
+  align-self: flex-start;
+  width: 100%;
+  padding-bottom: 15px;
+  font-size: 0.875rem;
+  line-height: 150%;
+}
+
+/* `wU`: `bds-grid direction="column" gap="2"`. */
+.dd-secoes {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* `attentionText`: `bds-typo tag="span"` (fs-16) com o ícone e o texto fs-14. */
+.dd-atencao-texto {
+  font-size: 1rem;
+  line-height: 150%;
+}
+
+/* Listas cruas do `wU` (`margin: 0`) e o `li` com `display: block`. */
+.dd-lista-crua {
+  margin: 0;
+}
+
+.dd-bloco-li {
+  display: block;
+}
+
+/* Os prints do Builder (`gU`), redesenhados no tamanho do PNG embutido. */
+.dd-print {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  height: 19px;
+  border-radius: 2px;
+  vertical-align: middle;
+  color: var(--ink-2);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+/* 164×19: seta, "TRACKING AUTOMÁTICO" e o interruptor ligado. */
+.dd-print--tracking {
+  gap: 3px;
+  width: 164px;
+  padding: 0 6px 0 3px;
+  background: var(--ground);
+  font-size: 6.5px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.dd-print-chave {
+  position: relative;
+  width: 19px;
+  height: 11px;
+  margin-left: auto;
+  border-radius: 6px;
+  background: var(--p-marca);
+}
+
+.dd-print-chave::after {
+  content: '';
+  position: absolute;
+  top: 1.5px;
+  right: 1.5px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--p-conteudo-claro);
+}
+
+/* 88×19: "Chatbot principal". */
+.dd-print--chatbot {
+  width: 88px;
+  padding-left: 4px;
+  background: var(--surface);
+  font-size: 10.5px;
+}
+
+/* -------------------------------------------------------------- o alerta */
+
+/* `.alert__dialog`: véu a 70% na tela inteira; a caixa a 48 do topo. O
+   `display` só entra aberto — fechado, quem esconde é o próprio `popover`. */
+.dd-alerta:popover-open {
+  display: block;
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: var(--dd-veu);
+  color: var(--ink);
+  font-family: var(--p-fonte);
+}
+
+/* `.alert__dialog .alert`: até 424, raio 8, surface-1, sombra secondary. */
+.dd-alerta-caixa {
+  position: relative;
+  max-width: 424px;
+  margin: 48px auto 0;
+  overflow: hidden;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: var(--p-sombra-2);
+}
+
+/* `.alert__header--error`: 64 de mínimo, 12/16, ícone x-large e título fs-16 bold. */
+.dd-alerta-cabeca {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 64px;
+  padding: 12px 16px;
+  background: var(--p-erro-fundo);
+}
+
+.dd-alerta-cabeca svg {
+  min-width: 32px;
+}
+
+.dd-alerta-cabeca h2 {
+  margin-left: 8px;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 150%;
+}
+
+/* `.alert__body`: 12/16 e 8 embaixo; `bds-typo fs-14 regular`. */
+.dd-alerta-corpo {
+  position: relative;
+  width: 100%;
+  margin-bottom: 8px;
+  padding: 12px 16px;
+  font-size: 0.875rem;
+  line-height: 150%;
+}
+
+/* `.alert__actions`: à direita, 12/16. */
+.dd-alerta-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  padding: 12px 16px;
+}
+
+/* `bds-button variant="secondary"` standard: 40 de altura, 9/16, raio 8,
+   `bds-typo fs-14` com `line-height: simple` (100%). */
+.dd-botao-secundario {
+  height: 40px;
+  padding: 9px 16px;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  line-height: 100%;
+  cursor: pointer;
+  transition: all 0.5s;
+}
+
+.dd-botao-secundario:hover {
+  background: var(--dd-passagem);
+}

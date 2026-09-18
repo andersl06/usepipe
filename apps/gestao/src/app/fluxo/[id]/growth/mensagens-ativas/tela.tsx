@@ -2,19 +2,16 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
-import { IconePortal } from '../../../../../componentes/icones-portal';
+import { IconeBusca, IconePortal } from '../../../../../componentes/icones-portal';
 import type { DadosDeGrowth, EnvioGrowth } from '../../../../../lib/growth';
-import { filtrarEnvios, resumirEnvios } from '../regras';
+import { filtrarEnvios } from '../regras';
 
-type Aba = 'visao' | 'envios';
 type Etapa = 1 | 2 | 3 | 4;
 
 export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
   const router = useRouter();
   const [atualizando, iniciarAtualizacao] = useTransition();
-  const [aba, setAba] = useState<Aba>('visao');
   const [criar, setCriar] = useState(false);
-  const [direto, setDireto] = useState(false);
   const [etapa, setEtapa] = useState<Etapa>(1);
   const [canalId, setCanalId] = useState(dados.canais[0]?.id ?? '');
   const [categoria, setCategoria] = useState('utilidade');
@@ -26,7 +23,10 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
   const [quantidadeArquivo, setQuantidadeArquivo] = useState(0);
   const [aviso, setAviso] = useState('');
   const [busca, setBusca] = useState('');
-  const [estado, setEstado] = useState('todos');
+  const [mostrarBusca, setMostrarBusca] = useState(false);
+  const [canalFiltro, setCanalFiltro] = useState('whatsapp');
+  const [tipoMensagem, setTipoMensagem] = useState('todos');
+  const [tipoCampanha, setTipoCampanha] = useState('todos');
 
   const modelosAprovados = dados.modelos.filter(
     (modelo) =>
@@ -35,22 +35,11 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
       modelo.statusMeta === 'aprovado',
   );
   const modeloSelecionado = dados.modelos.find((modelo) => modelo.id === modeloId);
-  const envios = useMemo(
-    () => filtrarEnvios(dados.envios, busca, estado),
-    [dados.envios, busca, estado],
-  );
-  const resumo = useMemo(() => resumirEnvios(dados.envios), [dados.envios]);
+  const envios = useMemo(() => filtrarEnvios(dados.envios, busca, 'todos'), [dados.envios, busca]);
 
   function abrirCriacao() {
-    setDireto(false);
     setCriar(true);
     setEtapa(1);
-    setAviso('');
-  }
-
-  function abrirEnvioDireto() {
-    setCriar(false);
-    setDireto(true);
     setAviso('');
   }
 
@@ -79,74 +68,94 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
     <div className="gr-container">
       <header className="gr-cabeca">
         <div>
-          <h1>Resumo dos envios de mensagens</h1>
+          <div className="gr-titulo-com-info">
+            <h1>Resumo dos envios de mensagens</h1>
+            <IconePortal nome="informacao-cheia" tamanho={18} />
+          </div>
           <p>Monitore o envio de mensagens ativas dos canais para sua audiência.</p>
         </div>
-        <button
-          className="gr-botao"
-          type="button"
-          disabled={atualizando}
-          onClick={() => iniciarAtualizacao(() => router.refresh())}
-        >
-          <IconePortal nome="atualizar" tamanho={20} />
-          Atualizar
-        </button>
+        <div className="gr-cabeca-acoes">
+          <button
+            className="gr-botao gr-botao-terciario"
+            type="button"
+            disabled={atualizando}
+            onClick={() => iniciarAtualizacao(() => router.refresh())}
+          >
+            <IconePortal nome="atualizar" tamanho={20} />
+            Atualizar
+          </button>
+          <button className="gr-botao gr-botao-primario" type="button" onClick={abrirCriacao}>
+            Enviar mensagens ativas
+          </button>
+        </div>
       </header>
 
-      <nav className="gr-abas" aria-label="Visões de mensagens ativas">
-        <button
-          type="button"
-          className={aba === 'visao' ? 'ativa' : ''}
-          aria-current={aba === 'visao' ? 'page' : undefined}
-          onClick={() => setAba('visao')}
-        >
-          Visão Geral
-        </button>
-        <button
-          type="button"
-          className={aba === 'envios' ? 'ativa' : ''}
-          aria-current={aba === 'envios' ? 'page' : undefined}
-          onClick={() => setAba('envios')}
-        >
-          Status das mensagens
+      <nav className="gr-abas" aria-label="Mensagens ativas">
+        <button type="button" className="ativa" aria-current="page">
+          Disparo
         </button>
       </nav>
 
       <section className="gr-filtros">
-        <label>
-          Nome do modelo
-          <input
-            type="search"
-            placeholder="Digite o nome do modelo"
-            value={busca}
-            onChange={(evento) => setBusca(evento.target.value)}
-          />
-        </label>
-        <label>
-          Status das mensagens
-          <select value={estado} onChange={(evento) => setEstado(evento.target.value)}>
-            <option value="todos">Todos</option>
-            <option value="pendente">Aguardando envio</option>
-            <option value="enviando">Enviando</option>
-            <option value="enviada">Enviadas</option>
-            <option value="entregue">Recebidas</option>
-            <option value="lida">Lidas</option>
-            <option value="falhou">Falharam</option>
-          </select>
-        </label>
+        <header>
+          <h2>Filtros</h2>
+          <div>
+            {mostrarBusca ? (
+              <label>
+                Nome da campanha
+                <input
+                  type="search"
+                  placeholder="Digite o nome da campanha"
+                  value={busca}
+                  onChange={(evento) => setBusca(evento.target.value)}
+                />
+              </label>
+            ) : null}
+            <button
+              className="gr-botao gr-botao-pesquisa"
+              type="button"
+              aria-label="Pesquisar campanha"
+              onClick={() => setMostrarBusca((atual) => !atual)}
+            >
+              <IconeBusca tamanho={22} />
+            </button>
+          </div>
+        </header>
+        <div className="gr-filtros-campos">
+          <label>
+            Canal
+            <select value={canalFiltro} onChange={(evento) => setCanalFiltro(evento.target.value)}>
+              <option value="whatsapp">Whatsapp</option>
+              <option value="google-rcs">GoogleRCS</option>
+              <option value="sms">SMS</option>
+              <option value="outros">Outros canais</option>
+            </select>
+          </label>
+          <label>
+            Tipo da mensagem
+            <select
+              value={tipoMensagem}
+              onChange={(evento) => setTipoMensagem(evento.target.value)}
+            >
+              <option value="todos">Todos</option>
+              <option value="agendadas">Agendadas</option>
+              <option value="nao-agendadas">Não agendadas</option>
+            </select>
+          </label>
+          <label>
+            Tipo de campanha
+            <select
+              value={tipoCampanha}
+              onChange={(evento) => setTipoCampanha(evento.target.value)}
+            >
+              <option value="todos">Todos</option>
+              <option value="individual">Individual</option>
+              <option value="massa">Em massa</option>
+            </select>
+          </label>
+        </div>
       </section>
 
-      <div className="gr-acoes">
-        <button className="gr-botao gr-botao-primario" type="button" onClick={abrirCriacao}>
-          <IconePortal nome="megafone" tamanho={20} />
-          Enviar mensagens ativas
-        </button>
-        <button className="gr-botao" type="button" onClick={abrirEnvioDireto}>
-          [Beta] Envio direto
-        </button>
-      </div>
-
-      {aba === 'visao' ? <Resumo resumo={resumo} /> : null}
       <ListaDeEnvios envios={envios} />
 
       {criar ? (
@@ -366,64 +375,37 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
           </section>
         </div>
       ) : null}
-
-      {direto ? <EnvioDireto fechar={() => setDireto(false)} /> : null}
     </div>
-  );
-}
-
-function Resumo({ resumo }: { resumo: ReturnType<typeof resumirEnvios> }) {
-  return (
-    <section className="gr-resumo" aria-label="Visão Geral">
-      <h2>Visão Geral</h2>
-      <p>Acompanhe as principais métricas das mensagens ativas no período escolhido.</p>
-      <div className="gr-metricas">
-        <Metrica titulo="Audiência" valor={resumo.audiencia} />
-        <Metrica titulo="Recebidas" valor={resumo.recebidas} />
-        <Metrica titulo="Lidas" valor={resumo.lidas} />
-        <Metrica titulo="Falharam" valor={resumo.falharam} />
-      </div>
-    </section>
-  );
-}
-
-function Metrica({ titulo, valor }: { titulo: string; valor: number }) {
-  return (
-    <article className="gr-metrica">
-      <span>{titulo}</span>
-      <strong>{valor.toLocaleString('pt-BR')}</strong>
-    </article>
   );
 }
 
 function ListaDeEnvios({ envios }: { envios: EnvioGrowth[] }) {
   return (
     <section className="gr-lista">
-      <h2>Dados de envio</h2>
       {envios.length ? (
         <div className="gr-tabela-rolagem">
           <table>
             <thead>
               <tr>
                 <th>Nome da mensagem</th>
-                <th>Contato</th>
-                <th>Canal</th>
-                <th>Data de envio</th>
                 <th>Status</th>
+                <th>Agendamento</th>
+                <th>Data de envio</th>
+                <th>Ações</th>
               </tr>
             </thead>
             <tbody>
               {envios.map((envio) => (
                 <tr key={envio.id}>
                   <td>{envio.templateNome ?? '—'}</td>
-                  <td>{envio.contatoNome ?? '—'}</td>
-                  <td>{envio.canalNome}</td>
-                  <td>{new Date(envio.criadaEm).toLocaleString('pt-BR')}</td>
                   <td>
                     <span className={`gr-status gr-status--${envio.estado ?? 'pendente'}`}>
                       {rotuloEstado(envio.estado)}
                     </span>
                   </td>
+                  <td>Sem agendamento</td>
+                  <td>{new Date(envio.criadaEm).toLocaleString('pt-BR')}</td>
+                  <td>—</td>
                 </tr>
               ))}
             </tbody>
@@ -432,72 +414,15 @@ function ListaDeEnvios({ envios }: { envios: EnvioGrowth[] }) {
       ) : (
         <div className="gr-vazio">
           <IconePortal nome="megafone" tamanho={40} />
-          <h3>Nenhuma mensagem ativa encontrada.</h3>
+          <h2>Crie campanhas e envie mensagens ativas para sua audiência</h2>
+          <p>Você ainda não criou nenhuma campanha. Envie mensagens ativas e</p>
+          <p>analise o desempenho de suas campanhas por aqui.</p>
+          <button className="gr-botao" type="button">
+            Saiba como enviar mensagens ativas
+          </button>
         </div>
       )}
     </section>
-  );
-}
-
-function EnvioDireto({ fechar }: { fechar: () => void }) {
-  const [amostra, setAmostra] = useState('');
-  const [aviso, setAviso] = useState('');
-  return (
-    <div
-      className="gr-sobreposicao"
-      role="presentation"
-      onMouseDown={(e) => e.target === e.currentTarget && fechar()}
-    >
-      <section
-        className="gr-modal"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="gr-direto-titulo"
-      >
-        <header className="gr-modal-cabeca">
-          <div>
-            <h2 id="gr-direto-titulo">Envio direto</h2>
-            <p>Mensagens de Envio direto para modelos de Utilidade</p>
-          </div>
-          <button className="gr-icone-botao" type="button" aria-label="Fechar" onClick={fechar}>
-            <IconePortal nome="fechar" tamanho={20} />
-          </button>
-        </header>
-        <p>
-          Simplifique sua operação com o envio de mensagens de Utilidade sem a necessidade de criar
-          ou aprovar templates manualmente.
-        </p>
-        <p>
-          Para ativar a funcionalidade, envie amostras de mensagens de Utilidade para verificação de
-          elegibilidade.
-        </p>
-        <label>
-          Amostra de modelo
-          <textarea
-            value={amostra}
-            onChange={(evento) => setAmostra(evento.target.value)}
-            placeholder="Digite sua mensagem de exemplo aqui"
-          />
-        </label>
-        {aviso ? (
-          <p className="gr-aviso" role="alert">
-            {aviso}
-          </p>
-        ) : null}
-        <footer className="gr-modal-acoes">
-          <button className="gr-botao" type="button" onClick={fechar}>
-            Cancelar
-          </button>
-          <button
-            className="gr-botao gr-botao-primario"
-            type="button"
-            onClick={() => setAviso('Envio de amostras ainda não disponível.')}
-          >
-            Enviar amostras
-          </button>
-        </footer>
-      </section>
-    </div>
   );
 }
 

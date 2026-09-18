@@ -15,9 +15,8 @@
  *     que em pt-BR é **"Serviços"**. Para `builder` não há item nenhum: o
  *     `switch` não tem caso para ele.
  *  2. `getUpdatedMenus()` — filtra o catálogo pelas permissões DA PESSOA
- *     (`applicationUserPermissionModel`), na ordem em que as chaves aparecem no
- *     catálogo: builder, desk, channels, analysis, ai, users, growth, contents,
- *     logMessages, payments.
+ *     (`applicationUserPermissionModel`) e preserva sua ordem no bundle. O item
+ *     `ai` foi removido do catálogo Pipe conforme o escopo visual solicitado.
  *  3. `subheaderMenu.checkPermissions()` — filtra pelo TEMPLATE, usando o mapa
  *     de claims (módulo 62673 do bundle), onde cada claim traz `hideInTemplate`.
  *     Para `master` só duas entradas escondem: `desk` (claim 106, e os vinte e
@@ -61,7 +60,6 @@ const CATALOGO = [
   { chave: 'channels', rotulo: 'Canais', href: null },
   /* A Análise é DO contato: o destino depende do `id` e sai de `itensDoMenu`. */
   { chave: 'analysis', rotulo: 'Análise', href: null },
-  { chave: 'ai', rotulo: 'Inteligência artificial', href: null },
   { chave: 'users', rotulo: 'Contatos', href: null },
   { chave: 'growth', rotulo: 'Growth', href: null },
   { chave: 'contents', rotulo: 'Conteúdos', href: null },
@@ -75,9 +73,9 @@ const ESCONDIDOS_NO_ROTEADOR: readonly string[] = ['builder', 'desk'];
 /**
  * A fileira inteira, na ordem da origem. Quem desenha fatia em `LIMITE_VISIVEL`.
  *
- * Não recebe permissão: a peneira 2 da origem é por claim POR CONTATO, e aqui
- * o RBAC é por conta — quem abriu a tela já passou por `exigirEu()`. Quando
- * houver permissão por contato, ela entra aqui, antes do filtro de tipo.
+ * Não recebe permissão: o RBAC Pipe existente é por conta, enquanto a origem
+ * filtra por claim do bot. ponytail: catálogo fixo até existir RBAC por fluxo;
+ * então aplicar claims por bot antes do filtro de tipo.
  */
 export function itensDoMenu(tipo: TipoDeContato, id: string): ItemDoMenu[] {
   const itens: ItemDoMenu[] = CATALOGO.filter(
@@ -89,9 +87,15 @@ export function itensDoMenu(tipo: TipoDeContato, id: string): ItemDoMenu[] {
         ? `/fluxo/${id}/analise`
         : item.chave === 'channels'
           ? `/fluxo/${id}/canais`
-          : item.chave === 'growth'
-            ? `/fluxo/${id}/growth/mensagens-ativas`
-            : item.href,
+          : item.chave === 'users'
+            ? `/fluxo/${id}/contatos`
+            : item.chave === 'growth'
+              ? `/fluxo/${id}/growth/mensagens-ativas`
+              : item.chave === 'contents'
+                ? `/fluxo/${id}/conteudos`
+                : item.chave === 'logMessages'
+                  ? `/fluxo/${id}/log`
+                  : item.href,
   }));
 
   /* `getTemplateSetupItem()`: o item do template vem na FRENTE de tudo. Só o
@@ -112,8 +116,8 @@ export function itensDoMenu(tipo: TipoDeContato, id: string): ItemDoMenu[] {
  */
 export const ICONES_DO_CONTATO: readonly (ItemDoMenu & { icone: NomeDeIconePortal })[] = [
   /* `getIcons(sref)`: `icon-integration`, `icon-config`, `icon-team-1`. */
-  { rotulo: 'Integrações', href: null, icone: 'integracoes' },
-  { rotulo: 'Configurações', href: null, icone: 'configuracoes' },
+  { rotulo: 'Integrações', href: '/integracoes', icone: 'integracoes' },
+  { rotulo: 'Configurações', href: '/configuracoes/api', icone: 'configuracoes' },
   { rotulo: 'Equipe', href: null, icone: 'equipe' },
   /* `modules.application.detail.test` — o `icon-lab` que abre o teste. */
   { rotulo: 'Testar', href: null, icone: 'testar' },

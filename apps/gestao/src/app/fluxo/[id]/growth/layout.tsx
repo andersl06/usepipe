@@ -3,6 +3,7 @@ import { notFound } from 'next/navigation';
 import { BarraDoPortal } from '../../../../componentes/barra-do-portal';
 import { BarraDoContato, UUID, carregarContato } from '../barra-do-contato';
 import { carregarCascaDoPortal } from '../../../../lib/portal';
+import { NavegacaoGrowth } from './navegacao';
 import '../fluxo.css';
 import './growth.css';
 
@@ -23,7 +24,11 @@ export default async function LayoutDeGrowth({
     <div className="pt-app">
       <BarraDoPortal dados={casca} />
       <BarraDoContato contato={contato} ativo="Growth" />
-      <main className="gr-miolo">{children}</main>
+      {/* `section.main-section > ui-view`: a lateral e o miolo, lado a lado. */}
+      <div className="gr-casca">
+        <NavegacaoGrowth id={id} />
+        <main className="gr-miolo">{children}</main>
+      </div>
     </div>
   );
 }

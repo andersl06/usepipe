@@ -1,0 +1,97 @@
+- generic [ref=f3e2]:
+  - banner [ref=f3e3]:
+    - group [ref=f3e4]:
+      - generic "Anderson Da Silva Linhares essencial" [ref=f3e5] [cursor=pointer]:
+        - generic [ref=f3e9]:
+          - generic [ref=f3e10]: Anderson Da Silva Linhares
+          - generic [ref=f3e11]: essencial
+    - navigation "Seções" [ref=f3e16]:
+      - link "Início" [ref=f3e17] [cursor=pointer]:
+        - /url: /portal
+      - generic "Em desenvolvimento" [ref=f3e18]:
+        - text: Pipe Store
+        - generic [ref=f3e19]: em breve
+    - link "Pipe" [ref=f3e20] [cursor=pointer]:
+      - /url: /portal
+      - img "Pipe" [ref=f3e21]
+    - generic [ref=f3e22]:
+      - group [ref=f3e23]:
+        - generic "Ajuda" [ref=f3e24] [cursor=pointer]
+      - group [ref=f3e27]:
+        - generic "Notificações" [ref=f3e28] [cursor=pointer]
+      - group [ref=f3e32]:
+        - generic "Conta de Anderson Da Silva Linhares" [ref=f3e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f3e34]: AL
+  - generic [ref=f3e37]:
+    - generic [ref=f3e38]:
+      - generic [ref=f3e39]:
+        - generic [aria-hidden] [ref=f3e40]: AT
+        - generic "Rascunho" [ref=f3e41]
+      - group [ref=f3e42]:
+        - generic "Anderson - Teste" [ref=f3e43] [cursor=pointer]
+    - navigation "Seções do contato" [ref=f3e47]:
+      - link "Serviços" [ref=f3e48] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/servicos
+      - link "Canais" [ref=f3e49] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/canais
+      - link "Análise" [ref=f3e50] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/analise
+      - link "Contatos" [ref=f3e51] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/contatos
+      - link "Growth" [ref=f3e52] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/growth/mensagens-ativas
+      - group [ref=f3e53]:
+        - generic "Mais seções" [ref=f3e54] [cursor=pointer]
+    - generic [ref=f3e57]:
+      - link "Integrações" [ref=f3e58] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/integracoes
+      - link "Configurações" [ref=f3e61] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/configuracoes/api
+      - generic "Equipe" [ref=f3e64]: em breve
+      - generic "Testar" [ref=f3e68]: em breve
+  - main [ref=f3e72]:
+    - generic [ref=f3e73]:
+      - generic [ref=f3e74]:
+        - generic [ref=f3e75]:
+          - heading "Resumo dos envios de mensagens" [level=1] [ref=f3e76]
+          - paragraph [ref=f3e77]: Monitore o envio de mensagens ativas dos canais para sua audiência.
+        - button "Atualizar" [ref=f3e78] [cursor=pointer]
+      - navigation "Visões de mensagens ativas" [ref=f3e81]:
+        - button "Visão Geral" [ref=f3e82] [cursor=pointer]
+        - button "Status das mensagens" [ref=f3e83] [cursor=pointer]
+      - generic [ref=f3e84]:
+        - generic [ref=f3e85]:
+          - text: Nome do modelo
+          - searchbox "Nome do modelo" [ref=f3e86]
+        - generic [ref=f3e87]:
+          - text: Status das mensagens
+          - combobox "Status das mensagens" [ref=f3e88]:
+            - option "Todos" [selected]
+            - option "Aguardando envio"
+            - option "Enviando"
+            - option "Enviadas"
+            - option "Recebidas"
+            - option "Lidas"
+            - option "Falharam"
+      - generic [ref=f3e89]:
+        - button "Enviar mensagens ativas" [ref=f3e90] [cursor=pointer]
+        - button "[Beta] Envio direto" [ref=f3e93] [cursor=pointer]
+      - region "Visão Geral" [ref=f3e94]:
+        - heading "Visão Geral" [level=2] [ref=f3e95]
+        - paragraph [ref=f3e96]: Acompanhe as principais métricas das mensagens ativas no período escolhido.
+        - generic [ref=f3e97]:
+          - article [ref=f3e98]:
+            - generic [ref=f3e99]: Audiência
+            - strong [ref=f3e100]: "0"
+          - article [ref=f3e101]:
+            - generic [ref=f3e102]: Recebidas
+            - strong [ref=f3e103]: "0"
+          - article [ref=f3e104]:
+            - generic [ref=f3e105]: Lidas
+            - strong [ref=f3e106]: "0"
+          - article [ref=f3e107]:
+            - generic [ref=f3e108]: Falharam
+            - strong [ref=f3e109]: "0"
+      - generic [ref=f3e110]:
+        - heading "Dados de envio" [level=2] [ref=f3e111]
+        - heading "Nenhuma mensagem ativa encontrada." [level=3] [ref=f3e115]

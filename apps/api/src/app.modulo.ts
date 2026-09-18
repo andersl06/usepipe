@@ -6,6 +6,7 @@ import { ControladorAnexos } from './controladores/anexos.js';
 import { ControladorCanais } from './controladores/canais.js';
 import { ControladorConversas } from './controladores/conversas.js';
 import { ControladorCrm } from './controladores/crm.js';
+import { ControladorDesk } from './controladores/desk.js';
 import {
   ControladorAtendentes,
   ControladorContatos,
@@ -13,6 +14,11 @@ import {
 } from './controladores/catalogo.js';
 import { ControladorConvites, ControladorDominios } from './controladores/convites.js';
 import { ControladorEntrada, ControladorEu } from './controladores/entrar.js';
+import { ControladorGestaoAnalise } from './controladores/gestao-analise.js';
+import { ControladorGestaoCadastros } from './controladores/gestao-cadastros.js';
+import { ControladorGestaoConta } from './controladores/gestao-conta.js';
+import { ControladorGestaoFluxo } from './controladores/gestao-fluxo.js';
+import { ControladorGestaoOperacao } from './controladores/gestao-operacao.js';
 import { ControladorMinhaConta } from './controladores/minha-conta.js';
 import { ControladorImportacoesDeContatos } from './controladores/importacoes.js';
 import { ControladorContas } from './controladores/contas.js';
@@ -41,6 +47,12 @@ import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js
     ControladorEntradaSso,
     ControladorEu,
     ControladorMinhaConta,
+    ControladorGestaoFluxo,
+    ControladorGestaoAnalise,
+    ControladorGestaoOperacao,
+    ControladorGestaoCadastros,
+    ControladorGestaoConta,
+    ControladorDesk,
     ControladorConexaoSso,
     ControladorConvites,
     ControladorDominios,

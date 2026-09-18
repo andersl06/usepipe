@@ -1,0 +1,738 @@
+/* ============================== Integrações (`/integrations`) e Webhook
+
+   Estrutura e medida vêm de `portal.css` e dos templates embutidos em
+   `portal.js` (grade `.integrations-list`, cartão `card--square`, módulo 29045
+   do Webhook, `oauth-form` 75264, `custom-headers`), conferidas no DOM da cópia
+   (janela 1280). A tinta segue o mapa de `fluxo.css`:
+
+     #f6f6f6 `--color-surface-1` (cartão/papel)          → `--p-superficie-0`
+     #282828 `--color-content-default` (título, botão)   → `--p-conteudo`
+     #595959 `--color-content-disable` (descrição)       → `--p-conteudo-desabilitado`
+     #8c8c8c `--color-content-ghost`                     → `--p-conteudo-fantasma`
+     rgba(0,0,0,.2) `--color-border-1` (borda de campo)  → `--p-linha-media`
+     primária (aba ativa, Salvar, botão tracejado)       → `--p-marca-forte`
+     #fde99b (faixa de aviso)                            → `--p-alerta-fundo`
+     0 2px 8px -2px rgba(0,0,0,.16) (papel)              → `--g-sombra-cartao`
+
+   Nenhum hex deles entra; a fonte é a do Pipe. */
+
+/* ------------------------------------------------ a grade de cartões
+
+   `.integrations-list { display: grid; justify-content: center; margin-right:
+   -20px; margin-top: 0; max-width: 1097px }` com colunas por largura de tela
+   (4 ≥ 1220, 3 entre 1000 e 1220, 2 entre 500 e 1000, 1 abaixo). A lista
+   começa 15px abaixo da barra do contato. */
+.ig-lista {
+  display: grid;
+  justify-content: center;
+  margin: 15px -20px 0 0;
+  max-width: 1097px;
+  grid-template-columns: repeat(1, minmax(15rem, 15fr));
+}
+
+@media (min-width: 500px) {
+  .ig-lista {
+    grid-template-columns: repeat(2, minmax(15rem, 15fr));
+  }
+}
+
+@media (min-width: 1000px) {
+  .ig-lista {
+    grid-template-columns: repeat(3, minmax(15rem, 15fr));
+  }
+}
+
+@media (min-width: 1220px) {
+  .ig-lista {
+    grid-template-columns: repeat(4, minmax(15rem, 15fr));
+  }
+}
+
+/* `.integrations-list .integration-item { margin: 15px 0 1px; min-width: 240px;
+   padding-right: 30px; position: relative; width: 100% }` + `.tc`. */
+.ig-item {
+  position: relative;
+  width: 100%;
+  min-width: 240px;
+  margin: 15px 0 1px;
+  padding-right: 30px;
+  box-sizing: border-box;
+  text-align: center;
+}
+
+/* `card.card--with-hover.card--square`: `display: inline-flex; flex-direction:
+   column; height: 234px; width: 100%; border-radius: 8px; box-shadow: 0 2px 8px
+   rgba(0,0,0,.15); margin: .5625rem 0` e `.card-content { padding: .9375rem }`.
+   Em `[ng-click]:hover` a origem faz `transform: scale(1.03)` e sobe a sombra. */
+.ig-cartao {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 234px;
+  margin: 9px 0;
+  padding: 15px;
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  box-shadow: var(--g-sombra-cartao);
+  color: var(--p-conteudo);
+  text-align: center;
+  text-decoration: none;
+  transition:
+    box-shadow 0.15s ease-in-out,
+    transform 0.15s ease-in-out;
+}
+
+a.ig-cartao:hover {
+  transform: scale(1.03);
+  box-shadow: var(--p-sombra-2);
+}
+
+.ig-cartao[aria-disabled='true'] {
+  cursor: default;
+}
+
+/* `img` em linha, `height="57"` (Dashbot `67` com `.mb0`); `.integrations-list
+   .integration-item img:not(.mb0) { margin-bottom: .625rem }` — medido, o texto
+   começa 16px abaixo da figura (10 de margem + a descida da linha). */
+.ig-figura {
+  flex: none;
+  margin-bottom: 16px;
+  color: var(--p-conteudo);
+}
+
+.ig-figura--mb0 {
+  margin-bottom: 6px;
+}
+
+.ig-realce {
+  fill: var(--p-marca-forte);
+}
+
+/* `.integration-item-text { display: flex; flex-direction: column; padding-bottom: 16px }`,
+   `h4 { font-size: 1rem; font-weight: 700; line-height: 160%; margin-bottom: .75rem }`,
+   `small { font-size: .75rem; line-height: 160% }`. */
+.ig-texto {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  padding-bottom: 16px;
+}
+
+.ig-texto h4 {
+  margin: 0 0 12px;
+  font-size: var(--p-t-lg);
+  font-weight: var(--g-peso-negrito);
+  line-height: 160%;
+  color: var(--p-conteudo);
+}
+
+.ig-texto small {
+  display: block;
+  font-size: var(--p-t-sm);
+  line-height: 160%;
+  color: var(--p-conteudo-desabilitado);
+}
+
+/* `.integration-item-button { display: flex; justify-content: center; width: 100% }` */
+.ig-botao-caixa {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+/* ------------------------------------------------ `bds-button` (size medium)
+
+   `button.button__size--medium`: 40px de altura, `padding: 0 16px`, raio 8,
+   borda de 1px, `gap: 4px`, texto `fs-14` negrito. O `button { min-width:
+   8.125rem }` global do portal alcança o botão (build sem shadow DOM), e é por
+   isso que "Conectar", "+ Adicionar" e "Salvar" medem 130 de largura mínima.
+   `tertiary` e `ghost` são contornados na cor do conteúdo; `primary` é cheio. */
+.ig-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  height: 40px;
+  min-width: 130px;
+  padding: 0 16px;
+  border: 1px solid var(--p-conteudo);
+  border-radius: var(--p-r-md);
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: var(--p-t-md);
+  font-weight: var(--g-peso-negrito);
+  line-height: 1;
+  white-space: nowrap;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ig-botao:hover {
+  background: var(--g-tinta-hover);
+}
+
+.ig-botao--principal {
+  border-color: transparent;
+  background: var(--p-marca-forte);
+  color: var(--p-superficie-0);
+}
+
+.ig-botao--principal:hover {
+  background: var(--p-marca);
+}
+
+.ig-botao:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* `bds-button-icon variant="secondary" size="short"`: 40px, `padding: 8px`,
+   raio 8, sem fundo; o mesmo `min-width` global de 130px alcança o botão. */
+.ig-botao-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  height: 40px;
+  min-width: 130px;
+  padding: 8px;
+  border: 0;
+  border-radius: var(--p-r-md);
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+
+.ig-botao-icone:hover {
+  background: var(--g-tinta-hover);
+}
+
+/* ------------------------------------------------ o papel do Webhook
+
+   `bds-paper.integration-card`: raio 16, sombra `0 2px 8px -2px rgba(0,0,0,.16)`,
+   `margin: 8px auto auto`, 80% da tela (= a coluna). Dentro, `bds-grid
+   padding="3"` é 24px. */
+/* O `<bds-grid>` de fora é flex: assim a margem de 8px do papel não colapsa na do cabeçalho. */
+.ig-grade {
+  display: flex;
+}
+
+.ig-papel {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  margin: 8px auto 0;
+  border-radius: var(--g-r-cartao);
+  background: var(--p-superficie-0);
+  box-shadow: var(--g-sombra-cartao);
+  color: var(--p-conteudo);
+}
+
+.ig-papel-miolo {
+  display: flex;
+  flex-direction: column;
+  padding: 24px;
+}
+
+/* `bds-grid direction="row" align-items="center" gap="3"` (24px). */
+.ig-abas-linha {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 24px;
+}
+
+/* `bds-tabs` (`padding: 0 10px`) com `bds-tab` de 48px, `margin-right: 32px`,
+   `border-bottom: 2px solid` (só a selecionada leva a primária), texto
+   `fs-16` negrito quando selecionada e regular nas outras. */
+.ig-abas {
+  display: flex;
+  flex-direction: row;
+  padding: 0 10px;
+}
+
+.ig-aba {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  margin-right: 32px;
+  padding: 0;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: var(--p-t-lg);
+  line-height: 24px;
+  text-align: center;
+  cursor: pointer;
+}
+
+.ig-aba[aria-selected='true'] {
+  border-bottom-color: var(--p-marca-forte);
+  font-weight: var(--g-peso-negrito);
+}
+
+/* `bds-tab-panel > bds-grid padding="3" direction="row" gap="3" align-items="flex-start"` */
+.ig-painel {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  gap: 24px;
+  padding: 24px;
+}
+
+.ig-figura-grande {
+  flex: none;
+  color: var(--p-conteudo);
+}
+
+/* `bds-grid direction="column" gap="1"` (8px). */
+.ig-painel-texto {
+  display: flex;
+  flex: 0 1 auto;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 0;
+}
+
+/* `bds-typo variant="fs-16"` (`margin="false"`): 16px, altura de linha 22. */
+.ig-typo-16 {
+  margin: 0;
+  font-size: var(--p-t-lg);
+  line-height: 22px;
+  color: var(--p-conteudo);
+}
+
+/* `.bp-fs-6`: 14px com `line-height: 160%`. */
+.ig-typo-14 {
+  font-size: var(--p-t-md);
+  line-height: 160%;
+}
+
+/* `bds-banner variant="warning" context="inside"`: `.banner__holder { padding:
+   8px 16px; border-radius: 8px }`, ícone `warning` de 24 e texto de 16 com
+   altura de linha 24, sobre o amarelo de aviso. */
+.ig-faixa-alerta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: var(--p-r-md);
+  background: var(--p-alerta-fundo);
+  color: var(--p-conteudo);
+}
+
+.ig-faixa-alerta svg {
+  flex: none;
+}
+
+.ig-faixa-alerta .ig-typo-16 {
+  line-height: 24px;
+}
+
+/* ------------------------------------------------ `#webhookForm` */
+.ig-form {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+  margin: 0 0 25px;
+}
+
+.ig-mb4 {
+  margin-bottom: 20px;
+}
+
+.ig-mb3 {
+  margin-bottom: 10px;
+}
+
+.ig-flex {
+  display: flex;
+}
+
+/* `.form-group-small.flex.flex-column { padding-bottom: .9375rem }` */
+.ig-grupo-url {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 15px;
+}
+
+.ig-linha-url {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+/* `form .url-input-field { margin-right: 8px; max-width: 440px }` */
+.ig-campo-url {
+  max-width: 440px;
+  margin-right: 8px;
+}
+
+/* ------------------------------------------------ `bds-input`
+
+   `.input { display: flex; align-items: center; gap: 8px; padding: 8px 4px 8px
+   12px; border: 1px solid var(--color-border-1); border-radius: 8px }` (7px em
+   cima quando há rótulo); `label` 12px negrito com 2px abaixo; `input` 14px com
+   altura de linha 22 e 36 de altura. Com rótulo o campo mede 73; sem, 54. */
+.ig-campo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-width: 0;
+}
+
+.ig-campo-caixa {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  box-sizing: border-box;
+  padding: 8px 4px 8px 12px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  background: transparent;
+}
+
+.ig-campo-caixa:has(label) {
+  padding-top: 7px;
+}
+
+.ig-campo-caixa:focus-within {
+  border-color: var(--p-marca-forte);
+}
+
+.ig-campo--erro .ig-campo-caixa {
+  border-color: var(--p-erro-conteudo);
+}
+
+.ig-campo--desabilitado label,
+.ig-campo--desabilitado input {
+  color: var(--p-conteudo-fantasma);
+}
+
+.ig-campo-miolo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+}
+
+.ig-campo-miolo label {
+  display: flex;
+  align-items: center;
+  margin: 0 0 2px;
+  font-size: var(--p-t-sm);
+  font-weight: var(--g-peso-negrito);
+  line-height: 18px;
+  color: var(--p-conteudo);
+}
+
+.ig-campo-miolo input {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  height: 36px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: var(--p-t-md);
+  line-height: 22px;
+  outline: none;
+}
+
+.ig-campo-miolo input::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+
+.ig-campo-erro {
+  margin: 4px 0 0;
+  font-size: var(--p-t-sm);
+  line-height: 18px;
+  color: var(--p-erro-conteudo);
+}
+
+/* O ícone à direita do campo (olho da senha, seta do seletor). */
+.ig-campo-icone {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+
+/* ------------------------------------------------ `expandable-content.advanced-settings.pv3`
+
+   Host `padding: 10px 0`; `.item-header { padding: 10px 5px; display: flex }`
+   com a seta em `.mr3.mt2` (10px à direita, 5px acima) e o texto
+   `.bp-fs-6`; `item-body { margin: 10px 0 }` e, aberto, sem recuo. */
+.ig-avancado {
+  display: flex;
+  flex-direction: column;
+  padding: 10px 0;
+}
+
+.ig-avancado-cabeca {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  padding: 10px 5px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.ig-avancado-seta {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  flex: none;
+  margin: 3px 10px 0 0;
+  color: var(--p-conteudo-fantasma);
+}
+
+.ig-avancado-corpo {
+  width: 100%;
+  margin: 10px 0;
+}
+
+/* ------------------------------------------------ `bds-select-chips.url-input-field.mb3`
+
+   ponytail: o chunk do `bds-select-chips` não veio na captura; a caixa segue
+   o `bds-input` e as fichas o `bds-chip-clickable` do blip-ds (32px, raio 16,
+   fundo `surface-2`, texto 14 negrito). Pede conferência na origem. */
+.ig-chips {
+  margin-bottom: 10px;
+}
+
+.ig-chips-linha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  min-height: 36px;
+}
+
+.ig-chips-linha input {
+  flex: 1;
+  min-width: 40px;
+  height: 32px;
+  cursor: pointer;
+}
+
+.ig-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 4px 0 12px;
+  border-radius: 16px;
+  background: var(--p-superficie-2);
+  color: var(--p-conteudo);
+  font-size: var(--p-t-md);
+  font-weight: var(--g-peso-negrito);
+  white-space: nowrap;
+}
+
+.ig-chip button {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+
+.ig-chips-opcoes {
+  position: absolute;
+  z-index: 2;
+  top: 100%;
+  left: 0;
+  right: 0;
+  margin: 4px 0 0;
+  padding: 8px 0;
+  list-style: none;
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  box-shadow: var(--p-sombra-2);
+}
+
+.ig-chips-opcoes button {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: var(--p-t-md);
+  text-align: left;
+  cursor: pointer;
+}
+
+.ig-chips-opcoes button:hover {
+  background: var(--g-tinta-hover);
+}
+
+.ig-chips-vazio {
+  padding: 8px 16px;
+  font-size: var(--p-t-md);
+  color: var(--p-conteudo-fantasma);
+}
+
+/* ------------------------------------------------ OAuth
+
+   `<div class="flex flex-column items-left">` com o título em `.mb3` e a
+   fileira `bds-switch size="short" class="pv2"` + `bds-typo.pv2.ph4` (altura
+   28, 14px). O host curto mede 32×34: 5px de folga acima e abaixo do trilho
+   de 18 mais os 6px do `label`. */
+.ig-autenticacao {
+  display: flex;
+  flex-direction: column;
+}
+
+.ig-pv2.ig-interruptor {
+  margin: 5px 0 11px;
+}
+
+.ig-rotulo-interruptor {
+  display: block;
+  box-sizing: border-box;
+  height: 28px;
+  padding: 5px 20px;
+  line-height: 21px;
+  color: var(--p-conteudo);
+}
+
+/* `oauth-form` (módulo 75264): `.pv3 > .w-100.mv3 > p.bp-fs-6` (14px, 24 abaixo)
+   e duas fileiras `.flex.mb5` (40 abaixo) com `.w-40 / .w-10 / .w-40`. */
+.ig-oauth {
+  padding: 10px 0;
+}
+
+.ig-oauth-miolo {
+  width: 100%;
+  margin: 10px 0;
+}
+
+.ig-oauth-info {
+  margin: 0 0 24px;
+  font-size: var(--p-t-md);
+  line-height: 160%;
+  color: var(--p-conteudo);
+}
+
+.ig-oauth-fileira {
+  display: flex;
+  margin-bottom: 40px;
+}
+
+.ig-w40 {
+  width: 40%;
+}
+
+.ig-w10 {
+  width: 10%;
+}
+
+.ig-w60 {
+  width: 60%;
+}
+
+/* ------------------------------------------------ `custom-headers`
+
+   `<div class="flex mv5"> <div class="w-60">` título em `.mb3`, fileiras
+   `bds-input` (`padding: .1em .2em .1em 0`) + `bds-button-icon icon="trash"`
+   e o `button.bp-btn--dashed` de 60px, largura total, borda tracejada de 2px
+   na primária, raio 3, texto 14 negrito. */
+.ig-cabecalhos {
+  display: flex;
+  margin: 40px 0;
+}
+
+.ig-cabecalho-fileira {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.ig-cabecalho-campo {
+  padding: 0.1em 0.2em 0.1em 0;
+}
+
+.ig-botao-tracejado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  width: 100%;
+  height: 60px;
+  padding: 0 20px;
+  border: 2px dashed var(--p-marca-forte);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--p-marca-forte);
+  font: inherit;
+  font-size: var(--p-t-md);
+  font-weight: var(--g-peso-negrito);
+  line-height: 38px;
+  cursor: pointer;
+}
+
+.ig-botao-tracejado:hover {
+  background: var(--p-marca-suave);
+}
+
+/* `bds-grid direction="row" gap="1" padding="none"` — "+ Adicionar" e "Salvar". */
+.ig-acoes {
+  display: flex;
+  flex-direction: row;
+  gap: 8px;
+}
+
+.ig-aviso {
+  margin: 0 0 12px;
+  font-size: var(--p-t-md);
+  color: var(--p-erro-conteudo);
+}
+
+@media (max-width: 700px) {
+  .ig-painel {
+    flex-direction: column;
+  }
+
+  .ig-oauth-fileira,
+  .ig-cabecalho-fileira {
+    flex-wrap: wrap;
+  }
+
+  .ig-w40,
+  .ig-w60 {
+    width: 100%;
+  }
+
+  .ig-w10 {
+    display: none;
+  }
+}

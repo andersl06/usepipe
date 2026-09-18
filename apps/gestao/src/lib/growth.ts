@@ -50,72 +50,70 @@ export async function carregarGrowth(): Promise<DadosDeGrowth> {
   const tid = await tenantId();
   return consultar(async (tx) => {
     const desde = new Date(Date.now() - 72 * 60 * 60 * 1000);
-    const [canais, modelos, contatos, envios] = await Promise.all([
-      tx
-        .select({ id: canal.id, nome: canal.nome })
-        .from(canal)
-        .where(
-          and(eq(canal.tenantId, tid), eq(canal.tipo, 'whatsapp_cloud'), eq(canal.ativo, true)),
-        )
-        .orderBy(asc(canal.nome)),
-      tx
-        .select({
-          id: templateMensagem.id,
-          nome: templateMensagem.nome,
-          idioma: templateMensagem.idioma,
-          categoria: templateMensagem.categoria,
-          statusMeta: templateMensagem.statusMeta,
-          corpo: templateMensagem.corpo,
-          variaveis: templateMensagem.variaveis,
-          canalId: canal.id,
-          canalNome: canal.nome,
-        })
-        .from(templateMensagem)
-        .innerJoin(canal, eq(canal.id, templateMensagem.canalId))
-        .where(and(eq(templateMensagem.tenantId, tid), eq(canal.tipo, 'whatsapp_cloud')))
-        .orderBy(asc(templateMensagem.nome)),
-      tx
-        .select({ id: contato.id, nome: contato.nome, telefone: contato.telefoneE164 })
-        .from(contato)
-        .where(
-          and(
-            eq(contato.tenantId, tid),
-            eq(contato.bloqueado, false),
-            isNull(contato.excluidoEm),
-            isNotNull(contato.telefoneE164),
-          ),
-        )
-        .orderBy(asc(contato.nome))
-        .limit(1000),
-      tx
-        .select({
-          id: mensagem.id,
-          disparoId: mensagem.disparoId,
-          contatoNome: contato.nome,
-          templateNome: templateMensagem.nome,
-          canalNome: canal.nome,
-          estado: mensagem.estadoEntrega,
-          erroCodigo: mensagem.erroCodigo,
-          criadaEm: mensagem.criadaEm,
-          custoCentavos: mensagem.custoCentavos,
-        })
-        .from(mensagem)
-        .innerJoin(conversa, eq(conversa.id, mensagem.conversaId))
-        .innerJoin(contato, eq(contato.id, conversa.contatoId))
-        .innerJoin(inbox, eq(inbox.id, conversa.inboxId))
-        .innerJoin(canal, eq(canal.id, inbox.canalId))
-        .leftJoin(templateMensagem, eq(templateMensagem.id, mensagem.templateId))
-        .where(
-          and(
-            eq(mensagem.tenantId, tid),
-            eq(mensagem.direcao, 'saida'),
-            isNotNull(mensagem.templateId),
-            gte(mensagem.criadaEm, desde),
-          ),
-        )
-        .orderBy(desc(mensagem.criadaEm))
-        .limit(500),
-    ]);
+    /* `consultar` fixa o tenant em uma única transação/conexão. As consultas
+       precisam ser sequenciais; em paralelo o driver disputa a mesma conexão. */
+    const canais = await tx
+      .select({ id: canal.id, nome: canal.nome })
+      .from(canal)
+      .where(and(eq(canal.tenantId, tid), eq(canal.tipo, 'whatsapp_cloud'), eq(canal.ativo, true)))
+      .orderBy(asc(canal.nome));
+    const modelos = await tx
+      .select({
+        id: templateMensagem.id,
+        nome: templateMensagem.nome,
+        idioma: templateMensagem.idioma,
+        categoria: templateMensagem.categoria,
+        statusMeta: templateMensagem.statusMeta,
+        corpo: templateMensagem.corpo,
+        variaveis: templateMensagem.variaveis,
+        canalId: canal.id,
+        canalNome: canal.nome,
+      })
+      .from(templateMensagem)
+      .innerJoin(canal, eq(canal.id, templateMensagem.canalId))
+      .where(and(eq(templateMensagem.tenantId, tid), eq(canal.tipo, 'whatsapp_cloud')))
+      .orderBy(asc(templateMensagem.nome));
+    const contatos = await tx
+      .select({ id: contato.id, nome: contato.nome, telefone: contato.telefoneE164 })
+      .from(contato)
+      .where(
+        and(
+          eq(contato.tenantId, tid),
+          eq(contato.bloqueado, false),
+          isNull(contato.excluidoEm),
+          isNotNull(contato.telefoneE164),
+        ),
+      )
+      .orderBy(asc(contato.nome))
+      .limit(1000);
+    const envios = await tx
+      .select({
+        id: mensagem.id,
+        disparoId: mensagem.disparoId,
+        contatoNome: contato.nome,
+        templateNome: templateMensagem.nome,
+        canalNome: canal.nome,
+        estado: mensagem.estadoEntrega,
+        erroCodigo: mensagem.erroCodigo,
+        criadaEm: mensagem.criadaEm,
+        custoCentavos: mensagem.custoCentavos,
+      })
+      .from(mensagem)
+      .innerJoin(conversa, eq(conversa.id, mensagem.conversaId))
+      .innerJoin(contato, eq(contato.id, conversa.contatoId))
+      .innerJoin(inbox, eq(inbox.id, conversa.inboxId))
+      .innerJoin(canal, eq(canal.id, inbox.canalId))
+      .leftJoin(templateMensagem, eq(templateMensagem.id, mensagem.templateId))
+      .where(
+        and(
+          eq(mensagem.tenantId, tid),
+          eq(mensagem.direcao, 'saida'),
+          isNotNull(mensagem.templateId),
+          gte(mensagem.criadaEm, desde),
+        ),
+      )
+      .orderBy(desc(mensagem.criadaEm))
+      .limit(500);
 
     return {
       canais,

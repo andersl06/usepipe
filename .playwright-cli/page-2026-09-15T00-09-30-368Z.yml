@@ -1,0 +1,74 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - group [ref=e4]:
+      - generic "Anderson Da Silva Linhares essencial" [ref=e5] [cursor=pointer]:
+        - generic [ref=e9]:
+          - generic [ref=e10]: Anderson Da Silva Linhares
+          - generic [ref=e11]: essencial
+    - navigation "Seções" [ref=e16]:
+      - link "Início" [ref=e17] [cursor=pointer]:
+        - /url: /portal
+      - generic "Em desenvolvimento" [ref=e18]:
+        - text: Pipe Store
+        - generic [ref=e19]: em breve
+    - link "Pipe" [ref=e20] [cursor=pointer]:
+      - /url: /portal
+      - img "Pipe" [ref=e21]
+    - generic [ref=e22]:
+      - group [ref=e23]:
+        - generic "Ajuda" [ref=e24] [cursor=pointer]
+      - group [ref=e27]:
+        - generic "Notificações" [ref=e28] [cursor=pointer]
+      - group [ref=e32]:
+        - generic "Conta de Anderson Da Silva Linhares" [ref=e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=e34]: AL
+  - generic [ref=e38]:
+    - heading "Espaço de trabalho de Anderson Da Silva Linhares" [level=2] [ref=e39]
+    - generic [ref=e40]:
+      - search [ref=e41]:
+        - searchbox "Buscar fluxos" [ref=e44]
+      - link "Criar roteador" [ref=e45] [cursor=pointer]:
+        - /url: /criar/roteador
+      - link "Criar fluxo" [ref=e48] [cursor=pointer]:
+        - /url: /criar/fluxo
+  - main [ref=e51]:
+    - generic [ref=e52]:
+      - generic [ref=e53]:
+        - link "Novidades no Pipe O que mudou, o que chegou e o que está a caminho." [ref=e54] [cursor=pointer]:
+          - /url: /novidades
+          - generic [ref=e58]:
+            - generic [ref=e59]: Novidades no Pipe
+            - generic [ref=e60]: O que mudou, o que chegou e o que está a caminho.
+        - link "Acompanhe seu contrato Plano, endereço, pessoas com acesso e os dados do contrato." [ref=e61] [cursor=pointer]:
+          - /url: /contrato
+          - generic [ref=e65]:
+            - generic [ref=e66]: Acompanhe seu contrato
+            - generic [ref=e67]: Plano, endereço, pessoas com acesso e os dados do contrato.
+        - generic "Em desenvolvimento" [ref=e68]:
+          - generic [ref=e72]:
+            - generic [ref=e73]: Aprenda a usar o Pipeem breve
+            - generic [ref=e74]: O que é fluxo, o que é roteador e como montar o primeiro atendimento.
+        - generic "Em desenvolvimento" [ref=e75]:
+          - generic [ref=e79]:
+            - generic [ref=e80]: Converse com a Comunidadeem breve
+            - generic [ref=e81]: Quem já usa o Pipe todo dia, e o que essa gente aprendeu antes de você.
+      - generic [ref=e82]:
+        - heading "Fluxos e roteadores em Anderson Da Silva Linhares" [level=2] [ref=e84]
+        - link "Anderson - Teste Roteador" [ref=e86] [cursor=pointer]:
+          - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297
+          - generic [ref=e90]: Anderson - Teste
+          - generic [ref=e91]: Roteador
+        - generic [ref=e95]:
+          - generic [ref=e96]: 1-1 de 1
+          - generic [ref=e97]:
+            - generic [ref=e98]: "Itens por página:"
+            - combobox "Itens por página:" [ref=e99]:
+              - option "40" [selected]
+              - option "80"
+              - option "120"
+            - button "Aplicar" [ref=e100] [cursor=pointer]
+          - navigation "Páginas" [ref=e101]:
+            - link "Página 1" [ref=e102] [cursor=pointer]:
+              - /url: /portal
+              - text: "1"
+            - generic [ref=e103]: de 1 páginas

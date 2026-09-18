@@ -9,3 +9,5 @@
  */
 export * from './sessao.js';
 export * from './eventos.js';
+export * from './gestao-fluxo.js';
+export * from './desk.js';

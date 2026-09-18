@@ -1,0 +1,77 @@
+- generic [ref=f4e2]:
+  - banner [ref=f4e3]:
+    - group [ref=f4e4]:
+      - generic "Anderson Da Silva Linhares essencial" [ref=f4e5] [cursor=pointer]:
+        - generic [ref=f4e9]:
+          - generic [ref=f4e10]: Anderson Da Silva Linhares
+          - generic [ref=f4e11]: essencial
+    - navigation "Seções" [ref=f4e16]:
+      - link "Início" [ref=f4e17] [cursor=pointer]:
+        - /url: /portal
+      - generic "Em desenvolvimento" [ref=f4e18]:
+        - text: Pipe Store
+        - generic [ref=f4e19]: em breve
+    - link "Pipe" [ref=f4e20] [cursor=pointer]:
+      - /url: /portal
+      - img "Pipe" [ref=f4e21]
+    - generic [ref=f4e22]:
+      - group [ref=f4e23]:
+        - generic "Ajuda" [ref=f4e24] [cursor=pointer]
+      - group [ref=f4e27]:
+        - generic "Notificações" [ref=f4e28] [cursor=pointer]
+      - group [ref=f4e32]:
+        - generic "Conta de Anderson Da Silva Linhares" [ref=f4e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f4e34]: AL
+  - generic [ref=f4e37]:
+    - generic [ref=f4e38]:
+      - generic [ref=f4e39]:
+        - generic [aria-hidden] [ref=f4e40]: AT
+        - generic "Rascunho" [ref=f4e41]
+      - group [ref=f4e42]:
+        - generic "Anderson - Teste" [ref=f4e43] [cursor=pointer]
+    - navigation "Seções do contato" [ref=f4e47]:
+      - link "Serviços" [ref=f4e48] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/servicos
+      - link "Canais" [ref=f4e49] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/canais
+      - link "Análise" [ref=f4e50] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/analise
+      - generic [ref=f4e51]:
+        - text: Inteligência artificial
+        - generic [ref=f4e52]: em breve
+      - generic [ref=f4e53]:
+        - text: Contatos
+        - generic [ref=f4e54]: em breve
+      - group [ref=f4e55]:
+        - generic "Mais seções" [ref=f4e56] [cursor=pointer]
+    - generic [ref=f4e59]:
+      - generic "Integrações" [ref=f4e60]
+      - generic "Configurações" [ref=f4e63]
+      - generic "Equipe" [ref=f4e66]
+      - generic "Testar" [ref=f4e69]
+      - generic [ref=f4e72]: em breve
+  - main [ref=f4e73]:
+    - generic [ref=f4e74]:
+      - heading "Serviços" [level=1] [ref=f4e75]
+      - paragraph [ref=f4e76]: Adicione sub-bots como serviços do seu chatbot principal.
+      - paragraph [ref=f4e77]: Para informações sobre como configurar e utilizar o modelo Roteador, consulte nossa documentação.
+      - generic [ref=f4e78]:
+        - button "Adicionar um serviço" [ref=f4e79] [cursor=pointer]
+        - article [ref=f4e82]:
+          - generic [ref=f4e83]:
+            - heading [level=2] [ref=f4e84]:
+              - text: Chatbot principal
+              - generic "Este serviço precisa de estar online para que seu chatbot funcione" [ref=f4e85]
+            - generic [ref=f4e88]:
+              - generic [ref=f4e89]: "Serviço:"
+              - generic [ref=f4e90]: Chatbot principal
+            - generic [ref=f4e91]:
+              - generic [ref=f4e92]: "Chatbot:"
+              - link "Anderson - Teste" [ref=f4e93] [cursor=pointer]:
+                - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297
+            - generic [ref=f4e94]:
+              - generic [ref=f4e95]: "Contrato:"
+              - generic [ref=f4e96]: Pipe
+          - generic [ref=f4e97]:
+            - button "Editar serviço" [ref=f4e98] [cursor=pointer]
+            - button "Excluir serviço" [ref=f4e101] [cursor=pointer]

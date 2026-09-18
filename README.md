@@ -18,7 +18,7 @@ As portas fogem do padrão de propósito, para não brigar com outro Postgres na
 Depois:
 
 ```bash
-pnpm --filter @pipe/desk dev     # tela do atendente
+pnpm --filter @pipe/desk-vite dev  # tela do atendente (:3210, a cópia do Blip Desk em Vite)
 pnpm --filter @pipe/gestao dev   # tela do supervisor
 ```
 

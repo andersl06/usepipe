@@ -35,6 +35,31 @@ test('Canais leva aos canais DO contato, nos dois tipos', () => {
   }
 });
 
+test('Contatos e Conteúdos abrem suas áreas no contexto do contato', () => {
+  for (const tipo of ['roteador', 'fluxo'] as const) {
+    const itens = itensDoMenu(tipo, ID);
+    assert.equal(itens.find((i) => i.rotulo === 'Contatos')?.href, `/fluxo/${ID}/contatos`);
+    assert.equal(itens.find((i) => i.rotulo === 'Conteúdos')?.href, `/fluxo/${ID}/conteudos`);
+  }
+});
+
+test('Growth e Log abrem suas telas no contexto do contato', () => {
+  for (const tipo of ['roteador', 'fluxo'] as const) {
+    const itens = itensDoMenu(tipo, ID);
+    assert.equal(
+      itens.find((i) => i.rotulo === 'Growth')?.href,
+      `/fluxo/${ID}/growth/mensagens-ativas`,
+    );
+    assert.equal(itens.find((i) => i.rotulo === 'Log')?.href, `/fluxo/${ID}/log`);
+  }
+});
+
+test('a fonte da subbarra não inclui Inteligência artificial sem claims do bot', () => {
+  for (const tipo of ['roteador', 'fluxo'] as const) {
+    assert.ok(!itensDoMenu(tipo, ID).some((item) => item.rotulo === 'Inteligência artificial'));
+  }
+});
+
 test('o roteador não oferece Builder nem Atendimento', () => {
   const rotulos = itensDoMenu('roteador', ID).map((i) => i.rotulo);
   assert.ok(!rotulos.includes('Builder'));
@@ -63,7 +88,6 @@ test('o resto da fileira é o mesmo nos dois, e na mesma ordem', () => {
   assert.deepEqual(semEspecificos('fluxo'), [
     'Canais',
     'Análise',
-    'Inteligência artificial',
     'Contatos',
     'Growth',
     'Conteúdos',

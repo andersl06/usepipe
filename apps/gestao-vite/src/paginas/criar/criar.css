@@ -1,0 +1,414 @@
+/* ============================== o casco de criação (/criar/*)
+
+   Cópia do estado ABSTRATO `auth.application.create` do portal deles — o casco
+   e o passo do nome, as duas peças que o roteador e o fluxo dividem —, medida
+   nos templates embutidos no `portal.js` (`25.204.0-v0.43.1`) e nas regras da
+   folha `portal.css`:
+
+     módulo 30189  o casco (`#create-application-container`, o "x", a marca,
+                   o formulário e o rodapé);
+     módulo 96904  o passo do nome (`#create-application-name-step`), UM para as
+                   duas telas — três `ng-if="$ctrl.template != 'master'"` trocam
+                   as palavras, e mais nada.
+
+   O que é de UMA tela só mora na pasta dela:
+     `roteador/criar-roteador.css`  o passo do convite (módulo 22046);
+     `fluxo/criar-fluxo.css`        o passo do marketplace (módulo 92466).
+
+   O prefixo `cr-` é de "criar", e vale para as duas telas.
+
+   Cada bloco abaixo traz o seletor de origem e os números medidos.
+
+   ═══ A TELA É CHEIA, E COBRE O PORTAL ═══
+
+   Na origem a criação é `<bds-theme-provider theme="dark">` sobre um
+   `.full-screen-container` (`min-height: 100%`, `width: 100%`,
+   `z-index: 60000`) — o portal inteiro some atrás de uma superfície escura,
+   sobram a marca no alto, um "x" grande à direita e o rodapé de orçamento no pé.
+
+   ═══ A TINTA ═══
+
+   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. Nenhum hex deles entra. O escuro
+   sai de `--g-barra-*`, os token de cromo que `globais.css` já deriva para as
+   duas barras do portal — e que já são escuros NOS DOIS TEMAS, que é
+   exatamente o que o `theme="dark"` deles faz nesta tela: ela não acompanha a
+   preferência de quem olha, ela é escura sempre. */
+
+/* -------------------------------------------------------- o desvio pelo :root
+
+   Estes seis aliases existem por UM motivo técnico, e não por gosto.
+
+   Dentro de `.cr-tela` os token `--p-*` que os primitivos do `@pipe/ui` leem
+   (`.btn`, campo, ícone) são reapontados para o cromo escuro — é o mesmo gesto
+   que `globais.css` já faz em `.g-marca { --p-marca: var(--g-barra-marca) }`.
+   Só que no tema ESCURO a definição de `--g-barra-tinta` é `var(--p-conteudo)`;
+   reapontar `--p-conteudo: var(--g-barra-tinta)` no mesmo elemento fecharia um
+   CICLO, e propriedade em ciclo é inválida no valor computado — a tela inteira
+   perderia a cor.
+
+   Declarados no `:root`, eles são COMPUTADOS lá (onde `--p-conteudo` ainda é
+   um literal) e chegam a `.cr-tela` já resolvidos. O ciclo se abre. */
+:root {
+  --cr-fundo: var(--g-barra-1);
+  --cr-tinta: var(--g-barra-tinta);
+  --cr-fraca: var(--g-barra-fraca);
+  --cr-linha: var(--g-barra-linha);
+  --cr-hover: var(--g-barra-hover);
+  --cr-marca: var(--g-barra-marca);
+  --cr-marca-forte: color-mix(in srgb, var(--g-barra-marca) 82%, var(--g-barra-tinta));
+
+  /* O par de erro deles nesta tela é o `--color-negative` do tema escuro; o
+     nosso par "sobre escuro" já existe em `@pipe/ui` e é para isto. */
+  --cr-erro: var(--p-erro-sobre-escuro);
+  --cr-erro-fundo: color-mix(in srgb, var(--p-erro-sobre-escuro) 20%, var(--g-barra-1));
+
+  /* A violeta de foco é escolhida para fundo claro; sobre o preto do cromo ela
+     some. Clareada na mesma proporção que o tema escuro do `@pipe/ui` usa. */
+  --cr-foco: color-mix(in srgb, var(--p-foco) 55%, var(--g-barra-tinta));
+
+  /* O `.upload-button` deles é `background-color: var(--color-content-disable)`,
+     que no tema escuro é um cinza médio (#949494) sobre o #141414 do fundo —
+     ~42% de tinta sobre o fundo. A mesma proporção, com a nossa tinta. */
+  --cr-controle: color-mix(in srgb, var(--g-barra-tinta) 42%, var(--g-barra-1));
+}
+
+/* ======================================= o casco (`#create-application-container`)
+
+   `.full-screen-container`: `min-height: 100%`, `width: 100%`,
+   `position: relative`.
+   `#create-application-container`: `padding-top: 3rem`, fundo
+   `--color-surface-3` e tinta `--color-content-default` do tema escuro deles,
+   mais o `flex flex-column items-center` do template.
+
+   `z-index: 60000` NÃO foi copiado: lá a tela é uma camada por cima da SPA;
+   aqui a rota `criar` já monta o próprio casco (`CASCO_PROPRIO` em
+   `estrutura-gestao.tsx`) e não há nada por baixo para cobrir. */
+.cr-tela {
+  min-height: 100dvh;
+  width: 100%;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 3rem var(--p-e-4) 0;
+  background: var(--cr-fundo);
+  color: var(--cr-tinta);
+
+  /* O tema escuro, dito nos token que os primitivos leem. Nenhum valor novo:
+     tudo vem dos aliases do `:root` acima. */
+  --p-conteudo: var(--cr-tinta);
+  --p-conteudo-desabilitado: var(--cr-fraca);
+  --p-conteudo-fantasma: var(--cr-fraca);
+  /* O que vai POR CIMA da marca — que aqui é clara. */
+  --p-conteudo-claro: var(--cr-fundo);
+  --p-superficie-0: var(--cr-fundo);
+  --p-superficie-3: var(--cr-hover);
+  --p-linha: var(--cr-linha);
+  --p-linha-media: var(--cr-linha);
+  --p-marca: var(--cr-marca);
+  --p-marca-forte: var(--cr-marca-forte);
+  --p-marca-conteudo: var(--cr-fundo);
+  --p-erro-conteudo: var(--cr-erro);
+  --p-erro-fundo: var(--cr-erro-fundo);
+  --p-foco: var(--cr-foco);
+
+  /* A escala de título destas telas, dos `bds-typo variant` dos templates: o
+     sobretítulo é `fs-20`, "Como funciona o roteador" é `fs-24` e os títulos
+     grandes ("Dê um nome ao fluxo", "Escolha como começar seu fluxo") são
+     `fs-32`. Não há token `--p-t-*` de 24 nem de 32. */
+  --cr-t-tagline: 20px;
+  --cr-t-secao: 24px;
+  --cr-t-nome: 32px;
+}
+
+/* ------------------------------------------------------------ o "x"
+   `<bds-icon name="close" size="xxx-large" class="close-icon absolute right-0">`
+   — `xxx-large` são 40px no `bds-icon`, `right-0` é o tachyons e
+   `.close-icon { margin-right: 3rem }`. Sem `top`: ele fica na altura estática,
+   ou seja, alinhado ao topo do recheio de 3rem do contêiner.
+
+   Na origem ele é a ÚNICA saída da tela, e Esc também fecha
+   (`$document.on('keydown', 27 → close())`, e `close()` termina em
+   `$state.go('auth.application.list')`). Aqui ele leva a `/portal`, que é a
+   nossa lista; Esc NÃO fecha, porque tecla é estado de cliente e estas telas
+   continuam sem nenhum. */
+.cr-fechar {
+  position: absolute;
+  top: 3rem;
+  right: 3rem;
+  display: flex;
+  padding: var(--p-e-1);
+  border-radius: var(--p-r-md);
+  color: var(--cr-tinta);
+}
+
+.cr-fechar:hover {
+  background: var(--cr-hover);
+}
+
+/* ---------------------------------------------------------- a marca
+   `logoCenter` só é falso no estado `aiagent` (`data: { logoCenter: !1 }`); em
+   todos os passos do roteador e do fluxo vale o padrão `!0`, e o que aparece é
+   a marca CENTRADA:
+   `.logo-image { width: 5rem; margin-top: .5rem; margin-bottom: 3rem }`.
+
+   O lockup é o mesmo `.pt-lockup` da barra do portal — 80px de largura, que é
+   exatamente os 5rem medidos —, já pintado com a tinta do cromo. */
+.cr-marca {
+  flex: none;
+  display: flex;
+  margin: 0.5rem 0 3rem;
+}
+
+/* ------------------------------------ `.create-application-form`
+   `flex-grow: 1; margin-bottom: 3rem` mais o `w-100` do template. É ele que
+   empurra o rodapé para o pé da janela em passo curto e o deixa rolar em passo
+   comprido. */
+.cr-forma {
+  flex: 1 1 auto;
+  width: 100%;
+  margin-bottom: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ---------------------------------------- `.tagline-title-container`
+   `display: flex; flex-direction: column; gap: 1rem; text-align: center`. */
+.cr-titulos {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-4);
+  text-align: center;
+}
+
+.cr-tagline {
+  margin: 0;
+  font-size: var(--cr-t-tagline);
+  font-weight: var(--p-peso-normal);
+}
+
+.cr-titulo-nome {
+  margin: 0;
+  font-size: var(--cr-t-nome);
+  font-weight: var(--p-peso-normal);
+}
+
+/* O `bds-button` padrão deles é `.button__size--standard { height: 40px }`. O
+   nosso `.btn` tem 28px, que num palco de 52.5rem some. Os botões destas telas
+   sobem para os 40px medidos — e só eles: o primitivo continua o que é. */
+.btn.cr-botao {
+  height: 40px;
+  padding: 0 var(--p-e-4);
+  font-size: var(--p-t-md);
+}
+
+/* ================================================ o passo do nome
+   `#create-application-name-step { tc flex flex-column items-center }`. */
+.cr-nome {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  text-align: center; /* o `tc` do template */
+}
+
+/* O aviso de recusa. Na origem é um `BlipToastService.show('danger', …)` —
+   caixa vermelha flutuante com título e mensagem. Aqui é fixo acima do campo:
+   sem cliente, aviso que some sozinho não some, e aviso que não some flutuando
+   tapa o formulário. O título é o mesmo. */
+.cr-aviso {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-1);
+  width: 28rem;
+  max-width: 90%;
+  margin: 2.5rem 0 0;
+  padding: var(--p-e-3) var(--p-e-4);
+  border-radius: var(--p-r-md);
+  background: var(--cr-erro-fundo);
+  color: var(--cr-erro);
+  font-size: var(--p-t-md);
+  text-align: left;
+}
+
+/* ---------------------------------------------------- `.upload-button`
+   `#create-application-name-step .upload-button { margin: 5rem 0 1.25rem }` e
+   `.upload-button`: 150×150, `border-radius: 50%`, fundo
+   `--color-content-disable` e, enquanto não há arquivo,
+   `border: 3px dashed var(--color-content-default)` (a classe `dashed-border`).
+   Dentro, uma seta (`<img icon-src="Arrow">`) e o rótulo
+   `modules.ui.uploadButton.title` ("Definir imagem") em `.75rem` (`bp-fs-7`,
+   `color-white`), com `padding: 8px 28px 0` e entrelinha 1.5. O
+   `input[type=file]` cobre os 150px inteiros com `opacity: 0`.
+
+   DIVERGÊNCIA: a origem troca o miolo pela foto escolhida assim que o arquivo
+   é lido (`<img id="uploaded-img" class="uploaded-img" ng-show="showFile">`).
+   Pré-visualização é estado de cliente, e estas telas não têm nenhum — o
+   contador do campo já tinha caído pela mesma régua. O controle continua
+   inteiro: escolher, enviar, gravar. O que falta é só a conferência antes de
+   enviar. */
+.cr-foto {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  flex: none;
+  width: 150px;
+  height: 150px;
+  margin: 5rem 0 1.25rem;
+  border-radius: var(--p-r-pilula);
+  border: 3px dashed var(--cr-tinta);
+  background: var(--cr-controle);
+  color: var(--cr-tinta);
+  cursor: pointer;
+}
+
+.cr-foto > span {
+  padding: var(--p-e-2) 28px 0;
+  font-size: 0.75rem; /* `bp-fs-7` */
+  line-height: var(--p-altura-linha);
+  text-align: center;
+}
+
+.cr-foto > input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+}
+
+.cr-foto:focus-within {
+  outline: 2px solid var(--cr-foco);
+  outline-offset: 2px;
+}
+
+/* ------------------------------------------------------ `material-input`
+   `#create-application-name-step material-input { max-width: 90%; width: 28rem }`.
+
+   O campo deles não tem caixa: fundo transparente, uma linha embaixo
+   (`border-bottom: 1px solid var(--color-content-ghost)`), `height: 35px`,
+   `margin-top: 20px`, `padding: 8px 8px 8px 0`.
+
+   O rótulo é FLUTUANTE: em repouso ele mora dentro do campo
+   (`position: absolute; top: 24px; transform: scale(1.15)`, peso 300,
+   `padding-left: 4px`, `transform-origin: 0 50%`) e sobe quando o campo tem
+   conteúdo. Aqui quem faz isso é `:placeholder-shown`, e não JavaScript: é o
+   mesmo comportamento sem um grama de estado de cliente. */
+.cr-campo {
+  position: relative;
+  width: 28rem;
+  max-width: 90%;
+  text-align: left;
+}
+
+.cr-campo > input {
+  width: 100%;
+  height: 35px;
+  margin-top: 20px;
+  padding: 8px 8px 8px 0;
+  border: 0;
+  border-bottom: 1px solid var(--cr-fraca);
+  border-radius: 0;
+  background: transparent;
+  color: var(--cr-tinta);
+  font-family: var(--p-fonte);
+  font-size: var(--p-t-lg);
+}
+
+.cr-campo > input:focus {
+  outline: none;
+  border-bottom-color: var(--cr-marca);
+  box-shadow: 0 1px 0 0 var(--cr-marca);
+}
+
+.cr-campo > label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding-left: 4px;
+  font-size: var(--p-t-sm);
+  font-weight: 300;
+  color: var(--cr-fraca);
+  transform-origin: 0 50%;
+  transition:
+    transform var(--p-dur-normal) ease,
+    color var(--p-dur-rapida) ease;
+  pointer-events: none;
+}
+
+/* Em repouso — campo vazio e sem foco — o rótulo desce para dentro do campo e
+   cresce: é o `top: 24px` + `scale(1.15)` medido na origem. */
+.cr-campo > input:placeholder-shown:not(:focus) + label {
+  transform: translateY(24px) scale(1.15);
+}
+
+.cr-campo > input:focus + label {
+  color: var(--cr-marca);
+}
+
+.cr-campo[data-erro] > input {
+  border-bottom-color: var(--cr-erro);
+}
+
+/* Ocupa a linha do contador da origem, que ficava à direita do campo
+   (`span.input-right.bp-c-rooftop`, `position: absolute; bottom: 8px; right: 5px`,
+   começando em 30 e descendo a cada tecla). Contar tecla é estado de cliente; o
+   limite continua valendo pelo `maxLength` e pela Server Action. */
+.cr-recado {
+  width: 28rem;
+  max-width: 90%;
+  margin: var(--p-e-1) 0 0;
+  text-align: right;
+  font-size: var(--p-t-sm);
+  color: var(--cr-fraca);
+}
+
+/* `#create-application-name-step .create-application-actions`:
+     `margin-top: 3rem · width: 28rem · max-width: 90%`
+   mais o `flex justify-between` do template — um botão em cada ponta. */
+.cr-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 28rem;
+  max-width: 90%;
+  margin-top: 3rem;
+}
+
+/* ======================================= `.create-application-footer`
+   `border-top: 1px solid …; padding: 1.5rem; width: 54rem` mais o `mw-100 tc`
+   do template, e o link em negrito numa tinta própria
+   (`a > bds-typo { color: … }`). Aparece em todos os passos: `showFooter` só é
+   falso no estado `aiagent`. */
+.cr-rodape {
+  flex: none;
+  width: 54rem;
+  max-width: 100%;
+  padding: 1.5rem;
+  border-top: 1px solid var(--cr-linha);
+  text-align: center;
+  font-size: var(--p-t-md); /* fs-14 nos dois trechos */
+}
+
+.cr-rodape a {
+  font-weight: var(--p-peso-forte);
+  color: var(--cr-marca);
+}
+
+/* --------------------------------------------------------- estreito
+   O "x" e a marca encostam nos 3rem de recuo do cabeçalho deles, que vira o
+   recuo da tela. */
+@media (max-width: 56rem) {
+  .cr-fechar {
+    top: var(--p-e-4);
+    right: var(--p-e-4);
+  }
+
+  .cr-foto {
+    margin-top: 3rem;
+  }
+}

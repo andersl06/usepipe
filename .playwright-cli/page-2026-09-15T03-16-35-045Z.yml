@@ -1,0 +1,88 @@
+- generic [ref=f10e2]:
+  - banner [ref=f10e3]:
+    - group [ref=f10e4]:
+      - generic "Anderson Da Silva Linhares essencial" [ref=f10e5] [cursor=pointer]:
+        - generic [ref=f10e9]:
+          - generic [ref=f10e10]: Anderson Da Silva Linhares
+          - generic [ref=f10e11]: essencial
+    - navigation "Seções" [ref=f10e16]:
+      - link "Início" [ref=f10e17] [cursor=pointer]:
+        - /url: /portal
+      - generic "Em desenvolvimento" [ref=f10e18]:
+        - text: Pipe Store
+        - generic [ref=f10e19]: em breve
+    - link "Pipe" [ref=f10e20] [cursor=pointer]:
+      - /url: /portal
+      - img "Pipe" [ref=f10e21]
+    - generic [ref=f10e22]:
+      - group [ref=f10e23]:
+        - generic "Ajuda" [ref=f10e24] [cursor=pointer]
+      - group [ref=f10e27]:
+        - generic "Notificações" [ref=f10e28] [cursor=pointer]
+      - group [ref=f10e32]:
+        - generic "Conta de Anderson Da Silva Linhares" [ref=f10e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f10e34]: AL
+  - generic [ref=f10e37]:
+    - generic [ref=f10e38]:
+      - generic [ref=f10e39]:
+        - generic [aria-hidden] [ref=f10e40]: AT
+        - generic "Rascunho" [ref=f10e41]
+      - group [ref=f10e42]:
+        - generic "Anderson - Teste" [ref=f10e43] [cursor=pointer]
+    - navigation "Seções do contato" [ref=f10e47]:
+      - link "Serviços" [ref=f10e48] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/servicos
+      - link "Canais" [ref=f10e49] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/canais
+      - link "Análise" [ref=f10e50] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/analise
+      - link "Contatos" [ref=f10e51] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/contatos
+      - link "Growth" [ref=f10e52] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/growth/mensagens-ativas
+      - group [ref=f10e53]:
+        - generic "Mais seções" [ref=f10e54] [cursor=pointer]
+    - generic [ref=f10e57]:
+      - link "Integrações" [ref=f10e58] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/integracoes
+      - link "Configurações" [ref=f10e61] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/configuracoes/api
+      - generic "Equipe" [ref=f10e64]: em breve
+      - generic "Testar" [ref=f10e68]: em breve
+  - main [ref=f10e72]:
+    - generic [ref=f10e73]:
+      - heading "Eventos de otimização" [level=1] [ref=f10e75]
+      - generic [ref=f10e76]:
+        - navigation "Canais" [ref=f10e77]:
+          - button "Meta" [ref=f10e78] [cursor=pointer]
+          - button "Google" [ref=f10e79] [cursor=pointer]
+          - button "TikTok" [ref=f10e80] [cursor=pointer]
+        - generic [ref=f10e81]:
+          - text: Finalize a conexão com a Meta para começar a enviar eventos.
+          - button "Conectar canal" [ref=f10e82] [cursor=pointer]
+        - generic [ref=f10e84]:
+          - generic [ref=f10e85]:
+            - heading "Eventos" [level=2] [ref=f10e86]
+            - paragraph [ref=f10e87]: Os eventos serão utilizados nos relatórios de performance e para otimização dos anúncios da Meta. Como criar eventos.
+          - button "Relatório" [ref=f10e88]
+        - generic [ref=f10e91]:
+          - heading "Evento de conversão" [level=2] [ref=f10e92]
+          - paragraph [ref=f10e93]: Etapa da conversa considerada como sucesso e evento correspondente para a Meta.
+          - generic [ref=f10e94]:
+            - generic [ref=f10e95]:
+              - text: Evento (categoria)
+              - combobox "Evento (categoria)" [disabled] [ref=f10e96]:
+                - option "Sem eventos disponíveis" [selected]
+            - generic [ref=f10e97]:
+              - text: Evento padrão da Meta
+              - combobox "Evento padrão da Meta" [disabled] [ref=f10e98]:
+                - option "Selecione uma opção na lista" [selected]
+          - generic [ref=f10e99]:
+            - button "Cancelar" [disabled] [ref=f10e100]
+            - button "Salvar" [disabled] [ref=f10e101]
+        - generic [ref=f10e102]:
+          - heading "Eventos de conversa" [level=2] [ref=f10e103]
+          - paragraph [ref=f10e104]: Etapas alcançadas pelo lead dentro da conversa. Os eventos serão utilizados pela Meta na otimização de entrega dos anúncios.
+          - generic [ref=f10e105]:
+            - generic [ref=f10e106]: Evento (categoria)
+            - generic [ref=f10e107]: Evento padrão da Meta

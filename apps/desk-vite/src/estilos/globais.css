@@ -1,0 +1,3712 @@
+/* ==========================================================================
+   Pipe Desk — só o que é do Desk.
+
+   O token, o reset e os primitivos vivem em `@pipe/ui`, importado antes desta
+   folha no `main.tsx`.
+
+   O que esta folha desenha é a DISPOSIÇÃO da tela do atendente da referência,
+   medida na cópia que roda em `~/desk-clone` (http://127.0.0.1:8787, janela
+   1280×780) e conferida na folha compilada dela
+   (`~/desk-clone/fonte-original/app.css`). Cada bloco cita o seletor de lá de
+   onde a medida saiu — "medi aqui, deu tanto".
+
+   A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. Nenhum valor de cor da
+   referência aparece aqui: tudo sai de `--p-*`, e onde a estrutura pede um
+   degrau que a paleta não nomeia, ele é DERIVADO com `color-mix`.
+
+   Mapa de tokens (README da cópia → `packages/ui/src/estilos/tokens.css`):
+     surface-0 → --p-superficie-0    content-default → --p-conteudo
+     surface-1 → --p-superficie-1    content-disable → --p-conteudo-desabilitado
+     surface-2 → --p-superficie-2    content-ghost   → --p-conteudo-fantasma
+     surface-3 → --p-superficie-3    content-bright  → --p-conteudo-claro
+     surface-4 → --p-superficie-4    primary         → --p-marca
+     system    → --p-info-fundo      warning         → --p-alerta-fundo
+     delete    → --p-erro-conteudo
+   ========================================================================== */
+
+:root {
+  /* O trilho é escuro nos dois temas, como a barra da Gestão (`--g-barra-*`
+     em `apps/gestao-vite`): cromo que inverte junto com o conteúdo deixa de
+     ser cromo. `--d-trilho-tinta` é o conteúdo claro; a passagem do cursor e o
+     item em vigor são a tinta clara a 8%, que é o que a cópia mede
+     (`.menu-selected` → rgba(255,255,255,.08) no tema escuro). */
+  --d-trilho: var(--p-superficie-4);
+  --d-trilho-tinta: var(--p-conteudo-claro);
+  --d-trilho-vigor: color-mix(in srgb, var(--p-conteudo-claro) 8%, transparent);
+  --d-trilho-cursor: color-mix(in srgb, var(--p-conteudo-claro) 8%, transparent);
+
+  /* Os degraus do trilho da lista: cursor 4% e selecionado 12%/16% de preto
+     sobre a superfície (`.chat-list-item:hover`, `.active`, `.active:hover`). */
+  --d-tinta-4: color-mix(in srgb, var(--p-conteudo) 4%, transparent);
+  --d-tinta-8: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+  --d-tinta-12: color-mix(in srgb, var(--p-conteudo) 12%, transparent);
+  --d-tinta-16: color-mix(in srgb, var(--p-conteudo) 16%, transparent);
+
+  /* A sombra do `bds-paper elevation="static"` medida: 0 2px 8px -2px a 16%. */
+  --d-sombra-papel: 0 2px 8px -2px rgba(17, 17, 17, 0.16);
+
+  /* A borda do campo (`bds-input .input`): preto a 20%. */
+  --d-campo-linha: color-mix(in srgb, var(--p-conteudo) 20%, transparent);
+
+  /* A régua de tipo da referência é 24 / 20 / 16 / 14 / 12 / 10, com os pesos
+     400 / 600 / 700 (`bds-typo` fs-* e bold=semi-bold|bold). */
+  --d-peso-normal: 400;
+  --d-peso-semi: 600;
+  --d-peso-negrito: 700;
+
+  /* As colunas: 25% / 50% / 25% (`#container .sidenav|.pane-chat|.drawer`),
+     trilho de 80px (medido; vem do componente web `bds-navbar`). */
+  --d-trilho-w: 80px;
+  --d-drawer-min: 260px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-tema='claro']) {
+    --d-sombra-papel: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+    --d-trilho: var(--p-superficie-1);
+    --d-trilho-tinta: var(--p-conteudo);
+    --d-trilho-vigor: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+    --d-trilho-cursor: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+  }
+}
+
+:root[data-tema='escuro'] {
+  --d-sombra-papel: 0 2px 8px -2px rgba(0, 0, 0, 0.5);
+  --d-trilho: var(--p-superficie-1);
+  --d-trilho-tinta: var(--p-conteudo);
+  --d-trilho-vigor: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+  --d-trilho-cursor: color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+}
+
+html,
+body,
+#raiz {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--p-superficie-2);
+  color: var(--p-conteudo);
+  font-family: var(--p-fonte);
+  font-size: 16px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* A casca é de altura fixa com rolagem interna (`#app`/`#container`): o
+   contêiner das colunas não rola, cada coluna tem o seu rolador. */
+.dk-app {
+  display: flex;
+  height: 100dvh;
+  overflow: hidden;
+}
+
+.dk-container {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* ======================================================= o trilho (navbar)
+   `bds-navbar orientation="vertical" background-color="surface-4"`: 80px de
+   largura, altura cheia. Marca 40×40 a 16px do topo com 24px de folga
+   (`.blip-image`); itens de 40×40 com raio 8 e recuo 8 (`.menu-button`),
+   dentro de uma faixa com recuo lateral de 12 (`.navbar-menu-item`); passo de
+   48 entre itens (medido: 88, 136, 184…). Rodapé: ajuda, preferências e o
+   avatar de 32 com o selo de presença, a 16px do fundo. */
+.dk-trilho {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex: 0 0 var(--d-trilho-w);
+  width: var(--d-trilho-w);
+  height: 100%;
+  padding: 16px 8px;
+  box-sizing: border-box;
+  background: var(--d-trilho);
+  color: var(--d-trilho-tinta);
+}
+
+.dk-trilho-marca {
+  display: block;
+  width: 40px;
+  height: 40px;
+  margin-bottom: 24px;
+  cursor: pointer;
+  /* `bds-illustration` de 40×40 com o nosso símbolo a 76% da caixa — o
+     mesmo `background-size` que a cópia usa em `pipe/marca.css`. */
+  background: url('/pipe/simbolo-claro.svg') center / 76% auto no-repeat;
+}
+
+.dk-trilho-itens {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  margin: 0;
+  /* O primeiro item fica a 88px do topo na cópia: 16 + 40 + 24 + 8. */
+  padding: 8px 0 0;
+  list-style: none;
+}
+
+.dk-trilho-itens.dk-trilho-rodape {
+  margin-top: auto;
+}
+
+.dk-trilho-item {
+  width: 100%;
+  padding: 0 12px;
+  box-sizing: border-box;
+  display: flex;
+  justify-content: center;
+}
+
+.dk-trilho-botao {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.dk-trilho-botao:hover {
+  background: var(--d-trilho-cursor);
+}
+
+.dk-trilho-botao[aria-current='page'] {
+  background: var(--d-trilho-vigor);
+}
+
+.dk-trilho-botao svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+/* O avatar do rodapé: `bds-avatar size="extra-small"` (32px) com o selo
+   `.status-badge-profile` de 12px a `left: 22px; top: -2px`, borda de 2px na
+   cor do trilho. */
+.dk-trilho-avatar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: var(--p-marca-suave);
+  color: var(--p-marca);
+  font-size: 14px;
+  font-weight: var(--d-peso-normal);
+  cursor: pointer;
+}
+
+.dk-presenca {
+  position: absolute;
+  left: 22px;
+  top: -2px;
+  width: 12px;
+  height: 12px;
+  box-sizing: border-box;
+  border: 2px solid var(--d-trilho);
+  border-radius: 50%;
+  background: var(--p-conteudo-fantasma);
+}
+
+.dk-presenca[data-estado='online'] {
+  background: var(--p-sucesso-sobre-escuro);
+}
+
+.dk-presenca[data-estado='pausa'] {
+  background: var(--p-alerta-conteudo);
+}
+
+.dk-presenca[data-estado='offline'] {
+  background: var(--p-erro-sobre-escuro);
+}
+
+/* O menu de status que abre no avatar (`bds-menu` da cópia): papel de raio 8
+   com sombra, itens de 40px (`.menu-action-item`). */
+.dk-menu {
+  position: absolute;
+  z-index: 30;
+  min-width: 220px;
+  padding: 8px 0;
+  background: var(--p-superficie-0);
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: var(--p-conteudo);
+}
+
+.dk-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: calc(100% - 16px);
+  height: 40px;
+  margin: 0 8px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-menu-item:hover {
+  background: var(--p-superficie-2);
+}
+
+.dk-menu-item[aria-checked='true'] {
+  background: var(--p-superficie-2);
+  border: 1px solid var(--p-superficie-3);
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-menu-titulo {
+  padding: 8px 24px;
+  font-size: 12px;
+  font-weight: var(--d-peso-semi);
+  color: var(--p-conteudo-desabilitado);
+}
+
+/* ===================================================== a coluna (sidenav)
+   `#container .sidenav { width: 25% }`, fundo em superfície 2. */
+.dk-coluna {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 25%;
+  width: 25%;
+  min-width: 0;
+  height: 100%;
+  background: var(--p-superficie-2);
+  z-index: 2;
+}
+
+/* `.header-content { padding: 1rem; background: surface-1 }` — 76px de
+   altura: título 20/700 (entrelinha 20) e a linha "Lista ⌄" de 24px. */
+.dk-coluna-cabecalho {
+  padding: 16px;
+  background: var(--p-superficie-1);
+}
+
+.dk-coluna-titulo {
+  margin: 0;
+  font-size: 20px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 20px;
+}
+
+.dk-modo {
+  display: flex;
+  align-items: center;
+  height: 24px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  line-height: 24px;
+  cursor: pointer;
+}
+
+/* `.view-mode-icon { top: 3px; position: relative; margin-left: 4px }`, ícone small (20px). */
+.dk-modo svg {
+  position: relative;
+  top: 3px;
+  width: 20px;
+  height: 20px;
+  margin-left: 4px;
+}
+
+/* `.sidenav-header`: piso de 111px, 117px entre 1112 e 1440, teto 160;
+   borda de 1px em superfície 3 em cima e embaixo; superfície 1. */
+.dk-estado {
+  --dk-estado-min: 111px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--dk-estado-min);
+  max-height: 160px;
+  border-top: 1px solid var(--p-superficie-3);
+  border-bottom: 1px solid var(--p-superficie-3);
+  background: var(--p-superficie-1);
+}
+
+@media (max-width: 1440px) {
+  .dk-estado {
+    --dk-estado-min: 117px;
+  }
+}
+
+@media (max-width: 1112px) {
+  .dk-estado {
+    --dk-estado-min: 111px;
+  }
+}
+
+.dk-estado-miolo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* `.waiting-tickets-container { gap: 8px }`: o número em fs-24 semi-bold na
+   cor de marca; "Cliente(s)" e "aguardando" em fs-16. */
+.dk-aguardando {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  line-height: 24px;
+}
+
+.dk-aguardando b {
+  font-size: 24px;
+  font-weight: var(--d-peso-semi);
+  color: var(--p-marca);
+}
+
+/* `.buttons-container { margin-top: .5rem; gap: 8px }` */
+.dk-estado-botoes {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+/* "Seu status é X": `bp-fs-5 tc` (16px) com o status na cor de marca. */
+.dk-status-texto {
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+}
+
+.dk-status-texto b {
+  font-weight: var(--d-peso-normal);
+  color: var(--p-marca);
+}
+
+/* ================================================================ botões
+   `bds-button variant="primary"`: 40px, recuo 0 16, raio 8, texto 14/700.
+   `variant="secondary"`: só a borda de 1px em conteúdo. `size="short"`: 32px.
+   `bds-button-icon size="short"`: 40×40, recuo 8, raio 8, ícone 24. */
+.dk-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 40px;
+  padding: 0 16px;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+  font-size: 14px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 20px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dk-botao:hover {
+  background: var(--p-marca-forte);
+}
+
+.dk-botao:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.dk-botao-secundario {
+  background: transparent;
+  border-color: var(--p-conteudo);
+  color: var(--p-conteudo);
+}
+
+.dk-botao-secundario:hover {
+  background: var(--d-tinta-8);
+}
+
+.dk-botao-fantasma {
+  background: transparent;
+  color: var(--p-marca);
+}
+
+.dk-botao-fantasma:hover {
+  background: var(--d-tinta-8);
+}
+
+.dk-botao-curto {
+  height: 32px;
+}
+
+.dk-botao-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+
+.dk-botao-icone:hover {
+  background: var(--d-tinta-8);
+}
+
+.dk-botao-icone svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+.dk-botao-icone.dk-primario {
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+}
+
+.dk-botao-icone.dk-primario:hover {
+  background: var(--p-marca-forte);
+}
+
+.dk-botao-icone.dk-pequeno {
+  width: 32px;
+  height: 32px;
+  padding: 4px;
+}
+
+.dk-botao-icone.dk-pequeno svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ================================================================= busca
+   O bloco de busca custa 80px na coluna (`.list-content-with-search`). O
+   `bds-input`: 42px, borda de 1px a 20%, raio 8, recuo 8 4 8 12, lupa de 20
+   numa caixa de 24 e texto 14/22; o pai tem recuo de 8 em cima e nas laterais.
+   Placeholder: "Busque pelo nome ou telefone..." em conteúdo fantasma. */
+/* O bloco da busca tem 8px de margem acima (medido: 193 → 201) e 8 de recuo. */
+.dk-busca {
+  margin-top: 8px;
+  padding: 8px 8px 0;
+}
+
+.dk-campo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 42px;
+  padding: 8px 4px 8px 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--d-campo-linha);
+  border-radius: 8px;
+  background: transparent;
+}
+
+.dk-campo:focus-within {
+  border-color: var(--p-marca);
+}
+
+.dk-campo-icone {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  padding: 2px;
+  box-sizing: border-box;
+  color: var(--p-conteudo);
+}
+
+.dk-campo-icone svg {
+  width: 20px;
+  height: 20px;
+}
+
+.dk-campo input {
+  flex: 1;
+  min-width: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  outline: none;
+}
+
+.dk-campo input::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+
+/* ================================================================ fichas
+   `.header-chat-list { padding: 0 5px; margin-top: 8px }` numa faixa com
+   `ml2 mr2` (8px); `#filters-container { margin-top: 8px; gap: 2px }`,
+   40px de altura. Até 1441 a ficha vira um menu único (`show-below-large`:
+   `bds-chip-tag` outline de 32px com seta de 16 e texto 14); acima, a fila
+   de `bds-chip-clickable` (`show-above-large`). */
+.dk-fichas {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 8px 8px 0;
+  padding: 0 5px;
+  background: var(--p-superficie-2);
+}
+
+.dk-fichas-esquerda {
+  display: flex;
+  align-items: center;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 2px;
+  margin-top: 8px;
+  height: 40px;
+  padding-left: 4px;
+}
+
+.dk-fichas-direita {
+  display: flex;
+  align-items: center;
+  flex: 0 0 auto;
+  margin-left: auto;
+  margin-top: 8px;
+}
+
+.dk-ficha-menu {
+  position: relative;
+}
+
+.dk-ficha {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+  height: 32px;
+  padding: 0 8px 0 5px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-conteudo-desabilitado);
+  border-radius: 16px;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 21px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dk-ficha svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dk-ficha[aria-pressed='true'] {
+  background: var(--p-conteudo);
+  border-color: var(--p-conteudo);
+  color: var(--p-conteudo-claro);
+}
+
+.dk-fichas-fila {
+  display: none;
+  align-items: center;
+  gap: 4px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.dk-fichas-fila .dk-ficha {
+  padding: 0 12px;
+}
+
+@media (min-width: 1442px) {
+  .dk-ficha-menu {
+    display: none;
+  }
+
+  .dk-fichas-fila {
+    display: flex;
+  }
+}
+
+/* O menu da ficha (`.ticket-filter-menu`): branco, raio 8, sombra 0 2px 8px 10%. */
+.dk-ficha-menu .dk-menu {
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 160px;
+}
+
+/* ================================================================= lista
+   `<main class="pa2">` com recuo 0 8 32 (medido) e rolagem própria. */
+.dk-lista {
+  flex: 1 1 auto;
+  min-height: 0;
+  margin: 0;
+  padding: 0 8px 32px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-conteudo-fantasma) transparent;
+}
+
+/* O estado vazio da coluna: `.get-online-txt { text-align: center; padding:
+   50px }`, ícone `xxx-large` (72px) e a frase em fs-16. */
+.dk-lista-vazia {
+  padding: 50px;
+  text-align: center;
+  color: var(--p-conteudo);
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.dk-lista-vazia svg {
+  width: 72px;
+  height: 72px;
+  margin-bottom: 8px;
+  color: var(--p-conteudo-fantasma);
+}
+
+/* ================================================== o cartão (chat-list-item)
+   `<article>` clicável: raio 8, recuo 8, borda 1px em superfície 3, fundo
+   superfície 1, 8px entre cartões. Cursor: +4% de preto; selecionado:
+   superfície 3 + 12%; selecionado com cursor: +16%. */
+.dk-cartao {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  width: 100%;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo);
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.5s ease-out;
+}
+
+.dk-cartao:not(:last-child) {
+  margin-bottom: 8px;
+}
+
+.dk-cartao:hover {
+  background: linear-gradient(var(--d-tinta-4), var(--d-tinta-4)), var(--p-superficie-1);
+}
+
+.dk-cartao[aria-current='true'] {
+  background: linear-gradient(var(--d-tinta-12), var(--d-tinta-12)), var(--p-superficie-3);
+}
+
+.dk-cartao[aria-current='true']:hover {
+  background: linear-gradient(var(--d-tinta-16), var(--d-tinta-16)), var(--p-superficie-3);
+}
+
+.dk-cartao:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+/* `.ticket-content { margin-bottom: 8px }` — o rosto e a coluna de texto
+   (`ml3 mr1` = 16px / 4px). */
+.dk-cartao-conteudo {
+  display: flex;
+  width: 100%;
+  margin-bottom: 8px;
+}
+
+/* `.customer-avatar { width: 37px; height: 37px }` com o `bds-avatar
+   size="small"` (40px) dentro; o selo do canal (`.channel`) de 24×24, raio 6,
+   fundo branco, a −10px nos dois eixos, com o logo de 20 (`top: 2px`). */
+.dk-cartao-rosto {
+  position: relative;
+  flex-shrink: 0;
+  /* `self-center` num flex em COLUNA: centra na horizontal, e fica no topo. */
+  align-self: flex-start;
+  width: 37px;
+  height: 37px;
+}
+
+.dk-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--p-marca-suave);
+  color: var(--p-marca);
+  font-weight: var(--d-peso-normal);
+}
+
+.dk-avatar svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dk-avatar.dk-avatar-56 {
+  width: 56px;
+  height: 56px;
+  font-size: 20px;
+  line-height: 20px;
+}
+
+.dk-avatar.dk-avatar-apagado {
+  opacity: 0.5;
+}
+
+.dk-canal {
+  position: absolute;
+  right: -10px;
+  bottom: -10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: var(--p-superficie-0);
+}
+
+.dk-canal svg {
+  position: relative;
+  top: 2px;
+  width: 20px;
+  height: 20px;
+}
+
+.dk-cartao-texto {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0 4px 0 16px;
+}
+
+.dk-cartao-linha {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Nome: `bds-typo fs-16 tag=h1`, 24px de entrelinha; negrito quando há não
+   lida (`bold="bold"`), regular quando não. */
+.dk-cartao-nome {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 16px;
+  font-weight: var(--d-peso-normal);
+  line-height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dk-cartao[data-nao-lida='true'] .dk-cartao-nome,
+.dk-cartao[data-nao-lida='true'] .dk-cartao-previa {
+  font-weight: var(--d-peso-negrito);
+}
+
+/* Horário relativo: fs-12 em conteúdo desabilitado, ao lado do ícone de situação. */
+.dk-cartao-hora {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  font-size: 12px;
+  line-height: 24px;
+  color: var(--p-conteudo-desabilitado);
+  white-space: nowrap;
+}
+
+.dk-cartao-situacao {
+  margin-left: 8px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-cartao-situacao svg {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
+/* Prévia: `bds-typo fs-14 tag=p`, `.message-preview { line-height: 24px; color: content-disable }`. */
+.dk-cartao-previa {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 14px;
+  line-height: 24px;
+  color: var(--p-conteudo-desabilitado);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A terceira linha de alertas, alinhada à direita: fichas de 24px. */
+.dk-cartao-alertas {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 4px;
+}
+
+/* `bds-chip-tag`: 24px, raio 4, texto 12; `color="system"` (info) e
+   `color="warning"` (alerta) — o par fundo pastel + conteúdo escuro. */
+.dk-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 24px;
+  padding: 0 8px;
+  box-sizing: border-box;
+  border-radius: 4px;
+  background: var(--p-superficie-2);
+  color: var(--p-conteudo);
+  font-size: 12px;
+  line-height: 18px;
+  white-space: nowrap;
+}
+
+.dk-chip svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dk-chip-info {
+  background: var(--p-info-fundo);
+  color: var(--p-info-conteudo);
+}
+
+.dk-chip-alerta {
+  background: var(--p-alerta-fundo);
+  color: var(--p-alerta-conteudo);
+}
+
+.dk-chip-erro {
+  background: var(--p-erro-fundo);
+  color: var(--p-erro-conteudo);
+}
+
+.dk-chip-contorno {
+  background: transparent;
+  border: 1px solid var(--p-conteudo-desabilitado);
+}
+
+/* `.badge-warning`: contador de não lidas, 24 de altura, mínimo 24, 12/700. */
+.dk-contador {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 24px;
+  min-width: 24px;
+  padding: 0 6px;
+  box-sizing: border-box;
+  border-radius: 12px;
+  background: var(--p-erro-conteudo);
+  color: var(--p-conteudo-claro);
+  font-size: 12px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 20px;
+}
+
+/* `.ticket-info`: linha de 1px em superfície 2 em cima, recuo 4 no topo, gap
+   8, entrelinha 24; ícone de info `x-small` (16px) num botão sem recuo;
+   "#N" em fs-12; "Fila:" fs-12 bold em conteúdo desabilitado + o nome; o
+   menu `⋮` de 24px aparece com o cursor (`.ticket-menu { opacity: 0 }`). */
+.dk-cartao-info {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+  border-top: 1px solid var(--p-superficie-2);
+  line-height: 24px;
+  font-size: 12px;
+}
+
+.dk-cartao-info-botao {
+  display: flex;
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+
+.dk-cartao-info-botao svg {
+  width: 16px;
+  height: 16px;
+}
+
+.dk-cartao-numero {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.dk-cartao-fila {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dk-cartao-fila b {
+  font-weight: var(--d-peso-negrito);
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-cartao-fila span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dk-cartao-menu {
+  height: 24px;
+  width: 0;
+  opacity: 0;
+  visibility: hidden;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo-desabilitado);
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.dk-cartao:hover .dk-cartao-menu,
+.dk-cartao[aria-current='true'] .dk-cartao-menu {
+  width: 20px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.dk-cartao-menu svg {
+  width: 20px;
+  height: 20px;
+  display: block;
+}
+
+/* Um ícone `x-small` na faixa (`.ticket-info-icon`), em conteúdo fantasma. */
+.dk-cartao-info-icone {
+  display: flex;
+  color: var(--p-conteudo-fantasma);
+}
+
+.dk-cartao-info-icone svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ======================================================== a conversa (pane-chat)
+   `.pane-chat { width: 50%; background: surface-2; border: 1px solid surface-3 }`.
+   Com o painel fechado, 75% até 1600 (`#container.drawer-hidden .pane-chat`). */
+.dk-conversa {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 50%;
+  width: 50%;
+  min-width: 0;
+  height: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--p-superficie-3);
+  background: var(--p-superficie-2);
+}
+
+/* O estado sem conversa: ilustração (78×73, 32 de folga), título fs-20
+   semi-bold com 8 de folga (`.message-title`), e a linha em fs-16. */
+.dk-conversa-vazia {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+.dk-conversa-vazia .dk-ilustracao {
+  height: 73px;
+  width: 78px;
+  margin-bottom: 32px;
+  color: var(--p-conteudo-fantasma);
+}
+
+.dk-conversa-vazia .dk-ilustracao svg {
+  width: 100%;
+  height: 100%;
+}
+
+.dk-conversa-vazia h1 {
+  margin: 0 0 8px;
+  font-size: 20px;
+  font-weight: var(--d-peso-semi);
+  line-height: 20px;
+}
+
+.dk-conversa-vazia p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+/* "Buscando tickets": spinner de 64px (`bds-loading-spinner`) com 32 de folga
+   (`.spinner-container.mb4`) e o título fs-20 semi-bold. */
+.dk-girando {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 32px;
+  border: 6px solid var(--p-superficie-3);
+  border-top-color: var(--p-marca);
+  border-radius: 50%;
+  animation: dk-girar 1s linear infinite;
+}
+
+.dk-girando.dk-girando-pequeno {
+  width: 32px;
+  height: 32px;
+  border-width: 4px;
+  margin: 24px auto;
+}
+
+@keyframes dk-girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* --------------------------------------------------------- o cabeçalho
+   `.pane-chat-header { background: surface-1 }`, `.chat-header { padding:
+   1.5rem }` — 24px em volta. Rosto `bds-avatar size="standard"` (56px);
+   nome em fs-16 semi-bold (`max-width: 265px`) e a linha "Ticket: #N · Bot:
+   · Fila:" em fs-12 com `column-gap: 5px`; à direita os botões de 40, com 8
+   entre eles; a linha de .5px em superfície 3 embaixo. */
+.dk-conversa-cabecalho {
+  position: relative;
+  flex-shrink: 0;
+  background: var(--p-superficie-1);
+}
+
+.dk-conversa-cabecalho-miolo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 24px;
+}
+
+.dk-conversa-contato {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+}
+
+.dk-conversa-dados {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-width: 0;
+  padding: 0 8px;
+  user-select: none;
+}
+
+.dk-conversa-nome {
+  display: block;
+  max-width: 265px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: var(--d-peso-semi);
+  line-height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dk-conversa-ticket {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 5px;
+  font-size: 12px;
+  line-height: 19px;
+}
+
+.dk-conversa-ticket span {
+  display: flex;
+  white-space: nowrap;
+}
+
+.dk-conversa-ticket b {
+  font-weight: var(--d-peso-semi);
+}
+
+.dk-conversa-ticket i {
+  margin-left: 4px;
+  font-style: normal;
+}
+
+@media (max-width: 1112px) {
+  .dk-conversa-ticket .dk-some-medio {
+    display: none;
+  }
+}
+
+.dk-conversa-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex-shrink: 0;
+  gap: 8px;
+}
+
+/* "Finalizar": acima de 1280 é `bds-button primary` com o ícone e o texto;
+   até 1280 só o ícone (`#close-ticket-button-icon`). */
+.dk-finalizar-texto {
+  display: none;
+}
+
+@media (min-width: 1281px) {
+  .dk-finalizar-texto {
+    display: inline-flex;
+  }
+
+  .dk-finalizar-icone {
+    display: none;
+  }
+}
+
+/* O botão que abre e fecha o painel só existe na faixa média (`show-medium`, 950–1112). */
+#show-user-info {
+  display: none;
+}
+
+@media (max-width: 1112px) {
+  #show-user-info {
+    display: inline-flex;
+  }
+}
+
+.dk-divisor {
+  height: 0.5px;
+  width: 100%;
+  background: var(--p-superficie-3);
+}
+
+/* A faixa de etiquetas abaixo do cabeçalho (`.tags-container { height: 64px }`,
+   `pa3` = 16px): ícone tag + "Adicionar tags" fs-16 semi-bold, e as
+   etiquetas em fila (`.tags-scroll ml5 mr5`). */
+.dk-etiquetas {
+  display: flex;
+  align-items: center;
+  height: 64px;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.dk-etiquetas-botao {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 4px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-size: 16px;
+  font-weight: var(--d-peso-semi);
+  cursor: pointer;
+}
+
+.dk-etiquetas-botao svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dk-etiquetas-fila {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 32px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+/* A busca dentro da conversa (`.search-section`): superfície 1, recuo 16,
+   campo + botão fechar; absoluta sobre o corpo acima de 950. */
+.dk-busca-conversa {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px;
+  background: var(--p-superficie-1);
+}
+
+.dk-busca-conversa .dk-campo {
+  flex: 1 1 auto;
+  margin-right: 8px;
+  min-width: 20%;
+}
+
+.dk-busca-resultado {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1 1 100%;
+  margin-top: 4px;
+  padding-bottom: 8px;
+  font-size: 16px;
+}
+
+/* ---------------------------------------------------------- o corpo
+   `.message-list--panechat .card-group-container { padding: 32px 24px }`
+   (40px 64px acima de 1600; 26px 16px até 480), rolagem própria. */
+.dk-conversa-corpo {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.dk-thread {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-conteudo-fantasma) transparent;
+}
+
+.dk-thread-miolo {
+  padding: 32px 24px;
+  margin-bottom: 10px;
+}
+
+@media (min-width: 1600px) {
+  .dk-thread-miolo {
+    padding: 40px 64px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dk-thread-miolo {
+    padding: 26px 16px;
+  }
+}
+
+/* O grupo (`.blip-message-group .blip-card-group { margin-bottom: 20px }`),
+   com 35px de recuo do lado da entrada e 55px do lado da saída quando há
+   rosto (`.blip-container--with-photo`). */
+.dk-grupo {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.dk-grupo::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+/* `.blip-container { margin-bottom: 10px }` não vale dentro do grupo: os
+   balões se costuram com os 5px do `.bubble`. */
+.dk-balao-caixa {
+  position: relative;
+  width: 100%;
+}
+
+.dk-balao-caixa::after {
+  content: '';
+  display: block;
+  clear: both;
+}
+
+/* `.blip-card .bubble`: máx 90%, entrelinha 20, fonte 16, borda 1px em
+   conteúdo fantasma, 5px embaixo; `.plain-text .bubble { padding: 10px 16px }`.
+   Entrada (`.left`): superfície 1 com conteúdo; saída (`.right`): o cinza do
+   texto (conteúdo) com a superfície 1 por cima. */
+.dk-balao {
+  position: relative;
+  float: left;
+  max-width: 90%;
+  margin-bottom: 5px;
+  padding: 10px 16px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-conteudo-fantasma);
+  border-radius: 13px 13px 13px 2px;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo);
+  font-size: 16px;
+  font-weight: var(--d-peso-normal);
+  line-height: 20px;
+  white-space: pre-line;
+  word-wrap: break-word;
+  text-align: left;
+}
+
+.dk-balao a {
+  color: inherit;
+  text-decoration: underline;
+}
+
+.dk-grupo-saida .dk-balao {
+  float: right;
+  border-radius: 13px 2px 13px 13px;
+  background: var(--p-conteudo);
+  color: var(--p-superficie-1);
+}
+
+/* Os cantos dentro do grupo (`.blip-card-group > :first-child … .bubble`):
+   o recorte de 2px mora embaixo, do lado de quem fala; nos demais o de cima
+   do mesmo lado também encolhe. */
+.dk-grupo-entrada .dk-balao-caixa:first-child .dk-balao {
+  border-radius: 13px 13px 13px 2px;
+}
+
+.dk-grupo-entrada .dk-balao-caixa:not(:first-child) .dk-balao {
+  border-radius: 2px 13px 13px 2px;
+}
+
+.dk-grupo-saida .dk-balao-caixa:first-child .dk-balao {
+  border-radius: 13px 13px 2px 13px;
+}
+
+.dk-grupo-saida .dk-balao-caixa:not(:first-child) .dk-balao {
+  border-radius: 13px 2px 2px 13px;
+}
+
+/* Falha: o balão vai a 50% (`.failed-message .bubble.right { opacity: .5 }`)
+   e um ícone de 25×25 em vermelho fica a 10px do fundo, encostado na
+   direita, fora do balão (`.icon-message-failed`). */
+.dk-grupo-saida .dk-balao-caixa[data-falhou='true'] .dk-balao {
+  opacity: 0.5;
+}
+
+.dk-balao-falha {
+  position: absolute;
+  right: 0;
+  bottom: 10px;
+  width: 25px;
+  height: 25px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-erro-conteudo);
+  cursor: pointer;
+}
+
+.dk-balao-falha svg {
+  width: 25px;
+  height: 25px;
+}
+
+/* O horário do grupo (`.group-notification`): 10px/14px em conteúdo
+   desabilitado, do lado de quem fala; na saída, o sinal de entrega (20×15)
+   antes da hora. Dentro do grupo, o de cada balão some. */
+.dk-grupo-hora {
+  display: flex;
+  align-items: center;
+  clear: both;
+  font-size: 10px;
+  line-height: 14px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-grupo-saida .dk-grupo-hora {
+  justify-content: flex-end;
+}
+
+.dk-grupo-hora svg {
+  width: 20px;
+  height: 15px;
+  margin-right: 2px;
+}
+
+.dk-grupo-hora[data-entrega='lida'] svg {
+  color: var(--p-info-conteudo);
+}
+
+/* A linha de mudança do ticket (`.ticket`): centrada, em conteúdo
+   desabilitado, 5px no topo; a frase (`.fancy`, entrelinha 1) entre duas
+   linhas de 1px em superfície 3 a 15px (`span:before/after`); e o título
+   "Ticket #N" em 20/500 com 10px de margem (`h3`). */
+.dk-ticket-linha {
+  padding-top: 5px;
+  overflow: hidden;
+  text-align: center;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-ticket-linha p {
+  margin: 0;
+  line-height: 1;
+  font-size: 16px;
+}
+
+.dk-ticket-linha p span {
+  display: inline-block;
+  position: relative;
+}
+
+.dk-ticket-linha p span::before,
+.dk-ticket-linha p span::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 600px;
+  height: 5px;
+  border-bottom: 1px solid var(--p-superficie-3);
+}
+
+.dk-ticket-linha p span::before {
+  right: 100%;
+  margin-right: 15px;
+}
+
+.dk-ticket-linha p span::after {
+  left: 100%;
+  margin-left: 15px;
+}
+
+.dk-ticket-linha h3 {
+  margin: 10px;
+  font-size: 20px;
+  font-weight: 500;
+  line-height: 23px;
+}
+
+/* A nota interna, no lugar dos balões: o mesmo "comentário" da referência
+   (`.comment`), centrado. */
+.dk-nota {
+  clear: both;
+  margin: 0 auto 10px;
+  max-width: 90%;
+  padding: 10px 16px;
+  border-radius: 13px;
+  background: var(--p-alerta-fundo);
+  color: var(--p-alerta-conteudo);
+  font-size: 14px;
+  line-height: 20px;
+  text-align: left;
+}
+
+.dk-nota b {
+  display: block;
+  font-size: 12px;
+}
+
+/* "Voltar ao fim" (`.message-list .scroll-button`): 40×40, redondo, a 24px
+   do fundo e 5% da direita, sombra 0 1px 7px 10%. */
+.dk-voltar-fim {
+  position: absolute;
+  right: 5%;
+  bottom: 24px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 100%;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo-fantasma);
+  box-shadow: 0 1px 7px 0 rgba(0, 0, 0, 0.1);
+  cursor: pointer;
+}
+
+/* -------------------------------------------------------- o compositor
+   `.pane-chat-message-input { padding: 0 24px }`; o `bds-paper`
+   `.pane-chat-message-input__container`: piso 150, teto 420, raio 8, borda
+   1px em superfície 3, fundo superfície 1, 8px embaixo, sombra estática.
+   Dentro: `.input-wrapper pa3 pb0` (16 16 0), o `textarea` de 4em a 11.5em
+   (16px), e `.action-buttons` de 56px com `mt3 ph3 pb3` (12 / 16 / 16). */
+.dk-compositor {
+  flex-shrink: 0;
+  width: 100%;
+  padding: 0 24px;
+  box-sizing: border-box;
+}
+
+.dk-compositor-papel {
+  position: relative;
+  width: 100%;
+  min-height: 150px;
+  max-height: 420px;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  box-shadow: var(--d-sombra-papel);
+}
+
+.dk-compositor-miolo {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+  margin-bottom: 4px;
+}
+
+.dk-compositor-campo {
+  flex-grow: 1;
+  /* 16 16 0 (`pa3 pb0`) mais os 4px que o textarea inline-block deixa embaixo (68 medidos para 64 de campo). */
+  padding: 16px 16px 4px;
+  overflow: hidden;
+}
+
+.dk-compositor textarea {
+  display: block;
+  width: 100%;
+  height: 4em;
+  min-height: 4em;
+  max-height: 11.5em;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  resize: none;
+  overflow-y: auto;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 1.5;
+  scrollbar-width: thin;
+  scrollbar-color: var(--p-conteudo-fantasma) transparent;
+}
+
+.dk-compositor textarea::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+
+.dk-compositor textarea:focus {
+  outline: none;
+}
+
+.dk-compositor-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 56px;
+  margin-top: 12px;
+  padding: 0 16px 16px;
+  box-sizing: border-box;
+}
+
+.dk-compositor-esquerda {
+  display: flex;
+  align-items: center;
+  margin-left: 8px;
+}
+
+/* Abaixo de 1112 o bloco vira linha: campo e ações lado a lado. */
+@media (max-width: 1112px) {
+  .dk-compositor-papel {
+    min-height: 56px;
+    max-height: 280px;
+  }
+
+  .dk-compositor-miolo {
+    flex-direction: row;
+    align-items: center;
+  }
+
+  .dk-compositor-campo {
+    padding: 8px 0 8px 16px;
+  }
+
+  .dk-compositor textarea {
+    height: 1.5em;
+    min-height: 1.5em;
+    max-height: 7em;
+  }
+
+  .dk-compositor-acoes {
+    margin-top: 0;
+    padding: 0 16px;
+  }
+}
+
+/* Quando a conversa não aceita texto livre, o compositor inteiro dá lugar a
+   um bloco centrado com uma linha e um botão (os quatro casos da referência). */
+.dk-compositor-fechado {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 150px;
+  margin-bottom: 8px;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  text-align: center;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+/* O painel de resposta pronta (`.custom-reply`) que abre acima do campo:
+   papel sobre o compositor, lista à esquerda e pré-visualização à direita
+   com "Pressione Enter para selecionar". */
+.dk-respostas {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: calc(100% + 8px);
+  z-index: 5;
+  display: flex;
+  max-height: 320px;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  box-shadow: var(--d-sombra-papel);
+  overflow: hidden;
+}
+
+.dk-respostas-lista {
+  flex: 1 1 50%;
+  min-width: 0;
+  overflow-y: auto;
+  padding: 8px 0;
+}
+
+.dk-respostas-item {
+  display: block;
+  width: 100%;
+  padding: 8px 16px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-respostas-item[aria-selected='true'],
+.dk-respostas-item:hover {
+  background: var(--p-superficie-2);
+}
+
+.dk-respostas-item small {
+  display: block;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-respostas-previa {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  flex: 1 1 50%;
+  min-width: 0;
+  border-left: 1px solid var(--p-superficie-3);
+}
+
+.dk-respostas-previa-rotulo,
+.dk-respostas-previa-pe {
+  padding: 8px 16px;
+  font-size: 12px;
+  color: var(--p-conteudo-desabilitado);
+  text-align: right;
+}
+
+.dk-respostas-previa-pe {
+  text-align: center;
+}
+
+.dk-respostas-previa-corpo {
+  padding: 8px 16px;
+  font-size: 16px;
+  text-align: center;
+  overflow-y: auto;
+}
+
+.dk-respostas-vazio {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 32px;
+  font-size: 16px;
+}
+
+/* A janela de 24h fechada: o aviso do `bds-alert` de aviso dentro do compositor. */
+.dk-alerta {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background: var(--p-alerta-fundo);
+  color: var(--p-alerta-conteudo);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.dk-alerta svg {
+  flex-shrink: 0;
+  width: 24px;
+  height: 24px;
+}
+
+.dk-alerta b {
+  display: block;
+  font-size: 16px;
+}
+
+/* A área de soltar arquivo, sobre a conversa inteira (`.drop-container`). */
+.dk-soltar {
+  position: absolute;
+  inset: 0;
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--p-superficie-1);
+  opacity: 0.9;
+}
+
+.dk-soltar-cartao {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 96%;
+  height: 95%;
+  border: 7px dashed var(--p-superficie-3);
+  border-radius: 12px;
+  font-size: 16px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 40px;
+}
+
+/* ======================================================= o painel (drawer)
+   `#container .drawer { width: 25% }`, `.drawer { min-width: 260px }`,
+   superfície 2. `.drawer-heading`: 49px (57 até 1440), `ph3` (16px), título
+   fs-20 semi-bold. `.drawer-tabs { height: calc(100% - 58px) }` em superfície
+   1, com a faixa de abas de 54px; cada aba é um rolador. */
+.dk-painel {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 25%;
+  width: 25%;
+  min-width: var(--d-drawer-min);
+  height: 100%;
+  background: var(--p-superficie-2);
+  z-index: 2;
+}
+
+.dk-painel-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  height: 49px;
+  padding: 0 16px;
+  background: var(--p-superficie-1);
+}
+
+@media (max-width: 1440px) {
+  .dk-painel-topo {
+    height: 57px;
+  }
+}
+
+.dk-painel-topo h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: var(--d-peso-semi);
+  line-height: 20px;
+}
+
+.dk-abas {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  background: var(--p-superficie-1);
+}
+
+.dk-abas-lista {
+  display: flex;
+  flex-shrink: 0;
+  height: 54px;
+  margin: 0;
+  padding: 0 16px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  border-bottom: 1px solid var(--p-superficie-3);
+}
+
+.dk-aba {
+  position: relative;
+  flex-shrink: 0;
+  padding: 0 16px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 16px;
+  line-height: 54px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.dk-aba[aria-selected='true'] {
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-aba[aria-selected='true']::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background: var(--p-marca);
+}
+
+/* `.drawer__profile { padding: .5rem }` sobre superfície 2; dois `bds-paper`
+   de 50% (`.drawer__profile__paper { padding: 16px 24px }`, raio 16, sombra
+   estática), 8px entre eles. */
+.dk-painel-corpo {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 8px;
+  background: var(--p-superficie-2);
+  overflow-y: auto;
+}
+
+.dk-papel {
+  flex: 1 1 50%;
+  min-height: 0;
+  padding: 16px 24px;
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: var(--p-superficie-1);
+  box-shadow: var(--d-sombra-papel);
+  overflow-y: auto;
+}
+
+.dk-papel:first-child {
+  margin-bottom: 8px;
+}
+
+.dk-papel-titulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  margin: 0;
+  font-size: 16px;
+  font-weight: var(--d-peso-semi);
+  line-height: 24px;
+}
+
+/* `.profile-info-item { margin: 12px 0 4px }`: rótulo fs-12 semi-bold em
+   cima, valor em fs-16 embaixo, e o botão de copiar (24×28) à direita. */
+.dk-campo-perfil {
+  position: relative;
+  margin: 12px 0 4px;
+  padding-right: 28px;
+  font-size: 16px;
+  line-height: 22px;
+  overflow-wrap: anywhere;
+}
+
+.dk-campo-perfil b {
+  display: block;
+  font-size: 12px;
+  font-weight: var(--d-peso-semi);
+  line-height: 18px;
+}
+
+.dk-campo-perfil a {
+  color: var(--p-marca);
+}
+
+.dk-copiar {
+  position: absolute;
+  right: 0;
+  top: 18px;
+  width: 24px;
+  height: 28px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+  opacity: 0;
+}
+
+.dk-campo-perfil:hover .dk-copiar,
+.dk-copiar:focus-visible {
+  opacity: 1;
+}
+
+.dk-copiar svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Comentários (`.comment-section`): título, área que rola com o estado vazio
+   centrado (ícone + "Não há comentários sobre este usuário"), e o campo de
+   duas linhas "Escreva um comentário..." (`bds-input is-textarea rows=2`). */
+.dk-comentarios {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.dk-comentarios-lista {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.dk-comentarios-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  text-align: center;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.dk-comentarios-vazio svg {
+  width: 24px;
+  height: 24px;
+  margin-bottom: 0;
+}
+
+.dk-comentario {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--p-superficie-2);
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.dk-comentario small {
+  display: block;
+  color: var(--p-conteudo-desabilitado);
+  font-size: 12px;
+}
+
+.dk-comentarios-campo {
+  padding-top: 8px;
+}
+
+.dk-campo-texto {
+  display: flex;
+  width: 100%;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--d-campo-linha);
+  border-radius: 8px;
+  background: transparent;
+}
+
+.dk-campo-texto textarea {
+  width: 100%;
+  border: 0;
+  padding: 0;
+  resize: none;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 22px;
+  outline: none;
+}
+
+.dk-campo-texto textarea::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+
+/* A aba Histórico (`.drawer__history__paper { padding: 16px 24px }`): uma
+   sanfona por origem, cada linha com número, atendente e data. */
+.dk-historico-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--p-superficie-2);
+  color: inherit;
+  text-decoration: none;
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.dk-historico-item small {
+  color: var(--p-conteudo-desabilitado);
+  font-size: 12px;
+}
+
+/* O esqueleto do painel sem conversa (`.drawer > div.pa2 > img`): barras
+   cinzas nas posições da captura. */
+.dk-painel-esqueleto {
+  padding: 8px;
+}
+
+.dk-esqueleto-barra {
+  height: 12px;
+  margin: 8px 0;
+  border-radius: 6px;
+  background: var(--d-tinta-12);
+}
+
+.dk-esqueleto-papel {
+  margin: 16px 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--d-tinta-8);
+}
+
+/* ======================================================== modais (bds-modal)
+   Véu a 50% de preto; o papel de 8px de raio com recuo de 32 e ações à direita. */
+.dk-veu {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.dk-modal {
+  width: 560px;
+  max-width: calc(100% - 32px);
+  max-height: calc(100% - 64px);
+  padding: 32px;
+  box-sizing: border-box;
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  overflow-y: auto;
+}
+
+.dk-modal h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}
+
+.dk-modal label {
+  display: block;
+  margin: 16px 0 4px;
+  font-size: 14px;
+  font-weight: var(--d-peso-semi);
+}
+
+.dk-modal select,
+.dk-modal input[type='text'] {
+  width: 100%;
+  height: 42px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--d-campo-linha);
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 14px;
+}
+
+.dk-erro {
+  margin: 8px 0 0;
+  color: var(--p-erro-conteudo);
+  font-size: 14px;
+}
+
+/* ========================================================== responsivo
+   Até 1112 o painel some por trás e, aberto, sobrepõe a conversa (z 10);
+   até 950 as três colunas viram 100% e deslizam com `left: -100%`/`-200%`. */
+@media (max-width: 1112px) {
+  .dk-painel {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    z-index: -1;
+  }
+
+  [data-painel='aberto'] .dk-painel {
+    z-index: 10;
+  }
+}
+
+@media (max-width: 950px) {
+  .dk-container {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dk-coluna,
+  .dk-conversa,
+  .dk-painel {
+    position: relative;
+    flex: 0 0 100%;
+    width: 100%;
+    min-width: 100%;
+    left: 0;
+    transition: left 0.5s;
+    z-index: 1;
+  }
+
+  .dk-app[data-estado='chat'] .dk-coluna,
+  .dk-app[data-estado='chat'] .dk-conversa,
+  .dk-app[data-estado='chat'] .dk-painel {
+    left: -100%;
+  }
+
+  .dk-app[data-estado='drawer'] .dk-coluna,
+  .dk-app[data-estado='drawer'] .dk-conversa,
+  .dk-app[data-estado='drawer'] .dk-painel {
+    left: -200%;
+  }
+}
+
+/* Com o painel fechado (até 1600), a conversa ocupa 75%. */
+@media (max-width: 1600px) {
+  [data-painel='fechado'] .dk-conversa {
+    flex-basis: 75%;
+    width: 75%;
+  }
+
+  [data-painel='fechado'] .dk-painel {
+    display: none;
+  }
+}
+
+/* Utilidades curtas da referência que aparecem na estrutura (`hide-small`…). */
+.dk-so-leitor {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ================================================ o painel "Seu status"
+   `navbar-submenu` da referência (medido em `desk2/blip-menu-status.png`):
+   300px escuros ao lado do trilho, recuo 8 24, cabeçalho de 40 com a seta e
+   "Seu status" (gap 10); `user-info` centrado (avatar 56, nome 14/600,
+   e-mail 12); os status em botões de 56px (recuo 16, raio 8, gap 10) — o
+   em vigor com fundo a 8% e o check; "Desconectar" no rodapé. */
+.dk-status-painel {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 300px;
+  width: 300px;
+  height: 100%;
+  padding: 24px 24px 8px;
+  box-sizing: border-box;
+  background: var(--d-trilho);
+  color: var(--d-trilho-tinta);
+}
+
+.dk-status-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  height: 40px;
+  margin-bottom: 32px;
+  font-size: 16px;
+}
+
+.dk-status-cabecalho .dk-botao-icone,
+.dk-status-pausas-titulo .dk-botao-icone {
+  color: inherit;
+}
+
+.dk-status-conteudo {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.dk-status-eu {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.dk-status-eu b {
+  font-size: 14px;
+  font-weight: var(--d-peso-semi);
+  line-height: 18px;
+}
+
+.dk-status-eu small {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--p-conteudo-fantasma);
+}
+
+.dk-status-opcoes {
+  margin: 0;
+  padding: 8px 0;
+  list-style: none;
+}
+
+.dk-status-opcoes li {
+  padding: 4px 0;
+}
+
+.dk-status-opcao {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 56px;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-status-opcao:hover {
+  background: var(--d-trilho-cursor);
+}
+
+.dk-status-opcao[aria-checked='true'] {
+  background: var(--d-trilho-vigor);
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-status-opcao svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dk-status-rotulo {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dk-status-ponto {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--p-superficie-3);
+}
+
+.dk-status-ponto[data-estado='online'] {
+  background: var(--p-sucesso-sobre-escuro);
+}
+
+.dk-status-ponto[data-estado='pausa'] {
+  background: var(--p-alerta-conteudo);
+}
+
+.dk-status-pausas {
+  padding: 8px;
+  border-radius: 8px;
+  background: var(--d-trilho-vigor);
+}
+
+.dk-status-pausas-titulo {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+}
+
+.dk-status-vazio {
+  padding: 16px;
+  font-size: 14px;
+  color: var(--p-conteudo-fantasma);
+}
+
+.dk-status-sair {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  height: 56px;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-status-sair span {
+  flex: 1 1 auto;
+}
+
+.dk-status-sair:hover {
+  background: var(--d-trilho-cursor);
+}
+
+.dk-status-sair svg {
+  width: 24px;
+  height: 24px;
+}
+/* ======================================================= tela de entrada
+
+   A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
+   Copiada de `apps/gestao-vite/src/estilos/globais.css` — a tela de entrada do
+   Desk é a da Gestão, só o título muda.
+
+   Esta seção é a ENTREGA do desenho da tela de entrada, medida por medida:
+   cartão de 400px com canto de 20px, controles de 48px com canto de 12px, e o
+   bloco de 413x308 ao lado, que some abaixo de 1000px. O fundo vive em
+   `entrar/fundo-pipe.tsx` — um canvas que desenha o feixe de partículas; aqui
+   ele só ocupa a caixa.
+
+   Ela NÃO usa a escala do resto do aplicativo: a entrada tem tipografia e
+   espaço próprios (DM Sans, 15px de corpo), e forçar os token da plataforma
+   aqui desfaria o desenho. Os valores da entrega viram token locais no
+   `.entrar` abaixo, e nada fora desta seção os enxerga. */
+
+.entrar {
+  position: relative;
+  width: 100%;
+  min-height: 100dvh;
+  overflow: hidden;
+  font-family: 'DM Sans', Helvetica, Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+
+  /* Os token da entrega. Ficam no escopo da tela de propósito. */
+  --pe-fundo: #f2f1ec;
+  --pe-papel: #ffffff;
+  --pe-campo: #fbfbf7;
+  --pe-conteudo: #16150f;
+  --pe-rotulo: #3f3e36;
+  --pe-apoio: #6a695e;
+  --pe-marca-dagua: #9a9a8e;
+  --pe-linha: #dfdecf;
+  --pe-linha-forte: #c9c8b8;
+  --pe-linha-fina: #edece2;
+  --pe-marca: #4a5d23;
+  --pe-marca-forte: #3d4d1c;
+
+  background: var(--pe-fundo);
+  color: var(--pe-conteudo);
+}
+
+/* O canvas do fundo. `pointer-events: none` porque ele cobre a tela inteira e
+   não pode roubar um clique do formulário. */
+.entrar-fundo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* `justify-content: flex-start`, e não `center`: o cartão fica à esquerda e o
+   feixe varre o canto oposto. Centralizar traria o cartão para cima do desenho. */
+.entrar-palco {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 96px;
+  min-height: 100dvh;
+  padding: 48px 40px;
+  box-sizing: border-box;
+}
+
+/* O cartão encostado à esquerda, a 120px da borda — a medida da tela de
+   origem. Centralizar traria o formulário para cima do feixe. */
+@media (min-width: 1000px) {
+  .entrar-palco {
+    padding-left: 120px;
+  }
+}
+
+.entrar-cartao {
+  width: 560px;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 48px 44px 36px;
+  background: var(--pe-papel);
+  border-radius: 22px;
+  box-shadow:
+    0 1px 2px rgba(22, 21, 15, 0.05),
+    0 24px 60px -14px rgba(22, 21, 15, 0.2);
+}
+
+.entrar-lockup {
+  display: block;
+  height: 44px;
+  margin-bottom: 32px;
+}
+
+/* A entrada não tem título escrito: a marca faz esse papel. O `h1` fica para
+   quem ouve a tela e some só para os olhos. (No convite o título É informação,
+   e lá ele continua visível.) */
+.entrar-titulo-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* O motivo da recusa, com a saída da pessoa. Vem ANTES dos botões na ordem de
+   leitura: quem usa leitor de tela precisa do motivo antes da ação. */
+.entrar-alerta {
+  margin-bottom: 22px;
+  padding: 14px 16px;
+  background: var(--pe-campo);
+  border: 1px solid var(--pe-linha);
+  border-left: 3px solid var(--pe-marca);
+  border-radius: 12px;
+}
+
+.entrar-alerta h2 {
+  margin: 0 0 4px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--pe-conteudo);
+}
+
+.entrar-alerta p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--pe-apoio);
+}
+
+.entrar-google {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  height: 60px;
+  box-sizing: border-box;
+  border: 1px solid var(--pe-linha);
+  border-radius: 14px;
+  background: var(--pe-papel);
+  color: var(--pe-conteudo);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.entrar-google:hover {
+  background: var(--pe-campo);
+  border-color: var(--pe-linha-forte);
+  color: var(--pe-conteudo);
+}
+
+.entrar-ou {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 22px 0;
+}
+
+.entrar-ou span:not(.entrar-ou-texto) {
+  flex: 1;
+  height: 1px;
+  background: var(--pe-linha-fina);
+}
+
+.entrar-ou-texto {
+  font-size: 14px;
+  color: var(--pe-apoio);
+}
+
+.entrar-cartao label {
+  display: block;
+  margin: 0 0 7px 2px;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--pe-rotulo);
+}
+
+.entrar-cartao input[type='email'],
+.entrar-cartao input[type='password'],
+.entrar-cartao input[type='text'] {
+  width: 100%;
+  height: 60px;
+  box-sizing: border-box;
+  padding: 0 18px;
+  border: 1px solid var(--pe-linha);
+  border-radius: 14px;
+  background: var(--pe-campo);
+  font: inherit;
+  font-size: 18px;
+  color: var(--pe-conteudo);
+  outline: none;
+}
+
+/* As margens do desenho: 16px depois do e-mail, 10px depois da senha (a
+   linha do "esqueci minha senha" vem logo abaixo dela). */
+.entrar-cartao input[type='email'] {
+  margin-bottom: 16px;
+}
+
+.entrar-cartao input[type='password'] {
+  margin-bottom: 10px;
+}
+
+.entrar-esqueci {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 22px;
+  font-size: 14px;
+}
+
+.entrar-esqueci a {
+  text-decoration: none;
+}
+
+.entrar-cartao input::placeholder {
+  color: var(--pe-marca-dagua);
+}
+
+.entrar-cartao input:focus {
+  border-color: var(--pe-marca);
+  background: var(--pe-papel);
+}
+
+.entrar-ajuda {
+  margin: -12px 2px 18px;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--pe-apoio);
+}
+
+.entrar-cartao button[type='submit'] {
+  width: 100%;
+  height: 60px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--pe-marca);
+  color: var(--pe-fundo);
+  font: inherit;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.entrar-cartao button[type='submit']:hover {
+  background: var(--pe-marca-forte);
+}
+
+.entrar-pe {
+  display: flex;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px solid var(--pe-linha-fina);
+  font-size: 14px;
+  color: var(--pe-apoio);
+}
+
+.entrar a {
+  color: var(--pe-marca);
+}
+
+.entrar a:hover {
+  color: var(--pe-marca-forte);
+}
+
+.entrar-pe a {
+  text-decoration: none;
+}
+
+/* ---- o que o convite acrescenta ao mesmo cartão ---- */
+
+.entrar-cartao h1 {
+  margin: 0 0 10px;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.25;
+  color: var(--pe-conteudo);
+}
+
+.entrar-sub {
+  margin: 0 0 22px;
+  font-size: 17px;
+  line-height: 1.5;
+  color: var(--pe-apoio);
+}
+
+/* Os dados do convite: rótulo à esquerda, valor à direita. */
+.entrar-dados {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 6px 16px;
+  margin: 0 0 22px;
+  font-size: 14px;
+}
+
+.entrar-dados dt {
+  color: var(--pe-apoio);
+}
+
+.entrar-dados dd {
+  margin: 0;
+  font-weight: 500;
+  color: var(--pe-conteudo);
+  /* E-mail longo quebra em vez de esticar o cartão. */
+  overflow-wrap: anywhere;
+}
+
+.entrar-rodape {
+  margin: 18px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--pe-apoio);
+}
+
+/* A conta em vigor, no menu de quem está logado. Serve às três telas. */
+
+/* ============================================================ contatos
+   O MFE `desk-contact-history` medido em `~/desk-clone/clone/mfe-teste.html`
+   (1200 de largura): 300 / 600 / 300. Esquerda: bloco de 110 em superfície 1
+   (título 52 com recuo 16; busca 58 com recuo 8 e gap 8: campo de 42 e botão
+   de 40); a lista com recuo 8, o rótulo do grupo 14/700 num bloco de 37
+   (recuo 8), cartões de 62 (recuo 8, raio 8, borda 1 em superfície 3, fundo
+   superfície 1, gap 12): rosto 40 numa caixa de 44, nome 16/600/24,
+   "Última interação" 10/15, seta de 20. Selecionado: superfície 3. */
+.dk-contatos {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+}
+
+.dk-contatos-lista {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 25%;
+  width: 25%;
+  min-width: 0;
+  background: var(--p-superficie-2);
+}
+
+.dk-contatos-topo {
+  background: var(--p-superficie-1);
+}
+
+.dk-contatos-titulo {
+  padding: 16px;
+}
+
+.dk-contatos-titulo h1 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 20px;
+}
+
+.dk-contatos-busca {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+}
+
+.dk-contatos-busca .dk-campo {
+  flex: 1 1 auto;
+}
+
+.dk-contatos-ordem {
+  top: calc(100% + 8px);
+  right: 0;
+  left: auto;
+  width: 240px;
+  padding: 16px;
+}
+
+.dk-contatos-ordem-titulo {
+  padding: 8px 0 0;
+  margin-bottom: 24px;
+  font-size: 16px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 24px;
+}
+
+.dk-contatos-ordem-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  padding: 8px;
+  margin-bottom: 8px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-size: 16px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-contatos-ordem-item[aria-checked='true'] {
+  background: var(--p-superficie-3);
+}
+
+.dk-contatos-ordem-item span {
+  flex: 1 1 auto;
+}
+
+.dk-contatos-ordem-item svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dk-contatos-rolagem {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 8px;
+  overflow-y: auto;
+}
+
+.dk-contatos-grupo {
+  padding: 8px;
+  font-size: 14px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 21px;
+}
+
+.dk-contatos-itens {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dk-contato {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  min-height: 62px;
+  padding: 8px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo);
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-contato[aria-current='true'] {
+  background: var(--p-superficie-3);
+}
+
+.dk-contato-rosto {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+}
+
+.dk-contato-texto {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dk-contato-texto b {
+  font-size: 16px;
+  font-weight: var(--d-peso-semi);
+  line-height: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.dk-contato-texto small {
+  font-size: 10px;
+  line-height: 15px;
+}
+
+/* O meio: o estado vazio (ilustração 150×155, gap 16, título 16/700, texto
+   16/400 em 420 de largura) e o rodapé com o papel de 568 (recuo 0 16 32,
+   papel de 126 com gap 16, botão "Conversar novamente"). */
+.dk-contatos-meio {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 50%;
+  min-width: 0;
+  background: var(--p-superficie-2);
+}
+
+.dk-contatos-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto;
+  gap: 16px;
+  text-align: center;
+}
+
+.dk-contatos-ilustracao {
+  width: 150px;
+  height: 155px;
+  color: var(--p-conteudo-fantasma);
+}
+
+.dk-contatos-ilustracao svg {
+  width: 100%;
+  height: 100%;
+}
+
+.dk-contatos-vazio-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 420px;
+  max-width: 100%;
+}
+
+.dk-contatos-vazio-texto h2 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 24px;
+}
+
+.dk-contatos-vazio-texto p {
+  margin: 0;
+  font-size: 16px;
+  line-height: 24px;
+}
+
+.dk-contatos-rodape {
+  padding: 0 16px 32px;
+}
+
+.dk-contatos-rodape-papel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  min-height: 126px;
+  box-sizing: border-box;
+  padding: 24px;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  text-align: center;
+}
+
+.dk-contatos-rodape-papel p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 21px;
+}
+
+/* A direita: as abas em cabeçalho de 56 (recuo 4 16), centradas, gap 32. */
+.dk-contatos-direita {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 25%;
+  width: 25%;
+  min-width: 0;
+  background: var(--p-superficie-2);
+}
+
+.dk-contatos-abas {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+  height: 56px;
+  padding: 4px 16px;
+  box-sizing: border-box;
+  background: var(--p-superficie-1);
+}
+
+.dk-contatos-abas .dk-aba {
+  padding: 0;
+  line-height: 48px;
+}
+
+.dk-historico-botao {
+  width: 100%;
+  border: 0;
+  border-bottom: 1px solid var(--p-superficie-2);
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.dk-historico-botao[aria-current='true'] {
+  background: var(--p-superficie-2);
+}
+
+/* ============================================================= métricas
+   A seção `metrics` de `~/desk-clone/clone/index.html` (foto
+   `desk2/blip-clone-metrics.png`): superfície 1, cabeçalho com gap 14 e recuo
+   14 24 sobre uma linha; título 19/700/24 e subtítulo 12; "Atualizar" 13 com
+   16 de margem; a barra `.seg` de botões de 13 (recuo 7 14, raio 8, o em vigor
+   em cromo escuro); corpo com recuo 18 24 32 e gap 24; `h3` 16/700 com 18
+   embaixo; rosca de 118 e grade 3×2 de cartões (superfície 2, raio 8, recuo
+   14 8, número 20/400, rótulo 12 com ponto de 8). */
+.dk-metricas {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  background: var(--p-superficie-1);
+  overflow-y: auto;
+}
+
+.dk-metricas-topo {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 24px;
+  border-bottom: 1px solid var(--p-superficie-2);
+}
+
+.dk-metricas-topo > svg {
+  width: 24px;
+  height: 24px;
+}
+
+.dk-metricas-titulo {
+  font-size: 19px;
+  font-weight: var(--d-peso-negrito);
+  line-height: 24px;
+}
+
+.dk-metricas-sub {
+  font-size: 12px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-metricas-espaco {
+  flex: 1;
+}
+
+.dk-metricas-atualizar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-right: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo-desabilitado);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dk-seg {
+  display: flex;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.dk-seg button {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  border: 0;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dk-seg button + button {
+  border-left: 1px solid var(--p-superficie-3);
+}
+
+.dk-seg button[aria-checked='true'] {
+  background: var(--p-superficie-4);
+  color: var(--p-conteudo-claro);
+}
+
+.dk-metricas-datas {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 24px;
+  font-size: 13px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-metricas-datas input {
+  margin-left: 6px;
+  padding: 6px 8px;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+  font-family: inherit;
+}
+
+.dk-metricas-corpo {
+  display: flex;
+  gap: 24px;
+  padding: 18px 24px 32px;
+}
+
+.dk-metricas-principal {
+  flex: 1;
+  min-width: 0;
+}
+
+.dk-metricas h3 {
+  margin: 0 0 18px;
+  font-size: 16px;
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-kpis {
+  display: flex;
+  align-items: center;
+  gap: 22px;
+}
+
+.dk-kpi-grade {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  flex: 1;
+}
+
+.dk-kpi {
+  padding: 14px 8px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.dk-kpi b {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 20px;
+  font-weight: var(--d-peso-normal);
+}
+
+.dk-kpi span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-ponto {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dk-grafico-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 30px 0 8px;
+}
+
+.dk-ficha-cinza {
+  padding: 4px 12px;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 14px;
+  font-size: 11px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-grafico-max {
+  font-size: 11px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+/* A série diária: 110px de altura sobre a linha do eixo, barras em par. */
+.dk-eixo {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 4px;
+  height: 110px;
+  border-bottom: 1px solid var(--p-superficie-3);
+}
+
+.dk-barra-dia {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  flex: 1 1 0;
+  height: 100%;
+}
+
+.dk-barra {
+  flex: 1 1 0;
+  min-height: 1px;
+  border-radius: 2px 2px 0 0;
+}
+
+.dk-barra-fechados {
+  background: var(--p-grafico-2);
+}
+
+.dk-barra-abertos {
+  background: var(--p-grafico-1);
+}
+
+.dk-eixo-rotulos {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  font-size: 11px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-medias {
+  display: flex;
+  gap: 56px;
+  margin-top: 34px;
+}
+
+.dk-medias div span {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-medias div b {
+  font-size: 15px;
+  font-weight: var(--d-peso-normal);
+}
+
+/* ======================================================= mensagem ativa
+   A seção `active-msg` do clone (foto `desk2/blip-clone-active.png`):
+   cabeçalho com gap 12 e recuo 14 22 (título 17/400); o stepper entre duas
+   linhas com recuo 10 22 (passo 13, número em disco de 20 em cromo escuro,
+   linha de 1px); o aviso amarelo com borda esquerda de 3 (recuo 12 16, margem
+   14 22, 12/17); o corpo com gap 26 e recuo 4 22 22: formulário até 520 e o
+   painel de 500 (cabeçalho 12 14, corpo de 300 centrado). */
+.dk-ativa {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  background: var(--p-superficie-1);
+  overflow-y: auto;
+}
+
+.dk-ativa-topo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px;
+}
+
+.dk-ativa-topo h2 {
+  flex: 1;
+  margin: 0;
+  font-size: 17px;
+  font-weight: var(--d-peso-normal);
+}
+
+.dk-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-top: 1px solid var(--p-superficie-2);
+  border-bottom: 1px solid var(--p-superficie-2);
+}
+
+.dk-stepper-passo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-stepper-passo[aria-current='step'] {
+  color: var(--p-conteudo);
+}
+
+.dk-stepper-numero {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--p-superficie-4);
+  color: var(--p-conteudo-claro);
+  font-size: 11px;
+}
+
+.dk-stepper-linha {
+  flex: 1;
+  height: 1px;
+  background: var(--p-superficie-3);
+}
+
+.dk-alerta-aviso {
+  display: flex;
+  gap: 10px;
+  margin: 14px 22px;
+  padding: 12px 16px;
+  border-left: 3px solid var(--p-alerta-conteudo);
+  background: var(--p-alerta-fundo);
+  color: var(--p-alerta-conteudo);
+  font-size: 12px;
+  line-height: 17px;
+}
+
+.dk-alerta-aviso svg {
+  flex-shrink: 0;
+}
+
+.dk-ativa-corpo {
+  display: flex;
+  justify-content: space-between;
+  gap: 26px;
+  padding: 4px 22px 22px;
+}
+
+.dk-ativa-form {
+  flex: 1;
+  max-width: 520px;
+}
+
+.dk-ativa-form h3 {
+  margin: 18px 0 6px;
+  font-size: 15px;
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-ativa-form > p {
+  margin: 0 0 16px;
+  font-size: 12px;
+  line-height: 17px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-ativa-radios {
+  display: flex;
+  gap: 36px;
+  margin-bottom: 6px;
+}
+
+.dk-ativa-radios label,
+.dk-massa-radios label,
+.dk-massa-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+/* O campo com rótulo em cima (`.field`): borda, raio 8, recuo 8 12, 12 embaixo. */
+.dk-campo-flutuante {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--p-linha-forte);
+  border-radius: 8px;
+}
+
+.dk-campo-flutuante > span {
+  font-size: 11px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-campo-flutuante > b {
+  font-size: 13px;
+  font-weight: var(--d-peso-normal);
+}
+
+.dk-campo-flutuante select,
+.dk-campo-flutuante input {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font-family: inherit;
+  font-size: 13px;
+  outline: none;
+}
+
+.dk-campo-flutuante input::placeholder {
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-ativa-telefone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 13px;
+}
+
+.dk-ativa-telefone small {
+  font-size: 9px;
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-ativa-telefone input {
+  flex: 1;
+}
+
+.dk-ativa-ajuda {
+  margin: -6px 0 12px;
+  font-size: 11px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-ativa-contatos,
+.dk-ativa-modelos,
+.dk-ativa-selecionados {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+  max-height: 260px;
+  overflow-y: auto;
+}
+
+.dk-ativa-contatos label,
+.dk-ativa-modelos label,
+.dk-ativa-selecionados li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dk-ativa-contatos label:hover,
+.dk-ativa-modelos label:hover {
+  background: var(--p-superficie-2);
+}
+
+.dk-ativa-contatos label span,
+.dk-ativa-modelos label span,
+.dk-ativa-selecionados li span {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.dk-ativa-contatos small,
+.dk-ativa-modelos small,
+.dk-ativa-selecionados small {
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-ativa-lado {
+  flex: 0 0 500px;
+  width: 500px;
+  max-width: 100%;
+  border: 1px solid var(--p-superficie-3);
+  border-radius: 8px;
+}
+
+.dk-ativa-lado-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-bottom: 1px solid var(--p-superficie-2);
+  font-size: 13px;
+}
+
+.dk-ativa-limpar {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  color: var(--p-conteudo-desabilitado);
+  font-family: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dk-ativa-lado-corpo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  min-height: 300px;
+  padding: 0 30px;
+  font-size: 12px;
+  color: var(--p-conteudo-desabilitado);
+  text-align: center;
+}
+
+.dk-ativa-lado-corpo .dk-ativa-selecionados {
+  width: 100%;
+  margin: 0;
+  color: var(--p-conteudo);
+  text-align: left;
+}
+
+.dk-ativa-caixa {
+  width: 78px;
+  height: 62px;
+  border: 2px dashed var(--p-linha-forte);
+  border-radius: 6px;
+}
+
+.dk-ativa-pe {
+  display: flex;
+  justify-content: space-between;
+  padding: 0 22px 20px;
+}
+
+/* ======================================================= ações em massa
+   A seção `bulk` do clone (foto `desk2/blip-clone-bulk.png`): recuo 20 26,
+   título 20/400 com 16 embaixo, cartão em superfície 1 (raio 8, recuo 22 30,
+   piso 560); a linha do chatbot com a ficha "Transferir"; as duas colunas
+   com gap 40 sobre uma linha (18 de recuo e margem); rádios com gap 60. */
+.dk-massa {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  padding: 20px 26px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.dk-massa h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: var(--d-peso-normal);
+}
+
+.dk-massa-cartao {
+  display: flex;
+  flex-direction: column;
+  min-height: 560px;
+  padding: 22px 30px;
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+}
+
+.dk-massa-linha {
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
+}
+
+.dk-massa-colunas {
+  display: flex;
+  flex: 1;
+  gap: 40px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: 1px solid var(--p-superficie-2);
+}
+
+.dk-massa-coluna {
+  flex: 1;
+  min-width: 0;
+}
+
+.dk-massa-coluna h4 {
+  margin: 0 0 14px;
+  font-size: 14px;
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-massa-check {
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-massa-lista {
+  margin-top: 12px;
+}
+
+.dk-massa-item {
+  display: block;
+  padding: 6px 0;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.dk-massa-vazio {
+  font-size: 13px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-massa-radios {
+  display: flex;
+  gap: 60px;
+  margin-bottom: 20px;
+}
+
+.dk-massa-pe {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+/* ========================================================= preferências
+   Sem régua fotografada (o MFE não renderiza na cópia): lista de seções com
+   interruptores, no mesmo papel dos cartões do Desk. */
+.dk-prefs {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 100%;
+  padding: 20px 26px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.dk-prefs h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: var(--d-peso-normal);
+}
+
+.dk-prefs-secao {
+  max-width: 720px;
+  margin-bottom: 16px;
+  padding: 16px 24px;
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+}
+
+.dk-prefs-secao h3 {
+  margin: 0 0 8px;
+  font-size: 16px;
+  font-weight: var(--d-peso-negrito);
+}
+
+.dk-prefs-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 12px 0;
+  border-top: 1px solid var(--p-superficie-2);
+  cursor: pointer;
+}
+
+.dk-prefs-item span {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.dk-prefs-item b {
+  font-size: 14px;
+  font-weight: var(--d-peso-semi);
+}
+
+.dk-prefs-item small {
+  font-size: 12px;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-prefs-item input {
+  width: 40px;
+  height: 24px;
+  margin: 0;
+  accent-color: var(--p-marca);
+  cursor: pointer;
+}

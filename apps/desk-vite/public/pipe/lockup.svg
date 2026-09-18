@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 190" role="img" aria-label="Pipe">
+  <g transform="translate(24,48)" fill="none" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M9,99 V36 Q9,9 36,9 H63" stroke="#111111"/>
+    <path d="M99,9 V72 Q99,99 72,99 H36" stroke="#4A5D23"/>
+  </g>
+  <g transform="translate(174,14)" fill="none" stroke="#111111" stroke-width="12" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M0,150 V54 Q0,40 14,40 H26 Q40,40 40,54 V86 Q40,100 26,100 H0"/>
+    <path d="M76,40 V100"/>
+    <path d="M112,150 V54 Q112,40 126,40 H138 Q152,40 152,54 V86 Q152,100 138,100 H112"/>
+    <path d="M222,86 Q222,100 208,100 H196 Q182,100 182,86 V54 Q182,40 196,40 H208 Q222,40 222,54 V70 H182"/>
+  </g>
+  <circle cx="250" cy="34" r="7" fill="#4A5D23"/>
+</svg>

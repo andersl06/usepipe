@@ -1,0 +1,24 @@
+- generic [active] [ref=e1]:
+  - main [ref=e2]:
+    - region [ref=e4]:
+      - img "Pipe" [ref=e5]
+      - heading "Entrar no Pipe Gestão" [level=1] [ref=e6]
+      - link "Entrar com Google" [ref=e7] [cursor=pointer]:
+        - /url: http://localhost:3010/v1/auth/google?destino=%2Ffluxo%2F5b6843ae-b4f8-4bc0-bce2-e32318043297%2Fgrowth%2Fmensagens-ativas&origem=http%3A%2F%2Flocalhost%3A3100
+      - generic [ref=e14]: ou
+      - generic [ref=e18]:
+        - generic [ref=e19]: E-mail
+        - textbox "E-mail" [ref=e20]:
+          - /placeholder: voce@empresa.com.br
+        - generic [ref=e21]: Senha
+        - textbox "Senha" [ref=e22]:
+          - /placeholder: ••••••••
+        - link "Esqueci minha senha" [ref=e24] [cursor=pointer]:
+          - /url: mailto:suporte@usepipe.com.br
+        - paragraph [ref=e25]: Levamos você ao provedor de identidade da sua empresa, quando ela tiver um.
+        - button "Entrar" [ref=e26] [cursor=pointer]
+      - generic [ref=e27]:
+        - generic [ref=e28]: Primeiro acesso?
+        - link "Falar com o suporte" [ref=e29] [cursor=pointer]:
+          - /url: mailto:suporte@usepipe.com.br
+  - alert [ref=e30]

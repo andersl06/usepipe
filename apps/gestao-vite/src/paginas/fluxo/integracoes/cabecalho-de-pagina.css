@@ -1,0 +1,96 @@
+/* ================================ `<page-header>` (blipComponents.pageHeader)
+
+   Template do componente (portal.js):
+
+     <div class="container">
+       <div class="full-initial-section">
+         <div class="row flex page-header-content items-center mb0">
+           <div ng-if="backButton" class="pr3"> <a class="return-icon"> <i class="icon-back"></i> </a> </div>
+           <div class="flex items-center w-100"> <h1 class="mv0 mr2 lh-solid">{{pageTitle}}</h1> </div>
+           <div class="custom-header-content flex items-center justify-end ml5 tr w-100" ng-transclude="customContent"></div>
+         </div>
+       </div>
+       <div class="page-header-description"></div> <div class="page-header-additional-info"></div>
+     </div>
+
+   Medido na cópia (janela 1280): `.container` 1024 de largura a 15px do topo
+   do miolo (aqui é a `.fx-coluna` da casca); `.full-initial-section`
+   `padding: 15px 0; margin: 15px 0; border-bottom: 1px solid #cfcfcf`, 76 de
+   altura; `.page-header-content` `margin-top: 3px`, flex centrado, 42 de
+   altura mínima; `h1` 24px/400, `line-height: 24px`, `margin-right: 5px`
+   (`.mr2`), cor `--color-content-default`; `.custom-header-content`
+   `margin-left: 40px` (`.ml5`), `justify-content: flex-end`; o `.pr3` da volta
+   mede 26×26 com `padding-right: 10px` e o glifo `.icon-back` 16×22 na cor
+   `--color-content-ghost`. A tinta segue o mapa de `fluxo.css`:
+   #282828 → `--p-conteudo`, #8c8c8c → `--p-conteudo-fantasma`,
+   #cfcfcf → `--p-linha-media`. Fonte é a do Pipe. */
+.ph-cabecalho {
+  margin: 15px 0;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--p-linha-media);
+}
+
+.ph-conteudo {
+  display: flex;
+  align-items: center;
+  min-height: 42px;
+  margin-top: 3px;
+}
+
+.ph-voltar-caixa {
+  padding-right: 10px;
+}
+
+.ph-voltar {
+  display: inline-flex;
+  width: 16px;
+  height: 22px;
+  align-items: center;
+  justify-content: center;
+  color: var(--p-conteudo-fantasma);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.ph-voltar:hover {
+  color: var(--p-conteudo);
+}
+
+.ph-titulo-caixa {
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+.ph-titulo {
+  margin: 0 5px 0 0;
+  font-size: var(--g-t-titulo);
+  font-weight: var(--g-peso-normal);
+  line-height: 24px;
+  color: var(--p-conteudo);
+}
+
+.ph-direita {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  margin-left: 40px;
+  text-align: right;
+}
+
+/* `<bds-typo tag="span" bold="bold" variant="fs-16">utils.forms.activate</bds-typo>` */
+.ph-ativar {
+  font-size: var(--p-t-lg);
+  font-weight: var(--g-peso-negrito);
+  line-height: 24px;
+  color: var(--p-conteudo);
+  white-space: nowrap;
+}
+
+/* `.pa1` do blip: padding .15625rem (2,5px). */
+.ig-pa1 {
+  display: inline-flex;
+  align-items: center;
+  padding: 2.5px;
+}

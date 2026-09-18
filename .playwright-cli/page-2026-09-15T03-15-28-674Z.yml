@@ -1,0 +1,91 @@
+- generic [ref=f7e2]:
+  - banner [ref=f7e3]:
+    - group [ref=f7e4]:
+      - generic "Anderson Da Silva Linhares essencial" [ref=f7e5] [cursor=pointer]:
+        - generic [ref=f7e9]:
+          - generic [ref=f7e10]: Anderson Da Silva Linhares
+          - generic [ref=f7e11]: essencial
+    - navigation "Seções" [ref=f7e16]:
+      - link "Início" [ref=f7e17] [cursor=pointer]:
+        - /url: /portal
+      - generic "Em desenvolvimento" [ref=f7e18]:
+        - text: Pipe Store
+        - generic [ref=f7e19]: em breve
+    - link "Pipe" [ref=f7e20] [cursor=pointer]:
+      - /url: /portal
+      - img "Pipe" [ref=f7e21]
+    - generic [ref=f7e22]:
+      - group [ref=f7e23]:
+        - generic "Ajuda" [ref=f7e24] [cursor=pointer]
+      - group [ref=f7e27]:
+        - generic "Notificações" [ref=f7e28] [cursor=pointer]
+      - group [ref=f7e32]:
+        - generic "Conta de Anderson Da Silva Linhares" [ref=f7e33] [cursor=pointer]:
+          - generic [aria-hidden] [ref=f7e34]: AL
+  - generic [ref=f7e37]:
+    - generic [ref=f7e38]:
+      - generic [ref=f7e39]:
+        - generic [aria-hidden] [ref=f7e40]: AT
+        - generic "Rascunho" [ref=f7e41]
+      - group [ref=f7e42]:
+        - generic "Anderson - Teste" [ref=f7e43] [cursor=pointer]
+    - navigation "Seções do contato" [ref=f7e47]:
+      - link "Serviços" [ref=f7e48] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/servicos
+      - link "Canais" [ref=f7e49] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/canais
+      - link "Análise" [ref=f7e50] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/analise
+      - link "Contatos" [ref=f7e51] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/contatos
+      - link "Growth" [ref=f7e52] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/growth/mensagens-ativas
+      - group [ref=f7e53]:
+        - generic "Mais seções" [ref=f7e54] [cursor=pointer]
+    - generic [ref=f7e57]:
+      - link "Integrações" [ref=f7e58] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/integracoes
+      - link "Configurações" [ref=f7e61] [cursor=pointer]:
+        - /url: /fluxo/5b6843ae-b4f8-4bc0-bce2-e32318043297/configuracoes/api
+      - generic "Equipe" [ref=f7e64]: em breve
+      - generic "Testar" [ref=f7e68]: em breve
+  - main [ref=f7e72]:
+    - generic [ref=f7e73]:
+      - generic [ref=f7e74]:
+        - generic [ref=f7e75]:
+          - heading "Resumo dos envios de mensagens" [level=1] [ref=f7e77]
+          - paragraph [ref=f7e80]: Monitore o envio de mensagens ativas dos canais para sua audiência.
+        - generic [ref=f7e81]:
+          - button "Atualizar" [ref=f7e82] [cursor=pointer]
+          - button "Enviar mensagens ativas" [ref=f7e85] [cursor=pointer]
+      - navigation "Mensagens ativas" [ref=f7e86]:
+        - button "Disparo" [ref=f7e87] [cursor=pointer]
+      - generic [ref=f7e88]:
+        - generic [ref=f7e89]:
+          - heading "Filtros" [level=2] [ref=f7e90]
+          - button "Pesquisar campanha" [ref=f7e92] [cursor=pointer]
+        - generic [ref=f7e95]:
+          - generic [ref=f7e96]:
+            - text: Canal
+            - combobox "Canal" [ref=f7e97]:
+              - option "Whatsapp" [selected]
+              - option "GoogleRCS"
+              - option "SMS"
+              - option "Outros canais"
+          - generic [ref=f7e98]:
+            - text: Tipo da mensagem
+            - combobox "Tipo da mensagem" [ref=f7e99]:
+              - option "Todos" [selected]
+              - option "Agendadas"
+              - option "Não agendadas"
+          - generic [ref=f7e100]:
+            - text: Tipo de campanha
+            - combobox "Tipo de campanha" [ref=f7e101]:
+              - option "Todos" [selected]
+              - option "Individual"
+              - option "Em massa"
+      - generic [ref=f7e103]:
+        - heading "Crie campanhas e envie mensagens ativas para sua audiência" [level=2] [ref=f7e106]
+        - paragraph [ref=f7e107]: Você ainda não criou nenhuma campanha. Envie mensagens ativas e
+        - paragraph [ref=f7e108]: analise o desempenho de suas campanhas por aqui.
+        - button "Saiba como enviar mensagens ativas" [ref=f7e109] [cursor=pointer]

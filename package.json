@@ -19,7 +19,7 @@
     "banco:migrar": "pnpm --filter @pipe/db migrar",
     "banco:semear": "pnpm --filter @pipe/db semear",
     "seed:demo": "pnpm --filter @pipe/db semear:demo",
-    "desk": "pnpm --filter @pipe/desk dev",
+    "desk": "pnpm --filter @pipe/desk-vite dev",
     "ponte": "pnpm --filter @pipe/ponte dev"
   },
   "devDependencies": {

@@ -1,0 +1,155 @@
+/* ================================ criar fluxo (/criar/fluxo)
+
+   Só o que é DESTA tela: o passo do marketplace, o módulo 92466 do `portal.js`
+   (`25.204.0-v0.43.1`) — `#create-application-marketplace-step`.
+
+   O casco (o "x", a marca, o rodapé) e o passo do nome estão em `../criar.css`,
+   porque na origem eles são o mesmo template para o fluxo e para o roteador. A
+   página importa as duas folhas, nesta ordem. O prefixo `cf-` é desta tela;
+   `cr-` é o compartilhado. */
+
+/* `.marketplace-step-options { gap: 2.5rem; margin-top: 3.5rem }` mais o
+   `flex justify-center flex-wrap` do template. */
+.cf-opcoes {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 2.5rem;
+  margin-top: 3.5rem;
+}
+
+/* `.option-card` — um `<bds-paper>`:
+     `background-color: hsla(0,0%,100%,.07)`  →  7% de tinta sobre o fundo
+     `box-shadow: 0 .25rem 1rem rgba(10,15,26,.3)`
+     `gap: .75rem · padding: 3.75rem 1.5rem · width: 20rem`
+   mais o `flex flex-column items-center pointer relative` do template.
+
+   O `border-radius` vem do `bds-paper`, que é o cartão padrão deles — o nosso
+   `--p-r-md` é o mesmo papel. */
+.cf-cartao {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 20rem;
+  max-width: 100%;
+  padding: 3.75rem 1.5rem;
+  border-radius: var(--p-r-md);
+  background: color-mix(in srgb, var(--cr-tinta) 7%, transparent);
+  box-shadow: 0 0.25rem 1rem color-mix(in srgb, var(--cr-fundo) 60%, transparent);
+  color: var(--cr-tinta);
+  text-align: center;
+  /* O cartão é um <a>: sem isto o navegador sublinha título e descrição
+     inteiros. O bds-paper deles não é link, então não herda sublinhado. */
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.cf-cartao:hover {
+  background: color-mix(in srgb, var(--cr-tinta) 12%, transparent);
+}
+
+.cf-cartao:focus-visible {
+  outline: 2px solid var(--cr-foco);
+  outline-offset: 2px;
+}
+
+/* `bds-typo variant="fs-20" bold="bold" margin="false" line-height="plus"` */
+.cf-cartao h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  margin: 0;
+  font-size: var(--cr-t-tagline);
+  font-weight: var(--p-peso-forte);
+  line-height: var(--p-altura-linha);
+}
+
+/* `bds-typo variant="fs-14"` */
+.cf-cartao p {
+  margin: 0;
+  font-size: var(--p-t-md);
+  line-height: var(--p-altura-linha);
+}
+
+/* `bds-chip-tag color="success"`, e a regra que o pendura meio a meio sobre a
+   borda de cima do cartão:
+     `left: 50%; position: absolute; top: -.75rem; transform: translateX(-50%)`.
+
+   A tinta de sucesso do tema escuro deles; a nossa é o par "sobre escuro" que o
+   `@pipe/ui` já tem, pelo mesmo motivo do `--cr-erro` em `../criar.css`. */
+.cf-selo {
+  position: absolute;
+  left: 50%;
+  top: -0.75rem;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  padding: 2px var(--p-e-3);
+  border-radius: var(--p-r-pilula);
+  background: color-mix(in srgb, var(--p-sucesso-sobre-escuro) 22%, var(--cr-fundo));
+  color: var(--p-sucesso-sobre-escuro);
+  font-size: var(--p-t-sm);
+  font-weight: var(--p-peso-forte);
+}
+
+/* ============================ passo 2: apresentação do template
+   `#create-application-test-step` — `auth.application.create.test`. Não temos
+   as medidas em pixel desta tela (só o marketplace foi capturado renderizado);
+   a disposição abaixo é a mesma coluna centrada dos outros passos, com a
+   descrição e a lista de funcionalidades por cima dos botões de `.cr-acoes`. */
+.cf-apresentacao {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--p-e-4);
+  max-width: 32rem;
+  margin-top: 2.5rem;
+  text-align: center;
+}
+
+.cf-apresentacao-subtitulo {
+  margin: 0;
+  font-size: var(--p-t-lg);
+  font-weight: var(--p-peso-forte);
+}
+
+.cf-apresentacao > p {
+  margin: 0;
+  color: var(--cr-fraca);
+}
+
+/* A lista das quatro funcionalidades pré-configuradas. Sem correspondente
+   medido na origem: o `bds-icon` de cada linha é substituído pelo `IconePortal`
+   mais próximo (ver `ICONES_DAS_FUNCIONALIDADES` em `page.tsx`). */
+.cf-lista {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-align: left;
+}
+
+.cf-lista li {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-3);
+  color: var(--cr-tinta);
+}
+
+.cf-lista svg {
+  flex: none;
+  color: var(--cr-marca);
+}
+
+/* --------------------------------------------------------- estreito
+   O `flex-wrap` do template já empilha os dois cartões sozinho; o que falta é
+   a folga de cima, que a 3.5rem cola no título quando a fileira vira coluna. */
+@media (max-width: 46rem) {
+  .cf-opcoes {
+    margin-top: 2.5rem;
+    gap: 2rem;
+  }
+}

@@ -5,9 +5,10 @@
 O microfrontend `docs/capturas/cap7/mfe/active-campaign-main.js` contém as
 telas de resumo/listagem, criação de disparo e Envio direto. A casca e os itens
 de navegação estão em `docs/capturas/cap6s/supernova.blip.ai/portal.js`.
-O mesmo `portal.js` registra `/clicktracker` e monta `<click-tracker>`, mas o
-microfrontend carregado por essa tag não está salvo. Assim, a entrada pode ser
-reproduzida; o conteúdo interno do Click Tracker depende de captura adicional.
+O mesmo `portal.js` registra `/clicktracker` e monta `<click-tracker>`. O arquivo
+`C:\Users\anderson.linhares\Downloads\supernova.blip.ai (16).zip` contém
+`portal-fragment-click-tracker/latest/main.js` e sua página `clicktracker.html`;
+portanto o microfrontend do Click Tracker está capturado e pode ser reproduzido.
 
 Flags observadas em `docs/capturas/cap7/flags-roteador.txt`: `active-message-screen`,
 `is-active-message-menu-enabled`, `new-campaingn-listing-active-message`,
@@ -27,8 +28,19 @@ aviso de indisponibilidade, sem enviar mensagens.
 
 O bundle inclui criação de disparo em etapas, upload de audiência e prévia de
 modelo. O código local reproduz a navegação visual, mas não persiste campanha,
-lista CSV em memória e não transmite mensagens. O Click Tracker exige salvar o
-microfrontend externo ou capturar sua tela para reproduzir campos e métricas.
+lista CSV em memória e não transmite mensagens.
+
+O Click Tracker mostra a performance agregada de anúncios Click to WhatsApp,
+com variações para Meta, Google e TikTok e configurações de eventos de
+conversão. A conexão de canal/conta externa e gravação de eventos no Pipe não
+existem; a captura (16) fornece UI e estados, não autorização para enviar eventos
+ou conectar contas.
+
+O ZIP `supernova.blip.ai (16).zip` inclui a rota `growth/clicktracker.html` e o
+microfrontend `portal-fragment-click-tracker/latest/main.js`; os arquivos de
+settings não são usados pois podem conter credenciais. A UI Pipe mostra estado
+sem conexão e métricas vazias, sem inventar resultados; conexão e configuração
+de eventos permanecem indisponíveis.
 
 ## Fontes visuais
 

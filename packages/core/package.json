@@ -38,6 +38,10 @@
     "./janela": {
       "types": "./dist/janela/index.d.ts",
       "default": "./dist/janela/index.js"
+    },
+    "./analise": {
+      "types": "./dist/analise/index.d.ts",
+      "default": "./dist/analise/index.js"
     }
   },
   "scripts": {

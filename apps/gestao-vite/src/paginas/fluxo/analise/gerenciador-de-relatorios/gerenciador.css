@@ -1,0 +1,517 @@
+.gr-tela {
+  min-height: calc(100vh - 190px);
+  padding: 1px 0 32px;
+  overflow: auto;
+  background: var(--ground);
+  color: var(--ink);
+}
+
+.gr-cabecalho,
+.gr-formulario,
+.gr-relatorios,
+.gr-termo-acao {
+  width: calc(95% - 16px);
+  margin-left: 60px;
+}
+
+.gr-cabecalho {
+  margin-top: 16px;
+}
+
+.gr-cabecalho h1 {
+  margin: 0;
+  font-size: 40px;
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.gr-cabecalho p {
+  margin: 10px 0 22px;
+  font-size: 20px;
+  line-height: 1.2;
+}
+
+.gr-papel > p {
+  margin: 6px 0 0;
+  font-size: 16px;
+  line-height: 1.5;
+}
+
+.gr-formulario {
+  margin-top: 16px;
+}
+
+.gr-cartoes {
+  display: flex;
+  gap: 8px;
+}
+
+.gr-papel {
+  box-sizing: border-box;
+  padding: 35px;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 2px 8px color-mix(in srgb, var(--p-conteudo) 10%, transparent);
+}
+
+.gr-parametros,
+.gr-tipos {
+  width: 50%;
+  min-height: 390px;
+}
+
+.gr-papel h2,
+.gr-papel h3 {
+  margin: 0;
+  font-size: 24px;
+  line-height: 1.25;
+  font-weight: 700;
+}
+
+.gr-papel h3 {
+  font-size: 20px;
+}
+
+.gr-aviso {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+  padding: 12px 16px;
+  border: 1px solid #f4c54d;
+  border-radius: 8px;
+  background: #fff7df;
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.gr-aviso-icone {
+  display: grid;
+  flex: 0 0 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 50%;
+  background: #f4b400;
+  color: white;
+  font-weight: 800;
+}
+
+.gr-aviso button {
+  margin-left: auto;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  font: inherit;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.gr-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: 18px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.gr-campo-interno {
+  margin-top: 18px;
+}
+
+.gr-campo-miolo {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.gr-select,
+.gr-data {
+  display: flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 40px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+  color: var(--ink-3);
+}
+
+.gr-select:focus-within,
+.gr-data:focus-within {
+  border-color: var(--p-marca);
+  box-shadow: 0 0 0 1px var(--p-marca);
+}
+
+.gr-select select,
+.gr-data input {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  border: 0;
+  outline: 0;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-weight: 400;
+}
+
+.gr-campo-miolo select,
+.gr-campo-miolo input {
+  width: 100%;
+  min-height: 20px;
+  padding: 0;
+  color: var(--ink-3);
+  font-size: 14px;
+}
+
+.gr-select select {
+  appearance: none;
+}
+
+.gr-select > svg,
+.gr-data > svg {
+  margin: 0 12px;
+  color: var(--p-marca);
+}
+
+.gr-divisor {
+  height: 1px;
+  margin: 24px 0;
+  background: var(--p-linha-media);
+}
+
+.gr-datas {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.gr-data input {
+  padding-left: 12px;
+}
+
+.gr-data input::-webkit-calendar-picker-indicator {
+  display: none;
+}
+
+.gr-intervalos {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+.gr-intervalos button {
+  height: 32px;
+  padding: 0 14px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.gr-intervalos button:hover {
+  border-color: var(--p-marca);
+  color: var(--p-marca);
+}
+
+.gr-tipos a {
+  color: var(--p-marca);
+}
+
+.gr-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 13px;
+  margin-top: 16px;
+}
+
+.gr-contato {
+  margin-top: 16px;
+}
+
+.gr-contato-rotulo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.gr-contato-rotulo button {
+  border: 0;
+  background: transparent;
+  color: var(--p-marca);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.gr-contato > input {
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+  color: var(--ink);
+  font: inherit;
+  font-weight: 400;
+}
+
+.gr-opcao {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 22px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.gr-opcao input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--p-marca);
+}
+
+.gr-gerar,
+.gr-termo-acao {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.gr-erro {
+  margin: 8px 0 0;
+  color: #c53030;
+  font-size: 12px;
+}
+
+.gr-relatorios {
+  margin-top: 16px;
+}
+
+.gr-tabela-caixa {
+  max-height: 320px;
+  margin-top: 24px;
+  padding: 0 16px 8px;
+  overflow: auto;
+  border-radius: 8px;
+}
+
+.gr-tabela-caixa table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.gr-tabela-caixa th,
+.gr-tabela-caixa td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--p-linha-media);
+  font-size: 14px;
+}
+
+.gr-tabela-caixa th {
+  position: sticky;
+  top: 0;
+  background: var(--surface);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.gr-vazio {
+  padding: 32px !important;
+  text-align: center;
+}
+
+.gr-pendente {
+  color: var(--ink-3);
+}
+
+.gr-termo-acao {
+  padding-bottom: 24px;
+}
+
+.gr-feedback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  width: 100%;
+  padding: 20px;
+  background: #141414;
+  color: white;
+}
+
+.gr-feedback-chamada {
+  display: grid;
+  width: 61px;
+  height: 61px;
+  place-items: center;
+  color: var(--p-marca);
+  font-size: 42px;
+}
+
+.gr-feedback h2,
+.gr-feedback p {
+  margin: 0;
+}
+
+.gr-feedback h2 {
+  font-size: 24px;
+}
+
+.gr-feedback p {
+  font-size: 16px;
+}
+
+.gr-feedback form {
+  position: relative;
+  display: flex;
+  align-items: flex-end;
+  gap: 16px;
+  width: 320px;
+  margin-left: 64px;
+}
+
+.gr-feedback textarea {
+  box-sizing: border-box;
+  width: 240px;
+  resize: vertical;
+  border: 1px solid var(--p-linha-media);
+  border-radius: 8px;
+  font: inherit;
+}
+
+.gr-feedback form span {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  font-size: 12px;
+}
+
+.gr-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 80000;
+  display: grid;
+  place-items: center;
+}
+
+.gr-modal-fundo {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: color-mix(in srgb, var(--p-conteudo) 70%, transparent);
+}
+
+.gr-modal-caixa {
+  position: relative;
+  display: grid;
+  grid-template-columns: 150px 1fr;
+  gap: 24px;
+  box-sizing: border-box;
+  width: 592px;
+  min-height: 368px;
+  padding: 32px;
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 12px 24px color-mix(in srgb, var(--p-conteudo) 20%, transparent);
+}
+
+.gr-modal-fechar {
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  border: 0;
+  background: transparent;
+  color: var(--ink-2);
+  font-size: 26px;
+  cursor: pointer;
+}
+
+.gr-modal-ilustracao {
+  align-self: center;
+  display: grid;
+  width: 125px;
+  height: 125px;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--p-marca-suave);
+  color: var(--p-marca);
+  font-size: 58px;
+}
+
+.gr-modal-texto {
+  align-self: center;
+}
+
+.gr-modal-texto h2 {
+  margin: 0 0 12px;
+  font-size: 20px;
+}
+
+.gr-modal-texto p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.gr-modal-botao {
+  grid-column: 2;
+  justify-self: end;
+  align-self: end;
+}
+
+.gr-modal-ajuda {
+  display: flex;
+  flex-direction: column;
+  width: 680px;
+  min-height: 440px;
+}
+
+.gr-modal-ajuda .gr-modal-texto {
+  padding: 12px 12px 0;
+}
+
+.gr-modal-ajuda li {
+  margin-top: 12px;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+@media (max-width: 900px) {
+  .gr-cabecalho,
+  .gr-formulario,
+  .gr-relatorios,
+  .gr-termo-acao {
+    width: calc(100% - 32px);
+    margin-left: 16px;
+  }
+
+  .gr-cartoes {
+    flex-direction: column;
+  }
+
+  .gr-parametros,
+  .gr-tipos {
+    width: 100%;
+  }
+
+  .gr-feedback {
+    flex-wrap: wrap;
+  }
+
+  .gr-feedback form {
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,772 @@
+/* ============================== Configurações do contato
+
+   Cópia de `auth.application.detail.configurations.*` do portal deles, medida
+   no DOM renderizado da cópia (janela 1280×780, `docs/capturas/regua.md`) e
+   conferida em `portal.css` / blip-ds (`bds-nav-tree`, `bds-paper`,
+   `bds-input`, `bds-button`, `bds-button-icon`). Cada bloco traz o seletor
+   de origem e o número medido.
+
+   ═══ A TINTA É A NOSSA ═══ (as correspondências que `fluxo.css` já fixou)
+     #ededed `--color-surface-2` (chão do miolo)         → `--ground`
+     #f6f6f6 `--color-surface-1` (bds-paper)             → `--p-superficie-0`
+     #e0e0e0 `--color-surface-2` (input-clipboard)       → `--p-superficie-2`
+     #cfcfcf `--color-surface-3` (divisória, switch off) → `--p-superficie-3`
+     #282828 `--color-content-default`                   → `--p-conteudo`
+     #738192 (`<small>` do título)                       → `--p-conteudo-fantasma`
+     rgba(0,0,0,.2) `--color-border-1` (bds-input)       → `--p-linha-media`
+     #bebebe (1px dotted entre itens da lateral)         → `--p-linha-forte`
+     #3f7de8 / `--color-primary` (botão, cópia)          → `--p-marca`
+     #fff → #f2fcff (degradê da lateral)                 → superfície 0 → info-fundo
+     0 2px 8px -2px rgba(0,0,0,.16) (bds-paper)          → `--g-sombra-cartao` */
+
+/* ==================== a casca: `#main-section.pa0` é `display:flex` com a
+   `<aside class="detail-aside fl">` (309px) e o `#main-content-area` lado a
+   lado, na largura toda. A `fx-coluna` do casco compartilhado centra em 80%
+   (90% entre 550 e 749, 100% com 20px de recuo abaixo): aqui se desfaz esse
+   recuo com o mesmo degrau, sem tocar o casco. */
+.cf-casca {
+  display: flex;
+  align-items: stretch;
+  width: calc(100% + 40px);
+  min-height: calc(100dvh - var(--g-topo-h));
+  margin-left: -20px;
+  color: var(--p-conteudo);
+}
+@media (min-width: 550px) {
+  .cf-casca {
+    width: 111.1112%;
+    margin-left: -5.5556%;
+  }
+}
+@media (min-width: 750px) {
+  .cf-casca {
+    width: 125%;
+    margin-left: -12.5%;
+  }
+}
+
+/* `.detail-aside`: `background-image: linear-gradient(180deg,#fff,#f2fcff)`,
+   `width: auto` — na prática 309px = 12 + 285 + 12 (`<bds-grid padding="2">`). */
+.cf-lateral {
+  flex: none;
+  box-sizing: border-box;
+  width: 309px;
+  padding: 12px;
+  background-image: linear-gradient(
+    180deg,
+    var(--p-superficie-0),
+    color-mix(in srgb, var(--p-superficie-0) 70%, var(--p-info-fundo))
+  );
+}
+
+/* `bds-nav-tree` › `.nav_main`: `display:flex; gap:8px; align-items:center;
+   padding:8px; border-radius:8px; border:1px solid transparent` — 277×86.
+   `:hover` pinta 8% de conteúdo e a borda `--color-pressed` (16%). */
+.cf-arvore-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: var(--p-conteudo);
+  text-decoration: none;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.cf-arvore-linha:hover {
+  border-color: var(--g-tinta-pressao);
+  background: var(--g-tinta-hover);
+}
+.cf-arvore-linha:active {
+  background: var(--g-tinta-pressao);
+}
+.cf-arvore-linha:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+.cf-arvore-icone {
+  flex: none;
+  color: var(--p-conteudo);
+}
+/* `.nav_main_text`: coluna com `gap: 2px`; título `fs-14` semi-bold (22px de
+   linha) e subtítulo `fs-12` (22px de linha, 2 linhas = 44px). */
+.cf-arvore-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.cf-arvore-titulo {
+  font-size: 14px;
+  font-weight: var(--g-peso-forte);
+  line-height: 22px;
+}
+.cf-arvore-descricao {
+  font-size: 12px;
+  line-height: 22px;
+}
+/* `.accordion` (fechado): `margin: 9px 0; padding: 6px 0; border-bottom: 1px
+   dotted #bebebe` — 13px de altura; entre um item e outro sobram 4px do host. */
+.cf-arvore-divisa {
+  height: 0;
+  margin: 9px 0;
+  padding: 6px 0;
+  border-bottom: 1px dotted var(--p-linha-forte);
+}
+.cf-arvore-item + .cf-arvore-item {
+  padding-top: 4px; /* margem colapsaria com os 9px da divisa */
+}
+
+/* `#main-content-area.main-detail-content`: `flex-direction: column`,
+   `background-color: var(--color-surface-2)`, `box-shadow: -2px 6px 6px 0
+   rgba(226,231,236,.96)`, `overflow: hidden`. `.blip-ui-content` é a coluna. */
+.cf-miolo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ground);
+  box-shadow: -2px 6px 6px 0 color-mix(in srgb, var(--p-linha) 60%, transparent);
+}
+.cf-conteudo {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+
+/* `.container` (Skeleton) dentro do miolo: 80% centrado (776 de 971). */
+.cf-cabecalho,
+.cf-container {
+  box-sizing: border-box;
+  width: 100%;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+@media (min-width: 550px) {
+  .cf-cabecalho,
+  .cf-container {
+    width: 90%;
+    padding: 0;
+  }
+}
+@media (min-width: 750px) {
+  .cf-cabecalho,
+  .cf-container {
+    width: 80%;
+  }
+}
+
+/* ==================== `<page-header>`
+   `.full-initial-section`: `margin: .9375rem 0; padding: .9375rem 0;
+   border-bottom: 1px solid var(--color-surface-3)`.
+   `.page-header-content`: `height: 2.625rem` (42px), `margin-top: 3px`, flex. */
+.cf-cabecalho-secao {
+  margin: 15px 0;
+  padding: 15px 0;
+  border-bottom: 1px solid var(--p-superficie-3);
+}
+.cf-cabecalho-linha {
+  display: flex;
+  align-items: center;
+  height: 42px;
+  margin-top: 3px;
+}
+.cf-cabecalho-titulo {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-width: 0;
+}
+/* `.full-initial-section h1`: `font-size: 1.5rem; font-weight: 400`, `.mv0.mr2.lh-solid`. */
+.cf-cabecalho-titulo h1 {
+  margin: 0 5px 0 0;
+  font-size: 24px;
+  font-weight: var(--g-peso-normal);
+  line-height: 24px;
+  color: var(--p-conteudo);
+}
+/* `.custom-header-content.flex.items-center.justify-end.ml5.tr.w-100` */
+.cf-cabecalho-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  width: 100%;
+  margin-left: 40px;
+  text-align: right;
+}
+/* `.page-header-additional-info > additional-info > p`: 16px/1.6, `margin-bottom: 24px`. */
+.cf-cabecalho-info p {
+  margin: 0 0 24px;
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--p-conteudo);
+}
+
+/* ==================== `<bds-paper elevation="static">` */
+.cf-papel {
+  box-sizing: border-box;
+  border-radius: 16px;
+  background: var(--p-superficie-0);
+  box-shadow: var(--g-sombra-cartao);
+}
+/* `.ph5.pv4.mb3`: `padding: 20px 40px; margin-bottom: 10px`. */
+.cf-papel--conexao {
+  margin-bottom: 10px;
+  padding: 20px 40px;
+}
+/* `bds-paper h1`: 24px/24px, peso 400, `margin: 0 0 30px`; `<small>` 12px apagado. */
+.cf-papel h1 {
+  margin: 0 0 30px;
+  font-size: 24px;
+  font-weight: var(--g-peso-normal);
+  line-height: 24px;
+  color: var(--p-conteudo);
+}
+.cf-papel h1 small {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--p-conteudo-fantasma);
+}
+/* `p.bp-fs-6`: 14px/1.6, `margin-bottom: 24px`. */
+.cf-papel p {
+  margin: 0 0 24px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--p-conteudo);
+}
+/* `<div class="flex">` com o texto (`.w-100`) e o `<switch>` à direita. */
+.cf-conexao-topo {
+  display: flex;
+  align-items: flex-start;
+}
+.cf-conexao-texto {
+  width: 100%;
+  min-width: 0;
+}
+.cf-titulo-cartao {
+  margin: 0 0 30px;
+}
+
+/* `<switch>`: `label` 43×26, raio 36, fundo #cfcfcf, bolinha 22×22 em (2,2);
+   `margin-bottom: -3px`. Ligado: fundo da marca, bolinha à direita. */
+.cf-interruptor {
+  flex: none;
+  position: relative;
+  box-sizing: border-box;
+  width: 43px;
+  height: 26px;
+  margin: 0 0 -3px 5px;
+  padding: 0;
+  border: 0;
+  border-radius: 36px;
+  background: var(--p-superficie-3);
+  cursor: pointer;
+  transition: background var(--p-dur-rapida, 120ms);
+}
+.cf-interruptor-bolinha {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: var(--p-superficie-0);
+  transition: transform var(--p-dur-rapida, 120ms);
+}
+.cf-interruptor--ligado {
+  background: var(--p-marca);
+}
+.cf-interruptor--ligado .cf-interruptor-bolinha {
+  transform: translateX(17px);
+}
+.cf-interruptor:disabled {
+  cursor: default;
+}
+.cf-interruptor:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+/* `<bds-switch size="short" class="pa1">`: 37×31 com 2.5px de recuo. */
+.cf-interruptor--curto {
+  width: 32px;
+  height: 18px;
+  margin: 0 2.5px;
+}
+.cf-interruptor--curto .cf-interruptor-bolinha {
+  width: 14px;
+  height: 14px;
+}
+.cf-interruptor--curto.cf-interruptor--ligado .cf-interruptor-bolinha {
+  transform: translateX(14px);
+}
+
+/* `<div class="flex"> <div class="mr6 w-50">…`: duas colunas de 50% com
+   `margin-right: 5rem` (80px); `.mt4` empilha o segundo campo a 20px. */
+.cf-duas-colunas {
+  display: flex;
+}
+.cf-coluna-metade {
+  width: 50%;
+  min-width: 0;
+  margin-right: 80px;
+}
+.cf-mt4 {
+  margin-top: 20px;
+}
+/* `.mb3.bp-fs-7.fw7`: 12px/700, `margin-bottom: 10px`. */
+.cf-rotulo-campo {
+  margin-bottom: 10px;
+  font-size: 12px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 16px;
+}
+
+/* `.input-clipboard-container`: pílula (`border-radius: 100px`) de superfície 2,
+   `padding: 5px 20px`, 14px, cor da marca; `input` transparente, 700, 85% de
+   largura, `margin-right: 10px`; `.icon-copy` 16px. Mede 32px de altura. */
+.cf-copiavel {
+  display: flex;
+  justify-content: space-between;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 5px 20px;
+  border-radius: 100px;
+  background: var(--p-superficie-2);
+  color: var(--p-marca);
+  font-size: 14px;
+}
+.cf-copiavel input {
+  width: 85%;
+  height: 22px;
+  margin-right: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-marca);
+  font: inherit;
+  font-weight: var(--g-peso-negrito);
+  text-overflow: ellipsis;
+}
+.cf-copiavel input:focus {
+  outline: none;
+}
+.cf-copiavel-botao {
+  width: 16px;
+  height: 22px;
+  padding: 0;
+  border: 0;
+  border-radius: 3px;
+  background: transparent;
+  color: var(--p-marca);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ==================== `#httpForm`: `margin-bottom: 25px`; `.flex.mb3` com
+   `.w-40` | `.w-10` | `.w-40`. */
+.cf-form-http {
+  margin: 0 0 25px;
+}
+.cf-linha-campos {
+  display: flex;
+  margin-bottom: 10px;
+}
+.cf-w-40 {
+  width: 40%;
+  min-width: 0;
+}
+.cf-w-10 {
+  width: 10%;
+}
+
+/* `<bds-input>` › `.input.input--label`: `display:flex; align-items:center;
+   gap:8px; padding: 7px 4px 8px 12px; border: 1px solid rgba(0,0,0,.2);
+   border-radius: 8px`. Rótulo `fs-12` 700 (18px) + 2px + campo de 36px. */
+.cf-campo {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-sizing: border-box;
+  padding: 7px 4px 8px 12px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  cursor: text;
+}
+.cf-campo:focus-within {
+  border-color: var(--p-marca);
+}
+.cf-campo--desabilitado {
+  color: var(--p-conteudo-fantasma);
+  cursor: default;
+}
+/* `label.input__container__label`: `fs-12` 700, 18px, `margin-bottom: 2px`. */
+.cf-campo-rotulo {
+  display: block;
+  margin-bottom: 2px;
+  font-size: 12px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 18px;
+}
+/* `.input__container__wrapper`: o campo de 36px e, no `bds-input-password`, o olho. */
+.cf-campo-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  min-width: 0;
+}
+.cf-campo input {
+  width: 100%;
+  height: 36px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+  line-height: 22px;
+}
+.cf-campo input:focus {
+  outline: none;
+}
+.cf-campo input::placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+.cf-campo-olho {
+  flex: none;
+  display: inline-flex;
+  color: var(--p-conteudo);
+}
+
+/* `bds-paper.w-100.ph5.pv3.mt4` do OAuth: `padding: 10px 40px; margin-top: 20px`. */
+.cf-papel--oauth {
+  width: 100%;
+  margin-top: 20px;
+  padding: 10px 40px;
+}
+.cf-oauth {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+/* `.flex.flex-row.items-center.justify-between` — 56px: nome (16px/24, `mb3`) e legenda. */
+.cf-oauth-topo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.cf-oauth-titulo {
+  display: flex;
+  flex-direction: column;
+}
+.cf-oauth-nome {
+  margin-bottom: 10px;
+  font-size: 16px;
+  line-height: 24px;
+}
+.cf-oauth-legenda {
+  font-size: 12px;
+  line-height: 22px;
+}
+/* `.w-100.mv3`: `margin: 10px 0`. */
+.cf-oauth-corpo {
+  margin: 10px 0;
+}
+.cf-oauth-rodape {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* `.row.mt4` + `.three.columns.offset-by-nine` + `.bp-btn.fr`: `margin: 20px 0
+   9px`, botão encostado à direita. */
+.cf-form-http-rodape {
+  display: flex;
+  justify-content: flex-end;
+  margin: 20px 0 9px;
+}
+
+/* ==================== `<bds-button>` (40px, raio 8, `padding: 0 16px`,
+   `gap: 4px`, 14px/700 com `line-height: 14px`) e `.bp-btn--bot.bp-btn--small`
+   (42px, raio 3, `padding: 0 20px`, 14px/600). */
+.cf-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 0 16px;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: 14px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 14px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.cf-botao--primary {
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+}
+.cf-botao--primary:hover {
+  background: var(--p-marca-forte);
+}
+.cf-botao--secondary:hover,
+.cf-botao--tertiary:hover {
+  background: var(--g-tinta-hover);
+}
+.cf-botao--tertiary {
+  border-color: var(--p-conteudo);
+}
+.cf-botao--bot {
+  height: 42px;
+  padding: 0 20px;
+  border-radius: 3px;
+  background: var(--p-marca);
+  color: var(--p-marca-conteudo);
+  font-weight: var(--g-peso-forte);
+  line-height: 38px;
+}
+.cf-botao:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.cf-botao:focus-visible,
+.cf-botao-icone:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+/* `<bds-button-icon variant="secondary" size="short">`: 40×40, raio 8, `padding: 8px`. */
+.cf-botao-icone {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 40px;
+  height: 40px;
+  padding: 8px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+.cf-botao-icone:hover {
+  background: var(--g-tinta-hover);
+}
+.cf-botao-icone:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+/* ==================== Chaves de acesso
+   `custom-title > .flex`: h1 `fs-24` + `bds-button-icon` a 4px. */
+.cf-chaves-titulo {
+  display: flex;
+  align-items: center;
+}
+.cf-chaves-titulo h1 {
+  margin: 0;
+}
+.cf-chaves-titulo .cf-botao-icone {
+  margin-left: 4px;
+}
+/* `.token-container`: `display:flex; flex-direction:column; gap:12px`. */
+.cf-chaves {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+/* `bds-banner variant="warning"` do limite. */
+.cf-faixa-alerta {
+  margin: 0;
+  padding: 8px 16px;
+  border-radius: 8px;
+  background: var(--p-alerta-fundo);
+  color: var(--p-alerta-conteudo);
+  font-size: 14px;
+  line-height: 24px;
+}
+/* `.token-help`: `display:flex; padding:24px`; `.token-help-data` coluna com
+   `gap:12px; justify-content:space-between`; textos `fs-14` (21px). */
+.cf-chaves-ajuda {
+  display: flex;
+  padding: 24px;
+}
+.cf-chaves-ajuda-dados {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  justify-content: space-between;
+}
+.cf-chaves-ajuda-texto {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.cf-chaves-ajuda-texto p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 21px;
+}
+.cf-chaves-ajuda-dados .cf-botao {
+  align-self: flex-start;
+}
+/* `<img src="/assets/img/ballons.svg">`: 111×139 à direita. */
+.cf-baloes {
+  flex: none;
+  width: 111px;
+  height: 139px;
+  color: var(--p-marca);
+}
+/* `.token-create`: `display:flex; justify-content:space-between; padding:24px`;
+   `.token-create-data` 50%; `.token-create-action` `gap: 12px`. */
+.cf-chaves-criar {
+  display: flex;
+  justify-content: space-between;
+  padding: 24px;
+}
+.cf-chaves-criar-dados {
+  width: 50%;
+}
+.cf-chaves-criar-acoes {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+/* `.token-card`: `align-items:center; display:flex; gap:32px; padding:24px`;
+   `.token-card-data` `flex:1; flex-wrap:wrap; gap:24px`; coluna `flex-basis:
+   calc(50% - 24px)`; `.token-card-chip` 75px. */
+.cf-chave {
+  display: flex;
+  align-items: center;
+  gap: 32px;
+  padding: 24px;
+}
+.cf-chave-dados {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin: 0;
+}
+.cf-chave-coluna {
+  display: flex;
+  flex-basis: calc(50% - 24px);
+  flex-direction: column;
+  min-width: 0;
+}
+.cf-chave-coluna dt {
+  font-size: 14px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 22px;
+}
+.cf-chave-coluna dd {
+  margin: 0;
+  font-size: 14px;
+  line-height: 21px;
+  overflow-wrap: anywhere;
+}
+.cf-chave-selo {
+  width: 75px;
+}
+.cf-chave-acoes {
+  display: flex;
+  align-items: center;
+}
+/* `<bds-chip-tag color="info">` */
+.cf-selo {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: var(--p-r-pilula);
+  font-size: 12px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 18px;
+}
+.cf-selo--info {
+  background: var(--p-info-fundo);
+  color: var(--p-info-conteudo);
+}
+
+/* Aviso controlado (`BlipToastService` warning/danger na origem). */
+.cf-aviso {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--p-erro-conteudo);
+}
+
+/* O modal de confirmação (`ModalService.showModal`). */
+.cf-sobreposicao {
+  position: fixed;
+  z-index: 50;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 40%);
+}
+.cf-modal {
+  box-sizing: border-box;
+  width: min(100%, 500px);
+  padding: 24px;
+  border-radius: 16px;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+}
+.cf-modal h2 {
+  margin: 0 0 16px;
+  font-size: 20px;
+  font-weight: var(--g-peso-negrito);
+}
+.cf-modal p {
+  margin: 0 0 12px;
+  font-size: 14px;
+  line-height: 22px;
+}
+.cf-modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+@media (max-width: 740px) {
+  .cf-casca {
+    flex-direction: column;
+  }
+  .cf-lateral {
+    width: 100%;
+  }
+  .cf-duas-colunas,
+  .cf-linha-campos,
+  .cf-chaves-criar,
+  .cf-chave {
+    flex-direction: column;
+  }
+  .cf-coluna-metade,
+  .cf-w-40,
+  .cf-chaves-criar-dados {
+    width: 100%;
+    margin-right: 0;
+  }
+  .cf-coluna-metade + .cf-coluna-metade,
+  .cf-w-40 + .cf-w-10 + .cf-w-40,
+  .cf-chaves-criar-acoes {
+    margin-top: 10px;
+  }
+  .cf-papel--conexao,
+  .cf-papel--oauth {
+    padding: 20px;
+  }
+}

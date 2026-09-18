@@ -16,3 +16,5 @@ export * from './sla/index.js';
 export * from './conversa/index.js';
 export * from './janela/index.js';
 export * from './fluxo/index.js';
+/* `./analise` NÃO entra no índice: o `Intervalo` dela (dias de calendário) não
+   é o `Intervalo` da SLA (instantes). Quem precisa importa `@pipe/core/analise`. */

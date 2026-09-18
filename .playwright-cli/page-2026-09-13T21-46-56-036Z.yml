@@ -1,0 +1,71 @@
+- generic [ref=e3]:
+  - banner [ref=e4]:
+    - paragraph [ref=e6]:
+      - generic: Gerenciador de relatórios
+    - paragraph [ref=e8]:
+      - generic: Gere relatórios para diferentes dados do seu contato inteligente ou acesse os relatórios que você já criou.
+  - generic [ref=e9]:
+    - generic [ref=e11]:
+      - generic:
+        - generic:
+          - generic: Não é possivel gerar relatórios de atendimento para um router ou chatbot sem atendimento ativo.
+          - generic: Escolha um chatbot para extrair os dados
+          - generic: Bot
+          - generic: Selecione o período do relatório
+          - generic: Configure um intervalo de até 90 dias para qualquer período nos últimos 5 anos.
+          - generic: Data Inicial
+          - generic: Data Final
+      - generic:
+        - generic:
+          - generic: Defina o tipo de relatório
+          - generic: Selecione entre as opções os dados que deseja analisar no relatório. Entenda melhor cada um deles no Dicionário de Dados.
+          - generic: Relatórios de atendimento
+          - generic: É necessário selecionar um bot com atendimento ativo para gerar estes relatórios
+    - generic [ref=e13]:
+      - generic:
+        - generic:
+          - paragraph [ref=e14]:
+            - generic: Meus relatórios
+          - paragraph [ref=e15]:
+            - generic: Uma lista com todos os relatórios que você já criou.
+          - table [ref=e18]:
+            - rowgroup [ref=e19]:
+              - row [ref=e20]:
+                - columnheader "Gerado em" [ref=e21]
+                - columnheader "Relatório" [ref=e22]
+                - columnheader "Bot" [ref=e23]
+                - columnheader "Período" [ref=e24]
+                - columnheader "Início" [ref=e25]
+                - columnheader "Fim" [ref=e26]
+                - columnheader [ref=e27]
+            - rowgroup [ref=e28]:
+              - row [ref=e29]:
+                - cell [ref=e30]
+                - cell [ref=e32]
+                - cell [ref=e34]
+                - cell [ref=e36]
+                - cell [ref=e38]
+                - cell [ref=e40]
+                - cell [ref=e42]
+              - row [ref=e44]:
+                - cell [ref=e45]
+                - cell [ref=e47]
+                - cell [ref=e49]
+                - cell [ref=e51]
+                - cell [ref=e53]
+                - cell [ref=e55]
+                - cell [ref=e57]
+              - row [ref=e59]:
+                - cell [ref=e60]
+                - cell [ref=e62]
+                - cell [ref=e64]
+                - cell [ref=e66]
+                - cell [ref=e68]
+                - cell [ref=e70]
+                - cell [ref=e72]
+  - contentinfo [ref=e75]:
+    - generic [ref=e76]:
+      - generic [ref=e78]:
+        - heading "Queremos te ouvir" [level=2] [ref=e79]
+        - paragraph [ref=e80]: Deixe seu feedback sobre essa extensão
+      - textbox [ref=e86]

@@ -131,23 +131,28 @@ export function BarraDoContato({ contato, ativo }: { contato: Contato; ativo?: s
           ) : null}
         </nav>
 
-        {/* `subheader-icons`: Integrações, Configurações, Equipe e Testar. NÃO
-            passam pelo filtro de template — o roteador mostra os quatro. Lá
-            são `<i class="icon-…">` da fonte `blip-icons` com dica embaixo; o
-            rótulo vai na dica e no nome acessível. Nenhum tem destino aqui:
-            um selo só para os quatro. */}
-        <div className="fx-icones pt-links-obra">
-          {ICONES_DO_CONTATO.map((item) => (
-            <span
-              key={item.rotulo}
-              className="fx-icone"
-              title={item.rotulo}
-              aria-label={item.rotulo}
-            >
-              <IconePortal nome={item.icone} tamanho={20} />
-            </span>
-          ))}
-          <span className="pt-obra-selo">em breve</span>
+        {/* `subheader-icons`: Integrações e Configurações navegam para as telas
+            do contato; Equipe e Testar ainda permanecem em breve. */}
+        <div className="fx-icones">
+          {ICONES_DO_CONTATO.map((item) =>
+            item.href ? (
+              <Link
+                key={item.rotulo}
+                className={item.rotulo === ativo ? 'fx-icone fx-icone--ativo' : 'fx-icone'}
+                aria-current={item.rotulo === ativo ? 'page' : undefined}
+                href={`/fluxo/${contato.id}${item.href}`}
+                title={item.rotulo}
+                aria-label={item.rotulo}
+              >
+                <IconePortal nome={item.icone} tamanho={20} />
+              </Link>
+            ) : (
+              <span key={item.rotulo} className="fx-icone pt-links-obra" title={item.rotulo}>
+                <IconePortal nome={item.icone} tamanho={20} />
+                <span className="pt-obra-selo">em breve</span>
+              </span>
+            ),
+          )}
         </div>
       </div>
     </>
