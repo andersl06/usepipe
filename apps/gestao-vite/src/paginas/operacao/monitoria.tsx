@@ -1,6 +1,8 @@
 import Link from '../../componentes/link';
 import { useSearchParams } from 'react-router-dom';
 import { useLeitura } from '../../lib/consulta';
+import { useContato } from '../fluxo/contato';
+import { baseDoAtendimento } from './casca';
 import {
   ROTULO_AVALIADOR,
   ROTULO_ESTADO_AVALIACAO,
@@ -49,6 +51,8 @@ interface Busca {
  * cronômetro parado — a mesma separação de §3 que vale para os relatórios.
  */
 export function PaginaMonitoria() {
+  const { contato } = useContato();
+  const base = baseDoAtendimento(contato.tipo, contato.id);
   const [busca] = useSearchParams();
   const crus = Object.fromEntries(busca.entries()) as Busca;
   /* Conferido na entrada: id torto e data torta viram "sem filtro", em vez de
@@ -79,7 +83,7 @@ export function PaginaMonitoria() {
         </span>
       </div>
 
-      <form className="quickfilters" method="get" action="/monitoria">
+      <form className="quickfilters" method="get" action={`${base}/monitoria`}>
         <span className="lbl">Período</span>
         <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
@@ -110,7 +114,7 @@ export function PaginaMonitoria() {
         </select>
 
         <div className="faixa-fim">
-          <a href="/monitoria" className="btn">
+          <a href={`${base}/monitoria`} className="btn">
             Limpar
           </a>
           <button type="submit" className="btn primary">
@@ -265,7 +269,7 @@ export function PaginaMonitoria() {
                       </span>
                     </td>
                     <td>
-                      <Link href={`/monitoria/${a.id}`}>Abrir</Link>
+                      <Link href={`${base}/monitoria/${a.id}`}>Abrir</Link>
                     </td>
                   </tr>
                 ))}

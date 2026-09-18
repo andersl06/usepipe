@@ -8,6 +8,8 @@ import {
   type LinhaDeQuebra,
 } from '../../lib/atendimento';
 import { dataOuNada, denominador, duracao, numero, uuidOuNada } from '../../lib/formato';
+import { useContato } from '../fluxo/contato';
+import { baseDoAtendimento } from './casca';
 
 interface RespostaDoRelatorioDeAtendimento {
   fuso: string;
@@ -150,6 +152,8 @@ function Quebra({
  * misturar as duas é o erro clássico de painel de atendimento.
  */
 export function PaginaAtendimento() {
+  const { contato } = useContato();
+  const base = baseDoAtendimento(contato.tipo, contato.id);
   const [busca] = useSearchParams();
   const crus = Object.fromEntries(busca.entries()) as Busca;
   /* Conferido na entrada: id torto e data torta viram "sem filtro". Sem isso,
@@ -191,7 +195,7 @@ export function PaginaAtendimento() {
         </span>
       </div>
 
-      <form className="quickfilters" method="get" action="/relatorios/atendimento">
+      <form className="quickfilters" method="get" action={`${base}/relatorios/atendimento`}>
         <span className="lbl">Período</span>
         <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
@@ -220,7 +224,7 @@ export function PaginaAtendimento() {
         </select>
 
         <div className="faixa-fim">
-          <a href="/relatorios/atendimento" className="btn">
+          <a href={`${base}/relatorios/atendimento`} className="btn">
             Limpar
           </a>
           <button type="submit" className="btn primary">

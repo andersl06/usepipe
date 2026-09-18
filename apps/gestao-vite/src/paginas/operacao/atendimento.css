@@ -1,0 +1,42 @@
+/* ============================== Atendimento (módulo do contato)
+
+   O casco de duas colunas do módulo — `desk-sidebar` + conteúdo — é a MESMA
+   conta de `configuracoes/casca.tsx` (`.cf-casca`/`.cf-miolo`): a `fx-coluna`
+   do casco compartilhado centra o miolo em 80%; aqui se desfaz esse recuo
+   para a lateral abrir na borda, sem tocar o casco. A lateral em si
+   (`.g-lateral`, `.g-item`, `.g-grupo`, `.g-subitem`) já mora em
+   `estilos/globais.css` — é a mesma da extinta `estrutura-gestao.tsx`, porque
+   é a mesma `desk-sidebar` da origem; só o casco em volta mudou. */
+.at-casca {
+  display: flex;
+  align-items: stretch;
+  width: calc(100% + 40px);
+  min-height: calc(100dvh - var(--g-topo-h));
+  margin-left: -20px;
+}
+@media (min-width: 550px) {
+  .at-casca {
+    width: 111.1112%;
+    margin-left: -5.5556%;
+  }
+}
+@media (min-width: 750px) {
+  .at-casca {
+    width: 125%;
+    margin-left: -12.5%;
+  }
+}
+
+.at-miolo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  background: var(--ground);
+}
+
+@media (max-width: 900px) {
+  .at-casca {
+    flex-direction: column;
+  }
+}

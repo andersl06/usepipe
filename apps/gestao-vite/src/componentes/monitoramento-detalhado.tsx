@@ -49,6 +49,7 @@ const URL_DESK =
 type Filtro = {
   fila?: string;
   atendente?: string;
+  contato?: string;
   status?: string;
   busca?: string;
 };
@@ -57,6 +58,7 @@ function querystring(filtro: Filtro, aba: string): URLSearchParams {
   const p = new URLSearchParams();
   if (filtro.fila) p.set('fila', filtro.fila);
   if (filtro.atendente) p.set('atendente', filtro.atendente);
+  if (filtro.contato) p.set('contato', filtro.contato);
   if (filtro.status) p.set('status', filtro.status);
   if (filtro.busca) p.set('busca', filtro.busca);
   p.set('aba', aba);
@@ -444,6 +446,7 @@ export function MonitoramentoDetalhado({
   filtro: Filtro;
 }) {
   const termo = busca.trim().toLowerCase();
+  const contato = (filtro.contato ?? '').trim().toLowerCase();
 
   /* Estado do atendente por id: `carga` já traz o estado de cada um, então o
      filtro "Status do atendente" do painel não custa consulta nova. */
@@ -451,8 +454,9 @@ export function MonitoramentoDetalhado({
 
   const casa = (l: LinhaConversaAberta) => {
     /* A busca do cartão é PELO NÚMERO DO TICKET, e só — é onde ela mora na
-       tela deles. */
+       tela deles. "Contato" tem campo próprio na faixa de filtros. */
     if (termo && !l.ticket.toLowerCase().includes(termo)) return false;
+    if (contato && !l.contatoNome.toLowerCase().includes(contato)) return false;
     if (filtro.status) {
       const estado = l.atendenteId ? estadoPorAtendente.get(l.atendenteId) : undefined;
       if (estado !== filtro.status) return false;

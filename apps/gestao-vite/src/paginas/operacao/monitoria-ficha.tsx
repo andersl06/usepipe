@@ -11,6 +11,8 @@ import { useLeitura } from '../../lib/consulta';
 import { NaoEncontrado } from '../nao-encontrado';
 import { fatalReprovado } from '../../lib/nota-avaliacao';
 import { dataHora, numero, percentual } from '../../lib/formato';
+import { useContato } from '../fluxo/contato';
+import { baseDoAtendimento } from './casca';
 
 /**
  * A ficha de uma avaliação.
@@ -39,6 +41,8 @@ function rotuloDoValor(tipo: string, valor: string | null): string {
 
 export function PaginaFichaDeAvaliacao() {
   const { id = '' } = useParams();
+  const { contato } = useContato();
+  const base = baseDoAtendimento(contato.tipo, contato.id);
   const leitura = useLeitura<{ fuso: string; ficha: FichaDeAvaliacao }>(
     `/v1/gestao/monitoria/${id}`,
   );
@@ -61,7 +65,7 @@ export function PaginaFichaDeAvaliacao() {
       </div>
 
       <div className="quickfilters">
-        <Link href="/monitoria" className="btn">
+        <Link href={`${base}/monitoria`} className="btn">
           ← Todas as avaliações
         </Link>
         <span className="etiqueta">{ROTULO_ESTADO_AVALIACAO[c.estado] ?? c.estado}</span>

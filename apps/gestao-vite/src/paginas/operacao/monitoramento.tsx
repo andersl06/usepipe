@@ -1,14 +1,13 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { Icone } from '@pipe/ui';
 import type { Monitoramento } from '../../lib/monitoramento';
 import { useLeitura } from '../../lib/consulta';
 import { denominador, duracao, numero, uuidOuNada } from '../../lib/formato';
 import { IconeGestao } from '../../componentes/icones-gestao';
+import { FiltrosDaLista, FiltrosDaOperacao } from '../../componentes/filtros-rapidos';
 import { Metrica, Status } from '../../componentes/metrica';
 import { MonitoramentoDetalhado } from '../../componentes/monitoramento-detalhado';
-import { CampoDoPainel, PainelFiltros } from '../../componentes/painel-filtros';
 
 interface RespostaDoMonitoramento {
   fuso: string;
@@ -19,21 +18,11 @@ interface RespostaDoMonitoramento {
 interface Busca {
   fila?: string;
   atendente?: string;
+  contato?: string;
   status?: string;
   aba?: string;
   busca?: string;
 }
-
-/**
- * As quatro opções do dropdown "Status do atendente" no painel de filtros,
- * literais de `FICHA-monitoring.md` §3.
- */
-const ESTADOS_DE_ATENDENTE = [
-  { id: 'online', nome: 'Online' },
-  { id: 'pausa', nome: 'Em Pausa' },
-  { id: 'invisivel', nome: 'Invisível' },
-  { id: 'offline', nome: 'Offline' },
-] as const;
 
 /**
  * O ícone "Atualizar tela": aparece uma vez no cabeçalho da página e de novo
@@ -114,11 +103,44 @@ function useRecargaSilenciosa(segundos: number) {
 }
 
 /**
+ * "Expandir tela": o segundo ícone do cabeçalho, ao lado de "Atualizar tela"
+ * — a cópia rodável deles em `:8790` mostra os dois no topo da página, e
+ * NENHUM botão "Filtros" ali. O "Filtros" com funil só aparece encostado em
+ * cada faixa "Filtros rápidos:", abaixo — é lá que ele mora nesta tela.
+ */
+function BotaoExpandirPagina() {
+  const [cheia, setCheia] = useState(false);
+  useEffect(() => {
+    const aoTrocar = () => setCheia(document.fullscreenElement !== null);
+    document.addEventListener('fullscreenchange', aoTrocar);
+    return () => document.removeEventListener('fullscreenchange', aoTrocar);
+  }, []);
+  function alternar() {
+    if (document.fullscreenElement) void document.exitFullscreen();
+    else void document.documentElement.requestFullscreen().catch(() => undefined);
+  }
+  return (
+    <button
+      type="button"
+      className="iconbtn"
+      title="Expandir tela"
+      aria-label="Expandir tela"
+      aria-pressed={cheia}
+      onClick={alternar}
+    >
+      <IconeGestao nome="telaCheia" tamanho={14} />
+    </button>
+  );
+}
+
+/**
  * Monitoramento — a mesma disposição da tela deles, medida em
- * `docs/capturas/blip/dom/FICHA-monitoring.md`: cabeçalho com "Atualizar
- * tela" e "Filtros", painel lateral de filtros fechado por padrão, grade 2×2
- * de cartões (largo à esquerda, estreito à direita, nas duas linhas) e o
- * cartão "Monitoramento detalhado" com busca, abas, tabela e paginação.
+ * `docs/capturas/blip/dom/FICHA-monitoring.md` e conferida contra a cópia
+ * rodável em `:8790`: cabeçalho com "Atualizar tela" e "Expandir tela", DUAS
+ * faixas "Filtros rápidos:" (uma acima da grade, outra entre a grade e a
+ * tabela, cada uma com seu próprio botão "Filtros"), grade 2×2 de cartões
+ * (largo à esquerda, estreito à direita, nas duas linhas) e o cartão
+ * "Monitoramento detalhado" com busca, abas, tabela e paginação.
  *
  * O que NÃO copiamos é a tinta. Eles pintam de azul os dois números que dizem
  * como está a operação agora; nós pintamos os mesmos dois de moss. Os pontos
@@ -140,14 +162,11 @@ export function PaginaMonitoramento() {
   const leitura = useLeitura<RespostaDoMonitoramento>(`/v1/gestao/monitoramento?${q}`, {
     staleTime: 0,
   });
-  const [painelAberto, setPainelAberto] = useState(false);
   useRecargaSilenciosa(30);
 
   if (!leitura.data) return null;
   const { dados: m } = leitura.data;
   const { tempoReal, atendentes, hoje } = m;
-
-  const algumFiltro = Boolean(params.fila || params.atendente || params.status);
 
   return (
     <>
@@ -155,58 +174,14 @@ export function PaginaMonitoramento() {
         <h2>Monitoramento</h2>
         <div className="filters">
           <BotaoAtualizar />
-          <button type="button" className="btn" onClick={() => setPainelAberto(true)}>
-            <Icone nome="funil" tamanho={14} />
-            Filtros
-          </button>
+          <BotaoExpandirPagina />
         </div>
       </div>
 
-      <PainelFiltros
-        aberto={painelAberto}
-        aoFechar={() => setPainelAberto(false)}
-        acao="/monitoramento"
-        limpar={algumFiltro ? '/monitoramento' : null}
-      >
-        {/* A aba e a busca do cartão de baixo não são campo do painel, mas
-            precisam sobreviver ao "Aplicar" — senão aplicar um filtro jogava
-            a tabela de volta para a primeira aba. */}
-        <input type="hidden" name="aba" value={params.aba ?? 'atribuido'} />
-        {params.busca ? <input type="hidden" name="busca" value={params.busca} /> : null}
-
-        <CampoDoPainel rotulo="Filas" apoio="Selecione uma ou mais filas">
-          <select name="fila" defaultValue={params.fila ?? ''} aria-label="Filas">
-            <option value="">Selecione as filas</option>
-            {m.filas.map((f) => (
-              <option key={f.id} value={f.id}>
-                {f.nome}
-              </option>
-            ))}
-          </select>
-        </CampoDoPainel>
-
-        <CampoDoPainel rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
-          <select name="atendente" defaultValue={params.atendente ?? ''} aria-label="Atendentes">
-            <option value="">Selecione os atendentes</option>
-            {m.listaAtendentes.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.nome}
-              </option>
-            ))}
-          </select>
-        </CampoDoPainel>
-
-        <CampoDoPainel rotulo="Status do atendente" apoio="Selecione um status">
-          <select name="status" defaultValue={params.status ?? ''} aria-label="Status do atendente">
-            <option value="">Selecione o status</option>
-            {ESTADOS_DE_ATENDENTE.map((o) => (
-              <option key={o.id} value={o.id}>
-                {o.nome}
-              </option>
-            ))}
-          </select>
-        </CampoDoPainel>
-      </PainelFiltros>
+      {/* A faixa "Filtros rápidos:", com o próprio botão "Filtros" no fim —
+          é ali que ele mora nesta tela, não no cabeçalho (conferido contra a
+          cópia rodável deles em `:8790`). */}
+      <FiltrosDaOperacao filas={m.filas} atendentes={m.listaAtendentes} atual={params} />
 
       {/* ---------------------------------------------------- grade 2×2 */}
       <div className="mon">
@@ -310,6 +285,8 @@ export function PaginaMonitoramento() {
           </div>
         </CartaoMetrica>
       </div>
+
+      <FiltrosDaLista atendentes={m.listaAtendentes} atual={params} />
 
       <MonitoramentoDetalhado
         monitoramento={m}

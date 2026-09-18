@@ -10,11 +10,13 @@ import {
 import { useSearchParams } from 'react-router-dom';
 import { useLeitura } from '../../lib/consulta';
 import { dataHora, dataIso, dataOuNada, duracao, numero, uuidOuNada } from '../../lib/formato';
-import { Icone, Ilustracao } from '@pipe/ui';
+import { EstadoVazio, Icone } from '@pipe/ui';
 import { IconeGestao } from '../../componentes/icones-gestao';
 import { CampoDoPainel, PainelFiltros } from '../../componentes/painel-filtros';
 import { montarCsv } from '../../lib/csv-historico';
 import { ListaHistorico, type CartaoHistorico } from '../../componentes/lista-historico';
+import { useContato } from '../fluxo/contato';
+import { baseDoAtendimento } from './casca';
 
 interface RespostaDoHistorico {
   fuso: string;
@@ -143,6 +145,8 @@ function CamposEscondidos({ atual, exceto }: { atual: Busca; exceto: readonly st
  * §3/§5.2 continua de pé.
  */
 export function PaginaHistorico() {
+  const { contato } = useContato();
+  const base = baseDoAtendimento(contato.tipo, contato.id);
   const [busca] = useSearchParams();
   const crus = Object.fromEntries(busca.entries()) as Busca;
   /* Conferido na entrada: id torto e data torta viram "sem filtro", em vez de
@@ -173,10 +177,10 @@ export function PaginaHistorico() {
     [],
   );
 
-  if (!leitura.data) return null;
-  /* Padrão (na `api`): os últimos sete dias, incluindo hoje. */
-  const { fuso, de, ate, catalogos, linhas: linhasDoServidor, truncado } = leitura.data;
-
+  /* Todo hook precisa rodar em toda renderização, inclusive na primeira, antes
+     da consulta voltar — por isso o `useMemo` entra ANTES do `if` que decide
+     se há dado para desenhar, e não depois dele. */
+  const dados = leitura.data;
   const por = agrupamentoValido(params.agrupar);
 
   /* Os dois filtros de cliente: a API não tem `?ticket=` nem `?contato=`, mas
@@ -187,47 +191,52 @@ export function PaginaHistorico() {
     .map((t) => t.trim().toLowerCase())
     .filter(Boolean);
   const contatoBuscado = (params.contato ?? '').trim().toLowerCase();
-  const linhas = linhasDoServidor.filter((l) => {
-    if (idsDosTickets.length > 0 && !idsDosTickets.some((id) => l.ticket.toLowerCase().includes(id))) {
-      return false;
-    }
-    if (contatoBuscado && !l.contatoNome.toLowerCase().includes(contatoBuscado)) return false;
-    return true;
-  });
-
-  /* Período sempre existe; fila, atendente, etiqueta, ticket e contato são o
-     recorte opcional. A distinção decide a frase do estado vazio do servidor
-     (truncamento) — o texto da tela em si é fixo, como na deles. */
-  const temFiltro = Boolean(
-    params.fila || params.atendente || params.etiqueta || params.ticket || params.contato,
-  );
-  const limparFiltros = `/historico?de=${de}&ate=${ate}`;
 
   /* Tudo atravessa para o cartão já formatado: nenhuma Date e nenhum nulo
      passam para lá, e o formato do fuso do tenant fica decidido de um lado só. */
-  const emCartao = (l: LinhaHistorico): CartaoHistorico => {
-    const status = l.status ? ROTULO_STATUS[l.status] : undefined;
-    return {
-      id: l.id,
-      ticket: l.ticket,
-      encerrada: dataHora(l.encerradaEm, fuso),
-      contato: l.contatoNome,
-      fila: l.filaNome ?? '—',
-      atendente: l.atendenteNome ?? '—',
-      espera: duracao(l.esperaSeg),
-      primeiraResposta: duracao(l.primeiraRespostaSeg),
-      atendimento: duracao(l.atendimentoSeg),
-      statusTexto: status?.texto ?? 'Aberta',
-      statusClasse: status?.classe ?? 'etiqueta',
-      critico: l.status === 'perdida',
-      etiquetas: l.etiquetas,
+  const emCartao = (fuso: string) =>
+    (l: LinhaHistorico): CartaoHistorico => {
+      const status = l.status ? ROTULO_STATUS[l.status] : undefined;
+      return {
+        id: l.id,
+        ticket: l.ticket,
+        encerrada: dataHora(l.encerradaEm, fuso),
+        contato: l.contatoNome,
+        fila: l.filaNome ?? '—',
+        atendente: l.atendenteNome ?? '—',
+        espera: duracao(l.esperaSeg),
+        primeiraResposta: duracao(l.primeiraRespostaSeg),
+        atendimento: duracao(l.atendimentoSeg),
+        statusTexto: status?.texto ?? 'Aberta',
+        statusClasse: status?.classe ?? 'etiqueta',
+        critico: l.status === 'perdida',
+        etiquetas: l.etiquetas,
+      };
     };
-  };
 
-  const grupos = agruparHistorico(linhas, por).map((g) => ({
-    titulo: g.titulo,
-    cartoes: g.linhas.map(emCartao),
-  }));
+  const linhas = useMemo(() => {
+    if (!dados) return [];
+    return dados.linhas.filter((l) => {
+      if (
+        idsDosTickets.length > 0 &&
+        !idsDosTickets.some((id) => l.ticket.toLowerCase().includes(id))
+      ) {
+        return false;
+      }
+      if (contatoBuscado && !l.contatoNome.toLowerCase().includes(contatoBuscado)) return false;
+      return true;
+    });
+    // Dependências reais: as duas strings da URL, não os arrays derivados
+    // delas (novos a cada render).
+  }, [dados, params.ticket, params.contato]);
+
+  const grupos = useMemo(() => {
+    if (!dados) return [];
+    return agruparHistorico(linhas, por).map((g) => ({
+      titulo: g.titulo,
+      cartoes: g.linhas.map(emCartao(dados.fuso)),
+    }));
+  }, [dados, linhas, por]);
 
   /* A lista única, sem repetir por grupo: quem manda no "selecionar todos", no
      CSV e no botão do cabeçalho. */
@@ -238,6 +247,18 @@ export function PaginaHistorico() {
   }, [grupos]);
   const selecionados = todos.filter((c) => marcados.has(c.id));
 
+  if (!dados) return null;
+  /* Padrão (na `api`): os últimos sete dias, incluindo hoje. */
+  const { fuso, de, ate, catalogos, truncado } = dados;
+
+  /* Período sempre existe; fila, atendente, etiqueta, ticket e contato são o
+     recorte opcional. A distinção decide a frase do estado vazio do servidor
+     (truncamento) — o texto da tela em si é fixo, como na deles. */
+  const temFiltro = Boolean(
+    params.fila || params.atendente || params.etiqueta || params.ticket || params.contato,
+  );
+  const limparFiltros = `${base}/historico?de=${de}&ate=${ate}`;
+
   return (
     <>
       <div className="board-head">
@@ -245,13 +266,12 @@ export function PaginaHistorico() {
         <div className="filters">
           <button
             type="button"
-            className="iconbtn"
-            title="Enviar por e-mail"
-            aria-label="Enviar por e-mail"
+            className="btn"
             disabled={selecionados.length === 0}
             onClick={() => baixarCsv(selecionados)}
           >
-            <IconeGestao nome="email" tamanho={16} />
+            <IconeGestao nome="email" tamanho={14} />
+            Enviar por e-mail
           </button>
         </div>
       </div>
@@ -303,7 +323,7 @@ export function PaginaHistorico() {
       <PainelFiltros
         aberto={painelAberto}
         aoFechar={() => setPainelAberto(false)}
-        acao="/historico"
+        acao={`${base}/historico`}
         limpar={temFiltro ? limparFiltros : null}
       >
         <CamposEscondidos atual={params} exceto={['de', 'ate']} />
@@ -392,71 +412,73 @@ export function PaginaHistorico() {
         </CampoDoPainel>
       </PainelFiltros>
 
-      {linhas.length === 0 ? (
-        /* O texto é o deles, literal — `FICHA-history.md` §6. */
-        <div className="pagina-vazia">
-          <Ilustracao nome="busca" tamanho={96} />
-          <b>Nenhum resultado encontrado</b>
-          <p>
-            Não encontramos nenhum resultado a partir da pesquisa realizada.
-            <br />
-            Que tal refazer a sua busca?
-          </p>
-          <a href={limparFiltros} className="btn">
-            Redefinir filtros
-          </a>
-        </div>
-      ) : (
-        <>
-          {/* "Agrupar por" é nosso, não deles — a resposta aos seis itens de
-              relatório que nunca viraram tela (`historico.ts`). Fica FORA do
-              painel de propósito: o painel só tem os campos que a ficha lista. */}
-          <form method="get" action="/historico" className="hist-agrupar">
-            <CamposEscondidos atual={params} exceto={['agrupar']} />
-            <label className="lbl" htmlFor="agrupar">
-              Agrupar por
-            </label>
-            <select
-              id="agrupar"
-              name="agrupar"
-              defaultValue={por}
-              onChange={(e) => e.currentTarget.form?.requestSubmit()}
-            >
-              {AGRUPAMENTOS.map((a) => (
-                <option key={a.chave} value={a.chave}>
-                  {a.chave === 'nenhum' ? a.rotulo : `Agrupar por ${a.rotulo.toLowerCase()}`}
-                </option>
-              ))}
-            </select>
-            {truncado ? (
-              <span className="sub">
-                {numero(linhas.length)} conversas · as {LIMITE_HISTORICO} mais recentes
-              </span>
-            ) : (
-              <span className="sub">{numero(linhas.length)} conversas</span>
-            )}
-          </form>
+      {/* "Área de resultados", `FICHA-history.md` §2: o vazio deles OU a nossa
+          lista, e o link "Termo de responsabilidade" no canto — ele mora
+          nesta área nos DOIS estados, porque é onde a captura o registrou
+          (a captura deles está vazia, e o link está lá mesmo assim). */}
+      <div className="hist-resultados">
+        {linhas.length === 0 ? (
+          /* O texto é o deles, literal — `FICHA-history.md` §6. */
+          <EstadoVazio titulo="Nenhum resultado encontrado" ilustracao="busca">
+            <p>
+              Não encontramos nenhum resultado a partir da pesquisa realizada.
+              <br />
+              Que tal refazer a sua busca?
+            </p>
+            <a href={limparFiltros} className="btn">
+              Redefinir filtros
+            </a>
+          </EstadoVazio>
+        ) : (
+          <>
+            {/* "Agrupar por" é nosso, não deles — a resposta aos seis itens de
+                relatório que nunca viraram tela (`historico.ts`). Fica FORA do
+                painel de propósito: o painel só tem os campos que a ficha lista. */}
+            <form method="get" action={`${base}/historico`} className="hist-agrupar">
+              <CamposEscondidos atual={params} exceto={['agrupar']} />
+              <label className="lbl" htmlFor="agrupar">
+                Agrupar por
+              </label>
+              <select
+                id="agrupar"
+                name="agrupar"
+                defaultValue={por}
+                onChange={(e) => e.currentTarget.form?.requestSubmit()}
+              >
+                {AGRUPAMENTOS.map((a) => (
+                  <option key={a.chave} value={a.chave}>
+                    {a.chave === 'nenhum' ? a.rotulo : `Agrupar por ${a.rotulo.toLowerCase()}`}
+                  </option>
+                ))}
+              </select>
+              {truncado ? (
+                <span className="sub">
+                  {numero(linhas.length)} conversas · as {LIMITE_HISTORICO} mais recentes
+                </span>
+              ) : (
+                <span className="sub">{numero(linhas.length)} conversas</span>
+              )}
+            </form>
 
-          <ListaHistorico
-            grupos={grupos}
-            todos={todos}
-            marcados={marcados}
-            aoAlternar={aoAlternar}
-            aoAlternarTodos={() =>
-              setMarcados(
-                marcados.size === todos.length ? new Set() : new Set(todos.map((c) => c.id)),
-              )
-            }
-          />
+            <ListaHistorico
+              grupos={grupos}
+              todos={todos}
+              marcados={marcados}
+              aoAlternar={aoAlternar}
+              aoAlternarTodos={() =>
+                setMarcados(
+                  marcados.size === todos.length ? new Set() : new Set(todos.map((c) => c.id)),
+                )
+              }
+            />
+          </>
+        )}
 
-          {/* Canto inferior direito da área de resultados — `FICHA-history.md`
-              §2.5. */}
-          <a href="/termo-de-responsabilidade" className="termo-de-responsabilidade">
-            <IconeGestao nome="ajuda" tamanho={14} />
-            Termo de responsabilidade
-          </a>
-        </>
-      )}
+        <a href="/termo-de-responsabilidade" className="termo-de-responsabilidade">
+          <IconeGestao nome="documento" tamanho={14} />
+          Termo de responsabilidade
+        </a>
+      </div>
     </>
   );
 }

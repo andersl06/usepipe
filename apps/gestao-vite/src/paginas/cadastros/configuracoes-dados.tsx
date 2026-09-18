@@ -2,6 +2,8 @@ import Link from '../../componentes/link';
 import { useLeitura } from '../../lib/consulta';
 import type { CanalConfigurado, EtiquetaConfigurada } from '../../lib/configuracoes';
 import { numero } from '../../lib/formato';
+import { useContato } from '../fluxo/contato';
+import { baseDoAtendimento } from '../operacao/casca';
 
 const ROTULO_ESCOPO_ETIQUETA: Record<string, string> = {
   conversa: 'Conversa',
@@ -17,6 +19,8 @@ const ROTULO_ESCOPO_ETIQUETA: Record<string, string> = {
  * contando.
  */
 export function PaginaDados() {
+  const { contato } = useContato();
+  const base = baseDoAtendimento(contato.tipo, contato.id);
   const leitura = useLeitura<{ etiquetas: EtiquetaConfigurada[]; canais: CanalConfigurado[] }>(
     '/v1/gestao/configuracoes/dados',
   );
@@ -69,9 +73,9 @@ export function PaginaDados() {
       </div>
 
       <div className="note">
-        Os canais saíram daqui: viraram módulo próprio, na barra de cima.{' '}
-        <Link href="/canais">Ver os {numero(canais.length)} canais</Link> — com a caixa de entrada
-        de cada um e a fila para onde ela manda.
+        Os canais saíram daqui: viraram tela própria, em Preferências.{' '}
+        <Link href={`${base}/canais`}>Ver os {numero(canais.length)} canais</Link> — com a caixa de
+        entrada de cada um e a fila para onde ela manda.
       </div>
     </>
   );

@@ -1,5 +1,5 @@
 import { Avatar } from '@pipe/ui';
-import { BarrasDoContato, useContato } from './contato';
+import { BarrasDoContato, baseDoContato, useContato } from './contato';
 import {
   CartaoCanais,
   CartaoEquipe,
@@ -91,7 +91,7 @@ export function HomeDoContato() {
             />
             <CartaoEquipe membros={[]} />
             <CartaoPreferencias fuso={fuso} plano={casca.tenant.plano} />
-            <CartaoMetricas metricas={null} />
+            <CartaoMetricas metricas={null} base={baseDoContato(contato.tipo, contato.id)} />
           </div>
         </div>
       </main>

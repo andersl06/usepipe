@@ -1,4 +1,3 @@
-import Link from '../componentes/link';
 
 /**
  * Growth — mensagem ativa e campanha.
@@ -48,7 +47,7 @@ export function PaginaGrowth() {
         <p className="note">
           Os sete estados definidos são: agendada, enviando, enviada, entregue, lida, falha e
           expirada. O relatório que vai ler isso é o de{' '}
-          <Link href="/relatorios/atendimento">Atendimento</Link>, e ele precisa continuar mostrando
+          o relatório de Atendimento dentro do contato, e ele precisa continuar mostrando
           a população descartada ao lado de cada média.
         </p>
       </section>
@@ -59,7 +58,7 @@ export function PaginaGrowth() {
           A tabela <code className="mono">mensagem_ativa</code>, particionada por mês; a coluna{' '}
           <code className="mono">contato.ultima_conversa_em</code>, que sustenta a janela de 90
           dias; e o serviço de envio. Os modelos aprovados já são cadastrados em{' '}
-          <Link href="/comunicacao/modelos">Comunicação ├ Modelos de mensagens</Link>.
+          Comunicação ├ Modelos de mensagens, dentro do contato.
         </p>
       </section>
     </div>

@@ -2,6 +2,8 @@ import { useSearchParams } from 'react-router-dom';
 import type { RelatorioEsforco } from '../../lib/esforco';
 import { useLeitura } from '../../lib/consulta';
 import { dataOuNada, duracaoLonga, numero, percentual } from '../../lib/formato';
+import { useContato } from '../fluxo/contato';
+import { baseDoAtendimento } from './casca';
 
 interface RespostaDoEsforco {
   fuso: string;
@@ -16,6 +18,8 @@ interface Busca {
 }
 
 export function PaginaEsforco() {
+  const { contato } = useContato();
+  const base = baseDoAtendimento(contato.tipo, contato.id);
   const [busca] = useSearchParams();
   const crus = Object.fromEntries(busca.entries()) as Busca;
   /* Data torta vira "sem filtro": `?de=abc` chegava ao `::date` do Postgres e
@@ -41,7 +45,7 @@ export function PaginaEsforco() {
 
       {/* Faixa de filtros de 56px, no lugar e na ordem da faixa deles:
           rótulo e controles à esquerda, período e ação à direita. */}
-      <form className="quickfilters" method="get" action="/relatorios/esforco">
+      <form className="quickfilters" method="get" action={`${base}/relatorios/esforco`}>
         <span className="lbl">Filtros rápidos:</span>
         <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />

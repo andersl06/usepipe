@@ -38,6 +38,7 @@ import { PaginaDeMensagensAtivas as AnaliseMensagensAtivas } from './paginas/flu
 import { PaginaDoGerenciador } from './paginas/fluxo/analise/gerenciador-de-relatorios/gerenciador';
 import { PaginaDoDicionario } from './paginas/fluxo/analise/dicionario-de-dados/dicionario';
 import { EstruturaGestao } from './componentes/estrutura-gestao';
+import { CascaDeAtendimento } from './paginas/operacao/casca';
 import { PaginaMonitoramento } from './paginas/operacao/monitoramento';
 import { PaginaHistorico } from './paginas/operacao/historico';
 import { PaginaAtendimento } from './paginas/operacao/relatorios-atendimento';
@@ -88,6 +89,34 @@ const rotasDoContato = (
     <Route path="canais" element={<PaginaDeCanais />} />
     <Route path="servicos" element={<PaginaDeServicos />} />
 
+    {/* O módulo Atendimento — a `attendance/desk/*` da origem, dentro do
+        MESMO contato: barra do portal + barra do contato (item "Atendimento"
+        aceso) + a `desk-sidebar` própria, montada em `operacao/casca.tsx`.
+        Estas telas viviam soltas em `/monitoramento`, `/historico` etc. e
+        desenhavam um segundo portal — ver o mapa completo no relatório da
+        tarefa que fez a mudança. */}
+    <Route path="atendimento" element={<CascaDeAtendimento />}>
+      <Route index element={<Navigate to="monitoramento" replace />} />
+      <Route path="monitoramento" element={<PaginaMonitoramento />} />
+      <Route path="historico" element={<PaginaHistorico />} />
+      <Route path="monitoria" element={<PaginaMonitoria />} />
+      <Route path="monitoria/:id" element={<PaginaFichaDeAvaliacao />} />
+      <Route path="relatorios/atendimento" element={<PaginaAtendimento />} />
+      <Route path="relatorios/esforco" element={<PaginaEsforco />} />
+      <Route path="relatorios/satisfacao" element={<PaginaSatisfacao />} />
+      <Route path="atendentes/gestao" element={<PaginaGestaoDeAtendentes />} />
+      <Route path="atendentes/filas" element={<PaginaFilas />} />
+      <Route path="atendentes/pausas" element={<PaginaPausas />} />
+      <Route path="comunicacao/modelos" element={<PaginaModelos />} />
+      <Route path="comunicacao/respostas-prontas" element={<PaginaRespostasProntas />} />
+      <Route path="regras/atendimento" element={<PaginaRegrasDeAtendimento />} />
+      <Route path="regras/horarios" element={<PaginaHorarios />} />
+      <Route path="preferencias/gerais" element={<PaginaConfiguracoesGerais />} />
+      <Route path="preferencias/dados" element={<PaginaDados />} />
+      <Route path="preferencias/regras" element={<PaginaRegras />} />
+      <Route path="canais" element={<PaginaCanais />} />
+    </Route>
+
     <Route path="contatos" element={<CascaDeContatos />}>
       <Route index element={<ListaContatosDoBot />} />
       <Route path=":contatoId" element={<DetalheContatoDoBot />} />
@@ -135,6 +164,32 @@ const rotasDoContato = (
 );
 
 /**
+ * As rotas de Atendimento de quando viviam soltas na raiz, hoje redirecionadas
+ * para o portal — ver a nota onde são usadas.
+ */
+const ROTAS_ANTIGAS_DE_ATENDIMENTO = [
+  '/monitoramento',
+  '/historico',
+  '/relatorios/atendimento',
+  '/relatorios/esforco',
+  '/relatorios/satisfacao',
+  '/monitoria',
+  '/monitoria/:id',
+  '/regras/atendimento',
+  '/regras/horarios',
+  '/atendentes/gestao',
+  '/atendentes/filas',
+  '/atendentes/pausas',
+  '/comunicacao/modelos',
+  '/comunicacao/respostas-prontas',
+  '/configuracoes',
+  '/configuracoes/regras',
+  '/configuracoes/dados',
+  '/configuracoes/gerais',
+  '/canais',
+];
+
+/**
  * As rotas da Gestão — as mesmas URLs do aplicativo em Next, para link salvo
  * e histórico continuarem valendo. A árvore segue a da origem: o contato
  * (`/fluxo/:id` para chatbot, `/roteador/:id` para roteador) é o estado-pai,
@@ -162,31 +217,23 @@ export function App() {
         <Route path="/criar/fluxo" element={<PaginaCriarFluxo />} />
         <Route path="/criar/roteador" element={<PaginaCriarRoteador />} />
 
-        {/* A operação: as telas com o casco de duas barras + lateral (`EstruturaGestao`). */}
+        {/* O que sobra sem contato e sem módulo (`EstruturaGestao`, ver o
+            cabeçalho do arquivo): onboarding de conta e os dois módulos que
+            ainda não têm tela de verdade. */}
         <Route element={<EstruturaGestao />}>
-          <Route path="/monitoramento" element={<PaginaMonitoramento />} />
-          <Route path="/historico" element={<PaginaHistorico />} />
-          <Route path="/relatorios/atendimento" element={<PaginaAtendimento />} />
-          <Route path="/relatorios/esforco" element={<PaginaEsforco />} />
-          <Route path="/relatorios/satisfacao" element={<PaginaSatisfacao />} />
-          <Route path="/monitoria" element={<PaginaMonitoria />} />
-          <Route path="/monitoria/:id" element={<PaginaFichaDeAvaliacao />} />
-          <Route path="/regras/atendimento" element={<PaginaRegrasDeAtendimento />} />
-          <Route path="/regras/horarios" element={<PaginaHorarios />} />
-          <Route path="/atendentes/gestao" element={<PaginaGestaoDeAtendentes />} />
-          <Route path="/atendentes/filas" element={<PaginaFilas />} />
-          <Route path="/atendentes/pausas" element={<PaginaPausas />} />
-          <Route path="/comunicacao/modelos" element={<PaginaModelos />} />
-          <Route path="/comunicacao/respostas-prontas" element={<PaginaRespostasProntas />} />
-          <Route path="/configuracoes" element={<Navigate to="/configuracoes/regras" replace />} />
-          <Route path="/configuracoes/regras" element={<PaginaRegras />} />
-          <Route path="/configuracoes/dados" element={<PaginaDados />} />
-          <Route path="/configuracoes/gerais" element={<PaginaConfiguracoesGerais />} />
           <Route path="/implantacao" element={<PaginaImplantacao />} />
-          <Route path="/canais" element={<PaginaCanais />} />
           <Route path="/growth" element={<PaginaGrowth />} />
           <Route path="/builder" element={<PaginaBuilder />} />
         </Route>
+
+        {/* As rotas de Atendimento de antes de morarem no contato
+            (`/{tipo}/:id/atendimento/*`, acima). Nenhuma delas carrega um id
+            de contato — não há como adivinhar de qual fluxo ou roteador era o
+            link salvo — então a única saída honesta é o portal, de onde a
+            pessoa escolhe o contato e chega lá de novo. */}
+        {ROTAS_ANTIGAS_DE_ATENDIMENTO.map((caminho) => (
+          <Route key={caminho} path={caminho} element={<Navigate to="/portal" replace />} />
+        ))}
 
         <Route path="/fluxo/:id" element={<RotaDoContato />}>
           {rotasDoContato}

@@ -93,8 +93,10 @@ export function itensDoMenu(tipo: TipoDeContato, id: string): ItemDoMenu[] {
   ).map((item) => ({
     rotulo: item.rotulo,
     href:
-      item.chave === 'analysis'
-        ? `${base}/analise`
+      item.chave === 'desk'
+        ? `${base}/atendimento/monitoramento`
+        : item.chave === 'analysis'
+          ? `${base}/analise`
         : item.chave === 'channels'
           ? `${base}/canais`
           : item.chave === 'users'

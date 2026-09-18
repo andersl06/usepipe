@@ -260,7 +260,7 @@ function Campo({ rotulo, valor, dica }: { rotulo: string; valor: string; dica?: 
  * flag `is-hiding-home-metrics` está LIGADA, então a origem também não desenha
  * este cartão para o roteador.
  */
-export function CartaoMetricas({ metricas }: { metricas: Metricas | null }) {
+export function CartaoMetricas({ metricas, base }: { metricas: Metricas | null; base: string }) {
   if (!metricas || metricas.usuarios === 0) return null;
   return (
     <div className="fx-area-metricas">
@@ -278,14 +278,14 @@ export function CartaoMetricas({ metricas }: { metricas: Metricas | null }) {
           rotulo="Mensagens recebidas"
           dica="Número de mensagens recebidas pelo contato desde a criação"
           valor={metricas.recebidas}
-          href="/relatorios/atendimento"
+          href={`${base}/atendimento/relatorios/atendimento`}
         />
         <Metrica
           icone="mensagem-enviada"
           rotulo="Mensagens enviadas"
           dica="Número de mensagens enviadas pelo contato desde a criação"
           valor={metricas.enviadas}
-          href="/relatorios/atendimento"
+          href={`${base}/atendimento/relatorios/atendimento`}
         />
       </section>
     </div>

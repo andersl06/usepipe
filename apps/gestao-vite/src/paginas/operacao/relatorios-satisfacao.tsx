@@ -6,6 +6,8 @@ import {
   type GrupoSatisfacao,
 } from '../../lib/satisfacao';
 import { dataHora, dataOuNada, numero, percentual } from '../../lib/formato';
+import { useContato } from '../fluxo/contato';
+import { baseDoAtendimento } from './casca';
 
 interface RespostaDaSatisfacao {
   fuso: string;
@@ -131,6 +133,8 @@ function Bloco({ grupo, encerradas }: { grupo: GrupoSatisfacao; encerradas: numb
  * valor 20/700 embaixo.
  */
 export function PaginaSatisfacao() {
+  const { contato } = useContato();
+  const base = baseDoAtendimento(contato.tipo, contato.id);
   const [busca] = useSearchParams();
   const crus = Object.fromEntries(busca.entries()) as Busca;
   /* Data torta vira "sem filtro", em vez de virar 500 no `::date` do Postgres. */
@@ -152,12 +156,12 @@ export function PaginaSatisfacao() {
         <span className="sub filters">{numero(relatorio.encerradas)} conversas encerradas</span>
       </div>
 
-      <form className="quickfilters" method="get" action="/relatorios/satisfacao">
+      <form className="quickfilters" method="get" action={`${base}/relatorios/satisfacao`}>
         <span className="lbl">Período</span>
         <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
         <div className="faixa-fim">
-          <a href="/relatorios/satisfacao" className="btn">
+          <a href={`${base}/relatorios/satisfacao`} className="btn">
             Limpar
           </a>
           <button type="submit" className="btn primary">
