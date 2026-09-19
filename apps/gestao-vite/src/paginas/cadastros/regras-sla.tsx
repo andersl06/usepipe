@@ -1,7 +1,12 @@
+import { useState } from 'react';
+import { Botao, BotaoDeIcone } from '@pipe/ui';
 import { useLeitura } from '../../lib/consulta';
-import { ROTULO_ALVO, type RegraSlaConfigurada } from '../../lib/configuracoes';
+import { ROTULO_ALVO, type FilaConfigurada, type RegraSlaConfigurada } from '../../lib/configuracoes';
+import { editarRegraSla, excluirRegraSla } from '../../lib/configuracoes-gravar';
 import { duracao } from '../../lib/formato';
 import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
+import { Modal, ModalConfirmacao } from './_modal';
+import { FormularioRegraSla } from './regras-sla-formulario';
 
 /**
  * A sigla que a coluna "Metas" deles usa para cada alvo (`dom/sla-policy.html`:
@@ -38,17 +43,66 @@ const SIGLA_DO_ALVO: Record<string, string> = {
  * - **"Filas atribuídas"** é no máximo uma fila (ou toda a operação):
  *   `escopoTipo`/`escopoId` prendem a regra a um escopo só.
  *
- * TODO(escrita): não existe `salvar`/`alternar`/`excluir` de `regra_sla` na
- * API — só a leitura. Por isso não há "Criar regra" nem os ícones de
- * "Editar"/"Excluir" do cartão deles (§5): fingir o envio gravaria uma
- * mentira. Quando a mutação existir, ligar como `regras-atendimento.tsx`.
+ * `TODO(escrita)` removido: `PATCH`/`POST`/`DELETE` de verdade em
+ * `/v1/gestao/configuracoes/regras` (item 2 da tarefa de cadastros do
+ * Atendimento) — "Criar regra" e os ícones "Editar"/"Excluir" do cartão
+ * (§5) entram, ligados como `regras-atendimento.tsx`: interruptor +
+ * `ModalConfirmacao` para excluir, nunca `window.confirm`.
  */
+
+/** Switch + editar/excluir — o slot `acao` do cartão-linha. */
+function AcoesDaRegraSla({
+  regra,
+  onEditar,
+  onExcluir,
+}: {
+  regra: RegraSlaConfigurada;
+  onEditar: () => void;
+  onExcluir: () => void;
+}) {
+  const alternar = async () => {
+    await editarRegraSla(regra.id, { ativa: !regra.ativa });
+  };
+  return (
+    <>
+      <button
+        type="button"
+        className="interruptor"
+        role="switch"
+        aria-checked={regra.ativa}
+        aria-label={regra.ativa ? `Desativar a regra ${regra.nome}` : `Ativar a regra ${regra.nome}`}
+        title={regra.ativa ? 'Desativar esta regra' : 'Ativar esta regra'}
+        onClick={() => void alternar()}
+      >
+        <span className="interruptor-bolinha" />
+      </button>
+      <BotaoDeIcone nome="lapis" rotulo={`Editar a regra ${regra.nome}`} onClick={onEditar} />
+      <BotaoDeIcone nome="x" rotulo={`Excluir a regra ${regra.nome}`} onClick={onExcluir} />
+    </>
+  );
+}
+
 export function PaginaRegrasDeSla() {
-  const leitura = useLeitura<{ regras: RegraSlaConfigurada[] }>(
+  const [modalAberto, setModalAberto] = useState(false);
+  const [regraEmEdicao, setRegraEmEdicao] = useState<RegraSlaConfigurada | null>(null);
+  const [regraParaExcluir, setRegraParaExcluir] = useState<RegraSlaConfigurada | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
+  const leitura = useLeitura<{ filas: FilaConfigurada[]; regras: RegraSlaConfigurada[] }>(
     '/v1/gestao/configuracoes/regras',
   );
   if (!leitura.data) return null;
-  const { regras } = leitura.data;
+  const { filas, regras } = leitura.data;
+
+  async function excluir() {
+    if (!regraParaExcluir) return;
+    setExcluindo(true);
+    setErroExclusao(null);
+    const resultado = await excluirRegraSla(regraParaExcluir.id);
+    setExcluindo(false);
+    if (resultado.ok) setRegraParaExcluir(null);
+    else setErroExclusao(resultado.erro);
+  }
 
   const secoes: SecaoDeRegras[] = [
     {
@@ -71,6 +125,13 @@ export function PaginaRegrasDeSla() {
           selo: r.escopoTipo === 'tenant' ? 'Padrão' : undefined,
           situacao: r.ativa ? 'Ativa' : 'Desativada',
           ativa: r.ativa,
+          acao: (
+            <AcoesDaRegraSla
+              regra={r}
+              onEditar={() => setRegraEmEdicao(r)}
+              onExcluir={() => setRegraParaExcluir(r)}
+            />
+          ),
           procura: `${r.nome} ${meta} ${ROTULO_ALVO[r.alvo] ?? r.alvo} ${filaAtribuida}`.toLowerCase(),
         };
       }),
@@ -81,6 +142,14 @@ export function PaginaRegrasDeSla() {
     <>
       <div className="board-head">
         <h2>Regras de SLA</h2>
+        <Botao
+          variante="primario"
+          icone="mais"
+          className="board-acao"
+          onClick={() => setModalAberto(true)}
+        >
+          Nova regra
+        </Botao>
       </div>
 
       <ListaRegras
@@ -89,6 +158,41 @@ export function PaginaRegrasDeSla() {
         ocultarCabecalhoDeSecao
         paginar
         tamanhoDePaginaInicial={5}
+      />
+
+      <Modal aberto={modalAberto} titulo="Nova regra de SLA" onFechar={() => setModalAberto(false)}>
+        <FormularioRegraSla filas={filas} aoSalvar={() => setModalAberto(false)} />
+      </Modal>
+
+      <Modal
+        aberto={regraEmEdicao !== null}
+        titulo="Editar regra de SLA"
+        onFechar={() => setRegraEmEdicao(null)}
+      >
+        {regraEmEdicao ? (
+          <FormularioRegraSla
+            filas={filas}
+            regraExistente={regraEmEdicao}
+            aoSalvar={() => setRegraEmEdicao(null)}
+          />
+        ) : null}
+      </Modal>
+
+      <ModalConfirmacao
+        aberto={regraParaExcluir !== null}
+        titulo="Excluir regra de SLA"
+        mensagem={
+          <>
+            Excluir a regra “{regraParaExcluir?.nome}”? Esta ação não pode ser desfeita.
+          </>
+        }
+        erro={erroExclusao}
+        confirmando={excluindo}
+        onConfirmar={() => void excluir()}
+        onCancelar={() => {
+          setRegraParaExcluir(null);
+          setErroExclusao(null);
+        }}
       />
     </>
   );

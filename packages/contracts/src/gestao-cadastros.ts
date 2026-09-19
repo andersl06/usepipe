@@ -99,3 +99,130 @@ export interface RespostaProntaGravada {
   categoria: string | null;
   ativa: boolean;
 }
+
+/* --------------------------------------------------- regras de atendimento */
+
+/** Os quatro operadores de `apps/api/src/dominio/gestao/regra-fila.ts` — duplicado à mão, como o resto deste arquivo. */
+export type OperadorDeRegraFila = 'contem' | 'nao_contem' | 'igual' | 'diferente';
+
+export interface CondicaoDeRegraFila {
+  campo: string;
+  operador: OperadorDeRegraFila;
+  valor: string;
+}
+
+/** Só o que veio muda; `condicoes`, quando vem, SUBSTITUI todas as anteriores. */
+export interface PedidoDeEdicaoDeRegraFila {
+  nome?: string;
+  ordem?: number;
+  combinador?: 'e' | 'ou';
+  filaDestinoId?: string;
+  condicoes?: CondicaoDeRegraFila[];
+}
+
+export interface RegraFilaGravada {
+  id: string;
+  nome: string;
+  ordem: number;
+  combinador: 'e' | 'ou';
+  filaDestinoId: string;
+  ativa: boolean;
+  condicoes: CondicaoDeRegraFila[];
+}
+
+/* ------------------------------------------------------------------- SLA */
+
+export interface PedidoDeRegraSla {
+  nome: string;
+  alvo: string;
+  prazoSeg: number;
+  alertaSeg?: number | null;
+  escopoTipo?: string;
+  escopoId?: string | null;
+  ativa?: boolean;
+}
+
+export interface PedidoDeEdicaoDeRegraSla {
+  nome?: string;
+  alvo?: string;
+  prazoSeg?: number;
+  alertaSeg?: number | null;
+  escopoTipo?: string;
+  escopoId?: string | null;
+  ativa?: boolean;
+}
+
+export interface RegraSlaGravada {
+  id: string;
+  nome: string;
+  alvo: string;
+  prazoSeg: number;
+  alertaSeg: number | null;
+  escopoTipo: string;
+  escopoId: string | null;
+  ativa: boolean;
+}
+
+/* --------------------------------------------------------------- horários */
+
+export interface PedidoDeEdicaoDeFaixa {
+  diaSemana?: number;
+  inicio?: string;
+  fim?: string;
+}
+
+export interface FaixaGravada {
+  id: string;
+  horarioId: string;
+  diaSemana: number;
+  inicio: string;
+  fim: string;
+}
+
+export interface PedidoDeEdicaoDeExcecao {
+  data?: string;
+  fechado?: boolean;
+  inicio?: string | null;
+  fim?: string | null;
+  motivo?: string | null;
+}
+
+export interface ExcecaoGravada {
+  id: string;
+  horarioId: string;
+  data: string;
+  fechado: boolean;
+  inicio: string | null;
+  fim: string | null;
+  motivo: string | null;
+}
+
+/* ------------------------------------------------------------ prioridade */
+
+export interface PedidoDeRegraPrioridade {
+  nome: string;
+  nivel: string;
+  escopoTipo?: string;
+  escopoId?: string | null;
+  condicao?: Record<string, unknown>;
+  ativa?: boolean;
+}
+
+export interface PedidoDeEdicaoDeRegraPrioridade {
+  nome?: string;
+  nivel?: string;
+  escopoTipo?: string;
+  escopoId?: string | null;
+  condicao?: Record<string, unknown>;
+  ativa?: boolean;
+}
+
+export interface RegraPrioridadeGravada {
+  id: string;
+  nome: string;
+  nivel: string;
+  escopoTipo: string;
+  escopoId: string | null;
+  condicao: Record<string, unknown>;
+  ativa: boolean;
+}

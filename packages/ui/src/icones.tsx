@@ -20,7 +20,11 @@ import type { SVGProps } from 'react';
 /** Caminhos na grade 24×24 do Tabler. Ordem alfabética. */
 const CAMINHOS = {
   alerta: 'M12 9v4M12 17h.01M10.24 3.957l-8.422 14.06a1.989 1.989 0 0 0 1.7 2.983h16.845a1.989 1.989 0 0 0 1.7 -2.983l-8.423 -14.06a1.989 1.989 0 0 0 -3.4 0z',
+  baixo: 'M6 9l6 6l6 -6',
   busca: 'M10 10m-7 0a7 7 0 1 0 14 0a7 7 0 1 0 -14 0M21 21l-6 -6',
+  cima: 'M6 15l6 -6l6 6',
+  lapis:
+    'M4 20h4l10.5 -10.5a2.828 2.828 0 1 0 -4 -4l-10.5 10.5v4M13.5 6.5l4 4',
   calendario:
     'M4 7a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2zM16 3v4M8 3v4M4 11h16',
   balao:

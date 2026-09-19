@@ -9,6 +9,8 @@ import { uuidOuNada } from '../dominio/gestao/formato.js';
 import * as cadastros from '../dominio/gestao/cadastros.js';
 import * as comunicacao from '../dominio/gestao/comunicacao.js';
 import * as configuracoes from '../dominio/gestao/configuracoes.js';
+import * as regrasSla from '../dominio/gestao/regras-sla.js';
+import * as regrasPrioridade from '../dominio/gestao/regras-prioridade.js';
 import * as acoesRegras from '../dominio/gestao/acoes/regras.js';
 import * as acoesAtendentes from '../dominio/gestao/acoes/atendentes.js';
 import * as acoesComunicacao from '../dominio/gestao/acoes/comunicacao.js';
@@ -143,6 +145,13 @@ export class ControladorGestaoCadastros {
     return noTenant(sessao.tenantId, (tx) => configuracoes.carregarGerais(tx));
   }
 
+  @Get('regras/prioridade')
+  @ComSessao()
+  regrasDePrioridade(@Req() requisicao: RequisicaoComSessao) {
+    const sessao = sessaoDe(requisicao);
+    return noTenant(sessao.tenantId, (tx) => regrasPrioridade.carregarRegrasDePrioridade(tx));
+  }
+
   /* -------------------------------------------------------- filas (item 1) */
 
   @Post('atendentes/filas')
@@ -218,6 +227,163 @@ export class ControladorGestaoCadastros {
     idOu404(atendenteId, 'atendente');
     await noTenant(sessao.tenantId, (tx) =>
       cadastros.desvincularAtendenteDaFila(tx, sessao.tenantId, sessao.usuarioId, id, atendenteId),
+    );
+  }
+
+  /* ------------------------------------------- regras de atendimento (item 1) */
+
+  @Patch('regras/atendimento/:id')
+  @ComSessao()
+  async editarRegraFila(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: cadastros.PedidoDeEdicaoDeRegraFila,
+  ): Promise<cadastros.RegraFilaGravada> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'regra');
+    return noTenant(sessao.tenantId, (tx) =>
+      cadastros.editarRegraFila(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+    );
+  }
+
+  @Delete('regras/atendimento/:id')
+  @HttpCode(204)
+  @ComSessao()
+  async excluirRegraFila(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<void> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'regra');
+    await noTenant(sessao.tenantId, (tx) =>
+      cadastros.excluirRegraFila(tx, sessao.tenantId, sessao.usuarioId, id),
+    );
+  }
+
+  /* ------------------------------------------------------- horários (item 3) */
+
+  @Patch('regras/horarios/faixas/:id')
+  @ComSessao()
+  async editarFaixaHorario(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: cadastros.PedidoDeEdicaoDeFaixa,
+  ): Promise<cadastros.FaixaGravada> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'faixa de horário');
+    return noTenant(sessao.tenantId, (tx) =>
+      cadastros.editarFaixaHorario(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+    );
+  }
+
+  @Delete('regras/horarios/faixas/:id')
+  @HttpCode(204)
+  @ComSessao()
+  async excluirFaixaHorario(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<void> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'faixa de horário');
+    await noTenant(sessao.tenantId, (tx) =>
+      cadastros.excluirFaixaHorario(tx, sessao.tenantId, sessao.usuarioId, id),
+    );
+  }
+
+  @Patch('regras/horarios/excecoes/:id')
+  @ComSessao()
+  async editarExcecaoHorario(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: cadastros.PedidoDeEdicaoDeExcecao,
+  ): Promise<cadastros.ExcecaoGravada> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'exceção de horário');
+    return noTenant(sessao.tenantId, (tx) =>
+      cadastros.editarExcecaoHorario(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+    );
+  }
+
+  @Delete('regras/horarios/excecoes/:id')
+  @HttpCode(204)
+  @ComSessao()
+  async excluirExcecaoHorario(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<void> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'exceção de horário');
+    await noTenant(sessao.tenantId, (tx) =>
+      cadastros.excluirExcecaoHorario(tx, sessao.tenantId, sessao.usuarioId, id),
+    );
+  }
+
+  /* ------------------------------------------------------------ SLA (item 2) */
+
+  @Post('configuracoes/regras')
+  @ComSessao()
+  async criarRegraSla(
+    @Req() requisicao: RequisicaoComSessao,
+    @Body() corpo: regrasSla.PedidoDeRegraSla,
+  ): Promise<{ id: string }> {
+    const sessao = sessaoDe(requisicao);
+    return noTenant(sessao.tenantId, (tx) =>
+      regrasSla.criarRegraSla(tx, sessao.tenantId, sessao.usuarioId, corpo),
+    );
+  }
+
+  @Patch('configuracoes/regras/:id')
+  @ComSessao()
+  async editarRegraSla(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: regrasSla.PedidoDeEdicaoDeRegraSla,
+  ): Promise<regrasSla.RegraSlaGravada> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'regra de SLA');
+    return noTenant(sessao.tenantId, (tx) =>
+      regrasSla.editarRegraSla(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+    );
+  }
+
+  @Delete('configuracoes/regras/:id')
+  @HttpCode(204)
+  @ComSessao()
+  async excluirRegraSla(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<void> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'regra de SLA');
+    await noTenant(sessao.tenantId, (tx) =>
+      regrasSla.excluirRegraSla(tx, sessao.tenantId, sessao.usuarioId, id),
+    );
+  }
+
+  /* ------------------------------------------------------- prioridade (item 4) */
+
+  @Post('regras/prioridade')
+  @ComSessao()
+  async criarRegraPrioridade(
+    @Req() requisicao: RequisicaoComSessao,
+    @Body() corpo: regrasPrioridade.PedidoDeRegraPrioridade,
+  ): Promise<{ id: string }> {
+    const sessao = sessaoDe(requisicao);
+    return noTenant(sessao.tenantId, (tx) =>
+      regrasPrioridade.criarRegraPrioridade(tx, sessao.tenantId, sessao.usuarioId, corpo),
+    );
+  }
+
+  @Patch('regras/prioridade/:id')
+  @ComSessao()
+  async editarRegraPrioridade(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: regrasPrioridade.PedidoDeEdicaoDeRegraPrioridade,
+  ): Promise<regrasPrioridade.RegraPrioridadeGravada> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'regra de prioridade');
+    return noTenant(sessao.tenantId, (tx) =>
+      regrasPrioridade.editarRegraPrioridade(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+    );
+  }
+
+  @Delete('regras/prioridade/:id')
+  @HttpCode(204)
+  @ComSessao()
+  async excluirRegraPrioridade(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<void> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'regra de prioridade');
+    await noTenant(sessao.tenantId, (tx) =>
+      regrasPrioridade.excluirRegraPrioridade(tx, sessao.tenantId, sessao.usuarioId, id),
     );
   }
 

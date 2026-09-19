@@ -6,6 +6,7 @@ import { ErroPipe } from '../../../erros.js';
 import { exigirPermissao } from '../../../sessao.js';
 import { HORARIO_GERENCIAR, alternarAtivaDaRegraFila, gravarRegraFila } from '../cadastros.js';
 import { campoValido, operadorValido, type OperadorDeRegra } from '../regra-fila.js';
+import { minutosDoRelogio, relogioValido } from '../formato.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
@@ -44,16 +45,6 @@ function normalizarFuso(fuso: string): string | null {
   } catch {
     return null;
   }
-}
-
-/** `HH:MM`, com `24:00` aceito porque o core trata meia-noite do dia seguinte. */
-function relogioValido(valor: string): boolean {
-  return valor === '24:00' || /^([01]\d|2[0-3]):[0-5]\d$/.test(valor);
-}
-
-function minutos(relogio: string): number {
-  const [h, m] = relogio.split(':');
-  return Number(h) * 60 + Number(m);
 }
 
 /** `ErroPipe` (de `exigirPermissao`) vira a frase da tela; qualquer outro erro sobe. */
@@ -139,7 +130,7 @@ async function salvarFaixaInterna(
     return falha('Dia da semana inválido.');
   }
   if (!relogioValido(inicio) || !relogioValido(fim)) return falha('Horário inválido. Use HH:MM.');
-  if (minutos(fim) <= minutos(inicio)) {
+  if (minutosDoRelogio(fim) <= minutosDoRelogio(inicio)) {
     return falha(
       'O fim tem de ser depois do início. Expediente que vira o dia são duas faixas, uma em cada dia.',
     );
@@ -217,7 +208,7 @@ async function salvarExcecaoInterna(
       );
     }
     if (!relogioValido(inicio) || !relogioValido(fim)) return falha('Horário inválido. Use HH:MM.');
-    if (minutos(fim) <= minutos(inicio)) return falha('O fim tem de ser depois do início.');
+    if (minutosDoRelogio(fim) <= minutosDoRelogio(inicio)) return falha('O fim tem de ser depois do início.');
   }
 
   return consultar(tx, async (tx) => {

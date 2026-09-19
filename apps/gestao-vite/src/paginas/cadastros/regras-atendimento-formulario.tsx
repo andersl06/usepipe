@@ -1,14 +1,16 @@
 import { useActionState, useEffect, useRef, useState } from 'react';
 import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
-import { salvarRegraFila } from '../../lib/acoes';
+import { salvarRegraFila, type Resultado } from '../../lib/acoes';
+import { editarRegraFila } from '../../lib/cadastros-gravar';
 import {
   CAMPOS_DE_REGRA,
   OPERADORES_DE_REGRA,
   PREFIXO_ATRIBUTO,
   ROTULO_CAMPO,
   ROTULO_OPERADOR,
+  type OperadorDeRegra,
 } from '../../lib/regra-fila';
-import type { FilaParaEscolher } from '../../lib/cadastros';
+import type { FilaParaEscolher, RegraDeFilaCadastrada } from '../../lib/cadastros';
 import { envioQuePreserva } from '../../componentes/envio-de-formulario';
 
 /**
@@ -27,8 +29,26 @@ import { envioQuePreserva } from '../../componentes/envio-de-formulario';
 /** Campo extra do contato: a chave é livre, e o prefixo é o que o motor entende. */
 const EXTRA = '__extra__';
 
-function LinhaDeCondicao({ desabilitado }: { desabilitado: boolean }) {
-  const [campo, setCampo] = useState<string>(CAMPOS_DE_REGRA[0]);
+interface CondicaoInicial {
+  campo: string;
+  operador: OperadorDeRegra;
+  valor: string;
+}
+
+function LinhaDeCondicao({
+  desabilitado,
+  inicial,
+}: {
+  desabilitado: boolean;
+  /** Preenche a linha ao editar uma regra existente — ausente é "linha em branco" (criação). */
+  inicial?: CondicaoInicial;
+}) {
+  const campoInicialEhFixo = !inicial || (CAMPOS_DE_REGRA as readonly string[]).includes(inicial.campo);
+  const [campo, setCampo] = useState<string>(
+    inicial ? (campoInicialEhFixo ? inicial.campo : EXTRA) : CAMPOS_DE_REGRA[0],
+  );
+  const chaveExtraInicial =
+    inicial && !campoInicialEhFixo ? inicial.campo.slice(PREFIXO_ATRIBUTO.length) : '';
 
   return (
     <div className="form-linha">
@@ -51,6 +71,7 @@ function LinhaDeCondicao({ desabilitado }: { desabilitado: boolean }) {
               é montado. A ação recebe `contato.atributos.plano` dos dois jeitos. */}
           <Campo
             name="campo"
+            defaultValue={chaveExtraInicial}
             placeholder="plano"
             pattern="[A-Za-z0-9_]+"
             title="Letras, números e sublinhado."
@@ -64,7 +85,7 @@ function LinhaDeCondicao({ desabilitado }: { desabilitado: boolean }) {
 
       <label className="form-campo" style={{ flexBasis: '180px' }}>
         <span className="sub">Operador</span>
-        <Seletor name="operador" defaultValue="contem" disabled={desabilitado}>
+        <Seletor name="operador" defaultValue={inicial?.operador ?? 'contem'} disabled={desabilitado}>
           {OPERADORES_DE_REGRA.map((o) => (
             <option key={o} value={o}>
               {ROTULO_OPERADOR[o]}
@@ -75,28 +96,61 @@ function LinhaDeCondicao({ desabilitado }: { desabilitado: boolean }) {
 
       <label className="form-campo" style={{ flexBasis: '240px' }}>
         <span className="sub">Valor</span>
-        <Campo name="valor" placeholder="boleto" disabled={desabilitado} />
+        <Campo name="valor" defaultValue={inicial?.valor ?? ''} placeholder="boleto" disabled={desabilitado} />
       </label>
     </div>
   );
 }
 
+/** `(prev, dados) => Resultado` no mesmo formato de `acaoRemota`, mas chamando o `PATCH` REST em vez de `acoes/:acao`. */
+function acaoDeEdicao(id: string) {
+  return async (_anterior: Resultado, dados: FormData): Promise<Resultado> => {
+    const campos = dados.getAll('campo').map((v) => String(v));
+    const operadores = dados.getAll('operador').map((v) => String(v));
+    const valores = dados.getAll('valor').map((v) => String(v));
+    const condicoes = campos
+      .map((campo, i) => ({
+        campo,
+        operador: (operadores[i] ?? 'contem') as OperadorDeRegra,
+        valor: valores[i] ?? '',
+      }))
+      // Linha em branco não entra — mesmo filtro de `salvarRegraFila` (ação de criação).
+      .filter((c) => c.campo || c.valor);
+
+    const resultado = await editarRegraFila(id, {
+      nome: String(dados.get('nome') ?? '').trim(),
+      filaDestinoId: String(dados.get('filaDestinoId') ?? '').trim(),
+      combinador: (String(dados.get('combinador') ?? 'e') as 'e' | 'ou'),
+      ordem: Number(dados.get('ordem') ?? '0'),
+      condicoes,
+    });
+    return resultado.ok ? { ok: true } : { ok: false, erro: resultado.erro };
+  };
+}
+
 export function FormularioRegraFila({
   filas,
+  regraExistente,
   aoSalvar,
 }: {
   filas: readonly FilaParaEscolher[];
+  /** Presente = editar esta regra (`PATCH`); ausente = criar (mesmo de sempre). */
+  regraExistente?: RegraDeFilaCadastrada;
   /** Fecha o modal quando o salvamento dá certo — sem isso a pessoa fica
       olhando para o próprio formulário limpo, sem saber se funcionou. */
   aoSalvar?: () => void;
 }) {
+  const editando = regraExistente !== undefined;
   const formRef = useRef<HTMLFormElement>(null);
-  const [linhas, setLinhas] = useState(1);
+  const [linhas, setLinhas] = useState(regraExistente?.condicoes.length ?? 1);
   /* O `reset()` do formulário não desfaz o estado do seletor de campo, que é
      controlado. Trocar a geração remonta as linhas zeradas — é o mesmo efeito,
      com uma linha em vez de um `useImperativeHandle` por linha. */
   const [geracao, setGeracao] = useState(0);
-  const [resultado, enviar, enviando] = useActionState(salvarRegraFila, { ok: true });
+  const [resultado, enviar, enviando] = useActionState(
+    regraExistente ? acaoDeEdicao(regraExistente.id) : salvarRegraFila,
+    { ok: true },
+  );
   /* `useActionState` nasce com `{ ok: true }` — o valor inicial, não uma
      confirmação de envio. Sem esta guarda, o efeito abaixo achava que acabou
      de salvar assim que o formulário monta (dentro do modal, por exemplo) e
@@ -110,7 +164,7 @@ export function FormularioRegraFila({
     if (resultado === estadoInicial.current) return;
     if (resultado.ok) {
       formRef.current?.reset();
-      setLinhas(1);
+      setLinhas(regraExistente?.condicoes.length ?? 1);
       setGeracao((g) => g + 1);
       aoSalvar?.();
     }
@@ -144,6 +198,7 @@ export function FormularioRegraFila({
             <span className="sub">Nome da regra</span>
             <Campo
               name="nome"
+              defaultValue={regraExistente?.nome}
               placeholder="Cobrança por palavra-chave"
               required
               disabled={enviando}
@@ -152,7 +207,12 @@ export function FormularioRegraFila({
 
           <label className="form-campo" style={{ flexBasis: '220px' }}>
             <span className="sub">Fila de destino</span>
-            <Seletor name="filaDestinoId" defaultValue="" required disabled={enviando}>
+            <Seletor
+              name="filaDestinoId"
+              defaultValue={regraExistente?.filaDestinoId ?? ''}
+              required
+              disabled={enviando}
+            >
               <option value="">Escolha a fila</option>
               {filas.map((f) => (
                 <option key={f.id} value={f.id}>
@@ -169,14 +229,14 @@ export function FormularioRegraFila({
               type="number"
               min={0}
               max={999}
-              defaultValue={0}
+              defaultValue={regraExistente?.ordem ?? 0}
               disabled={enviando}
             />
           </label>
 
           <label className="form-campo" style={{ flexBasis: '200px' }}>
             <span className="sub">Combinar condições com</span>
-            <Seletor name="combinador" defaultValue="e" disabled={enviando}>
+            <Seletor name="combinador" defaultValue={regraExistente?.combinador ?? 'e'} disabled={enviando}>
               <option value="e">E — todas precisam casar</option>
               <option value="ou">OU — basta uma casar</option>
             </Seletor>
@@ -190,7 +250,7 @@ export function FormularioRegraFila({
         </p>
 
         {Array.from({ length: linhas }, (_, i) => (
-          <LinhaDeCondicao key={`${geracao}-${i}`} desabilitado={enviando} />
+          <LinhaDeCondicao key={`${geracao}-${i}`} desabilitado={enviando} inicial={regraExistente?.condicoes[i]} />
         ))}
 
         <div className="cl-acoes" style={{ justifyContent: 'flex-start' }}>
@@ -203,7 +263,7 @@ export function FormularioRegraFila({
 
         <div className="cl-acoes">
           <Botao type="submit" variante="primario" disabled={enviando}>
-            {enviando ? 'Salvando…' : 'Salvar regra'}
+            {enviando ? 'Salvando…' : editando ? 'Salvar alterações' : 'Salvar regra'}
           </Botao>
         </div>
       </form>

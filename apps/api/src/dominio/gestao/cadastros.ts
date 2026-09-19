@@ -26,8 +26,8 @@ import type { TransacaoPipe, Ator } from '@pipe/db';
 import { ErroPipe } from '../../erros.js';
 import { exigirPermissao } from '../../sessao.js';
 import { corValida } from './cores-de-fila.js';
-import { relogio } from './formato.js';
-import type { OperadorDeRegra, RegraDeFila } from './regra-fila.js';
+import { minutosDoRelogio, relogio, relogioValido } from './formato.js';
+import { campoValido, operadorValido, type OperadorDeRegra, type RegraDeFila } from './regra-fila.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
@@ -385,6 +385,300 @@ export async function carregarHorarios(tx: TransacaoPipe): Promise<Horarios> {
   });
 }
 
+/* ============================================ escrita — faixa e exceção
+   Item 3 da tarefa de cadastros do Atendimento: `acoes/regras.ts` já grava
+   faixa e exceção (`salvarFaixa`/`salvarExcecao`, criação incremental); aqui
+   entram editar e excluir de cada uma, no padrão REST (`ErroPipe`, status de
+   verdade) — os dois gestos que ainda não existiam.
+
+   `horarioId` não muda na edição: mover uma faixa para outro horário é
+   excluir e recriar, não editar — o mesmo limite que `editarFila` aplica ao
+   não deixar a fila trocar de tenant. */
+
+export interface PedidoDeEdicaoDeFaixa {
+  diaSemana?: number;
+  inicio?: string;
+  fim?: string;
+}
+
+export interface FaixaGravada {
+  id: string;
+  horarioId: string;
+  diaSemana: number;
+  inicio: string;
+  fim: string;
+}
+
+async function faixaViva(tx: TransacaoPipe, tid: string, id: string) {
+  const [atual] = await tx
+    .select({
+      id: horarioFaixa.id,
+      horarioId: horarioFaixa.horarioId,
+      diaSemana: horarioFaixa.diaSemana,
+      inicio: horarioFaixa.inicio,
+      fim: horarioFaixa.fim,
+    })
+    .from(horarioFaixa)
+    .where(and(eq(horarioFaixa.tenantId, tid), eq(horarioFaixa.id, id)))
+    .limit(1);
+  if (!atual) throw ErroPipe.naoEncontrado('faixa de horário');
+  return atual;
+}
+
+function diaSemanaConferido(bruto: unknown): number {
+  const n = Number(bruto);
+  if (!Number.isInteger(n) || n < 0 || n > 6) {
+    throw ErroPipe.requisicao('dia_semana_invalido', 'Dia da semana inválido.');
+  }
+  return n;
+}
+
+function relogioConferido(bruto: unknown, campo: string): string {
+  const valor = String(bruto ?? '').trim();
+  if (!relogioValido(valor)) {
+    throw ErroPipe.requisicao(`${campo}_invalido`, `"${campo}" inválido. Use HH:MM.`);
+  }
+  return valor;
+}
+
+/**
+ * `update`: dia, início e fim são o mesmo gesto.
+ *
+ * Recusa (409) início ≥ fim e recusa (409) sobreposição no mesmo dia do
+ * mesmo horário — pedido explícito da tarefa. **Decisão Pipe**, registrada
+ * porque diverge da CRIAÇÃO: `salvarFaixaInterna` (`acoes/regras.ts`) deixa
+ * faixas do mesmo dia se sobrepor de propósito, porque `faixasDoDia` do
+ * `@pipe/core` funde intervalos sozinho e duas faixas sobrepostas nunca
+ * abriram menos do que uma só. Aqui a regra é mais estrita porque é o que a
+ * tarefa pediu; a criação antiga não muda, para não alterar comportamento já
+ * testado.
+ */
+export async function editarFaixaHorario(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  id: string,
+  pedido: PedidoDeEdicaoDeFaixa,
+): Promise<FaixaGravada> {
+  const atual = await faixaViva(tx, tid, id);
+  await exigirPermissao(tx, usuarioId, HORARIO_GERENCIAR);
+
+  // `relogio()` normaliza o `HH:MM:SS` que o Postgres devolve para o `HH:MM`
+  // que a API recebe e devolve — sem isso, reenviar o mesmo horário parecia
+  // uma mudança (formato diferente, valor igual) e sujava a auditoria.
+  const antes = { diaSemana: atual.diaSemana, inicio: relogio(atual.inicio), fim: relogio(atual.fim) };
+  const depois = { ...antes };
+
+  if (pedido.diaSemana !== undefined) depois.diaSemana = diaSemanaConferido(pedido.diaSemana);
+  if (pedido.inicio !== undefined) depois.inicio = relogioConferido(pedido.inicio, 'início');
+  if (pedido.fim !== undefined) depois.fim = relogioConferido(pedido.fim, 'fim');
+
+  const mudanca = diferenca(antes, depois);
+  if (Object.keys(mudanca.depois).length === 0) return atual;
+
+  if (minutosDoRelogio(depois.fim) <= minutosDoRelogio(depois.inicio)) {
+    throw ErroPipe.conflito(
+      'fim_antes_do_inicio',
+      'O fim tem de ser depois do início. Expediente que vira o dia são duas faixas, uma em cada dia.',
+    );
+  }
+
+  const irmas = await tx
+    .select({ id: horarioFaixa.id, inicio: horarioFaixa.inicio, fim: horarioFaixa.fim })
+    .from(horarioFaixa)
+    .where(and(eq(horarioFaixa.horarioId, atual.horarioId), eq(horarioFaixa.diaSemana, depois.diaSemana), ne(horarioFaixa.id, id)));
+  const inicioMin = minutosDoRelogio(depois.inicio);
+  const fimMin = minutosDoRelogio(depois.fim);
+  const sobrepoe = irmas.some(
+    (f) => inicioMin < minutosDoRelogio(f.fim) && minutosDoRelogio(f.inicio) < fimMin,
+  );
+  if (sobrepoe) {
+    throw ErroPipe.conflito('faixa_sobreposta', 'Esta faixa se sobrepõe a outra já cadastrada neste dia.');
+  }
+
+  await tx
+    .update(horarioFaixa)
+    .set({ diaSemana: depois.diaSemana, inicio: depois.inicio, fim: depois.fim })
+    .where(and(eq(horarioFaixa.tenantId, tid), eq(horarioFaixa.id, id)));
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'alterou',
+    objetoTipo: 'horario_faixa',
+    objetoId: id,
+    antes: mudanca.antes,
+    depois: mudanca.depois,
+  });
+
+  return { ...atual, ...depois };
+}
+
+export async function excluirFaixaHorario(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  id: string,
+): Promise<void> {
+  const atual = await faixaViva(tx, tid, id);
+  await exigirPermissao(tx, usuarioId, HORARIO_GERENCIAR);
+
+  await tx.delete(horarioFaixa).where(and(eq(horarioFaixa.tenantId, tid), eq(horarioFaixa.id, id)));
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'excluiu',
+    objetoTipo: 'horario_faixa',
+    objetoId: id,
+    antes: { horarioId: atual.horarioId, diaSemana: atual.diaSemana, inicio: atual.inicio, fim: atual.fim },
+  });
+}
+
+export interface PedidoDeEdicaoDeExcecao {
+  data?: string;
+  fechado?: boolean;
+  inicio?: string | null;
+  fim?: string | null;
+  motivo?: string | null;
+}
+
+export interface ExcecaoGravada {
+  id: string;
+  horarioId: string;
+  data: string;
+  fechado: boolean;
+  inicio: string | null;
+  fim: string | null;
+  motivo: string | null;
+}
+
+async function excecaoViva(tx: TransacaoPipe, tid: string, id: string) {
+  const [atual] = await tx
+    .select({
+      id: horarioExcecao.id,
+      horarioId: horarioExcecao.horarioId,
+      data: horarioExcecao.data,
+      fechado: horarioExcecao.fechado,
+      inicio: horarioExcecao.inicio,
+      fim: horarioExcecao.fim,
+      motivo: horarioExcecao.motivo,
+    })
+    .from(horarioExcecao)
+    .where(and(eq(horarioExcecao.tenantId, tid), eq(horarioExcecao.id, id)))
+    .limit(1);
+  if (!atual) throw ErroPipe.naoEncontrado('exceção de horário');
+  return atual;
+}
+
+/**
+ * `update`: mesmas regras da criação (`salvarExcecaoInterna`) — fechado não
+ * tem horário próprio, aberto precisa dos dois, início < fim, e a data não
+ * pode colidir com outra exceção do mesmo horário (`horario_excecao_uk`).
+ */
+export async function editarExcecaoHorario(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  id: string,
+  pedido: PedidoDeEdicaoDeExcecao,
+): Promise<ExcecaoGravada> {
+  const atual = await excecaoViva(tx, tid, id);
+  await exigirPermissao(tx, usuarioId, HORARIO_GERENCIAR);
+
+  const antes = {
+    data: atual.data,
+    fechado: atual.fechado,
+    inicio: atual.inicio === null ? null : relogio(atual.inicio),
+    fim: atual.fim === null ? null : relogio(atual.fim),
+    motivo: atual.motivo,
+  };
+  const depois = { ...antes };
+
+  if (pedido.data !== undefined) {
+    const data = String(pedido.data).trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) throw ErroPipe.requisicao('data_invalida', 'Informe a data.');
+    depois.data = data;
+  }
+  if (pedido.fechado !== undefined) depois.fechado = pedido.fechado;
+  if (pedido.inicio !== undefined) depois.inicio = pedido.inicio === null ? null : relogioConferido(pedido.inicio, 'início');
+  if (pedido.fim !== undefined) depois.fim = pedido.fim === null ? null : relogioConferido(pedido.fim, 'fim');
+  if (pedido.motivo !== undefined) depois.motivo = pedido.motivo?.trim() || null;
+
+  if (depois.fechado) {
+    if (depois.inicio || depois.fim) {
+      throw ErroPipe.requisicao(
+        'excecao_fechada_com_horario',
+        'Dia fechado não tem horário. Desmarque "fechado" para abrir em horário especial.',
+      );
+    }
+  } else {
+    if (!depois.inicio || !depois.fim) {
+      throw ErroPipe.requisicao(
+        'excecao_sem_horario',
+        'Exceção que abre precisa de horário próprio; sem ele o dia cai no expediente normal e a exceção não faz nada.',
+      );
+    }
+    if (minutosDoRelogio(depois.fim) <= minutosDoRelogio(depois.inicio)) {
+      throw ErroPipe.conflito('fim_antes_do_inicio', 'O fim tem de ser depois do início.');
+    }
+  }
+
+  const mudanca = diferenca(antes, depois);
+  if (Object.keys(mudanca.depois).length === 0) return atual;
+
+  if (depois.data !== antes.data) {
+    const [conflito] = await tx
+      .select({ id: horarioExcecao.id })
+      .from(horarioExcecao)
+      .where(and(eq(horarioExcecao.horarioId, atual.horarioId), eq(horarioExcecao.data, depois.data), ne(horarioExcecao.id, id)))
+      .limit(1);
+    if (conflito) {
+      throw ErroPipe.conflito('data_em_uso', `Já existe uma exceção em ${depois.data} para este horário.`);
+    }
+  }
+
+  await tx
+    .update(horarioExcecao)
+    .set({
+      data: depois.data,
+      fechado: depois.fechado,
+      inicio: depois.fechado ? null : depois.inicio,
+      fim: depois.fechado ? null : depois.fim,
+      motivo: depois.motivo,
+    })
+    .where(and(eq(horarioExcecao.tenantId, tid), eq(horarioExcecao.id, id)));
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'alterou',
+    objetoTipo: 'horario_excecao',
+    objetoId: id,
+    antes: mudanca.antes,
+    depois: mudanca.depois,
+  });
+
+  return { ...atual, ...depois, inicio: depois.fechado ? null : depois.inicio, fim: depois.fechado ? null : depois.fim };
+}
+
+export async function excluirExcecaoHorario(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  id: string,
+): Promise<void> {
+  const atual = await excecaoViva(tx, tid, id);
+  await exigirPermissao(tx, usuarioId, HORARIO_GERENCIAR);
+
+  await tx.delete(horarioExcecao).where(and(eq(horarioExcecao.tenantId, tid), eq(horarioExcecao.id, id)));
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'excluiu',
+    objetoTipo: 'horario_excecao',
+    objetoId: id,
+    antes: { horarioId: atual.horarioId, data: atual.data, fechado: atual.fechado },
+  });
+}
+
 // ------------------------------------------------------- regras de entrada
 
 /**
@@ -581,6 +875,203 @@ export async function alternarAtivaDaRegraFila(
     });
 
     return { ok: true };
+  });
+}
+
+/* ============================================== escrita — regra de entrada
+   Item 1 (segunda parte) da tarefa de cadastros do Atendimento: editar
+   (nome, fila destino, combinador, condições e ORDEM) e excluir. Criar e o
+   interruptor já existiam (`gravarRegraFila`/`alternarAtivaDaRegraFila`,
+   acima) — REST de verdade a partir daqui, no padrão de `editarFila`/
+   `excluirFila` (ErroPipe com status real, não `Resultado` em 200).
+
+   Decisão Pipe — REORDENAR não ganha rota própria: `ordem` já é só mais um
+   campo do PATCH, exatamente como em `editarFila`. Duas regras trocando de
+   posição são dois PATCH (um por regra), cada um com a nova `ordem` — a
+   tela manda um por vez ao mover uma linha para cima/baixo. Quem decide o
+   que "avaliar antes" significa é `ordenarRegras`/`filaDeDestino` em
+   `regra-fila.ts` (comentário de lá: "a primeira que casa vence"); este
+   arquivo só grava o número, nunca reordena por conta própria. */
+
+export interface CondicaoDeEdicao {
+  campo: string;
+  operador: OperadorDeRegra;
+  valor: string;
+}
+
+/** Só o que veio muda — igual a `PedidoDeEdicaoDeFila`. `condicoes`, quando vem, SUBSTITUI todas as anteriores. */
+export interface PedidoDeEdicaoDeRegraFila {
+  nome?: string;
+  ordem?: number;
+  combinador?: 'e' | 'ou';
+  filaDestinoId?: string;
+  condicoes?: readonly CondicaoDeEdicao[];
+}
+
+export interface RegraFilaGravada {
+  id: string;
+  nome: string;
+  ordem: number;
+  combinador: 'e' | 'ou';
+  filaDestinoId: string;
+  ativa: boolean;
+  condicoes: CondicaoDeEdicao[];
+}
+
+/** A regra viva do tenant, com as condições — ou 404. */
+async function regraFilaViva(tx: TransacaoPipe, tid: string, id: string): Promise<RegraFilaGravada> {
+  const [atual] = await tx
+    .select({
+      id: regraFila.id,
+      nome: regraFila.nome,
+      ordem: regraFila.ordem,
+      combinador: regraFila.combinador,
+      filaDestinoId: regraFila.filaDestinoId,
+      ativa: regraFila.ativa,
+    })
+    .from(regraFila)
+    .where(and(eq(regraFila.tenantId, tid), eq(regraFila.id, id)))
+    .limit(1);
+  if (!atual) throw ErroPipe.naoEncontrado('regra');
+
+  const condicoes = await tx
+    .select({ campo: regraFilaCondicao.campo, operador: regraFilaCondicao.operador, valor: regraFilaCondicao.valor })
+    .from(regraFilaCondicao)
+    .where(eq(regraFilaCondicao.regraId, id))
+    .orderBy(asc(regraFilaCondicao.campo), asc(regraFilaCondicao.id));
+
+  return {
+    ...atual,
+    combinador: atual.combinador as 'e' | 'ou',
+    condicoes: condicoes.map((c) => ({
+      campo: c.campo,
+      operador: c.operador as OperadorDeRegra,
+      valor: c.valor ?? '',
+    })),
+  };
+}
+
+function condicoesConferidas(bruto: readonly CondicaoDeEdicao[]): CondicaoDeEdicao[] {
+  if (bruto.length === 0) {
+    throw ErroPipe.requisicao(
+      'sem_condicao',
+      'Uma regra sem condição nunca casa. Preencha pelo menos uma.',
+    );
+  }
+  return bruto.map((c) => {
+    const campo = String(c.campo ?? '').trim();
+    const valor = String(c.valor ?? '').trim();
+    if (!campoValido(campo)) {
+      throw ErroPipe.requisicao(
+        'campo_invalido',
+        `"${campo}" não é um campo válido. Use um dos fixos ou um campo extra como contato.atributos.plano.`,
+      );
+    }
+    if (!operadorValido(c.operador)) throw ErroPipe.requisicao('operador_invalido', 'Operador inválido.');
+    if (!valor) throw ErroPipe.requisicao('valor_obrigatorio', `A condição sobre "${campo}" ficou sem valor.`);
+    return { campo, operador: c.operador, valor };
+  });
+}
+
+/** `update`: renomear, trocar fila/combinador/ordem e substituir as condições são o mesmo gesto. */
+export async function editarRegraFila(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  id: string,
+  pedido: PedidoDeEdicaoDeRegraFila,
+): Promise<RegraFilaGravada> {
+  const atual = await regraFilaViva(tx, tid, id);
+  await exigirPermissao(tx, usuarioId, REGRA_GERENCIAR);
+
+  const antes = { nome: atual.nome, ordem: atual.ordem, combinador: atual.combinador, filaDestinoId: atual.filaDestinoId };
+  const depois = { ...antes };
+
+  if (pedido.nome !== undefined) {
+    const nome = String(pedido.nome).trim();
+    if (!nome) throw ErroPipe.requisicao('nome_obrigatorio', 'Informe o nome da regra.');
+    depois.nome = nome;
+  }
+  if (pedido.ordem !== undefined) depois.ordem = ordemConferida(pedido.ordem);
+  if (pedido.combinador !== undefined) {
+    if (pedido.combinador !== 'e' && pedido.combinador !== 'ou') {
+      throw ErroPipe.requisicao('combinador_invalido', 'Combinador inválido.');
+    }
+    depois.combinador = pedido.combinador;
+  }
+  if (pedido.filaDestinoId !== undefined) {
+    const [destino] = await tx
+      .select({ id: fila.id })
+      .from(fila)
+      .where(and(eq(fila.tenantId, tid), eq(fila.id, pedido.filaDestinoId)))
+      .limit(1);
+    if (!destino) throw ErroPipe.requisicao('fila_nao_encontrada', 'Fila de destino não encontrada.');
+    depois.filaDestinoId = pedido.filaDestinoId;
+  }
+
+  if (depois.nome !== antes.nome) {
+    const [conflito] = await tx
+      .select({ id: regraFila.id })
+      .from(regraFila)
+      .where(and(eq(regraFila.tenantId, tid), eq(regraFila.nome, depois.nome), ne(regraFila.id, id)))
+      .limit(1);
+    if (conflito) throw ErroPipe.conflito('nome_em_uso', `Já existe uma regra chamada "${depois.nome}".`);
+  }
+
+  const mudanca = diferenca(antes, depois);
+  const condicoesNovas = pedido.condicoes !== undefined ? condicoesConferidas(pedido.condicoes) : undefined;
+  if (Object.keys(mudanca.depois).length === 0 && condicoesNovas === undefined) return atual;
+
+  if (Object.keys(mudanca.depois).length > 0) {
+    await tx
+      .update(regraFila)
+      .set({
+        nome: depois.nome,
+        ordem: depois.ordem,
+        combinador: depois.combinador,
+        filaDestinoId: depois.filaDestinoId,
+        atualizadoEm: new Date(),
+      })
+      .where(and(eq(regraFila.tenantId, tid), eq(regraFila.id, id)));
+  }
+
+  if (condicoesNovas !== undefined) {
+    await tx.delete(regraFilaCondicao).where(eq(regraFilaCondicao.regraId, id));
+    await tx
+      .insert(regraFilaCondicao)
+      .values(condicoesNovas.map((c) => ({ tenantId: tid, regraId: id, ...c })));
+  }
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'alterou',
+    objetoTipo: 'regra_fila',
+    objetoId: id,
+    antes: { ...mudanca.antes, ...(condicoesNovas !== undefined ? { condicoes: atual.condicoes.length } : {}) },
+    depois: { ...mudanca.depois, ...(condicoesNovas !== undefined ? { condicoes: condicoesNovas.length } : {}) },
+  });
+
+  return regraFilaViva(tx, tid, id);
+}
+
+/** `destroy`: `regra_fila_condicao.regra_id` é `ON DELETE CASCADE` — excluir a regra leva as condições junto. */
+export async function excluirRegraFila(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  id: string,
+): Promise<void> {
+  const atual = await regraFilaViva(tx, tid, id);
+  await exigirPermissao(tx, usuarioId, REGRA_GERENCIAR);
+
+  await tx.delete(regraFila).where(and(eq(regraFila.tenantId, tid), eq(regraFila.id, id)));
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'excluiu',
+    objetoTipo: 'regra_fila',
+    objetoId: id,
+    antes: { nome: atual.nome, ativa: atual.ativa },
   });
 }
 

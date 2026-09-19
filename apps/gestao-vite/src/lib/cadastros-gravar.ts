@@ -1,6 +1,7 @@
 import { api } from './api';
 import { atualizarLeituras } from './acoes';
 import { motivoDe, type Resultado } from './rest';
+import type { OperadorDeRegra } from './regra-fila';
 
 /**
  * Escrita de filas e pausas — `PATCH`/`DELETE` de verdade em
@@ -52,5 +53,43 @@ export async function excluirMotivoPausa(id: string): Promise<Resultado<void>> {
     return { ok: true, valor: undefined };
   } catch (erro) {
     return { ok: false, erro: motivoDe(erro, 'Não foi possível excluir o motivo.') };
+  }
+}
+
+/**
+ * Escrita da regra de atendimento (item 1, segunda parte) — `PATCH`/`DELETE`
+ * de verdade em `/v1/gestao/regras/atendimento/:id`, ao lado de
+ * `salvarRegraFila`/`alternarRegraFila` (`lib/acoes.ts`, a criação e o
+ * interruptor). REORDENAR não tem função própria: é este mesmo `editarRegraFila`
+ * chamado só com `{ ordem }` — a página manda um PATCH por linha movida.
+ */
+export interface PedidoDeEdicaoDeRegraFila {
+  nome?: string;
+  ordem?: number;
+  combinador?: 'e' | 'ou';
+  filaDestinoId?: string;
+  condicoes?: { campo: string; operador: OperadorDeRegra; valor: string }[];
+}
+
+export async function editarRegraFila(
+  id: string,
+  pedido: PedidoDeEdicaoDeRegraFila,
+): Promise<Resultado<void>> {
+  try {
+    await api.patch(`/v1/gestao/regras/atendimento/${id}`, pedido);
+    atualizarLeituras();
+    return { ok: true, valor: undefined };
+  } catch (erro) {
+    return { ok: false, erro: motivoDe(erro, 'Não foi possível editar a regra.') };
+  }
+}
+
+export async function excluirRegraFila(id: string): Promise<Resultado<void>> {
+  try {
+    await api.delete(`/v1/gestao/regras/atendimento/${id}`);
+    atualizarLeituras();
+    return { ok: true, valor: undefined };
+  } catch (erro) {
+    return { ok: false, erro: motivoDe(erro, 'Não foi possível excluir a regra.') };
   }
 }
