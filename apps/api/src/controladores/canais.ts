@@ -7,6 +7,8 @@ import { lerCanalWhatsApp } from '../dominio/whatsapp/canal.js';
 import { modoDaConexao, versaoDaApi } from '../dominio/whatsapp/cliente-graph.js';
 import { executarConfiguracaoManual } from '../dominio/whatsapp/configuracao-manual.js';
 import { conferirEstado, emitirEstado } from '../dominio/whatsapp/estado-de-conexao.js';
+import { criarModeloNaMeta, excluirModeloNaMeta, sincronizarModelos } from '../dominio/whatsapp/modelos.js';
+import type { PedidoDeModelo, ResultadoDaSincronizacao } from '../dominio/whatsapp/modelos.js';
 import { gravarPerfilDoCanal, lerPerfilDoCanal } from '../dominio/whatsapp/perfil.js';
 import type { PedidoDePerfil, PerfilVisivel } from '../dominio/whatsapp/perfil.js';
 import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
@@ -160,6 +162,46 @@ export class ControladorCanais {
     const sessao = sessaoDe(requisicao);
     await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
     return gravarPerfilDoCanal(sessao.tenantId, sessao.usuarioId, id, corpo ?? {});
+  }
+
+  /** Traz da Meta todos os modelos da WABA do canal. Ver `dominio/whatsapp/modelos.ts`. */
+  @Post('whatsapp/:id/modelos/sincronizar')
+  @HttpCode(200)
+  @ComSessao()
+  async sincronizarModelos(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+  ): Promise<ResultadoDaSincronizacao> {
+    const sessao = sessaoDe(requisicao);
+    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
+    return sincronizarModelos(sessao.tenantId, sessao.usuarioId, id);
+  }
+
+  /** Cria o modelo na Meta (vai para análise) e grava a cópia `pendente`. */
+  @Post('whatsapp/:id/modelos')
+  @HttpCode(201)
+  @ComSessao()
+  async criarModelo(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: PedidoDeModelo,
+  ): Promise<{ id: string; statusMeta: string }> {
+    const sessao = sessaoDe(requisicao);
+    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
+    return criarModeloNaMeta(sessao.tenantId, sessao.usuarioId, id, corpo ?? {});
+  }
+
+  /** Apaga na Meta, pelo nome (todos os idiomas), e aqui. */
+  @Delete('whatsapp/:id/modelos/:nome')
+  @ComSessao()
+  async excluirModelo(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Param('nome') nome: string,
+  ): Promise<{ removidos: number }> {
+    const sessao = sessaoDe(requisicao);
+    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
+    return excluirModeloNaMeta(sessao.tenantId, sessao.usuarioId, id, nome);
   }
 
   /** Desconecta: desmonta o webhook e desliga o canal. Conversa e mensagem ficam. */

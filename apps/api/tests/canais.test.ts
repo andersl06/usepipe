@@ -29,6 +29,9 @@ const { configurarWebhook } = await import('../src/dominio/whatsapp/configuracao
 const { executarConfiguracaoManual } = await import('../src/dominio/whatsapp/configuracao-manual.js');
 const { emitirEstado } = await import('../src/dominio/whatsapp/estado-de-conexao.js');
 const { gravarPerfilDoCanal, lerPerfilDoCanal } = await import('../src/dominio/whatsapp/perfil.js');
+const { criarModeloNaMeta, excluirModeloNaMeta, sincronizarModelos } = await import(
+  '../src/dominio/whatsapp/modelos.js'
+);
 const { buscarInfoDoNumero } = await import('../src/dominio/whatsapp/info-do-numero.js');
 const { trocarCodigo } = await import('../src/dominio/whatsapp/troca-de-token.js');
 const { ControladorCanais } = await import('../src/controladores/canais.js');
@@ -555,6 +558,114 @@ describe('perfil do número (GET/PATCH /v1/canais/whatsapp/:id/perfil)', () => {
     `);
     const semPapel = requisicao({ tenantId: A.tenantId, adminId: rows[0]!.id });
     await expect(controlador.perfil(semPapel, canal.id)).rejects.toMatchObject({ status: 403 });
+  });
+});
+
+describe('modelos de mensagem na Meta (sincronizar, criar, excluir)', () => {
+  async function modelosLocais(canalId: string) {
+    const { rows } = await dono.execute<{
+      nome: string;
+      idioma: string;
+      status_meta: string;
+      categoria: string;
+      cabecalho_tipo: string;
+      variaveis: string[];
+    }>(sql`
+      select nome, idioma, status_meta, categoria, cabecalho_tipo, variaveis
+        from template_mensagem where canal_id = ${canalId}::uuid order by nome, idioma
+    `);
+    return rows;
+  }
+
+  it('cria na Meta com exemplos, grava pendente, e a sincronização traz o status e remove o que sumiu', async () => {
+    const canal = await conectar(A, { codigo: `modelos-${S}` });
+    const criado = await criarModeloNaMeta(A.tenantId, A.adminId, canal.id, {
+      nome: 'boas_vindas',
+      categoria: 'utilidade',
+      cabecalho: 'Olá {{1}}',
+      exemploDoCabecalho: 'Ana',
+      corpo: 'Seu protocolo é {{1}} e vence em {{2}}.',
+      exemplos: ['123', '10/10'],
+      rodape: 'Pipe',
+    });
+    expect(criado.statusMeta).toBe('pendente');
+    const enviado = ClienteGraphDuble.modelos.get(canal.wabaId!)![0]!;
+    expect(enviado.category).toBe('UTILITY');
+    expect(enviado.components).toEqual([
+      { type: 'HEADER', format: 'TEXT', text: 'Olá {{1}}', example: { header_text: ['Ana'] } },
+      { type: 'BODY', text: 'Seu protocolo é {{1}} e vence em {{2}}.', example: { body_text: [['123', '10/10']] } },
+      { type: 'FOOTER', text: 'Pipe' },
+    ]);
+    expect(await modelosLocais(canal.id)).toMatchObject([
+      { nome: 'boas_vindas', status_meta: 'pendente', cabecalho_tipo: 'texto', variaveis: ['1', '2'] },
+    ]);
+
+    // Na Meta: aprovado, e aparece um segundo modelo criado lá fora; um terceiro de categoria desconhecida.
+    enviado.status = 'APPROVED';
+    ClienteGraphDuble.modelos.get(canal.wabaId!)!.push(
+      {
+        name: 'promo',
+        language: 'pt_BR',
+        status: 'REJECTED',
+        category: 'MARKETING',
+        components: [{ type: 'HEADER', format: 'IMAGE' }, { type: 'BODY', text: 'Oferta {{1}}' }],
+      },
+      { name: 'estranho', language: 'pt_BR', status: 'APPROVED', category: 'NOVA_CATEGORIA' },
+    );
+    const primeira = await sincronizarModelos(A.tenantId, A.adminId, canal.id);
+    expect(primeira).toEqual({ criados: 1, atualizados: 1, removidos: 0, ignorados: 1 });
+    expect(await modelosLocais(canal.id)).toMatchObject([
+      // Os nomes dados às variáveis ficam: a quantidade não mudou.
+      { nome: 'boas_vindas', status_meta: 'aprovado', variaveis: ['1', '2'] },
+      { nome: 'promo', status_meta: 'rejeitado', categoria: 'marketing', cabecalho_tipo: 'imagem', variaveis: ['Variável 1'] },
+    ]);
+
+    // Apagado lá fora: some daqui na próxima sincronização.
+    ClienteGraphDuble.modelos.set(
+      canal.wabaId!,
+      ClienteGraphDuble.modelos.get(canal.wabaId!)!.filter((m) => m.name !== 'promo'),
+    );
+    const segunda = await sincronizarModelos(A.tenantId, A.adminId, canal.id);
+    expect(segunda.removidos).toBe(1);
+    expect((await modelosLocais(canal.id)).map((m) => m.nome)).toEqual(['boas_vindas']);
+
+    const excluido = await excluirModeloNaMeta(A.tenantId, A.adminId, canal.id, 'boas_vindas');
+    expect(excluido).toEqual({ removidos: 1 });
+    expect(await modelosLocais(canal.id)).toHaveLength(0);
+    expect(ClienteGraphDuble.modelos.get(canal.wabaId!)!.some((m) => m.name === 'boas_vindas')).toBe(false);
+  });
+
+  it('recusas de formulário não chegam à Meta', async () => {
+    const canal = await conectar(A, { codigo: `modelos-recusa-${S}` });
+    ClienteGraphDuble.reiniciar();
+    const criar = (p: object) => criarModeloNaMeta(A.tenantId, A.adminId, canal.id, p);
+    const ok = { nome: 'aviso', categoria: 'utilidade', corpo: 'Oi {{1}}', exemplos: ['Ana'] };
+    await expect(criar({ ...ok, nome: 'Com Espaço' })).rejects.toMatchObject({ detalhe: { campo: 'nome' } });
+    await expect(criar({ ...ok, categoria: 'autenticacao' })).rejects.toMatchObject({ detalhe: { campo: 'categoria' } });
+    await expect(criar({ ...ok, idioma: 'português' })).rejects.toMatchObject({ detalhe: { campo: 'idioma' } });
+    await expect(criar({ ...ok, corpo: '' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
+    await expect(criar({ ...ok, corpo: 'x'.repeat(1025) })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
+    await expect(criar({ ...ok, exemplos: [] })).rejects.toMatchObject({ detalhe: { campo: 'exemplos' } });
+    await expect(criar({ ...ok, cabecalho: '{{1}} e {{2}}' })).rejects.toMatchObject({
+      detalhe: { campo: 'cabecalho' },
+    });
+    await expect(criar({ ...ok, cabecalho: 'Oi {{1}}' })).rejects.toMatchObject({
+      detalhe: { campo: 'exemploDoCabecalho' },
+    });
+    expect(chamadas('criar_modelo')).toHaveLength(0);
+  });
+
+  it('canal de outro tenant é 404 e a rota exige canal.gerenciar', async () => {
+    const canal = await conectar(A, { codigo: `modelos-b-${S}` });
+    await expect(sincronizarModelos(B.tenantId, B.adminId, canal.id)).rejects.toMatchObject({ status: 404 });
+    await expect(excluirModeloNaMeta(B.tenantId, B.adminId, canal.id, 'x')).rejects.toMatchObject({ status: 404 });
+    const { rows } = await dono.execute<{ id: string }>(sql`
+      insert into usuario (tenant_id, nome, email)
+      values (${A.tenantId}::uuid, 'Sem papel 2', ${`sem-papel-modelos-${S}@entrada.pipe.app`}) returning id
+    `);
+    await expect(
+      controlador.sincronizarModelos(requisicao({ tenantId: A.tenantId, adminId: rows[0]!.id }), canal.id),
+    ).rejects.toMatchObject({ status: 403 });
   });
 });
 

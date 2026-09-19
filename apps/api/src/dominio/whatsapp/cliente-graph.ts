@@ -85,6 +85,31 @@ export type PerfilParaGravar = Omit<PerfilDoNumero, 'profile_picture_url'> & {
 
 export const CAMPOS_DO_PERFIL = 'about,address,description,email,profile_picture_url,websites,vertical';
 
+/** Um componente de template como a Meta devolve e recebe (`HEADER`, `BODY`, `FOOTER`, `BUTTONS`). */
+export interface ComponenteDoModelo {
+  type: string;
+  format?: string;
+  text?: string;
+  example?: Record<string, unknown>;
+  buttons?: unknown[];
+}
+
+export interface ModeloDaMeta {
+  id?: string;
+  name: string;
+  language: string;
+  status?: string;
+  category?: string;
+  components?: ComponenteDoModelo[];
+}
+
+export interface NovoModeloDaMeta {
+  name: string;
+  language: string;
+  category: 'UTILITY' | 'MARKETING' | 'AUTHENTICATION';
+  components: ComponenteDoModelo[];
+}
+
 export abstract class ClienteGraph {
   abstract readonly nome: 'real' | 'duble';
 
@@ -126,6 +151,12 @@ export abstract class ClienteGraph {
   abstract gravarPerfil(numeroId: string, perfil: PerfilParaGravar): Promise<unknown>;
   /** Sobe a imagem e devolve o `h` que `profile_picture_handle` espera. */
   abstract subirFoto(appId: string, bytes: Buffer, tipo: string): Promise<string>;
+  /** `GET /{waba}/message_templates`, todas as páginas. */
+  abstract listarModelos(wabaId: string): Promise<ModeloDaMeta[]>;
+  /** `POST /{waba}/message_templates`: manda para análise da Meta. */
+  abstract criarModelo(wabaId: string, modelo: NovoModeloDaMeta): Promise<{ id?: string; status?: string }>;
+  /** `DELETE /{waba}/message_templates?name=`: some em TODOS os idiomas desse nome. */
+  abstract excluirModelo(wabaId: string, nome: string): Promise<unknown>;
 
   /** `phone_number_verified?`: conectado já está registrado, mesmo com o código de verificação vencido. */
   async numeroVerificado(numeroId: string): Promise<boolean> {
@@ -431,6 +462,40 @@ export class ClienteGraphReal extends ClienteGraph {
     if (!enviado?.h) throw new ErroPipe(502, 'meta_recusou', 'A Meta não devolveu o identificador da foto.');
     return enviado.h;
   }
+
+  async listarModelos(wabaId: string): Promise<ModeloDaMeta[]> {
+    const modelos: ModeloDaMeta[] = [];
+    let depois: string | undefined;
+    do {
+      const consulta: Record<string, string> = { fields: 'id,name,language,status,category,components', limit: '100' };
+      if (depois) consulta['after'] = depois;
+      const pagina: { data?: ModeloDaMeta[]; paging?: { next?: string; cursors?: { after?: string } } } | null =
+        await this.pedir(
+          this.url(`${wabaId}/message_templates`, consulta),
+          { headers: this.cabecalhos() },
+          'A busca dos modelos de mensagem da WABA falhou',
+        );
+      modelos.push(...(pagina?.data ?? []));
+      depois = pagina?.paging?.next ? pagina.paging.cursors?.after : undefined;
+    } while (depois);
+    return modelos;
+  }
+
+  criarModelo(wabaId: string, modelo: NovoModeloDaMeta): Promise<{ id?: string; status?: string }> {
+    return this.pedir(
+      this.url(`${wabaId}/message_templates`),
+      { method: 'POST', headers: this.cabecalhos(), body: JSON.stringify(modelo) },
+      'A criação do modelo de mensagem falhou',
+    );
+  }
+
+  excluirModelo(wabaId: string, nome: string): Promise<unknown> {
+    return this.pedir(
+      this.url(`${wabaId}/message_templates`, { name: nome }),
+      { method: 'DELETE', headers: this.cabecalhos() },
+      'A exclusão do modelo de mensagem falhou',
+    );
+  }
 }
 
 /** O que o dublê registrou. Sem token nenhum, de propósito: isto vai para o teste e para o log. */
@@ -463,6 +528,7 @@ export class ClienteGraphDuble extends ClienteGraph {
   static reiniciar(): void {
     ClienteGraphDuble.chamadas.length = 0;
     ClienteGraphDuble.perfis.clear();
+    ClienteGraphDuble.modelos.clear();
   }
 
   /** Onze dígitos estáveis a partir de um texto qualquer. */
@@ -630,6 +696,41 @@ export class ClienteGraphDuble extends ClienteGraph {
   subirFoto(appId: string, bytes: Buffer): Promise<string> {
     this.registrar({ acao: 'subir_foto' });
     return Promise.resolve(`${appId}-${ClienteGraphDuble.sufixo(bytes.toString('base64'))}`);
+  }
+
+  /** Modelos por WABA. O que é criado nasce `PENDING`, como na Meta. */
+  static readonly modelos = new Map<string, ModeloDaMeta[]>();
+
+  listarModelos(wabaId: string): Promise<ModeloDaMeta[]> {
+    this.registrar({ acao: 'listar_modelos', wabaId });
+    return Promise.resolve((ClienteGraphDuble.modelos.get(wabaId) ?? []).map((m) => ({ ...m })));
+  }
+
+  criarModelo(wabaId: string, modelo: NovoModeloDaMeta): Promise<{ id?: string; status?: string }> {
+    this.registrar({ acao: 'criar_modelo', wabaId });
+    const lista = ClienteGraphDuble.modelos.get(wabaId) ?? [];
+    if (lista.some((m) => m.name === modelo.name && m.language === modelo.language)) {
+      return Promise.reject(
+        new ErroPipe(502, 'meta_recusou', 'A criação do modelo de mensagem falhou: já existe conteúdo neste idioma.', {
+          http: 400,
+          codigo_meta: 100,
+        }),
+      );
+    }
+    const id = ClienteGraphDuble.sufixo(`${wabaId}-${modelo.name}-${modelo.language}`);
+    lista.push({ id, ...modelo, status: 'PENDING' });
+    ClienteGraphDuble.modelos.set(wabaId, lista);
+    return Promise.resolve({ id, status: 'PENDING' });
+  }
+
+  excluirModelo(wabaId: string, nome: string): Promise<unknown> {
+    this.registrar({ acao: 'excluir_modelo', wabaId });
+    const lista = ClienteGraphDuble.modelos.get(wabaId) ?? [];
+    ClienteGraphDuble.modelos.set(
+      wabaId,
+      lista.filter((m) => m.name !== nome),
+    );
+    return Promise.resolve({ success: true });
   }
 }
 
