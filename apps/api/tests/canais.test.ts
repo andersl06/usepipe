@@ -15,7 +15,9 @@ process.env['WHATSAPP_APP_SECRET'] = 'segredo-do-app-da-meta';
 delete process.env['WHATSAPP_API_VERSAO'];
 
 const { criarBanco, decifrar, estaCifrado, fecharBanco, migrar, semear } = await import('@pipe/db');
-const { chaveiro, esquecerCanal, fecharBancos } = await import('../src/banco.js');
+const { chaveiro, esquecerCanal, fecharBancos, resolverCanal } = await import('../src/banco.js');
+const { processarPayload } = await import('../src/dominio/entrada.js');
+const { aplicarEventosDeModelo } = await import('../src/dominio/whatsapp/eventos-de-modelo.js');
 const { ErroPipe } = await import('../src/erros.js');
 const { desconectarWhatsApp, listarCanaisWhatsApp, urlDoWebhook } = await import(
   '../src/dominio/canais.js'
@@ -713,6 +715,60 @@ describe('preferências do canal (Configurações e Configurações de alerta)',
     expect(formatoDaPergunta(2, { quickReply: false, menu: true })).toBe('lista');
     expect(formatoDaPergunta(2, { quickReply: false, menu: false })).toBe('texto');
     expect(formatoDaPergunta(0, ligado)).toBe('texto');
+  });
+});
+
+describe('eventos de modelo pelo webhook (status e recategorização)', () => {
+  const evento = (field: string, value: Record<string, unknown>) => ({
+    object: 'whatsapp_business_account',
+    entry: [{ id: WABA, changes: [{ field, value }] }],
+  });
+
+  it('aprovação e recategorização chegam sozinhas; modelo desconhecido é ignorado', async () => {
+    const canal = await conectar(A, { codigo: `eventos-${S}` });
+    await criarModeloNaMeta(A.tenantId, A.adminId, canal.id, {
+      nome: 'lembrete',
+      categoria: 'utilidade',
+      corpo: 'Oi',
+    });
+    const resolvido = (await resolverCanal(canal.id))!;
+
+    expect(
+      await processarPayload(
+        resolvido,
+        evento('message_template_status_update', {
+          event: 'APPROVED',
+          message_template_name: 'lembrete',
+          message_template_language: 'pt_BR',
+        }),
+      ),
+    ).toMatchObject({ mensagensRecebidas: 0 });
+    expect(
+      await aplicarEventosDeModelo(
+        resolvido,
+        evento('template_category_update', {
+          message_template_name: 'lembrete',
+          message_template_language: 'pt_BR',
+          previous_category: 'UTILITY',
+          new_category: 'MARKETING',
+        }),
+      ),
+    ).toBe(1);
+    expect(
+      await aplicarEventosDeModelo(
+        resolvido,
+        evento('message_template_status_update', {
+          event: 'REJECTED',
+          message_template_name: 'nao_existe',
+          message_template_language: 'pt_BR',
+        }),
+      ),
+    ).toBe(0);
+
+    const { rows } = await dono.execute<{ status_meta: string; categoria: string }>(sql`
+      select status_meta, categoria from template_mensagem where canal_id = ${canal.id}::uuid
+    `);
+    expect(rows).toEqual([{ status_meta: 'aprovado', categoria: 'marketing' }]);
   });
 });
 

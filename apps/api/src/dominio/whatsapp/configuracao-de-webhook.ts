@@ -32,6 +32,8 @@ import type { SaudeDoNumero } from './saude.js';
 export const CAMPOS_ASSINADOS = [
   ...CAMPOS_PADRAO_DO_WEBHOOK,
   'message_template_status_update',
+  // A recategorização de modelo (aba "Configurações de alerta" da origem).
+  'template_category_update',
   'phone_number_quality_update',
   'account_update',
 ] as const;

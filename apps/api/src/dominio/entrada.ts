@@ -16,6 +16,7 @@ import { contar } from '../metricas.js';
 import { enfileirarEntrega, enfileirarEspelhoCrm } from '../filas.js';
 import { distribuirConversa } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
+import { aplicarEventosDeModelo } from './whatsapp/eventos-de-modelo.js';
 import { fluxoPublicadoDoCanal, rodarFluxoNaEntrada } from './fluxo.js';
 import { payloadDoInstagram, valoresDoInstagram } from './instagram/entrada.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
@@ -153,7 +154,10 @@ export async function processarPayload(
     }
   }
 
-  if (resumo.mensagensRecebidas > 0 || resumo.statusAplicados > 0) {
+  // Status e categoria de modelo não são conversa: não entram no resumo de mensagens.
+  const modelos = canal.tipo === 'whatsapp_cloud' ? await aplicarEventosDeModelo(canal, payload) : 0;
+
+  if (resumo.mensagensRecebidas > 0 || resumo.statusAplicados > 0 || modelos > 0) {
     drenarEmSegundoPlano(canal.tenantId);
   }
   // Depois do commit: a resposta do bot já está no outbox, e o empurrão faz o worker

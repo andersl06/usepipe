@@ -24,6 +24,8 @@ export const EVENTOS = [
   'mensagem.criada',
   'mensagem.estado_entrega_alterado',
   'contato.criado',
+  /** A Meta recategorizou um modelo de mensagem (`dominio/whatsapp/eventos-de-modelo.ts`). */
+  'modelo.recategorizado',
 ] as const;
 
 export type EventoWebhook = (typeof EVENTOS)[number];
