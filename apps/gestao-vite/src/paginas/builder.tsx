@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
 import { IconeGestao } from '../componentes/icones-gestao';
 import { BarrasDoContato } from './fluxo/contato';
@@ -15,13 +15,14 @@ import './builder.css';
  * todo controle de chrome está `disabled`, de propósito, porque fingir que
  * funciona é pior do que admitir que a tela ainda é só a casca.
  *
- * Duas coisas que a captura NÃO sustenta e por isso não estão aqui: a barra
- * de "5 ícones" do lado do "adicionar bloco" (o DOM só confirma
- * "Adicionar bloco" e "Pesquisar" — o resto da lista deles, Agente,
- * Pagamento, Catálogo, AI Answers…, é feature de plano, não chrome) e um
- * bloco de Início fake (a plataforma de referência pinta o dela de azul; o
- * nosso, quando existir, usa `--p-marca` — mas não existe hoje, e inventar
- * um só para ficar bonito seria mentir sobre o que a tela faz).
+ * A pílula lateral traz os SEIS botões que o DOM capturado mostra
+ * (`bds-tooltip` de `builder-fluxo__pagina.html`: Adicionar bloco, Publicar
+ * fluxo, Configuração, Biblioteca de variáveis, Pesquisar, Gerenciamento de
+ * Filas). O que fica de fora é o que abre ao clicar no "+" (Agente,
+ * Pagamento, Catálogo, AI Answers… — o editor, não o chrome) e um bloco de
+ * Início fake (a plataforma de referência pinta o dela de azul; o nosso,
+ * quando existir, usa `--p-marca` — mas não existe hoje, e inventar um só
+ * para ficar bonito seria mentir sobre o que a tela faz).
  *
  * Rota: `/fluxo/:id/builder` — DENTRO do contato, como na origem
  * (`/application/detail/<bot>/templates/builder`). Builder é escondido do
@@ -40,6 +41,33 @@ import './builder.css';
  * `fluxo/growth/casca.tsx`) e cresce com `flex: 1` sozinha; o truque de CSS
  * saiu.
  */
+/**
+ * Um botão da pílula lateral: `bds-button-icon variant="secondary"
+ * size="short"` com o tooltip à direita. Desabilitado, de propósito — o
+ * editor não existe, e o título diz isso junto com o nome do controle.
+ */
+function BotaoDaBarra({
+  rotulo,
+  classe,
+  children,
+}: {
+  rotulo: string;
+  classe?: string;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      className={classe ? `bl-icone-botao ${classe}` : 'bl-icone-botao'}
+      disabled
+      title={`${rotulo} — ainda não construído`}
+      aria-label={rotulo}
+    >
+      {children}
+    </button>
+  );
+}
+
 export function PaginaBuilder() {
   const [avisoAberto, setAvisoAberto] = useState(true);
 
@@ -82,31 +110,41 @@ export function PaginaBuilder() {
             <p>Nenhum bloco ainda. Quando o editor existir, o fluxo se desenha nesta área.</p>
           </div>
 
+          {/* A pílula de ícones deles (`.builder-icon-button-list`), na ordem
+              do DOM: Adicionar bloco, Publicar fluxo, Configuração, Biblioteca
+              de variáveis, Pesquisar, Gerenciamento de Filas — todos
+              `bds-button-icon variant="secondary" size="short"`, com os
+              tooltips literais. "Builder Assistant" está `ng-hide` lá e não
+              entra aqui. */}
           <div className="bl-barra">
-            <button
-              type="button"
-              className="bl-icone-botao"
-              disabled
-              title="Adicionar bloco — ainda não construído"
-              aria-label="Adicionar bloco"
-            >
-              <Icone nome="mais" tamanho={20} />
-            </button>
-            <button
-              type="button"
-              className="bl-icone-botao"
-              disabled
-              title="Pesquisar — ainda não construído"
-              aria-label="Pesquisar"
-            >
-              <Icone nome="busca" tamanho={18} />
-            </button>
+            <BotaoDaBarra rotulo="Adicionar bloco">
+              <Icone nome="mais" tamanho={24} />
+            </BotaoDaBarra>
+            <BotaoDaBarra rotulo="Publicar fluxo">
+              <IconeGestao nome="publicar" tamanho={24} />
+            </BotaoDaBarra>
+            <BotaoDaBarra rotulo="Configuração">
+              <Icone nome="engrenagem" tamanho={24} />
+            </BotaoDaBarra>
+            <BotaoDaBarra rotulo="Biblioteca de variáveis">
+              <IconeGestao nome="biblioteca" tamanho={24} />
+            </BotaoDaBarra>
+            <BotaoDaBarra rotulo="Pesquisar" classe="bl-pesquisar">
+              <Icone nome="busca" tamanho={24} />
+            </BotaoDaBarra>
+            <BotaoDaBarra rotulo="Gerenciamento de Filas">
+              <IconeGestao nome="atendente" tamanho={24} />
+            </BotaoDaBarra>
           </div>
 
+          {/* O rodapé deles (`.builder-footer`): "Salvo" com o `checkball`
+              numa pílula clara; os três botões de ícone soltos (Desfazer,
+              Refazer, Tela Cheia) entre margens de 10px; o "100%" e o
+              controle deslizante de 100px. */}
           <div className="bl-rodape">
             <div className="bl-status">
-              <Icone nome="cheque" tamanho={16} />
-              <span>Nada para salvar</span>
+              <IconeGestao nome="circuloOk" tamanho={24} />
+              <span>Salvo</span>
             </div>
 
             <div className="bl-controles">
@@ -114,28 +152,28 @@ export function PaginaBuilder() {
                 type="button"
                 className="bl-icone-botao"
                 disabled
-                title="Desfazer"
-                aria-label="Desfazer"
+                title="Desfazer (Ctrl+z)"
+                aria-label="Desfazer (Ctrl+z)"
               >
-                <IconeGestao nome="desfazer" tamanho={18} />
+                <IconeGestao nome="desfazer" tamanho={24} />
               </button>
               <button
                 type="button"
                 className="bl-icone-botao"
                 disabled
-                title="Refazer"
-                aria-label="Refazer"
+                title="Refazer (Ctrl+Shift+z)"
+                aria-label="Refazer (Ctrl+Shift+z)"
               >
-                <IconeGestao nome="refazer" tamanho={18} />
+                <IconeGestao nome="refazer" tamanho={24} />
               </button>
               <button
                 type="button"
                 className="bl-icone-botao"
                 disabled
-                title="Ajustar à tela"
-                aria-label="Ajustar à tela"
+                title="Tela Cheia (Alt+Enter)"
+                aria-label="Tela Cheia (Alt+Enter)"
               >
-                <IconeGestao nome="telaCheia" tamanho={18} />
+                <IconeGestao nome="telaCheia" tamanho={24} />
               </button>
             </div>
 
@@ -143,6 +181,7 @@ export function PaginaBuilder() {
               <span className="bl-zoom-valor">100%</span>
               <div className="bl-zoom-trilho">
                 <div className="bl-zoom-preenchido" />
+                <span className="bl-zoom-ponteiro" />
               </div>
             </div>
           </div>

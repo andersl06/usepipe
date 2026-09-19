@@ -48,21 +48,102 @@
    métrica (SLA, disponibilidade, comparativo por atendente) que ainda não
    temos consulta própria — em vez de sumir com o bloco, ele fica e diz por
    quê. */
-.cartao-rel .vazio {
+.cartao-rel .vazio,
+.card .vazio {
   display: flex;
   flex-direction: column;
+  align-items: center;
   gap: var(--p-e-2);
-  text-align: left;
+  text-align: center;
 }
 
-.cartao-rel .vazio b {
-  font-size: var(--g-t-bloco);
+/* O vazio de bloco de relatório deles é UMA frase, `bds-typo fs-14
+   semi-bold`, centrada sob a ilustração ("Não foram encontradas métricas de
+   SLA no período informado", `desk-relatorio-atendimento__pagina.html`). */
+.cartao-rel .vazio b,
+.card .vazio b {
+  font-size: var(--g-t-celula);
+  font-weight: var(--g-peso-forte);
+  line-height: var(--g-lh-cartao);
+  color: var(--p-conteudo);
+  margin: 0;
+}
+
+.cartao-rel .vazio p,
+.card .vazio p {
+  margin: 0;
+  max-width: 60ch;
+  font-size: var(--g-t-celula);
+  line-height: var(--g-lh-cartao);
+  color: var(--p-conteudo-desabilitado);
+}
+
+/* ============================== Relatório de atendimento: os cartões planos
+   Lá os blocos "Tempo máximo", "Status dos tickets" e "Tempo médio" são o
+   MESMO `bds-paper pa4 bg-surface-1` do Monitoramento, com título 14/600 e a
+   fila de métricas 24/400 sobre rótulo 12/400 — não o bloco-com-cartões da
+   Satisfação. Os três primeiros dividem uma linha (`flex justify-between`),
+   o largo com `width: 100%` e os outros dois com a largura do conteúdo. */
+.rel-linha {
+  display: flex;
+  gap: var(--g-grade-gap);
+  align-items: stretch;
+}
+
+.rel-linha > .card {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.rel-linha > .card.estreito {
+  flex: 0 1 auto;
+}
+
+/* Título 20/700 com o ícone de informação ao lado ("Indicadores de SLA"). */
+.card > h3.grande {
+  font-size: var(--g-t-valor-rel);
+  line-height: var(--g-t-valor-rel);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-lh-bloco);
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.card > h3 .dica {
+  margin-left: 4px;
+}
+
+/* Cabeçalho de aba com o botão de baixar CSV encostado à direita
+   (`bds-button-icon icon="download" class="ml-a"`). */
+.rel-aba-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  margin-bottom: 10px;
+}
+
+.rel-aba-cabecalho .tabs {
+  flex: 1;
+  border-bottom: 0;
+  padding-left: 0;
+}
+
+/* A nota sob a tabela de atendentes ("Os filtros de Canais, Atendentes,
+   Filas e Tags não se aplicam à tabela abaixo."): ícone de informação e
+   texto 14/400, com 10px entre eles (`ml3`). */
+.rel-nota {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: var(--p-e-4) 0 0;
+  font-size: var(--g-t-celula);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-lh-cartao);
   color: var(--p-conteudo);
 }
 
-.cartao-rel .vazio p {
-  margin: 0;
-  max-width: 70ch;
+/* O texto "Últimos 7 dias" da faixa de filtros é o botão FANTASMA deles
+   (`bds-button variant="text"`), e o intervalo por extenso vai no `title`. */
+.rel-periodo {
+  white-space: nowrap;
 }

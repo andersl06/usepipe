@@ -1,7 +1,34 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
 
 const TAMANHOS_DE_PAGINA = [5, 10, 15, 25, 50, 100, 250, 500] as const;
+
+/**
+ * A busca isolada abaixo do cabeçalho — `bds-input icon="search"` numa coluna
+ * `w-30`: 30% de largura, 54px, lupa de 20 (`dom/rules.html`).
+ */
+function BuscaTopo({
+  busca,
+  setBusca,
+  placeholder,
+}: {
+  busca: string;
+  setBusca: (v: string) => void;
+  placeholder: string;
+}) {
+  return (
+    <div className="busca-topo">
+      <Icone nome="busca" tamanho={20} />
+      <input
+        type="search"
+        value={busca}
+        onChange={(e) => setBusca(e.target.value)}
+        placeholder={placeholder}
+        aria-label={placeholder}
+      />
+    </div>
+  );
+}
 
 /** Os quatro ícones de navegação do rodapé — `FICHA-rules.md`/`FICHA-queue-
  * management.md` §5 (`arrow-first`, `arrow-left`, `arrow-right`, `arrow-last`).
@@ -101,9 +128,16 @@ function RodapeDePaginacao({
 
 export interface CartaoRegra {
   id: string;
-  campos: { rotulo: string; valor: string; classe?: string }[];
+  /** `titulo` é o que o cursor mostra; sem ele, o próprio valor (para o truncado). */
+  campos: { rotulo: string; valor: string; classe?: string; titulo?: string }[];
   situacao: string;
   ativa: boolean;
+  /**
+   * O `bds-chip-tag` NA LINHA do cartão — o "Padrão" da regra de SLA deles,
+   * que ocupa uma quarta coluna sem rótulo (`dom/sla-policy.html`), e não o
+   * rodapé.
+   */
+  selo?: string;
   /** Tudo que a busca varre, já em minúsculas. */
   procura: string;
   /**
@@ -130,37 +164,57 @@ export interface CartaoRegra {
 export interface SecaoDeRegras {
   titulo: string;
   vazio: string;
+  /**
+   * A segunda linha do vazio de página deles ("Crie respostas para agilizar
+   * seus atendimentos" sob "Você ainda não criou respostas prontas",
+   * `FICHA-replies.md` §6). Sem ela, o vazio é uma frase só.
+   */
+  vazioDescricao?: string;
   cartoes: CartaoRegra[];
 }
 
+/**
+ * O cartão-linha deles: as colunas de rótulo 12/400 sobre valor 16/700, o
+ * selo na linha quando existe, e à direita SÓ as ações (`bds-button-icon`
+ * de editar/excluir e o `bds-switch`) — nenhuma etiqueta "Ativa" ao lado:
+ * o interruptor já diz o estado. Sem interruptor (SLA, filas, pausas), a
+ * situação só aparece quando o registro está desligado — o que é dado, e
+ * não decoração.
+ */
 function Cartao({ cartao }: { cartao: CartaoRegra }) {
+  const colunas = cartao.campos.length + (cartao.selo ? 1 : 0);
   return (
     <article className="cartao-lista">
       {cartao.cor ? <span className="sw" style={{ background: cartao.cor }} /> : <span />}
-      <div
-        className="cl-campos"
-        style={{ '--cl-colunas': cartao.campos.length } as React.CSSProperties}
-      >
+      <div className="cl-campos" style={{ '--cl-colunas': colunas } as React.CSSProperties}>
         {cartao.campos.map((c) => (
           <div key={c.rotulo} className="cl-campo">
             <span className="r">{c.rotulo}</span>
-            <span className={c.classe ? `v ${c.classe}` : 'v'} title={c.valor}>
+            <span className={c.classe ? `v ${c.classe}` : 'v'} title={c.titulo ?? c.valor}>
               {c.valor}
             </span>
           </div>
         ))}
+        {cartao.selo ? (
+          <div className="cl-campo">
+            <span className="r" aria-hidden="true">
+              &nbsp;
+            </span>
+            <span className="etiqueta">{cartao.selo}</span>
+          </div>
+        ) : null}
       </div>
       <div className="cl-acoes">
-        <span className={cartao.ativa ? 'etiqueta' : 'etiqueta alerta'}>{cartao.situacao}</span>
+        {!cartao.acao && !cartao.ativa ? (
+          <span className="etiqueta alerta">{cartao.situacao}</span>
+        ) : null}
         {cartao.acao}
       </div>
 
       {cartao.rodape && cartao.rodape.length > 0 ? (
         <div className="cl-rodape">
           {cartao.rodape.map((item) => (
-            <span key={item} className="etiqueta">
-              {item}
-            </span>
+            <span key={item}>{item}</span>
           ))}
         </div>
       ) : null}
@@ -175,6 +229,7 @@ export function ListaRegras({
   paginar = false,
   tamanhoDePaginaInicial = 10,
   ocultarBusca = false,
+  filtros,
 }: {
   secoes: readonly SecaoDeRegras[];
   /** A lista serve outras telas além de Regras; o texto da busca é o único ponto de variação. */
@@ -200,6 +255,12 @@ export function ListaRegras({
    * mostra com ela.
    */
   ocultarBusca?: boolean;
+  /**
+   * Controles que dividem a linha com a busca — o "Filtrar por:" com os
+   * seletores de "Modelos de mensagens" (`FICHA-message-template.md` §3), à
+   * esquerda da busca, que ali ocupa 69% da linha.
+   */
+  filtros?: ReactNode;
 }) {
   const [busca, setBusca] = useState('');
   const [tamanho, setTamanho] = useState(tamanhoDePaginaInicial);
@@ -242,29 +303,28 @@ export function ListaRegras({
 
   return (
     <>
-      {ocultarBusca ? null : (
-        <div className="busca-topo">
-          <Icone nome="busca" tamanho={15} />
-          <input
-            type="search"
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            placeholder={placeholder}
-            aria-label={placeholder}
-          />
+      {ocultarBusca ? null : filtros ? (
+        <div className="filtrar-por">
+          {filtros}
+          <BuscaTopo busca={busca} setBusca={setBusca} placeholder={placeholder} />
         </div>
+      ) : (
+        <BuscaTopo busca={busca} setBusca={setBusca} placeholder={placeholder} />
       )}
 
       {nenhuma && busca.trim() ? (
-        /* Vazio de BUSCA, que é causa diferente de vazio de cadastro — e por
-           isso frase diferente, com a saída junto. Sem o botão, a única forma
-           de voltar à lista é apagar o texto na mão, e quem não percebeu que
-           filtrou conclui que a base está vazia. */
+        /* Vazio de BUSCA, com o texto do vazio de busca deles ("Nenhum
+           resultado encontrado", `dom/history.html`) e a saída junto: sem
+           o botão, a única forma de voltar à lista é apagar o texto na mão. */
         <div className="vazio">
-          <b>Nada encontrado para “{busca.trim()}”.</b>
-          <p>Os cadastros continuam lá — é a busca que não achou este texto.</p>
-          <button type="button" className="btn" onClick={() => setBusca('')}>
-            Limpar busca
+          <b>Nenhum resultado encontrado</b>
+          <p>
+            Não encontramos nenhum resultado a partir da pesquisa realizada.
+            <br />
+            Que tal refazer a sua busca?
+          </p>
+          <button type="button" className="btn contorno-marca" onClick={() => setBusca('')}>
+            Redefinir filtros
           </button>
         </div>
       ) : (
@@ -276,7 +336,12 @@ export function ListaRegras({
               </div>
             )}
             {secao.cartoes.length === 0 ? (
-              <div className="vazio">{secao.vazio}</div>
+              /* O vazio de página deles: título 20/700 e, quando existe, a
+                 descrição em 16/400 embaixo. */
+              <div className="vazio">
+                <b>{secao.vazio}</b>
+                {secao.vazioDescricao ? <p>{secao.vazioDescricao}</p> : null}
+              </div>
             ) : (
               secao.cartoes.map((c) => <Cartao key={c.id} cartao={c} />)
             )}

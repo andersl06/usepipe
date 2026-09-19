@@ -104,11 +104,14 @@ export function PaginaRegrasDeAtendimento() {
         </Botao>
       </div>
 
+      {/* "Resultados por página" nasce em 5, como o `bds-select value="5"` do
+          rodapé deles (`dom/rules.html`). */}
       <ListaRegras
         secoes={secoes}
         placeholder="Buscar regras de atendimento"
         ocultarCabecalhoDeSecao
         paginar
+        tamanhoDePaginaInicial={5}
       />
 
       <Modal aberto={modalAberto} titulo="Nova regra" onFechar={() => setModalAberto(false)}>

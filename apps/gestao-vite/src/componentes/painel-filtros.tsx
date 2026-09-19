@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
+import { PERIODOS, calcularPeriodo, periodoAtual } from '../lib/periodos';
 
 /**
  * Painel lateral "Filtros" — o `data-testid="saved-filters-sidebar"` deles,
@@ -119,14 +120,51 @@ export function CampoDoPainel({
   children,
 }: {
   rotulo: string;
-  apoio: string;
+  apoio?: string;
   children: ReactNode;
 }) {
   return (
     <div className="painel-campo">
       <span className="painel-rotulo">{rotulo}</span>
-      <span className="painel-apoio">{apoio}</span>
+      {apoio ? <span className="painel-apoio">{apoio}</span> : null}
       {children}
     </div>
+  );
+}
+
+/**
+ * O campo "Período" do painel — o `bds-select data-testid="period-filter-
+ * select"` deles, igual no Histórico e nos dois Relatórios: os atalhos de
+ * `PERIODOS` mais "Personalizado", e o par de datas que o atalho preenche.
+ */
+export function CampoPeriodo({ de, ate, fuso }: { de: string; ate: string; fuso: string }) {
+  return (
+    <CampoDoPainel rotulo="Período" apoio="Selecione um intervalo de datas">
+      <select
+        name="periodo"
+        defaultValue={periodoAtual(de, ate, fuso)}
+        aria-label="Atalho de período"
+        onChange={(e) => {
+          const calc = calcularPeriodo(e.currentTarget.value, fuso);
+          if (!calc) return;
+          const form = e.currentTarget.form;
+          const campoDe = form?.elements.namedItem('de');
+          const campoAte = form?.elements.namedItem('ate');
+          if (campoDe instanceof HTMLInputElement) campoDe.value = calc.de;
+          if (campoAte instanceof HTMLInputElement) campoAte.value = calc.ate;
+        }}
+      >
+        {PERIODOS.map((p) => (
+          <option key={p.chave} value={p.chave}>
+            {p.rotulo}
+          </option>
+        ))}
+        <option value="personalizado">Personalizado</option>
+      </select>
+      <div className="painel-datas">
+        <input type="date" name="de" defaultValue={de} aria-label="De" />
+        <input type="date" name="ate" defaultValue={ate} aria-label="Até" />
+      </div>
+    </CampoDoPainel>
   );
 }

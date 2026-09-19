@@ -53,6 +53,7 @@ import { PaginaPausas } from './paginas/cadastros/atendentes-pausas';
 import { PaginaModelos } from './paginas/cadastros/comunicacao-modelos';
 import { PaginaRespostasProntas } from './paginas/cadastros/comunicacao-respostas';
 import { PaginaRegras } from './paginas/cadastros/configuracoes-regras';
+import { PaginaRegrasDeSla } from './paginas/cadastros/regras-sla';
 import { PaginaDados } from './paginas/cadastros/configuracoes-dados';
 import { PaginaConfiguracoesGerais } from './paginas/cadastros/configuracoes-gerais';
 import { PaginaCanais } from './paginas/cadastros/canais';
@@ -108,6 +109,7 @@ const rotasDoContato = (
       <Route path="comunicacao/modelos" element={<PaginaModelos />} />
       <Route path="comunicacao/respostas-prontas" element={<PaginaRespostasProntas />} />
       <Route path="regras/atendimento" element={<PaginaRegrasDeAtendimento />} />
+      <Route path="regras/sla" element={<PaginaRegrasDeSla />} />
       <Route path="regras/horarios" element={<PaginaHorarios />} />
       <Route path="preferencias/gerais" element={<PaginaConfiguracoesGerais />} />
       <Route path="preferencias/dados" element={<PaginaDados />} />

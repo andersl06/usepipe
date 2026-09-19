@@ -101,6 +101,11 @@ export function Paginacao({ estado }: { estado: EstadoPaginacao }) {
         >
           <Icone nome="esquerda" tamanho={14} />
         </button>
+        {/* O número da página atual entre as setas — `data-testid=
+            "current-page-test"` no rodapé deles. */}
+        <span className="pg-atual" aria-current="page">
+          {pagina}
+        </span>
         <button
           type="button"
           className="iconbtn"

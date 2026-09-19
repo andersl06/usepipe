@@ -50,7 +50,11 @@ export function PaginaModelos() {
   const secoes: SecaoDeRegras[] = [
     {
       titulo: 'Modelos de mensagem',
-      vazio: 'Nenhum modelo cadastrado. O Desk não tem o que oferecer fora da janela de 24h.',
+      /* O texto literal do vazio deles (`FICHA-message-template.md` §6),
+         apontando para onde o modelo se cadastra — aqui, o formulário logo
+         abaixo da lista. */
+      vazio: 'Ainda não foram cadastrados modelos de mensagem válidos para este chatbot!',
+      vazioDescricao: 'Crie novos modelos no formulário abaixo.',
       cartoes: modelos.map((m) => ({
         id: m.id,
         campos: [
@@ -101,22 +105,27 @@ export function PaginaModelos() {
           dado real que a tela já mostra em cada cartão. */}
       <div className="painel-modelos">
         <h3>Modelos de mensagens</h3>
-        <div className="filtrar-por">
-          <span className="sub">Filtrar por:</span>
-          <select value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
-            <option value="">Status</option>
-            {OPCOES_STATUS.map((s) => (
-              <option key={s} value={s}>
-                {ROTULO_STATUS_META[s]}
-              </option>
-            ))}
-          </select>
-        </div>
 
+        {/* A linha deles: "Filtrar por:", os seletores, e a busca à direita
+            ocupando 69% — com o placeholder literal "Pesquise pelo nome do
+            modelo de mensagem" (§3). */}
         <ListaRegras
           secoes={secoes}
-          placeholder="Buscar por nome, idioma ou categoria"
+          placeholder="Pesquise pelo nome do modelo de mensagem"
           ocultarCabecalhoDeSecao
+          filtros={
+            <>
+              <span className="filtrar-rotulo">Filtrar por:</span>
+              <select value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
+                <option value="">Status</option>
+                {OPCOES_STATUS.map((s) => (
+                  <option key={s} value={s}>
+                    {ROTULO_STATUS_META[s]}
+                  </option>
+                ))}
+              </select>
+            </>
+          }
         />
       </div>
 

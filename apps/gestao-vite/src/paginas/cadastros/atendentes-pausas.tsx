@@ -77,7 +77,24 @@ export function PaginaPausas() {
   return (
     <>
       <div className="board-head">
-        <h2>Pausas personalizadas</h2>
+        <h2
+          title={
+            semMotivo > 0 || abertas > 0
+              ? [
+                  semMotivo > 0
+                    ? `${numero(semMotivo)} pausa(s) encerrada(s) nos últimos ${dias} dias sem motivo — não entram em nenhuma linha.`
+                    : '',
+                  abertas > 0
+                    ? `${numero(abertas)} pausa(s) em aberto agora: ainda não terminaram e ficam fora da média.`
+                    : '',
+                ]
+                  .filter(Boolean)
+                  .join(' ')
+              : undefined
+          }
+        >
+          Pausas personalizadas
+        </h2>
         <Botao
           variante="primario"
           icone="mais"
@@ -88,18 +105,17 @@ export function PaginaPausas() {
         </Botao>
       </div>
 
-      {semMotivo > 0 || abertas > 0 ? (
-        <div className="note">
-          {semMotivo > 0
-            ? `${numero(semMotivo)} pausa(s) encerrada(s) nos últimos ${dias} dias sem motivo — não entram em nenhuma linha abaixo. `
-            : ''}
-          {abertas > 0
-            ? `${numero(abertas)} pausa(s) em aberto agora: ainda não terminaram e por isso ficam fora da média.`
-            : ''}
-        </div>
-      ) : null}
-
-      <ListaRegras secoes={secoes} ocultarCabecalhoDeSecao ocultarBusca paginar />
+      {/* A tela deles vai do cabeçalho direto para a lista (`FICHA-
+          personalizedbreaks.md` §2). As pausas sem motivo e as em aberto —
+          que não entram em nenhuma linha — ficam ditas no `title` do
+          cabeçalho, e não numa faixa de texto que a tela deles não tem. */}
+      <ListaRegras
+        secoes={secoes}
+        ocultarCabecalhoDeSecao
+        ocultarBusca
+        paginar
+        tamanhoDePaginaInicial={5}
+      />
 
       <Modal
         aberto={modalAberto}

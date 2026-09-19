@@ -16,6 +16,26 @@
    nunca inventado.
    ========================================================================== */
 
+/* ======================================== a superfície de trabalho é NEUTRA
+   Medido na cópia deles (`docs/pesquisa/sistema-visual-portal.md` §1): a área
+   atrás dos cartões é `rgb(237,237,237)` — cinza NEUTRO. O nosso creme de
+   marca (`#f2f1ec`) tem quase a mesma luminosidade, mas é quente: lado a lado
+   o deles lê "branco" e o nosso lê "bege". Era a primeira queixa do dono.
+
+   Aqui a matiz sai, a paleta fica: moss, terracota, ocre e sage continuam
+   exatamente como estão. As três superfícies claras passam a ser DERIVADAS da
+   nossa própria tinta de conteúdo contra o branco — nenhum hex novo, e o tema
+   escuro não é tocado (os blocos escuros do `@pipe/ui` têm especificidade
+   maior que este `:root`).
+
+   Vale para o aplicativo da Gestão inteiro, de propósito: o creme era o mesmo
+   em todas as telas, e a queixa também. */
+:root {
+  --p-superficie-1: color-mix(in srgb, var(--p-conteudo) 7%, #fff);
+  --p-superficie-2: color-mix(in srgb, var(--p-conteudo) 12%, #fff);
+  --p-superficie-3: color-mix(in srgb, var(--p-conteudo) 19%, #fff);
+}
+
 /*
  * Nomes antigos apontando para os token novos, para não reescrever cada
  * referência do CSS abaixo. Repare no que o mapeamento faz de propósito:
@@ -109,6 +129,13 @@
   --g-cartao-gap: 20px;
   --g-grade-gap: 10px;
   --g-sombra-cartao: 0 2px 8px -2px rgba(17, 17, 17, 0.16);
+
+  /* O `bds-paper bg-surface-1` deles mede `rgb(246,246,246)` na cópia viva
+     (`sistema-visual-portal.md` §1) — um degrau ABAIXO do branco e acima do
+     fundo de trabalho (237). Derivado da nossa tinta de conteúdo, como as
+     outras superfícies: 4% dá o mesmo degrau sem hex novo. É o fundo de TODO
+     cartão do módulo — métrica, tabela, cartão-linha, configuração. */
+  --g-cartao-fundo: color-mix(in srgb, var(--p-conteudo) 4%, #fff);
 
   /* Realce do item ativo de lateral: onde eles põem 8% de preto, nós pomos o
      fundo de estado ativo da marca. O papel é o mesmo, a tinta é nossa. */
@@ -901,19 +928,121 @@
   gap: var(--p-e-2);
 }
 
-/* Pílula de filtro. Neutra vazia, moss quando tem valor — é o papel que o
-   azul cumpre na pílula deles. */
+/* ====================================================== o botão, na medida deles
+   `docs/pesquisa/sistema-visual-portal.md` §3, medido em TODO botão das duas
+   telas: 40px de altura, raio 8, recuo lateral 16, 4px entre ícone e rótulo,
+   rótulo 14/700 na TINTA CHEIA e borda de 1px na tinta cheia também.
+
+   O nosso vinha de 79×30 com 12/500, borda a 17% e texto apagado — era daí a
+   impressão de miúdo. Três variantes, e a diferença entre elas é só tinta:
+   secundário (borda cheia), fantasma (borda transparente) e primário (fundo
+   de marca). */
+.btn {
+  min-height: 40px;
+  padding: 0 var(--p-e-4);
+  gap: var(--p-e-1);
+  font-size: var(--g-t-item);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-cartao);
+  color: var(--p-conteudo);
+  border-color: var(--p-conteudo);
+  background: transparent;
+}
+
+.btn:hover:not(:disabled) {
+  background: var(--p-superficie-2);
+}
+
+.btn.primario,
+.btn.primary {
+  border-color: transparent;
+  color: var(--p-marca-conteudo);
+}
+
+/* A terceira variante deles, `bds-button variant="text"`: sem borda e sem
+   fundo, só o rótulo — é o "Últimos 30 dias" da faixa do Histórico e dos
+   Relatórios (`button 136x40 b=1px rgba(0,0,0,0)`, `sistema-visual-portal.md`
+   §3). O nosso o desenhava com a borda cheia do secundário. */
+.btn.fantasma {
+  border-color: transparent;
+}
+
+/* `bds-button variant="outline" color="primary"`: a borda na cor de marca,
+   o rótulo na tinta de conteúdo — o "Redefinir filtros" do vazio do
+   Histórico (`button 135x40 b=1px rgb(74,93,35)`). */
+.btn.contorno-marca {
+  border-color: var(--p-marca);
+}
+
+/* O botão primário apagado continua primário: fundo de marca a 50%, como o
+   `button__primary--disabled{opacity:50%}` deles — não vira cinza. */
+.btn.primario:disabled,
+.btn.primary:disabled {
+  opacity: 0.5;
+}
+
+/* A largura mínima de 130px é das FAIXAS — é onde eles a aplicam, e é ela que
+   dá o ritmo de botões do mesmo tamanho um ao lado do outro. Fora daí o botão
+   só tem a altura e o rótulo, para não inchar formulário denso. */
+.faixa-filtros .btn,
+.quickfilters .btn,
+.board-head .btn,
+.tblhead .btn,
+.vazio .btn {
+  min-width: 130px;
+  justify-content: center;
+}
+
+/* Botão de ícone do cabeçalho e do canto do cartão: na tela deles é o GLIFO
+   SOLTO, sem moldura e sem fundo. A caixinha branca de 28px era nossa. */
+.board-head .iconbtn {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  border-radius: var(--p-r-md);
+}
+
+/* O glifo do "Atualizar tela"/"Expandir tela" é o `bds-icon size medium`
+   deles: 24px, não os 14 que o nosso desenhava (ver `dom/monitoring.html`,
+   `bds-icon__size--medium` dentro do `bds-button icon="refresh"`). */
+.board-head .iconbtn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.board-head .iconbtn:hover:not(:disabled) {
+  background: var(--p-superficie-2);
+}
+
+/* Os dois botões de ícone do cabeçalho andam com 8px entre si e encostados
+   na direita — `sc-dAbbOL` deles é `flex; gap: 8px`. */
+.board-head .filters {
+  gap: var(--p-e-2);
+}
+
+/* Filtro rápido é BOTÃO, não campo. Na faixa deles cada um mostra o rótulo e
+   NADA MAIS — "Filas", "Atendentes", "Contato", "Status do atendente" —, na
+   mesma medida do botão comum (130×40, raio 8, 14/700, borda cheia). Aqui a
+   caixa de seleção continua existindo por dentro, porque é ela que aplica o
+   filtro sem uma linha de JavaScript, mas ela só aparece quando TEM valor:
+   vazia, a pílula é o botão deles. Com valor, acende em moss — é o papel que
+   o azul cumpre na tela deles, com a nossa tinta. */
 .pilula {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  justify-content: center;
+  gap: var(--p-e-1);
   height: 40px;
-  padding: 0 var(--p-e-2);
-  border: 1px solid var(--p-linha-forte);
+  min-width: 130px;
+  padding: 0 var(--p-e-4);
+  border: 1px solid var(--p-conteudo);
   border-radius: var(--p-r-md);
   background: transparent;
   font-size: var(--g-t-item);
   font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-cartao);
   color: var(--p-conteudo);
   cursor: pointer;
   max-width: 260px;
@@ -926,28 +1055,69 @@
 }
 
 .pilula-rotulo {
-  font-weight: var(--p-peso-medio);
+  font-weight: var(--g-peso-negrito);
   white-space: nowrap;
 }
 
-.pilula select,
+.pilula {
+  position: relative;
+}
+
+/* A caixa de seleção invisível levaria o anel de foco junto: quem o mostra é
+   a pílula. Sem isto o teclado percorreria a faixa sem sinal nenhum. */
+.pilula:focus-within {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+/* O valor escolhido, ao lado do rótulo — em 14/400, para o rótulo continuar
+   sendo o que se lê primeiro. */
+.pilula-valor {
+  font-weight: var(--g-peso-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* A caixa de seleção cobre a pílula e não se vê: quem desenha é o rótulo. */
+.pilula-select {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  appearance: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+}
+
 .pilula input {
   font: inherit;
   font-size: var(--g-t-item);
+  font-weight: var(--g-peso-normal);
   color: inherit;
   background: transparent;
   border: 0;
   outline: none;
   padding: 0;
   margin: 0;
-  max-width: 140px;
+  max-width: 120px;
   min-width: 0;
   appearance: none;
   cursor: pointer;
+  text-overflow: ellipsis;
 }
 
 .pilula input {
   cursor: text;
+  width: 7ch;
+}
+
+.pilula input:focus,
+.pilula.ativa input {
+  width: 12ch;
 }
 
 .pilula input::placeholder {
@@ -977,6 +1147,7 @@
   padding: var(--g-cartao-pad);
   border: 0;
   border-radius: var(--g-r-cartao);
+  background: var(--g-cartao-fundo);
   box-shadow: var(--g-sombra-cartao);
   gap: 0;
 }
@@ -986,6 +1157,23 @@
   font-weight: var(--g-peso-forte);
   line-height: var(--g-lh-cartao);
   margin-bottom: 10px;
+}
+
+/* O cartão de métrica deles tem SÓ o título no topo: os dois ícones de
+   "Atualizar tela"/"Expandir tela" ficam no cabeçalho da página, uma vez
+   (`dom/monitoring.html`: nenhum `bds-button` dentro dos quatro `bds-paper`).
+   O nosso punha os dois em cada cartão; a ficha estava errada, o DOM não. */
+.card-cabecalho {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.card-cabecalho > h3 {
+  margin: 0;
+  font-size: var(--g-t-cartao);
+  font-weight: var(--g-peso-forte);
+  line-height: var(--g-lh-cartao);
 }
 
 /* Coluna de leitura dos módulos SEM lateral. Sem isso o cartão ocupa os
@@ -998,77 +1186,87 @@
   max-width: 1000px;
 }
 
-/* Métricas lado a lado em partes iguais, não em grade de largura mínima:
-   cinco de um lado e quatro do outro, sem coluna vazia sobrando. */
+/* A fila de métricas do cartão deles é `bds-grid gap="2" justify-content=
+   "space-between"` (`dom/monitoring.html`): as colunas se afastam até as
+   bordas, com 16px de respiro mínimo entre elas. Nada de partes iguais. */
 .metrics {
   display: flex;
+  justify-content: space-between;
   gap: var(--p-e-4);
 }
 
-.metrics > .metric {
-  flex: 1 1 0;
+/* "Atendimentos em tempo real" tem DOIS grupos, `w-30` e `w-70` — as duas
+   métricas da fila de um lado e as três do atendimento do outro —, e o fio
+   vertical entre eles que a foto original mostra. */
+.metrics-grupo {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--p-e-4);
   min-width: 0;
 }
 
-/* Valor 24/400 com entrelinha 24; 10px até o rótulo; rótulo 12/400 com
-   entrelinha 18. A monoespaçada fica: alinhar coluna de número é função, não
-   enfeite, e ela é da nossa casa. */
+.metrics-grupo.estreito {
+  width: 30%;
+  padding-right: var(--p-e-4);
+  border-right: 1px solid var(--p-linha-media);
+}
+
+.metrics-grupo.largo {
+  width: 70%;
+}
+
+/* A coluna é CENTRADA: número em cima, rótulo centrado embaixo com o ícone de
+   informação ao lado (`bds-typo fs-12 class="text-center"` + `bds-icon info
+   x-small` numa `bds-grid direction="row" gap="half" align-items="center"`).
+   A coluna se mede pelo número — "Na fila" ocupa 40px e o rótulo quebra em
+   duas linhas embaixo, como na tela deles. */
 .metric {
-  gap: 0;
-}
-
-.metric .v {
-  font-size: var(--g-t-valor);
-  font-weight: var(--g-peso-normal);
-  line-height: var(--g-t-valor);
-  letter-spacing: -0.01em;
-  color: var(--p-conteudo);
-}
-
-.metric .k {
-  margin-top: 10px;
-  font-size: var(--g-t-rotulo);
-  font-weight: var(--g-peso-normal);
-  line-height: var(--g-lh-rotulo);
-  color: var(--p-conteudo);
-}
-
-.metric .den {
-  margin-top: 4px;
-  font-size: var(--p-t-xs);
-  line-height: 14px;
-}
-
-.statuses {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
-  gap: var(--p-e-4);
-}
-
-.statuses div {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 0;
   min-width: 0;
+  flex: 0 1 auto;
 }
 
-.statuses b {
-  font-family: var(--p-fonte-mono);
+/* Valor 24/400 com entrelinha 24 — e NA FONTE DO CORPO, como o `bds-typo
+   fs-24` deles: a monoespaçada era o que mais afastava o número do original
+   ("305:42:59" em mono lia como terminal). Tabular-nums mantém o alinhamento
+   de dígito sem trocar de família. */
+.metric .v {
+  font-family: var(--p-fonte);
   font-variant-numeric: tabular-nums;
   font-size: var(--g-t-valor);
   font-weight: var(--g-peso-normal);
   line-height: var(--g-t-valor);
+  letter-spacing: 0;
+  color: var(--p-conteudo);
+  white-space: nowrap;
 }
 
-.statuses span {
+/* 10px até o rótulo; rótulo 12/400 com entrelinha 18, e o ícone de 16px
+   (`bds-icon size="x-small"`) a 4px dele (`gap="half"`). */
+.metric .k {
   margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
   font-size: var(--g-t-rotulo);
   font-weight: var(--g-peso-normal);
   line-height: var(--g-lh-rotulo);
   color: var(--p-conteudo);
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  min-width: 0;
+}
+
+.metric .k > span:first-child {
+  text-align: center;
+}
+
+/* O número de "Perdidos" e "Abandonados" sai na tinta de erro — é o
+   `color="var(--color-delete)"` do `bds-typo` deles, com a nossa tinta. */
+.metric.erro .v {
+  color: var(--p-erro-conteudo);
 }
 
 /* ================================================ os pontos de status
@@ -1097,25 +1295,25 @@
    saem de `docs/specs/2026-09-05-metricas-atendimento.md`. `<details>` puro:
    abre no clique e no teclado, sem JavaScript. */
 .dica {
-  display: inline-block;
+  display: inline-flex;
   position: relative;
-  margin-left: 4px;
-  vertical-align: -2px;
+  flex: none;
 }
 
-/* O ícone tem 13px, e o alvo não pode ter 13px: é o controle que abre a
-   definição da métrica, e ele aparece ao lado de todo número da tela. O piso
-   de 24 vem com margem negativa para o rótulo ao lado não crescer. */
+/* O ícone tem 16px (`bds-icon size="x-small"`), e o alvo não pode ter 16px:
+   é o controle que abre a definição da métrica, e ele aparece ao lado de todo
+   número da tela. O piso de 24 vem com margem negativa vertical para a linha
+   do rótulo (18px) não crescer. */
 .dica > summary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-width: 24px;
   min-height: 24px;
-  margin: -5px -5px -5px -6px;
+  margin: -3px -4px;
   list-style: none;
   cursor: help;
-  color: var(--p-conteudo-fantasma);
+  color: var(--p-conteudo);
   border-radius: var(--p-r-pilula);
 }
 
@@ -1134,6 +1332,7 @@
   top: calc(100% + 6px);
   left: -10px;
   width: 232px;
+  text-align: left;
   padding: var(--p-e-2) var(--p-e-3);
   background: var(--p-superficie-4);
   color: var(--p-conteudo-claro);
@@ -1157,20 +1356,44 @@
 .tblwrap {
   border: 0;
   border-radius: var(--g-r-cartao);
+  background: var(--g-cartao-fundo);
   box-shadow: var(--g-sombra-cartao);
   padding: var(--g-cartao-pad);
   overflow: visible;
 }
 
-.tblhead {
-  padding: 0;
-  min-height: 42px;
+/* A tabela mora DENTRO do cartão: moldura branca de raio 8 com borda
+   `1px rgba(0,0,0,.06)` dentro da moldura de 16 (`sistema-visual-portal.md`
+   §5). É o duplo raio que dá a profundidade. */
+.tblwrap .scroll {
+  background: var(--p-superficie-0);
+  border: 1px solid var(--p-linha);
+  border-radius: var(--p-r-md);
+  overflow-x: auto;
 }
 
+.tblwrap .tabs + .scroll,
+.tblwrap .tabs + .vazio-linha,
+.tblwrap .rel-aba-cabecalho + .scroll,
+.tblwrap .rel-aba-cabecalho + .vazio-linha {
+  margin-top: 10px;
+}
+
+.tblhead {
+  padding: 0;
+  min-height: 54px;
+  margin-bottom: 10px;
+  flex-wrap: nowrap;
+}
+
+/* "Monitoramento detalhado" é `bds-typo fs-20 bold` com `mr3` (10px) até a
+   busca. */
 .tblhead h3 {
+  margin-right: 10px;
   font-size: var(--g-t-valor-rel);
   font-weight: var(--g-peso-negrito);
   line-height: var(--g-t-valor-rel);
+  white-space: nowrap;
 }
 
 /* Abas: faixa de 56px com 4px/16px de padding, item de 48px, texto 16/400 e
@@ -1203,7 +1426,7 @@
    de letra era invenção nossa — a coluna deles tem o mesmo corpo da célula e
    se separa só pelo peso. */
 .tblwrap th {
-  height: 48px;
+  height: 59px;
   padding: 0 var(--p-e-2);
   font-size: var(--g-t-coluna);
   font-weight: var(--g-peso-forte);
@@ -1215,7 +1438,7 @@
 }
 
 .tblwrap td {
-  height: 49px;
+  height: 54px;
   padding: 0 var(--p-e-2);
   font-size: var(--g-t-celula);
   font-weight: var(--g-peso-normal);
@@ -1230,20 +1453,58 @@
 }
 
 /* Estado vazio em três partes — título, explicação e saída —, na disposição
-   deles: empilhado e centralizado, com o botão embaixo. */
+   deles: empilhado e centralizado, com o botão embaixo. Dentro do cartão de
+   tabela ele mora na moldura branca da tabela, como o "Dados insuficientes"
+   deles (`desk-grid-tabled-paginated-empty-*`). */
 .tblwrap .vazio {
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--p-e-2);
   text-align: center;
+  background: var(--p-superficie-0);
+  border: 1px solid var(--p-linha);
+  border-radius: var(--p-r-md);
 }
 
+/* Título do vazio em 20/700 com 22px até a explicação, e a explicação em
+   16/400 na tinta de conteúdo — medido em "Nenhum resultado encontrado". O
+   nosso saía em 16/700 com o parágrafo em 14 apagado, e era o que fazia a
+   tela vazia parecer um aviso de rodapé. */
+.vazio b,
 .tblwrap .vazio b {
-  font-size: var(--g-t-bloco);
+  font-size: var(--g-t-valor-rel);
   font-weight: var(--g-peso-negrito);
+  line-height: var(--g-t-valor-rel);
+  color: var(--p-conteudo);
+  margin-bottom: 14px;
+}
+
+/* "Dados insuficientes" das abas do Monitoramento detalhado é UMA linha
+   centrada no corpo da tabela — sem explicação e sem botão (`FICHA-
+   monitoring.md` §6). Sai em 14/600, o corpo de célula com o peso de
+   cabeçalho, e sem a margem que o título de três partes carrega. */
+.vazio-linha {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 108px;
+  padding: var(--p-e-4);
+  font-size: var(--g-t-celula);
+  font-weight: var(--g-peso-forte);
+  line-height: var(--g-lh-cartao);
+  color: var(--p-conteudo);
+  background: var(--p-superficie-0);
+  border: 1px solid var(--p-linha);
+  border-radius: var(--p-r-md);
+}
+
+.vazio,
+.tblwrap .vazio {
+  font-size: var(--g-t-bloco);
   line-height: var(--g-lh-bloco);
   color: var(--p-conteudo);
+  gap: var(--p-e-4);
 }
 
 .tblwrap .vazio p {
@@ -1251,12 +1512,14 @@
   max-width: 44ch;
 }
 
-/* A legenda do destaque amarelo, sob a tabela. */
+/* A legenda do destaque amarelo, sob a tabela: 12/700 na tinta cheia
+   (`sistema-visual-portal.md` §2, "legenda sob tabela"). */
 .tbl-legenda {
   margin: var(--p-e-3) 0 0;
   font-size: var(--g-t-rotulo);
+  font-weight: var(--g-peso-negrito);
   line-height: var(--g-lh-rotulo);
-  color: var(--p-conteudo-fantasma);
+  color: var(--p-conteudo);
 }
 
 /* "Aguardando..." no lugar do número que ainda não existe: é texto, não
@@ -1276,9 +1539,37 @@
   white-space: nowrap;
 }
 
-.tblwrap td.tempo-sla > .num {
-  font-family: var(--p-fonte-mono);
+/* Célula de número na FONTE DO CORPO, com dígito tabular: a célula deles é
+   `bds-typo fs-14 regular` como qualquer outra — a monoespaçada era nossa, e
+   era o que mais afastava a tabela do original. Vale para as tabelas de
+   todo o módulo. */
+.tblwrap td.num,
+.tblwrap td.tempo-sla > .num,
+.cartao-rel.tabela td.num,
+.cl-campo .v.num,
+.cl-campo .v.id {
+  font-family: var(--p-fonte);
   font-variant-numeric: tabular-nums;
+}
+
+/* Ação de linha: glifo de 24 solto num alvo de 40, sem moldura
+   (`bds-button-icon size="short"`). */
+.tblwrap td.acts .iconbtn {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  border-radius: var(--p-r-md);
+}
+
+.tblwrap td.acts .iconbtn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.tblwrap td.acts .iconbtn:hover {
+  background: var(--p-superficie-2);
 }
 
 /* ------------------------------------------------- busca dentro do cartão
@@ -1286,19 +1577,32 @@
    à direita do título — não na faixa de filtros. */
 .tblhead .tbl-busca {
   margin-left: auto;
+  flex: 1 1 auto;
   display: flex;
   align-items: center;
-  gap: 6px;
-  height: 40px;
-  padding: 0 var(--p-e-3);
-  border: 1px solid var(--p-linha-media);
+  gap: var(--p-e-2);
+  /* 54px de altura e a faixa toda de largura: na tela deles a busca do cartão
+     mede `748x54`, não é um campinho encostado no título. Borda `1px
+     rgba(0,0,0,.2)` — a tinta a 20%, não a linha forte. */
+  height: 54px;
+  padding: 0 var(--p-e-4);
+  border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
   border-radius: var(--p-r-md);
   background: var(--p-superficie-0);
-  color: var(--p-conteudo-fantasma);
+  color: var(--p-conteudo);
+}
+
+/* A lupa da busca é `bds-icon size="small"`: 20px. */
+.tblhead .tbl-busca svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
 }
 
 .tblhead .tbl-busca input {
-  width: 200px;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
   padding: 0;
   border: 0;
   background: transparent;
@@ -1382,7 +1686,10 @@
    Título 16/700, 44px do topo do título ao topo do conteúdo, grade interna
    com 20px nos dois eixos, e 20px entre blocos. */
 .bloco-rel {
-  background: var(--p-superficie-2);
+  /* `bds-paper bg-color="surface-1"` de fora, `bg-color="surface-0"` dentro
+     (`desk-satisfacao__pagina.html`): o bloco é o cinza do cartão, o cartão
+     interno é branco. */
+  background: var(--g-cartao-fundo);
   padding: var(--g-cartao-pad);
   border-radius: var(--g-r-cartao);
   box-shadow: var(--g-sombra-cartao);
@@ -1393,11 +1700,21 @@
 }
 
 .bloco-rel > h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
   margin: 0 0 var(--g-cartao-gap);
   font-size: var(--g-t-bloco);
   font-weight: var(--g-peso-negrito);
   line-height: var(--g-lh-bloco);
   color: var(--p-conteudo);
+}
+
+/* O ícone de informação ao lado do título do bloco e do rótulo do cartão
+   (`bds-icon name="info" size="x-small"`, 16px, a 8px do texto — `mr2`). */
+.bloco-rel > h3 .dica,
+.cartao-rel .r .dica {
+  margin-left: 4px;
 }
 
 /* O intervalo do relatório fica ao lado do título do bloco, em 12/400. */
@@ -1444,15 +1761,63 @@
   color: var(--p-conteudo);
 }
 
+/* O valor é `bds-typo fs-20 bold tag="h4"`: 20/700 na fonte do corpo, não em
+   monoespaçada. */
 .cartao-rel .v {
   display: block;
   margin-top: var(--g-cartao-gap);
-  font-family: var(--p-fonte-mono);
+  font-family: var(--p-fonte);
   font-variant-numeric: tabular-nums;
   font-size: var(--g-t-valor-rel);
   font-weight: var(--g-peso-negrito);
   line-height: var(--g-t-valor-rel);
   color: var(--p-conteudo);
+}
+
+/* O cartão interno que carrega um gráfico ou uma tabela deles tem 400px de
+   altura fixa (`bds-paper height="400px"`); enquanto o gráfico não existe, o
+   vazio ocupa a mesma caixa, para a página não encolher. */
+.cartao-rel.alto {
+  min-height: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.cartao-rel.alto > .vazio {
+  flex: 1;
+  justify-content: center;
+}
+
+/* Rótulo 16/700 do cartão interno de gráfico ("Satisfação geral",
+   "Comparativo de satisfação"). */
+.cartao-rel > h4 {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  margin: 0;
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-bloco);
+  color: var(--p-conteudo);
+}
+
+.cartao-rel > h4 .faixa-fim {
+  margin-left: auto;
+}
+
+/* O `bds-select` Atendentes/Filas do "Comparativo de satisfação": 40px,
+   raio 8, borda na tinta a 20%. */
+.cartao-rel > h4 select {
+  height: 40px;
+  min-width: 150px;
+  padding: 0 var(--p-e-3);
+  border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: var(--g-t-item);
+  font-weight: var(--g-peso-normal);
 }
 
 .cartao-rel .den {
@@ -1622,7 +1987,9 @@ tr.grupo th {
   gap: var(--p-e-3);
   padding: var(--g-cartao-pad);
   border-radius: var(--g-r-cartao);
-  background: var(--p-superficie-0);
+  /* `bds-paper elevation="static" bg-surface-1` (`dom/sla-policy.html`,
+     `dom/rules.html`): o mesmo cinza-claro de todo cartão do módulo. */
+  background: var(--g-cartao-fundo);
   box-shadow: var(--g-sombra-cartao);
 }
 
@@ -1691,6 +2058,9 @@ tr.grupo th {
   font-size: var(--p-t-md);
 }
 
+/* As ações do cartão-linha deles: `bds-button-icon size="short"` (40×40, glifo
+   de 24, sem moldura) para editar e excluir, e o interruptor. Andam com 8px
+   entre si e SEM etiqueta de situação — o interruptor já diz. */
 .cl-acoes {
   display: flex;
   align-items: center;
@@ -1698,17 +2068,46 @@ tr.grupo th {
   justify-self: end;
 }
 
-/* Etiquetas: uma tira no pé do cartão, e só quando existem. É o mesmo
-   recurso que o cartão de Horários deles usa para a descrição. */
+.cl-acoes .iconbtn {
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  border-radius: var(--p-r-md);
+}
+
+.cl-acoes .iconbtn svg {
+  width: 24px;
+  height: 24px;
+}
+
+.cl-acoes .iconbtn:hover:not(:disabled) {
+  background: var(--p-superficie-2);
+}
+
+/* O selo "Padrão" do cartão de SLA deles é um `bds-chip-tag` NA LINHA, na
+   quarta coluna do cartão (`dom/sla-policy.html`), não no rodapé. */
+.cl-campo .etiqueta {
+  align-self: flex-start;
+  margin-top: 4px;
+}
+
+/* A segunda linha do cartão: é o recurso que o cartão de Horários deles usa
+   para a descrição — texto corrido 14/400, sem tira de etiquetas e sem fio.
+   Continua guardando o que não é coluna (condições da regra, atendentes da
+   fila), mas lê como descrição, e não como sete pílulas. */
 .cl-rodape {
   grid-column: 2 / -1;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: var(--p-e-1);
   margin-top: var(--p-e-2);
-  padding-top: var(--p-e-2);
-  border-top: 1px solid var(--p-linha);
+  font-size: var(--g-t-celula);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-lh-cartao);
+  color: var(--p-conteudo-desabilitado);
+}
+
+.cl-rodape > span + span::before {
+  content: ' · ';
 }
 
 /* ------------------------------------------- seleção múltipla e ação em massa
@@ -1764,18 +2163,27 @@ tr.grupo th {
 /* ------------------------------------------------ busca no topo da tela
    Sozinha na linha, à esquerda, logo abaixo do título — a mesma ordem das
    telas de Regras, SLA e Atendentes deles. */
+/* `bds-input icon="search"` numa coluna `w-30` (`dom/queue-management.html`):
+   30% da largura, 54px de altura (296×54 na foto de Regras de SLA), raio 8,
+   borda na tinta a 20%, lupa de 20px a 8px do texto. Era 410×42. */
 .busca-topo {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
-  width: 100%;
-  max-width: 410px;
-  height: 42px;
-  padding: 0 var(--p-e-3);
-  border: 1px solid var(--p-linha-media);
+  width: 30%;
+  min-width: 260px;
+  height: 54px;
+  padding: 0 var(--p-e-4);
+  border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
   border-radius: var(--p-r-md);
   background: var(--p-superficie-0);
-  color: var(--p-conteudo-fantasma);
+  color: var(--p-conteudo);
+}
+
+.busca-topo svg {
+  width: 20px;
+  height: 20px;
+  flex: none;
 }
 
 .busca-topo input {
@@ -1785,9 +2193,13 @@ tr.grupo th {
   border: 0;
   background: transparent;
   font: inherit;
-  font-size: var(--p-t-md);
+  font-size: var(--g-t-item);
   color: var(--p-conteudo);
   outline: none;
+}
+
+.busca-topo input::placeholder {
+  color: var(--p-conteudo-fantasma);
 }
 
 /* Cabeçalho de grupo acima dos cartões dele. Faz na lista o papel que o
@@ -1815,39 +2227,51 @@ tr.grupo th {
 .painel-modelos {
   display: flex;
   flex-direction: column;
-  gap: var(--p-e-3);
+  gap: var(--p-e-4);
   padding: var(--g-cartao-pad);
   border-radius: var(--g-r-cartao);
-  background: var(--p-superficie-0);
+  background: var(--g-cartao-fundo);
   box-shadow: var(--g-sombra-cartao);
 }
 
+/* O título repetido dentro do painel é `bds-typo variant="fs-20"` bold. */
 .painel-modelos > h3 {
   margin: 0;
-  font-size: var(--g-t-bloco);
+  font-size: var(--g-t-valor-rel);
   font-weight: var(--g-peso-negrito);
+  line-height: var(--g-t-valor-rel);
   color: var(--p-conteudo);
 }
 
+/* "Filtrar por:" em 14/700 na tinta cheia, os seletores de 40px ao lado e a
+   busca à direita ocupando 69% da linha (`FICHA-message-template.md` §3). */
 .filtrar-por {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
 }
 
-.filtrar-por .sub {
+.filtrar-por .filtrar-rotulo {
   white-space: nowrap;
+  font-size: var(--g-t-item);
+  font-weight: var(--g-peso-negrito);
+  color: var(--p-conteudo);
 }
 
 .filtrar-por select {
-  height: 38px;
+  height: 40px;
   padding: 0 var(--p-e-3);
-  border: 1px solid var(--p-linha-media);
+  border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
   border-radius: var(--p-r-md);
   background: var(--p-superficie-0);
   color: var(--p-conteudo);
   font: inherit;
-  font-size: var(--p-t-md);
+  font-size: var(--g-t-item);
+}
+
+.painel-modelos .busca-topo {
+  width: 69%;
+  margin-left: auto;
 }
 
 /* Abaixo de 1180 os oito campos não cabem em linha; viram duas fileiras
@@ -1931,6 +2355,59 @@ tr.grupo th {
   flex: none;
 }
 
+/* ============================ a grade de canais (/preferencias/canais)
+   `FICHA-channels.md` §2: `bds-grid direction="row"` com quatro `bds-paper`
+   de 242×292 (medida do boot-log da captura). Cada cartão: ícone no topo,
+   título 16/700, subtítulo 14/400 e o botão no pé, encostado à direita. */
+.canais-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 242px);
+  gap: var(--g-cartao-gap);
+}
+
+.canal-cartao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
+  min-height: 292px;
+  padding: var(--g-cartao-pad);
+  border-radius: var(--g-r-cartao);
+  background: var(--g-cartao-fundo);
+  box-shadow: var(--g-sombra-cartao);
+}
+
+.canal-icone {
+  display: flex;
+  color: var(--p-marca);
+  margin-bottom: var(--p-e-2);
+}
+
+.canal-cartao h3 {
+  margin: 0;
+  font-size: var(--g-t-bloco);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-bloco);
+  color: var(--p-conteudo);
+}
+
+.canal-cartao p {
+  margin: 0;
+  font-size: var(--g-t-celula);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-lh-cartao);
+  color: var(--p-conteudo);
+  overflow-wrap: anywhere;
+}
+
+.canal-acao {
+  margin-top: auto;
+  align-self: flex-end;
+}
+
+.canal-acao.apagado {
+  opacity: 0.5;
+}
+
 /* ================ o interruptor do cartão-linha (/regras/atendimento)
    Medido em `blip-telas-cadastro.md` §2: o toggle liga e desliga o registro NA
    LISTA, sem abrir formulário. É a única forma de controle que o cartão deles
@@ -1985,7 +2462,8 @@ tr.grupo th {
   gap: var(--p-e-3);
   padding: var(--g-cartao-pad);
   border-radius: var(--g-r-cartao);
-  background: var(--p-superficie-0);
+  /* `bds-paper elevation="static" bg-surface-1` (`dom/general-settings.html`). */
+  background: var(--g-cartao-fundo);
   box-shadow: var(--g-sombra-cartao);
 }
 
@@ -2021,13 +2499,13 @@ tr.grupo th {
 }
 
 /* O rodapé do cartão: o Salvar dele, à direita, com a mensagem à esquerda. */
+/* Sem fio acima do Salvar: o `bds-paper` deles não tem divisória interna. */
 .cartao-config footer {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: var(--p-e-3);
-  padding-top: var(--p-e-3);
-  border-top: 1px solid var(--p-linha);
+  padding-top: var(--p-e-2);
 }
 
 .cartao-config footer .sub {
@@ -3604,40 +4082,6 @@ tr.grupo th {
   background: var(--p-marca-suave);
 }
 
-/* ========================================== cartão com ações no cabeçalho
-   Os quatro cartões de métrica do Monitoramento levam DOIS ícones no canto —
-   atualizar e expandir —, medidos em `FICHA-monitoring.md` §2: "Cada um dos 4
-   cartões de métricas tem, no canto superior direito, dois ícones". O `h3` some
-   um nível: de filho direto do `.card` para filho de `.card-cabecalho`, então
-   herda a tipografia de novo aqui — `.card > h3` não alcança um neto. */
-.card-cabecalho {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--p-e-2);
-  margin-bottom: 10px;
-}
-
-.card-cabecalho > h3 {
-  margin: 0;
-  font-size: var(--g-t-cartao);
-  font-weight: var(--g-peso-forte);
-  line-height: var(--g-lh-cartao);
-}
-
-.card-acoes {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex: none;
-}
-
-.card-acoes .iconbtn {
-  width: 28px;
-  height: 28px;
-  color: var(--p-conteudo-fantasma);
-}
-
 /* ================================================== painel lateral "Filtros"
    O `data-testid="saved-filters-sidebar"` deles, fechado por padrão e medido em
    `FICHA-monitoring.md` e `FICHA-history.md` §2: título, subtítulo fixo, duas
@@ -3675,19 +4119,23 @@ tr.grupo th {
   padding: var(--p-e-6) var(--p-e-6) var(--p-e-4);
 }
 
+/* Título `fs-20 bold`, subtítulo `fs-14 regular`, abas `fs-16` (a ativa em
+   bold) e cada campo com rótulo `fs-14 bold` sobre apoio `fs-14 regular` —
+   tudo lido no `saved-filters-sidebar` de `dom/monitoring.html`. */
 .painel-cabecalho h3 {
   margin: 0;
-  font-size: var(--g-t-bloco);
+  font-size: var(--g-t-valor-rel);
   font-weight: var(--g-peso-negrito);
-  line-height: var(--g-lh-bloco);
+  line-height: var(--g-t-valor-rel);
   color: var(--p-conteudo);
 }
 
 .painel-cabecalho p {
-  margin: 4px 0 0;
-  font-size: var(--p-t-sm);
-  line-height: 1.45;
-  color: var(--p-conteudo-fantasma);
+  margin: 8px 0 0;
+  font-size: var(--g-t-celula);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-lh-cartao);
+  color: var(--p-conteudo);
 }
 
 .painel-abas {
@@ -3703,13 +4151,15 @@ tr.grupo th {
   border-bottom: 2px solid transparent;
   background: none;
   font: inherit;
-  font-size: var(--p-t-md);
-  color: var(--p-conteudo-fantasma);
+  font-size: var(--g-t-aba);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-lh-bloco);
+  color: var(--p-conteudo);
   cursor: pointer;
 }
 
 .painel-abas button.ativa {
-  font-weight: var(--p-peso-forte);
+  font-weight: var(--g-peso-negrito);
   color: var(--p-conteudo);
   border-bottom-color: var(--p-marca);
 }
@@ -3736,25 +4186,28 @@ tr.grupo th {
 }
 
 .painel-rotulo {
-  font-size: var(--p-t-md);
-  font-weight: var(--p-peso-forte);
+  font-size: var(--g-t-item);
+  font-weight: var(--g-peso-negrito);
+  line-height: var(--g-lh-cartao);
   color: var(--p-conteudo);
 }
 
 .painel-apoio {
-  font-size: var(--p-t-xs);
-  color: var(--p-conteudo-fantasma);
+  font-size: var(--g-t-celula);
+  font-weight: var(--g-peso-normal);
+  line-height: var(--g-lh-cartao);
+  color: var(--p-conteudo);
 }
 
 .painel-campo select,
 .painel-campo input {
   height: 40px;
   padding: 0 var(--p-e-3);
-  border: 1px solid var(--p-linha-media);
+  border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
   border-radius: var(--p-r-md);
   background: var(--p-superficie-0);
   font: inherit;
-  font-size: var(--p-t-md);
+  font-size: var(--g-t-item);
   color: var(--p-conteudo);
 }
 
@@ -3766,12 +4219,13 @@ tr.grupo th {
   border-top: 1px solid var(--p-linha);
 }
 
+/* "Criar Filtro Salvo com estes parâmetros" é `fs-14 regular` na tinta cheia. */
 .painel-sw {
   display: flex;
   align-items: center;
   gap: var(--p-e-2);
-  font-size: var(--p-t-sm);
-  color: var(--p-conteudo-fantasma);
+  font-size: var(--g-t-celula);
+  color: var(--p-conteudo);
   cursor: not-allowed;
 }
 
@@ -3791,47 +4245,62 @@ tr.grupo th {
 /* =========================================== paginação da tabela detalhada
    O rodapé deles, `FICHA-monitoring.md` §5: "Resultados por página", o
    contador "1-5 de 8", e os quatro botões de navegação. */
+/* O rodapé deles é texto de 14 na tinta cheia, com o seletor em 74×40 e os
+   quatro botões de navegação sem moldura, ESPALHADOS pela largura: na foto de
+   Regras de SLA (`fotos/original-sla-policy.png`, 1280 de largura) o rótulo
+   sai em x=270, o seletor em 431, o contador em 611, e as quatro setas com o
+   número da página entre elas ocupam de 727 a 1213 — metade direita da faixa,
+   com espaço igual entre elas. Sem fio em cima: a paginação é continuação da
+   lista, não rodapé de tabela. */
 .pg {
   display: flex;
   align-items: center;
-  gap: var(--p-e-4);
-  margin-top: var(--p-e-3);
-  padding-top: var(--p-e-3);
-  border-top: 1px solid var(--p-linha);
-  font-size: var(--p-t-sm);
-  color: var(--p-conteudo-fantasma);
+  gap: var(--p-e-5);
+  margin-top: var(--p-e-4);
+  font-size: var(--g-t-item);
+  color: var(--p-conteudo);
 }
 
 .pg-por-pagina {
   display: flex;
   align-items: center;
-  gap: var(--p-e-2);
+  gap: var(--p-e-5);
 }
 
 .pg-por-pagina select {
-  height: 28px;
+  height: 40px;
+  min-width: 74px;
   padding: 0 var(--p-e-2);
-  border: 1px solid var(--p-linha-media);
-  border-radius: var(--p-r-sm);
+  border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
+  border-radius: var(--p-r-md);
   background: var(--p-superficie-0);
   font: inherit;
-  font-size: var(--p-t-sm);
+  font-size: var(--g-t-item);
   color: var(--p-conteudo);
 }
 
 .pg-contador {
-  margin-left: auto;
+  margin: 0 auto;
 }
 
 .pg-nav {
   display: flex;
   align-items: center;
-  gap: 2px;
+  justify-content: space-between;
+  width: 50%;
 }
 
 .pg-nav .iconbtn {
-  width: 28px;
-  height: 28px;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  border-radius: var(--p-r-md);
+}
+
+.pg-nav .iconbtn:hover:not(:disabled) {
+  background: var(--p-superficie-2);
 }
 
 .pg-nav .iconbtn:disabled {
@@ -3849,6 +4318,13 @@ tr.grupo th {
 
 .pg-dupla svg + svg {
   margin-left: -9px;
+}
+
+/* O número da página atual, entre "anterior" e "próxima" (`bds-grid
+   margin="x-1"` com `bds-typo fs-14`). */
+.pg-atual {
+  min-width: 16px;
+  text-align: center;
 }
 
 /* As duas datas do campo "Período" do painel, lado a lado — só aparecem
@@ -3972,54 +4448,56 @@ tr.grupo th {
    O rodapé "Resultados por página" + "X-Y de Z" + setas, medido em
    `FICHA-rules.md` e `FICHA-queue-management.md` §5 — paginação no
    navegador, sobre a lista que a busca já filtrou. */
+/* Mesma régua da `.pg` acima (é o mesmo `pagination-and-search` deles em
+   `dom/rules.html`/`dom/sla-policy.html`): espalhado na largura, sem fio. */
 .rodape-paginacao {
   display: flex;
   align-items: center;
   gap: var(--p-e-5);
   margin-top: var(--p-e-4);
-  padding-top: var(--p-e-4);
-  border-top: 1px solid var(--p-linha);
-  font-size: var(--p-t-sm);
-  color: var(--p-conteudo-fantasma);
+  font-size: var(--g-t-item);
+  color: var(--p-conteudo);
 }
 
 .rp-tamanho {
   display: flex;
   align-items: center;
-  gap: var(--p-e-2);
+  gap: var(--p-e-5);
 }
 
 .rp-tamanho select {
-  height: 28px;
+  height: 40px;
+  min-width: 74px;
   padding: 0 var(--p-e-2);
-  border: 1px solid var(--p-linha-media);
-  border-radius: var(--p-r-sm);
+  border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
+  border-radius: var(--p-r-md);
   background: var(--p-superficie-0);
   font: inherit;
-  font-size: var(--p-t-sm);
+  font-size: var(--g-t-item);
   color: var(--p-conteudo);
 }
 
 .rp-contagem {
-  margin-left: auto;
+  margin: 0 auto;
 }
 
 .rp-nav {
   display: flex;
   align-items: center;
-  gap: var(--p-e-2);
+  justify-content: space-between;
+  width: 50%;
 }
 
 .rp-nav button {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 40px;
+  height: 40px;
   border: 0;
-  border-radius: var(--p-r-sm);
+  border-radius: var(--p-r-md);
   background: none;
-  color: var(--p-conteudo-fantasma);
+  color: var(--p-conteudo);
   cursor: pointer;
 }
 
@@ -4033,9 +4511,10 @@ tr.grupo th {
   cursor: default;
 }
 
+/* O número da página é `bds-typo fs-14` sem peso — igual ao resto do rodapé. */
 .rp-atual {
   min-width: 16px;
   text-align: center;
-  font-weight: var(--g-peso-forte);
+  font-weight: var(--g-peso-normal);
   color: var(--p-conteudo);
 }

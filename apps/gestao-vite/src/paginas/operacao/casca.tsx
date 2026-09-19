@@ -62,7 +62,7 @@ const GRUPOS: readonly GrupoLateral[] = [
     icone: 'funil',
     filhos: [
       { rotulo: 'Atendimento', rota: 'regras/atendimento' },
-      { rotulo: 'SLA', rota: 'preferencias/regras' },
+      { rotulo: 'SLA', rota: 'regras/sla' },
       { rotulo: 'Horários', rota: 'regras/horarios' },
     ],
   },

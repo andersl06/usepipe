@@ -1,84 +1,90 @@
 import { IconeGestao } from './icones-gestao';
 
 /**
- * Métrica de cartão, com a explicação ao lado do rótulo.
+ * Métrica de cartão — a coluna deles, lida em `docs/capturas/blip/dom/
+ * monitoring.html`: número em cima (`bds-typo variant="fs-24"`), e embaixo a
+ * linha do rótulo (`bds-typo variant="fs-12" class="text-center"`) com o
+ * ícone de informação de 16px ao lado (`bds-icon name="info" size="x-small"`
+ * numa `bds-grid direction="row" gap="half"`). Tudo centrado na coluna.
  *
  * O ícone de informação é `<details>` puro: abre no clique e no teclado, fecha
  * no `Esc` do navegador, e não custa uma linha de JavaScript. A dica de
- * `title=""` do HTML foi descartada de propósito — ela não abre com teclado, e
- * o texto aqui é a definição da métrica, não um enfeite.
+ * `title=""` do HTML foi descartada de propósito — ela não abre com teclado.
  *
- * O TEXTO SAI DA NOSSA SPEC, não da tela da Blip: `docs/specs/
- * 2026-09-05-metricas-atendimento.md` diz a fórmula e a população de cada
- * número, e é isso que o supervisor precisa ler para saber o que está vendo.
- * Cada dica traz as duas coisas.
+ * O TEXTO da dica é o `tooltip-text` deles, literal. O que é nosso — a
+ * fórmula da spec de métricas e o denominador ("entre 6 na fila") — continua
+ * existindo, mas DENTRO do balão: na tela deles o cartão não tem uma terceira
+ * linha sob o rótulo, e a régua desta rodada é a forma deles.
  */
 export function Metrica({
   valor,
   rotulo,
   dica,
+  formula,
   denominador,
   destaque = false,
+  tom,
 }: {
   valor: string;
   rotulo: string;
-  /** Fórmula e população, palavra por palavra da spec de métricas. */
+  /** O `tooltip-text` deles, palavra por palavra. */
   dica: string;
+  /** Fórmula e população, da nossa spec — segunda linha do balão. */
+  formula?: string;
+  /** População do número ("entre 6 na fila") — terceira linha do balão. */
   denominador?: string;
-  /** Moss só nos dois números que respondem "como está a operação agora". */
+  /** Cor de marca só nos dois números que respondem "como está a operação agora". */
   destaque?: boolean;
+  /** Tinta de erro: "Perdidos" e "Abandonados", como o `color-delete` deles. */
+  tom?: 'erro';
 }) {
+  const classe = ['metric', destaque ? 'agora' : '', tom === 'erro' ? 'erro' : '']
+    .filter(Boolean)
+    .join(' ');
   return (
-    <div className={destaque ? 'metric agora' : 'metric'}>
+    <div className={classe}>
       <span className="v">{valor}</span>
       <span className="k">
-        {rotulo}
-        <Dica texto={dica} rotulo={rotulo} />
+        <span>{rotulo}</span>
+        <Dica texto={dica} formula={formula} denominador={denominador} rotulo={rotulo} />
       </span>
-      {denominador ? <span className="den">{denominador}</span> : null}
     </div>
   );
 }
 
-function Dica({ texto, rotulo }: { texto: string; rotulo: string }) {
+export function Dica({
+  texto,
+  formula,
+  denominador,
+  rotulo,
+}: {
+  texto: string;
+  formula?: string;
+  denominador?: string;
+  rotulo: string;
+}) {
   return (
     <details className="dica">
-      <summary aria-label={`Como "${rotulo}" é calculado`} title={texto}>
-        <IconeGestao nome="informacao" tamanho={13} />
+      <summary aria-label={`Sobre "${rotulo}"`} title={texto}>
+        <IconeGestao nome="informacao" tamanho={16} />
       </summary>
       <div className="dica-balao" role="note">
         {texto}
+        {formula ? (
+          <>
+            <br />
+            <br />
+            {formula}
+          </>
+        ) : null}
+        {denominador ? (
+          <>
+            <br />
+            <br />
+            {denominador}
+          </>
+        ) : null}
       </div>
     </details>
-  );
-}
-
-/** Cor de estado dos pontos. Nossos tokens, nunca o azul da referência. */
-export type EstadoDoPonto = 'sucesso' | 'alerta' | 'erro' | 'neutro';
-
-/**
- * Contagem de status, com o ponto colorido antes do rótulo.
- *
- * É o único lugar da tela onde a cor de estado aparece sem pedir ação, e cabe
- * na régua porque são sete pontos de 7px: a cor aqui é o que deixa o supervisor
- * achar "perdidos" sem ler os quatro rótulos.
- */
-export function Status({
-  valor,
-  rotulo,
-  estado,
-}: {
-  valor: string;
-  rotulo: string;
-  estado: EstadoDoPonto;
-}) {
-  return (
-    <div>
-      <b>{valor}</b>
-      <span>
-        <span className={`sw ${estado}`} aria-hidden="true" />
-        {rotulo}
-      </span>
-    </div>
   );
 }

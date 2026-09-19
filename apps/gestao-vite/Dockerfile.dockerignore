@@ -33,6 +33,5 @@ apps/api
 apps/workers
 !apps/workers/package.json
 apps/gestao
-!apps/gestao/package.json
 apps/crm
 !apps/crm/package.json

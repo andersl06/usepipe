@@ -105,24 +105,13 @@ function PillPrioridade({ nivel }: { nivel: string }) {
 }
 
 /**
- * O estado vazio deles, com o texto literal e o botão de redefinir. Título,
- * explicação e SAÍDA — as três partes. O nosso antigo tinha só a primeira
- * ("Nenhuma conversa nesta aba com os filtros atuais"), e deixava a pessoa
- * olhando para a tela sem dizer o que fazer a respeito.
+ * O estado vazio deles, literal e de UMA linha: "Dados insuficientes",
+ * centrado no corpo da tabela (`FICHA-monitoring.md` §6,
+ * `desk-grid-tabled-paginated-empty-*`). Sem explicação e sem botão — o que
+ * o nosso acrescentava era texto que a tela deles não tem.
  */
-function SemDados({ aba }: { aba: string }) {
-  return (
-    <div className="vazio">
-      <b>Dados insuficientes</b>
-      <p>
-        Não encontramos dados com os filtros aplicados. Tente ajustar os filtros ou redefinir a
-        busca para ver outros resultados.
-      </p>
-      <Link className="btn" href={`/?aba=${encodeURIComponent(aba)}`}>
-        Redefinir filtros
-      </Link>
-    </div>
-  );
+function SemDados() {
+  return <div className="vazio-linha">Dados insuficientes</div>;
 }
 
 /** O atalho para abrir a conversa no app do atendente, igual nas duas tabelas. */
@@ -137,7 +126,7 @@ function AcaoAbrir({ id }: { id: string }) {
         title="Abrir a conversa no Pipe Desk"
         aria-label="Abrir a conversa no Pipe Desk"
       >
-        <IconeGestao nome="externo" tamanho={14} />
+        <IconeGestao nome="externo" tamanho={24} />
       </a>
     </td>
   );
@@ -157,7 +146,7 @@ function AcaoVerConversas({ filtro, atendenteId }: { filtro: Filtro; atendenteId
         title="Ver as conversas deste atendente"
         aria-label="Ver as conversas deste atendente"
       >
-        <IconeGestao nome="externo" tamanho={14} />
+        <IconeGestao nome="externo" tamanho={24} />
       </Link>
     </td>
   );
@@ -188,7 +177,7 @@ function AcaoVerConversas({ filtro, atendenteId }: { filtro: Filtro; atendenteId
  */
 function TabelaAtribuidas({ linhas }: { linhas: readonly LinhaConversaAberta[] }) {
   const pg = usePagina(linhas);
-  if (linhas.length === 0) return <SemDados aba="atribuido" />;
+  if (linhas.length === 0) return <SemDados />;
   return (
     <div className="scroll">
       <table>
@@ -259,7 +248,7 @@ function TabelaAtribuidas({ linhas }: { linhas: readonly LinhaConversaAberta[] }
  */
 function TabelaAguardando({ linhas }: { linhas: readonly LinhaConversaAberta[] }) {
   const pg = usePagina(linhas);
-  if (linhas.length === 0) return <SemDados aba="aguardando" />;
+  if (linhas.length === 0) return <SemDados />;
   return (
     <div className="scroll">
       <table>
@@ -311,7 +300,7 @@ function TabelaAtendentes({
   filtro: Filtro;
 }) {
   const pg = usePagina(atendentes);
-  if (atendentes.length === 0) return <SemDados aba="atendentes" />;
+  if (atendentes.length === 0) return <SemDados />;
   return (
     <div className="scroll">
       <table>
@@ -349,7 +338,7 @@ function TabelaAtendentes({
  */
 function TabelaFilas({ filas }: { filas: Monitoramento['filas'] }) {
   const pg = usePagina(filas);
-  if (filas.length === 0) return <SemDados aba="filas" />;
+  if (filas.length === 0) return <SemDados />;
   return (
     <div className="scroll">
       <table>
@@ -392,7 +381,7 @@ function TabelaFilas({ filas }: { filas: Monitoramento['filas'] }) {
  */
 function TabelaTags({ etiquetas }: { etiquetas: Monitoramento['etiquetas'] }) {
   const pg = usePagina(etiquetas);
-  if (etiquetas.length === 0) return <SemDados aba="etiquetas" />;
+  if (etiquetas.length === 0) return <SemDados />;
   return (
     <div className="scroll">
       <table>
@@ -484,7 +473,7 @@ export function MonitoramentoDetalhado({
             .map(([chave, valor]) => (
               <input key={chave} type="hidden" name={chave} value={valor} />
             ))}
-          <Icone nome="busca" tamanho={14} />
+          <Icone nome="busca" tamanho={20} />
           <input
             type="search"
             name="busca"

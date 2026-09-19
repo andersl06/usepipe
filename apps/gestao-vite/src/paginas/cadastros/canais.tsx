@@ -1,6 +1,8 @@
+import { Icone } from '@pipe/ui';
 import { useLeitura } from '../../lib/consulta';
 import type { CanalDetalhado } from '../../lib/configuracoes';
 import { numero } from '../../lib/formato';
+import { IconeGestao } from '../../componentes/icones-gestao';
 import { ConectarWhatsApp } from '../../componentes/cadastro-embutido-whatsapp';
 
 const ROTULO_TIPO: Record<string, string> = {
@@ -10,15 +12,20 @@ const ROTULO_TIPO: Record<string, string> = {
   widget: 'Site',
 };
 
-const DATA = new Intl.DateTimeFormat('pt-BR', { dateStyle: 'short' });
-
 /**
- * Canais — o módulo que na barra deles fica à direita de Growth.
+ * Canais de atendimento — `attendance/desk/channels` da origem
+ * (`FICHA-channels.md`): título sem subtítulo nem botão, e uma GRADE de
+ * cartões (`bds-grid direction="row"`, `bds-paper` de 242×292), cada um com
+ * ícone, título 16/700, subtítulo 14/400 e um botão no pé — "Conectado"
+ * (terciário, com o `checkball`) ou "Conectar" (primário, com a seta).
  *
- * Somente leitura, como todas as telas de configuração da Gestão: conectar um
- * canal grava credencial, e gravar credencial sem log de auditoria com autor e
- * horário é passivo. O que a tela resolve hoje é ver o que está conectado, se
- * está entregando, e para qual fila cada caixa manda.
+ * O desalinhamento de dado fica registrado: lá é um CATÁLOGO fixo de
+ * integrações (Pipe Desk, Salesforce, Salesforce MIAW, Canal Personalizado);
+ * aqui cada cartão é um canal REAL já conectado, com as caixas de entrada e
+ * a fila padrão de cada uma no subtítulo — dado que a tela deles não tem e
+ * que não pode sumir. O último cartão é o "Conectar" nosso: o cadastro
+ * embutido do WhatsApp. Não há Salesforce aqui, e inventar o botão seria
+ * simular integração que o produto não tem.
  */
 export function PaginaCanais() {
   const leitura = useLeitura<CanalDetalhado[]>('/v1/gestao/canais');
@@ -27,82 +34,44 @@ export function PaginaCanais() {
 
   return (
     <>
-      {/*
-        `FICHA-channels.md` §1: sem subtítulo — só o título "Canais de
-        atendimento". O maior desalinhamento desta tela não é de layout: a
-        Blip mostra um CATÁLOGO de integrações para conectar (Pipe Desk,
-        Salesforce, Salesforce MIAW, Canal Personalizado — §2), enquanto esta
-        tela mostra o PAINEL dos canais já conectados, com caixa de entrada,
-        fila padrão e conversas abertas de verdade. Trocar uma coisa pela
-        outra faria a tela "bater" na estrutura e perder o dado real — e
-        inventar botões "Conectar Salesforce"/"Conectar Salesforce MIAW"
-        seria simular integração que este produto não tem. Por isso a tela
-        segue mostrando canal real, e este desencontro fica registrado aqui
-        e no relatório da tarefa, para decisão de produto, não de CSS.
-      */}
       <div className="board-head">
-        <h2>Canais</h2>
+        <h2>Canais de atendimento</h2>
       </div>
 
-      {canais.length === 0 ? (
-        <div className="tblwrap">
-          <div className="vazio">
-            Nenhum canal conectado neste tenant. Enquanto não houver canal, o Desk não recebe
-            conversa e o Monitoramento fica em zero — não por falta de movimento, por falta de porta
-            de entrada.
-          </div>
-        </div>
-      ) : (
-        canais.map((c) => (
-          <div className="tblwrap" key={c.id}>
-            <div className="tblhead">
-              <h3>{c.nome}</h3>
-              <span className="etiqueta">{ROTULO_TIPO[c.tipo] ?? c.tipo}</span>
-              <span className="sub" style={{ marginLeft: 'auto' }}>
-                {c.ativo ? 'Ligado' : 'Desligado'} · conectado em {DATA.format(new Date(c.criadoEm))}
-              </span>
-            </div>
+      <div className="canais-grade">
+        {canais.map((c) => (
+          <section className="canal-cartao" key={c.id}>
+            <span className="canal-icone" aria-hidden="true">
+              <Icone nome="balao" tamanho={40} />
+            </span>
+            <h3>{c.nome}</h3>
+            <p>
+              {ROTULO_TIPO[c.tipo] ?? c.tipo}
+              {c.caixas.length === 0
+                ? ' · sem caixa de entrada'
+                : c.caixas.map(
+                    (cx) =>
+                      ` · ${cx.nome}: ${cx.filaPadrao ?? 'sem fila padrão'} (${numero(cx.abertas)} aberta(s))`,
+                  )}
+            </p>
+            <span className={c.ativo ? 'btn fantasma canal-acao' : 'btn fantasma canal-acao apagado'}>
+              <IconeGestao nome="circuloOk" tamanho={20} />
+              {c.ativo ? 'Conectado' : 'Desligado'}
+            </span>
+          </section>
+        ))}
 
-            {c.caixas.length === 0 ? (
-              <div className="vazio">
-                Canal sem caixa de entrada. A conversa que chegar por ele não tem para onde ir.
-              </div>
-            ) : (
-              <div className="scroll">
-                <table>
-                  <thead>
-                    <tr>
-                      <th>Caixa de entrada</th>
-                      <th>Fila padrão</th>
-                      <th>Conversas abertas</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {c.caixas.map((cx) => (
-                      <tr key={cx.id}>
-                        <td className="who">{cx.nome}</td>
-                        <td>{cx.filaPadrao ?? <span className="sub">Sem fila padrão</span>}</td>
-                        <td className="num">{numero(cx.abertas)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+        <section className="canal-cartao">
+          <span className="canal-icone" aria-hidden="true">
+            <Icone nome="balao" tamanho={40} />
+          </span>
+          <h3>WhatsApp</h3>
+          <p>Conecte um número pelo cadastro embutido da Meta</p>
+          <div className="canal-acao">
+            <ConectarWhatsApp rotulo="Conectar" />
           </div>
-        ))
-      )}
-
-      <section className="card">
-        <h3>Conectar um número de WhatsApp</h3>
-        <p className="sub">
-          Pelo cadastro embutido da Meta, dentro do Business Manager do cliente: ao fim, o Pipe
-          troca o código pelo token, registra o número e aponta o webhook. Não há campo de
-          &ldquo;token do canal&rdquo; para preencher. O passo a passo inteiro, com equipe e
-          contatos, está em <a href="/implantacao">Implantação</a>.
-        </p>
-        <ConectarWhatsApp />
-      </section>
+        </section>
+      </div>
     </>
   );
 }

@@ -9,10 +9,11 @@ import {
 } from '../../lib/historico';
 import { useSearchParams } from 'react-router-dom';
 import { useLeitura } from '../../lib/consulta';
-import { dataHora, dataIso, dataOuNada, duracao, numero, uuidOuNada } from '../../lib/formato';
+import { dataHora, dataOuNada, duracao, numero, uuidOuNada } from '../../lib/formato';
+import { periodoAtual, rotuloDoPeriodo } from '../../lib/periodos';
 import { EstadoVazio, Icone } from '@pipe/ui';
 import { IconeGestao } from '../../componentes/icones-gestao';
-import { CampoDoPainel, PainelFiltros } from '../../componentes/painel-filtros';
+import { CampoDoPainel, CampoPeriodo, PainelFiltros } from '../../componentes/painel-filtros';
 import { montarCsv } from '../../lib/csv-historico';
 import { ListaHistorico, type CartaoHistorico } from '../../componentes/lista-historico';
 import { useContato } from '../fluxo/contato';
@@ -51,50 +52,6 @@ const ROTULO_STATUS: Record<string, { texto: string; classe: string }> = {
   abandonada: { texto: 'Abandonada', classe: 'etiqueta alerta' },
   finalizada: { texto: 'Finalizada', classe: 'etiqueta' },
 };
-
-/**
- * Atalhos de período — os rótulos exatos do filtro deles
- * (`docs/capturas/blip/dom/FICHA-history.md` §3). "Personalizado" é o nosso
- * par de datas de sempre; os outros só calculam `de`/`ate`.
- */
-const PERIODOS = [
-  { chave: 'hoje', rotulo: 'Hoje' },
-  { chave: 'ontem', rotulo: 'Ontem' },
-  { chave: '7', rotulo: 'Últimos 7 dias' },
-  { chave: '15', rotulo: 'Últimos 15 dias' },
-  { chave: '30', rotulo: 'Últimos 30 dias' },
-  { chave: '60', rotulo: 'Últimos 60 dias' },
-  { chave: '90', rotulo: 'Últimos 90 dias' },
-  { chave: '120', rotulo: 'Últimos 120 dias' },
-  { chave: '180', rotulo: 'Últimos 180 dias' },
-] as const;
-
-function calcularPeriodo(chave: string, fuso: string): { de: string; ate: string } | undefined {
-  const agora = new Date();
-  const hoje = dataIso(agora, fuso);
-  if (chave === 'hoje') return { de: hoje, ate: hoje };
-  if (chave === 'ontem') {
-    const ontem = dataIso(new Date(agora.getTime() - 86_400_000), fuso);
-    return { de: ontem, ate: ontem };
-  }
-  const dias = Number(chave);
-  if (!Number.isInteger(dias)) return undefined;
-  const inicio = dataIso(new Date(agora.getTime() - (dias - 1) * 86_400_000), fuso);
-  return { de: inicio, ate: hoje };
-}
-
-/** Qual atalho corresponde ao `de`/`ate` atuais, se algum — senão, "personalizado". */
-function periodoAtual(de: string, ate: string, fuso: string): string {
-  const achado = PERIODOS.find((p) => {
-    const calc = calcularPeriodo(p.chave, fuso);
-    return calc !== undefined && calc.de === de && calc.ate === ate;
-  });
-  return achado?.chave ?? 'personalizado';
-}
-
-function rotuloDoPeriodo(chave: string): string {
-  return PERIODOS.find((p) => p.chave === chave)?.rotulo ?? 'Personalizado';
-}
 
 function baixarCsv(cartoes: readonly CartaoHistorico[]) {
   const url = URL.createObjectURL(
@@ -264,13 +221,16 @@ export function PaginaHistorico() {
       <div className="board-head">
         <h2>Histórico</h2>
         <div className="filters">
+          {/* `bds-button icon="email" variant="primary" disabled` —
+              `dom/history.html`: botão PRIMÁRIO, com o envelope de 24,
+              apagado enquanto não há seleção. */}
           <button
             type="button"
-            className="btn"
+            className="btn primario"
             disabled={selecionados.length === 0}
             onClick={() => baixarCsv(selecionados)}
           >
-            <IconeGestao nome="email" tamanho={14} />
+            <IconeGestao nome="email" tamanho={24} />
             Enviar por e-mail
           </button>
         </div>
@@ -310,11 +270,14 @@ export function PaginaHistorico() {
         </button>
 
         <div className="faixa-fim">
-          <button type="button" className="btn" onClick={() => setPainelAberto(true)}>
+          {/* "Últimos 30 dias" é `bds-button variant="text"`: sem borda, só o
+              rótulo (`dom/history.html`). O funil é `bds-icon size="small"`,
+              20px. */}
+          <button type="button" className="btn fantasma" onClick={() => setPainelAberto(true)}>
             {rotuloDoPeriodo(periodoAtual(de, ate, fuso))}
           </button>
           <button type="button" className="btn" onClick={() => setPainelAberto(true)}>
-            <Icone nome="funil" tamanho={14} />
+            <Icone nome="funil" tamanho={20} />
             Filtros
           </button>
         </div>
@@ -327,33 +290,7 @@ export function PaginaHistorico() {
         limpar={temFiltro ? limparFiltros : null}
       >
         <CamposEscondidos atual={params} exceto={['de', 'ate']} />
-        <CampoDoPainel rotulo="Período" apoio="Selecione um intervalo de datas">
-          <select
-            name="periodo"
-            defaultValue={periodoAtual(de, ate, fuso)}
-            aria-label="Atalho de período"
-            onChange={(e) => {
-              const calc = calcularPeriodo(e.currentTarget.value, fuso);
-              if (!calc) return;
-              const form = e.currentTarget.form;
-              const campoDe = form?.elements.namedItem('de');
-              const campoAte = form?.elements.namedItem('ate');
-              if (campoDe instanceof HTMLInputElement) campoDe.value = calc.de;
-              if (campoAte instanceof HTMLInputElement) campoAte.value = calc.ate;
-            }}
-          >
-            {PERIODOS.map((p) => (
-              <option key={p.chave} value={p.chave}>
-                {p.rotulo}
-              </option>
-            ))}
-            <option value="personalizado">Personalizado</option>
-          </select>
-          <div className="painel-datas">
-            <input type="date" name="de" defaultValue={de} aria-label="De" />
-            <input type="date" name="ate" defaultValue={ate} aria-label="Até" />
-          </div>
-        </CampoDoPainel>
+        <CampoPeriodo de={de} ate={ate} fuso={fuso} />
 
         <CampoDoPainel
           rotulo="IDs dos tickets"
@@ -425,7 +362,10 @@ export function PaginaHistorico() {
               <br />
               Que tal refazer a sua busca?
             </p>
-            <a href={limparFiltros} className="btn">
+            {/* `bds-button variant="outline" color="primary" class="mt4"`: a
+                borda na cor de marca (`button 135x40 b=1px rgb(74,93,35)`
+                na cópia viva), 20px abaixo do texto. */}
+            <a href={limparFiltros} className="btn contorno-marca">
               Redefinir filtros
             </a>
           </EstadoVazio>

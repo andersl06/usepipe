@@ -1,13 +1,13 @@
 import { Icone } from '@pipe/ui';
-import { IconeGestao } from './icones-gestao';
 
 /**
  * Faixa de filtros rápidos.
  *
  * A tela do Monitoramento tem DUAS, no mesmo desenho: uma acima da grade de
- * cartões e outra entre a grade e a tabela. É a disposição da Blip, medida na
- * captura: o rótulo em caixa alta pequena à esquerda, as pílulas em seguida, e
- * o botão "Filtros" com funil encostado à direita.
+ * cartões e outra entre a grade e a tabela. É a disposição da Blip, lida em
+ * `dom/monitoring.html`: "Filtros rápidos:" em 16/700 à esquerda (com os dois
+ * pontos), os botões de 130×40 em seguida, e o botão "Filtros" com funil
+ * encostado à direita.
  *
  * Formulário GET puro: o estado do filtro vive na URL, então recarga periódica,
  * F5 e link compartilhado mostram exatamente a mesma tela. Nada de estado de
@@ -30,18 +30,23 @@ function Pilula({
   valor: string;
   opcoes: readonly Opcao[];
 }) {
+  const escolhido = opcoes.find((o) => o.id === valor)?.nome;
   return (
     <label className={valor ? 'pilula ativa' : 'pilula'}>
       <span className="pilula-rotulo">{rotulo}</span>
-      <select name={nome} defaultValue={valor} aria-label={rotulo}>
-        <option value="">Todos</option>
+      {escolhido ? <span className="pilula-valor">{escolhido}</span> : null}
+      {/* A caixa de seleção cobre a pílula inteira e é INVISÍVEL: o que se vê
+          é o botão deles — rótulo, e o valor escolhido ao lado quando existe.
+          O seletor nativo continua embaixo, então o filtro aplica sem uma
+          linha de JavaScript e continua alcançável por teclado. */}
+      <select className="pilula-select" name={nome} defaultValue={valor} aria-label={rotulo}>
+        <option value="" />
         {opcoes.map((o) => (
           <option key={o.id} value={o.id}>
             {o.nome}
           </option>
         ))}
       </select>
-      <IconeGestao nome="baixo" tamanho={13} />
     </label>
   );
 }
@@ -64,24 +69,32 @@ function PilulaTexto({
         type="search"
         name={nome}
         defaultValue={valor}
-        placeholder={dica}
+        /* Sem texto de marca d'água: na faixa deles a pílula mostra só o
+           rótulo. A instrução viaja no `title`, que não ocupa a caixa. */
+        title={dica}
         aria-label={rotulo}
       />
     </label>
   );
 }
 
-/** O botão da direita, igual nas duas faixas. Aplica o que as pílulas dizem. */
+/**
+ * O botão da direita, igual nas duas faixas: `bds-button icon-left="filter"
+ * variant="outline"`, com o funil de 20px (`bds-icon size="small"`). Aplica o
+ * que as pílulas dizem. "Limpar" só aparece quando há o que limpar — na tela
+ * deles ele mora no rodapé do painel ("Limpar tudo"); aqui fica ao lado
+ * porque o painel não abre a partir da faixa.
+ */
 function BotaoFiltros({ limpar }: { limpar: string | null }) {
   return (
     <div className="faixa-fim">
       {limpar ? (
-        <a href={limpar} className="btn">
-          Limpar
+        <a href={limpar} className="btn fantasma">
+          Limpar tudo
         </a>
       ) : null}
       <button type="submit" className="btn" title="Aplicar os filtros selecionados">
-        <Icone nome="funil" tamanho={14} />
+        <Icone nome="funil" tamanho={20} />
         Filtros
       </button>
     </div>
@@ -118,37 +131,36 @@ function Escondidos({ atual, exceto }: { atual: Parametros; exceto: readonly str
 
 /**
  * Primeira faixa, acima da grade: recorta a OPERAÇÃO, e por isso muda os
- * cartões junto com a tabela — fila e atendente entram na consulta.
+ * cartões junto com a tabela — a fila entra na consulta.
+ *
+ * Na tela deles esta faixa tem UM botão só, "Filas" (`dom/monitoring.html`:
+ * a primeira `bds-grid gap="2"` com "Filtros rápidos:" traz um único
+ * `bds-button` antes do `ml-a`). "Atendentes" mora só na faixa de baixo.
  */
 export function FiltrosDaOperacao({
   filas,
-  atendentes,
   atual,
 }: {
   filas: readonly Opcao[];
-  atendentes: readonly Opcao[];
   atual: Parametros;
 }) {
-  const algum = Boolean(atual.fila || atual.atendente);
+  const algum = Boolean(atual.fila);
   return (
     <form className="faixa-filtros" method="get" action="/monitoramento">
-      <span className="lbl">Filtros rápidos</span>
+      <span className="lbl">Filtros rápidos:</span>
       <Pilula nome="fila" rotulo="Filas" valor={atual.fila ?? ''} opcoes={filas} />
-      <Pilula
-        nome="atendente"
-        rotulo="Atendentes"
-        valor={atual.atendente ?? ''}
-        opcoes={atendentes}
-      />
-      <Escondidos atual={atual} exceto={['fila', 'atendente']} />
+      <Escondidos atual={atual} exceto={['fila']} />
       <BotaoFiltros limpar={algum ? '/monitoramento' : null} />
     </form>
   );
 }
 
+/* As opções do `bds-select` "Status do atendente" deles: "Online", "Em Pausa",
+   "Invisível" (e "Offline", que a nossa carga por atendente não distingue —
+   fica de fora em vez de virar opção que nunca casa). */
 const ESTADOS_DE_ATENDENTE: readonly Opcao[] = [
   { id: 'online', nome: 'Online' },
-  { id: 'pausa', nome: 'Pausa' },
+  { id: 'pausa', nome: 'Em Pausa' },
   { id: 'invisivel', nome: 'Invisível' },
 ];
 
@@ -156,10 +168,8 @@ const ESTADOS_DE_ATENDENTE: readonly Opcao[] = [
  * Segunda faixa, entre a grade e a tabela: recorta a LISTA, e não toca nos
  * cartões — contato e status do atendente filtram linha, não população.
  *
- * "Atendentes" aparece aqui e na faixa de cima porque aparece nas duas na tela
- * deles. É o MESMO parâmetro de URL nos dois lugares, então os dois controles
- * mostram sempre o mesmo valor: um filtro alcançável de dois pontos, não dois
- * filtros que se contradizem.
+ * "Atendentes", "Contato" e "Status do atendente" — os três botões da segunda
+ * faixa deles, nesta ordem.
  */
 export function FiltrosDaLista({
   atendentes,
@@ -174,7 +184,7 @@ export function FiltrosDaLista({
     : '/monitoramento';
   return (
     <form className="faixa-filtros" method="get" action="/monitoramento">
-      <span className="lbl">Filtros rápidos</span>
+      <span className="lbl">Filtros rápidos:</span>
       <Pilula
         nome="atendente"
         rotulo="Atendentes"

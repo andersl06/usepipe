@@ -91,6 +91,7 @@ export function PaginaFilas() {
         placeholder="Buscar fila"
         ocultarCabecalhoDeSecao
         paginar
+        tamanhoDePaginaInicial={5}
       />
 
       <Modal aberto={modalAberto} titulo="Criar nova fila" onFechar={() => setModalAberto(false)}>

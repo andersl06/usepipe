@@ -38,7 +38,8 @@ export function PaginaRespostasProntas() {
          parte do material que não é sujeita ao desalinhamento de categorias
          descrito acima: o texto não fala de categoria nem de #, então copia
          sem ressalva. */
-      vazio: 'Você ainda não criou respostas prontas. Crie respostas para agilizar seus atendimentos.',
+      vazio: 'Você ainda não criou respostas prontas',
+      vazioDescricao: 'Crie respostas para agilizar seus atendimentos',
       cartoes: respostas.map((r) => ({
         id: r.id,
         campos: [

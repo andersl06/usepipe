@@ -15,17 +15,19 @@
                                               o `.p-app` de cá já é a caixa
                                               fixa — ver a nota abaixo)
      .builder-icon-button-list (pílula fixa, esquerda 1rem, topo 50%,
-       raio 16, bg surface-2, sombra 16px/56px)
+       raio 16, padding 8, gap 4, bg surface-2, sombra 16px 0 56px 16px)
                                            → .bl-barra (mesma pílula, mesma
-                                              posição, `--surface-2`/`--shadow`)
-     .builder-footer (pílula absoluta, esquerda/baixo 1rem)
-                                           → .bl-rodape (mesma pílula, mesma
-                                              posição)
-     .builder-saving-state (bg surface-1, raio 8, padding 10px 20px)
-                                           → .bl-status
-     .zoom-container (60px de largura — bate com a medida tirada na tela
-       real) / .zoom-display (cor #c9dfe4, 1rem)
-                                           → .bl-zoom / .bl-zoom-valor
+                                              posição, seis botões de 40)
+     .builder-footer (flex, esquerda/baixo 1rem, peças SOLTAS)
+                                           → .bl-rodape (mesma posição)
+     .builder-saving-state (bg surface-1, raio 8, padding 10px 20px, gap 8)
+                                           → .bl-status ("Salvo" + checkball)
+     .mh3 com três bds-button-icon (undo, redo, screen-full)
+                                           → .bl-controles (sem pílula)
+     .zoom-container (60px de largura) / .zoom-display (1rem, mr 15px) /
+       .rzslider (100px, barra 3px, ponteiro 18px)
+                                           → .bl-zoom / .bl-zoom-valor /
+                                              .bl-zoom-trilho
      .default-node (bg #3f7de8 — o bloco de Início, azul deles)
                                            → NÃO existe aqui: não há bloco
                                               nenhum hoje (ver builder.tsx).
@@ -164,28 +166,34 @@
    DOM capturado confirma sempre presentes: adicionar bloco e pesquisar. Os
    outros da lista deles (Agente, Pagamento, Catálogo, AI Answers…) são
    opções de plano — não são chrome, são o editor que não existe aqui.) */
+/* `.builder-icon-button-list` literal: `padding: 8px; gap: 4px; border-radius:
+   16px; left: 1rem; top: 50%; box-shadow: 16px 0 56px 16px rgba(0,0,0,.45)`.
+   A sombra é a deles porque é forma (e sobre o canvas escuro a tinta preta é
+   a única que existe). */
 .bl-barra {
   position: absolute;
-  left: var(--p-e-4);
+  left: 1rem;
   top: 50%;
   transform: translateY(-50%);
   z-index: 2;
   display: flex;
   flex-direction: column;
-  gap: var(--p-e-1);
-  padding: var(--p-e-2);
+  gap: 4px;
+  padding: 8px;
   border-radius: 16px;
   background: var(--surface-2);
-  box-shadow: var(--p-sombra-2);
+  box-shadow: 16px 0 56px 16px rgba(0, 0, 0, 0.45);
 }
 
+/* `bds-button-icon size="short"`: alvo de 40 com o glifo de 24, sem
+   moldura, raio 8. `#builder-button-add-new-block { min-height: 40px }`. */
 .bl-icone-botao {
   width: 40px;
   height: 40px;
   display: grid;
   place-items: center;
   border: 0;
-  border-radius: var(--p-r-sm);
+  border-radius: var(--p-r-md);
   background: transparent;
   color: var(--ink);
   cursor: not-allowed;
@@ -196,65 +204,64 @@
   cursor: not-allowed;
 }
 
-/* ------------------------------------------------------------- o rodapé */
+/* O "Pesquisar" da lista deles leva `mv2`: 5px acima e abaixo. */
+.bl-pesquisar {
+  margin: 5px 0;
+}
+
+/* ------------------------------------------------------------- o rodapé
+   `.builder-footer { bottom: 1rem; left: 1rem }`, `flex items-center`, e as
+   três peças SOLTAS sobre o canvas — só a de "Salvo" tem fundo. */
 
 .bl-rodape {
   position: absolute;
-  left: var(--p-e-4);
-  bottom: var(--p-e-4);
+  left: 1rem;
+  bottom: 1rem;
   z-index: 2;
   display: flex;
   align-items: center;
-  gap: var(--p-e-2);
 }
 
+/* `.builder-saving-state { background: surface-1; border-radius: 8px;
+   gap: 8px; padding: 10px 20px }` com o `checkball` de 24 (`mr2`) e o "Salvo"
+   em `fs-14`. */
 .bl-status {
   display: flex;
   align-items: center;
-  gap: var(--p-e-2);
-  height: 40px;
-  padding: 0 var(--p-e-4);
-  border-radius: var(--p-r-md);
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 8px;
   background: var(--surface);
   color: var(--ink);
   font-size: var(--p-t-md);
-  box-shadow: var(--p-sombra-1);
+  line-height: 1.5;
 }
 
+/* O `mh3` deles: 10px de cada lado, e os botões de ícone soltos, sem pílula. */
 .bl-controles {
   display: flex;
   align-items: center;
-  gap: 2px;
-  height: 40px;
-  padding: 0 var(--p-e-1);
-  border-radius: var(--p-r-md);
-  background: var(--surface-2);
-  box-shadow: var(--p-sombra-1);
+  margin: 0 10px;
 }
 
 .bl-controles .bl-icone-botao {
-  width: 32px;
-  height: 32px;
+  color: var(--p-conteudo-claro, #fff);
 }
 
-/* Largura de 60px: a mesma medida tirada na tela real (`--bl-zoom-largura`
-   documentado só aqui porque é a única tela que usa). */
+/* `.zoom-container { width: 60px }` + `.zoom-display { font-size: 1rem;
+   margin: 0 15px 0 0; color: #c9dfe4 }` e o `rzslider` de 100px com barra de
+   3px e ponteiro de 18px. A tinta do texto e do ponteiro é a nossa clara. */
 .bl-zoom {
   display: flex;
   align-items: center;
-  gap: var(--p-e-2);
-  height: 40px;
-  padding: 0 var(--p-e-3);
-  border-radius: var(--p-r-md);
-  background: var(--surface-2);
-  box-shadow: var(--p-sombra-1);
 }
 
 .bl-zoom-valor {
   width: 60px;
-  text-align: center;
+  margin-right: 15px;
   font-size: var(--p-t-md);
-  color: var(--ink-3);
+  color: var(--p-conteudo-claro, #fff);
+  opacity: 0.85;
 }
 
 .bl-zoom-trilho {
@@ -262,14 +269,26 @@
   width: 100px;
   height: 3px;
   border-radius: var(--p-r-pilula);
-  background: var(--line-strong);
+  background: color-mix(in srgb, var(--p-conteudo-claro, #fff) 25%, transparent);
 }
 
 .bl-zoom-preenchido {
   position: absolute;
   inset: 0;
   border-radius: inherit;
-  background: var(--ink-3);
+  background: var(--moss);
+}
+
+.bl-zoom-ponteiro {
+  position: absolute;
+  top: 50%;
+  right: -9px;
+  width: 18px;
+  height: 18px;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--p-conteudo-claro, #fff) 55%, var(--bl-fundo, #141414));
+  box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.45);
 }
 
 /* --------------------------------------------------------- o botão redondo */

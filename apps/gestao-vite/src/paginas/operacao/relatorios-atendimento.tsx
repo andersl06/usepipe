@@ -1,15 +1,16 @@
-import type { ResultadoMetrica } from '@pipe/core';
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Icone } from '@pipe/ui';
 import Link from '../../componentes/link';
+import { IconeGestao } from '../../componentes/icones-gestao';
+import { CampoDoPainel, CampoPeriodo, PainelFiltros } from '../../componentes/painel-filtros';
+import { Dica, Metrica } from '../../componentes/metrica';
 import { useLeitura } from '../../lib/consulta';
 import type { Catalogos } from '../../lib/historico';
-import {
-  type RelatorioAtendimento,
-  type BlocoDeTempos,
-  type LinhaDeQuebra,
-} from '../../lib/atendimento';
+import { type RelatorioAtendimento, type LinhaDeQuebra } from '../../lib/atendimento';
 import { dataOuNada, denominador, duracao, numero, uuidOuNada } from '../../lib/formato';
-import { useContato } from '../fluxo/contato';
+import { periodoAtual, rotuloDoPeriodo } from '../../lib/periodos';
+import { baseDoContato, useContato } from '../fluxo/contato';
 import { baseDoAtendimento } from './casca';
 
 interface RespostaDoRelatorioDeAtendimento {
@@ -30,117 +31,112 @@ interface Busca {
 }
 
 /**
- * Métrica de tempo do relatório: valor em cima, DENOMINADOR embaixo, sempre.
- *
- * Não existe versão sem o denominador, de propósito. É a divergência declarada
- * na §2 da spec de métricas: a Blip mostra o tempo de atendimento sozinho, e ele
- * melhora justamente quando mais conversa cai sem resposta. Aqui a contagem
- * excluída fica no mesmo cartão.
+ * As três abas deles sobre a mesma tabela — `bds-tab-item label="Atendentes|
+ * Filas|Tags"` em `desk-relatorio-atendimento__pagina.html`. A aba mora na
+ * querystring, como todo filtro desta tela.
  */
-function Tempo({
-  rotulo,
-  resultado,
-  fora,
-}: {
-  rotulo: string;
-  resultado: ResultadoMetrica;
-  fora: string;
-}) {
-  return (
-    <div className="cartao-rel">
-      <span className="r">{rotulo}</span>
-      <span className="v">{duracao(resultado.valor)}</span>
-      <span className="den">{denominador(resultado, fora)}</span>
-    </div>
-  );
-}
+const ABAS_DETALHAMENTO = [
+  { chave: 'atendentes', rotulo: 'Atendentes', eixo: 'Atendente' },
+  { chave: 'filas', rotulo: 'Filas', eixo: 'Fila' },
+  { chave: 'tags', rotulo: 'Tags', eixo: 'Tag' },
+] as const;
+type AbaDetalhamento = (typeof ABAS_DETALHAMENTO)[number]['chave'];
 
-/** Célula de tempo da tabela de quebra: o mesmo par valor/excluídas da grade. */
-function CelulaTempo({ resultado, fora }: { resultado: ResultadoMetrica; fora: string }) {
-  return (
-    <td className="num">
-      {duracao(resultado.valor)}
-      <span className="den">{denominador(resultado, fora)}</span>
-    </td>
-  );
+function abaValida(v: string | undefined): AbaDetalhamento {
+  return ABAS_DETALHAMENTO.some((a) => a.chave === v) ? (v as AbaDetalhamento) : 'atendentes';
 }
 
 /**
- * O corpo de uma quebra (tabela ou vazio), sem título — para poder viver
- * tanto sob um `<h3>` fixo ("Por caixa de entrada") quanto sob uma aba
- * ("Atendentes"/"Filas"/"Tags", a mesma tabela deles em `bds-tab-item`).
+ * As colunas da tabela deles, na ordem e no texto exato (`bds-table-th` de
+ * `desk-relatorio-atendimento__pagina.html`): o eixo, "Tickets finalizados",
+ * "Tempo médio da 1ª resposta", "Tempo médio de espera", "Tempo médio de
+ * resposta", "Tempo médio de atendimento", "Atingimento SLA".
  *
- * Colunas na ordem e no texto da tabela por atendente/fila/tag deles
- * (`FICHA-relatorio-atendimento.md` §4); "Atingimento SLA" é a coluna deles
- * que ainda não tem consulta nossa — fica com travessão em vez de sumir, e
- * "Fechadas/Perdidas/Abandonadas/Finalizadas" é o desfecho que JÁ buscamos e
- * que a tabela deles não abre neste recorte — mantido, não é dado inventado.
+ * "Atingimento SLA" ainda não tem consulta nossa — fica com travessão em vez
+ * de sumir. As médias carregam a contagem descartada no `title` da célula
+ * (a régua de métricas exige o denominador; a tela deles não o mostra, então
+ * ele vai para onde não muda a forma).
  */
-function CorpoDeQuebra({
-  eixo,
-  linhas,
-  recorte,
-}: {
-  eixo: string;
-  linhas: LinhaDeQuebra[];
-  /** `null` quando não há filtro além do período. Muda a causa do vazio. */
-  recorte: string | null;
-}) {
-  if (linhas.length === 0) {
-    /* Culpar o período quando o corte foi de fila ou atendente manda o
-       gestor alargar a data e continuar sem ver nada. */
-    return (
-      <div className="cartao-rel">
-        <div className="vazio">
-          {recorte ? (
-            <>
-              <b>Nada dentro deste recorte.</b>
-              <p>
-                O recorte <b>{recorte}</b> não tem conversa encerrada no período. Volte o filtro
-                para “todas” e o bloco reaparece.
-              </p>
-            </>
-          ) : (
-            <>
-              <b>Nenhuma conversa encerrada neste período.</b>
-              <p>Conversa ainda aberta não entra aqui — ela está em Monitoramento.</p>
-            </>
-          )}
-        </div>
-      </div>
-    );
-  }
+const COLUNAS = [
+  'Tickets finalizados',
+  'Tempo médio da 1ª resposta',
+  'Tempo médio de espera',
+  'Tempo médio de resposta',
+  'Tempo médio de atendimento',
+  'Atingimento SLA',
+] as const;
+
+function linhaEmCelulas(l: LinhaDeQuebra): string[] {
+  return [
+    l.chave,
+    numero(l.encerramentos.finalizada),
+    duracao(l.primeiraResposta.valor),
+    duracao(l.naFila.valor),
+    duracao(l.resposta.valor),
+    duracao(l.atendimento.valor),
+    '—',
+  ];
+}
+
+/** O `bds-button-icon icon="download"` de cada aba: baixa a tabela visível em CSV. */
+function baixarCsv(nome: string, eixo: string, linhas: LinhaDeQuebra[]) {
+  const escapar = (v: string) => `"${v.replace(/"/g, '""')}"`;
+  const corpo = [[eixo, ...COLUNAS], ...linhas.map(linhaEmCelulas)]
+    .map((l) => l.map(escapar).join(';'))
+    .join('\n');
+  const url = URL.createObjectURL(new Blob([`﻿${corpo}`], { type: 'text/csv;charset=utf-8' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${nome}-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function BotaoBaixar({ aoClicar, desabilitado }: { aoClicar: () => void; desabilitado: boolean }) {
   return (
-    <div className="cartao-rel tabela scroll">
+    <button
+      type="button"
+      className="iconbtn"
+      title="Baixar tabela"
+      aria-label="Baixar tabela"
+      disabled={desabilitado}
+      onClick={aoClicar}
+    >
+      <IconeGestao nome="baixar" tamanho={24} />
+    </button>
+  );
+}
+
+function TabelaDeQuebra({ eixo, linhas }: { eixo: string; linhas: LinhaDeQuebra[] }) {
+  if (linhas.length === 0) return <div className="vazio-linha">Dados insuficientes</div>;
+  return (
+    <div className="scroll">
       <table>
         <thead>
           <tr>
             <th>{eixo}</th>
-            <th>Fechadas</th>
-            <th>Perdidas</th>
-            <th>Abandonadas</th>
-            <th>Finalizadas</th>
-            <th>Tempo médio de espera na fila</th>
-            <th>Tempo médio até 1ª resposta</th>
-            <th>Tempo médio de resposta</th>
-            <th>Tempo médio de atendimento</th>
-            <th title="A Blip calcula um % de conversas dentro do prazo de SLA nesta tabela; ainda não temos essa consulta agregada por período.">
-              Atingimento SLA
-            </th>
+            {COLUNAS.map((c) => (
+              <th key={c}>{c}</th>
+            ))}
           </tr>
         </thead>
         <tbody>
           {linhas.map((l) => (
             <tr key={l.chave}>
               <td className="who">{l.chave}</td>
-              <td className="num">{numero(l.encerramentos.fechada)}</td>
-              <td className="num">{numero(l.encerramentos.perdida)}</td>
-              <td className="num">{numero(l.encerramentos.abandonada)}</td>
               <td className="num">{numero(l.encerramentos.finalizada)}</td>
-              <CelulaTempo resultado={l.naFila} fora="sem atribuição" />
-              <CelulaTempo resultado={l.primeiraResposta} fora="sem 1ª resposta" />
-              <CelulaTempo resultado={l.resposta} fora="sem troca completa" />
-              <CelulaTempo resultado={l.atendimento} fora="nunca respondidas" />
+              <td className="num" title={denominador(l.primeiraResposta, 'sem 1ª resposta')}>
+                {duracao(l.primeiraResposta.valor)}
+              </td>
+              <td className="num" title={denominador(l.naFila, 'sem atribuição')}>
+                {duracao(l.naFila.valor)}
+              </td>
+              <td className="num" title={denominador(l.resposta, 'sem troca completa')}>
+                {duracao(l.resposta.valor)}
+              </td>
+              <td className="num" title={denominador(l.atendimento, 'nunca respondidas')}>
+                {duracao(l.atendimento.valor)}
+              </td>
               <td className="num">—</td>
             </tr>
           ))}
@@ -150,61 +146,36 @@ function CorpoDeQuebra({
   );
 }
 
-function Quebra({
-  titulo,
-  eixo,
-  linhas,
-  recorte,
-  nota,
-}: {
-  titulo: string;
-  eixo: string;
-  linhas: LinhaDeQuebra[];
-  recorte: string | null;
-  /** Aviso de população, quando ela não é a mesma do bloco geral. */
-  nota?: React.ReactNode;
-}) {
-  return (
-    <section className="bloco-rel">
-      <h3>{titulo}</h3>
-      {nota ? <p className="note">{nota}</p> : null}
-      <CorpoDeQuebra eixo={eixo} linhas={linhas} recorte={recorte} />
-    </section>
-  );
-}
-
 /**
- * As três abas deles sobre a mesma tabela — `<bds-tab-item label="Atendentes|
- * Filas|Tags">` em `desk-relatorio-atendimento__pagina.html` — em vez das
- * seções empilhadas que tínhamos para as mesmas três quebras. A aba mora na
- * querystring, como todo filtro desta tela: assim o link "Aplicar" não perde
- * a aba escolhida.
- */
-const ABAS_DETALHAMENTO = [
-  { chave: 'atendentes', rotulo: 'Atendentes', eixo: 'Atendente' },
-  { chave: 'filas', rotulo: 'Filas', eixo: 'Fila' },
-  { chave: 'tags', rotulo: 'Tags', eixo: 'Etiqueta' },
-] as const;
-type AbaDetalhamento = (typeof ABAS_DETALHAMENTO)[number]['chave'];
-
-function abaValida(v: string | undefined): AbaDetalhamento {
-  return ABAS_DETALHAMENTO.some((a) => a.chave === v) ? (v as AbaDetalhamento) : 'atendentes';
-}
-
-/**
- * Relatório de atendimento — §2, §3 e §4 da spec de métricas.
+ * Relatório de atendimento — a tela deles, bloco a bloco, lida em
+ * `docs/capturas/blip/desk/desk-relatorio-atendimento__pagina.html`:
  *
- * Estrutura de bloco da Blip, a mesma do relatório de Esforço: bloco com recuo
- * 20 e raio 16, título 16/700, grade de 20, métrica em 14/600 com o valor 20/700
- * embaixo. Faixa de filtros de 56px e linha de título de 40px vêm de cima.
+ * 1. cabeçalho "Relatório de atendimento" com "Gerenciador de Relatórios" à
+ *    direita (`bds-button variant="secondary" arrow`);
+ * 2. faixa "Filtros rápidos:" com "Atendentes" e "Filas", e à direita o
+ *    período em botão fantasma ("Últimos 7 dias") e "Filtros";
+ * 3. cartão "Indicadores de SLA" (título 20/700 + ícone de informação);
+ * 4. linha com "Tempo máximo" (2 métricas) e "Status dos tickets" (5);
+ * 5. cartão "Tempo médio" (5 métricas);
+ * 6. cartão "Tickets Abertos x Fechados" (gráfico);
+ * 7. cartão com as abas Atendentes/Filas/Tags sobre a mesma tabela, cada uma
+ *    com o botão de baixar, e a nota sobre os filtros;
+ * 8. cartão "Disponibilidade de atendentes".
  *
- * A população é uma só e está dita no subtítulo: conversas ENCERRADAS dentro do
- * período (§3). Nada aqui olha conversa aberta — isso é o Monitoramento, e
- * misturar as duas é o erro clássico de painel de atendimento.
+ * Os cartões de métrica são os MESMOS do Monitoramento (`bds-paper pa4` com
+ * título 14/600 e colunas 24/400 sobre 12/400) — não o bloco-com-cartões da
+ * Satisfação. Todo rótulo, título e dica é o texto deles, literal.
+ *
+ * Onde a nossa consulta não tem o dado — pico do período, SLA agregado,
+ * "Abertos", o gráfico e a disponibilidade — o lugar fica com o vazio
+ * honesto ("—" ou "Dados insuficientes"), nunca com número inventado. A
+ * fórmula da spec de métricas e a contagem descartada continuam no balão do
+ * ícone de informação e no `title` da célula.
  */
 export function PaginaAtendimento() {
   const { contato } = useContato();
   const base = baseDoAtendimento(contato.tipo, contato.id);
+  const gerenciador = `${baseDoContato(contato.tipo, contato.id)}/analise/gerenciador-de-relatorios`;
   const [busca] = useSearchParams();
   const crus = Object.fromEntries(busca.entries()) as Busca;
   /* Conferido na entrada: id torto e data torta viram "sem filtro". Sem isso,
@@ -222,280 +193,312 @@ export function PaginaAtendimento() {
   const leitura = useLeitura<RespostaDoRelatorioDeAtendimento>(
     `/v1/gestao/relatorios/atendimento?${q}`,
   );
+  const [painelAberto, setPainelAberto] = useState(false);
   if (!leitura.data) return null;
-  const { de, ate, catalogos, relatorio } = leitura.data;
-  const geral: BlocoDeTempos = relatorio.geral;
+  const { fuso, de, ate, catalogos, relatorio } = leitura.data;
+  const geral = relatorio.geral;
   const enc = geral.encerramentos;
 
-  /* Quem foi escolhido no filtro, escrito por extenso — é o que o estado vazio
-     precisa nomear para o gestor saber em qual controle mexer. */
   const nomeDaFila = catalogos.filas.find((f) => f.id === params.fila)?.nome;
   const nomeDoAtendente = catalogos.atendentes.find((a) => a.id === params.atendente)?.nome;
-  const recorte =
-    [nomeDaFila && `fila ${nomeDaFila}`, nomeDoAtendente && `atendente ${nomeDoAtendente}`]
-      .filter(Boolean)
-      .join(' + ') || null;
+  const temFiltro = Boolean(params.fila || params.atendente);
 
-  /* A aba do detalhamento (Atendentes/Filas/Tags) mora na querystring, como
-     todo o resto do filtro — não vai para a API porque as três quebras já
-     vêm juntas na mesma resposta. */
   const aba = abaValida(crus.aba);
   const hrefAba = (chave: AbaDetalhamento) => {
     const p = new URLSearchParams(q);
     p.set('aba', chave);
     return `${base}/relatorios/atendimento?${p}`;
   };
+  const linhasDaAba: Record<AbaDetalhamento, LinhaDeQuebra[]> = {
+    atendentes: relatorio.porAtendente,
+    filas: relatorio.porFila,
+    tags: relatorio.porEtiqueta,
+  };
+  const abaAtual = ABAS_DETALHAMENTO.find((a) => a.chave === aba) ?? ABAS_DETALHAMENTO[0];
 
   return (
     <>
       <div className="board-head">
         <h2>Relatório de atendimento</h2>
-        <span className="sub">
-          Conversas encerradas no período, com o cronômetro parado. Tempos e desfecho derivados dos
-          eventos, nunca do campo da conversa.
-        </span>
+        <div className="filters">
+          <Link href={gerenciador} className="btn">
+            Gerenciador de Relatórios
+            <IconeGestao nome="baixo" tamanho={20} style={{ transform: 'rotate(-90deg)' }} />
+          </Link>
+        </div>
       </div>
 
-      <form className="quickfilters" method="get" action={`${base}/relatorios/atendimento`}>
-        <span className="lbl">Período</span>
-        <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
-        <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
-
-        <select name="fila" defaultValue={params.fila ?? ''} className="btn" aria-label="Fila">
-          <option value="">Todas as filas</option>
-          {catalogos.filas.map((f) => (
-            <option key={f.id} value={f.id}>
-              {f.nome}
-            </option>
-          ))}
-        </select>
-
-        <select
-          name="atendente"
-          defaultValue={params.atendente ?? ''}
-          className="btn"
-          aria-label="Atendente"
+      <div className="quickfilters">
+        <span className="lbl">Filtros rápidos:</span>
+        <button
+          type="button"
+          className={params.atendente ? 'pilula ativa' : 'pilula'}
+          onClick={() => setPainelAberto(true)}
         >
-          <option value="">Todos os atendentes</option>
-          {catalogos.atendentes.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.nome}
-            </option>
-          ))}
-        </select>
-
+          <span className="pilula-rotulo">Atendentes</span>
+          {nomeDoAtendente ? <span className="pilula-valor">{nomeDoAtendente}</span> : null}
+        </button>
+        <button
+          type="button"
+          className={params.fila ? 'pilula ativa' : 'pilula'}
+          onClick={() => setPainelAberto(true)}
+        >
+          <span className="pilula-rotulo">Filas</span>
+          {nomeDaFila ? <span className="pilula-valor">{nomeDaFila}</span> : null}
+        </button>
         <div className="faixa-fim">
-          <a href={`${base}/relatorios/atendimento`} className="btn">
-            Limpar
-          </a>
-          <button type="submit" className="btn primary">
-            Aplicar
+          <button
+            type="button"
+            className="btn fantasma rel-periodo"
+            title={`${de} → ${ate}`}
+            onClick={() => setPainelAberto(true)}
+          >
+            {rotuloDoPeriodo(periodoAtual(de, ate, fuso))}
+          </button>
+          <button type="button" className="btn" onClick={() => setPainelAberto(true)}>
+            <Icone nome="funil" tamanho={20} />
+            Filtros
           </button>
         </div>
-      </form>
+      </div>
+
+      <PainelFiltros
+        aberto={painelAberto}
+        aoFechar={() => setPainelAberto(false)}
+        acao={`${base}/relatorios/atendimento`}
+        limpar={temFiltro ? `${base}/relatorios/atendimento?de=${de}&ate=${ate}` : null}
+      >
+        {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}
+        <CampoPeriodo de={de} ate={ate} fuso={fuso} />
+        <CampoDoPainel rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
+          <select name="atendente" defaultValue={params.atendente ?? ''} aria-label="Atendentes">
+            <option value="">Selecione os atendentes</option>
+            {catalogos.atendentes.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.nome}
+              </option>
+            ))}
+          </select>
+        </CampoDoPainel>
+        <CampoDoPainel rotulo="Filas" apoio="Selecione uma ou mais filas">
+          <select name="fila" defaultValue={params.fila ?? ''} aria-label="Filas">
+            <option value="">Selecione as filas</option>
+            {catalogos.filas.map((f) => (
+              <option key={f.id} value={f.id}>
+                {f.nome}
+              </option>
+            ))}
+          </select>
+        </CampoDoPainel>
+      </PainelFiltros>
 
       {/* ------------------------------------------------------------ bloco 1
-          "Indicadores de SLA" é o primeiro bloco deles (gráfico de área, e no
-          período capturado veio vazio: "Não foram encontradas métricas de SLA
-          no período informado"). Não copiamos gráfico nenhum — só o lugar e a
-          honestidade do vazio: SLA por conversa já existe em Monitoramento,
-          mas agregado por período ainda não tem consulta própria aqui. */}
-      <section className="bloco-rel">
-        <h3>Indicadores de SLA</h3>
-        <div className="cartao-rel">
-          <div className="vazio">
-            <b>Ainda não agregamos SLA por período nesta tela.</b>
-            <p>
-              O estado de SLA de cada conversa já existe (regra da fila, aviso e estouro, vistos em
-              Monitoramento); o indicador agregado por período — o gráfico que a Blip mostra aqui —
-              ainda não tem consulta própria.
-            </p>
-          </div>
+          "Indicadores de SLA": gráfico de área deles. SLA agregado por
+          período ainda não tem consulta própria aqui — o vazio é o texto
+          literal do vazio deles. */}
+      <section className="card">
+        <h3 className="grande">
+          Indicadores de SLA
+          <Dica
+            rotulo="Indicadores de SLA"
+            texto="Atingimento das metas de SLA das filas no período."
+            formula="O estado de SLA de cada conversa já existe em Monitoramento; o indicador agregado por período ainda não tem consulta própria."
+          />
+        </h3>
+        <div className="vazio">
+          <b>Não foram encontradas métricas de SLA no período informado</b>
         </div>
       </section>
 
       {/* ------------------------------------------------------------ bloco 2
-          "Tempo máximo": dois cartões, na ordem e no texto deles. Hoje só
-          calculamos MÉDIA (§2); o PICO do período é consulta que falta. */}
-      <section className="bloco-rel">
-        <h3>Tempo máximo</h3>
-        <div className="bloco-rel-grade" style={{ '--rel-colunas': 2 } as React.CSSProperties}>
-          <div className="cartao-rel">
-            <span className="r">Tempo máximo de espera na fila</span>
-            <span className="v">—</span>
-            <span className="den">ainda calculamos só a média do período, não o pico</span>
+          "Tempo máximo" e "Status dos tickets", lado a lado. Hoje só
+          calculamos MÉDIA; o PICO do período é consulta que falta, e
+          "Abertos" (tickets abertos no período) também. */}
+      <div className="rel-linha">
+        <section className="card estreito">
+          <div className="card-cabecalho">
+            <h3>Tempo máximo</h3>
           </div>
-          <div className="cartao-rel">
-            <span className="r">Tempo máximo até 1ª resposta</span>
-            <span className="v">—</span>
-            <span className="den">idem — falta a consulta de máximo</span>
+          <div className="metrics">
+            <Metrica
+              valor="—"
+              rotulo="Tempo máximo de espera na fila"
+              dica="Maior tempo que um ticket ficou aguardando na fila"
+              formula="Ainda calculamos só a média do período, não o pico."
+            />
+            <Metrica
+              valor="—"
+              rotulo="Tempo máximo até 1ª resposta"
+              dica="Maior tempo que um ticket ficou sem a primeira resposta"
+              formula="Ainda calculamos só a média do período, não o pico."
+            />
           </div>
-        </div>
-      </section>
+        </section>
+
+        <section className="card">
+          <div className="card-cabecalho">
+            <h3>Status dos tickets</h3>
+          </div>
+          <div className="metrics">
+            <Metrica
+              valor="—"
+              rotulo="Abertos"
+              dica="Tickets abertos no período"
+              formula="Conversa aberta não entra nesta consulta — o retrato ao vivo é o de Monitoramento."
+            />
+            <Metrica
+              tom="erro"
+              valor={numero(enc.perdida)}
+              rotulo="Perdidos"
+              dica="Tickets perdidos (fechados pelo cliente antes de serem atribuídos a atendente)"
+              formula="Perdido saiu ANTES da atribuição, e é capacidade ou fila."
+            />
+            <Metrica
+              tom="erro"
+              valor={numero(enc.abandonada)}
+              rotulo="Abandonados"
+              dica="Tickets retirados (cancelados pelo cliente após atribuição)"
+              formula="Abandonado saiu DEPOIS da atribuição, e é atendimento."
+            />
+            <Metrica
+              valor={numero(enc.finalizada)}
+              rotulo="Finalizados"
+              dica="Tickets finalizados ou transferidos por gestor/atendente"
+            />
+            <Metrica
+              valor={numero(enc.fechada)}
+              rotulo="Fechados"
+              dica="Total de tickets fechados (soma de perdido + retirado + finalizado)"
+              denominador={`${numero(geral.conversas)} conversas no recorte.`}
+            />
+          </div>
+        </section>
+      </div>
 
       {/* ------------------------------------------------------------ bloco 3
-          §4. Perdida e abandonada são linhas separadas e nunca somadas: a
-          fronteira entre as duas é a existência de atribuição. O nome do
-          bloco continua "Desfecho", e não "Status dos tickets" (o deles): eles
-          somam "Aberto" na mesma grade, e conversa aberta não entra aqui —
-          é o Monitoramento, de propósito (ver comentário da função). */}
-      <section className="bloco-rel">
-        <h3>Desfecho</h3>
-        <div className="bloco-rel-grade" style={{ '--rel-colunas': 4 } as React.CSSProperties}>
-          <div className="cartao-rel">
-            <span className="r" title="Tickets perdidos (fechados pelo cliente antes de serem atribuídos a atendente)">
-              Perdidas
-            </span>
-            <span className="v">{numero(enc.perdida)}</span>
-            <span className="den">cliente saiu antes da atribuição — capacidade da fila</span>
-          </div>
-          <div className="cartao-rel">
-            <span className="r" title="Tickets retirados (cancelados pelo cliente após atribuição)">
-              Abandonadas
-            </span>
-            <span className="v">{numero(enc.abandonada)}</span>
-            <span className="den">cliente saiu depois da atribuição — atendimento</span>
-          </div>
-          <div className="cartao-rel">
-            <span className="r" title="Tickets finalizados ou transferidos por gestor/atendente">
-              Finalizadas
-            </span>
-            <span className="v">{numero(enc.finalizada)}</span>
-            <span className="den">encerradas pelo atendente, ou transferidas</span>
-          </div>
-          <div className="cartao-rel">
-            <span className="r" title="Total de tickets fechados (soma de perdido + retirado + finalizado)">
-              Fechadas
-            </span>
-            <span className="v">{numero(enc.fechada)}</span>
-            <span className="den">
-              soma das três · {numero(geral.conversas)} conversas no recorte
-              {enc.abertas > 0 ? ` · ${numero(enc.abertas)} reabertas depois do fechamento` : ''}
-            </span>
-          </div>
+          "Tempo médio" — as cinco métricas, com o texto exato do cartão
+          deles em cada rótulo. */}
+      <section className="card">
+        <div className="card-cabecalho">
+          <h3>Tempo médio</h3>
         </div>
-        <p className="note">
-          Perdida e abandonada nunca aparecem somadas. Uma é problema de capacidade — não havia quem
-          atendesse — e a outra é problema de atendimento, com a conversa já na mão de alguém. Somar
-          as duas apaga exatamente a informação que torna o número acionável.
-        </p>
+        <div className="metrics">
+          <Metrica
+            valor={duracao(geral.naFila.valor)}
+            rotulo="Tempo médio de espera na fila"
+            dica="Tempo médio que os tickets ficaram aguardando na fila"
+            denominador={denominador(geral.naFila, 'sem atribuição')}
+          />
+          <Metrica
+            valor={duracao(geral.primeiraResposta.valor)}
+            rotulo="Tempo médio até 1ª resposta"
+            dica="Tempo médio até a primeira resposta do atendente"
+            formula="primeira_resposta_em menos atribuida_em. População: conversas que tiveram resposta do atendente."
+            denominador={denominador(geral.primeiraResposta, 'sem 1ª resposta')}
+          />
+          <Metrica
+            valor={duracao(geral.esperaTotal.valor)}
+            rotulo="Tempo médio de espera total"
+            dica="Tempo médio de espera do cliente, da abertura à primeira resposta"
+            denominador={denominador(geral.esperaTotal, 'sem início ou fim')}
+          />
+          <Metrica
+            valor={duracao(geral.resposta.valor)}
+            rotulo="Tempo médio de resposta"
+            dica="Tempo médio entre a mensagem do cliente e a resposta do atendente"
+            formula={`Média de INTERVALOS: ${numero(geral.resposta.populacao)} trocas em ${numero(geral.resposta.conversasConsideradas)} conversas.`}
+            denominador={denominador(geral.resposta, 'sem troca completa')}
+          />
+          <Metrica
+            valor={duracao(geral.atendimento.valor)}
+            rotulo="Tempo médio de atendimento"
+            dica="Tempo médio de duração dos atendimentos"
+            formula="Encerramento menos 1ª resposta — a mesma fórmula da Blip, para ser comparável; descarta a conversa que nunca foi respondida."
+            denominador={denominador(geral.atendimento, 'nunca respondidas')}
+          />
+        </div>
       </section>
 
       {/* ------------------------------------------------------------ bloco 4
-          "Tempo médio" — mesmas cinco métricas da §2, agora com o texto
-          exato do card deles em cada rótulo. */}
-      <section className="bloco-rel">
-        <h3>
-          Tempo médio <span className="sub">{`${de} → ${ate}`}</span>
-        </h3>
-        <div className="bloco-rel-grade" style={{ '--rel-colunas': 5 } as React.CSSProperties}>
-          <Tempo
-            rotulo="Tempo médio de espera na fila"
-            resultado={geral.naFila}
-            fora="sem atribuição"
-          />
-          <Tempo
-            rotulo="Tempo médio até 1ª resposta"
-            resultado={geral.primeiraResposta}
-            fora="sem 1ª resposta"
-          />
-          <Tempo
-            rotulo="Tempo médio de espera total"
-            resultado={geral.esperaTotal}
-            fora="sem início ou fim"
-          />
-          <Tempo
-            rotulo="Tempo médio de resposta"
-            resultado={geral.resposta}
-            fora="sem troca completa"
-          />
-          <Tempo
-            rotulo="Tempo médio de atendimento"
-            resultado={geral.atendimento}
-            fora="nunca respondidas"
-          />
+          "Tickets Abertos x Fechados": a série diária deles. Sem consulta
+          por dia aqui — o lugar fica, vazio. */}
+      <section className="card">
+        <div className="card-cabecalho">
+          <h3>
+            Tickets Abertos x Fechados
+            <Dica
+              rotulo="Tickets Abertos x Fechados"
+              texto="Tickets abertos e fechados por dia no período"
+              formula="A série por dia ainda não tem consulta própria."
+            />
+          </h3>
         </div>
-        <p className="note">
-          O tempo de atendimento usa a mesma fórmula da Blip — encerramento menos 1ª resposta — para
-          ser comparável, e por isso descarta a conversa que nunca foi respondida. A contagem
-          descartada fica ao lado do número: sem ela, a média melhora justamente quando o
-          atendimento piora. Vale igual para o tempo até a 1ª resposta. O tempo de resposta é média
-          de INTERVALOS: {numero(geral.resposta.populacao)} trocas em{' '}
-          {numero(geral.resposta.conversasConsideradas)} conversas.
-        </p>
+        <div className="vazio">
+          <b>Dados insuficientes</b>
+        </div>
       </section>
 
       {/* ------------------------------------------------------------ bloco 5
-          As três abas deles sobre a MESMA tabela — `bds-tab-item label=
-          "Atendentes"/"Filas"/"Tags"` — no lugar das três seções empilhadas
-          que tínhamos para as mesmas três quebras. */}
-      <section className="bloco-rel">
-        <h3>Detalhamento</h3>
-        <div className="tabs" role="tablist">
-          {ABAS_DETALHAMENTO.map((a) => (
-            <Link key={a.chave} href={hrefAba(a.chave)} aria-current={aba === a.chave ? 'true' : undefined}>
-              {a.rotulo}
-            </Link>
-          ))}
+          As três abas deles sobre a MESMA tabela, cada uma com o botão de
+          baixar encostado à direita (`bds-button-icon icon="download"
+          class="ml-a"`). */}
+      <section className="tblwrap">
+        <div className="rel-aba-cabecalho">
+          <div className="tabs" role="tablist">
+            {ABAS_DETALHAMENTO.map((a) => (
+              <Link
+                key={a.chave}
+                href={hrefAba(a.chave)}
+                aria-current={aba === a.chave ? 'true' : undefined}
+              >
+                {a.rotulo}
+              </Link>
+            ))}
+          </div>
+          <BotaoBaixar
+            desabilitado={linhasDaAba[aba].length === 0}
+            aoClicar={() => baixarCsv(abaAtual.chave, abaAtual.eixo, linhasDaAba[aba])}
+          />
         </div>
-        {aba === 'tags' ? (
-          <p className="note">
-            <b>População diferente das outras abas.</b> Conversa com três etiquetas entra em três
-            linhas, então a soma das linhas passa do total do período — é o preço de perguntar
-            “quanto custa um atendimento de cobrança”, e ele fica dito em vez de escondido.{' '}
-            {numero(relatorio.semEtiqueta)} conversa(s) encerrada(s) no período não têm etiqueta
-            nenhuma e não aparecem em linha alguma; enquanto esse número for grande, esta tabela
-            mede o que sobrou. A exigência de etiqueta no encerramento se liga em Preferências ├
-            Configurações gerais.
-          </p>
-        ) : null}
-        {aba === 'atendentes' ? (
-          <CorpoDeQuebra eixo="Atendente" linhas={relatorio.porAtendente} recorte={recorte} />
-        ) : null}
-        {aba === 'filas' ? (
-          <CorpoDeQuebra eixo="Fila" linhas={relatorio.porFila} recorte={recorte} />
-        ) : null}
-        {aba === 'tags' ? (
-          <CorpoDeQuebra eixo="Etiqueta" linhas={relatorio.porEtiqueta} recorte={recorte} />
-        ) : null}
+        <TabelaDeQuebra eixo={abaAtual.eixo} linhas={linhasDaAba[aba]} />
+        <p className="rel-nota">
+          <IconeGestao nome="informacao" tamanho={16} />
+          Os filtros de Canais, Atendentes, Filas e Tags não se aplicam à tabela abaixo.
+        </p>
       </section>
 
-      {/* ---------------------------------------------------- bônus do Chatwoot
-          O Chatwoot tem relatório por agente, por equipe, por rótulo e por caixa
-          de entrada (`docs/pesquisa/chatwoot.md`). A Blip não tem aba de caixa
-          de entrada — esta seção é NOSSA, mantida como bloco à parte porque
-          responde pergunta que as abas de cima não respondem: "de qual canal
-          vem o atendimento mais lento". */}
-      <Quebra
-        titulo="Por caixa de entrada"
-        eixo="Caixa de entrada"
-        linhas={relatorio.porInbox}
-        recorte={recorte}
-        nota={
-          <>
-            A caixa de entrada é por onde a conversa chegou — o canal e a conexão. É ela, e não o
-            canal, que carrega a fila padrão, então uma caixa lenta com fila certa é problema de
-            volume, e uma caixa lenta com fila errada é problema de roteamento.
-          </>
-        }
-      />
-
       {/* ------------------------------------------------------------ bloco 6
-          Último bloco deles: "Disponibilidade de atendentes" (Online, Em
-          pausa, Invisível, Tempo total). É status EM TEMPO REAL — não existe
-          "disponibilidade" de um período fechado — e por isso não temos
-          consulta para ele aqui; o retrato ao vivo é o de Monitoramento. */}
-      <section className="bloco-rel">
-        <h3>Disponibilidade de atendentes</h3>
-        <div className="cartao-rel">
-          <div className="vazio">
-            <b>Esta tabela é sobre o período fechado, e disponibilidade é status ao vivo.</b>
-            <p>
-              Online, em pausa, invisível e tempo total nesses estados não têm sentido para um
-              recorte de datas já encerrado — o retrato de agora mesmo é o de Monitoramento. Não
-              inventamos uma versão "média do período" para isso.
-            </p>
+          "Disponibilidade de atendentes" (Atendente, Online, Em pausa,
+          Invisível, Tempo total). É tempo em status por período — consulta
+          que ainda não existe aqui; a tabela fica com o vazio. */}
+      <section className="tblwrap">
+        <div className="rel-aba-cabecalho">
+          <div className="card-cabecalho" style={{ marginBottom: 0, flex: 1 }}>
+            <h3>Disponibilidade de atendentes</h3>
           </div>
+          <BotaoBaixar desabilitado aoClicar={() => undefined} />
+        </div>
+        <div className="scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Atendente</th>
+                <th>Online</th>
+                <th>Em pausa</th>
+                <th>Invisível</th>
+                <th>Tempo total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td colSpan={5}>
+                  <div className="vazio-linha" style={{ border: 0 }}>
+                    Dados insuficientes
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </section>
     </>

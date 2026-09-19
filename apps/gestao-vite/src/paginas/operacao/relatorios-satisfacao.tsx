@@ -1,11 +1,14 @@
+import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
+import { Icone } from '@pipe/ui';
+import Link from '../../componentes/link';
+import { IconeGestao } from '../../componentes/icones-gestao';
+import { CampoPeriodo, PainelFiltros } from '../../componentes/painel-filtros';
+import { Dica } from '../../componentes/metrica';
 import { useLeitura } from '../../lib/consulta';
-import {
-  type RelatorioSatisfacao,
-  LIMITE_COMENTARIOS,
-  type GrupoSatisfacao,
-} from '../../lib/satisfacao';
+import { type RelatorioSatisfacao, type GrupoSatisfacao } from '../../lib/satisfacao';
 import { dataHora, dataOuNada, numero, percentual } from '../../lib/formato';
+import { periodoAtual, rotuloDoPeriodo } from '../../lib/periodos';
 import { useContato } from '../fluxo/contato';
 import { baseDoAtendimento } from './casca';
 
@@ -19,134 +22,66 @@ interface RespostaDaSatisfacao {
 interface Busca {
   de?: string;
   ate?: string;
+  aba?: string;
 }
 
 const NOME_DO_TIPO: Record<string, string> = { csat: 'CSAT', nps: 'NPS' };
-
-/**
- * A barra da classe usa os três estados do design system, e nada além deles:
- * o bom é a cor da marca, o meio é alerta e o ruim é erro. Classe que o banco
- * gravou fora desse vocabulário sai neutra, e não inventa uma quarta cor.
- */
-const FILL_DA_CLASSE: Record<string, string> = {
-  promotor: 'fill',
-  satisfeito: 'fill',
-  neutro: 'fill warn',
-  insatisfeito: 'fill bad',
-  detrator: 'fill bad',
-};
 
 function rotuloDoTipo(tipo: string): string {
   return NOME_DO_TIPO[tipo] ?? tipo.toUpperCase();
 }
 
+function escalaDe(grupo: GrupoSatisfacao): string {
+  return `${rotuloDoTipo(grupo.tipo)}, escala ${numero(grupo.escalaMin)} a ${numero(grupo.escalaMax)}`;
+}
+
 /**
- * Um bloco por tipo E escala.
- *
- * O título carrega a escala porque a nota sozinha não se explica: 4 numa escala
- * de 1 a 5 é quase o teto, 4 numa de 0 a 10 é detrator. Dois blocos nunca se
- * somam nem se comparam — é a §6 da spec, e é o motivo de `resposta_pesquisa`
- * guardar a escala junto da nota.
+ * As três abas de "Detalhamento das pesquisas" deles — `bds-tab-item label=
+ * "Geral|Filas|Atendentes"` em `desk-satisfacao__pagina.html`.
  */
-function Bloco({ grupo, encerradas }: { grupo: GrupoSatisfacao; encerradas: number }) {
-  const escala = `escala ${numero(grupo.escalaMin)} a ${numero(grupo.escalaMax)}`;
+const ABAS = [
+  { chave: 'geral', rotulo: 'Geral' },
+  { chave: 'filas', rotulo: 'Filas' },
+  { chave: 'atendentes', rotulo: 'Atendentes' },
+] as const;
+type Aba = (typeof ABAS)[number]['chave'];
+
+function abaValida(v: string | undefined): Aba {
+  return ABAS.some((a) => a.chave === v) ? (v as Aba) : 'geral';
+}
+
+/** Rótulo de métrica do cartão interno: 14/600 com o ícone de informação ao lado. */
+function Rotulo({ texto, dica }: { texto: string; dica: string }) {
   return (
-    <section className="bloco-rel">
-      <h3>
-        {rotuloDoTipo(grupo.tipo)} <span className="sub">{escala}</span>
-      </h3>
-
-      <div className="bloco-rel-grade" style={{ '--rel-colunas': 3 } as React.CSSProperties}>
-        <div className="cartao-rel">
-          <span className="r">Nota média</span>
-          <span className="v">{numero(grupo.media, 2)}</span>
-          {/* A taxa de resposta é obrigatória AQUI, no mesmo cartão da média:
-              4,85 com 22% de resposta não é a mesma coisa que 4,85 com 90%. */}
-          <span className="den">
-            {percentual(grupo.taxa)} de taxa de resposta · {numero(grupo.respostas)} notas em{' '}
-            {escala}
-          </span>
-        </div>
-        <div className="cartao-rel">
-          <span className="r">Taxa de resposta</span>
-          <span className="v">{percentual(grupo.taxa)}</span>
-          <span className="den">
-            {numero(grupo.respostas)} respostas ÷ {numero(encerradas)} conversas encerradas
-          </span>
-        </div>
-        <div className="cartao-rel">
-          <span className="r">Respostas</span>
-          <span className="v">{numero(grupo.respostas)}</span>
-          <span className="den">
-            de {numero(grupo.enviadas)} pesquisas enviadas ·{' '}
-            {numero(grupo.enviadas - grupo.respostas)} sem nota
-          </span>
-        </div>
-      </div>
-
-      {grupo.classes.length === 0 ? null : (
-        <div className="cartao-rel tabela scroll">
-          <table>
-            <thead>
-              <tr>
-                <th>Classe</th>
-                <th>Respostas</th>
-                <th>Participação</th>
-                <th>Distribuição</th>
-              </tr>
-            </thead>
-            <tbody>
-              {grupo.classes.map((c) => (
-                <tr key={c.nome}>
-                  <td className="who">{c.nome}</td>
-                  <td className="num">{numero(c.quantidade)}</td>
-                  <td className="num">{percentual(c.fracao)}</td>
-                  <td>
-                    <span className="trilho">
-                      <span
-                        className={FILL_DA_CLASSE[c.nome] ?? 'fill'}
-                        style={{ width: `${c.fracao * 100}%` }}
-                      />
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      <p className="note">
-        As classes são as que a pesquisa gravou junto da resposta. A tela não reclassifica nota: as
-        faixas são do modelo escolhido no cadastro da pesquisa, e recalculá-las aqui criaria uma
-        segunda definição, diferente da que gerou o dado.
-      </p>
-
-      {/* "Comparativo de satisfação" é o gráfico de barras por atendente que a
-          Blip mostra aqui (`FICHA-relatorio-satisfacao.md`, tabela Atendentes ×
-          Promotor/Sem resposta/Detrator/Neutro). Não temos a resposta de
-          pesquisa cruzada com o atendente do ticket nesta consulta — fica o
-          bloco com o vazio honesto, no lugar certo, em vez de sumir com ele. */}
-      <div className="cartao-rel">
-        <div className="vazio">
-          <b>Comparativo de satisfação por atendente ainda não existe aqui.</b>
-          <p>
-            A Blip cruza cada resposta com o atendente do ticket. Nossa consulta de satisfação
-            ainda não traz esse cruzamento — a média e a distribuição acima são do período inteiro,
-            não por atendente.
-          </p>
-        </div>
-      </div>
-    </section>
+    <span className="r">
+      {texto}
+      <Dica rotulo={texto} texto={dica} />
+    </span>
   );
 }
 
 /**
- * Relatório de satisfação — §6 da spec de métricas.
+ * Relatório de satisfação — a tela deles, bloco a bloco, lida em
+ * `docs/capturas/blip/desk/desk-satisfacao__pagina.html`:
  *
- * Mesma estrutura de bloco do relatório de atendimento e do de esforço: bloco
- * com recuo 20 e raio 16, título 16/700, grade de 20, métrica 14/600 com o
- * valor 20/700 embaixo.
+ * 1. cabeçalho "Relatório de satisfação"; à direita o período em botão
+ *    fantasma ("Últimos 30 dias") e "Filtros";
+ * 2. bloco "Dados gerais" (`bds-paper bg-surface-1 mt4 pa4`, título 16/700 +
+ *    ícone) com quatro cartões brancos (`bg-surface-0 pa4`: rótulo 14/600 +
+ *    ícone, valor 20/700): "Média geral de satisfação", "Total de tickets
+ *    fechados", "Total de respostas", "Taxa de resposta"; e embaixo dois
+ *    cartões brancos de 400px, "Satisfação geral" (pizza) e "Comparativo de
+ *    satisfação" (barras, com o seletor Atendentes/Filas);
+ * 3. bloco "Análise do período" com um cartão de 400px (série);
+ * 4. bloco "Detalhamento das pesquisas" com as abas Geral/Filas/Atendentes.
+ *
+ * Todo título, rótulo e coluna é o texto deles, literal. A escala de cada
+ * pesquisa continua decidindo tudo (§6 da spec de métricas): com mais de uma
+ * escala no período a "Média geral" não existe e sai "—", com as médias por
+ * escala no balão do ícone. A distribuição por classe — o dado atrás da
+ * pizza deles — entra no cartão "Satisfação geral" como tabela; o
+ * comparativo por atendente/fila e a série por dia não têm consulta nossa e
+ * ficam com o vazio honesto.
  */
 export function PaginaSatisfacao() {
   const { contato } = useContato();
@@ -159,98 +94,266 @@ export function PaginaSatisfacao() {
   if (params.de) q.set('de', params.de);
   if (params.ate) q.set('ate', params.ate);
   const leitura = useLeitura<RespostaDaSatisfacao>(`/v1/gestao/relatorios/satisfacao?${q}`);
+  const [painelAberto, setPainelAberto] = useState(false);
   if (!leitura.data) return null;
   const { fuso, de, ate, relatorio } = leitura.data;
+  const grupos = relatorio.grupos;
+  const aba = abaValida(crus.aba);
+  const hrefAba = (chave: Aba) => {
+    const p = new URLSearchParams(q);
+    p.set('aba', chave);
+    return `${base}/relatorios/satisfacao?${p}`;
+  };
+
+  const totalRespostas = grupos.reduce((t, g) => t + g.respostas, 0);
+  const taxa = relatorio.encerradas > 0 ? totalRespostas / relatorio.encerradas : null;
+  const unico = grupos.length === 1 ? grupos[0] : undefined;
+  const mediasPorEscala = grupos.map((g) => `${escalaDe(g)}: ${numero(g.media, 2)}`).join(' · ');
 
   return (
     <>
       <div className="board-head">
         <h2>Relatório de satisfação</h2>
-        <span className="sub">
-          Respostas de pesquisa das conversas encerradas no período. Cada escala tem bloco próprio.
-        </span>
-        <span className="sub filters">{numero(relatorio.encerradas)} conversas encerradas</span>
       </div>
 
-      <form className="quickfilters" method="get" action={`${base}/relatorios/satisfacao`}>
-        <span className="lbl">Período</span>
-        <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
-        <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
+      <div className="quickfilters">
         <div className="faixa-fim">
-          <a href={`${base}/relatorios/satisfacao`} className="btn">
-            Limpar
-          </a>
-          <button type="submit" className="btn primary">
-            Aplicar
+          <button
+            type="button"
+            className="btn fantasma rel-periodo"
+            title={`${de} → ${ate}`}
+            onClick={() => setPainelAberto(true)}
+          >
+            {rotuloDoPeriodo(periodoAtual(de, ate, fuso))}
+          </button>
+          <button type="button" className="btn" onClick={() => setPainelAberto(true)}>
+            <Icone nome="funil" tamanho={20} />
+            Filtros
           </button>
         </div>
-      </form>
+      </div>
 
-      {relatorio.grupos.length === 0 ? (
-        <section className="bloco-rel">
-          <h3>
-            Satisfação <span className="sub">{`${de} → ${ate}`}</span>
-          </h3>
-          <div className="cartao-rel">
-            <div className="vazio">
-              <b>Nenhuma pesquisa respondida neste período.</b>
-              As {numero(relatorio.encerradas)} conversas encerradas continuam sem nota — o que já é
-              um dado, e é por isso que a taxa de resposta anda ao lado da média.
-            </div>
-          </div>
-        </section>
-      ) : (
-        relatorio.grupos.map((g) => (
-          <Bloco
-            key={`${g.tipo}-${g.escalaMin}-${g.escalaMax}`}
-            grupo={g}
-            encerradas={relatorio.encerradas}
-          />
-        ))
-      )}
+      <PainelFiltros
+        aberto={painelAberto}
+        aoFechar={() => setPainelAberto(false)}
+        acao={`${base}/relatorios/satisfacao`}
+        limpar={null}
+      >
+        {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}
+        <CampoPeriodo de={de} ate={ate} fuso={fuso} />
+      </PainelFiltros>
 
+      {/* ------------------------------------------------------------ bloco 1 */}
       <section className="bloco-rel">
         <h3>
-          Comentários recentes{' '}
-          <span className="sub">os {numero(LIMITE_COMENTARIOS)} mais recentes do período</span>
+          Dados gerais
+          <Dica
+            rotulo="Dados gerais"
+            texto="Resumo das pesquisas de satisfação respondidas no período"
+          />
         </h3>
-        {relatorio.comentarios.length === 0 ? (
+        <div className="bloco-rel-grade" style={{ '--rel-colunas': 4 } as React.CSSProperties}>
           <div className="cartao-rel">
-            <div className="vazio">Nenhuma resposta veio com comentário neste período.</div>
+            <Rotulo
+              texto="Média geral de satisfação"
+              dica={
+                unico
+                  ? `Média das notas na ${escalaDe(unico)}.`
+                  : grupos.length === 0
+                    ? 'Nenhuma pesquisa respondida no período.'
+                    : `Há mais de uma escala no período, e nota de escalas diferentes não se soma. ${mediasPorEscala}.`
+              }
+            />
+            <span className="v">{unico ? numero(unico.media, 2) : '—'}</span>
           </div>
-        ) : (
+          <div className="cartao-rel">
+            <Rotulo
+              texto="Total de tickets fechados"
+              dica="Conversas encerradas no período — a população que recebeu a pesquisa."
+            />
+            <span className="v">{numero(relatorio.encerradas)}</span>
+          </div>
+          <div className="cartao-rel">
+            <Rotulo texto="Total de respostas" dica="Pesquisas respondidas com nota no período." />
+            <span className="v">{numero(totalRespostas)}</span>
+          </div>
+          <div className="cartao-rel">
+            <Rotulo
+              texto="Taxa de resposta"
+              dica={`Respostas divididas pelos tickets fechados: ${numero(totalRespostas)} ÷ ${numero(relatorio.encerradas)}.`}
+            />
+            <span className="v">{percentual(taxa)}</span>
+          </div>
+        </div>
+
+        <div className="bloco-rel-grade" style={{ '--rel-colunas': 2, marginTop: 20 } as React.CSSProperties}>
+          <div className="cartao-rel alto">
+            <h4>
+              Satisfação geral
+              <Dica
+                rotulo="Satisfação geral"
+                texto="Distribuição das respostas por classe de satisfação"
+              />
+            </h4>
+            {grupos.length === 0 || grupos.every((g) => g.classes.length === 0) ? (
+              <div className="vazio">
+                <b>Dados insuficientes</b>
+              </div>
+            ) : (
+              grupos.map((g) => (
+                <div key={`${g.tipo}-${g.escalaMin}-${g.escalaMax}`} className="scroll" style={{ marginTop: 20 }}>
+                  <table>
+                    <thead>
+                      <tr>
+                        <th>{escalaDe(g)}</th>
+                        <th>Respostas</th>
+                        <th>Participação</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {g.classes.map((c) => (
+                        <tr key={c.nome}>
+                          <td className="who">{c.nome}</td>
+                          <td className="num">{numero(c.quantidade)}</td>
+                          <td className="num">{percentual(c.fracao)}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              ))
+            )}
+          </div>
+          <div className="cartao-rel alto">
+            <h4>
+              Comparativo de satisfação
+              <Dica
+                rotulo="Comparativo de satisfação"
+                texto="Satisfação por atendente ou por fila"
+                formula="A consulta de satisfação ainda não cruza a resposta com o atendente ou a fila do ticket."
+              />
+              <span className="faixa-fim">
+                <select aria-label="Comparar por" defaultValue="Atendentes" disabled>
+                  <option>Atendentes</option>
+                  <option>Filas</option>
+                </select>
+              </span>
+            </h4>
+            <div className="vazio">
+              <b>Dados insuficientes</b>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ bloco 2 */}
+      <section className="bloco-rel">
+        <h3>
+          Análise do período
+          <Dica
+            rotulo="Análise do período"
+            texto="Evolução da satisfação ao longo do período"
+            formula="A série por dia ainda não tem consulta própria."
+          />
+        </h3>
+        <div className="cartao-rel alto">
+          <div className="vazio">
+            <b>Dados insuficientes</b>
+          </div>
+        </div>
+      </section>
+
+      {/* ------------------------------------------------------------ bloco 3 */}
+      <section className="bloco-rel">
+        <h3>
+          Detalhamento das pesquisas
+          <Dica
+            rotulo="Detalhamento das pesquisas"
+            texto="Cada pesquisa respondida, e o resumo por fila e por atendente"
+          />
+        </h3>
+        <div className="rel-aba-cabecalho">
+          <div className="tabs" role="tablist">
+            {ABAS.map((a) => (
+              <Link key={a.chave} href={hrefAba(a.chave)} aria-current={aba === a.chave ? 'true' : undefined}>
+                {a.rotulo}
+              </Link>
+            ))}
+          </div>
+          <button type="button" className="iconbtn" title="Baixar tabela" aria-label="Baixar tabela" disabled>
+            <IconeGestao nome="baixar" tamanho={24} />
+          </button>
+        </div>
+
+        {aba === 'geral' ? (
+          relatorio.comentarios.length === 0 ? (
+            <div className="cartao-rel">
+              <div className="vazio-linha" style={{ border: 0, minHeight: 0 }}>
+                Dados insuficientes
+              </div>
+            </div>
+          ) : (
+            <div className="cartao-rel tabela scroll">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Ticket</th>
+                    <th>Data</th>
+                    <th>Fila</th>
+                    <th>Atendente</th>
+                    <th>Cliente</th>
+                    <th>Nota</th>
+                    <th>Avaliação</th>
+                    <th>Comentário</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {relatorio.comentarios.map((c) => (
+                    <tr key={c.id}>
+                      <td className="num">—</td>
+                      <td className="num">{dataHora(c.em, fuso)}</td>
+                      <td>—</td>
+                      <td>—</td>
+                      <td>—</td>
+                      {/* A nota anda com a escala no `title`: um 4 solto não
+                          diz se é quase o teto ou um detrator. */}
+                      <td className="num" title={`${rotuloDoTipo(c.tipo)}, escala ${numero(c.escalaMin)} a ${numero(c.escalaMax)}`}>
+                        {numero(c.nota)}
+                      </td>
+                      <td>{c.classe ?? '—'}</td>
+                      <td className="comentario">{c.texto}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )
+        ) : null}
+
+        {aba !== 'geral' ? (
           <div className="cartao-rel tabela scroll">
             <table>
               <thead>
                 <tr>
-                  <th>Quando</th>
-                  <th>Pesquisa</th>
-                  <th>Nota</th>
-                  <th>Classe</th>
-                  <th>Comentário</th>
+                  <th>{aba === 'filas' ? 'Filas' : 'Atendente'}</th>
+                  <th>Média geral</th>
+                  <th>Total de tickets</th>
+                  <th>Total de respostas</th>
+                  <th>Não respondidas</th>
                 </tr>
               </thead>
               <tbody>
-                {relatorio.comentarios.map((c) => (
-                  <tr key={c.id}>
-                    <td className="num">{dataHora(c.em, fuso)}</td>
-                    <td className="who">{rotuloDoTipo(c.tipo)}</td>
-                    {/* A nota anda com a escala mesmo na linha da tabela: um 4
-                        solto não diz se é quase o teto ou um detrator. */}
-                    <td className="num">
-                      {numero(c.nota)}
-                      <span className="den">
-                        de {numero(c.escalaMin)} a {numero(c.escalaMax)}
-                      </span>
-                    </td>
-                    <td>{c.classe ?? '—'}</td>
-                    <td className="comentario">{c.texto}</td>
-                  </tr>
-                ))}
+                <tr>
+                  <td colSpan={5}>
+                    <div className="vazio-linha" style={{ border: 0 }}>
+                      Dados insuficientes
+                    </div>
+                  </td>
+                </tr>
               </tbody>
             </table>
           </div>
-        )}
+        ) : null}
       </section>
     </>
   );

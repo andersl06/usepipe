@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type ReactNode } from 'react';
+import { useEffect, useState, type ReactNode } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Monitoramento } from '../../lib/monitoramento';
@@ -6,7 +6,7 @@ import { useLeitura } from '../../lib/consulta';
 import { denominador, duracao, numero, uuidOuNada } from '../../lib/formato';
 import { IconeGestao } from '../../componentes/icones-gestao';
 import { FiltrosDaLista, FiltrosDaOperacao } from '../../componentes/filtros-rapidos';
-import { Metrica, Status } from '../../componentes/metrica';
+import { Metrica } from '../../componentes/metrica';
 import { MonitoramentoDetalhado } from '../../componentes/monitoramento-detalhado';
 
 interface RespostaDoMonitoramento {
@@ -25,10 +25,9 @@ interface Busca {
 }
 
 /**
- * O ícone "Atualizar tela": aparece uma vez no cabeçalho da página e de novo
- * em cada um dos quatro cartões de métrica (`FICHA-monitoring.md` §2 e §5).
- * É sempre o mesmo botão — invalida a leitura da `api` e a tela refaz a
- * consulta.
+ * O ícone "Atualizar tela" do cabeçalho da página — `bds-button icon="refresh"
+ * variant="secondary"` com o glifo de 24 (`dom/monitoring.html`). Invalida a
+ * leitura da `api` e a tela refaz a consulta.
  */
 function BotaoAtualizar() {
   const fila = useQueryClient();
@@ -40,48 +39,22 @@ function BotaoAtualizar() {
       aria-label="Atualizar tela"
       onClick={() => void fila.invalidateQueries({ queryKey: ['api'] })}
     >
-      <IconeGestao nome="atualizar" tamanho={14} />
+      <IconeGestao nome="atualizar" tamanho={24} />
     </button>
   );
 }
 
 /**
- * O cartão de métrica com os dois ícones do canto deles: atualizar e
- * expandir. "Expandir tela" usa a `Fullscreen API` no PRÓPRIO cartão, não na
- * página inteira — é o cartão que vira o painel de parede, não a tela toda.
+ * O cartão de métrica deles: `bds-paper pa4 bg-surface-1` com o título
+ * `fs-14 semi-bold` e NADA MAIS no topo — os ícones de atualizar/expandir
+ * moram só no cabeçalho da página (nenhum `bds-button` dentro dos quatro
+ * `bds-paper` em `dom/monitoring.html`; a ficha dizia o contrário, o DOM não).
  */
 function CartaoMetrica({ titulo, children }: { titulo: string; children: ReactNode }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [cheio, setCheio] = useState(false);
-
-  useEffect(() => {
-    const aoTrocar = () => setCheio(document.fullscreenElement === ref.current);
-    document.addEventListener('fullscreenchange', aoTrocar);
-    return () => document.removeEventListener('fullscreenchange', aoTrocar);
-  }, []);
-
-  function expandir() {
-    if (document.fullscreenElement) void document.exitFullscreen();
-    else void ref.current?.requestFullscreen().catch(() => undefined);
-  }
-
   return (
-    <div className="card" ref={ref}>
+    <div className="card">
       <div className="card-cabecalho">
         <h3>{titulo}</h3>
-        <div className="card-acoes">
-          <BotaoAtualizar />
-          <button
-            type="button"
-            className="iconbtn"
-            title="Expandir tela"
-            aria-label="Expandir tela"
-            aria-pressed={cheio}
-            onClick={expandir}
-          >
-            <IconeGestao nome="telaCheia" tamanho={14} />
-          </button>
-        </div>
       </div>
       {children}
     </div>
@@ -104,9 +77,7 @@ function useRecargaSilenciosa(segundos: number) {
 
 /**
  * "Expandir tela": o segundo ícone do cabeçalho, ao lado de "Atualizar tela"
- * — a cópia rodável deles em `:8790` mostra os dois no topo da página, e
- * NENHUM botão "Filtros" ali. O "Filtros" com funil só aparece encostado em
- * cada faixa "Filtros rápidos:", abaixo — é lá que ele mora nesta tela.
+ * (`bds-button icon="screen-full"`, `data-testid="fullscreen-change-to-enable"`).
  */
 function BotaoExpandirPagina() {
   const [cheia, setCheia] = useState(false);
@@ -128,23 +99,34 @@ function BotaoExpandirPagina() {
       aria-pressed={cheia}
       onClick={alternar}
     >
-      <IconeGestao nome="telaCheia" tamanho={14} />
+      <IconeGestao nome="telaCheia" tamanho={24} />
     </button>
   );
 }
 
 /**
- * Monitoramento — a mesma disposição da tela deles, medida em
- * `docs/capturas/blip/dom/FICHA-monitoring.md` e conferida contra a cópia
- * rodável em `:8790`: cabeçalho com "Atualizar tela" e "Expandir tela", DUAS
- * faixas "Filtros rápidos:" (uma acima da grade, outra entre a grade e a
- * tabela, cada uma com seu próprio botão "Filtros"), grade 2×2 de cartões
- * (largo à esquerda, estreito à direita, nas duas linhas) e o cartão
- * "Monitoramento detalhado" com busca, abas, tabela e paginação.
+ * Monitoramento — a mesma disposição da tela deles, lida em
+ * `docs/capturas/blip/dom/monitoring.html` (e confirmada na captura real,
+ * `desk/desk-monitoria__pagina.html`): cabeçalho com "Atualizar tela" e
+ * "Expandir tela", DUAS faixas "Filtros rápidos:" (a de cima só com "Filas";
+ * a de baixo com "Atendentes", "Contato" e "Status do atendente"), grade de
+ * cartões 62%/38% em duas linhas, e o cartão "Monitoramento detalhado" com
+ * busca, abas, tabela e paginação.
+ *
+ * Cada cartão é título 14/600 e uma fila de colunas centradas: número 24/400,
+ * rótulo 12/400 com o ícone de informação ao lado. "Atendimentos em tempo
+ * real" divide as colunas em dois grupos, `w-30` (a fila) e `w-70` (o
+ * atendimento), com o fio vertical entre eles. Os TEXTOS dos rótulos e das
+ * dicas são os deles, literais.
  *
  * O que NÃO copiamos é a tinta. Eles pintam de azul os dois números que dizem
- * como está a operação agora; nós pintamos os mesmos dois de moss. Os pontos
- * de status usam os nossos quatro token de estado, e nenhum azul entra.
+ * como está a operação agora; nós pintamos os mesmos dois de moss. "Perdidos"
+ * e "Abandonados" saem na tinta de erro, como o `color-delete` deles.
+ *
+ * A fórmula de cada número (spec de métricas) e a população ("entre 6 na
+ * fila") continuam existindo — dentro do balão do ícone de informação. Na
+ * tela deles o cartão não tem terceira linha sob o rótulo, e a régua desta
+ * rodada é a forma deles; a informação nossa não some, muda de lugar.
  */
 export function PaginaMonitoramento() {
   const [busca] = useSearchParams();
@@ -179,59 +161,77 @@ export function PaginaMonitoramento() {
       </div>
 
       {/* A faixa "Filtros rápidos:", com o próprio botão "Filtros" no fim —
-          é ali que ele mora nesta tela, não no cabeçalho (conferido contra a
-          cópia rodável deles em `:8790`). */}
-      <FiltrosDaOperacao filas={m.filas} atendentes={m.listaAtendentes} atual={params} />
+          é ali que ele mora nesta tela, não no cabeçalho. */}
+      <FiltrosDaOperacao filas={m.filas} atual={params} />
 
       {/* ---------------------------------------------------- grade 2×2 */}
       <div className="mon">
         <CartaoMetrica titulo="Atendimentos em tempo real">
           <div className="metrics">
-            <Metrica
-              destaque
-              valor={numero(tempoReal.naFila)}
-              rotulo="Na fila"
-              dica="Conversas abertas que ainda não foram atribuídas a nenhum atendente. Contagem deste instante, com o cronômetro correndo."
-            />
-            <Metrica
-              valor={duracao(tempoReal.maiorEsperaNaFilaSeg)}
-              rotulo="Tempo máximo na fila"
-              dica="A maior espera entre as conversas ainda não atribuídas: agora menos criada_em. Fechada, a métrica é atribuida_em menos criada_em."
-              /* Máximo também carrega população: 40 minutos entre duas
-                 conversas e entre duzentas pedem reações opostas. */
-              denominador={`entre ${numero(tempoReal.naFila)} na fila`}
-            />
-            <Metrica
-              valor={duracao(tempoReal.maiorEsperaPrimeiraRespostaSeg)}
-              rotulo="Tempo máximo até 1ª resposta"
-              dica="A maior espera entre as conversas já atribuídas e ainda sem resposta do atendente: agora menos atribuida_em."
-              denominador={`entre ${numero(tempoReal.aguardandoPrimeiraResposta)} aguardando`}
-            />
-            <Metrica
-              destaque
-              valor={numero(tempoReal.emAtendimento)}
-              rotulo="Em atendimento"
-              dica="Conversas abertas com atendente atribuído, neste instante."
-            />
-            <Metrica
-              valor={numero(tempoReal.mediaPorAtendente, 1)}
-              rotulo="Média de tickets por atendente"
-              dica="Conversas em atendimento divididas pelos atendentes online. Ponderada por volume, nunca média de médias."
-              denominador={`${numero(tempoReal.emAtendimento)} ÷ ${numero(tempoReal.atendentesOnline)} online`}
-            />
+            <div className="metrics-grupo estreito">
+              <Metrica
+                destaque
+                valor={numero(tempoReal.naFila)}
+                rotulo="Na fila"
+                dica="Número de atendimentos aguardando por um atendente"
+                formula="Conversas abertas que ainda não foram atribuídas a nenhum atendente. Contagem deste instante, com o cronômetro correndo."
+              />
+              <Metrica
+                valor={duracao(tempoReal.maiorEsperaNaFilaSeg)}
+                rotulo="Tempo máximo na fila"
+                dica="Tempo máximo que um atendimento ficou na fila"
+                formula="A maior espera entre as conversas ainda não atribuídas: agora menos criada_em."
+                denominador={`Entre ${numero(tempoReal.naFila)} na fila.`}
+              />
+            </div>
+            <div className="metrics-grupo largo">
+              <Metrica
+                valor={duracao(tempoReal.maiorEsperaPrimeiraRespostaSeg)}
+                rotulo="Tempo máximo até 1ª resposta"
+                dica="Tempo máximo que um atendimento ficou sem resposta"
+                formula="A maior espera entre as conversas já atribuídas e ainda sem resposta do atendente: agora menos atribuida_em."
+                denominador={`Entre ${numero(tempoReal.aguardandoPrimeiraResposta)} aguardando.`}
+              />
+              <Metrica
+                destaque
+                valor={numero(tempoReal.emAtendimento)}
+                rotulo="Em atendimento"
+                dica="Número de atendimentos em andamento"
+                formula="Conversas abertas com atendente atribuído, neste instante."
+              />
+              <Metrica
+                valor={numero(tempoReal.mediaPorAtendente, 1)}
+                rotulo="Média de tickets por atendente"
+                dica="Número de atendimentos por atendente"
+                formula="Conversas em atendimento divididas pelos atendentes online. Ponderada por volume, nunca média de médias."
+                denominador={`${numero(tempoReal.emAtendimento)} ÷ ${numero(tempoReal.atendentesOnline)} online.`}
+              />
+            </div>
           </div>
         </CartaoMetrica>
 
         <CartaoMetrica titulo="Status dos atendentes">
-          <div className="statuses">
-            <Status valor={numero(atendentes.online)} rotulo="Online" estado="sucesso" />
-            <Status valor={numero(atendentes.pausa)} rotulo="Pausa" estado="alerta" />
-            <Status valor={numero(atendentes.invisivel)} rotulo="Invisível" estado="neutro" />
-          </div>
-          <div className="note">
-            {atendentes.pausasEstouradas > 0
-              ? `${numero(atendentes.pausasEstouradas)} pausa(s) acima da duração sugerida pelo motivo.`
-              : 'Nenhuma pausa acima da duração sugerida pelo motivo.'}
+          <div className="metrics">
+            <Metrica
+              valor={numero(atendentes.online)}
+              rotulo="Online"
+              dica="Número de atendentes online"
+            />
+            <Metrica
+              valor={numero(atendentes.pausa)}
+              rotulo="Pausa"
+              dica="Número de atendentes em pausa"
+              denominador={
+                atendentes.pausasEstouradas > 0
+                  ? `${numero(atendentes.pausasEstouradas)} pausa(s) acima da duração sugerida pelo motivo.`
+                  : undefined
+              }
+            />
+            <Metrica
+              valor={numero(atendentes.invisivel)}
+              rotulo="Invisível"
+              dica="Número de atendentes invisíveis"
+            />
           </div>
         </CartaoMetrica>
 
@@ -240,48 +240,61 @@ export function PaginaMonitoramento() {
             <Metrica
               valor={duracao(hoje.esperaDoCliente.valor)}
               rotulo="Tempo médio de espera"
-              dica="Espera total do cliente. Com resposta: primeira_resposta_em menos criada_em. Sem resposta: encerrada_em menos criada_em. População: todas as conversas encerradas no período."
+              dica="Tempo médio de espera para atendimento"
+              formula="Espera total do cliente. Com resposta: primeira_resposta_em menos criada_em. Sem resposta: encerrada_em menos criada_em. População: todas as conversas encerradas no período."
               denominador={denominador(hoje.esperaDoCliente, 'sem início')}
             />
             <Metrica
               valor={duracao(hoje.tempoDeResposta.valor)}
               rotulo="Tempo médio de resposta"
-              dica="Média dos intervalos entre a mensagem do cliente e a próxima mensagem do atendente. População: conversas com pelo menos uma troca completa."
-              denominador={`${numero(hoje.tempoDeResposta.conversasConsideradas)} com troca completa · ${numero(hoje.tempoDeResposta.populacao)} intervalos`}
+              dica="Tempo médio de resposta para atendimento"
+              formula="Média dos intervalos entre a mensagem do cliente e a próxima mensagem do atendente. População: conversas com pelo menos uma troca completa."
+              denominador={`${numero(hoje.tempoDeResposta.conversasConsideradas)} com troca completa · ${numero(hoje.tempoDeResposta.populacao)} intervalos.`}
             />
             <Metrica
               valor={duracao(hoje.atePrimeiraResposta.valor)}
               rotulo="Tempo médio até 1ª resposta"
-              dica="primeira_resposta_em menos atribuida_em. População: conversas que tiveram resposta do atendente. As que nunca foram respondidas ficam de fora, e o número delas vem ao lado."
+              dica="Tempo médio de primeira resposta para atendimento"
+              formula="primeira_resposta_em menos atribuida_em. População: conversas que tiveram resposta do atendente."
               denominador={denominador(hoje.atePrimeiraResposta)}
             />
             <Metrica
               valor={duracao(hoje.tempoDeAtendimento.valor)}
               rotulo="Tempo médio de atendimento"
-              dica="encerrada_em menos primeira_resposta_em. População: conversas que tiveram 1ª resposta. A contagem das excluídas é obrigatória ao lado: métrica que esconde o próprio denominador não entra neste produto."
+              dica="Tempo médio de atendimento"
+              formula="encerrada_em menos primeira_resposta_em. População: conversas que tiveram 1ª resposta."
               denominador={denominador(hoje.tempoDeAtendimento)}
             />
           </div>
         </CartaoMetrica>
 
         <CartaoMetrica titulo="Status dos tickets hoje">
-          <div className="statuses">
-            <Status valor={numero(hoje.encerramentos.perdida)} rotulo="Perdidos" estado="erro" />
-            <Status
+          <div className="metrics">
+            <Metrica
+              tom="erro"
+              valor={numero(hoje.encerramentos.perdida)}
+              rotulo="Perdidos"
+              dica="Número de tickets que foram perdidos hoje"
+              formula="Perdido saiu ANTES da atribuição, e é capacidade ou fila."
+            />
+            <Metrica
+              tom="erro"
               valor={numero(hoje.encerramentos.abandonada)}
               rotulo="Abandonados"
-              estado="alerta"
+              dica="Número de tickets fechados pelo cliente hoje"
+              formula="Abandonado saiu DEPOIS da atribuição, e é atendimento."
             />
-            <Status
+            <Metrica
               valor={numero(hoje.encerramentos.finalizada)}
               rotulo="Finalizados"
-              estado="sucesso"
+              dica="Número de tickets que foram atendidos hoje"
             />
-            <Status valor={numero(hoje.encerramentos.fechada)} rotulo="Fechados" estado="neutro" />
-          </div>
-          <div className="note">
-            Perdido saiu <b>antes</b> da atribuição, e é capacidade ou fila. Abandonado saiu{' '}
-            <b>depois</b>, e é atendimento. Fechados é a soma dos três.
+            <Metrica
+              valor={numero(hoje.encerramentos.fechada)}
+              rotulo="Fechados"
+              dica="Número de tickets que foram fechados hoje"
+              formula="Fechados é a soma de perdidos, abandonados e finalizados."
+            />
           </div>
         </CartaoMetrica>
       </div>
