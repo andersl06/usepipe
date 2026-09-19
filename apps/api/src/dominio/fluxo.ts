@@ -303,7 +303,8 @@ export async function rodarFluxoNaEntrada(
     enviar: async (m) => {
       const texto = textoParaOCanal(m);
       if (texto === null) return;
-      await gravarRespostaDoBot(tx, e.tenantId, conversa.id, texto, relogio());
+      const pergunta = perguntaDoSelect(m);
+      await gravarRespostaDoBot(tx, e.tenantId, conversa.id, texto, relogio(), pergunta ? { pergunta } : null);
       respostas += 1;
     },
     encaminharParaAtendimento: async ({ settings }) => {
@@ -585,6 +586,8 @@ async function gravarRespostaDoBot(
   conversaId: string,
   texto: string,
   em: Date,
+  /** `{ pergunta }` quando é menu: o worker decide se sai em botões, lista ou texto. */
+  dados: Record<string, unknown> | null = null,
 ): Promise<void> {
   const categoria = classificarCusto({
     conteudo: 'texto_livre',
@@ -594,9 +597,10 @@ async function gravarRespostaDoBot(
   const { rows } = await tx.execute<{ id: string }>(sql`
     insert into mensagem (
       tenant_id, conversa_id, direcao, autor_tipo, tipo, conteudo, estado_entrega, criada_em,
-      dentro_da_janela, categoria_cobranca
+      dentro_da_janela, categoria_cobranca, dados
     ) values (
-      ${tenantId}, ${conversaId}, 'saida', 'bot', 'texto', ${texto}, 'pendente', ${em}, true, ${categoria}
+      ${tenantId}, ${conversaId}, 'saida', 'bot', 'texto', ${texto}, 'pendente', ${em}, true, ${categoria},
+      ${dados ? JSON.stringify(dados) : null}::jsonb
     )
     returning id
   `);
@@ -625,6 +629,27 @@ async function gravarRespostaDoBot(
  * Menu (`select`) vira texto com as opções numeradas; o "digitando" não sai. Tipo sem
  * tradução é erro: a ação do motor falha, e não sai mensagem pela metade.
  */
+/**
+ * O menu (`select`) como pergunta estruturada, para o worker poder mandar em
+ * botões ou lista (`interativo.ts` de `@pipe/workers/whatsapp`). O texto numerado
+ * de `textoParaOCanal` continua sendo o conteúdo gravado e o plano B.
+ */
+export function perguntaDoSelect(m: MensagemDeSaida): { texto: string; opcoes: string[] } | null {
+  if (m.tipo.toLowerCase() !== 'application/vnd.lime.select+json') return null;
+  let conteudo = m.conteudo;
+  if (typeof conteudo === 'string') {
+    try {
+      conteudo = JSON.parse(conteudo);
+    } catch {
+      return null;
+    }
+  }
+  const menu = conteudo as { text?: string; options?: { text?: string }[] } | null;
+  const opcoes = (menu?.options ?? []).map((o) => o.text ?? '');
+  if (opcoes.length === 0) return null;
+  return { texto: menu?.text ?? '', opcoes };
+}
+
 export function textoParaOCanal(m: MensagemDeSaida): string | null {
   const tipo = m.tipo.toLowerCase();
   if (tipo === 'application/vnd.lime.chatstate+json') return null;

@@ -145,6 +145,21 @@ describe('bot com o dublê do WhatsApp', () => {
     expect((await doBot(conversa.id)).at(-1)).toBe(
       'Prazer, Ana. Como posso ajudar?\n1. Financeiro\n2. Suporte',
     );
+
+    // O menu vai estruturado em `dados`, e com 2 opções o worker manda em botões
+    // (quick reply nasce ligado). O texto numerado continua sendo o conteúdo gravado.
+    const { rows } = await cenario.dono.execute<{ dados: unknown }>(sql`
+      select dados from mensagem where conversa_id = ${conversa.id}::uuid and autor_tipo = 'bot'
+       order by criada_em desc limit 1
+    `);
+    expect(rows[0]?.dados).toEqual({
+      pergunta: { texto: 'Prazer, Ana. Como posso ajudar?', opcoes: ['Financeiro', 'Suporte'] },
+    });
+    const antes = dubleWhatsApp.chamadas.length;
+    await processarOutbox();
+    expect(dubleWhatsApp.chamadas.slice(antes).filter((c) => c.para === ANA).map((c) => c.tipo)).toEqual([
+      'interativo',
+    ]);
   });
 
   it('o cliente escolhe → transferência → a conversa entra na fila com o contexto coletado', async () => {

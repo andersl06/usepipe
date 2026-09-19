@@ -4,6 +4,9 @@ import { ErroPipe } from '../../erros.js';
 import { atualizarCanal, lerCanalWhatsApp } from './canal.js';
 import type { CanalWhatsApp } from './canal.js';
 
+// A régua mora no worker, que é quem monta a mensagem; aqui só se reexporta.
+export { formatoDaPergunta, LIMITE_MENU, LIMITE_QUICK_REPLY } from '@pipe/workers/whatsapp';
+
 /**
  * As abas "Configurações" e "Configurações de alerta" do canal WhatsApp na Blip
  * (`docs/capturas/blip/canais/FICHA-canal-whatsapp.md` §3 e §4). Nada disto é
@@ -18,8 +21,6 @@ import type { CanalWhatsApp } from './canal.js';
  * Os dois interruptores nascem ligados, que é o estado observado na origem.
  */
 
-export const LIMITE_QUICK_REPLY = 3;
-export const LIMITE_MENU = 10;
 const LIMITE_EMAILS = 20;
 
 export interface PreferenciasDoCanal {
@@ -38,20 +39,6 @@ export function preferenciasDe(canal: { config: Record<string, unknown> }): Pref
       emails: guardado.alertaRecategorizacao?.emails ?? [],
     },
   };
-}
-
-/**
- * Como uma pergunta com `n` opções sai no WhatsApp. A regra da tela da origem:
- * até 3 com quick reply ligado = botões; até 10 com menu ligado = lista; senão, texto.
- */
-export function formatoDaPergunta(
-  opcoes: number,
-  preferencias: Pick<PreferenciasDoCanal, 'quickReply' | 'menu'>,
-): 'botoes' | 'lista' | 'texto' {
-  if (opcoes < 1) return 'texto';
-  if (preferencias.quickReply && opcoes <= LIMITE_QUICK_REPLY) return 'botoes';
-  if (preferencias.menu && opcoes <= LIMITE_MENU) return 'lista';
-  return 'texto';
 }
 
 export interface PedidoDePreferencias {

@@ -11,7 +11,7 @@ import type { TemplateParaEnvio } from './template.js';
  * série, que é ruído, não sinal.
  */
 
-export type TipoConteudo = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'template';
+export type TipoConteudo = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | 'template' | 'interativo';
 
 export interface CredenciaisCanal {
   /** `WHATSAPP_PHONE_NUMBER_ID` — o número que envia. */
@@ -42,7 +42,15 @@ export interface ConteudoTemplate {
   valores: Record<string, string>;
 }
 
-export type Conteudo = ConteudoTexto | ConteudoMidia | ConteudoTemplate;
+/** Pergunta do fluxo em botões ou lista. Ver `interativo.ts`. */
+export interface ConteudoInterativo {
+  tipo: 'interativo';
+  formato: 'botoes' | 'lista';
+  texto: string;
+  opcoes: string[];
+}
+
+export type Conteudo = ConteudoTexto | ConteudoMidia | ConteudoTemplate | ConteudoInterativo;
 
 export interface PedidoEnvio {
   /** Destinatário em E.164 sem o `+`, como a Cloud API exige. */

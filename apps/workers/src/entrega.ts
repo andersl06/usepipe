@@ -8,6 +8,8 @@ import type { PedidoInstagram } from './instagram.js';
 import { clienteWhatsApp } from './whatsapp/index.js';
 import { ErroWhatsApp } from './whatsapp/cliente.js';
 import type { Conteudo, CredenciaisCanal, PedidoEnvio } from './whatsapp/cliente.js';
+import { conteudoDaPergunta, preferenciasInterativasDe } from './whatsapp/interativo.js';
+import type { PerguntaDoFluxo } from './whatsapp/interativo.js';
 import { validarMidia } from './whatsapp/midia.js';
 import type { TipoMidia } from './whatsapp/midia.js';
 import type { CabecalhoTemplate } from './whatsapp/template.js';
@@ -44,6 +46,7 @@ type Reivindicada = {
 type LinhaDeEnvio = {
   tipo: string;
   conteudo: string | null;
+  dados: Record<string, unknown> | null;
   template_id: string | null;
   telefone_e164: string | null;
   identificador: string | null;
@@ -125,7 +128,7 @@ async function entregarUma(
        where id = ${linha.mensagem_id} and estado_entrega in ('pendente', 'enviando')
     `);
     const { rows } = await tx.execute<LinhaDeEnvio>(sql`
-      select m.tipo, m.conteudo, m.template_id,
+      select m.tipo, m.conteudo, m.dados, m.template_id,
              ct.telefone_e164, ci.identificador,
              ca.config as canal_config, ca.tipo as canal_tipo,
              t.nome as template_nome, t.idioma as template_idioma,
@@ -235,7 +238,7 @@ function prepararEnvioInstagram(
   const conteudo = montarConteudo(linha, undefined);
   if ('erro' in conteudo) return conteudo;
   const c = conteudo.conteudo;
-  if (c.tipo === 'template') {
+  if (c.tipo === 'template' || c.tipo === 'interativo') {
     return { erro: { codigo: 'tipo_nao_suportado', texto: 'O Instagram não envia template.' } };
   }
   return {
@@ -287,7 +290,13 @@ function montarConteudo(
     if (!texto) {
       return { erro: { codigo: 'texto_vazio', texto: 'Mensagem de texto sem conteúdo.' } };
     }
-    return { conteudo: { tipo: 'texto', texto } };
+    // Pergunta do fluxo: botões ou lista quando o canal permite; senão o texto numerado.
+    const pergunta = linha.dados?.['pergunta'] as PerguntaDoFluxo | undefined;
+    // Só no WhatsApp: o Instagram tem quick reply próprio, ainda não ligado — sai texto.
+    const interativo = pergunta && linha.canal_tipo === 'whatsapp_cloud'
+      ? conteudoDaPergunta(pergunta, preferenciasInterativasDe(linha.canal_config))
+      : null;
+    return { conteudo: interativo ?? { tipo: 'texto', texto } };
   }
 
   const tipoMidia = TIPOS_DE_MIDIA[linha.tipo];

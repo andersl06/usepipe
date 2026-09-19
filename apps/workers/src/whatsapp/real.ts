@@ -6,6 +6,7 @@ import type {
 } from './cliente.js';
 import { ErroWhatsApp } from './cliente.js';
 import { montarComponentes, ParametroFaltandoErro } from './template.js';
+import { ROTULO_DA_LISTA } from './interativo.js';
 
 /**
  * Cliente da Cloud API da Meta.
@@ -107,7 +108,7 @@ export class ClienteWhatsAppReal implements ClienteWhatsApp {
   }
 }
 
-function montarCorpo(pedido: PedidoEnvio): Record<string, unknown> {
+export function montarCorpo(pedido: PedidoEnvio): Record<string, unknown> {
   const base = { messaging_product: 'whatsapp', recipient_type: 'individual', to: pedido.para };
   const conteudo = pedido.conteudo;
 
@@ -123,6 +124,31 @@ function montarCorpo(pedido: PedidoEnvio): Record<string, unknown> {
         name: conteudo.template.nome,
         language: { code: conteudo.template.idioma },
         components: montarComponentes(conteudo.template, conteudo.valores),
+      },
+    };
+  }
+
+  if (conteudo.tipo === 'interativo') {
+    // O `id` é a posição (1, 2, …); a resposta chega com o `title`, que é o que o fluxo casa.
+    const action =
+      conteudo.formato === 'botoes'
+        ? {
+            buttons: conteudo.opcoes.map((titulo, i) => ({
+              type: 'reply',
+              reply: { id: String(i + 1), title: titulo },
+            })),
+          }
+        : {
+            button: ROTULO_DA_LISTA,
+            sections: [{ rows: conteudo.opcoes.map((titulo, i) => ({ id: String(i + 1), title: titulo })) }],
+          };
+    return {
+      ...base,
+      type: 'interactive',
+      interactive: {
+        type: conteudo.formato === 'botoes' ? 'button' : 'list',
+        body: { text: conteudo.texto },
+        action,
       },
     };
   }
