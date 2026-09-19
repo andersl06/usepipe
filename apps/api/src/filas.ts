@@ -11,6 +11,7 @@ import type { JobDicionarioCrm, JobEntrada, JobEntrega, JobEspelhoCrm } from '@p
 import { resolverCanal } from './banco.js';
 import { SEM_CRM, sincronizarDicionario, tenantsDoDicionario } from './dominio/dicionario-crm.js';
 import { processarPayload } from './dominio/entrada.js';
+import { renovarTokensInstagram } from './dominio/instagram/renovacao.js';
 import { contatosSemEspelho, sincronizarContato } from './dominio/espelho-crm.js';
 import { FILA_IMPORTACAO, processarImportacao } from '@pipe/workers';
 import type { JobImportacao } from '@pipe/workers';
@@ -201,6 +202,33 @@ export async function agendarVarreduraDicionarioCrm(): Promise<void> {
   );
 }
 
+/**
+ * A renovação diária do token do Instagram (`dominio/instagram/renovacao.ts`). Na
+ * `api`, e não em `apps/workers`, pela regra do espelho: quem fala com a Meta para
+ * mexer em credencial é a `api`, e é aqui que mora a regra.
+ */
+const FILA_INSTAGRAM_TOKEN = 'pipe-instagram-token';
+let filaInstagramToken: Queue | null = null;
+let consumidorInstagramToken: Worker | null = null;
+
+export function consumirRenovacaoInstagram(): void {
+  if (modo() === 'memoria' || consumidorInstagramToken) return;
+  consumidorInstagramToken = new Worker(FILA_INSTAGRAM_TOKEN, () => renovarTokensInstagram(), {
+    connection: redis(),
+    concurrency: 1,
+  });
+}
+
+export async function agendarRenovacaoInstagram(): Promise<void> {
+  if (modo() === 'memoria') return;
+  filaInstagramToken ??= new Queue(FILA_INSTAGRAM_TOKEN, { connection: redis() });
+  await filaInstagramToken.upsertJobScheduler(
+    'renovacao-token-instagram',
+    { every: Number(process.env['PIPE_INSTAGRAM_RENOVACAO_MS'] ?? 86_400_000) },
+    { name: 'varredura', data: {} },
+  );
+}
+
 let consumidorEntrada: Worker<JobEntrada> | null = null;
 
 /**
@@ -284,6 +312,10 @@ export async function fecharFilas(): Promise<void> {
   await consumidorEntrada?.close();
   await consumidorEspelhoCrm?.close();
   await consumidorDicionarioCrm?.close();
+  await consumidorInstagramToken?.close();
+  await filaInstagramToken?.close();
+  consumidorInstagramToken = null;
+  filaInstagramToken = null;
   await filaEntrada?.close();
   await filaEntrega?.close();
   await filaEspelhoCrm?.close();

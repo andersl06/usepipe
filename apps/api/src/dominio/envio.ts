@@ -71,6 +71,10 @@ export interface MensagemEnfileirada {
  * `@pipe/core` só conhece canal com janela e canal sem janela. Instagram, e-mail e
  * widget caem no segundo grupo — a mesma tradução que o Desk faz.
  */
+// Decisão Pipe: o Instagram cai aqui como canal SEM janela, igual ao widget. O Direct
+// tem janela de 24h para resposta padrão (7 dias com a tag HUMAN_AGENT); fora dela a
+// Meta recusa o envio e o worker grava a falha na mensagem. Regra de janela própria do
+// Instagram no `@pipe/core` é decisão de produto ainda por tomar.
 function canalDoCore(tipo: string): TipoCanal {
   return tipo === 'whatsapp_cloud' ? 'whatsapp_cloud' : 'widget';
 }

@@ -26,6 +26,8 @@ import { ControladorMensagensAtivas } from './controladores/mensagens-ativas.js'
 import { ControladorOperacao } from './controladores/operacao.js';
 import { ControladorConexaoSso, ControladorEntradaSso } from './controladores/sso.js';
 import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js';
+import { ControladorWebhookInstagram } from './controladores/webhooks-instagram.js';
+import { ControladorCanaisInstagram } from './controladores/canais-instagram.js';
 
 /**
  * Módulo raiz.
@@ -43,6 +45,7 @@ import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js
 @Module({
   controllers: [
     ControladorWebhookWhatsApp,
+    ControladorWebhookInstagram,
     ControladorEntrada,
     ControladorEntradaSso,
     ControladorEu,
@@ -62,6 +65,7 @@ import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js
     ControladorCrm,
     ControladorAnexos,
     ControladorCanais,
+    ControladorCanaisInstagram,
     ControladorContatos,
     ControladorFilas,
     ControladorAtendentes,

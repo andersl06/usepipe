@@ -17,6 +17,7 @@ import { enfileirarEntrega, enfileirarEspelhoCrm } from '../filas.js';
 import { distribuirConversa } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
 import { fluxoPublicadoDoCanal, rodarFluxoNaEntrada } from './fluxo.js';
+import { payloadDoInstagram, valoresDoInstagram } from './instagram/entrada.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 import { evento, publicar } from '../tempo-real.js';
 
@@ -38,7 +39,7 @@ export interface ValorDoWebhook {
   errors?: ErroDaMeta[];
 }
 
-interface MensagemDaMeta {
+export interface MensagemDaMeta {
   from?: string;
   id?: string;
   timestamp?: string;
@@ -60,6 +61,8 @@ interface MensagemDaMeta {
 
 interface MidiaDaMeta {
   id?: string;
+  /** Instagram: a mídia chega por URL, não por `media_id` (`instagram/entrada.ts`). */
+  url?: string;
   mime_type?: string;
   sha256?: string;
   caption?: string;
@@ -118,7 +121,11 @@ export async function processarPayload(
   payload: unknown,
 ): Promise<ResultadoEntrada> {
   const resumo: ResultadoEntrada = { mensagensRecebidas: 0, statusAplicados: 0, ignorados: 0 };
-  const valores = extrairValores(payload);
+  // Instagram é traduzido para o formato do WhatsApp e segue pelo mesmo caminho.
+  const igUserId = canal.config['igUserId'];
+  const valores = payloadDoInstagram(payload)
+    ? valoresDoInstagram(payload, typeof igUserId === 'string' ? igUserId : null)
+    : extrairValores(payload);
 
   // As conversas tocadas, para avisar as telas DEPOIS do commit. `Set` porque duas
   // mensagens do mesmo cliente no mesmo lote são um aviso só.
@@ -523,12 +530,15 @@ async function guardarAnexo(
 ): Promise<string | null> {
   const midia =
     mensagem.image ?? mensagem.audio ?? mensagem.video ?? mensagem.document ?? mensagem.sticker;
-  if (!midia?.id) return null;
+  // Sem `media_id`, a URL do Instagram vira a chave. Conferir com token real: a URL do
+  // CDN da Meta expira, e baixar para o storage é trabalho de fila ainda por fazer.
+  const chave = midia?.id ? `meta:${midia.id}` : midia?.url;
+  if (!midia || !chave) return null;
 
   const { rows } = await tx.execute<{ id: string }>(sql`
     insert into anexo (tenant_id, chave_storage, mime, bytes, nome_original, checksum)
     values (
-      ${tenantId}, ${`meta:${midia.id}`}, ${midia.mime_type ?? 'application/octet-stream'}, 0,
+      ${tenantId}, ${chave},${midia.mime_type ?? 'application/octet-stream'}, 0,
       ${mensagem.document?.filename ?? null}, ${midia.sha256 ?? null}
     )
     returning id

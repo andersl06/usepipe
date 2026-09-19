@@ -1,7 +1,10 @@
 import { sql } from 'drizzle-orm';
 import { transicaoEntregaPermitida } from '@pipe/core';
+import { chaveiroDoAmbiente, decifrarConfig, estaCifrado } from '@pipe/db';
 import type { EstadoEntrega } from '@pipe/core';
 import { bancoDono, noTenant } from './banco.js';
+import { clienteInstagram } from './instagram.js';
+import type { PedidoInstagram } from './instagram.js';
 import { clienteWhatsApp } from './whatsapp/index.js';
 import { ErroWhatsApp } from './whatsapp/cliente.js';
 import type { Conteudo, CredenciaisCanal, PedidoEnvio } from './whatsapp/cliente.js';
@@ -45,6 +48,7 @@ type LinhaDeEnvio = {
   telefone_e164: string | null;
   identificador: string | null;
   canal_config: Record<string, unknown> | null;
+  canal_tipo: string;
   template_nome: string | null;
   template_idioma: string | null;
   template_cabecalho: string | null;
@@ -123,7 +127,7 @@ async function entregarUma(
     const { rows } = await tx.execute<LinhaDeEnvio>(sql`
       select m.tipo, m.conteudo, m.template_id,
              ct.telefone_e164, ci.identificador,
-             ca.config as canal_config,
+             ca.config as canal_config, ca.tipo as canal_tipo,
              t.nome as template_nome, t.idioma as template_idioma,
              t.cabecalho_tipo as template_cabecalho, t.variaveis as template_variaveis,
              t.status_meta as template_status,
@@ -148,13 +152,17 @@ async function entregarUma(
     return gravarFalha(linha, 'mensagem_sumiu', 'A mensagem não existe mais no banco.');
   }
 
-  const preparado = prepararEnvio(dados, parametros);
+  const preparado =
+    dados.canal_tipo === 'instagram' ? prepararEnvioInstagram(dados) : prepararEnvio(dados, parametros);
   if ('erro' in preparado) {
     return gravarFalha(linha, preparado.erro.codigo, preparado.erro.texto);
   }
 
   try {
-    const resposta = await clienteWhatsApp().enviar(preparado.pedido);
+    const resposta =
+      'instagram' in preparado
+        ? await clienteInstagram().enviar(preparado.instagram)
+        : await clienteWhatsApp().enviar(preparado.pedido);
     await noTenant(linha.tenant_id, async (tx) => {
       await tx.execute(sql`
         update mensagem
@@ -187,6 +195,57 @@ async function entregarUma(
 }
 
 type Preparado = { pedido: PedidoEnvio } | { erro: { codigo: string; texto: string } };
+
+/**
+ * O Instagram manda para o IGSID (`contato_identidade`), nunca para telefone, e só
+ * texto e mídia por URL — template é coisa do WhatsApp.
+ *
+ * Decisão Pipe: a janela de 24h do Direct (7 dias com a tag HUMAN_AGENT) NÃO é
+ * conferida aqui nem no `@pipe/core` — o core trata canal que não é WhatsApp como sem
+ * janela (`canalDoCore` em `apps/api/src/dominio/envio.ts`). Fora da janela, a Meta
+ * recusa com 4xx e a mensagem fica `falhou` com o motivo dela.
+ */
+function prepararEnvioInstagram(
+  linha: LinhaDeEnvio,
+): { instagram: PedidoInstagram } | { erro: { codigo: string; texto: string } } {
+  if (!linha.identificador) {
+    return { erro: { codigo: 'sem_destinatario', texto: 'O contato não tem conta do Instagram neste canal.' } };
+  }
+  // O canal do Instagram SEMPRE grava o token cifrado (`dominio/instagram/canal.ts`).
+  // ponytail: chaveiro relido a cada envio; guardar em memória se aparecer no perfil.
+  let config: Record<string, unknown>;
+  try {
+    config = decifrarConfig(linha.canal_config ?? {}, chaveiroDoAmbiente());
+  } catch (erro) {
+    return { erro: { codigo: 'canal_sem_credencial', texto: `O token do canal não decifrou: ${(erro as Error).message}` } };
+  }
+  const igUserId = config['igUserId'];
+  const tokenAcesso = config['tokenAcesso'];
+  if (typeof igUserId !== 'string' || typeof tokenAcesso !== 'string' || !igUserId || !tokenAcesso) {
+    return {
+      erro: { codigo: 'canal_sem_credencial', texto: 'O canal não tem igUserId e tokenAcesso em canal.config.' },
+    };
+  }
+  const credenciais = {
+    igUserId,
+    tokenAcesso,
+    apiVersao: typeof config['apiVersao'] === 'string' ? config['apiVersao'] : undefined,
+  };
+
+  const conteudo = montarConteudo(linha, undefined);
+  if ('erro' in conteudo) return conteudo;
+  const c = conteudo.conteudo;
+  if (c.tipo === 'template') {
+    return { erro: { codigo: 'tipo_nao_suportado', texto: 'O Instagram não envia template.' } };
+  }
+  return {
+    instagram: {
+      para: linha.identificador,
+      conteudo: c.tipo === 'texto' ? c : { tipo: c.tipo, link: c.link, legenda: c.legenda },
+      credenciais,
+    },
+  };
+}
 
 /**
  * Monta o pedido e recusa antes de gastar chamada.
@@ -318,7 +377,14 @@ function destinatario(linha: LinhaDeEnvio): string | null {
   return bruto.replace(/^\+/, '');
 }
 
-function credenciaisDo(config: Record<string, unknown> | null): CredenciaisCanal | null {
+export function credenciaisDo(cru: Record<string, unknown> | null): CredenciaisCanal | null {
+  // O `config` vem do banco com o token CIFRADO (`cifrarConfig` na criação do canal).
+  // Sem decifrar, o `Bearer` sairia com o `pipev1…` e a Meta recusaria todo envio —
+  // o dublê não percebe. O chaveiro só é exigido quando há o que decifrar.
+  const config =
+    cru && Object.values(cru).some((v) => typeof v === 'string' && estaCifrado(v))
+      ? decifrarConfig(cru, chaveiroDoAmbiente())
+      : cru;
   const phoneNumberId =
     (config?.['phoneNumberId'] as string | undefined) ?? process.env['WHATSAPP_PHONE_NUMBER_ID'];
   const tokenAcesso =
