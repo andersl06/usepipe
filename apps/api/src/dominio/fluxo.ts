@@ -27,6 +27,7 @@ import type { TransacaoPipe } from '@pipe/db';
 import { emitir } from '../webhooks-saida.js';
 import { distribuirConversa } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
+import { avaliarPrioridade, carregarRegrasDePrioridadeAtivas } from './gestao/prioridade-motor.js';
 import { redirecionarNoRoteador, servicoDoRoteador } from './roteador.js';
 
 /**
@@ -519,6 +520,22 @@ async function transbordar(
     returning id
   `);
   if (!rows[0]) return;
+
+  // A conversa acabou de entrar na fila (o `update` acima só afeta linha uma vez,
+  // por causa do `fila_id is null` na condição) — é o único momento em que a
+  // prioridade é avaliada para ela. Ver decisão Pipe em `gestao/prioridade-motor.ts`.
+  const regrasDePrioridade = await carregarRegrasDePrioridadeAtivas(tx);
+  if (regrasDePrioridade.length > 0) {
+    const nivel = avaliarPrioridade(regrasDePrioridade, {
+      filaId,
+      mensagem: e.mensagem.conteudo,
+    });
+    if (nivel) {
+      await tx.execute(sql`
+        update conversa set prioridade = ${nivel}, atualizado_em = now() where id = ${e.conversa.id}
+      `);
+    }
+  }
 
   const dados = { origem: 'fluxo', ...(motivo ? { motivo } : {}) };
   await registrarEvento(tx, {

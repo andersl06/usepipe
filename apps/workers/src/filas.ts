@@ -13,6 +13,7 @@ export const FILA_ENTREGA = 'pipe-entrega';
 export const FILA_AGREGACAO = 'pipe-agregacao';
 export const FILA_ESPELHO_CRM = 'pipe-espelho-crm';
 export const FILA_MIDIA = 'pipe-midia';
+export const FILA_SLA = 'pipe-sla';
 
 export interface JobEntrega {
   /** Só um empurrão: o worker varre o outbox de qualquer jeito. */
@@ -38,6 +39,18 @@ export interface JobEntrada {
 export interface JobMidia {
   tenantId: string;
   anexoId: string;
+}
+
+/**
+ * Checar o SLA de uma conversa (`apps/api/src/dominio/gestao/sla-motor.ts`).
+ *
+ * Mesmo desenho do download de mídia: quem CONSOME é a `api` (é lá que mora a regra
+ * de SLA e a ação de elevar prioridade/notificar), e o job leva só os dois ids — o
+ * worker relê a conversa e as regras do tenant dentro do `noTenant` dela.
+ */
+export interface JobSla {
+  tenantId: string;
+  conversaId: string;
 }
 
 /**

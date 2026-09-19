@@ -16,6 +16,11 @@ import { contar } from '../metricas.js';
 import { enfileirarDownloadMidia, enfileirarEntrega, enfileirarEspelhoCrm } from '../filas.js';
 import { distribuirConversa } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
+import {
+  avaliarPrioridade,
+  carregarRegrasDePrioridadeAtivas,
+  type ContextoDePrioridade,
+} from './gestao/prioridade-motor.js';
 import { aplicarEventosDeModelo } from './whatsapp/eventos-de-modelo.js';
 import { fluxoPublicadoDoCanal, rodarFluxoNaEntrada } from './fluxo.js';
 import { payloadDoInstagram, valoresDoInstagram } from './instagram/entrada.js';
@@ -219,9 +224,15 @@ async function receberMensagem(
     const contatoId = await acharOuCriarContato(tx, canal, de, nomeDoPerfil);
     // Com fluxo (ou roteador) publicado no canal, a conversa nova é do bot: nasce sem fila.
     const fluxo = await fluxoPublicadoDoCanal(tx, canal.id, contatoId);
-    const conversa = await acharOuAbrirConversa(tx, canal, inbox, contatoId, em, fluxo !== null);
-
+    // Calculado ANTES de abrir a conversa: `regra_prioridade` pode condicionar no
+    // texto da primeira mensagem, e `acharOuAbrirConversa` aplica a regra assim que
+    // a conversa nasce na fila.
     const conteudo = textoDe(mensagem);
+    const conversa = await acharOuAbrirConversa(tx, canal, inbox, contatoId, em, fluxo !== null, {
+      mensagem: conteudo,
+      nomeDoPerfil,
+    });
+
     const tipo = TIPO_DA_META[mensagem.type ?? 'text'] ?? 'texto';
     const anexoId = await guardarAnexo(tx, canal.tenantId, canal.id, mensagem);
 
@@ -449,6 +460,7 @@ async function acharOuAbrirConversa(
   contatoId: string,
   em: Date,
   comBot: boolean,
+  contextoPrioridade: { mensagem: string | null; nomeDoPerfil: string | null },
 ): Promise<ConversaResolvida> {
   const { rows } = await tx.execute<{
     id: string;
@@ -499,6 +511,15 @@ async function acharOuAbrirConversa(
       em,
       filaId,
     });
+    // A conversa acabou de entrar na fila — é o único momento em que
+    // `aplicarRegraDePrioridade` roda para ela (`dominio/gestao/prioridade-motor.ts`).
+    // Sem bot, é AQUI, e não no transbordo (`fluxo.ts`), porque sem bot não há
+    // transbordo: a conversa nasce direto na fila.
+    await aplicarRegraDePrioridade(tx, conversaId, {
+      filaId,
+      mensagem: contextoPrioridade.mensagem,
+      contato: { nome: contextoPrioridade.nomeDoPerfil },
+    });
   }
   await emitir(tx, canal.tenantId, 'conversa.criada', {
     conversa_id: conversaId,
@@ -507,6 +528,25 @@ async function acharOuAbrirConversa(
   });
 
   return { id: conversaId, estado: 'na_fila', atendenteId: null, filaId, nova: true };
+}
+
+/**
+ * Aplica `regra_prioridade` a uma conversa que ACABOU de entrar na fila.
+ * Sem regra ativa cadastrada, não toca em nada — `conversa.prioridade` mantém
+ * o padrão `sem_prioridade` da coluna.
+ */
+async function aplicarRegraDePrioridade(
+  tx: TransacaoPipe,
+  conversaId: string,
+  contexto: ContextoDePrioridade,
+): Promise<void> {
+  const regras = await carregarRegrasDePrioridadeAtivas(tx);
+  if (regras.length === 0) return;
+  const nivel = avaliarPrioridade(regras, contexto);
+  if (!nivel) return;
+  await tx.execute(sql`
+    update conversa set prioridade = ${nivel}, atualizado_em = now() where id = ${conversaId}
+  `);
 }
 
 function textoDe(mensagem: MensagemDaMeta): string | null {

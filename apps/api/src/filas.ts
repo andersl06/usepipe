@@ -6,15 +6,24 @@ import {
   FILA_ENTREGA,
   FILA_ESPELHO_CRM,
   FILA_MIDIA,
+  FILA_SLA,
   conexaoRedis,
 } from '@pipe/workers';
-import type { JobDicionarioCrm, JobEntrada, JobEntrega, JobEspelhoCrm, JobMidia } from '@pipe/workers';
+import type {
+  JobDicionarioCrm,
+  JobEntrada,
+  JobEntrega,
+  JobEspelhoCrm,
+  JobMidia,
+  JobSla,
+} from '@pipe/workers';
 import { resolverCanal } from './banco.js';
 import { SEM_CRM, sincronizarDicionario, tenantsDoDicionario } from './dominio/dicionario-crm.js';
 import { processarPayload } from './dominio/entrada.js';
 import { renovarTokensInstagram } from './dominio/instagram/renovacao.js';
 import { contatosSemEspelho, sincronizarContato } from './dominio/espelho-crm.js';
 import { baixarMidiaDoAnexo, midiasPendentes } from './dominio/midia.js';
+import { checarSlaDaConversa, conversasParaChecarSla } from './dominio/gestao/sla-motor.js';
 import { FILA_IMPORTACAO, processarImportacao } from '@pipe/workers';
 import type { JobImportacao } from '@pipe/workers';
 
@@ -41,6 +50,7 @@ let filaEntrada: Queue | null = null;
 let filaEntrega: Queue<JobEntrega> | null = null;
 let filaEspelhoCrm: Queue | null = null;
 let filaMidia: Queue<JobMidia> | null = null;
+let filaSla: Queue<JobSla> | null = null;
 
 function redis(): IORedis {
   conexao ??= new IORedis(conexaoRedis().url, { maxRetriesPerRequest: null });
@@ -241,6 +251,102 @@ export async function agendarVarreduraDownloadMidia(): Promise<void> {
   );
 }
 
+/**
+ * Empurra a checagem de SLA de uma conversa (`dominio/gestao/sla-motor.ts`).
+ *
+ * Mesma regra do espelho e da mídia: falhar aqui não pode derrubar quem mandou a
+ * mensagem — o erro é engolido, e a varredura periódica pega a conversa nesta
+ * mesma passada ou na próxima.
+ *
+ * No modo memória não empurra: quem quiser o relógio rodando em teste/dev liga
+ * `PIPE_SLA_EM_MEMORIA=1` (ver `agendarVarreduraSla`), que varre direto sem fila —
+ * mesmo desenho do `PIPE_MIDIA_EM_MEMORIA`.
+ */
+export async function enfileirarChecagemSla(job: JobSla): Promise<void> {
+  if (modo() === 'memoria') return;
+  try {
+    filaSla ??= new Queue(FILA_SLA, { connection: redis() });
+    await filaSla.add('checar', job, {
+      removeOnComplete: 1_000,
+      // Uma checagem pendente por conversa: um empurrão a mais enquanto a anterior
+      // ainda não rodou vira UM job, não dois competindo pela mesma linha.
+      jobId: `sla-${job.conversaId}`,
+      attempts: 1,
+    });
+  } catch (erro) {
+    console.error(`[sla] não enfileirou ${job.conversaId}: ${(erro as Error).message}`);
+  }
+}
+
+let consumidorSla: Worker | null = null;
+let relogioSla: ReturnType<typeof setInterval> | null = null;
+
+/**
+ * Consome a checagem de SLA — na `api`, como a mídia e o espelho: quem já tem a
+ * regra de domínio (`sla-motor.ts`) e fala com o webhook de saída é a `api`.
+ *
+ * `checar` decide alerta/estouro de UMA conversa; `varredura` reenfileira quem
+ * ficou para trás — mesmos dois nomes de job da mídia.
+ */
+export function consumirChecagemSla(): void {
+  if (modo() === 'memoria' || consumidorSla) return;
+  consumidorSla = new Worker(
+    FILA_SLA,
+    async (job) => {
+      if (job.name === 'varredura') {
+        const pendentes = await conversasParaChecarSla();
+        for (const p of pendentes) await enfileirarChecagemSla(p);
+        return pendentes.length;
+      }
+      const dados = job.data as JobSla;
+      await checarSlaDaConversa(dados.tenantId, dados.conversaId);
+    },
+    {
+      connection: redis(),
+      concurrency: Number(process.env['PIPE_SLA_CONCORRENCIA'] ?? 4),
+    },
+  );
+}
+
+/**
+ * A varredura de segurança do relógio de SLA. Ver `conversasParaChecarSla`.
+ *
+ * ponytail: a fila não entra em `estadoDasFilas` — mesma dívida já anotada para a
+ * `pipe-midia` e a `pipe-importacao` (mais abaixo neste arquivo).
+ */
+export async function agendarVarreduraSla(): Promise<void> {
+  if (modo() === 'memoria') {
+    // Sem Redis, a varredura vira um relógio no próprio processo — só com
+    // `PIPE_SLA_EM_MEMORIA=1`, para o teste de ponta a ponta ver alerta/estouro
+    // acontecer sem precisar enfileirar nada. Mesmo desenho do `PIPE_MIDIA_EM_MEMORIA`.
+    if (process.env['PIPE_SLA_EM_MEMORIA'] !== '1' || relogioSla) return;
+    let rodando = false;
+    relogioSla = setInterval(() => {
+      if (rodando) return;
+      rodando = true;
+      void (async () => {
+        try {
+          for (const p of await conversasParaChecarSla()) {
+            await checarSlaDaConversa(p.tenantId, p.conversaId);
+          }
+        } catch (erro) {
+          console.error(`[sla] varredura em memória falhou: ${(erro as Error).message}`);
+        } finally {
+          rodando = false;
+        }
+      })();
+    }, Number(process.env['PIPE_SLA_VARREDURA_MS'] ?? 15_000));
+    relogioSla.unref();
+    return;
+  }
+  filaSla ??= new Queue(FILA_SLA, { connection: redis() });
+  await filaSla.upsertJobScheduler(
+    'varredura-sla',
+    { every: Number(process.env['PIPE_SLA_VARREDURA_MS'] ?? 60_000) },
+    { name: 'varredura', data: {} as JobSla },
+  );
+}
+
 let filaDicionarioCrm: Queue<JobDicionarioCrm> | null = null;
 let consumidorDicionarioCrm: Worker | null = null;
 
@@ -417,6 +523,9 @@ export async function fecharFilas(): Promise<void> {
   await consumidorMidia?.close();
   if (relogioMidia) clearInterval(relogioMidia);
   relogioMidia = null;
+  await consumidorSla?.close();
+  if (relogioSla) clearInterval(relogioSla);
+  relogioSla = null;
   await consumidorInstagramToken?.close();
   await filaInstagramToken?.close();
   consumidorInstagramToken = null;
@@ -426,16 +535,19 @@ export async function fecharFilas(): Promise<void> {
   await filaEspelhoCrm?.close();
   await filaDicionarioCrm?.close();
   await filaMidia?.close();
+  await filaSla?.close();
   await conexao?.quit();
   consumidorEntrada = null;
   consumidorEspelhoCrm = null;
   consumidorDicionarioCrm = null;
   consumidorMidia = null;
+  consumidorSla = null;
   filaEntrada = null;
   filaEntrega = null;
   filaEspelhoCrm = null;
   filaDicionarioCrm = null;
   filaMidia = null;
+  filaSla = null;
   conexao = null;
 }
 

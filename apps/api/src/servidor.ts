@@ -16,7 +16,9 @@ import {
   agendarVarreduraDicionarioCrm,
   agendarVarreduraDownloadMidia,
   agendarVarreduraEspelhoCrm,
+  agendarVarreduraSla,
   consumirRenovacaoInstagram,
+  consumirChecagemSla,
   consumirDicionarioCrm,
   consumirDownloadMidia,
   consumirEntrada,
@@ -121,6 +123,8 @@ export async function subirApi(porta = Number(process.env['PORT'] ?? 3000)): Pro
   await agendarVarreduraDicionarioCrm();
   consumirDownloadMidia();
   await agendarVarreduraDownloadMidia();
+  consumirChecagemSla();
+  await agendarVarreduraSla();
   consumirRenovacaoInstagram();
   await agendarRenovacaoInstagram();
   await app.listen(porta);

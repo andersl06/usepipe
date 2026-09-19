@@ -22,6 +22,9 @@ export interface RegraSlaCarregada {
   alertaSeg: number | null;
   escopoTipo: string;
   escopoId: string | null;
+  /** `{ tipo: 'notificar_supervisor' | 'elevar_prioridade', ... }` — motor em `sla-motor.ts`. */
+  acaoAlerta: Record<string, unknown>;
+  acaoEstouro: Record<string, unknown>;
 }
 
 export type EstadoPill = 'dentro' | 'alerta' | 'estourado' | 'sem_regra' | 'cumprido';
@@ -52,6 +55,8 @@ export async function carregarRegrasSla(tx: TransacaoPipe): Promise<RegraSlaCarr
       alertaSeg: regraSla.alertaSeg,
       escopoTipo: regraSla.escopoTipo,
       escopoId: regraSla.escopoId,
+      acaoAlerta: regraSla.acaoAlerta,
+      acaoEstouro: regraSla.acaoEstouro,
     })
     .from(regraSla)
     .where(and(eq(regraSla.ativa, true)))
@@ -60,7 +65,14 @@ export async function carregarRegrasSla(tx: TransacaoPipe): Promise<RegraSlaCarr
   return linhas.flatMap((l) => {
     const alvo = ALVO_DO_BANCO[l.alvo] ?? null;
     if (!alvo) return [];
-    return [{ ...l, alvo }];
+    return [
+      {
+        ...l,
+        alvo,
+        acaoAlerta: (l.acaoAlerta ?? {}) as Record<string, unknown>,
+        acaoEstouro: (l.acaoEstouro ?? {}) as Record<string, unknown>,
+      },
+    ];
   });
 }
 

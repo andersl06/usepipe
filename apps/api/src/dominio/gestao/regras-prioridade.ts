@@ -12,21 +12,30 @@ import { REGRA_GERENCIAR } from './cadastros.js';
  * Atendimento. "Sem tela nova": este arquivo só existe para a rota REST
  * ficar completa (leitura + escrita), sem página em `apps/gestao-vite`.
  *
- * **Decisão Pipe — sem motor.** Nenhum lugar do produto hoje LÊ
- * `regra_prioridade` para decidir a prioridade de uma conversa: a coluna
- * `conversa.prioridade` (`packages/core/src/conversa/prioridade.ts`) é
- * atribuída por fora, e não existe `avaliarPrioridade` equivalente ao
- * `filaDeDestino` de `regra-fila.ts`. Construir esse motor não foi pedido
- * (a tarefa lista só "CRUD REST básico + ordem, se a tabela permitir") e
- * seria a parte cara desta funcionalidade — este arquivo faz só o que foi
- * pedido: guardar a configuração.
+ * **ATUALIZAÇÃO — o motor nasceu.** As duas decisões abaixo (sem motor, sem
+ * ordem) valiam quando só existia o CRUD. Numa tarefa seguinte ("fazer
+ * funcionar o que só está cadastrado"), o motor foi construído em
+ * `prioridade-motor.ts` (`avaliarPrioridade`/`carregarRegrasDePrioridadeAtivas`)
+ * e ligado em `dominio/entrada.ts`/`dominio/fluxo.ts`, no momento em que a
+ * conversa entra na fila. A ordem sem coluna própria (escopo `fila` antes de
+ * `tenant`, depois `criado_em`) está documentada lá — texto original mantido
+ * abaixo como histórico de por que o CRUD nasceu sem essas duas coisas.
  *
- * **Decisão Pipe — sem "ordem".** `regra_prioridade` não tem coluna de
- * ordem (`packages/db/src/schema/gestao.ts`, ao contrário de `regra_fila`).
- * A tarefa condicionou reordenar a "se a tabela permitir" — não permite, e
- * como não há motor consumindo a tabela, criar a coluna a mais (migração)
- * seria trabalho para um comportamento que ninguém observa ainda. Fica de
- * fora; primeiro sinal de que faz falta é o motor de verdade nascer.
+ * **Decisão Pipe — sem motor (histórico).** Nenhum lugar do produto LIA
+ * `regra_prioridade` para decidir a prioridade de uma conversa: a coluna
+ * `conversa.prioridade` (`packages/core/src/conversa/prioridade.ts`) era
+ * atribuída por fora, e não existia `avaliarPrioridade` equivalente ao
+ * `filaDeDestino` de `regra-fila.ts`. Construir esse motor não tinha sido
+ * pedido na tarefa de cadastros (que listava só "CRUD REST básico + ordem,
+ * se a tabela permitir") e seria a parte cara daquela tarefa — o arquivo
+ * fazia só o que tinha sido pedido: guardar a configuração.
+ *
+ * **Decisão Pipe — sem "ordem" (histórico).** `regra_prioridade` não tinha
+ * coluna de ordem (`packages/db/src/schema/gestao.ts`, ao contrário de
+ * `regra_fila`). A tarefa de cadastros condicionou reordenar a "se a tabela
+ * permitir" — não permitia, e como não havia motor consumindo a tabela,
+ * criar a coluna a mais (migração) seria trabalho para um comportamento que
+ * ninguém observava ainda.
  *
  * **Decisão Pipe — mesmo limite de escopo do SLA.** `escopoTipo` só aceita
  * `tenant` e `fila`: sem motor nenhum lendo esta tabela, "verificar" que
