@@ -10,6 +10,8 @@ import { conferirEstado, emitirEstado } from '../dominio/whatsapp/estado-de-cone
 import { criarModeloNaMeta, excluirModeloNaMeta, sincronizarModelos } from '../dominio/whatsapp/modelos.js';
 import type { PedidoDeModelo, ResultadoDaSincronizacao } from '../dominio/whatsapp/modelos.js';
 import { gravarPerfilDoCanal, lerPerfilDoCanal } from '../dominio/whatsapp/perfil.js';
+import { gravarPreferencias, lerPreferencias } from '../dominio/whatsapp/preferencias.js';
+import type { PedidoDePreferencias, PreferenciasDoCanal } from '../dominio/whatsapp/preferencias.js';
 import type { PedidoDePerfil, PerfilVisivel } from '../dominio/whatsapp/perfil.js';
 import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
@@ -162,6 +164,30 @@ export class ControladorCanais {
     const sessao = sessaoDe(requisicao);
     await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
     return gravarPerfilDoCanal(sessao.tenantId, sessao.usuarioId, id, corpo ?? {});
+  }
+
+  /** Abas "Configurações" e "Configurações de alerta" do canal. Ver `dominio/whatsapp/preferencias.ts`. */
+  @Get('whatsapp/:id/preferencias')
+  @ComSessao()
+  async preferencias(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+  ): Promise<PreferenciasDoCanal> {
+    const sessao = sessaoDe(requisicao);
+    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
+    return lerPreferencias(sessao.tenantId, id);
+  }
+
+  @Patch('whatsapp/:id/preferencias')
+  @ComSessao()
+  async gravarPreferencias(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: PedidoDePreferencias,
+  ): Promise<PreferenciasDoCanal> {
+    const sessao = sessaoDe(requisicao);
+    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
+    return gravarPreferencias(sessao.tenantId, sessao.usuarioId, id, corpo);
   }
 
   /** Traz da Meta todos os modelos da WABA do canal. Ver `dominio/whatsapp/modelos.ts`. */

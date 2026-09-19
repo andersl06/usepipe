@@ -32,6 +32,9 @@ const { gravarPerfilDoCanal, lerPerfilDoCanal } = await import('../src/dominio/w
 const { criarModeloNaMeta, excluirModeloNaMeta, sincronizarModelos } = await import(
   '../src/dominio/whatsapp/modelos.js'
 );
+const { formatoDaPergunta, gravarPreferencias, lerPreferencias } = await import(
+  '../src/dominio/whatsapp/preferencias.js'
+);
 const { buscarInfoDoNumero } = await import('../src/dominio/whatsapp/info-do-numero.js');
 const { trocarCodigo } = await import('../src/dominio/whatsapp/troca-de-token.js');
 const { ControladorCanais } = await import('../src/controladores/canais.js');
@@ -666,6 +669,50 @@ describe('modelos de mensagem na Meta (sincronizar, criar, excluir)', () => {
     await expect(
       controlador.sincronizarModelos(requisicao({ tenantId: A.tenantId, adminId: rows[0]!.id }), canal.id),
     ).rejects.toMatchObject({ status: 403 });
+  });
+});
+
+describe('preferências do canal (Configurações e Configurações de alerta)', () => {
+  it('nasce com os dois interruptores ligados, grava só o que veio e aceita e-mails por vírgula', async () => {
+    const canal = await conectar(A, { codigo: `pref-${S}` });
+    expect(await lerPreferencias(A.tenantId, canal.id)).toEqual({
+      quickReply: true,
+      menu: true,
+      alertaRecategorizacao: { ativo: true, emails: [] },
+    });
+    await gravarPreferencias(A.tenantId, A.adminId, canal.id, { menu: false });
+    const depois = await gravarPreferencias(A.tenantId, A.adminId, canal.id, {
+      alertaRecategorizacao: { emails: ' Ana@Pipe.app, bia@pipe.app ,ana@pipe.app' },
+    });
+    expect(depois).toEqual({
+      quickReply: true,
+      menu: false,
+      alertaRecategorizacao: { ativo: true, emails: ['ana@pipe.app', 'bia@pipe.app'] },
+    });
+    // O resto do config (token, número) sobrevive à gravação.
+    expect((await lerCanalWhatsApp(A.tenantId, canal.id)).config['phoneNumberId']).toBeTruthy();
+  });
+
+  it('recusas e isolamento', async () => {
+    const canal = await conectar(A, { codigo: `pref-recusa-${S}` });
+    await expect(
+      gravarPreferencias(A.tenantId, A.adminId, canal.id, { menu: 'sim' as unknown as boolean }),
+    ).rejects.toMatchObject({ detalhe: { campo: 'menu' } });
+    await expect(
+      gravarPreferencias(A.tenantId, A.adminId, canal.id, { alertaRecategorizacao: { emails: 'nao-e-email' } }),
+    ).rejects.toMatchObject({ detalhe: { campo: 'emails' } });
+    await expect(lerPreferencias(B.tenantId, canal.id)).rejects.toMatchObject({ status: 404 });
+  });
+
+  it('formato da pergunta segue a régua da origem: até 3 botões, até 10 lista, senão texto', () => {
+    const ligado = { quickReply: true, menu: true };
+    expect(formatoDaPergunta(3, ligado)).toBe('botoes');
+    expect(formatoDaPergunta(4, ligado)).toBe('lista');
+    expect(formatoDaPergunta(10, ligado)).toBe('lista');
+    expect(formatoDaPergunta(11, ligado)).toBe('texto');
+    expect(formatoDaPergunta(2, { quickReply: false, menu: true })).toBe('lista');
+    expect(formatoDaPergunta(2, { quickReply: false, menu: false })).toBe('texto');
+    expect(formatoDaPergunta(0, ligado)).toBe('texto');
   });
 });
 
