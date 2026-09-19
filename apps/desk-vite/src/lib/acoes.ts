@@ -50,12 +50,10 @@ export async function executar(
 /* Status do atendente (`apps/api/src/dominio/desk/acoes.ts`) */
 export const definirStatus = acaoRemota('definirStatus');
 export const cairPorInatividade = acaoRemota('cairPorInatividade');
-/* Nota interna do compositor */
+/* Nota interna do compositor — é o "Comentário" do painel do contato. */
 export const salvarNotaInterna = acaoRemota('salvarNotaInterna');
-/* Comentário do contato (painel), preferências, ações em massa e mensagem ativa */
-export const salvarComentarioDoContato = acaoRemota('salvarComentarioDoContato');
 export const transferirEmMassa = acaoRemota('transferirEmMassa');
-export const enviarMensagemAtiva = acaoRemota('enviarMensagemAtiva');
+/* A mensagem ativa vai direto por `POST /v1/mensagens-ativas` (ver paginas/mensagem-ativa/page.tsx). */
 
 /** Deu certo: as leituras em cache são refeitas — o `revalidatePath` de antes. */
 export function atualizarLeituras(): void {

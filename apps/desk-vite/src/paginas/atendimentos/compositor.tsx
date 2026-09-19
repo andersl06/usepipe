@@ -40,6 +40,8 @@ export function Compositor({
   const [erro, setErro] = useState<string | null>(null);
   const [painelRespostas, setPainelRespostas] = useState(false);
   const [modeloAberto, setModeloAberto] = useState(false);
+  /** A resposta pronta escolhida, para o relatório de esforço — some se o texto for editado. */
+  const [respostaProntaId, setRespostaProntaId] = useState<string | null>(null);
   const campo = useRef<HTMLTextAreaElement>(null);
   const arquivo = useRef<HTMLInputElement>(null);
 
@@ -47,6 +49,7 @@ export function Compositor({
     setTexto('');
     setErro(null);
     setPainelRespostas(false);
+    setRespostaProntaId(null);
     campo.current?.focus();
   }, [conversa.id]);
 
@@ -87,9 +90,14 @@ export function Compositor({
     setEnviando(true);
     setErro(null);
     try {
-      await api.post(`/v1/conversas/${conversa.id}/mensagens`, { texto: corpo, tipo: 'texto' });
+      await api.post(`/v1/conversas/${conversa.id}/mensagens`, {
+        texto: corpo,
+        tipo: 'texto',
+        ...(respostaProntaId ? { resposta_pronta_id: respostaProntaId } : {}),
+      });
       atualizarLeituras();
       setTexto('');
+      setRespostaProntaId(null);
       aoEnviar();
     } catch (e) {
       setErro(e instanceof Error ? e.message : 'Ocorreu um erro ao enviar a mensagem.');
@@ -137,6 +145,7 @@ export function Compositor({
 
   function usarResposta(r: RespostaProntaDoDesk) {
     setTexto(r.corpo);
+    setRespostaProntaId(r.id);
     setPainelRespostas(false);
     campo.current?.focus();
   }
@@ -178,7 +187,10 @@ export function Compositor({
               placeholder="Escreva uma mensagem..."
               value={texto}
               spellCheck
-              onChange={(e) => setTexto(e.target.value)}
+              onChange={(e) => {
+                setTexto(e.target.value);
+                setRespostaProntaId(null);
+              }}
               onKeyDown={aoTeclar}
               disabled={enviando}
             />

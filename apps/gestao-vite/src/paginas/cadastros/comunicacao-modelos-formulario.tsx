@@ -1,64 +1,122 @@
-import { useActionState, useEffect, useRef, useState } from 'react';
-import { Botao, BotaoDeIcone, Campo, Etiqueta, Seletor } from '@pipe/ui';
-import { salvarModelo } from '../../lib/acoes';
-import { envioQuePreserva } from '../../componentes/envio-de-formulario';
+import { useEffect, useMemo, useState } from 'react';
+import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
+import { criarModeloNoCanal } from '../../lib/canais-gravar';
 
 /**
- * Duplica, de propósito, os três catálogos e a conta de deslocamento de
- * `lib/comunicacao.ts` em vez de importar de lá: aquele arquivo puxa
- * `./banco`, que abre pool de Postgres — e isso não pode ir para o bundle do
- * cliente. São seis linhas; a alternativa era um terceiro arquivo só de
- * constante, e para três catálogos isto ainda é mais simples.
+ * Duplica, de propósito, os catálogos de `lib/comunicacao.ts` em vez de
+ * importar de lá — comentário histórico deste arquivo. Continua valendo: são
+ * poucas linhas, e a tela de cliente não precisa arrastar o módulo do servidor
+ * mesmo que ele hoje esteja puro.
+ *
+ * A CATEGORIA aqui só tem Utilidade/Marketing — `montarModelo`
+ * (`apps/api/src/dominio/whatsapp/modelos.ts`) recusa Autenticação na
+ * criação ("tem componentes próprios, não é texto livre"); ela só aparece
+ * depois de SINCRONIZADA da Meta, na lista acima deste formulário.
  */
-const CATEGORIAS = ['utilidade', 'marketing', 'autenticacao'] as const;
+const CATEGORIAS = ['utilidade', 'marketing'] as const;
 const ROTULO_CATEGORIA: Record<(typeof CATEGORIAS)[number], string> = {
   utilidade: 'Utilidade',
   marketing: 'Marketing',
-  autenticacao: 'Autenticação',
 };
 
-const CABECALHOS = ['nenhum', 'texto', 'imagem', 'video', 'documento'] as const;
+/**
+ * Cabeçalho na CRIAÇÃO só tem texto ou nenhum — mídia pede um arquivo de
+ * exemplo (Resumable Upload API) que este formulário não coleta ainda
+ * (ponytail já registrado em `modelos.ts`: "criar só com cabeçalho de texto
+ * ou sem cabeçalho"). Cabeçalho de mídia continua aparecendo na LISTA de
+ * modelos sincronizados — só não é uma opção aqui.
+ */
+const CABECALHOS = ['nenhum', 'texto'] as const;
 type Cabecalho = (typeof CABECALHOS)[number];
-const ROTULO_CABECALHO: Record<Cabecalho, string> = {
-  nenhum: 'Sem cabeçalho',
-  texto: 'Texto',
-  imagem: 'Imagem',
-  video: 'Vídeo',
-  documento: 'Documento',
-};
+const ROTULO_CABECALHO: Record<Cabecalho, string> = { nenhum: 'Sem cabeçalho', texto: 'Texto' };
 
-/** Só cabeçalho de mídia consome a posição 1 do disparo — mesma conta de `apps/workers/src/whatsapp/template.ts`. */
-function temMidia(cabecalho: Cabecalho): boolean {
-  return cabecalho === 'imagem' || cabecalho === 'video' || cabecalho === 'documento';
+const CABECALHO_TEXTO_MAX = 60;
+const CORPO_MAX = 1024;
+
+/** As variáveis do corpo, na ordem em que aparecem — mesma regra de `variaveisDoTexto` na `api`. */
+function variaveisDoTexto(texto: string): string[] {
+  const vistas: string[] = [];
+  for (const achado of texto.matchAll(/\{\{\s*(\w+)\s*\}\}/g)) {
+    if (!vistas.includes(achado[1]!)) vistas.push(achado[1]!);
+  }
+  return vistas;
 }
 
 const rotulo = { display: 'flex', flexDirection: 'column' as const, gap: '4px' };
 const coluna = { display: 'flex', flexDirection: 'column' as const, gap: 'var(--p-e-3)' };
 
 export function FormularioModelo({ canais }: { canais: { id: string; nome: string }[] }) {
-  const formRef = useRef<HTMLFormElement>(null);
-  const [resultado, enviar, enviando] = useActionState(salvarModelo, { ok: true });
+  const [canalId, setCanalId] = useState('');
+  const [nome, setNome] = useState('');
+  const [idioma, setIdioma] = useState('pt_BR');
+  const [categoria, setCategoria] = useState<(typeof CATEGORIAS)[number] | ''>('');
   const [cabecalhoTipo, setCabecalhoTipo] = useState<Cabecalho>('nenhum');
-  const [variaveis, setVariaveis] = useState<string[]>([]);
+  const [cabecalho, setCabecalho] = useState('');
+  const [exemploDoCabecalho, setExemploDoCabecalho] = useState('');
+  const [corpo, setCorpo] = useState('');
+  const [rodape, setRodape] = useState('');
+  const [exemplos, setExemplos] = useState<Record<string, string>>({});
+  const [enviando, setEnviando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (resultado.ok) {
-      formRef.current?.reset();
-      setCabecalhoTipo('nenhum');
-      setVariaveis([]);
+  const variaveis = useMemo(() => variaveisDoTexto(corpo), [corpo]);
+  const variaveisDoCabecalho = useMemo(() => variaveisDoTexto(cabecalho), [cabecalho]);
+
+  function limpar() {
+    setNome('');
+    setIdioma('pt_BR');
+    setCategoria('');
+    setCabecalhoTipo('nenhum');
+    setCabecalho('');
+    setExemploDoCabecalho('');
+    setCorpo('');
+    setRodape('');
+    setExemplos({});
+  }
+
+  async function enviar() {
+    setErro(null);
+    if (!canalId) return setErro('Escolha o canal.');
+    if (!categoria) return setErro('Escolha a categoria.');
+    if (variaveisDoCabecalho.length > 1) return setErro('O cabeçalho aceita no máximo uma variável.');
+    const listaDeExemplos = variaveis.map((v) => (exemplos[v] ?? '').trim());
+    if (listaDeExemplos.some((e) => !e)) {
+      return setErro('Dê um exemplo para cada variável do texto.');
     }
-  }, [resultado]);
+    setEnviando(true);
+    const resultado = await criarModeloNoCanal(canalId, {
+      nome,
+      idioma,
+      categoria,
+      corpo,
+      ...(cabecalhoTipo === 'texto' && cabecalho ? { cabecalho } : {}),
+      ...(cabecalhoTipo === 'texto' && variaveisDoCabecalho.length === 1 ? { exemploDoCabecalho } : {}),
+      ...(rodape ? { rodape } : {}),
+      exemplos: listaDeExemplos,
+    });
+    setEnviando(false);
+    if (!resultado.ok) {
+      setErro(resultado.erro);
+      return;
+    }
+    limpar();
+  }
 
-  const midia = temMidia(cabecalhoTipo);
-  const deslocamento = midia ? 1 : 0;
+  // Corpo mudou: exemplos de variável que sumiram não servem mais de nada guardados.
+  useEffect(() => {
+    setExemplos((atual) => {
+      const novo: Record<string, string> = {};
+      for (const v of variaveis) if (atual[v] !== undefined) novo[v] = atual[v];
+      return novo;
+    });
+  }, [variaveis]);
 
   return (
     <section className="card">
       <h3>Novo modelo de mensagem</h3>
       <p className="sub">
-        O texto do modelo vive na Meta, não aqui. O que este cadastro guarda é nome, idioma,
-        categoria e o mapeamento de posição das variáveis — o corpo abaixo é cópia para consulta de
-        quem for usar o modelo, não é o que decide o que sai no disparo.
+        Cria o modelo NA META (`POST .../modelos`) e manda para análise — diferente da lista acima,
+        que só reflete o que já está lá. O texto que vale para o disparo é o aprovado por ela.
       </p>
 
       {canais.length === 0 ? (
@@ -66,12 +124,10 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
           Nenhum canal WhatsApp ativo neste tenant. Cadastre o canal antes de cadastrar o modelo.
         </Etiqueta>
       ) : (
-        <form ref={formRef} onSubmit={envioQuePreserva(enviar)} style={coluna}>
-          <input type="hidden" name="variaveis" value={JSON.stringify(variaveis)} />
-
+        <form onSubmit={(e) => { e.preventDefault(); void enviar(); }} style={coluna}>
           <label style={rotulo}>
             <span className="sub">Canal</span>
-            <Seletor name="canalId" required disabled={enviando} defaultValue="">
+            <Seletor value={canalId} onChange={(e) => setCanalId(e.target.value)} required disabled={enviando}>
               <option value="" disabled>
                 Escolha o canal
               </option>
@@ -84,18 +140,29 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
           </label>
 
           <label style={rotulo}>
-            <span className="sub">Nome (o mesmo nome aprovado na Meta)</span>
-            <Campo name="nome" placeholder="confirmacao_pedido" required disabled={enviando} />
+            <span className="sub">Nome (letras minúsculas, números e _; sem espaço nem acento)</span>
+            <Campo
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder="confirmacao_pedido"
+              required
+              disabled={enviando}
+            />
           </label>
 
           <label style={rotulo}>
             <span className="sub">Idioma</span>
-            <Campo name="idioma" defaultValue="pt_BR" required disabled={enviando} />
+            <Campo value={idioma} onChange={(e) => setIdioma(e.target.value)} required disabled={enviando} />
           </label>
 
           <label style={rotulo}>
             <span className="sub">Categoria (é da Meta, muda o custo — não é campo livre)</span>
-            <Seletor name="categoria" required disabled={enviando} defaultValue="">
+            <Seletor
+              value={categoria}
+              onChange={(e) => setCategoria(e.target.value as (typeof CATEGORIAS)[number])}
+              required
+              disabled={enviando}
+            >
               <option value="" disabled>
                 Escolha a categoria
               </option>
@@ -110,7 +177,6 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
           <label style={rotulo}>
             <span className="sub">Cabeçalho</span>
             <Seletor
-              name="cabecalhoTipo"
               value={cabecalhoTipo}
               onChange={(e) => setCabecalhoTipo(e.target.value as Cabecalho)}
               disabled={enviando}
@@ -123,78 +189,81 @@ export function FormularioModelo({ canais }: { canais: { id: string; nome: strin
             </Seletor>
           </label>
 
-          {midia ? (
-            <Etiqueta tom="alerta">
-              Cabeçalho de {ROTULO_CABECALHO[cabecalhoTipo].toLowerCase()}: a mídia ocupa a posição
-              1 do disparo, e TODA variável do corpo desliza +1 — é o erro que só aparece na hora do
-              disparo em produção. A posição real de cada variável está anotada abaixo.
-            </Etiqueta>
+          {cabecalhoTipo === 'texto' ? (
+            <>
+              <label style={rotulo}>
+                <span className="sub">Texto do cabeçalho (até 1 variável)</span>
+                <Campo
+                  value={cabecalho}
+                  onChange={(e) => setCabecalho(e.target.value)}
+                  maxLength={CABECALHO_TEXTO_MAX}
+                  disabled={enviando}
+                />
+                <span className="cw-contador">
+                  {cabecalho.length}/{CABECALHO_TEXTO_MAX}
+                </span>
+              </label>
+              {variaveisDoCabecalho.length === 1 ? (
+                <label style={rotulo}>
+                  <span className="sub">Exemplo da variável do cabeçalho</span>
+                  <Campo
+                    value={exemploDoCabecalho}
+                    onChange={(e) => setExemploDoCabecalho(e.target.value)}
+                    required
+                    disabled={enviando}
+                  />
+                </label>
+              ) : null}
+            </>
           ) : null}
 
           <label style={rotulo}>
-            <span className="sub">
-              Corpo (cópia para consulta — o texto que vale é o aprovado na Meta)
-            </span>
+            <span className="sub">Corpo</span>
             <textarea
-              name="corpo"
+              value={corpo}
+              onChange={(e) => setCorpo(e.target.value)}
               className="campo"
               rows={4}
+              maxLength={CORPO_MAX}
               required
               disabled={enviando}
               placeholder={'Olá {{1}}, seu pedido {{2}} foi confirmado.'}
             />
+            <span className="cw-contador">
+              {corpo.length}/{CORPO_MAX}
+            </span>
           </label>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--p-e-2)' }}>
-            <span className="sub">
-              Variáveis do corpo, na ordem de <code>{'{{1}}'}</code>, <code>{'{{2}}'}</code>…
-            </span>
+          {variaveis.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--p-e-2)' }}>
+              <span className="sub">Um exemplo por variável do corpo — a Meta exige para aprovar.</span>
+              {variaveis.map((v) => (
+                <label key={v} style={rotulo}>
+                  <span className="sub">
+                    Exemplo de <code>{`{{${v}}}`}</code>
+                  </span>
+                  <Campo
+                    value={exemplos[v] ?? ''}
+                    onChange={(e) => setExemplos((atual) => ({ ...atual, [v]: e.target.value }))}
+                    required
+                    disabled={enviando}
+                  />
+                </label>
+              ))}
+            </div>
+          ) : null}
 
-            {variaveis.map((v, indice) => (
-              <div
-                key={indice}
-                style={{ display: 'flex', gap: 'var(--p-e-2)', alignItems: 'center' }}
-              >
-                <Campo
-                  value={v}
-                  onChange={(e) =>
-                    setVariaveis((atual) =>
-                      atual.map((x, i) => (i === indice ? e.target.value : x)),
-                    )
-                  }
-                  placeholder="contato.nome"
-                  disabled={enviando}
-                  style={{ flex: 1 }}
-                />
-                <Etiqueta titulo="Posição declarada no corpo do modelo">
-                  {`corpo {{${indice + 1}}}`}
-                </Etiqueta>
-                <Etiqueta
-                  tom={midia ? 'alerta' : 'neutro'}
-                  titulo="Posição real de disparo, com o deslocamento do cabeçalho de mídia já somado"
-                >
-                  {`disparo ${indice + 1 + deslocamento}`}
-                </Etiqueta>
-                <BotaoDeIcone
-                  nome="x"
-                  rotulo="Remover variável"
-                  disabled={enviando}
-                  onClick={() => setVariaveis((atual) => atual.filter((_, i) => i !== indice))}
-                />
-              </div>
-            ))}
-
-            <Botao
-              type="button"
-              icone="mais"
+          <label style={rotulo}>
+            <span className="sub">Rodapé (opcional)</span>
+            <Campo
+              value={rodape}
+              onChange={(e) => setRodape(e.target.value)}
+              maxLength={CABECALHO_TEXTO_MAX}
               disabled={enviando}
-              onClick={() => setVariaveis((atual) => [...atual, ''])}
-            >
-              Adicionar variável
-            </Botao>
-          </div>
+            />
+          </label>
 
-          {resultado.erro ? <Etiqueta tom="erro">{resultado.erro}</Etiqueta> : null}
+          {erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}
 
           <div className="cl-acoes">
             <Botao type="submit" variante="primario" disabled={enviando}>

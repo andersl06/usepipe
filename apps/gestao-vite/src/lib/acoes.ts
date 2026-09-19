@@ -49,7 +49,9 @@ export const salvarFila = acaoRemota('salvarFila');
 export const salvarMotivoPausa = acaoRemota('salvarMotivoPausa');
 /* Comunicação */
 export const salvarRespostaPronta = acaoRemota('salvarRespostaPronta');
-export const salvarModelo = acaoRemota('salvarModelo');
+/* `salvarModelo` saiu: `comunicacao-modelos-formulario.tsx` cria modelo direto
+   em `POST /v1/canais/whatsapp/:id/modelos` (a Meta é a fonte agora, não mais
+   um `insert` local por `acoes/salvarModelo`). */
 /* Preferências */
 export const salvarIdentidade = acaoRemota('salvarIdentidade');
 export const salvarPesquisa = acaoRemota('salvarPesquisa');

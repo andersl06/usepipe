@@ -1,8 +1,9 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import type { ConversaDoDesk } from '@pipe/contracts';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { Link } from '../../componentes/link';
-import { executar } from '../../lib/acoes';
+import { api } from '../../lib/api';
+import { executar, atualizarLeituras } from '../../lib/acoes';
 import { canalDe, numeroDoTicket } from '../../lib/canal';
 import { dataAbreviada } from '../../lib/formato';
 import { nomeDeExibicao } from '../../lib/ordem';
@@ -25,6 +26,12 @@ type Aba = 'informacoes' | 'historico' | 'comentarios';
 
 export function Painel({ aberta, agora }: { aberta: ConversaDoDesk | null; agora: Date }) {
   const [aba, setAba] = useState<Aba>('informacoes');
+  const [editandoContato, setEditandoContato] = useState(false);
+  const conversaId = aberta?.conversa.id ?? null;
+
+  // Trocar de ticket sai do modo de edição: senão o formulário de um contato fica
+  // aberto por cima dos dados de outro.
+  useEffect(() => setEditandoContato(false), [conversaId]);
 
   if (!aberta) {
     return (
@@ -82,27 +89,39 @@ export function Painel({ aberta, agora }: { aberta: ConversaDoDesk | null; agora
         {aba === 'informacoes' ? (
           <div className="dk-painel-corpo" role="tabpanel">
             <section className="dk-papel">
-              <h3 className="dk-papel-titulo">
-                Informações
-                {/* ponytail: editar o contato é do CRM; o botão fica como lá. */}
-                <button
-                  type="button"
-                  className="dk-botao dk-botao-secundario dk-botao-curto"
-                  disabled
-                >
-                  Editar
-                </button>
-              </h3>
-              <Campo rotulo="Nome:" valor={nomeDeExibicao(conversa)} />
-              <Campo rotulo="Id:" valor={conversa.contatoId} />
-              <Campo
-                rotulo="E-mail:"
-                valor={conversa.contatoEmail}
-                link={conversa.contatoEmail ? `mailto:${conversa.contatoEmail}` : undefined}
-              />
-              <Campo rotulo="Telefone:" valor={conversa.contatoTelefone} />
-              <Campo rotulo="Documento:" valor={conversa.contatoDocumento} />
-              {Object.keys(conversa.contatoAtributos).length > 0 ? (
+              {editandoContato ? (
+                <EdicaoDoContato
+                  conversa={conversa}
+                  aoFechar={() => setEditandoContato(false)}
+                  aoSalvar={() => {
+                    setEditandoContato(false);
+                    atualizarLeituras();
+                  }}
+                />
+              ) : (
+                <>
+                  <h3 className="dk-papel-titulo">
+                    Informações
+                    <button
+                      type="button"
+                      className="dk-botao dk-botao-secundario dk-botao-curto"
+                      onClick={() => setEditandoContato(true)}
+                    >
+                      Editar
+                    </button>
+                  </h3>
+                  <Campo rotulo="Nome:" valor={nomeDeExibicao(conversa)} />
+                  <Campo rotulo="Id:" valor={conversa.contatoId} />
+                  <Campo
+                    rotulo="E-mail:"
+                    valor={conversa.contatoEmail}
+                    link={conversa.contatoEmail ? `mailto:${conversa.contatoEmail}` : undefined}
+                  />
+                  <Campo rotulo="Telefone:" valor={conversa.contatoTelefone} />
+                  <Campo rotulo="Documento:" valor={conversa.contatoDocumento} />
+                </>
+              )}
+              {!editandoContato && Object.keys(conversa.contatoAtributos).length > 0 ? (
                 <>
                   <h3 className="dk-papel-titulo">Extras</h3>
                   {Object.entries(conversa.contatoAtributos).map(([chave, valor]) => (
@@ -190,6 +209,84 @@ function Campo({ rotulo, valor, link }: { rotulo: string; valor: string | null; 
         </button>
       ) : null}
     </p>
+  );
+}
+
+/**
+ * O "Editar" do painel — `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`),
+ * já testado e com permissão própria (`contato.editar`). A tela só manda o que
+ * mudou; campo vazio manda string vazia, que a API grava como está (ela é quem
+ * decide o que é "apagar" vs. "não mexeu").
+ */
+function EdicaoDoContato({
+  conversa,
+  aoFechar,
+  aoSalvar,
+}: {
+  conversa: ConversaDoDesk['conversa'];
+  aoFechar: () => void;
+  aoSalvar: () => void;
+}) {
+  const [nome, setNome] = useState(conversa.contatoNome ?? '');
+  const [telefone, setTelefone] = useState(conversa.contatoTelefone ?? '');
+  const [email, setEmail] = useState(conversa.contatoEmail ?? '');
+  const [documento, setDocumento] = useState(conversa.contatoDocumento ?? '');
+  const [erro, setErro] = useState<string | null>(null);
+  const [salvando, setSalvando] = useState(false);
+
+  async function salvar(e: FormEvent) {
+    e.preventDefault();
+    setSalvando(true);
+    setErro(null);
+    try {
+      await api.patch(`/v1/contatos/${conversa.contatoId}`, {
+        nome: nome.trim() || null,
+        telefone_e164: telefone.trim() || null,
+        email: email.trim() || null,
+        documento: documento.trim() || null,
+      });
+      aoSalvar();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Não foi possível salvar o contato.');
+    } finally {
+      setSalvando(false);
+    }
+  }
+
+  return (
+    <form onSubmit={(e) => void salvar(e)}>
+      <h3 className="dk-papel-titulo">Editar contato</h3>
+      <label className="dk-campo-flutuante">
+        <span>Nome</span>
+        <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} />
+      </label>
+      <label className="dk-campo-flutuante">
+        <span>Telefone</span>
+        <input type="tel" value={telefone} onChange={(e) => setTelefone(e.target.value)} />
+      </label>
+      <label className="dk-campo-flutuante">
+        <span>E-mail</span>
+        <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} />
+      </label>
+      <label className="dk-campo-flutuante">
+        <span>Documento</span>
+        <input type="text" value={documento} onChange={(e) => setDocumento(e.target.value)} />
+      </label>
+      {erro ? <p className="dk-erro">{erro}</p> : null}
+      <div className="dk-modal-acoes">
+        <button
+          type="button"
+          className="dk-botao dk-botao-secundario dk-botao-curto"
+          onClick={aoFechar}
+          disabled={salvando}
+        >
+          Cancelar
+        </button>
+        <button type="submit" className="dk-botao dk-botao-curto" disabled={salvando}>
+          Salvar
+        </button>
+      </div>
+    </form>
   );
 }
 

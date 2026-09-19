@@ -1,5 +1,11 @@
 import { useState } from 'react';
-import type { Colega, ConversaDoDesk, EtiquetaDoDesk, RespostaProntaDoDesk } from '@pipe/contracts';
+import type {
+  Colega,
+  ConversaDoDesk,
+  EtiquetaDoDesk,
+  ItemDaConversa,
+  RespostaProntaDoDesk,
+} from '@pipe/contracts';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { Avatar } from '../../componentes/avatar';
 import { api } from '../../lib/api';
@@ -192,7 +198,10 @@ export function Conversa({
                     type="button"
                     role="menuitem"
                     className="dk-menu-item"
-                    onClick={() => setMenu(false)}
+                    onClick={() => {
+                      setMenu(false);
+                      exportarTranscricao(numero, nome, itens);
+                    }}
                   >
                     <IconeDesk nome="externo" tamanho={20} />
                     Exportar ticket
@@ -548,4 +557,27 @@ function ModalFinalizar({
 function useFilas(): { id: string; nome: string }[] {
   const leitura = useLeitura<{ filas: { id: string; nome: string }[] }>('/v1/desk/filas');
   return leitura.data?.filas ?? [];
+}
+
+/**
+ * "Exportar ticket" — sem backend novo: a thread inteira já está carregada na
+ * tela (`itens`), então a transcrição sai de um `.txt` montado aqui e baixado
+ * pelo navegador. É a versão simples do "baixar transcrição" da referência
+ * (`blip-desk-funcoes.md` §7) — sem e-mail assíncrono para o recorte de 90
+ * dias a 5 anos, que é conversa de gestor, não do atendente numa tela.
+ */
+function exportarTranscricao(numero: string, nome: string, itens: ItemDaConversa[]): void {
+  const linhas = itens.map((item) => {
+    const hora = new Date(item.criadaEm).toLocaleString('pt-BR');
+    if (item.genero === 'nota') return `[${hora}] Nota interna (${item.autor ?? '—'}): ${item.corpo}`;
+    const quem = item.direcao === 'entrada' ? nome : 'Atendente';
+    return `[${hora}] ${quem}: ${item.conteudo ?? `(${item.tipo})`}`;
+  });
+  const texto = `Ticket ${numero} — ${nome}\n\n${linhas.join('\n')}\n`;
+  const url = URL.createObjectURL(new Blob([texto], { type: 'text/plain;charset=utf-8' }));
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `ticket-${numero}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
 }

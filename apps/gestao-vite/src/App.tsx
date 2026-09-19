@@ -57,6 +57,11 @@ import { PaginaRegrasDeSla } from './paginas/cadastros/regras-sla';
 import { PaginaDados } from './paginas/cadastros/configuracoes-dados';
 import { PaginaConfiguracoesGerais } from './paginas/cadastros/configuracoes-gerais';
 import { PaginaCanais } from './paginas/cadastros/canais';
+import { CascaCanalWhatsapp } from './paginas/cadastros/canal-whatsapp/casca';
+import { AbaVisaoGeral } from './paginas/cadastros/canal-whatsapp/visao-geral';
+import { AbaPerfil } from './paginas/cadastros/canal-whatsapp/perfil';
+import { AbaConfiguracoes } from './paginas/cadastros/canal-whatsapp/configuracoes';
+import { AbaAlerta } from './paginas/cadastros/canal-whatsapp/alerta';
 import { PaginaDoContrato } from './paginas/contrato/page';
 import { PaginaDeCertificados } from './paginas/contrato/certificados/page';
 import { PaginaDeMembros } from './paginas/contrato/membros/page';
@@ -115,6 +120,12 @@ const rotasDoContato = (
       <Route path="preferencias/dados" element={<PaginaDados />} />
       <Route path="preferencias/regras" element={<PaginaRegras />} />
       <Route path="canais" element={<PaginaCanais />} />
+      <Route path="canais/whatsapp/:canalId" element={<CascaCanalWhatsapp />}>
+        <Route index element={<AbaVisaoGeral />} />
+        <Route path="perfil" element={<AbaPerfil />} />
+        <Route path="configuracoes" element={<AbaConfiguracoes />} />
+        <Route path="alerta" element={<AbaAlerta />} />
+      </Route>
     </Route>
 
     <Route path="contatos" element={<CascaDeContatos />}>
