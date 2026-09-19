@@ -23,6 +23,7 @@ import { ErroPipe } from '../../erros.js';
 import { exigirPermissao } from '../../sessao.js';
 import { carregarFluxo, classificarEstado } from '../fluxo.js';
 import { EDITAR_FLUXO } from './ciclo-de-vida-do-fluxo.js';
+import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
 
 /**
  * O ciclo EDITAR → SALVAR RASCUNHO → PUBLICAR do Builder, POR FLUXO.
@@ -95,7 +96,11 @@ async function fluxoDoBuilder(
   `);
   const atual = rows[0];
   if (!atual) throw ErroPipe.naoEncontrado('fluxo');
-  await exigirPermissao(tx, usuarioId, permissao);
+  // Editar o desenho é permissão DO FLUXO (`builder.escrever` na aba Equipe) ou a
+  // equivalente na conta — o duplo portão de `equipe-do-fluxo.ts`. Publicar continua
+  // sendo permissão de conta: a origem não tem linha de publicação no mapa por bot.
+  if (permissao === EDITAR_FLUXO) await exigirPermissaoNoFluxo(tx, usuarioId, id, 'builder.escrever');
+  else await exigirPermissao(tx, usuarioId, permissao);
   if (atual.tipo === 'roteador') {
     throw ErroPipe.conflito(
       'roteador_sem_builder',
