@@ -26,6 +26,7 @@ export interface Contato {
   tipo: string;
   imagemUrl: string | null;
   shortName: string | null;
+  descricao: string | null;
   criadoEm: Date | null;
   canalNome: string | null;
   canalTipo: string | null;

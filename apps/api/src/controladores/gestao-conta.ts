@@ -1,8 +1,6 @@
 import { Body, Controller, Get, HttpCode, Post, Req } from '@nestjs/common';
-import { and, eq, sql } from 'drizzle-orm';
-import { registrarAuditoria } from '@pipe/db';
+import { sql } from 'drizzle-orm';
 import type { Ator, TransacaoPipe } from '@pipe/db';
-import { fluxo } from '@pipe/db/schema';
 import { noTenant } from '../banco.js';
 import { ErroPipe } from '../erros.js';
 import { ComSessao, sessaoDe } from '../sessao.js';
@@ -21,18 +19,11 @@ import {
   type ResumoDoContrato,
 } from '../dominio/gestao/contrato.js';
 import { carregarImplantacao, type Implantacao } from '../dominio/gestao/implantacao.js';
-import {
-  IMAGEM,
-  conferir,
-  limparNome,
-  nomeCurto,
-  tipoRealDaImagem,
-  type RecadosDoNome,
-} from '../dominio/gestao/regras-de-nome.js';
 
 /**
- * O CONTRATO e a conta na Gestão — o painel do contrato, os membros, e a
- * criação de contato (fluxo/roteador) — por sessão de navegador.
+ * O CONTRATO e a conta na Gestão — o painel do contrato e os membros — por
+ * sessão de navegador. A criação de contato (fluxo/roteador) nasceu aqui e
+ * foi para `gestao-fluxo.ts`, junto do resto do ciclo de vida.
  *
  * A permissão é conferida AQUI, na gravação: tela escondida não é porta
  * trancada. `permissoesDe` é a mesma união de papéis que `GET /v1/eu` devolve.
@@ -50,7 +41,6 @@ async function permissoesDe(tx: TransacaoPipe, usuarioId: string): Promise<strin
 
 const LER_MEMBROS = 'conta.membros.ler';
 const ESCREVER_MEMBROS = 'conta.membros.escrever';
-const EDITAR_FLUXO = 'automacao.fluxo.editar';
 
 export interface AlvoDeMembro {
   tipo: 'usuario' | 'convite';
@@ -77,17 +67,6 @@ export interface ResultadoSimples {
 
 const falha = (erro: string): ResultadoSimples => ({ ok: false, erro });
 const conferirGravacao = (g: Gravacao): ResultadoSimples => (g.ok ? { ok: true } : falha(g.erro));
-
-export interface PedidoDeContato {
-  nome: string;
-  tipo: 'fluxo' | 'roteador';
-  /** `data:image/...;base64,...` ou nada. Os bytes decidem o tipo, não o rótulo. */
-  imagem?: string | null;
-  recados: RecadosDoNome & { nomeEmUso: string; semPermissao: string };
-}
-
-export type ResultadoDeContato =
-  { id: string; erro?: undefined } | { id?: undefined; erro: string };
 
 @Controller('v1/gestao')
 export class ControladorGestaoConta {
@@ -180,62 +159,4 @@ export class ControladorGestaoConta {
     const sessao = sessaoDe(requisicao);
     return noTenant(sessao.tenantId, (tx) => carregarImplantacao(tx));
   }
-
-  /**
-   * Criar um contato (fluxo ou roteador) — o `gravarContato` de
-   * `apps/gestao/src/app/criar/gravar.ts`, tal e qual: nome saneado e conferido
-   * pelas regras da origem, foto lida pelos BYTES, nome único na prática.
-   */
-  @Post('fluxos')
-  @HttpCode(200)
-  @ComSessao()
-  async criarContato(
-    @Req() requisicao: RequisicaoComSessao,
-    @Body() corpo: PedidoDeContato,
-  ): Promise<ResultadoDeContato> {
-    const sessao = sessaoDe(requisicao);
-    const tipo = corpo?.tipo === 'roteador' ? 'roteador' : 'fluxo';
-    const recados = corpo?.recados;
-    if (!recados) throw ErroPipe.requisicao('recados_ausentes', 'Faltam os recados da tela.');
-    const nome = limparNome(String(corpo.nome ?? '')).trim();
-    const recusa = conferir(nome, recados);
-    if (recusa) return { erro: recusa.motivo };
-    const imagemUrl = lerImagem(corpo.imagem);
-
-    return noTenant(sessao.tenantId, async (tx) => {
-      const permissoes = await permissoesDe(tx, sessao.usuarioId);
-      if (!permissoes.includes(EDITAR_FLUXO)) return { erro: recados.semPermissao };
-      const [conflito] = await tx
-        .select({ id: fluxo.id })
-        .from(fluxo)
-        .where(and(eq(fluxo.tenantId, sessao.tenantId), eq(fluxo.nome, nome)))
-        .limit(1);
-      if (conflito) return { erro: recados.nomeEmUso };
-      const [criado] = await tx
-        .insert(fluxo)
-        .values({ tenantId: sessao.tenantId, nome, tipo, shortName: nomeCurto(nome), imagemUrl })
-        .returning({ id: fluxo.id });
-      if (!criado) return { erro: recados.nomeEmUso };
-      await registrarAuditoria(tx, sessao.tenantId, {
-        ator: { tipo: 'usuario', id: sessao.usuarioId },
-        acao: 'criou',
-        objetoTipo: 'fluxo',
-        objetoId: criado.id,
-        depois: { nome, tipo, estado: 'rascunho' },
-      });
-      return { id: criado.id };
-    });
-  }
-}
-
-/** A foto, se veio e se é mesmo imagem: o tipo sai dos bytes, nunca do rótulo. */
-function lerImagem(dataUrl: string | null | undefined): string | null {
-  if (!dataUrl) return null;
-  const m = /^data:[^;]+;base64,([A-Za-z0-9+/=]+)$/.exec(dataUrl);
-  if (!m) return null;
-  const bytes = new Uint8Array(Buffer.from(m[1] ?? '', 'base64'));
-  if (bytes.byteLength === 0 || bytes.byteLength > IMAGEM.maxBytes) return null;
-  const mime = tipoRealDaImagem(bytes);
-  if (!mime) return null;
-  return `data:${mime};base64,${Buffer.from(bytes).toString('base64')}`;
 }

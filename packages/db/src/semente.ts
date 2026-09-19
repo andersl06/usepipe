@@ -52,6 +52,9 @@ export const CATALOGO_PERMISSOES = [
   ['monitoria.coach.gerenciar', 'monitoria', 'Criar e acompanhar plano de coach'],
   ['automacao.fluxo.editar', 'automacao', 'Editar fluxo de conversa'],
   ['automacao.fluxo.publicar', 'automacao', 'Publicar versão de fluxo'],
+  /* "Somente um admin pode deletar o chatbot" (`deleteChatbotPermissionDenied`
+     da origem): excluir é permissão à parte, que o `member` não tem. Migração 0023. */
+  ['automacao.fluxo.excluir', 'automacao', 'Excluir fluxo de conversa'],
   ['automacao.workflow.gerenciar', 'automacao', 'Criar e ativar workflow'],
   ['consulta.executar', 'automacao', 'Executar consulta'],
   ['consulta.salvar', 'automacao', 'Salvar consulta'],
@@ -148,12 +151,19 @@ const DO_SUPERVISOR = [
   'crm.oportunidade.ver',
 ];
 
-/** Gestor vê e configura tudo do negócio; o que mexe em identidade fica no administrador. */
+/**
+ * Gestor vê e configura tudo do negócio; o que mexe em identidade fica no
+ * administrador — e excluir fluxo também, que na origem é só do admin.
+ */
 const DO_GESTOR = TODAS.filter(
   (codigo) =>
-    !['papel.gerenciar', 'chave_api.gerenciar', 'tenant.configurar', 'contato.excluir'].includes(
-      codigo,
-    ),
+    ![
+      'papel.gerenciar',
+      'chave_api.gerenciar',
+      'tenant.configurar',
+      'contato.excluir',
+      'automacao.fluxo.excluir',
+    ].includes(codigo),
 );
 
 /**
@@ -171,6 +181,7 @@ export const PAPEIS_DA_CONTA = [
     permissoes: [
       ...CATALOGO_PERMISSOES.map(([codigo]) => codigo).filter((c) => c.startsWith('conta.')),
       'automacao.fluxo.editar',
+      'automacao.fluxo.excluir',
     ],
   },
   {

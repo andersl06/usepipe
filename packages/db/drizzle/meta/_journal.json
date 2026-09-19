@@ -155,6 +155,20 @@
       "when": 1789320000000,
       "tag": "0021_papel_da_conta",
       "breakpoints": true
+    },
+    {
+      "idx": 22,
+      "version": "7",
+      "when": 1789330000000,
+      "tag": "0022_fluxo_descricao",
+      "breakpoints": true
+    },
+    {
+      "idx": 23,
+      "version": "7",
+      "when": 1789340000000,
+      "tag": "0023_permissao_excluir_fluxo",
+      "breakpoints": true
     }
   ]
 }

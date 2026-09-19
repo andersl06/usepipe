@@ -36,6 +36,7 @@ export async function carregarContato(tx: TransacaoPipe, tid: string, id: string
       tipo: fluxo.tipo,
       imagemUrl: fluxo.imagemUrl,
       shortName: fluxo.shortName,
+      descricao: fluxo.descricao,
       criadoEm: fluxo.criadoEm,
       canalNome: canal.nome,
       canalTipo: canal.tipo,

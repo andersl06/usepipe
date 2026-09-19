@@ -17,6 +17,8 @@ export interface ContatoDoFluxo {
   tipo: string;
   imagemUrl: string | null;
   shortName: string | null;
+  /** O "Descrição" de "Editar Fluxo"; opcional lá, nula aqui. */
+  descricao: string | null;
   criadoEm: string | null;
   canalNome: string | null;
   canalTipo: string | null;

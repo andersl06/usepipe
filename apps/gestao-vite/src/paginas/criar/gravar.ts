@@ -6,8 +6,9 @@ import { IMAGEM, type RecadosDoNome } from './regras-de-nome';
  * Criar um contato (fluxo ou roteador): `POST /v1/gestao/fluxos`.
  *
  * A validação de nome, a permissão e a leitura da foto pelos bytes ficam na
- * `api` (`gestao-conta.ts`), com as regras de `regras-de-nome.ts`. Aqui a foto
- * só vira `data:` para atravessar o JSON — e nem vai se já passou do teto.
+ * `api` (`gestao-fluxo.ts` → `dominio/gestao/ciclo-de-vida-do-fluxo.ts`), com
+ * as regras de `regras-de-nome.ts`. Aqui a foto só vira `data:` para
+ * atravessar o JSON — e nem vai se já passou do teto.
  */
 export type Resultado = { id: string; erro?: undefined } | { id?: undefined; erro: string };
 

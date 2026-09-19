@@ -25,6 +25,9 @@ export const ESTADOS_FLUXO = ['rascunho', 'publicado', 'arquivado'] as const;
 /** Os dois papéis do mesmo contato: conversa própria, ou distribuidor. */
 export const TIPOS_FLUXO = ['fluxo', 'roteador'] as const;
 
+/** O `ng-maxlength="160"` do campo "Descrição" de "Editar Fluxo" na origem. */
+export const DESCRICAO_FLUXO_MAX = 160;
+
 export const fluxo = pgTable(
   'fluxo',
   {
@@ -58,11 +61,22 @@ export const fluxo = pgTable(
      * unicidade continua sendo conferida sobre `nome`. Migration 0020.
      */
     shortName: text('short_name'),
+    /**
+     * A descrição do contato — o `description` de "Editar Fluxo"
+     * (`/configurations/basic`) da plataforma de origem.
+     *
+     * Opcional (o `<textarea>` não tem `required`), e quando vem tem de ter
+     * entre 2 e 160 caracteres (`ng-minlength="2"`, `ng-maxlength="160"`). O
+     * teto é `check` porque é o único limite que o banco consegue guardar
+     * sozinho; o mínimo é da `api`. Migration 0022.
+     */
+    descricao: text('descricao'),
     ...carimbos(),
   },
   (t) => [
     listaCheck('fluxo_estado_ck', t.estado, ESTADOS_FLUXO),
     listaCheck('fluxo_tipo_ck', t.tipo, TIPOS_FLUXO),
+    check('fluxo_descricao_ck', sql.raw(`char_length("descricao") <= ${DESCRICAO_FLUXO_MAX}`)),
   ],
 );
 

@@ -1,8 +1,26 @@
-import { Controller, Get, Param, Query, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
 import { noTenant } from '../banco.js';
 import { ErroPipe } from '../erros.js';
 import { ComSessao, sessaoDe } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
+import {
+  criarFluxo,
+  editarFluxo,
+  excluirFluxo,
+  type FluxoGravado,
+} from '../dominio/gestao/ciclo-de-vida-do-fluxo.js';
+import type { RecadosDoNome } from '../dominio/gestao/regras-de-nome.js';
 import {
   carregarCanalDoFluxo,
   carregarGradeDoPortal,
@@ -35,6 +53,11 @@ import type {
  * pedir aqui. Uma rota por leitura, o mesmo dado, e o tenant vem da sessão —
  * nunca da URL.
  *
+ * O ciclo de vida do contato (criar, editar, excluir) também mora aqui, na
+ * mesma casca: `POST`, `PATCH /:id`, `DELETE /:id`. A regra é de
+ * `dominio/gestao/ciclo-de-vida-do-fluxo.ts`; o controlador só sabe de sessão
+ * e do contrato de cada tela.
+ *
  * `id` é o `fluxo.id`. Fora do padrão de uuid a resposta é 404 antes de ir ao
  * banco: URL é texto de fora, e o Postgres recusa uuid malformado com 500.
  */
@@ -51,8 +74,114 @@ export interface CascaDoContato {
   fuso: string;
 }
 
+/**
+ * O que a tela de criar manda (`apps/gestao-vite/src/paginas/criar/gravar.ts`).
+ *
+ * Os `recados` vêm da tela porque são a ÚNICA parte da regra que muda entre
+ * criar fluxo e criar roteador: a frase da origem é escrita com "fluxo" e a
+ * tela do roteador troca o substantivo (`regras-de-nome.ts`). A regra é a
+ * mesma; a palavra não.
+ */
+export interface PedidoDeContato {
+  nome: string;
+  tipo: 'fluxo' | 'roteador';
+  /** `data:image/...;base64,...` ou nada. Os bytes decidem o tipo, não o rótulo. */
+  imagem?: string | null;
+  recados: RecadosDoNome & { nomeEmUso: string; semPermissao: string };
+}
+
+/**
+ * Sucesso é `{ id }`; recusa é `{ erro }` com a frase da tela, em 200 — o
+ * contrato que a tela de criar já espera (ela leva o `erro` de volta ao passo
+ * do nome pela URL). É a exceção ao padrão `ErroPipe` deste controlador, e
+ * fica restrita ao POST: o PATCH e o DELETE respondem status e
+ * `{ erro: { codigo, mensagem } }`, como o resto da `api`.
+ */
+export type ResultadoDeContato =
+  { id: string; erro?: undefined } | { id?: undefined; erro: string };
+
+export interface PedidoDeEdicaoDeContato {
+  nome?: string;
+  /** `null` ou vazio apaga; ausente não mexe. */
+  descricao?: string | null;
+  /** `data:` troca, `null` tira, ausente não mexe. */
+  imagem?: string | null;
+}
+
 @Controller('v1/gestao/fluxos')
 export class ControladorGestaoFluxo {
+  /**
+   * Criar um contato (fluxo ou roteador). A regra inteira — permissão, nome,
+   * foto, nome único — mora em `ciclo-de-vida-do-fluxo.ts`; aqui só se traduz
+   * cada recusa para a frase que a tela pediu.
+   */
+  @Post()
+  @HttpCode(200)
+  @ComSessao()
+  async criar(
+    @Req() requisicao: RequisicaoComSessao,
+    @Body() corpo: PedidoDeContato,
+  ): Promise<ResultadoDeContato> {
+    const sessao = sessaoDe(requisicao);
+    const recados = corpo?.recados;
+    if (!recados) throw ErroPipe.requisicao('recados_ausentes', 'Faltam os recados da tela.');
+    const frases: Record<string, string | undefined> = {
+      nome_tamanho: recados.tamanho,
+      nome_comeco: recados.comecoInvalido,
+      nome_em_uso: recados.nomeEmUso,
+      sem_permissao: recados.semPermissao,
+    };
+    try {
+      return await noTenant(sessao.tenantId, (tx) =>
+        criarFluxo(tx, sessao.tenantId, sessao.usuarioId, {
+          nome: String(corpo.nome ?? ''),
+          tipo: corpo.tipo === 'roteador' ? 'roteador' : 'fluxo',
+          imagem: corpo.imagem ?? null,
+        }),
+      );
+    } catch (erro) {
+      const frase = erro instanceof ErroPipe ? frases[erro.codigo] : undefined;
+      if (!frase) throw erro;
+      return { erro: frase };
+    }
+  }
+
+  /** Editar nome, descrição e imagem — o "Salvar" de "Editar Fluxo". */
+  @Patch(':id')
+  @ComSessao()
+  async editar(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: PedidoDeEdicaoDeContato,
+  ): Promise<FluxoGravado> {
+    const sessao = sessaoDe(requisicao);
+    uuidOu404(id, 'fluxo');
+    /* JSON é texto de fora: o que não for string (ou `null` onde `null` vale)
+       é tratado como ausente, e ausente é "não mexa". */
+    const nome = corpo?.nome;
+    const descricao = corpo?.descricao;
+    const imagem = corpo?.imagem;
+    return noTenant(sessao.tenantId, (tx) =>
+      editarFluxo(tx, sessao.tenantId, sessao.usuarioId, id, {
+        nome: typeof nome === 'string' ? nome : undefined,
+        descricao: descricao === null || typeof descricao === 'string' ? descricao : undefined,
+        imagem: imagem === null || typeof imagem === 'string' ? imagem : undefined,
+      }),
+    );
+  }
+
+  /** Excluir — arquiva; o porquê está em `ciclo-de-vida-do-fluxo.ts`. */
+  @Delete(':id')
+  @HttpCode(204)
+  @ComSessao()
+  async excluir(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<void> {
+    const sessao = sessaoDe(requisicao);
+    uuidOu404(id, 'fluxo');
+    await noTenant(sessao.tenantId, (tx) =>
+      excluirFluxo(tx, sessao.tenantId, sessao.usuarioId, id),
+    );
+  }
+
   /** A grade do portal. Fora da lista de tamanhos, cai no primeiro; página inválida vira 1. */
   @Get()
   @ComSessao()
