@@ -12,10 +12,19 @@ import {
   tenant,
 } from '@pipe/db/schema';
 import type { TransacaoPipe, Ator } from '@pipe/db';
+import { exigirPermissao } from '../../sessao.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
   fn(tx);
+
+/**
+ * Reaproveitada do catálogo — "Configurar marca, fuso e plano". As três
+ * escritas de Configurações gerais (identidade, pesquisa, etiqueta de
+ * encerramento) são exatamente isso: nenhuma tinha permissão nenhuma antes
+ * da tarefa de cadastros do Atendimento (item 7).
+ */
+export const CONFIGURACOES_GERAIS_GERENCIAR = 'tenant.configurar';
 
 /**
  * O que está configurado no tenant: o retrato, e o que o muda.
@@ -352,6 +361,9 @@ export async function gravarIdentidade(
   ator: Ator,
   entrada: IdentidadeParaGravar,
 ): Promise<Gravacao> {
+  if (ator.tipo === 'usuario' && ator.id) {
+    await exigirPermissao(tx, ator.id, CONFIGURACOES_GERAIS_GERENCIAR);
+  }
   return consultar(tx, async (tx) => {
     const [antes] = await tx
       .select({ nome: tenant.nome, fuso: tenant.fuso, idioma: tenant.idioma })
@@ -393,6 +405,9 @@ export async function gravarPesquisa(
   ator: Ator,
   entrada: PesquisaParaGravar,
 ): Promise<Gravacao> {
+  if (ator.tipo === 'usuario' && ator.id) {
+    await exigirPermissao(tx, ator.id, CONFIGURACOES_GERAIS_GERENCIAR);
+  }
   const { id, ...valores } = entrada;
 
   return consultar(tx, async (tx) => {
@@ -456,6 +471,9 @@ export async function gravarEtiquetasDeEncerramento(
   ator: Ator,
   escolhidas: readonly string[],
 ): Promise<Gravacao> {
+  if (ator.tipo === 'usuario' && ator.id) {
+    await exigirPermissao(tx, ator.id, CONFIGURACOES_GERAIS_GERENCIAR);
+  }
   return consultar(tx, async (tx) => {
     const antes = await tx
       .select({ nome: etiqueta.nome })

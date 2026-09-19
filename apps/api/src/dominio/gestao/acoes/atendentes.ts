@@ -1,12 +1,7 @@
 import type { Campos, Resultado } from './campos.js';
-import { and, eq } from 'drizzle-orm';
-import { fila, horarioAtendimento, motivoPausa } from '@pipe/db/schema';
 import type { TransacaoPipe, Ator } from '@pipe/db';
-import { corValida } from '../cores-de-fila.js';
-
-/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
-const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
-  fn(tx);
+import { ErroPipe } from '../../../erros.js';
+import { criarFila, criarMotivoPausa } from '../cadastros.js';
 
 /**
  * Server Actions de Atendentes — filas e motivos de pausa.
@@ -15,9 +10,15 @@ const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>):
  * formulário volta como valor, não como exceção, para o `useActionState` da
  * tela mostrar a mensagem sem try/catch.
  *
- * Cada ação faz UMA transação, com o `select` de conflito antes do `insert` e
- * as consultas em série — `Promise.all` dentro do `comTenant` derruba o
- * `set_config('pipe.tenant_id')` e a RLS deixa de filtrar em silêncio.
+ * As duas ações abaixo são casca fina sobre `criarFila`/`criarMotivoPausa` de
+ * `cadastros.ts` — as mesmas que as rotas REST novas (`POST
+ * /v1/gestao/atendentes/filas`, `POST /v1/gestao/atendentes/pausas`) chamam.
+ * Antes da tarefa de cadastros do Atendimento cada uma validava e gravava
+ * aqui, SEM permissão nenhuma — duas implementações do mesmo cadastro
+ * discordariam cedo ou tarde. `ErroPipe` (que `exigirPermissao`,
+ * `nomeDeFilaConferido` etc. lançam) vira `Resultado` aqui, e só aqui: é a
+ * fronteira entre o padrão REST (status de verdade) e o padrão de formulário
+ * (`Resultado` em 200) que este arquivo sempre teve.
  */
 
 const OK: Resultado = { ok: true };
@@ -26,17 +27,15 @@ function falha(erro: string): Resultado {
   return { ok: false, erro };
 }
 
-/** Inteiro dentro de uma faixa, ou `null` quando o campo veio vazio ou torto. */
-function inteiro(bruto: string | null, min: number, max: number): number | null {
-  const texto = String(bruto ?? '').trim();
-  if (!texto) return null;
-  const n = Number(texto);
-  if (!Number.isInteger(n) || n < min || n > max) return null;
-  return n;
-}
-
-function marcado(dados: Campos, campo: string): boolean {
-  return dados.get(campo) !== null;
+/** `ErroPipe` de validação/permissão/conflito vira a frase da tela; qualquer outro erro sobe. */
+async function comoResultado(fn: () => Promise<unknown>): Promise<Resultado> {
+  try {
+    await fn();
+    return OK;
+  } catch (erro) {
+    if (erro instanceof ErroPipe) return falha(erro.message);
+    throw erro;
+  }
 }
 
 // -------------------------------------------------------------------- filas
@@ -44,57 +43,21 @@ function marcado(dados: Campos, campo: string): boolean {
 export async function salvarFila(
   tx: TransacaoPipe,
   tid: string,
-  _ator: Ator,
+  ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
-  const nome = String(dados.get('nome') ?? '').trim();
-  const cor = String(dados.get('cor') ?? '').trim();
-  const horarioId = String(dados.get('horarioId') ?? '').trim();
-  // Teto de 200 não é gosto: acima disso o campo deixou de ser capacidade e
-  // virou "sem limite", e sem limite a distribuição por carga não decide nada.
-  const capacidadePadrao = inteiro(dados.get('capacidadePadrao'), 1, 200);
-  const ordem = inteiro(dados.get('ordem'), 0, 999);
-
-  if (!nome) return falha('Informe o nome da fila.');
-  if (cor && !corValida(cor)) return falha('Cor fora da paleta.');
-  if (capacidadePadrao === null) {
-    return falha(
-      'A capacidade padrão é um inteiro de 1 a 200 — é quantas conversas simultâneas cada atendente da fila aguenta.',
-    );
-  }
-  if (ordem === null) return falha('A ordem é um inteiro de 0 a 999.');
-
-  return consultar(tx, async (tx) => {
-    // `fila_tenant_nome_uk` é único de verdade. O `select` existe mesmo assim
-    // porque erro de constraint vira 500 sem contexto, e quem cadastra precisa
-    // saber que o nome já está em uso.
-    const [conflito] = await tx
-      .select({ id: fila.id })
-      .from(fila)
-      .where(and(eq(fila.tenantId, tid), eq(fila.nome, nome)))
-      .limit(1);
-    if (conflito) return falha(`Já existe uma fila chamada "${nome}".`);
-
-    if (horarioId) {
-      const [horario] = await tx
-        .select({ id: horarioAtendimento.id })
-        .from(horarioAtendimento)
-        .where(and(eq(horarioAtendimento.tenantId, tid), eq(horarioAtendimento.id, horarioId)))
-        .limit(1);
-      if (!horario) return falha('Horário de atendimento não encontrado.');
-    }
-
-    await tx.insert(fila).values({
-      tenantId: tid,
-      nome,
-      cor: cor || null,
-      horarioId: horarioId || null,
-      capacidadePadrao,
-      ordem,
-      ativa: marcado(dados, 'ativa'),
-    });
-    return OK;
-  });
+  const capacidadeBruta = dados.get('capacidadePadrao');
+  const ordemBruta = dados.get('ordem');
+  return comoResultado(() =>
+    criarFila(tx, tid, ator.id ?? '', {
+      nome: String(dados.get('nome') ?? '').trim(),
+      cor: dados.get('cor'),
+      horarioId: dados.get('horarioId'),
+      capacidadePadrao: Number(capacidadeBruta ?? Number.NaN),
+      ordem: ordemBruta === null ? 0 : Number(ordemBruta),
+      ativa: dados.get('ativa') !== null,
+    }),
+  );
 }
 
 // ------------------------------------------------------------------- pausas
@@ -102,38 +65,16 @@ export async function salvarFila(
 export async function salvarMotivoPausa(
   tx: TransacaoPipe,
   tid: string,
-  _ator: Ator,
+  ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
-  const nome = String(dados.get('nome') ?? '').trim();
-  // 480 minutos = uma jornada. Pausa sugerida maior que o expediente é erro de
-  // digitação, não configuração.
-  const duracaoSugeridaMin = inteiro(dados.get('duracaoSugeridaMin'), 1, 480);
-  const duracaoInformada = String(dados.get('duracaoSugeridaMin') ?? '').trim();
-
-  if (!nome) return falha('Informe o nome do motivo.');
-  if (duracaoInformada && duracaoSugeridaMin === null) {
-    return falha('A duração sugerida é um inteiro de 1 a 480 minutos.');
-  }
-
-  return consultar(tx, async (tx) => {
-    // `motivo_pausa` não tem índice único de nome — a unicidade é regra desta
-    // tela. Sem ela, dois "Almoço" partem o relatório de uso em duas linhas que
-    // deveriam ser uma.
-    const [conflito] = await tx
-      .select({ id: motivoPausa.id })
-      .from(motivoPausa)
-      .where(and(eq(motivoPausa.tenantId, tid), eq(motivoPausa.nome, nome)))
-      .limit(1);
-    if (conflito) return falha(`Já existe um motivo chamado "${nome}".`);
-
-    await tx.insert(motivoPausa).values({
-      tenantId: tid,
-      nome,
-      duracaoSugeridaMin,
-      contaComoProdutivo: marcado(dados, 'contaComoProdutivo'),
-      ativo: marcado(dados, 'ativo'),
-    });
-    return OK;
-  });
+  const duracaoBruta = dados.get('duracaoSugeridaMin');
+  return comoResultado(() =>
+    criarMotivoPausa(tx, tid, ator.id ?? '', {
+      nome: String(dados.get('nome') ?? '').trim(),
+      duracaoSugeridaMin: duracaoBruta === null || duracaoBruta === '' ? null : Number(duracaoBruta),
+      contaComoProdutivo: dados.get('contaComoProdutivo') !== null,
+      ativo: dados.get('ativo') !== null,
+    }),
+  );
 }

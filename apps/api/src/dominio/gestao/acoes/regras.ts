@@ -2,7 +2,9 @@ import type { Campos, Resultado } from './campos.js';
 import { and, eq } from 'drizzle-orm';
 import { horarioAtendimento, horarioExcecao, horarioFaixa } from '@pipe/db/schema';
 import type { TransacaoPipe, Ator } from '@pipe/db';
-import { alternarAtivaDaRegraFila, gravarRegraFila } from '../cadastros.js';
+import { ErroPipe } from '../../../erros.js';
+import { exigirPermissao } from '../../../sessao.js';
+import { HORARIO_GERENCIAR, alternarAtivaDaRegraFila, gravarRegraFila } from '../cadastros.js';
 import { campoValido, operadorValido, type OperadorDeRegra } from '../regra-fila.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
@@ -54,14 +56,34 @@ function minutos(relogio: string): number {
   return Number(h) * 60 + Number(m);
 }
 
+/** `ErroPipe` (de `exigirPermissao`) vira a frase da tela; qualquer outro erro sobe. */
+async function comoResultado(fn: () => Promise<Resultado>): Promise<Resultado> {
+  try {
+    return await fn();
+  } catch (erro) {
+    if (erro instanceof ErroPipe) return falha(erro.message);
+    throw erro;
+  }
+}
+
 // ------------------------------------------------------------------ horário
 
 export async function salvarHorario(
   tx: TransacaoPipe,
   tid: string,
-  _ator: Ator,
+  ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
+  return comoResultado(() => salvarHorarioInterno(tx, tid, ator, dados));
+}
+
+async function salvarHorarioInterno(
+  tx: TransacaoPipe,
+  tid: string,
+  ator: Ator,
+  dados: Campos,
+): Promise<Resultado> {
+  await exigirPermissao(tx, ator.id ?? '', HORARIO_GERENCIAR);
   const nome = String(dados.get('nome') ?? '').trim();
   const fusoBruto = String(dados.get('fuso') ?? '').trim();
 
@@ -93,9 +115,19 @@ export async function salvarHorario(
 export async function salvarFaixa(
   tx: TransacaoPipe,
   tid: string,
-  _ator: Ator,
+  ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
+  return comoResultado(() => salvarFaixaInterna(tx, tid, ator, dados));
+}
+
+async function salvarFaixaInterna(
+  tx: TransacaoPipe,
+  tid: string,
+  ator: Ator,
+  dados: Campos,
+): Promise<Resultado> {
+  await exigirPermissao(tx, ator.id ?? '', HORARIO_GERENCIAR);
   const horarioId = String(dados.get('horarioId') ?? '').trim();
   const diaBruto = String(dados.get('diaSemana') ?? '').trim();
   const inicio = String(dados.get('inicio') ?? '').trim();
@@ -147,9 +179,19 @@ export async function salvarFaixa(
 export async function salvarExcecao(
   tx: TransacaoPipe,
   tid: string,
-  _ator: Ator,
+  ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
+  return comoResultado(() => salvarExcecaoInterna(tx, tid, ator, dados));
+}
+
+async function salvarExcecaoInterna(
+  tx: TransacaoPipe,
+  tid: string,
+  ator: Ator,
+  dados: Campos,
+): Promise<Resultado> {
+  await exigirPermissao(tx, ator.id ?? '', HORARIO_GERENCIAR);
   const horarioId = String(dados.get('horarioId') ?? '').trim();
   const data = String(dados.get('data') ?? '').trim();
   const fechado = dados.get('fechado') !== null;

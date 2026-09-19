@@ -1,11 +1,41 @@
 import { useState } from 'react';
-import { Botao } from '@pipe/ui';
+import { Botao, BotaoDeIcone } from '@pipe/ui';
 import { useLeitura } from '../../lib/consulta';
-import type { UsoDePausas } from '../../lib/cadastros';
+import type { MotivoDePausa, UsoDePausas } from '../../lib/cadastros';
+import { alternarMotivoPausa, excluirMotivoPausa } from '../../lib/cadastros-gravar';
 import { duracaoLonga, numero } from '../../lib/formato';
 import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
 import { FormularioMotivoPausa } from './atendentes-pausas-formulario';
 import { Modal } from './_modal';
+
+/** O switch + o "Excluir" do cartão-linha — `PATCH`/`DELETE` em `.../pausas/:id`. */
+function AcoesDoMotivo({ motivo }: { motivo: MotivoDePausa }) {
+  const alternar = async () => {
+    const r = await alternarMotivoPausa(motivo.id, motivo.ativo);
+    if (!r.ok) window.alert(r.erro);
+  };
+  const excluir = async () => {
+    if (!window.confirm(`Excluir o motivo "${motivo.nome}"? Esta ação não pode ser desfeita.`)) return;
+    const r = await excluirMotivoPausa(motivo.id);
+    if (!r.ok) window.alert(r.erro);
+  };
+  return (
+    <>
+      <button
+        type="button"
+        className="interruptor"
+        role="switch"
+        aria-checked={motivo.ativo}
+        aria-label={motivo.ativo ? `Desativar o motivo ${motivo.nome}` : `Ativar o motivo ${motivo.nome}`}
+        title={motivo.ativo ? 'Desativar este motivo' : 'Ativar este motivo'}
+        onClick={() => void alternar()}
+      >
+        <span className="interruptor-bolinha" />
+      </button>
+      <BotaoDeIcone nome="x" rotulo={`Excluir o motivo ${motivo.nome}`} onClick={() => void excluir()} />
+    </>
+  );
+}
 
 /**
  * Pausas personalizadas.
@@ -27,8 +57,9 @@ import { Modal } from './_modal';
  * `lib/cadastros.ts`): `packages/core/src/esforco/` não conhece `pausa` nem
  * `motivo_pausa`, só o intervalo entre mensagens.
  *
- * Sem exclusão por cartão: a API não tem "excluir motivo de pausa" hoje — o
- * ícone "Excluir" do cartão deles (§5) fica de fora.
+ * Toggle e exclusão por cartão: `lib/cadastros.ts` tem `alternarMotivoPausa`/
+ * `excluirMotivoPausa` (`PATCH`/`DELETE` em `/v1/gestao/atendentes/pausas/:id`)
+ * — o ícone "Excluir" do cartão deles (§5) entra, com `window.confirm` antes.
  */
 
 /** Diferença entre o observado e o sugerido, em português corrente. */
@@ -62,6 +93,7 @@ export function PaginaPausas() {
         ],
         situacao: m.ativo ? 'Ativo' : 'Desativado',
         ativa: m.ativo,
+        acao: <AcoesDoMotivo motivo={m} />,
         rodape: [
           m.contaComoProdutivo ? 'Conta como produtivo' : 'Conta como fora do trabalho',
           `${numero(m.pausas)} pausa(s) em ${dias}d`,

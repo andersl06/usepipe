@@ -176,6 +176,13 @@
       "when": 1789350000000,
       "tag": "0024_roteador_servicos",
       "breakpoints": true
+    },
+    {
+      "idx": 30,
+      "version": "7",
+      "when": 1789360000000,
+      "tag": "0030_permissoes_cadastros_atendimento",
+      "breakpoints": true
     }
   ]
 }

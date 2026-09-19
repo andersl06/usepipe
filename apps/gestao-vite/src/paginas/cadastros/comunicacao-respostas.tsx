@@ -1,10 +1,48 @@
 import { useState } from 'react';
-import { Botao } from '@pipe/ui';
+import { Botao, BotaoDeIcone } from '@pipe/ui';
 import { useLeitura } from '../../lib/consulta';
 import type { RespostaProntaListada } from '../../lib/comunicacao';
+import { alternarRespostaPronta, excluirRespostaPronta } from '../../lib/comunicacao-gravar';
 import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
 import { FormularioRespostaPronta } from './comunicacao-respostas-formulario';
 import { Modal } from './_modal';
+
+/** O switch + o "Excluir" do cartão-linha — `PATCH`/`DELETE` em `.../respostas-prontas/:id`. */
+function AcoesDaResposta({ resposta }: { resposta: RespostaProntaListada }) {
+  const alternar = async () => {
+    const r = await alternarRespostaPronta(resposta.id, resposta.ativa);
+    if (!r.ok) window.alert(r.erro);
+  };
+  const excluir = async () => {
+    if (!window.confirm(`Excluir a resposta "${resposta.titulo}"? Esta ação não pode ser desfeita.`)) {
+      return;
+    }
+    const r = await excluirRespostaPronta(resposta.id);
+    if (!r.ok) window.alert(r.erro);
+  };
+  return (
+    <>
+      <button
+        type="button"
+        className="interruptor"
+        role="switch"
+        aria-checked={resposta.ativa}
+        aria-label={
+          resposta.ativa ? `Desativar a resposta ${resposta.titulo}` : `Ativar a resposta ${resposta.titulo}`
+        }
+        title={resposta.ativa ? 'Desativar esta resposta' : 'Ativar esta resposta'}
+        onClick={() => void alternar()}
+      >
+        <span className="interruptor-bolinha" />
+      </button>
+      <BotaoDeIcone
+        nome="x"
+        rotulo={`Excluir a resposta ${resposta.titulo}`}
+        onClick={() => void excluir()}
+      />
+    </>
+  );
+}
 
 /**
  * Respostas prontas — as da empresa. As pessoais o atendente cria e organiza
@@ -50,6 +88,7 @@ export function PaginaRespostasProntas() {
         ],
         situacao: r.ativa ? 'Ativa' : 'Desativada',
         ativa: r.ativa,
+        acao: <AcoesDaResposta resposta={r} />,
         procura: `${r.titulo} ${r.atalho}`.toLowerCase(),
       })),
     },

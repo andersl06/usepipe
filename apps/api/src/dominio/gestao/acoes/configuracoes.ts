@@ -1,5 +1,6 @@
 import type { TransacaoPipe, Ator } from '@pipe/db';
 import type { Campos, Resultado } from './campos.js';
+import { ErroPipe } from '../../../erros.js';
 import {
   gravarEtiquetasDeEncerramento,
   gravarIdentidade,
@@ -66,8 +67,13 @@ export async function salvarIdentidade(
     return falha(`"${fusoBruto}" não é um fuso IANA conhecido. Exemplo: America/Sao_Paulo.`);
   }
 
-  const gravado = await gravarIdentidade(tx, tid, ator, { nome, fuso, idioma });
-  if (!gravado.ok) return falha(gravado.erro);
+  try {
+    const gravado = await gravarIdentidade(tx, tid, ator, { nome, fuso, idioma });
+    if (!gravado.ok) return falha(gravado.erro);
+  } catch (erro) {
+    if (erro instanceof ErroPipe) return falha(erro.message);
+    throw erro;
+  }
 
   // O fuso é o "hoje" de todo cartão e de todo relatório: uma tela só não basta.
   return OK;
@@ -102,16 +108,21 @@ export async function salvarPesquisa(
   const tipo: TipoDePesquisa = tipoBruto;
   const escala = ESCALA_POR_TIPO[tipo];
 
-  const gravado = await gravarPesquisa(tx, tid, ator, {
-    id,
-    tipo,
-    escalaMin: escala.min,
-    escalaMax: escala.max,
-    pergunta,
-    disparo,
-    ativa,
-  });
-  if (!gravado.ok) return falha(gravado.erro);
+  try {
+    const gravado = await gravarPesquisa(tx, tid, ator, {
+      id,
+      tipo,
+      escalaMin: escala.min,
+      escalaMax: escala.max,
+      pergunta,
+      disparo,
+      ativa,
+    });
+    if (!gravado.ok) return falha(gravado.erro);
+  } catch (erro) {
+    if (erro instanceof ErroPipe) return falha(erro.message);
+    throw erro;
+  }
   return OK;
 }
 
@@ -142,7 +153,12 @@ export async function salvarEtiquetasDeEncerramento(
     );
   }
 
-  const gravado = await gravarEtiquetasDeEncerramento(tx, tid, ator, escolhidas);
-  if (!gravado.ok) return falha(gravado.erro);
+  try {
+    const gravado = await gravarEtiquetasDeEncerramento(tx, tid, ator, escolhidas);
+    if (!gravado.ok) return falha(gravado.erro);
+  } catch (erro) {
+    if (erro instanceof ErroPipe) return falha(erro.message);
+    throw erro;
+  }
   return OK;
 }

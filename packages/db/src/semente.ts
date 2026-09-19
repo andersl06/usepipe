@@ -42,6 +42,9 @@ export const CATALOGO_PERMISSOES = [
   ['fila.gerenciar', 'gestao', 'Criar, editar e desativar fila'],
   ['regra.gerenciar', 'gestao', 'Gerenciar regras de fila, prioridade e SLA'],
   ['horario.gerenciar', 'gestao', 'Gerenciar horário de atendimento e feriado'],
+  /* Migração 0030: nenhuma permissão cobria motivo de pausa nem resposta pronta. */
+  ['pausa.gerenciar', 'gestao', 'Criar, editar e desativar motivo de pausa'],
+  ['resposta_pronta.gerenciar', 'gestao', 'Criar, editar e excluir resposta pronta da empresa'],
   ['monitoria.avaliacao.ver', 'monitoria', 'Ver avaliação'],
   ['monitoria.avaliacao.criar', 'monitoria', 'Avaliar atendimento'],
   ['monitoria.avaliacao.revisar', 'monitoria', 'Revisar e homologar nota sugerida pela IA'],

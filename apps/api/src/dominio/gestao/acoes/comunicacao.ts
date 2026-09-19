@@ -1,8 +1,9 @@
 import type { Campos, Resultado } from './campos.js';
 import { and, eq } from 'drizzle-orm';
-import { CATEGORIAS_TEMPLATE, canal, respostaPronta, templateMensagem } from '@pipe/db/schema';
+import { CATEGORIAS_TEMPLATE, canal, templateMensagem } from '@pipe/db/schema';
 import type { TransacaoPipe, Ator } from '@pipe/db';
-import { CABECALHOS_TEMPLATE } from '../comunicacao.js';
+import { ErroPipe } from '../../../erros.js';
+import { CABECALHOS_TEMPLATE, criarRespostaPronta } from '../comunicacao.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
@@ -27,52 +28,38 @@ function falha(erro: string): Resultado {
 
 function recarregar() {}
 
+/** `ErroPipe` de validação/permissão/conflito vira a frase da tela; qualquer outro erro sobe. */
+async function comoResultado(fn: () => Promise<unknown>): Promise<Resultado> {
+  try {
+    await fn();
+    return OK;
+  } catch (erro) {
+    if (erro instanceof ErroPipe) return falha(erro.message);
+    throw erro;
+  }
+}
+
 // --------------------------------------------------------- respostas prontas
 
+/**
+ * Casca fina sobre `criarRespostaPronta` de `comunicacao.ts` — a mesma que a
+ * rota REST nova (`POST /v1/gestao/comunicacao/respostas-prontas`) chama.
+ * Antes desta ação validava e gravava aqui, sem permissão nenhuma.
+ */
 export async function salvarRespostaPronta(
   tx: TransacaoPipe,
   tid: string,
-  _ator: Ator,
+  ator: Ator,
   dados: Campos,
 ): Promise<Resultado> {
-  const atalho = String(dados.get('atalho') ?? '')
-    .trim()
-    .replace(/^#/, '');
-  const titulo = String(dados.get('titulo') ?? '').trim();
-  const corpo = String(dados.get('corpo') ?? '').trim();
-  const categoria = String(dados.get('categoria') ?? '').trim() || null;
-
-  if (!atalho) return falha('Informe o atalho.');
-  if (/\s/.test(atalho)) {
-    return falha('O atalho não pode ter espaço — é o que o atendente digita direto depois do #.');
-  }
-  if (!titulo) return falha('Informe o título.');
-  if (!corpo) return falha('Informe o corpo da resposta.');
-
-  return consultar(tx, async (tx) => {
-    // Único por tenant é regra da TELA, não do banco: `resposta_pronta_atalho_idx`
-    // é índice, não `uniqueIndex`. Sem este `select`, dois atalhos iguais entram
-    // e o `#` do Desk vira ambíguo na hora de escolher qual resposta inserir.
-    const [conflito] = await tx
-      .select({ titulo: respostaPronta.titulo })
-      .from(respostaPronta)
-      .where(and(eq(respostaPronta.tenantId, tid), eq(respostaPronta.atalho, atalho)))
-      .limit(1);
-    if (conflito) {
-      return falha(`O atalho "#${atalho}" já é usado por "${conflito.titulo}". Escolha outro.`);
-    }
-
-    await tx.insert(respostaPronta).values({
-      tenantId: tid,
-      escopo: 'empresa',
-      categoria,
-      atalho,
-      titulo,
-      corpo,
+  return comoResultado(async () => {
+    await criarRespostaPronta(tx, tid, ator.id ?? '', {
+      atalho: String(dados.get('atalho') ?? ''),
+      titulo: String(dados.get('titulo') ?? ''),
+      corpo: String(dados.get('corpo') ?? ''),
+      categoria: dados.get('categoria'),
     });
-
     recarregar();
-    return OK;
   });
 }
 

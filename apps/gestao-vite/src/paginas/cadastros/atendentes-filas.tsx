@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { PESO_AGUARDANDO_ATENDENTE, PESO_AGUARDANDO_CLIENTE } from '@pipe/core';
-import { Botao } from '@pipe/ui';
+import { Botao, BotaoDeIcone } from '@pipe/ui';
 import { useLeitura } from '../../lib/consulta';
 import type { FilaCadastrada, HorarioParaEscolher } from '../../lib/cadastros';
+import { alternarFila, excluirFila } from '../../lib/cadastros-gravar';
 import { numero } from '../../lib/formato';
 import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
 import { FormularioFila } from './atendentes-filas-formulario';
@@ -22,13 +23,46 @@ import { Modal } from './_modal';
  * capacidade — que não é da Blip, é nossa, porque `capacidade_padrao` era um
  * número mágico sem ela — mora ali dentro, e não mais solta na página.
  *
- * Sem toggle nem exclusão por cartão: `lib/acoes.ts` só tem `salvarFila`
- * (criar) — não há `alternarFila`/excluir fila na API hoje, então o switch e
- * o ícone "Excluir" do cartão deles (§4, §5) ficam de fora em vez de simular
- * uma ação que não existe. Cor, capacidade, ordem, horário e teto simultâneo
- * — que não são coluna documentada — ficam no rodapé do cartão, ao lado dos
- * atendentes habilitados.
+ * Toggle e exclusão por cartão: `lib/cadastros.ts` agora tem
+ * `alternarFila`/`excluirFila` (`PATCH`/`DELETE` em
+ * `/v1/gestao/atendentes/filas/:id`), então o switch e o ícone "Excluir" do
+ * cartão deles (§4, §5) entram — `window.confirm` antes de excluir e
+ * `window.alert` para a recusa (fila com conversa aberta, fila padrão de
+ * caixa de entrada, ...), mesmo padrão de
+ * `paginas/fluxo/servicos/tela.tsx`. Cor, capacidade, ordem, horário e teto
+ * simultâneo — que não são coluna documentada — ficam no rodapé do cartão, ao
+ * lado dos atendentes habilitados. Renomear e vincular/desvincular atendente
+ * (o resto do item 1) ainda não têm tela — ver o resumo da tarefa.
  */
+
+/** O switch + o "Excluir" do cartão-linha — o slot `acao` que `lista-regras.tsx` reserva. */
+function AcoesDaFila({ fila }: { fila: FilaCadastrada }) {
+  const alternar = async () => {
+    const r = await alternarFila(fila.id, fila.ativa);
+    if (!r.ok) window.alert(r.erro);
+  };
+  const excluir = async () => {
+    if (!window.confirm(`Excluir a fila "${fila.nome}"? Esta ação não pode ser desfeita.`)) return;
+    const r = await excluirFila(fila.id);
+    if (!r.ok) window.alert(r.erro);
+  };
+  return (
+    <>
+      <button
+        type="button"
+        className="interruptor"
+        role="switch"
+        aria-checked={fila.ativa}
+        aria-label={fila.ativa ? `Desativar a fila ${fila.nome}` : `Ativar a fila ${fila.nome}`}
+        title={fila.ativa ? 'Desativar esta fila' : 'Ativar esta fila'}
+        onClick={() => void alternar()}
+      >
+        <span className="interruptor-bolinha" />
+      </button>
+      <BotaoDeIcone nome="x" rotulo={`Excluir a fila ${fila.nome}`} onClick={() => void excluir()} />
+    </>
+  );
+}
 export function PaginaFilas() {
   const [modalAberto, setModalAberto] = useState(false);
   const leitura = useLeitura<{ filas: FilaCadastrada[]; horarios: HorarioParaEscolher[] }>(
@@ -59,6 +93,7 @@ export function PaginaFilas() {
           ],
           situacao: f.ativa ? 'Ativa' : 'Desativada',
           ativa: f.ativa,
+          acao: <AcoesDaFila fila={f} />,
           rodape: [
             ...detalhes,
             ...(f.atendentes.length > 0

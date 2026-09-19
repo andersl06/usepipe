@@ -1,10 +1,11 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Req } from '@nestjs/common';
 import type { Ator, TransacaoPipe } from '@pipe/db';
 import { noTenant } from '../banco.js';
 import { ErroPipe } from '../erros.js';
 import { ComSessao, sessaoDe } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
 import { fusoDoTenant } from '../dominio/gestao/janela.js';
+import { uuidOuNada } from '../dominio/gestao/formato.js';
 import * as cadastros from '../dominio/gestao/cadastros.js';
 import * as comunicacao from '../dominio/gestao/comunicacao.js';
 import * as configuracoes from '../dominio/gestao/configuracoes.js';
@@ -13,6 +14,16 @@ import * as acoesAtendentes from '../dominio/gestao/acoes/atendentes.js';
 import * as acoesComunicacao from '../dominio/gestao/acoes/comunicacao.js';
 import * as acoesConfiguracoes from '../dominio/gestao/acoes/configuracoes.js';
 import { Campos, type CamposCrus, type Resultado } from '../dominio/gestao/acoes/campos.js';
+
+/**
+ * `id` de recurso na URL: fora do padrão de uuid a resposta é 404 antes de ir
+ * ao banco — mesma regra de `gestao-fluxo.ts` (URL é texto de fora, e o
+ * Postgres recusa uuid malformado com 500, não 404).
+ */
+function idOu404(valor: string, oQue: string): string {
+  if (!uuidOuNada(valor)) throw ErroPipe.naoEncontrado(oQue);
+  return valor;
+}
 
 /**
  * Os CADASTROS da Gestão — Regras, Atendentes, Comunicação e Preferências —
@@ -130,6 +141,168 @@ export class ControladorGestaoCadastros {
   gerais(@Req() requisicao: RequisicaoComSessao) {
     const sessao = sessaoDe(requisicao);
     return noTenant(sessao.tenantId, (tx) => configuracoes.carregarGerais(tx));
+  }
+
+  /* -------------------------------------------------------- filas (item 1) */
+
+  @Post('atendentes/filas')
+  @ComSessao()
+  async criarFila(
+    @Req() requisicao: RequisicaoComSessao,
+    @Body() corpo: cadastros.PedidoDeFila,
+  ): Promise<{ id: string }> {
+    const sessao = sessaoDe(requisicao);
+    return noTenant(sessao.tenantId, (tx) =>
+      cadastros.criarFila(tx, sessao.tenantId, sessao.usuarioId, corpo),
+    );
+  }
+
+  @Patch('atendentes/filas/:id')
+  @ComSessao()
+  async editarFila(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: cadastros.PedidoDeEdicaoDeFila,
+  ): Promise<cadastros.FilaGravada> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'fila');
+    return noTenant(sessao.tenantId, (tx) =>
+      cadastros.editarFila(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+    );
+  }
+
+  @Delete('atendentes/filas/:id')
+  @HttpCode(204)
+  @ComSessao()
+  async excluirFila(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<void> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'fila');
+    await noTenant(sessao.tenantId, (tx) =>
+      cadastros.excluirFila(tx, sessao.tenantId, sessao.usuarioId, id),
+    );
+  }
+
+  @Post('atendentes/filas/:id/atendentes')
+  @ComSessao()
+  async vincularAtendente(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: { usuarioId?: string; capacidadeOverride?: number | null },
+  ): Promise<{ ok: true }> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'fila');
+    const atendenteId = idOu404(String(corpo?.usuarioId ?? ''), 'atendente');
+    await noTenant(sessao.tenantId, (tx) =>
+      cadastros.vincularAtendenteNaFila(
+        tx,
+        sessao.tenantId,
+        sessao.usuarioId,
+        id,
+        atendenteId,
+        corpo?.capacidadeOverride ?? null,
+      ),
+    );
+    return { ok: true };
+  }
+
+  @Delete('atendentes/filas/:id/atendentes/:atendenteId')
+  @HttpCode(204)
+  @ComSessao()
+  async desvincularAtendente(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Param('atendenteId') atendenteId: string,
+  ): Promise<void> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'fila');
+    idOu404(atendenteId, 'atendente');
+    await noTenant(sessao.tenantId, (tx) =>
+      cadastros.desvincularAtendenteDaFila(tx, sessao.tenantId, sessao.usuarioId, id, atendenteId),
+    );
+  }
+
+  /* ------------------------------------------------ respostas prontas (item 2) */
+
+  @Post('comunicacao/respostas-prontas')
+  @ComSessao()
+  async criarRespostaPronta(
+    @Req() requisicao: RequisicaoComSessao,
+    @Body() corpo: comunicacao.PedidoDeRespostaPronta,
+  ): Promise<{ id: string }> {
+    const sessao = sessaoDe(requisicao);
+    return noTenant(sessao.tenantId, (tx) =>
+      comunicacao.criarRespostaPronta(tx, sessao.tenantId, sessao.usuarioId, corpo),
+    );
+  }
+
+  @Patch('comunicacao/respostas-prontas/:id')
+  @ComSessao()
+  async editarRespostaPronta(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: comunicacao.PedidoDeEdicaoDeRespostaPronta,
+  ): Promise<comunicacao.RespostaProntaListada> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'resposta pronta');
+    return noTenant(sessao.tenantId, (tx) =>
+      comunicacao.editarRespostaPronta(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+    );
+  }
+
+  @Delete('comunicacao/respostas-prontas/:id')
+  @HttpCode(204)
+  @ComSessao()
+  async excluirRespostaPronta(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+  ): Promise<void> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'resposta pronta');
+    await noTenant(sessao.tenantId, (tx) =>
+      comunicacao.excluirRespostaPronta(tx, sessao.tenantId, sessao.usuarioId, id),
+    );
+  }
+
+  /* -------------------------------------------------------- pausas (item 3) */
+
+  @Post('atendentes/pausas')
+  @ComSessao()
+  async criarMotivoPausa(
+    @Req() requisicao: RequisicaoComSessao,
+    @Body() corpo: cadastros.PedidoDeMotivoPausa,
+  ): Promise<{ id: string }> {
+    const sessao = sessaoDe(requisicao);
+    return noTenant(sessao.tenantId, (tx) =>
+      cadastros.criarMotivoPausa(tx, sessao.tenantId, sessao.usuarioId, corpo),
+    );
+  }
+
+  @Patch('atendentes/pausas/:id')
+  @ComSessao()
+  async editarMotivoPausa(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: cadastros.PedidoDeEdicaoDeMotivoPausa,
+  ): Promise<cadastros.MotivoPausaGravado> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'motivo de pausa');
+    return noTenant(sessao.tenantId, (tx) =>
+      cadastros.editarMotivoPausa(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+    );
+  }
+
+  @Delete('atendentes/pausas/:id')
+  @HttpCode(204)
+  @ComSessao()
+  async excluirMotivoPausa(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+  ): Promise<void> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'motivo de pausa');
+    await noTenant(sessao.tenantId, (tx) =>
+      cadastros.excluirMotivoPausa(tx, sessao.tenantId, sessao.usuarioId, id),
+    );
   }
 
   /* --------------------------------------------------------------- ações */

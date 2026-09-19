@@ -1,4 +1,4 @@
-import { and, asc, count, eq, gte, isNotNull, isNull, sql } from 'drizzle-orm';
+import { and, asc, count, eq, gte, isNotNull, isNull, ne, sql } from 'drizzle-orm';
 import {
   dentroDoExpediente,
   duracaoTotalSeg,
@@ -7,6 +7,7 @@ import {
   type HorarioAtendimento as ExpedienteDoCore,
 } from '@pipe/core';
 import {
+  conversa,
   fila,
   filaAtendente,
   horarioAtendimento,
@@ -20,14 +21,28 @@ import {
   statusAtendente,
   usuario,
 } from '@pipe/db/schema';
-import { registrarAuditoria } from '@pipe/db';
+import { diferenca, registrarAuditoria } from '@pipe/db';
 import type { TransacaoPipe, Ator } from '@pipe/db';
+import { ErroPipe } from '../../erros.js';
+import { exigirPermissao } from '../../sessao.js';
+import { corValida } from './cores-de-fila.js';
 import { relogio } from './formato.js';
 import type { OperadorDeRegra, RegraDeFila } from './regra-fila.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
   fn(tx);
+
+/** Do catálogo (`packages/db/src/semente.ts`): "Criar, editar e desativar fila". */
+export const FILA_GERENCIAR = 'fila.gerenciar';
+/** "Gerenciar regras de fila, prioridade e SLA" — as três também moram aqui. */
+export const REGRA_GERENCIAR = 'regra.gerenciar';
+/** "Gerenciar horário de atendimento e feriado". */
+export const HORARIO_GERENCIAR = 'horario.gerenciar';
+/** Novo — migração 0030: nenhuma permissão do catálogo cobria motivo de pausa. */
+export const PAUSA_GERENCIAR = 'pausa.gerenciar';
+
+const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
 
 /**
  * Leitura das três telas de cadastro: filas, motivos de pausa e horários.
@@ -488,9 +503,10 @@ export type Gravacao = { ok: true } | { ok: false; erro: string };
 export async function gravarRegraFila(
   tx: TransacaoPipe,
   tid: string,
-  ator: Ator,
+  quemGrava: Ator,
   entrada: NovaRegraDeFila,
 ): Promise<Gravacao> {
+  if (quemGrava.tipo === 'usuario' && quemGrava.id) await exigirPermissao(tx, quemGrava.id, REGRA_GERENCIAR);
   return consultar(tx, async (tx) => {
     // `regra_fila` não tem índice único de nome; a unicidade é regra desta
     // tela. Duas "Cobrança" fazem o gestor editar a que não está valendo.
@@ -526,7 +542,7 @@ export async function gravarRegraFila(
       .values(entrada.condicoes.map((c) => ({ tenantId: tid, regraId: criada.id, ...c })));
 
     await registrarAuditoria(tx, tid, {
-      ator: ator,
+      ator: quemGrava,
       acao: 'criou',
       objetoTipo: 'regra_fila',
       objetoId: criada.id,
@@ -541,9 +557,10 @@ export async function gravarRegraFila(
 export async function alternarAtivaDaRegraFila(
   tx: TransacaoPipe,
   tid: string,
-  ator: Ator,
+  quemAlterna: Ator,
   id: string,
 ): Promise<Gravacao> {
+  if (quemAlterna.tipo === 'usuario' && quemAlterna.id) await exigirPermissao(tx, quemAlterna.id, REGRA_GERENCIAR);
   return consultar(tx, async (tx) => {
     const [atual] = await tx
       .select({ nome: regraFila.nome, ativa: regraFila.ativa })
@@ -555,7 +572,7 @@ export async function alternarAtivaDaRegraFila(
     await tx.update(regraFila).set({ ativa: !atual.ativa }).where(eq(regraFila.id, id));
 
     await registrarAuditoria(tx, tid, {
-      ator: ator,
+      ator: quemAlterna,
       acao: atual.ativa ? 'desativou' : 'ativou',
       objetoTipo: 'regra_fila',
       objetoId: id,
@@ -645,5 +662,576 @@ export async function carregarAtendentes(tx: TransacaoPipe): Promise<AtendenteCa
         limiteSimultaneo: dela ? dela.limite : null,
       };
     });
+  });
+}
+
+/* ===================================================== escrita — filas
+   Item 1 da tarefa de cadastros do Atendimento: criar, renomear, ativar/
+   desativar, excluir (com as duas recusas que a tela precisa entender) e
+   vincular/desvincular atendente. Ao contrário das `acoes/*` (Resultado em
+   200, para o `useActionState` de formulário), estas usam o padrão REST de
+   `ciclo-de-vida-do-fluxo.ts`: `ErroPipe` com status de verdade, porque são
+   gestos com efeito de segurança (permissão, tenant, id) e não só validação
+   de formulário. */
+
+export interface PedidoDeFila {
+  nome: string;
+  cor?: string | null;
+  horarioId?: string | null;
+  capacidadePadrao: number;
+  ordem?: number;
+  ativa?: boolean;
+}
+
+/** Só o que veio muda — igual a `PedidoDeEdicao` de `ciclo-de-vida-do-fluxo.ts`. */
+export interface PedidoDeEdicaoDeFila {
+  nome?: string;
+  cor?: string | null;
+  horarioId?: string | null;
+  capacidadePadrao?: number;
+  ordem?: number;
+  ativa?: boolean;
+}
+
+export interface FilaGravada {
+  id: string;
+  nome: string;
+  cor: string | null;
+  horarioId: string | null;
+  capacidadePadrao: number;
+  ordem: number;
+  ativa: boolean;
+}
+
+function nomeDeFilaConferido(bruto: unknown): string {
+  const nome = String(bruto ?? '').trim();
+  if (!nome) throw ErroPipe.requisicao('nome_obrigatorio', 'Informe o nome da fila.');
+  return nome;
+}
+
+function corDeFilaConferida(bruto: unknown): string | null {
+  if (bruto === undefined || bruto === null) return null;
+  const cor = String(bruto).trim();
+  if (!cor) return null;
+  if (!corValida(cor)) throw ErroPipe.requisicao('cor_invalida', 'Cor fora da paleta.');
+  return cor;
+}
+
+/** Mesmo teto de `acoes/atendentes.ts::salvarFila` — reaproveitado também para o override do atendente. */
+function capacidadeConferida(bruto: unknown): number {
+  const n = Number(bruto);
+  if (!Number.isInteger(n) || n < 1 || n > 200) {
+    throw ErroPipe.requisicao(
+      'capacidade_invalida',
+      'A capacidade padrão é um inteiro de 1 a 200 — é quantas conversas simultâneas cada atendente da fila aguenta.',
+    );
+  }
+  return n;
+}
+
+function ordemConferida(bruto: unknown): number {
+  const n = Number(bruto ?? 0);
+  if (!Number.isInteger(n) || n < 0 || n > 999) {
+    throw ErroPipe.requisicao('ordem_invalida', 'A ordem é um inteiro de 0 a 999.');
+  }
+  return n;
+}
+
+async function horarioExiste(tx: TransacaoPipe, tid: string, horarioId: string): Promise<boolean> {
+  const [achado] = await tx
+    .select({ id: horarioAtendimento.id })
+    .from(horarioAtendimento)
+    .where(and(eq(horarioAtendimento.tenantId, tid), eq(horarioAtendimento.id, horarioId)))
+    .limit(1);
+  return achado !== undefined;
+}
+
+async function nomeDeFilaEmUso(
+  tx: TransacaoPipe,
+  tid: string,
+  nome: string,
+  excetoId?: string,
+): Promise<boolean> {
+  const [conflito] = await tx
+    .select({ id: fila.id })
+    .from(fila)
+    .where(
+      and(eq(fila.tenantId, tid), eq(fila.nome, nome), excetoId ? ne(fila.id, excetoId) : undefined),
+    )
+    .limit(1);
+  return conflito !== undefined;
+}
+
+function conflitoDeNomeDeFila(nome: string): ErroPipe {
+  return ErroPipe.conflito('nome_em_uso', `Já existe uma fila chamada "${nome}".`);
+}
+
+/** A fila viva do tenant, ou 404 — o `fetch_inbox` de `ciclo-de-vida-do-fluxo.ts`. */
+async function filaViva(tx: TransacaoPipe, tid: string, id: string) {
+  const [atual] = await tx
+    .select({
+      id: fila.id,
+      nome: fila.nome,
+      cor: fila.cor,
+      horarioId: fila.horarioId,
+      capacidadePadrao: fila.capacidadePadrao,
+      ordem: fila.ordem,
+      ativa: fila.ativa,
+    })
+    .from(fila)
+    .where(and(eq(fila.tenantId, tid), eq(fila.id, id)))
+    .limit(1);
+  if (!atual) throw ErroPipe.naoEncontrado('fila');
+  return atual;
+}
+
+export async function criarFila(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  pedido: PedidoDeFila,
+): Promise<{ id: string }> {
+  await exigirPermissao(tx, usuarioId, FILA_GERENCIAR);
+
+  const nome = nomeDeFilaConferido(pedido.nome);
+  const cor = corDeFilaConferida(pedido.cor);
+  const capacidadePadrao = capacidadeConferida(pedido.capacidadePadrao);
+  const ordem = ordemConferida(pedido.ordem);
+  const horarioId = pedido.horarioId ? String(pedido.horarioId) : null;
+  const ativa = pedido.ativa ?? true;
+
+  if (await nomeDeFilaEmUso(tx, tid, nome)) throw conflitoDeNomeDeFila(nome);
+  if (horarioId && !(await horarioExiste(tx, tid, horarioId))) {
+    throw ErroPipe.requisicao('horario_nao_encontrado', 'Horário de atendimento não encontrado.');
+  }
+
+  const [criada] = await tx
+    .insert(fila)
+    .values({ tenantId: tid, nome, cor, horarioId, capacidadePadrao, ordem, ativa })
+    .returning({ id: fila.id });
+  if (!criada) throw ErroPipe.requisicao('fila_nao_criada', 'Não consegui gravar a fila.');
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'criou',
+    objetoTipo: 'fila',
+    objetoId: criada.id,
+    depois: { nome, cor, horarioId, capacidadePadrao, ordem, ativa },
+  });
+  return { id: criada.id };
+}
+
+/** `update`: renomear, trocar cor/horário/capacidade/ordem e ativar/desativar são o mesmo gesto. */
+export async function editarFila(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  id: string,
+  pedido: PedidoDeEdicaoDeFila,
+): Promise<FilaGravada> {
+  const atual = await filaViva(tx, tid, id);
+  await exigirPermissao(tx, usuarioId, FILA_GERENCIAR);
+
+  // `antes`/`depois` de propósito SEM anotação de tipo: literal inferido carrega
+  // índice implícito e é o que deixa `diferenca` (que pede `Record<string,
+  // unknown>`) aceitar o objeto — a mesma escolha de `editarFluxo`.
+  const antes = { ...atual };
+  const depois = { ...antes };
+
+  if (pedido.nome !== undefined) depois.nome = nomeDeFilaConferido(pedido.nome);
+  if (pedido.cor !== undefined) depois.cor = corDeFilaConferida(pedido.cor);
+  if (pedido.capacidadePadrao !== undefined) {
+    depois.capacidadePadrao = capacidadeConferida(pedido.capacidadePadrao);
+  }
+  if (pedido.ordem !== undefined) depois.ordem = ordemConferida(pedido.ordem);
+  if (pedido.ativa !== undefined) depois.ativa = pedido.ativa;
+  if (pedido.horarioId !== undefined) {
+    const horarioId = pedido.horarioId ? String(pedido.horarioId) : null;
+    if (horarioId && !(await horarioExiste(tx, tid, horarioId))) {
+      throw ErroPipe.requisicao('horario_nao_encontrado', 'Horário de atendimento não encontrado.');
+    }
+    depois.horarioId = horarioId;
+  }
+
+  const mudanca = diferenca(antes, depois);
+  if (Object.keys(mudanca.depois).length === 0) return atual;
+
+  if (depois.nome !== antes.nome && (await nomeDeFilaEmUso(tx, tid, depois.nome, id))) {
+    throw conflitoDeNomeDeFila(depois.nome);
+  }
+
+  const [gravada] = await tx
+    .update(fila)
+    .set({
+      nome: depois.nome,
+      cor: depois.cor,
+      horarioId: depois.horarioId,
+      capacidadePadrao: depois.capacidadePadrao,
+      ordem: depois.ordem,
+      ativa: depois.ativa,
+      atualizadoEm: new Date(),
+    })
+    .where(and(eq(fila.tenantId, tid), eq(fila.id, id)))
+    .returning({
+      id: fila.id,
+      nome: fila.nome,
+      cor: fila.cor,
+      horarioId: fila.horarioId,
+      capacidadePadrao: fila.capacidadePadrao,
+      ordem: fila.ordem,
+      ativa: fila.ativa,
+    });
+  if (!gravada) throw ErroPipe.naoEncontrado('fila');
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'alterou',
+    objetoTipo: 'fila',
+    objetoId: id,
+    antes: mudanca.antes,
+    depois: mudanca.depois,
+  });
+  return gravada;
+}
+
+/**
+ * `destroy`: excluir de verdade — `fila` não carrega histórico próprio (quem
+ * carrega é `conversa`/`evento_atendimento`, por isso as duas recusas
+ * abaixo). Diferente do fluxo, aqui não há razão para "arquivar": não existe
+ * FK que impeça o `DELETE` de uma fila livre de uso.
+ */
+export async function excluirFila(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  id: string,
+): Promise<void> {
+  const atual = await filaViva(tx, tid, id);
+  await exigirPermissao(tx, usuarioId, FILA_GERENCIAR);
+
+  const [comConversa] = await tx
+    .select({ id: conversa.id })
+    .from(conversa)
+    .where(and(eq(conversa.filaId, id), isNull(conversa.encerradaEm)))
+    .limit(1);
+  if (comConversa) {
+    throw ErroPipe.conflito(
+      'fila_com_conversa_aberta',
+      'Esta fila tem conversa em aberto e não pode ser excluída. Transfira ou encerre as conversas primeiro.',
+    );
+  }
+
+  const [comoPadrao] = await tx
+    .select({ nome: inbox.nome })
+    .from(inbox)
+    .where(and(eq(inbox.tenantId, tid), eq(inbox.filaPadraoId, id)))
+    .limit(1);
+  if (comoPadrao) {
+    throw ErroPipe.conflito(
+      'fila_padrao_de_inbox',
+      `Esta fila é a fila padrão da caixa de entrada "${comoPadrao.nome}" e não pode ser excluída.`,
+    );
+  }
+
+  // `regra_fila.fila_destino_id` é `ON DELETE CASCADE`: sem esta recusa, excluir a fila
+  // apagaria a regra de entrada em silêncio, sem quem a cadastrou ter pedido isso.
+  const [comoDestinoDeRegra] = await tx
+    .select({ nome: regraFila.nome })
+    .from(regraFila)
+    .where(eq(regraFila.filaDestinoId, id))
+    .limit(1);
+  if (comoDestinoDeRegra) {
+    throw ErroPipe.conflito(
+      'fila_usada_em_regra',
+      `A regra de entrada "${comoDestinoDeRegra.nome}" manda conversa para esta fila. Edite ou exclua a regra antes.`,
+    );
+  }
+
+  await tx.delete(fila).where(and(eq(fila.tenantId, tid), eq(fila.id, id)));
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'excluiu',
+    objetoTipo: 'fila',
+    objetoId: id,
+    antes: { nome: atual.nome, ativa: atual.ativa },
+  });
+}
+
+/** Vincular: cria a participação, ou troca o `capacidadeOverride` de quem já está na fila. */
+export async function vincularAtendenteNaFila(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  filaId: string,
+  atendenteId: string,
+  capacidadeOverride?: number | null,
+): Promise<void> {
+  await filaViva(tx, tid, filaId);
+  await exigirPermissao(tx, usuarioId, FILA_GERENCIAR);
+
+  const [pessoa] = await tx
+    .select({ id: usuario.id })
+    .from(usuario)
+    .where(and(eq(usuario.tenantId, tid), eq(usuario.id, atendenteId)))
+    .limit(1);
+  if (!pessoa) throw ErroPipe.naoEncontrado('atendente');
+
+  const override =
+    capacidadeOverride === undefined || capacidadeOverride === null
+      ? null
+      : capacidadeConferida(capacidadeOverride);
+
+  await tx
+    .insert(filaAtendente)
+    .values({ tenantId: tid, filaId, usuarioId: atendenteId, capacidadeOverride: override })
+    .onConflictDoUpdate({
+      target: [filaAtendente.filaId, filaAtendente.usuarioId],
+      set: { capacidadeOverride: override },
+    });
+
+  // `Acao` de `@pipe/db` é fechado ('criou'/'alterou'/'excluiu'/'ativou'/'desativou');
+  // vincular/desvincular é uma alteração da COMPOSIÇÃO da fila, não um gesto à parte.
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'alterou',
+    objetoTipo: 'fila_atendente',
+    objetoId: filaId,
+    depois: { atendenteId, capacidadeOverride: override, vinculo: 'criado' },
+  });
+}
+
+export async function desvincularAtendenteDaFila(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  filaId: string,
+  atendenteId: string,
+): Promise<void> {
+  await filaViva(tx, tid, filaId);
+  await exigirPermissao(tx, usuarioId, FILA_GERENCIAR);
+
+  const apagados = await tx
+    .delete(filaAtendente)
+    .where(
+      and(
+        eq(filaAtendente.tenantId, tid),
+        eq(filaAtendente.filaId, filaId),
+        eq(filaAtendente.usuarioId, atendenteId),
+      ),
+    )
+    .returning({ usuarioId: filaAtendente.usuarioId });
+  if (apagados.length === 0) throw ErroPipe.naoEncontrado('vínculo de atendente com a fila');
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'alterou',
+    objetoTipo: 'fila_atendente',
+    objetoId: filaId,
+    antes: { atendenteId, vinculo: 'criado' },
+    depois: { atendenteId, vinculo: 'removido' },
+  });
+}
+
+/* =================================================== escrita — motivo de pausa
+   Item 3: criar, editar, ativar/desativar e excluir. `motivo_pausa.id` é
+   `ON DELETE SET NULL` em `pausa.motivo_id` — a mesma regra que já faz
+   `carregarPausas` separar as pausas "sem motivo"; excluir um motivo em uso
+   não corrompe pausa nenhuma, só historia ela como órfã, então não há recusa
+   de "está em uso" aqui como há em fila. */
+
+/** `maxlength 30` do `<input>` de "Nome da pausa" — `FICHA-personalizedbreaks.md` §3. */
+export const NOME_DA_PAUSA_MAX = 30;
+
+export interface PedidoDeMotivoPausa {
+  nome: string;
+  duracaoSugeridaMin?: number | null;
+  contaComoProdutivo?: boolean;
+  ativo?: boolean;
+}
+
+export interface PedidoDeEdicaoDeMotivoPausa {
+  nome?: string;
+  duracaoSugeridaMin?: number | null;
+  contaComoProdutivo?: boolean;
+  ativo?: boolean;
+}
+
+export interface MotivoPausaGravado {
+  id: string;
+  nome: string;
+  duracaoSugeridaMin: number | null;
+  contaComoProdutivo: boolean;
+  ativo: boolean;
+}
+
+function nomeDeMotivoConferido(bruto: unknown): string {
+  const nome = String(bruto ?? '').trim();
+  if (!nome) throw ErroPipe.requisicao('nome_obrigatorio', 'Informe o nome do motivo.');
+  if (nome.length > NOME_DA_PAUSA_MAX) {
+    throw ErroPipe.requisicao(
+      'nome_tamanho',
+      `O nome da pausa tem até ${NOME_DA_PAUSA_MAX} caracteres.`,
+    );
+  }
+  return nome;
+}
+
+/** `null` é "sem sugestão"; `undefined` (edição) é "não mexa" — conferidos por quem chama. */
+function duracaoSugeridaConferida(bruto: unknown): number | null {
+  if (bruto === undefined || bruto === null || bruto === '') return null;
+  const n = Number(bruto);
+  if (!Number.isInteger(n) || n < 1 || n > 480) {
+    throw ErroPipe.requisicao(
+      'duracao_invalida',
+      'A duração sugerida é um inteiro de 1 a 480 minutos.',
+    );
+  }
+  return n;
+}
+
+async function nomeDeMotivoEmUso(
+  tx: TransacaoPipe,
+  tid: string,
+  nome: string,
+  excetoId?: string,
+): Promise<boolean> {
+  const [conflito] = await tx
+    .select({ id: motivoPausa.id })
+    .from(motivoPausa)
+    .where(
+      and(
+        eq(motivoPausa.tenantId, tid),
+        eq(motivoPausa.nome, nome),
+        excetoId ? ne(motivoPausa.id, excetoId) : undefined,
+      ),
+    )
+    .limit(1);
+  return conflito !== undefined;
+}
+
+async function motivoVivo(tx: TransacaoPipe, tid: string, id: string) {
+  const [atual] = await tx
+    .select({
+      id: motivoPausa.id,
+      nome: motivoPausa.nome,
+      duracaoSugeridaMin: motivoPausa.duracaoSugeridaMin,
+      contaComoProdutivo: motivoPausa.contaComoProdutivo,
+      ativo: motivoPausa.ativo,
+    })
+    .from(motivoPausa)
+    .where(and(eq(motivoPausa.tenantId, tid), eq(motivoPausa.id, id)))
+    .limit(1);
+  if (!atual) throw ErroPipe.naoEncontrado('motivo de pausa');
+  return atual;
+}
+
+export async function criarMotivoPausa(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  pedido: PedidoDeMotivoPausa,
+): Promise<{ id: string }> {
+  await exigirPermissao(tx, usuarioId, PAUSA_GERENCIAR);
+
+  const nome = nomeDeMotivoConferido(pedido.nome);
+  const duracaoSugeridaMin = duracaoSugeridaConferida(pedido.duracaoSugeridaMin);
+  const contaComoProdutivo = pedido.contaComoProdutivo ?? false;
+  const ativo = pedido.ativo ?? true;
+
+  if (await nomeDeMotivoEmUso(tx, tid, nome)) {
+    throw ErroPipe.conflito('nome_em_uso', `Já existe um motivo chamado "${nome}".`);
+  }
+
+  const [criado] = await tx
+    .insert(motivoPausa)
+    .values({ tenantId: tid, nome, duracaoSugeridaMin, contaComoProdutivo, ativo })
+    .returning({ id: motivoPausa.id });
+  if (!criado) throw ErroPipe.requisicao('motivo_nao_criado', 'Não consegui gravar o motivo.');
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'criou',
+    objetoTipo: 'motivo_pausa',
+    objetoId: criado.id,
+    depois: { nome, duracaoSugeridaMin, contaComoProdutivo, ativo },
+  });
+  return { id: criado.id };
+}
+
+export async function editarMotivoPausa(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  id: string,
+  pedido: PedidoDeEdicaoDeMotivoPausa,
+): Promise<MotivoPausaGravado> {
+  const atual = await motivoVivo(tx, tid, id);
+  await exigirPermissao(tx, usuarioId, PAUSA_GERENCIAR);
+
+  // Sem anotação de tipo — ver o comentário equivalente em `editarFila`.
+  const antes = { ...atual };
+  const depois = { ...antes };
+
+  if (pedido.nome !== undefined) depois.nome = nomeDeMotivoConferido(pedido.nome);
+  if (pedido.duracaoSugeridaMin !== undefined) {
+    depois.duracaoSugeridaMin = duracaoSugeridaConferida(pedido.duracaoSugeridaMin);
+  }
+  if (pedido.contaComoProdutivo !== undefined) depois.contaComoProdutivo = pedido.contaComoProdutivo;
+  if (pedido.ativo !== undefined) depois.ativo = pedido.ativo;
+
+  const mudanca = diferenca(antes, depois);
+  if (Object.keys(mudanca.depois).length === 0) return atual;
+
+  if (depois.nome !== antes.nome && (await nomeDeMotivoEmUso(tx, tid, depois.nome, id))) {
+    throw ErroPipe.conflito('nome_em_uso', `Já existe um motivo chamado "${depois.nome}".`);
+  }
+
+  const [gravado] = await tx
+    .update(motivoPausa)
+    .set({
+      nome: depois.nome,
+      duracaoSugeridaMin: depois.duracaoSugeridaMin,
+      contaComoProdutivo: depois.contaComoProdutivo,
+      ativo: depois.ativo,
+    })
+    .where(and(eq(motivoPausa.tenantId, tid), eq(motivoPausa.id, id)))
+    .returning({
+      id: motivoPausa.id,
+      nome: motivoPausa.nome,
+      duracaoSugeridaMin: motivoPausa.duracaoSugeridaMin,
+      contaComoProdutivo: motivoPausa.contaComoProdutivo,
+      ativo: motivoPausa.ativo,
+    });
+  if (!gravado) throw ErroPipe.naoEncontrado('motivo de pausa');
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'alterou',
+    objetoTipo: 'motivo_pausa',
+    objetoId: id,
+    antes: mudanca.antes,
+    depois: mudanca.depois,
+  });
+  return gravado;
+}
+
+export async function excluirMotivoPausa(
+  tx: TransacaoPipe,
+  tid: string,
+  usuarioId: string,
+  id: string,
+): Promise<void> {
+  const atual = await motivoVivo(tx, tid, id);
+  await exigirPermissao(tx, usuarioId, PAUSA_GERENCIAR);
+
+  await tx.delete(motivoPausa).where(and(eq(motivoPausa.tenantId, tid), eq(motivoPausa.id, id)));
+
+  await registrarAuditoria(tx, tid, {
+    ator: ator(usuarioId),
+    acao: 'excluiu',
+    objetoTipo: 'motivo_pausa',
+    objetoId: id,
+    antes: { nome: atual.nome, ativo: atual.ativo },
   });
 }
