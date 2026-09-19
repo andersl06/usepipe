@@ -83,6 +83,12 @@ export class FiltroDeErro implements ExceptionFilter {
       return;
     }
 
+    // O `body-parser` recusa corpo grande antes do Nest: culpa de quem mandou, não 500.
+    if ((excecao as { type?: string } | null)?.type === 'entity.too.large') {
+      resposta.status(413).json({ erro: { codigo: 'corpo_grande', mensagem: 'O corpo da requisição é grande demais.' } });
+      return;
+    }
+
     // Erro não previsto não vaza stack para o cliente, mas vai inteiro para o log.
     console.error('[api] erro não tratado', excecao);
     resposta.status(500).json({

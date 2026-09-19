@@ -25,7 +25,12 @@ export interface PreviaDaConfiguracao {
   wabaId: string;
   acessoAosModelos: true;
   nomeSugerido: string;
+  /** O app dono do token: é nele que a foto do perfil sobe (`subirFoto`). */
+  appId: string | null;
 }
+
+/** O App Secret da Meta: 32 caracteres hexadecimais. */
+const FORMATO_DO_SEGREDO = /^[0-9a-f]{32}$/i;
 
 function recusa(mensagem: string): ErroPipe {
   return new ErroPipe(422, 'configuracao_invalida', mensagem);
@@ -39,12 +44,24 @@ export async function validarConfiguracaoManual(dados: {
   wabaId?: string | undefined;
   numeroId?: string | undefined;
   token?: string | undefined;
+  appSecret?: string | undefined;
 }): Promise<PreviaDaConfiguracao> {
   // `validate_parameters!`
   if (!dados.wabaId) throw recusa('O WABA ID é obrigatório.');
   if (!dados.numeroId) throw recusa('O Phone Number ID é obrigatório.');
   if (!dados.token) throw recusa('O token de acesso é obrigatório.');
-  const { wabaId, numeroId, token } = dados as { wabaId: string; numeroId: string; token: string };
+  // Acréscimo do Pipe: o token é do app do CLIENTE, e a Meta assina o webhook com
+  // o segredo DESSE app. Sem ele, toda mensagem recebida cai em 401.
+  if (!dados.appSecret) throw recusa('O App Secret é obrigatório.');
+  if (!FORMATO_DO_SEGREDO.test(dados.appSecret)) {
+    throw recusa('O App Secret tem 32 caracteres, só números e letras de a a f.');
+  }
+  const { wabaId, numeroId, token, appSecret } = dados as {
+    wabaId: string;
+    numeroId: string;
+    token: string;
+    appSecret: string;
+  };
 
   const cliente = clienteGraph(token);
 
@@ -99,6 +116,12 @@ export async function validarConfiguracaoManual(dados: {
     );
   }
 
+  // Acréscimo do Pipe: o segredo tem de ser do app que gerou o token.
+  if (!(await cliente.conferirSegredoDoApp(numeroId, appSecret))) {
+    throw recusa('Este App Secret não é do aplicativo que gerou o token.');
+  }
+  const app = await cliente.buscarAppDoToken().catch(() => null);
+
   // `build_preview`
   const nomeVerificado =
     typeof dadosDoNumero['verified_name'] === 'string' && dadosDoNumero['verified_name']
@@ -111,5 +134,6 @@ export async function validarConfiguracaoManual(dados: {
     wabaId: String(wabaId),
     acessoAosModelos: true,
     nomeSugerido: `${nomeVerificado ?? numero} WhatsApp`,
+    appId: app?.id ? String(app.id) : null,
   };
 }

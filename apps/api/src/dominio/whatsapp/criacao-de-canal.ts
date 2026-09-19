@@ -40,6 +40,9 @@ export interface PedidoDeCriacao {
   origem?: OrigemDoCanal;
   /** Só a configuração manual permite escolher o nome; o cadastro embutido usa o da empresa. */
   nome?: string | undefined;
+  /** Configuração manual: o segredo e o id do app DO CLIENTE, que assina o webhook dele. */
+  appSecret?: string | undefined;
+  appId?: string | null | undefined;
 }
 
 /** `errors.whatsapp.phone_number_already_exists`, no texto do pt_BR do próprio Chatwoot. */
@@ -70,9 +73,10 @@ export async function criarCanal(pedido: PedidoDeCriacao): Promise<CanalWhatsApp
   const nome = pedido.nome?.trim() || `${nomeDaEmpresa} WhatsApp`;
   const origem: OrigemDoCanal = pedido.origem ?? 'embedded_signup';
 
-  // `build_provider_config`. O `appSecret` é do NOSSO aplicativo; ausente, não é
-  // gravado, e o webhook cai no `WHATSAPP_APP_SECRET` do ambiente.
-  const appSecret = process.env['WHATSAPP_APP_SECRET'] ?? '';
+  // `build_provider_config`. No cadastro embutido o `appSecret` é do NOSSO
+  // aplicativo; ausente, não é gravado, e o webhook cai no `WHATSAPP_APP_SECRET`
+  // do ambiente. Na configuração manual é o do app do cliente.
+  const appSecret = pedido.appSecret || process.env['WHATSAPP_APP_SECRET'] || '';
   const config = cifrarConfig(
     {
       tokenAcesso: pedido.token,
@@ -83,6 +87,7 @@ export async function criarCanal(pedido: PedidoDeCriacao): Promise<CanalWhatsApp
       nomeExibicao: nomeDaEmpresa,
       origem,
       ...(appSecret ? { appSecret } : {}),
+      ...(pedido.appId ? { appId: pedido.appId } : {}),
     },
     chaveiro(),
   );

@@ -28,6 +28,7 @@ const { lerCanalWhatsApp } = await import('../src/dominio/whatsapp/canal.js');
 const { configurarWebhook } = await import('../src/dominio/whatsapp/configuracao-de-webhook.js');
 const { executarConfiguracaoManual } = await import('../src/dominio/whatsapp/configuracao-manual.js');
 const { emitirEstado } = await import('../src/dominio/whatsapp/estado-de-conexao.js');
+const { gravarPerfilDoCanal, lerPerfilDoCanal } = await import('../src/dominio/whatsapp/perfil.js');
 const { buscarInfoDoNumero } = await import('../src/dominio/whatsapp/info-do-numero.js');
 const { trocarCodigo } = await import('../src/dominio/whatsapp/troca-de-token.js');
 const { ControladorCanais } = await import('../src/controladores/canais.js');
@@ -417,41 +418,143 @@ describe('reautorização (reauthorization_service_spec)', () => {
 describe('configuração manual (manual_setup_validation_service_spec)', () => {
   const numeroId = ClienteGraphDuble.sufixo(`manual-${S}`);
   const token = `manual-${numeroId}`;
+  /** App Secret do app do cliente: 32 hexadecimais. `bad…` o dublê trata como de outro app. */
+  const appSecret = 'a'.repeat(32);
+  const base = () => ({
+    tenantId: A.tenantId,
+    usuarioId: A.adminId,
+    wabaId: 'waba-m',
+    numeroId,
+    token,
+    appSecret,
+  });
 
   it('token sem permissão de mensagem: recusado com a frase do original', async () => {
     vi.spyOn(ClienteGraphDuble.prototype, 'buscarPermissoes').mockResolvedValue({ data: [] });
-    await expect(
-      executarConfiguracaoManual({ tenantId: A.tenantId, usuarioId: A.adminId, wabaId: 'waba-m', numeroId, token }),
-    ).rejects.toMatchObject({
+    await expect(executarConfiguracaoManual(base())).rejects.toMatchObject({
       codigo: 'configuracao_invalida',
       message: expect.stringContaining('whatsapp_business_messaging'),
     });
   });
 
   it('Phone Number ID que não é da WABA: recusado', async () => {
-    await expect(
-      executarConfiguracaoManual({ tenantId: A.tenantId, usuarioId: A.adminId, wabaId: 'waba-m', numeroId: 'outro', token }),
-    ).rejects.toMatchObject({ message: 'Este Phone Number ID não pertence ao WABA ID informado.' });
+    await expect(executarConfiguracaoManual({ ...base(), numeroId: 'outro' })).rejects.toMatchObject({
+      message: 'Este Phone Number ID não pertence ao WABA ID informado.',
+    });
   });
 
-  it('sucesso: canal manual, e desconectar não solta o número do app do cliente', async () => {
-    const feito = await executarConfiguracaoManual({
-      tenantId: A.tenantId,
-      usuarioId: A.adminId,
-      wabaId: 'waba-m',
-      numeroId,
-      token,
-      nome: 'Suporte manual',
+  it('App Secret: obrigatório, com formato, e tem de ser do app dono do token', async () => {
+    await expect(executarConfiguracaoManual({ ...base(), appSecret: undefined })).rejects.toMatchObject({
+      message: 'O App Secret é obrigatório.',
     });
+    await expect(executarConfiguracaoManual({ ...base(), appSecret: 'curto' })).rejects.toMatchObject({
+      message: 'O App Secret tem 32 caracteres, só números e letras de a a f.',
+    });
+    await expect(
+      executarConfiguracaoManual({ ...base(), appSecret: `bad${'0'.repeat(29)}` }),
+    ).rejects.toMatchObject({ message: 'Este App Secret não é do aplicativo que gerou o token.' });
+    expect(chamadas('override')).toHaveLength(0);
+  });
+
+  it('sucesso: grava segredo e app DO CLIENTE, devolve o webhook, e desconectar não solta o número', async () => {
+    const feito = await executarConfiguracaoManual({ ...base(), nome: 'Suporte manual' });
     expect(feito.erroDeWebhook).toBeNull();
     expect(feito.canal.nome).toBe('Suporte manual');
     expect(feito.canal.config['origem']).toBe('manual_setup_v2');
+    // O webhook deste canal confere a assinatura com o segredo do app do cliente, não o nosso.
+    expect(feito.canal.config['appSecret']).toBe(appSecret);
+    expect(feito.canal.config['appId']).toMatch(/^app-/);
+    expect(feito.webhook).toEqual({
+      url: urlDoWebhook(feito.canal.id),
+      verifyToken: feito.canal.config['verifyToken'],
+    });
+    expect(estaCifrado(String((await configDoBanco(feito.canal.id))['appSecret']))).toBe(true);
 
     ClienteGraphDuble.reiniciar();
     await desconectarWhatsApp(A.tenantId, A.adminId, feito.canal.id);
     expect(chamadas('limpar_override')).toHaveLength(1);
     expect(chamadas('descadastrar')).toHaveLength(0);
     expect(chamadas('desassinar')).toHaveLength(0);
+  });
+});
+
+describe('perfil do número (GET/PATCH /v1/canais/whatsapp/:id/perfil)', () => {
+  const PNG = `data:image/png;base64,${Buffer.from('png-de-ensaio').toString('base64')}`;
+
+  it('lê vazio, grava só o que veio, sobe a foto no app do canal e registra auditoria', async () => {
+    const canal = await conectar(A, { codigo: `perfil-${S}` });
+    const antes = await lerPerfilDoCanal(A.tenantId, canal.id);
+    expect(antes).toMatchObject({
+      sobre: '',
+      sites: [],
+      fotoUrl: null,
+      nome: { exibicao: 'Empresa de Ensaio' },
+    });
+
+    const depois = await gravarPerfilDoCanal(A.tenantId, A.adminId, canal.id, {
+      sobre: '  Atendimento de seg a sex  ',
+      sites: ['https://pipe.app'],
+      categoria: 'PROF_SERVICES',
+      foto: PNG,
+    });
+    expect(depois).toMatchObject({
+      sobre: 'Atendimento de seg a sex',
+      sites: ['https://pipe.app'],
+      categoria: 'PROF_SERVICES',
+      descricao: '',
+    });
+    // Embutido: a foto sobe no NOSSO app (o do ambiente).
+    expect(depois.fotoUrl).toContain('app-de-teste-');
+    expect(chamadas('subir_foto')).toHaveLength(1);
+
+    // Campo ausente não é mexido.
+    const deNovo = await gravarPerfilDoCanal(A.tenantId, A.adminId, canal.id, { descricao: 'Escola' });
+    expect(deNovo).toMatchObject({ sobre: 'Atendimento de seg a sex', descricao: 'Escola' });
+
+    const { rows } = await dono.execute<{ n: string }>(sql`
+      select count(*)::text as n from log_auditoria
+       where objeto_id = ${canal.id}::uuid and acao = 'alterou'
+    `);
+    expect(Number(rows[0]!.n)).toBe(2);
+  });
+
+  it('recusas apontam o campo errado e não chegam à Meta', async () => {
+    const canal = await conectar(A, { codigo: `perfil-recusa-${S}` });
+    ClienteGraphDuble.reiniciar();
+    const gravar = (p: object) => gravarPerfilDoCanal(A.tenantId, A.adminId, canal.id, p);
+    await expect(gravar({})).rejects.toMatchObject({ codigo: 'nada_para_gravar' });
+    await expect(gravar({ sobre: '' })).rejects.toMatchObject({ detalhe: { campo: 'sobre' } });
+    await expect(gravar({ sobre: 'x'.repeat(140) })).rejects.toMatchObject({ detalhe: { campo: 'sobre' } });
+    await expect(gravar({ descricao: 'x'.repeat(513) })).rejects.toMatchObject({
+      detalhe: { campo: 'descricao' },
+    });
+    await expect(gravar({ email: 'sem-arroba' })).rejects.toMatchObject({ detalhe: { campo: 'email' } });
+    await expect(gravar({ sites: ['https://a', 'https://b', 'https://c'] })).rejects.toMatchObject({
+      detalhe: { campo: 'sites' },
+    });
+    await expect(gravar({ sites: ['pipe.app'] })).rejects.toMatchObject({ detalhe: { campo: 'sites' } });
+    await expect(gravar({ categoria: 'escola' })).rejects.toMatchObject({ detalhe: { campo: 'categoria' } });
+    await expect(gravar({ foto: 'data:image/gif;base64,R0lG' })).rejects.toMatchObject({
+      detalhe: { campo: 'foto' },
+    });
+    const grande = `data:image/jpeg;base64,${Buffer.alloc(5 * 1024 * 1024 + 1).toString('base64')}`;
+    await expect(gravar({ foto: grande })).rejects.toMatchObject({ detalhe: { campo: 'foto' } });
+    expect(chamadas('gravar_perfil')).toHaveLength(0);
+  });
+
+  it('canal de outro tenant é 404, e a rota exige canal.gerenciar', async () => {
+    const canal = await conectar(A, { codigo: `perfil-b-${S}` });
+    await expect(lerPerfilDoCanal(B.tenantId, canal.id)).rejects.toMatchObject({ status: 404 });
+    await expect(
+      gravarPerfilDoCanal(B.tenantId, B.adminId, canal.id, { sobre: 'invasão' }),
+    ).rejects.toMatchObject({ status: 404 });
+
+    const { rows } = await dono.execute<{ id: string }>(sql`
+      insert into usuario (tenant_id, nome, email)
+      values (${A.tenantId}::uuid, 'Sem papel', ${`sem-papel-${S}@entrada.pipe.app`}) returning id
+    `);
+    const semPapel = requisicao({ tenantId: A.tenantId, adminId: rows[0]!.id });
+    await expect(controlador.perfil(semPapel, canal.id)).rejects.toMatchObject({ status: 403 });
   });
 });
 

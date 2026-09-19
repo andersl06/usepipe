@@ -1,4 +1,4 @@
-import { createHash } from 'node:crypto';
+import { createHash, createHmac } from 'node:crypto';
 import { ErroPipe } from '../../erros.js';
 
 /**
@@ -68,6 +68,23 @@ export interface PermissaoDoToken {
   status?: string;
 }
 
+/** Os campos de `whatsapp_business_profile`, com os nomes da Meta. */
+export interface PerfilDoNumero {
+  about?: string;
+  address?: string;
+  description?: string;
+  email?: string;
+  profile_picture_url?: string;
+  websites?: string[];
+  vertical?: string;
+}
+
+export type PerfilParaGravar = Omit<PerfilDoNumero, 'profile_picture_url'> & {
+  profile_picture_handle?: string;
+};
+
+export const CAMPOS_DO_PERFIL = 'about,address,description,email,profile_picture_url,websites,vertical';
+
 export abstract class ClienteGraph {
   abstract readonly nome: 'real' | 'duble';
 
@@ -90,6 +107,25 @@ export abstract class ClienteGraph {
   ): Promise<unknown>;
   abstract limparCallbackDoNumero(numeroId: string): Promise<unknown>;
   abstract desassinarAppDaWaba(wabaId: string): Promise<unknown>;
+
+  /*
+   * Acréscimos do Pipe para a configuração MANUAL e o perfil do número — o
+   * Chatwoot não edita perfil. Endpoints da Cloud API:
+   * `GET /app`, `GET|POST /{phone}/whatsapp_business_profile` e a
+   * Resumable Upload API (`POST /{app}/uploads` + `POST /{upload}`).
+   */
+
+  /** `GET /app`: o aplicativo dono do token — na configuração manual, o do CLIENTE. */
+  abstract buscarAppDoToken(): Promise<{ id?: string; name?: string }>;
+  /**
+   * Prova que o `appSecret` colado é o do app dono do token: a Meta confere o
+   * `appsecret_proof` (HMAC-SHA256 do token com o segredo) sempre que ele vem.
+   */
+  abstract conferirSegredoDoApp(numeroId: string, segredo: string): Promise<boolean>;
+  abstract lerPerfil(numeroId: string): Promise<PerfilDoNumero>;
+  abstract gravarPerfil(numeroId: string, perfil: PerfilParaGravar): Promise<unknown>;
+  /** Sobe a imagem e devolve o `h` que `profile_picture_handle` espera. */
+  abstract subirFoto(appId: string, bytes: Buffer, tipo: string): Promise<string>;
 
   /** `phone_number_verified?`: conectado já está registrado, mesmo com o código de verificação vencido. */
   async numeroVerificado(numeroId: string): Promise<boolean> {
@@ -327,6 +363,74 @@ export class ClienteGraphReal extends ClienteGraph {
       'A retirada do app da WABA falhou',
     );
   }
+
+  buscarAppDoToken(): Promise<{ id?: string; name?: string }> {
+    return this.pedir(this.url('app'), { headers: this.cabecalhos() }, 'A busca do aplicativo do token falhou');
+  }
+
+  async conferirSegredoDoApp(numeroId: string, segredo: string): Promise<boolean> {
+    const prova = createHmac('sha256', segredo).update(this.token).digest('hex');
+    try {
+      await this.pedir(
+        this.url(numeroId, { fields: 'id', appsecret_proof: prova }),
+        { headers: this.cabecalhos() },
+        'A conferência do App Secret falhou',
+        segredo,
+        prova,
+      );
+      return true;
+    } catch (erro) {
+      // Só a recusa da Meta quer dizer "segredo errado"; rede fora é outro problema.
+      if (erro instanceof ErroPipe && erro.codigo === 'meta_recusou') return false;
+      throw erro;
+    }
+  }
+
+  async lerPerfil(numeroId: string): Promise<PerfilDoNumero> {
+    const corpo = await this.pedir<{ data?: PerfilDoNumero[] } | null>(
+      this.url(`${numeroId}/whatsapp_business_profile`, { fields: CAMPOS_DO_PERFIL }),
+      { headers: this.cabecalhos() },
+      'A leitura do perfil do número falhou',
+    );
+    return corpo?.data?.[0] ?? {};
+  }
+
+  gravarPerfil(numeroId: string, perfil: PerfilParaGravar): Promise<unknown> {
+    return this.pedir(
+      this.url(`${numeroId}/whatsapp_business_profile`),
+      {
+        method: 'POST',
+        headers: this.cabecalhos(),
+        body: JSON.stringify({ messaging_product: 'whatsapp', ...perfil }),
+      },
+      'A gravação do perfil do número falhou',
+    );
+  }
+
+  /**
+   * Resumable Upload API em duas chamadas: abre a sessão no app e manda os bytes
+   * de uma vez (`file_offset: 0`). O id da sessão já vem com `?sig=…` — vai
+   * colado na URL, sem codificar, senão a assinatura dela deixa de bater.
+   */
+  async subirFoto(appId: string, bytes: Buffer, tipo: string): Promise<string> {
+    const sessao = await this.pedir<{ id?: string }>(
+      this.url(`${appId}/uploads`, { file_length: String(bytes.length), file_type: tipo }),
+      { method: 'POST', headers: this.cabecalhos() },
+      'A abertura do envio da foto falhou',
+    );
+    if (!sessao?.id) throw new ErroPipe(502, 'meta_recusou', 'A Meta não abriu a sessão de envio da foto.');
+    const enviado = await this.pedir<{ h?: string }>(
+      `${URL_BASE}/${versaoDaApi()}/${sessao.id}`,
+      {
+        method: 'POST',
+        headers: { authorization: `OAuth ${this.token}`, file_offset: '0' },
+        body: new Uint8Array(bytes),
+      },
+      'O envio da foto falhou',
+    );
+    if (!enviado?.h) throw new ErroPipe(502, 'meta_recusou', 'A Meta não devolveu o identificador da foto.');
+    return enviado.h;
+  }
 }
 
 /** O que o dublê registrou. Sem token nenhum, de propósito: isto vai para o teste e para o log. */
@@ -358,6 +462,7 @@ export class ClienteGraphDuble extends ClienteGraph {
 
   static reiniciar(): void {
     ClienteGraphDuble.chamadas.length = 0;
+    ClienteGraphDuble.perfis.clear();
   }
 
   /** Onze dígitos estáveis a partir de um texto qualquer. */
@@ -489,6 +594,42 @@ export class ClienteGraphDuble extends ClienteGraph {
   desassinarAppDaWaba(wabaId: string): Promise<unknown> {
     this.registrar({ acao: 'desassinar', wabaId });
     return Promise.resolve({ success: true });
+  }
+
+  /** Perfil por número, compartilhado entre instâncias como o registro de chamadas. */
+  static readonly perfis = new Map<string, PerfilDoNumero>();
+
+  buscarAppDoToken(): Promise<{ id?: string; name?: string }> {
+    this.registrar({ acao: 'buscar_app' });
+    return Promise.resolve({ id: `app-${ClienteGraphDuble.sufixo(this.token)}`, name: 'App de Ensaio' });
+  }
+
+  /** Segredo que começa com `bad` (hexadecimal válido) é o segredo de outro app. */
+  conferirSegredoDoApp(numeroId: string, segredo: string): Promise<boolean> {
+    this.registrar({ acao: 'conferir_segredo', numeroId });
+    return Promise.resolve(!segredo.startsWith('bad'));
+  }
+
+  lerPerfil(numeroId: string): Promise<PerfilDoNumero> {
+    this.registrar({ acao: 'ler_perfil', numeroId });
+    return Promise.resolve({ ...(ClienteGraphDuble.perfis.get(numeroId) ?? {}) });
+  }
+
+  gravarPerfil(numeroId: string, perfil: PerfilParaGravar): Promise<unknown> {
+    this.registrar({ acao: 'gravar_perfil', numeroId });
+    const { profile_picture_handle: foto, ...resto } = perfil;
+    const atual = ClienteGraphDuble.perfis.get(numeroId) ?? {};
+    ClienteGraphDuble.perfis.set(numeroId, {
+      ...atual,
+      ...resto,
+      ...(foto ? { profile_picture_url: `https://duble.invalid/foto/${foto}` } : {}),
+    });
+    return Promise.resolve({ success: true });
+  }
+
+  subirFoto(appId: string, bytes: Buffer): Promise<string> {
+    this.registrar({ acao: 'subir_foto' });
+    return Promise.resolve(`${appId}-${ClienteGraphDuble.sufixo(bytes.toString('base64'))}`);
   }
 }
 

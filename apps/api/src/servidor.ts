@@ -75,6 +75,10 @@ export async function criarAplicacao(): Promise<INestApplication> {
     express.text({ type: () => true, limit: process.env['PIPE_LIMITE_IMPORTACAO'] ?? '20mb' }),
   );
 
+  // A foto do perfil do WhatsApp vai em base64 no JSON: 5 MB viram ~6,7 MB. Teto
+  // próprio, só nesta rota, pelo mesmo motivo dos dois acima.
+  app.use('/v1/canais/whatsapp/:id/perfil', express.json({ limit: '8mb' }));
+
   app.use(
     express.json({
       limit: process.env['PIPE_LIMITE_CORPO'] ?? '2mb',

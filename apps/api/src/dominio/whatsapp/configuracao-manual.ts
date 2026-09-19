@@ -1,4 +1,5 @@
 import type { CanalWhatsApp } from './canal.js';
+import { texto, urlDoWebhook } from './canal.js';
 import { configurarWebhook } from './configuracao-de-webhook.js';
 import { criarCanal } from './criacao-de-canal.js';
 import { validarConfiguracaoManual } from './validacao-da-configuracao-manual.js';
@@ -14,12 +15,23 @@ import { validarConfiguracaoManual } from './validacao-da-configuracao-manual.js
  * A diferença para o cadastro embutido: aqui o token é do cliente (usuário de
  * sistema dele), então desconectar não solta o número nem desassina a WABA — ver
  * `desmontagem-de-webhook.ts`.
+ *
+ * Acréscimo do Pipe: o App Secret do app do cliente. É com ele que a Meta assina
+ * o que manda para o nosso webhook — o Chatwoot usa um segredo global porque lá o
+ * app é sempre o da instalação.
  */
 
 export interface ConfiguracaoManual {
   canal: CanalWhatsApp;
   /** `webhook_error`. `null` é o `webhook_setup?` verdadeiro. */
   erroDeWebhook: string | null;
+  /**
+   * O que o cliente cola no webhook DO APP dele (Painel → WhatsApp → Configuração).
+   * Mensagens chegam pelo override do número, que já foi feito; mas status de
+   * template, qualidade e `account_update` não aceitam override e só chegam se o
+   * app do cliente apontar para cá.
+   */
+  webhook: { url: string; verifyToken: string };
 }
 
 export async function executarConfiguracaoManual(pedido: {
@@ -28,6 +40,7 @@ export async function executarConfiguracaoManual(pedido: {
   wabaId?: string | undefined;
   numeroId?: string | undefined;
   token?: string | undefined;
+  appSecret?: string | undefined;
   nome?: string | undefined;
 }): Promise<ConfiguracaoManual> {
   const previa = await validarConfiguracaoManual(pedido);
@@ -45,14 +58,17 @@ export async function executarConfiguracaoManual(pedido: {
     token: pedido.token ?? '',
     origem: 'manual_setup_v2',
     nome: pedido.nome?.trim() || previa.nomeSugerido,
+    appSecret: pedido.appSecret,
+    appId: previa.appId,
   });
+  const webhook = { url: urlDoWebhook(canal.id), verifyToken: texto(canal.config['verifyToken']) ?? '' };
 
   // `setup_webhook`: erro de registro também conta como erro de webhook.
   try {
     const resultado = await configurarWebhook(canal, { wabaId: previa.wabaId });
     if (resultado.erroDeRegistro) throw resultado.erroDeRegistro;
-    return { canal: resultado.canal, erroDeWebhook: null };
+    return { canal: resultado.canal, erroDeWebhook: null, webhook };
   } catch (erro) {
-    return { canal, erroDeWebhook: (erro as Error).message };
+    return { canal, erroDeWebhook: (erro as Error).message, webhook };
   }
 }

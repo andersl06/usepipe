@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Post, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Req } from '@nestjs/common';
 import { noTenant } from '../banco.js';
 import { desconectarWhatsApp, lerCanalVisivel, listarCanaisWhatsApp } from '../dominio/canais.js';
 import type { CanalWhatsAppVisivel } from '../dominio/canais.js';
@@ -7,6 +7,8 @@ import { lerCanalWhatsApp } from '../dominio/whatsapp/canal.js';
 import { modoDaConexao, versaoDaApi } from '../dominio/whatsapp/cliente-graph.js';
 import { executarConfiguracaoManual } from '../dominio/whatsapp/configuracao-manual.js';
 import { conferirEstado, emitirEstado } from '../dominio/whatsapp/estado-de-conexao.js';
+import { gravarPerfilDoCanal, lerPerfilDoCanal } from '../dominio/whatsapp/perfil.js';
+import type { PedidoDePerfil, PerfilVisivel } from '../dominio/whatsapp/perfil.js';
 import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
 
@@ -107,8 +109,16 @@ export class ControladorCanais {
   async manual(
     @Req() requisicao: RequisicaoComSessao,
     @Body()
-    corpo: { waba_id?: string; phone_number_id?: string; access_token?: string; nome?: string },
-  ): Promise<CanalWhatsAppVisivel & { erroDeWebhook: string | null }> {
+    corpo: {
+      waba_id?: string;
+      phone_number_id?: string;
+      access_token?: string;
+      app_secret?: string;
+      nome?: string;
+    },
+  ): Promise<
+    CanalWhatsAppVisivel & { erroDeWebhook: string | null; webhook: { url: string; verifyToken: string } }
+  > {
     const sessao = sessaoDe(requisicao);
     await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
     const feito = await executarConfiguracaoManual({
@@ -117,12 +127,39 @@ export class ControladorCanais {
       wabaId: corpo.waba_id?.trim(),
       numeroId: corpo.phone_number_id?.trim(),
       token: corpo.access_token?.trim(),
+      appSecret: corpo.app_secret?.trim(),
       nome: corpo.nome,
     });
     return {
       ...(await lerCanalVisivel(sessao.tenantId, feito.canal.id)),
       erroDeWebhook: feito.erroDeWebhook,
+      webhook: feito.webhook,
     };
+  }
+
+  /**
+   * O perfil comercial do número (foto, recado, descrição, endereço, e-mail,
+   * sites, categoria) e, só para leitura, o nome de exibição com o status da
+   * análise da Meta. Ver `dominio/whatsapp/perfil.ts`.
+   */
+  @Get('whatsapp/:id/perfil')
+  @ComSessao()
+  async perfil(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string): Promise<PerfilVisivel> {
+    const sessao = sessaoDe(requisicao);
+    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
+    return lerPerfilDoCanal(sessao.tenantId, id);
+  }
+
+  @Patch('whatsapp/:id/perfil')
+  @ComSessao()
+  async gravarPerfil(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: PedidoDePerfil,
+  ): Promise<PerfilVisivel> {
+    const sessao = sessaoDe(requisicao);
+    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
+    return gravarPerfilDoCanal(sessao.tenantId, sessao.usuarioId, id, corpo ?? {});
   }
 
   /** Desconecta: desmonta o webhook e desliga o canal. Conversa e mensagem ficam. */
