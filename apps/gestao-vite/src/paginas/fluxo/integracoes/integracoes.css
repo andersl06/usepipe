@@ -601,6 +601,36 @@ a.ig-cartao:hover {
   color: var(--p-conteudo-fantasma);
 }
 
+/* `bds-select-chips` de escolha (Tipos de envio) e de tipo de autenticação
+   (rádio): ficha clicável, mesma altura/raio de `.ig-chip`, mas com o
+   controle nativo por trás em vez de um "x". */
+.ig-chip-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-sizing: border-box;
+  height: 32px;
+  padding: 0 12px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: 16px;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font-size: var(--p-t-md);
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.ig-chip-checkbox:has(input:checked) {
+  border-color: var(--p-marca-forte);
+  background: var(--p-marca-suave);
+  font-weight: var(--g-peso-negrito);
+}
+
+.ig-chip-checkbox input {
+  margin: 0;
+  cursor: inherit;
+}
+
 /* ------------------------------------------------ OAuth
 
    `<div class="flex flex-column items-left">` com o título em `.mb3` e a
@@ -612,7 +642,12 @@ a.ig-cartao:hover {
   flex-direction: column;
 }
 
-.ig-pv2.ig-interruptor {
+/* Fileira `bds-switch` + rótulo — o wrapper não pode se chamar `ig-interruptor`
+   (a classe do PRÓPRIO `<Interruptor>`, com posição/tamanho fixos, colidiria). */
+.ig-interruptor-linha {
+  display: flex;
+  align-items: center;
+  gap: 8px;
   margin: 5px 0 11px;
 }
 
@@ -715,6 +750,31 @@ a.ig-cartao:hover {
   margin: 0 0 12px;
   font-size: var(--p-t-md);
   color: var(--p-erro-conteudo);
+}
+
+/* O painel "Webhook criado. Copie o segredo agora" — some depois de "Já copiei". */
+.ig-segredo-gerado {
+  padding: 16px;
+  margin-bottom: 20px;
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-1, var(--p-superficie-2));
+}
+
+/* Espaço extra acima do bloco de cabeçalhos, dentro de "Configurações avançadas". */
+.ig-cabecalhos-bloco {
+  margin-top: 24px;
+}
+
+/* Os webhooks já criados, abaixo do formulário "Novo webhook". */
+.ig-lista-webhooks {
+  margin: 24px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ig-lista-webhooks > li {
+  padding: 12px 0;
+  border-top: 1px solid var(--p-linha-fraca, var(--p-linha-media));
 }
 
 @media (max-width: 700px) {

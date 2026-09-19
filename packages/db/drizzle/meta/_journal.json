@@ -211,6 +211,13 @@
       "when": 1789400000000,
       "tag": "0034_permissao_publicar_fluxo",
       "breakpoints": true
+    },
+    {
+      "idx": 36,
+      "version": "7",
+      "when": 1789420000000,
+      "tag": "0036_webhook_autenticacao_e_cabecalhos",
+      "breakpoints": true
     }
   ]
 }

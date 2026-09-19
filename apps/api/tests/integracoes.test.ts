@@ -7,6 +7,7 @@ process.env['DATABASE_URL'] ??= 'postgres://pipe:pipe@localhost:5433/pipe';
 process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433/pipe';
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
+process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 29).toString('base64')}`;
 
 const { NOME_DO_COOKIE, criarToken } = await import('@pipe/autenticacao');
 const { subirApi } = await import('../src/servidor.js');
@@ -481,5 +482,212 @@ describe('Webhook de saída (Integrações)', () => {
 
     const malformado = await del(`/v1/gestao/webhooks/nao-e-uuid`, sessaoCompleta);
     expect(malformado.status).toBe(404);
+  });
+});
+
+describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', () => {
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  it('autenticação básica: senha cifrada no banco, nunca devolvida, vira Authorization: Basic no teste', async () => {
+    const criado = await post<{ id: string; autenticacao: Record<string, unknown> }>(
+      `/v1/gestao/webhooks`,
+      sessaoCompleta,
+      {
+        url: `https://exemplo.pipe.app/basica-${randomUUID().slice(0, 8)}`,
+        eventos: ['mensagem.criada'],
+        autenticacao: { tipo: 'basica', usuario: 'robo', senha: 'segredo-123' },
+      },
+    );
+    expect(criado.status).toBe(201);
+    expect(criado.corpo.autenticacao).toEqual({
+      tipo: 'basica',
+      usuario: 'robo',
+      urlAutorizacao: null,
+      clientId: null,
+    });
+    const id = criado.corpo.id;
+
+    const linha = (
+      await a.dono.execute<{ autenticacao_senha: string }>(
+        sql`select autenticacao_senha from webhook_saida where id = ${id}::uuid`,
+      )
+    ).rows[0];
+    expect(linha?.autenticacao_senha).toMatch(/^pipev1\./);
+    expect(linha?.autenticacao_senha).not.toContain('segredo-123');
+
+    const lista = await get<Array<Record<string, unknown>>>(`/v1/gestao/webhooks`, sessaoCompleta);
+    const naLista = lista.corpo.find((w) => w['id'] === id);
+    expect(JSON.stringify(naLista)).not.toContain('segredo-123');
+    expect(JSON.stringify(naLista)).not.toContain('pipev1.');
+
+    const chamadas: Array<[string, RequestInit | undefined]> = [];
+    const fetchDeVerdade = fetch;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string, init?: RequestInit) => {
+        if (url.startsWith(api.url)) return fetchDeVerdade(url, init);
+        chamadas.push([url, init]);
+        return new Response('recebido', { status: 200 });
+      }),
+    );
+    const teste = await post<{ ok: boolean; corpo?: string }>(
+      `/v1/gestao/webhooks/${id}/testar`,
+      sessaoCompleta,
+    );
+    expect(teste.status).toBe(200);
+    expect(teste.corpo.ok).toBe(true);
+    expect(teste.corpo.corpo).toBe('recebido');
+    const cabecalhos = chamadas[0]?.[1]?.headers as Record<string, string>;
+    expect(cabecalhos['authorization']).toBe(
+      `Basic ${Buffer.from('robo:segredo-123').toString('base64')}`,
+    );
+  });
+
+  it('OAuth 2.0 client_credentials: busca o token na URL de autorização e usa Bearer', async () => {
+    const urlToken = `https://exemplo.pipe.app/oauth-${randomUUID().slice(0, 8)}/token`;
+    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessaoCompleta, {
+      url: `https://exemplo.pipe.app/oauth-destino-${randomUUID().slice(0, 8)}`,
+      eventos: ['mensagem.criada'],
+      autenticacao: {
+        tipo: 'oauth2_client_credentials',
+        urlAutorizacao: urlToken,
+        clientId: 'cliente-abc',
+        clientSecret: 'segredo-oauth-xyz',
+      },
+    });
+    expect(criado.status).toBe(201);
+    const id = criado.corpo.id;
+
+    const linha = (
+      await a.dono.execute<{ oauth2_client_secret: string }>(
+        sql`select oauth2_client_secret from webhook_saida where id = ${id}::uuid`,
+      )
+    ).rows[0];
+    expect(linha?.oauth2_client_secret).toMatch(/^pipev1\./);
+    expect(linha?.oauth2_client_secret).not.toContain('segredo-oauth-xyz');
+
+    const chamadas: Array<[string, RequestInit | undefined]> = [];
+    const fetchDeVerdade = fetch;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string, init?: RequestInit) => {
+        if (url.startsWith(api.url)) return fetchDeVerdade(url, init);
+        chamadas.push([url, init]);
+        if (url === urlToken) {
+          return new Response(JSON.stringify({ access_token: 'token-de-mentira' }), { status: 200 });
+        }
+        return new Response('ok', { status: 200 });
+      }),
+    );
+    const teste = await post<{ ok: boolean }>(`/v1/gestao/webhooks/${id}/testar`, sessaoCompleta);
+    expect(teste.status).toBe(200);
+    expect(teste.corpo.ok).toBe(true);
+    expect(chamadas).toHaveLength(2);
+    const [chamadaToken, chamadaDestino] = chamadas as [
+      [string, RequestInit | undefined],
+      [string, RequestInit | undefined],
+    ];
+    expect(chamadaToken[0]).toBe(urlToken);
+    expect(String(chamadaToken[1]?.body)).toContain('grant_type=client_credentials');
+    expect(String(chamadaToken[1]?.body)).toContain('client_secret=segredo-oauth-xyz');
+    const cabecalhosDestino = chamadaDestino[1]?.headers as Record<string, string>;
+    expect(cabecalhosDestino['authorization']).toBe('Bearer token-de-mentira');
+  });
+
+  it('cabeçalhos customizados chegam na entrega, sem derrubar a assinatura', async () => {
+    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessaoCompleta, {
+      url: `https://exemplo.pipe.app/cabecalhos-${randomUUID().slice(0, 8)}`,
+      eventos: ['mensagem.criada'],
+      cabecalhos: [{ chave: 'X-Minha-Chave', valor: 'valor-customizado' }],
+    });
+    expect(criado.status).toBe(201);
+    const id = criado.corpo.id;
+
+    const chamadas: Array<[string, RequestInit | undefined]> = [];
+    const fetchDeVerdade = fetch;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (url: string, init?: RequestInit) => {
+        if (url.startsWith(api.url)) return fetchDeVerdade(url, init);
+        chamadas.push([url, init]);
+        return new Response('ok', { status: 200 });
+      }),
+    );
+    const teste = await post<{ ok: boolean }>(`/v1/gestao/webhooks/${id}/testar`, sessaoCompleta);
+    expect(teste.status).toBe(200);
+    expect(teste.corpo.ok).toBe(true);
+    const cabecalhos = chamadas[0]?.[1]?.headers as Record<string, string>;
+    expect(cabecalhos['X-Minha-Chave']).toBe('valor-customizado');
+    expect(cabecalhos['x-pipe-signature']).toMatch(/^sha256=[0-9a-f]{64}$/);
+  });
+
+  it('recusa cabeçalho reservado, cabeçalho repetido e autenticação incompleta', async () => {
+    const reservado = await post(`/v1/gestao/webhooks`, sessaoCompleta, {
+      url: `https://exemplo.pipe.app/reservado-${randomUUID().slice(0, 8)}`,
+      eventos: ['mensagem.criada'],
+      cabecalhos: [{ chave: 'Content-Type', valor: 'text/plain' }],
+    });
+    expect(reservado.status).toBe(400);
+    expect((reservado.corpo as { erro: { codigo: string } }).erro.codigo).toBe('cabecalho_reservado');
+
+    const repetido = await post(`/v1/gestao/webhooks`, sessaoCompleta, {
+      url: `https://exemplo.pipe.app/repetido-${randomUUID().slice(0, 8)}`,
+      eventos: ['mensagem.criada'],
+      cabecalhos: [
+        { chave: 'X-A', valor: '1' },
+        { chave: 'x-a', valor: '2' },
+      ],
+    });
+    expect(repetido.status).toBe(400);
+    expect((repetido.corpo as { erro: { codigo: string } }).erro.codigo).toBe('cabecalho_repetido');
+
+    const semSenha = await post(`/v1/gestao/webhooks`, sessaoCompleta, {
+      url: `https://exemplo.pipe.app/incompleta-${randomUUID().slice(0, 8)}`,
+      eventos: ['mensagem.criada'],
+      autenticacao: { tipo: 'basica', usuario: 'robo' },
+    });
+    expect(semSenha.status).toBe(400);
+    expect((semSenha.corpo as { erro: { codigo: string } }).erro.codigo).toBe('autenticacao_incompleta');
+
+    const oauthSsrf = await post(`/v1/gestao/webhooks`, sessaoCompleta, {
+      url: `https://exemplo.pipe.app/oauth-ssrf-${randomUUID().slice(0, 8)}`,
+      eventos: ['mensagem.criada'],
+      autenticacao: {
+        tipo: 'oauth2_client_credentials',
+        urlAutorizacao: 'http://169.254.169.254/token',
+        clientId: 'x',
+        clientSecret: 'y',
+      },
+    });
+    expect(oauthSsrf.status).toBe(400);
+  });
+
+  it('editar autenticação substitui por inteiro; cross-tenant é 404', async () => {
+    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessaoCompleta, {
+      url: `https://exemplo.pipe.app/editar-auth-${randomUUID().slice(0, 8)}`,
+      eventos: ['mensagem.criada'],
+      autenticacao: { tipo: 'basica', usuario: 'robo', senha: 'senha-1' },
+    });
+    const id = criado.corpo.id;
+
+    const editado = await patch<{ autenticacao: Record<string, unknown> }>(
+      `/v1/gestao/webhooks/${id}`,
+      sessaoCompleta,
+      { autenticacao: { tipo: 'nenhuma' } },
+    );
+    expect(editado.status).toBe(200);
+    expect(editado.corpo.autenticacao).toEqual({
+      tipo: 'nenhuma',
+      usuario: null,
+      urlAutorizacao: null,
+      clientId: null,
+    });
+
+    const outroTenant = await patch(`/v1/gestao/webhooks/${id}`, sessaoDoOutroTenant, {
+      autenticacao: { tipo: 'nenhuma' },
+    });
+    expect(outroTenant.status).toBe(404);
   });
 });

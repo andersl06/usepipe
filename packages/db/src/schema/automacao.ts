@@ -556,6 +556,13 @@ export const dicionarioCampo = pgTable(
   (t) => [uniqueIndex('dicionario_campo_uk').on(t.tenantId, t.objetoCodigo, t.codigo)],
 );
 
+/**
+ * Autenticação de saída do webhook — a "Configurações de autenticação" da
+ * origem (`docs/pesquisa/blip-integracoes-webhook.md`: switch + OAuth 2.0),
+ * mais Básica, que a origem não mostra mas a tarefa pede. Migration 0036.
+ */
+export const TIPOS_AUTENTICACAO_WEBHOOK = ['nenhuma', 'basica', 'oauth2_client_credentials'] as const;
+
 export const webhookSaida = pgTable(
   'webhook_saida',
   {
@@ -569,9 +576,34 @@ export const webhookSaida = pgTable(
     /** Segredo do HMAC de assinatura; cifrado em repouso, como o segredo de canal. */
     segredo: text('segredo').notNull(),
     ativo: boolean('ativo').notNull().default(true),
+    /** `nenhuma` (padrão) | `basica` | `oauth2_client_credentials`. Migration 0036. */
+    tipoAutenticacao: text('tipo_autenticacao').notNull().default('nenhuma'),
+    /** Usuário da autenticação básica — não é segredo, fica legível. */
+    autenticacaoUsuario: text('autenticacao_usuario'),
+    /** Senha da autenticação básica — cifrada em repouso (`@pipe/db/segredo`). */
+    autenticacaoSenha: text('autenticacao_senha'),
+    /** URL do token do OAuth 2.0 (`client_credentials`) — validada como a do webhook (HTTPS, sem rede privada). */
+    oauth2UrlAutorizacao: text('oauth2_url_autorizacao'),
+    /** Client ID do OAuth 2.0 — não é segredo. */
+    oauth2ClientId: text('oauth2_client_id'),
+    /** Client Secret do OAuth 2.0 — cifrado em repouso. */
+    oauth2ClientSecret: text('oauth2_client_secret'),
+    /**
+     * Cabeçalhos customizados — `[{ chave, valor }]`. Nunca inclui os
+     * reservados da assinatura (`content-type`, `x-pipe-signature`,
+     * `x-pipe-timestamp`, `x-pipe-delivery`) nem `authorization`: a regra
+     * de gravação (`dominio/gestao/integracoes.ts`) recusa antes de chegar
+     * aqui, então a coluna não precisa de `check` para isso.
+     */
+    cabecalhos: jsonb('cabecalhos')
+      .notNull()
+      .default(sql`'[]'::jsonb`),
     ...carimbos(),
   },
-  (t) => [index('webhook_saida_tenant_idx').on(t.tenantId, t.ativo)],
+  (t) => [
+    index('webhook_saida_tenant_idx').on(t.tenantId, t.ativo),
+    listaCheck('webhook_saida_tipo_autenticacao_ck', t.tipoAutenticacao, TIPOS_AUTENTICACAO_WEBHOOK),
+  ],
 );
 
 export const ESTADOS_ENTREGA_WEBHOOK = ['pendente', 'entregue', 'falhou', 'descartada'] as const;

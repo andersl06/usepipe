@@ -58,6 +58,8 @@ interface CorpoDeWebhook {
   url?: unknown;
   eventos?: unknown;
   ativo?: unknown;
+  autenticacao?: unknown;
+  cabecalhos?: unknown;
 }
 
 @Controller()
@@ -164,6 +166,8 @@ export class ControladorGestaoIntegracoes {
     const pedido: PedidoDeWebhook = {
       url: typeof corpo?.url === 'string' ? corpo.url : '',
       eventos: Array.isArray(corpo?.eventos) ? (corpo.eventos as unknown[]).map(String) : [],
+      autenticacao: corpo?.autenticacao,
+      cabecalhos: corpo?.cabecalhos,
     };
     return noTenant(sessao.tenantId, (tx) =>
       criarWebhook(tx, sessao.tenantId, sessao.usuarioId, pedido),
@@ -183,6 +187,8 @@ export class ControladorGestaoIntegracoes {
     if (typeof corpo?.url === 'string') pedido.url = corpo.url;
     if (Array.isArray(corpo?.eventos)) pedido.eventos = (corpo.eventos as unknown[]).map(String);
     if (typeof corpo?.ativo === 'boolean') pedido.ativo = corpo.ativo;
+    if (corpo?.autenticacao !== undefined) pedido.autenticacao = corpo.autenticacao;
+    if (corpo?.cabecalhos !== undefined) pedido.cabecalhos = corpo.cabecalhos;
     return noTenant(sessao.tenantId, (tx) =>
       editarWebhook(tx, sessao.tenantId, sessao.usuarioId, webhookId, pedido),
     );

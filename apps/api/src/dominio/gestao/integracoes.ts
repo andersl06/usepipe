@@ -1,13 +1,21 @@
 import { randomBytes } from 'node:crypto';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
-import { diferenca, registrarAuditoria } from '@pipe/db';
+import { cifrar, diferenca, registrarAuditoria } from '@pipe/db';
 import type { Ator, TransacaoPipe } from '@pipe/db';
 import { chaveApi, webhookSaida } from '@pipe/db/schema';
+import { TIPOS_AUTENTICACAO_WEBHOOK } from '@pipe/db/schema';
 import { ErroPipe } from '../../erros.js';
 import { exigirPermissao } from '../../sessao.js';
 import { hashDoSegredo } from '../../autenticacao.js';
-import { EVENTOS, assinar } from '../../webhooks-saida.js';
-import type { EventoWebhook } from '../../webhooks-saida.js';
+import { chaveiro } from '../../banco.js';
+import {
+  CABECALHOS_RESERVADOS,
+  EVENTOS,
+  cabecalhoDeAutorizacao,
+  cabecalhosDeSaida,
+  decifrarSegredoDeWebhook,
+} from '../../webhooks-saida.js';
+import type { CabecalhoCustomizado, EventoWebhook, TipoAutenticacaoWebhook } from '../../webhooks-saida.js';
 import { EDITAR_FLUXO } from './ciclo-de-vida-do-fluxo.js';
 
 /**
@@ -291,12 +299,28 @@ function ipPrivado(host: string): boolean {
  * duplicar a tabela por fluxo — a régua de webhook de saída já é
  * tenant-wide, `emitir()` avisa TODOS os assinantes ativos de um evento).
  */
+/**
+ * "Configurações de autenticação" da origem (switch + OAuth 2.0
+ * `client_credentials`), mais Básica — a origem não mostra, a tarefa pede.
+ * `usuario`/`urlAutorizacao`/`clientId` não são segredo e voltam na leitura;
+ * `senha`/`clientSecret` são cifrados em repouso e NUNCA voltam (nem aqui,
+ * nem em auditoria) — só entram na entrega/teste, decifrados na hora.
+ */
+export interface AutenticacaoWebhookVisivel {
+  tipo: TipoAutenticacaoWebhook;
+  usuario: string | null;
+  urlAutorizacao: string | null;
+  clientId: string | null;
+}
+
 export interface WebhookDeSaida {
   id: string;
   url: string;
   eventos: string[];
   ativo: boolean;
   criadoEm: string;
+  autenticacao: AutenticacaoWebhookVisivel;
+  cabecalhos: CabecalhoCustomizado[];
 }
 
 export interface WebhookDeSaidaCriado extends WebhookDeSaida {
@@ -311,6 +335,12 @@ type LinhaWebhook = {
   eventos: string[] | null;
   ativo: boolean;
   criadoEm: Date;
+  tipoAutenticacao: string;
+  autenticacaoUsuario: string | null;
+  oauth2UrlAutorizacao: string | null;
+  oauth2ClientId: string | null;
+  /** `jsonb`: o driver já devolve parseado, mas o tipo da coluna some no `select`. */
+  cabecalhos: unknown;
 };
 
 function comoWebhook(linha: LinhaWebhook): WebhookDeSaida {
@@ -320,15 +350,28 @@ function comoWebhook(linha: LinhaWebhook): WebhookDeSaida {
     eventos: linha.eventos ?? [],
     ativo: linha.ativo,
     criadoEm: linha.criadoEm.toISOString(),
+    autenticacao: {
+      tipo: linha.tipoAutenticacao as TipoAutenticacaoWebhook,
+      usuario: linha.autenticacaoUsuario,
+      urlAutorizacao: linha.oauth2UrlAutorizacao,
+      clientId: linha.oauth2ClientId,
+    },
+    cabecalhos: (linha.cabecalhos as CabecalhoCustomizado[] | null) ?? [],
   };
 }
 
+/** Nunca inclui `autenticacaoSenha`/`oauth2ClientSecret` — só `webhookVivo` (privado) lê os dois. */
 const COLUNAS_WEBHOOK = {
   id: webhookSaida.id,
   url: webhookSaida.url,
   eventos: webhookSaida.eventos,
   ativo: webhookSaida.ativo,
   criadoEm: webhookSaida.criadoEm,
+  tipoAutenticacao: webhookSaida.tipoAutenticacao,
+  autenticacaoUsuario: webhookSaida.autenticacaoUsuario,
+  oauth2UrlAutorizacao: webhookSaida.oauth2UrlAutorizacao,
+  oauth2ClientId: webhookSaida.oauth2ClientId,
+  cabecalhos: webhookSaida.cabecalhos,
 };
 
 function eventosConferidos(eventos: unknown): EventoWebhook[] {
@@ -342,6 +385,131 @@ function eventosConferidos(eventos: unknown): EventoWebhook[] {
     }
   }
   return unicos as EventoWebhook[];
+}
+
+/** `+ Adicionar cabeçalho` da origem: Chave/Valor, sem repetir e sem os reservados da assinatura. */
+const LIMITE_CABECALHOS = 20;
+
+function cabecalhosConferidos(valor: unknown): CabecalhoCustomizado[] {
+  if (valor === undefined) return [];
+  if (!Array.isArray(valor)) {
+    throw ErroPipe.requisicao('cabecalhos_invalidos', 'Cabeçalhos customizados inválidos.');
+  }
+  if (valor.length > LIMITE_CABECALHOS) {
+    throw ErroPipe.requisicao(
+      'cabecalhos_no_limite',
+      `Limite de ${LIMITE_CABECALHOS} cabeçalhos customizados.`,
+    );
+  }
+  const vistos = new Set<string>();
+  const conferidos: CabecalhoCustomizado[] = [];
+  for (const item of valor) {
+    const bruto = item as Record<string, unknown>;
+    const chave = typeof bruto?.['chave'] === 'string' ? bruto['chave'].trim() : '';
+    const valorDoCabecalho = typeof bruto?.['valor'] === 'string' ? bruto['valor'] : '';
+    if (!chave || chave.length > 200 || valorDoCabecalho.length > 2000) {
+      throw ErroPipe.requisicao(
+        'cabecalho_invalido',
+        'Cada cabeçalho precisa de uma chave (até 200 caracteres) e um valor (até 2000).',
+      );
+    }
+    const chaveNormal = chave.toLowerCase();
+    if ((CABECALHOS_RESERVADOS as readonly string[]).includes(chaveNormal)) {
+      throw ErroPipe.requisicao(
+        'cabecalho_reservado',
+        `O cabeçalho "${chave}" é reservado pela assinatura do webhook.`,
+      );
+    }
+    if (vistos.has(chaveNormal)) {
+      throw ErroPipe.requisicao(
+        'cabecalho_repetido',
+        `O cabeçalho "${chave}" foi informado mais de uma vez.`,
+      );
+    }
+    vistos.add(chaveNormal);
+    conferidos.push({ chave, valor: valorDoCabecalho });
+  }
+  return conferidos;
+}
+
+/**
+ * "Configurações de autenticação": nasce `nenhuma` quando o pedido não traz
+ * nada (mesmo default da coluna). Editar SEMPRE substitui por inteiro — como
+ * `eventos` — então trocar de OAuth 2.0 para Básica (ou vice-versa) pede as
+ * credenciais de novo; não dá para só trocar o tipo e manter a senha antiga
+ * cifrada de um jeito que o formulário nunca viu em claro.
+ */
+export interface AutenticacaoWebhookEntrada {
+  tipo: TipoAutenticacaoWebhook;
+  usuario?: string;
+  senha?: string;
+  urlAutorizacao?: string;
+  clientId?: string;
+  clientSecret?: string;
+}
+
+function autenticacaoConferida(valor: unknown): AutenticacaoWebhookEntrada {
+  const bruto = (valor ?? { tipo: 'nenhuma' }) as Record<string, unknown>;
+  const tipo = String(bruto['tipo'] ?? '');
+  if (!(TIPOS_AUTENTICACAO_WEBHOOK as readonly string[]).includes(tipo)) {
+    throw ErroPipe.requisicao('autenticacao_invalida', 'Tipo de autenticação desconhecido.');
+  }
+
+  if (tipo === 'basica') {
+    const usuario = typeof bruto['usuario'] === 'string' ? bruto['usuario'].trim() : '';
+    const senha = typeof bruto['senha'] === 'string' ? bruto['senha'] : '';
+    if (!usuario || !senha) {
+      throw ErroPipe.requisicao(
+        'autenticacao_incompleta',
+        'Informe usuário e senha da autenticação básica.',
+      );
+    }
+    return { tipo: 'basica', usuario, senha };
+  }
+
+  if (tipo === 'oauth2_client_credentials') {
+    const urlAutorizacao = typeof bruto['urlAutorizacao'] === 'string' ? bruto['urlAutorizacao'] : '';
+    const clientId = typeof bruto['clientId'] === 'string' ? bruto['clientId'].trim() : '';
+    const clientSecret = typeof bruto['clientSecret'] === 'string' ? bruto['clientSecret'] : '';
+    if (!urlAutorizacao || !clientId || !clientSecret) {
+      throw ErroPipe.requisicao(
+        'autenticacao_incompleta',
+        'Informe URL de autorização, Client ID e Client Secret do OAuth 2.0.',
+      );
+    }
+    confirmarUrlSegura(urlAutorizacao);
+    return { tipo: 'oauth2_client_credentials', urlAutorizacao, clientId, clientSecret };
+  }
+
+  return { tipo: 'nenhuma' };
+}
+
+/** As colunas que a gravação seta — os dois segredos saem cifrados daqui. */
+function colunasDeAutenticacao(autenticacao: AutenticacaoWebhookEntrada) {
+  return {
+    tipoAutenticacao: autenticacao.tipo,
+    autenticacaoUsuario: autenticacao.tipo === 'basica' ? autenticacao.usuario! : null,
+    autenticacaoSenha:
+      autenticacao.tipo === 'basica' ? cifrar(autenticacao.senha!, chaveiro()) : null,
+    oauth2UrlAutorizacao:
+      autenticacao.tipo === 'oauth2_client_credentials' ? autenticacao.urlAutorizacao! : null,
+    oauth2ClientId: autenticacao.tipo === 'oauth2_client_credentials' ? autenticacao.clientId! : null,
+    oauth2ClientSecret:
+      autenticacao.tipo === 'oauth2_client_credentials'
+        ? cifrar(autenticacao.clientSecret!, chaveiro())
+        : null,
+  };
+}
+
+/** O que entra no log de auditoria — nunca `senha`/`clientSecret`, nem cifrados. */
+function autenticacaoParaAuditoria(autenticacao: AutenticacaoWebhookEntrada): AutenticacaoWebhookVisivel {
+  return {
+    tipo: autenticacao.tipo,
+    usuario: autenticacao.tipo === 'basica' ? (autenticacao.usuario ?? null) : null,
+    urlAutorizacao:
+      autenticacao.tipo === 'oauth2_client_credentials' ? (autenticacao.urlAutorizacao ?? null) : null,
+    clientId: autenticacao.tipo === 'oauth2_client_credentials' ? (autenticacao.clientId ?? null) : null,
+  };
 }
 
 export async function listarWebhooks(
@@ -361,6 +529,10 @@ export async function listarWebhooks(
 export interface PedidoDeWebhook {
   url: string;
   eventos: string[];
+  /** `undefined` = "nenhuma" (o default da coluna). Validado por `autenticacaoConferida`. */
+  autenticacao?: unknown;
+  /** `undefined` = sem cabeçalhos. Validado por `cabecalhosConferidos`. */
+  cabecalhos?: unknown;
 }
 
 export async function criarWebhook(
@@ -372,11 +544,21 @@ export async function criarWebhook(
   await exigirPermissao(tx, usuarioId, GERENCIAR_INTEGRACAO);
   confirmarUrlSegura(pedido.url);
   const eventos = eventosConferidos(pedido.eventos);
+  const autenticacao = autenticacaoConferida(pedido.autenticacao);
+  const cabecalhos = cabecalhosConferidos(pedido.cabecalhos);
   const segredo = randomBytes(32).toString('hex');
 
   const [criado] = await tx
     .insert(webhookSaida)
-    .values({ tenantId, url: pedido.url, eventos, segredo, ativo: true })
+    .values({
+      tenantId,
+      url: pedido.url,
+      eventos,
+      segredo,
+      ativo: true,
+      cabecalhos,
+      ...colunasDeAutenticacao(autenticacao),
+    })
     .returning(COLUNAS_WEBHOOK);
   if (!criado) throw new Error('não criou o webhook');
 
@@ -385,33 +567,55 @@ export async function criarWebhook(
     acao: 'criou',
     objetoTipo: 'webhook_saida',
     objetoId: criado.id,
-    depois: { url: pedido.url, eventos, ativo: true },
+    depois: {
+      url: pedido.url,
+      eventos,
+      ativo: true,
+      autenticacao: autenticacaoParaAuditoria(autenticacao),
+      cabecalhos,
+    },
   });
 
   return { ...comoWebhook(criado), segredo };
 }
 
+/** Linha completa, com os segredos — só para entrega/teste (`testarWebhook`) e edição/exclusão. */
 async function webhookVivo(
   tx: TransacaoPipe,
   tenantId: string,
   id: string,
-): Promise<WebhookDeSaida & { segredo: string }> {
+): Promise<
+  WebhookDeSaida & { segredo: string; autenticacaoSenha: string | null; oauth2ClientSecret: string | null }
+> {
   const [atual] = await tx
-    .select({ ...COLUNAS_WEBHOOK, segredo: webhookSaida.segredo })
+    .select({
+      ...COLUNAS_WEBHOOK,
+      segredo: webhookSaida.segredo,
+      autenticacaoSenha: webhookSaida.autenticacaoSenha,
+      oauth2ClientSecret: webhookSaida.oauth2ClientSecret,
+    })
     .from(webhookSaida)
     .where(and(eq(webhookSaida.tenantId, tenantId), eq(webhookSaida.id, id)))
     .limit(1);
   if (!atual) throw ErroPipe.naoEncontrado('webhook');
-  return { ...comoWebhook(atual), segredo: atual.segredo };
+  return {
+    ...comoWebhook(atual),
+    segredo: atual.segredo,
+    autenticacaoSenha: atual.autenticacaoSenha,
+    oauth2ClientSecret: atual.oauth2ClientSecret,
+  };
 }
 
 export interface PedidoDeEdicaoDeWebhook {
   url?: string;
   eventos?: string[];
   ativo?: boolean;
+  /** Substitui por inteiro, como `eventos` — ver o comentário de `autenticacaoConferida`. */
+  autenticacao?: unknown;
+  cabecalhos?: unknown;
 }
 
-/** `PATCH`: url/eventos/ativo — só o que veio. Ativar/desativar vira `Acao` própria. */
+/** `PATCH`: url/eventos/ativo/autenticacao/cabecalhos — só o que veio. Ativar/desativar vira `Acao` própria. */
 export async function editarWebhook(
   tx: TransacaoPipe,
   tenantId: string,
@@ -422,7 +626,13 @@ export async function editarWebhook(
   await exigirPermissao(tx, usuarioId, GERENCIAR_INTEGRACAO);
   const atual = await webhookVivo(tx, tenantId, id);
 
-  const antes = { url: atual.url, eventos: atual.eventos, ativo: atual.ativo };
+  const antes = {
+    url: atual.url,
+    eventos: atual.eventos,
+    ativo: atual.ativo,
+    autenticacao: atual.autenticacao,
+    cabecalhos: atual.cabecalhos,
+  };
   const depois = { ...antes };
   if (pedido.url !== undefined) {
     confirmarUrlSegura(pedido.url);
@@ -431,12 +641,27 @@ export async function editarWebhook(
   if (pedido.eventos !== undefined) depois.eventos = eventosConferidos(pedido.eventos);
   if (pedido.ativo !== undefined) depois.ativo = pedido.ativo;
 
+  let autenticacaoEntrada: AutenticacaoWebhookEntrada | undefined;
+  if (pedido.autenticacao !== undefined) {
+    autenticacaoEntrada = autenticacaoConferida(pedido.autenticacao);
+    depois.autenticacao = autenticacaoParaAuditoria(autenticacaoEntrada);
+  }
+  if (pedido.cabecalhos !== undefined) depois.cabecalhos = cabecalhosConferidos(pedido.cabecalhos);
+
   const mudanca = diferenca(antes, depois);
   if (Object.keys(mudanca.depois).length === 0) return atual;
 
+  const colunasParaGravar = {
+    url: depois.url,
+    eventos: depois.eventos,
+    ativo: depois.ativo,
+    cabecalhos: depois.cabecalhos,
+    ...(autenticacaoEntrada ? colunasDeAutenticacao(autenticacaoEntrada) : {}),
+  };
+
   const [gravado] = await tx
     .update(webhookSaida)
-    .set(depois)
+    .set(colunasParaGravar)
     .where(and(eq(webhookSaida.tenantId, tenantId), eq(webhookSaida.id, id)))
     .returning(COLUNAS_WEBHOOK);
   if (!gravado) throw ErroPipe.naoEncontrado('webhook');
@@ -472,7 +697,13 @@ export async function excluirWebhook(
     acao: 'excluiu',
     objetoTipo: 'webhook_saida',
     objetoId: id,
-    antes: { url: atual.url, eventos: atual.eventos, ativo: atual.ativo },
+    antes: {
+      url: atual.url,
+      eventos: atual.eventos,
+      ativo: atual.ativo,
+      autenticacao: atual.autenticacao,
+      cabecalhos: atual.cabecalhos,
+    },
   });
 }
 
@@ -480,12 +711,19 @@ export interface ResultadoDoTeste {
   ok: boolean;
   status?: number;
   erro?: string;
+  /** Os primeiros caracteres da resposta — "mostra a resposta (status e corpo curto)". */
+  corpo?: string;
 }
+
+/** Corta a prévia do corpo da resposta do teste — nunca a resposta inteira no log/tela. */
+const LIMITE_CORPO_DO_TESTE = 300;
 
 /**
  * O botão "Testar": um POST imediato, fora da fila de `webhooks-saida.ts` —
  * é um clique de gente, não um fato de negócio, e não deixa rastro em
  * `entrega_webhook` (não é evento real, e falhar aqui não deve gerar retry).
+ * Usa a MESMA autenticação e os MESMOS cabeçalhos customizados da entrega de
+ * verdade (`cabecalhosDeSaida`/`cabecalhoDeAutorizacao`, `webhooks-saida.ts`).
  */
 export async function testarWebhook(
   tx: TransacaoPipe,
@@ -506,20 +744,36 @@ export async function testarWebhook(
   const timestamp = String(Math.floor(Date.now() / 1000));
 
   try {
+    const cabecalhos = cabecalhosDeSaida({
+      segredo: webhook.segredo,
+      timestamp,
+      corpo,
+      deliveryId: randomBytes(16).toString('hex'),
+      customizados: webhook.cabecalhos,
+    });
+    const autorizacao = await cabecalhoDeAutorizacao({
+      tipo: webhook.autenticacao.tipo,
+      usuario: webhook.autenticacao.usuario,
+      senha: decifrarSegredoDeWebhook(webhook.autenticacaoSenha),
+      oauth2UrlAutorizacao: webhook.autenticacao.urlAutorizacao,
+      oauth2ClientId: webhook.autenticacao.clientId,
+      oauth2ClientSecret: decifrarSegredoDeWebhook(webhook.oauth2ClientSecret),
+    });
+    if (autorizacao) cabecalhos['authorization'] = autorizacao;
+
     const resposta = await fetch(webhook.url, {
       method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-        'x-pipe-signature': assinar(webhook.segredo, timestamp, corpo),
-        'x-pipe-timestamp': timestamp,
-        'x-pipe-delivery': randomBytes(16).toString('hex'),
-      },
+      headers: cabecalhos,
       body: corpo,
       signal: AbortSignal.timeout(5_000),
     });
+    const corpoDaResposta = await resposta
+      .text()
+      .catch(() => '')
+      .then((texto) => texto.slice(0, LIMITE_CORPO_DO_TESTE));
     return resposta.ok
-      ? { ok: true, status: resposta.status }
-      : { ok: false, status: resposta.status, erro: `HTTP ${resposta.status}` };
+      ? { ok: true, status: resposta.status, corpo: corpoDaResposta }
+      : { ok: false, status: resposta.status, erro: `HTTP ${resposta.status}`, corpo: corpoDaResposta };
   } catch (falha) {
     return { ok: false, erro: (falha as Error).message };
   }
