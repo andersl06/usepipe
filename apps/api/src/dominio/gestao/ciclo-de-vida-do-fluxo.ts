@@ -4,6 +4,7 @@ import type { Ator, TransacaoPipe } from '@pipe/db';
 import { DESCRICAO_FLUXO_MAX, fluxo } from '@pipe/db/schema';
 import { ErroPipe } from '../../erros.js';
 import { exigirPermissao } from '../../sessao.js';
+import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
 import {
   IMAGEM,
   TAMANHO,
@@ -243,7 +244,11 @@ export async function editarFluxo(
   pedido: PedidoDeEdicao,
 ): Promise<FluxoGravado> {
   const atual = await fluxoVivo(tx, tenantId, id);
-  await exigirPermissao(tx, usuarioId, EDITAR_FLUXO);
+  /* "Configurações básicas" é uma linha do `PermissionsList.html`
+     (`basicConfigurations`), então editar ESTE contato passa a valer também
+     para quem tem a permissão nele — sem tirar de quem já a tinha na conta
+     (`exigirPermissaoNoFluxo`, migração 0035). */
+  await exigirPermissaoNoFluxo(tx, usuarioId, id, 'basicConfigurations.escrever');
 
   const antes = {
     nome: atual.nome,

@@ -101,6 +101,45 @@ export const fluxo = pgTable(
 );
 
 /**
+ * As quatro paradas do traço "Permissão" dos modais da Equipe — as chaves
+ * `team.addUserModal.slider` da origem (`visualize`, `custom`, `edit`, `admin`).
+ */
+export const PAPEIS_NO_FLUXO = ['visualizar', 'personalizado', 'editar', 'admin'] as const;
+
+/**
+ * A equipe DO contato: quem acessa este fluxo e com que permissão. Migration 0035,
+ * que explica o porquê (na origem a permissão é do BOT, não do tenant) e o formato
+ * do `permissoes` — o `PermissionsList.html` da rota `/team/team/edit`.
+ */
+export const fluxoMembro = pgTable(
+  'fluxo_membro',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    fluxoId: uuid('fluxo_id')
+      .notNull()
+      .references(() => fluxo.id, { onDelete: 'cascade' }),
+    usuarioId: uuid('usuario_id')
+      .notNull()
+      .references(() => usuario.id, { onDelete: 'cascade' }),
+    papelNoFluxo: text('papel_no_fluxo').notNull().default('visualizar'),
+    /** `{ builder: 'escrever', analysis: 'ler', … }` — recurso da origem → rádio. */
+    permissoes: jsonb('permissoes')
+      .notNull()
+      .default(sql`'{}'::jsonb`)
+      .$type<Partial<Record<string, 'nenhum' | 'ler' | 'escrever'>>>(),
+    /** Quem pôs a pessoa aqui; sobrevive a ela (`set null`). */
+    convidadoPor: uuid('convidado_por').references(() => usuario.id, { onDelete: 'set null' }),
+    ...carimbos(),
+  },
+  (t) => [
+    listaCheck('fluxo_membro_papel_ck', t.papelNoFluxo, PAPEIS_NO_FLUXO),
+    uniqueIndex('fluxo_membro_uk').on(t.fluxoId, t.usuarioId),
+    index('fluxo_membro_usuario_ix').on(t.usuarioId),
+  ],
+);
+
+/**
  * Os serviços do roteador — o `master.services` da Blip. Migration 0024, que explica
  * cada coluna e por que não existe túnel no Pipe.
  */
@@ -126,10 +165,7 @@ export const roteadorServico = pgTable(
   },
   (t) => [
     check('roteador_servico_distintos_ck', sql`${t.roteadorId} <> ${t.servicoId}`),
-    check(
-      'roteador_servico_expiracao_ck',
-      sql`${t.expiracaoMin} is null or ${t.expiracaoMin} > 0`,
-    ),
+    check('roteador_servico_expiracao_ck', sql`${t.expiracaoMin} is null or ${t.expiracaoMin} > 0`),
     check(
       'roteador_servico_principal_ck',
       sql`not ${t.principal} or (not ${t.persistente} and ${t.expiracaoMin} is null)`,
@@ -144,7 +180,9 @@ export const roteadorServico = pgTable(
     ),
     uniqueIndex('roteador_servico_nome_uk').on(t.roteadorId, t.nome),
     uniqueIndex('roteador_servico_servico_uk').on(t.roteadorId, t.servicoId),
-    uniqueIndex('roteador_servico_principal_uk').on(t.roteadorId).where(sql`${t.principal}`),
+    uniqueIndex('roteador_servico_principal_uk')
+      .on(t.roteadorId)
+      .where(sql`${t.principal}`),
   ],
 );
 
@@ -561,7 +599,11 @@ export const dicionarioCampo = pgTable(
  * origem (`docs/pesquisa/blip-integracoes-webhook.md`: switch + OAuth 2.0),
  * mais Básica, que a origem não mostra mas a tarefa pede. Migration 0036.
  */
-export const TIPOS_AUTENTICACAO_WEBHOOK = ['nenhuma', 'basica', 'oauth2_client_credentials'] as const;
+export const TIPOS_AUTENTICACAO_WEBHOOK = [
+  'nenhuma',
+  'basica',
+  'oauth2_client_credentials',
+] as const;
 
 export const webhookSaida = pgTable(
   'webhook_saida',
@@ -602,7 +644,11 @@ export const webhookSaida = pgTable(
   },
   (t) => [
     index('webhook_saida_tenant_idx').on(t.tenantId, t.ativo),
-    listaCheck('webhook_saida_tipo_autenticacao_ck', t.tipoAutenticacao, TIPOS_AUTENTICACAO_WEBHOOK),
+    listaCheck(
+      'webhook_saida_tipo_autenticacao_ck',
+      t.tipoAutenticacao,
+      TIPOS_AUTENTICACAO_WEBHOOK,
+    ),
   ],
 );
 

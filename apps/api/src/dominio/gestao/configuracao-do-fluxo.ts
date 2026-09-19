@@ -4,9 +4,8 @@ import type { Ator, TransacaoPipe } from '@pipe/db';
 import { fluxo } from '@pipe/db/schema';
 import type { ConfiguracaoDeBoasVindas, ConfiguracaoDeMenuPersistente } from '@pipe/contracts';
 import { ErroPipe } from '../../erros.js';
-import { exigirPermissao } from '../../sessao.js';
 import { carregarContato } from '../gestao-fluxo.js';
-import { EDITAR_FLUXO } from './ciclo-de-vida-do-fluxo.js';
+import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
 
 /**
  * "Tela de Boas-vindas" e "Menu Persistente" — os itens 2 e 3 de
@@ -106,7 +105,10 @@ export async function salvarBoasVindas(
   pedido: PedidoDeBoasVindas,
 ): Promise<ConfiguracaoDeBoasVindas> {
   const { configuracao } = await fluxoVivo(tx, tid, id);
-  await exigirPermissao(tx, usuarioId, EDITAR_FLUXO);
+  /* As duas telas são `basicConfigurations` no `PermissionsList.html` da origem:
+     quem tem a permissão NESTE contato também salva, sem tirar de quem já
+     salvava pela conta (migração 0035). */
+  await exigirPermissaoNoFluxo(tx, usuarioId, id, 'basicConfigurations.escrever');
 
   const antes = boasVindasDe(configuracao);
   let depois: ConfiguracaoDeBoasVindas;
@@ -150,15 +152,13 @@ export async function salvarBoasVindas(
 function itensDe(configuracao: ConfiguracaoArmazenada): { texto: string; link: string }[] {
   const brutos = configuracao.menuPersistente?.itens;
   if (!Array.isArray(brutos)) return [];
-  return brutos
-    .slice(0, MAXIMO_DE_ITENS_MENU)
-    .map((item) => {
-      const objeto = item as { texto?: unknown; link?: unknown } | null;
-      return {
-        texto: typeof objeto?.texto === 'string' ? objeto.texto : '',
-        link: typeof objeto?.link === 'string' ? objeto.link : '',
-      };
-    });
+  return brutos.slice(0, MAXIMO_DE_ITENS_MENU).map((item) => {
+    const objeto = item as { texto?: unknown; link?: unknown } | null;
+    return {
+      texto: typeof objeto?.texto === 'string' ? objeto.texto : '',
+      link: typeof objeto?.link === 'string' ? objeto.link : '',
+    };
+  });
 }
 
 /** Preenchida = ativa, com mensagem e texto do botão — a trava que o menu persistente pede. */
@@ -173,7 +173,10 @@ export async function carregarMenuPersistente(
   id: string,
 ): Promise<ConfiguracaoDeMenuPersistente> {
   const { configuracao } = await fluxoVivo(tx, tid, id);
-  return { itens: itensDe(configuracao), boasVindasPreenchida: boasVindasPreenchidaEm(configuracao) };
+  return {
+    itens: itensDe(configuracao),
+    boasVindasPreenchida: boasVindasPreenchidaEm(configuracao),
+  };
 }
 
 export interface ItemDoPedido {
@@ -194,7 +197,10 @@ export async function salvarMenuPersistente(
   pedido: ItemDoPedido[],
 ): Promise<ConfiguracaoDeMenuPersistente> {
   const { configuracao } = await fluxoVivo(tx, tid, id);
-  await exigirPermissao(tx, usuarioId, EDITAR_FLUXO);
+  /* As duas telas são `basicConfigurations` no `PermissionsList.html` da origem:
+     quem tem a permissão NESTE contato também salva, sem tirar de quem já
+     salvava pela conta (migração 0035). */
+  await exigirPermissaoNoFluxo(tx, usuarioId, id, 'basicConfigurations.escrever');
 
   const contato = await carregarContato(tx, tid, id);
   if (contato?.canalTipo !== 'messenger' || contato.canalAtivo !== true) {
@@ -210,13 +216,18 @@ export async function salvarMenuPersistente(
     );
   }
 
-  const itens = (Array.isArray(pedido) ? pedido : []).slice(0, MAXIMO_DE_ITENS_MENU).map((item) => ({
-    texto: typeof item?.texto === 'string' ? item.texto.trim() : '',
-    link: typeof item?.link === 'string' ? item.link.trim() : '',
-  }));
+  const itens = (Array.isArray(pedido) ? pedido : [])
+    .slice(0, MAXIMO_DE_ITENS_MENU)
+    .map((item) => ({
+      texto: typeof item?.texto === 'string' ? item.texto.trim() : '',
+      link: typeof item?.link === 'string' ? item.link.trim() : '',
+    }));
   for (const item of itens) {
     if (Boolean(item.texto) !== Boolean(item.link)) {
-      throw ErroPipe.requisicao('menu_persistente_item', 'Preencha o texto e o link do item, ou deixe os dois vazios.');
+      throw ErroPipe.requisicao(
+        'menu_persistente_item',
+        'Preencha o texto e o link do item, ou deixe os dois vazios.',
+      );
     }
   }
   const preenchidos = itens.filter((item) => item.texto && item.link);
@@ -228,7 +239,10 @@ export async function salvarMenuPersistente(
     { itens: JSON.stringify(depois.itens) },
   );
   if (Object.keys(mudanca.depois).length > 0) {
-    await gravarConfiguracao(tx, tid, id, { ...configuracao, menuPersistente: { itens: preenchidos } });
+    await gravarConfiguracao(tx, tid, id, {
+      ...configuracao,
+      menuPersistente: { itens: preenchidos },
+    });
     await registrarAuditoria(tx, tid, {
       ator: ator(usuarioId),
       acao: 'alterou',

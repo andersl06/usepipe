@@ -114,6 +114,60 @@ test('sobra item para o "…" nos dois tipos', () => {
   assert.ok(itensDoMenu('roteador', ID).length > LIMITE_VISIVEL);
 });
 
+/*
+ * O passo 2 da origem (`getUpdatedMenus()`): a fileira peneirada pelas
+ * permissões DA PESSOA naquele bot. Sem o argumento nada muda — é o que os
+ * testes acima travam, e é o que todo tenant que nunca abriu a Equipe vê.
+ */
+const SO_ISSO = (permissoes: Record<string, 'nenhum' | 'ler' | 'escrever'>) => ({
+  papelNoFluxo: 'personalizado' as const,
+  permissoes,
+  editaPelaConta: false,
+});
+
+test('as permissões do fluxo escondem o que a pessoa não pode ver', () => {
+  const itens = itensDoMenu('fluxo', ID, SO_ISSO({ builder: 'escrever', analysis: 'ler' }));
+  assert.deepEqual(
+    itens.map((i) => i.rotulo),
+    ['Builder', 'Análise'],
+  );
+});
+
+test('"Sem permissão" some da barra, e o destino continua o mesmo de sempre', () => {
+  const itens = itensDoMenu('fluxo', ID, SO_ISSO({ builder: 'nenhum', channels: 'ler' }));
+  assert.deepEqual(
+    itens.map((i) => i.rotulo),
+    ['Canais'],
+  );
+  assert.equal(itens[0]?.href, `/fluxo/${ID}/canais`);
+});
+
+test('"Conteúdos" é o recurso `resources` da lista de permissões, não `contents`', () => {
+  /* É a única chave em que as duas listas da origem discordam de nome. */
+  assert.deepEqual(
+    itensDoMenu('fluxo', ID, SO_ISSO({ resources: 'ler' })).map((i) => i.rotulo),
+    ['Conteúdos'],
+  );
+  assert.deepEqual(itensDoMenu('fluxo', ID, SO_ISSO({ contents: 'ler' })), []);
+});
+
+test('quem edita fluxo pela CONTA continua vendo a fileira inteira', () => {
+  /* O outro lado do duplo portão: a permissão de conta não é peneirada pela
+     do fluxo, senão a 0035 tiraria acesso de quem já tinha. */
+  const conta = { papelNoFluxo: null, permissoes: {}, editaPelaConta: true };
+  assert.deepEqual(itensDoMenu('fluxo', ID, conta), itensDoMenu('fluxo', ID));
+});
+
+test('o item do template do roteador não passa pela peneira de permissão', () => {
+  /* `getTemplateSetupItem()` roda ANTES de `getUpdatedMenus()` e não é do
+     catálogo: "Serviços" fica mesmo quando a pessoa não tem recurso nenhum. */
+  const itens = itensDoMenu('roteador', ID, SO_ISSO({}));
+  assert.deepEqual(
+    itens.map((i) => i.rotulo),
+    ['Serviços'],
+  );
+});
+
 test('a pilha da equipe: sete rostos e um "+N" que para em 9', () => {
   const gente = (n: number) =>
     Array.from({ length: n }, (_, i) => ({ nome: `P ${i}`, fotoUrl: null }));

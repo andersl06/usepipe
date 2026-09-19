@@ -1,115 +1,85 @@
+import type { NivelNoFluxo, PapelNoFluxo, PermissoesNoFluxo } from '@pipe/contracts';
+
 /**
- * A lista de permissões granulares do "Editar membro" — o `PermissionsList.html`
- * da rota `/team/team/edit` da origem (bundle em
- * `docs/capturas/blip/equipe/zip18/.../portal.js`): uma linha por RECURSO
- * (Canais, Usuários do bot, Growth, Configurações, Recursos, Log de mensagens,
- * Builder, Análise…) e, em cada linha, três rádios — `none` (0), `read` (1) e
- * `readWrite` (3), rotulados "Sem permissão" / "Visualizar" / "Ver e editar".
- * Acima da lista fica o seletor de nível, e é ele quem marca os rádios:
- * "Visualizar" põe tudo em `read`, "Ver e editar" e "Admin" põem tudo em
- * `readWrite`, e "Personalizado" libera cada linha para a mão
- * (`selectAllPermissions()` / `checkStatus()`).
+ * O vocabulário dos dois modais da Equipe — o traço "Permissão" e a lista por
+ * recurso —, agora com dado de verdade atrás.
  *
- * **O que o nosso modelo alcança e o que não alcança.** O RBAC da conta
- * (migrações 0019 e 0021) tem exatamente TRÊS papéis de sistema —
- * `guest`/`member`/`admin` — e cada um carrega um conjunto FIXO de permissões
- * `<recurso>.<verbo>`. Não existe papel "Personalizado": trocar um rádio à mão
- * exigiria criar um papel novo por pessoa, e isso não é o que o produto tem.
- * Por isso a lista aqui é ESPELHO do nível escolhido (muda com o traço, como na
- * origem), mas os rádios não se mexem sozinhos — a estrutura de linhas e
- * colunas é a deles, pronta para o dia em que houver papel por pessoa.
+ * Até a migração 0035 esta tela era ESPELHO do papel de CONTA: o Pipe não tinha
+ * RBAC por fluxo, então os rádios vinham da matriz da 0021 e nasciam
+ * desabilitados. Agora existe `fluxo_membro`, e a lista é o que ela guarda —
+ * a estrutura de linhas e colunas continua a mesma, só parou de ser enfeite.
  *
- * A matriz abaixo é a de `0021_papel_da_conta.sql` (a "matriz deles": `admin`
- * tudo; `member` = resumo read + workspace read/write + editar fluxos; `guest`
- * = só leitura). Mora aqui porque `GET /v1/gestao/contrato/membros` devolve os
- * papéis sem as permissões — quando a API passar a mandar `papel.permissoes`,
- * `nivelDoRecurso` troca esta constante pelo dado e o resto não muda.
+ * Duas coisas vêm da origem e não se inventam aqui:
+ *
+ *   níveis    os três rádios do `PermissionsList.html`: `none` (0), `read` (1)
+ *             e `readWrite` (3), rotulados "Sem permissão" / "Visualizar" /
+ *             "Ver e editar", cada um com o seu `info`;
+ *   paradas   as quatro do `rzslider` (`team.addUserModal.slider`), que os DOIS
+ *             modais escrevem com palavras diferentes: adicionar usa
+ *             "Visualizar · Customizado · Visualizar e editar · Admin" (DOM
+ *             capturado) e editar usa "Visualizar · Personalizado · Ver e
+ *             editar · Admin" (`FICHA-equipe-editar.md` §4).
+ *
+ * Os RECURSOS (as linhas) não moram aqui: vêm de `GET .../equipe`, na ordem do
+ * template da origem, porque quem decide o catálogo é o servidor
+ * (`dominio/gestao/equipe-do-fluxo.ts`) — a tela só desenha.
  */
 
-/** Os três rádios da origem: `none` (0), `read` (1), `readWrite` (3). */
-export type NivelDoRecurso = 'nenhum' | 'ler' | 'escrever';
+/** As três colunas, na ordem da origem, com o tooltip de cada uma. */
+export const COLUNAS_DE_NIVEL: readonly { nivel: NivelNoFluxo; rotulo: string; dica: string }[] = [
+  {
+    nivel: 'nenhum',
+    rotulo: 'Sem permissão',
+    dica: 'O usuário não vê este menu nem acessa seu conteúdo.',
+  },
+  {
+    nivel: 'ler',
+    rotulo: 'Visualizar',
+    dica: 'O usuário consegue visualizar as informações, mas não pode fazer alterações.',
+  },
+  {
+    nivel: 'escrever',
+    rotulo: 'Ver e editar',
+    dica: 'O usuário pode visualizar e também alterar as informações desta página.',
+  },
+];
 
-export interface RecursoDaConta {
-  /** A chave da matriz sem o verbo — `conta.membros`, como em `catalogo.ts`. */
-  chave: string;
-  /** O `{{recurso.title}}` da linha. */
-  titulo: string;
-  /**
-   * `false` quando o recurso não tem verbo de escrita NO CATÁLOGO (0019):
-   * faturamento só existe em leitura porque, na matriz deles, ninguém tem
-   * `write` em `tenant-billing` — nem o `admin`. A linha ainda aparece, mas o
-   * rádio "Ver e editar" não é uma opção que exista.
-   */
-  temEscrita: boolean;
-}
-
-/** A ordem é a das linhas da 0019, que é a ordem dos cartões do Painel. */
-export const RECURSOS_DA_CONTA: readonly RecursoDaConta[] = [
-  { chave: 'conta.resumo', titulo: 'Resumo do contrato', temEscrita: true },
-  { chave: 'conta.membros', titulo: 'Membros', temEscrita: true },
-  { chave: 'conta.workspace', titulo: 'Espaço de trabalho', temEscrita: true },
-  { chave: 'conta.painel', titulo: 'Painel do contrato', temEscrita: true },
-  { chave: 'conta.faturamento', titulo: 'Faturamento', temEscrita: false },
-  { chave: 'conta.grupos_acesso', titulo: 'Grupos de acesso', temEscrita: true },
-  /* `automacao.fluxo.editar` é um verbo só ("Cria e edita chatbots"): quem o
-     tem, vê e edita; quem não tem, não entra. Não há `automacao.fluxo.ler`
-     separado no catálogo, então a coluna do meio nunca acende nesta linha. */
-  { chave: 'automacao.fluxo', titulo: 'Fluxos e roteadores', temEscrita: true },
+/** As quatro paradas do traço, com a legenda de cada modal. */
+export const PAPEIS_DO_FLUXO: readonly {
+  papel: PapelNoFluxo;
+  adicionar: string;
+  editar: string;
+}[] = [
+  { papel: 'visualizar', adicionar: 'Visualizar', editar: 'Visualizar' },
+  { papel: 'personalizado', adicionar: 'Customizado', editar: 'Personalizado' },
+  { papel: 'editar', adicionar: 'Visualizar e editar', editar: 'Ver e editar' },
+  { papel: 'admin', adicionar: 'Admin', editar: 'Admin' },
 ];
 
 /**
- * As permissões de cada papel de conta, por `roleId` — cópia fiel do `VALUES`
- * da migração 0021. `automacao.fluxo.editar` entra aqui com o verbo trocado
- * para `escrever` só para a conta bater com as outras linhas.
+ * `selectAllPermissions()` da origem, do lado da tela: mover o traço MARCA os
+ * rádios. É a mesma regra de `permissoesDoPapel` na `api` — aqui para a lista
+ * acompanhar o traço antes de salvar, lá para o banco nunca contradizer o que
+ * a pessoa viu.
  */
-const MATRIZ_DA_CONTA: Readonly<Record<string, readonly string[]>> = {
-  admin: [
-    'conta.resumo.ler',
-    'conta.resumo.escrever',
-    'conta.membros.ler',
-    'conta.membros.escrever',
-    'conta.workspace.ler',
-    'conta.workspace.escrever',
-    'conta.painel.ler',
-    'conta.painel.escrever',
-    'conta.faturamento.ler',
-    'conta.grupos_acesso.ler',
-    'conta.grupos_acesso.escrever',
-    'automacao.fluxo.escrever',
-  ],
-  member: [
-    'conta.resumo.ler',
-    'conta.workspace.ler',
-    'conta.workspace.escrever',
-    'automacao.fluxo.escrever',
-  ],
-  guest: ['conta.resumo.ler', 'conta.workspace.ler'],
-};
-
-/** Qual rádio da linha `recurso` fica marcado para o papel `roleId`. */
-export function nivelDoRecurso(roleId: string, recurso: RecursoDaConta): NivelDoRecurso {
-  const permissoes = MATRIZ_DA_CONTA[roleId] ?? [];
-  if (permissoes.includes(`${recurso.chave}.escrever`)) return 'escrever';
-  if (permissoes.includes(`${recurso.chave}.ler`)) return 'ler';
-  return 'nenhum';
+export function permissoesDoPapel(
+  papel: PapelNoFluxo,
+  recursos: readonly { chave: string }[],
+  personalizadas: PermissoesNoFluxo = {},
+): PermissoesNoFluxo {
+  const mapa: PermissoesNoFluxo = {};
+  for (const recurso of recursos) {
+    mapa[recurso.chave] =
+      papel === 'personalizado'
+        ? (personalizadas[recurso.chave] ?? 'nenhum')
+        : papel === 'visualizar'
+          ? 'ler'
+          : 'escrever';
+  }
+  return mapa;
 }
 
-/** As três colunas, na ordem da origem, com o tooltip de cada uma. */
-export const COLUNAS_DE_NIVEL: readonly { nivel: NivelDoRecurso; rotulo: string; dica: string }[] =
-  [
-    {
-      nivel: 'nenhum',
-      rotulo: 'Sem permissão',
-      dica: 'O usuário não vê este menu nem acessa seu conteúdo.',
-    },
-    {
-      nivel: 'ler',
-      rotulo: 'Visualizar',
-      dica: 'O usuário consegue visualizar as informações, mas não pode fazer alterações.',
-    },
-    {
-      nivel: 'escrever',
-      rotulo: 'Ver e editar',
-      dica: 'O usuário pode visualizar e também alterar as informações desta página.',
-    },
-  ];
+/** O selo do cartão: a palavra do modal de EDITAR, que é a da lista. */
+export function rotuloDoPapel(papel: PapelNoFluxo): string {
+  return PAPEIS_DO_FLUXO.find((p) => p.papel === papel)?.editar ?? papel;
+}

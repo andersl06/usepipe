@@ -32,6 +32,7 @@
  * módulos.
  */
 
+import type { MinhasPermissoesNoFluxo } from '@pipe/contracts';
 import type { NomeDeIconePortal } from '../../componentes/icones-portal';
 
 /** `fluxo` e `roteador` são o `builder` e o `master` da origem. */
@@ -80,37 +81,65 @@ const CATALOGO = [
 const ESCONDIDOS_NO_ROTEADOR: readonly string[] = ['builder', 'desk'];
 
 /**
+ * A chave do CATÁLOGO → o recurso do `PermissionsList.html`, onde as duas
+ * listas da origem discordam de nome. São as mesmas chaves em quase tudo
+ * (`builder`, `desk`, `analysis`, `growth`, `channels`, `users`,
+ * `logMessages`, `payments`): só "Conteúdos" é `contents` no menu e
+ * `resources` na lista de permissões.
+ */
+const RECURSO_DO_ITEM: Readonly<Record<string, string>> = { contents: 'resources' };
+
+/**
  * A fileira inteira, na ordem da origem. Quem desenha fatia em `LIMITE_VISIVEL`.
  *
- * Não recebe permissão: o RBAC Pipe existente é por conta, enquanto a origem
- * filtra por claim do bot. ponytail: catálogo fixo até existir RBAC por fluxo;
- * então aplicar claims por bot antes do filtro de tipo.
+ * `permissoes` é o passo 2 da origem (`getUpdatedMenus()`): o catálogo peneirado
+ * pelas permissões DA PESSOA naquele bot (`applicationUserPermissionModel`),
+ * ANTES do filtro por template (passo 3, `ESCONDIDOS_NO_ROTEADOR`) — nessa
+ * ordem, como lá. Um item com `nenhum` some da barra: "O usuário não vê este
+ * menu nem acessa seu conteúdo" é o texto do próprio rádio zero.
+ *
+ * Sem o argumento (ou com `editaPelaConta`), nada é peneirado: quem tem
+ * `automacao.fluxo.editar` na conta continua enxergando tudo, que é como o
+ * Pipe funcionava antes da 0035 e é o outro lado do duplo portão de
+ * `exigirPermissaoNoFluxo`. Quem não é membro e não tem a permissão de conta
+ * também não chega até aqui — a casca do contato já recusou.
  */
-export function itensDoMenu(tipo: TipoDeContato, id: string): ItemDoMenu[] {
+export function itensDoMenu(
+  tipo: TipoDeContato,
+  id: string,
+  permissoes?: MinhasPermissoesNoFluxo | undefined,
+): ItemDoMenu[] {
   const base = `/${tipo}/${id}`;
+  const peneira = permissoes && !permissoes.editaPelaConta ? permissoes.permissoes : null;
   const itens: ItemDoMenu[] = CATALOGO.filter(
     (item) => tipo === 'fluxo' || !ESCONDIDOS_NO_ROTEADOR.includes(item.chave),
-  ).map((item) => ({
-    rotulo: item.rotulo,
-    href:
-      item.chave === 'builder'
-        ? `${base}/builder`
-        : item.chave === 'desk'
-          ? `${base}/atendimento/monitoramento`
-          : item.chave === 'analysis'
-            ? `${base}/analise`
-            : item.chave === 'channels'
-              ? `${base}/canais`
-              : item.chave === 'users'
-                ? `${base}/contatos`
-                : item.chave === 'growth'
-                  ? `${base}/growth/mensagens-ativas`
-                  : item.chave === 'contents'
-                    ? `${base}/conteudos`
-                    : item.chave === 'logMessages'
-                      ? `${base}/log`
-                      : item.href,
-  }));
+  )
+    .filter((item) => {
+      if (!peneira) return true;
+      const nivel = peneira[RECURSO_DO_ITEM[item.chave] ?? item.chave];
+      return nivel === 'ler' || nivel === 'escrever';
+    })
+    .map((item) => ({
+      rotulo: item.rotulo,
+      href:
+        item.chave === 'builder'
+          ? `${base}/builder`
+          : item.chave === 'desk'
+            ? `${base}/atendimento/monitoramento`
+            : item.chave === 'analysis'
+              ? `${base}/analise`
+              : item.chave === 'channels'
+                ? `${base}/canais`
+                : item.chave === 'users'
+                  ? `${base}/contatos`
+                  : item.chave === 'growth'
+                    ? `${base}/growth/mensagens-ativas`
+                    : item.chave === 'contents'
+                      ? `${base}/conteudos`
+                      : item.chave === 'logMessages'
+                        ? `${base}/log`
+                        : item.href,
+    }));
 
   /* `getTemplateSetupItem()`: o item do template vem na FRENTE de tudo. Só o
      roteador tem um entre os dois tipos que existem aqui. */

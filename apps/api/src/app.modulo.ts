@@ -18,6 +18,7 @@ import { ControladorGestaoAnalise } from './controladores/gestao-analise.js';
 import { ControladorGestaoBuilder } from './controladores/gestao-builder.js';
 import { ControladorGestaoCadastros } from './controladores/gestao-cadastros.js';
 import { ControladorGestaoConta } from './controladores/gestao-conta.js';
+import { ControladorGestaoEquipe } from './controladores/gestao-equipe.js';
 import { ControladorGestaoFluxo } from './controladores/gestao-fluxo.js';
 import { ControladorGestaoIntegracoes } from './controladores/gestao-integracoes.js';
 import { ControladorGestaoOperacao } from './controladores/gestao-operacao.js';
@@ -25,6 +26,8 @@ import { ControladorMinhaConta } from './controladores/minha-conta.js';
 import { ControladorImportacoesDeContatos } from './controladores/importacoes.js';
 import { ControladorContas } from './controladores/contas.js';
 import { ControladorMensagensAtivas } from './controladores/mensagens-ativas.js';
+import { ControladorLinksRastreados } from './controladores/rastreador-de-cliques.js';
+import { ControladorRedirecionamento } from './controladores/redirecionamento.js';
 import { ControladorOperacao } from './controladores/operacao.js';
 import { ControladorConexaoSso, ControladorEntradaSso } from './controladores/sso.js';
 import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js';
@@ -54,6 +57,7 @@ import { ControladorCanaisInstagram } from './controladores/canais-instagram.js'
     ControladorMinhaConta,
     ControladorGestaoFluxo,
     ControladorGestaoBuilder,
+    ControladorGestaoEquipe,
     ControladorGestaoIntegracoes,
     ControladorGestaoAnalise,
     ControladorGestaoOperacao,
@@ -66,6 +70,8 @@ import { ControladorCanaisInstagram } from './controladores/canais-instagram.js'
     ControladorOperacao,
     ControladorConversas,
     ControladorMensagensAtivas,
+    ControladorLinksRastreados,
+    ControladorRedirecionamento,
     ControladorCrm,
     ControladorAnexos,
     ControladorCanais,

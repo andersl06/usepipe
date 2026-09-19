@@ -1,131 +1,80 @@
 import { useId, useMemo, useState } from 'react';
 import { Avatar } from '@pipe/ui';
+import type {
+  MembroDoFluxo,
+  NivelNoFluxo,
+  PapelNoFluxo,
+  PermissoesNoFluxo,
+  RecursoDoFluxo,
+} from '@pipe/contracts';
 import { IconePortal } from '../../../componentes/icones-portal';
 import { atualizarLeituras } from '../../../lib/acoes';
 import { api } from '../../../lib/api';
 import { BotaoBds, CabecalhoDaPagina } from '../configuracoes/pecas';
-import { COLUNAS_DE_NIVEL, RECURSOS_DA_CONTA, nivelDoRecurso } from './permissoes';
+import { COLUNAS_DE_NIVEL, PAPEIS_DO_FLUXO, permissoesDoPapel, rotuloDoPapel } from './permissoes';
 import '../configuracoes/configuracoes.css';
 import './equipe.css';
-
-export interface MembroDaEquipe {
-  id: string;
-  tipo: 'usuario' | 'convite';
-  nome: string;
-  email: string;
-  papelId: string | null;
-  papel: string;
-}
-
-export interface OpcaoDePapelDaEquipe {
-  id: string;
-  roleId: string;
-  rotulo: string;
-}
 
 interface ResultadoSimples {
   ok: boolean;
   erro?: string;
+  codigo?: string;
 }
 
 /** O mesmo formato de `contrato/membros/convidar.tsx` — o `emailValidation`
     do blip-ds é um formato, não uma consulta. */
 const FORMATO_DE_EMAIL = /^[^\s@,;]+@[^\s@,;]+\.[^\s@,;]+$/;
 
-/**
- * As duas ações da linha — `POST .../papel` e `POST .../excluir`, as MESMAS
- * da tabela cheia (`contrato/membros/tabela.tsx`). Não reaproveita
- * `contrato/acoes.ts` na cara porque aquelas voltam pra `/contrato/membros`
- * no erro (`voltarComErro`) — aqui o erro fica na própria linha, sem navegar
- * pra fora de `/fluxo/:id/equipe`.
- */
-async function mudarPapelDaLinha(alvo: string, papelId: string): Promise<ResultadoSimples> {
-  const resultado = await api
-    .post<ResultadoSimples>('/v1/gestao/contrato/membros/papel', { papelId, alvos: [alvo] })
-    .catch((erro: Error) => ({ ok: false, erro: erro.message }) as ResultadoSimples);
-  if (resultado.ok) atualizarLeituras();
-  return resultado;
+/** O `{ erro: { codigo, mensagem } }` da `api` virado em `ResultadoSimples`. */
+function recusa(erro: unknown): ResultadoSimples {
+  const corpo = (erro as { corpo?: { erro?: { codigo?: string; mensagem?: string } } }).corpo;
+  return {
+    ok: false,
+    erro: corpo?.erro?.mensagem ?? (erro as Error).message,
+    ...(corpo?.erro?.codigo ? { codigo: corpo.erro.codigo } : {}),
+  };
 }
 
-async function excluirLinha(alvo: string): Promise<ResultadoSimples> {
-  const resultado = await api
-    .post<ResultadoSimples>('/v1/gestao/contrato/membros/excluir', { alvos: [alvo] })
-    .catch((erro: Error) => ({ ok: false, erro: erro.message }) as ResultadoSimples);
-  if (resultado.ok) atualizarLeituras();
-  return resultado;
-}
-
-interface ResultadoDoConvite extends ResultadoSimples {
-  url?: string;
+async function gravar(chamada: Promise<unknown>): Promise<ResultadoSimples> {
+  try {
+    await chamada;
+    atualizarLeituras();
+    return { ok: true };
+  } catch (erro) {
+    return recusa(erro);
+  }
 }
 
 /**
- * `POST /v1/convites` — o mesmo endpoint de `contrato/membros/acoes.ts`
- * (`convidarMembros`), chamado direto por aqui pela mesma razão das outras
- * duas ações da linha: o erro fica no modal da Equipe, sem navegar para
- * `/contrato/membros`. `papel` é o NOME do papel (`roleId`, ex. `"guest"`),
- * não o `papelId` — a API de convite casa pelo nome do banco, como o campo
- * escondido `papel` de `convidar.tsx`.
+ * As três ações da linha, agora POR FLUXO — `POST/PATCH/DELETE
+ * /v1/gestao/fluxos/:id/equipe` (controlador `gestao-equipe.ts`). Antes da
+ * migração 0035 elas mexiam no papel de CONTA (`/contrato/membros/papel` e
+ * `/excluir`), porque o Pipe não tinha RBAC por fluxo: tirar alguém daqui
+ * tirava do contrato inteiro. Agora tira só deste contato, que é o que a
+ * origem sempre fez (`TeamController`, tudo por bot).
  */
-async function adicionarMembro(email: string, papel: string): Promise<ResultadoDoConvite> {
-  const resultado = await api
-    .post<{ email: string; url: string }>('/v1/convites', { email, papel })
-    .then((corpo) => ({ ok: true, url: corpo.url }) as ResultadoDoConvite)
-    .catch((erro: Error) => ({ ok: false, erro: erro.message }) as ResultadoDoConvite);
-  if (resultado.ok) atualizarLeituras();
-  return resultado;
-}
-
-function chaveDoAlvo(membro: MembroDaEquipe): string {
-  return `${membro.tipo}:${membro.id}`;
-}
-
-/**
- * As legendas do traço, por papel e por modal — porque na origem os DOIS modais
- * escrevem o mesmo nível com palavras diferentes:
- *
- *   adicionar  `team.addUserModal.slider.*`: Visualizar · Customizado ·
- *              Visualizar e editar · Admin (DOM capturado com o modal aberto);
- *   editar     `permissions.*`: Visualizar · Personalizado · Ver e editar ·
- *              Admin (`FICHA-equipe-editar.md`, §4).
- *
- * O selo do cartão continua com o rótulo da tabela de Membros
- * (`PAPEIS_DA_ORIGEM`: "Pode visualizar", "Pode editar", "Admin") — é o mesmo
- * papel; só o traço fala como o traço deles. `Customizado`/`Personalizado` não
- * entram: o RBAC de conta (0021) tem três papéis e nenhum deles é "por pessoa"
- * (ver `permissoes.ts`).
- */
-const LEGENDA_DO_NIVEL: Readonly<Record<string, { adicionar: string; editar: string }>> = {
-  guest: { adicionar: 'Visualizar', editar: 'Visualizar' },
-  member: { adicionar: 'Visualizar e editar', editar: 'Ver e editar' },
-  admin: { adicionar: 'Admin', editar: 'Admin' },
-};
-
-function legendaDoNivel(papel: OpcaoDePapelDaEquipe, modal: 'adicionar' | 'editar'): string {
-  return LEGENDA_DO_NIVEL[papel.roleId]?.[modal] ?? papel.rotulo;
-}
+const caminho = (fluxoId: string, alvo?: string) =>
+  `/v1/gestao/fluxos/${fluxoId}/equipe${alvo ? `/${alvo}` : ''}`;
 
 /**
  * O `rzslider` "Permissão" da origem — o mesmo componente Angular nos dois
  * modais (`rz-slider-model="$ctrl.permissionsValue"`), com quatro paradas lá e
- * `papeis.length` aqui. Um `<input type="range">` de verdade por baixo: dá
- * arraste e teclado de graça, sem reimplementar o que o navegador já faz. As
- * legendas mudam com o modal (`LEGENDA_DO_NIVEL`), o controle não.
+ * quatro aqui. Um `<input type="range">` de verdade por baixo: dá arraste e
+ * teclado de graça, sem reimplementar o que o navegador já faz. As legendas
+ * mudam com o modal (`PAPEIS_DO_FLUXO`), o controle não.
  */
 function ControleDePermissao({
-  papeis,
-  papelId,
+  papel,
   modal,
   aoEscolher,
 }: {
-  papeis: OpcaoDePapelDaEquipe[];
-  papelId: string;
+  papel: PapelNoFluxo;
   modal: 'adicionar' | 'editar';
-  aoEscolher: (id: string) => void;
+  aoEscolher: (papel: PapelNoFluxo) => void;
 }) {
   const indice = Math.max(
     0,
-    papeis.findIndex((p) => p.id === papelId),
+    PAPEIS_DO_FLUXO.findIndex((p) => p.papel === papel),
   );
   return (
     <div className="cf-equipe-permissao">
@@ -134,23 +83,26 @@ function ControleDePermissao({
         type="range"
         className="cf-equipe-slider"
         min={0}
-        max={Math.max(0, papeis.length - 1)}
+        max={PAPEIS_DO_FLUXO.length - 1}
         step={1}
         value={indice}
-        onChange={(evento) => aoEscolher(papeis[Number(evento.target.value)]?.id ?? '')}
+        onChange={(evento) => {
+          const escolhido = PAPEIS_DO_FLUXO[Number(evento.target.value)];
+          if (escolhido) aoEscolher(escolhido.papel);
+        }}
         aria-label="Permissão"
       />
       <div className="cf-equipe-slider-niveis">
-        {papeis.map((papel) => (
+        {PAPEIS_DO_FLUXO.map((parada) => (
           <span
-            key={papel.id}
+            key={parada.papel}
             className={
-              papel.id === papelId
+              parada.papel === papel
                 ? 'cf-equipe-slider-nivel cf-equipe-slider-nivel--ativa'
                 : 'cf-equipe-slider-nivel'
             }
           >
-            {legendaDoNivel(papel, modal)}
+            {parada[modal]}
           </span>
         ))}
       </div>
@@ -162,12 +114,23 @@ function ControleDePermissao({
  * A lista de permissões granulares do EDITAR — o `PermissionsList.html` da
  * origem: cabeçalho "Funcionalidades | Sem permissão | Visualizar | Ver e
  * editar" (cada coluna com o `info` e o tooltip), e uma linha por recurso com
- * três rádios. Lá o nível escolhido acima marca os rádios e "Personalizado"
- * solta cada linha; aqui os rádios acompanham o traço (o nível troca, a lista
- * troca junto) mas não se soltam — não temos papel por pessoa. O porquê está
- * em `permissoes.ts`.
+ * três rádios.
+ *
+ * A regra é a de lá, inteira: o nível de cima marca os rádios
+ * (`selectAllPermissions()`) e só "Personalizado" solta cada linha para a mão
+ * (`checkStatus()`). Os RECURSOS vêm do servidor, na ordem do template deles.
  */
-function ListaDePermissoes({ roleId }: { roleId: string }) {
+function ListaDePermissoes({
+  recursos,
+  permissoes,
+  editavel,
+  aoTrocar,
+}: {
+  recursos: readonly RecursoDoFluxo[];
+  permissoes: PermissoesNoFluxo;
+  editavel: boolean;
+  aoTrocar: (chave: string, nivel: NivelNoFluxo) => void;
+}) {
   const nomeDoGrupo = useId();
   return (
     <div className="cf-equipe-granular" role="group" aria-label="Permissões por recurso">
@@ -186,34 +149,26 @@ function ListaDePermissoes({ roleId }: { roleId: string }) {
       </div>
       <hr className="cf-equipe-granular-traco" />
       <ul className="cf-equipe-granular-lista">
-        {RECURSOS_DA_CONTA.map((recurso) => {
-          const nivel = nivelDoRecurso(roleId, recurso);
+        {recursos.map((recurso) => {
+          const nivel = permissoes[recurso.chave] ?? 'nenhum';
           return (
             <li key={recurso.chave} className="cf-equipe-granular-linha">
               <span className="cf-equipe-granular-recurso">{recurso.titulo}</span>
               <div className="cf-equipe-granular-colunas">
-                {COLUNAS_DE_NIVEL.map((coluna) => {
-                  const existe = coluna.nivel !== 'escrever' || recurso.temEscrita;
-                  return (
-                    <span key={coluna.nivel} className="cf-equipe-granular-coluna">
-                      {existe ? (
-                        <input
-                          type="radio"
-                          className="cf-equipe-radio"
-                          name={`${nomeDoGrupo}-${recurso.chave}`}
-                          checked={nivel === coluna.nivel}
-                          /* Espelho do nível: vem do papel, não da mão. */
-                          disabled
-                          aria-label={`${recurso.titulo}: ${coluna.rotulo}`}
-                        />
-                      ) : (
-                        <span className="cf-equipe-radio-ausente" aria-hidden="true">
-                          —
-                        </span>
-                      )}
-                    </span>
-                  );
-                })}
+                {COLUNAS_DE_NIVEL.map((coluna) => (
+                  <span key={coluna.nivel} className="cf-equipe-granular-coluna">
+                    <input
+                      type="radio"
+                      className="cf-equipe-radio"
+                      name={`${nomeDoGrupo}-${recurso.chave}`}
+                      checked={nivel === coluna.nivel}
+                      onChange={() => aoTrocar(recurso.chave, coluna.nivel)}
+                      /* Fora de "Personalizado" o traço manda, como na origem. */
+                      disabled={!editavel}
+                      aria-label={`${recurso.titulo}: ${coluna.rotulo}`}
+                    />
+                  </span>
+                ))}
               </div>
             </li>
           );
@@ -239,49 +194,76 @@ function ListaDePermissoes({ roleId }: { roleId: string }) {
  *              (`bp-btn--bot`), que nasce desabilitado
  *              (`ng-disabled="$ctrl.userForm.$invalid"`) até o e-mail valer.
  *
- * Na origem, com o traço em "Customizado" o `Salvar` vira `Continuar` (com
- * seta) e abre o formulário por recurso (`$ctrl.isCustom`). Não existe aqui:
- * sem papel por pessoa, não há segundo passo — o traço vai de um papel de
- * conta a outro e o botão é sempre `Salvar`.
+ * Na origem, com o traço em "Customizado" o `Salvar` vira `Continuar` e abre o
+ * formulário por recurso (`$ctrl.isCustom`); aqui a lista aparece no mesmo
+ * modal, porque ela já cabe.
  *
- * O que é NOSSO: a origem manda e-mail e fecha o modal (`$ctrl.addUser()`); o
- * Pipe não manda e-mail (`contrato/membros/convidar.tsx`), então `Salvar`
- * troca o formulário pelo link do convite, pra quem adicionou copiar e mandar
- * à mão.
+ * O CONVITE é o que a origem confessa e nós repetimos de outro jeito: lá,
+ * `confirmAddUser` convida para o tenant como `guest` quem ainda não está nele
+ * e avisa "Essa pessoa não faz parte do contrato…". Aqui a `api` recusa com
+ * essa mesma frase (`pessoa_fora_do_contrato`) e o modal oferece o convite —
+ * `POST /v1/convites`, o mesmo de `/contrato/membros`, que devolve o link para
+ * copiar porque o Pipe não manda e-mail.
  */
 function ModalDeAdicionar({
+  fluxoId,
   membros,
-  papeis,
+  recursos,
   aoFechar,
 }: {
-  membros: MembroDaEquipe[];
-  papeis: OpcaoDePapelDaEquipe[];
+  fluxoId: string;
+  membros: MembroDoFluxo[];
+  recursos: readonly RecursoDoFluxo[];
   aoFechar: () => void;
 }) {
   const [email, setEmail] = useState('');
-  const [papelEscolhido, setPapelEscolhido] = useState(papeis[0]?.id ?? '');
+  const [papel, setPapel] = useState<PapelNoFluxo>('visualizar');
+  const [permissoes, setPermissoes] = useState<PermissoesNoFluxo>(() =>
+    permissoesDoPapel('visualizar', recursos),
+  );
   const [enviando, setEnviando] = useState(false);
   const [aviso, setAviso] = useState('');
-  /* Sobrevive ao "Salvar": troca o formulário pelo link, como `convidar.tsx`
-     faz com `visto`/`resultado`. */
+  /** Aparece quando a `api` diz que a pessoa não está no contrato. */
+  const [convidar, setConvidar] = useState(false);
   const [linkCriado, setLinkCriado] = useState<{ email: string; url: string } | null>(null);
   const [copiado, setCopiado] = useState(false);
 
   const emailLimpo = email.trim();
   const emailValido = FORMATO_DE_EMAIL.test(emailLimpo);
   const emailJaMembro = membros.some((m) => m.email.toLowerCase() === emailLimpo.toLowerCase());
-  const papelNovo = papeis.find((p) => p.id === papelEscolhido) ?? null;
+
+  function escolher(novo: PapelNoFluxo) {
+    setPapel(novo);
+    setPermissoes(permissoesDoPapel(novo, recursos, permissoes));
+  }
 
   async function salvar() {
-    if (!papelNovo) return;
     setEnviando(true);
-    const resultado = await adicionarMembro(emailLimpo, papelNovo.roleId);
+    const resultado = await gravar(
+      api.post(caminho(fluxoId), { email: emailLimpo, papelNoFluxo: papel, permissoes }),
+    );
     setEnviando(false);
-    if (!resultado.ok || !resultado.url) {
-      setAviso(resultado.erro ?? 'Não foi possível adicionar.');
+    if (resultado.ok) {
+      aoFechar();
       return;
     }
-    setLinkCriado({ email: emailLimpo, url: resultado.url });
+    setAviso(resultado.erro ?? 'Não foi possível adicionar.');
+    setConvidar(resultado.codigo === 'pessoa_fora_do_contrato');
+  }
+
+  /** O `guest` de `confirmAddUser`: entrar no contrato é pré-requisito, não o gesto. */
+  async function convidarParaOContrato() {
+    setEnviando(true);
+    try {
+      const corpo = await api.post<{ url: string }>('/v1/convites', {
+        email: emailLimpo,
+        papel: 'guest',
+      });
+      setLinkCriado({ email: emailLimpo, url: corpo.url });
+    } catch (erro) {
+      setAviso(recusa(erro).erro ?? 'Não foi possível convidar.');
+    }
+    setEnviando(false);
   }
 
   return (
@@ -305,7 +287,8 @@ function ModalDeAdicionar({
             <div className="cf-equipe-modal-cabeca">
               <h2 id="cf-adicionar-membro-titulo">Convite criado</h2>
               <p className="cf-equipe-subtitulo">
-                Copie o link e envie para {linkCriado.email}: ele não aparece de novo.
+                Copie o link e envie para {linkCriado.email}: ele não aparece de novo. Depois que a
+                pessoa entrar, adicione-a a este fluxo.
               </p>
             </div>
             <div className="cf-equipe-link-criado">
@@ -339,7 +322,11 @@ function ModalDeAdicionar({
               <input
                 type="email"
                 value={email}
-                onChange={(evento) => setEmail(evento.target.value)}
+                onChange={(evento) => {
+                  setEmail(evento.target.value);
+                  setAviso('');
+                  setConvidar(false);
+                }}
                 maxLength={250}
                 autoFocus
               />
@@ -354,11 +341,12 @@ function ModalDeAdicionar({
                 Essa pessoa já faz parte da equipe.
               </p>
             ) : null}
-            <ControleDePermissao
-              papeis={papeis}
-              papelId={papelEscolhido}
-              modal="adicionar"
-              aoEscolher={setPapelEscolhido}
+            <ControleDePermissao papel={papel} modal="adicionar" aoEscolher={escolher} />
+            <ListaDePermissoes
+              recursos={recursos}
+              permissoes={permissoes}
+              editavel={papel === 'personalizado'}
+              aoTrocar={(chave, nivel) => setPermissoes({ ...permissoes, [chave]: nivel })}
             />
             {aviso ? (
               <p className="cf-aviso" role="alert">
@@ -369,13 +357,19 @@ function ModalDeAdicionar({
               <BotaoBds variante="secondary" onClick={aoFechar}>
                 Cancelar
               </BotaoBds>
-              <BotaoBds
-                variante="bot"
-                disabled={enviando || !emailValido || emailJaMembro || !papelNovo}
-                onClick={salvar}
-              >
-                Salvar
-              </BotaoBds>
+              {convidar ? (
+                <BotaoBds variante="bot" disabled={enviando} onClick={convidarParaOContrato}>
+                  Convidar para o contrato
+                </BotaoBds>
+              ) : (
+                <BotaoBds
+                  variante="bot"
+                  disabled={enviando || !emailValido || emailJaMembro}
+                  onClick={salvar}
+                >
+                  Salvar
+                </BotaoBds>
+              )}
             </footer>
           </>
         )}
@@ -391,38 +385,43 @@ function ModalDeAdicionar({
  *
  *   cabeça     "Editar membro", à esquerda e SEM subtítulo;
  *   dados      o e-mail SOMENTE LEITURA — o `material-input[readonly]` deles
- *              tira o traço de baixo (`border-bottom: none`), fica só o rótulo
- *              pequeno e o valor;
- *   permissão  o mesmo traço, com as legendas do editar (Visualizar · Ver e
- *              editar · Admin);
- *   granular   `ListaDePermissoes`: uma linha por recurso, três rádios, que
- *              acompanham o nível escolhido;
+ *              tira o traço de baixo, fica só o rótulo pequeno e o valor;
+ *   permissão  o mesmo traço, com as legendas do editar;
+ *   granular   `ListaDePermissoes`, que acompanha o nível escolhido e se solta
+ *              em "Personalizado";
  *   rodapé     `Cancelar` e `Salvar alterações` (FICHA §5) — desabilitado
  *              enquanto nada mudou, como o `$pristine` da página deles.
- *
- * Grava pelo MESMO `POST .../membros/papel` da tabela de Membros.
  */
 function ModalDeEditar({
+  fluxoId,
   membro,
-  papeis,
+  recursos,
   aoFechar,
 }: {
-  membro: MembroDaEquipe;
-  papeis: OpcaoDePapelDaEquipe[];
+  fluxoId: string;
+  membro: MembroDoFluxo;
+  recursos: readonly RecursoDoFluxo[];
   aoFechar: () => void;
 }) {
-  const [papelEscolhido, setPapelEscolhido] = useState(membro.papelId ?? papeis[0]?.id ?? '');
+  const [papel, setPapel] = useState<PapelNoFluxo>(membro.papelNoFluxo);
+  const [permissoes, setPermissoes] = useState<PermissoesNoFluxo>(membro.permissoes);
   const [enviando, setEnviando] = useState(false);
   const [aviso, setAviso] = useState('');
-  const papel = papeis.find((p) => p.id === papelEscolhido) ?? null;
-  const mudou = papelEscolhido !== '' && papelEscolhido !== membro.papelId;
+
+  const mudou =
+    papel !== membro.papelNoFluxo ||
+    recursos.some(
+      (r) => (permissoes[r.chave] ?? 'nenhum') !== (membro.permissoes[r.chave] ?? 'nenhum'),
+    );
 
   async function salvar() {
     setEnviando(true);
-    const resultado = await mudarPapelDaLinha(chaveDoAlvo(membro), papelEscolhido);
+    const resultado = await gravar(
+      api.patch(caminho(fluxoId, membro.usuarioId), { papelNoFluxo: papel, permissoes }),
+    );
     setEnviando(false);
     if (!resultado.ok) {
-      setAviso(resultado.erro ?? 'Não foi possível alterar o papel.');
+      setAviso(resultado.erro ?? 'Não foi possível salvar as alterações.');
       return;
     }
     aoFechar();
@@ -449,12 +448,19 @@ function ModalDeEditar({
           <input type="email" value={membro.email} readOnly aria-label="E-mail" />
         </div>
         <ControleDePermissao
-          papeis={papeis}
-          papelId={papelEscolhido}
+          papel={papel}
           modal="editar"
-          aoEscolher={setPapelEscolhido}
+          aoEscolher={(novo) => {
+            setPapel(novo);
+            setPermissoes(permissoesDoPapel(novo, recursos, permissoes));
+          }}
         />
-        {papel ? <ListaDePermissoes roleId={papel.roleId} /> : null}
+        <ListaDePermissoes
+          recursos={recursos}
+          permissoes={permissoes}
+          editavel={papel === 'personalizado'}
+          aoTrocar={(chave, nivel) => setPermissoes({ ...permissoes, [chave]: nivel })}
+        />
         {aviso ? (
           <p className="cf-aviso" role="alert">
             {aviso}
@@ -492,53 +498,26 @@ function ModalDeEditar({
  *              selo do papel (10%) · divisória · editar/excluir (5%);
  *   vazio      "Nenhum membro encontrado =(" (`.no-content-found`).
  *
- * O `page-help` ("Ver documentação") existe no template mas nasce escondido
- * (`class="animated fadeOut ng-hide"` no DOM capturado, com `ng-show` de
- * título/corpo que a tela nunca preenche): não é bloco desta tela e aqui
- * também não aparece.
- *
- * Duas coisas que a origem decide por dado e nós decidimos por dado também: o
- * selo só existe quando há papel a mostrar (lá, `user.owner || user.isAdmin`;
- * aqui todo membro tem um dos três papéis da conta, então ele está sempre
- * lá, e o e-mail fica no ramo de 20%), e as ações da linha somem para o
- * próprio usuário logado (lá `ng-if="!user.owner"`; aqui ele nem entra na
- * lista — filtro do `equipe.tsx`).
- *
- * De onde vem a lista, na origem: `TeamController._loadMembers()` chama
- * `getUsersAccounts` (`GET /applications/{shortName}@msging.net/users/accounts`)
- * e `_loadUsers()` cruza com `getApplicationUsersPermissions`
- * (`GET /applications/{shortName}@msging.net/permissions`) — tudo POR
- * CONTATO, nunca herdado do contrato. O contrato é pré-requisito, não fonte:
- * `confirmAddUser` convida a pessoa para o tenant como `guest` se ela ainda
- * não estiver nele, e o próprio aviso da origem diz "Essa pessoa não faz
- * parte do contrato. O administrador deve incluir a pessoa no contrato antes
- * de adicioná-la ao chatbot.".
- *
- * O Pipe ainda não tem RBAC por fluxo — o de hoje é da conta inteira
- * (`itens.ts`, "Não recebe permissão... até existir RBAC por fluxo"). Por
- * isso a lista aqui é a mesma de `/contrato/membros` (dado real, sem
- * invenção): todo mundo com acesso à conta tem acesso a todos os fluxos dela,
- * ou seja, o subconjunto por contato é hoje o conjunto inteiro.
- *
- * Os três modais são os da origem, cada um com o que é seu: `ModalDeAdicionar`
- * (o `add-user-modal`), `ModalDeEditar` (o "Editar membro" da FICHA, com a
- * lista por recurso) e a confirmação de exclusão com os botões `utils.misc.no`
- * / `yes`. Editar e excluir chamam os MESMOS endpoints que `/contrato/membros`
- * já usa; adicionar chama `POST /v1/convites`.
+ * A lista é a de `GET /v1/gestao/fluxos/:id/equipe` — a equipe DESTE contato,
+ * como `TeamController._loadMembers()` cruza `getUsersAccounts` com
+ * `getApplicationUsersPermissions`, tudo por bot. Antes da migração 0035 ela
+ * era a lista de `/contrato/membros` inteira, porque não havia RBAC por fluxo.
  */
 export function TelaDeEquipe({
+  fluxoId,
   membros,
-  papeis,
-  podeEscrever,
+  recursos,
+  podeGerir,
 }: {
-  membros: MembroDaEquipe[];
-  papeis: OpcaoDePapelDaEquipe[];
-  podeEscrever: boolean;
+  fluxoId: string;
+  membros: MembroDoFluxo[];
+  recursos: readonly RecursoDoFluxo[];
+  podeGerir: boolean;
 }) {
   const [busca, setBusca] = useState('');
   const [adicionando, setAdicionando] = useState(false);
-  const [editando, setEditando] = useState<MembroDaEquipe | null>(null);
-  const [excluindo, setExcluindo] = useState<MembroDaEquipe | null>(null);
+  const [editando, setEditando] = useState<MembroDoFluxo | null>(null);
+  const [excluindo, setExcluindo] = useState<MembroDoFluxo | null>(null);
   const [enviando, setEnviando] = useState(false);
   const [aviso, setAviso] = useState('');
 
@@ -566,7 +545,7 @@ export function TelaDeEquipe({
                 aria-label="Pesquisar por nome ou e-mail"
               />
             </label>
-            {podeEscrever ? (
+            {podeGerir ? (
               /* `addUser()` da origem — botão "Adicionar Membro" do cabeçalho. */
               <BotaoBds icone="mais" onClick={() => setAdicionando(true)}>
                 Adicionar Membro
@@ -581,11 +560,11 @@ export function TelaDeEquipe({
       <div className="cf-container cf-equipe">
         {visiveis.map((membro) => (
           <div
-            key={membro.id}
-            className={podeEscrever ? 'cf-equipe-link cf-equipe-link--clicavel' : 'cf-equipe-link'}
+            key={membro.usuarioId}
+            className={podeGerir ? 'cf-equipe-link cf-equipe-link--clicavel' : 'cf-equipe-link'}
             /* `editUser(user)` da origem: o cartão inteiro (`<a class="no-decoration">`)
                e o ícone de lápis abrem a MESMA edição. */
-            onClick={podeEscrever ? () => setEditando(membro) : undefined}
+            onClick={podeGerir ? () => setEditando(membro) : undefined}
           >
             <div className="cf-equipe-cartao">
               <div className="cf-equipe-linha">
@@ -605,9 +584,9 @@ export function TelaDeEquipe({
                 </div>
                 <div className="cf-equipe-divisor" />
                 <div className="cf-equipe-secao cf-equipe-secao--selo">
-                  <span className="cf-equipe-selo">{membro.papel}</span>
+                  <span className="cf-equipe-selo">{rotuloDoPapel(membro.papelNoFluxo)}</span>
                 </div>
-                {podeEscrever ? (
+                {podeGerir ? (
                   <>
                     <div className="cf-equipe-divisor cf-equipe-oculto" />
                     <div className="cf-equipe-icones cf-equipe-oculto cf-equipe-w5">
@@ -649,8 +628,9 @@ export function TelaDeEquipe({
 
       {adicionando ? (
         <ModalDeAdicionar
+          fluxoId={fluxoId}
           membros={membros}
-          papeis={papeis}
+          recursos={recursos}
           aoFechar={() => setAdicionando(false)}
         />
       ) : null}
@@ -658,9 +638,10 @@ export function TelaDeEquipe({
       {editando ? (
         /* `key` pelo membro: abrir outro cartão zera o traço e o aviso. */
         <ModalDeEditar
-          key={chaveDoAlvo(editando)}
+          key={editando.usuarioId}
+          fluxoId={fluxoId}
           membro={editando}
-          papeis={papeis}
+          recursos={recursos}
           aoFechar={() => setEditando(null)}
         />
       ) : null}
@@ -693,7 +674,7 @@ export function TelaDeEquipe({
                 disabled={enviando}
                 onClick={async () => {
                   setEnviando(true);
-                  const resultado = await excluirLinha(chaveDoAlvo(excluindo));
+                  const resultado = await gravar(api.delete(caminho(fluxoId, excluindo.usuarioId)));
                   setEnviando(false);
                   if (!resultado.ok) {
                     setAviso(resultado.erro ?? 'Não foi possível remover.');

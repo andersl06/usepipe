@@ -1,7 +1,9 @@
 import { Avatar } from '@pipe/ui';
+import type { MinhasPermissoesNoFluxo } from '@pipe/contracts';
 import { IconeGestao } from '../../componentes/icones-gestao';
 import { IconePortal } from '../../componentes/icones-portal';
 import { Link } from '../../componentes/link';
+import { useLeitura } from '../../lib/consulta';
 import { ICONES_DO_CONTATO, LIMITE_VISIVEL, itensDoMenu, type ItemDoMenu } from './itens';
 
 /**
@@ -36,7 +38,13 @@ export interface Contato {
 export function BarraDoContato({ contato, ativo }: { contato: Contato; ativo?: string }) {
   const tipo = contato.tipo === 'roteador' ? 'roteador' : 'fluxo';
   const base = `/${tipo}/${contato.id}`;
-  const itens = itensDoMenu(tipo, contato.id);
+  /* O passo 2 da origem (`getUpdatedMenus()`): a barra só mostra o que a pessoa
+     pode ver NESTE contato. Enquanto a resposta não chega, `undefined` deixa a
+     fileira inteira — piscar a barra completa e depois encolher é pior do que o
+     quadro curto de atraso, e quem não pode entrar continua recebendo 403 na
+     tela de destino, que é onde a permissão vale de verdade. */
+  const minhas = useLeitura<MinhasPermissoesNoFluxo>(`/v1/gestao/fluxos/${contato.id}/equipe/eu`);
+  const itens = itensDoMenu(tipo, contato.id, minhas.data);
   const visiveis = itens.slice(0, LIMITE_VISIVEL);
   const excedentes = itens.slice(LIMITE_VISIVEL);
 

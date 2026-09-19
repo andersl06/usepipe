@@ -10,8 +10,7 @@ import type {
   ServicoVinculado,
 } from '@pipe/contracts';
 import { ErroPipe } from '../../erros.js';
-import { exigirPermissao } from '../../sessao.js';
-import { EDITAR_FLUXO } from './ciclo-de-vida-do-fluxo.js';
+import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
 
 /**
  * Os serviços do roteador — a tela `master.services` da Blip
@@ -98,7 +97,8 @@ export async function carregarServicos(
     .where(and(eq(fluxo.tenantId, tid), eq(fluxo.id, id), ne(fluxo.estado, 'arquivado')))
     .limit(1);
   if (!roteador) return null;
-  if (roteador.tipo !== 'roteador') return { roteador: null, principal: null, filhos: [], busca: [] };
+  if (roteador.tipo !== 'roteador')
+    return { roteador: null, principal: null, filhos: [], busca: [] };
 
   const todos = await vinculos(tx, id);
   const busca: ServicoDoRoteador[] = await tx
@@ -202,10 +202,16 @@ async function conferirConflitos(
     );
   }
   if (outros.some((s) => s.servicoId === f.chatbotId)) {
-    throw ErroPipe.conflito('servico_chatbot_em_uso', 'Este chatbot já é um serviço deste roteador.');
+    throw ErroPipe.conflito(
+      'servico_chatbot_em_uso',
+      'Este chatbot já é um serviço deste roteador.',
+    );
   }
   if (f.principal && outros.some((s) => s.principal)) {
-    throw ErroPipe.conflito('servico_principal_em_uso', 'Este roteador já tem um chatbot principal.');
+    throw ErroPipe.conflito(
+      'servico_principal_em_uso',
+      'Este roteador já tem um chatbot principal.',
+    );
   }
 }
 
@@ -249,7 +255,12 @@ export async function criarServico(
   pedido: Partial<PedidoDeServico>,
 ): Promise<ServicoVinculado> {
   await roteadorVivo(tx, tid, roteadorId);
-  await exigirPermissao(tx, usuarioId, EDITAR_FLUXO);
+  /* A origem não tem linha para os serviços do master no `PermissionsList.html`:
+     o item "Serviços" vem do `getTemplateSetupItem()`, não do catálogo de menus. A
+     linha mais próxima que ELA tem é `basicConfigurations` — é a configuração
+     do próprio contato —, e é ela que vale aqui. Quem já editava pela conta
+     segue editando (migração 0035). */
+  await exigirPermissaoNoFluxo(tx, usuarioId, roteadorId, 'basicConfigurations.escrever');
   const f = conferido(pedido);
   await conferirConflitos(tx, tid, roteadorId, f, null, true);
 
@@ -288,7 +299,12 @@ export async function editarServico(
 ): Promise<ServicoVinculado> {
   await roteadorVivo(tx, tid, roteadorId);
   const atual = await vinculoAtual(tx, roteadorId, id);
-  await exigirPermissao(tx, usuarioId, EDITAR_FLUXO);
+  /* A origem não tem linha para os serviços do master no `PermissionsList.html`:
+     o item "Serviços" vem do `getTemplateSetupItem()`, não do catálogo de menus. A
+     linha mais próxima que ELA tem é `basicConfigurations` — é a configuração
+     do próprio contato —, e é ela que vale aqui. Quem já editava pela conta
+     segue editando (migração 0035). */
+  await exigirPermissaoNoFluxo(tx, usuarioId, roteadorId, 'basicConfigurations.escrever');
 
   const antes = {
     nome: atual.nome,
@@ -341,7 +357,12 @@ export async function excluirServico(
 ): Promise<void> {
   await roteadorVivo(tx, tid, roteadorId);
   const atual = await vinculoAtual(tx, roteadorId, id);
-  await exigirPermissao(tx, usuarioId, EDITAR_FLUXO);
+  /* A origem não tem linha para os serviços do master no `PermissionsList.html`:
+     o item "Serviços" vem do `getTemplateSetupItem()`, não do catálogo de menus. A
+     linha mais próxima que ELA tem é `basicConfigurations` — é a configuração
+     do próprio contato —, e é ela que vale aqui. Quem já editava pela conta
+     segue editando (migração 0035). */
+  await exigirPermissaoNoFluxo(tx, usuarioId, roteadorId, 'basicConfigurations.escrever');
 
   await tx
     .delete(roteadorServico)
