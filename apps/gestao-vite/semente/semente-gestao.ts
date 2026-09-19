@@ -1,6 +1,6 @@
 import 'dotenv/config';
 import { randomUUID } from 'node:crypto';
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray, sql } from 'drizzle-orm';
 import { criarBanco, fecharBanco, garantirParticoes, type BancoPipe } from '@pipe/db';
 import {
   anexo,
@@ -42,6 +42,7 @@ import {
  */
 
 const DIAS_DE_HISTORICO = 7;
+const NOME_DO_SLA = 'Primeira resposta em 5 minutos';
 const CONVERSAS_POR_DIA = [95, 145] as const;
 const ABERTAS_AGORA = 22;
 
@@ -200,30 +201,45 @@ export async function semearGestao(db: BancoPipe, slug = 'demo'): Promise<Semead
   await garantirParticoes(db, 2, diaBase(agora, DIAS_DE_HISTORICO));
 
   // ---- limpeza do que esta semente cria ---------------------------------
-  const conversasAntigas = await db
-    .select({ id: conversa.id })
-    .from(conversa)
-    .where(eq(conversa.tenantId, tenantId));
-  const idsAntigos = conversasAntigas.map((c) => c.id);
-  for (let i = 0; i < idsAntigos.length; i += 500) {
-    const lote = idsAntigos.slice(i, i + 500);
-    await db.delete(eventoAtendimento).where(inArray(eventoAtendimento.conversaId, lote));
-    await db.delete(mensagem).where(inArray(mensagem.conversaId, lote));
-  }
-  await db.delete(conversa).where(eq(conversa.tenantId, tenantId));
-  await db.delete(pausa).where(eq(pausa.tenantId, tenantId));
-  await db.delete(statusAtendente).where(eq(statusAtendente.tenantId, tenantId));
-  await db.delete(filaAtendente).where(eq(filaAtendente.tenantId, tenantId));
-  await db.delete(contato).where(eq(contato.tenantId, tenantId));
-  await db.delete(respostaPronta).where(eq(respostaPronta.tenantId, tenantId));
-  await db.delete(templateMensagem).where(eq(templateMensagem.tenantId, tenantId));
-  await db.delete(anexo).where(eq(anexo.tenantId, tenantId));
-  await db.delete(etiqueta).where(eq(etiqueta.tenantId, tenantId));
-  await db.delete(motivoPausa).where(eq(motivoPausa.tenantId, tenantId));
-  await db.delete(regraSla).where(eq(regraSla.tenantId, tenantId));
-  await db.delete(inbox).where(eq(inbox.tenantId, tenantId));
-  await db.delete(canal).where(eq(canal.tenantId, tenantId));
-  await db.delete(usuario).where(eq(usuario.tenantId, tenantId));
+  // SÓ o que ela cria, reconhecido pela marca de cada coisa. Antes apagava o tenant
+  // inteiro — inclusive TODOS os usuários, o que derrubava a sessão de quem estava
+  // logado, e os canais e fluxos de verdade. Nada fora destas marcas é tocado.
+  const DA_SEMENTE = '%@demo.pipe.app';
+  // O canal fictício: com a marca, ou, de rodadas antigas sem ela, sem número nenhum.
+  const canaisDaSemente = sql`
+    select id from canal where tenant_id = ${tenantId}::uuid
+       and (config->>'semente' = 'gestao'
+            or (nome = 'WhatsApp oficial' and numero_id is null and waba_id is null))`;
+  const conversasDaSemente = sql`
+    select c.id from conversa c join inbox ib on ib.id = c.inbox_id
+     where ib.canal_id in (${canaisDaSemente})`;
+  await db.execute(sql`delete from evento_atendimento where conversa_id in (${conversasDaSemente})`);
+  await db.execute(sql`delete from mensagem where conversa_id in (${conversasDaSemente})`);
+  await db.execute(sql`delete from conversa where id in (${conversasDaSemente})`);
+  // Modelos e caixas saem em cascata com o canal.
+  await db.execute(sql`delete from canal where id in (${canaisDaSemente})`);
+  await db.execute(
+    sql`delete from contato where tenant_id = ${tenantId}::uuid and email like 'contato%@exemplo.com.br'`,
+  );
+  const usuariosDaSemente = sql`
+    select id from usuario where tenant_id = ${tenantId}::uuid and email like ${DA_SEMENTE}`;
+  await db.execute(sql`delete from pausa where usuario_id in (${usuariosDaSemente})`);
+  await db.execute(sql`delete from status_atendente where usuario_id in (${usuariosDaSemente})`);
+  await db.execute(sql`delete from fila_atendente where usuario_id in (${usuariosDaSemente})`);
+  // Os usuários NÃO saem: são reaproveitados pelo e-mail mais abaixo.
+  await db.delete(motivoPausa).where(
+    and(eq(motivoPausa.tenantId, tenantId), inArray(motivoPausa.nome, MOTIVOS_PAUSA.map((m) => m.nome))),
+  );
+  await db.delete(etiqueta).where(
+    and(eq(etiqueta.tenantId, tenantId), inArray(etiqueta.nome, ETIQUETAS.map((e) => e.nome))),
+  );
+  await db.delete(respostaPronta).where(
+    and(eq(respostaPronta.tenantId, tenantId), inArray(respostaPronta.atalho, RESPOSTAS_PRONTAS.map((r) => r.atalho))),
+  );
+  await db.delete(regraSla).where(and(eq(regraSla.tenantId, tenantId), eq(regraSla.nome, NOME_DO_SLA)));
+  await db.execute(
+    sql`delete from anexo where tenant_id = ${tenantId}::uuid and chave_storage like 'demo/%'`,
+  );
 
   // ---- canal, inbox e filas ---------------------------------------------
   const filas = await db.select().from(fila).where(eq(fila.tenantId, tenantId));
@@ -235,6 +251,7 @@ export async function semearGestao(db: BancoPipe, slug = 'demo'): Promise<Semead
     tenantId,
     tipo: 'whatsapp_cloud',
     nome: 'WhatsApp oficial',
+    config: { semente: 'gestao' },
   });
   const inboxId = randomUUID();
   await db.insert(inbox).values({
@@ -249,20 +266,38 @@ export async function semearGestao(db: BancoPipe, slug = 'demo'): Promise<Semead
   const [papelAtendente] = await db
     .select()
     .from(papel)
-    .where(eq(papel.tenantId, tenantId))
+    .where(and(eq(papel.tenantId, tenantId), eq(papel.nome, 'atendente')))
     .limit(1);
 
-  const atendentes = ATENDENTES.map((nome, i) => ({
-    id: randomUUID(),
-    nome,
-    email: `${nome.toLowerCase().normalize('NFD').replace(/[^a-z ]/g, '').trim().replace(/ +/g, '.')}@demo.pipe.app`,
-    // Os dois últimos ficam offline: fila sem gente é informação, não erro.
-    estado: i < 5 ? 'online' : i < 7 ? 'pausa' : 'invisivel',
-  }));
-
-  await db.insert(usuario).values(
-    atendentes.map((a) => ({ id: a.id, tenantId, nome: a.nome, email: a.email, ativo: true })),
+  // Quem já existe fica com o MESMO id: a entrada de desenvolvimento (`/v1/auth/dev`)
+  // loga como ana.ribeiro@demo.pipe.app, e recriar o usuário derrubava a sessão dela
+  // e os papéis que alguém tivesse dado.
+  const existentes = new Map(
+    (
+      await db
+        .select({ id: usuario.id, email: usuario.email })
+        .from(usuario)
+        .where(and(eq(usuario.tenantId, tenantId), sql`${usuario.email} like ${DA_SEMENTE}`))
+    ).map((u) => [u.email, u.id]),
   );
+  const atendentes = ATENDENTES.map((nome, i) => {
+    const email = `${nome.toLowerCase().normalize('NFD').replace(/[^a-z ]/g, '').trim().replace(/ +/g, '.')}@demo.pipe.app`;
+    return {
+      id: existentes.get(email) ?? randomUUID(),
+      novo: !existentes.has(email),
+      nome,
+      email,
+      // Os dois últimos ficam offline: fila sem gente é informação, não erro.
+      estado: i < 5 ? 'online' : i < 7 ? 'pausa' : 'invisivel',
+    };
+  });
+
+  const novos = atendentes.filter((a) => a.novo);
+  if (novos.length > 0) {
+    await db
+      .insert(usuario)
+      .values(novos.map((a) => ({ id: a.id, tenantId, nome: a.nome, email: a.email, ativo: true })));
+  }
   if (papelAtendente) {
     await db
       .insert(usuarioPapel)
@@ -342,7 +377,7 @@ export async function semearGestao(db: BancoPipe, slug = 'demo'): Promise<Semead
   // ---- regra de SLA ------------------------------------------------------
   await db.insert(regraSla).values({
     tenantId,
-    nome: 'Primeira resposta em 5 minutos',
+    nome: NOME_DO_SLA,
     alvo: 'primeira_resposta',
     prazoSeg: 300,
     alertaSeg: 180,
