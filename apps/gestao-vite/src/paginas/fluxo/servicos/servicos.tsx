@@ -13,9 +13,10 @@ export function PaginaDeServicos() {
   const casca = useCascaDoPortal();
   const leitura = useLeitura<DadosDeServicos>(`/v1/gestao/fluxos/${contato.id}/servicos`);
   if (contato.tipo !== 'roteador') return <NaoEncontrado />;
+  if (leitura.error) return <NaoEncontrado />;
   if (!leitura.data) return null;
   const dados = leitura.data;
-  if (!dados.principal) return <NaoEncontrado />;
+  if (!dados.roteador) return <NaoEncontrado />;
 
   return (
     <CascaDoModulo ativo="Serviços">

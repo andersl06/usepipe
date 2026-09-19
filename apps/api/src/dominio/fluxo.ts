@@ -1,6 +1,7 @@
 import { sql } from 'drizzle-orm';
 import {
   ErroDoMotor,
+  chaveDoEstado,
   classificarCusto,
   criarEntrada,
   ehExportDoEditor,
@@ -26,6 +27,7 @@ import type { TransacaoPipe } from '@pipe/db';
 import { emitir } from '../webhooks-saida.js';
 import { distribuirConversa } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
+import { redirecionarNoRoteador, servicoDoRoteador } from './roteador.js';
 
 /**
  * O fluxo automático (o bot) ligado à entrada do WhatsApp.
@@ -51,17 +53,48 @@ import { registrarEvento } from './eventos.js';
  * usuário parou num bloco `desk:`, o motor recebe primeiro o `Ticket` encerrado — é o
  * que a Blip manda ao bot quando o atendimento fecha — e as saídas do bloco de
  * atendimento decidem para onde ele vai: é o "bloco configurável" do editor da Blip.
+ *
+ * **Roteador.** Canal ligado a roteador publicado: quem roda é o SERVIÇO em que o contato
+ * está (`roteador.ts`). Trocar de serviço no meio da conversa encerra a execução do
+ * anterior e abre outra; a volta do humano cai no serviço em que ele estava, porque a
+ * posição é do contato, não da conversa.
  */
 
 export interface FluxoPublicado {
   fluxoId: string;
   versaoId: string;
+  /** Presente quando o canal é de um roteador: o fluxo acima é o serviço da vez. */
+  roteador?: {
+    id: string;
+    /** O serviço usa o contexto do roteador (`usa_contexto_do_roteador`). */
+    compartilhaContexto: boolean;
+    /** O contexto do par (roteador, contato). */
+    contexto: Record<string, string>;
+    /** Change-User-State pendente do último `Redirect`. */
+    reiniciar: boolean;
+    blocoInicial: string | null;
+  };
 }
 
+/**
+ * O bot do canal. Roteador publicado ganha do fluxo ligado direto (um bot por número), e
+ * resolve o serviço do contato — por isso o contato entra aqui.
+ */
 export async function fluxoPublicadoDoCanal(
   tx: TransacaoPipe,
   canalId: string,
+  contatoId: string,
 ): Promise<FluxoPublicado | null> {
+  const { rows: roteadores } = await tx.execute<{ id: string; tenant_id: string }>(sql`
+    select id, tenant_id from fluxo
+     where canal_id = ${canalId} and tipo = 'roteador' and estado = 'publicado'
+     order by criado_em desc
+     limit 1
+  `);
+  const roteador = roteadores[0];
+  if (roteador) {
+    return servicoDoRoteador(tx, { id: roteador.id, tenantId: roteador.tenant_id }, contatoId);
+  }
   const { rows } = await tx.execute<{ fluxo_id: string; versao_id: string }>(sql`
     select f.id as fluxo_id, v.id as versao_id
       from fluxo f
@@ -155,7 +188,12 @@ export interface ResultadoDoFluxo {
 
 const NAO_TRATOU: ResultadoDoFluxo = { tratou: false, respostas: 0 };
 
-type LinhaExecucao = { id: string; fluxo_versao_id: string; contexto: Record<string, string> };
+type LinhaExecucao = {
+  id: string;
+  fluxo_versao_id: string;
+  fluxo_id: string;
+  contexto: Record<string, string>;
+};
 
 /** `Ticket.Status` da Blip a partir de quem encerrou a conversa no Pipe. */
 const STATUS_DO_TICKET: Readonly<Record<string, string>> = {
@@ -176,11 +214,12 @@ export async function rodarFluxoNaEntrada(
 
   // `for update`: duas mensagens do mesmo cliente ao mesmo tempo andam uma de cada vez.
   const { rows: execucoes } = await tx.execute<LinhaExecucao>(sql`
-    select id, fluxo_versao_id, contexto from execucao_fluxo
-     where conversa_id = ${conversa.id}
-     order by iniciada_em desc
+    select e.id, e.fluxo_versao_id, v.fluxo_id, e.contexto from execucao_fluxo e
+      join fluxo_versao v on v.id = e.fluxo_versao_id
+     where e.conversa_id = ${conversa.id}
+     order by e.iniciada_em desc
      limit 1
-     for update
+     for update of e
   `);
   let execucao = execucoes[0] ?? null;
 
@@ -194,7 +233,17 @@ export async function rodarFluxoNaEntrada(
     return { tratou: true, respostas: 0 };
   }
 
-  const nova = execucao === null;
+  const roteador = publicado.roteador ?? null;
+  if (execucao && execucao.fluxo_id !== publicado.fluxoId) {
+    // O roteador mandou o contato para outro serviço: a execução do anterior termina aqui.
+    await tx.execute(sql`
+      update execucao_fluxo set estado = 'concluida', encerrada_em = now() where id = ${execucao.id}
+    `);
+    execucao = null;
+  }
+
+  // Só a conversa nova recebe o `Ticket` do atendimento que acabou.
+  const nova = execucao === null && conversa.nova;
   if (!execucao) {
     // O contexto é do CONTATO, como na Blip: a conversa nova herda o que o bot já sabia.
     const { rows: anteriores } = await tx.execute<{ contexto: Record<string, string> }>(sql`
@@ -210,7 +259,7 @@ export async function rodarFluxoNaEntrada(
         ${e.tenantId}, ${publicado.versaoId}, ${conversa.id}, ${e.contatoId}, 'executando',
         ${JSON.stringify(anteriores[0]?.contexto ?? {})}::jsonb
       )
-      returning id, fluxo_versao_id, contexto
+      returning id, fluxo_versao_id, ${publicado.fluxoId}::uuid as fluxo_id, contexto
     `);
     execucao = criada[0]!;
   } else if (execucao.fluxo_versao_id !== publicado.versaoId) {
@@ -223,7 +272,27 @@ export async function rodarFluxoNaEntrada(
   const execucaoId = execucao.id;
 
   const { fluxo, blocoPorCodigo } = await carregarFluxo(tx, publicado);
-  const variaveis: Record<string, string> = { ...execucao.contexto };
+  // Com o contexto do roteador ligado, as variáveis são do par (roteador, contato).
+  const variaveis: Record<string, string> = {
+    ...(roteador?.compartilhaContexto ? roteador.contexto : execucao.contexto),
+  };
+  if (roteador?.reiniciar) {
+    // Change-User-State depois do Master-State: o destino começa no bloco pedido, ou na raiz.
+    if (roteador.blocoInicial) variaveis[chaveDoEstado(fluxo.id)] = roteador.blocoInicial;
+    else delete variaveis[chaveDoEstado(fluxo.id)];
+    await tx.execute(sql`
+      update posicao_no_roteador set reiniciar = false, bloco_inicial = null
+       where roteador_id = ${roteador.id} and contato_id = ${e.contatoId}
+    `);
+  }
+  /** O contexto do roteador acompanha o da execução, sempre que ela grava. */
+  const guardarContextoDoRoteador = async (): Promise<void> => {
+    if (!roteador?.compartilhaContexto) return;
+    await tx.execute(sql`
+      update posicao_no_roteador set contexto = ${JSON.stringify(variaveis)}::jsonb
+       where roteador_id = ${roteador.id} and contato_id = ${e.contatoId}
+    `);
+  };
   const contato = await carregarContato(tx, e.contatoId);
   const relogio = relogioCrescente();
   const eventos: Record<string, unknown>[] = [];
@@ -247,6 +316,21 @@ export async function rodarFluxoNaEntrada(
     registrarEvento: async (evento) => {
       eventos.push(evento);
     },
+    // ponytail: o `context` do Redirect não é entregue ao destino como primeira entrada;
+    // o destino começa na próxima mensagem do cliente. Entregar exige rodar o motor do
+    // destino aqui dentro, com o fluxo dele carregado.
+    ...(roteador
+      ? {
+          redirecionar: async ({ endereco }: { endereco: string }) => {
+            await redirecionarNoRoteador(tx, {
+              tenantId: e.tenantId,
+              roteadorId: roteador.id,
+              contatoId: e.contatoId,
+              servico: endereco,
+            });
+          },
+        }
+      : {}),
   };
 
   /** Uma entrada no motor. Falha do fluxo não derruba a mensagem: vai para a fila. */
@@ -293,6 +377,7 @@ export async function rodarFluxoNaEntrada(
            set estado = 'falhou', contexto = ${JSON.stringify(variaveis)}::jsonb, encerrada_em = now()
          where id = ${execucaoId}
       `);
+      await guardarContextoDoRoteador();
       // Na Blip o usuário ficaria parado sem resposta. Aqui ele vai para a fila.
       if (!transferida)
         await transbordarSemFalhar(tx, e, variaveis, `o fluxo falhou: ${erro.message}`);
@@ -320,6 +405,7 @@ export async function rodarFluxoNaEntrada(
     const depois = estadoGuardado(variaveis, fluxo.id);
     if (depois !== null && depois !== fluxo.states.find((s) => s.root)?.id) {
       await salvarExecucao(tx, execucaoId, variaveis, fluxo.id, blocoPorCodigo, transferida);
+      await guardarContextoDoRoteador();
       return { tratou: true, respostas };
     }
   }
@@ -336,7 +422,10 @@ export async function rodarFluxoNaEntrada(
       ...(idProvedorUsado ? {} : { id_provedor: e.mensagem.idProvedor }),
     },
   );
-  if (certo) await salvarExecucao(tx, execucaoId, variaveis, fluxo.id, blocoPorCodigo, transferida);
+  if (certo) {
+    await salvarExecucao(tx, execucaoId, variaveis, fluxo.id, blocoPorCodigo, transferida);
+    await guardarContextoDoRoteador();
+  }
   return { tratou: true, respostas };
 }
 

@@ -200,8 +200,8 @@ async function receberMensagem(
 
     const inbox = await acharInbox(tx, canal.id);
     const contatoId = await acharOuCriarContato(tx, canal, de, nomeDoPerfil);
-    // Com fluxo publicado no canal, a conversa nova é do bot: nasce sem fila.
-    const fluxo = await fluxoPublicadoDoCanal(tx, canal.id);
+    // Com fluxo (ou roteador) publicado no canal, a conversa nova é do bot: nasce sem fila.
+    const fluxo = await fluxoPublicadoDoCanal(tx, canal.id, contatoId);
     const conversa = await acharOuAbrirConversa(tx, canal, inbox, contatoId, em, fluxo !== null);
 
     const conteudo = textoDe(mensagem);

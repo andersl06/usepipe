@@ -166,6 +166,7 @@ export interface ConteudosDoFluxo {
 
 /* ------------------------------------------------------------- Serviços */
 
+/** Um chatbot (um `fluxo`) — o roteador, ou o que atende um serviço. */
 export interface ServicoDoRoteador {
   id: string;
   nome: string;
@@ -174,11 +175,44 @@ export interface ServicoDoRoteador {
   shortName: string | null;
 }
 
-/** `GET /v1/gestao/fluxos/:id/servicos` — só faz sentido para roteador. */
+/** Um serviço do roteador (`roteador_servico`): o nome e o chatbot que atende. */
+export interface ServicoVinculado {
+  /** O id do VÍNCULO — é o que vai em `PATCH`/`DELETE …/servicos/:servicoId`. */
+  id: string;
+  /** O nome do serviço: é o `address` do `Redirect`. */
+  nome: string;
+  /** "É o meu chatbot principal". */
+  principal: boolean;
+  /** "Não redirecionar automaticamente para o principal". */
+  persistente: boolean;
+  /** "Expiração do redirecionamento", em minutos; nula para principal e persistente. */
+  expiracaoMin: number | null;
+  chatbot: ServicoDoRoteador;
+}
+
+/**
+ * `GET /v1/gestao/fluxos/:id/servicos` — só faz sentido para roteador: para fluxo,
+ * `roteador` é nulo e as listas vêm vazias. `busca` são os chatbots que podem virar
+ * serviço (tipo `fluxo`, não arquivados); o não publicado aparece apagado na tela.
+ */
 export interface DadosDeServicos {
-  principal: ServicoDoRoteador | null;
-  filhos: ServicoDoRoteador[];
+  roteador: ServicoDoRoteador | null;
+  principal: ServicoVinculado | null;
+  filhos: ServicoVinculado[];
   busca: ServicoDoRoteador[];
+}
+
+/**
+ * O formulário de serviço — `POST /v1/gestao/fluxos/:id/servicos` (tudo) e
+ * `PATCH …/servicos/:servicoId` (só o que muda). Principal ignora `persistente` e
+ * `expiracaoMin`; persistente ignora `expiracaoMin`.
+ */
+export interface PedidoDeServico {
+  nome: string;
+  chatbotId: string;
+  principal: boolean;
+  persistente: boolean;
+  expiracaoMin: number | null;
 }
 
 /* --------------------------------------------------------------- Portal */

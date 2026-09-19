@@ -71,6 +71,12 @@ export const fluxo = pgTable(
      * sozinho; o mínimo é da `api`. Migration 0022.
      */
     descricao: text('descricao'),
+    /**
+     * "Utilizar o contexto do Roteador" (`builder:useTunnelOwnerContext`): como serviço de
+     * um roteador, as variáveis são as do par (roteador, contato), divididas com os outros
+     * serviços que também ligaram isto. Desligado, são só deste fluxo. Migration 0024.
+     */
+    usaContextoDoRoteador: boolean('usa_contexto_do_roteador').notNull().default(false),
     ...carimbos(),
   },
   (t) => [
@@ -78,6 +84,86 @@ export const fluxo = pgTable(
     listaCheck('fluxo_tipo_ck', t.tipo, TIPOS_FLUXO),
     check('fluxo_descricao_ck', sql.raw(`char_length("descricao") <= ${DESCRICAO_FLUXO_MAX}`)),
   ],
+);
+
+/**
+ * Os serviços do roteador — o `master.services` da Blip. Migration 0024, que explica
+ * cada coluna e por que não existe túnel no Pipe.
+ */
+export const roteadorServico = pgTable(
+  'roteador_servico',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    roteadorId: uuid('roteador_id')
+      .notNull()
+      .references(() => fluxo.id, { onDelete: 'cascade' }),
+    servicoId: uuid('servico_id')
+      .notNull()
+      .references(() => fluxo.id, { onDelete: 'restrict' }),
+    /** O nome do serviço: é o `content.address` do `Redirect`. */
+    nome: text('nome').notNull(),
+    principal: boolean('principal').notNull().default(false),
+    /** "Não redirecionar automaticamente para o principal". */
+    persistente: boolean('persistente').notNull().default(false),
+    /** "Expiração do redirecionamento", da última mensagem do cliente. */
+    expiracaoMin: integer('expiracao_min'),
+    ...carimbos(),
+  },
+  (t) => [
+    check('roteador_servico_distintos_ck', sql`${t.roteadorId} <> ${t.servicoId}`),
+    check(
+      'roteador_servico_expiracao_ck',
+      sql`${t.expiracaoMin} is null or ${t.expiracaoMin} > 0`,
+    ),
+    check(
+      'roteador_servico_principal_ck',
+      sql`not ${t.principal} or (not ${t.persistente} and ${t.expiracaoMin} is null)`,
+    ),
+    check(
+      'roteador_servico_persistente_ck',
+      sql`not ${t.persistente} or ${t.expiracaoMin} is null`,
+    ),
+    check(
+      'roteador_servico_redirecionamento_ck',
+      sql`${t.principal} or ${t.persistente} or ${t.expiracaoMin} is not null`,
+    ),
+    uniqueIndex('roteador_servico_nome_uk').on(t.roteadorId, t.nome),
+    uniqueIndex('roteador_servico_servico_uk').on(t.roteadorId, t.servicoId),
+    uniqueIndex('roteador_servico_principal_uk').on(t.roteadorId).where(sql`${t.principal}`),
+  ],
+);
+
+/**
+ * O Master-State: em que serviço do roteador o contato está. O "túnel" da Blip é a
+ * chave (roteador, contato) — o contato é o real, único no tenant. Migration 0024.
+ */
+export const posicaoNoRoteador = pgTable(
+  'posicao_no_roteador',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    roteadorId: uuid('roteador_id')
+      .notNull()
+      .references(() => fluxo.id, { onDelete: 'cascade' }),
+    contatoId: uuid('contato_id')
+      .notNull()
+      .references(() => contato.id, { onDelete: 'cascade' }),
+    servicoId: uuid('servico_id')
+      .notNull()
+      .references(() => fluxo.id, { onDelete: 'cascade' }),
+    desde: momento('desde').notNull().defaultNow(),
+    /** Nulo = não expira (principal ou persistente). */
+    expiraEm: momento('expira_em'),
+    /** O contexto do roteador: o dos serviços com `usa_contexto_do_roteador`. */
+    contexto: jsonb('contexto')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
+    /** Change-User-State pendente: o serviço começa em `bloco_inicial`, ou na raiz. */
+    reiniciar: boolean('reiniciar').notNull().default(false),
+    blocoInicial: text('bloco_inicial'),
+  },
+  (t) => [uniqueIndex('posicao_no_roteador_uk').on(t.roteadorId, t.contatoId)],
 );
 
 export const ESTADOS_FLUXO_VERSAO = ['rascunho', 'publicada', 'arquivada'] as const;

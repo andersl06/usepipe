@@ -2,8 +2,8 @@
  * Portado de takenet/blip-sdk-csharp (Apache-2.0),
  * src/Take.Blip.Builder/Actions/{ActionBase,ActionProvider}.cs,
  * Actions/SetVariable/*, Actions/DeleteVariable/*, Actions/SendMessage/SendMessageAction.cs,
- * Actions/SendRawMessage/*, Actions/TrackEvent/TrackEventSettings.cs e
- * Actions/CreateTicket/CreateTicketAction.cs
+ * Actions/SendRawMessage/*, Actions/TrackEvent/TrackEventSettings.cs,
+ * Actions/CreateTicket/CreateTicketAction.cs e Actions/Redirect/RedirectAction.cs
  * — modificado: C# → TypeScript; quem envia, abre atendimento e registra evento é o
  * `ServicosDoMotor` que a `api` injeta (no original, `ISender` e as extensões da Blip);
  * o `Task.Delay` do "digitando" não é esperado (o motor roda dentro da transação da
@@ -165,6 +165,25 @@ const leavingFromDesk: AcaoDoMotor = {
   async executar() {},
 };
 
+/**
+ * `RedirectAction` (Actions/Redirect/RedirectAction.cs): as configurações são o documento
+ * `Redirect` do LIME (`application/vnd.lime.redirect+json`) — `address` é o NOME do serviço
+ * no roteador (`blip-api-schemas.md` §5.4) e `context` vai junto. Quem muda o contato de
+ * serviço é o `ServicosDoMotor`; sem roteador, falha, como na Blip.
+ */
+const redirect: AcaoDoMotor = {
+  tipo: 'Redirect',
+  async executar(contexto, configuracoes) {
+    const c = exigirConfiguracoes(this.tipo, configuracoes);
+    const endereco = comoTexto(campo(c, 'address'))?.trim();
+    if (!endereco) throw new Error("O valor 'address' é obrigatório na ação 'Redirect'.");
+    if (!contexto.servicos.redirecionar) {
+      throw new Error('O redirecionamento só funciona num fluxo que é serviço de um roteador.');
+    }
+    await contexto.servicos.redirecionar({ endereco, contexto: campo(c, 'context') ?? null });
+  },
+};
+
 export const ACOES_DO_MOTOR: readonly AcaoDoMotor[] = [
   setVariable,
   deleteVariable,
@@ -174,6 +193,7 @@ export const ACOES_DO_MOTOR: readonly AcaoDoMotor[] = [
   createTicket,
   forwardToDesk,
   leavingFromDesk,
+  redirect,
 ];
 
 /** O `ActionProvider` padrão: as ações que o Pipe executa. */

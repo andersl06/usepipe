@@ -431,48 +431,6 @@ export async function carregarCanalDoFluxo(
   return bot?.canalId ?? null;
 }
 
-/* ------------------------------------------------------------- Serviços */
-
-export interface ServicoDoRoteador {
-  id: string;
-  nome: string;
-  estado: string;
-  tipo: string;
-  shortName: string | null;
-}
-
-export interface DadosDeServicos {
-  principal: ServicoDoRoteador | null;
-  filhos: ServicoDoRoteador[];
-  busca: ServicoDoRoteador[];
-}
-
-/**
- * A origem guarda a relação roteador → sub-bot numa configuração própria.
- * O Pipe ainda só guarda `fluxo.tipo`; sem tabela de vínculo, a leitura segura
- * é mostrar o roteador e não inventar filhos. ponytail: teto é ausência de
- * relação persistida; criar `roteador_servico` antes de gravar vínculos.
- */
-export async function carregarServicos(
-  tx: TransacaoPipe,
-  tid: string,
-  id: string,
-): Promise<DadosDeServicos> {
-  const todos = await tx
-    .select({
-      id: fluxo.id,
-      nome: fluxo.nome,
-      estado: fluxo.estado,
-      tipo: fluxo.tipo,
-      shortName: fluxo.shortName,
-    })
-    .from(fluxo)
-    .where(and(eq(fluxo.tenantId, tid), ne(fluxo.estado, 'arquivado')))
-    .orderBy(asc(fluxo.nome));
-  const principal = todos.find((item) => item.id === id && item.tipo === 'roteador') ?? null;
-  return { principal, filhos: [], busca: todos };
-}
-
 /* --------------------------------------------------------------- Portal */
 
 /**

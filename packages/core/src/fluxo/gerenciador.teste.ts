@@ -531,3 +531,46 @@ describe('bloco de atendimento (desk:) como o editor da Blip monta', () => {
     expect(r.textos).toEqual(['Sem atendente agora.']);
   });
 });
+
+describe('Redirect (serviço do roteador)', () => {
+  const redirecionar = (address: string): Estado[] => [
+    raiz([{ stateId: 'vai' }]),
+    {
+      id: 'vai',
+      inputActions: [
+        { type: 'Redirect', settings: { address, context: { type: 'text/plain', value: 'x' } } },
+      ],
+      input: {},
+    },
+  ];
+
+  it('pede ao roteador o serviço pelo nome, com o contexto junto', async () => {
+    const pedidos: unknown[] = [];
+    const f = servicosFalsos();
+    const contexto: Contexto = {
+      usuario: 'user@domain',
+      fluxo: { id: FLUXO_ID, states: redirecionar('{{destino}}') },
+      entrada: criarEntrada({ id: 'm1', tipo: 'text/plain', conteudo: 'oi' }),
+      variaveis: { destino: 'suporte' },
+      entradaContexto: new Map(),
+      servicos: {
+        ...f.servicos,
+        async redirecionar(p) {
+          pedidos.push(p);
+        },
+      },
+    };
+    await processarEntrada(contexto);
+    expect(pedidos).toEqual([
+      { endereco: 'suporte', contexto: { type: 'text/plain', value: 'x' } },
+    ]);
+  });
+
+  it('fora do roteador, o Redirect falha — na Blip vai para o bloco de exceções', async () => {
+    await expect(rodar(redirecionar('suporte'), 'oi')).rejects.toBeInstanceOf(ErroDoMotor);
+  });
+
+  it('sem address, falha antes de redirecionar', async () => {
+    await expect(rodar(redirecionar('  '), 'oi')).rejects.toThrow(/address/);
+  });
+});

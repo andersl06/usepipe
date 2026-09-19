@@ -118,6 +118,12 @@ export interface ServicosDoMotor {
     settings: Record<string, unknown> | null;
   }): Promise<Atendimento>;
   registrarEvento(evento: Record<string, unknown>): Promise<void>;
+  /**
+   * `IRedirectManager.RedirectUserAsync`: manda o contato para outro serviço do roteador.
+   * Ausente = o fluxo não está atrás de um roteador, e o `Redirect` falha — "o
+   * redirecionamento funciona apenas no Bot Router" (help.blip.ai).
+   */
+  redirecionar?(pedido: { endereco: string; contexto: unknown }): Promise<void>;
 }
 
 export type ProvedorDeVariavel = (
@@ -170,7 +176,7 @@ export function apagarVariavel(contexto: Contexto, nome: string): void {
 
 // --- StateManager ---
 
-const chaveDoEstado = (fluxoId: string): string => `stateId@${fluxoId}`;
+export const chaveDoEstado = (fluxoId: string): string => `stateId@${fluxoId}`;
 const chaveDoEstadoAnterior = (fluxoId: string): string => `previous-stateId@${fluxoId}`;
 
 export const obterEstadoId = (c: Contexto): string | null =>

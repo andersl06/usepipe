@@ -123,3 +123,30 @@
   color: var(--p-erro-conteudo);
   font-size: 14px;
 }
+/* A busca de "Associe um chatbot": bot não publicado aparece apagado. */
+.sv-busca {
+  margin: -8px 0 12px;
+  padding: 0;
+  list-style: none;
+  max-height: 200px;
+  overflow-y: auto;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+}
+.sv-busca button {
+  width: 100%;
+  padding: 8px 12px;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  text-align: left;
+  cursor: pointer;
+}
+.sv-busca button.sv-apagado {
+  opacity: 0.5;
+}
+.sv-busca-vazia {
+  margin: -8px 0 12px;
+  font-size: 14px;
+  color: var(--p-conteudo-desabilitado);
+}

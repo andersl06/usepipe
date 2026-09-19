@@ -64,7 +64,7 @@ export async function excluirFluxo(id: string): Promise<Resultado<void>> {
 }
 
 /** O `erro.mensagem` que a `api` põe no corpo (`ErroPipe`), ou o texto padrão. */
-function motivoDe(erro: unknown, padrao: string): string {
+export function motivoDe(erro: unknown, padrao: string): string {
   if (erro instanceof ErroDaApi) {
     const corpo = erro.corpo as { erro?: { mensagem?: unknown } } | null;
     const mensagem = corpo?.erro?.mensagem;

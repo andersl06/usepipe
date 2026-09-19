@@ -22,6 +22,12 @@ import {
 } from '../dominio/gestao/ciclo-de-vida-do-fluxo.js';
 import type { RecadosDoNome } from '../dominio/gestao/regras-de-nome.js';
 import {
+  carregarServicos,
+  criarServico,
+  editarServico,
+  excluirServico,
+} from '../dominio/gestao/servicos-do-roteador.js';
+import {
   carregarCanalDoFluxo,
   carregarGradeDoPortal,
   carregarContato,
@@ -29,17 +35,20 @@ import {
   carregarGrowth,
   carregarLogsDoFluxo,
   carregarModelos,
-  carregarServicos,
   fusoDoTenant,
   listarContatosDoFluxo,
 } from '../dominio/gestao-fluxo.js';
-import type { GradeDoPortal } from '@pipe/contracts';
+import type {
+  DadosDeServicos,
+  GradeDoPortal,
+  PedidoDeServico,
+  ServicoVinculado,
+} from '@pipe/contracts';
 import { POR_PAGINA } from '@pipe/contracts';
 import type {
   ContatoDoFluxo,
   ContatoListado,
   DadosDeGrowth,
-  DadosDeServicos,
   DetalheDoContato,
   LogDoFluxo,
   ModeloListado,
@@ -295,6 +304,7 @@ export class ControladorGestaoFluxo {
     });
   }
 
+  /** Os serviços do roteador. As regras moram em `dominio/gestao/servicos-do-roteador.ts`. */
   @Get(':id/servicos')
   @ComSessao()
   async servicos(
@@ -303,6 +313,56 @@ export class ControladorGestaoFluxo {
   ): Promise<DadosDeServicos> {
     const sessao = sessaoDe(requisicao);
     uuidOu404(id, 'fluxo');
-    return noTenant(sessao.tenantId, (tx) => carregarServicos(tx, sessao.tenantId, id));
+    const dados = await noTenant(sessao.tenantId, (tx) =>
+      carregarServicos(tx, sessao.tenantId, id),
+    );
+    if (!dados) throw ErroPipe.naoEncontrado('fluxo');
+    return dados;
+  }
+
+  @Post(':id/servicos')
+  @ComSessao()
+  async criarServico(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: Partial<PedidoDeServico>,
+  ): Promise<ServicoVinculado> {
+    const sessao = sessaoDe(requisicao);
+    uuidOu404(id, 'fluxo');
+    return noTenant(sessao.tenantId, (tx) =>
+      criarServico(tx, sessao.tenantId, sessao.usuarioId, id, corpo ?? {}),
+    );
+  }
+
+  @Patch(':id/servicos/:servicoId')
+  @ComSessao()
+  async editarServico(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Param('servicoId') servicoId: string,
+    @Body() corpo: Partial<PedidoDeServico>,
+  ): Promise<ServicoVinculado> {
+    const sessao = sessaoDe(requisicao);
+    uuidOu404(id, 'fluxo');
+    uuidOu404(servicoId, 'serviço');
+    return noTenant(sessao.tenantId, (tx) =>
+      editarServico(tx, sessao.tenantId, sessao.usuarioId, id, servicoId, corpo ?? {}),
+    );
+  }
+
+  @Delete(':id/servicos/:servicoId')
+  @HttpCode(204)
+  @ComSessao()
+  async excluirServico(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Param('servicoId') servicoId: string,
+  ): Promise<void> {
+    const sessao = sessaoDe(requisicao);
+    uuidOu404(id, 'fluxo');
+    uuidOu404(servicoId, 'serviço');
+    await noTenant(sessao.tenantId, (tx) =>
+      excluirServico(tx, sessao.tenantId, sessao.usuarioId, id, servicoId),
+    );
   }
 }
