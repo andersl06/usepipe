@@ -84,7 +84,11 @@ function baixarCsv(nome: string, eixo: string, linhas: LinhaDeQuebra[]) {
   const corpo = [[eixo, ...COLUNAS], ...linhas.map(linhaEmCelulas)]
     .map((l) => l.map(escapar).join(';'))
     .join('\n');
-  const url = URL.createObjectURL(new Blob([`﻿${corpo}`], { type: 'text/csv;charset=utf-8' }));
+  // BOM por código de caractere, não literal na fonte: o Excel só reconhece UTF-8
+  // num CSV com o BOM na frente, e o caractere colado direto é "espaço irregular"
+  // para o eslint (`no-irregular-whitespace`).
+  const bom = String.fromCharCode(0xfeff);
+  const url = URL.createObjectURL(new Blob([bom + corpo], { type: 'text/csv;charset=utf-8' }));
   const a = document.createElement('a');
   a.href = url;
   a.download = `${nome}-${new Date().toISOString().slice(0, 10)}.csv`;

@@ -28,12 +28,15 @@ import { TelaDeCertificados } from './tela';
 export function PaginaDeCertificados() {
   const eu = useEu();
   const casca = useCascaDoPortal();
-  const leitura = useLeitura<ResumoDoContrato>('/v1/gestao/contrato/resumo');
-  if (!eu.permissoes.includes('conta.membros.ler')) return <Navigate to="/contrato" replace />;
-  if (!leitura.data) return null;
+  const podeLer = eu.permissoes.includes('conta.membros.ler');
+  const leitura = useLeitura<ResumoDoContrato>(podeLer ? '/v1/gestao/contrato/resumo' : null);
+  const lista = useLeitura<CertificadoMtls[]>(
+    podeLer ? '/v1/gestao/contrato/certificados' : null,
+  );
+  if (!podeLer) return <Navigate to="/contrato" replace />;
+  if (!leitura.data || !lista.data) return null;
   const contrato = leitura.data;
-  /* ponytail: sem armazenamento de certificado, a lista é vazia (ver lib/certificados.ts). */
-  const certificados: CertificadoMtls[] = [];
+  const podeEscrever = eu.permissoes.includes('conta.membros.escrever');
 
   return (
     <div className="pt-app">
@@ -49,7 +52,7 @@ export function PaginaDeCertificados() {
           <h1>Certificados MTLS de {contrato.nome}</h1>
         </div>
 
-        <TelaDeCertificados certificados={certificados} />
+        <TelaDeCertificados certificados={lista.data} podeEscrever={podeEscrever} />
       </main>
     </div>
   );

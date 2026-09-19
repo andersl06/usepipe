@@ -2,7 +2,7 @@ import { createHmac, randomUUID } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { decifrar, estaCifrado } from '@pipe/db';
 import type { TransacaoPipe } from '@pipe/db';
-import { TIPOS_AUTENTICACAO_WEBHOOK } from '@pipe/db/schema';
+import type { TIPOS_AUTENTICACAO_WEBHOOK } from '@pipe/db/schema';
 import { chaveiro, noTenant } from './banco.js';
 
 /**

@@ -196,6 +196,30 @@ export type Gravacao = { ok: true } | { ok: false; erro: string };
 
 const OK: Gravacao = { ok: true };
 
+/** O nome do papel de conta que a origem chama de `admin` — ver `PAPEIS_DA_ORIGEM`. */
+const PAPEL_ADMIN = 'admin';
+
+const MENSAGEM_ULTIMO_ADMIN =
+  'Este é o último administrador do contrato. Dê o papel de Admin a outra pessoa antes.';
+
+/**
+ * Quantos administradores de CONTA ainda estão ativos.
+ *
+ * Conta só quem tem acesso (`usuario.ativo`): um admin desativado não segura
+ * ninguém, e é justamente o "ativo = false" que a exclusão já faz.
+ */
+async function contarAdministradoresAtivos(tx: TransacaoPipe): Promise<number> {
+  return consultar(tx, async (tx) => {
+    const [linha] = await tx
+      .select({ n: count() })
+      .from(usuarioPapel)
+      .innerJoin(papel, and(eq(papel.id, usuarioPapel.papelId), eq(papel.nome, PAPEL_ADMIN)))
+      .innerJoin(usuario, and(eq(usuario.id, usuarioPapel.usuarioId), eq(usuario.ativo, true)))
+      .where(eq(usuarioPapel.escopo, 'conta'));
+    return linha?.n ?? 0;
+  });
+}
+
 /**
  * Troca o papel de CONTA de um membro.
  *
@@ -213,7 +237,7 @@ export async function definirPapelDoMembro(
 ): Promise<Gravacao> {
   return consultar(tx, async (tx) => {
     const [alvo] = await tx
-      .select({ id: usuario.id })
+      .select({ id: usuario.id, ativo: usuario.ativo })
       .from(usuario)
       .where(eq(usuario.id, usuarioIdAlvo))
       .limit(1);
@@ -235,6 +259,13 @@ export async function definirPapelDoMembro(
       .from(usuarioPapel)
       .innerJoin(papel, eq(papel.id, usuarioPapel.papelId))
       .where(daConta);
+
+    // Rebaixar o ÚLTIMO admin ativo tiraria a única conta que pode devolver o
+    // papel a alguém — o contrato ficaria sem quem administra.
+    const eraAdmin = alvo.ativo && antigos.some((p) => p.nome === PAPEL_ADMIN);
+    if (eraAdmin && novo.nome !== PAPEL_ADMIN && (await contarAdministradoresAtivos(tx)) <= 1) {
+      return { ok: false, erro: MENSAGEM_ULTIMO_ADMIN };
+    }
 
     await tx.delete(usuarioPapel).where(daConta);
     await tx
@@ -279,6 +310,18 @@ export async function removerMembro(
       .limit(1);
     if (!alvo) return { ok: false, erro: 'Esta pessoa não faz parte deste contrato.' };
     if (!alvo.ativo) return OK;
+
+    const [papelAtual] = await tx
+      .select({ nome: papel.nome })
+      .from(usuarioPapel)
+      .innerJoin(papel, eq(papel.id, usuarioPapel.papelId))
+      .where(and(eq(usuarioPapel.usuarioId, usuarioIdAlvo), eq(usuarioPapel.escopo, 'conta')))
+      .limit(1);
+    // Mesma trava de `definirPapelDoMembro`: remover o último admin ativo
+    // deixaria o contrato sem ninguém que possa dar o papel a outra pessoa.
+    if (papelAtual?.nome === PAPEL_ADMIN && (await contarAdministradoresAtivos(tx)) <= 1) {
+      return { ok: false, erro: MENSAGEM_ULTIMO_ADMIN };
+    }
 
     await tx.update(usuario).set({ ativo: false }).where(eq(usuario.id, usuarioIdAlvo));
 

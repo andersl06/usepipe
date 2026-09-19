@@ -41,7 +41,8 @@ function acaoDeCriacao(_anterior: Resultado, dados: FormData): Promise<Resultado
 function acaoDeEdicao(id: string) {
   // Edição não manda escopo — ver "Decisão Pipe" no topo do arquivo.
   return async (_anterior: Resultado, dados: FormData): Promise<Resultado> => {
-    const { escopoTipo: _escopoTipo, escopoId: _escopoId, ...pedido } = pedidoDoFormulario(dados);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars -- descarta escopo de propósito
+    const { escopoTipo, escopoId, ...pedido } = pedidoDoFormulario(dados);
     const resultado = await editarRegraSla(id, pedido);
     return resultado.ok ? { ok: true } : { ok: false, erro: resultado.erro };
   };

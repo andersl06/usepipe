@@ -2,10 +2,13 @@
  * Certificados de autenticação (mTLS) do contrato — o que a tela
  * `/contrato/certificados` lê, e as regras dela.
  *
- * Na origem tudo é comando LIME para `postmaster@mtls.blip.ai`
- * (`docs/pesquisa/blip-certificados-mtls.md`). Este arquivo não importa banco
- * nem Next de propósito: a tela de cliente usa as regras, e o teste as importa
- * direto.
+ * Na origem tudo é comando LIME para `postmaster@mtls.blip.ai`, que sobe o
+ * `.pfx` para o serviço deles e extrai validade/impressão digital sozinho
+ * (`docs/pesquisa/blip-certificados-mtls.md`). O Pipe cadastra de verdade
+ * (`GET/POST/DELETE /v1/gestao/contrato/certificados*`,
+ * `apps/api/.../dominio/gestao/certificados.ts`) mas **nunca guarda o arquivo
+ * nem a senha**: validade e impressão digital são digitadas por quem cadastra,
+ * não extraídas do `.pfx` — ver o `EM_BREVE_UPLOAD` abaixo.
  */
 
 /** Um host do certificado — o `{ host_id, host }` de `hosts` na origem. */
@@ -14,50 +17,28 @@ export interface HostDoCertificado {
   host: string;
 }
 
-/** O item de `GET /certificates-mtls/{tenant}`, com os nomes em português. */
+/** O item de `GET /v1/gestao/contrato/certificados`, com os nomes em português. */
 export interface CertificadoMtls {
-  /** `certificate_id` — lá é `{storage_id}:{tenant}-{nome do arquivo}`. */
   id: string;
   descricao: string;
-  /** `expiration_date`, em ISO. */
+  /** ISO 8601. Digitada por quem cadastra — ver `EM_BREVE_UPLOAD`. */
   expiraEm: string;
-  /** `status`: `valid`, `invalid` ou `underValidation`. Texto livre na origem. */
-  status: string;
+  /** Digitada por quem cadastra, pela mesma razão. */
+  impressaoDigital: string;
   hosts: HostDoCertificado[];
 }
 
-export async function carregarCertificados(): Promise<CertificadoMtls[]> {
-  // ponytail: sem armazenamento — não existe tabela de certificado, então a
-  // lista volta sempre vazia e a tela mostra o estado vazio. Caminho: tabelas
-  // `certificado_mtls` e `certificado_mtls_host` por tenant (o .pfx num cofre,
-  // não no banco) e `GET/POST/DELETE /v1/certificados` na `api`, no formato de
-  // `/certificates-mtls/{tenant}` da origem.
-  return [];
-}
-
-/** O recado de toda escrita enquanto não houver onde gravar. */
-export const SEM_ARMAZENAMENTO =
-  'O Pipe ainda não guarda certificados: nada foi gravado nem apagado.';
-
 /**
- * Os três estados e a cor do `bds-chip-tag`, na ordem do array `g` do `Pt`
- * deles. O que não casa (maiúscula e minúscula não contam) cai em "Em
- * validação", com a cor padrão — as funções `h` e `j` de lá.
+ * ponytail: a origem lê o `.pfx` no servidor deles e tira sozinha a validade,
+ * a impressão digital e o `status` (`valid`/`invalid`/`underValidation`) — um
+ * proxy mTLS de verdade, que o Pipe não tem. Sem ele, ler o arquivo automático
+ * seria fingir uma verificação que não existe; por isso o cadastro pede os
+ * dois campos à mão, e a coluna "Status" da tabela vira este selo em vez de um
+ * chip calculado. Caminho: biblioteca de PKCS12 + proxy de saída com o
+ * certificado, no dia em que o Pipe tiver um.
  */
-const ESTADOS = [
-  { status: 'valid', cor: 'sucesso', texto: 'Válido' },
-  { status: 'invalid', cor: 'desabilitado', texto: 'Inválido' },
-  { status: 'underValidation', cor: 'padrao', texto: 'Em validação' },
-] as const;
-
-export type CorDaEtiqueta = (typeof ESTADOS)[number]['cor'];
-
-export function etiquetaDoStatus(status: string): { cor: CorDaEtiqueta; texto: string } {
-  const achado = ESTADOS.find((e) => e.status.toLowerCase() === status.toLowerCase());
-  return achado
-    ? { cor: achado.cor, texto: achado.texto }
-    : { cor: 'padrao', texto: 'Em validação' };
-}
+export const EM_BREVE_UPLOAD =
+  'Leitura automática do certificado: em breve. Por enquanto, preencha a validade e a impressão digital abaixo.';
 
 /** A expiração como eles escrevem: `wt.a(data, "pt-BR")`, dia/mês/ano em UTC. */
 export function dataDeExpiracao(iso: string): string {
@@ -87,9 +68,23 @@ export function hostValido(valor: string, hostsAtuais: readonly HostDigitado[]):
   );
 }
 
-/** O `ht` deles: descrição preenchida e toda URL preenchida e válida. */
-export function informacoesCompletas(descricao: string, hosts: readonly HostDigitado[]): boolean {
-  return hosts.every((h) => h.valido && h.host !== '') && descricao !== '';
+/**
+ * O `ht` deles, mais os dois campos que aqui são digitados à mão em vez de
+ * extraídos do `.pfx` (ver `EM_BREVE_UPLOAD`): descrição, validade e
+ * impressão digital preenchidas, e toda URL preenchida e válida.
+ */
+export function informacoesCompletas(
+  descricao: string,
+  hosts: readonly HostDigitado[],
+  expiraEm: string,
+  impressaoDigital: string,
+): boolean {
+  return (
+    hosts.every((h) => h.valido && h.host !== '') &&
+    descricao !== '' &&
+    expiraEm !== '' &&
+    impressaoDigital.trim() !== ''
+  );
 }
 
 /**

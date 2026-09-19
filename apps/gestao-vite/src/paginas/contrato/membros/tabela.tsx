@@ -2,7 +2,8 @@ import { useId, useMemo, useRef, useState } from 'react';
 import type { KeyboardEvent, ReactNode } from 'react';
 import { IconePortal, IconeBusca } from '../../../componentes/icones-portal';
 import type { NomeDeIconePortal } from '../../../componentes/icones-portal';
-import { excluirMembros, trocarPapel } from '../acoes';
+import { excluirMembros, reenviarConvite, trocarPapel } from '../acoes';
+import type { ResultadoDoReenvio } from '../acoes';
 
 /**
  * A tabela de Membros do contrato, na mecânica da origem.
@@ -107,6 +108,17 @@ export function TabelaDeMembros({
   const [marcados, definirMarcados] = useState<readonly string[]>([]);
   const [menu, abrirMenu] = useState<'papel' | 'excluir' | null>(null);
   const [papelEscolhido, escolherPapel] = useState<OpcaoDePapel | null>(null);
+  /* O resultado de "Reenviar" (`../acoes.ts`): sem entrega de e-mail no Pipe, o
+     link novo só existe aqui, e sai da tela ao fechar — nunca vai para a URL. */
+  const [reenviando, definirReenviando] = useState<string | null>(null);
+  const [reenvio, definirReenvio] = useState<(ResultadoDoReenvio & { id: string }) | null>(null);
+
+  async function reenviar(id: string) {
+    definirReenviando(id);
+    const resultado = await reenviarConvite(id);
+    definirReenviando(null);
+    definirReenvio({ ...resultado, id });
+  }
 
   const visiveis = useMemo(() => {
     const termo = busca.trim().toLowerCase();
@@ -307,13 +319,90 @@ export function TabelaDeMembros({
                     <span>{valor(linha, coluna.campo)}</span>
                   </td>
                 ))}
-                {podeEscrever ? <td className="mb-col-acoes" /> : null}
+                {podeEscrever ? (
+                  <td className="mb-col-acoes">
+                    {/* Só o convite pendente reenvia: o usuário já entrou, não há
+                        o que reenviar para ele. Não é bulk — cada convite tem o
+                        próprio e-mail e o próprio link novo. */}
+                    {linha.tipo === 'convite' ? (
+                      <button
+                        type="button"
+                        className="mb-btn mb-btn--texto"
+                        disabled={reenviando === linha.id}
+                        onClick={() => reenviar(linha.id)}
+                      >
+                        {reenviando === linha.id ? 'Reenviando...' : 'Reenviar'}
+                      </button>
+                    ) : null}
+                  </td>
+                ) : null}
               </tr>
             );
           })}
         </tbody>
       </table>
+
+      <ReenvioDeConvite resultado={reenvio} aoFechar={() => definirReenvio(null)} />
     </div>
+  );
+}
+
+/**
+ * O que "Reenviar" mostra: o mesmo painel de link único do convite recém-criado
+ * (`convidar.tsx`), porque é a mesma falta — sem entrega de e-mail, alguém
+ * precisa copiar o link à mão. Falha vem da API (`ResultadoDoReenvio.erro`),
+ * como convite já vencido por outra aba enquanto esta ainda mostrava a linha.
+ */
+function ReenvioDeConvite({
+  resultado,
+  aoFechar,
+}: {
+  resultado: (ResultadoDoReenvio & { id: string }) | null;
+  aoFechar: () => void;
+}) {
+  const [copiado, marcarCopiado] = useState(false);
+  if (!resultado) return null;
+
+  async function copiar(url: string) {
+    await navigator.clipboard.writeText(url);
+    marcarCopiado(true);
+  }
+
+  function fechar() {
+    marcarCopiado(false);
+    aoFechar();
+  }
+
+  return (
+    <dialog open className="mb-modal" aria-label="Convite reenviado" onClose={fechar}>
+      {resultado.ok && resultado.url ? (
+        <div className="mb-convite-feito">
+          <h1>Convite reenviado</h1>
+          <p>O link anterior parou de funcionar. Copie o novo para enviar de novo:</p>
+          <ul className="mb-links">
+            <li>
+              <span>{resultado.email}</span>
+              <button type="button" className="mb-link" onClick={() => copiar(resultado.url!)}>
+                {copiado ? 'Copiado' : 'Copiar link'}
+              </button>
+            </li>
+          </ul>
+          <button type="button" className="mb-botao" onClick={fechar}>
+            OK :)
+          </button>
+        </div>
+      ) : (
+        <div className="mb-convite-feito">
+          <h1>Não foi possível reenviar</h1>
+          <ul className="mb-erros" role="alert">
+            <li>{resultado.erro ?? 'Tente de novo.'}</li>
+          </ul>
+          <button type="button" className="mb-botao" onClick={fechar}>
+            Fechar
+          </button>
+        </div>
+      )}
+    </dialog>
   );
 }
 

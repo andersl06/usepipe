@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpCode, Post, Req } from '@nestjs/common';
+import { Body, Controller, Delete, Get, HttpCode, Param, Post, Req } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import type { Ator, TransacaoPipe } from '@pipe/db';
 import { noTenant } from '../banco.js';
@@ -19,6 +19,14 @@ import {
   type ResumoDoContrato,
 } from '../dominio/gestao/contrato.js';
 import { carregarImplantacao, type Implantacao } from '../dominio/gestao/implantacao.js';
+import {
+  criarCertificado,
+  excluirCertificado,
+  excluirHostDoCertificado,
+  listarCertificados,
+  type CertificadoMtls,
+  type PedidoDeCertificado,
+} from '../dominio/gestao/certificados.js';
 
 /**
  * O CONTRATO e a conta na Gestão — o painel do contrato e os membros — por
@@ -158,5 +166,74 @@ export class ControladorGestaoConta {
   implantacao(@Req() requisicao: RequisicaoComSessao): Promise<Implantacao> {
     const sessao = sessaoDe(requisicao);
     return noTenant(sessao.tenantId, (tx) => carregarImplantacao(tx));
+  }
+
+  /**
+   * Certificados de autenticação (mTLS) — mesma guarda de Membros
+   * (`conta.membros.ler`/`.escrever`): a origem também tranca as duas telas
+   * atrás de `tenant-members` (`blip-certificados-mtls.md`).
+   */
+  @Get('contrato/certificados')
+  @ComSessao()
+  async certificados(@Req() requisicao: RequisicaoComSessao): Promise<CertificadoMtls[]> {
+    const sessao = sessaoDe(requisicao);
+    return noTenant(sessao.tenantId, async (tx) => {
+      const permissoes = await permissoesDe(tx, sessao.usuarioId);
+      if (!permissoes.includes(LER_MEMBROS)) throw ErroPipe.semPermissao(LER_MEMBROS);
+      return listarCertificados(tx, sessao.tenantId);
+    });
+  }
+
+  @Post('contrato/certificados')
+  @HttpCode(201)
+  @ComSessao()
+  async cadastrarCertificado(
+    @Req() requisicao: RequisicaoComSessao,
+    @Body() corpo: PedidoDeCertificado,
+  ): Promise<CertificadoMtls> {
+    const sessao = sessaoDe(requisicao);
+    return noTenant(sessao.tenantId, async (tx) => {
+      const permissoes = await permissoesDe(tx, sessao.usuarioId);
+      if (!permissoes.includes(ESCREVER_MEMBROS)) throw ErroPipe.semPermissao(ESCREVER_MEMBROS);
+      const ator: Ator = { tipo: 'usuario', id: sessao.usuarioId };
+      return criarCertificado(tx, sessao.tenantId, ator, corpo);
+    });
+  }
+
+  @Delete('contrato/certificados/:id')
+  @HttpCode(200)
+  @ComSessao()
+  async apagarCertificado(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+  ): Promise<ResultadoSimples> {
+    const sessao = sessaoDe(requisicao);
+    return noTenant(sessao.tenantId, async (tx) => {
+      const permissoes = await permissoesDe(tx, sessao.usuarioId);
+      if (!permissoes.includes(ESCREVER_MEMBROS)) {
+        return falha('Você não tem permissão para gerenciar os certificados deste contrato.');
+      }
+      const ator: Ator = { tipo: 'usuario', id: sessao.usuarioId };
+      return conferirGravacao(await excluirCertificado(tx, sessao.tenantId, ator, id));
+    });
+  }
+
+  @Delete('contrato/certificados/:id/hosts/:hostId')
+  @HttpCode(200)
+  @ComSessao()
+  async apagarHostDoCertificado(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Param('hostId') hostId: string,
+  ): Promise<ResultadoSimples> {
+    const sessao = sessaoDe(requisicao);
+    return noTenant(sessao.tenantId, async (tx) => {
+      const permissoes = await permissoesDe(tx, sessao.usuarioId);
+      if (!permissoes.includes(ESCREVER_MEMBROS)) {
+        return falha('Você não tem permissão para gerenciar os certificados deste contrato.');
+      }
+      const ator: Ator = { tipo: 'usuario', id: sessao.usuarioId };
+      return conferirGravacao(await excluirHostDoCertificado(tx, sessao.tenantId, ator, id, hostId));
+    });
   }
 }

@@ -87,12 +87,15 @@ function comCookie(token: string): Record<string, string> {
   return { cookie: `${NOME_DO_COOKIE}=${token}`, 'content-type': 'application/json' };
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Corpo = Record<string, any>;
+
 async function pedir(
   metodo: string,
   caminho: string,
   sessao: string,
   corpo?: Record<string, unknown>,
-): Promise<{ status: number; corpo: any }> {
+): Promise<{ status: number; corpo: Corpo }> {
   const resposta = await fetch(`${api.url}${caminho}`, {
     method: metodo,
     headers: comCookie(sessao),

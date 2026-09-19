@@ -3,7 +3,7 @@ import type { ConviteVisivel } from '@pipe/contracts';
 import { noTenant } from '../banco.js';
 import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
-import { aceitarConvite, criarConvite, lerConvite } from '../dominio/convites.js';
+import { aceitarConvite, criarConvite, lerConvite, reenviarConvite } from '../dominio/convites.js';
 import { registrarDominio, verificarDominio } from '../dominio/dominios.js';
 
 /**
@@ -40,6 +40,31 @@ export class ControladorConvites {
       criadoPor: sessao.usuarioId,
     });
 
+    return {
+      id: convite.id,
+      email: convite.email,
+      papel: convite.papel,
+      url: convite.url,
+      expiraEm: convite.expiraEm.toISOString(),
+    };
+  }
+
+  /**
+   * Reenvia um convite em aberto: mesmo e-mail, mesmo papel, link novo — o de
+   * antes morre (ver `emitirConvite`). Mesma permissão de convidar; sem ela ou
+   * sem o convite (de outro tenant, já aceito, já vencido) sai 403/404.
+   */
+  @Post(':id/reenviar')
+  @HttpCode(201)
+  @ComSessao()
+  async reenviar(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+  ): Promise<Record<string, unknown>> {
+    const sessao = sessaoDe(requisicao);
+    await permitido(sessao.tenantId, sessao.usuarioId, 'conta.membros.escrever');
+
+    const convite = await reenviarConvite(sessao.tenantId, id, sessao.usuarioId);
     return {
       id: convite.id,
       email: convite.email,

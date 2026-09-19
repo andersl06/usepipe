@@ -3,14 +3,14 @@ import type { ReactNode, RefObject } from 'react';
 import { IconePortal } from '../../../componentes/icones-portal';
 import {
   dataDeExpiracao,
-  etiquetaDoStatus,
   hostValido,
   informacoesCompletas,
   problemaNoArquivo,
+  EM_BREVE_UPLOAD,
   type CertificadoMtls,
   type HostDigitado,
 } from '../../../lib/certificados';
-import { gravarCertificados } from './acoes';
+import { cadastrarCertificado, excluirCertificado, excluirHostDoCertificado } from './acoes';
 
 /**
  * A tela de Certificados de autenticação, na mecânica do `zt` deles
@@ -24,9 +24,12 @@ import { gravarCertificados } from './acoes';
  * qual certificado está em mão são estado de tela. As medidas estão em
  * `certificados.css`; aqui ficam os textos e as regras.
  *
- * Toda escrita cai em `gravarCertificados`, que confere a permissão no servidor
- * e volta com o recado de que não há onde gravar — mostrado no lugar do toast
- * deles.
+ * Toda escrita cai em `./acoes.ts` (`POST/DELETE
+ * /v1/gestao/contrato/certificados*`), que confere a permissão no servidor e
+ * volta com o motivo — mostrado no lugar do toast deles. **O que não existe**:
+ * ler o `.pfx` para tirar validade e impressão digital sozinho — por isso o
+ * passo 2 pede os dois campos à mão, e a coluna Status vira o selo "em breve"
+ * (`EM_BREVE_UPLOAD`, `lib/certificados.ts`).
  */
 
 /** Os textos da tela, em pt-BR, dos dicionários `Et`, `Ct`, `ut`, `Dt`, `Mt` e `Tt`. */
@@ -59,6 +62,10 @@ const TEXTO = {
     url: 'URL',
     urlDica: 'Insira a URL do certificado',
     urlInvalida: 'Insira uma URL HTTPS válida',
+    validade: 'Validade',
+    validadeDica: 'Data de validade do certificado',
+    impressaoDigital: 'Impressão digital',
+    impressaoDigitalDica: 'Ex.: AB:CD:12:34…',
   },
   conferencia: {
     titulo: 'Conferência',
@@ -66,6 +73,8 @@ const TEXTO = {
     arquivo: 'Arquivo',
     descricao: 'Descrição',
     url: 'URL',
+    validade: 'Validade',
+    impressaoDigital: 'Impressão digital',
   },
   hosts: { titulo: 'Gerencie o host do certificado ', host: 'Host', acoes: 'Ações' },
   alerta: {
@@ -83,6 +92,8 @@ interface Entradas {
   arquivo: File | null;
   senha: string;
   descricao: string;
+  expiraEm: string;
+  impressaoDigital: string;
   hosts: HostDigitado[];
 }
 
@@ -91,31 +102,81 @@ const VAZIO: Entradas = {
   arquivo: null,
   senha: '',
   descricao: '',
+  expiraEm: '',
+  impressaoDigital: '',
   hosts: [{ host: '', valido: true }],
 };
 
-export function TelaDeCertificados({ certificados }: { certificados: CertificadoMtls[] }) {
+export function TelaDeCertificados({
+  certificados,
+  podeEscrever,
+}: {
+  certificados: CertificadoMtls[];
+  podeEscrever: boolean;
+}) {
   const cadastro = useRef<HTMLDialogElement>(null);
   const janelaDeHosts = useRef<HTMLDialogElement>(null);
   const alertaDeCertificado = useRef<HTMLDialogElement>(null);
   const alertaDeHost = useRef<HTMLDialogElement>(null);
 
   const [emMao, marcarEmMao] = useState<string | null>(null);
+  const [hostEmMao, marcarHostEmMao] = useState<string | null>(null);
   const [enviando, marcarEnviando] = useState(false);
   const [aviso, avisar] = useState<string | null>(null);
 
   const certificado = certificados.find((c) => c.id === emMao) ?? null;
 
-  /* Toda escrita passa por aqui: a origem mostra o toast de falha e deixa a
-     janela aberta. */
-  async function gravar(depois?: () => void) {
+  async function cadastrar(dados: {
+    descricao: string;
+    expiraEm: string;
+    impressaoDigital: string;
+    hosts: string[];
+  }): Promise<boolean> {
     marcarEnviando(true);
     try {
-      const resposta = await gravarCertificados();
-      avisar(resposta.erro);
+      const resultado = await cadastrarCertificado(dados);
+      if (!resultado.ok) {
+        avisar(resultado.erro);
+        return false;
+      }
+      return true;
     } finally {
       marcarEnviando(false);
-      depois?.();
+    }
+  }
+
+  async function deletarCertificado() {
+    if (!emMao) return;
+    marcarEnviando(true);
+    try {
+      const resultado = await excluirCertificado(emMao);
+      if (!resultado.ok) {
+        avisar(resultado.erro ?? 'Falha ao tentar deletar certificado.');
+        return;
+      }
+      alertaDeCertificado.current?.close();
+    } finally {
+      marcarEnviando(false);
+    }
+  }
+
+  async function deletarHost() {
+    if (!emMao || !hostEmMao) return;
+    marcarEnviando(true);
+    try {
+      const resultado = await excluirHostDoCertificado(emMao, hostEmMao);
+      if (!resultado.ok) {
+        avisar(resultado.erro ?? 'Falha ao tentar deletar host.');
+        return;
+      }
+      alertaDeHost.current?.close();
+      // "Se o certificado fica sem host, o modal de hosts fecha e a lista
+      // recarrega depois de 1s" — o `excluirHostDoCertificado` do domínio já
+      // apaga o certificado junto quando era o último; aqui só se fecha a
+      // janela de hosts se ele não existir mais na lista recarregada.
+      if ((certificado?.hosts.length ?? 0) <= 1) janelaDeHosts.current?.close();
+    } finally {
+      marcarEnviando(false);
     }
   }
 
@@ -131,23 +192,25 @@ export function TelaDeCertificados({ certificados }: { certificados: Certificado
               <h2 className="cm-t24 cm-t24--margem">{TEXTO.apresentacao.titulo}</h2>
               <p className="cm-t16">{TEXTO.apresentacao.subtitulo}</p>
             </div>
-            <div>
-              <button
-                type="button"
-                className="cm-botao"
-                onClick={() => cadastro.current?.showModal()}
-              >
-                {/* `icon="add"`, medium (24): o nosso `mais`. */}
-                <IconePortal nome="mais" tamanho={24} />
-                {TEXTO.apresentacao.botao}
-              </button>
-              <Cadastro
-                janela={cadastro}
-                enviando={enviando}
-                aoAvisar={avisar}
-                aoFinalizar={() => gravar()}
-              />
-            </div>
+            {podeEscrever ? (
+              <div>
+                <button
+                  type="button"
+                  className="cm-botao"
+                  onClick={() => cadastro.current?.showModal()}
+                >
+                  {/* `icon="add"`, medium (24): o nosso `mais`. */}
+                  <IconePortal nome="mais" tamanho={24} />
+                  {TEXTO.apresentacao.botao}
+                </button>
+                <Cadastro
+                  janela={cadastro}
+                  enviando={enviando}
+                  aoAvisar={avisar}
+                  aoFinalizar={cadastrar}
+                />
+              </div>
+            ) : null}
           </div>
         </div>
       </section>
@@ -164,7 +227,6 @@ export function TelaDeCertificados({ certificados }: { certificados: Certificado
               tem mensagem de lista vazia. */}
           <Tabela id="certificates-table" colunas={TEXTO.lista.colunas}>
             {certificados.map((c) => {
-              const etiqueta = etiquetaDoStatus(c.status);
               return (
                 <tr key={c.id} data-testid={c.id}>
                   <td className="cm-col-descricao" title={c.descricao}>
@@ -172,29 +234,33 @@ export function TelaDeCertificados({ certificados }: { certificados: Certificado
                   </td>
                   <td>{dataDeExpiracao(c.expiraEm)}</td>
                   <td>
-                    <span className={`cm-etiqueta cm-etiqueta--${etiqueta.cor}`}>
-                      <span>{etiqueta.texto}</span>
+                    {/* Sem proxy mTLS de verdade, o Pipe não confere se o
+                        certificado é válido — ver `EM_BREVE_UPLOAD`. */}
+                    <span className="cm-etiqueta cm-etiqueta--padrao" title={EM_BREVE_UPLOAD}>
+                      <span>Em breve</span>
                     </span>
                   </td>
                   <td className="cm-col-acoes">
-                    <span className="cm-acoes">
-                      <BotaoDeIcone
-                        nome="lixeira"
-                        rotulo={`Deletar ${c.descricao}`}
-                        aoClicar={() => {
-                          marcarEmMao(c.id);
-                          alertaDeCertificado.current?.showModal();
-                        }}
-                      />
-                      <BotaoDeIcone
-                        nome="editar"
-                        rotulo={`Hosts de ${c.descricao}`}
-                        aoClicar={() => {
-                          marcarEmMao(c.id);
-                          janelaDeHosts.current?.showModal();
-                        }}
-                      />
-                    </span>
+                    {podeEscrever ? (
+                      <span className="cm-acoes">
+                        <BotaoDeIcone
+                          nome="lixeira"
+                          rotulo={`Deletar ${c.descricao}`}
+                          aoClicar={() => {
+                            marcarEmMao(c.id);
+                            alertaDeCertificado.current?.showModal();
+                          }}
+                        />
+                        <BotaoDeIcone
+                          nome="editar"
+                          rotulo={`Hosts de ${c.descricao}`}
+                          aoClicar={() => {
+                            marcarEmMao(c.id);
+                            janelaDeHosts.current?.showModal();
+                          }}
+                        />
+                      </span>
+                    ) : null}
                   </td>
                 </tr>
               );
@@ -206,7 +272,7 @@ export function TelaDeCertificados({ certificados }: { certificados: Certificado
             id="remove-certificate-alert"
             mensagem={TEXTO.alerta.certificado}
             enviando={enviando}
-            aoDeletar={() => gravar(() => alertaDeCertificado.current?.close())}
+            aoDeletar={deletarCertificado}
           />
 
           {/* `bds-modal#hosts-modal title="Hosts do certificado"`: no web
@@ -232,11 +298,16 @@ export function TelaDeCertificados({ certificados }: { certificados: Certificado
                       <tr key={h.id} data-testid={h.id}>
                         <td className="cm-col-descricao">{h.host}</td>
                         <td className="cm-col-acoes">
-                          <BotaoDeIcone
-                            nome="lixeira"
-                            rotulo={`Deletar ${h.host}`}
-                            aoClicar={() => alertaDeHost.current?.showModal()}
-                          />
+                          {podeEscrever ? (
+                            <BotaoDeIcone
+                              nome="lixeira"
+                              rotulo={`Deletar ${h.host}`}
+                              aoClicar={() => {
+                                marcarHostEmMao(h.id);
+                                alertaDeHost.current?.showModal();
+                              }}
+                            />
+                          ) : null}
                         </td>
                       </tr>
                     ))}
@@ -249,7 +320,7 @@ export function TelaDeCertificados({ certificados }: { certificados: Certificado
               id="remove-host-alert"
               mensagem={TEXTO.alerta.host}
               enviando={enviando}
-              aoDeletar={() => gravar(() => alertaDeHost.current?.close())}
+              aoDeletar={deletarHost}
             />
           </dialog>
         </div>
@@ -393,6 +464,11 @@ function Aviso({ texto, aoSumir }: { texto: string | null; aoSumir: () => void }
  * O `yt`: o `bds-stepper` com três passos, a caixa rolável de 40×18rem e a
  * fileira de botões. "Próximo" só destrava com o passo atual preenchido; o
  * arquivo só é conferido em "Finalizar", como lá.
+ *
+ * **O que muda da origem**: o arquivo e a senha não saem do navegador — ver
+ * `EM_BREVE_UPLOAD`. O passo 2 pede validade e impressão digital à mão, e é
+ * esse par (mais descrição e hosts) que vai para `POST
+ * /v1/gestao/contrato/certificados`.
  */
 function Cadastro({
   janela,
@@ -403,14 +479,24 @@ function Cadastro({
   janela: RefObject<HTMLDialogElement | null>;
   enviando: boolean;
   aoAvisar: (texto: string) => void;
-  aoFinalizar: () => Promise<void>;
+  aoFinalizar: (dados: {
+    descricao: string;
+    expiraEm: string;
+    impressaoDigital: string;
+    hosts: string[];
+  }) => Promise<boolean>;
 }) {
   const [passo, irPara] = useState(0);
   const [entradas, preencher] = useState<Entradas>(VAZIO);
   const [tocado, marcarTocado] = useState(false);
 
   const temArquivo = entradas.arquivo !== null;
-  const infoOk = informacoesCompletas(entradas.descricao, entradas.hosts);
+  const infoOk = informacoesCompletas(
+    entradas.descricao,
+    entradas.hosts,
+    entradas.expiraEm,
+    entradas.impressaoDigital,
+  );
 
   function trocarHost(indice: number, valor: string) {
     preencher((antes) => ({
@@ -425,7 +511,21 @@ function Cadastro({
     if (!temArquivo || !infoOk) return;
     const problema = problemaNoArquivo(entradas.arquivo);
     if (problema) return aoAvisar(problema);
-    await aoFinalizar();
+
+    const gravou = await aoFinalizar({
+      descricao: entradas.descricao,
+      expiraEm: entradas.expiraEm,
+      impressaoDigital: entradas.impressaoDigital,
+      hosts: entradas.hosts.map((h) => h.host),
+    });
+    // Sucesso: formulário limpo, volta ao passo 1 e fecha — falha: a origem
+    // mostra o toast e deixa a janela aberta (`aoAvisar` já cuidou do toast).
+    if (gravou) {
+      preencher(VAZIO);
+      marcarTocado(false);
+      irPara(0);
+      janela.current?.close();
+    }
   }
 
   return (
@@ -485,6 +585,9 @@ function Cadastro({
                   }}
                 />
               </label>
+              {/* `EM_BREVE_UPLOAD`: o Pipe ainda não lê o arquivo — o próximo
+                  passo pede validade e impressão digital à mão. */}
+              <p className="cm-t14">{EM_BREVE_UPLOAD}</p>
             </div>
             <div className="cm-metade">
               <Campo
@@ -508,6 +611,19 @@ function Cadastro({
               erro={tocado && entradas.descricao === '' ? TEXTO.info.descricaoInvalida : null}
               aoSair={() => marcarTocado(true)}
               aoMudar={(descricao) => preencher((antes) => ({ ...antes, descricao }))}
+            />
+            <Campo
+              rotulo={TEXTO.info.validade}
+              tipo="date"
+              valor={entradas.expiraEm}
+              dica={TEXTO.info.validadeDica}
+              aoMudar={(expiraEm) => preencher((antes) => ({ ...antes, expiraEm }))}
+            />
+            <Campo
+              rotulo={TEXTO.info.impressaoDigital}
+              valor={entradas.impressaoDigital}
+              dica={TEXTO.info.impressaoDigitalDica}
+              aoMudar={(impressaoDigital) => preencher((antes) => ({ ...antes, impressaoDigital }))}
             />
             {entradas.hosts.map((h, i) => (
               <div key={i} className="cm-linha-de-host">
@@ -563,6 +679,10 @@ function Cadastro({
             <p className="cm-item">{entradas.arquivo?.name ?? ''}</p>
             <b className="cm-t16">{TEXTO.conferencia.descricao}</b>
             <p className="cm-item">{entradas.descricao}</p>
+            <b className="cm-t16">{TEXTO.conferencia.validade}</b>
+            <p className="cm-item">{entradas.expiraEm}</p>
+            <b className="cm-t16">{TEXTO.conferencia.impressaoDigital}</b>
+            <p className="cm-item">{entradas.impressaoDigital}</p>
             <b className="cm-t16">{TEXTO.conferencia.url}</b>
             {entradas.hosts.map((h, i) => (
               <p key={i} className="cm-item">
@@ -600,7 +720,7 @@ function Cadastro({
             disabled={enviando || !temArquivo || !infoOk}
             onClick={finalizar}
           >
-            {TEXTO.passo.finalizar}
+            {enviando ? 'Enviando…' : TEXTO.passo.finalizar}
           </button>
         )}
       </div>
@@ -622,7 +742,7 @@ function Campo({
   rotulo: string;
   valor: string;
   dica: string;
-  tipo?: 'text' | 'password';
+  tipo?: 'text' | 'password' | 'date';
   maximo?: number;
   erro?: string | null;
   aoMudar: (valor: string) => void;

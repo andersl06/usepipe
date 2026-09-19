@@ -232,6 +232,13 @@
       "when": 1789440000000,
       "tag": "0038_rastreador_de_cliques",
       "breakpoints": true
+    },
+    {
+      "idx": 39,
+      "version": "7",
+      "when": 1789450000000,
+      "tag": "0039_certificado_mtls",
+      "breakpoints": true
     }
   ]
 }

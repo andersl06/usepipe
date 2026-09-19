@@ -72,6 +72,72 @@ export function urlDoConvite(token: string): string {
 }
 
 /**
+ * O que `criarConvite` e `reenviarConvite` fazem em comum, dentro da MESMA
+ * transação de quem chamou: emite um token novo, invalida qualquer convite
+ * aberto para o e-mail e insere a linha. Extraído para as duas nunca
+ * divergirem no que conta como "reenviar" — hoje é literalmente convidar de
+ * novo, e é por isso que reenviar não é uma tabela nem um contador à parte.
+ */
+async function emitirConvite(
+  tx: TransacaoPipe,
+  tenantId: string,
+  dados: { email: string; papel: string; criadoPor?: string | null },
+): Promise<ConviteCriado> {
+  const email = dados.email;
+  const nomeDoPapel = dados.papel;
+  const novo = criarToken(PRAZO_CONVITE_MS);
+
+  const { rows: papeis } = await tx.execute<{ id: string; escopo: string }>(
+    sql`select id, escopo from papel where nome = ${nomeDoPapel} limit 1`,
+  );
+  const papelId = papeis[0]?.id;
+  if (!papelId) {
+    throw ErroPipe.requisicao('papel_invalido', `Não existe o papel "${nomeDoPapel}" nesta conta.`, {
+      papel: nomeDoPapel,
+    });
+  }
+  if (papeis[0]?.escopo !== 'conta') {
+    throw ErroPipe.requisicao(
+      'papel_de_atendimento',
+      `"${nomeDoPapel}" é papel de atendimento, dado no atendimento de cada contato. ` +
+        'O convite dá o papel no contrato: admin, member ou guest.',
+      { papel: nomeDoPapel },
+    );
+  }
+
+  const { rows: jaDentro } = await tx.execute<{ id: string }>(
+    sql`select id from usuario where email = ${email} limit 1`,
+  );
+  if (jaDentro[0]) {
+    throw ErroPipe.conflito('ja_e_membro', `${email} já tem acesso a esta conta.`);
+  }
+
+  // Convidar (ou reenviar) de novo INVALIDA o convite anterior. Sem isto, cada
+  // reenvio deixa mais um link vivo, e cancelar o acesso passaria a exigir
+  // caçar todos eles.
+  await tx.execute(sql`
+    update convite set expira_em = now(), atualizado_em = now()
+     where email = ${email} and aceito_em is null and expira_em > now()
+  `);
+
+  const { rows } = await tx.execute<{ id: string }>(sql`
+    insert into convite (tenant_id, email, papel_id, token_hash, expira_em, criado_por)
+    values (${tenantId}::uuid, ${email}, ${papelId}::uuid, ${novo.hash}, ${novo.expiraEm},
+            ${dados.criadoPor ?? null})
+    returning id
+  `);
+
+  return {
+    id: rows[0]!.id,
+    email,
+    papel: nomeDoPapel,
+    token: novo.token,
+    url: urlDoConvite(novo.token),
+    expiraEm: novo.expiraEm,
+  };
+}
+
+/**
  * Cria o convite. O papel vem pelo NOME (`admin`, `member`, `guest`), que é o que
  * quem convida conhece — e a busca acontece com `pipe.tenant_id` fixado, então é
  * impossível convidar alguém para um papel de outro cliente.
@@ -91,58 +157,33 @@ export async function criarConvite(
     throw ErroPipe.requisicao('papel_ausente', 'Informe o papel de quem está sendo convidado.');
   }
 
-  const novo = criarToken(PRAZO_CONVITE_MS);
+  return noTenant(tenantId, (tx) =>
+    emitirConvite(tx, tenantId, { email, papel: nomeDoPapel, criadoPor: dados.criadoPor }),
+  );
+}
 
+/**
+ * Reenvia um convite em aberto: o mesmo e-mail e o mesmo papel, com um link novo
+ * — que MATA o link antigo, como todo reenvio (`emitirConvite`). Não há entrega
+ * de e-mail no Pipe (ver `docs/pesquisa/blip-membros-do-contrato.md`), então
+ * "reenviar" aqui é reemitir o link para quem convidou colar de novo.
+ */
+export async function reenviarConvite(
+  tenantId: string,
+  conviteId: string,
+  criadoPor?: string,
+): Promise<ConviteCriado> {
   return noTenant(tenantId, async (tx) => {
-    const { rows: papeis } = await tx.execute<{ id: string; escopo: string }>(
-      sql`select id, escopo from papel where nome = ${nomeDoPapel} limit 1`,
-    );
-    const papelId = papeis[0]?.id;
-    if (!papelId) {
-      throw ErroPipe.requisicao(
-        'papel_invalido',
-        `Não existe o papel "${nomeDoPapel}" nesta conta.`,
-        { papel: nomeDoPapel },
-      );
-    }
-    if (papeis[0]?.escopo !== 'conta') {
-      throw ErroPipe.requisicao(
-        'papel_de_atendimento',
-        `"${nomeDoPapel}" é papel de atendimento, dado no atendimento de cada contato. ` +
-          'O convite dá o papel no contrato: admin, member ou guest.',
-        { papel: nomeDoPapel },
-      );
-    }
-
-    const { rows: jaDentro } = await tx.execute<{ id: string }>(
-      sql`select id from usuario where email = ${email} limit 1`,
-    );
-    if (jaDentro[0]) {
-      throw ErroPipe.conflito('ja_e_membro', `${email} já tem acesso a esta conta.`);
-    }
-
-    // Convidar de novo INVALIDA o convite anterior. Sem isto, cada reenvio deixa
-    // mais um link vivo, e cancelar o acesso passaria a exigir caçar todos eles.
-    await tx.execute(sql`
-      update convite set expira_em = now(), atualizado_em = now()
-       where email = ${email} and aceito_em is null and expira_em > now()
+    const { rows } = await tx.execute<{ email: string; papel: string }>(sql`
+      select c.email, p.nome as papel
+        from convite c
+        join papel p on p.id = c.papel_id
+       where c.id = ${conviteId}::uuid and c.aceito_em is null and c.expira_em > now()
+       limit 1
     `);
-
-    const { rows } = await tx.execute<{ id: string }>(sql`
-      insert into convite (tenant_id, email, papel_id, token_hash, expira_em, criado_por)
-      values (${tenantId}::uuid, ${email}, ${papelId}::uuid, ${novo.hash}, ${novo.expiraEm},
-              ${dados.criadoPor ?? null})
-      returning id
-    `);
-
-    return {
-      id: rows[0]!.id,
-      email,
-      papel: nomeDoPapel,
-      token: novo.token,
-      url: urlDoConvite(novo.token),
-      expiraEm: novo.expiraEm,
-    };
+    const alvo = rows[0];
+    if (!alvo) throw ErroPipe.naoEncontrado('Convite');
+    return emitirConvite(tx, tenantId, { email: alvo.email, papel: alvo.papel, criadoPor });
   });
 }
 

@@ -42,6 +42,26 @@ export interface ResultadoDoConvite {
   erros: string[];
 }
 
+export interface ResultadoDoReenvio {
+  ok: boolean;
+  email?: string;
+  url?: string;
+  erro?: string;
+}
+
+/**
+ * Reenvia um convite pendente: mesmo e-mail, mesmo papel, link novo — o de
+ * antes para de funcionar (`POST /v1/convites/:id/reenviar`). Como o Pipe não
+ * entrega e-mail, o link volta na resposta para a tela mostrar de novo.
+ */
+export async function reenviarConvite(conviteId: string): Promise<ResultadoDoReenvio> {
+  const resposta = await chamarApi(`/v1/convites/${conviteId}/reenviar`, { method: 'POST' });
+  if (!resposta.ok) return { ok: false, erro: await motivoDaFalha(resposta) };
+  const corpo = (await resposta.json()) as { email: string; url: string };
+  atualizarLeituras();
+  return { ok: true, email: corpo.email, url: corpo.url };
+}
+
 export async function convidarMembros(
   _anterior: ResultadoDoConvite | null,
   dados: FormData,
