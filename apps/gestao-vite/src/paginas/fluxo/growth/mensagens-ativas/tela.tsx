@@ -1,8 +1,12 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { IconeBusca, IconePortal } from '../../../../componentes/icones-portal';
+import { useLeitura } from '../../../../lib/consulta';
 import type { DadosDeGrowth, EnvioGrowth } from '@pipe/contracts';
-import { filtrarEnvios } from '../regras';
+import { analisarCsv, filtrarEnvios } from '../regras';
+import type { DestinoCsv } from '../regras';
+import { dispararMensagensAtivas, rotuloDeRecusa } from './disparo';
+import type { DestinoDoDisparo, LimitesDeDisparo, RespostaDoDisparo } from './disparo';
 
 type Etapa = 1 | 2 | 3 | 4;
 
@@ -19,13 +23,22 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
   const [tipoAudiencia, setTipoAudiencia] = useState<'massa' | 'individual'>('massa');
   const [contatoId, setContatoId] = useState('');
   const [arquivo, setArquivo] = useState('');
-  const [quantidadeArquivo, setQuantidadeArquivo] = useState(0);
+  const [contatosArquivo, setContatosArquivo] = useState<DestinoCsv[]>([]);
+  const [parametrosTexto, setParametrosTexto] = useState('');
+  const [enviando, setEnviando] = useState(false);
+  const [resultadoEnvio, setResultadoEnvio] = useState<RespostaDoDisparo | null>(null);
   const [aviso, setAviso] = useState('');
   const [busca, setBusca] = useState('');
   const [mostrarBusca, setMostrarBusca] = useState(false);
   const [canalFiltro, setCanalFiltro] = useState('whatsapp');
   const [tipoMensagem, setTipoMensagem] = useState('todos');
   const [tipoCampanha, setTipoCampanha] = useState('todos');
+  const quantidadeArquivo = contatosArquivo.length;
+
+  /* GET /v1/mensagens-ativas/limites — o teto de contatos por disparo, para a
+     tela não repetir número mágico (`ControladorMensagensAtivas.limites`). */
+  const limites = useLeitura<LimitesDeDisparo>('/v1/mensagens-ativas/limites');
+  const maxContatos = limites.data?.max_contatos_por_disparo ?? 15;
 
   const modelosAprovados = dados.modelos.filter(
     (modelo) =>
@@ -40,14 +53,23 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
     setCriar(true);
     setEtapa(1);
     setAviso('');
+    setResultadoEnvio(null);
+    setArquivo('');
+    setContatosArquivo([]);
+    setParametrosTexto('');
+    setContatoId('');
+    setNome('');
+  }
+
+  function fecharAssistente() {
+    setCriar(false);
   }
 
   async function lerArquivo(file?: File) {
     if (!file) return;
     const texto = await file.text();
-    const linhas = texto.split(/\r?\n/).filter((linha) => linha.trim());
     setArquivo(file.name);
-    setQuantidadeArquivo(Math.max(linhas.length - 1, 0));
+    setContatosArquivo(analisarCsv(texto));
   }
 
   function avancar() {
@@ -56,11 +78,46 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
     if (etapa === 3 && tipoAudiencia === 'massa' && !arquivo) {
       return setAviso('Selecione o arquivo da audiência.');
     }
+    if (etapa === 3 && tipoAudiencia === 'massa' && quantidadeArquivo === 0) {
+      return setAviso('O arquivo não tem nenhum contato com telefone.');
+    }
+    if (etapa === 3 && tipoAudiencia === 'massa' && quantidadeArquivo > maxContatos) {
+      return setAviso(`O limite é de ${maxContatos} contatos por disparo.`);
+    }
     if (etapa === 3 && tipoAudiencia === 'individual' && !contatoId) {
       return setAviso('Selecione um contato.');
     }
     setAviso('');
     setEtapa((atual) => Math.min(atual + 1, 4) as Etapa);
+  }
+
+  async function enviarAgora() {
+    setAviso('');
+    setEnviando(true);
+    const destinos: DestinoDoDisparo[] =
+      tipoAudiencia === 'massa'
+        ? contatosArquivo.map((c) => ({
+            telefone: c.telefone,
+            ...(c.nome ? { nome: c.nome } : {}),
+            ...(c.parametros.length ? { parametros: c.parametros } : {}),
+          }))
+        : [{ contato_id: contatoId }];
+    const parametrosGlobais = parametrosTexto.trim()
+      ? parametrosTexto.split(',').map((p) => p.trim())
+      : undefined;
+
+    const resultado = await dispararMensagensAtivas({
+      canal_id: canalId,
+      template_id: modeloId,
+      contatos: destinos,
+      ...(parametrosGlobais ? { parametros: parametrosGlobais } : {}),
+    });
+    setEnviando(false);
+    if (!resultado.ok) {
+      setAviso(resultado.erro);
+      return;
+    }
+    setResultadoEnvio(resultado.valor);
   }
 
   return (
@@ -262,6 +319,20 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                       <p>{modeloSelecionado.corpo}</p>
                     </div>
                   ) : null}
+                  {modeloSelecionado && modeloSelecionado.variaveis.length > 0 ? (
+                    <label>
+                      Parâmetros do modelo
+                      <input
+                        value={parametrosTexto}
+                        onChange={(evento) => setParametrosTexto(evento.target.value)}
+                        placeholder="Separados por vírgula, na ordem do modelo"
+                      />
+                      <small>
+                        Vale para toda a lista; um contato com parâmetro próprio no arquivo
+                        (colunas depois do telefone e do nome) usa o dele no lugar deste.
+                      </small>
+                    </label>
+                  ) : null}
                 </>
               ) : null}
               {etapa === 3 ? (
@@ -298,6 +369,10 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                           {arquivo} · {quantidadeArquivo} contatos
                         </span>
                       ) : null}
+                      <small>
+                        Colunas: telefone, nome (opcional), parâmetros do modelo (opcionais).
+                        Limite de {maxContatos} contatos por disparo.
+                      </small>
                     </label>
                   ) : (
                     <label>
@@ -337,9 +412,32 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                           '1 contato')}
                     </dd>
                   </dl>
-                  <p>
-                    Verifique se está tudo certo com suas configurações antes de realizar o envio.
-                  </p>
+                  {resultadoEnvio ? (
+                    <div className="gr-resultado-envio">
+                      <p>
+                        {resultadoEnvio.enviadas} contato(s) enviado(s)
+                        {resultadoEnvio.recusadas
+                          ? `, ${resultadoEnvio.recusadas} recusado(s):`
+                          : '.'}
+                      </p>
+                      {resultadoEnvio.recusadas ? (
+                        <ul>
+                          {resultadoEnvio.data
+                            .filter((item) => !item.enviada)
+                            .map((item, indice) => (
+                              <li key={item.contato_id ?? item.telefone ?? indice}>
+                                {item.telefone ?? item.contato_id ?? 'Contato'} —{' '}
+                                {rotuloDeRecusa(item.motivo)}
+                              </li>
+                            ))}
+                        </ul>
+                      ) : null}
+                    </div>
+                  ) : (
+                    <p>
+                      Verifique se está tudo certo com suas configurações antes de realizar o envio.
+                    </p>
+                  )}
                 </div>
               ) : null}
               {aviso ? (
@@ -349,7 +447,7 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
               ) : null}
             </div>
             <footer className="gr-modal-acoes">
-              {etapa > 1 ? (
+              {etapa > 1 && !resultadoEnvio ? (
                 <button
                   className="gr-botao"
                   type="button"
@@ -365,13 +463,22 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                 <button className="gr-botao gr-botao-primario" type="button" onClick={avancar}>
                   Continuar
                 </button>
+              ) : resultadoEnvio ? (
+                <button
+                  className="gr-botao gr-botao-primario"
+                  type="button"
+                  onClick={fecharAssistente}
+                >
+                  Concluir
+                </button>
               ) : (
                 <button
                   className="gr-botao gr-botao-primario"
                   type="button"
-                  onClick={() => setAviso('Envio ainda não disponível.')}
+                  disabled={enviando}
+                  onClick={() => void enviarAgora()}
                 >
-                  Enviar agora
+                  {enviando ? 'Enviando…' : 'Enviar agora'}
                 </button>
               )}
             </footer>

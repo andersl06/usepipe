@@ -18,3 +18,33 @@ export function filtrarEnvios(envios: EnvioGrowth[], busca: string, estado: stri
       (estado === 'todos' || envio.estado === estado),
   );
 }
+
+export interface DestinoCsv {
+  telefone: string;
+  nome: string | null;
+  /** Colunas depois de telefone/nome — os `{{1}}`, `{{2}}`… do modelo, na ordem. */
+  parametros: string[];
+}
+
+/**
+ * A planilha do disparo em massa: primeira linha é cabeçalho (descartada),
+ * colunas seguintes são `telefone,nome,parametro1,parametro2,...` — nome e
+ * parâmetros são opcionais. Linha sem telefone não vira destino.
+ */
+export function analisarCsv(texto: string): DestinoCsv[] {
+  const linhas = texto
+    .split(/\r?\n/)
+    .map((linha) => linha.trim())
+    .filter(Boolean);
+  return linhas
+    .slice(1)
+    .map((linha) => {
+      const [telefone, nome, ...parametros] = linha.split(',').map((coluna) => coluna.trim());
+      return {
+        telefone: telefone ?? '',
+        nome: nome || null,
+        parametros: parametros.filter(Boolean),
+      };
+    })
+    .filter((destino) => destino.telefone);
+}
