@@ -67,6 +67,7 @@ export function DetalheContatoDoBot() {
         </header>
         <div className="ct-tickets-lista">
           <InformacoesContato
+            contatoId={dados.pessoa.id}
             nome={dados.pessoa.nome}
             email={dados.pessoa.email}
             telefone={dados.pessoa.telefone}

@@ -18,6 +18,7 @@ import { ControladorGestaoAnalise } from './controladores/gestao-analise.js';
 import { ControladorGestaoCadastros } from './controladores/gestao-cadastros.js';
 import { ControladorGestaoConta } from './controladores/gestao-conta.js';
 import { ControladorGestaoFluxo } from './controladores/gestao-fluxo.js';
+import { ControladorGestaoIntegracoes } from './controladores/gestao-integracoes.js';
 import { ControladorGestaoOperacao } from './controladores/gestao-operacao.js';
 import { ControladorMinhaConta } from './controladores/minha-conta.js';
 import { ControladorImportacoesDeContatos } from './controladores/importacoes.js';
@@ -51,6 +52,7 @@ import { ControladorCanaisInstagram } from './controladores/canais-instagram.js'
     ControladorEu,
     ControladorMinhaConta,
     ControladorGestaoFluxo,
+    ControladorGestaoIntegracoes,
     ControladorGestaoAnalise,
     ControladorGestaoOperacao,
     ControladorGestaoCadastros,

@@ -6,11 +6,11 @@ import { TelaDeConexao } from './tela';
  * (portal.js, template do módulo 83981, controlador `iP`). O título e a frase
  * vêm de `modules.application.detail.templates.api.pageTitle/pageDescription`.
  *
- * ponytail: os valores de conexão (endpoints WS/TCP/HTTP, URLs, OAuth) não
- * existem no Pipe ainda; a tela mostra os campos vazios e o "Salvar" devolve
- * o erro controlado de indisponível. Só o identificador é real (o id do fluxo).
+ * Leitura e escrita reais via `GET/PUT /v1/gestao/fluxos/:id/conexao`
+ * (`dominio/gestao/integracoes.ts`): identificador, endpoint, prefixo da
+ * chave ativa e as duas URLs do formulário HTTP.
  */
 export function PaginaApiDoBot() {
   const { contato } = useContato();
-  return <TelaDeConexao identificador={contato.id} />;
+  return <TelaDeConexao fluxoId={contato.id} />;
 }

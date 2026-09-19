@@ -1,5 +1,9 @@
 import { useState } from 'react';
+import type { ConfiguracaoDeBoasVindas } from '@pipe/contracts';
 import { BotaoBds, CabecalhoDaPagina, CampoBds, Interruptor, Papel } from '../pecas';
+import { salvarBoasVindas } from './gravar';
+
+const TEXTO_BOTAO_MAX = 20;
 
 /**
  * `/configurations/welcome` (LEIA.md, Rodada 2, captura 5): o estado real
@@ -13,14 +17,46 @@ import { BotaoBds, CabecalhoDaPagina, CampoBds, Interruptor, Papel } from '../pe
  * ativou o roteador de produção para não alterar o estado dele) — os nomes
  * vêm da descrição do próprio item de menu ("Defina a Mensagem de Saudação e
  * o botão Começar", `docs/pesquisa/blip-portal-telas.md` §6) e do enunciado
- * da tarefa. ponytail: `activateWelcomeMessage`/`saveWelcomeMessage` não
- * existem na `api` — "Salvar" devolve o erro controlado, como em `api/tela.tsx`.
+ * da tarefa.
+ *
+ * Duas escritas, pela mesma razão de UX: DESLIGAR o interruptor grava na
+ * hora (não há formulário para ele submeter, e apagar sem aviso o que já
+ * estava escrito seria pior); LIGAR só revela o formulário — quem ativa
+ * ainda precisa escrever a mensagem e o texto do botão e clicar Salvar.
  */
-export function TelaDeBoasVindas() {
-  const [ativo, setAtivo] = useState(false);
-  const [mensagem, setMensagem] = useState('');
-  const [textoDoBotao, setTextoDoBotao] = useState('Começar');
+export function TelaDeBoasVindas({ id, inicial }: { id: string; inicial: ConfiguracaoDeBoasVindas }) {
+  const [ativo, setAtivo] = useState(inicial.ativo);
+  const [mensagem, setMensagem] = useState(inicial.mensagem);
+  const [textoDoBotao, setTextoDoBotao] = useState(inicial.textoBotao);
   const [aviso, setAviso] = useState('');
+  const [sucesso, setSucesso] = useState('');
+  const [salvando, setSalvando] = useState(false);
+
+  async function desligar() {
+    setAtivo(false);
+    setAviso('');
+    setSucesso('');
+    const resultado = await salvarBoasVindas(id, { ativo: false });
+    if (!resultado.ok) {
+      setAtivo(true);
+      setAviso(resultado.erro);
+    }
+  }
+
+  async function salvar() {
+    setAviso('');
+    setSucesso('');
+    setSalvando(true);
+    const resultado = await salvarBoasVindas(id, { ativo: true, mensagem, textoBotao: textoDoBotao });
+    setSalvando(false);
+    if (!resultado.ok) {
+      setAviso(resultado.erro);
+      return;
+    }
+    setMensagem(resultado.valor.mensagem);
+    setTextoDoBotao(resultado.valor.textoBotao);
+    setSucesso('Configuração salva com sucesso.');
+  }
 
   return (
     <>
@@ -30,7 +66,10 @@ export function TelaDeBoasVindas() {
         acoes={
           <Interruptor
             ligado={ativo}
-            aoMudar={setAtivo}
+            aoMudar={(novo) => {
+              if (novo) setAtivo(true);
+              else void desligar();
+            }}
             rotulo={ativo ? 'Ativado' : 'Desativado'}
           />
         }
@@ -41,7 +80,8 @@ export function TelaDeBoasVindas() {
             <form
               onSubmit={(evento) => {
                 evento.preventDefault();
-                setAviso('A tela de boas-vindas ainda não está disponível.');
+                if (salvando) return;
+                void salvar();
               }}
             >
               <CampoBds
@@ -59,7 +99,7 @@ export function TelaDeBoasVindas() {
                   rotulo="Texto do botão"
                   valor={textoDoBotao}
                   aoMudar={setTextoDoBotao}
-                  maxLength={20}
+                  maxLength={TEXTO_BOTAO_MAX}
                   obrigatorio
                 />
               </div>
@@ -68,15 +108,28 @@ export function TelaDeBoasVindas() {
                   {aviso}
                 </p>
               ) : null}
+              {sucesso ? (
+                <p className="cf-basicas-sucesso" role="status">
+                  {sucesso}
+                </p>
+              ) : null}
               <div className="cf-form-http-rodape">
-                <BotaoBds variante="bot" type="submit">
+                <BotaoBds variante="bot" type="submit" disabled={salvando}>
                   Salvar
                 </BotaoBds>
               </div>
             </form>
           </Papel>
         </div>
-      ) : null}
+      ) : (
+        aviso ? (
+          <div className="cf-container">
+            <p className="cf-aviso" role="alert">
+              {aviso}
+            </p>
+          </div>
+        ) : null
+      )}
     </>
   );
 }

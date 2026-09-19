@@ -1,5 +1,7 @@
 import { useState } from 'react';
+import type { ConfiguracaoDeMenuPersistente } from '@pipe/contracts';
 import { BotaoBds, BotaoDeIcone, CabecalhoDaPagina, CampoBds, Papel } from '../pecas';
+import { salvarMenuPersistente } from './gravar';
 
 /** `Você poderá adicionar até 3 itens que disparam um comando.` (LEIA.md, Rodada 2, captura 6). */
 const MAXIMO_DE_ITENS = 3;
@@ -14,6 +16,12 @@ function itemVazio(): ItemDoMenu {
   return { texto: '', link: '', aberto: false };
 }
 
+function itensIniciais(inicial: ConfiguracaoDeMenuPersistente): ItemDoMenu[] {
+  const preenchidos = inicial.itens.map((item) => ({ ...item, aberto: true }));
+  const vazios = Array.from({ length: MAXIMO_DE_ITENS - preenchidos.length }, itemVazio);
+  return [...preenchidos, ...vazios];
+}
+
 /**
  * `/configurations/persistentMenu` (LEIA.md, Rodada 2, captura 6): 3 linhas em
  * acordeão (ícone "+" fechado), cada uma com **Texto** e **Link**; o Salvar
@@ -22,16 +30,25 @@ function itemVazio(): ItemDoMenu {
  * estado inventado.
  *
  * O segundo bloqueio da origem ("Antes de salvar... preencher a tela de
- * boas-vindas") não tem como ser reproduzido de verdade: a Tela de
- * Boas-vindas desta régua não grava nada na `api` (`../boasvindas/tela.tsx`),
- * então não existe um "preenchido" para consultar — fica só o aviso de texto,
- * como a origem também mostra.
+ * boas-vindas") agora é real: `boasVindasPreenchida` vem de
+ * `GET /v1/gestao/fluxos/:id/menu-persistente`, e a `api` recusa o PATCH do
+ * mesmo jeito se as duas condições não valerem — a tela só reflete o mesmo
+ * motivo com antecedência.
  */
-export function TelaDeMenuPersistente({ canalCompativel }: { canalCompativel: boolean }) {
-  const [itens, setItens] = useState<ItemDoMenu[]>(() =>
-    Array.from({ length: MAXIMO_DE_ITENS }, itemVazio),
-  );
+export function TelaDeMenuPersistente({
+  id,
+  canalCompativel,
+  inicial,
+}: {
+  id: string;
+  canalCompativel: boolean;
+  inicial: ConfiguracaoDeMenuPersistente;
+}) {
+  const [itens, setItens] = useState<ItemDoMenu[]>(() => itensIniciais(inicial));
   const [aviso, setAviso] = useState('');
+  const [sucesso, setSucesso] = useState('');
+  const [salvando, setSalvando] = useState(false);
+  const podeSalvar = canalCompativel && inicial.boasVindasPreenchida;
 
   function mudarCampo(indice: number, campo: 'texto' | 'link', valor: string) {
     setItens((atual) => atual.map((item, i) => (i === indice ? { ...item, [campo]: valor } : item)));
@@ -43,16 +60,28 @@ export function TelaDeMenuPersistente({ canalCompativel }: { canalCompativel: bo
     );
   }
 
+  async function salvar() {
+    setAviso('');
+    setSucesso('');
+    setSalvando(true);
+    const resultado = await salvarMenuPersistente(
+      id,
+      itens.map(({ texto, link }) => ({ texto, link })),
+    );
+    setSalvando(false);
+    if (!resultado.ok) {
+      setAviso(resultado.erro);
+      return;
+    }
+    setSucesso('Configuração salva com sucesso.');
+  }
+
   return (
     <>
       <CabecalhoDaPagina
         titulo={<h1>Menu Persistente</h1>}
         acoes={
-          <BotaoBds
-            variante="bot"
-            disabled={!canalCompativel}
-            onClick={() => setAviso('O menu persistente ainda não está disponível.')}
-          >
+          <BotaoBds variante="bot" disabled={!podeSalvar || salvando} onClick={() => void salvar()}>
             Salvar
           </BotaoBds>
         }
@@ -70,10 +99,12 @@ export function TelaDeMenuPersistente({ canalCompativel }: { canalCompativel: bo
           que poderão ser utilizadas em qualquer momento do fluxo. Você poderá adicionar até{' '}
           {MAXIMO_DE_ITENS} itens que disparam um comando.
         </p>
-        <p className="cf-menu-aviso-boasvindas">
-          Antes de salvar o menu persistente, você precisa preencher a tela de boas-vindas no menu
-          lateral.
-        </p>
+        {canalCompativel && !inicial.boasVindasPreenchida ? (
+          <p className="cf-menu-aviso-boasvindas">
+            Antes de salvar o menu persistente, você precisa preencher a tela de boas-vindas no
+            menu lateral.
+          </p>
+        ) : null}
 
         {itens.map((item, indice) => (
           <Papel key={indice} className="cf-menu-item">
@@ -108,6 +139,11 @@ export function TelaDeMenuPersistente({ canalCompativel }: { canalCompativel: bo
         {aviso ? (
           <p className="cf-aviso" role="alert">
             {aviso}
+          </p>
+        ) : null}
+        {sucesso ? (
+          <p className="cf-basicas-sucesso" role="status">
+            {sucesso}
           </p>
         ) : null}
       </div>

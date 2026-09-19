@@ -20,6 +20,12 @@ import {
   excluirFluxo,
   type FluxoGravado,
 } from '../dominio/gestao/ciclo-de-vida-do-fluxo.js';
+import {
+  carregarBoasVindas,
+  carregarMenuPersistente,
+  salvarBoasVindas,
+  salvarMenuPersistente,
+} from '../dominio/gestao/configuracao-do-fluxo.js';
 import type { RecadosDoNome } from '../dominio/gestao/regras-de-nome.js';
 import {
   carregarServicos,
@@ -39,6 +45,8 @@ import {
   listarContatosDoFluxo,
 } from '../dominio/gestao-fluxo.js';
 import type {
+  ConfiguracaoDeBoasVindas,
+  ConfiguracaoDeMenuPersistente,
   DadosDeServicos,
   GradeDoPortal,
   PedidoDeServico,
@@ -226,6 +234,63 @@ export class ControladorGestaoFluxo {
     });
     if (!resultado) throw ErroPipe.naoEncontrado('fluxo');
     return resultado;
+  }
+
+  /** "Tela de Boas-vindas" — a regra mora em `dominio/gestao/configuracao-do-fluxo.ts`. */
+  @Get(':id/boas-vindas')
+  @ComSessao()
+  async boasVindas(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+  ): Promise<ConfiguracaoDeBoasVindas> {
+    const sessao = sessaoDe(requisicao);
+    uuidOu404(id, 'fluxo');
+    return noTenant(sessao.tenantId, (tx) => carregarBoasVindas(tx, sessao.tenantId, id));
+  }
+
+  @Patch(':id/boas-vindas')
+  @ComSessao()
+  async salvarBoasVindasRota(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: { ativo?: boolean; mensagem?: string; textoBotao?: string },
+  ): Promise<ConfiguracaoDeBoasVindas> {
+    const sessao = sessaoDe(requisicao);
+    uuidOu404(id, 'fluxo');
+    return noTenant(sessao.tenantId, (tx) =>
+      salvarBoasVindas(tx, sessao.tenantId, sessao.usuarioId, id, {
+        ativo: corpo?.ativo === true,
+        mensagem: typeof corpo?.mensagem === 'string' ? corpo.mensagem : undefined,
+        textoBotao: typeof corpo?.textoBotao === 'string' ? corpo.textoBotao : undefined,
+      }),
+    );
+  }
+
+  /** "Menu Persistente" — mesma regra do arquivo acima. */
+  @Get(':id/menu-persistente')
+  @ComSessao()
+  async menuPersistente(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+  ): Promise<ConfiguracaoDeMenuPersistente> {
+    const sessao = sessaoDe(requisicao);
+    uuidOu404(id, 'fluxo');
+    return noTenant(sessao.tenantId, (tx) => carregarMenuPersistente(tx, sessao.tenantId, id));
+  }
+
+  @Patch(':id/menu-persistente')
+  @ComSessao()
+  async salvarMenuPersistenteRota(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: { itens?: { texto?: string; link?: string }[] },
+  ): Promise<ConfiguracaoDeMenuPersistente> {
+    const sessao = sessaoDe(requisicao);
+    uuidOu404(id, 'fluxo');
+    const itens = Array.isArray(corpo?.itens) ? corpo.itens : [];
+    return noTenant(sessao.tenantId, (tx) =>
+      salvarMenuPersistente(tx, sessao.tenantId, sessao.usuarioId, id, itens),
+    );
   }
 
   @Get(':id/contatos')

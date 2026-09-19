@@ -77,6 +77,20 @@ export const fluxo = pgTable(
      * serviços que também ligaram isto. Desligado, são só deste fluxo. Migration 0024.
      */
     usaContextoDoRoteador: boolean('usa_contexto_do_roteador').notNull().default(false),
+    /**
+     * Configurações do contato que ainda não tinham lugar próprio: hoje só
+     * "Tela de Boas-vindas" (`{ boasVindas: { ativo, mensagem, textoBotao } }`)
+     * e "Menu Persistente" (`{ menuPersistente: { itens: [{texto,link}] } }`),
+     * as duas telas de `/configurations/welcome` e `/configurations/persistentMenu`
+     * — chave ausente é "nunca configurado". Migration 0031.
+     *
+     * Por que uma coluna e não uma tabela: são poucos campos, de UMA tela cada,
+     * sem histórico próprio (ao contrário de `fluxo_versao.global`, que é por
+     * VERSÃO publicada) — é o retrato atual do contato, como `nome` e `descricao`.
+     */
+    configuracao: jsonb('configuracao')
+      .notNull()
+      .default(sql`'{}'::jsonb`),
     ...carimbos(),
   },
   (t) => [

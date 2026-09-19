@@ -59,6 +59,9 @@ export const CATALOGO_PERMISSOES = [
      da origem): excluir é permissão à parte, que o `member` não tem. Migração 0023. */
   ['automacao.fluxo.excluir', 'automacao', 'Excluir fluxo de conversa'],
   ['automacao.workflow.gerenciar', 'automacao', 'Criar e ativar workflow'],
+  /* Migração 0032: nem "Informações de conexão" nem "Webhook" tinham permissão
+     própria — `chave_api.gerenciar` cobre só a emissão de chave. */
+  ['automacao.integracao.gerenciar', 'automacao', 'Gerenciar webhook de saída e conexão HTTP do fluxo'],
   ['consulta.executar', 'automacao', 'Executar consulta'],
   ['consulta.salvar', 'automacao', 'Salvar consulta'],
   ['consulta.agendar', 'automacao', 'Agendar consulta e exportação'],
@@ -185,12 +188,18 @@ export const PAPEIS_DA_CONTA = [
       ...CATALOGO_PERMISSOES.map(([codigo]) => codigo).filter((c) => c.startsWith('conta.')),
       'automacao.fluxo.editar',
       'automacao.fluxo.excluir',
+      'automacao.integracao.gerenciar',
     ],
   },
   {
     nome: 'member',
     descricao: 'Cria e edita chatbots, mas não gerencia os membros do contrato.',
-    permissoes: [...DA_CONTA_EM_LEITURA, 'conta.workspace.escrever', 'automacao.fluxo.editar'],
+    permissoes: [
+      ...DA_CONTA_EM_LEITURA,
+      'conta.workspace.escrever',
+      'automacao.fluxo.editar',
+      'automacao.integracao.gerenciar',
+    ],
   },
   {
     nome: 'guest',

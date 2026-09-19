@@ -183,6 +183,20 @@
       "when": 1789360000000,
       "tag": "0030_permissoes_cadastros_atendimento",
       "breakpoints": true
+    },
+    {
+      "idx": 31,
+      "version": "7",
+      "when": 1789380000000,
+      "tag": "0031_configuracao_do_fluxo",
+      "breakpoints": true
+    },
+    {
+      "idx": 32,
+      "version": "7",
+      "when": 1789370000000,
+      "tag": "0032_integracoes_fluxo",
+      "breakpoints": true
     }
   ]
 }

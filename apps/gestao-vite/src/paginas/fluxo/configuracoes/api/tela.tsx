@@ -1,5 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { BotaoBds, CabecalhoDaPagina, CampoBds, CampoCopiavel, Interruptor, Papel } from '../pecas';
+import { useLeitura } from '../../../../lib/consulta';
+import { salvarConexao, type ConexaoDoFluxo } from './gravar';
 
 /**
  * O miolo de `/configurations/apikey`, cartão por cartão como no template
@@ -14,21 +16,22 @@ import { BotaoBds, CabecalhoDaPagina, CampoBds, CampoCopiavel, Interruptor, Pape
  *   bds-paper.ph5.pv4.mb3  httpEndpoints (sendMessagesUrl/sendNotificationsUrl |
  *                          sendCommandsUrl)
  *
- * Textos do pacote pt-BR (`modules.application.detail.templates.api.*`,
- * `templates.webhook.*`, `templates.oauth.*`, `builder-tabs-actions.processHttp.*`).
+ * O que virou REAL (`GET/PUT /v1/gestao/fluxos/:id/conexao`,
+ * `dominio/gestao/integracoes.ts`): o identificador (sempre foi), o
+ * endpoint da `api`, o prefixo da chave ativa do fluxo (nunca o segredo — a
+ * tela de "Chaves de acesso" é quem emite) e as duas URLs do formulário
+ * HTTP, que viram `webhook_saida`.
  *
- * O `accessKey` (`channels.keyAccess`) e o `headerAuthentication` só aparecem
- * com `!isTokenManagementEnable`; a régua tem a gestão de chaves ligada
- * (a lateral mostra "Chaves de acesso"), então nenhum dos dois entra — e é
- * assim que a tela nunca exibe credencial.
- *
- * A régua mostra os três interruptores desligados com o miolo de cada cartão
- * à vista (o `ng-show` não fecha porque o mock não resolve `isSdkActive`);
- * a foto é essa. ponytail: `activateTemplateType` (que confirma a troca com
- * `changeConnectionDisclaimer` e publica) não existe aqui — o interruptor
- * só abre/fecha o cartão, e "Salvar" devolve o erro controlado.
+ * ponytail: `wsEndpoint`/`tcpEndpoint` (SDK) e os "Endpoints HTTP" de baixo
+ * (sendMessagesUrl/sendNotificationsUrl/sendCommandsUrl) exigiriam um
+ * servidor de SDK e rotas de envio que o Pipe não tem — ficam vazios, como
+ * antes. OAuth 2.0 do cartão HTTP também: campo visual, sem gravação (a
+ * origem também não resolve `isCheckedOAuth` no mock).
  */
-export function TelaDeConexao({ identificador }: { identificador: string }) {
+export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
+  const caminho = `/v1/gestao/fluxos/${fluxoId}/conexao`;
+  const { data, isLoading } = useLeitura<ConexaoDoFluxo>(caminho);
+
   const [builder, setBuilder] = useState(false);
   const [sdk, setSdk] = useState(false);
   const [http, setHttp] = useState(false);
@@ -42,6 +45,32 @@ export function TelaDeConexao({ identificador }: { identificador: string }) {
   const [clientId, setClientId] = useState('');
   const [clientSecret, setClientSecret] = useState('');
   const [aviso, setAviso] = useState('');
+  const [salvando, setSalvando] = useState(false);
+  const [sujo, setSujo] = useState(false);
+
+  /* Preenche com o que veio do banco — só enquanto a pessoa não mexeu, para
+     não sobrescrever o que ela está digitando quando a leitura revalida. */
+  useEffect(() => {
+    if (!data || sujo) return;
+    setUrlMensagens(data.urlMensagens ?? '');
+    setUrlNotificacoes(data.urlNotificacoes ?? '');
+  }, [data, sujo]);
+
+  async function salvar() {
+    setSalvando(true);
+    setAviso('');
+    const resultado = await salvarConexao(fluxoId, {
+      urlMensagens: urlMensagens.trim() === '' ? null : urlMensagens.trim(),
+      urlNotificacoes: urlNotificacoes.trim() === '' ? null : urlNotificacoes.trim(),
+    });
+    setSalvando(false);
+    if (!resultado.ok) {
+      setAviso(resultado.erro);
+      return;
+    }
+    setSujo(false);
+    setAviso('Configuração salva.');
+  }
 
   return (
     <>
@@ -97,7 +126,16 @@ export function TelaDeConexao({ identificador }: { identificador: string }) {
                 </div>
               </div>
               <div className="cf-coluna-metade">
-                <CampoCopiavel rotulo="Identificador" valor={identificador} />
+                <CampoCopiavel rotulo="Identificador" valor={fluxoId} />
+                <div className="cf-mt4">
+                  <CampoCopiavel rotulo="Endpoint HTTP" valor={data?.endpoint ?? ''} />
+                </div>
+                <div className="cf-mt4">
+                  <CampoCopiavel
+                    rotulo="Chave de autorização"
+                    valor={data?.chavePrefixo ? `${data.chavePrefixo}…` : 'Nenhuma chave emitida'}
+                  />
+                </div>
               </div>
             </div>
           ) : null}
@@ -131,7 +169,7 @@ export function TelaDeConexao({ identificador }: { identificador: string }) {
               noValidate
               onSubmit={(evento) => {
                 evento.preventDefault();
-                setAviso('A configuração de conexão HTTP ainda não está disponível.');
+                void salvar();
               }}
             >
               <div className="cf-linha-campos">
@@ -140,8 +178,11 @@ export function TelaDeConexao({ identificador }: { identificador: string }) {
                     id="urlReceiveMessages"
                     rotulo="Url para receber mensagens"
                     valor={urlMensagens}
-                    aoMudar={setUrlMensagens}
-                    obrigatorio
+                    aoMudar={(valor) => {
+                      setUrlMensagens(valor);
+                      setSujo(true);
+                    }}
+                    desabilitado={isLoading || salvando}
                   />
                 </div>
                 <div className="cf-w-10" />
@@ -150,7 +191,11 @@ export function TelaDeConexao({ identificador }: { identificador: string }) {
                     id="urlReceiveNotifications"
                     rotulo="Url para receber notificações"
                     valor={urlNotificacoes}
-                    aoMudar={setUrlNotificacoes}
+                    aoMudar={(valor) => {
+                      setUrlNotificacoes(valor);
+                      setSujo(true);
+                    }}
+                    desabilitado={isLoading || salvando}
                   />
                 </div>
               </div>
@@ -236,13 +281,13 @@ export function TelaDeConexao({ identificador }: { identificador: string }) {
               </Papel>
 
               {aviso ? (
-                <p className="cf-aviso" role="alert">
+                <p className="cf-aviso" role={aviso === 'Configuração salva.' ? 'status' : 'alert'}>
                   {aviso}
                 </p>
               ) : null}
               <div className="cf-form-http-rodape">
-                <BotaoBds variante="bot" type="submit">
-                  Salvar
+                <BotaoBds variante="bot" type="submit" disabled={salvando || isLoading}>
+                  {salvando ? 'Salvando…' : 'Salvar'}
                 </BotaoBds>
               </div>
             </form>

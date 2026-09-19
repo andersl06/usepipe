@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { IconePortal } from '../../../../componentes/icones-portal';
+import { salvarContato } from './gravar';
 
 interface Propriedades {
+  contatoId: string;
   nome: string | null;
   email: string | null;
   telefone: string | null;
@@ -10,19 +12,49 @@ interface Propriedades {
   atributos: Record<string, unknown>;
 }
 
+/** `''` (campo limpo na tela) vira `null` (apaga no banco); preenchido vai como veio. */
+function ouNulo(valor: string): string | null {
+  const limpo = valor.trim();
+  return limpo === '' ? null : limpo;
+}
+
 /* Cartão `.user-info-card` do template `details-container`: cabeçalho
    "Informações" + lápis (`notes`), linhas rótulo 30% / valor 70% (`mt4`),
    ID do contato com dica, e "Extras" (`mt5`) com as chaves do JSON.
-   ponytail: a edição é só visual — ao salvar, avisa que ainda não grava. */
+   `PATCH /v1/contatos/:id` — `gravar.ts`. */
 export function InformacoesContato(props: Propriedades) {
   const [editando, setEditando] = useState(false);
   const [aviso, setAviso] = useState('');
+  const [salvando, setSalvando] = useState(false);
   const cidade = typeof props.atributos['city'] === 'string' ? props.atributos['city'] : null;
   const genero = typeof props.atributos['gender'] === 'string' ? props.atributos['gender'] : null;
   const extras = Object.entries(props.atributos).filter(
     ([chave]) => !['city', 'gender'].includes(chave),
   );
   const generoExibido = genero === 'male' ? 'Masculino' : genero === 'female' ? 'Feminino' : genero;
+
+  async function salvar(evento: React.FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+    const dados = new FormData(evento.currentTarget);
+    setAviso('');
+    setSalvando(true);
+    const resultado = await salvarContato(props.contatoId, {
+      nome: ouNulo(String(dados.get('nome') ?? '')),
+      email: ouNulo(String(dados.get('email') ?? '')),
+      telefone_e164: ouNulo(String(dados.get('telefone') ?? '')),
+      documento: ouNulo(String(dados.get('documento') ?? '')),
+      atributos: {
+        city: ouNulo(String(dados.get('cidade') ?? '')),
+        gender: ouNulo(String(dados.get('genero') ?? '')),
+      },
+    });
+    setSalvando(false);
+    if (!resultado.ok) {
+      setAviso(resultado.erro);
+      return;
+    }
+    setEditando(false);
+  }
 
   return (
     <section className="ct-informacoes">
@@ -37,7 +69,10 @@ export function InformacoesContato(props: Propriedades) {
                   type="button"
                   title="Cancelar"
                   aria-label="Cancelar"
-                  onClick={() => setEditando(false)}
+                  onClick={() => {
+                    setEditando(false);
+                    setAviso('');
+                  }}
                 >
                   <IconePortal nome="fechar" tamanho={24} />
                 </button>
@@ -47,6 +82,7 @@ export function InformacoesContato(props: Propriedades) {
                   form="ct-formulario-edicao"
                   title="Salvar"
                   aria-label="Salvar"
+                  disabled={salvando}
                 >
                   <IconePortal nome="concluido" tamanho={24} />
                 </button>
@@ -68,28 +104,36 @@ export function InformacoesContato(props: Propriedades) {
               </span>
             )}
           </div>
-          <form
-            id="ct-formulario-edicao"
-            onSubmit={(evento) => {
-              evento.preventDefault();
-              setAviso('A edição ainda não está disponível.');
-            }}
-          >
+          <form id="ct-formulario-edicao" onSubmit={(evento) => void salvar(evento)}>
             {editando ? (
+              // ponytail: sem coluna própria para "usuário de teste" no schema do
+              // contato; a caixa fica visual, como já estava, até existir onde gravar.
               <label className="ct-caixa-teste">
                 <input type="checkbox" />
                 <span>Usuário de teste</span>
               </label>
             ) : null}
-            <Linha rotulo="Nome" valor={props.nome} editando={editando} classe="ct-fs-6" primeira />
-            <Linha rotulo="E-mail" valor={props.email} editando={editando} classe="ct-fs-6" />
-            <Linha rotulo="Telefone" valor={props.telefone} editando={editando} classe="ct-fs-6" />
-            <Linha rotulo="Cidade" valor={cidade} editando={editando} classe="ct-f4" />
-            <Linha rotulo="Documento" valor={props.documento} editando={editando} classe="ct-f4" />
+            <Linha nome="nome" rotulo="Nome" valor={props.nome} editando={editando} classe="ct-fs-6" primeira />
+            <Linha nome="email" rotulo="E-mail" valor={props.email} editando={editando} classe="ct-fs-6" />
+            <Linha
+              nome="telefone"
+              rotulo="Telefone"
+              valor={props.telefone}
+              editando={editando}
+              classe="ct-fs-6"
+            />
+            <Linha nome="cidade" rotulo="Cidade" valor={cidade} editando={editando} classe="ct-f4" />
+            <Linha
+              nome="documento"
+              rotulo="Documento"
+              valor={props.documento}
+              editando={editando}
+              classe="ct-f4"
+            />
             <div className="ct-linha">
               <span className="ct-rotulo ct-f4">Gênero</span>
               {editando ? (
-                <select className="ct-selecao" defaultValue={genero ?? ''}>
+                <select className="ct-selecao" name="genero" defaultValue={genero ?? ''}>
                   <option value="">Selecione o gênero</option>
                   <option value="male">Masculino</option>
                   <option value="female">Feminino</option>
@@ -142,12 +186,14 @@ export function InformacoesContato(props: Propriedades) {
 }
 
 function Linha({
+  nome,
   rotulo,
   valor,
   editando,
   classe,
   primeira,
 }: {
+  nome: string;
   rotulo: string;
   valor: string | null;
   editando: boolean;
@@ -158,7 +204,7 @@ function Linha({
     <div className={primeira ? 'ct-linha ct-linha--primeira' : 'ct-linha'}>
       <span className={`ct-rotulo ${classe}`}>{rotulo}</span>
       {editando ? (
-        <input className="ct-entrada" type="text" defaultValue={valor ?? ''} />
+        <input className="ct-entrada" type="text" name={nome} defaultValue={valor ?? ''} />
       ) : (
         <span className={`ct-valor ${classe}`}>{valor || '-'}</span>
       )}

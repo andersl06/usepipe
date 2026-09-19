@@ -237,3 +237,38 @@ export interface GradeDoPortal {
   /** Quantos a busca encontrou. Sem busca, é igual a `total`. */
   encontrados: number;
 }
+
+/* --------------------------------------------------------- Boas-vindas */
+
+/**
+ * `GET/PATCH /v1/gestao/fluxos/:id/boas-vindas` — "Defina a Mensagem de
+ * Saudação e o botão Começar" (`/configurations/welcome`).
+ *
+ * Desativado é `{ ativo: false }`: `mensagem`/`textoBotao` continuam com o
+ * último valor gravado (não se apagam ao desligar o interruptor), mas a tela
+ * só os mostra — e só exige preenchidos — quando `ativo` é `true`.
+ */
+export interface ConfiguracaoDeBoasVindas {
+  ativo: boolean;
+  mensagem: string;
+  textoBotao: string;
+}
+
+/** Uma linha do Menu Persistente: "Texto" e "Link" do item que dispara um comando. */
+export interface ItemDoMenuPersistente {
+  texto: string;
+  link: string;
+}
+
+/**
+ * `GET/PATCH /v1/gestao/fluxos/:id/menu-persistente` — "Configure o menu
+ * persistente de seu fluxo" (`/configurations/persistentMenu`), até 3 itens.
+ *
+ * `boasVindasPreenchida` é a segunda trava da origem ("Antes de salvar...
+ * você precisa preencher a tela de boas-vindas"): a tela some o Salvar quando
+ * falsa, e a `api` recusa o PATCH do mesmo jeito.
+ */
+export interface ConfiguracaoDeMenuPersistente {
+  itens: ItemDoMenuPersistente[];
+  boasVindasPreenchida: boolean;
+}

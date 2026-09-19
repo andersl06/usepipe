@@ -1,15 +1,9 @@
 import { useState } from 'react';
+import { ModalConfirmacao } from '../../../cadastros/_modal';
+import { useLeitura } from '../../../../lib/consulta';
 import { BotaoBds, BotaoDeIcone, CabecalhoDaPagina, CampoBds, Papel } from '../pecas';
-import { LIMITE_DE_CHAVES, erroAoCriar, noLimite, podeExcluir } from '../regras';
-
-/** O `parseKeyItem` do controlador `lP`: id, nome, data formatada, criador, padrão. */
-export interface ChaveListada {
-  id: string;
-  nome: string;
-  criadaEm: string;
-  criadaPor: string;
-  padrao: boolean;
-}
+import { LIMITE_DE_CHAVES, erroAoCriar, marcarPadrao, noLimite, podeExcluir } from '../regras';
+import { criarChave, revogarChave, type ChaveListada } from './gravar';
 
 /** `/assets/img/ballons.svg` — os dois balões da ajuda, na tinta da marca suave. */
 function Baloes() {
@@ -36,32 +30,36 @@ function Baloes() {
   );
 }
 
+/** A data em pt-BR, para o "Data de criação" da origem. */
+function formatarData(iso: string): string {
+  return new Date(iso).toLocaleDateString('pt-BR');
+}
+
 /**
- * O miolo de `/configurations/keys` (template do módulo 76179):
- *
- *   page-header#accesskey-header  custom-title: bds-typo h1 fs-24 "Chaves de acesso"
- *                                 + bds-button-icon info (toggleInfo)
- *                                 custom-content: bds-button primary icon=add
- *                                 "Nova chave" (openCreationModal), ou o
- *                                 bds-banner de limite quando keys >= MAX_TOKENS
- *   .container.token-container    bds-paper.token-help (ng-if showInfo)
- *                                 bds-paper.token-create (ng-if showCreationModal)
- *                                 bds-paper.token-card × chave (ng-repeat)
- *
- * Textos de `tokens.*` do pacote pt-BR. A exclusão confirma num modal
- * (`confirmDeleteKey`: `tokens.deleteBox.title/text`, `tokens.warning.
- * httpSessionDeleteKey`, botões `utils.forms.delete/return`) e a chave
- * padrão não sai (`cantDeleteDefault`).
+ * O miolo de `/configurations/keys` (template do módulo 76179), agora real:
+ * `GET/POST /v1/gestao/fluxos/:id/chaves` e `DELETE .../chaves/:chaveId`
+ * (que revoga — `dominio/gestao/integracoes.ts`). O token em claro
+ * (`pipe_<prefixo>_<segredo>`) só existe na resposta do `POST`; a lista
+ * seguinte já vem só com o prefixo.
  */
-export function TelaDeChaves({ chaves }: { chaves: ChaveListada[] }) {
+export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
+  const caminho = `/v1/gestao/fluxos/${fluxoId}/chaves`;
+  const { data, isLoading } = useLeitura<ChaveListada[]>(caminho);
+  const chaves = marcarPadrao(data ?? []);
+
   const [mostrarAjuda, setMostrarAjuda] = useState(false);
   const [criando, setCriando] = useState(false);
+  const [salvando, setSalvando] = useState(false);
   const [nome, setNome] = useState('');
   const [aviso, setAviso] = useState('');
-  const [excluindo, setExcluindo] = useState<ChaveListada | null>(null);
+  const [tokenGerado, setTokenGerado] = useState<{ nome: string; token: string } | null>(null);
+  const [excluindo, setExcluindo] = useState<(ChaveListada & { padrao: boolean }) | null>(null);
+  const [erroDeExclusao, setErroDeExclusao] = useState<string | null>(null);
+  const [excluindoAgora, setExcluindoAgora] = useState(false);
+
   const limite = noLimite(chaves.length);
 
-  function criar() {
+  async function criar() {
     const erro = erroAoCriar(nome, chaves.length);
     if (erro === 'limite') {
       setAviso(`Limite de ${LIMITE_DE_CHAVES} chaves atingido`);
@@ -71,8 +69,30 @@ export function TelaDeChaves({ chaves }: { chaves: ChaveListada[] }) {
       setAviso('Adicione um nome para identificar a chave');
       return;
     }
-    /* ponytail: `setAccessKeys(purpose)` + modal "Chave gerada com sucesso!" */
-    setAviso('A criação de chaves de acesso ainda não está disponível.');
+    setSalvando(true);
+    setAviso('');
+    const resultado = await criarChave(fluxoId, nome.trim());
+    setSalvando(false);
+    if (!resultado.ok) {
+      setAviso(resultado.erro);
+      return;
+    }
+    setCriando(false);
+    setNome('');
+    setTokenGerado({ nome: resultado.valor.nome, token: resultado.valor.token });
+  }
+
+  async function confirmarExclusao() {
+    if (!excluindo) return;
+    setExcluindoAgora(true);
+    setErroDeExclusao(null);
+    const resultado = await revogarChave(fluxoId, excluindo.id);
+    setExcluindoAgora(false);
+    if (!resultado.ok) {
+      setErroDeExclusao(resultado.erro);
+      return;
+    }
+    setExcluindo(null);
   }
 
   return (
@@ -98,7 +118,7 @@ export function TelaDeChaves({ chaves }: { chaves: ChaveListada[] }) {
           ) : (
             <BotaoBds
               icone="mais"
-              disabled={criando}
+              disabled={criando || isLoading}
               onClick={() => {
                 setCriando(true);
                 setAviso('');
@@ -136,6 +156,31 @@ export function TelaDeChaves({ chaves }: { chaves: ChaveListada[] }) {
           </Papel>
         ) : null}
 
+        {tokenGerado ? (
+          <Papel className="cf-chaves-gerada">
+            <p className="cf-chaves-gerada-titulo">
+              Chave &quot;{tokenGerado.nome}&quot; gerada com sucesso!
+            </p>
+            <p>
+              Copie e guarde esta chave agora: por segurança, ela não pode ser mostrada de novo.
+            </p>
+            <div className="cf-copiavel">
+              <input readOnly value={tokenGerado.token} aria-label="Chave gerada" />
+              <button
+                type="button"
+                className="cf-copiavel-botao"
+                aria-label="Copiar chave gerada"
+                onClick={() => void navigator.clipboard?.writeText(tokenGerado.token)}
+              >
+                Copiar
+              </button>
+            </div>
+            <BotaoBds variante="secondary" onClick={() => setTokenGerado(null)}>
+              Já copiei
+            </BotaoBds>
+          </Papel>
+        ) : null}
+
         {criando ? (
           <Papel className="cf-chaves-criar">
             <div className="cf-chaves-criar-dados">
@@ -146,6 +191,7 @@ export function TelaDeChaves({ chaves }: { chaves: ChaveListada[] }) {
                 valor={nome}
                 aoMudar={setNome}
                 maxLength={100}
+                desabilitado={salvando}
               />
               {aviso ? (
                 <p className="cf-aviso" role="alert">
@@ -156,6 +202,7 @@ export function TelaDeChaves({ chaves }: { chaves: ChaveListada[] }) {
             <div className="cf-chaves-criar-acoes">
               <BotaoBds
                 variante="secondary"
+                disabled={salvando}
                 onClick={() => {
                   setCriando(false);
                   setNome('');
@@ -164,7 +211,9 @@ export function TelaDeChaves({ chaves }: { chaves: ChaveListada[] }) {
               >
                 Cancelar
               </BotaoBds>
-              <BotaoBds onClick={criar}>Criar</BotaoBds>
+              <BotaoBds onClick={() => void criar()} disabled={salvando}>
+                {salvando ? 'Criando…' : 'Criar'}
+              </BotaoBds>
             </div>
           </Papel>
         ) : null}
@@ -179,26 +228,30 @@ export function TelaDeChaves({ chaves }: { chaves: ChaveListada[] }) {
                 </div>
                 <div className="cf-chave-coluna">
                   <dt>Data de criação</dt>
-                  <dd>{chave.criadaEm}</dd>
+                  <dd>{formatarData(chave.criadaEm)}</dd>
                 </div>
                 <div className="cf-chave-coluna">
                   <dt>Nome</dt>
                   <dd>{chave.nome}</dd>
                 </div>
                 <div className="cf-chave-coluna">
-                  <dt>Criado por</dt>
-                  <dd>{chave.criadaPor}</dd>
+                  <dt>Prefixo</dt>
+                  <dd>{chave.prefixo}</dd>
                 </div>
               </dl>
               <div className="cf-chave-selo">
                 {chave.padrao ? <span className="cf-selo cf-selo--info">Padrão</span> : null}
+                {chave.revogadaEm ? <span className="cf-selo cf-selo--erro">Revogada</span> : null}
               </div>
               <div className="cf-chave-acoes">
                 <BotaoDeIcone
                   icone="lixeira"
                   rotulo="Excluir chave"
-                  disabled={!podeExcluir(chave)}
-                  onClick={() => setExcluindo(chave)}
+                  disabled={!podeExcluir(chave) || Boolean(chave.revogadaEm)}
+                  onClick={() => {
+                    setErroDeExclusao(null);
+                    setExcluindo(chave);
+                  }}
                 />
               </div>
             </div>
@@ -206,45 +259,22 @@ export function TelaDeChaves({ chaves }: { chaves: ChaveListada[] }) {
         ))}
       </div>
 
-      {excluindo ? (
-        <div
-          className="cf-sobreposicao"
-          role="presentation"
-          onMouseDown={(evento) => evento.target === evento.currentTarget && setExcluindo(null)}
-        >
-          <section
-            className="cf-modal"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="cf-excluir-chave-titulo"
-          >
-            <h2 id="cf-excluir-chave-titulo">Excluir chave</h2>
-            <p>
-              <strong>Cuidado</strong>: certifique-se de que a chave removida não seja a mesma usada
-              para a configuração HTTP do bot.
-            </p>
-            <p>Quer mesmo excluir a chave &quot;{excluindo.nome}&quot;?</p>
-            {aviso ? (
-              <p role="alert" className="cf-aviso">
-                {aviso}
-              </p>
-            ) : null}
-            <footer className="cf-modal-acoes">
-              <BotaoBds variante="secondary" onClick={() => setExcluindo(null)}>
-                Voltar
-              </BotaoBds>
-              <BotaoBds
-                onClick={() =>
-                  /* ponytail: `deleteAccessKey(id)` */
-                  setAviso('A exclusão de chaves de acesso ainda não está disponível.')
-                }
-              >
-                Excluir
-              </BotaoBds>
-            </footer>
-          </section>
-        </div>
-      ) : null}
+      <ModalConfirmacao
+        aberto={excluindo !== null}
+        titulo="Excluir chave"
+        mensagem={
+          <>
+            <strong>Cuidado</strong>: certifique-se de que a chave removida não seja a mesma usada
+            para a configuração HTTP do bot.
+            <br />
+            Quer mesmo excluir a chave &quot;{excluindo?.nome}&quot;?
+          </>
+        }
+        erro={erroDeExclusao}
+        confirmando={excluindoAgora}
+        onConfirmar={() => void confirmarExclusao()}
+        onCancelar={() => setExcluindo(null)}
+      />
     </>
   );
 }

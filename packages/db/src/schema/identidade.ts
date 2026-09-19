@@ -446,13 +446,24 @@ export const chaveApi = pgTable(
     prefixo: text('prefixo').notNull(),
     hash: text('hash').notNull(),
     escopos: text('escopos').array().notNull().default(sql`'{}'::text[]`),
+    /**
+     * A chave é da CONTA (`null`, o padrão) ou de UM fluxo — a tela de
+     * "Chaves de acesso" do fluxo (migração 0032). A FK para `fluxo` cruza
+     * módulos (`identidade` → `automacao`) e por isso não entra aqui: seria
+     * ciclo de import, o mesmo motivo de `0003_chaves_cruzadas.sql`. A
+     * constraint de verdade está na migração 0032, plain column aqui.
+     */
+    fluxoId: uuid('fluxo_id'),
     expiraEm: momento('expira_em'),
     ultimoUsoEm: momento('ultimo_uso_em'),
     criadaPor: uuid('criada_por').references(() => usuario.id, { onDelete: 'set null' }),
     revogadaEm: momento('revogada_em'),
     ...carimbos(),
   },
-  (t) => [uniqueIndex('chave_api_prefixo_uk').on(t.prefixo)],
+  (t) => [
+    uniqueIndex('chave_api_prefixo_uk').on(t.prefixo),
+    index('chave_api_fluxo_idx').on(t.tenantId, t.fluxoId),
+  ],
 );
 
 export const TIPOS_ATOR = ['usuario', 'chave', 'sistema'] as const;

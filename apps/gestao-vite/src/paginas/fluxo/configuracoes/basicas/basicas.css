@@ -133,14 +133,8 @@
 .cf-basicas-remover:hover {
   color: var(--p-erro-conteudo);
 }
-/* "Configuração salva com sucesso." — o toast de sucesso deles, aqui no
-   lugar do `.cf-aviso` (mesma medida, tinta de sucesso). */
-.cf-basicas-sucesso {
-  margin: 8px 0 0;
-  font-size: 12px;
-  line-height: 18px;
-  color: var(--p-sucesso-conteudo);
-}
+/* `.cf-basicas-sucesso` mudou para `configuracoes.css` — deixou de ser só
+   desta tela quando Boas-vindas e Menu Persistente passaram a salvar também. */
 
 /* A caixa "Estou ciente…" do modal de exclusão (`deleteChatBotModalCheck`):
    é ela que destrava o botão. */

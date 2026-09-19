@@ -1,11 +1,14 @@
-import { Body, Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Patch, Post, Query, Req } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
+import { diferenca, registrarAuditoria } from '@pipe/db';
 import { noTenant } from '../banco.js';
 import { ChaveOuSessao, Escopos, atorDe, contextoDe } from '../autenticacao.js';
 import type { RequisicaoAutenticada } from '../autenticacao.js';
+import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
 import { definirStatus, ehEstadoAtendente } from '../dominio/status-atendente.js';
+import { telefoneValido } from '../dominio/mensagem-ativa.js';
 import { ErroPipe } from '../erros.js';
 import {
   condicaoDeCursor,
@@ -17,6 +20,11 @@ import {
 } from '../paginacao.js';
 import type { Pagina } from '../paginacao.js';
 import { igualEmLista, juntar } from './conversas.js';
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/** Bem básico de propósito: recusa o óbvio errado, não tenta validar RFC 5322 inteiro. */
+const EMAIL_RAZOAVEL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 /**
  * Contatos, filas e atendentes.
@@ -42,6 +50,15 @@ interface CorpoContato {
   telefone_e164?: string;
   email?: string;
   documento?: string;
+  atributos?: Record<string, unknown>;
+}
+
+/** `PATCH /v1/contatos/:id`. Ausente não mexe; `null` apaga (menos `atributos`, que mescla). */
+interface CorpoEdicaoContato {
+  nome?: string | null;
+  email?: string | null;
+  telefone_e164?: string | null;
+  documento?: string | null;
   atributos?: Record<string, unknown>;
 }
 
@@ -143,6 +160,110 @@ export class ControladorContatos {
       return criado;
     });
     return comoContato(linha);
+  }
+
+  /**
+   * O "Editar" de `fluxo/contatos/detalhe/editar.tsx` — sessão, não chave: quem edita
+   * é gente da equipe, e a permissão (`contato.editar`) só existe para ator com
+   * `usuarioId`. `nome`/`email`/`telefone_e164`/`documento` ausentes não mexem, `null`
+   * apaga; `atributos` é MESCLA (`||`) — só as chaves enviadas (`city`, `gender`) mudam,
+   * as outras extras do contato continuam como estavam.
+   */
+  @Patch(':id')
+  @ComSessao()
+  async editar(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: CorpoEdicaoContato,
+  ): Promise<Record<string, unknown>> {
+    const sessao = sessaoDe(requisicao);
+    if (!UUID.test(id)) throw ErroPipe.naoEncontrado('Contato');
+
+    const nome = corpo?.nome;
+    const email = corpo?.email;
+    const telefone = corpo?.telefone_e164;
+    const documento = corpo?.documento;
+    const atributos = corpo?.atributos;
+
+    if (typeof email === 'string' && email && !EMAIL_RAZOAVEL.test(email)) {
+      throw ErroPipe.requisicao('contato_email_invalido', 'Informe um e-mail válido.');
+    }
+    if (typeof telefone === 'string' && telefone && !telefoneValido(telefone)) {
+      throw ErroPipe.requisicao(
+        'contato_telefone_invalido',
+        'Informe um telefone no formato E.164 (ex.: +5511987654321).',
+      );
+    }
+
+    return noTenant(sessao.tenantId, async (tx) => {
+      await exigirPermissao(tx, sessao.usuarioId, 'contato.editar');
+
+      const { rows: atuais } = await tx.execute<LinhaContato>(sql`
+        select id, nome, telefone_e164, email, documento, bloqueado, criado_em, atributos
+          from contato
+         where id = ${id}::uuid and tenant_id = ${sessao.tenantId}::uuid and excluido_em is null
+         limit 1
+      `);
+      const atual = atuais[0];
+      if (!atual) throw ErroPipe.naoEncontrado('Contato');
+
+      if (typeof telefone === 'string' && telefone && telefone !== atual.telefone_e164) {
+        const { rows: conflitos } = await tx.execute<{ id: string }>(sql`
+          select id from contato
+           where tenant_id = ${sessao.tenantId}::uuid and telefone_e164 = ${telefone}
+             and excluido_em is null and id <> ${id}::uuid
+           limit 1
+        `);
+        if (conflitos[0]) {
+          throw ErroPipe.conflito(
+            'contato_telefone_em_uso',
+            'Já existe um contato com este telefone.',
+          );
+        }
+      }
+
+      const { rows: gravados } = await tx.execute<LinhaContato>(sql`
+        update contato set
+          nome = ${nome === undefined ? sql`nome` : nome},
+          email = ${email === undefined ? sql`email` : email},
+          telefone_e164 = ${telefone === undefined ? sql`telefone_e164` : telefone},
+          documento = ${documento === undefined ? sql`documento` : documento},
+          atributos = ${
+            atributos === undefined ? sql`atributos` : sql`atributos || ${JSON.stringify(atributos)}::jsonb`
+          },
+          atualizado_em = now()
+        where id = ${id}::uuid and tenant_id = ${sessao.tenantId}::uuid
+        returning id, nome, telefone_e164, email, documento, bloqueado, criado_em, atributos
+      `);
+      const gravado = gravados[0];
+      if (!gravado) throw ErroPipe.naoEncontrado('Contato');
+
+      const mudanca = diferenca(
+        {
+          nome: atual.nome,
+          email: atual.email,
+          telefone_e164: atual.telefone_e164,
+          documento: atual.documento,
+        },
+        {
+          nome: gravado.nome,
+          email: gravado.email,
+          telefone_e164: gravado.telefone_e164,
+          documento: gravado.documento,
+        },
+      );
+      if (Object.keys(mudanca.depois).length > 0 || atributos !== undefined) {
+        await registrarAuditoria(tx, sessao.tenantId, {
+          ator: { tipo: 'usuario', id: sessao.usuarioId },
+          acao: 'alterou',
+          objetoTipo: 'contato',
+          objetoId: id,
+          antes: atributos !== undefined ? { ...mudanca.antes, atributos: atual.atributos } : mudanca.antes,
+          depois: atributos !== undefined ? { ...mudanca.depois, atributos: gravado.atributos } : mudanca.depois,
+        });
+      }
+      return comoContato(gravado);
+    });
   }
 }
 

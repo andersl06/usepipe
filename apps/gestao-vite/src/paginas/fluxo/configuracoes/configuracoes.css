@@ -785,6 +785,15 @@
   line-height: 18px;
   color: var(--p-erro-conteudo);
 }
+/* "Configuração salva com sucesso." — o toast de sucesso deles, mesma medida
+   do `.cf-aviso`, tinta de sucesso. Era só de `basicas/`; agora é de toda
+   `configuracoes/` (boas-vindas e menu persistente também salvam). */
+.cf-basicas-sucesso {
+  margin: 8px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--p-sucesso-conteudo);
+}
 
 /* O modal de confirmação (`ModalService.showModal`). */
 .cf-sobreposicao {
