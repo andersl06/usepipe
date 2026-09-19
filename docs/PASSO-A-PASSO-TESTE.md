@@ -101,6 +101,12 @@ cd ~/desk-clone && node servidor.js
 
 Abra `http://127.0.0.1:8787/?ponte=1`. A lista vem vazia — é uma empresa nova.
 
+O Builder da cópia edita UM fluxo do tenant: o de `PIPE_PONTE_FLUXO_ID=<id do fluxo>`,
+se você passar, senão um chamado "Fluxo do Builder", criado na primeira vez. A pessoa
+de `PIPE_PONTE_EMAIL` precisa ter `automacao.fluxo.editar` (salvar) e
+`automacao.fluxo.publicar` (publicar) — o administrador tem as duas. O mesmo fluxo
+aparece em `/fluxo/<id>/builder` na Gestão, com rascunho, publicação e histórico.
+
 ### 7. Fazer chegar uma mensagem
 
 Isto imita exatamente o que a Meta manda. Troque o `CANAL` e o telefone:

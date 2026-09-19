@@ -15,6 +15,10 @@
       "types": "./dist/dominio/fluxo.d.ts",
       "default": "./dist/dominio/fluxo.js"
     },
+    "./dominio/gestao/builder-do-fluxo": {
+      "types": "./dist/dominio/gestao/builder-do-fluxo.d.ts",
+      "default": "./dist/dominio/gestao/builder-do-fluxo.js"
+    },
     "./dominio/conversa": {
       "types": "./dist/dominio/conversa.d.ts",
       "default": "./dist/dominio/conversa.js"

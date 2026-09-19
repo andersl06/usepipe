@@ -80,7 +80,8 @@ import type {
  */
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-function uuidOu404(valor: string, oQue: string): string {
+/** Exportada para o controlador do Builder (`gestao-builder.ts`), que vive sob a mesma casca. */
+export function uuidOu404(valor: string, oQue: string): string {
   if (!UUID.test(valor)) throw ErroPipe.naoEncontrado(oQue);
   return valor;
 }

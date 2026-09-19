@@ -272,3 +272,77 @@ export interface ConfiguracaoDeMenuPersistente {
   itens: ItemDoMenuPersistente[];
   boasVindasPreenchida: boolean;
 }
+
+/* ------------------------------------------------------------- Builder */
+
+/**
+ * O desenho como o editor da Blip o guarda, e como a cópia do Builder o pede
+ * à ponte: o mapa de estados (`blip_portal:builder_working_flow`) e as ações
+ * globais (`blip_portal:builder_working_global_actions`). É o `{ flow,
+ * globalActions }` do botão "Exportar" do Builder, com os nomes traduzidos.
+ */
+export interface DesenhoDoBuilder {
+  fluxo: Record<string, unknown>;
+  globais: Record<string, unknown>;
+}
+
+/**
+ * Um erro que o motor apontaria ao rodar o fluxo (`errosDoFluxo` de
+ * `@pipe/core`), preso ao bloco que o causa. `bloco` é o `id` do estado no
+ * editor; `null` quando o erro é do fluxo inteiro (sem raiz, por exemplo).
+ */
+export interface ErroDoBloco {
+  bloco: string | null;
+  mensagem: string;
+}
+
+export type EstadoDaVersao = 'rascunho' | 'publicada' | 'arquivada';
+
+/** Uma linha de `fluxo_versao`, como o histórico do Builder a lista. */
+export interface VersaoDoFluxo {
+  id: string;
+  versao: number;
+  estado: EstadoDaVersao;
+  blocos: number;
+  publicadaEm: string | null;
+  /** Quem publicou, pelo nome — `null` quando a versão nunca foi publicada. */
+  publicadaPor: string | null;
+  criadoEm: string | null;
+  atualizadoEm: string | null;
+}
+
+/**
+ * De onde veio o desenho que o Builder abre: o rascunho em edição, a versão
+ * publicada (quando não há rascunho) ou o fluxo padrão (fluxo novo, nada
+ * gravado ainda).
+ */
+export type OrigemDoDesenho = 'rascunho' | 'publicada' | 'padrao';
+
+/** `GET /v1/gestao/fluxos/:id/builder`. */
+export interface BuilderDoFluxo {
+  fluxoId: string;
+  origem: OrigemDoDesenho;
+  /** A versão carregada; `null` quando é o fluxo padrão, que ainda não existe no banco. */
+  versao: VersaoDoFluxo | null;
+  /** A versão que o motor está rodando agora, se houver. */
+  publicada: VersaoDoFluxo | null;
+  desenho: DesenhoDoBuilder;
+  /** O que impediria publicar o desenho carregado. Vazio = publicável. */
+  erros: ErroDoBloco[];
+  /** Ações que o motor do Pipe ainda não executa, por tipo — publicar é permitido, rodar falha. */
+  naoSuportado: Record<string, number>;
+}
+
+/** `PUT /v1/gestao/fluxos/:id/builder` e `POST .../versoes/:versao/restaurar`. */
+export interface RascunhoGravado {
+  versao: VersaoDoFluxo;
+  erros: ErroDoBloco[];
+  naoSuportado: Record<string, number>;
+}
+
+/** `POST /v1/gestao/fluxos/:id/builder/publicar`. */
+export interface VersaoPublicada {
+  versao: VersaoDoFluxo;
+  /** A que saiu do ar para esta entrar, se havia. */
+  arquivada: VersaoDoFluxo | null;
+}

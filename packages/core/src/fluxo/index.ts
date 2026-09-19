@@ -8,3 +8,4 @@ export * from './contexto.js';
 export * from './acoes.js';
 export * from './gerenciador.js';
 export * from './editor.js';
+export * from './padrao.js';

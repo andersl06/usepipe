@@ -187,6 +187,9 @@ export const PAPEIS_DA_CONTA = [
     permissoes: [
       ...CATALOGO_PERMISSOES.map(([codigo]) => codigo).filter((c) => c.startsWith('conta.')),
       'automacao.fluxo.editar',
+      /* Quem edita o bot publica o bot: o Builder da origem não separa os dois
+         gestos. Migração 0034. */
+      'automacao.fluxo.publicar',
       'automacao.fluxo.excluir',
       'automacao.integracao.gerenciar',
     ],
@@ -198,6 +201,7 @@ export const PAPEIS_DA_CONTA = [
       ...DA_CONTA_EM_LEITURA,
       'conta.workspace.escrever',
       'automacao.fluxo.editar',
+      'automacao.fluxo.publicar',
       'automacao.integracao.gerenciar',
     ],
   },

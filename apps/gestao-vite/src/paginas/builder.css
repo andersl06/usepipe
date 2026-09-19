@@ -204,6 +204,161 @@
   cursor: not-allowed;
 }
 
+/* O único botão da pílula com algo por trás hoje: "Publicar fluxo". Ligado,
+   ele deixa de parecer desligado — opacidade cheia, cursor de mão, e o
+   `hover` da `bds-button-icon secondary` (fundo um tom abaixo). */
+.bl-icone-botao--vivo {
+  cursor: pointer;
+  opacity: 1;
+}
+
+.bl-icone-botao--vivo:hover {
+  background: var(--surface);
+}
+
+/* ------------------------------------------------------- os erros do motor
+   A segunda faixa, quando o motor recusaria o fluxo: mesma forma da faixa de
+   aviso (`bds-banner`), com o tom de erro — fundo pastel, conteúdo escuro,
+   como toda etiqueta de estado do produto. */
+/* Os tokens de erro do pacote de UI (`tokens.css`): fundo pastel, linha e
+   conteúdo escuro — o mesmo par da `Etiqueta tom="erro"`. */
+.bl-aviso--erro {
+  background: var(--p-erro-fundo);
+  border-bottom-color: var(--p-erro-linha);
+  color: var(--p-erro-conteudo);
+}
+
+.bl-aviso--erro svg {
+  vertical-align: -3px;
+  margin-right: 4px;
+}
+
+.bl-erros {
+  margin: var(--p-e-2) 0 0;
+  padding-left: 1.25em;
+  font-size: var(--p-t-sm);
+  color: var(--ink-2);
+}
+
+.bl-erros li + li {
+  margin-top: 2px;
+}
+
+.bl-aviso--erro .bl-erros {
+  color: inherit;
+}
+
+.bl-erros--modal {
+  margin-bottom: var(--p-e-3);
+}
+
+/* ------------------------------------------------------------- os blocos
+   A camada dos cartões, na posição em que o editor da Blip os deixou
+   (`$position.top/left`, em px do canvas deles). Só leitura: o cartão é a
+   cara do `.default-node` deles — fundo claro, raio 8, sombra — sem arrastar
+   nem ligar. O de Início leva a marca (`--p-marca`, e não o azul deles) na
+   borda esquerda; o de atendimento, o musgo. */
+.bl-blocos {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+}
+
+.bl-bloco {
+  position: absolute;
+  width: 240px;
+  padding: var(--p-e-3);
+  border-radius: var(--p-r-md);
+  border-left: 4px solid var(--line);
+  background: var(--surface);
+  color: var(--ink);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  font-size: var(--p-t-sm);
+}
+
+.bl-bloco--inicio {
+  border-left-color: var(--p-marca);
+}
+
+.bl-bloco--atendimento {
+  border-left-color: var(--moss);
+}
+
+.bl-bloco--erro {
+  border-left-color: var(--p-erro-sobre-escuro);
+  outline: 1px solid var(--p-erro-linha);
+}
+
+.bl-bloco header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--p-e-2);
+  font-weight: var(--p-peso-medio);
+  font-size: var(--p-t-md);
+}
+
+.bl-bloco-fala {
+  margin: var(--p-e-2) 0 0;
+  padding: var(--p-e-2);
+  border-radius: var(--p-r-sm);
+  background: var(--surface-2);
+  color: var(--ink);
+  white-space: pre-wrap;
+}
+
+.bl-bloco-espera {
+  margin: var(--p-e-2) 0 0;
+  color: var(--ink-3);
+  font-style: italic;
+}
+
+/* O recado do rodapé (salvou, publicou, falhou), à direita da pílula. */
+.bl-recado {
+  margin-left: 10px;
+  max-width: 48ch;
+}
+
+/* --------------------------------------------------------- o histórico
+   A lista do modal: uma linha por versão, com a etiqueta de estado e o
+   "Restaurar" à direita. */
+.bl-versoes {
+  list-style: none;
+  margin: 0 0 var(--p-e-3);
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
+  max-height: 50vh;
+  overflow: auto;
+}
+
+.bl-versoes li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-template-rows: auto auto;
+  column-gap: var(--p-e-3);
+  padding: var(--p-e-2) var(--p-e-3);
+  border: 1px solid var(--line);
+  border-radius: var(--p-r-md);
+}
+
+.bl-versoes li > .btn {
+  grid-row: 1 / span 2;
+  align-self: center;
+}
+
+.bl-versao-titulo {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.bl-restauro {
+  padding-top: var(--p-e-3);
+  border-top: 1px solid var(--line);
+}
+
 /* O "Pesquisar" da lista deles leva `mv2`: 5px acima e abaixo. */
 .bl-pesquisar {
   margin: 5px 0;

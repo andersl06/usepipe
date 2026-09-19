@@ -211,3 +211,63 @@ export function validarFluxo(fluxo: FluxoBlip): void {
   for (const a of fluxo.outputActions ?? []) validarAcao(a);
   for (const a of fluxo.afterStateChangedActions ?? []) validarAcao(a);
 }
+
+/** Um erro de `validarFluxo` preso ao estado que o causa; `null` quando é do fluxo inteiro. */
+export interface ErroPorEstado {
+  estadoId: string | null;
+  mensagem: string;
+}
+
+const mensagemDeValidacao = (conferir: () => void): string | null => {
+  try {
+    conferir();
+    return null;
+  } catch (erro) {
+    if (erro instanceof ErroDeValidacao) return erro.message;
+    throw erro;
+  }
+};
+
+/**
+ * TODOS os erros que `validarFluxo` apontaria, e não só o primeiro — cada um preso ao
+ * estado que o causa, para o Builder marcar o bloco certo.
+ *
+ * `validarFluxo` para no primeiro porque é o porte fiel do `Flow.Validate()`; o motor
+ * não precisa de mais. A tela precisa: quem desenha quer ver de uma vez tudo o que
+ * falta. Cada estado é conferido sozinho (`validarEstado` e o destino de cada saída),
+ * e depois o fluxo inteiro, para apanhar o que é do conjunto — raiz ausente ou
+ * repetida, id repetido, laço sem entrada. As frases são as MESMAS de `validarFluxo`:
+ * lista vazia aqui é o mesmo que `validarFluxo` passar.
+ */
+export function errosDoFluxo(fluxo: FluxoBlip): ErroPorEstado[] {
+  const erros: ErroPorEstado[] = [];
+  const anotar = (estadoId: string | null, mensagem: string): void => {
+    if (!erros.some((e) => e.estadoId === estadoId && e.mensagem === mensagem)) {
+      erros.push({ estadoId, mensagem });
+    }
+  };
+
+  const estados = Array.isArray(fluxo.states) ? fluxo.states : [];
+  const ids = new Set(estados.map((s) => s.id));
+  for (const estado of estados) {
+    const proprio = mensagemDeValidacao(() => validarEstado(estado));
+    if (proprio) anotar(estado.id, proprio);
+    for (const saida of estado.outputs ?? []) {
+      if (saida.stateId && !ids.has(saida.stateId) && !ehVariavelDeContexto(saida.stateId)) {
+        anotar(estado.id, `O estado de destino '${saida.stateId}' da saída não existe.`);
+      }
+    }
+  }
+
+  const geral = mensagemDeValidacao(() => validarFluxo(fluxo));
+  // O que `validarFluxo` apontou e já está na lista por estado não entra duas vezes.
+  if (!geral || erros.some((e) => e.mensagem === geral)) return erros;
+
+  const raizes = estados.filter((s) => s.root);
+  const laco = /começando no estado (.+) que não pede entrada/.exec(geral)?.[1];
+  const citado =
+    estados.find((s) => s.id === laco || geral.includes(`'${s.id}'`)) ??
+    (geral.includes('raiz') && raizes.length === 1 ? raizes[0] : undefined);
+  anotar(citado?.id ?? null, geral);
+  return erros;
+}

@@ -83,6 +83,13 @@ export async function criarAplicacao(): Promise<INestApplication> {
   // próprio, só nesta rota, pelo mesmo motivo dos dois acima.
   app.use('/v1/canais/whatsapp/:id/perfil', express.json({ limit: '8mb' }));
 
+  // O desenho do Builder vai inteiro no `PUT` (o mapa do editor, com `$cardContent`
+  // de cada bloco): um fluxo de cliente passa fácil de 2 MB. Teto próprio, só aqui.
+  app.use(
+    '/v1/gestao/fluxos/:id/builder',
+    express.json({ limit: process.env['PIPE_LIMITE_BUILDER'] ?? '16mb' }),
+  );
+
   app.use(
     express.json({
       limit: process.env['PIPE_LIMITE_CORPO'] ?? '2mb',
