@@ -13,7 +13,7 @@ import { contar } from '../metricas.js';
 // Ciclo consciente: `filas.ts` importa `processarPayload` daqui e daqui sai
 // `enfileirarEspelhoCrm`. As duas são declarações de função, então o hoisting do ESM
 // resolve — nenhuma é chamada durante a avaliação do módulo.
-import { enfileirarEntrega, enfileirarEspelhoCrm } from '../filas.js';
+import { enfileirarDownloadMidia, enfileirarEntrega, enfileirarEspelhoCrm } from '../filas.js';
 import { distribuirConversa } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
 import { aplicarEventosDeModelo } from './whatsapp/eventos-de-modelo.js';
@@ -143,6 +143,12 @@ export async function processarPayload(
         tocadas.add(recebida.conversaId);
         entrouNaFila = true;
         respostasDoBot += recebida.respostasDoBot;
+        // Depois do commit da transação de entrada (`receberMensagem` já voltou): o
+        // download fala com a Meta, e isso não pode acontecer com uma conexão do
+        // pool de banco presa numa transação. Ver `dominio/midia.ts`.
+        if (recebida.anexoId) {
+          await enfileirarDownloadMidia({ tenantId: canal.tenantId, anexoId: recebida.anexoId });
+        }
       } else resumo.ignorados += 1;
     }
     for (const status of valor.statuses ?? []) {
@@ -191,7 +197,7 @@ async function receberMensagem(
   canal: CanalResolvido,
   valor: ValorDoWebhook,
   mensagem: MensagemDaMeta,
-): Promise<{ conversaId: string; respostasDoBot: number } | null> {
+): Promise<{ conversaId: string; respostasDoBot: number; anexoId: string | null } | null> {
   const idProvedor = mensagem.id;
   const de = mensagem.from;
   if (!idProvedor || !de) return null;
@@ -217,7 +223,7 @@ async function receberMensagem(
 
     const conteudo = textoDe(mensagem);
     const tipo = TIPO_DA_META[mensagem.type ?? 'text'] ?? 'texto';
-    const anexoId = await guardarAnexo(tx, canal.tenantId, mensagem);
+    const anexoId = await guardarAnexo(tx, canal.tenantId, canal.id, mensagem);
 
     const { rows: criada } = await tx.execute<{ id: string }>(sql`
       insert into mensagem (
@@ -280,7 +286,7 @@ async function receberMensagem(
       await distribuirConversa(tx, canal.tenantId, conversa.id, conversa.filaId, em);
     }
 
-    return { conversaId: conversa.id, respostasDoBot: bot.respostas };
+    return { conversaId: conversa.id, respostasDoBot: bot.respostas, anexoId };
   });
 }
 
@@ -524,25 +530,29 @@ function textoDe(mensagem: MensagemDaMeta): string | null {
 /**
  * A Meta manda só o `media_id`; o arquivo é baixado depois pelo endpoint de mídia.
  * Aqui fica a linha de `anexo` com a referência, para a mensagem não nascer órfã.
- * `bytes = 0` marca "ainda não baixado" — o download é trabalho de fila, não de
- * webhook, porque a Meta reenvia se a resposta demorar.
+ * `bytes = 0` marca "ainda não baixado" — o download é trabalho de fila
+ * (`dominio/midia.ts`), não de webhook, porque a Meta reenvia se a resposta demorar.
+ *
+ * `canal_id` é gravado aqui porque é aqui que o canal já está em mãos: é dele que o
+ * download tira o token, sem precisar juntar `mensagem`/`conversa`/`inbox` depois.
  */
 async function guardarAnexo(
   tx: TransacaoPipe,
   tenantId: string,
+  canalId: string,
   mensagem: MensagemDaMeta,
 ): Promise<string | null> {
   const midia =
     mensagem.image ?? mensagem.audio ?? mensagem.video ?? mensagem.document ?? mensagem.sticker;
-  // Sem `media_id`, a URL do Instagram vira a chave. Conferir com token real: a URL do
-  // CDN da Meta expira, e baixar para o storage é trabalho de fila ainda por fazer.
+  // Sem `media_id`, a URL do Instagram vira a chave. A URL da Meta expira; quem baixa
+  // para o storage de verdade é `dominio/midia.ts`.
   const chave = midia?.id ? `meta:${midia.id}` : midia?.url;
   if (!midia || !chave) return null;
 
   const { rows } = await tx.execute<{ id: string }>(sql`
-    insert into anexo (tenant_id, chave_storage, mime, bytes, nome_original, checksum)
+    insert into anexo (tenant_id, canal_id, chave_storage, mime, bytes, nome_original, checksum)
     values (
-      ${tenantId}, ${chave},${midia.mime_type ?? 'application/octet-stream'}, 0,
+      ${tenantId}, ${canalId}, ${chave}, ${midia.mime_type ?? 'application/octet-stream'}, 0,
       ${mensagem.document?.filename ?? null}, ${midia.sha256 ?? null}
     )
     returning id

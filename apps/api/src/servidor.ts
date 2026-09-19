@@ -14,9 +14,11 @@ import { fecharTempoReal } from './tempo-real.js';
 import {
   agendarRenovacaoInstagram,
   agendarVarreduraDicionarioCrm,
+  agendarVarreduraDownloadMidia,
   agendarVarreduraEspelhoCrm,
   consumirRenovacaoInstagram,
   consumirDicionarioCrm,
+  consumirDownloadMidia,
   consumirEntrada,
   consumirEspelhoCrm,
   fecharFilas,
@@ -110,6 +112,8 @@ export async function subirApi(porta = Number(process.env['PORT'] ?? 3000)): Pro
   await agendarVarreduraEspelhoCrm();
   consumirDicionarioCrm();
   await agendarVarreduraDicionarioCrm();
+  consumirDownloadMidia();
+  await agendarVarreduraDownloadMidia();
   consumirRenovacaoInstagram();
   await agendarRenovacaoInstagram();
   await app.listen(porta);

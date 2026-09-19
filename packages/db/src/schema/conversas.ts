@@ -136,6 +136,17 @@ export const anexo = pgTable('anexo', {
   altura: integer('altura'),
   nomeOriginal: text('nome_original'),
   checksum: text('checksum'),
+  /**
+   * O canal de onde a mídia recebida veio — só preenchido pelo webhook
+   * (`dominio/entrada.ts`), nunca pelo upload manual (`controladores/anexos.ts`).
+   * É de onde o download (`dominio/midia.ts`) tira o token para falar com o Graph.
+   * Ver `0033_download_de_midia.sql`.
+   */
+  canalId: uuid('canal_id').references(() => canal.id, { onDelete: 'set null' }),
+  /** `bytes = 0` com `chave_storage` de referência (`meta:` ou URL) é "não baixado". */
+  downloadTentativas: integer('download_tentativas').notNull().default(0),
+  downloadErro: text('download_erro'),
+  downloadProximaTentativaEm: momento('download_proxima_tentativa_em'),
   criadoEm: momento('criado_em').notNull().defaultNow(),
 });
 

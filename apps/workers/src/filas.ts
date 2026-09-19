@@ -12,6 +12,7 @@ export const FILA_ENTRADA = 'pipe-entrada';
 export const FILA_ENTREGA = 'pipe-entrega';
 export const FILA_AGREGACAO = 'pipe-agregacao';
 export const FILA_ESPELHO_CRM = 'pipe-espelho-crm';
+export const FILA_MIDIA = 'pipe-midia';
 
 export interface JobEntrega {
   /** Só um empurrão: o worker varre o outbox de qualquer jeito. */
@@ -23,6 +24,20 @@ export interface JobEntrega {
 export interface JobEntrada {
   canalId: string;
   payload: unknown;
+}
+
+/**
+ * Baixar a mídia de um anexo recebido (`chave_storage = 'meta:<media_id>'` ou a URL
+ * do CDN do Instagram) para o nosso storage.
+ *
+ * Quem CONSOME é a `api`, não os workers — mesma razão do espelho no CRM: quem fala
+ * com a Meta para baixar mídia de um canal é quem já decifra o token dele
+ * (`dominio/midia.ts`). O job carrega só os identificadores; o worker relê o anexo
+ * (e o canal dele) dentro do `comTenant` daquele tenant.
+ */
+export interface JobMidia {
+  tenantId: string;
+  anexoId: string;
 }
 
 /**

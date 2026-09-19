@@ -5,14 +5,16 @@ import {
   FILA_ENTRADA,
   FILA_ENTREGA,
   FILA_ESPELHO_CRM,
+  FILA_MIDIA,
   conexaoRedis,
 } from '@pipe/workers';
-import type { JobDicionarioCrm, JobEntrada, JobEntrega, JobEspelhoCrm } from '@pipe/workers';
+import type { JobDicionarioCrm, JobEntrada, JobEntrega, JobEspelhoCrm, JobMidia } from '@pipe/workers';
 import { resolverCanal } from './banco.js';
 import { SEM_CRM, sincronizarDicionario, tenantsDoDicionario } from './dominio/dicionario-crm.js';
 import { processarPayload } from './dominio/entrada.js';
 import { renovarTokensInstagram } from './dominio/instagram/renovacao.js';
 import { contatosSemEspelho, sincronizarContato } from './dominio/espelho-crm.js';
+import { baixarMidiaDoAnexo, midiasPendentes } from './dominio/midia.js';
 import { FILA_IMPORTACAO, processarImportacao } from '@pipe/workers';
 import type { JobImportacao } from '@pipe/workers';
 
@@ -38,6 +40,7 @@ let conexao: IORedis | null = null;
 let filaEntrada: Queue | null = null;
 let filaEntrega: Queue<JobEntrega> | null = null;
 let filaEspelhoCrm: Queue | null = null;
+let filaMidia: Queue<JobMidia> | null = null;
 
 function redis(): IORedis {
   conexao ??= new IORedis(conexaoRedis().url, { maxRetriesPerRequest: null });
@@ -136,6 +139,105 @@ export async function agendarVarreduraEspelhoCrm(): Promise<void> {
     'varredura-espelho-crm',
     { every: Number(process.env['PIPE_ESPELHO_CRM_VARREDURA_MS'] ?? 300_000) },
     { name: 'varredura', data: {} },
+  );
+}
+
+/**
+ * Empurra o download da mídia de um anexo recebido (`dominio/midia.ts`).
+ *
+ * Mesma regra do espelho no CRM: falhar aqui **não pode derrubar o atendimento** — a
+ * mensagem já chegou e está na tela, mesmo sem a mídia baixada ainda. O erro é
+ * engolido, e a varredura periódica recupera o que não entrou.
+ *
+ * No modo memória não baixa: o download fala com a Meta, e o modo memória existe
+ * para rodar sem serviço externo nenhum — quem quiser testar o download de verdade
+ * chama `baixarMidiaDoAnexo` direto, como faz `tests/midia-recebida.test.ts`.
+ */
+export async function enfileirarDownloadMidia(job: JobMidia): Promise<void> {
+  if (modo() === 'memoria') return;
+  try {
+    filaMidia ??= new Queue(FILA_MIDIA, { connection: redis() });
+    await filaMidia.add('baixar', job, {
+      removeOnComplete: 1_000,
+      // Um por anexo: o empurrão de agora e o da varredura, se se cruzarem, viram UM
+      // job — `baixarMidiaDoAnexo` também é idempotente por conta própria (`bytes = 0`
+      // na condição do `select`), então isto é só para não gastar chamada à toa.
+      jobId: `midia-${job.anexoId}`,
+      attempts: 1,
+    });
+  } catch (erro) {
+    console.error(`[midia] não enfileirou ${job.anexoId}: ${(erro as Error).message}`);
+  }
+}
+
+let consumidorMidia: Worker | null = null;
+let relogioMidia: ReturnType<typeof setInterval> | null = null;
+
+/**
+ * Consome o download de mídia — na `api`, como o espelho e o dicionário: quem já
+ * decifra o token do canal (`chaveiro`, `dominio/banco.ts`) é a `api`.
+ *
+ * `baixar` baixa UM anexo; `varredura` reenfileira quem ficou para trás — o reagendar
+ * por backoff mora dentro de `baixarMidiaDoAnexo`, não aqui, por isso `attempts: 1`
+ * acima: o BullMQ nunca precisa tentar de novo por conta própria.
+ */
+export function consumirDownloadMidia(): void {
+  if (modo() === 'memoria' || consumidorMidia) return;
+  consumidorMidia = new Worker(
+    FILA_MIDIA,
+    async (job) => {
+      if (job.name === 'varredura') {
+        const pendentes = await midiasPendentes();
+        for (const p of pendentes) await enfileirarDownloadMidia(p);
+        return pendentes.length;
+      }
+      const dados = job.data as JobMidia;
+      const r = await baixarMidiaDoAnexo(dados.tenantId, dados.anexoId);
+      return r.estado;
+    },
+    {
+      connection: redis(),
+      concurrency: Number(process.env['PIPE_MIDIA_CONCORRENCIA'] ?? 4),
+    },
+  );
+}
+
+/**
+ * A varredura de segurança do download de mídia. Ver `midiasPendentes`.
+ *
+ * ponytail: a fila não entra em `estadoDasFilas` — entra quando o alerta
+ * `FilaParada` precisar olhar mídia sem baixar, mesma dívida já anotada para a
+ * `pipe-importacao` (mais abaixo neste arquivo).
+ */
+export async function agendarVarreduraDownloadMidia(): Promise<void> {
+  if (modo() === 'memoria') {
+    // Sem Redis (a demonstração na VPS roda assim), a varredura vira um relógio no
+    // próprio processo — só com `PIPE_MIDIA_EM_MEMORIA=1`, para o teste continuar
+    // vendo o anexo cru logo depois do webhook. O empurrão por anexo não existe
+    // aqui: o intervalo curto faz o papel dele.
+    if (process.env['PIPE_MIDIA_EM_MEMORIA'] !== '1' || relogioMidia) return;
+    let rodando = false;
+    relogioMidia = setInterval(() => {
+      if (rodando) return;
+      rodando = true;
+      void (async () => {
+        try {
+          for (const p of await midiasPendentes()) await baixarMidiaDoAnexo(p.tenantId, p.anexoId);
+        } catch (erro) {
+          console.error(`[midia] varredura em memória falhou: ${(erro as Error).message}`);
+        } finally {
+          rodando = false;
+        }
+      })();
+    }, Number(process.env['PIPE_MIDIA_VARREDURA_MS'] ?? 15_000));
+    relogioMidia.unref();
+    return;
+  }
+  filaMidia ??= new Queue(FILA_MIDIA, { connection: redis() });
+  await filaMidia.upsertJobScheduler(
+    'varredura-midia',
+    { every: Number(process.env['PIPE_MIDIA_VARREDURA_MS'] ?? 300_000) },
+    { name: 'varredura', data: {} as JobMidia },
   );
 }
 
@@ -312,6 +414,9 @@ export async function fecharFilas(): Promise<void> {
   await consumidorEntrada?.close();
   await consumidorEspelhoCrm?.close();
   await consumidorDicionarioCrm?.close();
+  await consumidorMidia?.close();
+  if (relogioMidia) clearInterval(relogioMidia);
+  relogioMidia = null;
   await consumidorInstagramToken?.close();
   await filaInstagramToken?.close();
   consumidorInstagramToken = null;
@@ -320,14 +425,17 @@ export async function fecharFilas(): Promise<void> {
   await filaEntrega?.close();
   await filaEspelhoCrm?.close();
   await filaDicionarioCrm?.close();
+  await filaMidia?.close();
   await conexao?.quit();
   consumidorEntrada = null;
   consumidorEspelhoCrm = null;
   consumidorDicionarioCrm = null;
+  consumidorMidia = null;
   filaEntrada = null;
   filaEntrega = null;
   filaEspelhoCrm = null;
   filaDicionarioCrm = null;
+  filaMidia = null;
   conexao = null;
 }
 
