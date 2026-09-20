@@ -1,7 +1,33 @@
+import { useMemo, useState } from 'react';
 import { IconePortal } from '../../../../componentes/icones-portal';
 import type { ArestaDaJornada } from '@pipe/core/analise';
 import { CabecalhoDaPagina, Cartao, SeletorDePeriodo } from '../pecas';
 import { desenharSankey } from './sankey';
+
+/**
+ * `firstNodeFilterOptions`/o filtro "Começar a partir de": recorta o diagrama
+ * ao subgrafo alcançável a partir do nó de largada escolhido — sem chamada
+ * nova, é tudo cliente, sobre as arestas que já vieram do servidor.
+ */
+function filtrarAPartirDoInicio(
+  arestas: ArestaDaJornada[],
+  inicio: string,
+): ArestaDaJornada[] {
+  if (!inicio) return arestas;
+  const alcancados = new Set(
+    arestas.filter((a) => a.passo === 1 && a.de.startsWith(`${inicio} [`)).map((a) => a.de),
+  );
+  const fila = [...alcancados];
+  for (let i = 0; i < fila.length; i += 1) {
+    for (const a of arestas) {
+      if (a.de === fila[i] && !alcancados.has(a.para)) {
+        alcancados.add(a.para);
+        fila.push(a.para);
+      }
+    }
+  }
+  return arestas.filter((a) => alcancados.has(a.de));
+}
 
 /**
  * Jornada dos Contatos — o componente `contactsJourney` do módulo
@@ -33,14 +59,20 @@ export function JornadaDosContatos({
   /** `isThisMasterApplication()`: muda a frase do "sem dado". */
   roteador: boolean;
 }) {
-  const temDiagrama = arestas.length > 0;
   /* `firstNodeFilterOptions`: os nós de partida, sem "Outros"/"Saída", únicos e
-     em ordem alfabética. */
+     em ordem alfabética. Vêm de TODAS as arestas — trocar o início não estreita
+     a lista de opções, só o diagrama. */
   const inicios = [
     ...new Set(
       arestas.filter((a) => a.passo === 1).map((a) => a.de.slice(0, a.de.lastIndexOf('[') - 1)),
     ),
   ].sort();
+  const [inicio, setInicio] = useState('');
+  const arestasFiltradas = useMemo(
+    () => filtrarAPartirDoInicio(arestas, inicio),
+    [arestas, inicio],
+  );
+  const temDiagrama = arestasFiltradas.length > 0;
 
   return (
     <div className="jr-vista" id="contacts-journey-view">
@@ -66,7 +98,11 @@ export function JornadaDosContatos({
             <span className="an-t16 jr-filtro-rotulo">Começar a partir de</span>
             {/* `<bds-autocomplete placeholder="Início">`. */}
             <label className="jr-autocompletar">
-              <select defaultValue="" aria-label="Começar a partir de">
+              <select
+                value={inicio}
+                onChange={(evento) => setInicio(evento.target.value)}
+                aria-label="Começar a partir de"
+              >
                 <option value="">Início</option>
                 {inicios.map((n) => (
                   <option key={n} value={n}>
@@ -93,7 +129,7 @@ export function JornadaDosContatos({
                   </button>
                 </div>
               </div>
-              <Diagrama arestas={arestas} />
+              <Diagrama arestas={arestasFiltradas} />
             </>
           ) : (
             <div className="jr-comunicacao" id="diagram-body">

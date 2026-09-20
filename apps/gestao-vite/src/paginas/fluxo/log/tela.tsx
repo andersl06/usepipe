@@ -1,6 +1,24 @@
-import { useState } from 'react';
+import { useState, type ChangeEvent } from 'react';
 import { IconeBusca, IconePortal } from '../../../componentes/icones-portal';
 import { Interruptor } from '../integracoes/interruptor';
+
+/** `mensagem.direcao`/`mensagem.tipo` (`@pipe/db/schema`) — os valores que o filtro aceita. */
+const DIRECOES: [string, string][] = [
+  ['', 'Todas as direções'],
+  ['entrada', 'Recebidas'],
+  ['saida', 'Enviadas'],
+  ['interna', 'Internas'],
+];
+const TIPOS: [string, string][] = [
+  ['', 'Todos os tipos'],
+  ['texto', 'Texto'],
+  ['imagem', 'Imagem'],
+  ['audio', 'Áudio'],
+  ['video', 'Vídeo'],
+  ['documento', 'Documento'],
+  ['localizacao', 'Localização'],
+  ['template', 'Modelo'],
+];
 
 /**
  * O template do Log (módulo 4842 de portal.js), tal qual:
@@ -57,9 +75,38 @@ export interface MensagemDoLog {
   metadata: string | null;
 }
 
-export function TelaDoLog({ busca, mensagens }: { busca: string; mensagens: MensagemDoLog[] }) {
+export function TelaDoLog({
+  busca,
+  de,
+  ate,
+  direcao,
+  tipo,
+  mensagens,
+  temMais = false,
+  carregandoMais = false,
+  aoCarregarMais,
+}: {
+  busca: string;
+  /** Filtro por período, direção e tipo — item 4 da tarefa: a origem só tinha busca. */
+  de?: string;
+  ate?: string;
+  direcao?: string;
+  tipo?: string;
+  mensagens: MensagemDoLog[];
+  temMais?: boolean;
+  carregandoMais?: boolean;
+  aoCarregarMais?: () => void;
+}) {
   const [ativo, setAtivo] = useState(false);
-  const mostrarBusca = busca !== '' || mensagens.length !== 0;
+  const filtroAtivo = Boolean(busca || de || ate || direcao || tipo);
+  const mostrarBusca = filtroAtivo || mensagens.length !== 0;
+
+  /* Selects e datas mandam de novo o MESMO formulário (GET): assim nenhum
+     filtro já escolhido some quando outro muda. `?de=` vazio é inofensivo —
+     o backend trata ausente e vazio do mesmo jeito (`DIA.test('')` é falso). */
+  function reenviar(evento: ChangeEvent<HTMLSelectElement | HTMLInputElement>) {
+    evento.currentTarget.form?.requestSubmit();
+  }
 
   return (
     <>
@@ -85,6 +132,36 @@ export function TelaDoLog({ busca, mensagens }: { busca: string; mensagens: Mens
                       <button type="submit" className="lg-busca-botao" aria-label="Pesquisar">
                         <IconeBusca tamanho={24} />
                       </button>
+                    </div>
+                    <div className="lg-filtros">
+                      <label className="lg-filtro">
+                        <span>De</span>
+                        <input type="date" name="de" defaultValue={de} onChange={reenviar} />
+                      </label>
+                      <label className="lg-filtro">
+                        <span>Até</span>
+                        <input type="date" name="ate" defaultValue={ate} onChange={reenviar} />
+                      </label>
+                      <label className="lg-filtro">
+                        <span>Direção</span>
+                        <select name="direcao" defaultValue={direcao} onChange={reenviar}>
+                          {DIRECOES.map(([valor, rotulo]) => (
+                            <option key={valor} value={valor}>
+                              {rotulo}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
+                      <label className="lg-filtro">
+                        <span>Tipo</span>
+                        <select name="tipo" defaultValue={tipo} onChange={reenviar}>
+                          {TIPOS.map(([valor, rotulo]) => (
+                            <option key={valor} value={valor}>
+                              {rotulo}
+                            </option>
+                          ))}
+                        </select>
+                      </label>
                     </div>
                   </form>
                 </div>
@@ -148,7 +225,15 @@ export function TelaDoLog({ busca, mensagens }: { busca: string; mensagens: Mens
           </div>
         ) : null}
 
-        {busca && mensagens.length === 0 ? (
+        {mensagens.length > 0 && temMais ? (
+          <div className="lg-mais">
+            <button type="button" onClick={aoCarregarMais} disabled={carregandoMais}>
+              {carregandoMais ? 'Carregando…' : 'Carregar mais'}
+            </button>
+          </div>
+        ) : null}
+
+        {filtroAtivo && mensagens.length === 0 ? (
           <div className="lg-vazio">
             <div className="lg-vazio-icone">
               <IconePortal nome="erro-contorno" tamanho={56} />
@@ -161,7 +246,7 @@ export function TelaDoLog({ busca, mensagens }: { busca: string; mensagens: Mens
           </div>
         ) : null}
 
-        {!busca && mensagens.length === 0 ? (
+        {!filtroAtivo && mensagens.length === 0 ? (
           <div>
             <div className="lg-vazio">
               <h4 className="lg-h4-apagado">Aguardando a primeira mensagem</h4>

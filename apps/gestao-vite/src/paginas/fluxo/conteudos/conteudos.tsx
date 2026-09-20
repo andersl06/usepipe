@@ -23,6 +23,7 @@ export function PaginaConteudos() {
         <TelaDeConteudos
           modelos={leitura.data.modelos}
           temWhatsapp={leitura.data.canalId !== null}
+          canalId={leitura.data.canalId}
         />
       ) : null}
     </CascaDoModulo>

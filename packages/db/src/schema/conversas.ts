@@ -306,6 +306,12 @@ export const conversa = pgTable(
     index('conversa_atendente_estado_idx').on(t.tenantId, t.atendenteId, t.estado),
     index('conversa_encerrada_idx').on(t.tenantId, t.encerradaEm),
     index('conversa_contato_idx').on(t.tenantId, t.contatoId, t.criadaEm.desc()),
+    /**
+     * Migration 0040: o Log de mensagens do fluxo (`carregarLogDeMensagens`)
+     * acha as conversas do canal do bot por `inbox_id` antes de descer para
+     * `mensagem` — sem este índice essa busca varria `conversa` inteira.
+     */
+    index('conversa_inbox_idx').on(t.tenantId, t.inboxId),
   ],
 );
 

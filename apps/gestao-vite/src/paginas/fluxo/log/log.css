@@ -96,6 +96,58 @@
   background: var(--p-marca);
 }
 
+/* Filtro por período/direção/tipo (item 4 da tarefa) — a origem só tinha a
+   busca por texto acima; estes campos entram no MESMO `<form method="get">`
+   para não perder o que já estava filtrado ao trocar um campo por vez. */
+.lg-filtros {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.lg-filtro {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: var(--p-t-sm);
+  color: var(--p-conteudo-desabilitado);
+}
+
+.lg-filtro input,
+.lg-filtro select {
+  height: 36px;
+  padding: 0 8px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font: inherit;
+}
+
+/* "Carregar mais": paginação por cursor no lugar do `take: 30` fixo da origem. */
+.lg-mais {
+  display: flex;
+  justify-content: center;
+  margin: 4px 0 20px;
+}
+
+.lg-mais button {
+  height: 40px;
+  padding: 0 20px;
+  border: 1px solid var(--p-linha-media);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  color: var(--p-marca-forte);
+  cursor: pointer;
+}
+
+.lg-mais button:disabled {
+  color: var(--p-conteudo-desabilitado);
+  cursor: default;
+}
+
 /* `<div class="container relative message-history">` — começa logo abaixo
    dos 15px de margem do cabeçalho. */
 .lg-historico {

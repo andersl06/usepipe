@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { IconePortal, type NomeDeIconePortal } from '../../../componentes/icones-portal';
 import type { ModeloListado } from '@pipe/contracts';
+import { criarModeloNoCanal } from '../../../lib/canais-gravar';
 import {
   CATEGORIAS,
   blocosDoMenu,
@@ -14,6 +15,21 @@ import {
   type TipoDeConteudo,
   type Traducao,
 } from './regras';
+
+/**
+ * As variáveis do corpo, na ordem em que aparecem — mesma regra de
+ * `variaveisDoTexto` em `dominio/whatsapp/modelos.ts` (o backend valida de
+ * novo; isto só evita ida e volta para um erro que dá para ver aqui).
+ * Duplicada de propósito, como em `comunicacao-modelos-formulario.tsx`: a
+ * tela de cliente não precisa importar módulo do servidor.
+ */
+function variaveisDoTexto(texto: string): string[] {
+  const vistas: string[] = [];
+  for (const achado of texto.matchAll(/\{\{\s*(\w+)\s*\}\}/g)) {
+    if (!vistas.includes(achado[1]!)) vistas.push(achado[1]!);
+  }
+  return vistas;
+}
 
 /* `messageTemplateSidebar.newTemplate.inputs.menuList.*` e o ícone de cada bloco. */
 const BLOCOS: Record<TipoDeConteudo, { rotulo: string; icone: NomeDeIconePortal; classe: string }> =
@@ -138,18 +154,31 @@ interface TraducaoEmEdicao extends Traducao {
   botoes: string[];
   editando: boolean;
   rascunho: string;
+  /** Um exemplo por variável do corpo — a Meta exige para aprovar (`{{1}}` → exemplos['1']). */
+  exemplos: Record<string, string>;
 }
 
 function novaTraducao(idioma = 'pt_BR'): TraducaoEmEdicao {
-  return { idioma, texto: '', link: '', rodape: '', botoes: [], editando: false, rascunho: '' };
+  return {
+    idioma,
+    texto: '',
+    link: '',
+    rodape: '',
+    botoes: [],
+    editando: false,
+    rascunho: '',
+    exemplos: {},
+  };
 }
 
 export function TelaDeConteudos({
   modelos,
   temWhatsapp,
+  canalId,
 }: {
   modelos: ModeloListado[];
   temWhatsapp: boolean;
+  canalId: string | null;
 }) {
   const [aberto, setAberto] = useState(false);
   const estado = estadoDaLista(temWhatsapp, modelos.length);
@@ -278,6 +307,7 @@ export function TelaDeConteudos({
 
         {aberto ? (
           <SidebarDeNovoModelo
+            canalId={canalId}
             existentes={modelos.map((modelo) => modelo.nome)}
             aoFechar={() => setAberto(false)}
           />
@@ -294,12 +324,20 @@ export function TelaDeConteudos({
  * idioma (idioma + bloco escolhido no `menu-list` + cartão), "Adicionar
  * tradução" e o rodapé "Enviar para avaliação".
  *
- * ponytail: `saveMessageTemplate` submete à Meta; aqui devolve o erro controlado.
+ * "Enviar para avaliação" chama `POST /v1/canais/whatsapp/:id/modelos`
+ * (`criarModeloNaMeta`) — o MESMO caminho de `comunicacao-modelos-formulario.tsx`
+ * em Cadastros — uma vez por idioma (a Meta versiona por (nome, idioma), não
+ * por "modelo com traduções"). É o único bloco que esse endpoint aceita hoje:
+ * cabeçalho de mídia pede a Resumable Upload API (`modelos.ts`, ponytail
+ * registrado lá) e Autenticação tem componentes próprios da Meta, não texto
+ * livre — os dois casos ficam com o aviso explicando, sem tentar enviar.
  */
 function SidebarDeNovoModelo({
+  canalId,
   existentes,
   aoFechar,
 }: {
+  canalId: string | null;
   existentes: string[];
   aoFechar: () => void;
 }) {
@@ -309,6 +347,7 @@ function SidebarDeNovoModelo({
   const [tipo, setTipo] = useState<TipoDeConteudo | 'default'>('default');
   const [traducoes, setTraducoes] = useState<TraducaoEmEdicao[]>([novaTraducao()]);
   const [aviso, setAviso] = useState('');
+  const [enviando, setEnviando] = useState(false);
 
   const erroNome = nomeTocado ? erroDoNome(nome, existentes) : null;
   const repetidos = idiomasRepetidos(traducoes);
@@ -317,6 +356,47 @@ function SidebarDeNovoModelo({
 
   function mudarTraducao(indice: number, mudanca: Partial<TraducaoEmEdicao>) {
     setTraducoes((lista) => lista.map((t, i) => (i === indice ? { ...t, ...mudanca } : t)));
+  }
+
+  async function enviarParaAvaliacao() {
+    if (!canalId) return setAviso('Este fluxo não tem canal de WhatsApp conectado.');
+    if (autenticacao) {
+      return setAviso(
+        'Autenticação tem componentes próprios da Meta (código e botão de copiar) — não é texto livre. Ainda não dá para enviar esta categoria por aqui.',
+      );
+    }
+    if (tipo !== 'texto') {
+      return setAviso(
+        'Por aqui só dá para enviar modelo de Texto — cabeçalho de imagem, documento ou vídeo pede o upload do arquivo de exemplo na Meta, que esta tela ainda não faz.',
+      );
+    }
+    for (const t of traducoes) {
+      const faltando = variaveisDoTexto(t.texto).filter((v) => !t.exemplos[v]?.trim());
+      if (faltando.length) {
+        return setAviso(`Dê um exemplo para cada variável do texto (idioma "${t.idioma}").`);
+      }
+    }
+    setEnviando(true);
+    setAviso('');
+    try {
+      for (const t of traducoes) {
+        const variaveis = variaveisDoTexto(t.texto);
+        const resultado = await criarModeloNoCanal(canalId, {
+          nome,
+          idioma: t.idioma,
+          categoria: categoria as 'marketing' | 'utilidade',
+          corpo: t.texto,
+          exemplos: variaveis.map((v) => t.exemplos[v]!.trim()),
+        });
+        if (!resultado.ok) {
+          setAviso(`Idioma "${t.idioma}": ${resultado.erro}`);
+          return;
+        }
+      }
+      aoFechar();
+    } finally {
+      setEnviando(false);
+    }
   }
 
   return (
@@ -555,10 +635,10 @@ function SidebarDeNovoModelo({
           <button
             type="button"
             className={valido ? 'ct-enviar ct-enviar--ativo' : 'ct-enviar'}
-            disabled={!valido}
-            onClick={() => setAviso('O envio de modelos para avaliação ainda não está disponível.')}
+            disabled={!valido || enviando}
+            onClick={() => void enviarParaAvaliacao()}
           >
-            Enviar para avaliação
+            {enviando ? 'Enviando…' : 'Enviar para avaliação'}
           </button>
         </div>
       </div>
@@ -650,8 +730,43 @@ function CartaoDeTexto({
           variável
         </button>
       </div>
+      <ExemplosDeVariavel traducao={traducao} aoMudar={aoMudar} />
       <BotoesDoModelo botoes={traducao.botoes} aoMudar={(botoes) => aoMudar({ botoes })} />
     </section>
+  );
+}
+
+/**
+ * A Meta só aprova um modelo com variável se cada uma vier com um exemplo de
+ * preenchimento — não tem tela equivalente na origem (lá isso é passo do
+ * `saveMessageTemplate`, sem componente próprio); aqui é o mínimo para
+ * `POST /v1/canais/whatsapp/:id/modelos` aceitar o "Enviar para avaliação".
+ */
+function ExemplosDeVariavel({
+  traducao,
+  aoMudar,
+}: {
+  traducao: TraducaoEmEdicao;
+  aoMudar: (mudanca: Partial<TraducaoEmEdicao>) => void;
+}) {
+  const variaveis = variaveisDoTexto(traducao.rascunho);
+  if (variaveis.length === 0) return null;
+  return (
+    <div className="ct-exemplos">
+      <span className="ct-campo-rotulo">Um exemplo por variável, para a Meta aprovar</span>
+      {variaveis.map((v) => (
+        <label className="ct-campo" key={v}>
+          <span className="ct-campo-rotulo">{`Exemplo de {{${v}}}`}</span>
+          <input
+            type="text"
+            value={traducao.exemplos[v] ?? ''}
+            onChange={(evento) =>
+              aoMudar({ exemplos: { ...traducao.exemplos, [v]: evento.target.value } })
+            }
+          />
+        </label>
+      ))}
+    </div>
   );
 }
 

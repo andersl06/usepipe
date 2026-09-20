@@ -12,6 +12,13 @@ import {
   type RelatorioPersonalizado,
   type VisaoGeral,
 } from '@pipe/core/analise';
+import {
+  condicaoDeCursor,
+  montarPagina,
+  ordemSql,
+  type Cursor,
+  type Pagina,
+} from '../paginacao.js';
 
 /**
  * As leituras da ANÁLISE do contato (`/fluxo/:id/analise/**`), movidas de
@@ -406,4 +413,113 @@ export async function carregarJornada(
       tipo: r.saida ? 'saida' : 'regular',
     }));
   }
+}
+
+/* ============================================================== Log de mensagens */
+
+export interface LinhaDoLog {
+  id: string;
+  criadaEm: string;
+  direcao: string;
+  tipo: string;
+  conteudo: string | null;
+  metadata: unknown;
+  de: string | null;
+  para: string | null;
+}
+
+export interface FiltroDoLog {
+  /** `AAAA-MM-DD`, no fuso da conta — mesmo formato de `intervaloDoPeriodo`. */
+  de?: string;
+  ate?: string;
+  direcao?: string;
+  tipo?: string;
+  busca?: string;
+}
+
+/**
+ * O Log de mensagens (`MessagesController`/`MessageService.getMessages` da
+ * origem), com o que a origem tinha só como texto fixo do template — período,
+ * direção e tipo — virando filtro de verdade, e paginação por cursor no lugar
+ * do `take: 30` fixo (`apis.md` §5.3, o mesmo padrão de
+ * `controladores/conversas.ts#mensagens`).
+ *
+ * Escopo: as conversas do CANAL do bot (`fluxo.canal_id` → `inbox.canal_id`),
+ * a mesma amarração de `carregarLogsDoFluxo` (que esta função substitui na
+ * tela) — não por `execucao_fluxo`, porque o Log também mostra a mensagem
+ * trocada no atendimento humano depois do transbordo, que não tem execução.
+ *
+ * ponytail: sem índice em `mensagem` por canal (ela não guarda `canal_id`
+ * direto, só por `conversa_id`), o Postgres varre as conversas do canal
+ * (agora indexadas por `conversa_inbox_idx`, migration 0040) e desce por
+ * `mensagem_conversa_idx` — ótimo para um canal com poucas conversas, mais
+ * caro num canal com um histórico enorme de conversas encerradas. Teto: bot
+ * com centenas de milhares de conversas. Caminho, se doer: coluna
+ * `canal_id` desnormalizada em `mensagem`, preenchida na escrita.
+ */
+export async function carregarLogDeMensagens(
+  tx: TransacaoPipe,
+  fluxoId: string,
+  fuso: string,
+  filtro: FiltroDoLog,
+  cursor: Cursor | null,
+  limite: number,
+): Promise<Pagina<LinhaDoLog>> {
+  const { rows: bot } = await tx.execute<{ canalId: string | null }>(
+    sql`select canal_id as "canalId" from fluxo where id = ${fluxoId}`,
+  );
+  const canalId = bot[0]?.canalId ?? null;
+  if (!canalId) return { data: [], page_info: { has_next_page: false, end_cursor: null } };
+
+  const filtroBusca = filtro.busca?.trim() ? sql`m.conteudo ilike ${`%${filtro.busca.trim()}%`}` : sql`true`;
+  const filtroDirecao = filtro.direcao ? sql`m.direcao = ${filtro.direcao}` : sql`true`;
+  const filtroTipo = filtro.tipo ? sql`m.tipo = ${filtro.tipo}` : sql`true`;
+  const filtroDe = filtro.de
+    ? sql`m.criada_em >= (${filtro.de}::date)::timestamp at time zone ${fuso}`
+    : sql`true`;
+  const filtroAte = filtro.ate
+    ? sql`m.criada_em < ((${filtro.ate}::date + 1)::timestamp) at time zone ${fuso}`
+    : sql`true`;
+
+  const { rows } = await tx.execute<{
+    id: string;
+    criada_em: Date | string;
+    direcao: string;
+    tipo: string;
+    conteudo: string | null;
+    metadata: unknown;
+    contato: string | null;
+    canal: string;
+  }>(sql`
+    select m.id, m.criada_em, m.direcao, m.tipo, m.conteudo, m.dados as metadata,
+           coalesce(ct.nome, ct.telefone_e164) as contato, ca.nome as canal
+      from mensagem m
+      join conversa cv on cv.id = m.conversa_id
+      join contato ct on ct.id = cv.contato_id
+      join inbox i on i.id = cv.inbox_id
+      join canal ca on ca.id = i.canal_id
+     where i.canal_id = ${canalId}
+       and ${filtroBusca} and ${filtroDirecao} and ${filtroTipo} and ${filtroDe} and ${filtroAte}
+       and ${condicaoDeCursor('m.criada_em', 'timestamptz', 'desc', cursor, 'm.id')}
+     order by ${ordemSql('m.criada_em', 'desc', 'm.id')}
+     limit ${limite + 1}
+  `);
+
+  const pagina = montarPagina(rows, limite, (linha) => ({
+    valor: new Date(linha.criada_em).toISOString(),
+    id: linha.id,
+  }));
+  return {
+    ...pagina,
+    data: pagina.data.map((linha) => ({
+      id: linha.id,
+      criadaEm: new Date(linha.criada_em).toISOString(),
+      direcao: linha.direcao,
+      tipo: linha.tipo,
+      conteudo: linha.conteudo,
+      metadata: linha.metadata,
+      de: linha.direcao === 'entrada' ? linha.contato : linha.canal,
+      para: linha.direcao === 'entrada' ? linha.canal : linha.contato,
+    })),
+  };
 }

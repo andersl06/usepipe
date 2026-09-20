@@ -11,19 +11,23 @@ import {
   type RelatorioPersonalizado,
   type VisaoGeral,
 } from '@pipe/core/analise';
+import { DIRECOES_MENSAGEM, TIPOS_MENSAGEM } from '@pipe/db/schema';
 import { noTenant } from '../banco.js';
 import { ErroPipe } from '../erros.js';
 import { ComSessao, sessaoDe } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
+import { lerCursor, lerLimite, type Pagina } from '../paginacao.js';
 import { carregarContato, fusoDoTenant } from '../dominio/gestao-fluxo.js';
 import {
   carregarDashboard,
   carregarJornada,
   carregarListaDeContatos,
+  carregarLogDeMensagens,
   carregarMensagensAtivas,
   carregarRelatorios,
   carregarVisaoGeral,
   janelaDeDatas,
+  type LinhaDoLog,
 } from '../dominio/gestao-analise.js';
 
 /**
@@ -221,5 +225,55 @@ export class ControladorGestaoAnalise {
       relatorios: await carregarRelatorios(tx),
       fuso: await fusoDoTenant(tx),
     }));
+  }
+
+  /**
+   * O Log de mensagens (`Growth › Log` na origem) — filtro por período,
+   * direção e tipo, paginado por cursor (`?cursor=&limit=`, o mesmo formato
+   * de `GET /v1/conversas/:id/mensagens`). `direcao`/`tipo` fora da lista são
+   * ignorados, não erro — mesmo trato lenientede `contatos` em `dashboard()`.
+   */
+  @Get('log')
+  @ComSessao()
+  async log(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Query('busca') busca?: string,
+    @Query('de') de?: string,
+    @Query('ate') ate?: string,
+    @Query('direcao') direcao?: string,
+    @Query('tipo') tipo?: string,
+    @Query('cursor') cursorBruto?: string,
+    @Query('limit') limiteBruto?: string,
+  ): Promise<Pagina<LinhaDoLog>> {
+    const sessao = sessaoDe(requisicao);
+    uuidOu404(id);
+    const limite = lerLimite(limiteBruto);
+    const cursor = lerCursor(cursorBruto);
+    const resposta = await noTenant(sessao.tenantId, async (tx) => {
+      // Mesmo trato de `jornada()`: fluxo de outro tenant não existe para a RLS,
+      // e "sem fluxo" não pode devolver 200 com lista vazia — vira 404.
+      const contato = await carregarContato(tx, sessao.tenantId, id);
+      if (!contato) return null;
+      const fuso = await fusoDoTenant(tx);
+      return carregarLogDeMensagens(
+        tx,
+        id,
+        fuso,
+        {
+          busca,
+          de: de && DIA.test(de) ? de : undefined,
+          ate: ate && DIA.test(ate) ? ate : undefined,
+          direcao: direcao && (DIRECOES_MENSAGEM as readonly string[]).includes(direcao)
+            ? direcao
+            : undefined,
+          tipo: tipo && (TIPOS_MENSAGEM as readonly string[]).includes(tipo) ? tipo : undefined,
+        },
+        cursor,
+        limite,
+      );
+    });
+    if (!resposta) throw ErroPipe.naoEncontrado('fluxo');
+    return resposta;
   }
 }

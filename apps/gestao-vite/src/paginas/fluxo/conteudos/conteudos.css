@@ -443,6 +443,15 @@
   margin-bottom: 10px;
 }
 
+/* Exemplos de variável (`ExemplosDeVariavel`) — sem equivalente na origem,
+   é o mínimo para a Meta aceitar o envio (ver comentário do componente). */
+.ct-exemplos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
 /* `blip-input-dpr` / `blip-select` (`.bp-input-wrapper`): 2.9375rem (47px),
    `border: 1px solid`, raio .5rem, `padding: .3125rem .625rem`; `.bp-label`
    12px/600 de 16px; `input` 14px de 19px com `margin-top: .125rem`. No sidebar,

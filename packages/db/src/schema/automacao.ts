@@ -344,6 +344,12 @@ export const execucaoFluxo = pgTable(
     listaCheck('execucao_fluxo_estado_ck', t.estado, ESTADOS_EXECUCAO),
     index('execucao_fluxo_conversa_idx').on(t.tenantId, t.conversaId),
     index('execucao_fluxo_estado_idx').on(t.tenantId, t.estado, t.iniciadaEm),
+    /**
+     * Migration 0040: Dashboard, Visão Geral, Jornada e o Log de mensagens
+     * filtram por `fluxo_versao.fluxo_id` (join até aqui por `fluxo_versao_id`).
+     * Sem este índice essa perna do join varria `execucao_fluxo` inteira.
+     */
+    index('execucao_fluxo_versao_idx').on(t.tenantId, t.fluxoVersaoId),
   ],
 );
 
