@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState, type KeyboardEvent } from 'react';
 import type { ConversaAberta, RespostaProntaDoDesk, TemplateAprovado } from '@pipe/contracts';
 import { IconeDesk } from '../../componentes/icones-desk';
-import { api } from '../../lib/api';
+import { api, chamarApi, motivoDaFalha } from '../../lib/api';
 import { atualizarLeituras } from '../../lib/acoes';
+import { MAX_ARQUIVOS_POR_ENVIO, recusaDoLote } from '../../lib/anexos';
 import { janelaAberta } from '../../lib/ordem';
 import { numeroDoTicket } from '../../lib/canal';
 
@@ -107,28 +108,41 @@ export function Compositor({
     }
   }
 
+  /**
+   * Até 10 arquivos por envio, UMA mensagem por arquivo, em sequência — o modelo
+   * da origem (`SEND_MULT_FILE`, `mediaLinkDocuments`: um media-link por arquivo,
+   * `blip-desk-regras-tecnicas.md` §3.3). O lote é tudo ou nada: se um arquivo
+   * não passa (quantidade, tamanho, tipo — na tela ou no `POST /v1/anexos`),
+   * nenhuma mensagem sai, e o erro diz qual foi. Só depois de TODOS subirem é que
+   * `POST /v1/conversas/:id/mensagens/anexos` cria as mensagens, na ordem.
+   */
   async function anexar(lista: FileList | null) {
-    const f = lista?.[0];
-    if (!f) return;
+    const arquivos = Array.from(lista ?? []);
+    if (arquivos.length === 0) return;
     setEnviando(true);
     setErro(null);
     try {
-      const resposta = await fetch(`/v1/anexos?nome=${encodeURIComponent(f.name)}`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'content-type': f.type || 'application/octet-stream' },
-        body: f,
-      });
-      if (!resposta.ok) throw new Error('Não foi possível enviar o arquivo.');
-      const anexo = (await resposta.json()) as { id: string; tipo: string };
-      await api.post(`/v1/conversas/${conversa.id}/mensagens`, {
-        anexo_id: anexo.id,
-        tipo: anexo.tipo,
-      });
+      const recusa = recusaDoLote(arquivos);
+      if (recusa) throw new Error(recusa);
+
+      const anexoIds: string[] = [];
+      for (const f of arquivos) {
+        const resposta = await chamarApi(`/v1/anexos?nome=${encodeURIComponent(f.name)}`, {
+          method: 'POST',
+          headers: { 'content-type': f.type || 'application/octet-stream' },
+          body: f,
+        });
+        if (!resposta.ok) {
+          throw new Error(`"${f.name}": ${await motivoDaFalha(resposta)} Nenhum arquivo foi enviado.`);
+        }
+        const anexo = (await resposta.json()) as { id: string };
+        anexoIds.push(anexo.id);
+      }
+      await api.post(`/v1/conversas/${conversa.id}/mensagens/anexos`, { anexo_ids: anexoIds });
       atualizarLeituras();
       aoEnviar();
     } catch (e) {
-      setErro(e instanceof Error ? e.message : 'Não foi possível enviar o arquivo.');
+      setErro(e instanceof Error ? e.message : 'Não foi possível enviar os arquivos.');
     } finally {
       setEnviando(false);
       if (arquivo.current) arquivo.current.value = '';
@@ -212,8 +226,8 @@ export function Compositor({
                 type="button"
                 className="dk-botao-icone"
                 id="send-file-btn"
-                title="Enviar arquivos (máximo de 10 arquivos por envio)"
-                aria-label="Enviar arquivos (máximo de 10 arquivos por envio)"
+                title={`Enviar arquivos (máximo de ${MAX_ARQUIVOS_POR_ENVIO} arquivos por envio)`}
+                aria-label={`Enviar arquivos (máximo de ${MAX_ARQUIVOS_POR_ENVIO} arquivos por envio)`}
                 onClick={() => arquivo.current?.click()}
               >
                 <IconeDesk nome="anexo" />
@@ -221,6 +235,7 @@ export function Compositor({
               <input
                 ref={arquivo}
                 type="file"
+                multiple
                 className="dk-so-leitor"
                 accept="image/*,audio/*,video/*,application/pdf"
                 onChange={(e) => void anexar(e.target.files)}

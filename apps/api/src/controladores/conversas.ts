@@ -6,7 +6,7 @@ import { ChaveOuSessao, Escopos, atorDe, contextoDe } from '../autenticacao.js';
 import type { RequisicaoAutenticada } from '../autenticacao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
 import { alternarEspera, encerrarConversa, transferirConversa } from '../dominio/conversa.js';
-import { enviarMensagem, reenviarMensagem } from '../dominio/envio.js';
+import { enviarAnexos, enviarMensagem, reenviarMensagem } from '../dominio/envio.js';
 import type { TipoEnvio } from '../dominio/envio.js';
 import { ErroPipe } from '../erros.js';
 import {
@@ -249,6 +249,46 @@ export class ControladorConversas {
       dentro_da_janela: enfileirada.dentroDaJanela,
       categoria_cobranca: enfileirada.categoriaCobranca,
       conteudo: enfileirada.conteudo,
+    };
+  }
+
+  /**
+   * Vários arquivos de uma vez — uma mensagem por arquivo, em sequência, como a
+   * origem (`enviarAnexos`). O lote é validado INTEIRO antes de a primeira sair:
+   * mais de 10, anexo inexistente ou fora do limite do tipo recusam tudo, e a
+   * resposta diz qual arquivo. As mensagens voltam na ordem em que saíram.
+   */
+  @Post(':id/mensagens/anexos')
+  @HttpCode(201)
+  @ChaveOuSessao('mensagens:escrever')
+  async enviarLoteDeAnexos(
+    @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: { anexo_ids?: unknown; texto?: string; atendente_id?: string },
+  ): Promise<{ mensagens: Record<string, unknown>[] }> {
+    const ator = atorDe(requisicao);
+    const ids = Array.isArray(corpo?.anexo_ids)
+      ? corpo.anexo_ids.filter((v): v is string => typeof v === 'string')
+      : [];
+    if (ids.length === 0) {
+      throw ErroPipe.requisicao('conteudo_vazio', 'Informe `anexo_ids` com ao menos um anexo.');
+    }
+    const enviadas = await enviarAnexos({
+      tenantId: ator.tenantId,
+      conversaId: id,
+      atendenteId: ator.viaSessao ? ator.usuarioId : (corpo.atendente_id ?? null),
+      exigirAtribuicao: ator.viaSessao,
+      anexoIds: ids,
+      texto: corpo.texto ?? null,
+    });
+    return {
+      mensagens: enviadas.map((m) => ({
+        id: m.id,
+        estado_entrega: m.estadoEntrega,
+        dentro_da_janela: m.dentroDaJanela,
+        categoria_cobranca: m.categoriaCobranca,
+        conteudo: m.conteudo,
+      })),
     };
   }
 

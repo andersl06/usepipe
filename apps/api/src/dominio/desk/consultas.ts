@@ -80,12 +80,15 @@ export async function listarConversas(
     canal_tipo: TipoCanalBanco;
     ultima_mensagem: string | null;
     ultima_mensagem_tipo: string | null;
+    fixada_em: Date | string | null;
+    nao_lida_em: Date | string | null;
   }>(sql`
     select c.id, c.estado, c.prioridade, c.criada_em, c.primeira_resposta_em,
            c.ultima_mensagem_em, c.ultima_mensagem_de,
            c.janela_expira_em, c.em_espera_desde, ct.nome as contato_nome, ct.telefone_e164 as contato_telefone,
            f.nome as fila_nome,
-           ca.tipo as canal_tipo, m.conteudo as ultima_mensagem, m.tipo as ultima_mensagem_tipo
+           ca.tipo as canal_tipo, m.conteudo as ultima_mensagem, m.tipo as ultima_mensagem_tipo,
+           mc.fixada_em, mc.nao_lida_em
       from conversa c
       join contato ct on ct.id = c.contato_id
       join inbox ib on ib.id = c.inbox_id
@@ -97,6 +100,9 @@ export async function listarConversas(
          order by criada_em desc
          limit 1
       ) m on true
+      -- As marcações são DESTE atendente (fixada, não lida): dominio/desk/marcacoes.ts.
+      left join marcacao_conversa mc
+        on mc.conversa_id = c.id and mc.usuario_id = ${atendenteId}
      where c.atendente_id = ${atendenteId}
        and c.estado <> 'encerrada'
      order by c.ultima_mensagem_em desc nulls last
@@ -117,6 +123,8 @@ export async function listarConversas(
     canalTipo: r.canal_tipo,
     ultimaMensagem: r.ultima_mensagem,
     ultimaMensagemTipo: r.ultima_mensagem_tipo,
+    fixadaEm: isoOuNulo(r.fixada_em),
+    naoLidaEm: isoOuNulo(r.nao_lida_em),
   }));
 }
 

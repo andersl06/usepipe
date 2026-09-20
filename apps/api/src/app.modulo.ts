@@ -14,6 +14,11 @@ import {
 } from './controladores/catalogo.js';
 import { ControladorConvites, ControladorDominios } from './controladores/convites.js';
 import { ControladorEntrada, ControladorEu } from './controladores/entrar.js';
+import {
+  ControladorEtiquetas,
+  ControladorEtiquetasDaConversa,
+  ControladorEtiquetasDoContato,
+} from './controladores/etiquetas.js';
 import { ControladorGestaoAnalise } from './controladores/gestao-analise.js';
 import { ControladorGestaoBuilder } from './controladores/gestao-builder.js';
 import { ControladorGestaoCadastros } from './controladores/gestao-cadastros.js';
@@ -69,6 +74,9 @@ import { ControladorCanaisInstagram } from './controladores/canais-instagram.js'
     ControladorDominios,
     ControladorOperacao,
     ControladorConversas,
+    ControladorEtiquetas,
+    ControladorEtiquetasDaConversa,
+    ControladorEtiquetasDoContato,
     ControladorMensagensAtivas,
     ControladorLinksRastreados,
     ControladorRedirecionamento,

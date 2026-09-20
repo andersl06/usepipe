@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { and, eq } from 'drizzle-orm';
+import { and, eq, sql } from 'drizzle-orm';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { criarBanco, fecharBanco } from './cliente.js';
@@ -254,11 +254,58 @@ export const FILAS_EXEMPLO = [
   { nome: 'Financeiro', cor: 'grafico-3', ordem: 4, capacidadePadrao: 6 },
 ] as const;
 
+/**
+ * Todo usuário do tenant SEM papel de conta ganha um — a regra "toda pessoa tem
+ * exatamente um" da migração 0021, aplicada a quem nasceu depois dela.
+ *
+ * O backfill da 0021 só cobriu quem já existia; as sementes de operação
+ * (`semente-demo.ts`, `apps/gestao-vite/semente/semente-gestao.ts`) criam
+ * usuários só com papel de atendimento, e a tela de Membros do contrato — que
+ * lista pelo papel de CONTA — ficava vazia. A regra de qual papel é a MESMA da
+ * 0021, para o resultado não depender de quem rodou primeiro: `administrador` ou
+ * quem tem `conta.membros.escrever` → `admin`; quem edita fluxo ou o workspace →
+ * `member`; o resto → `guest`.
+ *
+ * Idempotente: o índice único parcial `usuario_papel_um_da_conta_uk` garante um
+ * por pessoa, e o `where not exists` não toca em quem já tem. Rodar duas vezes
+ * não duplica nem troca papel dado à mão.
+ */
+export async function garantirPapelDeConta(db: BancoPipe, tenantId: string): Promise<number> {
+  const resultado = await db.execute(sql`
+    insert into usuario_papel (tenant_id, usuario_id, papel_id, escopo)
+    select u.tenant_id, u.id, c.id, 'conta'
+      from usuario u
+     cross join lateral (
+       select case
+                when bool_or(p.nome = 'administrador' and p.de_sistema)
+                  or bool_or(pp.permissao_codigo = 'conta.membros.escrever') then 'admin'
+                when bool_or(pp.permissao_codigo in ('automacao.fluxo.editar', 'conta.workspace.escrever'))
+                  then 'member'
+                else 'guest'
+              end as alvo
+         from usuario_papel up
+         join papel p on p.id = up.papel_id
+         left join papel_permissao pp on pp.papel_id = p.id
+        where up.usuario_id = u.id
+     ) f
+      join papel c on c.tenant_id = u.tenant_id and c.escopo = 'conta' and c.nome = f.alvo
+     where u.tenant_id = ${tenantId}::uuid
+       and not exists (
+         select 1 from usuario_papel up
+          where up.usuario_id = u.id and up.escopo = 'conta'
+       )
+    on conflict do nothing
+  `);
+  return resultado.rowCount ?? 0;
+}
+
 export interface ResultadoSemente {
   tenantId: string;
   papeis: number;
   permissoes: number;
   filas: number;
+  /** Usuários que estavam sem papel de conta e ganharam um nesta rodada. */
+  papeisDeContaDados: number;
 }
 
 export async function semear(
@@ -318,11 +365,16 @@ export async function semear(
     .values(FILAS_EXEMPLO.map((f) => ({ tenantId, ...f })))
     .onConflictDoNothing();
 
+  // Por último, depois de os papéis de conta existirem: quem foi semeado por
+  // outra rotina antes desta rodada (ou pela 0021 ter passado) ganha o dele.
+  const papeisDeContaDados = await garantirPapelDeConta(db, tenantId);
+
   return {
     tenantId,
     papeis: todosOsPapeis.length,
     permissoes: CATALOGO_PERMISSOES.length,
     filas: FILAS_EXEMPLO.length,
+    papeisDeContaDados,
   };
 }
 
@@ -336,7 +388,8 @@ if (executadoDiretamente) {
     .then((resultado) => {
       process.stdout.write(
         `semente aplicada: tenant ${resultado.tenantId}, ${resultado.papeis} papéis, ` +
-          `${resultado.permissoes} permissões, ${resultado.filas} filas\n`,
+          `${resultado.permissoes} permissões, ${resultado.filas} filas, ` +
+          `${resultado.papeisDeContaDados} papéis de conta dados a quem não tinha\n`,
       );
     })
     .catch((erro: unknown) => {

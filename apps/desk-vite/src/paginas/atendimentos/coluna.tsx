@@ -77,6 +77,17 @@ export function Coluna({
     if (!r.ok) setErro(r.erro ?? 'Não foi possível ficar online.');
   }
 
+  /**
+   * Abrir a conversa tira a marca manual de "não lida" — a ficha "Não lidas" da
+   * origem "remove o ticket automaticamente assim que ele é aberto/lido"
+   * (`blip-desk-funcoes.md` §1). A recusa não trava a abertura.
+   */
+  function abrir(id: string) {
+    aoAbrir(id);
+    const marcada = fila.conversas.find((c) => c.id === id);
+    if (marcada?.naoLidaEm) void executar('marcarNaoLida', { conversaId: id, naoLida: 'false' });
+  }
+
   return (
     <div className="dk-coluna" id="sidenav-div">
       <div className="dk-coluna-cabecalho">
@@ -232,7 +243,8 @@ export function Coluna({
             conversa={c}
             selecionada={c.id === selecionada}
             agora={agora}
-            aoAbrir={aoAbrir}
+            aoAbrir={abrir}
+            aoFalhar={setErro}
           />
         ))}
         {visiveis.length === 0 ? (

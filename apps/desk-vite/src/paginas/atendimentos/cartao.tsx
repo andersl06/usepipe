@@ -1,10 +1,12 @@
+import { useState } from 'react';
 import type { ConversaDaLista } from '@pipe/contracts';
 import { LogoPortal } from '../../componentes/icones-portal';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { Avatar } from '../../componentes/avatar';
+import { executar } from '../../lib/acoes';
 import { canalDe, numeroDoTicket } from '../../lib/canal';
 import { cronometro, horarioRelativo } from '../../lib/formato';
-import { naoLida, nomeDeExibicao } from '../../lib/ordem';
+import { fixada, naoLida, nomeDeExibicao } from '../../lib/ordem';
 
 /**
  * O cartão da lista — o `<article class="chat-list-item">` da referência
@@ -18,22 +20,42 @@ import { naoLida, nomeDeExibicao } from '../../lib/ordem';
  * seção de baixo (`.ticket-info`): ícone de info, "#N", "Fila: x" e o menu ⋮.
  *
  * Nome e prévia engrossam quando há não lida (`bold="bold"`).
+ *
+ * O menu ⋮ é o `TicketMenuOptions` da origem (`PIN`/`UNPIN`, `UNREAD`/`READ`,
+ * `blip-desk-regras-tecnicas.md` §1.8): fixar no topo e marcar como não lida,
+ * por atendente, em `POST /v1/desk/acoes/fixar` e `/marcarNaoLida`. O
+ * "Modo de Espera" continua no menu da conversa aberta.
  */
 export function Cartao({
   conversa,
   selecionada,
   agora,
   aoAbrir,
+  aoFalhar,
 }: {
   conversa: ConversaDaLista;
   selecionada: boolean;
   agora: Date;
   aoAbrir: (id: string) => void;
+  /** Recusa de uma ação do menu — a coluna mostra o texto, sem `alert`. */
+  aoFalhar?: (erro: string) => void;
 }) {
+  const [menu, setMenu] = useState(false);
   const canal = canalDe(conversa.canalTipo);
   const nome = nomeDeExibicao(conversa);
   const naoLidaAgora = naoLida(conversa);
+  const fixadaAgora = fixada(conversa);
   const nova = conversa.primeiraRespostaEm === null;
+
+  async function marcar(acao: 'fixar' | 'marcarNaoLida', valor: boolean) {
+    setMenu(false);
+    const campos: Record<string, string> =
+      acao === 'fixar'
+        ? { conversaId: conversa.id, fixada: String(valor) }
+        : { conversaId: conversa.id, naoLida: String(valor) };
+    const r = await executar(acao, campos);
+    if (!r.ok) aoFalhar?.(r.erro ?? 'Não foi possível marcar a conversa.');
+  }
   const emEspera = conversa.estado === 'em_espera';
   const segundosEmEspera =
     emEspera && conversa.emEsperaDesde
@@ -80,6 +102,11 @@ export function Cartao({
               {previa(conversa)}
             </p>
             <div className="dk-cartao-alertas">
+              {fixadaAgora ? (
+                <span className="dk-cartao-fixada" title="Fixada no topo" aria-label="Fixada no topo">
+                  <IconeDesk nome="fixar" />
+                </span>
+              ) : null}
               {nova ? <span className="dk-chip dk-chip-info">Novo</span> : null}
               {emEspera ? (
                 <span className="dk-chip dk-chip-alerta" title="Em espera">
@@ -108,14 +135,45 @@ export function Cartao({
           <b>Fila:</b>
           <span>{conversa.filaNome ?? 'Transferência direta'}</span>
         </span>
-        <button
-          type="button"
-          className="dk-cartao-menu"
-          aria-label="Mais opções"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <IconeDesk nome="mais-opcoes" />
-        </button>
+        <div className="dk-cartao-menu-caixa" onClick={(e) => e.stopPropagation()}>
+          <button
+            type="button"
+            className="dk-cartao-menu"
+            aria-label="Mais opções"
+            aria-expanded={menu}
+            onClick={() => setMenu((m) => !m)}
+            onKeyDown={(e) => e.stopPropagation()}
+          >
+            <IconeDesk nome="mais-opcoes" />
+          </button>
+          {menu ? (
+            <div
+              className="dk-menu dk-cartao-menu-lista"
+              role="menu"
+              onMouseLeave={() => setMenu(false)}
+              onKeyDown={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                role="menuitem"
+                className="dk-menu-item"
+                onClick={() => void marcar('fixar', !fixadaAgora)}
+              >
+                <IconeDesk nome="fixar" tamanho={20} />
+                {fixadaAgora ? 'Desafixar' : 'Fixar no topo'}
+              </button>
+              <button
+                type="button"
+                role="menuitem"
+                className="dk-menu-item"
+                onClick={() => void marcar('marcarNaoLida', conversa.naoLidaEm === null)}
+              >
+                <IconeDesk nome="notificacao" tamanho={20} />
+                {conversa.naoLidaEm !== null ? 'Marcar como lida' : 'Marcar como não lida'}
+              </button>
+            </div>
+          ) : null}
+        </div>
       </section>
     </article>
   );

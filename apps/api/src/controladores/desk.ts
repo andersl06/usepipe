@@ -14,6 +14,8 @@ import type { RequisicaoComSessao } from '../sessao.js';
 import * as consultas from '../dominio/desk/consultas.js';
 import { carregarMetricas } from '../dominio/desk/metricas.js';
 import * as acoesDesk from '../dominio/desk/acoes.js';
+import * as marcacoes from '../dominio/desk/marcacoes.js';
+import { listarEtiquetasDoContato } from '../dominio/etiquetas.js';
 import { Campos, type CamposCrus, type Resultado } from '../dominio/gestao/acoes/campos.js';
 
 /**
@@ -48,6 +50,9 @@ const ACOES: Record<string, Acao> = {
   salvarNotaInterna: acoesDesk.salvarNotaInterna,
   atender: acoesDesk.atender,
   transferirEmMassa: acoesDesk.transferirEmMassa,
+  /* O menu "⋮" do cartão (`dominio/desk/marcacoes.ts`): fixar e marcar como não lida. */
+  fixar: marcacoes.fixar,
+  marcarNaoLida: marcacoes.marcarNaoLida,
 };
 
 /** Quantos dias, no máximo, um recorte de métricas pode cobrir: os 90 da tela, com folga. */
@@ -98,6 +103,7 @@ export class ControladorDesk {
           itens: await consultas.listarItensDaConversa(tx, conversa.id),
           templates: await consultas.listarTemplatesAprovados(tx, conversa.canalId),
           etiquetasDaConversa: await consultas.listarEtiquetasDaConversa(tx, conversa.id),
+          etiquetasDoContato: await listarEtiquetasDoContato(tx, conversa.contatoId),
           historico: await consultas.listarHistoricoDoContato(tx, conversa.contatoId, conversa.id),
         },
       };

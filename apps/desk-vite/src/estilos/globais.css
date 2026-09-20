@@ -922,6 +922,53 @@ button {
   border: 1px solid var(--p-conteudo-desabilitado);
 }
 
+/* O "×" do chip de etiqueta removível: herda a cor do chip, sem fundo. */
+.dk-chip-remover {
+  display: inline-flex;
+  align-items: center;
+  width: 16px;
+  height: 16px;
+  padding: 0;
+  margin-left: 2px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.dk-chip-remover svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* A lista de opções do modal "Adicionar tags" e da faixa de etiquetas do
+   contato: uma caixa de seleção por etiqueta, em coluna. */
+.dk-lista-de-etiquetas {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 320px;
+  margin: 8px 0 16px;
+  overflow-y: auto;
+}
+
+.dk-opcao-etiqueta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dk-etiquetas-do-contato {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: 8px 0;
+}
+
 /* `.badge-warning`: contador de não lidas, 24 de altura, mínimo 24, 12/700. */
 .dk-contador {
   display: inline-flex;
@@ -1009,10 +1056,36 @@ button {
 }
 
 .dk-cartao:hover .dk-cartao-menu,
-.dk-cartao[aria-current='true'] .dk-cartao-menu {
+.dk-cartao[aria-current='true'] .dk-cartao-menu,
+.dk-cartao-menu[aria-expanded='true'] {
   width: 20px;
   opacity: 1;
   visibility: visible;
+}
+
+/* O menu do cartão ancora no botão ⋮ e abre para a esquerda, por cima da lista. */
+.dk-cartao-menu-caixa {
+  position: relative;
+  display: flex;
+  flex-shrink: 0;
+}
+
+.dk-cartao-menu-lista {
+  top: 24px;
+  right: 0;
+  left: auto;
+}
+
+/* O alfinete da conversa fixada, na linha de alertas do cartão. */
+.dk-cartao-fixada {
+  display: inline-flex;
+  align-items: center;
+  color: var(--p-conteudo-desabilitado);
+}
+
+.dk-cartao-fixada svg {
+  width: 16px;
+  height: 16px;
 }
 
 .dk-cartao-menu svg {

@@ -2,6 +2,7 @@ import { NIVEIS_PRIORIDADE } from '@pipe/core/conversa';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   index,
   integer,
   jsonb,
@@ -544,4 +545,32 @@ export const notaInterna = pgTable(
     em: momento('em').notNull().defaultNow(),
   },
   (t) => [index('nota_interna_conversa_idx').on(t.tenantId, t.conversaId, t.em)],
+);
+
+/**
+ * Fixar e marcar como não lida — POR ATENDENTE, não por conversa (migração 0041).
+ *
+ * É o PIN/UNPIN e UNREAD/READ do menu do cartão da origem (`TicketMenuOptions`).
+ * `fixada_em` nulo é "não fixada"; `nao_lida_em` nulo é "lida". A linha só existe
+ * enquanto ao menos um dos dois estiver marcado (CHECK); o domínio apaga a linha
+ * que ficou sem marcação. O teto de 50 fixadas é conferido no domínio.
+ */
+export const marcacaoConversa = pgTable(
+  'marcacao_conversa',
+  {
+    tenantId: refTenant(),
+    usuarioId: uuid('usuario_id')
+      .notNull()
+      .references(() => usuario.id, { onDelete: 'cascade' }),
+    conversaId: uuid('conversa_id')
+      .notNull()
+      .references(() => conversa.id, { onDelete: 'cascade' }),
+    fixadaEm: momento('fixada_em'),
+    naoLidaEm: momento('nao_lida_em'),
+  },
+  (t) => [
+    primaryKey({ name: 'marcacao_conversa_pk', columns: [t.usuarioId, t.conversaId] }),
+    index('marcacao_conversa_usuario_idx').on(t.tenantId, t.usuarioId),
+    check('marcacao_conversa_alguma_ck', sql`${t.fixadaEm} is not null or ${t.naoLidaEm} is not null`),
+  ],
 );

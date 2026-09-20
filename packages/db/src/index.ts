@@ -7,6 +7,7 @@ export * from './segredo.js';
 export * from './auditoria.js';
 export {
   semear,
+  garantirPapelDeConta,
   CATALOGO_PERMISSOES,
   PAPEIS_DA_CONTA,
   PAPEIS_DIA_1,

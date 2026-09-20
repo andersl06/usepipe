@@ -1,4 +1,5 @@
 import { sql } from 'drizzle-orm';
+import { MAX_ARQUIVOS_POR_MENSAGEM, maxBytesDoMime, mimeAceito, tipoDoMime } from '@pipe/armazenamento';
 import { avaliarEnvio, classificarCusto } from '@pipe/core';
 import type { CategoriaTemplate, TipoCanal } from '@pipe/core';
 import { posicaoDeVariavel } from '@pipe/workers/whatsapp';
@@ -292,6 +293,112 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
     categoriaCobranca: resultado.categoriaCobranca,
     conteudo: resultado.conteudo,
   };
+}
+
+export interface PedidoDeLoteDeAnexos {
+  tenantId: string;
+  conversaId: string;
+  atendenteId?: string | null;
+  /** Os anexos já subidos por `POST /v1/anexos`, na ordem em que devem sair. */
+  anexoIds: string[];
+  /** Legenda opcional: vai na PRIMEIRA mensagem do lote, como a origem faz com `text`. */
+  texto?: string | null;
+  exigirAtribuicao?: boolean;
+}
+
+type LinhaAnexo = { id: string; mime: string; bytes: string; nome_original: string | null };
+
+/**
+ * Vários arquivos num envio só — **uma mensagem por arquivo, em sequência**.
+ *
+ * É o modelo da origem, e não uma simplificação nossa: no protocolo LIME cada
+ * `application/vnd.lime.media-link+json` carrega UM `uri`
+ * (`docs/pesquisa/blip-api-schemas.md`, "media-link"), e o modal de múltiplos
+ * arquivos do Desk (`ModalType.SEND_MULT_FILE`) monta uma lista
+ * `mediaLinkDocuments` — uma mensagem por arquivo — limitada a
+ * `MAX_ATTACHMENT_COUNT = 10` (`blip-desk-regras-tecnicas.md` §3.3). Por isso
+ * `mensagem.anexo_id` continua sendo UM, sem tabela nova.
+ *
+ * O que é do lote, e não de cada mensagem: a validação. O laço da origem aborta
+ * inteiro quando um arquivo estoura o limite (§3.3, passo 6), e aqui vale o
+ * mesmo — todos os anexos são conferidos (existem no tenant, tipo aceito,
+ * tamanho dentro do teto do tipo, no máximo 10) ANTES de a primeira mensagem
+ * sair. Uma recusa no meio do lote deixaria o cliente com metade dos arquivos
+ * e o atendente sem saber quais.
+ *
+ * As mensagens saem em série pela mesma `enviarMensagem`: mesma janela de 24 h,
+ * mesmo outbox, mesmo evento por mensagem. Se a primeira for recusada (janela
+ * fechada, conversa de outro), nenhuma sai.
+ */
+export async function enviarAnexos(pedido: PedidoDeLoteDeAnexos): Promise<MensagemEnfileirada[]> {
+  const ids = pedido.anexoIds.filter((id, i, lista) => lista.indexOf(id) === i);
+  if (ids.length === 0) {
+    throw ErroPipe.requisicao('conteudo_vazio', 'Anexe ao menos um arquivo.');
+  }
+  if (ids.length > MAX_ARQUIVOS_POR_MENSAGEM) {
+    throw ErroPipe.requisicao(
+      'anexos_demais',
+      `São no máximo ${MAX_ARQUIVOS_POR_MENSAGEM} arquivos por envio; vieram ${ids.length}.`,
+      { limite: MAX_ARQUIVOS_POR_MENSAGEM, enviados: ids.length },
+    );
+  }
+  if (ids.some((id) => !UUID.test(id))) throw ErroPipe.naoEncontrado('Anexo');
+
+  const anexos = await noTenant(pedido.tenantId, async (tx) => {
+    const { rows } = await tx.execute<LinhaAnexo>(sql`
+      select id, mime, bytes::text as bytes, nome_original
+        from anexo
+       where id = any(${`{${ids.join(',')}}`}::uuid[])
+    `);
+    return rows;
+  });
+
+  const porId = new Map(anexos.map((a) => [a.id, a]));
+  const ordenados: LinhaAnexo[] = [];
+  for (const id of ids) {
+    const anexo = porId.get(id);
+    if (!anexo) throw ErroPipe.naoEncontrado('Anexo');
+    // `guardarAnexo` já recusou o que não passa, mas o teto é conferido de novo
+    // por arquivo: o lote inteiro cai se um deles não couber, com o nome dele.
+    const nome = anexo.nome_original ?? anexo.id;
+    if (!mimeAceito(anexo.mime)) {
+      throw ErroPipe.requisicao('tipo_nao_aceito', `O arquivo "${nome}" é de um tipo não aceito.`, {
+        anexo_id: anexo.id,
+        mime: anexo.mime,
+      });
+    }
+    const teto = maxBytesDoMime(anexo.mime);
+    if (Number(anexo.bytes) > teto) {
+      throw ErroPipe.requisicao(
+        'arquivo_grande_demais',
+        `O arquivo "${nome}" tem ${mb(Number(anexo.bytes))} MB e o limite para este tipo é ${mb(teto)} MB.`,
+        { anexo_id: anexo.id, bytes: Number(anexo.bytes), limite: teto },
+      );
+    }
+    ordenados.push(anexo);
+  }
+
+  const enviadas: MensagemEnfileirada[] = [];
+  for (const [i, anexo] of ordenados.entries()) {
+    enviadas.push(
+      await enviarMensagem({
+        tenantId: pedido.tenantId,
+        conversaId: pedido.conversaId,
+        atendenteId: pedido.atendenteId ?? null,
+        tipo: tipoDoMime(anexo.mime),
+        anexoId: anexo.id,
+        texto: i === 0 ? (pedido.texto ?? null) : null,
+        exigirAtribuicao: pedido.exigirAtribuicao ?? false,
+      }),
+    );
+  }
+  return enviadas;
+}
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function mb(bytes: number): string {
+  return (bytes / 1_048_576).toFixed(0);
 }
 
 /**

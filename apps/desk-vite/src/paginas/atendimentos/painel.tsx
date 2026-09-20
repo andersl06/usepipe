@@ -1,8 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import type { ConversaDoDesk } from '@pipe/contracts';
+import type { ConversaDoDesk, EtiquetaDaConversa, EtiquetaDoDesk } from '@pipe/contracts';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { Link } from '../../componentes/link';
 import { api } from '../../lib/api';
+import { useLeitura } from '../../lib/consulta';
 import { executar, atualizarLeituras } from '../../lib/acoes';
 import { canalDe, numeroDoTicket } from '../../lib/canal';
 import { dataAbreviada } from '../../lib/formato';
@@ -57,7 +58,7 @@ export function Painel({ aberta, agora }: { aberta: ConversaDoDesk | null; agora
     );
   }
 
-  const { conversa, itens, historico } = aberta;
+  const { conversa, itens, historico, etiquetasDoContato } = aberta;
   const notas = itens.filter((i) => i.genero === 'nota');
   const abas: { id: Aba; rotulo: string }[] = [
     { id: 'informacoes', rotulo: 'Informações' },
@@ -135,6 +136,9 @@ export function Painel({ aberta, agora }: { aberta: ConversaDoDesk | null; agora
               ) : null}
               <Campo rotulo="Canal:" valor={canalDe(conversa.canalTipo).nome} />
               <Campo rotulo="fila:" valor={conversa.filaNome} />
+            </section>
+            <section className="dk-papel">
+              <EtiquetasDoContato contatoId={conversa.contatoId} aplicadas={etiquetasDoContato} />
             </section>
             <section className="dk-papel">
               <Comentarios conversaId={conversa.id} notas={notas} agora={agora} />
@@ -287,6 +291,102 @@ function EdicaoDoContato({
         </button>
       </div>
     </form>
+  );
+}
+
+/**
+ * As etiquetas do CONTATO — `contato_etiqueta`, que até aqui não tinha rota nem
+ * tela. O catálogo vem de `GET /v1/etiquetas?escopo=contato` (as de escopo
+ * `contato` e `ambos`); aplicar e remover vão por `POST`/`DELETE
+ * /v1/contatos/:id/etiquetas`, com a mesma permissão de editar a ficha
+ * (`contato.editar`) — a etiqueta do contato é dado do contato.
+ */
+function EtiquetasDoContato({
+  contatoId,
+  aplicadas,
+}: {
+  contatoId: string;
+  aplicadas: EtiquetaDaConversa[];
+}) {
+  const catalogo = useLeitura<{ etiquetas: EtiquetaDoDesk[] }>('/v1/etiquetas?escopo=contato');
+  const [erro, setErro] = useState<string | null>(null);
+  const [ocupado, setOcupado] = useState(false);
+  const jaTem = new Set(aplicadas.map((e) => e.id));
+  const disponiveis = (catalogo.data?.etiquetas ?? []).filter((e) => !jaTem.has(e.id));
+
+  async function aplicar(etiquetaId: string) {
+    if (!etiquetaId || ocupado) return;
+    setOcupado(true);
+    setErro(null);
+    try {
+      await api.post(`/v1/contatos/${contatoId}/etiquetas`, { etiqueta_id: etiquetaId });
+      atualizarLeituras();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Não foi possível etiquetar o contato.');
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  async function remover(etiqueta: EtiquetaDaConversa) {
+    if (ocupado) return;
+    setOcupado(true);
+    setErro(null);
+    try {
+      await api.delete(`/v1/contatos/${contatoId}/etiquetas/${etiqueta.id}`);
+      atualizarLeituras();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Não foi possível remover a etiqueta.');
+    } finally {
+      setOcupado(false);
+    }
+  }
+
+  return (
+    <>
+      <h3 className="dk-papel-titulo">Etiquetas do contato</h3>
+      <div className="dk-etiquetas-do-contato" id="contact-tags">
+        {aplicadas.length === 0 ? (
+          <span style={{ color: 'var(--p-conteudo-desabilitado)', fontSize: 14 }}>
+            Nenhuma etiqueta neste contato.
+          </span>
+        ) : null}
+        {aplicadas.map((e) => (
+          <span key={e.id} className="dk-chip dk-chip-contorno">
+            {e.nome}
+            <button
+              type="button"
+              className="dk-chip-remover"
+              title={`Remover a etiqueta ${e.nome}`}
+              aria-label={`Remover a etiqueta ${e.nome}`}
+              disabled={ocupado}
+              onClick={() => void remover(e)}
+            >
+              <IconeDesk nome="fechar" tamanho={16} />
+            </button>
+          </span>
+        ))}
+      </div>
+      <label className="dk-campo-flutuante">
+        <span>Adicionar etiqueta</span>
+        <select
+          id="contact-tag-select"
+          value=""
+          disabled={ocupado || disponiveis.length === 0}
+          onChange={(e) => void aplicar(e.target.value)}
+        >
+          <option value="">
+            {disponiveis.length === 0 ? 'Nenhuma etiqueta disponível' : 'Escolher etiqueta'}
+          </option>
+          {disponiveis.map((e) => (
+            <option key={e.id} value={e.id}>
+              {e.nome}
+            </option>
+          ))}
+        </select>
+      </label>
+      {erro ? <p className="dk-erro">{erro}</p> : null}
+    </>
   );
 }
 

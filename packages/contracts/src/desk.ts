@@ -41,6 +41,13 @@ export interface ConversaDaLista {
   canalTipo: TipoCanalBanco;
   ultimaMensagem: string | null;
   ultimaMensagemTipo: string | null;
+  /**
+   * As marcações DESTE atendente (`marcacao_conversa`, migração 0041): fixada no
+   * topo da lista e marcada à mão como não lida. Nulo é "não marcada". São do
+   * atendente, não da conversa — o colega que recebe a transferência não as vê.
+   */
+  fixadaEm: string | null;
+  naoLidaEm: string | null;
 }
 
 export interface StatusDoAtendente {
@@ -167,6 +174,12 @@ export interface ConversaDoDesk {
   itens: ItemDaConversa[];
   templates: TemplateAprovado[];
   etiquetasDaConversa: EtiquetaDaConversa[];
+  /**
+   * As etiquetas do CONTATO (`contato_etiqueta`), que o painel "Dados do
+   * Contato" mostra e edita. Separadas das da conversa porque são de escopos
+   * diferentes (`etiqueta.escopo`) e não se herdam.
+   */
+  etiquetasDoContato: EtiquetaDaConversa[];
   historico: ConversaDoHistorico[];
 }
 

@@ -31,6 +31,8 @@ function conversa(parte: Partial<ConversaDaLista>): ConversaDaLista {
     canalTipo: 'whatsapp_cloud',
     ultimaMensagem: 'oi',
     ultimaMensagemTipo: 'texto',
+    fixadaEm: null,
+    naoLidaEm: null,
     ...parte,
   };
 }
@@ -78,6 +80,43 @@ test('a ordem padrão põe a mensagem mais nova no topo; a de abertura, o ticket
     ordenar(lista, 'abertura').map((c) => c.id),
     ['velha', 'nova'],
   );
+});
+
+test('as fixadas ficam no topo, a fixada mais recente por cima, e o resto segue a ordem normal', () => {
+  const lista = [
+    conversa({ id: 'nova', ultimaMensagemEm: '2026-09-17T11:00:00Z' }),
+    conversa({
+      id: 'fixada-antiga',
+      ultimaMensagemEm: '2026-09-17T08:00:00Z',
+      fixadaEm: '2026-09-17T09:00:00Z',
+    }),
+    conversa({
+      id: 'fixada-recente',
+      ultimaMensagemEm: '2026-09-17T07:00:00Z',
+      fixadaEm: '2026-09-17T10:00:00Z',
+    }),
+    conversa({ id: 'velha', ultimaMensagemEm: '2026-09-17T09:30:00Z' }),
+  ];
+  assert.deepEqual(
+    ordenar(lista, 'ultima-mensagem').map((c) => c.id),
+    ['fixada-recente', 'fixada-antiga', 'nova', 'velha'],
+  );
+  assert.deepEqual(
+    ordenar(lista, 'abertura').map((c) => c.id),
+    ['fixada-recente', 'fixada-antiga', 'nova', 'velha'],
+  );
+});
+
+test('marcada à mão como não lida entra na ficha "Não lidos" mesmo com a última palavra do atendente', () => {
+  const lista = [
+    conversa({ id: 'manual', ultimaMensagemDe: 'atendente', naoLidaEm: '2026-09-17T11:30:00Z' }),
+    conversa({ id: 'lida', ultimaMensagemDe: 'atendente' }),
+  ];
+  assert.deepEqual(
+    aplicarFiltro(lista, 'nao-lidos', agora).map((c) => c.id),
+    ['manual'],
+  );
+  assert.equal(contagens(lista, agora)['nao-lidos'], 1);
 });
 
 test('a busca acha por nome sem acento e por dígitos do telefone', () => {

@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { eq, inArray } from 'drizzle-orm';
+import { and, eq, inArray } from 'drizzle-orm';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { randomUUID } from 'node:crypto';
@@ -23,7 +23,8 @@ import {
   templateMensagem,
 } from './schema/conversas.js';
 import { classificacaoConversa } from './schema/monitoria.js';
-import { tenant, usuario } from './schema/identidade.js';
+import { papel, tenant, usuario, usuarioPapel } from './schema/identidade.js';
+import { garantirPapelDeConta } from './semente.js';
 
 /**
  * Semente de **demonstração** do Pipe Desk. Separada da semente base de propósito:
@@ -169,8 +170,31 @@ export async function semearDemo(db: BancoPipe): Promise<ResultadoSementeDemo> {
   };
 
   const anaId = await garantirUsuario('Ana Ribeiro', EMAIL_ATENDENTE_DEMO);
-  await garantirUsuario('Bruno Faria', 'bruno.faria@demo.pipe.app');
-  await garantirUsuario('Carla Nunes', 'carla.nunes@demo.pipe.app');
+  const brunoId = await garantirUsuario('Bruno Faria', 'bruno.faria@demo.pipe.app');
+  const carlaId = await garantirUsuario('Carla Nunes', 'carla.nunes@demo.pipe.app');
+
+  // Papel de ATENDIMENTO para os três (é o que o Desk confere em `exigirPermissao`)
+  // e, logo abaixo, o papel de CONTA que a tela de Membros lista. Quem já tinha
+  // qualquer um dos dois fica como está (`on conflict` / `garantirPapelDeConta`).
+  const [papelAtendente] = await db
+    .select({ id: papel.id })
+    .from(papel)
+    .where(and(eq(papel.tenantId, tenantId), eq(papel.nome, 'atendente')))
+    .limit(1);
+  if (papelAtendente) {
+    await db
+      .insert(usuarioPapel)
+      .values(
+        [anaId, brunoId, carlaId].map((usuarioId) => ({
+          tenantId,
+          usuarioId,
+          papelId: papelAtendente.id,
+          escopo: 'atendimento' as const,
+        })),
+      )
+      .onConflictDoNothing();
+  }
+  await garantirPapelDeConta(db, tenantId);
 
   // O padrão ao entrar é Invisível: ninguém recebe conversa sem afirmar que está pronto.
   await db

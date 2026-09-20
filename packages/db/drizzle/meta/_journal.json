@@ -246,6 +246,13 @@
       "when": 1789460000000,
       "tag": "0040_indices_log_e_analise",
       "breakpoints": true
+    },
+    {
+      "idx": 41,
+      "version": "7",
+      "when": 1789470000000,
+      "tag": "0041_marcacao_de_conversa",
+      "breakpoints": true
     }
   ]
 }

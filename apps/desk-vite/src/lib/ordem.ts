@@ -29,12 +29,18 @@ const HORA_MS = 3_600_000;
 const JANELA_HORAS = 24;
 
 /**
- * "Não lida" no nosso domínio: a última palavra foi do contato. Não guardamos a
- * CONTAGEM de não lidas (só quem falou por último), então a ficha e o negrito
- * do cartão saem daqui.
+ * "Não lida" no nosso domínio: a última palavra foi do contato, OU o atendente
+ * marcou à mão pelo menu do cartão (`naoLidaEm`, o `UNREAD` da origem). Não
+ * guardamos a CONTAGEM de não lidas (só quem falou por último), então a ficha e
+ * o negrito do cartão saem daqui.
  */
 export function naoLida(c: ConversaDaLista): boolean {
-  return c.ultimaMensagemDe === 'contato';
+  return c.ultimaMensagemDe === 'contato' || c.naoLidaEm !== null;
+}
+
+/** Fixada pelo atendente no topo da lista (`PIN` da origem). */
+export function fixada(c: ConversaDaLista): boolean {
+  return c.fixadaEm !== null;
 }
 
 export function emEspera(c: ConversaDaLista): boolean {
@@ -137,11 +143,23 @@ export type Ordem = 'ultima-mensagem' | 'abertura';
  * A ordem da lista. `ultima-mensagem` ("Ver novas mensagens no topo") é o
  * padrão da preferência de lá; `abertura` ("Ver mensagens por ordem de
  * abertura do ticket") é a outra. Conversa sem mensagem usa a abertura.
+ *
+ * As FIXADAS vêm antes de tudo, entre si na ordem em que foram fixadas (a mais
+ * recente por cima) — é o `pinnedTickets` / `notPinnedTickets` da lista da
+ * origem (`blip-desk-regras-tecnicas.md` §6.2: "mantém fixados no topo").
  */
 export function ordenar(conversas: readonly ConversaDaLista[], ordem: Ordem): ConversaDaLista[] {
   const instante = (c: ConversaDaLista) =>
     new Date(ordem === 'abertura' ? c.criadaEm : (c.ultimaMensagemEm ?? c.criadaEm)).getTime();
+  const fixadaEm = (c: ConversaDaLista) => (c.fixadaEm ? new Date(c.fixadaEm).getTime() : null);
   return [...conversas].sort((a, b) => {
+    const fa = fixadaEm(a);
+    const fb = fixadaEm(b);
+    if (fa !== null || fb !== null) {
+      if (fa === null) return 1;
+      if (fb === null) return -1;
+      if (fa !== fb) return fb - fa;
+    }
     const d = ordem === 'abertura' ? instante(a) - instante(b) : instante(b) - instante(a);
     return d !== 0 ? d : a.id.localeCompare(b.id);
   });

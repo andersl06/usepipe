@@ -1,10 +1,13 @@
 import { and, eq, isNull, sql } from 'drizzle-orm';
+import { motivoInelegivel } from '@pipe/core';
+import type { MotivoInelegivel } from '@pipe/core';
 import { notaInterna, pausa, statusAtendente } from '@pipe/db/schema';
 import type { TransacaoPipe } from '@pipe/db';
 import type { EstadoAtendente } from '@pipe/contracts';
 import type { Campos, Resultado } from '../gestao/acoes/campos.js';
 import { registrarEvento } from '../eventos.js';
 import { transferirConversa } from '../conversa.js';
+import { filasDoAtendente, tetoSemPrimeiraResposta } from '../distribuicao.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como no Desk. */
 const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
@@ -152,6 +155,17 @@ export async function salvarNotaInterna(
 
 // --- atender (puxar o próximo da fila) ---
 
+/** A mensagem de "cheio" — o `code 23 / "Agent ticket list is full."` da origem, em português. */
+function mensagemDeLimite(motivo: MotivoInelegivel, ativas: number): string {
+  if (motivo === 'teto_sem_primeira_resposta') {
+    return 'Responda os atendimentos que ainda estão sem primeira resposta antes de puxar outro.';
+  }
+  return (
+    `Você atingiu o limite de atendimentos simultâneos (${ativas} em andamento). ` +
+    'Finalize ou transfira um atendimento para puxar outro.'
+  );
+}
+
 /**
  * O botão "Atender" da coluna — o `set /tickets/claim` da referência: o atendente
  * puxa para si a conversa mais antiga da fila, entre as filas em que ele está.
@@ -160,6 +174,20 @@ export async function salvarNotaInterna(
  * (`where estado = 'na_fila'`, com `skip locked` para dois cliques ao mesmo tempo
  * não disputarem a mesma linha), a mesma `atribuicao` e o mesmo evento. Só atende
  * quem está Online — é a regra de lá, onde o botão nem aparece nos outros status.
+ *
+ * **O limite de vagas vale aqui como vale na distribuição automática.** Na origem o
+ * servidor recusa o `/tickets/claim` com `code 23 / "Agent ticket list is full."`
+ * quando o agente está no limite (`blip-desk-regras-tecnicas.md` §2.2-2.3); a
+ * conta é a de `@pipe/core` (`motivoInelegivel`: vaga = `limite − ativas > 0`, mais
+ * o teto de conversas sem primeira resposta), alimentada por `filasDoAtendente`, o
+ * mesmo levantamento que `distribuirConversa` usa. Só as filas em que o atendente
+ * tem vaga entram no `UPDATE`.
+ *
+ * A checagem é ATÔMICA por atendente: a linha de `status_atendente` é travada
+ * (`for update`) antes de contar as ativas, então dois cliques simultâneos do mesmo
+ * atendente rodam em série — o segundo só conta depois de o primeiro ter gravado, e
+ * não fura o limite. O `skip locked` da conversa continua resolvendo a disputa
+ * entre atendentes DIFERENTES pela mesma linha.
  */
 export async function atender(
   tx: TransacaoPipe,
@@ -168,10 +196,40 @@ export async function atender(
   _dados: Campos,
 ): Promise<Resultado & { conversaId?: string }> {
   return consultar(tx, async (tx) => {
+    // `for update` é a serialização por atendente descrita acima. Quem está online
+    // sempre tem esta linha (é ela que diz que está online).
     const { rows: status } = await tx.execute<{ estado: string }>(
-      sql`select estado from status_atendente where usuario_id = ${atendenteId}::uuid limit 1`,
+      sql`select estado from status_atendente where usuario_id = ${atendenteId}::uuid for update`,
     );
     if (status[0]?.estado !== 'online') return falha('Fique online para atender.');
+
+    const opcoes = { tetoSemPrimeiraResposta: tetoSemPrimeiraResposta() };
+    const porFila = await filasDoAtendente(tx, atendenteId);
+    const comVaga: string[] = [];
+    let motivoDeRecusa: MotivoInelegivel | null = null;
+    for (const linha of porFila) {
+      const filaId = linha.filas[0]!;
+      const motivo = motivoInelegivel(linha, { filaId, ...opcoes });
+      if (motivo === null) comVaga.push(filaId);
+      else motivoDeRecusa ??= motivo;
+    }
+    const ativas = porFila[0]?.ativas ?? 0;
+
+    // Sem fila nenhuma com vaga e sem fila nenhuma cadastrada, a recusa é o limite:
+    // não adianta procurar conversa que a pessoa não pode receber. (Quem não está em
+    // fila alguma só puxa conversa sem fila, e para essa não há limite cadastrado.)
+    if (comVaga.length === 0 && motivoDeRecusa !== null) {
+      return falha(mensagemDeLimite(motivoDeRecusa, ativas));
+    }
+
+    // Conversa sem fila (transferência direta que voltou para a espera) vale para
+    // qualquer atendente — desde que ele tenha vaga em alguma fila, ou não esteja em
+    // fila alguma (aí não há limite que se aplique).
+    const aceitaSemFila = porFila.length === 0 || comVaga.length > 0;
+    const filasSql =
+      comVaga.length > 0
+        ? sql`c.fila_id = any(${`{${comVaga.join(',')}}`}::uuid[])`
+        : sql`false`;
 
     const em = new Date();
     const { rows } = await tx.execute<{ id: string; fila_id: string | null }>(sql`
@@ -181,8 +239,7 @@ export async function atender(
        where id = (
          select c.id from conversa c
           where c.estado = 'na_fila'
-            and (c.fila_id is null
-                 or c.fila_id in (select fila_id from fila_atendente where usuario_id = ${atendenteId}::uuid))
+            and ((c.fila_id is null and ${aceitaSemFila}::boolean) or ${filasSql})
           order by c.criada_em asc
           for update skip locked
           limit 1
@@ -190,7 +247,21 @@ export async function atender(
        returning id, fila_id
     `);
     const puxada = rows[0];
-    if (!puxada) return falha('Não há clientes aguardando.');
+    if (!puxada) {
+      // Nada nas filas com vaga. Se há gente esperando numa fila em que o atendente
+      // está cheio, a razão é o limite — e é isso que a mensagem tem de dizer.
+      if (motivoDeRecusa !== null) {
+        const { rows: esperando } = await tx.execute<{ n: string }>(sql`
+          select count(*)::text as n from conversa c
+           where c.estado = 'na_fila'
+             and c.fila_id in (select fila_id from fila_atendente where usuario_id = ${atendenteId}::uuid)
+        `);
+        if (Number(esperando[0]?.n ?? 0) > 0) {
+          return falha(mensagemDeLimite(motivoDeRecusa, ativas));
+        }
+      }
+      return falha('Não há clientes aguardando.');
+    }
 
     await tx.execute(sql`
       insert into atribuicao (tenant_id, conversa_id, para_usuario_id, de_fila_id, motivo, por_usuario_id, em)

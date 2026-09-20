@@ -48,12 +48,26 @@ export function Conversa({
   aoFechar: (proximaId?: string) => void;
 }) {
   const { conversa, itens, templates, etiquetasDaConversa } = aberta;
-  const [modal, setModal] = useState<'transferir' | 'finalizar' | null>(null);
+  const [modal, setModal] = useState<'transferir' | 'finalizar' | 'etiquetas' | null>(null);
   const [menu, setMenu] = useState(false);
   const [busca, setBusca] = useState<string | null>(null);
   const [erro, setErro] = useState<string | null>(null);
   const nome = nomeDeExibicao(conversa);
   const numero = numeroDoTicket(conversa.id);
+
+  /**
+   * Tirar uma etiqueta da conversa ABERTA — `DELETE /v1/conversas/:id/etiquetas/:etiquetaId`.
+   * Não encerra nada: é o gesto `ADD_TAGS` da origem, que é separado do `CLOSE_TICKET`.
+   */
+  async function removerEtiqueta(etiquetaId: string) {
+    setErro(null);
+    try {
+      await api.delete(`/v1/conversas/${conversa.id}/etiquetas/${etiquetaId}`);
+      atualizarLeituras();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Não foi possível remover a etiqueta.');
+    }
+  }
 
   async function alternarEspera() {
     setMenu(false);
@@ -200,6 +214,18 @@ export function Conversa({
                     className="dk-menu-item"
                     onClick={() => {
                       setMenu(false);
+                      setModal('etiquetas');
+                    }}
+                  >
+                    <IconeDesk nome="etiqueta" tamanho={20} />
+                    Adicionar tags
+                  </button>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="dk-menu-item"
+                    onClick={() => {
+                      setMenu(false);
                       exportarTranscricao(numero, nome, itens);
                     }}
                   >
@@ -223,13 +249,14 @@ export function Conversa({
           </div>
         </div>
         <div className="dk-divisor" />
-        {etiquetasDaConversa.length > 0 ? (
+        {conversa.estado !== 'encerrada' ? (
           <>
             <div className="dk-etiquetas">
               <button
                 type="button"
                 className="dk-etiquetas-botao"
-                onClick={() => setModal('finalizar')}
+                id="add-tags-button"
+                onClick={() => setModal('etiquetas')}
               >
                 <IconeDesk nome="etiqueta" />
                 Adicionar tags
@@ -238,6 +265,15 @@ export function Conversa({
                 {etiquetasDaConversa.map((e) => (
                   <span key={e.id} className="dk-chip dk-chip-contorno">
                     {e.nome}
+                    <button
+                      type="button"
+                      className="dk-chip-remover"
+                      title={`Remover a etiqueta ${e.nome}`}
+                      aria-label={`Remover a etiqueta ${e.nome}`}
+                      onClick={() => void removerEtiqueta(e.id)}
+                    >
+                      <IconeDesk nome="fechar" tamanho={16} />
+                    </button>
                   </span>
                 ))}
               </div>
@@ -335,6 +371,96 @@ export function Conversa({
           }}
         />
       ) : null}
+      {modal === 'etiquetas' ? (
+        <ModalEtiquetas
+          conversaId={conversa.id}
+          numero={numero}
+          etiquetas={etiquetas}
+          marcadas={etiquetasDaConversa.map((e) => e.id)}
+          aoFechar={() => setModal(null)}
+        />
+      ) : null}
+    </div>
+  );
+}
+
+/**
+ * "Adicionar tags" da conversa ABERTA — o `ModalType.ADD_TAGS` da origem, que
+ * é separado do `CLOSE_TICKET` (`blip-desk-regras-tecnicas.md` §1.8): marca e
+ * desmarca sem encerrar. Cada clique já grava (`POST`/`DELETE
+ * /v1/conversas/:id/etiquetas`), e a etiqueta marcada aqui aparece pré-marcada
+ * no modal de Finalizar, porque as duas moram na mesma `conversa_etiqueta`.
+ */
+function ModalEtiquetas({
+  conversaId,
+  numero,
+  etiquetas,
+  marcadas,
+  aoFechar,
+}: {
+  conversaId: string;
+  numero: string;
+  etiquetas: EtiquetaDoDesk[];
+  marcadas: string[];
+  aoFechar: () => void;
+}) {
+  const [erro, setErro] = useState<string | null>(null);
+  const [ocupada, setOcupada] = useState<string | null>(null);
+  const aplicadas = new Set(marcadas);
+
+  async function alternar(etiqueta: EtiquetaDoDesk) {
+    if (ocupada) return;
+    setOcupada(etiqueta.id);
+    setErro(null);
+    try {
+      if (aplicadas.has(etiqueta.id)) {
+        await api.delete(`/v1/conversas/${conversaId}/etiquetas/${etiqueta.id}`);
+      } else {
+        await api.post(`/v1/conversas/${conversaId}/etiquetas`, { etiqueta_id: etiqueta.id });
+      }
+      atualizarLeituras();
+    } catch (e) {
+      setErro(e instanceof Error ? e.message : 'Não foi possível alterar as tags.');
+    } finally {
+      setOcupada(null);
+    }
+  }
+
+  return (
+    <div className="dk-veu" role="presentation" onClick={aoFechar}>
+      <div
+        className="dk-modal"
+        role="dialog"
+        aria-labelledby="modal-title"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <h2 id="modal-title" style={{ fontSize: 24, fontWeight: 600 }}>
+          Adicionar tags ao Ticket {numero}
+        </h2>
+        {etiquetas.length === 0 ? (
+          <p>Nenhuma etiqueta cadastrada para conversas.</p>
+        ) : (
+          <div className="dk-lista-de-etiquetas" role="group" aria-label="Tags da conversa">
+            {etiquetas.map((e) => (
+              <label key={e.id} className="dk-opcao-etiqueta">
+                <input
+                  type="checkbox"
+                  checked={aplicadas.has(e.id)}
+                  disabled={ocupada !== null}
+                  onChange={() => void alternar(e)}
+                />
+                <span>{e.nome}</span>
+              </label>
+            ))}
+          </div>
+        )}
+        {erro ? <p className="dk-erro">{erro}</p> : null}
+        <div className="dk-modal-acoes">
+          <button type="button" className="dk-botao" onClick={aoFechar}>
+            Concluir
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
