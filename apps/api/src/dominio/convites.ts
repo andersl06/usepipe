@@ -4,6 +4,7 @@ import type { PessoaDoGoogle } from '@pipe/autenticacao';
 import type { TransacaoPipe } from '@pipe/db';
 import { bancoDono, noTenant } from '../banco.js';
 import { ErroPipe } from '../erros.js';
+import { enviarEmailSemDerrubar } from './email.js';
 
 /**
  * Convite: a **única** porta de entrada para quem não tem domínio verificado.
@@ -69,6 +70,51 @@ function nomeProvisorio(email: string): string {
 export function urlDoConvite(token: string): string {
   const base = (process.env['PIPE_URL_APP'] ?? 'http://localhost:3000').replace(/\/$/, '');
   return `${base}/convite/${token}`;
+}
+
+/** O rótulo da tela para cada papel de conta (`docs/pesquisa/blip-painel-do-contrato.md`). */
+const ROTULO_DO_PAPEL: Readonly<Record<string, string>> = {
+  admin: 'Admin',
+  member: 'Pode editar',
+  guest: 'Pode visualizar',
+};
+
+/**
+ * O e-mail do convite: o link, quem convidou para onde, com que papel e até
+ * quando. Texto puro de propósito — é o que sobrevive a qualquer cliente de
+ * e-mail e o que o teste lê.
+ */
+export function emailDoConvite(convite: ConviteCriado, tenantNome: string): {
+  para: string[];
+  assunto: string;
+  texto: string;
+} {
+  const papel = ROTULO_DO_PAPEL[convite.papel] ?? convite.papel;
+  const vence = convite.expiraEm.toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' });
+  return {
+    para: [convite.email],
+    assunto: `Convite para entrar em ${tenantNome} no Pipe`,
+    texto:
+      `Você foi convidado(a) para entrar em ${tenantNome} no Pipe com o acesso "${papel}".\n\n` +
+      `Para aceitar, abra o link:\n${convite.url}\n\n` +
+      `O convite vale até ${vence}. Depois disso, peça um novo a quem convidou.\n` +
+      'Se você não esperava este convite, ignore esta mensagem.',
+  };
+}
+
+/**
+ * Manda o convite por e-mail DEPOIS do commit, e nunca derruba quem chamou: a
+ * resposta segue devolvendo o link, como sempre fez — é o plano B de quem
+ * convidou quando o e-mail não chega.
+ */
+async function avisarConvidado(convite: ConviteCriado, tenantNome: string): Promise<void> {
+  await enviarEmailSemDerrubar(emailDoConvite(convite, tenantNome), `convite ${convite.id}`);
+}
+
+/** O nome do tenant em vigor, para o e-mail dizer onde a pessoa está entrando. */
+async function nomeDoTenant(tx: TransacaoPipe): Promise<string> {
+  const { rows } = await tx.execute<{ nome: string }>(sql`select nome from tenant limit 1`);
+  return rows[0]?.nome ?? 'Pipe';
 }
 
 /**
@@ -157,23 +203,27 @@ export async function criarConvite(
     throw ErroPipe.requisicao('papel_ausente', 'Informe o papel de quem está sendo convidado.');
   }
 
-  return noTenant(tenantId, (tx) =>
-    emitirConvite(tx, tenantId, { email, papel: nomeDoPapel, criadoPor: dados.criadoPor }),
-  );
+  const { convite, tenantNome } = await noTenant(tenantId, async (tx) => ({
+    convite: await emitirConvite(tx, tenantId, { email, papel: nomeDoPapel, criadoPor: dados.criadoPor }),
+    tenantNome: await nomeDoTenant(tx),
+  }));
+  // Fora da transação: e-mail não pode prender o commit, nem a falha dele desfazê-lo.
+  await avisarConvidado(convite, tenantNome);
+  return convite;
 }
 
 /**
  * Reenvia um convite em aberto: o mesmo e-mail e o mesmo papel, com um link novo
- * — que MATA o link antigo, como todo reenvio (`emitirConvite`). Não há entrega
- * de e-mail no Pipe (ver `docs/pesquisa/blip-membros-do-contrato.md`), então
- * "reenviar" aqui é reemitir o link para quem convidou colar de novo.
+ * — que MATA o link antigo, como todo reenvio (`emitirConvite`). O link novo vai
+ * por e-mail (`dominio/email.ts`) e continua na resposta, para quem convidou
+ * colar de novo se o e-mail não chegar.
  */
 export async function reenviarConvite(
   tenantId: string,
   conviteId: string,
   criadoPor?: string,
 ): Promise<ConviteCriado> {
-  return noTenant(tenantId, async (tx) => {
+  const { convite, tenantNome } = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{ email: string; papel: string }>(sql`
       select c.email, p.nome as papel
         from convite c
@@ -183,8 +233,13 @@ export async function reenviarConvite(
     `);
     const alvo = rows[0];
     if (!alvo) throw ErroPipe.naoEncontrado('Convite');
-    return emitirConvite(tx, tenantId, { email: alvo.email, papel: alvo.papel, criadoPor });
+    return {
+      convite: await emitirConvite(tx, tenantId, { email: alvo.email, papel: alvo.papel, criadoPor }),
+      tenantNome: await nomeDoTenant(tx),
+    };
   });
+  await avisarConvidado(convite, tenantNome);
+  return convite;
 }
 
 type LinhaConvite = {

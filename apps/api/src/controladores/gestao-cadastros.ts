@@ -9,6 +9,7 @@ import { uuidOuNada } from '../dominio/gestao/formato.js';
 import * as cadastros from '../dominio/gestao/cadastros.js';
 import * as comunicacao from '../dominio/gestao/comunicacao.js';
 import * as configuracoes from '../dominio/gestao/configuracoes.js';
+import * as palavrasProibidas from '../dominio/gestao/palavras-proibidas.js';
 import * as regrasSla from '../dominio/gestao/regras-sla.js';
 import * as regrasPrioridade from '../dominio/gestao/regras-prioridade.js';
 import * as acoesRegras from '../dominio/gestao/acoes/regras.js';
@@ -345,6 +346,57 @@ export class ControladorGestaoCadastros {
     idOu404(id, 'regra de SLA');
     await noTenant(sessao.tenantId, (tx) =>
       regrasSla.excluirRegraSla(tx, sessao.tenantId, sessao.usuarioId, id),
+    );
+  }
+
+  /* ------------------------------------------------------ palavras proibidas */
+
+  @Get('configuracoes/palavras-proibidas')
+  @ComSessao()
+  listarPalavrasProibidas(@Req() requisicao: RequisicaoComSessao) {
+    const sessao = sessaoDe(requisicao);
+    return noTenant(sessao.tenantId, (tx) =>
+      palavrasProibidas.carregarPalavrasProibidas(tx, sessao.tenantId),
+    );
+  }
+
+  @Post('configuracoes/palavras-proibidas')
+  @ComSessao()
+  async criarPalavraProibida(
+    @Req() requisicao: RequisicaoComSessao,
+    @Body() corpo: palavrasProibidas.PedidoDePalavraProibida,
+  ): Promise<{ id: string }> {
+    const sessao = sessaoDe(requisicao);
+    return noTenant(sessao.tenantId, (tx) =>
+      palavrasProibidas.criarPalavraProibida(tx, sessao.tenantId, sessao.usuarioId, corpo),
+    );
+  }
+
+  @Patch('configuracoes/palavras-proibidas/:id')
+  @ComSessao()
+  async editarPalavraProibida(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: palavrasProibidas.PedidoDeEdicaoDePalavraProibida,
+  ): Promise<palavrasProibidas.PalavraProibidaListada> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'palavra proibida');
+    return noTenant(sessao.tenantId, (tx) =>
+      palavrasProibidas.editarPalavraProibida(tx, sessao.tenantId, sessao.usuarioId, id, corpo),
+    );
+  }
+
+  @Delete('configuracoes/palavras-proibidas/:id')
+  @HttpCode(204)
+  @ComSessao()
+  async excluirPalavraProibida(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+  ): Promise<void> {
+    const sessao = sessaoDe(requisicao);
+    idOu404(id, 'palavra proibida');
+    await noTenant(sessao.tenantId, (tx) =>
+      palavrasProibidas.excluirPalavraProibida(tx, sessao.tenantId, sessao.usuarioId, id),
     );
   }
 

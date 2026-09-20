@@ -253,6 +253,13 @@
       "when": 1789470000000,
       "tag": "0041_marcacao_de_conversa",
       "breakpoints": true
+    },
+    {
+      "idx": 42,
+      "version": "7",
+      "when": 1789480000000,
+      "tag": "0042_palavra_proibida",
+      "breakpoints": true
     }
   ]
 }

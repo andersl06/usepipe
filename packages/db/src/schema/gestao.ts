@@ -2,6 +2,7 @@ import { NIVEIS_ATRIBUIVEIS } from '@pipe/core/conversa';
 import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   date,
   index,
   integer,
@@ -248,6 +249,30 @@ export const slaConversa = pgTable(
     listaCheck('sla_conversa_estado_ck', t.estado, ESTADOS_SLA),
     uniqueIndex('sla_conversa_uk').on(t.conversaId, t.regraId),
     index('sla_conversa_prazo_idx').on(t.tenantId, t.estado, t.prazoEm),
+  ],
+);
+
+/**
+ * Palavras proibidas — migração 0042. A lista por CONTA que barra o envio do
+ * atendente (`docs/pesquisa/blip-desk-regras-tecnicas.md` §3.4). `termo` fica
+ * como foi digitado; a comparação sem acento e sem caixa é do domínio
+ * (`apps/api/src/dominio/gestao/palavras-proibidas.ts`).
+ */
+export const palavraProibida = pgTable(
+  'palavra_proibida',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    termo: text('termo').notNull(),
+    ativo: boolean('ativo').notNull().default(true),
+    ...carimbos(),
+  },
+  (t) => [
+    check('palavra_proibida_termo_ck', sql`length(btrim(${t.termo})) > 0`),
+    uniqueIndex('palavra_proibida_termo_uk').on(t.tenantId, sql`lower(${t.termo})`),
+    index('palavra_proibida_ativa_idx')
+      .on(t.tenantId)
+      .where(sql`${t.ativo}`),
   ],
 );
 

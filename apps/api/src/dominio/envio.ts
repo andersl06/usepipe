@@ -7,6 +7,7 @@ import type { CabecalhoTemplate } from '@pipe/workers/whatsapp';
 import { noTenant } from '../banco.js';
 import { ErroPipe } from '../erros.js';
 import { registrarEvento } from './eventos.js';
+import { exigirSemPalavrasProibidas } from './gestao/palavras-proibidas.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 import { evento, publicar } from '../tempo-real.js';
 import { enfileirarEntrega } from '../filas.js';
@@ -184,6 +185,14 @@ export async function enviarMensagem(pedido: PedidoDeEnvio): Promise<MensagemEnf
       : (pedido.texto?.trim() ?? null);
     if (!conteudo && !pedido.anexoId) {
       throw ErroPipe.requisicao('conteudo_vazio', 'Escreva algo ou anexe um arquivo.');
+    }
+
+    // Palavras proibidas — ANTES de gravar, como o `sendTextMessage` do Desk da
+    // origem (`blip-desk-regras-tecnicas.md` §3.4): achou, não envia. Vale para o
+    // texto livre assinado por atendente (inclusive a legenda de anexo); template
+    // e mensagem do sistema/bot não passam pelo filtro, como lá.
+    if (pedido.atendenteId && !template && conteudo) {
+      await exigirSemPalavrasProibidas(tx, pedido.tenantId, conteudo);
     }
 
     const { rows: criada } = await tx.execute<{ id: string }>(sql`
