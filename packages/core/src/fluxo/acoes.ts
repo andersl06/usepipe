@@ -12,7 +12,7 @@
  * copiado da forma desse bloco no export (variável `desk_forwardToDeskState_status`).
  */
 
-import type { Contexto } from './contexto.js';
+import type { Contexto, PedidoDeHttp } from './contexto.js';
 import { CHAVE_DO_TICKET, apagarVariavel, definirVariavel } from './contexto.js';
 
 export type Configuracoes = Record<string, unknown> | null;
@@ -184,6 +184,47 @@ const redirect: AcaoDoMotor = {
   },
 };
 
+/**
+ * `ProcessHttpAction` da Blip: status HTTP, inclusive 4xx/5xx, vira variável e não
+ * falha a ação; erro de rede é representado pela resposta sintética do serviço.
+ * A chamada fica no serviço injetado para o motor continuar puro.
+ */
+const processHttp: AcaoDoMotor = {
+  tipo: 'ProcessHttp',
+  async executar(contexto, configuracoes) {
+    const c = exigirConfiguracoes(this.tipo, configuracoes);
+    if (!contexto.servicos.chamarHttp) throw new Error('A ação ProcessHttp não está disponível neste fluxo.');
+    const metodo = (comoTexto(campo(c, 'method')) ?? 'GET').toUpperCase();
+    if (!['GET', 'POST', 'PUT', 'PATCH', 'DELETE'].includes(metodo)) {
+      throw new Error(`Método HTTP inválido: '${metodo}'.`);
+    }
+    const uri = comoTexto(campo(c, 'uri'))?.trim();
+    if (!uri) throw new Error("O valor 'uri' é obrigatório na ação 'ProcessHttp'.");
+    const bruto = campo(c, 'headers');
+    const cabecalhos: Record<string, string> = {};
+    if (bruto && typeof bruto === 'object' && !Array.isArray(bruto)) {
+      for (const [chave, valor] of Object.entries(bruto)) {
+        const texto = comoTexto(valor);
+        if (texto !== null) cabecalhos[chave] = texto;
+      }
+    }
+    const corpoValor = campo(c, 'body');
+    const corpo = corpoValor === undefined || corpoValor === null
+      ? undefined
+      : typeof corpoValor === 'string' ? corpoValor : JSON.stringify(corpoValor);
+    const timeoutCru = campo(c, 'requestTimeout');
+    const timeoutMs = typeof timeoutCru === 'number' && timeoutCru > 0 ? timeoutCru * 1000 : 60_000;
+    const resposta = await contexto.servicos.chamarHttp({
+      metodo: metodo as PedidoDeHttp['metodo'], url: uri, cabecalhos, timeoutMs,
+      ...(corpo === undefined ? {} : { corpo }),
+    });
+    const status = comoTexto(campo(c, 'responseStatusVariable'))?.trim();
+    const corpoVariavel = comoTexto(campo(c, 'responseBodyVariable'))?.trim();
+    if (status) definirVariavel(contexto, status, String(resposta.status));
+    if (corpoVariavel) definirVariavel(contexto, corpoVariavel, resposta.corpo);
+  },
+};
+
 export const ACOES_DO_MOTOR: readonly AcaoDoMotor[] = [
   setVariable,
   deleteVariable,
@@ -194,6 +235,7 @@ export const ACOES_DO_MOTOR: readonly AcaoDoMotor[] = [
   forwardToDesk,
   leavingFromDesk,
   redirect,
+  processHttp,
 ];
 
 /** O `ActionProvider` padrão: as ações que o Pipe executa. */

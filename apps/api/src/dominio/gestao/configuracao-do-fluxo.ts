@@ -93,10 +93,9 @@ export interface PedidoDeBoasVindas {
  * `ativo: false` desliga sem apagar — reativar mostra a última mensagem
  * gravada, em vez de mandar escrever tudo de novo.
  *
- * ponytail: aplicar no canal (o `get_started`/`greeting` da Meta para
- * Messenger e Instagram) ainda não existe; entraria aqui, depois de gravar,
- * chamando a Graph API do canal do fluxo quando `canalTipo` for compatível —
- * o mesmo lugar de onde `carregarContato` já lê `canalTipo`/`canalAtivo`.
+ * Quando o contato pertence a um Messenger ativo, a alteração também é aplicada
+ * no perfil da Página (`get_started`/`greeting`); a persistência local continua
+ * sendo a fonte de leitura da tela.
  */
 export async function salvarBoasVindas(
   tx: TransacaoPipe,

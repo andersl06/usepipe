@@ -18,6 +18,7 @@ import type {
   FluxoBlip,
   MensagemDeEntrada,
   MensagemDeSaida,
+  PedidoDeHttp,
   RastroDaEntrada,
   RelatorioDaImportacao,
   Saida,
@@ -29,6 +30,8 @@ import { distribuirConversa } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
 import { avaliarPrioridade, carregarRegrasDePrioridadeAtivas } from './gestao/prioridade-motor.js';
 import { redirecionarNoRoteador, servicoDoRoteador } from './roteador.js';
+import { chamarComMtls } from './mtls.js';
+import { confirmarUrlSegura } from './gestao/integracoes.js';
 
 /**
  * O fluxo automático (o bot) ligado à entrada do WhatsApp.
@@ -42,8 +45,9 @@ import { redirecionarNoRoteador, servicoDoRoteador } from './roteador.js';
  * fila `pipe-entrada` — nunca no webhook, que responde 200 e enfileira. Mesma transação
  * de propósito: mensagem e resposta do bot entram juntas ou não entram, e a reentrega da
  * Meta cai na guarda de `id_provedor` (mais o índice `execucao_passo_entrada_uk`).
- * ponytail: quando existir ação com rede (`ProcessHttp`), ela não pode rodar com a
- * transação aberta; o fluxo passa a ter fila própria.
+ * `ProcessHttp` usa o mesmo limite de segurança de saída (HTTPS/SSRF e mTLS). A
+ * separação transacional da chamada ainda precisa de um cursor persistido para
+ * retomar depois da ação sem repetir as ações anteriores.
  *
  * **Humano ganha.** A Blip cala o bot estacionando o usuário num estado `desk:`. No Pipe a
  * dona da conversa é a própria conversa: com atendente, ou já na fila, o bot não fala. O
@@ -317,6 +321,35 @@ export async function rodarFluxoNaEntrada(
     },
     registrarEvento: async (evento) => {
       eventos.push(evento);
+    },
+    chamarHttp: async (pedido: PedidoDeHttp) => {
+      confirmarUrlSegura(pedido.url);
+      try {
+        const resposta = await chamarComMtls(e.tenantId, pedido.url, {
+          metodo: pedido.metodo,
+          headers: pedido.cabecalhos,
+          body: pedido.corpo,
+          // ponytail: a chamada ainda roda DENTRO da transação da entrada, que segura a
+          // conexão do banco e as linhas da conversa enquanto espera. O `requestTimeout`
+          // da origem vai até 60 s; aqui ele é cortado em PIPE_PROCESS_HTTP_TEMPO_MAX_MS
+          // (10 s) até a chamada ganhar fila própria e sair da transação.
+          timeoutMs: Math.min(
+            pedido.timeoutMs,
+            Number(process.env['PIPE_PROCESS_HTTP_TEMPO_MAX_MS'] ?? 10_000),
+          ),
+        });
+        const corpo = await resposta.texto();
+        const limite = Number(process.env['PIPE_PROCESS_HTTP_MAX_RESPOSTA_BYTES'] ?? 1_048_576);
+        return { status: resposta.status, corpo: corpo.slice(0, limite) };
+      } catch (erro) {
+        // Regra da origem: rede/timeout não derruba ProcessHttp; o fluxo recebe status sintético.
+        const mensagem = erro instanceof Error ? erro.message : String(erro);
+        const timeout = /timeout|aborted|timed out/i.test(mensagem);
+        return {
+          status: timeout ? 504 : 503,
+          corpo: JSON.stringify({ error: timeout ? 'timeout' : 'network_error', message: mensagem }),
+        };
+      }
     },
     // ponytail: o `context` do Redirect não é entregue ao destino como primeira entrada;
     // o destino começa na próxima mensagem do cliente. Entregar exige rodar o motor do

@@ -107,9 +107,22 @@ export interface Atendimento {
   [campo: string]: unknown;
 }
 
+export interface PedidoDeHttp {
+  metodo: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+  url: string;
+  cabecalhos: Record<string, string>;
+  corpo?: string;
+  timeoutMs: number;
+}
+
+export interface RespostaDeHttp {
+  status: number;
+  corpo: string;
+}
+
 /**
  * As dependências externas do motor — o `ISender` e as extensões da Blip. Quem
- * implementa é a `api`, dentro da transação da entrada.
+ * implementa é a `api`; ações com rede devem ser executadas fora da transação da entrada.
  */
 export interface ServicosDoMotor {
   enviar(mensagem: MensagemDeSaida): Promise<void>;
@@ -118,6 +131,8 @@ export interface ServicosDoMotor {
     settings: Record<string, unknown> | null;
   }): Promise<Atendimento>;
   registrarEvento(evento: Record<string, unknown>): Promise<void>;
+  /** A api executa isto; o core só descreve a chamada e não faz rede. */
+  chamarHttp?(pedido: PedidoDeHttp): Promise<RespostaDeHttp>;
   /**
    * `IRedirectManager.RedirectUserAsync`: manda o contato para outro serviço do roteador.
    * Ausente = o fluxo não está atrás de um roteador, e o `Redirect` falha — "o

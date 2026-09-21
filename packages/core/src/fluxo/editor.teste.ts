@@ -130,7 +130,6 @@ describe('importador do export do editor da Blip', () => {
     const convertido = converterDoEditor(e, 'f1');
     expect(relatorioDaImportacao(convertido).naoSuportado).toEqual({
       'acao:ExecuteScript': 1,
-      'acao:ProcessHttp': 2,
       'conteudo:application/json': 1,
       'entrada:expiracao': 1,
       'variavel:calendar': 1,
