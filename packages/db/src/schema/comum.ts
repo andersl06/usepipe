@@ -33,7 +33,7 @@ export function listaCheck(nome: string, coluna: AnyPgColumn, valores: readonly 
   return check(nome, sql.raw(`"${coluna.name}" in (${literais})`));
 }
 
-export const TIPOS_CANAL = ['whatsapp_cloud', 'instagram', 'email', 'widget'] as const;
+export const TIPOS_CANAL = ['whatsapp_cloud', 'instagram', 'messenger', 'email', 'widget'] as const;
 export const ESTADOS_CONVERSA = [
   'na_fila',
   'atribuida',

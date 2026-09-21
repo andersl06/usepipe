@@ -6,6 +6,7 @@ import type { ConfiguracaoDeBoasVindas, ConfiguracaoDeMenuPersistente } from '@p
 import { ErroPipe } from '../../erros.js';
 import { carregarContato } from '../gestao-fluxo.js';
 import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
+import { aplicarPerfilMessenger, lerCanalMessenger } from '../messenger/canal.js';
 
 /**
  * "Tela de Boas-vindas" e "Menu Persistente" — os itens 2 e 3 de
@@ -143,6 +144,14 @@ export async function salvarBoasVindas(
       antes: mudanca.antes,
       depois: mudanca.depois,
     });
+    const contatoMessenger = await carregarContato(tx, tid, id);
+    if (contatoMessenger?.canalTipo === 'messenger' && contatoMessenger.canalAtivo && contatoMessenger.canalId) {
+      const canal = await lerCanalMessenger(tid, contatoMessenger.canalId);
+      // conferir com token real: get_started e greeting aceitam esta combinação no token da Página.
+      await aplicarPerfilMessenger(canal, depois.ativo
+        ? { get_started: { payload: 'PIPE_COMECAR' }, greeting: [{ locale: 'default', text: depois.mensagem }] }
+        : { get_started: null, greeting: [] });
+    }
   }
   return depois;
 }
@@ -251,6 +260,12 @@ export async function salvarMenuPersistente(
       antes,
       depois,
     });
+  }
+  const contatoMessenger = await carregarContato(tx, tid, id);
+  if (contatoMessenger?.canalTipo === 'messenger' && contatoMessenger.canalAtivo && contatoMessenger.canalId) {
+    const canal = await lerCanalMessenger(tid, contatoMessenger.canalId);
+    // conferir com token real: a Página aceita persistent_menu neste formato.
+    await aplicarPerfilMessenger(canal, { persistent_menu: [{ locale: 'default', composer_input_disabled: false, call_to_actions: preenchidos.map((item) => ({ type: 'web_url', title: item.texto, url: item.link })) }] });
   }
   return { itens: preenchidos, boasVindasPreenchida: true };
 }

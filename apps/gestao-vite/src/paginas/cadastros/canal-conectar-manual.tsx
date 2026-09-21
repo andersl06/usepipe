@@ -1,8 +1,10 @@
 import { useState, type FormEvent } from 'react';
 import { Botao, Campo, Etiqueta } from '@pipe/ui';
 import type { CanalInstagramVisivel, CanalWhatsAppVisivel } from '../../lib/canais';
+import type { CanalMessengerVisivel } from '../../lib/canais';
 import {
   conectarInstagramManual,
+  conectarMessengerManual,
   conectarWhatsappManual,
   type CanalConectado,
 } from '../../lib/canais-gravar';
@@ -47,6 +49,13 @@ function CampoComRotulo({
       {ajuda ? <span className="sub">{ajuda}</span> : null}
     </label>
   );
+}
+
+export function ConectarMessengerManual({ onConectado }: { onConectado?: (canal: CanalMessengerVisivel) => void }) {
+  const [aberto, setAberto] = useState(false); const [enviando, setEnviando] = useState(false); const [erro, setErro] = useState<string | null>(null); const [sucesso, setSucesso] = useState<CanalConectado<CanalMessengerVisivel> | null>(null);
+  function fechar() { setAberto(false); setErro(null); if (sucesso) onConectado?.(sucesso.canal); setSucesso(null); }
+  async function enviar(evento: FormEvent<HTMLFormElement>) { evento.preventDefault(); setEnviando(true); const d = new FormData(evento.currentTarget); const r = await conectarMessengerManual({ token: String(d.get('token') ?? '').trim(), appSecret: String(d.get('appSecret') ?? '').trim(), nome: String(d.get('nome') ?? '').trim() || undefined }); setEnviando(false); if (!r.ok) { setErro(r.erro); return; } setSucesso(r.valor); }
+  return <><Botao type="button" onClick={() => setAberto(true)}>Conectar manualmente</Botao><Modal aberto={aberto} titulo="Conectar Facebook Messenger manualmente" onFechar={fechar}>{sucesso ? <WebhookPronto webhook={sucesso.webhook} erroDeWebhook={sucesso.erroDeWebhook} onFechar={fechar} /> : <form onSubmit={(e) => void enviar(e)} style={coluna}><p className="sub">No developers.facebook.com, abra o aplicativo do cliente: Messenger → Configurações. Gere um token de Página de longa duração e copie o App Secret em Configurações básicas. Depois de conectar, cole a URL e o verify token exibidos aqui no Webhooks do app.</p><CampoComRotulo nome="token" rotuloTexto="Token de acesso da Página" /><CampoComRotulo nome="appSecret" rotuloTexto="App Secret" ajuda="32 caracteres, só números e letras de a a f." /><CampoComRotulo nome="nome" rotuloTexto="Nome do canal (opcional)" obrigatorio={false} />{erro ? <Etiqueta tom="erro">{erro}</Etiqueta> : null}<div className="cl-acoes"><Botao type="button" onClick={fechar} disabled={enviando}>Cancelar</Botao><Botao type="submit" variante="primario" disabled={enviando}>{enviando ? 'Conectando…' : 'Conectar'}</Botao></div></form>}</Modal></>;
 }
 
 /** O que sobra na tela depois de conectar: o cliente TEM de colar isto no app dele. */

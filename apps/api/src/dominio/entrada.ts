@@ -24,6 +24,7 @@ import {
 import { aplicarEventosDeModelo } from './whatsapp/eventos-de-modelo.js';
 import { fluxoPublicadoDoCanal, rodarFluxoNaEntrada } from './fluxo.js';
 import { payloadDoInstagram, valoresDoInstagram } from './instagram/entrada.js';
+import { payloadDoMessenger, valoresDoMessenger } from './messenger/entrada.js';
 import { drenarEmSegundoPlano, emitir } from '../webhooks-saida.js';
 import { evento, publicar } from '../tempo-real.js';
 
@@ -131,6 +132,8 @@ export async function processarPayload(
   const igUserId = canal.config['igUserId'];
   const valores = payloadDoInstagram(payload)
     ? valoresDoInstagram(payload, typeof igUserId === 'string' ? igUserId : null)
+    : payloadDoMessenger(payload)
+      ? valoresDoMessenger(payload, typeof canal.config['paginaId'] === 'string' ? canal.config['paginaId'] : null)
     : extrairValores(payload);
 
   // As conversas tocadas, para avisar as telas DEPOIS do commit. `Set` porque duas

@@ -260,6 +260,13 @@
       "when": 1789480000000,
       "tag": "0042_palavra_proibida",
       "breakpoints": true
+    },
+    {
+      "idx": 43,
+      "version": "7",
+      "when": 1790000000000,
+      "tag": "0043_canal_messenger",
+      "breakpoints": true
     }
   ]
 }

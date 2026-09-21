@@ -2,6 +2,7 @@ import { api, ErroDaApi } from './api';
 import { atualizarLeituras } from './acoes';
 import type {
   CanalInstagramVisivel,
+  CanalMessengerVisivel,
   CanalWhatsAppVisivel,
   PedidoDePerfil,
   PedidoDePreferencias,
@@ -197,3 +198,6 @@ export async function desconectarInstagram(id: string): Promise<Resultado<CanalI
     return falha(erro, 'Não foi possível desconectar o Instagram.');
   }
 }
+
+export async function conectarMessengerManual(dados: { token: string; appSecret: string; nome?: string }): Promise<Resultado<CanalConectado<CanalMessengerVisivel>>> { try { const resposta = await api.post<CanalMessengerVisivel & { erroDeWebhook: string | null; webhook: { url: string; verifyToken: string } }>('/v1/canais/messenger/manual', { access_token: dados.token, app_secret: dados.appSecret, ...(dados.nome ? { nome: dados.nome } : {}) }); atualizarLeituras(); const { erroDeWebhook, webhook, ...canal } = resposta; return { ok: true, valor: { canal, erroDeWebhook, webhook } }; } catch (erro) { return falha(erro, 'Não foi possível conectar o Messenger.'); } }
+export async function desconectarMessenger(id: string): Promise<Resultado<CanalMessengerVisivel>> { try { const valor = await api.delete<CanalMessengerVisivel>(`/v1/canais/messenger/${id}`); atualizarLeituras(); return { ok: true, valor }; } catch (erro) { return falha(erro, 'Não foi possível desconectar o Messenger.'); } }

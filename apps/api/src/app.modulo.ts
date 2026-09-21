@@ -38,6 +38,8 @@ import { ControladorConexaoSso, ControladorEntradaSso } from './controladores/ss
 import { ControladorWebhookWhatsApp } from './controladores/webhooks-whatsapp.js';
 import { ControladorWebhookInstagram } from './controladores/webhooks-instagram.js';
 import { ControladorCanaisInstagram } from './controladores/canais-instagram.js';
+import { ControladorCanaisMessenger } from './controladores/canais-messenger.js';
+import { ControladorWebhookMessenger } from './controladores/webhooks-messenger.js';
 
 /**
  * Módulo raiz.
@@ -56,6 +58,7 @@ import { ControladorCanaisInstagram } from './controladores/canais-instagram.js'
   controllers: [
     ControladorWebhookWhatsApp,
     ControladorWebhookInstagram,
+    ControladorWebhookMessenger,
     ControladorEntrada,
     ControladorEntradaSso,
     ControladorEu,
@@ -84,6 +87,7 @@ import { ControladorCanaisInstagram } from './controladores/canais-instagram.js'
     ControladorAnexos,
     ControladorCanais,
     ControladorCanaisInstagram,
+    ControladorCanaisMessenger,
     ControladorContatos,
     ControladorFilas,
     ControladorAtendentes,

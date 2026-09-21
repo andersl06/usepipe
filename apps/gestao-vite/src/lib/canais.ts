@@ -73,6 +73,7 @@ export interface CanalInstagramVisivel {
   webhookUrl: string;
   criadoEm: string;
 }
+export interface CanalMessengerVisivel { id: string; nome: string; ativo: boolean; paginaId: string | null; estado: 'conectado' | 'desligado'; webhookUrl: string; criadoEm: string }
 
 /** Mesmos limites de `apps/api/src/dominio/whatsapp/perfil.ts` — só para o contador da tela. */
 export const LIMITES_DO_PERFIL = {

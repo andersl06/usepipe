@@ -5,6 +5,8 @@ import type { EstadoEntrega } from '@pipe/core';
 import { bancoDono, noTenant } from './banco.js';
 import { clienteInstagram } from './instagram.js';
 import type { PedidoInstagram } from './instagram.js';
+import { clienteMessenger } from './messenger.js';
+import type { PedidoMessenger } from './messenger.js';
 import { clienteWhatsApp } from './whatsapp/index.js';
 import { ErroWhatsApp } from './whatsapp/cliente.js';
 import type { Conteudo, CredenciaisCanal, PedidoEnvio } from './whatsapp/cliente.js';
@@ -155,8 +157,7 @@ async function entregarUma(
     return gravarFalha(linha, 'mensagem_sumiu', 'A mensagem não existe mais no banco.');
   }
 
-  const preparado =
-    dados.canal_tipo === 'instagram' ? prepararEnvioInstagram(dados) : prepararEnvio(dados, parametros);
+  const preparado = dados.canal_tipo === 'instagram' ? prepararEnvioInstagram(dados) : dados.canal_tipo === 'messenger' ? prepararEnvioMessenger(dados) : prepararEnvio(dados, parametros);
   if ('erro' in preparado) {
     return gravarFalha(linha, preparado.erro.codigo, preparado.erro.texto);
   }
@@ -165,6 +166,7 @@ async function entregarUma(
     const resposta =
       'instagram' in preparado
         ? await clienteInstagram().enviar(preparado.instagram)
+        : 'messenger' in preparado ? await clienteMessenger().enviar(preparado.messenger)
         : await clienteWhatsApp().enviar(preparado.pedido);
     await noTenant(linha.tenant_id, async (tx) => {
       await tx.execute(sql`
@@ -248,6 +250,15 @@ function prepararEnvioInstagram(
       credenciais,
     },
   };
+}
+
+function prepararEnvioMessenger(linha: LinhaDeEnvio): { messenger: PedidoMessenger } | { erro: { codigo: string; texto: string } } {
+  if (!linha.identificador) return { erro: { codigo: 'sem_destinatario', texto: 'O contato não tem PSID neste canal.' } };
+  let config: Record<string, unknown>; try { config = decifrarConfig(linha.canal_config ?? {}, chaveiroDoAmbiente()); } catch { return { erro: { codigo: 'canal_sem_credencial', texto: 'O token do canal não decifrou.' } }; }
+  if (typeof config['tokenAcesso'] !== 'string' || !config['tokenAcesso']) return { erro: { codigo: 'canal_sem_credencial', texto: 'O canal não tem token de acesso.' } };
+  const conteudo = montarConteudo(linha, undefined); if ('erro' in conteudo) return conteudo; const c = conteudo.conteudo;
+  if (c.tipo === 'template' || c.tipo === 'interativo') return { erro: { codigo: 'tipo_nao_suportado', texto: 'O Messenger não envia template.' } };
+  return { messenger: { para: linha.identificador, conteudo: c.tipo === 'texto' ? c : { tipo: c.tipo, link: c.link, legenda: c.legenda }, credenciais: { tokenAcesso: config['tokenAcesso'], apiVersao: typeof config['apiVersao'] === 'string' ? config['apiVersao'] : undefined } } };
 }
 
 /**

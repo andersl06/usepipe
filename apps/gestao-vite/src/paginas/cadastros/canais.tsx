@@ -5,8 +5,8 @@ import type { CanalDetalhado } from '../../lib/configuracoes';
 import { numero } from '../../lib/formato';
 import { IconeGestao } from '../../componentes/icones-gestao';
 import { ConectarWhatsApp } from '../../componentes/cadastro-embutido-whatsapp';
-import { ConectarInstagramManual, ConectarWhatsappManual } from './canal-conectar-manual';
-import { desconectarInstagram, desconectarWhatsapp } from '../../lib/canais-gravar';
+import { ConectarInstagramManual, ConectarMessengerManual, ConectarWhatsappManual } from './canal-conectar-manual';
+import { desconectarInstagram, desconectarMessenger, desconectarWhatsapp } from '../../lib/canais-gravar';
 import { useContato } from '../fluxo/contato';
 import { baseDoAtendimento } from '../operacao/casca';
 import Link from '../../componentes/link';
@@ -15,6 +15,7 @@ import { ModalConfirmacao } from './_modal';
 const ROTULO_TIPO: Record<string, string> = {
   whatsapp_cloud: 'WhatsApp',
   instagram: 'Instagram',
+  messenger: 'Facebook Messenger',
   email: 'E-mail',
   widget: 'Site',
 };
@@ -59,6 +60,7 @@ export function PaginaCanais() {
     const resultado =
       paraDesconectar.tipo === 'instagram'
         ? await desconectarInstagram(paraDesconectar.id)
+        : paraDesconectar.tipo === 'messenger' ? await desconectarMessenger(paraDesconectar.id)
         : await desconectarWhatsapp(paraDesconectar.id);
     setDesconectando(false);
     if (!resultado.ok) {
@@ -96,7 +98,7 @@ export function PaginaCanais() {
                   Detalhes
                 </Link>
               ) : null}
-              {(c.tipo === 'whatsapp_cloud' || c.tipo === 'instagram') && c.ativo ? (
+              {(c.tipo === 'whatsapp_cloud' || c.tipo === 'instagram' || c.tipo === 'messenger') && c.ativo ? (
                 <button
                   type="button"
                   className="btn fantasma"
@@ -128,6 +130,7 @@ export function PaginaCanais() {
             <ConectarWhatsappManual />
           </div>
         </section>
+        <section className="canal-cartao"><span className="canal-icone" aria-hidden="true"><Icone nome="balao" tamanho={40} /></span><h3>Facebook Messenger</h3><p>Conecte uma Página pelo token do aplicativo do cliente</p><div className="canal-acao"><ConectarMessengerManual /></div></section>
 
         <section className="canal-cartao">
           <span className="canal-icone" aria-hidden="true">
