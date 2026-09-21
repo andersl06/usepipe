@@ -20,6 +20,7 @@ import { PaginaMensagensAtivas } from './paginas/fluxo/growth/mensagens-ativas/m
 import PaginaClickTracker from './paginas/fluxo/growth/clicktracker/clicktracker';
 import PaginaAnuncios from './paginas/fluxo/growth/anuncios/anuncios';
 import PaginaRelatorioDePagamentos from './paginas/fluxo/growth/pagamentos/pagamentos';
+import PaginaLinksRastreados from './paginas/fluxo/growth/links-rastreados/links-rastreados';
 import { CascaDeConfiguracoes } from './paginas/fluxo/configuracoes/casca';
 import { PaginaDeConfiguracoesBasicas } from './paginas/fluxo/configuracoes/basicas/basicas';
 import { PaginaApiDoBot } from './paginas/fluxo/configuracoes/api/api';
@@ -146,6 +147,7 @@ const rotasDoContato = (
       <Route path="clicktracker" element={<PaginaClickTracker />} />
       <Route path="anuncios" element={<PaginaAnuncios />} />
       <Route path="pagamentos" element={<PaginaRelatorioDePagamentos />} />
+      <Route path="links-rastreados" element={<PaginaLinksRastreados />} />
     </Route>
 
     <Route path="configuracoes" element={<CascaDeConfiguracoes />}>

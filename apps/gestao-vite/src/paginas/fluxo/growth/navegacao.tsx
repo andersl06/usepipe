@@ -9,13 +9,20 @@ import { baseDoContato, useContato } from '../contato';
  * `span.sidebar-title` e `span.sidebar-subtitle`; o ativo é
  * `$state.includes(sref)` — acende também nas telas de dentro.
  *
- * Os quatro itens, na ordem e com o texto do pacote pt-BR
+ * Os quatro primeiros itens, na ordem e com o texto do pacote pt-BR
  * (`modules.application.detail.growth.*`):
  *
  *   activeMessages                 "Mensagens ativas"           → mensagens-ativas
  *   clicktracker                   "Click Tracker" / subtitle   → clicktracker
  *   adsbuying  (badge "Beta")      "Anúncios" / subtitle        → anuncios
  *   activeMessages.paymentsReport  "Relatório de Pagamentos" / subtitle → pagamentos
+ *
+ * O quinto, "Links rastreados", NÃO existe na origem — item 3 da tarefa de
+ * cadastros do Atendimento: link curto com contagem de clique de verdade
+ * (`links-rastreados/links-rastreados.tsx`), backend próprio e testado, sem
+ * relação com o "Click Tracker" acima (aquele é a medição de anúncios
+ * Click-to-WhatsApp da Meta). Entra no fim da lista, sem badge, com texto
+ * nosso — não há frase da Blip para copiar aqui.
  */
 const ITENS: { titulo: string; descricao: string | null; beta?: true; rota: string | null }[] = [
   { titulo: 'Mensagens ativas', descricao: null, rota: 'mensagens-ativas' },
@@ -34,6 +41,11 @@ const ITENS: { titulo: string; descricao: string | null; beta?: true; rota: stri
     titulo: 'Relatório de Pagamentos',
     descricao: 'Visualize e analise os pagamentos realizados',
     rota: 'pagamentos',
+  },
+  {
+    titulo: 'Links rastreados',
+    descricao: 'Crie links curtos e acompanhe os cliques das suas campanhas',
+    rota: 'links-rastreados',
   },
 ];
 

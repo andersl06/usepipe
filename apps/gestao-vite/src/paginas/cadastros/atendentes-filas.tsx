@@ -1,14 +1,15 @@
 import { useState } from 'react';
 import { PESO_AGUARDANDO_ATENDENTE, PESO_AGUARDANDO_CLIENTE } from '@pipe/core';
-import { Botao, BotaoDeIcone } from '@pipe/ui';
+import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
 import { useLeitura } from '../../lib/consulta';
-import type { FilaCadastrada, HorarioParaEscolher } from '../../lib/cadastros';
+import type { AtendenteCadastrado, FilaCadastrada, HorarioParaEscolher } from '../../lib/cadastros';
 import { alternarFila, excluirFila } from '../../lib/cadastros-gravar';
 import { numero } from '../../lib/formato';
 import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
 import { FormularioFila } from './atendentes-filas-formulario';
+import { EdicaoDeFila } from './atendentes-filas-edicao';
 import { corDaFila, rotuloDaCor } from '../../lib/cores-de-fila';
-import { Modal } from './_modal';
+import { Modal, ModalConfirmacao } from './_modal';
 
 /**
  * Filas de atendimento.
@@ -26,25 +27,37 @@ import { Modal } from './_modal';
  * Toggle e exclusão por cartão: `lib/cadastros.ts` agora tem
  * `alternarFila`/`excluirFila` (`PATCH`/`DELETE` em
  * `/v1/gestao/atendentes/filas/:id`), então o switch e o ícone "Excluir" do
- * cartão deles (§4, §5) entram — `window.confirm` antes de excluir e
- * `window.alert` para a recusa (fila com conversa aberta, fila padrão de
- * caixa de entrada, ...), mesmo padrão de
- * `paginas/fluxo/servicos/tela.tsx`. Cor, capacidade, ordem, horário e teto
- * simultâneo — que não são coluna documentada — ficam no rodapé do cartão, ao
- * lado dos atendentes habilitados. Renomear e vincular/desvincular atendente
- * (o resto do item 1) ainda não têm tela — ver o resumo da tarefa.
+ * cartão deles (§4, §5) entram — a exclusão pede confirmação em
+ * `ModalConfirmacao` (nunca `window.confirm`/`window.alert`, que era o
+ * provisório de antes), mesmo padrão de `regras-atendimento.tsx`. A recusa do
+ * toggle (fila com conversa aberta, fila padrão de caixa de entrada, ...) vira
+ * `Etiqueta` acima da lista — o `window.alert` de antes não tem onde morar
+ * dentro do modal de exclusão, que só abre quando alguém exclui. Cor,
+ * capacidade, ordem, horário e teto simultâneo — que não são coluna
+ * documentada — ficam no rodapé do cartão, ao lado dos atendentes habilitados.
+ *
+ * Renomear e vincular/desvincular atendente: o ícone "Editar" abre
+ * `EdicaoDeFila` (`atendentes-filas-edicao.tsx`) — um modal só, com o nome da
+ * fila e a lista de atendentes vinculados/a vincular. Não é coluna nem modal
+ * documentado na ficha (capturada com o `bds-modal` fechado); a forma segue a
+ * do resto da tela — mesmo cartão, mesmo `_modal.tsx`.
  */
 
-/** O switch + o "Excluir" do cartão-linha — o slot `acao` que `lista-regras.tsx` reserva. */
-function AcoesDaFila({ fila }: { fila: FilaCadastrada }) {
+/** O switch + editar/excluir do cartão-linha — o slot `acao` que `lista-regras.tsx` reserva. */
+function AcoesDaFila({
+  fila,
+  onErroAlternar,
+  onEditar,
+  onExcluir,
+}: {
+  fila: FilaCadastrada;
+  onErroAlternar: (erro: string) => void;
+  onEditar: () => void;
+  onExcluir: () => void;
+}) {
   const alternar = async () => {
     const r = await alternarFila(fila.id, fila.ativa);
-    if (!r.ok) window.alert(r.erro);
-  };
-  const excluir = async () => {
-    if (!window.confirm(`Excluir a fila "${fila.nome}"? Esta ação não pode ser desfeita.`)) return;
-    const r = await excluirFila(fila.id);
-    if (!r.ok) window.alert(r.erro);
+    if (!r.ok) onErroAlternar(r.erro);
   };
   return (
     <>
@@ -59,17 +72,43 @@ function AcoesDaFila({ fila }: { fila: FilaCadastrada }) {
       >
         <span className="interruptor-bolinha" />
       </button>
-      <BotaoDeIcone nome="x" rotulo={`Excluir a fila ${fila.nome}`} onClick={() => void excluir()} />
+      <BotaoDeIcone nome="lapis" rotulo={`Editar a fila ${fila.nome}`} onClick={onEditar} />
+      <BotaoDeIcone nome="x" rotulo={`Excluir a fila ${fila.nome}`} onClick={onExcluir} />
     </>
   );
 }
 export function PaginaFilas() {
   const [modalAberto, setModalAberto] = useState(false);
+  /* Id, não o objeto: vincular/desvincular atendente invalida a leitura
+     (`atualizarLeituras`) e `filas` chega de novo com outra referência —
+     guardar só o id e buscar de novo em `filas` a cada render é o que faz o
+     modal aberto mostrar o atendente recém-vinculado sem fechar e reabrir. */
+  const [filaEmEdicaoId, setFilaEmEdicaoId] = useState<string | null>(null);
+  const [filaParaExcluir, setFilaParaExcluir] = useState<FilaCadastrada | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
+  const [erroAlternar, setErroAlternar] = useState<string | null>(null);
   const leitura = useLeitura<{ filas: FilaCadastrada[]; horarios: HorarioParaEscolher[] }>(
     '/v1/gestao/atendentes/filas',
   );
-  if (!leitura.data) return null;
+  /* O seletor de atendentes do modal "Editar fila" — mesma leitura de
+     `atendentes-gestao.tsx`. Fica aqui em cima (e não dentro do modal) para
+     não repetir o `useLeitura` a cada abertura. */
+  const leituraAtendentes = useLeitura<AtendenteCadastrado[]>('/v1/gestao/atendentes/gestao');
+  if (!leitura.data || !leituraAtendentes.data) return null;
   const { filas, horarios } = leitura.data;
+  const atendentesGestao = leituraAtendentes.data;
+  const filaEmEdicao = filas.find((f) => f.id === filaEmEdicaoId) ?? null;
+
+  async function excluir() {
+    if (!filaParaExcluir) return;
+    setExcluindo(true);
+    setErroExclusao(null);
+    const resultado = await excluirFila(filaParaExcluir.id);
+    setExcluindo(false);
+    if (resultado.ok) setFilaParaExcluir(null);
+    else setErroExclusao(resultado.erro);
+  }
 
   const secoes: SecaoDeRegras[] = [
     {
@@ -93,7 +132,14 @@ export function PaginaFilas() {
           ],
           situacao: f.ativa ? 'Ativa' : 'Desativada',
           ativa: f.ativa,
-          acao: <AcoesDaFila fila={f} />,
+          acao: (
+            <AcoesDaFila
+              fila={f}
+              onErroAlternar={setErroAlternar}
+              onEditar={() => setFilaEmEdicaoId(f.id)}
+              onExcluir={() => setFilaParaExcluir(f)}
+            />
+          ),
           rodape: [
             ...detalhes,
             ...(f.atendentes.length > 0
@@ -121,6 +167,8 @@ export function PaginaFilas() {
         </Botao>
       </div>
 
+      {erroAlternar ? <Etiqueta tom="erro">{erroAlternar}</Etiqueta> : null}
+
       <ListaRegras
         secoes={secoes}
         placeholder="Buscar fila"
@@ -141,6 +189,29 @@ export function PaginaFilas() {
         </p>
         <FormularioFila horarios={horarios} aoSalvar={() => setModalAberto(false)} />
       </Modal>
+
+      <Modal
+        aberto={filaEmEdicaoId !== null}
+        titulo="Editar fila"
+        onFechar={() => setFilaEmEdicaoId(null)}
+      >
+        {filaEmEdicao ? (
+          <EdicaoDeFila fila={filaEmEdicao} atendentesGestao={atendentesGestao} />
+        ) : null}
+      </Modal>
+
+      <ModalConfirmacao
+        aberto={filaParaExcluir !== null}
+        titulo="Excluir fila"
+        mensagem={<>Excluir a fila "{filaParaExcluir?.nome}"? Esta ação não pode ser desfeita.</>}
+        erro={erroExclusao}
+        confirmando={excluindo}
+        onConfirmar={() => void excluir()}
+        onCancelar={() => {
+          setFilaParaExcluir(null);
+          setErroExclusao(null);
+        }}
+      />
     </>
   );
 }

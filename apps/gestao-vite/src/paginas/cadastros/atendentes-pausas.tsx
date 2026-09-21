@@ -1,23 +1,26 @@
 import { useState } from 'react';
-import { Botao, BotaoDeIcone } from '@pipe/ui';
+import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
 import { useLeitura } from '../../lib/consulta';
 import type { MotivoDePausa, UsoDePausas } from '../../lib/cadastros';
 import { alternarMotivoPausa, excluirMotivoPausa } from '../../lib/cadastros-gravar';
 import { duracaoLonga, numero } from '../../lib/formato';
 import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
 import { FormularioMotivoPausa } from './atendentes-pausas-formulario';
-import { Modal } from './_modal';
+import { Modal, ModalConfirmacao } from './_modal';
 
 /** O switch + o "Excluir" do cartão-linha — `PATCH`/`DELETE` em `.../pausas/:id`. */
-function AcoesDoMotivo({ motivo }: { motivo: MotivoDePausa }) {
+function AcoesDoMotivo({
+  motivo,
+  onErroAlternar,
+  onExcluir,
+}: {
+  motivo: MotivoDePausa;
+  onErroAlternar: (erro: string) => void;
+  onExcluir: () => void;
+}) {
   const alternar = async () => {
     const r = await alternarMotivoPausa(motivo.id, motivo.ativo);
-    if (!r.ok) window.alert(r.erro);
-  };
-  const excluir = async () => {
-    if (!window.confirm(`Excluir o motivo "${motivo.nome}"? Esta ação não pode ser desfeita.`)) return;
-    const r = await excluirMotivoPausa(motivo.id);
-    if (!r.ok) window.alert(r.erro);
+    if (!r.ok) onErroAlternar(r.erro);
   };
   return (
     <>
@@ -32,7 +35,7 @@ function AcoesDoMotivo({ motivo }: { motivo: MotivoDePausa }) {
       >
         <span className="interruptor-bolinha" />
       </button>
-      <BotaoDeIcone nome="x" rotulo={`Excluir o motivo ${motivo.nome}`} onClick={() => void excluir()} />
+      <BotaoDeIcone nome="x" rotulo={`Excluir o motivo ${motivo.nome}`} onClick={onExcluir} />
     </>
   );
 }
@@ -59,7 +62,9 @@ function AcoesDoMotivo({ motivo }: { motivo: MotivoDePausa }) {
  *
  * Toggle e exclusão por cartão: `lib/cadastros.ts` tem `alternarMotivoPausa`/
  * `excluirMotivoPausa` (`PATCH`/`DELETE` em `/v1/gestao/atendentes/pausas/:id`)
- * — o ícone "Excluir" do cartão deles (§5) entra, com `window.confirm` antes.
+ * — o ícone "Excluir" do cartão deles (§5) entra, com confirmação em
+ * `ModalConfirmacao` (nunca `window.confirm`/`window.alert`), mesmo padrão de
+ * `atendentes-filas.tsx`. A recusa do toggle vira `Etiqueta` acima da lista.
  */
 
 /** Diferença entre o observado e o sugerido, em português corrente. */
@@ -73,9 +78,23 @@ function comparacao(mediaSeg: number | null, sugeridaMin: number | null): string
 
 export function PaginaPausas() {
   const [modalAberto, setModalAberto] = useState(false);
+  const [motivoParaExcluir, setMotivoParaExcluir] = useState<MotivoDePausa | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
+  const [erroAlternar, setErroAlternar] = useState<string | null>(null);
   const leitura = useLeitura<UsoDePausas>('/v1/gestao/atendentes/pausas');
   if (!leitura.data) return null;
   const { motivos, dias, semMotivo, abertas } = leitura.data;
+
+  async function excluir() {
+    if (!motivoParaExcluir) return;
+    setExcluindo(true);
+    setErroExclusao(null);
+    const resultado = await excluirMotivoPausa(motivoParaExcluir.id);
+    setExcluindo(false);
+    if (resultado.ok) setMotivoParaExcluir(null);
+    else setErroExclusao(resultado.erro);
+  }
 
   const secoes: SecaoDeRegras[] = [
     {
@@ -93,7 +112,9 @@ export function PaginaPausas() {
         ],
         situacao: m.ativo ? 'Ativo' : 'Desativado',
         ativa: m.ativo,
-        acao: <AcoesDoMotivo motivo={m} />,
+        acao: (
+          <AcoesDoMotivo motivo={m} onErroAlternar={setErroAlternar} onExcluir={() => setMotivoParaExcluir(m)} />
+        ),
         rodape: [
           m.contaComoProdutivo ? 'Conta como produtivo' : 'Conta como fora do trabalho',
           `${numero(m.pausas)} pausa(s) em ${dias}d`,
@@ -137,6 +158,8 @@ export function PaginaPausas() {
         </Botao>
       </div>
 
+      {erroAlternar ? <Etiqueta tom="erro">{erroAlternar}</Etiqueta> : null}
+
       {/* A tela deles vai do cabeçalho direto para a lista (`FICHA-
           personalizedbreaks.md` §2). As pausas sem motivo e as em aberto —
           que não entram em nenhuma linha — ficam ditas no `title` do
@@ -163,6 +186,19 @@ export function PaginaPausas() {
         </p>
         <FormularioMotivoPausa aoSalvar={() => setModalAberto(false)} />
       </Modal>
+
+      <ModalConfirmacao
+        aberto={motivoParaExcluir !== null}
+        titulo="Excluir motivo"
+        mensagem={<>Excluir o motivo "{motivoParaExcluir?.nome}"? Esta ação não pode ser desfeita.</>}
+        erro={erroExclusao}
+        confirmando={excluindo}
+        onConfirmar={() => void excluir()}
+        onCancelar={() => {
+          setMotivoParaExcluir(null);
+          setErroExclusao(null);
+        }}
+      />
     </>
   );
 }

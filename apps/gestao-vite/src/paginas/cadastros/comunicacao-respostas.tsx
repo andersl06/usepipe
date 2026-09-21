@@ -1,24 +1,25 @@
 import { useState } from 'react';
-import { Botao, BotaoDeIcone } from '@pipe/ui';
+import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
 import { useLeitura } from '../../lib/consulta';
 import type { RespostaProntaListada } from '../../lib/comunicacao';
 import { alternarRespostaPronta, excluirRespostaPronta } from '../../lib/comunicacao-gravar';
 import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
 import { FormularioRespostaPronta } from './comunicacao-respostas-formulario';
-import { Modal } from './_modal';
+import { Modal, ModalConfirmacao } from './_modal';
 
 /** O switch + o "Excluir" do cartão-linha — `PATCH`/`DELETE` em `.../respostas-prontas/:id`. */
-function AcoesDaResposta({ resposta }: { resposta: RespostaProntaListada }) {
+function AcoesDaResposta({
+  resposta,
+  onErroAlternar,
+  onExcluir,
+}: {
+  resposta: RespostaProntaListada;
+  onErroAlternar: (erro: string) => void;
+  onExcluir: () => void;
+}) {
   const alternar = async () => {
     const r = await alternarRespostaPronta(resposta.id, resposta.ativa);
-    if (!r.ok) window.alert(r.erro);
-  };
-  const excluir = async () => {
-    if (!window.confirm(`Excluir a resposta "${resposta.titulo}"? Esta ação não pode ser desfeita.`)) {
-      return;
-    }
-    const r = await excluirRespostaPronta(resposta.id);
-    if (!r.ok) window.alert(r.erro);
+    if (!r.ok) onErroAlternar(r.erro);
   };
   return (
     <>
@@ -35,11 +36,7 @@ function AcoesDaResposta({ resposta }: { resposta: RespostaProntaListada }) {
       >
         <span className="interruptor-bolinha" />
       </button>
-      <BotaoDeIcone
-        nome="x"
-        rotulo={`Excluir a resposta ${resposta.titulo}`}
-        onClick={() => void excluir()}
-      />
+      <BotaoDeIcone nome="x" rotulo={`Excluir a resposta ${resposta.titulo}`} onClick={onExcluir} />
     </>
   );
 }
@@ -65,9 +62,23 @@ function AcoesDaResposta({ resposta }: { resposta: RespostaProntaListada }) {
  */
 export function PaginaRespostasProntas() {
   const [modalAberto, setModalAberto] = useState(false);
+  const [respostaParaExcluir, setRespostaParaExcluir] = useState<RespostaProntaListada | null>(null);
+  const [excluindo, setExcluindo] = useState(false);
+  const [erroExclusao, setErroExclusao] = useState<string | null>(null);
+  const [erroAlternar, setErroAlternar] = useState<string | null>(null);
   const leitura = useLeitura<RespostaProntaListada[]>('/v1/gestao/comunicacao/respostas-prontas');
   if (!leitura.data) return null;
   const respostas = leitura.data;
+
+  async function excluir() {
+    if (!respostaParaExcluir) return;
+    setExcluindo(true);
+    setErroExclusao(null);
+    const resultado = await excluirRespostaPronta(respostaParaExcluir.id);
+    setExcluindo(false);
+    if (resultado.ok) setRespostaParaExcluir(null);
+    else setErroExclusao(resultado.erro);
+  }
 
   const secoes: SecaoDeRegras[] = [
     {
@@ -88,7 +99,13 @@ export function PaginaRespostasProntas() {
         ],
         situacao: r.ativa ? 'Ativa' : 'Desativada',
         ativa: r.ativa,
-        acao: <AcoesDaResposta resposta={r} />,
+        acao: (
+          <AcoesDaResposta
+            resposta={r}
+            onErroAlternar={setErroAlternar}
+            onExcluir={() => setRespostaParaExcluir(r)}
+          />
+        ),
         procura: `${r.titulo} ${r.atalho}`.toLowerCase(),
       })),
     },
@@ -108,6 +125,8 @@ export function PaginaRespostasProntas() {
         </Botao>
       </div>
 
+      {erroAlternar ? <Etiqueta tom="erro">{erroAlternar}</Etiqueta> : null}
+
       <ListaRegras secoes={secoes} placeholder="Buscar por título ou por atalho" ocultarCabecalhoDeSecao />
 
       <Modal
@@ -117,6 +136,21 @@ export function PaginaRespostasProntas() {
       >
         <FormularioRespostaPronta aoSalvar={() => setModalAberto(false)} />
       </Modal>
+
+      <ModalConfirmacao
+        aberto={respostaParaExcluir !== null}
+        titulo="Excluir resposta"
+        mensagem={
+          <>Excluir a resposta "{respostaParaExcluir?.titulo}"? Esta ação não pode ser desfeita.</>
+        }
+        erro={erroExclusao}
+        confirmando={excluindo}
+        onConfirmar={() => void excluir()}
+        onCancelar={() => {
+          setRespostaParaExcluir(null);
+          setErroExclusao(null);
+        }}
+      />
     </>
   );
 }

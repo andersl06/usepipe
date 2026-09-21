@@ -1,4 +1,4 @@
-import { api } from './api';
+import { api, ErroDaApi } from './api';
 import { atualizarLeituras } from './acoes';
 import { motivoDe, type Resultado } from './rest';
 import type { OperadorDeRegra } from './regra-fila';
@@ -33,6 +33,95 @@ export async function excluirFila(id: string): Promise<Resultado<void>> {
     return { ok: true, valor: undefined };
   } catch (erro) {
     return { ok: false, erro: motivoDe(erro, 'Não foi possível excluir a fila.') };
+  }
+}
+
+/**
+ * `Resultado` que também aponta o campo — o `{erro:{codigo,mensagem,
+ * detalhe?:{campo}}}` da tarefa, para o modal "Editar fila" mostrar a recusa
+ * no campo certo em vez de um aviso solto. `editarFila`/`vincularAtendenteNaFila`
+ * de hoje (`apps/api/src/dominio/gestao/cadastros.ts`) não mandam
+ * `detalhe.campo` — só o `codigo` diz qual campo é (`nome_obrigatorio`/
+ * `nome_em_uso` → nome, `capacidade_invalida` → capacidadeOverride) —, por
+ * isso o mapa abaixo cobre o que falta; se um dia a `api` mandar
+ * `detalhe.campo`, ele já é lido primeiro.
+ */
+export type ResultadoComCampo<T> = { ok: true; valor: T } | { ok: false; erro: string; campo?: string };
+
+const CAMPO_DO_CODIGO: Record<string, string> = {
+  nome_obrigatorio: 'nome',
+  nome_em_uso: 'nome',
+  capacidade_invalida: 'capacidadeOverride',
+};
+
+function falhaComCampo<T>(erro: unknown, padrao: string): ResultadoComCampo<T> {
+  if (erro instanceof ErroDaApi) {
+    const corpo = erro.corpo as
+      | { erro?: { codigo?: unknown; mensagem?: unknown; detalhe?: { campo?: unknown } } }
+      | null;
+    const codigo = corpo?.erro?.codigo;
+    const mensagem = corpo?.erro?.mensagem;
+    const campoDoDetalhe = corpo?.erro?.detalhe?.campo;
+    const campo =
+      (typeof campoDoDetalhe === 'string' ? campoDoDetalhe : undefined) ??
+      (typeof codigo === 'string' ? CAMPO_DO_CODIGO[codigo] : undefined);
+    return {
+      ok: false,
+      erro: typeof mensagem === 'string' && mensagem ? mensagem : padrao,
+      ...(campo ? { campo } : {}),
+    };
+  }
+  return { ok: false, erro: padrao };
+}
+
+/** Renomear a fila (e, se um dia a tela precisar, (des)ativar por aqui) — `PATCH /v1/gestao/atendentes/filas/:id`. */
+export interface PedidoDeEdicaoDeFila {
+  nome?: string;
+  ativa?: boolean;
+}
+
+export async function editarFila(
+  id: string,
+  pedido: PedidoDeEdicaoDeFila,
+): Promise<ResultadoComCampo<void>> {
+  try {
+    await api.patch(`/v1/gestao/atendentes/filas/${id}`, pedido);
+    atualizarLeituras();
+    return { ok: true, valor: undefined };
+  } catch (erro) {
+    return falhaComCampo(erro, 'Não foi possível renomear a fila.');
+  }
+}
+
+/** Vincular atendente à fila — `POST .../filas/:id/atendentes`. Capacidade omitida usa a padrão da fila. */
+export async function vincularAtendenteNaFila(
+  filaId: string,
+  atendenteId: string,
+  capacidadeOverride?: number | null,
+): Promise<ResultadoComCampo<void>> {
+  try {
+    await api.post(`/v1/gestao/atendentes/filas/${filaId}/atendentes`, {
+      usuarioId: atendenteId,
+      ...(capacidadeOverride != null ? { capacidadeOverride } : {}),
+    });
+    atualizarLeituras();
+    return { ok: true, valor: undefined };
+  } catch (erro) {
+    return falhaComCampo(erro, 'Não foi possível vincular o atendente.');
+  }
+}
+
+/** Desvincular atendente da fila — `DELETE .../filas/:id/atendentes/:atendenteId`. */
+export async function desvincularAtendenteDaFila(
+  filaId: string,
+  atendenteId: string,
+): Promise<Resultado<void>> {
+  try {
+    await api.delete(`/v1/gestao/atendentes/filas/${filaId}/atendentes/${atendenteId}`);
+    atualizarLeituras();
+    return { ok: true, valor: undefined };
+  } catch (erro) {
+    return { ok: false, erro: motivoDe(erro, 'Não foi possível desvincular o atendente.') };
   }
 }
 
