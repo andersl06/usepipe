@@ -85,13 +85,22 @@ export type PerfilParaGravar = Omit<PerfilDoNumero, 'profile_picture_url'> & {
 
 export const CAMPOS_DO_PERFIL = 'about,address,description,email,profile_picture_url,websites,vertical';
 
-/** Um componente de template como a Meta devolve e recebe (`HEADER`, `BODY`, `FOOTER`, `BUTTONS`). */
+/**
+ * Um componente de template como a Meta devolve e recebe (`HEADER`, `BODY`, `FOOTER`, `BUTTONS`).
+ *
+ * Os dois últimos campos são só da categoria AUTHENTICATION, cujo texto é da
+ * Meta e não nosso: `BODY.add_security_recommendation` acrescenta "não
+ * compartilhe este código" e `FOOTER.code_expiration_minutes` (1 a 90) põe o
+ * "este código expira em N minutos" — ver `montarModelo` em `modelos.ts`.
+ */
 export interface ComponenteDoModelo {
   type: string;
   format?: string;
   text?: string;
   example?: Record<string, unknown>;
   buttons?: unknown[];
+  add_security_recommendation?: boolean;
+  code_expiration_minutes?: number;
 }
 
 export interface ModeloDaMeta {
@@ -149,7 +158,12 @@ export abstract class ClienteGraph {
   abstract conferirSegredoDoApp(numeroId: string, segredo: string): Promise<boolean>;
   abstract lerPerfil(numeroId: string): Promise<PerfilDoNumero>;
   abstract gravarPerfil(numeroId: string, perfil: PerfilParaGravar): Promise<unknown>;
-  /** Sobe a imagem e devolve o `h` que `profile_picture_handle` espera. */
+  /**
+   * Sobe um arquivo pela Resumable Upload API e devolve o `h` — o handle que
+   * `profile_picture_handle` (foto do perfil) e `example.header_handle` (mídia
+   * de exemplo no cabeçalho do modelo) esperam. O nome ficou de quando só a
+   * foto subia; a API é a mesma para qualquer tipo, e `tipo` é o MIME.
+   */
   abstract subirFoto(appId: string, bytes: Buffer, tipo: string): Promise<string>;
   /** `GET /{waba}/message_templates`, todas as páginas. */
   abstract listarModelos(wabaId: string): Promise<ModeloDaMeta[]>;

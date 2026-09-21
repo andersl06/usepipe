@@ -646,7 +646,8 @@ describe('modelos de mensagem na Meta (sincronizar, criar, excluir)', () => {
     const criar = (p: object) => criarModeloNaMeta(A.tenantId, A.adminId, canal.id, p);
     const ok = { nome: 'aviso', categoria: 'utilidade', corpo: 'Oi {{1}}', exemplos: ['Ana'] };
     await expect(criar({ ...ok, nome: 'Com Espaço' })).rejects.toMatchObject({ detalhe: { campo: 'nome' } });
-    await expect(criar({ ...ok, categoria: 'autenticacao' })).rejects.toMatchObject({ detalhe: { campo: 'categoria' } });
+    // Autenticação passou a existir (describe próprio abaixo); categoria desconhecida continua recusada.
+    await expect(criar({ ...ok, categoria: 'promocional' })).rejects.toMatchObject({ detalhe: { campo: 'categoria' } });
     await expect(criar({ ...ok, idioma: 'português' })).rejects.toMatchObject({ detalhe: { campo: 'idioma' } });
     await expect(criar({ ...ok, corpo: '' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
     await expect(criar({ ...ok, corpo: 'x'.repeat(1025) })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
@@ -671,6 +672,235 @@ describe('modelos de mensagem na Meta (sincronizar, criar, excluir)', () => {
     await expect(
       controlador.sincronizarModelos(requisicao({ tenantId: A.tenantId, adminId: rows[0]!.id }), canal.id),
     ).rejects.toMatchObject({ status: 403 });
+  });
+});
+
+describe('modelos com mídia no cabeçalho (imagem, vídeo, documento)', () => {
+  const dataUrl = (tipo: string, bytes: Buffer) => `data:${tipo};base64,${bytes.toString('base64')}`;
+  const JPEG = dataUrl('image/jpeg', Buffer.from('jpeg-de-ensaio'));
+  const PDF = dataUrl('application/pdf', Buffer.from('%PDF-1.4 de ensaio'));
+  const MP4 = dataUrl('video/mp4', Buffer.from('mp4-de-ensaio'));
+
+  it('cabeçalho de imagem: sobe o arquivo no app do canal e manda o handle em header_handle', async () => {
+    const canal = await conectar(A, { codigo: `modelos-imagem-${S}` });
+    ClienteGraphDuble.reiniciar();
+    const criado = await criarModeloNaMeta(A.tenantId, A.adminId, canal.id, {
+      nome: 'oferta_com_foto',
+      categoria: 'marketing',
+      cabecalhoMidia: JPEG,
+      corpo: 'Oferta para {{1}}.',
+      exemplos: ['Ana'],
+      rodape: 'Pipe',
+    });
+    expect(criado.statusMeta).toBe('pendente');
+
+    // Subiu UMA vez, antes de criar — a ordem é a da Resumable Upload API: handle primeiro.
+    expect(ClienteGraphDuble.chamadas.map((c) => c.acao)).toEqual(['subir_foto', 'criar_modelo']);
+
+    const enviado = ClienteGraphDuble.modelos.get(canal.wabaId!)!.find((m) => m.name === 'oferta_com_foto')!;
+    expect(enviado.category).toBe('MARKETING');
+    const cabecalho = enviado.components![0]!;
+    expect(cabecalho).toMatchObject({ type: 'HEADER', format: 'IMAGE' });
+    expect(cabecalho).not.toHaveProperty('text');
+    const handles = (cabecalho.example as { header_handle: string[] }).header_handle;
+    expect(handles).toHaveLength(1);
+    // Embutido: o arquivo sobe no NOSSO app, e o dublê devolve `<app>-<sufixo dos bytes>`.
+    expect(handles[0]).toMatch(/^app-de-teste-\d{11}$/);
+    expect(enviado.components!.slice(1)).toEqual([
+      { type: 'BODY', text: 'Oferta para {{1}}.', example: { body_text: [['Ana']] } },
+      { type: 'FOOTER', text: 'Pipe' },
+    ]);
+
+    const { rows } = await dono.execute<{ cabecalho_tipo: string; variaveis: string[] }>(sql`
+      select cabecalho_tipo, variaveis from template_mensagem
+       where canal_id = ${canal.id}::uuid and nome = 'oferta_com_foto'
+    `);
+    expect(rows[0]).toMatchObject({ cabecalho_tipo: 'imagem', variaveis: ['1'] });
+  });
+
+  it('vídeo e documento vão com o formato certo (VIDEO/DOCUMENT) e a cópia local sabe o tipo', async () => {
+    const canal = await conectar(A, { codigo: `modelos-video-doc-${S}` });
+    ClienteGraphDuble.reiniciar();
+    const base = { categoria: 'utilidade', corpo: 'Segue o material.', exemplos: [] as string[] };
+    await criarModeloNaMeta(A.tenantId, A.adminId, canal.id, { ...base, nome: 'com_video', cabecalhoMidia: MP4 });
+    await criarModeloNaMeta(A.tenantId, A.adminId, canal.id, { ...base, nome: 'com_pdf', cabecalhoMidia: PDF });
+
+    const naMeta = ClienteGraphDuble.modelos.get(canal.wabaId!)!;
+    expect(naMeta.find((m) => m.name === 'com_video')!.components![0]).toMatchObject({
+      type: 'HEADER',
+      format: 'VIDEO',
+    });
+    expect(naMeta.find((m) => m.name === 'com_pdf')!.components![0]).toMatchObject({
+      type: 'HEADER',
+      format: 'DOCUMENT',
+    });
+    expect(chamadas('subir_foto')).toHaveLength(2);
+
+    const { rows } = await dono.execute<{ nome: string; cabecalho_tipo: string }>(sql`
+      select nome, cabecalho_tipo from template_mensagem
+       where canal_id = ${canal.id}::uuid and nome in ('com_video', 'com_pdf') order by nome
+    `);
+    expect(rows).toMatchObject([
+      { nome: 'com_pdf', cabecalho_tipo: 'documento' },
+      { nome: 'com_video', cabecalho_tipo: 'video' },
+    ]);
+  });
+
+  it('tipo ou tamanho errado recusa com a frase da tela, ANTES de subir e de chamar a Meta', async () => {
+    const canal = await conectar(A, { codigo: `modelos-midia-recusa-${S}` });
+    ClienteGraphDuble.reiniciar();
+    const criar = (p: object) =>
+      criarModeloNaMeta(A.tenantId, A.adminId, canal.id, {
+        nome: 'recusado',
+        categoria: 'marketing',
+        corpo: 'Oi.',
+        ...p,
+      });
+
+    // Tipo fora da lista de cada formato: a frase é a que a origem mostra no campo.
+    await expect(criar({ cabecalhoMidia: dataUrl('image/gif', Buffer.from('gif')) })).rejects.toMatchObject({
+      status: 422,
+      detalhe: { campo: 'cabecalhoMidia' },
+      message: 'A imagem do cabeçalho é compatível com JPG, JPEG ou PNG.',
+    });
+    await expect(criar({ cabecalhoMidia: dataUrl('video/avi', Buffer.from('avi')) })).rejects.toMatchObject({
+      message: 'O vídeo do cabeçalho é compatível com MP4 até 16MB.',
+    });
+    await expect(criar({ cabecalhoMidia: dataUrl('text/plain', Buffer.from('txt')) })).rejects.toMatchObject({
+      message: 'O documento do cabeçalho é formato PDF.',
+    });
+
+    // Tamanho: 5 MB para imagem, 16 MB para vídeo (documento é 100 MB — grande demais para o teste).
+    const imagemGrande = dataUrl('image/png', Buffer.alloc(5 * 1024 * 1024 + 1));
+    await expect(criar({ cabecalhoMidia: imagemGrande })).rejects.toMatchObject({
+      detalhe: { campo: 'cabecalhoMidia' },
+      message: 'A imagem do cabeçalho tem de ter no máximo 5 MB.',
+    });
+    const videoGrande = dataUrl('video/mp4', Buffer.alloc(16 * 1024 * 1024 + 1));
+    await expect(criar({ cabecalhoMidia: videoGrande })).rejects.toMatchObject({
+      message: 'O vídeo do cabeçalho tem de ter no máximo 16 MB.',
+    });
+
+    // Não é data URL, está vazio, ou veio junto com cabeçalho de texto.
+    await expect(criar({ cabecalhoMidia: 'https://exemplo/foto.jpg' })).rejects.toMatchObject({
+      detalhe: { campo: 'cabecalhoMidia' },
+    });
+    await expect(criar({ cabecalhoMidia: 'data:image/png;base64,' })).rejects.toMatchObject({
+      detalhe: { campo: 'cabecalhoMidia' },
+    });
+    await expect(criar({ cabecalhoMidia: JPEG, cabecalho: 'Olá' })).rejects.toMatchObject({
+      detalhe: { campo: 'cabecalho' },
+    });
+
+    // Mídia boa, mas corpo ruim: o arquivo NÃO sobe — tudo é conferido antes do upload.
+    await expect(criar({ cabecalhoMidia: JPEG, corpo: '' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
+
+    expect(chamadas('subir_foto')).toHaveLength(0);
+    expect(chamadas('criar_modelo')).toHaveLength(0);
+  });
+});
+
+describe('modelos de autenticação (componentes fixos da Meta)', () => {
+  it('monta corpo com recomendação de segurança, rodapé com validade e botão de copiar; a cópia local tem {{1}}', async () => {
+    const canal = await conectar(A, { codigo: `modelos-auth-${S}` });
+    ClienteGraphDuble.reiniciar();
+    const criado = await criarModeloNaMeta(A.tenantId, A.adminId, canal.id, {
+      nome: 'codigo_de_acesso',
+      categoria: 'autenticacao',
+      autenticacao: { expiraEmMinutos: 10, textoDoBotao: 'Copiar' },
+    });
+    expect(criado.statusMeta).toBe('pendente');
+    expect(chamadas('subir_foto')).toHaveLength(0);
+
+    const enviado = ClienteGraphDuble.modelos.get(canal.wabaId!)![0]!;
+    expect(enviado.category).toBe('AUTHENTICATION');
+    expect(enviado.components).toEqual([
+      { type: 'BODY', add_security_recommendation: true },
+      { type: 'FOOTER', code_expiration_minutes: 10 },
+      { type: 'BUTTONS', buttons: [{ type: 'OTP', otp_type: 'COPY_CODE', text: 'Copiar' }] },
+    ]);
+    // Nenhum texto nosso vai para a Meta nessa categoria.
+    expect(enviado.components!.some((c) => 'text' in c)).toBe(false);
+
+    const { rows } = await dono.execute<{
+      categoria: string;
+      corpo: string;
+      cabecalho_tipo: string;
+      variaveis: string[];
+    }>(sql`
+      select categoria, corpo, cabecalho_tipo, variaveis from template_mensagem
+       where canal_id = ${canal.id}::uuid and nome = 'codigo_de_acesso'
+    `);
+    expect(rows[0]).toMatchObject({ categoria: 'autenticacao', cabecalho_tipo: 'nenhum', variaveis: ['1'] });
+    expect(rows[0]!.corpo).toContain('{{1}}');
+    expect(rows[0]!.corpo).toContain('não compartilhe');
+  });
+
+  it('padrões: recomendação ligada, sem rodapé, botão "Copiar código"; e a sincronização mantém a categoria', async () => {
+    const canal = await conectar(A, { codigo: `modelos-auth-padrao-${S}` });
+    ClienteGraphDuble.reiniciar();
+    await criarModeloNaMeta(A.tenantId, A.adminId, canal.id, { nome: 'otp', categoria: 'autenticacao' });
+    const enviado = ClienteGraphDuble.modelos.get(canal.wabaId!)![0]!;
+    expect(enviado.components).toEqual([
+      { type: 'BODY', add_security_recommendation: true },
+      { type: 'BUTTONS', buttons: [{ type: 'OTP', otp_type: 'COPY_CODE', text: 'Copiar código' }] },
+    ]);
+
+    // Desligada: o campo não vai, e a cópia local fica sem a frase de segurança.
+    await criarModeloNaMeta(A.tenantId, A.adminId, canal.id, {
+      nome: 'otp_seco',
+      categoria: 'autenticacao',
+      autenticacao: { recomendacaoDeSeguranca: false },
+    });
+    const seco = ClienteGraphDuble.modelos.get(canal.wabaId!)!.find((m) => m.name === 'otp_seco')!;
+    expect(seco.components![0]).toEqual({ type: 'BODY' });
+    const { rows } = await dono.execute<{ corpo: string }>(sql`
+      select corpo from template_mensagem where canal_id = ${canal.id}::uuid and nome = 'otp_seco'
+    `);
+    expect(rows[0]!.corpo).toBe('{{1}} é seu código de verificação.');
+
+    // A Meta aprovou e devolve o BODY com o texto dela: a sincronização troca a cópia local por ele.
+    enviado.status = 'APPROVED';
+    enviado.components![0]!.text = '*{{1}}* é seu código de verificação. Para sua segurança, não compartilhe este código.';
+    const resultado = await sincronizarModelos(A.tenantId, A.adminId, canal.id);
+    expect(resultado).toMatchObject({ atualizados: 2, ignorados: 0 });
+    const { rows: depois } = await dono.execute<{ status_meta: string; corpo: string; categoria: string }>(sql`
+      select status_meta, corpo, categoria from template_mensagem
+       where canal_id = ${canal.id}::uuid and nome = 'otp'
+    `);
+    expect(depois[0]).toMatchObject({
+      status_meta: 'aprovado',
+      categoria: 'autenticacao',
+      corpo: '*{{1}}* é seu código de verificação. Para sua segurança, não compartilhe este código.',
+    });
+  });
+
+  it('recusa texto livre, validade fora de 1–90 e botão longo — sem chamar a Meta', async () => {
+    const canal = await conectar(A, { codigo: `modelos-auth-recusa-${S}` });
+    ClienteGraphDuble.reiniciar();
+    const criar = (p: object) =>
+      criarModeloNaMeta(A.tenantId, A.adminId, canal.id, { nome: 'otp', categoria: 'autenticacao', ...p });
+
+    await expect(criar({ corpo: 'Seu código é {{1}}' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
+    await expect(criar({ cabecalho: 'Código' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
+    await expect(criar({ rodape: 'Pipe' })).rejects.toMatchObject({ detalhe: { campo: 'corpo' } });
+    await expect(
+      criar({ cabecalhoMidia: `data:image/png;base64,${Buffer.from('png').toString('base64')}` }),
+    ).rejects.toMatchObject({ detalhe: { campo: 'cabecalhoMidia' } });
+    await expect(criar({ autenticacao: { expiraEmMinutos: 0 } })).rejects.toMatchObject({
+      detalhe: { campo: 'autenticacao.expiraEmMinutos' },
+    });
+    await expect(criar({ autenticacao: { expiraEmMinutos: 91 } })).rejects.toMatchObject({
+      detalhe: { campo: 'autenticacao.expiraEmMinutos' },
+    });
+    await expect(criar({ autenticacao: { expiraEmMinutos: 2.5 } })).rejects.toMatchObject({
+      detalhe: { campo: 'autenticacao.expiraEmMinutos' },
+    });
+    await expect(criar({ autenticacao: { textoDoBotao: 'x'.repeat(26) } })).rejects.toMatchObject({
+      detalhe: { campo: 'autenticacao.textoDoBotao' },
+    });
+    expect(chamadas('criar_modelo')).toHaveLength(0);
+    expect(chamadas('subir_foto')).toHaveLength(0);
   });
 });
 

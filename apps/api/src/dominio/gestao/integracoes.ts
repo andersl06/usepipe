@@ -66,13 +66,11 @@ async function fluxoExiste(tx: TransacaoPipe, tenantId: string, fluxoId: string)
 export const LIMITE_DE_CHAVES = 3;
 
 /**
- * Os escopos que uma chave de fluxo nasce com. `escopos` não sabe de fluxo — o
- * Bearer autentica o TENANT inteiro (`autenticacao.ts`); `fluxo_id` aqui é só
- * rótulo de dono para a tela, não uma cerca de dados.
- *
- * ponytail: restringir de verdade por fluxo pediria o guarda de escopo saber
- * de `fluxo_id` também — não pedido aqui, e nenhuma rota hoje filtra por
- * fluxo no corpo da chave.
+ * Os escopos que uma chave de fluxo nasce com. O escopo diz "o quê"; o
+ * `fluxo_id` diz "onde": o guarda de chave (`conferirFluxoDaChave`, em
+ * `autenticacao.ts`) carrega o `fluxoId` na sessão da chave e só a deixa agir
+ * nas rotas DAQUELE fluxo — em rota que não é por fluxo ela é recusada (403
+ * `chave_de_fluxo`), em rota de outro fluxo idem (`chave_de_outro_fluxo`).
  */
 const ESCOPOS_DA_CHAVE_DO_FLUXO = [
   'conversas:ler',

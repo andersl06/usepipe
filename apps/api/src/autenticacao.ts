@@ -38,6 +38,12 @@ export interface ContextoDaChave {
   tenantId: string;
   chaveId: string;
   escopos: string[];
+  /**
+   * O fluxo dono da chave (`chave_api.fluxo_id`, migração 0032), ou `null` na
+   * chave de CONTA. É a cerca que `conferirFluxoDaChave` aplica: chave de fluxo
+   * só age no fluxo dela.
+   */
+  fluxoId: string | null;
 }
 
 /** A requisição autenticada carrega o contexto; o controlador nunca lê header. */
@@ -99,11 +105,68 @@ export function contextoDe(requisicao: RequisicaoAutenticada): ContextoDaChave {
 type LinhaChave = {
   id: string;
   tenant_id: string;
+  fluxo_id: string | null;
   hash: string;
   escopos: string[] | null;
   expirada: boolean;
   revogada: boolean;
 };
+
+/**
+ * O fluxo que a ROTA nomeia, quando nomeia um: o parâmetro `:fluxoId`, ou o
+ * `:id` (ou outro nome) logo depois de `/fluxos/` — `/v1/gestao/fluxos/:id/...`.
+ *
+ * Lê o PADRÃO da rota (`req.route.path`), não a URL: é o padrão que diz qual
+ * segmento é o fluxo. Ler a URL casaria `/v1/conversas/<uuid>` por acidente se
+ * alguém um dia nomeasse uma conversa com o id de um fluxo.
+ */
+export function fluxoDaRota(requisicao: Request): string | null {
+  const parametros = (requisicao.params ?? {}) as Record<string, string | undefined>;
+  if (parametros['fluxoId']) return parametros['fluxoId'];
+  const padrao = (requisicao.route as { path?: string } | undefined)?.path ?? '';
+  const nome = /\/fluxos\/:(\w+)(?=\/|$)/.exec(padrao)?.[1];
+  return nome ? (parametros[nome] ?? null) : null;
+}
+
+/**
+ * A cerca da chave de fluxo. Chave de conta (`fluxoId` nulo) passa sempre —
+ * é o tenant inteiro, como sempre foi.
+ *
+ * Chave de fluxo:
+ * - rota POR FLUXO (`/…/fluxos/:id/…`): só o fluxo dela; outro fluxo é 403,
+ *   e o 403 diz o porquê — não é 404, porque o fluxo existe e a chave é válida,
+ *   o que falta é alcance.
+ * - rota que NÃO é por fluxo (`/v1/conversas`, `/v1/contatos`, …): RECUSADA.
+ *   Decisão Pipe: entre "recusar" e "limitar ao que pertence ao fluxo", vale a
+ *   mais restritiva. Conversa não tem `fluxo_id` — pertence a um fluxo só por
+ *   tabela (inbox → canal = `fluxo.canal_id`), e filtrar por essa tabela em
+ *   cada rota de conversa/contato/anexo/etiqueta seria uma cerca de dados
+ *   espalhada em oito lugares, fácil de esquecer na nona. Recusar é uma
+ *   linha, aqui, e nenhuma rota de hoje aceita chave E é por fluxo — quando
+ *   uma for aberta a chave, a regra de cima já vale sem mexer em nada.
+ */
+export function conferirFluxoDaChave(
+  chave: Pick<ContextoDaChave, 'fluxoId'>,
+  fluxoNaRota: string | null,
+): void {
+  if (!chave.fluxoId) return;
+  if (fluxoNaRota === null) {
+    throw new ErroPipe(
+      403,
+      'chave_de_fluxo',
+      'Esta chave é de um fluxo e só vale nas rotas desse fluxo (/v1/gestao/fluxos/:id/…).',
+      { fluxoId: chave.fluxoId },
+    );
+  }
+  if (fluxoNaRota.toLowerCase() !== chave.fluxoId.toLowerCase()) {
+    throw new ErroPipe(
+      403,
+      'chave_de_outro_fluxo',
+      'Esta chave pertence a outro fluxo e não pode agir neste.',
+      { fluxoId: chave.fluxoId },
+    );
+  }
+}
 
 export class GuardaChaveApi implements CanActivate {
   constructor(private readonly reflector: Reflector) {}
@@ -139,6 +202,10 @@ export class GuardaChaveApi implements CanActivate {
       );
       throw ErroPipe.semEscopo(faltando ?? exigidos[0] ?? 'desconhecido');
     }
+
+    // Depois do escopo: "o que" a chave pode fazer é conferido antes de "onde".
+    // O guarda roda já dentro da rota casada, então `params` e `route.path` existem.
+    conferirFluxoDaChave(chave, fluxoDaRota(requisicao));
     return true;
   }
 }
@@ -152,7 +219,7 @@ export async function autenticar(cabecalho: string | undefined): Promise<Context
   const [, prefixo, segredo] = partes;
 
   const { rows } = await bancoDono().execute<LinhaChave>(sql`
-    select id, tenant_id, hash, escopos,
+    select id, tenant_id, fluxo_id, hash, escopos,
            (expira_em is not null and expira_em <= now()) as expirada,
            (revogada_em is not null) as revogada
       from chave_api
@@ -170,7 +237,12 @@ export async function autenticar(cabecalho: string | undefined): Promise<Context
     .execute(sql`update chave_api set ultimo_uso_em = now() where id = ${linha.id}`)
     .catch(() => undefined);
 
-  return { tenantId: linha.tenant_id, chaveId: linha.id, escopos: linha.escopos ?? [] };
+  return {
+    tenantId: linha.tenant_id,
+    chaveId: linha.id,
+    escopos: linha.escopos ?? [],
+    fluxoId: linha.fluxo_id,
+  };
 }
 
 export function hashDoSegredo(segredo: string): string {
