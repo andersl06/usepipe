@@ -1,30 +1,38 @@
 import { sql } from 'drizzle-orm';
-import { registrarAuditoria } from '@pipe/db';
+import { cifrar, registrarAuditoria } from '@pipe/db';
 import type { TransacaoPipe, Ator } from '@pipe/db';
+import { chaveiro } from '../../banco.js';
 import { ErroPipe } from '../../erros.js';
+import { esquecerCertificadosMtls } from '../mtls.js';
+import { lerPfx } from './pfx.js';
 
 /**
  * Certificados de autenticação (mTLS) do contrato — o que a tela
  * `/contrato/certificados` lê e grava.
  *
- * Na origem tudo é comando LIME para `postmaster@mtls.blip.ai`, que sobe o
- * `.pfx` para o serviço deles e guarda o que ele extrai
- * (`docs/pesquisa/blip-certificados-mtls.md`). O Pipe não tem esse serviço nem
- * o proxy que faria o mTLS de verdade valer alguma coisa — **então esta tabela
- * nunca guarda o arquivo nem a senha dele**, só o que é público de um
- * certificado: descrição, hosts, validade e impressão digital, digitados por
- * quem cadastra. Não há coluna para cifrar com `packages/db/src/segredo.ts`
- * porque não há chave nenhuma para cifrar.
+ * Na origem tudo é comando LIME para `postmaster@mtls.blip.ai`: a tela sobe o
+ * `.pfx` com a senha (`multipart` com `password` e `file`), o serviço deles lê
+ * o arquivo e devolve `status` e `expiration_date`, e o certificado fica
+ * associado a `hosts` (`docs/pesquisa/blip-certificados-mtls.md`). Quando a
+ * plataforma chama um desses hosts, apresenta o certificado.
  *
- * ponytail: o upload automático (ler o `.pfx` e extrair validade/impressão
- * digital sozinho) fica de fora — exigiria uma biblioteca de PKCS12 que o
- * projeto não tem, e um proxy mTLS que o Pipe não tem para usá-lo depois. A
- * tela marca essa parte como "em breve"; aqui só o cadastro manual.
+ * Aqui é igual, desde a migration 0044: o `.pfx` e a senha ficam **cifrados**
+ * (`packages/db/src/segredo.ts`) em `arquivo_cifrado`/`senha_cifrada`; a
+ * validade, a impressão digital, o emissor e o sujeito saem do próprio arquivo
+ * (`pfx.ts`, com `node:tls`/`node:crypto`); e `dominio/mtls.ts` usa o par para
+ * apresentar o certificado nos webhooks de saída. O status é calculado —
+ * `valido`/`expirado` pela validade, `sem_arquivo` para o que foi cadastrado à
+ * mão antes da 0044 (a origem tem `valid`/`invalid`/`underValidation`; o
+ * "em validação" deles é o upload assíncrono, que aqui é síncrono).
+ *
+ * **O que nunca sai daqui**: o arquivo e a senha. Não vão na listagem, não
+ * vão na resposta do cadastro, não vão no log de auditoria — só
+ * `dominio/mtls.ts` os lê, decifra e entrega ao `https.Agent`.
  *
  * Raw SQL, como `rastreador-de-cliques.ts` (migration 0038): as tabelas
- * (`certificado_mtls`, `certificado_mtls_host`, migration 0039) não entram no
- * schema Drizzle para não competir com quem mexe em `identidade`/`automacao`
- * ao mesmo tempo.
+ * (`certificado_mtls`, `certificado_mtls_host`, migrations 0039 e 0044) não
+ * entram no schema Drizzle para não competir com quem mexe em
+ * `identidade`/`automacao` ao mesmo tempo.
  */
 
 export interface HostDoCertificado {
@@ -32,27 +40,38 @@ export interface HostDoCertificado {
   host: string;
 }
 
+/** `valid`/`invalid` da origem, com nome pelo motivo — a tela escolhe o chip por aqui. */
+export type StatusDoCertificado = 'valido' | 'expirado' | 'sem_arquivo';
+
 export interface CertificadoMtls {
   id: string;
   descricao: string;
-  /** ISO 8601, só a data (`date` no banco). */
+  /** ISO 8601, só a data (`date` no banco). Lida do `.pfx`. */
   expiraEm: string;
+  /** SHA-256 `AB:CD:…`, lida do `.pfx`. */
   impressaoDigital: string;
+  emissor: string | null;
+  sujeito: string | null;
+  status: StatusDoCertificado;
   hosts: HostDoCertificado[];
   criadoEm: string;
 }
 
 export interface PedidoDeCertificado {
   descricao: string;
-  /** `YYYY-MM-DD` ou qualquer formato que `Date` entenda. */
-  expiraEm: string;
-  impressaoDigital: string;
   hosts: string[];
+  /** A senha do `.pfx`. Cifrada no banco, nunca devolvida. */
+  senha: string;
+  /** O `.pfx` em base64 — puro ou como data URL (`data:…;base64,…`), que é o que o `FileReader` da tela dá. */
+  arquivo: string;
 }
 
 export type Gravacao = { ok: true } | { ok: false; erro: string };
 
 const OK: Gravacao = { ok: true };
+
+/** "O arquivo deve ter no máximo 10MB" — o teto do `yt` da origem, conferido de novo aqui. */
+export const MAX_BYTES_DO_PFX = 10 * 1048576;
 
 const URL_HTTPS = /^https:\/\/[a-zA-Z0-9-.]+\.[a-zA-Z]{2,}(:\d+)?(\/.*)?$/;
 
@@ -90,38 +109,65 @@ function normalizarDescricao(cru: string | undefined): string {
   return descricao;
 }
 
-function normalizarImpressaoDigital(cru: string | undefined): string {
-  const impressao = (cru ?? '').trim();
-  if (!impressao) {
-    throw ErroPipe.requisicao(
-      'impressao_digital_obrigatoria',
-      'Informe a impressão digital (fingerprint) do certificado.',
-    );
-  }
-  return impressao;
+function normalizarSenha(crua: unknown): string {
+  const senha = typeof crua === 'string' ? crua : '';
+  if (!senha) throw ErroPipe.requisicao('senha_obrigatoria', 'Informe a senha do certificado.');
+  return senha;
 }
 
-function normalizarExpiraEm(cru: string | undefined): Date {
-  const data = new Date(cru ?? '');
-  if (Number.isNaN(data.getTime())) {
-    throw ErroPipe.requisicao('validade_invalida', 'Informe uma data de validade válida.');
+/** Base64 puro ou data URL → bytes. Vazio, ilegível ou maior que o teto: 400. */
+function normalizarArquivo(cru: unknown): Buffer {
+  const texto = typeof cru === 'string' ? cru.trim() : '';
+  const base64 = texto.startsWith('data:') ? texto.slice(texto.indexOf(',') + 1) : texto;
+  if (!base64 || !/^[A-Za-z0-9+/=\s]+$/.test(base64)) {
+    throw ErroPipe.requisicao('arquivo_obrigatorio', 'Mande o arquivo .pfx em base64.');
   }
-  return data;
+  const bytes = Buffer.from(base64, 'base64');
+  if (bytes.byteLength === 0) {
+    throw ErroPipe.requisicao('arquivo_obrigatorio', 'Mande o arquivo .pfx em base64.');
+  }
+  if (bytes.byteLength > MAX_BYTES_DO_PFX) {
+    throw ErroPipe.requisicao('arquivo_grande', 'O arquivo deve ter no máximo 10MB.');
+  }
+  return bytes;
 }
 
-/** A lista da tela, mais nova primeiro — como a origem devolve `response.items`. */
+type LinhaDeCertificado = {
+  id: string;
+  descricao: string;
+  expira_em: string;
+  impressao_digital: string;
+  emissor: string | null;
+  sujeito: string | null;
+  tem_arquivo: boolean;
+  expirado: boolean;
+  criado_em: string;
+};
+
+function statusDe(linha: { tem_arquivo: boolean; expirado: boolean }): StatusDoCertificado {
+  if (!linha.tem_arquivo) return 'sem_arquivo';
+  return linha.expirado ? 'expirado' : 'valido';
+}
+
+/**
+ * A lista da tela, mais nova primeiro — como a origem devolve `response.items`.
+ * `arquivo_cifrado` e `senha_cifrada` não entram no `select`: nem cifrados
+ * saem daqui. O `expirado` é decidido pelo Postgres (`current_date`), para
+ * não depender do fuso do processo ao comparar um `date`.
+ */
 export async function listarCertificados(
   tx: TransacaoPipe,
   tenantId: string,
 ): Promise<CertificadoMtls[]> {
-  const { rows: certificados } = await tx.execute<{
-    id: string;
-    descricao: string;
-    expira_em: string;
-    impressao_digital: string;
-    criado_em: string;
-  }>(sql`
-    select id, descricao, expira_em, impressao_digital, criado_em
+  // `expira_em` sai como texto `YYYY-MM-DD`: o driver devolveria um `date`
+  // como `Date` à meia-noite LOCAL, e `toISOString()` num fuso negativo
+  // voltaria um dia.
+  const { rows: certificados } = await tx.execute<LinhaDeCertificado>(sql`
+    select id, descricao, to_char(expira_em, 'YYYY-MM-DD') as expira_em,
+           impressao_digital, emissor, sujeito,
+           (arquivo_cifrado is not null and senha_cifrada is not null) as tem_arquivo,
+           (expira_em < current_date) as expirado,
+           criado_em
       from certificado_mtls
      where tenant_id = ${tenantId}::uuid
      order by criado_em desc
@@ -150,12 +196,21 @@ export async function listarCertificados(
     descricao: c.descricao,
     expiraEm: new Date(c.expira_em).toISOString(),
     impressaoDigital: c.impressao_digital,
+    emissor: c.emissor,
+    sujeito: c.sujeito,
+    status: statusDe(c),
     hosts: hostsPorCertificado.get(c.id) ?? [],
     criadoEm: new Date(c.criado_em).toISOString(),
   }));
 }
 
-/** Cadastra o certificado e os hosts dele, na mesma transação. */
+/**
+ * Cadastra o certificado e os hosts dele, na mesma transação.
+ *
+ * O `.pfx` é lido ANTES de qualquer gravação (`lerPfx`): senha errada ou
+ * arquivo que não serve é 400, e nada entra no banco. O que entra, entra
+ * cifrado com a chave atual do chaveiro.
+ */
 export async function criarCertificado(
   tx: TransacaoPipe,
   tenantId: string,
@@ -163,15 +218,24 @@ export async function criarCertificado(
   pedido: PedidoDeCertificado,
 ): Promise<CertificadoMtls> {
   const descricao = normalizarDescricao(pedido.descricao);
-  const expiraEm = normalizarExpiraEm(pedido.expiraEm);
-  const impressaoDigital = normalizarImpressaoDigital(pedido.impressaoDigital);
   const hosts = normalizarHosts(pedido.hosts);
+  const senha = normalizarSenha(pedido.senha);
+  const arquivo = normalizarArquivo(pedido.arquivo);
+  const leitura = lerPfx(arquivo, senha);
 
-  const { rows } = await tx.execute<{ id: string; criado_em: string }>(sql`
-    insert into certificado_mtls (tenant_id, descricao, expira_em, impressao_digital, criado_por)
-    values (${tenantId}::uuid, ${descricao}, ${expiraEm.toISOString().slice(0, 10)}::date,
-            ${impressaoDigital}, ${ator.id ?? null})
-    returning id, criado_em
+  const chaves = chaveiro();
+  const arquivoCifrado = cifrar(arquivo.toString('base64'), chaves);
+  const senhaCifrada = cifrar(senha, chaves);
+  const expiraEm = leitura.expiraEm.toISOString().slice(0, 10);
+
+  const { rows } = await tx.execute<{ id: string; criado_em: string; expirado: boolean }>(sql`
+    insert into certificado_mtls
+      (tenant_id, descricao, expira_em, impressao_digital, emissor, sujeito,
+       arquivo_cifrado, senha_cifrada, criado_por)
+    values (${tenantId}::uuid, ${descricao}, ${expiraEm}::date, ${leitura.impressaoDigital},
+            ${leitura.emissor}, ${leitura.sujeito}, ${arquivoCifrado}, ${senhaCifrada},
+            ${ator.id ?? null})
+    returning id, criado_em, (expira_em < current_date) as expirado
   `);
   const novo = rows[0]!;
 
@@ -185,19 +249,36 @@ export async function criarCertificado(
     hostsGravados.push({ id: hostRows[0]!.id, host });
   }
 
+  // Só o que é público do certificado: nada do arquivo, nada da senha.
   await registrarAuditoria(tx, tenantId, {
     ator,
     acao: 'criou',
     objetoTipo: 'certificado_mtls',
     objetoId: novo.id,
-    depois: { descricao, expiraEm: expiraEm.toISOString(), hosts },
+    depois: {
+      descricao,
+      expiraEm: leitura.expiraEm.toISOString(),
+      impressaoDigital: leitura.impressaoDigital,
+      sujeito: leitura.sujeito,
+      emissor: leitura.emissor,
+      hosts,
+    },
   });
+
+  // O índice de hosts deste tenant em `mtls.ts` ficou velho. (Chamado dentro
+  // da transação: entre aqui e o commit uma entrega pode reler o estado antigo,
+  // e o TTL curto do índice cobre essa janela.)
+  esquecerCertificadosMtls(tenantId);
 
   return {
     id: novo.id,
     descricao,
-    expiraEm: expiraEm.toISOString(),
-    impressaoDigital,
+    // A mesma forma da listagem: a data, à meia-noite UTC.
+    expiraEm: new Date(expiraEm).toISOString(),
+    impressaoDigital: leitura.impressaoDigital,
+    emissor: leitura.emissor,
+    sujeito: leitura.sujeito,
+    status: novo.expirado ? 'expirado' : 'valido',
     hosts: hostsGravados,
     criadoEm: new Date(novo.criado_em).toISOString(),
   };
@@ -229,6 +310,7 @@ export async function excluirCertificado(
     objetoId: certificadoId,
     antes: { descricao: alvo.descricao },
   });
+  esquecerCertificadosMtls(tenantId, certificadoId);
   return OK;
 }
 
@@ -275,5 +357,6 @@ export async function excluirHostDoCertificado(
     objetoId: hostId,
     antes: { host: alvo.host, certificadoExcluidoJunto: semHostRestante },
   });
+  esquecerCertificadosMtls(tenantId, certificadoId);
   return OK;
 }

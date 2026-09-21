@@ -100,6 +100,16 @@ export async function criarAplicacao(): Promise<INestApplication> {
     express.json({ limit: process.env['PIPE_LIMITE_BUILDER'] ?? '16mb' }),
   );
 
+  // O `.pfx` do certificado mTLS vai em base64 no JSON, junto da descrição, dos
+  // hosts e da SENHA — que por isso não pode ir em querystring nem cabeçalho,
+  // onde acabaria em log de proxy; é o que descarta o corpo cru de `/v1/anexos`
+  // aqui. Teto de 10 MB do arquivo (regra da origem, conferida de novo em
+  // `gestao/certificados.ts`) vira ~13,4 MB de base64.
+  app.use(
+    '/v1/gestao/contrato/certificados',
+    express.json({ limit: process.env['PIPE_LIMITE_CERTIFICADO'] ?? '15mb' }),
+  );
+
   app.use(
     express.json({
       limit: process.env['PIPE_LIMITE_CORPO'] ?? '2mb',

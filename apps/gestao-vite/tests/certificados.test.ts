@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   dataDeExpiracao,
+  etiquetaDoStatus,
   hostValido,
   informacoesCompletas,
   problemaNoArquivo,
@@ -12,12 +13,18 @@ import {
  * `yt` do fragmento deles. Errar qualquer uma não quebra a tela: ela deixa
  * passar para o passo seguinte quem não devia, ou mostra a data errada.
  *
- * O `status` (`valid`/`invalid`/`underValidation`) da origem saiu daqui — o
- * Pipe não lê o `.pfx` para calculá-lo (`EM_BREVE_UPLOAD` em `lib/certificados.ts`).
+ * O `status` é calculado pela `api` a partir do `.pfx` (`valido`/`expirado`,
+ * e `sem_arquivo` para o cadastro antigo); aqui só se escolhe o chip.
  */
 
 test('a expiração sai em dia/mês/ano, contada em UTC', () => {
   assert.equal(dataDeExpiracao('2026-09-13T01:00:00Z'), '13/09/2026');
+});
+
+test('o chip do status: válido → success, expirado → disabled, sem arquivo → default', () => {
+  assert.deepEqual(etiquetaDoStatus('valido'), { texto: 'Válido', classe: 'sucesso' });
+  assert.deepEqual(etiquetaDoStatus('expirado'), { texto: 'Expirado', classe: 'desabilitado' });
+  assert.deepEqual(etiquetaDoStatus('sem_arquivo'), { texto: 'Sem arquivo', classe: 'padrao' });
 });
 
 test('a URL precisa ser HTTPS com domínio e não pode repetir', () => {
@@ -28,20 +35,12 @@ test('a URL precisa ser HTTPS com domínio e não pode repetir', () => {
   assert.equal(hostValido('https://a.exemplo.com', atuais), false);
 });
 
-test('só avança com descrição, validade, impressão digital e toda URL preenchida e válida', () => {
+test('só avança com descrição e toda URL preenchida e válida', () => {
   const boa = { host: 'https://a.exemplo.com', valido: true };
-  assert.equal(informacoesCompletas('Banco', [boa], '2027-01-01', 'AB:CD'), true);
-  assert.equal(informacoesCompletas('', [boa], '2027-01-01', 'AB:CD'), false);
-  assert.equal(informacoesCompletas('Banco', [boa], '', 'AB:CD'), false);
-  assert.equal(informacoesCompletas('Banco', [boa], '2027-01-01', '  '), false);
-  assert.equal(
-    informacoesCompletas('Banco', [boa, { host: '', valido: true }], '2027-01-01', 'AB:CD'),
-    false,
-  );
-  assert.equal(
-    informacoesCompletas('Banco', [{ host: 'x', valido: false }], '2027-01-01', 'AB:CD'),
-    false,
-  );
+  assert.equal(informacoesCompletas('Banco', [boa]), true);
+  assert.equal(informacoesCompletas('', [boa]), false);
+  assert.equal(informacoesCompletas('Banco', [boa, { host: '', valido: true }]), false);
+  assert.equal(informacoesCompletas('Banco', [{ host: 'x', valido: false }]), false);
 });
 
 test('o arquivo precisa ser .pfx de até 10MB', () => {
@@ -55,4 +54,10 @@ test('o arquivo precisa ser .pfx de até 10MB', () => {
     'O arquivo deve ter no máximo 10MB',
   );
   assert.equal(problemaNoArquivo({ type: 'application/x-pkcs12', size: 1024 }), null);
+  // Navegador que não declara o tipo do .pfx: vale a extensão.
+  assert.equal(problemaNoArquivo({ name: 'cliente.pfx', type: '', size: 1024 }), null);
+  assert.equal(
+    problemaNoArquivo({ name: 'cliente.txt', type: '', size: 1024 }),
+    'O arquivo deve ser do tipo .pfx',
+  );
 });

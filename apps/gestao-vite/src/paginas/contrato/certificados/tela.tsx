@@ -3,14 +3,16 @@ import type { ReactNode, RefObject } from 'react';
 import { IconePortal } from '../../../componentes/icones-portal';
 import {
   dataDeExpiracao,
+  etiquetaDoStatus,
   hostValido,
   informacoesCompletas,
+  lerArquivoComoDataUrl,
   problemaNoArquivo,
-  EM_BREVE_UPLOAD,
   type CertificadoMtls,
   type HostDigitado,
 } from '../../../lib/certificados';
 import { cadastrarCertificado, excluirCertificado, excluirHostDoCertificado } from './acoes';
+import type { PedidoDeCertificado } from './acoes';
 
 /**
  * A tela de Certificados de autenticação, na mecânica do `zt` deles
@@ -26,10 +28,10 @@ import { cadastrarCertificado, excluirCertificado, excluirHostDoCertificado } fr
  *
  * Toda escrita cai em `./acoes.ts` (`POST/DELETE
  * /v1/gestao/contrato/certificados*`), que confere a permissão no servidor e
- * volta com o motivo — mostrado no lugar do toast deles. **O que não existe**:
- * ler o `.pfx` para tirar validade e impressão digital sozinho — por isso o
- * passo 2 pede os dois campos à mão, e a coluna Status vira o selo "em breve"
- * (`EM_BREVE_UPLOAD`, `lib/certificados.ts`).
+ * volta com o motivo — mostrado no lugar do toast deles. O `.pfx` e a senha
+ * vão de verdade no "Finalizar" (data URL + senha no JSON): a `api` lê o
+ * arquivo, tira validade e impressão digital, guarda os dois cifrados e
+ * calcula o status que a coluna mostra (`etiquetaDoStatus`).
  */
 
 /** Os textos da tela, em pt-BR, dos dicionários `Et`, `Ct`, `ut`, `Dt`, `Mt` e `Tt`. */
@@ -62,10 +64,6 @@ const TEXTO = {
     url: 'URL',
     urlDica: 'Insira a URL do certificado',
     urlInvalida: 'Insira uma URL HTTPS válida',
-    validade: 'Validade',
-    validadeDica: 'Data de validade do certificado',
-    impressaoDigital: 'Impressão digital',
-    impressaoDigitalDica: 'Ex.: AB:CD:12:34…',
   },
   conferencia: {
     titulo: 'Conferência',
@@ -73,8 +71,6 @@ const TEXTO = {
     arquivo: 'Arquivo',
     descricao: 'Descrição',
     url: 'URL',
-    validade: 'Validade',
-    impressaoDigital: 'Impressão digital',
   },
   hosts: { titulo: 'Gerencie o host do certificado ', host: 'Host', acoes: 'Ações' },
   alerta: {
@@ -92,8 +88,6 @@ interface Entradas {
   arquivo: File | null;
   senha: string;
   descricao: string;
-  expiraEm: string;
-  impressaoDigital: string;
   hosts: HostDigitado[];
 }
 
@@ -102,8 +96,6 @@ const VAZIO: Entradas = {
   arquivo: null,
   senha: '',
   descricao: '',
-  expiraEm: '',
-  impressaoDigital: '',
   hosts: [{ host: '', valido: true }],
 };
 
@@ -126,15 +118,10 @@ export function TelaDeCertificados({
 
   const certificado = certificados.find((c) => c.id === emMao) ?? null;
 
-  async function cadastrar(dados: {
-    descricao: string;
-    expiraEm: string;
-    impressaoDigital: string;
-    hosts: string[];
-  }): Promise<boolean> {
+  async function cadastrar(pedido: PedidoDeCertificado): Promise<boolean> {
     marcarEnviando(true);
     try {
-      const resultado = await cadastrarCertificado(dados);
+      const resultado = await cadastrarCertificado(pedido);
       if (!resultado.ok) {
         avisar(resultado.erro);
         return false;
@@ -234,11 +221,9 @@ export function TelaDeCertificados({
                   </td>
                   <td>{dataDeExpiracao(c.expiraEm)}</td>
                   <td>
-                    {/* Sem proxy mTLS de verdade, o Pipe não confere se o
-                        certificado é válido — ver `EM_BREVE_UPLOAD`. */}
-                    <span className="cm-etiqueta cm-etiqueta--padrao" title={EM_BREVE_UPLOAD}>
-                      <span>Em breve</span>
-                    </span>
+                    {/* `bds-chip-tag` pelo `status` — o chip calculado da origem,
+                        com a impressão digital e o sujeito na dica. */}
+                    <Etiqueta certificado={c} />
                   </td>
                   <td className="cm-col-acoes">
                     {podeEscrever ? (
@@ -360,6 +345,26 @@ function Tabela({
   );
 }
 
+/**
+ * `bds-chip-tag` da coluna Status: `success`/`disabled`/`default` conforme
+ * `etiquetaDoStatus`. A dica traz o que a `api` leu do `.pfx`.
+ */
+function Etiqueta({ certificado }: { certificado: CertificadoMtls }) {
+  const { texto, classe } = etiquetaDoStatus(certificado.status);
+  const dica = [
+    certificado.sujeito ? `Sujeito: ${certificado.sujeito}` : null,
+    certificado.emissor ? `Emissor: ${certificado.emissor}` : null,
+    `SHA-256: ${certificado.impressaoDigital}`,
+  ]
+    .filter(Boolean)
+    .join('\n');
+  return (
+    <span className={`cm-etiqueta cm-etiqueta--${classe}`} title={dica} data-status={certificado.status}>
+      <span>{texto}</span>
+    </span>
+  );
+}
+
 /** `bds-button-icon size="short" variant="secondary"`. */
 function BotaoDeIcone({
   nome,
@@ -465,10 +470,12 @@ function Aviso({ texto, aoSumir }: { texto: string | null; aoSumir: () => void }
  * fileira de botões. "Próximo" só destrava com o passo atual preenchido; o
  * arquivo só é conferido em "Finalizar", como lá.
  *
- * **O que muda da origem**: o arquivo e a senha não saem do navegador — ver
- * `EM_BREVE_UPLOAD`. O passo 2 pede validade e impressão digital à mão, e é
- * esse par (mais descrição e hosts) que vai para `POST
- * /v1/gestao/contrato/certificados`.
+ * **O que muda da origem**: lá o passo 1 destrava só com o nome do arquivo e
+ * a senha errada aparece no "Finalizar"; aqui a senha também é exigida para
+ * avançar, porque a `api` recusa o cadastro sem ela — errar a senha continua
+ * sendo o toast do "Finalizar" ("A senha do certificado está incorreta.").
+ * O que vai para `POST /v1/gestao/contrato/certificados`: arquivo (data URL),
+ * senha, descrição e hosts.
  */
 function Cadastro({
   janela,
@@ -479,24 +486,14 @@ function Cadastro({
   janela: RefObject<HTMLDialogElement | null>;
   enviando: boolean;
   aoAvisar: (texto: string) => void;
-  aoFinalizar: (dados: {
-    descricao: string;
-    expiraEm: string;
-    impressaoDigital: string;
-    hosts: string[];
-  }) => Promise<boolean>;
+  aoFinalizar: (pedido: PedidoDeCertificado) => Promise<boolean>;
 }) {
   const [passo, irPara] = useState(0);
   const [entradas, preencher] = useState<Entradas>(VAZIO);
   const [tocado, marcarTocado] = useState(false);
 
-  const temArquivo = entradas.arquivo !== null;
-  const infoOk = informacoesCompletas(
-    entradas.descricao,
-    entradas.hosts,
-    entradas.expiraEm,
-    entradas.impressaoDigital,
-  );
+  const temArquivo = entradas.arquivo !== null && entradas.senha !== '';
+  const infoOk = informacoesCompletas(entradas.descricao, entradas.hosts);
 
   function trocarHost(indice: number, valor: string) {
     preencher((antes) => ({
@@ -508,15 +505,22 @@ function Cadastro({
   }
 
   async function finalizar() {
-    if (!temArquivo || !infoOk) return;
+    if (!temArquivo || !infoOk || !entradas.arquivo) return;
     const problema = problemaNoArquivo(entradas.arquivo);
     if (problema) return aoAvisar(problema);
 
+    let arquivo: string;
+    try {
+      arquivo = await lerArquivoComoDataUrl(entradas.arquivo);
+    } catch {
+      return aoAvisar(problemaNoArquivo(null) ?? '');
+    }
+
     const gravou = await aoFinalizar({
       descricao: entradas.descricao,
-      expiraEm: entradas.expiraEm,
-      impressaoDigital: entradas.impressaoDigital,
       hosts: entradas.hosts.map((h) => h.host),
+      senha: entradas.senha,
+      arquivo,
     });
     // Sucesso: formulário limpo, volta ao passo 1 e fecha — falha: a origem
     // mostra o toast e deixa a janela aberta (`aoAvisar` já cuidou do toast).
@@ -578,16 +582,13 @@ function Cadastro({
                 <span className="cm-t14">{TEXTO.upload.soltar}</span>
                 <input
                   type="file"
-                  accept=".pfx"
+                  accept=".pfx,.p12,application/x-pkcs12"
                   onChange={(e) => {
                     const arquivo = e.target.files?.[0] ?? null;
                     preencher((antes) => ({ ...antes, arquivo }));
                   }}
                 />
               </label>
-              {/* `EM_BREVE_UPLOAD`: o Pipe ainda não lê o arquivo — o próximo
-                  passo pede validade e impressão digital à mão. */}
-              <p className="cm-t14">{EM_BREVE_UPLOAD}</p>
             </div>
             <div className="cm-metade">
               <Campo
@@ -611,19 +612,6 @@ function Cadastro({
               erro={tocado && entradas.descricao === '' ? TEXTO.info.descricaoInvalida : null}
               aoSair={() => marcarTocado(true)}
               aoMudar={(descricao) => preencher((antes) => ({ ...antes, descricao }))}
-            />
-            <Campo
-              rotulo={TEXTO.info.validade}
-              tipo="date"
-              valor={entradas.expiraEm}
-              dica={TEXTO.info.validadeDica}
-              aoMudar={(expiraEm) => preencher((antes) => ({ ...antes, expiraEm }))}
-            />
-            <Campo
-              rotulo={TEXTO.info.impressaoDigital}
-              valor={entradas.impressaoDigital}
-              dica={TEXTO.info.impressaoDigitalDica}
-              aoMudar={(impressaoDigital) => preencher((antes) => ({ ...antes, impressaoDigital }))}
             />
             {entradas.hosts.map((h, i) => (
               <div key={i} className="cm-linha-de-host">
@@ -679,10 +667,6 @@ function Cadastro({
             <p className="cm-item">{entradas.arquivo?.name ?? ''}</p>
             <b className="cm-t16">{TEXTO.conferencia.descricao}</b>
             <p className="cm-item">{entradas.descricao}</p>
-            <b className="cm-t16">{TEXTO.conferencia.validade}</b>
-            <p className="cm-item">{entradas.expiraEm}</p>
-            <b className="cm-t16">{TEXTO.conferencia.impressaoDigital}</b>
-            <p className="cm-item">{entradas.impressaoDigital}</p>
             <b className="cm-t16">{TEXTO.conferencia.url}</b>
             {entradas.hosts.map((h, i) => (
               <p key={i} className="cm-item">

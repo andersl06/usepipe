@@ -4,6 +4,7 @@ import { decifrar, estaCifrado } from '@pipe/db';
 import type { TransacaoPipe } from '@pipe/db';
 import type { TIPOS_AUTENTICACAO_WEBHOOK } from '@pipe/db/schema';
 import { chaveiro, noTenant } from './banco.js';
+import { chamarComMtls } from './dominio/mtls.js';
 
 /**
  * Webhooks de saída — `apis.md` §5.5.
@@ -16,6 +17,10 @@ import { chaveiro, noTenant } from './banco.js';
  *
  * `entrega_webhook` guarda tentativa e erro. Webhook que falha em silêncio é a mesma
  * doença do envio que falha em silêncio.
+ *
+ * O POST em si sai por `chamarComMtls` (`dominio/mtls.ts`): se o host do
+ * webhook tem certificado cadastrado em `/contrato/certificados`, a Pipe o
+ * apresenta (mTLS); se não tem, é o `fetch` de sempre.
  */
 
 export const EVENTOS = [
@@ -270,11 +275,11 @@ async function entregarUma(
     });
     if (autorizacao) cabecalhos['authorization'] = autorizacao;
 
-    const resposta = await fetch(linha.url, {
-      method: 'POST',
+    const resposta = await chamarComMtls(tenantId, linha.url, {
+      metodo: 'POST',
       headers: cabecalhos,
       body: corpo,
-      signal: AbortSignal.timeout(TEMPO_LIMITE_MS),
+      timeoutMs: TEMPO_LIMITE_MS,
     });
     if (!resposta.ok) erro = `HTTP ${resposta.status}`;
   } catch (falha) {

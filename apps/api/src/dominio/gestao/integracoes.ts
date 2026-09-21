@@ -16,6 +16,7 @@ import {
   decifrarSegredoDeWebhook,
 } from '../../webhooks-saida.js';
 import type { CabecalhoCustomizado, EventoWebhook, TipoAutenticacaoWebhook } from '../../webhooks-saida.js';
+import { chamarComMtls } from '../mtls.js';
 import { EDITAR_FLUXO } from './ciclo-de-vida-do-fluxo.js';
 
 /**
@@ -721,7 +722,8 @@ const LIMITE_CORPO_DO_TESTE = 300;
  * é um clique de gente, não um fato de negócio, e não deixa rastro em
  * `entrega_webhook` (não é evento real, e falhar aqui não deve gerar retry).
  * Usa a MESMA autenticação e os MESMOS cabeçalhos customizados da entrega de
- * verdade (`cabecalhosDeSaida`/`cabecalhoDeAutorizacao`, `webhooks-saida.ts`).
+ * verdade (`cabecalhosDeSaida`/`cabecalhoDeAutorizacao`, `webhooks-saida.ts`)
+ * — e o MESMO certificado mTLS, se o host tiver um (`chamarComMtls`).
  */
 export async function testarWebhook(
   tx: TransacaoPipe,
@@ -759,14 +761,14 @@ export async function testarWebhook(
     });
     if (autorizacao) cabecalhos['authorization'] = autorizacao;
 
-    const resposta = await fetch(webhook.url, {
-      method: 'POST',
+    const resposta = await chamarComMtls(tenantId, webhook.url, {
+      metodo: 'POST',
       headers: cabecalhos,
       body: corpo,
-      signal: AbortSignal.timeout(5_000),
+      timeoutMs: 5_000,
     });
     const corpoDaResposta = await resposta
-      .text()
+      .texto()
       .catch(() => '')
       .then((texto) => texto.slice(0, LIMITE_CORPO_DO_TESTE));
     return resposta.ok

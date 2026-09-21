@@ -1,4 +1,4 @@
-import { api } from '../../../lib/api';
+import { api, ErroDaApi } from '../../../lib/api';
 import { atualizarLeituras } from '../../../lib/acoes';
 import type { CertificadoMtls } from '../../../lib/certificados';
 
@@ -13,11 +13,17 @@ interface ResultadoSimples {
   erro?: string;
 }
 
+/**
+ * O que a origem manda no "Finalizar": `password` + `file` no upload e depois
+ * `description` + `hosts` no `set` — aqui tudo num POST só. A senha e o
+ * arquivo só passam por aqui; a `api` os guarda cifrados e nunca os devolve.
+ */
 export interface PedidoDeCertificado {
   descricao: string;
-  expiraEm: string;
-  impressaoDigital: string;
   hosts: string[];
+  senha: string;
+  /** Data URL do `.pfx` (`lerArquivoComoDataUrl`). */
+  arquivo: string;
 }
 
 export async function cadastrarCertificado(
@@ -28,8 +34,22 @@ export async function cadastrarCertificado(
     atualizarLeituras();
     return { ok: true, certificado };
   } catch (e) {
-    return { ok: false, erro: e instanceof Error ? e.message : 'Não foi possível cadastrar.' };
+    return { ok: false, erro: motivoDoErro(e) };
   }
+}
+
+/**
+ * O `erro.mensagem` do corpo da `api` ("A senha do certificado está
+ * incorreta.", "O arquivo não é um .pfx válido…"): é o que a origem mostra no
+ * toast em vez do status.
+ */
+function motivoDoErro(e: unknown): string {
+  if (e instanceof ErroDaApi) {
+    const corpo = e.corpo as { erro?: { mensagem?: string } } | null;
+    if (corpo?.erro?.mensagem) return corpo.erro.mensagem;
+    if (e.status === 413) return 'O arquivo deve ter no máximo 10MB';
+  }
+  return e instanceof Error ? e.message : 'Não foi possível cadastrar.';
 }
 
 export async function excluirCertificado(id: string): Promise<ResultadoSimples> {

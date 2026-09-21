@@ -9,8 +9,12 @@ hash da captura "empresa") e das folhas do blip-ds que a rota carregou
 `60`). Os arquivos `wss---*` desta captura têm 29 e 62 bytes: **nenhum quadro
 LIME foi gravado**. O contrato dos comandos saiu do código (`class Ft`).
 
-Implementação nossa: `apps/gestao/src/app/contrato/certificados/` e
-`apps/gestao/src/lib/certificados.ts`.
+Implementação nossa: tela em `apps/gestao-vite/src/paginas/contrato/certificados/`
+e `apps/gestao-vite/src/lib/certificados.ts`; cadastro em
+`apps/api/src/dominio/gestao/certificados.ts` (o `.pfx` e a senha cifrados,
+migration 0044), leitura do arquivo em `apps/api/src/dominio/gestao/pfx.ts` e o
+uso — a Pipe apresentando o certificado ao chamar os hosts — em
+`apps/api/src/dominio/mtls.ts`.
 
 ## Rota, guarda e flag
 

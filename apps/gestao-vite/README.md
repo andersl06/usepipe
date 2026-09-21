@@ -55,4 +55,6 @@ cadastros; `paginas/*/acoes.ts` para os demais).
   padrão já usado para cliente dedicado em
   `infra/k8s/tenants/exemplo-dedicado/kustomization.yaml`
   (`gestao.<cliente>.usepipe.com.br`) — e não uma continuação deste item.
-- Certificados mTLS seguem sem armazenamento (`lib/certificados.ts`).
+- Certificados mTLS: o `.pfx` e a senha vão de verdade no cadastro
+  (`lib/certificados.ts`); a `api` guarda os dois cifrados e apresenta o
+  certificado ao chamar os hosts (`apps/api/src/dominio/mtls.ts`).
