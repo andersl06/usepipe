@@ -142,7 +142,7 @@ function AcaoVerConversas({ filtro, atendenteId }: { filtro: Filtro; atendenteId
     <td className="acts">
       <Link
         className="iconbtn"
-        href={`/?${querystring({ ...filtro, atendente: atendenteId }, 'atribuido').toString()}`}
+        href={`?${querystring({ ...filtro, atendente: atendenteId }, 'atribuido').toString()}`}
         title="Ver as conversas deste atendente"
         aria-label="Ver as conversas deste atendente"
       >
@@ -467,7 +467,7 @@ export function MonitoramentoDetalhado({
 
         {/* A busca da Blip mora AQUI, dentro do cartão, e não na faixa de
             filtros. Ela procura pelo número do ticket. */}
-        <form className="tbl-busca" method="get" action="/monitoramento">
+        <form className="tbl-busca" method="get">
           {[...querystring(filtro, aba)]
             .filter(([chave]) => chave !== 'busca')
             .map(([chave, valor]) => (
@@ -488,7 +488,7 @@ export function MonitoramentoDetalhado({
         {ABAS.map((a) => (
           <Link
             key={a.chave}
-            href={`/?${querystring(filtro, a.chave).toString()}`}
+            href={`?${querystring(filtro, a.chave).toString()}`}
             aria-current={aba === a.chave ? 'true' : undefined}
           >
             {a.rotulo}

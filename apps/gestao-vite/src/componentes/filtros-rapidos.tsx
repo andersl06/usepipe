@@ -146,7 +146,7 @@ export function FiltrosDaOperacao({
 }) {
   const algum = Boolean(atual.fila);
   return (
-    <form className="faixa-filtros" method="get" action="/monitoramento">
+    <form className="faixa-filtros" method="get">
       <span className="lbl">Filtros rápidos:</span>
       <Pilula nome="fila" rotulo="Filas" valor={atual.fila ?? ''} opcoes={filas} />
       <Escondidos atual={atual} exceto={['fila']} />
@@ -183,7 +183,7 @@ export function FiltrosDaLista({
     ? `/monitoramento?fila=${encodeURIComponent(atual.fila)}`
     : '/monitoramento';
   return (
-    <form className="faixa-filtros" method="get" action="/monitoramento">
+    <form className="faixa-filtros" method="get">
       <span className="lbl">Filtros rápidos:</span>
       <Pilula
         nome="atendente"

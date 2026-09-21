@@ -63,3 +63,11 @@ test('conversa sem marco de criação vai para o fim do seu degrau', () => {
   ]);
   assert.deepEqual(nomes(fila), ['com-marco', 'sem-marco']);
 });
+
+test('a data chegada como texto do JSON ordena igual à Date', () => {
+  const fila = ordenarFilaDeEspera([
+    { nome: 'nova', prioridade: 'alta', marcos: { criadaEm: '2026-09-07T10:30:00.000Z' } },
+    { nome: 'velha', prioridade: 'alta', marcos: { criadaEm: '2026-09-07T10:05:00.000Z' } },
+  ]);
+  assert.deepEqual(nomes(fila), ['velha', 'nova']);
+});

@@ -137,15 +137,17 @@ export interface FiltroMonitoramento {
  * mais quem atende.
  */
 export function ordenarFilaDeEspera<
-  T extends { prioridade: string; marcos: { criadaEm: Date | null } },
+  T extends { prioridade: string; marcos: { criadaEm: Date | string | null } },
 >(linhas: readonly T[]): T[] {
   return [...linhas].sort((a, b) => {
     const diferenca = pesoPrioridade(a.prioridade) - pesoPrioridade(b.prioridade);
     if (diferenca !== 0) return diferenca;
     /* Sem marco de criação vai para o fim: ela não é "a mais antiga", é a que
-       não sabemos quando começou. Mesma regra do `null` na ordem do Desk. */
-    const ta = a.marcos.criadaEm?.getTime() ?? Infinity;
-    const tb = b.marcos.criadaEm?.getTime() ?? Infinity;
+       não sabemos quando começou. Mesma regra do `null` na ordem do Desk.
+       Pelo JSON da API a data chega como TEXTO, não `Date`: chamar `getTime`
+       direto derrubava a aba "Aguardando atendimento" inteira. */
+    const ta = a.marcos.criadaEm ? new Date(a.marcos.criadaEm).getTime() : Infinity;
+    const tb = b.marcos.criadaEm ? new Date(b.marcos.criadaEm).getTime() : Infinity;
     return ta - tb;
   });
 }
