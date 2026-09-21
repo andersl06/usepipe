@@ -1,0 +1,444 @@
+/* ==========================================================================
+   Builder — o EDITOR (canvas, nós, setas, painel do bloco).
+
+   A moldura está em `paginas/builder.css`; aqui é o que vive dentro dela. As
+   medidas são as anotadas nos componentes, tiradas do `portal.css` e do DOM do
+   Builder de produção (`docs/capturas/blip/builder/`): nó de 175px, raio 8,
+   sombra `0 8px 16px`, título 14/400 que vira 700 quando selecionado, anel de
+   4px no hover, ponto de saída de 1em no meio da borda de baixo, e o painel
+   lateral de 360px. A tinta é a nossa.
+
+   ========================================================================== */
+
+.bl-canvas {
+  position: relative;
+  flex: 1;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+}
+.bl-canvas--arrastando {
+  cursor: grabbing;
+}
+
+/* A cena é o plano que desloca e amplia; os nós moram em coordenada dela. */
+.bl-cena {
+  position: absolute;
+  inset: 0;
+  transform-origin: 0 0;
+}
+
+/* ------------------------------------------------------------------ o nó */
+
+.bl-no {
+  position: absolute;
+  width: 175px;
+  box-sizing: border-box;
+  padding: 12px;
+  border-radius: 8px;
+  background: var(--p-superficie-0, #fff);
+  color: var(--p-conteudo, #1a1a1a);
+  box-shadow: 0 8px 16px rgb(0 0 0 / 32%);
+  text-align: center;
+  cursor: grab;
+  user-select: none;
+}
+.bl-no:hover {
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--p-marca, #4a5d23) 40%, transparent),
+    0 8px 16px rgb(0 0 0 / 32%);
+}
+.bl-no--selecionado,
+.bl-no--editando {
+  box-shadow:
+    0 0 0 4px var(--p-marca, #4a5d23),
+    0 8px 16px rgb(0 0 0 / 32%);
+}
+.bl-no--alvo {
+  box-shadow:
+    0 0 0 4px var(--p-alerta-conteudo, #b8860b),
+    0 8px 16px rgb(0 0 0 / 32%);
+}
+/* Início é o bloco de entrada do fluxo; atendimento é o transbordo para gente. */
+.bl-no--inicio {
+  border-top: 4px solid var(--p-marca, #4a5d23);
+}
+.bl-no--atendimento {
+  border-top: 4px solid var(--p-alerta-conteudo, #b8860b);
+}
+.bl-no--erro {
+  border: 1px solid var(--p-erro-conteudo, #c4442e);
+}
+
+.bl-no-titulo {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+  word-break: break-word;
+}
+.bl-no--selecionado .bl-no-titulo,
+.bl-no--editando .bl-no-titulo {
+  font-weight: 700;
+}
+.bl-no-corpo {
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--p-conteudo-suave, #6b6b6b);
+}
+.bl-no-etiquetas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  justify-content: center;
+  margin-top: 8px;
+}
+.bl-no-erros {
+  margin-top: 8px;
+  font-size: 12px;
+  color: var(--p-erro-conteudo, #c4442e);
+}
+
+/* O ponto de onde se arrasta a ligação: só aparece com o mouse em cima. */
+.bl-no-saida {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  width: 16px;
+  height: 16px;
+  margin-left: -8px;
+  border-radius: 50%;
+  background: var(--p-marca, #4a5d23);
+  opacity: 0;
+  cursor: crosshair;
+}
+.bl-no:hover .bl-no-saida,
+.bl-no--selecionado .bl-no-saida {
+  opacity: 1;
+}
+
+/* ---------------------------------------------------------------- as setas */
+
+.bl-setas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+.bl-seta {
+  pointer-events: auto;
+}
+.bl-seta-traco {
+  fill: none;
+  stroke: var(--p-linha-media, #9a9a9a);
+  stroke-width: 2;
+}
+.bl-seta-alvo {
+  fill: none;
+  stroke: transparent;
+  stroke-width: 12;
+  cursor: pointer;
+}
+.bl-seta-ponta {
+  fill: var(--p-linha-media, #9a9a9a);
+  stroke: none;
+}
+.bl-seta--selecionada .bl-seta-traco,
+.bl-seta--selecionada .bl-seta-ponta {
+  stroke: var(--p-marca, #4a5d23);
+  fill: var(--p-marca, #4a5d23);
+}
+.bl-seta--provisoria {
+  stroke-dasharray: 6 4;
+}
+
+/* ------------------------------------------------- menus flutuantes do canvas */
+
+.bl-menu-contexto,
+.bl-novo-bloco,
+.bl-menu-acoes {
+  position: absolute;
+  z-index: 3;
+  min-width: 200px;
+  padding: 6px;
+  border: 1px solid var(--p-linha, #e0e0e0);
+  border-radius: 8px;
+  background: var(--p-superficie-0, #fff);
+  box-shadow: 0 2px 8px -2px rgb(0 0 0 / 16%);
+}
+.bl-menu-contexto button,
+.bl-novo-bloco-item,
+.bl-menu-acoes button {
+  display: block;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.bl-menu-contexto button:hover,
+.bl-novo-bloco-item:hover,
+.bl-menu-acoes button:hover {
+  background: var(--p-superficie-1, #f4f4f4);
+}
+.bl-novo-bloco-cabecalho,
+.bl-menu-acoes-grupo {
+  padding: 6px 10px;
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font-size: 12px;
+}
+
+/* --------------------------------------------------------- o painel do bloco */
+
+/*
+ * `height: 100%`, e não só `flex: 1`: o pai (`.bl-corpo`, em `builder.css`) é
+ * bloco, não caixa flexível, então `flex: 1` não dá altura nenhuma — o editor
+ * e o canvas nasciam com 0 de altura e os blocos ficavam fora da área pintada.
+ */
+.bl-editor {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  min-height: 0;
+}
+.bl-painel {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  bottom: 16px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  width: 460px;
+  border-radius: 16px;
+  background: var(--p-superficie-1, #f6f6f6);
+  color: var(--p-conteudo, #1a1a1a);
+  box-shadow: 0 2px 8px -2px rgb(0 0 0 / 16%);
+  overflow: hidden;
+}
+.bl-painel-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--p-linha, #e0e0e0);
+}
+.bl-painel-titulo {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 700;
+}
+.bl-painel-id {
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font-size: 12px;
+}
+.bl-painel-corpo {
+  flex: 1;
+  overflow: auto;
+  padding: 16px 20px;
+}
+.bl-painel-erros,
+.bl-erros {
+  margin-bottom: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: var(--p-erro-fundo, #fbe9e6);
+  color: var(--p-erro-conteudo, #c4442e);
+  font-size: 12px;
+}
+.bl-painel-fio {
+  height: 1px;
+  margin: 16px 0;
+  background: var(--p-linha, #e0e0e0);
+}
+
+.bl-abas {
+  display: flex;
+  gap: 4px;
+  border-bottom: 1px solid var(--p-linha, #e0e0e0);
+}
+.bl-abas button {
+  padding: 10px 12px;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font: inherit;
+  cursor: pointer;
+}
+.bl-abas button[aria-selected='true'] {
+  border-bottom-color: var(--p-marca, #4a5d23);
+  color: var(--p-conteudo, #1a1a1a);
+  font-weight: 700;
+}
+.bl-aba-corpo {
+  padding-top: 16px;
+}
+
+.bl-secao {
+  margin-bottom: 20px;
+}
+.bl-secao-titulo {
+  margin-bottom: 8px;
+  font-size: 14px;
+  font-weight: 700;
+}
+.bl-secao-subtitulo,
+.bl-ajuda {
+  margin-bottom: 8px;
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font-size: 12px;
+}
+
+.bl-campo {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 12px;
+  font-size: 12px;
+}
+.bl-campo input,
+.bl-campo select,
+.bl-campo textarea,
+.bl-valor input,
+.bl-valores-campo input {
+  padding: 8px 10px;
+  border: 1px solid var(--p-linha, #e0e0e0);
+  border-radius: 8px;
+  background: var(--p-superficie-0, #fff);
+  color: inherit;
+  font: inherit;
+  font-size: 14px;
+}
+.bl-campo-longo textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+.bl-erro-do-campo {
+  color: var(--p-erro-conteudo, #c4442e);
+}
+
+/* ------------------------------------------------ saídas, condições e ações */
+
+.bl-saida,
+.bl-acao,
+.bl-condicao {
+  margin-bottom: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--p-linha, #e0e0e0);
+  border-radius: 8px;
+}
+.bl-saida--padrao {
+  border-style: dashed;
+}
+.bl-saida-cabecalho,
+.bl-acao-cabecalho {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+}
+.bl-saida-ordem,
+.bl-acao-tipo {
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font-weight: 400;
+}
+.bl-condicoes,
+.bl-valores,
+.bl-opcoes {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bl-condicao-linha,
+.bl-condicao-valores,
+.bl-valor {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.bl-condicao-se {
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font-size: 12px;
+}
+.bl-acao-corpo,
+.bl-acao-bruta {
+  margin-top: 8px;
+}
+.bl-acao-bruta textarea {
+  width: 100%;
+  min-height: 120px;
+  font-family: ui-monospace, monospace;
+  font-size: 12px;
+}
+.bl-adicionar-acao,
+.bl-mais {
+  padding: 8px 12px;
+  border: 1px dashed var(--p-linha-media, #9a9a9a);
+  border-radius: 8px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.bl-remover,
+.bl-alterar,
+.bl-acao-abrir {
+  border: 0;
+  background: none;
+  color: var(--p-conteudo-suave, #6b6b6b);
+  font: inherit;
+  cursor: pointer;
+}
+.bl-remover:hover {
+  color: var(--p-erro-conteudo, #c4442e);
+}
+
+/* A prévia da conversa dentro do painel de conteúdo. */
+.bl-conversa-conteudo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.bl-cartao {
+  max-width: 85%;
+  padding: 8px 10px;
+  border-radius: 12px;
+  font-size: 13px;
+}
+.bl-cartao--robo {
+  align-self: flex-start;
+  background: var(--p-superficie-1, #f4f4f4);
+}
+.bl-cartao--cliente {
+  align-self: flex-end;
+  background: var(--p-marca-suave, #e8ecdf);
+}
+.bl-cartao--apagado {
+  opacity: 0.6;
+}
+.bl-escolha {
+  padding: 6px 10px;
+  border: 1px solid var(--p-linha, #e0e0e0);
+  border-radius: 999px;
+  font-size: 12px;
+}
+
+.bl-toast {
+  position: absolute;
+  bottom: 24px;
+  left: 50%;
+  z-index: 4;
+  padding: 10px 16px;
+  border-radius: 8px;
+  background: var(--p-conteudo, #1a1a1a);
+  color: var(--p-conteudo-claro, #fff);
+  font-size: 13px;
+  transform: translateX(-50%);
+}

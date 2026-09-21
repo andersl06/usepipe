@@ -56,6 +56,21 @@ describe('importador do export do editor da Blip', () => {
     ]);
   });
 
+  it('saída sem destino (bloco de atendimento recém-criado) não vira transição', () => {
+    const e = copia();
+    const desk = e.flow['desk:suporte']!;
+    desk.$conditionOutputs = [
+      { $isDeskOutput: true, conditions: [{ source: 'context', variable: 'x', values: ['1'] }] },
+      { stateId: '', conditions: [] },
+      ...desk.$conditionOutputs!,
+    ];
+    const convertido = converterDoEditor(e, 'f1');
+    const saidas = convertido.states.find((s) => s.id === 'desk:suporte')!.outputs!;
+    expect(saidas.map((s) => s.stateId)).toEqual(['pos-atendimento', 'nao-entendi', 'onboarding']);
+    expect(saidas.map((s) => s.order)).toEqual([0, 1, 2]);
+    expect(() => validarFluxo(convertido)).not.toThrow();
+  });
+
   it('as chaves do editor ($invalid, $cardContent, $connId…) não passam, e $title vira name', () => {
     const texto = JSON.stringify(fluxo);
     for (const chave of [

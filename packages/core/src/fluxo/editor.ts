@@ -83,11 +83,17 @@ function converterAcao(a: Objeto): Acao {
 function converterEstado(e: EstadoDoEditor): Estado {
   const conteudo = e.$contentActions ?? [];
   const entradaDoEditor = conteudo.find((c) => c.input)?.input;
-  const saidas: Saida[] = (e.$conditionOutputs ?? []).map((s, i) => ({
-    order: i,
-    conditions: (s.conditions ?? []).map((c) => limpar<CondicaoBlip>(c as Objeto)),
-    stateId: String(s.stateId),
-  }));
+  // Saída sem destino não vira transição: é o que o editor da Blip guarda no
+  // bloco de atendimento recém-criado (as "Saídas de atendimento" ainda sem
+  // bloco) e no rascunho em que a pessoa ainda não escolheu o "Direcionar para
+  // bloco". O motor nunca a tomaria; a tela é quem aponta que falta preencher.
+  const saidas: Saida[] = (e.$conditionOutputs ?? [])
+    .filter((s) => typeof s.stateId === 'string' && s.stateId !== '')
+    .map((s, i) => ({
+      order: i,
+      conditions: (s.conditions ?? []).map((c) => limpar<CondicaoBlip>(c as Objeto)),
+      stateId: String(s.stateId),
+    }));
   if (e.$defaultOutput?.stateId)
     saidas.push({ order: saidas.length, stateId: e.$defaultOutput.stateId });
 
