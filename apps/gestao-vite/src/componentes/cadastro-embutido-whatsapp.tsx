@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Botao, Etiqueta } from '@pipe/ui';
 import type { VarianteDeBotao } from '@pipe/ui';
 import { concluirCadastroEmbutido, iniciarCadastroEmbutido } from '../paginas/implantacao/acoes';
@@ -270,12 +270,22 @@ function credenciaisDeEnsaio(): Credenciais {
  */
 export function ConectarWhatsApp({
   canalId,
+  fluxoId,
   rotulo = 'Conectar WhatsApp',
   variante = 'primario',
+  className,
+  prefixo,
+  onConectado,
 }: {
   canalId?: string;
+  /** Conexão de dentro do bot (`fluxo/canais/whatsapp`): o canal nasce ligado a ele. */
+  fluxoId?: string;
   rotulo?: string;
   variante?: VarianteDeBotao;
+  className?: string;
+  /** O que vem antes do rótulo — o logo do Facebook do botão `variant="facebook"` da origem. */
+  prefixo?: ReactNode;
+  onConectado?: () => void;
 }) {
   const [ocupado, setOcupado] = useState(false);
   const [aviso, setAviso] = useState<{ tom: 'sucesso' | 'erro'; texto: string } | null>(null);
@@ -311,12 +321,14 @@ export function ConectarWhatsApp({
         ...credenciais,
         estado: inicio.estado,
         ...(canalId ? { canalId } : {}),
+        ...(fluxoId ? { fluxoId } : {}),
       });
       setAviso(
         resultado.ok
           ? { tom: 'sucesso', texto: resultado.mensagem ?? 'WhatsApp conectado.' }
           : { tom: 'erro', texto: resultado.erro ?? 'A conexão falhou.' },
       );
+      if (resultado.ok) onConectado?.();
     } finally {
       setOcupado(false);
     }
@@ -324,7 +336,8 @@ export function ConectarWhatsApp({
 
   return (
     <div className="cl-acoes">
-      <Botao variante={variante} onClick={() => void conectar()} disabled={ocupado}>
+      <Botao variante={variante} className={className} onClick={() => void conectar()} disabled={ocupado}>
+        {prefixo}
         {ocupado ? 'Conectando…' : rotulo}
       </Botao>
       {aviso ? <Etiqueta tom={aviso.tom}>{aviso.texto}</Etiqueta> : null}

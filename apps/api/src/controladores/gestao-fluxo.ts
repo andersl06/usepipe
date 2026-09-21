@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
   Query,
   Req,
 } from '@nestjs/common';
@@ -20,6 +21,11 @@ import {
   excluirFluxo,
   type FluxoGravado,
 } from '../dominio/gestao/ciclo-de-vida-do-fluxo.js';
+import {
+  carregarCanalDoFluxoNaTela,
+  desligarCanalDoFluxo,
+  ligarCanalAoFluxo,
+} from '../dominio/gestao/canal-do-fluxo.js';
 import {
   carregarBoasVindas,
   carregarMenuPersistente,
@@ -45,10 +51,13 @@ import {
   listarContatosDoFluxo,
 } from '../dominio/gestao-fluxo.js';
 import type {
+  CanalDoFluxo,
+  CanalDoFluxoNaTela,
   ConfiguracaoDeBoasVindas,
   ConfiguracaoDeMenuPersistente,
   DadosDeServicos,
   GradeDoPortal,
+  PedidoDeCanalDoFluxo,
   PedidoDeServico,
   ServicoVinculado,
 } from '@pipe/contracts';
@@ -235,6 +244,60 @@ export class ControladorGestaoFluxo {
     });
     if (!resultado) throw ErroPipe.naoEncontrado('fluxo');
     return resultado;
+  }
+
+  /**
+   * O canal DO BOT — a página `channels/{canal}` da origem. A regra (um bot por
+   * número, canal inativo não liga, permissão `channels.escrever` no fluxo)
+   * mora em `dominio/gestao/canal-do-fluxo.ts`.
+   */
+  @Get(':id/canal')
+  @ComSessao()
+  async canal(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+  ): Promise<CanalDoFluxoNaTela> {
+    const sessao = sessaoDe(requisicao);
+    uuidOu404(id, 'fluxo');
+    return noTenant(sessao.tenantId, (tx) => carregarCanalDoFluxoNaTela(tx, sessao.tenantId, id));
+  }
+
+  /** "Ativar número": liga um canal existente da conta a este bot. */
+  @Put(':id/canal')
+  @ComSessao()
+  async ligarCanal(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: Partial<PedidoDeCanalDoFluxo>,
+  ): Promise<CanalDoFluxo> {
+    const sessao = sessaoDe(requisicao);
+    uuidOu404(id, 'fluxo');
+    const canalId = typeof corpo?.canalId === 'string' ? corpo.canalId : '';
+    if (!canalId) throw ErroPipe.requisicao('canal_obrigatorio', 'Informe `canalId`.');
+    uuidOu404(canalId, 'canal');
+    return noTenant(sessao.tenantId, (tx) =>
+      ligarCanalAoFluxo(tx, sessao.tenantId, sessao.usuarioId, id, canalId),
+    );
+  }
+
+  /**
+   * Desliga o canal deste bot. O canal em si continua conectado à Meta. O
+   * `motivo` (opcional) é o do modal de desconexão da origem; vai para o log.
+   */
+  @Delete(':id/canal')
+  @HttpCode(204)
+  @ComSessao()
+  async desligarCanal(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo?: { motivo?: string },
+  ): Promise<void> {
+    const sessao = sessaoDe(requisicao);
+    uuidOu404(id, 'fluxo');
+    const motivo = typeof corpo?.motivo === 'string' ? corpo.motivo.trim().slice(0, 500) : '';
+    await noTenant(sessao.tenantId, (tx) =>
+      desligarCanalDoFluxo(tx, sessao.tenantId, sessao.usuarioId, id, motivo || undefined),
+    );
   }
 
   /** "Tela de Boas-vindas" — a regra mora em `dominio/gestao/configuracao-do-fluxo.ts`. */

@@ -26,6 +26,16 @@ import type { GradeDoPortal } from '@pipe/contracts';
  * tipo é derivado da consulta (`Awaited<ReturnType<…>>`), não copiado à mão.
  */
 
+/**
+ * O que a tela mostra como "o número" do canal: `config.numero` no WhatsApp,
+ * `config.username` no Instagram, o id da Página (`numero_id`) no Messenger.
+ * Nenhum dos três é segredo — ficam legíveis no `config` cifrado
+ * (`dominio/canais.ts`, `visivel`).
+ */
+export const identificadorDoCanal = sql<string | null>`coalesce(
+  ${canal.config} ->> 'numero', ${canal.config} ->> 'username', ${canal.numeroId}
+)`;
+
 /** O contato (o `fluxo`) e o canal dele. Uma consulta, um `leftJoin`. */
 export async function carregarContato(tx: TransacaoPipe, tid: string, id: string) {
   const [linha] = await tx
@@ -42,6 +52,7 @@ export async function carregarContato(tx: TransacaoPipe, tid: string, id: string
       canalNome: canal.nome,
       canalTipo: canal.tipo,
       canalAtivo: canal.ativo,
+      canalNumero: identificadorDoCanal,
     })
     .from(fluxo)
     .leftJoin(canal, eq(canal.id, fluxo.canalId))

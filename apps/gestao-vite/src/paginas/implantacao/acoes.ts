@@ -31,6 +31,8 @@ export interface CredenciaisDoCadastro {
   coexistencia?: boolean;
   estado: string;
   canalId?: string;
+  /** Conexão feita de dentro do bot: o canal nasce ligado a ele (`fluxo_id`). */
+  fluxoId?: string;
 }
 
 function postarJson(caminho: string, corpo: unknown): Promise<Response> {
@@ -60,6 +62,7 @@ export async function concluirCadastroEmbutido(
     coexistencia: credenciais.coexistencia === true,
     estado: credenciais.estado,
     canal_id: credenciais.canalId,
+    fluxo_id: credenciais.fluxoId,
   });
   if (!resposta.ok) return { ok: false, erro: await motivoDaFalha(resposta) };
   const canal = (await resposta.json()) as {

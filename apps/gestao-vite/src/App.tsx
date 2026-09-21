@@ -4,7 +4,7 @@ import { useRegistrarNavegacao } from './lib/navegacao';
 import { PaginaEntrar } from './paginas/entrar';
 import { NaoEncontrado } from './paginas/nao-encontrado';
 import { PaginaPortal } from './paginas/portal';
-import { RotaDoContato } from './paginas/fluxo/contato';
+import { RotaDoContato, baseDoContato, useContato } from './paginas/fluxo/contato';
 import { HomeDoContato } from './paginas/fluxo/home';
 import { PaginaDeCanais } from './paginas/fluxo/canais/canais';
 import { PaginaDeServicos } from './paginas/fluxo/servicos/servicos';
@@ -58,11 +58,13 @@ import { PaginaRegrasDeSla } from './paginas/cadastros/regras-sla';
 import { PaginaDados } from './paginas/cadastros/configuracoes-dados';
 import { PaginaConfiguracoesGerais } from './paginas/cadastros/configuracoes-gerais';
 import { PaginaCanais } from './paginas/cadastros/canais';
-import { CascaCanalWhatsapp } from './paginas/cadastros/canal-whatsapp/casca';
-import { AbaVisaoGeral } from './paginas/cadastros/canal-whatsapp/visao-geral';
-import { AbaPerfil } from './paginas/cadastros/canal-whatsapp/perfil';
-import { AbaConfiguracoes } from './paginas/cadastros/canal-whatsapp/configuracoes';
-import { AbaAlerta } from './paginas/cadastros/canal-whatsapp/alerta';
+import { CascaCanalWhatsapp } from './paginas/fluxo/canais/whatsapp/casca';
+import { AbaVisaoGeral } from './paginas/fluxo/canais/whatsapp/visao-geral';
+import { AbaPerfil } from './paginas/fluxo/canais/whatsapp/perfil';
+import { AbaConfiguracoes } from './paginas/fluxo/canais/whatsapp/configuracoes';
+import { AbaAlerta } from './paginas/fluxo/canais/whatsapp/alerta';
+import { PaginaCanalInstagram } from './paginas/fluxo/canais/instagram/pagina';
+import { PaginaCanalMessenger } from './paginas/fluxo/canais/messenger/pagina';
 import { PaginaDoContrato } from './paginas/contrato/page';
 import { PaginaDeCertificados } from './paginas/contrato/certificados/page';
 import { PaginaDeMembros } from './paginas/contrato/membros/page';
@@ -75,6 +77,12 @@ import { PaginaNovidades } from './paginas/novidades/page';
 import { PaginaConvite } from './paginas/convite/page';
 import { PaginaSemAcesso } from './paginas/trocar-conta/sem-acesso/page';
 import { PaginaBuilder } from './paginas/builder';
+
+/** O redirecionamento do link antigo do canal WhatsApp para a página do canal DO BOT. */
+function ParaOCanalDoBot() {
+  const { contato } = useContato();
+  return <Navigate to={`${baseDoContato(contato.tipo, contato.id)}/canais/whatsapp`} replace />;
+}
 
 /**
  * As rotas-filhas do contato — o que `/fluxo/:id` e `/roteador/:id` desenham
@@ -92,6 +100,19 @@ const rotasDoContato = (
   <>
     <Route index element={<HomeDoContato />} />
     <Route path="canais" element={<PaginaDeCanais />} />
+    {/* Cada canal tem a própria página DENTRO do bot, como
+        `application/detail/{bot}/channels/{canal}` da origem
+        (`docs/capturas/blip/canais/FICHA-conectar-canal-no-bot.md` §1). As
+        abas do WhatsApp moravam em `atendimento/canais/whatsapp/:canalId`, no
+        módulo errado; o canal agora é o do bot, sem id na URL. */}
+    <Route path="canais/whatsapp" element={<CascaCanalWhatsapp />}>
+      <Route index element={<AbaVisaoGeral />} />
+      <Route path="perfil" element={<AbaPerfil />} />
+      <Route path="configuracoes" element={<AbaConfiguracoes />} />
+      <Route path="alerta" element={<AbaAlerta />} />
+    </Route>
+    <Route path="canais/instagram" element={<PaginaCanalInstagram />} />
+    <Route path="canais/messenger" element={<PaginaCanalMessenger />} />
     <Route path="servicos" element={<PaginaDeServicos />} />
 
     {/* O módulo Atendimento — a `attendance/desk/*` da origem, dentro do
@@ -121,12 +142,9 @@ const rotasDoContato = (
       <Route path="preferencias/dados" element={<PaginaDados />} />
       <Route path="preferencias/regras" element={<PaginaRegras />} />
       <Route path="canais" element={<PaginaCanais />} />
-      <Route path="canais/whatsapp/:canalId" element={<CascaCanalWhatsapp />}>
-        <Route index element={<AbaVisaoGeral />} />
-        <Route path="perfil" element={<AbaPerfil />} />
-        <Route path="configuracoes" element={<AbaConfiguracoes />} />
-        <Route path="alerta" element={<AbaAlerta />} />
-      </Route>
+      {/* O link antigo das abas do WhatsApp (`atendimento/canais/whatsapp/:canalId`)
+          cai na página do canal do bot — o canal agora é o do bot, não o da URL. */}
+      <Route path="canais/whatsapp/:canalId/*" element={<ParaOCanalDoBot />} />
     </Route>
 
     <Route path="contatos" element={<CascaDeContatos />}>

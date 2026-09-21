@@ -30,9 +30,12 @@ export interface Contato {
   shortName: string | null;
   descricao: string | null;
   criadoEm: Date | null;
+  canalId: string | null;
   canalNome: string | null;
   canalTipo: string | null;
   canalAtivo: boolean | null;
+  /** O número (WhatsApp), o `@usuário` (Instagram) ou o id da Página (Messenger). */
+  canalNumero: string | null;
 }
 
 export function BarraDoContato({ contato, ativo }: { contato: Contato; ativo?: string }) {

@@ -4,12 +4,14 @@ import { conectarInstagramManual, desconectarInstagram, listarCanaisInstagram } 
 import type { CanalInstagramVisivel, ConexaoInstagram } from '../dominio/instagram/canal.js';
 import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
+import { fluxoIdDoCorpo, ligarAoFluxo, permitidoConectar } from './conexao-no-fluxo.js';
 
 /**
  * A casca HTTP de "conectar o Instagram" pelo caminho manual. A regra mora em
  * `dominio/instagram/`. Mesmas travas do WhatsApp (`canais.ts`): sessão de navegador,
  * `canal.gerenciar` em toda rota, e o tenant SEMPRE da sessão — canal de outro
- * cliente é 404.
+ * cliente é 404. Com `fluxo_id`, a permissão é a do bot e o canal nasce ligado
+ * a ele (`permitidoConectar`/`ligarAoFluxo`, em `canais.ts`).
  */
 @Controller('v1/canais/instagram')
 export class ControladorCanaisInstagram {
@@ -27,10 +29,11 @@ export class ControladorCanaisInstagram {
   @ComSessao()
   async manual(
     @Req() requisicao: RequisicaoComSessao,
-    @Body() corpo: { access_token?: string; app_secret?: string; nome?: string },
+    @Body() corpo: { access_token?: string; app_secret?: string; nome?: string; fluxo_id?: string },
   ): Promise<CanalInstagramVisivel & Omit<ConexaoInstagram, 'canal'>> {
     const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId);
+    const fluxoId = fluxoIdDoCorpo(corpo);
+    await permitidoConectar(sessao.tenantId, sessao.usuarioId, fluxoId);
     const feito = await conectarInstagramManual({
       tenantId: sessao.tenantId,
       usuarioId: sessao.usuarioId,
@@ -38,6 +41,7 @@ export class ControladorCanaisInstagram {
       appSecret: corpo?.app_secret?.trim(),
       nome: corpo?.nome,
     });
+    if (fluxoId) await ligarAoFluxo(sessao.tenantId, sessao.usuarioId, fluxoId, feito.canal.id);
     return { ...feito.canal, erroDeWebhook: feito.erroDeWebhook, webhook: feito.webhook };
   }
 

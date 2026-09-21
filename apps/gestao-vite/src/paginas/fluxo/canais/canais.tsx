@@ -1,26 +1,43 @@
 import { LogoPortal } from '../../../componentes/icones-portal';
-import { CascaDoModulo, useContato } from '../contato';
+import Link from '../../../componentes/link';
+import { cartaoConectado, rotaDoCanal, type TipoDeCanalDoBot } from '../../../lib/canal-do-fluxo';
+import { CascaDoModulo, baseDoContato, useContato } from '../contato';
 import '../integracoes/cabecalho-de-pagina.css';
 import './canais.css';
 
 /**
  * Canais do contato — `auth.application.detail.channels` da captura 8.
  *
- * A fonte é o template do módulo 80819 de `portal.js` e as regras
- * `.channels-list` de `portal.css`. A origem mantém Pipe Chat e E-mail sempre
- * conectados; os demais usam o canal vinculado ao fluxo para escolher entre
- * “Conectar” e “Conectado”. As telas de OAuth não existem no Pipe, então os
- * botões preservam o estado visual sem fingir uma integração externa.
+ * A fonte é o template do módulo 27679 de `portal.js` (linha 80819) e as
+ * regras `.channels-list` de `portal.css`. Lá, cada cartão é um `<card
+ * ng-click="$ctrl.goToState('…channels.<canal>')">` — o clique é no CARTÃO
+ * inteiro, e "Conectar"/"Conectado" no rodapé só mudam de aparência: os dois
+ * levam à MESMA página do canal, dentro do bot
+ * (`docs/capturas/blip/canais/FICHA-conectar-canal-no-bot.md` §1.1).
+ *
+ * Aqui: WhatsApp, Messenger e Instagram (os canais que a Pipe tem) são links
+ * para `/{tipo}/{id}/canais/{whatsapp,messenger,instagram}`. A origem mantém
+ * Pipe Chat e E-mail sempre "Conectado"; RCS, Telegram e Apple têm página lá e
+ * não têm aqui, então ficam com o rodapé de estado sem levar a lugar nenhum
+ * (`aria-disabled`), em vez de fingir uma integração.
  */
 type Logo =
   'pipe' | 'whatsapp' | 'messenger' | 'instagram' | 'google' | 'telegram' | 'apple' | 'email';
-type CanalDaTela = { chave: string; nome: string; logo: Logo; sempre?: boolean; novo?: boolean };
+type CanalDaTela = {
+  chave: string;
+  nome: string;
+  logo: Logo;
+  sempre?: boolean;
+  novo?: boolean;
+  /** Tem página própria no bot: o cartão navega. */
+  pagina?: TipoDeCanalDoBot;
+};
 
 const CANAIS: readonly CanalDaTela[] = [
   { chave: 'pipe-chat', nome: 'Pipe Chat', logo: 'pipe', sempre: true },
-  { chave: 'whatsapp_cloud', nome: 'WhatsApp', logo: 'whatsapp' },
-  { chave: 'messenger', nome: 'Messenger', logo: 'messenger' },
-  { chave: 'instagram', nome: 'Instagram', logo: 'instagram' },
+  { chave: 'whatsapp_cloud', nome: 'WhatsApp', logo: 'whatsapp', pagina: 'whatsapp_cloud' },
+  { chave: 'messenger', nome: 'Messenger', logo: 'messenger', pagina: 'messenger' },
+  { chave: 'instagram', nome: 'Instagram', logo: 'instagram', pagina: 'instagram' },
   { chave: 'google-rcs', nome: 'RCS for Business', logo: 'google', novo: true },
   { chave: 'telegram', nome: 'Telegram', logo: 'telegram' },
   { chave: 'apple-business', nome: 'Apple Messages for Business', logo: 'apple' },
@@ -29,8 +46,7 @@ const CANAIS: readonly CanalDaTela[] = [
 
 export function PaginaDeCanais() {
   const { contato } = useContato();
-
-  const ativo = contato.canalAtivo ? contato.canalTipo : null;
+  const base = baseDoContato(contato.tipo, contato.id);
 
   return (
     <CascaDoModulo ativo="Canais">
@@ -44,22 +60,34 @@ export function PaginaDeCanais() {
 
       <div className="cn-lista">
         {CANAIS.map((canal) => {
-          const conectado = canal.sempre || canal.chave === ativo;
+          const conectado = canal.sempre || cartaoConectado(contato, canal.chave);
+          const miolo = (
+            <>
+              <div className="cn-cartao-conteudo">
+                <LogoDeCanal nome={canal.logo} />
+                <h2>{canal.nome}</h2>
+              </div>
+              <span className={conectado ? 'cn-botao cn-botao--conectado' : 'cn-botao'}>
+                {conectado ? 'Conectado' : 'Conectar'}
+              </span>
+            </>
+          );
           return (
             <div className="cn-item" key={canal.chave}>
               {canal.novo ? <span className="cn-novo">Novo!</span> : null}
-              <article className="cn-cartao">
-                <div className="cn-cartao-conteudo">
-                  <LogoDeCanal nome={canal.logo} />
-                  <h2>{canal.nome}</h2>
-                </div>
-                <span
-                  className={conectado ? 'cn-botao cn-botao--conectado' : 'cn-botao'}
-                  aria-disabled="true"
+              {canal.pagina ? (
+                <Link
+                  href={rotaDoCanal(base, canal.pagina)}
+                  className="cn-cartao cn-cartao--link"
+                  aria-label={`${canal.nome}: ${conectado ? 'Conectado' : 'Conectar'}`}
                 >
-                  {conectado ? 'Conectado' : 'Conectar'}
-                </span>
-              </article>
+                  {miolo}
+                </Link>
+              ) : (
+                <article className="cn-cartao" aria-disabled="true">
+                  {miolo}
+                </article>
+              )}
             </div>
           );
         })}
@@ -128,3 +156,6 @@ function LogoDeCanal({ nome }: { nome: Logo }) {
     </svg>
   );
 }
+
+/** O logo do canal, para as páginas de cada canal reutilizarem o mesmo desenho da lista. */
+export { LogoDeCanal };

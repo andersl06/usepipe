@@ -15,6 +15,7 @@ import type { PedidoDePreferencias, PreferenciasDoCanal } from '../dominio/whats
 import type { PedidoDePerfil, PerfilVisivel } from '../dominio/whatsapp/perfil.js';
 import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
+import { fluxoIdDoCorpo, ligarAoFluxo, permitidoConectar } from './conexao-no-fluxo.js';
 
 /**
  * A casca HTTP de "conectar o WhatsApp". A regra mora em `dominio/whatsapp/`.
@@ -26,6 +27,11 @@ import type { RequisicaoComSessao } from '../sessao.js';
  * Sessão de navegador, não chave de API, e `canal.gerenciar` em toda rota: o que
  * se grava aqui é a credencial que manda mensagem **pelo número do cliente**. O
  * tenant vem SEMPRE da sessão — nenhum corpo desta rota carrega tenant.
+ *
+ * Com `fluxo_id` (conexão feita DE DENTRO do bot, como na origem —
+ * `FICHA-conectar-canal-no-bot.md` §4), a permissão passa a ser a do bot
+ * (`channels.escrever`, `canal-do-fluxo.ts`) e o canal nasce já ligado a ele
+ * (`conexao-no-fluxo.ts`).
  */
 @Controller('v1/canais')
 export class ControladorCanais {
@@ -77,10 +83,13 @@ export class ControladorCanais {
       coexistencia?: boolean;
       canal_id?: string;
       estado?: string;
+      fluxo_id?: string;
     },
   ): Promise<CanalWhatsAppVisivel & { mensagem?: string }> {
     const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
+    // Reautorização é do canal, não do bot: o `fluxo_id` só vale para canal novo.
+    const fluxoId = corpo.canal_id ? undefined : fluxoIdDoCorpo(corpo);
+    await permitidoConectar(sessao.tenantId, sessao.usuarioId, fluxoId);
     conferirEstado(corpo.estado, sessao.tenantId, sessao.usuarioId);
     validarParametros({ codigo: corpo.codigo, wabaId: corpo.waba_id });
 
@@ -96,6 +105,7 @@ export class ControladorCanais {
       coexistencia: corpo.coexistencia === true,
       canalId: corpo.canal_id,
     });
+    if (fluxoId) await ligarAoFluxo(sessao.tenantId, sessao.usuarioId, fluxoId, canal.id);
 
     const visivel = await lerCanalVisivel(sessao.tenantId, canal.id);
     return corpo.canal_id ? { ...visivel, mensagem: 'Reautorização concluída.' } : visivel;
@@ -119,12 +129,14 @@ export class ControladorCanais {
       access_token?: string;
       app_secret?: string;
       nome?: string;
+      fluxo_id?: string;
     },
   ): Promise<
     CanalWhatsAppVisivel & { erroDeWebhook: string | null; webhook: { url: string; verifyToken: string } }
   > {
     const sessao = sessaoDe(requisicao);
-    await permitido(sessao.tenantId, sessao.usuarioId, 'canal.gerenciar');
+    const fluxoId = fluxoIdDoCorpo(corpo);
+    await permitidoConectar(sessao.tenantId, sessao.usuarioId, fluxoId);
     const feito = await executarConfiguracaoManual({
       tenantId: sessao.tenantId,
       usuarioId: sessao.usuarioId,
@@ -134,6 +146,7 @@ export class ControladorCanais {
       appSecret: corpo.app_secret?.trim(),
       nome: corpo.nome,
     });
+    if (fluxoId) await ligarAoFluxo(sessao.tenantId, sessao.usuarioId, fluxoId, feito.canal.id);
     return {
       ...(await lerCanalVisivel(sessao.tenantId, feito.canal.id)),
       erroDeWebhook: feito.erroDeWebhook,

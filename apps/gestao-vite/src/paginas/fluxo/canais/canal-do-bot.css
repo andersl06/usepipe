@@ -1,0 +1,276 @@
+/* A página de UM canal dentro do bot — templates 79961 (WhatsApp) e 230473
+   (Instagram) de `portal.js`, e os parciais `WhatsApp*.html`
+   (`docs/capturas/blip/canais/FICHA-conectar-canal-no-bot.md` §1.3 e §2).
+   O papel, as abas e a tipografia vêm de `integracoes.css` (`ig-*`, o mesmo
+   `bds-paper`/`bds-tabs`); aqui fica só o que é desta página. */
+
+/* `bds-grid direction="row"` com as abas em `xxs="10"` e "Documentação" em
+   `xxs="2"` alinhada à direita. */
+.cb-abas-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.cb-aba {
+  text-decoration: none;
+}
+
+.cb-aba:hover {
+  color: var(--p-conteudo);
+}
+
+/* A aba que a Pipe ainda não tem por dentro ("Ambiente de testes"): sem link,
+   com o selo — o mesmo desenho de `.an-aba--obra` da Análise. */
+.cb-aba-obra {
+  gap: 8px;
+  color: var(--p-conteudo-fantasma);
+  cursor: default;
+}
+
+/* `bds-typo tag="span"` "Documentação" + `bds-icon name="external-file" size="x-small"`. */
+.cb-doc {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--p-t-lg);
+  line-height: 22px;
+  color: var(--p-conteudo-fantasma);
+  white-space: nowrap;
+}
+
+/* `bds-tab-panel class="mt4 w-100"`: `.mt4` do blip é 20px. */
+.cb-painel {
+  width: 100%;
+  margin-top: 20px;
+}
+
+/* `WhatsAppStart.html`/`InstagramOverview*.html`: `.flex` com a coluna do
+   ícone (`.icon-column.channel-column`) e a coluna do texto (`.channel-column.w-100`). */
+.cb-linha {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.cb-icone-coluna {
+  flex: none;
+  display: flex;
+  justify-content: center;
+  width: 64px;
+}
+
+.cb-coluna {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 16px;
+  min-width: 0;
+}
+
+/* `bds-typo variant="fs-16"` e as duas gorduras de título usadas nos parciais. */
+.cb-typo-16 {
+  margin: 0;
+  font-size: var(--p-t-lg);
+  line-height: 22px;
+  color: var(--p-conteudo);
+}
+
+.cb-typo-16 strong {
+  font-weight: var(--g-peso-negrito);
+}
+
+.cb-typo-14 {
+  margin: 0;
+  font-size: var(--p-t-md);
+  line-height: 160%;
+  color: var(--p-conteudo);
+}
+
+.cb-typo-12 {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--p-conteudo-fantasma);
+}
+
+/* `bds-typo variant="fs-20" bold="bold"` */
+.cb-titulo-20 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 28px;
+  color: var(--p-conteudo);
+}
+
+/* `bds-typo tag="h2" bold="bold" variant="fs-32"` do passo "Conecte … ao Facebook". */
+.cb-titulo-32 {
+  margin: 0;
+  font-size: 32px;
+  font-weight: var(--g-peso-negrito);
+  line-height: 40px;
+  color: var(--p-conteudo);
+}
+
+/* `bds-grid align-items="flex-end" direction="row-reverse"`: o botão à direita. */
+.cb-acoes-direita {
+  display: flex;
+  flex-direction: row-reverse;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.cb-acoes-entre {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* `WhatsAppFacebookConnectionStep.html`: duas colunas (`xxs="5"` de texto, `xxs="3"` de ilustração), centradas, `margin="y-4"`. */
+.cb-passo-facebook {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin: 32px 0;
+}
+
+.cb-passo-facebook-texto {
+  display: flex;
+  flex: 0 1 460px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.cb-passo-facebook-figura {
+  display: flex;
+  flex: 0 0 200px;
+  align-items: center;
+  justify-content: center;
+  color: var(--p-conteudo-fantasma);
+}
+
+/* `bds-button variant="facebook" icon-left="facebook"`: é a cor do Facebook, não a da Pipe. */
+.cb-botao-facebook {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-color: #1877f2;
+  background: #1877f2;
+  color: #fff;
+}
+
+.cb-botao-facebook:hover:not(:disabled) {
+  background: #166fe5;
+  border-color: #166fe5;
+}
+
+/* `bds-chip-clickable size="tall" color="success"` com avatar: o número em verde. */
+.cb-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  align-self: flex-start;
+  height: 40px;
+  padding: 0 16px 0 4px;
+  border-radius: 20px;
+  border: 1px solid var(--p-sucesso-linha);
+  background: var(--p-sucesso-fundo);
+  color: var(--p-sucesso-conteudo);
+  font-size: var(--p-t-md);
+  font-weight: var(--g-peso-negrito);
+}
+
+.cb-chip-avatar {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--p-superficie-0);
+  color: var(--p-marca);
+  overflow: hidden;
+}
+
+.cb-chip-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* `WhatsAppSelectedNumber.html`: o select `w-30` sobre fundo branco e o "Não encontrou seu número?" em fs-12. */
+.cb-select-caixa {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.cb-select-caixa .seletor {
+  max-width: 360px;
+}
+
+.cb-select-caixa .seletor option:disabled {
+  color: var(--p-conteudo-fantasma);
+}
+
+/* O `<a ng-click>` "Volte e cadastre agora." dentro do fs-12: um botão que parece link. */
+.cb-ligacao {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--p-marca-forte);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* `bds-illustration type="blip-solid" name="sad"` e os estados vazios: a Pipe usa a própria ilustração. */
+.cb-vazio {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 32px 16px;
+  text-align: center;
+}
+
+/* O modal de desconexão (Instagram/Messenger da origem, `class H`): motivo + concordância. */
+.cb-modal-desconectar {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.cb-modal-desconectar label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.cb-concordo {
+  display: flex;
+  flex-direction: row !important;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.cb-concordo input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--p-marca-forte);
+}
+
+.cb-acoes-modal {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}

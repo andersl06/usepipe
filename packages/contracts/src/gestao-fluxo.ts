@@ -20,9 +20,45 @@ export interface ContatoDoFluxo {
   /** O "Descrição" de "Editar Fluxo"; opcional lá, nula aqui. */
   descricao: string | null;
   criadoEm: string | null;
+  canalId: string | null;
   canalNome: string | null;
   canalTipo: string | null;
   canalAtivo: boolean | null;
+  /** O que identifica o canal para quem olha: número (WhatsApp), `@usuário` (Instagram), id da Página (Messenger). */
+  canalNumero: string | null;
+}
+
+/* ---------------------------------------------------------------- Canal */
+
+/**
+ * Um canal como a página "Canais" do bot o vê — `GET /v1/gestao/fluxos/:id/canal`
+ * e a resposta de `PUT`. `fluxoId`/`fluxoNome` dizem qual bot vivo está com
+ * ele (um bot por número — regra da origem, `FICHA-conectar-canal-no-bot.md` §4).
+ */
+export interface CanalDoFluxo {
+  id: string;
+  tipo: string;
+  nome: string;
+  numero: string | null;
+  ativo: boolean;
+  fluxoId: string | null;
+  fluxoNome: string | null;
+}
+
+/**
+ * `GET /v1/gestao/fluxos/:id/canal`: o canal ligado a este bot (ou nulo) e os
+ * canais ATIVOS da conta que a tela pode oferecer — os livres para ligar, e os
+ * que já estão com outro bot (para dizer qual, como a origem manda "remover do
+ * anterior"). Decisão Pipe: na origem o número nasce no bot e não há lista.
+ */
+export interface CanalDoFluxoNaTela {
+  canal: CanalDoFluxo | null;
+  disponiveis: CanalDoFluxo[];
+}
+
+/** `PUT /v1/gestao/fluxos/:id/canal`. */
+export interface PedidoDeCanalDoFluxo {
+  canalId: string;
 }
 
 export interface CascaDoContato {
