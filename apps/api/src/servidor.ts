@@ -85,6 +85,14 @@ export async function criarAplicacao(): Promise<INestApplication> {
   // próprio, só nesta rota, pelo mesmo motivo dos dois acima.
   app.use('/v1/canais/whatsapp/:id/perfil', express.json({ limit: '8mb' }));
 
+  // O exemplo de mídia do cabeçalho do modelo de mensagem vai do mesmo jeito
+  // (base64 no JSON), e o tipo mais pesado é o documento: 100 MB viram ~134 MB.
+  // Teto próprio, só nesta rota — `lerMidiaDoCabecalho` recusa por tipo antes.
+  app.use(
+    '/v1/canais/whatsapp/:id/modelos',
+    express.json({ limit: process.env['PIPE_LIMITE_MODELO'] ?? '140mb' }),
+  );
+
   // O desenho do Builder vai inteiro no `PUT` (o mapa do editor, com `$cardContent`
   // de cada bloco): um fluxo de cliente passa fácil de 2 MB. Teto próprio, só aqui.
   app.use(
