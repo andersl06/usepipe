@@ -17,7 +17,13 @@
  */
 
 import { avaliarCondicoes, paraDecimal } from './condicao.js';
-import type { Contexto } from './contexto.js';
+import type {
+  Contexto,
+  CursorDeProcessHttp,
+  ListaDeAcoesSuspensa,
+  PedidoDeHttp,
+  RespostaDeHttp,
+} from './contexto.js';
 import {
   CHAVE_DO_ESTADO_ATUAL,
   apagarEstadoId,
@@ -117,6 +123,18 @@ export class ErroDoMotor extends Error {
   }
 }
 
+export class SuspensaoDeProcessHttp extends Error {
+  override readonly name = 'SuspensaoDeProcessHttp';
+  rastro?: RastroDaEntrada;
+
+  constructor(
+    readonly pedido: PedidoDeHttp,
+    readonly cursor: Omit<CursorDeProcessHttp, 'resposta'>,
+  ) {
+    super('ProcessHttp suspenso para execução fora da transação.');
+  }
+}
+
 class TempoEsgotado extends Error {}
 
 function comTempoLimite<T>(promessa: Promise<T>, ms: number): Promise<T> {
@@ -132,6 +150,7 @@ const mensagemDe = (e: unknown): string => (e instanceof Error ? e.message : Str
 export interface OpcoesDoMotor {
   configuracao?: Partial<ConfiguracaoDoMotor>;
   acoes?: ProvedorDeAcoes;
+  retomarProcessHttp?: CursorDeProcessHttp;
 }
 
 /**
@@ -150,6 +169,9 @@ export async function processarEntrada(
   const rastro: RastroDaEntrada = { estados: [], acoesGlobais: [], estadoFinalId: null };
   const prazo = Date.now() + configuracao.tempoLimiteDaEntradaMs;
   let estado: Estado | null = null;
+  let cursorPendente = opcoes.retomarProcessHttp
+    ? { ...opcoes.retomarProcessHttp, consumido: false }
+    : null;
 
   try {
     validarFluxo(fluxo);
@@ -167,6 +189,9 @@ export async function processarEntrada(
         provedor,
         configuracao,
         rastro.acoesGlobais,
+        'entrada',
+        null,
+        cursorPendente,
       );
     }
 
@@ -202,6 +227,9 @@ export async function processarEntrada(
           provedor,
           configuracao,
           atual.acoes,
+          'conteudo',
+          corrente.id,
+          cursorPendente,
         );
 
         let anteriorId = corrente.id;
@@ -227,6 +255,9 @@ export async function processarEntrada(
             provedor,
             configuracao,
             atual.acoes,
+            'saida',
+            corrente.id,
+            cursorPendente,
           );
           if (fluxo.afterStateChangedActions) {
             await processarAcoes(
@@ -236,6 +267,9 @@ export async function processarEntrada(
               provedor,
               configuracao,
               rastro.acoesGlobais,
+              'saida',
+              null,
+              cursorPendente,
             );
           }
         }
@@ -263,6 +297,9 @@ export async function processarEntrada(
           provedor,
           configuracao,
           atual.acoes,
+          'entrada',
+          estado?.id ?? null,
+          cursorPendente,
         );
 
         // Trava contra laço no fluxo.
@@ -292,12 +329,19 @@ export async function processarEntrada(
         provedor,
         configuracao,
         rastro.acoesGlobais,
+        'conteudo',
+        null,
+        cursorPendente,
       );
     }
 
     rastro.estadoFinalId = estado?.id ?? null;
     return rastro;
   } catch (erro) {
+    if (erro instanceof SuspensaoDeProcessHttp) {
+      erro.rastro = rastro;
+      throw erro;
+    }
     rastro.erro = mensagemDe(erro);
     rastro.estadoFinalId = obterEstadoId(contexto);
     throw new ErroDoMotor(
@@ -317,11 +361,16 @@ async function processarAcoes(
   provedor: ProvedorDeAcoes,
   configuracao: ConfiguracaoDoMotor,
   rastro: RastroDeAcao[],
+  lista: ListaDeAcoesSuspensa,
+  estadoId: string | null,
+  cursor: (CursorDeProcessHttp & { resposta?: RespostaDeHttp; consumido?: boolean }) | null,
 ): Promise<void> {
   if (!acoes) return;
   // `OrderBy` é estável, e `sort` também: sem `order`, vale a ordem do arquivo.
   const ordenadas = [...acoes].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-  for (const acaoDoFluxo of ordenadas) {
+  const alvo = cursor && cursor.lista === lista && cursor.estadoId === estadoId ? cursor : null;
+  if (cursor && !cursor.consumido && !alvo) return;
+  for (const [indice, acaoDoFluxo] of ordenadas.entries()) {
     if (
       acaoDoFluxo.conditions &&
       !(await avaliarCondicoes(acaoDoFluxo.conditions, contexto.entrada, contexto))
@@ -348,8 +397,28 @@ async function processarAcoes(
         configuracoes = JSON.parse(texto) as Record<string, unknown>;
       }
       contexto.entradaContexto.set(CHAVE_DO_ESTADO_ATUAL, estado?.id ?? null);
+      if (acaoDoFluxo.type === 'ProcessHttp' && contexto.servicos.suspenderHttp) {
+        contexto.entradaContexto.set('process-http-cursor', {
+          lista,
+          estadoId,
+          indice,
+        });
+      }
+      if (alvo && indice < alvo.indice) continue;
+      if (alvo && !cursor?.consumido && indice === alvo.indice) {
+        if (!alvo.resposta) throw new Error('A retomada de ProcessHttp não tem resposta.');
+        const status = typeof configuracoes?.['responseStatusVariable'] === 'string'
+          ? configuracoes['responseStatusVariable'].trim() : '';
+        const corpo = typeof configuracoes?.['responseBodyVariable'] === 'string'
+          ? configuracoes['responseBodyVariable'].trim() : '';
+        if (status) definirVariavel(contexto, status, String(alvo.resposta.status));
+        if (corpo) definirVariavel(contexto, corpo, alvo.resposta.corpo);
+        if (cursor) cursor.consumido = true;
+        continue;
+      }
       await comTempoLimite(acao.executar(contexto, configuracoes), tempoLimite);
     } catch (erro) {
+      if (erro instanceof SuspensaoDeProcessHttp) throw erro;
       passo.erro = mensagemDe(erro);
       const mensagem =
         erro instanceof TempoEsgotado

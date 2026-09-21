@@ -13,7 +13,12 @@ import { contar } from '../metricas.js';
 // Ciclo consciente: `filas.ts` importa `processarPayload` daqui e daqui sai
 // `enfileirarEspelhoCrm`. As duas são declarações de função, então o hoisting do ESM
 // resolve — nenhuma é chamada durante a avaliação do módulo.
-import { enfileirarDownloadMidia, enfileirarEntrega, enfileirarEspelhoCrm } from '../filas.js';
+import {
+  enfileirarDownloadMidia,
+  enfileirarEntrega,
+  enfileirarEspelhoCrm,
+  enfileirarProcessHttp,
+} from '../filas.js';
 import { distribuirConversa } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
 import {
@@ -151,6 +156,9 @@ export async function processarPayload(
         tocadas.add(recebida.conversaId);
         entrouNaFila = true;
         respostasDoBot += recebida.respostasDoBot;
+        if (recebida.processHttpId) {
+          await enfileirarProcessHttp({ tenantId: canal.tenantId, processoId: recebida.processHttpId });
+        }
         // Depois do commit da transação de entrada (`receberMensagem` já voltou): o
         // download fala com a Meta, e isso não pode acontecer com uma conexão do
         // pool de banco presa numa transação. Ver `dominio/midia.ts`.
@@ -205,7 +213,12 @@ async function receberMensagem(
   canal: CanalResolvido,
   valor: ValorDoWebhook,
   mensagem: MensagemDaMeta,
-): Promise<{ conversaId: string; respostasDoBot: number; anexoId: string | null } | null> {
+): Promise<{
+  conversaId: string;
+  respostasDoBot: number;
+  anexoId: string | null;
+  processHttpId?: string;
+} | null> {
   const idProvedor = mensagem.id;
   const de = mensagem.from;
   if (!idProvedor || !de) return null;
@@ -300,7 +313,12 @@ async function receberMensagem(
       await distribuirConversa(tx, canal.tenantId, conversa.id, conversa.filaId, em);
     }
 
-    return { conversaId: conversa.id, respostasDoBot: bot.respostas, anexoId };
+    return {
+      conversaId: conversa.id,
+      respostasDoBot: bot.respostas,
+      anexoId,
+      ...(bot.processHttpId ? { processHttpId: bot.processHttpId } : {}),
+    };
   });
 }
 

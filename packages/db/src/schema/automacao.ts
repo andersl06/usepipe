@@ -378,6 +378,34 @@ export const execucaoPasso = pgTable(
   ],
 );
 
+export const ESTADOS_PROCESS_HTTP = ['pendente', 'chamando', 'respondida', 'retomada'] as const;
+
+/** O cursor de ProcessHttp vive separado para conservar cada posição executada. */
+export const processHttpExecucao = pgTable(
+  'process_http_execucao',
+  {
+    id: id(),
+    tenantId: refTenant(),
+    execucaoId: uuid('execucao_id').notNull().references(() => execucaoFluxo.id, { onDelete: 'cascade' }),
+    chave: text('chave').notNull(),
+    blocoId: uuid('bloco_id').references(() => bloco.id, { onDelete: 'set null' }),
+    blocoCodigo: text('bloco_codigo').notNull(),
+    lista: text('lista').notNull(),
+    indice: integer('indice').notNull(),
+    entrada: jsonb('entrada').notNull(),
+    contexto: jsonb('contexto').notNull(),
+    pedido: jsonb('pedido').notNull(),
+    estado: text('estado').notNull().default('pendente'),
+    resposta: jsonb('resposta'),
+    ...carimbos(),
+  },
+  (t) => [
+    listaCheck('process_http_execucao_estado_ck', t.estado, ESTADOS_PROCESS_HTTP),
+    uniqueIndex('process_http_execucao_chave_uk').on(t.execucaoId, t.chave),
+    index('process_http_execucao_pendente_idx').on(t.tenantId, t.estado),
+  ],
+);
+
 export const workflow = pgTable(
   'workflow',
   {

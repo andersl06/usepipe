@@ -6,6 +6,7 @@ import {
   FILA_ENTREGA,
   FILA_ESPELHO_CRM,
   FILA_MIDIA,
+  FILA_PROCESS_HTTP,
   FILA_SLA,
   conexaoRedis,
 } from '@pipe/workers';
@@ -15,11 +16,13 @@ import type {
   JobEntrega,
   JobEspelhoCrm,
   JobMidia,
+  JobProcessHttp,
   JobSla,
 } from '@pipe/workers';
 import { resolverCanal } from './banco.js';
 import { SEM_CRM, sincronizarDicionario, tenantsDoDicionario } from './dominio/dicionario-crm.js';
 import { processarPayload } from './dominio/entrada.js';
+import { executarProcessHttp } from './dominio/fluxo.js';
 import { renovarTokensInstagram } from './dominio/instagram/renovacao.js';
 import { contatosSemEspelho, sincronizarContato } from './dominio/espelho-crm.js';
 import { baixarMidiaDoAnexo, midiasPendentes } from './dominio/midia.js';
@@ -51,6 +54,10 @@ let filaEntrega: Queue<JobEntrega> | null = null;
 let filaEspelhoCrm: Queue | null = null;
 let filaMidia: Queue<JobMidia> | null = null;
 let filaSla: Queue<JobSla> | null = null;
+let filaProcessHttp: Queue<JobProcessHttp> | null = null;
+let consumidorProcessHttp: Worker<JobProcessHttp> | null = null;
+let relogioProcessHttp: ReturnType<typeof setInterval> | null = null;
+const processHttpEmMemoria: JobProcessHttp[] = [];
 
 function redis(): IORedis {
   conexao ??= new IORedis(conexaoRedis().url, { maxRetriesPerRequest: null });
@@ -69,6 +76,56 @@ export async function enfileirarEntrada(canalId: string, payload: unknown): Prom
   }
   filaEntrada ??= new Queue(FILA_ENTRADA, { connection: redis() });
   await filaEntrada.add('entrada', { canalId, payload }, { removeOnComplete: 1_000 });
+}
+
+export async function enfileirarProcessHttp(job: JobProcessHttp): Promise<void> {
+  if (modo() === 'memoria') {
+    const continuar = (ids: string[]) => {
+      for (const processoId of ids) void enfileirarProcessHttp({ tenantId: job.tenantId, processoId });
+    };
+    if (process.env['PIPE_PROCESS_HTTP_EM_MEMORIA'] === '1') processHttpEmMemoria.push(job);
+    else void executarProcessHttp(job.processoId).then(continuar);
+    return;
+  }
+  filaProcessHttp ??= new Queue(FILA_PROCESS_HTTP, { connection: redis() });
+  await filaProcessHttp.add('chamar', job, {
+    jobId: `process-http-${job.processoId}`,
+    removeOnComplete: 1_000,
+    attempts: 1,
+  });
+}
+
+export function consumirProcessHttp(): void {
+  if (modo() === 'memoria' || consumidorProcessHttp) return;
+  consumidorProcessHttp = new Worker<JobProcessHttp>(
+    FILA_PROCESS_HTTP,
+    async (job) => {
+      for (const processoId of await executarProcessHttp(job.data.processoId)) {
+        await enfileirarProcessHttp({ tenantId: job.data.tenantId, processoId });
+      }
+    },
+    { connection: redis(), concurrency: Number(process.env['PIPE_PROCESS_HTTP_CONCORRENCIA'] ?? 4) },
+  );
+}
+
+export async function agendarVarreduraProcessHttp(): Promise<void> {
+  if (modo() !== 'memoria' || process.env['PIPE_PROCESS_HTTP_EM_MEMORIA'] !== '1' || relogioProcessHttp) return;
+  let rodando = false;
+  relogioProcessHttp = setInterval(() => {
+    if (rodando) return;
+    rodando = true;
+    void (async () => {
+      try {
+        while (processHttpEmMemoria.length > 0) {
+          const job = processHttpEmMemoria.shift()!;
+          await executarProcessHttp(job.processoId);
+        }
+      } finally {
+        rodando = false;
+      }
+    })();
+  }, Number(process.env['PIPE_PROCESS_HTTP_VARREDURA_MS'] ?? 15_000));
+  relogioProcessHttp.unref();
 }
 
 export async function enfileirarEntrega(job: JobEntrega): Promise<void> {
@@ -518,6 +575,10 @@ export async function estadoDasFilas(): Promise<EstadoDaFila[]> {
 
 export async function fecharFilas(): Promise<void> {
   await consumidorEntrada?.close();
+  await consumidorProcessHttp?.close();
+  if (relogioProcessHttp) clearInterval(relogioProcessHttp);
+  relogioProcessHttp = null;
+  processHttpEmMemoria.length = 0;
   await consumidorEspelhoCrm?.close();
   await consumidorDicionarioCrm?.close();
   await consumidorMidia?.close();
@@ -531,6 +592,7 @@ export async function fecharFilas(): Promise<void> {
   consumidorInstagramToken = null;
   filaInstagramToken = null;
   await filaEntrada?.close();
+  await filaProcessHttp?.close();
   await filaEntrega?.close();
   await filaEspelhoCrm?.close();
   await filaDicionarioCrm?.close();
@@ -538,11 +600,13 @@ export async function fecharFilas(): Promise<void> {
   await filaSla?.close();
   await conexao?.quit();
   consumidorEntrada = null;
+  consumidorProcessHttp = null;
   consumidorEspelhoCrm = null;
   consumidorDicionarioCrm = null;
   consumidorMidia = null;
   consumidorSla = null;
   filaEntrada = null;
+  filaProcessHttp = null;
   filaEntrega = null;
   filaEspelhoCrm = null;
   filaDicionarioCrm = null;

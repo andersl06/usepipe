@@ -17,11 +17,13 @@ import {
   agendarVarreduraDownloadMidia,
   agendarVarreduraEspelhoCrm,
   agendarVarreduraSla,
+  agendarVarreduraProcessHttp,
   consumirRenovacaoInstagram,
   consumirChecagemSla,
   consumirDicionarioCrm,
   consumirDownloadMidia,
   consumirEntrada,
+  consumirProcessHttp,
   consumirEspelhoCrm,
   fecharFilas,
 } from './filas.js';
@@ -135,6 +137,8 @@ export interface ApiNoAr {
 export async function subirApi(porta = Number(process.env['PORT'] ?? 3000)): Promise<ApiNoAr> {
   const app = await criarAplicacao();
   consumirEntrada();
+  consumirProcessHttp();
+  await agendarVarreduraProcessHttp();
   consumirEspelhoCrm();
   await agendarVarreduraEspelhoCrm();
   consumirDicionarioCrm();

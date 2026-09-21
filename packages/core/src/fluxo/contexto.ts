@@ -120,6 +120,15 @@ export interface RespostaDeHttp {
   corpo: string;
 }
 
+export type ListaDeAcoesSuspensa = 'entrada' | 'conteudo' | 'saida';
+
+export interface CursorDeProcessHttp {
+  lista: ListaDeAcoesSuspensa;
+  estadoId: string | null;
+  indice: number;
+  resposta?: RespostaDeHttp;
+}
+
 /**
  * As dependências externas do motor — o `ISender` e as extensões da Blip. Quem
  * implementa é a `api`; ações com rede devem ser executadas fora da transação da entrada.
@@ -133,6 +142,8 @@ export interface ServicosDoMotor {
   registrarEvento(evento: Record<string, unknown>): Promise<void>;
   /** A api executa isto; o core só descreve a chamada e não faz rede. */
   chamarHttp?(pedido: PedidoDeHttp): Promise<RespostaDeHttp>;
+  /** A API grava o cursor e chama a rede depois que a transação termina. */
+  suspenderHttp?(pedido: PedidoDeHttp, cursor: Omit<CursorDeProcessHttp, 'resposta'>): Promise<never>;
   /**
    * `IRedirectManager.RedirectUserAsync`: manda o contato para outro serviço do roteador.
    * Ausente = o fluxo não está atrás de um roteador, e o `Redirect` falha — "o

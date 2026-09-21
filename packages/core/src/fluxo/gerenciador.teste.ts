@@ -9,7 +9,12 @@
 import { describe, expect, it } from 'vitest';
 import { criarEntrada } from './contexto.js';
 import type { Contexto, MensagemDeSaida } from './contexto.js';
-import { ErroDeProcessamentoDeSaida, ErroDoMotor, processarEntrada } from './gerenciador.js';
+import {
+  ErroDeProcessamentoDeSaida,
+  ErroDoMotor,
+  SuspensaoDeProcessHttp,
+  processarEntrada,
+} from './gerenciador.js';
 import type { Acao, Estado, FluxoBlip } from './modelos.js';
 
 const FLUXO_ID = 'f1';
@@ -78,6 +83,63 @@ const raiz = (outputs: Estado['outputs'], extra: Partial<Estado> = {}): Estado =
 });
 
 describe('FlowManager.ProcessInputAsync', () => {
+  it('suspende antes do ProcessHttp e retoma depois da ação sem repetir a mensagem anterior', async () => {
+    const enviados: string[] = [];
+    const fluxo: FluxoBlip = {
+      id: FLUXO_ID,
+      states: [{
+        id: 'root',
+        root: true,
+        input: {},
+        outputActions: [enviar('Antes'), {
+          type: 'ProcessHttp',
+          settings: { uri: 'https://cliente.test/{{nome}}', responseStatusVariable: 'status' },
+        }, enviar('Depois')],
+        outputs: [],
+      }],
+    };
+    const variaveis = { nome: 'Ana' };
+    const base = {
+      usuario: 'user@domain',
+      fluxo,
+      entrada: criarEntrada({ id: 'm1', tipo: 'text/plain', conteudo: 'oi' }),
+      variaveis,
+      entradaContexto: new Map(),
+      contato: null,
+      servicos: {
+        async enviar(m: MensagemDeSaida) { enviados.push(String(m.conteudo)); },
+        async encaminharParaAtendimento() { return { id: 'atd-1', status: 'Open' }; },
+        async registrarEvento() {},
+        async chamarHttp() { return { status: 200, corpo: '{}' }; },
+        async suspenderHttp(pedido: unknown, cursor: unknown): Promise<never> {
+          throw new SuspensaoDeProcessHttp(pedido as never, cursor as never);
+        },
+      },
+    } satisfies Contexto;
+
+    await expect(processarEntrada(base)).rejects.toMatchObject({ pedido: {
+      url: 'https://cliente.test/Ana',
+    } });
+    expect(enviados).toEqual(['Antes']);
+
+    await processarEntrada({
+      ...base,
+      entradaContexto: new Map(),
+      servicos: {
+        ...base.servicos,
+        async chamarHttp() { return { status: 200, corpo: '{}' }; },
+        async suspenderHttp() { throw new Error('não deveria suspender de novo'); },
+      },
+    }, {
+      retomarProcessHttp: {
+        lista: 'conteudo', estadoId: 'root', indice: 1,
+        resposta: { status: 200, corpo: '{}' },
+      },
+    });
+    expect(enviados).toEqual(['Antes', 'Depois']);
+    expect(variaveis.status).toBe('200');
+  });
+
   it('sem condição troca de estado, manda a mensagem e, sem saída, apaga o estado', async () => {
     const r = await rodar(
       [raiz([{ stateId: 'ping' }]), { id: 'ping', inputActions: [enviar('Pong!')] }],
@@ -421,7 +483,7 @@ describe('ActionConditions', () => {
     ),
     {
       id: 'ping',
-      input: {},
+        input: {},
       outputs: [{ stateId: 'pong', conditions: [{ values: ['Pong!'] }] }],
       ...(onde === 'ping' ? acoes : {}),
     },

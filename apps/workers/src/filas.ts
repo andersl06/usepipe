@@ -14,6 +14,7 @@ export const FILA_AGREGACAO = 'pipe-agregacao';
 export const FILA_ESPELHO_CRM = 'pipe-espelho-crm';
 export const FILA_MIDIA = 'pipe-midia';
 export const FILA_SLA = 'pipe-sla';
+export const FILA_PROCESS_HTTP = 'pipe-process-http';
 
 export interface JobEntrega {
   /** Só um empurrão: o worker varre o outbox de qualquer jeito. */
@@ -51,6 +52,11 @@ export interface JobMidia {
 export interface JobSla {
   tenantId: string;
   conversaId: string;
+}
+
+export interface JobProcessHttp {
+  tenantId: string;
+  processoId: string;
 }
 
 /**

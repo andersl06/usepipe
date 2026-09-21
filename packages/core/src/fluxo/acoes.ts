@@ -214,10 +214,15 @@ const processHttp: AcaoDoMotor = {
       : typeof corpoValor === 'string' ? corpoValor : JSON.stringify(corpoValor);
     const timeoutCru = campo(c, 'requestTimeout');
     const timeoutMs = typeof timeoutCru === 'number' && timeoutCru > 0 ? timeoutCru * 1000 : 60_000;
-    const resposta = await contexto.servicos.chamarHttp({
+    const pedido: PedidoDeHttp = {
       metodo: metodo as PedidoDeHttp['metodo'], url: uri, cabecalhos, timeoutMs,
       ...(corpo === undefined ? {} : { corpo }),
-    });
+    };
+    const cursor = contexto.entradaContexto.get('process-http-cursor');
+    if (contexto.servicos.suspenderHttp && cursor) {
+      await contexto.servicos.suspenderHttp(pedido, cursor as never);
+    }
+    const resposta = await contexto.servicos.chamarHttp(pedido);
     const status = comoTexto(campo(c, 'responseStatusVariable'))?.trim();
     const corpoVariavel = comoTexto(campo(c, 'responseBodyVariable'))?.trim();
     if (status) definirVariavel(contexto, status, String(resposta.status));

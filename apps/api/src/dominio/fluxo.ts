@@ -10,6 +10,7 @@ import {
   lerFluxoDaBlip,
   processarEntrada,
   relatorioDaImportacao,
+  SuspensaoDeProcessHttp,
   validarFluxo,
 } from '@pipe/core';
 import type {
@@ -19,12 +20,15 @@ import type {
   MensagemDeEntrada,
   MensagemDeSaida,
   PedidoDeHttp,
+  CursorDeProcessHttp,
+  RespostaDeHttp,
   RastroDaEntrada,
   RelatorioDaImportacao,
   Saida,
   ServicosDoMotor,
 } from '@pipe/core';
 import type { TransacaoPipe } from '@pipe/db';
+import { bancoDono, noTenant } from '../banco.js';
 import { emitir } from '../webhooks-saida.js';
 import { distribuirConversa } from './distribuicao.js';
 import { registrarEvento } from './eventos.js';
@@ -45,9 +49,8 @@ import { confirmarUrlSegura } from './gestao/integracoes.js';
  * fila `pipe-entrada` — nunca no webhook, que responde 200 e enfileira. Mesma transação
  * de propósito: mensagem e resposta do bot entram juntas ou não entram, e a reentrega da
  * Meta cai na guarda de `id_provedor` (mais o índice `execucao_passo_entrada_uk`).
- * `ProcessHttp` usa o mesmo limite de segurança de saída (HTTPS/SSRF e mTLS). A
- * separação transacional da chamada ainda precisa de um cursor persistido para
- * retomar depois da ação sem repetir as ações anteriores.
+ * `ProcessHttp` usa o mesmo limite de segurança de saída (HTTPS/SSRF e mTLS), mas
+ * grava um cursor e sai desta transação antes de falar com a API do cliente.
  *
  * **Humano ganha.** A Blip cala o bot estacionando o usuário num estado `desk:`. No Pipe a
  * dona da conversa é a própria conversa: com atendente, ou já na fila, o bot não fala. O
@@ -189,6 +192,7 @@ export interface ResultadoDoFluxo {
   tratou: boolean;
   /** Quantas respostas foram para o outbox — para empurrar a entrega depois do commit. */
   respostas: number;
+  processHttpId?: string;
 }
 
 const NAO_TRATOU: ResultadoDoFluxo = { tratou: false, respostas: 0 };
@@ -212,10 +216,11 @@ export async function rodarFluxoNaEntrada(
   tx: TransacaoPipe,
   publicado: FluxoPublicado | null,
   e: EntradaNoFluxo,
+  retomada?: { execucaoId: string; cursor: CursorDeProcessHttp; resposta: RespostaDeHttp },
 ): Promise<ResultadoDoFluxo> {
   const { conversa } = e;
   // Humano ganha: com atendente, o bot não fala.
-  if (conversa.atendenteId) return NAO_TRATOU;
+  if (conversa.atendenteId && !retomada) return NAO_TRATOU;
 
   // `for update`: duas mensagens do mesmo cliente ao mesmo tempo andam uma de cada vez.
   const { rows: execucoes } = await tx.execute<LinhaExecucao>(sql`
@@ -228,9 +233,20 @@ export async function rodarFluxoNaEntrada(
   `);
   let execucao = execucoes[0] ?? null;
 
+  if (execucao && !retomada) {
+    const { rows: pendentes } = await tx.execute<{ id: string }>(sql`
+      select id from process_http_execucao
+       where execucao_id = ${execucao.id} and estado in ('pendente', 'chamando')
+       limit 1
+    `);
+    // Decisão Pipe: enquanto o HTTP está pendente, a mensagem fica gravada e espera
+    // a retomada; assim uma conversa nunca tem duas execuções do motor em paralelo.
+    if (pendentes[0]) return { tratou: true, respostas: 0 };
+  }
+
   // Já na fila, esperando gente: também é do humano.
-  if (conversa.filaId) return NAO_TRATOU;
-  if (!execucao && (!conversa.nova || !publicado)) return NAO_TRATOU;
+  if (conversa.filaId && !retomada) return NAO_TRATOU;
+  if (!execucao && (!conversa.nova || !publicado) && !retomada) return NAO_TRATOU;
 
   if (!publicado) {
     // A conversa estava com o bot e o fluxo saiu do ar: vai para a fila em vez de ficar muda.
@@ -303,6 +319,7 @@ export async function rodarFluxoNaEntrada(
   const eventos: Record<string, unknown>[] = [];
   let respostas = 0;
   let transferida = false;
+  let processHttpId: string | undefined;
 
   const servicos: ServicosDoMotor = {
     enviar: async (m) => {
@@ -330,13 +347,8 @@ export async function rodarFluxoNaEntrada(
           headers: pedido.cabecalhos,
           body: pedido.corpo,
           // ponytail: a chamada ainda roda DENTRO da transação da entrada, que segura a
-          // conexão do banco e as linhas da conversa enquanto espera. O `requestTimeout`
-          // da origem vai até 60 s; aqui ele é cortado em PIPE_PROCESS_HTTP_TEMPO_MAX_MS
-          // (10 s) até a chamada ganhar fila própria e sair da transação.
-          timeoutMs: Math.min(
-            pedido.timeoutMs,
-            Number(process.env['PIPE_PROCESS_HTTP_TEMPO_MAX_MS'] ?? 10_000),
-          ),
+          // ponytail: fora da transação, o limite é o requestTimeout da origem (60 s).
+          timeoutMs: pedido.timeoutMs,
         });
         const corpo = await resposta.texto();
         const limite = Number(process.env['PIPE_PROCESS_HTTP_MAX_RESPOSTA_BYTES'] ?? 1_048_576);
@@ -350,6 +362,32 @@ export async function rodarFluxoNaEntrada(
           corpo: JSON.stringify({ error: timeout ? 'timeout' : 'network_error', message: mensagem }),
         };
       }
+    },
+    suspenderHttp: async (pedido, cursor) => {
+      confirmarUrlSegura(pedido.url);
+      const chave = `${execucaoId}:${e.mensagem.idProvedor}:${cursor.estadoId ?? 'global'}:${cursor.lista}:${cursor.indice}`;
+      const { rows } = await tx.execute<{ id: string }>(sql`
+        insert into process_http_execucao (
+          tenant_id, execucao_id, chave, bloco_id, bloco_codigo, lista, indice,
+          entrada, contexto, pedido, estado
+        ) values (
+          ${e.tenantId}, ${execucaoId}, ${chave},
+          ${cursor.estadoId ? (blocoPorCodigo.get(cursor.estadoId) ?? null) : null},
+          ${cursor.estadoId ?? ''}, ${cursor.lista}, ${cursor.indice},
+          ${JSON.stringify({
+            id: e.mensagem.id,
+            id_provedor: e.mensagem.idProvedor,
+            tipo: e.mensagem.tipo,
+            conteudo: e.mensagem.conteudo,
+          })}::jsonb,
+          ${JSON.stringify(variaveis)}::jsonb, ${JSON.stringify(pedido)}::jsonb, 'pendente'
+        )
+        on conflict (execucao_id, chave) do nothing
+        returning id
+      `);
+      processHttpId = rows[0]?.id;
+      // O cursor fica committed antes de liberar a chamada externa.
+      throw new SuspensaoDeProcessHttp(pedido, cursor);
     },
     // ponytail: o `context` do Redirect não é entregue ao destino como primeira entrada;
     // o destino começa na próxima mensagem do cliente. Entregar exige rodar o motor do
@@ -383,7 +421,10 @@ export async function rodarFluxoNaEntrada(
       servicos,
     };
     try {
-      const rastro = await processarEntrada(contexto);
+      const rastro = await processarEntrada(
+        contexto,
+        retomada ? { retomarProcessHttp: retomada.cursor } : {},
+      );
       await gravarPassos(
         tx,
         e.tenantId,
@@ -396,6 +437,26 @@ export async function rodarFluxoNaEntrada(
       );
       return true;
     } catch (erro) {
+      if (erro instanceof SuspensaoDeProcessHttp) {
+        await gravarPassos(
+          tx,
+          e.tenantId,
+          execucaoId,
+          erro.rastro ?? { estados: [], acoesGlobais: [], estadoFinalId: erro.cursor.estadoId },
+          blocoPorCodigo,
+          entrada,
+          eventos.splice(0),
+          relogio,
+        );
+        await tx.execute(sql`
+          update execucao_fluxo
+             set estado = 'aguardando', contexto = ${JSON.stringify(variaveis)}::jsonb,
+                 bloco_atual_id = ${erro.cursor.estadoId ? (blocoPorCodigo.get(erro.cursor.estadoId) ?? null) : null}
+           where id = ${execucaoId}
+        `);
+        await guardarContextoDoRoteador();
+        return true;
+      }
       if (!(erro instanceof ErroDoMotor)) throw erro;
       await gravarPassos(
         tx,
@@ -461,7 +522,136 @@ export async function rodarFluxoNaEntrada(
     await salvarExecucao(tx, execucaoId, variaveis, fluxo.id, blocoPorCodigo, transferida);
     await guardarContextoDoRoteador();
   }
-  return { tratou: true, respostas };
+  return { tratou: true, respostas, ...(processHttpId ? { processHttpId } : {}) };
+}
+
+/** Executa o HTTP fora da transação e, numa segunda transação, retoma o cursor. */
+export async function executarProcessHttp(processoId: string): Promise<string[]> {
+  type Linha = {
+    id: string; tenant_id: string; execucao_id: string; estado: string;
+    pedido: PedidoDeHttp; entrada: Record<string, unknown>; bloco_codigo: string;
+    lista: CursorDeProcessHttp['lista']; indice: number;
+  };
+  const dono = await bancoDono().execute<Linha>(sql`
+    select id, tenant_id, execucao_id, estado, pedido, entrada, bloco_codigo, lista, indice
+      from process_http_execucao where id = ${processoId} limit 1
+  `);
+  const encontrado = dono.rows[0];
+  if (!encontrado || encontrado.estado !== 'pendente') return [];
+
+  const tomou = await noTenant(encontrado.tenant_id, async (tx) => {
+    const { rows } = await tx.execute<{ id: string }>(sql`
+      update process_http_execucao set estado = 'chamando', atualizado_em = now()
+       where id = ${processoId} and estado = 'pendente' returning id
+    `);
+    return rows.length > 0;
+  });
+  if (!tomou) return [];
+
+  confirmarUrlSegura(encontrado.pedido.url);
+  let resposta: RespostaDeHttp;
+  try {
+    const r = await chamarComMtls(encontrado.tenant_id, encontrado.pedido.url, {
+      metodo: encontrado.pedido.metodo,
+      headers: encontrado.pedido.cabecalhos,
+      body: encontrado.pedido.corpo,
+      timeoutMs: encontrado.pedido.timeoutMs,
+    });
+    const limite = Number(process.env['PIPE_PROCESS_HTTP_MAX_RESPOSTA_BYTES'] ?? 1_048_576);
+    resposta = { status: r.status, corpo: (await r.texto()).slice(0, limite) };
+  } catch (erro) {
+    const mensagem = erro instanceof Error ? erro.message : String(erro);
+    const timeout = /timeout|aborted|timed out/i.test(mensagem);
+    resposta = {
+      status: timeout ? 504 : 503,
+      corpo: JSON.stringify({ error: timeout ? 'timeout' : 'network_error', message: mensagem }),
+    };
+  }
+
+  const novosProcessos: string[] = [];
+  await noTenant(encontrado.tenant_id, async (tx) => {
+    const { rows } = await tx.execute<{
+      execucao_id: string; bloco_codigo: string; lista: CursorDeProcessHttp['lista'];
+      indice: number; entrada: Record<string, unknown>; contexto: Record<string, string>;
+      conversa_id: string; contato_id: string; canal_id: string; fila_id: string | null;
+      atendente_id: string | null; fila_padrao_id: string | null;
+    }>(sql`
+      select p.execucao_id, p.bloco_codigo, p.lista, p.indice, p.entrada, p.contexto,
+             e.conversa_id, e.contato_id, f.canal_id, c.fila_id, c.atendente_id,
+             i.fila_padrao_id
+        from process_http_execucao p
+        join execucao_fluxo e on e.id = p.execucao_id
+        join conversa c on c.id = e.conversa_id
+        join fluxo_versao v on v.id = e.fluxo_versao_id
+        join fluxo f on f.id = v.fluxo_id
+        join inbox i on i.id = c.inbox_id
+       where p.id = ${processoId} and p.estado = 'chamando'
+       for update of p
+    `);
+    const p = rows[0];
+    if (!p) return;
+    await tx.execute(sql`
+      update process_http_execucao set resposta = ${JSON.stringify(resposta)}::jsonb,
+             estado = 'respondida', atualizado_em = now() where id = ${processoId}
+    `);
+    const publicado = await fluxoPublicadoDoCanal(tx, p.canal_id, p.contato_id);
+    if (!publicado) return;
+    const retomada = await rodarFluxoNaEntrada(tx, publicado, {
+      tenantId: encontrado.tenant_id,
+      conversa: {
+        id: p.conversa_id, nova: false, filaId: p.fila_id,
+        atendenteId: p.atendente_id, filaPadraoId: p.fila_padrao_id,
+      },
+      contatoId: p.contato_id,
+      mensagem: {
+        id: typeof p.entrada['id'] === 'string' ? p.entrada['id'] : null,
+        idProvedor: String(p.entrada['id_provedor'] ?? ''),
+        tipo: String(p.entrada['tipo'] ?? 'texto'),
+        conteudo: typeof p.entrada['conteudo'] === 'string' ? p.entrada['conteudo'] : null,
+      },
+    }, {
+      execucaoId: p.execucao_id,
+      cursor: { lista: p.lista, estadoId: p.bloco_codigo || null, indice: p.indice, resposta },
+      resposta,
+    });
+    if (retomada.processHttpId) novosProcessos.push(retomada.processHttpId);
+
+    const { rows: mensagensPendentes } = await tx.execute<{
+      id: string; id_provedor: string; tipo: string; conteudo: string | null;
+    }>(sql`
+      select m.id, m.id_provedor, m.tipo, m.conteudo
+        from mensagem m
+       where m.conversa_id = ${p.conversa_id} and m.direcao = 'entrada'
+         and not exists (
+           select 1 from execucao_passo ep
+            where ep.execucao_id = ${p.execucao_id}
+              and ep.entrada ->> 'id_provedor' = m.id_provedor
+         )
+       order by m.criada_em, m.id
+    `);
+    for (const mensagem of mensagensPendentes) {
+      const atual = await rodarFluxoNaEntrada(tx, publicado, {
+        tenantId: encontrado.tenant_id,
+        conversa: {
+          id: p.conversa_id, nova: false, filaId: null,
+          atendenteId: null, filaPadraoId: p.fila_padrao_id,
+        },
+        contatoId: p.contato_id,
+        mensagem: {
+          id: mensagem.id,
+          idProvedor: mensagem.id_provedor,
+          tipo: mensagem.tipo,
+          conteudo: mensagem.conteudo,
+        },
+      });
+      if (atual.processHttpId) novosProcessos.push(atual.processHttpId);
+    }
+    await tx.execute(sql`
+      update process_http_execucao set estado = 'retomada', atualizado_em = now()
+       where id = ${processoId}
+    `);
+  });
+  return novosProcessos;
 }
 
 /** `mensagem.tipo` do Pipe → o MIME que a Blip põe em `{{input.type}}`. */
