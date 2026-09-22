@@ -4,6 +4,7 @@ import { Icone } from '@pipe/ui';
 import Link from '../../componentes/link';
 import { IconeGestao } from '../../componentes/icones-gestao';
 import { CampoPeriodo, PainelFiltros } from '../../componentes/painel-filtros';
+import { Selecao } from '../../componentes/selecao';
 import { Dica } from '../../componentes/metrica';
 import { useLeitura } from '../../lib/consulta';
 import { type RelatorioSatisfacao, type GrupoSatisfacao } from '../../lib/satisfacao';
@@ -233,10 +234,10 @@ export function PaginaSatisfacao() {
                 formula="A consulta de satisfação ainda não cruza a resposta com o atendente ou a fila do ticket."
               />
               <span className="faixa-fim">
-                <select aria-label="Comparar por" defaultValue="Atendentes" disabled>
+                <Selecao aria-label="Comparar por" defaultValue="Atendentes" disabled>
                   <option>Atendentes</option>
                   <option>Filas</option>
-                </select>
+                </Selecao>
               </span>
             </h4>
             <div className="vazio">

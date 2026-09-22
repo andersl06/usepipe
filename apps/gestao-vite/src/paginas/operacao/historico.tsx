@@ -14,6 +14,7 @@ import { periodoAtual, rotuloDoPeriodo } from '../../lib/periodos';
 import { EstadoVazio, Icone } from '@pipe/ui';
 import { IconeGestao } from '../../componentes/icones-gestao';
 import { CampoDoPainel, CampoPeriodo, PainelFiltros } from '../../componentes/painel-filtros';
+import { Selecao } from '../../componentes/selecao';
 import { montarCsv } from '../../lib/csv-historico';
 import { ListaHistorico, type CartaoHistorico } from '../../componentes/lista-historico';
 import { useContato } from '../fluxo/contato';
@@ -306,36 +307,36 @@ export function PaginaHistorico() {
         </CampoDoPainel>
 
         <CampoDoPainel rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
-          <select name="atendente" defaultValue={params.atendente ?? ''} aria-label="Atendentes">
+          <Selecao name="atendente" defaultValue={params.atendente ?? ''} aria-label="Atendentes">
             <option value="">Selecione os atendentes</option>
             {catalogos.atendentes.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.nome}
               </option>
             ))}
-          </select>
+          </Selecao>
         </CampoDoPainel>
 
         <CampoDoPainel rotulo="Tags" apoio="Selecione uma ou mais tags">
-          <select name="etiqueta" defaultValue={params.etiqueta ?? ''} aria-label="Tags">
+          <Selecao name="etiqueta" defaultValue={params.etiqueta ?? ''} aria-label="Tags">
             <option value="">Selecione as tags</option>
             {catalogos.etiquetas.map((e) => (
               <option key={e.id} value={e.id}>
                 {e.nome}
               </option>
             ))}
-          </select>
+          </Selecao>
         </CampoDoPainel>
 
         <CampoDoPainel rotulo="Filas" apoio="Selecione uma ou mais filas">
-          <select name="fila" defaultValue={params.fila ?? ''} aria-label="Filas">
+          <Selecao name="fila" defaultValue={params.fila ?? ''} aria-label="Filas">
             <option value="">Selecione as filas</option>
             {catalogos.filas.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.nome}
               </option>
             ))}
-          </select>
+          </Selecao>
         </CampoDoPainel>
 
         <CampoDoPainel rotulo="Contato" apoio="Selecione um contato">
@@ -379,7 +380,7 @@ export function PaginaHistorico() {
               <label className="lbl" htmlFor="agrupar">
                 Agrupar por
               </label>
-              <select
+              <Selecao
                 id="agrupar"
                 name="agrupar"
                 defaultValue={por}
@@ -390,7 +391,7 @@ export function PaginaHistorico() {
                     {a.chave === 'nenhum' ? a.rotulo : `Agrupar por ${a.rotulo.toLowerCase()}`}
                   </option>
                 ))}
-              </select>
+              </Selecao>
               {truncado ? (
                 <span className="sub">
                   {numero(linhas.length)} conversas · as {LIMITE_HISTORICO} mais recentes

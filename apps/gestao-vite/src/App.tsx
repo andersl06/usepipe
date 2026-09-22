@@ -49,7 +49,10 @@ import { PaginaFichaDeAvaliacao } from './paginas/operacao/monitoria-ficha';
 import { PaginaRegrasDeAtendimento } from './paginas/cadastros/regras-atendimento';
 import { PaginaHorarios } from './paginas/cadastros/regras-horarios';
 import { PaginaGestaoDeAtendentes } from './paginas/cadastros/atendentes-gestao';
+import { PaginaEdicaoDeAtendente } from './paginas/cadastros/atendentes-edicao';
+import { PaginaPermissoesDeAtendente } from './paginas/cadastros/atendentes-permissoes';
 import { PaginaFilas } from './paginas/cadastros/atendentes-filas';
+import { PaginaEdicaoDeFila } from './paginas/cadastros/atendentes-filas-edicao';
 import { PaginaPausas } from './paginas/cadastros/atendentes-pausas';
 import { PaginaModelos } from './paginas/cadastros/comunicacao-modelos';
 import { PaginaRespostasProntas } from './paginas/cadastros/comunicacao-respostas';
@@ -131,7 +134,15 @@ const rotasDoContato = (
       <Route path="relatorios/esforco" element={<PaginaEsforco />} />
       <Route path="relatorios/satisfacao" element={<PaginaSatisfacao />} />
       <Route path="atendentes/gestao" element={<PaginaGestaoDeAtendentes />} />
+      {/* `/team/create` e `/team/edit` da origem — sem `:id`, a seleção viaja
+          em `?atendentes=` porque a edição é em lote (§a.1/§a.4 da ficha). */}
+      <Route path="atendentes/gestao/adicionar" element={<PaginaEdicaoDeAtendente modo="adicionar" />} />
+      <Route path="atendentes/gestao/editar" element={<PaginaEdicaoDeAtendente modo="editar" />} />
+      {/* `/team/permission` da origem. */}
+      <Route path="atendentes/gestao/permissoes" element={<PaginaPermissoesDeAtendente />} />
       <Route path="atendentes/filas" element={<PaginaFilas />} />
+      {/* `/queue-management/edit/:id` da origem — página própria, não modal. */}
+      <Route path="atendentes/filas/:filaId/editar" element={<PaginaEdicaoDeFila />} />
       <Route path="atendentes/pausas" element={<PaginaPausas />} />
       <Route path="comunicacao/modelos" element={<PaginaModelos />} />
       <Route path="comunicacao/respostas-prontas" element={<PaginaRespostasProntas />} />

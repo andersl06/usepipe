@@ -6,8 +6,12 @@ import { useLeitura } from '../../lib/consulta';
 import { denominador, duracao, numero, uuidOuNada } from '../../lib/formato';
 import { IconeGestao } from '../../componentes/icones-gestao';
 import { FiltrosDaLista, FiltrosDaOperacao } from '../../componentes/filtros-rapidos';
+import { CampoDoPainel, PainelFiltros } from '../../componentes/painel-filtros';
+import { Selecao } from '../../componentes/selecao';
 import { Metrica } from '../../componentes/metrica';
 import { MonitoramentoDetalhado } from '../../componentes/monitoramento-detalhado';
+import { useContato } from '../fluxo/contato';
+import { baseDoAtendimento } from './casca';
 
 interface RespostaDoMonitoramento {
   fuso: string;
@@ -23,6 +27,12 @@ interface Busca {
   aba?: string;
   busca?: string;
 }
+
+const ESTADOS_DE_ATENDENTE = [
+  { id: 'online', nome: 'Online' },
+  { id: 'pausa', nome: 'Em pausa' },
+  { id: 'invisivel', nome: 'Invisível' },
+] as const;
 
 /**
  * O ícone "Atualizar tela" do cabeçalho da página — `bds-button icon="refresh"
@@ -79,13 +89,18 @@ function useRecargaSilenciosa(segundos: number) {
  * "Expandir tela": o segundo ícone do cabeçalho, ao lado de "Atualizar tela"
  * (`bds-button icon="screen-full"`, `data-testid="fullscreen-change-to-enable"`).
  */
-function BotaoExpandirPagina() {
-  const [cheia, setCheia] = useState(false);
+function BotaoExpandirPagina({
+  cheia,
+  aoMudar,
+}: {
+  cheia: boolean;
+  aoMudar: (cheia: boolean) => void;
+}) {
   useEffect(() => {
-    const aoTrocar = () => setCheia(document.fullscreenElement !== null);
+    const aoTrocar = () => aoMudar(document.fullscreenElement !== null);
     document.addEventListener('fullscreenchange', aoTrocar);
     return () => document.removeEventListener('fullscreenchange', aoTrocar);
-  }, []);
+  }, [aoMudar]);
   function alternar() {
     if (document.fullscreenElement) void document.exitFullscreen();
     else void document.documentElement.requestFullscreen().catch(() => undefined);
@@ -101,6 +116,24 @@ function BotaoExpandirPagina() {
     >
       <IconeGestao nome="telaCheia" tamanho={24} />
     </button>
+  );
+}
+
+function TicketsAbertosPorHora({ horas }: { horas: readonly number[] }) {
+  const maior = Math.max(1, ...horas);
+  return (
+    <section className="mon-por-hora" aria-label="Tickets abertos por hora">
+      <h3>Tickets abertos por hora</h3>
+      <div className="mon-por-hora-grafico">
+        {horas.map((total, hora) => (
+          <div key={hora} className="mon-por-hora-coluna" title={`${hora}h: ${total} ticket(s)`}>
+            <span className="mon-por-hora-valor">{total || ''}</span>
+            <i style={{ height: `${Math.max(total > 0 ? 8 : 0, (total / maior) * 100)}%` }} />
+            <small>{String(hora).padStart(2, '0')}</small>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
 
@@ -129,7 +162,11 @@ function BotaoExpandirPagina() {
  * rodada é a forma deles; a informação nossa não some, muda de lugar.
  */
 export function PaginaMonitoramento() {
+  const { contato } = useContato();
+  const base = `${baseDoAtendimento(contato.tipo, contato.id)}/monitoramento`;
   const [busca] = useSearchParams();
+  const [painelAberto, setPainelAberto] = useState(false);
+  const [modoTv, setModoTv] = useState(false);
   const crus = Object.fromEntries(busca.entries()) as Busca;
   /* O que veio da URL, já conferido: id que não é UUID vira "sem filtro" em vez
      de virar 500 no `::uuid` do Postgres. */
@@ -151,18 +188,23 @@ export function PaginaMonitoramento() {
   const { tempoReal, atendentes, hoje } = m;
 
   return (
-    <>
+    <div className={modoTv ? 'mon-pagina mon-pagina-tv' : 'mon-pagina'}>
       <div className="board-head">
         <h2>Monitoramento</h2>
         <div className="filters">
           <BotaoAtualizar />
-          <BotaoExpandirPagina />
+          <BotaoExpandirPagina cheia={modoTv} aoMudar={setModoTv} />
         </div>
       </div>
 
       {/* A faixa "Filtros rápidos:", com o próprio botão "Filtros" no fim —
           é ali que ele mora nesta tela, não no cabeçalho. */}
-      <FiltrosDaOperacao filas={m.filas} atual={params} />
+      <FiltrosDaOperacao
+        filas={m.filas}
+        atual={params}
+        base={base}
+        aoAbrirPainel={() => setPainelAberto(true)}
+      />
 
       {/* ---------------------------------------------------- grade 2×2 */}
       <div className="mon">
@@ -299,14 +341,68 @@ export function PaginaMonitoramento() {
         </CartaoMetrica>
       </div>
 
-      <FiltrosDaLista atendentes={m.listaAtendentes} atual={params} />
+      {modoTv ? <TicketsAbertosPorHora horas={m.ticketsAbertosPorHora} /> : null}
 
-      <MonitoramentoDetalhado
-        monitoramento={m}
-        aba={params.aba ?? 'atribuido'}
-        busca={params.busca ?? ''}
-        filtro={params}
-      />
-    </>
+      {!modoTv ? (
+        <>
+          <FiltrosDaLista
+            atendentes={m.listaAtendentes}
+            atual={params}
+            base={base}
+            aoAbrirPainel={() => setPainelAberto(true)}
+          />
+
+          <MonitoramentoDetalhado
+            monitoramento={m}
+            aba={params.aba ?? 'atribuido'}
+            busca={params.busca ?? ''}
+            filtro={params}
+          />
+        </>
+      ) : null}
+
+      <PainelFiltros
+        aberto={painelAberto}
+        aoFechar={() => setPainelAberto(false)}
+        acao={base}
+        limpar={base}
+      >
+        <input type="hidden" name="aba" value={params.aba ?? 'atribuido'} />
+        {params.busca ? <input type="hidden" name="busca" value={params.busca} /> : null}
+        <CampoDoPainel rotulo="Fila" apoio="Filtre toda a operação por fila">
+          <Selecao name="fila" defaultValue={params.fila ?? ''} aria-label="Fila">
+            <option value="">Todas as filas</option>
+            {m.filas.map((fila) => (
+              <option key={fila.id} value={fila.id}>
+                {fila.nome}
+              </option>
+            ))}
+          </Selecao>
+        </CampoDoPainel>
+        <CampoDoPainel rotulo="Atendente" apoio="Filtre as conversas atribuídas">
+          <Selecao name="atendente" defaultValue={params.atendente ?? ''} aria-label="Atendente">
+            <option value="">Todos os atendentes</option>
+            {m.listaAtendentes.map((atendente) => (
+              <option key={atendente.id} value={atendente.id}>
+                {atendente.nome}
+              </option>
+            ))}
+          </Selecao>
+        </CampoDoPainel>
+        <CampoDoPainel rotulo="Contato" apoio="Busque pelo nome do contato">
+          <input type="search" name="contato" defaultValue={params.contato ?? ''} />
+        </CampoDoPainel>
+        <CampoDoPainel rotulo="Status do atendente" apoio="Disponibilidade atual do atendente">
+          <Selecao name="status" defaultValue={params.status ?? ''} aria-label="Status do atendente">
+            <option value="">Todos os status</option>
+            {ESTADOS_DE_ATENDENTE.map((estado) => (
+              <option key={estado.id} value={estado.id}>
+                {estado.nome}
+              </option>
+            ))}
+          </Selecao>
+        </CampoDoPainel>
+      </PainelFiltros>
+    </div>
   );
 }

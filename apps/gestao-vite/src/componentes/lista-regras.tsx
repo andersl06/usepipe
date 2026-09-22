@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
+import { Selecao } from './selecao';
 
 const TAMANHOS_DE_PAGINA = [5, 10, 15, 25, 50, 100, 250, 500] as const;
 
@@ -60,28 +61,36 @@ function RodapeDePaginacao({
   tamanho,
   aoMudarPagina,
   aoMudarTamanho,
+  ocultarTamanho = false,
 }: {
   total: number;
   pagina: number;
   tamanho: number;
   aoMudarPagina: (p: number) => void;
   aoMudarTamanho: (t: number) => void;
+  /**
+   * `personalizedbreaks` NÃO tem `pagination-and-search-results-select`
+   * (`FICHA-atendentes-filas-pausas.md` §b.3/§c) — só contador e setas.
+   */
+  ocultarTamanho?: boolean;
 }) {
   const totalPaginas = Math.max(1, Math.ceil(total / tamanho));
   const inicio = total === 0 ? 0 : (pagina - 1) * tamanho + 1;
   const fim = Math.min(pagina * tamanho, total);
   return (
     <div className="rodape-paginacao">
-      <label className="rp-tamanho">
-        Resultados por página
-        <select value={tamanho} onChange={(e) => aoMudarTamanho(Number(e.target.value))}>
-          {TAMANHOS_DE_PAGINA.map((o) => (
-            <option key={o} value={o}>
-              {o}
-            </option>
-          ))}
-        </select>
-      </label>
+      {ocultarTamanho ? null : (
+        <label className="rp-tamanho">
+          Resultados por página
+          <Selecao value={tamanho} onChange={(e) => aoMudarTamanho(Number(e.target.value))} aria-label="Resultados por página">
+            {TAMANHOS_DE_PAGINA.map((o) => (
+              <option key={o} value={o}>
+                {o}
+              </option>
+            ))}
+          </Selecao>
+        </label>
+      )}
       <span className="rp-contagem">{`${inicio}-${fim} de ${total}`}</span>
       <div className="rp-nav">
         <button type="button" disabled={pagina <= 1} onClick={() => aoMudarPagina(1)} aria-label="Primeira página">
@@ -159,6 +168,13 @@ export interface CartaoRegra {
    * arrastaria a ação para o pacote do navegador.
    */
   acao?: React.ReactNode;
+  /**
+   * Slot antes das colunas — a caixa de seleção + avatar do cartão de
+   * atendente (`FICHA-atendentes-filas-pausas.md` §b.2: "caixa de seleção,
+   * avatar com as iniciais"). `undefined` mantém o `<span>` de sempre (a
+   * faixa de cor da fila, quando existe, ou vazio).
+   */
+  esquerda?: React.ReactNode;
 }
 
 export interface SecaoDeRegras {
@@ -185,7 +201,7 @@ function Cartao({ cartao }: { cartao: CartaoRegra }) {
   const colunas = cartao.campos.length + (cartao.selo ? 1 : 0);
   return (
     <article className="cartao-lista">
-      {cartao.cor ? <span className="sw" style={{ background: cartao.cor }} /> : <span />}
+      {cartao.esquerda ?? (cartao.cor ? <span className="sw" style={{ background: cartao.cor }} /> : <span />)}
       <div className="cl-campos" style={{ '--cl-colunas': colunas } as React.CSSProperties}>
         {cartao.campos.map((c) => (
           <div key={c.rotulo} className="cl-campo">
@@ -230,6 +246,7 @@ export function ListaRegras({
   tamanhoDePaginaInicial = 10,
   ocultarBusca = false,
   filtros,
+  ocultarTamanhoDePagina = false,
 }: {
   secoes: readonly SecaoDeRegras[];
   /** A lista serve outras telas além de Regras; o texto da busca é o único ponto de variação. */
@@ -261,6 +278,8 @@ export function ListaRegras({
    * esquerda da busca, que ali ocupa 69% da linha.
    */
   filtros?: ReactNode;
+  /** Ver `RodapeDePaginacao.ocultarTamanho` — só a tela de Pausas pede isto. */
+  ocultarTamanhoDePagina?: boolean;
 }) {
   const [busca, setBusca] = useState('');
   const [tamanho, setTamanho] = useState(tamanhoDePaginaInicial);
@@ -356,6 +375,7 @@ export function ListaRegras({
           tamanho={tamanho}
           aoMudarPagina={setPagina}
           aoMudarTamanho={setTamanho}
+          ocultarTamanho={ocultarTamanhoDePagina}
         />
       ) : null}
     </>

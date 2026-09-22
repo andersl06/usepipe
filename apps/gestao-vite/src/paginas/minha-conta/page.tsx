@@ -7,6 +7,7 @@ import { useLeitura } from '../../lib/consulta';
 import type { ContaEmVigor } from '../../lib/conta';
 import { salvarConta } from './acoes';
 import { PADRAO_DE_SITE, RECADOS, ROTULO_DE_FUSO, ROTULO_DE_IDIOMA, TAMANHO } from './regras';
+import { Selecao } from '../../componentes/selecao';
 import './minha-conta.css';
 
 /**
@@ -218,14 +219,14 @@ export function PaginaMinhaConta() {
 
                   <label className="conta-campo" data-erro={recusado('funcionarios')}>
                     <span>Tamanho da empresa</span>
-                    <select name="funcionarios" defaultValue={conta.funcionarios ?? ''}>
+                    <Selecao name="funcionarios" defaultValue={conta.funcionarios ?? ''} aria-label="Tamanho da empresa">
                       <option value="">Selecionar</option>
                       {conta.faixasDeFuncionarios.map((faixa) => (
                         <option key={faixa} value={faixa}>
                           {faixa} funcionários
                         </option>
                       ))}
-                    </select>
+                    </Selecao>
                   </label>
                   <p className="conta-recado">{RECADOS.funcionarios}</p>
 
@@ -241,14 +242,14 @@ export function PaginaMinhaConta() {
 
                   <label className="conta-campo">
                     <span>Estado</span>
-                    <select name="estado" defaultValue={conta.estado ?? ''}>
+                    <Selecao name="estado" defaultValue={conta.estado ?? ''} aria-label="Estado">
                       <option value="">Selecionar</option>
                       {ESTADOS.map((uf) => (
                         <option key={uf} value={uf}>
                           {uf}
                         </option>
                       ))}
-                    </select>
+                    </Selecao>
                   </label>
 
                   <label className="conta-campo">
@@ -275,13 +276,13 @@ export function PaginaMinhaConta() {
                 <div className="conta-painel conta-painel-preferencias">
                   <label className="conta-campo" data-erro={recusado('idioma')}>
                     <span>Idioma</span>
-                    <select name="idioma" defaultValue={conta.idioma}>
+                    <Selecao name="idioma" defaultValue={conta.idioma} aria-label="Idioma">
                       {conta.idiomas.map((codigo) => (
                         <option key={codigo} value={codigo}>
                           {ROTULO_DE_IDIOMA[codigo] ?? codigo}
                         </option>
                       ))}
-                    </select>
+                    </Selecao>
                   </label>
                   <p className="conta-recado">{RECADOS.idioma}</p>
 
@@ -290,13 +291,13 @@ export function PaginaMinhaConta() {
                       rótulo da hora. */}
                   <label className="conta-campo" data-erro={recusado('fuso')}>
                     <span>Fuso horário</span>
-                    <select name="fuso" defaultValue={conta.fuso}>
+                    <Selecao name="fuso" defaultValue={conta.fuso} aria-label="Fuso horário">
                       {conta.fusos.map((nome) => (
                         <option key={nome} value={nome}>
                           {ROTULO_DE_FUSO[nome] ?? nome}
                         </option>
                       ))}
-                    </select>
+                    </Selecao>
                   </label>
                   <p className="conta-recado">{RECADOS.fuso}</p>
                 </div>

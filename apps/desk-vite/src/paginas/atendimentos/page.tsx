@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { FilaDoDesk, RespostaDaConversa } from '@pipe/contracts';
 import { useLeitura } from '../../lib/consulta';
+import { intervaloDaEntrega } from '../../lib/intervalo-entrega';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { Coluna } from './coluna';
 import { Conversa } from './conversa';
@@ -31,7 +32,7 @@ export function PaginaAtendimentos() {
 
   const fila = useLeitura<FilaDoDesk>('/v1/desk/fila', { refetchInterval: POLLING_INTERVAL });
   const conversa = useLeitura<RespostaDaConversa>(id ? `/v1/desk/conversas/${id}` : null, {
-    refetchInterval: POLLING_INTERVAL,
+    refetchInterval: (query) => intervaloDaEntrega(query.state.data?.aberta?.itens),
   });
 
   useEffect(() => {

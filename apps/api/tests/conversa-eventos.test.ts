@@ -160,6 +160,26 @@ describe('encerrar conversa', () => {
     expect(resposta.status).toBe(403);
     expect(await eventosDe(id)).toHaveLength(0);
   });
+
+  it('permite ao supervisor encerrar conversa de outro atendente', async () => {
+    const { rows: p } = await cenario.dono.execute<{ id: string }>(sql`
+      insert into papel (tenant_id, nome) values (${cenario.tenantId}, ${`Supervisor ${randomUUID().slice(0, 6)}`})
+      returning id
+    `);
+    const papelId = p[0]!.id;
+    await cenario.dono.execute(sql`
+      insert into papel_permissao (tenant_id, papel_id, permissao_codigo)
+      values (${cenario.tenantId}, ${papelId}, 'conversa.encerrar') on conflict do nothing
+    `);
+    await cenario.dono.execute(sql`
+      insert into usuario_papel (tenant_id, usuario_id, papel_id)
+      values (${cenario.tenantId}, ${cenario.atendenteId}, ${papelId}) on conflict do nothing
+    `);
+
+    const id = await novaConversa('em_atendimento', outroAtendenteId);
+    expect((await chamar(`/v1/conversas/${id}/encerrar`, { etiqueta_id: etiquetaId })).status).toBe(201);
+    expect(await eventosDe(id)).toContain('encerrada');
+  });
 });
 
 describe('espera', () => {

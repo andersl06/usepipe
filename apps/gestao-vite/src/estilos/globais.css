@@ -939,7 +939,7 @@
    de marca). */
 .btn {
   min-height: 40px;
-  padding: 0 var(--p-e-4);
+  padding: 0 var(--p-e-3);
   gap: var(--p-e-1);
   font-size: var(--g-t-item);
   font-weight: var(--g-peso-negrito);
@@ -1036,7 +1036,7 @@
   gap: var(--p-e-1);
   height: 40px;
   min-width: 130px;
-  padding: 0 var(--p-e-4);
+  padding: 0 var(--p-e-3);
   border: 1px solid var(--p-conteudo);
   border-radius: var(--p-r-md);
   background: transparent;
@@ -1100,14 +1100,35 @@
   color: inherit;
   background: transparent;
   border: 0;
+  border-radius: 0;
   outline: none;
   padding: 0;
   margin: 0;
   max-width: 120px;
   min-width: 0;
   appearance: none;
+  -webkit-appearance: none;
   cursor: pointer;
   text-overflow: ellipsis;
+}
+
+/* `input[type=search]` no Chrome/Edge ignora `appearance: none` sem o
+   prefixo e desenha a própria caixa arredondada cinza por baixo — era o
+   "Contato" cinza e sem cara de pílula na captura. Some o cromo nativo:
+   moldura, ícone de lupa e "x" de limpar. */
+/* Vazio e sem foco, o campo não ocupa lugar: o rótulo fica centrado como nos
+   outros três botões da faixa. Clicar no rótulo foca o campo e ele abre. */
+.pilula { justify-content: center; }
+.pilula input[type='search']:placeholder-shown:not(:focus) {
+  width: 0;
+  max-width: 0;
+}
+
+.pilula input[type='search']::-webkit-search-decoration,
+.pilula input[type='search']::-webkit-search-cancel-button,
+.pilula input[type='search']::-webkit-search-results-button,
+.pilula input[type='search']::-webkit-search-results-decoration {
+  display: none;
 }
 
 .pilula input {
@@ -1124,6 +1145,123 @@
   color: var(--p-conteudo-fantasma);
 }
 
+/* `bds-select`: campo de 40px, seta e lista própria. O select nativo ficava
+   invisível nas pílulas e ainda entregava o menu antigo do navegador. */
+.selecao {
+  position: relative;
+  min-width: 0;
+  display: block;
+}
+
+/* Dentro de uma pílula de filtro rápido o `Selecao` some como caixa: quem
+   desenha borda/altura/raio é só a `.pilula`. Do jeito que veio do Codex,
+   as duas caixas se empilhavam — a caixa branca do `.selecao-controle`
+   sobrava por dentro da borda preta da pílula (ver captura). Origem:
+   `bds-button` de filtro rápido é UMA caixa só, sem select embutido. */
+.selecao.pilula {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pilula .selecao-controle {
+  width: auto;
+  height: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  justify-content: center;
+}
+
+.pilula .selecao-lista {
+  left: 0;
+  right: auto;
+  min-width: 100%;
+  width: max-content;
+  max-width: 320px;
+}
+
+.selecao-controle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  width: 100%;
+  height: 40px;
+  padding: 8px 4px 8px 12px;
+  border: 1px solid var(--p-linha);
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font: inherit;
+  font-family: var(--p-fonte);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.selecao-controle:focus-visible {
+  outline: 0;
+  border-color: var(--p-marca);
+  box-shadow: 0 0 0 2px var(--p-foco);
+}
+
+.selecao-controle:disabled {
+  cursor: not-allowed;
+  opacity: .55;
+}
+
+.selecao-placeholder {
+  color: var(--p-conteudo-fantasma);
+}
+
+.selecao-lista {
+  position: absolute;
+  z-index: 70;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  max-height: 200px;
+  overflow: auto;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+  box-shadow: 0 8px 4px -4px color-mix(in srgb, var(--p-conteudo) 4%, transparent),
+    0 12px 12px -4px color-mix(in srgb, var(--p-conteudo) 16%, transparent);
+}
+
+.selecao-lista button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  min-height: 38px;
+  padding: 8px 16px 8px 12px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  font: inherit;
+  font-family: var(--p-fonte);
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.selecao-lista button:hover,
+.selecao-lista button:focus-visible,
+.selecao-lista button.selecionada {
+  background: var(--p-superficie-1);
+  color: var(--p-marca);
+}
+
 .pilula svg {
   flex: none;
   opacity: 0.7;
@@ -1137,6 +1275,99 @@
   display: grid;
   grid-template-columns: minmax(0, 840fr) minmax(0, 515fr);
   gap: var(--g-grade-gap);
+}
+
+/* A TV não é só a mesma página ampliada: a referência troca o tema, preserva
+   apenas os indicadores e acrescenta a leitura horária. */
+.mon-pagina-tv {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  min-height: 100dvh;
+  overflow: auto;
+  padding: 32px;
+  background: var(--p-superficie-4);
+  color: var(--p-conteudo-claro);
+}
+
+.mon-pagina-tv .board-head {
+  padding-bottom: 16px;
+  border-bottom: 1px solid color-mix(in srgb, var(--p-conteudo-claro) 24%, transparent);
+}
+
+.mon-pagina-tv .board-head h2,
+.mon-pagina-tv .faixa-filtros > .lbl,
+.mon-pagina-tv .metric .v,
+.mon-pagina-tv .metric .k,
+.mon-pagina-tv .card-cabecalho > h3 {
+  color: var(--p-conteudo-claro);
+}
+
+.mon-pagina-tv .card,
+.mon-pagina-tv .mon-por-hora {
+  background: color-mix(in srgb, var(--p-superficie-4) 82%, var(--p-conteudo-claro));
+  box-shadow: none;
+}
+
+.mon-pagina-tv .pilula,
+.mon-pagina-tv .btn {
+  color: var(--p-conteudo-claro);
+  border-color: color-mix(in srgb, var(--p-conteudo-claro) 42%, transparent);
+  background: transparent;
+}
+
+.mon-pagina-tv .metrics-grupo.estreito {
+  border-right-color: color-mix(in srgb, var(--p-conteudo-claro) 22%, transparent);
+}
+
+.mon-por-hora {
+  margin-top: var(--g-grade-gap);
+  padding: var(--g-cartao-pad);
+  border-radius: var(--g-r-cartao);
+  background: var(--g-cartao-fundo);
+  box-shadow: var(--g-sombra-cartao);
+}
+
+.mon-por-hora h3 {
+  margin: 0 0 20px;
+  font-size: var(--g-t-cartao);
+  font-weight: var(--g-peso-forte);
+  line-height: var(--g-lh-cartao);
+}
+
+.mon-por-hora-grafico {
+  height: 220px;
+  display: grid;
+  grid-template-columns: repeat(24, minmax(16px, 1fr));
+  align-items: end;
+  gap: 8px;
+}
+
+.mon-por-hora-coluna {
+  height: 100%;
+  display: grid;
+  grid-template-rows: 18px 1fr 18px;
+  align-items: end;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.mon-por-hora-coluna i {
+  width: 100%;
+  align-self: end;
+  min-height: 0;
+  border-radius: 4px 4px 0 0;
+  background: var(--p-marca);
+}
+
+.mon-por-hora-valor,
+.mon-por-hora-coluna small {
+  font-size: var(--g-t-rotulo);
+  line-height: var(--g-lh-rotulo);
+}
+
+.mon-por-hora-coluna small {
+  margin-top: 6px;
 }
 
 /* ================================================== o cartão, na medida deles
@@ -1426,7 +1657,7 @@
    de letra era invenção nossa — a coluna deles tem o mesmo corpo da célula e
    se separa só pelo peso. */
 .tblwrap th {
-  height: 59px;
+  height: 64px;
   padding: 0 var(--p-e-2);
   font-size: var(--g-t-coluna);
   font-weight: var(--g-peso-forte);
@@ -1438,7 +1669,9 @@
 }
 
 .tblwrap td {
-  height: 54px;
+  /* A célula de tabela HTML soma 6px do conteúdo à altura declarada; 58px
+     produz a linha visual de 64px do `bds-table-row` da Blip. */
+  height: 58px;
   padding: 0 var(--p-e-2);
   font-size: var(--g-t-celula);
   font-weight: var(--g-peso-normal);
@@ -2106,6 +2339,15 @@ tr.grupo th {
   color: var(--p-conteudo-desabilitado);
 }
 
+/* Caixa de seleção + avatar antes das colunas — o cartão de atendente
+   (`FICHA-atendentes-filas-pausas.md` §b.2: "caixa de seleção, avatar com as
+   iniciais"). Fica no primeiro `auto` de `.cartao-lista`, como o `.sw`. */
+.cl-selecao {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
 .cl-rodape > span + span::before {
   content: ' · ';
 }
@@ -2355,6 +2597,149 @@ tr.grupo th {
   flex: none;
 }
 
+/* Linha simples de lista dentro de um `Cartao` — atendente vinculado à fila,
+   regra de priorização da fila (`atendentes-filas-edicao.tsx`). Mais leve que
+   `.cartao-lista`: aqui não há campos rotulados, só um texto e uma ação. */
+.linha-lista {
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--p-e-2) 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+}
+
+.linha-lista:last-of-type {
+  border-bottom: none;
+}
+
+.secao-rodape {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  margin-top: var(--p-e-2);
+}
+
+.link-carregar-mais {
+  border: none;
+  background: none;
+  padding: 0;
+  color: var(--p-marca);
+  font: inherit;
+  font-weight: var(--g-peso-negrito);
+  cursor: pointer;
+}
+
+/* "Selecionar todos" — a barra entre a busca e a lista de atendentes
+   (`FICHA-atendentes-filas-pausas.md` §b.2). As ações em lote (Editar/
+   Permissões) só aparecem com seleção — não são do material capturado, mas
+   sem elas a seleção múltipla não teria para onde ir. */
+.selecionar-todos-barra {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-3);
+  padding: var(--p-e-2) 0;
+}
+
+.selecionar-todos {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  font-size: var(--g-t-item);
+  font-weight: var(--g-peso-negrito);
+  color: var(--p-conteudo);
+}
+
+.acoes-em-lote {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  margin-left: auto;
+}
+
+/* O painel "Filtrar por: Filas" — ativador + painel suspenso ancorado nele
+   (`FICHA-atendentes-filas-pausas.md` §a.4: seletor múltiplo, "Limpar
+   seleção", "Cancelar"/"Aplicar"). */
+.filtro-filas {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+}
+
+.filtro-filas-ativador {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 40px;
+  padding: 0 var(--p-e-3);
+  border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: var(--g-t-item);
+  cursor: pointer;
+}
+
+.filtro-filas-painel {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 4px);
+  left: 0;
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--p-e-2);
+  padding: var(--p-e-3);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  box-shadow: var(--p-sombra-1);
+}
+
+.filtro-filas-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--p-e-2);
+}
+
+.filtro-filas-item {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  font-size: var(--g-t-item);
+  color: var(--p-conteudo);
+}
+
+/* A tira de quem está selecionado, em `atendentes-edicao.tsx` e
+   `atendentes-permissoes.tsx` — a prova visual de que "Editar 3 atendentes"
+   são estes três, e não uma promessa sem rosto. */
+.lista-selecionados {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--p-e-2);
+  margin-bottom: var(--p-e-3);
+}
+
+.selecionado-chip {
+  display: flex;
+  align-items: center;
+  gap: var(--p-e-2);
+  padding: 4px var(--p-e-3) 4px 4px;
+  border-radius: 999px;
+  background: var(--p-superficie-2);
+  font-size: var(--g-t-item);
+  color: var(--p-conteudo);
+}
+
+.campo-cor {
+  width: 40px;
+  height: 40px;
+  padding: 2px;
+  border: 1px solid color-mix(in srgb, var(--p-conteudo) 20%, transparent);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+}
+
 /* ============================ a grade de canais (/preferencias/canais)
    `FICHA-channels.md` §2: `bds-grid direction="row"` com quatro `bds-paper`
    de 242×292 (medida do boot-log da captura). Cada cartão: ícone no topo,
@@ -2445,6 +2830,18 @@ tr.grupo th {
 
 .interruptor[aria-checked='true'] .interruptor-bolinha {
   transform: translateX(16px);
+}
+
+/* O terceiro estado da tabela "Permissões" — uns dos atendentes selecionados
+   têm a permissão, outros não (`FICHA-atendentes-filas-pausas.md` §a.4: as
+   três descrições provam seleção múltipla). Meio caminho, cinza: nem ligado
+   nem desligado. */
+.interruptor[data-parcial='true'] {
+  background: var(--p-linha-media);
+}
+
+.interruptor[data-parcial='true'] .interruptor-bolinha {
+  transform: translateX(8px);
 }
 
 /* ============== o cartão de configuração (/configuracoes/gerais)
@@ -4086,14 +4483,13 @@ tr.grupo th {
    O `data-testid="saved-filters-sidebar"` deles, fechado por padrão e medido em
    `FICHA-monitoring.md` e `FICHA-history.md` §2: título, subtítulo fixo, duas
    abas, os campos da consulta, e um rodapé com o switch de filtro salvo e os
-   dois botões. A largura de 380px não é medida deles — o material não chegou a
-   trazer o número —, e é a única peça desta entrega onde a régua caiu para
-   "razoável" em vez de "medido"; revisar se a captura aparecer depois. */
+   dois botões. A largura de 420px vem do atributo `width` do
+   `bds-sidebar[data-testid="saved-filters-sidebar"]` na captura da Blip. */
 .painel-fundo {
   position: fixed;
   inset: 0;
   z-index: 45;
-  background: color-mix(in srgb, var(--p-conteudo) 32%, transparent);
+  background: color-mix(in srgb, var(--p-conteudo) 70%, transparent);
 }
 
 .painel-lateral {
@@ -4102,12 +4498,12 @@ tr.grupo th {
   right: 0;
   bottom: 0;
   z-index: 46;
-  width: 380px;
+  width: 420px;
   max-width: 92vw;
   display: flex;
   flex-direction: column;
   background: var(--p-superficie-0);
-  box-shadow: var(--p-sombra-2);
+  box-shadow: 0 6px 16px -4px color-mix(in srgb, var(--p-conteudo) 16%, transparent);
   overflow-y: auto;
 }
 

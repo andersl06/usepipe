@@ -1,6 +1,7 @@
 import Link from '../../componentes/link';
 import { BarraDoPortal } from '../../componentes/barra-do-portal';
 import { IconeBusca, IconePortal } from '../../componentes/icones-portal';
+import { Selecao } from '../../componentes/selecao';
 import { useSearchParams } from 'react-router-dom';
 import { useCascaDoPortal } from '../../lib/casca';
 import { CATEGORIAS, NOVIDADES, type Novidade } from './conteudo';
@@ -70,7 +71,7 @@ export function PaginaNovidades() {
               />
             </div>
             <div className="nv-campo nv-campo-lista">
-              <select
+              <Selecao
                 name="categoria"
                 defaultValue={categoria || CATEGORIAS[0]}
                 aria-label="Categoria"
@@ -80,7 +81,7 @@ export function PaginaNovidades() {
                     {c}
                   </option>
                 ))}
-              </select>
+              </Selecao>
               <IconePortal nome="baixo" tamanho={20} />
             </div>
             {/* Sem JavaScript: o filtro aplica no envio, como a busca do portal. */}

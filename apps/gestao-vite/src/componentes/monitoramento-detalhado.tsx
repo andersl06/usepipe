@@ -1,3 +1,5 @@
+import { useState, type FormEvent, type ReactNode } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import Link from './link';
 import { Icone } from '@pipe/ui';
 import { ROTULOS_PRIORIDADE, type NivelPrioridade } from '@pipe/core/conversa';
@@ -7,8 +9,11 @@ import {
   type Monitoramento,
 } from '../lib/monitoramento';
 import { duracao, numero } from '../lib/formato';
+import { api } from '../lib/api';
 import { IconeGestao } from './icones-gestao';
 import { Paginacao, usePagina } from './paginacao';
+import { Selecao } from './selecao';
+import { useLeitura } from '../lib/consulta';
 
 /**
  * Monitoramento detalhado: o cartão do fim da tela deles.
@@ -42,10 +47,6 @@ const ABAS = [
   { chave: 'etiquetas', rotulo: 'Tags' },
 ] as const;
 
-/** O app do atendente vive em outra origem; a ação da linha aponta para lá. */
-const URL_DESK =
-  (import.meta.env['VITE_PIPE_DESK_URL'] as string | undefined) ?? 'http://localhost:3200';
-
 type Filtro = {
   fila?: string;
   atendente?: string;
@@ -53,6 +54,17 @@ type Filtro = {
   status?: string;
   busca?: string;
 };
+
+type AcoesDoMonitoramento = Pick<Monitoramento, 'filas' | 'listaAtendentes' | 'etiquetas'>;
+
+/** `transfer` da Blip é exclusivo desta coluna; fica local para não tocar nos ícones da barra lateral. */
+function IconeTransferir() {
+  return (
+    <svg className="mon-icone-transferir" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+      <path d="M7 7h11M15 3l4 4l-4 4M17 17H6M9 13l-4 4l4 4" />
+    </svg>
+  );
+}
 
 function querystring(filtro: Filtro, aba: string): URLSearchParams {
   const p = new URLSearchParams();
@@ -115,20 +127,202 @@ function SemDados() {
 }
 
 /** O atalho para abrir a conversa no app do atendente, igual nas duas tabelas. */
-function AcaoAbrir({ id }: { id: string }) {
+function AcoesDoTicket({
+  linha,
+  catalogos,
+  aoAbrir,
+}: {
+  linha: LinhaConversaAberta;
+  catalogos: AcoesDoMonitoramento;
+  aoAbrir: (id: string) => void;
+}) {
+  const [aberto, setAberto] = useState(false);
+  const [modal, setModal] = useState<'transferir' | 'finalizar' | null>(null);
   return (
-    <td className="acts">
-      <a
-        className="iconbtn"
-        href={`${URL_DESK}/?conversa=${encodeURIComponent(id)}`}
-        target="_blank"
-        rel="noreferrer"
-        title="Abrir a conversa no Pipe Desk"
-        aria-label="Abrir a conversa no Pipe Desk"
-      >
-        <IconeGestao nome="externo" tamanho={24} />
-      </a>
+    <td className="acts" onClick={(evento) => evento.stopPropagation()}>
+      <div className="mon-acoes">
+        <button
+          type="button"
+          className="iconbtn"
+          title="Transferir"
+          aria-label={`Transferir ticket ${linha.ticket}`}
+          onClick={() => setModal('transferir')}
+        >
+          <IconeTransferir />
+        </button>
+        <button type="button" className="iconbtn" title="Falar com atendente" aria-label={`Falar com atendente do ticket ${linha.ticket}`} onClick={() => aoAbrir(linha.id)}>
+          <Icone nome="balao" tamanho={24} />
+        </button>
+        <button
+          type="button"
+          className="iconbtn"
+          title="Mais opções"
+          aria-label={`Mais opções do ticket ${linha.ticket}`}
+          aria-expanded={aberto}
+          onClick={() => setAberto((valor) => !valor)}
+        >
+          <span className="mon-reticencias" aria-hidden="true">⋮</span>
+        </button>
+        {aberto ? (
+          <div className="mon-menu-acoes" role="menu" aria-label={`Ações do ${linha.ticket}`}>
+            <button type="button" role="menuitem" onClick={() => aoAbrir(linha.id)}>Abrir conversa</button>
+            <button type="button" role="menuitem" className="perigo" onClick={() => setModal('finalizar')}>
+              Finalizar
+            </button>
+          </div>
+        ) : null}
+      </div>
+      {modal === 'transferir' ? (
+        <ModalTransferirMonitoramento
+          linha={linha}
+          catalogos={catalogos}
+          aoFechar={() => setModal(null)}
+        />
+      ) : null}
+      {modal === 'finalizar' ? (
+        <ModalFinalizarMonitoramento
+          linha={linha}
+          etiquetas={catalogos.etiquetas}
+          aoFechar={() => setModal(null)}
+        />
+      ) : null}
     </td>
+  );
+}
+
+function ModalTransferirMonitoramento({
+  linha,
+  catalogos,
+  aoFechar,
+}: {
+  linha: LinhaConversaAberta;
+  catalogos: AcoesDoMonitoramento;
+  aoFechar: () => void;
+}) {
+  const [alvo, setAlvo] = useState<'fila' | 'atendente'>('fila');
+  const [destino, setDestino] = useState('');
+  const [erro, setErro] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+  const consultas = useQueryClient();
+  const opcoes = alvo === 'fila' ? catalogos.filas : catalogos.listaAtendentes;
+
+  async function transferir() {
+    if (!destino) return;
+    setEnviando(true);
+    setErro(null);
+    try {
+      await api.post(`/v1/gestao/monitoramento/conversas/${linha.id}/transferir`,
+        alvo === 'fila' ? { para_fila_id: destino } : { para_atendente_id: destino },
+      );
+      await consultas.invalidateQueries({ queryKey: ['api'] });
+      aoFechar();
+    } catch (causa) {
+      setErro(causa instanceof Error ? causa.message : 'Não foi possível transferir o ticket.');
+      setEnviando(false);
+    }
+  }
+
+  return (
+    <ModalDoMonitoramento titulo={`Transferir atendimento do Ticket ${linha.ticket}`} aoFechar={aoFechar}>
+      <div className="mon-radios">
+        <label>
+          <input type="radio" checked={alvo === 'fila'} onChange={() => { setAlvo('fila'); setDestino(''); }} />
+          Fila
+        </label>
+        <label>
+          <input type="radio" checked={alvo === 'atendente'} onChange={() => { setAlvo('atendente'); setDestino(''); }} />
+          Atendente
+        </label>
+      </div>
+      <label className="mon-campo">
+        {alvo === 'fila' ? 'Fila' : 'Atendente'}
+        <Selecao value={destino} onChange={(evento) => setDestino(evento.target.value)} aria-label={alvo === 'fila' ? 'Fila' : 'Atendente'}>
+          <option value="">{alvo === 'fila' ? 'Selecionar fila' : 'Selecionar atendente'}</option>
+          {opcoes.map((opcao) => (
+            <option key={opcao.id} value={opcao.id}>{opcao.nome}</option>
+          ))}
+        </Selecao>
+      </label>
+      <p className="mon-modal-aviso">A transferência encerra este ticket e cria um novo no destino.</p>
+      {erro ? <p className="mon-modal-erro">{erro}</p> : null}
+      <div className="mon-modal-acoes">
+        <button type="button" className="btn" onClick={aoFechar}>Cancelar</button>
+        <button type="button" className="btn primary" disabled={!destino || enviando} onClick={() => void transferir()}>
+          Transferir ticket
+        </button>
+      </div>
+    </ModalDoMonitoramento>
+  );
+}
+
+function ModalFinalizarMonitoramento({
+  linha,
+  etiquetas,
+  aoFechar,
+}: {
+  linha: LinhaConversaAberta;
+  etiquetas: Monitoramento['etiquetas'];
+  aoFechar: () => void;
+}) {
+  const [etiquetaId, setEtiquetaId] = useState('');
+  const [erro, setErro] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+  const consultas = useQueryClient();
+
+  async function finalizar() {
+    if (!etiquetaId) return;
+    setEnviando(true);
+    setErro(null);
+    try {
+      await api.post(`/v1/gestao/monitoramento/conversas/${linha.id}/finalizar`, { etiqueta_id: etiquetaId });
+      await consultas.invalidateQueries({ queryKey: ['api'] });
+      aoFechar();
+    } catch (causa) {
+      setErro(causa instanceof Error ? causa.message : 'Não foi possível finalizar o ticket.');
+      setEnviando(false);
+    }
+  }
+
+  return (
+    <ModalDoMonitoramento titulo={`Finalizar atendimento do Ticket ${linha.ticket}`} aoFechar={aoFechar}>
+      <p>Finalizar o atendimento encerra este ticket. Novas interações criam um novo ticket.</p>
+      <label className="mon-campo">
+        Adicionar tags
+        <Selecao value={etiquetaId} onChange={(evento) => setEtiquetaId(evento.target.value)} aria-label="Adicionar tags">
+          <option value="">Tags</option>
+          {etiquetas.map((etiqueta) => (
+            <option key={etiqueta.id} value={etiqueta.id}>{etiqueta.nome}</option>
+          ))}
+        </Selecao>
+      </label>
+      {etiquetas.length === 0 ? <p className="mon-modal-erro">Cadastre uma tag antes de finalizar.</p> : null}
+      {erro ? <p className="mon-modal-erro">{erro}</p> : null}
+      <div className="mon-modal-acoes">
+        <button type="button" className="btn" onClick={aoFechar}>Cancelar</button>
+        <button type="button" className="btn primary" disabled={!etiquetaId || enviando} onClick={() => void finalizar()}>
+          Finalizar ticket
+        </button>
+      </div>
+    </ModalDoMonitoramento>
+  );
+}
+
+function ModalDoMonitoramento({
+  titulo,
+  children,
+  aoFechar,
+}: {
+  titulo: string;
+  children: ReactNode;
+  aoFechar: () => void;
+}) {
+  return (
+    <div className="mon-modal-fundo" role="presentation" onClick={aoFechar}>
+      <section className="mon-modal" role="dialog" aria-modal="true" aria-label={titulo} onClick={(evento) => evento.stopPropagation()}>
+        <h2>{titulo}</h2>
+        {children}
+      </section>
+    </div>
   );
 }
 
@@ -175,7 +369,15 @@ function AcaoVerConversas({ filtro, atendenteId }: { filtro: Filtro; atendenteId
  * coluna própria. É onde ele fica na tela deles, e faz sentido: SLA é um juízo
  * sobre aquele tempo, não um dado ao lado dele.
  */
-function TabelaAtribuidas({ linhas }: { linhas: readonly LinhaConversaAberta[] }) {
+function TabelaAtribuidas({
+  linhas,
+  catalogos,
+  aoAbrir,
+}: {
+  linhas: readonly LinhaConversaAberta[];
+  catalogos: AcoesDoMonitoramento;
+  aoAbrir: (id: string) => void;
+}) {
   const pg = usePagina(linhas);
   if (linhas.length === 0) return <SemDados />;
   return (
@@ -195,7 +397,7 @@ function TabelaAtribuidas({ linhas }: { linhas: readonly LinhaConversaAberta[] }
         </thead>
         <tbody>
           {pg.visiveis.map((l) => (
-            <tr key={l.id} className={classeDaLinha(l)}>
+            <tr key={l.id} className={classeDaLinha(l)} onClick={() => aoAbrir(l.id)}>
               <td className="num">
                 {duracao(l.naFilaSeg)}
                 {l.filaCorrendo ? ' ⟳' : ''}
@@ -220,11 +422,11 @@ function TabelaAtribuidas({ linhas }: { linhas: readonly LinhaConversaAberta[] }
                   <PillSlaView linha={l} />
                 )}
               </td>
-              <td className="num">{l.ticket}</td>
+              <td className="num"><button type="button" className="mon-ticket" onClick={() => aoAbrir(l.id)}>{l.ticket}</button></td>
               <td className="who">{l.contatoNome}</td>
               <td>{l.filaNome ?? '—'}</td>
               <td>{l.atendenteNome ?? '—'}</td>
-              <AcaoAbrir id={l.id} />
+              <AcoesDoTicket linha={l} catalogos={catalogos} aoAbrir={aoAbrir} />
             </tr>
           ))}
         </tbody>
@@ -246,7 +448,15 @@ function TabelaAtribuidas({ linhas }: { linhas: readonly LinhaConversaAberta[] }
  * PRIORIDADE, ticket, contato, fila. Nada de atendente, porque por definição
  * não há.
  */
-function TabelaAguardando({ linhas }: { linhas: readonly LinhaConversaAberta[] }) {
+function TabelaAguardando({
+  linhas,
+  catalogos,
+  aoAbrir,
+}: {
+  linhas: readonly LinhaConversaAberta[];
+  catalogos: AcoesDoMonitoramento;
+  aoAbrir: (id: string) => void;
+}) {
   const pg = usePagina(linhas);
   if (linhas.length === 0) return <SemDados />;
   return (
@@ -264,7 +474,7 @@ function TabelaAguardando({ linhas }: { linhas: readonly LinhaConversaAberta[] }
         </thead>
         <tbody>
           {pg.visiveis.map((l) => (
-            <tr key={l.id} className={classeDaLinha(l)}>
+            <tr key={l.id} className={classeDaLinha(l)} onClick={() => aoAbrir(l.id)}>
               <td className="num">
                 {duracao(l.naFilaSeg)}
                 {l.filaCorrendo ? ' ⟳' : ''}
@@ -272,10 +482,10 @@ function TabelaAguardando({ linhas }: { linhas: readonly LinhaConversaAberta[] }
               <td>
                 <PillPrioridade nivel={l.prioridade} />
               </td>
-              <td className="num">{l.ticket}</td>
+              <td className="num"><button type="button" className="mon-ticket" onClick={() => aoAbrir(l.id)}>{l.ticket}</button></td>
               <td className="who">{l.contatoNome}</td>
               <td>{l.filaNome ?? '—'}</td>
-              <AcaoAbrir id={l.id} />
+              <AcoesDoTicket linha={l} catalogos={catalogos} aoAbrir={aoAbrir} />
             </tr>
           ))}
         </tbody>
@@ -318,8 +528,8 @@ function TabelaAtendentes({
             <tr key={a.id}>
               <td className="who">{a.nome}</td>
               <td className="num">{numero(a.ativas)}</td>
-              <td className="num">{duracao(undefined)}</td>
-              <td className="num">{duracao(undefined)}</td>
+              <td className="num">{duracao(a.tempoMedioRespostaSeg)}</td>
+              <td className="num">{duracao(a.tempoMedioAtendimentoSeg)}</td>
               <AcaoVerConversas filtro={filtro} atendenteId={a.id} />
             </tr>
           ))}
@@ -361,9 +571,9 @@ function TabelaFilas({ filas }: { filas: Monitoramento['filas'] }) {
               <td className="who">{f.nome}</td>
               <td className="num">{numero(f.naFila)}</td>
               <td className="num">{numero(f.emAtendimento)}</td>
-              <td className="num">{duracao(undefined)}</td>
-              <td className="num">{duracao(undefined)}</td>
-              <td className="num">{duracao(undefined)}</td>
+              <td className="num">{duracao(f.tempoMedioNaFilaSeg)}</td>
+              <td className="num">{duracao(f.tempoMedioRespostaSeg)}</td>
+              <td className="num">{duracao(f.tempoMedioAtendimentoSeg)}</td>
             </tr>
           ))}
         </tbody>
@@ -396,8 +606,8 @@ function TabelaTags({ etiquetas }: { etiquetas: Monitoramento['etiquetas'] }) {
           {pg.visiveis.map((e) => (
             <tr key={e.id}>
               <td className="who">{e.nome}</td>
-              <td className="num">{numero(undefined)}</td>
-              <td className="num">{duracao(undefined)}</td>
+              <td className="num">{numero(e.finalizadas)}</td>
+              <td className="num">{duracao(e.tempoMedioAtendimentoSeg)}</td>
             </tr>
           ))}
         </tbody>
@@ -423,6 +633,70 @@ function PillSlaView({ linha }: { linha: LinhaConversaAberta }) {
   return <span className="etiqueta">{rotulo}</span>;
 }
 
+type Previa = {
+  id: string;
+  ticket: string;
+  contatoNome: string;
+  filaNome: string | null;
+  atendenteNome: string | null;
+  itens: { id: string; em: string; tipo: 'mensagem' | 'nota'; direcao?: string; texto: string; autor?: string | null }[];
+};
+
+function PreviaDaConversa({ id, aoFechar }: { id: string; aoFechar: () => void }) {
+  const leitura = useLeitura<Previa>(`/v1/gestao/monitoramento/conversas/${id}`);
+  const [texto, setTexto] = useState('');
+  const [erro, setErro] = useState<string | null>(null);
+  const [enviando, setEnviando] = useState(false);
+  const consultas = useQueryClient();
+
+  async function enviar(evento: FormEvent) {
+    evento.preventDefault();
+    if (!texto.trim() || enviando) return;
+    setEnviando(true);
+    setErro(null);
+    try {
+      await api.post(`/v1/gestao/monitoramento/conversas/${id}/notas`, { texto });
+      setTexto('');
+      await consultas.invalidateQueries({ queryKey: ['api', `/v1/gestao/monitoramento/conversas/${id}`] });
+    } catch (causa) {
+      setErro(causa instanceof Error ? causa.message : 'Não foi possível falar com o atendente.');
+    } finally {
+      setEnviando(false);
+    }
+  }
+
+  return (
+    <>
+      <div className="mon-previa-fundo" onClick={aoFechar} />
+      <aside className="mon-previa" role="dialog" aria-modal="true" aria-label="Conversa">
+        <header>
+          <div>
+            <h3>{leitura.data ? `Ticket ${leitura.data.ticket}` : 'Conversa'}</h3>
+            {leitura.data ? <p>{leitura.data.contatoNome}{leitura.data.atendenteNome ? ` · ${leitura.data.atendenteNome}` : ''}</p> : null}
+          </div>
+          <button type="button" className="iconbtn" aria-label="Fechar conversa" onClick={aoFechar}><Icone nome="x" tamanho={16} /></button>
+        </header>
+        <div className="mon-previa-historico" aria-live="polite">
+          {leitura.isLoading ? <p>Carregando conversa…</p> : null}
+          {leitura.isError ? <p>Não foi possível carregar a conversa.</p> : null}
+          {leitura.data?.itens.map((item) => (
+            item.tipo === 'nota' ? <p key={item.id} className="mon-previa-nota"><b>{item.autor ?? 'Nota interna'}</b>{item.texto}</p> :
+            <div key={item.id} className={item.direcao === 'entrada' ? 'mon-balao entrada' : 'mon-balao saida'}>
+              <p>{item.texto || 'Conteúdo sem texto'}</p><small>{item.autor ?? ''}</small>
+            </div>
+          ))}
+        </div>
+        <form className="mon-previa-compositor" onSubmit={enviar}>
+          <label htmlFor="mensagem-atendente">Falar com atendente</label>
+          <textarea id="mensagem-atendente" value={texto} onChange={(evento) => setTexto(evento.target.value)} placeholder="Escreva uma mensagem..." rows={3} />
+          {erro ? <p className="mon-modal-erro">{erro}</p> : null}
+          <button type="submit" className="btn primary" disabled={!texto.trim() || enviando}>Enviar</button>
+        </form>
+      </aside>
+    </>
+  );
+}
+
 export function MonitoramentoDetalhado({
   monitoramento,
   aba,
@@ -434,6 +708,7 @@ export function MonitoramentoDetalhado({
   busca: string;
   filtro: Filtro;
 }) {
+  const [conversaAberta, setConversaAberta] = useState<string | null>(null);
   const termo = busca.trim().toLowerCase();
   const contato = (filtro.contato ?? '').trim().toLowerCase();
 
@@ -459,6 +734,11 @@ export function MonitoramentoDetalhado({
   const aguardando = ordenarFilaDeEspera(
     monitoramento.abertas.filter((l) => l.atendenteId === null).filter(casa),
   );
+  const catalogosDeAcoes: AcoesDoMonitoramento = {
+    filas: monitoramento.filas,
+    listaAtendentes: monitoramento.listaAtendentes,
+    etiquetas: monitoramento.etiquetas,
+  };
 
   return (
     <div className="tblwrap">
@@ -496,13 +776,14 @@ export function MonitoramentoDetalhado({
         ))}
       </div>
 
-      {aba === 'aguardando' ? <TabelaAguardando linhas={aguardando} /> : null}
-      {aba === 'atribuido' ? <TabelaAtribuidas linhas={atribuidas} /> : null}
+      {aba === 'aguardando' ? <TabelaAguardando linhas={aguardando} catalogos={catalogosDeAcoes} aoAbrir={setConversaAberta} /> : null}
+      {aba === 'atribuido' ? <TabelaAtribuidas linhas={atribuidas} catalogos={catalogosDeAcoes} aoAbrir={setConversaAberta} /> : null}
       {aba === 'atendentes' ? (
         <TabelaAtendentes atendentes={monitoramento.carga} filtro={filtro} />
       ) : null}
       {aba === 'filas' ? <TabelaFilas filas={monitoramento.filas} /> : null}
       {aba === 'etiquetas' ? <TabelaTags etiquetas={monitoramento.etiquetas} /> : null}
+      {conversaAberta ? <PreviaDaConversa id={conversaAberta} aoFechar={() => setConversaAberta(null)} /> : null}
     </div>
   );
 }

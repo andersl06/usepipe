@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { IconePortal, type NomeDeIconePortal } from '../../../componentes/icones-portal';
+import { Selecao } from '../../../componentes/selecao';
 import type { ModeloListado } from '@pipe/contracts';
 import { criarModeloNoCanal } from '../../../lib/canais-gravar';
 import {
@@ -460,7 +461,7 @@ function SidebarDeNovoModelo({
 
           <label className="ct-campo ct-mb3">
             <span className="ct-campo-rotulo">Categoria</span>
-            <select
+            <Selecao
               value={categoria}
               onChange={(evento) => {
                 setCategoria(evento.target.value as Categoria | '');
@@ -473,7 +474,7 @@ function SidebarDeNovoModelo({
                   {ROTULO_CATEGORIA[c]}
                 </option>
               ))}
-            </select>
+            </Selecao>
           </label>
 
           {traducoes.map((traducao, indice) => (
@@ -487,7 +488,7 @@ function SidebarDeNovoModelo({
                   }
                 >
                   <span className="ct-campo-rotulo">Idioma</span>
-                  <select
+                  <Selecao
                     value={traducao.idioma}
                     onChange={(evento) => mudarTraducao(indice, { idioma: evento.target.value })}
                   >
@@ -497,7 +498,7 @@ function SidebarDeNovoModelo({
                         {rotulo}
                       </option>
                     ))}
-                  </select>
+                  </Selecao>
                 </label>
                 {traducoes.length > 1 ? (
                   <button
@@ -816,11 +817,11 @@ function BotoesDoModelo({
       <div className="ct-botoes-edicao">
         <label className="ct-campo ct-campo--cheio">
           <span className="ct-campo-rotulo">Tipo</span>
-          <select defaultValue="url">
+          <Selecao defaultValue="url" aria-label="Tipo">
             <option value="url">Link do website</option>
             <option value="phone_number">Número de telefone</option>
             <option value="request_contact_info">Solicitar informação de contato</option>
-          </select>
+          </Selecao>
         </label>
         <input className="ct-cartao-entrada" placeholder="Texto do botão" />
         <input className="ct-cartao-entrada" placeholder="https://exemplo.com" />

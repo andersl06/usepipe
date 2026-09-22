@@ -41,6 +41,7 @@ async function carregar(
   tx: Parameters<Parameters<typeof noTenant>[1]>[0],
   conversaId: string,
   ator: AtorDaConversa,
+  permissaoDeSupervisor?: string,
 ): Promise<LinhaConversa> {
   const { rows } = await tx.execute<LinhaConversa>(sql`
     select id, estado, fila_id, atendente_id, em_espera_desde
@@ -49,6 +50,10 @@ async function carregar(
   const conversa = rows[0];
   if (!conversa) throw ErroPipe.naoEncontrado('Conversa');
   if (ator.exigirAtribuicao && conversa.atendente_id !== ator.atendenteId) {
+    if (ator.atendenteId && permissaoDeSupervisor) {
+      await exigirPermissao(tx, ator.atendenteId, permissaoDeSupervisor);
+      return conversa;
+    }
     throw new ErroPipe(
       403,
       'conversa_de_outro_atendente',
@@ -88,7 +93,7 @@ export async function encerrarConversa(
   const agora = new Date();
 
   const resultado = await noTenant(ator.tenantId, async (tx) => {
-    const conversa = await carregar(tx, pedido.conversaId, ator);
+    const conversa = await carregar(tx, pedido.conversaId, ator, 'conversa.encerrar');
     exigirTransicao(conversa.estado, 'encerrada');
 
     const { rows: etiquetas } = await tx.execute<{ nome: string }>(

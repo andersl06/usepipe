@@ -389,15 +389,33 @@ export class ControladorEu {
       const usuario = rows[0];
       if (!usuario) return null;
 
-      // As permissões são a UNIÃO dos papéis da pessoa. `distinct` porque dois
-      // papéis repetem permissão o tempo todo, e a tela não quer o duplicado.
-      // Em série, nunca em `Promise.all`: paralelo dentro da transação derruba o
-      // `pipe.tenant_id` e a consulta passa a rodar sem tenant.
+      // As permissões são a UNIÃO dos papéis da pessoa, com a EXCEÇÃO por
+      // pessoa por cima (`usuario_permissao`, migração 0046 — a tela
+      // "Permissões" do atendente): o `union` traz o que o papel dá mais o que
+      // foi LIGADO na mão, e o `not exists` tira o que foi DESLIGADO na mão.
+      // É a mesma conta do `coalesce` de `exigirPermissao`, escrita em conjunto
+      // porque aqui a resposta é a lista, e não um código de cada vez.
+      // `distinct` porque dois papéis repetem permissão o tempo todo, e a tela
+      // não quer o duplicado. Em série, nunca em `Promise.all`: paralelo dentro
+      // da transação derruba o `pipe.tenant_id` e a consulta passa a rodar sem
+      // tenant.
       const { rows: permissoes } = await tx.execute<{ codigo: string }>(sql`
-        select distinct pp.permissao_codigo as codigo
-          from usuario_papel up
-          join papel_permissao pp on pp.papel_id = up.papel_id
-         where up.usuario_id = ${sessao.usuarioId}::uuid
+        select codigo from (
+          select distinct pp.permissao_codigo as codigo
+            from usuario_papel up
+            join papel_permissao pp on pp.papel_id = up.papel_id
+           where up.usuario_id = ${sessao.usuarioId}::uuid
+          union
+          select uperm.permissao_codigo as codigo
+            from usuario_permissao uperm
+           where uperm.usuario_id = ${sessao.usuarioId}::uuid and uperm.concedida
+        ) efetivas
+         where not exists (
+           select 1 from usuario_permissao negada
+            where negada.usuario_id = ${sessao.usuarioId}::uuid
+              and negada.permissao_codigo = efetivas.codigo
+              and not negada.concedida
+         )
          order by 1
       `);
 

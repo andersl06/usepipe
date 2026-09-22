@@ -13,6 +13,7 @@ import {
 } from '../../lib/comunicacao';
 import { excluirModeloDoCanal, sincronizarModelosDoCanal } from '../../lib/canais-gravar';
 import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
+import { Selecao } from '../../componentes/selecao';
 import { ModalConfirmacao } from './_modal';
 import { FormularioModelo } from './comunicacao-modelos-formulario';
 
@@ -185,14 +186,14 @@ export function PaginaModelos() {
           filtros={
             <>
               <span className="filtrar-rotulo">Filtrar por:</span>
-              <select value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
+              <Selecao value={status} onChange={(e) => setStatus(e.target.value)} aria-label="Status">
                 <option value="">Status</option>
                 {OPCOES_STATUS.map((s) => (
                   <option key={s} value={s}>
                     {ROTULO_STATUS_META[s]}
                   </option>
                 ))}
-              </select>
+              </Selecao>
             </>
           }
         />

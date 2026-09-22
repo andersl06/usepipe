@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { IconePortal } from '../../../../componentes/icones-portal';
+import { Selecao } from '../../../../componentes/selecao';
 import {
   INTERVALOS_RAPIDOS,
   cincoAnosAntes,
@@ -130,7 +131,7 @@ export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: stri
                 <IconePortal nome="robo" tamanho={20} />
                 <span className="gr-campo-miolo">
                   <span>Bot</span>
-                  <select
+                  <Selecao
                     value={botEscolhido}
                     onChange={(e) => setBotEscolhido(e.target.value)}
                     aria-label="Bot"
@@ -138,7 +139,7 @@ export function GerenciadorDeRelatorios({ bot, hoje }: { bot: string; hoje: stri
                   >
                     <option value="">Selecione...</option>
                     <option value={bot}>{bot}</option>
-                  </select>
+                  </Selecao>
                 </span>
                 <IconePortal nome="baixo" tamanho={18} />
               </span>

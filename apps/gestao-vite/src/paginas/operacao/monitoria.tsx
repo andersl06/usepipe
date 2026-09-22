@@ -1,4 +1,5 @@
 import Link from '../../componentes/link';
+import { Selecao } from '../../componentes/selecao';
 import { useSearchParams } from 'react-router-dom';
 import { useLeitura } from '../../lib/consulta';
 import { useContato } from '../fluxo/contato';
@@ -88,7 +89,7 @@ export function PaginaMonitoria() {
         <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
 
-        <select
+        <Selecao
           name="atendente"
           defaultValue={params.atendente ?? ''}
           className="btn"
@@ -100,9 +101,9 @@ export function PaginaMonitoria() {
               {a.nome}
             </option>
           ))}
-        </select>
+        </Selecao>
 
-        <select
+        <Selecao
           name="avaliador"
           defaultValue={params.avaliador ?? ''}
           className="btn"
@@ -111,7 +112,7 @@ export function PaginaMonitoria() {
           <option value="">IA e humano</option>
           <option value="ia">Só a IA</option>
           <option value="humano">Só humano</option>
-        </select>
+        </Selecao>
 
         <div className="faixa-fim">
           <a href={`${base}/monitoria`} className="btn">

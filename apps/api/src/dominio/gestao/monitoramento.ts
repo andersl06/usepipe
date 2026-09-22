@@ -2,12 +2,7 @@ import { and, asc, eq, gte, inArray, isNull, isNotNull, lt, sql } from 'drizzle-
 import {
   cargaPonderada,
   pesoPrioridade,
-  contarEncerramentos,
   derivarMarcos,
-  tempoAtePrimeiraResposta,
-  tempoDeAtendimento,
-  tempoDeResposta,
-  tempoTotalDeEsperaDoCliente,
   segundosEntre,
   type AtendenteDisponivel,
   type ContagemEncerramento,
@@ -33,13 +28,16 @@ import {
   statusAtendente,
   usuario,
 } from '@pipe/db/schema';
-import type { TransacaoPipe } from '@pipe/db';
+import { registrarAuditoria, type TransacaoPipe } from '@pipe/db';
+import { exigirPermissao } from '../../sessao.js';
+import { ErroPipe } from '../../erros.js';
 import {
   avaliarSlaDaConversa,
   carregarRegrasSla,
   type PillSla,
   type RegraSlaCarregada,
 } from './sla.js';
+import { carregarAtendimento, type LinhaDeQuebra } from './atendimento.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
 const consultar = <T>(tx: TransacaoPipe, fn: (tx: TransacaoPipe) => Promise<T>): Promise<T> =>
@@ -130,6 +128,8 @@ export interface CargaAtendente {
   carga: number;
   /** Carga máxima possível: o limite todo ocupado por conversa aguardando o atendente. */
   cargaMaxima: number;
+  tempoMedioRespostaSeg: number | null;
+  tempoMedioAtendimentoSeg: number | null;
 }
 
 export interface ResumoFila {
@@ -139,6 +139,9 @@ export interface ResumoFila {
   emAtendimento: number;
   maiorEsperaSeg: number | null;
   atendentesOnline: number;
+  tempoMedioNaFilaSeg: number | null;
+  tempoMedioRespostaSeg: number | null;
+  tempoMedioAtendimentoSeg: number | null;
 }
 
 export interface ResumoEtiqueta {
@@ -146,6 +149,8 @@ export interface ResumoEtiqueta {
   nome: string;
   cor: string | null;
   abertas: number;
+  finalizadas: number;
+  tempoMedioAtendimentoSeg: number | null;
 }
 
 export interface Monitoramento {
@@ -158,8 +163,113 @@ export interface Monitoramento {
   carga: CargaAtendente[];
   filas: ResumoFila[];
   etiquetas: ResumoEtiqueta[];
+  ticketsAbertosPorHora: number[];
   /** Catálogo para os filtros rápidos. */
   listaAtendentes: { id: string; nome: string }[];
+}
+
+export interface PreviaDaConversaNoMonitoramento {
+  id: string;
+  ticket: string;
+  contatoNome: string;
+  filaNome: string | null;
+  atendenteNome: string | null;
+  itens: { id: string; em: Date | string; tipo: 'mensagem' | 'nota'; direcao?: string; texto: string; autor?: string | null }[];
+}
+
+/** A Gestão lê qualquer ticket do tenant; o Desk só lê o que está atribuído ao próprio atendente. */
+export async function carregarPreviaDaConversa(
+  tx: TransacaoPipe,
+  usuarioId: string,
+  conversaId: string,
+): Promise<PreviaDaConversaNoMonitoramento | null> {
+  await exigirPermissao(tx, usuarioId, 'monitoramento.tempo_real.ver');
+  const { rows } = await tx.execute<{
+    id: string; contato_nome: string | null; fila_nome: string | null; atendente_nome: string | null;
+  }>(sql`
+    select c.id, ct.nome as contato_nome, f.nome as fila_nome, u.nome as atendente_nome
+      from conversa c
+      join contato ct on ct.id = c.contato_id
+      left join fila f on f.id = c.fila_id
+      left join usuario u on u.id = c.atendente_id
+     where c.id = ${conversaId}::uuid
+     limit 1
+  `);
+  const conversaAberta = rows[0];
+  if (!conversaAberta) return null;
+  const itens = await tx.execute<{
+    id: string; em: Date | string; tipo: 'mensagem' | 'nota'; direcao: string | null; texto: string; autor: string | null;
+  }>(sql`
+    select m.id, m.criada_em as em, 'mensagem'::text as tipo, m.direcao,
+           coalesce(m.conteudo, '') as texto, u.nome as autor
+      from mensagem m left join usuario u on u.id = m.autor_id
+     where m.conversa_id = ${conversaId}::uuid
+    union all
+    select n.id, n.em, 'nota'::text as tipo, null, n.corpo, u.nome
+      from nota_interna n left join usuario u on u.id = n.usuario_id
+     where n.conversa_id = ${conversaId}::uuid
+     order by em
+  `);
+  return {
+    id: conversaAberta.id,
+    ticket: ticketDe(conversaAberta.id),
+    contatoNome: conversaAberta.contato_nome ?? 'Contato sem nome',
+    filaNome: conversaAberta.fila_nome,
+    atendenteNome: conversaAberta.atendente_nome,
+    itens: itens.rows.map(({ direcao, ...item }) => ({ ...item, ...(direcao ? { direcao } : {}) })),
+  };
+}
+
+/** Nota interna é a conversa supervisor-atendente que a origem abre pelo balão; não sai ao cliente. */
+export async function falarComAtendenteNoMonitoramento(
+  tx: TransacaoPipe,
+  tenantId: string,
+  usuarioId: string,
+  conversaId: string,
+  texto: string,
+): Promise<void> {
+  await exigirPermissao(tx, usuarioId, 'conversa.nota_interna');
+  const corpo = texto.trim();
+  if (!corpo) throw ErroPipe.requisicao('nota_vazia', 'Escreva uma mensagem antes de enviar.');
+  const { rows } = await tx.execute<{ id: string }>(sql`
+    select id from conversa where id = ${conversaId}::uuid limit 1
+  `);
+  if (!rows[0]) throw ErroPipe.naoEncontrado('Conversa');
+  await tx.execute(sql`
+    insert into nota_interna (tenant_id, conversa_id, usuario_id, corpo)
+    values (${tenantId}, ${conversaId}::uuid, ${usuarioId}::uuid, ${corpo})
+  `);
+  await registrarAuditoria(tx, tenantId, {
+    ator: { tipo: 'usuario', id: usuarioId },
+    acao: 'alterou',
+    objetoTipo: 'conversa',
+    objetoId: conversaId,
+    depois: { acao: 'falar_com_atendente' },
+  });
+}
+
+export function metricasPorChave(linhas: readonly LinhaDeQuebra[]) {
+  return new Map(
+    linhas.map((linha) => [
+      linha.chave,
+      {
+        conversasFinalizadas: linha.conversas,
+        tempoMedioNaFilaSeg: linha.naFila.valor,
+        tempoMedioPrimeiraRespostaSeg: linha.primeiraResposta.valor,
+        tempoMedioAtendimentoSeg: linha.atendimento.valor,
+      },
+    ]),
+  );
+}
+
+export function normalizarTicketsPorHora(linhas: readonly { hora: number; total: number }[]): number[] {
+  const horas = Array<number>(24).fill(0);
+  for (const linha of linhas) {
+    if (Number.isInteger(linha.hora) && linha.hora >= 0 && linha.hora < 24) {
+      horas[linha.hora] = linha.total;
+    }
+  }
+  return horas;
 }
 
 /** Número de ticket legível a partir do uuid — o modelo não tem sequência própria. */
@@ -425,49 +535,17 @@ export async function carregarMonitoramento(
     };
 
     // ---- 4. conversas encerradas dentro do período ("hoje") -------------
-    const encerradasCru = await tx
-      .select({ id: conversa.id })
-      .from(conversa)
-      .where(
-        and(
-          isNotNull(conversa.encerradaEm),
-          gte(conversa.encerradaEm, janela.inicio),
-          lt(conversa.encerradaEm, janela.fim),
-          ...recorte,
-        ),
-      );
-    const idsEncerradas = encerradasCru.map((c) => c.id);
-
-    const eventosEncerradas =
-      idsEncerradas.length === 0
-        ? new Map<string, ConversaEventos>()
-        : agruparEventos(
-            await tx
-              .select({
-                conversaId: eventoAtendimento.conversaId,
-                tipo: eventoAtendimento.tipo,
-                em: eventoAtendimento.em,
-                usuarioId: eventoAtendimento.usuarioId,
-                filaId: eventoAtendimento.filaId,
-                dados: eventoAtendimento.dados,
-              })
-              .from(eventoAtendimento)
-              .where(
-                and(
-                  inArray(eventoAtendimento.conversaId, idsEncerradas),
-                  gte(eventoAtendimento.em, new Date(janela.inicio.getTime() - 30 * 24 * 3600e3)),
-                ),
-              ),
-          );
-
-    const conversasEncerradas = [...eventosEncerradas.values()];
+    const relatorio = await carregarAtendimento(tx, janela, filtro);
     const hoje: CartoesDeHoje = {
-      esperaDoCliente: tempoTotalDeEsperaDoCliente(conversasEncerradas),
-      atePrimeiraResposta: tempoAtePrimeiraResposta(conversasEncerradas),
-      tempoDeAtendimento: tempoDeAtendimento(conversasEncerradas),
-      tempoDeResposta: tempoDeResposta(conversasEncerradas),
-      encerramentos: contarEncerramentos(conversasEncerradas),
+      esperaDoCliente: relatorio.geral.esperaTotal,
+      atePrimeiraResposta: relatorio.geral.primeiraResposta,
+      tempoDeAtendimento: relatorio.geral.atendimento,
+      tempoDeResposta: relatorio.geral.resposta,
+      encerramentos: relatorio.geral.encerramentos,
     };
+    const porAtendente = metricasPorChave(relatorio.porAtendente);
+    const porFila = metricasPorChave(relatorio.porFila);
+    const porEtiqueta = metricasPorChave(relatorio.porEtiqueta);
 
     // ---- 5. carga por atendente -----------------------------------------
     const capacidades = await tx
@@ -499,6 +577,7 @@ export async function carregarMonitoramento(
         const minhas = abertas.filter((c) => c.atendenteId === s.usuarioId);
         const aguardando = minhas.filter((c) => c.aguardandoAtendente).length;
         const limite = limitePorAtendente.get(s.usuarioId) ?? 5;
+        const medias = porAtendente.get(s.nome);
         const disponivel: AtendenteDisponivel = {
           id: s.usuarioId,
           estado: s.estado as EstadoAtendente,
@@ -523,6 +602,8 @@ export async function carregarMonitoramento(
             ativas: limite,
             aguardandoAtendente: limite,
           }),
+          tempoMedioRespostaSeg: medias?.tempoMedioPrimeiraRespostaSeg ?? null,
+          tempoMedioAtendimentoSeg: medias?.tempoMedioAtendimentoSeg ?? null,
         };
       })
       .sort((a, b) => b.carga - a.carga || a.nome.localeCompare(b.nome, 'pt-BR'));
@@ -543,6 +624,7 @@ export async function carregarMonitoramento(
 
     const filas: ResumoFila[] = todasFilas.map((f) => {
       const daFila = abertas.filter((c) => c.filaId === f.id);
+      const medias = porFila.get(f.nome);
       return {
         id: f.id,
         nome: f.nome,
@@ -552,6 +634,9 @@ export async function carregarMonitoramento(
           daFila.filter((c) => c.marcos.atribuidaEm === null).map((c) => c.naFilaSeg),
         ),
         atendentesOnline: onlinePorFila.get(f.id) ?? 0,
+        tempoMedioNaFilaSeg: medias?.tempoMedioNaFilaSeg ?? null,
+        tempoMedioRespostaSeg: medias?.tempoMedioPrimeiraRespostaSeg ?? null,
+        tempoMedioAtendimentoSeg: medias?.tempoMedioAtendimentoSeg ?? null,
       };
     });
 
@@ -566,12 +651,28 @@ export async function carregarMonitoramento(
         contagemEtiqueta.set(nome, (contagemEtiqueta.get(nome) ?? 0) + 1);
       }
     }
-    const etiquetas: ResumoEtiqueta[] = todasEtiquetas.map((e) => ({
-      id: e.id,
-      nome: e.nome,
-      cor: e.cor,
-      abertas: contagemEtiqueta.get(e.nome) ?? 0,
-    }));
+    const etiquetas: ResumoEtiqueta[] = todasEtiquetas.map((e) => {
+      const medias = porEtiqueta.get(e.nome);
+      return {
+        id: e.id,
+        nome: e.nome,
+        cor: e.cor,
+        abertas: contagemEtiqueta.get(e.nome) ?? 0,
+        finalizadas: medias?.conversasFinalizadas ?? 0,
+        tempoMedioAtendimentoSeg: medias?.tempoMedioAtendimentoSeg ?? null,
+      };
+    });
+
+    const horaLocal = sql<number>`extract(hour from ${conversa.criadaEm} at time zone ${fuso})::int`;
+    const porHoraCru = await tx
+      .select({ hora: horaLocal, total: sql<number>`count(*)::int` })
+      .from(conversa)
+      .where(and(gte(conversa.criadaEm, janela.inicio), lt(conversa.criadaEm, janela.fim), ...recorte))
+      // A expressão usa um parâmetro para o fuso; referenciá-la pela posição
+      // mantém SELECT, GROUP BY e ORDER BY idênticos para o PostgreSQL.
+      .groupBy(sql.raw('1'))
+      .orderBy(sql.raw('1'));
+    const ticketsAbertosPorHora = normalizarTicketsPorHora(porHoraCru);
 
     const listaAtendentes = status
       .map((s) => ({ id: s.usuarioId, nome: s.nome }))
@@ -587,6 +688,7 @@ export async function carregarMonitoramento(
       carga,
       filas,
       etiquetas,
+      ticketsAbertosPorHora,
       listaAtendentes,
     };
   });

@@ -2,6 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import { Ilustracao } from '@pipe/ui';
 import { POR_PAGINA, type FluxoDoPortal, type GradeDoPortal } from '@pipe/contracts';
 import { BarraDoPortal } from '../componentes/barra-do-portal';
+import { Selecao } from '../componentes/selecao';
 import { IconeBusca, IconePortal, type NomeDeIconePortal } from '../componentes/icones-portal';
 import Link from '../componentes/link';
 import { useCascaDoPortal, type CascaDoPortal } from '../lib/casca';
@@ -197,13 +198,13 @@ function Paginacao({
       <form className="pt-paginacao-tamanho" method="get" action="/portal">
         {busca ? <input type="hidden" name="q" value={busca} /> : null}
         <label htmlFor="pt-por">Itens por página:</label>
-        <select id="pt-por" name="por" defaultValue={String(tamanho)}>
+        <Selecao name="por" defaultValue={String(tamanho)} aria-label="Itens por página">
           {POR_PAGINA.map((n) => (
             <option key={n} value={n}>
               {n}
             </option>
           ))}
-        </select>
+        </Selecao>
         <button type="submit">Aplicar</button>
       </form>
 

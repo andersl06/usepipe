@@ -1,11 +1,16 @@
-import { Controller, Get, Param, Query, Req } from '@nestjs/common';
+import { Body, Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestjs/common';
 import { noTenant } from '../banco.js';
 import { ErroPipe } from '../erros.js';
 import { ComSessao, sessaoDe } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
 import { carregarCabecalho, type CabecalhoDaGestao } from '../dominio/gestao/cabecalho.js';
 import { dataIso, fusoDoTenant, janelaDeDatas, janelaDeHoje } from '../dominio/gestao/janela.js';
-import { carregarMonitoramento, type Monitoramento } from '../dominio/gestao/monitoramento.js';
+import {
+  carregarMonitoramento,
+  carregarPreviaDaConversa,
+  falarComAtendenteNoMonitoramento,
+  type Monitoramento,
+} from '../dominio/gestao/monitoramento.js';
 import {
   carregarCatalogos,
   carregarHistorico,
@@ -22,6 +27,9 @@ import {
   type PainelDeMonitoria,
 } from '../dominio/gestao/monitoria.js';
 import type { TransacaoPipe } from '@pipe/db';
+import { registrarAuditoria } from '@pipe/db';
+import { encerrarConversa, transferirConversa } from '../dominio/conversa.js';
+import { exigirPermissao } from '../sessao.js';
 
 /**
  * A OPERAÇÃO da Gestão — monitoramento, histórico, relatórios e monitoria —
@@ -119,6 +127,84 @@ export class ControladorGestaoOperacao {
         atendenteId: uuidOuNada(atendente),
       });
       return { fuso, janela, dados };
+    });
+  }
+
+  @Get('monitoramento/conversas/:id')
+  @ComSessao()
+  async previaDaConversa(@Req() requisicao: RequisicaoComSessao, @Param('id') id: string) {
+    const sessao = sessaoDe(requisicao);
+    if (!UUID.test(id)) throw ErroPipe.naoEncontrado('Conversa');
+    const previa = await noTenant(sessao.tenantId, async (tx) => {
+      await exigirPermissao(tx, sessao.usuarioId, 'monitoramento.tempo_real.ver');
+      return carregarPreviaDaConversa(tx, sessao.usuarioId, id);
+    });
+    if (!previa) throw ErroPipe.naoEncontrado('Conversa');
+    return previa;
+  }
+
+  @Post('monitoramento/conversas/:id/notas')
+  @HttpCode(201)
+  @ComSessao()
+  async falarComAtendente(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: { texto?: string },
+  ): Promise<{ ok: true }> {
+    const sessao = sessaoDe(requisicao);
+    if (!UUID.test(id)) throw ErroPipe.naoEncontrado('Conversa');
+    await noTenant(sessao.tenantId, (tx) =>
+      falarComAtendenteNoMonitoramento(tx, sessao.tenantId, sessao.usuarioId, id, corpo?.texto ?? ''),
+    );
+    return { ok: true };
+  }
+
+  @Post('monitoramento/conversas/:id/transferir')
+  @ComSessao()
+  async transferirNoMonitoramento(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: { para_fila_id?: string; para_atendente_id?: string },
+  ): Promise<{ para_conversa_id: string }> {
+    const sessao = sessaoDe(requisicao);
+    if (!UUID.test(id)) throw ErroPipe.naoEncontrado('Conversa');
+    return noTenant(sessao.tenantId, async (tx) => {
+      await exigirPermissao(tx, sessao.usuarioId, 'monitoramento.tempo_real.ver');
+      await exigirPermissao(tx, sessao.usuarioId, 'conversa.transferir');
+      const resultado = await transferirConversa(
+        { tenantId: sessao.tenantId, atendenteId: sessao.usuarioId, exigirAtribuicao: false },
+        { conversaId: id, paraFilaId: corpo?.para_fila_id ?? null, paraAtendenteId: corpo?.para_atendente_id ?? null, motivo: null },
+      );
+      await registrarAuditoria(tx, sessao.tenantId, {
+        ator: { tipo: 'usuario', id: sessao.usuarioId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
+        depois: { acao: 'transferiu_no_monitoramento', para: resultado.paraConversaId },
+      });
+      return { para_conversa_id: resultado.paraConversaId };
+    });
+  }
+
+  @Post('monitoramento/conversas/:id/finalizar')
+  @ComSessao()
+  async finalizarNoMonitoramento(
+    @Req() requisicao: RequisicaoComSessao,
+    @Param('id') id: string,
+    @Body() corpo: { etiqueta_id?: string },
+  ): Promise<{ estado: string }> {
+    const sessao = sessaoDe(requisicao);
+    if (!UUID.test(id)) throw ErroPipe.naoEncontrado('Conversa');
+    if (!corpo?.etiqueta_id) throw ErroPipe.requisicao('etiqueta_obrigatoria', 'Escolha a etiqueta de encerramento.');
+    return noTenant(sessao.tenantId, async (tx) => {
+      await exigirPermissao(tx, sessao.usuarioId, 'monitoramento.tempo_real.ver');
+      await exigirPermissao(tx, sessao.usuarioId, 'conversa.encerrar');
+      const resultado = await encerrarConversa(
+        { tenantId: sessao.tenantId, atendenteId: sessao.usuarioId, exigirAtribuicao: false },
+        { conversaId: id, etiquetaId: corpo.etiqueta_id! },
+      );
+      await registrarAuditoria(tx, sessao.tenantId, {
+        ator: { tipo: 'usuario', id: sessao.usuarioId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
+        depois: { acao: 'finalizou_no_monitoramento' },
+      });
+      return { estado: resultado.estado };
     });
   }
 

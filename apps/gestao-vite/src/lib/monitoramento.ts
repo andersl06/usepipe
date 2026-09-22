@@ -73,6 +73,8 @@ export interface CargaAtendente {
   carga: number;
   /** Carga máxima possível: o limite todo ocupado por conversa aguardando o atendente. */
   cargaMaxima: number;
+  tempoMedioRespostaSeg: number | null;
+  tempoMedioAtendimentoSeg: number | null;
 }
 
 export interface ResumoFila {
@@ -82,6 +84,9 @@ export interface ResumoFila {
   emAtendimento: number;
   maiorEsperaSeg: number | null;
   atendentesOnline: number;
+  tempoMedioNaFilaSeg: number | null;
+  tempoMedioRespostaSeg: number | null;
+  tempoMedioAtendimentoSeg: number | null;
 }
 
 export interface ResumoEtiqueta {
@@ -89,6 +94,8 @@ export interface ResumoEtiqueta {
   nome: string;
   cor: string | null;
   abertas: number;
+  finalizadas: number;
+  tempoMedioAtendimentoSeg: number | null;
 }
 
 export interface Monitoramento {
@@ -101,6 +108,7 @@ export interface Monitoramento {
   carga: CargaAtendente[];
   filas: ResumoFila[];
   etiquetas: ResumoEtiqueta[];
+  ticketsAbertosPorHora: number[];
   /** Catálogo para os filtros rápidos. */
   listaAtendentes: { id: string; nome: string }[];
 }

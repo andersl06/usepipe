@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { IconePortal } from '../../../../componentes/icones-portal';
+import { Selecao } from '../../../../componentes/selecao';
 import type { ArestaDaJornada } from '@pipe/core/analise';
 import { CabecalhoDaPagina, Cartao, SeletorDePeriodo } from '../pecas';
 import { desenharSankey } from './sankey';
@@ -98,7 +99,7 @@ export function JornadaDosContatos({
             <span className="an-t16 jr-filtro-rotulo">Começar a partir de</span>
             {/* `<bds-autocomplete placeholder="Início">`. */}
             <label className="jr-autocompletar">
-              <select
+              <Selecao
                 value={inicio}
                 onChange={(evento) => setInicio(evento.target.value)}
                 aria-label="Começar a partir de"
@@ -109,7 +110,7 @@ export function JornadaDosContatos({
                     {n}
                   </option>
                 ))}
-              </select>
+              </Selecao>
               <IconePortal nome="baixo" tamanho={24} />
             </label>
           </div>

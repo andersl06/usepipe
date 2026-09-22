@@ -74,9 +74,20 @@ function falhaComCampo<T>(erro: unknown, padrao: string): ResultadoComCampo<T> {
   return { ok: false, erro: padrao };
 }
 
-/** Renomear a fila (e, se um dia a tela precisar, (des)ativar por aqui) — `PATCH /v1/gestao/atendentes/filas/:id`. */
+/**
+ * Editar a fila — `PATCH /v1/gestao/atendentes/filas/:id`.
+ *
+ * Os quatro campos do meio entraram quando "Dados da fila" mudou do modal de
+ * criação para a página de edição (`FICHA-atendentes-filas-pausas.md` §a.2):
+ * `cadastros.PedidoDeEdicaoDeFila` da `api` já os aceitava, só a tela não os
+ * mandava.
+ */
 export interface PedidoDeEdicaoDeFila {
   nome?: string;
+  cor?: string | null;
+  horarioId?: string | null;
+  capacidadePadrao?: number;
+  ordem?: number;
   ativa?: boolean;
 }
 

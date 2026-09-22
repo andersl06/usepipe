@@ -12,7 +12,7 @@ import './estilos/globais.css';
 
 createRoot(document.getElementById('raiz')!).render(
   <StrictMode>
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <QueryClientProvider client={clienteDeConsultas}>
         <ProvedorDeSessao>
           <App />

@@ -105,7 +105,14 @@ export function tokenDaSessao(requisicao: Request): string | undefined {
  * com o papel dono só para repetir o que a transação já pode responder. Chame
  * dentro do `noTenant`, antes de escrever qualquer coisa.
  *
- * A permissão é a UNIÃO dos papéis — a mesma regra do `GET /v1/eu`.
+ * A permissão é a UNIÃO dos papéis, com a EXCEÇÃO por pessoa por cima
+ * (`usuario_permissao`, migração 0046) — a mesma regra do `GET /v1/eu`:
+ *
+ *   efetiva = COALESCE(override desta pessoa, união dos papéis)
+ *
+ * Quem tem linha em `usuario_permissao` teve essa capacidade ligada ou
+ * desligada na mão, na tela "Permissões" do atendente; sem linha, manda o
+ * papel. O `coalesce` faz as duas leituras numa consulta só.
  */
 export async function exigirPermissao(
   tx: TransacaoPipe,
@@ -113,11 +120,17 @@ export async function exigirPermissao(
   codigo: string,
 ): Promise<void> {
   const { rows } = await tx.execute<{ tem: boolean }>(sql`
-    select exists (
-      select 1
-        from usuario_papel up
-        join papel_permissao pp on pp.papel_id = up.papel_id
-       where up.usuario_id = ${usuarioId}::uuid and pp.permissao_codigo = ${codigo}
+    select coalesce(
+      (select uperm.concedida
+         from usuario_permissao uperm
+        where uperm.usuario_id = ${usuarioId}::uuid
+          and uperm.permissao_codigo = ${codigo}),
+      exists (
+        select 1
+          from usuario_papel up
+          join papel_permissao pp on pp.papel_id = up.papel_id
+         where up.usuario_id = ${usuarioId}::uuid and pp.permissao_codigo = ${codigo}
+      )
     ) as tem
   `);
   if (!rows[0]?.tem) throw ErroPipe.semPermissao(codigo);

@@ -4,6 +4,7 @@ import { Icone } from '@pipe/ui';
 import Link from '../../componentes/link';
 import { IconeGestao } from '../../componentes/icones-gestao';
 import { CampoDoPainel, CampoPeriodo, PainelFiltros } from '../../componentes/painel-filtros';
+import { Selecao } from '../../componentes/selecao';
 import { Dica, Metrica } from '../../componentes/metrica';
 import { useLeitura } from '../../lib/consulta';
 import type { Catalogos } from '../../lib/historico';
@@ -275,24 +276,24 @@ export function PaginaAtendimento() {
         {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}
         <CampoPeriodo de={de} ate={ate} fuso={fuso} />
         <CampoDoPainel rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
-          <select name="atendente" defaultValue={params.atendente ?? ''} aria-label="Atendentes">
+          <Selecao name="atendente" defaultValue={params.atendente ?? ''} aria-label="Atendentes">
             <option value="">Selecione os atendentes</option>
             {catalogos.atendentes.map((a) => (
               <option key={a.id} value={a.id}>
                 {a.nome}
               </option>
             ))}
-          </select>
+          </Selecao>
         </CampoDoPainel>
         <CampoDoPainel rotulo="Filas" apoio="Selecione uma ou mais filas">
-          <select name="fila" defaultValue={params.fila ?? ''} aria-label="Filas">
+          <Selecao name="fila" defaultValue={params.fila ?? ''} aria-label="Filas">
             <option value="">Selecione as filas</option>
             {catalogos.filas.map((f) => (
               <option key={f.id} value={f.id}>
                 {f.nome}
               </option>
             ))}
-          </select>
+          </Selecao>
         </CampoDoPainel>
       </PainelFiltros>
 

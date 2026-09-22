@@ -5,12 +5,17 @@ import { salvarMotivoPausa } from '../../lib/acoes';
 import { envioQuePreserva } from '../../componentes/envio-de-formulario';
 
 /**
- * Cadastro de motivo de pausa.
+ * Conteúdo do modal "Criar nova pausa personalizada" — a forma é a literal da
+ * origem (`FICHA-atendentes-filas-pausas.md` §a.5/§c): campo **"Nome da
+ * pausa"** (`maxlength="30"`), campo **"Duração em minutos"** (`type="number"
+ * max="999" maxlength="3"`, valor inicial `0`), botões **"Cancelar"** e
+ * **"Criar"**. Sem descrição — a origem abre o modal direto no formulário.
  *
- * `contaComoProdutivo` fica com a explicação inteira ao lado da caixa, e não
- * com um rótulo de duas palavras: quem cadastra "Almoço" não tem como
- * adivinhar que a caixa marcada tira o almoço do tempo ocioso do relatório de
- * esforço. Rótulo curto aqui produziria dado errado com a melhor das intenções.
+ * **"Conta como produtivo" é campo só nosso**, sem par na origem: decide se o
+ * tempo desta pausa entra no relatório de esforço como trabalho (treinamento,
+ * reunião) ou como tempo fora (almoço, café). Sem ele o relatório não sabe
+ * separar as duas coisas — por isso fica, compacto, abaixo dos dois campos
+ * literais, e não no lugar de nenhum deles.
  */
 export function FormularioMotivoPausa({ aoSalvar }: { aoSalvar?: () => void }) {
   const formRef = useRef<HTMLFormElement>(null);
@@ -27,65 +32,44 @@ export function FormularioMotivoPausa({ aoSalvar }: { aoSalvar?: () => void }) {
   }, [resultado]);
 
   return (
-    <>
-      <p className="sub">
-        É o que o atendente escolhe ao sair do <b>online</b> no Desk. O motivo fica gravado na
-        pausa, então mudar de ideia depois não reescreve o passado — só vale para as pausas
-        seguintes.
-      </p>
+    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
+      <label className="form-campo">
+        <span className="sub">Nome da pausa</span>
+        <Campo name="nome" maxLength={30} required disabled={enviando} />
+      </label>
 
-      <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
-        <div className="form-linha">
-          <label className="form-campo" style={{ flexBasis: '260px' }}>
-            <span className="sub">Nome</span>
-            <Campo name="nome" placeholder="Almoço" required disabled={enviando} />
-          </label>
+      <label className="form-campo">
+        <span className="sub">Duração em minutos</span>
+        <Campo
+          name="duracaoSugeridaMin"
+          type="number"
+          min={0}
+          max={999}
+          maxLength={3}
+          defaultValue={0}
+          disabled={enviando}
+        />
+      </label>
 
-          <label className="form-campo">
-            <span className="sub">Duração sugerida (minutos)</span>
-            <Campo
-              name="duracaoSugeridaMin"
-              type="number"
-              min={1}
-              max={480}
-              placeholder="60"
-              disabled={enviando}
-            />
-          </label>
-        </div>
+      <label className="form-caixa">
+        <input type="checkbox" name="contaComoProdutivo" disabled={enviando} />
+        <span className="sub">
+          <b>Conta como produtivo</b> — o tempo desta pausa é tempo de trabalho, não tempo fora.
+        </span>
+      </label>
 
-        <p className="note">
-          A duração sugerida não corta a pausa: ela é a referência contra a qual a lista abaixo
-          compara a duração real. Deixe em branco quando não houver um tempo esperado.
-        </p>
+      <input type="hidden" name="ativo" value="on" />
 
-        <label className="form-caixa">
-          <input type="checkbox" name="contaComoProdutivo" disabled={enviando} />
-          <span className="sub">
-            <b>Conta como produtivo</b> — o tempo desta pausa é tempo de trabalho, não tempo fora.
-            Marque para treinamento, reunião e feedback; deixe desmarcado para almoço, café e
-            banheiro. É a única decisão desta tela que muda relatório, e não dá para descobrir isso
-            pelo nome do campo: ela separa a pausa que entra no tempo trabalhado do atendente da que
-            fica de fora.
-          </span>
-        </label>
+      {resultado.erro ? <Etiqueta tom="erro">{resultado.erro}</Etiqueta> : null}
 
-        <label className="form-caixa">
-          <input type="checkbox" name="ativo" defaultChecked disabled={enviando} />
-          <span className="sub">
-            Ativo — motivo desativado some da lista do Desk, e as pausas antigas continuam contadas
-            por ele.
-          </span>
-        </label>
-
-        {resultado.erro ? <Etiqueta tom="erro">{resultado.erro}</Etiqueta> : null}
-
-        <div className="cl-acoes">
-          <Botao type="submit" variante="primario" disabled={enviando}>
-            {enviando ? 'Salvando…' : 'Salvar motivo'}
-          </Botao>
-        </div>
-      </form>
-    </>
+      <div className="cl-acoes">
+        <Botao type="button" onClick={aoSalvar} disabled={enviando}>
+          Cancelar
+        </Botao>
+        <Botao type="submit" variante="primario" disabled={enviando}>
+          {enviando ? 'Criando…' : 'Criar'}
+        </Botao>
+      </div>
+    </form>
   );
 }

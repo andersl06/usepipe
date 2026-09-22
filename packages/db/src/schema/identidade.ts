@@ -256,6 +256,38 @@ export const usuarioPapel = pgTable(
   ],
 );
 
+/**
+ * A EXCEÇÃO por pessoa, em cima do papel (migração 0046).
+ *
+ * É o que a página "Permissões" da origem edita — uma tabela de "Tipo de
+ * permissão" × "Status", por atendente
+ * (`docs/capturas/blip/dom/FICHA-atendentes-filas-pausas.md` §a.4). Papel é
+ * conjunto: sem esta tabela, desligar UMA capacidade de UMA pessoa exigia
+ * inventar um papel de uma pessoa só.
+ *
+ *   permissão efetiva = COALESCE(concedida desta linha, união dos papéis)
+ *
+ * Linha ausente = manda o papel. `gravarPermissoesDoAtendente` APAGA a linha
+ * quando a escolha volta a coincidir com o papel, para a tabela guardar só a
+ * exceção e nunca virar cópia desatualizada do RBAC.
+ */
+export const usuarioPermissao = pgTable(
+  'usuario_permissao',
+  {
+    tenantId: refTenant(),
+    usuarioId: uuid('usuario_id')
+      .notNull()
+      .references(() => usuario.id, { onDelete: 'cascade' }),
+    permissaoCodigo: text('permissao_codigo')
+      .notNull()
+      .references(() => permissao.codigo, { onDelete: 'cascade' }),
+    /** `true` liga o que o papel não dá; `false` desliga o que o papel dá. */
+    concedida: boolean('concedida').notNull(),
+    ...carimbos(),
+  },
+  (t) => [primaryKey({ columns: [t.usuarioId, t.permissaoCodigo] })],
+);
+
 export const equipe = pgTable('equipe', {
   id: id(),
   tenantId: refTenant(),

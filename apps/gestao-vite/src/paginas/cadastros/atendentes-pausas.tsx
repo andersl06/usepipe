@@ -1,87 +1,45 @@
 import { useState } from 'react';
-import { Botao, BotaoDeIcone, Etiqueta } from '@pipe/ui';
+import { Botao, BotaoDeIcone } from '@pipe/ui';
 import { useLeitura } from '../../lib/consulta';
 import type { MotivoDePausa, UsoDePausas } from '../../lib/cadastros';
-import { alternarMotivoPausa, excluirMotivoPausa } from '../../lib/cadastros-gravar';
-import { duracaoLonga, numero } from '../../lib/formato';
+import { excluirMotivoPausa } from '../../lib/cadastros-gravar';
+import { numero } from '../../lib/formato';
 import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras';
 import { FormularioMotivoPausa } from './atendentes-pausas-formulario';
 import { Modal, ModalConfirmacao } from './_modal';
 
-/** O switch + o "Excluir" do cartão-linha — `PATCH`/`DELETE` em `.../pausas/:id`. */
-function AcoesDoMotivo({
-  motivo,
-  onErroAlternar,
-  onExcluir,
-}: {
-  motivo: MotivoDePausa;
-  onErroAlternar: (erro: string) => void;
-  onExcluir: () => void;
-}) {
-  const alternar = async () => {
-    const r = await alternarMotivoPausa(motivo.id, motivo.ativo);
-    if (!r.ok) onErroAlternar(r.erro);
-  };
-  return (
-    <>
-      <button
-        type="button"
-        className="interruptor"
-        role="switch"
-        aria-checked={motivo.ativo}
-        aria-label={motivo.ativo ? `Desativar o motivo ${motivo.nome}` : `Ativar o motivo ${motivo.nome}`}
-        title={motivo.ativo ? 'Desativar este motivo' : 'Ativar este motivo'}
-        onClick={() => void alternar()}
-      >
-        <span className="interruptor-bolinha" />
-      </button>
-      <BotaoDeIcone nome="x" rotulo={`Excluir o motivo ${motivo.nome}`} onClick={onExcluir} />
-    </>
-  );
+/**
+ * Só "Excluir" — a origem não tem interruptor nem editar nesta linha, e não
+ * tem "Resultados por página" no rodapé (`FICHA-atendentes-filas-pausas.md`
+ * §a.5 e §b.3: "Não há ícone de editar, não há interruptor" / "apenas as
+ * setas + o número da página + o contador"). `alternarMotivoPausa`
+ * (`cadastros-gravar.ts`) fica sem uso nesta tela por isso — não foi apagado
+ * porque a rota `PATCH .../pausas/:id` continua válida e testada.
+ */
+function AcoesDoMotivo({ motivo, onExcluir }: { motivo: MotivoDePausa; onExcluir: () => void }) {
+  return <BotaoDeIcone nome="x" rotulo={`Excluir o motivo ${motivo.nome}`} onClick={onExcluir} />;
 }
 
 /**
- * Pausas personalizadas.
+ * Pausas personalizadas — a lista.
  *
- * Esqueleto medido em `FICHA-personalizedbreaks.md` §2: cabeçalho com "Nova
- * Pausa" à direita (sem subtítulo), sem busca nem filtro nenhum (§3), cartão
- * com só "Nome da pausa"/"Duração" como coluna (§4). A ficha não registrou
- * paginação, mas o HTML bruto (`personalizedbreaks.html`) tem
- * `data-testid="pagination-test"` com "1-4 de 4" e as quatro setas — só falta
- * o select "Resultados por página" (a origem some com ele quando o total é
- * menor que 5, o menor tamanho de página; o nosso rodapé mostra sempre, sem
- * essa exceção). O modal "Criar nova pausa personalizada" (§2.3) é onde o
- * "Nova Pausa" do cabeçalho manda.
+ * Esqueleto e textos medidos em `FICHA-atendentes-filas-pausas.md` §b.3/§c:
+ * cabeçalho "Pausas personalizadas" com "Nova Pausa" (P maiúsculo) à direita,
+ * sem busca, cartão com só "Nome da pausa"/"Duração" como colunas e à direita
+ * só "Excluir", rodapé com apenas contador + setas (sem "Resultados por
+ * página" — `ocultarTamanhoDePagina` em `ListaRegras`).
  *
- * O uso real (cadastro + dado real na mesma tela, de propósito: o motivo
- * cadastrado com "30 minutos" que na prática dura 47 é a informação que faz o
- * supervisor mexer na escala) não é coluna documentada — fica no rodapé do
- * cartão, ao lado de "Conta como". A média é `avg` de SQL (ver
- * `lib/cadastros.ts`): `packages/core/src/esforco/` não conhece `pausa` nem
- * `motivo_pausa`, só o intervalo entre mensagens.
- *
- * Toggle e exclusão por cartão: `lib/cadastros.ts` tem `alternarMotivoPausa`/
- * `excluirMotivoPausa` (`PATCH`/`DELETE` em `/v1/gestao/atendentes/pausas/:id`)
- * — o ícone "Excluir" do cartão deles (§5) entra, com confirmação em
- * `ModalConfirmacao` (nunca `window.confirm`/`window.alert`), mesmo padrão de
- * `atendentes-filas.tsx`. A recusa do toggle vira `Etiqueta` acima da lista.
+ * **O que saiu do cartão.** O rodapé de uso real (conta como, nº de pausas,
+ * média, contra a sugerida) não existe na origem (§d.3: "tirar"). O par
+ * `semMotivo`/`abertas` que dava esse contexto fica só no `title` do
+ * cabeçalho — informação que não aparece como texto na tela, então não
+ * compete com a forma literal.
  */
-
-/** Diferença entre o observado e o sugerido, em português corrente. */
-function comparacao(mediaSeg: number | null, sugeridaMin: number | null): string {
-  if (mediaSeg === null) return '—';
-  if (sugeridaMin === null) return 'sem referência';
-  const deltaMin = Math.round(mediaSeg / 60 - sugeridaMin);
-  if (deltaMin === 0) return 'no ponto';
-  return deltaMin > 0 ? `+${numero(deltaMin)}min` : `${numero(deltaMin)}min`;
-}
-
 export function PaginaPausas() {
   const [modalAberto, setModalAberto] = useState(false);
   const [motivoParaExcluir, setMotivoParaExcluir] = useState<MotivoDePausa | null>(null);
   const [excluindo, setExcluindo] = useState(false);
   const [erroExclusao, setErroExclusao] = useState<string | null>(null);
-  const [erroAlternar, setErroAlternar] = useState<string | null>(null);
   const leitura = useLeitura<UsoDePausas>('/v1/gestao/atendentes/pausas');
   if (!leitura.data) return null;
   const { motivos, dias, semMotivo, abertas } = leitura.data;
@@ -99,30 +57,20 @@ export function PaginaPausas() {
   const secoes: SecaoDeRegras[] = [
     {
       titulo: 'Pausas personalizadas',
-      vazio:
-        'Nenhum motivo cadastrado. O atendente sai do online sem dizer por quê, e a pausa fica sem motivo no relatório.',
+      vazio: 'Nenhum motivo cadastrado.',
       cartoes: motivos.map((m) => ({
         id: m.id,
         campos: [
           { rotulo: 'Nome da pausa', valor: m.nome },
           {
             rotulo: 'Duração',
-            valor: m.duracaoSugeridaMin === null ? 'sem sugestão' : `${numero(m.duracaoSugeridaMin)} minutos`,
+            valor: m.duracaoSugeridaMin === null ? '—' : `${numero(m.duracaoSugeridaMin)} minutos`,
           },
         ],
         situacao: m.ativo ? 'Ativo' : 'Desativado',
         ativa: m.ativo,
-        acao: (
-          <AcoesDoMotivo motivo={m} onErroAlternar={setErroAlternar} onExcluir={() => setMotivoParaExcluir(m)} />
-        ),
-        rodape: [
-          m.contaComoProdutivo ? 'Conta como produtivo' : 'Conta como fora do trabalho',
-          `${numero(m.pausas)} pausa(s) em ${dias}d`,
-          `Média real: ${duracaoLonga(m.mediaSeg)}`,
-          `Contra a sugerida: ${comparacao(m.mediaSeg, m.duracaoSugeridaMin)}`,
-        ],
-        procura:
-          `${m.nome} ${m.contaComoProdutivo ? 'produtivo' : 'fora do trabalho'}`.toLowerCase(),
+        acao: <AcoesDoMotivo motivo={m} onExcluir={() => setMotivoParaExcluir(m)} />,
+        procura: m.nome.toLowerCase(),
       })),
     },
   ];
@@ -148,42 +96,21 @@ export function PaginaPausas() {
         >
           Pausas personalizadas
         </h2>
-        <Botao
-          variante="primario"
-          icone="mais"
-          className="board-acao"
-          onClick={() => setModalAberto(true)}
-        >
+        <Botao variante="primario" icone="mais" className="board-acao" onClick={() => setModalAberto(true)}>
           Nova Pausa
         </Botao>
       </div>
 
-      {erroAlternar ? <Etiqueta tom="erro">{erroAlternar}</Etiqueta> : null}
-
-      {/* A tela deles vai do cabeçalho direto para a lista (`FICHA-
-          personalizedbreaks.md` §2). As pausas sem motivo e as em aberto —
-          que não entram em nenhuma linha — ficam ditas no `title` do
-          cabeçalho, e não numa faixa de texto que a tela deles não tem. */}
       <ListaRegras
         secoes={secoes}
         ocultarCabecalhoDeSecao
         ocultarBusca
         paginar
         tamanhoDePaginaInicial={5}
+        ocultarTamanhoDePagina
       />
 
-      <Modal
-        aberto={modalAberto}
-        titulo="Criar nova pausa personalizada"
-        onFechar={() => setModalAberto(false)}
-      >
-        <p className="sub">
-          Almoço, café e banheiro são pausa de verdade: o atendente saiu, e esse tempo não é tempo
-          de trabalho. Treinamento, reunião e feedback são trabalho que não é atendimento — tirá-los
-          do tempo trabalhado faz o atendente parecer ocioso num dia inteiro de treinamento. É essa
-          a diferença que a caixa <b>conta como produtivo</b> guarda, e ela decide de que lado do
-          relatório de esforço a pausa cai.
-        </p>
+      <Modal aberto={modalAberto} titulo="Criar nova pausa personalizada" onFechar={() => setModalAberto(false)}>
         <FormularioMotivoPausa aoSalvar={() => setModalAberto(false)} />
       </Modal>
 

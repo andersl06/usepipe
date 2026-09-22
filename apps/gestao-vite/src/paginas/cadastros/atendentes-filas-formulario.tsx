@@ -1,28 +1,43 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useActionState } from 'react';
-import { Botao, Campo, Etiqueta, Seletor } from '@pipe/ui';
+import { Botao, Campo, Etiqueta } from '@pipe/ui';
 import { salvarFila } from '../../lib/acoes';
-import { CORES_DE_FILA } from '../../lib/cores-de-fila';
-import type { HorarioParaEscolher } from '../../lib/cadastros';
 import { envioQuePreserva } from '../../componentes/envio-de-formulario';
 
 /**
- * Cadastro de fila.
+ * O modal "Criar nova fila" — a FORMA é a da origem, e ela é mínima
+ * (`docs/capturas/blip/dom/FICHA-atendentes-filas-pausas.md` §a.2, extraída do
+ * `bds-modal` que `queue-management.html` traz no DOM com `open="false"`):
  *
- * O rótulo de campo é `.sub` — a legenda pequena que já existe —, e não uma
- * classe nova: `base.css` proíbe `.lbl` em nome de campo e o design system não
- * tem "campo de formulário com rótulo". Mesma escolha da tela de respostas
- * prontas.
+ *   título  "Criar nova fila"
+ *   texto   "Dê um nome para essa fila de atendimento"
+ *   campo   placeholder "Nome da fila"
+ *   ajuda   "Use apenas letras, números, hifens (-) e sublinhados (_)"
+ *   botões  "Cancelar"  "Salvar"  (o segundo desabilitado até haver nome)
+ *
+ * **Um campo só, e os outros quatro foram para a página de edição.** Este
+ * formulário tinha cor, capacidade padrão, ordem, horário e "ativa" na mesma
+ * caixa — cinco campos que a origem não pede aqui. Eles não sumiram: moram em
+ * "Dados da fila", na página `atendentes/filas/:id/editar`, que é onde a
+ * origem também põe o que é configuração da fila. O que continua indo junto na
+ * criação são os PADRÕES (capacidade 5, ordem 0, ativa), em campo escondido,
+ * porque `criarFila` cobra `capacidadePadrao` entre 1 e 200 e uma fila nasce
+ * ligada.
+ *
+ * A ajuda sobre caracteres é literal da origem. Nós não recusamos nome com
+ * acento (`nomeDeFilaConferido` só exige não-vazio), então ela é orientação e
+ * não promessa de validação — está dita assim de propósito.
  */
 export function FormularioFila({
-  horarios,
   aoSalvar,
 }: {
-  horarios: readonly HorarioParaEscolher[];
   /** Fecha o modal quando o salvamento dá certo. */
   aoSalvar?: () => void;
 }) {
   const formRef = useRef<HTMLFormElement>(null);
+  /* Controlado só para o "Salvar" nascer desabilitado, como o `save-button`
+     da origem — não para guardar o valor, que o `FormData` já leva. */
+  const [nome, setNome] = useState('');
   const [resultado, enviar, enviando] = useActionState(salvarFila, { ok: true });
   /* Ver o comentário equivalente em `regras-atendimento-formulario.tsx`: o
      valor inicial do `useActionState` não é uma confirmação de envio. */
@@ -32,103 +47,43 @@ export function FormularioFila({
     if (resultado === estadoInicial.current) return;
     if (resultado.ok) {
       formRef.current?.reset();
+      setNome('');
       aoSalvar?.();
     }
   }, [resultado]);
 
   return (
-    <>
-      <p className="sub">
-        A fila é o que a regra de distribuição recorta: um atendente só recebe conversa de fila em
-        que está habilitado. Depois de criada, quem entra nela é definido em <b>Operação</b>.
-      </p>
+    <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
+      <p className="sub">Dê um nome para essa fila de atendimento</p>
 
-      <form ref={formRef} onSubmit={envioQuePreserva(enviar)} className="form-cadastro">
-        <div className="form-linha">
-          <label className="form-campo" style={{ flexBasis: '260px' }}>
-            <span className="sub">Nome</span>
-            <Campo name="nome" placeholder="Suporte" required disabled={enviando} />
-          </label>
+      <label className="form-campo">
+        <Campo
+          name="nome"
+          placeholder="Nome da fila"
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          required
+          disabled={enviando}
+        />
+      </label>
+      <p className="note">Use apenas letras, números, hifens (-) e sublinhados (_)</p>
 
-          <label className="form-campo">
-            <span className="sub">Cor</span>
-            <Seletor name="cor" defaultValue="" disabled={enviando}>
-              <option value="">Sem cor</option>
-              {CORES_DE_FILA.map((c) => (
-                <option key={c.valor} value={c.valor}>
-                  {c.rotulo}
-                </option>
-              ))}
-            </Seletor>
-          </label>
-        </div>
+      {/* Os padrões da fila nova. Editáveis em "Dados da fila", na página de
+          edição — aqui só existem porque `criarFila` cobra a capacidade. */}
+      <input type="hidden" name="capacidadePadrao" value={5} />
+      <input type="hidden" name="ordem" value={0} />
+      <input type="hidden" name="ativa" value="on" />
 
-        <div className="form-linha">
-          <label className="form-campo">
-            <span className="sub">Capacidade padrão</span>
-            <Campo
-              name="capacidadePadrao"
-              type="number"
-              min={1}
-              max={200}
-              defaultValue={5}
-              required
-              disabled={enviando}
-            />
-          </label>
+      {resultado.erro ? <Etiqueta tom="erro">{resultado.erro}</Etiqueta> : null}
 
-          <label className="form-campo">
-            <span className="sub">Ordem</span>
-            <Campo
-              name="ordem"
-              type="number"
-              min={0}
-              max={999}
-              defaultValue={0}
-              disabled={enviando}
-            />
-          </label>
-
-          <label className="form-campo" style={{ flexBasis: '260px' }}>
-            <span className="sub">Horário de atendimento</span>
-            <Seletor name="horarioId" defaultValue="" disabled={enviando}>
-              <option value="">Sem horário — o relógio do SLA corre 24×7</option>
-              {horarios.map((h) => (
-                <option key={h.id} value={h.id}>
-                  {h.nome}
-                </option>
-              ))}
-            </Seletor>
-          </label>
-        </div>
-
-        {/*
-          O campo mais fácil de preencher errado da tela inteira, e por isso o
-          único com explicação inteira embaixo dele. Ver o cartão "O que a
-          capacidade decide" na página.
-        */}
-        <p className="note">
-          <b>Capacidade padrão</b> é quantas conversas simultâneas um atendente desta fila aguenta.
-          A distribuição para de mandar conversa para quem já bateu esse número — ele fica na fila
-          sem atendente até alguém encerrar uma. Vale para todo mundo da fila, menos para quem tem
-          limite próprio definido em Operação.
-        </p>
-
-        <label className="form-caixa">
-          <input type="checkbox" name="ativa" defaultChecked disabled={enviando} />
-          <span className="sub">
-            Ativa — fila desativada não recebe conversa nova, e a que já está nela continua.
-          </span>
-        </label>
-
-        {resultado.erro ? <Etiqueta tom="erro">{resultado.erro}</Etiqueta> : null}
-
-        <div className="cl-acoes">
-          <Botao type="submit" variante="primario" disabled={enviando}>
-            {enviando ? 'Salvando…' : 'Salvar fila'}
-          </Botao>
-        </div>
-      </form>
-    </>
+      <div className="cl-acoes">
+        <Botao type="button" onClick={aoSalvar} disabled={enviando}>
+          Cancelar
+        </Botao>
+        <Botao type="submit" variante="primario" disabled={enviando || nome.trim() === ''}>
+          {enviando ? 'Salvando…' : 'Salvar'}
+        </Botao>
+      </div>
+    </form>
   );
 }

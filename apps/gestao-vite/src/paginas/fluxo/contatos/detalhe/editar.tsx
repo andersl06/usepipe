@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { IconePortal } from '../../../../componentes/icones-portal';
+import { Selecao } from '../../../../componentes/selecao';
 import { salvarContato } from './gravar';
 
 interface Propriedades {
@@ -133,11 +134,11 @@ export function InformacoesContato(props: Propriedades) {
             <div className="ct-linha">
               <span className="ct-rotulo ct-f4">Gênero</span>
               {editando ? (
-                <select className="ct-selecao" name="genero" defaultValue={genero ?? ''}>
+                <Selecao className="ct-selecao" name="genero" defaultValue={genero ?? ''} aria-label="Gênero">
                   <option value="">Selecione o gênero</option>
                   <option value="male">Masculino</option>
                   <option value="female">Feminino</option>
-                </select>
+                </Selecao>
               ) : (
                 <span className="ct-valor ct-f4">{generoExibido || '-'}</span>
               )}

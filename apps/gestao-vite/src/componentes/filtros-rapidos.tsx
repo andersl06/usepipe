@@ -1,4 +1,6 @@
 import { Icone } from '@pipe/ui';
+import { urlParaLimparFiltros } from '../lib/filtros-monitoramento';
+import { Selecao } from './selecao';
 
 /**
  * Faixa de filtros rápidos.
@@ -30,24 +32,15 @@ function Pilula({
   valor: string;
   opcoes: readonly Opcao[];
 }) {
-  const escolhido = opcoes.find((o) => o.id === valor)?.nome;
   return (
-    <label className={valor ? 'pilula ativa' : 'pilula'}>
-      <span className="pilula-rotulo">{rotulo}</span>
-      {escolhido ? <span className="pilula-valor">{escolhido}</span> : null}
-      {/* A caixa de seleção cobre a pílula inteira e é INVISÍVEL: o que se vê
-          é o botão deles — rótulo, e o valor escolhido ao lado quando existe.
-          O seletor nativo continua embaixo, então o filtro aplica sem uma
-          linha de JavaScript e continua alcançável por teclado. */}
-      <select className="pilula-select" name={nome} defaultValue={valor} aria-label={rotulo}>
-        <option value="" />
+    <Selecao className={valor ? 'pilula ativa' : 'pilula'} name={nome} defaultValue={valor} aria-label={rotulo}>
+        <option value="">{rotulo}</option>
         {opcoes.map((o) => (
           <option key={o.id} value={o.id}>
             {o.nome}
           </option>
         ))}
-      </select>
-    </label>
+    </Selecao>
   );
 }
 
@@ -72,6 +65,10 @@ function PilulaTexto({
         /* Sem texto de marca d'água: na faixa deles a pílula mostra só o
            rótulo. A instrução viaja no `title`, que não ocupa a caixa. */
         title={dica}
+        /* Um espaço só, para o CSS saber pelo `:placeholder-shown` que está
+           vazio e recolher o campo: vazio e sem foco, a pílula é só o rótulo
+           centrado, como o `bds-button` deles. */
+        placeholder=" "
         aria-label={rotulo}
       />
     </label>
@@ -85,7 +82,13 @@ function PilulaTexto({
  * deles ele mora no rodapé do painel ("Limpar tudo"); aqui fica ao lado
  * porque o painel não abre a partir da faixa.
  */
-function BotaoFiltros({ limpar }: { limpar: string | null }) {
+function BotaoFiltros({
+  limpar,
+  aoAbrirPainel,
+}: {
+  limpar: string | null;
+  aoAbrirPainel?: () => void;
+}) {
   return (
     <div className="faixa-fim">
       {limpar ? (
@@ -93,7 +96,12 @@ function BotaoFiltros({ limpar }: { limpar: string | null }) {
           Limpar tudo
         </a>
       ) : null}
-      <button type="submit" className="btn" title="Aplicar os filtros selecionados">
+      <button
+        type={aoAbrirPainel ? 'button' : 'submit'}
+        className="btn"
+        title="Abrir filtros"
+        onClick={aoAbrirPainel}
+      >
         <Icone nome="funil" tamanho={20} />
         Filtros
       </button>
@@ -140,17 +148,24 @@ function Escondidos({ atual, exceto }: { atual: Parametros; exceto: readonly str
 export function FiltrosDaOperacao({
   filas,
   atual,
+  base,
+  aoAbrirPainel,
 }: {
   filas: readonly Opcao[];
   atual: Parametros;
+  base: string;
+  aoAbrirPainel: () => void;
 }) {
   const algum = Boolean(atual.fila);
   return (
-    <form className="faixa-filtros" method="get">
+    <form className="faixa-filtros" method="get" action={base}>
       <span className="lbl">Filtros rápidos:</span>
       <Pilula nome="fila" rotulo="Filas" valor={atual.fila ?? ''} opcoes={filas} />
       <Escondidos atual={atual} exceto={['fila']} />
-      <BotaoFiltros limpar={algum ? '/monitoramento' : null} />
+      <BotaoFiltros
+        limpar={algum ? urlParaLimparFiltros(base, atual) : null}
+        aoAbrirPainel={aoAbrirPainel}
+      />
     </form>
   );
 }
@@ -174,16 +189,18 @@ const ESTADOS_DE_ATENDENTE: readonly Opcao[] = [
 export function FiltrosDaLista({
   atendentes,
   atual,
+  base,
+  aoAbrirPainel,
 }: {
   atendentes: readonly Opcao[];
   atual: Parametros;
+  base: string;
+  aoAbrirPainel: () => void;
 }) {
   const algum = Boolean(atual.atendente || atual.contato || atual.status);
-  const limpar = atual.fila
-    ? `/monitoramento?fila=${encodeURIComponent(atual.fila)}`
-    : '/monitoramento';
+  const limpar = urlParaLimparFiltros(base, atual, true);
   return (
-    <form className="faixa-filtros" method="get">
+    <form className="faixa-filtros" method="get" action={base}>
       <span className="lbl">Filtros rápidos:</span>
       <Pilula
         nome="atendente"
@@ -204,7 +221,7 @@ export function FiltrosDaLista({
         opcoes={ESTADOS_DE_ATENDENTE}
       />
       <Escondidos atual={atual} exceto={['atendente', 'contato', 'status']} />
-      <BotaoFiltros limpar={algum ? limpar : null} />
+      <BotaoFiltros limpar={algum ? limpar : null} aoAbrirPainel={aoAbrirPainel} />
     </form>
   );
 }

@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Icone } from '@pipe/ui';
+import { Selecao } from './selecao';
 
 /**
  * Paginação do "Monitoramento detalhado" — o rodapé deles, medido na
@@ -60,7 +61,7 @@ export function Paginacao({ estado }: { estado: EstadoPaginacao }) {
     <div className="pg">
       <label className="pg-por-pagina">
         Resultados por página
-        <select
+        <Selecao
           value={porPagina}
           onChange={(e) => setPorPagina(Number(e.currentTarget.value))}
           aria-label="Resultados por página"
@@ -70,7 +71,7 @@ export function Paginacao({ estado }: { estado: EstadoPaginacao }) {
               {n}
             </option>
           ))}
-        </select>
+        </Selecao>
       </label>
 
       <span className="pg-contador">

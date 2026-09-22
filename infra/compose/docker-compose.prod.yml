@@ -162,29 +162,16 @@ services:
         condition: service_healthy
 
   desk:
-    <<: *app
-    # Construída por infra/construir-imagens.sh a partir de apps/desk/Dockerfile.
-    # A imagem escuta na 3000 (a 3200 é só do `pnpm dev`).
-    image: ghcr.io/pipe/desk:${PIPE_VERSAO}
-    # A ÚNICA variável que não pode vir do `.env` compartilhado: ela responde
-    # "qual dos três aplicativos sou eu". Vai na ida do login como `?origem=`, e é
-    # o que faz a volta do Google cair aqui e não na Gestão. A API só aceita
-    # origem que esteja em `PIPE_ORIGENS` — fora da lista, a volta vai para
-    # `PIPE_URL_APP` e a pessoa entra no aplicativo errado.
-    environment:
-      PIPE_URL_ESTE_APP: https://app.usepipe.com.br
-    healthcheck: *saude-next
-    # O Desk renderiza no servidor e fala com o Postgres direto, por isso está na
-    # rede `dados`. Ele não depende do Redis para servir tela.
-    depends_on:
-      postgres:
-        condition: service_healthy
+    # Desk Vite estático: não fala com Postgres nem lê `.env` em execução.
+    <<: *padrao
+    image: ghcr.io/pipe/desk-vite:${PIPE_VERSAO}
+    networks: [borda]
     labels:
       - traefik.enable=true
       - traefik.http.routers.desk.rule=Host(`app.usepipe.com.br`)
       - traefik.http.routers.desk.entrypoints=websec
       - traefik.http.routers.desk.tls.certresolver=le
-      - traefik.http.services.desk.loadbalancer.server.port=3000
+      - traefik.http.services.desk.loadbalancer.server.port=80
 
   # Gestão como SPA estática (Vite + nginx): não fala com o Postgres, não lê
   # `.env`, não tem `PIPE_URL_ESTE_APP` — a origem do próprio app já sai

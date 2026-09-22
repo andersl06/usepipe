@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
 import { PERIODOS, calcularPeriodo, periodoAtual } from '../lib/periodos';
+import { Selecao } from './selecao';
 
 /**
  * Painel lateral "Filtros" — o `data-testid="saved-filters-sidebar"` deles,
@@ -140,7 +141,7 @@ export function CampoDoPainel({
 export function CampoPeriodo({ de, ate, fuso }: { de: string; ate: string; fuso: string }) {
   return (
     <CampoDoPainel rotulo="Período" apoio="Selecione um intervalo de datas">
-      <select
+      <Selecao
         name="periodo"
         defaultValue={periodoAtual(de, ate, fuso)}
         aria-label="Atalho de período"
@@ -160,7 +161,7 @@ export function CampoPeriodo({ de, ate, fuso }: { de: string; ate: string; fuso:
           </option>
         ))}
         <option value="personalizado">Personalizado</option>
-      </select>
+      </Selecao>
       <div className="painel-datas">
         <input type="date" name="de" defaultValue={de} aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} aria-label="Até" />

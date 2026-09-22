@@ -16,7 +16,7 @@ shift || true
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 REGISTRO="${REGISTRO:-ghcr.io/pipe}"
 APPS=("$@")
-[[ ${#APPS[@]} -eq 0 ]] && APPS=(api workers desk gestao-vite crm site)
+[[ ${#APPS[@]} -eq 0 ]] && APPS=(api workers desk-vite gestao-vite crm site)
 
 cd "$RAIZ"
 
@@ -56,9 +56,8 @@ for app in "${APPS[@]}"; do
 
   ARGS=()
   case "$app" in
-    desk)
-      ARGS=(--build-arg "NEXT_PUBLIC_PIPE_GESTAO_URL=${URL_GESTAO}"
-            --build-arg "NEXT_PUBLIC_PIPE_CRM_URL=${URL_CRM}") ;;
+    desk-vite)
+      ARGS=(--build-arg "VITE_URL_API=${URL_API}") ;;
     gestao-vite)
       ARGS=(--build-arg "VITE_PIPE_DESK_URL=${URL_DESK}"
             --build-arg "VITE_URL_API=${URL_API}") ;;

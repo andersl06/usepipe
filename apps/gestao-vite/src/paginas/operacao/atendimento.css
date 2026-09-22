@@ -147,3 +147,232 @@
 .rel-periodo {
   white-space: nowrap;
 }
+
+/* Ações por ticket do Monitoramento: o menu fica ancorado na linha e os
+   diálogos usam o mesmo papel compacto das ações do Desk. */
+.mon-acoes {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.tblwrap td.acts .mon-acoes .iconbtn {
+  width: 20px;
+  height: 20px;
+  display: inline-grid;
+  place-items: center;
+}
+
+.mon-reticencias {
+  font-size: 20px;
+  line-height: 1;
+}
+
+.mon-icone-transferir {
+  width: 20px;
+  height: 20px;
+}
+
+.mon-ticket {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.tblwrap td.acts .mon-acoes .iconbtn {
+  padding: 0;
+  cursor: pointer;
+}
+
+.tblwrap td.acts .mon-acoes .iconbtn svg {
+  width: 20px;
+  height: 20px;
+}
+
+.mon-menu-acoes {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 16px);
+  right: 0;
+  width: 240px;
+  padding: 2px;
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  box-shadow: 0 8px 12px color-mix(in srgb, var(--p-conteudo) 8%, transparent);
+}
+
+.mon-menu-acoes a,
+.mon-menu-acoes button {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 16px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo);
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 22px;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.mon-menu-acoes a:hover,
+.mon-menu-acoes button:hover {
+  background: var(--p-superficie-2);
+}
+
+.mon-menu-acoes .perigo,
+.mon-modal-erro {
+  color: var(--p-erro-conteudo);
+}
+
+.mon-previa-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 64;
+  background: color-mix(in srgb, var(--p-conteudo) 70%, transparent);
+}
+
+/* Painel de conversa à direita: mesma largura do `bds-sidebar` de monitoramento
+   da Blip (420px), mas com a tinta e os componentes Pipe. */
+.mon-previa {
+  position: fixed;
+  z-index: 65;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  flex-direction: column;
+  width: 420px;
+  max-width: 92vw;
+  background: var(--p-superficie-0);
+  box-shadow: var(--p-sombra-2);
+}
+
+.mon-previa > header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 24px;
+  border-bottom: 1px solid var(--p-linha);
+}
+
+.mon-previa h3,
+.mon-previa p { margin: 0; }
+.mon-previa h3 { font-size: 20px; line-height: 24px; }
+.mon-previa header p { margin-top: 4px; font-size: 14px; }
+
+.mon-previa-historico {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.mon-balao {
+  max-width: 82%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 20px;
+}
+.mon-balao.entrada { align-self: flex-start; background: var(--p-superficie-2); }
+.mon-balao.saida { align-self: flex-end; background: var(--p-marca-suave); }
+.mon-balao small { display: block; margin-top: 4px; font-size: 12px; }
+.mon-previa-nota { padding: 10px 12px; border-radius: 8px; background: var(--p-superficie-2); font-size: 14px; }
+.mon-previa-nota b { display: block; margin-bottom: 3px; }
+
+.mon-previa-compositor {
+  display: grid;
+  gap: 8px;
+  padding: 16px 24px 24px;
+  border-top: 1px solid var(--p-linha);
+}
+.mon-previa-compositor label { font-size: 14px; font-weight: 700; }
+.mon-previa-compositor textarea { resize: vertical; min-height: 64px; padding: 10px; border: 1px solid var(--p-linha); border-radius: 8px; font: inherit; }
+.mon-previa-compositor .btn { justify-self: end; }
+
+.mon-modal-fundo {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 16px;
+  background: color-mix(in srgb, var(--p-conteudo) 48%, transparent);
+}
+
+.mon-modal {
+  width: min(520px, 100%);
+  padding: 28px;
+  border-radius: var(--p-r-lg);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  box-shadow: var(--p-sombra-2);
+}
+
+.mon-modal h2 {
+  margin: 0 0 16px;
+  font-size: var(--g-t-valor-rel);
+  line-height: 1.2;
+}
+
+.mon-modal p {
+  margin: 0 0 14px;
+  line-height: 1.5;
+}
+
+.mon-radios {
+  display: flex;
+  gap: 24px;
+  margin-bottom: 16px;
+}
+
+.mon-radios label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mon-campo {
+  display: grid;
+  gap: 6px;
+  font-size: var(--g-t-celula);
+  font-weight: var(--g-peso-forte);
+}
+
+.mon-campo select {
+  width: 100%;
+  height: 42px;
+  padding: 0 10px;
+  border: 1px solid var(--p-linha);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font: inherit;
+}
+
+.mon-modal-aviso {
+  margin-top: 14px !important;
+  color: var(--p-conteudo-desabilitado);
+  font-size: var(--g-t-celula);
+}
+
+.mon-modal-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 24px;
+}

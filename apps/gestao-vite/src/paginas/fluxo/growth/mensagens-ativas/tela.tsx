@@ -1,6 +1,7 @@
 import { useMemo, useState, useTransition } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { IconeBusca, IconePortal } from '../../../../componentes/icones-portal';
+import { Selecao } from '../../../../componentes/selecao';
 import { useLeitura } from '../../../../lib/consulta';
 import type { DadosDeGrowth, EnvioGrowth } from '@pipe/contracts';
 import { analisarCsv, filtrarEnvios } from '../regras';
@@ -184,34 +185,34 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
         <div className="gr-filtros-campos">
           <label>
             Canal
-            <select value={canalFiltro} onChange={(evento) => setCanalFiltro(evento.target.value)}>
+            <Selecao value={canalFiltro} onChange={(evento) => setCanalFiltro(evento.target.value)} aria-label="Canal">
               <option value="whatsapp">Whatsapp</option>
               <option value="google-rcs">GoogleRCS</option>
               <option value="sms">SMS</option>
               <option value="outros">Outros canais</option>
-            </select>
+            </Selecao>
           </label>
           <label>
             Tipo da mensagem
-            <select
+            <Selecao
               value={tipoMensagem}
               onChange={(evento) => setTipoMensagem(evento.target.value)}
             >
               <option value="todos">Todos</option>
               <option value="agendadas">Agendadas</option>
               <option value="nao-agendadas">Não agendadas</option>
-            </select>
+            </Selecao>
           </label>
           <label>
             Tipo de campanha
-            <select
+            <Selecao
               value={tipoCampanha}
               onChange={(evento) => setTipoCampanha(evento.target.value)}
             >
               <option value="todos">Todos</option>
               <option value="individual">Individual</option>
               <option value="massa">Em massa</option>
-            </select>
+            </Selecao>
           </label>
         </div>
       </section>
@@ -286,7 +287,7 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                   </label>
                   <label>
                     Categoria da campanha
-                    <select
+                    <Selecao
                       value={categoria}
                       onChange={(evento) => {
                         setCategoria(evento.target.value);
@@ -296,11 +297,11 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                       <option value="utilidade">Utilidade</option>
                       <option value="marketing">Marketing</option>
                       <option value="autenticacao">Autenticação</option>
-                    </select>
+                    </Selecao>
                   </label>
                   <label>
                     Modelo
-                    <select
+                    <Selecao
                       value={modeloId}
                       onChange={(evento) => setModeloId(evento.target.value)}
                     >
@@ -310,7 +311,7 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                           {modelo.nome} · {modelo.idioma}
                         </option>
                       ))}
-                    </select>
+                    </Selecao>
                   </label>
                   {modelosAprovados.length === 0 ? <p>Nenhum modelo aprovado encontrado.</p> : null}
                   {modeloSelecionado ? (
@@ -377,7 +378,7 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                   ) : (
                     <label>
                       Contato
-                      <select
+                      <Selecao
                         value={contatoId}
                         onChange={(evento) => setContatoId(evento.target.value)}
                       >
@@ -387,7 +388,7 @@ export function TelaDeMensagensAtivas({ dados }: { dados: DadosDeGrowth }) {
                             {contato.nome ?? contato.telefone} · {contato.telefone}
                           </option>
                         ))}
-                      </select>
+                      </Selecao>
                     </label>
                   )}
                 </>

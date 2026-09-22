@@ -1,7 +1,7 @@
 import { Outlet, useLocation } from 'react-router-dom';
-import { Icone, estaAtivo, type NomeDeIcone } from '@pipe/ui';
+import { estaAtivo } from '@pipe/ui';
 import Link from '../../componentes/link';
-import { IconeGestao } from '../../componentes/icones-gestao';
+import { IconePortal, type NomeDeIconePortal } from '../../componentes/icones-portal';
 import { URL_DESK } from '../../componentes/estrutura-gestao';
 import { CascaDoModulo, baseDoContato, useContato } from '../fluxo/contato';
 import './atendimento.css';
@@ -30,18 +30,18 @@ import './atendimento.css';
  * aqui — não temos telefonia nem funil de vendas — e por isso não entram.
  */
 
-type ItemLateral = { rotulo: string; rota: string; icone: NomeDeIcone };
-type GrupoLateral = { rotulo: string; icone: NomeDeIcone; filhos: readonly { rotulo: string; rota: string }[] };
+type ItemLateral = { rotulo: string; rota: string; icone: NomeDeIconePortal };
+type GrupoLateral = { rotulo: string; icone: NomeDeIconePortal; filhos: readonly { rotulo: string; rota: string }[] };
 
 const ITENS: readonly ItemLateral[] = [
-  { rotulo: 'Monitoramento', rota: 'monitoramento', icone: 'painel' },
+  { rotulo: 'Monitoramento', rota: 'monitoramento', icone: 'monitoramento' },
   { rotulo: 'Histórico', rota: 'historico', icone: 'relogio' },
 ];
 
 const GRUPOS: readonly GrupoLateral[] = [
   {
     rotulo: 'Relatórios',
-    icone: 'cheque',
+    icone: 'relatorios',
     filhos: [
       { rotulo: 'Atendimento', rota: 'relatorios/atendimento' },
       { rotulo: 'Satisfação', rota: 'relatorios/satisfacao' },
@@ -51,7 +51,7 @@ const GRUPOS: readonly GrupoLateral[] = [
   },
   {
     rotulo: 'Comunicação',
-    icone: 'balao',
+    icone: 'comunicacao',
     filhos: [
       { rotulo: 'Respostas prontas', rota: 'comunicacao/respostas-prontas' },
       { rotulo: 'Modelos de mensagens', rota: 'comunicacao/modelos' },
@@ -59,7 +59,7 @@ const GRUPOS: readonly GrupoLateral[] = [
   },
   {
     rotulo: 'Regras',
-    icone: 'funil',
+    icone: 'regras',
     filhos: [
       { rotulo: 'Atendimento', rota: 'regras/atendimento' },
       { rotulo: 'SLA', rota: 'regras/sla' },
@@ -68,7 +68,7 @@ const GRUPOS: readonly GrupoLateral[] = [
   },
   {
     rotulo: 'Atendentes',
-    icone: 'pessoas',
+    icone: 'atendentes',
     filhos: [
       { rotulo: 'Gestão de atendentes', rota: 'atendentes/gestao' },
       { rotulo: 'Filas de atendimento', rota: 'atendentes/filas' },
@@ -77,7 +77,7 @@ const GRUPOS: readonly GrupoLateral[] = [
   },
   {
     rotulo: 'Preferências',
-    icone: 'engrenagem',
+    icone: 'preferencias-gerais',
     filhos: [
       { rotulo: 'Configurações gerais', rota: 'preferencias/gerais' },
       { rotulo: 'Dados', rota: 'preferencias/dados' },
@@ -104,7 +104,7 @@ function NavegacaoAtendimento({ base, caminho }: { base: string; caminho: string
               className="g-item"
               aria-current={estaAtivo(href, caminho) ? 'page' : undefined}
             >
-              <Icone nome={i.icone} tamanho={24} />
+              <IconePortal nome={i.icone} tamanho={24} />
               {i.rotulo}
             </Link>
           );
@@ -115,9 +115,9 @@ function NavegacaoAtendimento({ base, caminho }: { base: string; caminho: string
           return (
             <details key={g.rotulo} className="g-grupo" open={aberto}>
               <summary className="g-item">
-                <Icone nome={g.icone} tamanho={24} />
+                <IconePortal nome={g.icone} tamanho={24} />
                 {g.rotulo}
-                <IconeGestao nome="baixo" tamanho={20} />
+                <IconePortal nome="baixo" tamanho={20} />
               </summary>
               <div className="g-grupo-filhos">
                 {g.filhos.map((f) => {
@@ -141,7 +141,7 @@ function NavegacaoAtendimento({ base, caminho }: { base: string; caminho: string
 
       <a className="g-lateral-rodape" href={URL_DESK} target="_blank" rel="noreferrer">
         Pipe Desk
-        <IconeGestao nome="externo" tamanho={20} />
+        <IconePortal nome="externo" tamanho={20} />
       </a>
     </nav>
   );

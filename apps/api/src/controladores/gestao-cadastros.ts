@@ -1,4 +1,15 @@
-import { Body, Controller, Delete, Get, HttpCode, Param, Patch, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  Param,
+  Patch,
+  Post,
+  Query,
+  Req,
+} from '@nestjs/common';
 import type { Ator, TransacaoPipe } from '@pipe/db';
 import { noTenant } from '../banco.js';
 import { ErroPipe } from '../erros.js';
@@ -12,6 +23,7 @@ import * as configuracoes from '../dominio/gestao/configuracoes.js';
 import * as palavrasProibidas from '../dominio/gestao/palavras-proibidas.js';
 import * as regrasSla from '../dominio/gestao/regras-sla.js';
 import * as regrasPrioridade from '../dominio/gestao/regras-prioridade.js';
+import * as permissoesDoAtendente from '../dominio/gestao/permissoes-do-atendente.js';
 import * as acoesRegras from '../dominio/gestao/acoes/regras.js';
 import * as acoesAtendentes from '../dominio/gestao/acoes/atendentes.js';
 import * as acoesComunicacao from '../dominio/gestao/acoes/comunicacao.js';
@@ -436,6 +448,43 @@ export class ControladorGestaoCadastros {
     idOu404(id, 'regra de prioridade');
     await noTenant(sessao.tenantId, (tx) =>
       regrasPrioridade.excluirRegraPrioridade(tx, sessao.tenantId, sessao.usuarioId, id),
+    );
+  }
+
+  /* ------------------------------------ permissões do atendente (tela própria)
+     A origem abre `attendance.desk.team.permission` como PÁGINA, com a tabela
+     "Tipo de permissão" × "Status" e "Salvar alterações"
+     (`FICHA-atendentes-filas-pausas.md` §a.4). A seleção vai por
+     `?atendentes=id,id` — a rota da origem também não tem `:id` na URL, porque
+     a página atende vários de uma vez. */
+
+  @Get('atendentes/permissoes')
+  @ComSessao()
+  permissoesDoAtendente(
+    @Req() requisicao: RequisicaoComSessao,
+    @Query('atendentes') atendentes = '',
+  ): Promise<permissoesDoAtendente.PermissoesDoAtendente> {
+    const sessao = sessaoDe(requisicao);
+    const ids = atendentes
+      .split(',')
+      .map((i) => i.trim())
+      .filter(Boolean)
+      .map((i) => idOu404(i, 'atendente'));
+    return noTenant(sessao.tenantId, (tx) =>
+      permissoesDoAtendente.carregarPermissoesDoAtendente(tx, ids),
+    );
+  }
+
+  @Patch('atendentes/permissoes')
+  @ComSessao()
+  async salvarPermissoesDoAtendente(
+    @Req() requisicao: RequisicaoComSessao,
+    @Body() corpo: permissoesDoAtendente.PedidoDePermissoes,
+  ): Promise<{ ok: true }> {
+    const sessao = sessaoDe(requisicao);
+    for (const id of corpo?.usuarioIds ?? []) idOu404(id, 'atendente');
+    return noTenant(sessao.tenantId, (tx) =>
+      permissoesDoAtendente.gravarPermissoesDoAtendente(tx, sessao.tenantId, sessao.usuarioId, corpo),
     );
   }
 
