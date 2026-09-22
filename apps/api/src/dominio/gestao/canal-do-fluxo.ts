@@ -230,3 +230,21 @@ export async function desligarCanalDoFluxo(
     depois: { canalId: null, ...(motivo ? { motivo } : {}) },
   });
 }
+
+/**
+ * Quem administra o bot pode RECONECTAR o canal DELE (token vencido), porque na
+ * origem isso se faz na página do canal dentro do bot. Devolve `true` quando o
+ * canal pedido é mesmo o daquele bot e a pessoa tem poder nele.
+ */
+export async function podeReconectarNoFluxo(
+  tx: TransacaoPipe,
+  tenantId: string,
+  usuarioId: string,
+  fluxoId: string,
+  canalId: string,
+): Promise<boolean> {
+  const atual = await fluxoVivo(tx, tenantId, fluxoId);
+  if (atual.canalId !== canalId) return false;
+  await exigirPermissaoNoFluxo(tx, usuarioId, fluxoId, CONECTAR_CANAL);
+  return true;
+}

@@ -15,7 +15,12 @@ import type { PedidoDePreferencias, PreferenciasDoCanal } from '../dominio/whats
 import type { PedidoDePerfil, PerfilVisivel } from '../dominio/whatsapp/perfil.js';
 import { ComSessao, exigirPermissao, sessaoDe } from '../sessao.js';
 import type { RequisicaoComSessao } from '../sessao.js';
-import { fluxoIdDoCorpo, ligarAoFluxo, permitidoConectar } from './conexao-no-fluxo.js';
+import {
+  fluxoIdDoCorpo,
+  ligarAoFluxo,
+  permitidoConectar,
+  permitidoReconectar,
+} from './conexao-no-fluxo.js';
 
 /**
  * A casca HTTP de "conectar o WhatsApp". A regra mora em `dominio/whatsapp/`.
@@ -130,13 +135,23 @@ export class ControladorCanais {
       app_secret?: string;
       nome?: string;
       fluxo_id?: string;
+      canal_id?: string;
     },
   ): Promise<
     CanalWhatsAppVisivel & { erroDeWebhook: string | null; webhook: { url: string; verifyToken: string } }
   > {
     const sessao = sessaoDe(requisicao);
-    const fluxoId = fluxoIdDoCorpo(corpo);
-    await permitidoConectar(sessao.tenantId, sessao.usuarioId, fluxoId);
+    /* Reconectar não liga bot nenhum — o canal já tem dono. Mas quem administra
+       o bot dono do canal pode reconectá-lo, porque na origem isso se faz na
+       página do canal DENTRO do bot. */
+    const doCorpo = fluxoIdDoCorpo(corpo);
+    const fluxoId = corpo.canal_id ? undefined : doCorpo;
+    if (corpo.canal_id) {
+      await lerCanalWhatsApp(sessao.tenantId, corpo.canal_id);
+      await permitidoReconectar(sessao.tenantId, sessao.usuarioId, doCorpo, corpo.canal_id);
+    } else {
+      await permitidoConectar(sessao.tenantId, sessao.usuarioId, fluxoId);
+    }
     const feito = await executarConfiguracaoManual({
       tenantId: sessao.tenantId,
       usuarioId: sessao.usuarioId,
@@ -145,6 +160,7 @@ export class ControladorCanais {
       token: corpo.access_token?.trim(),
       appSecret: corpo.app_secret?.trim(),
       nome: corpo.nome,
+      canalId: corpo.canal_id,
     });
     if (fluxoId) await ligarAoFluxo(sessao.tenantId, sessao.usuarioId, fluxoId, feito.canal.id);
     return {

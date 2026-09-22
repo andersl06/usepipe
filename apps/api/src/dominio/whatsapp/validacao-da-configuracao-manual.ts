@@ -45,6 +45,8 @@ export async function validarConfiguracaoManual(dados: {
   numeroId?: string | undefined;
   token?: string | undefined;
   appSecret?: string | undefined;
+  /** Reconexão: o canal que JÁ tem este número não disputa consigo mesmo. */
+  canalId?: string | undefined;
 }): Promise<PreviaDaConfiguracao> {
   // `validate_parameters!`
   if (!dados.wabaId) throw recusa('O WABA ID é obrigatório.');
@@ -84,9 +86,20 @@ export async function validarConfiguracaoManual(dados: {
 
   // `verify_uniqueness!` — global, entre clientes: papel dono, só sim ou não.
   const numero = numeroNormalizado(dadosDoNumero['display_phone_number']);
+  /* Na reconexão o dono do número é o próprio canal que está sendo reconectado:
+     ele não disputa consigo mesmo, senão trocar o token vencido seria impossível. */
+  const eu = dados.canalId ?? null;
   const { rows } = await bancoDono().execute<{ numero: boolean; id: boolean }>(sql`
-    select exists (select 1 from canal where tipo = 'whatsapp_cloud' and config->>'numero' = ${numero}) as numero,
-           exists (select 1 from canal where tipo = 'whatsapp_cloud' and numero_id = ${numeroId}) as id
+    select exists (
+             select 1 from canal
+              where tipo = 'whatsapp_cloud' and config->>'numero' = ${numero}
+                and (${eu}::uuid is null or id <> ${eu}::uuid)
+           ) as numero,
+           exists (
+             select 1 from canal
+              where tipo = 'whatsapp_cloud' and numero_id = ${numeroId}
+                and (${eu}::uuid is null or id <> ${eu}::uuid)
+           ) as id
   `);
   if (rows[0]?.numero) throw recusa('Este número de WhatsApp já está conectado a outra caixa de entrada.');
   if (rows[0]?.id) throw recusa('Este Phone Number ID já é usado por outra caixa de entrada do WhatsApp.');

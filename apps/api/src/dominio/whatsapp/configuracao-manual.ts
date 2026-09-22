@@ -3,6 +3,8 @@ import { texto, urlDoWebhook } from './canal.js';
 import { configurarWebhook } from './configuracao-de-webhook.js';
 import { criarCanal } from './criacao-de-canal.js';
 import { validarConfiguracaoManual } from './validacao-da-configuracao-manual.js';
+import { reautorizar } from './reautorizacao.js';
+import { atualizarCanal } from './canal.js';
 
 /**
  * Portado de chatwoot/chatwoot (MIT), app/services/whatsapp/manual_setup_service.rb
@@ -42,8 +44,51 @@ export async function executarConfiguracaoManual(pedido: {
   token?: string | undefined;
   appSecret?: string | undefined;
   nome?: string | undefined;
+  /**
+   * Reconexão POR CIMA do canal que já existe. Na origem o token é da
+   * plataforma e, quando ele cai, refaz-se a conexão no mesmo canal — não há
+   * botão de desconectar no WhatsApp (`FICHA-conectar-canal-no-bot.md` §5).
+   * Aqui o token é do cliente e expira; sem esta porta, trocar o token vira um
+   * beco: criar de novo esbarra no próprio número (`numero_em_uso`).
+   */
+  canalId?: string | undefined;
 }): Promise<ConfiguracaoManual> {
   const previa = await validarConfiguracaoManual(pedido);
+
+  if (pedido.canalId) {
+    const religado = await reautorizar({
+      tenantId: pedido.tenantId,
+      canalId: pedido.canalId,
+      numeroId: previa.numeroId,
+      wabaId: previa.wabaId,
+      token: pedido.token ?? '',
+      info: {
+        numeroId: previa.numeroId,
+        numero: previa.numero,
+        verificado: true,
+        nomeDaEmpresa: previa.nomeVerificado ?? previa.numero,
+      },
+    });
+    /* O App Secret é do app DO CLIENTE e pode ter mudado junto com o token —
+       sem ele a assinatura do webhook deixa de conferir. A origem volta a ser a
+       manual: `reautorizar` nasceu para o cadastro embutido. */
+    const comSegredo = await atualizarCanal(religado, {
+      origem: 'manual_setup_v2',
+      ...(pedido.appSecret ? { appSecret: pedido.appSecret } : {}),
+      ...(previa.appId ? { appId: previa.appId } : {}),
+    });
+    const webhookDele = {
+      url: urlDoWebhook(comSegredo.id),
+      verifyToken: texto(comSegredo.config['verifyToken']) ?? '',
+    };
+    try {
+      const resultado = await configurarWebhook(comSegredo, { wabaId: previa.wabaId });
+      if (resultado.erroDeRegistro) throw resultado.erroDeRegistro;
+      return { canal: resultado.canal, erroDeWebhook: null, webhook: webhookDele };
+    } catch (erro) {
+      return { canal: comSegredo, erroDeWebhook: (erro as Error).message, webhook: webhookDele };
+    }
+  }
 
   const canal = await criarCanal({
     tenantId: pedido.tenantId,

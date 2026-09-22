@@ -34,6 +34,7 @@ function CampoComRotulo({
   obrigatorio = true,
   desabilitado,
   tipo = 'text',
+  valorInicial,
 }: {
   nome: string;
   rotuloTexto: string;
@@ -41,11 +42,20 @@ function CampoComRotulo({
   obrigatorio?: boolean;
   desabilitado?: boolean;
   tipo?: string;
+  /** Na reconexão, WABA e número já são conhecidos: vêm preenchidos. */
+  valorInicial?: string | undefined;
 }) {
   return (
     <label style={rotulo}>
       <span className="sub">{rotuloTexto}</span>
-      <Campo name={nome} type={tipo} required={obrigatorio} disabled={desabilitado} autoComplete="off" />
+      <Campo
+        name={nome}
+        type={tipo}
+        required={obrigatorio}
+        disabled={desabilitado}
+        defaultValue={valorInicial}
+        autoComplete="off"
+      />
       {ajuda ? <span className="sub">{ajuda}</span> : null}
     </label>
   );
@@ -59,6 +69,14 @@ function CampoComRotulo({
  */
 interface PropsDeConexaoManual<T> {
   fluxoId?: string;
+  /**
+   * RECONECTAR este canal em vez de criar outro. O token do cliente expira, e na
+   * origem a saída é refazer a conexão no mesmo canal — não há desconectar no
+   * WhatsApp (`FICHA-conectar-canal-no-bot.md` §5).
+   */
+  canalId?: string;
+  /** Preenche o formulário com o que já se sabe do canal. */
+  valores?: { wabaId?: string; numeroId?: string };
   rotulo?: string;
   variante?: VarianteDeBotao;
   onConectado?: (canal: T) => void;
@@ -112,6 +130,8 @@ function WebhookPronto({
 
 export function ConectarWhatsappManual({
   fluxoId,
+  canalId,
+  valores,
   rotulo = 'Conectar manualmente',
   variante = 'padrao',
   onConectado,
@@ -140,6 +160,7 @@ export function ConectarWhatsappManual({
       appSecret: String(dados.get('appSecret') ?? '').trim(),
       nome: String(dados.get('nome') ?? '').trim() || undefined,
       ...(fluxoId ? { fluxoId } : {}),
+      ...(canalId ? { canalId } : {}),
     });
     setEnviando(false);
     if (!resultado.ok) {
@@ -154,7 +175,11 @@ export function ConectarWhatsappManual({
       <Botao type="button" variante={variante} onClick={() => setAberto(true)}>
         {rotulo}
       </Botao>
-      <Modal aberto={aberto} titulo="Conectar WhatsApp manualmente" onFechar={fechar}>
+      <Modal
+        aberto={aberto}
+        titulo={canalId ? 'Reconectar WhatsApp' : 'Conectar WhatsApp manualmente'}
+        onFechar={fechar}
+      >
         {sucesso ? (
           <WebhookPronto
             webhook={sucesso.webhook}
@@ -187,8 +212,12 @@ export function ConectarWhatsappManual({
               </li>
             </ol>
 
-            <CampoComRotulo nome="wabaId" rotuloTexto="WABA ID" />
-            <CampoComRotulo nome="numeroId" rotuloTexto="Phone Number ID" />
+            <CampoComRotulo nome="wabaId" rotuloTexto="WABA ID" valorInicial={valores?.wabaId} />
+            <CampoComRotulo
+              nome="numeroId"
+              rotuloTexto="Phone Number ID"
+              valorInicial={valores?.numeroId}
+            />
             <CampoComRotulo nome="token" rotuloTexto="Token de acesso (usuário de sistema)" />
             <CampoComRotulo
               nome="appSecret"
@@ -204,7 +233,7 @@ export function ConectarWhatsappManual({
                 Cancelar
               </Botao>
               <Botao type="submit" variante="primario" disabled={enviando}>
-                {enviando ? 'Conectando…' : 'Conectar'}
+                {enviando ? 'Conectando…' : canalId ? 'Reconectar' : 'Conectar'}
               </Botao>
             </div>
           </form>

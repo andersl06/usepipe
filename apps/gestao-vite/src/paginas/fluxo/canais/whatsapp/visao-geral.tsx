@@ -30,6 +30,11 @@ import type { ContextoDoCanalWhatsapp, ContextoSemCanal } from './casca';
  * bloqueio comercial não existem na Pipe: o cliente é dono do WABA dele e o
  * número não passa por container nem por saldo (FICHA §4.6).
  *
+ * "Reconectar número" é a nossa porta para o token vencido: na origem o token é
+ * da plataforma e a reconexão refaz o cadastro embutido no MESMO canal; aqui o
+ * token é do cliente e expira, e sem esta porta trocá-lo virava um beco —
+ * desconectar e cadastrar de novo esbarra no próprio número.
+ *
  * Acréscimos Pipe, ditos como tais: "Conectar manualmente" ao lado do botão
  * do Facebook (o caminho de quem não tem app aprovado na Meta) e "Desconectar
  * canal" no estado conectado — o WhatsApp atual da origem não tem esse botão
@@ -56,6 +61,13 @@ function Conectado({ fluxoId, canal, saude }: ContextoDoCanalWhatsapp) {
         <EstadoVazio titulo="Ainda não é possível usar este número" ilustracao="erro">
           <p className="sub">{rotuloDoMotivo(saude.motivo)}</p>
         </EstadoVazio>
+        <ConectarWhatsappManual
+          fluxoId={fluxoId}
+          canalId={canal.id}
+          valores={{ wabaId: saude?.wabaId ?? undefined, numeroId: saude?.numeroId ?? undefined }}
+          rotulo="Reconectar número"
+          variante="primario"
+        />
         <Botao type="button" variante="perigo" onClick={() => setDesconectando(true)}>
           Desconectar canal
         </Botao>
@@ -96,6 +108,12 @@ function Conectado({ fluxoId, canal, saude }: ContextoDoCanalWhatsapp) {
         >
           Testar no WhatsApp
         </Botao>
+        <ConectarWhatsappManual
+          fluxoId={fluxoId}
+          canalId={canal.id}
+          valores={{ wabaId: saude?.wabaId ?? undefined, numeroId: saude?.numeroId ?? undefined }}
+          rotulo="Reconectar número"
+        />
         <Botao type="button" variante="perigo" onClick={() => setDesconectando(true)}>
           Desconectar canal
         </Botao>

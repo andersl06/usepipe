@@ -44,6 +44,8 @@ export interface ConexaoManualWhatsApp {
   nome?: string;
   /** Conexão feita de dentro do bot: o canal nasce ligado a ele (`fluxo_id`). */
   fluxoId?: string;
+  /** Reconexão: troca a credencial DESTE canal em vez de criar outro. */
+  canalId?: string;
 }
 
 export interface CanalConectado<T> {
@@ -65,6 +67,7 @@ export async function conectarWhatsappManual(
       app_secret: dados.appSecret,
       ...(dados.nome ? { nome: dados.nome } : {}),
       ...(dados.fluxoId ? { fluxo_id: dados.fluxoId } : {}),
+      ...(dados.canalId ? { canal_id: dados.canalId } : {}),
     });
     atualizarLeituras();
     const { erroDeWebhook, webhook, ...canal } = resposta;

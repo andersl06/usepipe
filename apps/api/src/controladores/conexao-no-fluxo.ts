@@ -1,7 +1,11 @@
 import { noTenant } from '../banco.js';
 import { ErroPipe } from '../erros.js';
 import { exigirPermissao } from '../sessao.js';
-import { conferirQuePodeLigar, ligarCanalAoFluxo } from '../dominio/gestao/canal-do-fluxo.js';
+import {
+  conferirQuePodeLigar,
+  ligarCanalAoFluxo,
+  podeReconectarNoFluxo,
+} from '../dominio/gestao/canal-do-fluxo.js';
 
 /**
  * O `fluxo_id` opcional das conexões de canal (`POST /v1/canais/{whatsapp,
@@ -37,6 +41,23 @@ export function permitidoConectar(
   return noTenant(tenantId, async (tx) => {
     if (fluxoId) await conferirQuePodeLigar(tx, tenantId, usuarioId, fluxoId);
     else await exigirPermissao(tx, usuarioId, 'canal.gerenciar');
+  });
+}
+
+/**
+ * RECONECTAR o canal que o bot já tem (token vencido): na origem isso acontece
+ * na página do canal DENTRO do bot, então quem administra o bot basta. Só vale
+ * para o canal daquele bot — reconectar canal alheio continua sendo da conta.
+ */
+export function permitidoReconectar(
+  tenantId: string,
+  usuarioId: string,
+  fluxoId: string | undefined,
+  canalId: string,
+): Promise<void> {
+  return noTenant(tenantId, async (tx) => {
+    if (fluxoId && (await podeReconectarNoFluxo(tx, tenantId, usuarioId, fluxoId, canalId))) return;
+    await exigirPermissao(tx, usuarioId, 'canal.gerenciar');
   });
 }
 

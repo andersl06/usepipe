@@ -462,3 +462,74 @@ describe('ligado o roteador ao número, a mensagem que chega nele cai no roteado
     expect((await desligar(sessaoEditor, roteadorId)).status).toBe(204);
   });
 });
+
+/* ---------------------------------------- Reconectar por cima, sem desconectar */
+
+describe('reconexão manual do mesmo número', () => {
+  const appSecret = 'b'.repeat(32);
+
+  /**
+   * O token do cliente expira, e na origem a saída é refazer a conexão no mesmo
+   * canal — não há desconectar no WhatsApp (`FICHA-conectar-canal-no-bot.md`
+   * §5). Sem `canal_id`, trocar o token ficava num beco: criar de novo esbarra
+   * no próprio número.
+   */
+  it('com canal_id troca a credencial do canal que já existe, em vez de recusar por número em uso', async () => {
+    const fluxoId = await novoFluxo(a, 'fluxo');
+    const numeroId = ClienteGraphDuble.sufixo(`reconecta-${fluxoId}`);
+    const corpo = {
+      waba_id: 'waba-do-bot',
+      phone_number_id: numeroId,
+      access_token: `manual-${numeroId}`,
+      app_secret: appSecret,
+      fluxo_id: fluxoId,
+    };
+    const criado = await chamar(sessaoEditor, 'POST', '/v1/canais/whatsapp/manual', corpo);
+    expect(criado.status).toBe(201);
+    const canalId = criado.corpo['id'] as string;
+
+    /* Sem `canal_id`: é o beco que o dono encontrou — o número já é de um canal.
+       Fora do bot quem manda é `canal.gerenciar`, daí a sessão própria. */
+    const sessaoDeCanal = await abrirSessao(a, await pessoaCom(a, ['canal.gerenciar']));
+    const { fluxo_id: _semBot, ...semBot } = corpo;
+    const repetido = await chamar(sessaoDeCanal, 'POST', '/v1/canais/whatsapp/manual', semBot);
+    expect(repetido.status).toBe(422);
+    expect(codigo(repetido)).toBe('configuracao_invalida');
+
+    /* O duble da Meta casa token com número, então o token de teste é o mesmo;
+       o que prova a troca é o App Secret novo gravado no canal. */
+    const novoSegredo = 'c'.repeat(32);
+    const refeito = await chamar(sessaoEditor, 'POST', '/v1/canais/whatsapp/manual', {
+      ...corpo,
+      app_secret: novoSegredo,
+      canal_id: canalId,
+    });
+    expect(refeito.status).toBe(201);
+    expect(refeito.corpo['id']).toBe(canalId);
+    /* O canal continua ligado ao mesmo bot e não nasceu um segundo. */
+    expect(await canalDoBanco(fluxoId)).toBe(canalId);
+    const { rows } = await a.dono.execute<{ n: string }>(
+      sql`select count(*)::text as n from canal where tenant_id = ${a.tenantId}::uuid and numero_id = ${numeroId}`,
+    );
+    expect(Number(rows[0]!.n)).toBe(1);
+
+    const { rows: guardado } = await a.dono.execute<{ segredo: string }>(
+      sql`select config->>'appSecret' as segredo from canal where id = ${canalId}::uuid`,
+    );
+    /* Cifrado no banco: o que importa é ter MUDADO, não o valor em claro. */
+    expect(guardado[0]!.segredo).toBeTruthy();
+    expect(guardado[0]!.segredo).not.toBe(appSecret);
+  });
+
+  it('canal de outro tenant não se reconecta por aqui', async () => {
+    const alheio = await novoCanal(b);
+    const resposta = await chamar(sessaoEditor, 'POST', '/v1/canais/whatsapp/manual', {
+      waba_id: 'waba-do-bot',
+      phone_number_id: ClienteGraphDuble.sufixo('alheio'),
+      access_token: 'manual-alheio',
+      app_secret: appSecret,
+      canal_id: alheio,
+    });
+    expect(resposta.status).toBe(404);
+  });
+});
