@@ -36,6 +36,26 @@ export interface Catalogos {
 /** Teto de linhas: o histórico é uma tela de consulta, não de exportação. */
 export const LIMITE_HISTORICO = 200;
 
+/** Descarta seleções que não pertencem mais ao resultado visível. */
+export function reconciliarMarcados(
+  marcados: ReadonlySet<string>,
+  idsVisiveis: readonly string[],
+): ReadonlySet<string> {
+  const visiveis = new Set(idsVisiveis);
+  if ([...marcados].every((id) => visiveis.has(id))) return marcados;
+  return new Set([...marcados].filter((id) => visiveis.has(id)));
+}
+
+/** Selecionar todos atua apenas sobre a lista corrente, inclusive após mudar filtros. */
+export function alternarTodosVisiveis(
+  marcados: ReadonlySet<string>,
+  idsVisiveis: readonly string[],
+): ReadonlySet<string> {
+  const atuais = reconciliarMarcados(marcados, idsVisiveis);
+  if (idsVisiveis.length === 0 || idsVisiveis.every((id) => atuais.has(id))) return new Set();
+  return new Set(idsVisiveis);
+}
+
 /**
  * Agrupamento da lista — o lugar onde "relatório" mora agora.
  *

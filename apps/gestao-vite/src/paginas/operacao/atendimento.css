@@ -35,6 +35,194 @@
   background: var(--ground);
 }
 
+/* Geometria da lista de Histórico; cartões com etiquetas podem crescer. */
+.hist-resultados .lista-cartoes {
+  gap: 8px;
+}
+
+.hist-resultados .cartao-lista {
+  min-height: 88px;
+  padding: 20px;
+  border-radius: 16px;
+}
+
+.hist-resultados .cl-campo .r {
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.hist-resultados .cl-campo .v,
+.hist-resultados .cl-campo .v.num {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 24px;
+}
+
+.hist-resultados .cl-campo .v.id {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.hist-resultados .cl-sel {
+  min-width: 40px;
+  min-height: 40px;
+}
+
+.hist-resultados .cl-sel input,
+.hist-resultados .barra-selecao input {
+  width: 18px;
+  height: 18px;
+}
+
+.hist-resultados .hist-agrupar select {
+  height: 40px;
+}
+
+/* Filtros rápidos exclusivos do Atendimento: uma caixa por pílula. */
+.at-filtro {
+  position: relative;
+  flex: none;
+}
+
+.at-filtro-gatilho {
+  max-width: 260px;
+}
+
+.at-filtro-gatilho:focus-visible,
+.at-filtro-popover button:focus-visible,
+.at-filtro-popover input:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+
+.at-filtro-popover {
+  position: absolute;
+  z-index: 30;
+  top: calc(100% + 6px);
+  left: 0;
+  width: max-content;
+  min-width: 230px;
+  max-width: min(320px, calc(100vw - 32px));
+  padding: 8px;
+  border: 1px solid var(--p-superficie-2);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  box-shadow: var(--p-sombra-2);
+  color: var(--p-conteudo);
+}
+
+.at-filtro-opcoes {
+  display: grid;
+  max-height: 280px;
+  overflow-y: auto;
+}
+
+.at-filtro-opcoes button {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: var(--p-r-md);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.at-filtro-opcoes button:hover,
+.at-filtro-opcoes button[aria-pressed='true'] {
+  background: var(--p-marca-suave);
+  color: var(--p-marca-forte);
+}
+
+.at-filtro-popover form {
+  display: grid;
+  gap: 8px;
+  font-size: var(--g-t-item);
+}
+
+.at-filtro-popover label {
+  font-weight: var(--g-peso-negrito);
+}
+
+.at-filtro-popover input[type='search'] {
+  width: 100%;
+  height: 40px;
+  padding: 8px;
+  border: 1px solid var(--p-conteudo);
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-0);
+  color: var(--p-conteudo);
+  font: inherit;
+}
+
+.at-filtro-acoes {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+}
+
+.at-filtro-acoes button {
+  min-width: 0;
+  min-height: 40px;
+  font: inherit;
+  cursor: pointer;
+}
+
+.at-filtro-acoes button:not(.btn) {
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+}
+
+/* O esqueleto usa a grade, os cartões e os controles da leitura pronta. */
+.mon-carregando .mon > .card {
+  min-height: 166px;
+}
+
+.mon-esqueletico {
+  display: block;
+  border-radius: var(--p-r-md);
+  background: var(--p-superficie-2);
+  animation: mon-pulsar 1.4s ease-in-out infinite alternate;
+}
+
+.mon-carregando .board-head .filters { margin-left: auto; }
+.mon-esqueletico.icone { width: 40px; height: 40px; }
+.mon-esqueletico.pilula { width: 130px; height: 40px; }
+.mon-esqueletico.pilula.larga { width: 166px; }
+.mon-esqueletico.botao { width: 130px; height: 40px; }
+.mon-metrica-carregando { flex: 1 1 0; }
+.mon-metrica-carregando .valor { width: 75%; height: var(--g-t-valor); }
+.mon-metrica-carregando .rotulo { width: 100%; height: calc(var(--g-lh-rotulo) + var(--g-lh-rotulo)); margin-top: 10px; }
+.mon-carregando .tblhead .busca { margin-left: auto; flex: 1 1 auto; max-width: 410px; height: 42px; }
+.mon-abas-carregando { display: flex; overflow: hidden; }
+.mon-abas-carregando .aba { flex: 0 1 110px; height: 48px; margin-right: var(--p-e-2); }
+.mon-tabela-carregando { margin-top: 10px; }
+.mon-tabela-linha { display: grid; grid-template-columns: repeat(5, minmax(100px, 1fr)); align-items: center; gap: var(--p-e-4); min-width: 680px; min-height: 58px; padding: 0 var(--p-e-4); border-bottom: 1px solid var(--p-linha-media); }
+.mon-tabela-linha:first-child { min-height: 64px; }
+.mon-tabela-linha .celula { width: 75%; height: var(--g-lh-rotulo); }
+.mon-tabela-linha .celula:nth-child(2n) { width: 90%; }
+.mon-erro { min-height: 180px; }
+.mon-erro p { color: var(--p-conteudo-desabilitado); }
+
+@media (max-width: 700px) {
+  .mon-carregando .tblhead { flex-wrap: wrap; }
+  .mon-carregando .tblhead .busca { flex-basis: 100%; max-width: none; }
+}
+
+@keyframes mon-pulsar {
+  from { opacity: 0.55; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mon-esqueletico { animation: none; }
+}
+
 @media (max-width: 900px) {
   .at-casca {
     flex-direction: column;

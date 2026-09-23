@@ -137,6 +137,78 @@ function TicketsAbertosPorHora({ horas }: { horas: readonly number[] }) {
   );
 }
 
+function MetricaCarregando() {
+  return (
+    <div className="metric mon-metrica-carregando">
+      <span className="mon-esqueletico valor" />
+      <span className="mon-esqueletico rotulo" />
+    </div>
+  );
+}
+
+function CartaoCarregando({ titulo, quantidade, dividido = false }: {
+  titulo: string;
+  quantidade: number;
+  dividido?: boolean;
+}) {
+  return (
+    <div className="card">
+      <div className="card-cabecalho"><h3>{titulo}</h3></div>
+      <div className="metrics">
+        {dividido ? (
+          <>
+            <div className="metrics-grupo estreito"><MetricaCarregando /><MetricaCarregando /></div>
+            <div className="metrics-grupo largo"><MetricaCarregando /><MetricaCarregando /><MetricaCarregando /></div>
+          </>
+        ) : Array.from({ length: quantidade }, (_, indice) => <MetricaCarregando key={indice} />)}
+      </div>
+    </div>
+  );
+}
+
+function MonitoramentoCarregando() {
+  return (
+    <div className="mon-pagina mon-carregando" role="status" aria-label="Carregando monitoramento">
+      <div className="board-head">
+        <h2>Monitoramento</h2>
+        <div className="filters" aria-hidden="true">
+          <span className="mon-esqueletico icone" /><span className="mon-esqueletico icone" />
+        </div>
+      </div>
+      <div className="faixa-filtros" aria-hidden="true">
+        <span className="lbl">Filtros rápidos:</span><span className="mon-esqueletico pilula" />
+        <div className="faixa-fim"><span className="mon-esqueletico botao" /></div>
+      </div>
+      <div className="mon" aria-hidden="true">
+        <CartaoCarregando titulo="Atendimentos em tempo real" quantidade={5} dividido />
+        <CartaoCarregando titulo="Status dos atendentes" quantidade={3} />
+        <CartaoCarregando titulo="Atendimento hoje" quantidade={4} />
+        <CartaoCarregando titulo="Status dos tickets hoje" quantidade={4} />
+      </div>
+      <div className="faixa-filtros" aria-hidden="true">
+        <span className="lbl">Filtros rápidos:</span>
+        <span className="mon-esqueletico pilula" /><span className="mon-esqueletico pilula" /><span className="mon-esqueletico pilula larga" />
+        <div className="faixa-fim"><span className="mon-esqueletico botao" /></div>
+      </div>
+      <div className="tblwrap" aria-hidden="true">
+        <div className="tblhead">
+          <h3>Monitoramento detalhado</h3>
+          <span className="mon-esqueletico busca" />
+        </div>
+        <div className="tabs mon-abas-carregando">
+          {Array.from({ length: 5 }, (_, indice) => <span className="mon-esqueletico aba" key={indice} />)}
+        </div>
+        <div className="scroll mon-tabela-carregando">
+          {Array.from({ length: 4 }, (_, indice) => <div className="mon-tabela-linha" key={indice}>
+            {Array.from({ length: 5 }, (_, coluna) => <span className="mon-esqueletico celula" key={coluna} />)}
+          </div>)}
+        </div>
+      </div>
+      <span className="sr-only">Carregando dados do monitoramento.</span>
+    </div>
+  );
+}
+
 /**
  * Monitoramento — a mesma disposição da tela deles, lida em
  * `docs/capturas/blip/dom/monitoring.html` (e confirmada na captura real,
@@ -183,7 +255,19 @@ export function PaginaMonitoramento() {
   });
   useRecargaSilenciosa(30);
 
-  if (!leitura.data) return null;
+  if (!leitura.data && leitura.isError) {
+    return (
+      <div className="mon-pagina">
+        <div className="board-head"><h2>Monitoramento</h2></div>
+        <div className="card mon-erro" role="alert">
+          <h3>Não foi possível carregar o monitoramento</h3>
+          <p>Verifique a conexão e tente novamente.</p>
+          <button type="button" className="btn" onClick={() => void leitura.refetch()}>Tentar novamente</button>
+        </div>
+      </div>
+    );
+  }
+  if (!leitura.data) return <MonitoramentoCarregando />;
   const { dados: m } = leitura.data;
   const { tempoReal, atendentes, hoje } = m;
 
@@ -202,7 +286,6 @@ export function PaginaMonitoramento() {
       <FiltrosDaOperacao
         filas={m.filas}
         atual={params}
-        base={base}
         aoAbrirPainel={() => setPainelAberto(true)}
       />
 
@@ -348,7 +431,6 @@ export function PaginaMonitoramento() {
           <FiltrosDaLista
             atendentes={m.listaAtendentes}
             atual={params}
-            base={base}
             aoAbrirPainel={() => setPainelAberto(true)}
           />
 

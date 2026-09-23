@@ -13,10 +13,9 @@ import { memo } from 'react';
  * rótulo pequeno acima do valor forte. A cor sai dos `--p-*`, e nenhum hex
  * deles entra aqui.
  *
- * A seleção é CONTROLADA pela página (`PaginaHistorico`): o botão "Enviar por
- * e-mail" do cabeçalho — `data-testid="bnt-export-ticket"` deles,
- * `FICHA-history.md` §5 — precisa saber se há seleção para acender, e ele mora
- * fora deste componente. Aqui fica só "Selecionar todos" e a contagem.
+ * A seleção é controlada pela página (`PaginaHistorico`): a exportação em CSV
+ * precisa saber se há seleção para acender, e mora fora deste componente.
+ * Aqui ficam "Selecionar todos" e a contagem dos cartões visíveis.
  */
 
 export interface CartaoHistorico {

@@ -60,6 +60,22 @@ async function periodo(
   return { de: deFinal, ate: ateFinal, janela: await janelaDeDatas(tx, fuso, deFinal, ateFinal) };
 }
 
+/** Apenas o Histórico conta 30 datas civis, inclusive em mudança de fuso/DST. */
+async function periodoHistorico(
+  tx: TransacaoPipe,
+  fuso: string,
+  de: string | undefined,
+  ate: string | undefined,
+): Promise<{ de: string; ate: string; janela: { inicio: Date; fim: Date } }> {
+  const hoje = await janelaDeHoje(tx, fuso);
+  const hojeLocal = dataIso(hoje.inicio, fuso);
+  const ateFinal = ate || hojeLocal;
+  const dia = new Date(`${hojeLocal}T00:00:00.000Z`);
+  dia.setUTCDate(dia.getUTCDate() - 29);
+  const deFinal = de || dia.toISOString().slice(0, 10);
+  return { de: deFinal, ate: ateFinal, janela: await janelaDeDatas(tx, fuso, deFinal, ateFinal) };
+}
+
 export interface RespostaDoMonitoramento {
   fuso: string;
   /** O dia de hoje no fuso da conta, para o título. */
@@ -221,7 +237,7 @@ export class ControladorGestaoOperacao {
     const sessao = sessaoDe(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
       const fuso = await fusoDoTenant(tx);
-      const p = await periodo(tx, fuso, dataOuNada(de), dataOuNada(ate), 7);
+      const p = await periodoHistorico(tx, fuso, dataOuNada(de), dataOuNada(ate));
       const catalogos = await carregarCatalogos(tx);
       const { linhas, truncado } = await carregarHistorico(tx, p.janela, {
         filaId: uuidOuNada(fila),

@@ -1,6 +1,12 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { AGRUPAMENTOS, agrupamentoValido, agruparHistorico } from '../src/lib/historico.ts';
+import {
+  AGRUPAMENTOS,
+  agrupamentoValido,
+  agruparHistorico,
+  alternarTodosVisiveis,
+  reconciliarMarcados,
+} from '../src/lib/historico.ts';
 import type { LinhaHistorico } from '../src/lib/historico.ts';
 import { ticketDe } from '../src/lib/monitoramento.ts';
 
@@ -112,6 +118,21 @@ test('agrupar não mexe na lista que recebeu', () => {
   const linhas = [linha(), linha({ id: 'b' })];
   agruparHistorico(linhas, 'fila');
   assert.equal(linhas.length, 2);
+});
+
+test('seleção descarta IDs ausentes da lista visível sem alterar a entrada', () => {
+  const original = new Set(['a', 'b', 'c']);
+  const atual = reconciliarMarcados(original, ['b', 'd']);
+  assert.deepEqual([...atual], ['b']);
+  assert.deepEqual([...original], ['a', 'b', 'c']);
+  assert.equal(reconciliarMarcados(atual, ['b', 'd']), atual);
+});
+
+test('selecionar todos considera somente resultados visíveis', () => {
+  const filtrados = ['b', 'd'];
+  assert.deepEqual([...alternarTodosVisiveis(new Set(['a', 'b']), filtrados)], filtrados);
+  assert.deepEqual([...alternarTodosVisiveis(new Set(['a', 'b', 'd']), filtrados)], []);
+  assert.deepEqual([...alternarTodosVisiveis(new Set(['a']), [])], []);
 });
 
 test('o ticket sai dos últimos seis do uuid, em maiúsculas e sem hífen', () => {

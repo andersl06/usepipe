@@ -1,9 +1,11 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   AGRUPAMENTOS,
   agrupamentoValido,
   agruparHistorico,
+  alternarTodosVisiveis,
   LIMITE_HISTORICO,
+  reconciliarMarcados,
   type Catalogos,
   type LinhaHistorico,
 } from '../../lib/historico';
@@ -90,8 +92,8 @@ function CamposEscondidos({ atual, exceto }: { atual: Busca; exceto: readonly st
 
 /**
  * Histórico — a mesma disposição da tela deles, medida em
- * `docs/capturas/blip/dom/FICHA-history.md`: cabeçalho com "Enviar por
- * e-mail", faixa "Filtros rápidos:" com os três atalhos e o período à
+ * `docs/capturas/blip/dom/FICHA-history.md`: cabeçalho com a ação de exportar
+ * CSV disponível, faixa "Filtros rápidos:" com os três atalhos e o período à
  * direita, painel lateral de filtros fechado por padrão, e a área de
  * resultados — vazia com o texto e a ilustração deles, ou a nossa LISTA DE
  * CARTÕES quando há conversa.
@@ -203,10 +205,37 @@ export function PaginaHistorico() {
     for (const g of grupos) for (const c of g.cartoes) vistos.set(c.id, c);
     return [...vistos.values()];
   }, [grupos]);
-  const selecionados = todos.filter((c) => marcados.has(c.id));
+  const idsVisiveis = useMemo(() => todos.map((c) => c.id), [todos]);
+  const marcadosVisiveis = reconciliarMarcados(marcados, idsVisiveis);
+  const selecionados = todos.filter((c) => marcadosVisiveis.has(c.id));
 
-  if (!dados) return null;
-  /* Padrão (na `api`): os últimos sete dias, incluindo hoje. */
+  useEffect(() => {
+    setMarcados((atual) => reconciliarMarcados(atual, idsVisiveis));
+  }, [idsVisiveis]);
+
+  if (!dados && leitura.isError) {
+    return (
+      <div className="hist-pagina">
+        <div className="board-head"><h2>Histórico</h2></div>
+        <div className="card hist-erro" role="alert">
+          <h3>Não foi possível carregar o histórico</h3>
+          <p>Verifique a conexão e tente novamente.</p>
+          <button type="button" className="btn" onClick={() => void leitura.refetch()}>
+            Tentar novamente
+          </button>
+        </div>
+      </div>
+    );
+  }
+  if (!dados) {
+    return (
+      <div className="hist-pagina" role="status" aria-label="Carregando histórico">
+        <div className="board-head"><h2>Histórico</h2></div>
+        <div className="card hist-carregando">Carregando histórico…</div>
+      </div>
+    );
+  }
+  /* Padrão (na `api`): os últimos trinta dias, incluindo hoje. */
   const { fuso, de, ate, catalogos, truncado } = dados;
 
   /* Período sempre existe; fila, atendente, etiqueta, ticket e contato são o
@@ -222,17 +251,15 @@ export function PaginaHistorico() {
       <div className="board-head">
         <h2>Histórico</h2>
         <div className="filters">
-          {/* `bds-button icon="email" variant="primary" disabled` —
-              `dom/history.html`: botão PRIMÁRIO, com o envelope de 24,
-              apagado enquanto não há seleção. */}
+          {/* A ação disponível baixa o CSV das conversas selecionadas. */}
           <button
             type="button"
             className="btn primario"
             disabled={selecionados.length === 0}
             onClick={() => baixarCsv(selecionados)}
           >
-            <IconeGestao nome="email" tamanho={24} />
-            Enviar por e-mail
+            <IconeGestao nome="baixar" tamanho={24} />
+            Exportar CSV
           </button>
         </div>
       </div>
@@ -404,12 +431,10 @@ export function PaginaHistorico() {
             <ListaHistorico
               grupos={grupos}
               todos={todos}
-              marcados={marcados}
+              marcados={marcadosVisiveis}
               aoAlternar={aoAlternar}
               aoAlternarTodos={() =>
-                setMarcados(
-                  marcados.size === todos.length ? new Set() : new Set(todos.map((c) => c.id)),
-                )
+                setMarcados((atual) => alternarTodosVisiveis(atual, idsVisiveis))
               }
             />
           </>
