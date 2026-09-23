@@ -340,6 +340,8 @@ function maiorDe(valores: readonly (number | null)[]): number | null {
 export interface FiltroMonitoramento {
   filaId?: string | undefined;
   atendenteId?: string | undefined;
+  filaIds?: string[];
+  atendenteIds?: string[];
 }
 
 /**
@@ -382,8 +384,8 @@ export async function carregarMonitoramento(
     // Filtro rápido: entra no `where` das duas populações (abertas e encerradas),
     // para os cartões e a tabela nunca discordarem sobre o que está sendo olhado.
     const recorte = [
-      filtro.filaId ? eq(conversa.filaId, filtro.filaId) : undefined,
-      filtro.atendenteId ? eq(conversa.atendenteId, filtro.atendenteId) : undefined,
+      filtro.filaIds?.length ? inArray(conversa.filaId, filtro.filaIds) : filtro.filaId ? eq(conversa.filaId, filtro.filaId) : undefined,
+      filtro.atendenteIds?.length ? inArray(conversa.atendenteId, filtro.atendenteIds) : filtro.atendenteId ? eq(conversa.atendenteId, filtro.atendenteId) : undefined,
     ].filter((c) => c !== undefined);
 
     // ---- 1. conversas ainda abertas -------------------------------------

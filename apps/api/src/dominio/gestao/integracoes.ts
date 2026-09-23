@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import { cifrar, diferenca, registrarAuditoria } from '@pipe/db';
 import type { Ator, TransacaoPipe } from '@pipe/db';
-import { chaveApi, webhookSaida } from '@pipe/db/schema';
+import { chaveApi, usuario, webhookSaida } from '@pipe/db/schema';
 import { TIPOS_AUTENTICACAO_WEBHOOK } from '@pipe/db/schema';
 import { ErroPipe } from '../../erros.js';
 import { exigirPermissao } from '../../sessao.js';
@@ -15,7 +15,11 @@ import {
   cabecalhosDeSaida,
   decifrarSegredoDeWebhook,
 } from '../../webhooks-saida.js';
-import type { CabecalhoCustomizado, EventoWebhook, TipoAutenticacaoWebhook } from '../../webhooks-saida.js';
+import type {
+  CabecalhoCustomizado,
+  EventoWebhook,
+  TipoAutenticacaoWebhook,
+} from '../../webhooks-saida.js';
 import { chamarComMtls } from '../mtls.js';
 import { EDITAR_FLUXO } from './ciclo-de-vida-do-fluxo.js';
 
@@ -89,6 +93,7 @@ export interface ChaveDeFluxo {
   criadaEm: string;
   ultimoUsoEm: string | null;
   revogadaEm: string | null;
+  requisitante: string | null;
 }
 
 export interface ChaveDeFluxoCriada extends ChaveDeFluxo {
@@ -104,6 +109,7 @@ type LinhaChave = {
   criadoEm: Date;
   ultimoUsoEm: Date | null;
   revogadaEm: Date | null;
+  requisitante?: string | null;
 };
 
 function comoChave(linha: LinhaChave): ChaveDeFluxo {
@@ -115,6 +121,7 @@ function comoChave(linha: LinhaChave): ChaveDeFluxo {
     criadaEm: linha.criadoEm.toISOString(),
     ultimoUsoEm: linha.ultimoUsoEm?.toISOString() ?? null,
     revogadaEm: linha.revogadaEm?.toISOString() ?? null,
+    requisitante: linha.requisitante ?? null,
   };
 }
 
@@ -128,6 +135,8 @@ const COLUNAS_CHAVE = {
   revogadaEm: chaveApi.revogadaEm,
 };
 
+const COLUNAS_CHAVE_LISTA = { ...COLUNAS_CHAVE, requisitante: usuario.nome };
+
 /** As chaves DESTE fluxo — nunca as de conta (`fluxo_id is null`). */
 export async function listarChavesDoFluxo(
   tx: TransacaoPipe,
@@ -138,9 +147,16 @@ export async function listarChavesDoFluxo(
   await exigirPermissao(tx, usuarioId, GERENCIAR_CHAVE);
   await fluxoExiste(tx, tenantId, fluxoId);
   const linhas = await tx
-    .select(COLUNAS_CHAVE)
+    .select(COLUNAS_CHAVE_LISTA)
     .from(chaveApi)
-    .where(and(eq(chaveApi.tenantId, tenantId), eq(chaveApi.fluxoId, fluxoId)))
+    .leftJoin(usuario, eq(chaveApi.criadaPor, usuario.id))
+    .where(
+      and(
+        eq(chaveApi.tenantId, tenantId),
+        eq(chaveApi.fluxoId, fluxoId),
+        isNull(chaveApi.revogadaEm),
+      ),
+    )
     .orderBy(desc(chaveApi.criadoEm));
   return linhas.map(comoChave);
 }
@@ -166,13 +182,12 @@ export async function criarChaveDoFluxo(
 
   const { rows: contagem } = await tx.execute<{ n: string }>(sql`
     select count(*)::text as n from chave_api
-     where tenant_id = ${tenantId} and fluxo_id = ${fluxoId}::uuid
+     where tenant_id = ${tenantId}
+       and fluxo_id = ${fluxoId}::uuid
+       and revogada_em is null
   `);
   if (Number(contagem[0]?.n ?? 0) >= LIMITE_DE_CHAVES) {
-    throw ErroPipe.requisicao(
-      'limite_de_chaves',
-      `Limite de ${LIMITE_DE_CHAVES} chaves atingido`,
-    );
+    throw ErroPipe.requisicao('limite_de_chaves', `Limite de ${LIMITE_DE_CHAVES} chaves atingido`);
   }
 
   const prefixo = randomBytes(6).toString('hex');
@@ -467,7 +482,8 @@ function autenticacaoConferida(valor: unknown): AutenticacaoWebhookEntrada {
   }
 
   if (tipo === 'oauth2_client_credentials') {
-    const urlAutorizacao = typeof bruto['urlAutorizacao'] === 'string' ? bruto['urlAutorizacao'] : '';
+    const urlAutorizacao =
+      typeof bruto['urlAutorizacao'] === 'string' ? bruto['urlAutorizacao'] : '';
     const clientId = typeof bruto['clientId'] === 'string' ? bruto['clientId'].trim() : '';
     const clientSecret = typeof bruto['clientSecret'] === 'string' ? bruto['clientSecret'] : '';
     if (!urlAutorizacao || !clientId || !clientSecret) {
@@ -492,7 +508,8 @@ function colunasDeAutenticacao(autenticacao: AutenticacaoWebhookEntrada) {
       autenticacao.tipo === 'basica' ? cifrar(autenticacao.senha!, chaveiro()) : null,
     oauth2UrlAutorizacao:
       autenticacao.tipo === 'oauth2_client_credentials' ? autenticacao.urlAutorizacao! : null,
-    oauth2ClientId: autenticacao.tipo === 'oauth2_client_credentials' ? autenticacao.clientId! : null,
+    oauth2ClientId:
+      autenticacao.tipo === 'oauth2_client_credentials' ? autenticacao.clientId! : null,
     oauth2ClientSecret:
       autenticacao.tipo === 'oauth2_client_credentials'
         ? cifrar(autenticacao.clientSecret!, chaveiro())
@@ -501,13 +518,18 @@ function colunasDeAutenticacao(autenticacao: AutenticacaoWebhookEntrada) {
 }
 
 /** O que entra no log de auditoria — nunca `senha`/`clientSecret`, nem cifrados. */
-function autenticacaoParaAuditoria(autenticacao: AutenticacaoWebhookEntrada): AutenticacaoWebhookVisivel {
+function autenticacaoParaAuditoria(
+  autenticacao: AutenticacaoWebhookEntrada,
+): AutenticacaoWebhookVisivel {
   return {
     tipo: autenticacao.tipo,
     usuario: autenticacao.tipo === 'basica' ? (autenticacao.usuario ?? null) : null,
     urlAutorizacao:
-      autenticacao.tipo === 'oauth2_client_credentials' ? (autenticacao.urlAutorizacao ?? null) : null,
-    clientId: autenticacao.tipo === 'oauth2_client_credentials' ? (autenticacao.clientId ?? null) : null,
+      autenticacao.tipo === 'oauth2_client_credentials'
+        ? (autenticacao.urlAutorizacao ?? null)
+        : null,
+    clientId:
+      autenticacao.tipo === 'oauth2_client_credentials' ? (autenticacao.clientId ?? null) : null,
   };
 }
 
@@ -584,7 +606,11 @@ async function webhookVivo(
   tenantId: string,
   id: string,
 ): Promise<
-  WebhookDeSaida & { segredo: string; autenticacaoSenha: string | null; oauth2ClientSecret: string | null }
+  WebhookDeSaida & {
+    segredo: string;
+    autenticacaoSenha: string | null;
+    oauth2ClientSecret: string | null;
+  }
 > {
   const [atual] = await tx
     .select({
@@ -773,7 +799,12 @@ export async function testarWebhook(
       .then((texto) => texto.slice(0, LIMITE_CORPO_DO_TESTE));
     return resposta.ok
       ? { ok: true, status: resposta.status, corpo: corpoDaResposta }
-      : { ok: false, status: resposta.status, erro: `HTTP ${resposta.status}`, corpo: corpoDaResposta };
+      : {
+          ok: false,
+          status: resposta.status,
+          erro: `HTTP ${resposta.status}`,
+          corpo: corpoDaResposta,
+        };
   } catch (falha) {
     return { ok: false, erro: (falha as Error).message };
   }

@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type HTMLInputTypeAttribute, type ReactNode } from 'react';
 import { IconePortal, type NomeDeIconePortal } from '../../../componentes/icones-portal';
 
 /**
@@ -131,6 +131,7 @@ export function CampoBds({
   placeholder,
   desabilitado,
   senha,
+  tipo = 'text',
   obrigatorio,
   maxLength,
   contador,
@@ -143,12 +144,15 @@ export function CampoBds({
   placeholder?: string;
   desabilitado?: boolean;
   senha?: boolean;
+  tipo?: HTMLInputTypeAttribute;
   obrigatorio?: boolean;
   maxLength?: number;
   contador?: boolean;
   /** `bds-textarea`: mesma caixa do `bds-input`, só que com `<textarea>` dentro. */
   linhas?: number;
 }) {
+  const [senhaVisivel, setSenhaVisivel] = useState(false);
+
   return (
     <label className={desabilitado ? 'cf-campo cf-campo--desabilitado' : 'cf-campo'}>
       <span className="cf-campo-cabecalho">
@@ -172,7 +176,7 @@ export function CampoBds({
         ) : (
           <input
             id={id}
-            type={senha ? 'password' : 'text'}
+            type={senha && !senhaVisivel ? 'password' : tipo}
             value={valor}
             onChange={(evento) => aoMudar?.(evento.target.value)}
             placeholder={placeholder}
@@ -184,9 +188,15 @@ export function CampoBds({
           />
         )}
         {senha ? (
-          <span className="cf-campo-olho" aria-hidden="true">
+          <button
+            type="button"
+            className="cf-campo-olho"
+            aria-label={senhaVisivel ? `Ocultar ${rotulo}` : `Mostrar ${rotulo}`}
+            aria-pressed={senhaVisivel}
+            onClick={() => setSenhaVisivel((visivel) => !visivel)}
+          >
             <IconePortal nome="olho" tamanho={20} />
-          </span>
+          </button>
         ) : null}
       </span>
     </label>

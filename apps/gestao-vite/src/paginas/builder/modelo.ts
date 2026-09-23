@@ -138,6 +138,9 @@ export const gerarId = (): string => crypto.randomUUID();
 
 const copiar = <T>(valor: T): T => JSON.parse(JSON.stringify(valor)) as T;
 
+/** Formato privado para copiar blocos entre pontos do mesmo Builder. */
+const MARCADOR_DE_AREA_DE_TRANSFERENCIA = 'pipe-builder:block/v1:';
+
 export const ehAtendimento = (id: string): boolean => id.startsWith(PREFIXO_DO_ATENDIMENTO);
 
 const px = (valor: string | undefined, padrao: number): number => {
@@ -337,21 +340,50 @@ export function substituirBloco(mapa: Mapa, bloco: Bloco): Mapa {
 }
 
 /** "Duplicar" do menu de contexto: cópia com id novo, "[Cópia]" no título, 20px ao lado. */
-export function duplicarBloco(mapa: Mapa, id: string, novoId = gerarId()): Mapa {
-  const origem = mapa[id];
-  if (!origem) return mapa;
+function copiaDoBloco(origem: Bloco, posicao: Posicao, novoId = gerarId()): Bloco {
   const copia = copiar(origem);
-  const posicao = posicaoDe(origem);
-  copia.id = ehAtendimento(id) ? `${PREFIXO_DO_ATENDIMENTO}${novoId}` : novoId;
+  copia.id = ehAtendimento(origem.id) ? `${PREFIXO_DO_ATENDIMENTO}${novoId}` : novoId;
   copia.root = false;
   copia.$title = `${origem.$title ?? TITULO_PADRAO} [Cópia]`;
-  copia.$position = posicaoComoTexto({ top: posicao.top + 20, left: posicao.left + 20 });
+  copia.$position = posicaoComoTexto(posicao);
   for (const saida of copia.$conditionOutputs ?? []) {
     delete saida.$id;
     delete saida.$connId;
-    if (saida.stateId === id) saida.stateId = copia.id;
+    if (saida.stateId === origem.id) saida.stateId = copia.id;
   }
-  if (copia.$defaultOutput?.stateId === id) copia.$defaultOutput = { ...copia.$defaultOutput, stateId: copia.id };
+  if (copia.$defaultOutput?.stateId === origem.id) {
+    copia.$defaultOutput = { ...copia.$defaultOutput, stateId: copia.id };
+  }
+  return copia;
+}
+
+/** "Duplicar" conserva o deslocamento curto que o editor mostra ao lado do original. */
+export function duplicarBloco(mapa: Mapa, id: string, novoId = gerarId()): Mapa {
+  const origem = mapa[id];
+  if (!origem) return mapa;
+  const posicao = posicaoDe(origem);
+  const copia = copiaDoBloco(origem, { top: posicao.top + 20, left: posicao.left + 20 }, novoId);
+  return { ...mapa, [copia.id]: copia };
+}
+
+export function textoDoBlocoCopiado(bloco: Bloco): string {
+  return `${MARCADOR_DE_AREA_DE_TRANSFERENCIA}${JSON.stringify(bloco)}`;
+}
+
+export function blocoDoTextoCopiado(texto: string): Bloco | null {
+  if (!texto.startsWith(MARCADOR_DE_AREA_DE_TRANSFERENCIA)) return null;
+  try {
+    const valor: unknown = JSON.parse(texto.slice(MARCADOR_DE_AREA_DE_TRANSFERENCIA.length));
+    if (!valor || typeof valor !== 'object' || typeof (valor as Bloco).id !== 'string') return null;
+    return copiar(valor as Bloco);
+  } catch {
+    return null;
+  }
+}
+
+/** "Colar" cria uma cópia na posição do clique e nunca sobrescreve o original. */
+export function colarBloco(mapa: Mapa, origem: Bloco, posicao: Posicao, novoId = gerarId()): Mapa {
+  const copia = copiaDoBloco(origem, posicao, novoId);
   return { ...mapa, [copia.id]: copia };
 }
 

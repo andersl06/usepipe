@@ -24,24 +24,46 @@ export interface PropsDoNo {
   editando: boolean;
   /** Alvo possível da ligação que está sendo arrastada. */
   alvo: boolean;
+  corresponde: boolean;
   onPointerDown: (e: PointerEventDeReact<HTMLDivElement>) => void;
   onPointerDownNaSaida: (e: PointerEventDeReact<HTMLSpanElement>) => void;
   onContextMenu: (e: MouseEventDeReact<HTMLDivElement>) => void;
 }
 
 /** As etiquetas automáticas do editor: o tipo de cada ação, e "UserInput" se espera resposta. */
-export function etiquetasDoBloco(bloco: Bloco): string[] {
-  const tipos = new Set<string>();
+export interface EtiquetaDoBloco {
+  rotulo: string;
+  cor: string;
+}
+
+const CORES_DAS_ACOES: Record<string, string> = {
+  ExecuteScript: '#ff961e',
+  ExecuteScriptV2: '#ff961e',
+  TrackEvent: '#61d36f',
+  SendMessage: '#ee82ee',
+  UserInput: '#000000',
+};
+
+function corDaEtiqueta(rotulo: string, corDaOrigem?: unknown): string {
+  const cor = typeof corDaOrigem === 'string' ? corDaOrigem : CORES_DAS_ACOES[rotulo];
+  if (!cor || ['#3f7de8', '#0096fa', '#1e6bf1', '#498bff'].includes(cor.toLowerCase())) return '#4a5d23';
+  return cor;
+}
+
+export function etiquetasDoBloco(bloco: Bloco): EtiquetaDoBloco[] {
+  const tipos = new Map<string, string>();
   for (const acao of [...(bloco.$enteringCustomActions ?? []), ...(bloco.$leavingCustomActions ?? [])]) {
-    if (acao.type) tipos.add(acao.type);
+    if (acao.type) tipos.set(acao.type, corDaEtiqueta(acao.type));
   }
   const entrada = entradaDe(bloco);
-  if (entrada && !entrada.bypass) tipos.add('UserInput');
+  if (entrada && !entrada.bypass) tipos.set('UserInput', corDaEtiqueta('UserInput'));
   for (const tag of bloco.$tags ?? []) {
-    const rotulo = (tag as { label?: unknown })?.label;
-    if (typeof rotulo === 'string' && rotulo) tipos.add(rotulo);
+    const lida = tag as { label?: unknown; color?: unknown; background?: unknown };
+    if (typeof lida.label === 'string' && lida.label) {
+      tipos.set(lida.label, corDaEtiqueta(lida.label, lida.color ?? lida.background));
+    }
   }
-  return [...tipos];
+  return [...tipos].map(([rotulo, cor]) => ({ rotulo, cor }));
 }
 
 export function No({
@@ -50,6 +72,7 @@ export function No({
   selecionado,
   editando,
   alvo,
+  corresponde,
   onPointerDown,
   onPointerDownNaSaida,
   onContextMenu,
@@ -62,6 +85,7 @@ export function No({
   if (selecionado) classes.push('bl-no--selecionado');
   if (editando) classes.push('bl-no--editando');
   if (alvo) classes.push('bl-no--alvo');
+  if (!corresponde) classes.push('bl-no--fora-da-busca');
   const etiquetas = etiquetasDoBloco(bloco);
   return (
     <div
@@ -83,9 +107,15 @@ export function No({
       </div>
       {etiquetas.length > 0 ? (
         <div className="bl-no-etiquetas">
-          {etiquetas.map((e) => (
-            <span key={e} className="bl-no-etiqueta">
-              {e}
+          {etiquetas.map((etiqueta) => (
+            <span
+              key={etiqueta.rotulo}
+              className="bl-no-etiqueta"
+              style={{ backgroundColor: etiqueta.cor }}
+              title={etiqueta.rotulo}
+              aria-label={etiqueta.rotulo}
+            >
+              <span className="bl-no-etiqueta-rotulo">{etiqueta.rotulo}</span>
             </span>
           ))}
         </div>

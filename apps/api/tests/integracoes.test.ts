@@ -254,6 +254,17 @@ describe('Chaves de acesso do fluxo', () => {
        where objeto_tipo = 'chave_api' and objeto_id = ${chaveId}::uuid and acao = 'desativou'
     `);
     expect(log.rows[0]?.n).toBe('1');
+
+    const visiveis = await get<Array<{ id: string }>>(
+      `/v1/gestao/fluxos/${fluxoId}/chaves`,
+      sessaoCompleta,
+    );
+    expect(visiveis.corpo.some((chave) => chave.id === chaveId)).toBe(false);
+
+    const nova = await post(`/v1/gestao/fluxos/${fluxoId}/chaves`, sessaoCompleta, {
+      nome: 'Depois de revogar',
+    });
+    expect(nova.status).toBe(201);
   });
 });
 

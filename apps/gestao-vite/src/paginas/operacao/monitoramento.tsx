@@ -3,11 +3,13 @@ import { useSearchParams } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import type { Monitoramento } from '../../lib/monitoramento';
 import { useLeitura } from '../../lib/consulta';
-import { denominador, duracao, numero, uuidOuNada } from '../../lib/formato';
+import { denominador, duracao, numero } from '../../lib/formato';
 import { IconeGestao } from '../../componentes/icones-gestao';
 import { FiltrosDaLista, FiltrosDaOperacao } from '../../componentes/filtros-rapidos';
 import { CampoDoPainel, PainelFiltros } from '../../componentes/painel-filtros';
 import { Selecao } from '../../componentes/selecao';
+import { SelecaoChips } from '../../componentes/selecao-chips';
+import { parametrosComFiltros, idsDoFiltro } from '../../lib/filtros-monitoramento';
 import { Metrica } from '../../componentes/metrica';
 import { MonitoramentoDetalhado } from '../../componentes/monitoramento-detalhado';
 import { useContato } from '../fluxo/contato';
@@ -80,7 +82,10 @@ function CartaoMetrica({ titulo, children }: { titulo: string; children: ReactNo
 function useRecargaSilenciosa(segundos: number) {
   const fila = useQueryClient();
   useEffect(() => {
-    const id = setInterval(() => void fila.invalidateQueries({ queryKey: ['api'] }), segundos * 1000);
+    const id = setInterval(
+      () => void fila.invalidateQueries({ queryKey: ['api'] }),
+      segundos * 1000,
+    );
     return () => clearInterval(id);
   }, [fila, segundos]);
 }
@@ -146,21 +151,36 @@ function MetricaCarregando() {
   );
 }
 
-function CartaoCarregando({ titulo, quantidade, dividido = false }: {
+function CartaoCarregando({
+  titulo,
+  quantidade,
+  dividido = false,
+}: {
   titulo: string;
   quantidade: number;
   dividido?: boolean;
 }) {
   return (
     <div className="card">
-      <div className="card-cabecalho"><h3>{titulo}</h3></div>
+      <div className="card-cabecalho">
+        <h3>{titulo}</h3>
+      </div>
       <div className="metrics">
         {dividido ? (
           <>
-            <div className="metrics-grupo estreito"><MetricaCarregando /><MetricaCarregando /></div>
-            <div className="metrics-grupo largo"><MetricaCarregando /><MetricaCarregando /><MetricaCarregando /></div>
+            <div className="metrics-grupo estreito">
+              <MetricaCarregando />
+              <MetricaCarregando />
+            </div>
+            <div className="metrics-grupo largo">
+              <MetricaCarregando />
+              <MetricaCarregando />
+              <MetricaCarregando />
+            </div>
           </>
-        ) : Array.from({ length: quantidade }, (_, indice) => <MetricaCarregando key={indice} />)}
+        ) : (
+          Array.from({ length: quantidade }, (_, indice) => <MetricaCarregando key={indice} />)
+        )}
       </div>
     </div>
   );
@@ -172,12 +192,16 @@ function MonitoramentoCarregando() {
       <div className="board-head">
         <h2>Monitoramento</h2>
         <div className="filters" aria-hidden="true">
-          <span className="mon-esqueletico icone" /><span className="mon-esqueletico icone" />
+          <span className="mon-esqueletico icone" />
+          <span className="mon-esqueletico icone" />
         </div>
       </div>
       <div className="faixa-filtros" aria-hidden="true">
-        <span className="lbl">Filtros rápidos:</span><span className="mon-esqueletico pilula" />
-        <div className="faixa-fim"><span className="mon-esqueletico botao" /></div>
+        <span className="lbl">Filtros rápidos:</span>
+        <span className="mon-esqueletico pilula" />
+        <div className="faixa-fim">
+          <span className="mon-esqueletico botao" />
+        </div>
       </div>
       <div className="mon" aria-hidden="true">
         <CartaoCarregando titulo="Atendimentos em tempo real" quantidade={5} dividido />
@@ -187,8 +211,12 @@ function MonitoramentoCarregando() {
       </div>
       <div className="faixa-filtros" aria-hidden="true">
         <span className="lbl">Filtros rápidos:</span>
-        <span className="mon-esqueletico pilula" /><span className="mon-esqueletico pilula" /><span className="mon-esqueletico pilula larga" />
-        <div className="faixa-fim"><span className="mon-esqueletico botao" /></div>
+        <span className="mon-esqueletico pilula" />
+        <span className="mon-esqueletico pilula" />
+        <span className="mon-esqueletico pilula larga" />
+        <div className="faixa-fim">
+          <span className="mon-esqueletico botao" />
+        </div>
       </div>
       <div className="tblwrap" aria-hidden="true">
         <div className="tblhead">
@@ -196,12 +224,18 @@ function MonitoramentoCarregando() {
           <span className="mon-esqueletico busca" />
         </div>
         <div className="tabs mon-abas-carregando">
-          {Array.from({ length: 5 }, (_, indice) => <span className="mon-esqueletico aba" key={indice} />)}
+          {Array.from({ length: 5 }, (_, indice) => (
+            <span className="mon-esqueletico aba" key={indice} />
+          ))}
         </div>
         <div className="scroll mon-tabela-carregando">
-          {Array.from({ length: 4 }, (_, indice) => <div className="mon-tabela-linha" key={indice}>
-            {Array.from({ length: 5 }, (_, coluna) => <span className="mon-esqueletico celula" key={coluna} />)}
-          </div>)}
+          {Array.from({ length: 4 }, (_, indice) => (
+            <div className="mon-tabela-linha" key={indice}>
+              {Array.from({ length: 5 }, (_, coluna) => (
+                <span className="mon-esqueletico celula" key={coluna} />
+              ))}
+            </div>
+          ))}
         </div>
       </div>
       <span className="sr-only">Carregando dados do monitoramento.</span>
@@ -236,16 +270,21 @@ function MonitoramentoCarregando() {
 export function PaginaMonitoramento() {
   const { contato } = useContato();
   const base = `${baseDoAtendimento(contato.tipo, contato.id)}/monitoramento`;
-  const [busca] = useSearchParams();
+  const [busca, definirBusca] = useSearchParams();
   const [painelAberto, setPainelAberto] = useState(false);
+  const [campoPainel, setCampoPainel] = useState<string | null>(null);
+  const abrirPainel = (campo: string | null = null) => {
+    setCampoPainel(campo);
+    setPainelAberto(true);
+  };
   const [modoTv, setModoTv] = useState(false);
   const crus = Object.fromEntries(busca.entries()) as Busca;
   /* O que veio da URL, já conferido: id que não é UUID vira "sem filtro" em vez
      de virar 500 no `::uuid` do Postgres. */
   const params: Busca = {
     ...crus,
-    fila: uuidOuNada(crus.fila),
-    atendente: uuidOuNada(crus.atendente),
+    fila: idsDoFiltro(busca.getAll('fila')).join(','),
+    atendente: idsDoFiltro(busca.getAll('atendente')).join(','),
   };
   const q = new URLSearchParams();
   if (params.fila) q.set('fila', params.fila);
@@ -258,11 +297,15 @@ export function PaginaMonitoramento() {
   if (!leitura.data && leitura.isError) {
     return (
       <div className="mon-pagina">
-        <div className="board-head"><h2>Monitoramento</h2></div>
+        <div className="board-head">
+          <h2>Monitoramento</h2>
+        </div>
         <div className="card mon-erro" role="alert">
           <h3>Não foi possível carregar o monitoramento</h3>
           <p>Verifique a conexão e tente novamente.</p>
-          <button type="button" className="btn" onClick={() => void leitura.refetch()}>Tentar novamente</button>
+          <button type="button" className="btn" onClick={() => void leitura.refetch()}>
+            Tentar novamente
+          </button>
         </div>
       </div>
     );
@@ -284,9 +327,9 @@ export function PaginaMonitoramento() {
       {/* A faixa "Filtros rápidos:", com o próprio botão "Filtros" no fim —
           é ali que ele mora nesta tela, não no cabeçalho. */}
       <FiltrosDaOperacao
-        filas={m.filas}
         atual={params}
-        aoAbrirPainel={() => setPainelAberto(true)}
+        aoAbrirPainel={() => abrirPainel('fila')}
+        painelAberto={painelAberto && campoPainel === 'fila'}
       />
 
       {/* ---------------------------------------------------- grade 2×2 */}
@@ -429,9 +472,9 @@ export function PaginaMonitoramento() {
       {!modoTv ? (
         <>
           <FiltrosDaLista
-            atendentes={m.listaAtendentes}
             atual={params}
-            aoAbrirPainel={() => setPainelAberto(true)}
+            aoAbrirPainel={() => abrirPainel('lista')}
+            painelAberto={painelAberto && campoPainel === 'lista'}
           />
 
           <MonitoramentoDetalhado
@@ -445,45 +488,76 @@ export function PaginaMonitoramento() {
 
       <PainelFiltros
         aberto={painelAberto}
-        aoFechar={() => setPainelAberto(false)}
+        aoFechar={() => {
+          setPainelAberto(false);
+          setCampoPainel(null);
+        }}
         acao={base}
-        limpar={base}
+        aoAplicar={(dados) => {
+          const proximos = new URLSearchParams(busca);
+          for (const [chave, valor] of dados) {
+            proximos.delete(chave);
+            if (typeof valor === 'string' && valor.trim()) proximos.set(chave, valor.trim());
+          }
+          definirBusca(proximos);
+          setPainelAberto(false);
+        }}
+        limpar={`${base}?${parametrosComFiltros(busca, campoPainel === 'fila' ? { fila: '' } : { atendente: '', contato: '', status: '' })}`}
       >
         <input type="hidden" name="aba" value={params.aba ?? 'atribuido'} />
         {params.busca ? <input type="hidden" name="busca" value={params.busca} /> : null}
-        <CampoDoPainel rotulo="Fila" apoio="Filtre toda a operação por fila">
-          <Selecao name="fila" defaultValue={params.fila ?? ''} aria-label="Fila">
-            <option value="">Todas as filas</option>
-            {m.filas.map((fila) => (
-              <option key={fila.id} value={fila.id}>
-                {fila.nome}
-              </option>
-            ))}
-          </Selecao>
-        </CampoDoPainel>
-        <CampoDoPainel rotulo="Atendente" apoio="Filtre as conversas atribuídas">
-          <Selecao name="atendente" defaultValue={params.atendente ?? ''} aria-label="Atendente">
-            <option value="">Todos os atendentes</option>
-            {m.listaAtendentes.map((atendente) => (
-              <option key={atendente.id} value={atendente.id}>
-                {atendente.nome}
-              </option>
-            ))}
-          </Selecao>
-        </CampoDoPainel>
-        <CampoDoPainel rotulo="Contato" apoio="Busque pelo nome do contato">
-          <input type="search" name="contato" defaultValue={params.contato ?? ''} />
-        </CampoDoPainel>
-        <CampoDoPainel rotulo="Status do atendente" apoio="Disponibilidade atual do atendente">
-          <Selecao name="status" defaultValue={params.status ?? ''} aria-label="Status do atendente">
-            <option value="">Todos os status</option>
-            {ESTADOS_DE_ATENDENTE.map((estado) => (
-              <option key={estado.id} value={estado.id}>
-                {estado.nome}
-              </option>
-            ))}
-          </Selecao>
-        </CampoDoPainel>
+        {campoPainel === 'fila' ? (
+          <>
+            <input type="hidden" name="atendente" value={params.atendente ?? ''} />
+            <input type="hidden" name="contato" value={params.contato ?? ''} />
+            <input type="hidden" name="status" value={params.status ?? ''} />
+          </>
+        ) : (
+          <input type="hidden" name="fila" value={params.fila ?? ''} />
+        )}
+        {campoPainel === 'fila' ? (
+          <>
+            <CampoDoPainel rotulo="Filas" icone="fila" apoio="Selecione uma ou mais filas">
+              <SelecaoChips
+                name="fila"
+                rotulo="Filas"
+                placeholder="Selecione as filas"
+                opcoes={m.filas}
+                valoresIniciais={idsDoFiltro(params.fila)}
+              />
+            </CampoDoPainel>
+          </>
+        ) : null}
+        {campoPainel === 'lista' ? (
+          <>
+            <CampoDoPainel rotulo="Atendentes" apoio="Selecione um ou mais atendentes">
+              <SelecaoChips
+                name="atendente"
+                rotulo="Atendentes"
+                placeholder="Selecione os atendentes"
+                opcoes={m.listaAtendentes}
+                valoresIniciais={idsDoFiltro(params.atendente)}
+              />
+            </CampoDoPainel>
+            <CampoDoPainel rotulo="Contato" apoio="Busque pelo nome do contato">
+              <input type="search" name="contato" defaultValue={params.contato ?? ''} />
+            </CampoDoPainel>
+            <CampoDoPainel rotulo="Status do atendente" apoio="Disponibilidade atual do atendente">
+              <Selecao
+                name="status"
+                defaultValue={params.status ?? ''}
+                aria-label="Status do atendente"
+              >
+                <option value="">Todos os status</option>
+                {ESTADOS_DE_ATENDENTE.map((estado) => (
+                  <option key={estado.id} value={estado.id}>
+                    {estado.nome}
+                  </option>
+                ))}
+              </Selecao>
+            </CampoDoPainel>
+          </>
+        ) : null}
       </PainelFiltros>
     </div>
   );

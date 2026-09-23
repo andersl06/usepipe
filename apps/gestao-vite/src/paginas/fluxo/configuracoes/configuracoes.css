@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css2?family=Nunito+Sans:wght@400;600;700&display=swap');
+
 /* ============================== Configurações do contato
 
    Cópia de `auth.application.detail.configurations.*` do portal deles, medida
@@ -15,7 +17,7 @@
      #738192 (`<small>` do título)                       → `--p-conteudo-fantasma`
      rgba(0,0,0,.2) `--color-border-1` (bds-input)       → `--p-linha-media`
      #bebebe (1px dotted entre itens da lateral)         → `--p-linha-forte`
-     #3f7de8 / `--color-primary` (botão, cópia)          → `--p-marca`
+     `--color-primary` (botão, cópia)                   → musgo do Pipe
      #fff → #f2fcff (degradê da lateral)                 → superfície 0 → info-fundo
      0 2px 8px -2px rgba(0,0,0,.16) (bds-paper)          → `--g-sombra-cartao` */
 
@@ -25,12 +27,27 @@
    (90% entre 550 e 749, 100% com 20px de recuo abaixo): aqui se desfaz esse
    recuo com o mesmo degrau, sem tocar o casco. */
 .cf-casca {
+  /* Estrutura da Blip, identidade do Pipe: a marca musgo é herdada do tema. */
+  --p-conteudo: #282828;
+  --p-conteudo-desabilitado: #595959;
+  --p-conteudo-fantasma: #8c8c8c;
+  --p-linha: #e3e3e3;
+  --p-linha-media: rgb(0 0 0 / 20%);
+  --p-linha-forte: #bebebe;
+  --p-superficie-0: #fff;
+  --p-superficie-1: #f6f6f6;
+  --p-superficie-2: #e0e0e0;
+  --p-superficie-3: #cfcfcf;
+  --ground: #ededed;
+  --g-cartao-fundo: #f6f6f6;
+  --g-sombra-cartao: 0 2px 8px -2px rgb(0 0 0 / 16%);
   display: flex;
   align-items: stretch;
   width: calc(100% + 40px);
   min-height: calc(100dvh - var(--g-topo-h));
   margin-left: -20px;
   color: var(--p-conteudo);
+  font-family: 'Nunito Sans', Helvetica, sans-serif;
 }
 @media (min-width: 550px) {
   .cf-casca {
@@ -55,7 +72,7 @@
   background-image: linear-gradient(
     180deg,
     var(--p-superficie-0),
-    color-mix(in srgb, var(--p-superficie-0) 70%, var(--p-info-fundo))
+    color-mix(in srgb, var(--p-superficie-0) 70%, var(--p-marca-suave))
   );
 }
 
@@ -81,6 +98,13 @@
 }
 .cf-arvore-linha:active {
   background: var(--g-tinta-pressao);
+}
+.cf-arvore-linha[aria-current='page'] {
+  border-color: var(--g-tinta-pressao);
+  background: var(--g-tinta-hover);
+}
+.cf-arvore-linha[aria-current='page'] .cf-arvore-icone {
+  color: var(--p-marca);
 }
 .cf-arvore-linha:focus-visible {
   outline: 2px solid var(--p-foco);
@@ -208,7 +232,7 @@
 .cf-papel {
   box-sizing: border-box;
   border-radius: 16px;
-  background: var(--p-superficie-0);
+  background: var(--g-cartao-fundo);
   box-shadow: var(--g-sombra-cartao);
 }
 /* `.ph5.pv4.mb3`: `padding: 20px 40px; margin-bottom: 10px`. */
@@ -487,7 +511,17 @@
 .cf-campo-olho {
   flex: none;
   display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  background: transparent;
   color: var(--p-conteudo);
+  cursor: pointer;
+}
+.cf-campo-olho:focus-visible {
+  outline: 2px solid var(--p-marca);
+  outline-offset: 2px;
 }
 
 /* `bds-paper.w-100.ph5.pv3.mt4` do OAuth: `padding: 10px 40px; margin-top: 20px`. */
@@ -686,11 +720,16 @@
    `.token-create-data` 50%; `.token-create-action` `gap: 12px`. */
 .cf-chaves-criar {
   display: flex;
+  align-items: stretch;
   justify-content: space-between;
+  width: 100%;
   padding: 24px;
 }
 .cf-chaves-criar-dados {
   width: 50%;
+}
+.cf-chaves-criar-dados .cf-campo {
+  width: 100%;
 }
 .cf-chaves-criar-acoes {
   display: flex;
@@ -747,8 +786,52 @@
   line-height: 18px;
 }
 .cf-selo--info {
-  background: var(--p-info-fundo);
-  color: var(--p-info-conteudo);
+  background: var(--p-marca-suave);
+  color: var(--p-marca-forte);
+}
+.cf-selo--erro {
+  background: var(--p-erro-fundo);
+  color: var(--p-erro-conteudo);
+}
+.cf-modal--chave {
+  width: min(100%, 560px);
+}
+.cf-modal--chave h2 {
+  margin-bottom: 24px;
+  font-size: 24px;
+  font-weight: var(--g-peso-normal);
+}
+.cf-modal-aviso {
+  margin-bottom: 24px;
+  padding: 16px 20px;
+  border: 1px solid var(--p-marca-linha);
+  border-left-width: 3px;
+  border-radius: 8px;
+  background: var(--p-superficie-1);
+  color: var(--p-conteudo);
+}
+.cf-modal-aviso ul {
+  margin: 0;
+  padding-left: 20px;
+}
+.cf-modal-chave-campo + .cf-modal-chave-campo {
+  margin-top: 20px;
+}
+.cf-modal-chave-campo h3 {
+  margin: 0 0 4px;
+  font-size: 20px;
+  font-weight: var(--g-peso-normal);
+}
+.cf-modal-chave-campo p {
+  margin-bottom: 8px;
+  font-size: 12px;
+}
+.cf-modal--chave .cf-rotulo-campo {
+  display: none;
+}
+.cf-modal--chave .cf-modal-acoes {
+  justify-content: center;
+  margin-top: 28px;
 }
 
 /* ==================== Menu Persistente */

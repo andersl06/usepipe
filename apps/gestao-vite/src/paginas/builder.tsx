@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import type { BuilderDoFluxo, ErroDoBloco, VersaoDoFluxo } from '@pipe/contracts';
-import { Botao, Etiqueta, Icone } from '@pipe/ui';
+import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
 import { IconeGestao } from '../componentes/icones-gestao';
 import { IconePortal } from '../componentes/icones-portal';
 import { useEu } from '../contexto/sessao';
@@ -120,6 +120,8 @@ export function PaginaBuilder() {
   const [variaveisAberto, setVariaveisAberto] = useState(false);
   const [configAberto, setConfigAberto] = useState(false);
   const [filasAberto, setFilasAberto] = useState(false);
+  const [pesquisaAberta, setPesquisaAberta] = useState(false);
+  const [pesquisa, setPesquisa] = useState('');
   const [zoom, setZoom] = useState(ZOOM_MAXIMO);
   const [recado, setRecado] = useState<{ tom: 'sucesso' | 'erro'; texto: string } | null>(null);
 
@@ -243,24 +245,22 @@ export function PaginaBuilder() {
       <BarrasDoContato ativo="Builder" />
       <div className="bl-tela">
         {avisoAberto ? (
-          <div className="bl-aviso">
+          <div className="bl-aviso bl-aviso--sistema">
+            <IconePortal nome="informacao" tamanho={24} />
             <div className="bl-aviso-texto">
-              <span>
-                O que você desenha aqui é gravado como rascunho sozinho; só "Publicar fluxo" põe a versão
-                no ar.{' '}
-                <details>
-                  <summary>Saiba mais</summary>
-                  <p className="bl-aviso-nota">
-                    Cada fluxo tem um rascunho e uma versão publicada. Cada mudança grava por cima do
-                    rascunho; publicar promove o rascunho a uma versão nova e arquiva a anterior —
-                    as conversas que já estavam com o robô continuam apontando para a versão que
-                    as atendeu. O motor só roda a versão publicada, e só de fluxo ligado a um
-                    canal (<b>Canais</b>). O motor do Pipe envia texto, menu e quick reply, e
-                    executa definir/excluir variável, registrar evento, redirecionar a serviço e o
-                    bloco de atendimento humano — o resto do editor da Blip fica de fora.
-                  </p>
-                </details>
-              </span>
+              <div>
+                Com as mudanças de identificadores anunciadas pela Meta, fluxos com dependência de
+                número de telefone serão afetados. Clique no link para gerar um relatório de análise
+                que identifica dependências de número de telefone neste fluxo.{' '}
+                <a
+                  href="https://help.blip.ai/hc/pt-br/articles/38934034280855-Atualiza%C3%A7%C3%A3o-do-canal-WhatsApp-Usernames-BSUID-e-novos-IDs"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Saiba mais
+                </a>{' '}
+                sobre as mudanças de IDs no WhatsApp
+              </div>
             </div>
             <button
               type="button"
@@ -268,7 +268,7 @@ export function PaginaBuilder() {
               aria-label="Fechar aviso"
               onClick={() => setAvisoAberto(false)}
             >
-              <IconePortal nome="fechar" tamanho={16} />
+              <IconePortal nome="fechar" tamanho={24} />
             </button>
           </div>
         ) : null}
@@ -313,6 +313,7 @@ export function PaginaBuilder() {
               novoBlocoAberto={novoBlocoAberto}
               onFecharNovoBloco={() => setNovoBlocoAberto(false)}
               painelExternoAberto={configAberto || filasAberto}
+              pesquisa={pesquisa}
             />
           )}
 
@@ -399,7 +400,14 @@ export function PaginaBuilder() {
             >
               <IconeGestao nome="biblioteca" tamanho={24} />
             </BotaoDaBarra>
-            <BotaoDaBarra rotulo="Pesquisar" classe="bl-pesquisar">
+            <BotaoDaBarra
+              rotulo="Pesquisar"
+              classe="bl-pesquisar"
+              desabilitado={!editor.carregado}
+              motivo={recusaDaLeitura ?? 'carregando'}
+              ativo={pesquisaAberta}
+              onClick={() => setPesquisaAberta((aberta) => !aberta)}
+            >
               <IconePortal nome="busca" tamanho={24} />
             </BotaoDaBarra>
             <BotaoDaBarra
@@ -412,6 +420,20 @@ export function PaginaBuilder() {
               <IconePortal nome="suporte" tamanho={24} />
             </BotaoDaBarra>
           </div>
+          {pesquisaAberta ? (
+            <div className="bl-pesquisa-flutuante">
+              <Campo
+                autoFocus
+                value={pesquisa}
+                placeholder="Pesquisar"
+                aria-label="Pesquisar blocos"
+                onChange={(e) => setPesquisa(e.target.value)}
+              />
+              <button type="button" className="iconbtn" aria-label="Fechar pesquisa" onClick={() => { setPesquisa(''); setPesquisaAberta(false); }}>
+                <IconePortal nome="fechar" tamanho={20} />
+              </button>
+            </div>
+          ) : null}
 
           {/* O rodapé deles (`.builder-footer`): a pílula clara de status ("Salvo"
               com o `checkball`); os três botões de ícone soltos (Desfazer, Refazer,

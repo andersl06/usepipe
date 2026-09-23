@@ -102,6 +102,32 @@ beforeAll(async () => {
 afterAll(async () => { await api?.fechar(); await a?.encerrar(); await b?.encerrar(); });
 
 describe('monitoramento/conversas', () => {
+  it('consulta várias filas e atendentes sem reduzir a seleção ao último id', async () => {
+    const primeira = await conversa();
+    const segunda = await conversa();
+    const fora = await conversa(b);
+    const atendente2 = await pessoa(a, []);
+    const { rows: filas } = await a.dono.execute<{ id: string }>(sql`
+      insert into fila (tenant_id, nome) values (${a.tenantId}, ${`Fila ${randomUUID()}`}) returning id
+    `);
+    const fila2 = filas[0]!.id;
+    await a.dono.execute(sql`update conversa set fila_id = ${fila2}, atendente_id = ${atendente2} where id = ${segunda}`);
+    for (const query of [
+      `fila=${a.filaId},${fila2}&atendente=${a.atendenteId},${atendente2}`,
+      `fila=${a.filaId}&fila=${fila2}&atendente=${a.atendenteId}&atendente=${atendente2}`,
+    ]) {
+      const resposta = await pedir(gestor, 'GET', `/v1/gestao/monitoramento?${query}`);
+      expect(resposta.status).toBe(200);
+      const corpo = await resposta.json() as { dados: { abertas: { id: string }[] } };
+      const ids = corpo.dados.abertas.map(c => c.id);
+      expect(ids).toEqual(expect.arrayContaining([primeira, segunda]));
+      expect(ids).not.toContain(fora);
+    }
+    const unica = await pedir(gestor, 'GET', `/v1/gestao/monitoramento?fila=${fila2}`);
+    const corpo = await unica.json() as { dados: { abertas: { id: string }[] } };
+    expect(corpo.dados.abertas.map(c => c.id)).toEqual([segunda]);
+  });
+
   it('lê a prévia, grava nota e deixa auditoria', async () => {
     const id = await conversa();
     const previa = await pedir(gestor, 'GET', `/v1/gestao/monitoramento/conversas/${id}`);

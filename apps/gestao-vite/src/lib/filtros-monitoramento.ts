@@ -1,3 +1,10 @@
+/** Aceita links antigos (um id), valores repetidos e listas separadas por vírgula. */
+export function idsDoFiltro(valor: string | readonly string[] | undefined): string[] {
+  const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  return [...new Set((typeof valor === 'string' ? [valor] : valor ?? [])
+    .flatMap(v => v.split(',')).map(v => v.trim()).filter(v => uuid.test(v)))];
+}
+
 export function urlParaLimparFiltros(
   base: string,
   atual: { fila?: string },

@@ -1,0 +1,187 @@
+@font-face {
+  font-family: 'Nunito Sans';
+  font-style: normal;
+  font-weight: 200 900;
+  font-display: swap;
+  src: url('/fonts/nunito-sans-latin.woff2') format('woff2');
+}
+
+/* Medidas conferidas no bundle bds-select-chips / bds-chip-clickable do ZIP
+   de referência. Seletores próprios evitam a interferência do input global. */
+.at-selecao-chips {
+  position: relative;
+  width: 100%;
+  min-width: 0;
+  color: var(--p-conteudo);
+  font-family: 'Nunito Sans', var(--p-fonte);
+}
+.at-selecao-chips .at-sc-campo {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  gap: 8px;
+  padding: 8px 4px 8px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  background: transparent;
+  cursor: text;
+  box-sizing: border-box;
+}
+.at-selecao-chips .at-sc-campo:hover {
+  border-color: var(--p-marca);
+}
+.at-selecao-chips .at-sc-campo:focus-within {
+  border-color: var(--p-marca);
+  box-shadow: 0 0 0 2px var(--p-marca-suave);
+}
+.at-sc-conteudo {
+  display: flex;
+  flex-wrap: wrap;
+  flex: 1;
+  min-width: 0;
+}
+.at-sc-chips {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  max-width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+}
+.at-selecao-chips .at-sc-chip {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  max-width: 100%;
+  min-width: 32px;
+  height: 24px;
+  padding: 2px 6px;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  background: transparent;
+  box-sizing: border-box;
+}
+.at-sc-chip-texto {
+  min-width: 0;
+  padding: 0 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 16px;
+}
+.at-selecao-chips button.at-sc-remover {
+  display: inline-flex;
+  align-items: center;
+  flex: none;
+  width: 18px;
+  height: 16px;
+  min-width: 0;
+  min-height: 0;
+  margin: 0;
+  padding: 0 0 0 2px;
+  border: 0;
+  border-radius: 0;
+  color: inherit;
+  background: transparent;
+  opacity: 0.5;
+  cursor: pointer;
+  box-shadow: none;
+  transform: none;
+}
+.at-selecao-chips input.at-sc-busca {
+  display: inline-block;
+  width: 100%;
+  min-width: 0;
+  height: 22px;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  outline: 0;
+  background: none;
+  box-shadow: none;
+  font:
+    400 14px/22px 'Nunito Sans',
+    var(--p-fonte);
+  color: inherit;
+}
+.at-selecao-chips input.at-sc-busca::placeholder {
+  color: var(--p-conteudo-fantasma, #8c8c8c);
+  opacity: 1;
+}
+.at-selecao-chips button.at-sc-seta {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 24px;
+  height: 24px;
+  min-width: 0;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo-fantasma, #8c8c8c);
+  cursor: pointer;
+  box-shadow: none;
+  transform: none;
+}
+.at-selecao-chips button:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+.at-sc-opcoes {
+  position: absolute;
+  left: 0;
+  top: calc(100% + 4px);
+  width: 100%;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 5;
+  border-radius: 8px;
+  background: var(--p-superficie-0);
+  box-shadow:
+    0 8px 4px -4px rgba(0, 0, 0, 0.04),
+    0 12px 12px -4px rgba(0, 0, 0, 0.16);
+}
+.at-selecao-chips .at-sc-opcoes button {
+  display: block;
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: inherit;
+  font:
+    400 14px/21px 'Nunito Sans',
+    var(--p-fonte);
+  text-align: left;
+  cursor: pointer;
+  transform: none;
+  box-shadow: none;
+}
+.at-selecao-chips .at-sc-opcoes button:hover,
+.at-selecao-chips .at-sc-opcoes .at-sc-opcao-ativa {
+  background: rgba(0, 0, 0, 0.08);
+}
+.at-sc-vazio {
+  padding: 12px 16px;
+  font-size: 14px;
+}
+.at-sc-opcoes::-webkit-scrollbar,
+.at-sc-chips::-webkit-scrollbar {
+  width: 16px;
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 10px;
+}
+.at-sc-opcoes::-webkit-scrollbar-thumb,
+.at-sc-chips::-webkit-scrollbar-thumb {
+  border: 4px solid transparent;
+  border-radius: 10px;
+  background: rgba(0, 0, 0, 0.2);
+  background-clip: content-box;
+}

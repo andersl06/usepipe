@@ -67,7 +67,7 @@ export function PainelDeConteudo({
           para adicionar conteúdos e desenvolva uma conversa com seu cliente.
         </p>
       ) : null}
-      <div className="bl-conversa-conteudo">
+      <div className="bl-conversa-conteudo bl-lista-de-cartoes">
         {cartoes.map((c) => (
           <CartaoDeConteudo
             key={c.indice}
@@ -82,7 +82,7 @@ export function PainelDeConteudo({
       </div>
 
       {!raiz && !atendimento ? (
-        <div className="bl-adicionar-acao">
+        <div className="bl-adicionar-acao bl-adicionar-conteudo">
           <button type="button" className="bl-mais" onClick={() => setMenuAberto((v) => !v)}>
             + {ROTULOS_DO_CONTEUDO.adicionar}
           </button>

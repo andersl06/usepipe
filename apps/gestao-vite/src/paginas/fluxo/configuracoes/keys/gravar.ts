@@ -17,6 +17,7 @@ export interface ChaveListada {
   criadaEm: string;
   ultimoUsoEm: string | null;
   revogadaEm: string | null;
+  requisitante: string | null;
 }
 
 /** Só existe na resposta da criação — depois disso, nunca mais volta em claro. */

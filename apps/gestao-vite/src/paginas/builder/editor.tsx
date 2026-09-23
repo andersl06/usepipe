@@ -9,6 +9,7 @@ import type { Posicao } from './modelo';
 import {
   MENSAGENS,
   adicionarBloco,
+  colarBloco,
   desligar,
   duplicarBloco,
   excluirBloco,
@@ -48,6 +49,7 @@ export function Editor({
   novoBlocoAberto,
   onFecharNovoBloco,
   painelExternoAberto,
+  pesquisa,
 }: {
   estado: EstadoDoEditor;
   despachar: (gesto: GestoDoEditor) => void;
@@ -58,6 +60,7 @@ export function Editor({
   novoBlocoAberto: boolean;
   onFecharNovoBloco: () => void;
   painelExternoAberto: boolean;
+  pesquisa: string;
 }) {
   const { mapa } = estado;
   const [selecionado, setSelecionado] = useState<string | null>(null);
@@ -175,7 +178,10 @@ export function Editor({
         onDesligar={(de, para) => aplicar(desligar(mapa, de, para))}
         onDuplicar={(id) => aplicar(duplicarBloco(mapa, id))}
         onCopiarId={copiarId}
+        onColar={(bloco, posicao) => aplicar(colarBloco(mapa, bloco, posicao))}
         onExcluir={pedirExclusao}
+        onAviso={setAviso}
+        pesquisa={pesquisa}
       />
 
       {novoBlocoAberto ? (

@@ -8,9 +8,10 @@ import {
   type LinhaConversaAberta,
   type Monitoramento,
 } from '../lib/monitoramento';
-import { duracao, numero } from '../lib/formato';
+import { numero } from '../lib/formato';
 import { api } from '../lib/api';
 import { IconeGestao } from './icones-gestao';
+import { IconePortal } from './icones-portal';
 import { Paginacao, usePagina } from './paginacao';
 import { Selecao } from './selecao';
 import { useLeitura } from '../lib/consulta';
@@ -58,11 +59,25 @@ type Filtro = {
 
 type AcoesDoMonitoramento = Pick<Monitoramento, 'filas' | 'listaAtendentes' | 'etiquetas'>;
 
+/** Formato usado pelo BDS nas tabelas: sempre hh:mm:ss e, acima de 24h, dias. */
+function duracaoMonitoramento(segundos: number | null | undefined): string {
+  if (segundos === null || segundos === undefined || Number.isNaN(segundos)) return '—';
+  const total = Math.max(0, Math.round(segundos));
+  const dias = Math.floor(total / 86400);
+  const resto = total % 86400;
+  const horas = Math.floor(resto / 3600);
+  const minutos = Math.floor((resto % 3600) / 60);
+  const segundosRestantes = resto % 60;
+  const dois = (n: number) => String(n).padStart(2, '0');
+  const horario = `${dois(horas)}:${dois(minutos)}:${dois(segundosRestantes)}`;
+  return dias > 0 ? `${dias}d ${horario}` : horario;
+}
+
 /** `transfer` da Blip é exclusivo desta coluna; fica local para não tocar nos ícones da barra lateral. */
 function IconeTransferir() {
   return (
-    <svg className="mon-icone-transferir" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-      <path d="M7 7h11M15 3l4 4l-4 4M17 17H6M9 13l-4 4l4 4" />
+    <svg className="mon-icone-transferir" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+      <path fillRule="evenodd" clipRule="evenodd" d="M21.59 7.87991C21.5948 7.91977 21.5948 7.96006 21.59 7.99991L21.57 8.04991L21.5 8.13991C21.45 8.16991 21.45 8.23991 21.45 8.23991L18.78 11.2399C18.7113 11.3215 18.6256 11.3871 18.5288 11.432C18.4321 11.477 18.3267 11.5001 18.22 11.4999C18.0394 11.496 17.866 11.4288 17.73 11.3099C17.5822 11.1774 17.4921 10.9923 17.479 10.7942C17.466 10.5961 17.5309 10.4007 17.66 10.2499L19.22 8.49991H8C7.80109 8.49991 7.61032 8.4209 7.46967 8.28024C7.32902 8.13959 7.25 7.94883 7.25 7.74991C7.25 7.551 7.32902 7.36023 7.46967 7.21958C7.61032 7.07893 7.80109 6.99991 8 6.99991H19.22L17.66 5.24991C17.5309 5.09909 17.466 4.90374 17.479 4.70565C17.4921 4.50756 17.5822 4.32245 17.73 4.18991C17.8076 4.12526 17.8975 4.07716 17.9944 4.04858C18.0912 4.02 18.1929 4.01153 18.2931 4.02371C18.3933 4.03589 18.49 4.06845 18.5772 4.11939C18.6644 4.17033 18.7402 4.23857 18.8 4.31991L21.47 7.31991C21.52 7.34991 21.52 7.40991 21.52 7.40991L21.59 7.50991C21.5948 7.55311 21.5948 7.59671 21.59 7.63991V7.75991V7.87991ZM4.41976 15.2701H15.6098C15.8087 15.2701 15.9994 15.3491 16.1401 15.4898C16.2807 15.6304 16.3598 15.8212 16.3598 16.0201C16.3598 16.219 16.2807 16.4098 16.1401 16.5504C15.9994 16.6911 15.8087 16.7701 15.6098 16.7701H4.41976L5.99976 18.5201C6.09648 18.6733 6.13361 18.8567 6.10412 19.0355C6.07463 19.2143 5.98057 19.3761 5.83976 19.4901C5.7671 19.5556 5.68219 19.606 5.58993 19.6384C5.49767 19.6709 5.39989 19.6847 5.30225 19.6791C5.20461 19.6735 5.10905 19.6487 5.02108 19.6059C4.93312 19.5632 4.8545 19.5034 4.78976 19.4301L2.11976 16.4301C2.05976 16.4101 2.05976 16.3401 2.05976 16.3401C2.03399 16.3106 2.01367 16.2767 1.99976 16.2401C1.99422 16.197 1.99422 16.1533 1.99976 16.1101V16.0001L2.08976 15.8401C2.08422 15.797 2.08422 15.7533 2.08976 15.7101C2.10367 15.6735 2.12399 15.6396 2.14976 15.6101C2.16623 15.5779 2.18637 15.5477 2.20976 15.5201L4.87976 12.5201C4.94372 12.4456 5.02205 12.3848 5.11007 12.3413C5.19808 12.2977 5.29398 12.2724 5.392 12.2668C5.49003 12.2612 5.58818 12.2754 5.68059 12.3087C5.77299 12.3419 5.85774 12.3934 5.92976 12.4601C6.07756 12.5927 6.16764 12.7778 6.18072 12.9759C6.1938 13.1739 6.12885 13.3693 5.99976 13.5201L4.41976 15.2701Z" />
     </svg>
   );
 }
@@ -144,25 +159,27 @@ function AcoesDoTicket({
       <div className="mon-acoes">
         <button
           type="button"
-          className="iconbtn"
+          className="iconbtn mon-acao"
+          data-tooltip="Transferir"
           title="Transferir"
           aria-label={`Transferir ticket ${linha.ticket}`}
           onClick={() => setModal('transferir')}
         >
           <IconeTransferir />
         </button>
-        <button type="button" className="iconbtn" title="Falar com atendente" aria-label={`Falar com atendente do ticket ${linha.ticket}`} onClick={() => aoAbrir(linha.id)}>
-          <Icone nome="balao" tamanho={24} />
+        <button type="button" className="iconbtn mon-acao" data-tooltip="Falar com atendente" title="Falar com atendente" aria-label={`Falar com atendente do ticket ${linha.ticket}`} onClick={() => aoAbrir(linha.id)}>
+          <IconePortal nome="comunicacao" tamanho={24} />
         </button>
         <button
           type="button"
-          className="iconbtn"
+          className="iconbtn mon-acao"
+          data-tooltip="Mais opções"
           title="Mais opções"
           aria-label={`Mais opções do ticket ${linha.ticket}`}
           aria-expanded={aberto}
           onClick={() => setAberto((valor) => !valor)}
         >
-          <span className="mon-reticencias" aria-hidden="true">⋮</span>
+          <IconePortal nome="mais" tamanho={24} />
         </button>
         {aberto ? (
           <div className="mon-menu-acoes" role="menu" aria-label={`Ações do ${linha.ticket}`}>
@@ -327,10 +344,9 @@ function TabelaAtribuidas({
   aoAbrir: (id: string) => void;
 }) {
   const pg = usePagina(linhas);
-  if (linhas.length === 0) return <SemDados />;
   return (
     <div className="scroll">
-      <table>
+      <table className="mon-tabela mon-tabela-atribuidas">
         <thead>
           <tr>
             <th>Tempo na fila</th>
@@ -344,14 +360,14 @@ function TabelaAtribuidas({
           </tr>
         </thead>
         <tbody>
-          {pg.visiveis.map((l) => (
+          {linhas.length === 0 ? <tr><td colSpan={8}><SemDados /></td></tr> : pg.visiveis.map((l) => (
             <tr key={l.id} className={classeDaLinha(l)} onClick={() => aoAbrir(l.id)}>
               <td className="num">
-                {duracao(l.naFilaSeg)}
+                {duracaoMonitoramento(l.naFilaSeg)}
                 {l.filaCorrendo ? ' ⟳' : ''}
               </td>
               <td className="num">
-                {duracao(l.primeiraRespostaSeg)}
+                {duracaoMonitoramento(l.primeiraRespostaSeg)}
                 {l.primeiraRespostaCorrendo ? ' ⟳' : ''}
               </td>
               <td className="tempo-sla">
@@ -362,12 +378,7 @@ function TabelaAtribuidas({
                 {l.atendimentoSeg === null ? (
                   <span className="g-vazio-espera">Aguardando...</span>
                 ) : (
-                  <span className="num">{duracao(l.atendimentoSeg)}</span>
-                )}
-                {l.emEspera ? (
-                  <span className="etiqueta">Em espera</span>
-                ) : (
-                  <PillSlaView linha={l} />
+                  <span className="num">{duracaoMonitoramento(l.atendimentoSeg)}</span>
                 )}
               </td>
               <td className="num"><button type="button" className="mon-ticket" onClick={() => aoAbrir(l.id)}>{l.ticket}</button></td>
@@ -380,13 +391,10 @@ function TabelaAtribuidas({
         </tbody>
       </table>
 
-      {/* A legenda do destaque amarelo, com a frase deles. Ela mora sob a
-          tabela e existe porque a cor sozinha não diz o que significa. */}
-      <p className="tbl-legenda">
-        O destaque amarelo sinaliza que um ticket foi atribuído a um atendente, mas o contato ainda
-        não recebeu a primeira resposta.
-      </p>
       <Paginacao estado={pg} />
+      <p className="tbl-legenda">
+        O destaque amarelo sinaliza que um ticket foi atribuído a um atendente, mas o contato ainda não recebeu a primeira resposta.
+      </p>
     </div>
   );
 }
@@ -406,10 +414,9 @@ function TabelaAguardando({
   aoAbrir: (id: string) => void;
 }) {
   const pg = usePagina(linhas);
-  if (linhas.length === 0) return <SemDados />;
   return (
     <div className="scroll">
-      <table>
+      <table className="mon-tabela mon-tabela-aguardando">
         <thead>
           <tr>
             <th>Tempo na fila</th>
@@ -417,14 +424,15 @@ function TabelaAguardando({
             <th>Ticket</th>
             <th>Contato</th>
             <th>Fila</th>
+            <th>Atendente</th>
             <th>Ações</th>
           </tr>
         </thead>
         <tbody>
-          {pg.visiveis.map((l) => (
+          {linhas.length === 0 ? <tr><td colSpan={7}><SemDados /></td></tr> : pg.visiveis.map((l) => (
             <tr key={l.id} className={classeDaLinha(l)} onClick={() => aoAbrir(l.id)}>
               <td className="num">
-                {duracao(l.naFilaSeg)}
+                {duracaoMonitoramento(l.naFilaSeg)}
                 {l.filaCorrendo ? ' ⟳' : ''}
               </td>
               <td>
@@ -433,6 +441,7 @@ function TabelaAguardando({
               <td className="num"><button type="button" className="mon-ticket" onClick={() => aoAbrir(l.id)}>{l.ticket}</button></td>
               <td className="who">{l.contatoNome}</td>
               <td>{l.filaNome ?? '—'}</td>
+              <td>{l.atendenteNome ?? '—'}</td>
               <AcoesDoTicket linha={l} catalogos={catalogos} aoAbrir={aoAbrir} />
             </tr>
           ))}
@@ -458,10 +467,9 @@ function TabelaAtendentes({
   filtro: Filtro;
 }) {
   const pg = usePagina(atendentes);
-  if (atendentes.length === 0) return <SemDados />;
   return (
     <div className="scroll">
-      <table>
+      <table className="mon-tabela mon-tabela-atendentes">
         <thead>
           <tr>
             <th>Atendente</th>
@@ -472,12 +480,12 @@ function TabelaAtendentes({
           </tr>
         </thead>
         <tbody>
-          {pg.visiveis.map((a) => (
+          {atendentes.length === 0 ? <tr><td colSpan={5}><SemDados /></td></tr> : pg.visiveis.map((a) => (
             <tr key={a.id}>
               <td className="who">{a.nome}</td>
               <td className="num">{numero(a.ativas)}</td>
-              <td className="num">{duracao(a.tempoMedioRespostaSeg)}</td>
-              <td className="num">{duracao(a.tempoMedioAtendimentoSeg)}</td>
+              <td className="num">{duracaoMonitoramento(a.tempoMedioRespostaSeg)}</td>
+              <td className="num">{duracaoMonitoramento(a.tempoMedioAtendimentoSeg)}</td>
               <AcaoVerConversas filtro={filtro} atendenteId={a.id} />
             </tr>
           ))}
@@ -496,10 +504,9 @@ function TabelaAtendentes({
  */
 function TabelaFilas({ filas }: { filas: Monitoramento['filas'] }) {
   const pg = usePagina(filas);
-  if (filas.length === 0) return <SemDados />;
   return (
     <div className="scroll">
-      <table>
+      <table className="mon-tabela mon-tabela-filas">
         <thead>
           <tr>
             <th>Fila</th>
@@ -511,7 +518,7 @@ function TabelaFilas({ filas }: { filas: Monitoramento['filas'] }) {
           </tr>
         </thead>
         <tbody>
-          {pg.visiveis.map((f) => (
+          {filas.length === 0 ? <tr><td colSpan={6}><SemDados /></td></tr> : pg.visiveis.map((f) => (
             <tr
               key={f.id}
               className={f.atendentesOnline === 0 && f.naFila > 0 ? 'critico' : undefined}
@@ -519,9 +526,9 @@ function TabelaFilas({ filas }: { filas: Monitoramento['filas'] }) {
               <td className="who">{f.nome}</td>
               <td className="num">{numero(f.naFila)}</td>
               <td className="num">{numero(f.emAtendimento)}</td>
-              <td className="num">{duracao(f.tempoMedioNaFilaSeg)}</td>
-              <td className="num">{duracao(f.tempoMedioRespostaSeg)}</td>
-              <td className="num">{duracao(f.tempoMedioAtendimentoSeg)}</td>
+              <td className="num">{duracaoMonitoramento(f.tempoMedioNaFilaSeg)}</td>
+              <td className="num">{duracaoMonitoramento(f.tempoMedioRespostaSeg)}</td>
+              <td className="num">{duracaoMonitoramento(f.tempoMedioAtendimentoSeg)}</td>
             </tr>
           ))}
         </tbody>
@@ -539,10 +546,9 @@ function TabelaFilas({ filas }: { filas: Monitoramento['filas'] }) {
  */
 function TabelaTags({ etiquetas }: { etiquetas: Monitoramento['etiquetas'] }) {
   const pg = usePagina(etiquetas);
-  if (etiquetas.length === 0) return <SemDados />;
   return (
     <div className="scroll">
-      <table>
+      <table className="mon-tabela mon-tabela-tags">
         <thead>
           <tr>
             <th>Tag</th>
@@ -551,11 +557,11 @@ function TabelaTags({ etiquetas }: { etiquetas: Monitoramento['etiquetas'] }) {
           </tr>
         </thead>
         <tbody>
-          {pg.visiveis.map((e) => (
+          {etiquetas.length === 0 ? <tr><td colSpan={3}><SemDados /></td></tr> : pg.visiveis.map((e) => (
             <tr key={e.id}>
               <td className="who">{e.nome}</td>
               <td className="num">{numero(e.finalizadas)}</td>
-              <td className="num">{duracao(e.tempoMedioAtendimentoSeg)}</td>
+              <td className="num">{duracaoMonitoramento(e.tempoMedioAtendimentoSeg)}</td>
             </tr>
           ))}
         </tbody>
@@ -563,22 +569,6 @@ function TabelaTags({ etiquetas }: { etiquetas: Monitoramento['etiquetas'] }) {
       <Paginacao estado={pg} />
     </div>
   );
-}
-
-/**
- * Etiqueta de SLA. Só os dois estados que pedem ação recebem cor: estourado é
- * erro, alerta é alerta. Sem regra e cumprido são neutros, porque não há o que
- * fazer a respeito deles — e pintar o que está normal foi o que tirou o
- * significado da cor na tela inteira.
- */
-function PillSlaView({ linha }: { linha: LinhaConversaAberta }) {
-  const { estado, rotulo, excedidoSeg } = linha.sla;
-  if (estado === 'sem_regra') return <span className="etiqueta">Sem regra</span>;
-  if (estado === 'estourado') {
-    return <span className="etiqueta erro">{`${rotulo} ${duracao(excedidoSeg)}`}</span>;
-  }
-  if (estado === 'alerta') return <span className="etiqueta alerta">{rotulo}</span>;
-  return <span className="etiqueta">{rotulo}</span>;
 }
 
 type Previa = {
@@ -689,7 +679,7 @@ export function MonitoramentoDetalhado({
   };
 
   return (
-    <div className="tblwrap">
+    <div className="tblwrap mon-detalhado">
       <div className="tblhead">
         <h3>Monitoramento detalhado</h3>
 
@@ -701,7 +691,7 @@ export function MonitoramentoDetalhado({
             .map(([chave, valor]) => (
               <input key={chave} type="hidden" name={chave} value={valor} />
             ))}
-          <Icone nome="busca" tamanho={20} />
+          <IconePortal nome="busca" tamanho={20} />
           <input
             type="search"
             name="busca"

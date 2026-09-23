@@ -80,6 +80,7 @@ export function PainelDeSaidas({
 
       {atendimento ? <h4 className="bl-secao-titulo">{ROTULOS_DAS_SAIDAS.saidasDeAtendimento}</h4> : null}
 
+      <div className="bl-lista-de-saidas">
       {saidas.map((saida, i) => {
         const erros = errosDaSaida(saida, existe);
         const fixa = !!saida.$isDeskOutput;
@@ -143,6 +144,7 @@ export function PainelDeSaidas({
           </section>
         );
       })}
+      </div>
 
       <button type="button" className="bl-mais" onClick={adicionar}>
         {ROTULOS_DAS_SAIDAS.adicionar}

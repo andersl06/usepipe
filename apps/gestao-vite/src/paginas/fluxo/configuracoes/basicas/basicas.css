@@ -7,15 +7,13 @@
  * — os campos são `u-full-width`, sem coluna estreita. O form ocupa a largura
  * toda do `.cf-container` (776px no desktop); não há `max-width` na origem.
  */
-/* `h4.color-neutral-dark-rooftop`: 18px, sem negrito. `rooftop` é
-   `#505f79` (cinza-azulado, não cinza puro) — a correspondência na nossa
-   régua é `--p-info-conteudo`, não `--p-conteudo-fantasma` (que é o cinza
-   quente do resto da tela e apagava demais o destaque do título). */
+/* `h4.color-neutral-dark-rooftop`: 18px, sem negrito. A estrutura vem da
+   origem; a cor permanece na paleta neutra do Pipe. */
 .cf-basicas-secao {
   margin: 0 0 20px;
   font-size: 18px;
   font-weight: var(--g-peso-normal);
-  color: var(--p-info-conteudo);
+  color: var(--p-conteudo-fantasma);
 }
 .cf-basicas-opcional {
   font-weight: var(--g-peso-normal);

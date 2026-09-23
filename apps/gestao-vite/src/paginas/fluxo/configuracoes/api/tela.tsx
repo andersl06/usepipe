@@ -32,13 +32,8 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
   const caminho = `/v1/gestao/fluxos/${fluxoId}/conexao`;
   const { data, isLoading } = useLeitura<ConexaoDoFluxo>(caminho);
 
-  const [builder, setBuilder] = useState(false);
-  const [sdk, setSdk] = useState(false);
-  const [http, setHttp] = useState(false);
-  const [sdkAberto, setSdkAberto] = useState(true);
-  const [httpAberto, setHttpAberto] = useState(true);
+  const [modo, setModo] = useState<'builder' | 'sdk' | 'http'>('builder');
   const [oauth, setOauth] = useState(false);
-  const [oauthAberto, setOauthAberto] = useState(true);
   const [urlMensagens, setUrlMensagens] = useState('');
   const [urlNotificacoes, setUrlNotificacoes] = useState('');
   const [urlAutorizacao, setUrlAutorizacao] = useState('');
@@ -54,6 +49,7 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
     if (!data || sujo) return;
     setUrlMensagens(data.urlMensagens ?? '');
     setUrlNotificacoes(data.urlNotificacoes ?? '');
+    setModo(data.urlMensagens || data.urlNotificacoes ? 'http' : 'builder');
   }, [data, sujo]);
 
   async function salvar() {
@@ -91,9 +87,9 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
               <p>Construa um bot utilizando o bot builder do Pipe</p>
             </div>
             <Interruptor
-              ligado={builder}
-              aoMudar={setBuilder}
-              desabilitado={builder}
+              ligado={modo === 'builder'}
+              aoMudar={() => setModo('builder')}
+              desabilitado={modo === 'builder'}
               rotulo="Conectar usando o builder"
             />
           </div>
@@ -108,16 +104,13 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
               <p>Receba suas credenciais de acesso</p>
             </div>
             <Interruptor
-              ligado={sdk}
-              aoMudar={(valor) => {
-                setSdk(valor);
-                setSdkAberto(valor);
-              }}
-              desabilitado={sdk}
+              ligado={modo === 'sdk'}
+              aoMudar={() => setModo('sdk')}
+              desabilitado={modo === 'sdk'}
               rotulo="Conectar usando SDK"
             />
           </div>
-          {sdkAberto ? (
+          {modo === 'sdk' ? (
             <div className="cf-duas-colunas">
               <div className="cf-coluna-metade">
                 <CampoCopiavel rotulo="Endpoint WS" valor="" />
@@ -153,20 +146,16 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
               </p>
             </div>
             <Interruptor
-              ligado={http}
-              aoMudar={(valor) => {
-                setHttp(valor);
-                setHttpAberto(valor);
-              }}
-              desabilitado={http}
+              ligado={modo === 'http'}
+              aoMudar={() => setModo('http')}
+              desabilitado={modo === 'http'}
               rotulo="Conectar usando HTTP"
             />
           </div>
-          {httpAberto ? (
+          {modo === 'http' ? (
             <form
               id="httpForm"
               className="cf-form-http"
-              noValidate
               onSubmit={(evento) => {
                 evento.preventDefault();
                 void salvar();
@@ -177,12 +166,14 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
                   <CampoBds
                     id="urlReceiveMessages"
                     rotulo="Url para receber mensagens"
+                    tipo="url"
                     valor={urlMensagens}
                     aoMudar={(valor) => {
                       setUrlMensagens(valor);
                       setSujo(true);
                     }}
                     desabilitado={isLoading || salvando}
+                    obrigatorio
                   />
                 </div>
                 <div className="cf-w-10" />
@@ -190,6 +181,7 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
                   <CampoBds
                     id="urlReceiveNotifications"
                     rotulo="Url para receber notificações"
+                    tipo="url"
                     valor={urlNotificacoes}
                     aoMudar={(valor) => {
                       setUrlNotificacoes(valor);
@@ -210,14 +202,11 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
                     <Interruptor
                       curto
                       ligado={oauth}
-                      aoMudar={(valor) => {
-                        setOauth(valor);
-                        setOauthAberto(valor);
-                      }}
+                      aoMudar={setOauth}
                       rotulo="OAuth 2.0"
                     />
                   </div>
-                  {oauthAberto ? (
+                  {oauth ? (
                     <div className="cf-oauth-corpo">
                       <p>
                         OAuth 2.0 é um protocolo de autorização que utiliza um token de acesso para
@@ -286,7 +275,11 @@ export function TelaDeConexao({ fluxoId }: { fluxoId: string }) {
                 </p>
               ) : null}
               <div className="cf-form-http-rodape">
-                <BotaoBds variante="bot" type="submit" disabled={salvando || isLoading}>
+                <BotaoBds
+                  variante="bot"
+                  type="submit"
+                  disabled={salvando || isLoading || !sujo || !urlMensagens.trim()}
+                >
                   {salvando ? 'Salvando…' : 'Salvar'}
                 </BotaoBds>
               </div>

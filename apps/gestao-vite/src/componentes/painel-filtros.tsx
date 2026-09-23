@@ -1,5 +1,6 @@
 import { useState, type ReactNode } from 'react';
 import { Icone } from '@pipe/ui';
+import { IconePortal } from './icones-portal';
 import { PERIODOS, calcularPeriodo, periodoAtual } from '../lib/periodos';
 import { Selecao } from './selecao';
 
@@ -23,6 +24,7 @@ export function PainelFiltros({
   aoFechar,
   acao,
   limpar,
+  aoAplicar,
   children,
 }: {
   aberto: boolean;
@@ -30,6 +32,7 @@ export function PainelFiltros({
   acao: string;
   /** `null` esconde o link "Limpar tudo" — não há o que limpar. */
   limpar: string | null;
+  aoAplicar?: (dados: FormData) => void;
   children: ReactNode;
 }) {
   const [aba, setAba] = useState<'nova' | 'salvos'>('nova');
@@ -81,7 +84,12 @@ export function PainelFiltros({
             method="get"
             action={acao}
             className="painel-form"
-            onSubmit={aoFechar}
+            onSubmit={evento => {
+              if (aoAplicar) {
+                evento.preventDefault();
+                aoAplicar(new FormData(evento.currentTarget));
+              } else aoFechar();
+            }}
             aria-label="Nova consulta"
           >
             <div className="painel-campos">{children}</div>
@@ -118,15 +126,17 @@ export function PainelFiltros({
 export function CampoDoPainel({
   rotulo,
   apoio,
+  icone,
   children,
 }: {
   rotulo: string;
   apoio?: string;
+  icone?: 'fila';
   children: ReactNode;
 }) {
   return (
     <div className="painel-campo">
-      <span className="painel-rotulo">{rotulo}</span>
+      <span className="painel-rotulo">{icone ? <IconePortal nome={icone} tamanho={16} /> : null}{rotulo}</span>
       {apoio ? <span className="painel-apoio">{apoio}</span> : null}
       {children}
     </div>

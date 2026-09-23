@@ -1,6 +1,16 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { parametrosComFiltros, urlParaLimparFiltros } from '../src/lib/filtros-monitoramento.ts';
+import { idsDoFiltro, parametrosComFiltros, urlParaLimparFiltros } from '../src/lib/filtros-monitoramento.ts';
+
+test('seleção múltipla sobrevive ao envio e à reabertura, inclusive em links antigos', () => {
+  const a = '11111111-1111-4111-8111-111111111111';
+  const b = '22222222-2222-4222-8222-222222222222';
+  assert.deepEqual(idsDoFiltro([a, `${b},${a}`, 'inválido']), [a, b]);
+  const query = parametrosComFiltros(new URLSearchParams('aba=espera'), { fila: [a, b] });
+  assert.deepEqual(idsDoFiltro(query.getAll('fila')), [a, b]);
+  assert.deepEqual(idsDoFiltro(idsDoFiltro(query.getAll('fila')).join(',')), [a, b]);
+  assert.deepEqual(idsDoFiltro(''), []);
+});
 
 test('limpar filtros permanece no monitoramento do bot atual', () => {
   assert.equal(

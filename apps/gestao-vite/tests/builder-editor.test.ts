@@ -4,6 +4,8 @@ import { moverSaida } from '../src/paginas/builder/condicoes.ts';
 import { estadoInicial, reduzir } from '../src/paginas/builder/estado.ts';
 import {
   adicionarBloco,
+  blocoDoTextoCopiado,
+  colarBloco,
   desligar,
   excluirBloco,
   ligar,
@@ -11,8 +13,9 @@ import {
   moverBloco,
   novoBloco,
   posicaoDe,
+  textoDoBlocoCopiado,
 } from '../src/paginas/builder/modelo.ts';
-import { houveArrasto } from '../src/paginas/builder/setas.ts';
+import { caixaContemPonto, houveArrasto } from '../src/paginas/builder/setas.ts';
 import { errosDoBloco } from '../src/paginas/builder/validacao.ts';
 
 test('montarDesenho exporta os blocos da tela e as ações globais sem alterar o mapa', () => {
@@ -40,6 +43,18 @@ test('cria, move e exclui bloco, removendo destinos que apontavam para ele', () 
   assert.deepEqual(posicaoDe(movido.destino!), { top: 100, left: 0 });
   assert.equal(excluirBloco(movido, 'destino').destino, undefined);
   assert.deepEqual(excluirBloco(movido, 'destino').origem!.$conditionOutputs, []);
+});
+
+test('copia um bloco para a área de transferência e cola uma cópia na posição escolhida', () => {
+  const origem = novoBloco({}, { top: 10, left: 20 }, 'origem');
+  const copiado = blocoDoTextoCopiado(textoDoBlocoCopiado(origem));
+  assert.ok(copiado);
+  const mapa = colarBloco({ origem }, copiado, { top: 120, left: 340 }, 'destino');
+
+  assert.equal(mapa.origem, origem);
+  assert.equal(mapa.destino?.$title, 'Novo bloco [Cópia]');
+  assert.deepEqual(posicaoDe(mapa.destino!), { top: 120, left: 340 });
+  assert.equal(blocoDoTextoCopiado('texto comum'), null);
 });
 
 test('liga e desliga uma aresta sem duplicar a condição de saída', () => {
@@ -134,6 +149,14 @@ test('houveArrasto: só conta arrasto de verdade, não um clique que tremeu um p
   assert.equal(houveArrasto(2, 0), true);
   assert.equal(houveArrasto(0, -2), true);
   assert.equal(houveArrasto(-5, 5), true);
+});
+
+test('o alvo de uma ligação é resolvido pela caixa do bloco, sem depender do elemento do DOM sob o cursor', () => {
+  const caixa = { left: 100, top: 80, largura: 175, altura: 76 };
+  assert.equal(caixaContemPonto(caixa, { x: 100, y: 80 }), true);
+  assert.equal(caixaContemPonto(caixa, { x: 275, y: 156 }), true);
+  assert.equal(caixaContemPonto(caixa, { x: 276, y: 156 }), false);
+  assert.equal(caixaContemPonto(caixa, { x: 140, y: 157 }), false);
 });
 
 test('validação do painel aponta os campos obrigatórios da entrada antes de salvar', () => {

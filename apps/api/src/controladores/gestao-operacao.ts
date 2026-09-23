@@ -44,6 +44,8 @@ import { exigirPermissao } from '../sessao.js';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const DATA = /^\d{4}-\d{2}-\d{2}$/;
 const uuidOuNada = (v?: string) => (v && UUID.test(v) ? v : undefined);
+const uuidsDoFiltro = (v?: string | string[]) => [...new Set((Array.isArray(v) ? v : [v ?? ''])
+  .flatMap(item => item.split(',')).map(item => item.trim()).filter(item => UUID.test(item)))];
 const dataOuNada = (v?: string) => (v && DATA.test(v) ? v : undefined);
 
 /** O período pedido, ou os últimos `dias` dias incluindo hoje. */
@@ -132,16 +134,16 @@ export class ControladorGestaoOperacao {
   @ComSessao()
   async monitoramento(
     @Req() requisicao: RequisicaoComSessao,
-    @Query('fila') fila?: string,
-    @Query('atendente') atendente?: string,
+    @Query('fila') fila?: string | string[],
+    @Query('atendente') atendente?: string | string[],
   ): Promise<RespostaDoMonitoramento> {
     const sessao = sessaoDe(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
       const fuso = await fusoDoTenant(tx);
       const janela = await janelaDeHoje(tx, fuso);
       const dados = await carregarMonitoramento(tx, janela, fuso, {
-        filaId: uuidOuNada(fila),
-        atendenteId: uuidOuNada(atendente),
+        filaIds: uuidsDoFiltro(fila),
+        atendenteIds: uuidsDoFiltro(atendente),
       });
       return { fuso, janela, dados };
     });

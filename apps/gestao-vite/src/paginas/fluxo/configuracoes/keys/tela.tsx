@@ -1,7 +1,14 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ModalConfirmacao } from '../../../cadastros/_modal';
 import { useLeitura } from '../../../../lib/consulta';
-import { BotaoBds, BotaoDeIcone, CabecalhoDaPagina, CampoBds, Papel } from '../pecas';
+import {
+  BotaoBds,
+  BotaoDeIcone,
+  CabecalhoDaPagina,
+  CampoBds,
+  CampoCopiavel,
+  Papel,
+} from '../pecas';
 import { LIMITE_DE_CHAVES, erroAoCriar, marcarPadrao, noLimite, podeExcluir } from '../regras';
 import { criarChave, revogarChave, type ChaveListada } from './gravar';
 
@@ -32,7 +39,56 @@ function Baloes() {
 
 /** A data em pt-BR, para o "Data de criação" da origem. */
 function formatarData(iso: string): string {
-  return new Date(iso).toLocaleDateString('pt-BR');
+  return new Intl.DateTimeFormat('pt-BR', {
+    dateStyle: 'short',
+    timeStyle: 'short',
+  })
+    .format(new Date(iso))
+    .replace(',', ' -');
+}
+
+function ModalDaChave({ token, onFechar }: { token: string; onFechar: () => void }) {
+  useEffect(() => {
+    const fecharComEscape = (evento: KeyboardEvent) => {
+      if (evento.key === 'Escape') onFechar();
+    };
+    document.addEventListener('keydown', fecharComEscape);
+    return () => document.removeEventListener('keydown', fecharComEscape);
+  }, [onFechar]);
+
+  return (
+    <div className="cf-sobreposicao">
+      <div
+        className="cf-modal cf-modal--chave"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="titulo-chave-gerada"
+      >
+        <h2 id="titulo-chave-gerada">Chave de acesso</h2>
+        <div className="cf-modal-aviso" role="alert">
+          <ul>
+            <li>Copie sua chave. Por segurança, ela não será exibida novamente.</li>
+            <li>Se você usa uma sessão HTTP, atualize o cabeçalho com a nova chave.</li>
+          </ul>
+        </div>
+        <div className="cf-modal-chave-campo">
+          <h3>Usando SDK</h3>
+          <p>Chave de acesso</p>
+          <CampoCopiavel rotulo="Chave de acesso" valor={token} />
+        </div>
+        <div className="cf-modal-chave-campo">
+          <h3>Usando HTTP</h3>
+          <p>Cabeçalho de autenticação</p>
+          <CampoCopiavel rotulo="Autorização HTTP" valor={`Bearer ${token}`} />
+        </div>
+        <div className="cf-modal-acoes">
+          <BotaoBds autoFocus onClick={onFechar}>
+            Fechar
+          </BotaoBds>
+        </div>
+      </div>
+    </div>
+  );
 }
 
 /**
@@ -52,7 +108,7 @@ export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
   const [salvando, setSalvando] = useState(false);
   const [nome, setNome] = useState('');
   const [aviso, setAviso] = useState('');
-  const [tokenGerado, setTokenGerado] = useState<{ nome: string; token: string } | null>(null);
+  const [tokenGerado, setTokenGerado] = useState<string | null>(null);
   const [excluindo, setExcluindo] = useState<(ChaveListada & { padrao: boolean }) | null>(null);
   const [erroDeExclusao, setErroDeExclusao] = useState<string | null>(null);
   const [excluindoAgora, setExcluindoAgora] = useState(false);
@@ -79,7 +135,7 @@ export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
     }
     setCriando(false);
     setNome('');
-    setTokenGerado({ nome: resultado.valor.nome, token: resultado.valor.token });
+    setTokenGerado(resultado.valor.token);
   }
 
   async function confirmarExclusao() {
@@ -156,31 +212,6 @@ export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
           </Papel>
         ) : null}
 
-        {tokenGerado ? (
-          <Papel className="cf-chaves-gerada">
-            <p className="cf-chaves-gerada-titulo">
-              Chave &quot;{tokenGerado.nome}&quot; gerada com sucesso!
-            </p>
-            <p>
-              Copie e guarde esta chave agora: por segurança, ela não pode ser mostrada de novo.
-            </p>
-            <div className="cf-copiavel">
-              <input readOnly value={tokenGerado.token} aria-label="Chave gerada" />
-              <button
-                type="button"
-                className="cf-copiavel-botao"
-                aria-label="Copiar chave gerada"
-                onClick={() => void navigator.clipboard?.writeText(tokenGerado.token)}
-              >
-                Copiar
-              </button>
-            </div>
-            <BotaoBds variante="secondary" onClick={() => setTokenGerado(null)}>
-              Já copiei
-            </BotaoBds>
-          </Papel>
-        ) : null}
-
         {criando ? (
           <Papel className="cf-chaves-criar">
             <div className="cf-chaves-criar-dados">
@@ -212,7 +243,7 @@ export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
                 Cancelar
               </BotaoBds>
               <BotaoBds onClick={() => void criar()} disabled={salvando}>
-                {salvando ? 'Criando…' : 'Criar'}
+                Criar
               </BotaoBds>
             </div>
           </Papel>
@@ -235,19 +266,18 @@ export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
                   <dd>{chave.nome}</dd>
                 </div>
                 <div className="cf-chave-coluna">
-                  <dt>Prefixo</dt>
-                  <dd>{chave.prefixo}</dd>
+                  <dt>Requisitante</dt>
+                  <dd>{chave.requisitante ?? '-'}</dd>
                 </div>
               </dl>
               <div className="cf-chave-selo">
                 {chave.padrao ? <span className="cf-selo cf-selo--info">Padrão</span> : null}
-                {chave.revogadaEm ? <span className="cf-selo cf-selo--erro">Revogada</span> : null}
               </div>
               <div className="cf-chave-acoes">
                 <BotaoDeIcone
                   icone="lixeira"
                   rotulo="Excluir chave"
-                  disabled={!podeExcluir(chave) || Boolean(chave.revogadaEm)}
+                  disabled={!podeExcluir(chave)}
                   onClick={() => {
                     setErroDeExclusao(null);
                     setExcluindo(chave);
@@ -258,6 +288,10 @@ export function TelaDeChaves({ fluxoId }: { fluxoId: string }) {
           </Papel>
         ))}
       </div>
+
+      {tokenGerado ? (
+        <ModalDaChave token={tokenGerado} onFechar={() => setTokenGerado(null)} />
+      ) : null}
 
       <ModalConfirmacao
         aberto={excluindo !== null}

@@ -42,6 +42,18 @@ export interface Ponto {
   y: number;
 }
 
+/** O alvo do conector é a caixa do bloco no plano do canvas, não o elemento
+ * sob o cursor. Assim a captura do ponteiro e SVGs sobrepostos não fazem o
+ * destino desaparecer no `pointerup`. */
+export function caixaContemPonto(caixa: Caixa, ponto: Ponto): boolean {
+  return (
+    ponto.x >= caixa.left &&
+    ponto.x <= caixa.left + caixa.largura &&
+    ponto.y >= caixa.top &&
+    ponto.y <= caixa.top + caixa.altura
+  );
+}
+
 const centro = (c: Caixa): Ponto => ({ x: c.left + c.largura / 2, y: c.top + c.altura / 2 });
 
 /** As faces que se olham: mais horizontal → direita/esquerda; senão baixo/cima. */

@@ -1036,8 +1036,8 @@
   justify-content: center;
   gap: var(--p-e-1);
   height: 40px;
-  min-width: 130px;
-  padding: 0 var(--p-e-3);
+  min-width: 0;
+  padding: 0 16px;
   border: 1px solid var(--p-conteudo);
   border-radius: var(--p-r-md);
   background: transparent;
@@ -1053,6 +1053,10 @@
   background: var(--p-marca-suave);
   border-color: var(--p-marca-linha);
   color: var(--p-marca-forte);
+}
+
+.pilula:hover:not(:disabled) {
+  background: var(--p-superficie-2);
 }
 
 .pilula-rotulo {
@@ -4679,6 +4683,9 @@ tr.grupo th {
 }
 
 .painel-rotulo {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-size: var(--g-t-item);
   font-weight: var(--g-peso-negrito);
   line-height: var(--g-lh-cartao);

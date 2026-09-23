@@ -1,14 +1,16 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import type { PointerEvent as PointerEventDeReact, WheelEvent as WheelEventDeReact } from 'react';
-import type { Aresta, Mapa, Posicao } from './modelo';
-import { arestasDe, podeExcluir, posicaoDe } from './modelo';
+import type { Aresta, Bloco, Mapa, Posicao } from './modelo';
+import { arestasDe, blocoDoTextoCopiado, podeExcluir, posicaoDe, textoDoBlocoCopiado } from './modelo';
 import { No } from './no';
+import { etiquetasDoBloco } from './no';
 import {
   ALTURA_PADRAO_DO_BLOCO,
   LARGURA_DO_BLOCO,
   PASSO_DO_ZOOM,
   caminhoDaSeta,
   caminhoProvisorio,
+  caixaContemPonto,
   houveArrasto,
   pontaDaSeta,
   zoomAjustado,
@@ -55,13 +57,20 @@ export interface PropsDoCanvas {
   onDesligar: (de: string, para: string) => void;
   onDuplicar: (id: string) => void;
   onCopiarId: (id: string) => void;
+  onColar: (bloco: Bloco, posicao: Posicao) => void;
   onExcluir: (id: string) => void;
+  onAviso: (texto: string) => void;
+  pesquisa: string;
 }
 
 type Arrasto =
   | { tipo: 'bloco'; id: string; origem: Ponto; inicio: Posicao; moveu: boolean }
   | { tipo: 'cena'; origem: Ponto; inicio: Posicao }
   | { tipo: 'ligacao'; de: string; origem: Ponto; ate: Ponto; alvo: string | null; moveu: boolean };
+
+type MenuDeContexto =
+  | { tipo: 'bloco'; id: string; x: number; y: number }
+  | { tipo: 'fundo'; x: number; y: number; posicao: Posicao };
 
 const chaveDaAresta = (a: Aresta): string => `${a.de}\u0000${a.para}`;
 
@@ -82,13 +91,17 @@ export function Canvas({
   onDesligar,
   onDuplicar,
   onCopiarId,
+  onColar,
   onExcluir,
+  onAviso,
+  pesquisa,
 }: PropsDoCanvas) {
   const fundo = useRef<HTMLDivElement>(null);
   const [arrasto, setArrasto] = useState<Arrasto | null>(null);
   const [alturas, setAlturas] = useState<Record<string, number>>({});
   const [arestaSelecionada, setArestaSelecionada] = useState<string | null>(null);
-  const [menu, setMenu] = useState<{ id: string; x: number; y: number } | null>(null);
+  const [menu, setMenu] = useState<MenuDeContexto | null>(null);
+  const [blocoCopiado, setBlocoCopiado] = useState<Bloco | null>(null);
   const escala = zoom / 100;
 
   /* A altura real de cada cartão, para a seta sair da face certa. */
@@ -155,11 +168,16 @@ export function Canvas({
     return { ...posicao, largura: LARGURA_DO_BLOCO, altura: alturas[id] ?? ALTURA_PADRAO_DO_BLOCO };
   }
 
-  /** O bloco sob o ponteiro, se houver — para saber onde a ligação foi solta. */
+  /** O bloco sob o ponteiro, no plano do canvas. `elementFromPoint` falha
+   * durante a captura do ponteiro em alguns navegadores e com setas por cima. */
   function blocoSob(e: { clientX: number; clientY: number }): string | null {
-    const el = document.elementFromPoint(e.clientX, e.clientY);
-    const no = el?.closest<HTMLElement>('[data-bloco]');
-    return no?.dataset['bloco'] ?? null;
+    const ponto = pontoDoCanvas(e);
+    const ids = Object.keys(mapa);
+    for (let i = ids.length - 1; i >= 0; i -= 1) {
+      const id = ids[i]!;
+      if (caixaContemPonto(caixaDe(id), ponto)) return id;
+    }
+    return null;
   }
 
   /* ------------------------------------------------------------- blocos */
@@ -256,24 +274,74 @@ export function Canvas({
   const arestas = arestasDe(mapa);
   const blocos = Object.values(mapa);
   const alvoDaLigacao = arrasto?.tipo === 'ligacao' ? arrasto.alvo : null;
-  const menuDoBloco = menu ? mapa[menu.id] : undefined;
+  const menuDoBloco = menu?.tipo === 'bloco' ? mapa[menu.id] : undefined;
+  const termoDaPesquisa = pesquisa.trim().toLocaleLowerCase('pt-BR');
+  const corresponde = (bloco: (typeof blocos)[number]): boolean =>
+    !termoDaPesquisa ||
+    [bloco.id, bloco.$title ?? '', ...etiquetasDoBloco(bloco).map((etiqueta) => etiqueta.rotulo)]
+      .join(' ')
+      .normalize('NFD')
+      .replace(/\p{Diacritic}/gu, '')
+      .toLocaleLowerCase('pt-BR')
+      .includes(termoDaPesquisa.normalize('NFD').replace(/\p{Diacritic}/gu, ''));
 
   /** Um item do menu de contexto: fecha o menu e faz o gesto no bloco dele. */
   function escolher(gesto: (id: string) => void): void {
-    if (!menu) return;
+    if (!menu || menu.tipo !== 'bloco') return;
     setMenu(null);
     gesto(menu.id);
+  }
+
+  function copiarBloco(id: string): void {
+    const bloco = mapa[id];
+    if (!bloco) return;
+    setBlocoCopiado(bloco);
+    setMenu(null);
+    void navigator.clipboard?.writeText(textoDoBlocoCopiado(bloco)).then(
+      () => onAviso('Bloco copiado.'),
+      () => onAviso('Bloco copiado nesta aba.'),
+    );
+  }
+
+  async function colarBloco(): Promise<void> {
+    if (!menu || menu.tipo !== 'fundo') return;
+    let bloco = blocoCopiado;
+    try {
+      bloco = blocoDoTextoCopiado(await navigator.clipboard.readText()) ?? bloco;
+    } catch {
+      // A cópia feita neste Builder continua disponível mesmo sem permissão de leitura do navegador.
+    }
+    setMenu(null);
+    if (!bloco) {
+      onAviso('Copie um bloco do Builder antes de colar.');
+      return;
+    }
+    onColar(bloco, menu.posicao);
+    onAviso('Bloco colado.');
+  }
+
+  function abrirMenuDoFundo(e: React.MouseEvent<HTMLDivElement>): void {
+    e.preventDefault();
+    const caixa = fundo.current?.getBoundingClientRect();
+    const ponto = pontoDoCanvas(e);
+    setMenu({
+      tipo: 'fundo',
+      x: e.clientX - (caixa?.left ?? 0),
+      y: e.clientY - (caixa?.top ?? 0),
+      posicao: { top: ponto.y, left: ponto.x },
+    });
   }
 
   return (
     <div
       ref={fundo}
-      className={`bl-canvas${arrasto?.tipo === 'cena' ? ' bl-canvas--arrastando' : ''}`}
+      className={`bl-canvas${arrasto?.tipo === 'cena' ? ' bl-canvas--arrastando' : ''}${termoDaPesquisa ? ' bl-canvas--pesquisando' : ''}`}
       onPointerDown={aoPressionarFundo}
       onPointerMove={aoMover}
       onPointerUp={aoSoltar}
       onPointerCancel={() => setArrasto(null)}
       onWheel={aoRolar}
+      onContextMenu={abrirMenuDoFundo}
       aria-label="Blocos do fluxo"
     >
       <div
@@ -323,6 +391,7 @@ export function Canvas({
             selecionado={selecionado === bloco.id}
             editando={editando === bloco.id}
             alvo={alvoDaLigacao === bloco.id}
+            corresponde={corresponde(bloco)}
             onPointerDown={(e) => aoPressionarBloco(bloco.id, e)}
             onPointerDownNaSaida={(e) => aoPressionarSaida(bloco.id, e)}
             onContextMenu={(e) => {
@@ -331,13 +400,13 @@ export function Canvas({
               if (bloco.root) return;
               onSelecionar(bloco.id);
               const caixa = fundo.current?.getBoundingClientRect();
-              setMenu({ id: bloco.id, x: e.clientX - (caixa?.left ?? 0), y: e.clientY - (caixa?.top ?? 0) });
+              setMenu({ tipo: 'bloco', id: bloco.id, x: e.clientX - (caixa?.left ?? 0), y: e.clientY - (caixa?.top ?? 0) });
             }}
           />
         ))}
       </div>
 
-      {menu && menuDoBloco ? (
+      {menu?.tipo === 'bloco' && menuDoBloco ? (
         <div
           className="bl-menu-contexto"
           role="menu"
@@ -347,6 +416,9 @@ export function Canvas({
           <button type="button" role="menuitem" onClick={() => escolher(onDuplicar)}>
             Duplicar
           </button>
+          <button type="button" role="menuitem" onClick={() => copiarBloco(menu.id)}>
+            Copiar
+          </button>
           <button type="button" role="menuitem" onClick={() => escolher(onCopiarId)}>
             Copiar Id
           </button>
@@ -355,6 +427,18 @@ export function Canvas({
               Excluir
             </button>
           ) : null}
+        </div>
+      ) : null}
+      {menu?.tipo === 'fundo' ? (
+        <div
+          className="bl-menu-contexto"
+          role="menu"
+          style={{ left: menu.x, top: menu.y }}
+          onPointerDown={(e) => e.stopPropagation()}
+        >
+          <button type="button" role="menuitem" onClick={() => void colarBloco()}>
+            Colar
+          </button>
         </div>
       ) : null}
     </div>

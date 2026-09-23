@@ -112,9 +112,11 @@ function ListaDeAcoesDoBloco({
   const grupos = ['Executar', 'Manipular'] as const;
 
   return (
-    <section className="bl-secao">
-      <h4 className="bl-secao-titulo">{titulo}</h4>
-      <p className="sub">{descricao}</p>
+    <section className="bl-secao bl-lista-de-acoes">
+      <header className="bl-secao-cabecalho">
+        <h4 className="bl-secao-titulo">{titulo}</h4>
+        <p className="sub">{descricao}</p>
+      </header>
 
       {acoes.map((acao, i) => (
         <CartaoDeAcao

@@ -125,6 +125,58 @@
   color: var(--ink);
 }
 
+/* BDS banner system: mesmas medidas, com verde-claro no lugar do azul. */
+.bl-aviso--sistema {
+  box-sizing: border-box;
+  gap: 8px;
+  min-height: 56px;
+  padding: 8px 16px;
+  border: 0;
+  background: #d7edb8;
+  color: #282828;
+  font-family: 'Nunito Sans', 'Carbona', Tahoma, Helvetica, Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 20px;
+}
+
+.bl-aviso--sistema > svg {
+  flex: 0 0 24px;
+}
+
+.bl-aviso--sistema .bl-aviso-texto {
+  flex: 1;
+  min-width: 0;
+}
+
+.bl-aviso--sistema a {
+  color: #354b19;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.bl-aviso--sistema .bl-aviso-nota {
+  margin: 8px 0 0;
+  color: inherit;
+}
+
+.bl-aviso--sistema .bl-aviso-fechar {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  color: #282828;
+}
+
+.bl-aviso--sistema .bl-aviso-fechar:hover {
+  background: rgb(40 40 40 / 8%);
+}
+
+.bl-aviso--sistema :is(a, .bl-aviso-fechar):focus-visible {
+  outline: 2px solid #354b19;
+  outline-offset: 2px;
+}
+
 /* --------------------------------------------------------------- o corpo */
 
 .bl-corpo {
@@ -214,6 +266,11 @@
 
 .bl-icone-botao--vivo:hover {
   background: var(--surface);
+}
+
+.bl-icone-botao--ativo {
+  background: var(--surface);
+  color: var(--ink);
 }
 
 /* ------------------------------------------------------- os erros do motor
@@ -362,6 +419,24 @@
 /* O "Pesquisar" da lista deles leva `mv2`: 5px acima e abaixo. */
 .bl-pesquisar {
   margin: 5px 0;
+}
+.bl-pesquisa-flutuante {
+  position: absolute;
+  top: 10px;
+  left: 35vw;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: min(440px, calc(100vw - 5rem));
+  padding: 10px;
+  border-radius: 8px;
+  background: var(--surface-2);
+  box-shadow: var(--p-sombra-2);
+}
+.bl-pesquisa-flutuante .campo {
+  flex: 1;
+  min-width: 0;
 }
 
 /* ------------------------------------------------------------- o rodapé
