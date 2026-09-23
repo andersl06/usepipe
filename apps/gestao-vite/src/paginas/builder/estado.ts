@@ -39,7 +39,11 @@ export type GestoDoEditor =
   | { tipo: 'soltar' }
   | { tipo: 'desfazer' }
   | { tipo: 'refazer' }
-  | { tipo: 'salvo'; mapa: Mapa };
+  | { tipo: 'salvo'; mapa: Mapa }
+  /** As ações globais (aba "Ações Globais" da Configuração) — fora da pilha de
+   * desfazer/refazer, que só guarda `Mapa` (ver `passado`/`futuro`); Ctrl+Z
+   * continua desfazendo só o desenho, como antes desta aba existir. */
+  | { tipo: 'aplicarGlobais'; globais: Record<string, unknown> };
 
 export function estadoInicial(): EstadoDoEditor {
   return { mapa: {}, globais: {}, passado: [], futuro: [], antesDoArrasto: null, sujo: false, gravado: null };
@@ -67,6 +71,11 @@ export function reduzir(estado: EstadoDoEditor, gesto: GestoDoEditor): EstadoDoE
       return { ...estado, passado, futuro: [], antesDoArrasto: null };
     }
     case 'desfazer': {
+      // Um arrasto em curso ainda não virou passo do histórico (só `soltar` o
+      // empilha) — desfazer agora trocaria o mapa por baixo do arrasto e o
+      // `soltar` seguinte empilharia o `antesDoArrasto` velho por cima, perdendo
+      // o desfazer. Ctrl+Z some enquanto o botão do mouse está apertado.
+      if (estado.antesDoArrasto) return estado;
       const anterior = estado.passado[estado.passado.length - 1];
       if (!anterior) return estado;
       return {
@@ -78,6 +87,7 @@ export function reduzir(estado: EstadoDoEditor, gesto: GestoDoEditor): EstadoDoE
       };
     }
     case 'refazer': {
+      if (estado.antesDoArrasto) return estado;
       const proximo = estado.futuro[0];
       if (!proximo) return estado;
       return {
@@ -90,6 +100,9 @@ export function reduzir(estado: EstadoDoEditor, gesto: GestoDoEditor): EstadoDoE
     }
     case 'salvo':
       return { ...estado, gravado: gesto.mapa, sujo: estado.mapa !== gesto.mapa };
+    case 'aplicarGlobais':
+      if (gesto.globais === estado.globais) return estado;
+      return { ...estado, globais: gesto.globais, sujo: true };
   }
 }
 

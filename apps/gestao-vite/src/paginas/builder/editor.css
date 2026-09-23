@@ -167,6 +167,21 @@
   background: var(--p-superficie-0, #fff);
   box-shadow: 0 2px 8px -2px rgb(0 0 0 / 16%);
 }
+.bl-novo-bloco {
+  /* Medidas do #builder-command-buttons-add em portal.css da captura: 17rem,
+     4rem da borda, 24px de respiro e centrado na altura da janela. */
+  position: fixed;
+  top: 50%;
+  left: 4rem;
+  width: 17rem;
+  min-width: 0;
+  padding: 24px;
+  transform: translateY(-50%);
+  border: 0;
+  border-radius: 16px;
+  background: var(--surface-2, #ededed);
+  box-shadow: 16px 0 56px 16px rgba(0, 0, 0, 0.45);
+}
 .bl-menu-contexto button,
 .bl-novo-bloco-item,
 .bl-menu-acoes button {
@@ -192,6 +207,28 @@
   color: var(--p-conteudo-suave, #6b6b6b);
   font-size: 12px;
 }
+.bl-novo-bloco-cabecalho {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0;
+  color: var(--p-conteudo, #282828);
+  font-size: 16px;
+  font-weight: 600;
+}
+.bl-novo-bloco-cabecalho h4 {
+  margin: 0;
+  font-size: inherit;
+  font-weight: inherit;
+}
+.bl-novo-bloco-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 40px;
+  padding: 0 16px;
+  border-radius: 4px;
+}
 
 /* --------------------------------------------------------- o painel do bloco */
 
@@ -208,25 +245,41 @@
 }
 .bl-painel {
   position: absolute;
-  top: 16px;
-  right: 16px;
-  bottom: 16px;
-  z-index: 2;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
   display: flex;
   flex-direction: column;
-  width: 460px;
+  width: 445px;
   border-radius: 16px;
   background: var(--p-superficie-1, #f6f6f6);
   color: var(--p-conteudo, #1a1a1a);
   box-shadow: 0 2px 8px -2px rgb(0 0 0 / 16%);
   overflow: hidden;
 }
+/* A Biblioteca de variáveis é o único painel à ESQUERDA na origem
+   (`library-sidebar`, `position-left`) — os outros (bloco, Configuração) são
+   `position-right`. */
+.bl-painel--esquerda {
+  right: auto;
+  left: 0;
+}
+.bl-filas-corpo {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 16px;
+  padding: 24px;
+}
 .bl-painel-cabecalho {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 16px 20px;
-  border-bottom: 1px solid var(--p-linha, #e0e0e0);
+}
+.bl-painel--configuracao .bl-painel-cabecalho {
+  padding: 24px 32px 0;
 }
 .bl-painel-titulo {
   flex: 1;
@@ -253,7 +306,7 @@
 }
 .bl-painel-fio {
   height: 1px;
-  margin: 16px 0;
+  margin: 0;
   background: var(--p-linha, #e0e0e0);
 }
 
@@ -303,7 +356,6 @@
   font-size: 12px;
 }
 .bl-campo input,
-.bl-campo select,
 .bl-campo textarea,
 .bl-valor input,
 .bl-valores-campo input {
@@ -336,6 +388,13 @@
 .bl-saida--padrao {
   border-style: dashed;
 }
+/* O estado de erro do cartão (saída, ação ou condição inválida) — pintava a
+   classe mas faltava a regra, então nenhum cartão inválido se destacava. */
+.bl-saida--erro,
+.bl-acao--erro,
+.bl-condicao--erro {
+  border-color: var(--p-erro-conteudo, #c4442e);
+}
 .bl-saida-cabecalho,
 .bl-acao-cabecalho {
   display: flex;
@@ -362,6 +421,12 @@
   display: flex;
   align-items: center;
   gap: 8px;
+}
+/* O "OU"/"E" entre valores: largura própria, sem esticar pela linha (a classe
+   existia sem regra nenhuma, então o `Selecao` crescia como os campos ao lado). */
+.bl-condicao-operador {
+  flex: none;
+  width: 90px;
 }
 .bl-condicao-se {
   color: var(--p-conteudo-suave, #6b6b6b);
@@ -423,10 +488,17 @@
 .bl-cartao--apagado {
   opacity: 0.6;
 }
+/* Duas opções de rádio lado a lado — a classe existia sem `display`/`gap`,
+   então "Aguardar resposta" e "Não aguardar" ficavam coladas, sem espaço
+   entre o fim de um rótulo e o início do outro. */
 .bl-escolha {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
   padding: 6px 10px;
   border: 1px solid var(--p-linha, #e0e0e0);
-  border-radius: 999px;
+  border-radius: 8px;
   font-size: 12px;
 }
 
@@ -441,4 +513,72 @@
   color: var(--p-conteudo-claro, #fff);
   font-size: 13px;
   transform: translateX(-50%);
+}
+
+/* ------------------------------------------------- biblioteca de variáveis */
+
+.bl-variaveis-vazio {
+  margin-top: 12px;
+}
+.bl-variaveis-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+}
+.bl-variaveis-lista li {
+  padding: 8px 10px;
+  border-radius: 8px;
+}
+.bl-variaveis-lista li:hover {
+  background: var(--p-superficie-0, #fff);
+}
+.bl-variavel-linha {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.bl-variavel-nome {
+  font-size: 13px;
+  font-weight: 700;
+  word-break: break-all;
+}
+
+/* ------------------------------------------------- configuração: versões */
+
+.bl-versoes-acoes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+.bl-versoes-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--p-superficie-0, #fff);
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.bl-versoes-item:hover {
+  background: var(--p-marca-suave, #e8ecdf);
+}
+.bl-oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
 }

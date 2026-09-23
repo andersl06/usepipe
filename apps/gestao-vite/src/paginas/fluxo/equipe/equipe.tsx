@@ -43,7 +43,6 @@ export function PaginaDeEquipe() {
           <TelaDeEquipe
             fluxoId={contato.id}
             podeGerir={leitura.data.podeGerir}
-            recursos={leitura.data.recursos}
             membros={leitura.data.membros}
           />
         )}

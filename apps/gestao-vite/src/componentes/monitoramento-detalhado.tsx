@@ -14,6 +14,7 @@ import { IconeGestao } from './icones-gestao';
 import { Paginacao, usePagina } from './paginacao';
 import { Selecao } from './selecao';
 import { useLeitura } from '../lib/consulta';
+import { ModalFinalizarMonitoramento } from './modal-finalizar-monitoramento';
 
 /**
  * Monitoramento detalhado: o cartão do fim da tela deles.
@@ -166,7 +167,7 @@ function AcoesDoTicket({
         {aberto ? (
           <div className="mon-menu-acoes" role="menu" aria-label={`Ações do ${linha.ticket}`}>
             <button type="button" role="menuitem" onClick={() => aoAbrir(linha.id)}>Abrir conversa</button>
-            <button type="button" role="menuitem" className="perigo" onClick={() => setModal('finalizar')}>
+            <button type="button" role="menuitem" className="perigo" onClick={() => { setAberto(false); setModal('finalizar'); }}>
               Finalizar
             </button>
           </div>
@@ -182,7 +183,6 @@ function AcoesDoTicket({
       {modal === 'finalizar' ? (
         <ModalFinalizarMonitoramento
           linha={linha}
-          etiquetas={catalogos.etiquetas}
           aoFechar={() => setModal(null)}
         />
       ) : null}
@@ -249,58 +249,6 @@ function ModalTransferirMonitoramento({
         <button type="button" className="btn" onClick={aoFechar}>Cancelar</button>
         <button type="button" className="btn primary" disabled={!destino || enviando} onClick={() => void transferir()}>
           Transferir ticket
-        </button>
-      </div>
-    </ModalDoMonitoramento>
-  );
-}
-
-function ModalFinalizarMonitoramento({
-  linha,
-  etiquetas,
-  aoFechar,
-}: {
-  linha: LinhaConversaAberta;
-  etiquetas: Monitoramento['etiquetas'];
-  aoFechar: () => void;
-}) {
-  const [etiquetaId, setEtiquetaId] = useState('');
-  const [erro, setErro] = useState<string | null>(null);
-  const [enviando, setEnviando] = useState(false);
-  const consultas = useQueryClient();
-
-  async function finalizar() {
-    if (!etiquetaId) return;
-    setEnviando(true);
-    setErro(null);
-    try {
-      await api.post(`/v1/gestao/monitoramento/conversas/${linha.id}/finalizar`, { etiqueta_id: etiquetaId });
-      await consultas.invalidateQueries({ queryKey: ['api'] });
-      aoFechar();
-    } catch (causa) {
-      setErro(causa instanceof Error ? causa.message : 'Não foi possível finalizar o ticket.');
-      setEnviando(false);
-    }
-  }
-
-  return (
-    <ModalDoMonitoramento titulo={`Finalizar atendimento do Ticket ${linha.ticket}`} aoFechar={aoFechar}>
-      <p>Finalizar o atendimento encerra este ticket. Novas interações criam um novo ticket.</p>
-      <label className="mon-campo">
-        Adicionar tags
-        <Selecao value={etiquetaId} onChange={(evento) => setEtiquetaId(evento.target.value)} aria-label="Adicionar tags">
-          <option value="">Tags</option>
-          {etiquetas.map((etiqueta) => (
-            <option key={etiqueta.id} value={etiqueta.id}>{etiqueta.nome}</option>
-          ))}
-        </Selecao>
-      </label>
-      {etiquetas.length === 0 ? <p className="mon-modal-erro">Cadastre uma tag antes de finalizar.</p> : null}
-      {erro ? <p className="mon-modal-erro">{erro}</p> : null}
-      <div className="mon-modal-acoes">
-        <button type="button" className="btn" onClick={aoFechar}>Cancelar</button>
-        <button type="button" className="btn primary" disabled={!etiquetaId || enviando} onClick={() => void finalizar()}>
-          Finalizar ticket
         </button>
       </div>
     </ModalDoMonitoramento>

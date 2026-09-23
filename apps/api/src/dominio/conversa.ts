@@ -80,10 +80,12 @@ function exigirTransicao(de: string, para: EstadoConversa): void {
 export interface PedidoDeEncerramento {
   conversaId: string;
   /**
-   * Etiqueta de encerramento. **Obrigatória**: conversa fechada sem motivo é relatório
-   * que não explica nada depois — a regra já valia no Desk e sobe junto com ela.
+   * A Blip (`close-modal-container.js`) envia uma coleção e bloqueia só quando
+   * a política exige tags; no Pipe, as etiquetas marcadas na Gestão são essa lista.
    */
-  etiquetaId: string;
+  etiquetaIds?: readonly string[];
+  /** Compatibilidade com clientes que ainda enviam a forma antiga. */
+  etiquetaId?: string;
 }
 
 export async function encerrarConversa(
@@ -96,17 +98,31 @@ export async function encerrarConversa(
     const conversa = await carregar(tx, pedido.conversaId, ator, 'conversa.encerrar');
     exigirTransicao(conversa.estado, 'encerrada');
 
-    const { rows: etiquetas } = await tx.execute<{ nome: string }>(
-      sql`select nome from etiqueta where id = ${pedido.etiquetaId}::uuid limit 1`,
-    );
-    const etiqueta = etiquetas[0];
-    if (!etiqueta) throw ErroPipe.naoEncontrado('Etiqueta');
+    const etiquetaIds = [...new Set(pedido.etiquetaIds ?? (pedido.etiquetaId ? [pedido.etiquetaId] : []))];
+    const { rows: etiquetas } = etiquetaIds.length
+      ? await tx.execute<{ id: string; nome: string; obrigatoria_no_encerramento: boolean }>(sql`
+          select id, nome, obrigatoria_no_encerramento from etiqueta
+           where id in (${sql.join(etiquetaIds.map((id) => sql`${id}::uuid`), sql`, `)})
+        `)
+      : { rows: [] as { id: string; nome: string; obrigatoria_no_encerramento: boolean }[] };
+    if (etiquetas.length !== etiquetaIds.length) throw ErroPipe.naoEncontrado('Etiqueta');
 
-    await tx.execute(sql`
-      insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, por_usuario_id)
-      values (${ator.tenantId}, ${conversa.id}, ${pedido.etiquetaId}, ${ator.atendenteId})
-      on conflict do nothing
+    const { rows: obrigatorias } = await tx.execute<{ id: string }>(sql`
+      select id from etiqueta
+       where obrigatoria_no_encerramento = true and escopo in ('conversa', 'ambos')
     `);
+    if (obrigatorias.some((obrigatoria) => !etiquetaIds.includes(obrigatoria.id))) {
+      throw ErroPipe.requisicao('etiqueta_obrigatoria', 'Escolha as tags obrigatórias para finalizar.');
+    }
+
+    for (const etiqueta of etiquetas) {
+      await tx.execute(sql`
+        insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, por_usuario_id)
+        values (${ator.tenantId}, ${conversa.id}, ${etiqueta.id}, ${ator.atendenteId})
+        on conflict do nothing
+      `);
+    }
+    const motivo = etiquetas.map((etiqueta) => etiqueta.nome).join(', ');
 
     // Uma conversa encerrada em espera tem de fechar a espera antes, senão o intervalo
     // pausado fica aberto para sempre e some do relatório de esforço.
@@ -118,7 +134,7 @@ export async function encerrarConversa(
     await tx.execute(sql`
       update conversa
          set estado = 'encerrada', encerrada_em = ${agora}, encerrada_por = ${ator.atendenteId},
-             motivo_encerramento = ${etiqueta.nome}, em_espera_desde = null,
+             motivo_encerramento = ${motivo || null}, em_espera_desde = null,
              pausado_seg = pausado_seg + ${pausadoSeg}, atualizado_em = ${agora}
        where id = ${conversa.id}
     `);
@@ -145,17 +161,18 @@ export async function encerrarConversa(
       // `encerradaPor` do `@pipe/core` é QUEM tirou da tela, não o id de quem clicou.
       dados: {
         encerrada_por: ator.atendenteId ? 'atendente' : 'transferencia',
-        etiqueta: etiqueta.nome,
+        ...(etiquetas.length === 1 ? { etiqueta: etiquetas[0]!.nome } : {}),
+        etiquetas: etiquetas.map((etiqueta) => etiqueta.nome),
       },
     });
 
     await emitir(tx, ator.tenantId, 'conversa.encerrada', {
       conversa_id: conversa.id,
-      motivo: etiqueta.nome,
+      motivo: motivo || null,
       encerrada_por: ator.atendenteId,
     });
 
-    return { motivo: etiqueta.nome };
+    return { motivo };
   });
 
   drenarEmSegundoPlano(ator.tenantId);

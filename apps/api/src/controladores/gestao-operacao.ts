@@ -1,4 +1,5 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestjs/common';
+import type { EncerrarConversaInput } from '@pipe/contracts';
 import { noTenant } from '../banco.js';
 import { ErroPipe } from '../erros.js';
 import { ComSessao, sessaoDe } from '../sessao.js';
@@ -188,17 +189,16 @@ export class ControladorGestaoOperacao {
   async finalizarNoMonitoramento(
     @Req() requisicao: RequisicaoComSessao,
     @Param('id') id: string,
-    @Body() corpo: { etiqueta_id?: string },
+    @Body() corpo: EncerrarConversaInput,
   ): Promise<{ estado: string }> {
     const sessao = sessaoDe(requisicao);
     if (!UUID.test(id)) throw ErroPipe.naoEncontrado('Conversa');
-    if (!corpo?.etiqueta_id) throw ErroPipe.requisicao('etiqueta_obrigatoria', 'Escolha a etiqueta de encerramento.');
     return noTenant(sessao.tenantId, async (tx) => {
       await exigirPermissao(tx, sessao.usuarioId, 'monitoramento.tempo_real.ver');
       await exigirPermissao(tx, sessao.usuarioId, 'conversa.encerrar');
       const resultado = await encerrarConversa(
         { tenantId: sessao.tenantId, atendenteId: sessao.usuarioId, exigirAtribuicao: false },
-        { conversaId: id, etiquetaId: corpo.etiqueta_id! },
+        { conversaId: id, etiquetaIds: corpo?.etiqueta_ids, etiquetaId: corpo?.etiqueta_id },
       );
       await registrarAuditoria(tx, sessao.tenantId, {
         ator: { tipo: 'usuario', id: sessao.usuarioId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,

@@ -1,5 +1,4 @@
-import { Icone } from '@pipe/ui';
-import { IconeGestao } from '../../componentes/icones-gestao';
+import { IconePortal } from '../../componentes/icones-portal';
 
 /**
  * O papel "NOVO BLOCO" que o "Adicionar bloco" da pílula abre
@@ -26,16 +25,16 @@ export function MenuNovoBloco({
       <div className="bl-novo-bloco-cabecalho">
         <h4>NOVO BLOCO</h4>
         <button type="button" className="iconbtn" aria-label="Fechar" onClick={onFechar}>
-          <Icone nome="x" tamanho={20} />
+          <IconePortal nome="fechar" tamanho={20} />
         </button>
       </div>
       <hr className="bl-painel-fio" />
       <button type="button" className="bl-novo-bloco-item" data-test="button-create-new-block" onClick={onPadrao}>
-        <Icone nome="grade" tamanho={20} />
+        <IconePortal nome="fluxo" tamanho={20} />
         <span>Padrão</span>
       </button>
       <button type="button" className="bl-novo-bloco-item" data-test="builder-add-desk-state" onClick={onHumano}>
-        <IconeGestao nome="atendente" tamanho={20} />
+        <IconePortal nome="suporte" tamanho={20} />
         <span>Humano</span>
       </button>
     </div>

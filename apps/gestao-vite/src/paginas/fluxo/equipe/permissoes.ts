@@ -1,8 +1,8 @@
 import type { NivelNoFluxo, PapelNoFluxo, PermissoesNoFluxo } from '@pipe/contracts';
 
 /**
- * O vocabulário dos dois modais da Equipe — o traço "Permissão" e a lista por
- * recurso —, agora com dado de verdade atrás.
+ * O vocabulário da Equipe — a barra do modal de adicionar e a matriz da página
+ * de editar —, agora com dado de verdade atrás.
  *
  * Até a migração 0035 esta tela era ESPELHO do papel de CONTA: o Pipe não tinha
  * RBAC por fluxo, então os rádios vinham da matriz da 0021 e nasciam
@@ -14,11 +14,9 @@ import type { NivelNoFluxo, PapelNoFluxo, PermissoesNoFluxo } from '@pipe/contra
  *   níveis    os três rádios do `PermissionsList.html`: `none` (0), `read` (1)
  *             e `readWrite` (3), rotulados "Sem permissão" / "Visualizar" /
  *             "Ver e editar", cada um com o seu `info`;
- *   paradas   as quatro do `rzslider` (`team.addUserModal.slider`), que os DOIS
- *             modais escrevem com palavras diferentes: adicionar usa
- *             "Visualizar · Customizado · Visualizar e editar · Admin" (DOM
- *             capturado) e editar usa "Visualizar · Personalizado · Ver e
- *             editar · Admin" (`FICHA-equipe-editar.md` §4).
+ *   paradas   as quatro do `rzslider` (`team.addUserModal.slider`):
+ *             "Visualizar · Customizado · Visualizar e editar · Admin". A
+ *             edição usa outro controle, um `custom-select` com cinco opções.
  *
  * Os RECURSOS (as linhas) não moram aqui: vêm de `GET .../equipe`, na ordem do
  * template da origem, porque quem decide o catálogo é o servidor
@@ -44,16 +42,30 @@ export const COLUNAS_DE_NIVEL: readonly { nivel: NivelNoFluxo; rotulo: string; d
   },
 ];
 
-/** As quatro paradas do traço, com a legenda de cada modal. */
+/** As quatro paradas da barra do modal de adicionar. */
 export const PAPEIS_DO_FLUXO: readonly {
   papel: PapelNoFluxo;
   adicionar: string;
-  editar: string;
 }[] = [
-  { papel: 'visualizar', adicionar: 'Visualizar', editar: 'Visualizar' },
-  { papel: 'personalizado', adicionar: 'Customizado', editar: 'Personalizado' },
-  { papel: 'editar', adicionar: 'Visualizar e editar', editar: 'Ver e editar' },
-  { papel: 'admin', adicionar: 'Admin', editar: 'Admin' },
+  { papel: 'visualizar', adicionar: 'Visualizar' },
+  { papel: 'personalizado', adicionar: 'Customizado' },
+  { papel: 'editar', adicionar: 'Visualizar e editar' },
+  { papel: 'admin', adicionar: 'Admin' },
+];
+
+/** A Blip troca o CTA ao preparar a passagem do cadastro curto para `/team/edit`. */
+export const acaoDeAdicionar = (papel: PapelNoFluxo) =>
+  papel === 'personalizado' ? 'Continuar' : 'Salvar';
+
+/** O seletor da PÁGINA de editar tem uma opção a mais que a barra de adicionar. */
+export type NivelDaEdicao = 'nenhum' | PapelNoFluxo;
+
+export const NIVEIS_DA_EDICAO: readonly { valor: NivelDaEdicao; rotulo: string }[] = [
+  { valor: 'nenhum', rotulo: 'Sem permissão' },
+  { valor: 'personalizado', rotulo: 'Customizado' },
+  { valor: 'visualizar', rotulo: 'Visualizar' },
+  { valor: 'editar', rotulo: 'Ver e editar' },
+  { valor: 'admin', rotulo: 'Admin' },
 ];
 
 /**
@@ -79,7 +91,31 @@ export function permissoesDoPapel(
   return mapa;
 }
 
-/** O selo do cartão: a palavra do modal de EDITAR, que é a da lista. */
-export function rotuloDoPapel(papel: PapelNoFluxo): string {
-  return PAPEIS_DO_FLUXO.find((p) => p.papel === papel)?.editar ?? papel;
+/**
+ * O `permissionSelect` de `/team/edit` na Blip é derivado da matriz:
+ * tudo 0 = none, tudo 1 = read, tudo 3 = readWrite; mistura = custom.
+ */
+export function nivelDaEdicao(
+  papel: PapelNoFluxo,
+  recursos: readonly { chave: string }[],
+  permissoes: PermissoesNoFluxo,
+): NivelDaEdicao {
+  if (papel === 'admin') return 'admin';
+  const niveis = recursos.map((recurso) => permissoes[recurso.chave] ?? 'nenhum');
+  if (niveis.every((nivel) => nivel === 'nenhum')) return 'nenhum';
+  if (niveis.every((nivel) => nivel === 'ler')) return 'visualizar';
+  if (niveis.every((nivel) => nivel === 'escrever')) return 'editar';
+  return 'personalizado';
+}
+
+/** `none` cabe no papel personalizado do Pipe com todas as linhas zeradas. */
+export function permissoesDoNivelDaEdicao(
+  nivel: NivelDaEdicao,
+  recursos: readonly { chave: string }[],
+  atuais: PermissoesNoFluxo,
+): PermissoesNoFluxo {
+  if (nivel === 'nenhum') {
+    return Object.fromEntries(recursos.map((recurso) => [recurso.chave, 'nenhum']));
+  }
+  return permissoesDoPapel(nivel, recursos, atuais);
 }

@@ -1,4 +1,5 @@
 import { Route, Routes } from 'react-router-dom';
+import { AvisoEncerramento } from '@pipe/ui';
 import { ExigirSessao } from './componentes/exigir-sessao';
 import { Casca } from './componentes/casca';
 import { useRegistrarNavegacao } from './lib/navegacao';
@@ -24,6 +25,8 @@ import { NaoEncontrado } from './paginas/nao-encontrado';
 export function App() {
   useRegistrarNavegacao();
   return (
+    <>
+    <AvisoEncerramento />
     <Routes>
       <Route path="/entrar" element={<PaginaEntrar />} />
       <Route path="/convite/:token" element={<PaginaConvite />} />
@@ -43,5 +46,6 @@ export function App() {
         </Route>
       </Route>
     </Routes>
+    </>
   );
 }

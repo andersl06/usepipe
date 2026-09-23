@@ -64,3 +64,8 @@ export type { ItemDeNavegacao, ComponenteDeLink } from './componentes/estrutura'
 
 export { Tabela } from './componentes/tabela';
 export type { Coluna } from './componentes/tabela';
+
+export { CartaoEncerramentoTicket } from './componentes/encerramento-ticket';
+export { AvisoEncerramento, avisarTicketFinalizado } from './componentes/aviso-encerramento';
+export { encerramentoPodeConfirmar } from './regras-encerramento';
+export type { EtiquetaDeEncerramento } from './regras-encerramento';

@@ -45,7 +45,8 @@ beforeAll(async () => {
   cookie = novo.token;
 
   const { rows: e } = await cenario.dono.execute<{ id: string }>(sql`
-    insert into etiqueta (tenant_id, nome) values (${cenario.tenantId}, 'Resolvido') returning id
+    insert into etiqueta (tenant_id, nome, obrigatoria_no_encerramento)
+    values (${cenario.tenantId}, 'Resolvido', true) returning id
   `);
   etiquetaId = e[0]!.id;
 
@@ -125,6 +126,22 @@ describe('encerrar conversa', () => {
     expect(rows[0]?.usuario_id).toBe(cenario.atendenteId);
     expect(rows[0]?.dados['encerrada_por']).toBe('atendente');
     expect(rows[0]?.dados['etiqueta']).toBe('Resolvido');
+  });
+
+  it('grava todas as tags escolhidas e mantém a primeira como motivo do evento legado', async () => {
+    const id = await novaConversa('em_atendimento');
+    const { rows } = await cenario.dono.execute<{ id: string }>(sql`
+      insert into etiqueta (tenant_id, nome) values (${cenario.tenantId}, 'Dúvida') returning id
+    `);
+    const resposta = await chamar(`/v1/conversas/${id}/encerrar`, {
+      etiqueta_ids: [etiquetaId, rows[0]!.id],
+    });
+    expect(resposta.status).toBe(201);
+    const { rows: associadas } = await cenario.dono.execute<{ nome: string }>(sql`
+      select e.nome from conversa_etiqueta ce join etiqueta e on e.id = ce.etiqueta_id
+       where ce.conversa_id = ${id}::uuid order by e.nome
+    `);
+    expect(associadas.map((etiqueta) => etiqueta.nome)).toEqual(['Dúvida', 'Resolvido']);
   });
 
   it('exige etiqueta: conversa fechada sem motivo não explica nada depois', async () => {

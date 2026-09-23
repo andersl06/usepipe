@@ -1,5 +1,6 @@
-import { Etiqueta, Icone, Seletor } from '@pipe/ui';
+import { Etiqueta, Icone } from '@pipe/ui';
 import { IconeGestao } from '../../componentes/icones-gestao';
+import { Selecao } from '../../componentes/selecao';
 import type { Bloco, Mapa, SaidaDoEditor } from './modelo';
 import { SAIDAS_DE_ATENDIMENTO, ehAtendimento } from './modelo';
 import {
@@ -55,7 +56,7 @@ export function PainelDeSaidas({
   const seletorDeDestino = (valor: string, onEscolher: (id: string) => void, rotulo: string) => (
     <label className="bl-campo">
       <span className="sub">{rotulo}</span>
-      <Seletor value={existe(valor) ? valor : valor ? '__outro' : ''} onChange={(e) => onEscolher(e.target.value === '__outro' ? valor : e.target.value)}>
+      <Selecao value={existe(valor) ? valor : valor ? '__outro' : ''} onChange={(e) => onEscolher(e.target.value === '__outro' ? valor : e.target.value)}>
         <option value="">{ROTULOS_DAS_SAIDAS.direcionar}</option>
         {destinos.map((b) => (
           <option key={b.id} value={b.id}>
@@ -63,7 +64,7 @@ export function PainelDeSaidas({
           </option>
         ))}
         {valor && !existe(valor) ? <option value="__outro">{valor} (não existe)</option> : null}
-      </Seletor>
+      </Selecao>
     </label>
   );
 

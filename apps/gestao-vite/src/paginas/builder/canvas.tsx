@@ -9,6 +9,7 @@ import {
   PASSO_DO_ZOOM,
   caminhoDaSeta,
   caminhoProvisorio,
+  houveArrasto,
   pontaDaSeta,
   zoomAjustado,
 } from './setas';
@@ -60,7 +61,7 @@ export interface PropsDoCanvas {
 type Arrasto =
   | { tipo: 'bloco'; id: string; origem: Ponto; inicio: Posicao; moveu: boolean }
   | { tipo: 'cena'; origem: Ponto; inicio: Posicao }
-  | { tipo: 'ligacao'; de: string; ate: Ponto; alvo: string | null };
+  | { tipo: 'ligacao'; de: string; origem: Ponto; ate: Ponto; alvo: string | null; moveu: boolean };
 
 const chaveDaAresta = (a: Aresta): string => `${a.de}\u0000${a.para}`;
 
@@ -183,7 +184,14 @@ export function Canvas({
     e.stopPropagation();
     setMenu(null);
     e.currentTarget.setPointerCapture(e.pointerId);
-    setArrasto({ tipo: 'ligacao', de: id, ate: pontoDoCanvas(e), alvo: null });
+    setArrasto({
+      tipo: 'ligacao',
+      de: id,
+      origem: { x: e.clientX, y: e.clientY },
+      ate: pontoDoCanvas(e),
+      alvo: null,
+      moveu: false,
+    });
   }
 
   function aoPressionarFundo(e: PointerEventDeReact<HTMLDivElement>): void {
@@ -200,7 +208,7 @@ export function Canvas({
     if (arrasto.tipo === 'bloco') {
       const dx = (e.clientX - arrasto.origem.x) / escala;
       const dy = (e.clientY - arrasto.origem.y) / escala;
-      if (!arrasto.moveu && Math.abs(dx) < 2 && Math.abs(dy) < 2) return;
+      if (!arrasto.moveu && !houveArrasto(dx, dy)) return;
       if (!arrasto.moveu) setArrasto({ ...arrasto, moveu: true });
       onMover(arrasto.id, { left: arrasto.inicio.left + dx, top: arrasto.inicio.top + dy });
     } else if (arrasto.tipo === 'cena') {
@@ -210,7 +218,8 @@ export function Canvas({
       });
     } else {
       const alvo = blocoSob(e);
-      setArrasto({ ...arrasto, ate: pontoDoCanvas(e), alvo });
+      const moveu = arrasto.moveu || houveArrasto(e.clientX - arrasto.origem.x, e.clientY - arrasto.origem.y);
+      setArrasto({ ...arrasto, ate: pontoDoCanvas(e), alvo, moveu });
     }
   }
 
@@ -223,7 +232,9 @@ export function Canvas({
         onAbrir(arrasto.id);
       }
     } else if (arrasto.tipo === 'ligacao') {
-      const alvo = blocoSob(e);
+      // Sem arrasto de verdade, é clique no ponto de saída — não cria laço do
+      // bloco para ele mesmo sozinho (ver `houveArrasto` em `setas.ts`).
+      const alvo = arrasto.moveu ? blocoSob(e) : null;
       if (alvo) onLigar(arrasto.de, alvo);
     }
     setArrasto(null);

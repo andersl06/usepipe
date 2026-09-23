@@ -1,4 +1,5 @@
 import { Navigate, Route, Routes } from 'react-router-dom';
+import { AvisoEncerramento } from '@pipe/ui';
 import { ExigirSessao } from './componentes/exigir-sessao';
 import { useRegistrarNavegacao } from './lib/navegacao';
 import { PaginaEntrar } from './paginas/entrar';
@@ -28,6 +29,7 @@ import { PaginaChavesDoBot } from './paginas/fluxo/configuracoes/keys/keys';
 import { PaginaDeBoasVindas } from './paginas/fluxo/configuracoes/boasvindas/boasvindas';
 import { PaginaDeMenuPersistente } from './paginas/fluxo/configuracoes/menu-persistente/menu-persistente';
 import { PaginaDeEquipe } from './paginas/fluxo/equipe/equipe';
+import { PaginaDeEditarMembro } from './paginas/fluxo/equipe/editar';
 import { PaginaConteudos } from './paginas/fluxo/conteudos/conteudos';
 import { CascaDaAnalise } from './paginas/fluxo/analise/casca';
 import { ABA_PADRAO } from './paginas/fluxo/analise/abas';
@@ -189,6 +191,7 @@ const rotasDoContato = (
     </Route>
 
     <Route path="equipe" element={<PaginaDeEquipe />} />
+    <Route path="equipe/editar/:usuarioId" element={<PaginaDeEditarMembro />} />
 
     <Route path="conteudos" element={<PaginaConteudos />} />
 
@@ -251,6 +254,8 @@ const ROTAS_ANTIGAS_SEM_CONTATO = [
 export function App() {
   useRegistrarNavegacao();
   return (
+    <>
+    <AvisoEncerramento />
     <Routes>
       <Route path="/entrar" element={<PaginaEntrar />} />
       <Route path="/convite/:token" element={<PaginaConvite />} />
@@ -301,5 +306,6 @@ export function App() {
         <Route path="*" element={<NaoEncontrado />} />
       </Route>
     </Routes>
+    </>
   );
 }

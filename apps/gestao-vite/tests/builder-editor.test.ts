@@ -12,6 +12,7 @@ import {
   novoBloco,
   posicaoDe,
 } from '../src/paginas/builder/modelo.ts';
+import { houveArrasto } from '../src/paginas/builder/setas.ts';
 import { errosDoBloco } from '../src/paginas/builder/validacao.ts';
 
 test('montarDesenho exporta os blocos da tela e as ações globais sem alterar o mapa', () => {
@@ -76,6 +77,63 @@ test('mantém a ordem das condições de saída porque a primeira condição com
   ];
 
   assert.deepEqual(moverSaida(bloco, 1, 0).$conditionOutputs?.map((saida) => saida.$id), ['segunda', 'primeira']);
+});
+
+test('Ctrl+Z some enquanto um bloco está sendo arrastado, para não perder o desfazer do arrasto', () => {
+  const mapa = { bloco: novoBloco({}, { top: 0, left: 0 }, 'bloco') };
+  const carregado = reduzir(estadoInicial(), { tipo: 'carregar', mapa, globais: {} });
+
+  // Primeiro arrasto, completo — um passo de verdade no histórico.
+  const primeiroMovimento = reduzir(carregado, {
+    tipo: 'mover',
+    mapa: moverBloco(mapa, 'bloco', { top: 10, left: 10 }),
+  });
+  const primeiroSolto = reduzir(primeiroMovimento, { tipo: 'soltar' });
+  assert.equal(primeiroSolto.passado.length, 1);
+
+  // Segundo arrasto em curso — Ctrl+Z no meio dele não faz nada.
+  const duranteArrasto = reduzir(primeiroSolto, {
+    tipo: 'mover',
+    mapa: moverBloco(primeiroSolto.mapa, 'bloco', { top: 30, left: 40 }),
+  });
+  const desfeitoNoMeio = reduzir(duranteArrasto, { tipo: 'desfazer' });
+  assert.equal(desfeitoNoMeio, duranteArrasto);
+
+  // Soltar depois do Ctrl+Z ignorado empilha certo o passo do segundo arrasto —
+  // sem a trava, aqui o mapa voltaria pra (0,0) com um passado corrompido.
+  const segundoSolto = reduzir(desfeitoNoMeio, { tipo: 'soltar' });
+  assert.equal(segundoSolto.passado.length, 2);
+  assert.deepEqual(posicaoDe(segundoSolto.mapa.bloco!), { top: 30, left: 40 });
+
+  // E os dois desfazeres, na ordem certa, voltam ao (10,10) e depois ao (0,0).
+  const primeiroDesfazer = reduzir(segundoSolto, { tipo: 'desfazer' });
+  assert.deepEqual(posicaoDe(primeiroDesfazer.mapa.bloco!), { top: 10, left: 10 });
+  const segundoDesfazer = reduzir(primeiroDesfazer, { tipo: 'desfazer' });
+  assert.deepEqual(posicaoDe(segundoDesfazer.mapa.bloco!), { top: 0, left: 0 });
+});
+
+test('aplicarGlobais marca sujo sem mexer na pilha de desfazer do desenho', () => {
+  const mapa = { bloco: novoBloco({}, { top: 0, left: 0 }, 'bloco') };
+  const carregado = reduzir(estadoInicial(), { tipo: 'carregar', mapa, globais: {} });
+  assert.equal(carregado.sujo, false);
+
+  const comAcaoGlobal = reduzir(carregado, {
+    tipo: 'aplicarGlobais',
+    globais: { $enteringCustomActions: [{ type: 'SetVariable' }] },
+  });
+
+  assert.equal(comAcaoGlobal.sujo, true);
+  assert.deepEqual(comAcaoGlobal.globais, { $enteringCustomActions: [{ type: 'SetVariable' }] });
+  assert.equal(comAcaoGlobal.passado.length, 0);
+  assert.equal(comAcaoGlobal.mapa, mapa);
+});
+
+test('houveArrasto: só conta arrasto de verdade, não um clique que tremeu um pixel', () => {
+  assert.equal(houveArrasto(0, 0), false);
+  assert.equal(houveArrasto(1, 1), false);
+  assert.equal(houveArrasto(2, 0), true);
+  assert.equal(houveArrasto(0, -2), true);
+  assert.equal(houveArrasto(-5, 5), true);
 });
 
 test('validação do painel aponta os campos obrigatórios da entrada antes de salvar', () => {

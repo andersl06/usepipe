@@ -6,3 +6,43 @@
  */
 @import './estilos/tokens.css';
 @import './estilos/base.css';
+
+/*
+ * `.modal.close-modal` no portal da Blip: 656×432, ilustração na coluna
+ * esquerda, texto e controle à direita, ações alinhadas ao canto inferior.
+ */
+.pipe-encerramento-fundo { position: fixed; inset: 0; z-index: 1000; display: flex; align-items: center; justify-content: center; background: rgb(0 0 0 / 50%); }
+.pipe-encerramento { position: relative; display: flex; flex-direction: column; box-sizing: border-box; width: 656px; height: 432px; overflow: visible; border-radius: 8px; background: var(--p-superficie-0, #fff); color: var(--p-conteudo, #282828); }
+.pipe-encerramento-x { position: absolute; z-index: 2; top: 16px; right: 16px; display: grid; width: 32px; height: 32px; place-items: center; border: 0; background: transparent; color: inherit; cursor: pointer; }
+.pipe-encerramento-conteudo { position: relative; display: flex; width: 100%; height: 190px; margin-top: 54px; margin-left: 6px; }
+.pipe-encerramento-conteudo::before { position: absolute; z-index: 0; top: 0; bottom: 0; left: 0; width: 62%; border-radius: 8px 0 0 8px; background: color-mix(in srgb, var(--p-marca, #2c6e49) 12%, white); content: ''; }
+.pipe-encerramento-ilustracao { position: relative; z-index: 1; display: flex; width: 156px; height: 168px; margin-top: 25px; align-items: center; justify-content: center; color: var(--p-marca, #2c6e49); }
+/* Os paths do `sleepy` vêm do `blip-tokens@1.102.1` no ZIP local do Desk; só troquei a tinta pelo verde Pipe. */
+.pipe-encerramento-ilustracao { background: url('./assets/encerramento-sleepy.svg') center / 100% 100% no-repeat; }
+.pipe-encerramento-detalhes { position: relative; z-index: 1; display: flex; width: 354px; flex-direction: column; padding: 30px 46px 0 0; }
+.pipe-encerramento-detalhes h2 { align-self: flex-start; width: 295px; margin: 0; padding-bottom: 5px; color: var(--p-conteudo, #282828); font-size: 20px; font-weight: 700; line-height: 28px; }
+.pipe-encerramento-ticket { width: 307px; margin: 0; padding: 5px 0; font-size: 14px; line-height: 22px; }
+.pipe-encerramento-sem-tags { width: 295px; margin-top: 9px; font-size: 14px; line-height: 22px; }
+.pipe-encerramento-sem-tags p { margin: 0 0 8px; }
+.pipe-encerramento-sem-tags .forte { font-weight: 700; }
+.pipe-encerramento-tags { position: relative; display: flex; width: 279px; height: 40px; flex-direction: column; padding-top: 14px; font-size: 14px; }
+.pipe-encerramento-dica { margin-bottom: 4px; line-height: 22px; }
+.pipe-encerramento-seletor { display: flex; width: 279px; min-height: 47px; align-items: center; justify-content: space-between; gap: 8px; padding: 4px 8px 4px 12px; border: 1px solid var(--p-campo-linha, #ccc); border-radius: 8px; background: var(--p-superficie-0, white); color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.pipe-encerramento-chips { display: flex; flex: 1; flex-wrap: wrap; gap: 4px; }
+.pipe-encerramento-chip { display: inline-flex; align-items: center; gap: 6px; padding: 3px 8px; border: 0; border-radius: 4px; background: #b2dffd; color: #282828; font: inherit; cursor: pointer; }
+.pipe-encerramento-chip > span { font-size: 18px; line-height: 16px; }
+.pipe-encerramento-placeholder { color: var(--p-conteudo-desabilitado, #666); }
+.pipe-encerramento-opcoes { position: absolute; z-index: 4; top: 78px; left: 0; display: flex; width: 100%; max-height: 180px; flex-direction: column; overflow: auto; border: 1px solid var(--p-campo-linha, #ccc); border-radius: 8px; background: var(--p-superficie-0, white); box-shadow: 0 8px 12px rgb(0 0 0 / 16%); }
+.pipe-encerramento-opcoes button { display: flex; min-height: 38px; align-items: center; gap: 10px; padding: 8px 12px; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; }
+.pipe-encerramento-opcoes button:hover { background: var(--p-superficie-1, #f5f5f5); }
+.pipe-encerramento-caixa { width: 16px; height: 16px; border: 1px solid var(--p-campo-linha, #999); border-radius: 3px; }
+.pipe-encerramento-caixa.marcada { border-color: var(--p-marca, #2c6e49); background: var(--p-marca, #2c6e49); box-shadow: inset 0 0 0 3px white; }
+.pipe-encerramento-erro { position: absolute; bottom: 49px; left: 32px; margin: 0; color: var(--p-erro-conteudo, #b42318); font-size: 14px; }
+.pipe-encerramento-acoes { display: flex; justify-content: flex-end; gap: 8px; padding: 56px 2px 0 0; }
+.pipe-encerramento-acoes button { height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: 8px; font-family: inherit; font-size: 14px; font-weight: 400; line-height: 20px; cursor: pointer; }
+.pipe-encerramento-acoes .secundario { border-color: var(--p-campo-linha, #ccc); background: var(--p-superficie-0, white); color: inherit; }
+.pipe-encerramento-acoes .primario { background: var(--p-marca, #2c6e49); color: white; }
+.pipe-encerramento-acoes button:disabled { cursor: not-allowed; opacity: .5; }
+@media (max-width: 700px) { .pipe-encerramento { width: calc(100vw - 32px); height: auto; min-height: 432px; } .pipe-encerramento-ilustracao { width: 112px; } .pipe-encerramento-detalhes { width: calc(100% - 112px); padding-right: 24px; } .pipe-encerramento-detalhes h2 { width: 100%; } }
+
+.pipe-aviso-encerramento { position: fixed; z-index: 1200; top: 24px; right: 24px; max-width: min(440px, calc(100vw - 48px)); padding: 16px 24px; border: 1px solid #2c6e49; border-radius: 8px; background: #fff; color: #282828; box-shadow: 0 4px 16px rgb(0 0 0 / 20%); font-size: 16px; }

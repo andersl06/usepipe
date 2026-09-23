@@ -17,6 +17,19 @@ export const ALTURA_PADRAO_DO_BLOCO = 76;
 export const TOCO = 30;
 export const PONTA = 10;
 
+/**
+ * Abaixo disto, pressionar-e-soltar conta como clique, não arrasto — nem move
+ * o bloco nem completa uma ligação. Sem esse piso, clicar (sem soltar fora)
+ * no ponto de saída de um bloco criava sozinho um laço do bloco para ele
+ * mesmo, porque `elementFromPoint` no instante do clique ainda está sobre o
+ * próprio bloco de onde a saída saiu.
+ */
+export const LIMIAR_DE_ARRASTO = 2;
+
+export function houveArrasto(dx: number, dy: number, limiar = LIMIAR_DE_ARRASTO): boolean {
+  return Math.abs(dx) >= limiar || Math.abs(dy) >= limiar;
+}
+
 export interface Caixa extends Posicao {
   largura: number;
   altura: number;

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Icone } from '@pipe/ui';
+import { IconePortal } from '../../componentes/icones-portal';
 import type { Bloco, Mapa } from './modelo';
 import { ehAtendimento } from './modelo';
 import { LIMITE_DO_TITULO } from './validacao';
@@ -62,7 +62,7 @@ export function PainelDoBloco({
           onChange={(e) => onMudar({ ...bloco, $title: e.target.value })}
         />
         <button type="button" className="iconbtn" aria-label="Fechar" title="Fechar" onClick={onFechar}>
-          <Icone nome="x" tamanho={20} />
+          <IconePortal nome="fechar" tamanho={20} />
         </button>
       </div>
       <p className="bl-painel-id sub" title="Id do bloco">

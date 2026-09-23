@@ -19,9 +19,8 @@ import { ErroPipe } from '../erros.js';
  * Etiquetas — o catálogo do tenant e a aplicação em conversa ABERTA e em contato.
  *
  * Três recursos pequenos num arquivo só, como `catalogo.ts`: são a mesma regra
- * (`dominio/etiquetas.ts`) vista de três URLs. Encerrar com etiqueta continua em
- * `POST /v1/conversas/:id/encerrar` — a etiqueta de encerramento é obrigatória lá e
- * opcional aqui, e é a única diferença entre os dois gestos.
+ * (`dominio/etiquetas.ts`) vista de três URLs. O encerramento continua em
+ * `POST /v1/conversas/:id/encerrar`; sua lista segue a política de tags obrigatórias.
  *
  * Conversa e contato aceitam chave OU sessão (`ChaveOuSessao`), como o envio: uma
  * integração pode etiquetar por chave com escopo; gente logada passa pela permissão

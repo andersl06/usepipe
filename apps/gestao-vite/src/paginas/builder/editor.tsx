@@ -47,6 +47,7 @@ export function Editor({
   onZoom,
   novoBlocoAberto,
   onFecharNovoBloco,
+  painelExternoAberto,
 }: {
   estado: EstadoDoEditor;
   despachar: (gesto: GestoDoEditor) => void;
@@ -56,6 +57,7 @@ export function Editor({
   onZoom: (valor: number) => void;
   novoBlocoAberto: boolean;
   onFecharNovoBloco: () => void;
+  painelExternoAberto: boolean;
 }) {
   const { mapa } = estado;
   const [selecionado, setSelecionado] = useState<string | null>(null);
@@ -64,6 +66,12 @@ export function Editor({
   const [excluindo, setExcluindo] = useState<string | null>(null);
   const [aviso, setAviso] = useState<string | null>(null);
   const area = useRef<HTMLDivElement>(null);
+
+  /* Os painéis de Configuração e Filas ocupam o mesmo lado que o painel do
+     bloco; abrir um deles fecha o editor de bloco para não sobrepor conteúdo. */
+  useEffect(() => {
+    if (painelExternoAberto) setEditando(null);
+  }, [painelExternoAberto]);
 
   /* O aviso some sozinho, como o toast do editor. */
   useEffect(() => {

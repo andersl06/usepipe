@@ -102,6 +102,7 @@
    Estes tokens são LOCAIS da Gestão de propósito: o `@pipe/ui` continua com a
    régua 16/14/12 e os pesos 400/500/600 das outras telas. */
 :root {
+  --g-cor-busca-blip: #8ca0b3;
   --g-peso-leve: 300;
   --g-peso-normal: 400;
   --g-peso-forte: 600;
@@ -3766,8 +3767,7 @@ tr.grupo th {
 .pt-subbarra {
   flex: none;
   height: 80px;
-  background: var(--surface);
-  border-bottom: 1px solid var(--line);
+  background: #fff;
   padding: 0 40px;
 }
 
@@ -3775,11 +3775,11 @@ tr.grupo th {
   height: 100%;
   margin: 0 auto;
   width: 100%;
-  max-width: 540px;
+  max-width: 1360px;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: var(--p-e-4);
+  gap: 40px;
 }
 
 /* O título da barra clara é a FRASE "Espaço de trabalho de {conta}", num h2
@@ -3793,7 +3793,7 @@ tr.grupo th {
   font-size: 20px;
   font-weight: var(--g-peso-negrito);
   line-height: 20px;
-  color: var(--ink);
+  color: #253858;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -3805,7 +3805,7 @@ tr.grupo th {
   flex: none;
   display: flex;
   align-items: center;
-  gap: var(--p-e-3);
+  gap: 16px;
 }
 
 .pt-subbarra-acoes .btn {
@@ -3822,32 +3822,127 @@ tr.grupo th {
    Aparece SEMPRE, inclusive na conta sem nenhum contato, que é o que a origem
    faz. É um `<form method="get">`: o filtro é do servidor, e a tela continua
    sem estado de cliente. */
+/* =========================================================
+   BUSCA DA SUBBARRA — réplica visual da BLiP
+   ========================================================= */
+
 .pt-busca {
   flex: none;
   display: flex;
   align-items: center;
-  gap: var(--p-e-1);
-  color: var(--ink-3);
+  height: 32px;
+  color: #8ca0b3;
 }
 
-.pt-busca svg {
+/* Lupa da BLiP: 32x32, solta, sem caixa */
+.pt-busca-botao {
+  display: flex;
   flex: none;
-}
+  align-items: center;
+  justify-content: center;
 
-.pt-busca input {
+  width: 32px;
+  height: 32px;
+
+  padding: 0;
+  margin: 0;
+
   border: 0;
-  outline: none;
+  outline: 0;
   background: transparent;
-  color: var(--ink);
-  font: inherit;
-  font-size: var(--p-t-md);
-  width: 200px;
-  max-width: 40vw;
+
+  color: #8ca0b3;
+  cursor: pointer;
 }
 
-/* O foco não pode virar caixa de novo: marca só a linha de baixo do campo. */
+/* Mantém o SVG exatamente em 32x32 */
+.pt-busca-botao svg,
+.pt-busca svg {
+  display: block;
+  flex: none;
+
+  width: 32px;
+  height: 32px;
+
+  color: #8ca0b3;
+}
+
+/* Campo da busca:
+   sem caixa, sem fundo, aparece ao lado da lupa */
+.pt-busca input {
+  box-sizing: border-box;
+
+  height: 32px;
+  width: 0;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0;
+  border-bottom: 1px solid transparent;
+  border-radius: 0;
+  outline: 0;
+
+  background: transparent;
+
+  color: #253858;
+
+  font: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 32px;
+
+  opacity: 0;
+
+  overflow: hidden;
+
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+/* Espaço entre lupa e input somente depois de abrir */
+.pt-busca-aberta {
+  gap: 8px;
+}
+
+/* Como seu React cria o input somente no clique,
+   fazemos o movimento de abertura via animação */
+.pt-busca-aberta input {
+  width: 224px;
+  opacity: 1;
+
+  animation: pt-busca-abrir 220ms ease-out both;
+}
+
+@keyframes pt-busca-abrir {
+  from {
+    width: 0;
+    opacity: 0;
+  }
+
+  to {
+    width: 224px;
+    opacity: 1;
+  }
+}
+
+.pt-busca input::placeholder {
+  color: #8ca0b3;
+  opacity: 1;
+}
+
+/* A BLiP não transforma a busca numa caixa */
 .pt-busca input:focus {
-  border-bottom: 1px solid var(--p-marca);
+  outline: none;
+  border-bottom-color: #8ca0b3;
+}
+
+/* Remove os controles nativos do input search no Chrome/Edge */
+.pt-busca input::-webkit-search-decoration,
+.pt-busca input::-webkit-search-cancel-button,
+.pt-busca input::-webkit-search-results-button,
+.pt-busca input::-webkit-search-results-decoration {
+  display: none;
 }
 
 /* --------------------------------------------------- coluna do miolo */
@@ -4034,86 +4129,88 @@ tr.grupo th {
   color: var(--ink-2);
 }
 
-/* ------------------------------------------------------- a paginação
-   O `bds-pagination` deles, com `page-counter`, `number-items` e `items-page`:
-   contador de itens à esquerda, escolha de quantos por página no meio e as
-   páginas à direita. Aqui é link e `<form method="get">` — a lista é do
-   servidor, e a URL já sabe paginar sem virar componente de cliente. */
 .pt-paginacao {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--p-e-4);
+  width: 100%;
   margin-top: var(--p-e-6);
-  font-size: var(--p-t-md);
-  color: var(--ink-2);
-}
-
-.pt-paginacao-tamanho {
-  display: flex;
-  align-items: center;
-  gap: var(--p-e-2);
-}
-
-.pt-paginacao-tamanho select {
-  height: 32px;
-  padding: 0 var(--p-e-2);
-  border: 1px solid var(--line);
-  border-radius: var(--p-r-sm);
-  background: var(--surface);
-  font: inherit;
-  font-size: var(--p-t-md);
+  padding: 20px 32px;
+  font-size: 14px;
   color: var(--ink);
 }
 
-.pt-paginacao-tamanho button {
-  height: 32px;
-  padding: 0 var(--p-e-3);
-  border: 1px solid var(--line);
-  border-radius: var(--p-r-sm);
-  background: var(--surface);
-  font: inherit;
-  font-size: var(--p-t-md);
-  color: var(--ink);
-  cursor: pointer;
-}
-
-.pt-paginacao-paginas {
+.pt-paginacao-esquerda,
+.pt-paginacao-direita {
   display: flex;
   align-items: center;
-  gap: var(--p-e-1);
+  gap: 10px;
 }
 
-/* O "de N páginas" que fecha a barra deles, à direita dos números. */
+.pt-paginacao-esquerda label {
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+/* Select 40 / página atual */
+.pt-paginacao .selecao {
+  width: 84px;
+  flex: none;
+}
+
+.pt-paginacao .selecao-controle {
+  width: 84px;
+  height: 40px;
+  padding: 0 12px 0 16px;
+  border: 1px solid var(--line-strong);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--ink);
+  font-size: 14px;
+}
+
+.pt-paginacao-conta {
+  margin-left: 0;
+  white-space: nowrap;
+  color: var(--ink);
+}
+
+.pt-paginacao-direita {
+  margin-left: auto;
+}
+
 .pt-paginacao-de {
-  margin-left: var(--p-e-2);
-  font-size: var(--p-t-md);
-  color: var(--ink-3);
+  margin: 0 8px 0 0;
+  white-space: nowrap;
+  color: var(--ink);
 }
 
-.pt-paginacao-paginas a {
-  min-width: 32px;
-  height: 32px;
-  display: flex;
+/* Primeira / anterior / próxima / última */
+.pt-paginacao-icone {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  padding: 0 var(--p-e-2);
-  border-radius: var(--p-r-sm);
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
   text-decoration: none;
   color: var(--ink-2);
+  font-size: 22px;
+  font-weight: 400;
+  line-height: 1;
 }
 
-.pt-paginacao-paginas a:hover {
+.pt-paginacao-icone:hover:not(.is-disabled) {
   background: var(--p-superficie-2);
+  color: var(--ink);
 }
 
-/* A página aberta é a única marcada, e é marcada com a cor da marca — o mesmo
-   papel que ela cumpre no item ativo da navegação. */
-.pt-paginacao-paginas a[aria-current='page'] {
-  background: var(--p-marca-suave);
-  color: var(--p-marca);
-  font-weight: var(--p-peso-forte);
+.pt-paginacao-icone.is-disabled {
+  opacity: 0.45;
+  pointer-events: none;
 }
 
 /* ------------------------------------------------------------- a grade

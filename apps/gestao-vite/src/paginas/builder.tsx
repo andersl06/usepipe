@@ -2,6 +2,7 @@ import { useState, type ReactNode } from 'react';
 import type { BuilderDoFluxo, ErroDoBloco, VersaoDoFluxo } from '@pipe/contracts';
 import { Botao, Etiqueta, Icone } from '@pipe/ui';
 import { IconeGestao } from '../componentes/icones-gestao';
+import { IconePortal } from '../componentes/icones-portal';
 import { useEu } from '../contexto/sessao';
 import { ErroDaApi } from '../lib/api';
 import { useLeitura } from '../lib/consulta';
@@ -10,6 +11,9 @@ import { BarrasDoContato, useContato } from './fluxo/contato';
 import { publicarFluxo, restaurarVersao } from './builder-gravar';
 import { Editor } from './builder/editor';
 import { podeDesfazer, podeRefazer } from './builder/estado';
+import { PainelDeConfiguracao } from './builder/painel-configuracao';
+import { PainelDeFilas } from './builder/painel-filas';
+import { PainelDeVariaveis } from './builder/painel-variaveis';
 import { ZOOM_MAXIMO, ZOOM_MINIMO, zoomAjustado } from './builder/setas';
 import { useEditorDoBuilder } from './builder/use-editor';
 import { errosLocais, juntarErros } from './builder/validacao';
@@ -113,6 +117,9 @@ export function PaginaBuilder() {
 
   const [avisoAberto, setAvisoAberto] = useState(true);
   const [novoBlocoAberto, setNovoBlocoAberto] = useState(false);
+  const [variaveisAberto, setVariaveisAberto] = useState(false);
+  const [configAberto, setConfigAberto] = useState(false);
+  const [filasAberto, setFilasAberto] = useState(false);
   const [zoom, setZoom] = useState(ZOOM_MAXIMO);
   const [recado, setRecado] = useState<{ tom: 'sucesso' | 'erro'; texto: string } | null>(null);
 
@@ -261,7 +268,7 @@ export function PaginaBuilder() {
               aria-label="Fechar aviso"
               onClick={() => setAvisoAberto(false)}
             >
-              <Icone nome="x" tamanho={16} />
+              <IconePortal nome="fechar" tamanho={16} />
             </button>
           </div>
         ) : null}
@@ -305,15 +312,54 @@ export function PaginaBuilder() {
               onZoom={setZoom}
               novoBlocoAberto={novoBlocoAberto}
               onFecharNovoBloco={() => setNovoBlocoAberto(false)}
+              painelExternoAberto={configAberto || filasAberto}
             />
           )}
 
+          {variaveisAberto && editor.carregado ? (
+            <PainelDeVariaveis
+              mapa={estado.mapa}
+              globais={estado.globais}
+              onFechar={() => setVariaveisAberto(false)}
+              onAviso={(texto) => setRecado({ tom: 'sucesso', texto })}
+            />
+          ) : null}
+
+          {configAberto && editor.carregado ? (
+            <PainelDeConfiguracao
+              nomeDoFluxo={contato.nome}
+              mapa={estado.mapa}
+              globais={estado.globais}
+              onMudarGlobais={(globais) => despachar({ tipo: 'aplicarGlobais', globais })}
+              onImportar={(mapa, globais) => {
+                // `aplicar`, não `carregar`: precisa marcar sujo pra gravar
+                // sozinho (como qualquer outra mudança) e entrar no
+                // desfazer — `carregar` é só pra sincronizar com o servidor,
+                // e deixaria o fluxo importado só na tela, nunca salvo.
+                despachar({ tipo: 'aplicar', mapa });
+                despachar({ tipo: 'aplicarGlobais', globais });
+                setConfigAberto(false);
+                setRecado({ tom: 'sucesso', texto: 'Fluxo importado.' });
+              }}
+              onFechar={() => setConfigAberto(false)}
+            />
+          ) : null}
+
+          {filasAberto ? (
+            <PainelDeFilas
+              tipoDoContato={contato.tipo}
+              contatoId={contato.id}
+              onFechar={() => setFilasAberto(false)}
+            />
+          ) : null}
+
           {/* A pílula de ícones deles (`.builder-icon-button-list`), na ordem
-              do DOM: Adicionar bloco, Publicar fluxo, Configuração, Biblioteca
-              de variáveis, Pesquisar, Gerenciamento de Filas — todos
-              `bds-button-icon variant="secondary" size="short"`, com os
-              tooltips literais. "Builder Assistant" está `ng-hide` lá e não
-              entra aqui. */}
+              do DOM capturado: Adicionar bloco, Builder Assistant, Publicar
+              fluxo, Configuração, Biblioteca de variáveis, Pesquisar,
+              Gerenciamento de Filas — todos `bds-button-icon variant="secondary"
+              size="short"`, com os tooltips literais. Builder Assistant cria
+              tarefas com IA (`$ctrl.createCopilotModal()`); sem provedor de IA
+              no motor do Pipe, fica desligado como os outros sem motor por trás. */}
           <div className="bl-barra">
             <BotaoDaBarra
               rotulo="Adicionar bloco"
@@ -324,25 +370,46 @@ export function PaginaBuilder() {
             >
               <Icone nome="mais" tamanho={24} />
             </BotaoDaBarra>
+            <BotaoDaBarra rotulo="Builder Assistant">
+              <IconePortal nome="robo" tamanho={24} />
+            </BotaoDaBarra>
             <BotaoDaBarra
               rotulo="Publicar fluxo"
               desabilitado={!dados || !podePublicar || nadaParaPublicar}
               motivo={motivoDoPublicar()}
               onClick={abrirPublicar}
             >
-              <IconeGestao nome="publicar" tamanho={24} />
+              <IconePortal nome="aprender" tamanho={24} />
             </BotaoDaBarra>
-            <BotaoDaBarra rotulo="Configuração">
-              <Icone nome="engrenagem" tamanho={24} />
+            <BotaoDaBarra
+              rotulo="Configuração"
+              desabilitado={!editor.carregado}
+              motivo={recusaDaLeitura ?? 'carregando'}
+              ativo={configAberto}
+              onClick={() => setConfigAberto((v) => !v)}
+            >
+              <IconePortal nome="painel" tamanho={24} />
             </BotaoDaBarra>
-            <BotaoDaBarra rotulo="Biblioteca de variáveis">
+            <BotaoDaBarra
+              rotulo="Biblioteca de variáveis"
+              desabilitado={!editor.carregado}
+              motivo={recusaDaLeitura ?? 'carregando'}
+              ativo={variaveisAberto}
+              onClick={() => setVariaveisAberto((v) => !v)}
+            >
               <IconeGestao nome="biblioteca" tamanho={24} />
             </BotaoDaBarra>
             <BotaoDaBarra rotulo="Pesquisar" classe="bl-pesquisar">
-              <Icone nome="busca" tamanho={24} />
+              <IconePortal nome="busca" tamanho={24} />
             </BotaoDaBarra>
-            <BotaoDaBarra rotulo="Gerenciamento de Filas">
-              <IconeGestao nome="atendente" tamanho={24} />
+            <BotaoDaBarra
+              rotulo="Gerenciamento de Filas"
+              desabilitado={!editor.carregado}
+              motivo={recusaDaLeitura ?? 'carregando'}
+              ativo={filasAberto}
+              onClick={() => setFilasAberto((v) => !v)}
+            >
+              <IconePortal nome="suporte" tamanho={24} />
             </BotaoDaBarra>
           </div>
 

@@ -163,7 +163,8 @@ function ListaDeAcoesDoBloco({
   );
 }
 
-function CartaoDeAcao({
+/** Exportado: o painel de Ações Globais (`painel-configuracao.tsx`) reaproveita o mesmo cartão. */
+export function CartaoDeAcao({
   acao,
   aberta,
   primeira,

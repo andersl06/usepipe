@@ -75,7 +75,8 @@ async function conversa(cenario = a): Promise<string> {
 
 async function etiqueta(): Promise<string> {
   const { rows } = await a.dono.execute<{ id: string }>(sql`
-    insert into etiqueta (tenant_id, nome) values (${a.tenantId}, ${`Encerramento ${randomUUID().slice(0, 6)}`}) returning id
+    insert into etiqueta (tenant_id, nome, obrigatoria_no_encerramento)
+    values (${a.tenantId}, ${`Encerramento ${randomUUID().slice(0, 6)}`}, true) returning id
   `);
   return rows[0]!.id;
 }
@@ -123,7 +124,7 @@ describe('monitoramento/conversas', () => {
     expect((await transferencia.json() as { para_conversa_id: string }).para_conversa_id).toMatch(/^[0-9a-f-]{36}$/);
 
     const finalizada = await conversa();
-    const resposta = await pedir(gestor, 'POST', `/v1/gestao/monitoramento/conversas/${finalizada}/finalizar`, { etiqueta_id: await etiqueta() });
+    const resposta = await pedir(gestor, 'POST', `/v1/gestao/monitoramento/conversas/${finalizada}/finalizar`, { etiqueta_ids: [await etiqueta()] });
     expect(resposta.status).toBe(201);
     expect((await resposta.json() as { estado: string }).estado).toBe('encerrada');
     const { rows: log } = await a.dono.execute<{ depois: { acao: string } }>(sql`
@@ -135,8 +136,10 @@ describe('monitoramento/conversas', () => {
   it('isola tenant, rejeita uuid malformado, falta de permissão e finalização sem etiqueta', async () => {
     const id = await conversa();
     expect((await pedir(gestorB, 'GET', `/v1/gestao/monitoramento/conversas/${id}`)).status).toBe(404);
+    expect((await pedir(gestorB, 'POST', `/v1/gestao/monitoramento/conversas/${id}/finalizar`, { etiqueta_ids: [] })).status).toBe(404);
     expect((await pedir(gestor, 'GET', '/v1/gestao/monitoramento/conversas/nao-e-uuid')).status).toBe(404);
     expect((await pedir(semPoder, 'POST', `/v1/gestao/monitoramento/conversas/${id}/transferir`, { para_fila_id: a.filaId })).status).toBe(403);
+    expect((await pedir(semPoder, 'POST', `/v1/gestao/monitoramento/conversas/${id}/finalizar`, { etiqueta_ids: [] })).status).toBe(403);
     const semEtiqueta = await pedir(gestor, 'POST', `/v1/gestao/monitoramento/conversas/${id}/finalizar`, {});
     expect(semEtiqueta.status).toBe(400);
     expect((await semEtiqueta.json() as { erro: { codigo: string } }).erro.codigo).toBe('etiqueta_obrigatoria');

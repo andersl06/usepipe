@@ -1,6 +1,7 @@
 import { Body, Controller, Get, HttpCode, Param, Post, Query, Req } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import type { SQL } from 'drizzle-orm';
+import type { EncerrarConversaInput } from '@pipe/contracts';
 import { noTenant } from '../banco.js';
 import { ChaveOuSessao, Escopos, atorDe, contextoDe } from '../autenticacao.js';
 import type { RequisicaoAutenticada } from '../autenticacao.js';
@@ -293,27 +294,23 @@ export class ControladorConversas {
   }
 
   /**
-   * Encerrar. A etiqueta é obrigatória: conversa fechada sem motivo é relatório que
-   * não explica nada depois.
+   * Encerrar. A lista replica o `blip-tags` da Blip e respeita tags obrigatórias.
    */
   @Post(':id/encerrar')
   @ChaveOuSessao('conversas:escrever')
   async encerrar(
     @Req() requisicao: RequisicaoAutenticada & RequisicaoComSessao,
     @Param('id') id: string,
-    @Body() corpo: { etiqueta_id?: string },
+    @Body() corpo: EncerrarConversaInput,
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
-    if (!corpo.etiqueta_id) {
-      throw ErroPipe.requisicao('etiqueta_obrigatoria', 'Escolha a etiqueta de encerramento.');
-    }
     const r = await encerrarConversa(
       {
         tenantId: ator.tenantId,
         atendenteId: ator.usuarioId,
         exigirAtribuicao: ator.viaSessao,
       },
-      { conversaId: id, etiquetaId: corpo.etiqueta_id },
+      { conversaId: id, etiquetaIds: corpo.etiqueta_ids, etiquetaId: corpo.etiqueta_id },
     );
     return { estado: r.estado, motivo_encerramento: r.motivo };
   }

@@ -138,6 +138,9 @@
 .cf-equipe-w25 {
   width: 25%;
 }
+.cf-equipe-w40 {
+  width: 40%;
+}
 
 /* `<div class="card-section w-5 flex justify-center"><avatar class="h3 w3">`:
    a bolinha da origem tem 40×40. */
@@ -232,28 +235,13 @@
   font-weight: var(--g-peso-forte);
 }
 
-/* ==================== Os dois modais — a mesma CASCA (`cf-modal` de
-   `configuracoes.css` + o `icon-close` do `modal-toolbar` deles por cima) e
-   miolos diferentes:
-
-     adicionar  `add-user-modal` — DOM capturado com ele aberto em
-                `docs/capturas/blip/equipe/equipe-adicionar-modal__pagina.html`:
-                cabeça centrada (`.row.mh6.tc`), e-mail editável em traço,
-                "Permissão" + `rzslider`, rodapé centrado (`.modal-footer
-                { justify-content: center }` é global lá);
-     editar     `FICHA-equipe-editar.md` + a rota `/team/team/edit` do bundle:
-                título à esquerda, e-mail SÓ LEITURA (sem traço), o mesmo
-                `rzslider`, e a lista por recurso (`.edit-user-wrapper
-                .permission-item`, 46px por linha, rádios de 21px). Mais
-                larga porque a lista tem quatro colunas. */
+/* ==================== O `add-user-modal`, capturado aberto em
+   `docs/capturas/blip/equipe/equipe-adicionar-modal__pagina.html`: cabeça
+   centrada, e-mail editável em traço, "Permissão" + `rzslider` e rodapé
+   centrado. A edição é a página estilizada no fim deste arquivo. */
 .cf-equipe-modal {
   position: relative;
   padding-top: 40px;
-}
-.cf-equipe-modal--editar {
-  width: min(100%, 640px);
-  max-height: calc(100vh - 40px);
-  overflow-y: auto;
 }
 
 /* `.row.mh6.tc.mt3 > .mh6.mb4-1`: h1 e subtítulo centrados, só no adicionar. */
@@ -265,8 +253,7 @@
   margin-bottom: 8px;
 }
 
-/* `.modal-footer` — na origem é centrado (`justify-content: center`), nos
-   dois modais, com `Cancelar` texto-só e `Salvar` `bp-btn--bot`. */
+/* `.modal-footer` — centrado, com `Cancelar` texto-só e `Salvar` `bp-btn--bot`. */
 .cf-equipe-modal-rodape {
   display: flex;
   justify-content: center;
@@ -337,11 +324,8 @@
   border-bottom: 0;
 }
 
-/* O `rzslider` "Permissão" — mesmo controle no adicionar e no editar
-   (`ControleDePermissao`, `tela.tsx`), só as legendas mudam. A origem tem
-   quatro paradas; o nosso RBAC de conta (migração 0021) tem só três papéis,
-   então o traço nasce com `papeis.length` paradas em vez de 4 — sem inventar
-   um quarto papel. Régua deles: `.rzslider` 4px de altura, `margin: 9px 0
+/* O `rzslider` "Permissão" do adicionar. A origem tem quatro paradas, como o
+   RBAC por contato da migration 0035. Régua: 4px, `margin: 9px 0
    35px` dentro do `add-user-modal`, bolinha de 25px, legenda 14px em caixas
    de 170px centradas na parada. */
 .cf-equipe-permissao {
@@ -496,4 +480,71 @@
   white-space: nowrap;
   font-size: 13px;
   color: var(--p-conteudo-fantasma);
+}
+
+/* ==================== `/team/edit` — PÁGINA, conforme o template 36419 do
+   portal.js da Blip: voltar/Salvar no cabeçalho, pessoa e cartão de permissões. */
+.cf-equipe-editar-titulo,
+.cf-equipe-editar-pessoa,
+.cf-equipe-editar-nome,
+.cf-equipe-editar-controle {
+  display: flex;
+  align-items: center;
+}
+.cf-equipe-voltar {
+  display: inline-flex;
+  margin-right: 16px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--p-conteudo);
+  cursor: pointer;
+}
+.cf-equipe-voltar:focus-visible {
+  outline: 2px solid var(--p-foco);
+  outline-offset: 2px;
+}
+.cf-equipe-editar {
+  display: flex;
+  flex-direction: column;
+  padding-bottom: 40px;
+}
+.cf-equipe-editar-pessoa {
+  gap: 40px;
+}
+.cf-equipe-editar-avatar.cf-equipe-editar-avatar {
+  width: 64px;
+  height: 64px;
+  font-size: 20px;
+}
+.cf-equipe-editar-pessoa > div {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.cf-equipe-editar-nome {
+  gap: 24px;
+  margin-bottom: 8px;
+}
+.cf-equipe-editar-nome strong {
+  font-size: 24px;
+  font-weight: var(--g-peso-normal);
+}
+.cf-equipe-editar-cartao {
+  margin-top: 16px;
+  padding: 32px 48px;
+}
+.cf-equipe-editar-controle {
+  justify-content: space-between;
+}
+.cf-equipe-editar-controle h2 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: var(--g-peso-forte);
+}
+.cf-equipe-editar-controle .selecao {
+  width: 240px;
+}
+.cf-equipe-editar .cf-equipe-granular {
+  margin-top: 40px;
 }

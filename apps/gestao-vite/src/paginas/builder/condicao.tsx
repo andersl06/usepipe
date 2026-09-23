@@ -2,8 +2,9 @@ import { useState } from 'react';
 import type { KeyboardEvent as KeyboardEventDeReact } from 'react';
 import type { CondicaoBlip } from '@pipe/core';
 import { ehUnaria } from '@pipe/core';
-import { Campo, Etiqueta, Seletor } from '@pipe/ui';
+import { Campo, Etiqueta } from '@pipe/ui';
 import { IconeGestao } from '../../componentes/icones-gestao';
+import { Selecao } from '../../componentes/selecao';
 import {
   COMPARACOES_DA_TELA,
   FONTES_DA_TELA,
@@ -102,7 +103,7 @@ function LinhaDeCondicao({
             {ROTULO_DA_FONTE[fonte] ?? fonte}
           </Etiqueta>
         ) : (
-          <Seletor
+          <Selecao
             aria-label="Fonte"
             value={fonte}
             onChange={(e) => onMudar(comFonte(condicao, e.target.value))}
@@ -112,7 +113,7 @@ function LinhaDeCondicao({
                 {f.rotulo}
               </option>
             ))}
-          </Seletor>
+          </Selecao>
         )}
         {fonte === 'context' ? (
           <Campo
@@ -122,7 +123,7 @@ function LinhaDeCondicao({
             onChange={(e) => onMudar({ ...condicao, variable: e.target.value })}
           />
         ) : null}
-        <Seletor
+        <Selecao
           aria-label="Comparação"
           value={comparacao}
           onChange={(e) => onMudar(comComparacao(condicao, e.target.value as typeof comparacao))}
@@ -132,7 +133,7 @@ function LinhaDeCondicao({
               {c.rotulo}
             </option>
           ))}
-        </Seletor>
+        </Selecao>
         <button type="button" className="iconbtn bl-remover" title="Excluir condição" aria-label="Excluir condição" onClick={onRemover}>
           <IconeGestao nome="lixeira" tamanho={18} />
         </button>
@@ -140,7 +141,7 @@ function LinhaDeCondicao({
       {!unaria ? (
         <div className="bl-condicao-valores">
           {valores.length > 1 ? (
-            <Seletor
+            <Selecao
               aria-label="Operador"
               className="bl-condicao-operador"
               value={(condicao.operator ?? 'or').toLowerCase()}
@@ -151,7 +152,7 @@ function LinhaDeCondicao({
                   {o.rotulo}
                 </option>
               ))}
-            </Seletor>
+            </Selecao>
           ) : null}
           <div className="bl-valores" onClick={(e) => (e.currentTarget.querySelector('input') as HTMLInputElement | null)?.focus()}>
             {valores.map((v, i) => (

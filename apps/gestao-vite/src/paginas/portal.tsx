@@ -1,4 +1,4 @@
-import { useSearchParams } from 'react-router-dom';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Ilustracao } from '@pipe/ui';
 import { POR_PAGINA, type FluxoDoPortal, type GradeDoPortal } from '@pipe/contracts';
 import { BarraDoPortal } from '../componentes/barra-do-portal';
@@ -68,17 +68,21 @@ type DadosDoPortal = CascaDoPortal & GradeDoPortal;
  * dos token `--p-*` e dos `--g-barra-*`. Os ícones e a marca são os nossos.
  */
 export function PaginaPortal() {
-  const [parametros] = useSearchParams();
-  const busca = (parametros.get('q') ?? '').trim();
-  const pagina = Math.max(1, Number(parametros.get('pagina')) || 1);
-  const porPagina = Number(parametros.get('por')) || POR_PAGINA[0];
+  const [busca, setBusca] = useState('');
+  const [pagina, setPagina] = useState(1);
+  const [porPagina, setPorPagina] = useState<number>(POR_PAGINA[0]);
 
-  /* A busca filtra no BANCO, num `<form method="get">`: com a lista paginada,
-     filtrar em memória só acharia o que estivesse na página aberta. */
+  const aoBuscar = useCallback((valor: string) => {
+    setBusca(valor);
+    setPagina(1);
+  }, []);
+
+  /* Busca, página e quantidade por página ficam em estado React. A URL visível
+     do portal permanece limpa; só a chamada à API recebe esses parâmetros. */
   const casca = useCascaDoPortal();
   const grade = useLeitura<GradeDoPortal>(
     `/v1/gestao/fluxos?busca=${encodeURIComponent(busca)}&pagina=${pagina}&porPagina=${porPagina}`,
-  );
+);
   /* Banco fora do ar não pode apagar a barra: a grade cai no estado vazio. */
   const dados: DadosDoPortal = {
     ...casca,
@@ -98,7 +102,7 @@ export function PaginaPortal() {
   return (
     <div className="pt-app">
       <BarraDoPortal dados={dados} />
-      <SubBarra dados={dados} busca={busca} />
+      <SubBarra dados={dados} busca={busca} onBuscar={aoBuscar} />
 
       <main className="pt-conteudo">
         <div className="pt-coluna">
@@ -134,10 +138,11 @@ export function PaginaPortal() {
                     ))}
                   </div>
                   <Paginacao
-                    busca={busca}
                     pagina={pagina}
                     porPagina={porPagina}
                     encontrados={dados.encontrados}
+                    setPagina={setPagina}
+                    setPorPagina={setPorPagina}
                   />
                 </>
               )}
@@ -154,34 +159,27 @@ export function PaginaPortal() {
  * `items-page`): contador de itens à esquerda, escolha de itens por página e as
  * páginas à direita.
  *
- * Tudo em link e num `<form method="get">`: a lista é do servidor, e trocar de
- * página em JavaScript exigiria um componente de cliente para reimplementar o
- * que a URL já faz — e a URL, de quebra, é compartilhável.
+ * A página e a quantidade por página ficam em estado React. A URL visível do
+ * portal não recebe `pagina` nem `por`; esses valores existem apenas na chamada
+ * para `GET /v1/gestao/fluxos`.
  */
 function Paginacao({
-  busca,
   pagina,
   porPagina,
   encontrados,
+  setPagina,
+  setPorPagina,
 }: {
-  busca: string;
   pagina: number;
   porPagina: number;
   encontrados: number;
+  setPagina: (pagina: number) => void;
+  setPorPagina: (quantidade: number) => void;
 }) {
   const tamanho = POR_PAGINA.includes(porPagina as never) ? porPagina : POR_PAGINA[0];
   const paginas = Math.max(1, Math.ceil(encontrados / tamanho));
   const primeiroItem = encontrados === 0 ? 0 : (pagina - 1) * tamanho + 1;
   const ultimoItem = Math.min(pagina * tamanho, encontrados);
-
-  const enderecoDa = (n: number) => {
-    const cauda = new URLSearchParams();
-    if (busca) cauda.set('q', busca);
-    if (tamanho !== POR_PAGINA[0]) cauda.set('por', String(tamanho));
-    if (n > 1) cauda.set('pagina', String(n));
-    const texto = cauda.toString();
-    return texto ? `/portal?${texto}` : '/portal';
-  };
 
   /* Aparece SEMPRE, inclusive com uma página só: no DOM da conta de onze
      bots a barra está lá, dizendo "1-11 de 11" e "de 1 páginas". Escondê-la
@@ -189,38 +187,92 @@ function Paginacao({
 
   return (
     <div className="pt-paginacao">
-      <span className="pt-paginacao-conta">
-        {primeiroItem}-{ultimoItem} de {encontrados}
-      </span>
+      <div className="pt-paginacao-esquerda">
+        <label>Itens por página:</label>
 
-      {/* Sem JavaScript: trocar o tamanho recarrega pelo botão, e a lista volta
-          para a primeira página — que é o que a origem também faz. */}
-      <form className="pt-paginacao-tamanho" method="get" action="/portal">
-        {busca ? <input type="hidden" name="q" value={busca} /> : null}
-        <label htmlFor="pt-por">Itens por página:</label>
-        <Selecao name="por" defaultValue={String(tamanho)} aria-label="Itens por página">
+        <Selecao
+          value={String(tamanho)}
+          aria-label="Itens por página"
+          onChange={(e) => {
+            setPorPagina(Number(e.target.value));
+            setPagina(1);
+          }}
+        >
           {POR_PAGINA.map((n) => (
             <option key={n} value={n}>
               {n}
             </option>
           ))}
         </Selecao>
-        <button type="submit">Aplicar</button>
-      </form>
 
-      <nav className="pt-paginacao-paginas" aria-label="Páginas">
-        {Array.from({ length: paginas }, (_, i) => i + 1).map((n) => (
-          <Link
-            key={n}
-            href={enderecoDa(n)}
-            aria-current={n === pagina ? 'page' : undefined}
-            aria-label={`Página ${n}`}
-          >
-            {n}
-          </Link>
-        ))}
-        {/* O "de N páginas" que fecha a barra deles, à direita das páginas. */}
-        <span className="pt-paginacao-de">de {paginas} páginas</span>
+        <span className="pt-paginacao-conta">
+          {primeiroItem}-{ultimoItem} de {encontrados}
+        </span>
+      </div>
+
+      <nav className="pt-paginacao-direita" aria-label="Páginas">
+
+        {/* primeira página */}
+        <button
+          type="button"
+          className="pt-paginacao-icone"
+          disabled={pagina === 1}
+          onClick={() => setPagina(1)}
+          aria-label="Primeira página"
+        >
+          «
+        </button>
+
+        {/* página anterior */}
+        <button
+          type="button"
+          className="pt-paginacao-icone"
+          disabled={pagina === 1}
+          onClick={() => setPagina(pagina - 1)}
+          aria-label="Página anterior"
+        >
+          ‹
+        </button>
+
+        {/* seletor da página atual */}
+        <Selecao
+          value={String(pagina)}
+          aria-label="Página atual"
+          onChange={(e) => setPagina(Number(e.target.value))}
+        >
+          {Array.from({ length: paginas }, (_, i) => i + 1).map((n) => (
+            <option key={n} value={n}>
+              {n}
+            </option>
+          ))}
+        </Selecao>
+
+        <span className="pt-paginacao-de">
+          de {paginas} páginas
+        </span>
+
+        {/* próxima página */}
+        <button
+          type="button"
+          className="pt-paginacao-icone"
+          disabled={pagina === paginas}
+          onClick={() => setPagina(pagina + 1)}
+          aria-label="Próxima página"
+        >
+          ›
+        </button>
+
+        {/* última página */}
+        <button
+          type="button"
+          className="pt-paginacao-icone"
+          disabled={pagina === paginas}
+          onClick={() => setPagina(paginas)}
+          aria-label="Última página"
+        >
+          »
+        </button>
+
       </nav>
     </div>
   );
@@ -238,7 +290,35 @@ function Paginacao({
  * subdomínio, e é ali que a pessoa lê em qual conta está; a nossa URL não
  * carrega isso, então o slug precisa estar visível.
  */
-function SubBarra({ dados, busca }: { dados: DadosDoPortal; busca: string }) {
+function SubBarra({
+  dados,
+  busca,
+  onBuscar,
+}: {
+  dados: DadosDoPortal;
+  busca: string;
+  onBuscar: (valor: string) => void;
+}) {
+  const [buscaAberta, setBuscaAberta] = useState(Boolean(busca));
+  const [textoBusca, setTextoBusca] = useState(busca);
+  const campoBusca = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const valor = textoBusca.trim();
+    if (valor === busca) return;
+
+    const timer = window.setTimeout(() => {
+      onBuscar(valor);
+    }, 700);
+
+    return () => window.clearTimeout(timer);
+  }, [textoBusca, busca, onBuscar]);
+
+  function abrirBusca() {
+    setBuscaAberta(true);
+    requestAnimationFrame(() => campoBusca.current?.focus());
+  }
+
   return (
     <div className="pt-subbarra">
       <div className="pt-subbarra-conteudo">
@@ -256,19 +336,23 @@ function SubBarra({ dados, busca }: { dados: DadosDoPortal; busca: string }) {
             A busca aparece SEMPRE, inclusive na conta sem nenhum contato: na
             origem ela está lá na conta vazia. */}
         <div className="pt-subbarra-acoes">
-          {/* A busca deles NÃO é uma caixa: é a lupa de 32 em cinza, solta, com
-              o campo sem borda ao lado (`search-input-container`). A nossa
-              estava dentro de uma caixa com contorno, e era isso que destoava. */}
-          <form className="pt-busca" method="get" action="/portal" role="search">
-            <IconeBusca tamanho={32} />
-            <input
-              type="search"
-              name="q"
-              defaultValue={busca}
-              placeholder="Buscar fluxos…"
-              aria-label="Buscar fluxos"
-            />
-          </form>
+          {/* A busca segue o comportamento da origem: o texto fica em estado local
+              e só atualiza a consulta depois de 700 ms sem digitação. */}
+          <div className={`pt-busca${buscaAberta ? ' pt-busca-aberta' : ''}`} role="search">
+            <button className="pt-busca-botao" type="button" onClick={abrirBusca} aria-label="Abrir busca">
+              <IconeBusca tamanho={32} />
+            </button>
+            {buscaAberta ? (
+              <input
+                ref={campoBusca}
+                type="search"
+                value={textoBusca}
+                aria-label="Buscar fluxos"
+                onChange={(e) => setTextoBusca(e.target.value)}
+                onBlur={() => setBuscaAberta(false)}
+              />
+            ) : null}
+          </div>
 
           {dados.podeCriar ? (
             <>

@@ -434,13 +434,46 @@
   background: var(--moss);
 }
 
-.bl-zoom-ponteiro {
+/* O range nativo por cima da trilha, invisível — só o polegar (o "ponteiro"
+   de 18px do `rzslider` deles) aparece, com prefixo próprio em cada motor. */
+.bl-zoom-controle {
   position: absolute;
-  top: 50%;
-  right: -9px;
+  inset: 0;
+  width: 100%;
+  margin: 0;
+  background: transparent;
+  appearance: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.bl-zoom-controle::-webkit-slider-runnable-track {
+  height: 100%;
+  background: transparent;
+}
+
+.bl-zoom-controle::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
   width: 18px;
   height: 18px;
-  transform: translateY(-50%);
+  margin-top: -7.5px;
+  border: 0;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--p-conteudo-claro, #fff) 55%, var(--bl-fundo, #141414));
+  box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.45);
+}
+
+.bl-zoom-controle::-moz-range-track {
+  height: 100%;
+  background: transparent;
+  border: 0;
+}
+
+.bl-zoom-controle::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border: 0;
   border-radius: 50%;
   background: color-mix(in srgb, var(--p-conteudo-claro, #fff) 55%, var(--bl-fundo, #141414));
   box-shadow: 0 0 5px 1px rgba(0, 0, 0, 0.45);

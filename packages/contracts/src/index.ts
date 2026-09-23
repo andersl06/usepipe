@@ -13,3 +13,4 @@ export * from './gestao-fluxo.js';
 export * from './gestao-equipe.js';
 export * from './gestao-cadastros.js';
 export * from './desk.js';
+export * from './encerramento.js';

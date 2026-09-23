@@ -15,6 +15,7 @@ import { numeroDoTicket } from '../../lib/canal';
 import { nomeDeExibicao } from '../../lib/ordem';
 import { Thread } from './thread';
 import { Compositor } from './compositor';
+import { CartaoEncerramentoTicket, avisarTicketFinalizado } from '@pipe/ui';
 
 /**
  * O painel da conversa — `.pane-chat` da referência
@@ -614,7 +615,7 @@ function ModalFinalizar({
   aoFechar: () => void;
   aoFinalizar: () => void;
 }) {
-  const [etiquetaId, setEtiquetaId] = useState(marcadas[0] ?? '');
+  const [etiquetasIds, setEtiquetasIds] = useState(marcadas);
   const [erro, setErro] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
 
@@ -622,8 +623,9 @@ function ModalFinalizar({
     setEnviando(true);
     setErro(null);
     try {
-      await api.post(`/v1/conversas/${conversaId}/encerrar`, { etiqueta_id: etiquetaId });
+      await api.post(`/v1/conversas/${conversaId}/encerrar`, { etiqueta_ids: etiquetasIds });
       atualizarLeituras();
+      avisarTicketFinalizado(numero);
       aoFinalizar();
     } catch (e) {
       setErro(
@@ -636,46 +638,16 @@ function ModalFinalizar({
   }
 
   return (
-    <div className="dk-veu" role="presentation" onClick={aoFechar}>
-      <div
-        className="dk-modal"
-        role="dialog"
-        aria-labelledby="modal-title"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 id="modal-title" style={{ fontSize: 24, fontWeight: 600 }}>
-          Finalizar atendimento do Ticket {numero}
-        </h2>
-        <p>Finalizar o atendimento zera as ações do usuário com o bot.</p>
-        <p>Novas interações geram um novo Ticket.</p>
-        <p>
-          <b>Deseja continuar?</b>
-        </p>
-        <label htmlFor="etiqueta">Adicionar tags</label>
-        <select id="etiqueta" value={etiquetaId} onChange={(e) => setEtiquetaId(e.target.value)}>
-          <option value="">Tags</option>
-          {etiquetas.map((e) => (
-            <option key={e.id} value={e.id}>
-              {e.nome}
-            </option>
-          ))}
-        </select>
-        {erro ? <p className="dk-erro">{erro}</p> : null}
-        <div className="dk-modal-acoes">
-          <button type="button" className="dk-botao dk-botao-secundario" onClick={aoFechar}>
-            Cancelar
-          </button>
-          <button
-            type="button"
-            className="dk-botao"
-            disabled={!etiquetaId || enviando}
-            onClick={() => void finalizar()}
-          >
-            Finalizar ticket
-          </button>
-        </div>
-      </div>
-    </div>
+    <CartaoEncerramentoTicket
+      numero={numero}
+      etiquetas={etiquetas}
+      selecionadas={etiquetasIds}
+      erro={erro}
+      enviando={enviando}
+      aoSelecionar={setEtiquetasIds}
+      aoCancelar={aoFechar}
+      aoFinalizar={() => void finalizar()}
+    />
   );
 }
 

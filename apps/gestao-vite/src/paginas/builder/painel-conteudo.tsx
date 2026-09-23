@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Campo, Etiqueta, Icone, Seletor } from '@pipe/ui';
+import { Campo, Etiqueta, Icone } from '@pipe/ui';
 import { IconeGestao } from '../../componentes/icones-gestao';
+import { Selecao } from '../../componentes/selecao';
 import type { Bloco, EntradaDoEditor, ItemDeConteudo } from './modelo';
 import { ehAtendimento, novaEntrada } from './modelo';
 import {
@@ -331,7 +332,7 @@ function CartaoDeEntrada({
                 <>
                   <label className="bl-campo">
                     <span className="sub">{ROTULOS_DO_CONTEUDO.tipoDeValidacao}</span>
-                    <Seletor
+                    <Selecao
                       value={entrada.validation.rule}
                       onChange={(e) => trocar({ ...entrada, validation: validacaoComRegra(entrada.validation, e.target.value) })}
                     >
@@ -340,7 +341,7 @@ function CartaoDeEntrada({
                           {r.rotulo}
                         </option>
                       ))}
-                    </Seletor>
+                    </Selecao>
                   </label>
                   {entrada.validation.rule === 'regex' ? (
                     <label className="bl-campo">

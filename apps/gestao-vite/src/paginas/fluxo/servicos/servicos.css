@@ -1,152 +1,807 @@
-/* `master-services`: o `page-header` padrão (`ph-cabecalho`, de Integrações)
-   seguido de `page-header-description`/`additional-info` — dois parágrafos
-   FORA da caixa com borda — e do `.container > .services-list`. Medidas de
-   `application-item-labels`, `application-item-link` e `bds-paper`; tinta nos
-   tokens Pipe. */
+/* ==========================================================
+   SERVIÇOS
+   Replica a organização visual da tela master-services da Blip.
+   Nenhuma regra funcional depende deste arquivo.
+   ========================================================== */
+
+.sv-container {
+  width: 100%;
+  min-width: 0;
+  color: var(--p-conteudo);
+}
+
+/* ==========================================================
+   CABEÇALHO / DESCRIÇÃO
+   ========================================================== */
+
+.sv-container .ph-cabecalho {
+  margin: 0;
+}
+
+.sv-container .ph-titulo {
+  margin: 0;
+  color: var(--p-conteudo);
+  font-size: 24px;
+  line-height: 32px;
+  font-weight: 400;
+}
+
 .sv-container > p {
-  margin: 0 0 12px;
+  margin: 0 0 16px;
+  color: var(--p-conteudo);
   font-size: 14px;
-  color: var(--p-conteudo-desabilitado);
+  line-height: 20px;
+  font-weight: 400;
 }
+
+.sv-container > p:last-of-type {
+  margin-bottom: 0;
+}
+
+/* ==========================================================
+   LISTA
+   ========================================================== */
+
 .sv-lista {
-  margin-top: 28px;
+  width: 100%;
+  margin-top: 24px;
 }
+
+/* ==========================================================
+   BOTÕES
+   ========================================================== */
+
 .sv-botao {
+  min-width: 0;
   min-height: 40px;
+
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
+
+  box-sizing: border-box;
+
   padding: 0 16px;
+
   border: 1px solid var(--p-marca-forte);
   border-radius: var(--p-r-md);
+
   background: var(--p-superficie-0);
   color: var(--p-marca-forte);
+
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
   font-weight: var(--g-peso-negrito);
+
   cursor: pointer;
+
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease,
+    opacity 120ms ease;
 }
+
+.sv-botao:hover:not(:disabled) {
+  background: var(--p-superficie-2);
+}
+
+.sv-botao:focus-visible {
+  outline: 2px solid var(--p-marca-forte);
+  outline-offset: 2px;
+}
+
 .sv-botao-primario {
+  border-color: var(--p-marca-forte);
   background: var(--p-marca-forte);
   color: var(--p-superficie-0);
 }
+
+.sv-botao-primario:hover:not(:disabled) {
+  background: var(--p-marca-forte);
+  filter: brightness(0.96);
+}
+
+.sv-botao:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ==========================================================
+   CARDS DOS SERVIÇOS
+   ========================================================== */
+
 .sv-cartao {
+  width: 100%;
+
   display: flex;
+  align-items: flex-start;
   justify-content: space-between;
-  margin: 24px 0;
+
+  box-sizing: border-box;
+
+  margin: 16px 0;
   padding: 24px;
-  background: var(--p-superficie-0);
+
+  border: 0;
   border-radius: var(--g-r-cartao);
+
+  background: var(--p-superficie-0);
+
   box-shadow: var(--g-sombra-cartao);
 }
+
 .sv-cartao-corpo {
   width: 90%;
+  min-width: 0;
+  padding-right: 16px;
 }
+
 .sv-cartao h2 {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin: 0 0 20px;
-  font-size: 20px;
+  gap: 8px;
+
+  margin: 0 0 16px;
+
   color: var(--p-conteudo);
+
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: var(--g-peso-negrito);
 }
+
+.sv-cartao h2 > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  color: var(--p-conteudo);
+  cursor: help;
+}
+
+/* ==========================================================
+   LINHAS DOS CARDS
+   ========================================================== */
+
 .sv-linha {
+  width: 100%;
+
   display: flex;
-  gap: 12px;
-  margin: 10px 0;
+  align-items: center;
+
+  margin: 0;
+
+  color: var(--p-conteudo);
+
   font-size: 14px;
+  line-height: 20px;
 }
+
+.sv-linha + .sv-linha {
+  margin-top: 8px;
+}
+
 .sv-linha b {
   width: 10%;
   min-width: 76px;
+  flex: none;
+
   color: var(--p-conteudo);
+
+  font-weight: var(--g-peso-negrito);
 }
+
 .sv-linha span,
 .sv-linha a {
   width: 90%;
-  color: var(--p-conteudo);
+  min-width: 0;
+
+  overflow-wrap: anywhere;
 }
+
+/* Valor comum do card: um pouco mais suave */
+.sv-linha span {
+  color: color-mix(
+    in srgb,
+    var(--p-conteudo) 72%,
+    transparent
+  );
+
+  font-weight: 400;
+}
+
+/* Link continua com a cor da marca */
 .sv-linha a {
   color: var(--p-marca-forte);
+  font-weight: 400;
   text-decoration: none;
 }
+
+.sv-linha a:hover {
+  text-decoration: underline;
+}
+
+/* ==========================================================
+   EDITAR / EXCLUIR
+   ========================================================== */
+
 .sv-cartao-acoes {
+  width: 10%;
+  min-width: 88px;
+
   display: flex;
-  gap: 8px;
+  flex: none;
   align-items: flex-start;
+  justify-content: flex-end;
+
+  gap: 8px;
 }
-.sv-cartao-acoes button {
-  border: 0;
-  background: transparent;
-  color: var(--p-conteudo);
+
+.sv-cartao .sv-cartao-acoes > button {
+  width: 40px;
+  height: 40px;
+
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+
+  box-sizing: border-box;
+
+  margin: 0;
+  padding: 0;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  border: 0 !important;
+  outline: 0;
+
+  background: transparent !important;
+
+  color: var(--p-marca-forte);
+
+  box-shadow: none !important;
+
   cursor: pointer;
+
+  border-radius: var(--p-r-md);
+
+  transition:
+    background-color 120ms ease,
+    opacity 120ms ease;
 }
+
+.sv-cartao .sv-cartao-acoes > button:hover {
+  background: var(--p-superficie-2) !important;
+}
+
+.sv-cartao .sv-cartao-acoes > button:focus-visible {
+  outline: 2px solid var(--p-marca-forte);
+  outline-offset: 2px;
+}
+
+.sv-cartao .sv-cartao-acoes > button svg {
+  display: block;
+}
+
+.sv-cartao-acoes button:hover {
+  background: var(--p-superficie-2);
+}
+
+.sv-cartao-acoes button:focus-visible {
+  outline: 2px solid var(--p-marca-forte);
+  outline-offset: 2px;
+}
+
+/* ==========================================================
+   FORMULÁRIO
+   ========================================================== */
+
 .sv-formulario {
-  max-width: 640px;
-  margin: 24px 0;
+  width: 100%;
+  max-width: none;
+
+  display: flex;
+  flex-direction: column;
+
+  box-sizing: border-box;
+
+  margin: 16px 0;
   padding: 24px;
-  background: var(--p-superficie-0);
+
+  border: 0;
   border-radius: var(--g-r-cartao);
+
+  background: var(--p-superficie-0);
+
   box-shadow: var(--g-sombra-cartao);
 }
+
 .sv-formulario h2 {
-  margin: 0 0 20px;
-  font-size: 20px;
+  margin: 0 0 24px;
+
   color: var(--p-conteudo);
+
+  font-size: 16px;
+  line-height: 24px;
+  font-weight: var(--g-peso-negrito);
 }
-.sv-formulario label:not(.sv-check) {
-  display: block;
-  margin: 16px 0;
-  font-size: 14px;
-  color: var(--p-conteudo);
-}
-.sv-formulario input:not([type='checkbox']) {
+
+/* ==========================================================
+   CAMPOS
+   Estrutura equivalente ao bds-input da Blip
+   ========================================================== */
+
+/* ==========================================================
+   CAMPOS / INPUT BDS
+   ========================================================== */
+
+/* ==========================================================
+   CAMPOS / INPUT BDS
+   ========================================================== */
+
+.sv-campo {
   display: block;
   width: 100%;
   box-sizing: border-box;
-  margin-top: 6px;
-  padding: 10px 12px;
-  border: 1px solid var(--p-linha-media);
-  border-radius: var(--p-r-md);
+  margin: 0 0 16px;
 }
-.sv-check {
-  display: block;
-  margin: 12px 0;
-  font-size: 14px;
-  color: var(--p-conteudo);
-}
-.sv-acoes {
+
+.sv-input {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 20px;
+  width: 100%;
+  box-sizing: border-box;
 }
-.sv-erro {
-  color: var(--p-erro-conteudo);
-  font-size: 14px;
+
+.sv-input-container {
+  width: 100%;
+  min-width: 0;
 }
-/* A busca de "Associe um chatbot": bot não publicado aparece apagado. */
-.sv-busca {
-  margin: -8px 0 12px;
-  padding: 0;
-  list-style: none;
-  max-height: 200px;
-  overflow-y: auto;
+
+/*
+  Caixa completa do campo:
+  label + input ficam dentro da mesma borda.
+*/
+.sv-input-wrapper {
+  position: relative;
+
+  display: flex;
+  align-items: flex-end;
+
+  width: 100%;
+  min-width: 0;
+  height: 48px;
+
+  box-sizing: border-box;
+
+  padding: 18px 12px 5px;
+
   border: 1px solid var(--p-linha-media);
   border-radius: var(--p-r-md);
+
+  background: var(--p-superficie-0);
+
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
 }
+
+/*
+  Label dentro da caixa.
+*/
+.sv-input-label-text {
+  position: absolute;
+
+  top: 4px;
+  left: 12px;
+
+  margin: 0;
+  padding: 0;
+
+  color: var(--p-conteudo);
+
+  font: inherit;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: var(--g-peso-negrito);
+
+  pointer-events: none;
+}
+
+/*
+  O input em si NÃO possui borda.
+  A borda pertence ao wrapper.
+*/
+.sv-input-wrapper input {
+  display: block;
+
+  width: 100%;
+  min-width: 0;
+  height: 20px;
+
+  box-sizing: border-box;
+
+  margin: 0;
+  padding: 0;
+
+  border: 0 !important;
+  border-radius: 0;
+
+  outline: 0 !important;
+
+  background: transparent !important;
+  color: var(--p-conteudo);
+
+  font: inherit;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 400;
+
+  box-shadow: none !important;
+}
+
+.sv-input-wrapper input::placeholder {
+  color: var(--p-conteudo-desabilitado);
+  opacity: 1;
+}
+
+.sv-input-wrapper:hover {
+  border-color: var(--p-conteudo-desabilitado);
+}
+
+.sv-input-wrapper:focus-within {
+  border-color: var(--p-marca-forte);
+}
+
+/* SEARCH */
+
+.sv-input-wrapper input[type='search'] {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.sv-input-wrapper
+  input[type='search']::-webkit-search-decoration,
+.sv-input-wrapper
+  input[type='search']::-webkit-search-cancel-button,
+.sv-input-wrapper
+  input[type='search']::-webkit-search-results-button,
+.sv-input-wrapper
+  input[type='search']::-webkit-search-results-decoration {
+  display: none;
+}
+
+/* NUMBER */
+
+.sv-input-wrapper input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.sv-input-wrapper
+  input[type='number']::-webkit-inner-spin-button,
+.sv-input-wrapper
+  input[type='number']::-webkit-outer-spin-button {
+  margin: 0;
+}
+
+.sv-campo-expiracao {
+  margin-bottom: 24px;
+}
+
+/* ==========================================================
+   BUSCA DE CHATBOTS
+   ========================================================== */
+
+.sv-busca {
+  width: 100%;
+  max-height: 280px;
+
+  display: flex;
+  flex-direction: column;
+
+  box-sizing: border-box;
+
+  margin: 0 0 16px;
+  padding: 0;
+
+  overflow-x: hidden;
+  overflow-y: auto;
+
+  border: 0;
+  border-radius: 0;
+
+  list-style: none;
+}
+
+.sv-busca li {
+  width: 100%;
+
+  margin: 0 0 12px;
+  padding: 0;
+}
+
+.sv-busca li:last-child {
+  margin-bottom: 0;
+}
+
+.sv-chatbot-item,
 .sv-busca button {
   width: 100%;
-  padding: 8px 12px;
+  min-height: 40px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  box-sizing: border-box;
+
+  margin: 0;
+  padding: 0;
+
   border: 0;
+  outline: 0;
+
   background: transparent;
   color: var(--p-conteudo);
+
+  font: inherit;
   text-align: left;
+
   cursor: pointer;
 }
-.sv-busca button.sv-apagado {
+
+.sv-chatbot-item:hover {
+  opacity: 0.8;
+}
+
+.sv-chatbot-item:focus-visible {
+  outline: 2px solid var(--p-marca-forte);
+  outline-offset: 2px;
+  border-radius: var(--p-r-md);
+}
+
+/* equivalente visual ao bds-avatar size="small" */
+
+.sv-chatbot-avatar {
+  width: 40px;
+  height: 40px;
+
+  display: inline-flex;
+  flex: none;
+
+  align-items: center;
+  justify-content: center;
+
+  overflow: hidden;
+
+  border-radius: 50%;
+
+  background: var(--p-superficie-2);
+  color: var(--p-conteudo);
+
+  font-size: 16px;
+  line-height: 40px;
+  font-weight: 400;
+}
+
+.sv-chatbot-texto {
+  display: flex;
+  flex: 1;
+  min-width: 0;
+
+  flex-direction: column;
+  justify-content: center;
+
+  gap: 2px;
+}
+
+.sv-chatbot-nome {
+  display: block;
+
+  overflow: hidden;
+
+  color: var(--p-conteudo);
+
+  font-size: 14px;
+  line-height: 20px;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sv-busca button.sv-apagado,
+.sv-chatbot-item.sv-apagado {
   opacity: 0.5;
 }
-.sv-busca-vazia {
-  margin: -8px 0 12px;
+
+/* ==========================================================
+   CHECKBOXES
+   ========================================================== */
+
+.sv-check {
+  width: fit-content;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  margin: 0 0 16px;
+
+  color: var(--p-conteudo);
+
   font-size: 14px;
+  line-height: 20px;
+
+  cursor: pointer;
+}
+
+.sv-check input[type='checkbox'] {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 20px;
+  height: 20px;
+
+  display: grid;
+  flex: none;
+
+  place-content: center;
+
+  box-sizing: border-box;
+
+  margin: 0;
+
+  border: 1px solid var(--p-linha-media);
+  border-radius: 4px;
+
+  outline: 0;
+
+  background: var(--p-superficie-0);
+
+  cursor: pointer;
+
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+}
+
+.sv-check input[type='checkbox']::before {
+  content: '';
+
+  width: 5px;
+  height: 9px;
+
+  margin-top: -2px;
+
+  border-right: 2px solid var(--p-superficie-0);
+  border-bottom: 2px solid var(--p-superficie-0);
+
+  transform:
+    rotate(45deg)
+    scale(0);
+
+  transform-origin: center;
+
+  transition:
+    transform 100ms ease;
+}
+
+.sv-check input[type='checkbox']:checked {
+  border-color: var(--p-marca-forte);
+  background: var(--p-marca-forte);
+}
+
+.sv-check
+  input[type='checkbox']:checked::before {
+  transform:
+    rotate(45deg)
+    scale(1);
+}
+
+.sv-check
+  input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--p-marca-forte);
+  outline-offset: 2px;
+}
+
+.sv-check span {
+  line-height: 20px;
+}
+
+/* ==========================================================
+   AÇÕES DO FORMULÁRIO
+   ========================================================== */
+
+.sv-acoes {
+  width: 100%;
+
+  display: flex;
+
+  align-items: center;
+  justify-content: flex-end;
+
+  gap: 12px;
+
+  margin-top: 0;
+}
+
+.sv-formulario .sv-botao {
+  min-width: 96px;
+}
+
+.sv-formulario .sv-botao-primario {
+  background: var(--p-marca-forte);
+  color: var(--p-superficie-0);
+}
+
+/* ==========================================================
+   MENSAGENS
+   ========================================================== */
+
+.sv-erro {
+  margin: 12px 0;
+
+  color: var(--p-erro-conteudo);
+
+  font-size: 14px;
+  line-height: 20px;
+}
+
+.sv-busca-vazia {
+  margin: -4px 0 16px;
+
   color: var(--p-conteudo-desabilitado);
+
+  font-size: 14px;
+  line-height: 20px;
+}
+
+/* ==========================================================
+   RESPONSIVO
+   ========================================================== */
+
+@media (max-width: 720px) {
+  .sv-formulario,
+  .sv-cartao {
+    padding: 20px;
+  }
+
+  .sv-cartao {
+    flex-direction: column;
+  }
+
+  .sv-cartao-corpo {
+    width: 100%;
+    padding-right: 0;
+  }
+
+  .sv-cartao-acoes {
+    width: 100%;
+    min-width: 0;
+
+    justify-content: flex-end;
+
+    margin-top: 16px;
+  }
+
+  .sv-linha b {
+    width: 100px;
+    min-width: 100px;
+  }
+
+  .sv-linha span,
+  .sv-linha a {
+    width: auto;
+    flex: 1;
+  }
+
+  .sv-acoes {
+    flex-wrap: wrap;
+  }
 }
