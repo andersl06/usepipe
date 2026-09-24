@@ -116,6 +116,12 @@ function collectCode(source: SourceText, rows: MapRow[], comments: CommentRow[])
   };
   const visit = (node: ts.Node): void => {
     const kind = declarationKind(node);
+    if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer && ts.isStringLiteral(node.initializer)) {
+      const name = node.name.text;
+      if (/^FILA_[A-Z_]+$/.test(name)) add('queue', node.initializer.text, node.initializer);
+      if (/^(?:COOKIE_[A-Z_]+|NOME_DO_COOKIE)$/.test(name)) add('cookie', node.initializer.text, node.initializer);
+      if (name === 'CHAVE_TEMA' || (name === 'CHAVE' && file.endsWith('/visoes-salvas.tsx'))) add('storage-key', node.initializer.text, node.initializer);
+    }
     if (kind && 'name' in node) {
       const name = nameText((node as ts.NamedDeclaration).name);
       if (name) add(kind, name, node, ts.isPropertyDeclaration(node) || ts.isPropertySignature(node) ? drizzleInfo(node as never) : '');
@@ -124,6 +130,7 @@ function collectCode(source: SourceText, rows: MapRow[], comments: CommentRow[])
       const name = nameText(node.name);
       const notes = drizzleInfo(node);
       if (name && (notes || exportedObjectProperty(node))) add('ts-prop', name, node, notes);
+      if (name?.startsWith('pipe_') && ts.isVariableDeclaration(node.parent.parent) && node.parent.parent.name.getText(sf) === 'AJUDA') add('metric', name, node, '', true);
     }
     if (ts.isTypeAliasDeclaration(node) && ts.isUnionTypeNode(node.type)) {
       for (const member of node.type.types) if (ts.isLiteralTypeNode(member) && ts.isStringLiteral(member.literal)) add('literal-value', member.literal.text, member.literal, '', isPt(node.name.text));
@@ -163,6 +170,7 @@ function collectTechnicalCall(node: ts.CallExpression, file: string, scope: stri
   if (['cookie', 'res.cookie', 'clearCookie'].includes(name) && first) add('cookie', first, node.arguments[0]!);
   if (/metric|Counter|Gauge|Histogram/.test(name) && first) add('metric', first, node.arguments[0]!);
   if (['getAttribute', 'setAttribute', 'hasAttribute', 'removeAttribute'].includes(name.split('.').at(-1) ?? '') && first?.startsWith('data-')) addCssData(first.slice(5), node.arguments[0]!, file, sf, rows);
+  if (name.endsWith('.upsertJobScheduler') && first) add('job-name', first, node.arguments[0]!, '', true);
   if (name === 'Controller' || ['Get', 'Post', 'Put', 'Patch', 'Delete'].includes(name)) return;
   if ((name.endsWith('Queue') || name.endsWith('Worker')) && first) add('queue', first, node.arguments[0]!);
 }
@@ -187,7 +195,7 @@ function listFiles(root: string): string[] {
     const result: string[] = []; const walk = (dir: string): void => { for (const entry of fs.readdirSync(dir, { withFileTypes: true })) { const full = path.join(dir, entry.name); if (entry.isDirectory()) walk(full); else result.push(slash(path.relative(root, full))); } }; walk(root); return result;
   }
 }
-function sourcesAt(root: string, files: string[]): SourceText[] { return files.filter((file) => CODE.test(file)).map((file) => ({ fileName: slash(file), sourceText: fs.readFileSync(path.join(root, file), 'utf8') })); }
+function sourcesAt(root: string, files: string[]): SourceText[] { return files.map((file) => ({ fileName: slash(file), sourceText: fs.readFileSync(path.join(root, file), 'utf8') })); }
 
 function collectPaths(files: string[], rows: MapRow[]): void {
   const dirs = new Set<string>();
@@ -260,8 +268,26 @@ function collectEndpoints(sources: SourceText[], rows: MapRow[]): void {
 
 function routeMatches(value: string, route: string): boolean {
   const candidate = normalizePath(value).split('/').filter(Boolean); const pattern = route.split('/').filter(Boolean);
-  const prefix = (left: string[], right: string[]): boolean => left.length <= right.length && left.every((part, index) => part === ':*' || right[index] === ':*' || part === right[index]);
-  return prefix(candidate, pattern) || prefix(pattern, candidate);
+  return candidate.length === pattern.length &&
+    candidate.some((part, index) => part !== ':*' && pattern[index] !== ':*' && part === pattern[index]) &&
+    candidate.every((part, index) => part === ':*' || pattern[index] === ':*' || part === pattern[index]);
+}
+function dependentMatches(snippet: string, route: string, file: string): boolean {
+  const literals = [...snippet.matchAll(/(?:["'`])(\/[^"'`\s]*)/g)].map((m) => m[1]!.replace(/\$\{[^}]+\}/g, ':x'));
+  if (literals.some((candidate) => routeMatches(candidate, route))) return true;
+  if (!/^\/(?:fluxo|roteador)\/:[^/]+\//.test(route)) return false;
+  if (file.endsWith('/paginas/operacao/casca.tsx') && route.includes('/atendimento/')) {
+    const match = /\brota:\s*['"]([^'"]+)['"]/.exec(snippet);
+    if (match && route.endsWith(`/atendimento/${match[1]}`)) return true;
+  }
+  if (file.endsWith('/paginas/fluxo/canais/whatsapp/casca.tsx')) {
+    const match = /\bsegmento:\s*['"]([^'"]+)['"]/.exec(snippet);
+    if (match && route.endsWith(`/canais/whatsapp/${match[1]}`)) return true;
+  }
+  if (file.endsWith('/paginas/fluxo/equipe/tela.tsx') && route.endsWith('/equipe/editar/:*') && /navegar\(`editar\/\$\{/.test(snippet)) return true;
+  const parts = route.split('/');
+  return [...snippet.matchAll(/\}(\/[^"'`\s]*)/g)].some((match) =>
+    parts.slice(3).some((_, index) => routeMatches(match[1]!, `/${parts.slice(3 + index).join('/')}`)));
 }
 function dependentKind(file: string, line: string): RouteDependent['kind'] {
   if (/tests?\//.test(file) || /\.test\./.test(file)) return 'test'; if (/\.md$/.test(file)) return 'doc';
@@ -274,12 +300,11 @@ function collectDependents(sources: SourceText[], rows: MapRow[]): RouteDependen
   for (const route of routes) {
     const app = route.scope;
     for (const source of sources) {
-      const file = slash(source.fileName); if (!(file.startsWith(`apps/${app}/`) || /^apps\/[^/]+\/src\//.test(file) || file.startsWith('docs/') || /(^|\/)README\.md$/.test(file))) continue;
+      const file = slash(source.fileName); if (!(file.startsWith(`apps/${app}/`) || file.startsWith('docs/') || /(^|\/)README\.md$/.test(file))) continue;
       const lines = source.sourceText.split(/\r?\n/);
       for (let i = 0; i < lines.length; i += 1) {
         const snippet = lines[i]!.trim(); if (snippet.includes('<Route') || !/["'`/]/.test(snippet)) continue;
-        const candidates = [...snippet.matchAll(/(?:["'`])(\/[^"'`\s]*)/g)].map((m) => m[1]!.replace(/\$\{[^}]+\}/g, ':x'));
-        if (candidates.some((candidate) => routeMatches(candidate, route.old))) result.push({ route_row_id: route.id, app, route: route.old, file, line: String(i + 1), kind: dependentKind(file, snippet), snippet: snippet.slice(0, 240) });
+        if (dependentMatches(snippet, route.old, file)) result.push({ route_row_id: route.id, app, route: route.old, file, line: String(i + 1), kind: dependentKind(file, snippet), snippet: snippet.slice(0, 240) });
       }
     }
     route.consumers = String(result.filter((item) => item.route_row_id === route.id).length);
@@ -326,5 +351,5 @@ export function extract(root: string): InventoryResult {
 function csv(headers: readonly string[], rows: Record<string, string>[]): string { const cell = (v: string): string => /[",\r\n]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v; return `${headers.join(',')}\n${rows.map((r) => headers.map((h) => cell(r[h] ?? '')).join(',')).join('\n')}\n`; }
 function summary(result: InventoryResult): string { const lines = ['# Inventory summary', '', '| Scope | Kind | Rows |', '|---|---|---:|']; for (const scope of SCOPES) { const byKind = new Map<string, number>(); for (const r of result.rows.filter((r) => r.scope === scope)) byKind.set(r.kind, (byKind.get(r.kind) ?? 0) + 1); if (byKind.size === 0) lines.push(`| ${scope} | - | 0 |`); else for (const [kind, count] of [...byKind].sort()) lines.push(`| ${scope} | ${kind} | ${count} |`); } lines.push('', `Total rows: ${result.rows.length}`, `Total comments: ${result.comments.length}`, `Total route dependents: ${result.routeDependents.length}`); return `${lines.join('\n')}\n`; }
 function printTotals(result: InventoryResult): void { for (const scope of SCOPES) console.log(`${scope}: ${result.rows.filter((r) => r.scope === scope).length}`); const kinds = new Map<string, number>(); for (const row of result.rows) kinds.set(row.kind, (kinds.get(row.kind) ?? 0) + 1); for (const [kind, count] of [...kinds].sort()) console.log(`kind ${kind}: ${count}`); console.log(`jsonb-reach: ${lastJsonbReport.length}`); const columns = new Map<string, number>(); for (const item of lastJsonbReport) columns.set(`${item.table}.${item.column}`, (columns.get(`${item.table}.${item.column}`) ?? 0) + 1); for (const [column, count] of [...columns].sort()) console.log(`jsonb ${column}: ${count}`); console.log(`jsonb names: ${[...new Set(lastJsonbReport.map((item) => item.name))].sort().join(',')}`); console.log(`comments: ${result.comments.length}; route-dependents: ${result.routeDependents.length}`); }
-function main(): void { const args = process.argv.slice(2); const outIndex = args.indexOf('--out'); if (outIndex < 0 || !args[outIndex + 1]) throw new Error('Usage: node tools/std/inventory.ts --out <STD> [--dry-run]'); const result = extract(process.cwd()); printTotals(result); if (args.includes('--dry-run')) return; const out = path.resolve(args[outIndex + 1]!); writeMap(path.join(out, 'map'), result.rows); for (const scope of SCOPES) { const scoped = result.comments.filter((r) => r.scope === scope); if (scoped.length) { const file = path.join(out, 'comments', `${scope}.csv`); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, csv(COMMENT_HEADERS, scoped as unknown as Record<string, string>[])); } } fs.mkdirSync(path.join(out, 'reports'), { recursive: true }); fs.writeFileSync(path.join(out, 'reports/front-route-dependents.csv'), csv(DEPENDENT_HEADERS, result.routeDependents as unknown as Record<string, string>[])); fs.writeFileSync(path.join(out, 'reports/jsonb-reach.csv'), csv(['table', 'column', 'via', 'root_type', 'kind', 'name', 'declared_at'], lastJsonbReport as unknown as Record<string, string>[])); fs.writeFileSync(path.join(out, 'inventory-summary.md'), summary(result)); }
+function main(): void { const args = process.argv.slice(2); const outIndex = args.indexOf('--out'); if (outIndex < 0 || !args[outIndex + 1]) throw new Error('Usage: node tools/std/inventory.ts --out <STD> [--dry-run]'); const result = extract(process.cwd()); printTotals(result); if (args.includes('--dry-run')) return; const out = path.resolve(args[outIndex + 1]!); writeMap(path.join(out, 'map'), result.rows); for (const scope of SCOPES) { if (!result.rows.some((r) => r.scope === scope)) { const file = path.join(out, 'map', `${scope}.csv`); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, MAP_COLUMNS.join(',')); } const scoped = result.comments.filter((r) => r.scope === scope); if (scoped.length) { const file = path.join(out, 'comments', `${scope}.csv`); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, csv(COMMENT_HEADERS, scoped as unknown as Record<string, string>[])); } } fs.mkdirSync(path.join(out, 'reports'), { recursive: true }); fs.writeFileSync(path.join(out, 'reports/front-route-dependents.csv'), csv(DEPENDENT_HEADERS, result.routeDependents as unknown as Record<string, string>[])); fs.writeFileSync(path.join(out, 'reports/jsonb-reach.csv'), csv(['table', 'column', 'via', 'root_type', 'kind', 'name', 'declared_at'], lastJsonbReport as unknown as Record<string, string>[])); fs.writeFileSync(path.join(out, 'inventory-summary.md'), summary(result)); }
 const invoked = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : ''; if (import.meta.url === invoked) { try { main(); } catch (error) { console.error(error); process.exitCode = 1; } }

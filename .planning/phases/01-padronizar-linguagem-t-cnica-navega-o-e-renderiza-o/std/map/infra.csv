@@ -1,0 +1,144 @@
+id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+infra-dir-9dcefdba,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o,0,no,,,candidate,,
+infra-dir-d0b72e6c,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std,0,no,,,candidate,,
+infra-dir-6175a149,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/prompts,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/prompts,0,no,,,candidate,,
+infra-dir-0848ac73,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/reports,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/reports,0,no,,,candidate,,
+infra-dir-c9d9d42b,infra,4,dir,infra/compose/segredos,,infra/compose/segredos,0,no,,,candidate,,
+infra-dir-3e9f3b91,infra,4,dir,infra/k8s/valores,,infra/k8s/valores,0,no,,,candidate,,
+infra-dir-505d6b11,infra,4,dir,infra/observabilidade,,infra/observabilidade,0,no,,,candidate,,
+infra-dir-33119301,infra,4,dir,infra/terraform/ambientes/homologacao,,infra/terraform/ambientes/homologacao,0,no,,,candidate,,
+infra-dir-42f78476,infra,4,dir,infra/terraform/ambientes/producao,,infra/terraform/ambientes/producao,0,no,,,candidate,,
+infra-dir-b5323114,infra,4,dir,tools/std/fixtures/mini/packages/core/src/metricas,,tools/std/fixtures/mini/packages/core/src/metricas,0,no,,,candidate,,
+infra-file-2241351b,infra,4,file,10-papel-app.sh,,infra/compose/postgres/init/10-papel-app.sh,3,no,,,candidate,,
+infra-file-1d0d55e0,infra,4,file,2026-09-05-metricas-atendimento-1598d1d3.json,,.planning/intel/classifications/2026-09-05-metricas-atendimento-1598d1d3.json,0,no,,,candidate,,
+infra-file-e45b95e3,infra,4,file,2026-09-05-metricas-atendimento.md,,docs/specs/2026-09-05-metricas-atendimento.md,7,no,,,candidate,,
+infra-file-cda98bba,infra,4,file,2026-09-05-modelo-de-dados-07c88b43.json,,.planning/intel/classifications/2026-09-05-modelo-de-dados-07c88b43.json,0,no,,,candidate,,
+infra-file-b1824c80,infra,4,file,2026-09-05-modelo-de-dados.md,,docs/specs/2026-09-05-modelo-de-dados.md,4,no,,,candidate,,
+infra-file-c9e06c80,infra,4,file,2026-09-06-mensagem-ativa-e-janelas-21cba072.json,,.planning/intel/classifications/2026-09-06-mensagem-ativa-e-janelas-21cba072.json,0,no,,,candidate,,
+infra-file-55e9690b,infra,4,file,2026-09-06-mensagem-ativa-e-janelas.md,,docs/specs/2026-09-06-mensagem-ativa-e-janelas.md,2,no,,,candidate,,
+infra-file-a557ee67,infra,4,file,2026-09-07-implantacao-e96615ce.json,,.planning/intel/classifications/2026-09-07-implantacao-e96615ce.json,0,no,,,candidate,,
+infra-file-71a2c538,infra,4,file,2026-09-07-implantacao.md,,docs/specs/2026-09-07-implantacao.md,6,no,,,candidate,,
+infra-file-6efd6053,infra,4,file,2026-09-07-integracao-twenty-f0e6c294.json,,.planning/intel/classifications/2026-09-07-integracao-twenty-f0e6c294.json,0,no,,,candidate,,
+infra-file-ceb6082a,infra,4,file,2026-09-07-integracao-twenty.md,,docs/specs/2026-09-07-integracao-twenty.md,12,no,,,candidate,,
+infra-file-94ca2b97,infra,4,file,2026-09-07-storage-de-anexos-32365431.json,,.planning/intel/classifications/2026-09-07-storage-de-anexos-32365431.json,0,no,,,candidate,,
+infra-file-7166b75c,infra,4,file,2026-09-07-storage-de-anexos.md,,docs/specs/2026-09-07-storage-de-anexos.md,2,no,,,candidate,,
+infra-file-f91c3162,infra,4,file,2026-09-07-webhook-por-cliente-cc698675.json,,.planning/intel/classifications/2026-09-07-webhook-por-cliente-cc698675.json,0,no,,,candidate,,
+infra-file-9fd05e55,infra,4,file,2026-09-07-webhook-por-cliente.md,,docs/specs/2026-09-07-webhook-por-cliente.md,8,no,,,candidate,,
+infra-file-896a37d1,infra,4,file,2026-09-12-ponte-lime-6ee45ecb.json,,.planning/intel/classifications/2026-09-12-ponte-lime-6ee45ecb.json,0,no,,,candidate,,
+infra-file-354e1dfa,infra,4,file,2026-09-12-ponte-lime.md,,docs/specs/2026-09-12-ponte-lime.md,4,no,,,candidate,,
+infra-file-46e34b99,infra,4,file,2026-09-23-atendimento-blip-fidelity-d1b521f2.json,,.planning/intel/classifications/2026-09-23-atendimento-blip-fidelity-d1b521f2.json,0,no,,,candidate,,
+infra-file-aecf4b04,infra,4,file,2026-09-23-atendimento-blip-fidelity.md,,docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md,1,no,,,candidate,,
+infra-file-c6b18e8e,infra,4,file,construir-imagens.sh,,infra/construir-imagens.sh,30,no,,,candidate,,
+infra-file-42ce5e86,infra,4,file,erros.ts,,tools/std/fixtures/mini/packages/core/src/erros.ts,12,no,,,candidate,,
+infra-file-023fb567,infra,4,file,ferramentas-oportunidades.md,,docs/lp/ferramentas-oportunidades.md,0,no,,,candidate,,
+infra-file-8465f45d,infra,4,file,imagens-prompts.md,,docs/lp/imagens-prompts.md,0,no,,,candidate,,
+infra-file-eb2473ec,infra,4,file,implantar.sh,,infra/compose/implantar.sh,16,no,,,candidate,,
+infra-file-3c60ccf0,infra,4,file,pagina.tsx,,tools/std/fixtures/mini/apps/front/src/pagina.tsx,6,no,,,candidate,,
+infra-file-d84d246a,infra,4,file,redacao.ts,,tools/std/redacao.ts,0,no,,,candidate,,
+infra-file-81d038d3,infra,4,file,restaurar-teste.sh,,infra/compose/backup/restaurar-teste.sh,2,no,,,candidate,,
+infra-literal-value-f990a727,infra,4,literal-value,aberto,,tools/std/fixtures/mini/apps/api/src/contracts.ts:32,236,unknown,,,candidate,,
+infra-literal-value-96b54782,infra,4,literal-value,fechado,,tools/std/fixtures/mini/apps/api/src/contracts.ts:32,92,unknown,,,candidate,,
+infra-literal-value-aa0c7cbe,infra,4,literal-value,gestao-vite,,tools/std/inventory.ts:31,233,unknown,,,candidate,,
+infra-literal-value-ae96941c,infra,4,literal-value,packages-armazenamento,,tools/std/inventory.ts:30,12,unknown,,,candidate,,
+infra-literal-value-074df66f,infra,4,literal-value,packages-autenticacao,,tools/std/inventory.ts:30,14,unknown,,,candidate,,
+infra-literal-value-b453657a,infra,4,literal-value,packages-tempo-real,,tools/std/inventory.ts:30,15,unknown,,,candidate,,
+infra-literal-value-dfbfcfe1,infra,4,literal-value,ponte,,tools/std/inventory.ts:31,190,unknown,,,candidate,,
+infra-script-b55f9d3b,infra,4,script,banco:descer,,package.json:1,0,no,,,candidate,,
+infra-script-99e6de00,infra,4,script,banco:migrar,,package.json:1,0,no,,,candidate,,
+infra-script-6cb0e9c9,infra,4,script,banco:semear,,package.json:1,0,no,,,candidate,,
+infra-script-0c294f6c,infra,4,script,banco:subir,,package.json:1,0,no,,,candidate,,
+infra-script-fceb8ef3,infra,4,script,ponte,,package.json:1,0,no,,,candidate,,
+infra-subpath-export-5408e21a,infra,4,subpath-export,./metricas,,tools/std/fixtures/mini/packages/core/package.json:1,0,no,,,candidate,,
+infra-symbol-3962c314,infra,4,symbol,chavesPorArquivo,,tools/std/jsonb-keys.ts:163,2,no,,,candidate,,
+infra-symbol-ba3b526a,infra,4,symbol,ConstrutorErro,,tools/std/fixtures/mini/packages/core/src/erros.ts:2,4,no,,,candidate,,
+infra-symbol-ae4a64da,infra,4,symbol,contato,,tools/std/fixtures/mini/apps/api/src/contracts.ts:28,1027,no,,,candidate,,
+infra-symbol-1270d254,infra,4,symbol,elemento,,tools/std/fixtures/mini/apps/api/src/contracts.ts:30,15,no,,,candidate,,
+infra-symbol-e9d3bf8f,infra,4,symbol,EntradaDoManifesto,,tools/std/jsonb-keys.ts:25,4,no,,,candidate,,
+infra-symbol-cb8d2caa,infra,4,symbol,ErroImportado,,tools/std/fixtures/mini/apps/api/src/dinamico.ts:2,1,no,,,candidate,,
+infra-symbol-6f4e393c,infra,4,symbol,ErroPipe,,tools/std/fixtures/mini/packages/core/src/erros.ts:1,248,no,,,candidate,,
+infra-symbol-b87fa08d,infra,4,symbol,erros,,scripts/foto.mjs:25,110,no,,,candidate,,
+infra-symbol-655f73f5,infra,4,symbol,FILA_ENTRADA,,tools/std/fixtures/mini/apps/api/src/contracts.ts:23,11,no,,,candidate,,
+infra-symbol-ec10c458,infra,4,symbol,fluxo,,tools/std/route-match.ts:486,1172,no,,,candidate,,
+infra-symbol-05bef5ef,infra,4,symbol,nomeDePropriedade,,tools/std/jsonb-keys.ts:75,2,no,,,candidate,,
+infra-symbol-e25133d6,infra,4,symbol,PADRAO_CHAVE_SEGREDO,,tools/std/redacao.ts:14,1,no,,,candidate,,
+infra-symbol-a69ad9fe,infra,4,symbol,pagina,,scripts/foto.mjs:24,90,no,,,candidate,,
+infra-symbol-da2812d3,infra,4,symbol,pagina,,tools/std/fixtures/mini/apps/front/src/pagina.tsx:2,90,no,,,candidate,,
+infra-symbol-ff6efab4,infra,4,symbol,Painel,,tools/std/fixtures/mini/apps/api/src/contracts.ts:32,49,no,,,candidate,,
+infra-symbol-88524023,infra,4,symbol,painel,,tools/std/fixtures/mini/apps/api/src/contracts.ts:33,219,no,,,candidate,,
+infra-symbol-2e13b49c,infra,4,symbol,relatorio,,tools/std/jsonb-keys.ts:169,26,no,,,candidate,,
+infra-symbol-924dba84,infra,4,symbol,RELATORIO,,tools/std/jsonb-keys.ts:20,7,no,,,candidate,,
+infra-symbol-29974e6d,infra,4,symbol,setPainel,,tools/std/fixtures/mini/apps/api/src/contracts.ts:41,4,no,,,candidate,,
+infra-symbol-55b7a450,infra,4,symbol,usarPainel,,tools/std/fixtures/mini/apps/api/src/contracts.ts:34,1,no,,,candidate,,
+infra-test-title-f2c8bae7,infra,1,test-title,$type alcanca propriedades e literais transitivos,,tools/std/jsonb-reach.test.ts:9,0,no,,,candidate,,
+infra-test-title-ac41a203,infra,1,test-title,casts e anotacoes de leitura sao alcancados,,tools/std/jsonb-reach.test.ts:24,0,no,,,candidate,,
+infra-test-title-6b5bcab8,infra,1,test-title,codePropertyNames pega acesso.propriedade e acesso['indice'],,tools/std/jsonb-keys.test.ts:58,0,no,,,candidate,,
+infra-test-title-1f117441,infra,1,test-title,"codePropertyNames pega chave de objeto literal, inclusive shorthand",,tools/std/jsonb-keys.test.ts:44,0,no,,,candidate,,
+infra-test-title-36091841,infra,1,test-title,codePropertyNames pega membro de interface e de type literal,,tools/std/jsonb-keys.test.ts:33,0,no,,,candidate,,
+infra-test-title-efe5eab3,infra,1,test-title,collectKeys exclui filhos de caminho opaco mas mantém a própria chave,,tools/std/jsonb-keys.test.ts:11,0,no,,,candidate,,
+infra-test-title-45c41d1e,infra,1,test-title,collectKeys sem doc nem chave nenhuma devolve vazio,,tools/std/jsonb-keys.test.ts:23,0,no,,,candidate,,
+infra-test-title-0db218d5,infra,1,test-title,"extrai classe, metodo e parametro PT com local de declaracao",,tools/std/inventory.test.ts:7,0,no,,,candidate,,
+infra-test-title-cd8cea31,infra,1,test-title,isPtComment reconhece palavras funcionais e diacriticos,,tools/std/pt-detect.test.ts:32,0,no,,,candidate,,
+infra-test-title-df4c8aa2,infra,1,test-title,lexiconHash independe da ordem de insercao,,tools/std/pt-detect.test.ts:66,0,no,,,candidate,,
+infra-test-title-5f834093,infra,1,test-title,lista dependentes de rota por arquivo e tipo,,tools/std/inventory.test.ts:43,0,no,,,candidate,,
+infra-test-title-dda292ec,infra,1,test-title,registra chave TS Drizzle e preserva nome SQL apenas nas notas,,tools/std/inventory.test.ts:20,0,no,,,candidate,,
+infra-test-title-2f19bc65,infra,1,test-title,relatorio fornece chave de declaracao para integracao com inventario,,tools/std/jsonb-reach.test.ts:34,0,no,,,candidate,,
+infra-test-title-544b6986,infra,1,test-title,scanner lexicon does not reject English use/get; untranslated useLeitura still errors,,tools/std/map-tools.test.ts:63,0,no,,,candidate,,
+infra-test-title-c6754e2f,infra,1,test-title,update set e conflito alcancam valores,,tools/std/jsonb-reach.test.ts:19,0,no,,,candidate,,
+infra-ts-local-ee3fb35c,infra,4,ts-local,_painel,,tools/std/fixtures/mini/apps/api/src/contracts.ts:41,1,no,,,candidate,,
+infra-ts-local-8449c9da,infra,4,ts-local,arquivo,,tools/std/gerar-fixtures-jsonb.ts:62,462,no,,,candidate,,
+infra-ts-local-e7c84253,infra,4,ts-local,arquivo,,tools/std/jsonb-keys.ts:170,462,no,,,candidate,,
+infra-ts-local-9d1c02cf,infra,4,ts-local,arquivo,,tools/std/jsonb-keys.ts:193,462,no,,,candidate,,
+infra-ts-local-bb349058,infra,4,ts-local,chaveSegredo,,tools/std/redacao.ts:24,2,no,,,candidate,,
+infra-ts-local-24146956,infra,4,ts-local,chave,,tools/std/gerar-fixtures-jsonb.ts:65,1153,no,,,candidate,,
+infra-ts-local-931af05c,infra,4,ts-local,chave,,tools/std/jsonb-keys.ts:151,1153,no,,,candidate,,
+infra-ts-local-edaaa6c1,infra,4,ts-local,chave,,tools/std/jsonb-keys.ts:166,1153,no,,,candidate,,
+infra-ts-local-d998a04d,infra,4,ts-local,chave,,tools/std/jsonb-keys.ts:194,1153,no,,,candidate,,
+infra-ts-local-b7a64674,infra,4,ts-local,chave,,tools/std/jsonb-keys.ts:53,1153,no,,,candidate,,
+infra-ts-local-77c686cc,infra,4,ts-local,chave,,tools/std/redacao.ts:39,1153,no,,,candidate,,
+infra-ts-local-678a9d67,infra,4,ts-local,chave,,tools/std/redacao.ts:65,1153,no,,,candidate,,
+infra-ts-local-89471142,infra,4,ts-local,entrada,,tools/std/jsonb-keys.ts:145,473,no,,,candidate,,
+infra-ts-local-d893cf11,infra,4,ts-local,entrada,,tools/std/jsonb-keys.ts:164,473,no,,,candidate,,
+infra-ts-local-5e168f87,infra,4,ts-local,valor,,scripts/foto.mjs:16,1656,no,,,candidate,,
+infra-ts-local-380f7ed5,infra,4,ts-local,valor,,tools/std/gerar-fixtures-jsonb.ts:65,1656,no,,,candidate,,
+infra-ts-local-33006fc0,infra,4,ts-local,valor,,tools/std/jsonb-keys.ts:47,1656,no,,,candidate,,
+infra-ts-local-b1a611ab,infra,4,ts-local,valor,,tools/std/redacao.ts:20,1656,no,,,candidate,,
+infra-ts-local-45b06168,infra,4,ts-local,valor,,tools/std/redacao.ts:65,1656,no,,,candidate,,
+infra-ts-prop-6a73c462,infra,4,ts-prop,[Symbol.iterator],KEEP,/node_modules/typescript/lib/lib.es2015.iterable.d.ts:2,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-31fbe503,infra,4,ts-prop,[Symbol.unscopables],KEEP,/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:2,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-0de66450,infra,4,ts-prop,at,KEEP,/node_modules/typescript/lib/lib.es2022.array.d.ts:1,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-bc651f03,infra,4,ts-prop,concat,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-3c457993,infra,4,ts-prop,contatoId,,tools/std/fixtures/mini/apps/api/src/contracts.ts:29,228,no,,,candidate,,
+infra-ts-prop-4b4ff4b4,infra,4,ts-prop,copyWithin,KEEP,/node_modules/typescript/lib/lib.es2015.core.d.ts:1,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-fdc2498f,infra,4,ts-prop,entries,KEEP,/node_modules/typescript/lib/lib.es2015.iterable.d.ts:2,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-a7a9f97b,infra,4,ts-prop,every,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-31458c2b,infra,4,ts-prop,fill,KEEP,/node_modules/typescript/lib/lib.es2015.core.d.ts:1,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-9261b9bc,infra,4,ts-prop,filter,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-6df56c39,infra,4,ts-prop,find,KEEP,/node_modules/typescript/lib/lib.es2015.core.d.ts:1,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-a48f5800,infra,4,ts-prop,findIndex,KEEP,/node_modules/typescript/lib/lib.es2015.core.d.ts:1,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-5983fb2a,infra,4,ts-prop,flat,KEEP,/node_modules/typescript/lib/lib.es2019.array.d.ts:1,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-f7748eae,infra,4,ts-prop,flatMap,KEEP,/node_modules/typescript/lib/lib.es2019.array.d.ts:1,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-0ceec3aa,infra,4,ts-prop,forEach,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-8024011f,infra,4,ts-prop,includes,KEEP,/node_modules/typescript/lib/lib.es2016.array.include.d.ts:1,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-0568dab1,infra,4,ts-prop,indexOf,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-7d434416,infra,4,ts-prop,join,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-240a13ec,infra,4,ts-prop,keys,KEEP,/node_modules/typescript/lib/lib.es2015.iterable.d.ts:2,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-9730adf9,infra,4,ts-prop,lastIndexOf,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-b07a1e6e,infra,4,ts-prop,length,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-c3f39add,infra,4,ts-prop,map,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-8a0aa13b,infra,4,ts-prop,pop,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-2e2db325,infra,4,ts-prop,push,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-445829d9,infra,4,ts-prop,reduce,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-88e8e2fa,infra,4,ts-prop,reduceRight,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-0390d8fa,infra,4,ts-prop,reverse,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-f09c3071,infra,4,ts-prop,shift,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-7061b606,infra,4,ts-prop,slice,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-8c10eae1,infra,4,ts-prop,some,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-93bf4afe,infra,4,ts-prop,sort,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-3376701a,infra,4,ts-prop,splice,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-fc69ba50,infra,4,ts-prop,toLocaleString,KEEP,/node_modules/typescript/lib/lib.es2015.core.d.ts:1,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-a856f19c,infra,4,ts-prop,toLocaleString,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-84fe1736,infra,4,ts-prop,toString,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-4645cc25,infra,4,ts-prop,unshift,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-ts-prop-85c7ad8e,infra,4,ts-prop,values,KEEP,/node_modules/typescript/lib/lib.es2015.iterable.d.ts:2,0,unknown,,,candidate,,jsonb:templateMensagem.variaveis
+infra-queue-d7c8bfb4,infra,4,queue,pipe-entrada,,tools/std/fixtures/mini/apps/api/src/contracts.ts:23,26,unknown,,,candidate,,
+infra-test-title-76ca6a5b,infra,1,test-title,liga sufixo de rota a construtor com base dinamica sem aceitar prefixo curto,,tools/std/inventory.test.ts:61,0,no,,,candidate,,

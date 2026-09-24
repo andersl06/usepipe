@@ -1,0 +1,1057 @@
+id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
+packages-core-comment-5fa126a7,packages-core,packages/core/src/analise/index.ts,1,21,jsdoc,20,"/**
+ * A Análise do contato — Dashboard e Mensagens ativas: a parte PURA (período,
+ * formatação, escala, tipos). As consultas vivem na `api`
+ * (`dominio/gestao-analise.ts`); a tela e a `api` importam daqui.
+ *
+ * A Análise do contato — Dashboard e Mensagens ativas.
+ *
+ * A régua é o `portal-fragment-analytics` da origem (`analytics-main.js`, o
+ * micro-frontend React que o portal monta com `<analytics-mfe page=""…"">`). Lá
+ * as contas moram no navegador: o período sai do `Date` local, a formatação do
+ * `toLocaleString`, e cada seção pede um comando `/metrics/…` ao
+ * `postmaster@analytics.msging.net`. Aqui o período e a formatação são funções
+ * puras (o teste `tests/analise.test.ts` as trava), e os números saem do banco.
+ *
+ * ═══ AS DATAS SÃO DIAS DE CALENDÁRIO, NO FUSO DA CONTA ═══
+ *
+ * Lá o ""hoje"" é o do computador de quem abre a tela e o intervalo vai ao
+ * servidor como `AAAA-MM-DDT00:00:00.000Z` (`ut()`), só com a data. Então o
+ * que importa é a DATA, e aqui ela é texto `AAAA-MM-DD` calculado no fuso do
+ * tenant — conta de dia com `Date.UTC` não tropeça em horário de verão.
+ */",,,,,,
+packages-core-comment-db1117d8,packages-core,packages/core/src/analise/index.ts,124,124,jsdoc,2,"/** `ft()`: o mesmo tanto de dias, logo antes. É contra ele que a variação compara. */",,,,,,
+packages-core-comment-aa9b3468,packages-core,packages/core/src/analise/index.ts,130,130,jsdoc,0,"/** Cada dia do intervalo, em ordem — um ponto por dia nos gráficos. */",,,,,,
+packages-core-comment-caec9359,packages-core,packages/core/src/analise/index.ts,137,137,jsdoc,0,"/** `rt()`: o rótulo curto do eixo, `dd/mm`. */",,,,,,
+packages-core-comment-c863420d,packages-core,packages/core/src/analise/index.ts,152,152,jsdoc,0,"/** `IS()`: o texto do período ao lado do título (""13 de setembro de 2026 - 00h às 23h59""). */",,,,,,
+packages-core-comment-8946f827,packages-core,packages/core/src/analise/index.ts,159,164,jsdoc,5,"/**
+ * A dica do indicador de comparação — `XS()` com o dicionário `QS`.
+ *
+ * `foraDoAlcance` é o ramo `outOfRangeMessage`: quando o período anterior
+ * começa antes de 90 dias atrás, a origem troca a dica E apaga o número (""-"").
+ */",,,,,,
+packages-core-comment-40e0fbe5,packages-core,packages/core/src/analise/index.ts,174,174,block,0,"/* O `.replace(""-"", pronome)` da origem troca só o PRIMEIRO hífen. */",,,,,,
+packages-core-comment-94f85a9e,packages-core,packages/core/src/analise/index.ts,181,181,block,0,/* --------------------------------------------------------------- números */,,,,,,
+packages-core-comment-7e402bb2,packages-core,packages/core/src/analise/index.ts,183,191,jsdoc,4,"/**
+ * `WS()` da origem, que formata TODO número das duas telas.
+ *
+ * Absoluto: abaixo de 100 arredonda em 2 casas, a partir de 100 em inteiro
+ * (`ZS`); ausente vira `padrao`. Percentual: recebe FRAÇÃO, multiplica por 100
+ * (`jS`), e zero vira `padrao` — por isso ""Taxa de rejeição"" vazia é ""0%"" (o
+ * `Tc` passado como padrão) e o indicador de comparação vazio é ""-"".
+ * `sinal` põe ""+"" na frente do positivo (`PS`).
+ */",,,,,,
+packages-core-comment-ee31a881,packages-core,packages/core/src/analise/index.ts,211,217,jsdoc,4,"/**
+ * Os tiques do eixo de valor dos gráficos — o `generateTicks` do chart.js
+ * 3.9.1 que vem no bundle (o `niceNum` da linha ~34171: ≤1 → 1, ≤2 → 2,
+ * ≤5 → 5, senão 10). Passo = `niceNum(máximo / 10)`; se o topo arredondado
+ * passar de 10 espaços, o passo é refeito sobre ele. Tudo zero vira 0 a 1,
+ * que é o `min === max` do `LinearScale`.
+ */",,,,,,
+packages-core-comment-e4f7ec8b,packages-core,packages/core/src/analise/index.ts,23,23,block,0,/* ------------------------------------------------------------------ período */,,,,,,
+packages-core-comment-98cf6add,packages-core,packages/core/src/analise/index.ts,234,234,jsdoc,2,"/** `BS()`: variação relativa ao anterior. Anterior zero com atual positivo dá `Infinity`, que `formatar` mostra como ""-"". */",,,,,,
+packages-core-comment-7d327efe,packages-core,packages/core/src/analise/index.ts,243,243,jsdoc,1,"/** O número do período e o do período anterior, para o indicador de comparação. */",,,,,,
+packages-core-comment-b2734172,packages-core,packages/core/src/analise/index.ts,252,252,jsdoc,1,"/** O nome do canal na tabela ""Canais"" — o `IE` da origem, que traduz domínio em nome. */",,,,,,
+packages-core-comment-7c64dceb,packages-core,packages/core/src/analise/index.ts,260,260,jsdoc,2,/** `/metrics/messages`. As médias são por contato COM interação. */,,,,,,
+packages-core-comment-0b2a1c0f,packages-core,packages/core/src/analise/index.ts,27,27,jsdoc,3,"/** `yT`: a segunda fileira, que só aparece com `is-displaying-dashboard-fixed-period-chips`. */",,,,,,
+packages-core-comment-1623bfc6,packages-core,packages/core/src/analise/index.ts,271,271,jsdoc,1,/** `/flowmetrics`. `excecao` nulo: o Pipe não tem bloco de exceção. */,,,,,,
+packages-core-comment-c69f03dd,packages-core,packages/core/src/analise/index.ts,273,273,jsdoc,0,/** `/blocks/fallback` e `/blocks/desk` — as listas de até 10 blocos. */,,,,,,
+packages-core-comment-f8be28cf,packages-core,packages/core/src/analise/index.ts,278,278,jsdoc,2,"/** Os nomes que o `IE` dá aos domínios da origem, pelo tipo de canal do Pipe. */",,,,,,
+packages-core-comment-d33235b6,packages-core,packages/core/src/analise/index.ts,283,283,block,0,"/* `0mn.io` é ""Blip Chat"" lá: o widget é o chat do produto, e o produto aqui é o Pipe. */",,,,,,
+packages-core-comment-45a337aa,packages-core,packages/core/src/analise/index.ts,288,288,jsdoc,2,/** Uma linha de `/active-messages/status` (`sendDateTime` já como dia). */,,,,,,
+packages-core-comment-d2a7f52b,packages-core,packages/core/src/analise/index.ts,304,304,jsdoc,0,/** `/active-messages/template-names`: as opções do autocomplete. */,,,,,,
+packages-core-comment-64a3cf0e,packages-core,packages/core/src/analise/index.ts,309,309,block,0,"/* ═══════════════════ Visão geral, relatórios e jornada (só os tipos) ═══ */",,,,,,
+packages-core-comment-a27b4096,packages-core,packages/core/src/analise/index.ts,311,321,jsdoc,9,"/**
+ * Os dados da Análise do contato — Visão Geral, Relatórios Personalizados e
+ * Jornada dos Contatos (`app/fluxo/[id]/analise/`).
+ *
+ * Na origem os três falam com `postmaster@analytics.{domínio}` por comando
+ * LIME (e a Jornada, com o Cassandra do roteador). Aqui o que existir no banco
+ * é lido de verdade; o que não existir devolve vazio com `ponytail:`.
+ *
+ * Uma transação por tela, consultas EM SÉRIE — `Promise.all` dentro do
+ * `comTenant` apaga o `pipe.tenant_id` (ver `implantacao.ts`).
+ */",,,,,,
+packages-core-comment-dcda62ab,packages-core,packages/core/src/analise/index.ts,330,330,block,0,/* ------------------------------------------------------------ Visão Geral */,,,,,,
+packages-core-comment-42fc0d4a,packages-core,packages/core/src/analise/index.ts,332,332,jsdoc,1,/** Os seis contadores dos dois cartões do `general-dashboard`. */,,,,,,
+packages-core-comment-9dce38b7,packages-core,packages/core/src/analise/index.ts,334,334,jsdoc,0,/** `metrics.activeClients`: enviaram OU receberam mensagem no período. */,,,,,,
+packages-core-comment-3690d3bb,packages-core,packages/core/src/analise/index.ts,336,336,jsdoc,0,/** `metrics.engagedClients`: ENVIARAM mensagem no período. */,,,,,,
+packages-core-comment-f70a9b3f,packages-core,packages/core/src/analise/index.ts,365,365,jsdoc,2,"/** Um item de `AnalyticsReportsService.getMany`, já com o `handleReport` aplicado. */",,,,,,
+packages-core-comment-839207aa,packages-core,packages/core/src/analise/index.ts,372,372,jsdoc,0,/** `owner.email === email da pessoa`: só o dono vê editar e excluir. */,,,,,,
+packages-core-comment-7612038b,packages-core,packages/core/src/analise/index.ts,39,39,jsdoc,0,/** Os rótulos pt de `sT` (Dashboard) e `gt` (Mensagens ativas) — iguais nos dois. */,,,,,,
+packages-core-comment-d68bfdc1,packages-core,packages/core/src/analise/index.ts,65,65,jsdoc,2,"/** A data de hoje no fuso da conta — o `new Date()` da origem, sem o fuso do servidor. */",,,,,,
+packages-core-comment-8e511a6a,packages-core,packages/core/src/analise/index.ts,70,70,jsdoc,2,/** O `?periodo=` da URL; o que não for conhecido cai no `vT.Today` inicial da origem. */,,,,,,
+packages-core-comment-16d38f6b,packages-core,packages/core/src/analise/index.ts,76,85,jsdoc,6,"/**
+ * O intervalo de cada chip — `b()` e `v()` de `xT` (e os mesmos `B()`/`z()` de
+ * `St`, o filtro de Mensagens ativas).
+ *
+ * As esquisitices são da origem e ficam: ""Últimos 7 dias"" é D-7 a D-1 (sem
+ * hoje), ""Semana anterior"" é domingo a sábado (`ht()`), ""Semana atual"" começa no
+ * domingo (`dt()`). O personalizado aceita no máximo `limiteDias` para trás —
+ * 90 no Dashboard (`st(90)` do `aT`) e 186 em Mensagens ativas (`St`) — e não
+ * passa de hoje; fora disso, `null`.
+ */",,,,,,
+packages-core-comment-f23a8b59,packages-core,packages/core/src/comum/tempo.ts,18,18,jsdoc,2,"/** Ordena instantes em ordem crescente, sem mutar a lista recebida. */",,,,,,
+packages-core-comment-3104f5e5,packages-core,packages/core/src/comum/tempo.ts,23,28,jsdoc,2,"/**
+ * Comparação estável de identificador, por ponto de código.
+ *
+ * `localeCompare` depende de locale e ICU e por isso não serve como desempate
+ * final de distribuição — o resultado precisa ser o mesmo em qualquer máquina.
+ */",,,,,,
+packages-core-comment-7ca408f9,packages-core,packages/core/src/comum/tempo.ts,8,8,jsdoc,3,/** Segundos entre dois instantes. Pode ser negativo — quem chama decide o que fazer com isso. */,,,,,,
+packages-core-comment-21d2fb9d,packages-core,packages/core/src/comum/tipos.ts,1,7,jsdoc,3,"/**
+ * Tipos compartilhados por todas as regras do Pipe.
+ *
+ * Duração é sempre **inteiro ou fracionário em segundos** — nunca `interval`,
+ * nunca milissegundos — para bater com a convenção do modelo de dados
+ * (`2026-09-05-modelo-de-dados.md`, §1).
+ */",,,,,,
+packages-core-comment-e03f6b96,packages-core,packages/core/src/comum/tipos.ts,22,22,jsdoc,2,"/** Média em segundos, ou `null` quando a população é zero. Nunca `0` por falta de dado. */",,,,,,
+packages-core-comment-05c0625c,packages-core,packages/core/src/comum/tipos.ts,24,24,jsdoc,0,/** Denominador do cálculo. */,,,,,,
+packages-core-comment-65b4c7a1,packages-core,packages/core/src/comum/tipos.ts,32,32,jsdoc,2,/** Constrói um `ResultadoMetrica` a partir da soma e das contagens. */,,,,,,
+packages-core-comment-5c93275a,packages-core,packages/core/src/comum/tipos.ts,42,42,jsdoc,0,/** Resultado vazio — nenhuma conversa entrou no cálculo. */,,,,,,
+packages-core-comment-a87d7acb,packages-core,packages/core/src/comum/tipos.ts,9,20,jsdoc,8,"/**
+ * Resultado padrão de toda métrica que vira número em tela ou relatório.
+ *
+ * `populacao` é o denominador efetivamente usado e `excluidas` é quanta coisa
+ * ficou de fora do cálculo. Os dois são obrigatórios por decisão de produto
+ * (spec de métricas, §2): ""métrica que esconde o próprio denominador não entra
+ * neste produto"".
+ *
+ * `soma` é redundante com `valor × populacao`, mas fica exposta para a média
+ * ponderada de §5 poder somar grupos sem acumular erro de arredondamento de
+ * ponto flutuante.
+ */",,,,,,
+packages-core-comment-b55ae205,packages-core,packages/core/src/conversa/conversa.teste.ts,21,24,jsdoc,2,"/**
+ * Tabela completa das 25 combinações do diagrama da §8.
+ * `true` = aresta que existe no desenho; todo o resto tem de ser recusado.
+ */",,,,,,
+packages-core-comment-b9b770b9,packages-core,packages/core/src/conversa/maquina.ts,1,21,jsdoc,13,"/**
+ * Máquina de estados da conversa — §8 do modelo de dados.
+ *
+ *         ┌──────────────── reaberta ─────────────────┐
+ *         ▼                                           │
+ *     na_fila ──► atribuida ──► em_atendimento ──► encerrada
+ *         │            │              │  ▲
+ *         │            │              ▼  │
+ *         │            │           em_espera
+ *         │            │
+ *         └────────────┴──────────► encerrada (perdida / abandonada)
+ *
+ * Transferência **não** é transição: ela encerra a conversa com
+ * `encerrada_por = transferencia` e abre outra no destino (regras da Blip §2.6,
+ * medido em produção). Por isso não existe aresta de volta para `na_fila` a
+ * partir de `atribuida`.
+ *
+ * Evento vindo do cliente não pode levar a conversa a estado inválido — é
+ * exatamente o bug ""ticket encerrado pelo usuário em fluxo humano"" que a
+ * comunidade da Blip reclama.
+ */",,,,,,
+packages-core-comment-32883197,packages-core,packages/core/src/conversa/maquina.ts,124,133,jsdoc,9,"/**
+ * Aplica um evento ao estado corrente.
+ *
+ * Regras que sustentam a garantia da §4.3 do desenho do produto:
+ * - evento que não mapeia estado nunca muda estado, seja de quem for;
+ * - evento que mapeia o **mesmo** estado corrente é idempotente e não erra —
+ *   reentrega de webhook é normal e não pode virar exceção;
+ * - qualquer outro destino passa pela tabela de transições e, se não for
+ *   permitido, lança `TransicaoInvalidaError`.
+ */",,,,,,
+packages-core-comment-6077b056,packages-core,packages/core/src/conversa/maquina.ts,147,147,jsdoc,1,/** Versão sem exceção de `aplicarEvento`. */,,,,,,
+packages-core-comment-0a0d6117,packages-core,packages/core/src/conversa/maquina.ts,160,163,jsdoc,4,"/**
+ * Reproduz uma sequência de eventos a partir de um estado inicial.
+ * Serve para recalcular o passado — a razão de os eventos serem imutáveis.
+ */",,,,,,
+packages-core-comment-8e42a1fa,packages-core,packages/core/src/conversa/maquina.ts,175,175,line,0,"// --- Máquina da mensagem de saída (§8, segundo diagrama) ---",,,,,,
+packages-core-comment-6c018287,packages-core,packages/core/src/conversa/maquina.ts,185,185,line,2,// Reenviar volta para a fila de saída — nunca falha em silêncio.,,,,,,
+packages-core-comment-379fadd4,packages-core,packages/core/src/conversa/maquina.ts,40,40,jsdoc,0,"/** Transições permitidas, exatamente as do diagrama da §8. */",,,,,,
+packages-core-comment-3bf5afe6,packages-core,packages/core/src/conversa/maquina.ts,49,49,jsdoc,0,/** Erro tipado de transição inválida. Nada de `throw new Error('opa')`. */,,,,,,
+packages-core-comment-485e615a,packages-core,packages/core/src/conversa/maquina.ts,70,70,jsdoc,0,/** Transita ou lança `TransicaoInvalidaError`. */,,,,,,
+packages-core-comment-4f6bf6f0,packages-core,packages/core/src/conversa/maquina.ts,80,80,jsdoc,2,"/** Versão sem exceção, para o caminho quente do consumidor de eventos. */",,,,,,
+packages-core-comment-42bba512,packages-core,packages/core/src/conversa/maquina.ts,91,95,jsdoc,2,"/**
+ * Estado de destino de cada tipo de evento. `null` = evento que não mexe no
+ * estado (mensagem do cliente, alerta de SLA, avaliação, transferência de fila
+ * registrada como histórico).
+ */",,,,,,
+packages-core-comment-45794fcc,packages-core,packages/core/src/conversa/prioridade.ts,1,18,jsdoc,19,"/**
+ * A régua de prioridade da conversa, e a ordem que ela impõe na fila de espera.
+ *
+ * **Mora aqui, e não em `@pipe/db`, por um motivo concreto.** Ela nasceu junto da
+ * restrição do banco, no `schema/comum.ts` — e todo o `schema/` importa
+ * `drizzle-orm/pg-core`. O app do atendente ordena a coluna dele num componente
+ * de navegador, e importar a régua de lá arrastaria o driver do Postgres para o
+ * pacote do navegador. O resultado foi previsível: o Desk manteve um **mapa
+ * paralelo de pesos**, com três níveis e um padrão que mandava todo valor
+ * desconhecido para o peso de ""média"". Duas cópias da mesma régua divergiram, e
+ * a fila do atendente passou a ordenar `maxima` e `sem_prioridade` como se
+ * fossem médias.
+ *
+ * Regra pura, sem banco e sem HTTP, é a definição deste pacote. É aqui que ela
+ * fica, e `@pipe/db` importa daqui para montar a restrição.
+ *
+ * Ver `referencias-blip/pesquisa/blip-gestao-medidas.md` §8.5.
+ */",,,,,,
+packages-core-comment-df2b97fb,packages-core,packages/core/src/conversa/prioridade.ts,20,33,jsdoc,12,"/**
+ * Os cinco degraus, **em ordem de precedência**: o índice é o peso, e o primeiro
+ * é o que atende primeiro.
+ *
+ * `sem_prioridade` não é ""média por omissão"": é a AUSÊNCIA de prioridade, e a
+ * regra da fila depende dela — um ticket `baixa` fura a frente de um
+ * `sem_prioridade`. Enquanto a coluna nascia em `media`, todo ticket tinha
+ * prioridade que ninguém escolheu, e ordenar por prioridade era ordenar por um
+ * dado inventado.
+ *
+ * A ordem desta lista é significado, não arrumação. Quem inserir um degrau no
+ * meio muda a ordem da fila de espera; use `pesoPrioridade`, nunca um mapa
+ * paralelo de pesos.
+ */",,,,,,
+packages-core-comment-3d49abd3,packages-core,packages/core/src/conversa/prioridade.ts,38,42,jsdoc,11,"/**
+ * O que uma REGRA de priorização pode atribuir: tudo menos a ausência. Uma regra
+ * que atribui ""sem prioridade"" não é uma regra — é a falta dela, e teria o
+ * efeito de rebaixar o ticket para o fim da fila sem ninguém ter pedido.
+ */",,,,,,
+packages-core-comment-6649eb79,packages-core,packages/core/src/conversa/prioridade.ts,45,45,jsdoc,0,/** Rótulo de tela de cada degrau. */,,,,,,
+packages-core-comment-1770611b,packages-core,packages/core/src/conversa/prioridade.ts,54,58,jsdoc,8,"/**
+ * Peso de ordenação: menor atende primeiro. Valor desconhecido cai no FIM, e não
+ * no meio — inventar prioridade para o que não se reconhece é o defeito que esta
+ * função existe para não repetir.
+ */",,,,,,
+packages-core-comment-f968a1f6,packages-core,packages/core/src/conversa/prioridade.ts,64,73,block,19,"/*
+ * O COMPARADOR fica em cada app, e isto é deliberado: a linha da Gestão guarda a
+ * data em `marcos.criadaEm` e a do Desk em `criadaEm`, e uma função genérica o
+ * bastante para servir às duas custaria mais do que as três linhas que ela
+ * economiza. O que não pode divergir é a régua acima, e ela é uma só.
+ *
+ * O desempate é sempre o mesmo e é parte da regra: **prioridade primeiro,
+ * empate pela mais antiga** — sem ele a fila vira pilha, com o último a chegar
+ * sendo o primeiro a sair.
+ */",,,,,,
+packages-core-comment-6a537bc4,packages-core,packages/core/src/distribuicao/carga.ts,1,15,jsdoc,14,"/**
+ * Distribuição por carga real — §7 da spec de métricas.
+ *
+ * Um atendente pode receber uma conversa quando, ao mesmo tempo: pertence à
+ * fila, está online, e tem vaga (`limite_simultaneo − ativas > 0`). Há um
+ * segundo teto independente: número máximo de conversas atribuídas ainda **sem
+ * primeira resposta**, que impede o atendente de acumular fila própria enquanto
+ * não responde ninguém.
+ *
+ * Entre os elegíveis, escolhe-se por carga, não por rodízio:
+ *  1. menor carga ponderada — conversa aguardando o atendente pesa mais que
+ *     conversa aguardando o cliente;
+ *  2. empate: quem está há mais tempo sem receber conversa;
+ *  3. empate persistente: ordem estável por identificador.
+ */",,,,,,
+packages-core-comment-d88eed16,packages-core,packages/core/src/distribuicao/carga.ts,111,116,jsdoc,6,"/**
+ * Ordem de preferência entre dois elegíveis.
+ *
+ * Quem nunca recebeu conversa (`ultimaAtribuicaoEm === null`) está há mais tempo
+ * sem receber do que qualquer um que já recebeu — vem antes no desempate.
+ */",,,,,,
+packages-core-comment-a514bdfc,packages-core,packages/core/src/distribuicao/carga.ts,133,138,jsdoc,7,"/**
+ * Escolhe o atendente que recebe a próxima conversa da fila.
+ *
+ * Devolve também a lista de descartados com o motivo: sem isso, ""ninguém
+ * recebeu"" vira um mistério em produção.
+ */",,,,,,
+packages-core-comment-52a83e1c,packages-core,packages/core/src/distribuicao/carga.ts,19,19,jsdoc,0,/** `status_atendente.estado` do modelo de dados (§3). Só `online` recebe. */,,,,,,
+packages-core-comment-f867641a,packages-core,packages/core/src/distribuicao/carga.ts,25,25,jsdoc,2,/** Filas em que o atendente está habilitado. */,,,,,,
+packages-core-comment-24c2ecdb,packages-core,packages/core/src/distribuicao/carga.ts,27,27,jsdoc,0,/** `fila_atendente.capacidade_override` ou o padrão da fila/tenant. */,,,,,,
+packages-core-comment-1cceefe8,packages-core,packages/core/src/distribuicao/carga.ts,29,29,jsdoc,1,/** Conversas abertas atribuídas a ele agora. */,,,,,,
+packages-core-comment-32c50777,packages-core,packages/core/src/distribuicao/carga.ts,31,31,jsdoc,4,/** Subconjunto de `ativas` em que a bola está com o atendente. */,,,,,,
+packages-core-comment-6b6f22bd,packages-core,packages/core/src/distribuicao/carga.ts,33,33,jsdoc,3,/** Conversas atribuídas que ainda não receberam primeira resposta. */,,,,,,
+packages-core-comment-ec3e315d,packages-core,packages/core/src/distribuicao/carga.ts,35,35,jsdoc,2,/** Quando recebeu a última conversa. `null` = nunca recebeu. */,,,,,,
+packages-core-comment-60aa4fd2,packages-core,packages/core/src/distribuicao/carga.ts,49,49,jsdoc,1,/** Peso da conversa que aguarda o atendente. Padrão 2. */,,,,,,
+packages-core-comment-0431daea,packages-core,packages/core/src/distribuicao/carga.ts,51,51,jsdoc,1,/** Peso da conversa que aguarda o cliente. Padrão 1. */,,,,,,
+packages-core-comment-2008b3cb,packages-core,packages/core/src/distribuicao/carga.ts,62,62,jsdoc,1,/** Elegíveis já na ordem de preferência. */,,,,,,
+packages-core-comment-763fd8dd,packages-core,packages/core/src/distribuicao/carga.ts,70,75,jsdoc,2,"/**
+ * Carga ponderada do atendente.
+ *
+ * `aguardandoAtendente` é clampado em `ativas`: dado inconsistente não pode
+ * gerar carga negativa para o outro termo.
+ */",,,,,,
+packages-core-comment-179aeb24,packages-core,packages/core/src/distribuicao/carga.ts,92,92,jsdoc,2,/** Por que este atendente não pode receber agora — ou `null` se pode. */,,,,,,
+packages-core-comment-5386045d,packages-core,packages/core/src/distribuicao/distribuicao.teste.ts,126,126,line,2,// A ordem da entrada não pode mudar o resultado.,,,,,,
+packages-core-comment-9d3e01be,packages-core,packages/core/src/distribuicao/distribuicao.teste.ts,157,157,line,0,"// carga do parado = 10; carga do quente = 12. O rodízio por ""menos tickets""",,,,,,
+packages-core-comment-d6422040,packages-core,packages/core/src/distribuicao/distribuicao.teste.ts,39,39,line,5,"// Peso 2 para conversa que aguarda o atendente, 1 para a que aguarda o cliente.",,,,,,
+packages-core-comment-f3585b37,packages-core,packages/core/src/distribuicao/distribuicao.teste.ts,89,89,line,3,"// Sem teto configurado, a regra não se aplica.",,,,,,
+packages-core-comment-7ef5dcc2,packages-core,packages/core/src/esforco/esforco.teste.ts,123,123,line,1,// Os 180s da resposta pronta ficam fora dos 345s de esforço.,,,,,,
+packages-core-comment-6dd43962,packages-core,packages/core/src/esforco/esforco.teste.ts,174,180,jsdoc,2,"/**
+   * Mensagens do atendente no dia, em minutos a partir das 10:00:
+   *   0, 3, 8, 25, 30, 31, 60
+   * Intervalos: 3, 5, 17, 5, 1, 29 minutos.
+   * Só contam os de até 10 min → 3+5 = 8 min, depois 5+1 = 6 min, depois nada.
+   * Sessão = 14 min = 840s, em três blocos.
+   */",,,,,,
+packages-core-comment-5c47b96d,packages-core,packages/core/src/esforco/esforco.teste.ts,264,264,line,0,// Ponderada: 9.600 ÷ 12 = 800s. Média de médias daria (600 + 1.800) ÷ 2 = 1.200s.,,,,,,
+packages-core-comment-26a3dbd2,packages-core,packages/core/src/esforco/esforco.teste.ts,38,38,line,0,// 200 caracteres = 1 minuto de digitação,,,,,,
+packages-core-comment-c8403cb8,packages-core,packages/core/src/esforco/esforco.teste.ts,86,94,jsdoc,2,"/**
+   * Conta feita à mão:
+   *  escrita  = 400 (texto) + 100 (nota interna) = 500 chars → 500×60÷200 = 150s
+   *  leitura  = 2.000 chars                                   → 2.000×60÷1.000 = 120s
+   *  escuta   = áudio do cliente com metadado                 → 45s
+   *  fala     = áudio do atendente de 60.000 bytes            → 60.000÷2.000 = 30s
+   *  esforço  = 150 + 120 + 45 + 30                           = 345s
+   *  resposta pronta: 600 chars fora do esforço               → 600×60÷200 = 180s
+   */",,,,,,
+packages-core-comment-b053b04a,packages-core,packages/core/src/esforco/regua.ts,1,18,jsdoc,12,"/**
+ * Régua determinística de esforço de atendimento.
+ *
+ * Origem: Anexo B do `Relatorio_Capacidade_Capital_Escola_90dias.docx`, já
+ * validado em produção e coletado por `~/digisac-esforco`. Repetida em
+ * `2026-09-05-pipe-design.md` §4.4. Não é classificação por IA: é conta.
+ *
+ * B.1 — esforço por conversa (em segundos):
+ *  - caracteres escritos pelo atendente ÷ 200 por minuto (digitação)
+ *  - caracteres recebidos do cliente ÷ 1.000 por minuto (leitura)
+ *  - duração dos áudios recebidos (escuta em 1×)
+ *  - duração dos áudios gravados (fala)
+ *  - áudio sem metadado de duração: estimado pelo tamanho, Opus ~16 kbps → 2 KB/s
+ *
+ * Ressalva do relatório original, que o produto precisa expor: a régua assume
+ * texto digitado à mão. Por isso o conteúdo vindo de resposta pronta sai do
+ * esforço e vai para coluna separada.
+ */",,,,,,
+packages-core-comment-e0bf06bd,packages-core,packages/core/src/esforco/regua.ts,113,122,jsdoc,11,"/**
+ * Aplica a régua sobre as mensagens de uma conversa.
+ *
+ * Decisões onde a spec não é literal:
+ * - nota interna (`direcao: 'interna'`) escrita pelo atendente **conta** como
+ *   digitação: o atendente digitou;
+ * - mensagem de bot ou de sistema não gera esforço nenhum — nem de escrita, nem
+ *   de leitura, porque ninguém a digitou nem precisou lê-la para atender;
+ * - o atendente não ""ouve"" o próprio áudio: áudio de saída é fala, não escuta.
+ */",,,,,,
+packages-core-comment-ef443a59,packages-core,packages/core/src/esforco/regua.ts,147,147,line,2,// Resposta pronta e template não foram digitados à mão: saem do esforço,,,,,,
+packages-core-comment-81401bce,packages-core,packages/core/src/esforco/regua.ts,148,148,line,3,"// e vão para a coluna separada, como manda a ressalva do relatório.",,,,,,
+packages-core-comment-aea686c5,packages-core,packages/core/src/esforco/regua.ts,166,166,line,0,// bot e sistema: fora da régua.,,,,,,
+packages-core-comment-3160c53a,packages-core,packages/core/src/esforco/regua.ts,189,189,jsdoc,2,/** Agrupa mensagens por conversa e aplica a régua em cada uma. */,,,,,,
+packages-core-comment-700dbfa6,packages-core,packages/core/src/esforco/regua.ts,28,31,jsdoc,2,"/**
+ * Bytes por segundo de áudio Opus a ~16 kbps.
+ * 16.000 bits/s ÷ 8 = 2.000 bytes/s. O ""2 KB/s"" do relatório é decimal, não 2 KiB.
+ */",,,,,,
+packages-core-comment-6d3fae7d,packages-core,packages/core/src/esforco/regua.ts,46,46,jsdoc,2,/** Duração em segundos vinda do metadado do provedor. `null` quando não veio. */,,,,,,
+packages-core-comment-88833691,packages-core,packages/core/src/esforco/regua.ts,48,48,jsdoc,2,"/** Tamanho do arquivo, usado para estimar duração quando falta metadado. */",,,,,,
+packages-core-comment-5876d4d9,packages-core,packages/core/src/esforco/regua.ts,60,60,jsdoc,2,/** Atendente responsável pela mensagem (mensagem de bot não tem). */,,,,,,
+packages-core-comment-1a056842,packages-core,packages/core/src/esforco/regua.ts,62,62,jsdoc,3,/** Preenchido quando o corpo veio de resposta pronta — não foi digitado à mão. */,,,,,,
+packages-core-comment-725d4bf6,packages-core,packages/core/src/esforco/regua.ts,71,71,jsdoc,4,/** Caracteres digitados à mão pelo atendente (já sem resposta pronta). */,,,,,,
+packages-core-comment-1c0babe4,packages-core,packages/core/src/esforco/regua.ts,77,77,jsdoc,1,"/** Caracteres que vieram de resposta pronta — coluna separada, fora do esforço. */",,,,,,
+packages-core-comment-824dd6e1,packages-core,packages/core/src/esforco/regua.ts,79,79,jsdoc,2,"/** Esforço total em segundos, sem o que veio de resposta pronta. */",,,,,,
+packages-core-comment-42bc090f,packages-core,packages/core/src/esforco/regua.ts,81,81,jsdoc,2,/** O que a resposta pronta acrescentaria se fosse contada como digitação. */,,,,,,
+packages-core-comment-a850c3e7,packages-core,packages/core/src/esforco/regua.ts,83,83,jsdoc,2,/** Áudios que entraram com duração zero por falta de metadado e de tamanho. */,,,,,,
+packages-core-comment-e9ecca48,packages-core,packages/core/src/esforco/regua.ts,87,87,jsdoc,2,/** Segundos de digitação para uma quantidade de caracteres. */,,,,,,
+packages-core-comment-fae8dc02,packages-core,packages/core/src/esforco/regua.ts,92,92,jsdoc,2,/** Segundos de leitura para uma quantidade de caracteres. */,,,,,,
+packages-core-comment-5299fc73,packages-core,packages/core/src/esforco/regua.ts,97,100,jsdoc,7,"/**
+ * Duração de um áudio: metadado quando existe, estimativa por tamanho quando não.
+ * Sem nenhum dos dois, devolve `null` — a régua não inventa duração.
+ */",,,,,,
+packages-core-comment-0f62014b,packages-core,packages/core/src/esforco/sessao.ts,1,10,jsdoc,7,"/**
+ * Régua de apoio: tempo em sessão (Anexo B.2).
+ *
+ * Linha do tempo do atendente no dia, com as mensagens que ele enviou em todos
+ * os chats. Tempo ativo é a soma dos intervalos entre mensagens consecutivas
+ * **quando o intervalo é de até 10 minutos**; acima disso é pausa.
+ *
+ * As duas réguas convergem nos tickets conversados (11–13 min medidos em
+ * produção) e uma valida a outra.
+ */",,,,,,
+packages-core-comment-e5863be7,packages-core,packages/core/src/esforco/sessao.ts,14,14,jsdoc,1,/** Limite padrão entre duas mensagens para o tempo continuar contando. */,,,,,,
+packages-core-comment-464a775f,packages-core,packages/core/src/esforco/sessao.ts,31,37,jsdoc,7,"/**
+ * Soma os intervalos consecutivos de até `limiteSeg`.
+ *
+ * Uma mensagem sozinha vale zero segundo: o método mede intervalo entre
+ * mensagens, não presença. Isso é conservador de propósito — inflar sessão
+ * infla a ocupação e faz o atendente parecer mais folgado do que está.
+ */",,,,,,
+packages-core-comment-37999f11,packages-core,packages/core/src/esforco/sessao.ts,87,87,jsdoc,2,/** Esforço ÷ sessão. `null` quando não houve sessão medida. */,,,,,,
+packages-core-comment-db4df82c,packages-core,packages/core/src/esforco/sessao.ts,89,89,jsdoc,0,"/** Esforço ÷ tickets, média ponderada por construção (§5). */",,,,,,
+packages-core-comment-b20fe460,packages-core,packages/core/src/esforco/sessao.ts,97,102,jsdoc,1,"/**
+ * Consolida o dia de um atendente.
+ *
+ * Média ponderada por construção: soma de todo o esforço ÷ soma de todos os
+ * tickets. Nunca média de médias — dia cheio pesa mais.
+ */",,,,,,
+packages-core-comment-19838e1a,packages-core,packages/core/src/fluxo/acoes.ts,1,13,jsdoc,6,"/**
+ * Portado de takenet/blip-sdk-csharp (Apache-2.0),
+ * src/Take.Blip.Builder/Actions/{ActionBase,ActionProvider}.cs,
+ * Actions/SetVariable/*, Actions/DeleteVariable/*, Actions/SendMessage/SendMessageAction.cs,
+ * Actions/SendRawMessage/*, Actions/TrackEvent/TrackEventSettings.cs,
+ * Actions/CreateTicket/CreateTicketAction.cs e Actions/Redirect/RedirectAction.cs
+ * — modificado: C# → TypeScript; quem envia, abre atendimento e registra evento é o
+ * `ServicosDoMotor` que a `api` injeta (no original, `ISender` e as extensões da Blip);
+ * o `Task.Delay` do ""digitando"" não é esperado (o motor roda dentro da transação da
+ * entrada); `ForwardToDesk` e `LeavingFromDesk` NÃO estão no SDK — são ações do
+ * servidor da Blip usadas pelo bloco de atendimento do editor, e o comportamento foi
+ * copiado da forma desse bloco no export (variável `desk_forwardToDeskState_status`).
+ */",,,,,,
+packages-core-comment-70e8d01a,packages-core,packages/core/src/fluxo/acoes.ts,108,108,jsdoc,1,/** `TrackEventAction`: `category` e `action` são obrigatórios. */,,,,,,
+packages-core-comment-1fd3a68f,packages-core,packages/core/src/fluxo/acoes.ts,138,138,jsdoc,2,/** A variável que o bloco de atendimento do editor da Blip testa na entrada e na saída. */,,,,,,
+packages-core-comment-274c35e4,packages-core,packages/core/src/fluxo/acoes.ts,141,145,jsdoc,6,"/**
+ * `ForwardToDesk` (servidor da Blip). No bloco de atendimento do editor, a entrada só é
+ * esperada se esta variável for `Success`, e a saída padrão é `Error` — por isso a
+ * falha vira valor da variável, e não exceção.
+ */",,,,,,
+packages-core-comment-b2553703,packages-core,packages/core/src/fluxo/acoes.ts,162,162,jsdoc,2,/** `LeavingFromDesk` (servidor da Blip): no Pipe o atendimento já foi encerrado pelo Desk. */,,,,,,
+packages-core-comment-356b6756,packages-core,packages/core/src/fluxo/acoes.ts,168,173,jsdoc,2,"/**
+ * `RedirectAction` (Actions/Redirect/RedirectAction.cs): as configurações são o documento
+ * `Redirect` do LIME (`application/vnd.lime.redirect+json`) — `address` é o NOME do serviço
+ * no roteador (`blip-api-schemas.md` §5.4) e `context` vai junto. Quem muda o contato de
+ * serviço é o `ServicosDoMotor`; sem roteador, falha, como na Blip.
+ */",,,,,,
+packages-core-comment-126c9696,packages-core,packages/core/src/fluxo/acoes.ts,187,191,jsdoc,5,"/**
+ * `ProcessHttpAction` da Blip: status HTTP, inclusive 4xx/5xx, vira variável e não
+ * falha a ação; erro de rede é representado pela resposta sintética do serviço.
+ * A chamada fica no serviço injetado para o motor continuar puro.
+ */",,,,,,
+packages-core-comment-6d6b7769,packages-core,packages/core/src/fluxo/acoes.ts,246,246,jsdoc,1,/** O `ActionProvider` padrão: as ações que o Pipe executa. */,,,,,,
+packages-core-comment-9cd7f596,packages-core,packages/core/src/fluxo/acoes.ts,249,249,jsdoc,2,"/** `ActionProvider.Get`: tipo sem implementação é erro, não ação ignorada. */",,,,,,
+packages-core-comment-fa6bbddb,packages-core,packages/core/src/fluxo/acoes.ts,28,28,jsdoc,1,/** O Newtonsoft casa propriedade sem diferenciar maiúscula (`Variable`/`variable`). */,,,,,,
+packages-core-comment-4fc1e44e,packages-core,packages/core/src/fluxo/acoes.ts,38,38,jsdoc,0,/** `ActionBase.ExecuteAsync`: configuração nula é erro antes de qualquer coisa. */,,,,,,
+packages-core-comment-715a8275,packages-core,packages/core/src/fluxo/acoes.ts,77,77,line,1,"// ponytail: o original espera o `interval` do ""digitando"" (Task.Delay). Aqui não:",,,,,,
+packages-core-comment-733e6953,packages-core,packages/core/src/fluxo/acoes.ts,78,78,line,1,"// o motor roda dentro da transação da entrada, e segurar conexão por isso é caro.",,,,,,
+packages-core-comment-3aa69e75,packages-core,packages/core/src/fluxo/condicao.teste.ts,1,5,jsdoc,0,"/**
+ * Portado de takenet/blip-sdk-csharp (Apache-2.0),
+ * src/Take.Blip.Builder.UnitTests/Models/ConditionComparisonTests.cs e ConditionTests.cs
+ * — modificado: xUnit/Shouldly → vitest; mensagens de validação em português.
+ */",,,,,,
+packages-core-comment-a7abdd28,packages-core,packages/core/src/fluxo/condicao.ts,1,9,jsdoc,4,"/**
+ * Portado de takenet/blip-sdk-csharp (Apache-2.0),
+ * src/Take.Blip.Builder/Models/Condition.cs, ConditionComparison.cs, ConditionOperator.cs,
+ * ValueSource.cs, ConditionsExtensions.cs e StringExtensions.cs
+ * — modificado: C# → TypeScript; os enums viram as strings do JSON publicado da Blip
+ * (camelCase, como o Newtonsoft grava, lidas sem diferenciar maiúscula); mensagens de
+ * erro em português; `decimal.TryParse` virou `paraDecimal`; a regex não tem o limite
+ * de 2 minutos do original (JS não tem timeout de regex).
+ */",,,,,,
+packages-core-comment-88f0c542,packages-core,packages/core/src/fluxo/condicao.ts,108,111,jsdoc,1,"/**
+ * `CompareOptions.IgnoreNonSpace | IgnoreCase` com cultura invariante: ignora
+ * maiúscula e acento. O colador em `base` é o equivalente do JS.
+ */",,,,,,
+packages-core-comment-91945080,packages-core,packages/core/src/fluxo/condicao.ts,120,120,jsdoc,2,"/** `StringComparison.OrdinalIgnoreCase` compara pela maiúscula invariante, sem ignorar acento. */",,,,,,
+packages-core-comment-e22e8f9e,packages-core,packages/core/src/fluxo/condicao.ts,123,129,jsdoc,4,"/**
+ * `decimal.TryParse` com cultura invariante: ponto decimal, vírgula de milhar, sinal e
+ * espaço nas pontas. Devolve `null` onde o C# devolveria `false`.
+ *
+ * ponytail: a cultura do servidor da Blip não é conhecida; invariante é o palpite. Se
+ * um fluxo real comparar ""1,5"" esperando 1.5, é aqui que muda.
+ */",,,,,,
+packages-core-comment-0dc29501,packages-core,packages/core/src/fluxo/condicao.ts,14,14,jsdoc,2,/** `ConditionComparison`. A ordem é a do enum original; o primeiro é o padrão. */,,,,,,
+packages-core-comment-12ffc20b,packages-core,packages/core/src/fluxo/condicao.ts,195,195,line,2,// ponytail: sem o timeout de 2 min do original. Regex escrita pelo dono do fluxo,,,,,,
+packages-core-comment-04ae8a83,packages-core,packages/core/src/fluxo/condicao.ts,196,196,line,0,"// contra texto do cliente; se aparecer backtracking catastrófico, rodar em worker.",,,,,,
+packages-core-comment-6e7ecb61,packages-core,packages/core/src/fluxo/condicao.ts,199,199,line,0,// Aceita diferença de 25% do texto.,,,,,,
+packages-core-comment-e3f5c982,packages-core,packages/core/src/fluxo/condicao.ts,244,244,line,5,// Sem provedor de IA no Pipe: é o mesmo que a Blip devolve quando a análise falha.,,,,,,
+packages-core-comment-93ef0143,packages-core,packages/core/src/fluxo/condicao.ts,260,260,line,2,"// O original trata `notEquals` com `or` como ""diferente de todos"", não ""de algum"".",,,,,,
+packages-core-comment-a7aec575,packages-core,packages/core/src/fluxo/condicao.ts,32,32,jsdoc,0,/** `ConditionOperator`: `or` é o padrão (o primeiro valor do enum). */,,,,,,
+packages-core-comment-4f186217,packages-core,packages/core/src/fluxo/condicao.ts,36,36,jsdoc,0,/** `ValueSource`: `input` é o padrão. */,,,,,,
+packages-core-comment-9ae1d92e,packages-core,packages/core/src/fluxo/condicao.ts,40,40,jsdoc,1,"/** `Condition`, com as chaves exatamente como vêm no JSON da Blip. */",,,,,,
+packages-core-comment-4f4bcfcd,packages-core,packages/core/src/fluxo/condicao.ts,57,57,jsdoc,1,/** O Newtonsoft lê enum sem diferenciar maiúscula; valor desconhecido é erro de leitura. */,,,,,,
+packages-core-comment-cbe6017b,packages-core,packages/core/src/fluxo/condicao.ts,75,75,jsdoc,1,/** `GetComparisonType`: só `exists` e `notExists` são unárias. */,,,,,,
+packages-core-comment-d16814c4,packages-core,packages/core/src/fluxo/contexto.ts,1,12,jsdoc,9,"/**
+ * Portado de takenet/blip-sdk-csharp (Apache-2.0),
+ * src/Take.Blip.Builder/ContextBase.cs, ContextExtensions.cs, StateManager.cs, LazyInput.cs,
+ * Utils/VariableReplacer.cs e Variables/{VariableSource,InputVariableProvider,
+ * StateVariableProvider,ContactVariableProvider}.cs
+ * — modificado: C# → TypeScript; o contexto do usuário, que na Blip mora num serviço
+ * remoto, aqui é um mapa em memória carregado de `execucao_fluxo.contexto` (quem lê e
+ * grava no banco é a `api`); `LazyInput` sem IA (intenção e entidade chegam prontas ou
+ * nulas); a expiração de variável não é guardada; provedores que dependem de serviço da
+ * Blip (bucket, resource, tunnel, calendar, secret…) não existem e lançam, como o
+ * original lança para fonte sem provedor.
+ */",,,,,,
+packages-core-comment-4e86f53c,packages-core,packages/core/src/fluxo/contexto.ts,100,100,jsdoc,2,"/** `SendRawMessage`: o conteúdo é o texto serializado, a desserializar pelo tipo. */",,,,,,
+packages-core-comment-9da3c849,packages-core,packages/core/src/fluxo/contexto.ts,104,104,jsdoc,0,/** O atendimento humano aberto. É o `Ticket` da Blip. */,,,,,,
+packages-core-comment-2a59ad74,packages-core,packages/core/src/fluxo/contexto.ts,132,135,jsdoc,2,"/**
+ * As dependências externas do motor — o `ISender` e as extensões da Blip. Quem
+ * implementa é a `api`; ações com rede devem ser executadas fora da transação da entrada.
+ */",,,,,,
+packages-core-comment-cc781b95,packages-core,packages/core/src/fluxo/contexto.ts,143,143,jsdoc,3,/** A api executa isto; o core só descreve a chamada e não faz rede. */,,,,,,
+packages-core-comment-79c3ba8a,packages-core,packages/core/src/fluxo/contexto.ts,145,145,jsdoc,4,/** A API grava o cursor e chama a rede depois que a transação termina. */,,,,,,
+packages-core-comment-33719dfc,packages-core,packages/core/src/fluxo/contexto.ts,147,151,jsdoc,3,"/**
+   * `IRedirectManager.RedirectUserAsync`: manda o contato para outro serviço do roteador.
+   * Ausente = o fluxo não está atrás de um roteador, e o `Redirect` falha — ""o
+   * redirecionamento funciona apenas no Bot Router"" (help.blip.ai).
+   */",,,,,,
+packages-core-comment-e8643495,packages-core,packages/core/src/fluxo/contexto.ts,166,166,jsdoc,0,"/** O contexto do usuário, persistido. Na Blip, tudo aqui é texto. */",,,,,,
+packages-core-comment-60352848,packages-core,packages/core/src/fluxo/contexto.ts,168,168,jsdoc,1,"/** `InputContext`: vale só durante esta entrada (estado atual, ticket criado…). */",,,,,,
+packages-core-comment-7effc8e7,packages-core,packages/core/src/fluxo/contexto.ts,170,170,jsdoc,0,"/** O contato no vocabulário da Blip (`name`, `phoneNumber`, `email`, `extras`…). */",,,,,,
+packages-core-comment-f065ac5c,packages-core,packages/core/src/fluxo/contexto.ts,172,172,jsdoc,1,"/** Provedores extras, ou para trocar os padrão. */",,,,,,
+packages-core-comment-43056de7,packages-core,packages/core/src/fluxo/contexto.ts,191,194,jsdoc,3,"/**
+ * `SetVariableAsync`. ponytail: a expiração (`expiration`) do original não é guardada —
+ * a variável vale até ser apagada ou sobrescrita. Guardar exige carimbo por chave.
+ */",,,,,,
+packages-core-comment-07929566,packages-core,packages/core/src/fluxo/contexto.ts,218,218,jsdoc,2,"/** Lê o estado guardado num contexto já persistido, sem montar `Contexto`. */",,,,,,
+packages-core-comment-926acd4f,packages-core,packages/core/src/fluxo/contexto.ts,227,227,jsdoc,1,"/** `VariableName.Parse`: `fonte.nome@propriedade`; sem fonte, é variável de contexto. */",,,,,,
+packages-core-comment-f772a57e,packages-core,packages/core/src/fluxo/contexto.ts,249,249,jsdoc,3,/** `GetJsonProperty`: a propriedade (com pontos) de um valor que é objeto JSON. */,,,,,,
+packages-core-comment-61967412,packages-core,packages/core/src/fluxo/contexto.ts,266,266,jsdoc,1,/** Leitura de propriedade sem diferenciar maiúscula — o `GetProperty` por reflexão. */,,,,,,
+packages-core-comment-43410222,packages-core,packages/core/src/fluxo/contexto.ts,368,368,jsdoc,2,"/** `VariableReplacer.ReplaceAsync`: troca `{{nome}}` pelo valor, escapado para JSON. */",,,,,,
+packages-core-comment-763b16c0,packages-core,packages/core/src/fluxo/contexto.ts,38,38,jsdoc,2,"/** As fontes que têm provedor no Pipe. As demais lançam, como na Blip sem o provedor. */",,,,,,
+packages-core-comment-b10b4811,packages-core,packages/core/src/fluxo/contexto.ts,380,380,jsdoc,2,/** `EscapeString`: o valor entra dentro de uma string JSON e não pode quebrá-la. */,,,,,,
+packages-core-comment-ce26c409,packages-core,packages/core/src/fluxo/contexto.ts,48,48,jsdoc,2,"/** A mensagem que chegou, no vocabulário LIME: `tipo` é o MIME (`text/plain`…). */",,,,,,
+packages-core-comment-a105e120,packages-core,packages/core/src/fluxo/contexto.ts,73,73,jsdoc,1,"/** `SerializedContent`: texto puro como está, documento JSON serializado. */",,,,,,
+packages-core-comment-a31b2341,packages-core,packages/core/src/fluxo/editor.teste.ts,137,137,line,2,// O que não é suportado continua no fluxo: nada some na conversão.,,,,,,
+packages-core-comment-0d0939a9,packages-core,packages/core/src/fluxo/editor.teste.ts,16,16,jsdoc,0,"/** Fixture sintética, no formato do editor do Builder — nada de fluxo de cliente. */",,,,,,
+packages-core-comment-abd73263,packages-core,packages/core/src/fluxo/editor.teste.ts,204,204,line,0,// pos-atendimento → menu (saída padrão) manda o menu e espera.,,,,,,
+packages-core-comment-8abd7fee,packages-core,packages/core/src/fluxo/editor.ts,1,23,jsdoc,9,"/**
+ * Importador: o export do EDITOR do Builder da Blip → o formato PUBLICADO que o motor lê.
+ *
+ * **Não é porte.** O motor (`FlowManager`) consome o fluxo publicado
+ * (`{ id, states: [{ inputActions, input, outputActions, outputs }] }`); o botão
+ * ""Exportar"" do Builder devolve o formato do editor (`{ flow: { <id>: estado },
+ * globalActions }`, com `$contentActions`, `$conditionOutputs`…). Quem converte um no
+ * outro é o portal da Blip, que é proprietário: o comportamento abaixo foi copiado
+ * comparando os dois formatos, sem código do portal.
+ *
+ * - `$enteringCustomActions` e depois as ações de `$contentActions` → `inputActions`
+ *   (ação de entrada roda antes do conteúdo do bloco);
+ * - o item `input` de `$contentActions` → `input`;
+ * - `$leavingCustomActions` → `outputActions`; `$afterStateChangedActions` →
+ *   `afterStateChangedActions`; `$localCustomActions` → `localCustomActions`;
+ * - `$conditionOutputs`, na ordem, e por último `$defaultOutput` sem condição → `outputs`;
+ * - `$title` → `name`; `$position` e `$tags` ficam como dado de extensão;
+ * - `globalActions.$enteringCustomActions` / `$leavingCustomActions` → as ações globais
+ *   de entrada e de saída do fluxo.
+ *
+ * Nada é descartado em silêncio: o que o Pipe não executa entra no relatório por tipo,
+ * e o estado original do editor vai junto para o `bloco.conteudo` (ver `api`).
+ */",,,,,,
+packages-core-comment-c7047dd3,packages-core,packages/core/src/fluxo/editor.ts,121,121,jsdoc,0,/** O export do editor no formato publicado. O `id` do fluxo é de quem importa. */,,,,,,
+packages-core-comment-8af9f40d,packages-core,packages/core/src/fluxo/editor.ts,133,137,jsdoc,2,"/**
+ * Lê qualquer um dos formatos da Blip: export do editor, `applicationJson` publicado
+ * (`{ settings: { flow } }`), `{ flow: { states } }` ou o `Flow` direto. O publicado é
+ * identidade: o motor lê a Blip nativamente.
+ */",,,,,,
+packages-core-comment-947e7573,packages-core,packages/core/src/fluxo/editor.ts,151,151,jsdoc,2,"/** Os tipos de conteúdo que o canal do Pipe manda hoje. O ""digitando"" passa sem efeito. */",,,,,,
+packages-core-comment-d67d6587,packages-core,packages/core/src/fluxo/editor.ts,154,154,jsdoc,5,"/** Ações que rodam e não fazem nada no Pipe, ditas aqui para não parecer que fazem. */",,,,,,
+packages-core-comment-4fc5dccb,packages-core,packages/core/src/fluxo/editor.ts,160,160,jsdoc,0,"/** Todas as ações, por tipo. */",,,,,,
+packages-core-comment-47e166bf,packages-core,packages/core/src/fluxo/editor.ts,162,162,jsdoc,2,"/** O que o motor do Pipe NÃO executa, por tipo — em tempo de execução, lança. */",,,,,,
+packages-core-comment-29ceb3e8,packages-core,packages/core/src/fluxo/editor.ts,164,164,jsdoc,2,/** O que roda sem efeito no Pipe. */,,,,,,
+packages-core-comment-72f5ec63,packages-core,packages/core/src/fluxo/editor.ts,174,174,jsdoc,3,"/** O que do fluxo o Pipe executa, e o que não. Só contagens e nomes de tipo. */",,,,,,
+packages-core-comment-4d4734a1,packages-core,packages/core/src/fluxo/editor.ts,231,231,line,3,"// Ação local só roda pelo agente do Builder (`ProcessCommandInputAsync`), não pela conversa.",,,,,,
+packages-core-comment-0742e82d,packages-core,packages/core/src/fluxo/editor.ts,244,244,line,1,"// Variáveis de fonte sem provedor no Pipe (`{{calendar.x}}`, `{{resource.x}}`…).",,,,,,
+packages-core-comment-1ba89cbf,packages-core,packages/core/src/fluxo/editor.ts,54,54,jsdoc,1,"/** O export do editor tem `flow` como MAPA de estados, e não `states[]`. */",,,,,,
+packages-core-comment-8c17d24b,packages-core,packages/core/src/fluxo/editor.ts,65,65,jsdoc,0,"/** Tira as chaves de editor (`$id`, `$invalid`, `$cardContent`…) e mantém as do modelo. */",,,,,,
+packages-core-comment-75e0c0df,packages-core,packages/core/src/fluxo/editor.ts,86,86,line,3,// Saída sem destino não vira transição: é o que o editor da Blip guarda no,,,,,,
+packages-core-comment-1114c1fc,packages-core,packages/core/src/fluxo/editor.ts,87,87,line,2,"// bloco de atendimento recém-criado (as ""Saídas de atendimento"" ainda sem",,,,,,
+packages-core-comment-18b4a59b,packages-core,packages/core/src/fluxo/editor.ts,88,88,line,5,"// bloco) e no rascunho em que a pessoa ainda não escolheu o ""Direcionar para",,,,,,
+packages-core-comment-77e97743,packages-core,packages/core/src/fluxo/editor.ts,89,89,line,3,"// bloco"". O motor nunca a tomaria; a tela é quem aponta que falta preencher.",,,,,,
+packages-core-comment-6d0bb689,packages-core,packages/core/src/fluxo/gerenciador.teste.ts,1,8,jsdoc,5,"/**
+ * Portado de takenet/blip-sdk-csharp (Apache-2.0),
+ * src/Take.Blip.Builder.UnitTests/FlowManagerTests.cs, OutputConditions/OutputConditionsTests.cs
+ * e Actions/ActionConditionsTests.cs
+ * — modificado: xUnit/NSubstitute → vitest com um `ServicosDoMotor` falso; onde o
+ * original usa `ExecuteScript` para gravar variável, aqui é `SetVariable` (script não
+ * existe no Pipe); as asserções olham o contexto e o que saiu, e não chamadas de mock.
+ */",,,,,,
+packages-core-comment-ad5d8259,packages-core,packages/core/src/fluxo/gerenciador.ts,1,17,jsdoc,18,"/**
+ * Portado de takenet/blip-sdk-csharp (Apache-2.0),
+ * src/Take.Blip.Builder/FlowManager.cs (ProcessInputAsync, ProcessActionsAsync,
+ * ProcessOutputsAsync, ValidateInputAsync, ValidateDocument), Hosting/ConventionsConfiguration.cs
+ * (os limites), Constants.cs (formatos de data) e as exceções FlowConstructionException,
+ * ActionProcessingException, OutputProcessingException e BuilderException
+ * — modificado: C# → TypeScript; sem semáforo (a `api` trava a linha da execução no
+ * banco), sem trace remoto (o rastro volta para virar `execucao_passo`), sem
+ * subfluxo e sem `inputExpiration` (lançam), sem `ExecuteBlipFunction` (vira
+ * `ExecuteScriptV2`, que não existe no Pipe) e sem os logs de monitoramento.
+ *
+ * A ordem de execução é a do original, e é o que importa preservar:
+ * ações globais de entrada → [valida a entrada → grava `input.variable`] → ações de
+ * saída do estado → condições de saída (a primeira que casar vence) → ações de ""depois
+ * de trocar de estado"" → grava o estado → ações de entrada do próximo estado → repete
+ * enquanto o próximo estado não esperar entrada → ações globais de saída.
+ */",,,,,,
+packages-core-comment-2fab9c51,packages-core,packages/core/src/fluxo/gerenciador.ts,113,113,jsdoc,2,"/** `BuilderException`: o erro que sai do motor, com o rastro até onde deu. */",,,,,,
+packages-core-comment-e72fb8dd,packages-core,packages/core/src/fluxo/gerenciador.ts,156,161,jsdoc,4,"/**
+ * `FlowManager.ProcessInputAsync`: processa UMA entrada do usuário no fluxo.
+ *
+ * O estado e as variáveis vivem em `contexto.variaveis`, que a `api` carrega e grava.
+ * Devolve o rastro; em erro, lança `ErroDoMotor` com o rastro até onde chegou.
+ */",,,,,,
+packages-core-comment-93a21268,packages-core,packages/core/src/fluxo/gerenciador.ts,179,179,line,3,"// Restaura o estado guardado; sem estado (ou estado que sumiu do fluxo), a raiz.",,,,,,
+packages-core-comment-32ed0dfb,packages-core,packages/core/src/fluxo/gerenciador.ts,222,222,line,1,// Prepara a saída do estado atual executando as ações de saída.,,,,,,
+packages-core-comment-f9ebe2f2,packages-core,packages/core/src/fluxo/gerenciador.ts,240,240,line,1,"// `RedirectToParentFlowAsync`: sem fluxo pai, o original lança.",,,,,,
+packages-core-comment-31834aff,packages-core,packages/core/src/fluxo/gerenciador.ts,249,249,line,1,"// Só roda o ""depois de trocar"" quando o estado de fato mudou.",,,,,,
+packages-core-comment-79a45754,packages-core,packages/core/src/fluxo/gerenciador.ts,292,292,line,0,// Ações de entrada do próximo estado.,,,,,,
+packages-core-comment-3c9ff46f,packages-core,packages/core/src/fluxo/gerenciador.ts,305,305,line,0,// Trava contra laço no fluxo.,,,,,,
+packages-core-comment-bf905757,packages-core,packages/core/src/fluxo/gerenciador.ts,315,315,line,1,// Continua enquanto o próximo estado não esperar entrada.,,,,,,
+packages-core-comment-7b564ce2,packages-core,packages/core/src/fluxo/gerenciador.ts,369,369,line,3,"// `OrderBy` é estável, e `sort` também: sem `order`, vale a ordem do arquivo.",,,,,,
+packages-core-comment-9d951041,packages-core,packages/core/src/fluxo/gerenciador.ts,395,395,line,1,"// `ExecuteTemplate` recebe o modelo cru; as demais, com as variáveis trocadas.",,,,,,
+packages-core-comment-6fba4d8e,packages-core,packages/core/src/fluxo/gerenciador.ts,41,41,jsdoc,1,/** `ConventionsConfiguration`: os números são os do original. */,,,,,,
+packages-core-comment-a1b95eff,packages-core,packages/core/src/fluxo/gerenciador.ts,43,43,jsdoc,1,/** `MaxTransitionsByInput`: a trava contra laço. */,,,,,,
+packages-core-comment-a12e97f6,packages-core,packages/core/src/fluxo/gerenciador.ts,436,436,jsdoc,2,/** `ProcessOutputsAsync`: a primeira saída que casar vence; nenhuma = estado nulo. */,,,,,,
+packages-core-comment-a04d204a,packages-core,packages/core/src/fluxo/gerenciador.ts,47,47,jsdoc,3,"/** `DefaultActionExecutionTimeout`, quando a ação não diz o seu. */",,,,,,
+packages-core-comment-3e4fbb52,packages-core,packages/core/src/fluxo/gerenciador.ts,472,475,jsdoc,2,"/**
+ * `ValidateInputAsync`: entrada fora da regra manda a mensagem de erro e para — o
+ * usuário continua no mesmo estado.
+ */",,,,,,
+packages-core-comment-58aec1e8,packages-core,packages/core/src/fluxo/gerenciador.ts,481,481,line,3,"// Na Blip, erro com `{{variável}}` sai com `#message.spinText` e o servidor troca a",,,,,,
+packages-core-comment-e8967c55,packages-core,packages/core/src/fluxo/gerenciador.ts,482,482,line,3,"// variável; aqui não há servidor no meio, então a troca é feita antes.",,,,,,
+packages-core-comment-d259c5ae,packages-core,packages/core/src/fluxo/gerenciador.ts,517,517,jsdoc,2,"/** `DateTime.TryParseExact` com espaço permitido, para os formatos acima. */",,,,,,
+packages-core-comment-a2748943,packages-core,packages/core/src/fluxo/gerenciador.ts,76,76,jsdoc,1,/** Estado em que o usuário ficou; nulo = o próximo contato recomeça na raiz. */,,,,,,
+packages-core-comment-60f3fe00,packages-core,packages/core/src/fluxo/index.ts,1,4,jsdoc,1,"/**
+ * Motor de fluxo (o chatbot): porte do `Take.Blip.Builder` da Blip — ver
+ * THIRD_PARTY_NOTICES.md na raiz. Lê o fluxo da Blip no formato publicado, sem tradução.
+ */",,,,,,
+packages-core-comment-b90b7e80,packages-core,packages/core/src/fluxo/modelos.teste.ts,1,5,jsdoc,0,"/**
+ * Portado de takenet/blip-sdk-csharp (Apache-2.0),
+ * src/Take.Blip.Builder.UnitTests/Models/FlowTests.cs
+ * — modificado: xUnit/Shouldly → vitest; mensagens em português.
+ */",,,,,,
+packages-core-comment-bb57332f,packages-core,packages/core/src/fluxo/modelos.ts,1,8,jsdoc,3,"/**
+ * Portado de takenet/blip-sdk-csharp (Apache-2.0),
+ * src/Take.Blip.Builder/Models/Flow.cs, State.cs, Input.cs, Output.cs e Action.cs
+ * — modificado: C# → TypeScript; as classes viram interfaces sobre o JSON publicado da
+ * Blip, com as MESMAS chaves, para o motor ler o fluxo da Blip sem tradução; os
+ * `Validate()` viram `validarFluxo`; mensagens em português; `TraceSettings` e
+ * `BuilderConfiguration` ficaram de fora.
+ */",,,,,,
+packages-core-comment-affb5b28,packages-core,packages/core/src/fluxo/modelos.ts,102,102,jsdoc,0,/** `stateId` no formato `{{variavel}}`: destino calculado em tempo de execução. */,,,,,,
+packages-core-comment-5b6d47a2,packages-core,packages/core/src/fluxo/modelos.ts,13,13,jsdoc,0,/** `Action`. `settings` é o JSON livre de cada tipo (o `JRaw` do original). */,,,,,,
+packages-core-comment-2b1493f8,packages-core,packages/core/src/fluxo/modelos.ts,147,151,jsdoc,5,"/**
+ * `Flow.Validate()`: o contrato real de um fluxo válido — um só estado raiz, a raiz
+ * espera entrada e não tem condição, ids únicos, destino de saída existente (ou
+ * `{{variável}}`) e nenhum laço que não passe por uma entrada.
+ */",,,,,,
+packages-core-comment-ab14122b,packages-core,packages/core/src/fluxo/modelos.ts,178,178,line,2,// Existe um caminho direto (sem entrada) de volta a `alvo`?,,,,,,
+packages-core-comment-8163043f,packages-core,packages/core/src/fluxo/modelos.ts,198,198,line,4,"// Igual ao original: a segunda metade testa a entrada da RAIZ, não a do estado.",,,,,,
+packages-core-comment-44b67cf2,packages-core,packages/core/src/fluxo/modelos.ts,199,199,line,4,"// Como a raiz com bypass já foi recusada acima, na prática só estado sem",,,,,,
+packages-core-comment-efe3775b,packages-core,packages/core/src/fluxo/modelos.ts,200,200,line,0,// entrada nenhuma é conferido.,,,,,,
+packages-core-comment-b7aeffe4,packages-core,packages/core/src/fluxo/modelos.ts,215,215,jsdoc,2,/** Um erro de `validarFluxo` preso ao estado que o causa; `null` quando é do fluxo inteiro. */,,,,,,
+packages-core-comment-c1a6a50c,packages-core,packages/core/src/fluxo/modelos.ts,231,241,jsdoc,16,"/**
+ * TODOS os erros que `validarFluxo` apontaria, e não só o primeiro — cada um preso ao
+ * estado que o causa, para o Builder marcar o bloco certo.
+ *
+ * `validarFluxo` para no primeiro porque é o porte fiel do `Flow.Validate()`; o motor
+ * não precisa de mais. A tela precisa: quem desenha quer ver de uma vez tudo o que
+ * falta. Cada estado é conferido sozinho (`validarEstado` e o destino de cada saída),
+ * e depois o fluxo inteiro, para apanhar o que é do conjunto — raiz ausente ou
+ * repetida, id repetido, laço sem entrada. As frases são as MESMAS de `validarFluxo`:
+ * lista vazia aqui é o mesmo que `validarFluxo` passar.
+ */",,,,,,
+packages-core-comment-d9fc799e,packages-core,packages/core/src/fluxo/modelos.ts,263,263,line,4,// O que `validarFluxo` apontou e já está na lista por estado não entra duas vezes.,,,,,,
+packages-core-comment-9d205735,packages-core,packages/core/src/fluxo/modelos.ts,37,37,jsdoc,1,/** `Input`: o que o estado espera do usuário. */,,,,,,
+packages-core-comment-e23c34ce,packages-core,packages/core/src/fluxo/modelos.ts,46,46,jsdoc,1,/** `Output`: a transição. */,,,,,,
+packages-core-comment-ed6b2d77,packages-core,packages/core/src/fluxo/modelos.ts,53,56,jsdoc,3,"/**
+ * `State`. O que não é do modelo (`name`, `$position`, `$tags`…) fica no próprio objeto,
+ * como o `ExtensionData` do original — é dali que `{{state.name}}` lê.
+ */",,,,,,
+packages-core-comment-f4830b36,packages-core,packages/core/src/fluxo/modelos.ts,70,70,jsdoc,0,/** As chaves do modelo; o resto do estado é `ExtensionData`. */,,,,,,
+packages-core-comment-9a3bd1d0,packages-core,packages/core/src/fluxo/padrao.ts,1,31,jsdoc,57,"/**
+ * O fluxo que o cliente encontra quando abre o Builder pela primeira vez.
+ *
+ * De propósito é o menor fluxo que já é útil: a mensagem chega, o robô avisa que vai
+ * chamar gente, e a conversa vai para a fila. Nada de menu, horário ou ramificação —
+ * isso é o que a empresa vai montar por cima, com a ajuda do assistente.
+ *
+ * Está no `core`, e não na ponte, porque dois caminhos o servem: a cópia do Builder
+ * (pela ponte) e a tela do Builder da Gestão (`GET /v1/gestao/fluxos/:id/builder`).
+ * O formato é o do EDITOR da Blip (`{ <id>: estado }` com `$contentActions`…), que é
+ * o que as duas telas desenham; `converterDoEditor` o leva ao formato do motor.
+ *
+ * Três regras do motor estão embutidas aqui, e cada uma custou um fluxo que não
+ * funcionava quando esquecida:
+ *
+ * 1. **A raiz espera uma entrada, e só isso.** Sem entrada o motor recusa publicar
+ *    (""O estado raiz precisa esperar uma entrada""). E a entrada da raiz consome a
+ *    PRIMEIRA mensagem do cliente (`processarEntrada`: o estado guardado é nulo, cai
+ *    na raiz, e a raiz valida a entrada antes de sair) — por isso a fala do robô fica
+ *    no bloco SEGUINTE, não na raiz, senão nunca sai.
+ * 2. **O transbordo é a ação `ForwardToDesk`**, não o prefixo do id: é ela que chama
+ *    `encaminharParaAtendimento` e põe a conversa na fila (`apps/api/src/dominio/
+ *    fluxo.ts`). O prefixo `desk:` é o que faz o motor entregar o `Ticket` encerrado
+ *    de volta a este bloco quando o atendimento acaba — e é a convenção da Blip, então
+ *    a tela desenha o bloco com a cara certa.
+ * 3. **O bloco de atendimento espera `desk_forwardToDeskState_status = Success`** e
+ *    volta à raiz por padrão: encerrado o atendimento, a próxima mensagem recomeça.
+ *
+ * Ele não é gravado no banco: é só o ponto de partida enquanto o cliente não salvou
+ * nada. No primeiro ""salvar"", o que vale é o desenho dele.
+ */",,,,,,
+packages-core-comment-7a939ab7,packages-core,packages/core/src/fluxo/padrao.ts,113,113,line,1,// `ForwardToDesk` roda ANTES do conteúdo do bloco (`converterDoEditor`): a,,,,,,
+packages-core-comment-b6dd3b14,packages-core,packages/core/src/fluxo/padrao.ts,114,114,line,3,"// conversa vai para a fila, e o aviso sai já dentro dela.",,,,,,
+packages-core-comment-59618283,packages-core,packages/core/src/fluxo/padrao.ts,134,134,line,1,"// Encerrado o atendimento, a próxima mensagem recomeça do início.",,,,,,
+packages-core-comment-e3dec519,packages-core,packages/core/src/fluxo/padrao.ts,58,58,jsdoc,2,"/** Uma fala do robô, no formato que o editor desenha na bolha da esquerda. */",,,,,,
+packages-core-comment-6a9bace9,packages-core,packages/core/src/fluxo/padrao.ts,78,78,jsdoc,3,/** A espera pela mensagem do cliente. É o que torna o bloco publicável. */,,,,,,
+packages-core-comment-c6d53a33,packages-core,packages/core/src/index.ts,1,7,jsdoc,5,"/**
+ * `@pipe/core` — regras de negócio puras do Pipe.
+ *
+ * Sem banco, sem HTTP, sem relógio implícito: toda função recebe o instante de
+ * referência por parâmetro. É o pacote onde erro de cálculo vira número errado
+ * em relatório que o cliente usa para decidir sobre gente.
+ */",,,,,,
+packages-core-comment-c31267ec,packages-core,packages/core/src/index.ts,19,20,block,2,"/* `./analise` NÃO entra no índice: o `Intervalo` dela (dias de calendário) não
+   é o `Intervalo` da SLA (instantes). Quem precisa importa `@pipe/core/analise`. */",,,,,,
+packages-core-comment-480ab78e,packages-core,packages/core/src/janela/janela.teste.ts,137,137,line,0,// de 20:00 do dia 2 até 10:00 do dia 3 = 14 horas,,,,,,
+packages-core-comment-5fac091c,packages-core,packages/core/src/janela/janela.teste.ts,20,20,jsdoc,1,/** Cliente falou às 10:00 de 02/03; a janela vai até 10:00 de 03/03. */,,,,,,
+packages-core-comment-9d256f53,packages-core,packages/core/src/janela/janela.teste.ts,49,49,line,3,// A borda que decide se a tela oferece texto livre ou template.,,,,,,
+packages-core-comment-e15dca9f,packages-core,packages/core/src/janela/janela.teste.ts,71,71,line,2,"// já fechou: não é ""perto"", é fora",,,,,,
+packages-core-comment-d361f155,packages-core,packages/core/src/janela/janela.ts,1,16,jsdoc,12,"/**
+ * Janela de atendimento de 24 horas do WhatsApp.
+ *
+ * `2026-09-05-pipe-design.md` §4.3: conceito de primeira classe, não detalhe de
+ * integração. Governa a tela (texto livre × seletor de template), o custo
+ * (categoria de cobrança por mensagem) e o relatório (a janela conta a partir do
+ * envio, não pelo dia do calendário).
+ *
+ * Regras levantadas em `referencias-blip/pesquisa/regras-blip.md` §1.1:
+ * - 24 horas corridas a partir da **última mensagem do cliente**;
+ * - fora dela, só template pré-aprovado pela Meta;
+ * - qualquer mensagem nova do cliente reabre a janela.
+ *
+ * Preço não entra aqui: a tabela da Meta muda com frequência e é configuração
+ * por categoria, nunca constante de código.
+ */",,,,,,
+packages-core-comment-d4775e07,packages-core,packages/core/src/janela/janela.ts,102,102,jsdoc,1,"/** Como a mensagem entra no relatório de custo, se for enviada. */",,,,,,
+packages-core-comment-b336e8c7,packages-core,packages/core/src/janela/janela.ts,107,110,jsdoc,4,"/**
+ * E-mail e widget não têm janela: `janela_expira_em` fica nulo, a regra é do
+ * canal e a tela é a mesma.
+ */",,,,,,
+packages-core-comment-d44c08b7,packages-core,packages/core/src/janela/janela.ts,115,120,jsdoc,5,"/**
+ * Classificação de custo de uma mensagem de saída.
+ *
+ * Template sempre cobra pela própria categoria, inclusive dentro da janela —
+ * quem define isso é a Meta, não nós. Texto livre dentro da janela é `livre`.
+ */",,,,,,
+packages-core-comment-7280cd76,packages-core,packages/core/src/janela/janela.ts,130,135,jsdoc,5,"/**
+ * Decide se o envio é permitido, o que a tela deve mostrar e como o custo entra.
+ *
+ * Fora da janela, o campo de texto livre é substituído pelo seletor de template
+ * **com o motivo escrito** — não um erro depois do envio.
+ */",,,,,,
+packages-core-comment-9d3b5671,packages-core,packages/core/src/janela/janela.ts,40,43,jsdoc,3,"/**
+ * Expiração a partir da última mensagem do contato.
+ * `null` de entrada devolve `null` — sem mensagem do cliente não há janela.
+ */",,,,,,
+packages-core-comment-54989a37,packages-core,packages/core/src/janela/janela.ts,49,49,jsdoc,2,/** Recalcula a janela a cada mensagem de entrada do contato. */,,,,,,
+packages-core-comment-93a6d73e,packages-core,packages/core/src/janela/janela.ts,56,62,jsdoc,9,"/**
+ * A janela está aberta?
+ *
+ * Comparação **estrita**: no exato instante da expiração a janela já está
+ * fechada. Empatar a favor do envio é o jeito de tomar erro da Meta depois do
+ * envio, que é justamente o que a tela deve evitar.
+ */",,,,,,
+packages-core-comment-197341eb,packages-core,packages/core/src/janela/janela.ts,74,74,jsdoc,3,/** Conversa perto de expirar — a que a lista do Desk destaca. */,,,,,,
+packages-core-comment-1a960460,packages-core,packages/core/src/janela/janela.ts,90,90,jsdoc,1,/** Obrigatória quando `conteudo` é `template`. */,,,,,,
+packages-core-comment-811a6147,packages-core,packages/core/src/janela/janela.ts,98,98,jsdoc,2,/** O que a tela deve oferecer agora. */,,,,,,
+packages-core-comment-8fc252ea,packages-core,packages/core/src/metricas/agregacao.ts,1,7,jsdoc,4,"/**
+ * Média ponderada por volume — §5 da spec de métricas.
+ *
+ * Soma dos tempos ÷ soma das conversas. **Nunca média de médias**: dia cheio
+ * pesa mais que dia vazio. Mesma construção do `weightedAverageOrNull` do
+ * blip-dash e da régua de esforço.
+ */",,,,,,
+packages-core-comment-3a46a1f0,packages-core,packages/core/src/metricas/agregacao.ts,11,11,jsdoc,0,"/** Combina resultados parciais (por dia, por fila, por atendente) em um só. */",,,,,,
+packages-core-comment-7d222f24,packages-core,packages/core/src/metricas/agregacao.ts,27,27,jsdoc,0,"/** Versão crua: pares (soma de tempo, contagem de conversas). */",,,,,,
+packages-core-comment-43fbe775,packages-core,packages/core/src/metricas/agregacao.ts,40,43,jsdoc,8,"/**
+ * A armadilha que esta função existe para tornar visível: a média das médias.
+ * Só deve aparecer em teste, comparada com a ponderada.
+ */",,,,,,
+packages-core-comment-c0f11037,packages-core,packages/core/src/metricas/agregacao.ts,50,50,jsdoc,1,"/** Agrupa itens por chave e aplica a métrica em cada grupo, preservando o denominador. */",,,,,,
+packages-core-comment-517edf68,packages-core,packages/core/src/metricas/agregacao.ts,66,66,line,1,"// Ordem determinística por chave, para o relatório sair igual toda vez.",,,,,,
+packages-core-comment-9d850ed5,packages-core,packages/core/src/metricas/agregacao.ts,73,76,jsdoc,6,"/**
+ * Taxa de resposta de pesquisa — §6: obrigatória na tela ao lado da média,
+ * porque 4,85 com 22% de resposta não é a mesma coisa que 4,85 com 90%.
+ */",,,,,,
+packages-core-comment-46130528,packages-core,packages/core/src/metricas/encerramento.ts,1,7,jsdoc,3,"/**
+ * Status de encerramento — §4 da spec de métricas.
+ *
+ * A fronteira entre perdida e abandonada é a existência de `atribuida_em`:
+ * perdida é problema de capacidade ou de fila, abandonada é problema de
+ * atendimento. Separá-las é o que torna o número acionável.
+ */",,,,,,
+packages-core-comment-a1499f67,packages-core,packages/core/src/metricas/encerramento.ts,17,17,jsdoc,1,"/** Soma das três — o ""fechada"" da spec. */",,,,,,
+packages-core-comment-aabd691f,packages-core,packages/core/src/metricas/encerramento.ts,23,31,jsdoc,11,"/**
+ * Classifica o encerramento de uma conversa. `null` quando ainda está aberta.
+ *
+ * - `atendente` ou `transferencia` → finalizada, tenha sido atribuída ou não
+ *   (gestor também fecha em lote pela tela de monitoramento).
+ * - `cliente` ou `inatividade` → perdida se nunca foi atribuída, abandonada se foi.
+ * - Encerramento sem `encerradaPor` cai na mesma regra de atribuição, porque a
+ *   origem desconhecida não pode virar ""finalizada"" por otimismo.
+ */",,,,,,
+packages-core-comment-8b57125e,packages-core,packages/core/src/metricas/eventos.ts,1,6,jsdoc,0,"/**
+ * Eventos de atendimento e os cinco carimbos de tempo.
+ *
+ * Fonte: `2026-09-05-metricas-atendimento.md` §1 e `2026-09-05-modelo-de-dados.md` §4.
+ * Toda métrica deriva daqui — nunca de campo mutável da conversa.
+ */",,,,,,
+packages-core-comment-a012e96d,packages-core,packages/core/src/metricas/eventos.ts,142,149,jsdoc,9,"/**
+ * Pares ""mensagem do cliente → próxima mensagem do atendente"" de uma conversa.
+ *
+ * Uma troca completa é uma entrada do cliente seguida, mais adiante na linha do
+ * tempo, de uma saída do atendente. Entradas consecutivas do cliente contam como
+ * **uma** troca: o relógio começa na primeira, que é quando o atendente passou a
+ * dever resposta.
+ */",,,,,,
+packages-core-comment-4ed83169,packages-core,packages/core/src/metricas/eventos.ts,41,41,jsdoc,1,/** Conversa como lista de eventos — a unidade de entrada de toda métrica. */,,,,,,
+packages-core-comment-cb6b5f22,packages-core,packages/core/src/metricas/eventos.ts,47,47,jsdoc,0,/** Os cinco carimbos de tempo da §1 da spec de métricas. */,,,,,,
+packages-core-comment-56abb58d,packages-core,packages/core/src/metricas/eventos.ts,55,55,jsdoc,1,"/** Quantidade de atribuições — reatribuição grava evento novo, não sobrescreve o primeiro. */",,,,,,
+packages-core-comment-4b8b59ad,packages-core,packages/core/src/metricas/eventos.ts,60,60,line,1,// Ordenação estável por instante: eventos do mesmo milissegundo mantêm a ordem,,,,,,
+packages-core-comment-7bf19be1,packages-core,packages/core/src/metricas/eventos.ts,61,61,line,4,"// de gravação, que é a ordem em que a `api` os emitiu.",,,,,,
+packages-core-comment-f90b39bd,packages-core,packages/core/src/metricas/eventos.ts,68,80,jsdoc,18,"/**
+ * Deriva os cinco carimbos a partir dos eventos de uma conversa.
+ *
+ * Decisões onde a spec deixa margem:
+ * - `criadaEm` usa `criada`; sem ela, cai para `enfileirada` — conversa que só
+ *   existe a partir da fila continua tendo início.
+ * - `atribuidaEm` é a **primeira** atribuição (§1: reatribuição não sobrescreve).
+ * - `primeiraRespostaEm` usa o evento `primeira_resposta`; sem ele, cai para a
+ *   primeira `mensagem_saida` **com `usuarioId`**, porque saída de bot não é
+ *   resposta de atendente.
+ * - `encerradaEm` é o **último** `encerrada`, para conversa reaberta e fechada
+ *   de novo carimbar o fechamento que vale.
+ */",,,,,,
+packages-core-comment-12486537,packages-core,packages/core/src/metricas/eventos.ts,8,8,jsdoc,0,"/** Catálogo de `evento_atendimento.tipo` (modelo de dados, §4). */",,,,,,
+packages-core-comment-ade8046d,packages-core,packages/core/src/metricas/metricas.teste.ts,164,164,line,0,"// Tempo na fila: C1 150s, C2 600s. C3 nunca foi atribuída.",,,,,,
+packages-core-comment-01b3317f,packages-core,packages/core/src/metricas/metricas.teste.ts,166,166,line,0,"// Até 1ª resposta: C1 60s, C2 240s. C3 nunca respondida.",,,,,,
+packages-core-comment-e1b80081,packages-core,packages/core/src/metricas/metricas.teste.ts,182,182,line,1,"// Atendimento: C1 990s, C2 960s. C3 fora por não ter 1ª resposta.",,,,,,
+packages-core-comment-ddf0f379,packages-core,packages/core/src/metricas/metricas.teste.ts,241,241,line,1,// Resposta carimbada antes da atribuição: não pode virar tempo negativo.,,,,,,
+packages-core-comment-ac83bfae,packages-core,packages/core/src/metricas/metricas.teste.ts,25,25,jsdoc,0,"/** Instante em UTC no dia de referência (segunda-feira, 02/03/2026). */",,,,,,
+packages-core-comment-74dda5fa,packages-core,packages/core/src/metricas/metricas.teste.ts,259,259,line,0,//  C: só o cliente falou → nenhuma troca completa,,,,,,
+packages-core-comment-1c11cae3,packages-core,packages/core/src/metricas/metricas.teste.ts,342,342,line,1,// C1 finalizada · C2 abandonada (inatividade com atribuição) · C3 perdida.,,,,,,
+packages-core-comment-f51ac765,packages-core,packages/core/src/metricas/metricas.teste.ts,354,354,line,0,// Dia cheio: 900s em 10 conversas (média 90s).,,,,,,
+packages-core-comment-10a99588,packages-core,packages/core/src/metricas/metricas.teste.ts,355,355,line,0,// Dia vazio: 600s em 2 conversas (média 300s).,,,,,,
+packages-core-comment-8352414c,packages-core,packages/core/src/metricas/metricas.teste.ts,39,45,jsdoc,2,"/**
+ * Três conversas com os cinco carimbos posicionados à mão.
+ *
+ *  C1 criada 10:00:00 · atribuída 10:02:30 · 1ª resposta 10:03:30 · encerrada 10:20:00
+ *  C2 criada 10:00:00 · atribuída 10:10:00 · 1ª resposta 10:14:00 · encerrada 10:30:00
+ *  C3 criada 10:00:00 · nunca atribuída · nunca respondida · encerrada 10:05:00
+ */",,,,,,
+packages-core-comment-94fad493,packages-core,packages/core/src/metricas/tempos.ts,1,10,jsdoc,5,"/**
+ * As cinco métricas de tempo da §2 da spec de métricas.
+ *
+ * Todas devolvem `{ valor, populacao, excluidas, soma }`: o denominador viaja
+ * junto do número, sempre.
+ *
+ * Regra comum a todas: intervalo negativo é dado inconsistente (evento fora de
+ * ordem), a conversa sai do denominador e entra em `excluidas`. Preferimos
+ * encolher a população a publicar tempo negativo ou zerado à força.
+ */",,,,,,
+packages-core-comment-1a3dc95c,packages-core,packages/core/src/metricas/tempos.ts,123,130,jsdoc,8,"/**
+ * Tempo de atendimento = `encerrada_em − primeira_resposta_em`.
+ * População: conversas que tiveram 1ª resposta (e já encerraram).
+ *
+ * É a métrica que a Blip embeleza descartando as conversas nunca respondidas.
+ * Aqui a fórmula é a mesma para ser comparável, mas `excluidas` sai junto e é
+ * obrigatória na tela.
+ */",,,,,,
+packages-core-comment-1941126c,packages-core,packages/core/src/metricas/tempos.ts,21,21,jsdoc,1,/** Tempo de resposta expõe também quantas conversas sustentaram os intervalos. */,,,,,,
+packages-core-comment-9f912111,packages-core,packages/core/src/metricas/tempos.ts,23,23,jsdoc,4,/** Conversas com pelo menos uma troca completa — a população da spec §2. */,,,,,,
+packages-core-comment-5c358883,packages-core,packages/core/src/metricas/tempos.ts,48,51,jsdoc,2,"/**
+ * Tempo na fila = `atribuida_em − criada_em`.
+ * População: conversas que chegaram a ser atribuídas.
+ */",,,,,,
+packages-core-comment-aa232a2d,packages-core,packages/core/src/metricas/tempos.ts,58,65,jsdoc,5,"/**
+ * Tempo até a 1ª resposta = `primeira_resposta_em − atribuida_em`.
+ * População: conversas que tiveram resposta do atendente.
+ *
+ * Conversa respondida sem nenhuma atribuição registrada não tem como entrar
+ * nesta fórmula e conta como excluída — o número fica ao lado da média,
+ * conforme a divergência declarada em §2.
+ */",,,,,,
+packages-core-comment-909b2d6d,packages-core,packages/core/src/metricas/tempos.ts,72,79,jsdoc,5,"/**
+ * Tempo total de espera do cliente.
+ * Com resposta: `primeira_resposta_em − criada_em`.
+ * Sem resposta: `encerrada_em − criada_em`.
+ * População: todas as conversas encerradas no período.
+ *
+ * Conversa ainda aberta e sem resposta não tem fim de espera e fica de fora.
+ */",,,,,,
+packages-core-comment-b77a16b2,packages-core,packages/core/src/metricas/tempos.ts,91,100,jsdoc,12,"/**
+ * Tempo de resposta = média dos intervalos ""mensagem do cliente → próxima
+ * mensagem do atendente"".
+ *
+ * Ambiguidade resolvida: a spec chama de população ""conversas com pelo menos uma
+ * troca completa"", mas a fórmula é média **de intervalos**. Para não quebrar a
+ * regra de §5 (soma ÷ contagem, nunca média de médias), o denominador de `valor`
+ * é a quantidade de intervalos, e a contagem de conversas viaja em
+ * `conversasConsideradas`. `excluidas` conta conversas sem troca completa.
+ */",,,,,,
+packages-core-comment-344bc658,packages-core,packages/core/src/score/motor.ts,1,12,jsdoc,13,"/**
+ * Motor de lead score — `2026-09-05-pipe-design.md` §4.2 e modelo de dados §5.
+ *
+ * `regra_score` (condição, peso, versão, ativa) produz `score_lead`
+ * (valor, faixa, explicação). A explicação é o array de `{regra, versao, pontos}`
+ * que produziu o número: é o que permite responder *por que* o lead tirou 62 e
+ * recalcular a base inteira quando a regra muda, sem perder o histórico.
+ *
+ * Determinismo é requisito, não desejo: mesma entrada, mesma saída, sempre.
+ * Por isso as regras são avaliadas em ordem estável de identificador, e não na
+ * ordem em que o banco devolveu as linhas.
+ */",,,,,,
+packages-core-comment-d353388e,packages-core,packages/core/src/score/motor.ts,125,125,jsdoc,1,/** Avalia uma condição folha contra os dados do lead. */,,,,,,
+packages-core-comment-680d3e8c,packages-core,packages/core/src/score/motor.ts,166,166,jsdoc,2,/** Avalia uma expressão (folha ou composta com E/OU). */,,,,,,
+packages-core-comment-e14d4c4f,packages-core,packages/core/src/score/motor.ts,175,175,jsdoc,1,/** Encontra a faixa do valor. Faixas ordenadas por mínimo; `maximo` é inclusivo. */,,,,,,
+packages-core-comment-a312be02,packages-core,packages/core/src/score/motor.ts,186,194,jsdoc,12,"/**
+ * Calcula o score de um lead.
+ *
+ * - Regra inativa não é avaliada nem aparece na explicação.
+ * - Só regra que casou entra na explicação — é a resposta para ""por que 62"".
+ * - A ordem da explicação é a ordem estável de `regra.id`, para o mesmo conjunto
+ *   de regras produzir exatamente o mesmo JSON qualquer que seja a ordem das
+ *   linhas devolvidas pelo banco.
+ */",,,,,,
+packages-core-comment-6762a37b,packages-core,packages/core/src/score/motor.ts,69,69,jsdoc,0,/** Versão de regra carimbada no `score_lead`. */,,,,,,
+packages-core-comment-1c53bd13,packages-core,packages/core/src/score/motor.ts,75,75,jsdoc,0,/** Trava o valor num intervalo. Desligado por padrão — peso negativo é legítimo. */,,,,,,
+packages-core-comment-4a3746e4,packages-core,packages/core/src/score/motor.ts,77,77,jsdoc,3,"/** Versão a carimbar. Sem ela, usa a maior versão entre as regras ativas. */",,,,,,
+packages-core-comment-441c3012,packages-core,packages/core/src/score/motor.ts,87,87,jsdoc,2,"/** Lê `campo` com caminho por ponto (contato.email), sem depender de biblioteca. */",,,,,,
+packages-core-comment-2f764a19,packages-core,packages/core/src/score/motor.ts,97,97,jsdoc,3,"/** Texto comparável: sem acento, sem caixa, sem espaço nas pontas. */",,,,,,
+packages-core-comment-b35804bb,packages-core,packages/core/src/score/score.teste.ts,14,17,jsdoc,3,"/**
+ * Faixas do dia 1, espelhando o corte do webhook n8n `kq4lU8aFv5CKNpvr`:
+ * 60 ou mais vai para closer, abaixo disso para o Comercial.
+ */",,,,,,
+packages-core-comment-e4be48d3,packages-core,packages/core/src/score/score.teste.ts,237,237,line,2,// A maior versão entre as regras ativas é a carimbada no score_lead.,,,,,,
+packages-core-comment-9351fe38,packages-core,packages/core/src/score/score.teste.ts,259,259,line,3,"// r3 casaria com ana@empresa.com.br, mas está inativa.",,,,,,
+packages-core-comment-bcb30294,packages-core,packages/core/src/score/score.teste.ts,52,52,line,1,// desligada: não pode entrar no cálculo nem na explicação,,,,,,
+packages-core-comment-dc5629f9,packages-core,packages/core/src/score/score.teste.ts,75,75,line,2,// acento e caixa não podem quebrar a comparação,,,,,,
+packages-core-comment-2338a918,packages-core,packages/core/src/sla/expediente.ts,1,12,jsdoc,8,"/**
+ * Horário de atendimento — §10 da spec de métricas e `horario_atendimento` /
+ * `horario_faixa` / `horario_excecao` do modelo de dados (§4).
+ *
+ * Expediente por fila, com fuso do tenant e exceções por feriado. Conversa que
+ * chega fora do expediente entra na fila com marcação própria e o relógio de SLA
+ * só começa a correr na abertura seguinte — senão todo SLA estoura durante a
+ * madrugada.
+ *
+ * Zero dependência: a conversão de fuso usa `Intl.DateTimeFormat`, que já vem no
+ * runtime. Nada de biblioteca de data.
+ */",,,,,,
+packages-core-comment-b9b7b27f,packages-core,packages/core/src/sla/expediente.ts,106,106,line,2,// Zera os milissegundos dos dois lados para o deslocamento sair exato.,,,,,,
+packages-core-comment-97cead0f,packages-core,packages/core/src/sla/expediente.ts,110,115,jsdoc,6,"/**
+ * Instante absoluto de uma data-hora local do tenant.
+ *
+ * Duas passadas: a primeira estima o deslocamento, a segunda corrige quando a
+ * estimativa caiu do outro lado de uma virada de horário de verão.
+ */",,,,,,
+packages-core-comment-dcb3bebf,packages-core,packages/core/src/sla/expediente.ts,129,129,jsdoc,2,/** `HH:MM` para minutos desde a meia-noite. Aceita `24:00`. */,,,,,,
+packages-core-comment-dc544108,packages-core,packages/core/src/sla/expediente.ts,15,15,jsdoc,1,"/** 0 = domingo … 6 = sábado, igual a `Date.prototype.getUTCDay`. */",,,,,,
+packages-core-comment-afeb87b6,packages-core,packages/core/src/sla/expediente.ts,164,167,jsdoc,2,"/**
+ * Faixas de expediente de um dia do calendário local, em minutos do dia.
+ * Exceção do dia manda sobre a faixa semanal — é assim que feriado funciona.
+ */",,,,,,
+packages-core-comment-2940ef77,packages-core,packages/core/src/sla/expediente.ts,180,180,line,1,// Exceção aberta sem horário próprio cai no expediente normal do dia.,,,,,,
+packages-core-comment-b12833d5,packages-core,packages/core/src/sla/expediente.ts,19,19,jsdoc,0,/** `HH:MM` no fuso do tenant. `24:00` é meia-noite do dia seguinte. */,,,,,,
+packages-core-comment-c5f70dfe,packages-core,packages/core/src/sla/expediente.ts,196,199,jsdoc,1,"/**
+ * Intervalos de expediente entre dois instantes, já em tempo absoluto.
+ * `horario` nulo significa atendimento ininterrupto (24×7).
+ */",,,,,,
+packages-core-comment-a0d655b6,packages-core,packages/core/src/sla/expediente.ts,210,210,line,4,// Começa um dia antes para não perder faixa que já estava correndo.,,,,,,
+packages-core-comment-213be41a,packages-core,packages/core/src/sla/expediente.ts,236,236,jsdoc,3,/** Remove das faixas o que estiver coberto por uma espera. */,,,,,,
+packages-core-comment-6595895f,packages-core,packages/core/src/sla/expediente.ts,270,273,jsdoc,0,"/**
+ * Segundos úteis entre dois instantes, descontando as esperas.
+ * É o ""decorrido"" do SLA.
+ */",,,,,,
+packages-core-comment-56cd5734,packages-core,packages/core/src/sla/expediente.ts,283,290,jsdoc,9,"/**
+ * Avança `segundos` de tempo útil a partir de `de`, pulando o que está fora do
+ * expediente e o que está em espera.
+ *
+ * Devolve `null` quando o prazo não cabe em `LIMITE_DIAS_VARREDURA` dias — é o
+ * caso de expediente vazio ou de espera aberta sem fim: prazo indefinido é
+ * informação, não erro silencioso.
+ */",,,,,,
+packages-core-comment-aa59c1a0,packages-core,packages/core/src/sla/expediente.ts,299,299,line,2,// Janelas crescentes: o caso comum resolve em dois dias e não paga a varredura,,,,,,
+packages-core-comment-54508546,packages-core,packages/core/src/sla/expediente.ts,317,320,jsdoc,3,"/**
+ * Primeiro instante de expediente a partir de `instante` (ele mesmo, se já
+ * estiver dentro). É a ""abertura seguinte"" da §10.
+ */",,,,,,
+packages-core-comment-41edda58,packages-core,packages/core/src/sla/expediente.ts,334,334,jsdoc,1,/** Está dentro do expediente neste instante? */,,,,,,
+packages-core-comment-56e4525b,packages-core,packages/core/src/sla/expediente.ts,44,44,jsdoc,1,/** Janela em que o relógio fica parado (conversa aguardando o cliente). */,,,,,,
+packages-core-comment-53041893,packages-core,packages/core/src/sla/expediente.ts,52,52,jsdoc,3,"/** Teto de varredura, para horário sem nenhuma faixa não virar laço infinito. */",,,,,,
+packages-core-comment-20e3204e,packages-core,packages/core/src/sla/expediente.ts,83,83,jsdoc,0,/** Quebra um instante nas partes de calendário do fuso do tenant. */,,,,,,
+packages-core-comment-87f6e62e,packages-core,packages/core/src/sla/expediente.ts,90,90,line,2,"// Alguns runtimes devolvem ""24"" para meia-noite com hour12:false.",,,,,,
+packages-core-comment-423b9845,packages-core,packages/core/src/sla/regra.ts,1,8,jsdoc,3,"/**
+ * SLA — §11 da spec de métricas.
+ *
+ * Uma regra de SLA tem alvo (tempo até 1ª resposta, tempo de resposta, ou tempo
+ * até encerramento), prazo, escopo e duas ações: uma no limiar de alerta, outra
+ * no estouro. O relógio respeita o horário de atendimento da fila e **pausa**
+ * enquanto a conversa aguarda o cliente.
+ */",,,,,,
+packages-core-comment-ccdf5154,packages-core,packages/core/src/sla/regra.ts,101,101,jsdoc,1,/** Marcos mínimos para escolher o início do relógio conforme o alvo. */,,,,,,
+packages-core-comment-372b5158,packages-core,packages/core/src/sla/regra.ts,107,107,jsdoc,2,/** Última mensagem do cliente ainda sem resposta — início do alvo `tempo_resposta`. */,,,,,,
+packages-core-comment-1d9f1f90,packages-core,packages/core/src/sla/regra.ts,111,118,jsdoc,7,"/**
+ * De onde o relógio parte, por alvo.
+ *
+ * - `primeira_resposta`: da atribuição, para bater com a métrica de §2; sem
+ *   atribuição, da criação — conversa parada na fila também consome SLA.
+ * - `tempo_resposta`: da última mensagem do cliente ainda sem resposta.
+ * - `encerramento`: da criação.
+ */",,,,,,
+packages-core-comment-ffb83829,packages-core,packages/core/src/sla/regra.ts,132,132,jsdoc,1,/** Quando o alvo é considerado cumprido. */,,,,,,
+packages-core-comment-d3bcd64c,packages-core,packages/core/src/sla/regra.ts,36,36,jsdoc,2,"/** Quando o relógio começou a valer (criação, atribuição ou última entrada do cliente). */",,,,,,
+packages-core-comment-28eb084a,packages-core,packages/core/src/sla/regra.ts,38,38,jsdoc,0,/** Instante da avaliação. */,,,,,,
+packages-core-comment-e7a32408,packages-core,packages/core/src/sla/regra.ts,42,42,jsdoc,2,/** Períodos em que a conversa aguardava o cliente. Pausam o relógio. */,,,,,,
+packages-core-comment-bd03f537,packages-core,packages/core/src/sla/regra.ts,51,51,jsdoc,1,"/** Tempo útil já gasto, em segundos. */",,,,,,
+packages-core-comment-75f5d7a8,packages-core,packages/core/src/sla/regra.ts,53,53,jsdoc,2,/** Quanto ainda cabe no prazo. Zero quando estourou. */,,,,,,
+packages-core-comment-bdc31a61,packages-core,packages/core/src/sla/regra.ts,57,57,jsdoc,2,/** Instante absoluto do alerta. `null` sem limiar de alerta ou quando indefinido. */,,,,,,
+packages-core-comment-77e9c67c,packages-core,packages/core/src/sla/regra.ts,59,59,jsdoc,3,"/** Quando o relógio de fato começou a correr — a abertura seguinte, se chegou fora do expediente. */",,,,,,
+packages-core-comment-d0617c23,packages-core,packages/core/src/sla/regra.ts,63,70,jsdoc,10,"/**
+ * Estado e prazo de um SLA.
+ *
+ * `prazoEm` sai `null` quando o instante do estouro é indefinido: expediente sem
+ * nenhuma faixa, prazo além do horizonte de varredura, ou espera ainda aberta —
+ * enquanto a conversa aguarda o cliente, não há data de estouro a prometer. O
+ * `estado` continua sendo calculado pelo decorrido, que é o que a tela mostra.
+ */",,,,,,
+packages-core-comment-f65160eb,packages-core,packages/core/src/sla/sla.teste.ts,100,100,line,0,// Sábado → abre na segunda seguinte.,,,,,,
+packages-core-comment-414c1f63,packages-core,packages/core/src/sla/sla.teste.ts,121,121,line,0,// 17:30 de segunda até 09:30 de terça: 30 min de segunda + 30 min de terça.,,,,,,
+packages-core-comment-1b479145,packages-core,packages/core/src/sla/sla.teste.ts,132,132,line,0,// 11:30 → 13:30 local: 30 min antes do almoço + 30 min depois.,,,,,,
+packages-core-comment-3783cc68,packages-core,packages/core/src/sla/sla.teste.ts,175,175,line,0,"// Começa às 17:30 local: 30 min cabem na segunda, os outros 30 caem às 09:30 de terça.",,,,,,
+packages-core-comment-04db5b8f,packages-core,packages/core/src/sla/sla.teste.ts,177,177,line,0,// Chegou de madrugada: o relógio só começa às 09:00 local.,,,,,,
+packages-core-comment-fe51b9b5,packages-core,packages/core/src/sla/sla.teste.ts,179,179,line,0,"// Sexta às 17:30 → 30 min na sexta, resto na segunda.",,,,,,
+packages-core-comment-a1ca7047,packages-core,packages/core/src/sla/sla.teste.ts,18,24,jsdoc,4,"/**
+ * Expediente comercial de segunda a sexta, 09:00–18:00, no fuso do tenant.
+ * São Paulo está em UTC−3 o ano inteiro desde 2019, então 09:00 local = 12:00Z.
+ *
+ * Datas de referência (todas de 2026):
+ *   02/03 segunda · 03/03 terça · 04/03 quarta · 07/03 sábado · 08/03 domingo
+ */",,,,,,
+packages-core-comment-e4b8b378,packages-core,packages/core/src/sla/sla.teste.ts,182,182,line,2,// 40 horas úteis a partir de segunda 09:00: 9h por dia de segunda a quinta,,,,,,
+packages-core-comment-17eb0da8,packages-core,packages/core/src/sla/sla.teste.ts,196,196,line,0,"// 17:30 de segunda, prazo de 1h: 30 min na segunda; terça é feriado; sobra",,,,,,
+packages-core-comment-095534ee,packages-core,packages/core/src/sla/sla.teste.ts,197,197,line,0,"// meia hora na quarta, às 09:30 local = 12:30Z.",,,,,,
+packages-core-comment-57f16dd2,packages-core,packages/core/src/sla/sla.teste.ts,245,245,line,2,// Chegou às 02:00 local de terça; às 08:00 local o relógio ainda não começou.,,,,,,
+packages-core-comment-ce14b5c6,packages-core,packages/core/src/sla/sla.teste.ts,37,37,jsdoc,1,"/** Expediente partido: 09:00–12:00 e 13:00–18:00, com almoço fora. */",,,,,,
+packages-core-comment-c7214651,packages-core,packages/core/src/sla/sla.teste.ts,58,58,line,0,// sábado,,,,,,
+packages-core-comment-f5a819a2,packages-core,packages/core/src/sla/sla.teste.ts,79,79,line,0,// sábado,,,,,,
+packages-core-comment-60c6af41,packages-core,packages/core/src/sla/sla.teste.ts,94,94,line,1,// Dentro do expediente: a abertura é o próprio instante.,,,,,,
+packages-core-comment-507c476a,packages-core,packages/core/src/sla/sla.teste.ts,96,96,line,0,// Madrugada de segunda → abre às 09:00 local da própria segunda.,,,,,,
+packages-core-comment-56a4ef3e,packages-core,packages/core/src/sla/sla.teste.ts,98,98,line,0,// Depois do fechamento de segunda → abre na terça.,,,,,,
+packages-core-comment-b985770e,packages-core,packages/core/src/telefone/index.ts,1,23,jsdoc,24,"/**
+ * Portado de chatwoot/chatwoot (MIT):
+ * - app/services/whatsapp/phone_normalizers/base_phone_normalizer.rb
+ * - app/services/whatsapp/phone_normalizers/brazil_phone_normalizer.rb
+ * - `phone_number_candidates` de app/services/whatsapp/phone_number_normalization_service.rb
+ *
+ * O nono dígito do Brasil. Em 2012–2016 a Anatel pôs um ""9"" na frente de todo
+ * celular, e o mesmo cliente existe nas duas formas: na planilha antiga, no
+ * cadastro de outro sistema e — o caso que mais custa — no `wa_id` que a própria
+ * Meta manda, que em conta antiga ainda vem sem o 9.
+ *
+ * A regra do original, e a razão de ela ser estreita: o 9 só entra em número de
+ * oito dígitos que começa com 6, 7, 8 ou 9 (a faixa antiga de celular). Fixo
+ * começa com 2 a 5 e fica como está — pôr um 9 num fixo é criar o telefone de
+ * outra pessoa.
+ *
+ * Só o Brasil, dos três países do original. A lista de normalizadores é a
+ * estrutura de lá justamente para Argentina e México entrarem acrescentando, e
+ * não reescrevendo.
+ *
+ * `paraE164`, no fim, NÃO é porte: é o que o Pipe acrescenta para telefone
+ * digitado por gente (CSV de planilha brasileira).
+ */",,,,,,
+packages-core-comment-0078d3d4,packages-core,packages/core/src/telefone/index.ts,28,28,jsdoc,1,/** `normalize`: a forma canônica. */,,,,,,
+packages-core-comment-677ec41e,packages-core,packages/core/src/telefone/index.ts,30,30,jsdoc,3,"/** `variants`: as formas em que o contato pode já estar guardado, a canônica primeiro. */",,,,,,
+packages-core-comment-70545776,packages-core,packages/core/src/telefone/index.ts,32,32,jsdoc,2,"/** `contact_candidates`: a forma recebida primeiro, para o casamento exato ganhar. */",,,,,,
+packages-core-comment-592a40a0,packages-core,packages/core/src/telefone/index.ts,64,64,jsdoc,2,"/** O espelho de `normalizar`: tira o 9 só quando o que sobra é faixa antiga de celular, nunca fixo. */",,,,,,
+packages-core-comment-d7291ad2,packages-core,packages/core/src/telefone/index.ts,83,83,jsdoc,3,"/** `phone_number_candidates`: sem normalizador para o país, só a própria forma. */",,,,,,
+packages-core-comment-86aac898,packages-core,packages/core/src/telefone/index.ts,94,94,jsdoc,2,"/** O formato que o `Contact` do Chatwoot valida: `/\A\+[1-9]\d{1,14}\z/`. */",,,,,,
+packages-core-comment-139dc38f,packages-core,packages/core/src/telefone/index.ts,97,107,jsdoc,8,"/**
+ * Telefone como gente digita → E.164 canônico. Acréscimo do Pipe.
+ *
+ * - tira espaço, hífen, ponto e parêntese;
+ * - sem `+`, tira o zero de tronco da frente, e número com 10 ou 11 dígitos
+ *   (DDD + telefone, a forma brasileira de escrever) ganha o DDI padrão;
+ * - aplica o nono dígito.
+ *
+ * Não valida: quem valida é `FORMATO_E164`, para a recusa sair com o motivo.
+ * Vazio devolve `null` — ""sem telefone"" é diferente de ""telefone inválido"".
+ */",,,,,,

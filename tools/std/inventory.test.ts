@@ -45,6 +45,25 @@ test('lista dependentes de rota por arquivo e tipo', () => {
     { fileName: 'apps/gestao-vite/src/App.tsx', sourceText: 'const x = <Routes><Route path="/fluxo/:id/contatos" element={<div />} /></Routes>;' },
     { fileName: 'apps/gestao-vite/src/nav.ts', sourceText: 'navigate(`/fluxo/${id}/contatos`);' },
     { fileName: 'apps/gestao-vite/tests/nav.test.ts', sourceText: "assert.equal(path, '/fluxo/x/contatos');" },
+    { fileName: 'apps/gestao-vite/src/unrelated.ts', sourceText: "const root = '/'; const parent = '/fluxo'; const other = '/configuracoes/api';" },
   );
   assert.deepEqual(result.routeDependents.map((item) => item.kind).sort(), ['navigate', 'test']);
+});
+
+test('captura nomes tecnicos em constantes e agendadores sem casar nomes proximos', () => {
+  const result = run({ fileName: 'apps/api/src/filas.ts', sourceText: "const FILA_ENTRADA = 'pipe-entrada'; const FILA_ENTRADA_EXTRA = 'other'; const COOKIE_SESSAO = 'pipe_sessao'; fila.upsertJobScheduler('varredura-outbox', {}, {}); const AJUDA = { pipe_fila_profundidade: 'x' };" });
+  for (const [kind, old] of [['queue', 'pipe-entrada'], ['cookie', 'pipe_sessao'], ['job-name', 'varredura-outbox'], ['metric', 'pipe_fila_profundidade']]) {
+    assert.ok(result.rows.some((row) => row.kind === kind && row.old === old));
+  }
+  assert.equal(result.rows.some((row) => row.kind === 'queue' && row.old === 'other'), false);
+});
+
+test('liga sufixo de rota a construtor com base dinamica sem aceitar prefixo curto', () => {
+  const result = run(
+    { fileName: 'apps/gestao-vite/src/App.tsx', sourceText: 'const x = <Routes><Route path="/fluxo/:id"><Route path="analise/dicionario-de-dados" element={<div />} /></Route></Routes>;' },
+    { fileName: 'apps/gestao-vite/src/nav.ts', sourceText: 'const url = `${baseDoContato("fluxo", id)}/analise/dicionario-de-dados`; const near = "/fluxo";' },
+  );
+  const route = result.rows.find((row) => row.kind === 'front-route' && row.old.includes('dicionario-de-dados'));
+  assert.ok(route);
+  assert.equal(result.routeDependents.filter((item) => item.route_row_id === route.id).length, 1);
 });

@@ -1,0 +1,249 @@
+id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
+ponte-comment-51dec0db,ponte,apps/ponte/src/acoes.ts,104,112,jsdoc,14,"/**
+ * Encerrar exige etiqueta — conversa fechada sem motivo é relatório que não explica
+ * nada depois, e a regra já valia na tela de origem.
+ *
+ * A tela manda os nomes das etiquetas escolhidas. Se vier vazia, usamos a primeira
+ * do cliente; se o cliente ainda não tem nenhuma, criamos ""Encerrado pelo atendente""
+ * — nascer sem etiqueta é comum em empresa nova, e travar o encerramento por isso
+ * seria pior do que registrar um motivo genérico.
+ */",,,,,,
+ponte-comment-5198f7f7,ponte,apps/ponte/src/acoes.ts,20,20,jsdoc,1,"/** O ator de uma ação vinda da tela: o atendente logado, agindo por si. */",,,,,,
+ponte-comment-e87c0ed0,ponte,apps/ponte/src/acoes.ts,26,27,block,3,"/* Assumir NÃO é transferir para si: transferência encerra a conversa e abre outra
+     (é o modelo da plataforma de origem). Ver `dominio/assumir.ts`. */",,,,,,
+ponte-comment-49492986,ponte,apps/ponte/src/acoes.ts,31,31,jsdoc,2,/** Pega o próximo da fila: o mais antigo entre as filas de quem está pedindo. */,,,,,,
+ponte-comment-d74d5e1d,ponte,apps/ponte/src/acoes.ts,50,54,jsdoc,10,"/**
+ * A tela manda a mensagem para uma IDENTIDADE (`5531988887777@wa.gw.msging.net`),
+ * não para uma conversa — é assim que o protocolo dela funciona. Aqui a identidade
+ * vira conversa: a aberta daquele telefone.
+ */",,,,,,
+ponte-comment-a72fa5e0,ponte,apps/ponte/src/acoes.ts,8,18,jsdoc,13,"/**
+ * O que o atendente FAZ na tela: assumir, responder, transferir e encerrar.
+ *
+ * Nada aqui reimplementa regra. Cada ação chama a função de domínio que a `apps/api`
+ * já usa, com a mesma máquina de estados, os mesmos eventos e os mesmos limites. A
+ * ponte só traduz o vocabulário da tela para o do Pipe.
+ *
+ * **Assumir é transferir para si.** Parece atalho, mas é o contrário: assumir tem as
+ * mesmas regras de transferência (estado válido, fila, capacidade), e escrever um
+ * caminho próprio seria duplicar a máquina de estados só para economizar uma linha.
+ */",,,,,,
+ponte-comment-74879ec3,ponte,apps/ponte/src/acoes.ts,84,85,block,4,"/* `dentroDaJanela` sobe junto porque fora da janela de 24h a Meta só entrega
+     template: a tela precisa saber disso para avisar quem escreveu. */",,,,,,
+ponte-comment-91b8497a,ponte,apps/ponte/src/banco.ts,30,34,jsdoc,5,"/**
+ * Roda o trabalho com o tenant fixado. Dentro do callback as consultas vão **em
+ * série**: `Promise.all` aqui derruba o `set_config` da transação e a consulta passa
+ * a rodar sem tenant. É a mesma armadilha registrada na `apps/api`.
+ */",,,,,,
+ponte-comment-c6ffaf7d,ponte,apps/ponte/src/banco.ts,4,11,jsdoc,9,"/**
+ * Duas conexões, dois papéis — a mesma divisão da `apps/api`.
+ *
+ * Tudo que é dado de negócio passa por `noTenant`, com `pipe.tenant_id` fixado e a
+ * RLS valendo. O papel dono existe para UMA coisa: resolver a sessão do cookie, que
+ * é justamente o que precisa acontecer **antes** de haver tenant em vigor. Nenhuma
+ * outra consulta usa o papel dono.
+ */",,,,,,
+ponte-comment-749b8c4a,ponte,apps/ponte/src/builder.ts,11,47,jsdoc,50,"/**
+ * O Builder salvando e publicando de verdade.
+ *
+ * A tela do cliente é a cópia da Blip, e o Builder dela guarda o desenho em dois
+ * baldes: o mapa de estados (`builder_working_flow`) e as ações globais
+ * (`builder_working_global_actions`). Publicar é gravar o fluxo compilado dentro da
+ * ""Application"". Aqui esses baldes passam a ser o banco do Pipe — pelo MESMO
+ * domínio que a tela do Builder da Gestão usa (`apps/api/src/dominio/gestao/
+ * builder-do-fluxo.ts`): um rascunho por fluxo, gravado por cima a cada salvar;
+ * publicar promove o rascunho e arquiva a versão anterior.
+ *
+ * ## Qual fluxo
+ *
+ * A cópia abre o Builder ""do bot"", e o bot é a conexão: nenhum comando LIME dela
+ * carrega o id do fluxo — os buckets são `blip_portal:builder_working_flow`, sem
+ * qualificador, e a ponte roda para UM tenant (`PIPE_PONTE_TENANT_ID`). Então a
+ * ponte também edita UM fluxo, escolhido assim:
+ *
+ * 1. `PIPE_PONTE_FLUXO_ID`, quando definido — o id de um fluxo (tipo `fluxo`,
+ *    não arquivado) do tenant, para apontar a cópia para o contato que se quer
+ *    editar;
+ * 2. senão, o fluxo chamado `Fluxo do Builder`, criado na primeira vez — o
+ *    comportamento de antes, para o laboratório continuar funcionando sem
+ *    configuração nova.
+ *
+ * Trocar isso por fluxo-por-sessão exigiria o laboratório mandar o id do bot em
+ * cada comando (a cópia não manda), e fica para quando a tela for nossa — que é a
+ * tela da Gestão, já ligada nas rotas por fluxo.
+ *
+ * ## Permissão
+ *
+ * O domínio confere `automacao.fluxo.editar` para ler e salvar e
+ * `automacao.fluxo.publicar` para publicar, como faz para a Gestão. A pessoa que
+ * a cópia representa (`PIPE_PONTE_EMAIL`) precisa tê-las — o administrador do
+ * tenant tem as duas. Sem elas a resposta é a falha LIME com a frase do domínio,
+ * e não um desenho que parece salvo e não está.
+ */",,,,,,
+ponte-comment-51731867,ponte,apps/ponte/src/builder.ts,115,115,jsdoc,2,"/** O fluxo foi gravado, mas o motor recusaria rodar — e por isso não publicou. */",,,,,,
+ponte-comment-f45f43cc,ponte,apps/ponte/src/builder.ts,119,124,jsdoc,8,"/**
+ * Grava o desenho do cliente. `publicar: false` deixa em rascunho — é o ""salvar""
+ * do Builder, que acontece a cada alteração; `true` é o botão de publicar, e só
+ * então o motor passa a executar o fluxo novo. Inválido grava e não publica: a
+ * frase do motor volta em `erroDeValidacao`, para a tela mostrar.
+ */",,,,,,
+ponte-comment-c23201fb,ponte,apps/ponte/src/builder.ts,49,49,jsdoc,3,"/** O fluxo de reserva, quando `PIPE_PONTE_FLUXO_ID` não aponta para um. */",,,,,,
+ponte-comment-a258c346,ponte,apps/ponte/src/builder.ts,52,52,jsdoc,3,/** Uma vez por processo: o fluxo não muda enquanto a ponte roda. */,,,,,,
+ponte-comment-bea4295b,ponte,apps/ponte/src/builder.ts,55,55,jsdoc,2,"/** O id do fluxo que a cópia edita — resolvendo (e criando, se preciso) na primeira chamada. */",,,,,,
+ponte-comment-0fda4b97,ponte,apps/ponte/src/builder.ts,89,93,jsdoc,9,"/**
+ * Devolve o mapa do editor — o rascunho, a publicada, ou o fluxo padrão quando o
+ * cliente ainda não desenhou nada (o domínio já devolve o padrão; e um rascunho
+ * gravado vazio também abre com o padrão, para a tela nunca abrir em branco).
+ */",,,,,,
+ponte-comment-6173f379,ponte,apps/ponte/src/fluxo-padrao.ts,1,7,jsdoc,9,"/**
+ * O fluxo padrão do Builder mora em `@pipe/core` (`fluxo/padrao.ts`) desde que a
+ * tela do Builder da Gestão passou a servi-lo também (`GET /v1/gestao/fluxos/:id/
+ * builder`). Este arquivo fica como reexportação para quem já importava daqui — o
+ * teste `tests/fluxo-padrao.test.ts` inclusive, que continua provando que o padrão
+ * é publicável sem mexer em nada.
+ */",,,,,,
+ponte-comment-ee36a012,ponte,apps/ponte/src/lime.ts,1,12,jsdoc,13,"/**
+ * Os envelopes do protocolo LIME, do jeito que a tela da Blip espera receber.
+ *
+ * A cópia não fala REST: ela manda comandos `{ id, method, to, uri }` e lê
+ * `{ status, type, resource }`. O `type` não é enfeite — a tela escolhe o
+ * componente pelo content type (`application/vnd.iris.ticket+json` monta cartão de
+ * atendimento; `application/vnd.lime.collection+json` monta lista). Responder com
+ * o tipo errado faz a tela montar a coisa errada, ou nada.
+ *
+ * Os nomes e os valores aqui são os que o cliente lê; por isso ficam em inglês,
+ * como no protocolo. O resto do arquivo é nosso e fica em português.
+ */",,,,,,
+ponte-comment-f3a6126a,ponte,apps/ponte/src/lime.ts,39,43,jsdoc,5,"/**
+ * Coleção no formato do protocolo. `total` é o total da CONSULTA, não da página:
+ * a tela usa esse número no contador (""3 clientes aguardando""), e mandar o tamanho
+ * da página faz o contador mentir assim que a lista passar de uma página.
+ */",,,,,,
+ponte-comment-2bbcf7f7,ponte,apps/ponte/src/lime.ts,59,63,jsdoc,5,"/**
+ * Recurso ausente. O código 67 é o que a Blip devolve, e as telas tratam ele de
+ * propósito: o Builder, por exemplo, lê 67 como ""ainda não existe fluxo salvo"" e
+ * segue para o caminho de criar um. Trocar por 404 genérico quebraria esse desvio.
+ */",,,,,,
+ponte-comment-ae36b948,ponte,apps/ponte/src/rotas.ts,105,106,block,3,"/* Responder NÃO é comando: a tela usa `sendMessage` no cliente, e o laboratório
+   converte aquela chamada nesta URI, que é nossa. */",,,,,,
+ponte-comment-56234feb,ponte,apps/ponte/src/rotas.ts,110,110,block,1,/* ---- vida e relógio: a tela pergunta o tempo todo ---- */,,,,,,
+ponte-comment-43ffce94,ponte,apps/ponte/src/rotas.ts,115,117,block,4,"/* ---- ações do atendente, antes das rotas de leitura de ticket ----
+     A ordem importa: `/tickets/{id}/close` também casa com o padrão de
+     `/tickets/{id}`, e quem chega primeiro responde. */",,,,,,
+ponte-comment-f94bc6cc,ponte,apps/ponte/src/rotas.ts,122,122,line,3,"// Sem ninguém na fila, a tela espera coleção vazia, não erro.",,,,,,
+ponte-comment-0ace4d3c,ponte,apps/ponte/src/rotas.ts,142,144,block,8,"/* A tela usa este comando para encerrar (status começando em `Closed`) e para
+         outras mudanças que ainda não traduzimos. O que não for encerramento
+         responde vazio, em vez de virar operação errada no banco. */",,,,,,
+ponte-comment-b0446643,ponte,apps/ponte/src/rotas.ts,156,156,line,4,// Transferir para pessoa específica ainda não: só para fila.,,,,,,
+ponte-comment-463e1e81,ponte,apps/ponte/src/rotas.ts,16,22,jsdoc,8,"/**
+ * O roteador de comandos LIME.
+ *
+ * Desenho central: **rota que ainda não existe aqui devolve `null`**, e o laboratório
+ * cai de volta no mock. É o que permite migrar a cópia comando a comando sem nunca
+ * deixar a tela quebrada no meio do caminho.
+ */",,,,,,
+ponte-comment-e040557b,ponte,apps/ponte/src/rotas.ts,170,171,block,7,"/* A tela manda para uma identidade, não para uma conversa: quando vier assim,
+         resolvemos qual conversa aberta é daquele telefone. */",,,,,,
+ponte-comment-e8404752,ponte,apps/ponte/src/rotas.ts,179,179,block,1,/* ---- quem está logado ---- */,,,,,,
+ponte-comment-e238d777,ponte,apps/ponte/src/rotas.ts,193,194,block,4,"/* A tela usa `isOwner` para liberar os itens de administração da barra.
+           Mandar `false` para quem é administrador some com metade da navbar. */",,,,,,
+ponte-comment-4fa1faae,ponte,apps/ponte/src/rotas.ts,256,258,block,3,"/* ---- a conversa aberta ----
+     O Desk pede `/tickets//messages` (com id vazio) num instante da abertura; o
+     original responde coleção vazia em vez de erro, e a tela segue. */",,,,,,
+ponte-comment-6a1c786c,ponte,apps/ponte/src/rotas.ts,314,314,block,0,/* ---- Builder: o cliente desenhando o próprio fluxo ---- */,,,,,,
+ponte-comment-4966d7f7,ponte,apps/ponte/src/rotas.ts,355,356,block,1,"/* Publicar fluxo inválido não pode passar em silêncio: o motor recusaria
+         rodar, e quem clicou em publicar precisa saber. */",,,,,,
+ponte-comment-2ad3d010,ponte,apps/ponte/src/rotas.ts,364,367,jsdoc,4,"/**
+ * Devolve `null` quando a ponte ainda não sabe responder — e aí o laboratório usa o
+ * mock. Nunca devolve dado inventado no lugar.
+ */",,,,,,
+ponte-comment-b5f47a73,ponte,apps/ponte/src/rotas.ts,40,40,jsdoc,2,/** Uma rota declara os métodos que aceita. O padrão é só leitura. */,,,,,,
+ponte-comment-a322007e,ponte,apps/ponte/src/rotas.ts,64,64,jsdoc,1,/** Fila e atendimento em curso: é o que o Desk mostra na lista da esquerda. */,,,,,,
+ponte-comment-d81d18cf,ponte,apps/ponte/src/rotas.ts,79,81,block,7,"/* Todas as rotas com barra usam `new RegExp` com classe de caractere, e não literal
+   de expressão regular. Motivo prático: barra escapada não sobrevive às ferramentas
+   que editam este arquivo por script, e o arquivo já quebrou três vezes por isso. */",,,,,,
+ponte-comment-78f7001b,ponte,apps/ponte/src/rotas.ts,85,85,block,4,"/* Ancorada: sem isto ela casaria também com `/accounts/{email}`, que é outra coisa. */",,,,,,
+ponte-comment-027261dc,ponte,apps/ponte/src/rotas.ts,98,99,block,3,"/* Ações do atendente. As URIs são as que a tela dispara, levantadas do bundle e
+   registradas em `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md`. */",,,,,,
+ponte-comment-1e843bea,ponte,apps/ponte/src/servidor.ts,10,16,jsdoc,10,"/**
+ * A ponte: um endereço só, que recebe comando LIME e responde com dado do Pipe.
+ *
+ * Por que HTTP e não WebSocket: a cópia já foi desligada do WebSocket da Blip pelo
+ * laboratório — `boot-mock.js` monta um cliente falso cujo `processCommand` devolve
+ * promessa. Uma chamada HTTP encaixa nesse ponto sem tocar no bundle deles.
+ */",,,,,,
+ponte-comment-ce7339a9,ponte,apps/ponte/src/servidor.ts,18,24,jsdoc,14,"/**
+ * Autenticação de laboratório, e só.
+ *
+ * A cópia não tem login. Enquanto a tela for a cópia, o acesso é por rede fechada e
+ * a ponte confia numa chave de ambiente. **Isto não vai para a internet**: no dia em
+ * que a tela for nossa, quem manda é a sessão que a `apps/api` já emite.
+ */",,,,,,
+ponte-comment-d11cda91,ponte,apps/ponte/src/servidor.ts,59,61,block,5,"/* A cópia roda em 127.0.0.1:8787 (Desk) e :8790 (Gestão). A lista vem do
+     ambiente e nunca é curinga: mesmo em laboratório, curinga com credencial é
+     hábito que viaja para produção. */",,,,,,
+ponte-comment-46349bc9,ponte,apps/ponte/src/servidor.ts,82,86,jsdoc,7,"/**
+   * O comando chega exatamente como a tela o montou. A resposta `204` é o combinado
+   * com o laboratório: ""não sei responder, use o mock"". Erro de verdade volta como
+   * falha LIME, para a tela tratar como ela já sabe tratar.
+   */",,,,,,
+ponte-comment-b0e4ef78,ponte,apps/ponte/src/traducao.ts,1,8,jsdoc,13,"/**
+ * Tradução: linha do Pipe → objeto que a tela da Blip sabe desenhar.
+ *
+ * Regra que vale para o arquivo inteiro: **não inventar campo**. Onde a Blip tem um
+ * conceito que o Pipe não tem, ou o campo sai de fora (e fica anotado aqui), ou não
+ * sai. Preencher com palpite é pior do que não preencher: a tela mostra o palpite
+ * como se fosse dado do cliente.
+ */",,,,,,
+ponte-comment-6a0ee420,ponte,apps/ponte/src/traducao.ts,114,114,line,1,"// Sem roteador no Pipe: o ""dono"" do atendimento é o canal por onde ele entrou.",,,,,,
+ponte-comment-f47f7e08,ponte,apps/ponte/src/traducao.ts,12,12,jsdoc,2,/** Estados do Pipe → `status` que o Desk lê para separar fila de atendimento. */,,,,,,
+ponte-comment-5218d507,ponte,apps/ponte/src/traducao.ts,135,138,block,6,"/* Os três abaixo o Pipe não tem, e ainda assim precisam existir: a lista do
+       Desk lê esses campos ao montar cada cartão, e um deles faltando derruba a
+       lista inteira — foi o que aconteceu ao ligar a ponte. Valor neutro, nunca
+       inventado. */",,,,,,
+ponte-comment-82717182,ponte,apps/ponte/src/traducao.ts,151,151,line,3,// A prioridade do Pipe tem cinco degraus e a Blip não usa o mesmo,,,,,,
+ponte-comment-38ec9b32,ponte,apps/ponte/src/traducao.ts,152,152,line,1,"// vocabulário. Em vez de traduzir por aproximação, ela viaja como está.",,,,,,
+ponte-comment-f5466fa1,ponte,apps/ponte/src/traducao.ts,161,165,jsdoc,4,"/**
+ * Mensagem → documento LIME. A mensagem **interna** (nota entre atendentes) fica de
+ * fora: na Blip ela não é mensagem da conversa, é outro recurso. Entregá-la aqui
+ * faria a nota aparecer como se tivesse ido para o cliente.
+ */",,,,,,
+ponte-comment-cea27508,ponte,apps/ponte/src/traducao.ts,175,177,block,5,"/* `messageEmitter` só existe para o que SAIU: ele diz se quem falou foi gente ou
+       o robô. Em mensagem recebida o campo não tem sentido, e mandá-lo fazia a tela
+       rotular a fala do próprio cliente como ""Bot"". */",,,,,,
+ponte-comment-7111de33,ponte,apps/ponte/src/traducao.ts,193,193,jsdoc,0,/** `isOwner` no vocabulário da tela: libera os itens de administração da barra. */,,,,,,
+ponte-comment-998ab3bf,ponte,apps/ponte/src/traducao.ts,197,197,jsdoc,2,/** O `/account` do Desk. Sem `status` a tela quebra em `status.toLowerCase()`. */,,,,,,
+ponte-comment-008e0f70,ponte,apps/ponte/src/traducao.ts,21,21,jsdoc,2,/** `entrada` é o cliente falando; `saida` é a empresa. `interna` não é conversa. */,,,,,,
+ponte-comment-26339a8d,ponte,apps/ponte/src/traducao.ts,27,27,jsdoc,2,"/** Tipo do Pipe → content type, que é como a Blip decide o componente da bolha. */",,,,,,
+ponte-comment-9b8c352d,ponte,apps/ponte/src/traducao.ts,81,86,jsdoc,3,"/**
+ * Identidade no formato da Blip: o `@` do e-mail vira `%40` e o domínio da
+ * plataforma entra no fim. A tela usa isso como chave de comparação (""este ticket é
+ * meu?""), então precisa ser estável e única por pessoa — o e-mail serve às duas
+ * coisas.
+ */",,,,,,
+ponte-comment-b3584554,ponte,apps/ponte/src/traducao.ts,92,102,jsdoc,13,"/**
+ * O Desk mostra ""#"" do atendimento e deixa buscar por ele. O Pipe **não tem** número
+ * sequencial por tenant: a conversa é identificada por UUID.
+ *
+ * Enquanto a decisão não é tomada, o número sai do próprio UUID — determinístico,
+ * estável e único dentro do tenant na prática. Não é sequencial de verdade: não
+ * cresce com o tempo e não serve para dizer ""atendimento nº 4 do dia"".
+ *
+ * A saída definitiva é uma coluna `numero` com sequência por tenant, gravada na
+ * criação da conversa. Está registrado em `docs/specs/2026-09-12-ponte-lime.md`.
+ */",,,,,,
+ponte-comment-33f631bb,ponte,apps/ponte/tests/fluxo-padrao.test.ts,29,29,line,1,// `desk:` é o que faz o motor tratar o bloco como atendimento humano.,,,,,,
+ponte-comment-c7cac58d,ponte,apps/ponte/tests/fluxo-padrao.test.ts,5,11,jsdoc,10,"/**
+ * O fluxo padrão é a primeira coisa que o cliente vê no Builder. Se ele não for
+ * publicável, a primeira ação de quem entrou no produto é tomar um erro.
+ *
+ * Este teste existe porque isso aconteceu: a versão anterior não esperava entrada, e
+ * o motor recusou publicar com ""O estado raiz precisa esperar uma entrada"".
+ */",,,,,,
+ponte-comment-f3d3d0e0,ponte,apps/ponte/tests/traducao.test.ts,12,16,jsdoc,7,"/**
+ * A tradução é a parte da ponte que erra em silêncio: um campo com nome trocado não
+ * quebra nada, só faz a tela mostrar o dado errado do cliente. Por isso cada
+ * mapeamento tem teste.
+ */",,,,,,
+ponte-comment-13e2bd58,ponte,apps/ponte/tests/traducao.test.ts,125,125,line,3,"// Recebida não carrega emissor: com ele, a tela rotulava o cliente como robô.",,,,,,
+ponte-comment-636f85a9,ponte,apps/ponte/tests/traducao.test.ts,137,137,line,3,"// Sem papel de administrador, a barra lateral não mostra os itens de gestão.",,,,,,

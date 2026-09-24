@@ -1,0 +1,101 @@
+id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
+packages-tempo-real-comment-1ec0952f,packages-tempo-real,packages/tempo-real/src/index.ts,121,121,jsdoc,1,/** Qualquer coisa vinda do servidor — evento OU ping — adia a sentença de morte. */,,,,,,
+packages-tempo-real-comment-52cd39a0,packages-tempo-real,packages/tempo-real/src/index.ts,125,125,line,2,"// Não espera o `onclose`, que pode nunca chegar num socket meio-morto.",,,,,,
+packages-tempo-real-comment-31fa0af5,packages-tempo-real,packages/tempo-real/src/index.ts,129,129,block,2,/* fechar socket já morto não é problema */,,,,,,
+packages-tempo-real-comment-f891c80e,packages-tempo-real,packages/tempo-real/src/index.ts,137,137,line,2,// já há uma tentativa agendada,,,,,,
+packages-tempo-real-comment-9f6c1bf5,packages-tempo-real,packages/tempo-real/src/index.ts,162,162,line,3,// **A inscrição é reenviada a cada reconexão.** O servidor não guarda nada de,,,,,,
+packages-tempo-real-comment-f7b05baf,packages-tempo-real,packages/tempo-real/src/index.ts,163,163,line,2,// quem caiu: socket novo começa sem assunto nenhum e não entrega nada até isto.,,,,,,
+packages-tempo-real-comment-7d77dfab,packages-tempo-real,packages/tempo-real/src/index.ts,177,177,line,3,"// Quadro de controle não é evento: `ping`, `inscrito` e `recusado` não fazem a",,,,,,
+packages-tempo-real-comment-b724940e,packages-tempo-real,packages/tempo-real/src/index.ts,185,185,line,0,// `onerror` costuma vir seguido de `onclose`; `aoCair` é idempotente por conta,,,,,,
+packages-tempo-real-comment-966c24eb,packages-tempo-real,packages/tempo-real/src/index.ts,191,200,jsdoc,21,"/**
+   * Volta AGORA quando o navegador diz que dá para voltar.
+   *
+   * **A aba oculta NÃO desliga a ligação** — e isto mudou de ideia no meio do caminho.
+   * A intenção original era pausar com a aba escondida, até ficar claro que o atendente
+   * com o Desk numa aba de fundo é exatamente quem precisa ouvir a conversa nova
+   * chegando. O que a visibilidade faz aqui é outra coisa: se a ligação JÁ caiu e a
+   * pessoa volta para a aba, não faz sentido ela esperar os 30 s do backoff olhando
+   * uma tela velha.
+   */",,,,,,
+packages-tempo-real-comment-435650a4,packages-tempo-real,packages/tempo-real/src/index.ts,241,241,line,1,// `credentials` não se configura aqui: o navegador manda o cookie de sessão no,,,,,,
+packages-tempo-real-comment-995bce3a,packages-tempo-real,packages/tempo-real/src/index.ts,242,242,line,3,"// handshake de mesma origem-pai, que é como a API autentica a ligação.",,,,,,
+packages-tempo-real-comment-4b04a237,packages-tempo-real,packages/tempo-real/src/index.ts,3,36,jsdoc,41,"/**
+ * O cliente do canal de tempo real. **Escrito UMA vez, para os três fronts.**
+ *
+ * ## A regra que este pacote existe para proteger
+ *
+ * **`aoEvento` REBUSCA. Nunca aplica o payload.**
+ *
+ * O evento diz O QUE mudou — `{assunto, id, em}` — e nada mais. Quem recebe vai buscar
+ * o dado pela API, sob RLS. Isso não é economia de bytes: é o que impede o canal de
+ * virar uma segunda fonte de verdade, com um segundo lugar para errar o isolamento
+ * entre clientes. A primeira fonte é a API, que tem 90 políticas de RLS e os testes.
+ *
+ * **Se um dia alguém propuser pôr o registro dentro do payload, recuse.** O ganho seria
+ * uma requisição a menos; o preço é o dado do cliente saindo por uma porta que ninguém
+ * auditou, e a tela passando a mostrar o valor que estava viajando em vez do valor de
+ * agora. Foi decidido no começo do projeto, está em `packages/contracts/src/eventos.ts`,
+ * e está repetido aqui porque é aqui que a tentação aparece.
+ *
+ * ## Por que um pacote, e não um trecho copiado em cada front
+ *
+ * Reconexão, backoff, reenvio da inscrição e detecção de queda são a parte que sempre
+ * diverge quando é copiada — e diverge em silêncio, porque a tela continua abrindo. O
+ * Desk já teve três cópias da régua de prioridade, uma delas errada. Aqui é uma só.
+ *
+ * ```ts
+ * const ligacao = ligar({
+ *   urlApi: 'http://localhost:3000',
+ *   assuntos: ['conversa', 'fila'],
+ *   aoEvento: (evento) => { if (evento.assunto === 'fila') rebuscarLista(); },
+ * });
+ * // ao desmontar a tela:
+ * ligacao.fechar();
+ * ```
+ */",,,,,,
+packages-tempo-real-comment-2af759c5,packages-tempo-real,packages/tempo-real/src/index.ts,38,38,jsdoc,1,/** Espera inicial da reconexão. Dobra a cada tentativa até o teto. */,,,,,,
+packages-tempo-real-comment-f642b692,packages-tempo-real,packages/tempo-real/src/index.ts,42,52,jsdoc,10,"/**
+ * Sem NENHUMA mensagem por este tempo, a ligação é dada como morta.
+ *
+ * O servidor manda `{tipo:'ping'}` a cada 15 s (`CONNECTION_TEST_INTERVAL` da Blip).
+ * Dois intervalos de silêncio é o critério — um só daria falso positivo em qualquer
+ * engasgo de rede, e três deixaria a tela parada por quase um minuto.
+ *
+ * Existe porque **socket morto não avisa**: o TCP pode ficar aberto do lado do
+ * navegador enquanto o outro lado já foi embora, e o sintoma é a tela parecer viva e
+ * parada — o pior dos dois mundos, e o defeito que o tempo real veio consertar.
+ */",,,,,,
+packages-tempo-real-comment-e4bed2ea,packages-tempo-real,packages/tempo-real/src/index.ts,57,57,jsdoc,2,/** O mínimo de `WebSocket` que este cliente usa. Existe para o teste injetar o seu. */,,,,,,
+packages-tempo-real-comment-4d4ceace,packages-tempo-real,packages/tempo-real/src/index.ts,71,74,jsdoc,5,"/**
+   * Chamado a cada evento. **Rebusque aqui; não aplique payload** — ver o topo.
+   * Nunca é chamado com `ping`, que é quadro de controle e não evento.
+   */",,,,,,
+packages-tempo-real-comment-8625c7f7,packages-tempo-real,packages/tempo-real/src/index.ts,76,76,jsdoc,3,"/** Para a tela mostrar ""reconectando…"" quando quiser. Opcional. */",,,,,,
+packages-tempo-real-comment-545e97e9,packages-tempo-real,packages/tempo-real/src/index.ts,78,78,jsdoc,1,/** Só para teste. */,,,,,,
+packages-tempo-real-comment-569689cf,packages-tempo-real,packages/tempo-real/src/index.ts,84,84,jsdoc,4,"/** O estado atual, para a tela que prefere perguntar a ouvir. */",,,,,,
+packages-tempo-real-comment-c3e45370,packages-tempo-real,packages/tempo-real/src/index.ts,92,98,jsdoc,11,"/**
+ * Espera da próxima tentativa: exponencial com teto e **jitter de ±20%**.
+ *
+ * O jitter não é enfeite. Quando a API reinicia, todos os navegadores caem no mesmo
+ * instante; sem jitter todos voltam no mesmo instante também, e a primeira coisa que a
+ * API recém-subida recebe é a manada inteira de uma vez.
+ */",,,,,,
+packages-tempo-real-comment-9940ba53,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,110,110,line,2,// `ping` e `inscrito` não fazem a tela rebuscar nada.,,,,,,
+packages-tempo-real-comment-4069815c,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,147,147,line,2,// O servidor não guarda nada de quem caiu: socket novo começa sem assunto nenhum.,,,,,,
+packages-tempo-real-comment-b7f0b655,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,187,187,line,2,"// Volta a esperar ~1 s, não os ~2 s da tentativa anterior.",,,,,,
+packages-tempo-real-comment-067163fb,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,194,194,line,1,// O TCP pode ficar aberto do lado do navegador enquanto o outro lado já foi,,,,,,
+packages-tempo-real-comment-3b3c1606,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,195,195,line,2,"// embora. Sem este vigia, a tela pareceria viva e parada.",,,,,,
+packages-tempo-real-comment-76cc4030,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,208,208,line,4,"// Um passo além dos 35 s, e NÃO 2 s: a primeira retentativa é agendada para",,,,,,
+packages-tempo-real-comment-6ab2d919,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,209,209,line,2,"// 800–1200 ms depois da queda (backoff de 1 s com jitter de ±20%), então medir em",,,,,,
+packages-tempo-real-comment-247be79b,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,210,210,line,0,// +2 s cai depois dela e lê `ligando` ou `caiu` conforme o sorteio. Este teste,,,,,,
+packages-tempo-real-comment-eed33ee2,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,211,211,line,2,"// passava em cerca de metade das execuções, e eu relatei verde em cima de uma.",,,,,,
+packages-tempo-real-comment-f68d0b04,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,216,216,line,3,"// E `caiu` tem de DURAR o bastante para a tela mostrar ""conexão perdida"" — é para",,,,,,
+packages-tempo-real-comment-a8ee8314,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,217,217,line,3,// isso que `aoEstado` existe. 700 ms está abaixo do piso do backoff (800 ms).,,,,,,
+packages-tempo-real-comment-72833af4,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,221,221,line,0,"// Passado o teto do backoff (1200 ms), aí sim tenta de novo.",,,,,,
+packages-tempo-real-comment-87fdeb85,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,5,9,jsdoc,7,"/**
+ * A reconexão é a razão de este pacote existir: é a parte que, copiada em três fronts,
+ * diverge em silêncio. Aqui ela é exercida com um socket de mentira e o relógio falso
+ * do vitest — sem rede, sem espera real.
+ */",,,,,,
+packages-tempo-real-comment-a2c4fd70,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,74,74,line,3,// Quando a API reinicia todos caem no mesmo instante; sem jitter voltam no mesmo,,,,,,
+packages-tempo-real-comment-00a67ebb,packages-tempo-real,packages/tempo-real/tests/tempo-real.test.ts,75,75,line,1,// instante também.,,,,,,
