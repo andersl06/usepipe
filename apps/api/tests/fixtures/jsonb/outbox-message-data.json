@@ -1,0 +1,14 @@
+[
+  {
+    "id": "0941c75f-f344-4d5b-89fd-0aea6cb02980",
+    "value": {
+      "pergunta": {
+        "texto": "Prazer, Ana. Como posso ajudar?",
+        "opcoes": [
+          "Financeiro",
+          "Suporte"
+        ]
+      }
+    }
+  }
+]

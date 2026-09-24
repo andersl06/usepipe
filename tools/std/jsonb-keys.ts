@@ -156,12 +156,23 @@ function chavesDaFixture(entrada: EntradaDoManifesto): string[] {
 function rodarBaseline(): void {
   const manifesto = carregarManifesto();
   const codigo = nomesDoCodigoAtual();
-  const relatorio: Record<string, { present: string[]; legacy: string[] }> = {};
+  // Mais de uma entrada do manifesto pode apontar para o MESMO arquivo (ex.:
+  // flow-process-http.json tem uma entrada por coluna combinada, cada uma com seu
+  // `field` e seu `opaque`) — as chaves de todas elas se juntam no relatório do arquivo,
+  // nunca uma sobrescreve a outra.
+  const chavesPorArquivo = new Map<string, Set<string>>();
   for (const entrada of manifesto) {
-    const chaves = chavesDaFixture(entrada);
-    const present = chaves.filter((c) => codigo.has(c)).sort();
-    const legacy = chaves.filter((c) => !codigo.has(c)).sort();
-    relatorio[entrada.file] = { present, legacy };
+    const chaves = chavesPorArquivo.get(entrada.file) ?? new Set<string>();
+    for (const chave of chavesDaFixture(entrada)) chaves.add(chave);
+    chavesPorArquivo.set(entrada.file, chaves);
+  }
+  const relatorio: Record<string, { present: string[]; legacy: string[] }> = {};
+  for (const [arquivo, chaves] of chavesPorArquivo) {
+    const lista = [...chaves];
+    relatorio[arquivo] = {
+      present: lista.filter((c) => codigo.has(c)).sort(),
+      legacy: lista.filter((c) => !codigo.has(c)).sort(),
+    };
   }
   mkdirSync(dirname(RELATORIO), { recursive: true });
   writeFileSync(RELATORIO, `${JSON.stringify(relatorio, null, 2)}\n`);

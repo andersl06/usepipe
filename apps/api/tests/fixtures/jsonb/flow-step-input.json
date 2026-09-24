@@ -1,0 +1,23 @@
+[
+  {
+    "id": "1df80f84-90e5-4a4e-a65c-dfe5e496442f",
+    "value": {
+      "id_provedor": "wamid.ENTRADA.b15b9be7-502e-4f83-aa0c-a31cf6212d35",
+      "mensagem_id": "8d78b2a1-c1d1-48d3-b463-6b3dfe348e9c"
+    }
+  },
+  {
+    "id": "9acefb79-21b6-4d13-89dd-3ef3e6af1597",
+    "value": {
+      "id_provedor": "wamid.ENTRADA.a9f28416-8e19-4744-847b-44cbe560da57",
+      "mensagem_id": "4636087a-e5dc-4909-9991-04dc301a031f"
+    }
+  },
+  {
+    "id": "a7844f4c-8c09-4d58-b1f6-cede95fc3676",
+    "value": {
+      "id_provedor": "wamid.ENTRADA.d1fa2291-4e17-40f1-863c-fb515b37a241",
+      "mensagem_id": "a4a3f8f3-809f-46be-b8d6-549244f2e51d"
+    }
+  }
+]

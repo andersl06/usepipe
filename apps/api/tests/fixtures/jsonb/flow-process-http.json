@@ -1,0 +1,25 @@
+[
+  {
+    "id": "6abb9f6c-b66c-4ba5-a827-490f00844138",
+    "entrada": {
+      "id": "b663fef5-921f-46a3-8438-1fad61a8583f",
+      "tipo": "texto",
+      "conteudo": "oi",
+      "id_provedor": "wamid.ENTRADA.e0868ab8-01b9-4d6a-91af-0f7d3dcb509d"
+    },
+    "contexto": {
+      "stateId@3206f38a-86e7-4c0c-b296-14fe0ac59dd7": "boas-vindas",
+      "previous-stateId@3206f38a-86e7-4c0c-b296-14fe0ac59dd7": "onboarding"
+    },
+    "pedido": {
+      "url": "https://example.com/pipe/gerar-fixture",
+      "corpo": "{\"origem\":\"gerar-fixtures-jsonb\"}",
+      "metodo": "POST",
+      "timeoutMs": 5000,
+      "cabecalhos": {
+        "x-api-key": "REDACTED"
+      }
+    },
+    "resposta": null
+  }
+]

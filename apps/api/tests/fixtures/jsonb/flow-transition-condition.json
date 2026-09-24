@@ -1,0 +1,70 @@
+[
+  {
+    "id": "fa8ad36a-aaa7-443e-ae9c-2e927b977bd8",
+    "value": {
+      "conditions": [
+        {
+          "source": "input",
+          "values": [
+            "1",
+            "Financeiro"
+          ],
+          "comparison": "equals"
+        }
+      ]
+    }
+  },
+  {
+    "id": "2994dc14-2057-4267-883d-68004efe25e9",
+    "value": {
+      "conditions": [
+        {
+          "source": "input",
+          "values": [
+            "2",
+            "Suporte"
+          ],
+          "comparison": "equals"
+        }
+      ]
+    }
+  },
+  {
+    "id": "77c07891-f96a-4cb0-a691-b77b663563f1",
+    "value": {
+      "conditions": [
+        {
+          "source": "context",
+          "values": [
+            "application/vnd.iris.ticket+json"
+          ],
+          "variable": "input.type",
+          "comparison": "equals"
+        },
+        {
+          "source": "context",
+          "values": [
+            "ClosedAttendant"
+          ],
+          "variable": "input.content@status",
+          "comparison": "equals"
+        }
+      ]
+    }
+  },
+  {
+    "id": "dd985b33-8dd5-4a81-a566-68908dba684a",
+    "value": {
+      "conditions": [
+        {
+          "source": "context",
+          "values": [
+            "Error"
+          ],
+          "variable": "desk_forwardToDeskState_status",
+          "comparison": "equals"
+        }
+      ]
+    }
+  }
+]

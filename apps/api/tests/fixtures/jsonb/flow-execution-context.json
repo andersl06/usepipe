@@ -1,0 +1,12 @@
+[
+  {
+    "id": "ebaaccfc-73d7-4f3b-86eb-43ba7575a944",
+    "value": {
+      "nome": "Ana",
+      "opcao": "2",
+      "desk_forwardToDeskState_status": "Success",
+      "stateId@3a15f45d-6ff9-4a18-b58f-9384410eea82": "desk:suporte",
+      "previous-stateId@3a15f45d-6ff9-4a18-b58f-9384410eea82": "menu"
+    }
+  }
+]

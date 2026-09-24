@@ -1,0 +1,212 @@
+[
+  {
+    "file": "flow-version-global.json",
+    "group": "flow-version",
+    "table": "fluxoVersao",
+    "column": "global",
+    "sqlTable": "fluxo_versao",
+    "sqlColumn": "global",
+    "provenance": "generated",
+    "opaque": []
+  },
+  {
+    "file": "flow-block-content.json",
+    "group": "flow-version",
+    "table": "bloco",
+    "column": "conteudo",
+    "sqlTable": "bloco",
+    "sqlColumn": "conteudo",
+    "provenance": "generated",
+    "opaque": []
+  },
+  {
+    "file": "flow-block-position.json",
+    "group": "flow-version",
+    "table": "bloco",
+    "column": "posicao",
+    "sqlTable": "bloco",
+    "sqlColumn": "posicao",
+    "provenance": "generated",
+    "opaque": []
+  },
+  {
+    "file": "flow-transition-condition.json",
+    "group": "flow-version",
+    "table": "transicao",
+    "column": "condicao",
+    "sqlTable": "transicao",
+    "sqlColumn": "condicao",
+    "provenance": "generated",
+    "opaque": []
+  },
+  {
+    "file": "flow-execution-context.json",
+    "group": "flow-execution",
+    "table": "execucaoFluxo",
+    "column": "contexto",
+    "sqlTable": "execucao_fluxo",
+    "sqlColumn": "contexto",
+    "provenance": "generated",
+    "opaque": ["$.*"]
+  },
+  {
+    "file": "flow-router-context.json",
+    "group": "flow-execution",
+    "table": "posicaoNoRoteador",
+    "column": "contexto",
+    "sqlTable": "posicao_no_roteador",
+    "sqlColumn": "contexto",
+    "provenance": "generated",
+    "opaque": ["$.*"]
+  },
+  {
+    "file": "flow-step-input.json",
+    "group": "flow-execution",
+    "table": "execucaoPasso",
+    "column": "entrada",
+    "sqlTable": "execucao_passo",
+    "sqlColumn": "entrada",
+    "provenance": "generated",
+    "opaque": []
+  },
+  {
+    "file": "flow-step-output.json",
+    "group": "flow-execution",
+    "table": "execucaoPasso",
+    "column": "saida",
+    "sqlTable": "execucao_passo",
+    "sqlColumn": "saida",
+    "provenance": "generated",
+    "opaque": []
+  },
+  {
+    "file": "flow-process-http.json",
+    "group": "flow-execution",
+    "table": "processHttpExecucao",
+    "column": "entrada",
+    "sqlTable": "process_http_execucao",
+    "sqlColumn": "entrada",
+    "field": "entrada",
+    "provenance": "generated",
+    "opaque": []
+  },
+  {
+    "file": "flow-process-http.json",
+    "group": "flow-execution",
+    "table": "processHttpExecucao",
+    "column": "contexto",
+    "sqlTable": "process_http_execucao",
+    "sqlColumn": "contexto",
+    "field": "contexto",
+    "provenance": "generated",
+    "opaque": ["$.*"]
+  },
+  {
+    "file": "flow-process-http.json",
+    "group": "flow-execution",
+    "table": "processHttpExecucao",
+    "column": "pedido",
+    "sqlTable": "process_http_execucao",
+    "sqlColumn": "pedido",
+    "field": "pedido",
+    "provenance": "generated",
+    "opaque": ["$.cabecalhos.*"]
+  },
+  {
+    "file": "flow-process-http.json",
+    "group": "flow-execution",
+    "table": "processHttpExecucao",
+    "column": "resposta",
+    "sqlTable": "process_http_execucao",
+    "sqlColumn": "resposta",
+    "field": "resposta",
+    "provenance": "generated",
+    "opaque": []
+  },
+  {
+    "file": "outbox-message-data.json",
+    "group": "outbox",
+    "table": "mensagem",
+    "column": "dados",
+    "sqlTable": "mensagem",
+    "sqlColumn": "dados",
+    "provenance": "generated",
+    "opaque": [],
+    "note": "assumption drift: outboxMensagem has no jsonb column; the payload the delivery path (apps/workers/src/entrega.ts) reads is mensagem.dados, joined by mensagem_id"
+  },
+  {
+    "file": "outbox-webhook-payload.json",
+    "group": "outbox",
+    "table": "entregaWebhook",
+    "column": "payload",
+    "sqlTable": "entrega_webhook",
+    "sqlColumn": "payload",
+    "provenance": "generated",
+    "opaque": ["$.data.*"]
+  },
+  {
+    "file": "audit-before-after.json",
+    "group": "audit",
+    "table": "logAuditoria",
+    "column": "antes",
+    "sqlTable": "log_auditoria",
+    "sqlColumn": "antes",
+    "field": "antes",
+    "provenance": "generated",
+    "opaque": []
+  },
+  {
+    "file": "audit-before-after.json",
+    "group": "audit",
+    "table": "logAuditoria",
+    "column": "depois",
+    "sqlTable": "log_auditoria",
+    "sqlColumn": "depois",
+    "field": "depois",
+    "provenance": "generated",
+    "opaque": []
+  },
+  {
+    "file": "crm-lead-utm.json",
+    "group": "crm",
+    "table": "lead",
+    "column": "utm",
+    "sqlTable": "lead",
+    "sqlColumn": "utm",
+    "provenance": "generated",
+    "opaque": ["$.*"],
+    "note": "no standalone write path in apps/api or apps/crm today; shape matches apps/crm/semente/semente-crm.ts:625-654, inserted directly (seed script itself not executed)"
+  },
+  {
+    "file": "crm-lead-custom-fields.json",
+    "group": "crm",
+    "table": "lead",
+    "column": "customizados",
+    "sqlTable": "lead",
+    "sqlColumn": "customizados",
+    "provenance": "generated",
+    "opaque": ["$.*"],
+    "note": "no standalone write path in apps/api or apps/crm today; shape matches apps/crm/semente/semente-crm.ts:625-654, inserted directly (seed script itself not executed)"
+  },
+  {
+    "file": "crm-contact-attributes.json",
+    "group": "crm",
+    "table": "contato",
+    "column": "atributos",
+    "sqlTable": "contato",
+    "sqlColumn": "atributos",
+    "provenance": "generated",
+    "opaque": ["$.*"]
+  },
+  {
+    "file": "template-variables.json",
+    "group": "template",
+    "table": "templateMensagem",
+    "column": "variaveis",
+    "sqlTable": "template_mensagem",
+    "sqlColumn": "variaveis",
+    "provenance": "generated",
+    "opaque": [],
+    "note": "only written by sincronizarModelos (apps/api/src/dominio/whatsapp/modelos.ts:187-217), which calls the Meta Graph API over the network; reproduces its exact deterministic placeholder-naming transformation without the network call"
+  }
+]

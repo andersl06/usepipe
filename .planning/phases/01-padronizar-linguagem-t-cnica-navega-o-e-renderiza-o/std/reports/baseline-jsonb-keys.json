@@ -1,0 +1,196 @@
+{
+  "flow-version-global.json": {
+    "present": [
+      "afterStateChangedActions",
+      "inputActions",
+      "outputActions"
+    ],
+    "legacy": []
+  },
+  "flow-block-content.json": {
+    "present": [
+      "$afterStateChangedActions",
+      "$cardContent",
+      "$conditionOutputs",
+      "$connId",
+      "$contentActions",
+      "$defaultOutput",
+      "$enteringCustomActions",
+      "$id",
+      "$inputSuggestions",
+      "$invalid",
+      "$invalidContentActions",
+      "$invalidCustomActions",
+      "$invalidOutputs",
+      "$isDeskDefaultOutput",
+      "$isDeskOutput",
+      "$leavingCustomActions",
+      "$position",
+      "$tags",
+      "$title",
+      "$typeOfContent",
+      "action",
+      "afterStateChangedActions",
+      "bypass",
+      "category",
+      "comparison",
+      "conditions",
+      "content",
+      "deskStateVersion",
+      "document",
+      "id",
+      "input",
+      "inputActions",
+      "left",
+      "name",
+      "options",
+      "original",
+      "outputActions",
+      "root",
+      "scope",
+      "settings",
+      "source",
+      "state",
+      "stateId",
+      "text",
+      "top",
+      "type",
+      "typeOfStateId",
+      "value",
+      "values",
+      "variable"
+    ],
+    "legacy": [
+      "interval"
+    ]
+  },
+  "flow-block-position.json": {
+    "present": [
+      "left",
+      "top"
+    ],
+    "legacy": []
+  },
+  "flow-transition-condition.json": {
+    "present": [
+      "comparison",
+      "conditions",
+      "source",
+      "values",
+      "variable"
+    ],
+    "legacy": []
+  },
+  "flow-execution-context.json": {
+    "present": [
+      "nome"
+    ],
+    "legacy": [
+      "desk_forwardToDeskState_status",
+      "opcao",
+      "previous-stateId@3a15f45d-6ff9-4a18-b58f-9384410eea82",
+      "stateId@3a15f45d-6ff9-4a18-b58f-9384410eea82"
+    ]
+  },
+  "flow-router-context.json": {
+    "present": [
+      "nome"
+    ],
+    "legacy": [
+      "previous-stateId@31b78c61-1ddb-4030-ae2b-4123f6de3608",
+      "stateId@31b78c61-1ddb-4030-ae2b-4123f6de3608"
+    ]
+  },
+  "flow-step-input.json": {
+    "present": [
+      "id_provedor",
+      "mensagem_id"
+    ],
+    "legacy": []
+  },
+  "flow-step-output.json": {
+    "present": [
+      "acoes",
+      "action",
+      "category",
+      "eventos",
+      "proximo",
+      "tipo"
+    ],
+    "legacy": []
+  },
+  "flow-process-http.json": {
+    "present": [
+      "cabecalhos",
+      "conteudo",
+      "corpo",
+      "id",
+      "id_provedor",
+      "metodo",
+      "timeoutMs",
+      "tipo",
+      "url"
+    ],
+    "legacy": [
+      "previous-stateId@3206f38a-86e7-4c0c-b296-14fe0ac59dd7",
+      "stateId@3206f38a-86e7-4c0c-b296-14fe0ac59dd7"
+    ]
+  },
+  "outbox-message-data.json": {
+    "present": [
+      "opcoes",
+      "pergunta",
+      "texto"
+    ],
+    "legacy": []
+  },
+  "outbox-webhook-payload.json": {
+    "present": [
+      "data",
+      "delivery_id",
+      "event",
+      "occurred_at",
+      "tenant_id"
+    ],
+    "legacy": []
+  },
+  "audit-before-after.json": {
+    "present": [
+      "email",
+      "nome",
+      "telefone_e164"
+    ],
+    "legacy": []
+  },
+  "crm-lead-utm.json": {
+    "present": [
+      "source"
+    ],
+    "legacy": [
+      "campaign",
+      "medium"
+    ]
+  },
+  "crm-lead-custom-fields.json": {
+    "present": [],
+    "legacy": [
+      "faixa_patrimonio",
+      "idade",
+      "respondeu_campanha_julho",
+      "whatsapp_confirmado"
+    ]
+  },
+  "crm-contact-attributes.json": {
+    "present": [
+      "plano"
+    ],
+    "legacy": [
+      "origem_utm",
+      "pontuacao_nps"
+    ]
+  },
+  "template-variables.json": {
+    "present": [],
+    "legacy": []
+  }
+}

@@ -1,6 +1,16 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+# UNUSED (owner decision, 24/09/2026). The Claude Code sandbox permission
+# classifier denied running this script (reason: Sensitive-Source Provenance)
+# because it reads and writes real local-dev jsonb content. The owner chose
+# not to pursue that permission; fixtures are generated synthetically instead
+# by tools/std/gerar-fixtures-jsonb.ts (real code paths, throwaway
+# self-cleaning tenant, no real tenant data read or exported). Kept here for
+# reference only, in case local-DB capture is revisited later. See
+# 01-34-SUMMARY.md for the decision and its consequences (weaker proof: no
+# coverage of legacy shapes that only exist in already-stored documents).
+#
 # Dumps real stored jsonb documents from the local dev database into redacted
 # fixture files, before any rename touches the code that produced them
 # (STD-06). Source of truth for db/user names is the running container, never
