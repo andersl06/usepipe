@@ -1,0 +1,3460 @@
+{
+  "rows": [
+    {
+      "id": "desk-vite-dir-cdb5722a",
+      "new": "apps/desk-vite/src/components",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-dir-037e581e",
+      "new": "apps/desk-vite/src/context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-dir-2ecd5f17",
+      "new": "apps/desk-vite/src/pages/bulk-actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-dir-6bf04f3d",
+      "new": "apps/desk-vite/src/pages/analytics",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-dir-7934fa30",
+      "new": "apps/desk-vite/src/pages/attendances",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-dir-2c2b461d",
+      "new": "apps/desk-vite/src/pages/contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-dir-824a393e",
+      "new": "apps/desk-vite/src/pages/active-message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-dir-fdd76c9a",
+      "new": "apps/desk-vite/src/pages/preferences",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-dir-59d43b35",
+      "new": "apps/desk-vite/src/pages",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-451326ac",
+      "new": "apps/desk-vite/src/lib/actions.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-ce261c62",
+      "new": "apps/desk-vite/tests/attachments.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-8eb40c8c",
+      "new": "apps/desk-vite/src/lib/attachments.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-706ffd93",
+      "new": "apps/desk-vite/src/lib/channel.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-b4e31037",
+      "new": "apps/desk-vite/src/pages/attendances/card.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-7c780fa3",
+      "new": "apps/desk-vite/src/components/shell.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-1e6e554d",
+      "new": "apps/desk-vite/src/pages/attendances/column.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-0aaf6ecb",
+      "new": "apps/desk-vite/src/pages/attendances/composer.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-74e68ba4",
+      "new": "apps/desk-vite/src/lib/query.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-da10f2d7",
+      "new": "apps/desk-vite/src/lib/contacts.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-e8f8bb11",
+      "new": "apps/desk-vite/src/pages/attendances/conversation.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-1d437198",
+      "new": "apps/desk-vite/src/pages/invitation.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-dfdd6f31",
+      "new": "apps/desk-vite/tests/closure.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-a65628f4",
+      "new": "apps/desk-vite/src/lib/inbound.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-285b164e",
+      "new": "apps/desk-vite/src/pages/login.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-d1f39bac",
+      "new": "apps/desk-vite/src/components/exigir-session.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-88762cb2",
+      "new": "apps/desk-vite/tests/format.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-ca855df1",
+      "new": "apps/desk-vite/src/lib/format.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-1b7de8e1",
+      "new": "apps/desk-vite/src/estilos/global.css",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-7abbee0c",
+      "new": "apps/desk-vite/tests/groups.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-8cec7761",
+      "new": "apps/desk-vite/src/lib/groups.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-9f0f2c0f",
+      "new": "apps/desk-vite/tests/intervalo-delivery.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-181884ac",
+      "new": "apps/desk-vite/src/lib/intervalo-delivery.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-097faa66",
+      "new": "apps/desk-vite/src/lib/template.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-f8bdfd52",
+      "new": "apps/desk-vite/src/lib/navigation.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-71f5f855",
+      "new": "apps/desk-vite/tests/order.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-682cef3c",
+      "new": "apps/desk-vite/src/lib/order.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-a5de71fb",
+      "new": "apps/desk-vite/src/pages/attendances/panel.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-8a400bf2",
+      "new": "apps/desk-vite/tests/period.test.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-c0bc39ac",
+      "new": "apps/desk-vite/src/lib/period.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-37b75106",
+      "new": "apps/desk-vite/src/lib/preferences.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-adbe0070",
+      "new": "apps/desk-vite/src/context/session.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-file-2df40b99",
+      "new": "apps/desk-vite/src/components/rail.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-7eca9f84",
+      "new": "agruparContacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-38c9ec11",
+      "new": "attachment",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-1c2a8101",
+      "new": "attachmentIds",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-5031778f",
+      "new": "aplicarFilter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-37611c52",
+      "new": "file",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-5e24480c",
+      "new": "file",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-2d075857",
+      "new": "LoteFile",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-b71db426",
+      "new": "cairByInactivity",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-a7db4a07",
+      "new": "ContactField",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-a448c52d",
+      "new": "CHANNELS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-94c395db",
+      "new": "channels",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-f863a5b9",
+      "new": "channel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-5c3cfdf0",
+      "new": "channel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-fc1139ca",
+      "new": "Channel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-79b00dc3",
+      "new": "channel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-5c949263",
+      "new": "channelOf",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-f6859c5b",
+      "new": "Card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-c11a7db5",
+      "new": "cards",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-2c3a685c",
+      "new": "Shell",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-05c3e730",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-cb3b11ea",
+      "new": "Column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-38c9d94d",
+      "new": "Composer",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-368a411e",
+      "new": "contact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-bd5dd905",
+      "new": "ListaContact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-fefbfc7a",
+      "new": "contactInitial",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-34c44db2",
+      "new": "contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-ad8a21e6",
+      "new": "Context",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-88e71510",
+      "new": "Conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-43dba8d4",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-ffd49cdf",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-3573b070",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-42df552f",
+      "new": "conversations",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-215435ad",
+      "new": "invitation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-ca2a9b03",
+      "new": "create",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-e90ad0ce",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-a174e5fa",
+      "new": "descobrirInbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-a7769889",
+      "new": "offset",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-d2f0148c",
+      "new": "DESTINATION_DEFAULT",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-d8028f53",
+      "new": "destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-54dbf02d",
+      "new": "destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-a7a271db",
+      "new": "Destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-a89ce400",
+      "new": "ContactEdit",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-d28b85ba",
+      "new": "inbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-3a41a29d",
+      "new": "InboundDescoberta",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-f7118fed",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-e96aea15",
+      "new": "ApiError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-bc1359eb",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-298c3001",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-4cd5bb31",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-ade2774d",
+      "new": "AgentState",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-dbad957d",
+      "new": "ContactTags",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-27c6bc81",
+      "new": "ExigirSession",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-e42bd340",
+      "new": "exportarTranscription",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-ab7dfa32",
+      "new": "ContactFicha",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-e7c6b0db",
+      "new": "queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-d19198d9",
+      "new": "queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-ece9c674",
+      "new": "queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-b7d276ca",
+      "new": "queues",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-1861695c",
+      "new": "queues",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-cf24e24a",
+      "new": "Filter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-fae11c71",
+      "new": "filter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-df1d7e48",
+      "new": "FILTERS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-280ad044",
+      "new": "BubblesGroup",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-157f54e5",
+      "new": "ContactsGroup",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-d62bcfd4",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-19e00705",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-6c628de3",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-1cfbf2f7",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-49883dc1",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-b67e52a9",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-d904d86f",
+      "new": "groups",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-a985f098",
+      "new": "IconeSearch",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-4ab361ba",
+      "new": "initials",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-a05373c8",
+      "new": "deliveryIntervalo",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-039dd9b3",
+      "new": "WINDOW_HORAS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-1af9f433",
+      "new": "windowAberta",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-54239bb1",
+      "new": "read",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-05c5391a",
+      "new": "read",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-ff431dd9",
+      "new": "read",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-da7e4d70",
+      "new": "lerPreferences",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-fef82202",
+      "new": "MAX_FILES_BY_ENVIO",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-ce5fdf7f",
+      "new": "MAX_BYTES_BY_FILE",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-957f222e",
+      "new": "MAX_CONTACTS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-dc9c7a38",
+      "new": "message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-5ebfb4db",
+      "new": "Message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-cbab8a91",
+      "new": "message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-9a4f7e60",
+      "new": "TemplateModal",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-af1f7317",
+      "new": "displayName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-560b0f89",
+      "new": "NameOfLogoOfChannel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-dc3ba82d",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-4c96d140",
+      "new": "Order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-7cc5a9db",
+      "new": "ContactsOrder",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-6429b0a2",
+      "new": "PageBulkActions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-4b6c46e4",
+      "new": "PageAttendances",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-c8bf1d4f",
+      "new": "PageContacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-3c3b075c",
+      "new": "PageInvitation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-59a211a9",
+      "new": "PageLogin",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-effdc217",
+      "new": "PageActiveMessage",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-d6f44903",
+      "new": "PageMetrics",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-29635b0a",
+      "new": "PagePreferences",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-f27fbbb6",
+      "new": "Panel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-c9088f73",
+      "new": "RespostasPanel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-1b18d137",
+      "new": "StatusPanel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-8e16cb68",
+      "new": "Preferences",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-39d0562f",
+      "new": "first",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-ffc8fe46",
+      "new": "first",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-fe239019",
+      "new": "first",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-0948cace",
+      "new": "SessionProvedor",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-2bdd3c9d",
+      "new": "ROTULOS_OF_FILTER",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-c66de118",
+      "new": "SECTIONS",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-6d606b5d",
+      "new": "seed",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-a40c12d2",
+      "new": "Session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-20e2fd34",
+      "new": "DeliverySignal",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-d21b3281",
+      "new": "deliverySignal",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-f7f02c5c",
+      "new": "situation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-8949e1c8",
+      "new": "timeDecorrido",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-499826ff",
+      "new": "timeMedio",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-602abbde",
+      "new": "totals",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-c4e9be87",
+      "new": "transferirInBulk",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-5cb4f186",
+      "new": "Rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-e25347f2",
+      "new": "inboundWithGoogleUrl",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-c314d80a",
+      "new": "useQueues",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-af8e2970",
+      "new": "useRead",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-4212dc8e",
+      "new": "useRegistrarNavigation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-5c3d17a6",
+      "new": "useSession",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-5447c001",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-99a37c4f",
+      "new": "variables",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-symbol-c3959485",
+      "new": "variables",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-340a7e49",
+      "new": "toAlternarPanel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-b90b4c2a",
+      "new": "agentId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-48473630",
+      "new": "agentId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-7d3b3b9a",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-39077ece",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-a65c0162",
+      "new": "search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-77534e06",
+      "new": "channelId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-2c7bd99b",
+      "new": "channelTipo",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-7cab7354",
+      "new": "cards",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-537f0ef7",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-5e7d6a3d",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-b788ba66",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-a313191f",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-eb4d176e",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-1f51a667",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-3131d405",
+      "new": "contactId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-710b58e2",
+      "new": "contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-013574bf",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-4d491ff3",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-87f5373e",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-1b8f7170",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-3ed596fb",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-cd4859d2",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-8c33f60f",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-b3a445a0",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-965d5851",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-fa466ff1",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-895a5f4b",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-b83f436d",
+      "new": "conversations",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-de8c6181",
+      "new": "conversations",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-000788c6",
+      "new": "conversations",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-158f93c1",
+      "new": "conversations",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-741d600f",
+      "new": "data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-02816a4c",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-58a7b3e2",
+      "new": "destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-786f5ba1",
+      "new": "destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-1b31fb2c",
+      "new": "direction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-acc2e794",
+      "new": "direction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-b6c93aa4",
+      "new": "document",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-4a103919",
+      "new": "editandoContact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-1ec3bedf",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-27c9932b",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-57d23ecf",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-bf7a5e75",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-05c2288d",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-0e3eb0e6",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-9e50c18f",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-5cacaff6",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-d7cf5725",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-3d53602b",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-d707a9c3",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-bee038fb",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-9146450c",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-a5def32a",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-473b97d3",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-1932b82e",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-98f85120",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-05f6f8ae",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-a78d6963",
+      "new": "stateDelivery",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-313893cd",
+      "new": "stateDelivery",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-90946e6a",
+      "new": "conversationTags",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-fab432f9",
+      "new": "contactTags",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-de08199d",
+      "new": "queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-c311afe6",
+      "new": "queueId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-7d0157f1",
+      "new": "queueId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-54b2713a",
+      "new": "filter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-c28a1dcb",
+      "new": "filter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-16ba1177",
+      "new": "history",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-ef8e4a7e",
+      "new": "windowExpiraIn",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-7807387c",
+      "new": "windowExpiraIn",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-a0a60835",
+      "new": "message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-1b79c439",
+      "new": "message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-37857e30",
+      "new": "messageId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-ba293438",
+      "new": "messageId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-af8ebb99",
+      "new": "messageId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-9ce42d03",
+      "new": "messages",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-5e6affa8",
+      "new": "messages",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-21134d94",
+      "new": "menuFilter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-babe3fe3",
+      "new": "menuOrder",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-e6cfee00",
+      "new": "templateAberto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-c58c2a52",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-a2243be1",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-a4742b77",
+      "new": "options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-0086140a",
+      "new": "order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-91143dea",
+      "new": "order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-d6da5e6f",
+      "new": "order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-40982984",
+      "new": "panelAberto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-f0272639",
+      "new": "panelAberto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-066e05fc",
+      "new": "panelRespostas",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-efa41071",
+      "new": "templateParametros",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-0df6b429",
+      "new": "setAgentId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-ac648441",
+      "new": "setAgentId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-66ee9b81",
+      "new": "setSearch",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-08426b83",
+      "new": "setSearch",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-ffbc081b",
+      "new": "setSearch",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-fe65f5b7",
+      "new": "setChannelId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-963c832d",
+      "new": "setDocument",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-30ae220d",
+      "new": "setEditandoContact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-6accaa36",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-7b657bb0",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-7e611db6",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-07ca5422",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-566434dd",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-53a6dcb0",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-ea4b7a41",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-366e097c",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-a115a28f",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-99b3f6c3",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-6f42ab00",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-b73a3b53",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-2fbd30fb",
+      "new": "setError",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-7e79bcbc",
+      "new": "setQueueId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-20000c40",
+      "new": "setQueueId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-f5818b55",
+      "new": "setFilter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-c232d9d5",
+      "new": "setMenuFilter",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-4faa9f53",
+      "new": "setMenuOrder",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-cfcf7afa",
+      "new": "setTemplateAberto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-a1854d1f",
+      "new": "setOrder",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-a646b2ed",
+      "new": "setPanelAberto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-e33c17eb",
+      "new": "setPanelRespostas",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-6d6f88df",
+      "new": "templateSetParametros",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-6aa09081",
+      "new": "somenteRead",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-bf8df08f",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-0e1b5d81",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-335f93ea",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-bad10428",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-be055358",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-36c664df",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-b3067373",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-7e7a12ce",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-5b1f1fe5",
+      "new": "values",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-local-2337b70d",
+      "new": "empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-edc70015",
+      "new": "alertaWithAbaActive",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-f2ab4131",
+      "new": "alertaWithAbaActive",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-ce9b1431",
+      "new": "messageAlerta",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-374355cc",
+      "new": "messageAlerta",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-af1b78f2",
+      "new": "ticketInQueueAlerta",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-d4bd87fc",
+      "new": "ticketInQueueAlerta",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-44459693",
+      "new": "toAlternarPanel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-94c395db",
+      "new": "channels",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-95cf0c0a",
+      "new": "cards",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-68aa22ba",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-368a411e",
+      "new": "contact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-1d796f7f",
+      "new": "contact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-939f0f92",
+      "new": "contactEmail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-077a6735",
+      "new": "contactId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-bdaddd6a",
+      "new": "contactId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-270ebdf0",
+      "new": "contactId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-5a62ff36",
+      "new": "contactName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-438a0cf9",
+      "new": "contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-03791488",
+      "new": "contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-34c44db2",
+      "new": "contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-cdc83172",
+      "new": "contactTelefone",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-a315aee3",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-b88d1a88",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-02522276",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-3a017ad0",
+      "new": "conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-f0418906",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-2432d93a",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-fe993cdc",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-d13ef23a",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-34a5572c",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-abd8a53d",
+      "new": "conversationId",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-ac7866ec",
+      "new": "invitation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-b3ce2310",
+      "new": "description",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-e14d45b9",
+      "new": "destination",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-39895347",
+      "new": "direction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-b6255585",
+      "new": "direction",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-503033d5",
+      "new": "document",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-5bbbfa1b",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-3098b6dd",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-9f20e474",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-dd24c034",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-ca5f7233",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-8f0b2d8e",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-5fb5ace6",
+      "new": "queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-b7d276ca",
+      "new": "queues",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-c74047cf",
+      "new": "queues",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-b22141d3",
+      "new": "history",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-e1682d42",
+      "new": "message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-c8b6c89d",
+      "new": "message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-1b79c439",
+      "new": "message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-5d53a829",
+      "new": "messages",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-b0132786",
+      "new": "messages",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-9c7e076c",
+      "new": "navegadorNotifications",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-e2e3106e",
+      "new": "navegadorNotifications",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-356959e1",
+      "new": "aberturaOrder",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-3b1369df",
+      "new": "aberturaOrder",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-99ac0b45",
+      "new": "panelAberto",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-97562176",
+      "new": "somenteRead",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-e85f644b",
+      "new": "ultimaInteractionIn",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-241359bd",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-e6cb3656",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-be055358",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-6cee9790",
+      "new": "value",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-ts-prop-5213430e",
+      "new": "empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-literal-value-ad6f6513",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-0ee9e28f",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-2f5dfffe",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-ed4e1e16",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-fed55b03",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-8e521317",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-55a39ce5",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-be3cdeb5",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-126474c7",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-cda91316",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-b90ccbc5",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-636f90ad",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-ce55f20f",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-009d6fb6",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-92b95d3c",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-36074fff",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-dd454795",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-df3e2f83",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-fee92108",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-de010c82",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-9ff23cf8",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-88a97a78",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-5a188a73",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-4363f4aa",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-da74d51e",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-eb1358e6",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-1e7f9210",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-b9cd73d1",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-caff777a",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-4442ba92",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-ca37e84d",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-f2994050",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-b7a08661",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-cb14c739",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-2489b9dc",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-883a9d56",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-18ee0efb",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-386c6af1",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-a82d3502",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-literal-value-7c1701e5",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "desk-vite-test-title-2f2358d8",
+      "new": "search matches by name without accents and by phone digits",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-284e6ba1",
+      "new": "the 24-hour window",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-1469c73c",
+      "new": "the default order puts the newest message on top; the opening order puts the oldest ticket on top",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-d91bc129",
+      "new": "an empty file and an empty selection are both rejected",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-2b2d37f4",
+      "new": "the cards count over the entire list",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-6eae5b3a",
+      "new": "pinned items stay on top, the most recently pinned above the others, and the rest follow the normal order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-d6ff93bd",
+      "new": "blocks confirmation while sending",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-d5305208",
+      "new": "polls the conversation quickly while a message is in transit",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-6c4c733a",
+      "new": "timer and initials",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-c600dd12",
+      "new": "a document over 100 MB is rejected; audio over 20 MB is rejected even though it is under 100",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-7ed94f46",
+      "new": "today shows HH:mm; another day shows elapsed time without a suffix (card) or the abbreviated date (bubble)",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-0cd14628",
+      "new": "more than ten files rejects the whole batch, reporting how many were sent",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-3e7c4b25",
+      "new": "manually marked as unread appears in the \"Unread\" card even when the agent sent the last message",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-99f33c47",
+      "new": "consecutive messages from the same side form a group; a note breaks it",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-f9644a78",
+      "new": "the display name is never left blank",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-d446a627",
+      "new": "the delivery indicator is the one from the last bubble",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-9b528872",
+      "new": "average time with no value shows a dash, not zero",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-a8edee5d",
+      "new": "alphabetical order groups by letter and sends unnamed items to the end",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-46b8620f",
+      "new": "the period shortcuts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-03a0db4b",
+      "new": "the elapsed-time steps match moment's",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-248b3e6d",
+      "new": "template parameters and preferences with a default",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-9b0221d2",
+      "new": "closure card rule copied from Blip",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-fd00166e",
+      "new": "last interaction groups by day, most recent first",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-test-title-4510ea93",
+      "new": "an oversized file in the middle rejects the batch and names it",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "desk-vite-front-route-564c8327",
+      "new": "/invite/:token",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-14",
+      "notes": "invite route; same value in gestao-vite.csv and crm.csv"
+    },
+    {
+      "id": "desk-vite-front-route-6644331a",
+      "new": "/login",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    }
+  ]
+}
