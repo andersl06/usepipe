@@ -91,7 +91,7 @@ packages-autenticacao-ts-local-4b9a6f10,packages-autenticacao,1,ts-local,criarCo
 packages-autenticacao-ts-local-88392c96,packages-autenticacao,1,ts-local,destino,,packages/autenticacao/src/google.ts:73,303,no,,,candidate,,
 packages-autenticacao-ts-local-4b5224a8,packages-autenticacao,1,ts-local,documento,,packages/autenticacao/tests/oidc.test.ts:59,217,no,,,candidate,,
 packages-autenticacao-ts-local-5cd26655,packages-autenticacao,1,ts-local,duracaoMs,,packages/autenticacao/src/sessao.ts:28,6,no,,,candidate,,
-packages-autenticacao-ts-local-f148b78e,packages-autenticacao,1,ts-local,erro,,packages/autenticacao/src/oidc.ts:94,1477,no,,,candidate,,
+packages-autenticacao-ts-local-f148b78e,packages-autenticacao,1,ts-local,erro,,packages/autenticacao/src/oidc.ts:94,1478,no,,,candidate,,
 packages-autenticacao-ts-local-d4cf2431,packages-autenticacao,1,ts-local,mensagem,,packages/autenticacao/src/entrada.ts:48,1267,no,,,candidate,,
 packages-autenticacao-ts-local-23d10573,packages-autenticacao,1,ts-local,mensagem,,packages/autenticacao/src/google.ts:37,1267,no,,,candidate,,
 packages-autenticacao-ts-local-012573cf,packages-autenticacao,1,ts-local,opcoes,,packages/autenticacao/src/entrada.ts:111,157,no,,,candidate,,

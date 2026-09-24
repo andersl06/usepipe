@@ -136,6 +136,7 @@ function collectCode(source: SourceText, rows: MapRow[], comments: CommentRow[])
       for (const member of node.type.types) if (ts.isLiteralTypeNode(member) && ts.isStringLiteral(member.literal)) add('literal-value', member.literal.text, member.literal, '', isPt(node.name.text));
     }
     if (ts.isEnumMember(node) && node.initializer && ts.isStringLiteralLike(node.initializer)) add('literal-value', node.initializer.text, node.initializer);
+    if (ts.isNewExpression(node) && node.expression.getText(sf) === 'ErroPipe' && node.arguments?.[1] && ts.isStringLiteralLike(node.arguments[1])) add('error-code', node.arguments[1].text, node.arguments[1], '', true);
     if (ts.isStringLiteralLike(node) && insideConstAssertion(node) && /^[a-z][a-z0-9_.:/*-]*$/.test(node.text)) add('literal-value', node.text, node);
     if (ts.isJsxAttribute(node) && node.name.text.startsWith('data-')) {
       const value = ts.isStringLiteral(node.initializer) ? node.initializer.text : undefined;
@@ -165,7 +166,7 @@ function addCssData(name: string, node: ts.Node, file: string, sf: ts.SourceFile
 function collectTechnicalCall(node: ts.CallExpression, file: string, scope: string, sf: ts.SourceFile, rows: MapRow[], add: (kind: string, old: string, node: ts.Node, notes?: string, force?: boolean) => void): void {
   const name = callName(node.expression); const first = literal(node.arguments[0]);
   if (['describe', 'it', 'test'].includes(name) && first) add('test-title', first, node.arguments[0]!);
-  if (name.startsWith('ErroPipe.') && first) add('error-code', first, node.arguments[0]!);
+  if (['ErroPipe.requisicao', 'ErroPipe.conflito'].includes(name) && first) add('error-code', first, node.arguments[0]!, '', true);
   if (['localStorage.getItem', 'localStorage.setItem', 'localStorage.removeItem', 'sessionStorage.getItem', 'sessionStorage.setItem'].includes(name) && first) add('storage-key', first, node.arguments[0]!);
   if (['cookie', 'res.cookie', 'clearCookie'].includes(name) && first) add('cookie', first, node.arguments[0]!);
   if (/metric|Counter|Gauge|Histogram/.test(name) && first) add('metric', first, node.arguments[0]!);

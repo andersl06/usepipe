@@ -167,7 +167,7 @@ packages-db-literal-value-653fc123,packages-db,1,literal-value,equipe.gerenciar,
 packages-db-literal-value-2609f6ef,packages-db,1,literal-value,espera_fila,,packages/db/src/schema/gestao.ts:201,8,unknown,,,candidate,,
 packages-db-literal-value-af61b094,packages-db,1,literal-value,evento_atendimento,,packages/db/src/particoes.ts:12,40,unknown,,,candidate,,
 packages-db-literal-value-2b33e8b3,packages-db,1,literal-value,excluiu,KEEP,packages/db/src/auditoria.ts:44,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
-packages-db-literal-value-1ce05a8d,packages-db,1,literal-value,fila.gerenciar,,packages/db/src/semente.ts:42,13,unknown,,,candidate,,
+packages-db-literal-value-1ce05a8d,packages-db,1,literal-value,fila.gerenciar,,packages/db/src/semente.ts:42,14,unknown,,,candidate,,
 packages-db-literal-value-8af0d20b,packages-db,1,literal-value,fila,,packages/db/src/schema/comum.ts:63,993,unknown,,,candidate,,
 packages-db-literal-value-011e8da2,packages-db,1,literal-value,fila,,packages/db/src/schema/gestao.ts:178,993,unknown,,,candidate,,
 packages-db-literal-value-46fc1ed5,packages-db,1,literal-value,fluxo,,packages/db/src/schema/automacao.ts:26,1172,unknown,,,candidate,,
@@ -367,7 +367,7 @@ packages-db-symbol-b4b8f084,packages-db,1,symbol,papeisDeConta,,packages/db/test
 packages-db-symbol-a0b8d212,packages-db,1,symbol,PapelDeConta,,packages/db/src/schema/identidade.ts:180,4,no,,,candidate,,
 packages-db-symbol-b95fd882,packages-db,1,symbol,papel,,packages/db/src/schema/identidade.ts:182,521,no,,,candidate,,
 packages-db-symbol-84a1622d,packages-db,1,symbol,papelPermissao,,packages/db/src/schema/identidade.ts:213,10,no,,,candidate,,
-packages-db-symbol-0286fa0d,packages-db,1,symbol,permissao,,packages/db/src/schema/identidade.ts:207,53,no,,,candidate,,
+packages-db-symbol-0286fa0d,packages-db,1,symbol,permissao,,packages/db/src/schema/identidade.ts:207,54,no,,,candidate,,
 packages-db-symbol-914772cf,packages-db,1,symbol,POLITICAS_ERRO,,packages/db/src/schema/automacao.ts:455,2,no,,,candidate,,
 packages-db-symbol-abb0d5e9,packages-db,1,symbol,posicaoNoRoteador,,packages/db/src/schema/automacao.ts:193,1,no,,,candidate,,
 packages-db-symbol-84a34040,packages-db,1,symbol,primeiro,,packages/db/tests/rls.test.ts:153,258,no,,,candidate,,
@@ -438,9 +438,9 @@ packages-db-ts-local-9cb8c0cb,packages-db,1,ts-local,consulta,,packages/db/tests
 packages-db-ts-local-f9369636,packages-db,1,ts-local,dados,,packages/db/src/semente.ts:313,669,no,,,candidate,,
 packages-db-ts-local-e1b2d70c,packages-db,1,ts-local,definicao,,packages/db/src/semente.ts:334,1,no,,,candidate,,
 packages-db-ts-local-903e6a1b,packages-db,1,ts-local,descricao,,packages/db/src/semente.ts:320,299,no,,,candidate,,
-packages-db-ts-local-a1c04dc4,packages-db,1,ts-local,erro,,packages/db/src/migrar.ts:32,1477,no,,,candidate,,
-packages-db-ts-local-afdc7688,packages-db,1,ts-local,erro,,packages/db/src/semente-demo.ts:867,1477,no,,,candidate,,
-packages-db-ts-local-60c7a6de,packages-db,1,ts-local,erro,,packages/db/src/semente.ts:395,1477,no,,,candidate,,
+packages-db-ts-local-a1c04dc4,packages-db,1,ts-local,erro,,packages/db/src/migrar.ts:32,1478,no,,,candidate,,
+packages-db-ts-local-afdc7688,packages-db,1,ts-local,erro,,packages/db/src/semente-demo.ts:867,1478,no,,,candidate,,
+packages-db-ts-local-60c7a6de,packages-db,1,ts-local,erro,,packages/db/src/semente.ts:395,1478,no,,,candidate,,
 packages-db-ts-local-65cdfc54,packages-db,1,ts-local,filaId,,packages/db/src/semente-demo.ts:228,170,no,,,candidate,,
 packages-db-ts-local-b5fe80ee,packages-db,1,ts-local,idChave,,packages/db/src/segredo.ts:109,4,no,,,candidate,,
 packages-db-ts-local-e232244d,packages-db,1,ts-local,mensagem,,packages/db/src/segredo.ts:36,1267,no,,,candidate,,
@@ -583,9 +583,9 @@ packages-db-ts-prop-5cf54437,packages-db,1,ts-prop,entrada,,packages/db/src/sche
 packages-db-ts-prop-93b3e244,packages-db,1,ts-prop,entrada,,packages/db/src/schema/automacao.ts:511,473,no,,,candidate,,sql=entrada
 packages-db-ts-prop-942802dc,packages-db,1,ts-prop,erroCodigo,,packages/db/src/schema/conversas.ts:359,18,no,,,candidate,,sql=erro_codigo
 packages-db-ts-prop-1a42a31b,packages-db,1,ts-prop,erroCodigo,,packages/db/src/semente-demo.ts:617,18,no,,,candidate,,
-packages-db-ts-prop-f698e121,packages-db,1,ts-prop,erro,,packages/db/src/schema/automacao.ts:367,1477,no,,,candidate,,sql=erro
-packages-db-ts-prop-fac87c02,packages-db,1,ts-prop,erro,,packages/db/src/schema/automacao.ts:494,1477,no,,,candidate,,sql=erro
-packages-db-ts-prop-5ec0b596,packages-db,1,ts-prop,erro,,packages/db/src/schema/automacao.ts:513,1477,no,,,candidate,,sql=erro
+packages-db-ts-prop-f698e121,packages-db,1,ts-prop,erro,,packages/db/src/schema/automacao.ts:367,1478,no,,,candidate,,sql=erro
+packages-db-ts-prop-fac87c02,packages-db,1,ts-prop,erro,,packages/db/src/schema/automacao.ts:494,1478,no,,,candidate,,sql=erro
+packages-db-ts-prop-5ec0b596,packages-db,1,ts-prop,erro,,packages/db/src/schema/automacao.ts:513,1478,no,,,candidate,,sql=erro
 packages-db-ts-prop-6f3f90f5,packages-db,1,ts-prop,erroTexto,,packages/db/src/schema/conversas.ts:360,10,no,,,candidate,,sql=erro_texto
 packages-db-ts-prop-a131de43,packages-db,1,ts-prop,erroTexto,,packages/db/src/semente-demo.ts:618,10,no,,,candidate,,
 packages-db-ts-prop-3c02952d,packages-db,1,ts-prop,escopoFilaId,,packages/db/src/schema/monitoria.ts:33,1,no,,,candidate,,sql=escopo_fila_id

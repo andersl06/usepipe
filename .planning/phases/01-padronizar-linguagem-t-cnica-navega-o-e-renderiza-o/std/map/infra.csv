@@ -72,6 +72,7 @@ infra-test-title-36091841,infra,1,test-title,codePropertyNames pega membro de in
 infra-test-title-efe5eab3,infra,1,test-title,collectKeys exclui filhos de caminho opaco mas mantém a própria chave,,tools/std/jsonb-keys.test.ts:11,0,no,,,candidate,,
 infra-test-title-45c41d1e,infra,1,test-title,collectKeys sem doc nem chave nenhuma devolve vazio,,tools/std/jsonb-keys.test.ts:23,0,no,,,candidate,,
 infra-test-title-0db218d5,infra,1,test-title,"extrai classe, metodo e parametro PT com local de declaracao",,tools/std/inventory.test.ts:7,0,no,,,candidate,,
+infra-test-title-3cf05af0,infra,1,test-title,extrai codigo real de erro sem confundir entidade ou permissao,,tools/std/inventory.test.ts:78,0,no,,,candidate,,
 infra-test-title-cd8cea31,infra,1,test-title,isPtComment reconhece palavras funcionais e diacriticos,,tools/std/pt-detect.test.ts:32,0,no,,,candidate,,
 infra-test-title-df4c8aa2,infra,1,test-title,lexiconHash independe da ordem de insercao,,tools/std/pt-detect.test.ts:66,0,no,,,candidate,,
 infra-test-title-4073fa8b,infra,1,test-title,liga sufixo de rota a construtor com base dinamica sem aceitar prefixo curto,,tools/std/inventory.test.ts:62,0,no,,,candidate,,

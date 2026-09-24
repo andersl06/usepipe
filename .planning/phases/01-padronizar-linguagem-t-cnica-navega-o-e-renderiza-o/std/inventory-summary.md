@@ -71,7 +71,7 @@
 | workers | ts-prop | 65 |
 | api | dir | 8 |
 | api | endpoint | 179 |
-| api | error-code | 212 |
+| api | error-code | 310 |
 | api | file | 128 |
 | api | job-name | 5 |
 | api | literal-value | 83 |
@@ -128,14 +128,14 @@
 | infra | literal-value | 5 |
 | infra | script | 5 |
 | infra | symbol | 9 |
-| infra | test-title | 17 |
+| infra | test-title | 18 |
 | infra | ts-local | 18 |
 | infra | ts-prop | 36 |
 | css | css-class | 2068 |
 | css | css-var | 510 |
 | css | data-attr | 54 |
 
-Total rows: 16616
+Total rows: 16715
 Total comments: 6500
 Total route dependents: 474
 
@@ -147,8 +147,8 @@ Total route dependents: 474
 | Front routes | Gestao ~75 segments, Desk 11, CRM 21 pages | 157 | Gestao 136 mounted paths, Desk 2 PT routes, CRM 19 PT pages |
 | Queues | 10 including English name | 7 | PT queue names |
 | Scheduler IDs | 7 | 7 | All upsertJobScheduler literals |
-| Error codes | ~108 unique | 212 | Per declaration occurrence |
-| Test titles | 1,747 all | 1156 | PT subset |
+| Error codes | ~108 unique | 310 | Per declaration occurrence |
+| Test titles | 1,747 all | 1157 | PT subset |
 | CSS classes | ~3,025 unique all | 2068 | PT selector occurrences |
 | CSS vars | 482 unique all | 510 | PT declaration occurrences |
 | literal-value | Not sized | 644 | Candidate union/technical const literal rows |

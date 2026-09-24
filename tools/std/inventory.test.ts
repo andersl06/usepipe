@@ -74,3 +74,9 @@ test('nao inclui texto visivel de listas const no mapa de literais tecnicos', ()
   assert.ok(result.rows.some((row) => row.kind === 'literal-value' && row.old === 'atendimento'));
   assert.equal(result.rows.some((row) => row.kind === 'literal-value' && ['Atendimento', 'Ver conversas da fila'].includes(row.old)), false);
 });
+
+test('extrai codigo real de erro sem confundir entidade ou permissao', () => {
+  const result = run({ fileName: 'apps/api/src/erros.ts', sourceText: "ErroPipe.naoEncontrado('Anexo'); ErroPipe.semPermissao('fila.gerenciar'); ErroPipe.requisicao('arquivo_vazio', 'Arquivo vazio'); new ErroPipe(500, 'arquivo_grande', 'Falhou');" });
+  const codes = result.rows.filter((row) => row.kind === 'error-code').map((row) => row.old);
+  assert.deepEqual(codes.sort(), ['arquivo_grande', 'arquivo_vazio']);
+});

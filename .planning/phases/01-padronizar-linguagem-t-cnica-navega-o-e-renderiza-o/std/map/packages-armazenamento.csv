@@ -48,7 +48,7 @@ packages-armazenamento-ts-local-0c2f301a,packages-armazenamento,1,ts-local,dados
 packages-armazenamento-ts-local-0f0e0423,packages-armazenamento,1,ts-local,dados,,packages/armazenamento/src/porta.ts:38,669,no,,,candidate,,
 packages-armazenamento-ts-local-632a211f,packages-armazenamento,1,ts-local,dados,,packages/armazenamento/src/tipo-real.ts:48,669,no,,,candidate,,
 packages-armazenamento-ts-local-59c05b81,packages-armazenamento,1,ts-local,dados,,packages/armazenamento/src/tipo-real.ts:80,669,no,,,candidate,,
-packages-armazenamento-ts-local-3373c750,packages-armazenamento,1,ts-local,erro,,packages/armazenamento/src/disco.ts:50,1477,no,,,candidate,,
+packages-armazenamento-ts-local-3373c750,packages-armazenamento,1,ts-local,erro,,packages/armazenamento/src/disco.ts:50,1478,no,,,candidate,,
 packages-armazenamento-ts-local-8f543503,packages-armazenamento,1,ts-local,segredo,,packages/armazenamento/src/porta.ts:101,212,no,,,candidate,,
 packages-armazenamento-ts-local-ec3f3b1c,packages-armazenamento,1,ts-local,segredo,,packages/armazenamento/src/porta.ts:92,212,no,,,candidate,,
 packages-armazenamento-ts-prop-041eeb60,packages-armazenamento,1,ts-prop,chave,,packages/armazenamento/src/porta.ts:28,1153,no,,,candidate,,
