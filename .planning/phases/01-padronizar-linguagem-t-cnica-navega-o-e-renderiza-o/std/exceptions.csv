@@ -85,3 +85,18 @@ apps/api/src/**,^[a-z_]+:(ler|escrever|gerenciar)$,literal-value,B,API-key scope
 **/*,^WHATSAPP_TOKEN_ACESSO$,*,C,Environment variable name remains unchanged,D-06/D-36
 **/*,^WHATSAPP_VERIFY_TOKEN$,*,C,Environment variable name remains unchanged,D-06/D-36
 **/*,^WHATSAPP_WABA_ID$,*,C,Environment variable name remains unchanged,D-06/D-36
+packages/contracts/src/gestao-fluxo.ts,^desenho$,ts-prop,B,persisted: jsonb:bloco.conteudo,persisted.csv:persisted-wire-01
+apps/api/src/dominio/gestao/builder-do-fluxo.ts,^desenho$,ts-prop,B,persisted: jsonb:bloco.conteudo,persisted.csv:persisted-wire-01
+apps/api/src/dominio/gestao/comunicacao.ts,^variaveis$,ts-prop,B,persisted: jsonb:templateMensagem.variaveis,persisted.csv:persisted-wire-02
+apps/api/src/dominio/gestao-fluxo.ts,^variaveis$,ts-prop,B,persisted: jsonb:templateMensagem.variaveis,persisted.csv:persisted-wire-02
+apps/api/src/dominio/whatsapp/modelos.ts,^variaveis$,ts-prop,B,persisted: jsonb:templateMensagem.variaveis,persisted.csv:persisted-wire-02
+packages/contracts/src/gestao-fluxo.ts,^metadata$,ts-prop,B,persisted: jsonb:mensagem.dados,persisted.csv:persisted-wire-03
+apps/api/src/dominio/gestao-fluxo.ts,^metadata$,ts-prop,B,persisted: jsonb:mensagem.dados,persisted.csv:persisted-wire-03
+apps/api/src/dominio/gestao-analise.ts,^metadata$,ts-prop,B,persisted: jsonb:mensagem.dados,persisted.csv:persisted-wire-03
+apps/api/src/dominio/gestao/regras-prioridade.ts,^condicao$,ts-prop,B,persisted: jsonb:regraPrioridade.condicao,persisted.csv:persisted-wire-04
+apps/api/src/dominio/gestao/integracoes.ts,^cabecalhos$,ts-prop,B,persisted: jsonb:webhookSaida.cabecalhos,persisted.csv:persisted-wire-05
+apps/api/src/dominio/dicionario-crm.ts,^options$,ts-prop,B,persisted: jsonb:dicionarioCampo.options,persisted.csv:persisted-wire-06
+apps/api/src/dominio/dicionario-crm.ts,^settings$,ts-prop,B,persisted: jsonb:dicionarioCampo.settings,persisted.csv:persisted-wire-07
+apps/api/src/dominio/dicionario-crm.ts,^defaultValue$,ts-prop,B,persisted: jsonb:dicionarioCampo.default_value,persisted.csv:persisted-wire-08
+apps/api/src/dominio/dicionario-crm.ts,^relation$,ts-prop,B,persisted: jsonb:dicionarioCampo.relation,persisted.csv:persisted-wire-09
+apps/api/src/dominio/dicionario-crm.ts,^morphRelations$,ts-prop,B,persisted: jsonb:dicionarioCampo.morph_relations,persisted.csv:persisted-wire-10
