@@ -31,6 +31,7 @@ type Finding = {
   line: number;
   kind: string;
   token: string;
+  raw: string;
   snippet: string;
   category: string;
   exception_ref: string;
@@ -229,9 +230,12 @@ function main(): void {
     for (const exception of exceptions) {
       if (exception.kind !== '*' && exception.kind !== finding.kind) continue;
       if (!path.matchesGlob(finding.file, exception.glob) && !path.matchesGlob(historical, exception.glob)) continue;
-      const target = finding.kind === 'comment' ? finding.snippet : finding.token;
+      const target = finding.kind === 'comment' ? finding.snippet : finding.raw;
       let matches = false;
-      try { matches = exception.pattern === '*' || new RegExp(exception.pattern).test(target); }
+      try {
+        matches = exception.pattern === '*' || new RegExp(exception.pattern).test(target) ||
+          new RegExp(exception.pattern).test(finding.token);
+      }
       catch { throw new Error(`Invalid exception regex at ${exceptionFile}:${exception.index}`); }
       if (matches) return { ...finding, category: exception.category, exception_ref: exception.ref, exceptionIndex: exception.index };
     }
@@ -241,7 +245,7 @@ function main(): void {
   function add(file: string, line: number, kind: string, value: string, snippet: string): void {
     for (const token of splitIdentifier(value)) {
       if (!isPtToken(token, extra)) continue;
-      const finding = classify({ file, line, kind, token, snippet: snippet.slice(0, 120), category: '', exception_ref: '' });
+      const finding = classify({ file, line, kind, token, raw: value, snippet: snippet.slice(0, 120), category: '', exception_ref: '' });
       const key = `${finding.file}\0${finding.line}\0${finding.kind}\0${finding.token}\0${finding.snippet}`;
       if (!seen.has(key)) {
         seen.add(key);
@@ -253,7 +257,7 @@ function main(): void {
   function addComment(file: string, text: string, position: number, comment: string): void {
     if (!isPtComment(comment)) return;
     const info = lineSnippet(text, position);
-    const finding = classify({ file, line: info.line, kind: 'comment', token: '', snippet: info.snippet, category: '', exception_ref: '' });
+    const finding = classify({ file, line: info.line, kind: 'comment', token: '', raw: '', snippet: info.snippet, category: '', exception_ref: '' });
     const key = `${file}\0${info.line}\0comment\0${info.snippet}`;
     if (!seen.has(key)) {
       seen.add(key);
@@ -370,7 +374,7 @@ function main(): void {
       const trimmed = lineText.trim();
       if (trimmed.startsWith('#')) {
         if (isPtComment(trimmed)) {
-          const finding = classify({ file, line: index + 1, kind: 'comment', token: '', snippet: trimmed.slice(0, 120), category: '', exception_ref: '' });
+          const finding = classify({ file, line: index + 1, kind: 'comment', token: '', raw: '', snippet: trimmed.slice(0, 120), category: '', exception_ref: '' });
           findings.push(finding);
         }
         return;

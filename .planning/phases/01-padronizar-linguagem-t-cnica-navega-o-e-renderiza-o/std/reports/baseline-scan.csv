@@ -127,14 +127,14 @@ apps/api/src/autenticacao.ts,10,identifier,requisicao,import type { RequisicaoCo
 apps/api/src/autenticacao.ts,10,identifier,sessao,import type { RequisicaoComSessao } from './sessao.js';,,
 apps/api/src/autenticacao.ts,12,comment,,/**,,
 apps/api/src/autenticacao.ts,23,identifier,escopos,export const CATALOGO_ESCOPOS = [,,
-apps/api/src/autenticacao.ts,24,literal-value,conversas,"'conversas:ler',",,
-apps/api/src/autenticacao.ts,25,literal-value,conversas,"'conversas:escrever',",,
-apps/api/src/autenticacao.ts,26,literal-value,mensagens,"'mensagens:ler',",,
-apps/api/src/autenticacao.ts,27,literal-value,mensagens,"'mensagens:escrever',",,
-apps/api/src/autenticacao.ts,28,literal-value,contatos,"'contatos:ler',",,
-apps/api/src/autenticacao.ts,29,literal-value,contatos,"'contatos:escrever',",,
-apps/api/src/autenticacao.ts,30,literal-value,filas,"'filas:ler',",,
-apps/api/src/autenticacao.ts,31,literal-value,atendentes,"'atendentes:ler',",,
+apps/api/src/autenticacao.ts,24,literal-value,conversas,"'conversas:ler',",B,D-40
+apps/api/src/autenticacao.ts,25,literal-value,conversas,"'conversas:escrever',",B,D-40
+apps/api/src/autenticacao.ts,26,literal-value,mensagens,"'mensagens:ler',",B,D-40
+apps/api/src/autenticacao.ts,27,literal-value,mensagens,"'mensagens:escrever',",B,D-40
+apps/api/src/autenticacao.ts,28,literal-value,contatos,"'contatos:ler',",B,D-40
+apps/api/src/autenticacao.ts,29,literal-value,contatos,"'contatos:escrever',",B,D-40
+apps/api/src/autenticacao.ts,30,literal-value,filas,"'filas:ler',",B,D-40
+apps/api/src/autenticacao.ts,31,literal-value,atendentes,"'atendentes:ler',",B,D-40
 apps/api/src/autenticacao.ts,35,identifier,escopo,export type Escopo = (typeof CATALOGO_ESCOPOS)[number];,,
 apps/api/src/autenticacao.ts,37,identifier,chave,export interface ContextoDaChave {,,
 apps/api/src/autenticacao.ts,37,identifier,contexto,export interface ContextoDaChave {,,
@@ -6073,11 +6073,11 @@ apps/api/src/dominio/gestao/integracoes.ts,61,string-literal,fluxo,if (!rows[0])
 apps/api/src/dominio/gestao/integracoes.ts,80,identifier,chave,const ESCOPOS_DA_CHAVE_DO_FLUXO = [,,
 apps/api/src/dominio/gestao/integracoes.ts,80,identifier,escopos,const ESCOPOS_DA_CHAVE_DO_FLUXO = [,,
 apps/api/src/dominio/gestao/integracoes.ts,80,identifier,fluxo,const ESCOPOS_DA_CHAVE_DO_FLUXO = [,,
-apps/api/src/dominio/gestao/integracoes.ts,81,literal-value,conversas,"'conversas:ler',",,
-apps/api/src/dominio/gestao/integracoes.ts,82,literal-value,conversas,"'conversas:escrever',",,
-apps/api/src/dominio/gestao/integracoes.ts,83,literal-value,mensagens,"'mensagens:ler',",,
-apps/api/src/dominio/gestao/integracoes.ts,84,literal-value,mensagens,"'mensagens:escrever',",,
-apps/api/src/dominio/gestao/integracoes.ts,85,literal-value,contatos,"'contatos:ler',",,
+apps/api/src/dominio/gestao/integracoes.ts,81,literal-value,conversas,"'conversas:ler',",B,D-40
+apps/api/src/dominio/gestao/integracoes.ts,82,literal-value,conversas,"'conversas:escrever',",B,D-40
+apps/api/src/dominio/gestao/integracoes.ts,83,literal-value,mensagens,"'mensagens:ler',",B,D-40
+apps/api/src/dominio/gestao/integracoes.ts,84,literal-value,mensagens,"'mensagens:escrever',",B,D-40
+apps/api/src/dominio/gestao/integracoes.ts,85,literal-value,contatos,"'contatos:ler',",B,D-40
 apps/api/src/dominio/gestao/integracoes.ts,88,identifier,chave,export interface ChaveDeFluxo {,,
 apps/api/src/dominio/gestao/integracoes.ts,88,identifier,fluxo,export interface ChaveDeFluxo {,,
 apps/api/src/dominio/gestao/integracoes.ts,91,identifier,prefixo,prefixo: string;,,
@@ -30622,7 +30622,7 @@ infra/compose/backup/restaurar-teste.sh,58,identifier,restauracao,pipe_restaurac
 infra/compose/backup/restaurar-teste.sh,60,identifier,metricas,mv /metricas/pipe_restauracao.prom.tmp /metricas/pipe_restauracao.prom,,
 infra/compose/backup/restaurar-teste.sh,60,identifier,restauracao,mv /metricas/pipe_restauracao.prom.tmp /metricas/pipe_restauracao.prom,,
 infra/compose/backup/restaurar-teste.sh,62,identifier,restauracao,"if [ -n ""${HEALTHCHECK_URL_RESTAURACAO:-}"" ] && [ ""${OK}"" -eq 1 ]; then",,
-infra/compose/backup/restaurar-teste.sh,63,identifier,restauracao,"curl -fsS -m 10 --retry 3 ""${HEALTHCHECK_URL_RESTAURACAO}"" > /dev/null || true",,
+infra/compose/backup/restaurar-teste.sh,63,identifier,restauracao,"curl -fsS -m 10 --retry 3 ""${HEALTHCHECK_URL_RESTAURACAO}"" > /dev/null || true",C,D-06/D-36
 infra/compose/deploy.sh,2,comment,,"# Publicação de uma versão nova. Roda na VPS, como root, a partir de /opt/pipe.",,
 infra/compose/deploy.sh,4,comment,,"# Este script é para a SEGUNDA publicação em diante. A primeira, do zero, é",,
 infra/compose/deploy.sh,5,comment,,"# `implantar.sh` — ela tem passos que só acontecem uma vez (papel do banco,",,
@@ -30720,7 +30720,7 @@ infra/compose/docker-compose.prod.yml,266,comment,,# O `archive_command` roda DE
 infra/compose/docker-compose.prod.yml,267,comment,,"# estas três o archive-push falha em silêncio a cada segmento de WAL, o",,
 infra/compose/docker-compose.prod.yml,268,comment,,# Postgres passa a acumular `pg_wal` e o disco acaba. Estavam só no serviço,,
 infra/compose/docker-compose.prod.yml,269,comment,,"# de backup, que não é quem arquiva.",,
-infra/compose/docker-compose.prod.yml,271,identifier,segredo,PGBACKREST_REPO1_S3_KEY_SECRET: ${BACKUP_S3_SEGREDO},,
+infra/compose/docker-compose.prod.yml,271,identifier,segredo,PGBACKREST_REPO1_S3_KEY_SECRET: ${BACKUP_S3_SEGREDO},C,D-06/D-36
 infra/compose/docker-compose.prod.yml,276,comment,,"# `off` no primeiro `up`, de propósito. Arquivar antes de a stanza existir",,
 infra/compose/docker-compose.prod.yml,277,comment,,"# é o mesmo que não arquivar, só que enchendo o disco: o `archive_command`",,
 infra/compose/docker-compose.prod.yml,279,comment,,# implantação manda rodar `pgbackrest stanza-create` e SÓ ENTÃO trocar esta,,
@@ -30748,7 +30748,7 @@ infra/compose/docker-compose.prod.yml,357,comment,,"# `tarefa` porque este servi
 infra/compose/docker-compose.prod.yml,359,comment,,"# sem terminal, saía na hora — e o `up -d --wait` do deploy.sh dava a",,
 infra/compose/docker-compose.prod.yml,360,comment,,# publicação inteira como falha por causa de um contêiner que fez o certo.,,
 infra/compose/docker-compose.prod.yml,362,identifier,por,"restart: 'no' # disparado por systemd timer, não fica em laço",,
-infra/compose/docker-compose.prod.yml,367,identifier,segredo,PGBACKREST_REPO1_S3_KEY_SECRET: ${BACKUP_S3_SEGREDO},,
+infra/compose/docker-compose.prod.yml,367,identifier,segredo,PGBACKREST_REPO1_S3_KEY_SECRET: ${BACKUP_S3_SEGREDO},C,D-06/D-36
 infra/compose/docker-compose.prod.yml,368,comment,,"# `pgbackrest.conf` declara `repo1-cipher-type=aes-256-cbc`. Sem a senha,",,
 infra/compose/docker-compose.prod.yml,369,comment,,"# todo comando do pgBackRest para com ""repo1-cipher-pass is required"" — e",,
 infra/compose/docker-compose.prod.yml,373,identifier,restauracao,HEALTHCHECK_URL_RESTAURACAO: ${HEALTHCHECK_URL_RESTAURACAO},,
@@ -30841,9 +30841,9 @@ infra/compose/implantar.sh,85,identifier,producao,"""  sops updatekeys compose/s
 infra/compose/implantar.sh,85,identifier,segredos,"""  sops updatekeys compose/segredos/producao.enc.env""",,
 infra/compose/implantar.sh,92,comment,,# Ler o .env aqui é seguro: `set -a` + `source` num arquivo que acabamos de,,
 infra/compose/implantar.sh,100,identifier,chave,for chave in POSTGRES_SENHA POSTGRES_APP_SENHA DATABASE_URL DATABASE_URL_APP REDIS_URL \,,
-infra/compose/implantar.sh,101,identifier,retorno,PIPE_CHAVES_SEGREDO GOOGLE_CLIENTE_ID GOOGLE_CLIENTE_SEGREDO GOOGLE_URL_RETORNO \,,
-infra/compose/implantar.sh,101,identifier,segredo,PIPE_CHAVES_SEGREDO GOOGLE_CLIENTE_ID GOOGLE_CLIENTE_SEGREDO GOOGLE_URL_RETORNO \,,
-infra/compose/implantar.sh,102,identifier,dominio,PIPE_ORIGENS PIPE_URL_APP PIPE_URL_API PIPE_COOKIE_DOMINIO ACME_EMAIL; do,,
+infra/compose/implantar.sh,101,identifier,retorno,PIPE_CHAVES_SEGREDO GOOGLE_CLIENTE_ID GOOGLE_CLIENTE_SEGREDO GOOGLE_URL_RETORNO \,C,D-06/D-36
+infra/compose/implantar.sh,101,identifier,segredo,PIPE_CHAVES_SEGREDO GOOGLE_CLIENTE_ID GOOGLE_CLIENTE_SEGREDO GOOGLE_URL_RETORNO \,C,D-06/D-36
+infra/compose/implantar.sh,102,identifier,dominio,PIPE_ORIGENS PIPE_URL_APP PIPE_URL_API PIPE_COOKIE_DOMINIO ACME_EMAIL; do,C,D-06/D-36
 infra/compose/implantar.sh,103,identifier,chave,"[ -n ""${!chave:-}"" ] || faltando+=(""$chave"")",,
 infra/compose/implantar.sh,105,identifier,arquivo,"[ ${#faltando[@]} -eq 0 ] || parar ""faltam valores no arquivo de segredos: ${faltando[*]}"" \",,
 infra/compose/implantar.sh,105,identifier,segredos,"[ ${#faltando[@]} -eq 0 ] || parar ""faltam valores no arquivo de segredos: ${faltando[*]}"" \",,
@@ -30854,16 +30854,16 @@ infra/compose/implantar.sh,107,identifier,segredos,"""onde nasce e como gerar. E
 infra/compose/implantar.sh,109,comment,,# PIPE_CHAVES_SEGREDO é a que a API deixa passar em silêncio: sem ela `/saude`,,
 infra/compose/implantar.sh,110,comment,,# responde 200 e TODO webhook do WhatsApp devolve 500. A conferência é aqui,,
 infra/compose/implantar.sh,111,comment,,# porque depois dela ninguém mais olha.,,
-infra/compose/implantar.sh,112,identifier,segredo,"IFS=',' read -ra chaves <<< ""${PIPE_CHAVES_SEGREDO}""",,
+infra/compose/implantar.sh,112,identifier,segredo,"IFS=',' read -ra chaves <<< ""${PIPE_CHAVES_SEGREDO}""",C,D-06/D-36
 infra/compose/implantar.sh,118,identifier,formato,"[ -n ""$id"" ] && [ ""$id"" != ""$item"" ] || parar ""PIPE_CHAVES_SEGREDO fora do formato."" \",,
-infra/compose/implantar.sh,118,identifier,segredo,"[ -n ""$id"" ] && [ ""$id"" != ""$item"" ] || parar ""PIPE_CHAVES_SEGREDO fora do formato."" \",,
+infra/compose/implantar.sh,118,identifier,segredo,"[ -n ""$id"" ] && [ ""$id"" != ""$item"" ] || parar ""PIPE_CHAVES_SEGREDO fora do formato."" \",C,D-06/D-36
 infra/compose/implantar.sh,119,identifier,chave,"""Cada chave é \`<id>:<32 bytes em base64>\`, separadas por vírgula."" \",,
 infra/compose/implantar.sh,119,identifier,por,"""Cada chave é \`<id>:<32 bytes em base64>\`, separadas por vírgula."" \",,
 infra/compose/implantar.sh,121,comment,,"# `wc -c` sempre imprime um número, inclusive quando o base64 recusa a entrada —",,
 infra/compose/implantar.sh,122,comment,,"# e é isso que faz ""0 bytes"" ser a mensagem para material inválido.",,
 infra/compose/implantar.sh,124,identifier,chave,"[ ""$bytes"" = ""32"" ] || parar ""a chave \""${id}\"" tem ${bytes} bytes, não 32."" \",,
-infra/compose/implantar.sh,128,identifier,dominio,"case ""${PIPE_COOKIE_DOMINIO}"" in",,
-infra/compose/implantar.sh,130,identifier,dominio,"*) parar ""PIPE_COOKIE_DOMINIO precisa começar com ponto: \`.${DOMINIO}\`."" \",,
+infra/compose/implantar.sh,128,identifier,dominio,"case ""${PIPE_COOKIE_DOMINIO}"" in",C,D-06/D-36
+infra/compose/implantar.sh,130,identifier,dominio,"*) parar ""PIPE_COOKIE_DOMINIO precisa começar com ponto: \`.${DOMINIO}\`."" \",C,D-06/D-36
 infra/compose/implantar.sh,131,identifier,dominio,"""Sem o ponto o cookie emitido por api.${DOMINIO} não vale em app.${DOMINIO},"" \",,
 infra/compose/implantar.sh,131,identifier,por,"""Sem o ponto o cookie emitido por api.${DOMINIO} não vale em app.${DOMINIO},"" \",,
 infra/compose/implantar.sh,140,comment,,"# A senha do papel da aplicação precisa ser a MESMA nos dois lugares, senão o",,
@@ -31011,7 +31011,7 @@ infra/k8s/base/kustomization.yaml,2,comment,,"# cliente dedicado) só troca imag
 infra/k8s/base/kustomization.yaml,4,comment,,# Kustomize e não Helm para a aplicação: não há terceiros consumindo isto como,,
 infra/k8s/base/kustomization.yaml,5,comment,,"# chart, e template dentro de YAML é a fonte de metade dos incidentes de deploy.",,
 infra/k8s/base/kustomization.yaml,6,comment,,"# Helm continua sendo usado para o que é de terceiros (Traefik, cert-manager).",,
-infra/k8s/base/kustomization.yaml,20,identifier,filas,- PIPE_FILAS=bullmq,,
+infra/k8s/base/kustomization.yaml,20,identifier,filas,- PIPE_FILAS=bullmq,C,D-06/D-36
 infra/k8s/base/kustomization.yaml,24,comment,,# O Secret `pipe-segredos` NÃO nasce aqui: ele é o arquivo SOPS cifrado que o,,
 infra/k8s/base/kustomization.yaml,26,comment,,# kustomize é colocá-lo em texto claro no repositório.,,
 infra/k8s/base/kustomization.yaml,28,comment,,# O sufixo de hash do configMapGenerator fica LIGADO (padrão): é ele que faz uma,,
@@ -36331,17 +36331,17 @@ packages/db/tests/segredo.test.ts,6,identifier,chaveiro,"chaveiroDoAmbiente,",,
 packages/db/tests/segredo.test.ts,14,identifier,chave,const chaveA = randomBytes(32).toString('base64');,,
 packages/db/tests/segredo.test.ts,15,identifier,chave,const chaveB = randomBytes(32).toString('base64');,,
 packages/db/tests/segredo.test.ts,17,identifier,chaveiro,function chaveiro(atual = 'k1'): ReturnType<typeof chaveiroDoAmbiente> {,,
-packages/db/tests/segredo.test.ts,19,identifier,segredo,"PIPE_CHAVES_SEGREDO: `k1:${chaveA},k2:${chaveB}`,",,
-packages/db/tests/segredo.test.ts,20,identifier,chave,"PIPE_CHAVE_SEGREDO_ATUAL: atual,",,
-packages/db/tests/segredo.test.ts,20,identifier,segredo,"PIPE_CHAVE_SEGREDO_ATUAL: atual,",,
+packages/db/tests/segredo.test.ts,19,identifier,segredo,"PIPE_CHAVES_SEGREDO: `k1:${chaveA},k2:${chaveB}`,",C,D-06/D-36
+packages/db/tests/segredo.test.ts,20,identifier,chave,"PIPE_CHAVE_SEGREDO_ATUAL: atual,",C,D-06/D-36
+packages/db/tests/segredo.test.ts,20,identifier,segredo,"PIPE_CHAVE_SEGREDO_ATUAL: atual,",C,D-06/D-36
 packages/db/tests/segredo.test.ts,29,string-literal,canal,"describe('cifra de segredo de canal', () => {",,
 packages/db/tests/segredo.test.ts,29,string-literal,segredo,"describe('cifra de segredo de canal', () => {",,
 packages/db/tests/segredo.test.ts,56,string-literal,chave,"it('o envelope diz qual chave cifrou, e a antiga continua abrindo', () => {",,
 packages/db/tests/segredo.test.ts,64,string-literal,chave,"it('chave que sumiu do chaveiro falha com nome, não em silêncio', () => {",,
 packages/db/tests/segredo.test.ts,64,string-literal,chaveiro,"it('chave que sumiu do chaveiro falha com nome, não em silêncio', () => {",,
-packages/db/tests/segredo.test.ts,67,identifier,segredo,"PIPE_CHAVES_SEGREDO: `k2:${chaveB}`,",,
-packages/db/tests/segredo.test.ts,68,identifier,chave,"PIPE_CHAVE_SEGREDO_ATUAL: 'k2',",,
-packages/db/tests/segredo.test.ts,68,identifier,segredo,"PIPE_CHAVE_SEGREDO_ATUAL: 'k2',",,
+packages/db/tests/segredo.test.ts,67,identifier,segredo,"PIPE_CHAVES_SEGREDO: `k2:${chaveB}`,",C,D-06/D-36
+packages/db/tests/segredo.test.ts,68,identifier,chave,"PIPE_CHAVE_SEGREDO_ATUAL: 'k2',",C,D-06/D-36
+packages/db/tests/segredo.test.ts,68,identifier,segredo,"PIPE_CHAVE_SEGREDO_ATUAL: 'k2',",C,D-06/D-36
 packages/db/tests/segredo.test.ts,77,string-literal,configuracao,"it('cifrar a configuração duas vezes não empilha envelope', () => {",,
 packages/db/tests/segredo.test.ts,79,identifier,acesso,"const uma = cifrarConfig({ tokenAcesso: 'abc', phoneNumberId: '123' }, k);",,
 packages/db/tests/segredo.test.ts,89,identifier,acesso,"tokenAcesso: 'EAAG-secreto',",,
@@ -36351,7 +36351,7 @@ packages/db/tests/segredo.test.ts,106,string-literal,acesso,"it('a lista de camp
 packages/db/tests/segredo.test.ts,114,string-literal,chave,"it('chave de tamanho errado falha na leitura do ambiente, não no primeiro uso', () => {",,
 packages/db/tests/segredo.test.ts,114,string-literal,leitura,"it('chave de tamanho errado falha na leitura do ambiente, não no primeiro uso', () => {",,
 packages/db/tests/segredo.test.ts,114,string-literal,primeiro,"it('chave de tamanho errado falha na leitura do ambiente, não no primeiro uso', () => {",,
-packages/db/tests/segredo.test.ts,117,identifier,segredo,"PIPE_CHAVES_SEGREDO: `curta:${Buffer.alloc(16).toString('base64')}`,",,
+packages/db/tests/segredo.test.ts,117,identifier,segredo,"PIPE_CHAVES_SEGREDO: `curta:${Buffer.alloc(16).toString('base64')}`,",C,D-06/D-36
 packages/db/tests/segredo.test.ts,122,string-literal,chave,"it('ambiente sem chave falha alto em vez de gravar em texto claro', () => {",,
 packages/db/tests/semente.test.ts,1,path,semente,packages/db/tests/semente.test.ts,,
 packages/db/tests/semente.test.ts,4,identifier,banco,"import { criarBanco, fecharBanco } from '../src/cliente.js';",,
