@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 1 context gathered
-last_updated: "2026-09-24T19:03:18.868Z"
+last_updated: "2026-09-24T19:40:55.312Z"
 last_activity: 2026-09-24 -- Phase 01 execution started
 progress:
   total_phases: 8
   completed_phases: 0
   total_plans: 41
-  completed_plans: 0
+  completed_plans: 1
   percent: 0
 ---
 
@@ -26,11 +26,11 @@ See: .planning/PROJECT.md (updated 2026-09-24)
 ## Current Position
 
 Phase: 01 (padronizar-linguagem-t-cnica-navega-o-e-renderiza-o) — EXECUTING
-Plan: 1 of 41
+Plan: 2 of 41
 Status: Executing Phase 01
 Last activity: 2026-09-24 -- Phase 01 execution started
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [░░░░░░░░░░] 2%
 
 ## Performance Metrics
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 - Trend: -
 
 *Updated after each plan completion*
+| Phase 01 P01 | 45min | 2 tasks | 6 files |
 
 ## Accumulated Context
 
@@ -65,6 +66,7 @@ Decisões completas em PROJECT.md (Key Decisions). Resumo relevante para o traba
 - Fluxos são arquivados, nunca apagados de verdade (`execucao_fluxo.fluxo_versao_id` é `ON DELETE RESTRICT`).
 - Linguagem técnica migra de português para inglês (24/09/2026) — cobre também rotas/endpoints da API, não só front; substitui a regra "tudo em português"; texto visível ao usuário não muda; dados persistidos ficam fora do rename mecânico (Phase 1, STD-01..12). Convenção canônica exata ainda não definida — decisão semântica pendente do discuss-phase.
 - Critério de "Validated" redefinido (24/09/2026): implementado + funciona ponta a ponta + comparado com a referência (quando aplicável) + aprovado pelo dono — código/teste isolado não basta. A maior parte do que o ingest marcou como Validated foi reclassificada como Needs Validation em PROJECT.md; verificação formal é a Phase 3 (VALSURF-01..05).
+- [Phase 01]: 01-01: baseline code commit 57ca8d5; crm standalone EPERM accepted, gates use build --filter=!@pipe/crm + crm 'Compiled successfully'
 
 ### Pending Todos
 
@@ -84,7 +86,6 @@ Problemas conhecidos herdados de PROJECT-HANDOFF.md (24/09/2026) — nenhum reso
 - `master` está 2 commits atrás de `limpeza` — decidir quando mesclar (Phase 4, OPS-01).
 - Branches soltas sem uso recente (`codex/atendimento-blip`, `desk-visual-pipe`, `integracao`, vários `worktree-agent-*`) — candidatas a apagar (Phase 4, OPS-02).
 - Número de teste da Meta expira em 24h, sem versão permanente — reconexão é rotina diária até haver número próprio com usuário de sistema.
-- 01-01 baseline: @pipe/crm build compiles but fails at standalone trace copy with Windows EPERM creating symlinks (next.config output: 'standalone'); needs symlink privilege (Developer Mode/admin) or a decision. The earlier use-client and event-catalog failures are fixed (654ba01, 57ca8d5).
 
 ## Deferred Items
 
@@ -101,6 +102,6 @@ Itens reconhecidos e adiados no ingest inicial (24/09/2026) — fases já planej
 
 ## Session Continuity
 
-Last session: 2026-09-24T15:20:34.470Z
+Last session: 2026-09-24T19:40:43.988Z
 Stopped at: Phase 1 context gathered
 Resume file: .planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/01-CONTEXT.md

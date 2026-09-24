@@ -42,7 +42,7 @@ Pipe já tem um núcleo grande construído e commitado (canais, monitoramento, e
 Plans:
 **Wave 1**
 
-- [ ] 01-01-PLAN.md — Create the phase branch, fix the only root typecheck failure, and record the green baseline that every later slice gate is compared against (D-21, ...
+- [x] 01-01-PLAN.md — Create the phase branch, fix the only root typecheck failure, and record the green baseline that every later slice gate is compared against (D-21, ...
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
@@ -309,7 +309,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Padronizar linguagem técnica, navegação e renderização | 0/41 | Not started | - |
+| 1. Padronizar linguagem técnica, navegação e renderização | 1/41 | In Progress|  |
 | 2. Fechar o Builder | 0/TBD | Not started | - |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
