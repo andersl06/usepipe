@@ -28,6 +28,8 @@ Owner decision (gate 1, 2026-09-24): Portal/Gestão front routes follow the Blip
 
 Per-tenant subdomains (`<tenant>.usepipe.ai`, `<tenant>.desk.usepipe.ai`) are **out of scope for phase 1** — a later phase addresses tenant-subdomain routing. Route constructors and consumers renamed in this phase must not assume a fixed host; keep the host resolution mechanism as-is and only change path segments.
 
+Desk root (owner decision D-42, 2026-09-24): the Desk attendance screen is the app root `/` (future `<tenant>.desk.usepipe.ai/`), with no `/chat` segment. Other Desk screens are `/contacts` and `/analytics`. `/chat` and `/chat/:id` are removed with a dry cut (D-14); what `std/nav-contract.md`, D-27 and D-32 say about `/chat` applies to `/`.
+
 ## Query params, storage keys, cookies, metrics, queues
 
 Use camelCase query parameter names when the approved map selects them for change. Do not rename an existing persisted query contract without its STD-06 decision. New or reset browser storage keys follow `pipe:<app>:<screen>:<name>:v1[...]`; include tenant/user identity in the bracketed suffix where screen state is per identity, as required by D-30. Existing browser keys remain governed by `persisted.csv`.
