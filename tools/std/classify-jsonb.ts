@@ -85,6 +85,7 @@ for (const row of map) {
   if (row.persisted !== 'unknown' || !row.notes.includes('jsonb:')) { next.push(row); continue; }
   const columns = [...(origins.get(key(row)) ?? [])].sort();
   if (!columns.length) {
+    if (!fs.existsSync('tools/std/inventory-new.tmp/map')) throw new Error(`Fresh inventory required to resolve stale reach: ${row.id}`);
     staleCount++;
     if (freshIds.has(row.id)) next.push({ ...row, persisted: 'no', new: '', notes: row.notes.split(';').filter((part) => !part.startsWith('jsonb:')).join(';') });
     continue;
