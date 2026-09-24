@@ -499,24 +499,24 @@ desk-vite-comment-be99f8ce,desk-vite,apps/desk-vite/src/paginas/atendimentos/con
  * dois rádios, Fila e Atendente, e um seletor; ""Cancelar"" / ""Transferir
  * ticket"". A regra de lá (e a nossa, `packages/core/src/conversa/maquina.ts`):
  * a transferência encerra este ticket e abre outro.
- */",,,,,,
+ */",translate,"`Transferir atendimento do Ticket #N` (`transfer-modal-content.html`) offers Queue and Agent radio choices, a selector, and `Cancelar` / `Transferir ticket`. As in the reference and `packages/core/src/conversa/maquina.ts`, transfer closes this ticket and opens another.",meta-blip,apps/desk-vite/src/paginas/atendimentos/conversa.tsx:475-597; original core and reference paths,,proposed
 desk-vite-comment-d9de9b29,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,59,62,jsdoc,3,"/**
    * Tirar uma etiqueta da conversa ABERTA — `DELETE /v1/conversas/:id/etiquetas/:etiquetaId`.
    * Não encerra nada: é o gesto `ADD_TAGS` da origem, que é separado do `CLOSE_TICKET`.
-   */",,,,,,
+   */",translate,Remove a tag from the open conversation through `DELETE /v1/conversas/:id/etiquetas/:etiquetaId`. This does not close the ticket: source `ADD_TAGS` is separate from `CLOSE_TICKET`.,meta-blip,apps/desk-vite/src/paginas/atendimentos/conversa.tsx:63-80,,proposed
 desk-vite-comment-e0a2e383,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,598,602,jsdoc,1,"/**
  * ""Finalizar atendimento do Ticket #N"" (`close-modal-container.js`): as
  * frases de confirmação, o campo ""Adicionar tags"" e ""Cancelar"" / ""Finalizar
  * ticket"". A etiqueta é obrigatória na `api` (`POST /encerrar`).
- */",,,,,,
-desk-vite-comment-01a784a0,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,654,654,jsdoc,1,"/** As filas do tenant, para o seletor de transferência (`GET /v1/desk/filas`). */",,,,,,
+ */",translate,"`Finalizar atendimento do Ticket #N` (`close-modal-container.js`) includes confirmation text, `Adicionar tags`, and `Cancelar` / `Finalizar ticket`. The `api` requires a tag for `POST /encerrar`.",integration,apps/desk-vite/src/paginas/atendimentos/conversa.tsx:603-653,,proposed
+desk-vite-comment-01a784a0,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,654,654,jsdoc,1,"/** As filas do tenant, para o seletor de transferência (`GET /v1/desk/filas`). */",remove,,other,apps/desk-vite/src/paginas/atendimentos/conversa.tsx:655-658: query endpoint is adjacent,,proposed
 desk-vite-comment-c1f84c87,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,660,666,jsdoc,13,"/**
  * ""Exportar ticket"" — sem backend novo: a thread inteira já está carregada na
  * tela (`itens`), então a transcrição sai de um `.txt` montado aqui e baixado
  * pelo navegador. É a versão simples do ""baixar transcrição"" da referência
  * (`blip-desk-funcoes.md` §7) — sem e-mail assíncrono para o recorte de 90
  * dias a 5 anos, que é conversa de gestor, não do atendente numa tela.
- */",,,,,,
+ */",translate,"`Exportar ticket` needs no new backend: all thread `itens` are already loaded, so build a `.txt` transcript and download it in the browser. This is the simple version of reference transcript download (`blip-desk-funcoes.md` §7), without asynchronous email for a 90-day-to-5-year manager report outside this agent screen.",meta-blip,apps/desk-vite/src/paginas/atendimentos/conversa.tsx:667-710; original reference path,,proposed
 desk-vite-comment-7ef178e6,desk-vite,apps/desk-vite/src/paginas/atendimentos/page.tsx,11,24,jsdoc,17,"/**
  * A tela de Atendimentos — `/` e `/chat/:id` — nas três colunas da
  * referência: `.sidenav` (25%), `.pane-chat` (50%), `.drawer` (25%).
@@ -530,8 +530,8 @@ desk-vite-comment-7ef178e6,desk-vite,apps/desk-vite/src/paginas/atendimentos/pag
  * ""Buscando tickets"" enquanto a fila não veio; ""Fique online para atender""
  * com o motivo quando está invisível/em pausa e sem tickets; ""Tudo pronto
  * para atender"" sem conversa escolhida; e a conversa.
- */",,,,,,
-desk-vite-comment-c64c0e58,desk-vite,apps/desk-vite/src/paginas/atendimentos/page.tsx,43,43,block,5,"/* Conversa que não é do atendente (ou não existe) volta para a lista, como lá. */",,,,,,
+ */",translate,"Attendance screen at `/` and `/chat/:id` follows three reference columns: `.sidenav` (25%), `.pane-chat` (50%), `.drawer` (25%). Poll `GET /v1/desk/fila` and `GET /v1/desk/conversas/:id` every 15s, matching source `POLLING_INTERVAL` in settings.json. Advance `agora` every second for relative times and timers. Center states follow source `pane-chat`: `Buscando tickets` before queue load; `Fique online para atender` with a reason when invisible/paused without tickets; `Tudo pronto para atender` without selection; then the conversation.",meta-blip,apps/desk-vite/src/paginas/atendimentos/page.tsx:25-110; current paths pending D-42,,proposed
+desk-vite-comment-c64c0e58,desk-vite,apps/desk-vite/src/paginas/atendimentos/page.tsx,43,43,block,5,"/* Conversa que não é do atendente (ou não existe) volta para a lista, como lá. */",translate,"If this conversation does not belong to the agent or does not exist, return to the list as in the reference.",security,apps/desk-vite/src/paginas/atendimentos/page.tsx:44-46,,proposed
 desk-vite-comment-cfd34c7c,desk-vite,apps/desk-vite/src/paginas/atendimentos/painel.tsx,12,25,jsdoc,11,"/**
  * O painel do contato — `.drawer` da referência
  * (`~/desk-clone/capturas/parciais/drawer.html`): cabeçalho ""Dados do
@@ -545,24 +545,24 @@ desk-vite-comment-cfd34c7c,desk-vite,apps/desk-vite/src/paginas/atendimentos/pai
  * comentários sobre este usuário"" e o campo ""Escreva um comentário..."".
  * Os comentários são as notas internas da conversa
  * (`itens` de gênero `nota`), gravadas por `salvarNotaInterna`.
- */",,,,,,
-desk-vite-comment-825f0ada,desk-vite,apps/desk-vite/src/paginas/atendimentos/painel.tsx,186,186,jsdoc,0,"/** `.profile-info-item`: rótulo em cima, valor embaixo e o botão de copiar. */",,,,,,
+ */",translate,"Reference contact `.drawer` (`~/desk-clone/capturas/parciais/drawer.html`) has `Dados do Contato` and `Informações`, `Histórico`, `Comentários` tabs with `bds-paper` stacks. Source `Falar com gestor` is manager chat, absent in Pipe. Information includes name, ID, email, phone, document, raw key/value extras, and copy buttons. `Comentários` shows an empty state or entry field; these are internal conversation notes (`itens` of kind `nota`) saved through `salvarNotaInterna`.",meta-blip,apps/desk-vite/src/paginas/atendimentos/painel.tsx:26-185; original reference path,,proposed
+desk-vite-comment-825f0ada,desk-vite,apps/desk-vite/src/paginas/atendimentos/painel.tsx,186,186,jsdoc,0,"/** `.profile-info-item`: rótulo em cima, valor embaixo e o botão de copiar. */",remove,,other,apps/desk-vite/src/paginas/atendimentos/painel.tsx:187-218: simple field presentation,,proposed
 desk-vite-comment-32e41231,desk-vite,apps/desk-vite/src/paginas/atendimentos/painel.tsx,219,224,jsdoc,9,"/**
  * O ""Editar"" do painel — `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`),
  * já testado e com permissão própria (`contato.editar`). A tela só manda o que
  * mudou; campo vazio manda string vazia, que a API grava como está (ela é quem
  * decide o que é ""apagar"" vs. ""não mexeu"").
- */",,,,,,
+ */",translate,"Contact-panel `Editar` calls `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`), already tested and guarded by `contato.editar`. Send only changed fields; an empty field sends an empty string, which the API stores as given. The API distinguishes clearing a field from leaving it untouched.",security,apps/desk-vite/src/paginas/atendimentos/painel.tsx:225-296; original controller reference,,proposed
 desk-vite-comment-36d9fa12,desk-vite,apps/desk-vite/src/paginas/atendimentos/painel.tsx,297,303,jsdoc,6,"/**
  * As etiquetas do CONTATO — `contato_etiqueta`, que até aqui não tinha rota nem
  * tela. O catálogo vem de `GET /v1/etiquetas?escopo=contato` (as de escopo
  * `contato` e `ambos`); aplicar e remover vão por `POST`/`DELETE
  * /v1/contatos/:id/etiquetas`, com a mesma permissão de editar a ficha
  * (`contato.editar`) — a etiqueta do contato é dado do contato.
- */",,,,,,
-desk-vite-comment-3a81691f,desk-vite,apps/desk-vite/src/paginas/atendimentos/painel.tsx,33,33,line,0,// Trocar de ticket sai do modo de edição: senão o formulário de um contato fica,,,,,,
-desk-vite-comment-5123baff,desk-vite,apps/desk-vite/src/paginas/atendimentos/thread.tsx,144,144,jsdoc,1,"/** O miolo do balão: texto (`plain-text`), ou o tipo por extenso quando é mídia. */",,,,,,
-desk-vite-comment-8b1f0d2a,desk-vite,apps/desk-vite/src/paginas/atendimentos/thread.tsx,36,36,block,1,/* Começa no fim (`startBottom`) e volta ao fim a cada mensagem nova. */,,,,,,
+ */",translate,"Contact tags live in `contato_etiqueta`, previously without a route or screen. Fetch the catalog from `GET /v1/etiquetas?escopo=contato` (scopes `contato` and `ambos`); apply/remove via `POST`/`DELETE /v1/contatos/:id/etiquetas` under contact-edit permission `contato.editar`. A contact tag is contact data.",integration,apps/desk-vite/src/paginas/atendimentos/painel.tsx:304-385,,proposed
+desk-vite-comment-3a81691f,desk-vite,apps/desk-vite/src/paginas/atendimentos/painel.tsx,33,33,line,0,// Trocar de ticket sai do modo de edição: senão o formulário de um contato fica,translate,"Leave edit mode when switching tickets, so one contact's form cannot remain open over another contact's data.",architecture,apps/desk-vite/src/paginas/atendimentos/painel.tsx:33-35; next line completes split comment,,proposed
+desk-vite-comment-5123baff,desk-vite,apps/desk-vite/src/paginas/atendimentos/thread.tsx,144,144,jsdoc,1,"/** O miolo do balão: texto (`plain-text`), ou o tipo por extenso quando é mídia. */",remove,,other,apps/desk-vite/src/paginas/atendimentos/thread.tsx:145-165: media/text rendering is explicit,,proposed
+desk-vite-comment-8b1f0d2a,desk-vite,apps/desk-vite/src/paginas/atendimentos/thread.tsx,36,36,block,1,/* Começa no fim (`startBottom`) e volta ao fim a cada mensagem nova. */,translate,Start at the bottom (`startBottom`) and scroll back to the bottom after each new message.,meta-blip,apps/desk-vite/src/paginas/atendimentos/thread.tsx:37-45,,proposed
 desk-vite-comment-3e101959,desk-vite,apps/desk-vite/src/paginas/atendimentos/thread.tsx,8,18,jsdoc,10,"/**
  * A thread — o `message-list--panechat` da referência
  * (`~/desk-clone/capturas/parciais/thread.html`): `.card-group-container`
@@ -573,7 +573,7 @@ desk-vite-comment-3e101959,desk-vite,apps/desk-vite/src/paginas/atendimentos/thr
  *
  * O botão ""voltar ao fim"" aparece quando a rolagem está a mais de 150px do
  * fim (`MINIMUM_SCROLL_DISTANCE` do settings.json de lá).
- */",,,,,,
+ */",translate,"Reference thread `message-list--panechat` (`~/desk-clone/capturas/parciais/thread.html`) groups `.blip-card` bubbles in `.card-group-container` with `.blip-message-group > .blip-card-group.left|right`, with `.group-notification` time on the speaker's side and delivery signal before time for outgoing groups. Put ticket-opening `.ticket .fancy` and `h3` before messages. Show the return-to-bottom button beyond 150px from the bottom (source settings.json `MINIMUM_SCROLL_DISTANCE`).",meta-blip,apps/desk-vite/src/paginas/atendimentos/thread.tsx:19-143; original reference path,,proposed
 desk-vite-comment-dd56881f,desk-vite,apps/desk-vite/src/paginas/contatos/page.tsx,13,31,jsdoc,12,"/**
  * A aba Contatos — o MFE `desk-contact-history` da referência, medido rodando
  * sobre o mock em `~/desk-clone/clone/mfe-teste.html` (fotos
@@ -592,10 +592,10 @@ desk-vite-comment-dd56881f,desk-vite,apps/desk-vite/src/paginas/contatos/page.ts
  *
  * Os dados vêm de `GET /v1/desk/contatos?busca=`, `/contatos/:id` e
  * `/tickets/:id`. Tudo de leitura, como lá.
- */",,,,,,
-desk-vite-comment-a915b969,desk-vite,apps/desk-vite/src/paginas/contatos/page.tsx,342,342,jsdoc,3,"/** Quando falta valor a tela escreve a falta, como lá (""Nenhum telefone cadastrado""). */",,,,,,
-desk-vite-comment-b1a2df1c,desk-vite,apps/desk-vite/src/paginas/contatos/page.tsx,360,360,jsdoc,0,"/** ""dd/mm/aaaa, HH:mm"" — o formato da linha ""Última interação"" do MFE. */",,,,,,
-desk-vite-comment-118e22d3,desk-vite,apps/desk-vite/src/paginas/contatos/page.tsx,371,371,jsdoc,1,"/** As situações de encerramento por extenso, as que o domínio distingue. */",,,,,,
+ */",translate,"Contacts tab follows reference MFE `desk-contact-history`, measured on the mock in `~/desk-clone/clone/mfe-teste.html` (`desk2/blip-contacts-1200.png`, `blip-contatos-aberto.png`): 300/600/300 columns. Left has 110px heading/search/sort and grouped 62px contact cards. Center shows an empty prompt, then new-conversation card, or ticket transcript. Right has `Histórico` and `Contato` tabs. Read only through `GET /v1/desk/contatos?busca=`, `/contatos/:id`, and `/tickets/:id`, as in the reference.",meta-blip,apps/desk-vite/src/paginas/contatos/page.tsx:32-341; original evidence references,,proposed
+desk-vite-comment-a915b969,desk-vite,apps/desk-vite/src/paginas/contatos/page.tsx,342,342,jsdoc,3,"/** Quando falta valor a tela escreve a falta, como lá (""Nenhum telefone cadastrado""). */",remove,,other,apps/desk-vite/src/paginas/contatos/page.tsx:343-359: fallback presentation is explicit,,proposed
+desk-vite-comment-b1a2df1c,desk-vite,apps/desk-vite/src/paginas/contatos/page.tsx,360,360,jsdoc,0,"/** ""dd/mm/aaaa, HH:mm"" — o formato da linha ""Última interação"" do MFE. */",translate,"Use `dd/mm/aaaa, HH:mm` for MFE `Última interação`.",meta-blip,apps/desk-vite/src/paginas/contatos/page.tsx:361-370,,proposed
+desk-vite-comment-118e22d3,desk-vite,apps/desk-vite/src/paginas/contatos/page.tsx,371,371,jsdoc,1,"/** As situações de encerramento por extenso, as que o domínio distingue. */",remove,,other,apps/desk-vite/src/paginas/contatos/page.tsx:372-390: switch directly lists domain states,,proposed
 desk-vite-comment-7953ddce,desk-vite,apps/desk-vite/src/paginas/convite.tsx,7,20,jsdoc,24,"/**
  * O convite visto por quem ainda está do lado de fora.
  *
@@ -609,16 +609,16 @@ desk-vite-comment-7953ddce,desk-vite,apps/desk-vite/src/paginas/convite.tsx,7,20
  *
  * O botão manda para `/v1/auth/google?convite=<token>`, que é o caminho de quem
  * não tem domínio verificado: é o convite que decide o tenant, e não o domínio.
- */",,,,,,
+ */",translate,"Invitation screen is public like sign-in: requiring a session for `GET /v1/convites/:token` would create a cycle for the account this invitation creates. Show only the API's minimal invite details: recipient, role, company, expiry. Possession of the link already reveals the email, not other account data. Continue through `/v1/auth/google?convite=<token>` for users without a verified domain; the invitation, not the domain, selects the tenant.",security,apps/desk-vite/src/paginas/convite.tsx:23-90; original security rationale,,proposed
 desk-vite-comment-25cf41ec,desk-vite,apps/desk-vite/src/paginas/convite.tsx,71,72,block,3,"/* Vencido, já usado e inexistente dão a MESMA tela: separar
-                contaria a quem tem o link se aquele token um dia existiu. */",,,,,,
-desk-vite-comment-bd60d186,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,108,108,block,5,/* A entrada tem letra própria — é a única tela do produto que não usa a do aplicativo. */,,,,,,
-desk-vite-comment-7bb78bc4,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,129,129,block,4,"/* Link, e não botão: entrar com o Google é navegação de topo para a `api`. */",,,,,,
+                contaria a quem tem o link se aquele token um dia existiu. */",translate,"Expired, used, and nonexistent invitations share the same screen so the link holder cannot learn whether a token ever existed.",security,apps/desk-vite/src/paginas/convite.tsx:65-80,,proposed
+desk-vite-comment-bd60d186,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,108,108,block,5,/* A entrada tem letra própria — é a única tela do produto que não usa a do aplicativo. */,translate,Sign-in uses its own font; it is the only product screen outside the app's typography.,other,apps/desk-vite/src/paginas/entrar.tsx:108-115,,proposed
+desk-vite-comment-7bb78bc4,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,129,129,block,4,"/* Link, e não botão: entrar com o Google é navegação de topo para a `api`. */",translate,Google sign-in is a link because it navigates to the `api` at the top level.,security,apps/desk-vite/src/paginas/entrar.tsx:130-133,,proposed
 desk-vite-comment-ede3b6dd,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,156,158,block,7,"/* O campo de senha do desenho. Sem `name`: o Pipe ainda não tem entrada
                 por senha, e a senha digitada não sai desta página.
-                ponytail: ganha `name` no dia em que a API aceitar senha. */",,,,,,
-desk-vite-comment-e6ad361f,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,190,190,jsdoc,2,"/** O ""G"" oficial, inline: a tela de entrada não depende de rede de terceiro. */",,,,,,
-desk-vite-comment-410c213d,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,59,59,jsdoc,6,/** O que a descoberta por e-mail devolve para a tela quando não roteia. */,,,,,,
+                ponytail: ganha `name` no dia em que a API aceitar senha. */",translate,"The pictured password field has no `name`: Pipe does not yet support password sign-in, and typed passwords never leave this page. Ponytail: add `name` only when the API accepts passwords.",security,apps/desk-vite/src/paginas/entrar.tsx:159-171,,proposed
+desk-vite-comment-e6ad361f,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,190,190,jsdoc,2,"/** O ""G"" oficial, inline: a tela de entrada não depende de rede de terceiro. */",translate,Inline official Google `G` so sign-in does not depend on a third-party image request.,integration,apps/desk-vite/src/paginas/entrar.tsx:191-205,,proposed
+desk-vite-comment-410c213d,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,59,59,jsdoc,6,/** O que a descoberta por e-mail devolve para a tela quando não roteia. */,remove,,other,apps/desk-vite/src/paginas/entrar.tsx:60-78: discovery outcome mapping follows directly,,proposed
 desk-vite-comment-7990d35f,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,7,20,jsdoc,17,"/**
  * A tela de entrada do Desk — copiada de `apps/gestao-vite/src/paginas/entrar.tsx`
  * (a tela de entrada é a da Gestão; só o título muda: ""Entrar no Pipe Desk"").
@@ -632,11 +632,11 @@ desk-vite-comment-7990d35f,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,7,20,
  * 2. **Cada recusa tem uma SAÍDA, não um ""não autorizado"".** Os sete códigos de
  *    `RECUSAS_DE_ENTRADA` chegam em `?erro=` e cada um manda a pessoa para um
  *    lugar diferente.
- */",,,,,,
-desk-vite-comment-92e763a6,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,99,99,line,4,"// Sem SSO, a pessoa fica na mesma tela com o motivo e o e-mail já digitado.",,,,,,
-desk-vite-comment-cda01167,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,130,130,line,1,// ganho que ninguém vê em ponto de 1 px.,,,,,,
-desk-vite-comment-012f1c6a,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,23,23,jsdoc,0,"/** Centro do arco, em fração da caixa, e o raio em fração da diagonal. */",,,,,,
-desk-vite-comment-1e7f5bf5,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,26,26,jsdoc,2,"/** As três camadas, da aresta para dentro. `op` é a faixa de opacidade. */",,,,,,
+ */",translate,"Desk sign-in copies `apps/gestao-vite/src/paginas/entrar.tsx`, changing only the title to `Entrar no Pipe Desk`. Discovery runs in the browser: Vite proxies in development and this app's origin belongs in `PIPE_ORIGENS` in production. No tenant is known or disclosed before login. Each of the seven `RECUSAS_DE_ENTRADA` codes in `?erro=` gives a specific exit rather than a generic unauthorized message.",security,apps/desk-vite/src/paginas/entrar.tsx:21-106; original cross-app and deployment rationale,,proposed
+desk-vite-comment-92e763a6,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,99,99,line,4,"// Sem SSO, a pessoa fica na mesma tela com o motivo e o e-mail já digitado.",translate,"Without SSO, keep the person on this screen with the reason and the email already entered.",security,apps/desk-vite/src/paginas/entrar.tsx:99-105,,proposed
+desk-vite-comment-cda01167,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,130,130,line,1,// ganho que ninguém vê em ponto de 1 px.,translate,That extra pixel would provide no visible benefit.,other,apps/desk-vite/src/paginas/fundo-pipe.tsx:129-133: continuation of pixel-ratio cap comment,,proposed
+desk-vite-comment-012f1c6a,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,23,23,jsdoc,0,"/** Centro do arco, em fração da caixa, e o raio em fração da diagonal. */",translate,Arc center as a fraction of the box; radius as a fraction of the diagonal.,other,apps/desk-vite/src/paginas/fundo-pipe.tsx:24,,proposed
+desk-vite-comment-1e7f5bf5,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,26,26,jsdoc,2,"/** As três camadas, da aresta para dentro. `op` é a faixa de opacidade. */",translate,Three layers from edge inward; `op` is the opacity range.,other,apps/desk-vite/src/paginas/fundo-pipe.tsx:27-31,,proposed
 desk-vite-comment-fa816fd3,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,3,21,jsdoc,21,"/**
  * O fundo da tela de entrada: um feixe de ~10.800 partículas desenhado em
  * `<canvas>` pelo próprio navegador. Sem GIF, sem vídeo, sem imagem — a
@@ -655,15 +655,15 @@ desk-vite-comment-fa816fd3,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,3
  *
  * Com `prefers-reduced-motion` ele desenha UM quadro e para — não há imagem
  * parada para baixar, é o mesmo código sem o relógio.
- */",,,,,,
+ */",translate,"Sign-in background draws about 10,800 particles in browser `<canvas>`, avoiding a GIF, video, or image download (the reference background was 14.6 MB). The enlarged brand curve forms one arc centered outside the lower-right frame, in three layers: sharp edge, diffuse body, mist. Leave upper-left space clear for the form. Continuous particle positions avoid a repeated animation seam. With `prefers-reduced-motion`, draw one frame and stop; no separate still image is downloaded.",architecture,apps/desk-vite/src/paginas/fundo-pipe.tsx:23-145; original design rationale,,proposed
 desk-vite-comment-09988f82,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,43,47,jsdoc,4,"/**
  * As partículas nascem de um gerador com semente FIXA: o mesmo desenho em toda
  * máquina e em toda recarga. Fundo que muda de forma a cada visita é ruído, e
  * ainda impede comparar duas capturas de tela.
- */",,,,,,
-desk-vite-comment-13eff47f,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,59,59,line,2,// `1 - rnd^0.7` adensa junto da aresta: é o que dá a linha viva.,,,,,,
-desk-vite-comment-39e186b4,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,65,65,line,2,"// Cada partícula tem velocidade própria, e as de fora são mais lentas:",,,,,,
-desk-vite-comment-4556c53d,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,98,98,line,2,"// Massa clara difusa no canto, para o cartão não flutuar sobre creme chapado.",,,,,,
+ */",translate,Use a fixed particle-generator seed so every machine and reload shows the same design. A changing background adds noise and prevents comparing screenshots.,architecture,apps/desk-vite/src/paginas/fundo-pipe.tsx:48-58,,proposed
+desk-vite-comment-13eff47f,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,59,59,line,2,// `1 - rnd^0.7` adensa junto da aresta: é o que dá a linha viva.,translate,"`1 - rnd^0.7` concentrates particles near the edge, creating the sharp line.",other,apps/desk-vite/src/paginas/fundo-pipe.tsx:60-61,,proposed
+desk-vite-comment-39e186b4,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,65,65,line,2,"// Cada partícula tem velocidade própria, e as de fora são mais lentas:",translate,"Each particle has its own speed; outer particles move more slowly, so the beam shears rather than rotating as one block.",other,apps/desk-vite/src/paginas/fundo-pipe.tsx:65-67; next line completes split comment,,proposed
+desk-vite-comment-4556c53d,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,98,98,line,2,"// Massa clara difusa no canto, para o cartão não flutuar sobre creme chapado.",translate,Add a diffuse bright mass in the corner so the card does not float over flat cream.,other,apps/desk-vite/src/paginas/fundo-pipe.tsx:99-110,,proposed
 desk-vite-comment-41cae433,desk-vite,apps/desk-vite/src/paginas/mensagem-ativa/page.tsx,13,27,jsdoc,7,"/**
  * ""Enviar mensagem ativa"" — `/activeMessage/send`, o stepper 1-2-3 da
  * referência (`~/desk-clone/clone/index.html`, seção `active-msg`, foto
@@ -678,9 +678,9 @@ desk-vite-comment-41cae433,desk-vite,apps/desk-vite/src/paginas/mensagem-ativa/p
  *
  * O envio vai para `POST /v1/mensagens-ativas` (canal, modelo, contatos), que
  * já existe na `api`; ""chatbot"" da referência é o nosso canal.
- */",,,,,,
-desk-vite-comment-597a52ec,desk-vite,apps/desk-vite/src/paginas/mensagem-ativa/page.tsx,70,70,block,1,"/* Vindo de ""Conversar novamente"" (Contatos), o contato já entra selecionado. */",,,,,,
-desk-vite-comment-be664515,desk-vite,apps/desk-vite/src/paginas/nao-encontrado.tsx,3,3,jsdoc,2,"/** O `/not-found` da referência, curto: a rota não existe. */",,,,,,
+ */",translate,"`Enviar mensagem ativa` at `/activeMessage/send` follows the reference three-step flow (`~/desk-clone/clone/index.html`, active-msg section; `desk2/blip-clone-active.png`): select contact, choose template, review content; show privacy notice, contact form and selected-contacts panel (0/15), then `Cancelar` / `Continuar`. Copy comes from MFE `desk-active-message` (`referencias-blip/pesquisa/blip-desk-vocabulario.md`). Send channel, template, and contacts to existing `api` endpoint `POST /v1/mensagens-ativas`; reference `chatbot` corresponds to our channel.",meta-blip,apps/desk-vite/src/paginas/mensagem-ativa/page.tsx:28-180; original evidence references,,proposed
+desk-vite-comment-597a52ec,desk-vite,apps/desk-vite/src/paginas/mensagem-ativa/page.tsx,70,70,block,1,"/* Vindo de ""Conversar novamente"" (Contatos), o contato já entra selecionado. */",translate,"When arriving from `Conversar novamente` in Contacts, preselect that contact.",architecture,apps/desk-vite/src/paginas/mensagem-ativa/page.tsx:69-82,,proposed
+desk-vite-comment-be664515,desk-vite,apps/desk-vite/src/paginas/nao-encontrado.tsx,3,3,jsdoc,2,"/** O `/not-found` da referência, curto: a rota não existe. */",translate,Reference `/not-found` is brief: the route does not exist.,meta-blip,apps/desk-vite/src/paginas/nao-encontrado.tsx:4-15,,proposed
 desk-vite-comment-98a5fb74,desk-vite,apps/desk-vite/src/paginas/preferencias/page.tsx,4,17,jsdoc,20,"/**
  * ""Preferências"" — `/preferences`. A cópia em `~/desk-clone` não renderiza o
  * MFE `desk-preferences-mfe` (a página fica em branco), então NÃO há foto de
@@ -694,9 +694,9 @@ desk-vite-comment-98a5fb74,desk-vite,apps/desk-vite/src/paginas/preferencias/pag
  *
  * As cinco preferências vivem no navegador, uma chave por preferência: são
  * da MÁQUINA em que a pessoa está, não da pessoa (`referencias-blip/pesquisa/blip-desk-medidas.md` §12).
- */",,,,,,
-desk-vite-comment-a49f8dcd,desk-vite,apps/desk-vite/src/paginas/preferencias/page.tsx,92,92,block,2,/* sem armazenamento (janela privada): a preferência vale só nesta aba */,,,,,,
-desk-vite-comment-7c029dfb,desk-vite,apps/desk-vite/vite.config.ts,16,16,block,2,"/* Na VPS o Desk vive em `/desk`, para compartilhar a sessão da Gestão. */",,,,,,
+ */",translate,"`Preferências` at `/preferences` has no measurable rendered reference because `~/desk-clone` leaves MFE `desk-preferences-mfe` blank. Structure follows reference `app.js` i18n (`""preferences"":""Preferências"",""notifications"":""Notificações""`) and `referencias-blip/pesquisa/blip-desk-preferencias.md`: immediate switches in sections, no Save button. Ponytail: confirm measurements when the reference screen is extracted. Copy replaces `Blip Desk` with `Pipe Desk`. The five preferences use separate browser keys and belong to this machine, not the person (`referencias-blip/pesquisa/blip-desk-medidas.md` §12).",meta-blip,apps/desk-vite/src/paginas/preferencias/page.tsx:18-105; original evidence references,,proposed
+desk-vite-comment-a49f8dcd,desk-vite,apps/desk-vite/src/paginas/preferencias/page.tsx,92,92,block,2,/* sem armazenamento (janela privada): a preferência vale só nesta aba */,translate,"If storage is unavailable (for example, a private window), this preference applies only in the current tab.",architecture,apps/desk-vite/src/paginas/preferencias/page.tsx:85-94,,proposed
+desk-vite-comment-7c029dfb,desk-vite,apps/desk-vite/vite.config.ts,16,16,block,2,"/* Na VPS o Desk vive em `/desk`, para compartilhar a sessão da Gestão. */",translate,On the VPS Desk lives under `/desk` to share the Gest?o session.,integration,apps/desk-vite/vite.config.ts:16-17; deployed base must be confirmed at slice time,,proposed
 desk-vite-comment-5d76e17a,desk-vite,apps/desk-vite/vite.config.ts,5,14,jsdoc,13,"/**
  * Pipe Desk como SPA — o mesmo arranjo de `apps/gestao-vite/vite.config.ts`:
  * Vite com SWC, front estático, e a `api` NestJS como a única porta para o banco.
@@ -706,4 +706,4 @@ desk-vite-comment-5d76e17a,desk-vite,apps/desk-vite/vite.config.ts,5,14,jsdoc,13
  * no navegador. A porta 3210 é a do Desk; a Gestão fica na 3110.
  *
  * `@pipe/ui` é consumido como fonte, sem passo de build.
- */",,,,,,
+ */",translate,Pipe Desk is a SPA configured like `apps/gestao-vite/vite.config.ts`: Vite/SWC builds a static front end and NestJS `api` remains the only database gateway. In development `/v1` proxies to `api` on 3010 so HttpOnly `pipe_sessao` travels on the same origin without CORS or browser tokens. Desk uses port 3210 and Gestão 3110. Consume `@pipe/ui` as source without a separate build step.,security,apps/desk-vite/vite.config.ts:15-40; original cross-app rationale,,proposed
