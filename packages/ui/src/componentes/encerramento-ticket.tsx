@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import { Icone } from '../icones';
 import { encerramentoPodeConfirmar, type EtiquetaDeEncerramento } from '../regras-encerramento';
