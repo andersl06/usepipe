@@ -20,6 +20,8 @@ commits:
   - bb7d535
   - f5408b3
   - 2117f4e
+  - c64b022
+  - 84ba060
 ---
 
 Glossário de domínio e convenção de nomenclatura em inglês (STD-01) aprovados pelo dono no portão 1 (D-03), com sete decisões pontuais do dono aplicadas; `GLOSSARY.md` e `CONVENTIONS-EN.md` estão `Status: APPROVED` e todas as 85 linhas do glossário estão `approved: yes`.
@@ -40,6 +42,7 @@ Glossário de domínio e convenção de nomenclatura em inglês (STD-01) aprovad
 6. Demais termos ambíguos mantiveram a recomendação proposta (chave→key, conta→account, entrada→inbound, modelo→template, janela→window, mídia→media, relatório→report, cadastro→registration, espelho→mirror), exceto **análise** → `analytics` (nomenclatura Blip, aceita pelo dono sobre "analysis").
 7. **painel** → `application` quando é o módulo Portal/Gestão ou a tela/rota principal do portal (Blip usa `<tenant>.blip.ai/application`); `panel` para componentes de UI (painéis laterais, linhas de dashboard como `LinhaDoPainel`, helpers `painel.ts` do crm). Evidência: `referencias-blip/portal/INDICE.md` registra `application.html` como raiz do portal e `application/tenant/panel.html` como o painel do contrato.
 8. Rotas do front devem seguir o formato de caminho do Blip (`/application`, `/application/activeMessage`, `/attendance/...`); subdomínios por tenant (`<tenant>.usepipe.ai`, `<tenant>.desk.usepipe.ai`) ficam fora do escopo da fase 1 — documentado em `CONVENTIONS-EN.md` que as rotas não devem assumir um host fixo.
+9. **D-42 (dono, 2026-09-24):** a tela de atendimento do Desk é a raiz do app `/` (futuro `<tenant>.desk.usepipe.ai/`), sem segmento `/chat`; as demais telas do Desk são `/contacts` e `/analytics`. `/chat` e `/chat/:id` deixam de existir (corte seco, D-14); o que `std/nav-contract.md`, D-27 e D-32 dizem sobre `/chat` vale para `/`. Registrado em `01-CONTEXT.md` (commit `1551b8d` em `std/english-rename`) e incorporado à seção "Routes and endpoints" de `CONVENTIONS-EN.md` (commit `84ba060`).
 
 Todas as demais linhas foram aprovadas exatamente como propostas.
 
