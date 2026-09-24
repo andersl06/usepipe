@@ -198,7 +198,7 @@ Plans:
 
 ### Phase 01.1: Subdomínio por tenant no padrão Blip (INSERTED)
 
-**Goal:** Cada cliente acessa o Pipe pelo próprio subdomínio, como na Blip: `<tenant>.usepipe.app/application` (Gestão/Portal) e `<tenant>.desk.usepipe.ai` (Desk). Escopo: DNS e TLS curinga, resolução do tenant pelo host, cookie de sessão válido entre subdomínios, Traefik na VPS, redirects de login/convite/OAuth. Domínio: `usepipe.app` (ainda não comprado, D-43). As rotas já chegam no formato Blip pela Phase 1 e não assumem host fixo.
+**Goal:** Cada cliente acessa o Pipe pelo próprio subdomínio, como na Blip: `<tenant>.usepipe.app/application` (Gestão/Portal) e `<tenant>.desk.usepipe.app` (Desk). Escopo: DNS e TLS curinga, resolução do tenant pelo host, cookie de sessão válido entre subdomínios, Traefik na VPS, redirects de login/convite/OAuth. Domínio: `usepipe.app` (ainda não comprado, D-43). As rotas já chegam no formato Blip pela Phase 1 e não assumem host fixo.
 **Requirements**: TBD
 **Depends on:** Phase 1
 **Plans:** 0 plans
