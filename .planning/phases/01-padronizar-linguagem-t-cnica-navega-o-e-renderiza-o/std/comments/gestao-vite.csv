@@ -1018,7 +1018,7 @@ gestao-vite-comment-89f69514,gestao-vite,apps/gestao-vite/src/lib/casca.ts,7,13,
  * É o `CascaDoPortal` de `apps/gestao/src/lib/portal.ts`, montado no navegador
  * a partir do que a `api` já responde — `GET /v1/eu` (o contexto de sessão) e
  * `GET /v1/contas/minhas`. Nenhum endpoint novo.
- */",,,,,,
+ */",translate,"Portal shell combines the signed-in user, current account, and account-selector list. This is browser-mounted `CascaDoPortal` from `apps/gestao/src/lib/portal.ts`, built from existing `api` responses `GET /v1/eu` and `GET /v1/contas/minhas`; no new endpoint is needed.",architecture,apps/gestao-vite/src/lib/casca.ts:7-13,,proposed
 gestao-vite-comment-521ad429,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,1,12,jsdoc,10,"/**
  * Certificados de autenticação (mTLS) do contrato — o que a tela
  * `/contrato/certificados` lê, e as regras dela.
@@ -1030,27 +1030,27 @@ gestao-vite-comment-521ad429,gestao-vite,apps/gestao-vite/src/lib/certificados.t
  * `api` lê o `.pfx` (`apps/api/.../dominio/gestao/pfx.ts`), guarda os dois
  * cifrados e devolve validade, impressão digital, emissor, sujeito e status —
  * e os apresenta quando chama os hosts cadastrados (`dominio/mtls.ts`).
- */",,,,,,
-gestao-vite-comment-ebbd032f,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,110,110,jsdoc,2,"/** O `.pfx` como data URL (`data:…;base64,…`) — o corpo que a `api` aceita. */",,,,,,
+ */",translate,"Contract mTLS certificates for `/contrato/certificados`. The reference sends a password-protected `.pfx` to `postmaster@mtls.blip.ai` through LIME commands and derives expiry/status (`referencias-blip/pesquisa/blip-certificados-mtls.md`). Pipe sends base64 file and password to `POST /v1/gestao/contrato/certificados`; `api` parses the `.pfx` (`apps/api/.../dominio/gestao/pfx.ts`), stores file and password encrypted, returns expiry/fingerprint/issuer/subject/status, and uses them for registered hosts (`dominio/mtls.ts`).",security,apps/gestao-vite/src/lib/certificados.ts:1-12,,proposed
+gestao-vite-comment-ebbd032f,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,110,110,jsdoc,2,"/** O `.pfx` como data URL (`data:…;base64,…`) — o corpo que a `api` aceita. */",translate,"Encode the `.pfx` as `data:…;base64,…`, the body accepted by `api`.",security,apps/gestao-vite/src/lib/certificados.ts:110-110,,proposed
 gestao-vite-comment-2dc42ca6,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,20,24,jsdoc,7,"/**
  * O `status` do item da origem (`valid` | `invalid` | `underValidation`), com
  * nome pelo motivo. `sem_arquivo` é o que foi cadastrado à mão antes de a
  * `api` guardar o `.pfx` — não autentica nada.
- */",,,,,,
-gestao-vite-comment-1f2d67ce,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,27,27,jsdoc,2,"/** O item de `GET /v1/gestao/contrato/certificados`, com os nomes em português. Nunca traz o arquivo nem a senha. */",,,,,,
+ */",translate,"Map reference `status` values `valid`, `invalid`, `underValidation` to named reasons. `sem_arquivo` means a manual legacy entry before `api` stored `.pfx`; it authenticates nothing.",security,apps/gestao-vite/src/lib/certificados.ts:20-24,,proposed
+gestao-vite-comment-1f2d67ce,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,27,27,jsdoc,2,"/** O item de `GET /v1/gestao/contrato/certificados`, com os nomes em português. Nunca traz o arquivo nem a senha. */",translate,`GET /v1/gestao/contrato/certificados` returns Portuguese field names but never returns file or password.,security,apps/gestao-vite/src/lib/certificados.ts:27-27,,proposed
 gestao-vite-comment-d832b04a,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,41,45,jsdoc,2,"/**
  * O `bds-chip-tag` da coluna Status (`Pt`): `valid` → `success` ""Válido"";
  * `invalid` → `disabled` ""Inválido""; o resto → `default` ""Em validação"". Aqui
  * o motivo vai no texto, porque a `api` o sabe.
- */",,,,,,
-gestao-vite-comment-88fe5d01,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,55,55,jsdoc,2,"/** A expiração como eles escrevem: `wt.a(data, ""pt-BR"")`, dia/mês/ano em UTC. */",,,,,,
-gestao-vite-comment-1c295ecc,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,65,65,jsdoc,0,"/** Um campo de URL do passo ""Informações do certificado"". */",,,,,,
+ */",translate,"Reference Status-column `bds-chip-tag` (`Pt`) maps `valid` to `success` and `Válido`, `invalid` to `disabled` and `Inválido`, otherwise `default` and `Em validação`. Include the reason in text because `api` knows it.",meta-blip,apps/gestao-vite/src/lib/certificados.ts:41-45,,proposed
+gestao-vite-comment-88fe5d01,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,55,55,jsdoc,2,"/** A expiração como eles escrevem: `wt.a(data, ""pt-BR"")`, dia/mês/ano em UTC. */",translate,"Format expiry like reference `wt.a(data, ""pt-BR"")`: day/month/year in UTC.",meta-blip,apps/gestao-vite/src/lib/certificados.ts:55-55,,proposed
+gestao-vite-comment-1c295ecc,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,65,65,jsdoc,0,"/** Um campo de URL do passo ""Informações do certificado"". */",remove,,other,apps/gestao-vite/src/lib/certificados.ts:65-65,,proposed
 gestao-vite-comment-256eafd1,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,71,75,jsdoc,9,"/**
  * O `o` do `vt` deles: a URL não pode repetir uma das que já estão na lista e
  * precisa ser HTTPS com domínio. A lista comparada é a de ANTES da digitação,
  * como lá.
- */",,,,,,
-gestao-vite-comment-a79ec0a1,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,83,83,jsdoc,0,/** O `ht` deles: descrição preenchida e toda URL preenchida e válida. */,,,,,,
+ */",translate,"Reference `o` in `vt` rejects a URL already in the prior list and requires an HTTPS domain. Compare against the list from before this input, as the reference does.",security,apps/gestao-vite/src/lib/certificados.ts:71-75,,proposed
+gestao-vite-comment-a79ec0a1,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,83,83,jsdoc,0,/** O `ht` deles: descrição preenchida e toda URL preenchida e válida. */,translate,Reference `ht` requires description and every URL to be filled and valid.,meta-blip,apps/gestao-vite/src/lib/certificados.ts:83-83,,proposed
 gestao-vite-comment-c8f5b817,gestao-vite,apps/gestao-vite/src/lib/certificados.ts,88,95,jsdoc,8,"/**
  * A conferência do arquivo ao clicar ""Finalizar"" — a função de três ramos do
  * `h` do `yt`. Devolve a frase do toast deles, ou `null` quando o arquivo passa.
@@ -1058,7 +1058,7 @@ gestao-vite-comment-c8f5b817,gestao-vite,apps/gestao-vite/src/lib/certificados.t
  * O tipo `application/x-pkcs12` é o que o navegador declara para `.pfx` no
  * Windows; em outros sistemas ele vem vazio, e aí vale a extensão — a `api`
  * confere os bytes de qualquer jeito.
- */",,,,,,
+ */",translate,"On Finalizar, validate the file through the reference `h` function's three branches in `yt`; return its toast text or `null` on success. Windows reports `.pfx` as `application/x-pkcs12`, while other browsers may leave MIME empty, so accept extension there; `api` still checks bytes.",security,apps/gestao-vite/src/lib/certificados.ts:88-95,,proposed
 gestao-vite-comment-161e6b27,gestao-vite,apps/gestao-vite/src/lib/cliente-de-consultas.ts,3,11,jsdoc,8,"/**
  * O cache de leituras da `api`, único para o aplicativo.
  *
@@ -1067,8 +1067,8 @@ gestao-vite-comment-161e6b27,gestao-vite,apps/gestao-vite/src/lib/cliente-de-con
  *
  * `staleTime` de 30 s: navegar entre telas do mesmo contato não repete a
  * leitura; a tela que precisa de dado fresco (o Monitoramento, o Log) pede.
- */",,,,,,
-gestao-vite-comment-8b6a9e92,gestao-vite,apps/gestao-vite/src/lib/comunicacao-gravar.ts,16,16,jsdoc,1,/** O interruptor do cartão-linha: liga/desliga sem abrir formulário. */,,,,,,
+ */",translate,"Application-wide `api` read cache lives in a module rather than only `main.tsx`, letting form actions invalidate reads without a hook as former `revalidatePath` did. A 30s `staleTime` avoids refetching while moving between screens for one contact; Monitoring and Log request fresh data.",architecture,apps/gestao-vite/src/lib/cliente-de-consultas.ts:3-11,,proposed
+gestao-vite-comment-8b6a9e92,gestao-vite,apps/gestao-vite/src/lib/comunicacao-gravar.ts,16,16,jsdoc,1,/** O interruptor do cartão-linha: liga/desliga sem abrir formulário. */,remove,,other,apps/gestao-vite/src/lib/comunicacao-gravar.ts:16-16,,proposed
 gestao-vite-comment-c2b511d6,gestao-vite,apps/gestao-vite/src/lib/comunicacao-gravar.ts,5,14,jsdoc,10,"/**
  * Escrita de respostas prontas — `PATCH`/`DELETE` de verdade em
  * `/v1/gestao/comunicacao/respostas-prontas/:id`, diferente de `acoes.ts`
@@ -1078,7 +1078,7 @@ gestao-vite-comment-c2b511d6,gestao-vite,apps/gestao-vite/src/lib/comunicacao-gr
  * importa `cabecalhoTemMidia`/`deslocamentoDoCabecalho` de lá com `node --test`,
  * sem Vite — e `./api` lê `import.meta.env`, que não existe fora dele. Foi
  * exatamente isso que quebrou o teste na primeira versão desta função.
- */",,,,,,
+ */",translate,"Write real ready-reply `PATCH`/`DELETE` at `/v1/gestao/comunicacao/respostas-prontas/:id`, unlike `acoes.ts` which only has creator `salvarRespostaPronta`. Keep this separate from pure `comunicacao.ts`: `tests/comunicacao.test.ts` imports `cabecalhoTemMidia` and `deslocamentoDoCabecalho` under `node --test` without Vite, whereas `./api` reads `import.meta.env`.",architecture,apps/gestao-vite/src/lib/comunicacao-gravar.ts:5-14,,proposed
 gestao-vite-comment-5089a853,gestao-vite,apps/gestao-vite/src/lib/comunicacao.ts,3,16,jsdoc,9,"/**
  * Comunicação: respostas prontas e modelos de mensagem do WhatsApp.
  *
@@ -1092,21 +1092,21 @@ gestao-vite-comment-5089a853,gestao-vite,apps/gestao-vite/src/lib/comunicacao.ts
  *    ""pessoal"" (o atendente cria no Desk — ver §5 de `2026-09-05-desk-requisitos.md`
  *    e o comentário de `estrutura-gestao.tsx`). Esta tela só lista e só cria
  *    `escopo = 'empresa'`; a pessoal não é de gestão.
- */",,,,,,
+ */",update,"Ready replies and WhatsApp templates have two different contracts. `resposta_pronta.atalho` has `index` but no `uniqueIndex`, so per-tenant uniqueness needs an explicit conflict `select` before `insert` in one transaction; the current owner is `apps/api/src/dominio/gestao/comunicacao.ts`, while `salvarRespostaPronta` in former `app/comunicacao/acoes.ts` is historical; current `criarRespostaPronta` and `atalhoEmUso` enforce this in the API. `resposta_pronta.escopo` separates company replies managed here from personal replies created in Desk (`2026-09-05-desk-requisitos.md` Section 5 and `estrutura-gestao.tsx`); this screen lists and creates only `escopo = 'empresa'`.",integration,apps/gestao-vite/src/lib/comunicacao.ts:3-16; API implementation cited in new_text; apps/api/src/dominio/gestao/comunicacao.ts:224-305,,proposed
 gestao-vite-comment-93a6e68d,gestao-vite,apps/gestao-vite/src/lib/comunicacao.ts,44,50,jsdoc,9,"/**
  * Só cabeçalho de MÍDIA consome a posição 1 do envio. A mesma regra vive em
  * `apps/workers/src/whatsapp/template.ts` (quem de fato dispara) — este arquivo
  * não importa de lá porque não há fronteira de pacote entre apps, mas a conta é
  * a mesma, e é ela que faz a tela avisar o cadastro antes do disparo errar em
  * produção.
- */",,,,,,
+ */",translate,Only a MEDIA template header consumes send parameter position 1. `apps/workers/src/whatsapp/template.ts` applies the same rule when sending; do not import across app boundaries. Matching it here lets the screen warn before a production send fails.,integration,apps/gestao-vite/src/lib/comunicacao.ts:44-50,,proposed
 gestao-vite-comment-775140d3,gestao-vite,apps/gestao-vite/src/lib/configuracoes-gravar.ts,5,11,jsdoc,5,"/**
  * Escrita de `regra_sla` (item 2) — `POST`/`PATCH`/`DELETE` de verdade em
  * `/v1/gestao/configuracoes/regras`, a tela `regras-sla.tsx` que só tinha
  * leitura (`TODO(escrita)` removido de lá). Arquivo À PARTE de
  * `configuracoes.ts`, no mesmo padrão de `cadastros.ts`/`cadastros-gravar.ts`:
  * lá ficam os TIPOS de leitura, aqui a chamada à `api`.
- */",,,,,,
+ */",translate,"Write `regra_sla` through real `POST`/`PATCH`/`DELETE` at `/v1/gestao/configuracoes/regras`; `regras-sla.tsx` was previously read-only (its `TODO(escrita)` was removed). Keep `api` calls here and reading types in `configuracoes.ts`, as with `cadastros.ts` and `cadastros-gravar.ts`.",integration,apps/gestao-vite/src/lib/configuracoes-gravar.ts:5-11,,proposed
 gestao-vite-comment-7774d413,gestao-vite,apps/gestao-vite/src/lib/configuracoes.ts,1,13,jsdoc,20,"/**
  * O que está configurado no tenant: o retrato, e o que o muda.
  *
@@ -1119,9 +1119,9 @@ gestao-vite-comment-7774d413,gestao-vite,apps/gestao-vite/src/lib/configuracoes.
  * Nada aqui sabe que o Next existe: sem `revalidatePath`, sem JSX. Recebe
  * parâmetro, devolve dado. É o que faz virar endpoint da `apps/api` por
  * movimentação e não por reescrita (README, ""Quem fala com o banco"").
- */",,,,,,
-gestao-vite-comment-d549cc1f,gestao-vite,apps/gestao-vite/src/lib/configuracoes.ts,130,130,jsdoc,2,"/** A pesquisa ativa do tenant, ou `null` quando ninguém configurou nenhuma. */",,,,,,
-gestao-vite-comment-1b565e15,gestao-vite,apps/gestao-vite/src/lib/configuracoes.ts,132,132,jsdoc,2,/** Quantas pesquisas existem além dessa — a §6 exige uma escala por pesquisa. */,,,,,,
+ */",update,"This front module now exposes tenant-configuration data shapes, while `apps/api/src/dominio/gestao/configuracoes.ts` owns writes. Edits require an audit record with actor, previous value, and time; `registrarAuditoria` from `@pipe/db` writes it in the SAME transaction, avoiding a log that disagrees after failure or rollback. Preserve the README `Quem fala com o banco` boundary: no Next `revalidatePath`, JSX, or database write belongs in this front contract.",security,apps/gestao-vite/src/lib/configuracoes.ts:1-13; API implementation cited in new_text,,proposed
+gestao-vite-comment-d549cc1f,gestao-vite,apps/gestao-vite/src/lib/configuracoes.ts,130,130,jsdoc,2,"/** A pesquisa ativa do tenant, ou `null` quando ninguém configurou nenhuma. */",translate,"Active tenant survey, or `null` when none is configured.",other,apps/gestao-vite/src/lib/configuracoes.ts:130-130,,proposed
+gestao-vite-comment-1b565e15,gestao-vite,apps/gestao-vite/src/lib/configuracoes.ts,132,132,jsdoc,2,/** Quantas pesquisas existem além dessa — a §6 exige uma escala por pesquisa. */,translate,Number of other surveys; the metrics spec Section 6 requires one scale per survey.,other,apps/gestao-vite/src/lib/configuracoes.ts:132-132,,proposed
 gestao-vite-comment-fa5e286d,gestao-vite,apps/gestao-vite/src/lib/configuracoes.ts,137,144,block,14,"/* ------------------------------------------------- escrita das configurações
    O que muda o tenant mora aqui, e não na Server Action: front é front, banco é
    da `api` (README, ""Quem fala com o banco""). Cada função recebe parâmetro,
@@ -1129,17 +1129,17 @@ gestao-vite-comment-fa5e286d,gestao-vite,apps/gestao-vite/src/lib/configuracoes.
    do `@pipe/db` recebe a `tx` justamente para que log e dado nunca discordem.
 
    `diferenca` guarda só o que mudou: quem lê o log quer saber que o fuso foi de
-   São Paulo para Manaus, não reler as colunas que continuaram iguais. */",,,,,,
+   São Paulo para Manaus, não reler as colunas que continuaram iguais. */",update,"These are front-side configuration types; tenant writes and audit now live in `apps/api/src/dominio/gestao/configuracoes.ts`, not a Server Action. The API passes the SAME `tx` to `registrarAuditoria` from `@pipe/db` so data and log cannot disagree. `diferenca` records only changed fields, such as timezone changing from São Paulo to Manaus, rather than unchanged columns (README `Quem fala com o banco`).",security,apps/gestao-vite/src/lib/configuracoes.ts:137-144; API implementation cited in new_text,,proposed
 gestao-vite-comment-80fa11b0,gestao-vite,apps/gestao-vite/src/lib/configuracoes.ts,148,149,block,4,"/* `type` e não `interface`: só o alias ganha índice implícito, e é isso que
-   deixa `diferenca` — que recebe `Record<string, unknown>` — aceitar o objeto. */",,,,,,
-gestao-vite-comment-c6982573,gestao-vite,apps/gestao-vite/src/lib/configuracoes.ts,35,35,jsdoc,1,"/** Rótulos do banco em português corrente. O alvo é enum, não texto livre. */",,,,,,
+   deixa `diferenca` — que recebe `Record<string, unknown>` — aceitar o objeto. */",translate,"Use `type` rather than `interface`: the alias gets an implicit index signature so `diferenca`, which takes `Record<string, unknown>`, accepts this object.",architecture,apps/gestao-vite/src/lib/configuracoes.ts:148-149,,proposed
+gestao-vite-comment-c6982573,gestao-vite,apps/gestao-vite/src/lib/configuracoes.ts,35,35,jsdoc,1,"/** Rótulos do banco em português corrente. O alvo é enum, não texto livre. */",translate,"Database labels remain ordinary Portuguese; the target is an enum, not arbitrary text.",other,apps/gestao-vite/src/lib/configuracoes.ts:35-35,,proposed
 gestao-vite-comment-cdbf9fa7,gestao-vite,apps/gestao-vite/src/lib/configuracoes.ts,48,54,block,10,"/*
  * `carregarOperacao` foi embora com a tela `/configuracoes/operacao`. Ela lia
  * duas coisas: o quadro de atendentes, que virou `carregarAtendentes` em
  * `cadastros.ts` com as colunas de fila e de teto que faltavam; e uma cópia
  * só-leitura dos motivos de pausa, que já têm tela com formulário em
  * `/atendentes/pausas`.
- */",,,,,,
+ */",translate,"`carregarOperacao` left with `/configuracoes/operacao`. It formerly read the agent board, now `carregarAtendentes` in `cadastros.ts` with queue/capacity columns, and a read-only copy of pause reasons, now editable at `/atendentes/pausas`.",architecture,apps/gestao-vite/src/lib/configuracoes.ts:48-54,,proposed
 gestao-vite-comment-90ed367e,gestao-vite,apps/gestao-vite/src/lib/configuracoes.ts,71,82,jsdoc,18,"/**
  * O módulo Canais, que na barra deles é módulo e aqui estava diluído em
  * Preferências ├ Dados.
@@ -1151,7 +1151,7 @@ gestao-vite-comment-90ed367e,gestao-vite,apps/gestao-vite/src/lib/configuracoes.
  *
  * A contagem é de conversas ABERTAS, não do total histórico: o que interessa
  * ao olhar um canal é se ele está entregando agora.
- */",,,,,,
+ */",translate,"Channels are a module in the reference bar, formerly buried under Preferences > Data here. Show the inbox alongside the channel: the channel is an operator connection, while the inbox sets the default queue that receives its conversations. Confusing them sends people looking for default queue on the WhatsApp channel page. Count OPEN conversations, not historical total, to show whether delivery is happening now.",architecture,apps/gestao-vite/src/lib/configuracoes.ts:71-82,,proposed
 gestao-vite-comment-6db7b2dc,gestao-vite,apps/gestao-vite/src/lib/configuracoes.ts,95,102,block,7,"/* ============================================ Preferências ├ Configurações gerais
    A segunda lacuna que `estrutura-gestao.tsx` registrava. Diferente de tudo
    acima, aqui a leitura alimenta um formulário que ESCREVE. O que não tem
@@ -1159,22 +1159,22 @@ gestao-vite-comment-6db7b2dc,gestao-vite,apps/gestao-vite/src/lib/configuracoes.
 
    Um cartão por configuração, e cada um salva sozinho
    (`blip-telas-cadastro.md` §3): ""em Configurações gerais não há um botão
-   Salvar da tela"". */",,,,,,
+   Salvar da tela"". */",translate,"General Settings fills the gap recorded by `estrutura-gestao.tsx`: unlike read-only sections, these reads feed writable cards; anything without a configuration card stays read-only. Save each card independently (`blip-telas-cadastro.md` Section 3); there is no page-wide Save in the reference.",meta-blip,apps/gestao-vite/src/lib/configuracoes.ts:95-102,,proposed
 gestao-vite-comment-9e03d555,gestao-vite,apps/gestao-vite/src/lib/consulta.ts,4,10,jsdoc,4,"/**
  * Uma leitura da `api` como estado de tela: carregando, erro, dado.
  *
  * É o TanStack Query da spec (`2026-09-07-arquitetura-de-front.md` §2) por
  * trás de um nome só. A chave é o caminho: duas telas que pedem a mesma coisa
  * dividem o cache, e invalidar é invalidar o caminho.
- */",,,,,,
+ */",translate,"Expose an `api` read as loading/error/data state through TanStack Query (`2026-09-07-arquitetura-de-front.md` Section 2). Path is the cache key, so screens requesting the same path share data and invalidation targets it.",architecture,apps/gestao-vite/src/lib/consulta.ts:4-10,,proposed
 gestao-vite-comment-5a91faaf,gestao-vite,apps/gestao-vite/src/lib/conta.ts,1,7,jsdoc,6,"/**
  * A conta em vigor e as contas da pessoa — o que o onboarding e o seletor leem.
  *
  * Tudo passa pela `api`, e nada daqui toca o banco: `onboarding_concluido_em` e
  * a troca de conta emitem sessão, e emissão de sessão é regra de identidade, que
  * mora lá. A tela só mostra e manda salvar.
- */",,,,,,
-gestao-vite-comment-ca4d1048,gestao-vite,apps/gestao-vite/src/lib/conta.ts,21,21,jsdoc,1,"/** A aba ""Preferências"" da tela de origem: idioma e fuso da conta. */",,,,,,
+ */",translate,"Current and available accounts go through `api`; this front never touches the DB. `onboarding_concluido_em` and account switching issue sessions, identity rules owned by the API. The screen only displays and submits.",security,apps/gestao-vite/src/lib/conta.ts:1-7,,proposed
+gestao-vite-comment-ca4d1048,gestao-vite,apps/gestao-vite/src/lib/conta.ts,21,21,jsdoc,1,"/** A aba ""Preferências"" da tela de origem: idioma e fuso da conta. */",translate,Reference Preferences tab holds account language and timezone.,meta-blip,apps/gestao-vite/src/lib/conta.ts:21-21,,proposed
 gestao-vite-comment-64780e8c,gestao-vite,apps/gestao-vite/src/lib/conta.ts,37,45,jsdoc,9,"/**
    * Conta PESSOAL — a que nasceu no autosserviço e nunca virou contrato.
    *
@@ -1183,7 +1183,7 @@ gestao-vite-comment-64780e8c,gestao-vite,apps/gestao-vite/src/lib/conta.ts,37,45
    * não publicou nada. É o mesmo corte que a origem faz entre o contrato (com
    * `tenant.id`) e o espaço pessoal (sem), e o seletor desenha os dois
    * diferente.
-   */",,,,,,
+   */",translate,"A PERSONAL account is self-service and not yet a contract. The `api` criterion is ZERO verified domains: contract owners publish a company DNS TXT record, while self-service users have not. This mirrors reference contract (with `tenant.id`) versus personal space (without); render them differently in the selector.",security,apps/gestao-vite/src/lib/conta.ts:37-45,,proposed
 gestao-vite-comment-8433fc8a,gestao-vite,apps/gestao-vite/src/lib/contrato.ts,1,10,jsdoc,8,"/**
  * O que o Painel do contrato (`/contrato`) lê e grava.
  *
@@ -1193,22 +1193,22 @@ gestao-vite-comment-8433fc8a,gestao-vite,apps/gestao-vite/src/lib/contrato.ts,1,
  * fala com o banco"").
  *
  * A régua da tela é `referencias-blip/pesquisa/blip-painel-do-contrato.md`.
- */",,,,,,
-gestao-vite-comment-41b7a43f,gestao-vite,apps/gestao-vite/src/lib/contrato.ts,19,19,jsdoc,3,"/** O fuso da conta: é nele que a data de criação é escrita, não no do servidor. */",,,,,,
-gestao-vite-comment-22be513e,gestao-vite,apps/gestao-vite/src/lib/contrato.ts,21,21,jsdoc,0,"/** Os ""Chatbots"" do cartão deles. Aqui é fluxo e roteador, fora os arquivados. */",,,,,,
-gestao-vite-comment-381d6dd6,gestao-vite,apps/gestao-vite/src/lib/contrato.ts,23,23,jsdoc,1,"/** Os ""Membros"". Só conta quem ainda tem acesso. */",,,,,,
+ */",update,"`/contrato` reads and writes the contract panel through `apps/api`; this front module, like `lib/configuracoes.ts`, now contains data contracts, independent of Next `revalidatePath` and JSX. Its screen reference is `referencias-blip/pesquisa/blip-painel-do-contrato.md` (README `Quem fala com o banco`).",meta-blip,apps/gestao-vite/src/lib/contrato.ts:1-10; API implementation cited in new_text,,proposed
+gestao-vite-comment-41b7a43f,gestao-vite,apps/gestao-vite/src/lib/contrato.ts,19,19,jsdoc,3,"/** O fuso da conta: é nele que a data de criação é escrita, não no do servidor. */",translate,"Format account creation in its timezone, not the server's.",other,apps/gestao-vite/src/lib/contrato.ts:19-19,,proposed
+gestao-vite-comment-22be513e,gestao-vite,apps/gestao-vite/src/lib/contrato.ts,21,21,jsdoc,0,"/** Os ""Chatbots"" do cartão deles. Aqui é fluxo e roteador, fora os arquivados. */",translate,"Reference Chatbots count includes our flows and routers, excluding archived ones.",meta-blip,apps/gestao-vite/src/lib/contrato.ts:21-21,,proposed
+gestao-vite-comment-381d6dd6,gestao-vite,apps/gestao-vite/src/lib/contrato.ts,23,23,jsdoc,1,"/** Os ""Membros"". Só conta quem ainda tem acesso. */",translate,Members count only people who still have access.,other,apps/gestao-vite/src/lib/contrato.ts:23-23,,proposed
 gestao-vite-comment-5749a936,gestao-vite,apps/gestao-vite/src/lib/contrato.ts,27,31,jsdoc,4,"/**
  * Um dos três papéis de CONTA (`papel.escopo = 'conta'`, migração 0021). O
  * `nome` é o `roleId` da origem — `admin`, `member`, `guest` — e é por ele que a
  * tela acha o rótulo, a descrição e o ícone (`PAPEIS_DA_ORIGEM`).
- */",,,,,,
+ */",translate,"One of three ACCOUNT roles (`papel.escopo = 'conta'`, migration 0021). `nome` corresponds to source `roleId` values `admin`, `member`, `guest`; `PAPEIS_DA_ORIGEM` maps label, description, icon.",meta-blip,apps/gestao-vite/src/lib/contrato.ts:27-31,,proposed
 gestao-vite-comment-f68f64ee,gestao-vite,apps/gestao-vite/src/lib/contrato.ts,39,44,jsdoc,7,"/**
    * De qual tabela veio a linha. Na origem há uma só (`tenant-user`), e o
    * `userStatus` distingue `Accepted` de `PendingUser`; aqui quem já entrou é
    * `usuario` e quem foi chamado e ainda não veio é `convite` — é a mesma
    * distinção, com o dado guardado em dois lugares.
-   */",,,,,,
-gestao-vite-comment-a7599dc5,gestao-vite,apps/gestao-vite/src/lib/csv-historico.ts,15,15,jsdoc,2,"/** Os rótulos das colunas, na ordem em que saem no arquivo. */",,,,,,
+   */",translate,Reference has one `tenant-user` table with `userStatus` distinguishing `Accepted` and `PendingUser`. Here signed-in people are `usuario` and pending invitees are `convite`: same distinction stored in two places.,meta-blip,apps/gestao-vite/src/lib/contrato.ts:39-44,,proposed
+gestao-vite-comment-a7599dc5,gestao-vite,apps/gestao-vite/src/lib/csv-historico.ts,15,15,jsdoc,2,"/** Os rótulos das colunas, na ordem em que saem no arquivo. */",remove,,other,apps/gestao-vite/src/lib/csv-historico.ts:15-15,,proposed
 gestao-vite-comment-a6e0657b,gestao-vite,apps/gestao-vite/src/lib/csv-historico.ts,3,13,jsdoc,7,"/**
  * O CSV da ação em massa do Histórico.
  *
@@ -1219,29 +1219,29 @@ gestao-vite-comment-a6e0657b,gestao-vite,apps/gestao-vite/src/lib/csv-historico.
  *
  * Separador é ponto e vírgula, e não vírgula: no Excel em português é o
  * separador de lista, e com vírgula a planilha abre tudo numa coluna só.
- */",,,,,,
+ */",translate,"History bulk-action CSV escaping lives outside the component because it is logic that must be runnable under `pnpm --filter @pipe/gestao test`. Use semicolon, not comma: Portuguese Excel uses it as list separator, otherwise all data opens in one column.",architecture,apps/gestao-vite/src/lib/csv-historico.ts:3-13,,proposed
 gestao-vite-comment-4bac59af,gestao-vite,apps/gestao-vite/src/lib/csv-historico.ts,44,48,jsdoc,6,"/**
  * Campo sempre entre aspas, com aspas de dentro dobradas. É o mínimo que
  * sobrevive a nome de contato com ponto e vírgula, com aspas ou com quebra de
  * linha — e nome de contato tem os três.
- */",,,,,,
-gestao-vite-comment-0bec2b06,gestao-vite,apps/gestao-vite/src/lib/csv-historico.ts,58,58,line,1,// O BOM na frente é o que faz o Excel em português abrir o acento certo.,,,,,,
-gestao-vite-comment-f6e0f1fb,gestao-vite,apps/gestao-vite/src/lib/entrada.ts,11,11,jsdoc,2,"/** Só caminho interno vale como destino: `//outro.site` não é ""para onde voltar"". */",,,,,,
-gestao-vite-comment-c6452903,gestao-vite,apps/gestao-vite/src/lib/entrada.ts,21,21,jsdoc,2,"/** O botão ""Entrar com Google"". Com `convite`, entra aceitando o convite. */",,,,,,
-gestao-vite-comment-e502e144,gestao-vite,apps/gestao-vite/src/lib/entrada.ts,30,30,jsdoc,2,/** `irPara` vem da descoberta como caminho; aqui ele ganha a base e a origem. */,,,,,,
+ */",translate,"Always quote each CSV field and double embedded quotes, so contact names containing semicolons, quotes, or newlines survive.",architecture,apps/gestao-vite/src/lib/csv-historico.ts:44-48,,proposed
+gestao-vite-comment-0bec2b06,gestao-vite,apps/gestao-vite/src/lib/csv-historico.ts,58,58,line,1,// O BOM na frente é o que faz o Excel em português abrir o acento certo.,translate,Prefix BOM so Portuguese Excel decodes accented characters correctly.,integration,apps/gestao-vite/src/lib/csv-historico.ts:58-58,,proposed
+gestao-vite-comment-f6e0f1fb,gestao-vite,apps/gestao-vite/src/lib/entrada.ts,11,11,jsdoc,2,"/** Só caminho interno vale como destino: `//outro.site` não é ""para onde voltar"". */",translate,Only an internal path is a valid return destination; `//outro.site` must not become a redirect target.,security,apps/gestao-vite/src/lib/entrada.ts:11-11,,proposed
+gestao-vite-comment-c6452903,gestao-vite,apps/gestao-vite/src/lib/entrada.ts,21,21,jsdoc,2,"/** O botão ""Entrar com Google"". Com `convite`, entra aceitando o convite. */",translate,"Build the `Entrar com Google` URL; when `convite` is present, sign in while accepting the invitation.",integration,apps/gestao-vite/src/lib/entrada.ts:21-21,,proposed
+gestao-vite-comment-e502e144,gestao-vite,apps/gestao-vite/src/lib/entrada.ts,30,30,jsdoc,2,/** `irPara` vem da descoberta como caminho; aqui ele ganha a base e a origem. */,translate,Discovery supplies `irPara` as a path; add the API base and browser origin here.,integration,apps/gestao-vite/src/lib/entrada.ts:30-30,,proposed
 gestao-vite-comment-da4e53fe,gestao-vite,apps/gestao-vite/src/lib/entrada.ts,4,8,jsdoc,8,"/**
  * Por onde se entra — a parte de `apps/gestao/src/lib/sessao.ts` que continua
  * valendo com o front no navegador. Sem cookie lido à mão: a sessão é o cookie
  * HttpOnly que a `api` emite, e o navegador o carrega sozinho.
- */",,,,,,
+ */",translate,Browser sign-in preserves the useful part of `apps/gestao/src/lib/sessao.ts`. Never read the cookie manually: `api` issues an HttpOnly session cookie and the browser carries it.,security,apps/gestao-vite/src/lib/entrada.ts:4-8,,proposed
 gestao-vite-comment-6f1d8e80,gestao-vite,apps/gestao-vite/src/lib/entrada.ts,40,43,jsdoc,3,"/**
  * Por onde este e-mail entra. A API responde igual para e-mail conhecido e
  * desconhecido, de propósito — só domínio verificado com SSO ativo devolve `sso`.
- */",,,,,,
-gestao-vite-comment-e1a56fab,gestao-vite,apps/gestao-vite/src/lib/esforco.ts,21,21,jsdoc,0,/** Esforço ÷ tickets. Ponderado por construção (§5 da spec de métricas). */,,,,,,
-gestao-vite-comment-511506fb,gestao-vite,apps/gestao-vite/src/lib/esforco.ts,29,29,jsdoc,2,/** Texto que o atendente **não** digitou: resposta pronta e template. */,,,,,,
-gestao-vite-comment-9092db1f,gestao-vite,apps/gestao-vite/src/lib/esforco.ts,31,31,jsdoc,1,/** O que esse texto acrescentaria ao esforço se fosse contado como digitação. */,,,,,,
-gestao-vite-comment-f34360c5,gestao-vite,apps/gestao-vite/src/lib/esforco.ts,40,40,jsdoc,2,/** Conversas encerradas no período que não geraram esforço de nenhum atendente. */,,,,,,
+ */",translate,Discover how this email signs in. The API deliberately answers identically for known and unknown addresses; only a verified domain with active SSO returns `sso`.,security,apps/gestao-vite/src/lib/entrada.ts:40-43,,proposed
+gestao-vite-comment-e1a56fab,gestao-vite,apps/gestao-vite/src/lib/esforco.ts,21,21,jsdoc,0,/** Esforço ÷ tickets. Ponderado por construção (§5 da spec de métricas). */,translate,Effort divided by tickets is weighted by construction (metrics spec Section 5).,architecture,apps/gestao-vite/src/lib/esforco.ts:21-21,,proposed
+gestao-vite-comment-511506fb,gestao-vite,apps/gestao-vite/src/lib/esforco.ts,29,29,jsdoc,2,/** Texto que o atendente **não** digitou: resposta pronta e template. */,translate,Text the agent did NOT type comes from quick replies and templates.,other,apps/gestao-vite/src/lib/esforco.ts:29-29,,proposed
+gestao-vite-comment-9092db1f,gestao-vite,apps/gestao-vite/src/lib/esforco.ts,31,31,jsdoc,1,/** O que esse texto acrescentaria ao esforço se fosse contado como digitação. */,translate,Extra effort this text would add if it were counted as typing.,other,apps/gestao-vite/src/lib/esforco.ts:31-31,,proposed
+gestao-vite-comment-f34360c5,gestao-vite,apps/gestao-vite/src/lib/esforco.ts,40,40,jsdoc,2,/** Conversas encerradas no período que não geraram esforço de nenhum atendente. */,translate,Conversations closed in the period with no effort from any agent.,other,apps/gestao-vite/src/lib/esforco.ts:40-40,,proposed
 gestao-vite-comment-dd4a72b1,gestao-vite,apps/gestao-vite/src/lib/esforco.ts,7,14,jsdoc,4,"/**
  * Relatório de esforço por atendente — §4.4 do desenho.
  *
@@ -1249,26 +1249,26 @@ gestao-vite-comment-dd4a72b1,gestao-vite,apps/gestao-vite/src/lib/esforco.ts,7,1
  * escrito, 1.000 char/min lido, áudio em 1×, e o texto que veio de resposta
  * pronta ou template **fora** do esforço, em coluna separada. Aqui só se busca a
  * matéria-prima e se soma o que o core devolveu.
- */",,,,,,
-gestao-vite-comment-9ad0a450,gestao-vite,apps/gestao-vite/src/lib/filtros-monitoramento.ts,1,1,jsdoc,0,"/** Aceita links antigos (um id), valores repetidos e listas separadas por vírgula. */",,,,,,
-gestao-vite-comment-a9b896cb,gestao-vite,apps/gestao-vite/src/lib/filtros-monitoramento.ts,16,16,jsdoc,1,"/** Copia a query inteira: abas, busca e parâmetros futuros continuam no link. */",,,,,,
-gestao-vite-comment-8ae89c82,gestao-vite,apps/gestao-vite/src/lib/formato.ts,114,114,jsdoc,1,"/** `HH:MM:SS`, que é como o tipo `time` do Postgres volta, vira `HH:MM`. */",,,,,,
+ */",translate,"Agent effort report follows design Section 4.4. All calculations come from `packages/core/src/esforco/`: writing at 200 chars/min, reading at 1,000 chars/min, audio at 1x, and quick-reply/template text excluded from effort but shown separately. This module only fetches raw data and sums core results.",architecture,apps/gestao-vite/src/lib/esforco.ts:7-14,,proposed
+gestao-vite-comment-9ad0a450,gestao-vite,apps/gestao-vite/src/lib/filtros-monitoramento.ts,1,1,jsdoc,0,"/** Aceita links antigos (um id), valores repetidos e listas separadas por vírgula. */",translate,"Accept legacy links with one ID, repeated values, or comma-separated lists.",architecture,apps/gestao-vite/src/lib/filtros-monitoramento.ts:1-1,,proposed
+gestao-vite-comment-a9b896cb,gestao-vite,apps/gestao-vite/src/lib/filtros-monitoramento.ts,16,16,jsdoc,1,"/** Copia a query inteira: abas, busca e parâmetros futuros continuam no link. */",translate,"Copy the whole query so tabs, search, and future parameters remain in the link.",architecture,apps/gestao-vite/src/lib/filtros-monitoramento.ts:16-16,,proposed
+gestao-vite-comment-8ae89c82,gestao-vite,apps/gestao-vite/src/lib/formato.ts,114,114,jsdoc,1,"/** `HH:MM:SS`, que é como o tipo `time` do Postgres volta, vira `HH:MM`. */",translate,Convert Postgres `time` output `HH:MM:SS` to `HH:MM`.,other,apps/gestao-vite/src/lib/formato.ts:114-114,,proposed
 gestao-vite-comment-a761cf48,gestao-vite,apps/gestao-vite/src/lib/formato.ts,14,20,jsdoc,5,"/**
  * Duração longa, para relatório: `4h 12min`.
  *
  * O arredondamento é feito sobre o total de minutos, e não sobre o resto da
  * hora: arredondando o resto separado, 7.190 segundos viravam `1h 60min` —
  * 59,8 minutos sobem para 60 e a hora não acompanha.
- */",,,,,,
-gestao-vite-comment-6bb6574f,gestao-vite,apps/gestao-vite/src/lib/formato.ts,3,3,jsdoc,2,"/** Duração em `mm:ss`, ou `hh:mm:ss` quando passa de uma hora. Nulo vira travessão. */",,,,,,
+ */",translate,"For long report durations (`4h 12min`), round total minutes before splitting into hours; rounding the minute remainder separately could turn 7,190 seconds into `1h 60min`.",other,apps/gestao-vite/src/lib/formato.ts:14-20,,proposed
+gestao-vite-comment-6bb6574f,gestao-vite,apps/gestao-vite/src/lib/formato.ts,3,3,jsdoc,2,"/** Duração em `mm:ss`, ou `hh:mm:ss` quando passa de uma hora. Nulo vira travessão. */",translate,Format duration as `mm:ss` or `hh:mm:ss` beyond one hour; show a dash for null.,other,apps/gestao-vite/src/lib/formato.ts:3-3,,proposed
 gestao-vite-comment-b3da3ce3,gestao-vite,apps/gestao-vite/src/lib/formato.ts,42,48,jsdoc,6,"/**
  * O denominador da métrica, em texto — ""289 de 312 · 23 sem resposta"".
  *
  * É a decisão central da spec de métricas (§2): média que esconde o próprio
  * denominador não entra neste produto, porque o número melhora justamente quando
  * o atendimento piora.
- */",,,,,,
-gestao-vite-comment-33a5a4ca,gestao-vite,apps/gestao-vite/src/lib/formato.ts,68,68,line,1,"// `en-CA` devolve `AAAA-MM-DD`, que é o formato aceito por `<input type=""date"">`.",,,,,,
+ */",translate,"Display the metric denominator as text, e.g. `289 de 312 ? 23 sem resposta`. The metrics spec Section 2 requires it: a mean that hides its population can appear to improve while care worsens.",architecture,apps/gestao-vite/src/lib/formato.ts:42-48,,proposed
+gestao-vite-comment-33a5a4ca,gestao-vite,apps/gestao-vite/src/lib/formato.ts,68,68,line,1,"// `en-CA` devolve `AAAA-MM-DD`, que é o formato aceito por `<input type=""date"">`.",translate,"`en-CA` produces `AAAA-MM-DD`, accepted by `<input type=""date"">`.",other,apps/gestao-vite/src/lib/formato.ts:68-68,,proposed
 gestao-vite-comment-a255766c,gestao-vite,apps/gestao-vite/src/lib/formato.ts,72,83,jsdoc,16,"/**
  * Os dois filtros que vêm da URL, conferidos ANTES de virar consulta.
  *
@@ -1280,24 +1280,24 @@ gestao-vite-comment-a255766c,gestao-vite,apps/gestao-vite/src/lib/formato.ts,72,
  *
  * Ficam aqui, e não num arquivo novo, porque `formato.ts` já é o módulo puro
  * que todas essas telas importam — e é ele que já sabe o formato `AAAA-MM-DD`.
- */",,,,,,
-gestao-vite-comment-26180fed,gestao-vite,apps/gestao-vite/src/lib/formato.ts,90,90,jsdoc,2,"/** `AAAA-MM-DD` que o Postgres aceita — inclusive 31/02, que ele mesmo recusa. */",,,,,,
+ */",translate,"Validate URL filters BEFORE building a query. Query strings are external input from pasted links, old bookmarks, or bots. Without validation, `?fila=abc` reached Postgres as `abc::uuid` and turned a malformed filter into a screen-wide 500. Reject invalid values as `undefined`, meaning no filter, so the page still opens and shows all. Keep this in pure `formato.ts`, already imported by these screens and aware of `AAAA-MM-DD`.",security,apps/gestao-vite/src/lib/formato.ts:72-83,,proposed
+gestao-vite-comment-26180fed,gestao-vite,apps/gestao-vite/src/lib/formato.ts,90,90,jsdoc,2,"/** `AAAA-MM-DD` que o Postgres aceita — inclusive 31/02, que ele mesmo recusa. */",translate,"`AAAA-MM-DD` is accepted by Postgres, including invalid dates like 31/02, which Postgres rejects itself.",security,apps/gestao-vite/src/lib/formato.ts:90-90,,proposed
 gestao-vite-comment-fe0cf10d,gestao-vite,apps/gestao-vite/src/lib/formato.ts,97,103,jsdoc,3,"/**
  * 0 = domingo, como o `extract(dow)` do Postgres e o `getUTCDay` do core.
  *
  * Mora aqui, e não em `cadastros.ts`, porque o formulário de horário é
  * componente de cliente: importar valor de `cadastros.ts` arrastaria o drizzle
  * e o pool do Postgres para o pacote do navegador.
- */",,,,,,
+ */",update,"Day zero is Sunday, matching Postgres `extract(dow)` and core `getUTCDay`. Keep this constant in pure `formato.ts` for client schedule forms; importing `cadastros.ts` now brings types, not the old drizzle/Postgres pool, but the formatting module remains the shared owner.",architecture,apps/gestao-vite/src/lib/formato.ts:97-103,,proposed
 gestao-vite-comment-ad9a2754,gestao-vite,apps/gestao-vite/src/lib/historico.ts,3,8,jsdoc,1,"/**
  * Histórico de conversas encerradas.
  *
  * Mesma regra do monitoramento: o status e os tempos vêm de `evento_atendimento`
  * pelo `@pipe/core`, nunca do campo mutável da conversa.
- */",,,,,,
-gestao-vite-comment-934cf789,gestao-vite,apps/gestao-vite/src/lib/historico.ts,36,36,jsdoc,2,"/** Teto de linhas: o histórico é uma tela de consulta, não de exportação. */",,,,,,
-gestao-vite-comment-0c05d92e,gestao-vite,apps/gestao-vite/src/lib/historico.ts,39,39,jsdoc,3,/** Descarta seleções que não pertencem mais ao resultado visível. */,,,,,,
-gestao-vite-comment-55d468ec,gestao-vite,apps/gestao-vite/src/lib/historico.ts,49,49,jsdoc,1,"/** Selecionar todos atua apenas sobre a lista corrente, inclusive após mudar filtros. */",,,,,,
+ */",translate,"Closed-conversation History derives status and durations from `evento_atendimento` through `@pipe/core`, as Monitoring does, not from mutable conversation fields.",integration,apps/gestao-vite/src/lib/historico.ts:3-8,,proposed
+gestao-vite-comment-934cf789,gestao-vite,apps/gestao-vite/src/lib/historico.ts,36,36,jsdoc,2,"/** Teto de linhas: o histórico é uma tela de consulta, não de exportação. */",translate,Cap rows because History is a browsing screen rather than the export source.,other,apps/gestao-vite/src/lib/historico.ts:36-36,,proposed
+gestao-vite-comment-0c05d92e,gestao-vite,apps/gestao-vite/src/lib/historico.ts,39,39,jsdoc,3,/** Descarta seleções que não pertencem mais ao resultado visível. */,translate,Remove selections no longer present in the visible result.,other,apps/gestao-vite/src/lib/historico.ts:39-39,,proposed
+gestao-vite-comment-55d468ec,gestao-vite,apps/gestao-vite/src/lib/historico.ts,49,49,jsdoc,1,"/** Selecionar todos atua apenas sobre a lista corrente, inclusive após mudar filtros. */",translate,"Select all applies only to the current list, including after filters change.",other,apps/gestao-vite/src/lib/historico.ts:49-49,,proposed
 gestao-vite-comment-31f9692a,gestao-vite,apps/gestao-vite/src/lib/historico.ts,59,71,jsdoc,20,"/**
  * Agrupamento da lista — o lugar onde ""relatório"" mora agora.
  *
@@ -1310,14 +1310,14 @@ gestao-vite-comment-31f9692a,gestao-vite,apps/gestao-vite/src/lib/historico.ts,5
  * A dobra é feita na página já carregada, e não no SQL, porque `carregarHistorico`
  * já tem teto de LIMITE_HISTORICO linhas: agrupar no banco daria grupos calculados
  * sobre um universo diferente do que a tela mostra, que é pior do que não agrupar.
- */",,,,,,
+ */",translate,"List grouping now supplies the former Reports menu cuts by queue, agent, tag, and outcome. Those cuts need no separate screen because they fold the same rows by a column; a report gets its own screen only for a new axis, such as Effort's character/audio counts. Group the loaded page, not SQL results: `carregarHistorico` caps at `LIMITE_HISTORICO`, and database grouping over another population would disagree with the displayed rows.",architecture,apps/gestao-vite/src/lib/historico.ts:59-71,,proposed
 gestao-vite-comment-35bec48a,gestao-vite,apps/gestao-vite/src/lib/historico.ts,98,104,jsdoc,10,"/**
  * Dobra a lista pela coluna escolhida, preservando a ordem de dentro do grupo.
  *
  * Por etiqueta a conversa aparece em cada etiqueta que tem: a soma dos grupos
  * passa do total de linhas de propósito, porque a pergunta ali é ""quantas
  * conversas encostaram nesta etiqueta"", não ""como reparto o total"".
- */",,,,,,
+ */",translate,"Fold by the chosen column without changing order within groups. A conversation with several tags appears in every tag group, so group totals can intentionally exceed row count: the question is how many conversations touched each tag, not how to partition a total.",architecture,apps/gestao-vite/src/lib/historico.ts:98-104,,proposed
 gestao-vite-comment-82df57e0,gestao-vite,apps/gestao-vite/src/lib/implantacao.ts,3,10,jsdoc,5,"/**
  * Os sinais do assistente de implantação, lidos do banco pelo papel da
  * aplicação, com a RLS do tenant da sessão. Uma transação, consultas curtas e
@@ -1325,16 +1325,16 @@ gestao-vite-comment-82df57e0,gestao-vite,apps/gestao-vite/src/lib/implantacao.ts
  *
  * O que cada passo significa mora em `passos-da-implantacao.ts`; aqui só se
  * pergunta ao banco.
- */",,,,,,
-gestao-vite-comment-8ab97d99,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,112,112,jsdoc,1,/** Catálogo para os filtros rápidos. */,,,,,,
-gestao-vite-comment-7d30360d,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,116,116,jsdoc,2,/** Número de ticket legível a partir do uuid — o modelo não tem sequência própria. */,,,,,,
+ */",update,This front module now declares the implantation data contract; `apps/api/src/dominio/gestao/implantacao.ts` reads signals with tenant-session RLS in one transaction. Keep its short queries SERIAL: `Promise.all` inside `comTenant` can erase `pipe.tenant_id` and defeat tenant isolation. Step meaning remains in `passos-da-implantacao.ts`; the API owns database reads.,security,apps/gestao-vite/src/lib/implantacao.ts:3-10; apps/api/src/dominio/gestao/implantacao.ts:3-22,,proposed
+gestao-vite-comment-8ab97d99,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,112,112,jsdoc,1,/** Catálogo para os filtros rápidos. */,remove,,other,apps/gestao-vite/src/lib/monitoramento.ts:112-112,,proposed
+gestao-vite-comment-7d30360d,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,116,116,jsdoc,2,/** Número de ticket legível a partir do uuid — o modelo não tem sequência própria. */,translate,Produce a readable ticket number from UUID because the model has no sequential ticket number.,other,apps/gestao-vite/src/lib/monitoramento.ts:116-116,,proposed
 gestao-vite-comment-e8cb1818,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,121,127,jsdoc,8,"/**
  * Tudo o que a tela de monitoramento precisa, em uma transação só.
  *
  * `agora` entra por parâmetro: as métricas de ""tempo real"" têm cronômetro
  * correndo e o instante precisa ser o mesmo em todos os cartões, senão a soma
  * dos cartões não fecha com a tabela.
- */",,,,,,
+ */",translate,Monitoring data comes from one transaction. Pass the same `agora` instant into running-clock metrics so totals on cards agree with table rows.,architecture,apps/gestao-vite/src/lib/monitoramento.ts:121-127,,proposed
 gestao-vite-comment-4c333d5d,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,133,146,jsdoc,21,"/**
  * A ordem da FILA DE ESPERA: prioridade primeiro, e empate desempata pela mais
  * antiga.
@@ -1348,34 +1348,34 @@ gestao-vite-comment-4c333d5d,gestao-vite,apps/gestao-vite/src/lib/monitoramento.
  * último a chegar sendo o primeiro a sair. A aba ""Atribuído/Em andamento""
  * continua em ordem de criação: lá o ticket já tem dono, e prioridade não muda
  * mais quem atende.
- */",,,,,,
+ */",translate,"Order the WAITING queue by priority, then oldest first. The reference requires an absent-priority rung: `baixa` outranks `sem_prioridade`. When defaults were `media`, sorting by priority would have sorted a value nobody chose, so the list used creation time only. Oldest-first ties prevent a stack-like queue. Assigned tickets stay in creation order because priority no longer changes their owner.",meta-blip,apps/gestao-vite/src/lib/monitoramento.ts:133-146,,proposed
 gestao-vite-comment-19192693,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,153,156,block,13,"/* Sem marco de criação vai para o fim: ela não é ""a mais antiga"", é a que
        não sabemos quando começou. Mesma regra do `null` na ordem do Desk.
        Pelo JSON da API a data chega como TEXTO, não `Date`: chamar `getTime`
-       direto derrubava a aba ""Aguardando atendimento"" inteira. */",,,,,,
-gestao-vite-comment-f89a0e79,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,22,22,jsdoc,4,"/** Segundos na fila: fechado quando já foi atribuída, correndo quando não. */",,,,,,
-gestao-vite-comment-64929c14,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,29,29,jsdoc,4,"/** A bola está com o atendente: o cliente falou por último, ou ninguém respondeu ainda. */",,,,,,
+       direto derrubava a aba ""Aguardando atendimento"" inteira. */",translate,"Missing creation time sorts last; it is unknown, not oldest, matching the Desk's null rule. API JSON supplies date as TEXT, not `Date`; calling `getTime` directly once broke the entire Waiting tab.",architecture,apps/gestao-vite/src/lib/monitoramento.ts:153-156,,proposed
+gestao-vite-comment-f89a0e79,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,22,22,jsdoc,4,"/** Segundos na fila: fechado quando já foi atribuída, correndo quando não. */",translate,"Queue seconds stop when assigned, keep running while waiting.",other,apps/gestao-vite/src/lib/monitoramento.ts:22-22,,proposed
+gestao-vite-comment-64929c14,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,29,29,jsdoc,4,"/** A bola está com o atendente: o cliente falou por último, ou ninguém respondeu ainda. */",translate,Agent has the next action when the customer spoke last or no agent has replied yet.,other,apps/gestao-vite/src/lib/monitoramento.ts:29-29,,proposed
 gestao-vite-comment-103004f6,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,38,42,jsdoc,3,"/**
    * De quantas conversas o máximo acima saiu. Máximo sem população é a mesma
    * armadilha da média sem denominador (§2 da spec de métricas): ""40 minutos""
    * entre duas conversas e entre duzentas pedem reações opostas.
-   */",,,,,,
-gestao-vite-comment-3b95affa,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,74,74,jsdoc,0,/** Carga máxima possível: o limite todo ocupado por conversa aguardando o atendente. */,,,,,,
-gestao-vite-comment-5a7764d0,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,101,101,jsdoc,3,"/** O resumo da classificação da conversa, quando a IA também classificou. */",,,,,,
-gestao-vite-comment-ec3053a7,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,16,16,jsdoc,2,/** O que a IA respondeu num critério de conformidade. */,,,,,,
-gestao-vite-comment-f77cf5c6,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,31,31,jsdoc,4,/** `null` quando a avaliação ainda não fechou nota — e aí ela sai da média. */,,,,,,
-gestao-vite-comment-3f5228af,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,38,38,jsdoc,1,"/** Categoria e sentimento da classificação da conversa, quando houver. */",,,,,,
-gestao-vite-comment-9dc87028,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,46,46,jsdoc,2,/** Avaliações com nota zero por critério fatal — a média sozinha esconde isto. */,,,,,,
-gestao-vite-comment-95f538c1,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,52,52,jsdoc,2,"/** Média geral das notas, com população e descartadas ao lado. */",,,,,,
-gestao-vite-comment-950ccd71,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,55,55,jsdoc,1,/** Quantas foram da IA e quantas de gente: a nota da IA é sugestão até revisão. */,,,,,,
-gestao-vite-comment-b938303c,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,57,57,jsdoc,3,"/** Confiança média declarada pelo modelo, de 0 a 1. Só das avaliações da IA. */",,,,,,
-gestao-vite-comment-2bad8592,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,59,59,jsdoc,4,/** Nota máxima do formulário mais usado no recorte — a escala em que a média é lida. */,,,,,,
-gestao-vite-comment-0e33de70,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,68,68,block,1,/* ------------------------------------------------------- a ficha da avaliação */,,,,,,
-gestao-vite-comment-1ac92f23,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,78,78,jsdoc,2,"/** Pontos já na escala da nota final: é o que permite dizer ""perdeu 12 aqui"". */",,,,,,
-gestao-vite-comment-7eac3bfc,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,81,81,jsdoc,2,"/** O trecho citado pela IA, resolvido para o texto da mensagem. */",,,,,,
-gestao-vite-comment-be3a1235,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,97,97,jsdoc,2,/** Soma dos pontos: a nota ANTES do critério fatal. Mostra o tamanho do estrago. */,,,,,,
-gestao-vite-comment-1e149e86,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,99,99,jsdoc,3,/** Nomes dos critérios fatais reprovados. Vazio quando nenhum zerou a nota. */,,,,,,
-gestao-vite-comment-6588d785,gestao-vite,apps/gestao-vite/src/lib/navegacao.ts,22,22,jsdoc,2,"/** Põe o `navigate` do roteador à disposição de `irPara`. Uma vez, no `App`. */",,,,,,
+   */",translate,Show the population behind maximum queue wait. A maximum without population misleads like a mean without denominator (metrics spec Section 2): 40 minutes across two versus 200 conversations demands different action.,architecture,apps/gestao-vite/src/lib/monitoramento.ts:38-42,,proposed
+gestao-vite-comment-3b95affa,gestao-vite,apps/gestao-vite/src/lib/monitoramento.ts,74,74,jsdoc,0,/** Carga máxima possível: o limite todo ocupado por conversa aguardando o atendente. */,translate,Maximum possible load means every allowed slot has a conversation awaiting an agent.,other,apps/gestao-vite/src/lib/monitoramento.ts:74-74,,proposed
+gestao-vite-comment-5a7764d0,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,101,101,jsdoc,3,"/** O resumo da classificação da conversa, quando a IA também classificou. */",translate,Conversation-classification summary when AI also classified it.,other,apps/gestao-vite/src/lib/monitoria.ts:101-101,,proposed
+gestao-vite-comment-ec3053a7,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,16,16,jsdoc,2,/** O que a IA respondeu num critério de conformidade. */,translate,AI answer for one compliance criterion.,other,apps/gestao-vite/src/lib/monitoria.ts:16-16,,proposed
+gestao-vite-comment-f77cf5c6,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,31,31,jsdoc,4,/** `null` quando a avaliação ainda não fechou nota — e aí ela sai da média. */,translate,`null` means the evaluation has no final score and is excluded from the mean.,architecture,apps/gestao-vite/src/lib/monitoria.ts:31-31,,proposed
+gestao-vite-comment-3f5228af,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,38,38,jsdoc,1,"/** Categoria e sentimento da classificação da conversa, quando houver. */",translate,Conversation-classification category and sentiment when present.,other,apps/gestao-vite/src/lib/monitoria.ts:38-38,,proposed
+gestao-vite-comment-9dc87028,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,46,46,jsdoc,2,/** Avaliações com nota zero por critério fatal — a média sozinha esconde isto. */,translate,Count zero scores caused by fatal criteria; the mean alone hides them.,architecture,apps/gestao-vite/src/lib/monitoria.ts:46-46,,proposed
+gestao-vite-comment-95f538c1,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,52,52,jsdoc,2,"/** Média geral das notas, com população e descartadas ao lado. */",translate,Show overall mean with population and excluded count beside it.,architecture,apps/gestao-vite/src/lib/monitoria.ts:52-52,,proposed
+gestao-vite-comment-950ccd71,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,55,55,jsdoc,1,/** Quantas foram da IA e quantas de gente: a nota da IA é sugestão até revisão. */,translate,Separate AI and human evaluation counts; AI scores remain suggestions until review.,architecture,apps/gestao-vite/src/lib/monitoria.ts:55-55,,proposed
+gestao-vite-comment-b938303c,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,57,57,jsdoc,3,"/** Confiança média declarada pelo modelo, de 0 a 1. Só das avaliações da IA. */",translate,"Model-declared average confidence from 0 to 1, over AI evaluations only.",other,apps/gestao-vite/src/lib/monitoria.ts:57-57,,proposed
+gestao-vite-comment-2bad8592,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,59,59,jsdoc,4,/** Nota máxima do formulário mais usado no recorte — a escala em que a média é lida. */,translate,"Maximum score of the most-used form in this period, the scale for reading the mean.",other,apps/gestao-vite/src/lib/monitoria.ts:59-59,,proposed
+gestao-vite-comment-0e33de70,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,68,68,block,1,/* ------------------------------------------------------- a ficha da avaliação */,remove,,other,apps/gestao-vite/src/lib/monitoria.ts:68-68,,proposed
+gestao-vite-comment-1ac92f23,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,78,78,jsdoc,2,"/** Pontos já na escala da nota final: é o que permite dizer ""perdeu 12 aqui"". */",translate,"Points already on final-score scale, allowing a statement such as `perdeu 12 aqui`.",other,apps/gestao-vite/src/lib/monitoria.ts:78-78,,proposed
+gestao-vite-comment-7eac3bfc,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,81,81,jsdoc,2,"/** O trecho citado pela IA, resolvido para o texto da mensagem. */",translate,Resolve the AI-cited excerpt to message text.,other,apps/gestao-vite/src/lib/monitoria.ts:81-81,,proposed
+gestao-vite-comment-be3a1235,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,97,97,jsdoc,2,/** Soma dos pontos: a nota ANTES do critério fatal. Mostra o tamanho do estrago. */,translate,"Sum points before the fatal criterion zeroes the grade, showing the size of its impact.",architecture,apps/gestao-vite/src/lib/monitoria.ts:97-97,,proposed
+gestao-vite-comment-1e149e86,gestao-vite,apps/gestao-vite/src/lib/monitoria.ts,99,99,jsdoc,3,/** Nomes dos critérios fatais reprovados. Vazio quando nenhum zerou a nota. */,translate,Names of failed fatal criteria; empty if none zeroed the score.,other,apps/gestao-vite/src/lib/monitoria.ts:99-99,,proposed
+gestao-vite-comment-6588d785,gestao-vite,apps/gestao-vite/src/lib/navegacao.ts,22,22,jsdoc,2,"/** Põe o `navigate` do roteador à disposição de `irPara`. Uma vez, no `App`. */",remove,,other,apps/gestao-vite/src/lib/navegacao.ts:22-22,,proposed
 gestao-vite-comment-45685ed0,gestao-vite,apps/gestao-vite/src/lib/navegacao.ts,4,13,jsdoc,7,"/**
  * Navegação fora de componente — o `redirect()` das Server Actions, agora no
  * navegador.
@@ -1385,7 +1385,7 @@ gestao-vite-comment-45685ed0,gestao-vite,apps/gestao-vite/src/lib/navegacao.ts,4
  * O `App` registra o `navigate` do roteador uma vez, e `irPara` usa o último
  * registrado. Antes do registro (ou fora do roteador) cai no `location`, que
  * chega ao mesmo lugar recarregando a página.
- */",,,,,,
+ */",translate,"Module-level navigation replaces former Server Action `redirect()` in the browser. Form actions remain module functions for `useActionState` and `<form action>`, so they cannot use a hook. `App` registers router `navigate` once; `irPara` uses the latest registration, falling back to `location` outside the router or before registration, with a page reload.",architecture,apps/gestao-vite/src/lib/navegacao.ts:4-13,,proposed
 gestao-vite-comment-061672ca,gestao-vite,apps/gestao-vite/src/lib/nota-avaliacao.ts,1,18,jsdoc,20,"/**
  * A leitura da nota de monitoria, do lado da tela.
  *
@@ -1403,8 +1403,8 @@ gestao-vite-comment-061672ca,gestao-vite,apps/gestao-vite/src/lib/nota-avaliacao
  * (`TETO_ESCALA` e `TETO_NOTA`). Estão repetidos porque `@pipe/ai` carrega
  * cliente de modelo e não é dependência da Gestão; se um dia divergirem, o teste
  * abaixo é o que mostra.
- */",,,,,,
-gestao-vite-comment-313ef406,gestao-vite,apps/gestao-vite/src/lib/nota-avaliacao.ts,23,23,jsdoc,4,"/** Quanto do critério foi cumprido, de 0 a 1. `null` quando não se aplica ou não foi respondido. */",,,,,,
+ */",translate,"Monitoring-score calculation lives in `packages/ai/src/avaliacao/nota.ts`, not this screen module. Criterion points arrive stored in `resposta_avaliacao` on the final scale, allowing the card to show points lost without recalculation. `avaliacao.nota` becomes zero when a fatal criterion fails but does not name it; this module identifies the failed criterion so supervisors need not inspect the whole conversation. Repeat `TETO_ESCALA` and `TETO_NOTA` from `packages/ai/src/avaliacao/tipos.ts` because `@pipe/ai` loads a model client and is not a Gestao dependency; a test detects divergence.",architecture,apps/gestao-vite/src/lib/nota-avaliacao.ts:1-18,,proposed
+gestao-vite-comment-313ef406,gestao-vite,apps/gestao-vite/src/lib/nota-avaliacao.ts,23,23,jsdoc,4,"/** Quanto do critério foi cumprido, de 0 a 1. `null` quando não se aplica ou não foi respondido. */",translate,Fraction of criterion met from 0 to 1; `null` if unanswered or not applicable.,other,apps/gestao-vite/src/lib/nota-avaliacao.ts:23-23,,proposed
 gestao-vite-comment-dc22eb90,gestao-vite,apps/gestao-vite/src/lib/nota-avaliacao.ts,41,48,jsdoc,11,"/**
  * Critério fatal reprovado zera a avaliação inteira.
  *
@@ -1412,7 +1412,7 @@ gestao-vite-comment-dc22eb90,gestao-vite,apps/gestao-vite/src/lib/nota-avaliacao
  * Fatal não respondido, ou marcado como não se aplica, não reprova — ausência
  * não é falha, e tratar as duas como a mesma coisa transformaria formulário
  * incompleto em atendente com nota zero.
- */",,,,,,
+ */",translate,"A failed fatal criterion zeroes the full evaluation, matching `calcularNota`: a known fraction strictly below 1 fails. Missing or not-applicable fatal criteria do not fail; absence must not turn an incomplete form into an agent's zero score.",architecture,apps/gestao-vite/src/lib/nota-avaliacao.ts:41-48,,proposed
 gestao-vite-comment-14144b7e,gestao-vite,apps/gestao-vite/src/lib/passos-da-implantacao.ts,1,16,jsdoc,21,"/**
  * Os passos do assistente de implantação, a partir do que existe no banco.
  *
@@ -1428,10 +1428,10 @@ gestao-vite-comment-14144b7e,gestao-vite,apps/gestao-vite/src/lib/passos-da-impl
  * diz que alguém passou pela tela; o banco diz se a coisa existe.
  *
  * Puro, sem banco e sem Next, para o `node --test` rodar.
- */",,,,,,
-gestao-vite-comment-b29b1e0c,gestao-vite,apps/gestao-vite/src/lib/passos-da-implantacao.ts,21,21,jsdoc,2,"/** Ligados, mas marcados para reautorização (webhook que falhou, número pendente na Meta). */",,,,,,
-gestao-vite-comment-30953af8,gestao-vite,apps/gestao-vite/src/lib/passos-da-implantacao.ts,24,24,jsdoc,0,"/** Usuários ativos, o administrador incluído. */",,,,,,
-gestao-vite-comment-9707c31f,gestao-vite,apps/gestao-vite/src/lib/passos-da-implantacao.ts,52,52,jsdoc,4,"/** O que falta, ou o que já existe. Uma frase. */",,,,,,
+ */",translate,"Implantation steps and order follow Chatwoot onboarding (`app/javascript/dashboard/routes/dashboard/onboarding/`, MIT): account details, channels (`InboxSetup.vue`, WhatsApp first), then team (`invite_team`). Pipe adds a staffed queue, contacts, and a test conversation to reach first attendance. Unlike Chatwoot's stored `onboarding_step` cursor advanced by Continue, each step here is queried and complete only when its required data exists. A cursor proves a screen was visited; the database proves the setup exists. Keep this pure so `node --test` runs without DB or Next.",integration,apps/gestao-vite/src/lib/passos-da-implantacao.ts:1-16,,proposed
+gestao-vite-comment-b29b1e0c,gestao-vite,apps/gestao-vite/src/lib/passos-da-implantacao.ts,21,21,jsdoc,2,"/** Ligados, mas marcados para reautorização (webhook que falhou, número pendente na Meta). */",translate,Connected channels still marked for reauthorization after failed webhook or pending Meta number.,integration,apps/gestao-vite/src/lib/passos-da-implantacao.ts:21-21,,proposed
+gestao-vite-comment-30953af8,gestao-vite,apps/gestao-vite/src/lib/passos-da-implantacao.ts,24,24,jsdoc,0,"/** Usuários ativos, o administrador incluído. */",translate,Count active users including the administrator.,other,apps/gestao-vite/src/lib/passos-da-implantacao.ts:24-24,,proposed
+gestao-vite-comment-9707c31f,gestao-vite,apps/gestao-vite/src/lib/passos-da-implantacao.ts,52,52,jsdoc,4,"/** O que falta, ou o que já existe. Uma frase. */",translate,Summarize what is missing or already present in one sentence.,other,apps/gestao-vite/src/lib/passos-da-implantacao.ts:52-52,,proposed
 gestao-vite-comment-e706c2c3,gestao-vite,apps/gestao-vite/src/lib/periodos.ts,3,10,jsdoc,0,"/**
  * Atalhos de período — os rótulos exatos do campo ""Período"" do painel de
  * filtros deles (`referencias-blip/portal/dom/history.html`: Hoje, Ontem, Últimos
@@ -1439,7 +1439,7 @@ gestao-vite-comment-e706c2c3,gestao-vite,apps/gestao-vite/src/lib/periodos.ts,3,
  * no Histórico (`last30days`) e nos Relatórios de atendimento (`last7days`)
  * e de satisfação (`last30days`). ""Personalizado"" é o nosso par de datas de
  * sempre; os outros só calculam `de`/`ate`.
- */",,,,,,
+ */",translate,"Period shortcuts use exact reference Filter-panel labels (`referencias-blip/portal/dom/history.html`: Hoje, Ontem, Últimos 7/15/30/60/90/120/180 dias, Personalizado). The same `bds-select` appears in History (`last30days`), attendance Reports (`last7days`), and satisfaction Reports (`last30days`). Custom uses our existing date pair; other choices only compute `de`/`ate`.",meta-blip,apps/gestao-vite/src/lib/periodos.ts:3-10,,proposed
 gestao-vite-comment-7e24951b,gestao-vite,apps/gestao-vite/src/lib/periodos.ts,40,40,jsdoc,0,"/** Qual atalho corresponde ao `de`/`ate` atuais, se algum — senão, ""personalizado"". */",,,,,,
 gestao-vite-comment-07be4493,gestao-vite,apps/gestao-vite/src/lib/pesquisa.ts,1,14,jsdoc,15,"/**
  * A escala da pesquisa — §6 da spec de métricas.
