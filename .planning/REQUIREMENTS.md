@@ -19,11 +19,11 @@ Iniciativa transversal decidida em 24/09/2026: eliminar linguagem técnica em po
 - [ ] **STD-04**: Classificação aplicada e documentada de estado de URL vs estado efêmero de UI por caso (path param / query param / React state) — alimenta o contrato completo de STD-12, incluindo investigação específica do `selectedConversationId` do Desk contra o comportamento real da Blip antes de decidir sua forma canônica
 - [ ] **STD-05**: Estratégia de compatibilidade definida (cut coordenado vs redirects/aliases temporários vs versionamento) com base em inventário de consumidores internos — sem criar `/v2` por padrão; se todos os consumidores forem controlados pelo Pipe e puderem migrar juntos, avaliar cut coordenado da v1
 - [ ] **STD-06**: Inventário de dados/contratos persistidos (tabelas, colunas, payloads, eventos) com nomenclatura em português — sem rename mecânico; cada caso registrado com decisão própria de migration/compatibilidade, fora do escopo de execução desta fase
-- [x] **STD-07**: Rename mecânico aplicado (arquivos, diretórios, imports, referências, links, navigate/redirect, endpoints já mapeados, testes, fixtures, funções/variáveis quando o nome novo já estiver definido, busca por referências antigas remanescentes) nos 3 fronts + API + workers, seguindo o mapa old→new aprovado, sem regressão. **Só executa depois do mapa old→new estar aprovado.** Não inclui: inventar nomenclatura, traduzir semanticamente por conta própria, decidir arquitetura, decidir URL vs React state, decidir breaking changes, ou alterar contrato persistido sem plano — essas ficam com STD-01/02/04/05/06/12
+- [ ] **STD-07**: Rename mecânico aplicado (arquivos, diretórios, imports, referências, links, navigate/redirect, endpoints já mapeados, testes, fixtures, funções/variáveis quando o nome novo já estiver definido, busca por referências antigas remanescentes) nos 3 fronts + API + workers, seguindo o mapa old→new aprovado, sem regressão. **Só executa depois do mapa old→new estar aprovado.** Não inclui: inventar nomenclatura, traduzir semanticamente por conta própria, decidir arquitetura, decidir URL vs React state, decidir breaking changes, ou alterar contrato persistido sem plano — essas ficam com STD-01/02/04/05/06/12
 - [ ] **STD-08**: PROJECT.md atualizado com a nova regra de idioma técnico, substituindo "todo código em português", com ressalva explícita de que texto visível ao usuário continua em português/localizado
 - [ ] **STD-09**: `apps/crm` recebe a convenção técnica desta fase sem que isso decida seu destino arquitetural (CRM-01 continua aberta) — nenhuma mudança descartável frente aos desfechos possíveis de CRM-01
 - [ ] **STD-10**: Todo identificador técnico não persistido do código em escopo está em inglês ao final da fase — arquivos, diretórios, funções, variáveis, classes, interfaces, types, enums, constants, controllers, services, helpers, hooks, rotas frontend, endpoints de API, nomes de teste, nomes técnicos internos, comentários técnicos. Não inclui automaticamente: textos exibidos ao usuário, conteúdo localizado/traduzido, tabelas/colunas/valores/eventos/contratos persistidos existentes (seguem STD-06, só mudam com estratégia explícita de migration)
-- [x] **STD-11**: Validação final da fase cobre regressão completa (typecheck, testes, builds, navegação dos 3 fronts, API, workers, autenticação, callbacks, redirects, deep links, refresh, back/forward) e busca automatizada por identificadores/paths/endpoints técnicos remanescentes em português. Toda ocorrência restante em português é classificada como (A) texto de produto/localização, (B) contrato persistido explicitamente adiado, ou (C) exceção documentada — a fase não é considerada concluída enquanto existir ocorrência técnica não classificada
+- [ ] **STD-11**: Validação final da fase cobre regressão completa (typecheck, testes, builds, navegação dos 3 fronts, API, workers, autenticação, callbacks, redirects, deep links, refresh, back/forward) e busca automatizada por identificadores/paths/endpoints técnicos remanescentes em português. Toda ocorrência restante em português é classificada como (A) texto de produto/localização, (B) contrato persistido explicitamente adiado, ou (C) exceção documentada — a fase não é considerada concluída enquanto existir ocorrência técnica não classificada
 - [ ] **STD-12**: Contrato de navegação/renderização dos fronts definido e documentado — quando usar path params, query params, React state, router state, store global, deep link, refresh persistence, back/forward, seleção temporária de UI, e client/server rendering (só quando arquiteturalmente relevante; não assumir que URL estável da Blip implica SSR). Classificação: recurso navegável/deep-linkável → URL; busca/filtro/paginação compartilhável → URL quando apropriado; estado efêmero de UI → React/store quando apropriado; comportamento Blip sem evidência suficiente → NEEDS VALIDATION. Tradução/padronização da rota e decisão de onde o estado mora são problemas diferentes, tratados separadamente
 
 ### Builder
@@ -137,11 +137,11 @@ Quais fases cobrem quais requisitos. Atualizado durante a criação do roadmap.
 | STD-04 | Phase 1 | Pending |
 | STD-05 | Phase 1 | Pending |
 | STD-06 | Phase 1 | Pending |
-| STD-07 | Phase 1 | Complete |
+| STD-07 | Phase 1 | Pending |
 | STD-08 | Phase 1 | Pending |
 | STD-09 | Phase 1 | Pending |
 | STD-10 | Phase 1 | Pending |
-| STD-11 | Phase 1 | Complete |
+| STD-11 | Phase 1 | Pending |
 | STD-12 | Phase 1 | Pending |
 | BUILDER-01 | Phase 2 | Pending |
 | BUILDER-02 | Phase 2 | Pending |
