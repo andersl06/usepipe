@@ -41,21 +41,30 @@ function validCase(row: MapRow): boolean {
       return /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*(?:\.[a-z][a-z0-9]*)*$/.test(segment);
     });
   }
-  if (row.kind === 'symbol') return /^[A-Z][A-Za-z0-9]*$/.test(row.old) ? /^[A-Z][A-Za-z0-9]*$/.test(value) : /^[a-z][A-Za-z0-9]*$/.test(value) || (styleOf(row.old) === 'upper' && validStyle(value, 'upper'));
+  if (row.kind === 'symbol') {
+    if (styleOf(row.old) === 'upper') return validStyle(value, 'upper');
+    return /^[A-Z][A-Za-z0-9]*$/.test(row.old) ? /^[A-Z][A-Za-z0-9]*$/.test(value) : /^[a-z][A-Za-z0-9]*$/.test(value);
+  }
   if (['ts-prop', 'ts-local', 'wire-key', 'query-param'].includes(row.kind)) return /^[a-z][A-Za-z0-9]*$/.test(value) || (styleOf(row.old) === 'upper' && validStyle(value, 'upper'));
   return true;
 }
 function glossaryPairs(file?: string): [string, string][] {
-  if (!file || !fs.existsSync(file)) return [];
+  if (!file) return [];
+  if (!fs.existsSync(file)) throw new Error(`glossary not found: ${file}`);
   const lines = fs.readFileSync(file, 'utf8').split(/\r?\n/).filter((line) => line.trim().startsWith('|'));
-  if (!lines.length) return [];
   const cells = (line: string) => line.split('|').slice(1, -1).map((part) => part.trim());
-  const header = cells(lines[0]).map((cell) => cell.toLowerCase());
-  const oldAt = header.findIndex((cell) => /term_pt|portugu|old/.test(cell));
-  const newAt = header.findIndex((cell) => /term_en|english|new/.test(cell));
+  const headerIndex = lines.findIndex((line) => {
+    const columns = cells(line).map((cell) => cell.toLowerCase());
+    return columns.some((cell) => /^(pt|term_pt|português|portugues|old)$/.test(cell)) && columns.some((cell) => /^(en|term_en|english|new)$/.test(cell));
+  });
+  if (headerIndex < 0) throw new Error(`${file}: approved glossary table not found`);
+  const header = cells(lines[headerIndex]).map((cell) => cell.toLowerCase());
+  const oldAt = header.findIndex((cell) => /^(pt|term_pt|português|portugues|old)$/.test(cell));
+  const newAt = header.findIndex((cell) => /^(en|term_en|english|new)$/.test(cell));
   const approvedAt = header.findIndex((cell) => /approved|status/.test(cell));
-  if (oldAt < 0 || newAt < 0) return [];
-  return lines.slice(2).map(cells).filter((row) => approvedAt < 0 || /^(approved|yes|sim|true)$/i.test(row[approvedAt] ?? '')).map((row) => [row[oldAt].toLowerCase(), row[newAt].toLowerCase()] as [string, string]);
+  const pairs = lines.slice(headerIndex + 2).map(cells).filter((row) => row[oldAt] && row[newAt] && (approvedAt < 0 || /^(approved|yes|sim|true)$/i.test(row[approvedAt] ?? ''))).map((row) => [row[oldAt].toLowerCase(), row[newAt].toLowerCase()] as [string, string]);
+  if (!pairs.length) throw new Error(`${file}: no approved glossary terms`);
+  return pairs;
 }
 
 export function checkMap(options: { map: string; scopes?: string[]; requireStatus?: string; glossary?: string; approve?: boolean; sample?: number; seed?: number; out?: string }): { errors: Issue[]; warnings: Issue[]; sampledIds: string[] } {

@@ -84,9 +84,19 @@ test('literal values and data attributes obey old casing; glossary warnings are 
   assert.equal(checkMap({ map: f.map, glossary }).errors.length, 0); assert.ok(checkMap({ map: f.map, glossary }).warnings.some((e) => e.ids.includes('gloss')));
   mapRows(f.map, [row('gloss', { old: 'ListaConversas', new: 'ChatList', notes: 'glossary-exception:domain decision' })]); assert.equal(checkMap({ map: f.map, glossary }).warnings.length, 0);
 });
+test('requested glossary without an approved term table fails visibly', () => {
+  const f = fixture(); const glossary = path.join(f.std, 'GLOSSARY.md'); fs.writeFileSync(glossary, '# Glossary\n| name | value |\n|---|---|\n| a | b |\n');
+  mapRows(f.map, [row('a')]); assert.throws(() => checkMap({ map: f.map, glossary }), /approved glossary table not found/);
+});
 test('real package scope and multi-extension source paths satisfy casing', () => {
   const f = fixture(); mapRows(f.map, [row('pkg', { kind: 'package', old: '@pipe/autenticacao', new: '@pipe/authentication' }), row('file', { kind: 'file', old: 'apps/api/src/fluxo.teste.ts', new: 'apps/api/src/flow.test.ts' })]);
   assert.equal(checkMap({ map: f.map }).errors.length, 0);
+});
+test('symbol constants keep UPPER_SNAKE casing', () => {
+  const f = fixture(); mapRows(f.map, [row('constant', { old: 'NOME_ANTIGO', new: 'NEW_NAME' })]);
+  assert.equal(checkMap({ map: f.map }).errors.length, 0);
+  mapRows(f.map, [row('constant', { old: 'NOME_ANTIGO', new: 'newName' })]);
+  assert.ok(checkMap({ map: f.map }).errors.some((e) => e.message === 'invalid casing'));
 });
 test('approve requires zero errors; sample ids are deterministic by scope', () => {
   const f = fixture(); mapRows(f.map, [row('a'), row('b'), row('c'), row('d', { scope: 'crm' })]); const out = path.join(f.root, 'sample.csv');
