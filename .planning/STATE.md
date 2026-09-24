@@ -2,10 +2,10 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
+status: executing
 stopped_at: Phase 1 context gathered
-last_updated: "2026-09-24T18:08:25.424Z"
-last_activity: "2026-09-24 — Roadmap revisado (2ª rodada): escopo da Phase 1 ampliado para toda a base técnica (não só rotas) com STD-10/11/12 e revisão de STD-07; nova Phase 3 \"Validar e fechar superfícies atuais\" (VALSURF-01..05) inserida entre Builder e CRM, após correção do critério de \"Validated\" (não basta código/teste existir — precisa de comparação com a referência e aprovação do dono). 6→8 fases no total. Ingest original de 22 documentos + PROJECT-HANDOFF.md permanece a base de PROJECT.md/REQUIREMENTS.md/STATE.md."
+last_updated: "2026-09-24T18:38:01.401Z"
+last_activity: 2026-09-24 -- Phase 01 execution started
 progress:
   total_phases: 8
   completed_phases: 0
@@ -21,14 +21,14 @@ progress:
 See: .planning/PROJECT.md (updated 2026-09-24)
 
 **Core value:** Atendimento multi-canal (WhatsApp/Instagram/Messenger) confiável e auditável, com CRM espelhado automaticamente e sem fricção para o atendente.
-**Current focus:** Phase 1 — Padronizar linguagem técnica, navegação e renderização (roadmap revisado, nenhuma fase iniciada)
+**Current focus:** Phase 01 — padronizar-linguagem-t-cnica-navega-o-e-renderiza-o
 
 ## Current Position
 
-Phase: 0 of 8 (roadmap revisado, nenhuma fase iniciada)
-Plan: 0 of TBD in current phase
-Status: Ready to plan
-Last activity: 2026-09-24 — Roadmap revisado (2ª rodada): escopo da Phase 1 ampliado para toda a base técnica (não só rotas) com STD-10/11/12 e revisão de STD-07; nova Phase 3 "Validar e fechar superfícies atuais" (VALSURF-01..05) inserida entre Builder e CRM, após correção do critério de "Validated" (não basta código/teste existir — precisa de comparação com a referência e aprovação do dono). 6→8 fases no total. Ingest original de 22 documentos + PROJECT-HANDOFF.md permanece a base de PROJECT.md/REQUIREMENTS.md/STATE.md.
+Phase: 01 (padronizar-linguagem-t-cnica-navega-o-e-renderiza-o) — EXECUTING
+Plan: 1 of 41
+Status: Executing Phase 01
+Last activity: 2026-09-24 -- Phase 01 execution started
 
 Progress: [░░░░░░░░░░] 0%
 
