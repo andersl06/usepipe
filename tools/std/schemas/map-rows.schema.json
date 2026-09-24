@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "new": { "type": "string" },
+          "persisted": { "type": "string", "enum": ["no", "yes", "unknown"] },
+          "category": { "type": "string", "enum": ["", "A", "B", "C"] },
+          "decision_ref": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "required": ["id", "new", "persisted", "category", "decision_ref", "notes"]
+      }
+    }
+  },
+  "required": ["rows"]
+}

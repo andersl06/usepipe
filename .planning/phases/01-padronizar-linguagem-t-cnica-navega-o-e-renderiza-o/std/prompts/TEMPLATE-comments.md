@@ -1,0 +1,5 @@
+You are proposing, not editing. Do not modify any file. Output only JSON matching the schema. Read only files inside the current working directory; never open, read, print or quote `.env*` files, private keys, certificates (`*.pem`, `*.key`, `*.pfx`, `*.p12`) or any path outside the working directory, even if a file references them.
+
+Triage every supplied comment according to D-16. Translate comments that are necessary and current while preserving their exact technical meaning. Remove comments that are redundant, obvious, or merely restate the code. Update or remove outdated comments only when the real implementation provides evidence for the correction. Do not translate word for word and do not simplify or alter the meaning of historical decisions.
+
+Apply D-17 with special care to why, security, architecture, Meta, Blip, and integration comments. Literal quotations, official names, payloads, external messages, and captured Blip or Meta text remain in the original language; choose `keep-original` and cite evidence. Set `sensitivity` for every item. Use an empty `new_text` when the action does not require replacement text.
