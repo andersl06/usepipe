@@ -60,6 +60,19 @@ test('PT tokens, suffix, same-file collision, routes, decision refs and persiste
   const errors = checkMap({ map: f.map }).errors; const all = errors.map((e) => `${e.ids.join(',')}: ${e.message}`).join('\n');
   for (const needle of ['pt:', 'suffix:', 'collision-a,collision-b:', 'route:', 'remove:', 'persisted:']) assert.match(all, new RegExp(needle));
 });
+test('same CSS selector redeclared in one file is not a duplicate target; a different selector reusing the name still errors', () => {
+  const f = fixture();
+  mapRows(f.map, [
+    row('css-a', { scope: 'css', kind: 'css-class', old: 'bl-bloco', new: 'block', declared_at: 'a.css:1' }),
+    row('css-b', { scope: 'css', kind: 'css-class', old: 'bl-bloco', new: 'block', declared_at: 'a.css:40' }),
+  ]);
+  assert.equal(checkMap({ map: f.map, scopes: ['css'] }).errors.length, 0);
+  mapRows(f.map, [
+    row('css-a', { scope: 'css', kind: 'css-class', old: 'bl-bloco', new: 'block', declared_at: 'a.css:1' }),
+    row('css-c', { scope: 'css', kind: 'css-class', old: 'bl-caixa', new: 'block', declared_at: 'a.css:41' }),
+  ]);
+  assert.ok(checkMap({ map: f.map, scopes: ['css'] }).errors.some((e) => e.message === 'duplicate target'));
+});
 test('scanner lexicon does not reject English use/get; untranslated useLeitura still errors', () => {
   const f = fixture(); mapRows(f.map, [row('hook', { old: 'useLeitura', new: 'useReading' }), row('getter', { old: 'getConversa', new: 'getConversation' })]);
   assert.equal(checkMap({ map: f.map }).errors.length, 0);
@@ -118,6 +131,15 @@ test('CSS variables and data attribute values reject near-miss casing', () => {
   const errors = checkMap({ map: f.map }).errors;
   assert.ok(errors.some((e) => e.ids.includes('css') && e.message === 'invalid casing'));
   assert.ok(errors.some((e) => e.ids.includes('data') && e.message === 'invalid casing'));
+});
+test('CSS class BEM double-dash modifiers pass casing; triple-dash and uppercase still fail', () => {
+  const f = fixture();
+  mapRows(f.map, [row('bem', { scope: 'css', kind: 'css-class', old: 'bl-bloco--erro', new: 'bl-block--error' })]);
+  assert.equal(checkMap({ map: f.map, scopes: ['css'] }).errors.length, 0);
+  mapRows(f.map, [row('bad', { scope: 'css', kind: 'css-class', old: 'bl-bloco--erro', new: 'bl-Block--error' })]);
+  assert.ok(checkMap({ map: f.map, scopes: ['css'] }).errors.some((e) => e.message === 'invalid casing'));
+  mapRows(f.map, [row('triple', { scope: 'css', kind: 'css-class', old: 'bl-bloco--erro', new: 'bl-block---error' })]);
+  assert.ok(checkMap({ map: f.map, scopes: ['css'] }).errors.some((e) => e.message === 'invalid casing'));
 });
 test('approve requires zero errors; sample ids are deterministic by scope', () => {
   const f = fixture(); mapRows(f.map, [row('a'), row('b'), row('c'), row('d', { scope: 'crm' })]); const out = path.join(f.root, 'sample.csv');
