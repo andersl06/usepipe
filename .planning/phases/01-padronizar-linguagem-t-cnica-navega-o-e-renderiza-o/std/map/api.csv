@@ -5052,7 +5052,6 @@ api-ts-prop-5e3f4fbf,api,2,ts-prop,chave,,apps/api/src/dominio/gestao/atendiment
 api-ts-prop-26db5977,api,2,ts-prop,chave,,apps/api/src/dominio/gestao/atendimento.ts:57,1153,no,,,candidate,,
 api-ts-prop-5c0f5a15,api,2,ts-prop,chave,,apps/api/src/dominio/gestao/pfx.ts:161,1153,no,,,candidate,,
 api-ts-prop-233c5f52,api,2,ts-prop,chave,,apps/api/src/dominio/twenty.ts:32,1153,no,,,candidate,,
-api-ts-prop-327782ee,api,2,ts-prop,chave,,apps/api/src/webhooks-saida.ts:71,1153,unknown,,,candidate,,jsonb:webhookSaida.cabecalhos
 api-ts-prop-9e5671c7,api,2,ts-prop,chave,,apps/api/tests/equipe-do-fluxo.test.ts:288,1153,no,,,candidate,,
 api-ts-prop-98f3d50c,api,2,ts-prop,chaveId,,apps/api/src/autenticacao.ts:39,26,no,,,candidate,,
 api-ts-prop-3532cc24,api,2,ts-prop,chavePrefixo,,apps/api/src/dominio/gestao/integracoes.ts:832,4,no,,,candidate,,
@@ -5953,7 +5952,6 @@ api-ts-prop-2515027e,api,2,ts-prop,valor,,apps/api/src/dominio/gestao/monitoria.
 api-ts-prop-42dca9c0,api,2,ts-prop,valor,,apps/api/src/dominio/gestao/regra-fila.ts:94,1656,no,,,candidate,,
 api-ts-prop-7f355617,api,2,ts-prop,valor,,apps/api/src/metricas.ts:37,1656,no,,,candidate,,
 api-ts-prop-10af2b40,api,2,ts-prop,valor,,apps/api/src/paginacao.ts:21,1656,no,,,candidate,,
-api-ts-prop-748163a5,api,2,ts-prop,valor,,apps/api/src/webhooks-saida.ts:72,1656,unknown,,,candidate,,jsonb:webhookSaida.cabecalhos
 api-ts-prop-9291fb56,api,2,ts-prop,valor,,apps/api/tests/convites.test.ts:438,1656,no,,,candidate,,
 api-ts-prop-6a72174d,api,2,ts-prop,valor,,apps/api/tests/convites.test.ts:452,1656,no,,,candidate,,
 api-ts-prop-e8fd18a7,api,2,ts-prop,variaveis,,apps/api/src/dominio/envio.ts:103,134,no,,,candidate,,

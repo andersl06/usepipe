@@ -1,0 +1,540 @@
+{
+  "rows": [
+    {
+      "id": "api-ts-prop-327782ee",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:webhookSaida.cabecalhos;jsonb-reach:default-keep"
+    },
+    {
+      "id": "api-ts-prop-748163a5",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:webhookSaida.cabecalhos;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-2e721142",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-6b37fa3a",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-2d60eef9",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:processHttpExecucao.pedido;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-f3842f2a",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-4bf81317",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-b0efb3da",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-d0789b1a",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-b17bf5e7",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-f000237e",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:processHttpExecucao.pedido;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-dfe4c2fe",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-968123d4",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-6c6d8f2a",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-a15b2592",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-d99038e4",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-fd8f6c42",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-1171081a",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-fc2de641",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-b54c4833",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-2075aadf",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:processHttpExecucao.pedido;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-bb99f592",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:processHttpExecucao.pedido;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-8e84431e",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:processHttpExecucao.pedido;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-literal-value-6fe0643c",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-ab56dc4f",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoPasso.saida;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-dea1b0bd",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:processHttpExecucao.pedido;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-317bb3c2",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-84d93df1",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-41c008c1",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-31c5af83",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-65881adf",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:execucaoPasso.entrada;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb:processHttpExecucao.entrada;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-03ea4c8e",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoPasso.saida;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-bce7b637",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-2c185345",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:processHttpExecucao.pedido;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-6fde6f82",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:processHttpExecucao.contexto;jsonb:processHttpExecucao.resposta;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-e56d331f",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:execucaoPasso.entrada;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb:processHttpExecucao.entrada;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-b7e1180c",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-000b0ccc",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-ac15f6a6",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-272fe5c6",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-1c7a17f4",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-1d8f8f7a",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-43603fd4",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-4e07c278",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-109ff024",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-3bfc216c",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoPasso.saida;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-150f58a0",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:processHttpExecucao.pedido;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-11068bca",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-ef9df008",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-af3c8df8",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-244a559f",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-b57e4499",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-2bc8ae03",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:execucaoPasso.entrada;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb:processHttpExecucao.entrada;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-69910828",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-db9102d0",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-1da2ef72",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-b3dab05e",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-53712c27",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-62928019",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:processHttpExecucao.contexto;jsonb:processHttpExecucao.resposta;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-a08ec658",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:processHttpExecucao.pedido;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-58dd10f1",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-6ba7ec4c",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:execucaoFluxo.contexto;jsonb:execucaoPasso.entrada;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb:processHttpExecucao.entrada;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-69bd6bd7",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:dicionarioCampo.settings;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-9e269d55",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:processHttpExecucao.pedido;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-d8bbcdee",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-a4891a7e",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
+    },
+    {
+      "id": "packages-core-ts-prop-b0ceab3e",
+      "new": "KEEP",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "jsonb:bloco.conteudo;jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto;jsonb-reach:default-keep"
+    }
+  ]
+}

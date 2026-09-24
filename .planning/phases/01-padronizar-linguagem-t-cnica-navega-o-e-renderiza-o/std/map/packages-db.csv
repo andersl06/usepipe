@@ -44,14 +44,6 @@ packages-db-file-94faaf05,packages-db,1,file,segredo.ts,,packages/db/src/segredo
 packages-db-file-de7f01db,packages-db,1,file,semente-demo.ts,,packages/db/src/semente-demo.ts,2,no,,,candidate,,
 packages-db-file-b7974f42,packages-db,1,file,semente.test.ts,,packages/db/tests/semente.test.ts,0,no,,,candidate,,
 packages-db-file-80f5ceac,packages-db,1,file,semente.ts,,packages/db/src/semente.ts,8,no,,,candidate,,
-packages-db-literal-value-56b4b9e4,packages-db,1,literal-value,alterou,KEEP,packages/db/src/auditoria.ts:44,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
-packages-db-literal-value-f2916c57,packages-db,1,literal-value,ativou,KEEP,packages/db/src/auditoria.ts:44,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
-packages-db-literal-value-0752818d,packages-db,1,literal-value,chave,,packages/db/src/auditoria.ts:36,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
-packages-db-literal-value-0b8f63dc,packages-db,1,literal-value,criou,KEEP,packages/db/src/auditoria.ts:44,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
-packages-db-literal-value-817db997,packages-db,1,literal-value,desativou,KEEP,packages/db/src/auditoria.ts:44,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
-packages-db-literal-value-2b33e8b3,packages-db,1,literal-value,excluiu,KEEP,packages/db/src/auditoria.ts:44,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
-packages-db-literal-value-6fc8956d,packages-db,1,literal-value,sistema,KEEP,packages/db/src/auditoria.ts:36,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
-packages-db-literal-value-44be44fb,packages-db,1,literal-value,usuario,,packages/db/src/auditoria.ts:36,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
 packages-db-script-07edbc9b,packages-db,1,script,migrar,,packages/db/package.json:1,0,no,,,candidate,,
 packages-db-script-6beb7ef3,packages-db,1,script,semear:demo,,packages/db/package.json:1,0,no,,,candidate,,
 packages-db-script-8dc63fee,packages-db,1,script,semear,,packages/db/package.json:1,0,no,,,candidate,,
@@ -277,10 +269,8 @@ packages-db-ts-local-917323e5,packages-db,1,ts-local,valor,,packages/db/src/sche
 packages-db-ts-local-bf6ac78c,packages-db,1,ts-local,valor,,packages/db/src/segredo.ts:99,1656,no,,,candidate,,
 packages-db-ts-local-f10c0b1e,packages-db,1,ts-local,valor,,packages/db/src/tenant.ts:17,1656,no,,,candidate,,
 packages-db-ts-prop-1e675dac,packages-db,1,ts-prop,abertaPor,,packages/db/src/schema/monitoria.ts:159,1,no,,,candidate,,sql=aberta_por
-packages-db-ts-prop-ae3cb737,packages-db,1,ts-prop,acao,KEEP,packages/db/src/auditoria.ts:44,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
 packages-db-ts-prop-a0846896,packages-db,1,ts-prop,amostragemDeMonitoria,,packages/db/src/schema/identidade.ts:55,4,no,,,candidate,,
 packages-db-ts-prop-8b3584b8,packages-db,1,ts-prop,anexoId,,packages/db/src/schema/conversas.ts:350,70,no,,,candidate,,sql=anexo_id
-packages-db-ts-prop-64c5b9e1,packages-db,1,ts-prop,antes,KEEP,packages/db/src/auditoria.ts:49,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
 packages-db-ts-prop-6d12ad7a,packages-db,1,ts-prop,arquivo,,packages/db/src/schema/crm.ts:323,462,no,,,candidate,,sql=arquivo
 packages-db-ts-prop-c460b1b2,packages-db,1,ts-prop,atendenteId,,packages/db/src/schema/conversas.ts:276,217,no,,,candidate,,sql=atendente_id
 packages-db-ts-prop-fb28efa9,packages-db,1,ts-prop,atendenteId,,packages/db/src/schema/gestao.ts:110,217,no,,,candidate,,sql=atendente_id
@@ -295,7 +285,6 @@ packages-db-ts-prop-7db9f422,packages-db,1,ts-prop,ativa,,packages/db/src/schema
 packages-db-ts-prop-c63c55fc,packages-db,1,ts-prop,ativa,,packages/db/src/schema/gestao.ts:220,340,no,,,candidate,,sql=ativa
 packages-db-ts-prop-8ae776cc,packages-db,1,ts-prop,ativa,,packages/db/src/schema/gestao.ts:333,340,no,,,candidate,,sql=ativa
 packages-db-ts-prop-7f4f4171,packages-db,1,ts-prop,ativa,,packages/db/src/schema/monitoria.ts:316,340,no,,,candidate,,sql=ativa
-packages-db-ts-prop-3ca81dbb,packages-db,1,ts-prop,ator,KEEP,packages/db/src/auditoria.ts:43,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
 packages-db-ts-prop-42323a5e,packages-db,1,ts-prop,autenticacaoSenha,,packages/db/src/schema/automacao.ts:660,6,no,,,candidate,,sql=autenticacao_senha
 packages-db-ts-prop-2c52174e,packages-db,1,ts-prop,autenticacaoUsuario,,packages/db/src/schema/automacao.ts:658,4,no,,,candidate,,sql=autenticacao_usuario
 packages-db-ts-prop-baf9fe5d,packages-db,1,ts-prop,avaliacaoHumanaId,,packages/db/src/schema/monitoria.ts:194,1,no,,,candidate,,sql=avaliacao_humana_id
@@ -374,7 +363,6 @@ packages-db-ts-prop-7b66282d,packages-db,1,ts-prop,decididaPor,,packages/db/src/
 packages-db-ts-prop-928658a2,packages-db,1,ts-prop,deFilaId,,packages/db/src/schema/conversas.ts:434,1,no,,,candidate,,sql=de_fila_id
 packages-db-ts-prop-7873e193,packages-db,1,ts-prop,dentroDaJanela,,packages/db/src/schema/conversas.ts:365,30,no,,,candidate,,sql=dentro_da_janela
 packages-db-ts-prop-cebe3206,packages-db,1,ts-prop,dentroDaJanela,,packages/db/src/semente-demo.ts:620,30,no,,,candidate,,
-packages-db-ts-prop-8fc770c9,packages-db,1,ts-prop,depois,KEEP,packages/db/src/auditoria.ts:51,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
 packages-db-ts-prop-77d46bb8,packages-db,1,ts-prop,descricao,,packages/db/src/schema/automacao.ts:576,299,no,,,candidate,,sql=descricao
 packages-db-ts-prop-29f8e0fe,packages-db,1,ts-prop,descricao,,packages/db/src/schema/automacao.ts:609,299,no,,,candidate,,sql=descricao
 packages-db-ts-prop-812f763d,packages-db,1,ts-prop,descricao,,packages/db/src/schema/automacao.ts:73,299,no,,,candidate,,sql=descricao
@@ -468,12 +456,10 @@ packages-db-ts-prop-ae2d568e,packages-db,1,ts-prop,fluxoVersaoId,,packages/db/sr
 packages-db-ts-prop-7a7e7026,packages-db,1,ts-prop,formato,,packages/db/src/schema/automacao.ts:551,270,no,,,candidate,,sql=formato
 packages-db-ts-prop-ea4fae88,packages-db,1,ts-prop,funcao,,packages/db/src/schema/identidade.ts:311,4,no,,,candidate,,sql=funcao
 packages-db-ts-prop-ce0a5c0c,packages-db,1,ts-prop,funcionalidade,,packages/db/src/schema/monitoria.ts:300,19,no,,,candidate,,sql=funcionalidade
-packages-db-ts-prop-51334919,packages-db,1,ts-prop,id,KEEP,packages/db/src/auditoria.ts:38,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
 packages-db-ts-prop-1fa9b723,packages-db,1,ts-prop,imagemUrl,,packages/db/src/schema/automacao.ts:55,22,no,,,candidate,,sql=imagem_url
 packages-db-ts-prop-455d6308,packages-db,1,ts-prop,implantacao,,packages/db/src/schema/identidade.ts:99,14,no,,,candidate,,sql=implantacao
 packages-db-ts-prop-f075a5a3,packages-db,1,ts-prop,importacaoId,,packages/db/src/schema/implantacao.ts:13,5,no,,,candidate,,sql=importacao_id
 packages-db-ts-prop-0d8d7954,packages-db,1,ts-prop,intencao,,packages/db/src/schema/monitoria.ts:260,17,no,,,candidate,,sql=intencao
-packages-db-ts-prop-837a0a42,packages-db,1,ts-prop,ip,KEEP,packages/db/src/auditoria.ts:39,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
 packages-db-ts-prop-e8100248,packages-db,1,ts-prop,janelaAbertaPorMensagemId,,packages/db/src/schema/conversas.ts:299,1,no,,,candidate,,sql=janela_aberta_por_mensagem_id
 packages-db-ts-prop-8cf3ddb1,packages-db,1,ts-prop,janelaExpiraEm,,packages/db/src/schema/conversas.ts:297,15,no,,,candidate,,sql=janela_expira_em
 packages-db-ts-prop-9d066d93,packages-db,1,ts-prop,mapeamento,,packages/db/src/schema/crm.ts:324,16,no,,,candidate,,sql=mapeamento
@@ -488,8 +474,6 @@ packages-db-ts-prop-af904d88,packages-db,1,ts-prop,modelo,,packages/db/src/schem
 packages-db-ts-prop-c1c70e2c,packages-db,1,ts-prop,motivoDesqualificacaoId,,packages/db/src/schema/crm.ts:78,2,no,,,candidate,,sql=motivo_desqualificacao_id
 packages-db-ts-prop-10ba6b16,packages-db,1,ts-prop,motivoEncerramento,,packages/db/src/schema/conversas.ts:287,4,no,,,candidate,,sql=motivo_encerramento
 packages-db-ts-prop-8ea441b7,packages-db,1,ts-prop,oauth2UrlAutorizacao,,packages/db/src/schema/automacao.ts:662,7,no,,,candidate,,sql=oauth2_url_autorizacao
-packages-db-ts-prop-38dde55f,packages-db,1,ts-prop,objetoId,KEEP,packages/db/src/auditoria.ts:47,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
-packages-db-ts-prop-efa5911e,packages-db,1,ts-prop,objetoTipo,KEEP,packages/db/src/auditoria.ts:46,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
 packages-db-ts-prop-ef343b38,packages-db,1,ts-prop,obrigatoriaNoEncerramento,,packages/db/src/schema/conversas.ts:495,20,no,,,candidate,,sql=obrigatoria_no_encerramento
 packages-db-ts-prop-57ebebad,packages-db,1,ts-prop,ocupacao,,packages/db/src/schema/gestao.ts:135,16,no,,,candidate,,sql=ocupacao
 packages-db-ts-prop-0e6d88d7,packages-db,1,ts-prop,onErro,,packages/db/src/schema/automacao.ts:470,1,no,,,candidate,,sql=on_erro
@@ -544,7 +528,6 @@ packages-db-ts-prop-28c6bd3e,packages-db,1,ts-prop,servicoId,,packages/db/src/sc
 packages-db-ts-prop-70eee08b,packages-db,1,ts-prop,servicoId,,packages/db/src/schema/automacao.ts:204,22,no,,,candidate,,sql=servico_id
 packages-db-ts-prop-3d5a4d4b,packages-db,1,ts-prop,sessaoSeg,,packages/db/src/schema/gestao.ts:134,16,no,,,candidate,,sql=sessao_seg
 packages-db-ts-prop-9e5a372e,packages-db,1,ts-prop,tipoAutenticacao,,packages/db/src/schema/automacao.ts:656,4,no,,,candidate,,sql=tipo_autenticacao
-packages-db-ts-prop-506b83d5,packages-db,1,ts-prop,tipo,KEEP,packages/db/src/auditoria.ts:36,0,unknown,,,candidate,,jsonb:logAuditoria.antes;jsonb:logAuditoria.depois
 packages-db-ts-prop-3ee0c036,packages-db,1,ts-prop,tokensEntrada,,packages/db/src/schema/monitoria.ts:302,7,no,,,candidate,,sql=tokens_entrada
 packages-db-ts-prop-85d54fc5,packages-db,1,ts-prop,tokenVerificacao,,packages/db/src/schema/identidade.ts:408,1,no,,,candidate,,sql=token_verificacao
 packages-db-ts-prop-f14b09d5,packages-db,1,ts-prop,twentyChave,,packages/db/src/schema/identidade.ts:115,2,no,,,candidate,,sql=twenty_chave

@@ -582,7 +582,6 @@ crm-ts-local-ef4daced,crm,3,ts-local,visoes,,apps/crm/src/componentes/visoes-sal
 crm-ts-local-2e62603f,crm,3,ts-local,visoes,,apps/crm/src/componentes/visoes-salvas.tsx:61,6,no,,,candidate,,
 crm-ts-prop-430c945d,crm,3,ts-prop,__pipeCrmBanco,,apps/crm/src/lib/banco.ts:26,1,no,,,candidate,,
 crm-ts-prop-8bac91c9,crm,3,ts-prop,acoes,,apps/crm/src/componentes/configuracoes/cabecalho.tsx:112,155,no,,,candidate,,
-crm-ts-prop-8ed1b6dc,crm,3,ts-prop,agora,KEEP,apps/crm/src/componentes/lista-de-leads.tsx:74,0,unknown,,,candidate,,jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto
 crm-ts-prop-99e1453a,crm,3,ts-prop,aoRestaurar,,apps/crm/src/componentes/colunas.tsx:172,6,no,,,candidate,,
 crm-ts-prop-070180ba,crm,3,ts-prop,atendente,,apps/crm/src/lib/contatos.ts:103,768,no,,,candidate,,
 crm-ts-prop-e5dc1618,crm,3,ts-prop,ativa,,apps/crm/src/lib/regras.ts:18,340,no,,,candidate,,
@@ -655,10 +654,8 @@ crm-ts-prop-e57a75fb,crm,3,ts-prop,fila,,apps/crm/src/lib/leads.ts:364,993,no,,,
 crm-ts-prop-6c285543,crm,3,ts-prop,fila,,apps/crm/src/lib/regras.ts:29,993,no,,,candidate,,
 crm-ts-prop-1646ff7b,crm,3,ts-prop,filtros,,apps/crm/src/componentes/filtros.tsx:38,91,no,,,candidate,,
 crm-ts-prop-474308b4,crm,3,ts-prop,filtros,,apps/crm/src/componentes/lista-de-leads.tsx:214,91,no,,,candidate,,
-crm-ts-prop-74719315,crm,3,ts-prop,fuso,KEEP,apps/crm/src/componentes/lista-de-leads.tsx:73,0,unknown,,,candidate,,jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto
 crm-ts-prop-96820301,crm,3,ts-prop,grupos,,apps/crm/src/componentes/lista-de-leads.tsx:206,85,no,,,candidate,,
 crm-ts-prop-ae467c1c,crm,3,ts-prop,idade,,apps/crm/semente/semente-crm.ts:942,24,no,,,candidate,,
-crm-ts-prop-91efdef0,crm,3,ts-prop,id,KEEP,apps/crm/src/lib/leads-visao.ts:71,0,unknown,,,candidate,,jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto
 crm-ts-prop-f60bcf5c,crm,3,ts-prop,implantacao,,apps/crm/src/lib/configuracoes-comum.ts:238,14,no,,,candidate,,
 crm-ts-prop-24343910,crm,3,ts-prop,ligacao,,apps/crm/src/lib/leads-visao.ts:18,23,no,,,candidate,,
 crm-ts-prop-81217700,crm,3,ts-prop,linhaDoTempo,,apps/crm/src/lib/funil.ts:224,6,no,,,candidate,,
@@ -666,7 +663,6 @@ crm-ts-prop-9abc5c06,crm,3,ts-prop,linhaDoTempo,,apps/crm/src/lib/leads.ts:413,6
 crm-ts-prop-f1039e18,crm,3,ts-prop,membros,,apps/crm/src/lib/configuracoes-comum.ts:239,128,no,,,candidate,,
 crm-ts-prop-816635d4,crm,3,ts-prop,membros,,apps/crm/src/lib/configuracoes-comum.ts:267,128,no,,,candidate,,
 crm-ts-prop-7d717c48,crm,3,ts-prop,membros,,apps/crm/src/lib/configuracoes-dados.ts:506,128,no,,,candidate,,
-crm-ts-prop-d310bade,crm,3,ts-prop,nome,KEEP,apps/crm/src/lib/leads-visao.ts:72,0,unknown,,,candidate,,jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto
 crm-ts-prop-c1a4a653,crm,3,ts-prop,nomesDosMembros,,apps/crm/src/lib/configuracoes-comum.ts:278,2,no,,,candidate,,
 crm-ts-prop-3b2f0a0a,crm,3,ts-prop,opcoes,,apps/crm/semente/semente-crm.ts:499,157,no,,,candidate,,
 crm-ts-prop-353c235c,crm,3,ts-prop,opcoes,,apps/crm/src/componentes/celula-inline.tsx:44,157,no,,,candidate,,
@@ -692,7 +688,6 @@ crm-ts-prop-b17dc50a,crm,3,ts-prop,principais,,apps/crm/src/componentes/ficha.ts
 crm-ts-prop-deb0b4cc,crm,3,ts-prop,probabilidade,,apps/crm/src/lib/contas.ts:113,24,no,,,candidate,,
 crm-ts-prop-41235fec,crm,3,ts-prop,probabilidade,,apps/crm/src/lib/funil.ts:155,24,no,,,candidate,,
 crm-ts-prop-424831b6,crm,3,ts-prop,probabilidade,,apps/crm/src/lib/funil.ts:24,24,no,,,candidate,,
-crm-ts-prop-87a46b7b,crm,3,ts-prop,proprietarios,KEEP,apps/crm/src/componentes/lista-de-leads.tsx:75,0,unknown,,,candidate,,jsonb:execucaoFluxo.contexto;jsonb:posicaoNoRoteador.contexto;jsonb:processHttpExecucao.contexto
 crm-ts-prop-72db42bf,crm,3,ts-prop,quantidade,,apps/crm/src/lib/funil.ts:36,63,no,,,candidate,,
 crm-ts-prop-e1dd83a8,crm,3,ts-prop,quantidadeGeral,,apps/crm/src/lib/funil.ts:42,2,no,,,candidate,,
 crm-ts-prop-88540dbc,crm,3,ts-prop,secoes,,apps/crm/src/componentes/configuracoes/cabecalho.tsx:26,37,no,,,candidate,,
