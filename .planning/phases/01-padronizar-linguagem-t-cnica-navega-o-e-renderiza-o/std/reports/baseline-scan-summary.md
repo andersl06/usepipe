@@ -1,24 +1,24 @@
 # Baseline STD-11
 
-Total: 36790
-Unclassified: 36249
+Total: 37131
+Unclassified: 36590
 Lexicon: none
 
 ## Findings by kind
 
 | Kind | Count |
 |---|---:|
-| comment | 4717 |
+| comment | 4743 |
 | css-class | 2281 |
 | css-custom-property | 492 |
 | data-attr | 37 |
-| identifier | 19275 |
-| literal-value | 957 |
+| identifier | 19434 |
+| literal-value | 962 |
 | package-name | 5 |
 | package-script | 17 |
-| path | 1768 |
-| sql-name | 2874 |
-| string-literal | 4367 |
+| path | 1769 |
+| sql-name | 2972 |
+| string-literal | 4419 |
 
 ## Classified by category
 
