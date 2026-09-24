@@ -190,6 +190,9 @@ export const CATALOGO_DE_EVENTOS = [
   'mensagem.criada',
   'mensagem.estado_entrega_alterado',
   'contato.criado',
+  'modelo.recategorizado',
+  'sla.alertou',
+  'sla.estourou',
 ] as const;
 
 export function eventosValidos(eventos: readonly string[]): string[] {
