@@ -1,6 +1,6 @@
 import path from 'node:path';
 import tsMorph from 'ts-morph';
-import type { CallExpression, Node, Project, PropertyAssignment, SourceFile, Type } from 'ts-morph';
+import type { CallExpression, Node, Project, PropertyAssignment, Type } from 'ts-morph';
 
 const { SyntaxKind } = tsMorph;
 
@@ -73,7 +73,15 @@ export function traceJsonbReach(project: Project): JsonbReachResult {
   const walk = (type: Type, origin: ReachOrigin, seen = new Set<string>(), fallback?: Node): void => {
     const identity = `${origin.table}.${origin.column}:${type.getText()}`; if (seen.has(identity)) return; seen.add(identity);
     if (type.isStringLiteral()) {
-      const value = String(type.getLiteralValue()); const declaration = type.getAliasSymbol()?.getDeclarations()[0] ?? fallback; if (declaration) addDeclaration(declaration, 'literal-value', value, origin); return;
+      const value = String(type.getLiteralValue());
+      let declaration = type.getAliasSymbol()?.getDeclarations()[0] ?? fallback;
+      const typeNode = fallback?.asKind(SyntaxKind.PropertySignature)?.getTypeNode();
+      if (typeNode?.isKind(SyntaxKind.TypeReference)) {
+        const alias = typeNode.getSourceFile().getTypeAlias(typeNode.getText());
+        const literal = alias?.getDescendantsOfKind(SyntaxKind.StringLiteral).find((node) => node.getLiteralText() === value);
+        if (literal) declaration = literal;
+      }
+      if (declaration) addDeclaration(declaration, 'literal-value', value, origin); return;
     }
     const unions = [...type.getUnionTypes(), ...type.getIntersectionTypes()];
     if (unions.length > 0) { for (const union of unions) walk(union, origin, seen, fallback); return; }
@@ -94,6 +102,7 @@ export function traceJsonbReach(project: Project): JsonbReachResult {
   const addType = (type: Type, column: Column, via: ReachVia): void => {
     const origin = { table: column.table, column: column.column, via, rootType: namedType(type) };
     for (const declaration of type.getSymbol()?.getDeclarations() ?? []) {
+      if (declaration.getSourceFile().isDeclarationFile()) continue;
       if (!declaration.isKind(SyntaxKind.InterfaceDeclaration) && !declaration.isKind(SyntaxKind.TypeLiteral)) continue;
       for (const member of declaration.getMembers()) {
         const name = 'getName' in member && typeof member.getName === 'function' ? member.getName() : undefined;
@@ -141,16 +150,22 @@ export function traceJsonbReach(project: Project): JsonbReachResult {
     }
   }
 
+  // Contexto is a runtime wrapper: fluxo.ts serializes only variaveis. EventoDeAuditoria is
+  // likewise split into before/after snapshots by auditoria.ts, never stored as a whole.
   const known: Record<string, string[]> = {
     FluxoBlip: ['bloco.conteudo'], Acao: ['bloco.conteudo'], Entrada: ['bloco.conteudo'], Saida: ['bloco.conteudo'], Estado: ['bloco.conteudo'],
-    Contexto: ['execucaoFluxo.contexto', 'posicaoNoRoteador.contexto', 'processHttpExecucao.contexto'],
     MensagemDeEntrada: ['execucaoPasso.entrada', 'processHttpExecucao.entrada'], MensagemDeSaida: ['execucaoPasso.saida'],
     PedidoDeHttp: ['processHttpExecucao.pedido'], RespostaDeHttp: ['processHttpExecucao.resposta'], CursorDeProcessHttp: ['processHttpExecucao.contexto'],
-    ListaDeAcoesSuspensa: ['processHttpExecucao.contexto'], EventoDeAuditoria: ['logAuditoria.antes', 'logAuditoria.depois'],
+    ListaDeAcoesSuspensa: ['processHttpExecucao.contexto'],
+  };
+  const knownFiles: Record<string, string> = {
+    FluxoBlip: 'packages/core/src/fluxo/modelos.ts', Acao: 'packages/core/src/fluxo/modelos.ts', Entrada: 'packages/core/src/fluxo/modelos.ts', Saida: 'packages/core/src/fluxo/modelos.ts', Estado: 'packages/core/src/fluxo/modelos.ts',
+    MensagemDeEntrada: 'packages/core/src/fluxo/contexto.ts', MensagemDeSaida: 'packages/core/src/fluxo/contexto.ts', PedidoDeHttp: 'packages/core/src/fluxo/contexto.ts', RespostaDeHttp: 'packages/core/src/fluxo/contexto.ts', CursorDeProcessHttp: 'packages/core/src/fluxo/contexto.ts', ListaDeAcoesSuspensa: 'packages/core/src/fluxo/contexto.ts',
   };
   for (const source of project.getSourceFiles()) {
     const declarations = [...source.getInterfaces(), ...source.getTypeAliases()];
     for (const declaration of declarations) for (const target of known[declaration.getName()] ?? []) {
+      if (normalized(source.getFilePath()) !== knownFiles[declaration.getName()]) continue;
       const [table, columnName] = target.split('.'); const column = roots.find((item) => item.table === table && item.column === columnName); if (column) addType(declaration.getType(), column, 'known-sink');
     }
   }

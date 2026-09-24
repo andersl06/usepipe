@@ -38,3 +38,22 @@ test('relatorio fornece chave de declaracao para integracao com inventario', () 
   const inventory = extractSources([{ fileName: '/x.ts', sourceText }]); applyJsonbReach(inventory, result.report);
   const persisted = inventory.rows.find((row) => row.old === 'user'); assert.ok(persisted); assert.equal(persisted.persisted, 'unknown'); assert.match(persisted.notes, /jsonb:execucao\.contexto/); assert.equal(persisted.new, 'KEEP');
 });
+
+test('nomes iguais em outros arquivos e metodos de Array nao viram chaves persistidas', () => {
+  const report = traceJsonbReach(createJsonbReachProject({
+    '/schema.ts': `${prelude}\nconst templateMensagem = pgTable('template_mensagem', { variaveis: jsonb('variaveis') }); declare const linha: any; const variaveis: string[] = linha.variaveis;`,
+    '/apps/crm/src/lib/leads-visao.ts': 'interface Contexto { proprietarios: string[] }',
+  })).report;
+  assert.equal(report.some((row) => row.name === 'proprietarios'), false);
+  assert.equal(report.some((row) => row.name === 'map' || row.name === 'push'), false);
+});
+
+test('literal de alias usa sua linha real, sem capturar alias homonimo de outro arquivo', () => {
+  const report = traceJsonbReach(createJsonbReachProject({
+    '/x.ts': `${prelude}\ntype Operador = 'em' | 'contem';\ninterface Expressao { operador: Operador }\nconst regra = pgTable('regra', { condicao: jsonb('condicao').$type<Expressao>() });`,
+    '/outro.ts': "type Operador = 'errado';",
+  })).report;
+  assert.ok(report.some((row) => row.name === 'em' && row.declared_at.endsWith('/x.ts:2')));
+  assert.ok(report.some((row) => row.name === 'contem' && row.declared_at.endsWith('/x.ts:2')));
+  assert.equal(report.some((row) => row.name === 'errado'), false);
+});

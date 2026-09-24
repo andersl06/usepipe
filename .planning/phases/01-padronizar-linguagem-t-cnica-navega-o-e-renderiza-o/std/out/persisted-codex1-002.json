@@ -1,0 +1,2404 @@
+{
+  "rows": [
+    {
+      "id": "api-error-code-240c13f3",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/catalogo.ts:355; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-6323b71a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:971; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-e83fb667",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-instagram.ts:34; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-8e69b867",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-messenger.ts:4; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-796e9a8c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-whatsapp.ts:109; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-74b4a63b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-whatsapp.ts:39; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-da2a3ffe",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:74; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-85fe1c08",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/criacao-de-canal.ts:60; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-520c14c5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/info-do-numero.ts:32; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-33dbbf41",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/info-do-numero.ts:37; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f0ef0c87",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:139; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-job-name-5c21bb9f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/api/src/filas.ts:491; drained at cutover"
+    },
+    {
+      "id": "api-job-name-c6d9e7d6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/api/src/filas.ts:464; drained at cutover"
+    },
+    {
+      "id": "api-job-name-fe572552",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/api/src/filas.ts:206; drained at cutover"
+    },
+    {
+      "id": "api-job-name-e59b6a97",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/api/src/filas.ts:305; drained at cutover"
+    },
+    {
+      "id": "api-job-name-a00b3b83",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/api/src/filas.ts:401; drained at cutover"
+    },
+    {
+      "id": "api-literal-value-72d6ce4c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/passos-da-implantacao.ts:40"
+    },
+    {
+      "id": "api-literal-value-58cd3eab",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/sla.ts:30"
+    },
+    {
+      "id": "api-literal-value-f20ad935",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/passos-da-implantacao.ts:38"
+    },
+    {
+      "id": "api-literal-value-426cd760",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/paginacao.ts:60"
+    },
+    {
+      "id": "api-literal-value-5f459aa4",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/atendimento.ts:107"
+    },
+    {
+      "id": "api-literal-value-27362d12",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/historico.ts:215"
+    },
+    {
+      "id": "api-literal-value-d16d511b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "api-literal-value-97ff7dd9",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conexao_sso.estado"
+    },
+    {
+      "id": "api-literal-value-e903c566",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/filas.ts:45"
+    },
+    {
+      "id": "api-literal-value-a828f593",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/instagram/renovacao.ts:24"
+    },
+    {
+      "id": "api-literal-value-7e935fe1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/mensagem-ativa.ts:42"
+    },
+    {
+      "id": "api-literal-value-d00bbdaf",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "api-literal-value-a93854a8",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres regra_fila.condicao jsonb"
+    },
+    {
+      "id": "api-literal-value-a9ee9a36",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres regra_fila.condicao jsonb"
+    },
+    {
+      "id": "api-literal-value-15f6087c",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres regra_fila.condicao jsonb"
+    },
+    {
+      "id": "api-literal-value-a8ea6a90",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres etiqueta.escopo"
+    },
+    {
+      "id": "api-literal-value-93c64254",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "api-literal-value-bfeddc28",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "api-literal-value-d0541d75",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "api-literal-value-f89882ba",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/passos-da-implantacao.ts:40"
+    },
+    {
+      "id": "api-literal-value-fced549a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "api-literal-value-00f59e8b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "api-literal-value-3a01c259",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "api-literal-value-c65609bc",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "api-literal-value-627a8a01",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo in seeded test data"
+    },
+    {
+      "id": "api-literal-value-6980bf1b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo in seeded test data"
+    },
+    {
+      "id": "api-literal-value-843e8c90",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo in seeded test data"
+    },
+    {
+      "id": "api-literal-value-cebc6a9b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres etiqueta.escopo"
+    },
+    {
+      "id": "api-literal-value-493ab559",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/passos-da-implantacao.ts:40"
+    },
+    {
+      "id": "api-literal-value-80f68663",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "api-literal-value-50863237",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "api-literal-value-2585f371",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "api-literal-value-92023b9d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "api-literal-value-2c6b5dd7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres log_auditoria.objeto_tipo"
+    },
+    {
+      "id": "api-literal-value-0cddda7e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/sla.ts:30"
+    },
+    {
+      "id": "api-literal-value-2aed2f00",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/sla.ts:30"
+    },
+    {
+      "id": "api-literal-value-d309c82a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/paginacao.ts:60"
+    },
+    {
+      "id": "api-literal-value-eb09d9c9",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Meta Graph API registered value"
+    },
+    {
+      "id": "api-literal-value-a9007501",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "api-literal-value-58ff5374",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "api-literal-value-91d806ab",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/tests/entrada.test.ts:250"
+    },
+    {
+      "id": "api-literal-value-282ae895",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/tests/entrada.test.ts:249"
+    },
+    {
+      "id": "api-literal-value-09774ba3",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres canal.config.origem jsonb"
+    },
+    {
+      "id": "api-literal-value-67a53729",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres pesquisa.disparo"
+    },
+    {
+      "id": "api-literal-value-0fb137e1",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres pesquisa.disparo"
+    },
+    {
+      "id": "api-literal-value-61d19dea",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/sla.ts:30"
+    },
+    {
+      "id": "api-literal-value-1879baf3",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/passos-da-implantacao.ts:38"
+    },
+    {
+      "id": "api-literal-value-b52f5cf6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/atendimento.ts:107"
+    },
+    {
+      "id": "api-literal-value-50b6a611",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/historico.ts:214"
+    },
+    {
+      "id": "api-literal-value-b65a937a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/passos-da-implantacao.ts:40"
+    },
+    {
+      "id": "api-literal-value-75bd6408",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres regra_prioridade.escopo_tipo / regra_sla.escopo_tipo"
+    },
+    {
+      "id": "api-literal-value-1f6b7c2a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres regra_prioridade.escopo_tipo / regra_sla.escopo_tipo"
+    },
+    {
+      "id": "api-literal-value-dc49b8e5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "api-literal-value-fa95ae82",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Meta Graph API registered value"
+    },
+    {
+      "id": "api-literal-value-d7db8465",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "api-literal-value-a1fc0025",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "api-literal-value-6055b8a6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/mensagem-ativa.ts:153"
+    },
+    {
+      "id": "api-literal-value-8d461c43",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/mensagem-ativa.ts:40"
+    },
+    {
+      "id": "api-literal-value-7584f095",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres canal.config.origem jsonb"
+    },
+    {
+      "id": "api-literal-value-25ff72c0",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/filas.ts:45"
+    },
+    {
+      "id": "api-literal-value-c41193ef",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "api-literal-value-38e1a883",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "api-literal-value-59c9a125",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres regra_fila.condicao jsonb"
+    },
+    {
+      "id": "api-literal-value-a65d29f4",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "api-literal-value-74d1e809",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "api-literal-value-d530551d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "api-literal-value-7dd4b15e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres chave_api.escopos"
+    },
+    {
+      "id": "api-literal-value-e7f68f81",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres entrega_webhook.evento"
+    },
+    {
+      "id": "api-literal-value-2ec6ef56",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/passos-da-implantacao.ts:38"
+    },
+    {
+      "id": "api-literal-value-f870fdf2",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres pesquisa.disparo"
+    },
+    {
+      "id": "api-literal-value-1a6c3bce",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres pesquisa.disparo"
+    },
+    {
+      "id": "api-literal-value-2a723d8a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres pesquisa.disparo"
+    },
+    {
+      "id": "api-literal-value-3ac427e7",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/instagram/renovacao.ts:24"
+    },
+    {
+      "id": "api-literal-value-8404e79f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo in seeded test data"
+    },
+    {
+      "id": "api-literal-value-da7d6255",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/instagram/renovacao.ts:24"
+    },
+    {
+      "id": "api-literal-value-cfd01e53",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/certificados.ts:44"
+    },
+    {
+      "id": "api-literal-value-9ef612fc",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/tests/entrada.test.ts:251"
+    },
+    {
+      "id": "api-literal-value-dae35d21",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/espelho-crm.ts:21"
+    },
+    {
+      "id": "api-literal-value-2cdfbe92",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/gestao/sla.ts:30"
+    },
+    {
+      "id": "api-literal-value-139364f2",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Meta Graph API registered value"
+    },
+    {
+      "id": "api-literal-value-201ab54a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/tests/entrada.test.ts:252"
+    },
+    {
+      "id": "api-literal-value-89bc091a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at apps/api/src/dominio/instagram/renovacao.ts:24"
+    },
+    {
+      "id": "api-literal-value-818e9b90",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Meta Graph API registered value"
+    },
+    {
+      "id": "infra-literal-value-aa0c7cbe",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at tools/std/inventory.ts:31"
+    },
+    {
+      "id": "infra-literal-value-ae96941c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at tools/std/inventory.ts:30"
+    },
+    {
+      "id": "infra-literal-value-074df66f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at tools/std/inventory.ts:30"
+    },
+    {
+      "id": "infra-literal-value-b453657a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at tools/std/inventory.ts:30"
+    },
+    {
+      "id": "infra-literal-value-dfbfcfe1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at tools/std/inventory.ts:31"
+    },
+    {
+      "id": "packages-autenticacao-cookie-2483d34b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-38",
+      "notes": "Short-lived or session cookie at packages/autenticacao/src/sessao.ts:18; cutover rename"
+    },
+    {
+      "id": "packages-contracts-literal-value-4663a692",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo_membro.papel_no_fluxo"
+    },
+    {
+      "id": "packages-contracts-literal-value-92a367f6",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.prioridade"
+    },
+    {
+      "id": "packages-contracts-literal-value-8bc1ade0",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo_versao.estado"
+    },
+    {
+      "id": "packages-contracts-literal-value-b42e9a94",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/contracts/src/eventos.ts:20"
+    },
+    {
+      "id": "packages-contracts-literal-value-a3029619",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.estado"
+    },
+    {
+      "id": "packages-contracts-literal-value-07c40e09",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.prioridade"
+    },
+    {
+      "id": "packages-contracts-literal-value-b2125e9f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres regra_fila.condicao jsonb"
+    },
+    {
+      "id": "packages-contracts-literal-value-d506e908",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/contracts/src/eventos.ts:16"
+    },
+    {
+      "id": "packages-contracts-literal-value-ee7564d4",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres regra_fila.condicao jsonb"
+    },
+    {
+      "id": "packages-contracts-literal-value-8bdee369",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/contracts/src/sessao.ts:54"
+    },
+    {
+      "id": "packages-contracts-literal-value-6d72e2d6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/contracts/src/sessao.ts:52"
+    },
+    {
+      "id": "packages-contracts-literal-value-839ac9bf",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo_membro.papel_no_fluxo"
+    },
+    {
+      "id": "packages-contracts-literal-value-e2deee00",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.estado"
+    },
+    {
+      "id": "packages-contracts-literal-value-05fa4cb5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.estado"
+    },
+    {
+      "id": "packages-contracts-literal-value-7583ff80",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres canal.tipo"
+    },
+    {
+      "id": "packages-contracts-literal-value-20f5ddfe",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.estado"
+    },
+    {
+      "id": "packages-contracts-literal-value-f843e7e5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo_membro.permissoes"
+    },
+    {
+      "id": "packages-contracts-literal-value-b2d38759",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/contracts/src/eventos.ts:18"
+    },
+    {
+      "id": "packages-contracts-literal-value-151a6eb4",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres regra_fila.condicao jsonb"
+    },
+    {
+      "id": "packages-contracts-literal-value-d50a00c6",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres canal.tipo"
+    },
+    {
+      "id": "packages-contracts-literal-value-0326c164",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres status_atendente.estado"
+    },
+    {
+      "id": "packages-contracts-literal-value-0f209990",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo_membro.permissoes"
+    },
+    {
+      "id": "packages-contracts-literal-value-9668c345",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.prioridade"
+    },
+    {
+      "id": "packages-contracts-literal-value-6e18dc63",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.prioridade"
+    },
+    {
+      "id": "packages-contracts-literal-value-61eba365",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/contracts/src/eventos.ts:22"
+    },
+    {
+      "id": "packages-contracts-literal-value-cef73426",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.estado"
+    },
+    {
+      "id": "packages-contracts-literal-value-a7eaf920",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-09",
+      "notes": "Postgres regra_fila.condicao jsonb"
+    },
+    {
+      "id": "packages-contracts-literal-value-05b9776c",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo_membro.permissoes"
+    },
+    {
+      "id": "packages-contracts-literal-value-f476c1e6",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres status_atendente.estado"
+    },
+    {
+      "id": "packages-contracts-literal-value-9edeaf3c",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres status_atendente.estado"
+    },
+    {
+      "id": "packages-contracts-literal-value-cb66a4f4",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres tenant.plano"
+    },
+    {
+      "id": "packages-contracts-literal-value-2a01875a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres status_atendente.estado"
+    },
+    {
+      "id": "packages-contracts-literal-value-5823a5bb",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo_membro.papel_no_fluxo"
+    },
+    {
+      "id": "packages-contracts-literal-value-1809bbfb",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo_versao.estado"
+    },
+    {
+      "id": "packages-contracts-literal-value-535a88b2",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo_versao.estado"
+    },
+    {
+      "id": "packages-contracts-literal-value-fe720af7",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/contracts/src/sessao.ts:56"
+    },
+    {
+      "id": "packages-contracts-literal-value-5c77542b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres conversa.prioridade"
+    },
+    {
+      "id": "packages-contracts-literal-value-a6520e17",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/contracts/src/sessao.ts:58"
+    },
+    {
+      "id": "packages-contracts-literal-value-c24f9fc3",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres fluxo_membro.papel_no_fluxo"
+    },
+    {
+      "id": "packages-contracts-literal-value-9ac2e79a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres canal.tipo"
+    },
+    {
+      "id": "packages-contracts-literal-value-5a5ad31b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres canal.tipo"
+    },
+    {
+      "id": "packages-db-literal-value-36a69879",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-340c34ad",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-81575f59",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-cc58197a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-d7c5f1c8",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-bdec4cdf",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-fc2ab746",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-cfb6d4f3",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK fluxo_estado_ck (t.estado)"
+    },
+    {
+      "id": "packages-db-literal-value-c5dad517",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK metrica_diaria_dimensao_tipo_ck (t.dimensaoTipo)"
+    },
+    {
+      "id": "packages-db-literal-value-fd37d33c",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK conversa_ultima_mensagem_de_ck (t.ultimaMensagemDe)"
+    },
+    {
+      "id": "packages-db-literal-value-7f61daec",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK mensagem_autor_tipo_ck (t.autorTipo)"
+    },
+    {
+      "id": "packages-db-literal-value-25a616da",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-37d1af8a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK papel_escopo_ck (t.escopo)"
+    },
+    {
+      "id": "packages-db-literal-value-43c6be7a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded demo data via packages/db/src/semente-demo.ts"
+    },
+    {
+      "id": "packages-db-literal-value-9b22b28f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-7f69657e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK conexao_sso_estado_ck (t.estado)"
+    },
+    {
+      "id": "packages-db-literal-value-80e13d78",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK mensagem_categoria_cobranca_ck (t.categoriaCobranca)"
+    },
+    {
+      "id": "packages-db-literal-value-6939f6c1",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK template_mensagem_categoria_ck (t.categoria)"
+    },
+    {
+      "id": "packages-db-literal-value-bc1ea0d9",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-b84aa6cc",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-23b51c29",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-f676dab9",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-c03ce650",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-eae42334",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-c998ee77",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-9cbff9f5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-d9983d01",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-3ae47c76",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-7ff0551d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-d4672632",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-d435eb93",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-b6f7ac51",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-c77cbac2",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-56470167",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-81adab5c",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-b4079234",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-c6b62e0e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-db5f2abb",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-86890ad0",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-dfaf9e8b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-3886b00d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres log_auditoria.ator_tipo"
+    },
+    {
+      "id": "packages-db-literal-value-b1e50f47",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK log_auditoria_ator_tipo_ck (t.atorTipo)"
+    },
+    {
+      "id": "packages-db-literal-value-5e4c0424",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK bloco_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-fb756913",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-c700276d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-4bb50c45",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-1aacabaf",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-a598e9c5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-2cf58b22",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-89c49c52",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-b358c5dc",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-2ad19f3f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-bba02ff4",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-a267c7a1",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-91e20c50",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-224ebc6d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-1a0746ef",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-c01e58da",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-fcbe7e3e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK campo_customizado_objeto_ck (t.objeto)"
+    },
+    {
+      "id": "packages-db-literal-value-36f898d9",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK papel_escopo_ck (t.escopo)"
+    },
+    {
+      "id": "packages-db-literal-value-6023b7df",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-4f3f2ba6",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-ce1df2dd",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-6f149425",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-8c265b96",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-183522bd",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-fc99c32f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-fe34a892",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-0ed6a20f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-83690300",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-da7e8049",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-cb0c1a03",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-80fab386",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-bf7da6a1",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-d2fe58f8",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-ae2c35a7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-1cdc26ec",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK conversa_ultima_mensagem_de_ck (t.ultimaMensagemDe)"
+    },
+    {
+      "id": "packages-db-literal-value-67e96c9f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK mensagem_autor_tipo_ck (t.autorTipo)"
+    },
+    {
+      "id": "packages-db-literal-value-83858f52",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK etiqueta_escopo_ck (t.escopo)"
+    },
+    {
+      "id": "packages-db-literal-value-9c4b0011",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK campo_customizado_objeto_ck (t.objeto)"
+    },
+    {
+      "id": "packages-db-literal-value-72444814",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-75544973",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-bea88288",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-4c1b61f7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-a5094f59",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-e36013fb",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-e1989d7f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-6b695166",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-e71d65d4",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-47f3ad41",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-4e3a480d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-40e03c40",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-9a468a70",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK etiqueta_escopo_ck (t.escopo)"
+    },
+    {
+      "id": "packages-db-literal-value-03739a61",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK atividade_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-5530c956",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-3507b3cd",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-513af5bc",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-94277718",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-6af62896",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-31d3c38b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-6726bb98",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-a8614014",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-c5d8eb8b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK acao_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-5dd51363",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK acao_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-9d0efc38",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-afe30d8f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-46bf7734",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-921e9b63",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK mensagem_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-705656ab",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK plano_coach_estado_ck (t.estado)"
+    },
+    {
+      "id": "packages-db-literal-value-9c5ac42e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK conversa_estado_ck (t.estado)"
+    },
+    {
+      "id": "packages-db-literal-value-92813180",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK lead_status_ck (t.status)"
+    },
+    {
+      "id": "packages-db-literal-value-b2739966",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK mensagem_direcao_ck (t.direcao)"
+    },
+    {
+      "id": "packages-db-literal-value-51aeb09b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded demo data via packages/db/src/semente-demo.ts"
+    },
+    {
+      "id": "packages-db-literal-value-ef0b8711",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK acao_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-653fc123",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-2609f6ef",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK regra_sla_alvo_ck (t.alvo)"
+    },
+    {
+      "id": "packages-db-literal-value-af61b094",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-08",
+      "notes": "Postgres SQL table name in partition DDL"
+    },
+    {
+      "id": "packages-db-literal-value-1ce05a8d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-8af0d20b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK metrica_diaria_dimensao_tipo_ck (t.dimensaoTipo)"
+    },
+    {
+      "id": "packages-db-literal-value-011e8da2",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK regra_prioridade_escopo_tipo_ck (t.escopoTipo); regra_sla_escopo_tipo_ck (t.escopoTipo)"
+    },
+    {
+      "id": "packages-db-literal-value-46fc1ed5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK fluxo_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-3ea8e150",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK acao_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-8e6b98b2",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-a18de7e4",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-09c1ba58",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-dca5983e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-6544f681",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-32c53af3",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-7177b34f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-52377fcc",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-994fa660",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-0d928adc",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-e5806af9",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK mensagem_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-351858e7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK atividade_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-eefc46e0",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK mensagem_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-b5b92da1",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK membro_equipe_funcao_ck (t.funcao)"
+    },
+    {
+      "id": "packages-db-literal-value-20dfcb22",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK evento_atendimento_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-15c3b21d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK evento_atendimento_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-f43720b7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-08",
+      "notes": "Postgres SQL table name in partition DDL"
+    },
+    {
+      "id": "packages-db-literal-value-fe4f464b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK bloco_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-6c3a858b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-da0601b8",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-3f3aef39",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-31616a6e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-fb18b438",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-66656fab",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-3fde9c2f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-41b84d0c",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-80f3c018",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-39b3fd71",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-5cafbb16",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-c848f7b4",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-deb6ea17",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-a2221ad3",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    }
+  ]
+}

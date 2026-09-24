@@ -1,0 +1,335 @@
+id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
+packages-ai-comment-02a9981c,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,140,140,line,2,// Peso total cai de 10 para 8; quem sobrou está todo conforme.,,,,,,
+packages-ai-comment-eeb61a64,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,166,166,line,1,// ——— avaliação com dublê do modelo ———,,,,,,
+packages-ai-comment-9b5c0783,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,198,198,jsdoc,1,/** Dublê com resposta gravada: nenhum teste gasta chamada real. */,,,,,,
+packages-ai-comment-a096a87c,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,9,13,jsdoc,2,"/**
+ * Pesos: c1=1×1, c2=1×2, c3=2×2, c4=3×1. Somam 10, então cada ponto de peso vale
+ * 10 pontos de nota. Números redondos de propósito: teste de cálculo com número
+ * feio esconde erro de arredondamento.
+ */",,,,,,
+packages-ai-comment-43308d34,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,95,95,line,0,// Só o c1 (peso 1 de 10) caiu.,,,,,,
+packages-ai-comment-a9d5f828,packages-ai,packages/ai/src/avaliacao/avaliacao.ts,1,12,jsdoc,19,"/**
+ * Avaliação de atendimento por IA: recebe transcrição e formulário, devolve
+ * resposta critério a critério com valor, pontos, justificativa e a mensagem que
+ * serve de evidência.
+ *
+ * Tudo que o modelo devolve é conferido contra o formulário e contra a
+ * transcrição antes de virar resultado: id de critério que não existe, rótulo de
+ * evidência que não existe e critério não conforme sem evidência **falham**. É a
+ * mesma disciplina que no case-sync validava a subcategoria contra a picklist —
+ * lá, aceitar a resposta do modelo sem conferir produziu Cases em branco que
+ * ninguém viu por meses.
+ */",,,,,,
+packages-ai-comment-27069a08,packages-ai,packages/ai/src/avaliacao/avaliacao.ts,46,46,jsdoc,1,"/** Dublê nos testes; na produção, a chamada real. */",,,,,,
+packages-ai-comment-c92064ec,packages-ai,packages/ai/src/avaliacao/avaliacao.ts,50,50,jsdoc,1,/** Sobra folga para justificativa e evidência de cada critério. */,,,,,,
+packages-ai-comment-7c886c41,packages-ai,packages/ai/src/avaliacao/avaliacao.ts,56,59,jsdoc,2,"/**
+ * Resolve o rótulo citado (`m12`) para o `mensagem.id` correspondente. Rótulo
+ * fora do índice da transcrição é alucinação e derruba a avaliação.
+ */",,,,,,
+packages-ai-comment-b15cb700,packages-ai,packages/ai/src/avaliacao/nota.ts,1,11,jsdoc,12,"/**
+ * Cálculo da nota. Determinístico e feito aqui, nunca pelo modelo.
+ *
+ * A nota é média ponderada pelo peso do grupo vezes o peso do critério, na escala
+ * de `formulario_avaliacao.nota_maxima`. Critério `nao_se_aplica` sai do
+ * denominador — não é zero, é ausência. Critério fatal reprovado zera o total.
+ *
+ * `pontos` de cada resposta já vem na escala da nota: a soma dos pontos é a nota
+ * antes do fatal. É essa propriedade que faz a tela conseguir mostrar ""perdeu 12
+ * pontos aqui"" sem recalcular nada.
+ */",,,,,,
+packages-ai-comment-79b3a781,packages-ai,packages/ai/src/avaliacao/nota.ts,17,17,jsdoc,3,"/** Quanto do critério foi cumprido, de 0 a 1. `null` quando não se aplica. */",,,,,,
+packages-ai-comment-0a93f546,packages-ai,packages/ai/src/avaliacao/nota.ts,49,49,jsdoc,2,"/** Arredonda para as duas casas de `numeric(6,2)`, sem herdar erro de ponto flutuante. */",,,,,,
+packages-ai-comment-24e9fdeb,packages-ai,packages/ai/src/avaliacao/nota.ts,54,59,jsdoc,3,"/**
+ * Aplica pesos, escala e critério fatal sobre as respostas já validadas.
+ *
+ * `respostas` precisa cobrir todos os critérios do formulário — quem monta essa
+ * lista (`avaliacao/avaliacao.ts`) já garantiu isso. Aqui, faltar critério é erro.
+ */",,,,,,
+packages-ai-comment-0beaccd1,packages-ai,packages/ai/src/avaliacao/tipos.ts,1,5,jsdoc,2,"/**
+ * Formulário de avaliação e resultado, espelhando `formulario_avaliacao` →
+ * `grupo_criterio` → `criterio` e `avaliacao` → `resposta_avaliacao` (§6 do
+ * modelo de dados). Sem acesso a banco: entra dado, sai resultado.
+ */",,,,,,
+packages-ai-comment-3e83ed87,packages-ai,packages/ai/src/avaliacao/tipos.ts,11,11,jsdoc,6,"/** Escalas dos tipos que não são `conforme`. `escala` vai a 5, `nota` vai a 10. */",,,,,,
+packages-ai-comment-6e5ceb87,packages-ai,packages/ai/src/avaliacao/tipos.ts,15,15,jsdoc,3,/** `nao_se_aplica` tira o critério do denominador — não é o mesmo que zero. */,,,,,,
+packages-ai-comment-a55a54cf,packages-ai,packages/ai/src/avaliacao/tipos.ts,25,25,jsdoc,2,/** Critério fatal marcado como não conforme zera a nota da avaliação inteira. */,,,,,,
+packages-ai-comment-ad19683c,packages-ai,packages/ai/src/avaliacao/tipos.ts,44,44,jsdoc,3,"/** O que a IA responde por critério, antes de a nota ser calculada aqui. */",,,,,,
+packages-ai-comment-84b6e0fb,packages-ai,packages/ai/src/avaliacao/tipos.ts,47,47,jsdoc,2,"/** `conforme` | `nao_conforme` | `nao_se_aplica`, ou o número da escala como texto. */",,,,,,
+packages-ai-comment-e8654aa2,packages-ai,packages/ai/src/avaliacao/tipos.ts,50,50,jsdoc,2,/** Rótulo da linha da transcrição (`m7`) que sustenta a resposta. */,,,,,,
+packages-ai-comment-0a143167,packages-ai,packages/ai/src/avaliacao/tipos.ts,54,54,jsdoc,1,"/** Espelha `resposta_avaliacao`. `pontos` é calculado aqui, nunca pelo modelo. */",,,,,,
+packages-ai-comment-18e09cea,packages-ai,packages/ai/src/avaliacao/tipos.ts,60,60,jsdoc,2,/** `mensagem.id` já resolvido a partir do rótulo. */,,,,,,
+packages-ai-comment-dcfd4826,packages-ai,packages/ai/src/avaliacao/tipos.ts,66,66,jsdoc,2,"/** Nota final na escala do formulário, já com o critério fatal aplicado. */",,,,,,
+packages-ai-comment-5c841c2f,packages-ai,packages/ai/src/avaliacao/tipos.ts,68,68,jsdoc,1,/** Nota antes do critério fatal — é o que mostra o tamanho do estrago. */,,,,,,
+packages-ai-comment-d5dbc39f,packages-ai,packages/ai/src/avaliacao/tipos.ts,70,70,jsdoc,2,/** Critérios fatais reprovados. Vazio quando nenhum zerou a nota. */,,,,,,
+packages-ai-comment-39e6e8c1,packages-ai,packages/ai/src/avaliacao/tipos.ts,73,73,jsdoc,2,"/** Confiança geral declarada pelo modelo, de 0 a 1. */",,,,,,
+packages-ai-comment-8e181dbc,packages-ai,packages/ai/src/avaliacao/tipos.ts,81,81,jsdoc,0,"/** Percorre os critérios de todos os grupos, na ordem do formulário. */",,,,,,
+packages-ai-comment-73286c4a,packages-ai,packages/ai/src/bancada/bancada.teste.ts,128,128,line,2,"// Em um caso, a IA marca conforme onde o humano marcou não conforme.",,,,,,
+packages-ai-comment-792c6b20,packages-ai,packages/ai/src/bancada/bancada.teste.ts,167,167,line,3,"// A IA deixa passar a exposição de dado de terceiro: o humano zerou, ela não.",,,,,,
+packages-ai-comment-e7eabc48,packages-ai,packages/ai/src/bancada/bancada.teste.ts,19,19,jsdoc,2,"/** Avaliador de mentira: responde o gabarito, com as trocas que o teste pedir. */",,,,,,
+packages-ai-comment-3b0531f1,packages-ai,packages/ai/src/bancada/bancada.teste.ts,191,191,line,2,"// A falha não vira acurácia melhor nem pior: some do cálculo, mas é dita.",,,,,,
+packages-ai-comment-6199c7a7,packages-ai,packages/ai/src/bancada/bancada.ts,1,19,jsdoc,21,"/**
+ * A bancada de medição, generalizada do case-sync.
+ *
+ * Lá ela é o que separou ""melhorou"" de opinião: a acurácia da classificação saiu
+ * de 26% para 64% porque cada mudança foi medida contra gabarito humano, caso a
+ * caso, e três das ideias mais promissoras foram **descartadas por medição** —
+ * exemplos por similaridade, definições destiladas e voto majoritário pioraram ou
+ * custaram 5× sem ganho.
+ *
+ * Duas regras de método herdadas de lá, que este arquivo respeita:
+ *
+ * - **compare caso a caso, não só o total.** Um ganho que quebra outros casos não
+ *   é ganho. Por isso o resultado traz o desvio por critério, ordenado do pior
+ *   para o melhor, e não só a acurácia geral.
+ * - **falha em caso não pode virar média melhor.** Caso que estourou entra em
+ *   `falhas` e fica fora do denominador, dito em voz alta.
+ *
+ * A saída por critério tem o mesmo formato de `calibracao_item.desvio_por_criterio`.
+ */",,,,,,
+packages-ai-comment-a55dbac4,packages-ai,packages/ai/src/bancada/bancada.ts,117,117,jsdoc,1,/** Compara duas respostas de critério do jeito que o banco as guardaria. */,,,,,,
+packages-ai-comment-b5276d34,packages-ai,packages/ai/src/bancada/bancada.ts,122,125,jsdoc,1,"/**
+ * Roda a avaliação por IA contra o conjunto de referência e devolve acurácia geral
+ * e desvio por critério.
+ */",,,,,,
+packages-ai-comment-532ee27b,packages-ai,packages/ai/src/bancada/bancada.ts,30,30,jsdoc,3,"/** Uma conversa do conjunto de referência, com a avaliação feita por humano. */",,,,,,
+packages-ai-comment-a31d40f4,packages-ai,packages/ai/src/bancada/bancada.ts,37,37,jsdoc,3,/** Gabarito: o valor que o humano deu a cada critério. A nota sai daqui. */,,,,,,
+packages-ai-comment-22edfadd,packages-ai,packages/ai/src/bancada/bancada.ts,44,44,jsdoc,1,/** Casos em que este critério foi medido. */,,,,,,
+packages-ai-comment-6fb12001,packages-ai,packages/ai/src/bancada/bancada.ts,49,49,jsdoc,0,"/** Média de |pontos da IA − pontos do humano|, na escala da nota. */",,,,,,
+packages-ai-comment-509b8319,packages-ai,packages/ai/src/bancada/bancada.ts,72,72,jsdoc,0,/** Respostas idênticas ao gabarito ÷ respostas comparadas. */,,,,,,
+packages-ai-comment-e43973bd,packages-ai,packages/ai/src/bancada/bancada.ts,74,74,jsdoc,0,"/** Média de |nota da IA − nota humana|, na escala do formulário. */",,,,,,
+packages-ai-comment-e5fd50ea,packages-ai,packages/ai/src/bancada/bancada.ts,76,76,jsdoc,3,/** Do pior critério para o melhor: é a lista de prompts a revisar. */,,,,,,
+packages-ai-comment-8ad26fdb,packages-ai,packages/ai/src/bancada/bancada.ts,82,82,jsdoc,3,/** Como a bancada obtém a avaliação da IA. Trocável para medir outra variação. */,,,,,,
+packages-ai-comment-d4586ac5,packages-ai,packages/ai/src/bancada/bancada.ts,87,87,jsdoc,1,/** Por padrão: monta a transcrição e chama `avaliarConversa`. */,,,,,,
+packages-ai-comment-51795dbb,packages-ai,packages/ai/src/bancada/bancada.ts,92,92,jsdoc,3,"/** Chamado a cada caso, para a linha de comando mostrar progresso. */",,,,,,
+packages-ai-comment-7f813d1c,packages-ai,packages/ai/src/bancada/conjunto.ts,1,6,jsdoc,6,"/**
+ * Leitura do conjunto de referência a partir de JSON, validada.
+ *
+ * Conjunto malformado falha aqui, alto e cedo. Bancada que roda com dado torto
+ * devolve número bonito e mentiroso — que é pior do que não medir.
+ */",,,,,,
+packages-ai-comment-1ab442f4,packages-ai,packages/ai/src/classificacao/index.ts,1,13,jsdoc,19,"/**
+ * Classificação de atendimento: categoria, subcategoria, intenção e sentimento a
+ * partir de uma taxonomia que vem por parâmetro.
+ *
+ * O rótulo devolvido é conferido contra a taxonomia apresentada, com a mesma
+ * normalização que o case-sync precisou aprender na marra — espaço duplo e aspas
+ * em HTML fizeram Cases nascerem em branco porque a comparação era literal.
+ *
+ * Sobre o teto da tarefa: no case-sync, 84% dos casos tinham mais de uma resposta
+ * defensável e a própria atendente repetia o próprio rótulo só 53% das vezes.
+ * Por isso `confianca` é parte da resposta, não um detalhe: é ela que decide se a
+ * classificação entra sozinha ou vai para revisão.
+ */",,,,,,
+packages-ai-comment-928cd862,packages-ai,packages/ai/src/classificacao/index.ts,126,126,line,3,"// O rótulo gravado é o **da taxonomia**, não o que o modelo digitou: é ele que",,,,,,
+packages-ai-comment-07b1f9ad,packages-ai,packages/ai/src/classificacao/index.ts,127,127,line,3,// vai casar com o filtro da tela e com a agregação de `insight`.,,,,,,
+packages-ai-comment-acbb3470,packages-ai,packages/ai/src/classificacao/index.ts,29,32,jsdoc,1,"/**
+ * `desfecho` vem primeiro de propósito: o modelo escreve o que aconteceu antes de
+ * escolher o rótulo. Foram +4,3pp de acurácia no case-sync.
+ */",,,,,,
+packages-ai-comment-4d18c7d8,packages-ai,packages/ai/src/classificacao/index.ts,53,53,jsdoc,3,/** Uma frase do que o cliente pediu e do que o atendente fez. */,,,,,,
+packages-ai-comment-abd427e3,packages-ai,packages/ai/src/classificacao/index.ts,65,68,jsdoc,6,"/**
+ * Normaliza para comparar rótulo: sem acento, sem caixa, espaço colapsado e sem
+ * entidade HTML. Cada uma dessas quatro já custou retrabalho no case-sync.
+ */",,,,,,
+packages-ai-comment-ead50337,packages-ai,packages/ai/src/classificacao/index.ts,80,80,jsdoc,2,"/** Acha na taxonomia a opção que o modelo escolheu, ou `undefined`. */",,,,,,
+packages-ai-comment-cbec85a8,packages-ai,packages/ai/src/cliente/cliente.ts,1,12,jsdoc,9,"/**
+ * Uma única porta para a API da Anthropic: saída estruturada validada por esquema,
+ * consumo medido e nova tentativa com espera crescente.
+ *
+ * Nenhuma chave no código: `ANTHROPIC_API_KEY` sai do ambiente (o SDK resolve
+ * sozinho). O modelo padrão é `claude-sonnet-5` e sai de `PIPE_IA_MODELO` quando
+ * definido.
+ *
+ * O tipo `ChamadaEstruturada` é a costura de teste: toda função pública do pacote
+ * aceita uma no lugar da real, e é assim que os testes rodam com resposta gravada
+ * em vez de gastar chamada de verdade.
+ */",,,,,,
+packages-ai-comment-3b9e6d4d,packages-ai,packages/ai/src/cliente/cliente.ts,135,139,jsdoc,6,"/**
+ * A chamada de verdade. Falha explicitamente quando o modelo recusa, quando a
+ * resposta é cortada por `max_tokens` e quando o conteúdo não passa no esquema —
+ * em nenhum desses casos ela adivinha.
+ */",,,,,,
+packages-ai-comment-08512513,packages-ai,packages/ai/src/cliente/cliente.ts,197,197,jsdoc,3,"/** Chamada padrão do pacote, usada quando o chamador não injeta uma. */",,,,,,
+packages-ai-comment-b7f81ec3,packages-ai,packages/ai/src/cliente/cliente.ts,21,21,jsdoc,1,/** Níveis de esforço aceitos pela API (`output_config.effort`). */,,,,,,
+packages-ai-comment-05f23a51,packages-ai,packages/ai/src/cliente/cliente.ts,25,25,jsdoc,0,/** Instrução persistente da tarefa. Vem sempre de um arquivo de `prompts/`. */,,,,,,
+packages-ai-comment-d40dca11,packages-ai,packages/ai/src/cliente/cliente.ts,27,27,jsdoc,0,"/** O material da vez: transcrição, taxonomia, formulário. */",,,,,,
+packages-ai-comment-609d65f5,packages-ai,packages/ai/src/cliente/cliente.ts,45,45,jsdoc,2,/** Assinatura da chamada ao modelo. Injetável para teste com dublê. */,,,,,,
+packages-ai-comment-265ed440,packages-ai,packages/ai/src/cliente/cliente.ts,48,52,jsdoc,3,"/**
+ * Esforço baixo por padrão. Não é economia às cegas: no case-sync, aumentar o
+ * orçamento de raciocínio **piorou** a acurácia da classificação, e zero saiu
+ * igual ou melhor. Quem precisar de mais passa `esforco` no pedido.
+ */",,,,,,
+packages-ai-comment-b14a0676,packages-ai,packages/ai/src/cliente/cliente.ts,57,57,jsdoc,1,"/** Modelo em uso: `PIPE_IA_MODELO` quando definido, senão `claude-sonnet-5`. */",,,,,,
+packages-ai-comment-f4dca19c,packages-ai,packages/ai/src/cliente/cliente.ts,67,67,jsdoc,2,/** Injetável para o teste não dormir de verdade. */,,,,,,
+packages-ai-comment-64da9ded,packages-ai,packages/ai/src/cliente/cliente.ts,73,80,jsdoc,7,"/**
+ * Erro de rede ou limite de taxa: vale tentar de novo. Erro nosso (4xx de
+ * requisição malformada, chave errada, modelo inexistente): não — repetir só
+ * gasta dinheiro e atrasa o diagnóstico.
+ *
+ * A decisão é pelo **código HTTP**, não pela classe do erro: 408, 409, 429 e 5xx.
+ * Classe é detalhe do SDK e muda de versão para versão; o código não.
+ */",,,,,,
+packages-ai-comment-ec436ca4,packages-ai,packages/ai/src/cliente/cliente.ts,93,96,jsdoc,5,"/**
+ * Espera crescente com sorteio: 500ms, 1s, 2s… cada uma com até 25% de variação,
+ * para não ressincronizar todas as conversas encerradas no mesmo segundo.
+ */",,,,,,
+packages-ai-comment-c3f33960,packages-ai,packages/ai/src/cliente/erros.ts,1,5,jsdoc,5,"/**
+ * Erros do pacote. Todos explícitos: a lição mais cara do case-sync é que os oito
+ * defeitos tinham a mesma assinatura — **devolviam sucesso sem fazer o trabalho**,
+ * e nenhum aparecia em log de erro. Aqui nada devolve resultado parcial em silêncio.
+ */",,,,,,
+packages-ai-comment-c566f247,packages-ai,packages/ai/src/cliente/erros.ts,11,11,jsdoc,2,"/** O que o modelo devolveu, para o chamador gravar mesmo recusando o resultado. */",,,,,,
+packages-ai-comment-5d377e2a,packages-ai,packages/ai/src/cliente/erros.ts,19,19,jsdoc,3,"/** A chamada não chegou a produzir resposta utilizável (recusa, corte, rede). */",,,,,,
+packages-ai-comment-bb7ea282,packages-ai,packages/ai/src/consumo/consumo.teste.ts,22,22,line,2,// 1M de entrada a US$ 2 = 200 centavos; 1M de saída a US$ 10 = 1.000 centavos.,,,,,,
+packages-ai-comment-e15d0597,packages-ai,packages/ai/src/consumo/consumo.teste.ts,29,29,line,0,"// 12.000 de entrada e 800 de saída: US$ 0,024 + US$ 0,008 = 3,2 centavos.",,,,,,
+packages-ai-comment-3c555fea,packages-ai,packages/ai/src/consumo/index.ts,1,10,jsdoc,4,"/**
+ * Consumo de IA — tokens e custo de cada chamada.
+ *
+ * Toda função deste pacote devolve um `Consumo` junto com o resultado. Quem chama
+ * grava em `consumo_ia` (§6 do modelo de dados). Sem isto o produto vende IA no
+ * prejuízo: é painel para o cliente e base de cobrança.
+ *
+ * Modelo desconhecido **estoura** em vez de devolver custo zero. Custo zero
+ * silencioso é o defeito clássico do case-sync: sucesso sem fazer o trabalho.
+ */",,,,,,
+packages-ai-comment-b870723e,packages-ai,packages/ai/src/consumo/index.ts,12,12,jsdoc,0,"/** Preço de um modelo, em dólares por milhão de tokens. */",,,,,,
+packages-ai-comment-d1d98078,packages-ai,packages/ai/src/consumo/index.ts,18,22,jsdoc,4,"/**
+ * Tabela de preços da API da Anthropic (primeira parte, valores de 2026-06).
+ * Fica aqui e não em variável de ambiente porque preço errado é erro de cobrança,
+ * e erro de cobrança tem que aparecer em teste, não em produção.
+ */",,,,,,
+packages-ai-comment-4a8b0b5f,packages-ai,packages/ai/src/consumo/index.ts,32,32,jsdoc,0,/** Modelo padrão do pacote. Configurável por `PIPE_IA_MODELO`. */,,,,,,
+packages-ai-comment-200f7f77,packages-ai,packages/ai/src/consumo/index.ts,45,49,jsdoc,3,"/**
+ * Espelha as colunas de `consumo_ia`. `custoCentavos` é **fracionário de
+ * propósito**: uma chamada custa muito menos que um centavo. Acumule o período
+ * inteiro e arredonde só na hora de gravar, com `arredondarCentavos`.
+ */",,,,,,
+packages-ai-comment-664b90c7,packages-ai,packages/ai/src/consumo/index.ts,57,57,jsdoc,1,"/** Custo em centavos de dólar, sem arredondar. */",,,,,,
+packages-ai-comment-8eeb6d7a,packages-ai,packages/ai/src/consumo/index.ts,67,67,jsdoc,4,/** Monta o `Consumo` de uma chamada a partir dos tokens devolvidos pela API. */,,,,,,
+packages-ai-comment-4d7d910b,packages-ai,packages/ai/src/consumo/index.ts,77,80,jsdoc,2,"/**
+ * Soma consumos do mesmo modelo. Modelos diferentes viram linhas diferentes em
+ * `consumo_ia` — por isso a soma recusa misturar modelos.
+ */",,,,,,
+packages-ai-comment-0e9b9750,packages-ai,packages/ai/src/consumo/index.ts,96,96,jsdoc,2,"/** Arredonda para o `integer` de `consumo_ia.custo_centavos`, nunca para baixo de zero. */",,,,,,
+packages-ai-comment-acc2ddbe,packages-ai,packages/ai/src/index.ts,1,14,jsdoc,7,"/**
+ * `@pipe/ai` — resumo, classificação e avaliação de atendimento com IA.
+ *
+ * Funções tipadas, sem acesso a banco: recebem dados, devolvem resultado. Quem
+ * persiste é quem chama — em `classificacao_conversa`, `avaliacao`,
+ * `resposta_avaliacao` e `consumo_ia` (§6 do modelo de dados).
+ *
+ * Toda chamada devolve `Consumo` com tokens e custo. Toda saída é validada por
+ * esquema: resposta fora do formato falha explicitamente em vez de virar registro
+ * silenciosamente errado.
+ *
+ * A régua de qualidade é a `bancada/`: nenhuma mudança de prompt entra sem passar
+ * por ela contra o conjunto de referência.
+ */",,,,,,
+packages-ai-comment-d717039f,packages-ai,packages/ai/src/prompts/avaliacao.ts,1,13,jsdoc,20,"/**
+ * Prompt de avaliação: o modelo responde o formulário critério a critério e cita a
+ * linha da transcrição que sustenta cada resposta.
+ *
+ * A evidência não é enfeite de auditoria: é o que permite ao atendente contestar
+ * com base em fato (§6 do modelo de dados) e é o que torna a nota da IA revisável.
+ * Por isso ela é exigida sempre que o critério não sai conforme, e por isso ela é
+ * um **rótulo da transcrição**, que dá para conferir, e não um trecho copiado, que
+ * o modelo pode inventar.
+ *
+ * A nota **não** é pedida ao modelo. Ele responde valor e justificativa; o peso, o
+ * grupo e o critério fatal são conta nossa, em `avaliacao/nota.ts`.
+ */",,,,,,
+packages-ai-comment-02b2cf79,packages-ai,packages/ai/src/prompts/classificacao.ts,1,16,jsdoc,9,"/**
+ * Prompt de classificação.
+ *
+ * Três coisas aqui vêm medidas do case-sync, onde a acurácia saiu de 26% para 64%:
+ *
+ * - **as opções vêm ordenadas por uso real e podadas** (+22,6pp lá). Lista
+ *   alfabética completa é a pior forma de apresentar taxonomia a um modelo.
+ * - **a resposta é em duas etapas**: primeiro o desfecho em uma frase, depois o
+ *   rótulo (+4,3pp lá). Como o esquema de saída é gerado na ordem declarada,
+ *   `desfecho` vem antes de `categoria` de propósito — é raciocínio barato e no
+ *   formato certo.
+ * - **nada de exemplos por similaridade e nada de definições destiladas.** Foram
+ *   medidos: sozinhos davam pouco, juntos com o prior *derrubavam* a acurácia.
+ *
+ * A taxonomia é parâmetro, nunca constante de código.
+ */",,,,,,
+packages-ai-comment-b88f5c8d,packages-ai,packages/ai/src/prompts/classificacao.ts,24,24,jsdoc,3,/** Quantas vezes um humano escolheu esta opção. É o que ordena e poda a lista. */,,,,,,
+packages-ai-comment-fddf0cad,packages-ai,packages/ai/src/prompts/classificacao.ts,30,30,jsdoc,0,"/** Intenções aceitas. Vazio, o modelo responde livre. */",,,,,,
+packages-ai-comment-a0d24c60,packages-ai,packages/ai/src/prompts/classificacao.ts,39,39,jsdoc,1,/** Teto de opções apresentadas. Lista longa demais dilui a escolha. */,,,,,,
+packages-ai-comment-207ea739,packages-ai,packages/ai/src/prompts/classificacao.ts,46,46,jsdoc,2,"/** Chave textual de uma opção, do jeito que ela aparece na lista e volta na resposta. */",,,,,,
+packages-ai-comment-82f7db24,packages-ai,packages/ai/src/prompts/classificacao.ts,51,54,jsdoc,5,"/**
+ * Ordena por uso real (desc) e poda ao teto, com desempate alfabético para a lista
+ * ser estável entre execuções — prompt que muda sozinho não pode ser medido.
+ */",,,,,,
+packages-ai-comment-17b37812,packages-ai,packages/ai/src/prompts/resumo.ts,1,8,jsdoc,14,"/**
+ * Prompts de resumo. Dois, porque são duas perguntas diferentes:
+ *
+ * - **abertura**: o atendente que assume a conversa agora precisa saber o que já
+ *   aconteceu e o que ficou pendente. Escreve-se para quem vai responder em seguida.
+ * - **encerramento**: sobe para a linha do tempo do lead. Escreve-se para quem vai
+ *   ler daqui a três meses sem abrir a conversa.
+ */",,,,,,
+packages-ai-comment-e734884d,packages-ai,packages/ai/src/prompts/resumo.ts,18,18,jsdoc,4,"/** Fila, produto, ou o que mais ajude o modelo a situar a conversa. */",,,,,,
+packages-ai-comment-843438a6,packages-ai,packages/ai/src/prompts/resumo.ts,44,44,jsdoc,3,"/** Resumo de abertura: o que aconteceu antes, para quem está assumindo. */",,,,,,
+packages-ai-comment-f17ab389,packages-ai,packages/ai/src/prompts/resumo.ts,66,66,jsdoc,3,"/** Resumo de encerramento: o que aconteceu agora, para a linha do tempo do lead. */",,,,,,
+packages-ai-comment-36f44fe3,packages-ai,packages/ai/src/prompts/tipos.ts,1,10,jsdoc,11,"/**
+ * Todo prompt do pacote vive num arquivo próprio, tem nome e tem **versão**.
+ *
+ * A versão não é enfeite: a bancada (`bancada/`) compara versões de prompt contra
+ * o mesmo conjunto de referência. Sem versão, ""melhorou"" é opinião — que é
+ * exatamente o que a bancada do case-sync existe para impedir.
+ *
+ * Convenção da versão: `v<n>` incrementada a cada mudança de texto que possa
+ * alterar a saída. Trocar vírgula conta.
+ */",,,,,,
+packages-ai-comment-ea465ba2,packages-ai,packages/ai/src/prompts/tipos.ts,23,23,jsdoc,2,/** Identificador que vai para o registro: `resumo-encerramento@v1`. */,,,,,,
+packages-ai-comment-8ca2aed4,packages-ai,packages/ai/src/resumo/index.ts,1,5,jsdoc,5,"/**
+ * Resumo de atendimento. Duas saídas distintas, porque são dois leitores
+ * diferentes: quem vai assumir a conversa agora e quem vai ler a linha do tempo
+ * do lead daqui a meses.
+ */",,,,,,
+packages-ai-comment-9983a1f8,packages-ai,packages/ai/src/resumo/index.ts,24,24,jsdoc,3,"/** Fila, produto, campanha — o que ajude a situar a conversa. */",,,,,,
+packages-ai-comment-2ba46da3,packages-ai,packages/ai/src/resumo/index.ts,67,67,jsdoc,5,"/** O que aconteceu antes, para o atendente que está assumindo a conversa. */",,,,,,
+packages-ai-comment-ab1e2664,packages-ai,packages/ai/src/resumo/index.ts,72,72,jsdoc,2,"/** O que aconteceu agora, para subir na linha do tempo do lead. */",,,,,,
+packages-ai-comment-8dddbb7e,packages-ai,packages/ai/src/transcricao/transcricao.teste.ts,152,152,line,2,// A primeira e a última mensagem sobrevivem sempre.,,,,,,
+packages-ai-comment-c4c9dfd1,packages-ai,packages/ai/src/transcricao/transcricao.teste.ts,38,38,line,0,// Sistema nunca herda nome de gente: é o próprio produto falando.,,,,,,
+packages-ai-comment-561bed6e,packages-ai,packages/ai/src/transcricao/transcricao.ts,1,14,jsdoc,16,"/**
+ * Normaliza uma conversa em transcrição legível para o modelo: quem falou, quando,
+ * o quê.
+ *
+ * Duas decisões vêm direto do case-sync:
+ *
+ * 1. **Cada linha ganha um rótulo curto (`m1`, `m2`…), não o uuid da mensagem.**
+ *    O modelo cita evidência pelo rótulo e nós traduzimos de volta pelo índice. É
+ *    barato em token e, principalmente, é **validável**: rótulo que não existe é
+ *    erro explícito, do mesmo jeito que a opção de picklist inválida era.
+ * 2. **Áudio sem transcrição é marcado como não transcrito, não some.** No
+ *    case-sync, 229 áudios viraram silêncio e o resumo saiu confiante sobre uma
+ *    conversa que ninguém tinha lido.
+ */",,,,,,
+packages-ai-comment-bfec081f,packages-ai,packages/ai/src/transcricao/transcricao.ts,103,106,jsdoc,3,"/**
+ * O corpo de uma mensagem já resolvido: áudio usa o texto transcrito quando
+ * existe, mídia vira descrição, mensagem vazia é dita como vazia.
+ */",,,,,,
+packages-ai-comment-1c6938bf,packages-ai,packages/ai/src/transcricao/transcricao.ts,136,136,jsdoc,4,"/** Monta a linha completa de uma mensagem, já com rótulo, hora e autor. */",,,,,,
+packages-ai-comment-2e9f0b91,packages-ai,packages/ai/src/transcricao/transcricao.ts,148,151,jsdoc,4,"/**
+ * Só as linhas que sobreviveram ao truncamento entram no índice: rótulo citado
+ * fora dele é alucinação, e é assim que a avaliação a pega.
+ */",,,,,,
+packages-ai-comment-c58668a4,packages-ai,packages/ai/src/transcricao/transcricao.ts,169,173,jsdoc,5,"/**
+ * Normaliza a conversa e, quando não cabe no orçamento, preserva início e fim,
+ * dizendo quantas mensagens ficaram de fora. A ordem cronológica é imposta aqui:
+ * não confie na ordem de entrada.
+ */",,,,,,
+packages-ai-comment-aa2f8a75,packages-ai,packages/ai/src/transcricao/transcricao.ts,24,24,jsdoc,4,"/** Texto do áudio quando alguém já transcreveu. Ausente, a linha diz que falta. */",,,,,,
+packages-ai-comment-d82899c4,packages-ai,packages/ai/src/transcricao/transcricao.ts,41,41,jsdoc,2,/** Rótulo curto usado pelo modelo para citar evidência. */,,,,,,
+packages-ai-comment-4502dc6c,packages-ai,packages/ai/src/transcricao/transcricao.ts,48,48,jsdoc,2,/** O texto que vai para o modelo. */,,,,,,
+packages-ai-comment-9103390d,packages-ai,packages/ai/src/transcricao/transcricao.ts,51,51,jsdoc,3,/** `rotulo` → `mensagem.id`. É o que traduz a evidência de volta para o banco. */,,,,,,
+packages-ai-comment-d283b30c,packages-ai,packages/ai/src/transcricao/transcricao.ts,59,59,jsdoc,0,/** Orçamento total da transcrição em caracteres. */,,,,,,
+packages-ai-comment-3844c16c,packages-ai,packages/ai/src/transcricao/transcricao.ts,63,66,jsdoc,4,"/**
+   * Fatia do orçamento reservada ao início quando precisa truncar. O resto vai
+   * para o fim. Início e fim é onde está a informação: o pedido e o desfecho.
+   */",,,,,,
+packages-ai-comment-001a8b1e,packages-ai,packages/ai/src/transcricao/transcricao.ts,76,76,jsdoc,0,/** Como cada autor aparece na transcrição. */,,,,,,
+packages-ai-comment-f46f56b5,packages-ai,packages/ai/src/transcricao/transcricao.ts,97,97,jsdoc,3,"/** `dd/mm HH:MM` em UTC — sem fuso implícito, para a transcrição ser determinística. */",,,,,,

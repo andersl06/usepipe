@@ -1,0 +1,146 @@
+id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
+packages-armazenamento-comment-0757cb9a,packages-armazenamento,packages/armazenamento/src/disco.ts,24,30,jsdoc,9,"/**
+   * Resolve a chave dentro da raiz e **prova que não saiu dela**.
+   *
+   * A conferência é depois do `resolve`, e não antes: comparar texto antes de
+   * normalizar é como `../` passa. Aqui o caminho já está absoluto e normalizado
+   * quando a pergunta é feita.
+   */",,,,,,
+packages-armazenamento-comment-7a07a240,packages-armazenamento,packages/armazenamento/src/disco.ts,5,16,jsdoc,9,"/**
+ * Backend em disco, dentro de um volume.
+ *
+ * A raiz é `PIPE_STORAGE_DIR`. Em produção ela é um volume do contêiner — o arquivo
+ * precisa sobreviver a `docker compose up` e a troca de imagem, exatamente como o
+ * banco do CRM sobrevive.
+ *
+ * Não existe rota estática servindo esta pasta, e isso é decisão: **quem serve o
+ * arquivo é a `api`**, depois de conferir assinatura, validade e tenant. Uma pasta
+ * publicada por nginx seria o ""objeto público adivinhável por id"" que o requisito
+ * proíbe.
+ */",,,,,,
+packages-armazenamento-comment-7a2e93b9,packages-armazenamento,packages/armazenamento/src/disco.ts,51,51,line,3,"// Arquivo que não existe é ausência, não falha: quem chama devolve 404.",,,,,,
+packages-armazenamento-comment-cb0cb08a,packages-armazenamento,packages/armazenamento/src/limites.ts,1,10,jsdoc,10,"/**
+ * Limites de anexo, copiados dos valores REAIS do Blip Desk.
+ *
+ * Fonte: `supernova.desk.blip.ai/static/settings.<hash>.json`, o mesmo arquivo que
+ * gerou `referencias-blip/pesquisa/blip-desk-regras.md` §""Anexos e Mídia"". Os valores não foram
+ * escolhidos por nós: seguir o que a Blip faz é régua do dono, e aqui ela é literal.
+ *
+ * Apesar do nome que eles deram (`..._ACCEPT_EXTENSION`), o conteúdo é **tipo MIME**,
+ * não extensão. O nome errado ficou lá; aqui a variável se chama pelo que ela é.
+ */",,,,,,
+packages-armazenamento-comment-0aadface,packages-armazenamento,packages/armazenamento/src/limites.ts,114,120,jsdoc,4,"/**
+ * O tipo de mensagem do Pipe para aquele MIME.
+ *
+ * `svg+xml` cai em `documento` de propósito, e não em `imagem`: SVG é XML executável,
+ * e um `<script>` dentro dele vira XSS na tela de quem abrir a ""imagem"" inline. Ele
+ * continua ACEITO — a Blip aceita —, mas nunca é renderizado como imagem por nós.
+ */",,,,,,
+packages-armazenamento-comment-d7a2dc47,packages-armazenamento,packages/armazenamento/src/limites.ts,15,23,jsdoc,7,"/**
+ * Áudio e vídeo têm teto MENOR: 16 MB.
+ *
+ * Isto não está no `settings.json` deles, e é justamente onde o Desk da Blip erra: o
+ * cliente valida só os 100 MB de `MAX_ATTACHMENT_SIZE`, então ele **deixa subir um
+ * áudio de 80 MB que a plataforma recusa depois** (`referencias-blip/pesquisa/regras-blip.md`
+ * §""documentos 100 MB, vídeo e áudio 16 MB""). Recusar cedo, com o número certo, é
+ * melhor que aceitar e falhar no fim do upload.
+ */",,,,,,
+packages-armazenamento-comment-91478493,packages-armazenamento,packages/armazenamento/src/limites.ts,26,26,jsdoc,2,/** O teto que vale para aquele MIME. */,,,,,,
+packages-armazenamento-comment-7077a119,packages-armazenamento,packages/armazenamento/src/limites.ts,35,40,jsdoc,1,"/**
+ * `DEFAULT_FILE_TOKEN_EXPIRATION_IN_MILLISECONDS` = 900000 = 15 minutos.
+ *
+ * É o modelo deles e é o nosso: o arquivo NUNCA é servido por URL pública adivinhável
+ * por id. Sai token com validade, e vencido é vencido.
+ */",,,,,,
+packages-armazenamento-comment-d3d00e59,packages-armazenamento,packages/armazenamento/src/porta.ts,27,27,jsdoc,2,/** A chave dentro do bucket. Opaca para quem chama. */,,,,,,
+packages-armazenamento-comment-6435063e,packages-armazenamento,packages/armazenamento/src/porta.ts,3,24,jsdoc,33,"/**
+ * A porta do storage, no formato do S3.
+ *
+ * ""Formato do S3"" quer dizer: **bucket + chave opaca + objeto**, e nada de caminho de
+ * sistema de arquivos vazando para quem chama. Trocar o backend por S3, R2 ou MinIO é
+ * escrever outra implementação desta interface — nenhum chamador muda.
+ *
+ * A decisão de HOJE é disco com volume, e não MinIO, por três motivos:
+ *
+ * 1. **RAM é o gargalo desta infra.** Já medimos ~1,9 GB por instância de CRM
+ *    (`2026-09-07-integracao-twenty.md` §5.3). Um contêiner a mais por VPS custa
+ *    justamente o recurso que está apertado.
+ * 2. **A compatibilidade que o requisito pede é da INTERFACE**, e ela está aqui. O
+ *    protocolo S3 não precisa existir na máquina para o chamador estar pronto para ele.
+ * 3. **A URL assinada é nossa e simples.** O modelo da Blip não é bucket público com
+ *    presign: é *file token com 15 minutos* — e é exatamente isso que `assinar` faz,
+ *    com HMAC do chaveiro que já protege os outros segredos.
+ *
+ * ponytail: disco em host único, sem replicação. No dia em que a `api` rodar em mais de
+ * uma máquina, o arquivo escrito numa não aparece na outra — aí entra o backend S3,
+ * que é um arquivo novo implementando esta mesma interface.
+ */",,,,,,
+packages-armazenamento-comment-c9719b36,packages-armazenamento,packages/armazenamento/src/porta.ts,43,50,jsdoc,8,"/**
+ * A chave de um anexo. **O `tenantId` é o primeiro segmento, sempre.**
+ *
+ * É o isolamento por tenant no caminho do objeto: um cliente nunca compartilha prefixo
+ * com outro, e no dia em que isto virar bucket S3 a política de acesso por prefixo já
+ * está desenhada. O `uuid` no fim é o que impede adivinhar o objeto do vizinho mesmo
+ * que alguém descubra o `tenant_id`.
+ */",,,,,,
+packages-armazenamento-comment-f323b741,packages-armazenamento,packages/armazenamento/src/porta.ts,58,61,jsdoc,4,"/**
+ * A extensão só entra para o arquivo ter cara de arquivo quando alguém baixa. Ela
+ * **não** decide tipo em lugar nenhum — quem decide é `tipoReal`.
+ */",,,,,,
+packages-armazenamento-comment-a02f05dd,packages-armazenamento,packages/armazenamento/src/porta.ts,69,74,jsdoc,6,"/**
+ * Chave que sai da faixa do tenant é recusada.
+ *
+ * A defesa contra `../` e contra id de outro cliente na URL. Vale mesmo com o link
+ * assinado: assinatura prova que o link saiu de nós, não que ele é do tenant certo.
+ */",,,,,,
+packages-armazenamento-comment-6ae02b9d,packages-armazenamento,packages/armazenamento/src/porta.ts,85,91,jsdoc,5,"/**
+ * Assina `<anexoId>.<expiraEm>` com HMAC-SHA256.
+ *
+ * O segredo é o do chaveiro (`PIPE_CHAVES_SEGREDO`), o mesmo que cifra o token da
+ * Meta. Quem tem o link tem o arquivo até vencer — por isso a validade é curta e igual
+ * à da Blip: 15 minutos.
+ */",,,,,,
+packages-armazenamento-comment-38121af6,packages-armazenamento,packages/armazenamento/src/porta.ts,96,96,jsdoc,2,/** Confere a assinatura e a validade. Comparação em tempo constante. */,,,,,,
+packages-armazenamento-comment-05f56fbd,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,1,16,jsdoc,21,"/**
+ * Carimbo do tipo REAL do arquivo, pelos primeiros bytes.
+ *
+ * Antivírus não; isto sim — foi a decisão. O motivo é direto: extensão e
+ * `Content-Type` do upload são texto que o cliente escreveu, e um `.png` que na
+ * verdade é HTML vira XSS na hora em que alguém abre o ""anexo"" no navegador. O que
+ * mandamos para o `Content-Type` na leitura é o que os BYTES dizem, não o que o
+ * upload prometeu.
+ *
+ * A tabela é curta de propósito: cobre os formatos que a Blip aceita e que têm
+ * assinatura estável. O que não tem assinatura reconhecível (texto, csv, svg) não é
+ * adivinhado — volta `null`, e quem chamou decide, sabendo que não sabe.
+ *
+ * ponytail: sniffing por magic number de tabela fixa; se um dia entrar formato exótico,
+ * troque por `file-type` em vez de crescer a tabela.
+ */",,,,,,
+packages-armazenamento-comment-3deea103,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,20,20,jsdoc,1,/** Bytes esperados. `null` em uma posição é curinga. */,,,,,,
+packages-armazenamento-comment-9e85f209,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,32,32,line,1,// OOXML (docx/xlsx/pptx) e zip têm a MESMA assinatura: é tudo zip. Distinguir,,,,,,
+packages-armazenamento-comment-b9edee36,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,33,33,line,4,"// exigiria abrir o pacote; para o que precisamos (não é HTML, não é executável),",,,,,,
+packages-armazenamento-comment-3da89912,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,34,34,line,1,// `application/zip` já responde.,,,,,,
+packages-armazenamento-comment-97cf0610,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,42,42,line,2,"// `ftyp` na posição 4 é a família ISO-BMFF: mp4, m4v, mov, 3gp e o áudio m4a.",,,,,,
+packages-armazenamento-comment-e82ad75a,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,47,47,jsdoc,3,"/** O MIME que os bytes revelam, ou `null` quando não há assinatura reconhecível. */",,,,,,
+packages-armazenamento-comment-bb3f1a69,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,60,66,jsdoc,3,"/**
+ * Conteúdo que o navegador executa se for servido inline.
+ *
+ * HTML é aceito pela Blip e por nós, mas servi-lo com o próprio `Content-Type` no
+ * nosso domínio é entregar execução de script na sessão de quem abriu. Estes vão
+ * sempre como `application/octet-stream` + `Content-Disposition: attachment`.
+ */",,,,,,
+packages-armazenamento-comment-d8a84981,packages-armazenamento,packages/armazenamento/src/tipo-real.ts,73,79,jsdoc,7,"/**
+ * O MIME com que o arquivo será SERVIDO.
+ *
+ * Regra: se os bytes dizem uma coisa e o upload disse outra, ganham os bytes. Quando
+ * os bytes não dizem nada (texto, csv), fica o declarado — mas só se ele estiver na
+ * lista de aceitos, o que quem chama já garantiu.
+ */",,,,,,
+packages-armazenamento-comment-3c754d8b,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,202,202,line,1,// `/tmp/pipe-storage-abc` não pode alcançar `/tmp/pipe-storage-abcMAL`.,,,,,,
+packages-armazenamento-comment-e08c87b6,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,207,207,line,0,"// E o arquivo continua lá, intocado.",,,,,,
+packages-armazenamento-comment-bb580e77,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,34,34,line,2,// O cliente da Blip valida só os 100 MB e deixa subir áudio que a plataforma,,,,,,
+packages-armazenamento-comment-bdc58367,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,35,35,line,1,// recusa depois. Aqui o teto certo vale desde a validação.,,,,,,
+packages-armazenamento-comment-ab0ed8a0,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,51,51,line,0,// SVG é XML executável: renderizado inline vira XSS.,,,,,,
+packages-armazenamento-comment-1ea69a3b,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,72,72,line,4,"// Os bytes não são PNG, e o declarado não sobrevive à conferência.",,,,,,
+packages-armazenamento-comment-7281c39c,packages-armazenamento,packages/armazenamento/tests/armazenamento.test.ts,74,74,line,4,"// Sem assinatura, fica o declarado; quem chama já garantiu que está na lista.",,,,,,

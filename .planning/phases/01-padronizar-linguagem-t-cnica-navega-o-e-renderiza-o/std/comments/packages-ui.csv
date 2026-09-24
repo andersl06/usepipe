@@ -1,0 +1,298 @@
+id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
+packages-ui-comment-05fa6255,packages-ui,packages/ui/src/componentes/encerramento-ticket.tsx,7,10,jsdoc,0,"/**
+ * Modal compartilhado, baseado no `close-ticket-modal` compilado do Desk e
+ * nas traduções do modal `closeTicket` de Monitoramento.
+ */",,,,,,
+packages-ui-comment-12a3ebad,packages-ui,packages/ui/src/componentes/estrutura.tsx,1,24,jsdoc,29,"/**
+ * Estruturas de aplicação: o cabeçalho com navegação horizontal, a lateral
+ * contextual e o invólucro da área de configurações.
+ *
+ * São estas três que corrigem o problema estrutural que o dono reprovou
+ * (""você está carregando todas as funções na aba à esquerda""). O que elas
+ * impõem, e de onde veio:
+ *
+ * - MÓDULO NO TOPO, HORIZONTAL. Medido no Salesforce: barra de 40px com 7
+ *   itens, e `temSidebar: false` na tela de lista — não existe lateral ali.
+ *   Na Blip: Builder / Atendimento / Análise / Growth / Canais no topo.
+ *
+ * - LATERAL SÓ COM O CONTEXTO DO MÓDULO ABERTO, e curta. `LateralContexto`
+ *   não renderiza nada quando recebe menos de dois itens: uma lateral com um
+ *   item só é moldura sem função.
+ *
+ * - CONFIGURAÇÃO EM TELA PRÓPRIA, atrás da engrenagem. No Salesforce ela
+ *   troca de domínio, corta a navegação de 7 itens para 3 e só então cria uma
+ *   lateral de 250px.
+ *
+ * - ITEM QUE NÃO FUNCIONA NÃO APARECE. `ItemDeNavegacao` não tem estado
+ *   desabilitado. Não é esquecimento: é o que impede a Gestão de voltar a ter
+ *   32 itens de menu com 29 apagados.
+ */",,,,,,
+packages-ui-comment-79fd28ad,packages-ui,packages/ui/src/componentes/estrutura.tsx,116,120,jsdoc,6,"/**
+ * Cabeçalho da aplicação. Espelha o do Salesforce: marca à esquerda, módulos
+ * ao lado, e à direita só o que é da CONTA — nunca do trabalho. A engrenagem
+ * mora aqui, e é o único caminho para a configuração.
+ */",,,,,,
+packages-ui-comment-c2e15876,packages-ui,packages/ui/src/componentes/estrutura.tsx,132,132,jsdoc,3,/** Omitido quando o aplicativo ainda não tem nenhuma tela de configuração. */,,,,,,
+packages-ui-comment-446042b9,packages-ui,packages/ui/src/componentes/estrutura.tsx,158,163,jsdoc,4,"/**
+ * Lateral do módulo aberto. Curta por regra.
+ *
+ * Devolve `null` com menos de dois itens: sem escolha para oferecer, a
+ * lateral só rouba largura do conteúdo.
+ */",,,,,,
+packages-ui-comment-5c244309,packages-ui,packages/ui/src/componentes/estrutura.tsx,198,198,jsdoc,0,"/** Invólucro padrão: topo fixo, e abaixo lateral (opcional) + conteúdo. */",,,,,,
+packages-ui-comment-be8715e1,packages-ui,packages/ui/src/componentes/estrutura.tsx,211,217,jsdoc,6,"/**
+ * Área de configurações: tela própria.
+ *
+ * Troca o cabeçalho inteiro — não há navegação de módulo aqui, só o caminho
+ * de volta. É o corte que o Salesforce faz ao sair para `salesforce-setup.com`,
+ * na escala que faz sentido para nós.
+ */",,,,,,
+packages-ui-comment-5edc539b,packages-ui,packages/ui/src/componentes/estrutura.tsx,30,33,jsdoc,4,"/**
+ * Um destino de navegação. Repare que não existe `desabilitado`:
+ * quem não funciona não entra na lista.
+ */",,,,,,
+packages-ui-comment-b2f72665,packages-ui,packages/ui/src/componentes/estrutura.tsx,39,46,jsdoc,11,"/**
+ * O componente de link do aplicativo.
+ *
+ * Existe para que este pacote continue sem depender de `next`: cada aplicativo
+ * passa o seu `next/link` e a navegação segue no cliente, sem recarregar a
+ * página. Sem isso, um `<a>` cru transformaria toda troca de módulo num
+ * recarregamento completo — uma regressão de sensação que ninguém pediu.
+ */",,,,,,
+packages-ui-comment-f958d034,packages-ui,packages/ui/src/componentes/estrutura.tsx,56,56,jsdoc,2,"/** Link padrão: âncora comum, para quem não passar um. */",,,,,,
+packages-ui-comment-075ccfba,packages-ui,packages/ui/src/componentes/estrutura.tsx,63,63,jsdoc,2,/** Marca no canto superior esquerdo. Leva sempre para a raiz do aplicativo. */,,,,,,
+packages-ui-comment-4be32afe,packages-ui,packages/ui/src/componentes/estrutura.tsx,81,85,jsdoc,4,"/**
+ * Decide se um item está ativo. Um item de raiz (`/`) só casa exatamente;
+ * os demais casam com os seus descendentes, para que `/leads/42` mantenha
+ * ""Leads"" marcado.
+ */",,,,,,
+packages-ui-comment-03e9ba85,packages-ui,packages/ui/src/componentes/estrutura.tsx,91,91,jsdoc,0,"/** Navegação horizontal de módulos. Poucos itens, todos funcionando. */",,,,,,
+packages-ui-comment-d7fbb747,packages-ui,packages/ui/src/componentes/primitivos.tsx,1,11,jsdoc,8,"/**
+ * Primitivos compartilhados pelos três aplicativos.
+ *
+ * Cada um deles estava reimplementado em `apps/desk`, `apps/gestao` e
+ * `apps/crm` — em CSS quase igual, com valores que já tinham divergido.
+ *
+ * Todos são React puro: nenhum importa `next`. O que depende de rota (o item
+ * ativo da navegação) chega por prop, e cada aplicativo passa o caminho atual
+ * a partir do seu próprio `usePathname`. É o que mantém este pacote utilizável
+ * fora do Next e testável sem roteador.
+ */",,,,,,
+packages-ui-comment-2cfbc3f0,packages-ui,packages/ui/src/componentes/primitivos.tsx,102,102,jsdoc,3,/** Estado ligado. É o único lugar em que a cor de marca toca uma etiqueta. */,,,,,,
+packages-ui-comment-c05e71e8,packages-ui,packages/ui/src/componentes/primitivos.tsx,139,139,block,0,/* ------------------------------------------------------------ formulário */,,,,,,
+packages-ui-comment-4fe75a65,packages-ui,packages/ui/src/componentes/primitivos.tsx,176,183,jsdoc,11,"/**
+ * Estado vazio com ilustração desenhada, nunca com foto. Ilustração é
+ * componente (`Ilustracao`), não imagem solta — é como a Blip preenche estado
+ * vazio, e é o que mantém o desenho respondendo ao tema escuro.
+ *
+ * `ilustracao={false}` para o vazio que aparece dentro de uma tabela, onde uma
+ * cena de 96px empurra a linha seguinte para fora da tela.
+ */",,,,,,
+packages-ui-comment-80d0cb20,packages-ui,packages/ui/src/componentes/primitivos.tsx,208,208,jsdoc,4,"/** Iniciais do nome. Duas, no máximo — mais do que isso não cabe em 26px. */",,,,,,
+packages-ui-comment-ab70c4ec,packages-ui,packages/ui/src/componentes/primitivos.tsx,22,22,block,0,/* ------------------------------------------------------------------ botão */,,,,,,
+packages-ui-comment-a41bdd4f,packages-ui,packages/ui/src/componentes/primitivos.tsx,224,224,block,0,/* ---------------------------------------------------------------- cartão */,,,,,,
+packages-ui-comment-5305bc1f,packages-ui,packages/ui/src/componentes/primitivos.tsx,28,32,jsdoc,1,"/**
+   * @deprecated Use `<Etiqueta aoClicar ativa>`. O recorte salvo de lista é
+   * papel da etiqueta clicável, que é o componente único de etiqueta do
+   * produto. Fica só enquanto os três aplicativos migram.
+   */",,,,,,
+packages-ui-comment-e6d3a7f8,packages-ui,packages/ui/src/componentes/primitivos.tsx,53,53,jsdoc,2,"/** Obrigatório: o botão não tem texto, então precisa de nome acessível. */",,,,,,
+packages-ui-comment-3a0fc89e,packages-ui,packages/ui/src/componentes/primitivos.tsx,73,89,jsdoc,20,"/**
+ * A etiqueta do Pipe, e a única. Componente de primeira classe.
+ *
+ * Nem Chatwoot nem Twenty têm um genérico, e é por isso que cada tela
+ * reimplementa a sua e o conjunto fica inconsistente. A Blip empacota
+ * `bds-chip-clickable` justamente para não cair nisso — é a forma que
+ * copiamos, não o desenho.
+ *
+ * Este mesmo componente serve os quatro usos do produto:
+ *   etiqueta de fila (neutra) · faixa de score (neutra) ·
+ *   status de SLA (estado) · conceito de avaliação (estado)
+ *
+ * Nasce NEUTRA de propósito. Fila, canal, origem e fase não recebem cor:
+ * categoria não é estado, e quando tudo é colorido nada é. Cor só entra
+ * quando o que a etiqueta diz exige uma ação, e aí ela é um dos quatro
+ * estados — sempre o par fundo pastel com conteúdo escuro.
+ */",,,,,,
+packages-ui-comment-d87f5d17,packages-ui,packages/ui/src/componentes/primitivos.tsx,94,94,jsdoc,3,/** Pílula. Só para contagem redonda e para o que acompanha avatar. */,,,,,,
+packages-ui-comment-85aca483,packages-ui,packages/ui/src/componentes/primitivos.tsx,96,100,jsdoc,5,"/**
+   * Variante clicável: recorte salvo de lista, filtro que liga e desliga,
+   * valor que navega. Com `aoClicar` a etiqueta vira `<button>` de verdade —
+   * teclado, foco e `aria-pressed` de graça. Sem ele, é um `<span>`.
+   */",,,,,,
+packages-ui-comment-7c9ca64a,packages-ui,packages/ui/src/componentes/tabela.tsx,1,12,jsdoc,14,"/**
+ * Tabela. Desenhada aqui porque não dá para copiar: a do Twenty vive em
+ * `twenty-front`, que é AGPL e está fora do nosso alcance, e nem Chatwoot nem
+ * `twenty-ui` expõem uma.
+ *
+ * A densidade é a medida no Salesforce: linha de 34px, célula com 8px de
+ * padding vertical e 12px horizontal, corpo de 13px, cabeçalho de coluna em
+ * caixa alta na família do corpo (não monoespaçada).
+ *
+ * O invólucro `.scroll` não é decoração: tabela larga precisa rolar dentro do
+ * próprio cartão, senão empurra a página inteira para o lado.
+ */",,,,,,
+packages-ui-comment-78f5f372,packages-ui,packages/ui/src/componentes/tabela.tsx,19,19,jsdoc,4,"/** Alinha à direita e usa monoespaçada tabular. Para número, não para texto. */",,,,,,
+packages-ui-comment-76d59eeb,packages-ui,packages/ui/src/componentes/tabela.tsx,35,35,jsdoc,1,"/** Severidade vai na linha inteira (`grave`, `critico`), não só no texto. */",,,,,,
+packages-ui-comment-f33ec301,packages-ui,packages/ui/src/icones.tsx,1,16,jsdoc,16,"/**
+ * Fachada de ícone — desenhos do Tabler Icons (MIT), © Paweł Kuna.
+ * https://github.com/tabler/tabler-icons — licença MIT.
+ *
+ * Por que uma fachada e não o pacote `@tabler/icons-react`: o Twenty usa a
+ * fachada justamente para que nenhum componente importe o pacote direto, e o
+ * conjunto que os três aplicativos do Pipe usam de verdade é pequeno. Copiar
+ * o caminho SVG dos que usamos custa menos do que carregar a biblioteca
+ * inteira, e mantém o traço e o tamanho sob um controle só.
+ *
+ * Trocar por `@tabler/icons-react` depois é substituir o corpo deste arquivo;
+ * a interface `<Icone nome=""..."" />` não muda.
+ *
+ * Todos os desenhos usam a grade de 24 do Tabler, traço arredondado, sem
+ * preenchimento — as mesmas convenções do símbolo da marca.
+ */",,,,,,
+packages-ui-comment-22bd23c9,packages-ui,packages/ui/src/icones.tsx,20,20,jsdoc,0,/** Caminhos na grade 24×24 do Tabler. Ordem alfabética. */,,,,,,
+packages-ui-comment-6f6271fd,packages-ui,packages/ui/src/icones.tsx,60,60,jsdoc,1,/** Tamanho em px. Padrão 16 — a régua de ícone do Twenty é 14/16/20/24. */,,,,,,
+packages-ui-comment-68329e1e,packages-ui,packages/ui/src/icones.tsx,84,91,jsdoc,4,"/**
+ * Símbolo da marca: dois cotovelos de tubulação que se encaixam sem se tocar.
+ * O vão entre os dois é parte do desenho — nunca fechar (docs/marca/MARCA.md).
+ *
+ * Estava duplicado inline em três componentes (`desk/trilho.tsx`,
+ * `gestao/menu-lateral.tsx`, `crm/menu-lateral.tsx`), cada cópia com o seu
+ * próprio hex. Agora é um só, e o segundo traço herda a cor de destaque.
+ */",,,,,,
+packages-ui-comment-571ebeff,packages-ui,packages/ui/src/ilustracoes.tsx,1,15,jsdoc,9,"/**
+ * Ilustração de estado vazio.
+ *
+ * Existe porque a medição do bundle da Blip mostrou `bds-illustration`
+ * empacotado como componente (referencias-blip/pesquisa/blip-design-system.md, seção 4):
+ * ilustração é componente, não imagem solta, e é assim que eles preenchem
+ * estado vazio sem depender de foto. Foto num produto de operação envelhece,
+ * pesa e nunca combina com o tema escuro.
+ *
+ * Desenho: a mesma linguagem do símbolo da marca — monoline, traço uniforme,
+ * pontas e curvas arredondadas, e o vão entre as peças fazendo parte do
+ * desenho (docs/marca/MARCA.md). Duas cores por cena: o traço neutro herda
+ * `currentColor` da classe `.ilustracao`, e o acento vem da paleta estendida,
+ * que junto com o gráfico é o único lugar onde ela pode aparecer.
+ */",,,,,,
+packages-ui-comment-2c00428f,packages-ui,packages/ui/src/ilustracoes.tsx,19,26,jsdoc,12,"/**
+ * As cenas. Cada uma existe porque um estado vazio real do Pipe precisa dela:
+ *
+ * - `vazio`    — a lista não tem nada ainda. Tubulação por onde nada passou.
+ * - `busca`    — o filtro não achou nada. Tubulação com a lente por cima.
+ * - `concluido` — a fila zerou. É o único estado vazio que é boa notícia.
+ * - `erro`     — a tela não conseguiu carregar. Tubulação partida.
+ */",,,,,,
+packages-ui-comment-0ab25639,packages-ui,packages/ui/src/ilustracoes.tsx,31,31,jsdoc,1,/** Largura em px. Padrão 96 — cabe num cartão sem virar o assunto da tela. */,,,,,,
+packages-ui-comment-a84482ce,packages-ui,packages/ui/src/ilustracoes.tsx,35,36,block,6,"/* Traço uniforme de 6 na grade de 120, que é a proporção do símbolo (12 em
+   120) reduzida à metade porque a ilustração é maior que o logotipo. */",,,,,,
+packages-ui-comment-28ff67ba,packages-ui,packages/ui/src/ilustracoes.tsx,59,59,jsdoc,1,"/** Texto alternativo. A ilustração é decorativa, mas quem lê tela merece saber. */",,,,,,
+packages-ui-comment-3242414b,packages-ui,packages/ui/src/ilustracoes.tsx,68,68,block,2,/* Dois cotovelos que não se encontram: o vão é o vazio. */,,,,,,
+packages-ui-comment-2a1af893,packages-ui,packages/ui/src/ilustracoes.tsx,77,77,block,4,"/* A mesma tubulação, com a lente por cima: procurou e não achou. */",,,,,,
+packages-ui-comment-c299b435,packages-ui,packages/ui/src/ilustracoes.tsx,87,88,block,5,"/* Fila zerada. O acento é o verde escuro da série, não a cor de marca:
+     ilustração não pinta com a marca. */",,,,,,
+packages-ui-comment-b321e692,packages-ui,packages/ui/src/ilustracoes.tsx,97,97,block,3,"/* Tubulação partida. Terracota, que é a cor do que exige ação. */",,,,,,
+packages-ui-comment-36c4cb21,packages-ui,packages/ui/src/index.ts,1,21,jsdoc,17,"/**
+ * Design system do Pipe — fonte única de token e de componente para
+ * `apps/desk`, `apps/gestao` e `apps/crm`.
+ *
+ * O estilo NÃO é importado por este arquivo: cada aplicativo importa
+ * `@pipe/ui/estilos.css` uma vez, no seu layout raiz. Manter os dois separados
+ * é o que permite usar o tema tipado em código de servidor sem arrastar CSS.
+ *
+ * Decisões que este pacote existe para impor estão em
+ * `docs/specs/2026-09-05-design-system.md`; a identidade continua sendo
+ * `docs/marca/MARCA.md`; os números que as justificam estão em
+ * `referencias-blip/pesquisa/visual-blip-salesforce.md` e em
+ * `referencias-blip/pesquisa/blip-design-system.md`.
+ *
+ * As três regras que a API pública impõe, e que nenhum aplicativo pode
+ * contornar declarando cor própria:
+ *   1. UMA cor de marca (moss), em ação primária e estado ativo. Mais nada.
+ *   2. Estado é PAR: fundo pastel com conteúdo escuro. Quatro estados.
+ *   3. A paleta estendida (`TEMA.grafico`) é exclusiva de gráfico e
+ *      ilustração. Fora dali ela não existe.
+ */",,,,,,
+packages-ui-comment-59210c60,packages-ui,packages/ui/src/regras-encerramento.ts,8,8,jsdoc,2,/** A Blip bloqueia a confirmação enquanto faltar qualquer tag obrigatória. */,,,,,,
+packages-ui-comment-9ecc7350,packages-ui,packages/ui/src/tema.ts,1,18,jsdoc,16,"/**
+ * Adaptado de twenty-ui (MIT) — https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeCommon.ts
+ *
+ * O que veio de lá é a FORMA, não os valores: tema como objeto TypeScript
+ * tipado, `espaco()` como função de múltiplo de 4px, escala de raio e tokens
+ * de densidade centralizados. Os valores são os do Pipe (docs/marca/MARCA.md),
+ * e a organização por papel veio de medir a Blip
+ * (referencias-blip/pesquisa/blip-design-system.md).
+ *
+ * Este objeto é o espelho tipado de `estilos/tokens.css`. Ele existe para o
+ * código que precisa de um valor em TypeScript (cálculo de layout, gráfico
+ * desenhado em canvas, teste). Quem estiver escrevendo CSS deve usar a custom
+ * property — não importar daqui.
+ *
+ * As cores apontam para a custom property de propósito: assim um componente
+ * que leia `TEMA.cor.marca` continua trocando de tema sozinho, sem saber que
+ * tema existe.
+ */",,,,,,
+packages-ui-comment-cf2c2614,packages-ui,packages/ui/src/tema.ts,107,107,jsdoc,0,"/** Número tabular e rótulo de seção. Nunca nome de fase, fila ou origem. */",,,,,,
+packages-ui-comment-0e2a953b,packages-ui,packages/ui/src/tema.ts,109,113,jsdoc,5,"/**
+     * Três degraus carregam a aplicação: 16, 14 e 12. O de 10 só para o
+     * verdadeiramente secundário. `titulo` e `numero` são exceção nomeada
+     * pelo papel, para continuarem sendo exceção. Régua em px, nunca rem.
+     */",,,,,,
+packages-ui-comment-98fda376,packages-ui,packages/ui/src/tema.ts,125,125,jsdoc,1,/** Um raio padrão e duas exceções com propósito. */,,,,,,
+packages-ui-comment-a1c5e3ad,packages-ui,packages/ui/src/tema.ts,143,143,jsdoc,0,"/** Régua de densidade. Ver docs/specs/2026-09-05-design-system.md, seção 5. */",,,,,,
+packages-ui-comment-de81a87f,packages-ui,packages/ui/src/tema.ts,157,157,jsdoc,0,/** Multiplicador de espaço. Ver `espaco()`. */,,,,,,
+packages-ui-comment-269d79c3,packages-ui,packages/ui/src/tema.ts,161,166,jsdoc,1,"/**
+ * `espaco(2)` → `'8px'`; `espaco(1, 2)` → `'4px 8px'`.
+ *
+ * Existe para tornar impossível escrever um espaçamento fora do múltiplo de 4
+ * por acidente. Mesmo truque do `spacing()` do twenty-ui.
+ */",,,,,,
+packages-ui-comment-adee1c39,packages-ui,packages/ui/src/tema.ts,173,173,jsdoc,3,/** Os quatro estados. É a mesma lista que a `Etiqueta` aceita como tom. */,,,,,,
+packages-ui-comment-c67880c0,packages-ui,packages/ui/src/tema.ts,30,30,jsdoc,0,"/** Quatro degraus de conteúdo, na ordem da Blip. */",,,,,,
+packages-ui-comment-20f0fe77,packages-ui,packages/ui/src/tema.ts,38,38,jsdoc,0,/** Tinta translúcida em três forças. Nunca hex opaco. */,,,,,,
+packages-ui-comment-ee03c6a0,packages-ui,packages/ui/src/tema.ts,45,48,jsdoc,3,"/**
+   * UMA cor de marca. Pinta ação primária, estado ativo e foco, e nada mais.
+   * Não é cor de rótulo, de número, de título nem de etiqueta de categoria.
+   */",,,,,,
+packages-ui-comment-5bcbe161,packages-ui,packages/ui/src/tema.ts,57,61,jsdoc,4,"/**
+   * Estado é um PAR: fundo pastel com conteúdo escuro por cima, mais a linha
+   * que os une. Nunca use só o conteúdo colorido — as três variáveis viajam
+   * juntas, senão viram duas cores diferentes em dois arquivos.
+   */",,,,,,
+packages-ui-comment-08df3d02,packages-ui,packages/ui/src/tema.ts,85,93,jsdoc,6,"/**
+   * PALETA ESTENDIDA — EXCLUSIVA DE GRÁFICO E ILUSTRAÇÃO.
+   *
+   * Terracota, ocre, azul profundo e sage moram aqui e só aqui. Nenhuma delas
+   * entra em cromo, etiqueta, borda, ícone ou texto de interface. Foi
+   * espalhá-las pela interface corrente que fez a tela parecer um carrossel.
+   *
+   * A ordem de `serie` é a ordem das séries de um gráfico.
+   */",,,,,,
+packages-ui-comment-bc0778cb,packages-ui,packages/ui/verificar-tokens.mjs,1,15,jsdoc,8,"/**
+ * Verificação do design system. `node verificar-tokens.mjs`.
+ *
+ * Sem framework de propósito: é uma checagem só, e ela existe porque o modo de
+ * falhar deste pacote é sempre o mesmo — um token usado que ninguém definiu,
+ * ou definido só no tema claro. Foi assim que `--sage` e `--online` sumiram do
+ * tema escuro na primeira versão, e ninguém percebeu até a tela ficar branca.
+ *
+ * O que ela garante:
+ *   1. Todo `var(--p-*)` usado tem definição.
+ *   2. Todo token de cor definido no tema claro é redefinido nos dois blocos
+ *      de tema escuro (preferência do sistema e escolha explícita).
+ *   3. As regras contáveis continuam valendo: 5 superfícies, 4 degraus de
+ *      conteúdo, 4 estados com 3 variáveis cada, 3 raios, 4 degraus de texto.
+ */",,,,,,
+packages-ui-comment-8c84f441,packages-ui,packages/ui/verificar-tokens.mjs,35,39,jsdoc,9,"/**
+ * O mesmo conjunto sem a ponte de migração. As regras contáveis olham só para
+ * cá: o apelido antigo não pode fazer a régua parecer maior do que ela é.
+ * Quando a ponte for apagada, os dois conjuntos voltam a ser o mesmo.
+ */",,,,,,
+packages-ui-comment-13a54871,packages-ui,packages/ui/verificar-tokens.mjs,43,43,block,2,/* 1 — nada usa o que não existe. ------------------------------------------ */,,,,,,
+packages-ui-comment-7d73fd77,packages-ui,packages/ui/verificar-tokens.mjs,56,56,jsdoc,2,/** Cor = tem hex ou rgba no valor. Tamanho e duração não mudam com o tema. */,,,,,,
+packages-ui-comment-54af6113,packages-ui,packages/ui/verificar-tokens.mjs,69,69,block,0,/* 3 — as regras contáveis. ------------------------------------------------ */,,,,,,
+packages-ui-comment-6333a2b4,packages-ui,packages/ui/verificar-tokens.mjs,86,90,block,9,"/* 4 — a paleta estendida continua cercada. --------------------------------
+   Ela pode em dois lugares: a barra de dado (`.trilho`/`.fill`, que é gráfico)
+   e a ilustração, que desenha com o próprio SVG. Todo o resto de base.css é
+   cromo, e cromo não recebe matiz da paleta estendida. Este é o teste que
+   pega o erro que o dono reprovou antes de ele chegar na tela. */",,,,,,

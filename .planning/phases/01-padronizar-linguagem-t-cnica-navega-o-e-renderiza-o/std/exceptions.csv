@@ -4,7 +4,6 @@ glob,pattern,kind,category,justification,ref
 referencias-blip/**,*,*,C,Captured reference material is excluded from repository code rules,D-17
 **/*,^webhooks/,string-literal,C,Webhook paths are already English,D-15
 packages/db/src/schema/**,.*,sql-name,B,SQL names remain unchanged while TypeScript names migrate,D-08
-apps/api/src/**,^[a-z_]+:(ler|escrever|gerenciar)$,literal-value,B,API-key scopes are persisted,D-40
 **/*,^memoria$|^bullmq$,*,C,Environment values remain unchanged,D-06
 **/*,^ACME_EMAIL$,*,C,Environment variable name remains unchanged,D-06/D-36
 **/*,^ANTHROPIC_API_KEY$,*,C,Environment variable name remains unchanged,D-06/D-36
@@ -85,3 +84,737 @@ apps/api/src/**,^[a-z_]+:(ler|escrever|gerenciar)$,literal-value,B,API-key scope
 **/*,^WHATSAPP_TOKEN_ACESSO$,*,C,Environment variable name remains unchanged,D-06/D-36
 **/*,^WHATSAPP_VERIFY_TOKEN$,*,C,Environment variable name remains unchanged,D-06/D-36
 **/*,^WHATSAPP_WABA_ID$,*,C,Environment variable name remains unchanged,D-06/D-36
+apps/api/src/dominio/messenger/canal.ts,^canal_sem_credencial$,string-literal,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445,persisted.csv:api-error-code-86be0bc8
+apps/api/src/dominio/envio.ts,^template_nao_aprovado$,string-literal,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445,persisted.csv:api-error-code-671ca47d
+apps/api/src/autenticacao.ts,^atendentes:ler$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-literal-value-d16d511b
+apps/api/src/dominio/sso.ts,^ativa$,literal-value,B,persisted: Postgres conexao_sso.estado,persisted.csv:api-literal-value-97ff7dd9
+apps/api/src/webhooks-saida.ts,^contato\.criado$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:api-literal-value-d00bbdaf
+apps/api/src/dominio/gestao/regra-fila.ts,^contato\.email$,literal-value,B,persisted: Postgres regra_fila.condicao jsonb,persisted.csv:api-literal-value-a93854a8
+apps/api/src/dominio/gestao/regra-fila.ts,^contato\.nome$,literal-value,B,persisted: Postgres regra_fila.condicao jsonb,persisted.csv:api-literal-value-a9ee9a36
+apps/api/src/dominio/gestao/regra-fila.ts,^contato\.telefone$,literal-value,B,persisted: Postgres regra_fila.condicao jsonb,persisted.csv:api-literal-value-15f6087c
+apps/api/src/dominio/etiquetas.ts,^contato$,literal-value,B,persisted: Postgres etiqueta.escopo,persisted.csv:api-literal-value-a8ea6a90
+apps/api/src/autenticacao.ts,^contatos:escrever$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-literal-value-93c64254
+apps/api/src/autenticacao.ts,^contatos:ler$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-literal-value-bfeddc28
+apps/api/src/dominio/gestao/integracoes.ts,^contatos:ler$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-literal-value-d0541d75
+apps/api/src/webhooks-saida.ts,^conversa\.atribuida$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:api-literal-value-fced549a
+apps/api/src/webhooks-saida.ts,^conversa\.criada$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:api-literal-value-00f59e8b
+apps/api/src/webhooks-saida.ts,^conversa\.encerrada$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:api-literal-value-3a01c259
+apps/api/src/webhooks-saida.ts,^conversa\.estado_alterado$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:api-literal-value-c65609bc
+apps/api/tests/entrada.test.ts,^conversa\.responder$,literal-value,B,persisted: Postgres permissao.codigo in seeded test data,persisted.csv:api-literal-value-627a8a01
+apps/api/tests/entrada.test.ts,^conversa\.ver$,literal-value,B,persisted: Postgres permissao.codigo in seeded test data,persisted.csv:api-literal-value-6980bf1b
+apps/api/tests/entrada.test.ts,^conversa\.ver$,literal-value,B,persisted: Postgres permissao.codigo in seeded test data,persisted.csv:api-literal-value-843e8c90
+apps/api/src/dominio/etiquetas.ts,^conversa$,literal-value,B,persisted: Postgres etiqueta.escopo,persisted.csv:api-literal-value-cebc6a9b
+apps/api/src/autenticacao.ts,^conversas:escrever$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-literal-value-80f68663
+apps/api/src/dominio/gestao/integracoes.ts,^conversas:escrever$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-literal-value-50863237
+apps/api/src/autenticacao.ts,^conversas:ler$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-literal-value-2585f371
+apps/api/src/dominio/gestao/integracoes.ts,^conversas:ler$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-literal-value-92023b9d
+apps/api/src/dominio/gestao/contrato.ts,^convite$,literal-value,B,persisted: Postgres log_auditoria.objeto_tipo,persisted.csv:api-literal-value-2c6b5dd7
+apps/api/src/dominio/whatsapp/modelos.ts,^DOCUMENT$,literal-value,B,persisted: Meta Graph API registered value,persisted.csv:api-literal-value-eb09d9c9
+apps/api/src/dominio/envio.ts,^documento$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:api-literal-value-a9007501
+apps/api/src/dominio/gestao/comunicacao.ts,^documento$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:api-literal-value-58ff5374
+apps/api/src/dominio/whatsapp/criacao-de-canal.ts,^embedded_signup$,literal-value,B,persisted: Postgres canal.config.origem jsonb,persisted.csv:api-literal-value-09774ba3
+apps/api/src/dominio/gestao/pesquisa.ts,^encerramento$,literal-value,B,persisted: Postgres pesquisa.disparo,persisted.csv:api-literal-value-67a53729
+apps/api/tests/sla-motor.test.ts,^encerramento$,literal-value,B,persisted: Postgres pesquisa.disparo,persisted.csv:api-literal-value-0fb137e1
+apps/api/src/dominio/gestao/regras-prioridade.ts,^fila$,literal-value,B,persisted: Postgres regra_prioridade.escopo_tipo / regra_sla.escopo_tipo,persisted.csv:api-literal-value-75bd6408
+apps/api/src/dominio/gestao/regras-sla.ts,^fila$,literal-value,B,persisted: Postgres regra_prioridade.escopo_tipo / regra_sla.escopo_tipo,persisted.csv:api-literal-value-1f6b7c2a
+apps/api/src/autenticacao.ts,^filas:ler$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-literal-value-dc49b8e5
+apps/api/src/dominio/whatsapp/modelos.ts,^IMAGE$,literal-value,B,persisted: Meta Graph API registered value,persisted.csv:api-literal-value-fa95ae82
+apps/api/src/dominio/envio.ts,^imagem$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:api-literal-value-d7db8465
+apps/api/src/dominio/gestao/comunicacao.ts,^imagem$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:api-literal-value-a1fc0025
+apps/api/src/dominio/whatsapp/criacao-de-canal.ts,^manual_setup_v2$,literal-value,B,persisted: Postgres canal.config.origem jsonb,persisted.csv:api-literal-value-7584f095
+apps/api/src/webhooks-saida.ts,^mensagem\.criada$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:api-literal-value-c41193ef
+apps/api/src/webhooks-saida.ts,^mensagem\.estado_entrega_alterado$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:api-literal-value-38e1a883
+apps/api/src/dominio/gestao/regra-fila.ts,^mensagem$,literal-value,B,persisted: Postgres regra_fila.condicao jsonb,persisted.csv:api-literal-value-59c9a125
+apps/api/src/autenticacao.ts,^mensagens:escrever$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-literal-value-a65d29f4
+apps/api/src/dominio/gestao/integracoes.ts,^mensagens:escrever$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-literal-value-74d1e809
+apps/api/src/autenticacao.ts,^mensagens:ler$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-literal-value-d530551d
+apps/api/src/dominio/gestao/integracoes.ts,^mensagens:ler$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-literal-value-7dd4b15e
+apps/api/src/webhooks-saida.ts,^modelo\.recategorizado$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:api-literal-value-e7f68f81
+apps/api/src/dominio/gestao/pesquisa.ts,^primeira_resposta$,literal-value,B,persisted: Postgres pesquisa.disparo,persisted.csv:api-literal-value-f870fdf2
+apps/api/tests/sla-motor.test.ts,^primeira_resposta$,literal-value,B,persisted: Postgres pesquisa.disparo,persisted.csv:api-literal-value-1a6c3bce
+apps/api/tests/sla-motor.test.ts,^primeira_resposta$,literal-value,B,persisted: Postgres pesquisa.disparo,persisted.csv:api-literal-value-2a723d8a
+apps/api/tests/entrada.test.ts,^relatorio\.ver$,literal-value,B,persisted: Postgres permissao.codigo in seeded test data,persisted.csv:api-literal-value-8404e79f
+apps/api/src/dominio/whatsapp/cliente-graph.ts,^smb_message_echoes$,literal-value,B,persisted: Meta Graph API registered value,persisted.csv:api-literal-value-139364f2
+apps/api/src/dominio/whatsapp/modelos.ts,^VIDEO$,literal-value,B,persisted: Meta Graph API registered value,persisted.csv:api-literal-value-818e9b90
+packages/contracts/src/gestao-equipe.ts,^admin$,literal-value,B,persisted: Postgres fluxo_membro.papel_no_fluxo,persisted.csv:packages-contracts-literal-value-4663a692
+packages/contracts/src/desk.ts,^alta$,literal-value,B,persisted: Postgres conversa.prioridade,persisted.csv:packages-contracts-literal-value-92a367f6
+packages/contracts/src/gestao-fluxo.ts,^arquivada$,literal-value,B,persisted: Postgres fluxo_versao.estado,persisted.csv:packages-contracts-literal-value-8bc1ade0
+packages/contracts/src/desk.ts,^atribuida$,literal-value,B,persisted: Postgres conversa.estado,persisted.csv:packages-contracts-literal-value-a3029619
+packages/contracts/src/desk.ts,^baixa$,literal-value,B,persisted: Postgres conversa.prioridade,persisted.csv:packages-contracts-literal-value-07c40e09
+packages/contracts/src/gestao-cadastros.ts,^contem$,literal-value,B,persisted: Postgres regra_fila.condicao jsonb,persisted.csv:packages-contracts-literal-value-b2125e9f
+packages/contracts/src/gestao-cadastros.ts,^diferente$,literal-value,B,persisted: Postgres regra_fila.condicao jsonb,persisted.csv:packages-contracts-literal-value-ee7564d4
+packages/contracts/src/gestao-equipe.ts,^editar$,literal-value,B,persisted: Postgres fluxo_membro.papel_no_fluxo,persisted.csv:packages-contracts-literal-value-839ac9bf
+packages/contracts/src/desk.ts,^em_atendimento$,literal-value,B,persisted: Postgres conversa.estado,persisted.csv:packages-contracts-literal-value-e2deee00
+packages/contracts/src/desk.ts,^em_espera$,literal-value,B,persisted: Postgres conversa.estado,persisted.csv:packages-contracts-literal-value-05fa4cb5
+packages/contracts/src/desk.ts,^email$,literal-value,B,persisted: Postgres canal.tipo,persisted.csv:packages-contracts-literal-value-7583ff80
+packages/contracts/src/desk.ts,^encerrada$,literal-value,B,persisted: Postgres conversa.estado,persisted.csv:packages-contracts-literal-value-20f5ddfe
+packages/contracts/src/gestao-equipe.ts,^escrever$,literal-value,B,persisted: Postgres fluxo_membro.permissoes,persisted.csv:packages-contracts-literal-value-f843e7e5
+packages/contracts/src/gestao-cadastros.ts,^igual$,literal-value,B,persisted: Postgres regra_fila.condicao jsonb,persisted.csv:packages-contracts-literal-value-151a6eb4
+packages/contracts/src/desk.ts,^instagram$,literal-value,B,persisted: Postgres canal.tipo,persisted.csv:packages-contracts-literal-value-d50a00c6
+packages/contracts/src/desk.ts,^invisivel$,literal-value,B,persisted: Postgres status_atendente.estado,persisted.csv:packages-contracts-literal-value-0326c164
+packages/contracts/src/gestao-equipe.ts,^ler$,literal-value,B,persisted: Postgres fluxo_membro.permissoes,persisted.csv:packages-contracts-literal-value-0f209990
+packages/contracts/src/desk.ts,^maxima$,literal-value,B,persisted: Postgres conversa.prioridade,persisted.csv:packages-contracts-literal-value-9668c345
+packages/contracts/src/desk.ts,^media$,literal-value,B,persisted: Postgres conversa.prioridade,persisted.csv:packages-contracts-literal-value-6e18dc63
+packages/contracts/src/desk.ts,^na_fila$,literal-value,B,persisted: Postgres conversa.estado,persisted.csv:packages-contracts-literal-value-cef73426
+packages/contracts/src/gestao-cadastros.ts,^nao_contem$,literal-value,B,persisted: Postgres regra_fila.condicao jsonb,persisted.csv:packages-contracts-literal-value-a7eaf920
+packages/contracts/src/gestao-equipe.ts,^nenhum$,literal-value,B,persisted: Postgres fluxo_membro.permissoes,persisted.csv:packages-contracts-literal-value-05b9776c
+packages/contracts/src/desk.ts,^offline$,literal-value,B,persisted: Postgres status_atendente.estado,persisted.csv:packages-contracts-literal-value-f476c1e6
+packages/contracts/src/desk.ts,^online$,literal-value,B,persisted: Postgres status_atendente.estado,persisted.csv:packages-contracts-literal-value-9edeaf3c
+packages/contracts/src/sessao.ts,^operacao$,literal-value,B,persisted: Postgres tenant.plano,persisted.csv:packages-contracts-literal-value-cb66a4f4
+packages/contracts/src/desk.ts,^pausa$,literal-value,B,persisted: Postgres status_atendente.estado,persisted.csv:packages-contracts-literal-value-2a01875a
+packages/contracts/src/gestao-equipe.ts,^personalizado$,literal-value,B,persisted: Postgres fluxo_membro.papel_no_fluxo,persisted.csv:packages-contracts-literal-value-5823a5bb
+packages/contracts/src/gestao-fluxo.ts,^publicada$,literal-value,B,persisted: Postgres fluxo_versao.estado,persisted.csv:packages-contracts-literal-value-1809bbfb
+packages/contracts/src/gestao-fluxo.ts,^rascunho$,literal-value,B,persisted: Postgres fluxo_versao.estado,persisted.csv:packages-contracts-literal-value-535a88b2
+packages/contracts/src/desk.ts,^sem_prioridade$,literal-value,B,persisted: Postgres conversa.prioridade,persisted.csv:packages-contracts-literal-value-5c77542b
+packages/contracts/src/gestao-equipe.ts,^visualizar$,literal-value,B,persisted: Postgres fluxo_membro.papel_no_fluxo,persisted.csv:packages-contracts-literal-value-c24f9fc3
+packages/contracts/src/desk.ts,^whatsapp_cloud$,literal-value,B,persisted: Postgres canal.tipo,persisted.csv:packages-contracts-literal-value-9ac2e79a
+packages/contracts/src/desk.ts,^widget$,literal-value,B,persisted: Postgres canal.tipo,persisted.csv:packages-contracts-literal-value-5a5ad31b
+packages/db/src/semente.ts,^administracao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-36a69879
+packages/db/src/semente.ts,^administracao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-340c34ad
+packages/db/src/semente.ts,^administracao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-81575f59
+packages/db/src/semente.ts,^administracao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-cc58197a
+packages/db/src/semente.ts,^administracao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-d7c5f1c8
+packages/db/src/semente.ts,^administracao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-bdec4cdf
+packages/db/src/semente.ts,^administracao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-fc2ab746
+packages/db/src/schema/automacao.ts,^arquivado$,literal-value,B,persisted: Postgres CHECK fluxo_estado_ck (t.estado),persisted.csv:packages-db-literal-value-cfb6d4f3
+packages/db/src/schema/comum.ts,^atendente$,literal-value,B,persisted: Postgres CHECK metrica_diaria_dimensao_tipo_ck (t.dimensaoTipo),persisted.csv:packages-db-literal-value-c5dad517
+packages/db/src/schema/conversas.ts,^atendente$,literal-value,B,persisted: Postgres CHECK conversa_ultima_mensagem_de_ck (t.ultimaMensagemDe),persisted.csv:packages-db-literal-value-fd37d33c
+packages/db/src/schema/conversas.ts,^atendente$,literal-value,B,persisted: Postgres CHECK mensagem_autor_tipo_ck (t.autorTipo),persisted.csv:packages-db-literal-value-7f61daec
+packages/db/src/semente.ts,^atendente$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-25a616da
+packages/db/src/schema/identidade.ts,^atendimento$,literal-value,B,persisted: Postgres CHECK papel_escopo_ck (t.escopo),persisted.csv:packages-db-literal-value-37d1af8a
+packages/db/src/semente-demo.ts,^atendimento$,literal-value,B,persisted: Postgres seeded demo data via packages/db/src/semente-demo.ts,persisted.csv:packages-db-literal-value-43c6be7a
+packages/db/src/semente.ts,^atendimento$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-9b22b28f
+packages/db/src/schema/identidade.ts,^ativa$,literal-value,B,persisted: Postgres CHECK conexao_sso_estado_ck (t.estado),persisted.csv:packages-db-literal-value-7f69657e
+packages/db/src/schema/comum.ts,^autenticacao$,literal-value,B,persisted: Postgres CHECK mensagem_categoria_cobranca_ck (t.categoriaCobranca),persisted.csv:packages-db-literal-value-80e13d78
+packages/db/src/schema/comum.ts,^autenticacao$,literal-value,B,persisted: Postgres CHECK template_mensagem_categoria_ck (t.categoria),persisted.csv:packages-db-literal-value-6939f6c1
+packages/db/src/semente.ts,^automacao\.fluxo\.editar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-bc1ea0d9
+packages/db/src/semente.ts,^automacao\.fluxo\.editar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-b84aa6cc
+packages/db/src/semente.ts,^automacao\.fluxo\.editar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-23b51c29
+packages/db/src/semente.ts,^automacao\.fluxo\.excluir$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-f676dab9
+packages/db/src/semente.ts,^automacao\.fluxo\.excluir$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-c03ce650
+packages/db/src/semente.ts,^automacao\.fluxo\.publicar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-eae42334
+packages/db/src/semente.ts,^automacao\.fluxo\.publicar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-c998ee77
+packages/db/src/semente.ts,^automacao\.fluxo\.publicar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-9cbff9f5
+packages/db/src/semente.ts,^automacao\.integracao\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-d9983d01
+packages/db/src/semente.ts,^automacao\.integracao\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-3ae47c76
+packages/db/src/semente.ts,^automacao\.integracao\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-7ff0551d
+packages/db/src/semente.ts,^automacao\.workflow\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-d4672632
+packages/db/src/semente.ts,^automacao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-d435eb93
+packages/db/src/semente.ts,^automacao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-b6f7ac51
+packages/db/src/semente.ts,^automacao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-c77cbac2
+packages/db/src/semente.ts,^automacao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-56470167
+packages/db/src/semente.ts,^automacao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-81adab5c
+packages/db/src/semente.ts,^automacao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-b4079234
+packages/db/src/semente.ts,^automacao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-c6b62e0e
+packages/db/src/semente.ts,^automacao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-db5f2abb
+packages/db/src/semente.ts,^canal\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-86890ad0
+packages/db/src/semente.ts,^chave_api\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-dfaf9e8b
+packages/db/src/auditoria.ts,^chave$,literal-value,B,persisted: Postgres log_auditoria.ator_tipo,persisted.csv:packages-db-literal-value-3886b00d
+packages/db/src/schema/identidade.ts,^chave$,literal-value,B,persisted: Postgres CHECK log_auditoria_ator_tipo_ck (t.atorTipo),persisted.csv:packages-db-literal-value-b1e50f47
+packages/db/src/schema/automacao.ts,^condicao$,literal-value,B,persisted: Postgres CHECK bloco_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-5e4c0424
+packages/db/src/semente.ts,^consulta\.agendar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-fb756913
+packages/db/src/semente.ts,^consulta\.executar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-c700276d
+packages/db/src/semente.ts,^consulta\.salvar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-4bb50c45
+packages/db/src/semente.ts,^conta\.faturamento\.ler$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-1aacabaf
+packages/db/src/semente.ts,^conta\.grupos_acesso\.escrever$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-a598e9c5
+packages/db/src/semente.ts,^conta\.grupos_acesso\.ler$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-2cf58b22
+packages/db/src/semente.ts,^conta\.membros\.escrever$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-89c49c52
+packages/db/src/semente.ts,^conta\.membros\.ler$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-b358c5dc
+packages/db/src/semente.ts,^conta\.painel\.escrever$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-2ad19f3f
+packages/db/src/semente.ts,^conta\.painel\.ler$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-bba02ff4
+packages/db/src/semente.ts,^conta\.resumo\.escrever$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-a267c7a1
+packages/db/src/semente.ts,^conta\.resumo\.ler$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-91e20c50
+packages/db/src/semente.ts,^conta\.workspace\.escrever$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-224ebc6d
+packages/db/src/semente.ts,^conta\.workspace\.escrever$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-1a0746ef
+packages/db/src/semente.ts,^conta\.workspace\.ler$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-c01e58da
+packages/db/src/schema/crm.ts,^conta$,literal-value,B,persisted: Postgres CHECK campo_customizado_objeto_ck (t.objeto),persisted.csv:packages-db-literal-value-fcbe7e3e
+packages/db/src/schema/identidade.ts,^conta$,literal-value,B,persisted: Postgres CHECK papel_escopo_ck (t.escopo),persisted.csv:packages-db-literal-value-36f898d9
+packages/db/src/semente.ts,^conta$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-6023b7df
+packages/db/src/semente.ts,^conta$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-4f3f2ba6
+packages/db/src/semente.ts,^conta$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-ce1df2dd
+packages/db/src/semente.ts,^conta$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-6f149425
+packages/db/src/semente.ts,^conta$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-8c265b96
+packages/db/src/semente.ts,^conta$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-183522bd
+packages/db/src/semente.ts,^conta$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-fc99c32f
+packages/db/src/semente.ts,^conta$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-fe34a892
+packages/db/src/semente.ts,^conta$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-0ed6a20f
+packages/db/src/semente.ts,^conta$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-83690300
+packages/db/src/semente.ts,^conta$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-da7e8049
+packages/db/src/semente.ts,^conta$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-cb0c1a03
+packages/db/src/semente.ts,^contato\.editar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-80fab386
+packages/db/src/semente.ts,^contato\.excluir$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-bf7da6a1
+packages/db/src/semente.ts,^contato\.exportar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-d2fe58f8
+packages/db/src/semente.ts,^contato\.ver$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-ae2c35a7
+packages/db/src/schema/conversas.ts,^contato$,literal-value,B,persisted: Postgres CHECK conversa_ultima_mensagem_de_ck (t.ultimaMensagemDe),persisted.csv:packages-db-literal-value-1cdc26ec
+packages/db/src/schema/conversas.ts,^contato$,literal-value,B,persisted: Postgres CHECK mensagem_autor_tipo_ck (t.autorTipo),persisted.csv:packages-db-literal-value-67e96c9f
+packages/db/src/schema/conversas.ts,^contato$,literal-value,B,persisted: Postgres CHECK etiqueta_escopo_ck (t.escopo),persisted.csv:packages-db-literal-value-83858f52
+packages/db/src/schema/crm.ts,^contato$,literal-value,B,persisted: Postgres CHECK campo_customizado_objeto_ck (t.objeto),persisted.csv:packages-db-literal-value-9c4b0011
+packages/db/src/semente.ts,^contato$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-72444814
+packages/db/src/semente.ts,^contato$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-75544973
+packages/db/src/semente.ts,^contato$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-bea88288
+packages/db/src/semente.ts,^contato$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-4c1b61f7
+packages/db/src/semente.ts,^conversa\.encerrar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-a5094f59
+packages/db/src/semente.ts,^conversa\.etiquetar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-e36013fb
+packages/db/src/semente.ts,^conversa\.nota_interna$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-e1989d7f
+packages/db/src/semente.ts,^conversa\.reabrir$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-6b695166
+packages/db/src/semente.ts,^conversa\.responder$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-e71d65d4
+packages/db/src/semente.ts,^conversa\.transferir$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-47f3ad41
+packages/db/src/semente.ts,^conversa\.ver_todas$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-4e3a480d
+packages/db/src/semente.ts,^conversa\.ver$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-40e03c40
+packages/db/src/schema/conversas.ts,^conversa$,literal-value,B,persisted: Postgres CHECK etiqueta_escopo_ck (t.escopo),persisted.csv:packages-db-literal-value-9a468a70
+packages/db/src/schema/crm.ts,^conversa$,literal-value,B,persisted: Postgres CHECK atividade_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-03739a61
+packages/db/src/semente.ts,^conversa$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-5530c956
+packages/db/src/semente.ts,^conversa$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-3507b3cd
+packages/db/src/semente.ts,^conversa$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-513af5bc
+packages/db/src/semente.ts,^conversa$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-94277718
+packages/db/src/semente.ts,^conversa$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-6af62896
+packages/db/src/semente.ts,^conversa$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-31d3c38b
+packages/db/src/semente.ts,^conversa$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-6726bb98
+packages/db/src/semente.ts,^conversa$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-a8614014
+packages/db/src/schema/automacao.ts,^criar_avaliacao$,literal-value,B,persisted: Postgres CHECK acao_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-c5d8eb8b
+packages/db/src/schema/automacao.ts,^criar_registro$,literal-value,B,persisted: Postgres CHECK acao_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-5dd51363
+packages/db/src/semente.ts,^crm\.importar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-9d0efc38
+packages/db/src/semente.ts,^crm\.oportunidade\.editar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-afe30d8f
+packages/db/src/semente.ts,^crm\.oportunidade\.ver$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-46bf7734
+packages/db/src/schema/conversas.ts,^documento$,literal-value,B,persisted: Postgres CHECK mensagem_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-921e9b63
+packages/db/src/schema/monitoria.ts,^em_andamento$,literal-value,B,persisted: Postgres CHECK plano_coach_estado_ck (t.estado),persisted.csv:packages-db-literal-value-705656ab
+packages/db/src/schema/comum.ts,^em_atendimento$,literal-value,B,persisted: Postgres CHECK conversa_estado_ck (t.estado),persisted.csv:packages-db-literal-value-9c5ac42e
+packages/db/src/schema/crm.ts,^em_contato$,literal-value,B,persisted: Postgres CHECK lead_status_ck (t.status),persisted.csv:packages-db-literal-value-92813180
+packages/db/src/schema/conversas.ts,^entrada$,literal-value,B,persisted: Postgres CHECK mensagem_direcao_ck (t.direcao),persisted.csv:packages-db-literal-value-b2739966
+packages/db/src/semente-demo.ts,^entrada$,literal-value,B,persisted: Postgres seeded demo data via packages/db/src/semente-demo.ts,persisted.csv:packages-db-literal-value-51aeb09b
+packages/db/src/schema/automacao.ts,^enviar_mensagem$,literal-value,B,persisted: Postgres CHECK acao_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-ef0b8711
+packages/db/src/semente.ts,^equipe\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-653fc123
+packages/db/src/schema/gestao.ts,^espera_fila$,literal-value,B,persisted: Postgres CHECK regra_sla_alvo_ck (t.alvo),persisted.csv:packages-db-literal-value-2609f6ef
+packages/db/src/particoes.ts,^evento_atendimento$,literal-value,B,persisted: Postgres SQL table name in partition DDL,persisted.csv:packages-db-literal-value-af61b094
+packages/db/src/semente.ts,^fila\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-1ce05a8d
+packages/db/src/schema/comum.ts,^fila$,literal-value,B,persisted: Postgres CHECK metrica_diaria_dimensao_tipo_ck (t.dimensaoTipo),persisted.csv:packages-db-literal-value-8af0d20b
+packages/db/src/schema/gestao.ts,^fila$,literal-value,B,persisted: Postgres CHECK regra_prioridade_escopo_tipo_ck (t.escopoTipo); regra_sla_escopo_tipo_ck (t.escopoTipo),persisted.csv:packages-db-literal-value-011e8da2
+packages/db/src/schema/automacao.ts,^fluxo$,literal-value,B,persisted: Postgres CHECK fluxo_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-46fc1ed5
+packages/db/src/schema/automacao.ts,^funcao$,literal-value,B,persisted: Postgres CHECK acao_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-3ea8e150
+packages/db/src/semente.ts,^gestao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-8e6b98b2
+packages/db/src/semente.ts,^gestao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-a18de7e4
+packages/db/src/semente.ts,^gestao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-09c1ba58
+packages/db/src/semente.ts,^gestao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-dca5983e
+packages/db/src/semente.ts,^gestao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-6544f681
+packages/db/src/semente.ts,^gestao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-32c53af3
+packages/db/src/semente.ts,^gestao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-7177b34f
+packages/db/src/semente.ts,^gestao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-52377fcc
+packages/db/src/semente.ts,^gestao$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-994fa660
+packages/db/src/semente.ts,^horario\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-0d928adc
+packages/db/src/schema/conversas.ts,^imagem$,literal-value,B,persisted: Postgres CHECK mensagem_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-e5806af9
+packages/db/src/schema/crm.ts,^ligacao$,literal-value,B,persisted: Postgres CHECK atividade_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-351858e7
+packages/db/src/schema/conversas.ts,^localizacao$,literal-value,B,persisted: Postgres CHECK mensagem_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-eefc46e0
+packages/db/src/schema/identidade.ts,^membro$,literal-value,B,persisted: Postgres CHECK membro_equipe_funcao_ck (t.funcao),persisted.csv:packages-db-literal-value-b5b92da1
+packages/db/src/schema/comum.ts,^mensagem_entrada$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-20dfcb22
+packages/db/src/schema/comum.ts,^mensagem_saida$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-15c3b21d
+packages/db/src/particoes.ts,^mensagem$,literal-value,B,persisted: Postgres SQL table name in partition DDL,persisted.csv:packages-db-literal-value-f43720b7
+packages/db/src/schema/automacao.ts,^mensagem$,literal-value,B,persisted: Postgres CHECK bloco_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-fe4f464b
+packages/db/src/semente.ts,^monitoramento\.tempo_real\.ver$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-6c3a858b
+packages/db/src/semente.ts,^monitoria\.avaliacao\.criar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-da0601b8
+packages/db/src/semente.ts,^monitoria\.avaliacao\.revisar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-3f3aef39
+packages/db/src/semente.ts,^monitoria\.avaliacao\.ver$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-31616a6e
+packages/db/src/semente.ts,^monitoria\.calibracao\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-fb18b438
+packages/db/src/semente.ts,^monitoria\.coach\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-66656fab
+packages/db/src/semente.ts,^monitoria\.contestacao\.abrir$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-3fde9c2f
+packages/db/src/semente.ts,^monitoria\.contestacao\.decidir$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-41b84d0c
+packages/db/src/semente.ts,^monitoria\.formulario\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-80f3c018
+packages/db/src/semente.ts,^monitoria$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-39b3fd71
+packages/db/src/semente.ts,^monitoria$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-5cafbb16
+packages/db/src/semente.ts,^monitoria$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-c848f7b4
+packages/db/src/semente.ts,^monitoria$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-deb6ea17
+packages/db/src/semente.ts,^monitoria$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-a2221ad3
+packages/db/src/semente.ts,^monitoria$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-20386879
+packages/db/src/semente.ts,^monitoria$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-135a3aaa
+packages/db/src/semente.ts,^monitoria$,literal-value,B,persisted: Postgres seeded permissao.modulo / papel / role data,persisted.csv:packages-db-literal-value-6094cb6f
+packages/db/src/schema/automacao.ts,^mover_fila$,literal-value,B,persisted: Postgres CHECK acao_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-9918434f
+packages/db/src/schema/comum.ts,^na_fila$,literal-value,B,persisted: Postgres CHECK conversa_estado_ck (t.estado),persisted.csv:packages-db-literal-value-ae0982c9
+packages/db/src/schema/identidade.ts,^operacao$,literal-value,B,persisted: Postgres CHECK tenant_plano_ck (t.plano),persisted.csv:packages-db-literal-value-0b3c68f0
+packages/db/src/schema/crm.ts,^oportunidade$,literal-value,B,persisted: Postgres CHECK campo_customizado_objeto_ck (t.objeto),persisted.csv:packages-db-literal-value-8356e83a
+packages/db/src/semente.ts,^papel\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-0b557bf0
+packages/db/src/semente.ts,^pausa\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-316d74e0
+packages/db/src/schema/comum.ts,^primeira_resposta$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-8265368c
+packages/db/src/schema/gestao.ts,^primeira_resposta$,literal-value,B,persisted: Postgres CHECK regra_sla_alvo_ck (t.alvo),persisted.csv:packages-db-literal-value-d0d35491
+packages/db/src/semente.ts,^regra\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-cfd011e2
+packages/db/src/semente.ts,^relatorio\.esforco\.ver$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-33719d48
+packages/db/src/semente.ts,^relatorio\.exportar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-c255c228
+packages/db/src/semente.ts,^relatorio\.ver$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-56feafbe
+packages/db/src/schema/gestao.ts,^resolucao$,literal-value,B,persisted: Postgres CHECK regra_sla_alvo_ck (t.alvo),persisted.csv:packages-db-literal-value-41753784
+packages/db/src/semente.ts,^resposta_pronta\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-38e553c7
+packages/db/src/schema/automacao.ts,^roteador$,literal-value,B,persisted: Postgres CHECK fluxo_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-e71193a7
+packages/db/src/schema/crm.ts,^selecao_multipla$,literal-value,B,persisted: Postgres CHECK formulario_pergunta_tipo_ck (t.tipo); campo_customizado_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-b3c6b0dc
+packages/db/src/schema/crm.ts,^selecao_unica$,literal-value,B,persisted: Postgres CHECK formulario_pergunta_tipo_ck (t.tipo); campo_customizado_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-26352c2b
+packages/db/src/schema/comum.ts,^transferida_fila$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-literal-value-4e9c4885
+packages/db/src/semente.ts,^usuario\.gerenciar$,literal-value,B,persisted: Postgres permissao.codigo / seeded permission or role reference,persisted.csv:packages-db-literal-value-40878af1
+packages/db/src/auditoria.ts,^usuario$,literal-value,B,persisted: Postgres log_auditoria.ator_tipo,persisted.csv:packages-db-literal-value-fa38842f
+packages/db/src/schema/identidade.ts,^usuario$,literal-value,B,persisted: Postgres CHECK log_auditoria_ator_tipo_ck (t.atorTipo),persisted.csv:packages-db-literal-value-6168bdb2
+packages/db/src/schema/comum.ts,^utilidade$,literal-value,B,persisted: Postgres CHECK mensagem_categoria_cobranca_ck (t.categoriaCobranca),persisted.csv:packages-db-literal-value-766cf334
+packages/db/src/schema/comum.ts,^utilidade$,literal-value,B,persisted: Postgres CHECK template_mensagem_categoria_ck (t.categoria),persisted.csv:packages-db-literal-value-5938b991
+apps/workers/src/agregacao.ts,^atendente$,literal-value,B,persisted: Postgres metrica_diaria.dimensao_tipo,persisted.csv:workers-literal-value-ddf73eb3
+apps/workers/src/whatsapp/midia.ts,^audio$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-cb42742f
+apps/workers/src/whatsapp/cliente.ts,^documento$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-f969c8fb
+apps/workers/src/whatsapp/midia.ts,^documento$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-a6dfd4b9
+apps/workers/src/whatsapp/template.ts,^documento$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-1094e404
+apps/workers/tests/whatsapp.test.ts,^documento$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-77a18c0f
+apps/workers/tests/whatsapp.test.ts,^documento$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-52adef0b
+apps/workers/tests/whatsapp.test.ts,^documento$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-1e470e08
+apps/workers/src/agregacao.ts,^fila$,literal-value,B,persisted: Postgres metrica_diaria.dimensao_tipo,persisted.csv:workers-literal-value-9b27c3ad
+apps/workers/src/whatsapp/cliente.ts,^imagem$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-1ada7996
+apps/workers/src/whatsapp/midia.ts,^imagem$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-64769a65
+apps/workers/src/whatsapp/template.ts,^imagem$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-6c9c3064
+apps/workers/tests/whatsapp.test.ts,^imagem$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-7d3fe858
+apps/workers/tests/whatsapp.test.ts,^imagem$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-a47cc74a
+apps/workers/tests/whatsapp.test.ts,^imagem$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-c1fe8f73
+apps/workers/tests/whatsapp.test.ts,^imagem$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-826fdb46
+apps/workers/tests/whatsapp.test.ts,^imagem$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-e5b49dd7
+apps/workers/tests/whatsapp.test.ts,^midia_formato_recusado$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro,persisted.csv:workers-literal-value-d0f13f55
+apps/workers/tests/whatsapp.test.ts,^midia_formato_recusado$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro,persisted.csv:workers-literal-value-1708f43e
+apps/workers/tests/whatsapp.test.ts,^midia_grande_demais$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro,persisted.csv:workers-literal-value-c4de5bd5
+apps/workers/tests/whatsapp.test.ts,^midia_grande_demais$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro,persisted.csv:workers-literal-value-c9773bb2
+apps/workers/src/whatsapp/midia.ts,^video$,literal-value,B,persisted: Postgres mensagem.tipo / template_mensagem.cabecalho_tipo,persisted.csv:workers-literal-value-2fb97b20
+apps/crm/src/lib/configuracoes-comum.ts,^atendentes:ler$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:crm-literal-value-8b6e4e0f
+apps/crm/src/lib/configuracoes-comum.ts,^contato\.criado$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:crm-literal-value-717e06b7
+apps/crm/src/lib/configuracoes-comum.ts,^contatos:escrever$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:crm-literal-value-c798058a
+apps/crm/src/lib/configuracoes-comum.ts,^contatos:ler$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:crm-literal-value-4d82b684
+apps/crm/src/lib/configuracoes-comum.ts,^conversa\.atribuida$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:crm-literal-value-d59e3e7c
+apps/crm/src/lib/configuracoes-comum.ts,^conversa\.criada$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:crm-literal-value-754b3bbd
+apps/crm/src/lib/configuracoes-comum.ts,^conversa\.encerrada$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:crm-literal-value-8f0e5d64
+apps/crm/src/lib/configuracoes-comum.ts,^conversa\.estado_alterado$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:crm-literal-value-2cd13918
+apps/crm/src/lib/configuracoes-comum.ts,^conversas:escrever$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:crm-literal-value-064abd46
+apps/crm/src/lib/configuracoes-comum.ts,^conversas:ler$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:crm-literal-value-2e5bc53d
+apps/crm/semente/semente-crm.ts,^cordeiroalimentos\.com\.br$,literal-value,B,persisted: Postgres seeded demo data via apps/crm/semente/semente-crm.ts,persisted.csv:crm-literal-value-2d92fe30
+apps/crm/src/lib/configuracoes-comum.ts,^filas:ler$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:crm-literal-value-d2cf818b
+apps/crm/semente/semente-crm.ts,^ligacao$,literal-value,B,persisted: Postgres seeded demo data via apps/crm/semente/semente-crm.ts,persisted.csv:crm-literal-value-f6235ce5
+apps/crm/src/lib/configuracoes-comum.ts,^mensagem\.criada$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:crm-literal-value-962cc6fc
+apps/crm/src/lib/configuracoes-comum.ts,^mensagem\.estado_entrega_alterado$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:crm-literal-value-0d265121
+apps/crm/src/lib/configuracoes-comum.ts,^mensagens:escrever$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:crm-literal-value-6e4194de
+apps/crm/src/lib/configuracoes-comum.ts,^mensagens:ler$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:crm-literal-value-052ae0ff
+apps/crm/src/lib/configuracoes-comum.ts,^modelo\.recategorizado$,literal-value,B,persisted: Postgres entrega_webhook.evento,persisted.csv:crm-literal-value-ff57c41b
+apps/crm/semente/semente-crm.ts,^observacao$,literal-value,B,persisted: Postgres seeded demo data via apps/crm/semente/semente-crm.ts,persisted.csv:crm-literal-value-96f76a6e
+apps/crm/semente/semente-crm.ts,^rezendeeducacao\.com\.br$,literal-value,B,persisted: Postgres seeded demo data via apps/crm/semente/semente-crm.ts,persisted.csv:crm-literal-value-a495c604
+apps/crm/semente/semente-crm.ts,^selecao_unica$,literal-value,B,persisted: Postgres seeded demo data via apps/crm/semente/semente-crm.ts,persisted.csv:crm-literal-value-9a0fb671
+apps/crm/semente/semente-crm.ts,^selecao_unica$,literal-value,B,persisted: Postgres seeded demo data via apps/crm/semente/semente-crm.ts,persisted.csv:crm-literal-value-49235d5a
+apps/crm/semente/semente-crm.ts,^selecao_unica$,literal-value,B,persisted: Postgres seeded demo data via apps/crm/semente/semente-crm.ts,persisted.csv:crm-literal-value-e874c6df
+apps/crm/semente/semente-crm.ts,^selecao_unica$,literal-value,B,persisted: Postgres seeded demo data via apps/crm/semente/semente-crm.ts,persisted.csv:crm-literal-value-d8dcd6c8
+apps/crm/semente/semente-crm.ts,^selecao_unica$,literal-value,B,persisted: Postgres seeded demo data via apps/crm/semente/semente-crm.ts,persisted.csv:crm-literal-value-39454999
+apps/crm/src/lib/campos-editaveis.ts,^selecao$,literal-value,B,persisted: Postgres campo_customizado.tipo,persisted.csv:crm-literal-value-63c1e39d
+apps/crm/src/lib/campos-editaveis.ts,^selecao$,literal-value,B,persisted: Postgres campo_customizado.tipo,persisted.csv:crm-literal-value-75fd81c7
+apps/crm/src/lib/configuracoes-comum.ts,^selecao$,literal-value,B,persisted: Postgres campo_customizado.tipo,persisted.csv:crm-literal-value-543535cc
+apps/crm/src/lib/configuracoes-comum.ts,^pipe-tema$,string-literal,B,persisted: browser localStorage key pipe-tema at apps/crm/src/lib/configuracoes-comum.ts:27,persisted.csv:crm-storage-key-6a668149
+apps/crm/src/componentes/visoes-salvas.tsx,^pipe\.crm\.leads\.visoes$,string-literal,B,persisted: browser localStorage key pipe.crm.leads.visoes at apps/crm/src/componentes/visoes-salvas.tsx:24,persisted.csv:crm-storage-key-af5ac3b9
+apps/desk-vite/src/lib/canal.ts,^email$,literal-value,B,persisted: Postgres canal.tipo,persisted.csv:desk-vite-literal-value-b90ccbc5
+apps/desk-vite/src/lib/canal.ts,^instagram$,literal-value,B,persisted: Postgres canal.tipo,persisted.csv:desk-vite-literal-value-de010c82
+apps/desk-vite/src/lib/canal.ts,^whatsapp$,literal-value,B,persisted: Postgres canal.tipo,persisted.csv:desk-vite-literal-value-7c1701e5
+apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts,^\$enteringCustomActions$,literal-value,B,persisted: Postgres bloco.conteudo jsonb action names,persisted.csv:gestao-vite-literal-value-25ebacca
+apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts,^\$leavingCustomActions$,literal-value,B,persisted: Postgres bloco.conteudo jsonb action names,persisted.csv:gestao-vite-literal-value-4c126e43
+apps/gestao-vite/src/paginas/contrato/catalogo.ts,^admin$,literal-value,B,persisted: Postgres papel.escopo / conta role,persisted.csv:gestao-vite-literal-value-29838fe8
+apps/gestao-vite/src/lib/comunicacao.ts,^autenticacao$,literal-value,B,persisted: Postgres template_mensagem.categoria / tipo,persisted.csv:gestao-vite-literal-value-cdd7ffe9
+apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,^autenticacao$,literal-value,B,persisted: Postgres template_mensagem.categoria / cabecalho_tipo; Meta template contract,persisted.csv:gestao-vite-literal-value-e477baf0
+apps/gestao-vite/tests/conteudos-regras.test.ts,^autenticacao$,literal-value,B,persisted: Postgres template_mensagem.categoria / tipo,persisted.csv:gestao-vite-literal-value-b33ef549
+apps/gestao-vite/src/lib/regra-fila.ts,^contato\.email$,literal-value,B,persisted: Postgres regra_fila.condicao jsonb,persisted.csv:gestao-vite-literal-value-c41637d6
+apps/gestao-vite/src/lib/regra-fila.ts,^contato\.nome$,literal-value,B,persisted: Postgres regra_fila.condicao jsonb,persisted.csv:gestao-vite-literal-value-940064fa
+apps/gestao-vite/src/lib/regra-fila.ts,^contato\.telefone$,literal-value,B,persisted: Postgres regra_fila.condicao jsonb,persisted.csv:gestao-vite-literal-value-062df6d7
+apps/gestao-vite/src/lib/comunicacao.ts,^documento$,literal-value,B,persisted: Postgres template_mensagem.categoria / tipo,persisted.csv:gestao-vite-literal-value-eeb17678
+apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,^documento$,literal-value,B,persisted: Postgres template_mensagem.categoria / cabecalho_tipo; Meta template contract,persisted.csv:gestao-vite-literal-value-ac8e5dab
+apps/gestao-vite/src/lib/pesquisa.ts,^encerramento$,literal-value,B,persisted: Postgres pesquisa.disparo,persisted.csv:gestao-vite-literal-value-c0da2c53
+apps/gestao-vite/src/paginas/fluxo/itens.ts,^fluxo$,literal-value,B,persisted: Postgres fluxo.tipo,persisted.csv:gestao-vite-literal-value-e9d00b96
+apps/gestao-vite/tests/fluxo-detalhe.test.ts,^fluxo$,literal-value,B,persisted: Postgres fluxo.tipo,persisted.csv:gestao-vite-literal-value-82b66aab
+apps/gestao-vite/tests/fluxo-detalhe.test.ts,^fluxo$,literal-value,B,persisted: Postgres fluxo.tipo,persisted.csv:gestao-vite-literal-value-d430462a
+apps/gestao-vite/tests/fluxo-detalhe.test.ts,^fluxo$,literal-value,B,persisted: Postgres fluxo.tipo,persisted.csv:gestao-vite-literal-value-16e07902
+apps/gestao-vite/tests/fluxo-detalhe.test.ts,^fluxo$,literal-value,B,persisted: Postgres fluxo.tipo,persisted.csv:gestao-vite-literal-value-90b80bdb
+apps/gestao-vite/tests/fluxo-detalhe.test.ts,^fluxo$,literal-value,B,persisted: Postgres fluxo.tipo,persisted.csv:gestao-vite-literal-value-0eb9366e
+apps/gestao-vite/src/paginas/contrato/catalogo.ts,^guest$,literal-value,B,persisted: Postgres papel.escopo / conta role,persisted.csv:gestao-vite-literal-value-452084b9
+apps/gestao-vite/src/lib/comunicacao.ts,^imagem$,literal-value,B,persisted: Postgres template_mensagem.categoria / tipo,persisted.csv:gestao-vite-literal-value-fa80d9ab
+apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,^imagem$,literal-value,B,persisted: Postgres template_mensagem.categoria / cabecalho_tipo; Meta template contract,persisted.csv:gestao-vite-literal-value-02c1f0fd
+apps/gestao-vite/src/lib/canal-do-fluxo.ts,^instagram$,literal-value,B,persisted: Postgres canal.tipo,persisted.csv:gestao-vite-literal-value-bb530354
+apps/gestao-vite/src/paginas/contrato/catalogo.ts,^member$,literal-value,B,persisted: Postgres papel.escopo / conta role,persisted.csv:gestao-vite-literal-value-b1c6be02
+apps/gestao-vite/src/lib/regra-fila.ts,^mensagem$,literal-value,B,persisted: Postgres regra_fila.condicao jsonb,persisted.csv:gestao-vite-literal-value-97572f81
+apps/gestao-vite/src/lib/canal-do-fluxo.ts,^messenger$,literal-value,B,persisted: Postgres canal.tipo,persisted.csv:gestao-vite-literal-value-f7b4b985
+apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts,^nenhum$,literal-value,B,persisted: Postgres fluxo_membro.permissoes,persisted.csv:gestao-vite-literal-value-1d28c9c7
+apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,^pagamento$,literal-value,B,persisted: Postgres template_mensagem.categoria / cabecalho_tipo; Meta template contract,persisted.csv:gestao-vite-literal-value-2d10855e
+apps/gestao-vite/src/lib/pesquisa.ts,^primeira_resposta$,literal-value,B,persisted: Postgres pesquisa.disparo,persisted.csv:gestao-vite-literal-value-75d8fb3b
+apps/gestao-vite/src/paginas/fluxo/itens.ts,^roteador$,literal-value,B,persisted: Postgres fluxo.tipo,persisted.csv:gestao-vite-literal-value-6becf727
+apps/gestao-vite/tests/fluxo-detalhe.test.ts,^roteador$,literal-value,B,persisted: Postgres fluxo.tipo,persisted.csv:gestao-vite-literal-value-6eb10a05
+apps/gestao-vite/tests/fluxo-detalhe.test.ts,^roteador$,literal-value,B,persisted: Postgres fluxo.tipo,persisted.csv:gestao-vite-literal-value-0f8d9b2e
+apps/gestao-vite/tests/fluxo-detalhe.test.ts,^roteador$,literal-value,B,persisted: Postgres fluxo.tipo,persisted.csv:gestao-vite-literal-value-fbb18ce5
+apps/gestao-vite/tests/fluxo-detalhe.test.ts,^roteador$,literal-value,B,persisted: Postgres fluxo.tipo,persisted.csv:gestao-vite-literal-value-57c8f669
+apps/gestao-vite/tests/fluxo-detalhe.test.ts,^roteador$,literal-value,B,persisted: Postgres fluxo.tipo,persisted.csv:gestao-vite-literal-value-6408e007
+apps/gestao-vite/src/lib/comunicacao.ts,^utilidade$,literal-value,B,persisted: Postgres template_mensagem.categoria / tipo,persisted.csv:gestao-vite-literal-value-6d1fa97f
+apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx,^utilidade$,literal-value,B,persisted: Postgres template_mensagem.categoria / tipo,persisted.csv:gestao-vite-literal-value-a82c6689
+apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,^utilidade$,literal-value,B,persisted: Postgres template_mensagem.categoria / cabecalho_tipo; Meta template contract,persisted.csv:gestao-vite-literal-value-b7d72d75
+apps/gestao-vite/src/lib/canal-do-fluxo.ts,^whatsapp_cloud$,literal-value,B,persisted: Postgres canal.tipo,persisted.csv:gestao-vite-literal-value-31b692e7
+packages/ai/src/transcricao/transcricao.ts,^atendente$,literal-value,B,persisted: Postgres mensagem.autor_tipo,persisted.csv:packages-ai-literal-value-97f0c791
+packages/ai/src/transcricao/transcricao.ts,^audio$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-ai-literal-value-628bd365
+packages/ai/src/transcricao/transcricao.ts,^bot$,literal-value,B,persisted: Postgres mensagem.autor_tipo,persisted.csv:packages-ai-literal-value-d4d65411
+packages/ai/src/transcricao/transcricao.ts,^contato$,literal-value,B,persisted: Postgres mensagem.autor_tipo,persisted.csv:packages-ai-literal-value-6baf699d
+packages/ai/src/transcricao/transcricao.ts,^documento$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-ai-literal-value-f428f418
+packages/ai/src/transcricao/transcricao.ts,^entrada$,literal-value,B,persisted: Postgres mensagem.direcao,persisted.csv:packages-ai-literal-value-d166fa43
+packages/ai/src/transcricao/transcricao.ts,^imagem$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-ai-literal-value-b520fd72
+packages/ai/src/transcricao/transcricao.ts,^interna$,literal-value,B,persisted: Postgres mensagem.direcao,persisted.csv:packages-ai-literal-value-6d6dcabc
+packages/ai/src/transcricao/transcricao.ts,^localizacao$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-ai-literal-value-2822a6a7
+packages/ai/src/transcricao/transcricao.ts,^saida$,literal-value,B,persisted: Postgres mensagem.direcao,persisted.csv:packages-ai-literal-value-e053d69a
+packages/ai/src/transcricao/transcricao.ts,^sistema$,literal-value,B,persisted: Postgres mensagem.autor_tipo,persisted.csv:packages-ai-literal-value-a7e7ae41
+packages/ai/src/transcricao/transcricao.ts,^template$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-ai-literal-value-941a0e46
+packages/ai/src/transcricao/transcricao.ts,^texto$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-ai-literal-value-e6527b6f
+packages/ai/src/transcricao/transcricao.ts,^video$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-ai-literal-value-1d6d6fc5
+packages/core/src/esforco/regua.ts,^atendente$,literal-value,B,persisted: Postgres mensagem.autor_tipo,persisted.csv:packages-core-literal-value-c8cb743c
+packages/core/src/metricas/eventos.ts,^atendente$,literal-value,B,persisted: Postgres evento_atendimento.dados.encerrada_por jsonb,persisted.csv:packages-core-literal-value-0b90719c
+packages/core/src/conversa/maquina.ts,^atribuida$,literal-value,B,persisted: Postgres conversa.estado,persisted.csv:packages-core-literal-value-89acb8f2
+packages/core/src/esforco/regua.ts,^audio$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-core-literal-value-96a7b7e1
+packages/core/src/janela/janela.ts,^autenticacao$,literal-value,B,persisted: Postgres template_mensagem.categoria,persisted.csv:packages-core-literal-value-48ca29b5
+packages/core/src/esforco/regua.ts,^bot$,literal-value,B,persisted: Postgres mensagem.autor_tipo,persisted.csv:packages-core-literal-value-965a2419
+packages/core/src/metricas/eventos.ts,^cliente$,literal-value,B,persisted: Postgres evento_atendimento.dados.encerrada_por jsonb,persisted.csv:packages-core-literal-value-ba1c1787
+packages/core/src/esforco/regua.ts,^contato$,literal-value,B,persisted: Postgres mensagem.autor_tipo,persisted.csv:packages-core-literal-value-8c0bb655
+packages/core/src/fluxo/contexto.ts,^conteudo$,literal-value,B,persisted: Postgres process_http_execucao.contexto jsonb,persisted.csv:packages-core-literal-value-b0916e54
+packages/core/src/esforco/regua.ts,^documento$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-core-literal-value-4264cbba
+packages/core/src/conversa/maquina.ts,^em_atendimento$,literal-value,B,persisted: Postgres conversa.estado,persisted.csv:packages-core-literal-value-7f38628b
+packages/core/src/conversa/maquina.ts,^em_espera$,literal-value,B,persisted: Postgres conversa.estado,persisted.csv:packages-core-literal-value-e68d16b7
+packages/core/src/janela/janela.ts,^email$,literal-value,B,persisted: Postgres canal.tipo,persisted.csv:packages-core-literal-value-541fb63d
+packages/core/src/conversa/maquina.ts,^encerrada$,literal-value,B,persisted: Postgres conversa.estado,persisted.csv:packages-core-literal-value-7e59381e
+packages/core/src/esforco/regua.ts,^entrada$,literal-value,B,persisted: Postgres mensagem.direcao,persisted.csv:packages-core-literal-value-56901c47
+packages/core/src/fluxo/contexto.ts,^entrada$,literal-value,B,persisted: Postgres process_http_execucao.contexto jsonb,persisted.csv:packages-core-literal-value-826bc472
+packages/core/src/conversa/maquina.ts,^entregue$,literal-value,B,persisted: Postgres mensagem.estado_entrega / outbox_mensagem.estado,persisted.csv:packages-core-literal-value-21e8e17e
+packages/core/src/conversa/maquina.ts,^enviada$,literal-value,B,persisted: Postgres mensagem.estado_entrega / outbox_mensagem.estado,persisted.csv:packages-core-literal-value-f848a7ea
+packages/core/src/conversa/maquina.ts,^enviando$,literal-value,B,persisted: Postgres mensagem.estado_entrega / outbox_mensagem.estado,persisted.csv:packages-core-literal-value-eae71bd9
+packages/core/src/sla/regra.ts,^etiqueta$,literal-value,B,persisted: Postgres regra_sla.escopo_tipo,persisted.csv:packages-core-literal-value-9ce3e15f
+packages/core/src/conversa/maquina.ts,^falhou$,literal-value,B,persisted: Postgres mensagem.estado_entrega / outbox_mensagem.estado,persisted.csv:packages-core-literal-value-888e0975
+packages/core/src/sla/regra.ts,^fila$,literal-value,B,persisted: Postgres regra_sla.escopo_tipo,persisted.csv:packages-core-literal-value-903954f1
+packages/core/src/esforco/regua.ts,^imagem$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-core-literal-value-cd435112
+packages/core/src/metricas/eventos.ts,^inatividade$,literal-value,B,persisted: Postgres evento_atendimento.dados.encerrada_por jsonb,persisted.csv:packages-core-literal-value-f14c283c
+packages/core/src/esforco/regua.ts,^interna$,literal-value,B,persisted: Postgres mensagem.direcao,persisted.csv:packages-core-literal-value-04d7fb6f
+packages/core/src/distribuicao/carga.ts,^invisivel$,literal-value,B,persisted: Postgres status_atendente.estado,persisted.csv:packages-core-literal-value-93f82566
+packages/core/src/conversa/maquina.ts,^lida$,literal-value,B,persisted: Postgres mensagem.estado_entrega / outbox_mensagem.estado,persisted.csv:packages-core-literal-value-f807c743
+packages/core/src/esforco/regua.ts,^localizacao$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-core-literal-value-9530c97a
+packages/core/src/metricas/eventos.ts,^mensagem_entrada$,literal-value,B,persisted: Postgres evento_atendimento.tipo,persisted.csv:packages-core-literal-value-dbc464c6
+packages/core/src/metricas/eventos.ts,^mensagem_saida$,literal-value,B,persisted: Postgres evento_atendimento.tipo,persisted.csv:packages-core-literal-value-1c37c5c5
+packages/core/src/conversa/maquina.ts,^na_fila$,literal-value,B,persisted: Postgres conversa.estado,persisted.csv:packages-core-literal-value-9ff496f2
+packages/core/src/distribuicao/carga.ts,^offline$,literal-value,B,persisted: Postgres status_atendente.estado,persisted.csv:packages-core-literal-value-e8f442f4
+packages/core/src/distribuicao/carga.ts,^online$,literal-value,B,persisted: Postgres status_atendente.estado,persisted.csv:packages-core-literal-value-8b0aff78
+packages/core/src/distribuicao/carga.ts,^pausa$,literal-value,B,persisted: Postgres status_atendente.estado,persisted.csv:packages-core-literal-value-00d8642e
+packages/core/src/conversa/maquina.ts,^pendente$,literal-value,B,persisted: Postgres mensagem.estado_entrega / outbox_mensagem.estado,persisted.csv:packages-core-literal-value-1bb58a02
+packages/core/src/metricas/eventos.ts,^primeira_resposta$,literal-value,B,persisted: Postgres evento_atendimento.tipo,persisted.csv:packages-core-literal-value-e5e513ca
+packages/core/src/sla/regra.ts,^primeira_resposta$,literal-value,B,persisted: Postgres regra_sla.alvo,persisted.csv:packages-core-literal-value-5a57ad2c
+packages/core/src/sla/regra.ts,^prioridade$,literal-value,B,persisted: Postgres regra_sla.escopo_tipo,persisted.csv:packages-core-literal-value-e9ef4d31
+packages/core/src/esforco/regua.ts,^saida$,literal-value,B,persisted: Postgres mensagem.direcao,persisted.csv:packages-core-literal-value-75dda4c6
+packages/core/src/fluxo/contexto.ts,^saida$,literal-value,B,persisted: Postgres process_http_execucao.contexto jsonb,persisted.csv:packages-core-literal-value-d49b1b9e
+packages/core/src/conversa/prioridade.ts,^sem_prioridade$,literal-value,B,persisted: Postgres conversa.prioridade,persisted.csv:packages-core-literal-value-2d28b411
+packages/core/src/esforco/regua.ts,^sistema$,literal-value,B,persisted: Postgres mensagem.autor_tipo,persisted.csv:packages-core-literal-value-2fef48a9
+packages/core/src/esforco/regua.ts,^template$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-core-literal-value-0d694b60
+packages/core/src/esforco/regua.ts,^texto$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-core-literal-value-6475dad8
+packages/core/src/metricas/eventos.ts,^transferencia$,literal-value,B,persisted: Postgres evento_atendimento.dados.encerrada_por jsonb,persisted.csv:packages-core-literal-value-f3c2a32a
+packages/core/src/metricas/eventos.ts,^transferida_fila$,literal-value,B,persisted: Postgres evento_atendimento.tipo,persisted.csv:packages-core-literal-value-554ab559
+packages/core/src/janela/janela.ts,^utilidade$,literal-value,B,persisted: Postgres template_mensagem.categoria,persisted.csv:packages-core-literal-value-a9af4c42
+packages/core/src/esforco/regua.ts,^video$,literal-value,B,persisted: Postgres mensagem.tipo,persisted.csv:packages-core-literal-value-2adc9451
+packages/core/src/janela/janela.ts,^whatsapp_cloud$,literal-value,B,persisted: Postgres canal.tipo,persisted.csv:packages-core-literal-value-51dfcd5f
+packages/core/src/janela/janela.ts,^widget$,literal-value,B,persisted: Postgres canal.tipo,persisted.csv:packages-core-literal-value-c2695c6a
+packages/db/src/schema/automacao.ts,^rascunho$,literal-value,B,persisted: Postgres CHECK fluxo_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-c71a2366
+packages/db/src/schema/automacao.ts,^publicado$,literal-value,B,persisted: Postgres CHECK fluxo_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-09f83731
+packages/db/src/schema/automacao.ts,^visualizar$,literal-value,B,persisted: Postgres CHECK fluxo_membro_papel_ck (t.papelNoFluxo),persisted.csv:packages-db-persisted-value-d587f7f8
+packages/db/src/schema/automacao.ts,^personalizado$,literal-value,B,persisted: Postgres CHECK fluxo_membro_papel_ck (t.papelNoFluxo),persisted.csv:packages-db-persisted-value-1eb18612
+packages/db/src/schema/automacao.ts,^editar$,literal-value,B,persisted: Postgres CHECK fluxo_membro_papel_ck (t.papelNoFluxo),persisted.csv:packages-db-persisted-value-184a9308
+packages/db/src/schema/automacao.ts,^admin$,literal-value,B,persisted: Postgres CHECK fluxo_membro_papel_ck (t.papelNoFluxo),persisted.csv:packages-db-persisted-value-aad13f07
+packages/db/src/schema/automacao.ts,^rascunho$,literal-value,B,persisted: Postgres CHECK fluxo_versao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-f3f11a63
+packages/db/src/schema/automacao.ts,^publicada$,literal-value,B,persisted: Postgres CHECK fluxo_versao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-e2a9455b
+packages/db/src/schema/automacao.ts,^arquivada$,literal-value,B,persisted: Postgres CHECK fluxo_versao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-0dd949e9
+packages/db/src/schema/automacao.ts,^inicio$,literal-value,B,persisted: Postgres CHECK bloco_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-4a12d120
+packages/db/src/schema/automacao.ts,^pergunta$,literal-value,B,persisted: Postgres CHECK bloco_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-d2d372c5
+packages/db/src/schema/automacao.ts,^chamada_externa$,literal-value,B,persisted: Postgres CHECK bloco_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-faa00988
+packages/db/src/schema/automacao.ts,^script$,literal-value,B,persisted: Postgres CHECK bloco_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-a90e91bd
+packages/db/src/schema/automacao.ts,^ia$,literal-value,B,persisted: Postgres CHECK bloco_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-105bf87c
+packages/db/src/schema/automacao.ts,^transferencia$,literal-value,B,persisted: Postgres CHECK bloco_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-acd389a8
+packages/db/src/schema/automacao.ts,^fim$,literal-value,B,persisted: Postgres CHECK bloco_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-4e0619ff
+packages/db/src/schema/automacao.ts,^executando$,literal-value,B,persisted: Postgres CHECK execucao_fluxo_estado_ck (t.estado); execucao_workflow_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-15fb407b
+packages/db/src/schema/automacao.ts,^aguardando$,literal-value,B,persisted: Postgres CHECK execucao_fluxo_estado_ck (t.estado); execucao_workflow_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-b2e9ed81
+packages/db/src/schema/automacao.ts,^concluida$,literal-value,B,persisted: Postgres CHECK execucao_fluxo_estado_ck (t.estado); execucao_workflow_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-70ed2d46
+packages/db/src/schema/automacao.ts,^falhou$,literal-value,B,persisted: Postgres CHECK execucao_fluxo_estado_ck (t.estado); execucao_workflow_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-e7900e55
+packages/db/src/schema/automacao.ts,^cancelada$,literal-value,B,persisted: Postgres CHECK execucao_fluxo_estado_ck (t.estado); execucao_workflow_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-9eba4ebd
+packages/db/src/schema/automacao.ts,^pendente$,literal-value,B,persisted: Postgres CHECK process_http_execucao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-445bcc9e
+packages/db/src/schema/automacao.ts,^chamando$,literal-value,B,persisted: Postgres CHECK process_http_execucao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-4fca5fc5
+packages/db/src/schema/automacao.ts,^respondida$,literal-value,B,persisted: Postgres CHECK process_http_execucao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-ee80ade3
+packages/db/src/schema/automacao.ts,^retomada$,literal-value,B,persisted: Postgres CHECK process_http_execucao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-bdc3525a
+packages/db/src/schema/automacao.ts,^evento$,literal-value,B,persisted: Postgres CHECK gatilho_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-c7c2206c
+packages/db/src/schema/automacao.ts,^agendado$,literal-value,B,persisted: Postgres CHECK gatilho_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-c8192dc1
+packages/db/src/schema/automacao.ts,^manual$,literal-value,B,persisted: Postgres CHECK gatilho_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-5c7e8075
+packages/db/src/schema/automacao.ts,^webhook$,literal-value,B,persisted: Postgres CHECK gatilho_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-85a8857e
+packages/db/src/schema/automacao.ts,^atualizar_registro$,literal-value,B,persisted: Postgres CHECK acao_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-9fe399bd
+packages/db/src/schema/automacao.ts,^enviar_template$,literal-value,B,persisted: Postgres CHECK acao_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-fbb11fa5
+packages/db/src/schema/automacao.ts,^atribuir_proprietario$,literal-value,B,persisted: Postgres CHECK acao_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-59842e50
+packages/db/src/schema/automacao.ts,^http$,literal-value,B,persisted: Postgres CHECK acao_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-8b709857
+packages/db/src/schema/automacao.ts,^agente_ia$,literal-value,B,persisted: Postgres CHECK acao_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-d3c854d8
+packages/db/src/schema/automacao.ts,^parar$,literal-value,B,persisted: Postgres CHECK acao_on_erro_ck (t.onErro),persisted.csv:packages-db-persisted-value-5393acb4
+packages/db/src/schema/automacao.ts,^continuar$,literal-value,B,persisted: Postgres CHECK acao_on_erro_ck (t.onErro),persisted.csv:packages-db-persisted-value-bc05ba17
+packages/db/src/schema/automacao.ts,^repetir$,literal-value,B,persisted: Postgres CHECK acao_on_erro_ck (t.onErro),persisted.csv:packages-db-persisted-value-f05cfc79
+packages/db/src/schema/automacao.ts,^csv$,literal-value,B,persisted: Postgres CHECK agendamento_consulta_formato_ck (t.formato),persisted.csv:packages-db-persisted-value-46f41be8
+packages/db/src/schema/automacao.ts,^json$,literal-value,B,persisted: Postgres CHECK agendamento_consulta_formato_ck (t.formato),persisted.csv:packages-db-persisted-value-1450dc0a
+packages/db/src/schema/automacao.ts,^parquet$,literal-value,B,persisted: Postgres CHECK agendamento_consulta_formato_ck (t.formato),persisted.csv:packages-db-persisted-value-13f2aac3
+packages/db/src/schema/automacao.ts,^nenhuma$,literal-value,B,persisted: Postgres CHECK webhook_saida_tipo_autenticacao_ck (t.tipoAutenticacao),persisted.csv:packages-db-persisted-value-bacc9343
+packages/db/src/schema/automacao.ts,^basica$,literal-value,B,persisted: Postgres CHECK webhook_saida_tipo_autenticacao_ck (t.tipoAutenticacao),persisted.csv:packages-db-persisted-value-ec673b04
+packages/db/src/schema/automacao.ts,^oauth2_client_credentials$,literal-value,B,persisted: Postgres CHECK webhook_saida_tipo_autenticacao_ck (t.tipoAutenticacao),persisted.csv:packages-db-persisted-value-912e4672
+packages/db/src/schema/automacao.ts,^pendente$,literal-value,B,persisted: Postgres CHECK entrega_webhook_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-da54a466
+packages/db/src/schema/automacao.ts,^entregue$,literal-value,B,persisted: Postgres CHECK entrega_webhook_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-2aa1f0e9
+packages/db/src/schema/automacao.ts,^falhou$,literal-value,B,persisted: Postgres CHECK entrega_webhook_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-d3afc1c5
+packages/db/src/schema/automacao.ts,^descartada$,literal-value,B,persisted: Postgres CHECK entrega_webhook_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-ff6dc715
+packages/db/src/schema/comum.ts,^whatsapp_cloud$,literal-value,B,persisted: Postgres CHECK canal_tipo_ck (t.tipo); contato_identidade_canal_tipo_ck (t.canalTipo),persisted.csv:packages-db-persisted-value-2f597cfd
+packages/db/src/schema/comum.ts,^instagram$,literal-value,B,persisted: Postgres CHECK canal_tipo_ck (t.tipo); contato_identidade_canal_tipo_ck (t.canalTipo),persisted.csv:packages-db-persisted-value-ccbff951
+packages/db/src/schema/comum.ts,^messenger$,literal-value,B,persisted: Postgres CHECK canal_tipo_ck (t.tipo); contato_identidade_canal_tipo_ck (t.canalTipo),persisted.csv:packages-db-persisted-value-8dc7fa2c
+packages/db/src/schema/comum.ts,^email$,literal-value,B,persisted: Postgres CHECK canal_tipo_ck (t.tipo); contato_identidade_canal_tipo_ck (t.canalTipo),persisted.csv:packages-db-persisted-value-73556c0d
+packages/db/src/schema/comum.ts,^widget$,literal-value,B,persisted: Postgres CHECK canal_tipo_ck (t.tipo); contato_identidade_canal_tipo_ck (t.canalTipo),persisted.csv:packages-db-persisted-value-2dca5f89
+packages/db/src/schema/comum.ts,^atribuida$,literal-value,B,persisted: Postgres CHECK conversa_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-6f3e3115
+packages/db/src/schema/comum.ts,^em_espera$,literal-value,B,persisted: Postgres CHECK conversa_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-112d9ff2
+packages/db/src/schema/comum.ts,^encerrada$,literal-value,B,persisted: Postgres CHECK conversa_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-fc9bd467
+packages/db/src/schema/comum.ts,^pendente$,literal-value,B,persisted: Postgres CHECK mensagem_estado_entrega_ck (t.estadoEntrega); outbox_mensagem_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-4a76d838
+packages/db/src/schema/comum.ts,^enviando$,literal-value,B,persisted: Postgres CHECK mensagem_estado_entrega_ck (t.estadoEntrega); outbox_mensagem_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-1a42d039
+packages/db/src/schema/comum.ts,^enviada$,literal-value,B,persisted: Postgres CHECK mensagem_estado_entrega_ck (t.estadoEntrega); outbox_mensagem_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-3aa982b4
+packages/db/src/schema/comum.ts,^entregue$,literal-value,B,persisted: Postgres CHECK mensagem_estado_entrega_ck (t.estadoEntrega); outbox_mensagem_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-28f04691
+packages/db/src/schema/comum.ts,^lida$,literal-value,B,persisted: Postgres CHECK mensagem_estado_entrega_ck (t.estadoEntrega); outbox_mensagem_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-ed1fac14
+packages/db/src/schema/comum.ts,^falhou$,literal-value,B,persisted: Postgres CHECK mensagem_estado_entrega_ck (t.estadoEntrega); outbox_mensagem_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-6a81057b
+packages/db/src/schema/comum.ts,^livre$,literal-value,B,persisted: Postgres CHECK mensagem_categoria_cobranca_ck (t.categoriaCobranca),persisted.csv:packages-db-persisted-value-a6cc4427
+packages/db/src/schema/comum.ts,^marketing$,literal-value,B,persisted: Postgres CHECK mensagem_categoria_cobranca_ck (t.categoriaCobranca),persisted.csv:packages-db-persisted-value-86319449
+packages/db/src/schema/comum.ts,^marketing$,literal-value,B,persisted: Postgres CHECK template_mensagem_categoria_ck (t.categoria),persisted.csv:packages-db-persisted-value-63f0b93e
+packages/db/src/schema/comum.ts,^equipe$,literal-value,B,persisted: Postgres CHECK metrica_diaria_dimensao_tipo_ck (t.dimensaoTipo),persisted.csv:packages-db-persisted-value-8d28897f
+packages/db/src/schema/comum.ts,^inbox$,literal-value,B,persisted: Postgres CHECK metrica_diaria_dimensao_tipo_ck (t.dimensaoTipo),persisted.csv:packages-db-persisted-value-dc70b9c9
+packages/db/src/schema/comum.ts,^etiqueta$,literal-value,B,persisted: Postgres CHECK metrica_diaria_dimensao_tipo_ck (t.dimensaoTipo),persisted.csv:packages-db-persisted-value-46f0a3be
+packages/db/src/schema/comum.ts,^criada$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-ef01e3b3
+packages/db/src/schema/comum.ts,^enfileirada$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-81623d6a
+packages/db/src/schema/comum.ts,^atribuida$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-12f5ec82
+packages/db/src/schema/comum.ts,^reatribuida$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-fec4595f
+packages/db/src/schema/comum.ts,^espera_iniciada$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-365c127e
+packages/db/src/schema/comum.ts,^espera_encerrada$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-3cda46f4
+packages/db/src/schema/comum.ts,^sla_alertado$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-adea13bd
+packages/db/src/schema/comum.ts,^sla_estourado$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-51931df8
+packages/db/src/schema/comum.ts,^encerrada$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-ecf1cb8e
+packages/db/src/schema/comum.ts,^reaberta$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-475080de
+packages/db/src/schema/comum.ts,^avaliada$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-1340d2b2
+packages/db/src/schema/comum.ts,^pesquisa_respondida$,literal-value,B,persisted: Postgres CHECK evento_atendimento_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-126707ee
+packages/db/src/schema/conversas.ts,^empresa$,literal-value,B,persisted: Postgres CHECK resposta_pronta_escopo_ck (t.escopo),persisted.csv:packages-db-persisted-value-206b51ec
+packages/db/src/schema/conversas.ts,^pessoal$,literal-value,B,persisted: Postgres CHECK resposta_pronta_escopo_ck (t.escopo),persisted.csv:packages-db-persisted-value-bd0dc345
+packages/db/src/schema/conversas.ts,^bot$,literal-value,B,persisted: Postgres CHECK conversa_ultima_mensagem_de_ck (t.ultimaMensagemDe),persisted.csv:packages-db-persisted-value-76cb5e5a
+packages/db/src/schema/conversas.ts,^saida$,literal-value,B,persisted: Postgres CHECK mensagem_direcao_ck (t.direcao),persisted.csv:packages-db-persisted-value-08a950ac
+packages/db/src/schema/conversas.ts,^interna$,literal-value,B,persisted: Postgres CHECK mensagem_direcao_ck (t.direcao),persisted.csv:packages-db-persisted-value-913e2286
+packages/db/src/schema/conversas.ts,^bot$,literal-value,B,persisted: Postgres CHECK mensagem_autor_tipo_ck (t.autorTipo),persisted.csv:packages-db-persisted-value-05e9a863
+packages/db/src/schema/conversas.ts,^sistema$,literal-value,B,persisted: Postgres CHECK mensagem_autor_tipo_ck (t.autorTipo),persisted.csv:packages-db-persisted-value-bbfdde3a
+packages/db/src/schema/conversas.ts,^texto$,literal-value,B,persisted: Postgres CHECK mensagem_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-96f6d64f
+packages/db/src/schema/conversas.ts,^audio$,literal-value,B,persisted: Postgres CHECK mensagem_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-96cae585
+packages/db/src/schema/conversas.ts,^video$,literal-value,B,persisted: Postgres CHECK mensagem_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-f2f396a4
+packages/db/src/schema/conversas.ts,^template$,literal-value,B,persisted: Postgres CHECK mensagem_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-886cb2d0
+packages/db/src/schema/conversas.ts,^online$,literal-value,B,persisted: Postgres CHECK status_atendente_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-b94469ff
+packages/db/src/schema/conversas.ts,^pausa$,literal-value,B,persisted: Postgres CHECK status_atendente_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-4ccb07c5
+packages/db/src/schema/conversas.ts,^invisivel$,literal-value,B,persisted: Postgres CHECK status_atendente_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-6942895c
+packages/db/src/schema/conversas.ts,^offline$,literal-value,B,persisted: Postgres CHECK status_atendente_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-524253ad
+packages/db/src/schema/conversas.ts,^ambos$,literal-value,B,persisted: Postgres CHECK etiqueta_escopo_ck (t.escopo),persisted.csv:packages-db-persisted-value-73d97795
+packages/db/src/schema/crm.ts,^novo$,literal-value,B,persisted: Postgres CHECK lead_status_ck (t.status),persisted.csv:packages-db-persisted-value-201efd1c
+packages/db/src/schema/crm.ts,^qualificado$,literal-value,B,persisted: Postgres CHECK lead_status_ck (t.status),persisted.csv:packages-db-persisted-value-767b527e
+packages/db/src/schema/crm.ts,^convertido$,literal-value,B,persisted: Postgres CHECK lead_status_ck (t.status),persisted.csv:packages-db-persisted-value-bc757734
+packages/db/src/schema/crm.ts,^desqualificado$,literal-value,B,persisted: Postgres CHECK lead_status_ck (t.status),persisted.csv:packages-db-persisted-value-9ee78913
+packages/db/src/schema/crm.ts,^texto$,literal-value,B,persisted: Postgres CHECK formulario_pergunta_tipo_ck (t.tipo); campo_customizado_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-39d980e2
+packages/db/src/schema/crm.ts,^texto_longo$,literal-value,B,persisted: Postgres CHECK formulario_pergunta_tipo_ck (t.tipo); campo_customizado_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-df3709e6
+packages/db/src/schema/crm.ts,^numero$,literal-value,B,persisted: Postgres CHECK formulario_pergunta_tipo_ck (t.tipo); campo_customizado_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-3714081f
+packages/db/src/schema/crm.ts,^data$,literal-value,B,persisted: Postgres CHECK formulario_pergunta_tipo_ck (t.tipo); campo_customizado_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-574af94a
+packages/db/src/schema/crm.ts,^booleano$,literal-value,B,persisted: Postgres CHECK formulario_pergunta_tipo_ck (t.tipo); campo_customizado_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-b43e3896
+packages/db/src/schema/crm.ts,^rodizio$,literal-value,B,persisted: Postgres CHECK faixa_score_estrategia_ck (t.estrategiaProprietario),persisted.csv:packages-db-persisted-value-853df308
+packages/db/src/schema/crm.ts,^menor_carga$,literal-value,B,persisted: Postgres CHECK faixa_score_estrategia_ck (t.estrategiaProprietario),persisted.csv:packages-db-persisted-value-c98e79fe
+packages/db/src/schema/crm.ts,^fixo$,literal-value,B,persisted: Postgres CHECK faixa_score_estrategia_ck (t.estrategiaProprietario),persisted.csv:packages-db-persisted-value-ce34bdcf
+packages/db/src/schema/crm.ts,^nenhuma$,literal-value,B,persisted: Postgres CHECK faixa_score_estrategia_ck (t.estrategiaProprietario),persisted.csv:packages-db-persisted-value-b5f2f1be
+packages/db/src/schema/crm.ts,^nota$,literal-value,B,persisted: Postgres CHECK atividade_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-14377cfe
+packages/db/src/schema/crm.ts,^reuniao$,literal-value,B,persisted: Postgres CHECK atividade_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-f88149bb
+packages/db/src/schema/crm.ts,^email$,literal-value,B,persisted: Postgres CHECK atividade_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-aa7988d9
+packages/db/src/schema/crm.ts,^tarefa$,literal-value,B,persisted: Postgres CHECK atividade_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-bb58a73a
+packages/db/src/schema/crm.ts,^mudanca_fase$,literal-value,B,persisted: Postgres CHECK atividade_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-50533d8a
+packages/db/src/schema/crm.ts,^salesforce$,literal-value,B,persisted: Postgres CHECK importacao_origem_ck (t.origem),persisted.csv:packages-db-persisted-value-4d0f8d93
+packages/db/src/schema/crm.ts,^hubspot$,literal-value,B,persisted: Postgres CHECK importacao_origem_ck (t.origem),persisted.csv:packages-db-persisted-value-c15da456
+packages/db/src/schema/crm.ts,^rd_station$,literal-value,B,persisted: Postgres CHECK importacao_origem_ck (t.origem),persisted.csv:packages-db-persisted-value-47adfbd9
+packages/db/src/schema/crm.ts,^csv$,literal-value,B,persisted: Postgres CHECK importacao_origem_ck (t.origem),persisted.csv:packages-db-persisted-value-b9ea7d86
+packages/db/src/schema/crm.ts,^rascunho$,literal-value,B,persisted: Postgres CHECK importacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-51c790a2
+packages/db/src/schema/crm.ts,^validando$,literal-value,B,persisted: Postgres CHECK importacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-56c2a2e9
+packages/db/src/schema/crm.ts,^pronta$,literal-value,B,persisted: Postgres CHECK importacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-22279491
+packages/db/src/schema/crm.ts,^executando$,literal-value,B,persisted: Postgres CHECK importacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-d8aa67ed
+packages/db/src/schema/crm.ts,^concluida$,literal-value,B,persisted: Postgres CHECK importacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-f1cabf59
+packages/db/src/schema/crm.ts,^falhou$,literal-value,B,persisted: Postgres CHECK importacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-f8ce5463
+packages/db/src/schema/crm.ts,^lead$,literal-value,B,persisted: Postgres CHECK campo_customizado_objeto_ck (t.objeto),persisted.csv:packages-db-persisted-value-328a6ed6
+packages/db/src/schema/gestao.ts,^e$,literal-value,B,persisted: Postgres CHECK regra_fila_combinador_ck (t.combinador),persisted.csv:packages-db-persisted-value-92e341de
+packages/db/src/schema/gestao.ts,^ou$,literal-value,B,persisted: Postgres CHECK regra_fila_combinador_ck (t.combinador),persisted.csv:packages-db-persisted-value-5e7e7e49
+packages/db/src/schema/gestao.ts,^tenant$,literal-value,B,persisted: Postgres CHECK regra_prioridade_escopo_tipo_ck (t.escopoTipo); regra_sla_escopo_tipo_ck (t.escopoTipo),persisted.csv:packages-db-persisted-value-1a7192b4
+packages/db/src/schema/gestao.ts,^inbox$,literal-value,B,persisted: Postgres CHECK regra_prioridade_escopo_tipo_ck (t.escopoTipo); regra_sla_escopo_tipo_ck (t.escopoTipo),persisted.csv:packages-db-persisted-value-4ecf02f3
+packages/db/src/schema/gestao.ts,^equipe$,literal-value,B,persisted: Postgres CHECK regra_prioridade_escopo_tipo_ck (t.escopoTipo); regra_sla_escopo_tipo_ck (t.escopoTipo),persisted.csv:packages-db-persisted-value-a07daf07
+packages/db/src/schema/gestao.ts,^etiqueta$,literal-value,B,persisted: Postgres CHECK regra_prioridade_escopo_tipo_ck (t.escopoTipo); regra_sla_escopo_tipo_ck (t.escopoTipo),persisted.csv:packages-db-persisted-value-3c029e27
+packages/db/src/schema/gestao.ts,^resposta$,literal-value,B,persisted: Postgres CHECK regra_sla_alvo_ck (t.alvo),persisted.csv:packages-db-persisted-value-fa8f4136
+packages/db/src/schema/gestao.ts,^correndo$,literal-value,B,persisted: Postgres CHECK sla_conversa_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-5bccc433
+packages/db/src/schema/gestao.ts,^alertado$,literal-value,B,persisted: Postgres CHECK sla_conversa_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-d960d401
+packages/db/src/schema/gestao.ts,^estourado$,literal-value,B,persisted: Postgres CHECK sla_conversa_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-9ca07d9f
+packages/db/src/schema/gestao.ts,^cumprido$,literal-value,B,persisted: Postgres CHECK sla_conversa_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-13440a21
+packages/db/src/schema/gestao.ts,^cancelado$,literal-value,B,persisted: Postgres CHECK sla_conversa_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-1a28bc5e
+packages/db/src/schema/gestao.ts,^csat$,literal-value,B,persisted: Postgres CHECK pesquisa_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-c0b7f4d5
+packages/db/src/schema/gestao.ts,^nps$,literal-value,B,persisted: Postgres CHECK pesquisa_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-7c043d06
+packages/db/src/schema/identidade.ts,^compartilhada$,literal-value,B,persisted: Postgres CHECK tenant_implantacao_ck (t.implantacao),persisted.csv:packages-db-persisted-value-09723533
+packages/db/src/schema/identidade.ts,^dedicada$,literal-value,B,persisted: Postgres CHECK tenant_implantacao_ck (t.implantacao),persisted.csv:packages-db-persisted-value-bef4b8fb
+packages/db/src/schema/identidade.ts,^essencial$,literal-value,B,persisted: Postgres CHECK tenant_plano_ck (t.plano),persisted.csv:packages-db-persisted-value-562f10eb
+packages/db/src/schema/identidade.ts,^escala$,literal-value,B,persisted: Postgres CHECK tenant_plano_ck (t.plano),persisted.csv:packages-db-persisted-value-5bfab01f
+packages/db/src/schema/identidade.ts,^lider$,literal-value,B,persisted: Postgres CHECK membro_equipe_funcao_ck (t.funcao),persisted.csv:packages-db-persisted-value-a3279bb1
+packages/db/src/schema/identidade.ts,^senha$,literal-value,B,persisted: Postgres CHECK sessao_origem_ck (t.origem),persisted.csv:packages-db-persisted-value-cac1dfc1
+packages/db/src/schema/identidade.ts,^google$,literal-value,B,persisted: Postgres CHECK sessao_origem_ck (t.origem),persisted.csv:packages-db-persisted-value-aa4370b6
+packages/db/src/schema/identidade.ts,^sso$,literal-value,B,persisted: Postgres CHECK sessao_origem_ck (t.origem),persisted.csv:packages-db-persisted-value-4f7397a4
+packages/db/src/schema/identidade.ts,^oidc$,literal-value,B,persisted: Postgres CHECK conexao_sso_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-ffd4e0f7
+packages/db/src/schema/identidade.ts,^rascunho$,literal-value,B,persisted: Postgres CHECK conexao_sso_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-4f397d31
+packages/db/src/schema/identidade.ts,^testada$,literal-value,B,persisted: Postgres CHECK conexao_sso_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-facb5732
+packages/db/src/schema/identidade.ts,^desligado$,literal-value,B,persisted: Postgres CHECK conexao_sso_politica_ck (t.politica),persisted.csv:packages-db-persisted-value-84123aa3
+packages/db/src/schema/identidade.ts,^opcional$,literal-value,B,persisted: Postgres CHECK conexao_sso_politica_ck (t.politica),persisted.csv:packages-db-persisted-value-dabf3fd7
+packages/db/src/schema/identidade.ts,^obrigatorio$,literal-value,B,persisted: Postgres CHECK conexao_sso_politica_ck (t.politica),persisted.csv:packages-db-persisted-value-2304b68c
+packages/db/src/schema/identidade.ts,^generico$,literal-value,B,persisted: Postgres CHECK conexao_sso_provedor_ck (t.provedor),persisted.csv:packages-db-persisted-value-60a9bcbc
+packages/db/src/schema/identidade.ts,^entra$,literal-value,B,persisted: Postgres CHECK conexao_sso_provedor_ck (t.provedor),persisted.csv:packages-db-persisted-value-5a2c5bea
+packages/db/src/schema/identidade.ts,^google_workspace$,literal-value,B,persisted: Postgres CHECK conexao_sso_provedor_ck (t.provedor),persisted.csv:packages-db-persisted-value-bf510eb8
+packages/db/src/schema/identidade.ts,^okta$,literal-value,B,persisted: Postgres CHECK conexao_sso_provedor_ck (t.provedor),persisted.csv:packages-db-persisted-value-5f2bf306
+packages/db/src/schema/identidade.ts,^sistema$,literal-value,B,persisted: Postgres CHECK log_auditoria_ator_tipo_ck (t.atorTipo),persisted.csv:packages-db-persisted-value-7e1252d6
+packages/db/src/schema/monitoria.ts,^conforme$,literal-value,B,persisted: Postgres CHECK criterio_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-004f502c
+packages/db/src/schema/monitoria.ts,^escala$,literal-value,B,persisted: Postgres CHECK criterio_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-53e47c77
+packages/db/src/schema/monitoria.ts,^nota$,literal-value,B,persisted: Postgres CHECK criterio_tipo_ck (t.tipo),persisted.csv:packages-db-persisted-value-4ec8cbf1
+packages/db/src/schema/monitoria.ts,^humano$,literal-value,B,persisted: Postgres CHECK avaliacao_avaliador_tipo_ck (t.avaliadorTipo),persisted.csv:packages-db-persisted-value-5558fff4
+packages/db/src/schema/monitoria.ts,^ia$,literal-value,B,persisted: Postgres CHECK avaliacao_avaliador_tipo_ck (t.avaliadorTipo),persisted.csv:packages-db-persisted-value-5f38a177
+packages/db/src/schema/monitoria.ts,^rascunho$,literal-value,B,persisted: Postgres CHECK avaliacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-4e697787
+packages/db/src/schema/monitoria.ts,^concluida$,literal-value,B,persisted: Postgres CHECK avaliacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-ab39ec98
+packages/db/src/schema/monitoria.ts,^contestada$,literal-value,B,persisted: Postgres CHECK avaliacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-e6b245cb
+packages/db/src/schema/monitoria.ts,^revisada$,literal-value,B,persisted: Postgres CHECK avaliacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-e3135b4f
+packages/db/src/schema/monitoria.ts,^encerrada$,literal-value,B,persisted: Postgres CHECK avaliacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-78e49264
+packages/db/src/schema/monitoria.ts,^aberta$,literal-value,B,persisted: Postgres CHECK contestacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-a4c7fc86
+packages/db/src/schema/monitoria.ts,^aceita$,literal-value,B,persisted: Postgres CHECK contestacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-dfc2a151
+packages/db/src/schema/monitoria.ts,^recusada$,literal-value,B,persisted: Postgres CHECK contestacao_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-fa3db11a
+packages/db/src/schema/monitoria.ts,^aberto$,literal-value,B,persisted: Postgres CHECK plano_coach_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-11893756
+packages/db/src/schema/monitoria.ts,^concluido$,literal-value,B,persisted: Postgres CHECK plano_coach_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-ad2cfd6d
+packages/db/src/schema/monitoria.ts,^cancelado$,literal-value,B,persisted: Postgres CHECK plano_coach_estado_ck (t.estado),persisted.csv:packages-db-persisted-value-d843b0ae
+packages/db/src/schema/monitoria.ts,^positivo$,literal-value,B,persisted: Postgres CHECK classificacao_conversa_sentimento_ck (t.sentimento),persisted.csv:packages-db-persisted-value-e6cf9020
+packages/db/src/schema/monitoria.ts,^neutro$,literal-value,B,persisted: Postgres CHECK classificacao_conversa_sentimento_ck (t.sentimento),persisted.csv:packages-db-persisted-value-a22177b0
+packages/db/src/schema/monitoria.ts,^negativo$,literal-value,B,persisted: Postgres CHECK classificacao_conversa_sentimento_ck (t.sentimento),persisted.csv:packages-db-persisted-value-1a21cbc8
+packages/db/src/semente.ts,^crm\.lead\.ver$,literal-value,B,persisted: Postgres permissao.codigo,persisted.csv:packages-db-persisted-value-791b3c1f
+packages/db/src/semente.ts,^crm\.lead\.editar$,literal-value,B,persisted: Postgres permissao.codigo,persisted.csv:packages-db-persisted-value-0714bb73
+packages/db/src/semente.ts,^crm\.score\.configurar$,literal-value,B,persisted: Postgres permissao.codigo,persisted.csv:packages-db-persisted-value-ad04a090
+packages/db/src/semente.ts,^auditoria\.ver$,literal-value,B,persisted: Postgres permissao.codigo,persisted.csv:packages-db-persisted-value-04c0ef16
+packages/db/src/semente.ts,^tenant\.configurar$,literal-value,B,persisted: Postgres permissao.codigo,persisted.csv:packages-db-persisted-value-28476c08
+apps/api/src/autenticacao.ts,^webhooks:escrever$,literal-value,B,persisted: Postgres chave_api.escopos,persisted.csv:api-persisted-value-c2f94e59
+apps/workers/src/entrega.ts,^sem_destinatario$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445,persisted.csv:workers-persisted-value-86f68398
+apps/workers/src/entrega.ts,^canal_sem_credencial$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445,persisted.csv:workers-persisted-value-9ed208fc
+apps/workers/src/entrega.ts,^tipo_nao_suportado$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445,persisted.csv:workers-persisted-value-611c9886
+apps/workers/src/entrega.ts,^texto_vazio$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445,persisted.csv:workers-persisted-value-07bc2143
+apps/workers/src/entrega.ts,^anexo_ausente$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445,persisted.csv:workers-persisted-value-611a2d0b
+apps/workers/src/entrega.ts,^template_ausente$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445,persisted.csv:workers-persisted-value-26d2f63d
+apps/workers/src/entrega.ts,^template_nao_aprovado$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445,persisted.csv:workers-persisted-value-3ab253b9
+apps/workers/src/entrega.ts,^parametros_perdidos$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445,persisted.csv:workers-persisted-value-220af75d
+apps/workers/src/entrega.ts,^mensagem_sumiu$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445,persisted.csv:workers-persisted-value-bf4ab8af
+apps/workers/src/whatsapp/midia.ts,^midia_formato_recusado$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445,persisted.csv:workers-persisted-value-68dc67f4
+apps/workers/src/whatsapp/midia.ts,^midia_grande_demais$,literal-value,B,persisted: Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445,persisted.csv:workers-persisted-value-70e36191
+apps/api/src/dominio/entrada.ts,^desconhecido$,literal-value,B,persisted: Postgres mensagem.erro_codigo via apps/api/src/dominio/entrada.ts:360,persisted.csv:api-persisted-value-b99ddae2
+apps/api/src/autenticacao.ts,^pipe_<prefixo>_<segredo>$,literal-value,B,persisted: External API key token format; chave_api.prefixo and hash,persisted.csv:api-persisted-value-4a6d2987
+apps/desk-vite/src/paginas/preferencias/page.tsx,^desk\.pref\.\$\{chave\}$,literal-value,B,persisted: browser localStorage desk.pref.*,persisted.csv:desk-vite-persisted-value-166a49b8
+packages/ai/src/cliente/cliente.ts,^high$,literal-value,B,persisted: Anthropic API output_config.effort enum,persisted.csv:packages-ai-literal-value-5d05bd51
+packages/ai/src/cliente/cliente.ts,^low$,literal-value,B,persisted: Anthropic API output_config.effort enum,persisted.csv:packages-ai-literal-value-d5f6d892
+packages/ai/src/cliente/cliente.ts,^max$,literal-value,B,persisted: Anthropic API output_config.effort enum,persisted.csv:packages-ai-literal-value-17d64dde
+packages/ai/src/cliente/cliente.ts,^medium$,literal-value,B,persisted: Anthropic API output_config.effort enum,persisted.csv:packages-ai-literal-value-b1d52ace
+packages/ai/src/cliente/cliente.ts,^xhigh$,literal-value,B,persisted: Anthropic API output_config.effort enum,persisted.csv:packages-ai-literal-value-1cccb3f1
+apps/api/src/webhooks-saida.ts,^chave$,identifier,B,persisted: Postgres jsonb webhookSaida.cabecalhos,persisted.csv:api-ts-prop-327782ee
+apps/api/src/webhooks-saida.ts,^valor$,identifier,B,persisted: Postgres jsonb webhookSaida.cabecalhos,persisted.csv:api-ts-prop-748163a5
+packages/core/src/score/motor.ts,^contem$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-2a6bcda7
+packages/core/src/fluxo/contexto.ts,^DELETE$,literal-value,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-literal-value-2d60eef9
+packages/core/src/score/motor.ts,^diferente$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-a3de5c13
+packages/core/src/score/motor.ts,^em$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-195fd275
+packages/core/src/score/motor.ts,^e$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-d0789b1a
+packages/core/src/score/motor.ts,^existe$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-02e6a7bc
+packages/core/src/fluxo/contexto.ts,^GET$,literal-value,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-literal-value-f000237e
+packages/core/src/score/motor.ts,^igual$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-ff1ed1c9
+packages/core/src/score/motor.ts,^maior_igual$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-baa8bf61
+packages/core/src/score/motor.ts,^maior$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-69508601
+packages/core/src/score/motor.ts,^menor_igual$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-73877186
+packages/core/src/score/motor.ts,^menor$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-7422b3e7
+packages/core/src/score/motor.ts,^nao_contem$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-5ca4eea6
+packages/core/src/score/motor.ts,^nao_em$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-47790fec
+packages/core/src/score/motor.ts,^nao_existe$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-f1043c31
+packages/core/src/score/motor.ts,^ou$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-b54c4833
+packages/core/src/fluxo/contexto.ts,^PATCH$,literal-value,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-literal-value-2075aadf
+packages/core/src/fluxo/contexto.ts,^POST$,literal-value,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-literal-value-bb99f592
+packages/core/src/fluxo/contexto.ts,^PUT$,literal-value,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-literal-value-8e84431e
+packages/core/src/fluxo/modelos.ts,^\$title$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-a5c7cfa1
+packages/core/src/fluxo/modelos.ts,^afterStateChangedActions$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-15845e30
+packages/core/src/fluxo/modelos.ts,^afterStateChangedActions$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-fa7943a3
+packages/core/src/fluxo/contexto.ts,^bruto$,identifier,B,persisted: Postgres jsonb execucaoPasso.saida,persisted.csv:packages-core-ts-prop-ab56dc4f
+packages/core/src/fluxo/modelos.ts,^bypass$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-d71d93f1
+packages/core/src/fluxo/contexto.ts,^cabecalhos$,identifier,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-ts-prop-dea1b0bd
+packages/core/src/score/motor.ts,^campo$,identifier,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-ts-prop-317bb3c2
+packages/core/src/score/motor.ts,^combinador$,identifier,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-ts-prop-84d93df1
+packages/core/src/fluxo/condicao.ts,^comparison$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-4ba75817
+packages/core/src/score/motor.ts,^condicoes$,identifier,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-ts-prop-41c008c1
+packages/core/src/fluxo/modelos.ts,^conditions$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-a46f887c
+packages/core/src/fluxo/modelos.ts,^conditions$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-f6d6609c
+packages/core/src/fluxo/modelos.ts,^conditions$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-a1d874ce
+packages/core/src/fluxo/modelos.ts,^configuration$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-31c5af83
+packages/core/src/fluxo/contexto.ts,^conteudo$,identifier,B,persisted: Postgres jsonb execucaoPasso.entrada;processHttpExecucao.entrada,persisted.csv:packages-core-ts-prop-65881adf
+packages/core/src/fluxo/contexto.ts,^conteudo$,identifier,B,persisted: Postgres jsonb execucaoPasso.saida,persisted.csv:packages-core-ts-prop-03ea4c8e
+packages/core/src/fluxo/modelos.ts,^continueOnError$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-bce7b637
+packages/core/src/fluxo/contexto.ts,^corpo$,identifier,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-ts-prop-2c185345
+packages/core/src/fluxo/contexto.ts,^corpo$,identifier,B,persisted: Postgres jsonb processHttpExecucao.contexto;processHttpExecucao.resposta,persisted.csv:packages-core-ts-prop-6fde6f82
+packages/core/src/fluxo/contexto.ts,^de$,identifier,B,persisted: Postgres jsonb execucaoPasso.entrada;processHttpExecucao.entrada,persisted.csv:packages-core-ts-prop-e56d331f
+packages/core/src/fluxo/modelos.ts,^end$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-b7e1180c
+packages/core/src/fluxo/condicao.ts,^entity$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-000b0ccc
+packages/core/src/fluxo/modelos.ts,^error$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-ac15f6a6
+packages/core/src/fluxo/contexto.ts,^estadoId$,identifier,B,persisted: Postgres jsonb processHttpExecucao.contexto,persisted.csv:packages-core-ts-prop-272fe5c6
+packages/core/src/fluxo/modelos.ts,^executeAsynchronously$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-1c7a17f4
+packages/core/src/fluxo/modelos.ts,^expiration$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-1d8f8f7a
+packages/core/src/fluxo/contexto.ts,^id$,identifier,B,persisted: Postgres jsonb execucaoPasso.entrada;processHttpExecucao.entrada,persisted.csv:packages-core-ts-prop-803e6b39
+packages/core/src/fluxo/modelos.ts,^id$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-773c3562
+packages/core/src/fluxo/modelos.ts,^id$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-03575b67
+packages/core/src/fluxo/modelos.ts,^id$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-c6a065cb
+packages/core/src/fluxo/contexto.ts,^indice$,identifier,B,persisted: Postgres jsonb processHttpExecucao.contexto,persisted.csv:packages-core-ts-prop-43603fd4
+packages/core/src/fluxo/modelos.ts,^inputActions$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-5ad46390
+packages/core/src/fluxo/modelos.ts,^inputActions$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-70f14608
+packages/core/src/fluxo/modelos.ts,^input$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-9b3bdf20
+packages/core/src/fluxo/contexto.ts,^lista$,identifier,B,persisted: Postgres jsonb processHttpExecucao.contexto,persisted.csv:packages-core-ts-prop-4e07c278
+packages/core/src/fluxo/modelos.ts,^localCustomActions$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-109ff024
+packages/core/src/fluxo/contexto.ts,^metadados$,identifier,B,persisted: Postgres jsonb execucaoPasso.saida,persisted.csv:packages-core-ts-prop-3bfc216c
+packages/core/src/fluxo/contexto.ts,^metodo$,identifier,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-ts-prop-150f58a0
+packages/core/src/score/motor.ts,^operador$,identifier,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-ts-prop-11068bca
+packages/core/src/fluxo/condicao.ts,^operator$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-ef9df008
+packages/core/src/fluxo/modelos.ts,^order$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-af3c8df8
+packages/core/src/fluxo/modelos.ts,^order$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-244a559f
+packages/core/src/fluxo/modelos.ts,^outputActions$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-e60ab38a
+packages/core/src/fluxo/modelos.ts,^outputActions$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-4ed06596
+packages/core/src/fluxo/modelos.ts,^outputs$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-b57e4499
+packages/core/src/fluxo/contexto.ts,^para$,identifier,B,persisted: Postgres jsonb execucaoPasso.entrada;processHttpExecucao.entrada,persisted.csv:packages-core-ts-prop-2bc8ae03
+packages/core/src/fluxo/modelos.ts,^regex$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-69910828
+packages/core/src/fluxo/contexto.ts,^resposta$,identifier,B,persisted: Postgres jsonb processHttpExecucao.contexto,persisted.csv:packages-core-ts-prop-db9102d0
+packages/core/src/fluxo/modelos.ts,^root$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-6ddac7f4
+packages/core/src/fluxo/modelos.ts,^rule$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-1da2ef72
+packages/core/src/fluxo/modelos.ts,^sessionState$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-b3dab05e
+packages/core/src/fluxo/modelos.ts,^settings$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-7715f4a0
+packages/core/src/fluxo/condicao.ts,^source$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-4e33079d
+packages/core/src/fluxo/modelos.ts,^stateId$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-1308f45b
+packages/core/src/fluxo/modelos.ts,^states$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-53712c27
+packages/core/src/fluxo/contexto.ts,^status$,identifier,B,persisted: Postgres jsonb processHttpExecucao.contexto;processHttpExecucao.resposta,persisted.csv:packages-core-ts-prop-62928019
+packages/core/src/fluxo/contexto.ts,^timeoutMs$,identifier,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-ts-prop-a08ec658
+packages/core/src/fluxo/modelos.ts,^timeout$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-58dd10f1
+packages/core/src/fluxo/contexto.ts,^tipo$,identifier,B,persisted: Postgres jsonb execucaoPasso.entrada;processHttpExecucao.entrada,persisted.csv:packages-core-ts-prop-6ba7ec4c
+packages/core/src/fluxo/contexto.ts,^tipo$,identifier,B,persisted: Postgres jsonb execucaoPasso.saida,persisted.csv:packages-core-ts-prop-efcfefd7
+packages/core/src/fluxo/editor.ts,^type$,identifier,B,persisted: Postgres jsonb dicionarioCampo.settings,persisted.csv:packages-core-ts-prop-69bd6bd7
+packages/core/src/fluxo/modelos.ts,^type$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-c8bd34d4
+packages/core/src/fluxo/modelos.ts,^type$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-5dad85fd
+packages/core/src/fluxo/modelos.ts,^type$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-46793fe8
+packages/core/src/fluxo/contexto.ts,^url$,identifier,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-ts-prop-9e269d55
+packages/core/src/fluxo/modelos.ts,^validation$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-d8bbcdee
+packages/core/src/score/motor.ts,^valor$,identifier,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-ts-prop-a4891a7e
+packages/core/src/fluxo/condicao.ts,^values$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-b02fb878
+packages/core/src/fluxo/condicao.ts,^variable$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-15c6d82b
+packages/core/src/fluxo/modelos.ts,^variable$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-3285260c
+packages/core/src/fluxo/modelos.ts,^version$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-b0ceab3e
+apps/api/src/dominio/fluxo.ts,^opcoes$,string-literal,B,persisted: Postgres mensagem.dados jsonb (pergunta.opcoes),persisted.csv:api-symbol-cbaf4779
+apps/api/src/dominio/fluxo.ts,^opcoes$,identifier,B,persisted: Postgres mensagem.dados jsonb (pergunta.opcoes),persisted.csv:api-ts-prop-c7bef9c1
+apps/workers/src/whatsapp/interativo.ts,^opcoes$,identifier,B,persisted: Postgres mensagem.dados jsonb (pergunta.opcoes),persisted.csv:workers-ts-prop-3de70883
+apps/api/tests/fixtures/jsonb/flow-execution-context.json,^nome$,literal-value,B,persisted: Postgres execucao_fluxo.contexto jsonb,persisted.csv:jsonb-key-0343bfe6
+apps/api/tests/fixtures/jsonb/flow-router-context.json,^nome$,literal-value,B,persisted: Postgres posicao_no_roteador.contexto jsonb,persisted.csv:jsonb-key-7050d563
+apps/api/tests/fixtures/jsonb/flow-step-input.json,^id_provedor$,literal-value,B,persisted: Postgres execucao_passo.entrada jsonb,persisted.csv:jsonb-key-dcb1e293
+apps/api/tests/fixtures/jsonb/flow-step-input.json,^mensagem_id$,literal-value,B,persisted: Postgres execucao_passo.entrada jsonb,persisted.csv:jsonb-key-096c1189
+apps/api/tests/fixtures/jsonb/flow-step-output.json,^acoes$,literal-value,B,persisted: Postgres execucao_passo.saida jsonb,persisted.csv:jsonb-key-856aa387
+apps/api/tests/fixtures/jsonb/flow-step-output.json,^eventos$,literal-value,B,persisted: Postgres execucao_passo.saida jsonb,persisted.csv:jsonb-key-e8a918af
+apps/api/tests/fixtures/jsonb/flow-step-output.json,^proximo$,literal-value,B,persisted: Postgres execucao_passo.saida jsonb,persisted.csv:jsonb-key-1c9648f3
+apps/api/tests/fixtures/jsonb/outbox-message-data.json,^opcoes$,literal-value,B,persisted: Postgres mensagem.dados jsonb,persisted.csv:jsonb-key-75494b3f
+apps/api/tests/fixtures/jsonb/outbox-message-data.json,^pergunta$,literal-value,B,persisted: Postgres mensagem.dados jsonb,persisted.csv:jsonb-key-c0a5d653
+apps/api/tests/fixtures/jsonb/outbox-message-data.json,^texto$,literal-value,B,persisted: Postgres mensagem.dados jsonb,persisted.csv:jsonb-key-660f4060
+apps/api/tests/fixtures/jsonb/crm-contact-attributes.json,^plano$,literal-value,B,persisted: Postgres contato.atributos jsonb,persisted.csv:jsonb-key-bc3af0a2
+apps/api/tests/fixtures/jsonb/flow-process-http.json,^id_provedor$,literal-value,B,persisted: Postgres process_http_execucao.entrada jsonb,persisted.csv:jsonb-key-ca1bf4ad
+apps/api/tests/fixtures/jsonb/audit-before-after.json,^nome$,literal-value,B,persisted: Postgres log_auditoria.antes jsonb,persisted.csv:jsonb-key-bd8b8da3
+apps/api/tests/fixtures/jsonb/audit-before-after.json,^telefone_e164$,literal-value,B,persisted: Postgres log_auditoria.antes jsonb,persisted.csv:jsonb-key-32208f18
+apps/api/tests/fixtures/jsonb/audit-before-after.json,^nome$,literal-value,B,persisted: Postgres log_auditoria.depois jsonb,persisted.csv:jsonb-key-368704dc
+apps/api/tests/fixtures/jsonb/audit-before-after.json,^telefone_e164$,literal-value,B,persisted: Postgres log_auditoria.depois jsonb,persisted.csv:jsonb-key-11cc500a

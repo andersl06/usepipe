@@ -1,0 +1,2404 @@
+{
+  "rows": [
+    {
+      "id": "api-cookie-c9e75885",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-12",
+      "notes": "Short-lived or session cookie at apps/api/src/controladores/entrar.ts:47; cutover rename"
+    },
+    {
+      "id": "api-error-code-8fb6930f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/provisionar.ts:125; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-4b8c3bf0",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-sla.ts:101; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f24e2683",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-sla.ts:214; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-eb72bb18",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-sla.ts:79; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-aa8bbd21",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/envio.ts:349; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-0702055f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/cliente-graph.ts:215; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-48cbb79a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-whatsapp.ts:121; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-154f1f87",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/anexo.ts:97; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-1b90c798",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/envio.ts:382; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f9fb76d1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/certificados.ts:130; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-0c7c2de6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/certificados.ts:123; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c15235db",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/certificados.ts:127; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-270e9e35",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/anexos.ts:36; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-5add40c1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/anexo.ts:103; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-ac99d025",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/importacao-de-contatos.ts:71; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-be15ee3c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-instagram.ts:59; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-2a7b339a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-messenger.ts:5; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-9a7bb9d5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-whatsapp.ts:129; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f10292cd",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-whatsapp.ts:70; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-ada995bb",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/comunicacao.ts:205; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-16c24bb1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/comunicacao.ts:294; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-7299112f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/comunicacao.ts:344; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-720193aa",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/comunicacao.ts:202; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-ba0cfad3",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/permissoes-do-atendente.ts:101; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-93ff4f66",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:477; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-bc8eca3c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:491; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-17186a7e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:469; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-8870289a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/configuracao-do-fluxo.ts:122; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f91815aa",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/configuracao-do-fluxo.ts:126; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-311d4d4a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/configuracao-do-fluxo.ts:119; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-45ec130e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:426; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c54545f1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:439; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-8f130dd3",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:433; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-b5491c31",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:410; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-8a2b1cc5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:414; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-51bce6c8",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:966; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c4691cbf",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/mensagens-ativas.ts:89; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-1232a758",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-instagram.ts:46; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-0cc5691c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-messenger.ts:5; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-b430ae4d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-whatsapp.ts:53; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-92735067",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/canal-do-fluxo.ts:166; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-1bfc1842",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/gestao-fluxo.ts:276; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-fddc6b12",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/mensagens-ativas.ts:79; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f169273a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-instagram.ts:52; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-7af0013e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-whatsapp.ts:60; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-0c15d455",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/modelos.ts:472; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-900f67ff",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/perfil.ts:200; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-86be0bc8",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445"
+    },
+    {
+      "id": "api-error-code-3bc0122d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/mensagem-ativa.ts:267; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-091ce08d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/perfil.ts:78; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-ad606a3f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/modelos.ts:175; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c46afb7f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/perfil.ts:72; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-340b09d7",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/modelos.ts:169; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-e8a86e1d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1216; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-fe02025a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/autenticacao.ts:156; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-5c8f2685",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/autenticacao.ts:164; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-31f5af19",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/troca-de-token.ts:13; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-4dd4b936",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:998; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-d6cb6970",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-prioridade.ts:102; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-b4de1cdd",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/sso.ts:216; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-da2905e9",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/sso.ts:121; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-de80ac14",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/sso.ts:291; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-9db75655",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/instagram/canal.ts:65; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-3eab04f0",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/messenger/canal.ts:15; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-1bbdc3ae",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/validacao-da-configuracao-manual.ts:36; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f70c4b28",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/criacao-de-canal.ts:58; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-72d1c1e3",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/convites.ts:433; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-33e5e992",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/catalogo.ts:189; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-a595832d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/catalogo.ts:134; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-6bad7e64",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/catalogo.ts:219; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-a99d5432",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/catalogo.ts:193; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-7004bd39",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/conversas.ts:275; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-36b8f812",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/envio.ts:187; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-eeced43c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/envio.ts:345; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-342b5ab5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/conversa.ts:59; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-721bee1a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/envio.ts:134; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-d6d5124e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/etiquetas.ts:117; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-b5e34b27",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/conversa.ts:335; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-501a4d22",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/envio.ts:123; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f2cd5c5b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/etiquetas.ts:110; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-9255316b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/assumir.ts:43; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-158e8948",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/convites.ts:336; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-642564b8",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/convites.ts:285; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-ce0d10c8",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/convites.ts:351; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-4692a879",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/convites.ts:282; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-3c602a9b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/convites.ts:348; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-ee6d6355",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/tests/convites.test.ts:417; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-09ffef9d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1207; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-07f93a7b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-instagram.ts:57; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-a1532691",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-whatsapp.ts:127; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-865e0030",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/webhooks-whatsapp.ts:67; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-ef5c9793",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/comunicacao.ts:220; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-4ccddc5a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/paginacao.ts:56; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c8850ef6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:635; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-14062b5f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:598; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-24487d01",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/certificados.ts:105; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-6533262e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/certificados.ts:101; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-24a7528d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/ciclo-de-vida-do-fluxo.ts:132; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-beaf2331",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/builder-do-fluxo.ts:301; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-d3ff69a5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/builder-do-fluxo.ts:322; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-44359ec7",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/mensagens-ativas.ts:99; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-3136c10e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/conversa.ts:308; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-cca81386",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/rastreador-de-cliques.ts:69; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-b2b10a2f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:431; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-32b205a5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/construtor-de-conta.ts:172; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-668e6eeb",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/dominios.ts:116; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c7ee4875",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/dominios.ts:53; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-4e06e58f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/dominios.ts:171; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-e38a357d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/dominios.ts:57; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-56043b91",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/provisionar.ts:140; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c1f0c6f3",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1577; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-92fbc9fb",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/equipe-do-fluxo.ts:381; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-a6c68516",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/email.ts:91; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-1e10bc89",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/construtor-de-conta.ts:168; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-0e026290",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/convites.ts:60; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-cd05c894",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/sso.ts:346; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-5cd6d121",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/email.ts:99; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-b3251a98",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/email.ts:51; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f573967d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/sso.ts:114; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-b6ca88f2",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/sso.ts:321; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-5fc11b53",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/tests/convites.test.ts:420; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-4564a8d9",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-prioridade.ts:119; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-84785549",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-sla.ts:132; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-9cbed7c4",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/etiquetas.ts:53; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c8d02f85",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-prioridade.ts:114; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-943ac449",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-sla.ts:125; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-744fd386",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/catalogo.ts:349; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-db8c7690",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/sso.ts:202; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-965a04ca",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/estado-de-conexao.ts:62; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-0176cb86",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/etiquetas.ts:81; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-3e71e1f8",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/etiquetas.ts:37; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f262ab69",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/conversa.ts:115; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-a9e45ebd",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:398; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-d4994ec1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:393; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f606e211",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:609; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-53cace02",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:616; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-5deb4781",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:496; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-1afc2eea",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1410; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-779b677e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1303; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-727f661d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1008; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-8a317824",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-prioridade.ts:121; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-230ba2c0",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-sla.ts:134; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-254da2f7",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1422; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-a6923341",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1436; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f5afb0dd",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/conversas.ts:408; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-dd9c8217",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:481; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-afc98c24",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:621; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-957913af",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/builder-do-fluxo.ts:515; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f82837ac",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/canal-do-fluxo.ts:145; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f973261e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/minha-conta.ts:217; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-e3c298f2",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1296; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-a7455a31",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1342; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-459c0b5f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/certificados.ts:86; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-94a99e4b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/certificados.ts:93; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-83239508",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/ciclo-de-vida-do-fluxo.ts:275; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-0e2f070d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/convites.ts:158; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-7bf9f70c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/equipe-do-fluxo.ts:413; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c0cbf592",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:190; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-4a9a87c2",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/mensagem-ativa.ts:105; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-181e2d32",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/rastreador-de-cliques.ts:193; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-12a85ab6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/paginacao.ts:39; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-21ee8ef0",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/envio.ts:442; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-4ef261de",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/configuracao-do-fluxo.ts:222; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-9aca7f6d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/configuracao-do-fluxo.ts:216; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f344010d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/configuracao-do-fluxo.ts:236; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-22ff9a22",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/conversa.ts:354; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f3c3ecdb",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/conversa.ts:362; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-456ef38a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/instagram/cliente-graph.ts:116; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-286bde94",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/messenger/cliente-graph.ts:31; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-55a25049",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/cliente-graph.ts:261; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-d337c54a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/tests/canais.test.ts:1064; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-1d7488b1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/instagram/cliente-graph.ts:130; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-b54c926c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/instagram/cliente-graph.ts:228; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-007f5cbe",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/instagram/renovacao.ts:49; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-1a855451",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/messenger/cliente-graph.ts:33; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-826ec355",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/messenger/cliente-graph.ts:55; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c9ec49f9",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/cliente-graph.ts:277; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-aa9691fa",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/cliente-graph.ts:466; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-bfc52a86",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/cliente-graph.ts:476; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-445cdb45",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/cliente-graph.ts:576; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-2a8229b5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/cliente-graph.ts:593; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-a03569bd",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/cliente-graph.ts:614; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-a26bd6a6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/cliente-graph.ts:728; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-ce558aff",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/tests/canais.test.ts:1039; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-4a5c9290",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/tests/canais.test.ts:355; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-0fedb11f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/tests/canais.test.ts:366; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-04a293b3",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/troca-de-token.ts:21; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c728a835",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/modelos.ts:109; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-5d5273eb",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1641; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-5a3928aa",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/status-atendente.ts:40; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c1c9042c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/perfil.ts:190; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-dad4c0c3",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/erros.ts:36; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-802abf1e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/servicos-do-roteador.ts:128; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-a41f445c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/contas.ts:25; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-486410bc",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/minha-conta.ts:339; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-986fc3fc",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/erros.ts:51; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f8f0edde",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/equipe-do-fluxo.ts:156; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-82d6db46",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-prioridade.ts:91; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-27c51ed7",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:177; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f9e93bb1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/provisionar.ts:117; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-9880caf2",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/ciclo-de-vida-do-fluxo.ts:114; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c332616e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1018; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-2bf93e2a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1257; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-8d5e3a27",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1634; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-01dd5fd7",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1678; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-3b1ac6fa",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/ciclo-de-vida-do-fluxo.ts:180; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-019a310e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-prioridade.ts:200; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-19117ba0",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-prioridade.ts:247; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-681207a3",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-sla.ts:172; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-6ce4f1b3",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-sla.ts:231; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-4f4e2aea",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:180; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-890b8de9",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1199; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-6d22889b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1561; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-828bd0da",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:992; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-7e91a473",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-prioridade.ts:83; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-27dea8ee",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-sla.ts:72; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-9c8cd68d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/rastreador-de-cliques.ts:86; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-9f9bd296",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1564; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-ea31e824",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/ciclo-de-vida-do-fluxo.ts:108; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-396c677c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/monitoramento.ts:233; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f968758a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/info-do-numero.ts:74; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-34e28e27",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:76; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-dc032a28",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/criacao-de-canal.ts:63; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-44abd03b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/reautorizacao.ts:39; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c4fc4f2b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/canal-do-fluxo.ts:177; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-03653e17",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/criacao-de-canal.ts:51; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-353f52ae",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/info-do-numero.ts:44; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-b77eb53a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:970; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-a099398f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:1226; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-015db452",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/paginacao.ts:82; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-ac238933",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/palavras-proibidas.ts:249; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c289357d",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/palavras-proibidas.ts:150; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-da7fb7c3",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/convites.ts:203; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-3eba0611",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/convites.ts:147; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-11e4b5e6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/convites.ts:141; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-09e71d19",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/equipe-do-fluxo.ts:140; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-2a6e4ce1",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/cadastro-embutido.ts:47; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-72b320e5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/contas.ts:30; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-aa4304f8",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/perfil.ts:67; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-3fd8d409",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/permissoes-do-atendente.ts:212; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-d9384103",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/permissoes-do-atendente.ts:209; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-dd5f3268",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/equipe-do-fluxo.ts:149; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-a50ad3b9",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/equipe-do-fluxo.ts:390; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-374611fe",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/pfx.ts:243; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-11dfcbf3",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/pfx.ts:387; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-07a8a5f7",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/pfx.ts:419; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-87f6917f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/pfx.ts:432; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-73eecb1a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/pfx.ts:394; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-0682c98b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/provisionar.ts:129; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-4e9c7138",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/sso.ts:205; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-fa2d017f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-sla.ts:88; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-69ce9098",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/preferencias.ts:51; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-9a435fa6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/sso.ts:108; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-cba4eeb2",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/gestao-fluxo.ts:154; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f34bbabe",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-sla.ts:286; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-dde69ba5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-prioridade.ts:206; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-7fa04181",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/regras-sla.ts:178; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-c87bfa70",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/comunicacao.ts:303; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-ae97831f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/builder-do-fluxo.ts:106; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-5ac90e5f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/cadastros.ts:957; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-028ad1ca",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/mensagem-ativa.ts:101; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-84915b36",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/erros.ts:40; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-334f0f2f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/erros.ts:45; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-1210b8cf",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/builder-do-fluxo.ts:498; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-5a549526",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/sso.ts:210; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-0793fb6c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/pfx.ts:383; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-647cdbbf",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/certificados.ts:114; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-72139528",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/servicos-do-roteador.ts:206; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-29fa63f8",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/servicos-do-roteador.ts:147; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-618b4f54",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/servicos-do-roteador.ts:182; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-7267c225",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/servicos-do-roteador.ts:156; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-a4fabc85",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/servicos-do-roteador.ts:200; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-d3d95097",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/servicos-do-roteador.ts:138; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-add2beae",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/servicos-do-roteador.ts:141; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-58ecedb8",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/servicos-do-roteador.ts:212; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-510355d9",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/provisionar.ts:151; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-67a1f00b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/provisionar.ts:120; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-54c7c05f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/sso.ts:285; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-671ca47d",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro via apps/workers/src/entrega.ts:439-445"
+    },
+    {
+      "id": "api-error-code-4398ac53",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/mensagens-ativas.ts:81; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-5c2f61b6",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/controladores/minha-conta.ts:316; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-b2f277cd",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/palavras-proibidas.ts:242; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-eaf413c4",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/palavras-proibidas.ts:285; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-3f9d806f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/palavras-proibidas.ts:196; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-6985d451",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/anexo.ts:77; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-4890c4f4",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/envio.ts:374; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-fb648f44",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/anexo.ts:88; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-30f00065",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/comunicacao.ts:214; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-fd3bd658",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:75; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-17735e60",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/criacao-de-canal.ts:65; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-302a6a28",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/info-do-numero.ts:33; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-794cd36b",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/conversa.ts:74; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-47af13ba",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/equipe-do-fluxo.ts:357; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-5d0a169e",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:274; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-d4e3b530",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:128; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-4638423a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:277; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-49ef935f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:281; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-5fff2fec",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/gestao/integracoes.ts:285; no matching stored delivery-code producer"
+    },
+    {
+      "id": "api-error-code-f4d02b3a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "HTTP ErroPipe code at apps/api/src/dominio/construtor-de-conta.ts:183; no matching stored delivery-code producer"
+    }
+  ]
+}
