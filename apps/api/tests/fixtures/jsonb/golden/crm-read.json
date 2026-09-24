@@ -1,0 +1,22 @@
+{
+  "contato": {
+    "atributos": {
+      "plano": "pro",
+      "origem_utm": "anuncio-instagram",
+      "pontuacao_nps": 9
+    }
+  },
+  "lead": {
+    "utm": {
+      "medium": "cpc",
+      "source": "instagram",
+      "campaign": "novos-clientes-2026"
+    },
+    "customizados": {
+      "idade": 34,
+      "faixa_patrimonio": "R$ 100 a 250 mil",
+      "whatsapp_confirmado": "sim",
+      "respondeu_campanha_julho": "não"
+    }
+  }
+}

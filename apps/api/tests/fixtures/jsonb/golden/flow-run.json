@@ -1,0 +1,22 @@
+{
+  "mensagens": [
+    {
+      "tipo": "application/vnd.lime.chatstate+json",
+      "conteudo": {
+        "state": "composing",
+        "interval": 1000
+      },
+      "metadados": null
+    },
+    {
+      "tipo": "text/plain",
+      "conteudo": "Olá! Qual é o seu nome?",
+      "metadados": null
+    }
+  ],
+  "estadoFinalId": "boas-vindas",
+  "variaveis": {
+    "previous-stateId@10000000-0000-4000-8000-000000000001": "onboarding",
+    "stateId@10000000-0000-4000-8000-000000000001": "boas-vindas"
+  }
+}

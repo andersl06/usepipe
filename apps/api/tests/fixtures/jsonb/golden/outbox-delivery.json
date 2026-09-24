@@ -1,0 +1,11 @@
+{
+  "conteudo": {
+    "tipo": "interativo",
+    "formato": "botoes",
+    "texto": "Prazer, Ana. Como posso ajudar?",
+    "opcoes": [
+      "Financeiro",
+      "Suporte"
+    ]
+  }
+}
