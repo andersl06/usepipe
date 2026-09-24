@@ -2213,11 +2213,11 @@
       "route": "/fluxo/:id/atendimento/monitoramento",
       "state_item": "?fila=",
       "current_location": "query",
-      "proposed": "NEEDS VALIDATION",
-      "deep_link": "NEEDS VALIDATION",
-      "survives_f5": "NEEDS VALIDATION",
+      "proposed": "react-state",
+      "deep_link": "no",
+      "survives_f5": "yes",
       "blip_evidence": "NEEDS VALIDATION",
-      "decision_ref": "D-34",
+      "decision_ref": "D-30",
       "notes": "sonnet: verificação direta (D-40): apps/gestao-vite/src/componentes/filtros-rapidos.tsx; sem evidência direta para decidir o destino."
     },
     {
@@ -2225,11 +2225,11 @@
       "route": "/fluxo/:id/atendimento/monitoramento",
       "state_item": "?atendente=",
       "current_location": "query",
-      "proposed": "NEEDS VALIDATION",
-      "deep_link": "NEEDS VALIDATION",
-      "survives_f5": "NEEDS VALIDATION",
+      "proposed": "react-state",
+      "deep_link": "no",
+      "survives_f5": "yes",
       "blip_evidence": "NEEDS VALIDATION",
-      "decision_ref": "D-34",
+      "decision_ref": "D-30",
       "notes": "sonnet: verificação direta (D-40): apps/gestao-vite/src/componentes/filtros-rapidos.tsx; sem evidência direta para decidir o destino."
     },
     {
@@ -3149,11 +3149,11 @@
       "route": "/roteador/:id/atendimento/monitoramento",
       "state_item": "?fila=",
       "current_location": "query",
-      "proposed": "NEEDS VALIDATION",
-      "deep_link": "NEEDS VALIDATION",
-      "survives_f5": "NEEDS VALIDATION",
+      "proposed": "react-state",
+      "deep_link": "no",
+      "survives_f5": "yes",
       "blip_evidence": "NEEDS VALIDATION",
-      "decision_ref": "D-34",
+      "decision_ref": "D-30",
       "notes": "sonnet: verificação direta (D-40): apps/gestao-vite/src/componentes/filtros-rapidos.tsx; sem evidência direta para decidir o destino. Componente compartilhado pela rota /roteador/:id."
     },
     {
@@ -3161,11 +3161,11 @@
       "route": "/roteador/:id/atendimento/monitoramento",
       "state_item": "?atendente=",
       "current_location": "query",
-      "proposed": "NEEDS VALIDATION",
-      "deep_link": "NEEDS VALIDATION",
-      "survives_f5": "NEEDS VALIDATION",
+      "proposed": "react-state",
+      "deep_link": "no",
+      "survives_f5": "yes",
       "blip_evidence": "NEEDS VALIDATION",
-      "decision_ref": "D-34",
+      "decision_ref": "D-30",
       "notes": "sonnet: verificação direta (D-40): apps/gestao-vite/src/componentes/filtros-rapidos.tsx; sem evidência direta para decidir o destino. Componente compartilhado pela rota /roteador/:id."
     },
     {
@@ -3827,6 +3827,18 @@
       "blip_evidence": "NEEDS VALIDATION",
       "decision_ref": "D-34",
       "notes": "sonnet: verificação direta (D-40): apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx; sem evidência direta para decidir o destino. Componente compartilhado pela rota /roteador/:id."
+    },
+    {
+      "app": "desk-vite",
+      "route": "/contacts",
+      "state_item": "panel: contact",
+      "current_location": "none",
+      "proposed": "router-state",
+      "deep_link": "no",
+      "survives_f5": "yes",
+      "blip_evidence": "NEEDS VALIDATION",
+      "decision_ref": "D-29/D-32",
+      "notes": "sonnet: verifica??o direta (D-40): marcador sem IDs; sele??o fica no contexto e some no F5; back/forward NEEDS VALIDATION ao vivo."
     }
   ]
 }
