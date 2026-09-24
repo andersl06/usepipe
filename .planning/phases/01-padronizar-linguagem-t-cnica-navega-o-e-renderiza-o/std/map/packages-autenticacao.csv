@@ -1,5 +1,5 @@
 id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
-packages-autenticacao-cookie-2483d34b,packages-autenticacao,1,cookie,pipe_sessao,,packages/autenticacao/src/sessao.ts:18,29,unknown,,,candidate,,
+packages-autenticacao-cookie-2483d34b,packages-autenticacao,1,cookie,pipe_sessao,,packages/autenticacao/src/sessao.ts:18,29,no,,D-38,candidate,,Short-lived or session cookie at packages/autenticacao/src/sessao.ts:18; cutover rename
 packages-autenticacao-dir-2891b1eb,packages-autenticacao,1,dir,packages/autenticacao/src,,packages/autenticacao/src,0,no,,,candidate,,
 packages-autenticacao-dir-1b627fe7,packages-autenticacao,1,dir,packages/autenticacao/tests,,packages/autenticacao/tests,0,no,,,candidate,,
 packages-autenticacao-dir-90d0fa9d,packages-autenticacao,1,dir,packages/autenticacao,,packages/autenticacao,0,no,,,candidate,,

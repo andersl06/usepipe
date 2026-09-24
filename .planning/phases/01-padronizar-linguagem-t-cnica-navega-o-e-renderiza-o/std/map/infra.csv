@@ -45,11 +45,11 @@ infra-file-e823de9f,infra,4,file,ponte.csv,,.planning/phases/01-padronizar-lingu
 infra-file-df5b25e3,infra,4,file,ponte.csv,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/ponte.csv,19,no,,,candidate,,
 infra-file-d84d246a,infra,4,file,redacao.ts,,tools/std/redacao.ts,0,no,,,candidate,,
 infra-file-81d038d3,infra,4,file,restaurar-teste.sh,,infra/compose/backup/restaurar-teste.sh,2,no,,,candidate,,
-infra-literal-value-aa0c7cbe,infra,4,literal-value,gestao-vite,,tools/std/inventory.ts:31,244,unknown,,,candidate,,
-infra-literal-value-ae96941c,infra,4,literal-value,packages-armazenamento,,tools/std/inventory.ts:30,19,unknown,,,candidate,,
-infra-literal-value-074df66f,infra,4,literal-value,packages-autenticacao,,tools/std/inventory.ts:30,22,unknown,,,candidate,,
-infra-literal-value-b453657a,infra,4,literal-value,packages-tempo-real,,tools/std/inventory.ts:30,23,unknown,,,candidate,,
-infra-literal-value-dfbfcfe1,infra,4,literal-value,ponte,,tools/std/inventory.ts:31,199,unknown,,,candidate,,
+infra-literal-value-aa0c7cbe,infra,4,literal-value,gestao-vite,,tools/std/inventory.ts:31,244,no,,D-11,candidate,,Non-stored discriminator at tools/std/inventory.ts:31
+infra-literal-value-ae96941c,infra,4,literal-value,packages-armazenamento,,tools/std/inventory.ts:30,19,no,,D-11,candidate,,Non-stored discriminator at tools/std/inventory.ts:30
+infra-literal-value-074df66f,infra,4,literal-value,packages-autenticacao,,tools/std/inventory.ts:30,22,no,,D-11,candidate,,Non-stored discriminator at tools/std/inventory.ts:30
+infra-literal-value-b453657a,infra,4,literal-value,packages-tempo-real,,tools/std/inventory.ts:30,23,no,,D-11,candidate,,Non-stored discriminator at tools/std/inventory.ts:30
+infra-literal-value-dfbfcfe1,infra,4,literal-value,ponte,,tools/std/inventory.ts:31,199,no,,D-11,candidate,,Non-stored discriminator at tools/std/inventory.ts:31
 infra-script-b55f9d3b,infra,4,script,banco:descer,,package.json:1,0,no,,,candidate,,
 infra-script-99e6de00,infra,4,script,banco:migrar,,package.json:1,0,no,,,candidate,,
 infra-script-6cb0e9c9,infra,4,script,banco:semear,,package.json:1,0,no,,,candidate,,

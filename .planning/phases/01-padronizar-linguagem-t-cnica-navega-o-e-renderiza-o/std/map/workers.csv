@@ -7,37 +7,15 @@ workers-file-cf4c6514,workers,2,file,filas.ts,,apps/workers/src/filas.ts,32,no,,
 workers-file-86ed81a1,workers,2,file,gerenciador-de-contatos.ts,,apps/workers/src/gerenciador-de-contatos.ts,1,no,,,candidate,,
 workers-file-facd35f7,workers,2,file,importacao-de-contatos.ts,,apps/workers/src/importacao-de-contatos.ts,8,no,,,candidate,,
 workers-file-e999225f,workers,2,file,midia.ts,,apps/workers/src/whatsapp/midia.ts,7,no,,,candidate,,
-workers-job-name-8f0dde6c,workers,2,job-name,metrica-diaria,,apps/workers/src/main.ts:75,4,unknown,,,candidate,,
-workers-job-name-ceacb869,workers,2,job-name,varredura-outbox,,apps/workers/src/main.ts:68,8,unknown,,,candidate,,
-workers-literal-value-ddf73eb3,workers,2,literal-value,atendente,,apps/workers/src/agregacao.ts:222,768,unknown,,,candidate,,
-workers-literal-value-cb42742f,workers,2,literal-value,audio,,apps/workers/src/whatsapp/midia.ts:15,95,unknown,,,candidate,,
-workers-literal-value-f969c8fb,workers,2,literal-value,documento,,apps/workers/src/whatsapp/cliente.ts:14,217,unknown,,,candidate,,
-workers-literal-value-a6dfd4b9,workers,2,literal-value,documento,,apps/workers/src/whatsapp/midia.ts:15,217,unknown,,,candidate,,
-workers-literal-value-1094e404,workers,2,literal-value,documento,,apps/workers/src/whatsapp/template.ts:15,217,unknown,,,candidate,,
-workers-literal-value-77a18c0f,workers,2,literal-value,documento,,apps/workers/tests/whatsapp.test.ts:18,217,unknown,,,candidate,,
-workers-literal-value-52adef0b,workers,2,literal-value,documento,,apps/workers/tests/whatsapp.test.ts:19,217,unknown,,,candidate,,
-workers-literal-value-1e470e08,workers,2,literal-value,documento,,apps/workers/tests/whatsapp.test.ts:20,217,unknown,,,candidate,,
-workers-literal-value-9b27c3ad,workers,2,literal-value,fila,,apps/workers/src/agregacao.ts:222,993,unknown,,,candidate,,
-workers-literal-value-1ada7996,workers,2,literal-value,imagem,,apps/workers/src/whatsapp/cliente.ts:14,218,unknown,,,candidate,,
-workers-literal-value-64769a65,workers,2,literal-value,imagem,,apps/workers/src/whatsapp/midia.ts:15,218,unknown,,,candidate,,
-workers-literal-value-6c9c3064,workers,2,literal-value,imagem,,apps/workers/src/whatsapp/template.ts:15,218,unknown,,,candidate,,
-workers-literal-value-7d3fe858,workers,2,literal-value,imagem,,apps/workers/tests/whatsapp.test.ts:15,218,unknown,,,candidate,,
-workers-literal-value-a47cc74a,workers,2,literal-value,imagem,,apps/workers/tests/whatsapp.test.ts:16,218,unknown,,,candidate,,
-workers-literal-value-c1fe8f73,workers,2,literal-value,imagem,,apps/workers/tests/whatsapp.test.ts:17,218,unknown,,,candidate,,
-workers-literal-value-826fdb46,workers,2,literal-value,imagem,,apps/workers/tests/whatsapp.test.ts:24,218,unknown,,,candidate,,
-workers-literal-value-e5b49dd7,workers,2,literal-value,imagem,,apps/workers/tests/whatsapp.test.ts:53,218,unknown,,,candidate,,
-workers-literal-value-d0f13f55,workers,2,literal-value,midia_formato_recusado,,apps/workers/tests/whatsapp.test.ts:17,8,unknown,,,candidate,,
-workers-literal-value-1708f43e,workers,2,literal-value,midia_formato_recusado,,apps/workers/tests/whatsapp.test.ts:18,8,unknown,,,candidate,,
-workers-literal-value-c4de5bd5,workers,2,literal-value,midia_grande_demais,,apps/workers/tests/whatsapp.test.ts:20,4,unknown,,,candidate,,
-workers-literal-value-c9773bb2,workers,2,literal-value,midia_grande_demais,,apps/workers/tests/whatsapp.test.ts:21,4,unknown,,,candidate,,
-workers-literal-value-2fb97b20,workers,2,literal-value,video,,apps/workers/src/whatsapp/midia.ts:15,117,unknown,,,candidate,,
-workers-queue-83adfdfd,workers,2,queue,pipe-agregacao,,apps/workers/src/filas.ts:13,5,unknown,,,candidate,,
-workers-queue-a3a6c0e5,workers,2,queue,pipe-dicionario-crm,,apps/workers/src/filas.ts:84,5,unknown,,,candidate,,
-workers-queue-5508ad5a,workers,2,queue,pipe-entrada,,apps/workers/src/filas.ts:11,24,unknown,,,candidate,,
-workers-queue-c1deed63,workers,2,queue,pipe-entrega,,apps/workers/src/filas.ts:12,5,unknown,,,candidate,,
-workers-queue-aa646349,workers,2,queue,pipe-espelho-crm,,apps/workers/src/filas.ts:14,6,unknown,,,candidate,,
-workers-queue-588e7283,workers,2,queue,pipe-importacao,,apps/workers/src/filas.ts:101,12,unknown,,,candidate,,
-workers-queue-cbe9142a,workers,2,queue,pipe-midia,,apps/workers/src/filas.ts:15,6,unknown,,,candidate,,
+workers-job-name-8f0dde6c,workers,2,job-name,metrica-diaria,,apps/workers/src/main.ts:75,4,no,,D-10,candidate,,BullMQ runtime name at apps/workers/src/main.ts:75; drained at cutover
+workers-job-name-ceacb869,workers,2,job-name,varredura-outbox,,apps/workers/src/main.ts:68,8,no,,D-10,candidate,,BullMQ runtime name at apps/workers/src/main.ts:68; drained at cutover
+workers-queue-83adfdfd,workers,2,queue,pipe-agregacao,,apps/workers/src/filas.ts:13,5,no,,D-10,candidate,,BullMQ runtime name at apps/workers/src/filas.ts:13; drained at cutover
+workers-queue-a3a6c0e5,workers,2,queue,pipe-dicionario-crm,,apps/workers/src/filas.ts:84,5,no,,D-10,candidate,,BullMQ runtime name at apps/workers/src/filas.ts:84; drained at cutover
+workers-queue-5508ad5a,workers,2,queue,pipe-entrada,,apps/workers/src/filas.ts:11,24,no,,D-10,candidate,,BullMQ runtime name at apps/workers/src/filas.ts:11; drained at cutover
+workers-queue-c1deed63,workers,2,queue,pipe-entrega,,apps/workers/src/filas.ts:12,5,no,,D-10,candidate,,BullMQ runtime name at apps/workers/src/filas.ts:12; drained at cutover
+workers-queue-aa646349,workers,2,queue,pipe-espelho-crm,,apps/workers/src/filas.ts:14,6,no,,D-10,candidate,,BullMQ runtime name at apps/workers/src/filas.ts:14; drained at cutover
+workers-queue-588e7283,workers,2,queue,pipe-importacao,,apps/workers/src/filas.ts:101,12,no,,D-10,candidate,,BullMQ runtime name at apps/workers/src/filas.ts:101; drained at cutover
+workers-queue-cbe9142a,workers,2,queue,pipe-midia,,apps/workers/src/filas.ts:15,6,no,,D-10,candidate,,BullMQ runtime name at apps/workers/src/filas.ts:15; drained at cutover
 workers-symbol-99240705,workers,2,symbol,agregacao,,apps/workers/src/main.ts:42,3,no,,,candidate,,
 workers-symbol-b89177d8,workers,2,symbol,agruparPorConversa,,apps/workers/src/agregacao.ts:155,2,no,,,candidate,,
 workers-symbol-665b94ec,workers,2,symbol,ANEXO,,apps/workers/src/instagram.ts:41,8,no,,,candidate,,

@@ -372,108 +372,70 @@ gestao-vite-front-route-caf87a6e,gestao-vite,3,front-route,/roteador/:*/log,,app
 gestao-vite-front-route-971c9df3,gestao-vite,3,front-route,/roteador/:*/servicos,,apps/gestao-vite/src/App.tsx:121,3,no,,,candidate,,
 gestao-vite-front-route-b3501780,gestao-vite,3,front-route,/roteador/:*,,apps/gestao-vite/src/App.tsx:302,6,no,,,candidate,,
 gestao-vite-front-route-73b47fbf,gestao-vite,3,front-route,/trocar-conta/sem-acesso,,apps/gestao-vite/src/App.tsx:272,2,no,,,candidate,,
-gestao-vite-literal-value-25ebacca,gestao-vite,3,literal-value,$enteringCustomActions,,apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:287,41,unknown,,,candidate,,
-gestao-vite-literal-value-4c126e43,gestao-vite,3,literal-value,$leavingCustomActions,,apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:287,25,unknown,,,candidate,,
-gestao-vite-literal-value-84ff2d70,gestao-vite,3,literal-value,abrir-arquivo,,apps/gestao-vite/src/componentes/icones-portal.tsx:360,9,unknown,,,candidate,,
-gestao-vite-literal-value-a7f690b4,gestao-vite,3,literal-value,acesso,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:40,136,unknown,,,candidate,,
-gestao-vite-literal-value-1c474883,gestao-vite,3,literal-value,acoes,,apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx:41,155,unknown,,,candidate,,
-gestao-vite-literal-value-922b8a9a,gestao-vite,3,literal-value,acoes,,apps/gestao-vite/src/paginas/builder/painel.tsx:26,155,unknown,,,candidate,,
-gestao-vite-literal-value-e82b6b9c,gestao-vite,3,literal-value,activeMessages,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:82,7,unknown,,,candidate,,
-gestao-vite-literal-value-29838fe8,gestao-vite,3,literal-value,admin,,apps/gestao-vite/src/paginas/contrato/catalogo.ts:170,142,unknown,,,candidate,,
-gestao-vite-literal-value-0c08781a,gestao-vite,3,literal-value,alerta,,apps/gestao-vite/src/lib/sla.ts:24,184,unknown,,,candidate,,
-gestao-vite-literal-value-bf1d84f4,gestao-vite,3,literal-value,andamento,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:38,29,unknown,,,candidate,,
-gestao-vite-literal-value-f4e0e286,gestao-vite,3,literal-value,arquivo-imagem,,apps/gestao-vite/src/componentes/icones-portal.tsx:501,3,unknown,,,candidate,,
-gestao-vite-literal-value-cdbc38c1,gestao-vite,3,literal-value,arquivo-pdf,,apps/gestao-vite/src/componentes/icones-portal.tsx:508,3,unknown,,,candidate,,
-gestao-vite-literal-value-cbeecb17,gestao-vite,3,literal-value,atendente,,apps/gestao-vite/src/lib/historico.ts:75,768,unknown,,,candidate,,
-gestao-vite-literal-value-12a0a660,gestao-vite,3,literal-value,atendente,,apps/gestao-vite/src/paginas/operacao/historico.tsx:123,768,unknown,,,candidate,,
-gestao-vite-literal-value-5d9ae45b,gestao-vite,3,literal-value,atendente,,apps/gestao-vite/src/paginas/operacao/monitoria.tsx:68,768,unknown,,,candidate,,
-gestao-vite-literal-value-ab8e68bc,gestao-vite,3,literal-value,atendente,,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:195,768,unknown,,,candidate,,
-gestao-vite-literal-value-78aafa51,gestao-vite,3,literal-value,atendentes,,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:47,309,unknown,,,candidate,,
-gestao-vite-literal-value-c32e3e43,gestao-vite,3,literal-value,atendentes,,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:40,309,unknown,,,candidate,,
-gestao-vite-literal-value-59529728,gestao-vite,3,literal-value,atendentes,,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:46,309,unknown,,,candidate,,
-gestao-vite-literal-value-b478d370,gestao-vite,3,literal-value,ativos,,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220,31,unknown,,,candidate,,
-gestao-vite-literal-value-cdd7ffe9,gestao-vite,3,literal-value,autenticacao,,apps/gestao-vite/src/lib/comunicacao.ts:2,181,unknown,,,candidate,,
-gestao-vite-literal-value-e477baf0,gestao-vite,3,literal-value,autenticacao,,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:19,181,unknown,,,candidate,,
-gestao-vite-literal-value-b33ef549,gestao-vite,3,literal-value,autenticacao,,apps/gestao-vite/tests/conteudos-regras.test.ts:91,181,unknown,,,candidate,,
-gestao-vite-literal-value-5b4679ab,gestao-vite,3,literal-value,bottom-center,,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151,7,unknown,,,candidate,,
-gestao-vite-literal-value-1840068b,gestao-vite,3,literal-value,configuracoes,,apps/gestao-vite/src/paginas/contrato/catalogo.ts:44,190,unknown,,,candidate,,
-gestao-vite-literal-value-c4b27bce,gestao-vite,3,literal-value,configuracoes,,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/tela.tsx:67,190,unknown,,,candidate,,
-gestao-vite-literal-value-5f93b1cb,gestao-vite,3,literal-value,contactsJourney,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:85,4,unknown,,,candidate,,
-gestao-vite-literal-value-c41637d6,gestao-vite,3,literal-value,contato.email,,apps/gestao-vite/src/lib/regra-fila.ts:52,36,unknown,,,candidate,,
-gestao-vite-literal-value-940064fa,gestao-vite,3,literal-value,contato.nome,,apps/gestao-vite/src/lib/regra-fila.ts:51,55,unknown,,,candidate,,
-gestao-vite-literal-value-062df6d7,gestao-vite,3,literal-value,contato.telefone,,apps/gestao-vite/src/lib/regra-fila.ts:53,17,unknown,,,candidate,,
-gestao-vite-literal-value-5bd43d51,gestao-vite,3,literal-value,contatos,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:40,438,unknown,,,candidate,,
-gestao-vite-literal-value-5a018951,gestao-vite,3,literal-value,conversa,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:40,1270,unknown,,,candidate,,
-gestao-vite-literal-value-699c5fb9,gestao-vite,3,literal-value,cumprido,,apps/gestao-vite/src/lib/sla.ts:24,21,unknown,,,candidate,,
-gestao-vite-literal-value-d8995ca4,gestao-vite,3,literal-value,dashboard,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:81,48,unknown,,,candidate,,
-gestao-vite-literal-value-1cc79fc9,gestao-vite,3,literal-value,dataDictionary,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:87,6,unknown,,,candidate,,
-gestao-vite-literal-value-f4591b71,gestao-vite,3,literal-value,dataExtractor,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:86,3,unknown,,,candidate,,
-gestao-vite-literal-value-6e5a8e15,gestao-vite,3,literal-value,dentro,,apps/gestao-vite/src/lib/sla.ts:24,495,unknown,,,candidate,,
-gestao-vite-literal-value-eeb17678,gestao-vite,3,literal-value,documento,,apps/gestao-vite/src/lib/comunicacao.ts:33,217,unknown,,,candidate,,
-gestao-vite-literal-value-ac8e5dab,gestao-vite,3,literal-value,documento,,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:11,217,unknown,,,candidate,,
-gestao-vite-literal-value-c0da2c53,gestao-vite,3,literal-value,encerramento,,apps/gestao-vite/src/lib/pesquisa.ts:41,69,unknown,,,candidate,,
-gestao-vite-literal-value-d69fbd9c,gestao-vite,3,literal-value,engajados,,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220,10,unknown,,,candidate,,
-gestao-vite-literal-value-7f76bce8,gestao-vite,3,literal-value,enviadas,,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220,109,unknown,,,candidate,,
-gestao-vite-literal-value-1d399f15,gestao-vite,3,literal-value,enviar-arquivo,,apps/gestao-vite/src/componentes/icones-portal.tsx:318,5,unknown,,,candidate,,
-gestao-vite-literal-value-00af788b,gestao-vite,3,literal-value,erro-contorno,,apps/gestao-vite/src/componentes/icones-portal.tsx:447,5,unknown,,,candidate,,
-gestao-vite-literal-value-4ffd9509,gestao-vite,3,literal-value,estourado,,apps/gestao-vite/src/lib/sla.ts:24,36,unknown,,,candidate,,
-gestao-vite-literal-value-509fbcb4,gestao-vite,3,literal-value,feito,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:38,73,unknown,,,candidate,,
-gestao-vite-literal-value-b295ebb6,gestao-vite,3,literal-value,fila,,apps/gestao-vite/src/lib/historico.ts:74,993,unknown,,,candidate,,
-gestao-vite-literal-value-d304e659,gestao-vite,3,literal-value,fila,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:40,993,unknown,,,candidate,,
-gestao-vite-literal-value-caac9ce2,gestao-vite,3,literal-value,fila,,apps/gestao-vite/src/paginas/operacao/historico.tsx:123,993,unknown,,,candidate,,
-gestao-vite-literal-value-c8dd3e59,gestao-vite,3,literal-value,fila,,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:195,993,unknown,,,candidate,,
-gestao-vite-literal-value-b1516f57,gestao-vite,3,literal-value,filas,,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:48,297,unknown,,,candidate,,
-gestao-vite-literal-value-b1e48146,gestao-vite,3,literal-value,filas,,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:41,297,unknown,,,candidate,,
-gestao-vite-literal-value-eef82d52,gestao-vite,3,literal-value,filas,,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:45,297,unknown,,,candidate,,
-gestao-vite-literal-value-e9d00b96,gestao-vite,3,literal-value,fluxo,,apps/gestao-vite/src/paginas/fluxo/itens.ts:39,1172,unknown,,,candidate,,
-gestao-vite-literal-value-82b66aab,gestao-vite,3,literal-value,fluxo,,apps/gestao-vite/tests/fluxo-detalhe.test.ts:25,1172,unknown,,,candidate,,
-gestao-vite-literal-value-d430462a,gestao-vite,3,literal-value,fluxo,,apps/gestao-vite/tests/fluxo-detalhe.test.ts:32,1172,unknown,,,candidate,,
-gestao-vite-literal-value-16e07902,gestao-vite,3,literal-value,fluxo,,apps/gestao-vite/tests/fluxo-detalhe.test.ts:39,1172,unknown,,,candidate,,
-gestao-vite-literal-value-90b80bdb,gestao-vite,3,literal-value,fluxo,,apps/gestao-vite/tests/fluxo-detalhe.test.ts:47,1172,unknown,,,candidate,,
-gestao-vite-literal-value-0eb9366e,gestao-vite,3,literal-value,fluxo,,apps/gestao-vite/tests/fluxo-detalhe.test.ts:58,1172,unknown,,,candidate,,
-gestao-vite-literal-value-98fb0f43,gestao-vite,3,literal-value,funcionalidades,,apps/gestao-vite/src/paginas/contrato/catalogo.ts:49,16,unknown,,,candidate,,
-gestao-vite-literal-value-f0393a25,gestao-vite,3,literal-value,goodData,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:88,6,unknown,,,candidate,,
-gestao-vite-literal-value-452084b9,gestao-vite,3,literal-value,guest,,apps/gestao-vite/src/paginas/contrato/catalogo.ts:170,54,unknown,,,candidate,,
-gestao-vite-literal-value-fa80d9ab,gestao-vite,3,literal-value,imagem,,apps/gestao-vite/src/lib/comunicacao.ts:33,218,unknown,,,candidate,,
-gestao-vite-literal-value-02c1f0fd,gestao-vite,3,literal-value,imagem,,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:10,218,unknown,,,candidate,,
-gestao-vite-literal-value-591fd08a,gestao-vite,3,literal-value,informacao-cheia,,apps/gestao-vite/src/componentes/icones-portal.tsx:262,13,unknown,,,candidate,,
-gestao-vite-literal-value-bb530354,gestao-vite,3,literal-value,instagram,,apps/gestao-vite/src/lib/canal-do-fluxo.ts:14,121,unknown,,,candidate,,
-gestao-vite-literal-value-8d687139,gestao-vite,3,literal-value,left-bottom,,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151,2,unknown,,,candidate,,
-gestao-vite-literal-value-9fbc5d6d,gestao-vite,3,literal-value,left-center,,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151,3,unknown,,,candidate,,
-gestao-vite-literal-value-b1c6be02,gestao-vite,3,literal-value,member,,apps/gestao-vite/src/paginas/contrato/catalogo.ts:170,52,unknown,,,candidate,,
-gestao-vite-literal-value-ba5ce69d,gestao-vite,3,literal-value,membros,,apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:630,128,unknown,,,candidate,,
-gestao-vite-literal-value-fd766d14,gestao-vite,3,literal-value,mensagem-enviada,,apps/gestao-vite/src/componentes/icones-portal.tsx:255,4,unknown,,,candidate,,
-gestao-vite-literal-value-8748d6bc,gestao-vite,3,literal-value,mensagem-erro,,apps/gestao-vite/src/componentes/icones-portal.tsx:397,3,unknown,,,candidate,,
-gestao-vite-literal-value-e29a602a,gestao-vite,3,literal-value,mensagem-lida,,apps/gestao-vite/src/componentes/icones-portal.tsx:389,3,unknown,,,candidate,,
-gestao-vite-literal-value-12fbeb20,gestao-vite,3,literal-value,mensagem-recebida,,apps/gestao-vite/src/componentes/icones-portal.tsx:248,4,unknown,,,candidate,,
-gestao-vite-literal-value-97572f81,gestao-vite,3,literal-value,mensagem,,apps/gestao-vite/src/lib/regra-fila.ts:50,1267,unknown,,,candidate,,
-gestao-vite-literal-value-f7b4b985,gestao-vite,3,literal-value,messenger,,apps/gestao-vite/src/lib/canal-do-fluxo.ts:14,66,unknown,,,candidate,,
-gestao-vite-literal-value-1d28c9c7,gestao-vite,3,literal-value,nenhum,,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:61,293,unknown,,,candidate,,
-gestao-vite-literal-value-bf95970a,gestao-vite,3,literal-value,overview,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:83,5,unknown,,,candidate,,
-gestao-vite-literal-value-2d10855e,gestao-vite,3,literal-value,pagamento,,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:13,49,unknown,,,candidate,,
-gestao-vite-literal-value-f95a2f88,gestao-vite,3,literal-value,papel,,apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:74,521,unknown,,,candidate,,
-gestao-vite-literal-value-900ca87e,gestao-vite,3,literal-value,pendente,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:38,162,unknown,,,candidate,,
-gestao-vite-literal-value-5a631786,gestao-vite,3,literal-value,preferencias-gerais,,apps/gestao-vite/src/componentes/icones-portal.tsx:623,3,unknown,,,candidate,,
-gestao-vite-literal-value-75d8fb3b,gestao-vite,3,literal-value,primeira_resposta,,apps/gestao-vite/src/lib/pesquisa.ts:41,49,unknown,,,candidate,,
-gestao-vite-literal-value-8cb09a3d,gestao-vite,3,literal-value,recebidas,,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220,55,unknown,,,candidate,,
-gestao-vite-literal-value-db76edbb,gestao-vite,3,literal-value,reports,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:84,294,unknown,,,candidate,,
-gestao-vite-literal-value-6becf727,gestao-vite,3,literal-value,roteador,,apps/gestao-vite/src/paginas/fluxo/itens.ts:39,387,unknown,,,candidate,,
-gestao-vite-literal-value-6eb10a05,gestao-vite,3,literal-value,roteador,,apps/gestao-vite/tests/fluxo-detalhe.test.ts:25,387,unknown,,,candidate,,
-gestao-vite-literal-value-0f8d9b2e,gestao-vite,3,literal-value,roteador,,apps/gestao-vite/tests/fluxo-detalhe.test.ts:32,387,unknown,,,candidate,,
-gestao-vite-literal-value-fbb18ce5,gestao-vite,3,literal-value,roteador,,apps/gestao-vite/tests/fluxo-detalhe.test.ts:39,387,unknown,,,candidate,,
-gestao-vite-literal-value-57c8f669,gestao-vite,3,literal-value,roteador,,apps/gestao-vite/tests/fluxo-detalhe.test.ts:47,387,unknown,,,candidate,,
-gestao-vite-literal-value-6408e007,gestao-vite,3,literal-value,roteador,,apps/gestao-vite/tests/fluxo-detalhe.test.ts:58,387,unknown,,,candidate,,
-gestao-vite-literal-value-70a73d86,gestao-vite,3,literal-value,sem_arquivo,,apps/gestao-vite/src/lib/certificados.ts:25,7,unknown,,,candidate,,
-gestao-vite-literal-value-a20baa08,gestao-vite,3,literal-value,sem_regra,,apps/gestao-vite/src/lib/sla.ts:24,6,unknown,,,candidate,,
-gestao-vite-literal-value-ae7dda28,gestao-vite,3,literal-value,texto-mensagem,,apps/gestao-vite/src/componentes/icones-portal.tsx:494,3,unknown,,,candidate,,
-gestao-vite-literal-value-224f1e1a,gestao-vite,3,literal-value,top-right,,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151,3,unknown,,,candidate,,
-gestao-vite-literal-value-8b489a55,gestao-vite,3,literal-value,usuario,,apps/gestao-vite/src/paginas/builder/painel-variaveis.tsx:26,347,unknown,,,candidate,,
-gestao-vite-literal-value-6d1fa97f,gestao-vite,3,literal-value,utilidade,,apps/gestao-vite/src/lib/comunicacao.ts:2,49,unknown,,,candidate,,
-gestao-vite-literal-value-a82c6689,gestao-vite,3,literal-value,utilidade,,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx:16,49,unknown,,,candidate,,
-gestao-vite-literal-value-b7d72d75,gestao-vite,3,literal-value,utilidade,,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:19,49,unknown,,,candidate,,
-gestao-vite-literal-value-a592ddba,gestao-vite,3,literal-value,vazio,,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:150,290,unknown,,,candidate,,
-gestao-vite-literal-value-55f020fa,gestao-vite,3,literal-value,versoes,,apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx:41,32,unknown,,,candidate,,
-gestao-vite-literal-value-31b692e7,gestao-vite,3,literal-value,whatsapp_cloud,,apps/gestao-vite/src/lib/canal-do-fluxo.ts:14,80,unknown,,,candidate,,
+gestao-vite-literal-value-84ff2d70,gestao-vite,3,literal-value,abrir-arquivo,,apps/gestao-vite/src/componentes/icones-portal.tsx:360,9,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:360
+gestao-vite-literal-value-a7f690b4,gestao-vite,3,literal-value,acesso,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:40,136,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:40
+gestao-vite-literal-value-1c474883,gestao-vite,3,literal-value,acoes,,apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx:41,155,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx:41
+gestao-vite-literal-value-922b8a9a,gestao-vite,3,literal-value,acoes,,apps/gestao-vite/src/paginas/builder/painel.tsx:26,155,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/builder/painel.tsx:26
+gestao-vite-literal-value-e82b6b9c,gestao-vite,3,literal-value,activeMessages,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:82,7,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:82
+gestao-vite-literal-value-0c08781a,gestao-vite,3,literal-value,alerta,,apps/gestao-vite/src/lib/sla.ts:24,184,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/sla.ts:24
+gestao-vite-literal-value-bf1d84f4,gestao-vite,3,literal-value,andamento,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:38,29,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:38
+gestao-vite-literal-value-f4e0e286,gestao-vite,3,literal-value,arquivo-imagem,,apps/gestao-vite/src/componentes/icones-portal.tsx:501,3,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:501
+gestao-vite-literal-value-cdbc38c1,gestao-vite,3,literal-value,arquivo-pdf,,apps/gestao-vite/src/componentes/icones-portal.tsx:508,3,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:508
+gestao-vite-literal-value-cbeecb17,gestao-vite,3,literal-value,atendente,,apps/gestao-vite/src/lib/historico.ts:75,768,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/historico.ts:75
+gestao-vite-literal-value-12a0a660,gestao-vite,3,literal-value,atendente,,apps/gestao-vite/src/paginas/operacao/historico.tsx:123,768,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/historico.tsx:123
+gestao-vite-literal-value-5d9ae45b,gestao-vite,3,literal-value,atendente,,apps/gestao-vite/src/paginas/operacao/monitoria.tsx:68,768,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/monitoria.tsx:68
+gestao-vite-literal-value-ab8e68bc,gestao-vite,3,literal-value,atendente,,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:195,768,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:195
+gestao-vite-literal-value-78aafa51,gestao-vite,3,literal-value,atendentes,,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:47,309,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:47
+gestao-vite-literal-value-c32e3e43,gestao-vite,3,literal-value,atendentes,,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:40,309,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:40
+gestao-vite-literal-value-59529728,gestao-vite,3,literal-value,atendentes,,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:46,309,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:46
+gestao-vite-literal-value-b478d370,gestao-vite,3,literal-value,ativos,,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220,31,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220
+gestao-vite-literal-value-5b4679ab,gestao-vite,3,literal-value,bottom-center,,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151,7,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151
+gestao-vite-literal-value-1840068b,gestao-vite,3,literal-value,configuracoes,,apps/gestao-vite/src/paginas/contrato/catalogo.ts:44,190,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/contrato/catalogo.ts:44
+gestao-vite-literal-value-c4b27bce,gestao-vite,3,literal-value,configuracoes,,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/tela.tsx:67,190,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/tela.tsx:67
+gestao-vite-literal-value-5f93b1cb,gestao-vite,3,literal-value,contactsJourney,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:85,4,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:85
+gestao-vite-literal-value-5bd43d51,gestao-vite,3,literal-value,contatos,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:40,438,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:40
+gestao-vite-literal-value-5a018951,gestao-vite,3,literal-value,conversa,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:40,1270,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:40
+gestao-vite-literal-value-699c5fb9,gestao-vite,3,literal-value,cumprido,,apps/gestao-vite/src/lib/sla.ts:24,21,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/sla.ts:24
+gestao-vite-literal-value-d8995ca4,gestao-vite,3,literal-value,dashboard,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:81,48,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:81
+gestao-vite-literal-value-1cc79fc9,gestao-vite,3,literal-value,dataDictionary,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:87,6,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:87
+gestao-vite-literal-value-f4591b71,gestao-vite,3,literal-value,dataExtractor,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:86,3,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:86
+gestao-vite-literal-value-6e5a8e15,gestao-vite,3,literal-value,dentro,,apps/gestao-vite/src/lib/sla.ts:24,495,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/sla.ts:24
+gestao-vite-literal-value-d69fbd9c,gestao-vite,3,literal-value,engajados,,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220,10,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220
+gestao-vite-literal-value-7f76bce8,gestao-vite,3,literal-value,enviadas,,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220,109,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220
+gestao-vite-literal-value-1d399f15,gestao-vite,3,literal-value,enviar-arquivo,,apps/gestao-vite/src/componentes/icones-portal.tsx:318,5,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:318
+gestao-vite-literal-value-00af788b,gestao-vite,3,literal-value,erro-contorno,,apps/gestao-vite/src/componentes/icones-portal.tsx:447,5,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:447
+gestao-vite-literal-value-4ffd9509,gestao-vite,3,literal-value,estourado,,apps/gestao-vite/src/lib/sla.ts:24,36,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/sla.ts:24
+gestao-vite-literal-value-509fbcb4,gestao-vite,3,literal-value,feito,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:38,73,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:38
+gestao-vite-literal-value-b295ebb6,gestao-vite,3,literal-value,fila,,apps/gestao-vite/src/lib/historico.ts:74,993,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/historico.ts:74
+gestao-vite-literal-value-d304e659,gestao-vite,3,literal-value,fila,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:40,993,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:40
+gestao-vite-literal-value-caac9ce2,gestao-vite,3,literal-value,fila,,apps/gestao-vite/src/paginas/operacao/historico.tsx:123,993,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/historico.tsx:123
+gestao-vite-literal-value-c8dd3e59,gestao-vite,3,literal-value,fila,,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:195,993,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:195
+gestao-vite-literal-value-b1516f57,gestao-vite,3,literal-value,filas,,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:48,297,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:48
+gestao-vite-literal-value-b1e48146,gestao-vite,3,literal-value,filas,,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:41,297,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:41
+gestao-vite-literal-value-eef82d52,gestao-vite,3,literal-value,filas,,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:45,297,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:45
+gestao-vite-literal-value-98fb0f43,gestao-vite,3,literal-value,funcionalidades,,apps/gestao-vite/src/paginas/contrato/catalogo.ts:49,16,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/contrato/catalogo.ts:49
+gestao-vite-literal-value-f0393a25,gestao-vite,3,literal-value,goodData,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:88,6,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:88
+gestao-vite-literal-value-591fd08a,gestao-vite,3,literal-value,informacao-cheia,,apps/gestao-vite/src/componentes/icones-portal.tsx:262,13,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:262
+gestao-vite-literal-value-8d687139,gestao-vite,3,literal-value,left-bottom,,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151,2,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151
+gestao-vite-literal-value-9fbc5d6d,gestao-vite,3,literal-value,left-center,,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151,3,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151
+gestao-vite-literal-value-ba5ce69d,gestao-vite,3,literal-value,membros,,apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:630,128,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:630
+gestao-vite-literal-value-fd766d14,gestao-vite,3,literal-value,mensagem-enviada,,apps/gestao-vite/src/componentes/icones-portal.tsx:255,4,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:255
+gestao-vite-literal-value-8748d6bc,gestao-vite,3,literal-value,mensagem-erro,,apps/gestao-vite/src/componentes/icones-portal.tsx:397,3,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:397
+gestao-vite-literal-value-e29a602a,gestao-vite,3,literal-value,mensagem-lida,,apps/gestao-vite/src/componentes/icones-portal.tsx:389,3,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:389
+gestao-vite-literal-value-12fbeb20,gestao-vite,3,literal-value,mensagem-recebida,,apps/gestao-vite/src/componentes/icones-portal.tsx:248,4,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:248
+gestao-vite-literal-value-bf95970a,gestao-vite,3,literal-value,overview,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:83,5,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:83
+gestao-vite-literal-value-f95a2f88,gestao-vite,3,literal-value,papel,,apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:74,521,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:74
+gestao-vite-literal-value-900ca87e,gestao-vite,3,literal-value,pendente,,apps/gestao-vite/src/lib/passos-da-implantacao.ts:38,162,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/passos-da-implantacao.ts:38
+gestao-vite-literal-value-5a631786,gestao-vite,3,literal-value,preferencias-gerais,,apps/gestao-vite/src/componentes/icones-portal.tsx:623,3,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:623
+gestao-vite-literal-value-8cb09a3d,gestao-vite,3,literal-value,recebidas,,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220,55,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.tsx:220
+gestao-vite-literal-value-db76edbb,gestao-vite,3,literal-value,reports,,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:84,294,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:84
+gestao-vite-literal-value-70a73d86,gestao-vite,3,literal-value,sem_arquivo,,apps/gestao-vite/src/lib/certificados.ts:25,7,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/certificados.ts:25
+gestao-vite-literal-value-a20baa08,gestao-vite,3,literal-value,sem_regra,,apps/gestao-vite/src/lib/sla.ts:24,6,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/lib/sla.ts:24
+gestao-vite-literal-value-ae7dda28,gestao-vite,3,literal-value,texto-mensagem,,apps/gestao-vite/src/componentes/icones-portal.tsx:494,3,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/componentes/icones-portal.tsx:494
+gestao-vite-literal-value-224f1e1a,gestao-vite,3,literal-value,top-right,,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151,3,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:151
+gestao-vite-literal-value-8b489a55,gestao-vite,3,literal-value,usuario,,apps/gestao-vite/src/paginas/builder/painel-variaveis.tsx:26,347,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/builder/painel-variaveis.tsx:26
+gestao-vite-literal-value-a592ddba,gestao-vite,3,literal-value,vazio,,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:150,290,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:150
+gestao-vite-literal-value-55f020fa,gestao-vite,3,literal-value,versoes,,apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx:41,32,no,,D-11,candidate,,Non-stored discriminator at apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx:41
 gestao-vite-package-a616064b,gestao-vite,4,package,@pipe/gestao-vite,,apps/gestao-vite/package.json:1,0,no,,,candidate,,
 gestao-vite-symbol-3f98caff,gestao-vite,3,symbol,AbaConfiguracoes,,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/configuracoes.tsx:15,3,no,,,candidate,,
 gestao-vite-symbol-071c33fa,gestao-vite,3,symbol,AbaDeAcoesGlobais,,apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx:96,2,no,,,candidate,,

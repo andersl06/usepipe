@@ -3,9 +3,9 @@ packages-tempo-real-dir-732260a2,packages-tempo-real,1,dir,packages/tempo-real/s
 packages-tempo-real-dir-2ca346ea,packages-tempo-real,1,dir,packages/tempo-real/tests,,packages/tempo-real/tests,0,no,,,candidate,,
 packages-tempo-real-dir-a73abb1c,packages-tempo-real,1,dir,packages/tempo-real,,packages/tempo-real,0,no,,,candidate,,
 packages-tempo-real-file-403647e2,packages-tempo-real,1,file,tempo-real.test.ts,,packages/tempo-real/tests/tempo-real.test.ts,0,no,,,candidate,,
-packages-tempo-real-literal-value-3c1bee82,packages-tempo-real,1,literal-value,caiu,,packages/tempo-real/src/index.ts:55,23,unknown,,,candidate,,
-packages-tempo-real-literal-value-4196b501,packages-tempo-real,1,literal-value,ligado,,packages/tempo-real/src/index.ts:55,137,unknown,,,candidate,,
-packages-tempo-real-literal-value-dccd6b9f,packages-tempo-real,1,literal-value,ligando,,packages/tempo-real/src/index.ts:55,8,unknown,,,candidate,,
+packages-tempo-real-literal-value-3c1bee82,packages-tempo-real,1,literal-value,caiu,,packages/tempo-real/src/index.ts:55,23,no,,D-11,candidate,,Non-stored discriminator at packages/tempo-real/src/index.ts:55
+packages-tempo-real-literal-value-4196b501,packages-tempo-real,1,literal-value,ligado,,packages/tempo-real/src/index.ts:55,137,no,,D-11,candidate,,Non-stored discriminator at packages/tempo-real/src/index.ts:55
+packages-tempo-real-literal-value-dccd6b9f,packages-tempo-real,1,literal-value,ligando,,packages/tempo-real/src/index.ts:55,8,no,,D-11,candidate,,Non-stored discriminator at packages/tempo-real/src/index.ts:55
 packages-tempo-real-package-35c97f1c,packages-tempo-real,4,package,@pipe/tempo-real,,packages/tempo-real/package.json:1,0,no,,,candidate,,
 packages-tempo-real-symbol-0e9b91fb,packages-tempo-real,1,symbol,criar,,packages/tempo-real/src/index.ts:106,235,no,,,candidate,,
 packages-tempo-real-symbol-a1589d65,packages-tempo-real,1,symbol,criarSocket,,packages/tempo-real/tests/tempo-real.test.ts:39,14,no,,,candidate,,

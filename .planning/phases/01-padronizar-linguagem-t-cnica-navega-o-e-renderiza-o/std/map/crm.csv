@@ -1,5 +1,5 @@
 id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
-crm-cookie-c60f36ce,crm,3,cookie,pipe_sessao,,apps/crm/src/lib/sessao.ts:48,29,unknown,,,candidate,,
+crm-cookie-c60f36ce,crm,3,cookie,pipe_sessao,,apps/crm/src/lib/sessao.ts:48,29,no,,D-38,candidate,,Short-lived or session cookie at apps/crm/src/lib/sessao.ts:48; cutover rename
 crm-dir-c240f0c1,crm,3,dir,apps/crm/semente,,apps/crm/semente,0,no,,,candidate,,
 crm-dir-a7a3d892,crm,3,dir,apps/crm/src/app/configuracoes/api,,apps/crm/src/app/configuracoes/api,0,no,,,candidate,,
 crm-dir-8ab72315,crm,3,dir,apps/crm/src/app/configuracoes/campos,,apps/crm/src/app/configuracoes/campos,0,no,,,candidate,,
@@ -65,51 +65,21 @@ crm-front-route-410a4d50,crm,3,front-route,/convite/:*,,apps/crm/src/app/convite
 crm-front-route-525671ef,crm,3,front-route,/entrar,,apps/crm/src/app/entrar/page.tsx,13,no,,,candidate,,
 crm-front-route-571e090e,crm,3,front-route,/oportunidades/:*,,apps/crm/src/app/oportunidades/[id]/page.tsx,5,no,,,candidate,,
 crm-front-route-34d9114c,crm,3,front-route,/oportunidades,,apps/crm/src/app/oportunidades/page.tsx,9,no,,,candidate,,
-crm-literal-value-8af421d4,crm,3,literal-value,asc,,apps/crm/src/lib/leads-visao.ts:163,153,unknown,,,candidate,,
-crm-literal-value-8b6e4e0f,crm,3,literal-value,atendentes:ler,,apps/crm/src/lib/configuracoes-comum.ts:169,0,unknown,,,candidate,,
-crm-literal-value-ec583835,crm,3,literal-value,conta,,apps/crm/src/app/oportunidades/[id]/page.tsx:35,808,unknown,,,candidate,,
-crm-literal-value-2f2faffa,crm,3,literal-value,conta,,apps/crm/src/lib/busca-tipos.ts:12,808,unknown,,,candidate,,
-crm-literal-value-88b34d83,crm,3,literal-value,conta,,apps/crm/src/lib/busca.ts:87,808,unknown,,,candidate,,
-crm-literal-value-717e06b7,crm,3,literal-value,contato.criado,,apps/crm/src/lib/configuracoes-comum.ts:192,6,unknown,,,candidate,,
-crm-literal-value-efb2fad3,crm,3,literal-value,contato,,apps/crm/src/lib/busca-tipos.ts:12,1026,unknown,,,candidate,,
-crm-literal-value-3a1a83c5,crm,3,literal-value,contato,,apps/crm/src/lib/busca.ts:94,1026,unknown,,,candidate,,
-crm-literal-value-c798058a,crm,3,literal-value,contatos:escrever,,apps/crm/src/lib/configuracoes-comum.ts:167,0,unknown,,,candidate,,
-crm-literal-value-4d82b684,crm,3,literal-value,contatos:ler,,apps/crm/src/lib/configuracoes-comum.ts:166,0,unknown,,,candidate,,
-crm-literal-value-e4fbfa3a,crm,3,literal-value,contatos,,apps/crm/src/app/contas/[id]/page.tsx:39,438,unknown,,,candidate,,
-crm-literal-value-d59e3e7c,crm,3,literal-value,conversa.atribuida,,apps/crm/src/lib/configuracoes-comum.ts:188,5,unknown,,,candidate,,
-crm-literal-value-754b3bbd,crm,3,literal-value,conversa.criada,,apps/crm/src/lib/configuracoes-comum.ts:186,12,unknown,,,candidate,,
-crm-literal-value-8f0e5d64,crm,3,literal-value,conversa.encerrada,,apps/crm/src/lib/configuracoes-comum.ts:189,6,unknown,,,candidate,,
-crm-literal-value-2cd13918,crm,3,literal-value,conversa.estado_alterado,,apps/crm/src/lib/configuracoes-comum.ts:187,7,unknown,,,candidate,,
-crm-literal-value-064abd46,crm,3,literal-value,conversas:escrever,,apps/crm/src/lib/configuracoes-comum.ts:163,0,unknown,,,candidate,,
-crm-literal-value-2e5bc53d,crm,3,literal-value,conversas:ler,,apps/crm/src/lib/configuracoes-comum.ts:162,0,unknown,,,candidate,,
-crm-literal-value-f3343f6a,crm,3,literal-value,conversas,,apps/crm/src/app/contatos/[id]/page.tsx:37,540,unknown,,,candidate,,
-crm-literal-value-2d92fe30,crm,3,literal-value,cordeiroalimentos.com.br,,apps/crm/semente/semente-crm.ts:112,1,unknown,,,candidate,,
-crm-literal-value-e0e1eebc,crm,3,literal-value,desc,,apps/crm/src/lib/leads-visao.ts:163,108,unknown,,,candidate,,
-crm-literal-value-d2cf818b,crm,3,literal-value,filas:ler,,apps/crm/src/lib/configuracoes-comum.ts:168,0,unknown,,,candidate,,
-crm-literal-value-357bf3d9,crm,3,literal-value,historico,,apps/crm/src/app/oportunidades/[id]/page.tsx:34,41,unknown,,,candidate,,
-crm-literal-value-f6235ce5,crm,3,literal-value,ligacao,,apps/crm/semente/semente-crm.ts:769,23,unknown,,,candidate,,
-crm-literal-value-962cc6fc,crm,3,literal-value,mensagem.criada,,apps/crm/src/lib/configuracoes-comum.ts:190,23,unknown,,,candidate,,
-crm-literal-value-0d265121,crm,3,literal-value,mensagem.estado_entrega_alterado,,apps/crm/src/lib/configuracoes-comum.ts:191,4,unknown,,,candidate,,
-crm-literal-value-6e4194de,crm,3,literal-value,mensagens:escrever,,apps/crm/src/lib/configuracoes-comum.ts:165,0,unknown,,,candidate,,
-crm-literal-value-052ae0ff,crm,3,literal-value,mensagens:ler,,apps/crm/src/lib/configuracoes-comum.ts:164,0,unknown,,,candidate,,
-crm-literal-value-ff57c41b,crm,3,literal-value,modelo.recategorizado,,apps/crm/src/lib/configuracoes-comum.ts:193,7,unknown,,,candidate,,
-crm-literal-value-1804af4e,crm,3,literal-value,nenhuma,,apps/crm/src/lib/leads-visao.ts:162,268,unknown,,,candidate,,
-crm-literal-value-96f76a6e,crm,3,literal-value,observacao,,apps/crm/semente/semente-crm.ts:299,1,unknown,,,candidate,,
-crm-literal-value-3e291847,crm,3,literal-value,oportunidade,,apps/crm/src/lib/busca-tipos.ts:12,69,unknown,,,candidate,,
-crm-literal-value-4205a833,crm,3,literal-value,oportunidade,,apps/crm/src/lib/busca.ts:80,69,unknown,,,candidate,,
-crm-literal-value-61d477a8,crm,3,literal-value,oportunidades,,apps/crm/src/app/contas/[id]/page.tsx:38,53,unknown,,,candidate,,
-crm-literal-value-a495c604,crm,3,literal-value,rezendeeducacao.com.br,,apps/crm/semente/semente-crm.ts:119,1,unknown,,,candidate,,
-crm-literal-value-9a0fb671,crm,3,literal-value,selecao_unica,,apps/crm/semente/semente-crm.ts:230,6,unknown,,,candidate,,
-crm-literal-value-49235d5a,crm,3,literal-value,selecao_unica,,apps/crm/semente/semente-crm.ts:237,6,unknown,,,candidate,,
-crm-literal-value-e874c6df,crm,3,literal-value,selecao_unica,,apps/crm/semente/semente-crm.ts:258,6,unknown,,,candidate,,
-crm-literal-value-d8dcd6c8,crm,3,literal-value,selecao_unica,,apps/crm/semente/semente-crm.ts:270,6,unknown,,,candidate,,
-crm-literal-value-39454999,crm,3,literal-value,selecao_unica,,apps/crm/semente/semente-crm.ts:287,6,unknown,,,candidate,,
-crm-literal-value-63c1e39d,crm,3,literal-value,selecao,,apps/crm/src/lib/campos-editaveis.ts:15,34,unknown,,,candidate,,
-crm-literal-value-75fd81c7,crm,3,literal-value,selecao,,apps/crm/src/lib/campos-editaveis.ts:30,34,unknown,,,candidate,,
-crm-literal-value-543535cc,crm,3,literal-value,selecao,,apps/crm/src/lib/configuracoes-comum.ts:113,34,unknown,,,candidate,,
-crm-literal-value-aa329789,crm,3,literal-value,tempo,,apps/crm/src/app/leads/[id]/page.tsx:52,280,unknown,,,candidate,,
-crm-storage-key-6a668149,crm,3,storage-key,pipe-tema,,apps/crm/src/lib/configuracoes-comum.ts:27,3,unknown,,,candidate,,
-crm-storage-key-af5ac3b9,crm,3,storage-key,pipe.crm.leads.visoes,,apps/crm/src/componentes/visoes-salvas.tsx:24,1,unknown,,,candidate,,
+crm-literal-value-8af421d4,crm,3,literal-value,asc,,apps/crm/src/lib/leads-visao.ts:163,153,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/lib/leads-visao.ts:163
+crm-literal-value-ec583835,crm,3,literal-value,conta,,apps/crm/src/app/oportunidades/[id]/page.tsx:35,808,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/app/oportunidades/[id]/page.tsx:35
+crm-literal-value-2f2faffa,crm,3,literal-value,conta,,apps/crm/src/lib/busca-tipos.ts:12,808,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/lib/busca-tipos.ts:12
+crm-literal-value-88b34d83,crm,3,literal-value,conta,,apps/crm/src/lib/busca.ts:87,808,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/lib/busca.ts:87
+crm-literal-value-efb2fad3,crm,3,literal-value,contato,,apps/crm/src/lib/busca-tipos.ts:12,1026,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/lib/busca-tipos.ts:12
+crm-literal-value-3a1a83c5,crm,3,literal-value,contato,,apps/crm/src/lib/busca.ts:94,1026,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/lib/busca.ts:94
+crm-literal-value-e4fbfa3a,crm,3,literal-value,contatos,,apps/crm/src/app/contas/[id]/page.tsx:39,438,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/app/contas/[id]/page.tsx:39
+crm-literal-value-f3343f6a,crm,3,literal-value,conversas,,apps/crm/src/app/contatos/[id]/page.tsx:37,540,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/app/contatos/[id]/page.tsx:37
+crm-literal-value-e0e1eebc,crm,3,literal-value,desc,,apps/crm/src/lib/leads-visao.ts:163,108,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/lib/leads-visao.ts:163
+crm-literal-value-357bf3d9,crm,3,literal-value,historico,,apps/crm/src/app/oportunidades/[id]/page.tsx:34,41,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/app/oportunidades/[id]/page.tsx:34
+crm-literal-value-1804af4e,crm,3,literal-value,nenhuma,,apps/crm/src/lib/leads-visao.ts:162,268,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/lib/leads-visao.ts:162
+crm-literal-value-3e291847,crm,3,literal-value,oportunidade,,apps/crm/src/lib/busca-tipos.ts:12,69,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/lib/busca-tipos.ts:12
+crm-literal-value-4205a833,crm,3,literal-value,oportunidade,,apps/crm/src/lib/busca.ts:80,69,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/lib/busca.ts:80
+crm-literal-value-61d477a8,crm,3,literal-value,oportunidades,,apps/crm/src/app/contas/[id]/page.tsx:38,53,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/app/contas/[id]/page.tsx:38
+crm-literal-value-aa329789,crm,3,literal-value,tempo,,apps/crm/src/app/leads/[id]/page.tsx:52,280,no,,D-11,candidate,,Non-stored discriminator at apps/crm/src/app/leads/[id]/page.tsx:52
 crm-symbol-25243ccd,crm,3,symbol,AbaConta,,apps/crm/src/app/contas/[id]/page.tsx:42,3,no,,,candidate,,
 crm-symbol-c926aa8f,crm,3,symbol,AbaContato,,apps/crm/src/app/contatos/[id]/page.tsx:41,3,no,,,candidate,,
 crm-symbol-d68b2580,crm,3,symbol,AbaOportunidade,,apps/crm/src/app/oportunidades/[id]/page.tsx:38,3,no,,,candidate,,

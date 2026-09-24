@@ -6,11 +6,11 @@ packages-ui-file-d4e749c7,packages-ui,1,file,encerramento-ticket.tsx,,packages/u
 packages-ui-file-fac4f6ec,packages-ui,1,file,estrutura.tsx,,packages/ui/src/componentes/estrutura.tsx,2,no,,,candidate,,
 packages-ui-file-652dc3e4,packages-ui,1,file,ilustracoes.tsx,,packages/ui/src/ilustracoes.tsx,2,no,,,candidate,,
 packages-ui-file-eb5b5e31,packages-ui,1,file,regras-encerramento.ts,,packages/ui/src/regras-encerramento.ts,0,no,,,candidate,,
-packages-ui-literal-value-89d10714,packages-ui,1,literal-value,busca,,packages/ui/src/ilustracoes.tsx:27,420,unknown,,,candidate,,
-packages-ui-literal-value-6e970524,packages-ui,1,literal-value,concluido,,packages/ui/src/ilustracoes.tsx:27,17,unknown,,,candidate,,
-packages-ui-literal-value-5e09a977,packages-ui,1,literal-value,erro,,packages/ui/src/componentes/primitivos.tsx:90,1478,unknown,,,candidate,,
-packages-ui-literal-value-e1ff4d09,packages-ui,1,literal-value,erro,,packages/ui/src/ilustracoes.tsx:27,1478,unknown,,,candidate,,
-packages-ui-literal-value-f63d2bb1,packages-ui,1,literal-value,vazio,,packages/ui/src/ilustracoes.tsx:27,290,unknown,,,candidate,,
+packages-ui-literal-value-89d10714,packages-ui,1,literal-value,busca,,packages/ui/src/ilustracoes.tsx:27,420,no,,D-11,candidate,,Non-stored discriminator at packages/ui/src/ilustracoes.tsx:27
+packages-ui-literal-value-6e970524,packages-ui,1,literal-value,concluido,,packages/ui/src/ilustracoes.tsx:27,17,no,,D-11,candidate,,Non-stored discriminator at packages/ui/src/ilustracoes.tsx:27
+packages-ui-literal-value-5e09a977,packages-ui,1,literal-value,erro,,packages/ui/src/componentes/primitivos.tsx:90,1478,no,,D-11,candidate,,Non-stored discriminator at packages/ui/src/componentes/primitivos.tsx:90
+packages-ui-literal-value-e1ff4d09,packages-ui,1,literal-value,erro,,packages/ui/src/ilustracoes.tsx:27,1478,no,,D-11,candidate,,Non-stored discriminator at packages/ui/src/ilustracoes.tsx:27
+packages-ui-literal-value-f63d2bb1,packages-ui,1,literal-value,vazio,,packages/ui/src/ilustracoes.tsx:27,290,no,,D-11,candidate,,Non-stored discriminator at packages/ui/src/ilustracoes.tsx:27
 packages-ui-symbol-64dcfc7a,packages-ui,1,symbol,Aplicacao,,packages/ui/src/componentes/estrutura.tsx:199,4,no,,,candidate,,
 packages-ui-symbol-e9390450,packages-ui,1,symbol,AreaConfiguracoes,,packages/ui/src/componentes/estrutura.tsx:218,7,no,,,candidate,,
 packages-ui-symbol-4e35e975,packages-ui,1,symbol,AvisoEncerramento,,packages/ui/src/componentes/aviso-encerramento.tsx:11,6,no,,,candidate,,

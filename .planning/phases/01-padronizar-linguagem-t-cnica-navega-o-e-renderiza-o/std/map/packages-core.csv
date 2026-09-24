@@ -30,92 +30,42 @@ packages-core-file-e0d39b14,packages-core,1,file,sessao.ts,,packages/core/src/es
 packages-core-file-ffd7eddb,packages-core,1,file,sla.teste.ts,,packages/core/src/sla/sla.teste.ts,0,no,,,candidate,,
 packages-core-file-810fcac6,packages-core,1,file,tempo.ts,,packages/core/src/comum/tempo.ts,0,no,,,candidate,,
 packages-core-file-af1135dc,packages-core,1,file,tsconfig.testes.json,,packages/core/tsconfig.testes.json,5,no,,,candidate,,
-packages-core-literal-value-a1863a13,packages-core,1,literal-value,abandonada,,packages/core/src/metricas/encerramento.ts:11,23,unknown,,,candidate,,
-packages-core-literal-value-79d109aa,packages-core,1,literal-value,alerta,,packages/core/src/sla/regra.ts:19,184,unknown,,,candidate,,
-packages-core-literal-value-c8cb743c,packages-core,1,literal-value,atendente,,packages/core/src/esforco/regua.ts:34,768,unknown,,,candidate,,
-packages-core-literal-value-0b90719c,packages-core,1,literal-value,atendente,,packages/core/src/metricas/eventos.ts:28,768,unknown,,,candidate,,
-packages-core-literal-value-89acb8f2,packages-core,1,literal-value,atribuida,,packages/core/src/conversa/maquina.ts:27,98,unknown,,,candidate,,
-packages-core-literal-value-96a7b7e1,packages-core,1,literal-value,audio,,packages/core/src/esforco/regua.ts:39,95,unknown,,,candidate,,
-packages-core-literal-value-48ca29b5,packages-core,1,literal-value,autenticacao,,packages/core/src/janela/janela.ts:25,181,unknown,,,candidate,,
-packages-core-literal-value-965a2419,packages-core,1,literal-value,bot,,packages/core/src/esforco/regua.ts:34,333,unknown,,,candidate,,
-packages-core-literal-value-ba1c1787,packages-core,1,literal-value,cliente,,packages/core/src/metricas/eventos.ts:28,850,unknown,,,candidate,,
-packages-core-literal-value-8c0bb655,packages-core,1,literal-value,contato,,packages/core/src/esforco/regua.ts:34,1026,unknown,,,candidate,,
+packages-core-literal-value-a1863a13,packages-core,1,literal-value,abandonada,,packages/core/src/metricas/encerramento.ts:11,23,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/metricas/encerramento.ts:11
+packages-core-literal-value-79d109aa,packages-core,1,literal-value,alerta,,packages/core/src/sla/regra.ts:19,184,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/sla/regra.ts:19
 packages-core-literal-value-2e721142,packages-core,1,literal-value,contem,KEEP,packages/core/src/score/motor.ts:32,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
-packages-core-literal-value-b0916e54,packages-core,1,literal-value,conteudo,,packages/core/src/fluxo/contexto.ts:123,292,unknown,,,candidate,,
 packages-core-literal-value-6b37fa3a,packages-core,1,literal-value,conteudo,KEEP,packages/core/src/fluxo/contexto.ts:126,0,unknown,,,candidate,,jsonb:processHttpExecucao.contexto
-packages-core-literal-value-8a30ebe5,packages-core,1,literal-value,custom,,packages/core/src/analise/index.ts:37,60,unknown,,,candidate,,
+packages-core-literal-value-8a30ebe5,packages-core,1,literal-value,custom,,packages/core/src/analise/index.ts:37,60,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/analise/index.ts:37
 packages-core-literal-value-2d60eef9,packages-core,1,literal-value,DELETE,KEEP,packages/core/src/fluxo/contexto.ts:111,0,unknown,,,candidate,,jsonb:processHttpExecucao.pedido
-packages-core-literal-value-a5e6eb52,packages-core,1,literal-value,dentro,,packages/core/src/sla/regra.ts:19,495,unknown,,,candidate,,
+packages-core-literal-value-a5e6eb52,packages-core,1,literal-value,dentro,,packages/core/src/sla/regra.ts:19,495,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/sla/regra.ts:19
 packages-core-literal-value-f3842f2a,packages-core,1,literal-value,diferente,KEEP,packages/core/src/score/motor.ts:32,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
-packages-core-literal-value-4264cbba,packages-core,1,literal-value,documento,,packages/core/src/esforco/regua.ts:41,217,unknown,,,candidate,,
-packages-core-literal-value-7f38628b,packages-core,1,literal-value,em_atendimento,,packages/core/src/conversa/maquina.ts:28,66,unknown,,,candidate,,
-packages-core-literal-value-e68d16b7,packages-core,1,literal-value,em_espera,,packages/core/src/conversa/maquina.ts:29,49,unknown,,,candidate,,
-packages-core-literal-value-541fb63d,packages-core,1,literal-value,email,,packages/core/src/janela/janela.ts:23,629,unknown,,,candidate,,
 packages-core-literal-value-4bf81317,packages-core,1,literal-value,em,KEEP,packages/core/src/score/motor.ts:32,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
-packages-core-literal-value-7e59381e,packages-core,1,literal-value,encerrada,,packages/core/src/conversa/maquina.ts:30,177,unknown,,,candidate,,
-packages-core-literal-value-7f3e5b04,packages-core,1,literal-value,encerramento,,packages/core/src/sla/regra.ts:18,69,unknown,,,candidate,,
-packages-core-literal-value-56901c47,packages-core,1,literal-value,entrada,,packages/core/src/esforco/regua.ts:35,473,unknown,,,candidate,,
-packages-core-literal-value-826bc472,packages-core,1,literal-value,entrada,,packages/core/src/fluxo/contexto.ts:123,473,unknown,,,candidate,,
+packages-core-literal-value-7f3e5b04,packages-core,1,literal-value,encerramento,,packages/core/src/sla/regra.ts:18,69,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/sla/regra.ts:18
 packages-core-literal-value-b0efb3da,packages-core,1,literal-value,entrada,,packages/core/src/fluxo/contexto.ts:126,0,unknown,,,candidate,,jsonb:processHttpExecucao.contexto
-packages-core-literal-value-21e8e17e,packages-core,1,literal-value,entregue,,packages/core/src/conversa/maquina.ts:177,52,unknown,,,candidate,,
-packages-core-literal-value-f848a7ea,packages-core,1,literal-value,enviada,,packages/core/src/conversa/maquina.ts:177,77,unknown,,,candidate,,
-packages-core-literal-value-eae71bd9,packages-core,1,literal-value,enviando,,packages/core/src/conversa/maquina.ts:177,218,unknown,,,candidate,,
 packages-core-literal-value-d0789b1a,packages-core,1,literal-value,e,KEEP,packages/core/src/score/motor.ts:37,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
-packages-core-literal-value-a5647073,packages-core,1,literal-value,estourado,,packages/core/src/sla/regra.ts:19,36,unknown,,,candidate,,
-packages-core-literal-value-9ce3e15f,packages-core,1,literal-value,etiqueta,,packages/core/src/sla/regra.ts:20,290,unknown,,,candidate,,
+packages-core-literal-value-a5647073,packages-core,1,literal-value,estourado,,packages/core/src/sla/regra.ts:19,36,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/sla/regra.ts:19
 packages-core-literal-value-b17bf5e7,packages-core,1,literal-value,existe,KEEP,packages/core/src/score/motor.ts:32,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
-packages-core-literal-value-888e0975,packages-core,1,literal-value,falhou,,packages/core/src/conversa/maquina.ts:177,169,unknown,,,candidate,,
-packages-core-literal-value-903954f1,packages-core,1,literal-value,fila,,packages/core/src/sla/regra.ts:20,993,unknown,,,candidate,,
-packages-core-literal-value-5462dd38,packages-core,1,literal-value,finalizada,,packages/core/src/metricas/encerramento.ts:11,20,unknown,,,candidate,,
-packages-core-literal-value-c5a64701,packages-core,1,literal-value,fora_da_fila,,packages/core/src/distribuicao/carga.ts:40,4,unknown,,,candidate,,
+packages-core-literal-value-5462dd38,packages-core,1,literal-value,finalizada,,packages/core/src/metricas/encerramento.ts:11,20,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/metricas/encerramento.ts:11
+packages-core-literal-value-c5a64701,packages-core,1,literal-value,fora_da_fila,,packages/core/src/distribuicao/carga.ts:40,4,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/distribuicao/carga.ts:40
 packages-core-literal-value-f000237e,packages-core,1,literal-value,GET,KEEP,packages/core/src/fluxo/contexto.ts:111,0,unknown,,,candidate,,jsonb:processHttpExecucao.pedido
 packages-core-literal-value-dfe4c2fe,packages-core,1,literal-value,igual,KEEP,packages/core/src/score/motor.ts:32,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
-packages-core-literal-value-cd435112,packages-core,1,literal-value,imagem,,packages/core/src/esforco/regua.ts:38,218,unknown,,,candidate,,
-packages-core-literal-value-f14c283c,packages-core,1,literal-value,inatividade,,packages/core/src/metricas/eventos.ts:28,27,unknown,,,candidate,,
-packages-core-literal-value-04d7fb6f,packages-core,1,literal-value,interna,,packages/core/src/esforco/regua.ts:35,54,unknown,,,candidate,,
-packages-core-literal-value-93f82566,packages-core,1,literal-value,invisivel,,packages/core/src/distribuicao/carga.ts:20,25,unknown,,,candidate,,
-packages-core-literal-value-521fab4c,packages-core,1,literal-value,janela_fechada,,packages/core/src/janela/janela.ts:94,9,unknown,,,candidate,,
-packages-core-literal-value-f807c743,packages-core,1,literal-value,lida,,packages/core/src/conversa/maquina.ts:177,105,unknown,,,candidate,,
-packages-core-literal-value-9530c97a,packages-core,1,literal-value,localizacao,,packages/core/src/esforco/regua.ts:42,10,unknown,,,candidate,,
+packages-core-literal-value-521fab4c,packages-core,1,literal-value,janela_fechada,,packages/core/src/janela/janela.ts:94,9,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/janela/janela.ts:94
 packages-core-literal-value-968123d4,packages-core,1,literal-value,maior_igual,KEEP,packages/core/src/score/motor.ts:32,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
 packages-core-literal-value-6c6d8f2a,packages-core,1,literal-value,maior,KEEP,packages/core/src/score/motor.ts:32,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
 packages-core-literal-value-a15b2592,packages-core,1,literal-value,menor_igual,KEEP,packages/core/src/score/motor.ts:32,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
 packages-core-literal-value-d99038e4,packages-core,1,literal-value,menor,KEEP,packages/core/src/score/motor.ts:32,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
-packages-core-literal-value-dbc464c6,packages-core,1,literal-value,mensagem_entrada,,packages/core/src/metricas/eventos.ts:16,20,unknown,,,candidate,,
-packages-core-literal-value-1c37c5c5,packages-core,1,literal-value,mensagem_saida,,packages/core/src/metricas/eventos.ts:17,20,unknown,,,candidate,,
-packages-core-literal-value-9ff496f2,packages-core,1,literal-value,na_fila,,packages/core/src/conversa/maquina.ts:26,68,unknown,,,candidate,,
 packages-core-literal-value-fd8f6c42,packages-core,1,literal-value,nao_contem,KEEP,packages/core/src/score/motor.ts:32,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
 packages-core-literal-value-1171081a,packages-core,1,literal-value,nao_em,KEEP,packages/core/src/score/motor.ts:32,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
 packages-core-literal-value-fc2de641,packages-core,1,literal-value,nao_existe,KEEP,packages/core/src/score/motor.ts:32,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
-packages-core-literal-value-e8f442f4,packages-core,1,literal-value,offline,,packages/core/src/distribuicao/carga.ts:20,45,unknown,,,candidate,,
-packages-core-literal-value-8b0aff78,packages-core,1,literal-value,online,,packages/core/src/distribuicao/carga.ts:20,97,unknown,,,candidate,,
 packages-core-literal-value-b54c4833,packages-core,1,literal-value,ou,KEEP,packages/core/src/score/motor.ts:37,0,unknown,,,candidate,,jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao
 packages-core-literal-value-2075aadf,packages-core,1,literal-value,PATCH,KEEP,packages/core/src/fluxo/contexto.ts:111,0,unknown,,,candidate,,jsonb:processHttpExecucao.pedido
-packages-core-literal-value-00d8642e,packages-core,1,literal-value,pausa,,packages/core/src/distribuicao/carga.ts:20,150,unknown,,,candidate,,
-packages-core-literal-value-1bb58a02,packages-core,1,literal-value,pendente,,packages/core/src/conversa/maquina.ts:177,162,unknown,,,candidate,,
-packages-core-literal-value-6c3fbcda,packages-core,1,literal-value,perdida,,packages/core/src/metricas/encerramento.ts:11,25,unknown,,,candidate,,
+packages-core-literal-value-6c3fbcda,packages-core,1,literal-value,perdida,,packages/core/src/metricas/encerramento.ts:11,25,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/metricas/encerramento.ts:11
 packages-core-literal-value-bb99f592,packages-core,1,literal-value,POST,KEEP,packages/core/src/fluxo/contexto.ts:111,0,unknown,,,candidate,,jsonb:processHttpExecucao.pedido
-packages-core-literal-value-e5e513ca,packages-core,1,literal-value,primeira_resposta,,packages/core/src/metricas/eventos.ts:15,49,unknown,,,candidate,,
-packages-core-literal-value-5a57ad2c,packages-core,1,literal-value,primeira_resposta,,packages/core/src/sla/regra.ts:18,49,unknown,,,candidate,,
-packages-core-literal-value-e9ef4d31,packages-core,1,literal-value,prioridade,,packages/core/src/sla/regra.ts:20,146,unknown,,,candidate,,
 packages-core-literal-value-8e84431e,packages-core,1,literal-value,PUT,KEEP,packages/core/src/fluxo/contexto.ts:111,0,unknown,,,candidate,,jsonb:processHttpExecucao.pedido
-packages-core-literal-value-75dda4c6,packages-core,1,literal-value,saida,,packages/core/src/esforco/regua.ts:35,283,unknown,,,candidate,,
-packages-core-literal-value-d49b1b9e,packages-core,1,literal-value,saida,,packages/core/src/fluxo/contexto.ts:123,283,unknown,,,candidate,,
 packages-core-literal-value-6fe0643c,packages-core,1,literal-value,saida,KEEP,packages/core/src/fluxo/contexto.ts:126,0,unknown,,,candidate,,jsonb:processHttpExecucao.contexto
-packages-core-literal-value-2d28b411,packages-core,1,literal-value,sem_prioridade,,packages/core/src/conversa/prioridade.ts:34,24,unknown,,,candidate,,
-packages-core-literal-value-2fef48a9,packages-core,1,literal-value,sistema,,packages/core/src/esforco/regua.ts:34,118,unknown,,,candidate,,
-packages-core-literal-value-0d694b60,packages-core,1,literal-value,template,,packages/core/src/esforco/regua.ts:43,393,unknown,,,candidate,,
-packages-core-literal-value-3907e766,packages-core,1,literal-value,tempo_resposta,,packages/core/src/sla/regra.ts:18,11,unknown,,,candidate,,
-packages-core-literal-value-0607370b,packages-core,1,literal-value,teto_sem_primeira_resposta,,packages/core/src/distribuicao/carga.ts:43,5,unknown,,,candidate,,
-packages-core-literal-value-6475dad8,packages-core,1,literal-value,texto,,packages/core/src/esforco/regua.ts:37,1496,unknown,,,candidate,,
-packages-core-literal-value-f3c2a32a,packages-core,1,literal-value,transferencia,,packages/core/src/metricas/eventos.ts:28,18,unknown,,,candidate,,
-packages-core-literal-value-554ab559,packages-core,1,literal-value,transferida_fila,,packages/core/src/metricas/eventos.ts:14,8,unknown,,,candidate,,
-packages-core-literal-value-9a0bbc6a,packages-core,1,literal-value,transicao_entrega_invalida,,packages/core/src/conversa/maquina.ts:190,1,unknown,,,candidate,,
-packages-core-literal-value-bbaca5dd,packages-core,1,literal-value,transicao_invalida,,packages/core/src/conversa/maquina.ts:51,3,unknown,,,candidate,,
-packages-core-literal-value-a9af4c42,packages-core,1,literal-value,utilidade,,packages/core/src/janela/janela.ts:25,49,unknown,,,candidate,,
-packages-core-literal-value-2adc9451,packages-core,1,literal-value,video,,packages/core/src/esforco/regua.ts:40,117,unknown,,,candidate,,
-packages-core-literal-value-51dfcd5f,packages-core,1,literal-value,whatsapp_cloud,,packages/core/src/janela/janela.ts:23,80,unknown,,,candidate,,
-packages-core-literal-value-c2695c6a,packages-core,1,literal-value,widget,,packages/core/src/janela/janela.ts:23,31,unknown,,,candidate,,
+packages-core-literal-value-3907e766,packages-core,1,literal-value,tempo_resposta,,packages/core/src/sla/regra.ts:18,11,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/sla/regra.ts:18
+packages-core-literal-value-0607370b,packages-core,1,literal-value,teto_sem_primeira_resposta,,packages/core/src/distribuicao/carga.ts:43,5,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/distribuicao/carga.ts:43
+packages-core-literal-value-9a0bbc6a,packages-core,1,literal-value,transicao_entrega_invalida,,packages/core/src/conversa/maquina.ts:190,1,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/conversa/maquina.ts:190
+packages-core-literal-value-bbaca5dd,packages-core,1,literal-value,transicao_invalida,,packages/core/src/conversa/maquina.ts:51,3,no,,D-11,candidate,,Non-stored discriminator at packages/core/src/conversa/maquina.ts:51
 packages-core-script-b66bcaf0,packages-core,1,script,test:observar,,packages/core/package.json:1,0,no,,,candidate,,
 packages-core-subpath-export-f8424953,packages-core,1,subpath-export,./analise,,packages/core/package.json:1,0,no,,,candidate,,
 packages-core-subpath-export-496c7143,packages-core,1,subpath-export,./conversa,,packages/core/package.json:1,0,no,,,candidate,,

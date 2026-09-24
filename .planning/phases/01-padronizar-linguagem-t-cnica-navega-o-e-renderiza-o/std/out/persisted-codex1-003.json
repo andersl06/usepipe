@@ -1,0 +1,484 @@
+{
+  "rows": [
+    {
+      "id": "packages-db-literal-value-20386879",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-135a3aaa",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-6094cb6f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres seeded permissao.modulo / papel / role data"
+    },
+    {
+      "id": "packages-db-literal-value-9918434f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK acao_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-ae0982c9",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK conversa_estado_ck (t.estado)"
+    },
+    {
+      "id": "packages-db-literal-value-0b3c68f0",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK tenant_plano_ck (t.plano)"
+    },
+    {
+      "id": "packages-db-literal-value-8356e83a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK campo_customizado_objeto_ck (t.objeto)"
+    },
+    {
+      "id": "packages-db-literal-value-0b557bf0",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-316d74e0",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-8265368c",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK evento_atendimento_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-d0d35491",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK regra_sla_alvo_ck (t.alvo)"
+    },
+    {
+      "id": "packages-db-literal-value-cfd011e2",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-33719d48",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-c255c228",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-56feafbe",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-41753784",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK regra_sla_alvo_ck (t.alvo)"
+    },
+    {
+      "id": "packages-db-literal-value-38e553c7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-e71193a7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK fluxo_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-b3c6b0dc",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK formulario_pergunta_tipo_ck (t.tipo); campo_customizado_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-26352c2b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK formulario_pergunta_tipo_ck (t.tipo); campo_customizado_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-4e9c4885",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK evento_atendimento_tipo_ck (t.tipo)"
+    },
+    {
+      "id": "packages-db-literal-value-40878af1",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres permissao.codigo / seeded permission or role reference"
+    },
+    {
+      "id": "packages-db-literal-value-fa38842f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres log_auditoria.ator_tipo"
+    },
+    {
+      "id": "packages-db-literal-value-6168bdb2",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK log_auditoria_ator_tipo_ck (t.atorTipo)"
+    },
+    {
+      "id": "packages-db-literal-value-766cf334",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK mensagem_categoria_cobranca_ck (t.categoriaCobranca)"
+    },
+    {
+      "id": "packages-db-literal-value-5938b991",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres CHECK template_mensagem_categoria_ck (t.categoria)"
+    },
+    {
+      "id": "packages-tempo-real-literal-value-3c1bee82",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/tempo-real/src/index.ts:55"
+    },
+    {
+      "id": "packages-tempo-real-literal-value-4196b501",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/tempo-real/src/index.ts:55"
+    },
+    {
+      "id": "packages-tempo-real-literal-value-dccd6b9f",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-11",
+      "notes": "Non-stored discriminator at packages/tempo-real/src/index.ts:55"
+    },
+    {
+      "id": "workers-job-name-8f0dde6c",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/workers/src/main.ts:75; drained at cutover"
+    },
+    {
+      "id": "workers-job-name-ceacb869",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/workers/src/main.ts:68; drained at cutover"
+    },
+    {
+      "id": "workers-literal-value-ddf73eb3",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres metrica_diaria.dimensao_tipo"
+    },
+    {
+      "id": "workers-literal-value-cb42742f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-f969c8fb",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-a6dfd4b9",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-1094e404",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-77a18c0f",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-52adef0b",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-1e470e08",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-9b27c3ad",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres metrica_diaria.dimensao_tipo"
+    },
+    {
+      "id": "workers-literal-value-1ada7996",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-64769a65",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-6c9c3064",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-7d3fe858",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-a47cc74a",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-c1fe8f73",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-826fdb46",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-e5b49dd7",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-literal-value-d0f13f55",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro"
+    },
+    {
+      "id": "workers-literal-value-1708f43e",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro"
+    },
+    {
+      "id": "workers-literal-value-c4de5bd5",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro"
+    },
+    {
+      "id": "workers-literal-value-c9773bb2",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-40",
+      "notes": "Postgres mensagem.erro_codigo; outbox_mensagem.ultimo_erro"
+    },
+    {
+      "id": "workers-literal-value-2fb97b20",
+      "new": "",
+      "persisted": "yes",
+      "category": "B",
+      "decision_ref": "D-11",
+      "notes": "Postgres mensagem.tipo / template_mensagem.cabecalho_tipo"
+    },
+    {
+      "id": "workers-queue-83adfdfd",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/workers/src/filas.ts:13; drained at cutover"
+    },
+    {
+      "id": "workers-queue-a3a6c0e5",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/workers/src/filas.ts:84; drained at cutover"
+    },
+    {
+      "id": "workers-queue-5508ad5a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/workers/src/filas.ts:11; drained at cutover"
+    },
+    {
+      "id": "workers-queue-c1deed63",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/workers/src/filas.ts:12; drained at cutover"
+    },
+    {
+      "id": "workers-queue-aa646349",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/workers/src/filas.ts:14; drained at cutover"
+    },
+    {
+      "id": "workers-queue-588e7283",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/workers/src/filas.ts:101; drained at cutover"
+    },
+    {
+      "id": "workers-queue-cbe9142a",
+      "new": "",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "D-10",
+      "notes": "BullMQ runtime name at apps/workers/src/filas.ts:15; drained at cutover"
+    }
+  ]
+}

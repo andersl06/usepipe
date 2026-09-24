@@ -43,46 +43,43 @@ desk-vite-file-adbe0070,desk-vite,3,file,sessao.tsx,,apps/desk-vite/src/contexto
 desk-vite-file-2df40b99,desk-vite,3,file,trilho.tsx,,apps/desk-vite/src/componentes/trilho.tsx,6,no,,,candidate,,
 desk-vite-front-route-564c8327,desk-vite,3,front-route,/convite/:*,,apps/desk-vite/src/App.tsx:32,3,no,,,candidate,,
 desk-vite-front-route-6644331a,desk-vite,3,front-route,/entrar,,apps/desk-vite/src/App.tsx:31,6,no,,,candidate,,
-desk-vite-literal-value-ad6f6513,desk-vite,3,literal-value,abertura,,apps/desk-vite/src/lib/ordem.ts:140,50,unknown,,,candidate,,
-desk-vite-literal-value-0ee9e28f,desk-vite,3,literal-value,abrir-arquivo,,apps/desk-vite/src/componentes/icones-portal.tsx:360,9,unknown,,,candidate,,
-desk-vite-literal-value-2f5dfffe,desk-vite,3,literal-value,acoes-em-massa,,apps/desk-vite/src/componentes/icones-desk.tsx:52,4,unknown,,,candidate,,
-desk-vite-literal-value-ed4e1e16,desk-vite,3,literal-value,alfabetica,,apps/desk-vite/src/lib/contatos.ts:16,7,unknown,,,candidate,,
-desk-vite-literal-value-fed55b03,desk-vite,3,literal-value,arquivo-imagem,,apps/desk-vite/src/componentes/icones-portal.tsx:501,3,unknown,,,candidate,,
-desk-vite-literal-value-8e521317,desk-vite,3,literal-value,arquivo-pdf,,apps/desk-vite/src/componentes/icones-portal.tsx:508,3,unknown,,,candidate,,
-desk-vite-literal-value-55a39ce5,desk-vite,3,literal-value,check,,apps/desk-vite/src/lib/grupos.ts:37,130,unknown,,,candidate,,
-desk-vite-literal-value-be3cdeb5,desk-vite,3,literal-value,contato,,apps/desk-vite/src/paginas/contatos/page.tsx:208,1026,unknown,,,candidate,,
-desk-vite-literal-value-126474c7,desk-vite,3,literal-value,duplo-check,,apps/desk-vite/src/lib/grupos.ts:37,5,unknown,,,candidate,,
-desk-vite-literal-value-cda91316,desk-vite,3,literal-value,em-espera,,apps/desk-vite/src/lib/ordem.ts:15,6,unknown,,,candidate,,
-desk-vite-literal-value-b90ccbc5,desk-vite,3,literal-value,email,,apps/desk-vite/src/lib/canal.ts:12,629,unknown,,,candidate,,
-desk-vite-literal-value-636f90ad,desk-vite,3,literal-value,enviar-arquivo,,apps/desk-vite/src/componentes/icones-portal.tsx:318,5,unknown,,,candidate,,
-desk-vite-literal-value-ce55f20f,desk-vite,3,literal-value,erro-contorno,,apps/desk-vite/src/componentes/icones-portal.tsx:447,5,unknown,,,candidate,,
-desk-vite-literal-value-009d6fb6,desk-vite,3,literal-value,erro,,apps/desk-vite/src/lib/grupos.ts:37,1478,unknown,,,candidate,,
-desk-vite-literal-value-92b95d3c,desk-vite,3,literal-value,historico,,apps/desk-vite/src/paginas/atendimentos/painel.tsx:26,41,unknown,,,candidate,,
-desk-vite-literal-value-36074fff,desk-vite,3,literal-value,historico,,apps/desk-vite/src/paginas/contatos/page.tsx:207,41,unknown,,,candidate,,
-desk-vite-literal-value-dd454795,desk-vite,3,literal-value,inativos,,apps/desk-vite/src/lib/ordem.ts:15,8,unknown,,,candidate,,
-desk-vite-literal-value-df3e2f83,desk-vite,3,literal-value,informacao-cheia,,apps/desk-vite/src/componentes/icones-portal.tsx:262,13,unknown,,,candidate,,
-desk-vite-literal-value-fee92108,desk-vite,3,literal-value,informacoes,,apps/desk-vite/src/paginas/atendimentos/painel.tsx:26,4,unknown,,,candidate,,
-desk-vite-literal-value-de010c82,desk-vite,3,literal-value,instagram,,apps/desk-vite/src/lib/canal.ts:12,121,unknown,,,candidate,,
-desk-vite-literal-value-9ff23cf8,desk-vite,3,literal-value,lida,,apps/desk-vite/src/lib/grupos.ts:37,105,unknown,,,candidate,,
-desk-vite-literal-value-88a97a78,desk-vite,3,literal-value,mais-opcoes,,apps/desk-vite/src/componentes/icones-desk.tsx:153,3,unknown,,,candidate,,
-desk-vite-literal-value-5a188a73,desk-vite,3,literal-value,mensagem-ativa,,apps/desk-vite/src/componentes/icones-desk.tsx:161,6,unknown,,,candidate,,
-desk-vite-literal-value-4363f4aa,desk-vite,3,literal-value,mensagem-enviada,,apps/desk-vite/src/componentes/icones-portal.tsx:255,4,unknown,,,candidate,,
-desk-vite-literal-value-da74d51e,desk-vite,3,literal-value,mensagem-erro,,apps/desk-vite/src/componentes/icones-portal.tsx:397,3,unknown,,,candidate,,
-desk-vite-literal-value-eb1358e6,desk-vite,3,literal-value,mensagem-lida,,apps/desk-vite/src/componentes/icones-portal.tsx:389,3,unknown,,,candidate,,
-desk-vite-literal-value-1e7f9210,desk-vite,3,literal-value,mensagem-recebida,,apps/desk-vite/src/componentes/icones-portal.tsx:248,4,unknown,,,candidate,,
-desk-vite-literal-value-b9cd73d1,desk-vite,3,literal-value,mensagens-ativas,,apps/desk-vite/src/componentes/icones-desk.tsx:27,39,unknown,,,candidate,,
-desk-vite-literal-value-caff777a,desk-vite,3,literal-value,nao-lidos,,apps/desk-vite/src/lib/ordem.ts:15,9,unknown,,,candidate,,
-desk-vite-literal-value-4442ba92,desk-vite,3,literal-value,preferencias-gerais,,apps/desk-vite/src/componentes/icones-portal.tsx:623,3,unknown,,,candidate,,
-desk-vite-literal-value-ca37e84d,desk-vite,3,literal-value,relogio,,apps/desk-vite/src/lib/grupos.ts:37,64,unknown,,,candidate,,
-desk-vite-literal-value-f2994050,desk-vite,3,literal-value,seta-primeira,,apps/desk-vite/src/componentes/icones-desk.tsx:481,1,unknown,,,candidate,,
-desk-vite-literal-value-b7a08661,desk-vite,3,literal-value,tempo-passado,,apps/desk-vite/src/componentes/icones-desk.tsx:406,1,unknown,,,candidate,,
-desk-vite-literal-value-cb14c739,desk-vite,3,literal-value,texto-mensagem,,apps/desk-vite/src/componentes/icones-portal.tsx:494,3,unknown,,,candidate,,
-desk-vite-literal-value-2489b9dc,desk-vite,3,literal-value,todos,,apps/desk-vite/src/lib/ordem.ts:15,224,unknown,,,candidate,,
-desk-vite-literal-value-883a9d56,desk-vite,3,literal-value,ultima-interacao,,apps/desk-vite/src/lib/contatos.ts:16,3,unknown,,,candidate,,
-desk-vite-literal-value-18ee0efb,desk-vite,3,literal-value,ultima-interacao,,apps/desk-vite/src/paginas/contatos/page.tsx:95,3,unknown,,,candidate,,
-desk-vite-literal-value-386c6af1,desk-vite,3,literal-value,ultima-mensagem,,apps/desk-vite/src/lib/ordem.ts:140,5,unknown,,,candidate,,
-desk-vite-literal-value-a82d3502,desk-vite,3,literal-value,usuario-ativo,,apps/desk-vite/src/componentes/icones-desk.tsx:561,1,unknown,,,candidate,,
-desk-vite-literal-value-7c1701e5,desk-vite,3,literal-value,whatsapp,,apps/desk-vite/src/lib/canal.ts:12,393,unknown,,,candidate,,
+desk-vite-literal-value-ad6f6513,desk-vite,3,literal-value,abertura,,apps/desk-vite/src/lib/ordem.ts:140,50,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/lib/ordem.ts:140
+desk-vite-literal-value-0ee9e28f,desk-vite,3,literal-value,abrir-arquivo,,apps/desk-vite/src/componentes/icones-portal.tsx:360,9,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:360
+desk-vite-literal-value-2f5dfffe,desk-vite,3,literal-value,acoes-em-massa,,apps/desk-vite/src/componentes/icones-desk.tsx:52,4,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:52
+desk-vite-literal-value-ed4e1e16,desk-vite,3,literal-value,alfabetica,,apps/desk-vite/src/lib/contatos.ts:16,7,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/lib/contatos.ts:16
+desk-vite-literal-value-fed55b03,desk-vite,3,literal-value,arquivo-imagem,,apps/desk-vite/src/componentes/icones-portal.tsx:501,3,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:501
+desk-vite-literal-value-8e521317,desk-vite,3,literal-value,arquivo-pdf,,apps/desk-vite/src/componentes/icones-portal.tsx:508,3,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:508
+desk-vite-literal-value-55a39ce5,desk-vite,3,literal-value,check,,apps/desk-vite/src/lib/grupos.ts:37,130,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/lib/grupos.ts:37
+desk-vite-literal-value-be3cdeb5,desk-vite,3,literal-value,contato,,apps/desk-vite/src/paginas/contatos/page.tsx:208,1026,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/paginas/contatos/page.tsx:208
+desk-vite-literal-value-126474c7,desk-vite,3,literal-value,duplo-check,,apps/desk-vite/src/lib/grupos.ts:37,5,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/lib/grupos.ts:37
+desk-vite-literal-value-cda91316,desk-vite,3,literal-value,em-espera,,apps/desk-vite/src/lib/ordem.ts:15,6,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/lib/ordem.ts:15
+desk-vite-literal-value-636f90ad,desk-vite,3,literal-value,enviar-arquivo,,apps/desk-vite/src/componentes/icones-portal.tsx:318,5,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:318
+desk-vite-literal-value-ce55f20f,desk-vite,3,literal-value,erro-contorno,,apps/desk-vite/src/componentes/icones-portal.tsx:447,5,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:447
+desk-vite-literal-value-009d6fb6,desk-vite,3,literal-value,erro,,apps/desk-vite/src/lib/grupos.ts:37,1478,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/lib/grupos.ts:37
+desk-vite-literal-value-92b95d3c,desk-vite,3,literal-value,historico,,apps/desk-vite/src/paginas/atendimentos/painel.tsx:26,41,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/paginas/atendimentos/painel.tsx:26
+desk-vite-literal-value-36074fff,desk-vite,3,literal-value,historico,,apps/desk-vite/src/paginas/contatos/page.tsx:207,41,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/paginas/contatos/page.tsx:207
+desk-vite-literal-value-dd454795,desk-vite,3,literal-value,inativos,,apps/desk-vite/src/lib/ordem.ts:15,8,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/lib/ordem.ts:15
+desk-vite-literal-value-df3e2f83,desk-vite,3,literal-value,informacao-cheia,,apps/desk-vite/src/componentes/icones-portal.tsx:262,13,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:262
+desk-vite-literal-value-fee92108,desk-vite,3,literal-value,informacoes,,apps/desk-vite/src/paginas/atendimentos/painel.tsx:26,4,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/paginas/atendimentos/painel.tsx:26
+desk-vite-literal-value-9ff23cf8,desk-vite,3,literal-value,lida,,apps/desk-vite/src/lib/grupos.ts:37,105,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/lib/grupos.ts:37
+desk-vite-literal-value-88a97a78,desk-vite,3,literal-value,mais-opcoes,,apps/desk-vite/src/componentes/icones-desk.tsx:153,3,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:153
+desk-vite-literal-value-5a188a73,desk-vite,3,literal-value,mensagem-ativa,,apps/desk-vite/src/componentes/icones-desk.tsx:161,6,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:161
+desk-vite-literal-value-4363f4aa,desk-vite,3,literal-value,mensagem-enviada,,apps/desk-vite/src/componentes/icones-portal.tsx:255,4,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:255
+desk-vite-literal-value-da74d51e,desk-vite,3,literal-value,mensagem-erro,,apps/desk-vite/src/componentes/icones-portal.tsx:397,3,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:397
+desk-vite-literal-value-eb1358e6,desk-vite,3,literal-value,mensagem-lida,,apps/desk-vite/src/componentes/icones-portal.tsx:389,3,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:389
+desk-vite-literal-value-1e7f9210,desk-vite,3,literal-value,mensagem-recebida,,apps/desk-vite/src/componentes/icones-portal.tsx:248,4,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:248
+desk-vite-literal-value-b9cd73d1,desk-vite,3,literal-value,mensagens-ativas,,apps/desk-vite/src/componentes/icones-desk.tsx:27,39,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:27
+desk-vite-literal-value-caff777a,desk-vite,3,literal-value,nao-lidos,,apps/desk-vite/src/lib/ordem.ts:15,9,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/lib/ordem.ts:15
+desk-vite-literal-value-4442ba92,desk-vite,3,literal-value,preferencias-gerais,,apps/desk-vite/src/componentes/icones-portal.tsx:623,3,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:623
+desk-vite-literal-value-ca37e84d,desk-vite,3,literal-value,relogio,,apps/desk-vite/src/lib/grupos.ts:37,64,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/lib/grupos.ts:37
+desk-vite-literal-value-f2994050,desk-vite,3,literal-value,seta-primeira,,apps/desk-vite/src/componentes/icones-desk.tsx:481,1,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:481
+desk-vite-literal-value-b7a08661,desk-vite,3,literal-value,tempo-passado,,apps/desk-vite/src/componentes/icones-desk.tsx:406,1,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:406
+desk-vite-literal-value-cb14c739,desk-vite,3,literal-value,texto-mensagem,,apps/desk-vite/src/componentes/icones-portal.tsx:494,3,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-portal.tsx:494
+desk-vite-literal-value-2489b9dc,desk-vite,3,literal-value,todos,,apps/desk-vite/src/lib/ordem.ts:15,224,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/lib/ordem.ts:15
+desk-vite-literal-value-883a9d56,desk-vite,3,literal-value,ultima-interacao,,apps/desk-vite/src/lib/contatos.ts:16,3,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/lib/contatos.ts:16
+desk-vite-literal-value-18ee0efb,desk-vite,3,literal-value,ultima-interacao,,apps/desk-vite/src/paginas/contatos/page.tsx:95,3,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/paginas/contatos/page.tsx:95
+desk-vite-literal-value-386c6af1,desk-vite,3,literal-value,ultima-mensagem,,apps/desk-vite/src/lib/ordem.ts:140,5,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/lib/ordem.ts:140
+desk-vite-literal-value-a82d3502,desk-vite,3,literal-value,usuario-ativo,,apps/desk-vite/src/componentes/icones-desk.tsx:561,1,no,,D-11,candidate,,Non-stored discriminator at apps/desk-vite/src/componentes/icones-desk.tsx:561
 desk-vite-symbol-7eca9f84,desk-vite,3,symbol,agruparContatos,,apps/desk-vite/src/lib/contatos.ts:39,6,no,,,candidate,,
 desk-vite-symbol-38c9ec11,desk-vite,3,symbol,anexo,,apps/desk-vite/src/paginas/atendimentos/compositor.tsx:138,150,no,,,candidate,,
 desk-vite-symbol-1c2a8101,desk-vite,3,symbol,anexoIds,,apps/desk-vite/src/paginas/atendimentos/compositor.tsx:128,4,no,,,candidate,,
