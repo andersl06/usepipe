@@ -33,7 +33,7 @@ Pipe já tem um núcleo grande construído e commitado (canais, monitoramento, e
   5. Nenhum dado ou contrato persistido foi renomeado mecanicamente — cada caso está listado com decisão própria, pendente ou já resolvida separadamente
   6. `apps/crm` segue a mesma convenção técnica sem que isso tenha antecipado ou contaminado a decisão de CRM-01
   7. Validação final não encontra nomenclatura técnica portuguesa remanescente não classificada (texto de produto, contrato persistido adiado, ou exceção documentada são as únicas categorias aceitas)
-**Plans**: 36 plans (28 waves: slice 0 tooling/inventory/gates 01-01..01-12 plus 01-34 jsonb fixtures (wave 2), 01-35 wire contracts (wave 5), 01-36 CSS map (wave 6), slice 1 packages 01-13..01-15, slice 2 API+workers 01-16..01-20, slice 3 fronts/CSS/CRM 01-21..01-27, slice 4 infra/names 01-28..01-30, slice 5 residual 01-31, final regression 01-32, cutover 01-33)
+**Plans**: 37 plans (29 waves: slice 0 tooling/inventory/gates 01-01..01-12 plus 01-34 jsonb fixtures (wave 2), 01-35 wire contracts (wave 5), 01-36 CSS map (wave 6), slice 1 packages 01-13..01-15, slice 2 API+workers 01-16..01-20 plus 01-37 (comment triage part 2, apply, gate; wave 16), slice 3 fronts/CSS/CRM 01-21..01-27, slice 4 infra/names 01-28..01-30, slice 5 residual 01-31, final regression 01-32, cutover 01-33)
 
 Plans:
 - [ ] 01-01-PLAN.md — Create the phase branch, fix the only root typecheck failure, and record the green baseline that every later slice gate is compared against (D-21, ...
@@ -55,7 +55,7 @@ Plans:
 - [ ] 01-17-PLAN.md — Slice 2b: apply the approved map for API identifiers, files, directories, subpath exports and test titles (not endpoint strings), and prove guards ...
 - [ ] 01-18-PLAN.md — Slice 2c: rename API endpoints and every path-string dependent, including auth callbacks, invite links, body-limit scoping and flow-key route parsing.
 - [ ] 01-19-PLAN.md — Slice 2d: rename the remaining API string contracts — non-persisted error codes, non-db wire keys, WebSocket events, and the session cookie — with ...
-- [ ] 01-20-PLAN.md — Close slice 2: comment triage for API, workers and ponte, slice gate, tag `std-slice-2-end`.
+- [ ] 01-20-PLAN.md — Slice 2 comment triage, part 1: mandatory security/integration set of api, workers and ponte (100% Sonnet) and API flow/domain comments (sensitive-first, then sample).
 - [ ] 01-21-PLAN.md — Slice 3a (D-19 step 3): apply the approved map to `apps/desk-vite` (identifiers, files, folders, routes, params, storage keys, test titles).
 - [ ] 01-22-PLAN.md — Implement the Desk part of the navigation contract (D-27, D-29, D-32) on the renamed Desk.
 - [ ] 01-23-PLAN.md — Slice 3c: apply the approved map to `apps/gestao-vite` (287 files) and execute the Gestão removals decided by the owner (D-14, D-28).
@@ -72,6 +72,7 @@ Plans:
 - [ ] 01-34-PLAN.md — Capture redacted jsonb fixtures from the pre-rename DB and add the jsonb-keys check and jsonb-compat test (goldens) that every slice gate runs (STD-06).
 - [ ] 01-35-PLAN.md — Classify every API endpoint's wire contract for key-rename impact (D-09).
 - [ ] 01-36-PLAN.md — Propose and review the CSS map: classes, custom properties and data-* attributes (D-35).
+- [ ] 01-37-PLAN.md — Slice 2 comment triage, part 2: API controllers and remaining backend comments, apply, backend residual scan, slice-2 gate, tag `std-slice-2-end`.
 **UI hint**: yes
 
 **Decisões em aberto para `/gsd-discuss-phase 1`** (não resolvidas por este roadmap, precisam de investigação/decisão do dono antes do plano):

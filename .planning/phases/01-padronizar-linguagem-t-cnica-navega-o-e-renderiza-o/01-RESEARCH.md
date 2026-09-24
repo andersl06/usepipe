@@ -466,14 +466,14 @@ CODEX_HOME="$HOME/.codex-conta2" codex exec \
 | A5 | Meta retries webhook deliveries that fail during the maintenance window | Drain runbook | Inbound messages during cutover lost. Keep the window short, or verify in Meta docs |
 | A6 | `upsertJobScheduler` arrived in BullMQ 5.16; `drizzle-kit export` in 0.30 | State of the Art | Informational only |
 
-## Open Questions
+## Open Questions (RESOLVED)
 
 1. **RESOLVED (D-35): CSS class names / custom properties / `data-*` attributes are in STD-10 scope.** Give CSS its own old->new map for owner gate 2; include selectors and custom properties in the rename and scan.
 2. **RESOLVED (D-36): all environment variable names stay unchanged**, including non-`PIPE_` names. Only the **value** of `GOOGLE_URL_RETORNO` changes to `/v1/auth/google/callback` in `.env`, `.env.example`, `env.prod.exemplo` and the VPS environment.
 3. **RESOLVED (D-37): Codex model is `gpt-5.6-sol` with `model_reasoning_effort="medium"`.** Every invocation explicitly passes `-m gpt-5.6-sol` and `-s read-only`.
 4. **RESOLVED (D-38): rename the `pipe_sessao` cookie and Prometheus metrics.** The owner accepts forced logout and broken continuity of metric series at deployment.
 5. **RESOLVED (D-39): `apps/site` and `apps/ponte` are in scope** for standardization.
-6. **OPEN: existing front/API path drift.** Run `tools/std/route-match.ts` on the baseline in slice 0 and record the result; the measured route-match output answers this question.
+6. **(RESOLVED) Existing front/API path drift.** Plan 01-03 measures the drift on the baseline with `tools/std/route-match.ts` and records every ORPHAN consumer or unmatched internal string in `std/route-drift-allow.csv` with `resolve_by` = `01-18`; plan 01-18 Task 2 fixes (or deletes as dead code) each one and empties the allowlist to its header line, so no pre-existing drift survives slice 2c.
 7. **RESOLVED (D-40): persisted API-key scopes and persisted error codes stay unchanged.** Inventory them under STD-06; do not rename them in this phase.
 
 ## Environment Availability
