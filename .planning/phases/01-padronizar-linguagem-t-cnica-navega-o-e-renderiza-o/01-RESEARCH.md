@@ -435,7 +435,7 @@ Then run `pnpm typecheck`, `pnpm test` (Docker Postgres/Redis are up locally) an
 ```bash
 # Git Bash. Read-only: Codex proposes, Claude/Haiku apply. One chunk per call.
 CODEX_HOME="$HOME/.codex-conta2" codex exec \
-  -m gpt-6-sol -c model_reasoning_effort="medium" \
+  -m gpt-5.6-sol -c model_reasoning_effort="medium" \
   -s read-only -C "C:/Users/anderson.linhares/pipe" \
   --ephemeral --color never \
   --output-schema .planning/phases/01-.../std/tools/map-rows.schema.json \
@@ -468,15 +468,13 @@ CODEX_HOME="$HOME/.codex-conta2" codex exec \
 
 ## Open Questions
 
-1. **Are CSS class names / custom properties / `data-*` attributes in STD-10 scope?** (~3,025 selectors, 482 vars, 36k CSS lines; e.g. `dk-conversa-vazia`, `data-painel="aberto"`.)
-   - Known: they are technical, non-persisted and not type-checked, so renaming them is risky and hard to verify (visual regression only).
-   - Recommendation: ask the owner. Default to C-exception for this phase (listed in `exceptions.csv`), with a follow-up item.
-2. **Do non-`PIPE_` PT env names (`GOOGLE_CLIENTE_ID`, `GOOGLE_URL_RETORNO`, `WHATSAPP_TOKEN_ACESSO`, `*_API_VERSAO`, `VITE_PORTA`, `VITE_URL_API`) fall under D-06?**
-   - D-06 names only `PIPE_*`. Recommendation: extend D-06 to all env names (C). Note that the **value** of `GOOGLE_URL_RETORNO` must change to `/callback` regardless.
-3. **Which "sol" model?** Both accounts list `gpt-6-sol` (default effort medium) and `gpt-5.6-sol` (default low). Both support `medium`. Owner to confirm the slug; the example above uses `gpt-6-sol`.
-4. **Cookie `pipe_sessao` and metric names:** rename (forced logout / broken series) or keep as C/B? Recommend keeping (C).
-5. **`apps/site`** (static, 1 TS file) and **`apps/ponte`** (out-of-scope lab tool per REQUIREMENTS, but D-04 lists a rename): confirm `site` is excluded (OPS-02 decides its fate) and that `ponte` gets renamed despite being lab-only.
-6. **Existing route drift:** unknown until route-match runs on the baseline. Plan a slice-0 task to run it and record the result.
+1. **RESOLVED (D-35): CSS class names / custom properties / `data-*` attributes are in STD-10 scope.** Give CSS its own old->new map for owner gate 2; include selectors and custom properties in the rename and scan.
+2. **RESOLVED (D-36): all environment variable names stay unchanged**, including non-`PIPE_` names. Only the **value** of `GOOGLE_URL_RETORNO` changes to `/v1/auth/google/callback` in `.env`, `.env.example`, `env.prod.exemplo` and the VPS environment.
+3. **RESOLVED (D-37): Codex model is `gpt-5.6-sol` with `model_reasoning_effort="medium"`.** Every invocation explicitly passes `-m gpt-5.6-sol` and `-s read-only`.
+4. **RESOLVED (D-38): rename the `pipe_sessao` cookie and Prometheus metrics.** The owner accepts forced logout and broken continuity of metric series at deployment.
+5. **RESOLVED (D-39): `apps/site` and `apps/ponte` are in scope** for standardization.
+6. **OPEN: existing front/API path drift.** Run `tools/std/route-match.ts` on the baseline in slice 0 and record the result; the measured route-match output answers this question.
+7. **RESOLVED (D-40): persisted API-key scopes and persisted error codes stay unchanged.** Inventory them under STD-06; do not rename them in this phase.
 
 ## Environment Availability
 
