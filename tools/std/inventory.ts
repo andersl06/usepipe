@@ -5,7 +5,7 @@ import path from 'node:path';
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
 import ts from 'typescript';
-import { MAP_COLUMNS, type MapRow, writeMap } from './lib/map.ts';
+import { MAP_COLUMNS, type MapRow } from './lib/map.ts';
 import { traceJsonbReach, type JsonbReachRow } from './lib/jsonb-reach.ts';
 import { loadWorkspaceProject } from './lib/project.ts';
 import { isPtComment, isPtToken, ptCommentScore, splitIdentifier } from './pt-detect.ts';
@@ -136,7 +136,7 @@ function collectCode(source: SourceText, rows: MapRow[], comments: CommentRow[])
       for (const member of node.type.types) if (ts.isLiteralTypeNode(member) && ts.isStringLiteral(member.literal)) add('literal-value', member.literal.text, member.literal, '', isPt(node.name.text));
     }
     if (ts.isEnumMember(node) && node.initializer && ts.isStringLiteralLike(node.initializer)) add('literal-value', node.initializer.text, node.initializer);
-    if (ts.isStringLiteralLike(node) && insideConstAssertion(node)) add('literal-value', node.text, node);
+    if (ts.isStringLiteralLike(node) && insideConstAssertion(node) && /^[a-z][a-z0-9_.:/*-]*$/.test(node.text)) add('literal-value', node.text, node);
     if (ts.isJsxAttribute(node) && node.name.text.startsWith('data-')) {
       const value = ts.isStringLiteral(node.initializer) ? node.initializer.text : undefined;
       const declared = `${file}:${lineOf(sf, node)}`;
@@ -350,6 +350,15 @@ export function extract(root: string): InventoryResult {
 
 function csv(headers: readonly string[], rows: Record<string, string>[]): string { const cell = (v: string): string => /[",\r\n]/.test(v) ? `"${v.replaceAll('"', '""')}"` : v; return `${headers.join(',')}\n${rows.map((r) => headers.map((h) => cell(r[h] ?? '')).join(',')).join('\n')}\n`; }
 function summary(result: InventoryResult): string { const lines = ['# Inventory summary', '', '| Scope | Kind | Rows |', '|---|---|---:|']; for (const scope of SCOPES) { const byKind = new Map<string, number>(); for (const r of result.rows.filter((r) => r.scope === scope)) byKind.set(r.kind, (byKind.get(r.kind) ?? 0) + 1); if (byKind.size === 0) lines.push(`| ${scope} | - | 0 |`); else for (const [kind, count] of [...byKind].sort()) lines.push(`| ${scope} | ${kind} | ${count} |`); } lines.push('', `Total rows: ${result.rows.length}`, `Total comments: ${result.comments.length}`, `Total route dependents: ${result.routeDependents.length}`); return `${lines.join('\n')}\n`; }
+function writeInventoryMap(out: string, rows: MapRow[]): void {
+  const dir = path.join(out, 'map'); fs.mkdirSync(dir, { recursive: true });
+  for (const scope of SCOPES) {
+    const scoped = rows.filter((r) => r.scope === scope);
+    fs.writeFileSync(path.join(dir, `${scope}.csv`), scoped.length
+      ? csv(MAP_COLUMNS, scoped)
+      : MAP_COLUMNS.join(','));
+  }
+}
 function printTotals(result: InventoryResult): void { for (const scope of SCOPES) console.log(`${scope}: ${result.rows.filter((r) => r.scope === scope).length}`); const kinds = new Map<string, number>(); for (const row of result.rows) kinds.set(row.kind, (kinds.get(row.kind) ?? 0) + 1); for (const [kind, count] of [...kinds].sort()) console.log(`kind ${kind}: ${count}`); console.log(`jsonb-reach: ${lastJsonbReport.length}`); const columns = new Map<string, number>(); for (const item of lastJsonbReport) columns.set(`${item.table}.${item.column}`, (columns.get(`${item.table}.${item.column}`) ?? 0) + 1); for (const [column, count] of [...columns].sort()) console.log(`jsonb ${column}: ${count}`); console.log(`jsonb names: ${[...new Set(lastJsonbReport.map((item) => item.name))].sort().join(',')}`); console.log(`comments: ${result.comments.length}; route-dependents: ${result.routeDependents.length}`); }
-function main(): void { const args = process.argv.slice(2); const outIndex = args.indexOf('--out'); if (outIndex < 0 || !args[outIndex + 1]) throw new Error('Usage: node tools/std/inventory.ts --out <STD> [--dry-run]'); const result = extract(process.cwd()); printTotals(result); if (args.includes('--dry-run')) return; const out = path.resolve(args[outIndex + 1]!); writeMap(path.join(out, 'map'), result.rows); for (const scope of SCOPES) { if (!result.rows.some((r) => r.scope === scope)) { const file = path.join(out, 'map', `${scope}.csv`); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, MAP_COLUMNS.join(',')); } const scoped = result.comments.filter((r) => r.scope === scope); if (scoped.length) { const file = path.join(out, 'comments', `${scope}.csv`); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, csv(COMMENT_HEADERS, scoped as unknown as Record<string, string>[])); } } fs.mkdirSync(path.join(out, 'reports'), { recursive: true }); fs.writeFileSync(path.join(out, 'reports/front-route-dependents.csv'), csv(DEPENDENT_HEADERS, result.routeDependents as unknown as Record<string, string>[])); fs.writeFileSync(path.join(out, 'reports/jsonb-reach.csv'), csv(['table', 'column', 'via', 'root_type', 'kind', 'name', 'declared_at'], lastJsonbReport as unknown as Record<string, string>[])); fs.writeFileSync(path.join(out, 'inventory-summary.md'), summary(result)); }
+function main(): void { const args = process.argv.slice(2); const outIndex = args.indexOf('--out'); if (outIndex < 0 || !args[outIndex + 1]) throw new Error('Usage: node tools/std/inventory.ts --out <STD> [--dry-run]'); const result = extract(process.cwd()); printTotals(result); if (args.includes('--dry-run')) return; const out = path.resolve(args[outIndex + 1]!); writeInventoryMap(out, result.rows); for (const scope of SCOPES) { const scoped = result.comments.filter((r) => r.scope === scope); if (scoped.length) { const file = path.join(out, 'comments', `${scope}.csv`); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, csv(COMMENT_HEADERS, scoped as unknown as Record<string, string>[])); } } fs.mkdirSync(path.join(out, 'reports'), { recursive: true }); fs.writeFileSync(path.join(out, 'reports/front-route-dependents.csv'), csv(DEPENDENT_HEADERS, result.routeDependents as unknown as Record<string, string>[])); fs.writeFileSync(path.join(out, 'reports/jsonb-reach.csv'), csv(['table', 'column', 'via', 'root_type', 'kind', 'name', 'declared_at'], lastJsonbReport as unknown as Record<string, string>[])); fs.writeFileSync(path.join(out, 'inventory-summary.md'), summary(result)); }
 const invoked = process.argv[1] ? pathToFileURL(path.resolve(process.argv[1])).href : ''; if (import.meta.url === invoked) { try { main(); } catch (error) { console.error(error); process.exitCode = 1; } }

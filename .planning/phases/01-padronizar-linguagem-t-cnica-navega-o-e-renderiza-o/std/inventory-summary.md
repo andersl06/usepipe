@@ -12,7 +12,7 @@
 | packages-core | ts-local | 173 |
 | packages-core | ts-prop | 215 |
 | packages-db | file | 45 |
-| packages-db | literal-value | 253 |
+| packages-db | literal-value | 188 |
 | packages-db | script | 3 |
 | packages-db | symbol | 171 |
 | packages-db | test-title | 21 |
@@ -24,7 +24,7 @@
 | packages-contracts | ts-prop | 184 |
 | packages-ui | dir | 1 |
 | packages-ui | file | 6 |
-| packages-ui | literal-value | 9 |
+| packages-ui | literal-value | 5 |
 | packages-ui | symbol | 20 |
 | packages-ui | ts-local | 11 |
 | packages-ui | ts-prop | 10 |
@@ -63,7 +63,7 @@
 | packages-mcp | - | 0 |
 | workers | file | 8 |
 | workers | job-name | 2 |
-| workers | literal-value | 24 |
+| workers | literal-value | 22 |
 | workers | queue | 7 |
 | workers | symbol | 103 |
 | workers | test-title | 19 |
@@ -74,7 +74,7 @@
 | api | error-code | 212 |
 | api | file | 128 |
 | api | job-name | 5 |
-| api | literal-value | 89 |
+| api | literal-value | 83 |
 | api | metric | 5 |
 | api | queue | 1 |
 | api | script | 2 |
@@ -95,7 +95,7 @@
 | desk-vite | dir | 9 |
 | desk-vite | file | 33 |
 | desk-vite | front-route | 2 |
-| desk-vite | literal-value | 46 |
+| desk-vite | literal-value | 40 |
 | desk-vite | symbol | 128 |
 | desk-vite | test-title | 24 |
 | desk-vite | ts-local | 132 |
@@ -104,7 +104,7 @@
 | gestao-vite | dir | 60 |
 | gestao-vite | file | 176 |
 | gestao-vite | front-route | 136 |
-| gestao-vite | literal-value | 266 |
+| gestao-vite | literal-value | 102 |
 | gestao-vite | package | 1 |
 | gestao-vite | symbol | 1205 |
 | gestao-vite | test-title | 175 |
@@ -114,7 +114,7 @@
 | crm | dir | 22 |
 | crm | file | 24 |
 | crm | front-route | 19 |
-| crm | literal-value | 83 |
+| crm | literal-value | 43 |
 | crm | storage-key | 1 |
 | crm | symbol | 302 |
 | crm | test-title | 24 |
@@ -124,21 +124,21 @@
 | site | file | 1 |
 | site | symbol | 5 |
 | site | ts-local | 1 |
-| infra | dir | 10 |
-| infra | file | 27 |
+| infra | dir | 12 |
+| infra | file | 37 |
 | infra | literal-value | 7 |
 | infra | queue | 1 |
 | infra | script | 5 |
 | infra | subpath-export | 1 |
 | infra | symbol | 20 |
-| infra | test-title | 16 |
+| infra | test-title | 17 |
 | infra | ts-local | 19 |
 | infra | ts-prop | 37 |
 | css | css-class | 2068 |
 | css | css-var | 510 |
 | css | data-attr | 54 |
 
-Total rows: 16911
+Total rows: 16637
 Total comments: 6500
 Total route dependents: 474
 
@@ -154,7 +154,7 @@ Total route dependents: 474
 | Test titles | 1,747 all | 1,154 | PT subset |
 | CSS classes | ~3,025 unique all | 2,068 | PT selector occurrences |
 | CSS vars | 482 unique all | 510 | PT declaration occurrences |
-| literal-value | Not sized | 933 | Candidate union/const literal rows |
+| literal-value | Not sized | 646 | Candidate union/technical const literal rows |
 | data-attr | Not sized | 54 | Candidate attribute rows |
 | jsonb-reach | Not sized | 513 | Rows below are per column |
 

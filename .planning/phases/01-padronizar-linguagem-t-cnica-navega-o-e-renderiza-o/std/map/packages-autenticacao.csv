@@ -1,4 +1,5 @@
 id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+packages-autenticacao-cookie-2483d34b,packages-autenticacao,1,cookie,pipe_sessao,,packages/autenticacao/src/sessao.ts:18,29,unknown,,,candidate,,
 packages-autenticacao-dir-2891b1eb,packages-autenticacao,1,dir,packages/autenticacao/src,,packages/autenticacao/src,0,no,,,candidate,,
 packages-autenticacao-dir-1b627fe7,packages-autenticacao,1,dir,packages/autenticacao/tests,,packages/autenticacao/tests,0,no,,,candidate,,
 packages-autenticacao-dir-90d0fa9d,packages-autenticacao,1,dir,packages/autenticacao,,packages/autenticacao,0,no,,,candidate,,
@@ -119,4 +120,3 @@ packages-autenticacao-ts-prop-51008575,packages-autenticacao,1,ts-prop,urlDeReto
 packages-autenticacao-ts-prop-aeb031a0,packages-autenticacao,1,ts-prop,usuarioId,,packages/autenticacao/src/entrada.ts:57,604,no,,,candidate,,
 packages-autenticacao-ts-prop-9178c273,packages-autenticacao,1,ts-prop,usuarioId,,packages/autenticacao/src/entrada.ts:95,604,no,,,candidate,,
 packages-autenticacao-ts-prop-9be585fd,packages-autenticacao,1,ts-prop,usuarioId,,packages/autenticacao/src/sessao.ts:126,604,no,,,candidate,,
-packages-autenticacao-cookie-2483d34b,packages-autenticacao,1,cookie,pipe_sessao,,packages/autenticacao/src/sessao.ts:18,29,unknown,,,candidate,,

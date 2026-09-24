@@ -67,3 +67,9 @@ test('liga sufixo de rota a construtor com base dinamica sem aceitar prefixo cur
   assert.ok(route);
   assert.equal(result.routeDependents.filter((item) => item.route_row_id === route.id).length, 1);
 });
+
+test('nao inclui texto visivel de listas const no mapa de literais tecnicos', () => {
+  const result = run({ fileName: 'apps/gestao-vite/src/menu.ts', sourceText: "const ITENS = [{ rotulo: 'Atendimento', descricao: 'Ver conversas da fila', rota: 'atendimento' }] as const;" });
+  assert.ok(result.rows.some((row) => row.kind === 'literal-value' && row.old === 'atendimento'));
+  assert.equal(result.rows.some((row) => row.kind === 'literal-value' && ['Atendimento', 'Ver conversas da fila'].includes(row.old)), false);
+});
