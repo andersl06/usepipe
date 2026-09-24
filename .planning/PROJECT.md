@@ -17,29 +17,36 @@ Atendimento multi-canal (WhatsApp/Instagram/Messenger) confiável e auditável, 
 
 ## Requirements
 
+### Status vocabulary (revisado 24/09/2026)
+
+Uma área só é **VALIDATED** quando, quando aplicável: (1) implementada, (2) funciona de ponta a ponta, (3) foi comparada visual/comportamentalmente com a referência (Blip), (4) foi aprovada pelo dono. Código ou teste isolado existindo NÃO basta sozinho. Eixos rastreados por área: **IMPLEMENTED** · **FUNCTIONALLY VERIFIED** · **VISUALLY VERIFIED** (N/A quando não há superfície visual própria) · **OWNER APPROVED**. `VALIDATED` = todos os eixos aplicáveis confirmados; falta qualquer um → `NEEDS VALIDATION`, com nota indicando qual eixo falta. Substitui o critério do ingest inicial, que marcava área como pronta só por existir implementação/teste.
+
 ### Validated
 
-<!-- Shipped e confirmado por teste local e/ou verificação de agente — ver "Áreas prontas" em PROJECT-HANDOFF.md (24/09/2026) -->
+<!-- Todos os eixos aplicáveis confirmados por evidência documentada -->
 
-- ✓ Canais WhatsApp, Instagram e Messenger — conexão manual (WABA ID, Phone Number ID, token, App Secret), webhook por canal assinado, preferências, modelos de mensagem direto na Meta
-- ✓ Reconexão de canal (troca de credencial em vez de apagar/recriar)
-- ✓ Canal dentro do bot/roteador (conectar/reconectar na página do canal dentro do fluxo)
-- ✓ Monitoramento em tempo real — cartões, filtros rápidos, painel de filtros no formato Blip, prévia de conversa, ações por ticket (commit `3343530`/`8f47a5f`)
-- ✓ Encerramento de ticket — cartão único (Desk + Monitoramento), regra "só exige tag quando existe tag obrigatória"
-- ✓ Equipe/permissões — papel na "barra de permissão", acessos detalhados em página própria, permissão por atendente (migração 0046)
-- ✓ Filas, atendentes e pausas na forma da Blip
-- ✓ mTLS — Pipe apresenta certificado do cliente ao chamar hosts dele
-- ✓ Chamada externa (ProcessHttp) — cursor e fila própria, fora da transação do fluxo
-- ✓ Front migrado de Next.js para Vite em Desk e Gestão (`apps/desk-vite`, `apps/gestao-vite`)
-- ✓ Mecanismo de espelho Pipe→Twenty — `apps/api/src/dominio/twenty.ts`, `dominio/espelho-crm.ts`, schema, testado (`apps/api/tests/twenty.test.ts`); Pipe é fonte da verdade, Twenty só exibe
-- ✓ Fluxo/roteador nunca apagado de verdade — "excluir" arquiva (`estado='arquivado'`)
-- ✓ Builder — núcleo funcional (criar/mover/ligar/editar bloco, rascunho e publicação com histórico, painéis de Biblioteca de variáveis e Configuração). Ressalva: paridade visual medida por CSS/DOM extraído, não por foto lado a lado — mais fraca que as outras telas. Gaps restantes em Active.
+- ✓ Fluxo/roteador nunca apagado de verdade — "excluir" arquiva (`estado='arquivado'`, `execucao_fluxo.fluxo_versao_id` é `ON DELETE RESTRICT`, verificável no schema). Decisão estrutural de dado, não superfície de UI — VISUALLY VERIFIED é N/A aqui.
+
+### Needs Validation
+
+<!-- IMPLEMENTED e/ou FUNCTIONALLY VERIFIED confirmados, mas falta VISUALLY VERIFIED e/ou OWNER APPROVED explícito. Não é "não existe" — código/teste existem; falta a prova que o dono pede. Inventário completo e classificação final: VALSURF-01..05, Phase 3. -->
+
+- **Desk (app de atendimento)** — IMPLEMENTED, FUNCTIONALLY VERIFIED (testes unitários existem). Confirmado pelo dono (24/09/2026): ainda NÃO aprovado visualmente → falta VISUALLY VERIFIED + OWNER APPROVED
+- **Atendimento** (Monitoramento, Histórico, Encerramento de ticket, Filas/Atendentes/Pausas, Regras) — IMPLEMENTED, FUNCTIONALLY VERIFIED. Monitoramento teve rodadas rejeitadas até um commit final (`3343530`/`8f47a5f`), mas o dono confirmou (24/09/2026) que Atendimento como um todo NÃO está aprovado → falta OWNER APPROVED confirmado; Encerramento de ticket especificamente nunca teve foto lado a lado do modal comparada (só CSS/marcação capturados, per PROJECT-HANDOFF.md) → falta VISUALLY VERIFIED também
+- **Conexão de canal WhatsApp** — IMPLEMENTED, FUNCTIONALLY VERIFIED (conecta e recebe mensagem). Comparação visual não confirmada pelo dono (24/09/2026) → falta VISUALLY VERIFIED + OWNER APPROVED
+- **Conexões Instagram e Messenger** — IMPLEMENTED (mesmo padrão de conexão do WhatsApp). Validação funcional real não confirmada (24/09/2026) → falta FUNCTIONALLY VERIFIED + VISUALLY VERIFIED + OWNER APPROVED
+- **Equipe/permissões, Filas/atendentes/pausas (fora do módulo Atendimento), mTLS, Chamada externa (ProcessHttp)** — IMPLEMENTED; evidência parcial de FUNCTIONALLY VERIFIED (comportamento descrito em detalhe em PROJECT-HANDOFF.md) e possível VISUALLY VERIFIED (nota do Builder em PROJECT-HANDOFF.md sugere que "as outras telas... têm foto real", mas nenhuma aprovação explícita do dono está documentada para estas em particular) → falta OWNER APPROVED confirmado; reclassificar caso a caso na Phase 3
+- **Mecanismo de espelho Pipe→Twenty** — IMPLEMENTED, FUNCTIONALLY VERIFIED (teste de integração `apps/api/tests/twenty.test.ts`). Sem superfície visual própria (VISUALLY VERIFIED N/A); sem confirmação explícita de aprovação do dono → falta OWNER APPROVED
+- **Builder (núcleo)** — IMPLEMENTED, FUNCTIONALLY VERIFIED. Explicitamente NÃO comparado por foto lado a lado (só CSS/DOM extraído, per PROJECT-HANDOFF.md) → falta VISUALLY VERIFIED + OWNER APPROVED
+- **Front migrado de Next.js para Vite (Desk, Gestão)** — fato de engenharia, IMPLEMENTED e verificável no código; não é, por si, uma "superfície a aprovar visualmente" — é a arquitetura por trás das telas que ainda precisam da aprovação listada acima
 
 ### Active
 
 <!-- Escopo atual — ver REQUIREMENTS.md para a lista completa com IDs e mapeamento de fase -->
 
+- [ ] Padronizar a linguagem técnica do projeto para inglês (rotas, endpoints, arquivos, pastas, funções, variáveis, types, testes, contrato de navegação/renderização) nos 3 fronts, API e workers — antes do Builder; dados persistidos ficam fora do rename mecânico
 - [ ] Fechar as lacunas conhecidas do Builder (catálogo de conteúdos/ações, biblioteca de funções, seletor de destino, pesquisa de satisfação, paleta de tags, painéis de Filas/Teste, bug suspeito em `arestasDe()`)
+- [ ] Levar Desk, Atendimento, conexões de canal e demais superfícies já implementadas ao estado VALIDATED (visual + aprovação do dono) antes de iniciar CRM/Twenty
 - [ ] Decidir e implementar o destino de `apps/crm` agora que a integração com o Twenty está confirmada como decisão de CRM (24/09)
 - [ ] Mesclar `limpeza` em `master`, decidir destino de `apps/site` e das branches soltas
 - [ ] Decidir publicação do repositório no GitHub
@@ -79,7 +86,7 @@ Atendimento multi-canal (WhatsApp/Instagram/Messenger) confiável e auditável, 
 ## Constraints
 
 - **Tech stack**: Monorepo pnpm + turbo; `apps/api` (NestJS) único ponto de acesso ao Postgres; `apps/workers` roda filas BullMQ; fronts `apps/gestao-vite`/`apps/desk-vite` em Vite (React Router 6, CSS com tokens, TanStack Query sobre REST); `apps/crm` ainda em Next.js (papel final não decidido).
-- **Idioma**: Todo o código em português (tabela, coluna, função, variável, comentário) — convenção do projeto, não negociável.
+- **Idioma (revisado 24/09/2026)**: Linguagem técnica (arquivos, pastas, funções, variáveis, types/interfaces/classes, controllers/services, rotas/endpoints, nomes de teste, comentários técnicos, novos contratos técnicos) em **inglês** — substitui a regra anterior de "tudo em português". Texto visível ao usuário (produto, UI, mensagens) continua em português/localizado e não entra nessa regra. Dados e contratos já persistidos (tabelas, colunas, payloads, eventos) **não** são renomeados mecanicamente — cada caso recebe estratégia própria de migração (ver Phase 1, STD-06, em REQUIREMENTS.md). Inclui rotas/endpoints da API (não só front), e um contrato de navegação/renderização documentado (STD-12) — path params vs query params vs React state, não assumir SSR pela URL estável da Blip. Convenção canônica exata ainda em definição na Phase 1.
 - **Multi-tenancy**: Isolamento via `tenant_id` + RLS + `comTenant()`; nunca `Promise.all` dentro dessa transação (derruba isolamento silenciosamente).
 - **Licenciamento**: Twenty é AGPLv3 — fork vive em repositório próprio fora do monorepo, integração só por rede, nenhuma linha do fork entra em `packages/core`, `packages/db`, `packages/ui` ou nos apps Desk/Gestão; Chatwoot é MIT fora de `enterprise/`; Take.Blip.Builder é Apache-2.0 (com atribuição). Romper a fronteira de isolamento estende a obrigação AGPL ao produto inteiro.
 - **Migrations**: Manuais em `packages/db/drizzle` — revisão humana obrigatória, `drizzle-kit generate` pode propor apagar FKs de `0003_chaves_cruzadas` (não aceitar).
@@ -97,6 +104,8 @@ Atendimento multi-canal (WhatsApp/Instagram/Messenger) confiável e auditável, 
 | CRM "tinta nossa" (tema sobre o fork do Twenty) | Mesmo método já usado no Desk/Gestão frente à Blip: disposição/objetos/GraphQL vêm do Twenty, cor/tipografia/marca são da Pipe; reafirma que a fronteira de licença não afrouxa | ✓ Good |
 | Pipe é fonte da verdade, Twenty é espelho de exibição | Escrita é só de ida (Pipe → Twenty); isolamento físico, uma instância do Twenty por cliente | ✓ Good — implementado e testado (`twenty.test.ts`) |
 | Preço por atendente + IA (assistente/monitoria) como itens à parte | Modelo recomendado pela mentoria comercial; unidade de cobrança exata ainda em aberto | — Pending (ver REQ-preco) |
+| Linguagem técnica do projeto migra de português para inglês (rotas, endpoints, arquivos, funções, variáveis, types, testes, contrato de navegação/renderização); dados persistidos ficam fora do rename mecânico | Substitui a regra anterior "tudo em português"; texto visível ao usuário não muda. Tratado antes do Builder para não acumular mais superfície em português (Phase 1, STD-01..12) | — Pending (Phase 1) |
+| Critério de VALIDATED redefinido: implementado + funciona ponta a ponta + comparado com a referência (quando aplicável) + aprovado pelo dono — código ou teste isolado não basta | Corrige o critério do ingest inicial, que marcava área como pronta só por existir implementação; nenhuma superfície de produto é considerada aprovada sem confirmação explícita do dono (Phase 3, VALSURF-01..05) | — Pending (Phase 3) |
 
 ---
 *Last updated: 2026-09-24 after ingest do PROJECT-HANDOFF.md e specs/ADRs sintetizados (primeira geração de `.planning/` para este repositório brownfield)*

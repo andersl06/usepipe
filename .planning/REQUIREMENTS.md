@@ -3,11 +3,28 @@
 **Defined:** 2026-09-24
 **Core Value:** Atendimento multi-canal (WhatsApp/Instagram/Messenger) confiável e auditável, com CRM espelhado automaticamente e sem fricção para o atendente.
 
-Este é um projeto brownfield. O que já está construído, testado e confirmado (canais, monitoramento, encerramento de ticket, equipe/permissões, filas, mTLS, chamada externa, núcleo do Builder, espelho Pipe→Twenty) está registrado como **Validated** em PROJECT.md e não é repetido aqui. Os requisitos abaixo são o trabalho genuinamente em aberto: os 14 itens do PRD de gap (`docs/specs/2026-09-05-o-que-falta.md`) e os itens levantados como "Próximas frentes"/"Áreas parcialmente prontas" em PROJECT-HANDOFF.md (24/09/2026).
+Este é um projeto brownfield. O que já está construído (canais, monitoramento, encerramento de ticket, equipe/permissões, filas, mTLS, chamada externa, núcleo do Builder, espelho Pipe→Twenty) tem código e, em vários casos, teste — mas isso não basta para ser **Validated** neste projeto (ver "Status vocabulary" em PROJECT.md, revisado 24/09/2026: implementado + funciona ponta a ponta + comparado com a referência + aprovado pelo dono). A maior parte está hoje em **Needs Validation** em PROJECT.md, e sua verificação formal é o objeto da Phase 3 (VALSURF-01..05) abaixo. Os requisitos abaixo são o trabalho genuinamente em aberto: os 14 itens do PRD de gap (`docs/specs/2026-09-05-o-que-falta.md`) e os itens levantados como "Próximas frentes"/"Áreas parcialmente prontas" em PROJECT-HANDOFF.md (24/09/2026).
 
 ## v1 Requirements
 
 Requisitos do próximo ciclo de entrega. Cada um mapeia para uma fase do roadmap.
+
+### Padronização Técnica
+
+Iniciativa transversal decidida em 24/09/2026: eliminar linguagem técnica em português (rotas, endpoints, arquivos, pastas, funções, variáveis, types/interfaces/classes, controllers/services, nomes de teste, comentários técnicos) em favor de inglês, em toda a base — 3 fronts, API, workers, testes. Texto visível ao usuário (produto) continua em português/localizado e não entra nessa regra. Dados e contratos persistidos (tabelas, colunas, payloads, eventos) ficam fora do rename mecânico — cada caso recebe estratégia própria de migração. Substitui a regra anterior "todo código em português" (ver PROJECT.md Constraints e Key Decisions).
+
+- [ ] **STD-01**: Convenção canônica de nomenclatura técnica em inglês definida e documentada (arquivos/pastas, funções/variáveis, types/interfaces/classes, controllers/services, testes, comentários técnicos, rotas/endpoints) — decisão semântica, não mecânica
+- [ ] **STD-02**: Inventário completo de rotas/endpoints técnicos em português nos 3 fronts (`gestao-vite`, `desk-vite`, `apps/crm`), na API (`apps/api/src/controladores`) e em `apps/workers`, com mapa old→new aprovado antes de qualquer rename mecânico
+- [ ] **STD-03**: Inventário de dependentes de rota por app — guards, redirects, callbacks, testes, links, documentação técnica — como dependency analysis antes do rename
+- [ ] **STD-04**: Classificação aplicada e documentada de estado de URL vs estado efêmero de UI por caso (path param / query param / React state) — alimenta o contrato completo de STD-12, incluindo investigação específica do `selectedConversationId` do Desk contra o comportamento real da Blip antes de decidir sua forma canônica
+- [ ] **STD-05**: Estratégia de compatibilidade definida (cut coordenado vs redirects/aliases temporários vs versionamento) com base em inventário de consumidores internos — sem criar `/v2` por padrão; se todos os consumidores forem controlados pelo Pipe e puderem migrar juntos, avaliar cut coordenado da v1
+- [ ] **STD-06**: Inventário de dados/contratos persistidos (tabelas, colunas, payloads, eventos) com nomenclatura em português — sem rename mecânico; cada caso registrado com decisão própria de migration/compatibilidade, fora do escopo de execução desta fase
+- [ ] **STD-07**: Rename mecânico aplicado (arquivos, diretórios, imports, referências, links, navigate/redirect, endpoints já mapeados, testes, fixtures, funções/variáveis quando o nome novo já estiver definido, busca por referências antigas remanescentes) nos 3 fronts + API + workers, seguindo o mapa old→new aprovado, sem regressão. **Só executa depois do mapa old→new estar aprovado.** Não inclui: inventar nomenclatura, traduzir semanticamente por conta própria, decidir arquitetura, decidir URL vs React state, decidir breaking changes, ou alterar contrato persistido sem plano — essas ficam com STD-01/02/04/05/06/12
+- [ ] **STD-08**: PROJECT.md atualizado com a nova regra de idioma técnico, substituindo "todo código em português", com ressalva explícita de que texto visível ao usuário continua em português/localizado
+- [ ] **STD-09**: `apps/crm` recebe a convenção técnica desta fase sem que isso decida seu destino arquitetural (CRM-01 continua aberta) — nenhuma mudança descartável frente aos desfechos possíveis de CRM-01
+- [ ] **STD-10**: Todo identificador técnico não persistido do código em escopo está em inglês ao final da fase — arquivos, diretórios, funções, variáveis, classes, interfaces, types, enums, constants, controllers, services, helpers, hooks, rotas frontend, endpoints de API, nomes de teste, nomes técnicos internos, comentários técnicos. Não inclui automaticamente: textos exibidos ao usuário, conteúdo localizado/traduzido, tabelas/colunas/valores/eventos/contratos persistidos existentes (seguem STD-06, só mudam com estratégia explícita de migration)
+- [ ] **STD-11**: Validação final da fase cobre regressão completa (typecheck, testes, builds, navegação dos 3 fronts, API, workers, autenticação, callbacks, redirects, deep links, refresh, back/forward) e busca automatizada por identificadores/paths/endpoints técnicos remanescentes em português. Toda ocorrência restante em português é classificada como (A) texto de produto/localização, (B) contrato persistido explicitamente adiado, ou (C) exceção documentada — a fase não é considerada concluída enquanto existir ocorrência técnica não classificada
+- [ ] **STD-12**: Contrato de navegação/renderização dos fronts definido e documentado — quando usar path params, query params, React state, router state, store global, deep link, refresh persistence, back/forward, seleção temporária de UI, e client/server rendering (só quando arquiteturalmente relevante; não assumir que URL estável da Blip implica SSR). Classificação: recurso navegável/deep-linkável → URL; busca/filtro/paginação compartilhável → URL quando apropriado; estado efêmero de UI → React/store quando apropriado; comportamento Blip sem evidência suficiente → NEEDS VALIDATION. Tradução/padronização da rota e decisão de onde o estado mora são problemas diferentes, tratados separadamente
 
 ### Builder
 
@@ -16,6 +33,16 @@ Requisitos do próximo ciclo de entrega. Cada um mapeia para uma fase do roadmap
 - [ ] **BUILDER-03**: Atendente pode configurar pesquisa de satisfação nas saídas de atendimento humano, com a paleta de tags completa (decisão pendente sobre replicar o modelo nativo do Portal Blip, um alternativo, ou unificar — levantada em 15/09, nunca fechada)
 - [ ] **BUILDER-04**: Atendente tem paridade nos painéis de Gerenciamento de Filas e de Teste (canal de teste ligado ao motor, hoje inexistente), além de copiar/colar bloco, ícone `user-engaged` e exportar versão antiga
 - [ ] **BUILDER-05**: Setas do canvas do Builder refletem corretamente toda ligação salva, mesmo quando guardada fora de `bloco.$conditionOutputs` (bug suspeito em `arestasDe()`, `apps/gestao-vite/src/paginas/builder/modelo.ts:421`, diagnosticado mas não corrigido nem coberto por teste)
+
+### Validação de Superfícies Existentes
+
+Decidido em 24/09/2026: nada do que já está implementado é considerado concluído só por existir código/teste — precisa passar pelo critério VALIDATED completo (ver "Status vocabulary" em PROJECT.md). Esta fase roda depois do Builder e antes de CRM/Twenty, para não empilhar mais trabalho não aprovado em cima de superfícies ainda não confirmadas.
+
+- [ ] **VALSURF-01**: Desk (app de atendimento) visualmente aprovado pelo dono, comparado com a referência real da Blip
+- [ ] **VALSURF-02**: Atendimento (Monitoramento, Histórico, Encerramento de ticket, Filas/Atendentes/Pausas, Regras) funcionalmente e visualmente verificado e aprovado pelo dono
+- [ ] **VALSURF-03**: Conexão de canal WhatsApp visualmente aprovada (hoje comparação documentada só por CSS/DOM extraído em partes, sem confirmação de foto lado a lado onde falta)
+- [ ] **VALSURF-04**: Conexões Instagram e Messenger funcionalmente validadas de ponta a ponta (hoje sem evidência documentada de teste funcional real, além do padrão de conexão compartilhado com WhatsApp)
+- [ ] **VALSURF-05**: Inventário completo de superfícies já implementadas roda antes desta fase fechar, classificando cada uma em IMPLEMENTED / FUNCTIONALLY VERIFIED / VISUALLY VERIFIED / OWNER APPROVED / VALIDATED / NEEDS VALIDATION — cobre áreas não listadas explicitamente acima (ex.: Equipe/permissões, Filas/atendentes/pausas, mTLS, Chamada externa/ProcessHttp, Builder) que hoje carecem de evidência documentada de aprovação; a lista de VALSURF-01..04 não é considerada exaustiva
 
 ### CRM
 
@@ -27,7 +54,7 @@ Requisitos do próximo ciclo de entrega. Cada um mapeia para uma fase do roadmap
 - [ ] **OPS-02**: `apps/site` e as branches soltas sem uso recente (`codex/atendimento-blip`, `desk-visual-pipe`, `integracao`, `worktree-agent-*`) têm destino decidido (manter, arquivar ou remover)
 - [ ] **OPS-03**: Publicação do repositório no GitHub decidida (histórico novo ou reescrito, público ou privado) e, se aplicável, executada
 
-### Validação
+### Validação de Produção (E2E)
 
 - [ ] **VAL-01**: Atendimento de ponta a ponta validado na VPS de demonstração com número de WhatsApp real, incluindo login Google funcionando (depende do dono cadastrar o redirect no Google Cloud Console)
 - [ ] **VAL-02**: Existe teste automatizado que percorre o caminho do atendente na tela (e2e) e ambiente de homologação disponível, além dos testes de unidade (`packages/core`) e integração (`packages/db`) já existentes
@@ -104,37 +131,54 @@ Quais fases cobrem quais requisitos. Atualizado durante a criação do roadmap.
 
 | Requirement | Phase | Status |
 |-------------|-------|--------|
-| BUILDER-01 | Phase 1 | Pending |
-| BUILDER-02 | Phase 1 | Pending |
-| BUILDER-03 | Phase 1 | Pending |
-| BUILDER-04 | Phase 1 | Pending |
-| BUILDER-05 | Phase 1 | Pending |
-| CRM-01 | Phase 2 | Pending |
-| OPS-01 | Phase 2 | Pending |
-| OPS-02 | Phase 2 | Pending |
-| OPS-03 | Phase 2 | Pending |
-| VAL-01 | Phase 3 | Pending |
-| VAL-02 | Phase 3 | Pending |
-| COBR-01 | Phase 4 | Pending |
-| COBR-02 | Phase 4 | Pending |
-| ONB-01 | Phase 4 | Pending |
-| ONB-02 | Phase 4 | Pending |
-| JUR-01 | Phase 4 | Pending |
-| SEC-01 | Phase 4 | Pending |
-| COM-01 | Phase 4 | Pending |
-| SUP-01 | Phase 5 | Pending |
-| NOT-01 | Phase 5 | Pending |
-| MIG-01 | Phase 5 | Pending |
-| PAP-01 | Phase 5 | Pending |
-| MOB-01 | Phase 6 | Pending |
-| DOC-01 | Phase 6 | Pending |
-| DOC-02 | Phase 6 | Pending |
+| STD-01 | Phase 1 | Pending |
+| STD-02 | Phase 1 | Pending |
+| STD-03 | Phase 1 | Pending |
+| STD-04 | Phase 1 | Pending |
+| STD-05 | Phase 1 | Pending |
+| STD-06 | Phase 1 | Pending |
+| STD-07 | Phase 1 | Pending |
+| STD-08 | Phase 1 | Pending |
+| STD-09 | Phase 1 | Pending |
+| STD-10 | Phase 1 | Pending |
+| STD-11 | Phase 1 | Pending |
+| STD-12 | Phase 1 | Pending |
+| BUILDER-01 | Phase 2 | Pending |
+| BUILDER-02 | Phase 2 | Pending |
+| BUILDER-03 | Phase 2 | Pending |
+| BUILDER-04 | Phase 2 | Pending |
+| BUILDER-05 | Phase 2 | Pending |
+| VALSURF-01 | Phase 3 | Pending |
+| VALSURF-02 | Phase 3 | Pending |
+| VALSURF-03 | Phase 3 | Pending |
+| VALSURF-04 | Phase 3 | Pending |
+| VALSURF-05 | Phase 3 | Pending |
+| CRM-01 | Phase 4 | Pending |
+| OPS-01 | Phase 4 | Pending |
+| OPS-02 | Phase 4 | Pending |
+| OPS-03 | Phase 4 | Pending |
+| VAL-01 | Phase 5 | Pending |
+| VAL-02 | Phase 5 | Pending |
+| COBR-01 | Phase 6 | Pending |
+| COBR-02 | Phase 6 | Pending |
+| ONB-01 | Phase 6 | Pending |
+| ONB-02 | Phase 6 | Pending |
+| JUR-01 | Phase 6 | Pending |
+| SEC-01 | Phase 6 | Pending |
+| COM-01 | Phase 6 | Pending |
+| SUP-01 | Phase 7 | Pending |
+| NOT-01 | Phase 7 | Pending |
+| MIG-01 | Phase 7 | Pending |
+| PAP-01 | Phase 7 | Pending |
+| MOB-01 | Phase 8 | Pending |
+| DOC-01 | Phase 8 | Pending |
+| DOC-02 | Phase 8 | Pending |
 
 **Coverage:**
-- v1 requirements: 25 total
-- Mapped to phases: 25
+- v1 requirements: 42 total
+- Mapped to phases: 42
 - Unmapped: 0 ✓
 
 ---
 *Requirements defined: 2026-09-24*
-*Last updated: 2026-09-24 after ingest e criação do roadmap inicial*
+*Last updated: 2026-09-24 — roadmap revisado: escopo de padronização técnica ampliado (STD-10/11/12), nova Phase 3 de validação de superfícies (VALSURF-01..05), 8 fases no total*
