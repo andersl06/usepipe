@@ -1,6 +1,5 @@
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import test from 'node:test';
 import { checkMap } from '../../../../../../tools/std/check-map.ts';
@@ -28,6 +27,7 @@ test('propostas seguem o schema, e toda contagem não nula corresponde ao mapa r
     for (const term of proposal.terms) {
       assert.deepEqual(Object.keys(term).sort(), schema.properties.terms.items.required.slice().sort());
       assert.ok(['none', 'AMBIGUOUS'].includes(term.ambiguity));
+      for (const key of schema.properties.terms.items.required) assert.equal(typeof term[key], 'string', group + ':' + key);
       assert.ok(Number.isInteger(Number(term.occurrences)));
       const expected = term.term_pt.includes(' ') ? mapRows.filter((row) => (backendScopes.has(row.scope) ? 'backend' : 'front') === group).reduce((total, row) => {
         const words = splitIdentifier(row.old), phrase = splitIdentifier(term.term_pt);
@@ -78,6 +78,9 @@ test('check-map bloqueia vocabulário não aprovado, mas lê somente termos apro
     assert.equal(result.warnings.filter((issue) => issue.message.includes('glossary fila')).length, 1);
     assert.equal(result.warnings.filter((issue) => issue.message.includes('glossary fil ')).length, 0);
   } finally {
-    fs.rmSync(temp, { recursive: true, force: true });
+    const target = fs.realpathSync(temp);
+    const safeRoot = fs.realpathSync(path.join(std, 'out')) + path.sep;
+    assert.ok(target.startsWith(safeRoot), 'temporary test directory stays inside std/out');
+    fs.rmSync(target, { recursive: true, force: true });
   }
 });
