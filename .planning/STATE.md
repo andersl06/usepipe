@@ -4,12 +4,12 @@ milestone: v1.0
 milestone_name: milestone
 status: planning
 stopped_at: Phase 1 context gathered
-last_updated: "2026-09-24T15:20:34.492Z"
+last_updated: "2026-09-24T18:08:25.424Z"
 last_activity: "2026-09-24 — Roadmap revisado (2ª rodada): escopo da Phase 1 ampliado para toda a base técnica (não só rotas) com STD-10/11/12 e revisão de STD-07; nova Phase 3 \"Validar e fechar superfícies atuais\" (VALSURF-01..05) inserida entre Builder e CRM, após correção do critério de \"Validated\" (não basta código/teste existir — precisa de comparação com a referência e aprovação do dono). 6→8 fases no total. Ingest original de 22 documentos + PROJECT-HANDOFF.md permanece a base de PROJECT.md/REQUIREMENTS.md/STATE.md."
 progress:
   total_phases: 8
   completed_phases: 0
-  total_plans: 0
+  total_plans: 41
   completed_plans: 0
   percent: 0
 ---
