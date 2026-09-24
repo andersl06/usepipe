@@ -200,6 +200,21 @@ function rewriteSpecifiers(
   return [...byFile.values()].reduce((total, items) => total + items.length, 0);
 }
 
+function escapeRegex(value: string): string {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// Replaces oldValue only where it sits as a whole path segment/token (bounded by
+// start-of-string, a slash, or a quote, and followed by end-of-string, a slash, a
+// quote, or a dot). Bare fragments like a directory's post-"/src/" tail otherwise
+// match anywhere the same characters occur, including inside unrelated prose such
+// as a package.json "description" field (ponytail: regex boundary, not a full
+// tokenizer — revisit if a config ever needs mid-word path fragments).
+function replaceAsPathSegment(text: string, oldValue: string, newValue: string): string {
+  const pattern = new RegExp(`(^|[/'"])${escapeRegex(oldValue)}(?=$|[/'".])`, 'g');
+  return text.replace(pattern, (_match, boundary: string) => `${boundary}${newValue}`);
+}
+
 function rewriteConfigPaths(
   root: string,
   files: string[],
@@ -238,7 +253,7 @@ function rewriteConfigPaths(
       if (oldAfterSrc && oldAfterSrc !== newAfterSrc) forms.push([oldAfterSrc, newAfterSrc]);
       for (const [oldValue, newValue] of forms) {
         if (oldValue && oldValue !== newValue && changed.includes(oldValue))
-          changed = changed.replaceAll(oldValue, newValue);
+          changed = replaceAsPathSegment(changed, oldValue, newValue);
       }
     }
     if (changed !== original) {
