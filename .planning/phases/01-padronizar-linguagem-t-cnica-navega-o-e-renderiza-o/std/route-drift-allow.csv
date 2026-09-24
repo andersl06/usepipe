@@ -1,0 +1,11 @@
+file,raw,reason,resolve_by
+apps/api/src/eventos-ws.ts,/v1/eventos,Upgrade WebSocket não aparece nos decorators HTTP do Nest,01-18
+apps/api/tests/chave-de-fluxo.test.ts,/v1/gestao/fluxos/:fluxoId/links-rastreados/:linkId,Fixture negativa usa rota por link inexistente para provar recusa da chave,01-18
+apps/api/tests/tempo-real.test.ts,"${api.url.replace('http://', 'ws://')}/v1/outra-coisa",Teste negativo de upgrade WebSocket fora do endpoint aceito,01-18
+apps/api/tests/tempo-real.test.ts,"${api.url.replace('http://', 'ws://')}/v1/eventos",Upgrade WebSocket não aparece nos decorators HTTP do Nest,01-18
+packages/autenticacao/tests/oidc.test.ts,${EMISSOR}/oauth2/v1/authorize,Endpoint externo do emissor OIDC da fixture,01-18
+packages/autenticacao/tests/oidc.test.ts,${EMISSOR}/oauth2/v1/token,Endpoint externo do emissor OIDC da fixture,01-18
+packages/autenticacao/tests/oidc.test.ts,${EMISSOR}/oauth2/v1/keys,Endpoint externo do emissor OIDC da fixture,01-18
+packages/tempo-real/src/index.ts,"${urlApi.replace(/\/$/, '').replace(/^http/, 'ws')}/v1/eventos",Upgrade WebSocket não aparece nos decorators HTTP do Nest,01-18
+packages/tempo-real/tests/tempo-real.test.ts,ws://localhost:3000/v1/eventos,URL WebSocket unitária sem decorator HTTP,01-18
+packages/tempo-real/tests/tempo-real.test.ts,wss://api.usepipe.com.br/v1/eventos,URL WebSocket unitária sem decorator HTTP,01-18
