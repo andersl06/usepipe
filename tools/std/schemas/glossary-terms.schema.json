@@ -1,0 +1,24 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "terms": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "term_pt": { "type": "string" },
+          "term_en": { "type": "string" },
+          "blip_source": { "type": "string" },
+          "ambiguity": { "type": "string", "enum": ["none", "AMBIGUOUS"] },
+          "candidates": { "type": "string" },
+          "occurrences": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "required": ["term_pt", "term_en", "blip_source", "ambiguity", "candidates", "occurrences", "notes"]
+      }
+    }
+  },
+  "required": ["terms"]
+}

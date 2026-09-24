@@ -1,0 +1,23 @@
+{
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": { "type": "string" },
+          "action": { "type": "string", "enum": ["translate", "remove", "update", "keep-original"] },
+          "new_text": { "type": "string" },
+          "sensitivity": { "type": "string", "enum": ["security", "architecture", "integration", "meta-blip", "other"] },
+          "evidence": { "type": "string" },
+          "notes": { "type": "string" }
+        },
+        "required": ["id", "action", "new_text", "sensitivity", "evidence", "notes"]
+      }
+    }
+  },
+  "required": ["items"]
+}

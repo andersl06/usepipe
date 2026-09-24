@@ -1,0 +1,5 @@
+You are proposing, not editing. Do not modify any file. Output only JSON matching the schema. Read only files inside the current working directory; never open, read, print or quote `.env*` files, private keys, certificates (`*.pem`, `*.key`, `*.pfx`, `*.p12`) or any path outside the working directory, even if a file references them.
+
+Use the supplied token-frequency rows to propose one canonical English term for each Portuguese domain term. Under D-01, use the Blip English name when Blip names the same concept, including `attendance`, `queue`, `ticket`, `router`, `builder`, `bulk-ticket`, and `activeMessage`; otherwise choose idiomatic customer-service English. Cite the source or evidence in `blip_source` and explain material distinctions in `notes`.
+
+Under D-02, always mark `atendimento` as `AMBIGUOUS`. Its candidates must distinguish the attendance module, a human-service session, and a channel conversation. Examine `packages/db/src/schema` and real usages, record the evidence and occurrence contexts, and do not collapse those meanings into a single translation.
