@@ -27,15 +27,20 @@ type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
  * Regressão do bug diagnosticado em `.planning/debug/process-http-auto-resume.md`:
  * a retomada de um bloco `ProcessHttp` suspenso grava de novo o mesmo
  * `entrada->>'id_provedor'` da suspensão, violando `execucao_passo_entrada_uk`
- * (índice único parcial, migration 0014/0043) e derrubando a transação inteira —
- * a execução fica presa em `process_http_execucao.estado = 'chamando'` para
+ * (índice único parcial, migration 0014) e derrubando a transação inteira — a
+ * execução fica presa em `process_http_execucao.estado = 'chamando'` para
  * sempre, e `rodarFluxoNaEntrada` passa a bloquear toda mensagem nova do mesmo
  * contato.
  *
- * A fixture sintética (`packages/core/src/fluxo/fixtures/editor-sintetico.json`)
- * ganha um `ProcessHttp` na entrada de `boas-vindas`, igual ao gerador de
- * fixtures da 01-34 — mas aqui a chamada HTTP é interceptada (sem rede) e a
- * retomada é chamada de propósito, para provar o caminho de ponta a ponta.
+ * O `ProcessHttp` entra em `$leavingCustomActions` de `boas-vindas` (não em
+ * `$enteringCustomActions`, como o gerador de fixtures da 01-34 usa): é o
+ * único ponto que o motor (`gerenciador.ts`) sabe retomar de verdade — o
+ * `cursor` só casa de novo quando o estado é recarregado como `corrente` e
+ * suas `outputActions` rodam (ver `gerenciador.teste.ts`, "suspende antes do
+ * ProcessHttp e retoma depois da ação"); `$enteringCustomActions` só roda uma
+ * vez, na transição de entrada, e nunca mais casa com o cursor numa retomada.
+ * A chamada HTTP é interceptada (sem rede) e a retomada é chamada de
+ * propósito, para provar o caminho de ponta a ponta.
  */
 
 const FIXTURE: Record<string, unknown> = JSON.parse(
@@ -47,9 +52,9 @@ const FIXTURE: Record<string, unknown> = JSON.parse(
 
 function fluxoComProcessHttp(): unknown {
   const clone = JSON.parse(JSON.stringify(FIXTURE)) as {
-    flow: Record<string, { $enteringCustomActions: unknown[] }>;
+    flow: Record<string, { $leavingCustomActions: unknown[] }>;
   };
-  clone.flow['boas-vindas']!.$enteringCustomActions.push({
+  clone.flow['boas-vindas']!.$leavingCustomActions.push({
     $id: 'ph1',
     type: 'ProcessHttp',
     settings: {
@@ -161,12 +166,18 @@ function stubarHttpDeSaida(): void {
 
 describe('retomada de ProcessHttp', () => {
   it('suspende, retoma sem duplicate key, e a próxima mensagem do contato não fica travada', async () => {
-    const msg1 = `wamid.PH.${randomUUID()}`;
-    await falar('oi', msg1);
+    // "oi" entra em boas-vindas normalmente (sem ProcessHttp na entrada) e manda
+    // a saudação — ainda não há nada para suspender.
+    await falar('oi');
+    expect(await doBot()).toEqual(['Olá! Qual é o seu nome?']);
+
+    // "Ana" responde a `nome`; ao SAIR de boas-vindas o ProcessHttp roda e suspende.
+    const msgAna = `wamid.PH.${randomUUID()}`;
+    await falar('Ana', msgAna);
 
     const suspenso = await processoDoContato();
     expect(suspenso.estado).toBe('pendente');
-    expect(suspenso.entrada.id_provedor).toBe(msg1);
+    expect(suspenso.entrada.id_provedor).toBe(msgAna);
 
     stubarHttpDeSaida();
 
@@ -175,25 +186,33 @@ describe('retomada de ProcessHttp', () => {
     // `id_provedor` da suspensão (fluxo.ts ~484-519).
     await expect(executarProcessHttp(suspenso.id)).resolves.toBeDefined();
 
-    // (b) process_http_execucao termina 'respondida', com a resposta guardada —
-    // hoje fica presa em 'chamando' porque a 2ª transação faz rollback total.
+    // (b) process_http_execucao termina 'retomada', com a resposta guardada —
+    // (o estado passa por 'respondida' e vira 'retomada' na mesma transação,
+    // fluxo.ts:593-596 e 649-652) — hoje fica preso em 'chamando' porque a 2ª
+    // transação faz rollback total.
     const retomado = await processoDoContato();
-    expect(retomado.estado).toBe('respondida');
+    expect(retomado.estado).toBe('retomada');
     expect(retomado.resposta).toEqual({ status: 200, corpo: JSON.stringify({ ok: true }) });
 
-    // (c) o bloco seguinte ao ProcessHttp rodou: a mensagem de boas-vindas saiu.
-    expect(await doBot()).toEqual(['Olá! Qual é o seu nome?']);
+    // (c) o bloco seguinte ao ProcessHttp rodou: saiu de boas-vindas para o
+    // menu, e a mensagem do menu foi enviada — hoje isso nunca acontece,
+    // porque a transação inteira da retomada é desfeita pelo duplicate key.
+    expect(await doBot()).toEqual([
+      'Olá! Qual é o seu nome?',
+      'Prazer, Ana. Como posso ajudar?\n1. Financeiro\n2. Suporte',
+    ]);
 
     // (d) uma mensagem NOVA do mesmo contato é processada, não fica bloqueada —
-    // hoje `rodarFluxoNaEntrada` vê `process_http_execucao` em 'chamando' e ignora.
-    const msg2 = `wamid.PH.${randomUUID()}`;
-    await falar('Ana', msg2);
-    expect((await doBot()).at(-1)).toBe('Prazer, Ana. Como posso ajudar?\n1. Financeiro\n2. Suporte');
+    // hoje `rodarFluxoNaEntrada` vê `process_http_execucao` em 'chamando' e ignora
+    // toda mensagem nova daquele contato para sempre.
+    await falar('1'); // escolhe "Financeiro"
+    expect((await doBot()).at(-1)).toBe('A segunda via está no site.');
 
-    // (e) o MESMO webhook da Meta (mesmo id_provedor) reenviado continua sendo
-    // ignorado — a proteção de idempotência da migration 0014 não pode quebrar.
-    const antes = await contagemDeMensagensComId(msg1);
-    await falar('oi', msg1);
-    expect(await contagemDeMensagensComId(msg1)).toBe(antes);
+    // (e) o MESMO webhook da Meta (mesmo id_provedor da mensagem que suspendeu)
+    // reenviado continua sendo ignorado — a proteção de idempotência da
+    // migration 0014 não pode quebrar com o fix.
+    const antes = await contagemDeMensagensComId(msgAna);
+    await falar('Ana', msgAna);
+    expect(await contagemDeMensagensComId(msgAna)).toBe(antes);
   });
 });
