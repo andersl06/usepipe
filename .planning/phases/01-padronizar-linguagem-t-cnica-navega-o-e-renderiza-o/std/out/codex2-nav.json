@@ -32,7 +32,7 @@
       "proposed": "path",
       "deep_link": "NEEDS VALIDATION",
       "survives_f5": "NEEDS VALIDATION",
-      "blip_evidence": "NEEDS VALIDATION",
+      "blip_evidence": "referencias-blip/portal/INDICE.md:9",
       "decision_ref": "D-34",
       "notes": "sonnet: verificação direta (D-40): apps/desk-vite/src/App.tsx"
     },
@@ -68,7 +68,7 @@
       "proposed": "path",
       "deep_link": "NEEDS VALIDATION",
       "survives_f5": "NEEDS VALIDATION",
-      "blip_evidence": "NEEDS VALIDATION",
+      "blip_evidence": "referencias-blip/portal/INDICE.md:11",
       "decision_ref": "D-34",
       "notes": "sonnet: verificação direta (D-40): apps/desk-vite/src/App.tsx"
     },
@@ -92,7 +92,7 @@
       "proposed": "path",
       "deep_link": "NEEDS VALIDATION",
       "survives_f5": "NEEDS VALIDATION",
-      "blip_evidence": "NEEDS VALIDATION",
+      "blip_evidence": "referencias-blip/portal/INDICE.md:13",
       "decision_ref": "D-34",
       "notes": "sonnet: verificação direta (D-40): apps/desk-vite/src/App.tsx"
     },
@@ -104,7 +104,7 @@
       "proposed": "path",
       "deep_link": "NEEDS VALIDATION",
       "survives_f5": "NEEDS VALIDATION",
-      "blip_evidence": "NEEDS VALIDATION",
+      "blip_evidence": "referencias-blip/portal/INDICE.md:12",
       "decision_ref": "D-34",
       "notes": "sonnet: verificação direta (D-40): apps/desk-vite/src/App.tsx"
     },
@@ -116,7 +116,7 @@
       "proposed": "path",
       "deep_link": "NEEDS VALIDATION",
       "survives_f5": "NEEDS VALIDATION",
-      "blip_evidence": "NEEDS VALIDATION",
+      "blip_evidence": "referencias-blip/portal/INDICE.md:8",
       "decision_ref": "D-34",
       "notes": "sonnet: verificação direta (D-40): apps/desk-vite/src/App.tsx"
     },
@@ -128,7 +128,7 @@
       "proposed": "path",
       "deep_link": "NEEDS VALIDATION",
       "survives_f5": "NEEDS VALIDATION",
-      "blip_evidence": "NEEDS VALIDATION",
+      "blip_evidence": "referencias-blip/portal/INDICE.md:14",
       "decision_ref": "D-34",
       "notes": "sonnet: verificação direta (D-40): apps/desk-vite/src/App.tsx"
     },
@@ -587,18 +587,6 @@
       "blip_evidence": "NEEDS VALIDATION",
       "decision_ref": "D-34",
       "notes": "sonnet: verificação direta (D-40): apps/gestao-vite/src/App.tsx:157; URL direta do Portal não comprovada."
-    },
-    {
-      "app": "gestao-vite",
-      "route": "/fluxo/:id/atendimento/canais/whatsapp/:canalId/*",
-      "state_item": "screen route",
-      "current_location": "path",
-      "proposed": "path",
-      "deep_link": "NEEDS VALIDATION",
-      "survives_f5": "NEEDS VALIDATION",
-      "blip_evidence": "NEEDS VALIDATION",
-      "decision_ref": "D-34",
-      "notes": "sonnet: verificação direta (D-40): apps/gestao-vite/src/App.tsx:160; URL direta do Portal não comprovada."
     },
     {
       "app": "gestao-vite",
@@ -1331,18 +1319,6 @@
       "blip_evidence": "NEEDS VALIDATION",
       "decision_ref": "D-34",
       "notes": "sonnet: verificação direta (D-40): apps/gestao-vite/src/App.tsx:157; URL direta do Portal não comprovada."
-    },
-    {
-      "app": "gestao-vite",
-      "route": "/roteador/:id/atendimento/canais/whatsapp/:canalId/*",
-      "state_item": "screen route",
-      "current_location": "path",
-      "proposed": "path",
-      "deep_link": "NEEDS VALIDATION",
-      "survives_f5": "NEEDS VALIDATION",
-      "blip_evidence": "NEEDS VALIDATION",
-      "decision_ref": "D-34",
-      "notes": "sonnet: verificação direta (D-40): apps/gestao-vite/src/App.tsx:160; URL direta do Portal não comprovada."
     },
     {
       "app": "gestao-vite",

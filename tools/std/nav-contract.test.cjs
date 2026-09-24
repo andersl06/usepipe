@@ -58,6 +58,10 @@ test('T-01-07-03: citação Blip próxima, mas errada, não comprova ticketId', 
   assert.match(line('atendimento/attendance-desk-monitoring/portalmfe.blip.ai/beagle/portal-fragment-desk-mfe/latest/main.js', 23750), /localStorage\.getItem/);
   assert.match(line('atendimento/attendance-desk-monitoring/portalmfe.blip.ai/beagle/portal-fragment-desk-mfe/latest/main.js', 23763), /localStorage\.setItem/);
   assert.match(line('portal/INDICE.md', 17), /application\/create\/router/);
+  for (const [route, number, captured] of [['/', 9, 'index.html'], ['/contacts', 11, 'contacts.html'], ['/activeMessage/send', 12, 'activeMessage.html'], ['/analytics', 13, 'analytics.html'], ['/bulk-ticket', 8, 'bulk-ticket.html'], ['/preferences', 14, 'preferences.html']]) {
+    assert.ok(rows.some((item) => item.app === 'desk-vite' && item.route === route && item.state_item === 'screen route' && item.blip_evidence === `referencias-blip/portal/INDICE.md:${number}`));
+    assert.ok(line('portal/INDICE.md', number).includes(captured), route);
+  }
   assert.match(line(file, 88092), /globalThis\.open\(e, "_blank"\)/);
   const row = rows.find((item) => item.app === 'gestao-vite' && item.state_item === '?ticketId=');
   assert.ok(row);

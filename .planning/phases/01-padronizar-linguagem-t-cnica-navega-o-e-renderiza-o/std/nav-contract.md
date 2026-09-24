@@ -47,15 +47,15 @@ As páginas são pastas de `apps/crm/src/app`; uma tradução de pasta muda a UR
 |---|---|---|---|---|---|---|---|---|---|---|---|
 | desk-vite | /entrar | /entrar | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | desk-vite | /convite/:token | /convite/:token | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
-| desk-vite | / | / | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
+| desk-vite | / | / | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | referencias-blip/portal/INDICE.md:9 | D-34 | NEEDS VALIDATION |
 | desk-vite | /chat | /chat | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | desk-vite | /chat/:id | /chat/:id | screen route | path | react-state | no | no | fechar painel; D-32 NEEDS VALIDATION | referencias-blip/portal/index/supernova.desk.blip.ai/static/js/app.3c3152c5f2e5a8ff5376.js:21028,33467-33470 | D-27 | DECIDED |
-| desk-vite | /contacts | /contacts | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
+| desk-vite | /contacts | /contacts | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | referencias-blip/portal/INDICE.md:11 | D-34 | NEEDS VALIDATION |
 | desk-vite | /contacts/:id | /contacts/:id | screen route | path | react-state | no | no | fechar painel; D-32 NEEDS VALIDATION | referencias-blip/atendimento/contacts/deskmfe.blip.ai/beagle/desk-contact-history/latest/main.js:25624-25640 | D-29 | DECIDED |
-| desk-vite | /analytics | /analytics | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
-| desk-vite | /activeMessage/send | /activeMessage/send | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
-| desk-vite | /bulk-ticket | /bulk-ticket | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
-| desk-vite | /preferences | /preferences | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
+| desk-vite | /analytics | /analytics | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | referencias-blip/portal/INDICE.md:13 | D-34 | NEEDS VALIDATION |
+| desk-vite | /activeMessage/send | /activeMessage/send | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | referencias-blip/portal/INDICE.md:12 | D-34 | NEEDS VALIDATION |
+| desk-vite | /bulk-ticket | /bulk-ticket | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | referencias-blip/portal/INDICE.md:8 | D-34 | NEEDS VALIDATION |
+| desk-vite | /preferences | /preferences | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | referencias-blip/portal/INDICE.md:14 | D-34 | NEEDS VALIDATION |
 | desk-vite | /chat/:id | /chat/:id | selectedConversationId | path | react-state | no | no | fechar painel; D-32 NEEDS VALIDATION | referencias-blip/portal/index/supernova.desk.blip.ai/static/js/app.3c3152c5f2e5a8ff5376.js:21028,33467-33470 | D-27 | DECIDED |
 | desk-vite | /chat | /chat | panel: conversation | none | router-state | no | yes | fechar painel; D-32 NEEDS VALIDATION | referencias-blip/portal/index/supernova.desk.blip.ai/static/js/app.3c3152c5f2e5a8ff5376.js:21028,33467-33470 | D-27/D-32 | NEEDS VALIDATION |
 | desk-vite | /contacts/:id | /contacts/:id | contact selection | path | react-state | no | no | fechar painel; D-32 NEEDS VALIDATION | referencias-blip/atendimento/contacts/deskmfe.blip.ai/beagle/desk-contact-history/latest/main.js:25624-25640 | D-29 | DECIDED |
@@ -94,7 +94,6 @@ As páginas são pastas de `apps/crm/src/app`; uma tradução de pasta muda a UR
 | gestao-vite | /fluxo/:id/atendimento/preferencias/dados | /fluxo/:id/atendimento/preferencias/dados | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /fluxo/:id/atendimento/preferencias/regras | /fluxo/:id/atendimento/preferencias/regras | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /fluxo/:id/atendimento/canais | /fluxo/:id/atendimento/canais | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
-| gestao-vite | /fluxo/:id/atendimento/canais/whatsapp/:canalId/* | /fluxo/:id/atendimento/canais/whatsapp/:canalId/* | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /fluxo/:id/contatos | /fluxo/:id/contatos | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /fluxo/:id/contatos/:contatoId | /fluxo/:id/contatos/:contatoId | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /fluxo/:id/integracoes | /fluxo/:id/integracoes | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
@@ -156,7 +155,6 @@ As páginas são pastas de `apps/crm/src/app`; uma tradução de pasta muda a UR
 | gestao-vite | /roteador/:id/atendimento/preferencias/dados | /roteador/:id/atendimento/preferencias/dados | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /roteador/:id/atendimento/preferencias/regras | /roteador/:id/atendimento/preferencias/regras | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /roteador/:id/atendimento/canais | /roteador/:id/atendimento/canais | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
-| gestao-vite | /roteador/:id/atendimento/canais/whatsapp/:canalId/* | /roteador/:id/atendimento/canais/whatsapp/:canalId/* | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /roteador/:id/contatos | /roteador/:id/contatos | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /roteador/:id/contatos/:contatoId | /roteador/:id/contatos/:contatoId | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /roteador/:id/integracoes | /roteador/:id/integracoes | screen route | path | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
