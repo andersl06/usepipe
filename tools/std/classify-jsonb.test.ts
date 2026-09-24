@@ -22,9 +22,20 @@ test('real JSONB reach has a persisted decision for each declaration', () => {
     assert.match(match.where_persisted, new RegExp(`\\b${row.table}\\.${row.column}\\b`));
     assert.ok(['keep', 'keep-literal'].includes(match.decision));
   }
+  for (const name of ['entrada', 'conteudo', 'saida']) assert.ok(persisted.some((row) =>
+    row.kind === 'literal-value' && row.old === name && row.notes.includes('jsonb:processHttpExecucao.contexto')));
+  assert.equal(reach.some((row) => row.declared_at === 'packages/core/src/fluxo/contexto.ts:167' && row.name === 'variaveis'), false);
   assert.ok(persisted.some((row) => row.old === 'conversas:ler' && row.decision_ref === 'D-40'));
   assert.ok(persisted.some((row) => row.old === 'parametros_perdidos' && /erro_codigo|ultimo_erro/.test(row.where_persisted)));
   assert.equal(persisted.some((row) => row.old === 'pipe_sessao'), false);
+  for (const name of ['nome', 'id_provedor', 'mensagem_id', 'acoes', 'eventos', 'proximo', 'opcoes', 'pergunta', 'texto', 'telefone_e164', 'plano']) {
+    assert.ok(persisted.some((row) => row.old === name && row.notes.includes('fixture-evidence:')), name);
+  }
+  for (const id of ['api-symbol-cbaf4779', 'api-ts-prop-c7bef9c1', 'workers-ts-prop-3de70883']) {
+    assert.ok(persisted.some((row) => row.id === id && row.where_persisted.includes('mensagem.dados')));
+    assert.equal(map.some((row) => row.id === id), false);
+  }
+  assert.ok(map.some((row) => row.id === 'api-symbol-36c1fef7' && row.old === 'opcoes'));
 });
 
 test('B exceptions use exact files, scanner kinds and anchored names', () => {

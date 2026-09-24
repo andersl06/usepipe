@@ -709,28 +709,25 @@ packages/ai/src/cliente/cliente.ts,^medium$,literal-value,B,persisted: Anthropic
 packages/ai/src/cliente/cliente.ts,^xhigh$,literal-value,B,persisted: Anthropic API output_config.effort enum,persisted.csv:packages-ai-literal-value-1cccb3f1
 apps/api/src/webhooks-saida.ts,^chave$,identifier,B,persisted: Postgres jsonb webhookSaida.cabecalhos,persisted.csv:api-ts-prop-327782ee
 apps/api/src/webhooks-saida.ts,^valor$,identifier,B,persisted: Postgres jsonb webhookSaida.cabecalhos,persisted.csv:api-ts-prop-748163a5
-packages/core/src/score/motor.ts,^contem$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-2e721142
-packages/core/src/fluxo/contexto.ts,^conteudo$,literal-value,B,persisted: Postgres jsonb processHttpExecucao.contexto,persisted.csv:packages-core-literal-value-6b37fa3a
+packages/core/src/score/motor.ts,^contem$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-2a6bcda7
 packages/core/src/fluxo/contexto.ts,^DELETE$,literal-value,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-literal-value-2d60eef9
-packages/core/src/score/motor.ts,^diferente$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-f3842f2a
-packages/core/src/score/motor.ts,^em$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-4bf81317
-packages/core/src/fluxo/contexto.ts,^entrada$,literal-value,B,persisted: Postgres jsonb processHttpExecucao.contexto,persisted.csv:packages-core-literal-value-b0efb3da
+packages/core/src/score/motor.ts,^diferente$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-a3de5c13
+packages/core/src/score/motor.ts,^em$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-195fd275
 packages/core/src/score/motor.ts,^e$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-d0789b1a
-packages/core/src/score/motor.ts,^existe$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-b17bf5e7
+packages/core/src/score/motor.ts,^existe$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-02e6a7bc
 packages/core/src/fluxo/contexto.ts,^GET$,literal-value,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-literal-value-f000237e
-packages/core/src/score/motor.ts,^igual$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-dfe4c2fe
-packages/core/src/score/motor.ts,^maior_igual$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-968123d4
-packages/core/src/score/motor.ts,^maior$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-6c6d8f2a
-packages/core/src/score/motor.ts,^menor_igual$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-a15b2592
-packages/core/src/score/motor.ts,^menor$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-d99038e4
-packages/core/src/score/motor.ts,^nao_contem$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-fd8f6c42
-packages/core/src/score/motor.ts,^nao_em$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-1171081a
-packages/core/src/score/motor.ts,^nao_existe$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-fc2de641
+packages/core/src/score/motor.ts,^igual$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-ff1ed1c9
+packages/core/src/score/motor.ts,^maior_igual$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-baa8bf61
+packages/core/src/score/motor.ts,^maior$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-69508601
+packages/core/src/score/motor.ts,^menor_igual$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-73877186
+packages/core/src/score/motor.ts,^menor$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-7422b3e7
+packages/core/src/score/motor.ts,^nao_contem$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-5ca4eea6
+packages/core/src/score/motor.ts,^nao_em$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-47790fec
+packages/core/src/score/motor.ts,^nao_existe$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-f1043c31
 packages/core/src/score/motor.ts,^ou$,literal-value,B,persisted: Postgres jsonb regraPrioridade.condicao;regraScore.condicao;transicao.condicao,persisted.csv:packages-core-literal-value-b54c4833
 packages/core/src/fluxo/contexto.ts,^PATCH$,literal-value,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-literal-value-2075aadf
 packages/core/src/fluxo/contexto.ts,^POST$,literal-value,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-literal-value-bb99f592
 packages/core/src/fluxo/contexto.ts,^PUT$,literal-value,B,persisted: Postgres jsonb processHttpExecucao.pedido,persisted.csv:packages-core-literal-value-8e84431e
-packages/core/src/fluxo/contexto.ts,^saida$,literal-value,B,persisted: Postgres jsonb processHttpExecucao.contexto,persisted.csv:packages-core-literal-value-6fe0643c
 packages/core/src/fluxo/modelos.ts,^\$title$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-a5c7cfa1
 packages/core/src/fluxo/modelos.ts,^afterStateChangedActions$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-15845e30
 packages/core/src/fluxo/modelos.ts,^afterStateChangedActions$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-fa7943a3
@@ -802,3 +799,22 @@ packages/core/src/fluxo/condicao.ts,^values$,identifier,B,persisted: Postgres js
 packages/core/src/fluxo/condicao.ts,^variable$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-15c6d82b
 packages/core/src/fluxo/modelos.ts,^variable$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-3285260c
 packages/core/src/fluxo/modelos.ts,^version$,identifier,B,persisted: Postgres jsonb bloco.conteudo,persisted.csv:packages-core-ts-prop-b0ceab3e
+apps/api/src/dominio/fluxo.ts,^opcoes$,string-literal,B,persisted: Postgres mensagem.dados jsonb (pergunta.opcoes),persisted.csv:api-symbol-cbaf4779
+apps/api/src/dominio/fluxo.ts,^opcoes$,identifier,B,persisted: Postgres mensagem.dados jsonb (pergunta.opcoes),persisted.csv:api-ts-prop-c7bef9c1
+apps/workers/src/whatsapp/interativo.ts,^opcoes$,identifier,B,persisted: Postgres mensagem.dados jsonb (pergunta.opcoes),persisted.csv:workers-ts-prop-3de70883
+apps/api/tests/fixtures/jsonb/flow-execution-context.json,^nome$,literal-value,B,persisted: Postgres execucao_fluxo.contexto jsonb,persisted.csv:jsonb-key-0343bfe6
+apps/api/tests/fixtures/jsonb/flow-router-context.json,^nome$,literal-value,B,persisted: Postgres posicao_no_roteador.contexto jsonb,persisted.csv:jsonb-key-7050d563
+apps/api/tests/fixtures/jsonb/flow-step-input.json,^id_provedor$,literal-value,B,persisted: Postgres execucao_passo.entrada jsonb,persisted.csv:jsonb-key-dcb1e293
+apps/api/tests/fixtures/jsonb/flow-step-input.json,^mensagem_id$,literal-value,B,persisted: Postgres execucao_passo.entrada jsonb,persisted.csv:jsonb-key-096c1189
+apps/api/tests/fixtures/jsonb/flow-step-output.json,^acoes$,literal-value,B,persisted: Postgres execucao_passo.saida jsonb,persisted.csv:jsonb-key-856aa387
+apps/api/tests/fixtures/jsonb/flow-step-output.json,^eventos$,literal-value,B,persisted: Postgres execucao_passo.saida jsonb,persisted.csv:jsonb-key-e8a918af
+apps/api/tests/fixtures/jsonb/flow-step-output.json,^proximo$,literal-value,B,persisted: Postgres execucao_passo.saida jsonb,persisted.csv:jsonb-key-1c9648f3
+apps/api/tests/fixtures/jsonb/outbox-message-data.json,^opcoes$,literal-value,B,persisted: Postgres mensagem.dados jsonb,persisted.csv:jsonb-key-75494b3f
+apps/api/tests/fixtures/jsonb/outbox-message-data.json,^pergunta$,literal-value,B,persisted: Postgres mensagem.dados jsonb,persisted.csv:jsonb-key-c0a5d653
+apps/api/tests/fixtures/jsonb/outbox-message-data.json,^texto$,literal-value,B,persisted: Postgres mensagem.dados jsonb,persisted.csv:jsonb-key-660f4060
+apps/api/tests/fixtures/jsonb/crm-contact-attributes.json,^plano$,literal-value,B,persisted: Postgres contato.atributos jsonb,persisted.csv:jsonb-key-bc3af0a2
+apps/api/tests/fixtures/jsonb/flow-process-http.json,^id_provedor$,literal-value,B,persisted: Postgres process_http_execucao.entrada jsonb,persisted.csv:jsonb-key-ca1bf4ad
+apps/api/tests/fixtures/jsonb/audit-before-after.json,^nome$,literal-value,B,persisted: Postgres log_auditoria.antes jsonb,persisted.csv:jsonb-key-bd8b8da3
+apps/api/tests/fixtures/jsonb/audit-before-after.json,^telefone_e164$,literal-value,B,persisted: Postgres log_auditoria.antes jsonb,persisted.csv:jsonb-key-32208f18
+apps/api/tests/fixtures/jsonb/audit-before-after.json,^nome$,literal-value,B,persisted: Postgres log_auditoria.depois jsonb,persisted.csv:jsonb-key-368704dc
+apps/api/tests/fixtures/jsonb/audit-before-after.json,^telefone_e164$,literal-value,B,persisted: Postgres log_auditoria.depois jsonb,persisted.csv:jsonb-key-11cc500a

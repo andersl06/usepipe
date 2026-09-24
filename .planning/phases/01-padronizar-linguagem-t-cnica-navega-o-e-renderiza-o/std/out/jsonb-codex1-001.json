@@ -17,7 +17,7 @@
       "notes": "jsonb:webhookSaida.cabecalhos;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-2e721142",
+      "id": "packages-core-literal-value-2a6bcda7",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -25,7 +25,7 @@
       "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-6b37fa3a",
+      "id": "packages-core-literal-value-b0916e54",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -41,7 +41,7 @@
       "notes": "jsonb:processHttpExecucao.pedido;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-f3842f2a",
+      "id": "packages-core-literal-value-a3de5c13",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -49,7 +49,7 @@
       "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-4bf81317",
+      "id": "packages-core-literal-value-195fd275",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -57,7 +57,7 @@
       "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-b0efb3da",
+      "id": "packages-core-literal-value-826bc472",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -73,7 +73,7 @@
       "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-b17bf5e7",
+      "id": "packages-core-literal-value-02e6a7bc",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -89,7 +89,7 @@
       "notes": "jsonb:processHttpExecucao.pedido;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-dfe4c2fe",
+      "id": "packages-core-literal-value-ff1ed1c9",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -97,7 +97,7 @@
       "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-968123d4",
+      "id": "packages-core-literal-value-baa8bf61",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -105,7 +105,7 @@
       "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-6c6d8f2a",
+      "id": "packages-core-literal-value-69508601",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -113,7 +113,7 @@
       "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-a15b2592",
+      "id": "packages-core-literal-value-73877186",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -121,7 +121,7 @@
       "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-d99038e4",
+      "id": "packages-core-literal-value-7422b3e7",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -129,7 +129,7 @@
       "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-fd8f6c42",
+      "id": "packages-core-literal-value-5ca4eea6",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -137,7 +137,7 @@
       "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-1171081a",
+      "id": "packages-core-literal-value-47790fec",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -145,7 +145,7 @@
       "notes": "jsonb:regraPrioridade.condicao;jsonb:regraScore.condicao;jsonb:transicao.condicao;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-fc2de641",
+      "id": "packages-core-literal-value-f1043c31",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",
@@ -185,7 +185,7 @@
       "notes": "jsonb:processHttpExecucao.pedido;jsonb-reach:default-keep"
     },
     {
-      "id": "packages-core-literal-value-6fe0643c",
+      "id": "packages-core-literal-value-d49b1b9e",
       "new": "KEEP",
       "persisted": "yes",
       "category": "B",

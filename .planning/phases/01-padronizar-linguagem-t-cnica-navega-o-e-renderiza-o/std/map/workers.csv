@@ -231,7 +231,6 @@ workers-ts-prop-6dc7b4c3,workers,2,ts-prop,mensagensEntrada,,apps/workers/src/ag
 workers-ts-prop-1607e154,workers,2,ts-prop,mensagensSaida,,apps/workers/src/agregacao.ts:200,3,no,,,candidate,,
 workers-ts-prop-d02a7c24,workers,2,ts-prop,nomeArquivo,,apps/workers/src/whatsapp/cliente.ts:35,5,no,,,candidate,,
 workers-ts-prop-e28eda46,workers,2,ts-prop,opcoes,,apps/workers/src/whatsapp/cliente.ts:50,157,no,,,candidate,,
-workers-ts-prop-3de70883,workers,2,ts-prop,opcoes,,apps/workers/src/whatsapp/interativo.ts:34,157,no,,,candidate,,
 workers-ts-prop-4f9eda4e,workers,2,ts-prop,posicao,,apps/workers/src/whatsapp/template.ts:59,84,no,,,candidate,,
 workers-ts-prop-f0662e7c,workers,2,ts-prop,primeiraRespostaN,,apps/workers/src/agregacao.ts:204,3,no,,,candidate,,
 workers-ts-prop-3b734086,workers,2,ts-prop,primeiraRespostaSeg,,apps/workers/src/agregacao.ts:203,13,no,,,candidate,,

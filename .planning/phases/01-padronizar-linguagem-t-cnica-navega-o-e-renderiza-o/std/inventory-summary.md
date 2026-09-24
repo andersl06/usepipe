@@ -4,20 +4,20 @@
 |---|---|---:|
 | packages-core | dir | 8 |
 | packages-core | file | 23 |
-| packages-core | literal-value | 86 |
+| packages-core | literal-value | 83 |
 | packages-core | script | 1 |
 | packages-core | subpath-export | 6 |
 | packages-core | symbol | 323 |
 | packages-core | test-title | 154 |
 | packages-core | ts-local | 173 |
-| packages-core | ts-prop | 215 |
+| packages-core | ts-prop | 199 |
 | packages-db | file | 45 |
-| packages-db | literal-value | 188 |
+| packages-db | literal-value | 180 |
 | packages-db | script | 3 |
 | packages-db | symbol | 171 |
 | packages-db | test-title | 21 |
 | packages-db | ts-local | 29 |
-| packages-db | ts-prop | 311 |
+| packages-db | ts-prop | 302 |
 | packages-contracts | file | 5 |
 | packages-contracts | literal-value | 41 |
 | packages-contracts | symbol | 76 |
@@ -86,12 +86,11 @@
 | ponte | app | 1 |
 | ponte | dir | 3 |
 | ponte | file | 6 |
-| ponte | literal-value | 7 |
 | ponte | package | 1 |
 | ponte | symbol | 59 |
 | ponte | test-title | 17 |
 | ponte | ts-local | 47 |
-| ponte | ts-prop | 35 |
+| ponte | ts-prop | 23 |
 | desk-vite | dir | 9 |
 | desk-vite | file | 33 |
 | desk-vite | front-route | 2 |
@@ -119,24 +118,23 @@
 | crm | symbol | 302 |
 | crm | test-title | 24 |
 | crm | ts-local | 174 |
-| crm | ts-prop | 152 |
+| crm | ts-prop | 147 |
 | site | dir | 3 |
 | site | file | 1 |
 | site | symbol | 5 |
 | site | ts-local | 1 |
-| infra | dir | 11 |
+| infra | dir | 12 |
 | infra | file | 35 |
 | infra | literal-value | 5 |
 | infra | script | 5 |
 | infra | symbol | 9 |
-| infra | test-title | 18 |
+| infra | test-title | 24 |
 | infra | ts-local | 18 |
-| infra | ts-prop | 36 |
 | css | css-class | 2068 |
 | css | css-var | 510 |
 | css | data-attr | 54 |
 
-Total rows: 16717
+Total rows: 16628
 Total comments: 6500
 Total route dependents: 474
 
@@ -149,29 +147,24 @@ Total route dependents: 474
 | Queues | 10 including English name | 7 | PT queue names |
 | Scheduler IDs | 7 | 7 | All upsertJobScheduler literals |
 | Error codes | ~108 unique | 310 | Per declaration occurrence |
-| Test titles | 1,747 all | 1157 | PT subset |
+| Test titles | 1,747 all | 1163 | PT subset |
 | CSS classes | ~3,025 unique all | 2068 | PT selector occurrences |
 | CSS vars | 482 unique all | 510 | PT declaration occurrences |
-| literal-value | Not sized | 644 | Candidate union/technical const literal rows |
+| literal-value | Not sized | 626 | Candidate union/technical const literal rows |
 | data-attr | Not sized | 54 | Candidate attribute rows |
-| jsonb-reach | Not sized | 513 | Rows below are per column |
+| jsonb-reach | Not sized | 140 | Rows below are per column; runtime Contexto and audit wrapper are excluded |
 
 | JSONB column | Reached rows |
 |---|---:|
 | bloco.conteudo | 45 |
 | dicionarioCampo.settings | 1 |
-| execucaoFluxo.contexto | 101 |
 | execucaoPasso.entrada | 5 |
 | execucaoPasso.saida | 4 |
-| logAuditoria.antes | 17 |
-| logAuditoria.depois | 17 |
-| posicaoNoRoteador.contexto | 101 |
-| processHttpExecucao.contexto | 110 |
+| processHttpExecucao.contexto | 9 |
 | processHttpExecucao.entrada | 5 |
 | processHttpExecucao.pedido | 10 |
 | processHttpExecucao.resposta | 2 |
 | regraPrioridade.condicao | 19 |
 | regraScore.condicao | 19 |
-| templateMensagem.variaveis | 36 |
 | transicao.condicao | 19 |
 | webhookSaida.cabecalhos | 2 |
