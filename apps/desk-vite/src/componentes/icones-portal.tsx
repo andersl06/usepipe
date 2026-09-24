@@ -7,7 +7,7 @@ import type { SVGProps } from 'react';
  * 1,75 e miolo vazado. Os da barra do portal da Blip são CHEIOS (`fill`, sem
  * traço), e a diferença salta aos olhos lado a lado — foi a queixa do dono, que
  * pediu a barra "igual". Então esta folha guarda o desenho deles, medido no DOM
- * renderizado de `supernova.blip.ai` (ver `docs/pesquisa/blip-portal-contrato.md`),
+ * renderizado de `supernova.blip.ai` (ver `referencias-blip/pesquisa/blip-portal-contrato.md`),
  * com o nome que a gente usa à esquerda e o nome de lá no comentário.
  *
  * Fica LOCAL na Gestão, e não em `packages/ui`: a regra de trabalho é escrever

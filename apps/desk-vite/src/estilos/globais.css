@@ -93,6 +93,13 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+.dk-carregando-sessao {
+  display: grid;
+  min-height: 100%;
+  place-items: center;
+  color: var(--p-conteudo-desabilitado);
+}
+
 /* A casca é de altura fixa com rolagem interna (`#app`/`#container`): o
    contêiner das colunas não rola, cada coluna tem o seu rolador. */
 .dk-app {

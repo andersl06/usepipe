@@ -1,7 +1,7 @@
 -- Login com provedor externo, e os planos como lista fechada.
 --
 -- Ver `docs/specs/2026-09-07-preco.md` (planos) e
--- `docs/pesquisa/sso-multi-tenant.md` (identidade externa).
+-- `referencias-blip/pesquisa/sso-multi-tenant.md` (identidade externa).
 
 -- 1. Plano vira lista fechada. Era texto livre com 'padrao' de padrão, e franquia
 --    não tem onde morar em texto livre.

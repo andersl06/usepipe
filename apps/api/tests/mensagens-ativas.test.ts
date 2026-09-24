@@ -19,7 +19,7 @@ type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
 /**
  * Mensagem ativa: disparo de template para uma lista.
  *
- * Os números conferidos aqui são os da Blip (`docs/pesquisa/blip-desk-mensagens-ativas.md`):
+ * Os números conferidos aqui são os da Blip (`referencias-blip/pesquisa/blip-desk-mensagens-ativas.md`):
  * teto de 15 contatos, recusa por contato já em atendimento (código 1602 deles) e por
  * número inválido. O que estes testes mais protegem é a regra de que **o disparo não é
  * tudo-ou-nada**.

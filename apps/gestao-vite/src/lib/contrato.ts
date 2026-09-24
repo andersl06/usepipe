@@ -6,7 +6,7 @@
  * endpoint da `apps/api` por movimentação e não por reescrita (README, "Quem
  * fala com o banco").
  *
- * A régua da tela é `docs/pesquisa/blip-painel-do-contrato.md`.
+ * A régua da tela é `referencias-blip/pesquisa/blip-painel-do-contrato.md`.
  */
 
 export interface ResumoDoContrato {

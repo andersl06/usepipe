@@ -15,7 +15,7 @@ import type { RequisicaoComSessao } from '../sessao.js';
 /**
  * `/v1/mensagens-ativas` — disparo de template para uma lista de contatos.
  *
- * Ver `docs/pesquisa/blip-desk-mensagens-ativas.md` e `dominio/mensagem-ativa.ts`.
+ * Ver `referencias-blip/pesquisa/blip-desk-mensagens-ativas.md` e `dominio/mensagem-ativa.ts`.
  *
  * **A resposta é 207-em-espírito**: 201 com o resultado POR CONTATO. Um número
  * inválido no meio de quinze não derruba os catorze bons, e a tela precisa saber

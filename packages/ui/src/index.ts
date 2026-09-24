@@ -9,8 +9,8 @@
  * Decisões que este pacote existe para impor estão em
  * `docs/specs/2026-09-05-design-system.md`; a identidade continua sendo
  * `docs/marca/MARCA.md`; os números que as justificam estão em
- * `docs/pesquisa/visual-blip-salesforce.md` e em
- * `docs/pesquisa/blip-design-system.md`.
+ * `referencias-blip/pesquisa/visual-blip-salesforce.md` e em
+ * `referencias-blip/pesquisa/blip-design-system.md`.
  *
  * As três regras que a API pública impõe, e que nenhum aplicativo pode
  * contornar declarando cor própria:

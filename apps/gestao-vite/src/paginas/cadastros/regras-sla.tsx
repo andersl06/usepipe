@@ -25,7 +25,7 @@ const SIGLA_DO_ALVO: Record<string, string> = {
 
 /**
  * Regras ├ SLA — `attendance/desk/sla-policy` da origem, medido em
- * `docs/capturas/blip/dom/FICHA-sla-policy.md` e conferido na foto
+ * `referencias-blip/fichas/FICHA-sla-policy.md` e conferido na foto
  * `fotos/original-sla-policy.png`.
  *
  * Esqueleto igual ao deles (§2): cabeçalho, busca sozinha embaixo ("Buscar

@@ -15,7 +15,7 @@ import { data } from './consultas.js';
  * olhar o número de outra pessoa, e é assim que tem de continuar: a visão da
  * operação é do Pipe Gestão, com permissão de supervisor.
  *
- * A anatomia é a da tela de referência (`docs/pesquisa/blip-desk-medidas.md`,
+ * A anatomia é a da tela de referência (`referencias-blip/pesquisa/blip-desk-medidas.md`,
  * §10): seis contagens de situação, três tempos médios e uma série diária.
  *
  * Duas coisas que a referência faz e que aqui NÃO se copia, de propósito:

@@ -1,6 +1,6 @@
 -- Webhook de saída: autenticação e cabeçalhos customizados.
 --
--- A tela `integracoes/webhook` (`docs/pesquisa/blip-integracoes-webhook.md`)
+-- A tela `integracoes/webhook` (`referencias-blip/pesquisa/blip-integracoes-webhook.md`)
 -- foi entregue com só URL + eventos por linha porque o banco não tinha onde
 -- guardar o resto do formulário da origem: "Configurações de autenticação"
 -- (switch + OAuth 2.0 `client_credentials`) e "Cabeçalhos customizados"

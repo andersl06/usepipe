@@ -4,7 +4,7 @@
 -- onde usar o certificado. Agora tem — a Pipe apresenta o certificado do
 -- cliente quando ELA chama os hosts dele (`apps/api/src/dominio/mtls.ts`: os
 -- webhooks de saída hoje, a chamada externa do Builder amanhã), que é o que a
--- origem faz com o `.pfx` subido em `/mtls` (`docs/pesquisa/blip-certificados-mtls.md`).
+-- origem faz com o `.pfx` subido em `/mtls` (`referencias-blip/pesquisa/blip-certificados-mtls.md`).
 -- O dono do produto aprovou guardar o material.
 --
 -- As duas colunas novas são envelopes `pipev1.` de `packages/db/src/segredo.ts`

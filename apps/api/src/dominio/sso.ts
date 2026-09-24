@@ -11,7 +11,7 @@ import { ErroPipe } from '../erros.js';
  * quando ela passa a valer.
  *
  * Duas regras moldam este arquivo, e as duas vêm de
- * `docs/pesquisa/sso-multi-tenant.md`:
+ * `referencias-blip/pesquisa/sso-multi-tenant.md`:
  *
  * 1. **Salvar não liga nada.** A conexão nasce `rascunho`, vira `testada` quando
  *    um teste real passa, e só então pode ir a `ativa`. É o que permite ligar o

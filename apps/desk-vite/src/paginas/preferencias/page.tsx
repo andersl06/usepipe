@@ -6,14 +6,14 @@ import { CHAVES_DE_PREFERENCIA, lerPreferencias, type Preferencias } from '../..
  * MFE `desk-preferences-mfe` (a página fica em branco), então NÃO há foto de
  * régua: a estrutura vem do i18n do pacote da referência (`app.js`, bloco
  * `"preferences":"Preferências","notifications":"Notificações",…`) e de
- * `docs/pesquisa/blip-desk-preferencias.md` — uma lista de seções com
+ * `referencias-blip/pesquisa/blip-desk-preferencias.md` — uma lista de seções com
  * interruptores, sem botão "Salvar" (cada um vale na hora).
  *
  * ponytail: medidas a conferir quando a tela da referência for extraída
  * (pedido no relatório). Os textos são os deles, com "Blip Desk" → "Pipe Desk".
  *
  * As cinco preferências vivem no navegador, uma chave por preferência: são
- * da MÁQUINA em que a pessoa está, não da pessoa (`docs/pesquisa/blip-desk-medidas.md` §12).
+ * da MÁQUINA em que a pessoa está, não da pessoa (`referencias-blip/pesquisa/blip-desk-medidas.md` §12).
  */
 const SECOES: {
   titulo: string;

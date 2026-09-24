@@ -32,7 +32,7 @@ import {
  *
  * As REGRAS de cada campo não são do Chatwoot: são da plataforma de origem das
  * telas (a Blip), lidas do DOM de "Editar Fluxo"
- * (`docs/capturas/blip/dom/application-detail-pipeprincipal-configurations-basic.html`)
+ * (`referencias-blip/portal/dom/application-detail-pipeprincipal-configurations-basic.html`)
  * e do assistente de criação (`regras-de-nome.ts`, que cita o bundle):
  *
  * - nome: obrigatório, 2 a 30 caracteres, começa com letra, saneado a cada tecla

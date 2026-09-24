@@ -2,7 +2,7 @@
 --
 -- A tela "Editar Fluxo" (`/configurations/basic`) tem DOIS campos de texto, e
 -- a tabela só tinha lugar para um. O DOM capturado
--- (`docs/capturas/blip/dom/application-detail-pipeprincipal-configurations-basic.html`)
+-- (`referencias-blip/portal/dom/application-detail-pipeprincipal-configurations-basic.html`)
 -- diz exatamente o que o segundo é:
 --
 --   <textarea name="description" ng-model="$ctrl.editingApplication.description"

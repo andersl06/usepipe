@@ -1,7 +1,7 @@
 -- O papel da CONTA separado dos papéis de ATENDIMENTO.
 --
 -- Na origem são duas coisas: o papel no contrato (`admin`, `member`, `guest` —
--- "Admin", "Pode editar", "Pode visualizar", `docs/pesquisa/blip-painel-do-contrato.md`)
+-- "Admin", "Pode editar", "Pode visualizar", `referencias-blip/pesquisa/blip-painel-do-contrato.md`)
 -- e o que a pessoa faz no atendimento, dado por chatbot (equipe do bot + Desk,
 -- `blip-gestao-regras-tecnicas.md` §8.1). Até aqui o Pipe misturava as duas nos
 -- cinco papéis do dia 1, e a tela de Membros mostrava `gestor` e `atendente` crus.

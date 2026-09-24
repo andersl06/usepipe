@@ -4,7 +4,7 @@ import { memo } from 'react';
  * Histórico como LISTA DE CARTÕES, e não como tabela.
  *
  * É a diferença mais funda entre a tela deles e a nossa, medida em
- * `docs/pesquisa/blip-telas-atendimento.md` §3 e §5.2: seis das oito telas do
+ * `referencias-blip/pesquisa/blip-telas-atendimento.md` §3 e §5.2: seis das oito telas do
  * módulo Atendimento da Blip usam este cartão, e nenhuma usa tabela. Com dez
  * colunas, a tabela obriga a ler o cabeçalho e descer o olho; o cartão traz o
  * rótulo colado no valor e sobrevive a qualquer largura de tela.

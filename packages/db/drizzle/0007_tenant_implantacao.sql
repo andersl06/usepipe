@@ -1,5 +1,5 @@
 -- Duas defesas que a análise de arquitetura multi-tenant pediu, e que são
--- baratas agora e caras depois. Ver `docs/pesquisa/arquitetura-multi-tenant.md`.
+-- baratas agora e caras depois. Ver `referencias-blip/pesquisa/arquitetura-multi-tenant.md`.
 
 -- 1. Onde o tenant está hospedado.
 --

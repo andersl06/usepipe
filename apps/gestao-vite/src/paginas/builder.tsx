@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import type { BuilderDoFluxo, ErroDoBloco, VersaoDoFluxo } from '@pipe/contracts';
+import type { BuilderDoFluxo, ErroDoBloco } from '@pipe/contracts';
 import { Botao, Campo, Etiqueta, Icone } from '@pipe/ui';
 import { IconeGestao } from '../componentes/icones-gestao';
 import { IconePortal } from '../componentes/icones-portal';
@@ -8,7 +8,7 @@ import { ErroDaApi } from '../lib/api';
 import { useLeitura } from '../lib/consulta';
 import { Modal } from './cadastros/_modal';
 import { BarrasDoContato, useContato } from './fluxo/contato';
-import { publicarFluxo, restaurarVersao } from './builder-gravar';
+import { publicarFluxo } from './builder-gravar';
 import { Editor } from './builder/editor';
 import { podeDesfazer, podeRefazer } from './builder/estado';
 import { PainelDeConfiguracao } from './builder/painel-configuracao';
@@ -23,7 +23,7 @@ import './builder.css';
  * Builder — o construtor de fluxo, na disposição real do Builder de produção
  * (faixa de aviso, pílula de blocos, canvas escuro, rodapé com status/zoom,
  * botão de conversa), medida no DOM capturado em
- * `docs/capturas/blip/builder/builder-fluxo__pagina.html` — ver o de-para em
+ * `referencias-blip/builder/builder-fluxo__pagina.html` — ver o de-para em
  * `builder.css`. O editor mora em `./builder/`:
  *
  * - `modelo.ts`, `condicoes.ts`, `conteudo.ts`, `acoes-do-bloco.ts`: as
@@ -98,13 +98,6 @@ const ROTULO_DA_ORIGEM = {
   padrao: 'Fluxo padrão',
 } as const;
 
-const TOM_DO_ESTADO = { rascunho: 'info', publicada: 'sucesso', arquivada: 'neutro' } as const;
-
-function quando(iso: string | null): string {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
-}
-
 export function PaginaBuilder() {
   const { contato } = useContato();
   const eu = useEu();
@@ -130,12 +123,6 @@ export function PaginaBuilder() {
   const [erroDePublicacao, setErroDePublicacao] = useState<string | null>(null);
   /** Os erros que o 409 de publicar trouxe — além dos que a gravação já conhece. */
   const [errosDoMotor, setErrosDoMotor] = useState<ErroDoBloco[]>([]);
-
-  const [historicoAberto, setHistoricoAberto] = useState(false);
-  const [restaurando, setRestaurando] = useState<number | null>(null);
-  const [confirmandoRestauro, setConfirmandoRestauro] = useState<VersaoDoFluxo | null>(null);
-  const [erroDoHistorico, setErroDoHistorico] = useState<string | null>(null);
-  const versoes = useLeitura<VersaoDoFluxo[]>(historicoAberto ? `${caminho}/versoes` : null);
 
   const podePublicar = eu.permissoes.includes('automacao.fluxo.publicar');
 
@@ -185,26 +172,6 @@ export function PaginaBuilder() {
       texto: r.valor.arquivada
         ? `Versão ${r.valor.versao.versao} publicada; a ${r.valor.arquivada.versao} saiu do ar.`
         : `Versão ${r.valor.versao.versao} publicada.`,
-    });
-  }
-
-  async function restaurar(versao: VersaoDoFluxo): Promise<void> {
-    if (restaurando !== null) return;
-    setRestaurando(versao.versao);
-    setErroDoHistorico(null);
-    const r = await restaurarVersao(contato.id, versao.versao);
-    setRestaurando(null);
-    if (!r.ok) {
-      setErroDoHistorico(r.erro);
-      return;
-    }
-    editor.recarregarQuando(r.valor.versao.id, r.valor.versao.atualizadoEm);
-    setConfirmandoRestauro(null);
-    setHistoricoAberto(false);
-    setErrosDoMotor([]);
-    setRecado({
-      tom: 'sucesso',
-      texto: `Versão ${versao.versao} restaurada como rascunho v${r.valor.versao.versao}.`,
     });
   }
 
@@ -456,17 +423,6 @@ export function PaginaBuilder() {
                       Tentar de novo
                     </Botao>
                   ) : null}
-                  <Botao
-                    type="button"
-                    icone="historico"
-                    onClick={() => {
-                      setErroDoHistorico(null);
-                      setConfirmandoRestauro(null);
-                      setHistoricoAberto(true);
-                    }}
-                  >
-                    Histórico
-                  </Botao>
                 </>
               ) : (
                 <span>{recusaDaLeitura ? 'Indisponível' : 'Carregando…'}</span>
@@ -590,80 +546,6 @@ export function PaginaBuilder() {
               </Botao>
             </div>
           </>
-        ) : null}
-      </Modal>
-
-      {/* Histórico: as versões do fluxo, com "Restaurar" para trazer uma antiga
-          de volta como rascunho — a publicada continua no ar até publicar de novo. */}
-      <Modal
-        aberto={historicoAberto}
-        titulo="Histórico de versões"
-        onFechar={() => setHistoricoAberto(false)}
-      >
-        {versoes.error ? (
-          <Etiqueta tom="erro">{versoes.error.message}</Etiqueta>
-        ) : !versoes.data ? (
-          <p className="sub">Carregando…</p>
-        ) : versoes.data.length === 0 ? (
-          <p className="sub">Nenhuma versão gravada ainda — mexa no desenho para o rascunho existir.</p>
-        ) : (
-          <ul className="bl-versoes">
-            {versoes.data.map((v) => (
-              <li key={v.id}>
-                <div className="bl-versao-titulo">
-                  <b>v{v.versao}</b>
-                  <Etiqueta tom={TOM_DO_ESTADO[v.estado]}>{v.estado}</Etiqueta>
-                  <span className="sub">
-                    {v.blocos} {v.blocos === 1 ? 'bloco' : 'blocos'}
-                  </span>
-                </div>
-                <div className="sub">
-                  {v.estado === 'rascunho'
-                    ? `atualizado em ${quando(v.atualizadoEm)}`
-                    : `publicada em ${quando(v.publicadaEm)}${v.publicadaPor ? ` por ${v.publicadaPor}` : ''}`}
-                </div>
-                {v.estado !== 'rascunho' ? (
-                  <Botao
-                    type="button"
-                    onClick={() => setConfirmandoRestauro(v)}
-                    disabled={restaurando !== null}
-                  >
-                    Restaurar
-                  </Botao>
-                ) : null}
-              </li>
-            ))}
-          </ul>
-        )}
-        {confirmandoRestauro ? (
-          <div className="bl-restauro">
-            <p className="sub">
-              Restaurar a versão {confirmandoRestauro.versao} como rascunho?{' '}
-              {dados?.origem === 'rascunho' || estado.sujo
-                ? `O rascunho atual${dados?.versao ? ` (v${dados.versao.versao})` : ''} e o que está na tela serão substituídos.`
-                : 'Ela não volta ao ar sozinha: revise e publique.'}
-            </p>
-            {erroDoHistorico ? <Etiqueta tom="erro">{erroDoHistorico}</Etiqueta> : null}
-            <div className="cl-acoes">
-              <Botao
-                type="button"
-                onClick={() => setConfirmandoRestauro(null)}
-                disabled={restaurando !== null}
-              >
-                Cancelar
-              </Botao>
-              <Botao
-                type="button"
-                variante="primario"
-                onClick={() => void restaurar(confirmandoRestauro)}
-                disabled={restaurando !== null}
-              >
-                {restaurando !== null ? 'Restaurando…' : 'Restaurar'}
-              </Botao>
-            </div>
-          </div>
-        ) : erroDoHistorico ? (
-          <Etiqueta tom="erro">{erroDoHistorico}</Etiqueta>
         ) : null}
       </Modal>
     </div>

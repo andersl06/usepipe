@@ -79,6 +79,11 @@ test('o fluxo mantém os dois que o roteador perde', () => {
   assert.ok(rotulos.includes('Atendimento'));
 });
 
+test('Atendimento continua na rota interna de monitoramento', () => {
+  const atendimento = itensDoMenu('fluxo', ID).find((item) => item.rotulo === 'Atendimento');
+  assert.equal(atendimento?.href, `/fluxo/${ID}/atendimento/monitoramento`);
+});
+
 test('o resto da fileira é o mesmo nos dois, e na mesma ordem', () => {
   const semEspecificos = (tipo: 'fluxo' | 'roteador') =>
     itensDoMenu(tipo, ID)

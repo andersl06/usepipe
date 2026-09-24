@@ -4,7 +4,7 @@
  *
  * Na origem tudo é comando LIME para `postmaster@mtls.blip.ai`, que sobe o
  * `.pfx` com a senha para o serviço deles e extrai validade/status sozinho
- * (`docs/pesquisa/blip-certificados-mtls.md`). O Pipe faz o mesmo:
+ * (`referencias-blip/pesquisa/blip-certificados-mtls.md`). O Pipe faz o mesmo:
  * `POST /v1/gestao/contrato/certificados` leva o arquivo (base64) e a senha, a
  * `api` lê o `.pfx` (`apps/api/.../dominio/gestao/pfx.ts`), guarda os dois
  * cifrados e devolve validade, impressão digital, emissor, sujeito e status —

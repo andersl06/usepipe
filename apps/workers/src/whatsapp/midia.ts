@@ -1,7 +1,7 @@
 /**
  * Validação de mídia antes de chamar a Meta.
  *
- * Fonte: `docs/pesquisa/regras-blip.md` §1.6 (política de upload de mídia da Blip).
+ * Fonte: `referencias-blip/pesquisa/regras-blip.md` §1.6 (política de upload de mídia da Blip).
  * A pesquisa marca a lista de formatos com ⚠️ — ela já mudou uma vez — então isto é
  * o **padrão documentado**, não uma constante fechada: `validarMidia` aceita uma
  * política por parâmetro, e o dia em que a lista virar configuração por tenant é só

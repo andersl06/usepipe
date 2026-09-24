@@ -10,7 +10,7 @@ import { aplicarPerfilMessenger, lerCanalMessenger } from '../messenger/canal.js
 
 /**
  * "Tela de Boas-vindas" e "Menu Persistente" — os itens 2 e 3 de
- * `/configurations/*` (`docs/pesquisa/blip-portal-telas.md` §6), gravados em
+ * `/configurations/*` (`referencias-blip/pesquisa/blip-portal-telas.md` §6), gravados em
  * `fluxo.configuracao` (migration 0031). As duas telas não tinham leitura nem
  * escrita: só desenhavam formulário e devolviam "ainda não está disponível".
  *

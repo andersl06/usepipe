@@ -4,9 +4,9 @@
 > Implementado em `packages/ui` (`@pipe/ui`).
 >
 > Autoridade da identidade: `docs/marca/MARCA.md`.
-> Números que justificam cada decisão: `docs/pesquisa/blip-design-system.md` (medição do bundle
-> real do Blip Desk) e `docs/pesquisa/visual-blip-salesforce.md`.
-> Arquitetura de tema: `docs/pesquisa/sistema-visual.md`.
+> Números que justificam cada decisão: `referencias-blip/pesquisa/blip-design-system.md` (medição do bundle
+> real do Blip Desk) e `referencias-blip/pesquisa/visual-blip-salesforce.md`.
+> Arquitetura de tema: `referencias-blip/pesquisa/sistema-visual.md`.
 >
 > **Segunda versão.** A primeira foi escrita antes de medirmos o bundle da Blip, e errava na
 > quantidade: espalhava quatro matizes de destaque pela interface. A seção 6 tem a tabela de
@@ -40,7 +40,7 @@ Limpar três folhas separadamente teria adiado o problema por uma semana.
 
 ### Da Blip
 
-Fonte: `docs/pesquisa/blip-design-system.md`, que mediu o bundle compilado do Blip Desk (29 MB,
+Fonte: `referencias-blip/pesquisa/blip-design-system.md`, que mediu o bundle compilado do Blip Desk (29 MB,
 folha de estilo de 773 KB). Nada de lá foi copiado como código. Valor de cor, contagem de degrau e
 nome de papel são fato, não expressão criativa; o que se aproveita é o **método**.
 

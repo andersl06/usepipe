@@ -7,7 +7,19 @@ import {
   removerAcaoGlobal,
   substituirAcaoGlobal,
 } from '../src/paginas/builder/acoes-globais.ts';
-import { LIMITE_DE_ACOES, ROTULOS_DAS_ACOES } from '../src/paginas/builder/acoes-do-bloco.ts';
+import {
+  LIMITE_DE_ACOES,
+  ROTULOS_DAS_ACOES,
+  tipoDeAcao,
+  colarAcoes,
+  cabecalhosDoCampo,
+  comCabecalhos,
+  comCampo,
+  comCampoJson,
+  errosDaAcao,
+  moverAcao,
+  novaAcao,
+} from '../src/paginas/builder/acoes-do-bloco.ts';
 import {
   MENSAGENS_DE_IMPORTACAO,
   nomeDoArquivoDeExportacao,
@@ -15,6 +27,8 @@ import {
   validarImportacao,
 } from '../src/paginas/builder/importar-exportar.ts';
 import { novoBloco } from '../src/paginas/builder/modelo.ts';
+import { etiquetasDoBloco } from '../src/paginas/builder/etiquetas-do-bloco.ts';
+import { errosDoBloco } from '../src/paginas/builder/validacao.ts';
 import {
   VARIAVEIS_DO_SISTEMA,
   filtrarVariaveis,
@@ -24,15 +38,93 @@ import {
 
 /* ------------------------------------------------------------- variaveis.ts */
 
+test('colar ações preserva origem, cria ids únicos e respeita o limite atomicamente', () => {
+  const bloco = novoBloco({}, { top: 0, left: 0 }, 'bloco');
+  const original = {
+    $id: 'origem',
+    type: 'SetVariable',
+    settings: { variable: 'saldo', value: '1' },
+  };
+  const r = colarAcoes(bloco, '$enteringCustomActions', [original, original]);
+  assert.ok(r.ok);
+  const acoes = r.bloco.$enteringCustomActions!;
+  assert.equal(new Set(acoes.map((a) => a.$id)).size, 2);
+  assert.ok(acoes.every((a) => a.$id !== original.$id));
+  acoes[0]!.settings!.value = '2';
+  assert.equal(original.settings.value, '1');
+  assert.equal(acoes[1]!.settings!.value, '1');
+  assert.deepEqual(
+    moverAcao(r.bloco, '$enteringCustomActions', 0, 1).$enteringCustomActions?.map((a) => a.$id),
+    [acoes[1]!.$id, acoes[0]!.$id],
+  );
+  const cheio = { ...bloco, $enteringCustomActions: Array.from({ length: 14 }, () => original) };
+  assert.equal(colarAcoes(cheio, '$enteringCustomActions', [original, original]).ok, false);
+  assert.equal(cheio.$enteringCustomActions.length, 14);
+});
+
+test('ProcessHttp edita cabeçalhos em pares e mantém o objeto do fluxo', () => {
+  const acao = novaAcao('ProcessHttp');
+  assert.equal(acao.settings?.method, 'GET');
+  assert.deepEqual(tipoDeAcao('ProcessHttp')?.campos[0]?.opcoes, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
+  const valida = comCabecalhos(
+    comCampo(acao, 'uri', 'https://api.exemplo.test'),
+    'headers',
+    [{ chave: 'authorization', valor: 'Bearer {{token}}' }],
+  );
+  assert.deepEqual(valida.settings?.headers, { authorization: 'Bearer {{token}}' });
+  assert.deepEqual(cabecalhosDoCampo(valida, 'headers'), [{ chave: 'authorization', valor: 'Bearer {{token}}' }]);
+  assert.deepEqual(errosDaAcao(valida), []);
+
+  const semChave = comCabecalhos(valida, 'headers', [{ chave: '', valor: 'ignorado' }]);
+  assert.equal(semChave.settings?.headers, undefined);
+
+  const invalida = comCampoJson(acao, 'headers', '{');
+  assert.deepEqual(errosDaAcao(invalida), ['URL: campo obrigatório.']);
+});
+
+test('rascunho de saída vazio fica no cartão e não entra no alerta de publicação', () => {
+  const bloco = novoBloco({}, { top: 0, left: 0 }, 'inicio');
+  bloco.$conditionOutputs = [{ conditions: [{ source: 'input', comparison: 'equals', values: [] }] }];
+  const erros = errosDoBloco(bloco, { inicio: bloco });
+  assert.ok(!erros.includes('Definição de saída não preenchida'));
+  assert.ok(!erros.includes('A condição precisa de valores quando a comparação não é exists nem notExists.'));
+});
+
+test('card do bloco mostra ações de conteúdo, entrada e ações personalizadas sem repetir', () => {
+  const bloco = novoBloco({}, { top: 0, left: 0 }, 'inicio');
+  bloco.$contentActions = [
+    { action: { type: 'SendMessage' } },
+    { action: { type: 'SendMessage' } },
+    { input: { bypass: false } },
+  ];
+  bloco.$leavingCustomActions = [{ type: 'ProcessHttp' }];
+  bloco.$tags = [{ label: 'API', background: '#3f7de8' }];
+  const etiquetas = etiquetasDoBloco(bloco);
+  assert.deepEqual(
+    etiquetas.map(({ rotulo }) => rotulo),
+    ['API', 'ProcessHttp', 'SendMessage', 'UserInput'],
+  );
+  assert.equal(etiquetas[0]?.cor, '#4a5d23');
+});
+
 test('variaveisDoUsuario junta as variáveis de context de blocos e ações globais, sem repetir', () => {
   const bloco = novoBloco({}, { top: 0, left: 0 }, 'bloco');
   bloco.$enteringCustomActions = [{ type: 'SetVariable', settings: { variable: 'saldo' } }];
   bloco.$conditionOutputs = [
-    { $id: 's1', stateId: 'outro', conditions: [{ source: 'context', variable: 'etapa', comparison: 'equals', values: ['1'] }] },
+    {
+      $id: 's1',
+      stateId: 'outro',
+      conditions: [{ source: 'context', variable: 'etapa', comparison: 'equals', values: ['1'] }],
+    },
   ];
   bloco.$contentActions![0]!.input!.variable = 'resposta';
   const mapa = { bloco };
-  const globais = { $leavingCustomActions: [{ type: 'DeleteVariable', settings: { variable: 'temp' } }, { type: 'SetVariable', settings: { variable: 'saldo' } }] };
+  const globais = {
+    $leavingCustomActions: [
+      { type: 'DeleteVariable', settings: { variable: 'temp' } },
+      { type: 'SetVariable', settings: { variable: 'saldo' } },
+    ],
+  };
 
   assert.deepEqual(variaveisDoUsuario(mapa, globais), ['etapa', 'resposta', 'saldo', 'temp']);
 });
@@ -52,7 +144,10 @@ test('filtrarVariaveis ignora acento e caixa', () => {
 
 test('filtrarVariaveisDoSistema busca no nome e na descrição', () => {
   const porNome = filtrarVariaveisDoSistema(VARIAVEIS_DO_SISTEMA, 'contact.email');
-  assert.deepEqual(porNome.map((v) => v.nome), ['contact.email']);
+  assert.deepEqual(
+    porNome.map((v) => v.nome),
+    ['contact.email'],
+  );
 
   const porDescricao = filtrarVariaveisDoSistema(VARIAVEIS_DO_SISTEMA, 'atendimento');
   assert.ok(porDescricao.some((v) => v.nome === 'ticket.id'));
@@ -66,7 +161,10 @@ test('textoDeExportacao produz {flow, globalActions} com o bloco pela chave do i
   const mapa = { onboarding: bloco };
   const globais = { $enteringCustomActions: [{ type: 'TrackEvent' }] };
 
-  const json = JSON.parse(textoDeExportacao(mapa, globais)) as { flow: Record<string, unknown>; globalActions: unknown };
+  const json = JSON.parse(textoDeExportacao(mapa, globais)) as {
+    flow: Record<string, unknown>;
+    globalActions: unknown;
+  };
 
   assert.deepEqual(Object.keys(json.flow), ['onboarding']);
   assert.equal((json.flow.onboarding as { id: string }).id, 'onboarding');
@@ -90,7 +188,10 @@ test('validarImportacao recusa JSON que não tem o formato do export do editor',
 });
 
 test('validarImportacao recusa um fluxo sem bloco raiz', () => {
-  const semRaiz = { flow: { onboarding: { id: 'onboarding', $contentActions: [] } }, globalActions: {} };
+  const semRaiz = {
+    flow: { onboarding: { id: 'onboarding', $contentActions: [] } },
+    globalActions: {},
+  };
   const r = validarImportacao(JSON.stringify(semRaiz));
   assert.deepEqual(r, { ok: false, erro: MENSAGENS_DE_IMPORTACAO.semRaiz });
 });
@@ -117,20 +218,37 @@ test('adicionarAcaoGlobal acrescenta na lista certa sem mexer na outra', () => {
   const r = adicionarAcaoGlobal({}, '$enteringCustomActions', { type: 'SetVariable' });
   assert.equal(r.ok, true);
   if (!r.ok) return;
-  assert.deepEqual(listaDeAcoesGlobais(r.globais, '$enteringCustomActions'), [{ type: 'SetVariable' }]);
+  assert.deepEqual(listaDeAcoesGlobais(r.globais, '$enteringCustomActions'), [
+    { type: 'SetVariable' },
+  ]);
   assert.deepEqual(listaDeAcoesGlobais(r.globais, '$leavingCustomActions'), []);
 });
 
 test('adicionarAcaoGlobal recusa depois do limite de 15, igual às ações de bloco', () => {
-  const cheias = { $enteringCustomActions: Array.from({ length: LIMITE_DE_ACOES }, () => ({ type: 'SetVariable' })) };
+  const cheias = {
+    $enteringCustomActions: Array.from({ length: LIMITE_DE_ACOES }, () => ({
+      type: 'SetVariable',
+    })),
+  };
   const r = adicionarAcaoGlobal(cheias, '$enteringCustomActions', { type: 'SetVariable' });
   assert.deepEqual(r, { ok: false, erro: ROTULOS_DAS_ACOES.limite });
 });
 
 test('substituirAcaoGlobal troca só o índice pedido', () => {
-  const globais = { $leavingCustomActions: [{ type: 'SetVariable', $title: 'a' }, { type: 'TrackEvent', $title: 'b' }] };
-  const trocado = substituirAcaoGlobal(globais, '$leavingCustomActions', 1, { type: 'TrackEvent', $title: 'novo' });
-  assert.deepEqual(listaDeAcoesGlobais(trocado, '$leavingCustomActions').map((a) => a.$title), ['a', 'novo']);
+  const globais = {
+    $leavingCustomActions: [
+      { type: 'SetVariable', $title: 'a' },
+      { type: 'TrackEvent', $title: 'b' },
+    ],
+  };
+  const trocado = substituirAcaoGlobal(globais, '$leavingCustomActions', 1, {
+    type: 'TrackEvent',
+    $title: 'novo',
+  });
+  assert.deepEqual(
+    listaDeAcoesGlobais(trocado, '$leavingCustomActions').map((a) => a.$title),
+    ['a', 'novo'],
+  );
 });
 
 test('removerAcaoGlobal e moverAcaoGlobal mexem só na lista indicada', () => {
@@ -138,8 +256,14 @@ test('removerAcaoGlobal e moverAcaoGlobal mexem só na lista indicada', () => {
     $enteringCustomActions: [{ type: 'A' }, { type: 'B' }, { type: 'C' }],
   };
   const movido = moverAcaoGlobal(globais, '$enteringCustomActions', 2, 0);
-  assert.deepEqual(listaDeAcoesGlobais(movido, '$enteringCustomActions').map((a) => a.type), ['C', 'A', 'B']);
+  assert.deepEqual(
+    listaDeAcoesGlobais(movido, '$enteringCustomActions').map((a) => a.type),
+    ['C', 'A', 'B'],
+  );
 
   const removido = removerAcaoGlobal(movido, '$enteringCustomActions', 1);
-  assert.deepEqual(listaDeAcoesGlobais(removido, '$enteringCustomActions').map((a) => a.type), ['C', 'B']);
+  assert.deepEqual(
+    listaDeAcoesGlobais(removido, '$enteringCustomActions').map((a) => a.type),
+    ['C', 'B'],
+  );
 });

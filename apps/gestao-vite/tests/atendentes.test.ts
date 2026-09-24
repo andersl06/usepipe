@@ -11,7 +11,7 @@ import {
 
 /**
  * As contas da tela "Gestão de atendentes", medida em
- * `docs/capturas/blip/dom/FICHA-atendentes-filas-pausas.md` §b.2.
+ * `referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §b.2.
  *
  * O que vale provar: a busca varre nome E e-mail (o placeholder da origem é
  * "Buscar por nome ou e-mail", e buscar só no nome faz a pessoa digitar o

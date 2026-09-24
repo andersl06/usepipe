@@ -15,7 +15,7 @@ import './contrato.css';
  * Painel do contrato — a tela que o cartão "Acompanhe seu contrato" do portal
  * abre.
  *
- * A régua é `docs/pesquisa/blip-painel-do-contrato.md`, a pesquisa do
+ * A régua é `referencias-blip/pesquisa/blip-painel-do-contrato.md`, a pesquisa do
  * micro-frontend `{conta}.tenant.fragment.blip.ai`. A DISPOSIÇÃO É A DELES: o
  * cartão de resumo numa coluna estreita à esquerda, os grupos de cartões numa
  * coluna larga à direita, grade de `1fr 3fr` com 32 de vão.

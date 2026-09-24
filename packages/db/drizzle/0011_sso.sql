@@ -1,6 +1,6 @@
 -- A conexão de SSO do tenant: qual IdP, em que estado, e se a senha ainda vale.
 --
--- Ver `docs/pesquisa/sso-multi-tenant.md` §3 e §6. Duas decisões estão gravadas
+-- Ver `referencias-blip/pesquisa/sso-multi-tenant.md` §3 e §6. Duas decisões estão gravadas
 -- na forma da tabela:
 --
 -- 1. **Uma conexão por tenant** (o único em `tenant_id`). A empresa entra por um

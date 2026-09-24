@@ -8,7 +8,7 @@ import './basicas.css';
 /**
  * `/configurations/basic` ("Editar Fluxo"), medida na cópia rodável
  * (`docs/capturas/regua.md`, `/application/detail/pipeprincipal/configurations/basic`,
- * DOM lido com Playwright — `docs/capturas/blip/telas/configurations-basic` só
+ * DOM lido com Playwright — `referencias-blip/portal/configurations-basic` só
  * tem a casca do SPA, sem conteúdo renderizado, então não serviu de fonte):
  *
  *   h1 "Editar Fluxo" (sem subtítulo — a origem também não tem um aqui)

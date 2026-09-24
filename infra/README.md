@@ -5,7 +5,7 @@ a linha em 07/09/2026 e teve doze defeitos corrigidos, mas continua sem ter subi
 
 - **Para subir a primeira vez:** [docs/specs/2026-09-07-implantacao.md](../docs/specs/2026-09-07-implantacao.md)
   — do domínio ao WhatsApp respondendo, dizendo em cada passo o que é do dono e o que é do sistema.
-- **Para entender o porquê de cada decisão:** [docs/pesquisa/infra-terraform-k8s.md](../docs/pesquisa/infra-terraform-k8s.md).
+- **Para entender o porquê de cada decisão:** [referencias-blip/pesquisa/infra-terraform-k8s.md](../referencias-blip/pesquisa/infra-terraform-k8s.md).
 
 ```
 terraform/

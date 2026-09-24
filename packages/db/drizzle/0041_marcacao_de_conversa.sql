@@ -1,6 +1,6 @@
 -- Fixar conversa e marcar como não lida — o menu "⋮" do cartão do Desk.
 --
--- Fonte: `docs/pesquisa/blip-desk-funcoes.md` §3 ("o próprio atendente pode fixar
+-- Fonte: `referencias-blip/pesquisa/blip-desk-funcoes.md` §3 ("o próprio atendente pode fixar
 -- manualmente até 50 tickets no topo da sua lista, e também marcar/desmarcar
 -- qualquer ticket como 'não lido'") e `blip-desk-regras-tecnicas.md` §1.8
 -- (`TicketMenuOptions`: PIN/UNPIN, UNREAD/READ). Quem usa:

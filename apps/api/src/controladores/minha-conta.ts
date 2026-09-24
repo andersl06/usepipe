@@ -12,7 +12,7 @@ import { opcoesDeCookie } from './entrar.js';
  * "Minha conta" e o seletor de contas — as duas telas que fecham o onboarding
  * de quem entrou pelo autosserviço.
  *
- * A ordem da plataforma de origem, medida em `docs/pesquisa/onboarding-blip.md`:
+ * A ordem da plataforma de origem, medida em `referencias-blip/pesquisa/onboarding-blip.md`:
  * a conta nasce no login, a tela de boas-vindas avisa, e ESTE formulário é o que
  * a completa. Enquanto `onboardingConcluidoEm` for nulo, a Gestão manda a pessoa
  * para cá em vez de abrir o portal.

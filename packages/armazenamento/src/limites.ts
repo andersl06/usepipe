@@ -2,7 +2,7 @@
  * Limites de anexo, copiados dos valores REAIS do Blip Desk.
  *
  * Fonte: `supernova.desk.blip.ai/static/settings.<hash>.json`, o mesmo arquivo que
- * gerou `docs/pesquisa/blip-desk-regras.md` §"Anexos e Mídia". Os valores não foram
+ * gerou `referencias-blip/pesquisa/blip-desk-regras.md` §"Anexos e Mídia". Os valores não foram
  * escolhidos por nós: seguir o que a Blip faz é régua do dono, e aqui ela é literal.
  *
  * Apesar do nome que eles deram (`..._ACCEPT_EXTENSION`), o conteúdo é **tipo MIME**,
@@ -17,7 +17,7 @@ export const MAX_BYTES_POR_ARQUIVO = 104_857_600;
  *
  * Isto não está no `settings.json` deles, e é justamente onde o Desk da Blip erra: o
  * cliente valida só os 100 MB de `MAX_ATTACHMENT_SIZE`, então ele **deixa subir um
- * áudio de 80 MB que a plataforma recusa depois** (`docs/pesquisa/regras-blip.md`
+ * áudio de 80 MB que a plataforma recusa depois** (`referencias-blip/pesquisa/regras-blip.md`
  * §"documentos 100 MB, vídeo e áudio 16 MB"). Recusar cedo, com o número certo, é
  * melhor que aceitar e falhar no fim do upload.
  */

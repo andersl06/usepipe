@@ -25,8 +25,7 @@
     "gerar:custom": "drizzle-kit generate --custom",
     "migrar": "tsx src/migrar.ts",
     "semear": "tsx src/semente.ts",
-    "semear:demo": "tsx src/semente-demo.ts",
-    "particoes": "tsx src/scripts/criar-particoes.ts"
+    "semear:demo": "tsx src/semente-demo.ts"
   },
   "dependencies": {
     "@pipe/core": "workspace:*",

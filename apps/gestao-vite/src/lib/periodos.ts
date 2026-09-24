@@ -2,7 +2,7 @@ import { dataIso } from './formato';
 
 /**
  * Atalhos de período — os rótulos exatos do campo "Período" do painel de
- * filtros deles (`docs/capturas/blip/dom/history.html`: Hoje, Ontem, Últimos
+ * filtros deles (`referencias-blip/portal/dom/history.html`: Hoje, Ontem, Últimos
  * 7/15/30/60/90/120/180 dias, Personalizado). O mesmo `bds-select` aparece
  * no Histórico (`last30days`) e nos Relatórios de atendimento (`last7days`)
  * e de satisfação (`last30days`). "Personalizado" é o nosso par de datas de

@@ -68,7 +68,7 @@ export const CATALOGO_PERMISSOES = [
   /*
    * As permissões da CONTA — o que o Painel do contrato lê.
    *
-   * São a matriz do painel deles (`docs/pesquisa/blip-painel-do-contrato.md`,
+   * São a matriz do painel deles (`referencias-blip/pesquisa/blip-painel-do-contrato.md`,
    * §"A matriz de papéis") trazida para o nosso RBAC: lá são seis chaves
    * (`tenant-summary`, `tenant-members`, `tenant-workspace`, `tenant-dashboard`,
    * `tenant-billing`, `tenant-permissions-group`) com dois verbos (`read`,
@@ -174,7 +174,7 @@ const DO_GESTOR = TODAS.filter(
 
 /**
  * Os três papéis da CONTA, com o `roleId` da origem como nome — a matriz de
- * `docs/pesquisa/blip-painel-do-contrato.md`. O rótulo da tela ("Admin", "Pode
+ * `referencias-blip/pesquisa/blip-painel-do-contrato.md`. O rótulo da tela ("Admin", "Pode
  * editar", "Pode visualizar") mora no gestão, não aqui.
  *
  * Toda pessoa tem exatamente um (índice parcial em `usuario_papel`). "Cria e edita

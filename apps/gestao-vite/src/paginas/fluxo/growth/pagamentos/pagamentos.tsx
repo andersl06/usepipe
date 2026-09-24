@@ -7,7 +7,7 @@ import { IconePortal } from '../../../../componentes/icones-portal';
  * totalmente diferente"): a origem não abre no clone de 8790 nem o HTML
  * capturado renderiza fora do domínio da Blip (o MFE `active-campaign-mfe`
  * embute React com classes Tailwind), então a régua aqui é o DOM renderizado
- * salvo em `docs/capturas/blip/roteador/roteador-relatoriopagamentos__pagina.html`.
+ * salvo em `referencias-blip/canais/roteador/roteador-relatoriopagamentos__pagina.html`.
  *
  * Duas descobertas que mudam a estrutura da versão anterior:
  * 1. **Não existe título de página.** O `ui-view="content"` recebe o MFE

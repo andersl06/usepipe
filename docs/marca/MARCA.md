@@ -62,8 +62,8 @@ Esta seção existe porque a paleta acima, sozinha, permitiu o erro: quatro mati
 mesma tela, etiqueta colorida por categoria, e a monoespaçada em caixa alta em toda linha. A tabela
 de cores diz o que cada cor **é**; esta seção diz onde cada uma **pode** e **não pode** aparecer.
 
-Medições que sustentam cada regra: `docs/pesquisa/blip-design-system.md` (o bundle real do Blip
-Desk: 31 tokens de cor na aplicação inteira) e `docs/pesquisa/visual-blip-salesforce.md`.
+Medições que sustentam cada regra: `referencias-blip/pesquisa/blip-design-system.md` (o bundle real do Blip
+Desk: 31 tokens de cor na aplicação inteira) e `referencias-blip/pesquisa/visual-blip-salesforce.md`.
 Implementação e detalhamento: `packages/ui` (`@pipe/ui`) e
 `docs/specs/2026-09-05-design-system.md`. `@pipe/ui` é a fonte única de token — nenhum aplicativo
 declara cor própria.

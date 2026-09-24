@@ -312,7 +312,7 @@ export async function abrirSessaoEm(
  * Não é a tela que esconde o botão do Google: com `obrigatorio`, este caminho
  * recusa mesmo quem já tem a conta ligada e mesmo que tudo o mais esteja certo.
  * É aqui que "SSO obrigatório" para de ser um texto na tela de configuração —
- * ver `docs/pesquisa/sso-multi-tenant.md` §6.
+ * ver `referencias-blip/pesquisa/sso-multi-tenant.md` §6.
  *
  * Todo caminho novo que abrir sessão (senha, recuperação de senha, convite por
  * link) tem de passar por esta função. É a porta dos fundos clássica.

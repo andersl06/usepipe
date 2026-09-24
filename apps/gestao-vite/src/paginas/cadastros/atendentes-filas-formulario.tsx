@@ -6,7 +6,7 @@ import { envioQuePreserva } from '../../componentes/envio-de-formulario';
 
 /**
  * O modal "Criar nova fila" — a FORMA é a da origem, e ela é mínima
- * (`docs/capturas/blip/dom/FICHA-atendentes-filas-pausas.md` §a.2, extraída do
+ * (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §a.2, extraída do
  * `bds-modal` que `queue-management.html` traz no DOM com `open="false"`):
  *
  *   título  "Criar nova fila"

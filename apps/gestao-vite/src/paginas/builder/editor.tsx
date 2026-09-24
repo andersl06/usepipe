@@ -24,6 +24,7 @@ import { PainelDoBloco } from './painel';
 import { posicaoNoCentro } from './setas';
 import { errosLocais, juntarErros } from './validacao';
 import './editor.css';
+import './painel-bloco.css';
 
 /**
  * O editor em si, dentro do canvas escuro da moldura: os blocos e as setas
@@ -190,6 +191,7 @@ export function Editor({
 
       {blocoAberto ? (
         <PainelDoBloco
+          key={blocoAberto.id}
           bloco={blocoAberto}
           mapa={mapa}
           erros={errosPorBloco[blocoAberto.id] ?? []}

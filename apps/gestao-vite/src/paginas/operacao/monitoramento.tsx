@@ -245,7 +245,7 @@ function MonitoramentoCarregando() {
 
 /**
  * Monitoramento — a mesma disposição da tela deles, lida em
- * `docs/capturas/blip/dom/monitoring.html` (e confirmada na captura real,
+ * `referencias-blip/portal/dom/monitoring.html` (e confirmada na captura real,
  * `desk/desk-monitoria__pagina.html`): cabeçalho com "Atualizar tela" e
  * "Expandir tela", DUAS faixas "Filtros rápidos:" (a de cima só com "Filas";
  * a de baixo com "Atendentes", "Contato" e "Status do atendente"), grade de

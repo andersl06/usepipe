@@ -18,7 +18,7 @@ import type { DesafioDeLogin, PessoaExterna } from './google.js';
  * - **`state`, `nonce` e PKCE por tentativa**, gerados por `criarDesafio`;
  * - **a chave da conta é `(emissor, sujeito)`**, nunca o e-mail.
  *
- * As armadilhas de `docs/pesquisa/sso-multi-tenant.md` §8 estão marcadas uma a
+ * As armadilhas de `referencias-blip/pesquisa/sso-multi-tenant.md` §8 estão marcadas uma a
  * uma no código abaixo. Nenhuma delas dá erro quando está errada: dá login
  * concedido.
  */

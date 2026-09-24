@@ -9,7 +9,7 @@ import { CONFIGURACOES_GERAIS_GERENCIAR } from './configuracoes.js';
 /**
  * Palavras proibidas: a lista da conta que barra o envio do atendente.
  *
- * Fonte: `docs/pesquisa/blip-desk-regras-tecnicas.md` §3.4. O que veio de lá:
+ * Fonte: `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4. O que veio de lá:
  *
  * - **Por conta.** O bucket é `lime://<owner>/buckets/blip:desk:forbidden-words`,
  *   um por dono do bot — não há lista por fila nem por atendente. Aqui é uma

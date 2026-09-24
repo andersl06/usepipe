@@ -1,7 +1,7 @@
 /**
  * Montagem de parâmetro de template, com o **deslocamento por mídia no cabeçalho**.
  *
- * `docs/pesquisa/regras-blip.md` §1.4: quando o template tem imagem, vídeo ou
+ * `referencias-blip/pesquisa/regras-blip.md` §1.4: quando o template tem imagem, vídeo ou
  * documento no cabeçalho, a mídia ocupa a posição **1** e toda variável do corpo
  * desliza +1 em relação à numeração declarada em `{{n}}`. Errar isso não dá erro:
  * o cliente recebe o nome dele no lugar do protocolo, e ninguém percebe.

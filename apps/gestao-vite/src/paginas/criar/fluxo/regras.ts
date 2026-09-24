@@ -20,7 +20,7 @@ import { TAMANHO } from '../regras-de-nome';
  * `selectTemplate('blip_deskCustomerService')` — o único template que o
  * marketplace oferece hoje (o outro cartão é "Construir do zero", sem
  * template). Confirmado na captura de 17/09/2026
- * (`docs/capturas/blip/criar-fluxo/`): `/application/create/name/{isto}`.
+ * (`referencias-blip/builder/criar-fluxo/`): `/application/create/name/{isto}`.
  */
 export const TEMPLATE_PADRAO = 'blip_deskCustomerService';
 

@@ -1,6 +1,6 @@
 /**
  * `/team` do contato (fluxo e roteador). Medidas tiradas do DOM renderizado da
- * origem (`docs/capturas/blip/roteador/roteador-team__pagina.html` e o
+ * origem (`referencias-blip/canais/roteador/roteador-team__pagina.html` e o
  * `portal.css` da mesma captura) — o cabeçalho já vem do `cf-*` de
  * `configuracoes.css` (`<page-header>`); aqui ficam a busca do
  * `custom-content`, a lista `.row.team-cards` e o `card--mini-card` de cada
@@ -236,7 +236,7 @@
 }
 
 /* ==================== O `add-user-modal`, capturado aberto em
-   `docs/capturas/blip/equipe/equipe-adicionar-modal__pagina.html`: cabeça
+   `referencias-blip/equipe/equipe-adicionar-modal__pagina.html`: cabeça
    centrada, e-mail editável em traço, "Permissão" + `rzslider` e rodapé
    centrado. A edição é a página estilizada no fim deste arquivo. */
 .cf-equipe-modal {

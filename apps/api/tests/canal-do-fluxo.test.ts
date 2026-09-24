@@ -28,7 +28,7 @@ type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
  * O canal DO BOT — `PUT`/`DELETE /v1/gestao/fluxos/:id/canal`, o `GET` que a
  * página do canal lê, e a conexão manual com `fluxo_id`.
  *
- * O que se prova é o que a origem decide (`docs/capturas/blip/canais/
+ * O que se prova é o que a origem decide (`referencias-blip/canais/
  * FICHA-conectar-canal-no-bot.md` §4): o canal é do bot e a permissão é a
  * `channels` do bot; um bot por número ("Ops… Este número já está em uso" —
  * a Blip recusa, não transfere; quem troca desliga no bot anterior antes);

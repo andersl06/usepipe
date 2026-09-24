@@ -1,7 +1,7 @@
 # Pipe Desk — requisitos funcionais
 
 Anexo do desenho do produto (`2026-09-05-pipe-design.md`, §4.3). Levantado a partir do
-comportamento do Blip Desk documentado em `docs/pesquisa/blip-desk-funcoes.md`, com as
+comportamento do Blip Desk documentado em `referencias-blip/pesquisa/blip-desk-funcoes.md`, com as
 divergências do Pipe marcadas e justificadas.
 
 O princípio que governa esta tela: **o Desk não tem relatório, não tem regra e não tem

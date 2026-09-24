@@ -53,8 +53,14 @@ export function EditorDeCondicoes({
           onRemover={() => remover(i)}
         />
       ))}
-      <button type="button" className="bl-mais" onClick={() => onMudar([...condicoes, novaCondicao()])}>
-        {rotuloAdicionar}
+      <button
+        type="button"
+        className="bl-adicionar-condicao"
+        aria-label={rotuloAdicionar}
+        title={rotuloAdicionar}
+        onClick={() => onMudar([...condicoes, novaCondicao()])}
+      >
+        +
       </button>
     </div>
   );
@@ -96,7 +102,7 @@ function LinhaDeCondicao({
 
   return (
     <div className={`bl-condicao${erro ? ' bl-condicao--erro' : ''}`}>
-      <div className="bl-condicao-linha">
+      <div className="bl-condicao-linha bl-condicao-campos">
         <span className="bl-condicao-se">{primeira ? ROTULOS_DAS_SAIDAS.se : 'e'}</span>
         {semSuporte ? (
           <Etiqueta tom="alerta" titulo="O Pipe não tem provedor de IA: esta condição nunca casa.">

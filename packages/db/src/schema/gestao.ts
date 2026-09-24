@@ -254,7 +254,7 @@ export const slaConversa = pgTable(
 
 /**
  * Palavras proibidas — migração 0042. A lista por CONTA que barra o envio do
- * atendente (`docs/pesquisa/blip-desk-regras-tecnicas.md` §3.4). `termo` fica
+ * atendente (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4). `termo` fica
  * como foi digitado; a comparação sem acento e sem caixa é do domínio
  * (`apps/api/src/dominio/gestao/palavras-proibidas.ts`).
  */

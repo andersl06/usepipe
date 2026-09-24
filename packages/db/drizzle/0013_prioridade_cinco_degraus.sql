@@ -1,7 +1,7 @@
 -- A régua de prioridade ganha os dois degraus que faltavam: `maxima` no topo e
 -- `sem_prioridade` no pé.
 --
--- Ver `docs/pesquisa/blip-gestao-medidas.md` §8.5 e `NIVEIS_PRIORIDADE` em
+-- Ver `referencias-blip/pesquisa/blip-gestao-medidas.md` §8.5 e `NIVEIS_PRIORIDADE` em
 -- `src/schema/comum.ts`, onde a ORDEM da lista é o peso de ordenação.
 --
 -- Três decisões estão na forma deste arquivo:

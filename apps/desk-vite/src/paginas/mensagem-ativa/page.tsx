@@ -20,7 +20,7 @@ import { aplicarParametros } from '../../lib/modelo';
  * "Adicionar contato por", "Salvar contato no chatbot", "Telefone", "Nome do
  * contato" e "Adicionar") e o painel "Contatos selecionados 0/15" à direita;
  * "Cancelar" / "Continuar" embaixo. Os textos são os do MFE
- * `desk-active-message` (`docs/pesquisa/blip-desk-vocabulario.md`).
+ * `desk-active-message` (`referencias-blip/pesquisa/blip-desk-vocabulario.md`).
  *
  * O envio vai para `POST /v1/mensagens-ativas` (canal, modelo, contatos), que
  * já existe na `api`; "chatbot" da referência é o nosso canal.

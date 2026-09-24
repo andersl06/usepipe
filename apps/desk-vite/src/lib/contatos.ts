@@ -1,6 +1,6 @@
 /**
  * As regras puras da aba Contatos — a ordenação e o agrupamento da
- * referência (`docs/pesquisa/blip-desk-medidas.md` §11): "Ordem alfabética"
+ * referência (`referencias-blip/pesquisa/blip-desk-medidas.md` §11): "Ordem alfabética"
  * (padrão) agrupa pela primeira letra do nome, com os sem-nome num grupo `#`
  * sempre no fim; "Última interação" agrupa pela data da última mensagem, da
  * mais recente para a mais antiga.

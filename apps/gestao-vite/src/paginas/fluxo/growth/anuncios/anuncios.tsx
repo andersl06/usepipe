@@ -7,7 +7,7 @@ import { Ilustracao } from '@pipe/ui';
  * origem não abre no clone de 8790 (o MFE `ads-buying` fica com a tela em
  * branco — mock sem conta de Marketing API) nem o HTML capturado renderiza
  * com CSS fora do domínio da Blip, então a régua aqui é o DOM renderizado
- * salvo em `docs/capturas/blip/roteador/roteador-anuncios__pagina.html`
+ * salvo em `referencias-blip/canais/roteador/roteador-anuncios__pagina.html`
  * (medido: `bds-paper` centralizado, `container xxs=8`, `margin: y-9`,
  * fileira `justify-content: space-between; align-items: center` de até
  * 625px — ilustração à esquerda, texto à direita, botão alinhado à direita

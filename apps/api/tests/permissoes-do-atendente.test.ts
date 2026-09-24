@@ -19,7 +19,7 @@ type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
 /**
  * A tela "Permissões" do atendente — `GET`/`PATCH /v1/gestao/atendentes/permissoes`.
  *
- * A forma da tela é a da origem (`docs/capturas/blip/dom/
+ * A forma da tela é a da origem (`referencias-blip/portal/dom/
  * FICHA-atendentes-filas-pausas.md` §a.4): página própria, tabela "Tipo de
  * permissão" × "Status", seleção múltipla. O que vale a pena provar aqui é a
  * regra que a migração 0046 introduziu e que atravessa a API inteira:

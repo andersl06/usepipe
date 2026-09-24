@@ -153,7 +153,7 @@ function TabelaDeQuebra({ eixo, linhas }: { eixo: string; linhas: LinhaDeQuebra[
 
 /**
  * Relatório de atendimento — a tela deles, bloco a bloco, lida em
- * `docs/capturas/blip/desk/desk-relatorio-atendimento__pagina.html`:
+ * `referencias-blip/desk/desk-relatorio-atendimento__pagina.html`:
  *
  * 1. cabeçalho "Relatório de atendimento" com "Gerenciador de Relatórios" à
  *    direita (`bds-button variant="secondary" arrow`);

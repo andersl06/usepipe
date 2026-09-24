@@ -27,7 +27,7 @@ type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 
 /**
  * A conexão de SSO por tenant, e as armadilhas de
- * `docs/pesquisa/sso-multi-tenant.md` que só aparecem com banco de verdade:
+ * `referencias-blip/pesquisa/sso-multi-tenant.md` que só aparecem com banco de verdade:
  * a máquina de estados, o segredo cifrado em repouso, a descoberta por domínio e
  * a política conferida no servidor.
  *

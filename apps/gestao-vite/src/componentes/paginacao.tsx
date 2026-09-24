@@ -1,5 +1,4 @@
 import { useMemo, useState } from 'react';
-import { Icone } from '@pipe/ui';
 import { Selecao } from './selecao';
 
 /**
@@ -53,12 +52,15 @@ export function usePagina<T>(
   };
 }
 
-export function Paginacao({ estado }: { estado: EstadoPaginacao }) {
+export function Paginacao({ estado, grade }: { estado: EstadoPaginacao; grade?: string }) {
   const { pagina, totalPaginas, porPagina, inicio, fim, total, setPorPagina, setPagina } = estado;
   if (total === 0) return null;
 
   return (
-    <div className="pg">
+    <div
+      className="pg"
+      data-testid={grade ? `desk-grid-tabled-paginated-pagination-container-${grade}` : undefined}
+    >
       <label className="pg-por-pagina">
         Resultados por página
         <Selecao
@@ -74,11 +76,12 @@ export function Paginacao({ estado }: { estado: EstadoPaginacao }) {
         </Selecao>
       </label>
 
-      <span className="pg-contador">
-        {inicio + 1}-{fim} de {total}
-      </span>
+      <div className="pg-direita">
+        <span className="pg-contador" aria-live="polite">
+          {inicio + 1}-{fim} de {total}
+        </span>
 
-      <div className="pg-nav">
+        <div className="pg-nav" data-testid="pagination-test">
         <button
           type="button"
           className="iconbtn"
@@ -87,10 +90,7 @@ export function Paginacao({ estado }: { estado: EstadoPaginacao }) {
           title="Primeira página"
           aria-label="Primeira página"
         >
-          <span className="pg-dupla">
-            <Icone nome="esquerda" tamanho={13} />
-            <Icone nome="esquerda" tamanho={13} />
-          </span>
+          <IconePaginacao tipo="primeira" />
         </button>
         <button
           type="button"
@@ -100,11 +100,11 @@ export function Paginacao({ estado }: { estado: EstadoPaginacao }) {
           title="Página anterior"
           aria-label="Página anterior"
         >
-          <Icone nome="esquerda" tamanho={14} />
+          <IconePaginacao tipo="anterior" />
         </button>
         {/* O número da página atual entre as setas — `data-testid=
             "current-page-test"` no rodapé deles. */}
-        <span className="pg-atual" aria-current="page">
+        <span className="pg-atual" aria-current="page" data-testid="current-page-test">
           {pagina}
         </span>
         <button
@@ -115,7 +115,7 @@ export function Paginacao({ estado }: { estado: EstadoPaginacao }) {
           title="Próxima página"
           aria-label="Próxima página"
         >
-          <Icone nome="esquerda" tamanho={14} style={{ transform: 'rotate(180deg)' }} />
+          <IconePaginacao tipo="proxima" />
         </button>
         <button
           type="button"
@@ -125,12 +125,21 @@ export function Paginacao({ estado }: { estado: EstadoPaginacao }) {
           title="Última página"
           aria-label="Última página"
         >
-          <span className="pg-dupla" style={{ transform: 'rotate(180deg)' }}>
-            <Icone nome="esquerda" tamanho={13} />
-            <Icone nome="esquerda" tamanho={13} />
-          </span>
+          <IconePaginacao tipo="ultima" />
         </button>
+        </div>
       </div>
     </div>
+  );
+}
+
+function IconePaginacao({ tipo }: { tipo: 'primeira' | 'anterior' | 'proxima' | 'ultima' }) {
+  const esquerda = tipo === 'primeira' || tipo === 'anterior';
+  const dupla = tipo === 'primeira' || tipo === 'ultima';
+  return (
+    <svg className="pg-icone" viewBox="0 0 24 24" aria-hidden="true">
+      {dupla ? <path d={esquerda ? 'M6 5v14' : 'M18 5v14'} /> : null}
+      <path d={esquerda ? 'M15 6l-6 6 6 6' : 'M9 6l6 6-6 6'} />
+    </svg>
   );
 }

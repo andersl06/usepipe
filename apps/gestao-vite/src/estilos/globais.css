@@ -6,7 +6,7 @@
    vivem em `@pipe/ui`, importado antes desta folha no layout raiz.
 
    O que esta folha desenha é a DISPOSIÇÃO da tela de Monitoramento da Blip,
-   medida na captura e descrita em `docs/pesquisa/plataformas-referencia.md`
+   medida na captura e descrita em `referencias-blip/pesquisa/plataformas-referencia.md`
    §1: duas barras escuras no topo, lateral clara de 170px com ícone e grupo,
    grade 2×2, duas faixas de filtro, busca dentro do cartão da tabela.
 
@@ -17,7 +17,7 @@
    ========================================================================== */
 
 /* ======================================== a superfície de trabalho é NEUTRA
-   Medido na cópia deles (`docs/pesquisa/sistema-visual-portal.md` §1): a área
+   Medido na cópia deles (`referencias-blip/pesquisa/sistema-visual-portal.md` §1): a área
    atrás dos cartões é `rgb(237,237,237)` — cinza NEUTRO. O nosso creme de
    marca (`#f2f1ec`) tem quase a mesma luminosidade, mas é quente: lado a lado
    o deles lê "branco" e o nosso lê "bege". Era a primeira queixa do dono.
@@ -930,7 +930,7 @@
 }
 
 /* ====================================================== o botão, na medida deles
-   `docs/pesquisa/sistema-visual-portal.md` §3, medido em TODO botão das duas
+   `referencias-blip/pesquisa/sistema-visual-portal.md` §3, medido em TODO botão das duas
    telas: 40px de altura, raio 8, recuo lateral 16, 4px entre ícone e rótulo,
    rótulo 14/700 na TINTA CHEIA e borda de 1px na tinta cheia também.
 
@@ -2196,7 +2196,7 @@ tr.grupo th {
 }
 
 /* ==================================================== a lista de cartões
-   O idioma de lista da Blip, medido em `docs/pesquisa/blip-telas-atendimento.md`
+   O idioma de lista da Blip, medido em `referencias-blip/pesquisa/blip-telas-atendimento.md`
    §3: seis das oito telas do módulo Atendimento deles usam ESTE cartão, e
    nenhuma usa tabela. Cartão de 88px, rótulo pequeno ACIMA do valor forte,
    controles encostados à direita, e o cartão a UM DEGRAU de distância da

@@ -19,7 +19,7 @@ import './atendimento.css';
  * `.g-grupo`, medida em `blip-medidas-monitoramento.md` §3): só o casco em
  * volta mudou, do portal para o contato.
  *
- * Grupos e itens, na ordem e nomes medidos no DOM (`docs/capturas/blip/dom/
+ * Grupos e itens, na ordem e nomes medidos no DOM (`referencias-blip/portal/dom/
  * monitoring.html`, `data-testid="menu-tree-sidebar-group-*"`):
  * Relatórios (Reports), Comunicação (Messaging), Regras (Rules), Atendentes
  * (Agents), Preferências (Settings, "Configurações" na origem — o nome Pipe

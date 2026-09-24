@@ -26,8 +26,8 @@ type ApiNoAr = Awaited<ReturnType<typeof subirApi>>;
  * (`/v1/gestao/fluxos/:id/servicos`) e a conversa passando por ele.
  *
  * O que se prova é o que a origem decide: o formulário de Serviços
- * (`docs/pesquisa/blip-servicos-do-roteador.md`) e o Master-State, o Redirect e o
- * "Utilizar o contexto do Roteador" (`docs/pesquisa/blip-api-schemas.md` §5.3–5.5).
+ * (`referencias-blip/pesquisa/blip-servicos-do-roteador.md`) e o Master-State, o Redirect e o
+ * "Utilizar o contexto do Roteador" (`referencias-blip/pesquisa/blip-api-schemas.md` §5.3–5.5).
  */
 
 let a: Cenario;

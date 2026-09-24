@@ -92,7 +92,7 @@ function CamposEscondidos({ atual, exceto }: { atual: Busca; exceto: readonly st
 
 /**
  * Histórico — a mesma disposição da tela deles, medida em
- * `docs/capturas/blip/dom/FICHA-history.md`: cabeçalho com a ação de exportar
+ * `referencias-blip/fichas/FICHA-history.md`: cabeçalho com a ação de exportar
  * CSV disponível, faixa "Filtros rápidos:" com os três atalhos e o período à
  * direita, painel lateral de filtros fechado por padrão, e a área de
  * resultados — vazia com o texto e a ilustração deles, ou a nossa LISTA DE

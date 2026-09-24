@@ -19,7 +19,7 @@ com ajuda de uma IA que também tira dúvidas sobre métricas e fluxos.
 
 ## Regra número um: não refaça o que já existe
 
-`pipe/docs/pesquisa/` tem **40+ documentos, mais de 14 mil linhas** de engenharia
+`pipe/referencias-blip/pesquisa/` tem **40+ documentos, mais de 14 mil linhas** de engenharia
 reversa da Blip, do Chatwoot e do Twenty, feitas contra código-fonte real. Antes de
 pesquisar qualquer coisa, procure ali. Já aconteceu de refazerem levantamento pronto.
 
@@ -161,7 +161,7 @@ Na Gestão local (`desk-clone/gestao-local/`):
 ## Como trabalhar
 
 - **Português** em código, comentário, commit e conversa. O projeto inteiro é assim.
-- **Não invente pesquisa**: se um documento em `docs/pesquisa/` responde, use.
+- **Não invente pesquisa**: se um documento em `referencias-blip/pesquisa/` responde, use.
 - **Marque procedência**: ao afirmar algo sobre a Blip, diga se veio de código, da doc
   ou de dedução. O padrão já está em uso nos documentos.
 - **Não force feature flag para `true` em massa.** No Desk isso ligou telas sem mock e

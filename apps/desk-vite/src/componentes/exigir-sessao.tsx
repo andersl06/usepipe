@@ -13,7 +13,13 @@ import { useSessao } from '../contexto/sessao';
 export function ExigirSessao() {
   const { eu } = useSessao();
   const { pathname, search } = useLocation();
-  if (eu === undefined) return null;
+  if (eu === undefined) {
+    return (
+      <main className="dk-carregando-sessao" role="status" aria-live="polite">
+        Carregando Desk…
+      </main>
+    );
+  }
   if (eu === null) {
     const destino = pathname + search;
     return <Navigate to={`/entrar?destino=${encodeURIComponent(destino)}`} replace />;

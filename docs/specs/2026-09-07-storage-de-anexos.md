@@ -50,7 +50,7 @@ Duas observações sobre o material deles:
 
 **Áudio e vídeo têm teto de 16 MB, não 100 MB.** O Desk deles valida só `MAX_ATTACHMENT_SIZE`, então
 ele **deixa o atendente subir um áudio de 80 MB que a plataforma recusa depois**
-(`docs/pesquisa/regras-blip.md`: documentos 100 MB, vídeo e áudio 16 MB). Recusar cedo, com o número
+(`referencias-blip/pesquisa/regras-blip.md`: documentos 100 MB, vídeo e áudio 16 MB). Recusar cedo, com o número
 certo e a mensagem certa, é melhor que aceitar e falhar no fim do upload. É o único ponto em que
 copiar o cliente deles seria copiar um defeito.
 

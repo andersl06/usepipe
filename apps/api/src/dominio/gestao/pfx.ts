@@ -8,7 +8,7 @@ import { ErroPipe } from '../../erros.js';
  *
  * Na origem quem lê o arquivo é o serviço de `postmaster@mtls.blip.ai`: a tela
  * sobe `password` + `file` e volta `status`, `expiration_date`
- * (`docs/pesquisa/blip-certificados-mtls.md`). Aqui a leitura é em dois passos:
+ * (`referencias-blip/pesquisa/blip-certificados-mtls.md`). Aqui a leitura é em dois passos:
  *
  * 1. **`tls.createSecureContext({ pfx, passphrase })`** é o juiz. O OpenSSL por
  *    baixo confere o MAC do arquivo com a senha (senha errada → "mac verify

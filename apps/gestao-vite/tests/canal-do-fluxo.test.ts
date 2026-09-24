@@ -14,7 +14,7 @@ import {
 /**
  * O canal DO BOT (`fluxo/canais/**`): o que o cartão da lista decide, o que a
  * página do canal desenha, e o que a etapa "Ativação do número" oferece —
- * `docs/capturas/blip/canais/FICHA-conectar-canal-no-bot.md` §1 e §4.
+ * `referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1 e §4.
  */
 
 const BOT = '5b6843ae-b4f8-4bc0-bce2-e32318043297';

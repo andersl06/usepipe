@@ -14,7 +14,7 @@ import { exigirPermissaoNoFluxo } from './equipe-do-fluxo.js';
 
 /**
  * Os serviços do roteador — a tela `master.services` da Blip
- * (`docs/pesquisa/blip-servicos-do-roteador.md`), gravada em `roteador_servico`
+ * (`referencias-blip/pesquisa/blip-servicos-do-roteador.md`), gravada em `roteador_servico`
  * (migration 0024). A forma dos gestos é a do ciclo de vida do fluxo
  * (`ciclo-de-vida-do-fluxo.ts`, que porta o `inboxes_controller` do Chatwoot):
  * acha o roteador (404 se não é da conta), autoriza, valida, grava, audita.

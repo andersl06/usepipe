@@ -107,7 +107,7 @@ const rotasDoContato = (
     <Route path="canais" element={<PaginaDeCanais />} />
     {/* Cada canal tem a própria página DENTRO do bot, como
         `application/detail/{bot}/channels/{canal}` da origem
-        (`docs/capturas/blip/canais/FICHA-conectar-canal-no-bot.md` §1). As
+        (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1). As
         abas do WhatsApp moravam em `atendimento/canais/whatsapp/:canalId`, no
         módulo errado; o canal agora é o do bot, sem id na URL. */}
     <Route path="canais/whatsapp" element={<CascaCanalWhatsapp />}>

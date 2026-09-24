@@ -9,7 +9,7 @@ export { formatoDaPergunta, LIMITE_MENU, LIMITE_QUICK_REPLY } from '@pipe/worker
 
 /**
  * As abas "Configurações" e "Configurações de alerta" do canal WhatsApp na Blip
- * (`docs/capturas/blip/canais/FICHA-canal-whatsapp.md` §3 e §4). Nada disto é
+ * (`referencias-blip/fichas/FICHA-canal-whatsapp.md` §3 e §4). Nada disto é
  * campo da Meta: são escolhas do Pipe guardadas no `config` do canal.
  *
  * - **Quick reply**: pergunta com até 3 opções sai como botões; com 4 ou mais,

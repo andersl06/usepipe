@@ -11,7 +11,7 @@ import { IconePortal, type NomeDeIconePortal } from './icones-portal';
  * roteador. Só o miolo troca.
  *
  * Cada peça está comentada no ponto em que é aplicada, com o nome que ela tem
- * no DOM da origem. A régua é `docs/pesquisa/blip-portal-contrato.md`.
+ * no DOM da origem. A régua é `referencias-blip/pesquisa/blip-portal-contrato.md`.
  */
 
 /** O e-mail do suporte, o único destino de fora que já existe hoje. */
@@ -112,7 +112,7 @@ export function BarraDoPortal({ dados }: { dados: CascaDoPortal }) {
       <div className="pt-divisoria" />
 
       {/* A `nav-items` deles tem UM item só — "Home" — em TODAS as 22 telas
-          capturadas (`docs/capturas/blip/dom/*.html`): nenhuma tem "Blip
+          capturadas (`referencias-blip/portal/dom/*.html`): nenhuma tem "Blip
           Store" nem qualquer segundo item. Nem "Atendimento", nem "Canais",
           nem atalho para o Desk — esses são do contexto de UM contato, depois
           que se entra nele. Um item de loja aqui era invenção nossa contra o

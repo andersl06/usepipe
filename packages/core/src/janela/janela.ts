@@ -6,7 +6,7 @@
  * (categoria de cobrança por mensagem) e o relatório (a janela conta a partir do
  * envio, não pelo dia do calendário).
  *
- * Regras levantadas em `docs/pesquisa/regras-blip.md` §1.1:
+ * Regras levantadas em `referencias-blip/pesquisa/regras-blip.md` §1.1:
  * - 24 horas corridas a partir da **última mensagem do cliente**;
  * - fora dela, só template pré-aprovado pela Meta;
  * - qualquer mensagem nova do cliente reabre a janela.

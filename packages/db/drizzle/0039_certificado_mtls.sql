@@ -1,4 +1,4 @@
--- Certificados de autenticação (mTLS) do contrato — `docs/pesquisa/blip-certificados-mtls.md`.
+-- Certificados de autenticação (mTLS) do contrato — `referencias-blip/pesquisa/blip-certificados-mtls.md`.
 --
 -- **Nunca guardamos o .pfx nem a senha dele.** A origem sobe o arquivo para o
 -- serviço deles, que extrai o que precisa para autenticar SAÍDA (mTLS de

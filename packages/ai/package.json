@@ -41,8 +41,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.testes.json",
     "lint": "eslint src",
     "test": "vitest run",
-    "test:observar": "vitest",
-    "bancada": "node dist/bancada/cli.js"
+    "test:observar": "vitest"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.124.0",

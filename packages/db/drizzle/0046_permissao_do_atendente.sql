@@ -1,6 +1,6 @@
 -- Permissão POR ATENDENTE — o que a página "Permissões" da origem edita.
 --
--- Fonte: `docs/capturas/blip/dom/FICHA-atendentes-filas-pausas.md` §a.4. Na
+-- Fonte: `referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §a.4. Na
 -- origem, `attendance.desk.team.permission` é uma PÁGINA com uma tabela de duas
 -- colunas ("Tipo de permissão" / "Status") e um botão "Salvar alterações": a
 -- pessoa liga e desliga capacidade a capacidade, para um atendente ou para

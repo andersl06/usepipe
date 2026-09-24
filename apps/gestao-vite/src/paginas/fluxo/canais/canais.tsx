@@ -13,7 +13,7 @@ import './canais.css';
  * ng-click="$ctrl.goToState('…channels.<canal>')">` — o clique é no CARTÃO
  * inteiro, e "Conectar"/"Conectado" no rodapé só mudam de aparência: os dois
  * levam à MESMA página do canal, dentro do bot
- * (`docs/capturas/blip/canais/FICHA-conectar-canal-no-bot.md` §1.1).
+ * (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1.1).
  *
  * Aqui: WhatsApp, Messenger e Instagram (os canais que a Pipe tem) são links
  * para `/{tipo}/{id}/canais/{whatsapp,messenger,instagram}`. A origem mantém

@@ -4,7 +4,7 @@ Anexo do desenho do produto (`2026-09-05-pipe-design.md`, §4.4). Vinculante: to
 aparece em tela ou relatório do Pipe Gestão obedece exatamente ao que está aqui, e cada linha desta
 tabela tem teste correspondente em `packages/core`.
 
-Base de referência: o modelo da Blip, levantado em `docs/pesquisa/blip-gestao-funcoes.md`. Onde o
+Base de referência: o modelo da Blip, levantado em `referencias-blip/pesquisa/blip-gestao-funcoes.md`. Onde o
 Pipe diverge, a divergência está marcada e justificada.
 
 ## 1. Os cinco carimbos de tempo

@@ -1,7 +1,8 @@
 import type { PointerEvent as PointerEventDeReact, MouseEvent as MouseEventDeReact } from 'react';
 import { Etiqueta } from '@pipe/ui';
 import type { Bloco } from './modelo';
-import { ehAtendimento, entradaDe, posicaoDe } from './modelo';
+import { ehAtendimento, posicaoDe } from './modelo';
+import { etiquetasDoBloco } from './etiquetas-do-bloco';
 
 /**
  * O cartão de um bloco no canvas — o `builder-node.diagram-node` deles:
@@ -31,40 +32,7 @@ export interface PropsDoNo {
 }
 
 /** As etiquetas automáticas do editor: o tipo de cada ação, e "UserInput" se espera resposta. */
-export interface EtiquetaDoBloco {
-  rotulo: string;
-  cor: string;
-}
-
-const CORES_DAS_ACOES: Record<string, string> = {
-  ExecuteScript: '#ff961e',
-  ExecuteScriptV2: '#ff961e',
-  TrackEvent: '#61d36f',
-  SendMessage: '#ee82ee',
-  UserInput: '#000000',
-};
-
-function corDaEtiqueta(rotulo: string, corDaOrigem?: unknown): string {
-  const cor = typeof corDaOrigem === 'string' ? corDaOrigem : CORES_DAS_ACOES[rotulo];
-  if (!cor || ['#3f7de8', '#0096fa', '#1e6bf1', '#498bff'].includes(cor.toLowerCase())) return '#4a5d23';
-  return cor;
-}
-
-export function etiquetasDoBloco(bloco: Bloco): EtiquetaDoBloco[] {
-  const tipos = new Map<string, string>();
-  for (const acao of [...(bloco.$enteringCustomActions ?? []), ...(bloco.$leavingCustomActions ?? [])]) {
-    if (acao.type) tipos.set(acao.type, corDaEtiqueta(acao.type));
-  }
-  const entrada = entradaDe(bloco);
-  if (entrada && !entrada.bypass) tipos.set('UserInput', corDaEtiqueta('UserInput'));
-  for (const tag of bloco.$tags ?? []) {
-    const lida = tag as { label?: unknown; color?: unknown; background?: unknown };
-    if (typeof lida.label === 'string' && lida.label) {
-      tipos.set(lida.label, corDaEtiqueta(lida.label, lida.color ?? lida.background));
-    }
-  }
-  return [...tipos].map(([rotulo, cor]) => ({ rotulo, cor }));
-}
+export type { EtiquetaDoBloco } from './etiquetas-do-bloco';
 
 export function No({
   bloco,

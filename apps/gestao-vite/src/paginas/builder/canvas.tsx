@@ -3,7 +3,7 @@ import type { PointerEvent as PointerEventDeReact, WheelEvent as WheelEventDeRea
 import type { Aresta, Bloco, Mapa, Posicao } from './modelo';
 import { arestasDe, blocoDoTextoCopiado, podeExcluir, posicaoDe, textoDoBlocoCopiado } from './modelo';
 import { No } from './no';
-import { etiquetasDoBloco } from './no';
+import { etiquetasDoBloco } from './etiquetas-do-bloco';
 import {
   ALTURA_PADRAO_DO_BLOCO,
   LARGURA_DO_BLOCO,

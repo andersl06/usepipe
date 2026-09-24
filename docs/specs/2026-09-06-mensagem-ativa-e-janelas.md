@@ -1,6 +1,6 @@
 # Mensagem ativa, as duas janelas e o quadro
 
-Vinculante. Nasce da leitura do DOM do Blip Desk em `docs/pesquisa/blip-desk-dom.md`, onde três
+Vinculante. Nasce da leitura do DOM do Blip Desk em `referencias-blip/pesquisa/blip-desk-dom.md`, onde três
 regras estavam escritas no texto de interface e em nenhuma spec nossa.
 
 ## 1. São duas janelas, não uma

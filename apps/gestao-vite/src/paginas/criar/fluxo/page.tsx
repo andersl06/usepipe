@@ -48,7 +48,7 @@ import './criar-fluxo.css';
  * passa antes por `auth.application.create.test` (`?passo=template` aqui) — a
  * apresentação do modelo pré-configurado, com a descrição e as quatro
  * funcionalidades confirmadas na captura de 17/09/2026
- * (`docs/capturas/blip/criar-fluxo/`). O chat de teste ao vivo que a origem
+ * (`referencias-blip/builder/criar-fluxo/`). O chat de teste ao vivo que a origem
  * roda ao lado (nome e status do próprio chatbot da conta) NÃO entra: é
  * simulação de estado de cliente, a mesma régua que já tirou o contador do
  * campo e a pré-visualização da foto em `../casco.tsx`.

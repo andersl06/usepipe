@@ -8,7 +8,7 @@ import { chaveiro, noTenant } from '../banco.js';
  * endereços dele.
  *
  * É o que a origem faz com o que a tela `/mtls` cadastra
- * (`docs/pesquisa/blip-certificados-mtls.md`): o `.pfx` fica associado a
+ * (`referencias-blip/pesquisa/blip-certificados-mtls.md`): o `.pfx` fica associado a
  * `hosts`, e quando a plataforma chama um desses hosts apresenta o certificado
  * (autenticação mútua). Não é a Pipe exigindo certificado de ninguém — é a Pipe
  * como CLIENTE TLS.

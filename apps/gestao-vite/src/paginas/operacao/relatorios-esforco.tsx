@@ -58,7 +58,7 @@ export function PaginaEsforco() {
 
       {/* ------------------------------------------------------ bloco 1
           A estrutura de bloco dos relatórios deles, medida em
-          `docs/pesquisa/blip-medidas-monitoramento.md` §6: um cartão que
+          `referencias-blip/pesquisa/blip-medidas-monitoramento.md` §6: um cartão que
           CONTÉM cartões. O rótulo vem em cima em 14/600 e o valor embaixo em
           20/700 — o oposto do cartão de Monitoramento, onde o valor vem
           primeiro e é 24/400. */}

@@ -63,7 +63,7 @@ function Rotulo({ texto, dica }: { texto: string; dica: string }) {
 
 /**
  * Relatório de satisfação — a tela deles, bloco a bloco, lida em
- * `docs/capturas/blip/desk/desk-satisfacao__pagina.html`:
+ * `referencias-blip/desk/desk-satisfacao__pagina.html`:
  *
  * 1. cabeçalho "Relatório de satisfação"; à direita o período em botão
  *    fantasma ("Últimos 30 dias") e "Filtros";

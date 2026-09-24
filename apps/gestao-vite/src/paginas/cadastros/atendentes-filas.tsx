@@ -14,7 +14,7 @@ import { Modal, ModalConfirmacao } from './_modal';
 /**
  * Filas de atendimento — a lista.
  *
- * Esqueleto e textos medidos em `docs/capturas/blip/dom/
+ * Esqueleto e textos medidos em `referencias-blip/portal/dom/
  * FICHA-atendentes-filas-pausas.md` §b.1: cabeçalho "Filas de atendimento" com
  * "Nova fila" à direita e sem subtítulo, busca "Buscar fila" sozinha na linha
  * abaixo, cartão-linha de 86px com DUAS colunas — "Fila de atendimento" e

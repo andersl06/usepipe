@@ -513,7 +513,7 @@ export interface ContatoDaLista {
 /**
  * A lista da aba Contatos (`desk-contact-history`): nome sem caixa (o acento
  * fica; o banco não tem `unaccent`), ou dígitos do telefone, com o mínimo de 2 caracteres da referência
- * (`docs/pesquisa/blip-desk-medidas.md` §11). 20 por página lá; aqui os 200
+ * (`referencias-blip/pesquisa/blip-desk-medidas.md` §11). 20 por página lá; aqui os 200
  * primeiros, porque a lista ainda não tem rolagem infinita.
  */
 export async function listarContatos(tx: TransacaoPipe, busca: string): Promise<ContatoDaLista[]> {

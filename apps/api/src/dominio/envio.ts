@@ -322,7 +322,7 @@ type LinhaAnexo = { id: string; mime: string; bytes: string; nome_original: stri
  *
  * É o modelo da origem, e não uma simplificação nossa: no protocolo LIME cada
  * `application/vnd.lime.media-link+json` carrega UM `uri`
- * (`docs/pesquisa/blip-api-schemas.md`, "media-link"), e o modal de múltiplos
+ * (`referencias-blip/pesquisa/blip-api-schemas.md`, "media-link"), e o modal de múltiplos
  * arquivos do Desk (`ModalType.SEND_MULT_FILE`) monta uma lista
  * `mediaLinkDocuments` — uma mensagem por arquivo — limitada a
  * `MAX_ATTACHMENT_COUNT = 10` (`blip-desk-regras-tecnicas.md` §3.3). Por isso

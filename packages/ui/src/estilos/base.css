@@ -106,7 +106,7 @@ a {
    por si, e o topo fica onde está por LAYOUT, não por `position: sticky`.
 
    É o modelo da casca deles, lido no pacote do módulo de Atendimento
-   (`docs/pesquisa/blip-gestao-medidas.md` §8.7.2): caixa externa de altura fixa,
+   (`referencias-blip/pesquisa/blip-gestao-medidas.md` §8.7.2): caixa externa de altura fixa,
    lateral e conteúdo irmãos. Antes daqui a página inteira rolava e o topo era
    grudado — parecido de longe, diferente de perto: cromo grudado repinta na
    rolagem, e a lateral disputava a barra de rolagem da página.

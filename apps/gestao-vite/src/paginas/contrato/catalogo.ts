@@ -6,7 +6,7 @@ import type { NomeDeIconePortal } from '../../componentes/icones-portal';
  *
  * Lá cada cartão é um objeto com `group`, `option`, `icon`, `accessPermission`,
  * `featureToggle`, `metrics`, `path` e `additionalCheck`
- * (`docs/pesquisa/blip-painel-do-contrato.md` §"Os cartões, os três grupos"), e
+ * (`referencias-blip/pesquisa/blip-painel-do-contrato.md` §"Os cartões, os três grupos"), e
  * a tela é o resultado de rodar o funil sobre essa lista. Aqui é a mesma ideia
  * com os campos que a NOSSA base sustenta: sem `featureToggle` e sem `metrics`,
  * porque não temos LaunchDarkly nem assinatura com métricas — e inventar os dois

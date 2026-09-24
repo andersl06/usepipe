@@ -83,7 +83,7 @@ export async function definirStatus(
  * sai da distribuição.
  *
  * É a mesma régua da tela de referência (dez minutos até o aviso, mais dez até
- * a queda), registrada em `docs/pesquisa/blip-desk-medidas.md`, §9. Quem conta
+ * a queda), registrada em `referencias-blip/pesquisa/blip-desk-medidas.md`, §9. Quem conta
  * o tempo é o navegador, em `componentes/inatividade`; o que chega aqui é só
  * o veredito.
  *

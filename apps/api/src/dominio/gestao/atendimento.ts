@@ -63,7 +63,7 @@ export interface RelatorioAtendimento {
   porAtendente: LinhaDeQuebra[];
   /**
    * As duas dimensões que o Chatwoot tem e nós não tínhamos: caixa de entrada e
-   * rótulo (aqui, etiqueta). Ver `docs/pesquisa/chatwoot.md`.
+   * rótulo (aqui, etiqueta). Ver `referencias-blip/pesquisa/chatwoot.md`.
    *
    * A de etiqueta é a que mais vale, e a que lá é mais frágil: o relatório
    * deles conta *taggings* em vez de conversas distintas e mistura duas janelas

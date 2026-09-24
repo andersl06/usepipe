@@ -4,7 +4,7 @@ import type { Conteudo } from './cliente.js';
  * Pergunta do fluxo (o `select` da Blip) como mensagem interativa do WhatsApp.
  *
  * A régua é a da aba "Configurações" do canal na origem
- * (`docs/capturas/blip/canais/FICHA-canal-whatsapp.md` §3): com quick reply
+ * (`referencias-blip/fichas/FICHA-canal-whatsapp.md` §3): com quick reply
  * ligado, até 3 opções saem como botões; com menu ligado, até 10 saem como
  * lista; o resto continua em texto numerado — que é também o que fica gravado
  * em `mensagem.conteudo` e o que o Desk mostra.

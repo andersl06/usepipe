@@ -2,7 +2,7 @@
  * Ilustração de estado vazio.
  *
  * Existe porque a medição do bundle da Blip mostrou `bds-illustration`
- * empacotado como componente (docs/pesquisa/blip-design-system.md, seção 4):
+ * empacotado como componente (referencias-blip/pesquisa/blip-design-system.md, seção 4):
  * ilustração é componente, não imagem solta, e é assim que eles preenchem
  * estado vazio sem depender de foto. Foto num produto de operação envelhece,
  * pesa e nunca combina com o tema escuro.

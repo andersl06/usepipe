@@ -27,7 +27,7 @@ import { carregarRegrasSla, type RegraSlaCarregada } from './sla.js';
  * próxima varredura pegar a conversa de novo.
  *
  * **Decisão Pipe — sem pausa por horário de atendimento.** A tarefa pediu
- * para checar `docs/pesquisa/regras-blip.md` e `blip-desk-regras-tecnicas.md`
+ * para checar `referencias-blip/pesquisa/regras-blip.md` e `blip-desk-regras-tecnicas.md`
  * antes de inventar uma pausa. Nenhum dos dois documenta que o SLA da Blip
  * pausa fora do expediente (o achado mais próximo, em `regras-blip.md`, é
  * sobre o contador de 1ª resposta **zerar a cada resposta do atendente**, não

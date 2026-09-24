@@ -6,7 +6,7 @@ import { Selecao } from './selecao';
 
 /**
  * Painel lateral "Filtros" — o `data-testid="saved-filters-sidebar"` deles,
- * medido em `docs/capturas/blip/dom/FICHA-monitoring.md` e `FICHA-history.md`:
+ * medido em `referencias-blip/fichas/FICHA-monitoring.md` e `FICHA-history.md`:
  * fechado por padrão, título "Filtros", subtítulo fixo, duas abas ("Nova
  * consulta" / "Filtros salvos"), os campos da tela no meio, e um rodapé com o
  * switch de filtro salvo e os dois botões.

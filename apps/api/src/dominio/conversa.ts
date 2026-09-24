@@ -277,7 +277,7 @@ export interface Transferida {
  * decidido em `packages/core/src/conversa/maquina.ts`, que por isso não tem aresta de
  * `atribuida` de volta para `na_fila`, e é a regra da Blip ("o ticket atual é
  * encerrado com status Transferido e um novo ticket é aberto",
- * `docs/pesquisa/blip-desk-funcoes.md` §3).
+ * `referencias-blip/pesquisa/blip-desk-funcoes.md` §3).
  *
  * O que a conversa nova HERDA, e por quê:
  *

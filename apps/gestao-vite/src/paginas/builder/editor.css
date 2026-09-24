@@ -3,7 +3,7 @@
 
    A moldura está em `paginas/builder.css`; aqui é o que vive dentro dela. As
    medidas são as anotadas nos componentes, tiradas do `portal.css` e do DOM do
-   Builder de produção (`docs/capturas/blip/builder/`): nó de 175px, raio 8,
+   Builder de produção (`referencias-blip/builder/`): nó de 175px, raio 8,
    sombra `0 8px 16px`, título 14/400 que vira 700 quando selecionado, anel de
    4px no hover, ponto de saída de 1em no meio da borda de baixo, e o painel
    lateral de 360px. A tinta é a nossa.
@@ -594,6 +594,21 @@
   border-radius: 8px;
   background: #282828;
 }
+.bl-lista-de-saidas > .bl-saida {
+  position: relative;
+  padding: 16px 0;
+  border-width: 0 0 1px;
+  border-radius: 0;
+  background: transparent;
+}
+.bl-lista-de-saidas > .bl-saida:first-child { padding-top: 0; }
+.bl-condicao {
+  position: relative;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
 .bl-saida--padrao {
   border-style: dashed;
 }
@@ -642,6 +657,44 @@
 .bl-condicao-valores {
   flex-wrap: wrap;
 }
+.bl-condicao-campos {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 8px;
+}
+.bl-condicao-campos > .bl-condicao-se {
+  grid-column: 1;
+  margin-bottom: 38px;
+}
+.bl-condicao-campos > .selecao:first-of-type { grid-column: 1; }
+.bl-condicao-campos > .selecao:last-of-type { grid-column: 2; }
+.bl-condicao-campos > .campo { grid-column: 1 / -1; }
+.bl-adicionar-condicao {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  margin: 12px auto;
+  padding: 0;
+  place-items: center;
+  border: 2px solid #aaa;
+  border-radius: 50%;
+  background: #393939;
+  color: #fff;
+  font: 700 18px/1 Arial, sans-serif;
+  cursor: pointer;
+}
+.bl-adicionar-condicao::before,
+.bl-adicionar-condicao::after {
+  position: absolute;
+  z-index: -1;
+  width: calc(50% - 18px);
+  height: 1px;
+  background: #333;
+  content: '';
+}
+.bl-adicionar-condicao::before { transform: translateX(-68px); }
+.bl-adicionar-condicao::after { transform: translateX(68px); }
 /* O "OU"/"E" entre valores: largura própria, sem esticar pela linha (a classe
    existia sem regra nenhuma, então o `Selecao` crescia como os campos ao lado). */
 .bl-condicao-operador {
@@ -671,6 +724,29 @@
 .bl-acao-corpo,
 .bl-acao-bruta {
   margin-top: 8px;
+}
+.bl-cabecalhos {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.bl-cabecalho-fileira {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+.bl-cabecalho-fileira .campo {
+  flex: 1;
+  min-width: 0;
+}
+.bl-adicionar-cabecalho {
+  align-self: flex-start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--p-marca, #4a5d23);
+  font: inherit;
+  cursor: pointer;
 }
 .bl-acao-abrir {
   flex: 1;
@@ -715,6 +791,9 @@
 .bl-remover:hover {
   color: var(--p-erro-conteudo, #c4442e);
 }
+.bl-condicao > .bl-remover { opacity: 0; }
+.bl-condicao:hover > .bl-remover,
+.bl-condicao:focus-within > .bl-remover { opacity: 1; }
 
 /* A prévia da conversa dentro do painel de conteúdo. */
 .bl-conversa-conteudo {

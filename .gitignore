@@ -10,6 +10,10 @@ dist/
 # Capturas de tela feitas para revisar visual. Não versionadas.
 .capturas/
 docs/capturas/
+.playwright-cli/
+output/playwright/
+undefined/
+referencias-blip/
 
 # Storage de anexo em desenvolvimento (PIPE_STORAGE_DIR). Em produção é volume.
 .dados/

@@ -1,4 +1,4 @@
-import { Etiqueta, Icone } from '@pipe/ui';
+import { Icone } from '@pipe/ui';
 import { IconeGestao } from '../../componentes/icones-gestao';
 import { Selecao } from '../../componentes/selecao';
 import type { Bloco, Mapa, SaidaDoEditor } from './modelo';
@@ -14,6 +14,7 @@ import {
   removerSaida,
 } from './condicoes';
 import { EditorDeCondicoes } from './condicao';
+import { CabecalhoInfo } from './cabecalho-info';
 
 /**
  * A aba "Condições de saída" do editor: o texto de abertura ("Defina as regras
@@ -56,7 +57,10 @@ export function PainelDeSaidas({
   const seletorDeDestino = (valor: string, onEscolher: (id: string) => void, rotulo: string) => (
     <label className="bl-campo">
       <span className="sub">{rotulo}</span>
-      <Selecao value={existe(valor) ? valor : valor ? '__outro' : ''} onChange={(e) => onEscolher(e.target.value === '__outro' ? valor : e.target.value)}>
+      <Selecao
+        value={existe(valor) ? valor : valor ? '__outro' : ''}
+        onChange={(e) => onEscolher(e.target.value === '__outro' ? valor : e.target.value)}
+      >
         <option value="">{ROTULOS_DAS_SAIDAS.direcionar}</option>
         {destinos.map((b) => (
           <option key={b.id} value={b.id}>
@@ -76,74 +80,165 @@ export function PainelDeSaidas({
 
   return (
     <div className="bl-aba-corpo">
-      <p className="sub">{ROTULOS_DAS_SAIDAS.info}</p>
-
-      {atendimento ? <h4 className="bl-secao-titulo">{ROTULOS_DAS_SAIDAS.saidasDeAtendimento}</h4> : null}
+      {atendimento ? (
+        <section className="bl-disponibilidade">
+          <CabecalhoInfo titulo="Disponibilidade de atendimento" aberto>
+            <p>
+              Defina o bloco para o qual a conversa seguirá se a sua equipe de atendimento não
+              estiver disponível
+            </p>
+          </CabecalhoInfo>
+          {[
+            { status: 'OutOfAttendanceHour', titulo: '+ Condição para horário de atendimento' },
+            { status: 'NoAgentAvailable', titulo: '+ Condição para atendentes indisponíveis' },
+          ].map(({ status, titulo }) => {
+            const indice = saidas.findIndex(
+              (s) => s.$isDeskCustomOutput && s.conditions?.some((c) => c.values?.includes(status)),
+            );
+            return indice < 0 ? (
+              <button
+                type="button"
+                className="bl-mais"
+                key={status}
+                onClick={() => {
+                  if (saidas.length >= 25) {
+                    onAviso('Limite de 25 condições de saída atingidos');
+                    return;
+                  }
+                  onMudar({
+                    ...bloco,
+                    $conditionOutputs: [
+                      {
+                        $id: crypto.randomUUID(),
+                        $isDeskOutput: true,
+                        $isDeskCustomOutput: true,
+                        stateId: '',
+                        conditions: [
+                          {
+                            source: 'context',
+                            variable: 'desk_forwardToDeskState_status',
+                            comparison: 'equals',
+                            values: [status],
+                          },
+                        ],
+                      },
+                      ...saidas,
+                    ],
+                  });
+                }}
+              >
+                {titulo}
+              </button>
+            ) : (
+              <div key={status} className="bl-saida">
+                <p>{titulo.replace('+ Condição para ', '')}</p>
+                {seletorDeDestino(
+                  saidas[indice]!.stateId ?? '',
+                  (id) => onMudar(definirDestinoDaSaida(bloco, indice, id)),
+                  ROTULOS_DAS_SAIDAS.irPara,
+                )}
+                <button
+                  type="button"
+                  className="iconbtn"
+                  aria-label="Excluir condição de disponibilidade"
+                  onClick={() =>
+                    onMudar({ ...bloco, $conditionOutputs: saidas.filter((_, i) => i !== indice) })
+                  }
+                >
+                  <IconeGestao nome="lixeira" tamanho={18} />
+                </button>
+              </div>
+            );
+          })}
+        </section>
+      ) : null}
+      <CabecalhoInfo
+        titulo={ROTULOS_DAS_SAIDAS.titulo}
+        contador={`${saidas.filter((s) => !s.$isDeskCustomOutput).length}/25`}
+        aberto={saidas.length === 0}
+      >
+        <p>{ROTULOS_DAS_SAIDAS.info}</p>
+        <a
+          href="https://help.blip.ai/hc/pt-br/articles/4474424985623-Condi%C3%A7%C3%B5es-de-sa%C3%ADda-do-Builder"
+          target="_blank"
+          rel="noreferrer"
+        >
+          Entenda como funcionam as condições de saída
+        </a>
+      </CabecalhoInfo>
 
       <div className="bl-lista-de-saidas">
-      {saidas.map((saida, i) => {
-        const erros = errosDaSaida(saida, existe);
-        const fixa = !!saida.$isDeskOutput;
-        return (
-          <section key={saida.$id ?? i} className={`bl-saida${erros.length > 0 ? ' bl-saida--erro' : ''}`}>
-            <header className="bl-saida-cabecalho">
-              <b>{fixa ? rotuloDaSaidaDeAtendimento(saida) : `${ROTULOS_DAS_SAIDAS.condicao} ${i + 1}`}</b>
-              <span className="bl-saida-ordem">
-                <button
-                  type="button"
-                  className="iconbtn"
-                  title="Subir"
-                  aria-label="Subir"
-                  disabled={i === 0}
-                  onClick={() => onMudar(moverSaida(bloco, i, i - 1))}
-                >
-                  <Icone nome="cima" tamanho={16} />
-                </button>
-                <button
-                  type="button"
-                  className="iconbtn"
-                  title="Descer"
-                  aria-label="Descer"
-                  disabled={i === saidas.length - 1}
-                  onClick={() => onMudar(moverSaida(bloco, i, i + 1))}
-                >
-                  <Icone nome="baixo" tamanho={16} />
-                </button>
-                {!fixa ? (
+        {saidas.map((saida, i) => {
+          if (saida.$isDeskCustomOutput) return null;
+          const erros = errosDaSaida(saida, existe);
+          const fixa = !!saida.$isDeskOutput;
+          return (
+            <section
+              key={saida.$id ?? i}
+              className={`bl-saida${fixa ? ' bl-saida--atendimento' : ''}${erros.length > 0 ? ' bl-saida--erro' : ''}`}
+            >
+              <header className="bl-saida-cabecalho">
+                <b>
+                  {fixa
+                    ? rotuloDaSaidaDeAtendimento(saida)
+                    : `${ROTULOS_DAS_SAIDAS.condicao} ${i + 1}`}
+                </b>
+                <span className="bl-saida-ordem">
                   <button
                     type="button"
                     className="iconbtn"
-                    title="Deletar"
-                    aria-label="Deletar"
-                    onClick={() => onMudar(removerSaida(bloco, i))}
+                    title="Subir"
+                    aria-label="Subir"
+                    disabled={i === 0}
+                    onClick={() => onMudar(moverSaida(bloco, i, i - 1))}
                   >
-                    <IconeGestao nome="lixeira" tamanho={18} />
+                    <Icone nome="cima" tamanho={16} />
                   </button>
-                ) : null}
-              </span>
-            </header>
-            {fixa ? null : (
-              <EditorDeCondicoes
-                condicoes={saida.conditions ?? []}
-                onMudar={(condicoes) => onMudar(definirCondicoesDaSaida(bloco, i, condicoes))}
-                rotuloAdicionar="+ Adicionar condição"
-              />
-            )}
-            {seletorDeDestino(
-              saida.stateId ?? '',
-              (id) => onMudar(definirDestinoDaSaida(bloco, i, id)),
-              ROTULOS_DAS_SAIDAS.irPara,
-            )}
-            {erros.length > 0 ? (
-              <ul className="bl-erros">
-                {erros.map((e) => (
-                  <li key={e}>{e}</li>
-                ))}
-              </ul>
-            ) : null}
-          </section>
-        );
-      })}
+                  <button
+                    type="button"
+                    className="iconbtn"
+                    title="Descer"
+                    aria-label="Descer"
+                    disabled={i === saidas.length - 1}
+                    onClick={() => onMudar(moverSaida(bloco, i, i + 1))}
+                  >
+                    <Icone nome="baixo" tamanho={16} />
+                  </button>
+                  {!fixa ? (
+                    <button
+                      type="button"
+                      className="iconbtn"
+                      title="Deletar"
+                      aria-label="Deletar"
+                      onClick={() => onMudar(removerSaida(bloco, i))}
+                    >
+                      <IconeGestao nome="lixeira" tamanho={18} />
+                    </button>
+                  ) : null}
+                </span>
+              </header>
+              {fixa ? null : (
+                <EditorDeCondicoes
+                  condicoes={saida.conditions ?? []}
+                  onMudar={(condicoes) => onMudar(definirCondicoesDaSaida(bloco, i, condicoes))}
+                  rotuloAdicionar="+ Adicionar condição"
+                />
+              )}
+              {seletorDeDestino(
+                saida.stateId ?? '',
+                (id) => onMudar(definirDestinoDaSaida(bloco, i, id)),
+                ROTULOS_DAS_SAIDAS.irPara,
+              )}
+              {erros.length > 0 ? (
+                <ul className="bl-erros">
+                  {erros.map((e) => (
+                    <li key={e}>{e}</li>
+                  ))}
+                </ul>
+              ) : null}
+            </section>
+          );
+        })}
       </div>
 
       <button type="button" className="bl-mais" onClick={adicionar}>
@@ -151,16 +246,15 @@ export function PainelDeSaidas({
       </button>
 
       <section className="bl-saida bl-saida--padrao">
-        <header className="bl-saida-cabecalho">
-          <b>{ROTULOS_DAS_SAIDAS.saidaPadrao}</b>
-          <Etiqueta>{ROTULOS_DAS_SAIDAS.semSeta}</Etiqueta>
-        </header>
-        <p className="sub">{ROTULOS_DAS_SAIDAS.saidaPadraoInfo}</p>
+        <CabecalhoInfo titulo={ROTULOS_DAS_SAIDAS.saidaPadrao} aberto>
+          <p>{ROTULOS_DAS_SAIDAS.saidaPadraoInfo}</p>
+        </CabecalhoInfo>
         {seletorDeDestino(
           bloco.$defaultOutput?.stateId ?? '',
           (id) => onMudar(definirSaidaPadrao(bloco, id)),
           ROTULOS_DAS_SAIDAS.irPara,
         )}
+        <p className="bl-ajuda">{ROTULOS_DAS_SAIDAS.semSeta}</p>
       </section>
     </div>
   );

@@ -1,6 +1,6 @@
 -- Palavras proibidas — a lista que barra o envio do atendente.
 --
--- Fonte: `docs/pesquisa/blip-desk-regras-tecnicas.md` §3.4 ("Palavras proibidas").
+-- Fonte: `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4 ("Palavras proibidas").
 -- Na origem a lista mora num bucket POR CONTA (`lime://<owner>/buckets/blip:desk:
 -- forbidden-words`), não por fila nem por atendente; aqui é uma linha por termo,
 -- por tenant. Quem usa: `apps/api/src/dominio/gestao/palavras-proibidas.ts` (o

@@ -42,10 +42,10 @@ disse que o que não está lá não é necessário (era a Ajuda).
   original recuperados por sourcemap. As regras estão todas no que é observável
   (folha compilada, `settings.json`, bundles), então abrir não acrescenta e só
   cria a discussão de "olhou o fonte e reescreveu".
-- Em `docs/pesquisa/` pode citar o seletor ao lado do número: é referência de
+- Em `referencias-blip/pesquisa/` pode citar o seletor ao lado do número: é referência de
   medição, e é o que torna a medida conferível depois. Em `apps/**`, não.
 
-Já commitado: `docs/pesquisa/blip-desk-regras.md` (43 chaves com valor em
+Já commitado: `referencias-blip/pesquisa/blip-desk-regras.md` (43 chaves com valor em
 português) e `blip-desk-vocabulario.md` (296 textos de tela por aba).
 
 ## Estado das três frentes

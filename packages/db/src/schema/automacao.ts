@@ -630,7 +630,7 @@ export const dicionarioCampo = pgTable(
 
 /**
  * Autenticação de saída do webhook — a "Configurações de autenticação" da
- * origem (`docs/pesquisa/blip-integracoes-webhook.md`: switch + OAuth 2.0),
+ * origem (`referencias-blip/pesquisa/blip-integracoes-webhook.md`: switch + OAuth 2.0),
  * mais Básica, que a origem não mostra mas a tarefa pede. Migration 0036.
  */
 export const TIPOS_AUTENTICACAO_WEBHOOK = [

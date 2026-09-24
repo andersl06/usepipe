@@ -13,7 +13,7 @@ import { confirmarUrlSegura } from './gestao/integracoes.js';
  * A tela `growth/clicktracker` que já existe (`apps/gestao-vite/.../clicktracker.tsx`)
  * é a MEDIÇÃO da Blip de anúncios Click-to-WhatsApp da Meta (atribuição de conversas a
  * campanha de anúncio) — outra coisa, sem link nenhum para cadastrar
- * (`docs/pesquisa/blip-produtos-novos.md` linha 12). O que esta tarefa pede — cadastrar
+ * (`referencias-blip/pesquisa/blip-produtos-novos.md` linha 12). O que esta tarefa pede — cadastrar
  * um link, gerar encurtador, redirecionar em público e contar clique — é o recurso
  * descrito no pedido, não aquela tela; por isso o backend nasce aqui, sozinho, sem
  * mexer no componente visual existente (fora do escopo pedido: só o backend).

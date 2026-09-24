@@ -16,7 +16,7 @@ import { ListaRegras, type SecaoDeRegras } from '../../componentes/lista-regras'
  *
  * Eram duas tabelas. Viraram duas listas de cartões, que é o que a Blip faz
  * nas telas de Regras, SLA e Horários — medido em
- * `docs/pesquisa/blip-telas-atendimento.md` §5.3 a §5.5. A ordem da tela é a
+ * `referencias-blip/pesquisa/blip-telas-atendimento.md` §5.3 a §5.5. A ordem da tela é a
  * deles: título, busca sozinha na linha, lista.
  *
  * Somente leitura por enquanto — ver o comentário de `lib/configuracoes.ts` e a

@@ -4,8 +4,8 @@ import { Icone } from '@pipe/ui';
 
 /**
  * Canais de atendimento — `attendance/desk/channels` da origem
- * (`docs/capturas/blip/dom/FICHA-channels.md`, foto `07` em
- * `docs/capturas/blip/canais/`): título sem subtítulo nem botão, e uma GRADE
+ * (`referencias-blip/fichas/FICHA-channels.md`, foto `07` em
+ * `referencias-blip/canais/`): título sem subtítulo nem botão, e uma GRADE
  * fixa de 4 cartões (`bds-paper` de 242×292), cada um com ícone, título 16/700,
  * subtítulo 14/400 e um botão no pé — "Conectado" (terciário, com o
  * `checkball`) ou "Conectar" (primário, com a seta).

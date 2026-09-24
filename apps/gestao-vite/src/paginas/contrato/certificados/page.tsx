@@ -23,7 +23,7 @@ import { TelaDeCertificados } from './tela';
  * volta para o painel.
  *
  * O contrato de dados, os textos e os modais estão em
- * `docs/pesquisa/blip-certificados-mtls.md`.
+ * `referencias-blip/pesquisa/blip-certificados-mtls.md`.
  */
 export function PaginaDeCertificados() {
   const eu = useEu();

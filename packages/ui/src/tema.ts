@@ -5,7 +5,7 @@
  * tipado, `espaco()` como função de múltiplo de 4px, escala de raio e tokens
  * de densidade centralizados. Os valores são os do Pipe (docs/marca/MARCA.md),
  * e a organização por papel veio de medir a Blip
- * (docs/pesquisa/blip-design-system.md).
+ * (referencias-blip/pesquisa/blip-design-system.md).
  *
  * Este objeto é o espelho tipado de `estilos/tokens.css`. Ele existe para o
  * código que precisa de um valor em TypeScript (cálculo de layout, gráfico

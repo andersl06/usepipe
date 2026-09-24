@@ -96,7 +96,7 @@ const ROTA_ACOES_GLOBAIS = new RegExp('^[/]buckets[/]blip_portal:builder_working
 const ROTA_FLUXO_PUBLICADO = new RegExp('^[/]buckets[/]blip_portal:builder_published_flow');
 
 /* Ações do atendente. As URIs são as que a tela dispara, levantadas do bundle e
-   registradas em `docs/pesquisa/blip-desk-regras-tecnicas.md`. */
+   registradas em `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md`. */
 const ROTA_ASSUMIR = new RegExp('^[/]tickets[/]claim');
 const ROTA_CONFIRMA = new RegExp('^[/]tickets[/][^/]+[/]confirm-received');
 const ROTA_ENCERRAR = new RegExp('^[/]tickets[/][^/]+[/]close');

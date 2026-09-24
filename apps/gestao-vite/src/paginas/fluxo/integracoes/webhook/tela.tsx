@@ -23,7 +23,7 @@ import {
  * `bds-paper`, a lista de URLs com "+ Adicionar"/"Salvar" no rodapé,
  * "Configurações avançadas (Opcional)" com Tipos de envio, autenticação
  * (switch + OAuth 2.0/Básica) e cabeçalhos customizados
- * (`docs/pesquisa/blip-integracoes-webhook.md`).
+ * (`referencias-blip/pesquisa/blip-integracoes-webhook.md`).
  *
  * A origem grava UM webhook com várias URLs, todas com a MESMA configuração;
  * o Pipe grava em `webhook_saida` (`apis.md` §5.5) o inverso — várias LINHAS,

@@ -119,7 +119,7 @@ function RodapeDePaginacao({
 /**
  * Regras como LISTA DE CARTÕES, com a busca no topo.
  *
- * Segue o esqueleto medido em `docs/pesquisa/blip-telas-atendimento.md` §4 e
+ * Segue o esqueleto medido em `referencias-blip/pesquisa/blip-telas-atendimento.md` §4 e
  * §5.3: linha do título, busca sozinha na linha logo abaixo, e a lista de
  * cartões. Rótulo pequeno acima do valor forte, situação encostada à direita.
  *

@@ -13,7 +13,7 @@ import { lerPfx } from './pfx.js';
  * Na origem tudo é comando LIME para `postmaster@mtls.blip.ai`: a tela sobe o
  * `.pfx` com a senha (`multipart` com `password` e `file`), o serviço deles lê
  * o arquivo e devolve `status` e `expiration_date`, e o certificado fica
- * associado a `hosts` (`docs/pesquisa/blip-certificados-mtls.md`). Quando a
+ * associado a `hosts` (`referencias-blip/pesquisa/blip-certificados-mtls.md`). Quando a
  * plataforma chama um desses hosts, apresenta o certificado.
  *
  * Aqui é igual, desde a migration 0044: o `.pfx` e a senha ficam **cifrados**

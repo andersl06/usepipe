@@ -132,7 +132,7 @@ mexer:
 | [O que falta](docs/specs/2026-09-05-o-que-falta.md) | as lacunas conhecidas, sem maquiagem |
 | [Fork do Twenty](docs/specs/2026-09-07-fork-do-twenty.md) | por que o CRM é AGPL, e a fronteira que segura isso. Vinculante |
 | [Marca](docs/marca/MARCA.md) | símbolo, paleta, tipografia |
-| [Pesquisa](docs/pesquisa/) | levantamento de Blip, Chatwoot, Twenty, 2clix e concorrentes |
+| [Pesquisa](referencias-blip/pesquisa/) | levantamento de Blip, Chatwoot, Twenty, 2clix e concorrentes |
 
 ## Regra de licença, antes de copiar qualquer código
 

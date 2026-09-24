@@ -2,7 +2,7 @@
 --
 -- Até aqui o RBAC do Pipe era só por CONTA (0019 o catálogo, 0021 os três papéis
 -- `guest`/`member`/`admin`): quem entrava na conta enxergava todos os fluxos dela. A origem
--- decide o contrário, e `docs/pesquisa/blip-identidade-tenant-permissao.md` §3 mede isso no
+-- decide o contrário, e `referencias-blip/pesquisa/blip-identidade-tenant-permissao.md` §3 mede isso no
 -- objeto real: "a permissão não é do tenant, é do bot" — o mesmo usuário é quase admin num
 -- bot e quase nada em outro, dentro da mesma empresa. `apps/gestao-vite/src/paginas/fluxo/
 -- itens.ts` já registrava a dívida ("até existir RBAC por fluxo"); esta tabela é ela paga.

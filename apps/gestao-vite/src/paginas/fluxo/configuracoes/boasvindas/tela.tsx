@@ -16,7 +16,7 @@ const TEXTO_BOTAO_MAX = 20;
  * Os dois campos internos não foram vistos ligados na captura (a régua não
  * ativou o roteador de produção para não alterar o estado dele) — os nomes
  * vêm da descrição do próprio item de menu ("Defina a Mensagem de Saudação e
- * o botão Começar", `docs/pesquisa/blip-portal-telas.md` §6) e do enunciado
+ * o botão Começar", `referencias-blip/pesquisa/blip-portal-telas.md` §6) e do enunciado
  * da tarefa.
  *
  * Duas escritas, pela mesma razão de UX: DESLIGAR o interruptor grava na

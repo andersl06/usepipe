@@ -179,7 +179,7 @@ export function ListaDePermissoes({
 
 /**
  * O `add-user-modal` da origem — DOM capturado com ele ABERTO em
- * `docs/capturas/blip/equipe/equipe-adicionar-modal__pagina.html`:
+ * `referencias-blip/equipe/equipe-adicionar-modal__pagina.html`:
  *
  *   toolbar    só o `icon-close` no canto;
  *   cabeça     bloco CENTRADO (`.row.mh6.tc.mt3`): h1 "Adicionar pessoa" e o
@@ -376,7 +376,7 @@ function ModalDeAdicionar({
  *
  * A estrutura é a do template da origem (`portal.js`, o `<page-header
  * class="team-header">` seguido de `.container.mb-5 > .row.team-cards`, e o
- * mesmo DOM renderizado em `docs/capturas/blip/roteador/roteador-team__pagina.html`):
+ * mesmo DOM renderizado em `referencias-blip/canais/roteador/roteador-team__pagina.html`):
  *
  *   cabeçalho  h1 "Equipe" à esquerda; à direita a busca
  *              ("Pesquisar por nome ou e-mail", ícone `avatar-user`, 260px) e

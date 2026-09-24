@@ -11,7 +11,7 @@ import { emitir } from '../webhooks-saida.js';
  * Mensagem ativa: disparar template para uma LISTA de contatos.
  *
  * É a aba mais pesada do Desk, e o levantamento está em
- * `docs/pesquisa/blip-desk-mensagens-ativas.md`. Os números daqui são os da Blip.
+ * `referencias-blip/pesquisa/blip-desk-mensagens-ativas.md`. Os números daqui são os da Blip.
  *
  * **O envio em si não é reimplementado.** Cada contato passa por `enviarMensagem`, que
  * já sabe janela de 24h, outbox, posicionamento de variável de template, evento e

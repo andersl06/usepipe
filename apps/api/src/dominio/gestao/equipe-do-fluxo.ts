@@ -30,7 +30,7 @@ const EDITAR_FLUXO = 'automacao.fluxo.editar';
  * (`/applications/{shortName}@msging.net/users/accounts`) cruzado com
  * `getApplicationUsersPermissions` (`.../permissions`), tudo por contato
  * (`TeamController._loadMembers`). A pesquisa mede isso no objeto real —
- * `docs/pesquisa/blip-identidade-tenant-permissao.md` §3: "a permissão não é do
+ * `referencias-blip/pesquisa/blip-identidade-tenant-permissao.md` §3: "a permissão não é do
  * tenant, é do bot". O contrato é PRÉ-REQUISITO, não fonte: o próprio aviso da
  * origem diz "Essa pessoa não faz parte do contrato. O administrador deve
  * incluir a pessoa no contrato antes de adicioná-la ao chatbot.".

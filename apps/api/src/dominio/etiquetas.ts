@@ -12,7 +12,7 @@ import type { AtorDaConversa } from './conversa.js';
  *
  * Até aqui a única forma de marcar uma tag numa conversa era pelo `POST /encerrar`,
  * que exige a etiqueta e fecha o ticket junto. A origem separa os dois gestos
- * (`ModalType.ADD_TAGS` ≠ `CLOSE_TICKET`, `docs/pesquisa/blip-desk-regras-tecnicas.md`
+ * (`ModalType.ADD_TAGS` ≠ `CLOSE_TICKET`, `referencias-blip/pesquisa/blip-desk-regras-tecnicas.md`
  * §1.8): a tag da conversa aberta é anotação de trabalho, e a do encerramento é
  * classificação final. As duas moram na mesma `conversa_etiqueta`, e por isso a
  * etiqueta aplicada aqui aparece pré-marcada no modal de Finalizar.

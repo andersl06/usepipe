@@ -1,7 +1,7 @@
 -- As permissões da CONTA — o que o Painel do contrato (`/contrato`) lê.
 --
 -- A matriz é a do painel deles, descrita em
--- `docs/pesquisa/blip-painel-do-contrato.md` §"A matriz de papéis": seis chaves
+-- `referencias-blip/pesquisa/blip-painel-do-contrato.md` §"A matriz de papéis": seis chaves
 -- (`tenant-summary`, `tenant-members`, `tenant-workspace`, `tenant-dashboard`,
 -- `tenant-billing`, `tenant-permissions-group`) por dois verbos (`read`,
 -- `write`), chumbadas no front deles em três papéis fixos — `admin`, `member`,

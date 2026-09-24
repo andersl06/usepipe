@@ -14,7 +14,7 @@ import { exigirPermissao } from '../../sessao.js';
 /**
  * A página "Permissões" do atendente — `attendance.desk.team.permission` da
  * origem, que é PÁGINA e não modal
- * (`docs/capturas/blip/dom/FICHA-atendentes-filas-pausas.md` §a.1/§a.4).
+ * (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §a.1/§a.4).
  *
  * A forma é a deles: título "Permissões", a descrição "Configure as permissões
  * de …" nas três variantes, a seção "Permissões disponíveis" e uma tabela de

@@ -1,6 +1,6 @@
 /**
  * Os recortes da aba "Minhas métricas" — os cinco atalhos da referência mais
- * o intervalo à mão, limitado a 90 dias (`docs/pesquisa/blip-desk-analytics.md`
+ * o intervalo à mão, limitado a 90 dias (`referencias-blip/pesquisa/blip-desk-analytics.md`
  * e a barra `.seg` de `~/desk-clone/clone/index.html#metrics`): "Hoje"
  * (padrão), "Ontem", "7 Dias", "30 dias", "90 dias", "Personalizado".
  *

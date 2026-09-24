@@ -64,7 +64,7 @@ async function fluxoExiste(tx: TransacaoPipe, tenantId: string, fluxoId: string)
 /* --------------------------------------------------------- Chaves do fluxo */
 
 /**
- * `MAX_TOKENS = 3` na origem (`docs/pesquisa/blip-configuracoes-api-e-chaves.md`,
+ * `MAX_TOKENS = 3` na origem (`referencias-blip/pesquisa/blip-configuracoes-api-e-chaves.md`,
  * espelhado em `apps/gestao-vite/.../configuracoes/regras.ts`). Conferido aqui
  * também: a regra do front não segura quem chama a `api` direto.
  */

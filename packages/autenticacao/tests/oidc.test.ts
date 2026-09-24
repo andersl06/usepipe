@@ -13,7 +13,7 @@ import {
 import type { ConfigOidc, DescobertaOidc } from '../src/oidc.js';
 
 /**
- * Um teste por armadilha de `docs/pesquisa/sso-multi-tenant.md` §8.
+ * Um teste por armadilha de `referencias-blip/pesquisa/sso-multi-tenant.md` §8.
  *
  * O que une todas elas: **nenhuma dá erro quando está errada.** Todas dão login
  * concedido, para a pessoa errada, sem nada no log. É por isso que cada uma tem

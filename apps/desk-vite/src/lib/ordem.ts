@@ -167,7 +167,7 @@ export function ordenar(conversas: readonly ConversaDaLista[], ordem: Ordem): Co
 
 /**
  * Nome de exibição do contato — a cadeia de recurso da referência
- * (`docs/pesquisa/blip-desk-medidas.md` §11): nome → telefone → e-mail → o que
+ * (`referencias-blip/pesquisa/blip-desk-medidas.md` §11): nome → telefone → e-mail → o que
  * houver antes do `@`. Nunca fica em branco.
  */
 export function nomeDeExibicao(c: {

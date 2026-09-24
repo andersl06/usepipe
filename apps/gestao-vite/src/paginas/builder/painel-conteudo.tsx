@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useLayoutEffect, useRef, useState } from 'react';
 import { Campo, Etiqueta, Icone } from '@pipe/ui';
 import { IconeGestao } from '../../componentes/icones-gestao';
+import { IconePortal } from '../../componentes/icones-portal';
 import { Selecao } from '../../componentes/selecao';
 import type { Bloco, EntradaDoEditor, ItemDeConteudo } from './modelo';
 import { ehAtendimento, novaEntrada } from './modelo';
@@ -49,36 +50,118 @@ export function PainelDeConteudo({
 }) {
   const cartoes = cartoesDe(bloco);
   const [menuAberto, setMenuAberto] = useState(false);
+  const [selecionado, setSelecionado] = useState<number | null>(null);
+  const conteudo = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    if (selecionado !== null) conteudo.current?.closest('.bl-painel-corpo')?.scrollTo(0, 0);
+  }, [selecionado]);
+  const [alterarEspera, setAlterarEspera] = useState(false);
   const atendimento = ehAtendimento(bloco.id);
   const raiz = !!bloco.root;
 
   function adicionar(item: ItemDeConteudo): void {
     setMenuAberto(false);
     const r = adicionarConteudo(bloco, item);
-    if (r.ok) onMudar(r.bloco);
-    else onAviso(r.erro);
+    if (r.ok) {
+      onMudar(r.bloco);
+      setSelecionado(r.bloco.$contentActions?.indexOf(item) ?? null);
+    } else onAviso(r.erro);
   }
 
   return (
-    <div className="bl-aba-corpo">
+    <div ref={conteudo} className="bl-aba-corpo bl-conteudo-bloco">
+      <span className="bl-conteudo-contador">
+        {cartoes.filter((c) => c.tipo !== 'entrada' && c.tipo !== 'digitando').length}/25
+      </span>
       {raiz ? (
-        <p className="sub">
-          A conversa do seu chatbot sempre inicia através da <em>Entrada do usuário</em>. Crie novos blocos
-          para adicionar conteúdos e desenvolva uma conversa com seu cliente.
-        </p>
+        <div className="bl-conteudo-introducao">
+          <h4>Início</h4>
+          <p>
+            A conversa do seu chatbot sempre inicia através da <em>Entrada do usuário</em>. Crie
+            novos blocos para adicionar conteúdos e desenvolva uma conversa com seu cliente.
+          </p>
+        </div>
+      ) : null}
+      {atendimento ? (
+        <div className="bl-conteudo-introducao">
+          <h4>Atendimento humano</h4>
+          <p>Este bloco encaminhará a conversa para a sua fila de atendimento.</p>
+          <p>
+            Para utilizar este recurso, você precisará ativar a integração com o{' '}
+            <strong>Blip Desk</strong>.
+          </p>
+          <small>v.{bloco.deskStateVersion ?? '3.0.0'}</small>
+        </div>
       ) : null}
       <div className="bl-conversa-conteudo bl-lista-de-cartoes">
-        {cartoes.map((c) => (
-          <CartaoDeConteudo
-            key={c.indice}
-            cartao={c}
-            bloco={bloco}
-            fixo={raiz || atendimento}
-            primeiro={c.indice === 0}
-            ultimo={c.indice === cartoes.length - 1}
-            onMudar={onMudar}
-          />
-        ))}
+        {!atendimento
+          ? cartoes.map((c) => (
+              <div
+                key={c.indice}
+                className={`bl-previa-linha${c.tipo === 'entrada' ? ' bl-previa-linha--entrada' : ''}`}
+              >
+                <button
+                  type="button"
+                  className="bl-previa-conteudo"
+                  onClick={() => setSelecionado(c.indice)}
+                >
+                  {c.tipo === 'entrada'
+                    ? raiz
+                      ? ROTULOS_DO_CONTEUDO.entrada
+                      : c.entrada.bypass
+                        ? ROTULOS_DO_CONTEUDO.direto
+                        : ROTULOS_DO_CONTEUDO.aguardando
+                    : c.tipo === 'outro'
+                      ? c.mime
+                      : c.tipo === 'digitando'
+                        ? ROTULOS_DO_CONTEUDO.digitando
+                        : c.texto || ROTULOS_DO_CONTEUDO[c.tipo]}
+                  {c.tipo === 'menu' || c.tipo === 'quickReply' ? (
+                    <span className="bl-previa-opcoes">
+                      {c.opcoes.map((o, i) => (
+                        <span key={i}>{o.text}</span>
+                      ))}
+                    </span>
+                  ) : null}
+                </button>
+                {c.tipo === 'entrada' && !raiz ? (
+                  <div className="bl-espera-controle">
+                    <span>
+                      {c.entrada.bypass
+                        ? ROTULOS_DO_CONTEUDO.naoAguardar
+                        : ROTULOS_DO_CONTEUDO.aguardar}
+                    </span>
+                    <button
+                      type="button"
+                      className="bl-alterar"
+                      aria-expanded={alterarEspera}
+                      onClick={() => setAlterarEspera(!alterarEspera)}
+                    >
+                      (Alterar)
+                    </button>
+                    {alterarEspera ? (
+                      <div className="bl-menu-acoes">
+                        {[true, false].map((aguardar) => (
+                          <button
+                            type="button"
+                            key={String(aguardar)}
+                            onClick={() => {
+                              onMudar(definirEspera(bloco, aguardar));
+                              setAlterarEspera(false);
+                            }}
+                          >
+                            {aguardar
+                              ? ROTULOS_DO_CONTEUDO.aguardar
+                              : ROTULOS_DO_CONTEUDO.naoAguardar}
+                          </button>
+                        ))}
+                      </div>
+                    ) : null}
+                  </div>
+                ) : null}
+              </div>
+            ))
+          : null}
       </div>
 
       {!raiz && !atendimento ? (
@@ -105,6 +188,42 @@ export function PainelDeConteudo({
             </div>
           ) : null}
         </div>
+      ) : null}
+      <a
+        className="bl-conteudo-ajuda"
+        href="https://help.blip.ai/hc/pt-br/articles/4474418203287-Criando-mensagens-interativas-no-WhatsApp"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Entenda como funcionam os tipos de conteúdo
+      </a>
+      {selecionado !== null && cartoes.some((c) => c.indice === selecionado) ? (
+        <section className="bl-detalhe" aria-label="Detalhes do conteúdo">
+          <header className="bl-detalhe-cabecalho">
+            <button
+              type="button"
+              className="iconbtn"
+              aria-label="Voltar para conteúdo"
+              onClick={() => setSelecionado(null)}
+            >
+              <IconePortal nome="voltar" tamanho={24} />
+            </button>
+            <h4>
+              {(() => {
+                const c = cartoes.find((c) => c.indice === selecionado)!;
+                return c.tipo === 'outro' ? c.mime : ROTULOS_DO_CONTEUDO[c.tipo];
+              })()}
+            </h4>
+          </header>
+          <CartaoDeConteudo
+            cartao={cartoes.find((c) => c.indice === selecionado)!}
+            bloco={bloco}
+            fixo={raiz || atendimento}
+            primeiro={selecionado === 0}
+            ultimo={selecionado === cartoes.length - 1}
+            onMudar={onMudar}
+          />
+        </section>
       ) : null}
     </div>
   );
@@ -188,7 +307,8 @@ function CartaoDeConteudo({
     case 'quickReply': {
       const menu = cartao.tipo === 'menu';
       const limite = menu ? LIMITE_DO_MENU : LIMITE_DO_QUICK_REPLY;
-      const trocarOpcoes = (opcoes: OpcaoDoMenu[]): void => onMudar(definirMenu(bloco, i, cartao.texto, opcoes));
+      const trocarOpcoes = (opcoes: OpcaoDoMenu[]): void =>
+        onMudar(definirMenu(bloco, i, cartao.texto, opcoes));
       return (
         <article className="bl-cartao bl-cartao--robo">
           <header>
@@ -210,7 +330,11 @@ function CartaoDeConteudo({
                   value={o.text}
                   maxLength={limite.caracteres}
                   placeholder={`Opção ${j + 1}`}
-                  onChange={(e) => trocarOpcoes(cartao.opcoes.map((x, k) => (k === j ? { ...x, text: e.target.value } : x)))}
+                  onChange={(e) =>
+                    trocarOpcoes(
+                      cartao.opcoes.map((x, k) => (k === j ? { ...x, text: e.target.value } : x)),
+                    )
+                  }
                 />
                 <button
                   type="button"
@@ -232,12 +356,16 @@ function CartaoDeConteudo({
           >
             + Adicionar opção
           </button>
-          <p className="bl-ajuda">{menu ? ROTULOS_DO_CONTEUDO.limiteDoMenu : ROTULOS_DO_CONTEUDO.limiteDoQuickReply}</p>
+          <p className="bl-ajuda">
+            {menu ? ROTULOS_DO_CONTEUDO.limiteDoMenu : ROTULOS_DO_CONTEUDO.limiteDoQuickReply}
+          </p>
         </article>
       );
     }
     case 'entrada':
-      return <CartaoDeEntrada entrada={cartao.entrada} bloco={bloco} fixo={fixo} onMudar={onMudar} />;
+      return (
+        <CartaoDeEntrada entrada={cartao.entrada} bloco={bloco} fixo={fixo} onMudar={onMudar} />
+      );
     case 'digitando':
       return (
         <article className="bl-cartao bl-cartao--robo bl-cartao--apagado">
@@ -257,7 +385,9 @@ function CartaoDeConteudo({
             {ordem}
             {excluir}
           </header>
-          {!cartao.suportado ? <Etiqueta tom="alerta">{ROTULOS_DO_CONTEUDO.naoSuportado}</Etiqueta> : null}
+          {!cartao.suportado ? (
+            <Etiqueta tom="alerta">{ROTULOS_DO_CONTEUDO.naoSuportado}</Etiqueta>
+          ) : null}
         </article>
       );
   }
@@ -274,7 +404,6 @@ function CartaoDeEntrada({
   fixo: boolean;
   onMudar: (bloco: Bloco) => void;
 }) {
-  const [aberto, setAberto] = useState(false);
   const validando = !!entrada.validation;
   const aguardando = !entrada.bypass;
   const trocar = (nova: EntradaDoEditor): void => onMudar(definirEntrada(bloco, nova));
@@ -283,21 +412,28 @@ function CartaoDeEntrada({
     <article className="bl-cartao bl-cartao--cliente">
       <header>
         <b>{ROTULOS_DO_CONTEUDO.entrada}</b>
-        <span className="sub">{aguardando ? ROTULOS_DO_CONTEUDO.aguardando : ROTULOS_DO_CONTEUDO.direto}</span>
-        <button type="button" className="bl-alterar" onClick={() => setAberto((v) => !v)}>
-          {aberto ? 'Fechar' : '(Alterar)'}
-        </button>
+        <span className="sub">
+          {aguardando ? ROTULOS_DO_CONTEUDO.aguardando : ROTULOS_DO_CONTEUDO.direto}
+        </span>
       </header>
-      {aberto ? (
+      {
         <div className="bl-entrada">
           {!fixo ? (
             <div className="bl-escolha" role="radiogroup" aria-label="Espera">
               <label>
-                <input type="radio" checked={aguardando} onChange={() => onMudar(definirEspera(bloco, true))} />{' '}
+                <input
+                  type="radio"
+                  checked={aguardando}
+                  onChange={() => onMudar(definirEspera(bloco, true))}
+                />{' '}
                 {ROTULOS_DO_CONTEUDO.aguardar}
               </label>
               <label>
-                <input type="radio" checked={!aguardando} onChange={() => onMudar(definirEspera(bloco, false))} />{' '}
+                <input
+                  type="radio"
+                  checked={!aguardando}
+                  onChange={() => onMudar(definirEspera(bloco, false))}
+                />{' '}
                 {ROTULOS_DO_CONTEUDO.naoAguardar}
               </label>
             </div>
@@ -323,7 +459,12 @@ function CartaoDeEntrada({
                   type="checkbox"
                   checked={validando}
                   onChange={(e) =>
-                    trocar({ ...entrada, validation: e.target.checked ? validacaoComRegra(entrada.validation, 'text') : null })
+                    trocar({
+                      ...entrada,
+                      validation: e.target.checked
+                        ? validacaoComRegra(entrada.validation, 'text')
+                        : null,
+                    })
                   }
                 />
                 <span className="bl-secao-subtitulo">{ROTULOS_DO_CONTEUDO.validar}</span>
@@ -334,7 +475,12 @@ function CartaoDeEntrada({
                     <span className="sub">{ROTULOS_DO_CONTEUDO.tipoDeValidacao}</span>
                     <Selecao
                       value={entrada.validation.rule}
-                      onChange={(e) => trocar({ ...entrada, validation: validacaoComRegra(entrada.validation, e.target.value) })}
+                      onChange={(e) =>
+                        trocar({
+                          ...entrada,
+                          validation: validacaoComRegra(entrada.validation, e.target.value),
+                        })
+                      }
                     >
                       {REGRAS_DE_VALIDACAO.map((r) => (
                         <option key={r.valor} value={r.valor}>
@@ -348,7 +494,12 @@ function CartaoDeEntrada({
                       <span className="sub">{ROTULOS_DO_CONTEUDO.regex}</span>
                       <Campo
                         value={entrada.validation.regex ?? ''}
-                        onChange={(e) => trocar({ ...entrada, validation: { ...entrada.validation!, regex: e.target.value } })}
+                        onChange={(e) =>
+                          trocar({
+                            ...entrada,
+                            validation: { ...entrada.validation!, regex: e.target.value },
+                          })
+                        }
                       />
                     </label>
                   ) : null}
@@ -358,7 +509,12 @@ function CartaoDeEntrada({
                       <Campo
                         value={entrada.validation.type ?? ''}
                         placeholder="image/jpeg"
-                        onChange={(e) => trocar({ ...entrada, validation: { ...entrada.validation!, type: e.target.value } })}
+                        onChange={(e) =>
+                          trocar({
+                            ...entrada,
+                            validation: { ...entrada.validation!, type: e.target.value },
+                          })
+                        }
                       />
                     </label>
                   ) : null}
@@ -366,7 +522,12 @@ function CartaoDeEntrada({
                     <span className="sub">{ROTULOS_DO_CONTEUDO.instrucao}</span>
                     <Campo
                       value={entrada.validation.error ?? ''}
-                      onChange={(e) => trocar({ ...entrada, validation: { ...entrada.validation!, error: e.target.value } })}
+                      onChange={(e) =>
+                        trocar({
+                          ...entrada,
+                          validation: { ...entrada.validation!, error: e.target.value },
+                        })
+                      }
                     />
                   </label>
                 </>
@@ -374,7 +535,7 @@ function CartaoDeEntrada({
             </section>
           ) : null}
         </div>
-      ) : null}
+      }
     </article>
   );
 }

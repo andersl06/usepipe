@@ -14,7 +14,7 @@
  * Regra pura, sem banco e sem HTTP, é a definição deste pacote. É aqui que ela
  * fica, e `@pipe/db` importa daqui para montar a restrição.
  *
- * Ver `docs/pesquisa/blip-gestao-medidas.md` §8.5.
+ * Ver `referencias-blip/pesquisa/blip-gestao-medidas.md` §8.5.
  */
 
 /**

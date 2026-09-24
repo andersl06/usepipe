@@ -4,6 +4,11 @@ import { errosDoConteudo } from './conteudo';
 import { errosDaSaida } from './condicoes';
 import { errosDaAcao } from './acoes-do-bloco';
 
+const ERROS_DE_RASCUNHO_DA_SAIDA = new Set([
+  'Definição de saída não preenchida',
+  'A condição precisa de valores quando a comparação não é exists nem notExists.',
+]);
+
 /**
  * O que a TELA sabe apontar antes de mandar ao servidor — o `$invalid` do
  * editor da Blip, bloco a bloco: campo obrigatório vazio, saída sem destino,
@@ -27,13 +32,22 @@ export function errosDoBloco(bloco: Bloco, mapa: Mapa): string[] {
   if ((bloco.$title ?? '').length > LIMITE_DO_TITULO) anotar(`Nome do bloco: no máximo ${LIMITE_DO_TITULO} caracteres.`);
   for (const e of errosDoConteudo(bloco)) anotar(e);
   const existe = (id: string): boolean => id in mapa;
-  for (const saida of bloco.$conditionOutputs ?? []) for (const e of errosDaSaida(saida, existe)) anotar(e);
+  for (const saida of bloco.$conditionOutputs ?? []) {
+    for (const e of errosDaSaida(saida, existe)) {
+      // O Builder mantém o rascunho incompleto no cartão, sem o promover ao alerta do fluxo.
+      if (!ERROS_DE_RASCUNHO_DA_SAIDA.has(e)) anotar(e);
+    }
+  }
   const padrao = bloco.$defaultOutput?.stateId;
   if (padrao && !existe(padrao) && !/^{{.*}}$/.test(padrao)) {
     anotar(`O estado de destino '${padrao}' da saída não existe.`);
   }
   for (const acao of [...(bloco.$enteringCustomActions ?? []), ...(bloco.$leavingCustomActions ?? [])]) {
-    for (const e of errosDaAcao(acao)) anotar(e);
+    for (const e of errosDaAcao(acao)) {
+      // A extração do Builder marca a URL no cartão ProcessHttp, sem promovê-la ao alerta do fluxo.
+      if (acao.type === 'ProcessHttp' && e === 'URL: campo obrigatório.') continue;
+      anotar(e);
+    }
   }
   return erros;
 }

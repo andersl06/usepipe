@@ -1,7 +1,7 @@
 import { IconeGestao } from './icones-gestao';
 
 /**
- * Métrica de cartão — a coluna deles, lida em `docs/capturas/blip/dom/
+ * Métrica de cartão — a coluna deles, lida em `referencias-blip/portal/dom/
  * monitoring.html`: número em cima (`bds-typo variant="fs-24"`), e embaixo a
  * linha do rótulo (`bds-typo variant="fs-12" class="text-center"`) com o
  * ícone de informação de 16px ao lado (`bds-icon name="info" size="x-small"`

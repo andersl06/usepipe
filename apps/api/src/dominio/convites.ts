@@ -72,7 +72,7 @@ export function urlDoConvite(token: string): string {
   return `${base}/convite/${token}`;
 }
 
-/** O rótulo da tela para cada papel de conta (`docs/pesquisa/blip-painel-do-contrato.md`). */
+/** O rótulo da tela para cada papel de conta (`referencias-blip/pesquisa/blip-painel-do-contrato.md`). */
 const ROTULO_DO_PAPEL: Readonly<Record<string, string>> = {
   admin: 'Admin',
   member: 'Pode editar',

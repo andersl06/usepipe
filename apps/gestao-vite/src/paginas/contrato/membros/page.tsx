@@ -19,7 +19,7 @@ import { AbasDeMembros, TabelaDeMembros } from './tabela';
  * VERDADE: o `?demo=1` do painel é só desenho e não abre porta nenhuma. Quem
  * chegar sem a permissão volta para o painel.
  *
- * O contrato de dados da origem está em `docs/pesquisa/blip-membros-do-contrato.md`.
+ * O contrato de dados da origem está em `referencias-blip/pesquisa/blip-membros-do-contrato.md`.
  * A casca é a de lá: a seta de voltar e "Membros do contrato {nome}" no alto
  * (`setHeaderContent({ redirect: "/", text: … })`), e abaixo um cartão só, com a
  * tabela de seleção dentro. O que o painel chama de descrição do cartão

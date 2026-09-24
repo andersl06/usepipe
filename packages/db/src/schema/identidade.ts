@@ -23,7 +23,7 @@ import { carimbos, id, listaCheck, momento } from './comum.js';
  *
  * `compartilhada` é o banco de todo mundo, com RLS — é o padrão e serve à
  * esmagadora maioria. `dedicada` é o cliente que saiu para instância própria,
- * por contrato ou por peso. Ver `docs/pesquisa/arquitetura-multi-tenant.md`.
+ * por contrato ou por peso. Ver `referencias-blip/pesquisa/arquitetura-multi-tenant.md`.
  *
  * O campo nasce agora, com todo mundo em `compartilhada`, porque criar coluna
  * em tabela pequena é barato hoje e caro na véspera da primeira migração — que
@@ -261,7 +261,7 @@ export const usuarioPapel = pgTable(
  *
  * É o que a página "Permissões" da origem edita — uma tabela de "Tipo de
  * permissão" × "Status", por atendente
- * (`docs/capturas/blip/dom/FICHA-atendentes-filas-pausas.md` §a.4). Papel é
+ * (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §a.4). Papel é
  * conjunto: sem esta tabela, desligar UMA capacidade de UMA pessoa exigia
  * inventar um papel de uma pessoa só.
  *
@@ -423,7 +423,7 @@ export const dominioTenant = pgTable(
  * funciona (`rascunho` → `testada` → `ativa`); `politica` diz se a senha ainda
  * vale (`desligado` → `opcional` → `obrigatorio`). Todo incidente de "o cliente
  * inteiro ficou de fora" nasce de serem o mesmo botão — ver
- * `docs/pesquisa/sso-multi-tenant.md` §3 e §6.
+ * `referencias-blip/pesquisa/sso-multi-tenant.md` §3 e §6.
  *
  * **Segredo não mora aqui em claro.** O `clientSecret` vive dentro de `config`,
  * cifrado por `cifrarConfig` (`packages/db/src/segredo.ts`), que já trata

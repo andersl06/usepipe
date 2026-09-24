@@ -14,7 +14,7 @@
 - Não alterar endpoints nem substituir APIs funcionais por mocks.
 - Não inventar comportamentos ausentes nas referências; registrar pendências.
 - Preservar estado compartilhável na URL e navegação existente.
-- Usar como evidência `docs/pesquisa/blip-medidas-monitoramento.md`, `docs/pesquisa/blip-telas-atendimento.md`, os DOMs/capturas locais e o bundle do ZIP.
+- Usar como evidência `referencias-blip/pesquisa/blip-medidas-monitoramento.md`, `referencias-blip/pesquisa/blip-telas-atendimento.md`, os DOMs/capturas locais e o bundle do ZIP.
 
 ---
 
@@ -85,7 +85,7 @@ Expected: PASS.
 
 **Files:**
 - Modify if needed: files from Tasks 1–2 only.
-- Create: `docs/pesquisa/pendencias-referencia-atendimento.md`
+- Create: `referencias-blip/pesquisa/pendencias-referencia-atendimento.md`
 
 **Interfaces:**
 - Consumes: build funcional e capturas `docs/capturas/comparacao/*-original.png`.

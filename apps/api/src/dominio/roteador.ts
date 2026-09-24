@@ -5,7 +5,7 @@ import type { FluxoPublicado } from './fluxo.js';
 /**
  * O roteador (o `master` da Blip) na entrada: em qual SERVIÇO o contato está.
  *
- * As regras são as da Blip (`docs/pesquisa/blip-api-schemas.md` §5.3–5.5):
+ * As regras são as da Blip (`referencias-blip/pesquisa/blip-api-schemas.md` §5.3–5.5):
  *
  * - O roteador não tem conteúdo; quem responde é o serviço. Na primeira interação, o
  *   PRINCIPAL ("Main SubBot").

@@ -345,8 +345,9 @@ function TabelaAtribuidas({
 }) {
   const pg = usePagina(linhas);
   return (
-    <div className="scroll">
-      <table className="mon-tabela mon-tabela-atribuidas">
+    <>
+      <div className="scroll">
+        <table className="mon-tabela mon-tabela-atribuidas">
         <thead>
           <tr>
             <th>Tempo na fila</th>
@@ -389,13 +390,14 @@ function TabelaAtribuidas({
             </tr>
           ))}
         </tbody>
-      </table>
+        </table>
+      </div>
 
-      <Paginacao estado={pg} />
+      <Paginacao estado={pg} grade="open-tickets-grid" />
       <p className="tbl-legenda">
         O destaque amarelo sinaliza que um ticket foi atribuído a um atendente, mas o contato ainda não recebeu a primeira resposta.
       </p>
-    </div>
+    </>
   );
 }
 
@@ -415,8 +417,9 @@ function TabelaAguardando({
 }) {
   const pg = usePagina(linhas);
   return (
-    <div className="scroll">
-      <table className="mon-tabela mon-tabela-aguardando">
+    <>
+      <div className="scroll">
+        <table className="mon-tabela mon-tabela-aguardando">
         <thead>
           <tr>
             <th>Tempo na fila</th>
@@ -446,9 +449,10 @@ function TabelaAguardando({
             </tr>
           ))}
         </tbody>
-      </table>
-      <Paginacao estado={pg} />
-    </div>
+        </table>
+      </div>
+      <Paginacao estado={pg} grade="waiting-tickets-grid" />
+    </>
   );
 }
 
@@ -468,8 +472,9 @@ function TabelaAtendentes({
 }) {
   const pg = usePagina(atendentes);
   return (
-    <div className="scroll">
-      <table className="mon-tabela mon-tabela-atendentes">
+    <>
+      <div className="scroll">
+        <table className="mon-tabela mon-tabela-atendentes">
         <thead>
           <tr>
             <th>Atendente</th>
@@ -490,9 +495,10 @@ function TabelaAtendentes({
             </tr>
           ))}
         </tbody>
-      </table>
-      <Paginacao estado={pg} />
-    </div>
+        </table>
+      </div>
+      <Paginacao estado={pg} grade="attendants-grid" />
+    </>
   );
 }
 
@@ -505,8 +511,9 @@ function TabelaAtendentes({
 function TabelaFilas({ filas }: { filas: Monitoramento['filas'] }) {
   const pg = usePagina(filas);
   return (
-    <div className="scroll">
-      <table className="mon-tabela mon-tabela-filas">
+    <>
+      <div className="scroll">
+        <table className="mon-tabela mon-tabela-filas">
         <thead>
           <tr>
             <th>Fila</th>
@@ -532,9 +539,10 @@ function TabelaFilas({ filas }: { filas: Monitoramento['filas'] }) {
             </tr>
           ))}
         </tbody>
-      </table>
-      <Paginacao estado={pg} />
-    </div>
+        </table>
+      </div>
+      <Paginacao estado={pg} grade="teams-grid" />
+    </>
   );
 }
 
@@ -547,8 +555,9 @@ function TabelaFilas({ filas }: { filas: Monitoramento['filas'] }) {
 function TabelaTags({ etiquetas }: { etiquetas: Monitoramento['etiquetas'] }) {
   const pg = usePagina(etiquetas);
   return (
-    <div className="scroll">
-      <table className="mon-tabela mon-tabela-tags">
+    <>
+      <div className="scroll">
+        <table className="mon-tabela mon-tabela-tags">
         <thead>
           <tr>
             <th>Tag</th>
@@ -565,9 +574,10 @@ function TabelaTags({ etiquetas }: { etiquetas: Monitoramento['etiquetas'] }) {
             </tr>
           ))}
         </tbody>
-      </table>
-      <Paginacao estado={pg} />
-    </div>
+        </table>
+      </div>
+      <Paginacao estado={pg} grade="tags-grid" />
+    </>
   );
 }
 

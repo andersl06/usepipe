@@ -1,7 +1,7 @@
 -- O roteador de verdade: os serviços dele, onde cada contato está e o contexto do roteador.
 --
--- Fontes: `docs/pesquisa/blip-servicos-do-roteador.md` (o formulário de Serviços) e
--- `docs/pesquisa/blip-api-schemas.md` §5.3–5.5 (Master-State, Redirect,
+-- Fontes: `referencias-blip/pesquisa/blip-servicos-do-roteador.md` (o formulário de Serviços) e
+-- `referencias-blip/pesquisa/blip-api-schemas.md` §5.3–5.5 (Master-State, Redirect,
 -- "Utilizar o contexto do Roteador"). Quem usa: `apps/api/src/dominio/roteador.ts`
 -- (a entrada) e `apps/api/src/dominio/gestao/servicos-do-roteador.ts` (a tela).
 --
@@ -29,7 +29,7 @@
 --
 -- Na Blip o roteador fala com o serviço pela extensão tunnel, e o serviço vê o cliente como
 -- `<uuid>@tunnel.msging.net`: o `customerIdentity` do ticket é o UUID do túnel, e cruzar
--- por telefone dá zero (`docs/pesquisa/apis.md` §1.7). No Pipe o contato é ÚNICO por
+-- por telefone dá zero (`referencias-blip/pesquisa/apis.md` §1.7). No Pipe o contato é ÚNICO por
 -- tenant (`contato` + `contato_identidade`), o roteador e os serviços leem o mesmo
 -- `contato_id`, e o "túnel" é só a chave (roteador_id, contato_id) desta tabela. A conversa
 -- (o ticket) guarda o contato real. Não se cria UUID de túnel — e a armadilha não existe.
