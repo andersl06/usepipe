@@ -3,18 +3,18 @@ gestao-vite-comment-be5b21f9,gestao-vite,apps/gestao-vite/src/App.tsx,108,112,bl
         `application/detail/{bot}/channels/{canal}` da origem
         (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1). As
         abas do WhatsApp moravam em `atendimento/canais/whatsapp/:canalId`, no
-        módulo errado; o canal agora é o do bot, sem id na URL. */",,,,,,
+        módulo errado; o canal agora é o do bot, sem id na URL. */",translate,"Each channel has its own page within the bot, matching reference `application/detail/{bot}/channels/{canal}` (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1). WhatsApp tabs formerly lived in `atendimento/canais/whatsapp/:canalId`, the wrong module; the channel now belongs to the bot without an ID in the URL.",meta-blip,apps/gestao-vite/src/App.tsx:108-112,,proposed
 gestao-vite-comment-c8cc6865,gestao-vite,apps/gestao-vite/src/App.tsx,123,128,block,4,"/* O módulo Atendimento — a `attendance/desk/*` da origem, dentro do
         MESMO contato: barra do portal + barra do contato (item ""Atendimento""
         aceso) + a `desk-sidebar` própria, montada em `operacao/casca.tsx`.
         Estas telas viviam soltas em `/monitoramento`, `/historico` etc. e
         desenhavam um segundo portal — ver o mapa completo no relatório da
-        tarefa que fez a mudança. */",,,,,,
+        tarefa que fez a mudança. */",translate,"The Attendance module mirrors source `attendance/desk/*` inside the same contact: Portal bar, contact bar with Attendance selected, and its own `desk-sidebar` in `operacao/casca.tsx`. These screens formerly lived at separate paths such as `/monitoramento` and `/historico` with a second Portal shell; the original change report maps the move.",architecture,apps/gestao-vite/src/App.tsx:123-128,,proposed
 gestao-vite-comment-1f6e9c43,gestao-vite,apps/gestao-vite/src/App.tsx,139,140,block,6,"/* `/team/create` e `/team/edit` da origem — sem `:id`, a seleção viaja
-          em `?atendentes=` porque a edição é em lote (§a.1/§a.4 da ficha). */",,,,,,
-gestao-vite-comment-60de6c93,gestao-vite,apps/gestao-vite/src/App.tsx,146,146,block,1,"/* `/queue-management/edit/:id` da origem — página própria, não modal. */",,,,,,
+          em `?atendentes=` porque a edição é em lote (§a.1/§a.4 da ficha). */",translate,Mirror source `/team/create` and `/team/edit` without `:id`; batch-edit selection travels in `?atendentes=` (reference sheet §a.1/§a.4).,meta-blip,apps/gestao-vite/src/App.tsx:139-140,,proposed
+gestao-vite-comment-60de6c93,gestao-vite,apps/gestao-vite/src/App.tsx,146,146,block,1,"/* `/queue-management/edit/:id` da origem — página própria, não modal. */",translate,"Mirror source `/queue-management/edit/:id` as a separate page, not a modal.",meta-blip,apps/gestao-vite/src/App.tsx:146-146,,proposed
 gestao-vite-comment-21391a71,gestao-vite,apps/gestao-vite/src/App.tsx,158,159,block,2,"/* O link antigo das abas do WhatsApp (`atendimento/canais/whatsapp/:canalId`)
-          cai na página do canal do bot — o canal agora é o do bot, não o da URL. */",,,,,,
+          cai na página do canal do bot — o canal agora é o do bot, não o da URL. */",translate,The old WhatsApp tab link `atendimento/canais/whatsapp/:canalId` redirects to the bot's channel page; channel identity now comes from the bot rather than the URL.,architecture,apps/gestao-vite/src/App.tsx:158-159,,proposed
 gestao-vite-comment-302eb210,gestao-vite,apps/gestao-vite/src/App.tsx,160,221,block,12,"/*"" element={<ParaOCanalDoBot />} />
     </Route>
 
@@ -76,7 +76,7 @@ gestao-vite-comment-302eb210,gestao-vite,apps/gestao-vite/src/App.tsx,160,221,bl
  * mudaram para dentro dele — Builder para `/fluxo/:id/builder`, Growth para
  * `/fluxo/:id/growth/*` e `/roteador/:id/growth/*` (que já existiam; `/growth`
  * solto, em `paginas/growth-portal.tsx`, era duplicata e foi removido).
- */",,,,,,
+ */",update,"Former root-level routes without a contact now redirect to the Portal. Most are Attendance routes from before it moved under a contact. Builder `/builder` and Growth `/growth` once used `estrutura-gestao.tsx` outside any contact; Builder moved to `/fluxo/:id/builder`, and Growth moved to `/fluxo/:id/growth/*` and `/roteador/:id/growth/*`. The standalone `/growth` in `paginas/growth-portal.tsx` was a duplicate and was removed.",meta-blip,apps/gestao-vite/src/App.tsx:211-221; inventory row begins inside JSX route string at line 160,,proposed
 gestao-vite-comment-8613f782,gestao-vite,apps/gestao-vite/src/App.tsx,246,253,jsdoc,5,"/**
  * As rotas da Gestão — as mesmas URLs do aplicativo em Next, para link salvo
  * e histórico continuarem valendo. A árvore segue a da origem: o contato
@@ -84,24 +84,24 @@ gestao-vite-comment-8613f782,gestao-vite,apps/gestao-vite/src/App.tsx,246,253,js
  * e cada módulo pendura nele.
  *
  * Só `/entrar` é pública. O resto fica atrás de `ExigirSessao`.
- */",,,,,,
+ */",translate,"Gestão routes retain the same URLs as the former Next app so bookmarks and history keep working. The tree uses contact `/fluxo/:id` for chatbot or `/roteador/:id` for router as parent state, with modules below. Only `/entrar` is public; `ExigirSessao` guards the rest.",architecture,apps/gestao-vite/src/App.tsx:246-253,,proposed
 gestao-vite-comment-9674bff4,gestao-vite,apps/gestao-vite/src/App.tsx,276,282,block,6,"/* Implantação — onboarding de CONTA, sem contato nenhum para
             pendurar. Cromo próprio (`pt-app` + `BarraDoPortal`, como
             ""Novidades"" e o Painel do contrato), montado dentro da própria
             `page.tsx`. Builder e Growth, os outros dois módulos que
             `EstruturaGestao` desenhava fora do contato, se mudaram para
             dentro dele (abaixo); sem os dois, aquele casco de duas barras
-            ficou sem rota nenhuma e saiu. */",,,,,,
+            ficou sem rota nenhuma e saiu. */",translate,"Implantação is account onboarding, with no contact to nest beneath. It renders its own `pt-app` and `BarraDoPortal` chrome in `page.tsx`, like Novidades and the contract panel. Builder and Growth moved inside the contact; after that, `EstruturaGestao` had no route requiring its two-bar shell and was removed.",architecture,apps/gestao-vite/src/App.tsx:276-282,,proposed
 gestao-vite-comment-f203c941,gestao-vite,apps/gestao-vite/src/App.tsx,285,290,block,4,"/* As rotas de antes de morarem no contato (Atendimento em
             `/{tipo}/:id/atendimento/*`, Builder em `/fluxo/:id/builder`,
             Growth em `/{tipo}/:id/growth/*`, todas abaixo). Nenhuma carrega um
             id de contato — não há como adivinhar de qual fluxo ou roteador era
             o link salvo — então a única saída honesta é o portal, de onde a
-            pessoa escolhe o contato e chega lá de novo. */",,,,,,
+            pessoa escolhe o contato e chega lá de novo. */",translate,"Former standalone Attendance `/{tipo}/:id/atendimento/*`, Builder `/fluxo/:id/builder`, and Growth `/{tipo}/:id/growth/*` links lack a contact ID, so the app cannot infer which flow or router a bookmark meant. Redirect them to the Portal for the person to select a contact again.",architecture,apps/gestao-vite/src/App.tsx:285-290,,proposed
 gestao-vite-comment-81d4508e,gestao-vite,apps/gestao-vite/src/App.tsx,297,299,block,4,"/* Builder é escondido do menu do roteador (`ESCONDIDOS_NO_ROTEADOR`
               em `fluxo/itens.ts`, a mesma regra da origem) — por isso a rota
-              só existe aqui, e não na árvore de `/roteador/:id` logo abaixo. */",,,,,,
-gestao-vite-comment-bfb2fe71,gestao-vite,apps/gestao-vite/src/App.tsx,86,86,jsdoc,2,/** O redirecionamento do link antigo do canal WhatsApp para a página do canal DO BOT. */,,,,,,
+              só existe aqui, e não na árvore de `/roteador/:id` logo abaixo. */",translate,"Builder is hidden from the router menu by `ESCONDIDOS_NO_ROTEADOR` in `fluxo/itens.ts`, matching the reference, so this route exists only here and not below `/roteador/:id`.",meta-blip,apps/gestao-vite/src/App.tsx:297-299,,proposed
+gestao-vite-comment-bfb2fe71,gestao-vite,apps/gestao-vite/src/App.tsx,86,86,jsdoc,2,/** O redirecionamento do link antigo do canal WhatsApp para a página do canal DO BOT. */,translate,Redirect an old WhatsApp channel link to the BOT's channel page.,architecture,apps/gestao-vite/src/App.tsx:86-86,,proposed
 gestao-vite-comment-1c2b2f78,gestao-vite,apps/gestao-vite/src/App.tsx,92,103,jsdoc,12,"/**
  * As rotas-filhas do contato — o que `/fluxo/:id` e `/roteador/:id` desenham
  * embaixo do estado-pai (`RotaDoContato`).
@@ -113,13 +113,13 @@ gestao-vite-comment-1c2b2f78,gestao-vite,apps/gestao-vite/src/App.tsx,92,103,jsd
  * desenhar o que um FLUXO (chatbot) realmente mostra aqui. `RotaDoContato`
  * redireciona quem entra pelo prefixo que não bate com o tipo do contato —
  * por isso é seguro as duas rotas comparilharem esta mesma árvore agora.
- */",,,,,,
+ */",translate,"Contact child routes render beneath parent `RotaDoContato` at `/fluxo/:id` or `/roteador/:id`. Router reference screens formerly lived incorrectly under `/fluxo/:id/*` (`auvpsegurosrouter`, `pipeprincipal`) and moved to `/roteador/:id/*`. Keep `/fluxo/:id/*` on the same screens until the chatbot-specific view is designed. `RotaDoContato` redirects a prefix that disagrees with contact type, making shared child routes safe for now.",architecture,apps/gestao-vite/src/App.tsx:92-103,,proposed
 gestao-vite-comment-ee0f95d1,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,114,119,block,5,"/* A `nav-items` deles tem UM item só — ""Home"" — em TODAS as 22 telas
           capturadas (`referencias-blip/portal/dom/*.html`): nenhuma tem ""Blip
           Store"" nem qualquer segundo item. Nem ""Atendimento"", nem ""Canais"",
           nem atalho para o Desk — esses são do contexto de UM contato, depois
           que se entra nele. Um item de loja aqui era invenção nossa contra o
-          DOM medido, não lacuna documentada. */",,,,,,
+          DOM medido, não lacuna documentada. */",translate,"Reference `nav-items` has only Home in all 22 captured screens (`referencias-blip/portal/dom/*.html`); there is no Blip Store or second item. Attendance, Channels, and Desk belong to an individual contact after entry. A store item here contradicted measured DOM rather than filling a documented gap.",meta-blip,apps/gestao-vite/src/componentes/barra-do-portal.tsx:114-119,,proposed
 gestao-vite-comment-701b312d,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,127,135,block,16,"/* A marca ocupa a coluna central do grid (`auto`, entre os dois `1fr`
           de `.pt-barra-inicio` e `.pt-barra-fim`) — sempre no centro exato da
           barra, e sempre numa faixa própria que o cluster da esquerda não
@@ -128,45 +128,45 @@ gestao-vite-comment-701b312d,gestao-vite,apps/gestao-vite/src/componentes/barra-
           O lockup entra como MÁSCARA e não como `<img>`: o arquivo é tinta
           escura com o traço moss, desenhado para fundo claro, e sobre a barra
           preta ele some. A máscara o pinta com a tinta da barra — que é o que
-          a marca deles faz aqui também, num tom só. */",,,,,,
+          a marca deles faz aqui também, num tom só. */",translate,"Keep the brand in its own central `auto` grid column between the `1fr` columns `.pt-barra-inicio` and `.pt-barra-fim`, so a long account name cannot overlap it. Use a mask rather than `<img>`: the dark asset with moss stroke was designed for a light background and disappears on this black bar. The mask paints it with the bar's single-color ink, as in the reference.",architecture,apps/gestao-vite/src/componentes/barra-do-portal.tsx:127-135,,proposed
 gestao-vite-comment-ff71fcc6,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,141,145,block,6,"/* O menu do ""?"" deles é uma lista de DESTINOS — Blip Help, Academy,
             Community, Support —, não um texto explicativo. Os nossos são os
             dois sites de fora (ajuda e comunidade) e o suporte; cada um só
             aparece quando o endereço existe. A explicação do que é fluxo e
-            roteador ficou onde ela serve: no cartão de ação da fileira. */",,,,,,
+            roteador ficou onde ela serve: no cartão de ação da fileira. */",translate,"The reference help `?` menu lists destinations, not explanatory prose: Blip Help, Academy, Community, Support. Our menu offers external help/community and support only when their URLs exist. Flow/router explanation belongs on the action card.",meta-blip,apps/gestao-vite/src/componentes/barra-do-portal.tsx:141-145,,proposed
 gestao-vite-comment-adf18bfe,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,150,153,block,8,"/* O menu do ""?"" deles tem quatro destinos (Help, Academy, Community,
               Support). Hoje temos DOIS: o suporte, que existe, e a comunidade,
               que está sendo feita — e esta entra apagada e piscando, para quem
-              procurar por ela saber que vem aí em vez de achar que sumiu. */",,,,,,
+              procurar por ela saber que vem aí em vez de achar que sumiu. */",translate,"The reference `?` menu has Help, Academy, Community, Support. We currently have support and an upcoming community; show the latter dimmed with a blinking badge so the destination remains discoverable without a dead link.",meta-blip,apps/gestao-vite/src/componentes/barra-do-portal.tsx:150-153,,proposed
 gestao-vite-comment-e467d1fa,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,163,167,block,12,"/* O sino. Na origem é o `notificationsCenter`, entre o ""?"" e a
             divisória, e abre um painel que quase sempre diz a mesma frase.
             Não temos central de notificação ainda, e o sino que não conta nada
             ainda é parte da barra — sem ele a ponta direita fica com dois
-            itens onde a deles tem três. */",,,,,,
-gestao-vite-comment-ac085814,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,17,17,jsdoc,2,"/** O e-mail do suporte, o único destino de fora que já existe hoje. */",,,,,,
+            itens onde a deles tem três. */",translate,"The reference bell is `notificationsCenter` between help and the divider, opening a mostly repeated message. We do not yet have a notification center, but retain the bell so the right bar matches the three-item reference layout.",meta-blip,apps/gestao-vite/src/componentes/barra-do-portal.tsx:163-167,,proposed
+gestao-vite-comment-ac085814,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,17,17,jsdoc,2,"/** O e-mail do suporte, o único destino de fora que já existe hoje. */",translate,Support email is the only external destination currently available.,integration,apps/gestao-vite/src/componentes/barra-do-portal.tsx:17-17,,proposed
 gestao-vite-comment-bae0901d,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,180,181,block,4,"/* Na origem o avatar vem acompanhado de uma seta `arrow-down` à
-              direita (`menu-user`), e é ela que diz que ali abre um menu. */",,,,,,
+              direita (`menu-user`), e é ela que diz que ali abre um menu. */",translate,"In the reference, `arrow-down` appears to the avatar's right in `menu-user`, indicating that it opens a menu.",meta-blip,apps/gestao-vite/src/componentes/barra-do-portal.tsx:180-181,,proposed
 gestao-vite-comment-7ec7c370,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,187,190,block,6,"/* `<img>` cru e não `next/image`: a foto vem do provedor de
                 identidade (Google, SSO), em domínio que muda por cliente, e
                 cadastrar cada um em `images.remotePatterns` para servir 32px
-                é trabalho que não paga. Mesma escolha da tela de entrada. */",,,,,,
+                é trabalho que não paga. Mesma escolha da tela de entrada. */",translate,"Use a plain `<img>`, not `next/image`: the identity-provider photo (Google or SSO) comes from a customer-dependent domain, and configuring every `images.remotePatterns` just for 32px images is unwarranted. Sign-in makes the same choice.",integration,apps/gestao-vite/src/componentes/barra-do-portal.tsx:187-190,,proposed
 gestao-vite-comment-c288d088,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,199,201,block,2,"/* O `bds-menu-exibition` deles: avatar à esquerda, o NOME em 16 e
                 o e-mail em 10 embaixo. Depois dele vem uma régua, e cada item
-                é separado por outra — o menu deles tem três réguas. */",,,,,,
+                é separado por outra — o menu deles tem três réguas. */",translate,"Reference `bds-menu-exibition` places avatar left, name at 16, email at 10 below, then a divider; each following item has another divider, three in total.",meta-blip,apps/gestao-vite/src/componentes/barra-do-portal.tsx:199-201,,proposed
 gestao-vite-comment-8bf8d82a,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,213,217,block,5,"/* Os três itens do menu deles, nesta ordem e cada um com o seu
                 ícone à esquerda: `user-default`, `settings-adjusments` e
                 `logout`. ""Minhas preferências"" lá é tela à parte; aqui é a
                 segunda aba de ""Minha conta"" (idioma e fuso), que é onde o mesmo
-                par de campos vive. */",,,,,,
+                par de campos vive. */",translate,"Reference menu order and icons are `user-default`, `settings-adjusments`, `logout`. Reference `Minhas preferências` is a separate screen; here it is the second `Minha conta` tab containing the same language/timezone fields.",meta-blip,apps/gestao-vite/src/componentes/barra-do-portal.tsx:213-217,,proposed
 gestao-vite-comment-7908eacf,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,23,24,block,3,"/* A lista do menu traz as OUTRAS contas, não todas: no DOM da origem, quem
-     está em `supernova` vê três itens e nenhum deles é `supernova`. */",,,,,,
+     está em `supernova` vê três itens e nenhum deles é `supernova`. */",translate,"Show only OTHER accounts: in the source DOM, a user on `supernova` sees three items and none is `supernova`.",meta-blip,apps/gestao-vite/src/componentes/barra-do-portal.tsx:23-24,,proposed
 gestao-vite-comment-1d71ff64,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,244,250,jsdoc,9,"/**
  * Um destino que ainda está sendo feito.
  *
  * Não sai da tela e não vira link morto: fica no lugar, apagado, com o selo
  * piscando — quem procura a comunidade descobre que ela vem aí, e o menu
  * mantém os itens da origem em vez de encolher para um.
- */",,,,,,
+ */",translate,"For an unfinished destination, stay on this screen rather than creating a dead link. Keep its dimmed place and blinking badge so the community remains discoverable and the menu keeps the reference item count.",architecture,apps/gestao-vite/src/componentes/barra-do-portal.tsx:244-250,,proposed
 gestao-vite-comment-210fd1c9,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,29,36,block,11,"/* O cluster da esquerda (conta + divisória + links) mora num wrapper
           próprio para virar UMA coluna do grid de três (herdado de
           `.g-barra`: `1fr auto 1fr`), a mesma conta que `estrutura-gestao.tsx`
@@ -174,18 +174,18 @@ gestao-vite-comment-210fd1c9,gestao-vite,apps/gestao-vite/src/componentes/barra-
           cima de tudo (`z-index`) — e um nome de conta comprido empurrava
           ""Início""/""Pipe Store"" para debaixo dela, que sempre desenhava por
           cima. Coluna própria com `overflow: hidden` deixa o cluster crescer
-          e truncar SEM nunca invadir a coluna central. */",,,,,,
+          e truncar SEM nunca invadir a coluna central. */",translate,"Wrap account, divider, and links as one left column in the three-column `.g-barra` grid (`1fr auto 1fr`), as `estrutura-gestao.tsx` does. Previously `position: absolute` and `z-index` let the centered brand cover `Início`/`Pipe Store` when account names grew. Give the left column `overflow: hidden` to truncate without entering the center column.",architecture,apps/gestao-vite/src/componentes/barra-do-portal.tsx:29-36,,proposed
 gestao-vite-comment-73118759,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,38,44,block,15,"/* O seletor de conta. Na tela deles ele é o primeiro gesto do dia: diz
             em qual contrato a pessoa está e abre a lista dos outros — lá trocar é
             ir para outro subdomínio; aqui é trocar a sessão, que a `api` emite de
             novo para a conta escolhida.
 
             Uma pessoa com uma conta só vê o próprio nome e nada mais: a lista de
-            um item é ruído, e o item seria ela mesma. */",,,,,,
+            um item é ruído, e o item seria ela mesma. */",translate,"The account selector names the current contract and lists other accounts, the first daily action in the reference. There, switching navigates to another subdomain; here it switches sessions when the `api` reissues the cookie for the selected account. With one account, show only its name: a one-item menu would repeat the current account.",integration,apps/gestao-vite/src/componentes/barra-do-portal.tsx:38-44,,proposed
 gestao-vite-comment-45191599,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,46,49,block,1,"/* O `menu-contract` deles, peça por peça: o `business` dentro de um
             círculo claro (`icon-contract-white`), o nome em 16 negrito e o tipo
             de conta em 12 embaixo (`pl3`), e a seta `arrow-down` num bloco
-            PRÓPRIO, fora do `group-buttom-contract`. */",,,,,,
+            PRÓPRIO, fora do `group-buttom-contract`. */",translate,"Reference `menu-contract`: `business` in a light `icon-contract-white` circle, bold 16px name, 12px account type below (`pl3`), and `arrow-down` in a separate block outside `group-buttom-contract`.",meta-blip,apps/gestao-vite/src/componentes/barra-do-portal.tsx:46-49,,proposed
 gestao-vite-comment-43d64366,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,6,15,jsdoc,11,"/**
  * A barra escura do portal — a `main-navbar` deles.
  *
@@ -195,42 +195,42 @@ gestao-vite-comment-43d64366,gestao-vite,apps/gestao-vite/src/componentes/barra-
  *
  * Cada peça está comentada no ponto em que é aplicada, com o nome que ela tem
  * no DOM da origem. A régua é `referencias-blip/pesquisa/blip-portal-contrato.md`.
- */",,,,,,
+ */",translate,"Portal dark bar mirrors reference `main-navbar`. Keep it here, outside `app/portal/page.tsx`, because it persists across all Portal child screens, including news, store, and router creation; only the body changes. Each element is documented at its use site with its source DOM name; see `referencias-blip/pesquisa/blip-portal-contrato.md`.",architecture,apps/gestao-vite/src/componentes/barra-do-portal.tsx:6-15,,proposed
 gestao-vite-comment-7bd1393a,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,63,69,block,10,"/* O PRIMEIRO item do menu deles é o ""Painel do contrato"" — com esse
               nome, e levando ao painel do CONTRATO, que é outra tela que não
               ""Minha conta"" (o cadastro da pessoa). Apontava para o lugar errado.
               Com o nome
               da conta em vigor em 10px embaixo (`organization-panel-options`).
               A conta em vigor NÃO aparece na lista abaixo: ela já é o título
-              do botão que abriu este menu. */",,,,,,
+              do botão que abriu este menu. */",translate,"Reference menu's first destination is `Painel do contrato`, the contract panel, distinct from personal `Minha conta`; the previous link pointed to the wrong screen. Put the active account name beneath at 10px (`organization-panel-options`). Exclude the active account from the list below because it already titles the opener.",meta-blip,apps/gestao-vite/src/componentes/barra-do-portal.tsx:63-69,,proposed
 gestao-vite-comment-acd28754,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,80,83,block,3,"/* Cada item é o `tenant-profile` deles: ícone de PRÉDIO quando é
                   contrato e de BALÃO quando é a conta pessoal, o nome em 16 e,
                   embaixo, em 12, o tipo de conta (contrato) ou o endereço
-                  (pessoal — é onde eles põem `beagleaz.blip.ai`). */",,,,,,
+                  (pessoal — é onde eles põem `beagleaz.blip.ai`). */",translate,"Each reference `tenant-profile` item has a building icon for a contract or speech balloon for a personal account, a 16px name, then a 12px account type or personal address (source example `beagleaz.blip.ai`).",meta-blip,apps/gestao-vite/src/componentes/barra-do-portal.tsx:80-83,,proposed
 gestao-vite-comment-36f8b0fa,gestao-vite,apps/gestao-vite/src/componentes/barra-do-portal.tsx,91,94,block,6,"/* `balao` é o `message-ballon` deles, tal e qual. No lugar
                       do `business` vai o `painel`, que é o que mais lembra uma
                       fachada no nosso jogo de ícones — ícone novo no pacote
-                      compartilhado por causa de uma tela não se paga. */",,,,,,
+                      compartilhado por causa de uma tela não se paga. */",translate,"Local `balao` corresponds to source `message-ballon`; for `business` use local `painel`, the closest facade icon. Adding a shared-package icon for this single screen is unwarranted.",meta-blip,apps/gestao-vite/src/componentes/barra-do-portal.tsx:91-94,,proposed
 gestao-vite-comment-0d98da82,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,106,110,jsdoc,7,"/**
  * `classifySignupEvent`. A v4 escreve `ERROR` onde a v3 escrevia `error`, e
  * também reporta falha como `CANCEL` com `error_message` — um `CANCEL` puro é a
  * pessoa desistindo, e os dois não podem ser lidos como a mesma coisa.
- */",,,,,,
-gestao-vite-comment-9bdd714d,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,127,127,jsdoc,0,"/** `createMessageHandler`: só mensagem do Facebook, e só do tipo do cadastro embutido. */",,,,,,
-gestao-vite-comment-c7fc2416,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,144,144,line,3,"// Mensagem que não é JSON, ou não é nossa.",,,,,,
+ */",translate,"`classifySignupEvent`: v4 emits `ERROR` where v3 emitted `error`; it can also report failure as `CANCEL` with `error_message`. Plain `CANCEL` means the person abandoned signup, so these must not be conflated.",integration,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:106-110,,proposed
+gestao-vite-comment-9bdd714d,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,127,127,jsdoc,0,"/** `createMessageHandler`: só mensagem do Facebook, e só do tipo do cadastro embutido. */",translate,`createMessageHandler` accepts only Facebook messages of the embedded-signup type.,security,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:127-127,,proposed
+gestao-vite-comment-c7fc2416,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,144,144,line,3,"// Mensagem que não é JSON, ou não é nossa.",translate,Ignore non-JSON messages or messages unrelated to this signup.,security,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:144-144,,proposed
 gestao-vite-comment-044191f7,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,180,183,jsdoc,3,"/**
  * `runEmbeddedSignup`: `null` quando a pessoa fecha o popup; rejeita em erro do
  * SDK, erro do cadastro e fim sem número utilizável.
- */",,,,,,
-gestao-vite-comment-1a455dae,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,198,198,line,1,// Fica o primeiro evento terminal: um FINISH de coexistência ganha de um FINISH comum que chegue depois.,,,,,,
-gestao-vite-comment-fbd8d196,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,248,248,line,2,// Fechar o popup não é erro: é a pessoa desistindo.,,,,,,
+ */",translate,"`runEmbeddedSignup` returns `null` when the popup closes; it rejects SDK errors, signup errors, and completion without a usable phone number.",integration,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:180-183,,proposed
+gestao-vite-comment-1a455dae,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,198,198,line,1,// Fica o primeiro evento terminal: um FINISH de coexistência ganha de um FINISH comum que chegue depois.,translate,Keep the first terminal event: a coexistence FINISH takes precedence over a later ordinary FINISH.,integration,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:198-198,,proposed
+gestao-vite-comment-fbd8d196,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,248,248,line,2,// Fechar o popup não é erro: é a pessoa desistindo.,translate,"Closing the popup is cancellation by the person, not an error.",integration,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:248-248,,proposed
 gestao-vite-comment-c3005f8b,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,266,270,jsdoc,3,"/**
  * O botão ""Conectar"" da linha de canal (`ChannelRow.vue`) com o
  * `connectWhatsapp`: pede o `state`, abre o popup, entrega o `code` e diz o que
  * aconteceu ali mesmo, sem trocar de tela.
- */",,,,,,
-gestao-vite-comment-5a71028f,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,281,281,jsdoc,1,/** Conexão de dentro do bot (`fluxo/canais/whatsapp`): o canal nasce ligado a ele. */,,,,,,
-gestao-vite-comment-707ad121,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,286,286,jsdoc,1,"/** O que vem antes do rótulo — o logo do Facebook do botão `variant=""facebook""` da origem. */",,,,,,
+ */",translate,"Reference `ChannelRow.vue` Connect button uses `connectWhatsapp`: request `state`, open the popup, hand off `code`, and report the result in place without navigation.",integration,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:266-270,,proposed
+gestao-vite-comment-5a71028f,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,281,281,jsdoc,1,/** Conexão de dentro do bot (`fluxo/canais/whatsapp`): o canal nasce ligado a ele. */,translate,"When connecting inside the bot (`fluxo/canais/whatsapp`), create the channel already linked to that bot.",integration,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:281-281,,proposed
+gestao-vite-comment-707ad121,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,286,286,jsdoc,1,"/** O que vem antes do rótulo — o logo do Facebook do botão `variant=""facebook""` da origem. */",translate,"Prefix the label with the reference `variant=""facebook""` button's Facebook logo.",meta-blip,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:286-286,,proposed
 gestao-vite-comment-cbf762d7,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,6,27,jsdoc,13,"/**
  * Portado de chatwoot/chatwoot (MIT):
  * - app/javascript/dashboard/composables/useWhatsappEmbeddedSignup.js;
@@ -252,11 +252,11 @@ gestao-vite-comment-cbf762d7,gestao-vite,apps/gestao-vite/src/componentes/cadast
  * Acréscimo do Pipe: sem aplicativo aprovado na Meta (`modo: 'duble'`), o botão
  * não abre popup — gera credenciais de ensaio e percorre o resto do caminho de
  * verdade, contra o dublê da `api`.
- */",,,,,,
-gestao-vite-comment-6f3bdfd5,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,85,85,jsdoc,1,/** `isValidBusinessData`: só o `waba_id` é garantido (a coexistência manda só ele). */,,,,,,
-gestao-vite-comment-ec4ccdd1,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,92,92,jsdoc,3,/** Terminam o fluxo sem um número da Cloud API com que se possa criar canal. */,,,,,,
-gestao-vite-comment-b45e28e0,gestao-vite,apps/gestao-vite/src/componentes/cartao-config.tsx,31,31,jsdoc,1,"/** Nome do campo enviado. Só vai no `FormData` quando ligado, como caixa de marcar. */",,,,,,
-gestao-vite-comment-7fc92d6a,gestao-vite,apps/gestao-vite/src/componentes/cartao-config.tsx,50,50,jsdoc,3,"/** Texto à esquerda do Salvar: o que este cartão decide, em uma linha. */",,,,,,
+ */",translate,"Ported from chatwoot/chatwoot (MIT): `app/javascript/dashboard/composables/useWhatsappEmbeddedSignup.js`, `app/javascript/dashboard/routes/dashboard/settings/inbox/channels/whatsapp/utils.js` (SDK load, `FB.login`, `WA_EMBEDDED_SIGNUP` event classification), and `connectWhatsapp` in `.../onboarding/inbox-setup/useChannelConnect.js`. The SDK opens embedded signup via `FB.login` with `config_id`, `response_type: 'code'`, and `override_default_response_type`. Login returns `code`; `postMessage` returns WABA identifiers, in no guaranteed order, so wait for both. Unlike Blip's redirect to `/dialog/oauth?...&state=` with random `state`, Pipe follows Chatwoot and gets `state` from `api` via `iniciarCadastroEmbutido` before opening the popup, returning it with `code`. Without a Meta-approved app (`modo: 'duble'`), generate test credentials instead of opening the popup, then run the rest against the `api` double.",integration,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:6-27,,proposed
+gestao-vite-comment-6f3bdfd5,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,85,85,jsdoc,1,/** `isValidBusinessData`: só o `waba_id` é garantido (a coexistência manda só ele). */,translate,"`isValidBusinessData` requires only `waba_id`, the sole field guaranteed by coexistence.",integration,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:85-85,,proposed
+gestao-vite-comment-ec4ccdd1,gestao-vite,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx,92,92,jsdoc,3,/** Terminam o fluxo sem um número da Cloud API com que se possa criar canal. */,translate,These events end the flow without a Cloud API number usable to create a channel.,integration,apps/gestao-vite/src/componentes/cadastro-embutido-whatsapp.tsx:92-92,,proposed
+gestao-vite-comment-b45e28e0,gestao-vite,apps/gestao-vite/src/componentes/cartao-config.tsx,31,31,jsdoc,1,"/** Nome do campo enviado. Só vai no `FormData` quando ligado, como caixa de marcar. */",translate,"Form field name is included in `FormData` only when the switch is on, like a checkbox.",other,apps/gestao-vite/src/componentes/cartao-config.tsx:31-31,,proposed
+gestao-vite-comment-7fc92d6a,gestao-vite,apps/gestao-vite/src/componentes/cartao-config.tsx,50,50,jsdoc,3,"/** Texto à esquerda do Salvar: o que este cartão decide, em uma linha. */",translate,Text to the left of Save states in one line what this card controls.,other,apps/gestao-vite/src/componentes/cartao-config.tsx:50-50,,proposed
 gestao-vite-comment-4511f42c,gestao-vite,apps/gestao-vite/src/componentes/cartao-config.tsx,6,23,jsdoc,20,"/**
  * O cartão de configuração — `blip-telas-cadastro.md` §3.
  *
@@ -274,10 +274,10 @@ gestao-vite-comment-4511f42c,gestao-vite,apps/gestao-vite/src/componentes/cartao
  * A sujeira é rastreada no `onChange` do formulário inteiro, e não campo a
  * campo. É um `onChange` contra N estados controlados, e o React já borbulha
  * o evento de qualquer campo até o `<form>`.
- */",,,,,,
+ */",translate,"Configuration card follows `blip-telas-cadastro.md` Section 3: 20/700 title, 14/400 description, section switch aligned right, and content below. Save belongs to each card's lower-right corner; reference General Settings has no global Save, and each card starts with Save disabled. A disabled Save communicates no changes, unlike a disabled menu destination; keep it visible so the footer does not jump as the user types. Track dirty state on the whole `<form>` element's `onChange`, relying on React event bubbling instead of N controlled states.",meta-blip,apps/gestao-vite/src/componentes/cartao-config.tsx:6-23,,proposed
 gestao-vite-comment-6c97d488,gestao-vite,apps/gestao-vite/src/componentes/cartao-config.tsx,94,96,block,4,"/* O `FormData` não enxerga estado do React: o valor precisa estar
                 num campo de verdade. Marcado quando ligado, ausente quando
-                desligado — a ação lê `dados.get(name) !== null`. */",,,,,,
+                desligado — a ação lê `dados.get(name) !== null`. */",translate,React state is invisible to `FormData`; provide a real hidden input only when the switch is on. The action tests `dados.get(name) !== null`.,architecture,apps/gestao-vite/src/componentes/cartao-config.tsx:94-96,,proposed
 gestao-vite-comment-4c5c41f0,gestao-vite,apps/gestao-vite/src/componentes/envio-de-formulario.ts,4,21,jsdoc,26,"/**
  * Enviar o formulário SEM deixar o React apagar o que a pessoa digitou.
  *
@@ -295,7 +295,7 @@ gestao-vite-comment-4c5c41f0,gestao-vite,apps/gestao-vite/src/componentes/envio-
  *
  * Limpar depois do sucesso continua sendo trabalho da tela, com o
  * `formulario.reset()` que cada uma já tem no `useEffect`.
- */",,,,,,
+ */",translate,"Preserve entered values on form validation errors. React 19 `startHostTransition` calls `requestFormReset` for uncontrolled `<form action={…}>` as soon as the action starts, even if the server rejects it, making users retype fields. Call the `useActionState` dispatcher manually instead of using the form `action` attribute, so automatic reset does not run. Keep `startTransition` to drive `enviando` and the `Salvando...` button state. Each screen still calls its own `formulario.reset()` after success in `useEffect`.",architecture,apps/gestao-vite/src/componentes/envio-de-formulario.ts:4-21,,proposed
 gestao-vite-comment-ea2bfafc,gestao-vite,apps/gestao-vite/src/componentes/estrutura-gestao.tsx,1,25,jsdoc,27,"/**
  * Estrutura da Gestão — o que sobrou do casco do portal PARALELO que existia
  * para as telas que não têm contato.
@@ -320,8 +320,8 @@ gestao-vite-comment-ea2bfafc,gestao-vite,apps/gestao-vite/src/componentes/estrut
  * ativo, fora do escopo desta entrega) importa `URL_DESK` daqui — mover a
  * constante quebraria aquele import sem necessidade. Quem quiser fazer a
  * faxina completa precisa mexer nos dois arquivos juntos.
- */",,,,,,
-gestao-vite-comment-ceb88284,gestao-vite,apps/gestao-vite/src/componentes/estrutura-gestao.tsx,27,27,jsdoc,1,/** Onde vive o app do atendente. O rodapé da lateral do Atendimento aponta para lá. */,,,,,,
+ */",translate,"This file holds only `URL_DESK` after the old parallel Gestão shell lost its routes. Attendance moved under `/{tipo}/:id/atendimento/*` with `paginas/operacao/casca.tsx`; Builder moved to `/fluxo/:id/builder` using `paginas/builder.tsx` and `BarrasDoContato`; Growth moved to `/fluxo/:id/growth/*` and `paginas/fluxo/growth/casca.tsx`, while duplicate standalone `/growth` in `paginas/growth-portal.tsx` was removed and redirected to Portal. Account-level Implantação now renders `pt-app` and `BarraDoPortal` in `paginas/implantacao/page.tsx`, as Novidades and the contract panel do. With no route using `<EstruturaGestao/>`, only the active import of `URL_DESK` from `paginas/operacao/casca.tsx` keeps this file. Move both files together if cleaning it up.",architecture,apps/gestao-vite/src/componentes/estrutura-gestao.tsx:1-25,,proposed
+gestao-vite-comment-ceb88284,gestao-vite,apps/gestao-vite/src/componentes/estrutura-gestao.tsx,27,27,jsdoc,1,/** Onde vive o app do atendente. O rodapé da lateral do Atendimento aponta para lá. */,translate,Desk app destination for the Attendance sidebar footer.,integration,apps/gestao-vite/src/componentes/estrutura-gestao.tsx:27-27,,proposed
 gestao-vite-comment-0929c2b0,gestao-vite,apps/gestao-vite/src/componentes/exigir-sessao.tsx,4,12,jsdoc,16,"/**
  * O portão das telas de produto — o que `exigirEu()` fazia no servidor do Next.
  *
@@ -330,9 +330,9 @@ gestao-vite-comment-0929c2b0,gestao-vite,apps/gestao-vite/src/componentes/exigir
  * onboarding fechou, e ela conta isso no `Eu`). Enquanto a primeira pergunta
  * não voltou, não desenha nada: mostrar a tela e depois tirá-la é pior que
  * um instante em branco.
- */",,,,,,
-gestao-vite-comment-afe2e1f5,gestao-vite,apps/gestao-vite/src/componentes/filtros-rapidos.tsx,74,74,jsdoc,2,/** A faixa superior recorta a operação e os cartões. */,,,,,,
-gestao-vite-comment-db203842,gestao-vite,apps/gestao-vite/src/componentes/filtros-rapidos.tsx,90,90,jsdoc,2,/** A faixa inferior recorta somente a lista detalhada. */,,,,,,
+ */",translate,"Product-screen guard replaces server-side Next `exigirEu()`. Without a session, redirect to `/entrar` while preserving destination. An account whose onboarding is incomplete goes to `/bem-vindo`; only the `api` knows completion and reports it in `Eu`. While the first session check is pending, show no protected screen to avoid a flash.",security,apps/gestao-vite/src/componentes/exigir-sessao.tsx:4-12,,proposed
+gestao-vite-comment-afe2e1f5,gestao-vite,apps/gestao-vite/src/componentes/filtros-rapidos.tsx,74,74,jsdoc,2,/** A faixa superior recorta a operação e os cartões. */,remove,,other,apps/gestao-vite/src/componentes/filtros-rapidos.tsx:74-74,,proposed
+gestao-vite-comment-db203842,gestao-vite,apps/gestao-vite/src/componentes/filtros-rapidos.tsx,90,90,jsdoc,2,/** A faixa inferior recorta somente a lista detalhada. */,remove,,other,apps/gestao-vite/src/componentes/filtros-rapidos.tsx:90-90,,proposed
 gestao-vite-comment-93d1ecc8,gestao-vite,apps/gestao-vite/src/componentes/icones-gestao.tsx,1,11,jsdoc,13,"/**
  * Ícones que as telas do Atendimento e do Builder pedem e o `@pipe/ui` ainda
  * não tem.
@@ -343,7 +343,7 @@ gestao-vite-comment-93d1ecc8,gestao-vite,apps/gestao-vite/src/componentes/icones
  * regra de trabalho é escrever local na Gestão e relatar. Quando um segundo
  * aplicativo pedir os mesmos desenhos, o arquivo inteiro sobe para a fachada
  * `icones.tsx` do pacote sem mudar nenhuma chamada.
- */",,,,,,
+ */",translate,"Attendance and Builder icons absent from `@pipe/ui` use the same Tabler Icons source as `icones.tsx` and `Icone` conventions (MIT, Paweł Kuna): 24px rounded, unfilled strokes. Keep them local to Gestão rather than `packages/ui` until another app needs them; then move the whole file to the package facade without changing callers.",architecture,apps/gestao-vite/src/componentes/icones-gestao.tsx:1-11,,proposed
 gestao-vite-comment-a3caf222,gestao-vite,apps/gestao-vite/src/componentes/icones-portal.tsx,3,19,jsdoc,24,"/**
  * Os ícones do PORTAL, no desenho da origem.
  *
@@ -360,7 +360,7 @@ gestao-vite-comment-a3caf222,gestao-vite,apps/gestao-vite/src/componentes/icones
  *
  * `parOuImpar` é o `fill-rule=""evenodd""` de alguns deles — sem isso o desenho
  * fecha os vazados e vira um borrão.
- */",,,,,,
+ */",translate,"Portal icons follow the source design. `@pipe/ui` uses 24px Tabler outlines with 1.75px strokes, while the Blip Portal rail uses filled icons; this visible difference prompted the owner's request to match it. These local paths were measured in the rendered DOM at `supernova.blip.ai` (`referencias-blip/pesquisa/blip-portal-contrato.md`); local names appear on the left and source names in comments. Keep them local to Gestão rather than `packages/ui` until another app needs them; then move them to the facade without changing callers. `parOuImpar` implements `fill-rule=""evenodd""` so enclosed gaps stay open.",meta-blip,apps/gestao-vite/src/componentes/icones-portal.tsx:3-19,,proposed
 gestao-vite-comment-924ff988,gestao-vite,apps/gestao-vite/src/componentes/icones-portal.tsx,689,698,jsdoc,12,"/**
  * Os LOGOS de canal — o `bds-icon type=""logo""` da origem (`asset-logo-<nome>`
  * do blip-ds), numa grade de 80. Diferente dos ícones, logo tem cor própria e
@@ -370,12 +370,12 @@ gestao-vite-comment-924ff988,gestao-vite,apps/gestao-vite/src/componentes/icones
  * A exceção é `email`, que é desenho da própria Blip pintado com a primária
  * dela (#1E6BF1): essa cor vira `currentColor` e quem pinta é a nossa folha.
  * O `blip-chat` NÃO entra — é a marca da Blip.
- */",,,,,,
+ */",translate,"Channel logos match reference `bds-icon type=""logo""` (`asset-logo-<nome>` in blip-ds) on an 80px grid. WhatsApp and Instagram retain their own colors and gradients because those are brand artwork, not Blip UI ink. The Blip-drawn `email` logo uses primary #1E6BF1, replaced with `currentColor` so our stylesheet controls it. Exclude `blip-chat` because it is Blip branding.",meta-blip,apps/gestao-vite/src/componentes/icones-portal.tsx:689-698,,proposed
 gestao-vite-comment-9fc1eb63,gestao-vite,apps/gestao-vite/src/componentes/icones-portal.tsx,806,810,jsdoc,8,"/**
  * A lupa da barra clara é a ÚNICA que não vem do jogo de 24: na origem ela é um
  * `<icon name=""Search"" width=""32"" height=""32"">` numa grade de 72, desenhado à
  * parte do design system. Copiada como está para o traço não engordar.
- */",,,,,,
+ */",translate,"The light rail's search icon alone is outside the 24px set. Reference `<icon name=""Search"" width=""32"" height=""32"">` uses a 72px grid separate from the design system; copy it as drawn to avoid thickening its stroke.",meta-blip,apps/gestao-vite/src/componentes/icones-portal.tsx:806-810,,proposed
 gestao-vite-comment-6a7554a6,gestao-vite,apps/gestao-vite/src/componentes/link.tsx,4,13,jsdoc,15,"/**
  * O `<Link>` das telas, com `href` — a MESMA assinatura que o `next/link` tinha.
  *
@@ -385,8 +385,8 @@ gestao-vite-comment-6a7554a6,gestao-vite,apps/gestao-vite/src/componentes/link.t
  *
  * `href` externo (`http…`, `mailto:`) vira `<a>` comum: o roteador não tem o
  * que fazer com ele.
- */",,,,,,
-gestao-vite-comment-50059631,gestao-vite,apps/gestao-vite/src/componentes/lista-historico.tsx,119,119,jsdoc,2,"/** A lista única, sem repetição por grupo — quem manda no ""selecionar todos"". */",,,,,,
+ */",translate,Screen `<Link>` with `href` preserves the former `next/link` signature so migrated Blip-measured screens change only their import. It delegates client navigation to React Router. External `href` values such as `http…` and `mailto:` use a plain `<a>`.,architecture,apps/gestao-vite/src/componentes/link.tsx:4-13,,proposed
+gestao-vite-comment-50059631,gestao-vite,apps/gestao-vite/src/componentes/lista-historico.tsx,119,119,jsdoc,2,"/** A lista única, sem repetição por grupo — quem manda no ""selecionar todos"". */",translate,"Keep one deduplicated list for Select all, rather than repeating cards in each group.",other,apps/gestao-vite/src/componentes/lista-historico.tsx:119-119,,proposed
 gestao-vite-comment-4c3e3ee6,gestao-vite,apps/gestao-vite/src/componentes/lista-historico.tsx,3,19,jsdoc,22,"/**
  * Histórico como LISTA DE CARTÕES, e não como tabela.
  *
@@ -403,15 +403,15 @@ gestao-vite-comment-4c3e3ee6,gestao-vite,apps/gestao-vite/src/componentes/lista-
  * A seleção é controlada pela página (`PaginaHistorico`): a exportação em CSV
  * precisa saber se há seleção para acender, e mora fora deste componente.
  * Aqui ficam ""Selecionar todos"" e a contagem dos cartões visíveis.
- */",,,,,,
-gestao-vite-comment-bfdba408,gestao-vite,apps/gestao-vite/src/componentes/lista-historico.tsx,53,53,jsdoc,3,"/** As oito colunas do cartão, fora do componente para não virar objeto novo a cada render. */",,,,,,
+ */",translate,"Render History as cards rather than a ten-column table, as measured in `referencias-blip/pesquisa/blip-telas-atendimento.md` Sections 3 and 5.2: six of eight Blip Attendance screens use cards and none use a table. A card keeps labels beside values across widths. Match their layout (selection bar above; small label over strong value) with our `--p-*` colors, not their hex values. `PaginaHistorico` owns selection because CSV export outside this component depends on it; this component owns Select all and the visible-card count.",meta-blip,apps/gestao-vite/src/componentes/lista-historico.tsx:3-19,,proposed
+gestao-vite-comment-bfdba408,gestao-vite,apps/gestao-vite/src/componentes/lista-historico.tsx,53,53,jsdoc,3,"/** As oito colunas do cartão, fora do componente para não virar objeto novo a cada render. */",remove,,other,apps/gestao-vite/src/componentes/lista-historico.tsx:53-53,,proposed
 gestao-vite-comment-85f85f68,gestao-vite,apps/gestao-vite/src/componentes/lista-historico.tsx,56,62,jsdoc,11,"/**
  * O cartão é memoizado, e isso não é otimização prematura: são 200 conversas
  * no teto da consulta, cada uma com oito campos. Sem `memo`, marcar UMA caixa
  * de seleção reconstruía os 200 cartões, e a tela congelava por dezenas de
  * segundos — medido, não suposto. Com `memo` e um `aoAlternar` estável, marcar
  * uma caixa redesenha um cartão só.
- */",,,,,,
+ */",translate,"Memoizing the card is measured necessity, not speculative optimization: a query can return 200 conversations with eight fields each; without `memo`, checking one box rebuilt all 200 cards and froze the screen for tens of seconds. With `memo` and stable `aoAlternar`, only one card rerenders.",architecture,apps/gestao-vite/src/componentes/lista-historico.tsx:56-62,,proposed
 gestao-vite-comment-d59141fc,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,119,136,jsdoc,21,"/**
  * Regras como LISTA DE CARTÕES, com a busca no topo.
  *
@@ -429,41 +429,41 @@ gestao-vite-comment-d59141fc,gestao-vite,apps/gestao-vite/src/componentes/lista-
  *
  * A busca, essa sim, funciona: filtra as duas listas já carregadas, no
  * navegador, sem ida ao servidor.
- */",,,,,,
-gestao-vite-comment-2287d965,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,140,140,jsdoc,3,"/** `titulo` é o que o cursor mostra; sem ele, o próprio valor (para o truncado). */",,,,,,
+ */",translate,"Rules follow card/search layout measured in `referencias-blip/pesquisa/blip-telas-atendimento.md` Sections 4 and 5.3: title, search below, cards with small labels above strong values and state at right. Reference cards allow create/edit/delete and per-row switches. Ours initially showed only a state chip because changing configuration without an audit log of actor, prior value, and time was unsafe. Now `lib/auditoria.ts` provides that log, so `.cl-acoes` can show the supplied `acao` switch; records without it retain their state chip. Search filters both already-loaded lists in the browser.",security,apps/gestao-vite/src/componentes/lista-regras.tsx:119-136,,proposed
+gestao-vite-comment-2287d965,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,140,140,jsdoc,3,"/** `titulo` é o que o cursor mostra; sem ele, o próprio valor (para o truncado). */",translate,"`titulo` supplies the cursor tooltip; otherwise show the value, especially when truncated.",other,apps/gestao-vite/src/componentes/lista-regras.tsx:140-140,,proposed
 gestao-vite-comment-ff134dfd,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,144,148,jsdoc,4,"/**
    * O `bds-chip-tag` NA LINHA do cartão — o ""Padrão"" da regra de SLA deles,
    * que ocupa uma quarta coluna sem rótulo (`dom/sla-policy.html`), e não o
    * rodapé.
-   */",,,,,,
-gestao-vite-comment-8aa925de,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,150,150,jsdoc,3,"/** Tudo que a busca varre, já em minúsculas. */",,,,,,
+   */",translate,"Reference SLA-rule `bds-chip-tag` for `Padrão` belongs in the card row's unlabeled fourth column (`dom/sla-policy.html`), not the footer.",meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:144-148,,proposed
+gestao-vite-comment-8aa925de,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,150,150,jsdoc,3,"/** Tudo que a busca varre, já em minúsculas. */",remove,,other,apps/gestao-vite/src/componentes/lista-regras.tsx:150-150,,proposed
 gestao-vite-comment-fe936c06,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,152,156,jsdoc,8,"/**
    * Cor do próprio registro, já como `var(--p-…)` — nunca hex. Ocupa a primeira
    * coluna do cartão, que nasceu vazia justamente para isto. Só a fila usa: cor
    * ali é dado do cliente, não estado, e por isso não vira etiqueta colorida.
-   */",,,,,,
+   */",translate,"Use record color as `var(--p-…)`, never a hex literal, in the card's first column. Only queues use it: color there is customer data, not state, so it must not become a colored status chip.",architecture,apps/gestao-vite/src/componentes/lista-regras.tsx:152-156,,proposed
 gestao-vite-comment-2f0d062d,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,158,162,jsdoc,6,"/**
    * Tira do pé do cartão, para a lista que pertence ao registro — os atendentes
    * de uma fila, as filas de um horário. Fica no `.cl-rodape` porque o
    * `.cl-campos` é grade de valor único e uma lista dentro dele vira truncagem.
-   */",,,,,,
+   */",translate,"Put related lists, such as a queue's agents or a schedule's queues, in `.cl-rodape`. The single-value `.cl-campos` grid would truncate a nested list.",architecture,apps/gestao-vite/src/componentes/lista-regras.tsx:158-162,,proposed
 gestao-vite-comment-09171115,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,164,169,jsdoc,7,"/**
    * Controle do registro, à direita, ao lado da situação — o interruptor do
    * cartão-linha deles. Vem pronto de fora porque é ele que carrega a Server
    * Action, e esta lista é componente de cliente: montar o formulário aqui
    * arrastaria a ação para o pacote do navegador.
-   */",,,,,,
+   */",translate,"Put the record control at right beside state, matching the reference row-card switch. Supply it from outside because it carries a Server Action; constructing the form in this client component would pull that action into the browser bundle.",architecture,apps/gestao-vite/src/componentes/lista-regras.tsx:164-169,,proposed
 gestao-vite-comment-a1cb9c6b,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,171,176,jsdoc,5,"/**
    * Slot antes das colunas — a caixa de seleção + avatar do cartão de
    * atendente (`FICHA-atendentes-filas-pausas.md` §b.2: ""caixa de seleção,
    * avatar com as iniciais""). `undefined` mantém o `<span>` de sempre (a
    * faixa de cor da fila, quando existe, ou vazio).
-   */",,,,,,
+   */",translate,"Slot before fields for the agent card's checkbox and avatar (`FICHA-atendentes-filas-pausas.md` §b.2). `undefined` retains the usual `<span>`, either queue-color stripe or empty space.",meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:171-176,,proposed
 gestao-vite-comment-81271d6d,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,183,187,jsdoc,6,"/**
    * A segunda linha do vazio de página deles (""Crie respostas para agilizar
    * seus atendimentos"" sob ""Você ainda não criou respostas prontas"",
    * `FICHA-replies.md` §6). Sem ela, o vazio é uma frase só.
-   */",,,,,,
+   */",translate,Reference page-empty second line is `Crie respostas para agilizar seus atendimentos` under `Você ainda não criou respostas prontas` (`FICHA-replies.md` §6); without it the empty state is only one sentence.,meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:183-187,,proposed
 gestao-vite-comment-23596345,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,192,199,jsdoc,9,"/**
  * O cartão-linha deles: as colunas de rótulo 12/400 sobre valor 16/700, o
  * selo na linha quando existe, e à direita SÓ as ações (`bds-button-icon`
@@ -471,56 +471,56 @@ gestao-vite-comment-23596345,gestao-vite,apps/gestao-vite/src/componentes/lista-
  * o interruptor já diz o estado. Sem interruptor (SLA, filas, pausas), a
  * situação só aparece quando o registro está desligado — o que é dado, e
  * não decoração.
- */",,,,,,
-gestao-vite-comment-fc8050b1,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,252,252,jsdoc,1,/** A lista serve outras telas além de Regras; o texto da busca é o único ponto de variação. */,,,,,,
+ */",translate,"Reference row-card has 12/400 labels above 16/700 values, an inline badge when needed, and only edit/delete `bds-button-icon` and `bds-switch` actions at right. Do not add an `Ativa` chip beside a switch that already conveys state. Without a switch (SLA, queues, pauses), show state only when disabled, where it conveys data rather than decoration.",meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:192-199,,proposed
+gestao-vite-comment-fc8050b1,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,252,252,jsdoc,1,/** A lista serve outras telas além de Regras; o texto da busca é o único ponto de variação. */,translate,Search text is the only variation because this list also serves screens beyond Rules.,other,apps/gestao-vite/src/componentes/lista-regras.tsx:252-252,,proposed
 gestao-vite-comment-0f6cb5a2,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,254,259,jsdoc,7,"/**
    * Blip não repete o título da seção acima da lista de cartões (o cartão
    * vem direto depois da busca) — só esconde aqui, e só quem pede, porque
    * telas com mais de uma seção (horários, por exemplo) ainda precisam do
    * rótulo para separar os grupos.
-   */",,,,,,
+   */",translate,Blip does not repeat a section title above a card list after search. Hide it only when requested; multi-section screens such as schedules still need labels to distinguish groups.,meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:254-259,,proposed
 gestao-vite-comment-dc121c3e,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,261,265,jsdoc,6,"/**
    * O rodapé ""Resultados por página"" que o material capturou em `rules` e
    * em `queue-management` (únicas duas fichas com paginação confirmada). Só
    * funciona com uma seção — as telas que o pedem têm uma só.
-   */",,,,,,
+   */",translate,"The `Resultados por página` footer appears in captured `rules` and `queue-management` screens, the only two with confirmed pagination. It works only with one section, as both callers have.",meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:261-265,,proposed
 gestao-vite-comment-27d0deb3,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,268,273,jsdoc,7,"/**
    * `personalizedbreaks` não tem busca nem filtro nenhum no material
    * (`FICHA-personalizedbreaks.md` §3) — a lista vem direto depois do
    * cabeçalho. A busca continua ligada por padrão para as telas que a Blip
    * mostra com ela.
-   */",,,,,,
+   */",translate,Reference `personalizedbreaks` has neither search nor filters (`FICHA-personalizedbreaks.md` §3); its list follows the header directly. Keep search enabled by default for screens that show it.,meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:268-273,,proposed
 gestao-vite-comment-93d239a4,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,275,279,jsdoc,7,"/**
    * Controles que dividem a linha com a busca — o ""Filtrar por:"" com os
    * seletores de ""Modelos de mensagens"" (`FICHA-message-template.md` §3), à
    * esquerda da busca, que ali ocupa 69% da linha.
-   */",,,,,,
-gestao-vite-comment-ac4038ee,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,281,281,jsdoc,1,/** Ver `RodapeDePaginacao.ocultarTamanho` — só a tela de Pausas pede isto. */,,,,,,
-gestao-vite-comment-d6a21c96,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,304,304,line,3,// Busca ou tamanho de página novos voltam para a página 1 — senão a pessoa,,,,,,
-gestao-vite-comment-52250335,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,305,305,line,2,// filtra para 3 itens estando na página 4 e vê uma lista vazia por engano.,,,,,,
+   */",translate,"Controls sharing the search row represent reference `Filtrar por:` selectors for `Modelos de mensagens` (`FICHA-message-template.md` §3), to the left of search, which occupies 69% of that row.",meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:275-279,,proposed
+gestao-vite-comment-ac4038ee,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,281,281,jsdoc,1,/** Ver `RodapeDePaginacao.ocultarTamanho` — só a tela de Pausas pede isto. */,remove,,other,apps/gestao-vite/src/componentes/lista-regras.tsx:281-281,,proposed
+gestao-vite-comment-d6a21c96,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,304,304,line,3,// Busca ou tamanho de página novos voltam para a página 1 — senão a pessoa,translate,"Reset to page 1 when search or page size changes, so filtering to three items from page 4 does not misleadingly show an empty list.",architecture,apps/gestao-vite/src/componentes/lista-regras.tsx:304-304,,proposed
+gestao-vite-comment-52250335,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,305,305,line,2,// filtra para 3 itens estando na página 4 e vê uma lista vazia por engano.,remove,,other,apps/gestao-vite/src/componentes/lista-regras.tsx:305-305,,proposed
 gestao-vite-comment-cfbfd7ca,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,335,337,block,5,"/* Vazio de BUSCA, com o texto do vazio de busca deles (""Nenhum
            resultado encontrado"", `dom/history.html`) e a saída junto: sem
-           o botão, a única forma de voltar à lista é apagar o texto na mão. */",,,,,,
+           o botão, a única forma de voltar à lista é apagar o texto na mão. */",translate,"For empty search results, use reference `Nenhum resultado encontrado` (`dom/history.html`) and provide a way back; without the button, users would have to erase the query manually.",meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:335-337,,proposed
 gestao-vite-comment-464334eb,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,34,36,jsdoc,2,"/** Os quatro ícones de navegação do rodapé — `FICHA-rules.md`/`FICHA-queue-
  * management.md` §5 (`arrow-first`, `arrow-left`, `arrow-right`, `arrow-last`).
- * Não existem em `@pipe/ui` nem valem a pena lá: só este rodapé os usa. */",,,,,,
+ * Não existem em `@pipe/ui` nem valem a pena lá: só este rodapé os usa. */",translate,"Footer navigation uses `arrow-first`, `arrow-left`, `arrow-right`, `arrow-last` from `FICHA-rules.md` and `FICHA-queue-management.md` Section 5. Keep these four single-use icons local instead of adding them to `@pipe/ui`.",meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:34-36,,proposed
 gestao-vite-comment-fba72ece,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,358,359,block,2,"/* O vazio de página deles: título 20/700 e, quando existe, a
-                 descrição em 16/400 embaixo. */",,,,,,
+                 descrição em 16/400 embaixo. */",translate,"Reference page-empty state has a 20/700 title and, when present, a 16/400 description below.",meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:358-359,,proposed
 gestao-vite-comment-e85c4eda,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,51,57,jsdoc,9,"/**
  * Rodapé ""Resultados por página"" — o mesmo das duas telas que o material
  * capturou com paginação (`FICHA-rules.md` e `FICHA-queue-management.md`,
  * ambas §2.5/§5): select de tamanho, contador ""X-Y de Z"" e as quatro setas.
  * Pagina no navegador, sobre a lista já filtrada pela busca — não há acordo
  * com o servidor, os dados já estão todos carregados.
- */",,,,,,
+ */",translate,"`Resultados por página` footer mirrors the two captured paginated screens (`FICHA-rules.md`, `FICHA-queue-management.md`, Sections 2.5 and 5): size select, `X-Y de Z` count, and four arrows. Paginate the already-filtered complete list in the browser; no server pagination contract is needed.",meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:51-57,,proposed
 gestao-vite-comment-221981ed,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,7,10,jsdoc,1,"/**
  * A busca isolada abaixo do cabeçalho — `bds-input icon=""search""` numa coluna
  * `w-30`: 30% de largura, 54px, lupa de 20 (`dom/rules.html`).
- */",,,,,,
+ */",translate,"Search sits alone below the header as reference `bds-input icon=""search""` in a `w-30` column: 30% width, 54px high, 20px search icon (`dom/rules.html`).",meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:7-10,,proposed
 gestao-vite-comment-c0f8af34,gestao-vite,apps/gestao-vite/src/componentes/lista-regras.tsx,71,74,jsdoc,1,"/**
    * `personalizedbreaks` NÃO tem `pagination-and-search-results-select`
    * (`FICHA-atendentes-filas-pausas.md` §b.3/§c) — só contador e setas.
-   */",,,,,,
+   */",translate,"Reference `personalizedbreaks` has no `pagination-and-search-results-select` (`FICHA-atendentes-filas-pausas.md` §b.3/§c), only a count and arrows.",meta-blip,apps/gestao-vite/src/componentes/lista-regras.tsx:71-74,,proposed
 gestao-vite-comment-59bceb7b,gestao-vite,apps/gestao-vite/src/componentes/metrica.tsx,3,18,jsdoc,14,"/**
  * Métrica de cartão — a coluna deles, lida em `referencias-blip/portal/dom/
  * monitoring.html`: número em cima (`bds-typo variant=""fs-24""`), e embaixo a
@@ -536,14 +536,14 @@ gestao-vite-comment-59bceb7b,gestao-vite,apps/gestao-vite/src/componentes/metric
  * fórmula da spec de métricas e o denominador (""entre 6 na fila"") — continua
  * existindo, mas DENTRO do balão: na tela deles o cartão não tem uma terceira
  * linha sob o rótulo, e a régua desta rodada é a forma deles.
- */",,,,,,
-gestao-vite-comment-b89ef500,gestao-vite,apps/gestao-vite/src/componentes/metrica.tsx,32,32,jsdoc,0,"/** Fórmula e população, da nossa spec — segunda linha do balão. */",,,,,,
-gestao-vite-comment-cdfa242f,gestao-vite,apps/gestao-vite/src/componentes/metrica.tsx,34,34,jsdoc,0,"/** População do número (""entre 6 na fila"") — terceira linha do balão. */",,,,,,
-gestao-vite-comment-56b7b77b,gestao-vite,apps/gestao-vite/src/componentes/metrica.tsx,36,36,jsdoc,3,"/** Cor de marca só nos dois números que respondem ""como está a operação agora"". */",,,,,,
+ */",translate,"Reference metric card in `referencias-blip/portal/dom/monitoring.html` centers `bds-typo variant=""fs-24""` value over `bds-typo variant=""fs-12"" class=""text-center""` label with a 16px `bds-icon name=""info"" size=""x-small""` in `bds-grid direction=""row"" gap=""half""`. Use native `<details>` for keyboard/click access and Esc close without JavaScript; reject HTML `title=""""` because it is not keyboard accessible. Keep literal source `tooltip-text` as the first line; put our spec formula and denominator inside the popup, not as a third card line.",meta-blip,apps/gestao-vite/src/componentes/metrica.tsx:3-18,,proposed
+gestao-vite-comment-b89ef500,gestao-vite,apps/gestao-vite/src/componentes/metrica.tsx,32,32,jsdoc,0,"/** Fórmula e população, da nossa spec — segunda linha do balão. */",translate,Formula and population from our spec are the tooltip's second line.,other,apps/gestao-vite/src/componentes/metrica.tsx:32-32,,proposed
+gestao-vite-comment-cdfa242f,gestao-vite,apps/gestao-vite/src/componentes/metrica.tsx,34,34,jsdoc,0,"/** População do número (""entre 6 na fila"") — terceira linha do balão. */",translate,"Denominator, such as `entre 6 na fila`, is the tooltip's third line.",other,apps/gestao-vite/src/componentes/metrica.tsx:34-34,,proposed
+gestao-vite-comment-56b7b77b,gestao-vite,apps/gestao-vite/src/componentes/metrica.tsx,36,36,jsdoc,3,"/** Cor de marca só nos dois números que respondem ""como está a operação agora"". */",translate,Brand color applies only to the two numbers answering how the operation is doing now.,other,apps/gestao-vite/src/componentes/metrica.tsx:36-36,,proposed
 gestao-vite-comment-80aa6c3b,gestao-vite,apps/gestao-vite/src/componentes/modal-finalizar-monitoramento.tsx,9,12,jsdoc,2,"/**
  * O menu do monitoramento mantém a rota de operação da Gestão, mas usa o mesmo
  * cartão do Desk: a Blip mostra um único `close-modal` nos dois pontos.
- */",,,,,,
+ */",translate,The Monitoring menu keeps the Gestão operation route but reuses Desk's closing card because Blip shows one `close-modal` in both places.,meta-blip,apps/gestao-vite/src/componentes/modal-finalizar-monitoramento.tsx:9-12,,proposed
 gestao-vite-comment-8b5a36aa,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,116,128,jsdoc,11,"/**
  * A prioridade nasce NEUTRA, como toda etiqueta de categoria. Só os dois
  * degraus de cima recebem tinta, porque só eles mudam o que o supervisor faz
@@ -556,14 +556,14 @@ gestao-vite-comment-8b5a36aa,gestao-vite,apps/gestao-vite/src/componentes/monito
  *
  * O rótulo sai de `ROTULOS_PRIORIDADE`, e não de um mapa local: a régua tem um
  * dono só, que é quem também define a ordem da fila.
- */",,,,,,
+ */",translate,"Priority starts neutral like other category labels. Color only the top two levels that change a supervisor's immediate action; coloring all five would weaken red elsewhere. Maximum uses error color and High alert color, while the three lower levels, including absence, stay neutral. Get labels from `ROTULOS_PRIORIDADE`, the single source also defining queue order.",architecture,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:116-128,,proposed
 gestao-vite-comment-83af4d0e,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,135,140,jsdoc,7,"/**
  * O estado vazio deles, literal e de UMA linha: ""Dados insuficientes"",
  * centrado no corpo da tabela (`FICHA-monitoring.md` §6,
  * `desk-grid-tabled-paginated-empty-*`). Sem explicação e sem botão — o que
  * o nosso acrescentava era texto que a tela deles não tem.
- */",,,,,,
-gestao-vite-comment-864e23bb,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,145,145,jsdoc,2,"/** O atalho para abrir a conversa no app do atendente, igual nas duas tabelas. */",,,,,,
+ */",translate,"Reference empty state is literally one centered line, `Dados insuficientes` (`FICHA-monitoring.md` §6, `desk-grid-tabled-paginated-empty-*`), without our former explanation or button.",meta-blip,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:135-140,,proposed
+gestao-vite-comment-864e23bb,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,145,145,jsdoc,2,"/** O atalho para abrir a conversa no app do atendente, igual nas duas tabelas. */",remove,,other,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:145-145,,proposed
 gestao-vite-comment-51f8b1b8,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,20,35,jsdoc,20,"/**
  * Monitoramento detalhado: o cartão do fim da tela deles.
  *
@@ -579,12 +579,12 @@ gestao-vite-comment-51f8b1b8,gestao-vite,apps/gestao-vite/src/componentes/monito
  *
  * Severidade colore a linha inteira, não só o texto: a lição do `blip-dash`
  * registrada no §3 do desenho.
- */",,,,,,
+ */",translate,"Detailed Monitoring follows the reference final card (`FICHA-monitoring.md` §2.5): title left and search inside at right, then tabs, table with Actions last, and pagination footer. Keep tab and search in the query string with the filter so a 30-second refresh does not reset the supervisor's view. Keep table page in client state because one transaction already loaded all rows. Color the entire severity row, not just text, following the `blip-dash` lesson in Section 3.",architecture,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:20-35,,proposed
 gestao-vite-comment-5e58de29,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,294,298,jsdoc,12,"/**
  * A ação da linha de atendente: abre a aba ""Atribuído/Em andamento"" já
  * filtrada por ele. É a mesma coluna de Ações que a ficha lista para esta
  * aba — sem inventar dado novo, só reaproveitando o filtro que a tela já tem.
- */",,,,,,
+ */",translate,"The agent-row action opens `Atribuído/Em andamento` already filtered by that agent. This is the reference Actions column behavior using an existing filter, not new data.",meta-blip,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:294-298,,proposed
 gestao-vite-comment-910eea3c,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,314,326,jsdoc,20,"/**
  * As duas abas de conversa têm COLUNAS DIFERENTES, e isso é regra deles, não
  * economia nossa (`blip-gestao-funcoes.md` §1).
@@ -597,7 +597,7 @@ gestao-vite-comment-910eea3c,gestao-vite,apps/gestao-vite/src/componentes/monito
  *
  * A coluna de Ações é nossa em ambas, e vale nas duas: eles também deixam o
  * gestor abrir a conversa de um ticket que ainda está na fila.
- */",,,,,,
+ */",translate,"Conversation tabs have different columns by source rule (`blip-gestao-funcoes.md` §1). In `Aguardando atendimento`, no ticket has an agent; reusing assigned-ticket columns would fill Agent, First response, and Attendance with dashes and push the important priority column offscreen. Keep Actions on both tabs because managers can also open a queued ticket in the reference.",meta-blip,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:314-326,,proposed
 gestao-vite-comment-41e5842e,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,328,336,jsdoc,4,"/**
  * Atribuído / em andamento — na ordem de coluna deles, `FICHA-monitoring.md`
  * §4: os dois tempos, depois o tempo de atendimento, o ticket, e só então quem
@@ -606,18 +606,18 @@ gestao-vite-comment-41e5842e,gestao-vite,apps/gestao-vite/src/componentes/monito
  * **O indicador de SLA mora DENTRO da coluna de atendimento**, e não numa
  * coluna própria. É onde ele fica na tela deles, e faz sentido: SLA é um juízo
  * sobre aquele tempo, não um dado ao lado dele.
- */",,,,,,
+ */",translate,"For `Atribuído/Em andamento`, follow reference column order (`FICHA-monitoring.md` §4): two response times, attendance duration, ticket, then person and location. Put the SLA indicator INSIDE the attendance-time column, since SLA judges that duration rather than adding a separate datum.",meta-blip,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:328-336,,proposed
 gestao-vite-comment-b2ff3315,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,37,43,block,8,"/*
  * Os rótulos das abas são os DELES, literais, lidos em `FICHA-monitoring.md`
  * §4. A quinta aba se chama ""Tags"" lá, e agora se chama ""Tags"" aqui também —
  * a chave interna continua `etiquetas`, que é o nome do domínio inteiro, mas o
  * TEXTO na tela é o texto deles: a régua desta entrega não admite ""aproximado""
  * em rótulo visível.
- */",,,,,,
+ */",translate,"Tab labels are literal reference copy (`FICHA-monitoring.md` §4); the fifth is `Tags`, while the internal key remains `etiquetas`. Visible labels must match the captured screen exactly.",meta-blip,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:37-43,,proposed
 gestao-vite-comment-fec8910b,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,375,378,block,8,"/* Enquanto não houve 1ª resposta não existe tempo de
                     atendimento para medir, e o vazio deles não é travessão: é
                     ""Aguardando..."". Travessão diz ""não se aplica""; ""Aguardando""
-                    diz ""o cronômetro ainda não começou"", que é o caso. */",,,,,,
+                    diz ""o cronômetro ainda não começou"", que é o caso. */",translate,"Before the first response, attendance time cannot be measured. Show reference `Aguardando...`, not a dash: a dash means not applicable, while waiting means the timer has not begun.",meta-blip,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:375-378,,proposed
 gestao-vite-comment-6e350993,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,404,408,jsdoc,2,"/**
  * Aguardando atendimento — as colunas deles, nesta ordem: tempo na fila,
  * PRIORIDADE, ticket, contato, fila. Nada de atendente, porque por definição
