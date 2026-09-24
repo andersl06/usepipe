@@ -76,6 +76,7 @@ Requisitos: STD-01..STD-12 (ver `.planning/REQUIREMENTS.md`).
 - **D-37:** Modelo Codex: `gpt-5.6-sol`, `model_reasoning_effort="medium"`. Toda chamada passa `-m gpt-5.6-sol` e `-s read-only` explicitamente (a conta 1 tem padrão `danger-full-access` e as duas contas têm modelo padrão diferente).
 - **D-38:** Cookie `pipe_sessao` e nomes de métricas Prometheus renomeiam. Aceitos: logout geral no deploy e quebra de continuidade do histórico de métricas (não há cliente real).
 - **D-39:** `apps/site` e `apps/ponte` entram na padronização.
+- **D-40 (execução, 2026-09-24, exceção ao D-37 aprovada pelo dono):** Na execução da fase, os planos podem ser distribuídos entre 5 executores: Codex conta 1 (`~/.codex`), conta 2 (`~/.codex-conta2`), conta 3 (`~/.codex-conta3`), Sonnet e Haiku; até 3 Codex rodam em paralelo, todos em `gpt-5.6-sol` medium. O Codex pode executar planos inteiros com `-s danger-full-access` (o `workspace-write` é recusado pelo sandbox do Windows), sempre num git worktree isolado próprio, sem push, deploy, alteração de banco ou escrita fora do worktree. O Sonnet revisa 100% do diff do Codex antes do merge em `std/english-rename` (D-24). Planos que tocam dados reais (ex.: 01-34) continuam sem Codex. Propostas semânticas via `codex-run.sh` continuam `read-only`.
 - **D-40:** Escopos de chave de API guardados no banco (ex.: `conversas:ler`) e códigos de erro persistidos são persistidos: vão para o inventário STD-06, não renomeiam nesta fase.
 
 ### Claude's Discretion
