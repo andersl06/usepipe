@@ -258,7 +258,7 @@ gestao-vite-front-route-b3f21ac2,gestao-vite,3,front-route,/fluxo/:*/atendimento
 gestao-vite-front-route-fde88337,gestao-vite,3,front-route,/fluxo/:*/atendimento/atendentes/gestao/permissoes,/flow/:id/attendance/agents/management/permissions,apps/gestao-vite/src/App.tsx:144,1,no,,,proposed,codex2,
 gestao-vite-front-route-2b517618,gestao-vite,3,front-route,/fluxo/:*/atendimento/atendentes/gestao,/flow/:id/attendance/agents/management,apps/gestao-vite/src/App.tsx:138,10,no,,,proposed,codex2,
 gestao-vite-front-route-6946b5f7,gestao-vite,3,front-route,/fluxo/:*/atendimento/atendentes/pausas,/flow/:id/attendance/agents/breaks,apps/gestao-vite/src/App.tsx:148,2,no,,,proposed,codex2,
-gestao-vite-front-route-3ce679bc,gestao-vite,3,front-route,/fluxo/:*/atendimento/canais/whatsapp/:*/*,,apps/gestao-vite/src/App.tsx:160,4,no,,,candidate,,
+gestao-vite-front-route-3ce679bc,gestao-vite,3,front-route,/fluxo/:*/atendimento/canais/whatsapp/:*/*,REMOVE,apps/gestao-vite/src/App.tsx:160,4,no,,D-14,proposed,sonnet,ParaOCanalDoBot legacy redirect removed with its component
 gestao-vite-front-route-f8c425ad,gestao-vite,3,front-route,/fluxo/:*/atendimento/canais,/flow/:id/attendance/channels,apps/gestao-vite/src/App.tsx:157,7,no,,,proposed,codex2,
 gestao-vite-front-route-deaaa7ca,gestao-vite,3,front-route,/fluxo/:*/atendimento/comunicacao/modelos,/flow/:id/attendance/communication/templates,apps/gestao-vite/src/App.tsx:149,2,no,,,proposed,codex2,
 gestao-vite-front-route-ac3a982d,gestao-vite,3,front-route,/fluxo/:*/atendimento/comunicacao/respostas-prontas,/flow/:id/attendance/communication/canned-responses,apps/gestao-vite/src/App.tsx:150,1,no,,,proposed,codex2,
@@ -324,7 +324,7 @@ gestao-vite-front-route-e84fa42d,gestao-vite,3,front-route,/roteador/:*/atendime
 gestao-vite-front-route-8fd89a92,gestao-vite,3,front-route,/roteador/:*/atendimento/atendentes/gestao/permissoes,/router/:id/attendance/agents/management/permissions,apps/gestao-vite/src/App.tsx:144,1,no,,,proposed,codex2,
 gestao-vite-front-route-2594ca0b,gestao-vite,3,front-route,/roteador/:*/atendimento/atendentes/gestao,/router/:id/attendance/agents/management,apps/gestao-vite/src/App.tsx:138,10,no,,,proposed,codex2,
 gestao-vite-front-route-ceaa6205,gestao-vite,3,front-route,/roteador/:*/atendimento/atendentes/pausas,/router/:id/attendance/agents/breaks,apps/gestao-vite/src/App.tsx:148,2,no,,,proposed,codex2,
-gestao-vite-front-route-4efe5d20,gestao-vite,3,front-route,/roteador/:*/atendimento/canais/whatsapp/:*/*,,apps/gestao-vite/src/App.tsx:160,4,no,,,candidate,,
+gestao-vite-front-route-4efe5d20,gestao-vite,3,front-route,/roteador/:*/atendimento/canais/whatsapp/:*/*,REMOVE,apps/gestao-vite/src/App.tsx:160,4,no,,D-14,proposed,sonnet,ParaOCanalDoBot legacy redirect removed with its component
 gestao-vite-front-route-2c989937,gestao-vite,3,front-route,/roteador/:*/atendimento/canais,/router/:id/attendance/channels,apps/gestao-vite/src/App.tsx:157,7,no,,,proposed,codex2,
 gestao-vite-front-route-95d5e27b,gestao-vite,3,front-route,/roteador/:*/atendimento/comunicacao/modelos,/router/:id/attendance/communication/templates,apps/gestao-vite/src/App.tsx:149,2,no,,,proposed,codex2,
 gestao-vite-front-route-31d280fd,gestao-vite,3,front-route,/roteador/:*/atendimento/comunicacao/respostas-prontas,/router/:id/attendance/communication/canned-responses,apps/gestao-vite/src/App.tsx:150,1,no,,,proposed,codex2,
@@ -1360,7 +1360,7 @@ gestao-vite-symbol-e3c25101,gestao-vite,3,symbol,PapelDeConta,AccountRole,apps/g
 gestao-vite-symbol-63a9ae02,gestao-vite,3,symbol,papelNoFluxo,roleInFlow,apps/gestao-vite/src/paginas/fluxo/equipe/editar.tsx:85,46,no,,,proposed,codex2,
 gestao-vite-symbol-f8c6266c,gestao-vite,3,symbol,parametrosComFiltros,parametrosWithFilters,apps/gestao-vite/src/lib/filtros-monitoramento.ts:17,11,no,,,proposed,codex2,
 gestao-vite-symbol-2c65ea87,gestao-vite,3,symbol,parametrosGlobais,parametrosGlobal,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/tela.tsx:106,3,no,,,proposed,codex2,
-gestao-vite-symbol-58886800,gestao-vite,3,symbol,ParaOCanalDoBot,,apps/gestao-vite/src/App.tsx:87,13,no,,,candidate,,
+gestao-vite-symbol-58886800,gestao-vite,3,symbol,ParaOCanalDoBot,REMOVE,apps/gestao-vite/src/App.tsx:87,13,no,,D-14,proposed,sonnet,legacy Next->Vite migration redirect removed (D-14): ParaOCanalDoBot
 gestao-vite-symbol-d2b14cb3,gestao-vite,3,symbol,PASSO_ATENDENTES,PASSO_AGENTS,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx:206,4,no,,,proposed,codex2,
 gestao-vite-symbol-0379e362,gestao-vite,3,symbol,PassoDaImplantacao,DeploymentPasso,apps/gestao-vite/src/lib/passos-da-implantacao.ts:48,6,no,,,proposed,codex2,
 gestao-vite-symbol-99a2274e,gestao-vite,3,symbol,PassoDoConvite,InvitationPasso,apps/gestao-vite/src/paginas/criar/roteador/page.tsx:94,2,no,,,proposed,codex2,
@@ -1476,7 +1476,7 @@ gestao-vite-symbol-17279e4f,gestao-vite,3,symbol,revogarChave,revogarKey,apps/ge
 gestao-vite-symbol-3e536c6c,gestao-vite,3,symbol,RodapeDePaginacao,PaginationRodape,apps/gestao-vite/src/componentes/lista-regras.tsx:58,2,no,,,proposed,codex2,
 gestao-vite-symbol-78e2ea27,gestao-vite,3,symbol,rotaDoCanal,channelRota,apps/gestao-vite/src/lib/canal-do-fluxo.ts:23,9,no,,,proposed,codex2,
 gestao-vite-symbol-6877798e,gestao-vite,3,symbol,RotaDoContato,ContactRota,apps/gestao-vite/src/paginas/fluxo/contato.tsx:58,7,no,,,proposed,codex2,
-gestao-vite-symbol-32afb139,gestao-vite,3,symbol,ROTAS_ANTIGAS_SEM_CONTATO,,apps/gestao-vite/src/App.tsx:222,12,no,,,candidate,,
+gestao-vite-symbol-32afb139,gestao-vite,3,symbol,ROTAS_ANTIGAS_SEM_CONTATO,REMOVE,apps/gestao-vite/src/App.tsx:222,12,no,,D-14,proposed,sonnet,legacy Next->Vite migration redirect removed (D-14): ROTAS_ANTIGAS_SEM_CONTATO
 gestao-vite-symbol-cc5c826f,gestao-vite,3,symbol,rotasDoContato,contactRotas,apps/gestao-vite/src/App.tsx:104,9,no,,,proposed,codex2,
 gestao-vite-symbol-24147fa3,gestao-vite,3,symbol,roteador,router,apps/gestao-vite/src/paginas/fluxo/servicos/tela.tsx:60,387,no,,,proposed,codex2,
 gestao-vite-symbol-3a90fe83,gestao-vite,3,symbol,ROTULO_DA_COMPARACAO,ROTULO_OF_COMPARISON,apps/gestao-vite/src/paginas/builder/condicoes.ts:37,2,no,,,proposed,codex2,
@@ -1604,7 +1604,7 @@ gestao-vite-symbol-a2b61b99,gestao-vite,3,symbol,trocarOpcoes,switchOptions,apps
 gestao-vite-symbol-f9842b3d,gestao-vite,3,symbol,trocarPapel,switchRole,apps/gestao-vite/src/paginas/contrato/acoes.ts:19,4,no,,,proposed,codex2,
 gestao-vite-symbol-5b3af1a1,gestao-vite,3,symbol,unicaSecao,unicaSection,apps/gestao-vite/src/componentes/lista-regras.tsx:298,4,no,,,proposed,codex2,
 gestao-vite-symbol-04af5e08,gestao-vite,3,symbol,URL_ORCAMENTO,URL_BUDGET,apps/gestao-vite/src/paginas/criar/casco.tsx:48,3,no,,,proposed,codex2,
-gestao-vite-symbol-fb6d35c3,gestao-vite,3,symbol,urlDaConversaNoDesk,,apps/gestao-vite/src/lib/desk-url.ts:1,10,no,,,candidate,,
+gestao-vite-symbol-fb6d35c3,gestao-vite,3,symbol,urlDaConversaNoDesk,REMOVE,apps/gestao-vite/src/lib/desk-url.ts:1,10,no,,D-28,proposed,sonnet,apps/gestao-vite/src/lib/desk-url.ts removed outright (D-28); no consumer found
 gestao-vite-symbol-e05d13fc,gestao-vite,3,symbol,urlDeEntradaComGoogle,inboundWithGoogleUrl,apps/gestao-vite/src/lib/entrada.ts:22,15,no,,,proposed,codex2,
 gestao-vite-symbol-ec81af75,gestao-vite,3,symbol,urlParaLimparFiltros,urlForLimparFilters,apps/gestao-vite/src/lib/filtros-monitoramento.ts:8,4,no,,,proposed,codex2,
 gestao-vite-symbol-f799a04d,gestao-vite,3,symbol,useCanalWhatsapp,useChannelWhatsapp,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx:38,7,no,,,proposed,codex2,
@@ -1703,7 +1703,7 @@ gestao-vite-test-title-5c694823,gestao-vite,3,test-title,a seção da fila só e
 gestao-vite-test-title-5ab5978b,gestao-vite,3,test-title,"a semana começa no domingo, como o Postgres conta","the week starts on Sunday, the way Postgres counts it",apps/gestao-vite/tests/formato.test.ts:117,0,no,,,proposed,codex2,
 gestao-vite-test-title-cb6d077a,gestao-vite,3,test-title,a URL precisa ser HTTPS com domínio e não pode repetir,the URL must be HTTPS with a domain and cannot repeat,apps/gestao-vite/tests/certificados.test.ts:30,0,no,,,proposed,codex2,
 gestao-vite-test-title-93cc0ad7,gestao-vite,3,test-title,"aba escondida continua na fileira, só que invisível","a hidden tab stays in the row, just invisible",apps/gestao-vite/tests/analise-abas.test.ts:50,0,no,,,proposed,codex2,
-gestao-vite-test-title-bee470b1,gestao-vite,3,test-title,abre a conversa do monitoramento na rota do Desk,,apps/gestao-vite/tests/desk-url.test.ts:5,0,no,,,candidate,,
+gestao-vite-test-title-bee470b1,gestao-vite,3,test-title,abre a conversa do monitoramento na rota do Desk,REMOVE,apps/gestao-vite/tests/desk-url.test.ts:5,0,no,,D-28,proposed,sonnet,apps/gestao-vite/src/lib/desk-url.ts removed outright (D-28); no consumer found
 gestao-vite-test-title-18c924b1,gestao-vite,3,test-title,"adicionarAcaoGlobal recusa depois do limite de 15, igual às ações de bloco","addGlobalAction rejects past the limit of 15, same as block actions",apps/gestao-vite/tests/builder-painels.test.ts:227,0,no,,,proposed,codex2,
 gestao-vite-test-title-c537ba00,gestao-vite,3,test-title,"agrupamento vindo da URL cai em ""nenhum"" quando não é do catálogo","grouping from the URL falls back to ""none"" when it is not in the catalog",apps/gestao-vite/tests/historico.test.ts:36,0,no,,,proposed,codex2,
 gestao-vite-test-title-6b5a00e4,gestao-vite,3,test-title,aplicar múltiplos valores mantém repetições onde a query permite,applying multiple values keeps repeats where the query allows it,apps/gestao-vite/tests/filtros-monitoramento.test.ts:45,0,no,,,proposed,codex2,
@@ -2178,7 +2178,7 @@ gestao-vite-ts-local-b46fd91f,gestao-vite,3,ts-local,contatos,contacts,apps/gest
 gestao-vite-ts-local-b90fe9ed,gestao-vite,3,ts-local,contatosArquivo,contactsFile,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/tela.tsx:27,1,no,,,proposed,codex2,
 gestao-vite-ts-local-09ac0d7d,gestao-vite,3,ts-local,contexto,context,apps/gestao-vite/src/lib/regra-fila.ts:159,300,no,,,proposed,codex2,
 gestao-vite-ts-local-60a12236,gestao-vite,3,ts-local,conversaAberta,conversationAberta,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:659,21,no,,,proposed,codex2,
-gestao-vite-ts-local-9f34f49c,gestao-vite,3,ts-local,conversaId,,apps/gestao-vite/src/lib/desk-url.ts:1,523,no,,,candidate,,
+gestao-vite-ts-local-9f34f49c,gestao-vite,3,ts-local,conversaId,REMOVE,apps/gestao-vite/src/lib/desk-url.ts:1,523,no,,D-28,proposed,sonnet,apps/gestao-vite/src/lib/desk-url.ts removed outright (D-28); no consumer found
 gestao-vite-ts-local-9f07be06,gestao-vite,3,ts-local,conviteId,invitationId,apps/gestao-vite/src/paginas/contrato/acoes.ts:57,15,no,,,proposed,codex2,
 gestao-vite-ts-local-659079ea,gestao-vite,3,ts-local,credenciais,credentials,apps/gestao-vite/src/paginas/implantacao/acoes.ts:55,34,no,,,proposed,codex2,
 gestao-vite-ts-local-2c0daaf2,gestao-vite,3,ts-local,criar,create,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/links-rastreados.tsx:121,235,no,,,proposed,codex2,

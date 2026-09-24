@@ -431,3 +431,7 @@ desk-vite-ts-prop-e6cb3656,desk-vite,3,ts-prop,valor,value,apps/desk-vite/src/pa
 desk-vite-ts-prop-be055358,desk-vite,3,ts-prop,valor,value,apps/desk-vite/src/paginas/atendimentos/painel.tsx:187,1656,no,,,proposed,codex2,
 desk-vite-ts-prop-6cee9790,desk-vite,3,ts-prop,valor,value,apps/desk-vite/src/paginas/contatos/page.tsx:349,1656,no,,,proposed,codex2,
 desk-vite-ts-prop-5213430e,desk-vite,3,ts-prop,vazio,empty,apps/desk-vite/src/paginas/contatos/page.tsx:350,290,no,,,proposed,codex2,
+desk-vite-front-route-extra-chat,desk-vite,3,front-route,/chat,REMOVE,apps/desk-vite/src/App.tsx:38,,no,,D-27,proposed,sonnet,"D-42 dry cut: attendance screen moves to app root ""/"", /chat removed (D-14 cut style)"
+desk-vite-front-route-extra-chat-id,desk-vite,3,front-route,/chat/:id,REMOVE,apps/desk-vite/src/App.tsx:38,,no,,D-27,proposed,sonnet,conversation id moves to React state (D-27); no URL for an open conversation
+desk-vite-front-route-extra-contacts-id,desk-vite,3,front-route,/contacts/:id,REMOVE,apps/desk-vite/src/paginas/contatos/page.tsx:33,,no,,D-29,proposed,sonnet,contact selection moves to React state (D-29); /contacts stays
+desk-vite-query-param-extra-ticket,desk-vite,3,query-param,ticket,STATE,apps/desk-vite/src/paginas/contatos/page.tsx:33,,no,,D-29,proposed,sonnet,ticket selection leaves the URL for React state (D-29)
