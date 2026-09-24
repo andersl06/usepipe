@@ -196,6 +196,16 @@ Plans:
 
 **Notas para o planejamento (roteamento de modelo)**: uso intencional de modelos diferentes por tipo de tarefa, conforme decisão do dono (24/09/2026). **Sonnet**: inventário e dependency analysis, definição da convenção canônica, mapa old→new, decisões semânticas de nomenclatura, classificação URL vs React state, análise de breaking changes, estratégia de compatibilidade, revisão final e validação de regressão. **Haiku** (só depois do mapa old→new aprovado): rename de arquivos/diretórios, imports, referências, links, navigate/redirect, endpoints já mapeados, testes, fixtures, funções/variáveis quando o nome novo já estiver definido, busca por referências antigas remanescentes. Haiku não inventa nomenclatura, não traduz semanticamente por conta própria, não decide arquitetura, URL vs React state, breaking changes, nem altera contrato persistido sem plano.
 
+### Phase 01.1: Subdomínio por tenant no padrão Blip (INSERTED)
+
+**Goal:** Cada cliente acessa o Pipe pelo próprio subdomínio, como na Blip: `<tenant>.usepipe.ai/application` (Gestão/Portal) e `<tenant>.desk.usepipe.ai` (Desk). Escopo: DNS e TLS curinga, resolução do tenant pelo host, cookie de sessão válido entre subdomínios, Traefik na VPS, redirects de login/convite/OAuth. Domínio final a definir (usepipe.ai ou similar). As rotas já chegam no formato Blip pela Phase 1 e não assumem host fixo.
+**Requirements**: TBD
+**Depends on:** Phase 1
+**Plans:** 0 plans
+
+Plans:
+- [ ] TBD (run /gsd-plan-phase 01.1 to break down)
+
 ### Phase 2: Fechar o Builder
 
 **Goal**: O Builder deixa de ser a maior lacuna conhecida do produto — atendente consegue montar e publicar um fluxo completo sem esbarrar em tipo de bloco, ligação ou pesquisa de satisfação sem editor.

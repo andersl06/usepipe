@@ -4,13 +4,13 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 1 context gathered
-last_updated: "2026-09-24T19:40:55.312Z"
+last_updated: "2026-09-24T22:25:39.911Z"
 last_activity: 2026-09-24 -- Phase 01 execution started
 progress:
-  total_phases: 8
+  total_phases: 9
   completed_phases: 0
   total_plans: 41
-  completed_plans: 1
+  completed_plans: 9
   percent: 0
 ---
 
@@ -55,6 +55,10 @@ Progress: [░░░░░░░░░░] 2%
 | Phase 01 P01 | 45min | 2 tasks | 6 files |
 
 ## Accumulated Context
+
+### Roadmap Evolution
+
+- Phase 01.1 inserted after Phase 1: Subdomínio por tenant no padrão Blip (<tenant>.usepipe.ai/application, <tenant>.desk.usepipe.ai); pedido do dono durante o portão 1 da Phase 1
 
 ### Decisions
 
