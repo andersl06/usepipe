@@ -70,6 +70,14 @@ Requisitos: STD-01..STD-12 (ver `.planning/REQUIREMENTS.md`).
 - **D-33:** Renderização: Desk e Gestão são SPA client-side; SSR não entra só porque a URL da Blip é estável. CRM mantém seus Server Components até CRM-01; nada de migrar renderização do CRM nesta fase.
 - **D-34:** Quais telas exigem deep link e sobrevivem a F5: decidido tela a tela no inventário, com evidência Blip por tela; sem evidência → NEEDS VALIDATION.
 
+### Decisões pós-pesquisa (2026-09-24, após 01-RESEARCH.md)
+- **D-35:** Nomes de classe CSS e custom properties (~3.000 seletores, 482 variáveis CSS) entram no STD-10, com mapa old→new próprio aprovado no mesmo portão 2 do D-03.
+- **D-36:** D-06 vale para toda variável de ambiente, não só `PIPE_*` (`GOOGLE_CLIENTE_*`, `WHATSAPP_TOKEN_ACESSO`, `*_API_VERSAO`, `VITE_PORTA`, `VITE_URL_API` também ficam). Única mudança: o VALOR de `GOOGLE_URL_RETORNO` passa a apontar para `/v1/auth/google/callback` em `.env`, `.env.example`, `env.prod.exemplo` e no env da VPS (o nome da variável fica).
+- **D-37:** Modelo Codex: `gpt-5.6-sol`, `model_reasoning_effort="medium"`. Toda chamada passa `-m gpt-5.6-sol` e `-s read-only` explicitamente (a conta 1 tem padrão `danger-full-access` e as duas contas têm modelo padrão diferente).
+- **D-38:** Cookie `pipe_sessao` e nomes de métricas Prometheus renomeiam. Aceitos: logout geral no deploy e quebra de continuidade do histórico de métricas (não há cliente real).
+- **D-39:** `apps/site` e `apps/ponte` entram na padronização.
+- **D-40:** Escopos de chave de API guardados no banco (ex.: `conversas:ler`) e códigos de erro persistidos são persistidos: vão para o inventário STD-06, não renomeiam nesta fase.
+
 ### Claude's Discretion
 - Divisão concreta de tarefas entre Codex 1, Codex 2, Sonnet e Haiku (D-23), respeitando as proibições do D-25.
 - Formato e local dos artefatos de glossário e mapa (desde que existam os dois portões de aprovação do D-03).
