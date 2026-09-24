@@ -1,0 +1,11 @@
+id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+site-dir-8254be5e,site,4,dir,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp,,apps/site/blog/frases-prontas-para-atendimento-no-whatsapp,0,no,,,candidate,,
+site-dir-91a8d4da,site,4,dir,apps/site/blog/mensagem-automatica-e-de-ausencia-no-whatsapp,,apps/site/blog/mensagem-automatica-e-de-ausencia-no-whatsapp,0,no,,,candidate,,
+site-dir-ebe8dd8d,site,4,dir,apps/site/ferramentas/agendador-de-mensagem-whatsapp,,apps/site/ferramentas/agendador-de-mensagem-whatsapp,0,no,,,candidate,,
+site-file-cd868ef9,site,4,file,previa-gestao.png,,apps/site/assets/previa-gestao.png,1,no,,,candidate,,
+site-symbol-d885a0aa,site,4,symbol,botoes,,apps/site/assets/site.js:251,24,no,,,candidate,,
+site-symbol-7a07b610,site,4,symbol,busca,,apps/site/assets/site.js:196,420,no,,,candidate,,
+site-symbol-1752497c,site,4,symbol,porId,,apps/site/assets/site.js:119,7,no,,,candidate,,
+site-symbol-5902df16,site,4,symbol,valor,,apps/site/assets/site.js:228,1656,no,,,candidate,,
+site-symbol-b4e6ab53,site,4,symbol,vazio,,apps/site/assets/site.js:200,290,no,,,candidate,,
+site-ts-local-cc379bbe,site,4,ts-local,entrada,,apps/site/assets/site.js:86,473,no,,,candidate,,

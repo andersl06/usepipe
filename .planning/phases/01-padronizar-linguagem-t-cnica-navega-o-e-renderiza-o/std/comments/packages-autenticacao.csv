@@ -1,0 +1,355 @@
+id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
+packages-autenticacao-comment-2c45ea64,packages-autenticacao,packages/autenticacao/src/entrada.ts,10,36,jsdoc,51,"/**
+ * O que acontece entre ""o provedor disse quem é"" e ""a pessoa está dentro"".
+ *
+ * O caminho é o MESMO para o Google e para o IdP do cliente, e isso é a decisão
+ * central deste arquivo: uma porta só, com uma lista de perguntas só, porque toda
+ * segunda porta de entrada é a que alguém esquece de trancar. A única diferença é
+ * de onde vem o tenant — do domínio do e-mail (Google) ou da conexão que iniciou
+ * o fluxo (SSO).
+ *
+ * A ordem das perguntas é o que importa, e ela é sempre a mesma:
+ *
+ * 1. **Esta conta externa já está ligada a alguém?** Se sim, é ela; acabou. Essa
+ *    consulta é por `(emissor, sujeito)`, nunca por e-mail.
+ * 2. **A política do tenant permite entrar por aqui?** Com `obrigatorio`, só SSO
+ *    — mesmo para quem já tem a conta do Google ligada.
+ * 3. **Se a conta não está ligada, a que tenant o domínio do e-mail pertence?**
+ *    Só domínio VERIFICADO conta, domínio público nunca, e no SSO ele ainda
+ *    precisa ser do tenant que iniciou o fluxo.
+ * 4. **O provedor confirmou este e-mail?** Sem isso não se casa identidade nova
+ *    com usuário existente: quem conseguir um IdP a emitir o e-mail da vítima
+ *    entraria como ela, com os papéis dela.
+ * 5. **Existe usuário com este e-mail nesse tenant?** Se sim, liga a conta
+ *    externa a ele — é a pessoa que já foi convidada e está entrando pela
+ *    primeira vez pelo provedor.
+ * 6. **Senão, recusa.** Criar usuário do nada é o que transforma ""descobri um
+ *    domínio"" em ""entrei no cliente"". Entrada de gente nova é por convite.
+ */",,,,,,
+packages-autenticacao-comment-0c0bb35c,packages-autenticacao,packages/autenticacao/src/entrada.ts,126,126,line,3,// Conta já ligada a OUTRO cliente. Reaproveitá-la aqui seria a mesma pessoa,,,,,,
+packages-autenticacao-comment-2c39d7ad,packages-autenticacao,packages/autenticacao/src/entrada.ts,127,127,line,2,"// entrando em dois tenants com o mesmo login, e a escolha de qual vale",,,,,,
+packages-autenticacao-comment-bbce7d8e,packages-autenticacao,packages/autenticacao/src/entrada.ts,139,142,block,8,"/* Antes de recusar por qualquer motivo, uma trava que vale para TODO caminho
+     novo: sem o provedor afirmar que o e-mail é da pessoa, nada aqui adiante
+     pode casar identidade com conta — nem ligar a um usuário convidado, nem
+     abrir conta nova com aquele endereço. */",,,,,,
+packages-autenticacao-comment-0a5e210f,packages-autenticacao,packages/autenticacao/src/entrada.ts,150,150,line,1,// Primeira entrada: o domínio decide (Google) ou confirma (SSO) de quem é a pessoa.,,,,,,
+packages-autenticacao-comment-dd74251b,packages-autenticacao,packages/autenticacao/src/entrada.ts,152,154,block,6,"/* E-mail pessoal não diz de que empresa a pessoa é — mas no autosserviço ele
+       não precisa dizer: a conta que nasce é dela, e o nome da empresa vem
+       depois, em ""minha conta"". */",,,,,,
+packages-autenticacao-comment-b193dc03,packages-autenticacao,packages/autenticacao/src/entrada.ts,173,174,block,3,"/* Ninguém reivindicou este domínio. No autosserviço isso não é recusa, é o
+       caso comum: é a primeira pessoa daquela empresa chegando. */",,,,,,
+packages-autenticacao-comment-54177c58,packages-autenticacao,packages/autenticacao/src/entrada.ts,217,217,jsdoc,2,/** O login com Google. É `entrarComIdentidade` com o tenant vindo do domínio. */,,,,,,
+packages-autenticacao-comment-0c969fac,packages-autenticacao,packages/autenticacao/src/entrada.ts,218,225,jsdoc,12,"/**
+ * A conta que nasce no login: o autosserviço cria o tenant e o administrador, e
+ * esta função só liga a identidade do provedor a ele e abre a sessão.
+ *
+ * A identidade é gravada aqui, e não dentro do provisionamento, porque quem
+ * provisiona não conhece provedor nenhum — é o mesmo caminho do comando que
+ * cria cliente pela linha de comando.
+ */",,,,,,
+packages-autenticacao-comment-69fc0516,packages-autenticacao,packages/autenticacao/src/entrada.ts,262,262,jsdoc,2,/** O login pelo IdP do cliente. O tenant vem da conexão que iniciou o fluxo. */,,,,,,
+packages-autenticacao-comment-6ef9ba91,packages-autenticacao,packages/autenticacao/src/entrada.ts,273,286,jsdoc,19,"/**
+ * Abre sessão numa conta em que a pessoa JÁ tem usuário — é a troca de conta do
+ * seletor do canto superior esquerdo.
+ *
+ * Não é atalho de login: quem chama precisa ter provado, antes, que o usuário
+ * daquela conta é da mesma pessoa que já está logada (mesmo e-mail, conferido
+ * no banco do dono). O que esta função garante é o resto — usuário ativo e
+ * política de SSO da conta de destino —, porque é ela que emite o token, e todo
+ * caminho que emite token passa pelas mesmas travas.
+ *
+ * A sessão antiga não é encerrada aqui: quem troca de conta costuma voltar, e
+ * derrubar a outra aba no meio de um atendimento seria pior do que manter duas
+ * sessões vivas com o mesmo prazo.
+ */",,,,,,
+packages-autenticacao-comment-f9f343a5,packages-autenticacao,packages/autenticacao/src/entrada.ts,309,319,jsdoc,17,"/**
+ * A política do tenant, conferida NO SERVIDOR, no caminho que emite a sessão.
+ *
+ * Não é a tela que esconde o botão do Google: com `obrigatorio`, este caminho
+ * recusa mesmo quem já tem a conta ligada e mesmo que tudo o mais esteja certo.
+ * É aqui que ""SSO obrigatório"" para de ser um texto na tela de configuração —
+ * ver `referencias-blip/pesquisa/sso-multi-tenant.md` §6.
+ *
+ * Todo caminho novo que abrir sessão (senha, recuperação de senha, convite por
+ * link) tem de passar por esta função. É a porta dos fundos clássica.
+ */",,,,,,
+packages-autenticacao-comment-8c6a36b1,packages-autenticacao,packages/autenticacao/src/entrada.ts,359,359,line,0,"// Em série, nunca em `Promise.all`: dentro da transação o paralelo derruba o",,,,,,
+packages-autenticacao-comment-94991628,packages-autenticacao,packages/autenticacao/src/entrada.ts,360,360,line,0,// `pipe.tenant_id` da sessão — ver o README.,,,,,,
+packages-autenticacao-comment-583fd6ef,packages-autenticacao,packages/autenticacao/src/entrada.ts,362,362,line,2,// O e-mail que mudou no IdP atualiza só este campo de exibição: a conta,,,,,,
+packages-autenticacao-comment-e4f3e986,packages-autenticacao,packages/autenticacao/src/entrada.ts,363,363,line,1,"// continua sendo o par (emissor, sujeito). Trocar de endereço não troca de",,,,,,
+packages-autenticacao-comment-53defef2,packages-autenticacao,packages/autenticacao/src/entrada.ts,364,364,line,3,"// conta, e é por isso que herdar o endereço de quem saiu não herda o acesso.",,,,,,
+packages-autenticacao-comment-082e1a7c,packages-autenticacao,packages/autenticacao/src/entrada.ts,401,408,jsdoc,12,"/**
+ * Resolve a sessão do cookie.
+ *
+ * Roda com o papel dono porque descobrir o tenant é justamente o que precisa
+ * acontecer antes de fixar o tenant. A consulta é pelo HASH, com índice único, e
+ * devolve `null` para qualquer coisa que não seja uma sessão viva — token
+ * inexistente, expirado e encerrado dão a mesma resposta, de propósito.
+ */",,,,,,
+packages-autenticacao-comment-e4ff74f3,packages-autenticacao,packages/autenticacao/src/entrada.ts,440,440,jsdoc,2,/** Encerra a sessão. Idempotente: sair duas vezes não é erro. */,,,,,,
+packages-autenticacao-comment-602643ba,packages-autenticacao,packages/autenticacao/src/entrada.ts,64,64,jsdoc,2,/** Vai para `sessao.origem`. A revogação em massa por política depende dele. */,,,,,,
+packages-autenticacao-comment-bf7cb0e2,packages-autenticacao,packages/autenticacao/src/entrada.ts,66,73,jsdoc,7,"/**
+   * O tenant já resolvido, quando o fluxo começou numa conexão de SSO.
+   *
+   * Com ele, a descoberta por domínio deixa de escolher o tenant e passa a
+   * CONFERIR: o domínio continua tendo de estar verificado, e verificado para
+   * este tenant. Sem essa conferência, o IdP de um cliente autenticaria gente de
+   * outro só por mandar o e-mail certo.
+   */",,,,,,
+packages-autenticacao-comment-c5e79a66,packages-autenticacao,packages/autenticacao/src/entrada.ts,75,88,jsdoc,23,"/**
+   * O autosserviço: o que fazer quando a pessoa entrou e não há conta nenhuma
+   * para ela.
+   *
+   * Sem isto, a entrada é fechada — convite ou domínio verificado — e quem não
+   * tem nem um nem outro é recusado. Com isto, a conta é CRIADA na hora, que é
+   * o caminho da plataforma de origem: entra, a conta nasce, a tela de
+   * boas-vindas avisa, e ""minha conta"" completa os dados depois.
+   *
+   * Quem passa a função é a API (é lá que mora o provisionamento). A regra de
+   * QUANDO ela é chamada fica aqui, e é estreita de propósito: só quando não há
+   * dono para o domínio. Domínio verificado sem convite continua recusando —
+   * ali existe um cliente, e entrar sem convite seria entrar na conta dele.
+   */",,,,,,
+packages-autenticacao-comment-88db4d1d,packages-autenticacao,packages/autenticacao/src/entrada.ts,92,92,jsdoc,2,/** O que o autosserviço devolve: a conta recém-criada e o dono dela. */,,,,,,
+packages-autenticacao-comment-5c2b0915,packages-autenticacao,packages/autenticacao/src/entrada.ts,98,106,jsdoc,8,"/**
+ * `bancoDono` roda sem RLS de propósito, e só nas consultas que precisam
+ * acontecer ANTES de existir tenant: achar a identidade externa, resolver o
+ * domínio e ler a política do tenant. É o mesmo caminho da resolução de chave de
+ * API, e pela mesma razão — não dá para fixar `pipe.tenant_id` antes de saber
+ * qual é.
+ *
+ * Tudo o que vem depois passa por `comTenant`.
+ */",,,,,,
+packages-autenticacao-comment-24052f9a,packages-autenticacao,packages/autenticacao/src/google.ts,101,109,jsdoc,11,"/**
+ * Quem o provedor disse que é — Google ou o IdP do cliente, o formato é o mesmo.
+ *
+ * `sujeito` é o identificador estável da conta NO PROVEDOR, e junto com `emissor`
+ * forma a chave real: `sub` no Google e no OIDC comum, `{tid}:{oid}` no Entra
+ * (ver `oidc.ts`). `emailVerificado` é a resposta do provedor à pergunta ""o dono
+ * do domínio confirmou este endereço?"", e é o que autoriza — ou não — casar esta
+ * identidade com um usuário que já existe.
+ */",,,,,,
+packages-autenticacao-comment-04b6867f,packages-autenticacao,packages/autenticacao/src/google.ts,119,119,jsdoc,2,"/** O Google é um caso de `PessoaExterna`, não um formato à parte. */",,,,,,
+packages-autenticacao-comment-d915b810,packages-autenticacao,packages/autenticacao/src/google.ts,124,130,jsdoc,13,"/**
+ * Troca o código pelo `id_token` e o verifica.
+ *
+ * `buscar` é injetável para o teste não sair para a rede — e para que a troca de
+ * código, que é a parte que fala com o Google, possa ser exercitada sem segredo
+ * de verdade.
+ */",,,,,,
+packages-autenticacao-comment-0d1191fa,packages-autenticacao,packages/autenticacao/src/google.ts,143,143,line,1,"// Comparação simples serve: `state` é nosso, gerado agora, e não é segredo de",,,,,,
+packages-autenticacao-comment-fbe4631d,packages-autenticacao,packages/autenticacao/src/google.ts,144,144,line,3,// longa duração — o que importa é que o valor volte igual ao que mandamos.,,,,,,
+packages-autenticacao-comment-871e78ea,packages-autenticacao,packages/autenticacao/src/google.ts,192,192,line,2,"// Sem isto, quem cria conta no Google com o endereço de outra pessoa entra",,,,,,
+packages-autenticacao-comment-2a4cfe38,packages-autenticacao,packages/autenticacao/src/google.ts,193,193,line,2,// como ela. O Google marca `email_verified` para conta de Workspace e para,,,,,,
+packages-autenticacao-comment-d777d05b,packages-autenticacao,packages/autenticacao/src/google.ts,194,194,line,1,"// Gmail; ausência é motivo de recusa, não de tolerância.",,,,,,
+packages-autenticacao-comment-75a0a8ac,packages-autenticacao,packages/autenticacao/src/google.ts,210,210,jsdoc,4,"/** O domínio do e-mail, para descobrir a que tenant a pessoa pertence. */",,,,,,
+packages-autenticacao-comment-41d9d24f,packages-autenticacao,packages/autenticacao/src/google.ts,215,221,jsdoc,10,"/**
+ * Domínios de e-mail pessoal, que nunca identificam uma empresa.
+ *
+ * Quem entra com um destes não é descoberto por domínio: entra por convite ou
+ * pelo link direto do cliente. Sem esta lista, o primeiro a cadastrar
+ * `gmail.com` levaria todo mundo para o tenant dele.
+ */",,,,,,
+packages-autenticacao-comment-20ad22a9,packages-autenticacao,packages/autenticacao/src/google.ts,26,26,jsdoc,2,"/** Descoberta do Google. Constante, e por isso não vale buscar o documento. */",,,,,,
+packages-autenticacao-comment-c5b60f2c,packages-autenticacao,packages/autenticacao/src/google.ts,4,24,jsdoc,22,"/**
+ * Login com Google, pelo OpenID Connect.
+ *
+ * O fluxo é o de código de autorização com PKCE. Três coisas aqui não são
+ * escolha de estilo, e cada uma fecha um ataque conhecido:
+ *
+ * 1. **O `id_token` é verificado contra o JWKS do Google**, com emissor e
+ *    audiência conferidos. Aceitar o token sem verificar assinatura é aceitar
+ *    qualquer um que saiba montar um JSON.
+ * 2. **`state` e `nonce` são gerados por tentativa e conferidos na volta.** O
+ *    `state` fecha CSRF de login (a vítima entrando na conta do atacante); o
+ *    `nonce` fecha replay de um `id_token` capturado.
+ * 3. **PKCE**, mesmo com segredo de cliente. Custa três linhas e protege se o
+ *    código de autorização vazar no caminho.
+ *
+ * E a que mais derruba implementação: **a chave da conta é `(emissor, sujeito)`,
+ * nunca o e-mail.** E-mail muda de dono dentro de uma empresa, e quem herda o
+ * endereço de quem saiu herdaria a conta. Além disso só aceitamos e-mail com
+ * `email_verified`: sem isso, quem cria conta no Google com o endereço de outra
+ * pessoa entra como ela.
+ */",,,,,,
+packages-autenticacao-comment-cecd9462,packages-autenticacao,packages/autenticacao/src/google.ts,64,64,jsdoc,3,"/** O que precisa sobreviver entre a ida e a volta, guardado em cookie assinado. */",,,,,,
+packages-autenticacao-comment-0f726c4b,packages-autenticacao,packages/autenticacao/src/google.ts,78,78,line,1,"// Só caminho interno: destino absoluto vira redirecionamento aberto, que é",,,,,,
+packages-autenticacao-comment-490f1c33,packages-autenticacao,packages/autenticacao/src/google.ts,79,79,line,0,// como se monta phishing usando o nosso domínio como trampolim.,,,,,,
+packages-autenticacao-comment-f71172be,packages-autenticacao,packages/autenticacao/src/google.ts,95,95,line,1,// Sem `prompt=select_account` quem tem várias contas entra sempre na última.,,,,,,
+packages-autenticacao-comment-69128277,packages-autenticacao,packages/autenticacao/src/oidc.ts,119,122,jsdoc,2,"/**
+ * A ida ao IdP. Mesmo desafio do Google — `criarDesafio` serve aos dois, e é de
+ * propósito: `state`, `nonce` e o verificador PKCE não têm nada de específico.
+ */",,,,,,
+packages-autenticacao-comment-c4f7683c,packages-autenticacao,packages/autenticacao/src/oidc.ts,142,146,jsdoc,4,"/**
+ * O JWKS por emissor, guardado. `createRemoteJWKSet` já traz cache e rotação de
+ * chave por dentro — criar um por login refaria a busca a cada entrada e faria a
+ * rotação de certificado do cliente virar um pico de requisições no IdP dele.
+ */",,,,,,
+packages-autenticacao-comment-6dbb5ab8,packages-autenticacao,packages/autenticacao/src/oidc.ts,158,158,jsdoc,3,/** Troca o código pelo `id_token` e o verifica. `buscar` e `chaves` são injetáveis para o teste. */,,,,,,
+packages-autenticacao-comment-c7824e25,packages-autenticacao,packages/autenticacao/src/oidc.ts,204,204,line,3,"// `issuer` e `audience` exatos. Sem `audience`, uma asserção emitida para outro",,,,,,
+packages-autenticacao-comment-610087fc,packages-autenticacao,packages/autenticacao/src/oidc.ts,205,205,line,0,// aplicativo é aceita aqui — e no Entra basta o atacante ter o próprio app.,,,,,,
+packages-autenticacao-comment-65d08382,packages-autenticacao,packages/autenticacao/src/oidc.ts,215,215,line,3,"// Com `aud` de vários valores, quem manda é o `azp`: sem esta conferência, um",,,,,,
+packages-autenticacao-comment-c2949884,packages-autenticacao,packages/autenticacao/src/oidc.ts,216,216,line,2,// token emitido para outro cliente que nos liste junto passaria.,,,,,,
+packages-autenticacao-comment-242ab84c,packages-autenticacao,packages/autenticacao/src/oidc.ts,239,243,jsdoc,3,"/**
+ * No Entra multi-tenant o `iss` é `https://login.microsoftonline.com/{tid}/v2.0`,
+ * e o emissor descoberto vem com o `{tenantid}` como marcador. Aceitamos os
+ * emissores dos `tid` declarados, e nada além deles.
+ */",,,,,,
+packages-autenticacao-comment-96e877ce,packages-autenticacao,packages/autenticacao/src/oidc.ts,26,32,jsdoc,7,"/**
+ * Quem é o IdP. Não é enfeite: o Entra lê sujeito e e-mail verificado de um jeito
+ * diferente de todo mundo, e tratar os dois iguais é exatamente o buraco da §8.
+ *
+ * A lista vem do schema, que é onde o `check` do banco a repete. Duas listas para
+ * a mesma coisa é como nasce um provedor que o código aceita e o banco recusa.
+ */",,,,,,
+packages-autenticacao-comment-a8bc721f,packages-autenticacao,packages/autenticacao/src/oidc.ts,262,269,jsdoc,2,"/**
+ * O sujeito estável da conta.
+ *
+ * **No Entra é `{tid}:{oid}`, nunca o `sub`.** O `sub` é *pairwise* por registro
+ * de aplicativo: recriar o app troca o `sub` de todo mundo e órfã todas as contas
+ * de uma vez. O `oid` é o id do usuário no diretório e não muda; o `tid` na
+ * frente evita colisão entre diretórios diferentes.
+ */",,,,,,
+packages-autenticacao-comment-48942442,packages-autenticacao,packages/autenticacao/src/oidc.ts,280,289,jsdoc,14,"/**
+ * Este e-mail foi verificado pelo dono do domínio?
+ *
+ * **O Entra não emite `email_verified`.** Quem trata a ausência como falso quebra
+ * o Entra inteiro; quem trata como verdadeiro abre o buraco da §8. O equivalente
+ * da Microsoft é o claim opcional `xms_edov`, que a empresa precisa habilitar no
+ * registro do aplicativo — e sem ele a resposta é ""não sei"", que aqui vale
+ * ""não"". Contas federadas por SAML/WS-Fed não têm domínio verificado e vêm com
+ * `xms_edov` falso, o que é a resposta certa.
+ */",,,,,,
+packages-autenticacao-comment-7aa0176f,packages-autenticacao,packages/autenticacao/src/oidc.ts,37,37,jsdoc,3,"/** O `issuer`, sem `/.well-known/...`. É ele que a descoberta tem de confirmar. */",,,,,,
+packages-autenticacao-comment-6590db05,packages-autenticacao,packages/autenticacao/src/oidc.ts,43,49,jsdoc,7,"/**
+   * Os `tid` aceitos, para app multi-tenant no Entra.
+   *
+   * Sem isto, **qualquer diretório da Microsoft entra**: o `iss` de um app
+   * multi-tenant é o do diretório de quem está entrando, e a validação de `iss`
+   * sozinha passa para todos eles. É a armadilha ""emissor não fixado"" da §8.
+   */",,,,,,
+packages-autenticacao-comment-21d0603c,packages-autenticacao,packages/autenticacao/src/oidc.ts,67,77,jsdoc,5,"/**
+ * Lê o `.well-known/openid-configuration` do emissor.
+ *
+ * Duas travas, e as duas são de segurança:
+ *
+ * 1. **HTTPS obrigatório.** Descoberta em texto claro é o documento inteiro —
+ *    inclusive o `jwks_uri` — escolhido por quem estiver no caminho.
+ * 2. **O `issuer` do documento tem de ser IGUAL ao que pedimos.** É o que impede
+ *    um emissor de se declarar outro e roubar a validação de `iss` (RFC 8414 §3.3,
+ *    e a raiz da família de ataques de mix-up de IdP).
+ */",,,,,,
+packages-autenticacao-comment-c8b4ed64,packages-autenticacao,packages/autenticacao/src/oidc.ts,7,24,jsdoc,14,"/**
+ * OIDC genérico: o mesmo fluxo do `google.ts`, mas com o provedor vindo do banco.
+ *
+ * O Google é um emissor constante e por isso não precisa de descoberta. Aqui o
+ * emissor é o do cliente — Microsoft Entra ID, Google Workspace, Okta — e tudo
+ * que muda entre eles cabe em três coisas: os endpoints (descobertos por
+ * `.well-known`), como se lê o sujeito e como se lê ""este e-mail é verificado"".
+ *
+ * O que NÃO muda, e é o que segura o resto de pé:
+ *
+ * - **assinatura conferida contra o JWKS do emissor**, com `iss` e `aud` exatos;
+ * - **`state`, `nonce` e PKCE por tentativa**, gerados por `criarDesafio`;
+ * - **a chave da conta é `(emissor, sujeito)`**, nunca o e-mail.
+ *
+ * As armadilhas de `referencias-blip/pesquisa/sso-multi-tenant.md` §8 estão marcadas uma a
+ * uma no código abaixo. Nenhuma delas dá erro quando está errada: dá login
+ * concedido.
+ */",,,,,,
+packages-autenticacao-comment-f2da35bf,packages-autenticacao,packages/autenticacao/src/sessao.ts,103,109,jsdoc,10,"/**
+ * As origens que podem chamar a API com credencial.
+ *
+ * Lista fechada, montada do ambiente. Nunca `*`: com credencial, curinga é
+ * recusado pelo navegador — e mesmo que não fosse, seria abrir a API para
+ * qualquer site fazer requisição autenticada em nome de quem está logado.
+ */",,,,,,
+packages-autenticacao-comment-2b094e56,packages-autenticacao,packages/autenticacao/src/sessao.ts,131,131,jsdoc,4,/** Uma sessão vale enquanto não expirou e não foi encerrada à mão. */,,,,,,
+packages-autenticacao-comment-e98da117,packages-autenticacao,packages/autenticacao/src/sessao.ts,14,15,jsdoc,2,"/** 8 horas. É o teto honesto de revogação sem SCIM: quem sai da empresa cliente
+ *  perde o acesso na próxima revalidação, não no instante do desligamento. */",,,,,,
+packages-autenticacao-comment-a046251a,packages-autenticacao,packages/autenticacao/src/sessao.ts,21,21,jsdoc,1,/** Vai para o cookie. Nunca é gravado. */,,,,,,
+packages-autenticacao-comment-a78ce56e,packages-autenticacao,packages/autenticacao/src/sessao.ts,23,23,jsdoc,1,/** Vai para o banco. Nunca sai de lá. */,,,,,,
+packages-autenticacao-comment-c0897ab1,packages-autenticacao,packages/autenticacao/src/sessao.ts,3,12,jsdoc,13,"/**
+ * A sessão do Pipe.
+ *
+ * O token vai no cookie do navegador; no banco fica só o **hash**. É a mesma
+ * regra da chave de API: quem lê o banco não consegue se passar por ninguém.
+ *
+ * A busca é PELO HASH, com índice único — e não pelo id da sessão com
+ * comparação depois. Isso mantém a consulta em uma linha e evita o padrão de
+ * ""achou o registro, agora compara"", que é onde nasce comparação vazando tempo.
+ */",,,,,,
+packages-autenticacao-comment-444f8bc2,packages-autenticacao,packages/autenticacao/src/sessao.ts,37,41,jsdoc,5,"/**
+ * SHA-256 puro, sem custo de derivação, e isso é deliberado: o token tem 256
+ * bits de entropia gerada por nós, não é senha escolhida por gente. Derivação
+ * lenta protege contra dicionário, e não há dicionário que alcance isto.
+ */",,,,,,
+packages-autenticacao-comment-2ee9090a,packages-autenticacao,packages/autenticacao/src/sessao.ts,54,67,jsdoc,18,"/**
+   * O domínio-pai, com ponto na frente: `.pipe.com.br`.
+   *
+   * É o que faz o cookie emitido por `api.pipe.com.br` viajar para
+   * `gestao.pipe.com.br`, `app.pipe.com.br` e `crm.pipe.com.br`. Cada aplicativo
+   * mora numa URL própria, e sem isto cada um precisaria do próprio login.
+   *
+   * A alternativa seria `SameSite=None` com CORS de credencial, e ela é pior:
+   * `None` manda o cookie em requisição de QUALQUER site, e é justamente o que
+   * o `Lax` existe para impedir. Subdomínio do mesmo pai é o mesmo site.
+   *
+   * Em desenvolvimento fica indefinido: `localhost` não aceita domínio de
+   * cookie, e as portas diferentes já são a mesma origem para este fim.
+   */",,,,,,
+packages-autenticacao-comment-bd2775d2,packages-autenticacao,packages/autenticacao/src/sessao.ts,69,69,jsdoc,2,"/** Fora só em `http://localhost`, onde não existe HTTPS para exigir. */",,,,,,
+packages-autenticacao-comment-e625df83,packages-autenticacao,packages/autenticacao/src/sessao.ts,73,79,jsdoc,3,"/**
+ * O cookie, com os atributos que importam.
+ *
+ * `HttpOnly` tira o token do alcance de qualquer script — sem ele, um XSS vira
+ * sequestro de sessão. `SameSite=Lax` deixa o retorno do Google funcionar (é
+ * navegação de topo) e barra envio em requisição de terceiro.
+ */",,,,,,
+packages-autenticacao-comment-94d8e9a3,packages-autenticacao,packages/autenticacao/src/sessao.ts,88,88,jsdoc,2,/** O cookie que apaga o cookie. `Max-Age=0` some com ele em qualquer navegador. */,,,,,,
+packages-autenticacao-comment-5bf27dbb,packages-autenticacao,packages/autenticacao/src/sessao.ts,95,95,line,2,// O domínio precisa vir ANTES do Secure? Não — a ordem é livre. Mas ele só,,,,,,
+packages-autenticacao-comment-730135c5,packages-autenticacao,packages/autenticacao/src/sessao.ts,96,96,line,1,// entra quando existe: `Domain=localhost` invalida o cookie em vários,,,,,,
+packages-autenticacao-comment-80b7a418,packages-autenticacao,packages/autenticacao/src/sessao.ts,97,97,line,2,"// navegadores, e o sintoma é login que ""não faz nada"".",,,,,,
+packages-autenticacao-comment-77f05ba7,packages-autenticacao,packages/autenticacao/tests/google.test.ts,181,181,line,0,"// O verificador só aparece AQUI, na troca — nunca na ida ao Google.",,,,,,
+packages-autenticacao-comment-0c00d29e,packages-autenticacao,packages/autenticacao/tests/google.test.ts,198,198,line,2,"// Se `gmail.com` fosse cadastrável, o primeiro a registrá-lo levaria todo",,,,,,
+packages-autenticacao-comment-429bf4d4,packages-autenticacao,packages/autenticacao/tests/google.test.ts,199,199,line,2,// mundo que usa Gmail para o tenant dele.,,,,,,
+packages-autenticacao-comment-ee8b2ad0,packages-autenticacao,packages/autenticacao/tests/google.test.ts,22,22,jsdoc,4,"/** Um par de chaves nosso, para assinar `id_token` sem sair para a rede. */",,,,,,
+packages-autenticacao-comment-90c86f0d,packages-autenticacao,packages/autenticacao/tests/google.test.ts,52,52,line,2,// O verificador em si NUNCA vai na ida — é isso que faz o PKCE valer.,,,,,,
+packages-autenticacao-comment-2ac3a761,packages-autenticacao,packages/autenticacao/tests/google.test.ts,90,90,line,0,// Normalizado: e-mail é caixa-insensível e comparar cru cria conta duplicada.,,,,,,
+packages-autenticacao-comment-50083fa4,packages-autenticacao,packages/autenticacao/tests/google.test.ts,96,96,line,2,"// Sem isto, quem cria conta no Google com o endereço de outra pessoa entra",,,,,,
+packages-autenticacao-comment-c21ce733,packages-autenticacao,packages/autenticacao/tests/google.test.ts,97,97,line,2,// como ela — é o caminho de escalada mais barato que existe em OIDC.,,,,,,
+packages-autenticacao-comment-dd64dda4,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,142,142,line,3,"// Sem `audience`, uma asserção feita para o app de outro entra aqui — e no",,,,,,
+packages-autenticacao-comment-e7e76699,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,143,143,line,0,// Entra basta o atacante ter o próprio registro de aplicativo.,,,,,,
+packages-autenticacao-comment-6f0ae2c3,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,15,21,jsdoc,9,"/**
+ * Um teste por armadilha de `referencias-blip/pesquisa/sso-multi-tenant.md` §8.
+ *
+ * O que une todas elas: **nenhuma dá erro quando está errada.** Todas dão login
+ * concedido, para a pessoa errada, sem nada no log. É por isso que cada uma tem
+ * teste próprio em vez de um ""o fluxo funciona"" só.
+ */",,,,,,
+packages-autenticacao-comment-253a3061,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,200,200,line,3,// A resposta passa pelo navegador e é trivial de capturar. O que impede o,,,,,,
+packages-autenticacao-comment-1ab7c0e7,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,201,201,line,1,"// reenvio é o `nonce` ser de uma tentativa só, e o cookie do desafio morrer",,,,,,
+packages-autenticacao-comment-5d767662,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,236,236,line,0,// O `sub` é *pairwise* por registro de aplicativo: recriar o app troca o,,,,,,
+packages-autenticacao-comment-dedbcadd,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,237,237,line,2,// `sub` de todo mundo e órfã TODAS as contas de uma vez. O `oid` não muda.,,,,,,
+packages-autenticacao-comment-c41ada45,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,242,242,line,3,// Sem `oid` não há sujeito: melhor recusar do que cair no `sub`.,,,,,,
+packages-autenticacao-comment-2a2cdacb,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,247,247,line,2,// O Entra não emite `email_verified`. Quem trata a ausência como verdadeira,,,,,,
+packages-autenticacao-comment-c6d72990,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,274,274,line,1,"// Em app multi-tenant, validar só a forma do `iss` deixa entrar qualquer",,,,,,
+packages-autenticacao-comment-8ec7e8eb,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,275,275,line,2,// diretório. É o `tid` conferido contra a lista do cliente que fecha.,,,,,,
+packages-autenticacao-comment-5aeecae1,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,293,293,line,6,// A recusa não é aqui: é na hora de casar a identidade com um usuário que já,,,,,,
+packages-autenticacao-comment-7a6433d1,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,294,294,line,0,// existe (`entrada.ts`). Assim o teste da conexão consegue MOSTRAR ao admin,,,,,,
+packages-autenticacao-comment-9741a709,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,295,295,line,1,"// que falta habilitar o claim, em vez de só falhar.",,,,,,
+packages-autenticacao-comment-f59db59a,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,345,345,line,1,// O `state` fecha o CSRF de login: a vítima entrando na conta do atacante.,,,,,,
+packages-autenticacao-comment-c04cbd24,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,58,58,jsdoc,4,"/** Um `fetch` que devolve o documento de descoberta pedido, sem sair para a rede. */",,,,,,
+packages-autenticacao-comment-594b285f,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,79,79,line,0,// Descoberta em texto claro é o documento inteiro — inclusive o `jwks_uri` —,,,,,,
+packages-autenticacao-comment-21082ce9,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,85,85,line,1,// A raiz da família de ataques de mix-up: um emissor se dizer outro e roubar,,,,,,
+packages-autenticacao-comment-a74a8c29,packages-autenticacao,packages/autenticacao/tests/oidc.test.ts,86,86,line,2,// a validação de `iss` que faríamos depois.,,,,,,
+packages-autenticacao-comment-38f1cd65,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,42,42,line,2,// Encerrada à mão vale menos que o prazo: sair tem de valer na hora.,,,,,,
+packages-autenticacao-comment-ed68ecf4,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,49,49,line,1,"// Sem HttpOnly, um XSS lê o token e vira sequestro de sessão.",,,,,,
+packages-autenticacao-comment-da796a87,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,56,56,line,0,"//  invalida o cookie em vários navegadores, e o sintoma é",,,,,,
+packages-autenticacao-comment-6f19f3a2,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,57,57,line,2,"// login que ""não faz nada"".",,,,,,
+packages-autenticacao-comment-973931bf,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,64,64,line,3,// A api mora em api.pipe.com.br e as telas em gestao/app/crm.pipe.com.br.,,,,,,
+packages-autenticacao-comment-ceab4cff,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,65,65,line,2,"// Sem o domínio-pai, cada uma precisaria do próprio login.",,,,,,
+packages-autenticacao-comment-23888956,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,68,68,line,0,// E continua Lax:  mandaria o cookie em requisição de qualquer site.,,,,,,
+packages-autenticacao-comment-a5f2189b,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,79,79,line,2,"//gestao.pipe.com.br, https://app.pipe.com.br/',",,,,,,
+packages-autenticacao-comment-5ff794ca,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,81,81,line,2,"//gestao.pipe.com.br', 'https://app.pipe.com.br']);",,,,,,
+packages-autenticacao-comment-9831037f,packages-autenticacao,packages/autenticacao/tests/sessao.test.ts,83,83,line,2,"// Barra final não pode virar recusa: o navegador manda sem, mas o ambiente",,,,,,

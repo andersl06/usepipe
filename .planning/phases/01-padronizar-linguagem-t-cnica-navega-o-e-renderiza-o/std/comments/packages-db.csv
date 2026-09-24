@@ -1,0 +1,827 @@
+id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
+packages-db-comment-f514936f,packages-db,packages/db/src/auditoria.ts,113,119,jsdoc,10,"/**
+ * O que mudou entre dois estados, só com os campos diferentes.
+ *
+ * Guardar o objeto inteiro dos dois lados incha a tabela e esconde a mudança:
+ * quem lê o log quer saber que a capacidade foi de 5 para 8, não reler as
+ * quinze colunas que continuaram iguais.
+ */",,,,,,
+packages-db-comment-b99f511a,packages-db,packages/db/src/auditoria.ts,139,139,line,3,// `null` e `undefined` são a mesma ausência para efeito de log: o driver,,,,,,
+packages-db-comment-f5bee3a4,packages-db,packages/db/src/auditoria.ts,140,140,line,2,"// devolve `null` e o formulário manda `undefined`, e isso não é mudança.",,,,,,
+packages-db-comment-748cec0c,packages-db,packages/db/src/auditoria.ts,22,22,jsdoc,1,"/** O que o ator é. Pessoa, chave de API, ou o próprio sistema. */",,,,,,
+packages-db-comment-829906c2,packages-db,packages/db/src/auditoria.ts,26,31,jsdoc,2,"/**
+ * As ações registradas.
+ *
+ * Lista fechada de propósito: string livre vira `update`, `atualizar`,
+ * `atualizou` e `edit` na mesma tabela, e aí o log não se consulta mais.
+ */",,,,,,
+packages-db-comment-2c6fc419,packages-db,packages/db/src/auditoria.ts,37,37,jsdoc,2,/** Nulo para `sistema`: o cron não tem id. */,,,,,,
+packages-db-comment-dc6e7c55,packages-db,packages/db/src/auditoria.ts,4,20,jsdoc,23,"/**
+ * O registro de quem mudou o quê.
+ *
+ * A tabela `log_auditoria` existe desde a fundação e **ninguém escrevia nela**.
+ * A consequência apareceu na auditoria de usabilidade: nenhuma tela de cadastro
+ * do Pipe tem editar nem excluir — só criar. O motivo estava escrito nas specs
+ * como ""aguardando log de auditoria"", e o log nunca veio.
+ *
+ * Isso inverteu a ordem das coisas: a falta do registro virou desculpa para o
+ * produto não deixar corrigir um nome digitado errado. Este arquivo paga a
+ * dívida para que a edição possa existir.
+ *
+ * **A regra que faz o registro valer alguma coisa**: grava-se o ANTES e o
+ * DEPOIS, na mesma transação da mudança. Log em transação separada some quando
+ * a mudança falha, ou sobra quando ela é desfeita — e nos dois casos ele passa
+ * a mentir. Log que mente é pior que log nenhum, porque alguém confia nele.
+ */",,,,,,
+packages-db-comment-e0037783,packages-db,packages/db/src/auditoria.ts,54,60,jsdoc,5,"/**
+ * Campos que NUNCA entram no log, mesmo que venham no objeto.
+ *
+ * O log é lido por gente do suporte e exportado em auditoria de contrato.
+ * Gravar segredo ali seria desfazer, num lugar mais visível, a cifra que
+ * `segredo.ts` aplica no banco.
+ */",,,,,,
+packages-db-comment-c048d0b2,packages-db,packages/db/src/auditoria.ts,86,94,jsdoc,6,"/**
+ * Registra o evento **na mesma transação** da mudança.
+ *
+ * Recebe a `tx`, e não o banco, por isso: se a mudança for desfeita, o registro
+ * dela é desfeito junto. É a única forma de o log e o dado nunca discordarem.
+ *
+ * O `tenant_id` sai da sessão da transação — não é parâmetro. Aceitar tenant de
+ * quem chama seria deixar registrar evento no nome do vizinho.
+ */",,,,,,
+packages-db-comment-a48ef0fb,packages-db,packages/db/src/cliente.ts,11,11,jsdoc,1,"/** Liga o log de SQL. Útil no teste de RLS, onde o interesse é ver a transação. */",,,,,,
+packages-db-comment-7e11fb1f,packages-db,packages/db/src/cliente.ts,15,19,jsdoc,11,"/**
+ * Cria o pool e o cliente Drizzle. A `api` usa a URL do papel da aplicação, que **não**
+ * tem `bypassrls`; migration e seed usam a URL do papel dono. Confundir as duas é o
+ * jeito mais rápido de achar que a RLS está ligada quando ela está sendo ignorada.
+ */",,,,,,
+packages-db-comment-4c8734e8,packages-db,packages/db/src/particoes.ts,30,33,jsdoc,2,"/**
+ * Garante as partições do mês corrente e dos `mesesAFrente` seguintes. Idempotente:
+ * chamar duas vezes no mesmo dia não faz nada na segunda.
+ */",,,,,,
+packages-db-comment-591e18d0,packages-db,packages/db/src/particoes.ts,4,11,jsdoc,14,"/**
+ * `mensagem` e `evento_atendimento` crescem sem limite e são sempre consultadas por
+ * período. As duas são particionadas por mês; esta é a rotina que cria a partição do
+ * mês seguinte antes que ela seja necessária — partição que falta vira erro de insert
+ * na hora errada, que é de madrugada.
+ *
+ * Roda com o papel dono das tabelas (o mesmo das migrations), porque cria tabela.
+ */",,,,,,
+packages-db-comment-8b7ae677,packages-db,packages/db/src/schema/automacao.ts,103,106,jsdoc,1,"/**
+ * As quatro paradas do traço ""Permissão"" dos modais da Equipe — as chaves
+ * `team.addUserModal.slider` da origem (`visualize`, `custom`, `edit`, `admin`).
+ */",,,,,,
+packages-db-comment-d08800ef,packages-db,packages/db/src/schema/automacao.ts,109,113,jsdoc,7,"/**
+ * A equipe DO contato: quem acessa este fluxo e com que permissão. Migration 0035,
+ * que explica o porquê (na origem a permissão é do BOT, não do tenant) e o formato
+ * do `permissoes` — o `PermissionsList.html` da rota `/team/team/edit`.
+ */",,,,,,
+packages-db-comment-1e149212,packages-db,packages/db/src/schema/automacao.ts,126,126,jsdoc,0,"/** `{ builder: 'escrever', analysis: 'ler', … }` — recurso da origem → rádio. */",,,,,,
+packages-db-comment-0d1d9987,packages-db,packages/db/src/schema/automacao.ts,131,131,jsdoc,2,/** Quem pôs a pessoa aqui; sobrevive a ela (`set null`). */,,,,,,
+packages-db-comment-fc5a82d2,packages-db,packages/db/src/schema/automacao.ts,142,145,jsdoc,3,"/**
+ * Os serviços do roteador — o `master.services` da Blip. Migration 0024, que explica
+ * cada coluna e por que não existe túnel no Pipe.
+ */",,,,,,
+packages-db-comment-74bdb969,packages-db,packages/db/src/schema/automacao.ts,157,157,jsdoc,0,/** O nome do serviço: é o `content.address` do `Redirect`. */,,,,,,
+packages-db-comment-1a145c36,packages-db,packages/db/src/schema/automacao.ts,160,160,jsdoc,2,"/** ""Não redirecionar automaticamente para o principal"". */",,,,,,
+packages-db-comment-70fe2574,packages-db,packages/db/src/schema/automacao.ts,162,162,jsdoc,0,"/** ""Expiração do redirecionamento"", da última mensagem do cliente. */",,,,,,
+packages-db-comment-069e4adf,packages-db,packages/db/src/schema/automacao.ts,17,21,jsdoc,5,"/**
+ * Módulo 6 — Automação e extração. Três peças distintas que costumam ser confundidas:
+ * construtor de fluxo (a conversa automática), motor de workflow (a automação do
+ * sistema) e a linguagem de consulta com o dicionário de dados.
+ */",,,,,,
+packages-db-comment-a2e9c668,packages-db,packages/db/src/schema/automacao.ts,189,192,jsdoc,3,"/**
+ * O Master-State: em que serviço do roteador o contato está. O ""túnel"" da Blip é a
+ * chave (roteador, contato) — o contato é o real, único no tenant. Migration 0024.
+ */",,,,,,
+packages-db-comment-bd1dd04d,packages-db,packages/db/src/schema/automacao.ts,208,208,jsdoc,1,/** Nulo = não expira (principal ou persistente). */,,,,,,
+packages-db-comment-6d77f613,packages-db,packages/db/src/schema/automacao.ts,210,210,jsdoc,2,/** O contexto do roteador: o dos serviços com `usa_contexto_do_roteador`. */,,,,,,
+packages-db-comment-779a4d89,packages-db,packages/db/src/schema/automacao.ts,214,214,jsdoc,0,"/** Change-User-State pendente: o serviço começa em `bloco_inicial`, ou na raiz. */",,,,,,
+packages-db-comment-5d9c7064,packages-db,packages/db/src/schema/automacao.ts,223,223,jsdoc,2,/** Versão publicada é separada da versão em edição — copiado da Blip porque está certo. */,,,,,,
+packages-db-comment-78232173,packages-db,packages/db/src/schema/automacao.ts,236,236,jsdoc,0,/** Ações globais e `configuration` do `Flow` da Blip. Migration 0014. */,,,,,,
+packages-db-comment-a5f09581,packages-db,packages/db/src/schema/automacao.ts,25,25,jsdoc,0,"/** Os dois papéis do mesmo contato: conversa própria, ou distribuidor. */",,,,,,
+packages-db-comment-22f1cc88,packages-db,packages/db/src/schema/automacao.ts,28,28,jsdoc,0,"/** O `ng-maxlength=""160""` do campo ""Descrição"" de ""Editar Fluxo"" na origem. */",,,,,,
+packages-db-comment-ee24c5a9,packages-db,packages/db/src/schema/automacao.ts,296,299,jsdoc,1,"/**
+     * Destino `{{variável}}` da Blip, decidido em tempo de execução. Exatamente um dos
+     * dois destinos é preenchido (migration 0014).
+     */",,,,,,
+packages-db-comment-bc99058d,packages-db,packages/db/src/schema/automacao.ts,304,304,jsdoc,3,/** Condições de saída são avaliadas nesta ordem; a primeira que casar vence. */,,,,,,
+packages-db-comment-d86c9be3,packages-db,packages/db/src/schema/automacao.ts,332,335,jsdoc,6,"/**
+     * Mapa de variáveis que atravessa o fluxo e sobrevive à transferência para humano:
+     * é o que faz o atendente receber o cliente já sabendo o que o robô coletou.
+     */",,,,,,
+packages-db-comment-3bab5df8,packages-db,packages/db/src/schema/automacao.ts,347,351,jsdoc,1,"/**
+     * Migration 0040: Dashboard, Visão Geral, Jornada e o Log de mensagens
+     * filtram por `fluxo_versao.fluxo_id` (join até aqui por `fluxo_versao_id`).
+     * Sem este índice essa perna do join varria `execucao_fluxo` inteira.
+     */",,,,,,
+packages-db-comment-01bdee01,packages-db,packages/db/src/schema/automacao.ts,374,374,line,2,// A mesma mensagem da Meta só vira passo uma vez (migration 0014).,,,,,,
+packages-db-comment-be8ce6fe,packages-db,packages/db/src/schema/automacao.ts,383,383,jsdoc,1,/** O cursor de ProcessHttp vive separado para conservar cada posição executada. */,,,,,,
+packages-db-comment-29cbae1f,packages-db,packages/db/src/schema/automacao.ts,39,46,jsdoc,6,"/**
+     * `fluxo` ou `roteador`.
+     *
+     * É o `template` da plataforma de origem (`builder` e `master`), e é o que
+     * o cartão do portal etiqueta. Roteador é o MESMO bot sem conteúdo próprio:
+     * ele só referencia outros e decide para qual deles a conversa vai — por
+     * isso é coluna, e não tabela nova.
+     */",,,,,,
+packages-db-comment-cd96fe30,packages-db,packages/db/src/schema/automacao.ts,479,479,jsdoc,4,/** Workflow que falha em silêncio é pior que workflow que não existe. */,,,,,,
+packages-db-comment-11616044,packages-db,packages/db/src/schema/automacao.ts,48,54,jsdoc,5,"/**
+     * O endereço da foto do contato — o `imageUri` da plataforma de origem, que
+     * é o que o cartão do portal lê para desenhar o avatar.
+     *
+     * Opcional de verdade: lá o upload roda dentro de um `try/catch` que só
+     * avisa no console e deixa a criação seguir. Migration 0020.
+     */",,,,,,
+packages-db-comment-e648e96e,packages-db,packages/db/src/schema/automacao.ts,526,529,jsdoc,1,"/**
+     * Consulta estruturada, analisada contra o dicionário de dados do tenant. Nunca
+     * vira SQL cru vindo do cliente, e o `tenant_id` é imposto pelo servidor.
+     */",,,,,,
+packages-db-comment-d2a2a1be,packages-db,packages/db/src/schema/automacao.ts,56,62,jsdoc,4,"/**
+     * O identificador curto, derivado do nome (`name.toLowerCase()` na origem).
+     *
+     * É ele que vai na URL do contato lá (`/application/detail/{shortName}`) e
+     * é o motivo de o nome ter de começar com letra. Sem índice único: a
+     * unicidade continua sendo conferida sobre `nome`. Migration 0020.
+     */",,,,,,
+packages-db-comment-dba0e221,packages-db,packages/db/src/schema/automacao.ts,562,568,jsdoc,5,"/**
+ * Espelho do `objectMetadata` do CRM (Twenty) do tenant — ver a migration 0015.
+ *
+ * `codigo` é o `nameSingular` e `rotulo` o `labelSingular`; as demais colunas têm o nome
+ * da propriedade do Twenty. Linha com `twentyId` veio da sincronização; sem ele, foi
+ * declarada à mão pelo CRM caseiro.
+ */",,,,,,
+packages-db-comment-e94f987d,packages-db,packages/db/src/schema/automacao.ts,586,586,jsdoc,5,"/** Sumiu do Twenty. A linha fica, para o bloco que aponta para ela acusar a falta. */",,,,,,
+packages-db-comment-d9ee8a3a,packages-db,packages/db/src/schema/automacao.ts,593,599,jsdoc,7,"/**
+ * Não é documentação: é o que a linguagem de consulta lê para decidir o que é permitido.
+ *
+ * Espelho do `fieldMetadata` do Twenty: `codigo` é o `name`, `rotulo` o `label`, `tipo`
+ * o `type` literal (`TEXT`, `CURRENCY`, `RELATION`…). `options`, `defaultValue`,
+ * `settings` e `relation` ficam no formato exato que a Metadata API devolve.
+ */",,,,,,
+packages-db-comment-16dc5e7b,packages-db,packages/db/src/schema/automacao.ts,631,635,jsdoc,6,"/**
+ * Autenticação de saída do webhook — a ""Configurações de autenticação"" da
+ * origem (`referencias-blip/pesquisa/blip-integracoes-webhook.md`: switch + OAuth 2.0),
+ * mais Básica, que a origem não mostra mas a tarefa pede. Migration 0036.
+ */",,,,,,
+packages-db-comment-b8a81432,packages-db,packages/db/src/schema/automacao.ts,64,72,jsdoc,5,"/**
+     * A descrição do contato — o `description` de ""Editar Fluxo""
+     * (`/configurations/basic`) da plataforma de origem.
+     *
+     * Opcional (o `<textarea>` não tem `required`), e quando vem tem de ter
+     * entre 2 e 160 caracteres (`ng-minlength=""2""`, `ng-maxlength=""160""`). O
+     * teto é `check` porque é o único limite que o banco consegue guardar
+     * sozinho; o mínimo é da `api`. Migration 0022.
+     */",,,,,,
+packages-db-comment-d831b1d0,packages-db,packages/db/src/schema/automacao.ts,655,655,jsdoc,0,/** `nenhuma` (padrão) | `basica` | `oauth2_client_credentials`. Migration 0036. */,,,,,,
+packages-db-comment-ea6d0ace,packages-db,packages/db/src/schema/automacao.ts,657,657,jsdoc,1,"/** Usuário da autenticação básica — não é segredo, fica legível. */",,,,,,
+packages-db-comment-d269700a,packages-db,packages/db/src/schema/automacao.ts,659,659,jsdoc,0,/** Senha da autenticação básica — cifrada em repouso (`@pipe/db/segredo`). */,,,,,,
+packages-db-comment-a6a7ab05,packages-db,packages/db/src/schema/automacao.ts,661,661,jsdoc,2,"/** URL do token do OAuth 2.0 (`client_credentials`) — validada como a do webhook (HTTPS, sem rede privada). */",,,,,,
+packages-db-comment-6e9e3118,packages-db,packages/db/src/schema/automacao.ts,663,663,jsdoc,1,/** Client ID do OAuth 2.0 — não é segredo. */,,,,,,
+packages-db-comment-056a85e4,packages-db,packages/db/src/schema/automacao.ts,667,673,jsdoc,6,"/**
+     * Cabeçalhos customizados — `[{ chave, valor }]`. Nunca inclui os
+     * reservados da assinatura (`content-type`, `x-pipe-signature`,
+     * `x-pipe-timestamp`, `x-pipe-delivery`) nem `authorization`: a regra
+     * de gravação (`dominio/gestao/integracoes.ts`) recusa antes de chegar
+     * aqui, então a coluna não precisa de `check` para isso.
+     */",,,,,,
+packages-db-comment-0a608025,packages-db,packages/db/src/schema/automacao.ts,74,78,jsdoc,5,"/**
+     * ""Utilizar o contexto do Roteador"" (`builder:useTunnelOwnerContext`): como serviço de
+     * um roteador, as variáveis são as do par (roteador, contato), divididas com os outros
+     * serviços que também ligaram isto. Desligado, são só deste fluxo. Migration 0024.
+     */",,,,,,
+packages-db-comment-4168780b,packages-db,packages/db/src/schema/automacao.ts,80,90,jsdoc,11,"/**
+     * Configurações do contato que ainda não tinham lugar próprio: hoje só
+     * ""Tela de Boas-vindas"" (`{ boasVindas: { ativo, mensagem, textoBotao } }`)
+     * e ""Menu Persistente"" (`{ menuPersistente: { itens: [{texto,link}] } }`),
+     * as duas telas de `/configurations/welcome` e `/configurations/persistentMenu`
+     * — chave ausente é ""nunca configurado"". Migration 0031.
+     *
+     * Por que uma coluna e não uma tabela: são poucos campos, de UMA tela cada,
+     * sem histórico próprio (ao contrário de `fluxo_versao.global`, que é por
+     * VERSÃO publicada) — é o retrato atual do contato, como `nome` e `descricao`.
+     */",,,,,,
+packages-db-comment-b90e9b29,packages-db,packages/db/src/schema/comum.ts,19,19,jsdoc,0,"/** Exclusão lógica: só onde o histórico importa. No resto, exclusão real. */",,,,,,
+packages-db-comment-46739511,packages-db,packages/db/src/schema/comum.ts,24,24,jsdoc,1,"/** Dinheiro nunca é ponto flutuante, e a moeda mora em coluna separada. */",,,,,,
+packages-db-comment-0088d272,packages-db,packages/db/src/schema/comum.ts,27,30,jsdoc,2,"/**
+ * Enumeração é `text` com `check`, nunca `enum` nativo: acrescentar valor num enum do
+ * Postgres trava a migration em produção, e vamos acrescentar valor o tempo todo.
+ */",,,,,,
+packages-db-comment-40938bbc,packages-db,packages/db/src/schema/comum.ts,5,8,jsdoc,4,"/**
+ * Convenções da §1 do modelo de dados, num lugar só. Se uma delas mudar, muda aqui —
+ * é o que impede a segunda tabela de nascer com um carimbo diferente da primeira.
+ */",,,,,,
+packages-db-comment-a8526b2b,packages-db,packages/db/src/schema/comum.ts,54,62,block,8,"/*
+ * A régua de prioridade vive em `@pipe/core/conversa`, e não aqui.
+ *
+ * Este arquivo importa `drizzle-orm/pg-core` para montar as restrições, e quem
+ * importar dele leva o driver junto. O app do atendente ordena a coluna num
+ * componente de navegador; era por isso que ele mantinha um mapa paralelo de
+ * pesos, que divergiu. Regra pura mora no pacote de regra pura, e o esquema
+ * importa de lá para virar restrição — nunca o contrário.
+ */",,,,,,
+packages-db-comment-1ec6c78d,packages-db,packages/db/src/schema/comum.ts,65,65,jsdoc,0,/** §4 do modelo de dados: catálogo fechado de `evento_atendimento.tipo`. */,,,,,,
+packages-db-comment-973430f1,packages-db,packages/db/src/schema/conversas.ts,140,145,jsdoc,5,"/**
+   * O canal de onde a mídia recebida veio — só preenchido pelo webhook
+   * (`dominio/entrada.ts`), nunca pelo upload manual (`controladores/anexos.ts`).
+   * É de onde o download (`dominio/midia.ts`) tira o token para falar com o Graph.
+   * Ver `0033_download_de_midia.sql`.
+   */",,,,,,
+packages-db-comment-0d4a866b,packages-db,packages/db/src/schema/conversas.ts,147,147,jsdoc,2,"/** `bytes = 0` com `chave_storage` de referência (`meta:` ou URL) é ""não baixado"". */",,,,,,
+packages-db-comment-28c3fa8a,packages-db,packages/db/src/schema/conversas.ts,164,164,jsdoc,2,/** CPF/CNPJ é sempre `text`: o CNPJ passa a ser alfanumérico a partir de 2026. */,,,,,,
+packages-db-comment-2553f275,packages-db,packages/db/src/schema/conversas.ts,171,171,jsdoc,2,/** Conversa é dado pessoal: a exclusão a pedido do titular existe desde o começo. */,,,,,,
+packages-db-comment-11f90880,packages-db,packages/db/src/schema/conversas.ts,173,179,jsdoc,3,"/**
+     * O `id` da `person` correspondente no Twenty. É o que permite o link direto do
+     * Desk cair na FICHA do cliente em vez da home do CRM.
+     *
+     * Nulo enquanto o espelho não aconteceu — e enquanto for nulo, o Desk não mostra
+     * link nenhum. Ver `docs/specs/2026-09-07-integracao-twenty.md` §4.
+     */",,,,,,
+packages-db-comment-e35c4b7e,packages-db,packages/db/src/schema/conversas.ts,278,280,block,3,"/* Nasce SEM prioridade. Quem dá prioridade é regra de priorização ou gente;
+       o padrão antigo (`media`) fazia a fila ordenar por dado que ninguém
+       escolheu. Ver `NIVEIS_PRIORIDADE`. */",,,,,,
+packages-db-comment-ea17fcef,packages-db,packages/db/src/schema/conversas.ts,28,28,jsdoc,0,"/** Módulo 3 — Conversas. Canais do dia 1: WhatsApp Cloud API, e-mail e widget de site. */",,,,,,
+packages-db-comment-2b21d069,packages-db,packages/db/src/schema/conversas.ts,291,291,jsdoc,2,/** Sustenta a trava do fechamento automático: não fecha se quem deve resposta é o atendente. */,,,,,,
+packages-db-comment-d9a54694,packages-db,packages/db/src/schema/conversas.ts,293,296,jsdoc,2,"/**
+     * Janela de atendimento de 24h do WhatsApp, recalculada a cada mensagem de entrada
+     * do contato. Nulo é canal sem janela (e-mail, widget).
+     */",,,,,,
+packages-db-comment-c0530870,packages-db,packages/db/src/schema/conversas.ts,298,298,jsdoc,1,"/** Sem chave estrangeira: `mensagem` é particionada e sua unicidade é (id, criada_em). */",,,,,,
+packages-db-comment-fcd47b17,packages-db,packages/db/src/schema/conversas.ts,310,314,jsdoc,2,"/**
+     * Migration 0040: o Log de mensagens do fluxo (`carregarLogDeMensagens`)
+     * acha as conversas do canal do bot por `inbox_id` antes de descer para
+     * `mensagem` — sem este índice essa busca varria `conversa` inteira.
+     */",,,,,,
+packages-db-comment-bcd0a0e3,packages-db,packages/db/src/schema/conversas.ts,331,334,jsdoc,2,"/**
+ * Particionada por mês em `criada_em`. A chave primária de tabela particionada precisa
+ * conter a chave de partição — daí `(id, criada_em)` em vez de só `id`.
+ */",,,,,,
+packages-db-comment-d9b08b6d,packages-db,packages/db/src/schema/conversas.ts,351,351,jsdoc,2,"/** Preenchido, é o que permite ao relatório de esforço descontar o texto não digitado. */",,,,,,
+packages-db-comment-67133978,packages-db,packages/db/src/schema/conversas.ts,368,371,jsdoc,8,"/**
+     * Amarra a resposta do cliente ao disparo que a originou: é o que faz o relatório
+     * contar a janela a partir do envio, e não pelo dia do calendário.
+     */",,,,,,
+packages-db-comment-b73b1e4a,packages-db,packages/db/src/schema/conversas.ts,37,41,jsdoc,5,"/**
+     * Token da Meta, senha SMTP: cifrado em repouso pela `packages/db/src/segredo.ts`,
+     * com a chave fora do banco (§6). Só os campos da lista `CAMPOS_SECRETOS_DE_CANAL`
+     * são cifrados — o resto continua legível para diagnóstico.
+     */",,,,,,
+packages-db-comment-77803b16,packages-db,packages/db/src/schema/conversas.ts,373,383,jsdoc,14,"/**
+     * O que não cabe em coluna própria e é específico do canal ou do tipo.
+     *
+     * Guarda os valores posicionais do template, que precisam sobreviver ao envio: sem
+     * isso eles só existem dentro do job da fila, e um job perdido leva junto a
+     * possibilidade de reenviar ou de auditar o que foi mandado.
+     *
+     * No Instagram, guarda a origem da conversa: mensagem direta, resposta a story com a
+     * referência do story, menção, ou comentário promovido a conversa privada com o
+     * vínculo à publicação.
+     */",,,,,,
+packages-db-comment-da7f20cc,packages-db,packages/db/src/schema/conversas.ts,401,404,jsdoc,4,"/**
+ * Toda mensagem de saída passa por aqui, com estado próprio e retry com backoff.
+ * `mensagem_id` fica sem chave estrangeira porque `mensagem` é particionada.
+ */",,,,,,
+packages-db-comment-5af4a28e,packages-db,packages/db/src/schema/conversas.ts,45,53,jsdoc,4,"/**
+     * As duas chaves de roteamento do webhook, e a razão de estarem em COLUNA e
+     * não no `config`: os eventos de template e de conta da Meta não aceitam URL
+     * por cliente e caem todos numa rota só, onde o tenant tem de sair do payload
+     * (`entry[].id` é o WABA, `metadata.phone_number_id` é o número). Resolver por
+     * payload é consulta, e consulta em jsonb sem índice é varredura.
+     *
+     * Ver `docs/specs/2026-09-07-webhook-por-cliente.md`.
+     */",,,,,,
+packages-db-comment-bfd26cb4,packages-db,packages/db/src/schema/conversas.ts,550,557,jsdoc,9,"/**
+ * Fixar e marcar como não lida — POR ATENDENTE, não por conversa (migração 0041).
+ *
+ * É o PIN/UNPIN e UNREAD/READ do menu do cartão da origem (`TicketMenuOptions`).
+ * `fixada_em` nulo é ""não fixada""; `nao_lida_em` nulo é ""lida"". A linha só existe
+ * enquanto ao menos um dos dois estiver marcado (CHECK); o domínio apaga a linha
+ * que ficou sem marcação. O teto de 50 fixadas é conferido no domínio.
+ */",,,,,,
+packages-db-comment-6adc7165,packages-db,packages/db/src/schema/conversas.ts,62,67,block,5,"/*
+     * Únicos e GLOBAIS, de propósito — não por tenant. Dois clientes com o mesmo
+     * `numero_id` é estado impossível: significaria dois donos para o mesmo
+     * número, e o banco recusa antes de a aplicação escolher errado. Parciais
+     * porque só o WhatsApp tem esses identificadores.
+     */",,,,,,
+packages-db-comment-6e1d000b,packages-db,packages/db/src/schema/conversas.ts,84,88,jsdoc,5,"/**
+     * Aponta para `horario_atendimento`, que vive no módulo de Gestão. A chave
+     * estrangeira nasce na migration `0003_chaves_cruzadas` para não fazer os dois
+     * módulos se importarem em círculo.
+     */",,,,,,
+packages-db-comment-a1204ae8,packages-db,packages/db/src/schema/crm.ts,156,159,jsdoc,4,"/**
+ * A resposta é linha, com a versão do formulário junto: mudar o questionário não quebra
+ * o histórico, e o questionário de março continua legível depois do de setembro.
+ */",,,,,,
+packages-db-comment-2e9326cb,packages-db,packages/db/src/schema/crm.ts,19,23,jsdoc,5,"/**
+ * Módulo 2 — CRM. As duas decisões que sustentam o módulo: pergunta de formulário é
+ * linha e não coluna (o Lead do Salesforce de hoje tem 353 campos, 304 customizados),
+ * e o score se explica — cada cálculo é uma linha nova, não uma sobrescrita.
+ */",,,,,,
+packages-db-comment-c2181385,packages-db,packages/db/src/schema/crm.ts,204,208,jsdoc,9,"/**
+ * Cada cálculo é uma linha nova. `explicacao` guarda o array de {regra, versão, pontos}
+ * que produziu o número: é o que responde *por que* o lead tirou 74 e o que permite
+ * recalcular a base inteira quando a regra muda, sem perder o histórico.
+ */",,,,,,
+packages-db-comment-d6e283cf,packages-db,packages/db/src/schema/crm.ts,230,230,jsdoc,3,"/** A faixa é a saída do motor de score, e é ela que decide fila e proprietário. */",,,,,,
+packages-db-comment-bbff4479,packages-db,packages/db/src/schema/crm.ts,31,31,jsdoc,0,/** CPF/CNPJ em `text`: o CNPJ alfanumérico de 2026 quebra coluna numérica e máscara fixa. */,,,,,,
+packages-db-comment-e57dadf0,packages-db,packages/db/src/schema/crm.ts,331,331,jsdoc,0,/** Chave no storage do relatório de linhas rejeitadas. */,,,,,,
+packages-db-comment-ac1eb811,packages-db,packages/db/src/schema/crm.ts,74,74,jsdoc,2,/** Denormalizados de `score_lead` porque são os dois campos filtrados o tempo todo. */,,,,,,
+packages-db-comment-42fd5e12,packages-db,packages/db/src/schema/crm.ts,79,79,jsdoc,1,"/** Campo customizado por tenant vive aqui, com índice GIN — nunca `alter table` em runtime. */",,,,,,
+packages-db-comment-c5a51691,packages-db,packages/db/src/schema/gestao.ts,255,260,jsdoc,5,"/**
+ * Palavras proibidas — migração 0042. A lista por CONTA que barra o envio do
+ * atendente (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4). `termo` fica
+ * como foi digitado; a comparação sem acento e sem caixa é do domínio
+ * (`apps/api/src/dominio/gestao/palavras-proibidas.ts`).
+ */",,,,,,
+packages-db-comment-ba08b62f,packages-db,packages/db/src/schema/gestao.ts,30,34,jsdoc,5,"/**
+ * Módulo 4 — Gestão. Toda métrica é derivada de `evento_atendimento`, nunca de campo
+ * mutável da conversa: é isso que permite recalcular o passado quando a definição de
+ * uma métrica muda.
+ */",,,,,,
+packages-db-comment-fe87731e,packages-db,packages/db/src/schema/gestao.ts,339,342,jsdoc,5,"/**
+ * Guarda a escala junto da nota de propósito: sem isso, um 4 de CSAT e um 4 de NPS
+ * acabam somados no mesmo gráfico quando a empresa tem os dois modelos.
+ */",,,,,,
+packages-db-comment-b09cb3df,packages-db,packages/db/src/schema/gestao.ts,357,357,jsdoc,2,/** `promotor` | `neutro` | `detrator` para NPS; `satisfeito` | `insatisfeito` para CSAT. */,,,,,,
+packages-db-comment-c7d88b00,packages-db,packages/db/src/schema/gestao.ts,36,39,jsdoc,2,"/**
+ * Imutável e particionada por mês em `em`. A chave primária carrega a chave de
+ * partição, como em `mensagem`.
+ */",,,,,,
+packages-db-comment-0cb49eb7,packages-db,packages/db/src/schema/gestao.ts,80,80,jsdoc,3,"/** Somas em segundos; a média é a soma dividida pela contagem, na hora de exibir. */",,,,,,
+packages-db-comment-5554642d,packages-db,packages/db/src/schema/gestao.ts,97,101,jsdoc,3,"/**
+ * Régua determinística de esforço (§4.4 da spec): 200 char/min escrito, 1.000 char/min
+ * lido, áudio em 1×. `chars_de_resposta_pronta` é o desconto do texto que o atendente
+ * não digitou — sem ele, template e resposta pronta inflam o esforço.
+ */",,,,,,
+packages-db-comment-4f5dba2f,packages-db,packages/db/src/schema/identidade.ts,101,113,jsdoc,16,"/**
+     * A instância do Twenty deste cliente, e a chave para falar com ela.
+     *
+     * Uma instância POR CLIENTE, decidido em `docs/specs/2026-09-07-integracao-twenty.md`
+     * §5: o isolamento do CRM é físico, e não há instância padrão. Vazio significa
+     * ""este cliente não tem CRM"", e a integração inteira não acontece — nunca um
+     * fallback, porque fallback silencioso é como o dado de um cliente vai parar no
+     * CRM de outro.
+     *
+     * `twentyChave` é a chave de API, CIFRADA em repouso pelo mesmo chaveiro do token
+     * da Meta (`PIPE_CHAVES_SEGREDO`). Diferente do token da Meta, esta também LÊ: quem
+     * a tiver tem a base de clientes daquele tenant inteira.
+     */",,,,,,
+packages-db-comment-f15de131,packages-db,packages/db/src/schema/identidade.ts,116,123,jsdoc,12,"/**
+     * Os dados que a própria pessoa preenche em ""minha conta"", depois de entrar.
+     *
+     * Todos anuláveis: a conta NASCE sem eles quando vem do autosserviço, e é a
+     * tela de boas-vindas que anuncia isso. Exigi-los antes devolveria o
+     * formulário para antes do login — que é justamente o que o autosserviço
+     * evita. `funcionarios` é faixa em texto (""1 a 10""), como na origem.
+     */",,,,,,
+packages-db-comment-9a431871,packages-db,packages/db/src/schema/identidade.ts,131,131,jsdoc,2,"/** Nulo = onboarding em aberto, e a Gestão leva para ""minha conta"". */",,,,,,
+packages-db-comment-38ec1dcb,packages-db,packages/db/src/schema/identidade.ts,141,144,jsdoc,5,"/**
+ * Toda tabela de negócio referencia o tenant por aqui. Fica em identidade e não em
+ * `comum` para não criar ciclo de import com a própria tabela `tenant`.
+ */",,,,,,
+packages-db-comment-28f85f60,packages-db,packages/db/src/schema/identidade.ts,15,19,jsdoc,2,"/**
+ * Módulo 1 — Identidade e tenancy. Base de tudo; não depende de nenhum outro módulo.
+ * O `tenant` carrega a personalização (nome, logo, cor, fuso, idioma): white-label é
+ * configuração, nunca build separado.
+ */",,,,,,
+packages-db-comment-542a03bf,packages-db,packages/db/src/schema/identidade.ts,166,174,jsdoc,7,"/**
+ * De que lado o papel vale (migração 0021).
+ *
+ * `conta` é o papel no contrato — `admin`, `member`, `guest`, os três da origem
+ * (""Admin"", ""Pode editar"", ""Pode visualizar""). Toda pessoa tem UM, e é só ele que
+ * a tela de Membros e o convite oferecem. `atendimento` é o resto (gestor,
+ * supervisor, atendente, avaliador): zero ou mais por pessoa. As permissões
+ * efetivas são a união dos dois.
+ */",,,,,,
+packages-db-comment-aa1c4713,packages-db,packages/db/src/schema/identidade.ts,178,178,jsdoc,3,"/** Os `roleId` da origem, que aqui são o NOME dos três papéis de conta. */",,,,,,
+packages-db-comment-240de17f,packages-db,packages/db/src/schema/identidade.ts,189,189,jsdoc,2,/** Papel do dia 1 não é editável pelo cliente. */,,,,,,
+packages-db-comment-0cc44801,packages-db,packages/db/src/schema/identidade.ts,202,206,jsdoc,5,"/**
+ * Catálogo global de capacidades nomeadas (`conversa.transferir`,
+ * `relatorio.esforco.ver`). Não tem tenant de propósito: é vocabulário do produto,
+ * igual para todo mundo, e por isso é a única tabela sem RLS junto de `tenant`.
+ */",,,,,,
+packages-db-comment-56419576,packages-db,packages/db/src/schema/identidade.ts,21,32,jsdoc,12,"/**
+ * Onde o tenant está hospedado.
+ *
+ * `compartilhada` é o banco de todo mundo, com RLS — é o padrão e serve à
+ * esmagadora maioria. `dedicada` é o cliente que saiu para instância própria,
+ * por contrato ou por peso. Ver `referencias-blip/pesquisa/arquitetura-multi-tenant.md`.
+ *
+ * O campo nasce agora, com todo mundo em `compartilhada`, porque criar coluna
+ * em tabela pequena é barato hoje e caro na véspera da primeira migração — que
+ * é exatamente quando ele vai fazer falta, para o código saber a quem
+ * perguntar sem consultar planilha.
+ */",,,,,,
+packages-db-comment-3b81c39a,packages-db,packages/db/src/schema/identidade.ts,237,241,jsdoc,3,"/**
+     * Cópia do `papel.escopo`, amarrada pela FK composta: é o que deixa o índice
+     * parcial abaixo garantir UM papel de conta por pessoa sem trigger. Quem
+     * grava papel de conta passa `'conta'`; errar o valor falha na FK.
+     */",,,,,,
+packages-db-comment-341917a7,packages-db,packages/db/src/schema/identidade.ts,259,273,jsdoc,19,"/**
+ * A EXCEÇÃO por pessoa, em cima do papel (migração 0046).
+ *
+ * É o que a página ""Permissões"" da origem edita — uma tabela de ""Tipo de
+ * permissão"" × ""Status"", por atendente
+ * (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §a.4). Papel é
+ * conjunto: sem esta tabela, desligar UMA capacidade de UMA pessoa exigia
+ * inventar um papel de uma pessoa só.
+ *
+ *   permissão efetiva = COALESCE(concedida desta linha, união dos papéis)
+ *
+ * Linha ausente = manda o papel. `gravarPermissoesDoAtendente` APAGA a linha
+ * quando a escolha volta a coincidir com o papel, para a tabela guardar só a
+ * exceção e nunca virar cópia desatualizada do RBAC.
+ */",,,,,,
+packages-db-comment-b5bad606,packages-db,packages/db/src/schema/identidade.ts,284,284,jsdoc,3,/** `true` liga o que o papel não dá; `false` desliga o que o papel dá. */,,,,,,
+packages-db-comment-a921e6ba,packages-db,packages/db/src/schema/identidade.ts,331,331,jsdoc,2,"/** Por onde a pessoa entrou. Auditoria pede, e a revogação por IdP depende. */",,,,,,
+packages-db-comment-e8df1702,packages-db,packages/db/src/schema/identidade.ts,345,359,jsdoc,16,"/**
+ * A conta da pessoa no provedor externo.
+ *
+ * **A chave NUNCA é o e-mail.** É o par `(emissor, sujeito)` — no Google,
+ * `https://accounts.google.com` e o `sub` do `id_token`. E-mail muda de dono
+ * dentro de uma empresa: quem herda o endereço de quem saiu herdaria a conta
+ * junto. O `sub` é estável e é do Google, não do endereço.
+ *
+ * `emailNoProvedor` fica só para exibição e diagnóstico; nunca para casar conta.
+ *
+ * Único e GLOBAL em `(emissor, sujeito)`: uma conta do Google pertence a um
+ * usuário, e usuário pertence a um tenant. Deixar duas linhas para o mesmo par
+ * seria a mesma pessoa entrando em dois clientes com o mesmo login — e a decisão
+ * de qual vale ficaria com quem consultasse primeiro.
+ */",,,,,,
+packages-db-comment-365970bd,packages-db,packages/db/src/schema/identidade.ts,35,46,jsdoc,21,"/**
+ * Os três planos, com os limites que a cobrança usa.
+ *
+ * Decididos em `docs/specs/2026-09-07-preco.md`. Ficam aqui, e não em
+ * configuração, porque plano é regra: o teto de conversa analisada por IA
+ * precisa estar no mesmo lugar que o código que corta, e preço em variável de
+ * ambiente vira divergência entre o que a tela mostra e o que a fatura cobra.
+ *
+ * `conversasIaPorAtendente` é a franquia, e é o número que segura a margem: a IA
+ * é o único custo que escala com uso, e sem teto um cliente de volume alto come
+ * a margem inteira sem ninguém perceber até a fatura chegar.
+ */",,,,,,
+packages-db-comment-0f38fe7a,packages-db,packages/db/src/schema/identidade.ts,375,380,jsdoc,5,"/**
+     * Única dentro do tenant, e não no sistema inteiro: a mesma conta do
+     * provedor administra várias contas do Pipe, e é isso que o seletor do
+     * canto superior esquerdo troca. Global, a segunda empresa da mesma pessoa
+     * esbarrava aqui (migração 0017).
+     */",,,,,,
+packages-db-comment-010c67ad,packages-db,packages/db/src/schema/identidade.ts,390,400,jsdoc,13,"/**
+ * Domínio de e-mail que pertence a um tenant.
+ *
+ * É o que permite descobrir o cliente a partir do login, já que o tenant não vem
+ * do subdomínio (`infraestrutura.md` §3). Só entra depois de VERIFICADO por
+ * registro TXT no DNS: sem isso, quem criasse conta com `@banco.com.br` entraria
+ * no tenant do banco.
+ *
+ * Domínio público — gmail, hotmail, outlook — nunca é cadastrável, e a lista
+ * dessas exceções vive no código, não aqui.
+ */",,,,,,
+packages-db-comment-8f183001,packages-db,packages/db/src/schema/identidade.ts,414,432,jsdoc,20,"/**
+ * A conexão de SSO do tenant — o espelho fino da configuração do IdP dele.
+ *
+ * **Uma por tenant**, e por isso o único em `tenant_id`: a empresa entra por um
+ * diretório, não por três, e permitir vários transformaria a descoberta por
+ * domínio numa escolha ambígua justo no momento em que ninguém está logado para
+ * desempatar.
+ *
+ * **Estado e política são dois campos, não um.** `estado` diz se a conexão
+ * funciona (`rascunho` → `testada` → `ativa`); `politica` diz se a senha ainda
+ * vale (`desligado` → `opcional` → `obrigatorio`). Todo incidente de ""o cliente
+ * inteiro ficou de fora"" nasce de serem o mesmo botão — ver
+ * `referencias-blip/pesquisa/sso-multi-tenant.md` §3 e §6.
+ *
+ * **Segredo não mora aqui em claro.** O `clientSecret` vive dentro de `config`,
+ * cifrado por `cifrarConfig` (`packages/db/src/segredo.ts`), que já trata
+ * `clientSecret` como campo secreto justamente para isto. O que um `pg_dump`
+ * entrega é envelope, não credencial.
+ */",,,,,,
+packages-db-comment-39c009cb,packages-db,packages/db/src/schema/identidade.ts,444,444,jsdoc,2,/** Qual IdP. Muda a leitura dos claims — no Entra o sujeito é `{tid}:{oid}`. */,,,,,,
+packages-db-comment-553872ac,packages-db,packages/db/src/schema/identidade.ts,453,453,jsdoc,2,/** Quando o teste passou. Vale 30 dias: conexão testada em 2024 não prova nada hoje. */,,,,,,
+packages-db-comment-77543460,packages-db,packages/db/src/schema/identidade.ts,467,471,jsdoc,5,"/**
+ * Chave de API e de MCP. O segredo nunca é guardado em claro: fica o `hash` e um
+ * `prefixo` visível, que é o que a tela mostra para o cliente reconhecer a chave.
+ * Escopo de escrita é separado de escopo de leitura (§4.6 da spec).
+ */",,,,,,
+packages-db-comment-85bb2390,packages-db,packages/db/src/schema/identidade.ts,481,487,jsdoc,8,"/**
+     * A chave é da CONTA (`null`, o padrão) ou de UM fluxo — a tela de
+     * ""Chaves de acesso"" do fluxo (migração 0032). A FK para `fluxo` cruza
+     * módulos (`identidade` → `automacao`) e por isso não entra aqui: seria
+     * ciclo de import, o mesmo motivo de `0003_chaves_cruzadas.sql`. A
+     * constraint de verdade está na migração 0032, plain column aqui.
+     */",,,,,,
+packages-db-comment-f68fd674,packages-db,packages/db/src/schema/identidade.ts,526,538,jsdoc,13,"/**
+ * Convite para entrar num tenant.
+ *
+ * É a **única** porta para quem não tem domínio verificado — e é de propósito. A
+ * quarta pergunta de `packages/autenticacao/src/entrada.ts` recusa quem não foi
+ * convidado, porque criar usuário do nada transforma ""descobri um domínio"" em
+ * ""entrei no cliente"".
+ *
+ * Como a sessão e a chave de API, **o banco guarda o hash, nunca o token**: quem
+ * lê a tabela não consegue aceitar convite de ninguém. Prazo curto (7 dias) e uso
+ * único, marcado por `aceito_em` — reaproveitar link é o defeito clássico, e é o
+ * que a leitura `for update` na hora de aceitar fecha.
+ */",,,,,,
+packages-db-comment-27276726,packages-db,packages/db/src/schema/identidade.ts,54,54,jsdoc,3,/** Fração das conversas que a monitoria avalia. 1 é todas. */,,,,,,
+packages-db-comment-0c2f0a1c,packages-db,packages/db/src/schema/identidade.ts,548,548,jsdoc,2,"/** Sempre `conta`: convite só dá papel de conta, e a FK composta cobra isso. */",,,,,,
+packages-db-comment-6c2c5ec3,packages-db,packages/db/src/schema/identidade.ts,554,554,jsdoc,2,/** Quem nasceu do convite. Fica para auditoria: o convite não some ao ser usado. */,,,,,,
+packages-db-comment-06464880,packages-db,packages/db/src/schema/identidade.ts,77,77,block,1,"/* Sob contrato: preço e franquia entram no registro do tenant, não na tabela. */",,,,,,
+packages-db-comment-f486a2bf,packages-db,packages/db/src/schema/implantacao.ts,18,18,jsdoc,4,"/** O CSV das linhas rejeitadas, com a coluna `erros`. Nulo quando nada foi rejeitado. */",,,,,,
+packages-db-comment-84704b71,packages-db,packages/db/src/schema/implantacao.ts,6,11,jsdoc,2,"/**
+ * O arquivo da importação de contatos — migration `0016_entrada_do_cliente`.
+ *
+ * É o `import_file` e o `failed_records` do `DataImport` do Chatwoot. Declarado
+ * aqui para o `drizzle-kit` não gerar um `DROP` dela na próxima migration.
+ */",,,,,,
+packages-db-comment-44df50d1,packages-db,packages/db/src/schema/index.ts,1,5,jsdoc,2,"/**
+ * Schema do Pipe, módulo a módulo, na ordem de dependência do modelo de dados.
+ * Duas chaves estrangeiras cruzam módulos em círculo (`fila.horario_id` → Gestão e
+ * `contato.conta_id` → CRM) e por isso nascem na migration 0003, fora do schema.
+ */",,,,,,
+packages-db-comment-2be095b9,packages-db,packages/db/src/schema/monitoria.ts,106,109,jsdoc,2,"/**
+     * A nota da IA nasce como sugestão e vira efetiva conforme a política do tenant —
+     * sempre, só acima deste limiar, ou nunca.
+     */",,,,,,
+packages-db-comment-1f982f18,packages-db,packages/db/src/schema/monitoria.ts,126,129,jsdoc,4,"/**
+ * `evidencia_mensagem_id` é o trecho citado que sustenta a nota. Sem chave estrangeira
+ * porque `mensagem` é particionada e sua unicidade é (id, criada_em).
+ */",,,,,,
+packages-db-comment-7597446f,packages-db,packages/db/src/schema/monitoria.ts,172,172,jsdoc,3,"/** Bancada de medição: mede o desvio entre a nota humana e a da IA, critério a critério. */",,,,,,
+packages-db-comment-0ff399a6,packages-db,packages/db/src/schema/monitoria.ts,19,23,jsdoc,4,"/**
+ * Módulo 5 — Monitoria com IA. Formulário (grupo → critério → peso, com critério fatal
+ * que zera a nota) × avaliação (humana ou IA) × ciclo (feedback → contestação →
+ * calibração → coach).
+ */",,,,,,
+packages-db-comment-1d829bc9,packages-db,packages/db/src/schema/monitoria.ts,273,273,jsdoc,1,"/** Onde o gestor decide o que automatizar: volume, tendência e conversas de exemplo. */",,,,,,
+packages-db-comment-9344ad26,packages-db,packages/db/src/schema/monitoria.ts,294,294,jsdoc,2,/** Sem isto o produto vende IA no prejuízo: é painel para o cliente e base de cobrança. */,,,,,,
+packages-db-comment-9f775248,packages-db,packages/db/src/schema/monitoria.ts,320,323,jsdoc,4,"/**
+ * Incremental e versionada: documentos independentes, cada trecho rastreável até o
+ * documento e a versão. É o que faz a sugestão do copiloto poder citar a fonte.
+ */",,,,,,
+packages-db-comment-4af3d113,packages-db,packages/db/src/schema/monitoria.ts,69,69,jsdoc,1,/** Critério fatal zera a nota da avaliação inteira. */,,,,,,
+packages-db-comment-9246c559,packages-db,packages/db/src/segredo.ts,126,126,line,4,// `final()` do GCM lança quando a tag não bate. Não repassamos o erro original:,,,,,,
+packages-db-comment-2347eac3,packages-db,packages/db/src/segredo.ts,127,127,line,1,// detalhe de falha de autenticação é o que alimenta oráculo.,,,,,,
+packages-db-comment-0f3562e6,packages-db,packages/db/src/segredo.ts,132,139,jsdoc,4,"/**
+ * Os campos de `canal.config` que são segredo.
+ *
+ * Lista fechada, e não ""cifra o objeto todo"", porque o resto da configuração
+ * precisa continuar legível e consultável — `phoneNumberId` aparece em log de
+ * diagnóstico, `apiVersao` em suporte. Cifrar tudo transformaria toda pergunta
+ * operacional em decifrar primeiro.
+ */",,,,,,
+packages-db-comment-7b9c6f70,packages-db,packages/db/src/segredo.ts,146,146,line,1,// O PIN de duas etapas que o registro do número grava (`configuracao-de-webhook.ts`).,,,,,,
+packages-db-comment-2dc38d34,packages-db,packages/db/src/segredo.ts,147,147,line,2,"// Com ele, quem tem o número migra o WhatsApp do cliente para outro provedor.",,,,,,
+packages-db-comment-fad5aabe,packages-db,packages/db/src/segredo.ts,153,153,jsdoc,1,/** Cifra os campos secretos de uma configuração de canal. Idempotente. */,,,,,,
+packages-db-comment-e1533b3e,packages-db,packages/db/src/segredo.ts,164,171,jsdoc,7,"/**
+ * Decifra os campos secretos na leitura.
+ *
+ * Valor em texto claro passa direto, de propósito e só aqui: é o que permite ler
+ * o que foi gravado antes desta cifra existir sem derrubar a operação. O caminho
+ * de escrita não tem essa tolerância — o que for gravado a partir de agora sai
+ * cifrado.
+ */",,,,,,
+packages-db-comment-a5d03112,packages-db,packages/db/src/segredo.ts,182,182,jsdoc,2,"/** Comparação em tempo constante, para segredo que chega de fora (verifyToken). */",,,,,,
+packages-db-comment-244f4dc3,packages-db,packages/db/src/segredo.ts,3,30,jsdoc,29,"/**
+ * Cifra de segredo de cliente, em repouso.
+ *
+ * O que mora em `canal.config` não é configuração comum: é o token permanente da
+ * Meta, o `appSecret`, o `verifyToken` e a senha de SMTP. Com o token, qualquer um
+ * manda mensagem **pelo número do cliente** — e o schema prometia ""cifrado em
+ * repouso"" desde o primeiro dia sem que ninguém tivesse escrito a cifra. Este
+ * arquivo paga essa dívida.
+ *
+ * O risco que ela fecha não é um cliente ler o outro pela aplicação: a RLS já
+ * cuida disso. É o dump. Backup vai para storage de objetos, passa por máquina de
+ * quem opera, e um `pg_dump` com token em texto claro entrega a credencial de
+ * TODOS os clientes de uma vez.
+ *
+ * **Envelope com id de chave.** Cada pacote carrega qual chave o cifrou, então
+ * rotacionar é adicionar a chave nova como atual e manter a antiga na lista até
+ * tudo ter sido regravado. Sem o id, rotação vira migração de tudo numa janela só,
+ * que é como se decide nunca rotacionar.
+ *
+ * **AES-256-GCM**, não CBC: o GCM autentica além de cifrar. Sem autenticação, quem
+ * escreve no banco pode alterar o texto cifrado e a aplicação decifra lixo sem
+ * perceber — e no caso de um `phoneNumberId`, lixo dirigido é mensagem no número
+ * errado.
+ *
+ * As chaves vivem FORA do banco, em `PIPE_CHAVES_SEGREDO`, no formato
+ * `<id>:<32 bytes em base64>` separado por vírgula, e a atual em
+ * `PIPE_CHAVE_SEGREDO_ATUAL`. Em produção elas chegam pelo SOPS (ver `infra/`).
+ */",,,,,,
+packages-db-comment-56dc541a,packages-db,packages/db/src/segredo.ts,32,32,jsdoc,1,/** Marca do envelope. Sem ponto no nome: o ponto é o separador do pacote. */,,,,,,
+packages-db-comment-069709fc,packages-db,packages/db/src/segredo.ts,43,43,jsdoc,2,/** id da chave que cifra o que for gravado agora. */,,,,,,
+packages-db-comment-1b030c36,packages-db,packages/db/src/segredo.ts,49,52,jsdoc,3,"/**
+ * Lê o chaveiro do ambiente. Falha alto: chave ausente em produção é erro de
+ * implantação, e seguir sem cifra seria gravar token em texto achando que não.
+ */",,,,,,
+packages-db-comment-ae4f8a42,packages-db,packages/db/src/segredo.ts,84,84,line,2,"// 96 bits: o tamanho que o GCM espera, e o único seguro com nonce aleatório",,,,,,
+packages-db-comment-c65d15c2,packages-db,packages/db/src/segredo.ts,98,98,jsdoc,3,/** Diz se o valor já é um envelope nosso. Serve para migrar sem cifrar duas vezes. */,,,,,,
+packages-db-comment-7966c412,packages-db,packages/db/src/semente-demo.ts,111,111,line,3,"// --- limpeza escopada ao que esta semente cria, na ordem das chaves estrangeiras ---",,,,,,
+packages-db-comment-462098a2,packages-db,packages/db/src/semente-demo.ts,113,113,line,1,"// Apaga por nome e por e-mail, e não por tenant: o banco de desenvolvimento é",,,,,,
+packages-db-comment-f008bb7e,packages-db,packages/db/src/semente-demo.ts,114,114,line,3,"// compartilhado com o Pipe Gestão, e uma semente de demonstração que limpa o tenant",,,,,,
+packages-db-comment-10ebbb39,packages-db,packages/db/src/semente-demo.ts,115,115,line,1,// inteiro apaga o trabalho de quem está do lado.,,,,,,
+packages-db-comment-d54e1903,packages-db,packages/db/src/semente-demo.ts,157,157,line,1,"// Usuário é reaproveitado pelo e-mail, nunca recriado: apagar um atendente solta o",,,,,,
+packages-db-comment-c224c2ab,packages-db,packages/db/src/semente-demo.ts,158,158,line,2,"// `atendente_id` de toda conversa que ele já tinha, e num banco de desenvolvimento",,,,,,
+packages-db-comment-fa81efc3,packages-db,packages/db/src/semente-demo.ts,159,159,line,1,// compartilhado isso é apagar o trabalho alheio.,,,,,,
+packages-db-comment-dd527ad7,packages-db,packages/db/src/semente-demo.ts,176,176,line,2,// Papel de ATENDIMENTO para os três (é o que o Desk confere em `exigirPermissao`),,,,,,
+packages-db-comment-3118655b,packages-db,packages/db/src/semente-demo.ts,177,177,line,3,"// e, logo abaixo, o papel de CONTA que a tela de Membros lista. Quem já tinha",,,,,,
+packages-db-comment-ccb768c6,packages-db,packages/db/src/semente-demo.ts,178,178,line,2,// qualquer um dos dois fica como está (`on conflict` / `garantirPapelDeConta`).,,,,,,
+packages-db-comment-55e48a57,packages-db,packages/db/src/semente-demo.ts,199,199,line,3,// O padrão ao entrar é Invisível: ninguém recebe conversa sem afirmar que está pronto.,,,,,,
+packages-db-comment-00bcfcba,packages-db,packages/db/src/semente-demo.ts,272,272,line,4,"// --- templates aprovados pela Meta, o que sobra quando a janela fecha ---",,,,,,
+packages-db-comment-da2108ec,packages-db,packages/db/src/semente-demo.ts,29,40,jsdoc,8,"/**
+ * Semente de **demonstração** do Pipe Desk. Separada da semente base de propósito:
+ * `semente.ts` é o que todo tenant novo recebe (papéis, permissões, filas); isto aqui
+ * é gente inventada com conversa inventada, e nenhum tenant de verdade deve receber.
+ *
+ * Idempotente pela raça: apaga o que ela mesma criou no tenant de demonstração e
+ * recria do zero. Rodar duas vezes dá o mesmo resultado, e o segundo `pnpm seed:demo`
+ * é a forma de voltar a demo ao estado inicial depois de mexer na tela.
+ *
+ * Todas as mensagens ficam dentro do mês corrente porque `mensagem` é particionada
+ * por mês e só existem partições a partir do mês da migration.
+ */",,,,,,
+packages-db-comment-3ffcdb2e,packages-db,packages/db/src/semente-demo.ts,305,305,line,0,// --- respostas prontas: as da empresa e as da própria Ana ---,,,,,,
+packages-db-comment-f82c7f2d,packages-db,packages/db/src/semente-demo.ts,382,382,line,1,// --- etiquetas: as de trabalho e as de encerramento (obrigatórias para fechar) ---,,,,,,
+packages-db-comment-c926fc13,packages-db,packages/db/src/semente-demo.ts,44,44,jsdoc,3,/** O atendente que a tela assume enquanto não existe login (fase seguinte). */,,,,,,
+packages-db-comment-9270f96e,packages-db,packages/db/src/semente-demo.ts,473,473,jsdoc,3,/** Quando o contato falou pela última vez. Define a janela de 24h. */,,,,,,
+packages-db-comment-54ab3a8d,packages-db,packages/db/src/semente-demo.ts,50,53,jsdoc,7,"/**
+ * O que esta semente considera ""dela"". É por estas listas que a limpeza acontece — e é
+ * por isso que acrescentar gente nova aqui exige acrescentar o e-mail na lista também.
+ */",,,,,,
+packages-db-comment-a36cf774,packages-db,packages/db/src/semente-demo.ts,515,515,line,2,// E-mail não tem janela de 24h: a regra é do canal.,,,,,,
+packages-db-comment-663427f3,packages-db,packages/db/src/semente-demo.ts,540,540,line,2,// Janela já fechada: passou de 24h desde a última mensagem dela.,,,,,,
+packages-db-comment-7abfae7b,packages-db,packages/db/src/semente-demo.ts,559,559,line,1,"// Conversa antiga do Marcelo, para o histórico do painel do contato.",,,,,,
+packages-db-comment-70ec3ca2,packages-db,packages/db/src/semente-demo.ts,624,624,line,0,"// Marcelo — comercial, negociando desconto; o áudio falhou.",,,,,,
+packages-db-comment-ad736082,packages-db,packages/db/src/semente-demo.ts,712,712,line,0,// Cássia — janela fechada.,,,,,,
+packages-db-comment-8761075b,packages-db,packages/db/src/semente-demo.ts,782,782,line,1,// `autor_id` do contato não referencia usuário; deixa nulo em vez de mentir.,,,,,,
+packages-db-comment-abe93f5f,packages-db,packages/db/src/semente-demo.ts,801,801,line,5,// Resumo já gravado. Nesta etapa a tela lê o que está no banco; não chama IA.,,,,,,
+packages-db-comment-d7914a93,packages-db,packages/db/src/semente.ts,10,16,jsdoc,6,"/**
+ * Semente mínima: um tenant, os cinco papéis do dia 1, o catálogo de permissões e as
+ * filas de exemplo. Roda com o papel dono das tabelas, antes de existir usuário — por
+ * isso não passa pelo `comTenant`.
+ *
+ * Idempotente de propósito: rodar duas vezes não duplica nada.
+ */",,,,,,
+packages-db-comment-7ca0cd30,packages-db,packages/db/src/semente.ts,108,111,jsdoc,1,"/**
+ * Tudo, menos as permissões da CONTA: essas vêm só do papel de conta
+ * (`PAPEIS_DA_CONTA`), desde a migração 0021.
+ */",,,,,,
+packages-db-comment-f10caa26,packages-db,packages/db/src/semente.ts,116,116,jsdoc,0,"/** O `guest` deles — ""Apenas visualiza informações do contrato"". */",,,,,,
+packages-db-comment-c672a728,packages-db,packages/db/src/semente.ts,160,163,jsdoc,3,"/**
+ * Gestor vê e configura tudo do negócio; o que mexe em identidade fica no
+ * administrador — e excluir fluxo também, que na origem é só do admin.
+ */",,,,,,
+packages-db-comment-1cd4d742,packages-db,packages/db/src/semente.ts,175,182,jsdoc,6,"/**
+ * Os três papéis da CONTA, com o `roleId` da origem como nome — a matriz de
+ * `referencias-blip/pesquisa/blip-painel-do-contrato.md`. O rótulo da tela (""Admin"", ""Pode
+ * editar"", ""Pode visualizar"") mora no gestão, não aqui.
+ *
+ * Toda pessoa tem exatamente um (índice parcial em `usuario_papel`). ""Cria e edita
+ * chatbots"" é `automacao.fluxo.editar`, a permissão que o portal confere para criar.
+ */",,,,,,
+packages-db-comment-2cd7bb0c,packages-db,packages/db/src/semente.ts,18,18,jsdoc,1,"/** Permissão é capacidade nomeada, nunca flag booleana espalhada pelo código. */",,,,,,
+packages-db-comment-eb371469,packages-db,packages/db/src/semente.ts,190,191,block,1,"/* Quem edita o bot publica o bot: o Builder da origem não separa os dois
+         gestos. Migração 0034. */",,,,,,
+packages-db-comment-661d179c,packages-db,packages/db/src/semente.ts,215,215,jsdoc,0,/** Os papéis de ATENDIMENTO. Nenhum carrega permissão `conta.*`. */,,,,,,
+packages-db-comment-e9c462c2,packages-db,packages/db/src/semente.ts,240,243,jsdoc,3,"/**
+ * As duas primeiras replicam o roteamento por faixa de score do §4.2: 60 ou mais vai
+ * para closer, abaixo disso para o Comercial.
+ */",,,,,,
+packages-db-comment-a10a297a,packages-db,packages/db/src/semente.ts,244,249,block,10,"/*
+ * A cor guarda NOME DE TOKEN da paleta de gráfico, nunca hex. Hex em coluna de
+ * dado volta a virar cor fora do sistema na hora de pintar, que é o que a régua
+ * do @pipe/ui proíbe — e foi assim que a etiqueta acabou com nove matizes que
+ * ninguém escolheu. A tela de Filas lê estes mesmos nomes.
+ */",,,,,,
+packages-db-comment-4052c002,packages-db,packages/db/src/semente.ts,257,272,jsdoc,16,"/**
+ * Todo usuário do tenant SEM papel de conta ganha um — a regra ""toda pessoa tem
+ * exatamente um"" da migração 0021, aplicada a quem nasceu depois dela.
+ *
+ * O backfill da 0021 só cobriu quem já existia; as sementes de operação
+ * (`semente-demo.ts`, `apps/gestao-vite/semente/semente-gestao.ts`) criam
+ * usuários só com papel de atendimento, e a tela de Membros do contrato — que
+ * lista pelo papel de CONTA — ficava vazia. A regra de qual papel é a MESMA da
+ * 0021, para o resultado não depender de quem rodou primeiro: `administrador` ou
+ * quem tem `conta.membros.escrever` → `admin`; quem edita fluxo ou o workspace →
+ * `member`; o resto → `guest`.
+ *
+ * Idempotente: o índice único parcial `usuario_papel_um_da_conta_uk` garante um
+ * por pessoa, e o `where not exists` não toca em quem já tem. Rodar duas vezes
+ * não duplica nem troca papel dado à mão.
+ */",,,,,,
+packages-db-comment-c5b686d8,packages-db,packages/db/src/semente.ts,307,307,jsdoc,2,/** Usuários que estavam sem papel de conta e ganharam um nesta rodada. */,,,,,,
+packages-db-comment-e4c326f9,packages-db,packages/db/src/semente.ts,368,368,line,0,"// Por último, depois de os papéis de conta existirem: quem foi semeado por",,,,,,
+packages-db-comment-c7ce7cd3,packages-db,packages/db/src/semente.ts,45,45,block,0,/* Migração 0030: nenhuma permissão cobria motivo de pausa nem resposta pronta. */,,,,,,
+packages-db-comment-0462055a,packages-db,packages/db/src/semente.ts,58,59,block,3,"/* ""Somente um admin pode deletar o chatbot"" (`deleteChatbotPermissionDenied`
+     da origem): excluir é permissão à parte, que o `member` não tem. Migração 0023. */",,,,,,
+packages-db-comment-e986f25d,packages-db,packages/db/src/semente.ts,62,63,block,1,"/* Migração 0032: nem ""Informações de conexão"" nem ""Webhook"" tinham permissão
+     própria — `chave_api.gerenciar` cobre só a emissão de chave. */",,,,,,
+packages-db-comment-c370fff7,packages-db,packages/db/src/semente.ts,68,87,block,23,"/*
+   * As permissões da CONTA — o que o Painel do contrato lê.
+   *
+   * São a matriz do painel deles (`referencias-blip/pesquisa/blip-painel-do-contrato.md`,
+   * §""A matriz de papéis"") trazida para o nosso RBAC: lá são seis chaves
+   * (`tenant-summary`, `tenant-members`, `tenant-workspace`, `tenant-dashboard`,
+   * `tenant-billing`, `tenant-permissions-group`) com dois verbos (`read`,
+   * `write`) chumbadas no front por três papéis fixos; aqui cada par
+   * chave+verbo vira UMA permissão do catálogo, e quem distribui é o papel do
+   * banco. É a mesma matriz — só que editável sem recompilar a tela.
+   *
+   * `conta.painel.*` espelha `tenant-dashboard`, que está na matriz deles e
+   * **nenhum cartão usa**. Fica aqui pela mesma razão que fica lá: a matriz é
+   * o contrato, e buraco no meio dela vira pergunta na próxima leitura.
+   *
+   * Faturamento tem só LEITURA de propósito: na matriz deles `tenant-billing`
+   * é read para `admin` e nada para o resto — ninguém tem write. Inventar
+   * `conta.faturamento.escrever` seria inventar capacidade que a origem não
+   * tem e que nenhuma tela nossa exerce.
+   */",,,,,,
+packages-db-comment-37f1fb42,packages-db,packages/db/src/tenant.ts,23,30,jsdoc,14,"/**
+ * Abre a transação, fixa `pipe.tenant_id` nela e roda o trabalho dentro.
+ *
+ * `set_config(..., true)` é o `set local` da §1 do modelo de dados em forma de função:
+ * o `set local` do SQL não aceita parâmetro, e concatenar o uuid no texto do comando
+ * seria abrir a porta que a RLS existe para fechar. Como é *local*, a variável morre
+ * com a transação e não vaza para a próxima que pegar a mesma conexão do pool.
+ */",,,,,,
+packages-db-comment-9c65705d,packages-db,packages/db/src/tenant.ts,45,45,jsdoc,1,"/** O tenant em vigor na transação, para log e asserção. */",,,,,,
+packages-db-comment-dfb30017,packages-db,packages/db/tests/ajuda.ts,26,29,jsdoc,4,"/**
+ * Sobe o schema e semeia dois tenants com uma fila cada, usando o papel dono.
+ * O `sufixo` mantém as execuções independentes quando o banco não é descartado.
+ */",,,,,,
+packages-db-comment-72099975,packages-db,packages/db/tests/ajuda.ts,70,73,jsdoc,4,"/**
+ * A consulta falhou fechada? Ou o `current_setting` lançou, ou a política filtrou
+ * tudo. As duas formas são aceitáveis; devolver linha não é.
+ */",,,,,,
+packages-db-comment-d73e4212,packages-db,packages/db/tests/ajuda.ts,9,12,jsdoc,3,"/**
+ * O papel da aplicação. É o único jeito honesto de testar RLS: com o papel dono a
+ * política é ignorada e o teste passaria sem provar nada.
+ */",,,,,,
+packages-db-comment-3f781639,packages-db,packages/db/tests/auditoria.test.ts,102,102,line,1,"// O driver devolve `null` e o formulário manda `undefined`. Sem isto, todo",,,,,,
+packages-db-comment-30a374de,packages-db,packages/db/tests/auditoria.test.ts,103,103,line,1,// salvamento registraria mudança em campo vazio que ninguém tocou.,,,,,,
+packages-db-comment-3c02d82f,packages-db,packages/db/tests/auditoria.test.ts,46,46,line,3,"// Gravar token no log desfaria, num lugar mais visível, a cifra que o",,,,,,
+packages-db-comment-dd9d4d5d,packages-db,packages/db/tests/auditoria.test.ts,5,9,jsdoc,3,"/**
+ * O log é lido por gente do suporte e sai em auditoria de contrato. Estes
+ * testes protegem duas coisas: que segredo nunca chegue lá, e que o registro
+ * diga o que mudou em vez de repetir o objeto inteiro.
+ */",,,,,,
+packages-db-comment-3329b37f,packages-db,packages/db/tests/auditoria.test.ts,91,91,line,4,"// Quem lê o log quer saber que a capacidade foi de 5 para 8, não reler as",,,,,,
+packages-db-comment-66a4737c,packages-db,packages/db/tests/preparar.ts,24,27,jsdoc,2,"/**
+ * O teste de RLS só prova alguma coisa contra um Postgres de verdade. Se o do
+ * `docker-compose.yml` não estiver de pé, esta rotina sobe ele e espera ficar saudável.
+ */",,,,,,
+packages-db-comment-a740848d,packages-db,packages/db/tests/preparar.ts,29,36,block,13,"/*
+   * Chave de cifra para o ambiente de teste.
+   *
+   * A cifra de segredo de canal falha alto quando não há chaveiro, e é isso que
+   * queremos em produção: melhor a API não subir do que subir gravando token da
+   * Meta em texto claro achando que não. Em teste, a chave é fixa e pública de
+   * propósito — ela não protege nada aqui, só faz o caminho existir.
+   */",,,,,,
+packages-db-comment-fc17c3e8,packages-db,packages/db/tests/rls.test.ts,108,112,block,3,"/*
+   * Os quatro acima provam a política numa tabela. Os cinco abaixo provam as
+   * PREMISSAS da política — cada um deles falhando significa que os outros
+   * passariam sem provar nada.
+   */",,,,,,
+packages-db-comment-636a75d9,packages-db,packages/db/tests/rls.test.ts,145,145,line,2,// Falha nomeando as tabelas: tabela nova sem política é o defeito que essa,,,,,,
+packages-db-comment-2fd2eb4a,packages-db,packages/db/tests/rls.test.ts,146,146,line,3,// suíte existe para pegar no dia em que alguém a criar.,,,,,,
+packages-db-comment-f5a1d810,packages-db,packages/db/tests/rls.test.ts,169,169,line,4,// A forma com subconsulta escalar é o que o planejador promove a InitPlan.,,,,,,
+packages-db-comment-f53f3ade,packages-db,packages/db/tests/rls.test.ts,170,170,line,5,"// Sem ela a política volta a rodar a função em cada linha examinada, e a",,,,,,
+packages-db-comment-0753e1bb,packages-db,packages/db/tests/rls.test.ts,171,171,line,1,// varredura de `mensagem` fica cara sem ninguém perceber.,,,,,,
+packages-db-comment-3c6ceb6a,packages-db,packages/db/tests/rls.test.ts,184,184,line,1,// Conexão devolvida ao pool com variável suja seria vazamento silencioso:,,,,,,
+packages-db-comment-a90e657a,packages-db,packages/db/tests/rls.test.ts,34,34,line,2,"// E o caminho inverso, para descartar que o filtro seja coincidência de ordem.",,,,,,
+packages-db-comment-78565a82,packages-db,packages/db/tests/rls.test.ts,41,41,line,5,// Buscar pelo id do outro tenant também não devolve nada: a política filtra a,,,,,,
+packages-db-comment-447e542e,packages-db,packages/db/tests/rls.test.ts,42,42,line,2,"// linha, não a consulta.",,,,,,
+packages-db-comment-7ad7c698,packages-db,packages/db/tests/rls.test.ts,58,58,line,2,// Nem o total escapa: `count(*)` sem tenant não pode devolver 2.,,,,,,
+packages-db-comment-c0dd9858,packages-db,packages/db/tests/rls.test.ts,65,65,line,4,// E a escrita também: inserir sem tenant em vigor não pode passar.,,,,,,
+packages-db-comment-3e2a606a,packages-db,packages/db/tests/rls.test.ts,7,13,jsdoc,11,"/**
+ * Critério de aceite da fundação: a política `tenant_isolado` precisa isolar de
+ * verdade, e a ausência da variável de sessão precisa fechar a porta, não abri-la.
+ *
+ * Tudo aqui roda com o papel `pipe_app`, que não é dono das tabelas e não tem
+ * `bypassrls`. Rodar com o papel dono faria os três testes passarem sem provar nada.
+ */",,,,,,
+packages-db-comment-22508ff1,packages-db,packages/db/tests/rls.test.ts,77,77,line,3,"// `set local` morre com a transação. Se vazasse, a conexão devolvida ao pool",,,,,,
+packages-db-comment-a20cd20b,packages-db,packages/db/tests/rls.test.ts,78,78,line,2,// levaria o tenant A para quem pegasse ela depois.,,,,,,
+packages-db-comment-e272a584,packages-db,packages/db/tests/rls.test.ts,84,84,line,3,"// A transação seguinte, com outro tenant, enxerga só o que é dela.",,,,,,
+packages-db-comment-4b967972,packages-db,packages/db/tests/rls.test.ts,91,91,line,3,// E a política também vale na escrita: gravar linha carimbada com o outro tenant,,,,,,
+packages-db-comment-9d2a4c85,packages-db,packages/db/tests/rls.test.ts,92,92,line,1,// é barrado pelo `with check`.,,,,,,
+packages-db-comment-4cae54e5,packages-db,packages/db/tests/segredo.test.ts,107,107,line,0,"// Se alguém adicionar um segredo novo ao canal e esquecer desta lista, ele",,,,,,
+packages-db-comment-64301e2d,packages-db,packages/db/tests/segredo.test.ts,108,108,line,0,// nasce em texto claro. O teste é o lembrete.,,,,,,
+packages-db-comment-896aeb57,packages-db,packages/db/tests/segredo.test.ts,24,28,jsdoc,6,"/**
+ * O que estes testes protegem é a credencial do cliente: com o token da Meta
+ * qualquer um manda mensagem pelo número dele. O risco não é a aplicação vazar
+ * — é o dump do banco.
+ */",,,,,,
+packages-db-comment-650e2b08,packages-db,packages/db/tests/segredo.test.ts,38,38,line,2,"// IV aleatório por gravação. Sem isso, valores iguais viram pacotes iguais e",,,,,,
+packages-db-comment-77c1bc0a,packages-db,packages/db/tests/semente.test.ts,10,15,jsdoc,6,"/**
+ * `semear` e `garantirPapelDeConta`: todo usuário semeado recebe papel de CONTA
+ * (a regra ""exatamente um"" da migração 0021), e rodar duas vezes não duplica
+ * nem troca o que alguém deu à mão. Era o buraco que deixava a tela de Membros
+ * do contrato vazia no tenant de demonstração.
+ */",,,,,,
+packages-db-comment-79ec8af2,packages-db,packages/db/vitest.config.ts,6,6,line,2,// Sobe o Postgres do compose se ele ainda não estiver de pé.,,,,,,

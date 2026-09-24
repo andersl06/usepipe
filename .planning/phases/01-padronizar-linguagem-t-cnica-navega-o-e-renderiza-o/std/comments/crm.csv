@@ -1,0 +1,2200 @@
+id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
+crm-comment-bc0a4c31,crm,apps/crm/next.config.ts,12,12,line,2,// Servidor autocontido em `.next/standalone`: é o que deixa a imagem final,,,,,,
+crm-comment-60230263,crm,apps/crm/next.config.ts,13,13,line,2,// rodar sem devDependencies e sem o Next instalado ao lado.,,,,,,
+crm-comment-af50bc1c,crm,apps/crm/next.config.ts,15,15,line,1,// Sem isto o Next enraíza o rastreamento em `apps/crm` e deixa de fora,,,,,,
+crm-comment-a34ab7d4,crm,apps/crm/next.config.ts,4,10,jsdoc,3,"/**
+ * `pg` e `drizzle-orm` só rodam no servidor: fora do bundle do Next, senão o
+ * webpack tenta empacotar o driver nativo do Postgres.
+ *
+ * `@pipe/ui` é consumido como fonte (não tem passo de build), então o Next
+ * precisa transpilá-lo junto com o aplicativo.
+ */",,,,,,
+crm-comment-de31e77b,crm,apps/crm/semente/semente-crm.ts,124,124,jsdoc,1,"/** CNPJ fictício e determinístico. Catorze dígitos, sem dígito verificador real. */",,,,,,
+crm-comment-ca663cf4,crm,apps/crm/semente/semente-crm.ts,139,142,jsdoc,4,"/**
+ * As regras da versão 4. Os pesos são os do mockup aprovado, e o corte em 60 é a
+ * regra de negócio que já roda no webhook de hoje.
+ */",,,,,,
+crm-comment-764ce4c6,crm,apps/crm/semente/semente-crm.ts,219,219,jsdoc,0,/** As faixas no formato do motor: `maximo` do topo é aberto. */,,,,,,
+crm-comment-c7329620,crm,apps/crm/semente/semente-crm.ts,264,264,jsdoc,1,/** A versão 2 acrescenta duas perguntas — e o histórico da versão 1 continua legível. */,,,,,,
+crm-comment-830f24ba,crm,apps/crm/semente/semente-crm.ts,28,43,jsdoc,17,"/**
+ * Semente do Pipe CRM.
+ *
+ * **Acrescenta, nunca varre.** Outros agentes semeiam o mesmo tenant `demo`, e apagar
+ * o que não é seu já quebrou trabalho alheio neste projeto uma vez. Por isso cada
+ * linha criada aqui tem identificador **derivado do nome** (sha1 de um namespace do
+ * CRM), e a limpeza do começo apaga exatamente esses identificadores e mais nenhum:
+ * rodar duas vezes não duplica, e não encosta em contato, conversa ou fila de
+ * ninguém.
+ *
+ * Ela se apoia no que já existe — contatos e conversas da semente da Gestão, filas e
+ * usuários da semente base — porque é assim que a promessa do produto aparece na
+ * tela: a linha do tempo do lead traz o atendimento que já aconteceu.
+ *
+ * Uso: `pnpm --filter @pipe/crm seed:crm`
+ */",,,,,,
+crm-comment-b6f8ead9,crm,apps/crm/semente/semente-crm.ts,354,357,jsdoc,5,"/**
+   * Contatos que já conversaram vêm primeiro: é o que faz a linha do tempo do lead
+   * mostrar atendimento de verdade em vez de uma lista de notas inventadas.
+   */",,,,,,
+crm-comment-cf46795c,crm,apps/crm/semente/semente-crm.ts,374,374,block,1,/* ---------------------------------------------------- limpeza do que é meu */,,,,,,
+crm-comment-c0c0f08b,crm,apps/crm/semente/semente-crm.ts,388,388,line,2,"// Ordem: oportunidade e lead antes do formulário, senão a resposta segura a versão.",,,,,,
+crm-comment-d61824f9,crm,apps/crm/semente/semente-crm.ts,397,401,block,7,"/*
+   * O contato é de outra semente: só o vínculo com a conta é meu, e é só ele
+   * que a limpeza desfaz. Solto o vínculo antes de apagar a conta, senão a
+   * chave estrangeira segura a linha.
+   */",,,,,,
+crm-comment-d8c95494,crm,apps/crm/semente/semente-crm.ts,461,461,block,0,/* --------------------------------------------------------------- formulários */,,,,,,
+crm-comment-545998f0,crm,apps/crm/semente/semente-crm.ts,47,47,jsdoc,1,"/** UUID determinístico a partir de um nome. Mesmo nome, mesmo id, sempre. */",,,,,,
+crm-comment-e7f24730,crm,apps/crm/semente/semente-crm.ts,546,546,jsdoc,1,"/** Conta → contatos dela. Vira um `update` por conta, não sessenta. */",,,,,,
+crm-comment-4d89e299,crm,apps/crm/semente/semente-crm.ts,551,551,line,3,"// Rodízio pelas contas: cada uma fica com três ou quatro contatos, que é o",,,,,,
+crm-comment-0d46c226,crm,apps/crm/semente/semente-crm.ts,552,552,line,4,// bastante para a ficha da conta ter mais de uma linha em cada bloco.,,,,,,
+crm-comment-24aa1240,crm,apps/crm/semente/semente-crm.ts,557,557,line,2,// Metade entrou nos últimos dias e metade nos meses anteriores: sem isso o painel,,,,,,
+crm-comment-6a91f670,crm,apps/crm/semente/semente-crm.ts,558,558,line,2,// compara um mês cheio com um mês de cinco dias e a variação vira ruído.,,,,,,
+crm-comment-4588064c,crm,apps/crm/semente/semente-crm.ts,564,564,line,1,// O perfil é a fonte única: alimenta o score e as respostas do formulário.,,,,,,
+crm-comment-c9ede5e0,crm,apps/crm/semente/semente-crm.ts,57,57,jsdoc,1,/** Gerador determinístico: rodar duas vezes dá exatamente a mesma base. */,,,,,,
+crm-comment-aaa4fd0b,crm,apps/crm/semente/semente-crm.ts,582,582,line,4,"// Nem todo lead é pontuado: o que não respondeu nada fica sem score, e a ficha",,,,,,
+crm-comment-2005ffde,crm,apps/crm/semente/semente-crm.ts,583,583,line,2,"// diz isso em vez de exibir zero — zero é um número, ausência de cálculo não é.",,,,,,
+crm-comment-d320d1bd,crm,apps/crm/semente/semente-crm.ts,593,593,line,1,"// Nunca antes da criação do lead nem no futuro: ""dias na fase"" é uma contagem, e",,,,,,
+crm-comment-169fc8f7,crm,apps/crm/semente/semente-crm.ts,594,594,line,3,// contagem negativa é a maneira mais barata de perder a confiança na coluna.,,,,,,
+crm-comment-f2858419,crm,apps/crm/semente/semente-crm.ts,619,619,line,3,"// Lead da faixa de nutrição não tem dono: é exatamente a aba ""sem proprietário"".",,,,,,
+crm-comment-5204d325,crm,apps/crm/semente/semente-crm.ts,676,676,block,0,/* ------------------------------------------------ respostas de formulário */,,,,,,
+crm-comment-a9d1aa4e,crm,apps/crm/semente/semente-crm.ts,678,678,line,2,"// Lead antigo respondeu a versão 1 do diagnóstico; lead recente, a versão 2.",,,,,,
+crm-comment-3845a723,crm,apps/crm/semente/semente-crm.ts,684,684,line,2,// Diagnóstico incompleto responde só as duas primeiras — e a regra dos 18 pontos,,,,,,
+crm-comment-b32aef00,crm,apps/crm/semente/semente-crm.ts,685,685,line,4,// não casa. É o que faz a explicação do score contar uma história verdadeira.,,,,,,
+crm-comment-bd9ea1db,crm,apps/crm/semente/semente-crm.ts,76,76,block,0,/* ------------------------------------------------------------------ catálogos */,,,,,,
+crm-comment-ba474c41,crm,apps/crm/semente/semente-crm.ts,808,808,line,2,"// Só lead acima do corte vira oportunidade, que é a regra do funil de hoje.",,,,,,
+crm-comment-092d88cb,crm,apps/crm/semente/semente-crm.ts,810,810,line,1,"// cima. Abaixo disso é nutrição, e nutrição não ocupa coluna do funil.",,,,,,
+crm-comment-90cae581,crm,apps/crm/semente/semente-crm.ts,829,829,line,2,"// Um punhado já fechou neste mês: sem elas o cartão ""fechado no mês"" fica em",,,,,,
+crm-comment-5a05fd1d,crm,apps/crm/semente/semente-crm.ts,830,830,line,2,// zero e o painel não tem o que comparar.,,,,,,
+crm-comment-ee81ab68,crm,apps/crm/semente/semente-crm.ts,854,854,line,1,"// Um `update` por conta, não um por contato: catorze consultas em vez de sessenta.",,,,,,
+crm-comment-e3da84c2,crm,apps/crm/semente/semente-crm.ts,873,878,jsdoc,11,"/**
+   * A promessa do produto é que o CRM se alimenta das conversas. Sem classificação,
+   * a linha do tempo mostra ""houve um atendimento"" e nada mais. Estas linhas são
+   * criadas com id próprio e `onConflictDoNothing`: se o worker de IA já classificou
+   * a conversa, a dele fica.
+   */",,,,,,
+crm-comment-659bbc95,crm,apps/crm/semente/semente-crm.ts,897,897,line,3,"// Uma conversa resumida por contato: o objetivo é a ficha, não o dataset da IA.",,,,,,
+crm-comment-a1233284,crm,apps/crm/semente/semente-crm.ts,928,928,jsdoc,2,/** `AAAA-MM-DD` para a coluna `date` de `fechamento_previsto`. */,,,,,,
+crm-comment-620a215c,crm,apps/crm/semente/semente-crm.ts,98,106,jsdoc,11,"/**
+ * Contas. A semente da Gestão cria contato e conversa, e a base deste CRM cria
+ * lead e oportunidade — ninguém criava `conta`, e por isso a coluna `conta_id`
+ * do lead vinha nula em toda linha. A tela de Contas nascia vazia, o que é a
+ * pior maneira de descobrir que a tabela nunca foi preenchida.
+ *
+ * Nomes fictícios de propósito: é tenant de demonstração, e cliente real de
+ * ninguém entra em semente que vai para o repositório.
+ */",,,,,,
+crm-comment-00dd4900,crm,apps/crm/src/app/acoes-busca.ts,6,16,jsdoc,16,"/**
+ * A busca do menu de comando, chamada a cada tecla.
+ *
+ * Server action e não rota: o menu é o único consumidor, e uma rota exigiria
+ * autenticar de novo o que a sessão já resolveu. Quando o front virar Vite isto
+ * vira endpoint na `api` — está registrado em
+ * `docs/specs/2026-09-07-arquitetura-de-front.md`.
+ *
+ * Nunca lança: o menu de comando não pode derrubar a tela em que a pessoa está.
+ * Falha vira lista vazia, e a pessoa fecha e continua o que fazia.
+ */",,,,,,
+crm-comment-41991bb8,crm,apps/crm/src/app/configuracoes/acoes.ts,134,134,block,0,/* ------------------------------------------------------ papéis e permissões */,,,,,,
+crm-comment-096445fa,crm,apps/crm/src/app/configuracoes/acoes.ts,166,166,line,4,// papel que já não está no banco até alguém navegar por conta própria.,,,,,,
+crm-comment-72727b21,crm,apps/crm/src/app/configuracoes/acoes.ts,175,175,line,1,// Código em branco vira o rótulo em forma de chave: ninguém precisa aprender a,,,,,,
+crm-comment-02c68b7c,crm,apps/crm/src/app/configuracoes/acoes.ts,27,44,jsdoc,26,"/**
+ * As ações de escrita da área de configurações.
+ *
+ * Esta camada é fina de propósito, e a fronteira que ela guarda está no README
+ * (""Quem fala com o banco""): aqui mora o que é do Next — ler o `FormData`,
+ * revalidar a rota —, e nada mais. A consulta e a auditoria vivem em
+ * `lib/configuracoes-dados.ts`, que não sabe que o Next existe. Quando o CRM for
+ * para o Vite e a `apps/api` virar a única porta do Postgres, este arquivo é o
+ * que se joga fora; o outro se move.
+ *
+ * Toda ação tem a assinatura de `useActionState`: recebe o resultado anterior e
+ * o `FormData`, devolve o novo resultado. É o que faz o formulário funcionar
+ * **sem JavaScript** e ainda assim mostrar a queixa em português na tela.
+ *
+ * O `id` que chega do navegador nunca é confiado: passa por `ehUuid` antes de
+ * virar `where`. É a mesma regra de `app/leads/acoes.ts` — entrada de cliente
+ * não define valor de escrita.
+ */",,,,,,
+crm-comment-f2d4e3fc,crm,apps/crm/src/app/configuracoes/acoes.ts,79,79,block,0,/* ------------------------------------------------------ espaço de trabalho */,,,,,,
+crm-comment-4c1cf368,crm,apps/crm/src/app/configuracoes/api/page.tsx,26,50,jsdoc,34,"/**
+ * Chaves de API e webhooks de saída.
+ *
+ * É o ""MCP & APIs"" do Twenty, com o que o Pipe realmente tem atrás. As duas
+ * metades desta tela já existiam no produto e não tinham porta: `chave_api`
+ * autentica a REST desde o começo (`apps/api/src/autenticacao.ts`) e
+ * `webhook_saida` é emitido a cada evento (`apps/api/src/webhooks-saida.ts`).
+ * Faltava o lugar de emitir uma e assinar o outro sem `psql`.
+ *
+ * O que muda em relação ao Twenty, e por quê:
+ *
+ * - **A chave carrega ESCOPO, não papel.** Lá a chave recebe um role de usuário.
+ *   Aqui `chave_api.escopos` é a régua que `apps/api` confere por rota, e papel
+ *   é de gente. Emprestar papel de pessoa a um programa é o caminho para uma
+ *   integração de leitura ganhar permissão de excluir contato.
+ * - **Não há regenerar.** Regenerar é revogar e emitir, com um nome que sugere
+ *   que a chave antiga continua valendo por um tempo. Revogue e emita outra: são
+ *   dois cliques e nenhuma ambiguidade sobre o que ainda funciona.
+ * - **O webhook tem liga-desliga.** Lá o webhook existe ou é apagado. Aqui
+ *   `webhook_saida.ativo` já existia, e desligar durante uma manutenção do outro
+ *   lado é melhor do que apagar e recadastrar com um segredo novo.
+ * - **O segredo do webhook é nosso e é obrigatório.** No Twenty ele é opcional;
+ *   aqui a coluna é `not null` e a assinatura inclui o timestamp
+ *   (`sha256=HMAC(segredo, ""<timestamp>.<corpo>"")`), que é o que fecha o replay.
+ */",,,,,,
+crm-comment-7019719d,crm,apps/crm/src/app/configuracoes/campos/page.tsx,15,42,jsdoc,31,"/**
+ * Campos personalizados do lead.
+ *
+ * **O que o Twenty tem aqui e o Pipe não vai ter.** Lá, ""Data model"" deixa o
+ * cliente criar OBJETO e CAMPO — o que significa `alter table` em tempo de
+ * execução, num banco com RLS e migrations versionadas. O Pipe decidiu o
+ * contrário na fundação, e está escrito no schema: *""campo customizado por
+ * tenant vive aqui, com índice GIN — nunca `alter table` em runtime""*. O valor
+ * mora em `lead.customizados`, que é `jsonb`.
+ *
+ * Então o equivalente honesto não é ""criar campo no banco"": é **declarar a
+ * chave**. É o que esta tela faz, em `dicionario_campo` — a mesma tabela que a
+ * linguagem de consulta lê para decidir o que é consultável. Declarar aqui é o
+ * que faz o campo existir para a busca, para a exportação e para quem for
+ * preencher o formulário.
+ *
+ * Três consequências dessa decisão, todas visíveis na tela:
+ *
+ * - **O código não se edita.** Ele é a chave dentro do `jsonb` de cada lead;
+ *   mudá-lo deixaria o valor gravado órfão na base inteira, em silêncio. Rótulo
+ *   e descrição, sim.
+ * - **""Preenchidos"" conta leads de verdade**, varrendo `customizados`. É o
+ *   número que impede excluir às cegas um campo que 400 leads usam — o
+ *   equivalente ao ""Mostly empty"" do Twenty, ao contrário.
+ * - **Excluir tira a definição, não o valor.** O que estiver gravado continua
+ *   lá, e o log de auditoria guarda o código. Recadastrar o mesmo código faz o
+ *   dado voltar a aparecer.
+ */",,,,,,
+crm-comment-2d5e7d4d,crm,apps/crm/src/app/configuracoes/espaco/page.tsx,10,20,jsdoc,14,"/**
+ * A lista de fusos vem do runtime, não de uma constante nossa.
+ *
+ * Lista escrita à mão envelhece a cada país que muda de horário de verão, e o
+ * jeito de descobrir é um relatório sair com uma hora de diferença. `Intl` já
+ * carrega o banco de fusos do sistema; usar outra fonte seria manter uma cópia
+ * pior da mesma coisa.
+ *
+ * O `catch` cobre runtime antigo sem `supportedValuesOf`: sem a lista, o que
+ * resta é o fuso atual, e o campo continua salvável.
+ */",,,,,,
+crm-comment-d049b33e,crm,apps/crm/src/app/configuracoes/espaco/page.tsx,36,49,jsdoc,14,"/**
+ * Espaço de trabalho.
+ *
+ * É o ""General"" do Twenty, com a mesma ordem: imagem, nome, domínio, e a zona de
+ * perigo por último. A zona de perigo **não veio**: ""excluir o espaço de
+ * trabalho"" num produto multi-tenant com RLS apaga o cliente inteiro em cascata,
+ * e isso é operação de contrato, não botão de tela — quem cancela fala com
+ * alguém, e o `tenant.ativo` é o que desliga.
+ *
+ * O domínio é leitura. Ele existe para descobrir o tenant a partir do login
+ * (`identidade.ts`) e só vale VERIFICADO, por registro TXT no DNS: um campo de
+ * texto aqui deixaria qualquer administrador reivindicar `@banco.com.br` e
+ * receber, no dia seguinte, quem tentasse entrar com aquele endereço.
+ */",,,,,,
+crm-comment-9e3b3f95,crm,apps/crm/src/app/configuracoes/layout.tsx,4,19,jsdoc,12,"/**
+ * O invólucro da área de configurações.
+ *
+ * Faz duas coisas, e nenhuma delas é navegação: a lateral já vem de
+ * `AreaConfiguracoes`, montada em `componentes/estrutura-crm.tsx`.
+ *
+ * 1. Carrega a folha de estilo da área, que é local e só existe aqui.
+ * 2. Escreve o tema salvo no `<html>` **antes** de a página pintar. Sem isto,
+ *    quem escolheu escuro veria um lampejo branco a cada carregamento — o CSS
+ *    do tema depende do atributo, e o atributo só existiria depois do React
+ *    hidratar. É o mesmo truque que todo alternador de tema usa, e é a única
+ *    razão de haver um `<script>` inline no projeto.
+ *
+ * O `try` não é decoração: `localStorage` lança em janela anônima com cookies
+ * bloqueados, e um erro aqui derrubaria a página inteira antes do primeiro pixel.
+ */",,,,,,
+crm-comment-342d058c,crm,apps/crm/src/app/configuracoes/membros/page.tsx,133,133,line,3,"// Em série, nunca em `Promise.all`: cada uma abre a sua transação com o tenant",,,,,,
+crm-comment-56334b15,crm,apps/crm/src/app/configuracoes/membros/page.tsx,134,134,line,1,"// fixado, e paralelizar aqui é o caminho conhecido para perder `pipe.tenant_id`.",,,,,,
+crm-comment-a5b3e3ec,crm,apps/crm/src/app/configuracoes/membros/page.tsx,17,35,jsdoc,26,"/**
+ * Membros.
+ *
+ * No Twenty são três abas — Team, Invite, Roles. Aqui são três blocos na mesma
+ * tela, porque a nossa lista cabe: uma aba que esconde um formulário de duas
+ * caixas custa mais um clique do que informa.
+ *
+ * A diferença que importa em relação ao Twenty é o que acontece ao tirar alguém:
+ * lá o membro sai do espaço; aqui ele é **desativado**. `usuario` é referenciado
+ * por conversa, avaliação, lead e log de auditoria — apagar a linha apagaria a
+ * autoria de tudo o que a pessoa fez, que é exatamente o que uma auditoria de
+ * contrato vai procurar.
+ *
+ * Três coisas que o Twenty tem aqui e não vieram: convite por link público
+ * (convite é para UM endereço, e link que qualquer um usa é o oposto disso),
+ * reenviar convite (convidar de novo já invalida o anterior e emite outro) e
+ * papéis de agente e de chave de API, que no Pipe não existem — chave carrega
+ * escopo, não papel.
+ */",,,,,,
+crm-comment-40b6002f,crm,apps/crm/src/app/configuracoes/page.tsx,4,13,jsdoc,15,"/**
+ * O índice das configurações.
+ *
+ * Era um `redirect` para a primeira seção, e isso fazia sentido enquanto havia
+ * duas: com nove, a engrenagem precisa abrir num lugar que diga o que existe.
+ *
+ * Cada item traz uma linha do que a seção faz. É o que um menu de 28px não
+ * consegue dizer, e é a diferença entre a pessoa procurar ""onde muda o fuso"" no
+ * menu inteiro e ler ""fuso horário"" na descrição do espaço de trabalho.
+ */",,,,,,
+crm-comment-cda305e9,crm,apps/crm/src/app/configuracoes/papeis/[id]/page.tsx,16,32,jsdoc,20,"/**
+ * Um papel, permissão por permissão.
+ *
+ * O agrupamento é o do próprio catálogo (`permissao.grupo`), não uma taxonomia
+ * nova: o banco já sabe que `conversa.transferir` é de conversa, e inventar
+ * outra separação aqui criaria duas verdades sobre a mesma coisa.
+ *
+ * A caixa de seleção é `<input type=""checkbox"">` de verdade, com `<label>` em
+ * volta: teclado, `aria-checked` e o estado lido em voz alta vêm de graça, e o
+ * `name=""permissao""` repetido é o que faz o `FormData` chegar como lista no
+ * servidor. Reimplementar isso com `div` e `role=""checkbox""` é trabalho para
+ * ficar com menos.
+ *
+ * A zona de perigo é o padrão do Twenty, com uma diferença: aqui o botão só
+ * arma depois do primeiro clique, e recusa quando ainda há gente com o papel.
+ * Excluir papel com membro dentro é tirar acesso de alguém sem dizer de quem.
+ */",,,,,,
+crm-comment-6f9c5703,crm,apps/crm/src/app/configuracoes/papeis/page.tsx,12,24,jsdoc,17,"/**
+ * Papéis.
+ *
+ * O catálogo de permissões já existia em `permissao` e `papel_permissao` desde a
+ * fundação, com 47 capacidades nomeadas e cinco papéis do dia 1 — e nenhuma tela
+ * o mostrava. Esta é a tela.
+ *
+ * **Papel de sistema não é editável**, e aparece com cadeado. É a mesma decisão
+ * do Twenty (`isEditable: false`) e pela mesma razão: os cinco do dia 1 são o
+ * contrato que a semente garante, e um cliente que remova `conversa.responder`
+ * do `atendente` quebra o Desk de todo mundo dele sem saber por quê. Quem precisa
+ * de outra combinação cria um papel próprio, que é o que este bloco oferece.
+ */",,,,,,
+crm-comment-8ba47454,crm,apps/crm/src/app/configuracoes/perfil/page.tsx,12,33,jsdoc,31,"/**
+ * Perfil da pessoa.
+ *
+ * No Twenty isto são DUAS telas: ""Profile"" (foto, nome, e-mail, senha, zona de
+ * perigo) e ""Experience"" (tema, idioma, escala, formatos de data e número).
+ * Aqui é uma, e a razão é contável: das treze coisas que as duas telas de lá
+ * oferecem, o Pipe tem quatro. Uma tela com quatro controles e outra com um não
+ * seriam duas telas — seriam uma tela e uma sala de espera.
+ *
+ * O que ficou de fora, e por quê:
+ *
+ * - **Sobrenome separado.** `usuario.nome` é um campo só, e quebrar em dois
+ *   exigiria migration para resolver um problema que ninguém tem.
+ * - **Trocar e-mail, trocar senha, excluir a conta, encerrar sessões.** Todas
+ *   dependem da sessão do próprio CRM, que ainda não existe (`banco.ts` resolve
+ *   tudo por variável de ambiente). Botão que não faz o que promete é pior do
+ *   que botão ausente, e a regra do projeto é explícita: item que não funciona
+ *   não aparece.
+ * - **Escala da interface e formatos de data.** A régua de densidade é do design
+ *   system e vale igual para os três aplicativos; deixá-la configurável por
+ *   pessoa desfaz o que `packages/ui` existe para garantir.
+ */",,,,,,
+crm-comment-1b9fdd09,crm,apps/crm/src/app/configuracoes/regras-de-score/page.tsx,7,18,jsdoc,18,"/**
+ * As colunas da tabela de regras.
+ *
+ * Duas coisas que saíram daqui: a condição não é mais monoespaçada (ela é
+ * texto em português, não número, e a mono só serve coluna que precisa
+ * alinhar) e o peso negativo não é mais vermelho (uma regra que tira ponto não
+ * é uma falha — o sinal já diz o que ela faz).
+ *
+ * ""Ativa"" também deixou de ser verde: dez regras ativas pintavam dez etiquetas
+ * verdes, e o verde deixava de querer dizer alguma coisa. As duas são neutras,
+ * e a palavra basta.
+ */",,,,,,
+crm-comment-2d895b5f,crm,apps/crm/src/app/contas/[id]/page.tsx,119,119,line,2,"// Domínio é categoria, e categoria é neutra. A conta não tem estado",,,,,,
+crm-comment-33b48de8,crm,apps/crm/src/app/contas/[id]/page.tsx,120,120,line,1,"// terminal nem prazo, então nenhuma etiqueta dela recebe cor.",,,,,,
+crm-comment-0865e726,crm,apps/crm/src/app/contas/[id]/page.tsx,172,176,block,7,"/*
+            A lista curta de quem falar. Fica na lateral, e não só na aba, porque
+            é o que a pessoa consulta ENQUANTO lê as oportunidades: o nome de
+            quem assina do outro lado não pode exigir uma troca de aba.
+          */",,,,,,
+crm-comment-75222260,crm,apps/crm/src/app/contas/[id]/page.tsx,22,35,jsdoc,18,"/**
+ * A ficha da conta, na mesma estrutura da ficha do lead.
+ *
+ * Ela era a tela mais pobre do CRM: um cabeçalho de página comum, uma tira de
+ * quatro números e duas tabelas empilhadas. Agora tem o que a do lead tem, pelas
+ * mesmas razões — cabeçalho de destaque, lateral com os dados em seções, e abas
+ * para o conteúdo pesado. As peças vêm de `componentes/ficha.tsx`, então as três
+ * fichas não têm como divergir.
+ *
+ * A divisão de conteúdo segue o que `lib/contas.ts` já dizia que a conta
+ * responde: **quem eu conheço lá dentro** e **quanto dinheiro está em jogo**. A
+ * lateral responde a primeira em lista curta, sempre visível; as abas respondem
+ * as duas em tabela cheia.
+ */",,,,,,
+crm-comment-5fd28198,crm,apps/crm/src/app/contas/[id]/page.tsx,70,74,jsdoc,7,"/**
+ * A oportunidade fechada não sai da lista: ela é o histórico da conta, e é o
+ * que responde ""já compraram alguma vez"". A única cor da tela é o fechamento
+ * vencido de uma oportunidade que continua aberta — o resto é categoria.
+ */",,,,,,
+crm-comment-0f5abc62,crm,apps/crm/src/app/contas/page.tsx,8,14,jsdoc,11,"/**
+ * Lista de contas, no mesmo padrão da lista de leads: uma caixa, uma busca, e
+ * a tabela do pacote.
+ *
+ * Nenhuma cor. Uma conta não tem estado que exija ação — o que exige ação está
+ * dentro dela, nas oportunidades e nos leads, e é para lá que a linha leva.
+ */",,,,,,
+crm-comment-1ad95f74,crm,apps/crm/src/app/contatos/[id]/page.tsx,148,151,block,5,"/*
+              As conversas. É a promessa do produto do lado do contato: quem abre
+              a pessoa vê o que já foi atendido sem precisar do Desk.
+            */",,,,,,
+crm-comment-127bcf1d,crm,apps/crm/src/app/contatos/[id]/page.tsx,18,26,jsdoc,18,"/**
+ * A ficha do contato, na mesma estrutura da ficha do lead.
+ *
+ * A diferença entre as duas é o que o modelo diz: **o contato é a pessoa, o
+ * lead é a intenção dela de comprar.** A pessoa continua a mesma quando a
+ * intenção some, e é por isso que a aba do lead pode estar vazia sem que a
+ * ficha esteja. O destaque diz quem é a pessoa; as abas dizem o que aconteceu
+ * com ela — conversa de um lado, intenção de compra do outro.
+ */",,,,,,
+crm-comment-77b2a816,crm,apps/crm/src/app/contatos/[id]/page.tsx,56,56,line,3,"// A única cor possível aqui é a desqualificação do lead, que é o estado",,,,,,
+crm-comment-57402ccc,crm,apps/crm/src/app/contatos/[id]/page.tsx,57,57,line,2,// terminal. A pessoa não tem estado: ela existe.,,,,,,
+crm-comment-c3a35b64,crm,apps/crm/src/app/contatos/page.tsx,9,17,jsdoc,12,"/**
+ * Lista de contatos, no mesmo padrão da de leads e da de contas.
+ *
+ * Contato é pessoa; lead é a intenção dela de comprar. A lista mostra a pessoa
+ * e diz se existe um lead ligado a ela — é o que a lista de leads não pode
+ * mostrar, porque lá cada linha é uma intenção.
+ *
+ * Sem cor: um contato não tem estado que exija ação.
+ */",,,,,,
+crm-comment-f6b281cf,crm,apps/crm/src/app/convite/[token]/page.tsx,5,18,jsdoc,24,"/**
+ * O convite visto por quem ainda está do lado de fora.
+ *
+ * Rota pública, como a de entrada — e pelo mesmo motivo da API não exigir
+ * sessão em `GET /v1/convites/:token`: pedir a conta que o convite existe para
+ * criar seria um ciclo.
+ *
+ * Ela mostra o MÍNIMO que a API devolve: para quem é, com que papel, de que
+ * empresa e até quando vale. Quem tem o link já sabe o e-mail; o resto da conta
+ * não é assunto de quem ainda não entrou.
+ *
+ * O botão manda para `/v1/auth/google?convite=<token>`, que é o caminho de quem
+ * não tem domínio verificado: é o convite que decide o tenant, e não o domínio.
+ */",,,,,,
+crm-comment-4a953bc1,crm,apps/crm/src/app/convite/[token]/page.tsx,76,77,block,3,"/* Vencido, já usado e inexistente dão a MESMA tela: separar
+                contaria a quem tem o link se aquele token um dia existiu. */",,,,,,
+crm-comment-cf557567,crm,apps/crm/src/app/entrar/acoes.ts,13,22,jsdoc,9,"/**
+ * As duas ações da entrada: descobrir por onde este e-mail entra, e sair.
+ *
+ * A chamada à API não mora aqui — mora em `src/lib/sessao.ts`, e este arquivo é
+ * só a casca do formulário: lê `FormData`, mexe no cookie e redireciona.
+ *
+ * A descoberta acontece no SERVIDOR, e não no navegador, por um motivo prático:
+ * `PIPE_ORIGENS` é lista fechada e as origens das três telas não estão nela.
+ * Um `fetch` do navegador para `/v1/auth/descobrir` morreria no CORS.
+ */",,,,,,
+crm-comment-9c757af9,crm,apps/crm/src/app/entrar/acoes.ts,34,34,line,6,"// Sem SSO, a pessoa volta para a mesma tela com o motivo e o e-mail já",,,,,,
+crm-comment-4fc89df7,crm,apps/crm/src/app/entrar/acoes.ts,35,35,line,0,// digitado. Mandar de volta em branco é fazer quem errou o domínio começar,,,,,,
+crm-comment-652d3b71,crm,apps/crm/src/app/entrar/acoes.ts,42,49,jsdoc,13,"/**
+ * Sair: encerra a sessão na API e apaga o cookie deste navegador.
+ *
+ * O cookie é apagado AQUI, e não pelo `Set-Cookie` que a API devolve: aquela
+ * resposta chegou a este servidor, não ao navegador. O `Domain` tem de ser o
+ * mesmo com que ele foi emitido — sem isso o navegador guarda um segundo
+ * cookie vazio, o original continua valendo, e a pessoa ""sai"" sem sair.
+ */",,,,,,
+crm-comment-961784b4,crm,apps/crm/src/app/entrar/page.tsx,132,133,block,3,"/* Em ordem de leitura ANTES dos botões, e com título próprio: quem usa
+            leitor de tela precisa do motivo antes da ação, não depois dela. */",,,,,,
+crm-comment-17f12cdd,crm,apps/crm/src/app/entrar/page.tsx,141,142,block,4,"/* Link, e não botão: entrar com o Google é navegação de topo para outra
+            origem. Um `fetch` daqui esbarraria no CORS e não traria o cookie. */",,,,,,
+crm-comment-3e2d18cf,crm,apps/crm/src/app/entrar/page.tsx,33,38,jsdoc,6,"/**
+ * Os sete códigos do contrato, cada um com o que aconteceu e o que fazer.
+ *
+ * `Record<RecusaDeEntrada, …>` de propósito: se a API acrescentar um código, o
+ * `tsc` quebra AQUI, e não em produção com um erro em branco na cara do cliente.
+ */",,,,,,
+crm-comment-47ea40f8,crm,apps/crm/src/app/entrar/page.tsx,7,25,jsdoc,36,"/**
+ * A tela de entrada — a primeira coisa que um cliente vê, e a ÚNICA rota
+ * pública deste aplicativo.
+ *
+ * Duas regras a moldam:
+ *
+ * 1. **Nada de tenant aqui.** Quem chega nesta tela não está logado, então ela
+ *    não sabe (e não pode contar) qual empresa usa o Pipe. Por isso o nome da
+ *    conta não aparece, e por isso a descoberta por e-mail responde igual para
+ *    domínio conhecido e desconhecido — a simetria é da API, e a tela não a
+ *    quebra mostrando o que ""achou"".
+ * 2. **Cada recusa tem uma SAÍDA, não um ""não autorizado"".** Os sete códigos de
+ *    `RECUSAS_DE_ENTRADA` chegam em `?erro=` e cada um manda a pessoa para um
+ *    lugar diferente: pedir convite, falar com quem contratou, entrar pelo
+ *    provedor da empresa. Genérico aqui é a pessoa desistindo.
+ *
+ * Sem sessão e sem banco: só `fetch` na API, e por isso ela abre com o Postgres
+ * fora do ar — que é exatamente quando alguém precisa entrar para ver o que houve.
+ */",,,,,,
+crm-comment-25e7b693,crm,apps/crm/src/app/entrar/page.tsx,77,83,jsdoc,17,"/**
+ * O que a descoberta por e-mail devolve para a tela quando não roteia.
+ *
+ * A chave é o `metodo` que volta da API, e ele é `google` — não `senha`. Com a
+ * chave errada o `AVISOS[...]` dava `undefined`, e ""Continuar"" recarregava a
+ * tela idêntica, sem uma palavra: um botão que, para quem usa, não fazia nada.
+ */",,,,,,
+crm-comment-b5f4731d,crm,apps/crm/src/app/error.tsx,6,23,jsdoc,30,"/**
+ * A tela de erro do CRM inteiro. Cobre todas as rotas filhas, que é o que o
+ * Next faz com um `error.tsx` na raiz do `app/`.
+ *
+ * Três coisas, e nenhuma a mais:
+ *
+ * 1. **O que aconteceu, em português.** ""Algo deu errado"" não ajuda ninguém;
+ *    ""a consulta ao banco não respondeu"" diz para quem chamar.
+ * 2. **Um botão que tenta de novo.** `reset()` remonta o segmento sem recarregar
+ *    a página inteira — a maior parte dos erros aqui é conexão que caiu, e
+ *    tentar de novo resolve.
+ * 3. **O identificador do erro**, quando o Next dá um (`digest`). É o que liga a
+ *    tela ao registro do servidor sem pedir para a pessoa descrever o que viu.
+ *
+ * A mensagem crua do erro NÃO aparece: em produção o Next já a substitui por um
+ * texto genérico, e em desenvolvimento ela vai para o console, que é onde se
+ * lê rastro de pilha.
+ */",,,,,,
+crm-comment-3f57e991,crm,apps/crm/src/app/layout.tsx,15,27,jsdoc,11,"/**
+ * Escreve o tema salvo no `<html>` **antes** de a página pintar.
+ *
+ * Sem isto, quem escolheu escuro vê um lampejo branco a cada carregamento: o
+ * CSS do tema depende do atributo, e o atributo só existiria depois de o React
+ * hidratar. É a única razão de haver um `<script>` inline no projeto.
+ *
+ * Fica no layout RAIZ, e não no de configurações: o tema é do aplicativo
+ * inteiro, e limitá-lo a uma área faria a tela piscar em todas as outras.
+ *
+ * O `try` não é decoração — `localStorage` lança em janela anônima com cookies
+ * bloqueados, e um erro aqui derrubaria a página antes do primeiro pixel.
+ */",,,,,,
+crm-comment-15cee91c,crm,apps/crm/src/app/layout.tsx,31,33,block,8,"/* `euAtual` e não `exigirEu`: este layout também embrulha `/entrar` e
+     `/convite`, que são públicas. Exigir sessão aqui mandaria quem não a tem
+     para `/entrar` a partir do layout da própria `/entrar`, em círculo. */",,,,,,
+crm-comment-b9106f6e,crm,apps/crm/src/app/layout.tsx,5,5,line,2,// A ordem importa: o token e a base do design system entram antes da folha do,,,,,,
+crm-comment-a5c7b534,crm,apps/crm/src/app/layout.tsx,6,6,line,4,"// aplicativo, para que a folha local sobrescreva a base e nunca o contrário.",,,,,,
+crm-comment-4f0d7d76,crm,apps/crm/src/app/leads/[id]/loading.tsx,3,7,jsdoc,8,"/**
+ * O esqueleto da ficha, na mesma grade de duas colunas da tela pronta: a lateral
+ * estreita com os campos, a principal com o painel do score. Sem isso a ficha
+ * abre em uma coluna e reorganiza sozinha meio segundo depois.
+ */",,,,,,
+crm-comment-b7f6681d,crm,apps/crm/src/app/leads/[id]/page.tsx,131,131,line,3,// Quem pode receber o lead. Vem aqui e não dentro da célula porque a lista é,,,,,,
+crm-comment-3d08f1c2,crm,apps/crm/src/app/leads/[id]/page.tsx,132,132,line,3,"// a mesma para os cinco campos da lateral, e uma consulta serve os cinco.",,,,,,
+crm-comment-9c560904,crm,apps/crm/src/app/leads/[id]/page.tsx,135,135,line,2,"// UTM e campo customizado dividem a mesma seção, e o prefixo é o que os",,,,,,
+crm-comment-632dc730,crm,apps/crm/src/app/leads/[id]/page.tsx,136,136,line,3,// mantém distinguíveis sem duas caixas para dizer a mesma coisa.,,,,,,
+crm-comment-83152724,crm,apps/crm/src/app/leads/[id]/page.tsx,153,156,block,7,"/*
+          A lateral fixa: os dados que descrevem o lead. Ficam sempre visíveis
+          porque é o que a pessoa consulta enquanto lê qualquer uma das abas.
+        */",,,,,,
+crm-comment-e73ad45a,crm,apps/crm/src/app/leads/[id]/page.tsx,159,170,block,18,"/*
+              A lateral é onde se EDITA, como no Twenty: os campos simples
+              trocam de valor no lugar, sem formulário e sem sair da página. A
+              tira do cabeçalho continua sendo resumo — é a divisão que o
+              Salesforce e o Twenty fazem, e repetir o campo nos dois lugares é
+              deles também: um repete para ler de relance, o outro para mexer.
+
+              Documento, ""criado em"" e ""fase desde"" ficam de fora: o primeiro
+              precisa de validação de CPF/CNPJ que ainda não existe, e os dois
+              últimos são carimbo do sistema — data que a pessoa digita é data
+              que deixa de significar quando a coisa aconteceu.
+            */",,,,,,
+crm-comment-6f84bfc3,crm,apps/crm/src/app/leads/[id]/page.tsx,24,47,jsdoc,36,"/**
+ * A ficha do lead, na estrutura que o Twenty usa e nós não usávamos.
+ *
+ * O que a leitura deles mudou aqui, em ordem de importância:
+ *
+ * 1. **Cabeçalho de destaque.** Antes o nome era um `h2` com quatro etiquetas
+ *    soltas ao lado. Agora é uma faixa de identidade (avatar, nome, estado) mais
+ *    uma tira dos campos que decidem o que fazer com este lead: proprietário,
+ *    score, fase, dias parado e origem. É o ""highlight panel"" do Salesforce e a
+ *    ""identifier bar"" do Twenty, que chegaram ao mesmo desenho sem se falarem.
+ * 2. **Abas internas.** Score, Formulários e Linha do tempo eram três blocos
+ *    empilhados numa coluna de rolagem infinita. Viraram abas, e a aba vive na
+ *    URL: a ficha aberta na linha do tempo é um endereço que se cola no chat.
+ * 3. **Coluna lateral fixa** com os campos em seções que abrem e fecham, em vez
+ *    de três caixas de altura igual disputando atenção com o painel do score.
+ *
+ * O que NÃO copiamos, de propósito: eles fixam a primeira aba (""Home"") como
+ * coluna lateral e deixam o resto em abas. Nós fixamos os DADOS na lateral e
+ * pomos o SCORE como primeira aba, porque a explicação do score é o que este
+ * produto tem e o deles não — ela não pode ser a aba que ninguém abre.
+ *
+ * As abas são links, não estado de cliente. A ficha inteira continua sendo
+ * servidor: sem JavaScript, ela funciona igual.
+ */",,,,,,
+crm-comment-f67c2a7c,crm,apps/crm/src/app/leads/[id]/page.tsx,247,255,jsdoc,17,"/**
+ * O painel que explica o número. Regra por regra, quanto entrou e quanto saiu,
+ * com a versão da regra e a hora do cálculo, lido de `score_lead.explicacao` e
+ * não recalculado na tela.
+ *
+ * É a única tela do CRM em que a cor não indica ação e continua valendo: aqui o
+ * verde e o vermelho SÃO a informação, e é a tela que justifica o produto. Por
+ * isso é a primeira aba, e não a última.
+ */",,,,,,
+crm-comment-4fe1f8f3,crm,apps/crm/src/app/leads/[id]/page.tsx,311,314,jsdoc,2,"/**
+ * Respostas de formulário, por formulário e por versão. Nunca como colunas
+ * soltas: é a decisão que evita os 304 campos customizados do Lead de hoje.
+ */",,,,,,
+crm-comment-7f4a2e2b,crm,apps/crm/src/app/leads/[id]/page.tsx,61,61,jsdoc,2,"/** O destaque do lead, montado sobre a peça comum das três fichas. */",,,,,,
+crm-comment-8d4d7d02,crm,apps/crm/src/app/leads/[id]/page.tsx,73,78,block,7,"/*
+            O estado em etiquetas, e só duas podem ter cor: a desqualificação,
+            que é o único estado terminal, e a parada de mais de sete dias, que é
+            o que alguém resolve hoje. Fase e faixa são categoria, e categoria é
+            neutra.
+          */",,,,,,
+crm-comment-6abd68d3,crm,apps/crm/src/app/leads/acoes.ts,12,23,jsdoc,14,"/**
+ * As ações em massa da listagem.
+ *
+ * Toda entrada vem do navegador e é tratada como tal: os ids passam por um
+ * filtro de UUID antes de virar `in (...)`, e o proprietário é conferido contra
+ * a lista de usuários ativos do tenant. Não é paranoia — é a mesma regra que
+ * `moverOportunidade` já segue para a fase: **entrada de cliente não define
+ * valor de escrita**.
+ *
+ * O teto de 200 é o mesmo da listagem. Ninguém seleciona mais do que a tela
+ * mostra, então um pedido com 5.000 ids não veio da tela.
+ */",,,,,,
+crm-comment-a777a538,crm,apps/crm/src/app/leads/acoes.ts,65,65,block,0,/* ------------------------------------------------ edição de campo na ficha */,,,,,,
+crm-comment-2a1d4e30,crm,apps/crm/src/app/leads/acoes.ts,69,69,jsdoc,3,"/** O valor que **ficou gravado**. A tela mostra este, nunca o que foi digitado. */",,,,,,
+crm-comment-dcb8489e,crm,apps/crm/src/app/leads/acoes.ts,71,71,jsdoc,3,"/** Só quando `ok` é falso, e sempre em português: vai direto para a tela. */",,,,,,
+crm-comment-d3f1136d,crm,apps/crm/src/app/leads/acoes.ts,75,89,jsdoc,26,"/**
+ * Gravar um campo da ficha a partir da célula inline.
+ *
+ * A célula já recusou o e-mail sem arroba antes de chegar aqui, e aqui recusa
+ * de novo — a validação do navegador é conveniência, a do servidor é a que
+ * conta, porque esta função é um endereço HTTP e qualquer um alcança.
+ *
+ * O `proprietario` é conferido contra a lista de usuários ativos pelo mesmo
+ * motivo de `atribuirEmMassa`: **entrada de cliente não define valor de
+ * escrita**. Vazio é apagar o proprietário, que é uma operação legítima.
+ *
+ * Devolve sempre o valor que ficou no banco. Quando não deu, devolve o valor
+ * anterior junto com a queixa, e é isso que faz a tela voltar ao que era em vez
+ * de ficar mostrando um dado que não existe.
+ */",,,,,,
+crm-comment-83434b74,crm,apps/crm/src/app/leads/loading.tsx,3,9,jsdoc,11,"/**
+ * O que aparece enquanto a lista carrega. O cabeçalho da página é o mesmo da
+ * tela pronta, de propósito: o título não pisca, e só a tabela troca.
+ *
+ * Nove colunas porque nove é o que a lista sem agrupamento mostra — o
+ * esqueleto tem de ter a largura da tabela que vem, senão a tela salta.
+ */",,,,,,
+crm-comment-7896d462,crm,apps/crm/src/app/leads/page.tsx,110,112,block,2,"/* O filtro sobrevive ao envio da busca. Sem estes campos, digitar no
+              campo de busca apagaria o filtro em silêncio — e o formulário GET
+              só manda o que ele mesmo carrega. */",,,,,,
+crm-comment-8033871b,crm,apps/crm/src/app/leads/page.tsx,142,143,block,4,"/* Atalho que ninguém descobre é atalho que ninguém usa: a régua fica
+              escrita ao lado da contagem, na mesma linha, sem ocupar tela. */",,,,,,
+crm-comment-db29a961,crm,apps/crm/src/app/leads/page.tsx,37,47,jsdoc,13,"/**
+ * A listagem de leads.
+ *
+ * A tela é servidor: o recorte, a busca e a ordenação vivem na URL e viram
+ * `where` e `order by`. Só o que exige o navegador (largura de coluna, seleção,
+ * visão salva) desce para o cliente, e desce em componente separado.
+ *
+ * A ordenação NÃO acontece sobre as linhas já buscadas. A lista tem teto de 200,
+ * e ordenar depois de buscar responderia ""os 200 leads mais novos, dispostos por
+ * score"" quando a pergunta é ""os 200 de maior score"".
+ */",,,,,,
+crm-comment-c81d0c71,crm,apps/crm/src/app/leads/page.tsx,70,70,line,2,"// O filtro entra por último, e por isso a visão salva o guarda: `consulta()`",,,,,,
+crm-comment-dade3961,crm,apps/crm/src/app/leads/page.tsx,71,71,line,2,// sem argumento é exatamente o endereço da tela como ela está agora.,,,,,,
+crm-comment-e244d143,crm,apps/crm/src/app/leads/page.tsx,98,101,block,4,"/*
+          Agrupamento no lugar dos relatórios: ""por proprietário"" e ""origem e campanha""
+          eram item de menu e são a mesma lista dobrada por uma coluna.
+        */",,,,,,
+crm-comment-9eed9a08,crm,apps/crm/src/app/loading.tsx,3,10,jsdoc,10,"/**
+ * O carregamento padrão do CRM. Vale para toda rota que não declara um seu —
+ * painel, contas, contatos, oportunidades e configurações.
+ *
+ * Sem título: o título de cada tela é diferente, e escrever um errado aqui é
+ * pior do que não escrever nenhum. As rotas em que a forma da tela importa de
+ * verdade (a lista de leads e a ficha) têm o seu próprio.
+ */",,,,,,
+crm-comment-15449678,crm,apps/crm/src/app/not-found.tsx,4,10,jsdoc,7,"/**
+ * Registro que não existe, ou endereço que ninguém serve.
+ *
+ * Um caminho de volta, não dois: a lista de leads é de onde se chega a quase
+ * tudo neste CRM, e oferecer cinco links aqui é transformar uma parede numa
+ * segunda navegação.
+ */",,,,,,
+crm-comment-a4881a02,crm,apps/crm/src/app/oportunidades/[id]/page.tsx,16,31,jsdoc,26,"/**
+ * A ficha da oportunidade, na mesma estrutura das outras três.
+ *
+ * A oportunidade não tinha ficha: ela existia só como cartão no quadro, e o
+ * cartão levava ao lead. Isso fazia a negociação não ter endereço próprio — não
+ * dava para colar no chat ""esta negociação"", só ""o lead desta negociação"".
+ *
+ * O conteúdo pesado é o que a negociação tem de próprio:
+ *
+ * - **Histórico** é a linha do tempo do lead que a originou. `atividade` não
+ *   tem coluna de oportunidade, e inventar uma agora seria construir a tela
+ *   antes do dado — o histórico da negociação É o histórico daquele lead.
+ * - **Na conta** são as outras oportunidades da mesma conta, que é a pergunta
+ *   que aparece toda vez que alguém abre uma: ""já estamos negociando outra
+ *   coisa com eles?"".
+ */",,,,,,
+crm-comment-243ba413,crm,apps/crm/src/app/oportunidades/[id]/page.tsx,203,207,block,5,"/*
+            O fechamento em seção própria: previsto, realizado e motivo da perda
+            são a mesma conversa, e é a conversa que decide se a negociação
+            continua no funil.
+          */",,,,,,
+crm-comment-83ef58cd,crm,apps/crm/src/app/oportunidades/[id]/page.tsx,98,102,block,4,"/*
+            Duas etiquetas podem ter cor, e só duas: a perda, que é o estado
+            terminal ruim, e o fechamento vencido, que é o que alguém resolve
+            hoje. Fase é categoria, e categoria é neutra.
+          */",,,,,,
+crm-comment-25977ba5,crm,apps/crm/src/app/oportunidades/acoes.ts,6,11,jsdoc,5,"/**
+ * Mover a oportunidade de fase pelo arraste.
+ *
+ * A fase chega do navegador, então é validada contra o catálogo antes de virar
+ * escrita: entrada de cliente não define valor de coluna, nem sendo texto livre.
+ */",,,,,,
+crm-comment-6c4de05c,crm,apps/crm/src/app/oportunidades/loading.tsx,30,31,block,4,"/* Menos cartões nas colunas do fim: é a forma de um funil, e um
+                  esqueleto retangular anuncia uma tela que não vai aparecer. */",,,,,,
+crm-comment-d8b003a6,crm,apps/crm/src/app/oportunidades/loading.tsx,4,10,jsdoc,11,"/**
+ * O esqueleto do quadro: as mesmas colunas, com cartões de altura fixa.
+ *
+ * As fases são catálogo, não dado do banco, então o esqueleto já sabe quantas
+ * colunas desenhar. É a diferença entre a tela aparecer inteira de uma vez e
+ * ela nascer com uma coluna e crescer para cinco.
+ */",,,,,,
+crm-comment-9df4147f,crm,apps/crm/src/app/oportunidades/page.tsx,112,113,block,6,"/* Os números são do funil ABERTO nas duas visões, de propósito: eles
+          respondem ""quanto está em jogo agora"", e o que já fechou não está. */",,,,,,
+crm-comment-f9f10eec,crm,apps/crm/src/app/oportunidades/page.tsx,170,170,line,2,// Fechamento no passado numa oportunidade que continua aberta: é a única,,,,,,
+crm-comment-79b4deee,crm,apps/crm/src/app/oportunidades/page.tsx,171,171,line,3,"// coisa do quadro que exige ação, e é a única que recebe cor.",,,,,,
+crm-comment-ace25199,crm,apps/crm/src/app/oportunidades/page.tsx,18,32,jsdoc,22,"/**
+ * Oportunidades: o mesmo objeto em duas visões.
+ *
+ * O quadro responde **como está o funil**; a tabela responde **quais são**. São
+ * perguntas diferentes, e o Twenty resolve as duas no mesmo endereço trocando o
+ * tipo de visão — é o que fazemos com `?vista=`. Uma visão de tela não merece
+ * uma rota própria: o endereço é do objeto, não do desenho.
+ *
+ * Duas diferenças de conteúdo entre elas, e as duas são deliberadas:
+ *
+ * - **O quadro só mostra oportunidade aberta.** Arrastar uma fechada não faz
+ *   sentido, e uma coluna com o histórico inteiro deixaria de caber na tela.
+ * - **A tabela mostra as fechadas**, em recortes. É ela que responde ""o que
+ *   ganhamos"" e ""o que perdemos, e por quê"" — que é a pergunta do fim do mês.
+ */",,,,,,
+crm-comment-19c903aa,crm,apps/crm/src/app/oportunidades/page.tsx,180,184,block,7,"/*
+      O vazio do quadro falava em `pnpm seed:crm`, que é comando de quem constrói
+      o produto e não de quem o usa. Aqui ele diz de onde vem uma oportunidade,
+      que é a única coisa útil quando não há nenhuma.
+    */",,,,,,
+crm-comment-410eb3a4,crm,apps/crm/src/app/oportunidades/page.tsx,65,65,line,3,// A única cor da tabela: o fechamento que venceu numa oportunidade que,,,,,,
+crm-comment-1ee7e961,crm,apps/crm/src/app/oportunidades/page.tsx,66,66,line,1,// continua aberta. É o que exige ação hoje; o resto é categoria.,,,,,,
+crm-comment-4e32d075,crm,apps/crm/src/app/page.tsx,10,16,jsdoc,11,"/**
+ * Variação contra o mês anterior. Só aparece quando há base de comparação.
+ *
+ * Vem com sinal e sem cor: um mês pior que o anterior não é um erro que
+ * alguém resolva clicando, e pintar de vermelho o que a pessoa não pode
+ * consertar é o que gasta a cor antes da hora.
+ */",,,,,,
+crm-comment-3d475077,crm,apps/crm/src/app/page.tsx,170,174,block,4,"/*
+                          A única cor deste cartão. Lead parado é o que custa dinheiro
+                          e é o que alguém resolve clicando — o resto da linha é
+                          contagem, e contagem não pede ação.
+                        */",,,,,,
+crm-comment-4fa7a6d7,crm,apps/crm/src/app/page.tsx,53,57,block,7,"/*
+        Os indicadores são a legenda do mês, não o assunto: uma linha só, tipografia
+        menor, sem caixa. Quando cinco cartões têm o mesmo peso do funil, o olho não
+        sabe onde começar.
+      */",,,,,,
+crm-comment-c7f8011a,crm,apps/crm/src/app/page.tsx,91,91,block,4,/* O assunto da tela: como está o mês. Ocupa a largura porque é o que se lê primeiro. */,,,,,,
+crm-comment-2a8f267f,crm,apps/crm/src/componentes/celula-inline.tsx,108,108,line,3,"// A mesma recusa do servidor, antes da viagem: e-mail sem arroba não",,,,,,
+crm-comment-d29f403e,crm,apps/crm/src/componentes/celula-inline.tsx,117,117,line,1,// otimista: a célula mostra o novo enquanto grava.,,,,,,
+crm-comment-d546b842,crm,apps/crm/src/componentes/celula-inline.tsx,142,142,line,2,// Num `<select>` o Enter já fecha a lista; deixar o `blur` gravar evita,,,,,,
+crm-comment-394adf0d,crm,apps/crm/src/componentes/celula-inline.tsx,41,41,jsdoc,1,/** O valor gravado. Para seleção é o id; o rótulo sai de `opcoes`. */,,,,,,
+crm-comment-455f58c0,crm,apps/crm/src/componentes/celula-inline.tsx,43,43,jsdoc,2,"/** Só para `tipo: 'selecao'`. Vazio na lista significa ""sem proprietário"". */",,,,,,
+crm-comment-a4402d60,crm,apps/crm/src/componentes/celula-inline.tsx,45,45,jsdoc,3,/** O que aparece quando não há valor. Padrão: o rótulo do campo. */,,,,,,
+crm-comment-e8c95f37,crm,apps/crm/src/componentes/celula-inline.tsx,47,54,jsdoc,5,"/**
+   * Como desenhar o valor em repouso.
+   *
+   * Existe por causa da listagem: lá `origem` é uma etiqueta, e trocá-la por
+   * texto cru ao tornar a célula editável seria perder informação de forma para
+   * ganhar edição. É o que o `record-table-cell` do Twenty faz — o display da
+   * célula continua sendo o do campo, e só a edição é comum.
+   */",,,,,,
+crm-comment-854f90de,crm,apps/crm/src/componentes/celula-inline.tsx,66,67,jsdoc,5,"/** Trava o `blur` quando é o Esc que está fechando: senão ele grava o que a
+   *  pessoa acabou de mandar descartar. */",,,,,,
+crm-comment-981c880a,crm,apps/crm/src/componentes/celula-inline.tsx,70,70,line,2,"// A ficha é servidor: depois do `revalidatePath` ela volta com o valor novo, e",,,,,,
+crm-comment-1fd00f19,crm,apps/crm/src/componentes/celula-inline.tsx,71,71,line,2,"// é ele que vale. Sem isto, editar, sair e voltar mostraria o estado local",,,,,,
+crm-comment-b865fa9c,crm,apps/crm/src/componentes/celula-inline.tsx,72,72,line,0,// velho até um recarregamento completo.,,,,,,
+crm-comment-cfc46498,crm,apps/crm/src/componentes/celula-inline.tsx,9,36,jsdoc,38,"/**
+ * O campo que se edita no lugar. É o `record-inline-cell` do Twenty, escrito do
+ * zero — `twenty-front` é AGPL e não entra aqui. O que se copiou é medida e
+ * comportamento, lidos em
+ * `object-record/record-inline-cell/components/RecordInlineCell*.tsx`:
+ *
+ * - **Nada de formulário.** Clicar no valor troca o texto por um campo no mesmo
+ *   lugar, e o resto da tela não se mexe. A folga de 4px que o valor já tem em
+ *   volta (a deles, `spacing[1]`) é compensada por margem negativa: sem isso o
+ *   texto anda 4px ao virar editável, e campo que pula ao ser tocado é o que
+ *   faz alguém desconfiar de que gravou errado.
+ * - **O lápis só existe no hover**, e some quando o campo está vazio — porque
+ *   campo vazio já é convite a clicar, e o ícone só ocuparia largura.
+ * - **Enter e sair do campo gravam; Esc desiste.** É o contrato deles, e é o que
+ *   qualquer planilha faz.
+ *
+ * O que **não** copiamos: eles abrem o editor num portal flutuante ancorado com
+ * `floating-ui`, para caber o seletor de data e o de relação por cima da lateral
+ * estreita. Aqui os campos são texto e uma seleção nativa, que cabem na largura
+ * da própria linha. Um portal para um `<input>` de 24px seria 200 linhas para
+ * resolver um problema que não temos — e o `<select>` nativo já abre por cima
+ * de tudo sozinho.
+ *
+ * **O valor mostrado é sempre o que o servidor confirmou.** Enquanto grava, a
+ * célula mostra o novo (senão parece travada); se falhar, ela **volta ao valor
+ * anterior** e diz por quê. É a regra do produto: nunca afirmar sucesso sobre
+ * uma linha que não mudou.
+ */",,,,,,
+crm-comment-bfffd7b1,crm,apps/crm/src/componentes/colunas.tsx,103,103,line,2,"// Armazenamento bloqueado, ou conteúdo de uma versão anterior. A tabela",,,,,,
+crm-comment-d09d4fff,crm,apps/crm/src/componentes/colunas.tsx,104,104,line,3,"// abre no padrão, que é melhor do que não abrir.",,,,,,
+crm-comment-9b221c99,crm,apps/crm/src/componentes/colunas.tsx,109,115,jsdoc,10,"/**
+ * Quais colunas a tabela desenha, e em que ordem.
+ *
+ * `chaves` chega da tela e muda com o agrupamento — a coluna que o cabeçalho do
+ * grupo já diz sai da lista. O arranjo é refeito quando ela muda, e a coluna
+ * que voltou reencontra o lugar que tinha.
+ */",,,,,,
+crm-comment-ae76b4d9,crm,apps/crm/src/componentes/colunas.tsx,119,119,line,2,"// Só depois de montar: o servidor não tem `localStorage`, e ler durante a",,,,,,
+crm-comment-c65c76d4,crm,apps/crm/src/componentes/colunas.tsx,120,120,line,0,// renderização faria os dois desenharem tabelas diferentes.,,,,,,
+crm-comment-55723070,crm,apps/crm/src/componentes/colunas.tsx,123,123,line,3,// A lista de chaves é um array novo a cada renderização da tela; a assinatura,,,,,,
+crm-comment-44f28121,crm,apps/crm/src/componentes/colunas.tsx,124,124,line,2,"// é o que realmente muda de valor, e é dela que o memo depende.",,,,,,
+crm-comment-8e8e497d,crm,apps/crm/src/componentes/colunas.tsx,137,137,line,3,// Sem armazenamento o arranjo vale para esta sessão e some depois.,,,,,,
+crm-comment-67a3ae51,crm,apps/crm/src/componentes/colunas.tsx,151,152,jsdoc,4,"/** Volta ao padrão da tela apagando a chave, não gravando o padrão por
+     *  cima: assim a tabela acompanha um deploy que mude as colunas. */",,,,,,
+crm-comment-96a342bf,crm,apps/crm/src/componentes/colunas.tsx,158,158,line,3,// Sem armazenamento não há o que apagar.,,,,,,
+crm-comment-bb969886,crm,apps/crm/src/componentes/colunas.tsx,175,179,jsdoc,7,"/**
+ * O botão e o painel. Fecha com Esc e com clique fora, como qualquer menu —
+ * painel que só fecha pelo próprio botão é o que fica aberto por cima da tabela
+ * enquanto a pessoa tenta ler a tabela.
+ */",,,,,,
+crm-comment-5617f556,crm,apps/crm/src/componentes/colunas.tsx,228,229,block,7,"/* A contagem só aparece quando há coluna escondida: é o único jeito de
+            a pessoa saber que a tabela está incompleta sem abrir o painel. */",,,,,,
+crm-comment-0d1b4f85,crm,apps/crm/src/componentes/colunas.tsx,3,31,block,40,"/*
+ * Colunas ocultáveis e reordenáveis da listagem.
+ *
+ * Lido do Twenty e escrito do zero — `twenty-front` é AGPL e não entra aqui. O
+ * que veio de lá é medida e comportamento, de
+ * `object-record/object-options-dropdown/components/ObjectOptionsDropdownFieldsContent.tsx`
+ * e `views/components/ViewFieldsVisibleDropdownSection.tsx`:
+ *
+ * - **O painel tem 200px** (`GenericDropdownContentWidth.Medium`), com item de
+ *   32px de altura, 4px de recuo lateral e 8px entre alça, rótulo e botão
+ *   (`twenty-ui/src/navigation/MenuItem/parts/StyledMenuItemBase.module.scss`).
+ * - **Duas seções**: as visíveis, arrastáveis, com um olho fechado que oculta;
+ *   e as ocultas, com um olho que traz de volta.
+ * - **A primeira coluna não se move nem se oculta.** É o `labelIdentifier`
+ *   deles: a coluna que diz QUEM é a linha. Sem ela a tabela vira uma grade de
+ *   atributos sem sujeito, e o link para a ficha some junto. Eles a desenham em
+ *   tom apagado com a alça travada, e é o que fazemos.
+ *
+ * O que **não** copiamos: o `react-beautiful-dnd` deles. Arraste nativo do
+ * navegador resolve uma lista de dez itens, e as setas na alça dão o mesmo
+ * movimento pelo teclado — que é o que a biblioteca deles também dá, ao preço
+ * de uma dependência nova. A régua do teclado é a mesma da alça de largura em
+ * `redimensionar.ts`: seta move, e o foco fica onde estava.
+ *
+ * A persistência é a de `redimensionar.ts`, de propósito: mesma chave por
+ * tabela, mesma leitura só depois de montar, mesmo silêncio quando o
+ * armazenamento está bloqueado. Coluna que a pessoa escondeu e volta no
+ * recarregamento seguinte é trabalho jogado fora, igual à largura.
+ */",,,,,,
+crm-comment-8aaa903b,crm,apps/crm/src/componentes/colunas.tsx,37,37,jsdoc,2,"/** Ordem de todas as colunas móveis, visíveis e ocultas. A fixa não entra. */",,,,,,
+crm-comment-850a0b79,crm,apps/crm/src/componentes/colunas.tsx,43,43,jsdoc,1,"/** Todas as móveis, na ordem. É o que se grava de volta em `ordem`. */",,,,,,
+crm-comment-f1f1f6b1,crm,apps/crm/src/componentes/colunas.tsx,51,58,jsdoc,13,"/**
+ * Casa o que está guardado com as colunas que a tela tem AGORA.
+ *
+ * As duas listas divergem sozinhas: coluna nova entra num deploy, coluna some
+ * quando o agrupamento já diz o que ela diria. O guardado manda na ordem, o
+ * atual manda na existência, e a coluna que ninguém conhece entra no fim — é o
+ * único lugar onde ela não empurra o que a pessoa arrumou.
+ */",,,,,,
+crm-comment-f4cefab9,crm,apps/crm/src/componentes/colunas.tsx,73,80,jsdoc,10,"/**
+ * Move uma coluna visível para o lugar de outra, e devolve a ordem COMPLETA.
+ *
+ * O arraste acontece entre as visíveis, mas o que se grava tem de conter as
+ * ocultas também, senão elas perdem o lugar e reaparecem no fim da tabela no
+ * dia em que alguém as mostrar de novo. A oculta fica ancorada na vizinha que
+ * ela tinha: é o comportamento menos surpreendente dos que testamos.
+ */",,,,,,
+crm-comment-602ce58d,crm,apps/crm/src/componentes/configuracoes/cabecalho.tsx,4,18,jsdoc,21,"/**
+ * O índice da área de configurações, e o cabeçalho que toda seção usa.
+ *
+ * **Por que existe um índice e não só a lateral.** A lateral de configuração é
+ * montada em `componentes/estrutura-crm.tsx`, que pertence a outra frente de
+ * trabalho neste momento. Enquanto as seções novas não entram naquela lista, o
+ * índice em `/configuracoes` é o que as torna alcançáveis — e continua útil
+ * depois, porque ele descreve o que cada seção faz, coisa que um item de menu de
+ * 28px não consegue.
+ *
+ * Os grupos são os do Twenty, medidos em `useSettingsNavigationItems`: o que é
+ * da PESSOA em cima, o que é do ESPAÇO no meio, o que é de desenvolvedor por
+ * último. A diferença é o grupo do CRM, que lá não existe porque lá o CRM é o
+ * produto inteiro.
+ */",,,,,,
+crm-comment-8ee37999,crm,apps/crm/src/componentes/configuracoes/cabecalho.tsx,89,95,jsdoc,6,"/**
+ * Cabeçalho de seção: o caminho de volta, o título e uma linha do que a tela faz.
+ *
+ * O caminho de volta vem primeiro na ordem do DOM, e não flutuando ao lado do
+ * título, porque é o primeiro alvo do `Tab` — quem entrou na seção errada sai
+ * dela sem atravessar o formulário inteiro.
+ */",,,,,,
+crm-comment-620a9405,crm,apps/crm/src/componentes/configuracoes/cabecalho.tsx,96,103,jsdoc,5,"/**
+ * Um bloco dentro da seção: título, uma linha de explicação, conteúdo.
+ *
+ * É a `Section` + `H2Title` do Twenty, medida no fork: título, descrição em
+ * cinza e 32px até o bloco seguinte. O `aria-labelledby` liga o `<section>` ao
+ * próprio título, que é o que faz a navegação por regiões do leitor de tela
+ * listar ""Foto e nome"" em vez de ""seção"".
+ */",,,,,,
+crm-comment-8b6c5e4b,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,109,116,jsdoc,12,"/**
+ * Confirmação em dois toques, no lugar de um `confirm()` do navegador.
+ *
+ * O primeiro clique arma e diz o que vai acontecer, com `role=""alert""` para que
+ * quem usa leitor de tela ouça a pergunta em vez de só encontrar um botão novo.
+ * O segundo confirma. Sem diálogo modal: modal para uma frase é foco roubado e
+ * uma armadilha de teclado a mais para manter.
+ */",,,,,,
+crm-comment-caa7eb72,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,148,155,jsdoc,9,"/**
+ * A resposta do servidor.
+ *
+ * Erro é `role=""alert""` (interrompe: a pessoa precisa saber que não gravou);
+ * sucesso é `role=""status""` (avisa sem cortar o que estiver sendo lido). Trocar
+ * os dois é o erro clássico que faz um leitor de tela anunciar ""salvo"" por cima
+ * do que a pessoa estava digitando.
+ */",,,,,,
+crm-comment-72c0a14d,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,176,184,jsdoc,14,"/**
+ * O segredo que aparece UMA vez: token de chave de API, link de convite, segredo
+ * de webhook. O banco guarda o hash (ou a cifra), então recarregar a página não
+ * o traz de volta — e a caixa diz isso, porque descobrir depois custa uma chave
+ * nova.
+ *
+ * É `readOnly` e não `disabled` de propósito: campo desabilitado não recebe foco
+ * e não pode ser copiado com o teclado.
+ */",,,,,,
+crm-comment-617654c0,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,37,37,jsdoc,1,/** Substitui o botão padrão — é como a confirmação de exclusão entra. */,,,,,,
+crm-comment-20c3169b,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,55,66,jsdoc,14,"/**
+ * O formulário de UMA linha de tabela: desativar um membro, revogar uma chave,
+ * cancelar um convite.
+ *
+ * Separado do `Formulario` porque a forma é outra — não tem título, não tem
+ * ""Salvo."" e o alvo vem em campo oculto, não digitado. Continua sendo um `form`
+ * de verdade: cada linha envia a si mesma, e sem JavaScript a página recarrega
+ * com a mudança feita.
+ *
+ * O id vai em `<input type=""hidden"">` e é conferido com `ehUuid` do outro lado
+ * antes de virar `where`. Campo oculto é sugestão do navegador, não promessa.
+ */",,,,,,
+crm-comment-087d3a0f,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,8,26,jsdoc,23,"/**
+ * O formulário da área de configurações, e o único.
+ *
+ * Cada tela de configuração é a mesma coisa repetida: campos, um botão, e uma
+ * resposta do servidor que precisa aparecer em português. Isso está aqui uma vez
+ * porque escrever de novo em sete telas é como as mensagens de erro divergem —
+ * três jeitos de dizer ""não deu"" e um deles em inglês.
+ *
+ * Duas escolhas que valem explicação:
+ *
+ * - **`<form action={...}>` de verdade, com `useActionState`.** O envio é o do
+ *   navegador; o JavaScript só melhora. Sem ele a página recarrega e a
+ *   configuração continua funcionando — que é o mínimo para uma tela em que
+ *   alguém desativa o próprio acesso por engano.
+ * - **Os campos vêm de fora, como `children`.** Eles são renderizados no
+ *   servidor e chegam prontos, então este arquivo — que é o único `'use client'`
+ *   da área — não importa nada que puxe `pg`. `Resultado` é `import type`, e
+ *   `configuracoes-comum.ts` não toca em banco.
+ */",,,,,,
+crm-comment-0bd8832e,crm,apps/crm/src/componentes/configuracoes/formulario.tsx,93,93,jsdoc,1,/** Botão de envio com o estado de espera. `useFormStatus` só funciona aqui dentro. */,,,,,,
+crm-comment-5b75ab83,crm,apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx,37,37,jsdoc,1,/** Escrever o atributo é tudo o que o tema precisa: o CSS faz o resto. */,,,,,,
+crm-comment-0601ab40,crm,apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx,45,45,line,2,// Nasce em `sistema` porque o servidor não conhece o `localStorage`: qualquer,,,,,,
+crm-comment-54bbb43b,crm,apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx,46,46,line,0,// outro palpite daria hidratação divergente e um piscar de tema errado.,,,,,,
+crm-comment-3a683e44,crm,apps/crm/src/componentes/configuracoes/seletor-de-tema.tsx,7,29,jsdoc,24,"/**
+ * O seletor de tema.
+ *
+ * O Pipe já tinha os dois temas em `packages/ui/src/estilos/tokens.css` desde o
+ * começo, com três blocos: o claro em `:root`, o escuro por preferência do
+ * sistema (`@media (prefers-color-scheme: dark)`, restrito a
+ * `:root:not([data-tema='claro'])`) e o escuro por escolha
+ * (`:root[data-tema='escuro']`). Faltava só quem escrevesse o atributo. É este
+ * arquivo.
+ *
+ * Por isso os três modos, e não dois: **`sistema` é a ausência do atributo**, e
+ * é ela que devolve a decisão ao sistema operacional. Um alternador de dois
+ * estados não conseguiria voltar para lá.
+ *
+ * Guarda no `localStorage` porque tema é preferência de APARELHO — a mesma
+ * pessoa quer escuro no notebook à noite e claro no monitor da mesa. Guardar no
+ * `usuario` obrigaria a escolher uma das duas pela pessoa.
+ *
+ * Acessibilidade: são `<input type=""radio"">` de verdade dentro de um
+ * `<fieldset>` com `<legend>`. Setas navegam, espaço escolhe e o leitor de tela
+ * anuncia ""3 de 3"" sem uma linha de `aria-` — que é sempre melhor do que
+ * reimplementar um grupo de rádio com `div` e `role`.
+ */",,,,,,
+crm-comment-509f00e8,crm,apps/crm/src/componentes/esqueleto.tsx,1,12,jsdoc,17,"/**
+ * Esqueleto de carregamento.
+ *
+ * O Twenty desenha a linha antes de ter o dado — a tabela já está lá, com a
+ * altura certa, e o conteúdo entra por cima. É melhor que um giro no meio da
+ * tela por um motivo medível: a página não pula de altura quando o dado chega,
+ * e quem está lendo o cabeçalho não perde o lugar.
+ *
+ * A largura de cada barra varia de propósito. Barra toda do mesmo tamanho lê
+ * como grade, não como texto, e o olho passa a esperar uma tabela vazia em vez
+ * de uma tabela carregando.
+ */",,,,,,
+crm-comment-0c2540ec,crm,apps/crm/src/componentes/esqueleto.tsx,14,15,jsdoc,2,"/** Larguras em porcentagem, cíclicas. Nada de aleatório: servidor e cliente
+ *  precisam desenhar a mesma coisa, senão a hidratação reclama. */",,,,,,
+crm-comment-5766bc2b,crm,apps/crm/src/componentes/esqueleto.tsx,47,47,jsdoc,0,"/** O esqueleto de um bloco de campos da ficha — rótulo curto, valor longo. */",,,,,,
+crm-comment-cd6f5869,crm,apps/crm/src/componentes/esqueleto.tsx,65,69,jsdoc,6,"/**
+ * O aviso de carregamento para quem usa leitor de tela. O esqueleto é
+ * `aria-hidden` — uma tabela de barras vazias lida em voz alta é ruído — então
+ * alguém precisa dizer que a tela está trabalhando.
+ */",,,,,,
+crm-comment-23ebd806,crm,apps/crm/src/componentes/estrutura-crm.tsx,106,125,jsdoc,25,"/**
+ * A lateral do Twenty, medida no código de `twenty-front` em 07/09/2026.
+ *
+ * A DISPOSIÇÃO É DELES, A TINTA É NOSSA — o mesmo método da Gestão e do Desk
+ * com a Blip. O que se copia aqui:
+ *
+ * - **navegação em coluna à esquerda, de 220px**, e nenhuma barra no topo. A
+ *   tela de trabalho começa no alto da janela e usa a altura inteira; numa
+ *   listagem de 60 leads isso é uma linha e meia a mais por dobra.
+ * - **item de 28px** com ícone à esquerda, raio 8 e realce por FUNDO, não por
+ *   sublinhado — o sublinhado era do Lightning e saiu junto com as barras.
+ * - **seções nomeadas em caixa alta**, que agrupam objetos em vez de empilhar
+ *   tudo numa lista só.
+ * - **contagem à direita do item**, que é o que faz a lateral informar em vez
+ *   de só navegar.
+ *
+ * Onde eles põem o seletor de espaço de trabalho, nós pomos o nome do produto:
+ * o Pipe resolve o tenant pelo login, e trocar de espaço não é um gesto que
+ * exista aqui.
+ */",,,,,,
+crm-comment-e9489384,crm,apps/crm/src/componentes/estrutura-crm.tsx,127,127,jsdoc,0,/** Seção da lateral: um rótulo e os objetos embaixo dele. */,,,,,,
+crm-comment-3b539475,crm,apps/crm/src/componentes/estrutura-crm.tsx,16,38,jsdoc,37,"/**
+ * Estrutura do CRM, em dois modos.
+ *
+ * **Trabalho**: cabeçalho horizontal com os cinco objetos que a pessoa usa no
+ * dia. Sem lateral: a tela de lista não precisa de uma, e o Salesforce mostra
+ * isso (medido: zero elementos encostados à esquerda com mais de 300px de
+ * altura).
+ *
+ * Contas e Contatos voltaram ao menu quando ganharam tela. Estavam fora pela
+ * regra de que item que não funciona não aparece — que continua valendo, e é
+ * por isso que a volta deles exigiu construir as duas listas antes.
+ *
+ * **Configuração**: atrás da engrenagem, em tela própria, com lateral própria
+ * e um caminho de volta claro. É o corte que o Salesforce faz ao sair para
+ * `salesforce-setup.com`, na escala que faz sentido para nós. O que se
+ * configura uma vez para de disputar espaço com o que se usa todo dia.
+ *
+ * A lateral de configuração só lista o que abre. Os outros seis assuntos que
+ * vão morar aqui (formulários, origens e UTM, motivos de desqualificação,
+ * campos personalizados, importação, deduplicação) entram quando tiverem tela:
+ * um menu de configuração com seis links mortos é o mesmo problema mudado de
+ * lugar.
+ */",,,,,,
+crm-comment-f329c8c8,crm,apps/crm/src/componentes/estrutura-crm.tsx,188,190,block,5,"/* No RODAPÉ da lateral, e não no topo: quem está logado é referência,
+          não navegação — e o topo é do produto. É o mesmo lugar em que o
+          Twenty põe a conta. */",,,,,,
+crm-comment-484df9d2,crm,apps/crm/src/componentes/estrutura-crm.tsx,40,46,jsdoc,8,"/**
+ * A lateral da área de configuração, na ordem dos grupos do Twenty: o que é da
+ * PESSOA primeiro, o que é da EMPRESA depois, e o que se liga a fora por último.
+ *
+ * Cada item abre tela que existe — a régua contra item apagado vale aqui como
+ * vale nas barras da Gestão.
+ */",,,,,,
+crm-comment-c6f5a44b,crm,apps/crm/src/componentes/estrutura-crm.tsx,58,58,jsdoc,1,"/** Quem está logado. `null` nas duas rotas públicas, e só nelas. */",,,,,,
+crm-comment-309cbedd,crm,apps/crm/src/componentes/estrutura-crm.tsx,65,68,jsdoc,4,"/**
+ * As duas rotas públicas do produto. Elas não têm lateral: quem chega nelas não
+ * está logado, e a lateral inteira é navegação de dado de tenant.
+ */",,,,,,
+crm-comment-f573fbd4,crm,apps/crm/src/componentes/estrutura-crm.tsx,99,100,block,3,"/* Fora do <main> de propósito: o menu de comando não é de uma tela, é
+          do aplicativo inteiro — ele alcança a pessoa onde ela estiver. */",,,,,,
+crm-comment-10e2a494,crm,apps/crm/src/componentes/ficha.tsx,120,120,jsdoc,1,"/** `null` esconde a contagem. Zero é contagem, e zero é informação. */",,,,,,
+crm-comment-22e5f935,crm,apps/crm/src/componentes/ficha.tsx,124,128,jsdoc,5,"/**
+ * As abas do conteúdo. São LINKS, não estado de cliente: a aba vive na URL, o
+ * botão de voltar do navegador desfaz a troca, e a ficha continua sendo
+ * servidor inteiro.
+ */",,,,,,
+crm-comment-1f671265,crm,apps/crm/src/componentes/ficha.tsx,135,135,jsdoc,2,"/** O endereço da ficha, sem parâmetro. A aba entra como `?aba=`. */",,,,,,
+crm-comment-e7d5ee19,crm,apps/crm/src/componentes/ficha.tsx,139,139,jsdoc,1,/** Como escrever o número. A tela passa o `numero` do formato local. */,,,,,,
+crm-comment-afd8f6fe,crm,apps/crm/src/componentes/ficha.tsx,162,168,jsdoc,7,"/**
+ * A seção de atributos personalizados da lateral.
+ *
+ * As três tabelas guardam `atributos` em JSONB — é a decisão do modelo que evita
+ * os 304 campos customizados do Lead do Salesforce de hoje. Como a forma é a
+ * mesma nas três, a seção também é.
+ */",,,,,,
+crm-comment-5f840547,crm,apps/crm/src/componentes/ficha.tsx,31,37,jsdoc,5,"/**
+ * Uma seção da coluna lateral, que abre e fecha.
+ *
+ * `<details>` nativo: o navegador já sabe abrir, fechar, responder ao teclado e
+ * contar para o leitor de tela. Escrever isso em React seria trocar zero linha
+ * por trinta e perder o comportamento de busca na página.
+ */",,,,,,
+crm-comment-5b612db3,crm,apps/crm/src/componentes/ficha.tsx,5,20,jsdoc,23,"/**
+ * As peças da ficha, usadas pelas três: lead, conta e contato.
+ *
+ * A forma foi medida no Twenty (`record-show`) e no Salesforce, que chegaram ao
+ * mesmo desenho sem se falarem: uma faixa de identidade no topo, uma tira curta
+ * dos campos que decidem o que fazer, uma coluna lateral com o resto dos dados
+ * em seções que abrem e fecham, e abas para o conteúdo pesado.
+ *
+ * Elas moravam dentro de `leads/[id]/page.tsx`, e a conta e o contato eram duas
+ * telas mais pobres por não as terem. Estão aqui pela razão de sempre: três
+ * cópias do mesmo cabeçalho viram três cabeçalhos diferentes no terceiro mês.
+ *
+ * Tudo aqui é componente de SERVIDOR. Nenhuma peça guarda estado, e a aba vive
+ * na URL — a ficha inteira funciona sem JavaScript, e é o que permite colar no
+ * chat o endereço de uma ficha já aberta na aba certa.
+ */",,,,,,
+crm-comment-7e025292,crm,apps/crm/src/componentes/ficha.tsx,60,60,jsdoc,2,"/** A segunda linha, em tom menor: ""há 12 dias"", o nome da campanha, a faixa. */",,,,,,
+crm-comment-1b7835af,crm,apps/crm/src/componentes/ficha.tsx,62,62,jsdoc,3,"/** Número em monoespaçada tabular. Para valor e contagem, não para texto. */",,,,,,
+crm-comment-46ed4c30,crm,apps/crm/src/componentes/ficha.tsx,66,71,jsdoc,5,"/**
+ * O cabeçalho de destaque: identidade em cima, campos principais embaixo.
+ *
+ * **Cinco campos principais, no máximo** — é a régua do destaque do Salesforce,
+ * e mais do que isso deixa de ser destaque. As três fichas obedecem a mesma.
+ */",,,,,,
+crm-comment-4433a5ca,crm,apps/crm/src/componentes/ficha.tsx,81,81,jsdoc,2,"/** As etiquetas de estado, à direita do nome. Cor só no que exige ação. */",,,,,,
+crm-comment-0758785e,crm,apps/crm/src/componentes/ficha.tsx,83,83,jsdoc,0,"/** O carimbo discreto do fim da linha: ""criado há 3 dias"". */",,,,,,
+crm-comment-93145f94,crm,apps/crm/src/componentes/filtros.tsx,11,32,jsdoc,43,"/**
+ * O filtro por coluna da listagem.
+ *
+ * A forma é a do Twenty (`object-filter-dropdown`): um botão que abre a lista
+ * de CAMPOS, e o campo escolhido abre a lista de VALORES. Dois passos, e não um
+ * formulário com quatro seletores — porque quase sempre se filtra por uma
+ * coluna só, e um formulário cobraria a atenção das outras três a cada uso.
+ *
+ * O filtro escolhido vira **chip**, ao lado do botão, e o chip é o botão de
+ * remover. É deles também, e é o que faz um filtro ativo ser visível de longe:
+ * lista filtrada sem sinal na tela é a origem de ""o lead sumiu do CRM"".
+ *
+ * **Sem JavaScript nenhum.** `<details>` nativo abre o menu, e cada valor é um
+ * link para a mesma listagem com um parâmetro a mais. A consequência é a que
+ * interessa: o filtro está na URL, então a **visão salva o guarda de graça** —
+ * salvar uma visão continua sendo dar nome a uma consulta que já existe.
+ *
+ * O que não copiamos: os operadores deles (contém, começa com, está vazio, é
+ * um de). Aqui é igualdade, mais ""em branco"". Texto livre já é a busca do lado
+ * de cá, e um menu de operadores para quatro colunas categóricas seria três
+ * cliques para responder o que um resolve.
+ */",,,,,,
+crm-comment-266fc5c2,crm,apps/crm/src/componentes/filtros.tsx,40,40,jsdoc,1,/** O endereço desta mesma listagem com outro conjunto de filtros. */,,,,,,
+crm-comment-461bd3a9,crm,apps/crm/src/componentes/filtros.tsx,55,55,line,3,"// branco agora: é a pergunta ""quem ficou sem dono?"", e ela não pode",,,,,,
+crm-comment-08a03f99,crm,apps/crm/src/componentes/filtros.tsx,56,56,line,3,// depender de já haver alguém sem dono para poder ser feita.,,,,,,
+crm-comment-1b2b2038,crm,apps/crm/src/componentes/icones-crm.tsx,1,14,jsdoc,17,"/**
+ * Ícones que a ficha do lead pede e o `@pipe/ui` ainda não tem.
+ *
+ * Mesma origem e mesmas convenções do `Icone` do pacote: desenhos do Tabler
+ * Icons (MIT, © Paweł Kuna), grade de 24, traço arredondado, sem preenchimento.
+ * Ficam aqui, e não em `packages/ui`, porque esta entrega não abre o pacote: a
+ * regra é escrever local no aplicativo e relatar. Quando um segundo aplicativo
+ * pedir os mesmos desenhos, o arquivo sobe para a fachada `icones.tsx` do
+ * pacote sem mudar nenhuma chamada.
+ *
+ * São os tipos da linha do tempo. O Twenty dá um ícone por tipo de evento, e a
+ * razão é boa: numa coluna de quarenta linhas, a forma diz o tipo antes de o
+ * olho chegar ao texto.
+ */",,,,,,
+crm-comment-b26483ef,crm,apps/crm/src/componentes/icones-crm.tsx,24,24,jsdoc,1,"/** `tabler:pencil`. O botão de editar da célula inline, que só aparece no hover. */",,,,,,
+crm-comment-1bb10681,crm,apps/crm/src/componentes/icones-crm.tsx,28,28,jsdoc,1,/** `tabler:layout-columns`. O botão que abre o painel de colunas. */,,,,,,
+crm-comment-1986ffb9,crm,apps/crm/src/componentes/icones-crm.tsx,30,30,jsdoc,2,/** `tabler:grip-vertical`. A alça de arraste do painel — a mesma do Twenty. */,,,,,,
+crm-comment-a56aa1a5,crm,apps/crm/src/componentes/icones-crm.tsx,35,35,jsdoc,1,/** `tabler:eye-off`. Oculta a coluna visível. */,,,,,,
+crm-comment-227d4b09,crm,apps/crm/src/componentes/linha-do-tempo.tsx,125,126,block,5,"/* O trilho para no último do mês: linha que continua abaixo
+                      do último evento aponta para um lugar que não existe. */",,,,,,
+crm-comment-72cade4b,crm,apps/crm/src/componentes/linha-do-tempo.tsx,32,33,jsdoc,8,"/** Tipo de evento para desenho. O que não casa fica no relógio, que é honesto:
+ *  aconteceu, tem hora, e não sabemos dizer mais do que isso. */",,,,,,
+crm-comment-9a00ff37,crm,apps/crm/src/componentes/linha-do-tempo.tsx,6,28,jsdoc,39,"/**
+ * A linha do tempo do lead.
+ *
+ * Três coisas vieram da leitura do Twenty, e cada uma resolve um problema que a
+ * versão anterior tinha:
+ *
+ * 1. **Agrupamento por mês.** Quarenta eventos numa lista corrida não têm
+ *    referência de tempo nenhuma. O separador de mês dá a régua, e o ano só
+ *    aparece quando muda, porque repetir ""2026"" doze vezes não informa nada.
+ * 2. **Trilho vertical ligando os ícones.** É o que faz a coluna ser lida como
+ *    uma sequência em vez de uma pilha de linhas soltas. A linha para no último
+ *    evento do mês, senão ela aponta para um vazio.
+ * 3. **Hora relativa à direita, absoluta no `title`.** ""há 3 dias"" é o que a
+ *    pessoa quer saber; a data exata é o que ela confere uma vez a cada vinte.
+ *
+ * O que não copiamos: o diff campo a campo dos eventos de alteração. Ele
+ * pressupõe um registro de auditoria por campo que não existe no nosso
+ * `atividade`, e inventar um agora seria construir a tela antes do dado.
+ *
+ * A medida do trilho é 26px, que é a mesma deles, por uma razão que não é
+ * imitação: é o menor valor em que um ícone de 16px cabe centrado com folga
+ * visível dos dois lados na nossa régua de 4px.
+ */",,,,,,
+crm-comment-6377d807,crm,apps/crm/src/componentes/linha-do-tempo.tsx,61,71,jsdoc,7,"/**
+ * Dobra por mês, preservando a ordem (mais recente primeiro).
+ *
+ * O agrupamento usa uma chave estável (ano e mês), e o título é decidido
+ * depois. Agrupar pelo próprio título dá o defeito de o ano sair do rótulo no
+ * segundo evento e abrir um grupo ""Setembro"" logo abaixo de outro ""Setembro de
+ * 2026"", com os mesmos eventos partidos ao meio.
+ *
+ * O ano só aparece quando muda em relação ao grupo anterior: repetir ""2026""
+ * doze vezes não informa nada.
+ */",,,,,,
+crm-comment-24dd19ce,crm,apps/crm/src/componentes/lista-de-leads.tsx,111,111,line,2,// Editável na própria lista. A etiqueta continua sendo a forma em repouso —,,,,,,
+crm-comment-5b48c0fe,crm,apps/crm/src/componentes/lista-de-leads.tsx,112,112,line,1,"// é o `record-table-cell` deles: o display é o do campo, só a edição é comum.",,,,,,
+crm-comment-a487ce59,crm,apps/crm/src/componentes/lista-de-leads.tsx,146,146,line,3,"// A troca de dono na própria lista, que é o motivo mais comum de alguém",,,,,,
+crm-comment-6cb02a24,crm,apps/crm/src/componentes/lista-de-leads.tsx,147,147,line,4,// abrir a ficha. A ação em massa continua servindo para muitos de uma vez.,,,,,,
+crm-comment-118796c4,crm,apps/crm/src/componentes/lista-de-leads.tsx,199,202,jsdoc,9,"/**
+ * A coluna que não se oculta nem se move. É o `labelIdentifier` do Twenty: a
+ * que diz quem é a linha, e a única que leva à ficha.
+ */",,,,,,
+crm-comment-0d38eda7,crm,apps/crm/src/componentes/lista-de-leads.tsx,216,216,jsdoc,1,"/** Quantas linhas vieram, para o rodapé da seleção falar em números reais. */",,,,,,
+crm-comment-efc82325,crm,apps/crm/src/componentes/lista-de-leads.tsx,234,234,jsdoc,2,/** Onde começa o intervalo do Shift: a última linha marcada sem ele. */,,,,,,
+crm-comment-d9b63021,crm,apps/crm/src/componentes/lista-de-leads.tsx,239,239,jsdoc,2,"/** A linha sob o cursor do teclado. `null` é ""ninguém"", que é o estado inicial. */",,,,,,
+crm-comment-16fc8ecb,crm,apps/crm/src/componentes/lista-de-leads.tsx,244,244,line,4,// A coluna que o cabeçalho do grupo já está dizendo sai da tabela: repeti-la,,,,,,
+crm-comment-846ca485,crm,apps/crm/src/componentes/lista-de-leads.tsx,245,245,line,2,// em cada linha é gastar largura para dizer o que acabou de ser dito.,,,,,,
+crm-comment-3b9f6038,crm,apps/crm/src/componentes/lista-de-leads.tsx,262,262,line,3,"// A fixa vem primeiro sempre, e o resto na ordem que a pessoa arrumou. O",,,,,,
+crm-comment-7a277120,crm,apps/crm/src/componentes/lista-de-leads.tsx,263,263,line,3,"// `<colgroup>`, o cabeçalho e a linha saem daqui, então não há como um",,,,,,
+crm-comment-eda20b92,crm,apps/crm/src/componentes/lista-de-leads.tsx,264,264,line,0,// desandar em relação ao outro.,,,,,,
+crm-comment-51cccda6,crm,apps/crm/src/componentes/lista-de-leads.tsx,27,48,jsdoc,46,"/**
+ * A lista de leads: ordenação por coluna, coluna redimensionável, seleção
+ * múltipla e ação em massa.
+ *
+ * As quatro coisas foram lidas do Twenty e escritas do zero — `twenty-front` é
+ * AGPL e não entra aqui. O que a leitura ensinou, e que a nossa versão anterior
+ * não tinha:
+ *
+ * - **A ordenação vive na URL**, não no componente. Uma lista ordenada é um
+ *   endereço que se cola no chat, e o botão de voltar do navegador desfaz a
+ *   ordenação como desfaz qualquer outra coisa. É também o que permite ordenar
+ *   no banco, que é onde a ordenação de uma lista com teto tem de acontecer.
+ * - **A largura da coluna é do usuário**, e sobrevive ao recarregamento.
+ * - **A seleção não desenha uma sexta coluna vazia**: a caixa mora na primeira
+ *   célula, aparece no hover, e fica visível quando marcada.
+ * - **A ação em massa é uma barra que só existe com algo selecionado.** Uma
+ *   barra permanente com botões apagados é exatamente o que este produto não faz.
+ *
+ * O que não copiamos deles: a coluna congelada à esquerda e a linha de ""novo
+ * registro"" no fim da tabela. A primeira só paga a pena com mais colunas do que
+ * temos; a segunda pressupõe criação inline, que ainda não existe aqui.
+ */",,,,,,
+crm-comment-177463bd,crm,apps/crm/src/componentes/lista-de-leads.tsx,273,274,jsdoc,2,"/** Posição de cada lead na lista achatada, para o intervalo do Shift saber
+   *  contar através da fronteira dos grupos. */",,,,,,
+crm-comment-873cb968,crm,apps/crm/src/componentes/lista-de-leads.tsx,278,282,jsdoc,7,"/**
+   * Um ouvinte só, no documento. Ele registra de novo a cada movimento porque
+   * `Enter` precisa saber onde o cursor está agora — e trocar um `addEventListener`
+   * por tecla apertada custa menos do que a `ref` que evitaria isso.
+   */",,,,,,
+crm-comment-10b92971,crm,apps/crm/src/componentes/lista-de-leads.tsx,305,305,line,3,"// Sem cursor ainda: `j` começa na primeira, `k` na última. É o que",,,,,,
+crm-comment-1d0efd59,crm,apps/crm/src/componentes/lista-de-leads.tsx,306,306,line,0,// faz o primeiro toque fazer algo visível em vez de nada.,,,,,,
+crm-comment-4063a995,crm,apps/crm/src/componentes/lista-de-leads.tsx,309,309,line,4,"// Sem dar a volta: a lista tem começo e fim, e passar do fim para o",,,,,,
+crm-comment-82b3bd52,crm,apps/crm/src/componentes/lista-de-leads.tsx,310,310,line,1,// começo sem avisar é como se perde o lugar numa lista de 200.,,,,,,
+crm-comment-422b18bc,crm,apps/crm/src/componentes/lista-de-leads.tsx,331,331,line,1,// A linha focada entra na tela sozinha. `block: 'nearest'` rola o mínimo:,,,,,,
+crm-comment-df4ef51b,crm,apps/crm/src/componentes/lista-de-leads.tsx,332,332,line,3,// com `'center'` a lista dá um pulo a cada tecla e o olho perde o lugar.,,,,,,
+crm-comment-204aeda7,crm,apps/crm/src/componentes/lista-de-leads.tsx,342,342,line,1,"// Trocar de recorte, de busca ou de ordenação refaz a lista: um cursor",,,,,,
+crm-comment-9d1ef7d1,crm,apps/crm/src/componentes/lista-de-leads.tsx,343,343,line,4,// apontando para a posição 12 da lista antiga não aponta para nada.,,,,,,
+crm-comment-6b34e70a,crm,apps/crm/src/componentes/lista-de-leads.tsx,346,352,jsdoc,6,"/**
+   * Marcar de um a outro com Shift, como em qualquer lista de arquivos.
+   *
+   * `ancora` é a última linha marcada sem Shift. Marcar quinze leads em
+   * sequência com quinze cliques é o tipo de trabalho que faz alguém desistir
+   * da ação em massa e fazer um por um na ficha.
+   */",,,,,,
+crm-comment-cae770ae,crm,apps/crm/src/componentes/lista-de-leads.tsx,360,360,line,1,"// O intervalo inteiro recebe o estado OPOSTO ao da linha clicada, que é",,,,,,
+crm-comment-49b7c108,crm,apps/crm/src/componentes/lista-de-leads.tsx,381,382,jsdoc,3,"/** Endereço desta mesma lista com um parâmetro trocado. `comFiltros` só muda
+   *  quando a saída é justamente largar o filtro. */",,,,,,
+crm-comment-72b5f443,crm,apps/crm/src/componentes/lista-de-leads.tsx,391,391,line,2,// O filtro acompanha: 'Limpar a busca' que apagasse o filtro junto mandaria,,,,,,
+crm-comment-3546d955,crm,apps/crm/src/componentes/lista-de-leads.tsx,401,406,jsdoc,12,"/**
+   * Clicar no cabeçalho: a coluna que ainda não ordena entra no seu sentido
+   * natural, a que já ordena inverte, e a que já inverteu volta ao padrão da
+   * tela. Três cliques fecham o ciclo, e o terceiro é a única forma de desfazer
+   * sem mexer na barra de endereço.
+   */",,,,,,
+crm-comment-fe5da9dd,crm,apps/crm/src/componentes/lista-de-leads.tsx,427,427,line,2,"// O vazio tem QUATRO causas e quatro saídas, que o Twenty separa e nós não",,,,,,
+crm-comment-d31f1a3d,crm,apps/crm/src/componentes/lista-de-leads.tsx,428,428,line,6,"// separávamos: a busca que não achou, o filtro que não casou, o recorte que",,,,,,
+crm-comment-d8aebb07,crm,apps/crm/src/componentes/lista-de-leads.tsx,429,429,line,3,"// não tem ninguém, e a base realmente vazia. Um texto só para os quatro manda",,,,,,
+crm-comment-e0c0e21a,crm,apps/crm/src/componentes/lista-de-leads.tsx,430,430,line,2,// a pessoa procurar o problema no lugar errado — e o filtro é o caso mais,,,,,,
+crm-comment-e46bd951,crm,apps/crm/src/componentes/lista-de-leads.tsx,431,431,line,1,"// traiçoeiro, porque ele fica ativo entre visitas dentro da mesma visão.",,,,,,
+crm-comment-8afbc3ce,crm,apps/crm/src/componentes/lista-de-leads.tsx,493,495,block,7,"/* Encostado à direita, logo acima da tabela que ele governa. O Twenty
+          põe o mesmo controle no fim da barra de visão, pela mesma razão: é
+          ajuste, não filtro, e ajuste não disputa espaço com a busca. */",,,,,,
+crm-comment-659813e9,crm,apps/crm/src/componentes/lista-de-leads.tsx,50,62,jsdoc,20,"/**
+ * Os atalhos da listagem.
+ *
+ * `j`/`k` e as setas são os deles, lidos em
+ * `record-table/hooks/useRecordTableRowFocusHotkeys.ts` — eles casam `ArrowDown`
+ * com `j` e `ArrowUp` com `k` no mesmo gancho, que é a convenção de terminal
+ * que o Gmail e o GitHub também usam. `/` para a busca e `Enter` para abrir são
+ * a mesma família.
+ *
+ * O ouvinte é um só, no documento, e sai fora quando o foco está dentro de um
+ * campo de texto: quem está digitando ""j"" na busca quer a letra, não a linha
+ * seguinte. `/` é a única exceção que se ganha, e só de fora de um campo.
+ */",,,,,,
+crm-comment-eb881f7e,crm,apps/crm/src/componentes/lista-de-leads.tsx,516,517,block,4,"/* Coluna de sobra. Sem ela o navegador estica as outras para
+                preencher a tela larga, e a largura arrastada deixa de valer. */",,,,,,
+crm-comment-ddc2a24a,crm,apps/crm/src/componentes/lista-de-leads.tsx,595,600,block,7,"/*
+                      A marcação vem do `click`, não do `change`: só o clique
+                      carrega o `shiftKey`, e é ele que dá o intervalo. A barra
+                      de espaço no teclado também dispara `click`, com Shift
+                      falso, então o caminho do teclado continua inteiro.
+                    */",,,,,,
+crm-comment-63d8ffd7,crm,apps/crm/src/componentes/lista-de-leads.tsx,643,651,jsdoc,16,"/**
+ * A barra de ação em massa. Existe só quando há seleção, e some quando a
+ * seleção some: é a regra de ""item que não funciona não aparece"" aplicada a uma
+ * barra inteira em vez de a um botão.
+ *
+ * Fica presa embaixo e centrada, longe da tabela que a pessoa está lendo e
+ * perto do polegar de quem usa laptop. Desqualificar pede confirmação porque
+ * escreve num campo de estado terminal e não tem desfazer.
+ */",,,,,,
+crm-comment-390cadb4,crm,apps/crm/src/componentes/lista-de-leads.tsx,69,71,jsdoc,9,"/** O que a célula sabe além da própria linha. Um objeto, e não três argumentos
+ *  posicionais: a terceira coluna que precisar de mais um dado não muda a
+ *  assinatura das outras nove. */",,,,,,
+crm-comment-aea17110,crm,apps/crm/src/componentes/lista-de-leads.tsx,690,691,block,3,"/* O botão só existe depois que alguém foi escolhido. Botão apagado
+              esperando um seletor é a forma mais comum de item morto. */",,,,,,
+crm-comment-7d72fdbf,crm,apps/crm/src/componentes/lista-de-leads.tsx,81,81,jsdoc,4,"/** Alinha à direita e usa monoespaçada tabular. Para número, não para texto. */",,,,,,
+crm-comment-9ffa0583,crm,apps/crm/src/componentes/lista-de-leads.tsx,83,83,jsdoc,1,"/** Largura de partida, em px. O usuário muda e a mudança fica guardada. */",,,,,,
+crm-comment-8d38c36c,crm,apps/crm/src/componentes/lista-de-leads.tsx,88,99,jsdoc,15,"/**
+ * As colunas, numa lista só: o cabeçalho e a linha saem da mesma definição,
+ * então não há como uma existir sem a outra.
+ *
+ * Categoria vira etiqueta neutra: origem, faixa, fila e fase são o mesmo tipo
+ * de coisa (um nome que classifica) e têm a mesma forma, a do pacote. Nenhuma
+ * delas recebe cor: categoria não é estado.
+ *
+ * Cor entra em duas células e em nenhuma outra: o lead parado há mais de sete
+ * dias, que é o que custa dinheiro, e o lead desqualificado, que é o único
+ * estado terminal.
+ */",,,,,,
+crm-comment-f880876a,crm,apps/crm/src/componentes/menu-de-comando.tsx,120,120,line,0,"// Circular: chegar no fim e continuar volta ao começo, em vez de travar.",,,,,,
+crm-comment-b5867fa9,crm,apps/crm/src/componentes/menu-de-comando.tsx,138,140,block,6,"/* O véu fecha ao clique, e não tem tinta: o painel já separa o que é
+          menu do que é tela, e escurecer tudo esconderia o que a pessoa quer
+          comparar. */",,,,,,
+crm-comment-7f622914,crm,apps/crm/src/componentes/menu-de-comando.tsx,41,41,jsdoc,2,/** Só a resposta do pedido mais recente vale. Ver o item 3 do cabeçalho. */,,,,,,
+crm-comment-f998cf4f,crm,apps/crm/src/componentes/menu-de-comando.tsx,52,52,line,2,"// Ctrl+K / ⌘K abre; o mesmo atalho fecha, que é o que se espera de um alternador.",,,,,,
+crm-comment-8236e36f,crm,apps/crm/src/componentes/menu-de-comando.tsx,81,81,line,1,// Chegou tarde: outra busca já saiu depois desta. Descarta.,,,,,,
+crm-comment-7f6629a6,crm,apps/crm/src/componentes/menu-de-comando.tsx,9,30,jsdoc,28,"/**
+ * O menu de comando, medido no `command-menu` do `twenty-front`.
+ *
+ * É a funcionalidade que mais define o Twenty: você não navega até o registro,
+ * você chama pelo nome. `Ctrl+K` (`meta+k` no Mac) — os mesmos atalhos do
+ * `useCommandMenuHotKeys` deles — e é por isso que a lateral pode ser curta.
+ *
+ * **Painel à direita, altura inteira**, como o deles (`height: 100%; top: 0`),
+ * e não caixa flutuante no meio: o painel deixa a tela de trás visível, e quem
+ * busca costuma estar comparando com o que já está vendo.
+ *
+ * Três coisas que fazem a diferença entre um campo de busca e um menu de
+ * comando, e todas vieram da leitura deles:
+ *
+ * 1. **O teclado resolve tudo.** Setas percorrem, Enter abre, Esc fecha. A mão
+ *    não sai do teclado, que é o ponto.
+ * 2. **A busca é adiada em 150 ms.** Sem isso, cada tecla vira uma consulta, e
+ *    quem digita rápido dispara oito para ler a última.
+ * 3. **Resposta fora de ordem é descartada.** A consulta de ""an"" pode chegar
+ *    depois da de ""anderson"" e sobrescrever o resultado certo com o velho — é o
+ *    defeito clássico de busca-enquanto-digita, e o contador de pedido resolve.
+ */",,,,,,
+crm-comment-f73e576c,crm,apps/crm/src/componentes/menu-de-comando.tsx,91,91,jsdoc,1,"/** Agrupado por objeto, na ordem fixa do rótulo — a mesma da lateral. */",,,,,,
+crm-comment-3047d579,crm,apps/crm/src/componentes/quadro-funil.tsx,124,126,block,8,"/* O cartão leva à ficha da PRÓPRIA oportunidade, e não mais à do
+                      lead: a negociação agora tem endereço, e é o dela que se cola
+                      no chat quando alguém pergunta por esta negociação. */",,,,,,
+crm-comment-953dcfa4,crm,apps/crm/src/componentes/quadro-funil.tsx,131,135,block,7,"/*
+                  A única cor do quadro. Fechamento previsto no passado com a
+                  oportunidade ainda aberta é a coisa que alguém resolve hoje —
+                  ou fecha, ou remarca. Tudo o mais aqui é categoria.
+                */",,,,,,
+crm-comment-6f3e5cd3,crm,apps/crm/src/componentes/quadro-funil.tsx,143,148,block,4,"/*
+                  O seletor é a alternativa de teclado ao arraste, e é ele que
+                  faz o quadro não excluir metade do time. Fica recolhido em
+                  repouso e abre no hover ou no foco: recolhido por altura
+                  animada, nunca por `display:none`, senão o foco não o alcança.
+                */",,,,,,
+crm-comment-5ede73ff,crm,apps/crm/src/componentes/quadro-funil.tsx,44,44,jsdoc,2,"/** Dias de atraso do fechamento previsto, ou `null` quando não venceu. */",,,,,,
+crm-comment-b2d342c4,crm,apps/crm/src/componentes/quadro-funil.tsx,9,35,jsdoc,37,"/**
+ * Quadro do funil, com arraste entre fases.
+ *
+ * O arraste usa a API nativa de drag and drop do navegador — nenhuma biblioteca.
+ * Quem não arrasta usa o seletor de fase dentro do cartão, que é a mesma ação por
+ * teclado: quadro sem alternativa acessível é quadro que exclui parte do time.
+ *
+ * O cartão chega com o valor já formatado *e* o número cru: o formatado é o que
+ * aparece, o cru é o que soma o total da coluna enquanto o servidor não responde.
+ *
+ * O que a leitura do quadro do Twenty mudou aqui:
+ *
+ * - **Cabeçalho de coluna grudado no topo.** Com dezesseis cartões, rolar a
+ *   coluna fazia o nome da fase e o total saírem da tela, e o quadro virava uma
+ *   lista de cartões sem colunas.
+ * - **O seletor de fase só aparece no hover ou no foco.** Eles usam a mesma
+ *   técnica (largura máxima animada, não `display:none`) e pela mesma razão: um
+ *   controle repetido em cada cartão é ruído em repouso. Como o gatilho inclui
+ *   `:focus-within`, o caminho do teclado continua inteiro.
+ * - **Coluna vazia diz que está vazia.** Antes era um retângulo em branco, que
+ *   se lê como ""ainda carregando"" e não como ""não há nada aqui"".
+ *
+ * O que NÃO copiamos: o indicador de inserção entre cartões. Ele promete uma
+ * ordem dentro da coluna, e a nossa oportunidade não guarda posição — a coluna
+ * é ordenada por valor pelo servidor. Desenhar o indicador seria prometer um
+ * controle que a escrita não tem.
+ */",,,,,,
+crm-comment-f14d4e44,crm,apps/crm/src/componentes/quadro-funil.tsx,96,99,block,2,"/*
+              O total fica no topo, não no rodapé do mockup: com dezesseis cartões na
+              coluna, o número do rodapé nasce fora da tela e ninguém o vê.
+            */",,,,,,
+crm-comment-fa1b954e,crm,apps/crm/src/componentes/redimensionar.ts,127,131,jsdoc,5,"/**
+   * O mesmo ajuste pelo teclado. Alça que só responde ao mouse é alça que
+   * metade do time não alcança, e a régua de 16px chega em qualquer largura
+   * útil em poucos toques.
+   */",,,,,,
+crm-comment-f6c13c68,crm,apps/crm/src/componentes/redimensionar.ts,142,142,jsdoc,1,"/** Volta a coluna ao padrão. É o duplo clique na alça, como em toda planilha. */",,,,,,
+crm-comment-10c85ce2,crm,apps/crm/src/componentes/redimensionar.ts,145,145,line,4,"// Apagar a chave, e não gravar o padrão por cima: assim a coluna volta a",,,,,,
+crm-comment-9d9c8caa,crm,apps/crm/src/componentes/redimensionar.ts,146,146,line,0,// seguir o padrão da tela se ele mudar num deploy futuro.,,,,,,
+crm-comment-0263079a,crm,apps/crm/src/componentes/redimensionar.ts,22,22,jsdoc,3,"/** Abaixo de 72px o rótulo do cabeçalho já não cabe, e a coluna vira um traço. */",,,,,,
+crm-comment-322c7dc5,crm,apps/crm/src/componentes/redimensionar.ts,24,24,jsdoc,2,/** Acima de 640px a coluna empurra todas as outras para fora da tela. */,,,,,,
+crm-comment-a277a23e,crm,apps/crm/src/componentes/redimensionar.ts,26,26,jsdoc,1,/** Quanto uma seta do teclado move. Múltiplo da régua de espaço. */,,,,,,
+crm-comment-1b30df3a,crm,apps/crm/src/componentes/redimensionar.ts,57,63,jsdoc,6,"/**
+ * Larguras de coluna redimensionáveis, persistidas por navegador.
+ *
+ * `chaveDeArmazenamento` separa a memória de uma tabela da de outra: a lista de
+ * leads e a de contas têm colunas de nomes diferentes, e misturar as duas faria
+ * uma herdar a largura da outra.
+ */",,,,,,
+crm-comment-000b63fc,crm,apps/crm/src/componentes/redimensionar.ts,66,74,jsdoc,6,"/**
+   * O arraste em curso vive numa referência, não em estado.
+   *
+   * Estado só chega ao manipulador na renderização seguinte. Se o navegador
+   * entregar o `pointermove` no mesmo passo do `pointerdown` (acontece com
+   * ponteiro rápido, e acontece sempre em teste sintético), o manipulador ainda
+   * enxerga `null` e o primeiro movimento do arraste é perdido. A referência
+   * está escrita antes de a função retornar.
+   */",,,,,,
+crm-comment-94183b7c,crm,apps/crm/src/componentes/redimensionar.ts,76,76,jsdoc,2,/** Só para a classe do cabeçalho. Este pode ser estado: é pintura. */,,,,,,
+crm-comment-f8ccfdc9,crm,apps/crm/src/componentes/redimensionar.ts,79,79,line,2,"// Só depois de montar: o servidor não tem `localStorage`, e ler durante a",,,,,,
+crm-comment-035e8206,crm,apps/crm/src/componentes/redimensionar.ts,80,80,line,0,// renderização faria os dois desenharem larguras diferentes.,,,,,,
+crm-comment-36a8aa1b,crm,apps/crm/src/componentes/redimensionar.ts,94,94,line,3,// Armazenamento bloqueado: a largura vale para esta sessão e some depois.,,,,,,
+crm-comment-7890c014,crm,apps/crm/src/componentes/visoes-salvas.tsx,45,45,line,2,"// Navegador com armazenamento bloqueado, ou conteúdo corrompido por uma",,,,,,
+crm-comment-40a35dc5,crm,apps/crm/src/componentes/visoes-salvas.tsx,46,46,line,4,// versão anterior. Nenhuma visão é melhor do que uma tela que não abre.,,,,,,
+crm-comment-df5adecb,crm,apps/crm/src/componentes/visoes-salvas.tsx,55,55,line,5,"// Sem armazenamento a visão vale só para esta sessão, e a tela segue.",,,,,,
+crm-comment-8e307727,crm,apps/crm/src/componentes/visoes-salvas.tsx,6,22,jsdoc,31,"/**
+ * Visões salvas da listagem.
+ *
+ * O que o Twenty guarda numa tabela de `view`, nós guardamos na URL. Aba, busca,
+ * agrupamento, coluna de ordenação e sentido já vivem inteiros na barra de
+ * endereço, então uma visão salva é só um nome dado a uma consulta que já
+ * existe. Isso tem três consequências boas e uma limitação honesta:
+ *
+ * - a visão é compartilhável colando o endereço, sem salvar nada;
+ * - voltar e avançar no navegador funcionam entre visões;
+ * - não existe estado escondido que a URL não mostre.
+ *
+ * A limitação: a lista de visões vive no `localStorage` deste navegador, então
+ * não acompanha a pessoa entre máquinas nem é compartilhada com o time. Guardar
+ * no banco exigiria uma tabela `visao`, que ainda não existe. Quando existir, só
+ * este arquivo muda: a forma da visão (um nome e uma consulta) já é a definitiva.
+ */",,,,,,
+crm-comment-4549bb1f,crm,apps/crm/src/componentes/visoes-salvas.tsx,62,62,line,1,// O `localStorage` só existe depois de montar. Ler durante a renderização,,,,,,
+crm-comment-4c598945,crm,apps/crm/src/componentes/visoes-salvas.tsx,98,100,block,6,"/* Sem visão escolhida é um estado real da tela, não um item morto:
+                é o que aparece quando a pessoa mexeu nos filtros depois de abrir
+                uma visão salva. */",,,,,,
+crm-comment-8d86c10e,crm,apps/crm/src/lib/banco.ts,10,24,jsdoc,15,"/**
+ * Conexão única do Pipe CRM. Mesma camada da Gestão, de propósito: as três telas
+ * falam com o banco do mesmo jeito, e quem aprendeu uma já conhece a outra.
+ *
+ * O app usa o papel `pipe_app`, que não tem `bypassrls`: toda consulta passa por
+ * `comTenant`, que fixa `pipe.tenant_id` na transação. Sem isso a RLS devolve zero
+ * linha — e é assim que tem de ser.
+ *
+ * O pool vive num global porque o `next dev` recarrega o módulo a cada mudança de
+ * arquivo, e um pool novo por recarga esgota as conexões do Postgres.
+ *
+ * **Nunca use `Promise.all` dentro do `fn`.** Consultas em paralelo na mesma conexão
+ * caem no caminho depreciado do driver `pg` e o `set_config('pipe.tenant_id')` some.
+ * O resultado não é erro: é consulta rodando sem tenant. Aqui é tudo em série.
+ */",,,,,,
+crm-comment-7d4348ba,crm,apps/crm/src/lib/banco.ts,110,113,jsdoc,3,"/**
+ * Mês corrente no fuso do tenant. A conta é do Postgres porque é ele que conhece o
+ * banco de fusos — reimplementar horário de verão em JavaScript custa um dia inteiro.
+ */",,,,,,
+crm-comment-99509e56,crm,apps/crm/src/lib/banco.ts,138,138,jsdoc,2,"/** `numeric` também volta como texto, e dinheiro nunca deve virar float sem querer. */",,,,,,
+crm-comment-0e274ee8,crm,apps/crm/src/lib/banco.ts,37,43,jsdoc,7,"/**
+ * Quem está logado, pelo cookie.
+ *
+ * `cache` do React porque numa mesma renderização a lateral, a página e cada
+ * consulta perguntam a mesma coisa — e `GET /v1/eu` é ida à rede. O cache vale
+ * por requisição, nunca entre requisições.
+ */",,,,,,
+crm-comment-64f7a813,crm,apps/crm/src/lib/banco.ts,50,50,jsdoc,4,"/** Quem está logado, ou `null`. Para quem sabe lidar com a ausência. */",,,,,,
+crm-comment-42b11a21,crm,apps/crm/src/lib/banco.ts,55,60,jsdoc,5,"/**
+ * Quem está logado, ou a tela de entrada.
+ *
+ * Cobre o cookie vencido e o forjado, que o middleware não pega: ele só confere
+ * se o cookie EXISTE, e quem diz se ele vale é a `api`.
+ */",,,,,,
+crm-comment-d48b5f54,crm,apps/crm/src/lib/banco.ts,67,67,jsdoc,2,"/** Qual tenant esta requisição atende: o de quem está logado, e nenhum outro. */",,,,,,
+crm-comment-644f6f86,crm,apps/crm/src/lib/banco.ts,72,72,jsdoc,3,/** Açúcar: abre a transação já com o tenant desta instância fixado. */,,,,,,
+crm-comment-d04a941c,crm,apps/crm/src/lib/banco.ts,77,84,jsdoc,8,"/**
+ * O fuso do tenant, para o ""mês"" dos indicadores não ser o fuso do servidor.
+ *
+ * O cache de processo SAIU junto com o tenant fixo: guardado num global, ele
+ * era o fuso do primeiro cliente que abrisse a tela servindo a todos os
+ * seguintes. `cache` do React põe o limite certo — uma consulta por
+ * requisição, e nada atravessando requisições.
+ */",,,,,,
+crm-comment-30baad56,crm,apps/crm/src/lib/banco.ts,92,99,jsdoc,11,"/**
+ * Quem assina o que o CRM grava, no log de auditoria.
+ *
+ * Era `sistema` porque não havia sessão: registrar uma pessoa que não se sabia
+ * qual era seria mentira. Agora há sessão, e o log diz quem — que é a única
+ * razão de alguém abrir a auditoria depois. Mesma decisão, mesmo motivo, que a
+ * Gestão tomou em `atorDaGestao`.
+ */",,,,,,
+crm-comment-a4b9994f,crm,apps/crm/src/lib/busca-tipos.ts,1,10,jsdoc,5,"/**
+ * O contrato da busca global, separado da consulta.
+ *
+ * Existe porque `menu-de-comando.tsx` é componente de CLIENTE e precisa destes
+ * tipos: importá-los de `busca.ts` arrastaria `banco.ts` e o `pg` para o
+ * bundle do navegador, e o Next falha com ""module not found: fs"".
+ *
+ * Quando o front virar Vite isto migra para `packages/contracts` — é
+ * exatamente o papel dele.
+ */",,,,,,
+crm-comment-bdce9bc9,crm,apps/crm/src/lib/busca-tipos.ts,18,18,jsdoc,2,/** A linha de baixo: o que distingue dois registros de nome parecido. */,,,,,,
+crm-comment-ad9610d2,crm,apps/crm/src/lib/busca-tipos.ts,23,23,jsdoc,1,"/** Rótulo de cada grupo, na ordem em que o menu os mostra. */",,,,,,
+crm-comment-f78ba187,crm,apps/crm/src/lib/busca.ts,104,104,jsdoc,3,"/** `and` que aceita indefinido sem reclamar, para condição opcional. */",,,,,,
+crm-comment-37ee6481,crm,apps/crm/src/lib/busca.ts,30,30,line,4,// Uma letra casa com meio banco e não ajuda ninguém a chegar em lugar nenhum.,,,,,,
+crm-comment-506c6203,crm,apps/crm/src/lib/busca.ts,8,24,jsdoc,19,"/**
+ * Busca global, a que alimenta o menu de comando.
+ *
+ * O Twenty resolve navegação por busca, não por menu: você aperta Ctrl+K,
+ * escreve o nome e chega no registro. É a diferença entre uma lista com filtro
+ * e um produto que se opera pelo teclado — e é o motivo de a lateral deles
+ * poder ser curta.
+ *
+ * **Uma consulta por objeto, em série.** Não é `Promise.all`: dentro do
+ * `consultar` a transação é uma conexão só, e paralelizar derruba o
+ * `pipe.tenant_id` da sessão (README). O custo é irrelevante — são quatro
+ * consultas com `limit 5` e índice.
+ *
+ * O teto de 5 por objeto é do Twenty (`MaxSearchResults`), e existe pelo mesmo
+ * motivo: quem busca quer chegar, não navegar. Vinte resultados numa lista de
+ * comando é uma segunda lista para percorrer.
+ */",,,,,,
+crm-comment-c032d8fe,crm,apps/crm/src/lib/campos-editaveis.ts,1,13,jsdoc,17,"/**
+ * O catálogo dos campos da ficha que se editam no lugar.
+ *
+ * **Este arquivo não importa banco, e é de propósito.** A célula inline é
+ * componente de cliente; qualquer `import` daqui que puxe `pg` para o bundle do
+ * navegador derruba a página com 500 — a mesma armadilha que `busca-tipos.ts`
+ * existe para evitar. Catálogo é fato (nome, rótulo, tipo, teto), e fato não
+ * precisa de conexão.
+ *
+ * O catálogo também é a **lista branca da escrita**: `atualizarCampoDoLead` não
+ * aceita nome de coluna vindo da tela, aceita chave daqui. Concatenar o que o
+ * navegador mandou com um `update` é como se escreve na tabela errada.
+ */",,,,,,
+crm-comment-9fc31b22,crm,apps/crm/src/lib/campos-editaveis.ts,29,29,jsdoc,2,"/** O valor é o id do usuário, não o nome: nome muda e atribuição não pode mudar junto. */",,,,,,
+crm-comment-415c390a,crm,apps/crm/src/lib/campos-editaveis.ts,41,41,jsdoc,1,"/** Espaço nas pontas fora; campo em branco é nulo, não string vazia. */",,,,,,
+crm-comment-994261a9,crm,apps/crm/src/lib/campos-editaveis.ts,47,55,jsdoc,10,"/**
+ * O que a tela recusa antes de chamar o servidor, e o servidor recusa de novo.
+ *
+ * Nenhuma das duas é validação de verdade de e-mail ou telefone — isso só o
+ * envio prova. É o filtro que impede o erro de digitação óbvio de virar dado
+ * gravado: e-mail sem arroba, telefone com letra.
+ *
+ * Devolve a queixa, ou `null` quando está bom.
+ */",,,,,,
+crm-comment-cd1137d3,crm,apps/crm/src/lib/configuracoes-comum.ts,1,12,jsdoc,16,"/**
+ * O vocabulário e as réguas da área de configurações.
+ *
+ * Este arquivo é PURO: nenhum import de `pg`, de `@pipe/db` nem de `next`. É por
+ * isso que o componente de cliente (`'use client'`) pode importar daqui sem
+ * arrastar o driver do Postgres para dentro do pacote do navegador, e é por isso
+ * que o teste roda sem banco.
+ *
+ * Toda função de recusa devolve **a queixa em português** ou `null`. A tela mostra
+ * a queixa direto; a server action chama a mesma função antes de gravar, porque
+ * validação de navegador é conveniência e a do servidor é a que conta.
+ */",,,,,,
+crm-comment-3688a2e2,crm,apps/crm/src/lib/configuracoes-comum.ts,124,131,jsdoc,9,"/**
+ * O código é a CHAVE dentro do `jsonb`, e por isso não é livre.
+ *
+ * Acento, espaço e maiúscula viram três grafias da mesma ideia dentro do mesmo
+ * objeto — e a consulta passa a depender de qual delas quem cadastrou usou. O
+ * `sugerirCodigo` transforma o rótulo digitado numa chave aceitável, para que
+ * ninguém precise aprender a regra para cadastrar um campo.
+ */",,,,,,
+crm-comment-6b53b03e,crm,apps/crm/src/lib/configuracoes-comum.ts,153,160,jsdoc,10,"/**
+ * O catálogo de escopos, o mesmo de `apps/api/src/autenticacao.ts`.
+ *
+ * Está repetido aqui, e não importado, porque `apps/crm` não depende de
+ * `apps/api` — um aplicativo importar o outro é o começo do monólito que o
+ * `pnpm-workspace` existe para evitar. Quando a lista mudar lá, muda aqui; o
+ * teste de baixo é o que faz a divergência aparecer.
+ */",,,,,,
+crm-comment-a3a33c66,crm,apps/crm/src/lib/configuracoes-comum.ts,16,23,jsdoc,8,"/**
+ * Os três modos. `sistema` não é um tema: é a ausência de escolha, e é o que
+ * deixa o `@media (prefers-color-scheme: dark)` de `tokens.css` decidir.
+ *
+ * O valor vive no navegador de propósito. Tema é preferência de aparelho — a
+ * mesma pessoa quer escuro no notebook à noite e claro no monitor da mesa —, e
+ * `usuario` não tem coluna para isso nem deveria ter.
+ */",,,,,,
+crm-comment-61321599,crm,apps/crm/src/lib/configuracoes-comum.ts,180,184,jsdoc,5,"/**
+ * Os eventos que `apps/api/src/webhooks-saida.ts` emite. Mesma razão da lista de
+ * escopos para estar repetida aqui: assinar um evento que ninguém emite é um
+ * webhook que nunca dispara e ninguém entende por quê.
+ */",,,,,,
+crm-comment-9241d419,crm,apps/crm/src/lib/configuracoes-comum.ts,205,209,jsdoc,7,"/**
+ * O fuso é validado contra o banco de fusos do próprio runtime, não contra uma
+ * lista escrita à mão: lista à mão envelhece a cada mudança de horário de verão
+ * e passa a recusar um fuso que existe.
+ */",,,,,,
+crm-comment-20e2d608,crm,apps/crm/src/lib/configuracoes-comum.ts,287,287,jsdoc,1,/** Quantos leads têm valor gravado nesta chave. É o que impede excluir às cegas. */,,,,,,
+crm-comment-9327ada8,crm,apps/crm/src/lib/configuracoes-comum.ts,311,311,jsdoc,3,/** O que a tela devolve de toda escrita. `erro` já vem em português. */,,,,,,
+crm-comment-b5bbc0d4,crm,apps/crm/src/lib/configuracoes-comum.ts,41,41,jsdoc,2,"/** Espaço nas pontas some; em branco vira `null`, que é o que apaga o campo. */",,,,,,
+crm-comment-baade816,crm,apps/crm/src/lib/configuracoes-comum.ts,47,47,jsdoc,1,"/** Nome de pessoa, de espaço, de papel: obrigatório e com teto. */",,,,,,
+crm-comment-5635404c,crm,apps/crm/src/lib/configuracoes-comum.ts,56,56,jsdoc,5,"/** Minúsculo e sem espaço: e-mail é chave, e `Ana@X.com` e `ana@x.com` são a mesma. */",,,,,,
+crm-comment-5ada0648,crm,apps/crm/src/lib/configuracoes-comum.ts,69,76,jsdoc,6,"/**
+ * URL de imagem e de webhook.
+ *
+ * `https` é exigido no webhook porque o corpo assinado sai da nossa rede com
+ * dado de cliente dentro; em `http` a assinatura protege contra adulteração e
+ * não protege contra leitura. No logo, `http` passa — é imagem pública — mas
+ * `javascript:` e `data:` não, que é o vetor clássico de `<img src>`.
+ */",,,,,,
+crm-comment-57bd0b92,crm,apps/crm/src/lib/configuracoes-comum.ts,99,107,jsdoc,11,"/**
+ * Os tipos que o campo personalizado do lead aceita.
+ *
+ * A lista é curta de propósito. No Twenty o usuário cria objeto e campo de vinte
+ * tipos; aqui o schema é fixo e o valor mora em `lead.customizados`, que é
+ * `jsonb`. Cinco tipos cobrem o que um formulário de lead coleta, e cada um tem
+ * uma representação óbvia em JSON — que é a condição para a linguagem de
+ * consulta (`dicionario_campo`) continuar sabendo o que fazer com o valor.
+ */",,,,,,
+crm-comment-f6f16319,crm,apps/crm/src/lib/configuracoes-dados.ts,122,122,jsdoc,3,/** O ator das escritas desta tela. Sempre uma pessoa: aqui não há cron nem chave. */,,,,,,
+crm-comment-d00de9f6,crm,apps/crm/src/lib/configuracoes-dados.ts,161,161,block,0,/* ====================================================== espaço de trabalho */,,,,,,
+crm-comment-54dd25d7,crm,apps/crm/src/lib/configuracoes-dados.ts,252,252,line,2,"// O `left join` devolve uma linha por papel, e o schema permite vários. A tela",,,,,,
+crm-comment-d3045a2c,crm,apps/crm/src/lib/configuracoes-dados.ts,253,253,line,1,"// oferece UM papel (ver `definirPapel`), então aqui fica o primeiro em ordem",,,,,,
+crm-comment-33a5882b,crm,apps/crm/src/lib/configuracoes-dados.ts,254,254,line,3,"// alfabética — e nunca duas linhas para a mesma pessoa, que viraria chave",,,,,,
+crm-comment-b5e63e91,crm,apps/crm/src/lib/configuracoes-dados.ts,294,299,jsdoc,9,"/**
+ * O token de convite, no formato que `apps/api` já sabe aceitar: 32 bytes
+ * aleatórios em base64url, e no banco só o `sha256` em hexa. Está reproduzido
+ * aqui, e não importado de `@pipe/autenticacao`, porque o CRM não depende desse
+ * pacote — são cinco linhas e uma dependência a menos no bundle do Next.
+ */",,,,,,
+crm-comment-9608c59a,crm,apps/crm/src/lib/configuracoes-dados.ts,305,313,jsdoc,20,"/**
+ * O link que a tela mostra uma vez, e a única forma de o convidado entrar.
+ *
+ * `PIPE_URL_APP` é a base das TELAS (a Gestão, quando o convite é aceito lá).
+ * O padrão era `http://localhost:3000`, que é a **api** — e a api não serve
+ * `/convite/:token`: o convidado tomava 404 e o convite morria sem que ninguém
+ * soubesse. Quando a variável não está posta, o destino honesto é ESTE
+ * aplicativo, que tem a rota (`app/convite/[token]/page.tsx`).
+ */",,,,,,
+crm-comment-e5a5e652,crm,apps/crm/src/lib/configuracoes-dados.ts,323,332,jsdoc,9,"/**
+ * Convidar.
+ *
+ * Convidar de novo INVALIDA o convite anterior — sem isso cada reenvio deixa mais
+ * um link vivo e cancelar o acesso viraria caçar todos eles. É a mesma regra do
+ * `criarConvite` da API, e o `expira_em = now()` é o que a implementa.
+ *
+ * O token só existe nesta resposta: o banco guarda o hash, e a tela mostra o link
+ * uma vez. Depois daqui ninguém o recupera, nem quem lê a tabela.
+ */",,,,,,
+crm-comment-f6b4e7c8,crm,apps/crm/src/lib/configuracoes-dados.ts,407,414,jsdoc,12,"/**
+ * Trocar o papel de alguém.
+ *
+ * O Pipe permite vários papéis por usuário no schema, mas a tela oferece UM: dois
+ * papéis somam permissão em silêncio, e ""por que essa pessoa vê isso?"" vira uma
+ * pergunta sem resposta na tela. Quem precisar de soma cria um papel que a
+ * descreva — que é a resposta honesta e é a que a auditoria consegue explicar.
+ */",,,,,,
+crm-comment-43ec3dbe,crm,apps/crm/src/lib/configuracoes-dados.ts,456,462,jsdoc,8,"/**
+ * Desativar em vez de excluir.
+ *
+ * `usuario` é referenciado por conversa, avaliação, lead e log — apagar a linha
+ * apagaria a autoria de tudo o que a pessoa fez. Desativar tira o acesso e mantém
+ * a história, que é o que uma auditoria de contrato pede.
+ */",,,,,,
+crm-comment-1a6bcae1,crm,apps/crm/src/lib/configuracoes-dados.ts,49,67,jsdoc,29,"/**
+ * A camada de dados da área de configurações. **Só banco.**
+ *
+ * Nada aqui sabe que existe Next: não há `revalidatePath`, não há JSX, não há
+ * `'use server'`. Quem chama é a server action em `app/configuracoes/acoes.ts`,
+ * e é ela que revalida a rota depois. O motivo está no README, em ""Quem fala com
+ * o banco — a fronteira"": `apps/crm` vai para o Vite e a `apps/api` passa a ser a
+ * única porta do Postgres, e então virar endpoint precisa ser MOVER este arquivo,
+ * não reescrevê-lo.
+ *
+ * Duas regras valem em todas as escritas daqui, sem exceção:
+ *
+ * 1. **Toda escrita registra auditoria, na MESMA transação.** Configuração é a
+ *    área em que ""quem mudou o quê"" mais importa — sobretudo membro e papel, que
+ *    é mudar quem enxerga o quê. Log em transação separada mente quando a
+ *    mudança é desfeita.
+ * 2. **Consulta em série.** `Promise.all` dentro da transação derruba o
+ *    `pipe.tenant_id` e a consulta passa a rodar sem tenant (README).
+ */",,,,,,
+crm-comment-bc9f1a79,crm,apps/crm/src/lib/configuracoes-dados.ts,496,496,block,0,/* ================================================== papéis e permissões */,,,,,,
+crm-comment-64c58264,crm,apps/crm/src/lib/configuracoes-dados.ts,525,525,jsdoc,1,"/** O catálogo é global — vocabulário do produto, igual para todo cliente. */",,,,,,
+crm-comment-7c73b7b2,crm,apps/crm/src/lib/configuracoes-dados.ts,603,612,jsdoc,11,"/**
+ * Gravar as permissões de um papel.
+ *
+ * O log guarda o que ENTROU e o que SAIU, não a lista inteira dos dois lados:
+ * quem lê a auditoria quer saber que `chave_api.gerenciar` foi concedida, não
+ * reler as quarenta que continuaram iguais.
+ *
+ * Papel de sistema não é editável — é o do dia 1, e o cliente que quiser um
+ * administrador diferente cria o dele.
+ */",,,,,,
+crm-comment-8121c70f,crm,apps/crm/src/lib/configuracoes-dados.ts,69,69,jsdoc,5,"/** Abre a transação já com o tenant fixado, e entrega o id junto para a auditoria. */",,,,,,
+crm-comment-0d7d39b7,crm,apps/crm/src/lib/configuracoes-dados.ts,699,699,jsdoc,2,/** O objeto do dicionário que a tela de campos personalizados administra. */,,,,,,
+crm-comment-bf067ba0,crm,apps/crm/src/lib/configuracoes-dados.ts,718,718,line,2,"// Uma varredura só, com o índice GIN de `lead.customizados` fazendo o trabalho.",,,,,,
+crm-comment-e0a76a9f,crm,apps/crm/src/lib/configuracoes-dados.ts,776,782,jsdoc,7,"/**
+ * Renomear, nunca recodificar.
+ *
+ * O `codigo` é a chave dentro do `jsonb` de cada lead: mudá-lo deixaria o valor
+ * gravado órfão em toda a base, em silêncio. Rótulo e descrição são o que a tela
+ * mostra, e é o que se corrige quando alguém digitou errado.
+ */",,,,,,
+crm-comment-6a6bd849,crm,apps/crm/src/lib/configuracoes-dados.ts,79,87,jsdoc,10,"/**
+ * Quem está mexendo.
+ *
+ * O CRM ainda não tem sessão própria — `banco.ts` resolve o tenant por variável
+ * de ambiente, e aqui é a mesma história: `PIPE_USUARIO_ID` quando existe, senão
+ * o primeiro usuário ativo do tenant. Não é o desenho final, e está escrito para
+ * ser trocado numa linha quando `packages/autenticacao` chegar nesta tela: o
+ * resto do arquivo só conhece o `Ator` que sai daqui.
+ */",,,,,,
+crm-comment-9bd7d71f,crm,apps/crm/src/lib/configuracoes-dados.ts,812,818,jsdoc,8,"/**
+ * Excluir o campo tira a DEFINIÇÃO, não o valor.
+ *
+ * O que estiver gravado em `lead.customizados` continua lá, e o log guarda o
+ * código — sem isso, apagar a definição transformaria dado de cliente em lixo
+ * sem nome. Recadastrar o mesmo código faz o valor voltar a aparecer.
+ */",,,,,,
+crm-comment-33215c61,crm,apps/crm/src/lib/configuracoes-dados.ts,871,879,jsdoc,13,"/**
+ * Emitir chave.
+ *
+ * O token é `pipe_<prefixo>_<segredo>`, o formato que `apps/api` autentica. O
+ * banco fica com o prefixo em claro — é por ele que a API acha a linha, e é o que
+ * a tela mostra para a pessoa reconhecer a chave — e com o `sha256` do segredo.
+ * **O token completo só existe nesta resposta.** Quem perder pede outra: mostrar
+ * de novo exigiria guardá-lo, e aí a tabela viraria a credencial.
+ */",,,,,,
+crm-comment-e9af2718,crm,apps/crm/src/lib/configuracoes-dados.ts,976,983,jsdoc,8,"/**
+ * Criar webhook.
+ *
+ * O segredo do HMAC é gerado aqui e **cifrado em repouso** com o chaveiro de
+ * `@pipe/db` — a mesma proteção do segredo de canal. Ele aparece uma vez, para
+ * quem vai conferir a assinatura do outro lado; depois disso nem a tela o
+ * recupera. `estaCifrado` já garante que ninguém grave texto claro por engano.
+ */",,,,,,
+crm-comment-1fe67bb0,crm,apps/crm/src/lib/contas.ts,154,158,block,8,"/*
+     * O contato traz o lead dele junto: quem abre a conta quer saber com quem
+     * falar E o quanto esse alguém já avançou. Duas telas para responder isso
+     * seriam uma a mais.
+     */",,,,,,
+crm-comment-05da302c,crm,apps/crm/src/lib/contas.ts,17,17,jsdoc,2,"/** A listagem é tela de trabalho, não de exportação. Mesmo teto da de leads. */",,,,,,
+crm-comment-c433c1c1,crm,apps/crm/src/lib/contas.ts,189,189,line,3,// Aberta primeiro: é o que ainda dá para mexer.,,,,,,
+crm-comment-b4bf0fd6,crm,apps/crm/src/lib/contas.ts,5,15,jsdoc,14,"/**
+ * Contas.
+ *
+ * A conta estava fora do menu porque não tinha tela, e não tinha tela porque
+ * ninguém tinha decidido o que ela mostra. Mostra duas coisas, e é o que a
+ * empresa pergunta quando abre uma: **quem eu conheço lá dentro** e **quanto
+ * dinheiro está em jogo**. Contatos e oportunidades, nessa ordem.
+ *
+ * Tudo em série dentro do `consultar` — `Promise.all` dentro da transação
+ * derruba o `pipe.tenant_id` e a consulta passa a rodar sem tenant (README).
+ */",,,,,,
+crm-comment-c0666566,crm,apps/crm/src/lib/contas.ts,55,55,line,0,// Três agregações separadas em vez de subconsulta por linha: o banco lê,,,,,,
+crm-comment-1e42c681,crm,apps/crm/src/lib/contas.ts,56,56,line,2,"// cada tabela uma vez, e a junção acontece aqui, sobre catorze contas.",,,,,,
+crm-comment-77a4ef1d,crm,apps/crm/src/lib/contatos.ts,13,25,jsdoc,13,"/**
+ * Contatos.
+ *
+ * O contato é a pessoa; o lead é a intenção dela de comprar. São coisas
+ * diferentes e o Pipe guarda as duas separadas — o mesmo contato pode virar
+ * lead duas vezes, e a conversa dele continua sendo uma só.
+ *
+ * Por isso a ficha do contato mostra **as conversas** e **o lead**: é o que a
+ * lista de leads não consegue mostrar, porque lá cada linha é uma intenção e
+ * aqui cada linha é uma pessoa.
+ *
+ * Tudo em série dentro do `consultar` (README).
+ */",,,,,,
+crm-comment-a471206d,crm,apps/crm/src/lib/formato.ts,1,1,jsdoc,1,"/** Formatação da tela. Mesma régua da Gestão, para as três telas lerem igual. */",,,,,,
+crm-comment-4a2cf081,crm,apps/crm/src/lib/formato.ts,25,25,jsdoc,1,/** Soma de coluna do funil: `R$ 812 mil` cabe onde `R$ 812.400` não cabe. */,,,,,,
+crm-comment-bac51cc6,crm,apps/crm/src/lib/formato.ts,54,54,jsdoc,1,"/** ""há 4 min"", ""há 3 h"", ""ontem"", ""27/08"" — a coluna de última atividade da listagem. */",,,,,,
+crm-comment-f5de37b8,crm,apps/crm/src/lib/formato.ts,67,72,jsdoc,6,"/**
+ * CPF ou CNPJ com máscara. O documento é guardado em `text` sem pontuação —
+ * o CNPJ alfanumérico de 2026 quebra coluna numérica e máscara fixa —, então
+ * a máscara é da tela e não do banco. Documento com tamanho fora do esperado
+ * sai como veio, em vez de sair picado errado.
+ */",,,,,,
+crm-comment-b20e9542,crm,apps/crm/src/lib/formato.ts,81,81,jsdoc,2,"/** Pontos da explicação do score: sinal explícito, porque a regra pode tirar ponto. */",,,,,,
+crm-comment-67ba533b,crm,apps/crm/src/lib/formato.ts,86,93,block,14,"/*
+ * Não há `classeDaFaixa` aqui, e a ausência é a decisão: faixa de score é
+ * categoria, não estado. Ela diz para onde o lead foi roteado, não que alguém
+ * precise agir — e categoria usa a `Etiqueta` neutra do `@pipe/ui`, como fase,
+ * origem e fila. A função existia para escolher entre verde e ocre, o que
+ * pintava uma coluna inteira da lista e disputava atenção com as duas que
+ * realmente pedem ação: dias na fase e desqualificação.
+ */",,,,,,
+crm-comment-ff0ae452,crm,apps/crm/src/lib/funil.ts,105,109,jsdoc,6,"/**
+ * Arrastar entre fases. A probabilidade acompanha a fase porque é dela que sai o
+ * valor ponderado do painel — deixar a probabilidade parada faria o painel discordar
+ * do quadro que o vendedor acabou de mexer.
+ */",,,,,,
+crm-comment-d364501e,crm,apps/crm/src/lib/funil.ts,118,129,block,22,"/* ======================================================= listagem e ficha
+ *
+ * O quadro responde ""como está o funil""; a listagem responde ""quais são"", que é
+ * outra pergunta e precisava de outra tela. É a mesma divisão do Twenty entre
+ * visão kanban e visão tabela do mesmo objeto — os dados são os mesmos, e o que
+ * muda é a forma. Por isso as duas moram no mesmo endereço, com `?vista=`: uma
+ * visão de tela não merece uma rota.
+ *
+ * A diferença que importa: o quadro só mostra oportunidade ABERTA, porque
+ * arrastar uma fechada não faz sentido. A listagem mostra as fechadas também —
+ * é ela que responde ""o que ganhamos este mês"".
+ */",,,,,,
+crm-comment-21fcd70c,crm,apps/crm/src/lib/funil.ts,144,144,jsdoc,3,"/** A listagem é tela de trabalho, não de exportação. Mesmo teto das outras. */",,,,,,
+crm-comment-2bb2d3e3,crm,apps/crm/src/lib/funil.ts,200,200,line,4,"// Aberta primeiro, e dentro disso a de maior valor: é o que ainda dá para",,,,,,
+crm-comment-01746834,crm,apps/crm/src/lib/funil.ts,218,218,jsdoc,3,"/** O score do lead que originou a negociação, quando ele existe. */",,,,,,
+crm-comment-c2c3959a,crm,apps/crm/src/lib/funil.ts,221,221,jsdoc,2,/** As outras da mesma conta: o contexto comercial de quem já está negociando. */,,,,,,
+crm-comment-5a002cfb,crm,apps/crm/src/lib/funil.ts,223,223,jsdoc,1,"/** O histórico do lead, que é o histórico da negociação. */",,,,,,
+crm-comment-00fc7506,crm,apps/crm/src/lib/funil.ts,259,259,line,0,"// Em série, nunca em paralelo: `Promise.all` aqui dentro derruba o",,,,,,
+crm-comment-3666165a,crm,apps/crm/src/lib/funil.ts,260,260,line,0,// `pipe.tenant_id` da transação (README).,,,,,,
+crm-comment-21fed17c,crm,apps/crm/src/lib/funil.ts,6,12,jsdoc,7,"/**
+ * Funil de oportunidades.
+ *
+ * As fases são catálogo do produto e não coluna do banco (`oportunidade.fase` é
+ * texto): trocar a ordem ou o nome de uma fase é configuração de tenant, não
+ * migration. Enquanto a tela de configuração não existe, o catálogo vive aqui.
+ */",,,,,,
+crm-comment-1bba31ee,crm,apps/crm/src/lib/funil.ts,79,79,line,0,// Fase fora do catálogo: some do quadro em vez de criar coluna órfã.,,,,,,
+crm-comment-91a8d8ae,crm,apps/crm/src/lib/leads-visao.ts,1,13,jsdoc,20,"/**
+ * O que a tela de leads sabe sem falar com o banco: rótulo, recorte,
+ * agrupamento, ordenação e os tipos que atravessam a fronteira.
+ *
+ * Este arquivo existe por uma razão mecânica, não estética. A listagem tem uma
+ * parte que roda no navegador (largura de coluna, seleção, ação em massa), e um
+ * componente de cliente que importasse `leads.ts` arrastaria o driver do
+ * Postgres para dentro do pacote do navegador — que é exatamente o erro que o
+ * empacotador acusa como `Can't resolve 'fs'`.
+ *
+ * A regra: **nada aqui importa `@pipe/db` nem `./banco`.** O que precisa de
+ * consulta mora em `leads.ts`, que importa daqui e reexporta o que a tela usa.
+ */",,,,,,
+crm-comment-069cf12f,crm,apps/crm/src/lib/leads-visao.ts,111,111,jsdoc,3,"/** Dobra a lista pela coluna escolhida, preservando a ordem de dentro do grupo. */",,,,,,
+crm-comment-50f93b0e,crm,apps/crm/src/lib/leads-visao.ts,135,151,block,27,"/* ------------------------------------------------------------- ordenação
+ *
+ * A ordenação acontece no BANCO, não na lista já carregada, e a diferença não
+ * é de desempenho: é de resposta. A listagem tem teto de 200 linhas. Ordenar as
+ * 200 já buscadas responde ""os 200 leads mais novos, dispostos por score"";
+ * ordenar no banco responde ""os 200 leads de maior score"", que é a pergunta que
+ * alguém faz ao clicar em Score.
+ *
+ * `Fila` e `Última atividade` não entram: a primeira é derivada da faixa por um
+ * mapa em memória e a segunda vem de uma segunda consulta. Ordenar por elas
+ * exigiria mudar as duas para junção, e nenhuma responde nada que Faixa e Dias
+ * na fase já não respondam. Coluna que não ordena simplesmente não vira link,
+ * e não existe cabeçalho apagado aqui.
+ *
+ * Aqui ficam só os NOMES. A tradução de nome para coluna do Postgres mora em
+ * `leads.ts`, porque é ela que precisa do esquema.
+ */",,,,,,
+crm-comment-89a43e42,crm,apps/crm/src/lib/leads-visao.ts,15,15,jsdoc,1,/** O tipo cru vira rótulo aqui: `mudanca_fase` não é texto de tela. */,,,,,,
+crm-comment-56da6a6b,crm,apps/crm/src/lib/leads-visao.ts,177,190,block,24,"/* --------------------------------------------------------- filtro por coluna
+ *
+ * O filtro vive na URL, como a ordenação e o agrupamento, e por isso **a visão
+ * salva o guarda de graça**: a visão é um nome dado a uma consulta, e o filtro
+ * já é parte dela. Foi a razão de ele não virar estado de componente.
+ *
+ * O prefixo `f.` separa o filtro do resto dos parâmetros sem uma lista de nomes
+ * reservados: `f.origem=Anúncio Meta` é filtro, `origem` não seria — e amanhã
+ * uma coluna nova entra sem risco de colidir com `aba`, `q` ou `dir`.
+ *
+ * Quatro colunas, e são as categóricas. Score e Dias na fase pedem faixa (""de
+ * 60 a 80""), que é outro controle e outra conversa; texto livre já é a busca.
+ * Coluna que não filtra simplesmente não aparece no menu.
+ */",,,,,,
+crm-comment-c881954f,crm,apps/crm/src/lib/leads-visao.ts,203,209,jsdoc,8,"/**
+ * O valor que representa ""em branco"".
+ *
+ * Filtrar por ""sem proprietário"" é uma das perguntas mais feitas da tela, e uma
+ * string vazia na URL some no caminho — `?f.proprietario=` volta como `''` em
+ * alguns navegadores e como ausente em outros. Uma palavra explícita não some.
+ */",,,,,,
+crm-comment-456065ee,crm,apps/crm/src/lib/leads-visao.ts,216,216,jsdoc,3,"/** Lê os `f.*` do que veio na URL, jogando fora o que não é coluna filtrável. */",,,,,,
+crm-comment-ba84d133,crm,apps/crm/src/lib/leads-visao.ts,222,222,line,1,"// Um parâmetro repetido vira array; o primeiro vale, porque o filtro é de",,,,,,
+crm-comment-20338127,crm,apps/crm/src/lib/leads-visao.ts,223,223,line,2,// um valor só e dois valores para a mesma coluna é URL adulterada.,,,,,,
+crm-comment-f9a2535d,crm,apps/crm/src/lib/leads-visao.ts,230,230,jsdoc,1,"/** Escreve os filtros de volta numa consulta, no mesmo formato que se lê. */",,,,,,
+crm-comment-4c58e4d5,crm,apps/crm/src/lib/leads-visao.ts,240,240,jsdoc,1,"/** O texto do chip: ""Origem: Anúncio Meta"", ou ""Origem: sem origem"". */",,,,,,
+crm-comment-3c5e4f87,crm,apps/crm/src/lib/leads-visao.ts,246,252,jsdoc,13,"/**
+ * Para que lado a coluna começa quando ninguém a ordenou ainda.
+ *
+ * Número começa no maior (o score alto é o que interessa), texto começa no A.
+ * Clicar em ""Proprietário"" e receber a lista do Z ao A é a coisa que faz a
+ * pessoa clicar duas vezes em toda coluna nova.
+ */",,,,,,
+crm-comment-e61c88e9,crm,apps/crm/src/lib/leads-visao.ts,26,26,jsdoc,5,"/** O status cru vira rótulo aqui, uma vez só para a listagem e para a ficha. */",,,,,,
+crm-comment-bb71c2b9,crm,apps/crm/src/lib/leads-visao.ts,50,50,jsdoc,2,"/** A listagem é tela de trabalho, não de exportação. */",,,,,,
+crm-comment-dd0e0867,crm,apps/crm/src/lib/leads-visao.ts,61,61,jsdoc,2,/** O id do dono. A listagem edita por id; o nome é só o que ela mostra. */,,,,,,
+crm-comment-c09b3eee,crm,apps/crm/src/lib/leads-visao.ts,75,79,jsdoc,7,"/**
+ * Como agrupar a lista. É o que substitui os quatro relatórios que eram item de
+ * menu: ""por proprietário"" e ""origem e campanha"" são a mesma lista, dobrada por
+ * uma coluna. Relatório que é recorte de lista mora na lista.
+ */",,,,,,
+crm-comment-5b3751ed,crm,apps/crm/src/lib/leads-visao.ts,94,101,jsdoc,12,"/**
+ * Qual coluna da tabela o cabeçalho do grupo já está dizendo.
+ *
+ * Lista agrupada por proprietário com uma coluna ""Proprietário"" repete o mesmo
+ * nome em cada linha do grupo: é largura gasta para dizer o que o cabeçalho
+ * acabou de dizer. As chaves do agrupamento e as das colunas são as mesmas de
+ * propósito, e é o que mantém as duas listas casadas sem uma tabela de-para.
+ */",,,,,,
+crm-comment-e5944f9e,crm,apps/crm/src/lib/leads.ts,101,105,jsdoc,6,"/**
+ * Nome de coluna da tela para coluna do Postgres. A lista de nomes ordenáveis
+ * mora em `leads-visao.ts`, porque a tela precisa dela; a tradução mora aqui,
+ * porque precisa do esquema.
+ */",,,,,,
+crm-comment-6f9b15c8,crm,apps/crm/src/lib/leads.ts,113,114,jsdoc,2,"/** Mais dias na fase é `fase_desde` mais antigo. O sentido inverte, e o
+   *  `desc` da coluna vira `asc` da data, resolvido em `ordenacaoSql`. */",,,,,,
+crm-comment-255358d1,crm,apps/crm/src/lib/leads.ts,123,132,jsdoc,14,"/**
+ * A cláusula `order by`, com três cuidados que a versão ingênua não tem:
+ *
+ * - **Nulo por último, sempre.** Lead sem score no topo da lista ordenada por
+ *   score é a primeira coisa que alguém reclama. `nulls last` nos dois sentidos.
+ * - **Dias na fase inverte.** ""Mais dias"" é `fase_desde` mais antigo, então o
+ *   `desc` da coluna é `asc` da data.
+ * - **Desempate estável.** Sem um segundo critério, dois leads de score 60
+ *   trocam de lugar entre recargas, e a lista pisca sem nada ter mudado.
+ */",,,,,,
+crm-comment-4baeee25,crm,apps/crm/src/lib/leads.ts,145,156,jsdoc,16,"/**
+ * A coluna do Postgres que cada filtro interroga, e o que ""em branco"" significa
+ * em cada uma.
+ *
+ * O nome da coluna **não vem da tela**: `chave` é do catálogo fechado de
+ * `FILTRAVEIS`, e é este mapa que decide onde a comparação cai. Só o VALOR vem
+ * de fora, e ele entra como parâmetro do driver, nunca concatenado.
+ *
+ * `proprietario` compara pelo nome, e não pelo id, porque é o nome que a tela
+ * mostra e é dele que o menu de valores é feito. Trocar por id exigiria o menu
+ * carregar id e nome só para esconder um dos dois.
+ */",,,,,,
+crm-comment-94658902,crm,apps/crm/src/lib/leads.ts,165,174,jsdoc,15,"/**
+ * Os valores que cada coluna filtrável tem hoje, para o menu de filtro.
+ *
+ * Sai do banco, e não das 200 linhas já carregadas: a lista com teto mostraria
+ * só as origens que couberam, e filtrar por uma origem que existe mas não
+ * apareceu seria impossível pela tela.
+ *
+ * Em série dentro do mesmo `consultar` (README), e com teto por coluna: um menu
+ * de trezentas origens não é um menu, é uma segunda listagem.
+ */",,,,,,
+crm-comment-28e546a5,crm,apps/crm/src/lib/leads.ts,186,186,line,3,// O `is not null` já está no `where`; o filtro aqui é só para o tipo.,,,,,,
+crm-comment-5ccc42fd,crm,apps/crm/src/lib/leads.ts,205,217,jsdoc,19,"/**
+ * Lista e contagem das abas na **mesma** transação. Eram duas, mais a do fuso: três
+ * transações e três conexões do pool para desenhar uma tela. Dentro daqui as
+ * consultas continuam em série, que é obrigatório (README).
+ *
+ * O filtro entra no `where`, e não sobre as linhas já buscadas, pelo mesmo
+ * motivo da ordenação: com teto de 200, filtrar depois responderia ""dos 200
+ * mais novos, os da origem X"" quando a pergunta é ""os 200 leads da origem X"".
+ *
+ * As contagens das abas, essas, **ignoram o filtro de propósito**: elas dizem
+ * quantos leads existem em cada recorte, e um número que muda conforme o filtro
+ * não serve para escolher para qual recorte ir.
+ */",,,,,,
+crm-comment-bc239b7a,crm,apps/crm/src/lib/leads.ts,25,25,line,3,"// Só o tipo, e de um arquivo sem banco: é o mesmo catálogo que a célula inline",,,,,,
+crm-comment-a94b0879,crm,apps/crm/src/lib/leads.ts,258,258,line,2,"// O id, e não só o nome: a célula editável da listagem grava o id, e",,,,,,
+crm-comment-5fea1f33,crm,apps/crm/src/lib/leads.ts,259,259,line,3,// nome muda sem que a atribuição mude junto.,,,,,,
+crm-comment-ac99c176,crm,apps/crm/src/lib/leads.ts,26,26,line,2,"// lê no navegador, e é ele que fecha a lista de colunas graváveis.",,,,,,
+crm-comment-f0bebb95,crm,apps/crm/src/lib/leads.ts,29,34,jsdoc,5,"/**
+ * Leads: a listagem e a ficha.
+ *
+ * Tudo em série dentro do `consultar` — `Promise.all` dentro da transação derruba o
+ * `pipe.tenant_id` e a consulta passa a rodar sem tenant (README).
+ */",,,,,,
+crm-comment-4464e738,crm,apps/crm/src/lib/leads.ts,343,343,line,3,// Ordenado crescente: a última escrita por lead é a atividade mais recente.,,,,,,
+crm-comment-200b6e5c,crm,apps/crm/src/lib/leads.ts,36,41,block,8,"/*
+ * Rótulo, recorte, agrupamento e ordenação moram em `leads-visao.ts`, que não
+ * importa banco nenhum. É de lá que o componente de cliente da listagem lê:
+ * importar deste arquivo arrastaria o driver do Postgres para o navegador.
+ * Aqui eles são reexportados, para que a tela continue tendo um endereço só.
+ */",,,,,,
+crm-comment-9449a771,crm,apps/crm/src/lib/leads.ts,363,363,jsdoc,1,/** Da faixa vigente: é ela que decide fila e proprietário. */,,,,,,
+crm-comment-e2034053,crm,apps/crm/src/lib/leads.ts,407,407,jsdoc,3,"/** O id, e não só o nome: a seleção inline grava id, porque nome muda. */",,,,,,
+crm-comment-e68cbf57,crm,apps/crm/src/lib/leads.ts,513,520,jsdoc,8,"/**
+ * O painel que explica o número.
+ *
+ * `score_lead.explicacao` guarda `{regra, versao, pontos}` — o identificador da regra,
+ * não o nome dela, porque o nome muda e o histórico não pode mudar junto. O nome vem
+ * do join com `regra_score`; regra apagada aparece como ""regra removida"" em vez de
+ * sumir da conta, senão a soma dos itens deixaria de bater com o total.
+ */",,,,,,
+crm-comment-6affce11,crm,apps/crm/src/lib/leads.ts,576,579,jsdoc,2,"/**
+ * Respostas de formulário agrupadas por formulário e versão — nunca como colunas
+ * soltas na ficha. É a decisão que evita os 304 campos customizados do Lead de hoje.
+ */",,,,,,
+crm-comment-c132b440,crm,apps/crm/src/lib/leads.ts,623,632,jsdoc,20,"/**
+ * Atividades e conversas na mesma linha do tempo. A conversa entra com o resumo do
+ * atendimento quando a monitoria já classificou — é a promessa do produto: o CRM se
+ * alimenta das conversas, e o vendedor lê o que aconteceu sem abrir o Desk.
+ *
+ * Exportada porque a ficha da oportunidade mostra a mesma linha: o histórico de
+ * uma negociação É o histórico do lead que a originou, e `atividade` não tem
+ * coluna de oportunidade. Recebe a `tx` de quem chama, então continua cabendo
+ * na transação da ficha que a pediu.
+ */",,,,,,
+crm-comment-3cae88e0,crm,apps/crm/src/lib/leads.ts,698,698,block,0,/* ------------------------------------------------------- ações em massa */,,,,,,
+crm-comment-36db351d,crm,apps/crm/src/lib/leads.ts,700,700,jsdoc,0,"/** Quem pode receber um lead: usuário ativo do tenant, em ordem alfabética. */",,,,,,
+crm-comment-0fb193b8,crm,apps/crm/src/lib/leads.ts,711,720,jsdoc,14,"/**
+ * Passar N leads para um proprietário.
+ *
+ * O `where` repete `excluido_em is null` mesmo com os ids vindo de uma lista que
+ * a tela acabou de desenhar: entre desenhar e clicar cabe uma exclusão, e a
+ * escrita é a última chance de recusá-la.
+ *
+ * Devolve quantas linhas mudaram — é o que a tela precisa para dizer ""3 de 4"",
+ * em vez de afirmar sucesso sobre linhas que não existem mais.
+ */",,,,,,
+crm-comment-710e1b4a,crm,apps/crm/src/lib/leads.ts,733,739,jsdoc,7,"/**
+ * Desqualificar N leads.
+ *
+ * Lead já convertido não volta atrás: virou oportunidade, e desqualificar o que
+ * já virou receita é o tipo de escrita em massa que ninguém desfaz. Ele é
+ * excluído do `where`, e a contagem devolvida mostra a diferença.
+ */",,,,,,
+crm-comment-122e2ad1,crm,apps/crm/src/lib/leads.ts,75,75,line,2,"// Reexportar não traz o nome para o escopo deste arquivo, e as consultas abaixo",,,,,,
+crm-comment-235ec914,crm,apps/crm/src/lib/leads.ts,76,76,line,4,"// usam quase todos. Por isso a segunda linha, que parece redundante e não é.",,,,,,
+crm-comment-edbe2749,crm,apps/crm/src/lib/leads.ts,764,788,jsdoc,38,"/**
+ * Gravar um campo da ficha, o que a célula inline faz a cada Enter.
+ *
+ * Três cuidados que a versão ingênua não tem:
+ *
+ * - **A coluna nunca vem da tela.** `campo` é chave do catálogo fechado de
+ *   `campos-editaveis.ts`, e é o `switch` daqui que decide qual coluna recebe a
+ *   escrita. Não existe caminho em que um nome vindo do navegador vire coluna.
+ * - **E-mail e telefone moram em `contato`, não em `lead`.** A ficha junta os
+ *   dois numa tela só; a escrita tem de separar de novo — e um lead sem contato
+ *   simplesmente não tem onde guardar e-mail, por isso ele recusa em vez de
+ *   inventar um contato.
+ * - **`excluido_em is null` no `where`**, pelo mesmo motivo da ação em massa:
+ *   entre desenhar a ficha e clicar no campo cabe uma exclusão, e a escrita é a
+ *   última chance de recusá-la.
+ *
+ * Devolve `false` quando nenhuma linha mudou. É o que faz a tela **restaurar o
+ * valor anterior** em vez de afirmar que gravou o que não gravou.
+ *
+ * **A auditoria é gravada na MESMA transação** (`registrarAuditoria` do
+ * `@pipe/db`): log em transação separada some quando a mudança falha e sobra
+ * quando ela é desfeita, e nos dois casos passa a mentir. O `antes` sai de uma
+ * leitura feita aqui dentro, não do que a tela mandou — a tela pode estar
+ * mostrando um valor de dois minutos atrás.
+ */",,,,,,
+crm-comment-701fb2e9,crm,apps/crm/src/lib/leads.ts,848,848,line,3,"// O objeto do log é `contato`, e não `lead`: é a linha que mudou de verdade,",,,,,,
+crm-comment-a62c3bea,crm,apps/crm/src/lib/leads.ts,849,849,line,2,// e quem for ler o log procura pela tabela que tem o dado.,,,,,,
+crm-comment-3d4d9bb1,crm,apps/crm/src/lib/leads.ts,855,862,jsdoc,15,"/**
+ * Registra a alteração, só com o que de fato mudou.
+ *
+ * Gravar todo o objeto dos dois lados incha a tabela e esconde a mudança, que é
+ * o que `diferenca` existe para evitar. E quando nada mudou não há linha
+ * nenhuma: a escrita de um valor igual ao que já estava lá é um clique, não um
+ * evento.
+ */",,,,,,
+crm-comment-237ad92c,crm,apps/crm/src/lib/leads.ts,88,88,jsdoc,1,"/** Nome da fila por faixa, da versão mais recente de `faixa_score`. */",,,,,,
+crm-comment-f8f44657,crm,apps/crm/src/lib/leads.ts,96,96,line,4,"// Ordenado por versão crescente: a última escrita vence, que é a versão mais nova.",,,,,,
+crm-comment-30ca1b5d,crm,apps/crm/src/lib/painel.ts,105,105,jsdoc,3,"/** Leads por fase, com quantos estão parados há mais de 7 dias — o que custa dinheiro. */",,,,,,
+crm-comment-b768deb0,crm,apps/crm/src/lib/painel.ts,5,10,jsdoc,4,"/**
+ * Indicadores do painel — os mesmos cinco cartões do mockup aprovado.
+ *
+ * Toda média mostra o denominador: a taxa de qualificação sem o total de leads é o
+ * número que melhora justamente quando entram menos leads.
+ */",,,,,,
+crm-comment-41795ea9,crm,apps/crm/src/lib/painel.ts,92,92,jsdoc,3,"/** Volume por origem no mês, que é a leitura que o gestor faz logo depois do total. */",,,,,,
+crm-comment-670b0b6a,crm,apps/crm/src/lib/regras.ts,119,119,jsdoc,4,"/** A condição em português, para o gestor ler a regra sem abrir o JSON. */",,,,,,
+crm-comment-135d39bf,crm,apps/crm/src/lib/regras.ts,20,20,jsdoc,2,"/** Quantos leads esta regra afetou, contando o cálculo mais recente de cada um. */",,,,,,
+crm-comment-84b26bf9,crm,apps/crm/src/lib/regras.ts,48,52,jsdoc,2,"/**
+     * ""Quantos leads esta regra afetou"" só faz sentido sobre o cálculo vigente de
+     * cada lead: somar todos os `score_lead` contaria três vezes o lead recalculado
+     * três vezes. Daí o `distinct on (lead_id)` antes de abrir a explicação.
+     */",,,,,,
+crm-comment-7d989a9e,crm,apps/crm/src/lib/regras.ts,6,11,jsdoc,9,"/**
+ * Regras de score, em leitura.
+ *
+ * A edição fica para a fase seguinte; a leitura não pode faltar, porque é ela que
+ * transforma o número numa regra que alguém escreveu — e não num mistério herdado.
+ */",,,,,,
+crm-comment-141cdd86,crm,apps/crm/src/lib/sessao.ts,107,107,block,4,"/* sem rede, o cookie local já resolve o que a pessoa pediu */",,,,,,
+crm-comment-8d36a36a,crm,apps/crm/src/lib/sessao.ts,111,117,jsdoc,7,"/**
+ * Por onde este e-mail entra.
+ *
+ * A API responde igual para e-mail conhecido e desconhecido, de propósito — só
+ * domínio verificado com SSO ativo devolve `sso`. Não há o que a tela possa
+ * deduzir daqui sobre quem é cliente do Pipe, e é assim que tem de ser.
+ */",,,,,,
+crm-comment-61f204ab,crm,apps/crm/src/lib/sessao.ts,130,130,line,2,// 400 é sempre `email_invalido` nesta rota — a única validação que ela faz.,,,,,,
+crm-comment-d20f1913,crm,apps/crm/src/lib/sessao.ts,136,140,jsdoc,6,"/**
+ * Para quem é o convite. `null` cobre vencido, já usado e inexistente: para
+ * quem está do lado de fora os três são a mesma coisa — peça outro — e separar
+ * contaria se aquele token um dia existiu.
+ */",,,,,,
+crm-comment-29fbc343,crm,apps/crm/src/lib/sessao.ts,150,154,jsdoc,3,"/**
+ * O destino é sempre CAMINHO INTERNO. `//outro.site` num redirecionamento é
+ * phishing usando o nosso domínio de trampolim; a API confere de novo do lado
+ * dela, e conferir dos dois lados custa uma linha.
+ */",,,,,,
+crm-comment-ab912381,crm,apps/crm/src/lib/sessao.ts,159,159,jsdoc,2,"/** O botão ""Entrar com Google"". Com `convite`, entra aceitando o convite. */",,,,,,
+crm-comment-39a459f8,crm,apps/crm/src/lib/sessao.ts,168,168,jsdoc,1,/** `irPara` vem da descoberta como caminho; aqui ele ganha a base pública. */,,,,,,
+crm-comment-82b8886c,crm,apps/crm/src/lib/sessao.ts,18,18,jsdoc,1,/** A API vista por ESTE servidor. Atrás de proxy é o nome interno do serviço. */,,,,,,
+crm-comment-e0b1469b,crm,apps/crm/src/lib/sessao.ts,19,22,block,13,"/* 3000, e não 3100: a `api` mora na 3000 — a 3100 é a Gestão. O padrão errado
+   aqui é meia hora atrás de um login que ""não faz nada"", porque `GET /v1/eu`
+   bate num front que não serve a rota e volta 404. É o mesmo valor que a
+   Gestão e o Desk já usam. */",,,,,,
+crm-comment-653acbf6,crm,apps/crm/src/lib/sessao.ts,25,32,jsdoc,12,"/**
+ * A mesma API vista pelo NAVEGADOR.
+ *
+ * Entrar com o Google é navegação de topo: o link sai no HTML e o navegador vai
+ * sozinho, sem passar por este servidor. Se a base fosse a interna, o botão
+ * apontaria para um nome que só existe dentro da rede do Docker. Em
+ * desenvolvimento as duas são a mesma, e por isso uma cai na outra.
+ */",,,,,,
+crm-comment-ed5e8260,crm,apps/crm/src/lib/sessao.ts,3,16,jsdoc,16,"/**
+ * A fronteira com a `api` para tudo que é entrada: quem está logado, por onde
+ * esta empresa entra, e para quem é um convite.
+ *
+ * Nada aqui sabe de tela — nem JSX, nem `revalidatePath`, nem cookie lido do
+ * ambiente do Next. O cookie chega como TEXTO, por parâmetro, e é isso que
+ * mantém o arquivo mudável de lugar sem virar reescrita quando a tela migrar
+ * para o Vite (README, ""Quem fala com o banco"").
+ *
+ * Todo endpoint usado aqui já existe: `GET /v1/eu`, `POST /v1/auth/sair`,
+ * `POST /v1/auth/descobrir`, `GET /v1/convites/:token` e os dois pontos de
+ * partida do login (`/v1/auth/google` e `/v1/auth/sso/:slug`). Nada foi
+ * inventado, e nada é reimplementado.
+ */",,,,,,
+crm-comment-5c0d27fc,crm,apps/crm/src/lib/sessao.ts,35,42,jsdoc,9,"/**
+ * ESTE aplicativo, visto pelo navegador.
+ *
+ * Vai na ida do login como `?origem=`, e é o que faz a volta cair aqui e não no
+ * front de outro módulo: a API atende os três e não tem como adivinhar de qual
+ * deles a pessoa saiu. Do lado de lá só é aceita origem que esteja em
+ * `PIPE_ORIGENS` — a mesma lista fechada do CORS.
+ */",,,,,,
+crm-comment-0a59b4bb,crm,apps/crm/src/lib/sessao.ts,47,47,jsdoc,2,/** O cookie de sessão emitido pela API. `HttpOnly`; a tela só o repassa. */,,,,,,
+crm-comment-a5aa011b,crm,apps/crm/src/lib/sessao.ts,50,56,jsdoc,9,"/** O que `POST /v1/auth/descobrir` responde, mais os dois modos de falha da tela.
+ *
+ * Os dois primeiros são o contrato (`MetodoDeEntrada` em
+ * `packages/contracts/src/sessao.ts`): `sso` manda ao IdP da empresa, `google`
+ * é o caminho de todo o resto. Os outros dois nunca vêm da API — são o que
+ * ESTA tela precisa dizer quando não houve resposta para rotear.
+ */",,,,,,
+crm-comment-d661bd85,crm,apps/crm/src/lib/sessao.ts,59,59,jsdoc,2,"/** Caminho na API, quando `sso`. Falta só a base pública. */",,,,,,
+crm-comment-b9604404,crm,apps/crm/src/lib/sessao.ts,63,63,jsdoc,4,/** O mínimo que `GET /v1/convites/:token` mostra a quem ainda está do lado de fora. */,,,,,,
+crm-comment-5e689b27,crm,apps/crm/src/lib/sessao.ts,68,68,jsdoc,1,"/** ISO-8601, como sai da API. Quem formata é a tela. */",,,,,,
+crm-comment-e85b5e7e,crm,apps/crm/src/lib/sessao.ts,76,79,jsdoc,7,"/**
+ * Quem está logado. `null` quando não há sessão — e isso NÃO é erro: a tela de
+ * entrada é pública e chega aqui sem cookie o tempo todo.
+ */",,,,,,
+crm-comment-181323dc,crm,apps/crm/src/lib/sessao.ts,89,98,jsdoc,16,"/**
+ * Encerra a sessão do lado da API. Sair duas vezes não é erro lá, e não é aqui.
+ *
+ * Engole a falha de rede de propósito: quem clicou em Sair vai ter o cookie
+ * apagado deste navegador de qualquer jeito, e travar a saída porque a API não
+ * respondeu deixaria a pessoa logada na tela — que é o pior dos dois.
+ *
+ * ponytail: a sessão sobreviveria no banco até vencer sozinha. Se um dia isso
+ * importar, a saída é uma fila de revogação, não um `throw` aqui.
+ */",,,,,,
+crm-comment-06f0f89e,crm,apps/crm/src/middleware.ts,25,25,line,4,// Para onde a pessoa queria ir. A API confere que é caminho interno antes de,,,,,,
+crm-comment-44ca40ba,crm,apps/crm/src/middleware.ts,26,26,line,1,"// usá-lo, e a tela confere de novo antes de mandar.",,,,,,
+crm-comment-c055e45e,crm,apps/crm/src/middleware.ts,3,14,jsdoc,17,"/**
+ * Sem cookie de sessão, a pessoa vai para `/entrar`. É a porta, e ela é uma só.
+ *
+ * Aqui só se confere a PRESENÇA do cookie — nada de validar sessão: o
+ * middleware roda em toda requisição, e uma ida à API por navegação de
+ * imagem seria caro e frágil. Quem valida é `exigirEu()`, no servidor, contra
+ * `GET /v1/eu`: cookie vencido ou forjado cai lá e volta para cá.
+ *
+ * Duas rotas ficam de fora, e são as duas públicas do produto: a de entrada e a
+ * do convite. Sem essa exceção, quem não tem sessão seria mandado para `/entrar`
+ * e de lá para `/entrar`, para sempre.
+ */",,,,,,
+crm-comment-e5189b38,crm,apps/crm/src/middleware.ts,31,38,jsdoc,11,"/**
+ * Fora do matcher: o que não é navegação de página. Arquivo do build e ícone
+ * não têm para onde ser redirecionados — e mandá-los para `/entrar` quebraria a
+ * própria tela de entrada.
+ *
+ * Não há `public/` em nenhum dos três aplicativos (a marca é SVG em componente,
+ * a fonte vem do Google), então `_next/` e o ícone cobrem tudo.
+ */",,,,,,
+crm-comment-5376019e,crm,apps/crm/tests/campos-editaveis.test.ts,10,21,jsdoc,16,"/**
+ * A régua da edição inline.
+ *
+ * `recusar` e `campoValido` rodam nos dois lados: no navegador para não fazer
+ * uma viagem à toa, e no servidor porque a server action é um endereço HTTP e
+ * qualquer um alcança. Um teste só, sem framework — `node --import tsx --test`,
+ * com o `tsx` que o aplicativo já tem.
+ *
+ * O que ele protege: a lista branca não pode aceitar nome de coluna qualquer, e
+ * campo em branco tem de virar `null` e não string vazia — é `null` que apaga o
+ * proprietário, e `''` gravaria um id vazio na chave estrangeira.
+ */",,,,,,
+crm-comment-58e0b4b5,crm,apps/crm/tests/campos-editaveis.test.ts,26,26,line,4,"// Os que a escrita NÃO pode alcançar, e que existem como coluna no banco.",,,,,,
+crm-comment-0d0dd56f,crm,apps/crm/tests/colunas.test.ts,36,36,line,4,// `faixa` e `proprietario` não existiam quando a pessoa arrumou a tabela.,,,,,,
+crm-comment-33e123af,crm,apps/crm/tests/colunas.test.ts,43,43,line,2,// É o que acontece ao agrupar por origem: a coluna redundante sai da lista.,,,,,,
+crm-comment-f917c93f,crm,apps/crm/tests/colunas.test.ts,5,15,jsdoc,16,"/**
+ * A régua do arranjo de colunas.
+ *
+ * O que ela protege é o encontro entre duas listas que divergem sozinhas: a que
+ * está guardada no navegador e a que a tela tem hoje. Coluna nova de um deploy,
+ * coluna que o agrupamento tirou, coluna que sumiu de vez — as três já
+ * quebraram tabela em produto que faz isso, e as três aparecem aqui.
+ *
+ * Nenhum teste toca React nem `localStorage`: `arranjar` e `moverVisivel` são
+ * funções de lista, e é assim que se testa lista.
+ */",,,,,,
+crm-comment-5783255f,crm,apps/crm/tests/colunas.test.ts,71,71,line,2,// `score` está oculta entre `origem` e `faixa`. Mover `faixa` para o começo,,,,,,
+crm-comment-4f1a1873,crm,apps/crm/tests/colunas.test.ts,72,72,line,1,// não pode fazer `score` desaparecer da ordem gravada.,,,,,,
+crm-comment-ab8092f9,crm,apps/crm/tests/configuracoes-comum.test.ts,131,138,jsdoc,13,"/**
+ * As duas listas abaixo são cópias de `apps/api`, porque `apps/crm` não depende
+ * dele. Cópia sem guarda diverge: a API ganha um evento, a tela de webhooks não
+ * o oferece, e ninguém descobre até alguém perguntar por que não chega nada.
+ *
+ * Lê o arquivo como TEXTO em vez de importar de propósito — importar criaria a
+ * dependência que a cópia existe para evitar.
+ */",,,,,,
+crm-comment-554d10d5,crm,apps/crm/tests/configuracoes-comum.test.ts,23,34,jsdoc,12,"/**
+ * A régua da área de configurações.
+ *
+ * Tudo aqui roda nos dois lados: no navegador para não fazer uma viagem à toa, e
+ * no servidor porque a server action é um endereço HTTP e qualquer um alcança.
+ * Um teste só, sem framework — `node --import tsx --test`, o mesmo padrão de
+ * `campos-editaveis.test.ts`.
+ *
+ * O que ele protege, em ordem de estrago: um código de campo que estraga a chave
+ * do `jsonb`, uma URL de webhook em texto claro, e as duas listas copiadas de
+ * `apps/api` divergindo em silêncio.
+ */",,,,,,
+crm-comment-f6d521c3,crm,apps/crm/tests/configuracoes-comum.test.ts,63,63,line,2,"// A queixa nomeia o campo: ""O nome do papel"", não ""O nome"".",,,,,,
+crm-comment-c2a226c2,crm,apps/crm/tests/configuracoes-comum.test.ts,72,72,line,1,// O vetor clássico de `<img src>`: nem `javascript:` nem `data:` são URL de imagem.,,,,,,
+crm-comment-69d21e23,crm,apps/crm/tests/configuracoes-comum.test.ts,77,77,line,1,// Campo opcional em branco não é erro; obrigatório em branco é.,,,,,,
+crm-comment-8ed5ec20,crm,apps/crm/tests/configuracoes-comum.test.ts,86,86,line,3,"// Começar por dígito é o caso que a regra recusa, e o prefixo é o que salva.",,,,,,
+crm-comment-81d0c247,crm,apps/crm/tests/configuracoes-comum.test.ts,91,91,line,1,"// dia deixar de passar, é este assert que conta.",,,,,,
+crm-comment-ce044d07,crm,apps/crm/tests/filtros.test.ts,11,22,jsdoc,13,"/**
+ * A régua do filtro por coluna.
+ *
+ * O filtro é o único parâmetro da listagem que vem com nome VARIÁVEL na URL, e
+ * é por isso que ele precisa de teste: `aba` e `dir` só podem estar certos ou
+ * ausentes, mas `f.qualquercoisa` é o que alguém digita na barra de endereço.
+ *
+ * O que se protege aqui:
+ *   1. só coluna do catálogo vira filtro — nome de coluna não vem da tela;
+ *   2. ida e volta pela URL não perde nem inventa filtro, que é o que faz a
+ *      visão salva continuar valendo depois de compartilhada.
+ */",,,,,,

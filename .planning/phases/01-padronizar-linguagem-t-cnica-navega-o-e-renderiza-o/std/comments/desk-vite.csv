@@ -1,0 +1,709 @@
+id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
+desk-vite-comment-0754dee4,desk-vite,apps/desk-vite/src/App.tsx,16,24,jsdoc,4,"/**
+ * As rotas do Desk — os MESMOS caminhos da referência (`~/desk-clone/README.md`,
+ * ""Telas replicadas""): `/` Atendimentos, `/chat` a conversa aberta,
+ * `/activeMessage/send`, `/analytics`, `/contacts`, `/bulk-ticket`,
+ * `/preferences`. `/chat/:id` leva o id para a conversa sobreviver ao F5.
+ *
+ * Só `/entrar` e `/convite/:token` são públicas. O resto fica atrás de
+ * `ExigirSessao`.
+ */",,,,,,
+desk-vite-comment-0fe472a9,desk-vite,apps/desk-vite/src/componentes/avatar.tsx,4,9,jsdoc,6,"/**
+ * O `bds-avatar` da referência: disco na cor ""system"" com as iniciais quando
+ * há `name`, ou o ícone de pessoa quando não há (o cartão da lista passa só
+ * a foto, então mostra o ícone; o cabeçalho e o trilho passam o nome).
+ * Tamanhos: `extra-small` 32, `small` 40, `standard` 56.
+ */",,,,,,
+desk-vite-comment-a4c1e9aa,desk-vite,apps/desk-vite/src/componentes/casca.tsx,5,12,jsdoc,6,"/**
+ * A casca do Desk: o trilho à esquerda e a tela à direita, em altura fixa com
+ * rolagem interna (`#app` > `.navbar` + `#container` da referência).
+ *
+ * `data-painel` e `data-estado` são as classes `drawer-hidden` e
+ * `state--chat`/`state--drawer` do `#container` de lá: governam as faixas
+ * abaixo de 1600 e de 950 no CSS.
+ */",,,,,,
+desk-vite-comment-e642c1f1,desk-vite,apps/desk-vite/src/componentes/exigir-sessao.tsx,4,12,jsdoc,13,"/**
+ * O portão das telas do Desk — o mesmo de `apps/gestao-vite`, sem o desvio para
+ * `/bem-vindo`: o onboarding da conta é assunto da Gestão, e o atendente que
+ * chega aqui já tem conta pronta.
+ *
+ * Sem sessão vai para `/entrar` com o destino guardado. Enquanto a primeira
+ * pergunta não voltou, não desenha nada: mostrar a tela e depois tirá-la é
+ * pior que um instante em branco.
+ */",,,,,,
+desk-vite-comment-a441a131,desk-vite,apps/desk-vite/src/componentes/icones-desk.tsx,3,16,jsdoc,14,"/**
+ * Os ícones do DESK, no desenho da origem.
+ *
+ * O mesmo arranjo de `icones-portal.tsx` (copiado da Gestão), com os ícones que a
+ * tela do atendente pede e o portal não tinha: são os `bds-icon` do design system
+ * da referência, extraídos do pacote de ícones que a cópia em `~/desk-clone`
+ * carrega (`desk-local/static/js/58.*.js`, chaves `asset-icon-<nome>-<tema>`).
+ * Nada desenhado à mão: o nome que a gente usa fica à esquerda, o de lá no
+ * comentário. Gerado por `gerar-icones-desk.mjs` (rascunho); para acrescentar um
+ * ícone, acrescenta-se ao mapa `QUERO` de lá e roda-se de novo.
+ *
+ * Todos são traçados como preenchimento (`fill: currentColor`): quem pinta é a
+ * folha, pelos tokens `--p-*`.
+ */",,,,,,
+desk-vite-comment-ad8ecd5d,desk-vite,apps/desk-vite/src/componentes/icones-portal.tsx,3,19,jsdoc,24,"/**
+ * Os ícones do PORTAL, no desenho da origem.
+ *
+ * Por que não os do `@pipe/ui`: os nossos são do Tabler — grade de 24, traço de
+ * 1,75 e miolo vazado. Os da barra do portal da Blip são CHEIOS (`fill`, sem
+ * traço), e a diferença salta aos olhos lado a lado — foi a queixa do dono, que
+ * pediu a barra ""igual"". Então esta folha guarda o desenho deles, medido no DOM
+ * renderizado de `supernova.blip.ai` (ver `referencias-blip/pesquisa/blip-portal-contrato.md`),
+ * com o nome que a gente usa à esquerda e o nome de lá no comentário.
+ *
+ * Fica LOCAL na Gestão, e não em `packages/ui`: a regra de trabalho é escrever
+ * local e relatar; quando um segundo aplicativo pedir os mesmos desenhos, o
+ * arquivo sobe para a fachada do pacote sem mudar nenhuma chamada.
+ *
+ * `parOuImpar` é o `fill-rule=""evenodd""` de alguns deles — sem isso o desenho
+ * fecha os vazados e vira um borrão.
+ */",,,,,,
+desk-vite-comment-4ae10b90,desk-vite,apps/desk-vite/src/componentes/icones-portal.tsx,689,698,jsdoc,12,"/**
+ * Os LOGOS de canal — o `bds-icon type=""logo""` da origem (`asset-logo-<nome>`
+ * do blip-ds), numa grade de 80. Diferente dos ícones, logo tem cor própria e
+ * gradiente: vai o desenho inteiro, com as cores como vieram, porque são as
+ * marcas do WhatsApp e do Instagram, não tinta da Blip.
+ *
+ * A exceção é `email`, que é desenho da própria Blip pintado com a primária
+ * dela (#1E6BF1): essa cor vira `currentColor` e quem pinta é a nossa folha.
+ * O `blip-chat` NÃO entra — é a marca da Blip.
+ */",,,,,,
+desk-vite-comment-b2cc9303,desk-vite,apps/desk-vite/src/componentes/icones-portal.tsx,806,810,jsdoc,8,"/**
+ * A lupa da barra clara é a ÚNICA que não vem do jogo de 24: na origem ela é um
+ * `<icon name=""Search"" width=""32"" height=""32"">` numa grade de 72, desenhado à
+ * parte do design system. Copiada como está para o traço não engordar.
+ */",,,,,,
+desk-vite-comment-fe87ccf5,desk-vite,apps/desk-vite/src/componentes/link.tsx,4,13,jsdoc,15,"/**
+ * O `<Link>` das telas, com `href` — a MESMA assinatura que o `next/link` tinha.
+ *
+ * Existe para a migração ser ""trocar o import"", e não reescrever cada `<Link
+ * href>` das telas medidas da Blip. É só o nome do atributo: por baixo é o
+ * `Link` do React Router, com navegação de cliente e sem recarregar a página.
+ *
+ * `href` externo (`http…`, `mailto:`) vira `<a>` comum: o roteador não tem o
+ * que fazer com ele.
+ */",,,,,,
+desk-vite-comment-fada2eb3,desk-vite,apps/desk-vite/src/componentes/trilho.tsx,10,21,jsdoc,8,"/**
+ * O trilho vertical da referência (`~/desk-clone/templates/navbar.html` +
+ * `navbar-menu-item.html` + `navbar-avatar.html`): marca no topo, cinco
+ * destinos, e no rodapé ajuda, preferências e o avatar com o selo de
+ * presença. A ordem e os ícones são os do README da cópia (`message-talk`,
+ * `paperplane`, `monitoring`, `contact`, `ticket`; `question`,
+ * `settings-general`). Os textos dos tooltips são os `$t(name)` de lá.
+ *
+ * O clique no avatar abre o painel ""Seu status"" (`profile-side-menu`), que
+ * entra ao lado do trilho com 300px e empurra as colunas — é como a cópia
+ * faz, medido em `desk2/blip-menu-status.png`.
+ */",,,,,,
+desk-vite-comment-adb20fe9,desk-vite,apps/desk-vite/src/componentes/trilho.tsx,124,130,jsdoc,4,"/**
+ * O painel ""Seu status"" (`profile-side-menu`): cabeçalho com seta de voltar
+ * (`.sidebar-header`, 40px, gap 10), `user-info` (avatar 56, nome 14/600,
+ * e-mail 12), os três status (`.change-status-button`: 56px, recuo 16, raio 8,
+ * o em vigor com fundo a 8% e o check), e ""Desconectar"" no rodapé.
+ * ""Em pausa"" abre a lista de motivos (`personalized-breaks-select`).
+ */",,,,,,
+desk-vite-comment-4df27ae3,desk-vite,apps/desk-vite/src/componentes/trilho.tsx,30,30,jsdoc,0,"/** Os rótulos de status do menu do avatar (`{""online"":""Online"",""pause"":""Em pausa"",""invisible"":""Invisível""}`). */",,,,,,
+desk-vite-comment-07a52212,desk-vite,apps/desk-vite/src/componentes/trilho.tsx,77,77,block,3,/* ponytail: a ajuda da referência abre a central deles; aqui aponta para o suporte do Pipe. */,,,,,,
+desk-vite-comment-b4503d8d,desk-vite,apps/desk-vite/src/contexto/sessao.tsx,13,13,jsdoc,3,/** `null` sem sessão; `undefined` enquanto a primeira pergunta não voltou. */,,,,,,
+desk-vite-comment-29b436a2,desk-vite,apps/desk-vite/src/contexto/sessao.tsx,5,11,jsdoc,7,"/**
+ * Quem está logado — a única fonte, alimentada por `GET /v1/eu`.
+ *
+ * Só a RESPOSTA do servidor derruba a sessão (401/403); rede fora do ar mantém
+ * o último `Eu` conhecido, e o próximo `atualizar` corrige. Deslogar alguém por
+ * um soluço de wi-fi é o que o conselheiros-auvp aprendeu a não fazer.
+ */",,,,,,
+desk-vite-comment-f4879bd9,desk-vite,apps/desk-vite/src/contexto/sessao.tsx,54,54,jsdoc,3,/** Para tela de produto: o `Eu` garantido. Quem a usa está atrás de `ExigirSessao`. */,,,,,,
+desk-vite-comment-1507ae9e,desk-vite,apps/desk-vite/src/lib/acoes.ts,10,16,jsdoc,3,"/**
+ * Uma ação de formulário do Desk, na `api` — o mesmo `acaoRemota` de
+ * `apps/gestao-vite/src/lib/acoes.ts`, apontado para `POST /v1/desk/acoes/:nome`.
+ *
+ * O `FormData` vira JSON (chave repetida vira lista, como o `getAll` espera), o
+ * `Resultado` volta, e, dando certo, as leituras em cache são invalidadas.
+ */",,,,,,
+desk-vite-comment-8d8f799d,desk-vite,apps/desk-vite/src/lib/acoes.ts,38,38,jsdoc,4,"/** A mesma ação, chamada com um objeto em vez de `FormData` — para botão sem formulário. */",,,,,,
+desk-vite-comment-2d6e6624,desk-vite,apps/desk-vite/src/lib/acoes.ts,4,4,jsdoc,3,"/** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */",,,,,,
+desk-vite-comment-abd8a7d9,desk-vite,apps/desk-vite/src/lib/acoes.ts,53,53,block,0,"/* Nota interna do compositor — é o ""Comentário"" do painel do contato. */",,,,,,
+desk-vite-comment-71d69e28,desk-vite,apps/desk-vite/src/lib/acoes.ts,58,58,jsdoc,1,/** Deu certo: as leituras em cache são refeitas — o `revalidatePath` de antes. */,,,,,,
+desk-vite-comment-d7b2e178,desk-vite,apps/desk-vite/src/lib/anexos.ts,1,15,jsdoc,11,"/**
+ * A validação do LOTE de anexos antes de subir — o laço de
+ * `blip-desk-regras-tecnicas.md` §3.3, por arquivo e nesta ordem: tipo vazio,
+ * formato, tamanho, quantidade. Lá cada falha vira um banner e a de quantidade
+ * aborta o laço inteiro; aqui qualquer falha recusa o lote inteiro, porque
+ * uma mensagem por arquivo já mandada e outra recusada deixaria o cliente com
+ * metade dos arquivos.
+ *
+ * Os números são os de `@pipe/armazenamento` (`MAX_ARQUIVOS_POR_MENSAGEM`,
+ * `MAX_BYTES_POR_ARQUIVO`, `MAX_BYTES_AUDIO_VIDEO`), copiados em vez de
+ * importados porque aquele pacote carrega o backend em disco (`node:fs`) no
+ * mesmo índice e não roda no navegador. Quem manda é o servidor de todo modo:
+ * `POST /v1/anexos` confere tipo pelos BYTES e tamanho pelo tipo real, e o
+ * lote só vira mensagem depois de todos passarem lá.
+ */",,,,,,
+desk-vite-comment-fabffcf5,desk-vite,apps/desk-vite/src/lib/anexos.ts,21,21,jsdoc,2,/** 16 MB para áudio e vídeo — `MAX_BYTES_AUDIO_VIDEO`; a Meta recusa acima disso. */,,,,,,
+desk-vite-comment-baa77230,desk-vite,apps/desk-vite/src/lib/anexos.ts,24,24,jsdoc,3,"/** O que a tela precisa saber de um arquivo — o `File` do navegador, sem o corpo. */",,,,,,
+desk-vite-comment-c8370de9,desk-vite,apps/desk-vite/src/lib/anexos.ts,41,44,jsdoc,4,"/**
+ * O motivo de recusar o lote, ou `null` quando ele pode subir. Sempre cita o
+ * arquivo: com dez na seleção, ""grande demais"" sem nome não ajuda ninguém.
+ */",,,,,,
+desk-vite-comment-7b8b9900,desk-vite,apps/desk-vite/src/lib/api.ts,1,11,jsdoc,11,"/**
+ * O cliente HTTP da Gestão: `fetch` para a `api` NestJS, sempre com o cookie.
+ *
+ * É a fronteira do README (""Quem fala com o banco""): o front não abre conexão,
+ * ele PEDE. Toda chamada vai para `/v1/...` na mesma origem — em
+ * desenvolvimento o Vite faz o proxy para a `api` (3010); em produção os dois
+ * vivem sob o mesmo domínio-pai e o cookie atravessa por `Domain`.
+ *
+ * O que sai daqui é o tipo de `@pipe/contracts` ou o tipo declarado pelo
+ * endpoint da `api`. Nada é reimplementado; nada é adivinhado.
+ */",,,,,,
+desk-vite-comment-6f0cb9de,desk-vite,apps/desk-vite/src/lib/api.ts,15,15,jsdoc,2,/** URL absoluta de um caminho da `api` — para navegação de topo (login) e para o `fetch`. */,,,,,,
+desk-vite-comment-2768b891,desk-vite,apps/desk-vite/src/lib/api.ts,20,23,jsdoc,8,"/**
+ * Uma resposta que a API deu e que não é sucesso. Diferente de rede fora do ar:
+ * 401/403 dizem que a sessão acabou de verdade; `TypeError` do fetch não diz nada.
+ */",,,,,,
+desk-vite-comment-dbb1270e,desk-vite,apps/desk-vite/src/lib/api.ts,51,51,block,2,/* corpo vazio ou não-JSON: o status já diz o bastante */,,,,,,
+desk-vite-comment-946771f0,desk-vite,apps/desk-vite/src/lib/api.ts,83,86,jsdoc,3,"/**
+ * Uma chamada à `api` no formato cru do `fetch` — para quem precisa ler o
+ * `Response` (status, corpo em texto, CSV). O cookie vai sozinho.
+ */",,,,,,
+desk-vite-comment-ef0fb606,desk-vite,apps/desk-vite/src/lib/api.ts,91,91,jsdoc,2,"/** O `erro.mensagem` que a `api` põe no corpo, ou o status. */",,,,,,
+desk-vite-comment-b4730d24,desk-vite,apps/desk-vite/src/lib/canal.ts,25,30,jsdoc,3,"/**
+ * ""#1002"" — o número do ticket. O nosso domínio não tem número sequencial de
+ * conversa (só o uuid); o que vai na tela são os 6 primeiros caracteres, em
+ * caixa alta, estáveis por conversa. ponytail: coluna `sequencial` na
+ * conversa, e o número de verdade aqui.
+ */",,,,,,
+desk-vite-comment-075c3b1a,desk-vite,apps/desk-vite/src/lib/canal.ts,3,11,jsdoc,5,"/**
+ * O canal de cada conversa, como a referência o mostra: um selo com o logo
+ * sobre o rosto do contato (`bds-icon type=""logo"" name=""whatsapp""` no cartão)
+ * e o nome por extenso no painel (""Canal: WhatsApp"").
+ *
+ * Os logos são os de `componentes/icones-portal.tsx` (`asset-logo-*` da
+ * origem); `widget` (o chat próprio) usa o de e-mail por falta de um logo
+ * de chat que não seja marca deles.
+ */",,,,,,
+desk-vite-comment-560629fe,desk-vite,apps/desk-vite/src/lib/cliente-de-consultas.ts,3,11,jsdoc,8,"/**
+ * O cache de leituras da `api`, único para o aplicativo.
+ *
+ * Vive num módulo (e não só no `main.tsx`) para as ações de formulário
+ * invalidarem as leituras sem passar por hook — é o `revalidatePath` de antes.
+ *
+ * `staleTime` de 30 s: navegar entre telas do mesmo contato não repete a
+ * leitura; a tela que precisa de dado fresco (o Monitoramento, o Log) pede.
+ */",,,,,,
+desk-vite-comment-99038602,desk-vite,apps/desk-vite/src/lib/consulta.ts,4,10,jsdoc,4,"/**
+ * Uma leitura da `api` como estado de tela: carregando, erro, dado.
+ *
+ * É o TanStack Query da spec (`2026-09-07-arquitetura-de-front.md` §2) por
+ * trás de um nome só. A chave é o caminho: duas telas que pedem a mesma coisa
+ * dividem o cache, e invalidar é invalidar o caminho.
+ */",,,,,,
+desk-vite-comment-a6f7d5b5,desk-vite,apps/desk-vite/src/lib/contatos.ts,1,7,jsdoc,9,"/**
+ * As regras puras da aba Contatos — a ordenação e o agrupamento da
+ * referência (`referencias-blip/pesquisa/blip-desk-medidas.md` §11): ""Ordem alfabética""
+ * (padrão) agrupa pela primeira letra do nome, com os sem-nome num grupo `#`
+ * sempre no fim; ""Última interação"" agrupa pela data da última mensagem, da
+ * mais recente para a mais antiga.
+ */",,,,,,
+desk-vite-comment-fa67b705,desk-vite,apps/desk-vite/src/lib/contatos.ts,64,64,line,0,"// O grupo `#` sempre por último, como lá.",,,,,,
+desk-vite-comment-7768f8fb,desk-vite,apps/desk-vite/src/lib/entrada.ts,12,12,jsdoc,2,"/** Só caminho interno vale como destino: `//outro.site` não é ""para onde voltar"". */",,,,,,
+desk-vite-comment-cccc5cf0,desk-vite,apps/desk-vite/src/lib/entrada.ts,22,22,jsdoc,2,"/** O botão ""Entrar com Google"". Com `convite`, entra aceitando o convite. */",,,,,,
+desk-vite-comment-c684b1ac,desk-vite,apps/desk-vite/src/lib/entrada.ts,31,31,jsdoc,2,/** `irPara` vem da descoberta como caminho; aqui ele ganha a base e a origem. */,,,,,,
+desk-vite-comment-077122e8,desk-vite,apps/desk-vite/src/lib/entrada.ts,4,9,jsdoc,8,"/**
+ * Por onde se entra — copiado de `apps/gestao-vite/src/lib/entrada.ts`; só o
+ * destino padrão muda (o Desk abre em `/`, os Atendimentos). É a parte que continua
+ * valendo com o front no navegador. Sem cookie lido à mão: a sessão é o cookie
+ * HttpOnly que a `api` emite, e o navegador o carrega sozinho.
+ */",,,,,,
+desk-vite-comment-3c5c265f,desk-vite,apps/desk-vite/src/lib/entrada.ts,41,44,jsdoc,3,"/**
+ * Por onde este e-mail entra. A API responde igual para e-mail conhecido e
+ * desconhecido, de propósito — só domínio verificado com SSO ativo devolve `sso`.
+ */",,,,,,
+desk-vite-comment-5dbefe13,desk-vite,apps/desk-vite/src/lib/formato.ts,1,13,jsdoc,3,"/**
+ * Formatos de data e hora do Desk — as regras de `DateUtils` do pacote da
+ * referência (`~/desk-clone/fonte-original/app.js`, classe com `getRelativeDate`
+ * e `getChatDisplayDate`), reescritas sobre `Intl` em vez de moment.
+ *
+ * Duas regras, e só duas, mudam de forma conforme o dia:
+ *
+ * - **horário relativo do cartão** (`getRelativeDate`): hoje é `HH:mm`; outro
+ *   dia é o ""há quanto tempo"" SEM sufixo (`fromNow(true)`) — ""um dia"", ""2 dias"",
+ *   ""um mês""…
+ * - **horário do balão** (`getChatDisplayDate`): hoje é `HH:mm`; outro dia é a
+ *   data por extenso abreviada (`lll` em pt-BR: ""26 de Ago de 2026 12:41"").
+ */",,,,,,
+desk-vite-comment-38716d9c,desk-vite,apps/desk-vite/src/lib/formato.ts,102,102,jsdoc,0,/** Iniciais do avatar (`bds-avatar name=`): primeira letra do primeiro e do último nome. */,,,,,,
+desk-vite-comment-9150273d,desk-vite,apps/desk-vite/src/lib/formato.ts,37,40,jsdoc,4,"/**
+ * ""26 de Ago de 2026 12:41"" — o `lll` do moment em pt-BR: mês abreviado com
+ * inicial maiúscula e sem ponto, que o `Intl` não dá sozinho (""set."" vira ""Set"").
+ */",,,,,,
+desk-vite-comment-2f73ce98,desk-vite,apps/desk-vite/src/lib/formato.ts,57,61,jsdoc,2,"/**
+ * ""há quanto tempo"", sem sufixo — os degraus do `relativeTime` do moment
+ * (45 s, 90 s, 45 min, 90 min, 22 h, 36 h, 26 d, 45 d, 320 d, 548 d), com as
+ * palavras do `pt-br`.
+ */",,,,,,
+desk-vite-comment-9ffa7890,desk-vite,apps/desk-vite/src/lib/formato.ts,82,82,jsdoc,0,/** O horário do cartão da lista (`lastMessage.relativeDate`). */,,,,,,
+desk-vite-comment-da991785,desk-vite,apps/desk-vite/src/lib/formato.ts,87,87,jsdoc,0,/** O horário abaixo do balão (`getChatDisplayDate`). */,,,,,,
+desk-vite-comment-5de8bab1,desk-vite,apps/desk-vite/src/lib/formato.ts,92,92,jsdoc,0,/** `00:00:00` — o cronômetro do modo de espera e da pausa (`AgentPauseTimer`). */,,,,,,
+desk-vite-comment-0680151a,desk-vite,apps/desk-vite/src/lib/grupos.ts,3,7,jsdoc,4,"/**
+ * O agrupamento da thread — a regra dos `.blip-message-group` da referência:
+ * mensagens seguidas do mesmo lado formam um grupo, com um horário só (o do
+ * último balão); uma nota interna quebra o grupo e fica sozinha.
+ */",,,,,,
+desk-vite-comment-f37faa5b,desk-vite,apps/desk-vite/src/lib/grupos.ts,32,36,jsdoc,6,"/**
+ * O sinal de entrega abaixo do grupo de saída: o do ÚLTIMO balão. Os nomes
+ * são os `estado_entrega` do domínio; a referência mostra relógio para
+ * pendente, um check para enviada, dois para entregue e dois azuis para lida.
+ */",,,,,,
+desk-vite-comment-94ab9812,desk-vite,apps/desk-vite/src/lib/modelo.ts,1,1,jsdoc,2,"/** `{{1}}`, `{{2}}`… de um modelo aprovado trocados pelos valores digitados, para a pré-visualização. */",,,,,,
+desk-vite-comment-2ee0b90d,desk-vite,apps/desk-vite/src/lib/navegacao.ts,22,22,jsdoc,2,"/** Põe o `navigate` do roteador à disposição de `irPara`. Uma vez, no `App`. */",,,,,,
+desk-vite-comment-f5a2f6ee,desk-vite,apps/desk-vite/src/lib/navegacao.ts,4,13,jsdoc,7,"/**
+ * Navegação fora de componente — o `redirect()` das Server Actions, agora no
+ * navegador.
+ *
+ * As ações de formulário são funções de módulo (para o `useActionState` e o
+ * `<form action>` continuarem como estavam), e função de módulo não tem hook.
+ * O `App` registra o `navigate` do roteador uma vez, e `irPara` usa o último
+ * registrado. Antes do registro (ou fora do roteador) cai no `location`, que
+ * chega ao mesmo lugar recarregando a página.
+ */",,,,,,
+desk-vite-comment-9249dd6b,desk-vite,apps/desk-vite/src/lib/ordem.ts,100,100,jsdoc,4,"/** A contagem de cada ficha, sobre a lista INTEIRA (a ficha diz quantos há, não quantos aparecem). */",,,,,,
+desk-vite-comment-61532daf,desk-vite,apps/desk-vite/src/lib/ordem.ts,113,113,jsdoc,2,/** Só dígitos — para comparar telefone digitado com `+55…` guardado. */,,,,,,
+desk-vite-comment-37507a13,desk-vite,apps/desk-vite/src/lib/ordem.ts,118,122,jsdoc,5,"/**
+ * A busca da coluna: ""Busque pelo nome ou telefone..."" (placeholder da
+ * referência). Nome sem acento e sem caixa; telefone por dígitos, para
+ * `(31) 99471` achar `+5531994714471`.
+ */",,,,,,
+desk-vite-comment-12dd6df5,desk-vite,apps/desk-vite/src/lib/ordem.ts,142,150,jsdoc,7,"/**
+ * A ordem da lista. `ultima-mensagem` (""Ver novas mensagens no topo"") é o
+ * padrão da preferência de lá; `abertura` (""Ver mensagens por ordem de
+ * abertura do ticket"") é a outra. Conversa sem mensagem usa a abertura.
+ *
+ * As FIXADAS vêm antes de tudo, entre si na ordem em que foram fixadas (a mais
+ * recente por cima) — é o `pinnedTickets` / `notPinnedTickets` da lista da
+ * origem (`blip-desk-regras-tecnicas.md` §6.2: ""mantém fixados no topo"").
+ */",,,,,,
+desk-vite-comment-c3eb5979,desk-vite,apps/desk-vite/src/lib/ordem.ts,168,172,jsdoc,2,"/**
+ * Nome de exibição do contato — a cadeia de recurso da referência
+ * (`referencias-blip/pesquisa/blip-desk-medidas.md` §11): nome → telefone → e-mail → o que
+ * houver antes do `@`. Nunca fica em branco.
+ */",,,,,,
+desk-vite-comment-c02e279f,desk-vite,apps/desk-vite/src/lib/ordem.ts,17,17,jsdoc,2,"/** Rótulo de cada ficha, com a contagem entre parênteses como lá (""Todos (3)""). */",,,,,,
+desk-vite-comment-8fdc71b6,desk-vite,apps/desk-vite/src/lib/ordem.ts,185,185,jsdoc,2,/** `+5531994714471` → `+55 31 99471-4471`; o que não for BR de 13 dígitos volta como veio. */,,,,,,
+desk-vite-comment-c29f9a4d,desk-vite,apps/desk-vite/src/lib/ordem.ts,27,27,jsdoc,2,/** Milissegundos de uma hora; a janela livre do WhatsApp é de 24 delas. */,,,,,,
+desk-vite-comment-e70f9c2a,desk-vite,apps/desk-vite/src/lib/ordem.ts,31,36,jsdoc,9,"/**
+ * ""Não lida"" no nosso domínio: a última palavra foi do contato, OU o atendente
+ * marcou à mão pelo menu do cartão (`naoLidaEm`, o `UNREAD` da origem). Não
+ * guardamos a CONTAGEM de não lidas (só quem falou por último), então a ficha e
+ * o negrito do cartão saem daqui.
+ */",,,,,,
+desk-vite-comment-58932a7c,desk-vite,apps/desk-vite/src/lib/ordem.ts,4,13,jsdoc,8,"/**
+ * As regras puras da coluna de atendimentos: as fichas de filtro, a busca, a
+ * ordem da lista e a janela de 24 horas. Nenhuma lê o relógio sozinha — quem
+ * chama passa o `agora`, e é isso que as deixa testáveis.
+ *
+ * Os NOMES são os da referência (`~/desk-clone/templates/chat-list.html`: as
+ * fichas `all-tickets-chip`, `unread-tickets-chip`, `standby-tickets-chip`,
+ * `inactive-tickets-chip`), e a ordem padrão é a preferência `sortChatsBy:
+ * 'lastMessageDate'` de `/agents/preferences` (`docs/desk-store.md`).
+ */",,,,,,
+desk-vite-comment-7d85986a,desk-vite,apps/desk-vite/src/lib/ordem.ts,50,54,jsdoc,5,"/**
+ * ""Inativo"" é a conversa cuja janela de 24 h já fechou: o contato sumiu e o
+ * atendente só volta a falar por template. É o mais próximo do `inactive` da
+ * referência que o nosso domínio distingue.
+ */",,,,,,
+desk-vite-comment-32aa0228,desk-vite,apps/desk-vite/src/lib/ordem.ts,59,64,jsdoc,10,"/**
+ * A conversa aceita texto livre? A regra é a de `@pipe/core` (`janela/janela.ts`),
+ * a mesma que a `api` aplica ao enviar: canal sem janela (e-mail, chat) está
+ * sempre aberto; WhatsApp sem `janelaExpiraEm` (o contato nunca falou) está
+ * fechado. Instagram segue o WhatsApp.
+ */",,,,,,
+desk-vite-comment-25957643,desk-vite,apps/desk-vite/src/lib/ordem.ts,75,75,jsdoc,3,"/** Quanto falta da janela, em horas cheias (para o aviso); `null` se já fechou ou não há janela. */",,,,,,
+desk-vite-comment-5e6f5cef,desk-vite,apps/desk-vite/src/lib/periodo.ts,1,8,jsdoc,5,"/**
+ * Os recortes da aba ""Minhas métricas"" — os cinco atalhos da referência mais
+ * o intervalo à mão, limitado a 90 dias (`referencias-blip/pesquisa/blip-desk-analytics.md`
+ * e a barra `.seg` de `~/desk-clone/clone/index.html#metrics`): ""Hoje""
+ * (padrão), ""Ontem"", ""7 Dias"", ""30 dias"", ""90 dias"", ""Personalizado"".
+ *
+ * Tudo é calculado no relógio de quem olha; a `api` só aplica o intervalo.
+ */",,,,,,
+desk-vite-comment-e13b1bb7,desk-vite,apps/desk-vite/src/lib/periodo.ts,68,71,jsdoc,3,"/**
+ * O intervalo à mão: começa no início do primeiro dia e termina no fim do
+ * último; invertido, vira; maior que o teto, o início é puxado para caber.
+ */",,,,,,
+desk-vite-comment-bc5b9a9f,desk-vite,apps/desk-vite/src/lib/periodo.ts,81,81,jsdoc,2,"/** ""dd/mm/aaaa"" para a ficha ""Desde …"" do gráfico. */",,,,,,
+desk-vite-comment-f54528ec,desk-vite,apps/desk-vite/src/lib/periodo.ts,86,86,jsdoc,0,"/** ""09/set"" — o rótulo do eixo do gráfico diário. */",,,,,,
+desk-vite-comment-bf262feb,desk-vite,apps/desk-vite/src/lib/periodo.ts,93,93,jsdoc,3,"/** `00:00:00` para os tempos médios; `-` quando não há valor, como lá. */",,,,,,
+desk-vite-comment-320f2136,desk-vite,apps/desk-vite/src/lib/preferencias.ts,1,10,jsdoc,5,"/**
+ * As preferências do atendente — as chaves de `/agents/preferences` da
+ * referência (`~/desk-clone/docs/desk-store.md`: `enableBrowserNotification`,
+ * `enableTicketOnQueueAlert`, `enableReceivedMessageAlert`,
+ * `enableAlertWithDeskActive`, `enableSpellChecker`, `sortChatsBy`,
+ * `keepAgentOnline`), com os padrões que o mock da cópia responde.
+ *
+ * Vivem no navegador (`localStorage`, `desk.pref.<chave>`): são da máquina,
+ * não da pessoa. Quem lê é `lerPreferencias`, sempre com o padrão por baixo.
+ */",,,,,,
+desk-vite-comment-e85d344d,desk-vite,apps/desk-vite/src/main.tsx,8,8,line,2,// A ordem importa: o token e a base do design system entram antes da folha do,,,,,,
+desk-vite-comment-82318bae,desk-vite,apps/desk-vite/src/main.tsx,9,9,line,4,"// aplicativo, para que a folha local sobrescreva a base e nunca o contrário.",,,,,,
+desk-vite-comment-760d257c,desk-vite,apps/desk-vite/src/paginas/acoes-em-massa/page.tsx,70,70,block,1,/* ponytail: um chatbot por conta na referência; aqui a conta inteira. */,,,,,,
+desk-vite-comment-f3f6be08,desk-vite,apps/desk-vite/src/paginas/acoes-em-massa/page.tsx,9,20,jsdoc,11,"/**
+ * ""Ações em Massa"" — `/bulk-ticket`, a transferência em lote da referência
+ * (`~/desk-clone/clone/index.html`, seção `bulk`, foto
+ * `desk2/blip-clone-bulk.png`): título 20/400, cartão com o campo ""Chatbot""
+ * e a ficha ""Transferir""; à esquerda ""Selecionar todos"" e a lista dos
+ * atendimentos abertos (ou ""Nenhum atendimento aberto para transferir."");
+ * à direita ""Transferir para:"", os rádios Fila / Atendente e os dois
+ * seletores; ""Cancelar"" / ""Transferir"" no rodapé.
+ *
+ * A ação `transferirEmMassa` repete `transferirConversa` por ticket — a
+ * mesma regra da referência (transferir encerra e abre outro).
+ */",,,,,,
+desk-vite-comment-e99874ff,desk-vite,apps/desk-vite/src/paginas/analytics/page.tsx,18,33,jsdoc,12,"/**
+ * ""Minhas métricas: {nome}"" — `/analytics`. A estrutura é a da tela do clone
+ * (`~/desk-clone/clone/index.html`, seção `metrics`, foto
+ * `desk2/blip-clone-metrics.png`): cabeçalho com seta, avatar extra-large,
+ * título 19/700 + subtítulo 12, ""Atualizar"" e a barra de períodos; o corpo
+ * com ""Visão Geral de Tickets"" (rosca + seis cartões), ""Total de tickets de
+ * atendimento"" (série diária com a ficha ""Desde dd/mm/aaaa"") e ""Médias de
+ * métricas de atendimento"" (três tempos).
+ *
+ * A coluna ""blip copilot"" da referência é marketing do produto deles e fica
+ * de fora — nenhuma menção visível a eles.
+ *
+ * Os dados vêm de `GET /v1/desk/metricas?inicio=&fim=`, sempre do próprio
+ * atendente. ""Transferidos"" e ""Perdidos"" chegam `null` (o domínio ainda não
+ * guarda) e aparecem como traço, não como zero.
+ */",,,,,,
+desk-vite-comment-f3596198,desk-vite,apps/desk-vite/src/paginas/analytics/page.tsx,182,182,jsdoc,1,"/** A rosca de seis fatias da referência: 118px, traço 5.5 numa caixa de 42. */",,,,,,
+desk-vite-comment-275c412d,desk-vite,apps/desk-vite/src/paginas/atendimentos/cartao.tsx,11,28,jsdoc,6,"/**
+ * O cartão da lista — o `<article class=""chat-list-item"">` da referência
+ * (`~/desk-clone/capturas/parciais/card-lista.html` e
+ * `templates/chat-list-item.html`), na mesma ordem:
+ *
+ * seção de cima (`.ticket-content`): coluna do rosto (avatar `small` com o
+ * selo do canal por cima) e coluna do texto em três linhas — nome + horário
+ * relativo (+ ícone de situação), prévia da última mensagem + a linha de
+ * alertas (ficha ""Novo"", cronômetro do modo de espera, não lidas);
+ * seção de baixo (`.ticket-info`): ícone de info, ""#N"", ""Fila: x"" e o menu ⋮.
+ *
+ * Nome e prévia engrossam quando há não lida (`bold=""bold""`).
+ *
+ * O menu ⋮ é o `TicketMenuOptions` da origem (`PIN`/`UNPIN`, `UNREAD`/`READ`,
+ * `blip-desk-regras-tecnicas.md` §1.8): fixar no topo e marcar como não lida,
+ * por atendente, em `POST /v1/desk/acoes/fixar` e `/marcarNaoLida`. O
+ * ""Modo de Espera"" continua no menu da conversa aberta.
+ */",,,,,,
+desk-vite-comment-5f525695,desk-vite,apps/desk-vite/src/paginas/atendimentos/cartao.tsx,182,182,jsdoc,2,"/** A prévia (`message-preview`): o texto, ou o tipo por extenso quando é mídia. */",,,,,,
+desk-vite-comment-a8834c27,desk-vite,apps/desk-vite/src/paginas/atendimentos/cartao.tsx,40,40,jsdoc,3,"/** Recusa de uma ação do menu — a coluna mostra o texto, sem `alert`. */",,,,,,
+desk-vite-comment-dc47b345,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,118,118,block,2,"/* ponytail: o modo Quadro (kanban) da referência não tem tela na cópia; fica listado, sem destino. */",,,,,,
+desk-vite-comment-a0781698,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,18,34,jsdoc,7,"/**
+ * A coluna de atendimentos — o `.sidenav` da referência
+ * (`~/desk-clone/templates/sidenav.html`, `sidenav-header.html`,
+ * `chat-list.html`), de cima para baixo:
+ *
+ * 1. `.header-content`: ""Atendimentos"" (h1 20/700) e o seletor ""Lista ⌄"";
+ * 2. `.sidenav-header`: Online → ""N Clientes aguardando"" + ""Atender"";
+ *    outros → ""Seu status é X"" + ""Ficar Online"" (pausa: motivo + cronômetro);
+ * 3. a busca (""Busque pelo nome ou telefone..."");
+ * 4. `.header-chat-list`: a ficha ""Todos (N)"" (menu até 1441, fila acima),
+ *    o botão de pasta e ""Reclassificar"";
+ * 5. a lista de cartões, ou o estado vazio.
+ *
+ * Os textos são os do i18n de lá (`thereCustumer`, `customers`, `waiting`,
+ * `answerCustomer`, `currentStatus`, `getOnline`, `getOnlineToAtend`,
+ * `noOpenTickets`, `allTickets`…).
+ */",,,,,,
+desk-vite-comment-4d227417,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,215,215,block,2,/* ponytail: pastas de tickets não existem no Pipe; o botão fica onde a referência o põe. */,,,,,,
+desk-vite-comment-c06ea73e,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,227,227,block,1,"/* ponytail: ""Reclassificar os tickets com inteligência artificial"" depende do @pipe/ai. */",,,,,,
+desk-vite-comment-1e1aeb42,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,267,272,jsdoc,1,"/**
+ * O miolo do `.sidenav-header`, um por status (função de desenho `lzgT` do
+ * pacote da referência): Online mostra a contagem e ""Atender""; Invisível e
+ * Offline mostram ""Seu status é X"" e ""Ficar Online""; Em pausa mostra o motivo
+ * e o cronômetro (`AgentPauseTimer`).
+ */",,,,,,
+desk-vite-comment-26afa300,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,80,84,jsdoc,9,"/**
+   * Abrir a conversa tira a marca manual de ""não lida"" — a ficha ""Não lidas"" da
+   * origem ""remove o ticket automaticamente assim que ele é aberto/lido""
+   * (`blip-desk-funcoes.md` §1). A recusa não trava a abertura.
+   */",,,,,,
+desk-vite-comment-c45fc1cd,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,10,25,jsdoc,18,"/**
+ * O compositor — `.pane-chat-message-input` da referência
+ * (`~/desk-clone/capturas/parciais/composer.html`): um `bds-paper` com o
+ * `textarea` (""Escreva uma mensagem..."") em cima e a faixa de ações embaixo:
+ * à esquerda resposta pronta (`ab`), anexo, emoji; à direita o áudio como
+ * PRIMÁRIO, que vira o botão de enviar quando há texto.
+ *
+ * Quando a conversa não aceita texto livre, o compositor inteiro dá lugar a um
+ * bloco centrado com uma linha e um botão — os casos do i18n de lá:
+ * `standbyInputLock`, `clientClosed`, `clientClosedInactivity`,
+ * `attendantClosed`; e a janela de 24h fechada
+ * (`failedMaxTimeChannelInterval`), que aqui abre o envio de modelo.
+ *
+ * Enviar vai para `POST /v1/conversas/:id/mensagens` (texto, anexo ou template).
+ * A nota interna não passa por aqui: é o ""Comentário"" do painel do contato.
+ */",,,,,,
+desk-vite-comment-d6b1783b,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,111,118,jsdoc,3,"/**
+   * Até 10 arquivos por envio, UMA mensagem por arquivo, em sequência — o modelo
+   * da origem (`SEND_MULT_FILE`, `mediaLinkDocuments`: um media-link por arquivo,
+   * `blip-desk-regras-tecnicas.md` §3.3). O lote é tudo ou nada: se um arquivo
+   * não passa (quantidade, tamanho, tipo — na tela ou no `POST /v1/anexos`),
+   * nenhuma mensagem sai, e o erro diz qual foi. Só depois de TODOS subirem é que
+   * `POST /v1/conversas/:id/mensagens/anexos` cria as mensagens, na ordem.
+   */",,,,,,
+desk-vite-comment-5f71b35b,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,240,243,block,0,"/*,audio/*,video/*,application/pdf""
+                onChange={(e) => void anexar(e.target.files)}
+              />
+              {/* ponytail: o seletor de emoji (emoji-mart) da referência; aqui só o botão. */",,,,,,
+desk-vite-comment-05e1ad90,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,267,267,block,0,/* ponytail: gravação de áudio depende do MediaRecorder + anexo; o botão fica primário como lá. */,,,,,,
+desk-vite-comment-c2752c81,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,287,287,jsdoc,2,"/** O bloco que substitui o compositor (piso de 150px, uma linha e um botão). */",,,,,,
+desk-vite-comment-4a941a3a,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,316,321,jsdoc,10,"/**
+ * O painel de respostas prontas (`.custom-reply`): lista à esquerda,
+ * pré-visualização à direita (""Pré-visualização"" / ""Pressione Enter para
+ * selecionar""); sem resultado, ""Não há título de resposta pronta que
+ * contenha este texto."". Filtra pelo título com o que está no campo.
+ */",,,,,,
+desk-vite-comment-b8329822,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,394,398,jsdoc,3,"/**
+ * O envio de modelo (template aprovado) quando a janela fechou: escolhe o
+ * modelo, preenche as variáveis na ordem `{{1}}`, `{{2}}`… e envia por
+ * `POST /v1/conversas/:id/mensagens` com `template_id` e `parametros`.
+ */",,,,,,
+desk-vite-comment-c3179ebb,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,44,44,jsdoc,2,"/** A resposta pronta escolhida, para o relatório de esforço — some se o texto for editado. */",,,,,,
+desk-vite-comment-9b1702dc,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,57,57,block,2,/* O piso e o teto do campo (4em a 11.5em): cresce com o texto. */,,,,,,
+desk-vite-comment-e7966eb5,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,131,131,block,1,"/* ponytail: ""Ligação Ativa"" depende do MFE de chamadas; o botão fica onde a referência o põe. */",,,,,,
+desk-vite-comment-373ef83c,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,20,31,jsdoc,7,"/**
+ * O painel da conversa — `.pane-chat` da referência
+ * (`~/desk-clone/capturas/parciais/header-conversa.html`, `thread.html`,
+ * `composer.html`): cabeçalho com rosto, nome e ""Ticket: · Bot: · Fila:"", as
+ * ações (ligação, pesquisar, transferir, Finalizar, ⋮) e o botão que abre e
+ * fecha o painel do contato; a faixa de etiquetas; a busca na conversa; a
+ * thread; o compositor.
+ *
+ * Transferir e Finalizar abrem os modais de lá (`transfer-modal-content`,
+ * `close-modal-container`) e chamam `POST /v1/conversas/:id/transferir` e
+ * `/encerrar`; a espera vai em `/espera` pelo menu ⋮ (""Modo de Espera"").
+ */",,,,,,
+desk-vite-comment-d83e032d,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,388,394,jsdoc,5,"/**
+ * ""Adicionar tags"" da conversa ABERTA — o `ModalType.ADD_TAGS` da origem, que
+ * é separado do `CLOSE_TICKET` (`blip-desk-regras-tecnicas.md` §1.8): marca e
+ * desmarca sem encerrar. Cada clique já grava (`POST`/`DELETE
+ * /v1/conversas/:id/etiquetas`), e a etiqueta marcada aqui aparece pré-marcada
+ * no modal de Finalizar, porque as duas moram na mesma `conversa_etiqueta`.
+ */",,,,,,
+desk-vite-comment-be99f8ce,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,469,474,jsdoc,3,"/**
+ * ""Transferir atendimento do Ticket #N"" (`transfer-modal-content.html`):
+ * dois rádios, Fila e Atendente, e um seletor; ""Cancelar"" / ""Transferir
+ * ticket"". A regra de lá (e a nossa, `packages/core/src/conversa/maquina.ts`):
+ * a transferência encerra este ticket e abre outro.
+ */",,,,,,
+desk-vite-comment-d9de9b29,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,59,62,jsdoc,3,"/**
+   * Tirar uma etiqueta da conversa ABERTA — `DELETE /v1/conversas/:id/etiquetas/:etiquetaId`.
+   * Não encerra nada: é o gesto `ADD_TAGS` da origem, que é separado do `CLOSE_TICKET`.
+   */",,,,,,
+desk-vite-comment-e0a2e383,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,598,602,jsdoc,1,"/**
+ * ""Finalizar atendimento do Ticket #N"" (`close-modal-container.js`): as
+ * frases de confirmação, o campo ""Adicionar tags"" e ""Cancelar"" / ""Finalizar
+ * ticket"". A etiqueta é obrigatória na `api` (`POST /encerrar`).
+ */",,,,,,
+desk-vite-comment-01a784a0,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,654,654,jsdoc,1,"/** As filas do tenant, para o seletor de transferência (`GET /v1/desk/filas`). */",,,,,,
+desk-vite-comment-c1f84c87,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,660,666,jsdoc,13,"/**
+ * ""Exportar ticket"" — sem backend novo: a thread inteira já está carregada na
+ * tela (`itens`), então a transcrição sai de um `.txt` montado aqui e baixado
+ * pelo navegador. É a versão simples do ""baixar transcrição"" da referência
+ * (`blip-desk-funcoes.md` §7) — sem e-mail assíncrono para o recorte de 90
+ * dias a 5 anos, que é conversa de gestor, não do atendente numa tela.
+ */",,,,,,
+desk-vite-comment-7ef178e6,desk-vite,apps/desk-vite/src/paginas/atendimentos/page.tsx,11,24,jsdoc,17,"/**
+ * A tela de Atendimentos — `/` e `/chat/:id` — nas três colunas da
+ * referência: `.sidenav` (25%), `.pane-chat` (50%), `.drawer` (25%).
+ *
+ * A fila (`GET /v1/desk/fila`) é recarregada a cada 15 s — o
+ * `POLLING_INTERVAL` do settings.json de lá — e a conversa aberta
+ * (`GET /v1/desk/conversas/:id`) também. O relógio `agora` avança a cada
+ * segundo para os horários relativos e os cronômetros.
+ *
+ * Os estados do meio, na ordem da função de desenho `pane-chat` de lá:
+ * ""Buscando tickets"" enquanto a fila não veio; ""Fique online para atender""
+ * com o motivo quando está invisível/em pausa e sem tickets; ""Tudo pronto
+ * para atender"" sem conversa escolhida; e a conversa.
+ */",,,,,,
+desk-vite-comment-c64c0e58,desk-vite,apps/desk-vite/src/paginas/atendimentos/page.tsx,43,43,block,5,"/* Conversa que não é do atendente (ou não existe) volta para a lista, como lá. */",,,,,,
+desk-vite-comment-cfd34c7c,desk-vite,apps/desk-vite/src/paginas/atendimentos/painel.tsx,12,25,jsdoc,11,"/**
+ * O painel do contato — `.drawer` da referência
+ * (`~/desk-clone/capturas/parciais/drawer.html`): cabeçalho ""Dados do
+ * Contato"", as abas Informações / Histórico / Comentários (a ""Falar com
+ * gestor"" de lá é o chat interno com o gestor, que não existe no Pipe), e em
+ * cada aba uma pilha de `bds-paper` sobre o fundo recuado.
+ *
+ * Informações: cartão ""Informações"" com Nome, Id, E-mail, Telefone, Documento
+ * e ""Extras"" (os atributos crus, chave → valor, como lá), cada campo com o
+ * botão de copiar; e o cartão ""Comentários"" com o estado vazio ""Não há
+ * comentários sobre este usuário"" e o campo ""Escreva um comentário..."".
+ * Os comentários são as notas internas da conversa
+ * (`itens` de gênero `nota`), gravadas por `salvarNotaInterna`.
+ */",,,,,,
+desk-vite-comment-825f0ada,desk-vite,apps/desk-vite/src/paginas/atendimentos/painel.tsx,186,186,jsdoc,0,"/** `.profile-info-item`: rótulo em cima, valor embaixo e o botão de copiar. */",,,,,,
+desk-vite-comment-32e41231,desk-vite,apps/desk-vite/src/paginas/atendimentos/painel.tsx,219,224,jsdoc,9,"/**
+ * O ""Editar"" do painel — `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`),
+ * já testado e com permissão própria (`contato.editar`). A tela só manda o que
+ * mudou; campo vazio manda string vazia, que a API grava como está (ela é quem
+ * decide o que é ""apagar"" vs. ""não mexeu"").
+ */",,,,,,
+desk-vite-comment-36d9fa12,desk-vite,apps/desk-vite/src/paginas/atendimentos/painel.tsx,297,303,jsdoc,6,"/**
+ * As etiquetas do CONTATO — `contato_etiqueta`, que até aqui não tinha rota nem
+ * tela. O catálogo vem de `GET /v1/etiquetas?escopo=contato` (as de escopo
+ * `contato` e `ambos`); aplicar e remover vão por `POST`/`DELETE
+ * /v1/contatos/:id/etiquetas`, com a mesma permissão de editar a ficha
+ * (`contato.editar`) — a etiqueta do contato é dado do contato.
+ */",,,,,,
+desk-vite-comment-3a81691f,desk-vite,apps/desk-vite/src/paginas/atendimentos/painel.tsx,33,33,line,0,// Trocar de ticket sai do modo de edição: senão o formulário de um contato fica,,,,,,
+desk-vite-comment-5123baff,desk-vite,apps/desk-vite/src/paginas/atendimentos/thread.tsx,144,144,jsdoc,1,"/** O miolo do balão: texto (`plain-text`), ou o tipo por extenso quando é mídia. */",,,,,,
+desk-vite-comment-8b1f0d2a,desk-vite,apps/desk-vite/src/paginas/atendimentos/thread.tsx,36,36,block,1,/* Começa no fim (`startBottom`) e volta ao fim a cada mensagem nova. */,,,,,,
+desk-vite-comment-3e101959,desk-vite,apps/desk-vite/src/paginas/atendimentos/thread.tsx,8,18,jsdoc,10,"/**
+ * A thread — o `message-list--panechat` da referência
+ * (`~/desk-clone/capturas/parciais/thread.html`): `.card-group-container`
+ * com `.blip-message-group > .blip-card-group.left|right`, cada balão num
+ * `.blip-card` e o horário do grupo (`.group-notification`) embaixo, do lado
+ * de quem fala — na saída, com o sinal de entrega antes da hora. A linha de
+ * abertura do ticket (`.ticket .fancy` + `h3`) vem antes das mensagens.
+ *
+ * O botão ""voltar ao fim"" aparece quando a rolagem está a mais de 150px do
+ * fim (`MINIMUM_SCROLL_DISTANCE` do settings.json de lá).
+ */",,,,,,
+desk-vite-comment-dd56881f,desk-vite,apps/desk-vite/src/paginas/contatos/page.tsx,13,31,jsdoc,12,"/**
+ * A aba Contatos — o MFE `desk-contact-history` da referência, medido rodando
+ * sobre o mock em `~/desk-clone/clone/mfe-teste.html` (fotos
+ * `desk2/blip-contacts-1200.png` e `blip-contatos-aberto.png`): três colunas
+ * de 300 / 600 / 300.
+ *
+ * Esquerda: bloco de 110px em superfície 1 (""Contatos"" 20/700 num recuo de
+ * 16, e a busca ""Pesquisar contato"" com o botão de ordenação ao lado, recuo 8),
+ * e a lista agrupada por letra (ou por data) com cartões de 62px.
+ * Meio: o estado vazio (""Explore conversas anteriores"" / ""Selecione um contato
+ * na lista ao lado e escolha um ticket para acessar abrir seu histórico""), e,
+ * com contato escolhido, o cartão ""Inicie uma nova conversa com este contato
+ * enviando uma mensagem ativa."" + ""Conversar novamente""; com ticket escolhido,
+ * a transcrição.
+ * Direita: as abas ""Histórico"" e ""Contato"" (cabeçalho de 56, centrado, gap 32).
+ *
+ * Os dados vêm de `GET /v1/desk/contatos?busca=`, `/contatos/:id` e
+ * `/tickets/:id`. Tudo de leitura, como lá.
+ */",,,,,,
+desk-vite-comment-a915b969,desk-vite,apps/desk-vite/src/paginas/contatos/page.tsx,342,342,jsdoc,3,"/** Quando falta valor a tela escreve a falta, como lá (""Nenhum telefone cadastrado""). */",,,,,,
+desk-vite-comment-b1a2df1c,desk-vite,apps/desk-vite/src/paginas/contatos/page.tsx,360,360,jsdoc,0,"/** ""dd/mm/aaaa, HH:mm"" — o formato da linha ""Última interação"" do MFE. */",,,,,,
+desk-vite-comment-118e22d3,desk-vite,apps/desk-vite/src/paginas/contatos/page.tsx,371,371,jsdoc,1,"/** As situações de encerramento por extenso, as que o domínio distingue. */",,,,,,
+desk-vite-comment-7953ddce,desk-vite,apps/desk-vite/src/paginas/convite.tsx,7,20,jsdoc,24,"/**
+ * O convite visto por quem ainda está do lado de fora.
+ *
+ * Rota pública, como a de entrada — e pelo mesmo motivo da API não exigir
+ * sessão em `GET /v1/convites/:token`: pedir a conta que o convite existe para
+ * criar seria um ciclo.
+ *
+ * Ela mostra o MÍNIMO que a API devolve: para quem é, com que papel, de que
+ * empresa e até quando vale. Quem tem o link já sabe o e-mail; o resto da conta
+ * não é assunto de quem ainda não entrou.
+ *
+ * O botão manda para `/v1/auth/google?convite=<token>`, que é o caminho de quem
+ * não tem domínio verificado: é o convite que decide o tenant, e não o domínio.
+ */",,,,,,
+desk-vite-comment-25cf41ec,desk-vite,apps/desk-vite/src/paginas/convite.tsx,71,72,block,3,"/* Vencido, já usado e inexistente dão a MESMA tela: separar
+                contaria a quem tem o link se aquele token um dia existiu. */",,,,,,
+desk-vite-comment-bd60d186,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,108,108,block,5,/* A entrada tem letra própria — é a única tela do produto que não usa a do aplicativo. */,,,,,,
+desk-vite-comment-7bb78bc4,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,129,129,block,4,"/* Link, e não botão: entrar com o Google é navegação de topo para a `api`. */",,,,,,
+desk-vite-comment-ede3b6dd,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,156,158,block,7,"/* O campo de senha do desenho. Sem `name`: o Pipe ainda não tem entrada
+                por senha, e a senha digitada não sai desta página.
+                ponytail: ganha `name` no dia em que a API aceitar senha. */",,,,,,
+desk-vite-comment-e6ad361f,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,190,190,jsdoc,2,"/** O ""G"" oficial, inline: a tela de entrada não depende de rede de terceiro. */",,,,,,
+desk-vite-comment-410c213d,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,59,59,jsdoc,6,/** O que a descoberta por e-mail devolve para a tela quando não roteia. */,,,,,,
+desk-vite-comment-7990d35f,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,7,20,jsdoc,17,"/**
+ * A tela de entrada do Desk — copiada de `apps/gestao-vite/src/paginas/entrar.tsx`
+ * (a tela de entrada é a da Gestão; só o título muda: ""Entrar no Pipe Desk"").
+ * A descoberta é feita do navegador (o Vite faz o proxy em desenvolvimento; em
+ * produção a origem deste app está em `PIPE_ORIGENS`).
+ *
+ * Duas regras a moldam:
+ *
+ * 1. **Nada de tenant aqui.** Quem chega nesta tela não está logado, então ela
+ *    não sabe (e não pode contar) qual empresa usa o Pipe.
+ * 2. **Cada recusa tem uma SAÍDA, não um ""não autorizado"".** Os sete códigos de
+ *    `RECUSAS_DE_ENTRADA` chegam em `?erro=` e cada um manda a pessoa para um
+ *    lugar diferente.
+ */",,,,,,
+desk-vite-comment-92e763a6,desk-vite,apps/desk-vite/src/paginas/entrar.tsx,99,99,line,4,"// Sem SSO, a pessoa fica na mesma tela com o motivo e o e-mail já digitado.",,,,,,
+desk-vite-comment-cda01167,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,130,130,line,1,// ganho que ninguém vê em ponto de 1 px.,,,,,,
+desk-vite-comment-012f1c6a,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,23,23,jsdoc,0,"/** Centro do arco, em fração da caixa, e o raio em fração da diagonal. */",,,,,,
+desk-vite-comment-1e7f5bf5,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,26,26,jsdoc,2,"/** As três camadas, da aresta para dentro. `op` é a faixa de opacidade. */",,,,,,
+desk-vite-comment-fa816fd3,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,3,21,jsdoc,21,"/**
+ * O fundo da tela de entrada: um feixe de ~10.800 partículas desenhado em
+ * `<canvas>` pelo próprio navegador. Sem GIF, sem vídeo, sem imagem — a
+ * primeira tela do produto deixa de ter custo de rede (o fundo de referência
+ * pesava 14,6 MB; este pesa o que pesa este arquivo).
+ *
+ * O desenho é a curva da marca ampliada até virar paisagem: um arco único com
+ * o centro FORA do quadro, no canto inferior direito, em três camadas de
+ * densidade decrescente — aresta viva, corpo difuso e névoa. O quadrante
+ * superior esquerdo, onde ficam o cartão e o bloco da marca, fica vazio de
+ * propósito: fundo não disputa leitura com formulário.
+ *
+ * **Não tem emenda porque não tem laço.** Nada se repete e nada reinicia: a
+ * posição de cada partícula é função contínua do tempo. É o defeito que
+ * qualquer GIF de fundo tem e que ninguém consegue esconder.
+ *
+ * Com `prefers-reduced-motion` ele desenha UM quadro e para — não há imagem
+ * parada para baixar, é o mesmo código sem o relógio.
+ */",,,,,,
+desk-vite-comment-09988f82,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,43,47,jsdoc,4,"/**
+ * As partículas nascem de um gerador com semente FIXA: o mesmo desenho em toda
+ * máquina e em toda recarga. Fundo que muda de forma a cada visita é ruído, e
+ * ainda impede comparar duas capturas de tela.
+ */",,,,,,
+desk-vite-comment-13eff47f,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,59,59,line,2,// `1 - rnd^0.7` adensa junto da aresta: é o que dá a linha viva.,,,,,,
+desk-vite-comment-39e186b4,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,65,65,line,2,"// Cada partícula tem velocidade própria, e as de fora são mais lentas:",,,,,,
+desk-vite-comment-4556c53d,desk-vite,apps/desk-vite/src/paginas/fundo-pipe.tsx,98,98,line,2,"// Massa clara difusa no canto, para o cartão não flutuar sobre creme chapado.",,,,,,
+desk-vite-comment-41cae433,desk-vite,apps/desk-vite/src/paginas/mensagem-ativa/page.tsx,13,27,jsdoc,7,"/**
+ * ""Enviar mensagem ativa"" — `/activeMessage/send`, o stepper 1-2-3 da
+ * referência (`~/desk-clone/clone/index.html`, seção `active-msg`, foto
+ * `desk2/blip-clone-active.png`): cabeçalho com seta, título e ""Ajuda na
+ * busca""; os três passos ""Selecionar contato"", ""Escolher modelo"", ""Revisar
+ * conteúdo""; o aviso de privacidade; o formulário à esquerda (""Selecionar
+ * contato existente"" / ""Adicionar novo contato"", ""Novo contato"", os campos
+ * ""Adicionar contato por"", ""Salvar contato no chatbot"", ""Telefone"", ""Nome do
+ * contato"" e ""Adicionar"") e o painel ""Contatos selecionados 0/15"" à direita;
+ * ""Cancelar"" / ""Continuar"" embaixo. Os textos são os do MFE
+ * `desk-active-message` (`referencias-blip/pesquisa/blip-desk-vocabulario.md`).
+ *
+ * O envio vai para `POST /v1/mensagens-ativas` (canal, modelo, contatos), que
+ * já existe na `api`; ""chatbot"" da referência é o nosso canal.
+ */",,,,,,
+desk-vite-comment-597a52ec,desk-vite,apps/desk-vite/src/paginas/mensagem-ativa/page.tsx,70,70,block,1,"/* Vindo de ""Conversar novamente"" (Contatos), o contato já entra selecionado. */",,,,,,
+desk-vite-comment-be664515,desk-vite,apps/desk-vite/src/paginas/nao-encontrado.tsx,3,3,jsdoc,2,"/** O `/not-found` da referência, curto: a rota não existe. */",,,,,,
+desk-vite-comment-98a5fb74,desk-vite,apps/desk-vite/src/paginas/preferencias/page.tsx,4,17,jsdoc,20,"/**
+ * ""Preferências"" — `/preferences`. A cópia em `~/desk-clone` não renderiza o
+ * MFE `desk-preferences-mfe` (a página fica em branco), então NÃO há foto de
+ * régua: a estrutura vem do i18n do pacote da referência (`app.js`, bloco
+ * `""preferences"":""Preferências"",""notifications"":""Notificações"",…`) e de
+ * `referencias-blip/pesquisa/blip-desk-preferencias.md` — uma lista de seções com
+ * interruptores, sem botão ""Salvar"" (cada um vale na hora).
+ *
+ * ponytail: medidas a conferir quando a tela da referência for extraída
+ * (pedido no relatório). Os textos são os deles, com ""Blip Desk"" → ""Pipe Desk"".
+ *
+ * As cinco preferências vivem no navegador, uma chave por preferência: são
+ * da MÁQUINA em que a pessoa está, não da pessoa (`referencias-blip/pesquisa/blip-desk-medidas.md` §12).
+ */",,,,,,
+desk-vite-comment-a49f8dcd,desk-vite,apps/desk-vite/src/paginas/preferencias/page.tsx,92,92,block,2,/* sem armazenamento (janela privada): a preferência vale só nesta aba */,,,,,,
+desk-vite-comment-7c029dfb,desk-vite,apps/desk-vite/vite.config.ts,16,16,block,2,"/* Na VPS o Desk vive em `/desk`, para compartilhar a sessão da Gestão. */",,,,,,
+desk-vite-comment-5d76e17a,desk-vite,apps/desk-vite/vite.config.ts,5,14,jsdoc,13,"/**
+ * Pipe Desk como SPA — o mesmo arranjo de `apps/gestao-vite/vite.config.ts`:
+ * Vite com SWC, front estático, e a `api` NestJS como a única porta para o banco.
+ *
+ * Em desenvolvimento o `/v1` é proxy para a `api` (3010), para o cookie
+ * `pipe_sessao` (HttpOnly) ir e voltar na MESMA origem — sem CORS e sem token
+ * no navegador. A porta 3210 é a do Desk; a Gestão fica na 3110.
+ *
+ * `@pipe/ui` é consumido como fonte, sem passo de build.
+ */",,,,,,

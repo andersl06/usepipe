@@ -45,6 +45,38 @@ test('lista dependentes de rota por arquivo e tipo', () => {
     { fileName: 'apps/gestao-vite/src/App.tsx', sourceText: 'const x = <Routes><Route path="/fluxo/:id/contatos" element={<div />} /></Routes>;' },
     { fileName: 'apps/gestao-vite/src/nav.ts', sourceText: 'navigate(`/fluxo/${id}/contatos`);' },
     { fileName: 'apps/gestao-vite/tests/nav.test.ts', sourceText: "assert.equal(path, '/fluxo/x/contatos');" },
+    { fileName: 'apps/gestao-vite/src/unrelated.ts', sourceText: "const root = '/'; const parent = '/fluxo'; const other = '/configuracoes/api';" },
   );
   assert.deepEqual(result.routeDependents.map((item) => item.kind).sort(), ['navigate', 'test']);
+});
+
+test('captura nomes tecnicos em constantes e agendadores sem casar nomes proximos', () => {
+  const result = run({ fileName: 'apps/api/src/filas.ts', sourceText: "const FILA_ENTRADA = 'pipe-entrada'; const FILA_GERENCIAR = 'fila.gerenciar'; const FILA_ENTRADA_EXTRA = 'other'; const COOKIE_SESSAO = 'pipe_sessao'; const COOKIE_DESAFIO = 'pipe_desafio'; const CHAVE_TEMA = 'pipe-tema'; fila.upsertJobScheduler('varredura-outbox', {}, {}); const AJUDA = { pipe_fila_profundidade: 'x' };" });
+  for (const [kind, old] of [['queue', 'pipe-entrada'], ['cookie', 'pipe_sessao'], ['cookie', 'pipe_desafio'], ['storage-key', 'pipe-tema'], ['job-name', 'varredura-outbox'], ['metric', 'pipe_fila_profundidade']]) {
+    assert.ok(result.rows.some((row) => row.kind === kind && row.old === old));
+  }
+  assert.equal(result.rows.some((row) => row.kind === 'queue' && row.old === 'other'), false);
+  assert.equal(result.rows.some((row) => row.kind === 'queue' && row.old === 'fila.gerenciar'), false);
+});
+
+test('liga sufixo de rota a construtor com base dinamica sem aceitar prefixo curto', () => {
+  const result = run(
+    { fileName: 'apps/gestao-vite/src/App.tsx', sourceText: 'const x = <Routes><Route path="/fluxo/:id"><Route path="analise/dicionario-de-dados" element={<div />} /></Route></Routes>;' },
+    { fileName: 'apps/gestao-vite/src/nav.ts', sourceText: 'const url = `${baseDoContato("fluxo", id)}/analise/dicionario-de-dados`; const near = "/fluxo";' },
+  );
+  const route = result.rows.find((row) => row.kind === 'front-route' && row.old.includes('dicionario-de-dados'));
+  assert.ok(route);
+  assert.equal(result.routeDependents.filter((item) => item.route_row_id === route.id).length, 1);
+});
+
+test('nao inclui texto visivel de listas const no mapa de literais tecnicos', () => {
+  const result = run({ fileName: 'apps/gestao-vite/src/menu.ts', sourceText: "const ITENS = [{ rotulo: 'Atendimento', descricao: 'Ver conversas da fila', rota: 'atendimento' }] as const;" });
+  assert.ok(result.rows.some((row) => row.kind === 'literal-value' && row.old === 'atendimento'));
+  assert.equal(result.rows.some((row) => row.kind === 'literal-value' && ['Atendimento', 'Ver conversas da fila'].includes(row.old)), false);
+});
+
+test('extrai codigo real de erro sem confundir entidade ou permissao', () => {
+  const result = run({ fileName: 'apps/api/src/erros.ts', sourceText: "ErroPipe.naoEncontrado('Anexo'); ErroPipe.semPermissao('fila.gerenciar'); ErroPipe.requisicao('arquivo_vazio', 'Arquivo vazio'); new ErroPipe(500, 'arquivo_grande', 'Falhou');" });
+  const codes = result.rows.filter((row) => row.kind === 'error-code').map((row) => row.old);
+  assert.deepEqual(codes.sort(), ['arquivo_grande', 'arquivo_vazio']);
 });
