@@ -28,7 +28,7 @@ Detector determinístico, scanner técnico classificável, exceções A/B/C e ba
 - CLI STD-11 sobre arquivos rastreados, com análise AST de TypeScript/JavaScript e cobertura de caminhos, identificadores, posições técnicas, SQL, CSS, comentários, literais `as const`/uniões e atributos `data-*`.
 - Classificação pela primeira exceção correspondente, incluindo compatibilidade com caminhos de inventário após renames aplicados.
 - Allowlist auditável com 79 nomes de variáveis de ambiente, exceções de SQL, escopos persistidos e exclusões documentadas.
-- Baseline com 36.790 achados, dos quais 36.280 ainda não classificados, e `Lexicon: none`.
+- Baseline com 36.790 achados, dos quais 36.249 ainda não classificados, e `Lexicon: none`.
 
 ## Desvios
 
@@ -38,7 +38,7 @@ Detector determinístico, scanner técnico classificável, exceções A/B/C e ba
 ## Resultados da verificação
 
 - `node --test tools/std/pt-detect.test.ts`: 9 testes passaram.
-- `node tools/std/scan-pt.ts --out ... --summary ...`: exit 0; `Unclassified: 36280`; `Lexicon: none`.
+- `node tools/std/scan-pt.ts --out ... --summary ...`: exit 0; `Unclassified: 36249`; `Lexicon: none`.
 - Execução com `--map` apontando para diretório inexistente: exit 0 e `Lexicon: none`.
 - `node tools/std/scan-pt.ts --help`: lista `--lexicon-file` e `--write-lexicon`.
 - `pnpm exec eslint tools/std/pt-detect.ts tools/std/scan-pt.ts tools/std/pt-detect.test.ts`: exit 0.
