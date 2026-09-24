@@ -46,29 +46,29 @@ Plans:
 
 **Wave 2** *(blocked on Wave 1 completion)*
 
-- [ ] 01-02-PLAN.md — Build the PT detector and the STD-11 scanner, seed the A/B/C exceptions file, and record the baseline scan.
-- [ ] 01-03-PLAN.md — Build the route-consumer matcher (STD-03 proof, guard-preservation proof) and the DDL snapshot (STD-06/D-08 proof), run both on the baseline, and w...
-- [ ] 01-04-PLAN.md — Install ts-morph 28.0.0 and build the three map-driven rename tools plus the shared map library, proven on a fixture mini-monorepo.
-- [ ] 01-34-PLAN.md — Capture redacted jsonb fixtures from the pre-rename DB and add the jsonb-keys check and jsonb-compat test (goldens) that every slice gate runs (STD-06).
+- [x] 01-02-PLAN.md — Build the PT detector and the STD-11 scanner, seed the A/B/C exceptions file, and record the baseline scan.
+- [x] 01-03-PLAN.md — Build the route-consumer matcher (STD-03 proof, guard-preservation proof) and the DDL snapshot (STD-06/D-08 proof), run both on the baseline, and w...
+- [x] 01-04-PLAN.md — Install ts-morph 28.0.0 and build the three map-driven rename tools plus the shared map library, proven on a fixture mini-monorepo.
+- [x] 01-34-PLAN.md — Capture redacted jsonb fixtures from the pre-rename DB and add the jsonb-keys check and jsonb-compat test (goldens) that every slice gate runs (STD-06).
 
 **Wave 3** *(blocked on Wave 2 completion)*
 
-- [ ] 01-05-PLAN.md — Build the deterministic inventory extractor (with jsonb type reach and per-route dependents) and the slice gate, then run the gate on the baseline.
-- [ ] 01-06-PLAN.md — Codex wrapper, prompt chunker, schemas and templates.
+- [x] 01-05-PLAN.md — Build the deterministic inventory extractor (with jsonb type reach and per-route dependents) and the slice gate, then run the gate on the baseline.
+- [x] 01-06-PLAN.md — Codex wrapper, prompt chunker, schemas and templates.
 
 **Wave 4** *(blocked on Wave 3 completion)*
 
-- [ ] 01-07-PLAN.md — Produce the navigation/rendering contract (STD-12), the per-screen URL-vs-state classification (STD-04) and the compatibility strategy (STD-05).
-- [ ] 01-38-PLAN.md — Merge Codex proposals, validate the map and apply reviewed comments with tests.
+- [x] 01-07-PLAN.md — Produce the navigation/rendering contract (STD-12), the per-screen URL-vs-state classification (STD-04) and the compatibility strategy (STD-05).
+- [x] 01-38-PLAN.md — Merge Codex proposals, validate the map and apply reviewed comments with tests.
 
 **Wave 5** *(blocked on Wave 4 completion)*
 
-- [ ] 01-08-PLAN.md — Run the deterministic inventory, then classify persisted items including jsonb-reached shapes (STD-06, D-09, D-11, D-40) so the map never contains a persisted name.
+- [x] 01-08-PLAN.md — Run the deterministic inventory, then classify persisted items including jsonb-reached shapes (STD-06, D-09, D-11, D-40) so the map never contains a persisted name.
 
 **Wave 6** *(blocked on Wave 5 completion)*
 
-- [ ] 01-09-PLAN.md — Propose the domain glossary and English naming convention, then stop for owner gate 1 (D-03).
-- [ ] 01-35-PLAN.md — Classify every API endpoint's wire contract for key-rename impact (D-09).
+- [x] 01-09-PLAN.md — Propose the domain glossary and English naming convention, then stop for owner gate 1 (D-03).
+- [x] 01-35-PLAN.md — Classify every API endpoint's wire contract for key-rename impact (D-09).
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
@@ -319,7 +319,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Padronizar linguagem técnica, navegação e renderização | 1/41 | In Progress|  |
+| 1. Padronizar linguagem técnica, navegação e renderização | 12/41 | In Progress|  |
 | 2. Fechar o Builder | 0/TBD | Not started | - |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
