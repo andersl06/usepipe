@@ -1,0 +1,769 @@
+{
+  "terms": [
+    {
+      "term_pt": "conversa",
+      "term_en": "conversation",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "chat",
+      "occurrences": "139",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "contato",
+      "term_en": "contact",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "customer",
+      "occurrences": "195",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "fila",
+      "term_en": "queue",
+      "blip_source": "referencias-blip/portal/INDICE.md",
+      "ambiguity": "none",
+      "candidates": "line",
+      "occurrences": "169",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "atendente",
+      "term_en": "agent",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "attendant",
+      "occurrences": "96",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "atendimento",
+      "term_en": "attendance",
+      "blip_source": "referencias-blip/portal/INDICE.md",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "attendance / ticket / conversation",
+      "occurrences": "128",
+      "notes": "Módulo=attendance; sessão humana=ticket; conversa de canal=conversation. Schema conversa e rotas Desk distinguem contextos."
+    },
+    {
+      "term_pt": "ticket",
+      "term_en": "ticket",
+      "blip_source": "referencias-blip/portal/INDICE.md",
+      "ambiguity": "none",
+      "candidates": "session",
+      "occurrences": "0",
+      "notes": "Sem token PT exato no mapa deste grupo; termo exigido pelo plano ou já inglês no código."
+    },
+    {
+      "term_pt": "fluxo",
+      "term_en": "flow",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "workflow",
+      "occurrences": "237",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "roteador",
+      "term_en": "router",
+      "blip_source": "referencias-blip/portal/INDICE.md",
+      "ambiguity": "none",
+      "candidates": "routing bot",
+      "occurrences": "91",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "bloco",
+      "term_en": "block",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "step",
+      "occurrences": "405",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "canal",
+      "term_en": "channel",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "medium",
+      "occurrences": "152",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "mensagem",
+      "term_en": "message",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "communication",
+      "occurrences": "164",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "construtor",
+      "term_en": "builder",
+      "blip_source": "referencias-blip/portal/INDICE.md",
+      "ambiguity": "none",
+      "candidates": "editor",
+      "occurrences": "0",
+      "notes": "Sem token PT exato no mapa deste grupo; termo exigido pelo plano ou já inglês no código."
+    },
+    {
+      "term_pt": "ações em massa",
+      "term_en": "bulk-ticket",
+      "blip_source": "referencias-blip/portal/INDICE.md",
+      "ambiguity": "none",
+      "candidates": "bulk actions",
+      "occurrences": "3",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "mensagem ativa",
+      "term_en": "activeMessage",
+      "blip_source": "referencias-blip/portal/INDICE.md",
+      "ambiguity": "none",
+      "candidates": "outbound message",
+      "occurrences": "3",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "anexo",
+      "term_en": "attachment",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "media",
+      "occurrences": "24",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "sessão",
+      "term_en": "session",
+      "blip_source": "",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "session / ticket",
+      "occurrences": "65",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "entrar",
+      "term_en": "login",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "sign-in",
+      "occurrences": "113",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "convite",
+      "term_en": "invitation",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "invite",
+      "occurrences": "63",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "gestão",
+      "term_en": "management",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "administration",
+      "occurrences": "77",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "operação",
+      "term_en": "operations",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "operation",
+      "occurrences": "4",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "monitoramento",
+      "term_en": "monitoring",
+      "blip_source": "referencias-blip/portal/INDICE.md",
+      "ambiguity": "none",
+      "candidates": "tracking",
+      "occurrences": "25",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "monitoria",
+      "term_en": "monitoring",
+      "blip_source": "",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "monitoring / quality review",
+      "occurrences": "11",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "histórico",
+      "term_en": "history",
+      "blip_source": "referencias-blip/portal/INDICE.md",
+      "ambiguity": "none",
+      "candidates": "archive",
+      "occurrences": "38",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "relatório",
+      "term_en": "report",
+      "blip_source": "referencias-blip/portal/INDICE.md",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "report / analytics",
+      "occurrences": "23",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "esforço",
+      "term_en": "effort",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "workload",
+      "occurrences": "41",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "satisfação",
+      "term_en": "satisfaction",
+      "blip_source": "referencias-blip/portal/INDICE.md",
+      "ambiguity": "none",
+      "candidates": "survey",
+      "occurrences": "8",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "métrica",
+      "term_en": "metric",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "measure",
+      "occurrences": "0",
+      "notes": "Sem token PT exato no mapa deste grupo; termo exigido pelo plano ou já inglês no código."
+    },
+    {
+      "term_pt": "janela",
+      "term_en": "window",
+      "blip_source": "",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "window / timeframe",
+      "occurrences": "46",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "distribuição",
+      "term_en": "distribution",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "routing",
+      "occurrences": "6",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "análise",
+      "term_en": "analysis",
+      "blip_source": "referencias-blip/portal/INDICE.md",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "analysis / analytics",
+      "occurrences": "39",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "cadastro",
+      "term_en": "registration",
+      "blip_source": "",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "registration / record",
+      "occurrences": "12",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "contrato",
+      "term_en": "contract",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "subscription",
+      "occurrences": "17",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "membro",
+      "term_en": "member",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "user",
+      "occurrences": "16",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "novidades",
+      "term_en": "updates",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "news",
+      "occurrences": "5",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "conta",
+      "term_en": "account",
+      "blip_source": "",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "account / tenant",
+      "occurrences": "163",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "permissão",
+      "term_en": "permission",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "authorization",
+      "occurrences": "16",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "escopo",
+      "term_en": "scope",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "permission",
+      "occurrences": "27",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "chave",
+      "term_en": "key",
+      "blip_source": "",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "key / token",
+      "occurrences": "171",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "estado",
+      "term_en": "state",
+      "blip_source": "",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "state / status",
+      "occurrences": "199",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "importação",
+      "term_en": "import",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "ingestion",
+      "occurrences": "15",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "espelho",
+      "term_en": "mirror",
+      "blip_source": "",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "mirror / sync",
+      "occurrences": "0",
+      "notes": "Sem token PT exato no mapa deste grupo; termo exigido pelo plano ou já inglês no código."
+    },
+    {
+      "term_pt": "varredura",
+      "term_en": "sweep",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "scan",
+      "occurrences": "1",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "entrega",
+      "term_en": "delivery",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "dispatch",
+      "occurrences": "28",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "entrada",
+      "term_en": "inbound",
+      "blip_source": "",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "inbound / input",
+      "occurrences": "123",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "agregação",
+      "term_en": "aggregation",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "rollup",
+      "occurrences": "1",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "dicionário",
+      "term_en": "dictionary",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "schema",
+      "occurrences": "9",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "mídia",
+      "term_en": "media",
+      "blip_source": "",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "media / asset",
+      "occurrences": "8",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "controlador",
+      "term_en": "controller",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "handler",
+      "occurrences": "0",
+      "notes": "Sem token PT exato no mapa deste grupo; termo exigido pelo plano ou já inglês no código."
+    },
+    {
+      "term_pt": "domínio",
+      "term_en": "domain",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "business-logic",
+      "occurrences": "9",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "página",
+      "term_en": "page",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "screen",
+      "occurrences": "184",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "componente",
+      "term_en": "component",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "widget",
+      "occurrences": "1",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "contexto",
+      "term_en": "context",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "scope",
+      "occurrences": "78",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "casca",
+      "term_en": "shell",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "layout",
+      "occurrences": "48",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "trilho",
+      "term_en": "rail",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "sidebar",
+      "occurrences": "64",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "painel",
+      "term_en": "panel",
+      "blip_source": "",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "panel / dashboard",
+      "occurrences": "316",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "compositor",
+      "term_en": "composer",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "editor",
+      "occurrences": "21",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "ponte",
+      "term_en": "bridge",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "adapter",
+      "occurrences": "10",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "armazenamento",
+      "term_en": "storage",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "store",
+      "occurrences": "3",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "autenticação",
+      "term_en": "authentication",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "auth",
+      "occurrences": "20",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "tempo-real",
+      "term_en": "realtime",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "real-time",
+      "occurrences": "0",
+      "notes": "Sem token PT exato no mapa deste grupo; termo exigido pelo plano ou já inglês no código."
+    },
+    {
+      "term_pt": "erro",
+      "term_en": "error",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "failure",
+      "occurrences": "533",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "cartão",
+      "term_en": "card",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "tile",
+      "occurrences": "441",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "valor",
+      "term_en": "value",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "amount",
+      "occurrences": "361",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "usuário",
+      "term_en": "user",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "member",
+      "occurrences": "42",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "requisição",
+      "term_en": "request",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "petition",
+      "occurrences": "3",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "busca",
+      "term_en": "search",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "lookup",
+      "occurrences": "190",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "ações",
+      "term_en": "actions",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "operations",
+      "occurrences": "180",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "dados",
+      "term_en": "data",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "payload",
+      "occurrences": "161",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "papel",
+      "term_en": "role",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "permission",
+      "occurrences": "113",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "coluna",
+      "term_en": "column",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "field",
+      "occurrences": "108",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "filtro",
+      "term_en": "filter",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "predicate",
+      "occurrences": "96",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "configurações",
+      "term_en": "settings",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "configuration",
+      "occurrences": "85",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "segredo",
+      "term_en": "secret",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "credential",
+      "occurrences": "10",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "descrição",
+      "term_en": "description",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "summary",
+      "occurrences": "81",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "leitura",
+      "term_en": "read",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "reading",
+      "occurrences": "80",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "seção",
+      "term_en": "section",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "area",
+      "occurrences": "79",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "condição",
+      "term_en": "condition",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "rule",
+      "occurrences": "76",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "seleção",
+      "term_en": "selection",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "choice",
+      "occurrences": "73",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "ordem",
+      "term_en": "order",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "sequence",
+      "occurrences": "73",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "prioridade",
+      "term_en": "priority",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "rank",
+      "occurrences": "24",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "destino",
+      "term_en": "destination",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "target",
+      "occurrences": "56",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "modelo",
+      "term_en": "template",
+      "blip_source": "",
+      "ambiguity": "AMBIGUOUS",
+      "candidates": "template / model",
+      "occurrences": "63",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "arquivo",
+      "term_en": "file",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "attachment",
+      "occurrences": "52",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "banco",
+      "term_en": "database",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "bank",
+      "occurrences": "10",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    },
+    {
+      "term_pt": "encerramento",
+      "term_en": "closure",
+      "blip_source": "",
+      "ambiguity": "none",
+      "candidates": "completion",
+      "occurrences": "65",
+      "notes": "Contagem de tokens exatos no old do mapa deste grupo."
+    }
+  ]
+}
