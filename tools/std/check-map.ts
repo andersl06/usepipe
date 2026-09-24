@@ -55,11 +55,11 @@ function glossaryPairs(file?: string): [string, string][] {
   const cells = (line: string) => line.split('|').slice(1, -1).map((part) => part.trim());
   const headerIndex = lines.findIndex((line) => {
     const columns = cells(line).map((cell) => cell.toLowerCase());
-    return columns.some((cell) => /^(pt|term_pt|português|portugues|old)$/.test(cell)) && columns.some((cell) => /^(en|term_en|english|new)$/.test(cell));
+    return columns.some((cell) => /^(pt|term_pt|português|portugues|portuguese|old)$/.test(cell)) && columns.some((cell) => /^(en|term_en|english|new)$/.test(cell));
   });
   if (headerIndex < 0) throw new Error(`${file}: approved glossary table not found`);
   const header = cells(lines[headerIndex]).map((cell) => cell.toLowerCase());
-  const oldAt = header.findIndex((cell) => /^(pt|term_pt|português|portugues|old)$/.test(cell));
+  const oldAt = header.findIndex((cell) => /^(pt|term_pt|português|portugues|portuguese|old)$/.test(cell));
   const newAt = header.findIndex((cell) => /^(en|term_en|english|new)$/.test(cell));
   const approvedAt = header.findIndex((cell) => /approved|status/.test(cell));
   const pairs = lines.slice(headerIndex + 2).map(cells).filter((row) => row[oldAt] && row[newAt] && (approvedAt < 0 || /^(approved|yes|sim|true)$/i.test(row[approvedAt] ?? ''))).map((row) => [row[oldAt].toLowerCase(), row[newAt].toLowerCase()] as [string, string]);

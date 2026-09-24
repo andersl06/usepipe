@@ -98,6 +98,27 @@ test('symbol constants keep UPPER_SNAKE casing', () => {
   mapRows(f.map, [row('constant', { old: 'NOME_ANTIGO', new: 'newName' })]);
   assert.ok(checkMap({ map: f.map }).errors.some((e) => e.message === 'invalid casing'));
 });
+test('candidate rows check status and persisted flag without checking their pending names', () => {
+  const f = fixture(); mapRows(f.map, [row('pending', { status: 'candidate', new: '', persisted: 'no' })]);
+  assert.equal(checkMap({ map: f.map }).errors.length, 0);
+  assert.ok(checkMap({ map: f.map, requireStatus: 'proposed' }).errors.some((e) => e.message.includes('status')));
+  mapRows(f.map, [row('pending', { status: 'candidate', new: '', persisted: 'yes' })]);
+  assert.ok(checkMap({ map: f.map }).errors.some((e) => e.message.includes('persisted')));
+});
+test('STATE requires an approved decision and route parameter positions cannot move', () => {
+  const f = fixture(); mapRows(f.map, [row('state', { kind: 'front-route', old: '/chat/:id', new: 'STATE' }), row('route', { kind: 'endpoint', old: '/v1/:id/contact', new: '/v1/contact/:id' })]);
+  const errors = checkMap({ map: f.map }).errors;
+  assert.ok(errors.some((e) => e.ids.includes('state') && e.message.includes('decision_ref')));
+  assert.ok(errors.some((e) => e.ids.includes('route') && e.message.includes('parameter position')));
+  mapRows(f.map, [row('state', { kind: 'front-route', old: '/chat/:id', new: 'STATE', decision_ref: 'D-29' })]);
+  assert.equal(checkMap({ map: f.map }).errors.length, 0);
+});
+test('CSS variables and data attribute values reject near-miss casing', () => {
+  const f = fixture(); mapRows(f.map, [row('css', { kind: 'css-var', old: '--cor-base', new: '--BaseColor' }), row('data', { kind: 'data-attr', old: 'data-valor=valor-antigo', new: 'data-new-value=BadValue' })]);
+  const errors = checkMap({ map: f.map }).errors;
+  assert.ok(errors.some((e) => e.ids.includes('css') && e.message === 'invalid casing'));
+  assert.ok(errors.some((e) => e.ids.includes('data') && e.message === 'invalid casing'));
+});
 test('approve requires zero errors; sample ids are deterministic by scope', () => {
   const f = fixture(); mapRows(f.map, [row('a'), row('b'), row('c'), row('d', { scope: 'crm' })]); const out = path.join(f.root, 'sample.csv');
   const first = checkMap({ map: f.map, sample: 0.1, seed: 1, out, approve: true }); assert.equal(first.errors.length, 0); assert.deepEqual(first.sampledIds, checkMap({ map: f.map, sample: 0.1, seed: 1, out }).sampledIds); assert.ok(readMap(f.map).every((r) => r.status === 'approved'));
