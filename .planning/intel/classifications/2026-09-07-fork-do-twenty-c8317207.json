@@ -1,0 +1,23 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-07-fork-do-twenty.md",
+  "type": "ADR",
+  "confidence": "medium",
+  "manifest_override": false,
+  "title": "Fork do Twenty como base do CRM",
+  "summary": "Records the decision to fork Twenty as the base for Pipe's CRM, with AGPL licensing consequences explained and accepted.",
+  "scope": [
+    "CRM fork",
+    "Twenty (twenty-server, twenty-front)",
+    "AGPL licensing",
+    "isolation strategy",
+    "Docker deployment",
+    "theming and branding",
+    "localization (pt-BR)"
+  ],
+  "cross_refs": [
+    "2026-09-07-crm-tinta-nossa.md"
+  ],
+  "locked": true,
+  "precedence": null,
+  "notes": "Path placement (`docs/specs/`) suggests SPEC heuristic, but content structure (decision + consequences + binding status + dated record) is strongly ADR. Medium confidence reflects this signal conflict. Contains extensive implementation guidance as consequence of the core architectural decision."
+}

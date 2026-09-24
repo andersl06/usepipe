@@ -1,0 +1,13 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-05-metricas-atendimento.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Pipe — definições de métricas de atendimento",
+  "summary": "Defines service metrics including time timestamps, calculations, closure status, satisfaction models, queue rules, and SLA specifications.",
+  "scope": ["service metrics", "atendimento", "time calculation", "queue rules", "SLA", "satisfaction models", "inactivity closure"],
+  "cross_refs": ["2026-09-05-pipe-design.md", "referencias-blip/pesquisa/blip-gestao-funcoes.md", "packages/core"],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

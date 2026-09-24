@@ -1,0 +1,13 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-09-desk-visual-pipe-design.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Desk Pipe - identidade visual sobre layout Blip",
+  "summary": "Visual design specification for applying Pipe branding to the Blip Desk interface with color tokens and logo changes.",
+  "scope": ["visual design", "branding", "Desk", "layout", "tokens", "Moss color", "logo", "UI components"],
+  "cross_refs": ["apps/desk"],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

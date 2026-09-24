@@ -1,0 +1,28 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-07-integracao-twenty.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Integração do Pipe com o Twenty",
+  "summary": "Specifies the integration contract between Pipe and Twenty CRM: GraphQL/metadata endpoints, contact/company field mappings, authentication flows, and multi-tenant isolation rules.",
+  "scope": [
+    "Twenty CRM",
+    "GraphQL API",
+    "metadata endpoint",
+    "authentication",
+    "contact synchronization",
+    "company synchronization",
+    "multi-tenant isolation",
+    "data field mappings",
+    "API integration"
+  ],
+  "cross_refs": [
+    "docs/specs/2026-09-07-fork-do-twenty.md",
+    "apps/api/tests/twenty.test.ts",
+    "apps/api/tests/prova-e2e-twenty.ts",
+    "packages/db/src/segredo.ts",
+    "packages/autenticacao/src/google.ts"
+  ],
+  "locked": false,
+  "precedence": null
+}

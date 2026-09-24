@@ -1,0 +1,31 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-05-desk-requisitos.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Pipe Desk — requisitos funcionais",
+  "summary": "Functional specifications for Pipe Desk, covering agent states, conversation handling, transfers, templates, media, AI features, and UI.",
+  "scope": [
+    "agent states",
+    "conversation capacity",
+    "conversation priority",
+    "transfer",
+    "closing",
+    "quick replies",
+    "24-hour window",
+    "media",
+    "presence indicators",
+    "active message",
+    "contact panel",
+    "AI copilot",
+    "notifications",
+    "keyboard shortcuts",
+    "list and board view"
+  ],
+  "cross_refs": [
+    "2026-09-05-pipe-design.md",
+    "referencias-blip/pesquisa/blip-desk-funcoes.md"
+  ],
+  "locked": false,
+  "precedence": null
+}

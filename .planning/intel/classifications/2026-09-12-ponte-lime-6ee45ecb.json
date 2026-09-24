@@ -1,0 +1,13 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-12-ponte-lime.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Ponte LIME — a cópia da Blip falando com o Pipe",
+  "summary": "Technical specification for the LIME protocol bridge connecting Blip's UI copy to the Pipe backend system with command mapping and authentication.",
+  "scope": ["LIME protocol", "Pipe backend", "Blip copy", "command mapping", "REST API", "authentication"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

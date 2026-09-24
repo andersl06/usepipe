@@ -1,0 +1,27 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-07-crm-tinta-nossa.md",
+  "type": "ADR",
+  "confidence": "medium",
+  "manifest_override": false,
+  "title": "O CRM: arquitetura e funções do Twenty, tinta nossa",
+  "summary": "Binding architectural decision on CRM adoption of Twenty fork with brand-specific design tokens and custom fields.",
+  "scope": [
+    "CRM architecture",
+    "Twenty CRM platform",
+    "design tokens",
+    "color system mapping",
+    "Tabler icons",
+    "lead score",
+    "GraphQL",
+    "AGPLv3 licensing",
+    "custom fields"
+  ],
+  "cross_refs": [
+    "docs/specs/2026-09-07-fork-do-twenty.md",
+    "MARCA.md",
+    "docs/specs/salesforce-estrutura-e-visual.md"
+  ],
+  "locked": true,
+  "precedence": null,
+  "notes": "File located in /specs/ directory (strong SPEC signal) but content is clearly architectural decision: opens with 'Vinculante. Decidido' (binding decision), closes open questions from fork-do-twenty ADR, describes major architectural choices. Per precedence rules, ADR dominates SPEC. Medium confidence due to path/content conflict."
+}

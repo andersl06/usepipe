@@ -1,0 +1,13 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\superpowers\\plans\\2026-09-09-desk-visual-pipe.md",
+  "type": "DOC",
+  "confidence": "medium",
+  "manifest_override": false,
+  "title": "Desk Pipe Visual Pipe Implementation Plan",
+  "summary": "Implementation plan to deliver a visual preview of Desk with validated Blip layout and Pipe branding.",
+  "scope": ["Desk", "visual branding", "Pipe UI", "Blip layout", "tokens", "CSS", "Next.js"],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Procedural implementation plan with task-by-task execution steps and specific commands; classified as DOC (instructional guide/runbook) rather than SPEC due to execution-oriented format and lack of formal technical specification structures like schemas or contracts."
+}

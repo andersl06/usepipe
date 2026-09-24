@@ -1,0 +1,38 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-07-implantacao.md",
+  "type": "SPEC",
+  "confidence": "medium",
+  "manifest_override": false,
+  "title": "Implantação: do zero ao WhatsApp respondendo",
+  "summary": "Step-by-step deployment and configuration guide for Pipe application production deployment, covering infrastructure setup through WhatsApp integration.",
+  "scope": [
+    "deployment procedures",
+    "VPS provisioning",
+    "Docker Compose",
+    "PostgreSQL",
+    "Redis",
+    "Traefik",
+    "Google OAuth",
+    "WhatsApp Business API",
+    "DNS configuration",
+    "SOPS encryption",
+    "age key management",
+    "Let's Encrypt ACME",
+    "pgBackRest backup",
+    "Prometheus monitoring",
+    "environment variables",
+    "infrastructure constraints"
+  ],
+  "cross_refs": [
+    "docs/specs/2026-09-05-infraestrutura.md",
+    "docs/specs/2026-09-07-webhook-por-cliente.md",
+    "infra/compose/docker-compose.prod.yml",
+    "infra/terraform/",
+    "infra/compose/env.prod.exemplo",
+    "infra/.sops.yaml",
+    "packages/db/drizzle"
+  ],
+  "locked": false,
+  "precedence": null,
+  "notes": "Document marked 'Vinculante' (binding). Content is procedurally structured (runbook/deployment guide) rather than API/schema specification format, but prescribes binding technical constraints, configuration requirements, and infrastructure specifications for production deployment."
+}

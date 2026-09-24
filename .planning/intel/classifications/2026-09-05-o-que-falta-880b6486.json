@@ -1,0 +1,13 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-05-o-que-falta.md",
+  "type": "PRD",
+  "confidence": "medium",
+  "manifest_override": false,
+  "title": "Pipe — o que ainda falta",
+  "summary": "Gap analysis of missing features for Pipe SaaS platform, organized by business impact with blockers for first sale, operations, and growth.",
+  "scope": ["billing", "pricing", "customer onboarding", "domain registration", "legal documents", "security audit", "market niche", "customer support", "email notifications", "data migration", "mobile support", "custom roles", "end-to-end testing", "documentation"],
+  "cross_refs": ["docs/specs/2026-09-05-comercial.md"],
+  "locked": false,
+  "precedence": null,
+  "notes": "Path location (docs/specs/) suggests SPEC classification, but content is product requirements/roadmap organized by business impact, not technical specification (no APIs, schemas, protocols). Classified as PRD based on content signals."
+}

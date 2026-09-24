@@ -1,0 +1,23 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-05-comercial.md",
+  "type": "DOC",
+  "confidence": "medium",
+  "manifest_override": false,
+  "title": "Pipe — modelo comercial",
+  "summary": "Commercial model strategy for Pipe based on consultant advisory covering portfolio, pricing, contracts, RFP requirements, and product requirements.",
+  "scope": [
+    "commercial model",
+    "portfolio strategy",
+    "CRM",
+    "AI monitoring",
+    "contract structure",
+    "RFP requirements",
+    "pricing model",
+    "security testing",
+    "product requirements"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null,
+  "notes": "Path 'docs/specs/' suggests SPEC per heuristic, but content is clearly business/commercial advisory guidance with embedded product requirements. Content analysis overrides path heuristic → classified as DOC. Section 7 contains product requirements (observability, directory integration, conversation mining) but in advisory context, not formal specification format."
+}

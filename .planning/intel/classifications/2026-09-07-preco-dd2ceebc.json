@@ -1,0 +1,12 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-07-preco.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Preço do Pipe — proposta com as contas na mesa",
+  "summary": "Pricing model specification with plans (Essencial, Operação, Escala) including per-attendant costs, AI franchise limits, and feature tiers.",
+  "scope": ["pricing", "Essencial plan", "Operação plan", "Escala plan", "AI franchise", "per-attendant cost", "infrastructure cost", "Hetzner", "Anthropic", "Mercado Pago", "monitoring", "CRM", "reports"],
+  "cross_refs": ["2026-09-05-o-que-falta.md", "../pesquisa/arquitetura-multi-tenant.md", "2026-09-05-infraestrutura.md"],
+  "locked": false,
+  "precedence": null
+}

@@ -1,0 +1,32 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-05-pipe-design.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Pipe — desenho do produto",
+  "summary": "Technical design specification for Pipe: CRM, customer service platform with AI monitoring, including architecture, modules, data models, and five-phase implementation strategy.",
+  "scope": [
+    "Pipe",
+    "CRM",
+    "customer service platform",
+    "AI monitoring",
+    "WhatsApp Cloud API",
+    "Desk",
+    "Gestão",
+    "PostgreSQL",
+    "Redis",
+    "BullMQ",
+    "NestJS",
+    "Next.js",
+    "multi-tenant architecture",
+    "Row Level Security",
+    "WebSocket",
+    "Docker Compose"
+  ],
+  "cross_refs": [
+    "2026-09-05-desk-requisitos.md",
+    "2026-09-05-metricas-atendimento.md"
+  ],
+  "locked": false,
+  "precedence": null
+}

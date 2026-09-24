@@ -1,0 +1,13 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-07-storage-de-anexos.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Storage de anexo e áudio",
+  "summary": "Technical specification for attachment and audio storage using disk storage, tenant isolation, signed URLs, and MIME type validation.",
+  "scope": ["attachment storage", "audio storage", "disk storage", "tenant isolation", "signed URLs", "MIME type validation", "file endpoints", "S3 interface compatibility"],
+  "cross_refs": ["2026-09-07-integracao-twenty.md", "referencias-blip/pesquisa/regras-blip.md", "packages/armazenamento/src/porta.ts"],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

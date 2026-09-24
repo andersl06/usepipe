@@ -1,0 +1,13 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-05-modelo-de-dados.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Pipe — modelo de dados",
+  "summary": "Database schema definitions, state machines, event catalog, and isolation rules for six system modules.",
+  "scope": ["database schema", "PostgreSQL", "state machines", "data model", "migrations", "tenancy", "conversations", "management", "CRM", "monitoring", "automation"],
+  "cross_refs": ["2026-09-05-pipe-design.md", "packages/db"],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

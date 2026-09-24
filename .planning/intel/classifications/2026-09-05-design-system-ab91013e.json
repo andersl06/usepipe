@@ -1,0 +1,32 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-05-design-system.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Design system do Pipe",
+  "summary": "Technical specification for the design system including tokens, typography, color palette rules, component structure, and implementation patterns.",
+  "scope": [
+    "design system",
+    "tokens",
+    "typography",
+    "color palette",
+    "components",
+    "CSS",
+    "packages/ui",
+    "design rules",
+    "density",
+    "Pipe"
+  ],
+  "cross_refs": [
+    "docs/marca/MARCA.md",
+    "referencias-blip/pesquisa/blip-design-system.md",
+    "referencias-blip/pesquisa/visual-blip-salesforce.md",
+    "referencias-blip/pesquisa/sistema-visual.md",
+    "packages/ui",
+    "apps/desk",
+    "apps/gestao",
+    "apps/crm"
+  ],
+  "locked": false,
+  "precedence": null
+}

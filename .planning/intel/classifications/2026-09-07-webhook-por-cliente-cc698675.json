@@ -1,0 +1,25 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-07-webhook-por-cliente.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "O webhook do WhatsApp, com um cliente por número",
+  "summary": "Technical specification of WhatsApp webhook routing with two routes: per-channel (accepts override) and umbrella (account-level, no override support). Defines data model, API endpoints, and security constraints.",
+  "scope": [
+    "WhatsApp webhook",
+    "webhook routing",
+    "WABA",
+    "phone_number_id",
+    "canal",
+    "override_callback_uri",
+    "data model",
+    "API endpoints"
+  ],
+  "cross_refs": [
+    "https://developers.facebook.com/documentation/business-messaging/whatsapp/webhooks/overview",
+    "https://developers.facebook.com/documentation/business-messaging/whatsapp/webhooks/override/"
+  ],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

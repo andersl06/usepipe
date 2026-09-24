@@ -1,0 +1,30 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\superpowers\\plans\\2026-09-23-atendimento-blip-fidelity.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Atendimento Blip Fidelity Implementation Plan",
+  "summary": "Implementation specification for Atendimento Blip Fidelity covering monitoring filters, history reconciliation, and visual validation with three tracked tasks.",
+  "scope": [
+    "Atendimento",
+    "Monitoramento",
+    "Histórico",
+    "React components",
+    "filtros-rapidos",
+    "lista-historico",
+    "CSS styling",
+    "TypeScript",
+    "TanStack Query",
+    "atendimento.css",
+    "testing",
+    "Blip integration"
+  ],
+  "cross_refs": [
+    "referencias-blip/pesquisa/blip-medidas-monitoramento.md",
+    "referencias-blip/pesquisa/blip-telas-atendimento.md",
+    "docs/capturas/comparacao/*-original.png",
+    "referencias-blip/pesquisa/pendencias-referencia-atendimento.md"
+  ],
+  "locked": false,
+  "precedence": null
+}

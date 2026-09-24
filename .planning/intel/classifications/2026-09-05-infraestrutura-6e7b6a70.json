@@ -1,0 +1,25 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-05-infraestrutura.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Pipe — infraestrutura e modelo de entrega",
+  "summary": "Technical specification for SaaS multi-tenant Pipe infrastructure with Docker Compose, tenant isolation via RLS, and observability requirements.",
+  "scope": [
+    "SaaS multi-tenant architecture",
+    "Docker Compose topology",
+    "Postgres 16",
+    "Redis/BullMQ",
+    "tenant isolation",
+    "RLS policies",
+    "storage management",
+    "WhatsApp integration",
+    "LGPD compliance",
+    "observability",
+    "backup strategy",
+    "deployment procedures"
+  ],
+  "cross_refs": [],
+  "locked": false,
+  "precedence": null
+}

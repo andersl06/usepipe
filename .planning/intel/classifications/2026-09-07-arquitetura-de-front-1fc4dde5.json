@@ -1,0 +1,13 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-07-arquitetura-de-front.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Arquitetura de front: Vite, uma URL por aplicativo, e tempo real por WebSocket",
+  "summary": "Technical specification for front-end architecture using Vite, separate application URLs, and WebSocket real-time updates with defined technology stack.",
+  "scope": ["Vite", "React", "React Router", "CSS", "REST API", "TanStack Query", "WebSocket", "URL architecture", "CORS", "session management"],
+  "cross_refs": ["apps/desk/src/app/acoes.ts", "packages/contracts", "packages/ui", "packages/core", "packages/db", "packages/ai", "packages/autenticacao"],
+  "locked": false,
+  "precedence": null,
+  "notes": ""
+}

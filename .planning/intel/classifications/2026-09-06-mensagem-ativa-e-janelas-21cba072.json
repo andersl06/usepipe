@@ -1,0 +1,25 @@
+{
+  "source_path": "C:\\Users\\anderson.linhares\\pipe\\docs\\specs\\2026-09-06-mensagem-ativa-e-janelas.md",
+  "type": "SPEC",
+  "confidence": "high",
+  "manifest_override": false,
+  "title": "Mensagem ativa, as duas janelas e o quadro",
+  "summary": "Technical specification for active messages with dual time windows (24-hour and 90-day), defining data models, state transitions, and board implementation.",
+  "scope": [
+    "mensagem_ativa",
+    "janela_24h",
+    "janela_90d",
+    "contato",
+    "conversa",
+    "estado",
+    "database schema",
+    "state transitions",
+    "Kanban board"
+  ],
+  "cross_refs": [
+    "referencias-blip/pesquisa/blip-desk-dom.md",
+    "packages/core/src/janela/"
+  ],
+  "locked": false,
+  "precedence": null
+}
