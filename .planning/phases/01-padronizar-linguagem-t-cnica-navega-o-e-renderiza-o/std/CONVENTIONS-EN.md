@@ -26,9 +26,9 @@ Use `v1/<plural-resource>` for API resources, with English kebab-case path segme
 
 Owner decision (gate 1, 2026-09-24): Portal/Gestão front routes follow the Blip path shape, since Blip itself uses `<tenant>.blip.ai/application`, `.../application/detail/<tenant>/attendance/...`, and `.../application/detail/<tenant>/analytics/dashboard.html`. Concretely: the Portal/Gestão module or main portal screen is `/application`; attendance-module routes nest under `/attendance/...` (`/application/attendance/...` where the Desk mirrors the module); active-message routes stay `/application/activeMessage`. This is the glossary's `painel` → `application` decision (module/route sense; UI panel components use `panel` instead, see `GLOSSARY.md`).
 
-Per-tenant subdomains (`<tenant>.usepipe.ai`, `<tenant>.desk.usepipe.ai`) are **out of scope for phase 1** — a later phase addresses tenant-subdomain routing. Route constructors and consumers renamed in this phase must not assume a fixed host; keep the host resolution mechanism as-is and only change path segments.
+Per-tenant subdomains (`<tenant>.usepipe.app`, `<tenant>.desk.usepipe.app`) are **out of scope for phase 1** — a later phase addresses tenant-subdomain routing. Route constructors and consumers renamed in this phase must not assume a fixed host; keep the host resolution mechanism as-is and only change path segments.
 
-Desk root (owner decision D-42, 2026-09-24): the Desk attendance screen is the app root `/` (future `<tenant>.desk.usepipe.ai/`), with no `/chat` segment. Other Desk screens are `/contacts` and `/analytics`. `/chat` and `/chat/:id` are removed with a dry cut (D-14); what `std/nav-contract.md`, D-27 and D-32 say about `/chat` applies to `/`.
+Desk root (owner decision D-42, 2026-09-24): the Desk attendance screen is the app root `/` (future `<tenant>.desk.usepipe.app/`), with no `/chat` segment. Other Desk screens are `/contacts` and `/analytics`. `/chat` and `/chat/:id` are removed with a dry cut (D-14); what `std/nav-contract.md`, D-27 and D-32 say about `/chat` applies to `/`.
 
 ## Query params, storage keys, cookies, metrics, queues
 
