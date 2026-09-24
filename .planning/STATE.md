@@ -4,7 +4,7 @@ milestone: v1.0
 milestone_name: milestone
 status: executing
 stopped_at: Phase 1 context gathered
-last_updated: "2026-09-24T18:38:01.401Z"
+last_updated: "2026-09-24T18:46:49.336Z"
 last_activity: 2026-09-24 -- Phase 01 execution started
 progress:
   total_phases: 8
@@ -84,6 +84,7 @@ Problemas conhecidos herdados de PROJECT-HANDOFF.md (24/09/2026) — nenhum reso
 - `master` está 2 commits atrás de `limpeza` — decidir quando mesclar (Phase 4, OPS-01).
 - Branches soltas sem uso recente (`codex/atendimento-blip`, `desk-visual-pipe`, `integracao`, vários `worktree-agent-*`) — candidatas a apagar (Phase 4, OPS-02).
 - Número de teste da Meta expira em 24h, sem versão permanente — reconexão é rotina diária até haver número próprio com usuário de sistema.
+- 01-01 baseline not green: @pipe/crm build fails (packages/ui aviso-encerramento.tsx + encerramento-ticket.tsx use React hooks without 'use client', pulled into crm not-found.tsx via @pipe/ui index) and @pipe/crm test 'o catalogo de eventos nao divergiu de apps/api' fails (crm catalog lacks modelo.recategorizado, sla.alertou, sla.estourou). Pre-existing on limpeza.
 
 ## Deferred Items
 
