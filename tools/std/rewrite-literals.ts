@@ -173,6 +173,13 @@ function isRoutePosition(node: any): boolean {
   return isFirstArgument(node) && /(?:navigate|redirect|irPara)$/.test(name);
 }
 
+function rewriteFrontRoute(value: string, row: MapRow): string | undefined {
+  const firstSegment = splitPath(row.old)[0];
+  if (!firstSegment || !new RegExp(`^/${escapeRegex(firstSegment)}(?=/|\\?|#|$)`).test(value))
+    return undefined;
+  return rewritePathPattern(value, row.old, row.new);
+}
+
 function typeContainsLiteral(type: any, value: string): boolean {
   if (!type) return false;
   if (type.isStringLiteral?.()) return type.getLiteralValue() === value;
@@ -297,11 +304,8 @@ function rewriteAstRow(
     let replacement: string | undefined;
     if (row.kind === 'endpoint' && (value.includes('/v1/') || value.startsWith('v1/')))
       replacement = rewritePathPattern(value, row.old, row.new);
-    else if (
-      row.kind === 'front-route' &&
-      (isRoutePosition(literal) || value.startsWith(row.old.split('/:')[0]))
-    )
-      replacement = rewritePathPattern(value, row.old, row.new);
+    else if (row.kind === 'front-route' && isRoutePosition(literal))
+      replacement = rewriteFrontRoute(value, row);
     else if (row.kind === 'query-param') {
       const name = callName(literal);
       if (
