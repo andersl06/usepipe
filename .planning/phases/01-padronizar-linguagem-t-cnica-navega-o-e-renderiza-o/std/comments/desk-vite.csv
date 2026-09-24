@@ -7,13 +7,13 @@ desk-vite-comment-0754dee4,desk-vite,apps/desk-vite/src/App.tsx,16,24,jsdoc,4,"/
  *
  * Só `/entrar` e `/convite/:token` são públicas. O resto fica atrás de
  * `ExigirSessao`.
- */",,,,,,
+ */",translate,"Desk routes mirror the reference (`~/desk-clone/README.md`, ""Telas replicadas""): `/` attendance, `/chat` the open conversation, `/activeMessage/send`, `/analytics`, `/contacts`, `/bulk-ticket`, and `/preferences`. `/chat/:id` puts the conversation ID in the URL so it survives F5. Only `/entrar` and `/convite/:token` are public; `ExigirSessao` guards everything else.",architecture,"apps/desk-vite/src/App.tsx:25-53; current routing, pending D-42 route change",,proposed
 desk-vite-comment-0fe472a9,desk-vite,apps/desk-vite/src/componentes/avatar.tsx,4,9,jsdoc,6,"/**
  * O `bds-avatar` da referência: disco na cor ""system"" com as iniciais quando
  * há `name`, ou o ícone de pessoa quando não há (o cartão da lista passa só
  * a foto, então mostra o ícone; o cabeçalho e o trilho passam o nome).
  * Tamanhos: `extra-small` 32, `small` 40, `standard` 56.
- */",,,,,,
+ */",translate,"Reference `bds-avatar`: a system-colored circle with initials when `name` is supplied, or a person icon otherwise (list cards provide only the photo; the header and rail provide the name). Sizes: `extra-small` 32, `small` 40, `standard` 56.",meta-blip,apps/desk-vite/src/componentes/avatar.tsx:10-40,,proposed
 desk-vite-comment-a4c1e9aa,desk-vite,apps/desk-vite/src/componentes/casca.tsx,5,12,jsdoc,6,"/**
  * A casca do Desk: o trilho à esquerda e a tela à direita, em altura fixa com
  * rolagem interna (`#app` > `.navbar` + `#container` da referência).
@@ -21,7 +21,7 @@ desk-vite-comment-a4c1e9aa,desk-vite,apps/desk-vite/src/componentes/casca.tsx,5,
  * `data-painel` e `data-estado` são as classes `drawer-hidden` e
  * `state--chat`/`state--drawer` do `#container` de lá: governam as faixas
  * abaixo de 1600 e de 950 no CSS.
- */",,,,,,
+ */",translate,Desk shell: a left rail and right screen at fixed height with internal scrolling (`#app` > `.navbar` + `#container` in the reference). `data-painel` and `data-estado` correspond to its `drawer-hidden` and `state--chat`/`state--drawer` classes; they control layout below 1600px and 950px.,architecture,apps/desk-vite/src/componentes/casca.tsx:13-40,,proposed
 desk-vite-comment-e642c1f1,desk-vite,apps/desk-vite/src/componentes/exigir-sessao.tsx,4,12,jsdoc,13,"/**
  * O portão das telas do Desk — o mesmo de `apps/gestao-vite`, sem o desvio para
  * `/bem-vindo`: o onboarding da conta é assunto da Gestão, e o atendente que
@@ -30,7 +30,7 @@ desk-vite-comment-e642c1f1,desk-vite,apps/desk-vite/src/componentes/exigir-sessa
  * Sem sessão vai para `/entrar` com o destino guardado. Enquanto a primeira
  * pergunta não voltou, não desenha nada: mostrar a tela e depois tirá-la é
  * pior que um instante em branco.
- */",,,,,,
+ */",update,"Desk screen guard, like `apps/gestao-vite` but without a detour through `/bem-vindo`: account onboarding belongs to Gest?o, and agents arrive here with an account. Without a session, redirect to `/entrar` and preserve the destination. While the initial session check is pending, show only the loading status so a protected screen never flashes.",security,"apps/desk-vite/src/componentes/exigir-sessao.tsx:13-29: renders loading status, not an empty screen",,proposed
 desk-vite-comment-a441a131,desk-vite,apps/desk-vite/src/componentes/icones-desk.tsx,3,16,jsdoc,14,"/**
  * Os ícones do DESK, no desenho da origem.
  *
@@ -44,7 +44,7 @@ desk-vite-comment-a441a131,desk-vite,apps/desk-vite/src/componentes/icones-desk.
  *
  * Todos são traçados como preenchimento (`fill: currentColor`): quem pinta é a
  * folha, pelos tokens `--p-*`.
- */",,,,,,
+ */",translate,"Desk icons follow the source design. Like `icones-portal.tsx`, this file adds the agent-screen icons missing from the Portal. These are reference `bds-icon` assets extracted from the package loaded by `~/desk-clone` (`desk-local/static/js/58.*.js`, keys `asset-icon-<nome>-<tema>`), not hand-drawn. Local names appear on the left and source names in comments. The draft `gerar-icones-desk.mjs` regenerates them after adding an icon to `QUERO`. All paths use `fill: currentColor`; stylesheet `--p-*` tokens supply their color.",meta-blip,apps/desk-vite/src/componentes/icones-desk.tsx:17-30; source references in original comment,,proposed
 desk-vite-comment-ad8ecd5d,desk-vite,apps/desk-vite/src/componentes/icones-portal.tsx,3,19,jsdoc,24,"/**
  * Os ícones do PORTAL, no desenho da origem.
  *
@@ -61,7 +61,7 @@ desk-vite-comment-ad8ecd5d,desk-vite,apps/desk-vite/src/componentes/icones-porta
  *
  * `parOuImpar` é o `fill-rule=""evenodd""` de alguns deles — sem isso o desenho
  * fecha os vazados e vira um borrão.
- */",,,,,,
+ */",translate,"Portal icons follow the source design. `@pipe/ui` uses 24px Tabler outlines with 1.75px strokes, while the Blip Portal rail uses filled icons; this visible difference prompted the owner's request to match it. These local paths were measured in the rendered DOM at `supernova.blip.ai` (see `referencias-blip/pesquisa/blip-portal-contrato.md`); local names appear on the left and source names in comments. Keep them local to Gestão until another app needs them, then move them to the package facade without changing callers. `parOuImpar` implements `fill-rule=""evenodd""` so enclosed gaps do not fill in.",meta-blip,apps/desk-vite/src/componentes/icones-portal.tsx:21-40; original evidence reference,,proposed
 desk-vite-comment-4ae10b90,desk-vite,apps/desk-vite/src/componentes/icones-portal.tsx,689,698,jsdoc,12,"/**
  * Os LOGOS de canal — o `bds-icon type=""logo""` da origem (`asset-logo-<nome>`
  * do blip-ds), numa grade de 80. Diferente dos ícones, logo tem cor própria e
@@ -71,12 +71,12 @@ desk-vite-comment-4ae10b90,desk-vite,apps/desk-vite/src/componentes/icones-porta
  * A exceção é `email`, que é desenho da própria Blip pintado com a primária
  * dela (#1E6BF1): essa cor vira `currentColor` e quem pinta é a nossa folha.
  * O `blip-chat` NÃO entra — é a marca da Blip.
- */",,,,,,
+ */",translate,"Channel logos match the reference `bds-icon type=""logo""` (`asset-logo-<nome>` from blip-ds) on an 80px grid. Unlike UI icons, the WhatsApp and Instagram logos retain their own colors and gradients. The `email` logo is Blip artwork in its primary #1E6BF1, replaced with `currentColor` so our stylesheet controls it. Exclude `blip-chat`, which is Blip branding.",meta-blip,apps/desk-vite/src/componentes/icones-portal.tsx:699-805,,proposed
 desk-vite-comment-b2cc9303,desk-vite,apps/desk-vite/src/componentes/icones-portal.tsx,806,810,jsdoc,8,"/**
  * A lupa da barra clara é a ÚNICA que não vem do jogo de 24: na origem ela é um
  * `<icon name=""Search"" width=""32"" height=""32"">` numa grade de 72, desenhado à
  * parte do design system. Copiada como está para o traço não engordar.
- */",,,,,,
+ */",translate,"The light rail's search icon is the only one outside the 24px set. The reference uses `<icon name=""Search"" width=""32"" height=""32"">` on a 72px grid, drawn separately from the design system. Copy it as drawn so the stroke does not thicken.",meta-blip,apps/desk-vite/src/componentes/icones-portal.tsx:811-825,,proposed
 desk-vite-comment-fe87ccf5,desk-vite,apps/desk-vite/src/componentes/link.tsx,4,13,jsdoc,15,"/**
  * O `<Link>` das telas, com `href` — a MESMA assinatura que o `next/link` tinha.
  *
@@ -86,7 +86,7 @@ desk-vite-comment-fe87ccf5,desk-vite,apps/desk-vite/src/componentes/link.tsx,4,1
  *
  * `href` externo (`http…`, `mailto:`) vira `<a>` comum: o roteador não tem o
  * que fazer com ele.
- */",,,,,,
+ */",translate,"Screen `<Link href>` keeps the former `next/link` `href` signature so migrated Blip-measured screens only change their import. It delegates client-side navigation to React Router. External `href` values (`http…`, `mailto:`) use a plain `<a>` because the router cannot handle them.",architecture,apps/desk-vite/src/componentes/link.tsx:14-32,,proposed
 desk-vite-comment-fada2eb3,desk-vite,apps/desk-vite/src/componentes/trilho.tsx,10,21,jsdoc,8,"/**
  * O trilho vertical da referência (`~/desk-clone/templates/navbar.html` +
  * `navbar-menu-item.html` + `navbar-avatar.html`): marca no topo, cinco
@@ -98,36 +98,36 @@ desk-vite-comment-fada2eb3,desk-vite,apps/desk-vite/src/componentes/trilho.tsx,1
  * O clique no avatar abre o painel ""Seu status"" (`profile-side-menu`), que
  * entra ao lado do trilho com 300px e empurra as colunas — é como a cópia
  * faz, medido em `desk2/blip-menu-status.png`.
- */",,,,,,
+ */",translate,"Reference vertical rail (`~/desk-clone/templates/navbar.html`, `navbar-menu-item.html`, `navbar-avatar.html`): brand at the top; five destinations; help, preferences, and presence avatar at the bottom. Order and icons follow the clone README (`message-talk`, `paperplane`, `monitoring`, `contact`, `ticket`; `question`, `settings-general`), and tooltips use its `$t(name)` labels. Clicking the avatar opens `profile-side-menu` beside the rail at 300px, pushing the columns as measured in `desk2/blip-menu-status.png`.",meta-blip,apps/desk-vite/src/componentes/trilho.tsx:22-125; original evidence references,,proposed
 desk-vite-comment-adb20fe9,desk-vite,apps/desk-vite/src/componentes/trilho.tsx,124,130,jsdoc,4,"/**
  * O painel ""Seu status"" (`profile-side-menu`): cabeçalho com seta de voltar
  * (`.sidebar-header`, 40px, gap 10), `user-info` (avatar 56, nome 14/600,
  * e-mail 12), os três status (`.change-status-button`: 56px, recuo 16, raio 8,
  * o em vigor com fundo a 8% e o check), e ""Desconectar"" no rodapé.
  * ""Em pausa"" abre a lista de motivos (`personalized-breaks-select`).
- */",,,,,,
-desk-vite-comment-4df27ae3,desk-vite,apps/desk-vite/src/componentes/trilho.tsx,30,30,jsdoc,0,"/** Os rótulos de status do menu do avatar (`{""online"":""Online"",""pause"":""Em pausa"",""invisible"":""Invisível""}`). */",,,,,,
-desk-vite-comment-07a52212,desk-vite,apps/desk-vite/src/componentes/trilho.tsx,77,77,block,3,/* ponytail: a ajuda da referência abre a central deles; aqui aponta para o suporte do Pipe. */,,,,,,
-desk-vite-comment-b4503d8d,desk-vite,apps/desk-vite/src/contexto/sessao.tsx,13,13,jsdoc,3,/** `null` sem sessão; `undefined` enquanto a primeira pergunta não voltou. */,,,,,,
+ */",translate,"`profile-side-menu` follows the reference: back-arrow header (`.sidebar-header`, 40px, gap 10), `user-info` (56px avatar, name 14/600, email 12), and three statuses (`.change-status-button`: 56px, 16px inset, 8px radius, with 8% background and a check on the active one). Place `Desconectar` in the footer. `Em pausa` opens `personalized-breaks-select`.",meta-blip,apps/desk-vite/src/componentes/trilho.tsx:131-215,,proposed
+desk-vite-comment-4df27ae3,desk-vite,apps/desk-vite/src/componentes/trilho.tsx,30,30,jsdoc,0,"/** Os rótulos de status do menu do avatar (`{""online"":""Online"",""pause"":""Em pausa"",""invisible"":""Invisível""}`). */",remove,,other,apps/desk-vite/src/componentes/trilho.tsx:31-36: adjacent status-label mapping is self-explanatory,,proposed
+desk-vite-comment-07a52212,desk-vite,apps/desk-vite/src/componentes/trilho.tsx,77,77,block,3,/* ponytail: a ajuda da referência abre a central deles; aqui aponta para o suporte do Pipe. */,translate,The reference help link opens Blip's help center; this one goes to Pipe support.,integration,apps/desk-vite/src/componentes/trilho.tsx:77-83,,proposed
+desk-vite-comment-b4503d8d,desk-vite,apps/desk-vite/src/contexto/sessao.tsx,13,13,jsdoc,3,/** `null` sem sessão; `undefined` enquanto a primeira pergunta não voltou. */,translate,`null` means no session; `undefined` means the initial session check is pending.,security,"apps/desk-vite/src/contexto/sessao.tsx:12-17,30-52",,proposed
 desk-vite-comment-29b436a2,desk-vite,apps/desk-vite/src/contexto/sessao.tsx,5,11,jsdoc,7,"/**
  * Quem está logado — a única fonte, alimentada por `GET /v1/eu`.
  *
  * Só a RESPOSTA do servidor derruba a sessão (401/403); rede fora do ar mantém
  * o último `Eu` conhecido, e o próximo `atualizar` corrige. Deslogar alguém por
  * um soluço de wi-fi é o que o conselheiros-auvp aprendeu a não fazer.
- */",,,,,,
-desk-vite-comment-f4879bd9,desk-vite,apps/desk-vite/src/contexto/sessao.tsx,54,54,jsdoc,3,/** Para tela de produto: o `Eu` garantido. Quem a usa está atrás de `ExigirSessao`. */,,,,,,
+ */",translate,"Current signed-in user, sourced only from `GET /v1/eu`. Only an actual server 401/403 clears the session. A network failure keeps the last known `Eu`; a later `atualizar` refreshes it. Do not sign someone out because Wi-Fi briefly drops, as learned in conselheiros-auvp.",security,apps/desk-vite/src/contexto/sessao.tsx:19-52,,proposed
+desk-vite-comment-f4879bd9,desk-vite,apps/desk-vite/src/contexto/sessao.tsx,54,54,jsdoc,3,/** Para tela de produto: o `Eu` garantido. Quem a usa está atrás de `ExigirSessao`. */,translate,Use on product screens guarded by `ExigirSessao` to obtain a guaranteed `Eu`.,security,apps/desk-vite/src/contexto/sessao.tsx:55-59,,proposed
 desk-vite-comment-1507ae9e,desk-vite,apps/desk-vite/src/lib/acoes.ts,10,16,jsdoc,3,"/**
  * Uma ação de formulário do Desk, na `api` — o mesmo `acaoRemota` de
  * `apps/gestao-vite/src/lib/acoes.ts`, apontado para `POST /v1/desk/acoes/:nome`.
  *
  * O `FormData` vira JSON (chave repetida vira lista, como o `getAll` espera), o
  * `Resultado` volta, e, dando certo, as leituras em cache são invalidadas.
- */",,,,,,
-desk-vite-comment-8d8f799d,desk-vite,apps/desk-vite/src/lib/acoes.ts,38,38,jsdoc,4,"/** A mesma ação, chamada com um objeto em vez de `FormData` — para botão sem formulário. */",,,,,,
-desk-vite-comment-2d6e6624,desk-vite,apps/desk-vite/src/lib/acoes.ts,4,4,jsdoc,3,"/** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */",,,,,,
-desk-vite-comment-abd8a7d9,desk-vite,apps/desk-vite/src/lib/acoes.ts,53,53,block,0,"/* Nota interna do compositor — é o ""Comentário"" do painel do contato. */",,,,,,
-desk-vite-comment-71d69e28,desk-vite,apps/desk-vite/src/lib/acoes.ts,58,58,jsdoc,1,/** Deu certo: as leituras em cache são refeitas — o `revalidatePath` de antes. */,,,,,,
+ */",translate,"Desk form action through `api`, equivalent to `acaoRemota` in `apps/gestao-vite/src/lib/acoes.ts`, targeting `POST /v1/desk/acoes/:nome`. Convert `FormData` to JSON, collecting repeated keys as arrays like `getAll`; return `Resultado` and invalidate cached reads after success.",integration,apps/desk-vite/src/lib/acoes.ts:17-36,,proposed
+desk-vite-comment-8d8f799d,desk-vite,apps/desk-vite/src/lib/acoes.ts,38,38,jsdoc,4,"/** A mesma ação, chamada com um objeto em vez de `FormData` — para botão sem formulário. */",translate,"Invoke the same action with an object instead of `FormData`, for buttons without forms.",other,apps/desk-vite/src/lib/acoes.ts:39-50,,proposed
+desk-vite-comment-2d6e6624,desk-vite,apps/desk-vite/src/lib/acoes.ts,4,4,jsdoc,3,"/** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */",remove,,other,apps/desk-vite/src/lib/acoes.ts:5-8: `Resultado` shape is self-explanatory,,proposed
+desk-vite-comment-abd8a7d9,desk-vite,apps/desk-vite/src/lib/acoes.ts,53,53,block,0,"/* Nota interna do compositor — é o ""Comentário"" do painel do contato. */",translate,Internal composer note maps to `Comentário` in the contact panel.,architecture,apps/desk-vite/src/lib/acoes.ts:54; original cross-screen relationship,,proposed
+desk-vite-comment-71d69e28,desk-vite,apps/desk-vite/src/lib/acoes.ts,58,58,jsdoc,1,/** Deu certo: as leituras em cache são refeitas — o `revalidatePath` de antes. */,translate,"After success, invalidate cached reads; this replaces the former `revalidatePath` behavior.",architecture,apps/desk-vite/src/lib/acoes.ts:59-61,,proposed
 desk-vite-comment-d7b2e178,desk-vite,apps/desk-vite/src/lib/anexos.ts,1,15,jsdoc,11,"/**
  * A validação do LOTE de anexos antes de subir — o laço de
  * `blip-desk-regras-tecnicas.md` §3.3, por arquivo e nesta ordem: tipo vazio,
@@ -142,13 +142,13 @@ desk-vite-comment-d7b2e178,desk-vite,apps/desk-vite/src/lib/anexos.ts,1,15,jsdoc
  * mesmo índice e não roda no navegador. Quem manda é o servidor de todo modo:
  * `POST /v1/anexos` confere tipo pelos BYTES e tamanho pelo tipo real, e o
  * lote só vira mensagem depois de todos passarem lá.
- */",,,,,,
-desk-vite-comment-fabffcf5,desk-vite,apps/desk-vite/src/lib/anexos.ts,21,21,jsdoc,2,/** 16 MB para áudio e vídeo — `MAX_BYTES_AUDIO_VIDEO`; a Meta recusa acima disso. */,,,,,,
-desk-vite-comment-baa77230,desk-vite,apps/desk-vite/src/lib/anexos.ts,24,24,jsdoc,3,"/** O que a tela precisa saber de um arquivo — o `File` do navegador, sem o corpo. */",,,,,,
+ */",translate,"Validate the entire attachment batch before upload. Following `blip-desk-regras-tecnicas.md` §3.3, check each file in this order: empty type, format, size, count. The reference shows a banner per failure and aborts the whole loop on count failure; here any failure rejects the entire batch so a partially sent set cannot leave the customer with only some files. Limits mirror `@pipe/armazenamento` (`MAX_ARQUIVOS_POR_MENSAGEM`, `MAX_BYTES_POR_ARQUIVO`, `MAX_BYTES_AUDIO_VIDEO`) rather than importing its index, which loads backend `node:fs` and cannot run in the browser. The server remains authoritative: `POST /v1/anexos` checks type from bytes and size from the actual type, and no batch becomes messages until all files pass.",integration,apps/desk-vite/src/lib/anexos.ts:17-85; original Blip evidence reference,,proposed
+desk-vite-comment-fabffcf5,desk-vite,apps/desk-vite/src/lib/anexos.ts,21,21,jsdoc,2,/** 16 MB para áudio e vídeo — `MAX_BYTES_AUDIO_VIDEO`; a Meta recusa acima disso. */,translate,16 MB for audio and video (`MAX_BYTES_AUDIO_VIDEO`); Meta rejects larger files.,integration,apps/desk-vite/src/lib/anexos.ts:22; Meta limit stated in source comment,,proposed
+desk-vite-comment-baa77230,desk-vite,apps/desk-vite/src/lib/anexos.ts,24,24,jsdoc,3,"/** O que a tela precisa saber de um arquivo — o `File` do navegador, sem o corpo. */",remove,,other,apps/desk-vite/src/lib/anexos.ts:25-29: interface fields already describe browser file metadata,,proposed
 desk-vite-comment-c8370de9,desk-vite,apps/desk-vite/src/lib/anexos.ts,41,44,jsdoc,4,"/**
  * O motivo de recusar o lote, ou `null` quando ele pode subir. Sempre cita o
  * arquivo: com dez na seleção, ""grande demais"" sem nome não ajuda ninguém.
- */",,,,,,
+ */",translate,"Return the reason the batch is rejected, or `null` when it can upload. Name the failing file so the error remains useful when many files were selected.",other,apps/desk-vite/src/lib/anexos.ts:45-85,,proposed
 desk-vite-comment-7b8b9900,desk-vite,apps/desk-vite/src/lib/api.ts,1,11,jsdoc,11,"/**
  * O cliente HTTP da Gestão: `fetch` para a `api` NestJS, sempre com o cookie.
  *
@@ -159,24 +159,24 @@ desk-vite-comment-7b8b9900,desk-vite,apps/desk-vite/src/lib/api.ts,1,11,jsdoc,11
  *
  * O que sai daqui é o tipo de `@pipe/contracts` ou o tipo declarado pelo
  * endpoint da `api`. Nada é reimplementado; nada é adivinhado.
- */",,,,,,
-desk-vite-comment-6f0cb9de,desk-vite,apps/desk-vite/src/lib/api.ts,15,15,jsdoc,2,/** URL absoluta de um caminho da `api` — para navegação de topo (login) e para o `fetch`. */,,,,,,
+ */",update,"Desk HTTP client for the NestJS `api`: browser `fetch` sends the session cookie. The front end requests data; it does not connect to the database (README's ""Quem fala com o banco"" boundary). Calls use `/v1/...` through `VITE_URL_API` when configured, otherwise the current origin; Vite proxies development requests to `api`; in production the front and API share a parent domain and the cookie crosses via `Domain`. Return types come from `@pipe/contracts` or the endpoint contract rather than being guessed here.",integration,"apps/desk-vite/src/lib/api.ts:13-89; this is Desk, not Gestão, and BASE is configurable",,proposed
+desk-vite-comment-6f0cb9de,desk-vite,apps/desk-vite/src/lib/api.ts,15,15,jsdoc,2,/** URL absoluta de um caminho da `api` — para navegação de topo (login) e para o `fetch`. */,update,"Build an `api` URL from the configured base, or a same-origin path when no base is configured, for top-level login navigation and `fetch`.",integration,"apps/desk-vite/src/lib/api.ts:13-18: `BASE` defaults to empty, so URL is not always absolute",,proposed
 desk-vite-comment-2768b891,desk-vite,apps/desk-vite/src/lib/api.ts,20,23,jsdoc,8,"/**
  * Uma resposta que a API deu e que não é sucesso. Diferente de rede fora do ar:
  * 401/403 dizem que a sessão acabou de verdade; `TypeError` do fetch não diz nada.
- */",,,,,,
-desk-vite-comment-dbb1270e,desk-vite,apps/desk-vite/src/lib/api.ts,51,51,block,2,/* corpo vazio ou não-JSON: o status já diz o bastante */,,,,,,
+ */",translate,"A non-successful API response differs from a network outage: server 401/403 can prove the session ended, while a `fetch` `TypeError` cannot.",security,apps/desk-vite/src/lib/api.ts:24-80; apps/desk-vite/src/contexto/sessao.tsx:19-52,,proposed
+desk-vite-comment-dbb1270e,desk-vite,apps/desk-vite/src/lib/api.ts,51,51,block,2,/* corpo vazio ou não-JSON: o status já diz o bastante */,translate,An empty or non-JSON body is acceptable here; the status already identifies the failure.,other,apps/desk-vite/src/lib/api.ts:49-56,,proposed
 desk-vite-comment-946771f0,desk-vite,apps/desk-vite/src/lib/api.ts,83,86,jsdoc,3,"/**
  * Uma chamada à `api` no formato cru do `fetch` — para quem precisa ler o
  * `Response` (status, corpo em texto, CSV). O cookie vai sozinho.
- */",,,,,,
-desk-vite-comment-ef0fb606,desk-vite,apps/desk-vite/src/lib/api.ts,91,91,jsdoc,2,"/** O `erro.mensagem` que a `api` põe no corpo, ou o status. */",,,,,,
+ */",translate,"Raw `fetch`-style `api` call for callers that need the `Response` status, text body, or CSV. The browser includes the cookie.",integration,apps/desk-vite/src/lib/api.ts:87-89,,proposed
+desk-vite-comment-ef0fb606,desk-vite,apps/desk-vite/src/lib/api.ts,91,91,jsdoc,2,"/** O `erro.mensagem` que a `api` põe no corpo, ou o status. */",remove,,other,apps/desk-vite/src/lib/api.ts:92-98: function body directly expresses the fallback,,proposed
 desk-vite-comment-b4730d24,desk-vite,apps/desk-vite/src/lib/canal.ts,25,30,jsdoc,3,"/**
  * ""#1002"" — o número do ticket. O nosso domínio não tem número sequencial de
  * conversa (só o uuid); o que vai na tela são os 6 primeiros caracteres, em
  * caixa alta, estáveis por conversa. ponytail: coluna `sequencial` na
  * conversa, e o número de verdade aqui.
- */",,,,,,
+ */",translate,"Display a ticket number such as `#1002`. Our domain has only a conversation UUID, not a sequential number; display its first six characters in uppercase, stable for that conversation. Ponytail: add a `sequencial` column to the conversation and use the real number here.",architecture,apps/desk-vite/src/lib/canal.ts:31-33,,proposed
 desk-vite-comment-075c3b1a,desk-vite,apps/desk-vite/src/lib/canal.ts,3,11,jsdoc,5,"/**
  * O canal de cada conversa, como a referência o mostra: um selo com o logo
  * sobre o rosto do contato (`bds-icon type=""logo"" name=""whatsapp""` no cartão)
@@ -185,7 +185,7 @@ desk-vite-comment-075c3b1a,desk-vite,apps/desk-vite/src/lib/canal.ts,3,11,jsdoc,
  * Os logos são os de `componentes/icones-portal.tsx` (`asset-logo-*` da
  * origem); `widget` (o chat próprio) usa o de e-mail por falta de um logo
  * de chat que não seja marca deles.
- */",,,,,,
+ */",translate,"Match the reference channel display: overlay a logo on the contact avatar (`bds-icon type=""logo"" name=""whatsapp""` on a card) and spell out the name in the panel (`Canal: WhatsApp`). Logos come from `componentes/icones-portal.tsx` (`asset-logo-*`); `widget` uses the email logo because no unbranded chat logo is available.",meta-blip,apps/desk-vite/src/lib/canal.ts:12-23; original reference evidence,,proposed
 desk-vite-comment-560629fe,desk-vite,apps/desk-vite/src/lib/cliente-de-consultas.ts,3,11,jsdoc,8,"/**
  * O cache de leituras da `api`, único para o aplicativo.
  *
@@ -194,35 +194,35 @@ desk-vite-comment-560629fe,desk-vite,apps/desk-vite/src/lib/cliente-de-consultas
  *
  * `staleTime` de 30 s: navegar entre telas do mesmo contato não repete a
  * leitura; a tela que precisa de dado fresco (o Monitoramento, o Log) pede.
- */",,,,,,
+ */",translate,"Application-wide `api` read cache lives in a module rather than only `main.tsx` so form actions can invalidate reads without a hook, replacing the former `revalidatePath` behavior. A 30s `staleTime` avoids refetching while moving between screens for one contact; screens requiring fresh data, such as Monitoring and Log, request it explicitly.",architecture,apps/desk-vite/src/lib/cliente-de-consultas.ts:12-14; apps/desk-vite/src/lib/acoes.ts:59-61,,proposed
 desk-vite-comment-99038602,desk-vite,apps/desk-vite/src/lib/consulta.ts,4,10,jsdoc,4,"/**
  * Uma leitura da `api` como estado de tela: carregando, erro, dado.
  *
  * É o TanStack Query da spec (`2026-09-07-arquitetura-de-front.md` §2) por
  * trás de um nome só. A chave é o caminho: duas telas que pedem a mesma coisa
  * dividem o cache, e invalidar é invalidar o caminho.
- */",,,,,,
+ */",translate,"Expose an `api` read as loading, error, and data screen state through TanStack Query, as specified in `2026-09-07-arquitetura-de-front.md` §2. The path is the cache key, so screens requesting the same path share data and invalidation targets that path.",architecture,apps/desk-vite/src/lib/consulta.ts:11-30; original spec reference,,proposed
 desk-vite-comment-a6f7d5b5,desk-vite,apps/desk-vite/src/lib/contatos.ts,1,7,jsdoc,9,"/**
  * As regras puras da aba Contatos — a ordenação e o agrupamento da
  * referência (`referencias-blip/pesquisa/blip-desk-medidas.md` §11): ""Ordem alfabética""
  * (padrão) agrupa pela primeira letra do nome, com os sem-nome num grupo `#`
  * sempre no fim; ""Última interação"" agrupa pela data da última mensagem, da
  * mais recente para a mais antiga.
- */",,,,,,
-desk-vite-comment-fa67b705,desk-vite,apps/desk-vite/src/lib/contatos.ts,64,64,line,0,"// O grupo `#` sempre por último, como lá.",,,,,,
-desk-vite-comment-7768f8fb,desk-vite,apps/desk-vite/src/lib/entrada.ts,12,12,jsdoc,2,"/** Só caminho interno vale como destino: `//outro.site` não é ""para onde voltar"". */",,,,,,
-desk-vite-comment-cccc5cf0,desk-vite,apps/desk-vite/src/lib/entrada.ts,22,22,jsdoc,2,"/** O botão ""Entrar com Google"". Com `convite`, entra aceitando o convite. */",,,,,,
-desk-vite-comment-c684b1ac,desk-vite,apps/desk-vite/src/lib/entrada.ts,31,31,jsdoc,2,/** `irPara` vem da descoberta como caminho; aqui ele ganha a base e a origem. */,,,,,,
+ */",translate,"Pure Contacts-tab sorting and grouping from `referencias-blip/pesquisa/blip-desk-medidas.md` §11. `Ordem alfabética` (default) groups by the first letter of the name, always putting unnamed contacts in `#` last; `Última interação` groups by the latest message date, newest first.",meta-blip,apps/desk-vite/src/lib/contatos.ts:14-68; original Blip measurement reference,,proposed
+desk-vite-comment-fa67b705,desk-vite,apps/desk-vite/src/lib/contatos.ts,64,64,line,0,"// O grupo `#` sempre por último, como lá.",remove,,other,apps/desk-vite/src/lib/contatos.ts:63-66: adjacent sort explicitly puts `#` last,,proposed
+desk-vite-comment-7768f8fb,desk-vite,apps/desk-vite/src/lib/entrada.ts,12,12,jsdoc,2,"/** Só caminho interno vale como destino: `//outro.site` não é ""para onde voltar"". */",translate,Only an internal path is a valid return destination; `//outro.site` must not become a redirect target.,security,apps/desk-vite/src/lib/entrada.ts:13-15,,proposed
+desk-vite-comment-cccc5cf0,desk-vite,apps/desk-vite/src/lib/entrada.ts,22,22,jsdoc,2,"/** O botão ""Entrar com Google"". Com `convite`, entra aceitando o convite. */",translate,"Build the `Entrar com Google` URL; when `convite` is present, sign in while accepting the invitation.",integration,apps/desk-vite/src/lib/entrada.ts:23-29,,proposed
+desk-vite-comment-c684b1ac,desk-vite,apps/desk-vite/src/lib/entrada.ts,31,31,jsdoc,2,/** `irPara` vem da descoberta como caminho; aqui ele ganha a base e a origem. */,translate,Discovery supplies `irPara` as a path; add the API base and browser origin here.,integration,apps/desk-vite/src/lib/entrada.ts:32-37,,proposed
 desk-vite-comment-077122e8,desk-vite,apps/desk-vite/src/lib/entrada.ts,4,9,jsdoc,8,"/**
  * Por onde se entra — copiado de `apps/gestao-vite/src/lib/entrada.ts`; só o
  * destino padrão muda (o Desk abre em `/`, os Atendimentos). É a parte que continua
  * valendo com o front no navegador. Sem cookie lido à mão: a sessão é o cookie
  * HttpOnly que a `api` emite, e o navegador o carrega sozinho.
- */",,,,,,
+ */",translate,"Sign-in entry copied from `apps/gestao-vite/src/lib/entrada.ts`, with `/` (Desk attendance) as its different default destination. Browser code does not read the cookie manually: the `api` issues an HttpOnly session cookie and the browser carries it.",security,apps/desk-vite/src/lib/entrada.ts:10-54,,proposed
 desk-vite-comment-3c5c265f,desk-vite,apps/desk-vite/src/lib/entrada.ts,41,44,jsdoc,3,"/**
  * Por onde este e-mail entra. A API responde igual para e-mail conhecido e
  * desconhecido, de propósito — só domínio verificado com SSO ativo devolve `sso`.
- */",,,,,,
+ */",translate,Discover how this email signs in. The API deliberately answers identically for known and unknown addresses; only a verified domain with active SSO returns `sso`.,security,apps/desk-vite/src/lib/entrada.ts:45-65; API behavior stated in source comment,,proposed
 desk-vite-comment-5dbefe13,desk-vite,apps/desk-vite/src/lib/formato.ts,1,13,jsdoc,3,"/**
  * Formatos de data e hora do Desk — as regras de `DateUtils` do pacote da
  * referência (`~/desk-clone/fonte-original/app.js`, classe com `getRelativeDate`
@@ -235,32 +235,32 @@ desk-vite-comment-5dbefe13,desk-vite,apps/desk-vite/src/lib/formato.ts,1,13,jsdo
  *   ""um mês""…
  * - **horário do balão** (`getChatDisplayDate`): hoje é `HH:mm`; outro dia é a
  *   data por extenso abreviada (`lll` em pt-BR: ""26 de Ago de 2026 12:41"").
- */",,,,,,
-desk-vite-comment-38716d9c,desk-vite,apps/desk-vite/src/lib/formato.ts,102,102,jsdoc,0,/** Iniciais do avatar (`bds-avatar name=`): primeira letra do primeiro e do último nome. */,,,,,,
+ */",translate,"Desk date and time formats follow the reference `DateUtils` (`~/desk-clone/fonte-original/app.js`, `getRelativeDate` and `getChatDisplayDate`), reimplemented with `Intl` instead of moment. Card relative time is `HH:mm` today and elapsed time without a suffix (`fromNow(true)`, e.g. `um dia`, `2 dias`, `um mês`) on other days. Bubble time is `HH:mm` today and abbreviated full date (`lll` in pt-BR, e.g. `26 de Ago de 2026 12:41`) otherwise.",meta-blip,apps/desk-vite/src/lib/formato.ts:15-100; original source reference,,proposed
+desk-vite-comment-38716d9c,desk-vite,apps/desk-vite/src/lib/formato.ts,102,102,jsdoc,0,/** Iniciais do avatar (`bds-avatar name=`): primeira letra do primeiro e do último nome. */,remove,,other,apps/desk-vite/src/lib/formato.ts:103-108: function directly selects first and last initials,,proposed
 desk-vite-comment-9150273d,desk-vite,apps/desk-vite/src/lib/formato.ts,37,40,jsdoc,4,"/**
  * ""26 de Ago de 2026 12:41"" — o `lll` do moment em pt-BR: mês abreviado com
  * inicial maiúscula e sem ponto, que o `Intl` não dá sozinho (""set."" vira ""Set"").
- */",,,,,,
+ */",translate,"Match moment's pt-BR `lll` output (`26 de Ago de 2026 12:41`): capitalize the abbreviated month and remove its period, which `Intl` does not do by itself (`set.` becomes `Set`).",integration,apps/desk-vite/src/lib/formato.ts:41-55,,proposed
 desk-vite-comment-2f73ce98,desk-vite,apps/desk-vite/src/lib/formato.ts,57,61,jsdoc,2,"/**
  * ""há quanto tempo"", sem sufixo — os degraus do `relativeTime` do moment
  * (45 s, 90 s, 45 min, 90 min, 22 h, 36 h, 26 d, 45 d, 320 d, 548 d), com as
  * palavras do `pt-br`.
- */",,,,,,
-desk-vite-comment-9ffa7890,desk-vite,apps/desk-vite/src/lib/formato.ts,82,82,jsdoc,0,/** O horário do cartão da lista (`lastMessage.relativeDate`). */,,,,,,
-desk-vite-comment-da991785,desk-vite,apps/desk-vite/src/lib/formato.ts,87,87,jsdoc,0,/** O horário abaixo do balão (`getChatDisplayDate`). */,,,,,,
-desk-vite-comment-5de8bab1,desk-vite,apps/desk-vite/src/lib/formato.ts,92,92,jsdoc,0,/** `00:00:00` — o cronômetro do modo de espera e da pausa (`AgentPauseTimer`). */,,,,,,
+ */",translate,"Elapsed time without a suffix follows moment `relativeTime` thresholds (45 s, 90 s, 45 min, 90 min, 22 h, 36 h, 26 d, 45 d, 320 d, 548 d) and uses pt-br words.",integration,apps/desk-vite/src/lib/formato.ts:62-80,,proposed
+desk-vite-comment-9ffa7890,desk-vite,apps/desk-vite/src/lib/formato.ts,82,82,jsdoc,0,/** O horário do cartão da lista (`lastMessage.relativeDate`). */,remove,,other,apps/desk-vite/src/lib/formato.ts:83-85: wrapper directly expresses list-card time,,proposed
+desk-vite-comment-da991785,desk-vite,apps/desk-vite/src/lib/formato.ts,87,87,jsdoc,0,/** O horário abaixo do balão (`getChatDisplayDate`). */,remove,,other,apps/desk-vite/src/lib/formato.ts:88-90: wrapper directly expresses bubble time,,proposed
+desk-vite-comment-5de8bab1,desk-vite,apps/desk-vite/src/lib/formato.ts,92,92,jsdoc,0,/** `00:00:00` — o cronômetro do modo de espera e da pausa (`AgentPauseTimer`). */,translate,Format `00:00:00` for standby and pause timers (`AgentPauseTimer`).,other,apps/desk-vite/src/lib/formato.ts:93-100,,proposed
 desk-vite-comment-0680151a,desk-vite,apps/desk-vite/src/lib/grupos.ts,3,7,jsdoc,4,"/**
  * O agrupamento da thread — a regra dos `.blip-message-group` da referência:
  * mensagens seguidas do mesmo lado formam um grupo, com um horário só (o do
  * último balão); uma nota interna quebra o grupo e fica sozinha.
- */",,,,,,
+ */",translate,"Group consecutive messages on the same side like reference `.blip-message-group`, showing only the last bubble's time. An internal note interrupts the group and stands alone.",meta-blip,apps/desk-vite/src/lib/grupos.ts:11-31,,proposed
 desk-vite-comment-f37faa5b,desk-vite,apps/desk-vite/src/lib/grupos.ts,32,36,jsdoc,6,"/**
  * O sinal de entrega abaixo do grupo de saída: o do ÚLTIMO balão. Os nomes
  * são os `estado_entrega` do domínio; a referência mostra relógio para
  * pendente, um check para enviada, dois para entregue e dois azuis para lida.
- */",,,,,,
-desk-vite-comment-94ab9812,desk-vite,apps/desk-vite/src/lib/modelo.ts,1,1,jsdoc,2,"/** `{{1}}`, `{{2}}`… de um modelo aprovado trocados pelos valores digitados, para a pré-visualização. */",,,,,,
-desk-vite-comment-2ee0b90d,desk-vite,apps/desk-vite/src/lib/navegacao.ts,22,22,jsdoc,2,"/** Põe o `navigate` do roteador à disposição de `irPara`. Uma vez, no `App`. */",,,,,,
+ */",translate,"Show delivery state below an outgoing group using its last bubble. Domain values are `estado_entrega`; the reference shows a clock for pending, one check for sent, two for delivered, and two blue checks for read.",meta-blip,apps/desk-vite/src/lib/grupos.ts:37-55,,proposed
+desk-vite-comment-94ab9812,desk-vite,apps/desk-vite/src/lib/modelo.ts,1,1,jsdoc,2,"/** `{{1}}`, `{{2}}`… de um modelo aprovado trocados pelos valores digitados, para a pré-visualização. */",remove,,other,apps/desk-vite/src/lib/modelo.ts:2-4: simple replacement visible in code,,proposed
+desk-vite-comment-2ee0b90d,desk-vite,apps/desk-vite/src/lib/navegacao.ts,22,22,jsdoc,2,"/** Põe o `navigate` do roteador à disposição de `irPara`. Uma vez, no `App`. */",remove,,other,apps/desk-vite/src/lib/navegacao.ts:23-29: hook registration is clear from code,,proposed
 desk-vite-comment-f5a2f6ee,desk-vite,apps/desk-vite/src/lib/navegacao.ts,4,13,jsdoc,7,"/**
  * Navegação fora de componente — o `redirect()` das Server Actions, agora no
  * navegador.
@@ -270,14 +270,14 @@ desk-vite-comment-f5a2f6ee,desk-vite,apps/desk-vite/src/lib/navegacao.ts,4,13,js
  * O `App` registra o `navigate` do roteador uma vez, e `irPara` usa o último
  * registrado. Antes do registro (ou fora do roteador) cai no `location`, que
  * chega ao mesmo lugar recarregando a página.
- */",,,,,,
-desk-vite-comment-9249dd6b,desk-vite,apps/desk-vite/src/lib/ordem.ts,100,100,jsdoc,4,"/** A contagem de cada ficha, sobre a lista INTEIRA (a ficha diz quantos há, não quantos aparecem). */",,,,,,
-desk-vite-comment-61532daf,desk-vite,apps/desk-vite/src/lib/ordem.ts,113,113,jsdoc,2,/** Só dígitos — para comparar telefone digitado com `+55…` guardado. */,,,,,,
+ */",translate,"Module-level navigation replaces the former Server Action `redirect()` in the browser. Form actions remain module functions for `useActionState` and `<form action>`, so they cannot call a hook. `App` registers React Router's `navigate` once; `irPara` uses the most recently registered one. Before registration or outside the router, fall back to `location`, which reaches the same destination with a reload.",architecture,apps/desk-vite/src/lib/navegacao.ts:14-30; apps/desk-vite/src/App.tsx:25-26,,proposed
+desk-vite-comment-9249dd6b,desk-vite,apps/desk-vite/src/lib/ordem.ts,100,100,jsdoc,4,"/** A contagem de cada ficha, sobre a lista INTEIRA (a ficha diz quantos há, não quantos aparecem). */",translate,"Count each filter chip over the full list, since the chip reports all matching items rather than only visible ones.",other,apps/desk-vite/src/lib/ordem.ts:101-112,,proposed
+desk-vite-comment-61532daf,desk-vite,apps/desk-vite/src/lib/ordem.ts,113,113,jsdoc,2,/** Só dígitos — para comparar telefone digitado com `+55…` guardado. */,remove,,other,apps/desk-vite/src/lib/ordem.ts:114-116: regex directly strips nondigits,,proposed
 desk-vite-comment-37507a13,desk-vite,apps/desk-vite/src/lib/ordem.ts,118,122,jsdoc,5,"/**
  * A busca da coluna: ""Busque pelo nome ou telefone..."" (placeholder da
  * referência). Nome sem acento e sem caixa; telefone por dígitos, para
  * `(31) 99471` achar `+5531994714471`.
- */",,,,,,
+ */",translate,"Search list-column contacts by name without accents or case, and by phone digits, so `(31) 99471` matches stored `+5531994714471`. Reference placeholder: `Busque pelo nome ou telefone...`.",meta-blip,apps/desk-vite/src/lib/ordem.ts:123-140; original reference placeholder,,proposed
 desk-vite-comment-12dd6df5,desk-vite,apps/desk-vite/src/lib/ordem.ts,142,150,jsdoc,7,"/**
  * A ordem da lista. `ultima-mensagem` (""Ver novas mensagens no topo"") é o
  * padrão da preferência de lá; `abertura` (""Ver mensagens por ordem de
@@ -286,21 +286,21 @@ desk-vite-comment-12dd6df5,desk-vite,apps/desk-vite/src/lib/ordem.ts,142,150,jsd
  * As FIXADAS vêm antes de tudo, entre si na ordem em que foram fixadas (a mais
  * recente por cima) — é o `pinnedTickets` / `notPinnedTickets` da lista da
  * origem (`blip-desk-regras-tecnicas.md` §6.2: ""mantém fixados no topo"").
- */",,,,,,
+ */",translate,"List ordering: `ultima-mensagem` is the reference default (`Ver novas mensagens no topo`); `abertura` is the other option (`Ver mensagens por ordem de abertura do ticket`). For a conversation without messages, use its opening time. Pinned conversations always precede others and are ordered by pin time, most recent first, as the source `pinnedTickets` / `notPinnedTickets` lists do (`blip-desk-regras-tecnicas.md` §6.2: `mantém fixados no topo`).",meta-blip,apps/desk-vite/src/lib/ordem.ts:151-166; original evidence reference,,proposed
 desk-vite-comment-c3eb5979,desk-vite,apps/desk-vite/src/lib/ordem.ts,168,172,jsdoc,2,"/**
  * Nome de exibição do contato — a cadeia de recurso da referência
  * (`referencias-blip/pesquisa/blip-desk-medidas.md` §11): nome → telefone → e-mail → o que
  * houver antes do `@`. Nunca fica em branco.
- */",,,,,,
-desk-vite-comment-c02e279f,desk-vite,apps/desk-vite/src/lib/ordem.ts,17,17,jsdoc,2,"/** Rótulo de cada ficha, com a contagem entre parênteses como lá (""Todos (3)""). */",,,,,,
-desk-vite-comment-8fdc71b6,desk-vite,apps/desk-vite/src/lib/ordem.ts,185,185,jsdoc,2,/** `+5531994714471` → `+55 31 99471-4471`; o que não for BR de 13 dígitos volta como veio. */,,,,,,
-desk-vite-comment-c29f9a4d,desk-vite,apps/desk-vite/src/lib/ordem.ts,27,27,jsdoc,2,/** Milissegundos de uma hora; a janela livre do WhatsApp é de 24 delas. */,,,,,,
+ */",translate,"Reference contact display fallback (`referencias-blip/pesquisa/blip-desk-medidas.md` §11): name, then phone, then email, then the part before `@`. Never return blank.",meta-blip,apps/desk-vite/src/lib/ordem.ts:173-183; original evidence reference,,proposed
+desk-vite-comment-c02e279f,desk-vite,apps/desk-vite/src/lib/ordem.ts,17,17,jsdoc,2,"/** Rótulo de cada ficha, com a contagem entre parênteses como lá (""Todos (3)""). */",remove,,other,apps/desk-vite/src/lib/ordem.ts:18-25: mapping includes labels and counts,,proposed
+desk-vite-comment-8fdc71b6,desk-vite,apps/desk-vite/src/lib/ordem.ts,185,185,jsdoc,2,/** `+5531994714471` → `+55 31 99471-4471`; o que não for BR de 13 dígitos volta como veio. */,translate,Format `+5531994714471` as `+55 31 99471-4471`; return non-Brazilian or non-13-digit input unchanged.,other,apps/desk-vite/src/lib/ordem.ts:186-195,,proposed
+desk-vite-comment-c29f9a4d,desk-vite,apps/desk-vite/src/lib/ordem.ts,27,27,jsdoc,2,/** Milissegundos de uma hora; a janela livre do WhatsApp é de 24 delas. */,remove,,other,apps/desk-vite/src/lib/ordem.ts:28-29: constants directly state one hour and 24-hour window,,proposed
 desk-vite-comment-e70f9c2a,desk-vite,apps/desk-vite/src/lib/ordem.ts,31,36,jsdoc,9,"/**
  * ""Não lida"" no nosso domínio: a última palavra foi do contato, OU o atendente
  * marcou à mão pelo menu do cartão (`naoLidaEm`, o `UNREAD` da origem). Não
  * guardamos a CONTAGEM de não lidas (só quem falou por último), então a ficha e
  * o negrito do cartão saem daqui.
- */",,,,,,
+ */",translate,"A conversation is `Não lida` when the contact sent the latest message or the agent marked it manually through the card menu (`naoLidaEm`, source `UNREAD`). We do not store an unread count, only who spoke last; the chip and card bolding derive from this rule.",meta-blip,apps/desk-vite/src/lib/ordem.ts:37-39; original source semantics,,proposed
 desk-vite-comment-58932a7c,desk-vite,apps/desk-vite/src/lib/ordem.ts,4,13,jsdoc,8,"/**
  * As regras puras da coluna de atendimentos: as fichas de filtro, a busca, a
  * ordem da lista e a janela de 24 horas. Nenhuma lê o relógio sozinha — quem
@@ -310,19 +310,19 @@ desk-vite-comment-58932a7c,desk-vite,apps/desk-vite/src/lib/ordem.ts,4,13,jsdoc,
  * fichas `all-tickets-chip`, `unread-tickets-chip`, `standby-tickets-chip`,
  * `inactive-tickets-chip`), e a ordem padrão é a preferência `sortChatsBy:
  * 'lastMessageDate'` de `/agents/preferences` (`docs/desk-store.md`).
- */",,,,,,
+ */",translate,"Pure attendance-column rules cover filter chips, search, ordering, and the 24-hour window. Callers pass `agora` instead of these functions reading the clock, which makes them testable. Names mirror `~/desk-clone/templates/chat-list.html` (`all-tickets-chip`, `unread-tickets-chip`, `standby-tickets-chip`, `inactive-tickets-chip`); default ordering mirrors `sortChatsBy: 'lastMessageDate'` in `/agents/preferences` (`docs/desk-store.md`).",meta-blip,apps/desk-vite/src/lib/ordem.ts:15-195; original reference paths,,proposed
 desk-vite-comment-7d85986a,desk-vite,apps/desk-vite/src/lib/ordem.ts,50,54,jsdoc,5,"/**
  * ""Inativo"" é a conversa cuja janela de 24 h já fechou: o contato sumiu e o
  * atendente só volta a falar por template. É o mais próximo do `inactive` da
  * referência que o nosso domínio distingue.
- */",,,,,,
+ */",translate,`Inativo` means the conversation's 24-hour window has closed: the contact stopped replying and the agent can only resume via a template. This is the closest domain state to the reference `inactive`.,meta-blip,apps/desk-vite/src/lib/ordem.ts:55-57; original parity rationale,,proposed
 desk-vite-comment-32aa0228,desk-vite,apps/desk-vite/src/lib/ordem.ts,59,64,jsdoc,10,"/**
  * A conversa aceita texto livre? A regra é a de `@pipe/core` (`janela/janela.ts`),
  * a mesma que a `api` aplica ao enviar: canal sem janela (e-mail, chat) está
  * sempre aberto; WhatsApp sem `janelaExpiraEm` (o contato nunca falou) está
  * fechado. Instagram segue o WhatsApp.
- */",,,,,,
-desk-vite-comment-25957643,desk-vite,apps/desk-vite/src/lib/ordem.ts,75,75,jsdoc,3,"/** Quanto falta da janela, em horas cheias (para o aviso); `null` se já fechou ou não há janela. */",,,,,,
+ */",translate,"Free-text eligibility follows `@pipe/core` (`janela/janela.ts`) and the `api` send rule: channels without a window (email, chat) are always open; WhatsApp without `janelaExpiraEm` means the contact never spoke and is closed. Instagram follows WhatsApp.",integration,apps/desk-vite/src/lib/ordem.ts:65-73; original core reference,,proposed
+desk-vite-comment-25957643,desk-vite,apps/desk-vite/src/lib/ordem.ts,75,75,jsdoc,3,"/** Quanto falta da janela, em horas cheias (para o aviso); `null` se já fechou ou não há janela. */",translate,Return whole hours remaining in the window for the warning; return `null` after closure or when there is no window.,other,apps/desk-vite/src/lib/ordem.ts:76-85,,proposed
 desk-vite-comment-5e6f5cef,desk-vite,apps/desk-vite/src/lib/periodo.ts,1,8,jsdoc,5,"/**
  * Os recortes da aba ""Minhas métricas"" — os cinco atalhos da referência mais
  * o intervalo à mão, limitado a 90 dias (`referencias-blip/pesquisa/blip-desk-analytics.md`
@@ -330,14 +330,14 @@ desk-vite-comment-5e6f5cef,desk-vite,apps/desk-vite/src/lib/periodo.ts,1,8,jsdoc
  * (padrão), ""Ontem"", ""7 Dias"", ""30 dias"", ""90 dias"", ""Personalizado"".
  *
  * Tudo é calculado no relógio de quem olha; a `api` só aplica o intervalo.
- */",,,,,,
+ */",translate,"`Minhas métricas` periods mirror the reference's five shortcuts plus a custom range capped at 90 days (`referencias-blip/pesquisa/blip-desk-analytics.md`, `.seg` in `~/desk-clone/clone/index.html#metrics`): `Hoje` (default), `Ontem`, `7 Dias`, `30 dias`, `90 dias`, `Personalizado`. Compute dates in the viewer's clock; the `api` only applies the resulting interval.",meta-blip,apps/desk-vite/src/lib/periodo.ts:9-80; original reference paths,,proposed
 desk-vite-comment-e13b1bb7,desk-vite,apps/desk-vite/src/lib/periodo.ts,68,71,jsdoc,3,"/**
  * O intervalo à mão: começa no início do primeiro dia e termina no fim do
  * último; invertido, vira; maior que o teto, o início é puxado para caber.
- */",,,,,,
-desk-vite-comment-bc5b9a9f,desk-vite,apps/desk-vite/src/lib/periodo.ts,81,81,jsdoc,2,"/** ""dd/mm/aaaa"" para a ficha ""Desde …"" do gráfico. */",,,,,,
-desk-vite-comment-f54528ec,desk-vite,apps/desk-vite/src/lib/periodo.ts,86,86,jsdoc,0,"/** ""09/set"" — o rótulo do eixo do gráfico diário. */",,,,,,
-desk-vite-comment-bf262feb,desk-vite,apps/desk-vite/src/lib/periodo.ts,93,93,jsdoc,3,"/** `00:00:00` para os tempos médios; `-` quando não há valor, como lá. */",,,,,,
+ */",translate,"Custom range starts at the beginning of the first day and ends at the end of the last. Swap reversed dates; if longer than the cap, move the start forward to fit.",other,apps/desk-vite/src/lib/periodo.ts:72-80,,proposed
+desk-vite-comment-bc5b9a9f,desk-vite,apps/desk-vite/src/lib/periodo.ts,81,81,jsdoc,2,"/** ""dd/mm/aaaa"" para a ficha ""Desde …"" do gráfico. */",remove,,other,apps/desk-vite/src/lib/periodo.ts:82-84: format specified in toLocaleDateString,,proposed
+desk-vite-comment-f54528ec,desk-vite,apps/desk-vite/src/lib/periodo.ts,86,86,jsdoc,0,"/** ""09/set"" — o rótulo do eixo do gráfico diário. */",remove,,other,apps/desk-vite/src/lib/periodo.ts:87-91: function directly builds axis label,,proposed
+desk-vite-comment-bf262feb,desk-vite,apps/desk-vite/src/lib/periodo.ts,93,93,jsdoc,3,"/** `00:00:00` para os tempos médios; `-` quando não há valor, como lá. */",translate,"Format average durations as `00:00:00`, or `-` when no value exists, as in the reference.",meta-blip,apps/desk-vite/src/lib/periodo.ts:94-102,,proposed
 desk-vite-comment-320f2136,desk-vite,apps/desk-vite/src/lib/preferencias.ts,1,10,jsdoc,5,"/**
  * As preferências do atendente — as chaves de `/agents/preferences` da
  * referência (`~/desk-clone/docs/desk-store.md`: `enableBrowserNotification`,
@@ -347,10 +347,10 @@ desk-vite-comment-320f2136,desk-vite,apps/desk-vite/src/lib/preferencias.ts,1,10
  *
  * Vivem no navegador (`localStorage`, `desk.pref.<chave>`): são da máquina,
  * não da pessoa. Quem lê é `lerPreferencias`, sempre com o padrão por baixo.
- */",,,,,,
-desk-vite-comment-e85d344d,desk-vite,apps/desk-vite/src/main.tsx,8,8,line,2,// A ordem importa: o token e a base do design system entram antes da folha do,,,,,,
-desk-vite-comment-82318bae,desk-vite,apps/desk-vite/src/main.tsx,9,9,line,4,"// aplicativo, para que a folha local sobrescreva a base e nunca o contrário.",,,,,,
-desk-vite-comment-760d257c,desk-vite,apps/desk-vite/src/paginas/acoes-em-massa/page.tsx,70,70,block,1,/* ponytail: um chatbot por conta na referência; aqui a conta inteira. */,,,,,,
+ */",translate,"Agent preferences mirror reference `/agents/preferences` keys and mock defaults (`~/desk-clone/docs/desk-store.md`: `enableBrowserNotification`, `enableTicketOnQueueAlert`, `enableReceivedMessageAlert`, `enableAlertWithDeskActive`, `enableSpellChecker`, `sortChatsBy`, `keepAgentOnline`). They live in browser `localStorage` under `desk.pref.<chave>`, so they belong to this machine rather than the person. `lerPreferencias` applies defaults when reading.",meta-blip,apps/desk-vite/src/lib/preferencias.ts:11-80; original source reference,,proposed
+desk-vite-comment-e85d344d,desk-vite,apps/desk-vite/src/main.tsx,8,8,line,2,// A ordem importa: o token e a base do design system entram antes da folha do,translate,Import order matters: design tokens and base styles must load before the app stylesheet so local rules override the base.,architecture,apps/desk-vite/src/main.tsx:10-11; first half of split comment,,proposed
+desk-vite-comment-82318bae,desk-vite,apps/desk-vite/src/main.tsx,9,9,line,4,"// aplicativo, para que a folha local sobrescreva a base e nunca o contrário.",remove,,other,apps/desk-vite/src/main.tsx:8-11: second half of split comment covered by preceding row,,proposed
+desk-vite-comment-760d257c,desk-vite,apps/desk-vite/src/paginas/acoes-em-massa/page.tsx,70,70,block,1,/* ponytail: um chatbot por conta na referência; aqui a conta inteira. */,translate,Ponytail: the reference has one chatbot per account; this screen currently uses the whole account.,meta-blip,apps/desk-vite/src/paginas/acoes-em-massa/page.tsx:69-72,,proposed
 desk-vite-comment-f3f6be08,desk-vite,apps/desk-vite/src/paginas/acoes-em-massa/page.tsx,9,20,jsdoc,11,"/**
  * ""Ações em Massa"" — `/bulk-ticket`, a transferência em lote da referência
  * (`~/desk-clone/clone/index.html`, seção `bulk`, foto
@@ -362,7 +362,7 @@ desk-vite-comment-f3f6be08,desk-vite,apps/desk-vite/src/paginas/acoes-em-massa/p
  *
  * A ação `transferirEmMassa` repete `transferirConversa` por ticket — a
  * mesma regra da referência (transferir encerra e abre outro).
- */",,,,,,
+ */",translate,"`Ações em Massa` at `/bulk-ticket` follows the reference bulk transfer screen (`~/desk-clone/clone/index.html`, bulk section; `desk2/blip-clone-bulk.png`): 20/400 title, `Chatbot` card and `Transferir` chip, select-all and open-ticket list on the left (or `Nenhum atendimento aberto para transferir.`), queue/agent destination choices on the right, and `Cancelar`/`Transferir` below. `transferirEmMassa` repeats `transferirConversa` per ticket; as in the reference, transferring closes one ticket and opens another.",meta-blip,apps/desk-vite/src/paginas/acoes-em-massa/page.tsx:21-125; original evidence references,,proposed
 desk-vite-comment-e99874ff,desk-vite,apps/desk-vite/src/paginas/analytics/page.tsx,18,33,jsdoc,12,"/**
  * ""Minhas métricas: {nome}"" — `/analytics`. A estrutura é a da tela do clone
  * (`~/desk-clone/clone/index.html`, seção `metrics`, foto
@@ -378,8 +378,8 @@ desk-vite-comment-e99874ff,desk-vite,apps/desk-vite/src/paginas/analytics/page.t
  * Os dados vêm de `GET /v1/desk/metricas?inicio=&fim=`, sempre do próprio
  * atendente. ""Transferidos"" e ""Perdidos"" chegam `null` (o domínio ainda não
  * guarda) e aparecem como traço, não como zero.
- */",,,,,,
-desk-vite-comment-f3596198,desk-vite,apps/desk-vite/src/paginas/analytics/page.tsx,182,182,jsdoc,1,"/** A rosca de seis fatias da referência: 118px, traço 5.5 numa caixa de 42. */",,,,,,
+ */",translate,"`Minhas métricas: {nome}` at `/analytics` follows the reference metrics screen (`~/desk-clone/clone/index.html`, metrics section; `desk2/blip-clone-metrics.png`): header and period bar, six-card ticket overview with donut, daily ticket series, and three average durations. Omit the reference `blip copilot` marketing column. Data comes from `GET /v1/desk/metricas?inicio=&fim=` for the current agent. `Transferidos` and `Perdidos` arrive as `null` because the domain does not store them yet; show a dash, not zero.",meta-blip,apps/desk-vite/src/paginas/analytics/page.tsx:34-182; original evidence references,,proposed
+desk-vite-comment-f3596198,desk-vite,apps/desk-vite/src/paginas/analytics/page.tsx,182,182,jsdoc,1,"/** A rosca de seis fatias da referência: 118px, traço 5.5 numa caixa de 42. */",translate,"Reference six-segment donut: 118px, 5.5 stroke, in a 42px box.",meta-blip,apps/desk-vite/src/paginas/analytics/page.tsx:183-220,,proposed
 desk-vite-comment-275c412d,desk-vite,apps/desk-vite/src/paginas/atendimentos/cartao.tsx,11,28,jsdoc,6,"/**
  * O cartão da lista — o `<article class=""chat-list-item"">` da referência
  * (`~/desk-clone/capturas/parciais/card-lista.html` e
@@ -397,10 +397,10 @@ desk-vite-comment-275c412d,desk-vite,apps/desk-vite/src/paginas/atendimentos/car
  * `blip-desk-regras-tecnicas.md` §1.8): fixar no topo e marcar como não lida,
  * por atendente, em `POST /v1/desk/acoes/fixar` e `/marcarNaoLida`. O
  * ""Modo de Espera"" continua no menu da conversa aberta.
- */",,,,,,
-desk-vite-comment-5f525695,desk-vite,apps/desk-vite/src/paginas/atendimentos/cartao.tsx,182,182,jsdoc,2,"/** A prévia (`message-preview`): o texto, ou o tipo por extenso quando é mídia. */",,,,,,
-desk-vite-comment-a8834c27,desk-vite,apps/desk-vite/src/paginas/atendimentos/cartao.tsx,40,40,jsdoc,3,"/** Recusa de uma ação do menu — a coluna mostra o texto, sem `alert`. */",,,,,,
-desk-vite-comment-dc47b345,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,118,118,block,2,"/* ponytail: o modo Quadro (kanban) da referência não tem tela na cópia; fica listado, sem destino. */",,,,,,
+ */",translate,"Reference `<article class=""chat-list-item"">` list card (`~/desk-clone/capturas/parciais/card-lista.html`, `templates/chat-list-item.html`): upper `.ticket-content` has a `small` avatar and channel badge, name and relative time, message preview, and alert line; lower `.ticket-info` has info icon, `#N`, queue name, and ⋮ menu. Name and preview use `bold=""bold""` when unread. The source `TicketMenuOptions` (`PIN`/`UNPIN`, `UNREAD`/`READ`, `blip-desk-regras-tecnicas.md` §1.8) pins and marks unread per agent via `POST /v1/desk/acoes/fixar` and `/marcarNaoLida`. `Modo de Espera` stays in the open-conversation menu.",meta-blip,apps/desk-vite/src/paginas/atendimentos/cartao.tsx:29-181; original reference paths,,proposed
+desk-vite-comment-5f525695,desk-vite,apps/desk-vite/src/paginas/atendimentos/cartao.tsx,182,182,jsdoc,2,"/** A prévia (`message-preview`): o texto, ou o tipo por extenso quando é mídia. */",remove,,other,apps/desk-vite/src/paginas/atendimentos/cartao.tsx:183-195: preview function directly implements this,,proposed
+desk-vite-comment-a8834c27,desk-vite,apps/desk-vite/src/paginas/atendimentos/cartao.tsx,40,40,jsdoc,3,"/** Recusa de uma ação do menu — a coluna mostra o texto, sem `alert`. */",remove,,other,apps/desk-vite/src/paginas/atendimentos/cartao.tsx:41-181: error rendering is explicit,,proposed
+desk-vite-comment-dc47b345,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,118,118,block,2,"/* ponytail: o modo Quadro (kanban) da referência não tem tela na cópia; fica listado, sem destino. */",translate,"Ponytail: the reference's Kanban `Quadro` mode has no screen in this copy, so keep it listed without a destination.",meta-blip,apps/desk-vite/src/paginas/atendimentos/coluna.tsx:118-128,,proposed
 desk-vite-comment-a0781698,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,18,34,jsdoc,7,"/**
  * A coluna de atendimentos — o `.sidenav` da referência
  * (`~/desk-clone/templates/sidenav.html`, `sidenav-header.html`,
@@ -417,20 +417,20 @@ desk-vite-comment-a0781698,desk-vite,apps/desk-vite/src/paginas/atendimentos/col
  * Os textos são os do i18n de lá (`thereCustumer`, `customers`, `waiting`,
  * `answerCustomer`, `currentStatus`, `getOnline`, `getOnlineToAtend`,
  * `noOpenTickets`, `allTickets`…).
- */",,,,,,
-desk-vite-comment-4d227417,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,215,215,block,2,/* ponytail: pastas de tickets não existem no Pipe; o botão fica onde a referência o põe. */,,,,,,
-desk-vite-comment-c06ea73e,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,227,227,block,1,"/* ponytail: ""Reclassificar os tickets com inteligência artificial"" depende do @pipe/ai. */",,,,,,
+ */",translate,"Attendance column follows reference `.sidenav` (`~/desk-clone/templates/sidenav.html`, `sidenav-header.html`, `chat-list.html`): `.header-content` title and list selector; `.sidenav-header` status-dependent waiting count and answer button or current status and online button; name/phone search; `.header-chat-list` all-count chip, folder button, and reclassification; then cards or empty state. Reference labels come from its i18n keys `thereCustumer`, `customers`, `waiting`, `answerCustomer`, `currentStatus`, `getOnline`, `getOnlineToAtend`, `noOpenTickets`, `allTickets`.",meta-blip,apps/desk-vite/src/paginas/atendimentos/coluna.tsx:35-266; original reference paths,,proposed
+desk-vite-comment-4d227417,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,215,215,block,2,/* ponytail: pastas de tickets não existem no Pipe; o botão fica onde a referência o põe. */,translate,Ponytail: Pipe has no ticket folders; keep the button in the reference position.,meta-blip,apps/desk-vite/src/paginas/atendimentos/coluna.tsx:216-225,,proposed
+desk-vite-comment-c06ea73e,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,227,227,block,1,"/* ponytail: ""Reclassificar os tickets com inteligência artificial"" depende do @pipe/ai. */",translate,Ponytail: `Reclassificar os tickets com inteligência artificial` depends on `@pipe/ai`.,integration,apps/desk-vite/src/paginas/atendimentos/coluna.tsx:227-239,,proposed
 desk-vite-comment-1e1aeb42,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,267,272,jsdoc,1,"/**
  * O miolo do `.sidenav-header`, um por status (função de desenho `lzgT` do
  * pacote da referência): Online mostra a contagem e ""Atender""; Invisível e
  * Offline mostram ""Seu status é X"" e ""Ficar Online""; Em pausa mostra o motivo
  * e o cronômetro (`AgentPauseTimer`).
- */",,,,,,
+ */",translate,"Render `.sidenav-header` by agent status, matching reference renderer `lzgT`: Online shows waiting count and `Atender`; Invisible and Offline show current status and `Ficar Online`; Pause shows reason and `AgentPauseTimer`.",meta-blip,apps/desk-vite/src/paginas/atendimentos/coluna.tsx:273-345,,proposed
 desk-vite-comment-26afa300,desk-vite,apps/desk-vite/src/paginas/atendimentos/coluna.tsx,80,84,jsdoc,9,"/**
    * Abrir a conversa tira a marca manual de ""não lida"" — a ficha ""Não lidas"" da
    * origem ""remove o ticket automaticamente assim que ele é aberto/lido""
    * (`blip-desk-funcoes.md` §1). A recusa não trava a abertura.
-   */",,,,,,
+   */",translate,"Opening a conversation clears its manual `Não lida` mark, as the source unread chip automatically removes an opened/read ticket (`blip-desk-funcoes.md` §1). A failure to clear the mark does not block opening.",meta-blip,apps/desk-vite/src/paginas/atendimentos/coluna.tsx:85-98; original reference path,,proposed
 desk-vite-comment-c45fc1cd,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,10,25,jsdoc,18,"/**
  * O compositor — `.pane-chat-message-input` da referência
  * (`~/desk-clone/capturas/parciais/composer.html`): um `bds-paper` com o
@@ -446,7 +446,7 @@ desk-vite-comment-c45fc1cd,desk-vite,apps/desk-vite/src/paginas/atendimentos/com
  *
  * Enviar vai para `POST /v1/conversas/:id/mensagens` (texto, anexo ou template).
  * A nota interna não passa por aqui: é o ""Comentário"" do painel do contato.
- */",,,,,,
+ */",translate,"Reference composer `.pane-chat-message-input` (`~/desk-clone/capturas/parciais/composer.html`): `bds-paper` holds the message textarea above a reply, attachment, emoji, and audio/action row; audio is primary until text turns it into Send. When free text is unavailable, replace the composer with a centered message and button for `standbyInputLock`, `clientClosed`, `clientClosedInactivity`, `attendantClosed`, or closed 24-hour window (`failedMaxTimeChannelInterval`, which opens template sending here). Send text, attachment, or template through `POST /v1/conversas/:id/mensagens`. Internal notes use contact-panel `Comentário` instead.",meta-blip,apps/desk-vite/src/paginas/atendimentos/compositor.tsx:26-315; original reference path,,proposed
 desk-vite-comment-d6b1783b,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,111,118,jsdoc,3,"/**
    * Até 10 arquivos por envio, UMA mensagem por arquivo, em sequência — o modelo
    * da origem (`SEND_MULT_FILE`, `mediaLinkDocuments`: um media-link por arquivo,
@@ -454,27 +454,27 @@ desk-vite-comment-d6b1783b,desk-vite,apps/desk-vite/src/paginas/atendimentos/com
    * não passa (quantidade, tamanho, tipo — na tela ou no `POST /v1/anexos`),
    * nenhuma mensagem sai, e o erro diz qual foi. Só depois de TODOS subirem é que
    * `POST /v1/conversas/:id/mensagens/anexos` cria as mensagens, na ordem.
-   */",,,,,,
+   */",translate,"Allow up to 10 files per send, one message per file in order, following source `SEND_MULT_FILE`/`mediaLinkDocuments` (`blip-desk-regras-tecnicas.md` §3.3). The batch is all-or-nothing: if count, size, or type validation fails in the screen or `POST /v1/anexos`, send no messages and name the failing file. Only after every upload succeeds does `POST /v1/conversas/:id/mensagens/anexos` create messages in order.",integration,apps/desk-vite/src/paginas/atendimentos/compositor.tsx:119-159; original reference path,,proposed
 desk-vite-comment-5f71b35b,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,240,243,block,0,"/*,audio/*,video/*,application/pdf""
                 onChange={(e) => void anexar(e.target.files)}
               />
-              {/* ponytail: o seletor de emoji (emoji-mart) da referência; aqui só o botão. */",,,,,,
-desk-vite-comment-05e1ad90,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,267,267,block,0,/* ponytail: gravação de áudio depende do MediaRecorder + anexo; o botão fica primário como lá. */,,,,,,
-desk-vite-comment-c2752c81,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,287,287,jsdoc,2,"/** O bloco que substitui o compositor (piso de 150px, uma linha e um botão). */",,,,,,
+              {/* ponytail: o seletor de emoji (emoji-mart) da referência; aqui só o botão. */",update,Ponytail: the reference emoji picker (`emoji-mart`) is represented here only by a button.,meta-blip,apps/desk-vite/src/paginas/atendimentos/compositor.tsx:240-250: inventory row starts in JSX `accept` string and must be re-scanned at the actual JSX comment on line 243 before apply,,proposed
+desk-vite-comment-05e1ad90,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,267,267,block,0,/* ponytail: gravação de áudio depende do MediaRecorder + anexo; o botão fica primário como lá. */,translate,Ponytail: audio recording requires `MediaRecorder` and attachment upload; the button remains primary as in the reference.,meta-blip,apps/desk-vite/src/paginas/atendimentos/compositor.tsx:267-280,,proposed
+desk-vite-comment-c2752c81,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,287,287,jsdoc,2,"/** O bloco que substitui o compositor (piso de 150px, uma linha e um botão). */",remove,,other,apps/desk-vite/src/paginas/atendimentos/compositor.tsx:288-315: component is simple screen block,,proposed
 desk-vite-comment-4a941a3a,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,316,321,jsdoc,10,"/**
  * O painel de respostas prontas (`.custom-reply`): lista à esquerda,
  * pré-visualização à direita (""Pré-visualização"" / ""Pressione Enter para
  * selecionar""); sem resultado, ""Não há título de resposta pronta que
  * contenha este texto."". Filtra pelo título com o que está no campo.
- */",,,,,,
+ */",translate,"Reference quick-reply panel `.custom-reply`: list on the left, preview on the right (`Pré-visualização` / `Pressione Enter para selecionar`). Show `Não há título de resposta pronta que contenha este texto.` when none match; filter titles by the entered text.",meta-blip,apps/desk-vite/src/paginas/atendimentos/compositor.tsx:322-393,,proposed
 desk-vite-comment-b8329822,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,394,398,jsdoc,3,"/**
  * O envio de modelo (template aprovado) quando a janela fechou: escolhe o
  * modelo, preenche as variáveis na ordem `{{1}}`, `{{2}}`… e envia por
  * `POST /v1/conversas/:id/mensagens` com `template_id` e `parametros`.
- */",,,,,,
-desk-vite-comment-c3179ebb,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,44,44,jsdoc,2,"/** A resposta pronta escolhida, para o relatório de esforço — some se o texto for editado. */",,,,,,
-desk-vite-comment-9b1702dc,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,57,57,block,2,/* O piso e o teto do campo (4em a 11.5em): cresce com o texto. */,,,,,,
-desk-vite-comment-e7966eb5,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,131,131,block,1,"/* ponytail: ""Ligação Ativa"" depende do MFE de chamadas; o botão fica onde a referência o põe. */",,,,,,
+ */",translate,"When the window has closed, choose an approved template, fill `{{1}}`, `{{2}}` and later variables in order, and send through `POST /v1/conversas/:id/mensagens` with `template_id` and `parametros`.",integration,apps/desk-vite/src/paginas/atendimentos/compositor.tsx:399-475,,proposed
+desk-vite-comment-c3179ebb,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,44,44,jsdoc,2,"/** A resposta pronta escolhida, para o relatório de esforço — some se o texto for editado. */",translate,Track the selected quick reply for effort reporting; clear its ID if the text is edited.,other,apps/desk-vite/src/paginas/atendimentos/compositor.tsx:45-108,,proposed
+desk-vite-comment-9b1702dc,desk-vite,apps/desk-vite/src/paginas/atendimentos/compositor.tsx,57,57,block,2,/* O piso e o teto do campo (4em a 11.5em): cresce com o texto. */,remove,,other,apps/desk-vite/src/paginas/atendimentos/compositor.tsx:58-75: height bounds are explicit in code,,proposed
+desk-vite-comment-e7966eb5,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,131,131,block,1,"/* ponytail: ""Ligação Ativa"" depende do MFE de chamadas; o botão fica onde a referência o põe. */",translate,Ponytail: `Ligação Ativa` depends on the calling MFE; keep the button where the reference places it.,integration,apps/desk-vite/src/paginas/atendimentos/conversa.tsx:131-145,,proposed
 desk-vite-comment-373ef83c,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,20,31,jsdoc,7,"/**
  * O painel da conversa — `.pane-chat` da referência
  * (`~/desk-clone/capturas/parciais/header-conversa.html`, `thread.html`,
@@ -486,14 +486,14 @@ desk-vite-comment-373ef83c,desk-vite,apps/desk-vite/src/paginas/atendimentos/con
  * Transferir e Finalizar abrem os modais de lá (`transfer-modal-content`,
  * `close-modal-container`) e chamam `POST /v1/conversas/:id/transferir` e
  * `/encerrar`; a espera vai em `/espera` pelo menu ⋮ (""Modo de Espera"").
- */",,,,,,
+ */",translate,"Reference conversation panel `.pane-chat` (`~/desk-clone/capturas/parciais/header-conversa.html`, `thread.html`, `composer.html`): header with avatar, name, ticket/bot/queue, call/search/transfer/finish/menu controls and contact-panel toggle; then tags, conversation search, thread, and composer. Transfer and Finish use source modals `transfer-modal-content` and `close-modal-container`, calling `POST /v1/conversas/:id/transferir` and `/encerrar`; menu `Modo de Espera` calls `/espera`.",meta-blip,apps/desk-vite/src/paginas/atendimentos/conversa.tsx:32-387; original reference paths,,proposed
 desk-vite-comment-d83e032d,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,388,394,jsdoc,5,"/**
  * ""Adicionar tags"" da conversa ABERTA — o `ModalType.ADD_TAGS` da origem, que
  * é separado do `CLOSE_TICKET` (`blip-desk-regras-tecnicas.md` §1.8): marca e
  * desmarca sem encerrar. Cada clique já grava (`POST`/`DELETE
  * /v1/conversas/:id/etiquetas`), e a etiqueta marcada aqui aparece pré-marcada
  * no modal de Finalizar, porque as duas moram na mesma `conversa_etiqueta`.
- */",,,,,,
+ */",translate,"`Adicionar tags` on the open conversation mirrors source `ModalType.ADD_TAGS`, separate from `CLOSE_TICKET` (`blip-desk-regras-tecnicas.md` §1.8). Toggle tags without closing: each click persists through `POST`/`DELETE /v1/conversas/:id/etiquetas`. Tags selected here are preselected in Finish because both use `conversa_etiqueta`.",meta-blip,apps/desk-vite/src/paginas/atendimentos/conversa.tsx:395-445; original reference path,,proposed
 desk-vite-comment-be99f8ce,desk-vite,apps/desk-vite/src/paginas/atendimentos/conversa.tsx,469,474,jsdoc,3,"/**
  * ""Transferir atendimento do Ticket #N"" (`transfer-modal-content.html`):
  * dois rádios, Fila e Atendente, e um seletor; ""Cancelar"" / ""Transferir
