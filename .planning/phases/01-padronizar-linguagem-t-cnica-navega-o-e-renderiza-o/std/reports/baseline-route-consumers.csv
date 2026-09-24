@@ -1,0 +1,660 @@
+file,line,raw,normalized,match
+apps/api/src/autenticacao.ts,127,/fluxos/:*,/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/src/autenticacao.ts,157,Esta chave é de um fluxo e só vale nas rotas desse fluxo (/v1/gestao/fluxos/:id/…).,/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/src/controladores/convites.ts,109,/v1/auth/google?convite=${encodeURIComponent(token)},/v1/auth/google,/v1/auth/google/retorno
+apps/api/src/controladores/entrar.ts,51,/v1/auth,/v1/auth,/v1/auth/dev
+apps/api/src/dominio/anexo.ts,149,${base}/v1/anexos/${anexoId}?expira=${expira}&assinatura=${assinatura},/v1/anexos/:*,/v1/anexos/:*
+apps/api/src/dominio/sso.ts,370,/v1/auth/sso/${encodeURIComponent(slug)},/v1/auth/sso/:*,/v1/auth/sso/:*
+apps/api/src/dominio/sso.ts,70,${base}/v1/auth/sso/retorno,/v1/auth/sso/retorno,/v1/auth/sso/:*
+apps/api/src/eventos-ws.ts,48,/v1/eventos,/v1/eventos,ORPHAN
+apps/api/src/provisionar.ts,238,"Para entrada por domínio, registre um em POST /v1/dominios e verifique o TXT.",/v1/dominios,/v1/dominios/:*/verificar
+apps/api/src/provisionar.ts,257,POST /v1/dominios/${cliente.dominio.id}/verificar.,/v1/dominios/:*/verificar,/v1/dominios/:*/verificar
+apps/api/src/provisionar.ts,260,O administrador já existe — convide-o por POST /v1/convites e mande o link.,/v1/convites,/v1/convites/:*
+apps/api/src/servidor.ts,101,/v1/gestao/fluxos/:id/builder,/v1/gestao/fluxos/:*/builder,/v1/gestao/fluxos/:*/builder/versoes
+apps/api/src/servidor.ts,111,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/src/servidor.ts,75,/v1/anexos,/v1/anexos,/v1/anexos/:*
+apps/api/src/servidor.ts,82,/v1/contatos/importacoes,/v1/contatos/importacoes,/v1/contatos/:*/etiquetas/:*
+apps/api/src/servidor.ts,88,/v1/canais/whatsapp/:id/perfil,/v1/canais/whatsapp/:*/perfil,/v1/canais/whatsapp/:*/perfil
+apps/api/src/servidor.ts,94,/v1/canais/whatsapp/:id/modelos,/v1/canais/whatsapp/:*/modelos,/v1/canais/whatsapp/:*/modelos/:*
+apps/api/tests/analise.test.ts,158,/v1/gestao/fluxos/${fluxoId}/analise/dashboard?periodo=custom&de=${DIA_1}&ate=${DIA_1},/v1/gestao/fluxos/:*/analise/dashboard,/v1/gestao/fluxos/:*/analise/dashboard
+apps/api/tests/analise.test.ts,183,/v1/gestao/fluxos/${fluxoId}/analise/dashboard?periodo=custom&de=${semDado}&ate=${semDado},/v1/gestao/fluxos/:*/analise/dashboard,/v1/gestao/fluxos/:*/analise/dashboard
+apps/api/tests/analise.test.ts,193,/v1/gestao/fluxos/${fluxoId}/analise/dashboard,/v1/gestao/fluxos/:*/analise/dashboard,/v1/gestao/fluxos/:*/analise/dashboard
+apps/api/tests/analise.test.ts,200,/v1/gestao/fluxos/${fluxoId}/analise/dashboard,/v1/gestao/fluxos/:*/analise/dashboard,/v1/gestao/fluxos/:*/analise/dashboard
+apps/api/tests/analise.test.ts,205,/v1/gestao/fluxos/nao-e-um-uuid/analise/dashboard,/v1/gestao/fluxos/nao-e-um-uuid/analise/dashboard,/v1/gestao/fluxos/:*/analise/dashboard
+apps/api/tests/analise.test.ts,215,/v1/gestao/fluxos/${fluxoId}/analise/visao-geral?de=${DIA_1}&ate=${DIA_1},/v1/gestao/fluxos/:*/analise/visao-geral,/v1/gestao/fluxos/:*/analise/visao-geral
+apps/api/tests/analise.test.ts,232,/v1/gestao/fluxos/${fluxoId}/analise/jornada?de=${DIA_1}&ate=${DIA_1},/v1/gestao/fluxos/:*/analise/jornada,/v1/gestao/fluxos/:*/analise/jornada
+apps/api/tests/analise.test.ts,247,/v1/gestao/fluxos/${fluxoId}/analise/jornada?de=${semDado}&ate=${semDado},/v1/gestao/fluxos/:*/analise/jornada,/v1/gestao/fluxos/:*/analise/jornada
+apps/api/tests/analise.test.ts,257,/v1/gestao/fluxos/${fluxoId}/analise/log?limit=10,/v1/gestao/fluxos/:*/analise/log,/v1/gestao/fluxos/:*/analise/log
+apps/api/tests/analise.test.ts,274,/v1/gestao/fluxos/${fluxoId}/analise/log?de=${DIA_1}&ate=${DIA_1}&direcao=entrada&tipo=imagem,/v1/gestao/fluxos/:*/analise/log,/v1/gestao/fluxos/:*/analise/log
+apps/api/tests/analise.test.ts,284,/v1/gestao/fluxos/${fluxoId}/analise/log?direcao=nao-existe,/v1/gestao/fluxos/:*/analise/log,/v1/gestao/fluxos/:*/analise/log
+apps/api/tests/analise.test.ts,293,/v1/gestao/fluxos/${fluxoId}/analise/log?limit=2,/v1/gestao/fluxos/:*/analise/log,/v1/gestao/fluxos/:*/analise/log
+apps/api/tests/analise.test.ts,305,/v1/gestao/fluxos/${fluxoId}/analise/log?limit=2&cursor=${p1.page_info.end_cursor},/v1/gestao/fluxos/:*/analise/log,/v1/gestao/fluxos/:*/analise/log
+apps/api/tests/analise.test.ts,319,/v1/gestao/fluxos/${fluxoId}/analise/log,/v1/gestao/fluxos/:*/analise/log,/v1/gestao/fluxos/:*/analise/log
+apps/api/tests/anexos-multiplos.test.ts,127,${api.url}/v1/conversas/${conversaId}/mensagens/anexos,/v1/conversas/:*/mensagens/anexos,/v1/conversas/:*/mensagens/:*/reenviar
+apps/api/tests/anexos-multiplos.test.ts,150,POST /v1/conversas/:id/mensagens/anexos,/v1/conversas/:*/mensagens/anexos,/v1/conversas/:*/mensagens/:*/reenviar
+apps/api/tests/anexos-multiplos.test.ts,91,${api.url}/v1/anexos?nome=${encodeURIComponent(nome)},/v1/anexos,/v1/anexos/:*
+apps/api/tests/anexos.test.ts,132,${api.url}/v1/anexos,/v1/anexos,/v1/anexos/:*
+apps/api/tests/anexos.test.ts,192,/v1/anexos/${idOutro},/v1/anexos/:*,/v1/anexos/:*
+apps/api/tests/anexos.test.ts,60,${api.url}/v1/anexos?nome=${encodeURIComponent(nome)},/v1/anexos,/v1/anexos/:*
+apps/api/tests/builder-por-fluxo.test.ts,129,/v1/gestao/fluxos,/v1/gestao/fluxos,/v1/gestao/fluxos/:*/canal
+apps/api/tests/builder-por-fluxo.test.ts,139,/v1/gestao/fluxos/${id}/builder,/v1/gestao/fluxos/:*/builder,/v1/gestao/fluxos/:*/builder/versoes
+apps/api/tests/builder-por-fluxo.test.ts,141,/v1/gestao/fluxos/${id}/builder,/v1/gestao/fluxos/:*/builder,/v1/gestao/fluxos/:*/builder/versoes
+apps/api/tests/builder-por-fluxo.test.ts,143,/v1/gestao/fluxos/${id}/builder/publicar,/v1/gestao/fluxos/:*/builder/publicar,/v1/gestao/fluxos/:*/builder/publicar
+apps/api/tests/builder-por-fluxo.test.ts,145,/v1/gestao/fluxos/${id}/builder/versoes,/v1/gestao/fluxos/:*/builder/versoes,/v1/gestao/fluxos/:*/builder/versoes
+apps/api/tests/builder-por-fluxo.test.ts,147,/v1/gestao/fluxos/${id}/builder/versoes/${versao}/restaurar,/v1/gestao/fluxos/:*/builder/versoes/:*/restaurar,/v1/gestao/fluxos/:*/builder/versoes/:*/restaurar
+apps/api/tests/builder-por-fluxo.test.ts,298,GET /v1/gestao/fluxos/:id/builder,/v1/gestao/fluxos/:*/builder,/v1/gestao/fluxos/:*/builder/versoes
+apps/api/tests/builder-por-fluxo.test.ts,343,${api.url}/v1/gestao/fluxos/${id}/builder,/v1/gestao/fluxos/:*/builder,/v1/gestao/fluxos/:*/builder/versoes
+apps/api/tests/builder-por-fluxo.test.ts,348,PUT /v1/gestao/fluxos/:id/builder,/v1/gestao/fluxos/:*/builder,/v1/gestao/fluxos/:*/builder/versoes
+apps/api/tests/builder-por-fluxo.test.ts,436,POST /v1/gestao/fluxos/:id/builder/publicar,/v1/gestao/fluxos/:*/builder/publicar,/v1/gestao/fluxos/:*/builder/publicar
+apps/api/tests/builder-por-fluxo.test.ts,545,POST /v1/gestao/fluxos/:id/builder/versoes/:versao/restaurar,/v1/gestao/fluxos/:*/builder/versoes/:*/restaurar,/v1/gestao/fluxos/:*/builder/versoes/:*/restaurar
+apps/api/tests/cadastros-atendimento.test.ts,1009,PATCH e DELETE /v1/gestao/regras/horarios/excecoes/:id,/v1/gestao/regras/horarios/excecoes/:*,/v1/gestao/regras/horarios/excecoes/:*
+apps/api/tests/cadastros-atendimento.test.ts,1015,/v1/gestao/regras/horarios/excecoes/${id},/v1/gestao/regras/horarios/excecoes/:*,/v1/gestao/regras/horarios/excecoes/:*
+apps/api/tests/cadastros-atendimento.test.ts,1029,/v1/gestao/regras/horarios/excecoes/${fechada},/v1/gestao/regras/horarios/excecoes/:*,/v1/gestao/regras/horarios/excecoes/:*
+apps/api/tests/cadastros-atendimento.test.ts,1039,/v1/gestao/regras/horarios/excecoes/${aberta},/v1/gestao/regras/horarios/excecoes/:*,/v1/gestao/regras/horarios/excecoes/:*
+apps/api/tests/cadastros-atendimento.test.ts,1053,/v1/gestao/regras/horarios/excecoes/${id},/v1/gestao/regras/horarios/excecoes/:*,/v1/gestao/regras/horarios/excecoes/:*
+apps/api/tests/cadastros-atendimento.test.ts,1065,/v1/gestao/regras/horarios/excecoes/${id},/v1/gestao/regras/horarios/excecoes/:*,/v1/gestao/regras/horarios/excecoes/:*
+apps/api/tests/cadastros-atendimento.test.ts,1072,/v1/gestao/regras/horarios/excecoes/${id},/v1/gestao/regras/horarios/excecoes/:*,/v1/gestao/regras/horarios/excecoes/:*
+apps/api/tests/cadastros-atendimento.test.ts,1080,/v1/gestao/regras/horarios/excecoes/nao-e-uuid,/v1/gestao/regras/horarios/excecoes/nao-e-uuid,/v1/gestao/regras/horarios/excecoes/:*
+apps/api/tests/cadastros-atendimento.test.ts,1090,${api.url}/v1/gestao/regras/horarios/excecoes/${id},/v1/gestao/regras/horarios/excecoes/:*,/v1/gestao/regras/horarios/excecoes/:*
+apps/api/tests/cadastros-atendimento.test.ts,1108,/v1/gestao/regras/prioridade,/v1/gestao/regras/prioridade,/v1/gestao/regras/prioridade/:*
+apps/api/tests/cadastros-atendimento.test.ts,1115,GET/POST/PATCH/DELETE /v1/gestao/regras/prioridade,/v1/gestao/regras/prioridade,/v1/gestao/regras/prioridade/:*
+apps/api/tests/cadastros-atendimento.test.ts,1122,/v1/gestao/regras/prioridade,/v1/gestao/regras/prioridade,/v1/gestao/regras/prioridade/:*
+apps/api/tests/cadastros-atendimento.test.ts,1156,/v1/gestao/regras/prioridade/${criada.id},/v1/gestao/regras/prioridade/:*,/v1/gestao/regras/prioridade/:*
+apps/api/tests/cadastros-atendimento.test.ts,1169,/v1/gestao/regras/prioridade/${criada.id},/v1/gestao/regras/prioridade/:*,/v1/gestao/regras/prioridade/:*
+apps/api/tests/cadastros-atendimento.test.ts,1178,/v1/gestao/regras/prioridade/${criada.id},/v1/gestao/regras/prioridade/:*,/v1/gestao/regras/prioridade/:*
+apps/api/tests/cadastros-atendimento.test.ts,1184,/v1/gestao/regras/prioridade/nao-e-uuid,/v1/gestao/regras/prioridade/nao-e-uuid,/v1/gestao/regras/prioridade/:*
+apps/api/tests/cadastros-atendimento.test.ts,1192,${api.url}/v1/gestao/regras/prioridade/${criada.id},/v1/gestao/regras/prioridade/:*,/v1/gestao/regras/prioridade/:*
+apps/api/tests/cadastros-atendimento.test.ts,155,/v1/gestao/atendentes/filas,/v1/gestao/atendentes/filas,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,162,POST /v1/gestao/atendentes/filas,/v1/gestao/atendentes/filas,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,206,${api.url}/v1/gestao/atendentes/filas,/v1/gestao/atendentes/filas,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,215,PATCH /v1/gestao/atendentes/filas/:id — renomear e ativar/desativar,/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,220,/v1/gestao/atendentes/filas/${criada.id},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,235,/v1/gestao/atendentes/filas/${criada.id},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,245,/v1/gestao/atendentes/filas/${criada.id},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,253,/v1/gestao/atendentes/filas/${criada.id},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,260,/v1/gestao/atendentes/filas/${criada.id},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,266,/v1/gestao/atendentes/filas/nao-e-uuid,/v1/gestao/atendentes/filas/nao-e-uuid,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,273,DELETE /v1/gestao/atendentes/filas/:id,/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,276,${api.url}/v1/gestao/atendentes/filas/${criada.id},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,301,${api.url}/v1/gestao/atendentes/filas/${criada.id},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,312,${api.url}/v1/gestao/atendentes/filas/${a.filaId},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,329,${api.url}/v1/gestao/atendentes/filas/${criada.id},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,341,${api.url}/v1/gestao/atendentes/filas/${criada.id},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,347,${api.url}/v1/gestao/atendentes/filas/${criada.id},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,360,/v1/gestao/atendentes/filas/${criada.id}/atendentes,/v1/gestao/atendentes/filas/:*/atendentes,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,374,/v1/gestao/atendentes/filas/${criada.id}/atendentes,/v1/gestao/atendentes/filas/:*/atendentes,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,390,/v1/gestao/atendentes/filas/${criada.id}/atendentes,/v1/gestao/atendentes/filas/:*/atendentes,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,398,/v1/gestao/atendentes/filas/${randomUUID()}/atendentes,/v1/gestao/atendentes/filas/:*/atendentes,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,408,${api.url}/v1/gestao/atendentes/filas/${a.filaId}/atendentes/${a.atendenteId},/v1/gestao/atendentes/filas/:*/atendentes/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,414,${api.url}/v1/gestao/atendentes/filas/${a.filaId}/atendentes/${a.atendenteId},/v1/gestao/atendentes/filas/:*/atendentes/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/api/tests/cadastros-atendimento.test.ts,432,/v1/gestao/comunicacao/respostas-prontas,/v1/gestao/comunicacao/respostas-prontas,/v1/gestao/comunicacao/respostas-prontas/:*
+apps/api/tests/cadastros-atendimento.test.ts,440,POST /v1/gestao/comunicacao/respostas-prontas,/v1/gestao/comunicacao/respostas-prontas,/v1/gestao/comunicacao/respostas-prontas/:*
+apps/api/tests/cadastros-atendimento.test.ts,472,PATCH e DELETE /v1/gestao/comunicacao/respostas-prontas/:id,/v1/gestao/comunicacao/respostas-prontas/:*,/v1/gestao/comunicacao/respostas-prontas/:*
+apps/api/tests/cadastros-atendimento.test.ts,477,/v1/gestao/comunicacao/respostas-prontas/${criada.id},/v1/gestao/comunicacao/respostas-prontas/:*,/v1/gestao/comunicacao/respostas-prontas/:*
+apps/api/tests/cadastros-atendimento.test.ts,489,${api.url}/v1/gestao/comunicacao/respostas-prontas/${criada.id},/v1/gestao/comunicacao/respostas-prontas/:*,/v1/gestao/comunicacao/respostas-prontas/:*
+apps/api/tests/cadastros-atendimento.test.ts,494,${api.url}/v1/gestao/comunicacao/respostas-prontas/nao-e-uuid,/v1/gestao/comunicacao/respostas-prontas/nao-e-uuid,/v1/gestao/comunicacao/respostas-prontas/:*
+apps/api/tests/cadastros-atendimento.test.ts,500,${api.url}/v1/gestao/comunicacao/respostas-prontas/${criada.id},/v1/gestao/comunicacao/respostas-prontas/:*,/v1/gestao/comunicacao/respostas-prontas/:*
+apps/api/tests/cadastros-atendimento.test.ts,518,/v1/gestao/atendentes/pausas,/v1/gestao/atendentes/pausas,/v1/gestao/atendentes/pausas/:*
+apps/api/tests/cadastros-atendimento.test.ts,524,POST /v1/gestao/atendentes/pausas,/v1/gestao/atendentes/pausas,/v1/gestao/atendentes/pausas/:*
+apps/api/tests/cadastros-atendimento.test.ts,554,PATCH e DELETE /v1/gestao/atendentes/pausas/:id,/v1/gestao/atendentes/pausas/:*,/v1/gestao/atendentes/pausas/:*
+apps/api/tests/cadastros-atendimento.test.ts,557,/v1/gestao/atendentes/pausas/${criada.id},/v1/gestao/atendentes/pausas/:*,/v1/gestao/atendentes/pausas/:*
+apps/api/tests/cadastros-atendimento.test.ts,567,${api.url}/v1/gestao/atendentes/pausas/${criada.id},/v1/gestao/atendentes/pausas/:*,/v1/gestao/atendentes/pausas/:*
+apps/api/tests/cadastros-atendimento.test.ts,573,${api.url}/v1/gestao/atendentes/pausas/${criada.id},/v1/gestao/atendentes/pausas/:*,/v1/gestao/atendentes/pausas/:*
+apps/api/tests/cadastros-atendimento.test.ts,600,PATCH /v1/gestao/regras/atendimento/:id,/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,606,/v1/gestao/regras/atendimento/${id},/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,622,/v1/gestao/regras/atendimento/${id},/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,633,/v1/gestao/regras/atendimento/${id},/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,639,/v1/gestao/regras/atendimento/${id},/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,645,/v1/gestao/regras/atendimento/${id},/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,655,/v1/gestao/regras/atendimento/${outraId},/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,665,/v1/gestao/regras/atendimento/${id},/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,673,/v1/gestao/regras/atendimento/${id},/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,679,/v1/gestao/regras/atendimento/nao-e-uuid,/v1/gestao/regras/atendimento/nao-e-uuid,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,686,DELETE /v1/gestao/regras/atendimento/:id,/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,689,${api.url}/v1/gestao/regras/atendimento/${id},/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,707,${api.url}/v1/gestao/regras/atendimento/${id},/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,713,${api.url}/v1/gestao/regras/atendimento/${id},/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/api/tests/cadastros-atendimento.test.ts,726,/v1/gestao/configuracoes/regras,/v1/gestao/configuracoes/regras,/v1/gestao/configuracoes/regras/:*
+apps/api/tests/cadastros-atendimento.test.ts,734,POST /v1/gestao/configuracoes/regras,/v1/gestao/configuracoes/regras,/v1/gestao/configuracoes/regras/:*
+apps/api/tests/cadastros-atendimento.test.ts,787,PATCH e DELETE /v1/gestao/configuracoes/regras/:id,/v1/gestao/configuracoes/regras/:*,/v1/gestao/configuracoes/regras/:*
+apps/api/tests/cadastros-atendimento.test.ts,792,/v1/gestao/configuracoes/regras/${criada.id},/v1/gestao/configuracoes/regras/:*,/v1/gestao/configuracoes/regras/:*
+apps/api/tests/cadastros-atendimento.test.ts,804,/v1/gestao/configuracoes/regras/${criada.id},/v1/gestao/configuracoes/regras/:*,/v1/gestao/configuracoes/regras/:*
+apps/api/tests/cadastros-atendimento.test.ts,817,/v1/gestao/configuracoes/regras/${criada.id},/v1/gestao/configuracoes/regras/:*,/v1/gestao/configuracoes/regras/:*
+apps/api/tests/cadastros-atendimento.test.ts,825,/v1/gestao/configuracoes/regras/${criada.id},/v1/gestao/configuracoes/regras/:*,/v1/gestao/configuracoes/regras/:*
+apps/api/tests/cadastros-atendimento.test.ts,831,/v1/gestao/configuracoes/regras/nao-e-uuid,/v1/gestao/configuracoes/regras/nao-e-uuid,/v1/gestao/configuracoes/regras/:*
+apps/api/tests/cadastros-atendimento.test.ts,840,${api.url}/v1/gestao/configuracoes/regras/${criada.id},/v1/gestao/configuracoes/regras/:*,/v1/gestao/configuracoes/regras/:*
+apps/api/tests/cadastros-atendimento.test.ts,846,${api.url}/v1/gestao/configuracoes/regras/nao-e-uuid,/v1/gestao/configuracoes/regras/nao-e-uuid,/v1/gestao/configuracoes/regras/:*
+apps/api/tests/cadastros-atendimento.test.ts,852,${api.url}/v1/gestao/configuracoes/regras/${criada.id},/v1/gestao/configuracoes/regras/:*,/v1/gestao/configuracoes/regras/:*
+apps/api/tests/cadastros-atendimento.test.ts,879,${api.url}/v1/gestao/configuracoes/regras/${criada.id},/v1/gestao/configuracoes/regras/:*,/v1/gestao/configuracoes/regras/:*
+apps/api/tests/cadastros-atendimento.test.ts,931,PATCH e DELETE /v1/gestao/regras/horarios/faixas/:id,/v1/gestao/regras/horarios/faixas/:*,/v1/gestao/regras/horarios/faixas/:*
+apps/api/tests/cadastros-atendimento.test.ts,937,/v1/gestao/regras/horarios/faixas/${id},/v1/gestao/regras/horarios/faixas/:*,/v1/gestao/regras/horarios/faixas/:*
+apps/api/tests/cadastros-atendimento.test.ts,951,/v1/gestao/regras/horarios/faixas/${id},/v1/gestao/regras/horarios/faixas/:*,/v1/gestao/regras/horarios/faixas/:*
+apps/api/tests/cadastros-atendimento.test.ts,962,/v1/gestao/regras/horarios/faixas/${id},/v1/gestao/regras/horarios/faixas/:*,/v1/gestao/regras/horarios/faixas/:*
+apps/api/tests/cadastros-atendimento.test.ts,973,/v1/gestao/regras/horarios/faixas/${id},/v1/gestao/regras/horarios/faixas/:*,/v1/gestao/regras/horarios/faixas/:*
+apps/api/tests/cadastros-atendimento.test.ts,981,/v1/gestao/regras/horarios/faixas/${id},/v1/gestao/regras/horarios/faixas/:*,/v1/gestao/regras/horarios/faixas/:*
+apps/api/tests/cadastros-atendimento.test.ts,987,/v1/gestao/regras/horarios/faixas/nao-e-uuid,/v1/gestao/regras/horarios/faixas/nao-e-uuid,/v1/gestao/regras/horarios/faixas/:*
+apps/api/tests/cadastros-atendimento.test.ts,996,${api.url}/v1/gestao/regras/horarios/faixas/${id},/v1/gestao/regras/horarios/faixas/:*,/v1/gestao/regras/horarios/faixas/:*
+apps/api/tests/canais.test.ts,138,"o callback do cadastro embutido (POST /v1/canais/whatsapp), contra o dublê",/v1/canais/whatsapp,/v1/canais/whatsapp/:*/modelos/:*
+apps/api/tests/canais.test.ts,489,perfil do número (GET/PATCH /v1/canais/whatsapp/:id/perfil),/v1/canais/whatsapp/:*/perfil,/v1/canais/whatsapp/:*/perfil
+apps/api/tests/canal-do-fluxo.test.ts,145,/v1/gestao/fluxos/${fluxoId}/canal,/v1/gestao/fluxos/:*/canal,/v1/gestao/fluxos/:*/canal
+apps/api/tests/canal-do-fluxo.test.ts,147,/v1/gestao/fluxos/${fluxoId}/canal,/v1/gestao/fluxos/:*/canal,/v1/gestao/fluxos/:*/canal
+apps/api/tests/canal-do-fluxo.test.ts,149,/v1/gestao/fluxos/${fluxoId}/canal,/v1/gestao/fluxos/:*/canal,/v1/gestao/fluxos/:*/canal
+apps/api/tests/canal-do-fluxo.test.ts,187,PUT e GET /v1/gestao/fluxos/:id/canal,/v1/gestao/fluxos/:*/canal,/v1/gestao/fluxos/:*/canal
+apps/api/tests/canal-do-fluxo.test.ts,216,/v1/gestao/fluxos/${fluxoId},/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/tests/canal-do-fluxo.test.ts,286,/v1/gestao/fluxos/${fluxoId}/canal,/v1/gestao/fluxos/:*/canal,/v1/gestao/fluxos/:*/canal
+apps/api/tests/canal-do-fluxo.test.ts,318,DELETE /v1/gestao/fluxos/:id/canal,/v1/gestao/fluxos/:*/canal,/v1/gestao/fluxos/:*/canal
+apps/api/tests/canal-do-fluxo.test.ts,348,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/:*/modelos/:*
+apps/api/tests/canal-do-fluxo.test.ts,381,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/:*/modelos/:*
+apps/api/tests/canal-do-fluxo.test.ts,385,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/:*/modelos/:*
+apps/api/tests/canal-do-fluxo.test.ts,390,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/:*/modelos/:*
+apps/api/tests/canal-do-fluxo.test.ts,487,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/:*/modelos/:*
+apps/api/tests/canal-do-fluxo.test.ts,495,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/:*/modelos/:*
+apps/api/tests/canal-do-fluxo.test.ts,502,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/:*/modelos/:*
+apps/api/tests/canal-do-fluxo.test.ts,526,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/:*/modelos/:*
+apps/api/tests/chave-de-fluxo.test.ts,128,/v1/gestao/fluxos/${fluxoId}/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/chave-de-fluxo.test.ts,182,/v1/gestao/fluxos/:id/,/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/tests/chave-de-fluxo.test.ts,190,/v1/gestao/fluxos/:id/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/chave-de-fluxo.test.ts,191,/v1/gestao/fluxos/:id,/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/tests/chave-de-fluxo.test.ts,194,/v1/gestao/fluxos/:fluxoId/links-rastreados/:linkId,/v1/gestao/fluxos/:*/links-rastreados/:*,ORPHAN
+apps/api/tests/chave-de-fluxo.test.ts,201,/v1/conversas/:id/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/chave-de-fluxo.test.ts,202,/v1/conversas,/v1/conversas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/chave-de-fluxo.test.ts,208,/v1/conversas,/v1/conversas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/chave-de-fluxo.test.ts,214,/v1/conversas/${randomUUID()}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/chave-de-fluxo.test.ts,221,/v1/conversas,/v1/conversas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/chave-de-fluxo.test.ts,228,/v1/filas,/v1/filas,/v1/filas
+apps/api/tests/chave-de-fluxo.test.ts,234,/v1/filas,/v1/filas,/v1/filas
+apps/api/tests/chave-de-fluxo.test.ts,236,/v1/conversas,/v1/conversas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/chave-de-fluxo.test.ts,243,/v1/conversas,/v1/conversas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/chave-de-fluxo.test.ts,247,/v1/gestao/fluxos/${fluxoB}/chaves/${id},/v1/gestao/fluxos/:*/chaves/:*,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/chave-de-fluxo.test.ts,250,/v1/conversas,/v1/conversas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/chave-de-fluxo.test.ts,255,/v1/filas,/v1/filas,/v1/filas
+apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,147,${api.url}/v1/gestao/fluxos,/v1/gestao/fluxos,/v1/gestao/fluxos/:*/canal
+apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,164,${api.url}/v1/gestao/fluxos/${id},/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,173,${api.url}/v1/gestao/fluxos/${id},/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,201,POST /v1/gestao/fluxos,/v1/gestao/fluxos,/v1/gestao/fluxos/:*/canal
+apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,273,${api.url}/v1/gestao/fluxos,/v1/gestao/fluxos,/v1/gestao/fluxos/:*/canal
+apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,280,${api.url}/v1/gestao/fluxos,/v1/gestao/fluxos,/v1/gestao/fluxos/:*/canal
+apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,299,PATCH /v1/gestao/fluxos/:id,/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,430,DELETE /v1/gestao/fluxos/:id,/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,467,${api.url}/v1/gestao/fluxos?busca=${encodeURIComponent(nome)},/v1/gestao/fluxos,/v1/gestao/fluxos/:*/canal
+apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,491,${api.url}/v1/gestao/fluxos/${randomUUID()},/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/tests/configuracao-do-fluxo.test.ts,134,GET/PATCH /v1/gestao/fluxos/:id/boas-vindas,/v1/gestao/fluxos/:*/boas-vindas,/v1/gestao/fluxos/:*/boas-vindas
+apps/api/tests/configuracao-do-fluxo.test.ts,212,GET/PATCH /v1/gestao/fluxos/:id/menu-persistente,/v1/gestao/fluxos/:*/menu-persistente,/v1/gestao/fluxos/:*/menu-persistente
+apps/api/tests/configuracao-do-fluxo.test.ts,92,${api.url}/v1/gestao/fluxos/${caminho},/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/tests/contas.test.ts,50,POST /v1/contas (accounts_controller#create),/v1/contas,/v1/contas/minhas
+apps/api/tests/contatos-editar.test.ts,144,PATCH /v1/contatos/:id,/v1/contatos/:*,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/contatos-editar.test.ts,222,${api.url}/v1/contatos/${id},/v1/contatos/:*,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/contatos-editar.test.ts,94,${api.url}/v1/contatos/${id},/v1/contatos/:*,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/contrato.test.ts,190,GET /v1/gestao/contrato/membros,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros
+apps/api/tests/contrato.test.ts,192,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros
+apps/api/tests/contrato.test.ts,197,${api.url}/v1/gestao/contrato/membros,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros
+apps/api/tests/contrato.test.ts,205,/v1/convites,/v1/convites,/v1/convites/:*
+apps/api/tests/contrato.test.ts,211,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros
+apps/api/tests/contrato.test.ts,217,/v1/convites/${criado.corpo.id}/reenviar,/v1/convites/:*/reenviar,/v1/convites/:*/reenviar
+apps/api/tests/contrato.test.ts,227,/v1/convites/${criado.corpo.id}/reenviar,/v1/convites/:*/reenviar,/v1/convites/:*/reenviar
+apps/api/tests/contrato.test.ts,233,/v1/gestao/contrato/membros/excluir,/v1/gestao/contrato/membros/excluir,/v1/gestao/contrato/membros/excluir
+apps/api/tests/contrato.test.ts,238,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros
+apps/api/tests/contrato.test.ts,243,/v1/convites,/v1/convites,/v1/convites/:*
+apps/api/tests/contrato.test.ts,254,/v1/convites,/v1/convites,/v1/convites/:*
+apps/api/tests/contrato.test.ts,257,/v1/convites/${criado.corpo.id}/reenviar,/v1/convites/:*/reenviar,/v1/convites/:*/reenviar
+apps/api/tests/contrato.test.ts,264,POST /v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel
+apps/api/tests/contrato.test.ts,266,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel
+apps/api/tests/contrato.test.ts,272,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros
+apps/api/tests/contrato.test.ts,277,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel
+apps/api/tests/contrato.test.ts,286,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel
+apps/api/tests/contrato.test.ts,298,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel
+apps/api/tests/contrato.test.ts,306,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros
+apps/api/tests/contrato.test.ts,315,/v1/gestao/contrato/membros/excluir,/v1/gestao/contrato/membros/excluir,/v1/gestao/contrato/membros/excluir
+apps/api/tests/contrato.test.ts,322,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros
+apps/api/tests/contrato.test.ts,327,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel
+apps/api/tests/contrato.test.ts,334,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel
+apps/api/tests/contrato.test.ts,338,/v1/gestao/contrato/membros/excluir,/v1/gestao/contrato/membros/excluir,/v1/gestao/contrato/membros/excluir
+apps/api/tests/contrato.test.ts,364,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,378,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,390,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,400,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,414,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,420,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,431,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,452,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,472,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,482,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,488,/v1/gestao/contrato/certificados/${criado.corpo.id},/v1/gestao/contrato/certificados/:*,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,493,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,500,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,508,/v1/gestao/contrato/certificados/${criado.corpo.id}/hosts/${hostId},/v1/gestao/contrato/certificados/:*/hosts/:*,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,513,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,520,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,526,/v1/gestao/contrato/certificados/${criado.corpo.id},/v1/gestao/contrato/certificados/:*,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,532,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,539,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,548,${api.url}/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,628,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/contrato.test.ts,689,/v1/gestao/contrato/certificados/${certificadoId},/v1/gestao/contrato/certificados/:*,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/api/tests/conversa-eventos.test.ts,111,/v1/conversas/${id}/encerrar,/v1/conversas/:*/encerrar,/v1/conversas/:*/encerrar
+apps/api/tests/conversa-eventos.test.ts,120,/v1/conversas/${id}/encerrar,/v1/conversas/:*/encerrar,/v1/conversas/:*/encerrar
+apps/api/tests/conversa-eventos.test.ts,136,/v1/conversas/${id}/encerrar,/v1/conversas/:*/encerrar,/v1/conversas/:*/encerrar
+apps/api/tests/conversa-eventos.test.ts,149,/v1/conversas/${id}/encerrar,/v1/conversas/:*/encerrar,/v1/conversas/:*/encerrar
+apps/api/tests/conversa-eventos.test.ts,157,/v1/conversas/${id}/encerrar,/v1/conversas/:*/encerrar,/v1/conversas/:*/encerrar
+apps/api/tests/conversa-eventos.test.ts,170,/v1/conversas/${id}/encerrar,/v1/conversas/:*/encerrar,/v1/conversas/:*/encerrar
+apps/api/tests/conversa-eventos.test.ts,176,/v1/conversas/${id}/encerrar,/v1/conversas/:*/encerrar,/v1/conversas/:*/encerrar
+apps/api/tests/conversa-eventos.test.ts,197,/v1/conversas/${id}/encerrar,/v1/conversas/:*/encerrar,/v1/conversas/:*/encerrar
+apps/api/tests/conversa-eventos.test.ts,206,/v1/conversas/${id}/espera,/v1/conversas/:*/espera,/v1/conversas/:*/espera
+apps/api/tests/conversa-eventos.test.ts,216,/v1/conversas/${id}/espera,/v1/conversas/:*/espera,/v1/conversas/:*/espera
+apps/api/tests/conversa-eventos.test.ts,232,/v1/conversas/${id}/espera,/v1/conversas/:*/espera,/v1/conversas/:*/espera
+apps/api/tests/conversa-eventos.test.ts,233,/v1/conversas/${id}/espera,/v1/conversas/:*/espera,/v1/conversas/:*/espera
+apps/api/tests/conversa-eventos.test.ts,242,/v1/conversas/${id}/espera,/v1/conversas/:*/espera,/v1/conversas/:*/espera
+apps/api/tests/convites.test.ts,144,POST /v1/convites,/v1/convites,/v1/convites/:*
+apps/api/tests/convites.test.ts,147,${api.url}/v1/convites,/v1/convites,/v1/convites/:*
+apps/api/tests/convites.test.ts,15,http://127.0.0.1:3100/v1/auth/google/retorno,/v1/auth/google/retorno,/v1/auth/google/retorno
+apps/api/tests/convites.test.ts,181,${api.url}/v1/convites,/v1/convites,/v1/convites/:*
+apps/api/tests/convites.test.ts,193,${api.url}/v1/convites,/v1/convites,/v1/convites/:*
+apps/api/tests/convites.test.ts,213,${api.url}/v1/convites,/v1/convites,/v1/convites/:*
+apps/api/tests/convites.test.ts,222,${api.url}/v1/convites,/v1/convites,/v1/convites/:*
+apps/api/tests/convites.test.ts,233,${api.url}/v1/convites,/v1/convites,/v1/convites/:*
+apps/api/tests/convites.test.ts,251,GET /v1/convites/:token,/v1/convites/:*,/v1/convites/:*
+apps/api/tests/convites.test.ts,256,${api.url}/v1/convites/${token},/v1/convites/:*,/v1/convites/:*
+apps/api/tests/convites.test.ts,271,${api.url}/v1/convites/nunca-existiu,/v1/convites/nunca-existiu,/v1/convites/:*
+apps/api/tests/convites.test.ts,281,${api.url}/v1/convites/${token},/v1/convites/:*,/v1/convites/:*
+apps/api/tests/convites.test.ts,288,POST /v1/convites/:token/aceitar,/v1/convites/:*/aceitar,/v1/convites/:*/aceitar
+apps/api/tests/convites.test.ts,293,${api.url}/v1/convites/${token}/aceitar,/v1/convites/:*/aceitar,/v1/convites/:*/aceitar
+apps/api/tests/convites.test.ts,302,/v1/auth/google?convite=${encodeURIComponent(token)},/v1/auth/google,/v1/auth/google/retorno
+apps/api/tests/convites.test.ts,315,${api.url}/v1/convites/${token}/aceitar,/v1/convites/:*/aceitar,/v1/convites/:*/aceitar
+apps/api/tests/convites.test.ts,334,${api.url}/v1/convites/${token}/aceitar,/v1/convites/:*/aceitar,/v1/convites/:*/aceitar
+apps/api/tests/convites.test.ts,365,${api.url}/v1/eu,/v1/eu,/v1/eu
+apps/api/tests/convites.test.ts,387,GET /v1/auth/google?convite=,/v1/auth/google,/v1/auth/google/retorno
+apps/api/tests/convites.test.ts,390,${api.url}/v1/auth/google?convite=${encodeURIComponent(token)},/v1/auth/google,/v1/auth/google/retorno
+apps/api/tests/convites.test.ts,407,${api.url}/v1/auth/google,/v1/auth/google,/v1/auth/google/retorno
+apps/api/tests/convites.test.ts,424,POST /v1/dominios,/v1/dominios,/v1/dominios/:*/verificar
+apps/api/tests/convites.test.ts,427,${api.url}/v1/dominios,/v1/dominios,/v1/dominios/:*/verificar
+apps/api/tests/convites.test.ts,447,${api.url}/v1/dominios,/v1/dominios,/v1/dominios/:*/verificar
+apps/api/tests/convites.test.ts,458,${api.url}/v1/dominios,/v1/dominios,/v1/dominios/:*/verificar
+apps/api/tests/convites.test.ts,487,${api.url}/v1/dominios,/v1/dominios,/v1/dominios/:*/verificar
+apps/api/tests/desk-acoes.test.ts,131,POST /v1/desk/acoes/:acao — lista fechada e sessão obrigatória,/v1/desk/acoes/:*,/v1/desk/acoes/:*
+apps/api/tests/desk-acoes.test.ts,393,${api.url}/v1/desk/fila,/v1/desk/fila,/v1/desk/fila
+apps/api/tests/desk-acoes.test.ts,53,${api.url}/v1/desk/acoes/${nome},/v1/desk/acoes/:*,/v1/desk/acoes/:*
+apps/api/tests/dicionario-crm.test.ts,307,GET /v1/crm/dicionario exige sessão e devolve só o dicionário do tenant dela,/v1/crm/dicionario,/v1/crm/dicionario
+apps/api/tests/dicionario-crm.test.ts,310,${api.url}/v1/crm/dicionario,/v1/crm/dicionario,/v1/crm/dicionario
+apps/api/tests/dicionario-crm.test.ts,318,${api.url}/v1/crm/dicionario,/v1/crm/dicionario,/v1/crm/dicionario
+apps/api/tests/entrada.test.ts,110,${api.url}/v1/eu,/v1/eu,/v1/eu
+apps/api/tests/entrada.test.ts,117,${api.url}/v1/eu,/v1/eu,/v1/eu
+apps/api/tests/entrada.test.ts,125,${api.url}/v1/eu,/v1/eu,/v1/eu
+apps/api/tests/entrada.test.ts,130,GET /v1/eu,/v1/eu,/v1/eu
+apps/api/tests/entrada.test.ts,132,${api.url}/v1/eu,/v1/eu,/v1/eu
+apps/api/tests/entrada.test.ts,159,${api.url}/v1/eu,/v1/eu,/v1/eu
+apps/api/tests/entrada.test.ts,169,POST /v1/auth/sair,/v1/auth/sair,/v1/auth/sair
+apps/api/tests/entrada.test.ts,16,http://127.0.0.1:3100/v1/auth/google/retorno,/v1/auth/google/retorno,/v1/auth/google/retorno
+apps/api/tests/entrada.test.ts,172,${api.url}/v1/auth/sair,/v1/auth/sair,/v1/auth/sair
+apps/api/tests/entrada.test.ts,179,${api.url}/v1/eu,/v1/eu,/v1/eu
+apps/api/tests/entrada.test.ts,183,${api.url}/v1/auth/sair,/v1/auth/sair,/v1/auth/sair
+apps/api/tests/entrada.test.ts,188,GET /v1/auth/google,/v1/auth/google,/v1/auth/google/retorno
+apps/api/tests/entrada.test.ts,190,${api.url}/v1/auth/google?destino=/conversas/42,/v1/auth/google,/v1/auth/google/retorno
+apps/api/tests/entrada.test.ts,207,Path=/v1/auth,/v1/auth,/v1/auth/dev
+apps/api/tests/entrada.test.ts,218,${api.url}/v1/auth/google?destino=${encodeURIComponent('https://malvado.example/roubar')},/v1/auth/google,/v1/auth/google/retorno
+apps/api/tests/entrada.test.ts,225,GET /v1/auth/google/retorno,/v1/auth/google/retorno,/v1/auth/google/retorno
+apps/api/tests/entrada.test.ts,227,${api.url}/v1/auth/google/retorno?code=qualquer,/v1/auth/google/retorno,/v1/auth/google/retorno
+apps/api/tests/entrada.test.ts,237,${api.url}/v1/auth/google/retorno?code=x,/v1/auth/google/retorno,/v1/auth/google/retorno
+apps/api/tests/entrada.test.ts,274,${api.url}/v1/eu,/v1/eu,/v1/eu
+apps/api/tests/entrada.test.ts,282,${api.url}/v1/eu,/v1/eu,/v1/eu
+apps/api/tests/entrada.test.ts,329,"rota=""/v1/eu""",/v1/eu,/v1/eu
+apps/api/tests/entrada.test.ts,330,"rota=""/v1/conversas/${cenario.tenantId}",/v1/conversas/:*,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/entrada.test.ts,382,${api.url}/v1/auth/google?origem=${encodeURIComponent('http://gestao.teste')},/v1/auth/google,/v1/auth/google/retorno
+apps/api/tests/envio-sessao.test.ts,215,${api.url}/v1/conversas/${conversaId}/mensagens/${mensagemId}/reenviar,/v1/conversas/:*/mensagens/:*/reenviar,/v1/conversas/:*/mensagens/:*/reenviar
+apps/api/tests/envio-sessao.test.ts,356,${api.url}/v1/conversas/${conversaId}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/envio-sessao.test.ts,89,${api.url}/v1/conversas/${conversaId}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/equipe-do-fluxo.test.ts,123,/v1/gestao/fluxos/${id}/equipe,/v1/gestao/fluxos/:*/equipe,/v1/gestao/fluxos/:*/equipe/:*
+apps/api/tests/equipe-do-fluxo.test.ts,126,/v1/gestao/fluxos/${id}/equipe,/v1/gestao/fluxos/:*/equipe,/v1/gestao/fluxos/:*/equipe/:*
+apps/api/tests/equipe-do-fluxo.test.ts,132,/v1/gestao/fluxos/${id}/equipe/${alvo},/v1/gestao/fluxos/:*/equipe/:*,/v1/gestao/fluxos/:*/equipe/:*
+apps/api/tests/equipe-do-fluxo.test.ts,138,/v1/gestao/fluxos/${id}/equipe/${alvo},/v1/gestao/fluxos/:*/equipe/:*,/v1/gestao/fluxos/:*/equipe/:*
+apps/api/tests/equipe-do-fluxo.test.ts,197,POST /v1/gestao/fluxos/:id/equipe,/v1/gestao/fluxos/:*/equipe,/v1/gestao/fluxos/:*/equipe/:*
+apps/api/tests/equipe-do-fluxo.test.ts,300,PATCH e DELETE /v1/gestao/fluxos/:id/equipe/:usuarioId,/v1/gestao/fluxos/:*/equipe/:*,/v1/gestao/fluxos/:*/equipe/:*
+apps/api/tests/equipe-do-fluxo.test.ts,390,${api.url}/v1/gestao/fluxos/${fluxo},/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/tests/equipe-do-fluxo.test.ts,398,${api.url}/v1/gestao/fluxos/${fluxo},/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/tests/etiquetas.test.ts,163,GET /v1/etiquetas — o catálogo do tenant,/v1/etiquetas,/v1/etiquetas
+apps/api/tests/etiquetas.test.ts,165,/v1/etiquetas,/v1/etiquetas,/v1/etiquetas
+apps/api/tests/etiquetas.test.ts,170,/v1/etiquetas?escopo=contato,/v1/etiquetas,/v1/etiquetas
+apps/api/tests/etiquetas.test.ts,178,/v1/etiquetas?escopo=fila,/v1/etiquetas,/v1/etiquetas
+apps/api/tests/etiquetas.test.ts,180,/v1/etiquetas,/v1/etiquetas,/v1/etiquetas
+apps/api/tests/etiquetas.test.ts,185,POST/DELETE /v1/conversas/:id/etiquetas — a conversa aberta,/v1/conversas/:*/etiquetas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,191,/v1/conversas/${conversaId}/etiquetas,/v1/conversas/:*/etiquetas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,207,/v1/conversas/${conversaId}/etiquetas,/v1/conversas/:*/etiquetas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,216,/v1/conversas/${conversaId}/etiquetas/${etiquetaConversa},/v1/conversas/:*/etiquetas/:*,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,225,/v1/conversas/${conversaId}/etiquetas/${etiquetaConversa},/v1/conversas/:*/etiquetas/:*,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,237,a etiqueta aplicada aparece em GET /v1/desk/conversas/:id e pré-marca o encerramento,/v1/desk/conversas/:*,/v1/desk/conversas/:*
+apps/api/tests/etiquetas.test.ts,239,/v1/conversas/${conversaId}/etiquetas,/v1/conversas/:*/etiquetas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,242,/v1/desk/conversas/${conversaId},/v1/desk/conversas/:*,/v1/desk/conversas/:*
+apps/api/tests/etiquetas.test.ts,251,/v1/conversas/${conversaId}/etiquetas,/v1/conversas/:*/etiquetas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,259,/v1/conversas/${conversaId}/etiquetas,/v1/conversas/:*/etiquetas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,268,/v1/conversas/${conversaId}/etiquetas,/v1/conversas/:*/etiquetas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,279,/v1/conversas/${conversaId}/etiquetas,/v1/conversas/:*/etiquetas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,288,/v1/conversas/${conversaId}/etiquetas,/v1/conversas/:*/etiquetas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,298,/v1/conversas/${encerrada}/etiquetas,/v1/conversas/:*/etiquetas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,310,/v1/conversas/${conversaId}/etiquetas,/v1/conversas/:*/etiquetas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,319,/v1/conversas/${conversaId}/etiquetas,/v1/conversas/:*/etiquetas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,327,GET/POST/DELETE /v1/contatos/:id/etiquetas — o contato,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,333,/v1/contatos/${contatoId}/etiquetas,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,340,/v1/contatos/${contatoId}/etiquetas,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,346,/v1/contatos/${contatoId}/etiquetas/${etiquetaContato},/v1/contatos/:*/etiquetas/:*,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,357,/v1/contatos/${contatoId}/etiquetas,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,360,/v1/desk/conversas/${conversaId},/v1/desk/conversas/:*,/v1/desk/conversas/:*
+apps/api/tests/etiquetas.test.ts,374,/v1/contatos/${contatoId}/etiquetas,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,382,/v1/contatos/${contatoId}/etiquetas,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,391,/v1/contatos/${randomUUID()}/etiquetas,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,400,/v1/contatos/${contatoId}/etiquetas,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,404,/v1/contatos/${contatoId}/etiquetas,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/etiquetas.test.ts,407,/v1/contatos/${contatoId}/etiquetas,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/growth.test.ts,100,/v1/gestao/fluxos/${fluxoId}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
+apps/api/tests/growth.test.ts,111,/v1/gestao/fluxos/${fluxoId}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
+apps/api/tests/growth.test.ts,117,/v1/gestao/fluxos/${fluxoId}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
+apps/api/tests/growth.test.ts,134,/v1/gestao/fluxos/${rows[0]!.id}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
+apps/api/tests/growth.test.ts,147,/v1/gestao/fluxos/${fluxoId}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
+apps/api/tests/growth.test.ts,183,/v1/gestao/fluxos/${fluxoId}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
+apps/api/tests/growth.test.ts,200,/v1/gestao/fluxos/${fluxoId}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
+apps/api/tests/growth.test.ts,202,/v1/gestao/fluxos/${fluxoId}/links-rastreados?desde=${hoje}T00:00:00Z,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
+apps/api/tests/growth.test.ts,231,/v1/mensagens-ativas,/v1/mensagens-ativas,/v1/mensagens-ativas/limites
+apps/api/tests/growth.test.ts,249,/v1/mensagens-ativas,/v1/mensagens-ativas,/v1/mensagens-ativas/limites
+apps/api/tests/growth.test.ts,268,${api.url}/v1/mensagens-ativas/limites,/v1/mensagens-ativas/limites,/v1/mensagens-ativas/limites
+apps/api/tests/growth.test.ts,273,${api.url}/v1/mensagens-ativas/limites,/v1/mensagens-ativas/limites,/v1/mensagens-ativas/limites
+apps/api/tests/growth.test.ts,75,/v1/gestao/fluxos/${fluxoId}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
+apps/api/tests/growth.test.ts,92,/v1/gestao/fluxos/${fluxoId}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
+apps/api/tests/historico.test.ts,47,GET /v1/gestao/historico,/v1/gestao/historico,/v1/gestao/historico
+apps/api/tests/instagram.test.ts,121,conexão manual (POST /v1/canais/instagram/manual),/v1/canais/instagram/manual,/v1/canais/instagram/:*
+apps/api/tests/integracoes.test.ts,159,/v1/gestao/fluxos/${fluxoId}/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,175,/v1/gestao/fluxos/${fluxoId}/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,188,/v1/gestao/fluxos/${fluxoDoLimite}/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,195,/v1/gestao/fluxos/${fluxoDoLimite}/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,200,/v1/gestao/fluxos/${fluxoDoLimite}/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,208,/v1/gestao/fluxos/${fluxoId}/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,216,/v1/gestao/fluxos/${fluxoId}/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,221,/v1/gestao/fluxos/nao-e-uuid/chaves,/v1/gestao/fluxos/nao-e-uuid/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,226,/v1/gestao/fluxos/${fluxoId}/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,232,/v1/gestao/fluxos/${fluxoId}/chaves/${chaveId},/v1/gestao/fluxos/:*/chaves/:*,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,235,/v1/gestao/fluxos/${fluxoId}/chaves/${chaveId},/v1/gestao/fluxos/:*/chaves/:*,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,238,/v1/gestao/fluxos/${fluxoId}/chaves/${chaveId},/v1/gestao/fluxos/:*/chaves/:*,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,250,/v1/gestao/fluxos/${fluxoId}/chaves/${chaveId},/v1/gestao/fluxos/:*/chaves/:*,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,259,/v1/gestao/fluxos/${fluxoId}/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,264,/v1/gestao/fluxos/${fluxoId}/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/api/tests/integracoes.test.ts,280,/v1/gestao/fluxos/${conexaoFluxo}/conexao,/v1/gestao/fluxos/:*/conexao,/v1/gestao/fluxos/:*/conexao
+apps/api/tests/integracoes.test.ts,298,/v1/gestao/fluxos/${conexaoFluxo}/conexao,/v1/gestao/fluxos/:*/conexao,/v1/gestao/fluxos/:*/conexao
+apps/api/tests/integracoes.test.ts,305,/v1/gestao/fluxos/${conexaoFluxo}/conexao,/v1/gestao/fluxos/:*/conexao,/v1/gestao/fluxos/:*/conexao
+apps/api/tests/integracoes.test.ts,313,/v1/gestao/fluxos/${conexaoFluxo}/conexao,/v1/gestao/fluxos/:*/conexao,/v1/gestao/fluxos/:*/conexao
+apps/api/tests/integracoes.test.ts,319,/v1/gestao/fluxos/${conexaoFluxo}/conexao,/v1/gestao/fluxos/:*/conexao,/v1/gestao/fluxos/:*/conexao
+apps/api/tests/integracoes.test.ts,329,/v1/gestao/fluxos/${conexaoFluxo}/conexao,/v1/gestao/fluxos/:*/conexao,/v1/gestao/fluxos/:*/conexao
+apps/api/tests/integracoes.test.ts,339,/v1/gestao/fluxos/${fluxoId}/conexao,/v1/gestao/fluxos/:*/conexao,/v1/gestao/fluxos/:*/conexao
+apps/api/tests/integracoes.test.ts,341,/v1/gestao/fluxos/nao-e-uuid/conexao,/v1/gestao/fluxos/nao-e-uuid/conexao,/v1/gestao/fluxos/:*/conexao
+apps/api/tests/integracoes.test.ts,352,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,359,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,366,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,372,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,379,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,386,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,393,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,399,/v1/gestao/webhooks/${id},/v1/gestao/webhooks/:*,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,405,/v1/gestao/webhooks/${id},/v1/gestao/webhooks/:*,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,417,/v1/gestao/webhooks/${id},/v1/gestao/webhooks/:*,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,426,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,449,/v1/gestao/webhooks/${id}/testar,/v1/gestao/webhooks/:*/testar,/v1/gestao/webhooks/:*/testar
+apps/api/tests/integracoes.test.ts,468,/v1/gestao/webhooks/${id}/testar,/v1/gestao/webhooks/:*/testar,/v1/gestao/webhooks/:*/testar
+apps/api/tests/integracoes.test.ts,482,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,488,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,491,/v1/gestao/webhooks/${id},/v1/gestao/webhooks/:*,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,494,/v1/gestao/webhooks/nao-e-uuid,/v1/gestao/webhooks/nao-e-uuid,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,506,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,531,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,547,/v1/gestao/webhooks/${id}/testar,/v1/gestao/webhooks/:*/testar,/v1/gestao/webhooks/:*/testar
+apps/api/tests/integracoes.test.ts,561,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,595,/v1/gestao/webhooks/${id}/testar,/v1/gestao/webhooks/:*/testar,/v1/gestao/webhooks/:*/testar
+apps/api/tests/integracoes.test.ts,611,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,629,/v1/gestao/webhooks/${id}/testar,/v1/gestao/webhooks/:*/testar,/v1/gestao/webhooks/:*/testar
+apps/api/tests/integracoes.test.ts,638,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,646,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,657,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,665,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,679,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,687,/v1/gestao/webhooks/${id},/v1/gestao/webhooks/:*,/v1/gestao/webhooks/:*
+apps/api/tests/integracoes.test.ts,699,/v1/gestao/webhooks/${id},/v1/gestao/webhooks/:*,/v1/gestao/webhooks/:*
+apps/api/tests/mensagens-ativas.test.ts,259,${api.url}/v1/mensagens-ativas,/v1/mensagens-ativas,/v1/mensagens-ativas/limites
+apps/api/tests/mensagens-ativas.test.ts,275,${api.url}/v1/mensagens-ativas,/v1/mensagens-ativas,/v1/mensagens-ativas/limites
+apps/api/tests/mensagens-ativas.test.ts,290,${api.url}/v1/mensagens-ativas,/v1/mensagens-ativas,/v1/mensagens-ativas/limites
+apps/api/tests/mensagens-ativas.test.ts,311,${api.url}/v1/mensagens-ativas,/v1/mensagens-ativas,/v1/mensagens-ativas/limites
+apps/api/tests/mensagens-ativas.test.ts,327,${api.url}/v1/mensagens-ativas/limites,/v1/mensagens-ativas/limites,/v1/mensagens-ativas/limites
+apps/api/tests/mensagens-ativas.test.ts,60,${api.url}/v1/mensagens-ativas,/v1/mensagens-ativas,/v1/mensagens-ativas/limites
+apps/api/tests/monitoramento-conversas.test.ts,119,/v1/gestao/monitoramento?${query},/v1/gestao/monitoramento,/v1/gestao/monitoramento/conversas/:*
+apps/api/tests/monitoramento-conversas.test.ts,126,/v1/gestao/monitoramento?fila=${fila2},/v1/gestao/monitoramento,/v1/gestao/monitoramento/conversas/:*
+apps/api/tests/monitoramento-conversas.test.ts,133,/v1/gestao/monitoramento/conversas/${id},/v1/gestao/monitoramento/conversas/:*,/v1/gestao/monitoramento/conversas/:*
+apps/api/tests/monitoramento-conversas.test.ts,137,/v1/gestao/monitoramento/conversas/${id}/notas,/v1/gestao/monitoramento/conversas/:*/notas,/v1/gestao/monitoramento/conversas/:*/notas
+apps/api/tests/monitoramento-conversas.test.ts,148,/v1/gestao/monitoramento/conversas/${transferida}/transferir,/v1/gestao/monitoramento/conversas/:*/transferir,/v1/gestao/monitoramento/conversas/:*/transferir
+apps/api/tests/monitoramento-conversas.test.ts,153,/v1/gestao/monitoramento/conversas/${finalizada}/finalizar,/v1/gestao/monitoramento/conversas/:*/finalizar,/v1/gestao/monitoramento/conversas/:*/finalizar
+apps/api/tests/monitoramento-conversas.test.ts,164,/v1/gestao/monitoramento/conversas/${id},/v1/gestao/monitoramento/conversas/:*,/v1/gestao/monitoramento/conversas/:*
+apps/api/tests/monitoramento-conversas.test.ts,165,/v1/gestao/monitoramento/conversas/${id}/finalizar,/v1/gestao/monitoramento/conversas/:*/finalizar,/v1/gestao/monitoramento/conversas/:*/finalizar
+apps/api/tests/monitoramento-conversas.test.ts,166,/v1/gestao/monitoramento/conversas/nao-e-uuid,/v1/gestao/monitoramento/conversas/nao-e-uuid,/v1/gestao/monitoramento/conversas/:*
+apps/api/tests/monitoramento-conversas.test.ts,167,/v1/gestao/monitoramento/conversas/${id}/transferir,/v1/gestao/monitoramento/conversas/:*/transferir,/v1/gestao/monitoramento/conversas/:*/transferir
+apps/api/tests/monitoramento-conversas.test.ts,168,/v1/gestao/monitoramento/conversas/${id}/finalizar,/v1/gestao/monitoramento/conversas/:*/finalizar,/v1/gestao/monitoramento/conversas/:*/finalizar
+apps/api/tests/monitoramento-conversas.test.ts,169,/v1/gestao/monitoramento/conversas/${id}/finalizar,/v1/gestao/monitoramento/conversas/:*/finalizar,/v1/gestao/monitoramento/conversas/:*/finalizar
+apps/api/tests/palavras-proibidas.test.ts,149,/v1/gestao/configuracoes/palavras-proibidas,/v1/gestao/configuracoes/palavras-proibidas,/v1/gestao/configuracoes/palavras-proibidas/:*
+apps/api/tests/palavras-proibidas.test.ts,378,POST /v1/conversas/:id/mensagens — a lista barra o envio do atendente,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/palavras-proibidas.test.ts,388,/v1/conversas/${conversaA}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/palavras-proibidas.test.ts,399,/v1/conversas/${conversaA}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/palavras-proibidas.test.ts,406,/v1/conversas/${conversaA}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/palavras-proibidas.test.ts,417,/v1/conversas/${conversaA}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/palavras-proibidas.test.ts,424,/v1/conversas/${conversaA}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/palavras-proibidas.test.ts,431,/v1/conversas/${conversaB}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/palavras-proibidas.test.ts,446,${api.url}/v1/conversas/${conversaA}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/palavras-proibidas.test.ts,454,${api.url}/v1/conversas/${conversaA}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/permissoes-do-atendente.test.ts,135,"${api.url}/v1/gestao/atendentes/permissoes?atendentes=${ids.join(',')}",/v1/gestao/atendentes/permissoes,/v1/gestao/atendentes/permissoes
+apps/api/tests/permissoes-do-atendente.test.ts,142,${api.url}/v1/gestao/atendentes/permissoes,/v1/gestao/atendentes/permissoes,/v1/gestao/atendentes/permissoes
+apps/api/tests/permissoes-do-atendente.test.ts,184,GET /v1/gestao/atendentes/permissoes,/v1/gestao/atendentes/permissoes,/v1/gestao/atendentes/permissoes
+apps/api/tests/permissoes-do-atendente.test.ts,232,${api.url}/v1/gestao/atendentes/permissoes?atendentes=,/v1/gestao/atendentes/permissoes,/v1/gestao/atendentes/permissoes
+apps/api/tests/permissoes-do-atendente.test.ts,239,PATCH /v1/gestao/atendentes/permissoes,/v1/gestao/atendentes/permissoes,/v1/gestao/atendentes/permissoes
+apps/api/tests/permissoes-do-atendente.test.ts,276,${api.url}/v1/gestao/regras/prioridade,/v1/gestao/regras/prioridade,/v1/gestao/regras/prioridade/:*
+apps/api/tests/ponta-a-ponta.test.ts,164,/v1/conversas/${conversaId}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/ponta-a-ponta.test.ts,263,/v1/conversas?limit=1&order_by=criada_em[desc],/v1/conversas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/ponta-a-ponta.test.ts,272,/v1/conversas/${conversaId}/mensagens?limit=50,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/ponta-a-ponta.test.ts,301,/v1/conversas/${conversaId}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/ponta-a-ponta.test.ts,348,/v1/conversas/${conversaId}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/api/tests/ponta-a-ponta.test.ts,407,${api.url}/v1/conversas,/v1/conversas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/ponta-a-ponta.test.ts,412,/v1/conversas,/v1/conversas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/ponta-a-ponta.test.ts,417,/v1/conversas,/v1/conversas,/v1/conversas/:*/etiquetas/:*
+apps/api/tests/ponta-a-ponta.test.ts,423,/v1/filas,/v1/filas,/v1/filas
+apps/api/tests/roteador.test.ts,102,${api.url}/v1/gestao/fluxos/${caminho},/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/api/tests/roteador.test.ts,131,/v1/gestao/fluxos/:id/servicos,/v1/gestao/fluxos/:*/servicos,/v1/gestao/fluxos/:*/servicos/:*
+apps/api/tests/sso.test.ts,126,https://api.teste/v1/auth/sso/retorno,/v1/auth/sso/retorno,/v1/auth/sso/:*
+apps/api/tests/sso.test.ts,213,/v1/auth/sso/e2e-sso-${SUFIXO},/v1/auth/sso/e2e-sso-,/v1/auth/sso/:*
+apps/api/tests/tempo-real.test.ts,142,"${api.url.replace('http://', 'ws://')}/v1/outra-coisa",/v1/outra-coisa,ORPHAN
+apps/api/tests/tempo-real.test.ts,50,"${api.url.replace('http://', 'ws://')}/v1/eventos",/v1/eventos,ORPHAN
+apps/api/tests/transferencia.test.ts,92,${api.url}/v1/conversas/${conversaId}/transferir,/v1/conversas/:*/transferir,/v1/conversas/:*/transferir
+apps/crm/src/lib/sessao.ts,101,${URL_API}/v1/auth/sair,/v1/auth/sair,/v1/auth/sair
+apps/crm/src/lib/sessao.ts,121,${URL_API}/v1/auth/descobrir,/v1/auth/descobrir,/v1/auth/descobrir
+apps/crm/src/lib/sessao.ts,142,${URL_API}/v1/convites/${encodeURIComponent(token)},/v1/convites/:*,/v1/convites/:*
+apps/crm/src/lib/sessao.ts,161,${URL_API_PUBLICA}/v1/auth/google,/v1/auth/google,/v1/auth/google/retorno
+apps/crm/src/lib/sessao.ts,81,${URL_API}/v1/eu,/v1/eu,/v1/eu
+apps/desk-vite/src/componentes/trilho.tsx,46,/v1/desk/fila,/v1/desk/fila,/v1/desk/fila
+apps/desk-vite/src/contexto/sessao.tsx,26,/v1/eu,/v1/eu,/v1/eu
+apps/desk-vite/src/contexto/sessao.tsx,39,/v1/auth/sair,/v1/auth/sair,/v1/auth/sair
+apps/desk-vite/src/lib/acoes.ts,29,/v1/desk/acoes/${nome},/v1/desk/acoes/:*,/v1/desk/acoes/:*
+apps/desk-vite/src/lib/entrada.ts,24,/v1/auth/google,/v1/auth/google,/v1/auth/google/retorno
+apps/desk-vite/src/lib/entrada.ts,48,/v1/auth/descobrir,/v1/auth/descobrir,/v1/auth/descobrir
+apps/desk-vite/src/paginas/acoes-em-massa/page.tsx,23,/v1/desk/fila,/v1/desk/fila,/v1/desk/fila
+apps/desk-vite/src/paginas/acoes-em-massa/page.tsx,24,/v1/desk/filas,/v1/desk/filas,/v1/desk/filas
+apps/desk-vite/src/paginas/analytics/page.tsx,51,/v1/desk/metricas?inicio=${encodeURIComponent(intervalo.inicio.toISOString())}&fim=${encodeURIComponent(intervalo.fim.toISOString())},/v1/desk/metricas,/v1/desk/metricas
+apps/desk-vite/src/paginas/atendimentos/compositor.tsx,130,/v1/anexos?nome=${encodeURIComponent(f.name)},/v1/anexos,/v1/anexos/:*
+apps/desk-vite/src/paginas/atendimentos/compositor.tsx,141,/v1/conversas/${conversa.id}/mensagens/anexos,/v1/conversas/:*/mensagens/anexos,/v1/conversas/:*/mensagens/:*/reenviar
+apps/desk-vite/src/paginas/atendimentos/compositor.tsx,422,/v1/conversas/${conversa.id}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/desk-vite/src/paginas/atendimentos/compositor.tsx,71,/v1/conversas/${conversa.id}/espera,/v1/conversas/:*/espera,/v1/conversas/:*/espera
+apps/desk-vite/src/paginas/atendimentos/compositor.tsx,94,/v1/conversas/${conversa.id}/mensagens,/v1/conversas/:*/mensagens,/v1/conversas/:*/mensagens
+apps/desk-vite/src/paginas/atendimentos/conversa.tsx,418,/v1/conversas/${conversaId}/etiquetas/${etiqueta.id},/v1/conversas/:*/etiquetas/:*,/v1/conversas/:*/etiquetas/:*
+apps/desk-vite/src/paginas/atendimentos/conversa.tsx,420,/v1/conversas/${conversaId}/etiquetas,/v1/conversas/:*/etiquetas,/v1/conversas/:*/etiquetas/:*
+apps/desk-vite/src/paginas/atendimentos/conversa.tsx,499,/v1/conversas/${conversaId}/transferir,/v1/conversas/:*/transferir,/v1/conversas/:*/transferir
+apps/desk-vite/src/paginas/atendimentos/conversa.tsx,626,/v1/conversas/${conversaId}/encerrar,/v1/conversas/:*/encerrar,/v1/conversas/:*/encerrar
+apps/desk-vite/src/paginas/atendimentos/conversa.tsx,656,/v1/desk/filas,/v1/desk/filas,/v1/desk/filas
+apps/desk-vite/src/paginas/atendimentos/conversa.tsx,66,/v1/conversas/${conversa.id}/etiquetas/${etiquetaId},/v1/conversas/:*/etiquetas/:*,/v1/conversas/:*/etiquetas/:*
+apps/desk-vite/src/paginas/atendimentos/conversa.tsx,77,/v1/conversas/${conversa.id}/espera,/v1/conversas/:*/espera,/v1/conversas/:*/espera
+apps/desk-vite/src/paginas/atendimentos/conversa.tsx,89,/v1/conversas/${conversa.id}/mensagens/${mensagemId}/reenviar,/v1/conversas/:*/mensagens/:*/reenviar,/v1/conversas/:*/mensagens/:*/reenviar
+apps/desk-vite/src/paginas/atendimentos/page.tsx,33,/v1/desk/fila,/v1/desk/fila,/v1/desk/fila
+apps/desk-vite/src/paginas/atendimentos/page.tsx,34,/v1/desk/conversas/${id},/v1/desk/conversas/:*,/v1/desk/conversas/:*
+apps/desk-vite/src/paginas/atendimentos/painel.tsx,246,/v1/contatos/${conversa.contatoId},/v1/contatos/:*,/v1/contatos/:*/etiquetas/:*
+apps/desk-vite/src/paginas/atendimentos/painel.tsx,311,/v1/etiquetas?escopo=contato,/v1/etiquetas,/v1/etiquetas
+apps/desk-vite/src/paginas/atendimentos/painel.tsx,322,/v1/contatos/${contatoId}/etiquetas,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
+apps/desk-vite/src/paginas/atendimentos/painel.tsx,336,/v1/contatos/${contatoId}/etiquetas/${etiqueta.id},/v1/contatos/:*/etiquetas/:*,/v1/contatos/:*/etiquetas/:*
+apps/desk-vite/src/paginas/contatos/page.tsx,43,/v1/desk/contatos${busca.trim().length >= 2 ? `?busca=${encodeURIComponent(busca.trim())}` : ''},/v1/desk/contatos,/v1/desk/contatos/:*
+apps/desk-vite/src/paginas/contatos/page.tsx,46,/v1/desk/contatos/${id},/v1/desk/contatos/:*,/v1/desk/contatos/:*
+apps/desk-vite/src/paginas/contatos/page.tsx,48,/v1/desk/tickets/${ticketId},/v1/desk/tickets/:*,/v1/desk/tickets/:*
+apps/desk-vite/src/paginas/convite.tsx,25,/v1/convites/${encodeURIComponent(token)},/v1/convites/:*,/v1/convites/:*
+apps/desk-vite/src/paginas/mensagem-ativa/page.tsx,109,/v1/mensagens-ativas,/v1/mensagens-ativas,/v1/mensagens-ativas/limites
+apps/desk-vite/src/paginas/mensagem-ativa/page.tsx,61,/v1/desk/canais,/v1/desk/canais,/v1/desk/canais
+apps/desk-vite/src/paginas/mensagem-ativa/page.tsx,64,/v1/desk/contatos${busca.trim().length >= 2 ? `?busca=${encodeURIComponent(busca.trim())}` : ''},/v1/desk/contatos,/v1/desk/contatos/:*
+apps/desk-vite/src/paginas/mensagem-ativa/page.tsx,69,/v1/desk/contatos/${parametros.get('contato')},/v1/desk/contatos/:*,/v1/desk/contatos/:*
+apps/gestao-vite/src/componentes/modal-finalizar-monitoramento.tsx,24,/v1/etiquetas?escopo=conversa,/v1/etiquetas,/v1/etiquetas
+apps/gestao-vite/src/componentes/modal-finalizar-monitoramento.tsx,38,/v1/gestao/monitoramento/conversas/${linha.id}/finalizar,/v1/gestao/monitoramento/conversas/:*/finalizar,/v1/gestao/monitoramento/conversas/:*/finalizar
+apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,231,/v1/gestao/monitoramento/conversas/${linha.id}/transferir,/v1/gestao/monitoramento/conversas/:*/transferir,/v1/gestao/monitoramento/conversas/:*/transferir
+apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,594,/v1/gestao/monitoramento/conversas/${id},/v1/gestao/monitoramento/conversas/:*,/v1/gestao/monitoramento/conversas/:*
+apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,606,/v1/gestao/monitoramento/conversas/${id}/notas,/v1/gestao/monitoramento/conversas/:*/notas,/v1/gestao/monitoramento/conversas/:*/notas
+apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,608,/v1/gestao/monitoramento/conversas/${id},/v1/gestao/monitoramento/conversas/:*,/v1/gestao/monitoramento/conversas/:*
+apps/gestao-vite/src/contexto/sessao.tsx,26,/v1/eu,/v1/eu,/v1/eu
+apps/gestao-vite/src/contexto/sessao.tsx,39,/v1/auth/sair,/v1/auth/sair,/v1/auth/sair
+apps/gestao-vite/src/lib/acoes.ts,32,/v1/gestao/acoes/${nome},/v1/gestao/acoes/:*,/v1/gestao/acoes/:*
+apps/gestao-vite/src/lib/atendentes-gravar.ts,111,/v1/gestao/regras/prioridade,/v1/gestao/regras/prioridade,/v1/gestao/regras/prioridade/:*
+apps/gestao-vite/src/lib/atendentes-gravar.ts,121,/v1/gestao/regras/prioridade/${id},/v1/gestao/regras/prioridade/:*,/v1/gestao/regras/prioridade/:*
+apps/gestao-vite/src/lib/atendentes-gravar.ts,34,"/v1/gestao/atendentes/permissoes?atendentes=${ids.join(',')}",/v1/gestao/atendentes/permissoes,/v1/gestao/atendentes/permissoes
+apps/gestao-vite/src/lib/atendentes-gravar.ts,43,/v1/gestao/atendentes/permissoes,/v1/gestao/atendentes/permissoes,/v1/gestao/atendentes/permissoes
+apps/gestao-vite/src/lib/cadastros-gravar.ts,114,/v1/gestao/atendentes/filas/${filaId}/atendentes,/v1/gestao/atendentes/filas/:*/atendentes,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/gestao-vite/src/lib/cadastros-gravar.ts,131,/v1/gestao/atendentes/filas/${filaId}/atendentes/${atendenteId},/v1/gestao/atendentes/filas/:*/atendentes/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/gestao-vite/src/lib/cadastros-gravar.ts,141,/v1/gestao/atendentes/pausas/${id},/v1/gestao/atendentes/pausas/:*,/v1/gestao/atendentes/pausas/:*
+apps/gestao-vite/src/lib/cadastros-gravar.ts,151,/v1/gestao/atendentes/pausas/${id},/v1/gestao/atendentes/pausas/:*,/v1/gestao/atendentes/pausas/:*
+apps/gestao-vite/src/lib/cadastros-gravar.ts,179,/v1/gestao/regras/atendimento/${id},/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/gestao-vite/src/lib/cadastros-gravar.ts,189,/v1/gestao/regras/atendimento/${id},/v1/gestao/regras/atendimento/:*,/v1/gestao/regras/atendimento/:*
+apps/gestao-vite/src/lib/cadastros-gravar.ts,21,/v1/gestao/atendentes/filas/${id},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/gestao-vite/src/lib/cadastros-gravar.ts,31,/v1/gestao/atendentes/filas/${id},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/gestao-vite/src/lib/cadastros-gravar.ts,99,/v1/gestao/atendentes/filas/${id},/v1/gestao/atendentes/filas/:*,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/gestao-vite/src/lib/canais-gravar.ts,109,/v1/canais/whatsapp/${id},/v1/canais/whatsapp/:*,/v1/canais/whatsapp/:*/modelos/:*
+apps/gestao-vite/src/lib/canais-gravar.ts,122,/v1/canais/whatsapp/${id}/perfil,/v1/canais/whatsapp/:*/perfil,/v1/canais/whatsapp/:*/perfil
+apps/gestao-vite/src/lib/canais-gravar.ts,135,/v1/canais/whatsapp/${id}/preferencias,/v1/canais/whatsapp/:*/preferencias,/v1/canais/whatsapp/:*/preferencias
+apps/gestao-vite/src/lib/canais-gravar.ts,152,/v1/canais/whatsapp/${id}/modelos/sincronizar,/v1/canais/whatsapp/:*/modelos/sincronizar,/v1/canais/whatsapp/:*/modelos/:*
+apps/gestao-vite/src/lib/canais-gravar.ts,177,/v1/canais/whatsapp/${id}/modelos,/v1/canais/whatsapp/:*/modelos,/v1/canais/whatsapp/:*/modelos/:*
+apps/gestao-vite/src/lib/canais-gravar.ts,190,/v1/canais/whatsapp/${id}/modelos/${encodeURIComponent(nome)},/v1/canais/whatsapp/:*/modelos/:*,/v1/canais/whatsapp/:*/modelos/:*
+apps/gestao-vite/src/lib/canais-gravar.ts,214,/v1/canais/instagram/manual,/v1/canais/instagram/manual,/v1/canais/instagram/:*
+apps/gestao-vite/src/lib/canais-gravar.ts,230,/v1/canais/instagram/${id},/v1/canais/instagram/:*,/v1/canais/instagram/:*
+apps/gestao-vite/src/lib/canais-gravar.ts,238,/v1/canais/messenger/manual,/v1/canais/messenger/manual,/v1/canais/messenger/:*
+apps/gestao-vite/src/lib/canais-gravar.ts,239,/v1/canais/messenger/${id},/v1/canais/messenger/:*,/v1/canais/messenger/:*
+apps/gestao-vite/src/lib/canais-gravar.ts,63,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/:*/modelos/:*
+apps/gestao-vite/src/lib/canais-gravar.ts,85,/v1/gestao/fluxos/${fluxoId}/canal,/v1/gestao/fluxos/:*/canal,/v1/gestao/fluxos/:*/canal
+apps/gestao-vite/src/lib/canais-gravar.ts,96,/v1/gestao/fluxos/${fluxoId}/canal,/v1/gestao/fluxos/:*/canal,/v1/gestao/fluxos/:*/canal
+apps/gestao-vite/src/lib/casca.ts,34,/v1/contas/minhas,/v1/contas/minhas,/v1/contas/minhas
+apps/gestao-vite/src/lib/casca.ts,53,/v1/contas/trocar,/v1/contas/trocar,/v1/contas/trocar
+apps/gestao-vite/src/lib/comunicacao-gravar.ts,19,/v1/gestao/comunicacao/respostas-prontas/${id},/v1/gestao/comunicacao/respostas-prontas/:*,/v1/gestao/comunicacao/respostas-prontas/:*
+apps/gestao-vite/src/lib/comunicacao-gravar.ts,29,/v1/gestao/comunicacao/respostas-prontas/${id},/v1/gestao/comunicacao/respostas-prontas/:*,/v1/gestao/comunicacao/respostas-prontas/:*
+apps/gestao-vite/src/lib/configuracoes-gravar.ts,27,/v1/gestao/configuracoes/regras,/v1/gestao/configuracoes/regras,/v1/gestao/configuracoes/regras/:*
+apps/gestao-vite/src/lib/configuracoes-gravar.ts,40,/v1/gestao/configuracoes/regras/${id},/v1/gestao/configuracoes/regras/:*,/v1/gestao/configuracoes/regras/:*
+apps/gestao-vite/src/lib/configuracoes-gravar.ts,50,/v1/gestao/configuracoes/regras/${id},/v1/gestao/configuracoes/regras/:*,/v1/gestao/configuracoes/regras/:*
+apps/gestao-vite/src/lib/entrada.ts,23,/v1/auth/google,/v1/auth/google,/v1/auth/google/retorno
+apps/gestao-vite/src/lib/entrada.ts,47,/v1/auth/descobrir,/v1/auth/descobrir,/v1/auth/descobrir
+apps/gestao-vite/src/paginas/bem-vindo/page.tsx,26,/v1/conta,/v1/conta,/v1/conta
+apps/gestao-vite/src/paginas/builder-gravar.ts,42,/v1/gestao/fluxos/${id}/builder,/v1/gestao/fluxos/:*/builder,/v1/gestao/fluxos/:*/builder/versoes
+apps/gestao-vite/src/paginas/builder-gravar.ts,52,/v1/gestao/fluxos/${id}/builder/publicar,/v1/gestao/fluxos/:*/builder/publicar,/v1/gestao/fluxos/:*/builder/publicar
+apps/gestao-vite/src/paginas/builder-gravar.ts,70,/v1/gestao/fluxos/${id}/builder/versoes/${versao}/restaurar,/v1/gestao/fluxos/:*/builder/versoes/:*/restaurar,/v1/gestao/fluxos/:*/builder/versoes/:*/restaurar
+apps/gestao-vite/src/paginas/builder.tsx,104,/v1/gestao/fluxos/${contato.id}/builder,/v1/gestao/fluxos/:*/builder,/v1/gestao/fluxos/:*/builder/versoes
+apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx,62,/v1/gestao/atendentes/gestao,/v1/gestao/atendentes/gestao,/v1/gestao/atendentes/gestao
+apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx,63,/v1/gestao/atendentes/filas,/v1/gestao/atendentes/filas,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx,49,/v1/gestao/atendentes/filas,/v1/gestao/atendentes/filas,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx,50,/v1/gestao/regras/horarios,/v1/gestao/regras/horarios,/v1/gestao/regras/horarios/excecoes/:*
+apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx,52,/v1/gestao/regras/prioridade,/v1/gestao/regras/prioridade,/v1/gestao/regras/prioridade/:*
+apps/gestao-vite/src/paginas/cadastros/atendentes-filas.tsx,85,/v1/gestao/atendentes/filas,/v1/gestao/atendentes/filas,/v1/gestao/atendentes/filas/:*/atendentes/:*
+apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx,49,/v1/gestao/atendentes/gestao,/v1/gestao/atendentes/gestao,/v1/gestao/atendentes/gestao
+apps/gestao-vite/src/paginas/cadastros/atendentes-pausas.tsx,43,/v1/gestao/atendentes/pausas,/v1/gestao/atendentes/pausas,/v1/gestao/atendentes/pausas/:*
+apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx,92,/v1/gestao/comunicacao/modelos,/v1/gestao/comunicacao/modelos,/v1/gestao/comunicacao/modelos
+apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas.tsx,69,/v1/gestao/comunicacao/respostas-prontas,/v1/gestao/comunicacao/respostas-prontas,/v1/gestao/comunicacao/respostas-prontas/:*
+apps/gestao-vite/src/paginas/cadastros/configuracoes-dados.tsx,25,/v1/gestao/configuracoes/dados,/v1/gestao/configuracoes/dados,/v1/gestao/configuracoes/dados
+apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx,36,/v1/gestao/configuracoes/gerais,/v1/gestao/configuracoes/gerais,/v1/gestao/configuracoes/gerais
+apps/gestao-vite/src/paginas/cadastros/configuracoes-regras.tsx,27,/v1/gestao/configuracoes/regras,/v1/gestao/configuracoes/regras,/v1/gestao/configuracoes/regras/:*
+apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,107,/v1/gestao/regras/atendimento,/v1/gestao/regras/atendimento,/v1/gestao/regras/atendimento/:*
+apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx,21,/v1/gestao/regras/horarios,/v1/gestao/regras/horarios,/v1/gestao/regras/horarios/excecoes/:*
+apps/gestao-vite/src/paginas/cadastros/regras-sla.tsx,92,/v1/gestao/configuracoes/regras,/v1/gestao/configuracoes/regras,/v1/gestao/configuracoes/regras/:*
+apps/gestao-vite/src/paginas/contrato/acoes.ts,21,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel,/v1/gestao/contrato/membros/papel
+apps/gestao-vite/src/paginas/contrato/acoes.ts,32,/v1/gestao/contrato/membros/excluir,/v1/gestao/contrato/membros/excluir,/v1/gestao/contrato/membros/excluir
+apps/gestao-vite/src/paginas/contrato/acoes.ts,58,/v1/convites/${conviteId}/reenviar,/v1/convites/:*/reenviar,/v1/convites/:*/reenviar
+apps/gestao-vite/src/paginas/contrato/acoes.ts,84,/v1/convites,/v1/convites,/v1/convites/:*
+apps/gestao-vite/src/paginas/contrato/certificados/acoes.ts,33,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/gestao-vite/src/paginas/contrato/certificados/acoes.ts,57,/v1/gestao/contrato/certificados/${id},/v1/gestao/contrato/certificados/:*,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/gestao-vite/src/paginas/contrato/certificados/acoes.ts,71,/v1/gestao/contrato/certificados/${certificadoId}/hosts/${hostId},/v1/gestao/contrato/certificados/:*/hosts/:*,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/gestao-vite/src/paginas/contrato/certificados/page.tsx,32,/v1/gestao/contrato/resumo,/v1/gestao/contrato/resumo,/v1/gestao/contrato/resumo
+apps/gestao-vite/src/paginas/contrato/certificados/page.tsx,34,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados,/v1/gestao/contrato/certificados/:*/hosts/:*
+apps/gestao-vite/src/paginas/contrato/membros/page.tsx,45,/v1/gestao/contrato/resumo,/v1/gestao/contrato/resumo,/v1/gestao/contrato/resumo
+apps/gestao-vite/src/paginas/contrato/membros/page.tsx,47,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros,/v1/gestao/contrato/membros
+apps/gestao-vite/src/paginas/contrato/page.tsx,41,/v1/gestao/contrato/resumo,/v1/gestao/contrato/resumo,/v1/gestao/contrato/resumo
+apps/gestao-vite/src/paginas/convite/page.tsx,25,/v1/convites/${encodeURIComponent(token)},/v1/convites/:*,/v1/convites/:*
+apps/gestao-vite/src/paginas/criar/gravar.ts,26,/v1/gestao/fluxos,/v1/gestao/fluxos,/v1/gestao/fluxos/:*/canal
+apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.tsx,26,/v1/gestao/fluxos/${contato.id}/analise/dashboard?${q.toString()},/v1/gestao/fluxos/:*/analise/dashboard,/v1/gestao/fluxos/:*/analise/dashboard
+apps/gestao-vite/src/paginas/fluxo/analise/jornada/pagina.tsx,35,/v1/gestao/fluxos/${contato.id}/analise/jornada?${q.toString()},/v1/gestao/fluxos/:*/analise/jornada,/v1/gestao/fluxos/:*/analise/jornada
+apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/pagina.tsx,47,/v1/gestao/fluxos/${contato.id}/analise/mensagens-ativas?${q.toString()},/v1/gestao/fluxos/:*/analise/mensagens-ativas,/v1/gestao/fluxos/:*/analise/mensagens-ativas
+apps/gestao-vite/src/paginas/fluxo/analise/relatorios/pagina.tsx,16,/v1/gestao/fluxos/${contato.id}/analise/relatorios,/v1/gestao/fluxos/:*/analise/relatorios,/v1/gestao/fluxos/:*/analise/relatorios
+apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/pagina.tsx,30,/v1/gestao/fluxos/${contato.id}/analise/visao-geral?${q.toString()},/v1/gestao/fluxos/:*/analise/visao-geral,/v1/gestao/fluxos/:*/analise/visao-geral
+apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx,49,/v1/gestao/fluxos/${contato.id}/equipe/eu,/v1/gestao/fluxos/:*/equipe/eu,/v1/gestao/fluxos/:*/equipe/:*
+apps/gestao-vite/src/paginas/fluxo/canais/instagram/pagina.tsx,38,/v1/gestao/fluxos/${contato.id}/canal,/v1/gestao/fluxos/:*/canal,/v1/gestao/fluxos/:*/canal
+apps/gestao-vite/src/paginas/fluxo/canais/messenger/pagina.tsx,31,/v1/gestao/fluxos/${contato.id}/canal,/v1/gestao/fluxos/:*/canal,/v1/gestao/fluxos/:*/canal
+apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/alerta.tsx,25,/v1/canais/whatsapp/${canalId}/preferencias,/v1/canais/whatsapp/:*/preferencias,/v1/canais/whatsapp/:*/preferencias
+apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,59,/v1/gestao/fluxos/${contato.id}/canal,/v1/gestao/fluxos/:*/canal,/v1/gestao/fluxos/:*/canal
+apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx,63,/v1/canais/whatsapp,/v1/canais/whatsapp,/v1/canais/whatsapp/:*/modelos/:*
+apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/configuracoes.tsx,17,/v1/canais/whatsapp/${canal.id}/preferencias,/v1/canais/whatsapp/:*/preferencias,/v1/canais/whatsapp/:*/preferencias
+apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx,264,/v1/canais/whatsapp/${canal.id}/perfil,/v1/canais/whatsapp/:*/perfil,/v1/canais/whatsapp/:*/perfil
+apps/gestao-vite/src/paginas/fluxo/configuracoes/api/gravar.ts,26,/v1/gestao/fluxos/${fluxoId}/conexao,/v1/gestao/fluxos/:*/conexao,/v1/gestao/fluxos/:*/conexao
+apps/gestao-vite/src/paginas/fluxo/configuracoes/api/tela.tsx,32,/v1/gestao/fluxos/${fluxoId}/conexao,/v1/gestao/fluxos/:*/conexao,/v1/gestao/fluxos/:*/conexao
+apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts,42,/v1/gestao/fluxos/${id},/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts,57,/v1/gestao/fluxos/${id},/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/gestao-vite/src/paginas/fluxo/configuracoes/boasvindas/boasvindas.tsx,13,/v1/gestao/fluxos/${contato.id}/boas-vindas,/v1/gestao/fluxos/:*/boas-vindas,/v1/gestao/fluxos/:*/boas-vindas
+apps/gestao-vite/src/paginas/fluxo/configuracoes/boasvindas/gravar.ts,19,/v1/gestao/fluxos/${id}/boas-vindas,/v1/gestao/fluxos/:*/boas-vindas,/v1/gestao/fluxos/:*/boas-vindas
+apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/gravar.ts,32,/v1/gestao/fluxos/${fluxoId}/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/gravar.ts,42,/v1/gestao/fluxos/${fluxoId}/chaves/${chaveId},/v1/gestao/fluxos/:*/chaves/:*,/v1/gestao/fluxos/:*/chaves/:*
+apps/gestao-vite/src/paginas/fluxo/configuracoes/keys/tela.tsx,102,/v1/gestao/fluxos/${fluxoId}/chaves,/v1/gestao/fluxos/:*/chaves,/v1/gestao/fluxos/:*/chaves/:*
+apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/gravar.ts,20,/v1/gestao/fluxos/${id}/menu-persistente,/v1/gestao/fluxos/:*/menu-persistente,/v1/gestao/fluxos/:*/menu-persistente
+apps/gestao-vite/src/paginas/fluxo/configuracoes/menu-persistente/menu-persistente.tsx,17,/v1/gestao/fluxos/${contato.id}/menu-persistente,/v1/gestao/fluxos/:*/menu-persistente,/v1/gestao/fluxos/:*/menu-persistente
+apps/gestao-vite/src/paginas/fluxo/contato.tsx,62,/v1/gestao/fluxos/${id},/v1/gestao/fluxos/:*,/v1/gestao/fluxos/:*/canal
+apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx,31,/v1/gestao/fluxos/${id}/contatos/${contatoId}${ticketId ? `?ticketId=${encodeURIComponent(ticketId)}` : ''},/v1/gestao/fluxos/:*/contatos/:*,/v1/gestao/fluxos/:*/contatos/:*
+apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/gravar.ts,23,/v1/contatos/${id},/v1/contatos/:*,/v1/contatos/:*/etiquetas/:*
+apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx,23,/v1/gestao/fluxos/${id}/contatos,/v1/gestao/fluxos/:*/contatos,/v1/gestao/fluxos/:*/contatos/:*
+apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.tsx,18,/v1/gestao/fluxos/${contato.id}/conteudos,/v1/gestao/fluxos/:*/conteudos,/v1/gestao/fluxos/:*/conteudos
+apps/gestao-vite/src/paginas/fluxo/equipe/editar.tsx,103,/v1/gestao/fluxos/${fluxoId}/equipe/${membro.usuarioId},/v1/gestao/fluxos/:*/equipe/:*,/v1/gestao/fluxos/:*/equipe/:*
+apps/gestao-vite/src/paginas/fluxo/equipe/editar.tsx,31,/v1/gestao/fluxos/${contato.id}/equipe,/v1/gestao/fluxos/:*/equipe,/v1/gestao/fluxos/:*/equipe/:*
+apps/gestao-vite/src/paginas/fluxo/equipe/equipe.tsx,27,/v1/gestao/fluxos/${contato.id}/equipe,/v1/gestao/fluxos/:*/equipe,/v1/gestao/fluxos/:*/equipe/:*
+apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,255,/v1/convites,/v1/convites,/v1/convites/:*
+apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,59,/v1/gestao/fluxos/${fluxoId}/equipe${alvo ? `/${alvo}` : ''},/v1/gestao/fluxos/:*/equipe,/v1/gestao/fluxos/:*/equipe/:*
+apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/gravar.ts,32,/v1/gestao/fluxos/${fluxoId}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
+apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/links-rastreados.tsx,123,/v1/gestao/fluxos/${fluxoId}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
+apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts,48,/v1/mensagens-ativas,/v1/mensagens-ativas,/v1/mensagens-ativas/limites
+apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/mensagens-ativas.tsx,9,/v1/gestao/fluxos/${contato.id}/growth,/v1/gestao/fluxos/:*/growth,/v1/gestao/fluxos/:*/growth
+apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/tela.tsx,41,/v1/mensagens-ativas/limites,/v1/mensagens-ativas/limites,/v1/mensagens-ativas/limites
+apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts,105,/v1/gestao/webhooks/${id},/v1/gestao/webhooks/:*,/v1/gestao/webhooks/:*
+apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts,115,/v1/gestao/webhooks/${id}/testar,/v1/gestao/webhooks/:*/testar,/v1/gestao/webhooks/:*/testar
+apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts,71,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts,95,/v1/gestao/webhooks/${id},/v1/gestao/webhooks/:*,/v1/gestao/webhooks/:*
+apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/tela.tsx,70,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
+apps/gestao-vite/src/paginas/fluxo/log/log.tsx,55,/v1/gestao/fluxos/${contato.id}/analise/log?${chaveDoFiltro},/v1/gestao/fluxos/:*/analise/log,/v1/gestao/fluxos/:*/analise/log
+apps/gestao-vite/src/paginas/fluxo/log/log.tsx,83,/v1/gestao/fluxos/${contato.id}/analise/log?${q.toString()},/v1/gestao/fluxos/:*/analise/log,/v1/gestao/fluxos/:*/analise/log
+apps/gestao-vite/src/paginas/fluxo/servicos/gravar.ts,17,/v1/gestao/fluxos/${roteadorId}/servicos,/v1/gestao/fluxos/:*/servicos,/v1/gestao/fluxos/:*/servicos/:*
+apps/gestao-vite/src/paginas/fluxo/servicos/gravar.ts,34,/v1/gestao/fluxos/${roteadorId}/servicos/${servicoId},/v1/gestao/fluxos/:*/servicos/:*,/v1/gestao/fluxos/:*/servicos/:*
+apps/gestao-vite/src/paginas/fluxo/servicos/servicos.tsx,14,/v1/gestao/fluxos/${contato.id}/servicos,/v1/gestao/fluxos/:*/servicos,/v1/gestao/fluxos/:*/servicos/:*
+apps/gestao-vite/src/paginas/implantacao/acoes.ts,111,/v1/convites,/v1/convites,/v1/convites/:*
+apps/gestao-vite/src/paginas/implantacao/acoes.ts,130,/v1/contatos/importacoes?nome=${encodeURIComponent(arquivo.name)},/v1/contatos/importacoes,/v1/contatos/:*/etiquetas/:*
+apps/gestao-vite/src/paginas/implantacao/acoes.ts,48,/v1/canais/whatsapp/estado,/v1/canais/whatsapp/estado,/v1/canais/whatsapp/:*/modelos/:*
+apps/gestao-vite/src/paginas/implantacao/acoes.ts,57,/v1/canais/whatsapp,/v1/canais/whatsapp,/v1/canais/whatsapp/:*/modelos/:*
+apps/gestao-vite/src/paginas/implantacao/acoes.ts,93,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/manual,/v1/canais/whatsapp/:*/modelos/:*
+apps/gestao-vite/src/paginas/implantacao/page.tsx,188,/v1/contatos/importacoes/${ultima.id}/falhas,/v1/contatos/importacoes/:*/falhas,/v1/contatos/:*/etiquetas/:*
+apps/gestao-vite/src/paginas/implantacao/page.tsx,56,/v1/gestao/implantacao,/v1/gestao/implantacao,/v1/gestao/implantacao
+apps/gestao-vite/src/paginas/minha-conta/acoes.ts,27,/v1/conta,/v1/conta,/v1/conta
+apps/gestao-vite/src/paginas/minha-conta/acoes.ts,35,/v1/conta,/v1/conta,/v1/conta
+apps/gestao-vite/src/paginas/minha-conta/page.tsx,77,/v1/conta,/v1/conta,/v1/conta
+apps/gestao-vite/src/paginas/operacao/historico.tsx,126,/v1/gestao/historico?${q},/v1/gestao/historico,/v1/gestao/historico
+apps/gestao-vite/src/paginas/operacao/monitoramento.tsx,292,/v1/gestao/monitoramento?${q},/v1/gestao/monitoramento,/v1/gestao/monitoramento/conversas/:*
+apps/gestao-vite/src/paginas/operacao/monitoria-ficha.tsx,47,/v1/gestao/monitoria/${id},/v1/gestao/monitoria/:*,/v1/gestao/monitoria/:*
+apps/gestao-vite/src/paginas/operacao/monitoria.tsx,71,/v1/gestao/monitoria?${q},/v1/gestao/monitoria,/v1/gestao/monitoria/:*
+apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx,199,/v1/gestao/relatorios/atendimento?${q},/v1/gestao/relatorios/atendimento,/v1/gestao/relatorios/atendimento
+apps/gestao-vite/src/paginas/operacao/relatorios-esforco.tsx,31,/v1/gestao/relatorios/esforco?${q},/v1/gestao/relatorios/esforco,/v1/gestao/relatorios/esforco
+apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx,97,/v1/gestao/relatorios/satisfacao?${q},/v1/gestao/relatorios/satisfacao,/v1/gestao/relatorios/satisfacao
+apps/gestao-vite/src/paginas/portal.tsx,84,/v1/gestao/fluxos?busca=${encodeURIComponent(busca)}&pagina=${pagina}&porPagina=${porPagina},/v1/gestao/fluxos,/v1/gestao/fluxos/:*/canal
+apps/gestao-vite/src/paginas/trocar-conta/sem-acesso/page.tsx,21,/v1/contas/minhas,/v1/contas/minhas,/v1/contas/minhas
+packages/autenticacao/tests/oidc.test.ts,28,${EMISSOR}/oauth2/v1/authorize,/v1/authorize,ORPHAN
+packages/autenticacao/tests/oidc.test.ts,29,${EMISSOR}/oauth2/v1/token,/v1/token,ORPHAN
+packages/autenticacao/tests/oidc.test.ts,30,${EMISSOR}/oauth2/v1/keys,/v1/keys,ORPHAN
+packages/autenticacao/tests/oidc.test.ts,38,https://api.usepipe.com.br/v1/auth/sso/retorno,/v1/auth/sso/retorno,/v1/auth/sso/:*
+packages/tempo-real/src/index.ts,89,"${urlApi.replace(/\/$/, '').replace(/^http/, 'ws')}/v1/eventos",/v1/eventos,ORPHAN
+packages/tempo-real/tests/tempo-real.test.ts,56,ws://localhost:3000/v1/eventos,/v1/eventos,ORPHAN
+packages/tempo-real/tests/tempo-real.test.ts,58,wss://api.usepipe.com.br/v1/eventos,/v1/eventos,ORPHAN

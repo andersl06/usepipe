@@ -1,0 +1,3412 @@
+[
+  {
+    "method": "DELETE",
+    "path": "/v1/canais/instagram/:*",
+    "rawPath": "/v1/canais/instagram/:id",
+    "controller": "ControladorCanaisInstagram",
+    "handler": "desconectar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais-instagram.ts",
+    "line": 48
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/canais/messenger/:*",
+    "rawPath": "/v1/canais/messenger/:id",
+    "controller": "ControladorCanaisMessenger",
+    "handler": "desconectar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais-messenger.ts",
+    "line": 8
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/canais/whatsapp/:*/modelos/:*",
+    "rawPath": "/v1/canais/whatsapp/:id/modelos/:nome",
+    "controller": "ControladorCanais",
+    "handler": "excluirModelo",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais.ts",
+    "line": 250
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/canais/whatsapp/:*",
+    "rawPath": "/v1/canais/whatsapp/:id",
+    "controller": "ControladorCanais",
+    "handler": "desconectar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais.ts",
+    "line": 263
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/contatos/:*/etiquetas/:*",
+    "rawPath": "/v1/contatos/:id/etiquetas/:etiquetaId",
+    "controller": "ControladorEtiquetasDoContato",
+    "handler": "remover",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'contatos:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/etiquetas.ts",
+    "line": 125
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/conversas/:*/etiquetas/:*",
+    "rawPath": "/v1/conversas/:id/etiquetas/:etiquetaId",
+    "controller": "ControladorEtiquetasDaConversa",
+    "handler": "remover",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'conversas:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/etiquetas.ts",
+    "line": 80
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/atendentes/filas/:*/atendentes/:*",
+    "rawPath": "/v1/gestao/atendentes/filas/:id/atendentes/:atendenteId",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "desvincularAtendente",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 230
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/atendentes/filas/:*",
+    "rawPath": "/v1/gestao/atendentes/filas/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "excluirFila",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 196
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/atendentes/pausas/:*",
+    "rawPath": "/v1/gestao/atendentes/pausas/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "excluirMotivoPausa",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 561
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/comunicacao/respostas-prontas/:*",
+    "rawPath": "/v1/gestao/comunicacao/respostas-prontas/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "excluirRespostaPronta",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 519
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/configuracoes/palavras-proibidas/:*",
+    "rawPath": "/v1/gestao/configuracoes/palavras-proibidas/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "excluirPalavraProibida",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 401
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/configuracoes/regras/:*",
+    "rawPath": "/v1/gestao/configuracoes/regras/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "excluirRegraSla",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 353
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/contrato/certificados/:*/hosts/:*",
+    "rawPath": "/v1/gestao/contrato/certificados/:id/hosts/:hostId",
+    "controller": "ControladorGestaoConta",
+    "handler": "apagarHostDoCertificado",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-conta.ts",
+    "line": 221
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/contrato/certificados/:*",
+    "rawPath": "/v1/gestao/contrato/certificados/:id",
+    "controller": "ControladorGestaoConta",
+    "handler": "apagarCertificado",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-conta.ts",
+    "line": 203
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/fluxos/:*/canal",
+    "rawPath": "/v1/gestao/fluxos/:id/canal",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "desligarCanal",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 287
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/fluxos/:*/chaves/:*",
+    "rawPath": "/v1/gestao/fluxos/:id/chaves/:chaveId",
+    "controller": "ControladorGestaoIntegracoes",
+    "handler": "revogarChave",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-integracoes.ts",
+    "line": 98
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/fluxos/:*/equipe/:*",
+    "rawPath": "/v1/gestao/fluxos/:id/equipe/:usuarioId",
+    "controller": "ControladorGestaoEquipe",
+    "handler": "remover",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-equipe.ts",
+    "line": 106
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/fluxos/:*/servicos/:*",
+    "rawPath": "/v1/gestao/fluxos/:id/servicos/:servicoId",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "excluirServico",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 482
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/fluxos/:*",
+    "rawPath": "/v1/gestao/fluxos/:id",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "excluir",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 201
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/regras/atendimento/:*",
+    "rawPath": "/v1/gestao/regras/atendimento/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "excluirRegraFila",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 262
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/regras/horarios/excecoes/:*",
+    "rawPath": "/v1/gestao/regras/horarios/excecoes/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "excluirExcecaoHorario",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 314
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/regras/horarios/faixas/:*",
+    "rawPath": "/v1/gestao/regras/horarios/faixas/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "excluirFaixaHorario",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 289
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/regras/prioridade/:*",
+    "rawPath": "/v1/gestao/regras/prioridade/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "excluirRegraPrioridade",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 443
+  },
+  {
+    "method": "DELETE",
+    "path": "/v1/gestao/webhooks/:*",
+    "rawPath": "/v1/gestao/webhooks/:webhookId",
+    "controller": "ControladorGestaoIntegracoes",
+    "handler": "excluirWebhook",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "204"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-integracoes.ts",
+    "line": 197
+  },
+  {
+    "method": "GET",
+    "path": "/l/:*",
+    "rawPath": "/l/:codigo",
+    "controller": "ControladorRedirecionamento",
+    "handler": "redirecionar",
+    "guards": [],
+    "file": "apps/api/src/controladores/redirecionamento.ts",
+    "line": 14
+  },
+  {
+    "method": "GET",
+    "path": "/metrics",
+    "rawPath": "/metrics",
+    "controller": "ControladorOperacao",
+    "handler": "metricas",
+    "guards": [],
+    "file": "apps/api/src/controladores/operacao.ts",
+    "line": 62
+  },
+  {
+    "method": "GET",
+    "path": "/saude",
+    "rawPath": "/saude",
+    "controller": "ControladorOperacao",
+    "handler": "saude",
+    "guards": [],
+    "file": "apps/api/src/controladores/operacao.ts",
+    "line": 53
+  },
+  {
+    "method": "GET",
+    "path": "/v1/anexos/:*",
+    "rawPath": "/v1/anexos/:id",
+    "controller": "ControladorAnexos",
+    "handler": "baixar",
+    "guards": [],
+    "file": "apps/api/src/controladores/anexos.ts",
+    "line": 60
+  },
+  {
+    "method": "GET",
+    "path": "/v1/atendentes",
+    "rawPath": "/v1/atendentes",
+    "controller": "ControladorAtendentes",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "Escopos",
+        "args": [
+          "'atendentes:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/catalogo.ts",
+    "line": 367
+  },
+  {
+    "method": "GET",
+    "path": "/v1/auth/dev",
+    "rawPath": "/v1/auth/dev",
+    "controller": "ControladorEntrada",
+    "handler": "dev",
+    "guards": [],
+    "file": "apps/api/src/controladores/entrar.ts",
+    "line": 228
+  },
+  {
+    "method": "GET",
+    "path": "/v1/auth/google/retorno",
+    "rawPath": "/v1/auth/google/retorno",
+    "controller": "ControladorEntrada",
+    "handler": "retorno",
+    "guards": [],
+    "file": "apps/api/src/controladores/entrar.ts",
+    "line": 289
+  },
+  {
+    "method": "GET",
+    "path": "/v1/auth/google",
+    "rawPath": "/v1/auth/google",
+    "controller": "ControladorEntrada",
+    "handler": "ir",
+    "guards": [],
+    "file": "apps/api/src/controladores/entrar.ts",
+    "line": 267
+  },
+  {
+    "method": "GET",
+    "path": "/v1/auth/sso/:*",
+    "rawPath": "/v1/auth/sso/:slug",
+    "controller": "ControladorEntradaSso",
+    "handler": "ir",
+    "guards": [],
+    "file": "apps/api/src/controladores/sso.ts",
+    "line": 209
+  },
+  {
+    "method": "GET",
+    "path": "/v1/auth/sso/retorno",
+    "rawPath": "/v1/auth/sso/retorno",
+    "controller": "ControladorEntradaSso",
+    "handler": "retorno",
+    "guards": [],
+    "file": "apps/api/src/controladores/sso.ts",
+    "line": 136
+  },
+  {
+    "method": "GET",
+    "path": "/v1/auth/sso/testar",
+    "rawPath": "/v1/auth/sso/testar",
+    "controller": "ControladorEntradaSso",
+    "handler": "testar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/sso.ts",
+    "line": 113
+  },
+  {
+    "method": "GET",
+    "path": "/v1/canais/instagram",
+    "rawPath": "/v1/canais/instagram",
+    "controller": "ControladorCanaisInstagram",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais-instagram.ts",
+    "line": 18
+  },
+  {
+    "method": "GET",
+    "path": "/v1/canais/messenger",
+    "rawPath": "/v1/canais/messenger",
+    "controller": "ControladorCanaisMessenger",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais-messenger.ts",
+    "line": 6
+  },
+  {
+    "method": "GET",
+    "path": "/v1/canais/whatsapp/:*/perfil",
+    "rawPath": "/v1/canais/whatsapp/:id/perfil",
+    "controller": "ControladorCanais",
+    "handler": "perfil",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais.ts",
+    "line": 178
+  },
+  {
+    "method": "GET",
+    "path": "/v1/canais/whatsapp/:*/preferencias",
+    "rawPath": "/v1/canais/whatsapp/:id/preferencias",
+    "controller": "ControladorCanais",
+    "handler": "preferencias",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais.ts",
+    "line": 199
+  },
+  {
+    "method": "GET",
+    "path": "/v1/canais/whatsapp",
+    "rawPath": "/v1/canais/whatsapp",
+    "controller": "ControladorCanais",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais.ts",
+    "line": 44
+  },
+  {
+    "method": "GET",
+    "path": "/v1/conta",
+    "rawPath": "/v1/conta",
+    "controller": "ControladorMinhaConta",
+    "handler": "conta",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/minha-conta.ts",
+    "line": 179
+  },
+  {
+    "method": "GET",
+    "path": "/v1/contas/minhas",
+    "rawPath": "/v1/contas/minhas",
+    "controller": "ControladorMinhaConta",
+    "handler": "minhas",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/minha-conta.ts",
+    "line": 259
+  },
+  {
+    "method": "GET",
+    "path": "/v1/contatos/:*/etiquetas",
+    "rawPath": "/v1/contatos/:id/etiquetas",
+    "controller": "ControladorEtiquetasDoContato",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'contatos:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/etiquetas.ts",
+    "line": 100
+  },
+  {
+    "method": "GET",
+    "path": "/v1/contatos/:*",
+    "rawPath": "/v1/contatos/:id",
+    "controller": "ControladorContatos",
+    "handler": "obter",
+    "guards": [
+      {
+        "name": "Escopos",
+        "args": [
+          "'contatos:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/catalogo.ts",
+    "line": 106
+  },
+  {
+    "method": "GET",
+    "path": "/v1/contatos/importacoes/:*/falhas",
+    "rawPath": "/v1/contatos/importacoes/:id/falhas",
+    "controller": "ControladorImportacoesDeContatos",
+    "handler": "falhas",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/importacoes.ts",
+    "line": 65
+  },
+  {
+    "method": "GET",
+    "path": "/v1/contatos/importacoes/:*",
+    "rawPath": "/v1/contatos/importacoes/:id",
+    "controller": "ControladorImportacoesDeContatos",
+    "handler": "ler",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/importacoes.ts",
+    "line": 53
+  },
+  {
+    "method": "GET",
+    "path": "/v1/contatos/importacoes",
+    "rawPath": "/v1/contatos/importacoes",
+    "controller": "ControladorImportacoesDeContatos",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/importacoes.ts",
+    "line": 45
+  },
+  {
+    "method": "GET",
+    "path": "/v1/contatos",
+    "rawPath": "/v1/contatos",
+    "controller": "ControladorContatos",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "Escopos",
+        "args": [
+          "'contatos:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/catalogo.ts",
+    "line": 67
+  },
+  {
+    "method": "GET",
+    "path": "/v1/conversas/:*/mensagens",
+    "rawPath": "/v1/conversas/:id/mensagens",
+    "controller": "ControladorConversas",
+    "handler": "mensagens",
+    "guards": [
+      {
+        "name": "Escopos",
+        "args": [
+          "'mensagens:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/conversas.ts",
+    "line": 164
+  },
+  {
+    "method": "GET",
+    "path": "/v1/conversas/:*",
+    "rawPath": "/v1/conversas/:id",
+    "controller": "ControladorConversas",
+    "handler": "obter",
+    "guards": [
+      {
+        "name": "Escopos",
+        "args": [
+          "'conversas:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/conversas.ts",
+    "line": 139
+  },
+  {
+    "method": "GET",
+    "path": "/v1/conversas",
+    "rawPath": "/v1/conversas",
+    "controller": "ControladorConversas",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "Escopos",
+        "args": [
+          "'conversas:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/conversas.ts",
+    "line": 85
+  },
+  {
+    "method": "GET",
+    "path": "/v1/convites/:*",
+    "rawPath": "/v1/convites/:token",
+    "controller": "ControladorConvites",
+    "handler": "ver",
+    "guards": [],
+    "file": "apps/api/src/controladores/convites.ts",
+    "line": 82
+  },
+  {
+    "method": "GET",
+    "path": "/v1/crm/contato/:*",
+    "rawPath": "/v1/crm/contato/:contatoId",
+    "controller": "ControladorCrm",
+    "handler": "doContato",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/crm.ts",
+    "line": 63
+  },
+  {
+    "method": "GET",
+    "path": "/v1/crm/dicionario",
+    "rawPath": "/v1/crm/dicionario",
+    "controller": "ControladorCrm",
+    "handler": "dicionario",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/crm.ts",
+    "line": 43
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/canais",
+    "rawPath": "/v1/desk/canais",
+    "controller": "ControladorDesk",
+    "handler": "canais",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/desk.ts",
+    "line": 152
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/contatos/:*",
+    "rawPath": "/v1/desk/contatos/:id",
+    "controller": "ControladorDesk",
+    "handler": "contato",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/desk.ts",
+    "line": 137
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/contatos",
+    "rawPath": "/v1/desk/contatos",
+    "controller": "ControladorDesk",
+    "handler": "contatos",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/desk.ts",
+    "line": 124
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/conversas/:*",
+    "rawPath": "/v1/desk/conversas/:id",
+    "controller": "ControladorDesk",
+    "handler": "conversa",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/desk.ts",
+    "line": 90
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/fila",
+    "rawPath": "/v1/desk/fila",
+    "controller": "ControladorDesk",
+    "handler": "fila",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/desk.ts",
+    "line": 72
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/filas",
+    "rawPath": "/v1/desk/filas",
+    "controller": "ControladorDesk",
+    "handler": "filas",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/desk.ts",
+    "line": 114
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/metricas",
+    "rawPath": "/v1/desk/metricas",
+    "controller": "ControladorDesk",
+    "handler": "metricas",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/desk.ts",
+    "line": 185
+  },
+  {
+    "method": "GET",
+    "path": "/v1/desk/tickets/:*",
+    "rawPath": "/v1/desk/tickets/:id",
+    "controller": "ControladorDesk",
+    "handler": "ticket",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/desk.ts",
+    "line": 164
+  },
+  {
+    "method": "GET",
+    "path": "/v1/etiquetas",
+    "rawPath": "/v1/etiquetas",
+    "controller": "ControladorEtiquetas",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/etiquetas.ts",
+    "line": 45
+  },
+  {
+    "method": "GET",
+    "path": "/v1/eu",
+    "rawPath": "/v1/eu",
+    "controller": "ControladorEu",
+    "handler": "eu",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/entrar.ts",
+    "line": 374
+  },
+  {
+    "method": "GET",
+    "path": "/v1/filas",
+    "rawPath": "/v1/filas",
+    "controller": "ControladorFilas",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "Escopos",
+        "args": [
+          "'filas:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/catalogo.ts",
+    "line": 272
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/atendentes/filas",
+    "rawPath": "/v1/gestao/atendentes/filas",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "filas",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 101
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/atendentes/gestao",
+    "rawPath": "/v1/gestao/atendentes/gestao",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "atendentes",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 94
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/atendentes/pausas",
+    "rawPath": "/v1/gestao/atendentes/pausas",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "pausas",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 108
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/atendentes/permissoes",
+    "rawPath": "/v1/gestao/atendentes/permissoes",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "permissoesDoAtendente",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 461
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/cabecalho",
+    "rawPath": "/v1/gestao/cabecalho",
+    "controller": "ControladorGestaoOperacao",
+    "handler": "cabecalho",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-operacao.ts",
+    "line": 123
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/canais",
+    "rawPath": "/v1/gestao/canais",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "canais",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 133
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/comunicacao/modelos",
+    "rawPath": "/v1/gestao/comunicacao/modelos",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "modelos",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 115
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/comunicacao/respostas-prontas",
+    "rawPath": "/v1/gestao/comunicacao/respostas-prontas",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "respostasProntas",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 126
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/configuracoes/dados",
+    "rawPath": "/v1/gestao/configuracoes/dados",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "dados",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 147
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/configuracoes/gerais",
+    "rawPath": "/v1/gestao/configuracoes/gerais",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "gerais",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 154
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/configuracoes/palavras-proibidas",
+    "rawPath": "/v1/gestao/configuracoes/palavras-proibidas",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "listarPalavrasProibidas",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 366
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/configuracoes/regras",
+    "rawPath": "/v1/gestao/configuracoes/regras",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "regrasDeSla",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 140
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/contrato/certificados",
+    "rawPath": "/v1/gestao/contrato/certificados",
+    "controller": "ControladorGestaoConta",
+    "handler": "certificados",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-conta.ts",
+    "line": 176
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/contrato/membros",
+    "rawPath": "/v1/gestao/contrato/membros",
+    "controller": "ControladorGestaoConta",
+    "handler": "membros",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-conta.ts",
+    "line": 88
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/contrato/resumo",
+    "rawPath": "/v1/gestao/contrato/resumo",
+    "controller": "ControladorGestaoConta",
+    "handler": "resumo",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-conta.ts",
+    "line": 81
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/analise/dashboard",
+    "rawPath": "/v1/gestao/fluxos/:id/analise/dashboard",
+    "controller": "ControladorGestaoAnalise",
+    "handler": "dashboard",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-analise.ts",
+    "line": 107
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/analise/jornada",
+    "rawPath": "/v1/gestao/fluxos/:id/analise/jornada",
+    "controller": "ControladorGestaoAnalise",
+    "handler": "jornada",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-analise.ts",
+    "line": 186
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/analise/log",
+    "rawPath": "/v1/gestao/fluxos/:id/analise/log",
+    "controller": "ControladorGestaoAnalise",
+    "handler": "log",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-analise.ts",
+    "line": 236
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/analise/mensagens-ativas",
+    "rawPath": "/v1/gestao/fluxos/:id/analise/mensagens-ativas",
+    "controller": "ControladorGestaoAnalise",
+    "handler": "mensagensAtivas",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-analise.ts",
+    "line": 140
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/analise/relatorios",
+    "rawPath": "/v1/gestao/fluxos/:id/analise/relatorios",
+    "controller": "ControladorGestaoAnalise",
+    "handler": "relatorios",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-analise.ts",
+    "line": 216
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/analise/visao-geral",
+    "rawPath": "/v1/gestao/fluxos/:id/analise/visao-geral",
+    "controller": "ControladorGestaoAnalise",
+    "handler": "visaoGeral",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-analise.ts",
+    "line": 167
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/boas-vindas",
+    "rawPath": "/v1/gestao/fluxos/:id/boas-vindas",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "boasVindas",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 304
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/builder/versoes",
+    "rawPath": "/v1/gestao/fluxos/:id/builder/versoes",
+    "controller": "ControladorGestaoBuilder",
+    "handler": "versoes",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-builder.ts",
+    "line": 79
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/builder",
+    "rawPath": "/v1/gestao/fluxos/:id/builder",
+    "controller": "ControladorGestaoBuilder",
+    "handler": "carregar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-builder.ts",
+    "line": 38
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/canal",
+    "rawPath": "/v1/gestao/fluxos/:id/canal",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "canal",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 254
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/chaves",
+    "rawPath": "/v1/gestao/fluxos/:id/chaves",
+    "controller": "ControladorGestaoIntegracoes",
+    "handler": "chaves",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-integracoes.ts",
+    "line": 69
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/conexao",
+    "rawPath": "/v1/gestao/fluxos/:id/conexao",
+    "controller": "ControladorGestaoIntegracoes",
+    "handler": "conexao",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-integracoes.ts",
+    "line": 116
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/contatos/:*",
+    "rawPath": "/v1/gestao/fluxos/:id/contatos/:contatoId",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "detalheDoContato",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 371
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/contatos",
+    "rawPath": "/v1/gestao/fluxos/:id/contatos",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "contatos",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 360
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/conteudos",
+    "rawPath": "/v1/gestao/fluxos/:id/conteudos",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "conteudos",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 421
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/equipe/eu",
+    "rawPath": "/v1/gestao/fluxos/:id/equipe/eu",
+    "controller": "ControladorGestaoEquipe",
+    "handler": "minhas",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-equipe.ts",
+    "line": 62
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/equipe",
+    "rawPath": "/v1/gestao/fluxos/:id/equipe",
+    "controller": "ControladorGestaoEquipe",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-equipe.ts",
+    "line": 48
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/growth",
+    "rawPath": "/v1/gestao/fluxos/:id/growth",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "growth",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 410
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/links-rastreados",
+    "rawPath": "/v1/gestao/fluxos/:fluxoId/links-rastreados",
+    "controller": "ControladorLinksRastreados",
+    "handler": "listar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/rastreador-de-cliques.ts",
+    "line": 42
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/logs",
+    "rawPath": "/v1/gestao/fluxos/:id/logs",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "logs",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 395
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/menu-persistente",
+    "rawPath": "/v1/gestao/fluxos/:id/menu-persistente",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "menuPersistente",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 334
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*/servicos",
+    "rawPath": "/v1/gestao/fluxos/:id/servicos",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "servicos",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 437
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos/:*",
+    "rawPath": "/v1/gestao/fluxos/:id",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "contato",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 232
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/fluxos",
+    "rawPath": "/v1/gestao/fluxos",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "grade",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 213
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/historico",
+    "rawPath": "/v1/gestao/historico",
+    "controller": "ControladorGestaoOperacao",
+    "handler": "historico",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-operacao.ts",
+    "line": 229
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/implantacao",
+    "rawPath": "/v1/gestao/implantacao",
+    "controller": "ControladorGestaoConta",
+    "handler": "implantacao",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-conta.ts",
+    "line": 164
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/monitoramento/conversas/:*",
+    "rawPath": "/v1/gestao/monitoramento/conversas/:id",
+    "controller": "ControladorGestaoOperacao",
+    "handler": "previaDaConversa",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-operacao.ts",
+    "line": 152
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/monitoramento",
+    "rawPath": "/v1/gestao/monitoramento",
+    "controller": "ControladorGestaoOperacao",
+    "handler": "monitoramento",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-operacao.ts",
+    "line": 133
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/monitoria/:*",
+    "rawPath": "/v1/gestao/monitoria/:id",
+    "controller": "ControladorGestaoOperacao",
+    "handler": "ficha",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-operacao.ts",
+    "line": 328
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/monitoria",
+    "rawPath": "/v1/gestao/monitoria",
+    "controller": "ControladorGestaoOperacao",
+    "handler": "monitoria",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-operacao.ts",
+    "line": 306
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/regras/atendimento",
+    "rawPath": "/v1/gestao/regras/atendimento",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "regrasDeAtendimento",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 77
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/regras/horarios",
+    "rawPath": "/v1/gestao/regras/horarios",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "horarios",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 84
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/regras/prioridade",
+    "rawPath": "/v1/gestao/regras/prioridade",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "regrasDePrioridade",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 161
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/relatorios/atendimento",
+    "rawPath": "/v1/gestao/relatorios/atendimento",
+    "controller": "ControladorGestaoOperacao",
+    "handler": "relatorioDeAtendimento",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-operacao.ts",
+    "line": 253
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/relatorios/esforco",
+    "rawPath": "/v1/gestao/relatorios/esforco",
+    "controller": "ControladorGestaoOperacao",
+    "handler": "relatorioDeEsforco",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-operacao.ts",
+    "line": 275
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/relatorios/satisfacao",
+    "rawPath": "/v1/gestao/relatorios/satisfacao",
+    "controller": "ControladorGestaoOperacao",
+    "handler": "relatorioDeSatisfacao",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-operacao.ts",
+    "line": 290
+  },
+  {
+    "method": "GET",
+    "path": "/v1/gestao/webhooks",
+    "rawPath": "/v1/gestao/webhooks",
+    "controller": "ControladorGestaoIntegracoes",
+    "handler": "webhooks",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-integracoes.ts",
+    "line": 152
+  },
+  {
+    "method": "GET",
+    "path": "/v1/mensagens-ativas/limites",
+    "rawPath": "/v1/mensagens-ativas/limites",
+    "controller": "ControladorMensagensAtivas",
+    "handler": "limites",
+    "guards": [
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'mensagens:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/mensagens-ativas.ts",
+    "line": 35
+  },
+  {
+    "method": "GET",
+    "path": "/v1/mensagens-ativas",
+    "rawPath": "/v1/mensagens-ativas",
+    "controller": "ControladorMensagensAtivas",
+    "handler": "painel",
+    "guards": [
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'mensagens:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/mensagens-ativas.ts",
+    "line": 46
+  },
+  {
+    "method": "GET",
+    "path": "/v1/sso",
+    "rawPath": "/v1/sso",
+    "controller": "ControladorConexaoSso",
+    "handler": "ver",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/sso.ts",
+    "line": 52
+  },
+  {
+    "method": "GET",
+    "path": "/webhooks/instagram/:*",
+    "rawPath": "/webhooks/instagram/:canalId",
+    "controller": "ControladorWebhookInstagram",
+    "handler": "verificar",
+    "guards": [],
+    "file": "apps/api/src/controladores/webhooks-instagram.ts",
+    "line": 23
+  },
+  {
+    "method": "GET",
+    "path": "/webhooks/messenger/:*",
+    "rawPath": "/webhooks/messenger/:canalId",
+    "controller": "ControladorWebhookMessenger",
+    "handler": "verificar",
+    "guards": [],
+    "file": "apps/api/src/controladores/webhooks-messenger.ts",
+    "line": 4
+  },
+  {
+    "method": "GET",
+    "path": "/webhooks/whatsapp/:*",
+    "rawPath": "/webhooks/whatsapp/:canalId",
+    "controller": "ControladorWebhookWhatsApp",
+    "handler": "verificar",
+    "guards": [],
+    "file": "apps/api/src/controladores/webhooks-whatsapp.ts",
+    "line": 26
+  },
+  {
+    "method": "GET",
+    "path": "/webhooks/whatsapp",
+    "rawPath": "/webhooks/whatsapp",
+    "controller": "ControladorWebhookWhatsApp",
+    "handler": "verificarDaConta",
+    "guards": [],
+    "file": "apps/api/src/controladores/webhooks-whatsapp.ts",
+    "line": 100
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/canais/whatsapp/:*/perfil",
+    "rawPath": "/v1/canais/whatsapp/:id/perfil",
+    "controller": "ControladorCanais",
+    "handler": "gravarPerfil",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais.ts",
+    "line": 186
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/canais/whatsapp/:*/preferencias",
+    "rawPath": "/v1/canais/whatsapp/:id/preferencias",
+    "controller": "ControladorCanais",
+    "handler": "gravarPreferencias",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais.ts",
+    "line": 210
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/conta",
+    "rawPath": "/v1/conta",
+    "controller": "ControladorMinhaConta",
+    "handler": "salvar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/minha-conta.ts",
+    "line": 205
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/contatos/:*",
+    "rawPath": "/v1/contatos/:id",
+    "controller": "ControladorContatos",
+    "handler": "editar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/catalogo.ts",
+    "line": 172
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/atendentes/filas/:*",
+    "rawPath": "/v1/gestao/atendentes/filas/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "editarFila",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 182
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/atendentes/pausas/:*",
+    "rawPath": "/v1/gestao/atendentes/pausas/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "editarMotivoPausa",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 547
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/atendentes/permissoes",
+    "rawPath": "/v1/gestao/atendentes/permissoes",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "salvarPermissoesDoAtendente",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 478
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/comunicacao/respostas-prontas/:*",
+    "rawPath": "/v1/gestao/comunicacao/respostas-prontas/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "editarRespostaPronta",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 505
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/configuracoes/palavras-proibidas/:*",
+    "rawPath": "/v1/gestao/configuracoes/palavras-proibidas/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "editarPalavraProibida",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 387
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/configuracoes/regras/:*",
+    "rawPath": "/v1/gestao/configuracoes/regras/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "editarRegraSla",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 339
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/fluxos/:*/boas-vindas",
+    "rawPath": "/v1/gestao/fluxos/:id/boas-vindas",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "salvarBoasVindasRota",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 315
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/fluxos/:*/equipe/:*",
+    "rawPath": "/v1/gestao/fluxos/:id/equipe/:usuarioId",
+    "controller": "ControladorGestaoEquipe",
+    "handler": "editar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-equipe.ts",
+    "line": 90
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/fluxos/:*/menu-persistente",
+    "rawPath": "/v1/gestao/fluxos/:id/menu-persistente",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "salvarMenuPersistenteRota",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 345
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/fluxos/:*/servicos/:*",
+    "rawPath": "/v1/gestao/fluxos/:id/servicos/:servicoId",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "editarServico",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 466
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/fluxos/:*",
+    "rawPath": "/v1/gestao/fluxos/:id",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "editar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 177
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/regras/atendimento/:*",
+    "rawPath": "/v1/gestao/regras/atendimento/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "editarRegraFila",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 248
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/regras/horarios/excecoes/:*",
+    "rawPath": "/v1/gestao/regras/horarios/excecoes/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "editarExcecaoHorario",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 300
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/regras/horarios/faixas/:*",
+    "rawPath": "/v1/gestao/regras/horarios/faixas/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "editarFaixaHorario",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 275
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/regras/prioridade/:*",
+    "rawPath": "/v1/gestao/regras/prioridade/:id",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "editarRegraPrioridade",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 429
+  },
+  {
+    "method": "PATCH",
+    "path": "/v1/gestao/webhooks/:*",
+    "rawPath": "/v1/gestao/webhooks/:webhookId",
+    "controller": "ControladorGestaoIntegracoes",
+    "handler": "editarWebhook",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-integracoes.ts",
+    "line": 177
+  },
+  {
+    "method": "POST",
+    "path": "/v1/anexos",
+    "rawPath": "/v1/anexos",
+    "controller": "ControladorAnexos",
+    "handler": "subir",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'mensagens:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/anexos.ts",
+    "line": 26
+  },
+  {
+    "method": "POST",
+    "path": "/v1/atendentes/status",
+    "rawPath": "/v1/atendentes/status",
+    "controller": "ControladorAtendentes",
+    "handler": "status",
+    "guards": [
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'atendentes:ler'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/catalogo.ts",
+    "line": 339
+  },
+  {
+    "method": "POST",
+    "path": "/v1/auth/descobrir",
+    "rawPath": "/v1/auth/descobrir",
+    "controller": "ControladorEntradaSso",
+    "handler": "descobrir",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/sso.ts",
+    "line": 100
+  },
+  {
+    "method": "POST",
+    "path": "/v1/auth/sair",
+    "rawPath": "/v1/auth/sair",
+    "controller": "ControladorEntrada",
+    "handler": "sair",
+    "guards": [],
+    "file": "apps/api/src/controladores/entrar.ts",
+    "line": 350
+  },
+  {
+    "method": "POST",
+    "path": "/v1/canais/instagram/manual",
+    "rawPath": "/v1/canais/instagram/manual",
+    "controller": "ControladorCanaisInstagram",
+    "handler": "manual",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais-instagram.ts",
+    "line": 27
+  },
+  {
+    "method": "POST",
+    "path": "/v1/canais/messenger/manual",
+    "rawPath": "/v1/canais/messenger/manual",
+    "controller": "ControladorCanaisMessenger",
+    "handler": "manual",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais-messenger.ts",
+    "line": 7
+  },
+  {
+    "method": "POST",
+    "path": "/v1/canais/whatsapp/:*/modelos/sincronizar",
+    "rawPath": "/v1/canais/whatsapp/:id/modelos/sincronizar",
+    "controller": "ControladorCanais",
+    "handler": "sincronizarModelos",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais.ts",
+    "line": 223
+  },
+  {
+    "method": "POST",
+    "path": "/v1/canais/whatsapp/:*/modelos",
+    "rawPath": "/v1/canais/whatsapp/:id/modelos",
+    "controller": "ControladorCanais",
+    "handler": "criarModelo",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais.ts",
+    "line": 236
+  },
+  {
+    "method": "POST",
+    "path": "/v1/canais/whatsapp/estado",
+    "rawPath": "/v1/canais/whatsapp/estado",
+    "controller": "ControladorCanais",
+    "handler": "iniciar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais.ts",
+    "line": 57
+  },
+  {
+    "method": "POST",
+    "path": "/v1/canais/whatsapp/manual",
+    "rawPath": "/v1/canais/whatsapp/manual",
+    "controller": "ControladorCanais",
+    "handler": "manual",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais.ts",
+    "line": 125
+  },
+  {
+    "method": "POST",
+    "path": "/v1/canais/whatsapp",
+    "rawPath": "/v1/canais/whatsapp",
+    "controller": "ControladorCanais",
+    "handler": "conectar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/canais.ts",
+    "line": 77
+  },
+  {
+    "method": "POST",
+    "path": "/v1/contas/trocar",
+    "rawPath": "/v1/contas/trocar",
+    "controller": "ControladorMinhaConta",
+    "handler": "trocar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/minha-conta.ts",
+    "line": 304
+  },
+  {
+    "method": "POST",
+    "path": "/v1/contas",
+    "rawPath": "/v1/contas",
+    "controller": "ControladorContas",
+    "handler": "criar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/contas.ts",
+    "line": 20
+  },
+  {
+    "method": "POST",
+    "path": "/v1/contatos/:*/etiquetas",
+    "rawPath": "/v1/contatos/:id/etiquetas",
+    "controller": "ControladorEtiquetasDoContato",
+    "handler": "aplicar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'contatos:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/etiquetas.ts",
+    "line": 112
+  },
+  {
+    "method": "POST",
+    "path": "/v1/contatos/importacoes",
+    "rawPath": "/v1/contatos/importacoes",
+    "controller": "ControladorImportacoesDeContatos",
+    "handler": "importar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/importacoes.ts",
+    "line": 27
+  },
+  {
+    "method": "POST",
+    "path": "/v1/contatos",
+    "rawPath": "/v1/contatos",
+    "controller": "ControladorContatos",
+    "handler": "criar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "Escopos",
+        "args": [
+          "'contatos:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/catalogo.ts",
+    "line": 124
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversas/:*/encerrar",
+    "rawPath": "/v1/conversas/:id/encerrar",
+    "controller": "ControladorConversas",
+    "handler": "encerrar",
+    "guards": [
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'conversas:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/conversas.ts",
+    "line": 299
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversas/:*/espera",
+    "rawPath": "/v1/conversas/:id/espera",
+    "controller": "ControladorConversas",
+    "handler": "espera",
+    "guards": [
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'conversas:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/conversas.ts",
+    "line": 372
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversas/:*/etiquetas",
+    "rawPath": "/v1/conversas/:id/etiquetas",
+    "controller": "ControladorEtiquetasDaConversa",
+    "handler": "aplicar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'conversas:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/etiquetas.ts",
+    "line": 63
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversas/:*/mensagens/:*/reenviar",
+    "rawPath": "/v1/conversas/:id/mensagens/:mensagemId/reenviar",
+    "controller": "ControladorConversas",
+    "handler": "reenviar",
+    "guards": [
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'mensagens:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/conversas.ts",
+    "line": 325
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversas/:*/mensagens/anexos",
+    "rawPath": "/v1/conversas/:id/mensagens/anexos",
+    "controller": "ControladorConversas",
+    "handler": "enviarLoteDeAnexos",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'mensagens:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/conversas.ts",
+    "line": 262
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversas/:*/mensagens",
+    "rawPath": "/v1/conversas/:id/mensagens",
+    "controller": "ControladorConversas",
+    "handler": "enviar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'mensagens:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/conversas.ts",
+    "line": 225
+  },
+  {
+    "method": "POST",
+    "path": "/v1/conversas/:*/transferir",
+    "rawPath": "/v1/conversas/:id/transferir",
+    "controller": "ControladorConversas",
+    "handler": "transferir",
+    "guards": [
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'conversas:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/conversas.ts",
+    "line": 343
+  },
+  {
+    "method": "POST",
+    "path": "/v1/convites/:*/aceitar",
+    "rawPath": "/v1/convites/:token/aceitar",
+    "controller": "ControladorConvites",
+    "handler": "aceitar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/convites.ts",
+    "line": 100
+  },
+  {
+    "method": "POST",
+    "path": "/v1/convites/:*/reenviar",
+    "rawPath": "/v1/convites/:id/reenviar",
+    "controller": "ControladorConvites",
+    "handler": "reenviar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/convites.ts",
+    "line": 57
+  },
+  {
+    "method": "POST",
+    "path": "/v1/convites",
+    "rawPath": "/v1/convites",
+    "controller": "ControladorConvites",
+    "handler": "criar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/convites.ts",
+    "line": 26
+  },
+  {
+    "method": "POST",
+    "path": "/v1/crm/dicionario/sincronizar",
+    "rawPath": "/v1/crm/dicionario/sincronizar",
+    "controller": "ControladorCrm",
+    "handler": "sincronizarDicionario",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      },
+      {
+        "name": "HttpCode",
+        "args": [
+          "202"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/crm.ts",
+    "line": 53
+  },
+  {
+    "method": "POST",
+    "path": "/v1/desk/acoes/:*",
+    "rawPath": "/v1/desk/acoes/:acao",
+    "controller": "ControladorDesk",
+    "handler": "acao",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/desk.ts",
+    "line": 216
+  },
+  {
+    "method": "POST",
+    "path": "/v1/dominios/:*/verificar",
+    "rawPath": "/v1/dominios/:id/verificar",
+    "controller": "ControladorDominios",
+    "handler": "verificar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/convites.ts",
+    "line": 137
+  },
+  {
+    "method": "POST",
+    "path": "/v1/dominios",
+    "rawPath": "/v1/dominios",
+    "controller": "ControladorDominios",
+    "handler": "registrar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/convites.ts",
+    "line": 117
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/acoes/:*",
+    "rawPath": "/v1/gestao/acoes/:acao",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "acao",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 578
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/atendentes/filas/:*/atendentes",
+    "rawPath": "/v1/gestao/atendentes/filas/:id/atendentes",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "vincularAtendente",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 207
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/atendentes/filas",
+    "rawPath": "/v1/gestao/atendentes/filas",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "criarFila",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 170
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/atendentes/pausas",
+    "rawPath": "/v1/gestao/atendentes/pausas",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "criarMotivoPausa",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 535
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/comunicacao/respostas-prontas",
+    "rawPath": "/v1/gestao/comunicacao/respostas-prontas",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "criarRespostaPronta",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 493
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/configuracoes/palavras-proibidas",
+    "rawPath": "/v1/gestao/configuracoes/palavras-proibidas",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "criarPalavraProibida",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 375
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/configuracoes/regras",
+    "rawPath": "/v1/gestao/configuracoes/regras",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "criarRegraSla",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 327
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/contrato/certificados",
+    "rawPath": "/v1/gestao/contrato/certificados",
+    "controller": "ControladorGestaoConta",
+    "handler": "cadastrarCertificado",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-conta.ts",
+    "line": 187
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/contrato/membros/excluir",
+    "rawPath": "/v1/gestao/contrato/membros/excluir",
+    "controller": "ControladorGestaoConta",
+    "handler": "excluirMembros",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-conta.ts",
+    "line": 131
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/contrato/membros/papel",
+    "rawPath": "/v1/gestao/contrato/membros/papel",
+    "controller": "ControladorGestaoConta",
+    "handler": "trocarPapel",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-conta.ts",
+    "line": 101
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/fluxos/:*/builder/publicar",
+    "rawPath": "/v1/gestao/fluxos/:id/builder/publicar",
+    "controller": "ControladorGestaoBuilder",
+    "handler": "publicar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-builder.ts",
+    "line": 65
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/fluxos/:*/builder/versoes/:*/restaurar",
+    "rawPath": "/v1/gestao/fluxos/:id/builder/versoes/:versao/restaurar",
+    "controller": "ControladorGestaoBuilder",
+    "handler": "restaurar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-builder.ts",
+    "line": 92
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/fluxos/:*/chaves",
+    "rawPath": "/v1/gestao/fluxos/:id/chaves",
+    "controller": "ControladorGestaoIntegracoes",
+    "handler": "criarChave",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-integracoes.ts",
+    "line": 82
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/fluxos/:*/equipe",
+    "rawPath": "/v1/gestao/fluxos/:id/equipe",
+    "controller": "ControladorGestaoEquipe",
+    "handler": "adicionar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-equipe.ts",
+    "line": 75
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/fluxos/:*/links-rastreados",
+    "rawPath": "/v1/gestao/fluxos/:fluxoId/links-rastreados",
+    "controller": "ControladorLinksRastreados",
+    "handler": "criar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/rastreador-de-cliques.ts",
+    "line": 58
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/fluxos/:*/servicos",
+    "rawPath": "/v1/gestao/fluxos/:id/servicos",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "criarServico",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 452
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/fluxos",
+    "rawPath": "/v1/gestao/fluxos",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "criar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 145
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/monitoramento/conversas/:*/finalizar",
+    "rawPath": "/v1/gestao/monitoramento/conversas/:id/finalizar",
+    "controller": "ControladorGestaoOperacao",
+    "handler": "finalizarNoMonitoramento",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-operacao.ts",
+    "line": 205
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/monitoramento/conversas/:*/notas",
+    "rawPath": "/v1/gestao/monitoramento/conversas/:id/notas",
+    "controller": "ControladorGestaoOperacao",
+    "handler": "falarComAtendente",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-operacao.ts",
+    "line": 165
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/monitoramento/conversas/:*/transferir",
+    "rawPath": "/v1/gestao/monitoramento/conversas/:id/transferir",
+    "controller": "ControladorGestaoOperacao",
+    "handler": "transferirNoMonitoramento",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-operacao.ts",
+    "line": 181
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/regras/prioridade",
+    "rawPath": "/v1/gestao/regras/prioridade",
+    "controller": "ControladorGestaoCadastros",
+    "handler": "criarRegraPrioridade",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-cadastros.ts",
+    "line": 417
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/webhooks/:*/testar",
+    "rawPath": "/v1/gestao/webhooks/:webhookId/testar",
+    "controller": "ControladorGestaoIntegracoes",
+    "handler": "testarWebhook",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-integracoes.ts",
+    "line": 211
+  },
+  {
+    "method": "POST",
+    "path": "/v1/gestao/webhooks",
+    "rawPath": "/v1/gestao/webhooks",
+    "controller": "ControladorGestaoIntegracoes",
+    "handler": "criarWebhook",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-integracoes.ts",
+    "line": 159
+  },
+  {
+    "method": "POST",
+    "path": "/v1/mensagens-ativas",
+    "rawPath": "/v1/mensagens-ativas",
+    "controller": "ControladorMensagensAtivas",
+    "handler": "disparar",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "201"
+        ]
+      },
+      {
+        "name": "ChaveOuSessao",
+        "args": [
+          "'mensagens:escrever'"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/mensagens-ativas.ts",
+    "line": 71
+  },
+  {
+    "method": "POST",
+    "path": "/v1/sso/estado",
+    "rawPath": "/v1/sso/estado",
+    "controller": "ControladorConexaoSso",
+    "handler": "estado",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      },
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/sso.ts",
+    "line": 78
+  },
+  {
+    "method": "POST",
+    "path": "/webhooks/instagram/:*",
+    "rawPath": "/webhooks/instagram/:canalId",
+    "controller": "ControladorWebhookInstagram",
+    "handler": "receber",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/webhooks-instagram.ts",
+    "line": 39
+  },
+  {
+    "method": "POST",
+    "path": "/webhooks/messenger/:*",
+    "rawPath": "/webhooks/messenger/:canalId",
+    "controller": "ControladorWebhookMessenger",
+    "handler": "receber",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/webhooks-messenger.ts",
+    "line": 5
+  },
+  {
+    "method": "POST",
+    "path": "/webhooks/whatsapp/:*",
+    "rawPath": "/webhooks/whatsapp/:canalId",
+    "controller": "ControladorWebhookWhatsApp",
+    "handler": "receber",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/webhooks-whatsapp.ts",
+    "line": 45
+  },
+  {
+    "method": "POST",
+    "path": "/webhooks/whatsapp",
+    "rawPath": "/webhooks/whatsapp",
+    "controller": "ControladorWebhookWhatsApp",
+    "handler": "receberDaConta",
+    "guards": [
+      {
+        "name": "HttpCode",
+        "args": [
+          "200"
+        ]
+      }
+    ],
+    "file": "apps/api/src/controladores/webhooks-whatsapp.ts",
+    "line": 114
+  },
+  {
+    "method": "PUT",
+    "path": "/v1/gestao/fluxos/:*/builder",
+    "rawPath": "/v1/gestao/fluxos/:id/builder",
+    "controller": "ControladorGestaoBuilder",
+    "handler": "salvar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-builder.ts",
+    "line": 51
+  },
+  {
+    "method": "PUT",
+    "path": "/v1/gestao/fluxos/:*/canal",
+    "rawPath": "/v1/gestao/fluxos/:id/canal",
+    "controller": "ControladorGestaoFluxo",
+    "handler": "ligarCanal",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-fluxo.ts",
+    "line": 266
+  },
+  {
+    "method": "PUT",
+    "path": "/v1/gestao/fluxos/:*/conexao",
+    "rawPath": "/v1/gestao/fluxos/:id/conexao",
+    "controller": "ControladorGestaoIntegracoes",
+    "handler": "salvarConexao",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/gestao-integracoes.ts",
+    "line": 129
+  },
+  {
+    "method": "PUT",
+    "path": "/v1/sso",
+    "rawPath": "/v1/sso",
+    "controller": "ControladorConexaoSso",
+    "handler": "salvar",
+    "guards": [
+      {
+        "name": "ComSessao",
+        "args": []
+      }
+    ],
+    "file": "apps/api/src/controladores/sso.ts",
+    "line": 62
+  }
+]
