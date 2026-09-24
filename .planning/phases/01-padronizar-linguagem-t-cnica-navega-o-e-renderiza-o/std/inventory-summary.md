@@ -76,7 +76,6 @@
 | api | job-name | 5 |
 | api | literal-value | 83 |
 | api | metric | 5 |
-| api | queue | 1 |
 | api | script | 2 |
 | api | subpath-export | 5 |
 | api | symbol | 2164 |
@@ -124,21 +123,19 @@
 | site | file | 1 |
 | site | symbol | 5 |
 | site | ts-local | 1 |
-| infra | dir | 12 |
-| infra | file | 37 |
-| infra | literal-value | 7 |
-| infra | queue | 1 |
+| infra | dir | 11 |
+| infra | file | 35 |
+| infra | literal-value | 5 |
 | infra | script | 5 |
-| infra | subpath-export | 1 |
-| infra | symbol | 20 |
+| infra | symbol | 9 |
 | infra | test-title | 17 |
-| infra | ts-local | 19 |
-| infra | ts-prop | 37 |
+| infra | ts-local | 18 |
+| infra | ts-prop | 36 |
 | css | css-class | 2068 |
 | css | css-var | 510 |
 | css | data-attr | 54 |
 
-Total rows: 16637
+Total rows: 16616
 Total comments: 6500
 Total route dependents: 474
 
@@ -148,13 +145,13 @@ Total route dependents: 474
 |---|---:|---:|---|
 | Endpoints | 207 method routes (all) | 179 | PT route subset; 0 PT baseline routes missing |
 | Front routes | Gestao ~75 segments, Desk 11, CRM 21 pages | 157 | Gestao 136 mounted paths, Desk 2 PT routes, CRM 19 PT pages |
-| Queues | 10 including English name | 9 | PT queue names |
+| Queues | 10 including English name | 7 | PT queue names |
 | Scheduler IDs | 7 | 7 | All upsertJobScheduler literals |
 | Error codes | ~108 unique | 212 | Per declaration occurrence |
-| Test titles | 1,747 all | 1,154 | PT subset |
-| CSS classes | ~3,025 unique all | 2,068 | PT selector occurrences |
+| Test titles | 1,747 all | 1156 | PT subset |
+| CSS classes | ~3,025 unique all | 2068 | PT selector occurrences |
 | CSS vars | 482 unique all | 510 | PT declaration occurrences |
-| literal-value | Not sized | 646 | Candidate union/technical const literal rows |
+| literal-value | Not sized | 644 | Candidate union/technical const literal rows |
 | data-attr | Not sized | 54 | Candidate attribute rows |
 | jsonb-reach | Not sized | 513 | Rows below are per column |
 

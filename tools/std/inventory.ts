@@ -118,7 +118,7 @@ function collectCode(source: SourceText, rows: MapRow[], comments: CommentRow[])
     const kind = declarationKind(node);
     if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer && ts.isStringLiteral(node.initializer)) {
       const name = node.name.text;
-      if (/^FILA_[A-Z_]+$/.test(name)) add('queue', node.initializer.text, node.initializer);
+      if (/^FILA_[A-Z_]+$/.test(name) && node.initializer.text.startsWith('pipe-')) add('queue', node.initializer.text, node.initializer);
       if (/^(?:COOKIE_[A-Z_]+|NOME_DO_COOKIE)$/.test(name)) add('cookie', node.initializer.text, node.initializer);
       if (name === 'CHAVE_TEMA' || (name === 'CHAVE' && file.endsWith('/visoes-salvas.tsx'))) add('storage-key', node.initializer.text, node.initializer);
     }
@@ -343,7 +343,7 @@ export function applyJsonbReach(result: InventoryResult, report: JsonbReachRow[]
   result.rows = uniqueRows(result.rows);
 }
 export function extract(root: string): InventoryResult {
-  const files = listFiles(root).map(slash); const sources = sourcesAt(root, files.filter((f) => CODE.test(f) || f.endsWith('.css') || f.endsWith('.html') || f.endsWith('.md')));
+  const files = listFiles(root).map(slash).filter((file) => !file.startsWith('tools/std/fixtures/')); const sources = sourcesAt(root, files.filter((f) => CODE.test(f) || f.endsWith('.css') || f.endsWith('.html') || f.endsWith('.md')));
   const result = extractSources(sources, files); collectManifests(root, files, result.rows);
   const reach = traceJsonbReach(loadWorkspaceProject(root)); lastJsonbReport = reach.report; applyJsonbReach(result, reach.report); result.rows = uniqueRows(result.rows); return result;
 }
