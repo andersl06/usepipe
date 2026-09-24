@@ -104,8 +104,15 @@ const table = display.map((r) => '| ' + [
   `Recomendado: ${r.en}; alternativa: ${r.other}; evidência: ${r.total} (${r.backend} backend + ${r.front} front)`,
   'no'
 ].join(' | ') + ' |');
+const usageFor = (pt) => {
+  const token = splitIdentifier(pt)[0];
+  const matches = mapRows.filter((row) => splitIdentifier(row.old).includes(token));
+  const backend = matches.find((row) => backendScopes.has(row.scope));
+  const front = matches.find((row) => !backendScopes.has(row.scope));
+  return [backend, front].filter(Boolean).map((row) => `\`${row.old}\` em \`${row.declared_at}\``).join('; ');
+};
 const otherAmbiguous = display.filter((r) => r.ambiguous && r.pt !== 'atendimento')
-  .map((r) => `- **${r.pt}** (${r.total}): ${r.en} recomendado; alternativa ${r.other}. Conferir o sentido no uso local antes de aplicar.`);
+  .map((r) => `- **${r.pt}** (${r.total}): ${r.en} recomendado; alternativa ${r.other}. Usos: ${usageFor(r.pt)}. Conferir o sentido antes de aplicar.`);
 const glossary = [
   '# Glossário de domínio — proposta para o portão 1',
   '',

@@ -116,19 +116,19 @@ Compostos como `ações em massa` e `mensagem ativa` foram contados como sequên
 
 ## Other ambiguous terms
 
-- **estado** (414): state recomendado; alternativa status. Conferir o sentido no uso local antes de aplicar.
-- **sessão** (411): session recomendado; alternativa ticket. Conferir o sentido no uso local antes de aplicar.
-- **chave** (369): key recomendado; alternativa token. Conferir o sentido no uso local antes de aplicar.
-- **painel** (326): panel recomendado; alternativa dashboard. Conferir o sentido no uso local antes de aplicar.
-- **conta** (288): account recomendado; alternativa tenant. Conferir o sentido no uso local antes de aplicar.
-- **entrada** (205): inbound recomendado; alternativa input. Conferir o sentido no uso local antes de aplicar.
-- **modelo** (120): template recomendado; alternativa model. Conferir o sentido no uso local antes de aplicar.
-- **janela** (93): window recomendado; alternativa timeframe. Conferir o sentido no uso local antes de aplicar.
-- **mídia** (78): media recomendado; alternativa asset. Conferir o sentido no uso local antes de aplicar.
-- **análise** (50): analysis recomendado; alternativa analytics. Conferir o sentido no uso local antes de aplicar.
-- **relatório** (48): report recomendado; alternativa analytics. Conferir o sentido no uso local antes de aplicar.
-- **monitoria** (37): monitoring recomendado; alternativa quality review. Conferir o sentido no uso local antes de aplicar.
-- **cadastro** (20): registration recomendado; alternativa record. Conferir o sentido no uso local antes de aplicar.
-- **espelho** (17): mirror recomendado; alternativa sync. Conferir o sentido no uso local antes de aplicar.
+- **estado** (414): state recomendado; alternativa status. Usos: `/v1/canais/whatsapp/estado` em `apps/api/src/controladores/canais.ts:57`; `conversa.estado_alterado` em `apps/crm/src/lib/configuracoes-comum.ts:187`. Conferir o sentido antes de aplicar.
+- **sessão** (411): session recomendado; alternativa ticket. Usos: `envio-sessao.test.ts` em `apps/api/tests/envio-sessao.test.ts`; `pipe_sessao` em `apps/crm/src/lib/sessao.ts:48`. Conferir o sentido antes de aplicar.
+- **chave** (369): key recomendado; alternativa token. Usos: `chave_de_fluxo` em `apps/api/src/autenticacao.ts:156`; `acaoCriarChave` em `apps/crm/src/app/configuracoes/acoes.ts:212`. Conferir o sentido antes de aplicar.
+- **painel** (326): panel recomendado; alternativa dashboard. Usos: `LinhaDoPainel` em `apps/api/src/dominio/mensagem-ativa.ts:309`; `painel.ts` em `apps/crm/src/lib/painel.ts`. Conferir o sentido antes de aplicar.
+- **conta** (288): account recomendado; alternativa tenant. Usos: `/v1/conta` em `apps/api/src/controladores/minha-conta.ts:179`; `conta` em `apps/crm/src/app/oportunidades/[id]/page.tsx:35`. Conferir o sentido antes de aplicar.
+- **entrada** (205): inbound recomendado; alternativa input. Usos: `entrada-telefone.test.ts` em `apps/api/tests/entrada-telefone.test.ts`; `descobrirEntrada` em `apps/crm/src/lib/sessao.ts:118`. Conferir o sentido antes de aplicar.
+- **modelo** (120): template recomendado; alternativa model. Usos: `modelo_invalido` em `apps/api/src/dominio/whatsapp/modelos.ts:109`; `modelo.recategorizado` em `apps/crm/src/lib/configuracoes-comum.ts:193`. Conferir o sentido antes de aplicar.
+- **janela** (93): window recomendado; alternativa timeframe. Usos: `janela.ts` em `apps/api/src/dominio/gestao/janela.ts`; `Janela` em `apps/crm/src/lib/banco.ts:105`. Conferir o sentido antes de aplicar.
+- **mídia** (78): media recomendado; alternativa asset. Usos: `midia-recebida.test.ts` em `apps/api/tests/midia-recebida.test.ts`; `cabecalhoTemMidia` em `apps/gestao-vite/src/lib/comunicacao.ts:51`. Conferir o sentido antes de aplicar.
+- **análise** (50): analysis recomendado; alternativa analytics. Usos: `/v1/gestao/fluxos/:*/analise/dashboard` em `apps/api/src/controladores/gestao-analise.ts:107`; `apps/gestao-vite/src/paginas/fluxo/analise/dashboard` em `apps/gestao-vite/src/paginas/fluxo/analise/dashboard`. Conferir o sentido antes de aplicar.
+- **relatório** (48): report recomendado; alternativa analytics. Usos: `relatorio.ver` em `apps/api/tests/entrada.test.ts:58`; `dataDoRelatorio` em `apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.tsx:100`. Conferir o sentido antes de aplicar.
+- **monitoria** (37): monitoring recomendado; alternativa quality review. Usos: `/v1/gestao/monitoria/:*` em `apps/api/src/controladores/gestao-operacao.ts:328`; `monitoria-ficha.tsx` em `apps/gestao-vite/src/paginas/operacao/monitoria-ficha.tsx`. Conferir o sentido antes de aplicar.
+- **cadastro** (20): registration recomendado; alternativa record. Usos: `cadastro-embutido.ts` em `apps/api/src/dominio/whatsapp/cadastro-embutido.ts`; `cm-modal--cadastro` em `apps/gestao-vite/src/paginas/contrato/certificados/certificados.css:410`. Conferir o sentido antes de aplicar.
+- **espelho** (17): mirror recomendado; alternativa sync. Usos: `espelho-crm.ts` em `apps/api/src/dominio/espelho-crm.ts`. Conferir o sentido antes de aplicar.
 
 As alternativas acima são propostas para revisão do dono; nenhuma delas autoriza um rename antes de D-03.
