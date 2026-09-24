@@ -481,7 +481,11 @@ export async function rodarFluxoNaEntrada(
     }
   };
 
-  let idProvedorUsado = false;
+  // Numa retomada a entrada é a MESMA da suspensão original — `execucao_passo` já
+  // gravou aquele `id_provedor` (fluxo.ts:440-450). Repeti-lo aqui violaria
+  // `execucao_passo_entrada_uk` (a proteção contra webhook duplicado da Meta,
+  // migration 0014), então uma retomada nunca inclui `id_provedor` de novo.
+  let idProvedorUsado = Boolean(retomada);
   const estadoAntes = estadoGuardado(variaveis, fluxo.id);
   if (nova && estadoAntes?.startsWith('desk:') && fluxo.states.some((s) => s.id === estadoAntes)) {
     const ticket = await ultimoAtendimento(tx, e.contatoId, conversa.id);
