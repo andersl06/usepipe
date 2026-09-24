@@ -1,6 +1,11 @@
 ---
-gsd_state_version: '1.0'
+gsd_state_version: 1.0
+milestone: v1.0
+milestone_name: milestone
 status: planning
+stopped_at: Phase 1 context gathered
+last_updated: "2026-09-24T15:20:34.492Z"
+last_activity: "2026-09-24 — Roadmap revisado (2ª rodada): escopo da Phase 1 ampliado para toda a base técnica (não só rotas) com STD-10/11/12 e revisão de STD-07; nova Phase 3 \"Validar e fechar superfícies atuais\" (VALSURF-01..05) inserida entre Builder e CRM, após correção do critério de \"Validated\" (não basta código/teste existir — precisa de comparação com a referência e aprovação do dono). 6→8 fases no total. Ingest original de 22 documentos + PROJECT-HANDOFF.md permanece a base de PROJECT.md/REQUIREMENTS.md/STATE.md."
 progress:
   total_phases: 8
   completed_phases: 0
@@ -30,6 +35,7 @@ Progress: [░░░░░░░░░░] 0%
 ## Performance Metrics
 
 **Velocity:**
+
 - Total plans completed: 0
 - Average duration: -
 - Total execution time: -
@@ -41,6 +47,7 @@ Progress: [░░░░░░░░░░] 0%
 | - | - | - | - |
 
 **Recent Trend:**
+
 - Last 5 plans: -
 - Trend: -
 
@@ -93,6 +100,6 @@ Itens reconhecidos e adiados no ingest inicial (24/09/2026) — fases já planej
 
 ## Session Continuity
 
-Last session: 2026-09-24
-Stopped at: Roadmap inicial criado a partir do ingest de documentos de planejamento (PROJECT.md, REQUIREMENTS.md, ROADMAP.md, STATE.md escritos); nenhuma fase iniciada ainda
-Resume file: None
+Last session: 2026-09-24T15:20:34.470Z
+Stopped at: Phase 1 context gathered
+Resume file: .planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/01-CONTEXT.md
