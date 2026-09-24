@@ -28,6 +28,7 @@ Proposal merges, map checks, and reviewed comment decisions now have determinist
 
 - Two follow-up commits fixed findings from the required full-diff review.
 - The approved map and comments inventory do not exist in this worktree yet. Live checks used identifiers read from repository source and temporary rows derived from those identifiers.
+- An early test revision created temporary fixtures under the OS temp directory, outside this worktree. The test now creates and cleans fixtures inside the worktree. The earlier fixtures were left untouched because D-40 forbids deletion outside this worktree.
 
 ## Verification results
 
@@ -37,8 +38,9 @@ Proposal merges, map checks, and reviewed comment decisions now have determinist
 - Repository source counts: `ControladorAnexos` 1, `useLeitura` 1, `contatoId` 3 in the db schema file and 2 in contracts. The checker flagged the real-derived missing Controller suffix and wire mismatch; `useReading` passed.
 - `git diff 8bf50d5458a2a67ff26019dec281b0bb40507a47..HEAD --check`: passed before this summary.
 
-## Self-Check: PASSED
+## Self-Check: FAILED
 
 - Branch `cx/01-38`; task files and this summary are the only changes.
 - No push, deploy, database write, or shared-container operation.
 - `.planning/STATE.md`, `.planning/ROADMAP.md`, and `.planning/REQUIREMENTS.md` remain unchanged.
+- The initial temporary fixture location violated the worktree-only filesystem rule; subsequent tests comply.
