@@ -1,0 +1,2708 @@
+{
+  "rows": [
+    {
+      "id": "css-css-class-84f94eb0",
+      "new": "dk-active-help",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-540e34e5",
+      "new": "dk-active-box",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-c3d1788d",
+      "new": "dk-active-contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-52245a92",
+      "new": "dk-active-contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-195362ea",
+      "new": "dk-active-contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1e164be4",
+      "new": "dk-active-contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-e70e3551",
+      "new": "dk-active-contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-8d0e970d",
+      "new": "dk-active-body",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d03c4d5b",
+      "new": "dk-active-form",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d0cf7799",
+      "new": "dk-active-form",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-cb74bf64",
+      "new": "dk-active-form",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-67882770",
+      "new": "dk-active-side-body",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-04f5c773",
+      "new": "dk-active-side-body",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-f4d46435",
+      "new": "dk-active-side-top",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-64ae96fc",
+      "new": "dk-active-side",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d1a5d9a4",
+      "new": "dk-active-clear",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-50bb1d9e",
+      "new": "dk-active-templates",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-998df486",
+      "new": "dk-active-templates",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ada2e815",
+      "new": "dk-active-templates",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-5dddbf45",
+      "new": "dk-active-templates",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-c8c30f63",
+      "new": "dk-active-templates",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d80e1aae",
+      "new": "dk-active-foot",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-95c11852",
+      "new": "dk-active-radios",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-0d48808c",
+      "new": "dk-active-radios",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-101d582d",
+      "new": "dk-active-selected",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-96fea158",
+      "new": "dk-active-selected",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-160726bc",
+      "new": "dk-active-selected",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b1bf6886",
+      "new": "dk-active-selected",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-98f4532e",
+      "new": "dk-active-selected",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d723a304",
+      "new": "dk-active-phone",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-48303fa9",
+      "new": "dk-active-phone",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-70055569",
+      "new": "dk-active-phone",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-0e37aa3c",
+      "new": "dk-active-top",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-8955c91d",
+      "new": "dk-active-top",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ec71e520",
+      "new": "dk-active",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-4450e68b",
+      "new": "dk-search-conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-a00dd636",
+      "new": "dk-search-conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ad629844",
+      "new": "dk-search-result",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-c4fabff7",
+      "new": "dk-search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-38000c9a",
+      "new": "dk-channel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-06ae8c08",
+      "new": "dk-channel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ad00646d",
+      "new": "dk-loading-session",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-52dc9e4d",
+      "new": "dk-card-alerts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-21398c03",
+      "new": "dk-card-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b8f31a71",
+      "new": "dk-card-queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-bde9d96d",
+      "new": "dk-card-queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-06ed56a7",
+      "new": "dk-card-queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ac13c0dc",
+      "new": "dk-card-pinned",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-10b9e118",
+      "new": "dk-card-pinned",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1f37a105",
+      "new": "dk-card-hour",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b22d114b",
+      "new": "dk-card-info-button",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d116063d",
+      "new": "dk-card-info-button",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-7962a9c2",
+      "new": "dk-card-info-icon",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1efb519e",
+      "new": "dk-card-info-icon",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-2abcfb92",
+      "new": "dk-card-info",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-cc9aba80",
+      "new": "dk-card-line",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-e7b0fa00",
+      "new": "dk-card-menu-box",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-57e858bb",
+      "new": "dk-card-menu-list",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-75c26c2d",
+      "new": "dk-card-menu",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-5cf4d171",
+      "new": "dk-card-menu",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b75d75a6",
+      "new": "dk-card-menu",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-e2818c42",
+      "new": "dk-card-menu",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-89092ca2",
+      "new": "dk-card-menu",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-774bf623",
+      "new": "dk-card-name",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-22d15482",
+      "new": "dk-card-name",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d01d979b",
+      "new": "dk-card-number",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-8861df19",
+      "new": "dk-card-preview",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-5e122e12",
+      "new": "dk-card-preview",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-243241ab",
+      "new": "dk-card-face",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-cfbf649e",
+      "new": "dk-card-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-6172b4ff",
+      "new": "dk-card-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-92d9f743",
+      "new": "dk-card-text",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-6aea3736",
+      "new": "dk-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b785c98f",
+      "new": "dk-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b3a98013",
+      "new": "dk-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-f312c6c5",
+      "new": "dk-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-4f17e733",
+      "new": "dk-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-7058f16b",
+      "new": "dk-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-19b46c2d",
+      "new": "dk-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-328bf940",
+      "new": "dk-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-bec8e5ed",
+      "new": "dk-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-20ef4698",
+      "new": "dk-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-92e4614a",
+      "new": "dk-chip-error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-fd1ee607",
+      "new": "dk-column-header",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-137a0cda",
+      "new": "dk-column-title",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-4462a861",
+      "new": "dk-column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b3581cf0",
+      "new": "dk-column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-2982e138",
+      "new": "dk-column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-e660f535",
+      "new": "dk-column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-07c25acb",
+      "new": "dk-comments-empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-599cfa68",
+      "new": "dk-comments-empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-01fb8852",
+      "new": "dk-composer-actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-4de2fe6b",
+      "new": "dk-composer-actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-76562b18",
+      "new": "dk-composer-field",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ceed2c26",
+      "new": "dk-composer-field",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-345327ff",
+      "new": "dk-composer-left",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-c6183245",
+      "new": "dk-composer-closed",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-eb7c3be7",
+      "new": "dk-composer-core",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d892d6cd",
+      "new": "dk-composer-core",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-70cec6a6",
+      "new": "dk-composer-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-class-cb23819d",
+      "new": "dk-composer-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-class-0390e9bb",
+      "new": "dk-composer",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-e82bf762",
+      "new": "dk-composer",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-71206e74",
+      "new": "dk-composer",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-174f3a70",
+      "new": "dk-composer",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-000d5d4b",
+      "new": "dk-composer",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-627b2276",
+      "new": "dk-contact-face",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-5e849520",
+      "new": "dk-contact-text",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ce445932",
+      "new": "dk-contact-text",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-f46e4395",
+      "new": "dk-contact-text",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1ec401eb",
+      "new": "dk-contact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-5ebebc24",
+      "new": "dk-contact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-2b584f90",
+      "new": "dk-contacts-tabs",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d5d1d81d",
+      "new": "dk-contacts-tabs",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b1e674eb",
+      "new": "dk-contacts-search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ad8fecbf",
+      "new": "dk-contacts-search",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-788d12bb",
+      "new": "dk-contacts-right",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-8d6a10d1",
+      "new": "dk-contacts-group",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-6bedaaa8",
+      "new": "dk-contacts-illustration",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-bf47b33e",
+      "new": "dk-contacts-illustration",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-0c8aea80",
+      "new": "dk-contacts-items",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-63c128a6",
+      "new": "dk-contacts-list",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-08ef681f",
+      "new": "dk-contacts-middle",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-dc7f707e",
+      "new": "dk-contacts-order-item",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-763ea5a4",
+      "new": "dk-contacts-order-item",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-c7cf5820",
+      "new": "dk-contacts-order-item",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-930c40c5",
+      "new": "dk-contacts-order-item",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-65641ef4",
+      "new": "dk-contacts-order-title",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-122af277",
+      "new": "dk-contacts-order",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d45305b7",
+      "new": "dk-contacts-footer-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-class-409ac607",
+      "new": "dk-contacts-footer-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-class-07b85432",
+      "new": "dk-contacts-footer",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-3214f20c",
+      "new": "dk-contacts-scroll",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-4829891f",
+      "new": "dk-contacts-title",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-e70e3dd8",
+      "new": "dk-contacts-title",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1c89091d",
+      "new": "dk-contacts-top",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-07d81f0c",
+      "new": "dk-contacts-empty-text",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-805ed0e0",
+      "new": "dk-contacts-empty-text",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-81a4cc15",
+      "new": "dk-contacts-empty-text",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-43027b23",
+      "new": "dk-contacts-empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-7a498704",
+      "new": "dk-contacts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-7e0902c9",
+      "new": "dk-conversation-actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ab09f27d",
+      "new": "dk-conversation-header-core",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-7d1774a4",
+      "new": "dk-conversation-header",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-9f57386e",
+      "new": "dk-conversation-contact",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-76d94f81",
+      "new": "dk-conversation-body",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d7a96791",
+      "new": "dk-conversation-data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d40f5944",
+      "new": "dk-conversation-name",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-cbb3fe84",
+      "new": "dk-conversation-ticket",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-4ab5999d",
+      "new": "dk-conversation-ticket",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d513f6fc",
+      "new": "dk-conversation-ticket",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-22a47ecc",
+      "new": "dk-conversation-ticket",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d5dd238b",
+      "new": "dk-conversation-ticket",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-dc0273d5",
+      "new": "dk-conversation-empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-4465af99",
+      "new": "dk-conversation-empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-a17b8e49",
+      "new": "dk-conversation-empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-a77d7317",
+      "new": "dk-conversation-empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-17fd9dcb",
+      "new": "dk-conversation-empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-af2f08d9",
+      "new": "dk-conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-e37221e1",
+      "new": "dk-conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-e28e67d6",
+      "new": "dk-conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-cc30e2ce",
+      "new": "dk-conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d22918aa",
+      "new": "dk-conversation",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-7341c263",
+      "new": "dk-error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d5796337",
+      "new": "dk-skeleton-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-class-966ebc08",
+      "new": "dk-status-buttons",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-css-class-6132b5ae",
+      "new": "dk-status-core",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-css-class-ada40e92",
+      "new": "dk-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-css-class-528355c2",
+      "new": "dk-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-css-class-13626fc5",
+      "new": "dk-status",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-css-class-5b1e8798",
+      "new": "dk-contact-tags",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1ab44f51",
+      "new": "dk-queue-tags",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-52d6b244",
+      "new": "dk-cards-queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-2759bf58",
+      "new": "dk-cards-queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1a435294",
+      "new": "dk-cards-queue",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-32c9f151",
+      "new": "dk-group-inbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-31877f0a",
+      "new": "dk-group-inbound",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-97169af9",
+      "new": "dk-history-button",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-9af70b81",
+      "new": "dk-history-button",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ec98608f",
+      "new": "dk-history-item",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1e44a865",
+      "new": "dk-history-item",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-8e9c1685",
+      "new": "dk-illustration",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ba34c365",
+      "new": "dk-illustration",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-81e0c9cf",
+      "new": "dk-bulk-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1871accf",
+      "new": "dk-bulk-check",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-240bded4",
+      "new": "dk-bulk-check",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-24ba44a5",
+      "new": "dk-bulk-column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-93317660",
+      "new": "dk-bulk-column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-a27d95c6",
+      "new": "dk-bulk-columns",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-88b31bc4",
+      "new": "dk-bulk-item",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-02332d0a",
+      "new": "dk-bulk-line",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-92838a35",
+      "new": "dk-bulk-list",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-91b65438",
+      "new": "dk-bulk-foot",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-19d4f4d2",
+      "new": "dk-bulk-radios",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-622c335e",
+      "new": "dk-bulk-radios",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1ffca2ce",
+      "new": "dk-bulk-empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-774f2f8d",
+      "new": "dk-bulk",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-6eede3dd",
+      "new": "dk-bulk",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-252fa68b",
+      "new": "dk-metrics-refresh",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-16dcb93f",
+      "new": "dk-metrics-body",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-69e669e9",
+      "new": "dk-metrics-dates",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-7f4fed8b",
+      "new": "dk-metrics-dates",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-eb34e692",
+      "new": "dk-metrics-space",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1dc31e54",
+      "new": "dk-metrics-main",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-182a1eb2",
+      "new": "dk-metrics-sub",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1689120d",
+      "new": "dk-metrics-title",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-9d2f49d6",
+      "new": "dk-metrics-top",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b4b86ce7",
+      "new": "dk-metrics-top",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b8b3e045",
+      "new": "dk-metrics",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-61e8feec",
+      "new": "dk-metrics",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-96b48125",
+      "new": "dk-modal-actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-3e15a2bc",
+      "new": "dk-option-tag",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b124d2cb",
+      "new": "dk-panel-body",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-css-class-1472476f",
+      "new": "dk-panel-skeleton",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-css-class-a3c3e0c4",
+      "new": "dk-panel-top",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-css-class-f7468c13",
+      "new": "dk-panel-top",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-css-class-450eb423",
+      "new": "dk-panel-top",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-css-class-ba98d903",
+      "new": "dk-panel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-css-class-2e524c85",
+      "new": "dk-panel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-css-class-2aca13da",
+      "new": "dk-panel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-css-class-fd6fc2fe",
+      "new": "dk-panel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-css-class-2584dc35",
+      "new": "dk-panel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-css-class-007e6599",
+      "new": "dk-panel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-css-class-f966d982",
+      "new": "dk-panel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-css-class-0667b64a",
+      "new": "dk-paper-title",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-class-65d8b168",
+      "new": "dk-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-class-c8297450",
+      "new": "dk-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-class-fa416f18",
+      "new": "dk-prefs-section",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ec0a7bfe",
+      "new": "dk-prefs-section",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-35c1c8ac",
+      "new": "dk-replies-empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-a891c45f",
+      "new": "dk-drop-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-833539cc",
+      "new": "dk-status-option",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-9c76e411",
+      "new": "dk-status-option",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-be9b8815",
+      "new": "dk-status-option",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-61c6b906",
+      "new": "dk-status-option",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b890493d",
+      "new": "dk-status-options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-2fedf1e6",
+      "new": "dk-status-options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-7dfd88ac",
+      "new": "dk-status-panel",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:painel-application (CSS panel component, not the module/route sense)"
+    },
+    {
+      "id": "css-css-class-265a7a92",
+      "new": "dk-status-empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-9fd5f8e0",
+      "new": "dk-rail-avatar",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d90eb87f",
+      "new": "dk-rail-button",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-3972e226",
+      "new": "dk-rail-button",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-28826a2a",
+      "new": "dk-rail-button",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-20197dca",
+      "new": "dk-rail-button",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-6dba832b",
+      "new": "dk-rail-item",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-220629ec",
+      "new": "dk-rail-items",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-500c6423",
+      "new": "dk-rail-items",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-a7a5a741",
+      "new": "dk-rail-brand",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ae8e1e37",
+      "new": "dk-rail-footer",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-6fedd021",
+      "new": "dk-rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-249f5dc3",
+      "new": "login-help",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-bf171298",
+      "new": "login-alert",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-bbcf176a",
+      "new": "login-alert",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-89f858ea",
+      "new": "login-alert",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-c61a1056",
+      "new": "login-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-9485bb7e",
+      "new": "login-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-9019d24d",
+      "new": "login-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-4c8217db",
+      "new": "login-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-aecc8a6f",
+      "new": "login-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-25ef7b6c",
+      "new": "login-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-c2ff4e1a",
+      "new": "login-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-f749fa6e",
+      "new": "login-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-66cc3a80",
+      "new": "login-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-6a3334a1",
+      "new": "login-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-76a68b1c",
+      "new": "login-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1619c4bb",
+      "new": "login-card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1acf263a",
+      "new": "login-data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-72c302ab",
+      "new": "login-data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-94315940",
+      "new": "login-data",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-fc0b3309",
+      "new": "login-forgot",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d53f406c",
+      "new": "login-forgot",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1c82bbe7",
+      "new": "login-background",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-4a3643cb",
+      "new": "login-google",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-c94bab22",
+      "new": "login-google",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-457fd100",
+      "new": "login-lockup",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-708af3b0",
+      "new": "login-or-text",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-4bb36e42",
+      "new": "login-or-text",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-46a016bb",
+      "new": "login-or",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b008a065",
+      "new": "login-or",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-a9126d54",
+      "new": "login-stage",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-8d0ff560",
+      "new": "login-stage",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-7852067e",
+      "new": "login-foot",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-e2aff5c6",
+      "new": "login-foot",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-2420ba8b",
+      "new": "login-footer",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-9f18db40",
+      "new": "login-sub",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b02f9b1c",
+      "new": "login-title-hidden",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-5d1e1ad3",
+      "new": "login",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-1042cecd",
+      "new": "login",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-80e83439",
+      "new": "login",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-df0f95bf",
+      "new": "login",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-8b93beec",
+      "new": "--d-shadow-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-var-429d05fb",
+      "new": "--d-shadow-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-var-f484847a",
+      "new": "--d-shadow-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-var-2d62e65c",
+      "new": "--d-shadow-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-var-2ec2c56e",
+      "new": "--d-shadow-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-var-0cd26dcb",
+      "new": "--d-shadow-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-var-6918fd62",
+      "new": "--d-rail-cursor",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-abcaafd3",
+      "new": "--d-rail-cursor",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-3bcaab59",
+      "new": "--d-rail-cursor",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-1e6b6646",
+      "new": "--d-rail-cursor",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-991ca32f",
+      "new": "--d-rail-cursor",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-2e4f9a36",
+      "new": "--d-rail-cursor",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-cea3e9b4",
+      "new": "--d-rail-ink",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-42449438",
+      "new": "--d-rail-ink",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-898a2959",
+      "new": "--d-rail-ink",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-86e8938b",
+      "new": "--d-rail-ink",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-9c5e16fb",
+      "new": "--d-rail-ink",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-52e99a23",
+      "new": "--d-rail-ink",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-05b76217",
+      "new": "--d-rail-strength",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-0993c951",
+      "new": "--d-rail-strength",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-7976173e",
+      "new": "--d-rail-strength",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-3ea4792b",
+      "new": "--d-rail-strength",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-63fa455f",
+      "new": "--d-rail-strength",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-5b044deb",
+      "new": "--d-rail-strength",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-5c34b4ae",
+      "new": "--d-rail-w",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-df6d9292",
+      "new": "--d-rail-w",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-931a24bc",
+      "new": "--d-rail-w",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-3ceec6e5",
+      "new": "--d-rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-5aeda798",
+      "new": "--d-rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-23f1df08",
+      "new": "--d-rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-f7f69d9a",
+      "new": "--d-rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-3591b2fb",
+      "new": "--d-rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-428e72cb",
+      "new": "--d-rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-9f6d0b3e",
+      "new": "--dk-status-min",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-css-var-8388de75",
+      "new": "--dk-status-min",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-css-var-13a60f64",
+      "new": "--dk-status-min",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-css-var-a10c8c36",
+      "new": "--dk-status-min",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:estado-state (closed status enum, not general state)"
+    },
+    {
+      "id": "css-css-var-ebe8b401",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-633c1717",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-e6d30a0c",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-ef8443c4",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-aaf59a8e",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-169bf375",
+      "new": "--p-error-background",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-2da95e24",
+      "new": "--p-error-on-dark",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-a7448f99",
+      "new": "--pe-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-var-dffc8285",
+      "new": "--pe-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-var-2d3ad759",
+      "new": "--pe-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    },
+    {
+      "id": "css-css-var-becb5040",
+      "new": "--pe-paper",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception:papel-role (CSS \"paper\" surface component, not the permission-role sense)"
+    }
+  ]
+}

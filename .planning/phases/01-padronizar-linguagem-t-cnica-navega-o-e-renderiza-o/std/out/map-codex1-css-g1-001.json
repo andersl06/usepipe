@@ -1,0 +1,604 @@
+{
+  "rows": [
+    {
+      "id": "css-css-class-1f701ace",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-b32ffac3",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-9a103970",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-3b4f4907",
+      "new": "illustration",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-4c159684",
+      "new": "pipe-notice-closure",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-3090a429",
+      "new": "pipe-closure-actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-0f3a22bf",
+      "new": "pipe-closure-actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-0ff510a2",
+      "new": "pipe-closure-actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d5b135a1",
+      "new": "pipe-closure-actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-4015ef7c",
+      "new": "pipe-closure-actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-8f7273d7",
+      "new": "pipe-closure-box",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-177c084d",
+      "new": "pipe-closure-box",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-86d35f1e",
+      "new": "pipe-closure-chip",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-f0823d11",
+      "new": "pipe-closure-chip",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-d474703e",
+      "new": "pipe-closure-chips",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-5af3ab1e",
+      "new": "pipe-closure-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-22b02ceb",
+      "new": "pipe-closure-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-2a9a1820",
+      "new": "pipe-closure-details",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-a03869ec",
+      "new": "pipe-closure-details",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-c3bca215",
+      "new": "pipe-closure-details",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-3b6fedcf",
+      "new": "pipe-closure-tip",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-91c909af",
+      "new": "pipe-closure-error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-2ebb74ef",
+      "new": "pipe-closure-background",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-19f72b0d",
+      "new": "pipe-closure-illustration",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-ca51be4a",
+      "new": "pipe-closure-illustration",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-7601e466",
+      "new": "pipe-closure-illustration",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-24c894cb",
+      "new": "pipe-closure-options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-c4e9866e",
+      "new": "pipe-closure-options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-4a41d826",
+      "new": "pipe-closure-options",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-485f2c1d",
+      "new": "pipe-closure-placeholder",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-df94faaf",
+      "new": "pipe-closure-selector",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-7372e5c1",
+      "new": "pipe-closure-no-tags",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-826c5bf2",
+      "new": "pipe-closure-no-tags",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-c01bd368",
+      "new": "pipe-closure-no-tags",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-303ee945",
+      "new": "pipe-closure-tags",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-dea94553",
+      "new": "pipe-closure-ticket",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-918cc176",
+      "new": "pipe-closure-x",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-a9bdb4dd",
+      "new": "pipe-closure",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-bfcc81a5",
+      "new": "pipe-closure",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-08680b47",
+      "new": "rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-96c17149",
+      "new": "rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-20e7383b",
+      "new": "empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-class-cba5a7b1",
+      "new": "empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-95c5d3bf",
+      "new": "--p-data-rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-2b94a04e",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-ecdd14b8",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-985504aa",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-a7c36352",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-02628e61",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-0869f653",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-75cc0c8f",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-5b27fa57",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-bad56aed",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-fd6f3325",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-825c19bc",
+      "new": "--p-error-content",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-23b9a77d",
+      "new": "--p-error-background",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-a38cacdc",
+      "new": "--p-error-background",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-c7eefb6b",
+      "new": "--p-error-background",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-fa537e5f",
+      "new": "--p-error-background",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-be69e2b2",
+      "new": "--p-error-background",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-09ba6794",
+      "new": "--p-error-background",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-0ddc07e2",
+      "new": "--p-error-line",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-9f8817a8",
+      "new": "--p-error-line",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-a3764d62",
+      "new": "--p-error-line",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-70a23b32",
+      "new": "--p-error-line",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-ad7c78e2",
+      "new": "--p-error-line",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-830aa3e5",
+      "new": "--p-error-on-dark",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-4fabf222",
+      "new": "--p-error-on-dark",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-c3657953",
+      "new": "--p-error-on-dark",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-17571728",
+      "new": "--p-error-ink",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-9b34a8fc",
+      "new": "--p-chart-rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-1bca782d",
+      "new": "--p-chart-rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-3d4f4d25",
+      "new": "--p-chart-rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-d688d5a1",
+      "new": "--p-chart-rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "css-css-var-0184612b",
+      "new": "--p-chart-rail",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    }
+  ]
+}
