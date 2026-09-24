@@ -98,7 +98,7 @@ describe('FlowManager.ProcessInputAsync', () => {
         outputs: [],
       }],
     };
-    const variaveis = { nome: 'Ana' };
+    const variaveis: Record<string, string> = { nome: 'Ana' };
     const base = {
       usuario: 'user@domain',
       fluxo,
