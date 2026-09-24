@@ -56,9 +56,34 @@ test('reviewed and applied comment rows survive later model batches', () => {
   const rows = parseCsv(fs.readFileSync(file, 'utf8')); assert.equal(rows[1][8], 'translate'); assert.equal(rows[2][13], 'applied'); assert.equal(rows[3][13], 'proposed');
 });
 test('PT tokens, suffix, same-file collision, routes, decision refs and persisted flags error', () => {
-  const f = fixture(); mapRows(f.map, [row('pt', { new: 'ControladorAnexos' }), row('suffix', { new: 'Attachments' }), row('collision-a', { new: 'SameController', declared_at: 'same.ts:1' }), row('collision-b', { new: 'SameController', declared_at: 'same.ts:2' }), row('route', { kind: 'endpoint', old: '/v1/a/:id', new: '/v1/b/c/:id' }), row('remove', { new: 'REMOVE' }), row('persisted', { persisted: 'yes' })]);
+  const f = fixture(); mapRows(f.map, [row('pt', { new: 'ControladorAnexos' }), row('suffix', { new: 'Attachments' }), row('collision-a', { old: 'NomeUm', new: 'SameController', declared_at: 'same.ts:1' }), row('collision-b', { old: 'NomeDois', new: 'SameController', declared_at: 'same.ts:2' }), row('route', { kind: 'endpoint', old: '/v1/a/:id', new: '/v1/b/c/:id' }), row('remove', { new: 'REMOVE' }), row('persisted', { persisted: 'yes' })]);
   const errors = checkMap({ map: f.map }).errors; const all = errors.map((e) => `${e.ids.join(',')}: ${e.message}`).join('\n');
   for (const needle of ['pt:', 'suffix:', 'collision-a,collision-b:', 'route:', 'remove:', 'persisted:']) assert.match(all, new RegExp(needle));
+});
+test('front-route collisions are scoped per app; the same path is expected to recur across independent front-end scopes', () => {
+  const f = fixture();
+  mapRows(f.map, [
+    row('desk-invite', { scope: 'desk-vite', kind: 'front-route', old: '/convite/:*', new: '/invite/:token', declared_at: 'apps/desk-vite/src/App.tsx:1' }),
+    row('gestao-invite', { scope: 'gestao-vite', kind: 'front-route', old: '/convite/:*', new: '/invite/:token', declared_at: 'apps/gestao-vite/src/App.tsx:1' }),
+    row('crm-layout', { scope: 'crm', kind: 'front-route', old: '/configuracoes', new: '/settings', declared_at: 'apps/crm/src/app/configuracoes/layout.tsx' }),
+    row('crm-page', { scope: 'crm', kind: 'front-route', old: '/configuracoes', new: '/settings', declared_at: 'apps/crm/src/app/configuracoes/page.tsx' }),
+    row('crm-other', { scope: 'crm', kind: 'front-route', old: '/outra-rota', new: '/settings', declared_at: 'apps/crm/src/app/outra-rota/page.tsx' }),
+  ]);
+  const errors = checkMap({ map: f.map, scopes: ['all'] }).errors;
+  assert.ok(!errors.some((e) => e.message === 'duplicate target' && (e.ids.includes('desk-invite') || e.ids.includes('gestao-invite'))));
+  assert.ok(!errors.some((e) => e.message === 'duplicate target' && e.ids.includes('crm-layout') && e.ids.includes('crm-page')));
+  assert.ok(errors.some((e) => e.message === 'duplicate target' && e.ids.includes('crm-other')));
+});
+test('symbol/ts-local/ts-prop rows repeating the same old->new pair in one file are not flagged (only different old colliding on the same new is)', () => {
+  const f = fixture();
+  mapRows(f.map, [
+    row('local-a', { kind: 'ts-local', old: 'dados', new: 'data', declared_at: 'same.ts:1' }),
+    row('local-b', { kind: 'ts-local', old: 'dados', new: 'data', declared_at: 'same.ts:2' }),
+    row('local-c', { kind: 'ts-local', old: 'outro', new: 'data', declared_at: 'same.ts:3' }),
+  ]);
+  const errors = checkMap({ map: f.map }).errors;
+  assert.ok(!errors.some((e) => e.message === 'duplicate target' && e.ids.includes('local-a') && e.ids.includes('local-b')));
+  assert.ok(errors.some((e) => e.message === 'duplicate target' && e.ids.includes('local-c')));
 });
 test('scanner lexicon does not reject English use/get; untranslated useLeitura still errors', () => {
   const f = fixture(); mapRows(f.map, [row('hook', { old: 'useLeitura', new: 'useReading' }), row('getter', { old: 'getConversa', new: 'getConversation' })]);

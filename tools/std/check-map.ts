@@ -94,9 +94,18 @@ export function checkMap(options: { map: string; scopes?: string[]; requireStatu
     const suffix = Object.entries({ Controlador: 'Controller', Servico: 'Service', Guarda: 'Guard', Erro: 'Error', Filtro: 'Filter', Modulo: 'Module' }).find(([prefix]) => row.old.startsWith(prefix));
     if (row.kind === 'symbol' && suffix && !row.new.endsWith(suffix[1])) add('error', [row], `missing ${suffix[1]} suffix`);
     const file = row.declared_at.replaceAll('\\', '/').replace(/:\d+(?::\d+)?$/, '');
-    const key = ['file', 'dir'].includes(row.kind) ? `path:${row.new.replaceAll('\\', '/')}` : ['endpoint', 'front-route'].includes(row.kind) ? `route:${row.kind}:${row.new}` : `symbol:${row.kind}:${file}:${row.new}`;
+    // symbol/ts-local/ts-prop/front-route/endpoint rows commonly repeat the exact same old->new pair
+    // at more than one declaration site within their own scope (a reused local var name across
+    // functions; a Next.js layout.tsx + page.tsx sharing one URL; the same public route re-declared
+    // per tenant type) — each site is its own row, so that repetition is not a real naming collision.
+    // Only flag it when two DIFFERENT source identifiers would land on the same target in the same
+    // scope. front-route is additionally scoped by `scope`: each front-end app owns an independent
+    // router, so the same path (e.g. the shared /invite/:token route) legitimately recurs across apps.
+    const perOccurrenceKind = ['symbol', 'ts-local', 'ts-prop', 'front-route', 'endpoint'].includes(row.kind);
+    const key = ['file', 'dir'].includes(row.kind) ? `path:${row.new.replaceAll('\\', '/')}` : row.kind === 'front-route' ? `route:front-route:${row.scope}:${row.new}` : row.kind === 'endpoint' ? `route:endpoint:${row.new}` : `symbol:${row.kind}:${file}:${row.new}`;
     const previous = collision.get(key);
-    if (previous) add('error', [previous, row], 'duplicate target'); else collision.set(key, row);
+    if (previous && (!perOccurrenceKind || previous.old !== row.old)) add('error', [previous, row], 'duplicate target');
+    else if (!previous) collision.set(key, row);
     if (['endpoint', 'front-route'].includes(row.kind)) {
       const before = segments(row.old); const after = segments(row.new);
       if (before.length !== after.length || before.some((segment, i) => segment.startsWith(':') !== after[i]?.startsWith(':'))) add('error', [row], 'route segment or parameter position changed');
