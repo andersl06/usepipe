@@ -622,35 +622,35 @@ gestao-vite-comment-6e350993,gestao-vite,apps/gestao-vite/src/componentes/monito
  * Aguardando atendimento — as colunas deles, nesta ordem: tempo na fila,
  * PRIORIDADE, ticket, contato, fila. Nada de atendente, porque por definição
  * não há.
- */",,,,,,
+ */",translate,"Waiting for attendance follows reference column order: queue wait, priority, ticket, contact, queue. There is no agent by definition.",meta-blip,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:404-408,,proposed
 gestao-vite-comment-c18ebbb5,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,459,465,jsdoc,7,"/**
  * Atendentes — as colunas da ficha. ""Tempo médio de resposta"" e ""Tempo médio
  * de atendimento"" saem travessão: a consulta de carga por atendente
  * (`CargaAtendente`) não traz média nenhuma, só contagem e limite. Inventar um
  * número ali seria pior do que o travessão — é a régua do trabalho: dado que a
  * API não tem fica vazio, honesto, e registrado no relato desta entrega.
- */",,,,,,
+ */",translate,"The Agent tab shows dashes for average response and attendance times: `CargaAtendente` supplies counts and limits, not averages. Inventing a value would be worse than leaving the missing API datum visibly empty; this gap is recorded in the delivery report.",architecture,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:459-465,,proposed
 gestao-vite-comment-3e1e153d,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,505,510,jsdoc,10,"/**
  * Filas — idem: ""maior espera"" que já tínhamos NÃO é ""tempo médio de espera"",
  * e as duas não são a mesma métrica — mostrar o máximo sob o rótulo de média
  * seria o número que inventa, não o número que falta. As três colunas de
  * média ficam honestamente vazias até a consulta trazer o dado certo.
- */",,,,,,
+ */",translate,Queue maximum wait is not average wait. Leave all three average columns empty until the query returns actual averages; never label a maximum as a mean.,architecture,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:505-510,,proposed
 gestao-vite-comment-ad9fc613,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,549,554,jsdoc,11,"/**
  * Tags — a ficha pede ""Tickets finalizados"", e o que a consulta de etiquetas
  * traz é `abertas` (conversas ABERTAS com a tag), uma métrica diferente. Trocar
  * o rótulo para caber no dado que já temos seria a mesma mentira ao contrário;
  * o travessão fica até existir uma consulta de encerradas por etiqueta.
- */",,,,,,
+ */",translate,"The Tags sheet asks for finished tickets, but the tag query returns `abertas`, open conversations with that tag. Do not relabel a different metric to fit available data; show a dash until closed-by-tag data exists.",architecture,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:549-554,,proposed
 gestao-vite-comment-bb3cf55e,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,663,664,block,3,"/* Estado do atendente por id: `carga` já traz o estado de cada um, então o
-     filtro ""Status do atendente"" do painel não custa consulta nova. */",,,,,,
+     filtro ""Status do atendente"" do painel não custa consulta nova. */",translate,"`carga` already includes each agent's status, so the `Status do atendente` filter needs no extra request.",architecture,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:663-664,,proposed
 gestao-vite-comment-0235060b,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,668,669,block,2,"/* A busca do cartão é PELO NÚMERO DO TICKET, e só — é onde ela mora na
-       tela deles. ""Contato"" tem campo próprio na faixa de filtros. */",,,,,,
+       tela deles. ""Contato"" tem campo próprio na faixa de filtros. */",translate,Search inside this card uses the ticket number only; Contact has its own field in the filter strip.,meta-blip,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:668-669,,proposed
 gestao-vite-comment-7f42cd57,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,680,681,block,5,"/* A fila de espera sai ORDENADA POR PRIORIDADE; a lista de atribuídas fica na
-     ordem de criação que a consulta já devolve. Ver `ordenarFilaDeEspera`. */",,,,,,
+     ordem de criação que a consulta já devolve. Ver `ordenarFilaDeEspera`. */",translate,Sort the waiting queue by priority through `ordenarFilaDeEspera`; leave assigned conversations in the creation order returned by the query.,architecture,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:680-681,,proposed
 gestao-vite-comment-639013fc,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,696,697,block,3,"/* A busca da Blip mora AQUI, dentro do cartão, e não na faixa de
-            filtros. Ela procura pelo número do ticket. */",,,,,,
-gestao-vite-comment-8c54b567,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,76,76,jsdoc,2,/** `transfer` da Blip é exclusivo desta coluna; fica local para não tocar nos ícones da barra lateral. */,,,,,,
+            filtros. Ela procura pelo número do ticket. */",translate,"Blip places ticket-number search here inside the card, not in the filter strip.",meta-blip,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:696-697,,proposed
+gestao-vite-comment-8c54b567,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,76,76,jsdoc,2,/** `transfer` da Blip é exclusivo desta coluna; fica local para não tocar nos ícones da barra lateral. */,translate,Blip `transfer` is used only in this column; keep it local rather than touching sidebar icons.,meta-blip,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:76-76,,proposed
 gestao-vite-comment-59a5dbfc,gestao-vite,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx,96,108,jsdoc,18,"/**
  * Severidade da linha, em três degraus e nesta ordem de precedência.
  *
@@ -663,9 +663,9 @@ gestao-vite-comment-59a5dbfc,gestao-vite,apps/gestao-vite/src/componentes/monito
  * O SLA estourado ganha do resto porque já passou do prazo; o alerta e a espera
  * pela 1ª resposta dividem o mesmo degrau amarelo, e ter os dois na mesma cor é
  * de propósito — os dois pedem a mesma coisa do supervisor.
- */",,,,,,
+ */",translate,"Row severity has three precedence levels. The previously missing third level highlights a contact awaiting an agent's first response (`blip-gestao-funcoes.md` Section 1), the only highlight unrelated to SLA. First-response wait matters to the customer even when SLA may still be within time. Breached SLA wins because the deadline passed; SLA warning and first-response wait share yellow deliberately because both need the same supervisor action.",meta-blip,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:96-108,,proposed
 gestao-vite-comment-c8e7f2ce,gestao-vite,apps/gestao-vite/src/componentes/paginacao.tsx,105,106,block,0,"/* O número da página atual entre as setas — `data-testid=
-            ""current-page-test""` no rodapé deles. */",,,,,,
+            ""current-page-test""` no rodapé deles. */",translate,"Show current page number between arrows, matching reference `data-testid=""current-page-test""`.",meta-blip,apps/gestao-vite/src/componentes/paginacao.tsx:105-106,,proposed
 gestao-vite-comment-d9bad3b4,gestao-vite,apps/gestao-vite/src/componentes/paginacao.tsx,4,12,jsdoc,9,"/**
  * Paginação do ""Monitoramento detalhado"" — o rodapé deles, medido na
  * `FICHA-monitoring.md` §5: ""Resultados por página"" com as opções exatas,
@@ -674,14 +674,14 @@ gestao-vite-comment-d9bad3b4,gestao-vite,apps/gestao-vite/src/componentes/pagina
  * É paginação DE CLIENTE, e de propósito: a consulta já traz todas as linhas
  * abertas numa transação só (`useLeitura`), então recortar a página aqui não
  * custa uma ida a mais ao servidor.
- */",,,,,,
-gestao-vite-comment-7f7ba43a,gestao-vite,apps/gestao-vite/src/componentes/painel-filtros.tsx,125,125,jsdoc,0,"/** Um campo do painel: rótulo em negrito, texto de apoio, e o controle. */",,,,,,
+ */",translate,"Detailed Monitoring pagination follows `FICHA-monitoring.md` Section 5: exact Results-per-page options, `1-5 de 8` counter, and four navigation buttons. Keep it client-side because `useLeitura` already loads all open rows in one transaction; slicing locally needs no additional server request.",meta-blip,apps/gestao-vite/src/componentes/paginacao.tsx:4-12,,proposed
+gestao-vite-comment-7f7ba43a,gestao-vite,apps/gestao-vite/src/componentes/painel-filtros.tsx,125,125,jsdoc,0,"/** Um campo do painel: rótulo em negrito, texto de apoio, e o controle. */",remove,,other,apps/gestao-vite/src/componentes/painel-filtros.tsx:125-125,,proposed
 gestao-vite-comment-12d27ddf,gestao-vite,apps/gestao-vite/src/componentes/painel-filtros.tsx,146,150,jsdoc,2,"/**
  * O campo ""Período"" do painel — o `bds-select data-testid=""period-filter-
  * select""` deles, igual no Histórico e nos dois Relatórios: os atalhos de
  * `PERIODOS` mais ""Personalizado"", e o par de datas que o atalho preenche.
- */",,,,,,
-gestao-vite-comment-2ee16e2e,gestao-vite,apps/gestao-vite/src/componentes/painel-filtros.tsx,33,33,jsdoc,2,"/** `null` esconde o link ""Limpar tudo"" — não há o que limpar. */",,,,,,
+ */",translate,"The Period filter matches reference `bds-select data-testid=""period-filter-select""` in History and both Reports: `PERIODOS` shortcuts plus Custom, whose choice fills the date pair.",meta-blip,apps/gestao-vite/src/componentes/painel-filtros.tsx:146-150,,proposed
+gestao-vite-comment-2ee16e2e,gestao-vite,apps/gestao-vite/src/componentes/painel-filtros.tsx,33,33,jsdoc,2,"/** `null` esconde o link ""Limpar tudo"" — não há o que limpar. */",remove,,other,apps/gestao-vite/src/componentes/painel-filtros.tsx:33-33,,proposed
 gestao-vite-comment-156a4b97,gestao-vite,apps/gestao-vite/src/componentes/painel-filtros.tsx,7,21,jsdoc,10,"/**
  * Painel lateral ""Filtros"" — o `data-testid=""saved-filters-sidebar""` deles,
  * medido em `referencias-blip/fichas/FICHA-monitoring.md` e `FICHA-history.md`:
@@ -696,22 +696,22 @@ gestao-vite-comment-156a4b97,gestao-vite,apps/gestao-vite/src/componentes/painel
  *
  * O formulário é GET puro, como toda consulta desta tela: aplicar fecha o
  * painel e navega, e o estado continua vivendo na URL.
- */",,,,,,
-gestao-vite-comment-dcb3ea39,gestao-vite,apps/gestao-vite/src/componentes/selecao-chips.tsx,6,6,jsdoc,0,/** Geometria do bds-select-chips e chip-clickable da referência do Atendimento. */,,,,,,
+ */",translate,"Reference Filter sidebar `data-testid=""saved-filters-sidebar""` (`referencias-blip/fichas/FICHA-monitoring.md`, `FICHA-history.md`) starts closed, with title/subtitle, New query and Saved filters tabs, screen fields, saved-filter switch, and two footer buttons. Saved filters are structural only: no storage exists, so show an honest empty state; disable the footer switch with a reason. Apply uses a GET form, closes the panel, and navigates while state remains in the URL.",meta-blip,apps/gestao-vite/src/componentes/painel-filtros.tsx:7-21,,proposed
+gestao-vite-comment-dcb3ea39,gestao-vite,apps/gestao-vite/src/componentes/selecao-chips.tsx,6,6,jsdoc,0,/** Geometria do bds-select-chips e chip-clickable da referência do Atendimento. */,translate,Match the geometry of reference Attendance `bds-select-chips` and `chip-clickable`.,meta-blip,apps/gestao-vite/src/componentes/selecao-chips.tsx:6-6,,proposed
 gestao-vite-comment-0f62d4d0,gestao-vite,apps/gestao-vite/src/componentes/selecao.tsx,32,36,jsdoc,4,"/**
  * Um único select da Gestão, com a caixa e a lista do `bds-select` da Blip.
  * O input hidden preserva `name` e o envio GET/POST dos formulários existentes;
  * o evento continua expondo `.target.value`, como o select nativo substituído.
- */",,,,,,
-gestao-vite-comment-d0b7c332,gestao-vite,apps/gestao-vite/src/contexto/sessao.tsx,13,13,jsdoc,3,/** `null` sem sessão; `undefined` enquanto a primeira pergunta não voltou. */,,,,,,
+ */",translate,"Provide one Gestao select matching Blip `bds-select` box and list. Its hidden input preserves `name` for existing GET/POST forms, while its event still exposes `.target.value` like the native select it replaces.",architecture,apps/gestao-vite/src/componentes/selecao.tsx:32-36,,proposed
+gestao-vite-comment-d0b7c332,gestao-vite,apps/gestao-vite/src/contexto/sessao.tsx,13,13,jsdoc,3,/** `null` sem sessão; `undefined` enquanto a primeira pergunta não voltou. */,translate,`null` means no session; `undefined` means the first session check is pending.,security,apps/gestao-vite/src/contexto/sessao.tsx:13-13,,proposed
 gestao-vite-comment-e560e89a,gestao-vite,apps/gestao-vite/src/contexto/sessao.tsx,5,11,jsdoc,7,"/**
  * Quem está logado — a única fonte, alimentada por `GET /v1/eu`.
  *
  * Só a RESPOSTA do servidor derruba a sessão (401/403); rede fora do ar mantém
  * o último `Eu` conhecido, e o próximo `atualizar` corrige. Deslogar alguém por
  * um soluço de wi-fi é o que o conselheiros-auvp aprendeu a não fazer.
- */",,,,,,
-gestao-vite-comment-a3c5f8e7,gestao-vite,apps/gestao-vite/src/contexto/sessao.tsx,54,54,jsdoc,3,/** Para tela de produto: o `Eu` garantido. Quem a usa está atrás de `ExigirSessao`. */,,,,,,
+ */",translate,"Current signed-in user comes only from `GET /v1/eu`. Only an actual server 401/403 clears the session; a network outage keeps the last known `Eu`, and a later `atualizar` corrects it. Do not sign someone out over a Wi-Fi interruption, as learned in conselheiros-auvp.",security,apps/gestao-vite/src/contexto/sessao.tsx:5-11,,proposed
+gestao-vite-comment-a3c5f8e7,gestao-vite,apps/gestao-vite/src/contexto/sessao.tsx,54,54,jsdoc,3,/** Para tela de produto: o `Eu` garantido. Quem a usa está atrás de `ExigirSessao`. */,translate,Use on product screens guarded by `ExigirSessao` to obtain a guaranteed `Eu`.,security,apps/gestao-vite/src/contexto/sessao.tsx:54-54,,proposed
 gestao-vite-comment-55893fa4,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,10,19,jsdoc,8,"/**
  * Uma ação de formulário da Gestão, agora na `api`.
  *
@@ -721,14 +721,14 @@ gestao-vite-comment-55893fa4,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,10,19
  * (chave repetida vira lista, como o `getAll` espera), vai para
  * `POST /v1/gestao/acoes/:nome`, e o `Resultado` volta. Deu certo: as
  * leituras em cache são invalidadas, que é o `revalidatePath` de antes.
- */",,,,,,
-gestao-vite-comment-29bc05ed,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,4,4,jsdoc,3,"/** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */",,,,,,
-gestao-vite-comment-36aa8871,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,50,50,block,0,/* Comunicação */,,,,,,
+ */",translate,"Gestao form actions now call `api` while keeping the old Server Action signature (formerly `revalidatePath` for refresh) `(anterior, FormData) => Resultado`, so forms retain `useActionState` and `envioQuePreserva`. Convert `FormData` to JSON, collecting repeated keys like `getAll`; post to `POST /v1/gestao/acoes/:nome`, return `Resultado`, and invalidate cached reads after success.",integration,apps/gestao-vite/src/lib/acoes.ts:10-19,,proposed
+gestao-vite-comment-29bc05ed,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,4,4,jsdoc,3,"/** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */",remove,,other,apps/gestao-vite/src/lib/acoes.ts:4-4,,proposed
+gestao-vite-comment-36aa8871,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,50,50,block,0,/* Comunicação */,remove,,other,apps/gestao-vite/src/lib/acoes.ts:50-50,,proposed
 gestao-vite-comment-0965660a,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,52,54,block,4,"/* `salvarModelo` saiu: `comunicacao-modelos-formulario.tsx` cria modelo direto
    em `POST /v1/canais/whatsapp/:id/modelos` (a Meta é a fonte agora, não mais
-   um `insert` local por `acoes/salvarModelo`). */",,,,,,
-gestao-vite-comment-8c1fb055,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,55,55,block,0,/* Preferências */,,,,,,
-gestao-vite-comment-e4602c68,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,60,60,jsdoc,1,/** Deu certo: as leituras em cache são refeitas — o `revalidatePath` de antes. */,,,,,,
+   um `insert` local por `acoes/salvarModelo`). */",translate,"`salvarModelo` was removed: `comunicacao-modelos-formulario.tsx` creates templates directly through `POST /v1/canais/whatsapp/:id/modelos`. Meta is now the source, replacing local `insert` through `acoes/salvarModelo`.",integration,apps/gestao-vite/src/lib/acoes.ts:52-54,,proposed
+gestao-vite-comment-8c1fb055,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,55,55,block,0,/* Preferências */,remove,,other,apps/gestao-vite/src/lib/acoes.ts:55-55,,proposed
+gestao-vite-comment-e4602c68,gestao-vite,apps/gestao-vite/src/lib/acoes.ts,60,60,jsdoc,1,/** Deu certo: as leituras em cache são refeitas — o `revalidatePath` de antes. */,translate,"After success, invalidate cached reads, replacing the former `revalidatePath` behavior.",architecture,apps/gestao-vite/src/lib/acoes.ts:60-60,,proposed
 gestao-vite-comment-2e51839c,gestao-vite,apps/gestao-vite/src/lib/api.ts,1,11,jsdoc,11,"/**
  * O cliente HTTP da Gestão: `fetch` para a `api` NestJS, sempre com o cookie.
  *
@@ -739,22 +739,22 @@ gestao-vite-comment-2e51839c,gestao-vite,apps/gestao-vite/src/lib/api.ts,1,11,js
  *
  * O que sai daqui é o tipo de `@pipe/contracts` ou o tipo declarado pelo
  * endpoint da `api`. Nada é reimplementado; nada é adivinhado.
- */",,,,,,
-gestao-vite-comment-8dc7801f,gestao-vite,apps/gestao-vite/src/lib/api.ts,15,15,jsdoc,2,/** URL absoluta de um caminho da `api` — para navegação de topo (login) e para o `fetch`. */,,,,,,
+ */",translate,"Gestao HTTP client uses browser `fetch` with the session cookie to call NestJS `api`. Under the README database boundary (`Quem fala com o banco`), the front requests data rather than opening a DB connection. `/v1/...` uses Vite proxy to `api` on 3010 in development; production shares a parent domain so the cookie crosses via `Domain`. Return types come from `@pipe/contracts` or the endpoint contract, never guessed here.",integration,apps/gestao-vite/src/lib/api.ts:1-11,,proposed
+gestao-vite-comment-8dc7801f,gestao-vite,apps/gestao-vite/src/lib/api.ts,15,15,jsdoc,2,/** URL absoluta de um caminho da `api` — para navegação de topo (login) e para o `fetch`. */,translate,"Build an `api` URL from the configured base, or a same-origin path if no base is set, for top-level login and `fetch`.",integration,apps/gestao-vite/src/lib/api.ts:15-15,,proposed
 gestao-vite-comment-5ae9226a,gestao-vite,apps/gestao-vite/src/lib/api.ts,20,23,jsdoc,8,"/**
  * Uma resposta que a API deu e que não é sucesso. Diferente de rede fora do ar:
  * 401/403 dizem que a sessão acabou de verdade; `TypeError` do fetch não diz nada.
- */",,,,,,
-gestao-vite-comment-03bc0c46,gestao-vite,apps/gestao-vite/src/lib/api.ts,51,51,block,2,/* corpo vazio ou não-JSON: o status já diz o bastante */,,,,,,
+ */",translate,"A non-success API response differs from a network outage: server 401/403 can prove the session ended, while `fetch` `TypeError` cannot.",security,apps/gestao-vite/src/lib/api.ts:20-23,,proposed
+gestao-vite-comment-03bc0c46,gestao-vite,apps/gestao-vite/src/lib/api.ts,51,51,block,2,/* corpo vazio ou não-JSON: o status já diz o bastante */,translate,An empty or non-JSON body is acceptable here; the status already identifies failure.,other,apps/gestao-vite/src/lib/api.ts:51-51,,proposed
 gestao-vite-comment-c0691576,gestao-vite,apps/gestao-vite/src/lib/api.ts,83,86,jsdoc,3,"/**
  * Uma chamada à `api` no formato cru do `fetch` — para quem precisa ler o
  * `Response` (status, corpo em texto, CSV). O cookie vai sozinho.
- */",,,,,,
-gestao-vite-comment-185e625d,gestao-vite,apps/gestao-vite/src/lib/api.ts,91,91,jsdoc,2,"/** O `erro.mensagem` que a `api` põe no corpo, ou o status. */",,,,,,
-gestao-vite-comment-670a6755,gestao-vite,apps/gestao-vite/src/lib/atendentes-gravar.ts,14,14,jsdoc,1,"/** Uma linha da tabela ""Tipo de permissão"" × ""Status"" da origem. */",,,,,,
-gestao-vite-comment-30ef87a0,gestao-vite,apps/gestao-vite/src/lib/atendentes-gravar.ts,22,22,jsdoc,3,"/** Uns dos selecionados têm, outros não — só com seleção múltipla. */",,,,,,
-gestao-vite-comment-6f61417a,gestao-vite,apps/gestao-vite/src/lib/atendentes-gravar.ts,31,31,jsdoc,1,"/** O caminho da leitura — os ids vão na busca, como na rota sem `:id` da origem. */",,,,,,
-gestao-vite-comment-1226dd7e,gestao-vite,apps/gestao-vite/src/lib/atendentes-gravar.ts,37,37,jsdoc,2,"/** ""Salvar alterações"": manda só o que a tela MEXEU. */",,,,,,
+ */",translate,"Raw `fetch`-style `api` call for callers needing `Response` status, text body, or CSV. The browser includes the cookie.",integration,apps/gestao-vite/src/lib/api.ts:83-86,,proposed
+gestao-vite-comment-185e625d,gestao-vite,apps/gestao-vite/src/lib/api.ts,91,91,jsdoc,2,"/** O `erro.mensagem` que a `api` põe no corpo, ou o status. */",remove,,other,apps/gestao-vite/src/lib/api.ts:91-91,,proposed
+gestao-vite-comment-670a6755,gestao-vite,apps/gestao-vite/src/lib/atendentes-gravar.ts,14,14,jsdoc,1,"/** Uma linha da tabela ""Tipo de permissão"" × ""Status"" da origem. */",translate,One row of the reference Permission type by Status table.,meta-blip,apps/gestao-vite/src/lib/atendentes-gravar.ts:14-14,,proposed
+gestao-vite-comment-30ef87a0,gestao-vite,apps/gestao-vite/src/lib/atendentes-gravar.ts,22,22,jsdoc,3,"/** Uns dos selecionados têm, outros não — só com seleção múltipla. */",translate,Mixed state means some selected agents have this permission and others do not; possible only with multiple selection.,other,apps/gestao-vite/src/lib/atendentes-gravar.ts:22-22,,proposed
+gestao-vite-comment-6f61417a,gestao-vite,apps/gestao-vite/src/lib/atendentes-gravar.ts,31,31,jsdoc,1,"/** O caminho da leitura — os ids vão na busca, como na rota sem `:id` da origem. */",translate,"Build the read path with IDs in the query, matching the reference edit route without `:id`.",meta-blip,apps/gestao-vite/src/lib/atendentes-gravar.ts:31-31,,proposed
+gestao-vite-comment-1226dd7e,gestao-vite,apps/gestao-vite/src/lib/atendentes-gravar.ts,37,37,jsdoc,2,"/** ""Salvar alterações"": manda só o que a tela MEXEU. */",translate,Save only fields changed on the screen for `Salvar alterações`.,other,apps/gestao-vite/src/lib/atendentes-gravar.ts:37-37,,proposed
 gestao-vite-comment-3b2031af,gestao-vite,apps/gestao-vite/src/lib/atendentes-gravar.ts,54,64,jsdoc,15,"/**
  * A edição em lote da origem (""Editar N atendentes"", com ""preencha pelo menos
  * um dos campos""): põe os selecionados numa fila e/ou dá a eles um número
@@ -765,14 +765,14 @@ gestao-vite-comment-3b2031af,gestao-vite,apps/gestao-vite/src/lib/atendentes-gra
  * (`fila_atendente.capacidade_override` sobre `fila.capacidade_padrao`), então
  * os dois campos são a mesma gravação, `POST /filas/:id/atendentes`. Quem já
  * está na fila tem a capacidade trocada; quem não está, entra.
- */",,,,,,
+ */",translate,"Reference bulk edit (`Editar N atendentes`, requiring at least one field) assigns selected agents to a queue and/or sets an individual concurrent-ticket limit. Pipe has no separate edit-agent route: concurrency comes from queue membership (`fila_atendente.capacidade_override` over `fila.capacidade_padrao`), so both fields write through `POST /filas/:id/atendentes`. Existing members get an updated capacity; others join.",architecture,apps/gestao-vite/src/lib/atendentes-gravar.ts:54-64,,proposed
 gestao-vite-comment-fc8918d6,gestao-vite,apps/gestao-vite/src/lib/atendentes-gravar.ts,6,12,jsdoc,8,"/**
  * Escrita das telas de atendente — permissões, edição em lote e ""Excluir"".
  *
  * À parte de `cadastros.ts`/`atendentes.ts`, que são módulos PUROS: este
  * importa `./api`, que lê `import.meta.env` e quebra fora do Vite (foi o que
  * aconteceu com `comunicacao.ts` até a escrita ganhar arquivo próprio).
- */",,,,,,
+ */",translate,"Keep agent-screen writes (permissions, bulk edit, Excluir) separate from pure `cadastros.ts` and `atendentes.ts`. This module imports `./api`, whose `import.meta.env` dependency breaks tests outside Vite, as happened to `comunicacao.ts` before its writes moved out.",architecture,apps/gestao-vite/src/lib/atendentes-gravar.ts:6-12,,proposed
 gestao-vite-comment-804b6b38,gestao-vite,apps/gestao-vite/src/lib/atendentes-gravar.ts,77,86,jsdoc,12,"/**
  * O ""Excluir"" da linha de atendente.
  *
@@ -782,12 +782,12 @@ gestao-vite-comment-804b6b38,gestao-vite,apps/gestao-vite/src/lib/atendentes-gra
  * FILA. Então ""Excluir"" aqui é exatamente isso — a pessoa sai de todas as
  * filas e deixa de receber conversa, continuando com a conta. Apagar o usuário
  * seria destruir histórico de conversa, e não é o que o ícone promete.
- */",,,,,,
-gestao-vite-comment-e1e136e4,gestao-vite,apps/gestao-vite/src/lib/atendentes-gravar.ts,98,98,block,0,/* ------------------------------------------- regras de priorização da fila */,,,,,,
+ */",translate,"Recorded difference from the reference: its Excluir icon removes a person from the attendance team. Pipe has no such team record; tenant `usuario` is the account, and only queue members receive conversations. Here Excluir removes the agent from all queues while retaining the account and conversation history. Deleting the user would destroy history and exceed what the icon promises.",security,apps/gestao-vite/src/lib/atendentes-gravar.ts:77-86,,proposed
+gestao-vite-comment-e1e136e4,gestao-vite,apps/gestao-vite/src/lib/atendentes-gravar.ts,98,98,block,0,/* ------------------------------------------- regras de priorização da fila */,remove,,other,apps/gestao-vite/src/lib/atendentes-gravar.ts:98-98,,proposed
 gestao-vite-comment-6204af27,gestao-vite,apps/gestao-vite/src/lib/atendentes.ts,25,28,jsdoc,4,"/**
  * Busca em nome E e-mail, como o placeholder promete — buscar só no nome faria
  * a pessoa digitar o e-mail que está na tela e não achar nada.
- */",,,,,,
+ */",translate,Search both name and email as the placeholder promises; searching only names would fail on an email visibly listed on screen.,other,apps/gestao-vite/src/lib/atendentes.ts:25-28,,proposed
 gestao-vite-comment-2ff80e3a,gestao-vite,apps/gestao-vite/src/lib/atendentes.ts,3,14,jsdoc,10,"/**
  * As contas da tela ""Gestão de atendentes"" — busca, filtro por fila e o texto
  * da descrição da página de permissões.
@@ -799,25 +799,25 @@ gestao-vite-comment-2ff80e3a,gestao-vite,apps/gestao-vite/src/lib/atendentes.ts,
  * A forma vem de `FICHA-atendentes-filas-pausas.md` §b.2: a origem tem UMA
  * busca (""Buscar por nome ou e-mail"") e UM filtro (""Filtrar por: Filas"", com
  * seleção múltipla, ""Limpar seleção""/""Cancelar""/""Aplicar""). Nenhum outro.
- */",,,,,,
+ */",translate,"Keep agent search, queue filter, and permission-page description in a pure module like `cadastros.ts` without `./api` or JSX, so `tests/atendentes.test.ts` runs with `node --test` and `tsx` outside Vite. Reference `FICHA-atendentes-filas-pausas.md` Section b.2 has one name/email search and one multi-select queue filter with clear/cancel/apply, nothing else.",meta-blip,apps/gestao-vite/src/lib/atendentes.ts:3-14,,proposed
 gestao-vite-comment-82a287b3,gestao-vite,apps/gestao-vite/src/lib/atendentes.ts,37,38,block,3,"/* Uma fila marcada basta: quem está em Suporte aparece no filtro de
-       Suporte mesmo estando também em Financeiro. */",,,,,,
+       Suporte mesmo estando também em Financeiro. */",translate,One matched queue is enough: an agent in both Support and Finance appears under Support.,other,apps/gestao-vite/src/lib/atendentes.ts:37-38,,proposed
 gestao-vite-comment-26b770e7,gestao-vite,apps/gestao-vite/src/lib/atendentes.ts,44,48,jsdoc,7,"/**
  * As filas que o painel de filtro oferece — as que os atendentes carregam,
  * sem repetição e em ordem. Sai da própria lista porque o painel da origem
  * não tem ""todas as filas do tenant"", tem as que a lista mostra.
- */",,,,,,
+ */",translate,"Offer only queues carried by listed agents, deduplicated and sorted. The reference filter lists queues represented on screen, not every tenant queue.",meta-blip,apps/gestao-vite/src/lib/atendentes.ts:44-48,,proposed
 gestao-vite-comment-a669858f,gestao-vite,apps/gestao-vite/src/lib/atendentes.ts,55,58,jsdoc,3,"/**
  * A coluna ""Filas"" do cartão, no formato da captura: `Default,Suporte` —
  * vírgula, sem espaço, sem etiqueta (`team.html` linha 628).
- */",,,,,,
+ */",translate,"Format the card's Queue field like captured `team.html` line 628: `Default,Suporte`, comma without spaces or chips.",meta-blip,apps/gestao-vite/src/lib/atendentes.ts:55-58,,proposed
 gestao-vite-comment-9a2f7516,gestao-vite,apps/gestao-vite/src/lib/atendentes.ts,63,67,jsdoc,2,"/**
  * A descrição da página de permissões, nas TRÊS variantes da origem
  * (`singleMemberDescription`, `coupleMembersDescription`,
  * `multiplesMembersDescription` — §a.4 da ficha).
- */",,,,,,
-gestao-vite-comment-3d65983d,gestao-vite,apps/gestao-vite/src/lib/atendentes.ts,76,76,jsdoc,0,"/** O título da página de edição em lote: ""Editar 3 atendentes"" / ""Editar 1 atendente"". */",,,,,,
-gestao-vite-comment-3fb900bc,gestao-vite,apps/gestao-vite/src/lib/atendimento.ts,22,22,jsdoc,0,/** Conversas do recorte — o universo de onde saíram os denominadores acima. */,,,,,,
+ */",translate,"Permission-page description has the source's three variants: `singleMemberDescription`, `coupleMembersDescription`, `multiplesMembersDescription` (reference sheet Section a.4).",meta-blip,apps/gestao-vite/src/lib/atendentes.ts:63-67,,proposed
+gestao-vite-comment-3d65983d,gestao-vite,apps/gestao-vite/src/lib/atendentes.ts,76,76,jsdoc,0,"/** O título da página de edição em lote: ""Editar 3 atendentes"" / ""Editar 1 atendente"". */",remove,,other,apps/gestao-vite/src/lib/atendentes.ts:76-76,,proposed
+gestao-vite-comment-3fb900bc,gestao-vite,apps/gestao-vite/src/lib/atendimento.ts,22,22,jsdoc,0,/** Conversas do recorte — o universo de onde saíram os denominadores acima. */,translate,Conversations in this report's period are the population used by the denominators above.,other,apps/gestao-vite/src/lib/atendimento.ts:22-22,,proposed
 gestao-vite-comment-3fa09393,gestao-vite,apps/gestao-vite/src/lib/atendimento.ts,3,13,jsdoc,8,"/**
  * Relatório de atendimento — §2 e §4 da spec de métricas.
  *
@@ -828,7 +828,7 @@ gestao-vite-comment-3fa09393,gestao-vite,apps/gestao-vite/src/lib/atendimento.ts
  *
  * População: conversas ENCERRADAS dentro do período (§3, ""período fechado"").
  * O cronômetro parou; nenhuma conversa aberta entra em nada disto.
- */",,,,,,
+ */",translate,"Attendance report follows metrics spec Sections 2 and 4. Fetch raw conversations closed in the period and their events, then call `packages/core/src/metricas`; this module calculates no metrics. Every displayed number comes from a core function with its `excluidas` count, which the screen must show. Population is CLOSED conversations in the period (spec Section 3, closed period); open conversations are excluded because their timer has not stopped.",architecture,apps/gestao-vite/src/lib/atendimento.ts:3-13,,proposed
 gestao-vite-comment-5ebd11ab,gestao-vite,apps/gestao-vite/src/lib/atendimento.ts,34,43,jsdoc,13,"/**
    * As duas dimensões que o Chatwoot tem e nós não tínhamos: caixa de entrada e
    * rótulo (aqui, etiqueta). Ver `referencias-blip/pesquisa/chatwoot.md`.
@@ -838,17 +838,17 @@ gestao-vite-comment-5ebd11ab,gestao-vite,apps/gestao-vite/src/lib/atendimento.ts
    * de tempo — as contagens filtram pela data do evento e as médias, pela data
    * de criação da conversa. Aqui as duas populações são a mesma do resto do
    * relatório: conversas ENCERRADAS no período.
-   */",,,,,,
-gestao-vite-comment-a3b3d8a4,gestao-vite,apps/gestao-vite/src/lib/atendimento.ts,46,46,jsdoc,2,/** Conversas encerradas no período que não têm nenhuma etiqueta. */,,,,,,
-gestao-vite-comment-0ccb87a6,gestao-vite,apps/gestao-vite/src/lib/cadastros-gravar.ts,107,107,jsdoc,2,/** Vincular atendente à fila — `POST .../filas/:id/atendentes`. Capacidade omitida usa a padrão da fila. */,,,,,,
+   */",translate,"The report adds inbox and label (tag) dimensions missing from our earlier view, compared with Chatwoot (`referencias-blip/pesquisa/chatwoot.md`). Chatwoot's tag report counts taggings instead of distinct conversations and mixes event-date counts with conversation-creation-date averages. Here both populations use the same CLOSED conversations in the report period.",integration,apps/gestao-vite/src/lib/atendimento.ts:34-43,,proposed
+gestao-vite-comment-a3b3d8a4,gestao-vite,apps/gestao-vite/src/lib/atendimento.ts,46,46,jsdoc,2,/** Conversas encerradas no período que não têm nenhuma etiqueta. */,translate,Count conversations closed in the period that have no tag.,other,apps/gestao-vite/src/lib/atendimento.ts:46-46,,proposed
+gestao-vite-comment-0ccb87a6,gestao-vite,apps/gestao-vite/src/lib/cadastros-gravar.ts,107,107,jsdoc,2,/** Vincular atendente à fila — `POST .../filas/:id/atendentes`. Capacidade omitida usa a padrão da fila. */,translate,Link an agent to a queue through `POST .../filas/:id/atendentes`; omitting capacity uses the queue default.,integration,apps/gestao-vite/src/lib/cadastros-gravar.ts:107-107,,proposed
 gestao-vite-comment-40ecb536,gestao-vite,apps/gestao-vite/src/lib/cadastros-gravar.ts,159,165,jsdoc,4,"/**
  * Escrita da regra de atendimento (item 1, segunda parte) — `PATCH`/`DELETE`
  * de verdade em `/v1/gestao/regras/atendimento/:id`, ao lado de
  * `salvarRegraFila`/`alternarRegraFila` (`lib/acoes.ts`, a criação e o
  * interruptor). REORDENAR não tem função própria: é este mesmo `editarRegraFila`
  * chamado só com `{ ordem }` — a página manda um PATCH por linha movida.
- */",,,,,,
-gestao-vite-comment-5b98ad13,gestao-vite,apps/gestao-vite/src/lib/cadastros-gravar.ts,18,18,jsdoc,1,/** O interruptor do cartão-linha: liga/desliga sem abrir formulário. */,,,,,,
+ */",translate,"Write attendance-rule edits and deletes through actual `PATCH`/`DELETE` at `/v1/gestao/regras/atendimento/:id`, alongside `salvarRegraFila` and `alternarRegraFila` in `lib/acoes.ts` for creation and toggling. Reordering calls the same `editarRegraFila` with only `{ ordem }`; the page sends one PATCH per moved row.",integration,apps/gestao-vite/src/lib/cadastros-gravar.ts:159-165,,proposed
+gestao-vite-comment-5b98ad13,gestao-vite,apps/gestao-vite/src/lib/cadastros-gravar.ts,18,18,jsdoc,1,/** O interruptor do cartão-linha: liga/desliga sem abrir formulário. */,translate,Toggle a row card without opening its form.,other,apps/gestao-vite/src/lib/cadastros-gravar.ts:18-18,,proposed
 gestao-vite-comment-df2eefb7,gestao-vite,apps/gestao-vite/src/lib/cadastros-gravar.ts,39,48,jsdoc,9,"/**
  * `Resultado` que também aponta o campo — o `{erro:{codigo,mensagem,
  * detalhe?:{campo}}}` da tarefa, para o modal ""Editar fila"" mostrar a recusa
@@ -858,7 +858,7 @@ gestao-vite-comment-df2eefb7,gestao-vite,apps/gestao-vite/src/lib/cadastros-grav
  * `nome_em_uso` → nome, `capacidade_invalida` → capacidadeOverride) —, por
  * isso o mapa abaixo cobre o que falta; se um dia a `api` mandar
  * `detalhe.campo`, ele já é lido primeiro.
- */",,,,,,
+ */",translate,"`Resultado` also identifies a field from the expected `{erro:{codigo,mensagem,detalhe?:{campo}}}` response so Edit queue can show rejection beside the relevant field. Current `editarFila` and `vincularAtendenteNaFila` in `apps/api/src/dominio/gestao/cadastros.ts` omit `detalhe.campo`; map `nome_obrigatorio` and `nome_em_uso` to name, `capacidade_invalida` to capacidadeOverride. If the `api` later supplies `detalhe.campo`, use it first.",integration,apps/gestao-vite/src/lib/cadastros-gravar.ts:39-48,,proposed
 gestao-vite-comment-0aa1458a,gestao-vite,apps/gestao-vite/src/lib/cadastros-gravar.ts,6,16,jsdoc,9,"/**
  * Escrita de filas e pausas — `PATCH`/`DELETE` de verdade em
  * `/v1/gestao/atendentes/{filas,pausas}/:id`, diferente de `acoes.ts` (que só
@@ -869,7 +869,7 @@ gestao-vite-comment-0aa1458a,gestao-vite,apps/gestao-vite/src/lib/cadastros-grav
  * (se um dia existir, como já existe `tests/comunicacao.test.ts`) importaria
  * `./api`, que lê `import.meta.env` e quebra fora do Vite (é o que aconteceu
  * com `comunicacao.ts` até esta função ganhar arquivo próprio).
- */",,,,,,
+ */",translate,"Write real queue/pause `PATCH` and `DELETE` at `/v1/gestao/atendentes/{filas,pausas}/:id`, unlike `acoes.ts` which only exposes creators `salvarFila` and `salvarMotivoPausa`; match `paginas/fluxo/configuracoes/basicas/gravar.ts`. Keep this separate from pure `cadastros.ts`, so a future `tests/cadastros.test.ts` can run outside Vite as `tests/comunicacao.test.ts` does. Importing `./api` from the pure module would read `import.meta.env` and break there, as happened with `comunicacao.ts` before its writes moved.",architecture,apps/gestao-vite/src/lib/cadastros-gravar.ts:6-16,,proposed
 gestao-vite-comment-e7509b1e,gestao-vite,apps/gestao-vite/src/lib/cadastros-gravar.ts,77,84,jsdoc,8,"/**
  * Editar a fila — `PATCH /v1/gestao/atendentes/filas/:id`.
  *
@@ -877,11 +877,11 @@ gestao-vite-comment-e7509b1e,gestao-vite,apps/gestao-vite/src/lib/cadastros-grav
  * criação para a página de edição (`FICHA-atendentes-filas-pausas.md` §a.2):
  * `cadastros.PedidoDeEdicaoDeFila` da `api` já os aceitava, só a tela não os
  * mandava.
- */",,,,,,
-gestao-vite-comment-06a2d657,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,101,101,jsdoc,4,/** Nomes das filas que apontam para este horário. Vazio = horário sem uso. */,,,,,,
-gestao-vite-comment-2a5bf30d,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,104,104,jsdoc,1,/** `null` = nenhuma abertura no horizonte do core — horário sem faixa nenhuma. */,,,,,,
-gestao-vite-comment-3a9aed9e,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,106,106,jsdoc,3,"/** Expediente dos próximos sete dias, com feriado já descontado. */",,,,,,
-gestao-vite-comment-c20900cb,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,112,112,jsdoc,1,/** Filas ativas sem horário: nelas o relógio do SLA corre 24×7. */,,,,,,
+ */",translate,"Edit queue via `PATCH /v1/gestao/atendentes/filas/:id`. Four additional middle fields arrived when `Dados da fila` moved from the creation modal to the edit page (`FICHA-atendentes-filas-pausas.md` Section a.2); `api` type `cadastros.PedidoDeEdicaoDeFila` already accepted them, but the old screen did not send them.",integration,apps/gestao-vite/src/lib/cadastros-gravar.ts:77-84,,proposed
+gestao-vite-comment-06a2d657,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,101,101,jsdoc,4,/** Nomes das filas que apontam para este horário. Vazio = horário sem uso. */,translate,Queue names pointing to this schedule; empty means the schedule is unused.,other,apps/gestao-vite/src/lib/cadastros.ts:101-101,,proposed
+gestao-vite-comment-2a5bf30d,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,104,104,jsdoc,1,/** `null` = nenhuma abertura no horizonte do core — horário sem faixa nenhuma. */,translate,"`null` means the core found no upcoming opening, so the schedule has no time slot.",other,apps/gestao-vite/src/lib/cadastros.ts:104-104,,proposed
+gestao-vite-comment-3a9aed9e,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,106,106,jsdoc,3,"/** Expediente dos próximos sete dias, com feriado já descontado. */",translate,"Next seven days of working time, after holidays are deducted.",other,apps/gestao-vite/src/lib/cadastros.ts:106-106,,proposed
+gestao-vite-comment-c20900cb,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,112,112,jsdoc,1,/** Filas ativas sem horário: nelas o relógio do SLA corre 24×7. */,translate,Active queues without a schedule accrue SLA time 24x7.,other,apps/gestao-vite/src/lib/cadastros.ts:112-112,,proposed
 gestao-vite-comment-a11ecc85,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,119,130,jsdoc,21,"/**
  * As regras de entrada, com as condições de cada uma — §8 da spec de métricas.
  *
@@ -893,8 +893,8 @@ gestao-vite-comment-a11ecc85,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,1
  * As filas vêm juntas porque o formulário precisa delas, e porque a tela avisa
  * quando a regra aponta para uma fila desativada — regra que manda conversa
  * para fila desativada é regra que engole conversa.
- */",,,,,,
-gestao-vite-comment-ed6cbcb4,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,137,137,jsdoc,7,/** A regra do banco carrega uma coisa a mais que o motor: se a fila de destino está de pé. */,,,,,,
+ */",translate,"Entry rules follow metrics spec Section 8. Sort by `ordem` and then ID, the same order applied by `ordenarRegras` in `regra-fila.ts`; differing screen and engine orders would make rule tests misleading. Include queues for the form and to warn when a rule points at a disabled queue, which could swallow conversations.",architecture,apps/gestao-vite/src/lib/cadastros.ts:119-130,,proposed
+gestao-vite-comment-ed6cbcb4,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,137,137,jsdoc,7,/** A regra do banco carrega uma coisa a mais que o motor: se a fila de destino está de pé. */,translate,"The DB rule adds whether its destination queue is active, beyond what the engine rule holds.",other,apps/gestao-vite/src/lib/cadastros.ts:137-137,,proposed
 gestao-vite-comment-bc730358,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,142,154,jsdoc,18,"/**
  * Escrita da regra de entrada.
  *
@@ -907,14 +907,14 @@ gestao-vite-comment-bc730358,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,1
  * A auditoria é gravada na MESMA transação (`registrarAuditoria` do `@pipe/db`):
  * log em transação separada some quando a mudança falha e sobra quando ela é
  * desfeita, e nos dois casos passa a mentir.
- */",,,,,,
-gestao-vite-comment-95ddf19c,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,165,165,line,0,// ------------------------------------------------------- gestão de atendentes,,,,,,
-gestao-vite-comment-29b60e2a,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,172,172,jsdoc,3,"/** `null` quando a pessoa nunca conectou: não é ""offline"", é ""nunca esteve"". */",,,,,,
+ */",update,"This front module now declares the `NovaRegraDeFila` data shape; the `api` owns entry-rule writes and database access (README `Quem fala com o banco`). Keep audit writes in the SAME transaction as the change through `registrarAuditoria` from `@pipe/db`: a separate log could disappear after a failed change or remain after a rollback, misreporting what happened. Historical Server Action and `revalidatePath` references describe the migration, not work performed here.",security,"apps/gestao-vite/src/lib/cadastros.ts:142-154; apps/api/src/dominio/gestao/cadastros.ts:24,53-63,783-843",,proposed
+gestao-vite-comment-95ddf19c,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,165,165,line,0,// ------------------------------------------------------- gestão de atendentes,remove,,other,apps/gestao-vite/src/lib/cadastros.ts:165-165,,proposed
+gestao-vite-comment-29b60e2a,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,172,172,jsdoc,3,"/** `null` quando a pessoa nunca conectou: não é ""offline"", é ""nunca esteve"". */",translate,"`null` means the person never connected, distinct from offline.",other,apps/gestao-vite/src/lib/cadastros.ts:172-172,,proposed
 gestao-vite-comment-56254905,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,175,178,jsdoc,7,"/**
    * Teto de conversas simultâneas. `null` quando a pessoa não está em fila
    * nenhuma — aí não há teto porque não há de onde receber.
-   */",,,,,,
-gestao-vite-comment-f6821a2a,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,29,29,jsdoc,1,/** `fila_atendente.capacidade_override` ou a capacidade padrão da fila. */,,,,,,
+   */",translate,"`null` concurrent-ticket limit means no queue membership and therefore no source of incoming conversations, not an unlimited active agent.",other,apps/gestao-vite/src/lib/cadastros.ts:175-178,,proposed
+gestao-vite-comment-f6821a2a,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,29,29,jsdoc,1,/** `fila_atendente.capacidade_override` ou a capacidade padrão da fila. */,translate,"Use `fila_atendente.capacidade_override` when present, otherwise the queue's default capacity.",other,apps/gestao-vite/src/lib/cadastros.ts:29-29,,proposed
 gestao-vite-comment-fb3dfe1a,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,3,21,jsdoc,22,"/**
  * Leitura das três telas de cadastro: filas, motivos de pausa e horários.
  *
@@ -933,25 +933,25 @@ gestao-vite-comment-fb3dfe1a,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,3
  * `Promise.all` aqui: consulta paralela na mesma conexão apaga o
  * `set_config('pipe.tenant_id')` da transação e a RLS passa a não filtrar nada
  * (README, ""Como o isolamento entre clientes funciona"").
- */",,,,,,
-gestao-vite-comment-71565285,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,31,31,jsdoc,0,"/** O atendente tem limite próprio, diferente do padrão da fila. */",,,,,,
-gestao-vite-comment-e0269bb9,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,60,60,jsdoc,0,/** Pausas encerradas no período. */,,,,,,
-gestao-vite-comment-925edc6a,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,62,62,jsdoc,1,"/** Duração média observada, em segundos. `null` quando ninguém usou. */",,,,,,
-gestao-vite-comment-2cd4076f,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,68,68,jsdoc,0,/** Início da janela de observação. */,,,,,,
-gestao-vite-comment-53073718,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,71,71,jsdoc,0,/** Pausas encerradas no período cujo motivo foi apagado ou nunca informado. */,,,,,,
-gestao-vite-comment-4f69acbb,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,73,73,jsdoc,3,"/** Pausas em aberto agora — fora da média, porque ainda não terminaram. */",,,,,,
-gestao-vite-comment-55f0e616,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,77,77,line,0,// ---------------------------------------------------------------- horários,,,,,,
+ */",update,"This module now contains pure types for queue, pause, and schedule forms; `configuracoes.ts` is the read-only tenant snapshot. The `apps/api` implementation, not this front file, owns writes and isolation. `registrarAuditoria` from `@pipe/db` records actor, prior value, and time in the SAME transaction, enabling rule toggles. Keep tenant queries SERIAL inside one `comTenant` transaction: parallel `Promise.all` on one connection can unset `set_config('pipe.tenant_id')` and bypass RLS (README `Como o isolamento entre clientes funciona`). No `revalidatePath` or JSX belongs in this type module; preserve its browser-independent contract.",security,"apps/gestao-vite/src/lib/cadastros.ts:3-21; apps/api/src/dominio/gestao/cadastros.ts:24,53-63,783-843",,proposed
+gestao-vite-comment-71565285,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,31,31,jsdoc,0,"/** O atendente tem limite próprio, diferente do padrão da fila. */",translate,An agent-specific limit differs from the queue default.,other,apps/gestao-vite/src/lib/cadastros.ts:31-31,,proposed
+gestao-vite-comment-e0269bb9,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,60,60,jsdoc,0,/** Pausas encerradas no período. */,translate,Closed pauses in the reporting period.,other,apps/gestao-vite/src/lib/cadastros.ts:60-60,,proposed
+gestao-vite-comment-925edc6a,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,62,62,jsdoc,1,"/** Duração média observada, em segundos. `null` quando ninguém usou. */",translate,Observed average duration in seconds; `null` means nobody used the pause.,other,apps/gestao-vite/src/lib/cadastros.ts:62-62,,proposed
+gestao-vite-comment-2cd4076f,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,68,68,jsdoc,0,/** Início da janela de observação. */,translate,Start of the observation window.,other,apps/gestao-vite/src/lib/cadastros.ts:68-68,,proposed
+gestao-vite-comment-53073718,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,71,71,jsdoc,0,/** Pausas encerradas no período cujo motivo foi apagado ou nunca informado. */,translate,Closed pauses whose reason was deleted or never supplied.,other,apps/gestao-vite/src/lib/cadastros.ts:71-71,,proposed
+gestao-vite-comment-4f69acbb,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,73,73,jsdoc,3,"/** Pausas em aberto agora — fora da média, porque ainda não terminaram. */",translate,Currently open pauses are excluded from the average because they have not ended.,other,apps/gestao-vite/src/lib/cadastros.ts:73-73,,proposed
+gestao-vite-comment-55f0e616,gestao-vite,apps/gestao-vite/src/lib/cadastros.ts,77,77,line,0,// ---------------------------------------------------------------- horários,remove,,other,apps/gestao-vite/src/lib/cadastros.ts:77-77,,proposed
 gestao-vite-comment-1e97411a,gestao-vite,apps/gestao-vite/src/lib/canais-gravar.ts,14,20,jsdoc,6,"/**
  * As escritas de `/v1/canais/whatsapp` e `/v1/canais/instagram` — mesmo
  * formato de `paginas/fluxo/configuracoes/basicas/gravar.ts`: `Resultado<T>`
  * com `erro` em texto para a tela, e `campo` quando a `api` aponta qual (a
  * tarefa pede: `{erro:{codigo,mensagem,detalhe?:{campo}}}` → mensagem no
  * campo certo).
- */",,,,,,
-gestao-vite-comment-14164ac9,gestao-vite,apps/gestao-vite/src/lib/canais-gravar.ts,45,45,jsdoc,1,/** Conexão feita de dentro do bot: o canal nasce ligado a ele (`fluxo_id`). */,,,,,,
-gestao-vite-comment-62d2d70d,gestao-vite,apps/gestao-vite/src/lib/canais-gravar.ts,47,47,jsdoc,1,/** Reconexão: troca a credencial DESTE canal em vez de criar outro. */,,,,,,
-gestao-vite-comment-8499b8e0,gestao-vite,apps/gestao-vite/src/lib/canais-gravar.ts,82,82,jsdoc,1,"/** ""Ativar número"": `PUT /v1/gestao/fluxos/:id/canal` — o canal passa a ser deste bot. */",,,,,,
-gestao-vite-comment-b9028fcb,gestao-vite,apps/gestao-vite/src/lib/canais-gravar.ts,93,93,jsdoc,1,"/** ""Desconectar canal"": `DELETE /v1/gestao/fluxos/:id/canal`. O canal em si continua conectado à Meta. */",,,,,,
+ */",translate,"WhatsApp and Instagram channel writes at `/v1/canais/whatsapp` and `/v1/canais/instagram` mirror `paginas/fluxo/configuracoes/basicas/gravar.ts`: `Resultado<T>` carries displayable `erro` and optional `campo` when `api` identifies the field (expected `{erro:{codigo,mensagem,detalhe?:{campo}}}`).",integration,apps/gestao-vite/src/lib/canais-gravar.ts:14-20,,proposed
+gestao-vite-comment-14164ac9,gestao-vite,apps/gestao-vite/src/lib/canais-gravar.ts,45,45,jsdoc,1,/** Conexão feita de dentro do bot: o canal nasce ligado a ele (`fluxo_id`). */,translate,A connection made inside the bot creates the channel already linked to it via `fluxo_id`.,integration,apps/gestao-vite/src/lib/canais-gravar.ts:45-45,,proposed
+gestao-vite-comment-62d2d70d,gestao-vite,apps/gestao-vite/src/lib/canais-gravar.ts,47,47,jsdoc,1,/** Reconexão: troca a credencial DESTE canal em vez de criar outro. */,translate,Reconnection replaces THIS channel's credential instead of creating another channel.,integration,apps/gestao-vite/src/lib/canais-gravar.ts:47-47,,proposed
+gestao-vite-comment-8499b8e0,gestao-vite,apps/gestao-vite/src/lib/canais-gravar.ts,82,82,jsdoc,1,"/** ""Ativar número"": `PUT /v1/gestao/fluxos/:id/canal` — o canal passa a ser deste bot. */",translate,`Ativar número`: `PUT /v1/gestao/fluxos/:id/canal` assigns the channel to this bot.,integration,apps/gestao-vite/src/lib/canais-gravar.ts:82-82,,proposed
+gestao-vite-comment-b9028fcb,gestao-vite,apps/gestao-vite/src/lib/canais-gravar.ts,93,93,jsdoc,1,"/** ""Desconectar canal"": `DELETE /v1/gestao/fluxos/:id/canal`. O canal em si continua conectado à Meta. */",translate,`Desconectar canal`: `DELETE /v1/gestao/fluxos/:id/canal` detaches the channel from this bot while the channel itself remains connected to Meta.,integration,apps/gestao-vite/src/lib/canais-gravar.ts:93-93,,proposed
 gestao-vite-comment-a8b29324,gestao-vite,apps/gestao-vite/src/lib/canais.ts,1,8,jsdoc,4,"/**
  * Canais WhatsApp/Instagram — tipos e regras PURAS do lado da tela.
  *
@@ -959,29 +959,29 @@ gestao-vite-comment-a8b29324,gestao-vite,apps/gestao-vite/src/lib/canais.ts,1,8,
  * `canais-instagram.ts` (não importa de lá: são pacotes diferentes, e aquele
  * lado carrega Postgres). Arquivo sem `./api` de propósito — só tipo e função
  * pura, testável por `tests/canais.test.ts` sem tocar em `import.meta.env`.
- */",,,,,,
-gestao-vite-comment-239d77e6,gestao-vite,apps/gestao-vite/src/lib/canais.ts,115,115,jsdoc,0,"/** O `motivo` de `indisponivel`, em português — mesmos códigos do domínio da `api`. */",,,,,,
+ */",translate,Pure screen-side WhatsApp/Instagram channel types and rules mirror `apps/api/src/controladores/canais.ts` and `canais-instagram.ts` without importing backend Postgres code. Omit `./api` intentionally so `tests/canais.test.ts` can run without Vite or `import.meta.env`.,architecture,apps/gestao-vite/src/lib/canais.ts:1-8,,proposed
+gestao-vite-comment-239d77e6,gestao-vite,apps/gestao-vite/src/lib/canais.ts,115,115,jsdoc,0,"/** O `motivo` de `indisponivel`, em português — mesmos códigos do domínio da `api`. */",translate,"Keep the `motivo` of `indisponivel` in Portuguese, using the same domain codes as `api`.",integration,apps/gestao-vite/src/lib/canais.ts:115-115,,proposed
 gestao-vite-comment-d9acf18d,gestao-vite,apps/gestao-vite/src/lib/canais.ts,128,131,jsdoc,0,"/**
  * ""Insira os e-mails separados por vírgula"" (ficha §4) → lista. Aceita
  * vírgula OU quebra de linha, tira espaço, tira vazio, tira repetido.
- */",,,,,,
-gestao-vite-comment-b2d0a777,gestao-vite,apps/gestao-vite/src/lib/canais.ts,144,144,jsdoc,1,"/** O caminho de volta: lista → texto separado por vírgula, para o campo. */",,,,,,
-gestao-vite-comment-f94f74ca,gestao-vite,apps/gestao-vite/src/lib/canais.ts,149,149,jsdoc,2,"/** Sites do perfil: um por linha no campo, lista para a API (até `LIMITES_DO_PERFIL.sites`). */",,,,,,
-gestao-vite-comment-0ea88500,gestao-vite,apps/gestao-vite/src/lib/canais.ts,78,78,jsdoc,1,/** Mesmos limites de `apps/api/src/dominio/whatsapp/perfil.ts` — só para o contador da tela. */,,,,,,
+ */",translate,"Convert reference `Insira os e-mails separados por vírgula` (sheet Section 4) to a list. Accept commas or newlines, trim whitespace, drop empty values and duplicates.",integration,apps/gestao-vite/src/lib/canais.ts:128-131,,proposed
+gestao-vite-comment-b2d0a777,gestao-vite,apps/gestao-vite/src/lib/canais.ts,144,144,jsdoc,1,"/** O caminho de volta: lista → texto separado por vírgula, para o campo. */",translate,Convert email list back to comma-separated field text.,other,apps/gestao-vite/src/lib/canais.ts:144-144,,proposed
+gestao-vite-comment-f94f74ca,gestao-vite,apps/gestao-vite/src/lib/canais.ts,149,149,jsdoc,2,"/** Sites do perfil: um por linha no campo, lista para a API (até `LIMITES_DO_PERFIL.sites`). */",translate,"Parse profile sites one per field line into an API list, capped at `LIMITES_DO_PERFIL.sites`.",integration,apps/gestao-vite/src/lib/canais.ts:149-149,,proposed
+gestao-vite-comment-0ea88500,gestao-vite,apps/gestao-vite/src/lib/canais.ts,78,78,jsdoc,1,/** Mesmos limites de `apps/api/src/dominio/whatsapp/perfil.ts` — só para o contador da tela. */,translate,Use the same profile limits as `apps/api/src/dominio/whatsapp/perfil.ts` for screen counters only.,integration,apps/gestao-vite/src/lib/canais.ts:78-78,,proposed
 gestao-vite-comment-6ab6356c,gestao-vite,apps/gestao-vite/src/lib/canais.ts,87,92,jsdoc,3,"/**
  * O `vertical` do WhatsApp Business Profile — lista pública da Cloud API
  * (Meta), não inventada aqui. `categoria` do perfil só aceita um destes
  * códigos; o backend confere só o FORMATO (`/^[A-Z_]{2,40}$/`), quem confere o
  * valor de verdade é a Meta.
- */",,,,,,
-gestao-vite-comment-f339e98e,gestao-vite,apps/gestao-vite/src/lib/canal-do-fluxo.ts,13,13,jsdoc,2,/** Os canais que a Pipe tem página própria — os mesmos `tipo` de `canal.tipo`. */,,,,,,
+ */",translate,"WhatsApp Business Profile `vertical` codes come from Meta's public Cloud API list, not invented locally. Profile `categoria` accepts those codes; backend checks only syntax (`/^[A-Z_]{2,40}$/`), while Meta validates the actual value.",integration,apps/gestao-vite/src/lib/canais.ts:87-92,,proposed
+gestao-vite-comment-f339e98e,gestao-vite,apps/gestao-vite/src/lib/canal-do-fluxo.ts,13,13,jsdoc,2,/** Os canais que a Pipe tem página própria — os mesmos `tipo` de `canal.tipo`. */,translate,"These are the channel kinds with dedicated Pipe pages, matching `tipo` in `canal.tipo`.",other,apps/gestao-vite/src/lib/canal-do-fluxo.ts:13-13,,proposed
 gestao-vite-comment-3a766469,gestao-vite,apps/gestao-vite/src/lib/canal-do-fluxo.ts,27,33,jsdoc,12,"/**
  * O estado que a página do canal desenha para ESTE bot:
  * - `conectado`: o bot está com um canal ativo deste tipo (o `VERIFIED` da origem);
  * - `nao_conectado`: o bot não tem canal (o `LOGIN` da origem);
  * - `outro_canal`: o bot já está com um canal de OUTRO tipo — decisão Pipe,
  *   porque `fluxo.canal_id` é uma coluna só (na origem um bot tem vários).
- */",,,,,,
+ */",translate,"Channel state for THIS bot: `conectado` means an active channel of this kind (source `VERIFIED`); `nao_conectado` means none (source `LOGIN`); `outro_canal` means a different kind is already attached, a Pipe decision because `fluxo.canal_id` is a single column while the reference bot can have several.",architecture,apps/gestao-vite/src/lib/canal-do-fluxo.ts:27-33,,proposed
 gestao-vite-comment-118d287f,gestao-vite,apps/gestao-vite/src/lib/canal-do-fluxo.ts,3,11,jsdoc,10,"/**
  * O canal DO BOT — regras PURAS do lado da tela (`fluxo/canais/**`), sem
  * `./api` de propósito, para `tests/canal-do-fluxo.test.ts` rodar sem
@@ -990,28 +990,28 @@ gestao-vite-comment-118d287f,gestao-vite,apps/gestao-vite/src/lib/canal-do-fluxo
  * A origem (`FICHA-conectar-canal-no-bot.md` §1) tem UMA página por canal
  * dentro do bot; o cartão da lista só decide entre ""Conectar"" e ""Conectado"" e
  * leva à mesma página. Aqui fica o que decide isso e o que a página oferece.
- */",,,,,,
-gestao-vite-comment-ecbd0b09,gestao-vite,apps/gestao-vite/src/lib/canal-do-fluxo.ts,49,49,jsdoc,3,"/** O cartão da lista: ""Conectado"" quando o bot está com um canal ATIVO deste tipo. */",,,,,,
+ */",translate,Pure screen-side rules for this BOT's channel (`fluxo/canais/**`) avoid `./api` so `tests/canal-do-fluxo.test.ts` runs without `import.meta.env`. Reference `FICHA-conectar-canal-no-bot.md` Section 1 has one channel page inside the bot; list cards choose Connected or Connect and navigate to that same page. This module decides the card and page states.,meta-blip,apps/gestao-vite/src/lib/canal-do-fluxo.ts:3-11,,proposed
+gestao-vite-comment-ecbd0b09,gestao-vite,apps/gestao-vite/src/lib/canal-do-fluxo.ts,49,49,jsdoc,3,"/** O cartão da lista: ""Conectado"" quando o bot está com um canal ATIVO deste tipo. */",translate,The list card says Connected only for an ACTIVE channel of this kind on the bot.,meta-blip,apps/gestao-vite/src/lib/canal-do-fluxo.ts:49-49,,proposed
 gestao-vite-comment-29b76bff,gestao-vite,apps/gestao-vite/src/lib/canal-do-fluxo.ts,57,62,jsdoc,12,"/**
  * O que a etapa ""Ativação do número"" oferece (decisão Pipe — na origem o número
  * nasce no bot e não há lista): os canais ATIVOS deste tipo que estão livres
  * (sem bot vivo), e os que já estão com outro bot, para a tela dizer qual — a
  * origem manda ""remover do anterior"", e a tela aponta onde.
- */",,,,,,
-gestao-vite-comment-43d380f5,gestao-vite,apps/gestao-vite/src/lib/canal-do-fluxo.ts,75,75,jsdoc,1,"/** O rótulo de um canal na lista: o número (ou `@usuário`, ou o id da Página) e, sem ele, o nome. */",,,,,,
-gestao-vite-comment-5ed91f49,gestao-vite,apps/gestao-vite/src/lib/canal-do-fluxo.ts,80,80,jsdoc,1,"/** Só dígitos, para o `https://wa.me/{numero}` do ""Testar no WhatsApp"". */",,,,,,
+ */",translate,"Pipe's number-activation step differs from the reference, where the number starts attached to the bot. Offer active free channels of this kind and channels attached to another live bot so the screen can name that bot; the reference requires removal from the previous bot.",meta-blip,apps/gestao-vite/src/lib/canal-do-fluxo.ts:57-62,,proposed
+gestao-vite-comment-43d380f5,gestao-vite,apps/gestao-vite/src/lib/canal-do-fluxo.ts,75,75,jsdoc,1,"/** O rótulo de um canal na lista: o número (ou `@usuário`, ou o id da Página) e, sem ele, o nome. */",translate,"Show a channel's number, Instagram `@usuário`, or Page ID, falling back to its name.",other,apps/gestao-vite/src/lib/canal-do-fluxo.ts:75-75,,proposed
+gestao-vite-comment-5ed91f49,gestao-vite,apps/gestao-vite/src/lib/canal-do-fluxo.ts,80,80,jsdoc,1,"/** Só dígitos, para o `https://wa.me/{numero}` do ""Testar no WhatsApp"". */",translate,Use digits only for the Test on WhatsApp `https://wa.me/{numero}` URL.,integration,apps/gestao-vite/src/lib/canal-do-fluxo.ts:80-80,,proposed
 gestao-vite-comment-56e42b93,gestao-vite,apps/gestao-vite/src/lib/canal-do-fluxo.ts,85,89,jsdoc,2,"/**
  * O botão ""Desconectar {canal}"" do modal de desconexão da origem só habilita
  * com o motivo preenchido E a concordância marcada (`class H`, portal.js
  * 120544: `disconnectButtonDisabled = !agreedChecked || !motiveInputValue`).
- */",,,,,,
-gestao-vite-comment-af56036f,gestao-vite,apps/gestao-vite/src/lib/casca.ts,33,33,line,5,"// A lista do seletor não derruba a tela: sem ela, o seletor mostra só a conta em vigor.",,,,,,
+ */",translate,"Source Disconnect button requires both a reason and agreement (`class H`, portal.js 120544: `disconnectButtonDisabled = !agreedChecked || !motiveInputValue`).",meta-blip,apps/gestao-vite/src/lib/canal-do-fluxo.ts:85-89,,proposed
+gestao-vite-comment-af56036f,gestao-vite,apps/gestao-vite/src/lib/casca.ts,33,33,line,5,"// A lista do seletor não derruba a tela: sem ela, o seletor mostra só a conta em vigor.",translate,Failure to load account choices must not bring down the screen; show only the current account in the selector.,architecture,apps/gestao-vite/src/lib/casca.ts:33-33,,proposed
 gestao-vite-comment-7a199bbd,gestao-vite,apps/gestao-vite/src/lib/casca.ts,43,47,jsdoc,5,"/**
  * Trocar de conta: `POST /v1/contas/trocar` emite o cookie novo direto no
  * navegador; depois a sessão é relida e a pessoa vai para o portal da conta
  * NOVA — o que ela quer ver depois de trocar é o que existe do outro lado.
- */",,,,,,
-gestao-vite-comment-afced113,gestao-vite,apps/gestao-vite/src/lib/casca.ts,63,63,jsdoc,2,"/** Sair: encerra na `api`, esquece tudo que estava em cache e volta à entrada. */",,,,,,
+ */",translate,"`POST /v1/contas/trocar` issues a new cookie to the browser. Then reread session state and navigate to the NEW account's Portal, where the person's new context is visible.",security,apps/gestao-vite/src/lib/casca.ts:43-47,,proposed
+gestao-vite-comment-afced113,gestao-vite,apps/gestao-vite/src/lib/casca.ts,63,63,jsdoc,2,"/** Sair: encerra na `api`, esquece tudo que estava em cache e volta à entrada. */",translate,"Sign out through `api`, clear cached data, and return to sign-in.",security,apps/gestao-vite/src/lib/casca.ts:63-63,,proposed
 gestao-vite-comment-89f69514,gestao-vite,apps/gestao-vite/src/lib/casca.ts,7,13,jsdoc,8,"/**
  * A casca do portal: quem está logado, a conta em vigor e a lista do seletor.
  *
