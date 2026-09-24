@@ -226,6 +226,32 @@ test('endpoint rewrite covers templates, decorators, app.use and query keys but 
   assert.match(source, /'conversas e mensagens'/);
 });
 
+test('front-route rewrites technical route literals at segment boundaries and is idempotent', () => {
+  const root = copyFixture();
+  const mapDir = path.join(root, 'map');
+  const file = path.join(root, 'apps/front/src/rotas.tsx');
+  const first = rewriteLiterals({ root, mapDir, ids: ['LIT-007'], log() {} });
+  assert.equal(first.unmatchedIds.length, 0);
+  const source = fs.readFileSync(file, 'utf8');
+  assert.match(source, /navigate\('\/contacts'\)/);
+  assert.match(source, /navigate\(`\/contacts\/\$\{id\}\?aba=historico`\)/);
+  assert.match(source, /<Route path="\/contacts\/:id"/);
+  assert.match(source, /<Link to="\/contacts"/);
+  assert.match(source, /<Link to=\{`\/contacts\/\$\{id\}`\}/);
+  assert.match(source, /navigate\('\/contatos-antigos'\)/);
+  assert.match(source, /navigate\('\/contatosx'\)/);
+  assert.match(source, /navigate\('\/v1\/contatos'\)/);
+  assert.match(source, /navigate\('\/busca\?destino=\/contatos'\)/);
+  assert.match(source, /<Link to="\/contatosx\?destino=\/contatos"/);
+  assert.match(source, /prose = 'contatos são importantes'/);
+  assert.match(source, /routeMention = '\/contatos'/);
+  const second = rewriteLiterals({
+    root, mapDir, ids: ['LIT-007'], status: ['applied'], dryRun: true, log() {},
+  });
+  assert.equal(second.rewritten, 0);
+  assert.equal(fs.readFileSync(file, 'utf8'), source);
+});
+
 test('test titles, queue literals and referenced queue constants are rewritten in technical positions', () => {
   const root = copyFixture();
   rewriteLiterals({ root, mapDir: path.join(root, 'map'), ids: ['LIT-003', 'LIT-004'], log() {} });
