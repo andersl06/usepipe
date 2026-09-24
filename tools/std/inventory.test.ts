@@ -51,8 +51,8 @@ test('lista dependentes de rota por arquivo e tipo', () => {
 });
 
 test('captura nomes tecnicos em constantes e agendadores sem casar nomes proximos', () => {
-  const result = run({ fileName: 'apps/api/src/filas.ts', sourceText: "const FILA_ENTRADA = 'pipe-entrada'; const FILA_GERENCIAR = 'fila.gerenciar'; const FILA_ENTRADA_EXTRA = 'other'; const COOKIE_SESSAO = 'pipe_sessao'; fila.upsertJobScheduler('varredura-outbox', {}, {}); const AJUDA = { pipe_fila_profundidade: 'x' };" });
-  for (const [kind, old] of [['queue', 'pipe-entrada'], ['cookie', 'pipe_sessao'], ['job-name', 'varredura-outbox'], ['metric', 'pipe_fila_profundidade']]) {
+  const result = run({ fileName: 'apps/api/src/filas.ts', sourceText: "const FILA_ENTRADA = 'pipe-entrada'; const FILA_GERENCIAR = 'fila.gerenciar'; const FILA_ENTRADA_EXTRA = 'other'; const COOKIE_SESSAO = 'pipe_sessao'; const COOKIE_DESAFIO = 'pipe_desafio'; const CHAVE_TEMA = 'pipe-tema'; fila.upsertJobScheduler('varredura-outbox', {}, {}); const AJUDA = { pipe_fila_profundidade: 'x' };" });
+  for (const [kind, old] of [['queue', 'pipe-entrada'], ['cookie', 'pipe_sessao'], ['cookie', 'pipe_desafio'], ['storage-key', 'pipe-tema'], ['job-name', 'varredura-outbox'], ['metric', 'pipe_fila_profundidade']]) {
     assert.ok(result.rows.some((row) => row.kind === kind && row.old === old));
   }
   assert.equal(result.rows.some((row) => row.kind === 'queue' && row.old === 'other'), false);

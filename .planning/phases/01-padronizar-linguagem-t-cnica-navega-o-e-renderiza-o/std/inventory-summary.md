@@ -69,6 +69,7 @@
 | workers | test-title | 19 |
 | workers | ts-local | 39 |
 | workers | ts-prop | 65 |
+| api | cookie | 1 |
 | api | dir | 8 |
 | api | endpoint | 179 |
 | api | error-code | 310 |
@@ -114,7 +115,7 @@
 | crm | file | 24 |
 | crm | front-route | 19 |
 | crm | literal-value | 43 |
-| crm | storage-key | 1 |
+| crm | storage-key | 2 |
 | crm | symbol | 302 |
 | crm | test-title | 24 |
 | crm | ts-local | 174 |
@@ -135,7 +136,7 @@
 | css | css-var | 510 |
 | css | data-attr | 54 |
 
-Total rows: 16715
+Total rows: 16717
 Total comments: 6500
 Total route dependents: 474
 

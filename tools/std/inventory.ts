@@ -119,8 +119,8 @@ function collectCode(source: SourceText, rows: MapRow[], comments: CommentRow[])
     if (ts.isVariableDeclaration(node) && ts.isIdentifier(node.name) && node.initializer && ts.isStringLiteral(node.initializer)) {
       const name = node.name.text;
       if (/^FILA_[A-Z_]+$/.test(name) && node.initializer.text.startsWith('pipe-')) add('queue', node.initializer.text, node.initializer);
-      if (/^(?:COOKIE_[A-Z_]+|NOME_DO_COOKIE)$/.test(name)) add('cookie', node.initializer.text, node.initializer);
-      if (name === 'CHAVE_TEMA' || (name === 'CHAVE' && file.endsWith('/visoes-salvas.tsx'))) add('storage-key', node.initializer.text, node.initializer);
+      if (/^(?:COOKIE_[A-Z_]+|NOME_DO_COOKIE)$/.test(name)) add('cookie', node.initializer.text, node.initializer, '', true);
+      if (name === 'CHAVE_TEMA' || (name === 'CHAVE' && file.endsWith('/visoes-salvas.tsx'))) add('storage-key', node.initializer.text, node.initializer, '', true);
     }
     if (kind && 'name' in node) {
       const name = nameText((node as ts.NamedDeclaration).name);

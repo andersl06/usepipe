@@ -1,4 +1,5 @@
 id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+api-cookie-c9e75885,api,2,cookie,pipe_desafio,,apps/api/src/controladores/entrar.ts:47,11,unknown,,,candidate,,
 api-dir-f9884b83,api,2,dir,apps/api/src/controladores,,apps/api/src/controladores,0,no,,,candidate,,
 api-dir-450156ea,api,2,dir,apps/api/src/dominio/desk,,apps/api/src/dominio/desk,0,no,,,candidate,,
 api-dir-2cbd4c3f,api,2,dir,apps/api/src/dominio/gestao/acoes,,apps/api/src/dominio/gestao/acoes,0,no,,,candidate,,
