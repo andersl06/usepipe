@@ -17,23 +17,23 @@ Contagem: tokens PT exatos de `old` no inventário real, separados conforme os e
 | contato | contact |  | none | Recomendado: contact; alternativa: customer; evidência: 456 (261 backend + 195 front) | no |
 | cartão | card |  | none | Recomendado: card; alternativa: tile; evidência: 444 (3 backend + 441 front) | no |
 | bloco | block |  | none | Recomendado: block; alternativa: step; evidência: 441 (36 backend + 405 front) | no |
-| estado | state |  | AMBIGUOUS | Recomendado: state; alternativa: state / status; evidência: 414 (215 backend + 199 front) | no |
-| sessão | session |  | AMBIGUOUS | Recomendado: session; alternativa: session / ticket; evidência: 411 (346 backend + 65 front) | no |
+| estado | state |  | AMBIGUOUS | Recomendado: state; alternativa: status; evidência: 414 (215 backend + 199 front) | no |
+| sessão | session |  | AMBIGUOUS | Recomendado: session; alternativa: ticket; evidência: 411 (346 backend + 65 front) | no |
 | mensagem | message |  | none | Recomendado: message; alternativa: communication; evidência: 375 (211 backend + 164 front) | no |
-| chave | key |  | AMBIGUOUS | Recomendado: key; alternativa: key / token; evidência: 369 (198 backend + 171 front) | no |
-| painel | panel |  | AMBIGUOUS | Recomendado: panel; alternativa: panel / dashboard; evidência: 326 (10 backend + 316 front) | no |
+| chave | key |  | AMBIGUOUS | Recomendado: key; alternativa: token; evidência: 369 (198 backend + 171 front) | no |
+| painel | panel |  | AMBIGUOUS | Recomendado: panel; alternativa: dashboard; evidência: 326 (10 backend + 316 front) | no |
 | atendente | agent |  | none | Recomendado: agent; alternativa: attendant; evidência: 301 (205 backend + 96 front) | no |
 | usuário | user |  | none | Recomendado: user; alternativa: member; evidência: 299 (257 backend + 42 front) | no |
-| conta | account |  | AMBIGUOUS | Recomendado: account; alternativa: account / tenant; evidência: 288 (125 backend + 163 front) | no |
+| conta | account |  | AMBIGUOUS | Recomendado: account; alternativa: tenant; evidência: 288 (125 backend + 163 front) | no |
 | dados | data |  | none | Recomendado: data; alternativa: payload; evidência: 270 (109 backend + 161 front) | no |
 | gestão | management |  | none | Recomendado: management; alternativa: administration; evidência: 264 (187 backend + 77 front) | no |
 | página | page |  | none | Recomendado: page; alternativa: screen; evidência: 228 (44 backend + 184 front) | no |
 | requisição | request |  | none | Recomendado: request; alternativa: petition; evidência: 225 (222 backend + 3 front) | no |
 | papel | role |  | none | Recomendado: role; alternativa: permission; evidência: 219 (106 backend + 113 front) | no |
 | busca | search |  | none | Recomendado: search; alternativa: lookup; evidência: 208 (18 backend + 190 front) | no |
-| entrada | inbound |  | AMBIGUOUS | Recomendado: inbound; alternativa: inbound / input; evidência: 205 (82 backend + 123 front) | no |
+| entrada | inbound |  | AMBIGUOUS | Recomendado: inbound; alternativa: input; evidência: 205 (82 backend + 123 front) | no |
 | ações | actions |  | none | Recomendado: actions; alternativa: operations; evidência: 189 (9 backend + 180 front) | no |
-| atendimento | attendance | referencias-blip/portal/INDICE.md | AMBIGUOUS | Recomendado: attendance; alternativa: ticket / attendance / ticket / conversation; evidência: 184 (56 backend + 128 front) | no |
+| atendimento | attendance | referencias-blip/portal/INDICE.md | AMBIGUOUS | Recomendado: attendance; alternativa: ticket / conversation; evidência: 184 (56 backend + 128 front) | no |
 | roteador | router | referencias-blip/portal/INDICE.md | none | Recomendado: router; alternativa: routing bot; evidência: 146 (55 backend + 91 front) | no |
 | escopo | scope |  | none | Recomendado: scope; alternativa: permission; evidência: 145 (118 backend + 27 front) | no |
 | convite | invitation |  | none | Recomendado: invitation; alternativa: invite; evidência: 132 (69 backend + 63 front) | no |
@@ -41,14 +41,14 @@ Contagem: tokens PT exatos de `old` no inventário real, separados conforme os e
 | contexto | context |  | none | Recomendado: context; alternativa: scope; evidência: 126 (48 backend + 78 front) | no |
 | coluna | column |  | none | Recomendado: column; alternativa: field; evidência: 121 (13 backend + 108 front) | no |
 | filtro | filter |  | none | Recomendado: filter; alternativa: predicate; evidência: 120 (24 backend + 96 front) | no |
-| modelo | template |  | AMBIGUOUS | Recomendado: template; alternativa: template / model; evidência: 120 (57 backend + 63 front) | no |
+| modelo | template |  | AMBIGUOUS | Recomendado: template; alternativa: model; evidência: 120 (57 backend + 63 front) | no |
 | ordem | order |  | none | Recomendado: order; alternativa: sequence; evidência: 120 (47 backend + 73 front) | no |
 | descrição | description |  | none | Recomendado: description; alternativa: summary; evidência: 119 (38 backend + 81 front) | no |
 | destino | destination |  | none | Recomendado: destination; alternativa: target; evidência: 119 (63 backend + 56 front) | no |
 | condição | condition |  | none | Recomendado: condition; alternativa: rule; evidência: 112 (36 backend + 76 front) | no |
 | configurações | settings |  | none | Recomendado: settings; alternativa: configuration; evidência: 104 (19 backend + 85 front) | no |
 | arquivo | file |  | none | Recomendado: file; alternativa: attachment; evidência: 94 (42 backend + 52 front) | no |
-| janela | window |  | AMBIGUOUS | Recomendado: window; alternativa: window / timeframe; evidência: 93 (47 backend + 46 front) | no |
+| janela | window |  | AMBIGUOUS | Recomendado: window; alternativa: timeframe; evidência: 93 (47 backend + 46 front) | no |
 | segredo | secret |  | none | Recomendado: secret; alternativa: credential; evidência: 93 (83 backend + 10 front) | no |
 | anexo | attachment |  | none | Recomendado: attachment; alternativa: media; evidência: 92 (68 backend + 24 front) | no |
 | domínio | domain |  | none | Recomendado: domain; alternativa: business-logic; evidência: 90 (81 backend + 9 front) | no |
@@ -58,27 +58,27 @@ Contagem: tokens PT exatos de `old` no inventário real, separados conforme os e
 | encerramento | closure |  | none | Recomendado: closure; alternativa: completion; evidência: 86 (21 backend + 65 front) | no |
 | seção | section |  | none | Recomendado: section; alternativa: area; evidência: 80 (1 backend + 79 front) | no |
 | banco | database |  | none | Recomendado: database; alternativa: bank; evidência: 78 (68 backend + 10 front) | no |
-| mídia | media |  | AMBIGUOUS | Recomendado: media; alternativa: media / asset; evidência: 78 (70 backend + 8 front) | no |
+| mídia | media |  | AMBIGUOUS | Recomendado: media; alternativa: asset; evidência: 78 (70 backend + 8 front) | no |
 | autenticação | authentication |  | none | Recomendado: authentication; alternativa: auth; evidência: 76 (56 backend + 20 front) | no |
 | seleção | selection |  | none | Recomendado: selection; alternativa: choice; evidência: 76 (3 backend + 73 front) | no |
 | permissão | permission |  | none | Recomendado: permission; alternativa: authorization; evidência: 69 (53 backend + 16 front) | no |
 | trilho | rail |  | none | Recomendado: rail; alternativa: sidebar; evidência: 64 (0 backend + 64 front) | no |
 | histórico | history | referencias-blip/portal/INDICE.md | none | Recomendado: history; alternativa: archive; evidência: 61 (23 backend + 38 front) | no |
 | esforço | effort |  | none | Recomendado: effort; alternativa: workload; evidência: 57 (16 backend + 41 front) | no |
-| análise | analysis | referencias-blip/portal/INDICE.md | AMBIGUOUS | Recomendado: analysis; alternativa: analysis / analytics; evidência: 50 (11 backend + 39 front) | no |
+| análise | analysis | referencias-blip/portal/INDICE.md | AMBIGUOUS | Recomendado: analysis; alternativa: analytics; evidência: 50 (11 backend + 39 front) | no |
 | casca | shell |  | none | Recomendado: shell; alternativa: layout; evidência: 50 (2 backend + 48 front) | no |
 | controlador | controller |  | none | Recomendado: controller; alternativa: handler; evidência: 50 (50 backend + 0 front) | no |
-| relatório | report | referencias-blip/portal/INDICE.md | AMBIGUOUS | Recomendado: report; alternativa: report / analytics; evidência: 48 (25 backend + 23 front) | no |
+| relatório | report | referencias-blip/portal/INDICE.md | AMBIGUOUS | Recomendado: report; alternativa: analytics; evidência: 48 (25 backend + 23 front) | no |
 | importação | import |  | none | Recomendado: import; alternativa: ingestion; evidência: 46 (31 backend + 15 front) | no |
 | monitoramento | monitoring | referencias-blip/portal/INDICE.md | none | Recomendado: monitoring; alternativa: tracking; evidência: 46 (21 backend + 25 front) | no |
 | membro | member |  | none | Recomendado: member; alternativa: user; evidência: 44 (28 backend + 16 front) | no |
 | contrato | contract |  | none | Recomendado: contract; alternativa: subscription; evidência: 43 (26 backend + 17 front) | no |
 | dicionário | dictionary |  | none | Recomendado: dictionary; alternativa: schema; evidência: 41 (32 backend + 9 front) | no |
-| monitoria | monitoring |  | AMBIGUOUS | Recomendado: monitoring; alternativa: monitoring / quality review; evidência: 37 (26 backend + 11 front) | no |
+| monitoria | monitoring |  | AMBIGUOUS | Recomendado: monitoring; alternativa: quality review; evidência: 37 (26 backend + 11 front) | no |
 | compositor | composer |  | none | Recomendado: composer; alternativa: editor; evidência: 21 (0 backend + 21 front) | no |
-| cadastro | registration |  | AMBIGUOUS | Recomendado: registration; alternativa: registration / record; evidência: 20 (8 backend + 12 front) | no |
+| cadastro | registration |  | AMBIGUOUS | Recomendado: registration; alternativa: record; evidência: 20 (8 backend + 12 front) | no |
 | armazenamento | storage |  | none | Recomendado: storage; alternativa: store; evidência: 18 (15 backend + 3 front) | no |
-| espelho | mirror |  | AMBIGUOUS | Recomendado: mirror; alternativa: mirror / sync; evidência: 17 (17 backend + 0 front) | no |
+| espelho | mirror |  | AMBIGUOUS | Recomendado: mirror; alternativa: sync; evidência: 17 (17 backend + 0 front) | no |
 | ponte | bridge |  | none | Recomendado: bridge; alternativa: adapter; evidência: 16 (6 backend + 10 front) | no |
 | satisfação | satisfaction | referencias-blip/portal/INDICE.md | none | Recomendado: satisfaction; alternativa: survey; evidência: 14 (6 backend + 8 front) | no |
 | operação | operations |  | none | Recomendado: operations; alternativa: operation; evidência: 12 (8 backend + 4 front) | no |
@@ -106,21 +106,29 @@ A palavra cobre três objetos distintos (D-02). A divergência das propostas dir
 
 A linha geral `atendimento → attendance` aplica-se somente ao módulo. Mapeamentos de sessão e conversa devem usar `ticket` e `conversation` após aprovação do portão. O inventário registra 184 tokens exatos de `atendimento`, sem decidir automaticamente o sentido de cada ocorrência.
 
+## Evidência de contagem zero
+
+- `ticket`: já é termo inglês no código; `apps/api/src/controladores/desk.ts` declara `GET tickets/:id` e usa `TicketDoDesk`. Por isso `isPtToken` não o inclui na frequência PT.
+- `métrica`: o uso real está em `packages/core/src/metricas/` e em `packages/db/src/schema/gestao.ts` (`metricaDiaria`). A forma exata não foi classificada pelo léxico PT do inventário; a forma plural aparece em caminhos.
+- `tempo-real`: `packages/tempo-real/package.json` usa `@pipe/tempo-real`; o inventário separa o composto em `tempo` e `real`, sem uma linha de token composto.
+
+Compostos como `ações em massa` e `mensagem ativa` foram contados como sequências exatas em `old`. `check-map` compara tokens unitários; o portão 2 deve revisar a correspondência dos compostos explicitamente.
+
 ## Other ambiguous terms
 
-- **estado** (414): state recomendado; alternativa state / status. Conferir o sentido no uso local antes de aplicar.
-- **sessão** (411): session recomendado; alternativa session / ticket. Conferir o sentido no uso local antes de aplicar.
-- **chave** (369): key recomendado; alternativa key / token. Conferir o sentido no uso local antes de aplicar.
-- **painel** (326): panel recomendado; alternativa panel / dashboard. Conferir o sentido no uso local antes de aplicar.
-- **conta** (288): account recomendado; alternativa account / tenant. Conferir o sentido no uso local antes de aplicar.
-- **entrada** (205): inbound recomendado; alternativa inbound / input. Conferir o sentido no uso local antes de aplicar.
-- **modelo** (120): template recomendado; alternativa template / model. Conferir o sentido no uso local antes de aplicar.
-- **janela** (93): window recomendado; alternativa window / timeframe. Conferir o sentido no uso local antes de aplicar.
-- **mídia** (78): media recomendado; alternativa media / asset. Conferir o sentido no uso local antes de aplicar.
-- **análise** (50): analysis recomendado; alternativa analysis / analytics. Conferir o sentido no uso local antes de aplicar.
-- **relatório** (48): report recomendado; alternativa report / analytics. Conferir o sentido no uso local antes de aplicar.
-- **monitoria** (37): monitoring recomendado; alternativa monitoring / quality review. Conferir o sentido no uso local antes de aplicar.
-- **cadastro** (20): registration recomendado; alternativa registration / record. Conferir o sentido no uso local antes de aplicar.
-- **espelho** (17): mirror recomendado; alternativa mirror / sync. Conferir o sentido no uso local antes de aplicar.
+- **estado** (414): state recomendado; alternativa status. Conferir o sentido no uso local antes de aplicar.
+- **sessão** (411): session recomendado; alternativa ticket. Conferir o sentido no uso local antes de aplicar.
+- **chave** (369): key recomendado; alternativa token. Conferir o sentido no uso local antes de aplicar.
+- **painel** (326): panel recomendado; alternativa dashboard. Conferir o sentido no uso local antes de aplicar.
+- **conta** (288): account recomendado; alternativa tenant. Conferir o sentido no uso local antes de aplicar.
+- **entrada** (205): inbound recomendado; alternativa input. Conferir o sentido no uso local antes de aplicar.
+- **modelo** (120): template recomendado; alternativa model. Conferir o sentido no uso local antes de aplicar.
+- **janela** (93): window recomendado; alternativa timeframe. Conferir o sentido no uso local antes de aplicar.
+- **mídia** (78): media recomendado; alternativa asset. Conferir o sentido no uso local antes de aplicar.
+- **análise** (50): analysis recomendado; alternativa analytics. Conferir o sentido no uso local antes de aplicar.
+- **relatório** (48): report recomendado; alternativa analytics. Conferir o sentido no uso local antes de aplicar.
+- **monitoria** (37): monitoring recomendado; alternativa quality review. Conferir o sentido no uso local antes de aplicar.
+- **cadastro** (20): registration recomendado; alternativa record. Conferir o sentido no uso local antes de aplicar.
+- **espelho** (17): mirror recomendado; alternativa sync. Conferir o sentido no uso local antes de aplicar.
 
 As alternativas acima são propostas para revisão do dono; nenhuma delas autoriza um rename antes de D-03.

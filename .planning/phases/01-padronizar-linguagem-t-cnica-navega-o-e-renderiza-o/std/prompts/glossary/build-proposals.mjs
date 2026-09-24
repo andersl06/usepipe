@@ -94,7 +94,8 @@ const display = first.map((term) => {
   const conflict = term.term_en !== front.term_en;
   const ambiguousTerm = term.ambiguity === 'AMBIGUOUS' || front.ambiguity === 'AMBIGUOUS' || conflict;
   const recommended = conflict ? front.term_en : term.term_en;
-  const other = conflict ? [term.term_en, front.candidates].join(' / ') : term.candidates;
+  const candidates = conflict ? [term.term_en, ...front.candidates.split(' / ')] : term.candidates.split(' / ');
+  const other = [...new Set(candidates.map((value) => value.trim()))].filter((value) => value !== recommended).join(' / ');
   return { pt: term.term_pt, en: recommended, source: term.blip_source || front.blip_source,
     ambiguous: ambiguousTerm, other, total, backend: term.occurrences, front: front.occurrences };
 }).sort((a, b) => b.total - a.total || a.pt.localeCompare(b.pt));
@@ -129,6 +130,14 @@ const glossary = [
   '| Conversa no canal | `conversation` | `apps/api/src/controladores/desk.ts`: `GET conversas/:id` abre conversa ativa; `packages/db/src/schema/conversas.ts`: `mensagem.conversaId` liga mensagens à conversa. | `chat` |',
   '',
   'A linha geral `atendimento → attendance` aplica-se somente ao módulo. Mapeamentos de sessão e conversa devem usar `ticket` e `conversation` após aprovação do portão. O inventário registra ' + display.find((r) => r.pt === 'atendimento').total + ' tokens exatos de `atendimento`, sem decidir automaticamente o sentido de cada ocorrência.',
+  '',
+  '## Evidência de contagem zero',
+  '',
+  '- `ticket`: já é termo inglês no código; `apps/api/src/controladores/desk.ts` declara `GET tickets/:id` e usa `TicketDoDesk`. Por isso `isPtToken` não o inclui na frequência PT.',
+  '- `métrica`: o uso real está em `packages/core/src/metricas/` e em `packages/db/src/schema/gestao.ts` (`metricaDiaria`). A forma exata não foi classificada pelo léxico PT do inventário; a forma plural aparece em caminhos.',
+  '- `tempo-real`: `packages/tempo-real/package.json` usa `@pipe/tempo-real`; o inventário separa o composto em `tempo` e `real`, sem uma linha de token composto.',
+  '',
+  'Compostos como `ações em massa` e `mensagem ativa` foram contados como sequências exatas em `old`. `check-map` compara tokens unitários; o portão 2 deve revisar a correspondência dos compostos explicitamente.',
   '',
   '## Other ambiguous terms',
   '',
