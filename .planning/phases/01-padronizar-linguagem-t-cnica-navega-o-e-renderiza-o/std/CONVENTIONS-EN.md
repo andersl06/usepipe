@@ -1,6 +1,6 @@
 # Canonical English naming convention (STD-01)
 
-Status: PROPOSED
+Status: APPROVED 2026-09-24 (approver: owner via chat)
 
 ## Scope
 
@@ -23,6 +23,10 @@ Use PascalCase for classes, types, interfaces, and React components. Put the idi
 ## Routes and endpoints
 
 Use `v1/<plural-resource>` for API resources, with English kebab-case path segments, nested resources, and `:camelCaseParam` parameters. Use `callback` for Google OAuth and SSO callback segments (D-12, D-13). Meta webhook paths already in English remain untouched (D-15). Frontend route segments use English kebab-case, except Blip route names intentionally mirrored by the Desk, including `/activeMessage/send` and `/bulk-ticket`. Update all route constructors and consumers atomically; invitation links and screen bookmarks take the D-14 direct cut without Portuguese redirects. Navigation state decisions follow STD-12 and are not inferred from a route translation.
+
+Owner decision (gate 1, 2026-09-24): Portal/Gestão front routes follow the Blip path shape, since Blip itself uses `<tenant>.blip.ai/application`, `.../application/detail/<tenant>/attendance/...`, and `.../application/detail/<tenant>/analytics/dashboard.html`. Concretely: the Portal/Gestão module or main portal screen is `/application`; attendance-module routes nest under `/attendance/...` (`/application/attendance/...` where the Desk mirrors the module); active-message routes stay `/application/activeMessage`. This is the glossary's `painel` → `application` decision (module/route sense; UI panel components use `panel` instead, see `GLOSSARY.md`).
+
+Per-tenant subdomains (`<tenant>.usepipe.ai`, `<tenant>.desk.usepipe.ai`) are **out of scope for phase 1** — a later phase addresses tenant-subdomain routing. Route constructors and consumers renamed in this phase must not assume a fixed host; keep the host resolution mechanism as-is and only change path segments.
 
 ## Query params, storage keys, cookies, metrics, queues
 
@@ -52,4 +56,4 @@ Classify remaining Portuguese text as A: product text visible to the user; B: de
 
 ## Approval and enforcement
 
-This document and `GLOSSARY.md` remain proposals until the owner closes D-03 gate 1. Only owner-approved glossary rows may be consumed by `tools/std/check-map.ts --glossary`; D-03 gate 2 separately approves each old→new map before mechanical renaming. Exceptions to the glossary need an explicit decision and evidence in the map, not a silent alternative spelling.
+The owner closed D-03 gate 1 on 2026-09-24 (approved via chat): this document and `GLOSSARY.md` are both `Status: APPROVED`. Only owner-approved glossary rows may be consumed by `tools/std/check-map.ts --glossary`; D-03 gate 2 separately approves each old→new map before mechanical renaming. Exceptions to the glossary need an explicit decision and evidence in the map, not a silent alternative spelling.
