@@ -1,0 +1,8 @@
+{
+  "name": "@mini/core",
+  "type": "module",
+  "exports": {
+    ".": { "types": "./dist/index.d.ts", "default": "./dist/index.js" },
+    "./metricas": { "types": "./dist/metricas/index.d.ts", "default": "./dist/metricas/index.js" }
+  }
+}

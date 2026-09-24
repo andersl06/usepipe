@@ -1,0 +1,3 @@
+id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+CORE-001,core,1,symbol,ErroPipe,PipeError,packages/core/src/erros.ts:1,,no,,D-05,approved,sonnet,
+CORE-002,core,1,symbol,NaoExiste,Missing,packages/core/src/ausente.ts:1,,no,,,proposed,sonnet,
