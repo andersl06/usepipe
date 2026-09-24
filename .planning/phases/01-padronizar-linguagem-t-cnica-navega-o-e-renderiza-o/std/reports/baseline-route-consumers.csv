@@ -343,6 +343,8 @@ apps/api/tests/etiquetas.test.ts,391,/v1/contatos/${randomUUID()}/etiquetas,/v1/
 apps/api/tests/etiquetas.test.ts,400,/v1/contatos/${contatoId}/etiquetas,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
 apps/api/tests/etiquetas.test.ts,404,/v1/contatos/${contatoId}/etiquetas,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
 apps/api/tests/etiquetas.test.ts,407,/v1/contatos/${contatoId}/etiquetas,/v1/contatos/:*/etiquetas,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/gerar-fixtures-jsonb.helper.ts,279,${api.url}/v1/contatos,/v1/contatos,/v1/contatos/:*/etiquetas/:*
+apps/api/tests/gerar-fixtures-jsonb.helper.ts,293,POST /v1/contatos falhou: ${respostaContato.status} ${await respostaContato.text()},/v1/contatos,/v1/contatos/:*/etiquetas/:*
 apps/api/tests/growth.test.ts,100,/v1/gestao/fluxos/${fluxoId}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
 apps/api/tests/growth.test.ts,111,/v1/gestao/fluxos/${fluxoId}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
 apps/api/tests/growth.test.ts,117,/v1/gestao/fluxos/${fluxoId}/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados,/v1/gestao/fluxos/:*/links-rastreados
@@ -413,6 +415,7 @@ apps/api/tests/integracoes.test.ts,665,/v1/gestao/webhooks,/v1/gestao/webhooks,/
 apps/api/tests/integracoes.test.ts,679,/v1/gestao/webhooks,/v1/gestao/webhooks,/v1/gestao/webhooks/:*
 apps/api/tests/integracoes.test.ts,687,/v1/gestao/webhooks/${id},/v1/gestao/webhooks/:*,/v1/gestao/webhooks/:*
 apps/api/tests/integracoes.test.ts,699,/v1/gestao/webhooks/${id},/v1/gestao/webhooks/:*,/v1/gestao/webhooks/:*
+apps/api/tests/jsonb-compat.test.ts,391,${api.url}/v1/contatos/${contatoId},/v1/contatos/:*,/v1/contatos/:*/etiquetas/:*
 apps/api/tests/mensagens-ativas.test.ts,259,${api.url}/v1/mensagens-ativas,/v1/mensagens-ativas,/v1/mensagens-ativas/limites
 apps/api/tests/mensagens-ativas.test.ts,275,${api.url}/v1/mensagens-ativas,/v1/mensagens-ativas,/v1/mensagens-ativas/limites
 apps/api/tests/mensagens-ativas.test.ts,290,${api.url}/v1/mensagens-ativas,/v1/mensagens-ativas,/v1/mensagens-ativas/limites

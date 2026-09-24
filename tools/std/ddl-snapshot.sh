@@ -21,7 +21,7 @@ case "${1:-}" in
     current="$scratch_dir/current.sql"
     trap 'rm -f -- "$current"; rmdir -- "$scratch_dir"' EXIT
     export_ddl > "$current"
-    if ! diff -u "$BASELINE" "$current"; then
+    if ! diff --strip-trailing-cr -u "$BASELINE" "$current"; then
       echo "DDL CHANGED" >&2
       exit 1
     fi
