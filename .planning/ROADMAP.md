@@ -33,7 +33,42 @@ Pipe já tem um núcleo grande construído e commitado (canais, monitoramento, e
   5. Nenhum dado ou contrato persistido foi renomeado mecanicamente — cada caso está listado com decisão própria, pendente ou já resolvida separadamente
   6. `apps/crm` segue a mesma convenção técnica sem que isso tenha antecipado ou contaminado a decisão de CRM-01
   7. Validação final não encontra nomenclatura técnica portuguesa remanescente não classificada (texto de produto, contrato persistido adiado, ou exceção documentada são as únicas categorias aceitas)
-**Plans**: TBD
+**Plans**: 33 plans (28 waves: slice 0 tooling/inventory/gates 01-01..01-12, slice 1 packages 01-13..01-15, slice 2 API+workers 01-16..01-20, slice 3 fronts/CSS/CRM 01-21..01-27, slice 4 infra/names 01-28..01-30, slice 5 residual 01-31, final regression 01-32, cutover 01-33)
+
+Plans:
+- [ ] 01-01-PLAN.md — Create the phase branch, fix the only root typecheck failure, and record the green baseline that every later slice gate is compared against (D-21, ...
+- [ ] 01-02-PLAN.md — Build the PT detector and the STD-11 scanner, seed the A/B/C exceptions file, and record the baseline scan.
+- [ ] 01-03-PLAN.md — Build the route-consumer matcher (STD-03 proof, guard-preservation proof) and the DDL snapshot (STD-06/D-08 proof), run both on the baseline, and w...
+- [ ] 01-04-PLAN.md — Install ts-morph 28.0.0 and build the three map-driven rename tools plus the shared map library, proven on a fixture mini-monorepo.
+- [ ] 01-05-PLAN.md — Build the deterministic inventory extractor and the slice gate, then run the gate on the baseline.
+- [ ] 01-06-PLAN.md — Build the delegation and validation tooling for the semantic work: Codex wrapper, prompt chunker, output schemas, prompt templates, proposal merger...
+- [ ] 01-07-PLAN.md — Produce the navigation/rendering contract (STD-12), the per-screen URL-vs-state classification (STD-04) and the compatibility strategy (STD-05).
+- [ ] 01-08-PLAN.md — Run the deterministic inventory, then classify persisted items and wire contracts (STD-06, D-09, D-11, D-40) so the map never contains a persisted ...
+- [ ] 01-09-PLAN.md — Propose the domain glossary and English naming convention, then stop for owner gate 1 (D-03).
+- [ ] 01-10-PLAN.md — Record the approved language rule in PROJECT.md (STD-08) and propose the old->new map for the backend, infra and CSS scopes (D-03 gate 2 input).
+- [ ] 01-11-PLAN.md — Propose the old->new map for front and flow-engine scopes: packages-core, packages-ai, packages-ui, desk-vite, gestao-vite, crm, ponte, site.
+- [ ] 01-12-PLAN.md — Prepare and run owner gate 2 (D-03): prove the map is applicable, present a review packet, record approval, and close slice 0.
+- [ ] 01-13-PLAN.md — Slice 1a (D-19 step 1): apply the approved map for `@pipe/core` and `@pipe/db`, including every consumer, and pass the slice gate.
+- [ ] 01-14-PLAN.md — Slice 1b (D-19 step 1, rest of the packages): apply approved TS-level rows for contracts, ui, ai, autenticacao, armazenamento, tempo-real and mcp, ...
+- [ ] 01-15-PLAN.md — Close slice 1: triage and apply comment changes for all packages (D-16/D-17), run the slice gate, tag `std-slice-1-end`.
+- [ ] 01-16-PLAN.md — Slice 2a (D-19 step 2): apply the approved map for `apps/workers` and `apps/ponte`, and rename BullMQ queues/jobs/schedulers and Prometheus metrics...
+- [ ] 01-17-PLAN.md — Slice 2b: apply the approved map for API identifiers, files, directories, subpath exports and test titles (not endpoint strings), and prove guards ...
+- [ ] 01-18-PLAN.md — Slice 2c: rename API endpoints and every path-string dependent, including auth callbacks, invite links, body-limit scoping and flow-key route parsing.
+- [ ] 01-19-PLAN.md — Slice 2d: rename the remaining API string contracts — non-persisted error codes, non-db wire keys, WebSocket events, and the session cookie — with ...
+- [ ] 01-20-PLAN.md — Close slice 2: comment triage for API, workers and ponte, slice gate, tag `std-slice-2-end`.
+- [ ] 01-21-PLAN.md — Slice 3a (D-19 step 3): apply the approved map to `apps/desk-vite` (identifiers, files, folders, routes, params, storage keys, test titles).
+- [ ] 01-22-PLAN.md — Implement the Desk part of the navigation contract (D-27, D-29, D-32) on the renamed Desk.
+- [ ] 01-23-PLAN.md — Slice 3c: apply the approved map to `apps/gestao-vite` (287 files) and execute the Gestão removals decided by the owner (D-14, D-28).
+- [ ] 01-24-PLAN.md — Implement the Gestão part of the navigation contract: filters in state with remembered last filter (D-30), and the owner's gate-2 decisions for wiz...
+- [ ] 01-25-PLAN.md — Slice 3e: apply the approved CSS map (D-35) across packages/ui, desk-vite, gestao-vite, crm and site.
+- [ ] 01-26-PLAN.md — Slice 3f: apply the approved map to `apps/crm` within STD-09 limits — rename identifiers and routes only; keep Next App Router and Server Component...
+- [ ] 01-27-PLAN.md — Close slice 3: comment triage for the fronts and CSS, slice gate, tag `std-slice-3-end`.
+- [ ] 01-28-PLAN.md — Slice 4a (D-19 step 4): rename PT-named workspace packages, one at a time, with every build/deploy reference, validating a real docker build after ...
+- [ ] 01-29-PLAN.md — Slice 4b: rename the Gestão app (and the Desk app only if the map says so), one app at a time, including compose/Traefik/image names, with real ima...
+- [ ] 01-30-PLAN.md — Slice 4c: rename ponte and site apps, infra files and shell identifiers, and all package.json script keys (D-07, D-39), triage infra/site comments,...
+- [ ] 01-31-PLAN.md — Slice 5 (D-19 step 5): residual sweep — stale references in docs/examples/scripts, doc file names, residual identifiers and comments — until the ST...
+- [ ] 01-32-PLAN.md — Final regression and review before cutover (STD-11): full gate, all images, invariant review by Sonnet, and the owner's local smoke walk.
+- [ ] 01-33-PLAN.md — Single coordinated cutover (D-10, D-12, D-20 "deploy é um único corte no final"): drain tool + runbook, owner-executed production cutover, then per...
 **UI hint**: yes
 
 **Decisões em aberto para `/gsd-discuss-phase 1`** (não resolvidas por este roadmap, precisam de investigação/decisão do dono antes do plano):
@@ -136,7 +171,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Padronizar linguagem técnica, navegação e renderização | 0/TBD | Not started | - |
+| 1. Padronizar linguagem técnica, navegação e renderização | 0/33 | Not started | - |
 | 2. Fechar o Builder | 0/TBD | Not started | - |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
