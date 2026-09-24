@@ -1,0 +1,87 @@
+glob,pattern,kind,category,justification,ref
+*,*,jsx-text,A,User-visible product text is not scanned,STD-10
+**/*.md,*,md-prose,A,Markdown prose is documentation text and is not scanned (only .md paths are technical; technical references inside docs are swept by stale-refs in slice 5),STD-10
+referencias-blip/**,*,*,C,Captured reference material is excluded from repository code rules,D-17
+**/*,^webhooks/,string-literal,C,Webhook paths are already English,D-15
+packages/db/src/schema/**,.*,sql-name,B,SQL names remain unchanged while TypeScript names migrate,D-08
+apps/api/src/**,^[a-z_]+:(ler|escrever|gerenciar)$,literal-value,B,API-key scopes are persisted,D-40
+**/*,^memoria$|^bullmq$,*,C,Environment values remain unchanged,D-06
+**/*,^ACME_EMAIL$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^ANTHROPIC_API_KEY$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^BACKUP_S3_KEY$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^BACKUP_S3_SEGREDO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^DATABASE_URL$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^DATABASE_URL_APP$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^ENABLE_ACCOUNT_SIGNUP$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^GOOGLE_CLIENTE_ID$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^GOOGLE_CLIENTE_SEGREDO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^GOOGLE_URL_RETORNO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^GRAFANA_SENHA$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^HEALTHCHECK_URL_BACKUP$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^HEALTHCHECK_URL_RESTAURACAO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PG_ARCHIVE_MODE$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PGBACKREST_REPO1_CIPHER_PASS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_AGREGACAO_CRON$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_CHAVE_SEGREDO_ATUAL$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_CHAVES_SEGREDO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_COOKIE_DOMINIO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_COOKIE_SEGURO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_DOMINIO_CONTAS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_EMAIL_MODO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_EMAIL_REMETENTE$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_EMAIL_TIMEOUT_MS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_EMAIL_TOKEN$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_EMAIL_URL$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_ENTREGA_CONCORRENCIA$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_ENTREGA_ESPERA_BASE_MS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_ENTREGA_ESPERA_TETO_MS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_ENTREGA_MAX_TENTATIVAS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_ENTREGA_VARREDURA_MS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_ESPELHO_CRM_CONCORRENCIA$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_ESPELHO_CRM_VARREDURA_MS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_FILAS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_FUSO_PADRAO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_IA_MODELO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_LIMITE_CORPO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_LIMITE_IMPORTACAO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_MENSAGEM_ATIVA_LIMITE_DIARIO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_MENSAGEM_ATIVA_MAX_CONTATOS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_METRICS_TOKEN$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_ORIGENS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_PORTA_PUBLICA$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_SAUDE_TIMEOUT_MS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_STORAGE_DIR$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_STORAGE_URL_BASE$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_TETO_SEM_PRIMEIRA_RESPOSTA$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_TWENTY_TIMEOUT_MS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_TWENTY_URL$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_URL_API$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_URL_API_PUBLICA$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_URL_APP$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_URL_ENTRADA$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_URL_ESTE_APP$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_VERSAO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_WEBHOOK_MAX_TENTATIVAS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_WEBHOOK_TIMEOUT_MS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_WHATSAPP_CLIENTE$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_WHATSAPP_CONEXAO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_WHATSAPP_DUBLE_ATRASO_MS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_WHATSAPP_DUBLE_CODIGO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_WHATSAPP_DUBLE_FALHA_PERMANENTE$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_WHATSAPP_DUBLE_FALHAR_PARA$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_WHATSAPP_DUBLE_TEXTO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_WS_MAX_PINGS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_WS_PING_MS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PIPE_WS_PONG_TIMEOUT_MS$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^PORT$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^POSTGRES_APP_SENHA$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^POSTGRES_SENHA$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^REDIS_URL$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^WHATSAPP_API_VERSAO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^WHATSAPP_APP_ID$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^WHATSAPP_APP_SECRET$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^WHATSAPP_CONFIG_ID$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^WHATSAPP_PHONE_NUMBER_ID$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^WHATSAPP_TOKEN_ACESSO$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^WHATSAPP_VERIFY_TOKEN$,*,C,Environment variable name remains unchanged,D-06/D-36
+**/*,^WHATSAPP_WABA_ID$,*,C,Environment variable name remains unchanged,D-06/D-36
