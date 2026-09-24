@@ -33,19 +33,19 @@ Pipe já tem um núcleo grande construído e commitado (canais, monitoramento, e
   5. Nenhum dado ou contrato persistido foi renomeado mecanicamente — cada caso está listado com decisão própria, pendente ou já resolvida separadamente
   6. `apps/crm` segue a mesma convenção técnica sem que isso tenha antecipado ou contaminado a decisão de CRM-01
   7. Validação final não encontra nomenclatura técnica portuguesa remanescente não classificada (texto de produto, contrato persistido adiado, ou exceção documentada são as únicas categorias aceitas)
-**Plans**: 33 plans (28 waves: slice 0 tooling/inventory/gates 01-01..01-12, slice 1 packages 01-13..01-15, slice 2 API+workers 01-16..01-20, slice 3 fronts/CSS/CRM 01-21..01-27, slice 4 infra/names 01-28..01-30, slice 5 residual 01-31, final regression 01-32, cutover 01-33)
+**Plans**: 36 plans (28 waves: slice 0 tooling/inventory/gates 01-01..01-12 plus 01-34 jsonb fixtures (wave 2), 01-35 wire contracts (wave 5), 01-36 CSS map (wave 6), slice 1 packages 01-13..01-15, slice 2 API+workers 01-16..01-20, slice 3 fronts/CSS/CRM 01-21..01-27, slice 4 infra/names 01-28..01-30, slice 5 residual 01-31, final regression 01-32, cutover 01-33)
 
 Plans:
 - [ ] 01-01-PLAN.md — Create the phase branch, fix the only root typecheck failure, and record the green baseline that every later slice gate is compared against (D-21, ...
 - [ ] 01-02-PLAN.md — Build the PT detector and the STD-11 scanner, seed the A/B/C exceptions file, and record the baseline scan.
 - [ ] 01-03-PLAN.md — Build the route-consumer matcher (STD-03 proof, guard-preservation proof) and the DDL snapshot (STD-06/D-08 proof), run both on the baseline, and w...
 - [ ] 01-04-PLAN.md — Install ts-morph 28.0.0 and build the three map-driven rename tools plus the shared map library, proven on a fixture mini-monorepo.
-- [ ] 01-05-PLAN.md — Build the deterministic inventory extractor and the slice gate, then run the gate on the baseline.
+- [ ] 01-05-PLAN.md — Build the deterministic inventory extractor (with jsonb type reach and per-route dependents) and the slice gate, then run the gate on the baseline.
 - [ ] 01-06-PLAN.md — Build the delegation and validation tooling for the semantic work: Codex wrapper, prompt chunker, output schemas, prompt templates, proposal merger...
 - [ ] 01-07-PLAN.md — Produce the navigation/rendering contract (STD-12), the per-screen URL-vs-state classification (STD-04) and the compatibility strategy (STD-05).
-- [ ] 01-08-PLAN.md — Run the deterministic inventory, then classify persisted items and wire contracts (STD-06, D-09, D-11, D-40) so the map never contains a persisted ...
+- [ ] 01-08-PLAN.md — Run the deterministic inventory, then classify persisted items including jsonb-reached shapes (STD-06, D-09, D-11, D-40) so the map never contains a persisted name.
 - [ ] 01-09-PLAN.md — Propose the domain glossary and English naming convention, then stop for owner gate 1 (D-03).
-- [ ] 01-10-PLAN.md — Record the approved language rule in PROJECT.md (STD-08) and propose the old->new map for the backend, infra and CSS scopes (D-03 gate 2 input).
+- [ ] 01-10-PLAN.md — Record the approved language rule in PROJECT.md (STD-08) and propose the old->new map for the backend and infra scopes (D-03 gate 2 input).
 - [ ] 01-11-PLAN.md — Propose the old->new map for front and flow-engine scopes: packages-core, packages-ai, packages-ui, desk-vite, gestao-vite, crm, ponte, site.
 - [ ] 01-12-PLAN.md — Prepare and run owner gate 2 (D-03): prove the map is applicable, present a review packet, record approval, and close slice 0.
 - [ ] 01-13-PLAN.md — Slice 1a (D-19 step 1): apply the approved map for `@pipe/core` and `@pipe/db`, including every consumer, and pass the slice gate.
@@ -69,6 +69,9 @@ Plans:
 - [ ] 01-31-PLAN.md — Slice 5 (D-19 step 5): residual sweep — stale references in docs/examples/scripts, doc file names, residual identifiers and comments — until the ST...
 - [ ] 01-32-PLAN.md — Final regression and review before cutover (STD-11): full gate, all images, invariant review by Sonnet, and the owner's local smoke walk.
 - [ ] 01-33-PLAN.md — Single coordinated cutover (D-10, D-12, D-20 "deploy é um único corte no final"): drain tool + runbook, owner-executed production cutover, then per...
+- [ ] 01-34-PLAN.md — Capture redacted jsonb fixtures from the pre-rename DB and add the jsonb-keys check and jsonb-compat test (goldens) that every slice gate runs (STD-06).
+- [ ] 01-35-PLAN.md — Classify every API endpoint's wire contract for key-rename impact (D-09).
+- [ ] 01-36-PLAN.md — Propose and review the CSS map: classes, custom properties and data-* attributes (D-35).
 **UI hint**: yes
 
 **Decisões em aberto para `/gsd-discuss-phase 1`** (não resolvidas por este roadmap, precisam de investigação/decisão do dono antes do plano):
