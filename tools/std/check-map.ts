@@ -31,7 +31,7 @@ function validCase(row: MapRow): boolean {
     return /^data-[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(key) && (content === undefined || /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(content));
   }
   if (row.kind === 'css-var') return /^--[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(value);
-  if (row.kind === 'css-class') return /^[a-z][a-z0-9]*(?:-[a-z0-9]+)*$/.test(value);
+  if (row.kind === 'css-class') return /^[a-z][a-z0-9]*(?:-{1,2}[a-z0-9]+)*$/.test(value);
   if (row.kind === 'literal-value' || ['queue', 'job-name', 'metric', 'cookie'].includes(row.kind)) return validStyle(value, styleOf(row.old));
   if (['file', 'dir', 'package', 'app', 'front-route', 'endpoint'].includes(row.kind)) {
     return segments(value).every((segment) => {
@@ -96,7 +96,9 @@ export function checkMap(options: { map: string; scopes?: string[]; requireStatu
     const file = row.declared_at.replaceAll('\\', '/').replace(/:\d+(?::\d+)?$/, '');
     const key = ['file', 'dir'].includes(row.kind) ? `path:${row.new.replaceAll('\\', '/')}` : ['endpoint', 'front-route'].includes(row.kind) ? `route:${row.kind}:${row.new}` : `symbol:${row.kind}:${file}:${row.new}`;
     const previous = collision.get(key);
-    if (previous) add('error', [previous, row], 'duplicate target'); else collision.set(key, row);
+    const repeatableKind = ['css-class', 'css-var', 'data-attr'].includes(row.kind);
+    if (previous && (previous.old !== row.old || !repeatableKind)) add('error', [previous, row], 'duplicate target');
+    else if (!previous) collision.set(key, row);
     if (['endpoint', 'front-route'].includes(row.kind)) {
       const before = segments(row.old); const after = segments(row.new);
       if (before.length !== after.length || before.some((segment, i) => segment.startsWith(':') !== after[i]?.startsWith(':'))) add('error', [row], 'route segment or parameter position changed');
