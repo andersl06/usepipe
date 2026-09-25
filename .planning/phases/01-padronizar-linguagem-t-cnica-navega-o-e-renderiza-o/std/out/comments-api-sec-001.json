@@ -19,7 +19,7 @@
     {
       "id": "api-comment-91c56642",
       "action": "translate",
-      "new_text": "API key authentication through `chave_api` follows `apis.md` ?5.2: `Authorization: Bearer <token>`. The token is opaque rather than a self-contained JWT so it can be revoked immediately. Resolve `tenant_id` on the server; never accept it from a client payload or header. Tokens have the form `pipe_<prefixo>_<segredo>`. The database stores `prefixo` in clear text so the client can recognize the key, and stores the secret's `sha256` hash. Looking up the key by prefix is the only query performed before a tenant is established.",
+      "new_text": "API key authentication through `chave_api` follows `apis.md` §5.2: `Authorization: Bearer <token>`. The token is opaque rather than a self-contained JWT so it can be revoked immediately. Resolve `tenant_id` on the server; never accept it from a client payload or header. Tokens have the form `pipe_<prefixo>_<segredo>`. The database stores `prefixo` in clear text so the client can recognize the key, and stores the secret's `sha256` hash. Looking up the key by prefix is the only query performed before a tenant is established.",
       "sensitivity": "security",
       "evidence": "apps/api/src/autenticacao.ts:213-233; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"

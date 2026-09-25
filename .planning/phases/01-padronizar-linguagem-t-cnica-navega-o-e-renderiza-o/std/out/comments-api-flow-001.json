@@ -4,15 +4,15 @@
       "id": "api-comment-fd294909",
       "action": "translate",
       "new_text": "`nome`, `nome-2`, `nome-3`… Return the first unused value.",
-      "sensitivity": "other",
-      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:149",
-      "notes": ""
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:149; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
     },
     {
       "id": "api-comment-54503dfc",
       "action": "translate",
       "new_text": "Fifty accounts with the same name suggest another issue; the time suffix",
-      "sensitivity": "architecture",
+      "sensitivity": "security",
       "evidence": "apps/api/src/dominio/construtor-de-conta.ts:158; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
@@ -20,7 +20,7 @@
       "id": "api-comment-3984010a",
       "action": "translate",
       "new_text": "ensures sign-in remains available while that issue is investigated.",
-      "sensitivity": "architecture",
+      "sensitivity": "security",
       "evidence": "apps/api/src/dominio/construtor-de-conta.ts:159; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
@@ -60,7 +60,7 @@
       "id": "api-comment-fa5697b2",
       "action": "translate",
       "new_text": "Derive the workspace slug from the name, as Blip suggests in `/tenant-valid-id`.",
-      "sensitivity": "meta-blip",
+      "sensitivity": "security",
       "evidence": "apps/api/src/dominio/construtor-de-conta.ts:52; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
@@ -84,17 +84,17 @@
       "id": "api-comment-0849f31b",
       "action": "translate",
       "new_text": "Use the company name for a corporate email and the person's name for a public email;",
-      "sensitivity": "other",
-      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:90",
-      "notes": ""
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:90; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
     },
     {
       "id": "api-comment-1f8dbb1a",
       "action": "translate",
       "new_text": "both are provisional and \"minha conta\" can replace them.",
-      "sensitivity": "other",
-      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:91",
-      "notes": ""
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/construtor-de-conta.ts:91; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
     },
     {
       "id": "api-comment-4c3818e4",
