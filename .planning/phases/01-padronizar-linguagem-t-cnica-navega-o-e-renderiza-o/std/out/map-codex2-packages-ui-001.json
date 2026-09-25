@@ -1,0 +1,428 @@
+{
+  "rows": [
+    {
+      "id": "packages-ui-dir-121c05f0",
+      "new": "packages/ui/src/components",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-file-c7692ffa",
+      "new": "packages/ui/src/components/notice-closure.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-file-a8bd7f83",
+      "new": "packages/ui/src/assets/closure-sleepy.svg",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-file-d4e749c7",
+      "new": "packages/ui/src/components/closure-ticket.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-file-fac4f6ec",
+      "new": "packages/ui/src/components/structure.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-file-652dc3e4",
+      "new": "packages/ui/src/illustrations.tsx",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-file-eb5b5e31",
+      "new": "packages/ui/src/rules-closure.ts",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-64dcfc7a",
+      "new": "Application",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-e9390450",
+      "new": "AreaSettings",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-4e35e975",
+      "new": "ClosureNotice",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-aa74a9a6",
+      "new": "CardClosureTicket",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-b4db618a",
+      "new": "Card",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-5618eea9",
+      "new": "Column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-abb7cdb3",
+      "new": "LinkComponent",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-2b4b172f",
+      "new": "closureCanConfirm",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-0f1b63f5",
+      "new": "EmptyState",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-43b93192",
+      "new": "ClosureTag",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-4efc5e50",
+      "new": "EVENT_CLOSURE",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-4ff82c77",
+      "new": "Illustration",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-01ba305e",
+      "new": "initials",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-2993b7fc",
+      "new": "NavigationItem",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-1146dfbb",
+      "new": "LateralContext",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-e50c2079",
+      "new": "StateName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-9fa9281a",
+      "new": "IllustrationName",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-4b357cbf",
+      "new": "first",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-d866d33e",
+      "new": "IllustrationProps",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-symbol-6042f483",
+      "new": "withoutBridge",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-local-0e45ea16",
+      "new": "actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-local-3b0aa850",
+      "new": "active",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-local-61dbbc45",
+      "new": "block",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-local-261f2101",
+      "new": "linhaKey",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-local-6624d7fb",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-local-5024ad67",
+      "new": "column",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-local-e36943ea",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-local-e8ab30a9",
+      "new": "state",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-local-53dccc19",
+      "new": "hrefSettings",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-local-95a40ed7",
+      "new": "illustration",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-local-db6ac088",
+      "new": "empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-prop-21c74cc5",
+      "new": "actions",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-prop-eac79596",
+      "new": "active",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-prop-c0326fbc",
+      "new": "linhaKey",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-prop-679ee6ee",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-prop-b01aa98e",
+      "new": "key",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-prop-cb1e789c",
+      "new": "error",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-prop-5bcd7215",
+      "new": "hrefSettings",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-prop-6d751baa",
+      "new": "illustration",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-prop-e908fc9b",
+      "new": "obrigatoriaInClosure",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-ts-prop-44bc699f",
+      "new": "empty",
+      "persisted": "no",
+      "category": "",
+      "decision_ref": "",
+      "notes": ""
+    },
+    {
+      "id": "packages-ui-literal-value-89d10714",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ui-literal-value-6e970524",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ui-literal-value-5e09a977",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ui-literal-value-e1ff4d09",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    },
+    {
+      "id": "packages-ui-literal-value-f63d2bb1",
+      "new": "KEEP",
+      "persisted": "unknown",
+      "category": "",
+      "decision_ref": "",
+      "notes": "glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
+    }
+  ]
+}
