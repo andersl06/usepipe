@@ -81,25 +81,25 @@ export async function carregarRegras(tx: TransactionPipe): Promise<{
     const queues = await tx
       .select({
         id: queue.id,
-        nome: queue.nome,
-        capacidadePadrao: queue.capacityDefault,
-        ordem: queue.order,
+        name: queue.nome,
+        capacityDefault: queue.capacityDefault,
+        order: queue.order,
         horarioId: queue.horarioId,
         ativa: queue.ativa,
       })
       .from(queue)
       .orderBy(asc(queue.order), asc(queue.nome));
 
-    const nameOfQueue = new Map(queues.map((f) => [f.id, f.nome]));
+    const nameOfQueue = new Map(queues.map((f) => [f.id, f.name]));
 
     const regras = await tx
       .select({
         id: regraSla.id,
-        nome: regraSla.nome,
-        alvo: regraSla.alvo,
-        prazoSeg: regraSla.prazoSeg,
-        alertaSeg: regraSla.alertaSeg,
-        escopoTipo: regraSla.escopoTipo,
+        name: regraSla.nome,
+        target: regraSla.alvo,
+        deadlineSeg: regraSla.prazoSeg,
+        alertSeg: regraSla.alertaSeg,
+        scopeType: regraSla.escopoTipo,
         scopeId: regraSla.escopoId,
         ativa: regraSla.ativa,
       })
@@ -107,10 +107,10 @@ export async function carregarRegras(tx: TransactionPipe): Promise<{
       .orderBy(asc(regraSla.nome));
 
     return {
-      filas: queues.map(({ horarioId, ...resto }) => ({ ...resto, temHorario: horarioId !== null })),
+      queues: queues.map(({ horarioId, ...resto }) => ({ ...resto, temHorario: horarioId !== null })),
       regras: regras.map(({ scopeId, ...resto }) => ({
         ...resto,
-        escopoNome: scopeId ? (nameOfQueue.get(scopeId) ?? 'fila removida') : null,
+        scopeName: scopeId ? (nameOfQueue.get(scopeId) ?? 'fila removida') : null,
       })),
     };
   });
@@ -147,9 +147,9 @@ export async function loadData(tx: TransactionPipe): Promise<{
     const etiquetas = await tx
       .select({
         id: etiqueta.id,
-        nome: etiqueta.nome,
-        escopo: etiqueta.escopo,
-        obrigatoriaNoEncerramento: etiqueta.requiredInClosure,
+        name: etiqueta.nome,
+        scope: etiqueta.escopo,
+        requiredInClosure: etiqueta.requiredInClosure,
         usos: count(conversationLabel.conversaId),
       })
       .from(etiqueta)
@@ -158,7 +158,7 @@ export async function loadData(tx: TransactionPipe): Promise<{
       .orderBy(asc(etiqueta.nome));
 
     const channels = await tx
-      .select({ id: channel.id, nome: channel.nome, tipo: channel.tipo, ativo: channel.ativo })
+      .select({ id: channel.id, name: channel.nome, type: channel.tipo, active: channel.ativo })
       .from(channel)
       .orderBy(asc(channel.nome));
 
@@ -195,9 +195,9 @@ export async function loadChannels(tx: TransactionPipe): Promise<ChannelDetailed
     const canais = await tx
       .select({
         id: channel.id,
-        nome: channel.nome,
-        tipo: channel.tipo,
-        ativo: channel.ativo,
+        name: channel.nome,
+        type: channel.tipo,
+        active: channel.ativo,
         criadoEm: channel.criadoEm,
       })
       .from(channel)
@@ -210,8 +210,8 @@ export async function loadChannels(tx: TransactionPipe): Promise<ChannelDetailed
       .select({
         canalId: inbox.channelId,
         id: inbox.id,
-        nome: inbox.nome,
-        filaPadrao: queue.nome,
+        name: inbox.nome,
+        queueDefault: queue.nome,
         abertas: count(conversation.id),
       })
       .from(inbox)
@@ -273,10 +273,10 @@ export async function loadGeneral(tx: TransactionPipe): Promise<SettingsGeneral>
   return consultar(tx, async (tx) => {
     const [dono] = await tx
       .select({
-        nome: tenant.nome,
+        name: tenant.nome,
         fuso: tenant.fuso,
         idioma: tenant.idioma,
-        plano: tenant.plano,
+        plan: tenant.plano,
       })
       .from(tenant)
       .limit(1);
@@ -287,12 +287,12 @@ export async function loadGeneral(tx: TransactionPipe): Promise<SettingsGeneral>
     const pesquisas = await tx
       .select({
         id: pesquisa.id,
-        tipo: pesquisa.tipo,
+        type: pesquisa.tipo,
         escalaMin: pesquisa.escalaMin,
         escalaMax: pesquisa.escalaMax,
         pergunta: pesquisa.pergunta,
-        disparo: pesquisa.disparo,
-        ativa: pesquisa.ativa,
+        trigger: pesquisa.disparo,
+        active: pesquisa.ativa,
         criadoEm: pesquisa.criadoEm,
       })
       .from(pesquisa)
@@ -301,7 +301,7 @@ export async function loadGeneral(tx: TransactionPipe): Promise<SettingsGeneral>
     const etiquetas = await tx
       .select({
         id: etiqueta.id,
-        nome: etiqueta.nome,
+        name: etiqueta.nome,
         obrigatoria: etiqueta.requiredInClosure,
         usos: count(conversationLabel.conversaId),
       })
@@ -313,21 +313,21 @@ export async function loadGeneral(tx: TransactionPipe): Promise<SettingsGeneral>
     const first = pesquisas[0];
 
     return {
-      identidade: {
-        nome: dono?.nome ?? '',
+      identity: {
+        name: dono?.name ?? '',
         fuso: dono?.fuso ?? 'America/Sao_Paulo',
         idioma: dono?.idioma ?? 'pt-BR',
-        plano: dono?.plano ?? 'essencial',
+        plan: dono?.plan ?? 'essencial',
       },
       pesquisa: first
         ? {
             id: first.id,
-            tipo: first.tipo,
+            type: first.type,
             escalaMin: first.escalaMin,
             escalaMax: first.escalaMax,
             pergunta: first.pergunta,
-            disparo: first.disparo,
-            ativa: first.ativa,
+            trigger: first.trigger,
+            active: first.active,
           }
         : null,
       outrasPesquisas: Math.max(0, pesquisas.length - 1),
@@ -366,13 +366,16 @@ export async function writeIdentity(
   }
   return consultar(tx, async (tx) => {
     const [antes] = await tx
-      .select({ nome: tenant.nome, fuso: tenant.fuso, idioma: tenant.idioma })
+      .select({ name: tenant.nome, fuso: tenant.fuso, idioma: tenant.idioma })
       .from(tenant)
       .where(eq(tenant.id, tid))
       .limit(1);
-    if (!antes) return { ok: false, erro: 'Tenant não encontrado.' };
+    if (!antes) return { ok: false, error: 'Tenant não encontrado.' };
 
-    await tx.update(tenant).set(inbound).where(eq(tenant.id, tid));
+    await tx
+      .update(tenant)
+      .set({ nome: inbound.name, fuso: inbound.fuso, idioma: inbound.idioma })
+      .where(eq(tenant.id, tid));
 
     const mudou = diferenca(antes, inbound);
     await registrarAuditoria(tx, tid, {
@@ -409,14 +412,22 @@ export async function gravarPesquisa(
     await exigirPermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
   }
   const { id, ...values } = entrada;
+  const columns = {
+    tipo: values.type,
+    escalaMin: values.escalaMin,
+    escalaMax: values.escalaMax,
+    pergunta: values.pergunta,
+    disparo: values.trigger,
+    ativa: values.ativa,
+  };
 
   return consultar(tx, async (tx) => {
     if (!id) {
       const [criada] = await tx
         .insert(pesquisa)
-        .values({ tenantId: tid, ...values })
+        .values({ tenantId: tid, ...columns })
         .returning({ id: pesquisa.id });
-      if (!criada) return { ok: false, erro: 'Não consegui gravar a pesquisa.' };
+      if (!criada) return { ok: false, error: 'Não consegui gravar a pesquisa.' };
 
       await registrarAuditoria(tx, tid, {
         ator: ator,
@@ -430,19 +441,19 @@ export async function gravarPesquisa(
 
     const [antes] = await tx
       .select({
-        tipo: pesquisa.tipo,
+        type: pesquisa.tipo,
         escalaMin: pesquisa.escalaMin,
         escalaMax: pesquisa.escalaMax,
         pergunta: pesquisa.pergunta,
-        disparo: pesquisa.disparo,
+        trigger: pesquisa.disparo,
         ativa: pesquisa.ativa,
       })
       .from(pesquisa)
       .where(and(eq(pesquisa.tenantId, tid), eq(pesquisa.id, id)))
       .limit(1);
-    if (!antes) return { ok: false, erro: 'Pesquisa não encontrada.' };
+    if (!antes) return { ok: false, error: 'Pesquisa não encontrada.' };
 
-    await tx.update(pesquisa).set(values).where(eq(pesquisa.id, id));
+    await tx.update(pesquisa).set(columns).where(eq(pesquisa.id, id));
 
     const mudou = diferenca(antes, values);
     await registrarAuditoria(tx, tid, {
@@ -486,7 +497,7 @@ export async function writeLabelsOfClosure(
         .from(etiqueta)
         .where(and(eq(etiqueta.tenantId, tid), inArray(etiqueta.id, [...escolhidas])));
       if (validas.length !== escolhidas.length) {
-        return { ok: false, erro: 'Etiqueta desconhecida na seleção.' };
+        return { ok: false, error: 'Etiqueta desconhecida na seleção.' };
       }
 
       await tx
