@@ -1,5 +1,5 @@
 id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
-api-cookie-c9e75885,api,2,cookie,pipe_desafio,pipe_challenge,apps/api/src/controladores/entrar.ts:47,11,no,,D-12,approved,sonnet,"rewrite-literals unmatched: the constant is read via a hand-rolled Set-Cookie template literal and a custom lerCookies() helper - not a cookie.get/set() call the technical-position matcher recognizes; apply manually"
+api-cookie-c9e75885,api,2,cookie,pipe_desafio,pipe_challenge,apps/api/src/controladores/entrar.ts:47,11,no,,D-12,approved,sonnet,rewrite-literals unmatched: the constant is read via a hand-rolled Set-Cookie template literal and a custom lerCookies() helper - not a cookie.get/set() call the technical-position matcher recognizes; apply manually
 api-dir-2cbd4c3f,api,2,dir,apps/api/src/dominio/gestao/acoes,apps/api/src/domain/management/actions,apps/api/src/dominio/gestao/acoes,0,no,,,approved,codex1,
 api-dir-3eb5edfe,api,2,dir,apps/api/src/dominio/whatsapp,apps/api/src/domain/whatsapp,apps/api/src/dominio/whatsapp,0,no,,,approved,codex1,
 api-dir-450156ea,api,2,dir,apps/api/src/dominio/desk,apps/api/src/domain/desk,apps/api/src/dominio/desk,0,no,,,approved,codex1,
@@ -3785,11 +3785,11 @@ api-ts-prop-03cff6f3,api,2,ts-prop,prefixo,prefix,apps/api/tests/integracoes.tes
 api-ts-prop-0572e1c9,api,2,ts-prop,estado_entrega,stateDelivery,apps/api/tests/envio-sessao.test.ts:113,61,no,,,approved,codex1,
 api-ts-prop-05f02f77,api,2,ts-prop,erros,errors,apps/api/src/dominio/gestao/builder-do-fluxo.ts:284,110,no,,,approved,codex1,
 api-ts-prop-06643042,api,2,ts-prop,ativa,active,apps/api/src/dominio/gestao/cadastros.ts:1174,340,no,,,approved,codex1,
-api-ts-prop-06980bb0,api,2,wire-key,fluxo_id,flowId,apps/api/src/autenticacao.ts:108,65,no,,D-09,approved,codex1,
+api-ts-prop-06980bb0,api,2,wire-key,fluxo_id,flowId,apps/api/src/autenticacao.ts:108,apps/api/src/autenticacao.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-06b5214c,api,2,ts-prop,estado,state,apps/api/src/dominio/dicionario-crm.ts:227,1269,no,,,approved,codex1,
 api-ts-prop-08a5e78b,api,2,ts-prop,dados,data,apps/api/src/dominio/gestao/monitoramento.ts:286,669,no,,,approved,codex1,
 api-ts-prop-0aaf3706,api,2,ts-prop,erroDeWebhook,webhookError,apps/api/src/dominio/whatsapp/configuracao-manual.ts:29,38,no,,,approved,sonnet,
-api-ts-prop-0b431ca8,api,2,wire-key,atendente_id,agentId,apps/api/src/dominio/envio.ts:88,68,no,,D-09,approved,codex1,
+api-ts-prop-0b431ca8,api,2,wire-key,atendente_id,agentId,apps/api/src/dominio/envio.ts:88,apps/api/src/dominio/envio.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-0b4a21eb,api,2,ts-prop,usuarioId,userId,apps/api/src/dominio/gestao/equipe-do-fluxo.ts:264,604,no,,,approved,codex1,
 api-ts-prop-0bbc4b57,api,2,ts-prop,estado,state,apps/api/tests/anexos-multiplos.test.ts:180,1269,no,,,approved,codex1,
 api-ts-prop-0c441bae,api,2,ts-prop,encerrada_por,closedBy,apps/api/src/dominio/gestao/atendimento.ts:213,21,no,,,approved,codex1,
@@ -3887,7 +3887,7 @@ api-ts-prop-261616f4,api,2,ts-prop,entrarEm,joinedAt,apps/api/tests/convites.tes
 api-ts-prop-262b5cdc,api,2,ts-prop,contato_id,contactId,apps/api/src/dominio/espelho-crm.ts:102,113,no,,,approved,codex1,
 api-ts-prop-274726d3,api,2,ts-prop,condicao,condition,apps/api/src/dominio/gestao/builder-do-fluxo.ts:178,123,no,,,approved,codex1,
 api-ts-prop-2773eb2b,api,2,ts-prop,membros,members,apps/api/src/controladores/gestao-conta.ts:92,128,no,,,approved,codex1,
-api-ts-prop-27c552d4,api,2,wire-key,atendente_id,agentId,apps/api/src/dominio/fluxo.ts:577,68,no,,D-09,approved,codex1,
+api-ts-prop-27c552d4,api,2,wire-key,atendente_id,agentId,apps/api/src/dominio/fluxo.ts:577,apps/api/src/dominio/fluxo.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-2802fb35,api,2,ts-prop,anexoIds,attachmentIds,apps/api/src/dominio/envio.ts:312,4,no,,,approved,codex1,
 api-ts-prop-280d61cc,api,2,ts-prop,porFila,byQueue,apps/api/src/dominio/gestao/atendimento.ts:62,10,no,,,approved,codex1,
 api-ts-prop-2863f695,api,2,ts-prop,porAvaliador,byEvaluator,apps/api/src/dominio/gestao/monitoria.ts:100,3,no,,,approved,codex1,
@@ -3958,7 +3958,7 @@ api-ts-prop-403c37d5,api,2,ts-prop,viaSessao,viaSession,apps/api/src/autenticaca
 api-ts-prop-40c58100,api,2,ts-prop,filaNome,queueName,apps/api/src/dominio/gestao/historico.ts:40,27,no,,,approved,codex1,
 api-ts-prop-40eccfdf,api,2,ts-prop,prioridade,priority,apps/api/src/controladores/conversas.ts:36,146,no,,,approved,codex1,
 api-ts-prop-411da8ca,api,2,ts-prop,espera_fila,waitQueue,apps/api/src/dominio/desk/metricas.ts:61,8,no,,,approved,codex1,
-api-ts-prop-41de854c,api,2,wire-key,canal_id,channelId,apps/api/tests/canal-do-fluxo.test.ts:152,94,no,,D-09,approved,codex1,
+api-ts-prop-41de854c,api,2,wire-key,canal_id,channelId,apps/api/tests/canal-do-fluxo.test.ts:152,apps/api/tests/canal-do-fluxo.test.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-420b88a1,api,2,ts-prop,erro,error,apps/api/src/dominio/gestao/cadastros.ts:795,1478,no,,,approved,codex1,
 api-ts-prop-429affa9,api,2,ts-prop,estado,state,apps/api/tests/fluxo.test.ts:180,1269,no,,,approved,codex1,
 api-ts-prop-42b80540,api,2,ts-prop,de_bloco_id,ofBlockId,apps/api/src/dominio/fluxo.ts:120,6,no,,,approved,codex1,
@@ -3976,7 +3976,7 @@ api-ts-prop-462f635c,api,2,ts-prop,convite,invitation,apps/api/src/controladores
 api-ts-prop-466b67ce,api,2,ts-prop,mediaPorAtendente,mediaByAgent,apps/api/src/dominio/gestao/monitoramento.ts:102,3,no,,,approved,codex1,
 api-ts-prop-467088f6,api,2,ts-prop,canalNome,channelName,apps/api/tests/canal-do-fluxo.test.ts:223,29,no,,,approved,codex1,
 api-ts-prop-4690ee5f,api,2,ts-prop,por,by,apps/api/src/dominio/fluxo.ts:945,2747,no,,,approved,codex1,
-api-ts-prop-46f550ee,api,2,wire-key,contato_id,contactId,apps/api/src/dominio/fluxo.ts:576,113,no,,D-09,approved,codex1,
+api-ts-prop-46f550ee,api,2,wire-key,contato_id,contactId,apps/api/src/dominio/fluxo.ts:576,apps/api/src/dominio/fluxo.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-470c6d45,api,2,ts-prop,conversas,conversations,apps/api/src/dominio/gestao/atendimento.ts:53,540,no,,,approved,codex1,
 api-ts-prop-470fece4,api,2,ts-prop,fluxoId,flowId,apps/api/src/dominio/fluxo.ts:72,504,no,,,approved,codex1,
 api-ts-prop-471d4df7,api,2,ts-prop,contato,contact,apps/api/src/dominio/gestao/regra-fila.ts:111,1026,no,,,approved,codex1,
@@ -3986,13 +3986,13 @@ api-ts-prop-47e17606,api,2,ts-prop,tem_arquivo,hasFile,apps/api/src/dominio/gest
 api-ts-prop-48112fbc,api,2,ts-prop,usuarioId,userId,apps/api/src/dominio/whatsapp/criacao-de-canal.ts:36,604,no,,,approved,codex1,
 api-ts-prop-4830b893,api,2,ts-prop,mensagem,message,apps/api/tests/equipe-do-fluxo.test.ts:241,1267,no,,,approved,codex1,
 api-ts-prop-48bbcc31,api,2,ts-prop,fluxo_id,flowId,apps/api/tests/roteador.test.ts:572,65,no,,,approved,codex1,
-api-ts-prop-48e3db9e,api,2,wire-key,contato_id,contactId,apps/api/src/dominio/mensagem-ativa.ts:217,113,no,,D-09,approved,codex1,
+api-ts-prop-48e3db9e,api,2,wire-key,contato_id,contactId,apps/api/src/dominio/mensagem-ativa.ts:217,apps/api/src/dominio/mensagem-ativa.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-48e4fd9a,api,2,ts-prop,mensagem,message,apps/api/src/dominio/gestao/prioridade-motor.ts:86,1267,no,,,approved,codex1,
 api-ts-prop-4946d618,api,2,ts-prop,paraAtendenteId,forAgentId,apps/api/src/dominio/conversa.ts:260,11,no,,,approved,codex1,
 api-ts-prop-49675772,api,2,ts-prop,erroDeWebhook,webhookError,apps/api/src/controladores/canais.ts:141,38,no,,,approved,sonnet,
 api-ts-prop-49f0595b,api,2,ts-prop,canalId,channelId,apps/api/src/dominio/gestao/comunicacao.ts:102,387,no,,,approved,codex1,
 api-ts-prop-4af3b51c,api,2,ts-prop,estado,state,apps/api/src/dominio/messenger/canal.ts:12,1269,no,,,approved,codex1,
-api-ts-prop-4b76a16e,api,2,wire-key,obrigatoria_no_encerramento,requiredInClosure,apps/api/src/dominio/etiquetas.ts:49,13,no,,D-09,approved,codex1,
+api-ts-prop-4b76a16e,api,2,wire-key,obrigatoria_no_encerramento,requiredInClosure,apps/api/src/dominio/etiquetas.ts:49,apps/api/src/dominio/etiquetas.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-4bc3eec0,api,2,ts-prop,escopoId,scopeId,apps/api/src/dominio/gestao/sla.ts:24,74,no,,,approved,codex1,
 api-ts-prop-4be7ea90,api,2,ts-prop,usuarioId,userId,apps/api/src/autenticacao.ts:81,604,no,,,approved,codex1,
 api-ts-prop-4c841277,api,2,ts-prop,entrada,inbound,apps/api/src/dominio/fluxo.ts:532,473,no,,,approved,codex1,
@@ -4011,7 +4011,7 @@ api-ts-prop-4fd9b2c4,api,2,ts-prop,estado,state,apps/api/src/dominio/gestao/cada
 api-ts-prop-5017553b,api,2,ts-prop,fila_id,queueId,apps/api/src/dominio/conversa.ts:27,72,no,,,approved,codex1,
 api-ts-prop-50f5b726,api,2,ts-prop,dados,data,apps/api/tests/analise.test.ts:163,669,no,,,approved,codex1,
 api-ts-prop-511a044b,api,2,ts-prop,filaId,queueId,apps/api/src/dominio/gestao/sla-motor.ts:111,170,no,,,approved,codex1,
-api-ts-prop-51b9601d,api,2,wire-key,atendente_nome,agentName,apps/api/src/dominio/gestao/monitoramento.ts:188,10,no,,D-09,approved,codex1,
+api-ts-prop-51b9601d,api,2,wire-key,atendente_nome,agentName,apps/api/src/dominio/gestao/monitoramento.ts:188,apps/api/src/dominio/gestao/monitoramento.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-5205b06a,api,2,ts-prop,dados,data,apps/api/tests/monitoramento-conversas.test.ts:121,669,no,,,approved,codex1,
 api-ts-prop-52319470,api,2,ts-prop,segredo,secret,apps/api/src/dominio/whatsapp/cliente-graph.ts:207,212,no,,,approved,codex1,
 api-ts-prop-525aa392,api,2,ts-prop,conversas_criadas,conversationsCreated,apps/api/tests/ponta-a-ponta.test.ts:378,7,no,,,approved,codex1,
@@ -4037,7 +4037,7 @@ api-ts-prop-58c81392,api,2,ts-prop,profundidade,depth,apps/api/src/filas.ts:528,
 api-ts-prop-5941f4f0,api,2,ts-prop,paginaId,pageId,apps/api/src/dominio/messenger/canal.ts:11,35,no,,,approved,codex1,
 api-ts-prop-5a1c0cf0,api,2,ts-prop,sessao,session,apps/api/src/dominio/convites.ts:307,382,no,,,approved,codex1,
 api-ts-prop-5a263378,api,2,ts-prop,fluxoId,flowId,apps/api/src/dominio/gestao/integracoes.ts:829,504,no,,,approved,codex1,
-api-ts-prop-5a8dacd0,api,2,wire-key,contato_nome,contactName,apps/api/src/dominio/gestao/monitoramento.ts:188,16,no,,D-09,approved,codex1,
+api-ts-prop-5a8dacd0,api,2,wire-key,contato_nome,contactName,apps/api/src/dominio/gestao/monitoramento.ts:188,apps/api/src/dominio/gestao/monitoramento.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-5c0f5a15,api,2,ts-prop,chave,key,apps/api/src/dominio/gestao/pfx.ts:161,1153,no,,,approved,codex1,
 api-ts-prop-5c415af1,api,2,ts-prop,filaId,queueId,apps/api/src/dominio/gestao/monitoramento.ts:285,170,no,,,approved,codex1,
 api-ts-prop-5c49d1e0,api,2,ts-prop,primeira_resposta,firstResponse,apps/api/src/dominio/gestao/pesquisa.ts:46,49,no,,,approved,codex1,
@@ -4047,7 +4047,7 @@ api-ts-prop-5cdb8750,api,2,ts-prop,contaComoProdutivo,countsAsProductive,apps/ap
 api-ts-prop-5d3d6a73,api,2,ts-prop,prioridadeAtual,priorityAtual,apps/api/src/dominio/gestao/sla-motor.ts:111,2,no,,,approved,codex1,
 api-ts-prop-5d732dcf,api,2,ts-prop,ultima_atribuicao_em,lastAssignmentAt,apps/api/src/dominio/distribuicao.ts:24,3,no,,,approved,codex1,
 api-ts-prop-5daa84d6,api,2,ts-prop,canal_config,channelConfig,apps/api/src/dominio/midia.ts:76,4,no,,,approved,codex1,
-api-ts-prop-5dc8e3e2,api,2,wire-key,fluxo_id,flowId,apps/api/src/dominio/fluxo.ts:106,65,no,,D-09,approved,codex1,
+api-ts-prop-5dc8e3e2,api,2,wire-key,fluxo_id,flowId,apps/api/src/dominio/fluxo.ts:106,apps/api/src/dominio/fluxo.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-5e151202,api,2,ts-prop,papelNome,roleName,apps/api/src/dominio/gestao/contrato.ts:107,8,no,,,approved,codex1,
 api-ts-prop-5e3f4fbf,api,2,ts-prop,chave,key,apps/api/src/dominio/gestao/atendimento.ts:141,1153,no,,,approved,codex1,
 api-ts-prop-5e482c5e,api,2,ts-prop,usuarioId,userId,apps/api/src/dominio/instagram/canal.ts:173,604,no,,,approved,codex1,
@@ -4057,7 +4057,7 @@ api-ts-prop-5fdf749f,api,2,ts-prop,atendenteId,agentId,apps/api/src/dominio/gest
 api-ts-prop-604cd578,api,2,ts-prop,estado,state,apps/api/tests/canal-do-fluxo.test.ts:94,1269,no,,,approved,codex1,
 api-ts-prop-608aafb9,api,2,ts-prop,permissoes,permissions,apps/api/tests/permissoes-do-atendente.test.ts:129,149,no,,,approved,codex1,
 api-ts-prop-60a8b7c0,api,2,ts-prop,erro,error,apps/api/src/controladores/gestao-fluxo.ts:128,1478,no,,,approved,codex1,
-api-ts-prop-61c8dbdf,api,2,wire-key,erro_codigo,errorCode,apps/api/src/dominio/mensagem-ativa.ts:341,29,no,,D-09,approved,codex1,
+api-ts-prop-61c8dbdf,api,2,wire-key,erro_codigo,errorCode,apps/api/src/dominio/mensagem-ativa.ts:341,apps/api/src/dominio/mensagem-ativa.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-620b6ed9,api,2,ts-prop,imagem,image,apps/api/src/dominio/gestao/comunicacao.ts:52,218,no,,,approved,codex1,
 api-ts-prop-62244f37,api,2,ts-prop,atendentes,agents,apps/api/src/dominio/gestao/monitoramento.ts:160,309,no,,,approved,codex1,
 api-ts-prop-623f1ea2,api,2,ts-prop,deConversaId,ofConversationId,apps/api/src/dominio/conversa.ts:266,2,no,,,approved,codex1,
@@ -4106,7 +4106,7 @@ api-ts-prop-71237f61,api,2,ts-prop,autenticacaoUsuario,authenticationUser,apps/a
 api-ts-prop-7167452b,api,2,ts-prop,fluxo_id,flowId,apps/api/src/controladores/canais-messenger.ts:7,65,no,,,approved,codex1,
 api-ts-prop-716fd41b,api,2,ts-prop,token_verificacao,tokenVerification,apps/api/src/dominio/dominios.ts:150,8,no,,,approved,codex1,
 api-ts-prop-71df804c,api,2,ts-prop,contato_nome,contactName,apps/api/src/controladores/conversas.ts:49,16,no,,,approved,codex1,
-api-ts-prop-72abe05a,api,2,wire-key,conversa_id,conversationId,apps/api/src/dominio/mensagem-ativa.ts:335,132,no,,D-09,approved,codex1,
+api-ts-prop-72abe05a,api,2,wire-key,conversa_id,conversationId,apps/api/src/dominio/mensagem-ativa.ts:335,apps/api/src/dominio/mensagem-ativa.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-72dccdc8,api,2,ts-prop,membros,members,apps/api/src/dominio/gestao/passos-da-implantacao.ts:25,128,no,,,approved,codex1,
 api-ts-prop-72f6e907,api,2,ts-prop,papelNoFluxo,roleInFlow,apps/api/src/dominio/gestao/equipe-do-fluxo.ts:174,46,no,,,approved,codex1,
 api-ts-prop-742ad250,api,2,ts-prop,estadoEntrega,stateDelivery,apps/api/src/dominio/envio.ts:431,14,no,,,approved,codex1,
@@ -4186,7 +4186,7 @@ api-ts-prop-8c129a76,api,2,ts-prop,urlMensagens,urlMessages,apps/api/src/control
 api-ts-prop-8caddb56,api,2,ts-prop,atendente_email,agentEmail,apps/api/src/dominio/desk/consultas.ts:436,6,no,,,approved,codex1,
 api-ts-prop-8ccade03,api,2,ts-prop,condicoes,conditions,apps/api/src/dominio/gestao/cadastros.ts:792,76,no,,,approved,codex1,
 api-ts-prop-8cdd2325,api,2,ts-prop,dominio,domain,apps/api/src/provisionar.ts:102,476,no,,,approved,codex1,
-api-ts-prop-8d26d9d6,api,2,wire-key,estado_entrega,stateDelivery,apps/api/src/dominio/mensagem-ativa.ts:340,61,no,,D-09,approved,codex1,
+api-ts-prop-8d26d9d6,api,2,wire-key,estado_entrega,stateDelivery,apps/api/src/dominio/mensagem-ativa.ts:340,apps/api/src/dominio/mensagem-ativa.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-8dea4e7b,api,2,ts-prop,para_atendente_id,forAgentId,apps/api/src/controladores/gestao-operacao.ts:186,10,no,,,approved,codex1,
 api-ts-prop-8e382062,api,2,ts-prop,mensagem,message,apps/api/tests/builder-por-fluxo.test.ts:400,1267,no,,,approved,codex1,
 api-ts-prop-8e3c6533,api,2,ts-prop,com_interacao,withInteraction,apps/api/src/dominio/gestao-analise.ts:84,3,no,,,approved,codex1,
@@ -4200,15 +4200,15 @@ api-ts-prop-9035f0a3,api,2,ts-prop,estado,state,apps/api/tests/transferencia.tes
 api-ts-prop-903d0769,api,2,ts-prop,exibicao,display,apps/api/src/dominio/whatsapp/perfil.ts:48,4,no,,,approved,codex1,
 api-ts-prop-905dc0f0,api,2,ts-prop,grupos,groups,apps/api/src/dominio/gestao/monitoria.ts:265,85,no,,,approved,codex1,
 api-ts-prop-90a069e3,api,2,ts-prop,nomeDoUsuario,nameOfUser,apps/api/src/dominio/construtor-de-conta.ts:41,5,no,,,approved,codex1,
-api-ts-prop-90af61e8,api,2,wire-key,atendente_id,agentId,apps/api/src/dominio/conversa.ts:28,68,no,,D-09,approved,codex1,
+api-ts-prop-90af61e8,api,2,wire-key,atendente_id,agentId,apps/api/src/dominio/conversa.ts:28,apps/api/src/dominio/conversa.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-912f4a77,api,2,ts-prop,ultima_mensagem_de,lastMessageOf,apps/api/tests/ponta-a-ponta.test.ts:123,22,no,,,approved,codex1,
 api-ts-prop-913c4d5d,api,2,ts-prop,fila_id,queueId,apps/api/src/dominio/distribuicao.ts:84,72,no,,,approved,codex1,
 api-ts-prop-915c1fdc,api,2,ts-prop,canal_tipo,channelType,apps/api/src/dominio/envio.ts:93,35,no,,,approved,codex1,
 api-ts-prop-9187a2cb,api,2,ts-prop,conversa_id,conversationId,apps/api/src/dominio/fluxo.ts:576,132,no,,,approved,codex1,
 api-ts-prop-9191fb9b,api,2,ts-prop,prefixo,prefix,apps/api/src/dominio/gestao/integracoes.ts:107,89,no,,,approved,codex1,
-api-ts-prop-91c8b6fd,api,2,wire-key,fila_id,queueId,apps/api/src/dominio/fluxo.ts:576,72,no,,D-09,approved,codex1,
+api-ts-prop-91c8b6fd,api,2,wire-key,fila_id,queueId,apps/api/src/dominio/fluxo.ts:576,apps/api/src/dominio/fluxo.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-9291fb56,api,2,ts-prop,valor,value,apps/api/tests/convites.test.ts:438,1656,no,,,approved,codex1,
-api-ts-prop-92954c7c,api,2,wire-key,destino_url,destinationUrl,apps/api/src/dominio/rastreador-de-cliques.ts:134,4,no,,D-09,approved,codex1,
+api-ts-prop-92954c7c,api,2,wire-key,destino_url,destinationUrl,apps/api/src/dominio/rastreador-de-cliques.ts:134,apps/api/src/dominio/rastreador-de-cliques.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-92a1dabe,api,2,ts-prop,canais,channels,apps/api/src/controladores/canais.ts:46,243,no,,,approved,codex1,
 api-ts-prop-939affbe,api,2,ts-prop,fila,queue,apps/api/src/dominio/gestao/configuracoes.ts:73,993,no,,,approved,codex1,
 api-ts-prop-93bcaf36,api,2,ts-prop,viaSessao,viaSession,apps/api/src/dominio/etiquetas.ts:243,4,no,,,approved,codex1,
@@ -4223,7 +4223,7 @@ api-ts-prop-97290439,api,2,ts-prop,contatos,contacts,apps/api/src/controladores/
 api-ts-prop-9735907b,api,2,ts-prop,erro,error,apps/api/src/dominio/gestao/acoes/campos.ts:33,1478,no,,,approved,codex1,
 api-ts-prop-97498ecc,api,2,ts-prop,erro_codigo,errorCode,apps/api/src/controladores/conversas.ts:63,29,no,,,approved,codex1,
 api-ts-prop-979e3ea3,api,2,ts-prop,dentro_da_janela,insideOfWindow,apps/api/src/controladores/conversas.ts:68,14,no,,,approved,codex1,
-api-ts-prop-9837a472,api,2,wire-key,ultima_interacao_em,lastInteractionAt,apps/api/src/dominio/desk/consultas.ts:531,2,no,,D-09,approved,codex1,
+api-ts-prop-9837a472,api,2,wire-key,ultima_interacao_em,lastInteractionAt,apps/api/src/dominio/desk/consultas.ts:531,apps/api/src/dominio/desk/consultas.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-98f3d50c,api,2,ts-prop,chaveId,keyId,apps/api/src/autenticacao.ts:39,26,no,,,approved,codex1,
 api-ts-prop-98f9d8eb,api,2,ts-prop,contexto,context,apps/api/src/dominio/roteador.ts:45,300,no,,,approved,codex1,
 api-ts-prop-992721c2,api,2,ts-prop,tempoMedioAtendimentoSeg,timeMediumAttendanceSeg,apps/api/src/dominio/gestao/monitoramento.ts:132,11,no,,,approved,codex1,
@@ -4266,7 +4266,7 @@ api-ts-prop-a3031140,api,2,ts-prop,mensagens_entrada,messagesInbound,apps/api/te
 api-ts-prop-a37bed87,api,2,ts-prop,agente_usuario,userAgent,apps/api/tests/growth.test.ts:164,3,no,,,approved,sonnet,
 api-ts-prop-a3ad1894,api,2,ts-prop,usa_contexto,usesContext,apps/api/src/dominio/roteador.ts:38,2,no,,,approved,codex1,
 api-ts-prop-a4508eaf,api,2,ts-prop,chave_storage,keyStorage,apps/api/tests/midia-recebida.test.ts:104,20,no,,,approved,codex1,
-api-ts-prop-a50c3874,api,2,wire-key,contato_nome,contactName,apps/api/src/dominio/mensagem-ativa.ts:337,16,no,,D-09,approved,codex1,
+api-ts-prop-a50c3874,api,2,wire-key,contato_nome,contactName,apps/api/src/dominio/mensagem-ativa.ts:337,apps/api/src/dominio/mensagem-ativa.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-a6790652,api,2,ts-prop,chave_storage,keyStorage,apps/api/src/dominio/anexo.ts:187,20,no,,,approved,codex1,
 api-ts-prop-a6f9fba8,api,2,ts-prop,ultima_mensagem_em,lastMessageAt,apps/api/src/controladores/conversas.ts:41,24,no,,,approved,codex1,
 api-ts-prop-a751961c,api,2,ts-prop,filas,queues,apps/api/src/dominio/gestao/historico.ts:57,297,no,,,approved,codex1,
@@ -4287,13 +4287,13 @@ api-ts-prop-ad4b3913,api,2,ts-prop,segredo,secret,apps/api/tests/integracoes.tes
 api-ts-prop-ad60d9a7,api,2,ts-prop,ultimaImportacao,lastImport,apps/api/src/dominio/gestao/passos-da-implantacao.ts:28,9,no,,,approved,codex1,
 api-ts-prop-ad7ca93d,api,2,ts-prop,bloco_codigo,blockCode,apps/api/src/dominio/fluxo.ts:532,5,no,,,approved,codex1,
 api-ts-prop-adc02edb,api,2,ts-prop,atendenteNome,agentName,apps/api/src/dominio/gestao/monitoramento.ts:176,18,no,,,approved,codex1,
-api-ts-prop-adfc4d90,api,2,wire-key,conversa_id,conversationId,apps/api/src/dominio/entrada.ts:336,132,no,,D-09,approved,codex1,
+api-ts-prop-adfc4d90,api,2,wire-key,conversa_id,conversationId,apps/api/src/dominio/entrada.ts:336,apps/api/src/dominio/entrada.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-ae485031,api,2,ts-prop,porInbox,byInbox,apps/api/src/dominio/gestao/atendimento.ts:74,4,no,,,approved,codex1,
 api-ts-prop-ae4f19ca,api,2,ts-prop,estado,state,apps/api/src/dominio/gestao/sla.ts:33,1269,no,,,approved,codex1,
 api-ts-prop-ae9e891a,api,2,ts-prop,erro_texto,errorText,apps/api/src/controladores/conversas.ts:64,16,no,,,approved,codex1,
 api-ts-prop-aea46f8b,api,2,ts-prop,ativa,active,apps/api/src/controladores/catalogo.ts:295,340,no,,,approved,codex1,
 api-ts-prop-aeb234e0,api,2,ts-prop,de_bloco_id,ofBlockId,apps/api/src/dominio/gestao/builder-do-fluxo.ts:175,6,no,,,approved,codex1,
-api-ts-prop-af2b493d,api,2,wire-key,canal_id,channelId,apps/api/src/dominio/fluxo.ts:576,94,no,,D-09,approved,codex1,
+api-ts-prop-af2b493d,api,2,wire-key,canal_id,channelId,apps/api/src/dominio/fluxo.ts:576,apps/api/src/dominio/fluxo.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-afe404a0,api,2,ts-prop,contato.email,KEEP,apps/api/src/dominio/gestao/regra-fila.ts:59,36,no,,,approved,codex1,
 api-ts-prop-b061ff26,api,2,ts-prop,contato_nome,contactName,apps/api/src/dominio/desk/consultas.ts:148,16,no,,,approved,codex1,
 api-ts-prop-b0acb62f,api,2,ts-prop,primeira_resposta_em,firstResponseAt,apps/api/tests/mensagens-ativas.test.ts:155,27,no,,,approved,codex1,
@@ -4303,7 +4303,7 @@ api-ts-prop-b1651b5d,api,2,ts-prop,fataisReprovados,fatalRejecteds,apps/api/src/
 api-ts-prop-b1919449,api,2,ts-prop,direcao,direction,apps/api/src/dominio/desk/consultas.ts:204,175,no,,,approved,codex1,
 api-ts-prop-b1c51293,api,2,ts-prop,filaNome,queueName,apps/api/src/dominio/gestao/monitoramento.ts:175,27,no,,,approved,codex1,
 api-ts-prop-b21fb422,api,2,ts-prop,contato.telefone,KEEP,apps/api/src/dominio/gestao/regra-fila.ts:60,17,no,,,approved,codex1,
-api-ts-prop-b280275d,api,2,wire-key,fila_id,queueId,apps/api/src/dominio/assumir.ts:28,72,no,,D-09,approved,codex1,
+api-ts-prop-b280275d,api,2,wire-key,fila_id,queueId,apps/api/src/dominio/assumir.ts:28,apps/api/src/dominio/assumir.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-b2acc67d,api,2,ts-prop,encerramentos,closures,apps/api/src/dominio/gestao/monitoramento.ts:118,10,no,,,approved,codex1,
 api-ts-prop-b30ff8bc,api,2,ts-prop,obrigatoriaNoEncerramento,requiredInClosure,apps/api/src/dominio/etiquetas.ts:36,20,no,,,approved,codex1,
 api-ts-prop-b33704e0,api,2,ts-prop,atendenteId,agentId,apps/api/src/dominio/conversa.ts:35,217,no,,,approved,codex1,
@@ -4315,7 +4315,7 @@ api-ts-prop-b5042e0b,api,2,ts-prop,papel,role,apps/api/src/dominio/convites.ts:1
 api-ts-prop-b5393030,api,2,ts-prop,autenticacao,authentication,apps/api/tests/integracoes.test.ts:505,181,no,,,approved,codex1,
 api-ts-prop-b5a2b22f,api,2,ts-prop,estado,state,apps/api/src/dominio/importacao-de-contatos.ts:27,1269,no,,,approved,codex1,
 api-ts-prop-b6119b3c,api,2,ts-prop,estado,state,apps/api/src/webhooks-saida.ts:193,1269,no,,,approved,codex1,
-api-ts-prop-b6933280,api,2,wire-key,atendente_id,agentId,apps/api/src/dominio/entrada.ts:489,68,no,,D-09,approved,codex1,
+api-ts-prop-b6933280,api,2,wire-key,atendente_id,agentId,apps/api/src/dominio/entrada.ts:489,apps/api/src/dominio/entrada.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-b6945210,api,2,ts-prop,exigirAtiva,exigirActive,apps/api/src/dominio/sso.ts:279,7,no,,,approved,codex1,
 api-ts-prop-b6ae9f1b,api,2,ts-prop,para_conversa_id,forConversationId,apps/api/tests/transferencia.test.ts:132,15,no,,,approved,codex1,
 api-ts-prop-b6c35709,api,2,ts-prop,dados,data,apps/api/tests/fluxo.test.ts:151,669,no,,,approved,codex1,
@@ -4329,7 +4329,7 @@ api-ts-prop-b7ffa4cc,api,2,ts-prop,direcao,direction,apps/api/tests/instagram.te
 api-ts-prop-b86861ab,api,2,ts-prop,mensagem,message,apps/api/src/dominio/entrada.ts:484,1267,no,,,approved,codex1,
 api-ts-prop-b88085ee,api,2,ts-prop,ultima_mensagem_de,lastMessageOf,apps/api/src/dominio/desk/consultas.ts:74,22,no,,,approved,codex1,
 api-ts-prop-b88a4dac,api,2,ts-prop,imagem,image,apps/api/src/controladores/gestao-fluxo.ts:116,218,no,,,approved,codex1,
-api-ts-prop-b8fd78f1,api,2,wire-key,fila_nome,queueName,apps/api/src/dominio/gestao/monitoramento.ts:188,15,no,,D-09,approved,codex1,
+api-ts-prop-b8fd78f1,api,2,wire-key,fila_nome,queueName,apps/api/src/dominio/gestao/monitoramento.ts:188,apps/api/src/dominio/gestao/monitoramento.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-b905aafc,api,2,ts-prop,atendentes,agents,apps/api/tests/permissoes-do-atendente.test.ts:128,309,no,,,approved,codex1,
 api-ts-prop-b9198894,api,2,ts-prop,estado_entrega,stateDelivery,apps/api/src/dominio/desk/consultas.ts:207,61,no,,,approved,codex1,
 api-ts-prop-b9260ba3,api,2,ts-prop,conversasSemAtendente,conversationsWithoutAgent,apps/api/src/dominio/gestao/esforco.ts:51,3,no,,,approved,codex1,
@@ -4383,7 +4383,7 @@ api-ts-prop-c97803d5,api,2,ts-prop,mensagem,message,apps/api/tests/canal-do-flux
 api-ts-prop-ca30b7c8,api,2,ts-prop,identidade,identity,apps/api/src/dominio/gestao/configuracoes.ts:264,93,no,,,approved,codex1,
 api-ts-prop-ca4f7485,api,2,ts-prop,escopos,scopes,apps/api/src/autenticacao.ts:110,40,no,,,approved,codex1,
 api-ts-prop-caa0dcb0,api,2,ts-prop,contato,contact,apps/api/src/dominio/gestao-analise.ts:491,1026,no,,,approved,codex1,
-api-ts-prop-cac84430,api,2,wire-key,execucao_id,executionId,apps/api/src/dominio/fluxo.ts:531,11,no,,D-09,approved,codex1,
+api-ts-prop-cac84430,api,2,wire-key,execucao_id,executionId,apps/api/src/dominio/fluxo.ts:531,apps/api/src/dominio/fluxo.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-cb14ff21,api,2,ts-prop,porPagina,byPage,apps/api/src/dominio/gestao-fluxo.ts:455,23,no,,,approved,codex1,
 api-ts-prop-cb1bcaa7,api,2,ts-prop,filasSemHorario,queuesWithoutSchedule,apps/api/src/dominio/gestao/cadastros.ts:282,4,no,,,approved,codex1,
 api-ts-prop-cb8c4763,api,2,ts-prop,encerrada_por_nome,closedByName,apps/api/src/dominio/desk/consultas.ts:437,2,no,,,approved,codex1,
@@ -4481,7 +4481,7 @@ api-ts-prop-e58c2441,api,2,ts-prop,contexto,context,apps/api/tests/roteador.test
 api-ts-prop-e592ee33,api,2,ts-prop,primeira_resposta_n,firstResponseN,apps/api/tests/ponta-a-ponta.test.ts:381,5,no,,,approved,codex1,
 api-ts-prop-e5c05058,api,2,ts-prop,estado,state,apps/api/tests/roteador.test.ts:572,1269,no,,,approved,codex1,
 api-ts-prop-e5d581af,api,2,ts-prop,mensagem,message,apps/api/tests/anexos.test.ts:126,1267,no,,,approved,codex1,
-api-ts-prop-e7437848,api,2,wire-key,fila_id,queueId,apps/api/src/dominio/entrada.ts:490,72,no,,D-09,approved,codex1,
+api-ts-prop-e7437848,api,2,wire-key,fila_id,queueId,apps/api/src/dominio/entrada.ts:490,apps/api/src/dominio/entrada.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-e7559339,api,2,ts-prop,urlNotificacoes,urlNotifications,apps/api/src/dominio/gestao/integracoes.ts:834,10,no,,,approved,codex1,
 api-ts-prop-e767bbc0,api,2,ts-prop,usuarioIds,userIds,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:180,7,no,,,approved,codex1,
 api-ts-prop-e77c220b,api,2,ts-prop,posicao,position,apps/api/tests/gerar-fixtures-jsonb.helper.ts:87,84,no,,,approved,codex1,
@@ -4494,7 +4494,7 @@ api-ts-prop-e9803eab,api,2,ts-prop,usuarioId,userId,apps/api/tests/convites.test
 api-ts-prop-e9aaf69f,api,2,ts-prop,porUsuarioId,byUserId,apps/api/src/dominio/status-atendente.ts:29,5,no,,,approved,codex1,
 api-ts-prop-e9de9008,api,2,ts-prop,atendentes,agents,apps/api/src/dominio/gestao/cadastros.ts:88,309,no,,,approved,codex1,
 api-ts-prop-ea192698,api,2,ts-prop,duracao_sugerida_min,durationSuggestedMin,apps/api/src/dominio/desk/consultas.ts:329,5,no,,,approved,codex1,
-api-ts-prop-eaa58b0a,api,2,wire-key,fila_padrao_id,queueDefaultId,apps/api/src/dominio/fluxo.ts:577,15,no,,D-09,approved,codex1,
+api-ts-prop-eaa58b0a,api,2,wire-key,fila_padrao_id,queueDefaultId,apps/api/src/dominio/fluxo.ts:577,apps/api/src/dominio/fluxo.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-eaa7d968,api,2,ts-prop,atendente_id,agentId,apps/api/tests/roteador.test.ts:497,68,no,,,approved,codex1,
 api-ts-prop-eb4f7e6b,api,2,ts-prop,canalId,channelId,apps/api/src/controladores/gestao-fluxo.ts:426,387,no,,,approved,codex1,
 api-ts-prop-eb68e9eb,api,2,ts-prop,anexo_id,attachmentId,apps/api/tests/anexos-multiplos.test.ts:139,10,no,,,approved,codex1,
@@ -4508,16 +4508,16 @@ api-ts-prop-ee19dc1c,api,2,ts-prop,filas,queues,apps/api/src/provisionar.ts:99,2
 api-ts-prop-ee555622,api,2,ts-prop,prioridade,priority,apps/api/src/dominio/gestao/sla-motor.ts:136,146,no,,,approved,codex1,
 api-ts-prop-eea85d33,api,2,ts-prop,fluxo_id,flowId,apps/api/tests/chave-de-fluxo.test.ts:260,65,no,,,approved,codex1,
 api-ts-prop-eeae3b30,api,2,ts-prop,valor,value,apps/api/src/dominio/gestao/cadastros.ts:792,1656,no,,,approved,codex1,
-api-ts-prop-eede038e,api,2,wire-key,bloco_inicial,blockInicial,apps/api/src/dominio/roteador.ts:47,8,no,,D-09,approved,codex1,
+api-ts-prop-eede038e,api,2,wire-key,bloco_inicial,blockInicial,apps/api/src/dominio/roteador.ts:47,apps/api/src/dominio/roteador.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-ef24213b,api,2,ts-prop,roteador,router,apps/api/src/controladores/gestao-analise.ts:97,387,no,,,approved,codex1,
-api-ts-prop-ef3abf24,api,2,wire-key,oauth2_url_autorizacao,oauth2UrlAuthorization,apps/api/src/webhooks-saida.ts:206,2,no,,D-09,approved,codex1,
+api-ts-prop-ef3abf24,api,2,wire-key,oauth2_url_autorizacao,oauth2UrlAuthorization,apps/api/src/webhooks-saida.ts:206,apps/api/src/webhooks-saida.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-ef4b751a,api,2,ts-prop,tempoDeAtendimento,timeOfAttendance,apps/api/src/dominio/gestao/monitoramento.ts:116,12,no,,,approved,codex1,
 api-ts-prop-efbfad3e,api,2,ts-prop,canalNome,channelName,apps/api/src/dominio/gestao-fluxo.ts:266,29,no,,,approved,codex1,
 api-ts-prop-f0132a91,api,2,ts-prop,filaId,queueId,apps/api/tests/ajuda.ts:17,170,no,,,approved,codex1,
 api-ts-prop-f01fc229,api,2,ts-prop,capacidadePadrao,capacityDefault,apps/api/src/dominio/gestao/cadastros.ts:1172,37,no,,,approved,codex1,
 api-ts-prop-f0756919,api,2,ts-prop,prioridade,priority,apps/api/src/dominio/desk/consultas.ts:139,146,no,,,approved,codex1,
 api-ts-prop-f0f3b412,api,2,ts-prop,roteador,router,apps/api/src/dominio/fluxo.ts:75,387,no,,,approved,codex1,
-api-ts-prop-f108c587,api,2,wire-key,fluxo_id,flowId,apps/api/tests/integracoes.test.ts:165,65,no,,D-09,approved,codex1,
+api-ts-prop-f108c587,api,2,wire-key,fluxo_id,flowId,apps/api/tests/integracoes.test.ts:165,apps/api/tests/integracoes.test.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-f161e60f,api,2,ts-prop,ordem,order,apps/api/src/dominio/gestao/cadastros.ts:1173,517,no,,,approved,codex1,
 api-ts-prop-f1adb19d,api,2,ts-prop,papelId,roleId,apps/api/src/controladores/gestao-conta.ts:106,121,no,,,approved,codex1,
 api-ts-prop-f1c42e07,api,2,ts-prop,exigirAtribuicao,exigirAssignment,apps/api/src/dominio/envio.ts:315,18,no,,,approved,codex1,
@@ -4539,7 +4539,7 @@ api-ts-prop-f6ab3a9d,api,2,ts-prop,mensagem,message,apps/api/tests/convites.test
 api-ts-prop-f6ab5e09,api,2,ts-prop,de_conversa_id,ofConversationId,apps/api/tests/transferencia.test.ts:132,4,no,,,approved,codex1,
 api-ts-prop-f6c659ac,api,2,ts-prop,fila_padrao_id,queueDefaultId,apps/api/tests/canais.test.ts:166,15,no,,,approved,codex1,
 api-ts-prop-f778bcbc,api,2,ts-prop,canalId,channelId,apps/api/src/dominio/whatsapp/cadastro-embutido.ts:37,387,no,,,approved,codex1,
-api-ts-prop-f7bd432d,api,2,wire-key,fila_padrao_id,queueDefaultId,apps/api/src/dominio/entrada.ts:409,15,no,,D-09,approved,codex1,
+api-ts-prop-f7bd432d,api,2,wire-key,fila_padrao_id,queueDefaultId,apps/api/src/dominio/entrada.ts:409,apps/api/src/dominio/entrada.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 api-ts-prop-f8875fb8,api,2,ts-prop,atendente_id,agentId,apps/api/src/dominio/etiquetas.ts:90,68,no,,,approved,codex1,
 api-ts-prop-f8a43728,api,2,ts-prop,usuario_id,userId,apps/api/src/controladores/catalogo.ts:343,148,no,,,approved,codex1,
 api-ts-prop-f8b19753,api,2,ts-prop,descricao,description,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:72,299,no,,,approved,codex1,
