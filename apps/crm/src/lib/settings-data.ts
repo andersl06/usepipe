@@ -317,7 +317,7 @@ export function invitationUrl(token: string): string {
     process.env['PIPE_URL_ESTE_APP'] ??
     'http://localhost:3300'
   ).replace(/\/$/, '');
-  return `${base}/convite/${token}`;
+  return `${base}/invite/${token}`;
 }
 
 /**

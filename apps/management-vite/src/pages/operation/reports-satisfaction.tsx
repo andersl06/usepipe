@@ -103,7 +103,7 @@ export function PageSatisfaction() {
   const hrefAba = (key: Aba) => {
     const p = new URLSearchParams(q);
     p.set('aba', key);
-    return `${base}/relatorios/satisfacao?${p}`;
+    return `${base}/reports/satisfaction?${p}`;
   };
 
   const totalRespostas = groups.reduce((t, g) => t + g.respostas, 0);
@@ -137,7 +137,7 @@ export function PageSatisfaction() {
       <PanelFilters
         aberto={panelAberto}
         aoFechar={() => setPanelAberto(false)}
-        acao={`${base}/relatorios/satisfacao`}
+        acao={`${base}/reports/satisfaction`}
         limpar={null}
       >
         {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}

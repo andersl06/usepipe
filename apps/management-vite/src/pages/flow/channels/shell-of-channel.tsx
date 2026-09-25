@@ -62,7 +62,7 @@ export function ChannelShell({
       <header className="ph-cabecalho">
         <div className="ph-conteudo">
           <div className="ph-voltar-caixa">
-            <Link className="ph-voltar" href={`${base}/canais`} aria-label="Voltar">
+            <Link className="ph-voltar" href={`${base}/channels`} aria-label="Voltar">
               <IconePortal nome="voltar" tamanho={22} />
             </Link>
           </div>

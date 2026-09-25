@@ -34,8 +34,8 @@ type ItemLateral = { rotulo: string; rota: string; icone: NomeDeIconePortal };
 type GrupoLateral = { rotulo: string; icone: NomeDeIconePortal; filhos: readonly { rotulo: string; rota: string }[] };
 
 const ITENS: readonly ItemLateral[] = [
-  { rotulo: 'Monitoramento', rota: 'monitoramento', icone: 'monitoring' },
-  { rotulo: 'Histórico', rota: 'historico', icone: 'relogio' },
+  { rotulo: 'Monitoramento', rota: 'monitoring', icone: 'monitoring' },
+  { rotulo: 'Histórico', rota: 'history', icone: 'relogio' },
 ];
 
 const GROUPS: readonly GrupoLateral[] = [
@@ -43,52 +43,52 @@ const GROUPS: readonly GrupoLateral[] = [
     rotulo: 'Relatórios',
     icone: 'relatorios',
     filhos: [
-      { rotulo: 'Atendimento', rota: 'relatorios/atendimento' },
-      { rotulo: 'Satisfação', rota: 'relatorios/satisfacao' },
-      { rotulo: 'Esforço por atendente', rota: 'relatorios/esforco' },
-      { rotulo: 'Monitoria com IA', rota: 'monitoria' },
+      { rotulo: 'Atendimento', rota: 'reports/attendance' },
+      { rotulo: 'Satisfação', rota: 'reports/satisfaction' },
+      { rotulo: 'Esforço por atendente', rota: 'reports/effort' },
+      { rotulo: 'Monitoria com IA', rota: 'quality-review' },
     ],
   },
   {
     rotulo: 'Comunicação',
     icone: 'comunicacao',
     filhos: [
-      { rotulo: 'Respostas prontas', rota: 'comunicacao/respostas-prontas' },
-      { rotulo: 'Modelos de mensagens', rota: 'comunicacao/modelos' },
+      { rotulo: 'Respostas prontas', rota: 'communication/canned-responses' },
+      { rotulo: 'Modelos de mensagens', rota: 'communication/templates' },
     ],
   },
   {
     rotulo: 'Regras',
     icone: 'regras',
     filhos: [
-      { rotulo: 'Atendimento', rota: 'regras/atendimento' },
-      { rotulo: 'SLA', rota: 'regras/sla' },
-      { rotulo: 'Horários', rota: 'regras/horarios' },
+      { rotulo: 'Atendimento', rota: 'rules/attendance' },
+      { rotulo: 'SLA', rota: 'rules/sla' },
+      { rotulo: 'Horários', rota: 'rules/hours' },
     ],
   },
   {
     rotulo: 'Atendentes',
     icone: 'atendentes',
     filhos: [
-      { rotulo: 'Gestão de atendentes', rota: 'atendentes/gestao' },
-      { rotulo: 'Filas de atendimento', rota: 'atendentes/filas' },
-      { rotulo: 'Pausas personalizadas', rota: 'atendentes/pausas' },
+      { rotulo: 'Gestão de atendentes', rota: 'agents/management' },
+      { rotulo: 'Filas de atendimento', rota: 'agents/queues' },
+      { rotulo: 'Pausas personalizadas', rota: 'agents/breaks' },
     ],
   },
   {
     rotulo: 'Preferências',
     icone: 'preferencias-gerais',
     filhos: [
-      { rotulo: 'Configurações gerais', rota: 'preferencias/gerais' },
-      { rotulo: 'Dados', rota: 'preferencias/dados' },
-      { rotulo: 'Canais de atendimento', rota: 'canais' },
+      { rotulo: 'Configurações gerais', rota: 'preferences/general' },
+      { rotulo: 'Dados', rota: 'preferences/data' },
+      { rotulo: 'Canais de atendimento', rota: 'channels' },
     ],
   },
 ];
 
-/** `/{tipo}/{id}/atendimento` — o prefixo que toda tela deste módulo pendura. */
+/** `/{tipo}/{id}/attendance` — o prefixo que toda tela deste módulo pendura. */
 export function attendanceBase(tipo: string, id: string): string {
-  return `${contactBase(tipo, id)}/atendimento`;
+  return `${contactBase(tipo, id)}/attendance`;
 }
 
 function NavigationAttendance({ base, caminho }: { base: string; caminho: string }) {

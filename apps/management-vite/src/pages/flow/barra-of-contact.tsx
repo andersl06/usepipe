@@ -40,7 +40,7 @@ export interface Contact {
 
 export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: string }) {
   const tipo = contact.tipo === 'roteador' ? 'roteador' : 'fluxo';
-  const base = `/${tipo}/${contact.id}`;
+  const base = `/${tipo === 'roteador' ? 'router' : 'flow'}/${contact.id}`;
   /* O passo 2 da origem (`getUpdatedMenus()`): a barra só mostra o que a pessoa
      pode ver NESTE contato. Enquanto a resposta não chega, `undefined` deixa a
      fileira inteira — piscar a barra completa e depois encolher é pior do que o

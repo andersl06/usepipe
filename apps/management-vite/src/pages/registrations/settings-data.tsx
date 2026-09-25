@@ -74,7 +74,7 @@ export function PageData() {
 
       <div className="note">
         Os canais saíram daqui: viraram tela própria, em Preferências.{' '}
-        <Link href={`${base}/canais`}>Ver os {numero(channels.length)} canais</Link> — com a caixa de
+        <Link href={`${base}/channels`}>Ver os {numero(channels.length)} canais</Link> — com a caixa de
         entrada de cada um e a fila para onde ela manda.
       </div>
     </>

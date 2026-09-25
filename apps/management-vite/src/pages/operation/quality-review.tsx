@@ -84,7 +84,7 @@ export function PageQualityReview() {
         </span>
       </div>
 
-      <form className="quickfilters" method="get" action={`${base}/monitoria`}>
+      <form className="quickfilters" method="get" action={`${base}/quality-review`}>
         <span className="lbl">Período</span>
         <input type="date" name="de" defaultValue={de} className="btn" aria-label="De" />
         <input type="date" name="ate" defaultValue={ate} className="btn" aria-label="Até" />
@@ -115,7 +115,7 @@ export function PageQualityReview() {
         </Selection>
 
         <div className="faixa-fim">
-          <a href={`${base}/monitoria`} className="btn">
+          <a href={`${base}/quality-review`} className="btn">
             Limpar
           </a>
           <button type="submit" className="btn primary">
@@ -270,7 +270,7 @@ export function PageQualityReview() {
                       </span>
                     </td>
                     <td>
-                      <Link href={`${base}/monitoria/${a.id}`}>Abrir</Link>
+                      <Link href={`${base}/quality-review/${a.id}`}>Abrir</Link>
                     </td>
                   </tr>
                 ))}

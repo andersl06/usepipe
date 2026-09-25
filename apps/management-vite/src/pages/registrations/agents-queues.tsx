@@ -112,7 +112,7 @@ export function PageQueues() {
           <QueueActions
             queue={f}
             onErrorAlternar={setErrorAlternar}
-            onEditar={() => navegar(`${base}/atendentes/filas/${f.id}/editar`)}
+            onEditar={() => navegar(`${base}/agents/queues/${f.id}/edit`)}
             onExcluir={() => setQueueForExcluir(f)}
           />
         ),

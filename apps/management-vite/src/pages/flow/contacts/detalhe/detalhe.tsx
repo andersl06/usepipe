@@ -41,7 +41,7 @@ export function BotDetalheContact() {
       <div className="ct-detalhes-conteudo">
         <header className="ct-historico-cabeca">
           <div className="ct-nome-container">
-            <Link className="ct-voltar" href={`${base}/contatos`} aria-label="Voltar">
+            <Link className="ct-voltar" href={`${base}/contacts`} aria-label="Voltar">
               <IconePortal nome="esquerda" tamanho={32} />
             </Link>
             <span className="ct-avatar ct-avatar-detalhe">
@@ -100,7 +100,7 @@ export function BotDetalheContact() {
                           <span className="ct-ticket-acoes">
                             <Link
                               className="ct-botao-icone ct-botao-icone--curto"
-                              href={`${base}/contatos/${contactId}?ticketId=${ticket.id}`}
+                              href={`${base}/contacts/${contactId}?ticketId=${ticket.id}`}
                               title="Ver conversa"
                               aria-label="Ver conversa"
                             >

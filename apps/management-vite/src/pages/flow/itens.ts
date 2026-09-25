@@ -66,7 +66,7 @@ export const LIMITE_VISIVEL = 5;
  */
 const CATALOGO = [
   { key: 'builder', rotulo: 'Builder', href: '/builder' },
-  { key: 'desk', rotulo: 'Atendimento', href: '/monitoramento' },
+  { key: 'desk', rotulo: 'Atendimento', href: '/monitoring' },
   /* A Análise é DO contato: o destino depende do `id` e sai de `itensDoMenu`. */
   { key: 'analysis', rotulo: 'Análise', href: null },
   { key: 'growth', rotulo: 'Growth', href: null },
@@ -109,41 +109,41 @@ export function itensDoMenu(
   id: string,
   permissions?: MyPermissionsInFlow | undefined,
 ): ItemDoMenu[] {
-  const base = `/${tipo}/${id}`;
+  const base = `/${tipo === 'roteador' ? 'router' : 'flow'}/${id}`;
   const sieve = permissions && !permissions.editaByAccount ? permissions.permissoes : null;
   const itens: ItemDoMenu[] = CATALOGO.filter(
-    (item) => tipo === 'fluxo' || !HIDDEN_IN_ROUTER.includes(item.chave),
+    (item) => tipo === 'fluxo' || !HIDDEN_IN_ROUTER.includes(item.key),
   )
     .filter((item) => {
       if (!sieve) return true;
-      const nivel = sieve[RECURSO_DO_ITEM[item.chave] ?? item.chave];
+      const nivel = sieve[RECURSO_DO_ITEM[item.key] ?? item.key];
       return nivel === 'ler' || nivel === 'escrever';
     })
     .map((item) => ({
       rotulo: item.rotulo,
       href:
-        item.chave === 'builder'
+        item.key === 'builder'
           ? `${base}/builder`
-          : item.chave === 'desk'
-            ? `${base}/atendimento/monitoramento`
-            : item.chave === 'analysis'
-              ? `${base}/analise`
-              : item.chave === 'channels'
-                ? `${base}/canais`
-                : item.chave === 'users'
-                  ? `${base}/contatos`
-                  : item.chave === 'growth'
-                    ? `${base}/growth/mensagens-ativas`
-                    : item.chave === 'contents'
-                      ? `${base}/conteudos`
-                      : item.chave === 'logMessages'
+          : item.key === 'desk'
+            ? `${base}/attendance/monitoring`
+            : item.key === 'analysis'
+              ? `${base}/analytics`
+              : item.key === 'channels'
+                ? `${base}/channels`
+                : item.key === 'users'
+                  ? `${base}/contacts`
+                  : item.key === 'growth'
+                    ? `${base}/growth/active-messages`
+                    : item.key === 'contents'
+                      ? `${base}/contents`
+                      : item.key === 'logMessages'
                         ? `${base}/log`
                         : item.href,
     }));
 
   /* `getTemplateSetupItem()`: o item do template vem na FRENTE de tudo. Só o
      roteador tem um entre os dois tipos que existem aqui. */
-  if (tipo === 'roteador') itens.unshift({ rotulo: 'Serviços', href: `${base}/servicos` });
+  if (tipo === 'roteador') itens.unshift({ rotulo: 'Serviços', href: `${base}/services` });
 
   return itens;
 }
@@ -159,9 +159,9 @@ export function itensDoMenu(
  */
 export const ICONES_OF_CONTACT: readonly (ItemDoMenu & { icone: NomeDeIconePortal })[] = [
   /* `getIcons(sref)`: `icon-integration`, `icon-config`, `icon-team-1`. */
-  { rotulo: 'Integrações', href: '/integracoes', icone: 'integracoes' },
-  { rotulo: 'Configurações', href: '/configuracoes/basicas', icone: 'configuracoes' },
-  { rotulo: 'Equipe', href: '/equipe', icone: 'equipe' },
+  { rotulo: 'Integrações', href: '/integrations', icone: 'integracoes' },
+  { rotulo: 'Configurações', href: '/settings/basic', icone: 'configuracoes' },
+  { rotulo: 'Equipe', href: '/team', icone: 'equipe' },
   /* `modules.application.detail.test` — o `icon-lab` que abre o teste. */
   { rotulo: 'Testar', href: null, icone: 'testar' },
 ];

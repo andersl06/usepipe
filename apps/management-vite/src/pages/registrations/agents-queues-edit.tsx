@@ -60,7 +60,7 @@ export function QueuePageEdit() {
       <div className="vazio">
         <b>Fila não encontrada</b>
         <p>
-          <button type="button" className="btn" onClick={() => navegar(`${base}/atendentes/filas`)}>
+          <button type="button" className="btn" onClick={() => navegar(`${base}/agents/queues`)}>
             Voltar para Filas de atendimento
           </button>
         </p>
@@ -231,7 +231,7 @@ function SectionAgents({ queue, base }: { queue: QueueRegistered; base: string }
     <Card
       titulo="Atendentes"
       actions={
-        <Botao variante="primario" onClick={() => navegar(`${base}/atendentes/gestao`)}>
+        <Botao variante="primario" onClick={() => navegar(`${base}/agents/management`)}>
           Adicionar atendente
         </Botao>
       }

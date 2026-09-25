@@ -96,7 +96,7 @@ export function BotListaContacts() {
               {contacts.map((contact) => (
                 <Link
                   className="ct-usuario"
-                  href={`${base}/contatos/${contact.id}`}
+                  href={`${base}/contacts/${contact.id}`}
                   key={contact.id}
                 >
                   <span className="ct-secao ct-secao-avatar">

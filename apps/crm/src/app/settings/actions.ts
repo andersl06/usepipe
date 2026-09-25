@@ -72,7 +72,7 @@ export const acaoSalvarPerfil: Acao = async (_anterior, data) => {
     nome: texto(data, 'nome'),
     avatarUrl: texto(data, 'avatarUrl'),
   });
-  if (resultado.ok) recarregar('/configuracoes/perfil');
+  if (resultado.ok) recarregar('/settings/profile');
   return resultado;
 };
 
@@ -84,7 +84,7 @@ export const acaoSalvarEspaco: Acao = async (_anterior, data) => {
     logoUrl: texto(data, 'logoUrl'),
     fuso: texto(data, 'fuso'),
   });
-  if (resultado.ok) recarregar('/configuracoes/espaco');
+  if (resultado.ok) recarregar('/settings/workspace');
   return resultado;
 };
 
@@ -95,7 +95,7 @@ export const acaoConvidar: Acao = async (_anterior, data) => {
   if (!roleId) return { ok: false, error: 'Escolha o papel de quem está sendo convidado.' };
 
   const resultado = await convidar(await atorAtual(), { email: texto(data, 'email'), roleId });
-  if (resultado.ok) recarregar('/configuracoes/membros');
+  if (resultado.ok) recarregar('/settings/members');
   return resultado;
 };
 
@@ -104,7 +104,7 @@ export const actionCancelarInvitation: Acao = async (_anterior, data) => {
   if (!invitationId) return DESCONHECIDO;
 
   const resultado = await cancelarInvitation(await atorAtual(), invitationId);
-  if (resultado.ok) recarregar('/configuracoes/membros');
+  if (resultado.ok) recarregar('/settings/members');
   return resultado;
 };
 
@@ -114,7 +114,7 @@ export const actionDefinirRole: Acao = async (_anterior, data) => {
   if (!userId || !roleId) return DESCONHECIDO;
 
   const resultado = await definirRole(await atorAtual(), userId, roleId);
-  if (resultado.ok) recarregar('/configuracoes/membros', '/configuracoes/papeis');
+  if (resultado.ok) recarregar('/settings/members', '/settings/roles');
   return resultado;
 };
 
@@ -127,7 +127,7 @@ export const actionAlternarMember: Acao = async (_anterior, data) => {
     userId,
     texto(data, 'ativo') === 'sim',
   );
-  if (resultado.ok) recarregar('/configuracoes/membros');
+  if (resultado.ok) recarregar('/settings/members');
   return resultado;
 };
 
@@ -138,7 +138,7 @@ export const actionCreateRole: Acao = async (_anterior, data) => {
     nome: texto(data, 'nome'),
     description: texto(data, 'descricao'),
   });
-  if (resultado.ok) recarregar('/configuracoes/papeis');
+  if (resultado.ok) recarregar('/settings/roles');
   return resultado;
 };
 
@@ -151,7 +151,7 @@ export const actionSalvarPermissions: Acao = async (_anterior, data) => {
     roleId,
     lista(data, 'permissao'),
   );
-  if (resultado.ok) recarregar(`/configuracoes/papeis/${roleId}`, '/configuracoes/papeis');
+  if (resultado.ok) recarregar(`/settings/roles/${roleId}`, '/settings/roles');
   return resultado;
 };
 
@@ -164,7 +164,7 @@ export const actionExcluirRole: Acao = async (_anterior, data) => {
 
   // A tela de onde o clique veio deixou de existir. Ficar nela mostraria um
   // papel que já não está no banco até alguém navegar por conta própria.
-  recarregar('/configuracoes/papeis');
+  recarregar('/settings/roles');
   redirect('/settings/roles');
 };
 
@@ -182,7 +182,7 @@ export const actionCreateField: Acao = async (_anterior, data) => {
     tipo: texto(data, 'tipo'),
     description: texto(data, 'descricao'),
   });
-  if (resultado.ok) recarregar('/configuracoes/campos');
+  if (resultado.ok) recarregar('/settings/fields');
   return resultado;
 };
 
@@ -194,7 +194,7 @@ export const acaoRenomearCampo: Acao = async (_anterior, data) => {
     rotulo: texto(data, 'rotulo'),
     description: texto(data, 'descricao'),
   });
-  if (resultado.ok) recarregar('/configuracoes/campos');
+  if (resultado.ok) recarregar('/settings/fields');
   return resultado;
 };
 
@@ -203,7 +203,7 @@ export const acaoExcluirCampo: Acao = async (_anterior, data) => {
   if (!campoId) return DESCONHECIDO;
 
   const resultado = await excluirCampoPersonalizado(await atorAtual(), campoId);
-  if (resultado.ok) recarregar('/configuracoes/campos');
+  if (resultado.ok) recarregar('/settings/fields');
   return resultado;
 };
 
@@ -214,7 +214,7 @@ export const actionCreateKey: Acao = async (_anterior, data) => {
     nome: texto(data, 'nome'),
     scopes: lista(data, 'escopo'),
   });
-  if (resultado.ok) recarregar('/configuracoes/api');
+  if (resultado.ok) recarregar('/settings/api');
   return resultado;
 };
 
@@ -223,7 +223,7 @@ export const actionRevogarKey: Acao = async (_anterior, data) => {
   if (!keyId) return DESCONHECIDO;
 
   const resultado = await revogarKey(await atorAtual(), keyId);
-  if (resultado.ok) recarregar('/configuracoes/api');
+  if (resultado.ok) recarregar('/settings/api');
   return resultado;
 };
 
@@ -232,7 +232,7 @@ export const actionCreateWebhook: Acao = async (_anterior, data) => {
     url: texto(data, 'url'),
     eventos: lista(data, 'evento'),
   });
-  if (resultado.ok) recarregar('/configuracoes/api');
+  if (resultado.ok) recarregar('/settings/api');
   return resultado;
 };
 
@@ -245,7 +245,7 @@ export const acaoAlternarWebhook: Acao = async (_anterior, data) => {
     webhookId,
     texto(data, 'ativo') === 'sim',
   );
-  if (resultado.ok) recarregar('/configuracoes/api');
+  if (resultado.ok) recarregar('/settings/api');
   return resultado;
 };
 
@@ -254,6 +254,6 @@ export const acaoExcluirWebhook: Acao = async (_anterior, data) => {
   if (!webhookId) return DESCONHECIDO;
 
   const resultado = await excluirWebhook(await atorAtual(), webhookId);
-  if (resultado.ok) recarregar('/configuracoes/api');
+  if (resultado.ok) recarregar('/settings/api');
   return resultado;
 };

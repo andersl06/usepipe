@@ -5,7 +5,7 @@ import { useRegistrarNavigation } from './lib/navigation';
 import { PageLogin } from './pages/login';
 import { NaoEncontrado } from './pages/nao-encontrado';
 import { PagePortal } from './pages/portal';
-import { ContactRota, contactBase, useContact } from './pages/flow/contact';
+import { ContactRota } from './pages/flow/contact';
 import { ContactHome } from './pages/flow/home';
 import { ChannelsPage } from './pages/flow/channels/channels';
 import { ServicesPage } from './pages/flow/services/servicos';
@@ -83,12 +83,6 @@ import { PageInvitation } from './pages/invitation/page';
 import { PageNoAccess } from './pages/switch-account/no-access/page';
 import { PageBuilder } from './pages/builder';
 
-/** O redirecionamento do link antigo do canal WhatsApp para a página do canal DO BOT. */
-function ParaOCanalDoBot() {
-  const { contact } = useContact();
-  return <Navigate to={`${contactBase(contact.tipo, contact.id)}/canais/whatsapp`} replace />;
-}
-
 /**
  * As rotas-filhas do contato — o que `/fluxo/:id` e `/roteador/:id` desenham
  * embaixo do estado-pai (`RotaDoContato`).
@@ -104,21 +98,21 @@ function ParaOCanalDoBot() {
 const contactRotas = (
   <>
     <Route index element={<ContactHome />} />
-    <Route path="canais" element={<ChannelsPage />} />
+    <Route path="channels" element={<ChannelsPage />} />
     {/* Cada canal tem a própria página DENTRO do bot, como
         `application/detail/{bot}/channels/{canal}` da origem
         (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1). As
         abas do WhatsApp moravam em `atendimento/canais/whatsapp/:canalId`, no
         módulo errado; o canal agora é o do bot, sem id na URL. */}
-    <Route path="canais/whatsapp" element={<ShellChannelWhatsapp />}>
+    <Route path="channels/whatsapp" element={<ShellChannelWhatsapp />}>
       <Route index element={<AbaVisaoGeral />} />
-      <Route path="perfil" element={<AbaPerfil />} />
-      <Route path="configuracoes" element={<AbaSettings />} />
+      <Route path="profile" element={<AbaPerfil />} />
+      <Route path="settings" element={<AbaSettings />} />
       <Route path="alerta" element={<AbaAlerta />} />
     </Route>
-    <Route path="canais/instagram" element={<PageChannelInstagram />} />
-    <Route path="canais/messenger" element={<PageChannelMessenger />} />
-    <Route path="servicos" element={<ServicesPage />} />
+    <Route path="channels/instagram" element={<PageChannelInstagram />} />
+    <Route path="channels/messenger" element={<PageChannelMessenger />} />
+    <Route path="services" element={<ServicesPage />} />
 
     {/* O módulo Atendimento — a `attendance/desk/*` da origem, dentro do
         MESMO contato: barra do portal + barra do contato (item "Atendimento"
@@ -126,46 +120,43 @@ const contactRotas = (
         Estas telas viviam soltas em `/monitoramento`, `/historico` etc. e
         desenhavam um segundo portal — ver o mapa completo no relatório da
         tarefa que fez a mudança. */}
-    <Route path="atendimento" element={<AttendanceShell />}>
-      <Route index element={<Navigate to="monitoramento" replace />} />
-      <Route path="monitoramento" element={<PageMonitoring />} />
-      <Route path="historico" element={<PageHistory />} />
-      <Route path="monitoria" element={<PageQualityReview />} />
-      <Route path="monitoria/:id" element={<EvaluationPageFicha />} />
-      <Route path="relatorios/atendimento" element={<PageAttendance />} />
-      <Route path="relatorios/esforco" element={<PageEffort />} />
-      <Route path="relatorios/satisfacao" element={<PageSatisfaction />} />
-      <Route path="atendentes/gestao" element={<AgentsPageManagement />} />
+    <Route path="attendance" element={<AttendanceShell />}>
+      <Route index element={<Navigate to="monitoring" replace />} />
+      <Route path="monitoring" element={<PageMonitoring />} />
+      <Route path="history" element={<PageHistory />} />
+      <Route path="quality-review" element={<PageQualityReview />} />
+      <Route path="quality-review/:id" element={<EvaluationPageFicha />} />
+      <Route path="reports/attendance" element={<PageAttendance />} />
+      <Route path="reports/effort" element={<PageEffort />} />
+      <Route path="reports/satisfaction" element={<PageSatisfaction />} />
+      <Route path="agents/management" element={<AgentsPageManagement />} />
       {/* `/team/create` e `/team/edit` da origem — sem `:id`, a seleção viaja
           em `?atendentes=` porque a edição é em lote (§a.1/§a.4 da ficha). */}
-      <Route path="atendentes/gestao/adicionar" element={<AgentPageEdit modo="adicionar" />} />
-      <Route path="atendentes/gestao/editar" element={<AgentPageEdit modo="editar" />} />
+      <Route path="agents/management/add" element={<AgentPageEdit modo="adicionar" />} />
+      <Route path="agents/management/edit" element={<AgentPageEdit modo="editar" />} />
       {/* `/team/permission` da origem. */}
-      <Route path="atendentes/gestao/permissoes" element={<AgentPagePermissions />} />
-      <Route path="atendentes/filas" element={<PageQueues />} />
+      <Route path="agents/management/permissions" element={<AgentPagePermissions />} />
+      <Route path="agents/queues" element={<PageQueues />} />
       {/* `/queue-management/edit/:id` da origem — página própria, não modal. */}
-      <Route path="atendentes/filas/:filaId/editar" element={<QueuePageEdit />} />
-      <Route path="atendentes/pausas" element={<PageBreaks />} />
-      <Route path="comunicacao/modelos" element={<PageTemplates />} />
-      <Route path="comunicacao/respostas-prontas" element={<PageCannedResponses />} />
-      <Route path="regras/atendimento" element={<AttendancePageRules />} />
-      <Route path="regras/sla" element={<SlaPageRules />} />
-      <Route path="regras/horarios" element={<PageHours />} />
-      <Route path="preferencias/gerais" element={<PageSettingsGeneral />} />
-      <Route path="preferencias/dados" element={<PageData />} />
-      <Route path="preferencias/regras" element={<PageRules />} />
-      <Route path="canais" element={<PageChannels />} />
-      {/* O link antigo das abas do WhatsApp (`atendimento/canais/whatsapp/:canalId`)
-          cai na página do canal do bot — o canal agora é o do bot, não o da URL. */}
-      <Route path="canais/whatsapp/:canalId/*" element={<ParaOCanalDoBot />} />
+      <Route path="agents/queues/:queueId/edit" element={<QueuePageEdit />} />
+      <Route path="agents/breaks" element={<PageBreaks />} />
+      <Route path="communication/templates" element={<PageTemplates />} />
+      <Route path="communication/canned-responses" element={<PageCannedResponses />} />
+      <Route path="rules/attendance" element={<AttendancePageRules />} />
+      <Route path="rules/sla" element={<SlaPageRules />} />
+      <Route path="rules/hours" element={<PageHours />} />
+      <Route path="preferences/general" element={<PageSettingsGeneral />} />
+      <Route path="preferences/data" element={<PageData />} />
+      <Route path="preferences/rules" element={<PageRules />} />
+      <Route path="channels" element={<PageChannels />} />
     </Route>
 
-    <Route path="contatos" element={<ContactsShell />}>
+    <Route path="contacts" element={<ContactsShell />}>
       <Route index element={<BotListaContacts />} />
-      <Route path=":contatoId" element={<BotDetalheContact />} />
+      <Route path=":contactId" element={<BotDetalheContact />} />
     </Route>
 
-    <Route path="integracoes" element={<IntegrationsShell />}>
+    <Route path="integrations" element={<IntegrationsShell />}>
       <Route index element={<PageIntegrations />} />
       <Route path="webhook" element={<PageWebhook />} />
     </Route>
@@ -173,75 +164,40 @@ const contactRotas = (
     <Route path="log" element={<PageLog />} />
 
     <Route path="growth" element={<GrowthShell />}>
-      <Route index element={<Navigate to="mensagens-ativas" replace />} />
-      <Route path="mensagens-ativas" element={<PageActiveMessages />} />
+      <Route index element={<Navigate to="active-messages" replace />} />
+      <Route path="active-messages" element={<PageActiveMessages />} />
       <Route path="clicktracker" element={<PageClickTracker />} />
-      <Route path="anuncios" element={<PageAds />} />
-      <Route path="pagamentos" element={<PaymentsPageReport />} />
-      <Route path="links-rastreados" element={<PageTrackedLinks />} />
+      <Route path="ads" element={<PageAds />} />
+      <Route path="payments" element={<PaymentsPageReport />} />
+      <Route path="tracked-links" element={<PageTrackedLinks />} />
     </Route>
 
-    <Route path="configuracoes" element={<SettingsShell />}>
-      <Route index element={<Navigate to="basicas" replace />} />
-      <Route path="basicas" element={<SettingsBasicPage />} />
-      <Route path="boasvindas" element={<WelcomePage />} />
-      <Route path="menu-persistente" element={<PersistentMenuPage />} />
+    <Route path="settings" element={<SettingsShell />}>
+      <Route index element={<Navigate to="basic" replace />} />
+      <Route path="basic" element={<SettingsBasicPage />} />
+      <Route path="welcome" element={<WelcomePage />} />
+      <Route path="persistent-menu" element={<PersistentMenuPage />} />
       <Route path="api" element={<BotPageApi />} />
       <Route path="keys" element={<BotPageKeys />} />
     </Route>
 
-    <Route path="equipe" element={<TeamPage />} />
-    <Route path="equipe/editar/:usuarioId" element={<EditMemberPage />} />
+    <Route path="team" element={<TeamPage />} />
+    <Route path="team/edit/:userId" element={<EditMemberPage />} />
 
-    <Route path="conteudos" element={<PageContents />} />
+    <Route path="contents" element={<PageContents />} />
 
-    <Route path="analise" element={<AnalyticsShell />}>
+    <Route path="analytics" element={<AnalyticsShell />}>
       <Route index element={<Navigate to={ABA_PADRAO} replace />} />
       <Route path="dashboard" element={<DashboardPage />} />
-      <Route path="visao-geral" element={<OverviewPage />} />
-      <Route path="jornada" element={<JourneyPage />} />
-      <Route path="relatorios" element={<ReportsPage />} />
-      <Route path="mensagens-ativas" element={<AnaliseMensagensAtivas />} />
-      <Route path="gerenciador-de-relatorios" element={<ManagerPage />} />
-      <Route path="dicionario-de-dados" element={<DictionaryPage />} />
+      <Route path="overview" element={<OverviewPage />} />
+      <Route path="journey" element={<JourneyPage />} />
+      <Route path="reports" element={<ReportsPage />} />
+      <Route path="active-messages" element={<AnaliseMensagensAtivas />} />
+      <Route path="report-manager" element={<ManagerPage />} />
+      <Route path="data-dictionary" element={<DictionaryPage />} />
     </Route>
   </>
 );
-
-/**
- * As rotas que viviam soltas na raiz, sem contato, hoje redirecionadas para o
- * portal — ver a nota onde são usadas.
- *
- * A maior parte é o Atendimento de antes de morar no contato. `/builder` e
- * `/growth` entraram nesta entrega: Builder e Growth eram os dois módulos que
- * `estrutura-gestao.tsx` desenhava fora de qualquer contato, e os dois se
- * mudaram para dentro dele — Builder para `/fluxo/:id/builder`, Growth para
- * `/fluxo/:id/growth/*` e `/roteador/:id/growth/*` (que já existiam; `/growth`
- * solto, em `paginas/growth-portal.tsx`, era duplicata e foi removido).
- */
-const ROTAS_ANTIGAS_SEM_CONTATO = [
-  '/builder',
-  '/growth',
-  '/monitoramento',
-  '/historico',
-  '/relatorios/atendimento',
-  '/relatorios/esforco',
-  '/relatorios/satisfacao',
-  '/monitoria',
-  '/monitoria/:id',
-  '/regras/atendimento',
-  '/regras/horarios',
-  '/atendentes/gestao',
-  '/atendentes/filas',
-  '/atendentes/pausas',
-  '/comunicacao/modelos',
-  '/comunicacao/respostas-prontas',
-  '/configuracoes',
-  '/configuracoes/regras',
-  '/configuracoes/dados',
-  '/configuracoes/gerais',
-  '/canais',
-];
 
 /**
  * As rotas da Gestão — as mesmas URLs do aplicativo em Next, para link salvo
@@ -281,16 +237,6 @@ export function App() {
             dentro dele (abaixo); sem os dois, aquele casco de duas barras
             ficou sem rota nenhuma e saiu. */}
         <Route path="/deployment" element={<PageDeployment />} />
-
-        {/* As rotas de antes de morarem no contato (Atendimento em
-            `/{tipo}/:id/atendimento/*`, Builder em `/fluxo/:id/builder`,
-            Growth em `/{tipo}/:id/growth/*`, todas abaixo). Nenhuma carrega um
-            id de contato — não há como adivinhar de qual fluxo ou roteador era
-            o link salvo — então a única saída honesta é o portal, de onde a
-            pessoa escolhe o contato e chega lá de novo. */}
-        {ROTAS_ANTIGAS_SEM_CONTATO.map((caminho) => (
-          <Route key={caminho} path={caminho} element={<Navigate to="/portal" replace />} />
-        ))}
 
         <Route path="/flow/:id" element={<ContactRota />}>
           {contactRotas}

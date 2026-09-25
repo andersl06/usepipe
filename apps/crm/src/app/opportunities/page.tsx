@@ -215,7 +215,7 @@ async function OpportunitiesTabela({
 
   return (
     <>
-      <form className="tblhead" method="get" action="/oportunidades">
+      <form className="tblhead" method="get" action="/opportunities">
         <input type="hidden" name="vista" value="tabela" />
         <label className="agrupador">
           Situação

@@ -45,14 +45,14 @@ import { sair } from '../app/login/actions';
  * vale nas barras da Gestão.
  */
 const SETTINGS: readonly NavigationItem[] = [
-  { rotulo: 'Perfil', href: '/configuracoes/perfil' },
-  { rotulo: 'Espaço de trabalho', href: '/configuracoes/espaco' },
-  { rotulo: 'Membros', href: '/configuracoes/membros' },
-  { rotulo: 'Papéis', href: '/configuracoes/papeis' },
-  { rotulo: 'Campos personalizados', href: '/configuracoes/campos' },
-  { rotulo: 'Regras de score', href: '/configuracoes/regras-de-score' },
-  { rotulo: 'Faixas e roteamento', href: '/configuracoes/faixas' },
-  { rotulo: 'Chaves e webhooks', href: '/configuracoes/api' },
+  { rotulo: 'Perfil', href: '/settings/profile' },
+  { rotulo: 'Espaço de trabalho', href: '/settings/workspace' },
+  { rotulo: 'Membros', href: '/settings/members' },
+  { rotulo: 'Papéis', href: '/settings/roles' },
+  { rotulo: 'Campos personalizados', href: '/settings/fields' },
+  { rotulo: 'Regras de score', href: '/settings/score-rules' },
+  { rotulo: 'Faixas e roteamento', href: '/settings/tiers' },
+  { rotulo: 'Chaves e webhooks', href: '/settings/api' },
 ];
 
 /** Quem está logado. `null` nas duas rotas públicas, e só nelas. */
@@ -66,7 +66,7 @@ export interface UserInLateral {
  * As duas rotas públicas do produto. Elas não têm lateral: quem chega nelas não
  * está logado, e a lateral inteira é navegação de dado de tenant.
  */
-const PUBLICO = /^\/(entrar|convite)(\/|$)/;
+const PUBLICO = /^\/(login|invite)(\/|$)/;
 
 export function StructureCrm({
   user,
@@ -79,7 +79,7 @@ export function StructureCrm({
 
   if (PUBLICO.test(caminho)) return <>{children}</>;
 
-  if (caminho.startsWith('/configuracoes')) {
+  if (caminho.startsWith('/settings')) {
     return (
       <AreaSettings
         nome="Pipe CRM"
@@ -134,14 +134,14 @@ const SECTIONS: readonly SectionLateral[] = [
     itens: [
       { rotulo: 'Painel', href: '/', icone: 'painel' },
       { rotulo: 'Leads', href: '/leads', icone: 'funil' },
-      { rotulo: 'Oportunidades', href: '/oportunidades', icone: 'grade' },
+      { rotulo: 'Oportunidades', href: '/opportunities', icone: 'grade' },
     ],
   },
   {
     rotulo: 'Registros',
     itens: [
-      { rotulo: 'Contas', href: '/contas', icone: 'pessoas' },
-      { rotulo: 'Contatos', href: '/contatos', icone: 'pessoa' },
+      { rotulo: 'Contas', href: '/accounts', icone: 'pessoas' },
+      { rotulo: 'Contatos', href: '/contacts', icone: 'pessoa' },
     ],
   },
 ];

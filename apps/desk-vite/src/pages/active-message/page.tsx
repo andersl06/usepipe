@@ -45,7 +45,7 @@ export function PageActiveMessage() {
   const [parametros] = useSearchParams();
   const [passo, setPasso] = useState<1 | 2 | 3>(1);
   const [origem, setOrigem] = useState<'existente' | 'novo'>(
-    parametros.get('contato') ? 'existente' : 'novo',
+    parametros.get('contact') ? 'existente' : 'novo',
   );
   const [channelId, setChannelId] = useState('');
   const [telefone, setTelefone] = useState('');
@@ -66,7 +66,7 @@ export function PageActiveMessage() {
   );
   const contactInitial = useRead<{
     contact: { id: string; nome: string | null; telefone: string | null };
-  }>(parametros.get('contato') ? `/v1/desk/contacts/${parametros.get('contato')}` : null);
+  }>(parametros.get('contact') ? `/v1/desk/contacts/${parametros.get('contact')}` : null);
   /* Vindo de "Conversar novamente" (Contatos), o contato já entra selecionado. */
   useEffect(() => {
     const c = contactInitial.data?.contact;

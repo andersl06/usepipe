@@ -212,7 +212,7 @@ export function PageAttendance() {
   const hrefAba = (key: AbaBreakdown) => {
     const p = new URLSearchParams(q);
     p.set('aba', key);
-    return `${base}/relatorios/atendimento?${p}`;
+    return `${base}/reports/attendance?${p}`;
   };
   const linhasDaAba: Record<AbaBreakdown, LinhaDeQuebra[]> = {
     atendentes: report.byAgent,
@@ -270,8 +270,8 @@ export function PageAttendance() {
       <PanelFilters
         aberto={panelAberto}
         aoFechar={() => setPanelAberto(false)}
-        acao={`${base}/relatorios/atendimento`}
-        limpar={temFilter ? `${base}/relatorios/atendimento?de=${de}&to=${ate}` : null}
+        acao={`${base}/reports/attendance`}
+        limpar={temFilter ? `${base}/reports/attendance?de=${de}&to=${ate}` : null}
       >
         {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}
         <FieldPeriod de={de} ate={ate} fuso={fuso} />

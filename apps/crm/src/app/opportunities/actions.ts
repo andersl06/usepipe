@@ -12,6 +12,6 @@ import { faseValida, moverParaFase } from '../../lib/funil';
 export async function moverOpportunity(id: string, fase: string): Promise<void> {
   if (!faseValida(fase)) throw new Error(`fase desconhecida: ${fase}`);
   await moverParaFase(id, fase);
-  revalidatePath('/oportunidades');
+  revalidatePath('/opportunities');
   revalidatePath('/');
 }

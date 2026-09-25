@@ -41,8 +41,8 @@ export function useChannelWhatsapp(): ChannelWhatsappContext {
 
 const ABAS: readonly ChannelAba[] = [
   { rotulo: 'Visão Geral', segment: '' },
-  { rotulo: 'Perfil da empresa', segment: 'perfil', exigeConectado: true },
-  { rotulo: 'Configurações', segment: 'configuracoes', exigeConectado: true },
+  { rotulo: 'Perfil da empresa', segment: 'profile', exigeConectado: true },
+  { rotulo: 'Configurações', segment: 'settings', exigeConectado: true },
   { rotulo: 'Configurações de alerta', segment: 'alerta' },
   { rotulo: 'Ambiente de testes', segment: 'testes', emBreve: true },
 ];

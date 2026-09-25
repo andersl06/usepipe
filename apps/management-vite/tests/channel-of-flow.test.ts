@@ -34,9 +34,9 @@ function channel(extra: Partial<ChannelOfFlow> = {}): ChannelOfFlow {
 }
 
 test('the list card leads to the channel page inside the bot, under its own type prefix', () => {
-  assert.equal(channelRota(`/roteador/${BOT}`, 'whatsapp_cloud'), `/roteador/${BOT}/canais/whatsapp`);
-  assert.equal(channelRota(`/fluxo/${BOT}`, 'instagram'), `/fluxo/${BOT}/canais/instagram`);
-  assert.equal(channelRota(`/fluxo/${BOT}`, 'messenger'), `/fluxo/${BOT}/canais/messenger`);
+  assert.equal(channelRota(`/roteador/${BOT}`, 'whatsapp_cloud'), `/roteador/${BOT}/channels/whatsapp`);
+  assert.equal(channelRota(`/fluxo/${BOT}`, 'instagram'), `/fluxo/${BOT}/channels/instagram`);
+  assert.equal(channelRota(`/fluxo/${BOT}`, 'messenger'), `/fluxo/${BOT}/channels/messenger`);
 });
 
 test('"Connected" on the card is the bot with an ACTIVE channel of that type; disconnected or another type is "Connect"', () => {

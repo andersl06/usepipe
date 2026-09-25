@@ -37,7 +37,7 @@ test('the Manager navigates the flow\'s current tree', () => {
   const aba = analyticsAbas(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA).find(
     (item) => item.key === 'dataExtractor',
   );
-  assert.equal(aba?.segment, 'gerenciador-de-relatorios');
+  assert.equal(aba?.segment, 'report-manager');
 });
 
 test('the Manager falls back to `default` when the cluster has no key of its own', () => {

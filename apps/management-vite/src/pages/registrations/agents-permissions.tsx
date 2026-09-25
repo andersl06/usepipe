@@ -32,7 +32,7 @@ export function AgentPagePermissions() {
   const navegar = useNavigate();
   const { contact } = useContact();
   const base = attendanceBase(contact.tipo, contact.id);
-  const ids = (params.get('atendentes') ?? '').split(',').filter(Boolean);
+  const ids = (params.get('agents') ?? '').split(',').filter(Boolean);
 
   const caminho = permissionsCaminho(ids);
   const read = useRead<AgentPermissions>(caminho);
@@ -46,7 +46,7 @@ export function AgentPagePermissions() {
       <div className="vazio">
         <b>Nenhum atendente selecionado</b>
         <p>
-          <button type="button" className="btn" onClick={() => navegar(`${base}/atendentes/gestao`)}>
+          <button type="button" className="btn" onClick={() => navegar(`${base}/agents/management`)}>
             Voltar para Gestão de atendentes
           </button>
         </p>
@@ -76,7 +76,7 @@ export function AgentPagePermissions() {
     setSalvando(false);
     if (resultado.ok) {
       setEditado({});
-      navegar(`${base}/atendentes/gestao`);
+      navegar(`${base}/agents/management`);
     } else {
       setError(resultado.error);
     }
@@ -142,7 +142,7 @@ export function AgentPagePermissions() {
       {error ? <Etiqueta tom="erro">{error}</Etiqueta> : null}
 
       <div className="cl-acoes">
-        <Botao type="button" onClick={() => navegar(`${base}/atendentes/gestao`)} disabled={salvando}>
+        <Botao type="button" onClick={() => navegar(`${base}/agents/management`)} disabled={salvando}>
           Cancelar
         </Botao>
         <Botao

@@ -73,11 +73,11 @@ export function AgentsPageManagement() {
   }
 
   function irForEdit(ids: readonly string[]) {
-    navegar(`${base}/atendentes/gestao/editar?agents=${ids.join(',')}`);
+    navegar(`${base}/agents/management/edit?agents=${ids.join(',')}`);
   }
 
   function irForPermissions(ids: readonly string[]) {
-    navegar(`${base}/atendentes/gestao/permissoes?agents=${ids.join(',')}`);
+    navegar(`${base}/agents/management/permissions?agents=${ids.join(',')}`);
   }
 
   async function excluir() {
@@ -146,7 +146,7 @@ export function AgentsPageManagement() {
           variante="primario"
           icone="mais"
           className="board-acao"
-          onClick={() => navegar(`${base}/atendentes/gestao/adicionar`)}
+          onClick={() => navegar(`${base}/agents/management/add`)}
         >
           Adicionar atendentes
         </Botao>

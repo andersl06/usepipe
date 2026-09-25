@@ -244,7 +244,7 @@ export function PageHistory() {
   const temFilter = Boolean(
     params.queue || params.agent || params.etiqueta || params.ticket || params.contact,
   );
-  const limparFilters = `${base}/historico?de=${de}&to=${ate}`;
+  const limparFilters = `${base}/history?de=${de}&to=${ate}`;
 
   return (
     <>
@@ -314,7 +314,7 @@ export function PageHistory() {
       <PanelFilters
         aberto={panelAberto}
         aoFechar={() => setPanelAberto(false)}
-        acao={`${base}/historico`}
+        acao={`${base}/history`}
         limpar={temFilter ? limparFilters : null}
       >
         <CamposEscondidos atual={params} exceto={['de', 'ate']} />
@@ -402,7 +402,7 @@ export function PageHistory() {
             {/* "Agrupar por" é nosso, não deles — a resposta aos seis itens de
                 relatório que nunca viraram tela (`historico.ts`). Fica FORA do
                 painel de propósito: o painel só tem os campos que a ficha lista. */}
-            <form method="get" action={`${base}/historico`} className="hist-agrupar">
+            <form method="get" action={`${base}/history`} className="hist-agrupar">
               <CamposEscondidos atual={params} exceto={['agrupar']} />
               <label className="lbl" htmlFor="agrupar">
                 Agrupar por
