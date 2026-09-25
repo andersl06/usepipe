@@ -478,15 +478,17 @@ css-comment-175daec3,css,apps/crm/src/app/globais.css,916,926,css,28,"/* A linha
    The color is what changes: they use the brand color (`accent.quaternary`), we use surface. Brand color here would collide with the MARKED row, which is already a soft brand color, and the two need to be distinguishable — one is where the eye is, the other is a commitment the person has made. The bottom rule is what survives when the two coincide.",integration,apps/crm/src/app/globais.css:916-926; cites Twenty's RecordTableRowDiv.tsx and accent.quaternary color choice; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-eeb42d7a,css,apps/crm/src/app/globais.css,936,938,css,5,"/* --------------------------------------------- a barra de ação em massa
    Só existe quando há seleção. Presa embaixo e centrada, longe do texto que
-   a pessoa está lendo. */",,,,,,
+   a pessoa está lendo. */",translate,"--------------------------------------------- the bulk action bar
+   Only exists when there's a selection. Stuck at the bottom and centered, away from the text the person is reading.",other,apps/crm/src/app/globais.css:936-938,,proposed
 css-comment-58fc0a98,css,apps/crm/src/app/globais.css,964,965,css,6,"/* O resultado da ação em massa. Fica acima da tabela porque é resposta a uma
-   coisa que a pessoa acabou de fazer, e resposta abaixo da dobra não é lida. */",,,,,,
-css-comment-a715782f,css,apps/crm/src/app/globais.css,975,975,css,0,/* ------------------------------------------------------------ visões salvas */,,,,,,
+   coisa que a pessoa acabou de fazer, e resposta abaixo da dobra não é lida. */",translate,"The bulk action result. Sits above the table because it's a response to something the person just did, and a response below the fold isn't read.",other,apps/crm/src/app/globais.css:964-965,,proposed
+css-comment-a715782f,css,apps/crm/src/app/globais.css,975,975,css,0,/* ------------------------------------------------------------ visões salvas */,translate,------------------------------------------------------------ saved views,other,apps/crm/src/app/globais.css:975,,proposed
 css-comment-8716b7f7,css,apps/crm/src/app/globais.css,991,995,css,4,"/* ------------------------------------------------------- filtro por coluna
    O menu de dois passos do Twenty (campo → valor), com as medidas do painel
    de campos deles: 200px de largura, item de 32px, 4px de recuo lateral.
    `<details>` nativo abre e fecha, e cada valor é um link — a tela inteira do
-   filtro não tem uma linha de JavaScript. */",,,,,,
+   filtro não tem uma linha de JavaScript. */",translate,"------------------------------------------------------- column filter
+   Twenty's two-step menu (field → value), with the measurements from their fields panel: 200px width, 32px item, 4px side indent. Native `<details>` opens and closes, and each value is a link — the whole filter screen has zero lines of JavaScript.",integration,apps/crm/src/app/globais.css:991-995; cites Twenty's two-step filter menu; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-9a5d1d82,css,apps/desk-vite/src/estilos/globais.css,1,25,css,15,"/* ==========================================================================
    Pipe Desk — só o que é do Desk.
 
@@ -511,117 +513,143 @@ css-comment-9a5d1d82,css,apps/desk-vite/src/estilos/globais.css,1,25,css,15,"/* 
      surface-4 → --p-superficie-4    primary         → --p-marca
      system    → --p-info-fundo      warning         → --p-alerta-fundo
      delete    → --p-erro-conteudo
-   ========================================================================== */",,,,,,
+   ========================================================================== */",translate,"==========================================================================
+   Pipe Desk — only what belongs to the Desk.
+
+   The token, reset and primitives live in `@pipe/ui`, imported before this sheet in `main.tsx`.
+
+   What this sheet draws is the LAYOUT of the reference agent screen, measured on the copy running at `~/desk-clone` (http://127.0.0.1:8787, 1280×780 window) and checked against its compiled sheet (`~/desk-clone/fonte-original/app.css`). Each block cites the selector the measurement came from — ""measured here, got this"".
+
+   THE LAYOUT IS THEIRS, THE PAINT IS OURS. No color value from the reference appears here: everything comes from `--p-*`, and where the structure calls for a step the palette doesn't name, it is DERIVED with `color-mix`.
+
+   Token map (copy's README → `packages/ui/src/estilos/tokens.css`):
+     surface-0 → --p-superficie-0    content-default → --p-conteudo
+     surface-1 → --p-superficie-1    content-disable → --p-conteudo-desabilitado
+     surface-2 → --p-superficie-2    content-ghost   → --p-conteudo-fantasma
+     surface-3 → --p-superficie-3    content-bright  → --p-conteudo-claro
+     surface-4 → --p-superficie-4    primary         → --p-marca
+     system    → --p-info-fundo      warning         → --p-alerta-fundo
+     delete    → --p-erro-conteudo
+   ==========================================================================",meta-blip,apps/desk-vite/src/estilos/globais.css:1-25; Blip-parity methodology header (desk-clone reference); pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b1391a1b,css,apps/desk-vite/src/estilos/globais.css,103,104,css,4,"/* A casca é de altura fixa com rolagem interna (`#app`/`#container`): o
-   contêiner das colunas não rola, cada coluna tem o seu rolador. */",,,,,,
-css-comment-3dbbfdcf,css,apps/desk-vite/src/estilos/globais.css,1073,1073,css,2,"/* O menu do cartão ancora no botão ⋮ e abre para a esquerda, por cima da lista. */",,,,,,
-css-comment-d3f7391f,css,apps/desk-vite/src/estilos/globais.css,1086,1086,css,0,"/* O alfinete da conversa fixada, na linha de alertas do cartão. */",,,,,,
-css-comment-b76a5066,css,apps/desk-vite/src/estilos/globais.css,1104,1104,css,0,"/* Um ícone `x-small` na faixa (`.ticket-info-icon`), em conteúdo fantasma. */",,,,,,
+   contêiner das colunas não rola, cada coluna tem o seu rolador. */",translate,"The shell has fixed height with internal scroll (`#app`/`#container`): the columns container doesn't scroll, each column has its own scroller.",meta-blip,apps/desk-vite/src/estilos/globais.css:103-104; desk-clone shell parity; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-3dbbfdcf,css,apps/desk-vite/src/estilos/globais.css,1073,1073,css,2,"/* O menu do cartão ancora no botão ⋮ e abre para a esquerda, por cima da lista. */",translate,"The card menu anchors on the ⋮ button and opens to the left, above the list.",meta-blip,apps/desk-vite/src/estilos/globais.css:1073; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-d3f7391f,css,apps/desk-vite/src/estilos/globais.css,1086,1086,css,0,"/* O alfinete da conversa fixada, na linha de alertas do cartão. */",translate,"The pin for the pinned conversation, in the card's alert row.",meta-blip,apps/desk-vite/src/estilos/globais.css:1086; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-b76a5066,css,apps/desk-vite/src/estilos/globais.css,1104,1104,css,0,"/* Um ícone `x-small` na faixa (`.ticket-info-icon`), em conteúdo fantasma. */",translate,"An `x-small` icon on the strip (`.ticket-info-icon`), in ghost content color.",meta-blip,apps/desk-vite/src/estilos/globais.css:1104; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-64434db2,css,apps/desk-vite/src/estilos/globais.css,1115,1117,css,2,"/* ======================================================== a conversa (pane-chat)
    `.pane-chat { width: 50%; background: surface-2; border: 1px solid surface-3 }`.
-   Com o painel fechado, 75% até 1600 (`#container.drawer-hidden .pane-chat`). */",,,,,,
+   Com o painel fechado, 75% até 1600 (`#container.drawer-hidden .pane-chat`). */",translate,"======================================================== the conversation (pane-chat)
+   `.pane-chat { width: 50%; background: surface-2; border: 1px solid surface-3 }`. With the panel closed, 75% up to 1600px (`#container.drawer-hidden .pane-chat`).",meta-blip,apps/desk-vite/src/estilos/globais.css:1115-1117; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d9ee9ad0,css,apps/desk-vite/src/estilos/globais.css,1131,1132,css,3,"/* O estado sem conversa: ilustração (78×73, 32 de folga), título fs-20
-   semi-bold com 8 de folga (`.message-title`), e a linha em fs-16. */",,,,,,
+   semi-bold com 8 de folga (`.message-title`), e a linha em fs-16. */",translate,"The no-conversation state: illustration (78×73, 32 gap), fs-20 semi-bold title with 8 gap (`.message-title`), and the line in fs-16.",meta-blip,apps/desk-vite/src/estilos/globais.css:1131-1132; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f995ae17,css,apps/desk-vite/src/estilos/globais.css,1168,1169,css,1,"/* ""Buscando tickets"": spinner de 64px (`bds-loading-spinner`) com 32 de folga
-   (`.spinner-container.mb4`) e o título fs-20 semi-bold. */",,,,,,
+   (`.spinner-container.mb4`) e o título fs-20 semi-bold. */",translate,"""Buscando tickets"": a 64px spinner (`bds-loading-spinner`) with 32 gap (`.spinner-container.mb4`) and the fs-20 semi-bold title.",meta-blip,apps/desk-vite/src/estilos/globais.css:1168-1169; keeps literal product-copy string in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8bf6c50f,css,apps/desk-vite/src/estilos/globais.css,1193,1198,css,5,"/* --------------------------------------------------------- o cabeçalho
    `.pane-chat-header { background: surface-1 }`, `.chat-header { padding:
    1.5rem }` — 24px em volta. Rosto `bds-avatar size=""standard""` (56px);
    nome em fs-16 semi-bold (`max-width: 265px`) e a linha ""Ticket: #N · Bot:
    · Fila:"" em fs-12 com `column-gap: 5px`; à direita os botões de 40, com 8
-   entre eles; a linha de .5px em superfície 3 embaixo. */",,,,,,
+   entre eles; a linha de .5px em superfície 3 embaixo. */",translate,"----------------------------------------------------------- the header
+   `.pane-chat-header { background: surface-1 }`, `.chat-header { padding: 1.5rem }` — 24px all around. Face `bds-avatar size=""standard""` (56px); name in fs-16 semi-bold (`max-width: 265px`) and the ""Ticket: #N · Bot: · Fila:"" line in fs-12 with `column-gap: 5px`; on the right the 40px buttons, 8px apart; the .5px line on surface 3 at the bottom.",meta-blip,apps/desk-vite/src/estilos/globais.css:1193-1198; keeps literal product-copy string in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f102263e,css,apps/desk-vite/src/estilos/globais.css,122,128,css,7,"/* ======================================================= o trilho (navbar)
    `bds-navbar orientation=""vertical"" background-color=""surface-4""`: 80px de
    largura, altura cheia. Marca 40×40 a 16px do topo com 24px de folga
    (`.blip-image`); itens de 40×40 com raio 8 e recuo 8 (`.menu-button`),
    dentro de uma faixa com recuo lateral de 12 (`.navbar-menu-item`); passo de
    48 entre itens (medido: 88, 136, 184…). Rodapé: ajuda, preferências e o
-   avatar de 32 com o selo de presença, a 16px do fundo. */",,,,,,
+   avatar de 32 com o selo de presença, a 16px do fundo. */",translate,"======================================================= the rail (navbar)
+   `bds-navbar orientation=""vertical"" background-color=""surface-4""`: 80px wide, full height. 40×40 brand mark 16px from the top with 24px gap (`.blip-image`); 40×40 items with radius 8 and 8 inset (`.menu-button`), inside a strip with 12px side inset (`.navbar-menu-item`); 48px step between items (measured: 88, 136, 184…). Footer: help, preferences and the 32px avatar with the presence badge, 16px from the bottom.",meta-blip,apps/desk-vite/src/estilos/globais.css:122-128; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ff26cf97,css,apps/desk-vite/src/estilos/globais.css,1275,1276,css,1,"/* ""Finalizar"": acima de 1280 é `bds-button primary` com o ícone e o texto;
-   até 1280 só o ícone (`#close-ticket-button-icon`). */",,,,,,
-css-comment-3e2879af,css,apps/desk-vite/src/estilos/globais.css,1291,1291,css,1,"/* O botão que abre e fecha o painel só existe na faixa média (`show-medium`, 950–1112). */",,,,,,
+   até 1280 só o ícone (`#close-ticket-button-icon`). */",translate,"""Finalizar"": above 1280 it's `bds-button primary` with icon and text; below 1280, icon only (`#close-ticket-button-icon`).",meta-blip,apps/desk-vite/src/estilos/globais.css:1275-1276; keeps literal product-copy string in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-3e2879af,css,apps/desk-vite/src/estilos/globais.css,1291,1291,css,1,"/* O botão que abre e fecha o painel só existe na faixa média (`show-medium`, 950–1112). */",translate,"The button that opens and closes the panel only exists in the medium band (`show-medium`, 950–1112).",meta-blip,apps/desk-vite/src/estilos/globais.css:1291; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-3cc87273,css,apps/desk-vite/src/estilos/globais.css,1308,1310,css,1,"/* A faixa de etiquetas abaixo do cabeçalho (`.tags-container { height: 64px }`,
    `pa3` = 16px): ícone tag + ""Adicionar tags"" fs-16 semi-bold, e as
-   etiquetas em fila (`.tags-scroll ml5 mr5`). */",,,,,,
+   etiquetas em fila (`.tags-scroll ml5 mr5`). */",translate,"The tag strip below the header (`.tags-container { height: 64px }`, `pa3` = 16px): tag icon + ""Adicionar tags"" fs-16 semi-bold, and the tags in a row (`.tags-scroll ml5 mr5`).",meta-blip,apps/desk-vite/src/estilos/globais.css:1308-1310; keeps literal product-copy string in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-5f44037b,css,apps/desk-vite/src/estilos/globais.css,1347,1348,css,1,"/* A busca dentro da conversa (`.search-section`): superfície 1, recuo 16,
-   campo + botão fechar; absoluta sobre o corpo acima de 950. */",,,,,,
+   campo + botão fechar; absoluta sobre o corpo acima de 950. */",translate,"The in-conversation search (`.search-section`): surface 1, 16px inset, field + close button; absolute over the body above 950px.",meta-blip,apps/desk-vite/src/estilos/globais.css:1347-1348; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ccf0154a,css,apps/desk-vite/src/estilos/globais.css,1378,1380,css,0,"/* ---------------------------------------------------------- o corpo
    `.message-list--panechat .card-group-container { padding: 32px 24px }`
-   (40px 64px acima de 1600; 26px 16px até 480), rolagem própria. */",,,,,,
+   (40px 64px acima de 1600; 26px 16px até 480), rolagem própria. */",translate,"---------------------------------------------------------- the body
+   `.message-list--panechat .card-group-container { padding: 32px 24px }` (40px 64px above 1600; 26px 16px up to 480), its own scroll.",meta-blip,apps/desk-vite/src/estilos/globais.css:1378-1380; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-785fb35d,css,apps/desk-vite/src/estilos/globais.css,1414,1416,css,2,"/* O grupo (`.blip-message-group .blip-card-group { margin-bottom: 20px }`),
    com 35px de recuo do lado da entrada e 55px do lado da saída quando há
-   rosto (`.blip-container--with-photo`). */",,,,,,
+   rosto (`.blip-container--with-photo`). */",translate,"The group (`.blip-message-group .blip-card-group { margin-bottom: 20px }`), with 35px inset on the inbound side and 55px on the outbound side when there's a face (`.blip-container--with-photo`).",meta-blip,apps/desk-vite/src/estilos/globais.css:1414-1416; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8a70b11b,css,apps/desk-vite/src/estilos/globais.css,1428,1429,css,2,"/* `.blip-container { margin-bottom: 10px }` não vale dentro do grupo: os
-   balões se costuram com os 5px do `.bubble`. */",,,,,,
+   balões se costuram com os 5px do `.bubble`. */",translate,`.blip-container { margin-bottom: 10px }` doesn't apply inside the group: bubbles stitch together with the `.bubble`'s 5px.,meta-blip,apps/desk-vite/src/estilos/globais.css:1428-1429; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bb32d163,css,apps/desk-vite/src/estilos/globais.css,1441,1444,css,3,"/* `.blip-card .bubble`: máx 90%, entrelinha 20, fonte 16, borda 1px em
    conteúdo fantasma, 5px embaixo; `.plain-text .bubble { padding: 10px 16px }`.
    Entrada (`.left`): superfície 1 com conteúdo; saída (`.right`): o cinza do
-   texto (conteúdo) com a superfície 1 por cima. */",,,,,,
+   texto (conteúdo) com a superfície 1 por cima. */",translate,"`.blip-card .bubble`: max 90%, 20 line height, font 16, 1px border in ghost content, 5px at the bottom; `.plain-text .bubble { padding: 10px 16px }`. Inbound (`.left`): surface 1 with content; outbound (`.right`): the text's gray (content) with surface 1 on top.",meta-blip,apps/desk-vite/src/estilos/globais.css:1441-1444; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bbd002c9,css,apps/desk-vite/src/estilos/globais.css,1476,1478,css,1,"/* Os cantos dentro do grupo (`.blip-card-group > :first-child … .bubble`):
    o recorte de 2px mora embaixo, do lado de quem fala; nos demais o de cima
-   do mesmo lado também encolhe. */",,,,,,
+   do mesmo lado também encolhe. */",translate,"The corners inside the group (`.blip-card-group > :first-child … .bubble`): the 2px clip lives at the bottom, on the speaker's side; on the rest, the top one on the same side also shrinks.",meta-blip,apps/desk-vite/src/estilos/globais.css:1476-1478; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-957cc81d,css,apps/desk-vite/src/estilos/globais.css,148,149,css,4,"/* `bds-illustration` de 40×40 com o nosso símbolo a 76% da caixa — o
-     mesmo `background-size` que a cópia usa em `pipe/marca.css`. */",,,,,,
+     mesmo `background-size` que a cópia usa em `pipe/marca.css`. */",translate,40×40 `bds-illustration` with our symbol at 76% of the box — the same `background-size` the copy uses in `pipe/marca.css`.,meta-blip,apps/desk-vite/src/estilos/globais.css:148-149; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-4c104fdf,css,apps/desk-vite/src/estilos/globais.css,1495,1497,css,2,"/* Falha: o balão vai a 50% (`.failed-message .bubble.right { opacity: .5 }`)
    e um ícone de 25×25 em vermelho fica a 10px do fundo, encostado na
-   direita, fora do balão (`.icon-message-failed`). */",,,,,,
+   direita, fora do balão (`.icon-message-failed`). */",translate,"Failure: the bubble goes to 50% (`.failed-message .bubble.right { opacity: .5 }`) and a 25×25 red icon sits 10px from the bottom, flush right, outside the bubble (`.icon-message-failed`).",meta-blip,apps/desk-vite/src/estilos/globais.css:1495-1497; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-1450a526,css,apps/desk-vite/src/estilos/globais.css,1520,1522,css,0,"/* O horário do grupo (`.group-notification`): 10px/14px em conteúdo
    desabilitado, do lado de quem fala; na saída, o sinal de entrega (20×15)
-   antes da hora. Dentro do grupo, o de cada balão some. */",,,,,,
+   antes da hora. Dentro do grupo, o de cada balão some. */",translate,"The group's timestamp (`.group-notification`): 10px/14px in disabled content, on the speaker's side; outbound, the delivery mark (20×15) comes before the time. Inside the group, each bubble's own timestamp disappears.",meta-blip,apps/desk-vite/src/estilos/globais.css:1520-1522; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-cdda4e0a,css,apps/desk-vite/src/estilos/globais.css,1546,1549,css,4,"/* A linha de mudança do ticket (`.ticket`): centrada, em conteúdo
    desabilitado, 5px no topo; a frase (`.fancy`, entrelinha 1) entre duas
    linhas de 1px em superfície 3 a 15px (`span:before/after`); e o título
-   ""Ticket #N"" em 20/500 com 10px de margem (`h3`). */",,,,,,
+   ""Ticket #N"" em 20/500 com 10px de margem (`h3`). */",translate,"The ticket-change line (`.ticket`): centered, in disabled content, 5px on top; the phrase (`.fancy`, line height 1) between two 1px lines on surface 3 at 15px (`span:before/after`); and the ""Ticket #N"" title at 20/500 with 10px margin (`h3`).",meta-blip,apps/desk-vite/src/estilos/globais.css:1546-1549; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-eb5541e5,css,apps/desk-vite/src/estilos/globais.css,1595,1596,css,2,"/* A nota interna, no lugar dos balões: o mesmo ""comentário"" da referência
-   (`.comment`), centrado. */",,,,,,
-css-comment-249fcae2,css,apps/desk-vite/src/estilos/globais.css,160,160,css,1,/* O primeiro item fica a 88px do topo na cópia: 16 + 40 + 24 + 8. */,,,,,,
+   (`.comment`), centrado. */",translate,"The internal note, in place of bubbles: the same ""comment"" as the reference (`.comment`), centered.",meta-blip,apps/desk-vite/src/estilos/globais.css:1595-1596; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-249fcae2,css,apps/desk-vite/src/estilos/globais.css,160,160,css,1,/* O primeiro item fica a 88px do topo na cópia: 16 + 40 + 24 + 8. */,translate,The first item sits 88px from the top in the copy: 16 + 40 + 24 + 8.,meta-blip,apps/desk-vite/src/estilos/globais.css:160; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-aee5361d,css,apps/desk-vite/src/estilos/globais.css,1635,1640,css,2,"/* -------------------------------------------------------- o compositor
    `.pane-chat-message-input { padding: 0 24px }`; o `bds-paper`
    `.pane-chat-message-input__container`: piso 150, teto 420, raio 8, borda
    1px em superfície 3, fundo superfície 1, 8px embaixo, sombra estática.
    Dentro: `.input-wrapper pa3 pb0` (16 16 0), o `textarea` de 4em a 11.5em
-   (16px), e `.action-buttons` de 56px com `mt3 ph3 pb3` (12 / 16 / 16). */",,,,,,
-css-comment-8f95770b,css,apps/desk-vite/src/estilos/globais.css,1671,1671,css,3,/* 16 16 0 (`pa3 pb0`) mais os 4px que o textarea inline-block deixa embaixo (68 medidos para 64 de campo). */,,,,,,
-css-comment-45663e0e,css,apps/desk-vite/src/estilos/globais.css,1720,1720,css,1,/* Abaixo de 1112 o bloco vira linha: campo e ações lado a lado. */,,,,,,
+   (16px), e `.action-buttons` de 56px com `mt3 ph3 pb3` (12 / 16 / 16). */",translate,"-------------------------------------------------------- the composer
+   `.pane-chat-message-input { padding: 0 24px }`; the `bds-paper` `.pane-chat-message-input__container`: 150 floor, 420 ceiling, radius 8, 1px border on surface 3, surface 1 background, 8px at the bottom, static shadow. Inside: `.input-wrapper pa3 pb0` (16 16 0), the `textarea` from 4em to 11.5em (16px), and `.action-buttons` at 56px with `mt3 ph3 pb3` (12 / 16 / 16).",meta-blip,apps/desk-vite/src/estilos/globais.css:1635-1640; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-8f95770b,css,apps/desk-vite/src/estilos/globais.css,1671,1671,css,3,/* 16 16 0 (`pa3 pb0`) mais os 4px que o textarea inline-block deixa embaixo (68 medidos para 64 de campo). */,translate,16 16 0 (`pa3 pb0`) plus the 4px the inline-block textarea leaves at the bottom (68 measured for a 64 field).,meta-blip,apps/desk-vite/src/estilos/globais.css:1671; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-45663e0e,css,apps/desk-vite/src/estilos/globais.css,1720,1720,css,1,/* Abaixo de 1112 o bloco vira linha: campo e ações lado a lado. */,translate,Below 1112 the block becomes a row: field and actions side by side.,meta-blip,apps/desk-vite/src/estilos/globais.css:1720; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-cb178f5e,css,apps/desk-vite/src/estilos/globais.css,1748,1749,css,6,"/* Quando a conversa não aceita texto livre, o compositor inteiro dá lugar a
-   um bloco centrado com uma linha e um botão (os quatro casos da referência). */",,,,,,
+   um bloco centrado com uma linha e um botão (os quatro casos da referência). */",translate,"When the conversation doesn't accept free text, the whole composer gives way to a centered block with one line and a button (the reference's four cases).",meta-blip,apps/desk-vite/src/estilos/globais.css:1748-1749; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-6bb12543,css,apps/desk-vite/src/estilos/globais.css,1768,1770,css,5,"/* O painel de resposta pronta (`.custom-reply`) que abre acima do campo:
    papel sobre o compositor, lista à esquerda e pré-visualização à direita
-   com ""Pressione Enter para selecionar"". */",,,,,,
-css-comment-3a7445db,css,apps/desk-vite/src/estilos/globais.css,1876,1876,css,2,"/* A área de soltar arquivo, sobre a conversa inteira (`.drop-container`). */",,,,,,
+   com ""Pressione Enter para selecionar"". */",translate,"The canned-reply panel (`.custom-reply`) that opens above the field: paper surface over the composer, list on the left and preview on the right with ""Pressione Enter para selecionar"".",meta-blip,apps/desk-vite/src/estilos/globais.css:1768-1770; keeps literal product-copy string; CSS map exception papel->paper; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-3a7445db,css,apps/desk-vite/src/estilos/globais.css,1876,1876,css,2,"/* A área de soltar arquivo, sobre a conversa inteira (`.drop-container`). */",translate,"The file-drop area, over the entire conversation (`.drop-container`).",meta-blip,apps/desk-vite/src/estilos/globais.css:1876; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-a00a00b6,css,apps/desk-vite/src/estilos/globais.css,1902,1906,css,2,"/* ======================================================= o painel (drawer)
    `#container .drawer { width: 25% }`, `.drawer { min-width: 260px }`,
    superfície 2. `.drawer-heading`: 49px (57 até 1440), `ph3` (16px), título
    fs-20 semi-bold. `.drawer-tabs { height: calc(100% - 58px) }` em superfície
-   1, com a faixa de abas de 54px; cada aba é um rolador. */",,,,,,
+   1, com a faixa de abas de 54px; cada aba é um rolador. */",translate,"======================================================= the panel (drawer)
+   `#container .drawer { width: 25% }`, `.drawer { min-width: 260px }`, surface 2. `.drawer-heading`: 49px (57 up to 1440), `ph3` (16px), fs-20 semi-bold title. `.drawer-tabs { height: calc(100% - 58px) }` on surface 1, with a 54px tab strip; each tab is its own scroller.",meta-blip,apps/desk-vite/src/estilos/globais.css:1902-1906; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-0dc941a9,css,apps/desk-vite/src/estilos/globais.css,1988,1990,css,0,"/* `.drawer__profile { padding: .5rem }` sobre superfície 2; dois `bds-paper`
    de 50% (`.drawer__profile__paper { padding: 16px 24px }`, raio 16, sombra
-   estática), 8px entre eles. */",,,,,,
+   estática), 8px entre eles. */",translate,"`.drawer__profile { padding: .5rem }` over surface 2; two 50% `bds-paper` (`.drawer__profile__paper { padding: 16px 24px }`, radius 16, static shadow), 8px apart.",meta-blip,apps/desk-vite/src/estilos/globais.css:1988-1990; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-06ce1a23,css,apps/desk-vite/src/estilos/globais.css,2027,2028,css,1,"/* `.profile-info-item { margin: 12px 0 4px }`: rótulo fs-12 semi-bold em
-   cima, valor em fs-16 embaixo, e o botão de copiar (24×28) à direita. */",,,,,,
+   cima, valor em fs-16 embaixo, e o botão de copiar (24×28) à direita. */",translate,"`.profile-info-item { margin: 12px 0 4px }`: fs-12 semi-bold label on top, fs-16 value below, and the copy button (24×28) on the right.",meta-blip,apps/desk-vite/src/estilos/globais.css:2027-2028; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-9aced5be,css,apps/desk-vite/src/estilos/globais.css,207,209,css,2,"/* O avatar do rodapé: `bds-avatar size=""extra-small""` (32px) com o selo
    `.status-badge-profile` de 12px a `left: 22px; top: -2px`, borda de 2px na
-   cor do trilho. */",,,,,,
+   cor do trilho. */",translate,"The footer avatar: `bds-avatar size=""extra-small""` (32px) with the `.status-badge-profile` badge at 12px, `left: 22px; top: -2px`, 2px border in the rail's color.",meta-blip,apps/desk-vite/src/estilos/globais.css:207-209; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-065e6790,css,apps/desk-vite/src/estilos/globais.css,2073,2075,css,3,"/* Comentários (`.comment-section`): título, área que rola com o estado vazio
    centrado (ícone + ""Não há comentários sobre este usuário""), e o campo de
-   duas linhas ""Escreva um comentário..."" (`bds-input is-textarea rows=2`). */",,,,,,
+   duas linhas ""Escreva um comentário..."" (`bds-input is-textarea rows=2`). */",translate,"Comments (`.comment-section`): title, scrolling area with the centered empty state (icon + ""Não há comentários sobre este usuário""), and the two-line ""Escreva um comentário..."" field (`bds-input is-textarea rows=2`).",meta-blip,apps/desk-vite/src/estilos/globais.css:2073-2075; keeps literal product-copy strings in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d5d3772a,css,apps/desk-vite/src/estilos/globais.css,2151,2152,css,3,"/* A aba Histórico (`.drawer__history__paper { padding: 16px 24px }`): uma
-   sanfona por origem, cada linha com número, atendente e data. */",,,,,,
+   sanfona por origem, cada linha com número, atendente e data. */",translate,"The History tab (`.drawer__history__paper { padding: 16px 24px }`): an accordion per origin, each row with number, agent and date.",meta-blip,apps/desk-vite/src/estilos/globais.css:2151-2152; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-e19997b8,css,apps/desk-vite/src/estilos/globais.css,2170,2171,css,1,"/* O esqueleto do painel sem conversa (`.drawer > div.pa2 > img`): barras
-   cinzas nas posições da captura. */",,,,,,
+   cinzas nas posições da captura. */",translate,The no-conversation panel's skeleton (`.drawer > div.pa2 > img`): gray bars at the capture's positions.,meta-blip,apps/desk-vite/src/estilos/globais.css:2170-2171; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-6711b937,css,apps/desk-vite/src/estilos/globais.css,2190,2191,css,3,"/* ======================================================== modais (bds-modal)
-   Véu a 50% de preto; o papel de 8px de raio com recuo de 32 e ações à direita. */",,,,,,
+   Véu a 50% de preto; o papel de 8px de raio com recuo de 32 e ações à direita. */",translate,"======================================================== modals (bds-modal)
+   50%-black veil; the 8px-radius paper with 32 inset and actions on the right.",meta-blip,apps/desk-vite/src/estilos/globais.css:2190-2191; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-1c40d00a,css,apps/desk-vite/src/estilos/globais.css,2254,2256,css,2,"/* ========================================================== responsivo
    Até 1112 o painel some por trás e, aberto, sobrepõe a conversa (z 10);
-   até 950 as três colunas viram 100% e deslizam com `left: -100%`/`-200%`. */",,,,,,
-css-comment-b951a997,css,apps/desk-vite/src/estilos/globais.css,2302,2302,css,2,"/* Com o painel fechado (até 1600), a conversa ocupa 75%. */",,,,,,
-css-comment-2b291d86,css,apps/desk-vite/src/estilos/globais.css,2314,2314,css,1,/* Utilidades curtas da referência que aparecem na estrutura (`hide-small`…). */,,,,,,
+   até 950 as três colunas viram 100% e deslizam com `left: -100%`/`-200%`. */",translate,"========================================================== responsive
+   Up to 1112 the panel hides behind and, when open, overlaps the conversation (z 10); up to 950 the three columns become 100% and slide with `left: -100%`/`-200%`.",meta-blip,apps/desk-vite/src/estilos/globais.css:2254-2256; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-b951a997,css,apps/desk-vite/src/estilos/globais.css,2302,2302,css,2,"/* Com o painel fechado (até 1600), a conversa ocupa 75%. */",translate,"With the panel closed (up to 1600), the conversation takes 75%.",meta-blip,apps/desk-vite/src/estilos/globais.css:2302; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-2b291d86,css,apps/desk-vite/src/estilos/globais.css,2314,2314,css,1,/* Utilidades curtas da referência que aparecem na estrutura (`hide-small`…). */,translate,Short reference utilities that show up in the markup (`hide-small`…).,meta-blip,apps/desk-vite/src/estilos/globais.css:2314; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f0c75585,css,apps/desk-vite/src/estilos/globais.css,2327,2332,css,4,"/* ================================================ o painel ""Seu status""
    `navbar-submenu` da referência (medido em `desk2/blip-menu-status.png`):
    300px escuros ao lado do trilho, recuo 8 24, cabeçalho de 40 com a seta e
    ""Seu status"" (gap 10); `user-info` centrado (avatar 56, nome 14/600,
    e-mail 12); os status em botões de 56px (recuo 16, raio 8, gap 10) — o
-   em vigor com fundo a 8% e o check; ""Desconectar"" no rodapé. */",,,,,,
+   em vigor com fundo a 8% e o check; ""Desconectar"" no rodapé. */",translate,"================================================ the ""Seu status"" panel
+   The reference's `navbar-submenu` (measured in `desk2/blip-menu-status.png`): 300px dark next to the rail, 8 24 inset, 40px header with the arrow and ""Seu status"" (gap 10); centered `user-info` (avatar 56, name 14/600, email 12); the statuses in 56px buttons (16 inset, radius 8, gap 10) — the active one with 8% background and the check; ""Desconectar"" at the footer.",meta-blip,apps/desk-vite/src/estilos/globais.css:2327-2332; keeps literal product-copy strings in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ea5ed36c,css,apps/desk-vite/src/estilos/globais.css,2499,2514,css,13,"/* ======================================================= tela de entrada
 
    A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
@@ -637,30 +665,36 @@ css-comment-ea5ed36c,css,apps/desk-vite/src/estilos/globais.css,2499,2514,css,13
    Ela NÃO usa a escala do resto do aplicativo: a entrada tem tipografia e
    espaço próprios (DM Sans, 15px de corpo), e forçar os token da plataforma
    aqui desfaria o desenho. Os valores da entrega viram token locais no
-   `.entrar` abaixo, e nada fora desta seção os enxerga. */",,,,,,
+   `.entrar` abaixo, e nada fora desta seção os enxerga. */",translate,"======================================================= sign-in screen
+
+   The ONLY public screen of the application: `/entrar` and `/convite/<token>`. Copied from `apps/gestao-vite/src/estilos/globais.css` — the Desk's sign-in screen is the Gestão's, only the title changes.
+
+   This section is the DELIVERY of the sign-in screen design, measurement by measurement: 400px card with a 20px corner, 48px controls with a 12px corner, and the 413x308 block on the side, which disappears below 1000px. The background lives in `entrar/fundo-pipe.tsx` — a canvas that draws the particle beam; here it just fills the box.
+
+   It does NOT use the rest of the application's scale: the sign-in screen has its own typography and spacing (DM Sans, 15px body), and forcing the platform's tokens here would undo the design. The delivery's values become local tokens in `.entrar` below, and nothing outside this section can see them.",meta-blip,apps/desk-vite/src/estilos/globais.css:2499-2514; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-aac39537,css,apps/desk-vite/src/estilos/globais.css,252,253,css,2,"/* O menu de status que abre no avatar (`bds-menu` da cópia): papel de raio 8
-   com sombra, itens de 40px (`.menu-action-item`). */",,,,,,
-css-comment-b0b13cb2,css,apps/desk-vite/src/estilos/globais.css,2524,2524,css,0,/* Os token da entrega. Ficam no escopo da tela de propósito. */,,,,,,
+   com sombra, itens de 40px (`.menu-action-item`). */",translate,"The status menu that opens on the avatar (`bds-menu` from the copy): 8px-radius paper with shadow, 40px items (`.menu-action-item`).",meta-blip,apps/desk-vite/src/estilos/globais.css:252-253; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-b0b13cb2,css,apps/desk-vite/src/estilos/globais.css,2524,2524,css,0,/* Os token da entrega. Ficam no escopo da tela de propósito. */,translate,The delivery's tokens. They stay scoped to the purpose screen.,meta-blip,apps/desk-vite/src/estilos/globais.css:2524; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f971ccde,css,apps/desk-vite/src/estilos/globais.css,2542,2543,css,3,"/* O canvas do fundo. `pointer-events: none` porque ele cobre a tela inteira e
-   não pode roubar um clique do formulário. */",,,,,,
+   não pode roubar um clique do formulário. */",translate,The background canvas. `pointer-events: none` because it covers the whole screen and can't steal a click from the form.,meta-blip,apps/desk-vite/src/estilos/globais.css:2542-2543; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-2446fb41,css,apps/desk-vite/src/estilos/globais.css,2552,2553,css,3,"/* `justify-content: flex-start`, e não `center`: o cartão fica à esquerda e o
-   feixe varre o canto oposto. Centralizar traria o cartão para cima do desenho. */",,,,,,
+   feixe varre o canto oposto. Centralizar traria o cartão para cima do desenho. */",translate,"`justify-content: flex-start`, not `center`: the card sits on the left and the beam sweeps the opposite corner. Centering would bring the card over the artwork.",meta-blip,apps/desk-vite/src/estilos/globais.css:2552-2553; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f648f898,css,apps/desk-vite/src/estilos/globais.css,2566,2567,css,4,"/* O cartão encostado à esquerda, a 120px da borda — a medida da tela de
-   origem. Centralizar traria o formulário para cima do feixe. */",,,,,,
+   origem. Centralizar traria o formulário para cima do feixe. */",translate,"The card flush left, 120px from the border — the measurement from the source screen. Centering would bring the form over the beam.",meta-blip,apps/desk-vite/src/estilos/globais.css:2566-2567; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-af0bd952,css,apps/desk-vite/src/estilos/globais.css,2592,2594,css,6,"/* A entrada não tem título escrito: a marca faz esse papel. O `h1` fica para
    quem ouve a tela e some só para os olhos. (No convite o título É informação,
-   e lá ele continua visível.) */",,,,,,
+   e lá ele continua visível.) */",translate,"The sign-in screen has no written title: the brand plays that role. The `h1` is there for whoever listens to the screen and disappears only for the eyes. (In the invite screen the title IS information, and there it stays visible.)",meta-blip,apps/desk-vite/src/estilos/globais.css:2592-2594; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bc3304a0,css,apps/desk-vite/src/estilos/globais.css,2607,2608,css,3,"/* O motivo da recusa, com a saída da pessoa. Vem ANTES dos botões na ordem de
-   leitura: quem usa leitor de tela precisa do motivo antes da ação. */",,,,,,
-css-comment-543f8bdb,css,apps/desk-vite/src/estilos/globais.css,2780,2780,css,1,/* ---- o que o convite acrescenta ao mesmo cartão ---- */,,,,,,
-css-comment-d16bf460,css,apps/desk-vite/src/estilos/globais.css,2797,2797,css,2,"/* Os dados do convite: rótulo à esquerda, valor à direita. */",,,,,,
+   leitura: quem usa leitor de tela precisa do motivo antes da ação. */",translate,"The rejection reason, with the person's exit. Comes BEFORE the buttons in reading order: someone using a screen reader needs the reason before the action.",meta-blip,apps/desk-vite/src/estilos/globais.css:2607-2608; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-543f8bdb,css,apps/desk-vite/src/estilos/globais.css,2780,2780,css,1,/* ---- o que o convite acrescenta ao mesmo cartão ---- */,translate,---- what the invite adds to the same card ----,meta-blip,apps/desk-vite/src/estilos/globais.css:2780; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-d16bf460,css,apps/desk-vite/src/estilos/globais.css,2797,2797,css,2,"/* Os dados do convite: rótulo à esquerda, valor à direita. */",translate,"The invitation data: label on the left, value on the right.",meta-blip,apps/desk-vite/src/estilos/globais.css:2797; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-32a34634,css,apps/desk-vite/src/estilos/globais.css,28,32,css,10,"/* O trilho é escuro nos dois temas, como a barra da Gestão (`--g-barra-*`
      em `apps/gestao-vite`): cromo que inverte junto com o conteúdo deixa de
      ser cromo. `--d-trilho-tinta` é o conteúdo claro; a passagem do cursor e o
      item em vigor são a tinta clara a 8%, que é o que a cópia mede
-     (`.menu-selected` → rgba(255,255,255,.08) no tema escuro). */",,,,,,
-css-comment-4b09e988,css,apps/desk-vite/src/estilos/globais.css,2814,2814,css,0,/* E-mail longo quebra em vez de esticar o cartão. */,,,,,,
-css-comment-e56f6cf4,css,apps/desk-vite/src/estilos/globais.css,2825,2825,css,2,"/* A conta em vigor, no menu de quem está logado. Serve às três telas. */",,,,,,
+     (`.menu-selected` → rgba(255,255,255,.08) no tema escuro). */",translate,"The rail is dark in both themes, like the Gestão's bar (`--g-barra-*` in `apps/gestao-vite`): chrome that inverts along with the content stops being chrome. `--d-trilho-tinta` is the light content color; hover and the active item are the light ink at 8%, which is what the copy measures (`.menu-selected` → rgba(255,255,255,.08) in dark mode).",meta-blip,apps/desk-vite/src/estilos/globais.css:28-32; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-4b09e988,css,apps/desk-vite/src/estilos/globais.css,2814,2814,css,0,/* E-mail longo quebra em vez de esticar o cartão. */,translate,Long email wraps instead of stretching the card.,meta-blip,apps/desk-vite/src/estilos/globais.css:2814; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-e56f6cf4,css,apps/desk-vite/src/estilos/globais.css,2825,2825,css,2,"/* A conta em vigor, no menu de quem está logado. Serve às três telas. */",translate,"The active account, in the logged-in menu. Serves all three screens.",meta-blip,apps/desk-vite/src/estilos/globais.css:2825; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-81f5e0a4,css,apps/desk-vite/src/estilos/globais.css,2827,2834,css,4,"/* ============================================================ contatos
    O MFE `desk-contact-history` medido em `~/desk-clone/clone/mfe-teste.html`
    (1200 de largura): 300 / 600 / 300. Esquerda: bloco de 110 em superfície 1
@@ -668,13 +702,15 @@ css-comment-81f5e0a4,css,apps/desk-vite/src/estilos/globais.css,2827,2834,css,4,
    de 40); a lista com recuo 8, o rótulo do grupo 14/700 num bloco de 37
    (recuo 8), cartões de 62 (recuo 8, raio 8, borda 1 em superfície 3, fundo
    superfície 1, gap 12): rosto 40 numa caixa de 44, nome 16/600/24,
-   ""Última interação"" 10/15, seta de 20. Selecionado: superfície 3. */",,,,,,
+   ""Última interação"" 10/15, seta de 20. Selecionado: superfície 3. */",translate,"============================================================ contacts
+   The `desk-contact-history` MFE measured in `~/desk-clone/clone/mfe-teste.html` (1200 width): 300 / 600 / 300. Left: 110px block on surface 1 (52px title with 16 inset; 58px search with 8 inset and 8 gap: 42px field and 40px button); the list with 8 inset, the group label 14/700 in a 37px block (8 inset), 62px cards (8 inset, radius 8, 1px border on surface 3, surface 1 background, 12 gap): 40px face in a 44px box, name 16/600/24, ""Última interação"" 10/15, 20px arrow. Selected: surface 3.",meta-blip,apps/desk-vite/src/estilos/globais.css:2827-2834; keeps literal product-copy string in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d28b7219,css,apps/desk-vite/src/estilos/globais.css,2994,2996,css,2,"/* O meio: o estado vazio (ilustração 150×155, gap 16, título 16/700, texto
    16/400 em 420 de largura) e o rodapé com o papel de 568 (recuo 0 16 32,
-   papel de 126 com gap 16, botão ""Conversar novamente""). */",,,,,,
+   papel de 126 com gap 16, botão ""Conversar novamente""). */",translate,"The middle: the empty state (150×155 illustration, 16 gap, title 16/700, text 16/400 at 420 width) and the footer with a 568px paper (0 16 32 inset, 126px paper with 16 gap, ""Conversar novamente"" button).",meta-blip,apps/desk-vite/src/estilos/globais.css:2994-2996; keeps literal product-copy string; CSS map exception papel->paper; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b227e780,css,apps/desk-vite/src/estilos/globais.css,300,301,css,1,"/* ===================================================== a coluna (sidenav)
-   `#container .sidenav { width: 25% }`, fundo em superfície 2. */",,,,,,
-css-comment-21fdaeab,css,apps/desk-vite/src/estilos/globais.css,3073,3073,css,1,"/* A direita: as abas em cabeçalho de 56 (recuo 4 16), centradas, gap 32. */",,,,,,
+   `#container .sidenav { width: 25% }`, fundo em superfície 2. */",translate,"===================================================== the column (sidenav)
+   `#container .sidenav { width: 25% }`, background on surface 2.",meta-blip,apps/desk-vite/src/estilos/globais.css:300-301; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-21fdaeab,css,apps/desk-vite/src/estilos/globais.css,3073,3073,css,1,"/* A direita: as abas em cabeçalho de 56 (recuo 4 16), centradas, gap 32. */",translate,"On the right: the tabs in a 56px header (4 16 inset), centered, 32 gap.",meta-blip,apps/desk-vite/src/estilos/globais.css:3073; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-6c448521,css,apps/desk-vite/src/estilos/globais.css,3111,3118,css,8,"/* ============================================================= métricas
    A seção `metrics` de `~/desk-clone/clone/index.html` (foto
    `desk2/blip-clone-metrics.png`): superfície 1, cabeçalho com gap 14 e recuo
@@ -682,81 +718,90 @@ css-comment-6c448521,css,apps/desk-vite/src/estilos/globais.css,3111,3118,css,8,
    16 de margem; a barra `.seg` de botões de 13 (recuo 7 14, raio 8, o em vigor
    em cromo escuro); corpo com recuo 18 24 32 e gap 24; `h3` 16/700 com 18
    embaixo; rosca de 118 e grade 3×2 de cartões (superfície 2, raio 8, recuo
-   14 8, número 20/400, rótulo 12 com ponto de 8). */",,,,,,
+   14 8, número 20/400, rótulo 12 com ponto de 8). */",translate,"============================================================= metrics
+   The clone's `metrics` section from `~/desk-clone/clone/index.html` (photo `desk2/blip-clone-metrics.png`): surface 1, header with 14 gap and 14 24 inset over a line; title 19/700/24 and subtitle 12; ""Atualizar"" at 13 with 16 margin; the `.seg` button bar at 13 (7 14 inset, radius 8, the active one in dark chrome); body with 18 24 32 inset and 24 gap; `h3` 16/700 with 18 below; a 118px ring and a 3×2 card grid (surface 2, radius 8, 14 8 inset, number 20/400, label 12 with an 8px dot).",meta-blip,apps/desk-vite/src/estilos/globais.css:3111-3118; keeps literal product-copy string in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-22ab2e8a,css,apps/desk-vite/src/estilos/globais.css,313,314,css,1,"/* `.header-content { padding: 1rem; background: surface-1 }` — 76px de
-   altura: título 20/700 (entrelinha 20) e a linha ""Lista ⌄"" de 24px. */",,,,,,
-css-comment-a004e022,css,apps/desk-vite/src/estilos/globais.css,3295,3295,css,2,"/* A série diária: 110px de altura sobre a linha do eixo, barras em par. */",,,,,,
+   altura: título 20/700 (entrelinha 20) e a linha ""Lista ⌄"" de 24px. */",translate,"`.header-content { padding: 1rem; background: surface-1 }` — 76px tall: title 20/700 (20 line height) and the ""Lista ⌄"" line at 24px.",meta-blip,apps/desk-vite/src/estilos/globais.css:313-314; keeps literal product-copy string in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-a004e022,css,apps/desk-vite/src/estilos/globais.css,3295,3295,css,2,"/* A série diária: 110px de altura sobre a linha do eixo, barras em par. */",translate,"The daily series: 110px tall over the axis line, bars in pairs.",meta-blip,apps/desk-vite/src/estilos/globais.css:3295; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-0033da6f,css,apps/desk-vite/src/estilos/globais.css,3353,3359,css,5,"/* ======================================================= mensagem ativa
    A seção `active-msg` do clone (foto `desk2/blip-clone-active.png`):
    cabeçalho com gap 12 e recuo 14 22 (título 17/400); o stepper entre duas
    linhas com recuo 10 22 (passo 13, número em disco de 20 em cromo escuro,
    linha de 1px); o aviso amarelo com borda esquerda de 3 (recuo 12 16, margem
    14 22, 12/17); o corpo com gap 26 e recuo 4 22 22: formulário até 520 e o
-   painel de 500 (cabeçalho 12 14, corpo de 300 centrado). */",,,,,,
-css-comment-029408b8,css,apps/desk-vite/src/estilos/globais.css,341,341,css,0,"/* `.view-mode-icon { top: 3px; position: relative; margin-left: 4px }`, ícone small (20px). */",,,,,,
-css-comment-dd6ef796,css,apps/desk-vite/src/estilos/globais.css,3479,3479,css,1,"/* O campo com rótulo em cima (`.field`): borda, raio 8, recuo 8 12, 12 embaixo. */",,,,,,
+   painel de 500 (cabeçalho 12 14, corpo de 300 centrado). */",translate,"======================================================= active message
+   The clone's `active-msg` section (photo `desk2/blip-clone-active.png`): header with 12 gap and 14 22 inset (title 17/400); the stepper between two lines with 10 22 inset (step 13, 20px disc number in dark chrome, 1px line); the yellow warning with a 3px left border (12 16 inset, 14 22 margin, 12/17); the body with 26 gap and 4 22 22 inset: form up to 520 and a 500px panel (12 14 header, centered 300px body).",meta-blip,apps/desk-vite/src/estilos/globais.css:3353-3359; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-029408b8,css,apps/desk-vite/src/estilos/globais.css,341,341,css,0,"/* `.view-mode-icon { top: 3px; position: relative; margin-left: 4px }`, ícone small (20px). */",translate,"`.view-mode-icon { top: 3px; position: relative; margin-left: 4px }`, small icon (20px).",meta-blip,apps/desk-vite/src/estilos/globais.css:341; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-dd6ef796,css,apps/desk-vite/src/estilos/globais.css,3479,3479,css,1,"/* O campo com rótulo em cima (`.field`): borda, raio 8, recuo 8 12, 12 embaixo. */",translate,"The field with the label on top (`.field`): border, radius 8, 8 12 inset, 12 at the bottom.",meta-blip,apps/desk-vite/src/estilos/globais.css:3479; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ab0b7803,css,apps/desk-vite/src/estilos/globais.css,350,351,css,0,"/* `.sidenav-header`: piso de 111px, 117px entre 1112 e 1440, teto 160;
-   borda de 1px em superfície 3 em cima e embaixo; superfície 1. */",,,,,,
+   borda de 1px em superfície 3 em cima e embaixo; superfície 1. */",translate,"`.sidenav-header`: 111px floor, 117px between 1112 and 1440, 160 ceiling; 1px border on surface 3 top and bottom; surface 1.",meta-blip,apps/desk-vite/src/estilos/globais.css:350-351; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-5ebe6699,css,apps/desk-vite/src/estilos/globais.css,3639,3643,css,8,"/* ======================================================= ações em massa
    A seção `bulk` do clone (foto `desk2/blip-clone-bulk.png`): recuo 20 26,
    título 20/400 com 16 embaixo, cartão em superfície 1 (raio 8, recuo 22 30,
    piso 560); a linha do chatbot com a ficha ""Transferir""; as duas colunas
-   com gap 40 sobre uma linha (18 de recuo e margem); rádios com gap 60. */",,,,,,
+   com gap 40 sobre uma linha (18 de recuo e margem); rádios com gap 60. */",translate,"======================================================= bulk actions
+   The clone's `bulk` section (photo `desk2/blip-clone-bulk.png`): 20 26 inset, title 20/400 with 16 below, surface-1 card (radius 8, 22 30 inset, 560 floor); the chatbot row with the ""Transferir"" record; the two columns with 40 gap over a line (18 inset and margin); radios with 60 gap.",meta-blip,apps/desk-vite/src/estilos/globais.css:3639-3643; keeps literal product-copy string in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-609b0f1d,css,apps/desk-vite/src/estilos/globais.css,3728,3730,css,4,"/* ========================================================= preferências
    Sem régua fotografada (o MFE não renderiza na cópia): lista de seções com
-   interruptores, no mesmo papel dos cartões do Desk. */",,,,,,
+   interruptores, no mesmo papel dos cartões do Desk. */",translate,"========================================================= preferences
+   No photographed ruler (the MFE doesn't render in the copy): a list of sections with toggles, on the same paper as the Desk's cards.",meta-blip,apps/desk-vite/src/estilos/globais.css:3728-3730; CSS map exception papel->paper; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b5a4a152,css,apps/desk-vite/src/estilos/globais.css,38,39,css,1,"/* Os degraus do trilho da lista: cursor 4% e selecionado 12%/16% de preto
-     sobre a superfície (`.chat-list-item:hover`, `.active`, `.active:hover`). */",,,,,,
+     sobre a superfície (`.chat-list-item:hover`, `.active`, `.active:hover`). */",translate,"The rail's list hover steps: 4% cursor and 12%/16% black on the selected item, over the surface (`.chat-list-item:hover`, `.active`, `.active:hover`).",meta-blip,apps/desk-vite/src/estilos/globais.css:38-39; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ca580d5c,css,apps/desk-vite/src/estilos/globais.css,383,384,css,0,"/* `.waiting-tickets-container { gap: 8px }`: o número em fs-24 semi-bold na
-   cor de marca; ""Cliente(s)"" e ""aguardando"" em fs-16. */",,,,,,
-css-comment-ad6151f5,css,apps/desk-vite/src/estilos/globais.css,406,406,css,1,"/* ""Seu status é X"": `bp-fs-5 tc` (16px) com o status na cor de marca. */",,,,,,
+   cor de marca; ""Cliente(s)"" e ""aguardando"" em fs-16. */",translate,"`.waiting-tickets-container { gap: 8px }`: the number in fs-24 semi-bold in brand color; ""Cliente(s)"" and ""aguardando"" in fs-16.",meta-blip,apps/desk-vite/src/estilos/globais.css:383; keeps literal product-copy strings in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-ad6151f5,css,apps/desk-vite/src/estilos/globais.css,406,406,css,1,"/* ""Seu status é X"": `bp-fs-5 tc` (16px) com o status na cor de marca. */",translate,"""Seu status é X"": `bp-fs-5 tc` (16px) with the status in brand color.",meta-blip,apps/desk-vite/src/estilos/globais.css:406; keeps literal product-copy string in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-32307d71,css,apps/desk-vite/src/estilos/globais.css,418,421,css,1,"/* ================================================================ botões
    `bds-button variant=""primary""`: 40px, recuo 0 16, raio 8, texto 14/700.
    `variant=""secondary""`: só a borda de 1px em conteúdo. `size=""short""`: 32px.
-   `bds-button-icon size=""short""`: 40×40, recuo 8, raio 8, ícone 24. */",,,,,,
-css-comment-17251a52,css,apps/desk-vite/src/estilos/globais.css,45,45,css,2,"/* A sombra do `bds-paper elevation=""static""` medida: 0 2px 8px -2px a 16%. */",,,,,,
-css-comment-4971db88,css,apps/desk-vite/src/estilos/globais.css,48,48,css,2,/* A borda do campo (`bds-input .input`): preto a 20%. */,,,,,,
+   `bds-button-icon size=""short""`: 40×40, recuo 8, raio 8, ícone 24. */",translate,"================================================================ buttons
+   `bds-button variant=""primary""`: 40px, 0 16 inset, radius 8, text 14/700. `variant=""secondary""`: only the 1px border in content. `size=""short""`: 32px. `bds-button-icon size=""short""`: 40×40, 8 inset, radius 8, 24px icon.",meta-blip,apps/desk-vite/src/estilos/globais.css:418-421; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-17251a52,css,apps/desk-vite/src/estilos/globais.css,45,45,css,2,"/* A sombra do `bds-paper elevation=""static""` medida: 0 2px 8px -2px a 16%. */",translate,"The `bds-paper elevation=""static""` shadow measured: 0 2px 8px -2px at 16%.",meta-blip,apps/desk-vite/src/estilos/globais.css:45; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-4971db88,css,apps/desk-vite/src/estilos/globais.css,48,48,css,2,/* A borda do campo (`bds-input .input`): preto a 20%. */,translate,The field's border (`bds-input .input`): black at 20%.,meta-blip,apps/desk-vite/src/estilos/globais.css:48; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d09d22d6,css,apps/desk-vite/src/estilos/globais.css,51,52,css,2,"/* A régua de tipo da referência é 24 / 20 / 16 / 14 / 12 / 10, com os pesos
-     400 / 600 / 700 (`bds-typo` fs-* e bold=semi-bold|bold). */",,,,,,
+     400 / 600 / 700 (`bds-typo` fs-* e bold=semi-bold|bold). */",translate,"The reference's type scale is 24 / 20 / 16 / 14 / 12 / 10, with weights 400 / 600 / 700 (`bds-typo` fs-* and bold=semi-bold|bold).",meta-blip,apps/desk-vite/src/estilos/globais.css:51-52; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-48a4e624,css,apps/desk-vite/src/estilos/globais.css,518,522,css,2,"/* ================================================================= busca
    O bloco de busca custa 80px na coluna (`.list-content-with-search`). O
    `bds-input`: 42px, borda de 1px a 20%, raio 8, recuo 8 4 8 12, lupa de 20
    numa caixa de 24 e texto 14/22; o pai tem recuo de 8 em cima e nas laterais.
-   Placeholder: ""Busque pelo nome ou telefone..."" em conteúdo fantasma. */",,,,,,
+   Placeholder: ""Busque pelo nome ou telefone..."" em conteúdo fantasma. */",translate,"================================================================= search
+   The search block takes 80px in the column (`.list-content-with-search`). `bds-input`: 42px, 1px border at 20%, radius 8, 8 4 8 12 inset, 20px magnifier in a 24px box and text 14/22; the parent has 8px inset on top and the sides. Placeholder: ""Busque pelo nome ou telefone..."" in ghost content.",meta-blip,apps/desk-vite/src/estilos/globais.css:518-522; keeps literal placeholder string in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-5f35f917,css,apps/desk-vite/src/estilos/globais.css,578,583,css,4,"/* ================================================================ fichas
    `.header-chat-list { padding: 0 5px; margin-top: 8px }` numa faixa com
    `ml2 mr2` (8px); `#filters-container { margin-top: 8px; gap: 2px }`,
    40px de altura. Até 1441 a ficha vira um menu único (`show-below-large`:
    `bds-chip-tag` outline de 32px com seta de 16 e texto 14); acima, a fila
-   de `bds-chip-clickable` (`show-above-large`). */",,,,,,
+   de `bds-chip-clickable` (`show-above-large`). */",translate,"================================================================ chips
+   `.header-chat-list { padding: 0 5px; margin-top: 8px }` in a strip with `ml2 mr2` (8px); `#filters-container { margin-top: 8px; gap: 2px }`, 40px tall. Up to 1441 the chip row becomes a single menu (`show-below-large`: 32px outline `bds-chip-tag` with a 16px arrow and 14px text); above it, the `bds-chip-clickable` row (`show-above-large`).",meta-blip,apps/desk-vite/src/estilos/globais.css:578-583; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ffa5ee74,css,apps/desk-vite/src/estilos/globais.css,675,676,css,1,"/* ================================================================= lista
-   `<main class=""pa2"">` com recuo 0 8 32 (medido) e rolagem própria. */",,,,,,
+   `<main class=""pa2"">` com recuo 0 8 32 (medido) e rolagem própria. */",translate,"================================================================= list
+   `<main class=""pa2"">` with 0 8 32 inset (measured) and its own scroll.",meta-blip,apps/desk-vite/src/estilos/globais.css:675-676; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-2a0e2486,css,apps/desk-vite/src/estilos/globais.css,687,688,css,1,"/* O estado vazio da coluna: `.get-online-txt { text-align: center; padding:
-   50px }`, ícone `xxx-large` (72px) e a frase em fs-16. */",,,,,,
+   50px }`, ícone `xxx-large` (72px) e a frase em fs-16. */",translate,"The column's empty state: `.get-online-txt { text-align: center; padding: 50px }`, `xxx-large` icon (72px) and the phrase in fs-16.",meta-blip,apps/desk-vite/src/estilos/globais.css:687-688; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-47c0251a,css,apps/desk-vite/src/estilos/globais.css,704,707,css,1,"/* ================================================== o cartão (chat-list-item)
    `<article>` clicável: raio 8, recuo 8, borda 1px em superfície 3, fundo
    superfície 1, 8px entre cartões. Cursor: +4% de preto; selecionado:
-   superfície 3 + 12%; selecionado com cursor: +16%. */",,,,,,
+   superfície 3 + 12%; selecionado com cursor: +16%. */",translate,"================================================== the card (chat-list-item)
+   Clickable `<article>`: radius 8, 8 inset, 1px border on surface 3, surface 1 background, 8px between cards. Cursor: +4% black; selected: surface 3 + 12%; selected with cursor: +16%.",meta-blip,apps/desk-vite/src/estilos/globais.css:704-707; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-81f3d779,css,apps/desk-vite/src/estilos/globais.css,753,755,css,3,"/* `.customer-avatar { width: 37px; height: 37px }` com o `bds-avatar
    size=""small""` (40px) dentro; o selo do canal (`.channel`) de 24×24, raio 6,
-   fundo branco, a −10px nos dois eixos, com o logo de 20 (`top: 2px`). */",,,,,,
+   fundo branco, a −10px nos dois eixos, com o logo de 20 (`top: 2px`). */",translate,"`.customer-avatar { width: 37px; height: 37px }` with the `bds-avatar size=""small""` (40px) inside; the channel badge (`.channel`) at 24×24, radius 6, white background, -10px on both axes, with the 20px logo (`top: 2px`).",meta-blip,apps/desk-vite/src/estilos/globais.css:753-755; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-7c5cab56,css,apps/desk-vite/src/estilos/globais.css,827,828,css,4,"/* Nome: `bds-typo fs-16 tag=h1`, 24px de entrelinha; negrito quando há não
-   lida (`bold=""bold""`), regular quando não. */",,,,,,
-css-comment-bb3a257b,css,apps/desk-vite/src/estilos/globais.css,846,846,css,0,"/* Horário relativo: fs-12 em conteúdo desabilitado, ao lado do ícone de situação. */",,,,,,
-css-comment-998c08d4,css,apps/desk-vite/src/estilos/globais.css,868,868,css,0,"/* Prévia: `bds-typo fs-14 tag=p`, `.message-preview { line-height: 24px; color: content-disable }`. */",,,,,,
-css-comment-c47e70ba,css,apps/desk-vite/src/estilos/globais.css,881,881,css,2,"/* A terceira linha de alertas, alinhada à direita: fichas de 24px. */",,,,,,
+   lida (`bold=""bold""`), regular quando não. */",translate,"Name: `bds-typo fs-16 tag=h1`, 24px line height; bold when there's an unread one (`bold=""bold""`), regular otherwise.",meta-blip,apps/desk-vite/src/estilos/globais.css:827-828; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-bb3a257b,css,apps/desk-vite/src/estilos/globais.css,846,846,css,0,"/* Horário relativo: fs-12 em conteúdo desabilitado, ao lado do ícone de situação. */",translate,"Relative time: fs-12 in disabled content, next to the status icon.",meta-blip,apps/desk-vite/src/estilos/globais.css:846; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-998c08d4,css,apps/desk-vite/src/estilos/globais.css,868,868,css,0,"/* Prévia: `bds-typo fs-14 tag=p`, `.message-preview { line-height: 24px; color: content-disable }`. */",translate,"Preview: `bds-typo fs-14 tag=p`, `.message-preview { line-height: 24px; color: content-disable }`.",meta-blip,apps/desk-vite/src/estilos/globais.css:868; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-c47e70ba,css,apps/desk-vite/src/estilos/globais.css,881,881,css,2,"/* A terceira linha de alertas, alinhada à direita: fichas de 24px. */",translate,"The third alert row, right-aligned: 24px chips.",meta-blip,apps/desk-vite/src/estilos/globais.css:881; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-65f59736,css,apps/desk-vite/src/estilos/globais.css,890,891,css,0,"/* `bds-chip-tag`: 24px, raio 4, texto 12; `color=""system""` (info) e
-   `color=""warning""` (alerta) — o par fundo pastel + conteúdo escuro. */",,,,,,
-css-comment-d3f6893a,css,apps/desk-vite/src/estilos/globais.css,932,932,css,2,"/* O ""×"" do chip de etiqueta removível: herda a cor do chip, sem fundo. */",,,,,,
+   `color=""warning""` (alerta) — o par fundo pastel + conteúdo escuro. */",translate,"`bds-chip-tag`: 24px, radius 4, text 12; `color=""system""` (info) and `color=""warning""` (alert) — the pastel background + dark content pair.",meta-blip,apps/desk-vite/src/estilos/globais.css:890-891; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-d3f6893a,css,apps/desk-vite/src/estilos/globais.css,932,932,css,2,"/* O ""×"" do chip de etiqueta removível: herda a cor do chip, sem fundo. */",translate,"The removable tag chip's ""×"": inherits the chip's color, no background.",meta-blip,apps/desk-vite/src/estilos/globais.css:932; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-a997a2d5,css,apps/desk-vite/src/estilos/globais.css,951,952,css,2,"/* A lista de opções do modal ""Adicionar tags"" e da faixa de etiquetas do
-   contato: uma caixa de seleção por etiqueta, em coluna. */",,,,,,
-css-comment-ea835334,css,apps/desk-vite/src/estilos/globais.css,979,979,css,1,"/* `.badge-warning`: contador de não lidas, 24 de altura, mínimo 24, 12/700. */",,,,,,
+   contato: uma caixa de seleção por etiqueta, em coluna. */",translate,"The option list for the ""Adicionar tags"" modal and the contact's tag strip: one checkbox per tag, in a column.",meta-blip,apps/desk-vite/src/estilos/globais.css:951-952; keeps literal product-copy string in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-ea835334,css,apps/desk-vite/src/estilos/globais.css,979,979,css,1,"/* `.badge-warning`: contador de não lidas, 24 de altura, mínimo 24, 12/700. */",translate,"`.badge-warning`: unread counter, 24px tall, 24px minimum, 12/700.",meta-blip,apps/desk-vite/src/estilos/globais.css:979; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-5434704b,css,apps/desk-vite/src/estilos/globais.css,996,999,css,2,"/* `.ticket-info`: linha de 1px em superfície 2 em cima, recuo 4 no topo, gap
    8, entrelinha 24; ícone de info `x-small` (16px) num botão sem recuo;
    ""#N"" em fs-12; ""Fila:"" fs-12 bold em conteúdo desabilitado + o nome; o
-   menu `⋮` de 24px aparece com o cursor (`.ticket-menu { opacity: 0 }`). */",,,,,,
+   menu `⋮` de 24px aparece com o cursor (`.ticket-menu { opacity: 0 }`). */",translate,"`.ticket-info`: 1px line on surface 2 on top, 4px top inset, 8 gap, 24 line height; `x-small` info icon (16px) in a button with no inset; ""#N"" in fs-12; ""Fila:"" fs-12 bold in disabled content + the name; the 24px `⋮` menu appears on hover (`.ticket-menu { opacity: 0 }`).",meta-blip,apps/desk-vite/src/estilos/globais.css:996-999; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-4830a14d,css,apps/gestao-vite/src/componentes/selecao-chips.css,9,10,css,1,"/* Medidas conferidas no bundle bds-select-chips / bds-chip-clickable do ZIP
-   de referência. Seletores próprios evitam a interferência do input global. */",,,,,,
+   de referência. Seletores próprios evitam a interferência do input global. */",translate,Measurements checked against the `bds-select-chips` / `bds-chip-clickable` bundle from the reference ZIP. Own selectors avoid interference from the global input.,meta-blip,apps/gestao-vite/src/componentes/selecao-chips.css:9-10; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-7f5be532,css,apps/gestao-vite/src/estilos/globais.css,1,17,css,14,"/* ==========================================================================
    Pipe Gestão — só o que é da Gestão.
 
@@ -773,141 +818,155 @@ css-comment-7f5be532,css,apps/gestao-vite/src/estilos/globais.css,1,17,css,14,"/
    aparece aqui: tudo sai de `--p-*`, e onde a estrutura deles pede um degrau
    que a nossa paleta não nomeia, ele é DERIVADO de um token com `color-mix`,
    nunca inventado.
-   ========================================================================== */",,,,,,
+   ========================================================================== */",translate,"==========================================================================
+   Pipe Gestão — only what belongs to the Gestão.
+
+   The token, reset and primitives (.btn, .pill/.etiqueta, .card, .metric, .tblwrap, .tabs, table/th/td, .iconbtn, .vazio, .lbl, .mono, .sw, .note) live in `@pipe/ui`, imported before this sheet in the root layout.
+
+   What this sheet draws is the LAYOUT of Blip's Monitoring screen, measured from the capture and described in `referencias-blip/pesquisa/plataformas-referencia.md` §1: two dark bars on top, a 170px light sidebar with icon and group, a 2×2 grid, two filter strips, search inside the table card.
+
+   THE LAYOUT IS THEIRS, THE PAINT IS OURS. No Blip color value appears here: everything comes from `--p-*`, and where their structure calls for a step our palette doesn't name, it is DERIVED from a token with `color-mix`, never invented.
+   ==========================================================================",meta-blip,apps/gestao-vite/src/estilos/globais.css:1-17; explicit Blip parity methodology header; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-693ebc57,css,apps/gestao-vite/src/estilos/globais.css,1008,1010,css,2,"/* O glifo do ""Atualizar tela""/""Expandir tela"" é o `bds-icon size medium`
    deles: 24px, não os 14 que o nosso desenhava (ver `dom/monitoring.html`,
-   `bds-icon__size--medium` dentro do `bds-button icon=""refresh""`). */",,,,,,
+   `bds-icon__size--medium` dentro do `bds-button icon=""refresh""`). */",translate,"The ""Atualizar tela""/""Expandir tela"" glyph is their `bds-icon size medium`: 24px, not the 14 ours used to draw (see `dom/monitoring.html`, `bds-icon__size--medium` inside `bds-button icon=""refresh""`).",meta-blip,apps/gestao-vite/src/estilos/globais.css:1008-1010; keeps literal product-copy strings in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b2464647,css,apps/gestao-vite/src/estilos/globais.css,1020,1021,css,1,"/* Os dois botões de ícone do cabeçalho andam com 8px entre si e encostados
-   na direita — `sc-dAbbOL` deles é `flex; gap: 8px`. */",,,,,,
+   na direita — `sc-dAbbOL` deles é `flex; gap: 8px`. */",translate,The header's two icon buttons sit 8px apart and flush right — their `sc-dAbbOL` is `flex; gap: 8px`.,meta-blip,apps/gestao-vite/src/estilos/globais.css:1020-1021; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-c0c68461,css,apps/gestao-vite/src/estilos/globais.css,1026,1032,css,13,"/* Filtro rápido é BOTÃO, não campo. Na faixa deles cada um mostra o rótulo e
    NADA MAIS — ""Filas"", ""Atendentes"", ""Contato"", ""Status do atendente"" —, na
    mesma medida do botão comum (130×40, raio 8, 14/700, borda cheia). Aqui a
    caixa de seleção continua existindo por dentro, porque é ela que aplica o
    filtro sem uma linha de JavaScript, mas ela só aparece quando TEM valor:
    vazia, a pílula é o botão deles. Com valor, acende em moss — é o papel que
-   o azul cumpre na tela deles, com a nossa tinta. */",,,,,,
+   o azul cumpre na tela deles, com a nossa tinta. */",translate,"Quick filter is a BUTTON, not a field. On their strip each one shows the label and NOTHING ELSE — ""Filas"", ""Atendentes"", ""Contato"", ""Status do atendente"" —, at the same size as the regular button (130×40, radius 8, 14/700, full border). Here the select box still exists underneath, because it's what applies the filter with zero lines of JavaScript, but it only shows up when it HAS a value: empty, the pill is their button. With a value, it lights up in moss — that's the role blue plays on their screen, with our paint.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1026-1032; keeps literal product-copy strings in Portuguese; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-0a911163,css,apps/gestao-vite/src/estilos/globais.css,1071,1072,css,5,"/* A caixa de seleção invisível levaria o anel de foco junto: quem o mostra é
-   a pílula. Sem isto o teclado percorreria a faixa sem sinal nenhum. */",,,,,,
+   a pílula. Sem isto o teclado percorreria a faixa sem sinal nenhum. */",translate,"The invisible select box would take the focus ring along with it: what shows it is the pill. Without this, the keyboard would move through the row with no signal at all.",other,apps/gestao-vite/src/estilos/globais.css:1071-1072,,proposed
 css-comment-1c00e912,css,apps/gestao-vite/src/estilos/globais.css,1078,1079,css,2,"/* O valor escolhido, ao lado do rótulo — em 14/400, para o rótulo continuar
-   sendo o que se lê primeiro. */",,,,,,
-css-comment-62d8ae62,css,apps/gestao-vite/src/estilos/globais.css,1087,1087,css,3,/* A caixa de seleção cobre a pílula e não se vê: quem desenha é o rótulo. */,,,,,,
-css-comment-409ced8e,css,apps/gestao-vite/src/estilos/globais.css,111,111,css,0,"/* título de tela, peso 400 */",,,,,,
-css-comment-d5ae3807,css,apps/gestao-vite/src/estilos/globais.css,112,112,css,0,"/* título de bloco de relatório, peso 700 */",,,,,,
+   sendo o que se lê primeiro. */",translate,"The chosen value, next to the label — at 14/400, so the label remains what's read first.",other,apps/gestao-vite/src/estilos/globais.css:1078-1079,,proposed
+css-comment-62d8ae62,css,apps/gestao-vite/src/estilos/globais.css,1087,1087,css,3,/* A caixa de seleção cobre a pílula e não se vê: quem desenha é o rótulo. */,translate,The select box covers the pill and isn't visible: what draws it is the label.,other,apps/gestao-vite/src/estilos/globais.css:1087,,proposed
+css-comment-409ced8e,css,apps/gestao-vite/src/estilos/globais.css,111,111,css,0,"/* título de tela, peso 400 */",translate,"screen title, weight 400",other,apps/gestao-vite/src/estilos/globais.css:111,,proposed
+css-comment-d5ae3807,css,apps/gestao-vite/src/estilos/globais.css,112,112,css,0,"/* título de bloco de relatório, peso 700 */",translate,"report block title, weight 700",other,apps/gestao-vite/src/estilos/globais.css:112,,proposed
 css-comment-6f45baa8,css,apps/gestao-vite/src/estilos/globais.css,1120,1123,css,3,"/* `input[type=search]` no Chrome/Edge ignora `appearance: none` sem o
    prefixo e desenha a própria caixa arredondada cinza por baixo — era o
    ""Contato"" cinza e sem cara de pílula na captura. Some o cromo nativo:
-   moldura, ícone de lupa e ""x"" de limpar. */",,,,,,
+   moldura, ícone de lupa e ""x"" de limpar. */",translate,"`input[type=search]` in Chrome/Edge ignores `appearance: none` without the prefix and draws its own rounded gray box underneath — it showed up as gray ""Contato"" with no pill look in the capture. Removes the native chrome: border, magnifying-glass icon and clear ""x"".",meta-blip,apps/gestao-vite/src/estilos/globais.css:1120-1123; Blip reference-capture evidence; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-947e95fd,css,apps/gestao-vite/src/estilos/globais.css,1124,1125,css,2,"/* Vazio e sem foco, o campo não ocupa lugar: o rótulo fica centrado como nos
-   outros três botões da faixa. Clicar no rótulo foca o campo e ele abre. */",,,,,,
-css-comment-a82d2b7d,css,apps/gestao-vite/src/estilos/globais.css,113,113,css,0,"/* título de cartão de métrica, peso 600 */",,,,,,
-css-comment-1dbd260e,css,apps/gestao-vite/src/estilos/globais.css,114,114,css,0,"/* valor de métrica no monitoramento, peso 400 */",,,,,,
-css-comment-a6f96549,css,apps/gestao-vite/src/estilos/globais.css,115,115,css,0,"/* valor de métrica no relatório, peso 700 */",,,,,,
+   outros três botões da faixa. Clicar no rótulo foca o campo e ele abre. */",translate,"Empty and unfocused, the field takes no space: the label stays centered like the other three buttons in the row. Clicking the label focuses the field and it opens.",other,apps/gestao-vite/src/estilos/globais.css:1124-1125,,proposed
+css-comment-a82d2b7d,css,apps/gestao-vite/src/estilos/globais.css,113,113,css,0,"/* título de cartão de métrica, peso 600 */",translate,"metric card title, weight 600",other,apps/gestao-vite/src/estilos/globais.css:113,,proposed
+css-comment-1dbd260e,css,apps/gestao-vite/src/estilos/globais.css,114,114,css,0,"/* valor de métrica no monitoramento, peso 400 */",translate,"metric value in monitoring, weight 400",other,apps/gestao-vite/src/estilos/globais.css:114,,proposed
+css-comment-a6f96549,css,apps/gestao-vite/src/estilos/globais.css,115,115,css,0,"/* valor de métrica no relatório, peso 700 */",translate,"metric value in report, weight 700",other,apps/gestao-vite/src/estilos/globais.css:115,,proposed
 css-comment-fca1b27f,css,apps/gestao-vite/src/estilos/globais.css,1153,1154,css,1,"/* `bds-select`: campo de 40px, seta e lista própria. O select nativo ficava
-   invisível nas pílulas e ainda entregava o menu antigo do navegador. */",,,,,,
-css-comment-9fb69792,css,apps/gestao-vite/src/estilos/globais.css,116,116,css,0,"/* rótulo de métrica, peso 400 */",,,,,,
+   invisível nas pílulas e ainda entregava o menu antigo do navegador. */",translate,"`bds-select`: 40px field, its own arrow and list. The native select was invisible in the pills and still delivered the browser's old menu.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1153-1154; cites Blip's bds-select component; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-9fb69792,css,apps/gestao-vite/src/estilos/globais.css,116,116,css,0,"/* rótulo de métrica, peso 400 */",translate,"metric label, weight 400",other,apps/gestao-vite/src/estilos/globais.css:116,,proposed
 css-comment-23f51be4,css,apps/gestao-vite/src/estilos/globais.css,1161,1165,css,6,"/* Dentro de uma pílula de filtro rápido o `Selecao` some como caixa: quem
    desenha borda/altura/raio é só a `.pilula`. Do jeito que veio do Codex,
    as duas caixas se empilhavam — a caixa branca do `.selecao-controle`
    sobrava por dentro da borda preta da pílula (ver captura). Origem:
-   `bds-button` de filtro rápido é UMA caixa só, sem select embutido. */",,,,,,
-css-comment-27d9b07e,css,apps/gestao-vite/src/estilos/globais.css,118,118,css,0,"/* módulo do topo, peso 300 */",,,,,,
-css-comment-2a4b6cce,css,apps/gestao-vite/src/estilos/globais.css,119,119,css,0,"/* célula de tabela, peso 400 */",,,,,,
-css-comment-d680a17c,css,apps/gestao-vite/src/estilos/globais.css,120,120,css,0,"/* cabeçalho de coluna, peso 600 */",,,,,,
-css-comment-688f5423,css,apps/gestao-vite/src/estilos/globais.css,127,127,css,2,"/* Geometria do cartão deles, com a NOSSA tinta na sombra. */",,,,,,
+   `bds-button` de filtro rápido é UMA caixa só, sem select embutido. */",translate,"Inside a quick-filter pill the `Selecao` disappears as a box: only `.pilula` draws border/height/radius. The way it came from Codex, the two boxes stacked — the white box of `.selecao-controle` spilled inside the pill's black border (see capture). Source: quick-filter `bds-button` is a SINGLE box, with no embedded select.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1161-1165; cites Blip's bds-button component and capture; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-27d9b07e,css,apps/gestao-vite/src/estilos/globais.css,118,118,css,0,"/* módulo do topo, peso 300 */",translate,"top module, weight 300",other,apps/gestao-vite/src/estilos/globais.css:118,,proposed
+css-comment-2a4b6cce,css,apps/gestao-vite/src/estilos/globais.css,119,119,css,0,"/* célula de tabela, peso 400 */",translate,"table cell, weight 400",other,apps/gestao-vite/src/estilos/globais.css:119,,proposed
+css-comment-d680a17c,css,apps/gestao-vite/src/estilos/globais.css,120,120,css,0,"/* cabeçalho de coluna, peso 600 */",translate,"column header, weight 600",other,apps/gestao-vite/src/estilos/globais.css:120,,proposed
+css-comment-688f5423,css,apps/gestao-vite/src/estilos/globais.css,127,127,css,2,"/* Geometria do cartão deles, com a NOSSA tinta na sombra. */",translate,"Their card's geometry, with OUR color in the shadow.",meta-blip,"apps/gestao-vite/src/estilos/globais.css:127; ""deles"" refers to Blip; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-2e1f1e57,css,apps/gestao-vite/src/estilos/globais.css,1275,1278,css,7,"/* ============================================================ a grade 2×2
    Cartão largo à esquerda e estreito à direita, nas DUAS linhas, como na
    tela deles. A separação entre ""agora"" e ""hoje"" que a spec de métricas
-   exige é feita pelas linhas da grade e pelos títulos dos cartões. */",,,,,,
+   exige é feita pelas linhas da grade e pelos títulos dos cartões. */",translate,"============================================================ the 2×2 grid
+   Wide card on the left and narrow on the right, on BOTH rows, like their screen. The separation between ""agora"" and ""hoje"" that the metrics spec requires is done by the grid lines and the card titles.",meta-blip,"apps/gestao-vite/src/estilos/globais.css:1275-1278; ""tela deles"" refers to Blip; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-404dc683,css,apps/gestao-vite/src/estilos/globais.css,1285,1286,css,5,"/* A TV não é só a mesma página ampliada: a referência troca o tema, preserva
-   apenas os indicadores e acrescenta a leitura horária. */",,,,,,
+   apenas os indicadores e acrescenta a leitura horária. */",translate,"TV mode isn't just the same page enlarged: the reference swaps the theme, keeps only the indicators and adds the hour reading.",meta-blip,"apps/gestao-vite/src/estilos/globais.css:1285-1286; ""a referência"" is the Blip reference; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-76575e60,css,apps/gestao-vite/src/estilos/globais.css,134,138,css,1,"/* O `bds-paper bg-surface-1` deles mede `rgb(246,246,246)` na cópia viva
      (`sistema-visual-portal.md` §1) — um degrau ABAIXO do branco e acima do
      fundo de trabalho (237). Derivado da nossa tinta de conteúdo, como as
      outras superfícies: 4% dá o mesmo degrau sem hex novo. É o fundo de TODO
-     cartão do módulo — métrica, tabela, cartão-linha, configuração. */",,,,,,
+     cartão do módulo — métrica, tabela, cartão-linha, configuração. */",translate,"Their `bds-paper bg-surface-1` measures `rgb(246,246,246)` in the live copy (`sistema-visual-portal.md` §1) — one step BELOW white and above the working background (237). Derived from our content color, like the other surfaces: 4% gives the same step with no new hex. It's the background of EVERY card in the module — metric, table, row-card, settings.",meta-blip,apps/gestao-vite/src/estilos/globais.css:134-138; cites sistema-visual-portal.md and bds-paper; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-31359623,css,apps/gestao-vite/src/estilos/globais.css,1378,1381,css,8,"/* ================================================== o cartão, na medida deles
    Padding 20, raio 16, SEM borda, e a sombra `0 2px 8px -2px` — a geometria é
    a deles, a tinta da sombra é a nossa. O título do cartão é 14/600 com 10px
-   até a primeira métrica. */",,,,,,
+   até a primeira métrica. */",translate,"================================================== the card, sized like theirs
+   Padding 20, radius 16, NO border, and the shadow `0 2px 8px -2px` — the geometry is theirs, the shadow color is ours. The card title is 14/600 with 10px to the first metric.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1378-1381; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-3f17d543,css,apps/gestao-vite/src/estilos/globais.css,1398,1401,css,4,"/* O cartão de métrica deles tem SÓ o título no topo: os dois ícones de
    ""Atualizar tela""/""Expandir tela"" ficam no cabeçalho da página, uma vez
    (`dom/monitoring.html`: nenhum `bds-button` dentro dos quatro `bds-paper`).
-   O nosso punha os dois em cada cartão; a ficha estava errada, o DOM não. */",,,,,,
+   O nosso punha os dois em cada cartão; a ficha estava errada, o DOM não. */",translate,"Their metric card has ONLY the title at the top: the two ""Atualizar tela""/""Expandir tela"" icons live in the page header, once (`dom/monitoring.html`: no `bds-button` inside the four `bds-paper`). Ours put both in every card; the spec sheet was wrong, the DOM wasn't.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1398-1401; cites dom/monitoring.html; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f0cc0c25,css,apps/gestao-vite/src/estilos/globais.css,141,142,css,1,"/* Realce do item ativo de lateral: onde eles põem 8% de preto, nós pomos o
-     fundo de estado ativo da marca. O papel é o mesmo, a tinta é nossa. */",,,,,,
+     fundo de estado ativo da marca. O papel é o mesmo, a tinta é nossa. */",translate,"Highlight of the active sidebar item: where they put 8% black, we put the brand's active-state background. The role is the same, the color is ours.",meta-blip,"apps/gestao-vite/src/estilos/globais.css:141-142; ""eles"" refers to Blip; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-4056b336,css,apps/gestao-vite/src/estilos/globais.css,1415,1417,css,11,"/* Coluna de leitura dos módulos SEM lateral. Sem isso o cartão ocupa os
    1.650px da tela e a linha de texto passa de 200 caracteres, que o olho
-   perde na volta. Não vale para tela com tabela, que quer a largura toda. */",,,,,,
+   perde na volta. Não vale para tela com tabela, que quer a largura toda. */",translate,"Reading column for modules WITHOUT a sidebar. Without this the card takes up the screen's 1,650px and the text line goes past 200 characters, which the eye loses track of on the way back. Doesn't apply to a screen with a table, which wants the full width.",other,apps/gestao-vite/src/estilos/globais.css:1415-1417,,proposed
 css-comment-59d54299,css,apps/gestao-vite/src/estilos/globais.css,1425,1427,css,2,"/* A fila de métricas do cartão deles é `bds-grid gap=""2"" justify-content=
    ""space-between""` (`dom/monitoring.html`): as colunas se afastam até as
-   bordas, com 16px de respiro mínimo entre elas. Nada de partes iguais. */",,,,,,
+   bordas, com 16px de respiro mínimo entre elas. Nada de partes iguais. */",translate,"Their card's metric row is `bds-grid gap=""2"" justify-content=""space-between""` (`dom/monitoring.html`): the columns spread out to the edges, with a minimum 16px gap between them. No equal parts.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1425-1427; cites dom/monitoring.html; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8de593bf,css,apps/gestao-vite/src/estilos/globais.css,1434,1436,css,2,"/* ""Atendimentos em tempo real"" tem DOIS grupos, `w-30` e `w-70` — as duas
    métricas da fila de um lado e as três do atendimento do outro —, e o fio
-   vertical entre eles que a foto original mostra. */",,,,,,
+   vertical entre eles que a foto original mostra. */",translate,"""Atendimentos em tempo real"" has TWO groups, `w-30` and `w-70` — the two queue metrics on one side and the three attendance metrics on the other —, and the vertical rule between them that the original photo shows.",meta-blip,"apps/gestao-vite/src/estilos/globais.css:1434-1436; ""a foto original"" is the Blip reference capture; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-627c3e4c,css,apps/gestao-vite/src/estilos/globais.css,1454,1458,css,4,"/* A coluna é CENTRADA: número em cima, rótulo centrado embaixo com o ícone de
    informação ao lado (`bds-typo fs-12 class=""text-center""` + `bds-icon info
    x-small` numa `bds-grid direction=""row"" gap=""half"" align-items=""center""`).
    A coluna se mede pelo número — ""Na fila"" ocupa 40px e o rótulo quebra em
-   duas linhas embaixo, como na tela deles. */",,,,,,
+   duas linhas embaixo, como na tela deles. */",translate,"The column is CENTERED: number on top, label centered below with the info icon next to it (`bds-typo fs-12 class=""text-center""` + `bds-icon info x-small` in a `bds-grid direction=""row"" gap=""half"" align-items=""center""`). The column is sized by the number — ""Na fila"" takes 40px and the label wraps to two lines below, like on their screen.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1454-1458; cites Blip bds-* components; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8d04a229,css,apps/gestao-vite/src/estilos/globais.css,1469,1472,css,5,"/* Valor 24/400 com entrelinha 24 — e NA FONTE DO CORPO, como o `bds-typo
    fs-24` deles: a monoespaçada era o que mais afastava o número do original
    (""305:42:59"" em mono lia como terminal). Tabular-nums mantém o alinhamento
-   de dígito sem trocar de família. */",,,,,,
+   de dígito sem trocar de família. */",translate,"Value at 24/400 with 24 line-height — and in the BODY FONT, like their `bds-typo fs-24`: monospace was what most set the number apart from the original (""305:42:59"" in mono read like a terminal). Tabular-nums keeps digit alignment without switching family.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1469-1472; cites Blip's bds-typo fs-24; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ee606a00,css,apps/gestao-vite/src/estilos/globais.css,1484,1485,css,2,"/* 10px até o rótulo; rótulo 12/400 com entrelinha 18, e o ícone de 16px
-   (`bds-icon size=""x-small""`) a 4px dele (`gap=""half""`). */",,,,,,
+   (`bds-icon size=""x-small""`) a 4px dele (`gap=""half""`). */",translate,"10px to the label; label 12/400 with 18 line-height, and the 16px icon (`bds-icon size=""x-small""`) 4px from it (`gap=""half""`).",meta-blip,apps/gestao-vite/src/estilos/globais.css:1484-1485; cites Blip's bds-icon; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-eb4934b4,css,apps/gestao-vite/src/estilos/globais.css,1502,1503,css,2,"/* O número de ""Perdidos"" e ""Abandonados"" sai na tinta de erro — é o
-   `color=""var(--color-delete)""` do `bds-typo` deles, com a nossa tinta. */",,,,,,
+   `color=""var(--color-delete)""` do `bds-typo` deles, com a nossa tinta. */",translate,"The ""Perdidos"" and ""Abandonados"" numbers use the error color — it's their `bds-typo`'s `color=""var(--color-delete)""`, with our color.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1502-1503; cites Blip's bds-typo; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d6ad7bd2,css,apps/gestao-vite/src/estilos/globais.css,1508,1512,css,10,"/* ================================================ os pontos de status
    O ponto colorido antes do rótulo, e é aqui que a cor de estado toca a
    tela sem pedir ação — cabem na régua porque são sete pontos de 7px, e são
    eles que deixam o supervisor achar ""perdidos"" sem ler os quatro rótulos.
-   NENHUM AZUL: sucesso, alerta, erro e o neutro dos nossos token. */",,,,,,
+   NENHUM AZUL: sucesso, alerta, erro e o neutro dos nossos token. */",translate,"================================================ the status dots
+   The colored dot before the label, and this is where the status color touches the screen without asking for action — they fit on the ruler because they're seven 7px dots, and they're what lets the supervisor spot ""perdidos"" without reading the four labels.
+   NO BLUE: success, warning, error and our tokens' neutral.",other,apps/gestao-vite/src/estilos/globais.css:1508-1512,,proposed
 css-comment-ec562f1c,css,apps/gestao-vite/src/estilos/globais.css,1529,1532,css,6,"/* ====================================== a explicação de cada métrica
    O ícone de informação ao lado do rótulo, com a fórmula e a população que
    saem de `docs/specs/2026-09-05-metricas-atendimento.md`. `<details>` puro:
-   abre no clique e no teclado, sem JavaScript. */",,,,,,
+   abre no clique e no teclado, sem JavaScript. */",translate,"====================================== the explanation for each metric
+   The info icon next to the label, with the formula and the population that come from `docs/specs/2026-09-05-metricas-atendimento.md`. Plain `<details>`: opens on click and on keyboard, no JavaScript.",architecture,apps/gestao-vite/src/estilos/globais.css:1529-1532; native <details> over a JS implementation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-fb7c3067,css,apps/gestao-vite/src/estilos/globais.css,1539,1542,css,7,"/* O ícone tem 16px (`bds-icon size=""x-small""`), e o alvo não pode ter 16px:
    é o controle que abre a definição da métrica, e ele aparece ao lado de todo
    número da tela. O piso de 24 vem com margem negativa vertical para a linha
-   do rótulo (18px) não crescer. */",,,,,,
+   do rótulo (18px) não crescer. */",translate,"The icon is 16px (`bds-icon size=""x-small""`), and the target can't be 16px: it's the control that opens the metric's definition, and it appears next to every number on the screen. The 24px floor comes with a negative vertical margin so the label line (18px) doesn't grow.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1539-1542; cites Blip's bds-icon; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b8380f6e,css,apps/gestao-vite/src/estilos/globais.css,1582,1583,css,2,"/* Nas duas últimas colunas o balão abre para a esquerda, senão escapa do
-   cartão e some na borda da janela. */",,,,,,
+   cartão e some na borda da janela. */",translate,"On the last two columns the tooltip opens to the left, otherwise it escapes the card and disappears past the window's edge.",other,apps/gestao-vite/src/estilos/globais.css:1582-1583,,proposed
 css-comment-910e6afd,css,apps/gestao-vite/src/estilos/globais.css,1589,1591,css,4,"/* ================================================ o cartão da tabela
    Mesma geometria do cartão de métricas: padding 20, raio 16, sem borda e com
-   a sombra da casa. A tabela deles vive dentro do mesmo cartão. */",,,,,,
+   a sombra da casa. A tabela deles vive dentro do mesmo cartão. */",translate,"================================================ the table card
+   Same geometry as the metric card: padding 20, radius 16, no border and the house shadow. Their table lives inside the same card.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1589-1591; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-3c7f8f6e,css,apps/gestao-vite/src/estilos/globais.css,1601,1603,css,4,"/* A tabela mora DENTRO do cartão: moldura branca de raio 8 com borda
    `1px rgba(0,0,0,.06)` dentro da moldura de 16 (`sistema-visual-portal.md`
-   §5). É o duplo raio que dá a profundidade. */",,,,,,
+   §5). É o duplo raio que dá a profundidade. */",translate,"The table lives INSIDE the card: white frame with an 8 radius and a `1px rgba(0,0,0,.06)` border inside the 16 frame (`sistema-visual-portal.md` §5). It's the double radius that gives the depth.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1601-1603; cites sistema-visual-portal.md; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ca2e6d87,css,apps/gestao-vite/src/estilos/globais.css,1625,1626,css,2,"/* ""Monitoramento detalhado"" é `bds-typo fs-20 bold` com `mr3` (10px) até a
-   busca. */",,,,,,
+   busca. */",translate,"""Monitoramento detalhado"" is `bds-typo fs-20 bold` with `mr3` (10px) to the search.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1625-1626; cites Blip's bds-typo; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-c513bd10,css,apps/gestao-vite/src/estilos/globais.css,1635,1636,css,2,"/* Abas: faixa de 56px com 4px/16px de padding, item de 48px, texto 16/400 e
-   o ativo em 16/700 com o fio de 2px embaixo. */",,,,,,
+   o ativo em 16/700 com o fio de 2px embaixo. */",translate,"Tabs: 56px strip with 4px/16px padding, 48px item, 16/400 text and the active one at 16/700 with a 2px rule underneath.",other,apps/gestao-vite/src/estilos/globais.css:1635-1636,,proposed
 css-comment-6995708a,css,apps/gestao-vite/src/estilos/globais.css,1661,1663,css,4,"/* Cabeçalho de coluna: 14/600 na caixa normal. A caixa alta com espaçamento
    de letra era invenção nossa — a coluna deles tem o mesmo corpo da célula e
-   se separa só pelo peso. */",,,,,,
+   se separa só pelo peso. */",translate,Column header: 14/600 in normal case. Uppercase with letter spacing was our own invention — their column has the same body as the cell and separates only by weight.,meta-blip,"apps/gestao-vite/src/estilos/globais.css:1661-1663; ""a coluna deles"" refers to Blip; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-5d2368c6,css,apps/gestao-vite/src/estilos/globais.css,1677,1678,css,3,"/* A célula de tabela HTML soma 6px do conteúdo à altura declarada; 58px
-     produz a linha visual de 64px do `bds-table-row` da Blip. */",,,,,,
+     produz a linha visual de 64px do `bds-table-row` da Blip. */",translate,The HTML table cell adds 6px of content to the declared height; 58px produces Blip's `bds-table-row`'s visual 64px line.,meta-blip,apps/gestao-vite/src/estilos/globais.css:1677-1678; explicit Blip bds-table-row citation; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8fee2dc0,css,apps/gestao-vite/src/estilos/globais.css,1693,1696,css,1,"/* Estado vazio em três partes — título, explicação e saída —, na disposição
    deles: empilhado e centralizado, com o botão embaixo. Dentro do cartão de
    tabela ele mora na moldura branca da tabela, como o ""Dados insuficientes""
-   deles (`desk-grid-tabled-paginated-empty-*`). */",,,,,,
+   deles (`desk-grid-tabled-paginated-empty-*`). */",translate,"Empty state in three parts — title, explanation and exit —, in their layout: stacked and centered, with the button at the bottom. Inside the table card it lives in the table's white frame, like their ""Dados insuficientes"" (`desk-grid-tabled-paginated-empty-*`).",meta-blip,apps/gestao-vite/src/estilos/globais.css:1693-1696; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-abc963cc,css,apps/gestao-vite/src/estilos/globais.css,1708,1711,css,6,"/* Título do vazio em 20/700 com 22px até a explicação, e a explicação em
    16/400 na tinta de conteúdo — medido em ""Nenhum resultado encontrado"". O
    nosso saía em 16/700 com o parágrafo em 14 apagado, e era o que fazia a
-   tela vazia parecer um aviso de rodapé. */",,,,,,
-css-comment-17c3b825,css,apps/gestao-vite/src/estilos/globais.css,172,172,css,2,"/* Derivados da tinta da barra: um só lugar, para não virarem cinco cinzas. */",,,,,,
+   tela vazia parecer um aviso de rodapé. */",translate,"Empty-state title at 20/700 with 22px to the explanation, and the explanation at 16/400 in content color — measured on ""Nenhum resultado encontrado"". Ours came out at 16/700 with the paragraph in a faded 14, and that's what made the empty screen look like a footer notice.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1708-1711; measured against Blip reference copy; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-17c3b825,css,apps/gestao-vite/src/estilos/globais.css,172,172,css,2,"/* Derivados da tinta da barra: um só lugar, para não virarem cinco cinzas. */",translate,"Derived from the bar's color: a single place, so they don't turn into five different grays.",other,apps/gestao-vite/src/estilos/globais.css:172,,proposed
 css-comment-ae19755d,css,apps/gestao-vite/src/estilos/globais.css,1721,1724,css,8,"/* ""Dados insuficientes"" das abas do Monitoramento detalhado é UMA linha
    centrada no corpo da tabela — sem explicação e sem botão (`FICHA-
    monitoring.md` §6). Sai em 14/600, o corpo de célula com o peso de
-   cabeçalho, e sem a margem que o título de três partes carrega. */",,,,,,
+   cabeçalho, e sem a margem que o título de três partes carrega. */",translate,"""Dados insuficientes"" on the Monitoramento detalhado tabs is ONE line centered in the table body — no explanation and no button (`FICHA-monitoring.md` §6). It comes out at 14/600, the cell body with the header's weight, and without the margin the three-part title carries.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1721-1724; cites FICHA-monitoring.md; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f446e431,css,apps/gestao-vite/src/estilos/globais.css,1753,1754,css,2,"/* A legenda do destaque amarelo, sob a tabela: 12/700 na tinta cheia
-   (`sistema-visual-portal.md` §2, ""legenda sob tabela""). */",,,,,,
+   (`sistema-visual-portal.md` §2, ""legenda sob tabela""). */",translate,"The yellow highlight's caption, under the table: 12/700 in full color (`sistema-visual-portal.md` §2, ""legenda sob tabela"").",meta-blip,apps/gestao-vite/src/estilos/globais.css:1753-1754; cites sistema-visual-portal.md; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-0f1875e5,css,apps/gestao-vite/src/estilos/globais.css,1763,1764,css,5,"/* ""Aguardando..."" no lugar do número que ainda não existe: é texto, não
-   medida, então sai da monoespaçada e da tinta cheia. */",,,,,,
+   medida, então sai da monoespaçada e da tinta cheia. */",translate,"""Aguardando..."" instead of a number that doesn't exist yet: it's text, not a measurement, so it drops the monospace and the full color.",other,apps/gestao-vite/src/estilos/globais.css:1763-1764,,proposed
 css-comment-71deac21,css,apps/gestao-vite/src/estilos/globais.css,1769,1772,css,7,"/* A coluna de tempo de atendimento carrega o indicador de SLA ao lado do
    número, e não numa coluna própria — é onde ele mora na tela deles. O número
    continua monoespaçado e tabular, porque ele ainda é uma coluna de tempo que
-   precisa alinhar de cima a baixo. */",,,,,,
+   precisa alinhar de cima a baixo. */",translate,"The attendance-time column carries the SLA indicator next to the number, not in its own column — that's where it lives on their screen. The number stays monospace and tabular, because it's still a time column that needs to align top to bottom.",meta-blip,"apps/gestao-vite/src/estilos/globais.css:1769-1772; ""tela deles"" refers to Blip; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-20bdae7a,css,apps/gestao-vite/src/estilos/globais.css,178,186,css,13,"/* CAMADA DE TINTA — a regra de estado do design system deles, lida na folha
      dos componentes e registrada em `blip-gestao-medidas.md` §3.
 
@@ -916,21 +975,26 @@ css-comment-20bdae7a,css,apps/gestao-vite/src/estilos/globais.css,178,186,css,13
      branco do cartão, sobre o creme da página e sobre a linha de uma tabela —
      uma troca de superfície escolhe um fundo e erra em todos os outros.
 
-     8% e 16% são os dois degraus deles, e são só dois. */",,,,,,
+     8% e 16% são os dois degraus deles, e são só dois. */",translate,"PAINT LAYER — their design system's state rule, read from the components sheet and recorded in `blip-gestao-medidas.md` §3.
+
+     Hover and pressed do NOT swap the surface: they overlay content color at 8% and 16%. That's why the same item reads the same over the card's white, over the page's cream and over a table row — swapping the surface picks one background and gets it wrong everywhere else.
+
+     8% and 16% are their two steps, and only two.",meta-blip,apps/gestao-vite/src/estilos/globais.css:178-186; cites Blip's design system state rule and blip-gestao-medidas.md; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ce0108ab,css,apps/gestao-vite/src/estilos/globais.css,1780,1783,css,7,"/* Célula de número na FONTE DO CORPO, com dígito tabular: a célula deles é
    `bds-typo fs-14 regular` como qualquer outra — a monoespaçada era nossa, e
    era o que mais afastava a tabela do original. Vale para as tabelas de
-   todo o módulo. */",,,,,,
+   todo o módulo. */",translate,"Number cell in the BODY FONT, with tabular digits: their cell is `bds-typo fs-14 regular` like any other — the monospace was ours, and it's what most set the table apart from the original. Applies to every table in the module.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1780-1783; cites Blip's bds-typo; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-71f50f15,css,apps/gestao-vite/src/estilos/globais.css,1793,1794,css,1,"/* Ação de linha: glifo de 24 solto num alvo de 40, sem moldura
-   (`bds-button-icon size=""short""`). */",,,,,,
+   (`bds-button-icon size=""short""`). */",translate,"Row action: a loose 24 glyph in a 40 target, no frame (`bds-button-icon size=""short""`).",meta-blip,apps/gestao-vite/src/estilos/globais.css:1793-1794; cites Blip's bds-button-icon; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-a687efa4,css,apps/gestao-vite/src/estilos/globais.css,1813,1815,css,3,"/* ------------------------------------------------- busca dentro do cartão
    Na tela deles a busca do ""Monitoramento detalhado"" mora dentro do cartão,
-   à direita do título — não na faixa de filtros. */",,,,,,
+   à direita do título — não na faixa de filtros. */",translate,"------------------------------------------------- search inside the card
+   On their screen the ""Monitoramento detalhado"" search lives inside the card, to the right of the title — not in the filter row.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1813-1815; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-5b947ae6,css,apps/gestao-vite/src/estilos/globais.css,1822,1824,css,7,"/* 54px de altura e a faixa toda de largura: na tela deles a busca do cartão
      mede `748x54`, não é um campinho encostado no título. Borda `1px
-     rgba(0,0,0,.2)` — a tinta a 20%, não a linha forte. */",,,,,,
-css-comment-e0799c59,css,apps/gestao-vite/src/estilos/globais.css,1833,1833,css,1,"/* A lupa da busca é `bds-icon size=""small""`: 20px. */",,,,,,
-css-comment-0d67beb1,css,apps/gestao-vite/src/estilos/globais.css,1884,1884,css,1,/* Barra colorida só quando o número pede ação. */,,,,,,
+     rgba(0,0,0,.2)` — a tinta a 20%, não a linha forte. */",translate,"54px tall and the full width of the row: on their screen the card's search measures `748x54`, it's not a small field tucked against the title. Border `1px rgba(0,0,0,.2)` — 20% color, not a strong line.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1822-1824; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-e0799c59,css,apps/gestao-vite/src/estilos/globais.css,1833,1833,css,1,"/* A lupa da busca é `bds-icon size=""small""`: 20px. */",translate,"The search magnifying glass is `bds-icon size=""small""`: 20px.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1833; cites Blip's bds-icon; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-0d67beb1,css,apps/gestao-vite/src/estilos/globais.css,1884,1884,css,1,/* Barra colorida só quando o número pede ação. */,translate,Colored bar only when the number calls for action.,other,apps/gestao-vite/src/estilos/globais.css:1884,,proposed
 css-comment-0baf96f7,css,apps/gestao-vite/src/estilos/globais.css,19,32,css,14,"/* ======================================== a superfície de trabalho é NEUTRA
    Medido na cópia deles (`referencias-blip/pesquisa/sistema-visual-portal.md` §1): a área
    atrás dos cartões é `rgb(237,237,237)` — cinza NEUTRO. O nosso creme de
@@ -944,7 +1008,12 @@ css-comment-0baf96f7,css,apps/gestao-vite/src/estilos/globais.css,19,32,css,14,"
    maior que este `:root`).
 
    Vale para o aplicativo da Gestão inteiro, de propósito: o creme era o mesmo
-   em todas as telas, e a queixa também. */",,,,,,
+   em todas as telas, e a queixa também. */",translate,"======================================== the work surface is NEUTRAL
+   Measured on their live copy (`referencias-blip/pesquisa/sistema-visual-portal.md` §1): the area behind the cards is `rgb(237,237,237)` — NEUTRAL gray. Our brand cream (`#f2f1ec`) has almost the same luminosity, but it's warm: side by side theirs reads ""white"" and ours reads ""beige"". It was the owner's first complaint.
+
+   Here the hue goes, the palette stays: moss, terracotta, ochre and sage stay exactly as they are. The three light surfaces now DERIVE from our own content color against white — no new hex, and dark mode isn't touched (the `@pipe/ui` dark blocks have higher specificity than this `:root`).
+
+   Applies to the entire Gestão app, on purpose: the cream was the same on every screen, and so was the complaint.",meta-blip,apps/gestao-vite/src/estilos/globais.css:19-32; explicit referencias-blip/pesquisa/sistema-visual-portal.md citation; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d7c2b3fc,css,apps/gestao-vite/src/estilos/globais.css,1913,1925,css,16,"/* ================================================= o bloco de relatório
    A estrutura de bloco das telas de Relatório deles, medida em
    `blip-medidas-monitoramento.md` §6.2: um cartão que CONTÉM cartões.
@@ -957,57 +1026,65 @@ css-comment-d7c2b3fc,css,apps/gestao-vite/src/estilos/globais.css,1913,1925,css,
    fundo de cada casa.
 
    Título 16/700, 44px do topo do título ao topo do conteúdo, grade interna
-   com 20px nos dois eixos, e 20px entre blocos. */",,,,,,
+   com 20px nos dois eixos, e 20px entre blocos. */",translate,"================================================= the report block
+   Their Report screens' block structure, measured in `blip-medidas-monitoramento.md` §6.2: a card that CONTAINS cards.
+
+   There: white page, block one step below, inner card white — three steps, with the block in the middle. Here the page is the brand cream, so the block drops to the recess (`--p-superficie-2`) and the inner card rises to white (`--p-superficie-0`). What we copy is the RELATIONSHIP — the block is the tray, the card sits on top of it — not the meaning, which depends on what each app's background is.
+
+   Title 16/700, 44px from the top of the title to the top of the content, 20px inner grid on both axes, and 20px between blocks.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1913-1925; cites blip-medidas-monitoramento.md; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-4dad4ddc,css,apps/gestao-vite/src/estilos/globais.css,1927,1929,css,0,"/* `bds-paper bg-color=""surface-1""` de fora, `bg-color=""surface-0""` dentro
      (`desk-satisfacao__pagina.html`): o bloco é o cinza do cartão, o cartão
-     interno é branco. */",,,,,,
+     interno é branco. */",translate,"Their `bds-paper bg-color=""surface-1""` outside, `bg-color=""surface-0""` inside (`desk-satisfacao__pagina.html`): the block is the card's gray, the inner card is white.",meta-blip,apps/gestao-vite/src/estilos/globais.css:1927-1929; cites Blip's bds-paper and desk-satisfacao__pagina.html; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-33adc926,css,apps/gestao-vite/src/estilos/globais.css,1951,1952,css,1,"/* O ícone de informação ao lado do título do bloco e do rótulo do cartão
-   (`bds-icon name=""info"" size=""x-small""`, 16px, a 8px do texto — `mr2`). */",,,,,,
-css-comment-d73462da,css,apps/gestao-vite/src/estilos/globais.css,1958,1958,css,0,"/* O intervalo do relatório fica ao lado do título do bloco, em 12/400. */",,,,,,
-css-comment-cbd256e6,css,apps/gestao-vite/src/estilos/globais.css,1966,1966,css,1,"/* A nota de método fecha o bloco, depois do mesmo respiro de 20px. */",,,,,,
-css-comment-1dbc0d37,css,apps/gestao-vite/src/estilos/globais.css,197,197,css,0,/* O avatar do contrato começa em x=32 na barra deles. */,,,,,,
-css-comment-1c4455bc,css,apps/gestao-vite/src/estilos/globais.css,1981,1981,css,1,"/* Cartão interno: mesma geometria do de fora, uma superfície acima. */",,,,,,
+   (`bds-icon name=""info"" size=""x-small""`, 16px, a 8px do texto — `mr2`). */",translate,"The info icon next to the block title and the card label (`bds-icon name=""info"" size=""x-small""`, 16px, 8px from the text — `mr2`).",meta-blip,apps/gestao-vite/src/estilos/globais.css:1951-1952; cites Blip's bds-icon; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-d73462da,css,apps/gestao-vite/src/estilos/globais.css,1958,1958,css,0,"/* O intervalo do relatório fica ao lado do título do bloco, em 12/400. */",translate,"The report's date range sits next to the block title, at 12/400.",other,apps/gestao-vite/src/estilos/globais.css:1958,,proposed
+css-comment-cbd256e6,css,apps/gestao-vite/src/estilos/globais.css,1966,1966,css,1,"/* A nota de método fecha o bloco, depois do mesmo respiro de 20px. */",translate,"The method note closes the block, after the same 20px gap.",other,apps/gestao-vite/src/estilos/globais.css:1966,,proposed
+css-comment-1dbc0d37,css,apps/gestao-vite/src/estilos/globais.css,197,197,css,0,/* O avatar do contrato começa em x=32 na barra deles. */,translate,The contract avatar starts at x=32 in their bar.,meta-blip,"apps/gestao-vite/src/estilos/globais.css:197; ""barra deles"" refers to Blip; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-1c4455bc,css,apps/gestao-vite/src/estilos/globais.css,1981,1981,css,1,"/* Cartão interno: mesma geometria do de fora, uma superfície acima. */",translate,"Inner card: same geometry as the outer one, one surface up.",other,apps/gestao-vite/src/estilos/globais.css:1981,,proposed
 css-comment-18805a71,css,apps/gestao-vite/src/estilos/globais.css,1989,1991,css,1,"/* Métrica de relatório: rótulo 14/600 em cima, valor 20/700 embaixo, com
    41px do topo de um ao topo do outro. É o oposto da métrica do
-   Monitoramento, onde o valor vem primeiro e é 24/400. */",,,,,,
+   Monitoramento, onde o valor vem primeiro e é 24/400. */",translate,"Report metric: label 14/600 on top, value 20/700 below, with 41px from the top of one to the top of the other. It's the opposite of the Monitoramento metric, where the value comes first and is 24/400.",other,apps/gestao-vite/src/estilos/globais.css:1989-1991,,proposed
 css-comment-c72274c0,css,apps/gestao-vite/src/estilos/globais.css,199,201,css,6,"/* Sem `sticky`: as duas barras ficam onde estão porque a `.p-app` tem altura
      fixa e elas são `flex: none`. O `z-index` fica, mas por outro motivo — é
-     ele que põe os menus suspensos das barras por cima do conteúdo. */",,,,,,
+     ele que põe os menus suspensos das barras por cima do conteúdo. */",translate,"No `sticky`: the two bars stay put because `.p-app` has a fixed height and they're `flex: none`. `z-index` stays, but for another reason — it's what puts the bars' dropdown menus above the content.",architecture,apps/gestao-vite/src/estilos/globais.css:199-201; layout/z-index rendering rationale; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-aeadc086,css,apps/gestao-vite/src/estilos/globais.css,2002,2003,css,1,"/* O valor é `bds-typo fs-20 bold tag=""h4""`: 20/700 na fonte do corpo, não em
-   monoespaçada. */",,,,,,
+   monoespaçada. */",translate,"The value is `bds-typo fs-20 bold tag=""h4""`: 20/700 in the body font, not monospace.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2002-2003; cites Blip's bds-typo; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-6290d547,css,apps/gestao-vite/src/estilos/globais.css,2015,2017,css,7,"/* O cartão interno que carrega um gráfico ou uma tabela deles tem 400px de
    altura fixa (`bds-paper height=""400px""`); enquanto o gráfico não existe, o
-   vazio ocupa a mesma caixa, para a página não encolher. */",,,,,,
+   vazio ocupa a mesma caixa, para a página não encolher. */",translate,"Their inner card that carries a chart or a table has a fixed 400px height (`bds-paper height=""400px""`); while the chart doesn't exist yet, the empty state fills the same box, so the page doesn't shrink.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2015-2017; cites Blip's bds-paper; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8ebf5167,css,apps/gestao-vite/src/estilos/globais.css,2029,2030,css,0,"/* Rótulo 16/700 do cartão interno de gráfico (""Satisfação geral"",
-   ""Comparativo de satisfação""). */",,,,,,
+   ""Comparativo de satisfação""). */",translate,"16/700 label for the inner chart card (""Satisfação geral"", ""Comparativo de satisfação"").",other,apps/gestao-vite/src/estilos/globais.css:2029-2030,,proposed
 css-comment-feb72600,css,apps/gestao-vite/src/estilos/globais.css,2046,2047,css,1,"/* O `bds-select` Atendentes/Filas do ""Comparativo de satisfação"": 40px,
-   raio 8, borda na tinta a 20%. */",,,,,,
+   raio 8, borda na tinta a 20%. */",translate,"The Atendentes/Filas `bds-select` for ""Comparativo de satisfação"": 40px, radius 8, border at 20% color.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2046-2047; cites Blip's bds-select; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-4ed4ecb3,css,apps/gestao-vite/src/estilos/globais.css,2069,2071,css,8,"/* O cartão interno que carrega uma tabela não repete o padding: a célula já
    tem o dela, e 20px de cada lado empurrariam a primeira coluna para fora do
-   alinhamento das outras telas. */",,,,,,
+   alinhamento das outras telas. */",translate,"The inner card that carries a table doesn't repeat the padding: the cell already has its own, and 20px on each side would push the first column out of alignment with the other screens.",other,apps/gestao-vite/src/estilos/globais.css:2069-2071,,proposed
 css-comment-9ec37598,css,apps/gestao-vite/src/estilos/globais.css,2104,2108,css,9,"/* Cinco módulos mais o ""…"" pedem 522px no meio da barra, e o canal e os
    atalhos pedem os outros dois terços. Abaixo de 1180 a fileira não cabe e
    passa por cima do nome do canal — então fica só o módulo ABERTO, e os
    outros quatro continuam a um clique no ""…"", que já os lista.
-   É o que eles fazem com as fichas do Desk na mesma situação. */",,,,,,
-css-comment-1ffc6cad,css,apps/gestao-vite/src/estilos/globais.css,2115,2115,css,1,/* Abaixo de 1180 os quatro cartões de métrica do bloco não cabem em linha. */,,,,,,
+   É o que eles fazem com as fichas do Desk na mesma situação. */",translate,"Five modules plus the ""…"" need 522px in the middle of the bar, and the channel and shortcuts need the other two thirds. Below 1180 the row doesn't fit and overlaps the channel name — so only the OPEN module remains, and the other four stay one click away in the ""…"", which already lists them. It's what they do with the Desk cards in the same situation.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2104-2108; explicit Blip Desk citation; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-1ffc6cad,css,apps/gestao-vite/src/estilos/globais.css,2115,2115,css,1,/* Abaixo de 1180 os quatro cartões de métrica do bloco não cabem em linha. */,translate,Below 1180 the block's four metric cards don't fit in a row.,other,apps/gestao-vite/src/estilos/globais.css:2115,,proposed
 css-comment-f1f37e11,css,apps/gestao-vite/src/estilos/globais.css,2122,2125,css,7,"/* --------------------------------------------------------------- responsivo
    A lateral voltou para os 262px deles, então a grade desaba mais cedo:
    abaixo de 1180 o cartão largo fica com menos do que as cinco métricas
-   pedem. */",,,,,,
-css-comment-2dc74ecc,css,apps/gestao-vite/src/estilos/globais.css,213,213,css,0,"/* Barra do PRODUTO: canal, módulos e atalhos. */",,,,,,
+   pedem. */",translate,"--------------------------------------------------------------- responsive
+   The sidebar went back to their 262px, so the grid collapses sooner: below 1180 the wide card has less than the five metrics need.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2122-2125; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-2dc74ecc,css,apps/gestao-vite/src/estilos/globais.css,213,213,css,0,"/* Barra do PRODUTO: canal, módulos e atalhos. */",translate,"PRODUCT bar: channel, modules and shortcuts.",other,apps/gestao-vite/src/estilos/globais.css:213,,proposed
 css-comment-080eeecf,css,apps/gestao-vite/src/estilos/globais.css,2140,2141,css,2,"/* Abaixo de 900px a lateral vira uma faixa: sticky de 262px numa tela dessas
-   come metade do conteúdo. */",,,,,,
+   come metade do conteúdo. */",translate,Below 900px the sidebar becomes a strip: a sticky 262px on a screen that size eats half the content.,other,apps/gestao-vite/src/estilos/globais.css:2140-2141,,proposed
 css-comment-2ec102ed,css,apps/gestao-vite/src/estilos/globais.css,2156,2159,css,1,"/* ================================================== agrupamento da listagem
    Cabeçalho de grupo e contagem. Vivem aqui e no CRM até o `@pipe/ui` ganhar
    uma `Tabela` agrupada — dois consumidores é onde o token vira componente.
-   ========================================================================= */",,,,,,
-css-comment-8cb2ae00,css,apps/gestao-vite/src/estilos/globais.css,2173,2173,css,1,/* Contagem ao lado de um rótulo. Monoespaçada porque é número. */,,,,,,
+   ========================================================================= */",translate,"================================================== list grouping
+   Group header and count. They live here and in the CRM until `@pipe/ui` gets a grouped `Tabela` — two consumers is where a token becomes a component.
+   =========================================================================",other,apps/gestao-vite/src/estilos/globais.css:2156-2159,,proposed
+css-comment-8cb2ae00,css,apps/gestao-vite/src/estilos/globais.css,2173,2173,css,1,/* Contagem ao lado de um rótulo. Monoespaçada porque é número. */,translate,Count next to a label. Monospace because it's a number.,other,apps/gestao-vite/src/estilos/globais.css:2173,,proposed
 css-comment-2015f071,css,apps/gestao-vite/src/estilos/globais.css,218,222,css,11,"/* Sem FIO embaixo — o módulo ativo precisa dos 56px inteiros para o
      sublinhado de 4px encostar no pé da barra —, mas com SOMBRA: a folha deles
      põe uma de 12px de raio sob esta barra, e é ela que separa o cromo do
      conteúdo quando a página rola por baixo. Um fio de 1px faria o sublinhado
-     do módulo ativo parecer que parou 1px antes do fim. */",,,,,,
+     do módulo ativo parecer que parou 1px antes do fim. */",translate,"No RULE at the bottom — the active module needs the full 56px for the 4px underline to touch the bottom of the bar —, but WITH a shadow: their sheet puts a 12px-radius one under this bar, and it's what separates the chrome from the content when the page scrolls underneath. A 1px rule would make the active module's underline look like it stopped 1px short of the end.",meta-blip,"apps/gestao-vite/src/estilos/globais.css:218-222; ""a folha deles"" refers to Blip; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-dc606a06,css,apps/gestao-vite/src/estilos/globais.css,2181,2193,css,21,"/* ================================================ o número que importa
    Na captura da Blip, dois números da tela de monitoramento saem na cor de
    marca deles — o que está na fila e o que está em atendimento — e todo o
@@ -1020,7 +1097,12 @@ css-comment-dc606a06,css,apps/gestao-vite/src/estilos/globais.css,2181,2193,css,
    a respeito enquanto se olha.
 
    Isto sobrescreve de propósito a nota do `@pipe/ui` (""número não é lugar de
-   cor de marca""), que continua valendo para as outras telas. */",,,,,,
+   cor de marca""), que continua valendo para as outras telas. */",translate,"================================================ the number that matters
+   In Blip's capture, two numbers on the monitoring screen come out in their brand color — the one in the queue and the one being attended — and everything else stays in dark ink. It's the middle ground between coloring everything (a carousel) and coloring nothing (the screen loses emphasis).
+
+   The rule: moss only on the numbers that answer ""how is the operation doing RIGHT NOW"". There are two, and they stay two. Average per agent, maximum time and every ""today"" number stay neutral — today has already happened, and there's nothing to do about it while looking at it.
+
+   This deliberately overrides the `@pipe/ui` note (""a number is not a place for brand color""), which still holds for the other screens.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2181-2193; explicit Blip capture citation; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-1d51c39c,css,apps/gestao-vite/src/estilos/globais.css,2198,2214,css,26,"/* ==================================================== a lista de cartões
    O idioma de lista da Blip, medido em `referencias-blip/pesquisa/blip-telas-atendimento.md`
    §3: seis das oito telas do módulo Atendimento deles usam ESTE cartão, e
@@ -1037,58 +1119,67 @@ css-comment-1d51c39c,css,apps/gestao-vite/src/estilos/globais.css,2198,2214,css,
    A DISPOSIÇÃO É A DELES, A TINTA É A NOSSA. Raio 16, padding 20, rótulo
    12/400 e valor 16/700: a medida inteira é a deles. O que continua sendo
    nosso é a cor e a monoespaçada dos números.
-   ========================================================================= */",,,,,,
+   ========================================================================= */",translate,"==================================================== the card list
+   Blip's list idiom, measured in `referencias-blip/pesquisa/blip-telas-atendimento.md` §3: six of their Atendimento module's eight screens use THIS card, and none use a table. An 88px card, small label ABOVE the strong value, controls flush right, and the card ONE STEP away from the page — which is what makes the list read as a list without needing a border.
+
+   The step reverses direction, and it's on purpose. Their page is white and the card is `surface-1` gray; ours is the brand cream (`--p-superficie-1` is the app's background), so the card rises to white (`--p-superficie-0`). What we copy is the RELATIONSHIP — one step of separation — not the meaning, which depends on what each app's background is.
+
+   THE LAYOUT IS THEIRS, THE PAINT IS OURS. Radius 16, padding 20, label 12/400 and value 16/700: the entire measurement is theirs. What stays ours is the color and the numbers' monospace.
+   =========================================================================",meta-blip,apps/gestao-vite/src/estilos/globais.css:2198-2214; explicit referencias-blip/pesquisa/blip-telas-atendimento.md citation; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8f4625fb,css,apps/gestao-vite/src/estilos/globais.css,2228,2229,css,0,"/* `bds-paper elevation=""static"" bg-surface-1` (`dom/sla-policy.html`,
-     `dom/rules.html`): o mesmo cinza-claro de todo cartão do módulo. */",,,,,,
+     `dom/rules.html`): o mesmo cinza-claro de todo cartão do módulo. */",translate,"`bds-paper elevation=""static"" bg-surface-1` (`dom/sla-policy.html`, `dom/rules.html`): the same light gray as every card in the module.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2228-2229; cites Blip's bds-paper and DOM captures; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f55c6304,css,apps/gestao-vite/src/estilos/globais.css,2234,2235,css,4,"/* A conversa perdida é a que o supervisor precisa caçar: ganha um fio na
-   borda esquerda, e é o único lugar da lista onde cor entra sem ser pedida. */",,,,,,
+   borda esquerda, e é o único lugar da lista onde cor entra sem ser pedida. */",translate,"The missed conversation is the one the supervisor needs to hunt for: it gets a rule on the left border, and it's the only place in the list where color appears unprompted.",other,apps/gestao-vite/src/estilos/globais.css:2234-2235,,proposed
 css-comment-5d7361a4,css,apps/gestao-vite/src/estilos/globais.css,2242,2243,css,2,"/* Os campos, em partes iguais. Cada um carrega o próprio rótulo, e é isso
-   que permite jogar o `<thead>` fora. */",,,,,,
+   que permite jogar o `<thead>` fora. */",translate,"The fields, in equal parts. Each one carries its own label, and that's what lets us drop the `<thead>`.",other,apps/gestao-vite/src/estilos/globais.css:2242-2243,,proposed
 css-comment-9a9f322c,css,apps/gestao-vite/src/estilos/globais.css,2259,2260,css,1,"/* Rótulo: 12px, peso normal, acima. O oposto do cabeçalho de tabela, que é
-   caixa alta e distante. */",,,,,,
+   caixa alta e distante. */",translate,"Label: 12px, normal weight, above. The opposite of a table header, which is uppercase and distant.",other,apps/gestao-vite/src/estilos/globais.css:2259-2260,,proposed
 css-comment-a5afa946,css,apps/gestao-vite/src/estilos/globais.css,226,227,css,3,"/* Nome e plano, duas linhas, encostados à esquerda.
-   Nome 16/700 com entrelinha 24; plano 12/400 com entrelinha 18. */",,,,,,
-css-comment-7b0cc873,css,apps/gestao-vite/src/estilos/globais.css,2271,2271,css,2,/* Valor: 16/700 com entrelinha 24. É o que o olho pega primeiro. */,,,,,,
+   Nome 16/700 com entrelinha 24; plano 12/400 com entrelinha 18. */",translate,"Name and plan, two lines, flush left.
+   Name 16/700 with 24 line-height; plan 12/400 with 18 line-height.",other,apps/gestao-vite/src/estilos/globais.css:226-227,,proposed
+css-comment-7b0cc873,css,apps/gestao-vite/src/estilos/globais.css,2271,2271,css,2,/* Valor: 16/700 com entrelinha 24. É o que o olho pega primeiro. */,translate,Value: 16/700 with 24 line-height. It's what the eye catches first.,other,apps/gestao-vite/src/estilos/globais.css:2271,,proposed
 css-comment-b9052e7f,css,apps/gestao-vite/src/estilos/globais.css,2282,2283,css,3,"/* Número do ticket sai um degrau menor e sem peso, como na tela deles: é
-   identificador, não é o dado que se lê. */",,,,,,
-css-comment-c80f8cba,css,apps/gestao-vite/src/estilos/globais.css,2292,2292,css,1,"/* Duração e contagem, tabulares para alinhar o olho na coluna. */",,,,,,
+   identificador, não é o dado que se lê. */",translate,"The ticket number comes out one step smaller and without weight, like on their screen: it's an identifier, not the data you read.",meta-blip,"apps/gestao-vite/src/estilos/globais.css:2282-2283; ""tela deles"" refers to Blip; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-c80f8cba,css,apps/gestao-vite/src/estilos/globais.css,2292,2292,css,1,"/* Duração e contagem, tabulares para alinhar o olho na coluna. */",translate,"Duration and count, tabular so the eye lines up on the column.",other,apps/gestao-vite/src/estilos/globais.css:2292,,proposed
 css-comment-53afa1ce,css,apps/gestao-vite/src/estilos/globais.css,2299,2301,css,5,"/* As ações do cartão-linha deles: `bds-button-icon size=""short""` (40×40, glifo
    de 24, sem moldura) para editar e excluir, e o interruptor. Andam com 8px
-   entre si e SEM etiqueta de situação — o interruptor já diz. */",,,,,,
+   entre si e SEM etiqueta de situação — o interruptor já diz. */",translate,"Their row-card's actions: `bds-button-icon size=""short""` (40×40, 24 glyph, no frame) for edit and delete, and the toggle. Spaced 8px apart and WITHOUT a status tag — the toggle already says it.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2299-2301; cites Blip's bds-button-icon; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-21d03f8c,css,apps/gestao-vite/src/estilos/globais.css,2327,2328,css,1,"/* O selo ""Padrão"" do cartão de SLA deles é um `bds-chip-tag` NA LINHA, na
-   quarta coluna do cartão (`dom/sla-policy.html`), não no rodapé. */",,,,,,
+   quarta coluna do cartão (`dom/sla-policy.html`), não no rodapé. */",translate,"Their SLA card's ""Padrão"" badge is a `bds-chip-tag` IN THE ROW, in the card's fourth column (`dom/sla-policy.html`), not in the footer.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2327-2328; cites Blip's bds-chip-tag and DOM capture; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8b7cda79,css,apps/gestao-vite/src/estilos/globais.css,2334,2337,css,9,"/* A segunda linha do cartão: é o recurso que o cartão de Horários deles usa
    para a descrição — texto corrido 14/400, sem tira de etiquetas e sem fio.
    Continua guardando o que não é coluna (condições da regra, atendentes da
-   fila), mas lê como descrição, e não como sete pílulas. */",,,,,,
+   fila), mas lê como descrição, e não como sete pílulas. */",translate,"The card's second line: it's the feature their Horários card uses for the description — running 14/400 text, no tag strip and no rule. It still holds what isn't a column (rule conditions, queue agents), but reads as a description, not as seven pills.",meta-blip,"apps/gestao-vite/src/estilos/globais.css:2334-2337; ""cartão de Horários deles"" refers to Blip; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-ddcc187a,css,apps/gestao-vite/src/estilos/globais.css,2347,2349,css,2,"/* Caixa de seleção + avatar antes das colunas — o cartão de atendente
    (`FICHA-atendentes-filas-pausas.md` §b.2: ""caixa de seleção, avatar com as
-   iniciais""). Fica no primeiro `auto` de `.cartao-lista`, como o `.sw`. */",,,,,,
+   iniciais""). Fica no primeiro `auto` de `.cartao-lista`, como o `.sw`. */",translate,"Checkbox + avatar before the columns — the agent card (`FICHA-atendentes-filas-pausas.md` §b.2: ""caixa de seleção, avatar com as iniciais""). Sits in `.cartao-lista`'s first `auto`, like `.sw`.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2347-2349; cites FICHA-atendentes-filas-pausas.md; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-566f2c79,css,apps/gestao-vite/src/estilos/globais.css,2360,2363,css,7,"/* ------------------------------------------- seleção múltipla e ação em massa
    A barra fica ACIMA da lista, como na deles. A ação em massa só aparece com
    seleção de verdade: botão que não faz nada é item desabilitado com outro
-   nome, e a régua da casa proíbe. */",,,,,,
+   nome, e a régua da casa proíbe. */",translate,"------------------------------------------- multiple selection and bulk action
+   The bar sits ABOVE the list, like on theirs. The bulk action only appears with a real selection: a button that does nothing is a disabled item with another name, and the house rule forbids it.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2360-2363; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bf811fd3,css,apps/gestao-vite/src/estilos/globais.css,2390,2392,css,9,"/* A caixa em si tem 16px, e a coluna da grade é `auto`: sem o piso abaixo, o
    alvo de clique inteiro tinha 16×16 — abaixo dos 24px mínimos, e é este o
-   controle que escolhe o que vai para o CSV. O rótulo cresce, a caixa não. */",,,,,,
+   controle que escolhe o que vai para o CSV. O rótulo cresce, a caixa não. */",translate,"The box itself is 16px, and the grid column is `auto`: without the floor below, the whole click target was 16×16 — below the 24px minimum, and this is the control that picks what goes into the CSV. The label grows, the box doesn't.",other,apps/gestao-vite/src/estilos/globais.css:2390-2392,,proposed
 css-comment-3cf4dd1c,css,apps/gestao-vite/src/estilos/globais.css,2410,2412,css,3,"/* ------------------------------------------------ busca no topo da tela
    Sozinha na linha, à esquerda, logo abaixo do título — a mesma ordem das
-   telas de Regras, SLA e Atendentes deles. */",,,,,,
+   telas de Regras, SLA e Atendentes deles. */",translate,"------------------------------------------------ search at the top of the screen
+   Alone on the line, to the left, right below the title — the same order as their Regras, SLA and Atendentes screens.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2410-2412; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ad2a4815,css,apps/gestao-vite/src/estilos/globais.css,2413,2415,css,2,"/* `bds-input icon=""search""` numa coluna `w-30` (`dom/queue-management.html`):
    30% da largura, 54px de altura (296×54 na foto de Regras de SLA), raio 8,
-   borda na tinta a 20%, lupa de 20px a 8px do texto. Era 410×42. */",,,,,,
+   borda na tinta a 20%, lupa de 20px a 8px do texto. Era 410×42. */",translate,"`bds-input icon=""search""` in a `w-30` column (`dom/queue-management.html`): 30% width, 54px tall (296×54 in the SLA Rules photo), radius 8, border at 20% color, 20px magnifying glass 8px from the text. It used to be 410×42.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2413-2415; cites Blip's bds-input and DOM capture; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8ae37b93,css,apps/gestao-vite/src/estilos/globais.css,2452,2454,css,4,"/* Cabeçalho de grupo acima dos cartões dele. Faz na lista o papel que o
    `tr.grupo` fazia na tabela: o agrupamento é a nossa resposta aos seis
-   itens de relatório que nunca viraram tela. */",,,,,,
+   itens de relatório que nunca viraram tela. */",translate,Group header above its cards. Plays the role in the list that `tr.grupo` played in the table: the grouping is our answer to the six report items that never became a screen.,other,apps/gestao-vite/src/estilos/globais.css:2452-2454,,proposed
 css-comment-5613cc5d,css,apps/gestao-vite/src/estilos/globais.css,2470,2473,css,3,"/* Painel de conteúdo de ""Modelos de mensagem"" — `FICHA-message-template.md`
    §2: o único cadastro em que o título repete DENTRO de um cartão, com a
    linha ""Filtrar por:"" antes da busca. Raio 16 e sombra do mesmo cartão de
-   sempre (`--g-r-cartao`/`--g-sombra-cartao`), tinta nossa. */",,,,,,
-css-comment-0b60ec30,css,apps/gestao-vite/src/estilos/globais.css,2484,2484,css,0,"/* O título repetido dentro do painel é `bds-typo variant=""fs-20""` bold. */",,,,,,
+   sempre (`--g-r-cartao`/`--g-sombra-cartao`), tinta nossa. */",translate,"Content panel for ""Modelos de mensagem"" — `FICHA-message-template.md` §2: the only registry where the title repeats INSIDE a card, with the ""Filtrar por:"" line before the search. Radius 16 and the same card shadow as always (`--g-r-cartao`/`--g-sombra-cartao`), our color.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2470-2473; cites FICHA-message-template.md; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-0b60ec30,css,apps/gestao-vite/src/estilos/globais.css,2484,2484,css,0,"/* O título repetido dentro do painel é `bds-typo variant=""fs-20""` bold. */",translate,"The title repeated inside the panel is `bds-typo variant=""fs-20""` bold.",meta-blip,apps/gestao-vite/src/estilos/globais.css:2484; cites Blip's bds-typo; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f0b10a36,css,apps/gestao-vite/src/estilos/globais.css,2493,2494,css,2,"/* ""Filtrar por:"" em 14/700 na tinta cheia, os seletores de 40px ao lado e a
-   busca à direita ocupando 69% da linha (`FICHA-message-template.md` §3). */",,,,,,
+   busca à direita ocupando 69% da linha (`FICHA-message-template.md` §3). */",translate,"""Filtrar por:"" at 14/700 in full color, the 40px selectors next to it and the search on the right taking up 69% of the line (`FICHA-message-template.md` §3).",meta-blip,apps/gestao-vite/src/estilos/globais.css:2493-2494; cites FICHA-message-template.md; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-1cf1b87a,css,apps/gestao-vite/src/estilos/globais.css,2524,2525,css,1,"/* Abaixo de 1180 os oito campos não cabem em linha; viram duas fileiras
-   antes de virar ilegíveis. */",,,,,,
+   antes de virar ilegíveis. */",translate,Below 1180 the eight fields don't fit in a row; they become two rows before turning unreadable.,other,apps/gestao-vite/src/estilos/globais.css:2524-2525,,proposed
 css-comment-ea51385a,css,apps/gestao-vite/src/estilos/globais.css,2532,2536,css,6,"/* ============================ relatório de Atendimento (/relatorios/atendimento)
    O denominador da métrica também entra DENTRO da célula da tabela de quebra:
    por fila e por atendente a média sem o número de conversas descartadas engana
