@@ -2406,62 +2406,62 @@ css-comment-56778689,css,apps/gestao-vite/src/paginas/contrato/contrato.css,530,
    (→ `--line`) sob as abas; cada `li` com `padding: 10px 20px`, `margin: 0 5px`
    e `bottom: -1px`, para a marca da ativa cobrir a régua; texto 15px/600/1.5rem
    na cor herdada. A ativa ganha `border-bottom: 4px` e a letra em #3f7de8
-   (→ `--p-marca`). */",,,,,,
+   (→ `--p-marca`). */",translate,"`new BlipTabs(""tab-nav"")` puts `.bp-tabs-container`: `thin solid #ccc` rule (→ `--line`) under the tabs; each `li` with `padding: 10px 20px`, `margin: 0 5px` and `bottom: -1px`, so the active mark covers the rule; 15px/600/1.5rem text in the inherited color. The active one gets `border-bottom: 4px` and the letter in #3f7de8 (→ `--p-marca`).",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:530-534; cites BlipTabs source measurements; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b37138ce,css,apps/gestao-vite/src/paginas/contrato/contrato.css,585,586,css,3,"/* `.bp-tab-content`: `padding: 45px 10px 10px`, e uma regra mais abaixo na
-   mesma folha baixa o topo para 20px. */",,,,,,
+   mesma folha baixa o topo para 20px. */",translate,"`.bp-tab-content`: `padding: 45px 10px 10px`, and a rule further down in the same sheet lowers the top to 20px.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:585-586; cites Blip's .bp-tab-content selector; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-936e0a5c,css,apps/gestao-vite/src/paginas/contrato/contrato.css,591,592,css,3,"/* `TenantMembers`: `flex flex-column items-end` — a busca encosta na direita e
-   a tabela ocupa a largura toda. */",,,,,,
+   a tabela ocupa a largura toda. */",translate,`TenantMembers`: `flex flex-column items-end` — the search sits flush right and the table takes the full width.,other,apps/gestao-vite/src/paginas/contrato/contrato.css:591-592,,proposed
 css-comment-c45069cb,css,apps/gestao-vite/src/paginas/contrato/contrato.css,601,602,css,3,"/* `.BlipSearch`: o campo nasce com largura ZERO ao lado da lupa e cresce para
-   200px em meio segundo. Não há caixa nem rótulo — só o risco de baixo. */",,,,,,
+   200px em meio segundo. Não há caixa nem rótulo — só o risco de baixo. */",translate,`.BlipSearch`: the field is born at ZERO width next to the magnifying glass and grows to 200px over half a second. There's no box or label — just the underline.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:601-602; cites Blip's .BlipSearch selector; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-122f3319,css,apps/gestao-vite/src/paginas/contrato/contrato.css,638,640,css,6,"/* `.bp-table.bp-table--scroll-y`: a tabela vira coluna de flex para que o
    corpo role sozinho sob um cabeçalho parado. É por isso que `thead` e `tbody`
-   viram blocos e cada `tr` volta a ser `display: table`. */",,,,,,
+   viram blocos e cada `tr` volta a ser `display: table`. */",translate,`.bp-table.bp-table--scroll-y`: the table becomes a flex column so the body scrolls on its own under a fixed header. That's why `thead` and `tbody` become blocks and each `tr` goes back to `display: table`.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:638-640; cites Blip's .bp-table selector; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ae53d6b7,css,apps/gestao-vite/src/paginas/contrato/contrato.css,659,660,css,5,"/* A largura da barra de rolagem descontada, para o cabeçalho não sair do prumo
-   das células quando o corpo rola. */",,,,,,
+   das células quando o corpo rola. */",translate,"The scrollbar width is discounted, so the header doesn't drift out of line with the cells when the body scrolls.",other,apps/gestao-vite/src/paginas/contrato/contrato.css:659-660,,proposed
 css-comment-159f2343,css,apps/gestao-vite/src/paginas/contrato/contrato.css,66,67,css,2,"/* Abaixo do degrau de 852 do portal a grade vira uma coluna só: `1fr 3fr` num
-   telefone daria um cartão de resumo de 90px. */",,,,,,
+   telefone daria um cartão de resumo de 90px. */",translate,Below the portal's 852 breakpoint the grid becomes a single column: `1fr 3fr` on a phone would give a 90px summary card.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:66-67; cites the Blip portal breakpoint; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-23dfeb2d,css,apps/gestao-vite/src/paginas/contrato/contrato.css,668,669,css,3,"/* O `th` do nosso `base.css` é um rótulo: mono, caixa alta e espaçado. Aqui
-   não: na origem o cabeçalho é a mesma letra do corpo, só mais pesada. */",,,,,,
-css-comment-7a35426e,css,apps/gestao-vite/src/paginas/contrato/contrato.css,683,683,css,1,"/* `bodyHeight: ""400px""` — a lista rola dentro do cartão em vez de esticá-lo. */",,,,,,
+   não: na origem o cabeçalho é a mesma letra do corpo, só mais pesada. */",translate,"Our `base.css`'s `th` is a label: mono, uppercase and letter-spaced. Not here: in the source the header uses the same letter as the body, just heavier.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:668-669; contrasts with the Blip source header style; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-7a35426e,css,apps/gestao-vite/src/paginas/contrato/contrato.css,683,683,css,1,"/* `bodyHeight: ""400px""` — a lista rola dentro do cartão em vez de esticá-lo. */",translate,"`bodyHeight: ""400px""` — the list scrolls inside the card instead of stretching it.",other,apps/gestao-vite/src/paginas/contrato/contrato.css:683,,proposed
 css-comment-46c40493,css,apps/gestao-vite/src/paginas/contrato/contrato.css,731,733,css,5,"/* `tr > * { white-space: nowrap; text-overflow: ellipsis; padding-right: 30px }`
    — a célula NUNCA quebra: corta com reticências e o valor inteiro vai no
-   `title`. É o que mantém a altura de 47px estável com e-mail comprido. */",,,,,,
+   `title`. É o que mantém a altura de 47px estável com e-mail comprido. */",translate,`tr > * { white-space: nowrap; text-overflow: ellipsis; padding-right: 30px }` — the cell NEVER wraps: it truncates with an ellipsis and the full value goes in the `title`. That's what keeps the 47px height stable with a long email.,other,apps/gestao-vite/src/paginas/contrato/contrato.css:731-733,,proposed
 css-comment-89210557,css,apps/gestao-vite/src/paginas/contrato/contrato.css,75,76,css,3,"/* A faixa horizontal: `Ve` é `grid-column: 1 / 3`, o cartão de resumo ocupando
-   as duas colunas quando não sobrou nenhum cartão nem seção de consumo. */",,,,,,
+   as duas colunas quando não sobrou nenhum cartão nem seção de consumo. */",translate,"The horizontal strip: `Ve` is `grid-column: 1 / 3`, the summary card spanning both columns when there's no other card left, nor a consumption section.",other,apps/gestao-vite/src/paginas/contrato/contrato.css:75-76,,proposed
 css-comment-b57ec237,css,apps/gestao-vite/src/paginas/contrato/contrato.css,753,755,css,4,"/* `w4` do tachyons deles. A coluna de ações (`w5` = 16rem) não pode cortar: é
    dela que os menus escapam. Cabe ""N selecionado(s)"" — a chave `selected` mora
-   no dicionário da própria tabela (`j.pt`) — e os dois gatilhos de 24px. */",,,,,,
+   no dicionário da própria tabela (`j.pt`) — e os dois gatilhos de 24px. */",translate,"Their tachyons `w4`. The actions column (`w5` = 16rem) can't clip: the menus escape from it. It fits ""N selecionado(s)"" — the `selected` key lives in the table's own dictionary (`j.pt`) — and the two 24px triggers.",meta-blip,"apps/gestao-vite/src/paginas/contrato/contrato.css:753-755; ""deles"" refers to Blip's tachyons utility, kept literal PT UI string; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-b13acf4c,css,apps/gestao-vite/src/paginas/contrato/contrato.css,760,762,css,7,"/* Com a tabela à frente para vencer o `tr > *` de cima, que corta com
    `overflow: hidden` — é o `overflow: inherit !important` deles, sem o
-   `!important`. */",,,,,,
+   `!important`. */",translate,"With the table in front to beat the `tr > *` above, which clips with `overflow: hidden` — it's their `overflow: inherit !important`, without the `!important`.",meta-blip,"apps/gestao-vite/src/paginas/contrato/contrato.css:760-762; ""deles"" refers to Blip source rule; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-42dd3031,css,apps/gestao-vite/src/paginas/contrato/contrato.css,768,770,css,5,"/* Sem linha para mostrar: `tr.bp-bg-offwhite.tc > td[colSpan] >
    p.empty-message.pa5` — uma faixa de #dee8ec (→ `--surface-3`) com a frase
-   centrada e 4rem de folga. */",,,,,,
+   centrada e 4rem de folga. */",translate,No rows to show: `tr.bp-bg-offwhite.tc > td[colSpan] > p.empty-message.pa5` — a `#dee8ec` (→ `--surface-3`) band with the centered phrase and 4rem of breathing room.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:768-770; cites Blip's bp-bg-offwhite selector; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-2484f4f1,css,apps/gestao-vite/src/paginas/contrato/contrato.css,787,788,css,1,"/* A seta de ordenar só fica firme na coluna em vigor; nas outras ela existe
-   apagada e surge ao passar o cursor (`.sortArrow { opacity: 0 }`). */",,,,,,
-css-comment-680d6077,css,apps/gestao-vite/src/paginas/contrato/contrato.css,82,82,css,0,/* ------------------------------------------------------- cartão de resumo */,,,,,,
-css-comment-27dbba23,css,apps/gestao-vite/src/paginas/contrato/contrato.css,822,822,css,1,/* -------------------------------------------------- a seleção e os menus */,,,,,,
+   apagada e surge ao passar o cursor (`.sortArrow { opacity: 0 }`). */",translate,The sort arrow only stays solid on the active column; on the others it exists faded and appears on hover (`.sortArrow { opacity: 0 }`).,other,apps/gestao-vite/src/paginas/contrato/contrato.css:787-788,,proposed
+css-comment-680d6077,css,apps/gestao-vite/src/paginas/contrato/contrato.css,82,82,css,0,/* ------------------------------------------------------- cartão de resumo */,translate,------------------------------------------------------- summary card,other,apps/gestao-vite/src/paginas/contrato/contrato.css:82,,proposed
+css-comment-27dbba23,css,apps/gestao-vite/src/paginas/contrato/contrato.css,822,822,css,1,/* -------------------------------------------------- a seleção e os menus */,translate,-------------------------------------------------- the selection and the menus,other,apps/gestao-vite/src/paginas/contrato/contrato.css:822,,proposed
 css-comment-d0840db6,css,apps/gestao-vite/src/paginas/contrato/contrato.css,824,826,css,5,"/* `.selectedItems.flex.justify-around.items-center` — some quando não há nada
    marcado. Fica INVISÍVEL em vez de sumir: a coluna já tem largura fixa, e
-   `display: none` faria o cabeçalho pular a cada primeira marcação. */",,,,,,
+   `display: none` faria o cabeçalho pular a cada primeira marcação. */",translate,"`.selectedItems.flex.justify-around.items-center` — disappears when nothing is marked. Goes INVISIBLE instead of vanishing: the column already has a fixed width, and `display: none` would make the header jump on the first selection.",other,apps/gestao-vite/src/paginas/contrato/contrato.css:824-826,,proposed
 css-comment-a9930c49,css,apps/gestao-vite/src/paginas/contrato/contrato.css,837,838,css,0,"/* Só o contador: os parágrafos do menu moram dentro do mesmo bloco e precisam
-   quebrar linha. */",,,,,,
-css-comment-7038ebb7,css,apps/gestao-vite/src/paginas/contrato/contrato.css,850,850,css,2,/* A capa que fecha o menu ao clique em qualquer lugar (`div.overlay.z-1`). */,,,,,,
+   quebrar linha. */",translate,Only the counter: the menu's paragraphs live inside the same block and need to wrap.,other,apps/gestao-vite/src/paginas/contrato/contrato.css:837-838,,proposed
+css-comment-7038ebb7,css,apps/gestao-vite/src/paginas/contrato/contrato.css,850,850,css,2,/* A capa que fecha o menu ao clique em qualquer lugar (`div.overlay.z-1`). */,translate,The overlay that closes the menu on a click anywhere (`div.overlay.z-1`).,other,apps/gestao-vite/src/paginas/contrato/contrato.css:850,,proposed
 css-comment-12136c72,css,apps/gestao-vite/src/paginas/contrato/contrato.css,861,866,css,4,"/* `div.bp-card.bp-card--right-arrow.pa0.z-2.absolute.w6` do `BlipDropdownButton`
    (`Kt`): 24rem, `right: -1.5rem` e `padding: 15px` — o
    `.BlipDropdownButton div.bp-card--right-arrow` vence o `pa0` da própria tag —,
    com o `margin-top: .9375rem` e a sombra `0 4px 29px 6px rgba(181,205,211,.29)`
    (→ `--p-sombra-2`) do `.bp-card`. O cartão mora dentro do `th`, então herda a
-   letra dele (.875rem/160%, peso 600): nada de peso próprio aqui. */",,,,,,
+   letra dele (.875rem/160%, peso 600): nada de peso próprio aqui. */",translate,"`div.bp-card.bp-card--right-arrow.pa0.z-2.absolute.w6` from `BlipDropdownButton` (`Kt`): 24rem, `right: -1.5rem` and `padding: 15px` — `.BlipDropdownButton div.bp-card--right-arrow` beats the tag's own `pa0` —, with `margin-top: .9375rem` and the shadow `0 4px 29px 6px rgba(181,205,211,.29)` (→ `--p-sombra-2`) from `.bp-card`. The card lives inside the `th`, so it inherits its letter (.875rem/160%, weight 600): no weight of its own here.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:861-866; cites BlipDropdownButton source measurements; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-1a0ff784,css,apps/gestao-vite/src/paginas/contrato/contrato.css,883,884,css,1,"/* `.bp-card.bp-card--right-arrow:after`: o mesmo bico do cartão da tela, agora
-   a 2.5rem da DIREITA (`margin-right: -.46875rem`). */",,,,,,
+   a 2.5rem da DIREITA (`margin-right: -.46875rem`). */",translate,"`.bp-card.bp-card--right-arrow:after`: the same tip as the screen's card, now 2.5rem from the RIGHT (`margin-right: -.46875rem`).",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:883-884; cites Blip's .bp-card selector; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-db9c6777,css,apps/gestao-vite/src/paginas/contrato/contrato.css,909,910,css,1,"/* O número de marcados: `span.bp-c-blip-dark` (#0747a6 → `--p-marca`) no
-   Editar e `span.bp-c-delete` (#ff4c4c → `--p-erro-conteudo`) no Excluir. */",,,,,,
-css-comment-e329568d,css,apps/gestao-vite/src/paginas/contrato/contrato.css,926,926,css,1,/* `pa2 flex flex-row-reverse`: o primeiro botão escrito fica à DIREITA. */,,,,,,
-css-comment-69e09f2e,css,apps/gestao-vite/src/paginas/contrato/contrato.css,97,97,css,2,"/* `We`: em faixa o cartão deita — foto à esquerda, o resto à direita. */",,,,,,
+   Editar e `span.bp-c-delete` (#ff4c4c → `--p-erro-conteudo`) no Excluir. */",translate,The count of marked items: `span.bp-c-blip-dark` (#0747a6 → `--p-marca`) for Edit and `span.bp-c-delete` (#ff4c4c → `--p-erro-conteudo`) for Delete.,meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:909-910; cites Blip's bp-c-blip-dark selector; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-e329568d,css,apps/gestao-vite/src/paginas/contrato/contrato.css,926,926,css,1,/* `pa2 flex flex-row-reverse`: o primeiro botão escrito fica à DIREITA. */,translate,`pa2 flex flex-row-reverse`: the first button written ends up on the RIGHT.,other,apps/gestao-vite/src/paginas/contrato/contrato.css:926,,proposed
+css-comment-69e09f2e,css,apps/gestao-vite/src/paginas/contrato/contrato.css,97,97,css,2,"/* `We`: em faixa o cartão deita — foto à esquerda, o resto à direita. */",translate,"`We`: in a row the card lies flat — photo on the left, everything else on the right.",other,apps/gestao-vite/src/paginas/contrato/contrato.css:97,,proposed
 css-comment-0aaead01,css,apps/gestao-vite/src/paginas/contrato/contrato.css,991,993,css,3,"/* `input.blip-select__input.bp-c-rooftop`: .875rem, 1.1875rem de altura,
    `margin-top: .125rem` e 20px livres para a seta; o `<input>` não herda o
-   peso do `th`. Placeholder #8ca0b3. */",,,,,,
+   peso do `th`. Placeholder #8ca0b3. */",translate,"`input.blip-select__input.bp-c-rooftop`: .875rem, 1.1875rem height, `margin-top: .125rem` and 20px free for the arrow; the `<input>` doesn't inherit the `th`'s weight. Placeholder #8ca0b3.",meta-blip,apps/gestao-vite/src/paginas/contrato/contrato.css:991-993; cites Blip's blip-select__input selector; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-92c6fa9b,css,apps/gestao-vite/src/paginas/criar/criar.css,1,35,css,27,"/* ============================== o casco de criação (/criar/*)
 
    Cópia do estado ABSTRATO `auth.application.create` do portal deles — o casco
@@ -2496,12 +2496,33 @@ css-comment-92c6fa9b,css,apps/gestao-vite/src/paginas/criar/criar.css,1,35,css,2
    sai de `--g-barra-*`, os token de cromo que `globais.css` já deriva para as
    duas barras do portal — e que já são escuros NOS DOIS TEMAS, que é
    exatamente o que o `theme=""dark""` deles faz nesta tela: ela não acompanha a
-   preferência de quem olha, ela é escura sempre. */",,,,,,
-css-comment-ee0e965d,css,apps/gestao-vite/src/paginas/criar/criar.css,102,102,css,2,/* O que vai POR CIMA da marca — que aqui é clara. */,,,,,,
+   preferência de quem olha, ela é escura sempre. */",translate,"============================== the creation shell (/criar/*)
+
+  A copy of their portal's ABSTRACT `auth.application.create` state — the shell and the name step, the two pieces that the router and the flow share —, measured in the templates embedded in `portal.js` (`25.204.0-v0.43.1`) and in the `portal.css` sheet's rules:
+
+    module 30189  the shell (`#create-application-container`, the ""x"", the brand, the form and the footer);
+    module 96904  the name step (`#create-application-name-step`), ONE for both screens — three `ng-if=""$ctrl.template != 'master'""` swap the words, and nothing else.
+
+  What belongs to only ONE screen lives in its own folder:
+    `roteador/criar-roteador.css`  the invite step (module 22046);
+    `fluxo/criar-fluxo.css`        the marketplace step (module 92466).
+
+  The `cr-` prefix is from ""criar"" (create), and applies to both screens.
+
+  Each block below carries the source selector and the measured numbers.
+
+  ═══ THE SCREEN IS FULL, AND COVERS THE PORTAL ═══
+
+  In the source, creation is `<bds-theme-provider theme=""dark"">` over a `.full-screen-container` (`min-height: 100%`, `width: 100%`, `z-index: 60000`) — the whole portal disappears behind a dark surface, leaving the brand at the top, a large ""x"" on the right and the budget footer at the bottom.
+
+  ═══ THE PAINT ═══
+
+  THE LAYOUT IS THEIRS, THE PAINT IS OURS. None of their hex enters. The dark comes from `--g-barra-*`, the chrome tokens that `globais.css` already derives for the portal's two bars — and which are already dark IN BOTH THEMES, which is exactly what their `theme=""dark""` does on this screen: it doesn't follow the viewer's preference, it's always dark.",meta-blip,apps/gestao-vite/src/paginas/criar/criar.css:1-35; cites Blip portal.js/portal.css module measurements; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-ee0e965d,css,apps/gestao-vite/src/paginas/criar/criar.css,102,102,css,2,/* O que vai POR CIMA da marca — que aqui é clara. */,translate,What goes ON TOP of the brand mark — which here is light.,other,apps/gestao-vite/src/paginas/criar/criar.css:102,,proposed
 css-comment-0e1d4bbf,css,apps/gestao-vite/src/paginas/criar/criar.css,115,118,css,5,"/* A escala de título destas telas, dos `bds-typo variant` dos templates: o
      sobretítulo é `fs-20`, ""Como funciona o roteador"" é `fs-24` e os títulos
      grandes (""Dê um nome ao fluxo"", ""Escolha como começar seu fluxo"") são
-     `fs-32`. Não há token `--p-t-*` de 24 nem de 32. */",,,,,,
+     `fs-32`. Não há token `--p-t-*` de 24 nem de 32. */",translate,"This screens' title scale, from the templates' `bds-typo variant`: the overtitle is `fs-20`, ""Como funciona o roteador"" is `fs-24` and the large titles (""Dê um nome ao fluxo"", ""Escolha como começar seu fluxo"") are `fs-32`. There's no `--p-t-*` token for 24 or 32.",meta-blip,"apps/gestao-vite/src/paginas/criar/criar.css:115-118; cites Blip template bds-typo measurements, keeps literal PT UI copy quotes; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-bdc5c8b1,css,apps/gestao-vite/src/paginas/criar/criar.css,124,134,css,10,"/* ------------------------------------------------------------ o ""x""
    `<bds-icon name=""close"" size=""xxx-large"" class=""close-icon absolute right-0"">`
    — `xxx-large` são 40px no `bds-icon`, `right-0` é o tachyons e
@@ -2512,7 +2533,10 @@ css-comment-bdc5c8b1,css,apps/gestao-vite/src/paginas/criar/criar.css,124,134,cs
    (`$document.on('keydown', 27 → close())`, e `close()` termina em
    `$state.go('auth.application.list')`). Aqui ele leva a `/portal`, que é a
    nossa lista; Esc NÃO fecha, porque tecla é estado de cliente e estas telas
-   continuam sem nenhum. */",,,,,,
+   continuam sem nenhum. */",translate,"---------------------------------------------------------------- the ""x""
+  `<bds-icon name=""close"" size=""xxx-large"" class=""close-icon absolute right-0"">` — `xxx-large` is 40px in `bds-icon`, `right-0` is tachyons and `.close-icon { margin-right: 3rem }`. No `top`: it sits at the static height, i.e. aligned to the top of the container's 3rem padding.
+
+  In the source it's the ONLY way out of the screen, and Esc also closes it (`$document.on('keydown', 27 → close())`, and `close()` ends in `$state.go('auth.application.list')`). Here it leads to `/portal`, our list; Esc does NOT close, because a key is client state and these screens still have none.",meta-blip,apps/gestao-vite/src/paginas/criar/criar.css:124-134; cites Blip source close-button behavior; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-912ff9e9,css,apps/gestao-vite/src/paginas/criar/criar.css,149,156,css,7,"/* ---------------------------------------------------------- a marca
    `logoCenter` só é falso no estado `aiagent` (`data: { logoCenter: !1 }`); em
    todos os passos do roteador e do fluxo vale o padrão `!0`, e o que aparece é
@@ -2520,18 +2544,23 @@ css-comment-912ff9e9,css,apps/gestao-vite/src/paginas/criar/criar.css,149,156,cs
    `.logo-image { width: 5rem; margin-top: .5rem; margin-bottom: 3rem }`.
 
    O lockup é o mesmo `.pt-lockup` da barra do portal — 80px de largura, que é
-   exatamente os 5rem medidos —, já pintado com a tinta do cromo. */",,,,,,
+   exatamente os 5rem medidos —, já pintado com a tinta do cromo. */",translate,"---------------------------------------------------------- the brand mark
+  `logoCenter` is only false in the `aiagent` state (`data: { logoCenter: !1 }`); in every router and flow step the default `!0` holds, and what shows is the CENTERED brand mark:
+  `.logo-image { width: 5rem; margin-top: .5rem; margin-bottom: 3rem }`.
+
+  The lockup is the same `.pt-lockup` as the portal bar — 80px wide, exactly the 5rem measured —, already painted with the chrome's ink.",meta-blip,apps/gestao-vite/src/paginas/criar/criar.css:149-156; cites Blip logoCenter state and portal lockup measurements; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-a0254606,css,apps/gestao-vite/src/paginas/criar/criar.css,163,166,css,3,"/* ------------------------------------ `.create-application-form`
    `flex-grow: 1; margin-bottom: 3rem` mais o `w-100` do template. É ele que
    empurra o rodapé para o pé da janela em passo curto e o deixa rolar em passo
-   comprido. */",,,,,,
+   comprido. */",translate,"------------------------------------ `.create-application-form`
+  `flex-grow: 1; margin-bottom: 3rem` plus the template's `w-100`. It's what pushes the footer to the bottom of the window on a short step and lets it scroll on a long one.",meta-blip,apps/gestao-vite/src/paginas/criar/criar.css:163-166; cites the Blip template's w-100 class; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-74c6f617,css,apps/gestao-vite/src/paginas/criar/criar.css,197,199,css,3,"/* O `bds-button` padrão deles é `.button__size--standard { height: 40px }`. O
    nosso `.btn` tem 28px, que num palco de 52.5rem some. Os botões destas telas
-   sobem para os 40px medidos — e só eles: o primitivo continua o que é. */",,,,,,
+   sobem para os 40px medidos — e só eles: o primitivo continua o que é. */",translate,"Their default `bds-button` is `.button__size--standard { height: 40px }`. Our `.btn` is 28px, which disappears on a 52.5rem stage. These screens' buttons go up to the measured 40px — and only them: the primitive stays what it is.",meta-blip,apps/gestao-vite/src/paginas/criar/criar.css:197-199; cites Blip's default bds-button height; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b7ef9d6b,css,apps/gestao-vite/src/paginas/criar/criar.css,216,219,css,6,"/* O aviso de recusa. Na origem é um `BlipToastService.show('danger', …)` —
    caixa vermelha flutuante com título e mensagem. Aqui é fixo acima do campo:
    sem cliente, aviso que some sozinho não some, e aviso que não some flutuando
-   tapa o formulário. O título é o mesmo. */",,,,,,
+   tapa o formulário. O título é o mesmo. */",translate,"The rejection notice. In the source it's a `BlipToastService.show('danger', …)` — a floating red box with a title and a message. Here it's fixed above the field: with no client, a notice that vanishes on its own doesn't vanish, and a notice that doesn't vanish while floating covers the form. The title is the same.",meta-blip,apps/gestao-vite/src/paginas/criar/criar.css:216-219; cites BlipToastService source behavior; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-19d8d8fe,css,apps/gestao-vite/src/paginas/criar/criar.css,235,250,css,13,"/* ---------------------------------------------------- `.upload-button`
    `#create-application-name-step .upload-button { margin: 5rem 0 1.25rem }` e
    `.upload-button`: 150×150, `border-radius: 50%`, fundo
@@ -2547,7 +2576,10 @@ css-comment-19d8d8fe,css,apps/gestao-vite/src/paginas/criar/criar.css,235,250,cs
    Pré-visualização é estado de cliente, e estas telas não têm nenhum — o
    contador do campo já tinha caído pela mesma régua. O controle continua
    inteiro: escolher, enviar, gravar. O que falta é só a conferência antes de
-   enviar. */",,,,,,
+   enviar. */",translate,"---------------------------------------------------- `.upload-button`
+  `#create-application-name-step .upload-button { margin: 5rem 0 1.25rem }` and `.upload-button`: 150×150, `border-radius: 50%`, `--color-content-disable` background and, while there's no file, `border: 3px dashed var(--color-content-default)` (the `dashed-border` class). Inside, an arrow (`<img icon-src=""Arrow"">`) and the label `modules.ui.uploadButton.title` (""Definir imagem"") at `.75rem` (`bp-fs-7`, `color-white`), with `padding: 8px 28px 0` and 1.5 line height. The `input[type=file]` covers the full 150px with `opacity: 0`.
+
+  DIVERGENCE: the source swaps the core for the chosen photo as soon as the file is read (`<img id=""uploaded-img"" class=""uploaded-img"" ng-show=""showFile"">`). A preview is client state, and these screens have none — the field's counter had already fallen to the same rule. The control stays whole: choose, submit, save. All that's missing is the check before submitting.",meta-blip,"apps/gestao-vite/src/paginas/criar/criar.css:235-250; cites Blip source upload-button markup, keeps literal PT UI copy quote; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-318d6f8d,css,apps/gestao-vite/src/paginas/criar/criar.css,289,300,css,6,"/* ------------------------------------------------------ `material-input`
    `#create-application-name-step material-input { max-width: 90%; width: 28rem }`.
 
@@ -2559,13 +2591,18 @@ css-comment-318d6f8d,css,apps/gestao-vite/src/paginas/criar/criar.css,289,300,cs
    (`position: absolute; top: 24px; transform: scale(1.15)`, peso 300,
    `padding-left: 4px`, `transform-origin: 0 50%`) e sobe quando o campo tem
    conteúdo. Aqui quem faz isso é `:placeholder-shown`, e não JavaScript: é o
-   mesmo comportamento sem um grama de estado de cliente. */",,,,,,
+   mesmo comportamento sem um grama de estado de cliente. */",translate,"------------------------------------------------------ `material-input`
+  `#create-application-name-step material-input { max-width: 90%; width: 28rem }`.
+
+  Their field has no box: transparent background, a line at the bottom (`border-bottom: 1px solid var(--color-content-ghost)`), `height: 35px`, `margin-top: 20px`, `padding: 8px 8px 8px 0`.
+
+  The label FLOATS: at rest it lives inside the field (`position: absolute; top: 24px; transform: scale(1.15)`, weight 300, `padding-left: 4px`, `transform-origin: 0 50%`) and rises when the field has content. Here that's done by `:placeholder-shown`, not JavaScript: the same behavior without a gram of client state.",meta-blip,apps/gestao-vite/src/paginas/criar/criar.css:289-300; cites Blip's floating-label material-input measurements; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-2a14feef,css,apps/gestao-vite/src/paginas/criar/criar.css,343,344,css,2,"/* Em repouso — campo vazio e sem foco — o rótulo desce para dentro do campo e
-   cresce: é o `top: 24px` + `scale(1.15)` medido na origem. */",,,,,,
+   cresce: é o `top: 24px` + `scale(1.15)` medido na origem. */",translate,"At rest — empty field, no focus — the label drops into the field and grows: it's the `top: 24px` + `scale(1.15)` measured in the source.",meta-blip,apps/gestao-vite/src/paginas/criar/criar.css:343-344; cites Blip source measurement; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f38990bd,css,apps/gestao-vite/src/paginas/criar/criar.css,357,360,css,6,"/* Ocupa a linha do contador da origem, que ficava à direita do campo
    (`span.input-right.bp-c-rooftop`, `position: absolute; bottom: 8px; right: 5px`,
    começando em 30 e descendo a cada tecla). Contar tecla é estado de cliente; o
-   limite continua valendo pelo `maxLength` e pela Server Action. */",,,,,,
+   limite continua valendo pelo `maxLength` e pela Server Action. */",translate,"Occupies the source's counter line, which sat to the right of the field (`span.input-right.bp-c-rooftop`, `position: absolute; bottom: 8px; right: 5px`, starting at 30 and counting down with each keystroke). Counting keystrokes is client state; the limit still holds through `maxLength` and the Server Action.",meta-blip,apps/gestao-vite/src/paginas/criar/criar.css:357-360; cites Blip's bp-c-rooftop counter selector; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-91e5075a,css,apps/gestao-vite/src/paginas/criar/criar.css,37,50,css,15,"/* -------------------------------------------------------- o desvio pelo :root
 
    Estes seis aliases existem por UM motivo técnico, e não por gosto.
@@ -2579,25 +2616,35 @@ css-comment-91e5075a,css,apps/gestao-vite/src/paginas/criar/criar.css,37,50,css,
    perderia a cor.
 
    Declarados no `:root`, eles são COMPUTADOS lá (onde `--p-conteudo` ainda é
-   um literal) e chegam a `.cr-tela` já resolvidos. O ciclo se abre. */",,,,,,
+   um literal) e chegam a `.cr-tela` já resolvidos. O ciclo se abre. */",translate,"---------------------------------------------------------- the :root detour
+
+  These six aliases exist for ONE technical reason, not out of preference.
+
+  Inside `.cr-tela` the `--p-*` tokens that `@pipe/ui`'s primitives read (`.btn`, field, icon) are repointed to the dark chrome — the same move `globais.css` already makes in `.g-marca { --p-marca: var(--g-barra-marca) }`. Except in the DARK theme, `--g-barra-tinta`'s definition is `var(--p-conteudo)`; repointing `--p-conteudo: var(--g-barra-tinta)` on the same element would close a CYCLE, and a property in a cycle is invalid in the computed value — the whole screen would lose its color.
+
+  Declared at `:root`, they're COMPUTED there (where `--p-conteudo` is still a literal) and arrive at `.cr-tela` already resolved. The cycle is broken.",architecture,apps/gestao-vite/src/paginas/criar/criar.css:37-50; explains avoiding a CSS custom-property computation cycle; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-6085aa5f,css,apps/gestao-vite/src/paginas/criar/criar.css,370,372,css,1,"/* `#create-application-name-step .create-application-actions`:
      `margin-top: 3rem · width: 28rem · max-width: 90%`
-   mais o `flex justify-between` do template — um botão em cada ponta. */",,,,,,
+   mais o `flex justify-between` do template — um botão em cada ponta. */",translate,"`#create-application-name-step .create-application-actions`:
+    `margin-top: 3rem · width: 28rem · max-width: 90%`
+  plus the template's `flex justify-between` — one button at each end.",meta-blip,apps/gestao-vite/src/paginas/criar/criar.css:370-372; cites the Blip template's flex layout; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f9bdf587,css,apps/gestao-vite/src/paginas/criar/criar.css,382,386,css,2,"/* ======================================= `.create-application-footer`
    `border-top: 1px solid …; padding: 1.5rem; width: 54rem` mais o `mw-100 tc`
    do template, e o link em negrito numa tinta própria
    (`a > bds-typo { color: … }`). Aparece em todos os passos: `showFooter` só é
-   falso no estado `aiagent`. */",,,,,,
+   falso no estado `aiagent`. */",translate,"======================================= `.create-application-footer`
+  `border-top: 1px solid …; padding: 1.5rem; width: 54rem` plus the template's `mw-100 tc`, and the link in bold with its own ink (`a > bds-typo { color: … }`). Appears on every step: `showFooter` is only false in the `aiagent` state.",meta-blip,apps/gestao-vite/src/paginas/criar/criar.css:382-386; cites Blip template state showFooter/aiagent; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-cebe9a6c,css,apps/gestao-vite/src/paginas/criar/criar.css,402,404,css,2,"/* --------------------------------------------------------- estreito
    O ""x"" e a marca encostam nos 3rem de recuo do cabeçalho deles, que vira o
-   recuo da tela. */",,,,,,
+   recuo da tela. */",translate,"--------------------------------------------------------- narrow
+  The ""x"" and the brand mark sit flush against their header's 3rem indent, which becomes the screen's indent.",meta-blip,"apps/gestao-vite/src/paginas/criar/criar.css:402-404; ""deles"" refers to the Blip source header; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-d4611dbb,css,apps/gestao-vite/src/paginas/criar/criar.css,60,61,css,2,"/* O par de erro deles nesta tela é o `--color-negative` do tema escuro; o
-     nosso par ""sobre escuro"" já existe em `@pipe/ui` e é para isto. */",,,,,,
+     nosso par ""sobre escuro"" já existe em `@pipe/ui` e é para isto. */",translate,"Their error pair on this screen is the dark theme's `--color-negative`; our ""on dark"" pair already exists in `@pipe/ui` and is meant for this.",meta-blip,"apps/gestao-vite/src/paginas/criar/criar.css:60-61; ""deles"" refers to the Blip source color pair; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-d43835f4,css,apps/gestao-vite/src/paginas/criar/criar.css,65,66,css,3,"/* A violeta de foco é escolhida para fundo claro; sobre o preto do cromo ela
-     some. Clareada na mesma proporção que o tema escuro do `@pipe/ui` usa. */",,,,,,
+     some. Clareada na mesma proporção que o tema escuro do `@pipe/ui` usa. */",translate,The focus violet is chosen for a light background; against the chrome's black it disappears. Lightened by the same proportion the `@pipe/ui` dark theme uses.,other,apps/gestao-vite/src/paginas/criar/criar.css:65-66,,proposed
 css-comment-d97d334d,css,apps/gestao-vite/src/paginas/criar/criar.css,69,71,css,4,"/* O `.upload-button` deles é `background-color: var(--color-content-disable)`,
      que no tema escuro é um cinza médio (#949494) sobre o #141414 do fundo —
-     ~42% de tinta sobre o fundo. A mesma proporção, com a nossa tinta. */",,,,,,
+     ~42% de tinta sobre o fundo. A mesma proporção, com a nossa tinta. */",translate,"Their `.upload-button` is `background-color: var(--color-content-disable)`, which in the dark theme is a medium gray (#949494) over the #141414 background — ~42% ink over the background. The same proportion, with our ink.",meta-blip,"apps/gestao-vite/src/paginas/criar/criar.css:69-71; ""deles"" refers to the Blip source upload-button; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-d86540b1,css,apps/gestao-vite/src/paginas/criar/criar.css,75,85,css,8,"/* ======================================= o casco (`#create-application-container`)
 
    `.full-screen-container`: `min-height: 100%`, `width: 100%`,
@@ -2608,9 +2655,14 @@ css-comment-d86540b1,css,apps/gestao-vite/src/paginas/criar/criar.css,75,85,css,
 
    `z-index: 60000` NÃO foi copiado: lá a tela é uma camada por cima da SPA;
    aqui a rota `criar` já monta o próprio casco (`CASCO_PROPRIO` em
-   `estrutura-gestao.tsx`) e não há nada por baixo para cobrir. */",,,,,,
+   `estrutura-gestao.tsx`) e não há nada por baixo para cobrir. */",translate,"======================================= the shell (`#create-application-container`)
+
+  `.full-screen-container`: `min-height: 100%`, `width: 100%`, `position: relative`.
+  `#create-application-container`: `padding-top: 3rem`, `--color-surface-3` background and their dark theme's `--color-content-default` ink, plus the template's `flex flex-column items-center`.
+
+  `z-index: 60000` was NOT copied: there the screen is a layer on top of the SPA; here the `criar` route already mounts its own shell (`CASCO_PROPRIO` in `estrutura-gestao.tsx`) and there's nothing underneath to cover.",meta-blip,apps/gestao-vite/src/paginas/criar/criar.css:75-85; cites Blip source shell markup and z-index rationale; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-96bb41d1,css,apps/gestao-vite/src/paginas/criar/criar.css,97,98,css,2,"/* O tema escuro, dito nos token que os primitivos leem. Nenhum valor novo:
-     tudo vem dos aliases do `:root` acima. */",,,,,,
+     tudo vem dos aliases do `:root` acima. */",translate,"The dark theme, expressed in the tokens the primitives read. No new value: everything comes from the `:root` aliases above.",other,apps/gestao-vite/src/paginas/criar/criar.css:97-98,,proposed
 css-comment-26e0f640,css,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css,1,9,css,7,"/* ================================ criar fluxo (/criar/fluxo)
 
    Só o que é DESTA tela: o passo do marketplace, o módulo 92466 do `portal.js`
@@ -2619,18 +2671,24 @@ css-comment-26e0f640,css,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.cs
    O casco (o ""x"", a marca, o rodapé) e o passo do nome estão em `../criar.css`,
    porque na origem eles são o mesmo template para o fluxo e para o roteador. A
    página importa as duas folhas, nesta ordem. O prefixo `cf-` é desta tela;
-   `cr-` é o compartilhado. */",,,,,,
+   `cr-` é o compartilhado. */",translate,"================================ create flow (/criar/fluxo)
+
+  Only what belongs to THIS screen: the marketplace step, `portal.js`'s module 92466 (`25.204.0-v0.43.1`) — `#create-application-marketplace-step`.
+
+  The shell (the ""x"", the brand, the footer) and the name step are in `../criar.css`, because in the source they're the same template for the flow and the router. The page imports both sheets, in this order. The `cf-` prefix belongs to this screen; `cr-` is shared.",meta-blip,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css:1-9; cites Blip portal.js module 92466; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-fc8cb226,css,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css,101,105,css,8,"/* ============================ passo 2: apresentação do template
    `#create-application-test-step` — `auth.application.create.test`. Não temos
    as medidas em pixel desta tela (só o marketplace foi capturado renderizado);
    a disposição abaixo é a mesma coluna centrada dos outros passos, com a
-   descrição e a lista de funcionalidades por cima dos botões de `.cr-acoes`. */",,,,,,
+   descrição e a lista de funcionalidades por cima dos botões de `.cr-acoes`. */",translate,"============================ step 2: template presentation
+  `#create-application-test-step` — `auth.application.create.test`. We don't have this screen's pixel measurements (only the marketplace was captured rendered); the layout below is the same centered column as the other steps, with the description and the feature list above the `.cr-acoes` buttons.",meta-blip,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css:101-105; cites Blip auth.application.create.test state; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-5df985a2,css,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css,127,129,css,6,"/* A lista das quatro funcionalidades pré-configuradas. Sem correspondente
    medido na origem: o `bds-icon` de cada linha é substituído pelo `IconePortal`
-   mais próximo (ver `ICONES_DAS_FUNCIONALIDADES` em `page.tsx`). */",,,,,,
+   mais próximo (ver `ICONES_DAS_FUNCIONALIDADES` em `page.tsx`). */",translate,The list of four pre-configured features. No measured counterpart in the source: each row's `bds-icon` is replaced by the closest `IconePortal` (see `ICONES_DAS_FUNCIONALIDADES` in `page.tsx`).,meta-blip,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css:127-129; notes no measured Blip source counterpart; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-50a7d356,css,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css,152,154,css,7,"/* --------------------------------------------------------- estreito
    O `flex-wrap` do template já empilha os dois cartões sozinho; o que falta é
-   a folga de cima, que a 3.5rem cola no título quando a fileira vira coluna. */",,,,,,
+   a folga de cima, que a 3.5rem cola no título quando a fileira vira coluna. */",translate,"--------------------------------------------------------- narrow
+  The template's `flex-wrap` already stacks the two cards on its own; what's missing is the top gap, which sticks the 3.5rem to the title when the row becomes a column.",meta-blip,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css:152-154; cites the Blip template's flex-wrap; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ae6232d3,css,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css,21,28,css,2,"/* `.option-card` — um `<bds-paper>`:
      `background-color: hsla(0,0%,100%,.07)`  →  7% de tinta sobre o fundo
      `box-shadow: 0 .25rem 1rem rgba(10,15,26,.3)`
@@ -2638,9 +2696,15 @@ css-comment-ae6232d3,css,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.cs
    mais o `flex flex-column items-center pointer relative` do template.
 
    O `border-radius` vem do `bds-paper`, que é o cartão padrão deles — o nosso
-   `--p-r-md` é o mesmo papel. */",,,,,,
+   `--p-r-md` é o mesmo papel. */",translate,"`.option-card` — a `<bds-paper>`:
+    `background-color: hsla(0,0%,100%,.07)`  →  7% ink over the background
+    `box-shadow: 0 .25rem 1rem rgba(10,15,26,.3)`
+    `gap: .75rem · padding: 3.75rem 1.5rem · width: 20rem`
+  plus the template's `flex flex-column items-center pointer relative`.
+
+  The `border-radius` comes from `bds-paper`, their default card — our `--p-r-md` is the same paper.",meta-blip,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css:21-28; cites Blip's bds-paper card; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-7fd48c20,css,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css,43,44,css,5,"/* O cartão é um <a>: sem isto o navegador sublinha título e descrição
-     inteiros. O bds-paper deles não é link, então não herda sublinhado. */",,,,,,
+     inteiros. O bds-paper deles não é link, então não herda sublinhado. */",translate,"The card is an `<a>`: without this the browser underlines the whole title and description. Their `bds-paper` isn't a link, so it doesn't inherit an underline.",meta-blip,"apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css:43-44; ""deles"" refers to Blip's bds-paper; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-8d738172,css,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css,76,86,css,14,"/* `bds-chip-tag color=""success""`, e a regra que o pendura meio a meio sobre a
    borda de cima do cartão:
      `left: 50%; position: absolute; top: -.75rem; transform: translateX(-50%)`.
@@ -2651,7 +2715,12 @@ css-comment-8d738172,css,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.cs
    Nome `cf-selo-recomendado`, não `cf-selo`: essa classe já existe em
    `configuracoes.css` para o selo de papel da Equipe/Chaves — mesmo nome,
    CSS global sem módulo, a ordem de import decidia qual regra vencia e
-   jogava o selo de papel pra fora da linha (position: absolute daqui). */",,,,,,
+   jogava o selo de papel pra fora da linha (position: absolute daqui). */",translate,"`bds-chip-tag color=""success""`, and the rule that hangs it halfway over the card's top border:
+    `left: 50%; position: absolute; top: -.75rem; transform: translateX(-50%)`.
+
+  Their dark theme's success ink; ours is the ""on dark"" pair `@pipe/ui` already has, for the same reason as `--cr-erro` in `../criar.css`.
+
+  Named `cf-selo-recomendado`, not `cf-selo`: that class already exists in `configuracoes.css` for the Team/Keys paper badge — same name, global CSS with no module scoping, the import order decided which rule won and threw the paper badge out of line (this `position: absolute`).",meta-blip,apps/gestao-vite/src/paginas/criar/fluxo/criar-fluxo.css:76-86; cites Blip's bds-chip-tag and dark-theme success color; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-32f4e525,css,apps/gestao-vite/src/paginas/criar/roteador/criar-roteador.css,1,8,css,7,"/* ============================ criar roteador (/criar/roteador)
 
    Só o que é DESTA tela: o passo do convite, o módulo 22046 do `portal.js`
@@ -2659,20 +2728,26 @@ css-comment-32f4e525,css,apps/gestao-vite/src/paginas/criar/roteador/criar-rotea
 
    O casco (o ""x"", a marca, o rodapé) e o passo do nome estão em `../criar.css`,
    porque na origem eles são o mesmo template para o roteador e para o fluxo. A
-   página importa as duas folhas, nesta ordem. O prefixo `cr-` é de ""criar"". */",,,,,,
+   página importa as duas folhas, nesta ordem. O prefixo `cr-` é de ""criar"". */",translate,"============================ create router (/criar/roteador)
+
+  Only what belongs to THIS screen: the invite step, `portal.js`'s module 22046 (`25.204.0-v0.43.1`) — `#create-application-router-step`.
+
+  The shell (the ""x"", the brand, the footer) and the name step are in `../criar.css`, because in the source they're the same template for the router and the flow. The page imports both sheets, in this order. The `cr-` prefix is from ""criar"" (create).",meta-blip,apps/gestao-vite/src/paginas/criar/roteador/criar-roteador.css:1-8; cites Blip portal.js module 22046; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-7d94d242,css,apps/gestao-vite/src/paginas/criar/roteador/criar-roteador.css,24,28,css,6,"/* `.router-step-content img { max-width: 18.75rem; width: 40% }`.
    Lá é `/assets/img/templates/router.svg`, um desenho do conceito; o nosso
    miolo é o ícone `roteador` — o MESMO desenho do botão que trouxe a pessoa e
    da etiqueta do cartão no portal —, então a caixa guarda a proporção e o
-   ícone se ajusta a ela. */",,,,,,
+   ícone se ajusta a ela. */",translate,"`.router-step-content img { max-width: 18.75rem; width: 40% }`.
+  There it's `/assets/img/templates/router.svg`, a concept drawing; our core is the `roteador` icon — the SAME artwork as the button that brought the person here and the portal card's label —, so the box keeps the proportion and the icon adjusts to it.",meta-blip,"apps/gestao-vite/src/paginas/criar/roteador/criar-roteador.css:24-28; ""there"" refers to the Blip source asset; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-4026744b,css,apps/gestao-vite/src/paginas/criar/roteador/criar-roteador.css,62,63,css,2,"/* `.router-step-description a { gap: .5rem; margin-top: 1rem; margin-bottom: 3rem }`
-   e `class=""flex""` no template — ícone e texto lado a lado. */",,,,,,
+   e `class=""flex""` no template — ícone e texto lado a lado. */",translate,"`.router-step-description a { gap: .5rem; margin-top: 1rem; margin-bottom: 3rem }` and `class=""flex""` in the template — icon and text side by side.",meta-blip,apps/gestao-vite/src/paginas/criar/roteador/criar-roteador.css:62-63; cites the Blip template markup; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-a6e0cfdc,css,apps/gestao-vite/src/paginas/criar/roteador/criar-roteador.css,74,75,css,3,"/* Sem o link de saber mais, os 3rem que ele carregava até o botão sumiriam
-   junto e o botão colaria na descrição. */",,,,,,
+   junto e o botão colaria na descrição. */",translate,"Without the learn-more link, the 3rem it used to carry down to the button would disappear too and the button would stick to the description.",other,apps/gestao-vite/src/paginas/criar/roteador/criar-roteador.css:74-75,,proposed
 css-comment-a47ec9fa,css,apps/gestao-vite/src/paginas/criar/roteador/criar-roteador.css,80,83,css,10,"/* --------------------------------------------------------- estreito
    A fileira de duas colunas do convite não cabe: vira uma coluna só, com o
    desenho em cima, que é o arranjo que a própria origem assume quando a
-   `.router-step-content` de 52.5rem não cabe na janela. */",,,,,,
+   `.router-step-content` de 52.5rem não cabe na janela. */",translate,"--------------------------------------------------------- narrow
+  The invite's two-column row doesn't fit: it becomes a single column, with the artwork on top, which is the arrangement the source itself takes when its 52.5rem `.router-step-content` doesn't fit the window.",meta-blip,apps/gestao-vite/src/paginas/criar/roteador/criar-roteador.css:80-83; cites the Blip source's own responsive arrangement; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b674e1f3,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,1,31,css,13,"/* ============================== a Análise do contato (`/fluxo/{id}/analise`)
 
    Cópia de `auth.application.detail.analytics` do portal deles:
@@ -2703,30 +2778,62 @@ css-comment-b674e1f3,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,
      #3f7de8 / #1f67e4 `.bp-btn--bot` (e hover)            → `--p-marca` / `--p-marca-forte`
      #c9dfe4 `.bp-btn--bot:disabled`                       → `--p-linha-media`
      rgba(0,0,0,.7) (fundo do modal)                       → `--p-conteudo` a 70%
-   ========================================================================== */",,,,,,
-css-comment-275840c6,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,112,112,css,1,"/* `ng-hide` é `display: none`, e a regra acima pisaria no `hidden`. */",,,,,,
+   ========================================================================== */",translate,"============================== the contact's Analysis (`/fluxo/{id}/analise`)
+
+  A copy of their portal's `auth.application.detail.analytics`:
+
+    `portal.js` module 95760   the `#analytics-tabs-view` template;
+    `portal.css`               `#analytics-tabs-view`, `.tabs-header`,
+                               `.tabs-content`, `bds-tab-panel`;
+    `bds-tabs_entry_js` and    `.bds-tabs`, `.bds-tab` (Stencil's `style`
+    `bds-tab_entry_js`         inside the JS, with no shadow DOM).
+
+  This sheet is the SHELL and the pieces more than one tab uses (the `page-header`, the `card`, the period selector, the modal). What belongs to a single tab lives in its own folder's sheet.
+
+  ═══ THE PAINT IS OURS ═══
+
+    #ededed `--color-surface-2` (`#analytics-tabs-view`)  → `--ground`
+    #fff (`.tabs-header`)                                 → `--p-superficie-0`
+    rgba(0,4,10,.15) (row shadow)                         → `--p-conteudo` at 15%
+    #595959 `--color-content-disable` (tab)                → `--ink-2`
+    #282828 `--color-content-default` (active tab, text)   → `--ink`
+    #0096fa `--color-brand` (active tab's rule)             → `--p-marca`
+    #f6f6f6 `--color-surface-1` (`card`, modal)             → `--surface`
+    #e0e0e0 `--color-surface-2` (`card` shadow)             → `--surface-2`
+    #738192 `.bp-c-rooftop`                                 → `--ink-3`
+    #d2dfe6 (period selector border)                        → `--p-linha-media`
+    #e8f2ff / #3f7de8 (calendar box and icon)               → `--p-marca-suave` / `--p-marca`
+    #3f7de8 / #1f67e4 `.bp-btn--bot` (and hover)             → `--p-marca` / `--p-marca-forte`
+    #c9dfe4 `.bp-btn--bot:disabled`                         → `--p-linha-media`
+    rgba(0,0,0,.7) (modal background)                       → `--p-conteudo` at 70%
+  ==========================================================================",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:1-31; cites Blip portal.js/portal.css module measurements and color mapping; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-275840c6,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,112,112,css,1,"/* `ng-hide` é `display: none`, e a regra acima pisaria no `hidden`. */",translate,"`ng-hide` is `display: none`, and the rule above would step on `hidden`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:112; cites Blip's Angular ng-hide directive; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bf583e93,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,126,127,css,4,"/* `.bds-tab--selected`: a animação `selectFade` de .75s, `forwards`, que leva o
-   traço de transparente à cor da marca e o texto para `--color-content-default`. */",,,,,,
+   traço de transparente à cor da marca e o texto para `--color-content-default`. */",translate,"`.bds-tab--selected`: the `selectFade` animation, .75s, `forwards`, that takes the rule from transparent to the brand color and the text to `--color-content-default`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:126-127; cites Blip's bds-tab--selected animation; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-383aa570,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,151,152,css,1,"/* `.bds-tab__text { min-width: 90px; max-width: 270px }` com o
-   `bds-typo variant=""fs-16""` dentro: 16px/150%, `bold` só na ativa. */",,,,,,
-css-comment-8e296c83,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,165,165,css,3,"/* A aba cuja tela não existe aqui: no lugar, apagada, com o selo. */",,,,,,
+   `bds-typo variant=""fs-16""` dentro: 16px/150%, `bold` só na ativa. */",translate,"`.bds-tab__text { min-width: 90px; max-width: 270px }` with `bds-typo variant=""fs-16""` inside: 16px/150%, `bold` only on the active one.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:151-152; cites Blip's bds-tab__text/bds-typo; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-8e296c83,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,165,165,css,3,"/* A aba cuja tela não existe aqui: no lugar, apagada, com o selo. */",translate,"The tab whose screen doesn't exist here: in its place, faded, with the badge.",other,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:165,,proposed
 css-comment-5fb9e149,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,194,200,css,3,"/* ======================================== `<page-header>` (`pecas.tsx`)
 
    `.full-initial-section`: `border-bottom: 1px solid var(--color-surface-3)`,
    `margin: .9375rem 0`, `padding: .9375rem 0` — 15 e 15.
    `.full-initial-section .page-header-content { height: 2.625rem }` (42) e
    `.row { margin-top: .1875rem }` (3) com o `.mb0`. O `.container` de dentro é
-   o `fx-coluna` que `fluxo.css` já mediu. */",,,,,,
+   o `fx-coluna` que `fluxo.css` já mediu. */",translate,"======================================== `<page-header>` (`pecas.tsx`)
+
+  `.full-initial-section`: `border-bottom: 1px solid var(--color-surface-3)`, `margin: .9375rem 0`, `padding: .9375rem 0` — 15 and 15. `.full-initial-section .page-header-content { height: 2.625rem }` (42) and `.row { margin-top: .1875rem }` (3) with `.mb0`. The `.container` inside is the `fx-coluna` that `fluxo.css` already measured.",other,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:194-200,,proposed
 css-comment-da65a1c3,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,220,221,css,2,"/* `.full-initial-section h1`: 1.5rem, peso 400, `--color-content-default`;
-   `.mv0.mr2.lh-solid`: sem margem vertical, 5 à direita, entrelinha 1. */",,,,,,
+   `.mv0.mr2.lh-solid`: sem margem vertical, 5 à direita, entrelinha 1. */",translate,"`.full-initial-section h1`: 1.5rem, weight 400, `--color-content-default`; `.mv0.mr2.lh-solid`: no vertical margin, 5 on the right, solid line height.",other,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:220-221,,proposed
 css-comment-d67b74b1,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,230,231,css,2,"/* `.custom-header-content.flex.items-center.justify-end.ml5.tr.w-100`, e o
-   `custom-content` dentro dela também é `flex` com `justify-content: flex-end`. */",,,,,,
+   `custom-content` dentro dela também é `flex` com `justify-content: flex-end`. */",translate,"`.custom-header-content.flex.items-center.justify-end.ml5.tr.w-100`, and the `custom-content` inside it is also `flex` with `justify-content: flex-end`.",other,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:230-231,,proposed
 css-comment-56a8e5c0,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,241,246,css,4,"/* ================================ `bds-typo` — a régua que as abas usam
 
    `fs-12/14/16` = 12/14/16px com entrelinha 150%; `fs-20/24/32` = 20/24/32px
    com 100%. `margin` vem ligada por padrão e só fs-20, fs-24 e fs-32 têm
    margem: 22px embaixo. Cor do `:host`: `--color-content-default`. Peso:
-   regular 400, semi-bold 600, bold 700, extra-bold 800. */",,,,,,
+   regular 400, semi-bold 600, bold 700, extra-bold 800. */",translate,"================================ `bds-typo` — the ruler the tabs use
+
+  `fs-12/14/16` = 12/14/16px with 150% line height; `fs-20/24/32` = 20/24/32px with 100%. `margin` is off by default and only fs-20, fs-24 and fs-32 have a margin: 22px below. `:host` color: `--color-content-default`. Weight: regular 400, semi-bold 600, bold 700, extra-bold 800.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:241-246; cites Blip's bds-typo ruler; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-a05c7ab6,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,318,326,css,2,"/* ============================================ `<card>` (`Cartao` em `pecas.tsx`)
 
    `card`: fundo `--color-surface-1`, raio 8, sombra `0 2px 12px 0
@@ -2735,14 +2842,16 @@ css-comment-a05c7ab6,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,
    `.card-title` negrito, sem margem, à esquerda; `card .card-content
    { padding: .9375rem }`. Dentro do `analytics-chart`, o cabeçalho é `flex`, o
    título ocupa 90% e o conteúdo perde o recheio de cima; o `icon-info` fica
-   invisível até o cursor passar. */",,,,,,
-css-comment-1a64b447,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,346,346,css,1,/* o `.mr3` do título quando há dica */,,,,,,
+   invisível até o cursor passar. */",translate,"============================================ `<card>` (`Cartao` in `pecas.tsx`)
+
+  `card`: `--color-surface-1` background, radius 8, shadow `0 2px 12px 0 var(--color-surface-2)`, `display: block`, `margin: .5625rem 0` (9), `z-index: 1`. `card .card-header { padding: .9375rem .9375rem 0 }`, `.card-title` bold, no margin, left-aligned; `card .card-content { padding: .9375rem }`. Inside `analytics-chart`, the header is `flex`, the title takes 90% and the content loses its top padding; `icon-info` stays invisible until the cursor passes over it.",other,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:318-326,,proposed
+css-comment-1a64b447,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,346,346,css,1,/* o `.mr3` do título quando há dica */,translate,the title's `.mr3` when there's a tooltip,other,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:346,,proposed
 css-comment-dec6859d,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,434,439,css,1,"/* `.bp-daterange-dropdown`: raio 8, sombra `0 0 10px rgba(96,123,153,.4)`,
    `margin-top: .125rem`, `absolute`, `z-index: 10`, encostado à direita dentro
    de `.small-datepicker-input`, fundo `--color-surface-1`. O miolo
    (`.bp-daterange-datepicker`) tem `padding: .625rem`; os botões,
    `margin: 1.5rem .75rem .75rem`, 1.875rem de altura, raio 8,
-   `padding: .375rem .75rem`. */",,,,,,
+   `padding: .375rem .75rem`. */",translate,"`.bp-daterange-dropdown`: radius 8, shadow `0 0 10px rgba(96,123,153,.4)`, `margin-top: .125rem`, `absolute`, `z-index: 10`, flush right inside `.small-datepicker-input`, `--color-surface-1` background. The core (`.bp-daterange-datepicker`) has `padding: .625rem`; the buttons, `margin: 1.5rem .75rem .75rem`, 1.875rem height, radius 8, `padding: .375rem .75rem`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:434-439; cites Blip's bp-daterange-dropdown selector; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-10a3db5c,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,47,58,css,9,"/* ---------------------------------------------------- a fileira (`bds-tabs`)
 
    `.bds-tabs`: `width: 100%`, `display: flex`, `z-index: 1100`, `box-sizing:
@@ -2754,13 +2863,19 @@ css-comment-10a3db5c,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,
    vai com `top` = fundo da barra de cima (`handlePosition` +
    `ResizeObserver`), então a fileira acompanha a barra e cobre o painel — é por
    isso que os painéis descem 50px. Aqui ela é `absolute` no topo da vista: fica
-   no mesmo lugar em relação à barra e cobre o painel do mesmo jeito. */",,,,,,
+   no mesmo lugar em relação à barra e cobre o painel do mesmo jeito. */",translate,"---------------------------------------------------- the row (`bds-tabs`)
+
+  `.bds-tabs`: `width: 100%`, `display: flex`, `z-index: 1100`, `box-sizing: border-box`, `flex-shrink: 0`, `flex-direction: row`, `align-items: center`, `height: 48px`, `padding: 0 10px`; `--center` (the default `align`) centers it.
+
+  `#analytics-tabs-view .tabs-header` overrides it: `height: auto`, `padding-top: 10px`, `position: fixed`, white background and the shadow. The `fixed` goes with `top` = the bottom of the top bar (`handlePosition` + `ResizeObserver`), so the row follows the bar and covers the panel — that's why the panels drop 50px. Here it's `absolute` at the top of the view: it stays in the same place relative to the bar and covers the panel the same way.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:47-58; cites Blip's bds-tabs measurements; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-1a7303a5,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,495,500,css,1,"/* ==================================================== `bds-button`
 
    `size=""standard""` vira `medium` (`setSize`): 40 de altura, `padding: 0 16px`,
    raio 8, borda 1px, 4 entre ícone e texto, rótulo fs-14 negrito.
    `variant=""secondary""`: sem fundo, texto na tinta de conteúdo. Desligado:
-   `opacity: 50%; pointer-events: none`. */",,,,,,
+   `opacity: 50%; pointer-events: none`. */",translate,"==================================================== `bds-button`
+
+  `size=""standard""` becomes `medium` (`setSize`): 40 height, `padding: 0 16px`, radius 8, 1px border, 4 between icon and text, `fs-14` bold label. `variant=""secondary""`: no background, text in content ink. Disabled: `opacity: 50%; pointer-events: none`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:495-500; cites Blip's bds-button variant measurements; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-afccdeae,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,540,552,css,8,"/* ============================================================ os modais
 
    Dois modelos na origem, e as abas usam os dois:
@@ -2773,7 +2888,13 @@ css-comment-afccdeae,css,apps/gestao-vite/src/paginas/fluxo/analise/analise.css,
      `padding: 32px`, coluna com `space-between`, e as duas sombras de elevação.
 
    Abrem pelo `:target` (o ícone é um link para o `id` do modal) e fecham com
-   um link para `#`: sem JavaScript, como o resto da tela. */",,,,,,
+   um link para `#`: sem JavaScript, como o resto da tela. */",translate,"============================================================ the modals
+
+  Two models in the source, and the tabs use both:
+  - the portal's legacy `.modal` (`ModalService`): `rgba(0,0,0,.7)` veil; `.modal > .modal-dialog` with `--color-surface-1` background, radius 3, shadow `0 2px 20px 0 #252525`, `max-height: 80%`, scroll, `padding: 1.875rem`; `.modal-sm` = 690 wide, up to 80%. `.modal-footer`: `flex`, `padding-top: 9px`.
+  - `bds-modal`: `.outzone` black at 70%, 592×368 `.modal`, radius 8, `padding: 32px`, column with `space-between`, and the two elevation shadows.
+
+  They open via `:target` (the icon is a link to the modal's `id`) and close with a link to `#`: no JavaScript, like the rest of the screen.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/analise.css:540-552; cites Blip's ModalService and bds-modal measurements; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-73abb5e0,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1,35,css,18,"/* ==========================================================================
    Análise do contato · Dashboard (/fluxo/[id]/analise/dashboard)
 
@@ -2808,37 +2929,63 @@ css-comment-73abb5e0,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/da
        extended_ocean #00D3E4 → var(--p-grafico-2)   extended_blue #1968F0 → var(--p-grafico-1)
        extended_pink #FB4BC1 → var(--p-grafico-4)    extended_yellow #FBCF23 → var(--p-grafico-3)
        extended_gray #666666 → var(--ink-2)          datalabel #292929 → var(--ink)
-   ========================================================================== */",,,,,,
-css-comment-c719db25,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1022,1022,css,1,"/* `yR`: coluna `space-evenly`, 10 à direita menos na última. */",,,,,,
-css-comment-b3340fa3,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1065,1065,css,1,/* `aR`: o número encostado à direita. */,,,,,,
+   ========================================================================== */",translate,"==========================================================================
+  Contact Analysis · Dashboard (/fluxo/[id]/analise/dashboard)
+
+  THE LAYOUT IS THEIRS, THE PAINT IS OURS. The ruler is the `iN` from `portal-fragment-analytics` (`cap6s/portalmfe/analytics-main.js`): its CSS is styled-components (`Rt.default.div(_t([...]))`) plus a `<style>` per component, and the `bds-*` come from Stencil's sheets (`bds-grid_5` for type/paper, `bdscss/` for button, chip and tooltip).
+
+  Type ruler (`typo__variant--fs-*`): fs-10 = 10px/150%, fs-12 = 12/150%, fs-14 = 14/150%, fs-16 = 16/150%, fs-20 = 20/100%, fs-24 = 24/100%, fs-32 = 32/100%. Weights: regular 400, semi-bold 600, bold 700, extra-bold 800. `typo margin` (`bds-typo`'s default) at fs-20/24/32 = 22px below. `bds-paper`: radius 16, `static` shadow (0 2px 8px -2px).
+
+  The ink mapping:
+    color-surface-1 #F6F6F6 (papers, filter strip)        → var(--surface)
+    color-surface-2 #EDEDED (dark card, striped)          → var(--surface-2)
+    color-surface-3 #E3E3E3 (`DR`, sidebar strip)          → var(--surface-3)
+    color-surface-4 #141414 (sidebar header)               → var(--p-superficie-4)
+    color-content-default / -disable / -ghost             → var(--ink) / var(--ink-2) / var(--ink-3)
+    color-primary #1E6BF1 · bp-c-bot #3F7DE8 (link)        → var(--p-marca)
+    color-system #B2DFFD (active chip, ""1st"" circle)      → var(--p-info-fundo)
+    color-border-1 #B1B1B1 (chip outline, tertiary button) → var(--p-linha-forte)
+    paper shadow 0 2px 8px -2px rgba(0,0,0,.16)            → var(--p-sombra-1)
+    strip shadow rgba(7,71,166,.12)                        → var(--ink) at 12%
+    tooltip color-content-default #454545                  → var(--ink), letter var(--surface)
+    #666666 / #A3A3A3 (empty-state titles)                 → var(--ink-2) / var(--ink-3)
+    #505F79 (Messages explanation) · #8CA0B3 (channels head) → var(--ink-2) · var(--ink-3)
+    sidebar veil rgba(235,235,235,.5)                       → var(--surface-3) at 50%
+    charts' extended palette and lines:
+      extended_ocean #00D3E4 → var(--p-grafico-2)   extended_blue #1968F0 → var(--p-grafico-1)
+      extended_pink #FB4BC1 → var(--p-grafico-4)    extended_yellow #FBCF23 → var(--p-grafico-3)
+      extended_gray #666666 → var(--ink-2)          datalabel #292929 → var(--ink)
+  ==========================================================================",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:1-35; cites Blip portal-fragment-analytics module and full color mapping; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-c719db25,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1022,1022,css,1,"/* `yR`: coluna `space-evenly`, 10 à direita menos na última. */",translate,"`yR`: `space-evenly` column, 10 on the right except the last.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:1022; cites Blip's minified portal-fragment-analytics class yR; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-b3340fa3,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1065,1065,css,1,/* `aR`: o número encostado à direita. */,translate,`aR`: the number flush right.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:1065; cites Blip's minified class aR; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-fd3205c0,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1110,1111,css,3,"/* Mesmo reset das tabelas de ranking: o `th`/`td` global do Pipe põe
-   caixa-alta, fio e recheio que o `FS`/`tE` da origem não têm. */",,,,,,
-css-comment-1f94c517,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1144,1144,css,1,"/* `tr:last-child` (os ""Totais"") e a primeira célula de cada linha em negrito. */",,,,,,
-css-comment-2da5aa24,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1240,1240,css,1,"/* `X_#sidebar-overlay`: véu fixo de tela cheia, coluna encostada à direita. */",,,,,,
-css-comment-1144de40,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1298,1298,css,1,"/* `ow`: metade, 5% à esquerda, centrada. */",,,,,,
-css-comment-afc9d966,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1307,1307,css,1,/* `nw` (5% em cima) + `aw` (2% à esquerda). */,,,,,,
-css-comment-c61b77fd,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1318,1318,css,1,"/* `iw`: 1% à esquerda, 4% em cima. */",,,,,,
-css-comment-692c64ad,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1333,1333,css,1,"/* `cw`: 52px, 94%, 8 embaixo, 3% à esquerda; no hover 54px, 96% e 2%. */",,,,,,
-css-comment-f7d05180,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,138,138,css,0,"/* `pT`: 90% até 1366, `space-around`, 24px em cima e embaixo. */",,,,,,
-css-comment-171a66dc,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,150,150,css,2,/* `mT`: 38px de altura; o ícone com 5px à esquerda; 150px abaixo de 1300. */,,,,,,
-css-comment-fbe7ec8b,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,168,168,css,1,"/* `fT` (40%, `row-gap: 0.65vw`, 10 à direita) e `gT` (`column-gap: 0.65vw`). */",,,,,,
+   caixa-alta, fio e recheio que o `FS`/`tE` da origem não têm. */",translate,"Same reset as the ranking tables: the Pipe global `th`/`td` adds uppercase, a rule and padding that the source's `FS`/`tE` don't have.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:1110-1111; contrasts with Blip's minified classes FS/tE; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-1f94c517,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1144,1144,css,1,"/* `tr:last-child` (os ""Totais"") e a primeira célula de cada linha em negrito. */",translate,"`tr:last-child` (the ""Totais"") and the first cell of each row in bold.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:1144; continues Blip dashboard parity block, keeps literal PT UI label; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-2da5aa24,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1240,1240,css,1,"/* `X_#sidebar-overlay`: véu fixo de tela cheia, coluna encostada à direita. */",translate,"`X_#sidebar-overlay`: a fixed full-screen veil, column flush right.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:1240; cites Blip's minified class X_; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-1144de40,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1298,1298,css,1,"/* `ow`: metade, 5% à esquerda, centrada. */",translate,"`ow`: half, 5% on the left, centered.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:1298; cites Blip's minified class ow; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-afc9d966,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1307,1307,css,1,/* `nw` (5% em cima) + `aw` (2% à esquerda). */,translate,`nw` (5% on top) + `aw` (2% on the left).,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:1307; cites Blip's minified classes nw/aw; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-c61b77fd,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1318,1318,css,1,"/* `iw`: 1% à esquerda, 4% em cima. */",translate,"`iw`: 1% on the left, 4% on top.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:1318; cites Blip's minified class iw; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-692c64ad,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,1333,1333,css,1,"/* `cw`: 52px, 94%, 8 embaixo, 3% à esquerda; no hover 54px, 96% e 2%. */",translate,"`cw`: 52px, 94%, 8 below, 3% on the left; on hover 54px, 96% and 2%.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:1333; cites Blip's minified class cw; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-f7d05180,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,138,138,css,0,"/* `pT`: 90% até 1366, `space-around`, 24px em cima e embaixo. */",translate,"`pT`: 90% up to 1366, `space-around`, 24px on top and below.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:138; cites Blip's minified class pT; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-171a66dc,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,150,150,css,2,/* `mT`: 38px de altura; o ícone com 5px à esquerda; 150px abaixo de 1300. */,translate,`mT`: 38px tall; the icon with 5px on the left; 150px below 1300.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:150; cites Blip's minified class mT; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-fbe7ec8b,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,168,168,css,1,"/* `fT` (40%, `row-gap: 0.65vw`, 10 à direita) e `gT` (`column-gap: 0.65vw`). */",translate,"`fT` (40%, `row-gap: 0.65vw`, 10 on the right) and `gT` (`column-gap: 0.65vw`).",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:168; cites Blip's minified classes fT/gT; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-c6153571,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,228,229,css,3,"/* `eT` + `tT.date-info` (32px, raio 10, recheio 3, 8 à direita, borda
-   surface-2) + `oT.info-date` (5px 10px) + `nT` (sem borda, 16px, 5 à esquerda). */",,,,,,
-css-comment-4ab3acc0,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,263,263,css,1,"/* `::-webkit-calendar-picker-indicator`: 4 à esquerda, raio 6, recheio 4. */",,,,,,
-css-comment-b45f0df1,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,271,271,css,0,/* ============================================================== botões */,,,,,,
+   surface-2) + `oT.info-date` (5px 10px) + `nT` (sem borda, 16px, 5 à esquerda). */",translate,"`eT` + `tT.date-info` (32px, radius 10, 3 padding, 8 on the right, surface-2 border) + `oT.info-date` (5px 10px) + `nT` (no border, 16px, 5 on the left).",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:228-229; cites Blip's minified classes eT/tT/oT/nT; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-4ab3acc0,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,263,263,css,1,"/* `::-webkit-calendar-picker-indicator`: 4 à esquerda, raio 6, recheio 4. */",translate,"`::-webkit-calendar-picker-indicator`: 4 on the left, radius 6, 4 padding.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:263; continues Blip dashboard parity block; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-b45f0df1,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,271,271,css,0,/* ============================================================== botões */,translate,============================================================== buttons,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:271; section divider within the Blip dashboard parity block; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8c91606c,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,273,274,css,2,"/* `bds-button` `standard`: 40px, `padding: 9px 16px`, raio 8, `fs-14 bold`,
-   ícone de 24 com 4px de folga; hover escurece 8%; travado a 50%. */",,,,,,
-css-comment-b67c7253,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,327,327,css,0,/* `_S`: o botão só de ícone do CSV (`font-weight: 700`). */,,,,,,
-css-comment-63848d1e,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,441,441,css,0,/* ================================================== indicador de comparação */,,,,,,
-css-comment-f9484b8a,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,488,488,css,2,/* `vE` + `yE`: título e o `info` sólido com 5px à esquerda. */,,,,,,
-css-comment-1ffc59b6,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,499,499,css,2,"/* `F_`/`CE`/`bR`/`Pw`: cabeça da seção, título à esquerda e CSV à direita. */",,,,,,
+   ícone de 24 com 4px de folga; hover escurece 8%; travado a 50%. */",translate,"`bds-button` `standard`: 40px, `padding: 9px 16px`, radius 8, `fs-14 bold`, 24px icon with 4px gap; hover darkens 8%; disabled at 50%.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:273-274; cites Blip's bds-button measurements; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-b67c7253,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,327,327,css,0,/* `_S`: o botão só de ícone do CSV (`font-weight: 700`). */,translate,`_S`: the CSV's icon-only button (`font-weight: 700`).,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:327; cites Blip's minified class _S; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-63848d1e,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,441,441,css,0,/* ================================================== indicador de comparação */,translate,================================================== comparison indicator,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:441; section divider within the Blip dashboard parity block; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-f9484b8a,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,488,488,css,2,/* `vE` + `yE`: título e o `info` sólido com 5px à esquerda. */,translate,`vE` + `yE`: title and the solid `info` with 5px on the left.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:488; cites Blip's minified classes vE/yE; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-1ffc59b6,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,499,499,css,2,"/* `F_`/`CE`/`bR`/`Pw`: cabeça da seção, título à esquerda e CSV à direita. */",translate,"`F_`/`CE`/`bR`/`Pw`: section header, title on the left and CSV on the right.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:499; cites Blip's minified classes F_/CE/bR/Pw; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-45c644b3,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,524,525,css,2,"/* `mE`: coluna centrada; ícone de 80 com 7 em cima, título 16 em cima,
-   texto 12 em cima e 32 dos lados. */",,,,,,
-css-comment-4baf5ba9,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,53,53,css,3,/* `bds-typo`: sem margem própria; a de 22px só vem com `margin` em fs-20+. */,,,,,,
+   texto 12 em cima e 32 dos lados. */",translate,"`mE`: centered column; 80px icon with 7 on top, 16 title on top, 12 text on top and 32 on the sides.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:524-525; cites Blip's minified class mE; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-4baf5ba9,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,53,53,css,3,/* `bds-typo`: sem margem própria; a de 22px só vem com `margin` em fs-20+. */,translate,`bds-typo`: no margin of its own; the 22px only comes with `margin` at fs-20+.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:53; cites Blip's bds-typo margin behavior; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bb97d32c,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,619,620,css,0,"/* `v_.stripedCard`: `padding: 16px 8px 16px 16px`, raio 8, `margin: 8px 0`,
-   até 275, surface-2. */",,,,,,
-css-comment-87d90d69,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,684,684,css,0,/* `E_`: o `external-file` small; travado é `not-allowed`. */,,,,,,
-css-comment-fb9b0a39,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,695,695,css,0,/* ============================================================ gráficos */,,,,,,
+   até 275, surface-2. */",translate,"`v_.stripedCard`: `padding: 16px 8px 16px 16px`, radius 8, `margin: 8px 0`, up to 275, surface-2.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:619-620; cites Blip's minified class v_.stripedCard; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-87d90d69,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,684,684,css,0,/* `E_`: o `external-file` small; travado é `not-allowed`. */,translate,`E_`: the small `external-file`; disabled is `not-allowed`.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:684; cites Blip's minified class E_; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-fb9b0a39,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,695,695,css,0,/* ============================================================ gráficos */,translate,============================================================ charts,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:695; section divider within the Blip dashboard parity block; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-51fa9eec,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,707,708,css,4,"/* A altura da coluna na origem é a dos três cartões ao lado (~240px de área
    de desenho); com menos, os 11 tiques do chart.js se atropelam. */",,,,,,
 css-comment-9d90ce4b,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,716,716,css,0,"/* `plugins.title`: bold 14, alinhado ao começo, 10 em cima e embaixo. */",,,,,,
