@@ -500,7 +500,7 @@ export function rewriteLiterals(options: RewriteLiteralsOptions): RewriteLiteral
       kinds.includes(row.kind) &&
       statuses.includes(row.status) &&
       !SPECIAL_VALUES.has(row.new) &&
-      (!options.scopes || options.scopes.includes(row.scope)) &&
+      (!options.scopes || options.scopes.includes('all') || options.scopes.includes(row.scope)) &&
       (!options.ids || options.ids.includes(row.id)),
   );
   const files = trackedFiles(root);

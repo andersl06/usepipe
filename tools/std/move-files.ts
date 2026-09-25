@@ -336,7 +336,7 @@ export function moveFiles(options: MoveFilesOptions): MoveFilesResult {
     (row) =>
       kinds.includes(row.kind) &&
       statuses.includes(row.status) &&
-      (!options.scopes || options.scopes.includes(row.scope)) &&
+      (!options.scopes || options.scopes.includes('all') || options.scopes.includes(row.scope)) &&
       (!options.ids || options.ids.includes(row.id)),
   );
   const moves = rows.map(rowMove).sort((a, b) => {
