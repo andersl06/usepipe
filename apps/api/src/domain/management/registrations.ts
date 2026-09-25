@@ -101,12 +101,12 @@ export async function loadQueues(tx: TransactionPipe): Promise<{
     const linhas = await tx
       .select({
         id: queue.id,
-        nome: queue.nome,
-        cor: queue.cor,
-        capacidadePadrao: queue.capacityDefault,
-        ordem: queue.order,
+        name: queue.nome,
+        color: queue.cor,
+        capacityDefault: queue.capacityDefault,
+        order: queue.order,
         ativa: queue.ativa,
-        horarioId: queue.horarioId,
+        scheduleId: queue.horarioId,
         horarioNome: scheduleAttendance.nome,
       })
       .from(queue)
@@ -127,13 +127,13 @@ export async function loadQueues(tx: TransactionPipe): Promise<{
       .orderBy(asc(user.nome));
 
     const horarios = await tx
-      .select({ id: scheduleAttendance.id, nome: scheduleAttendance.nome })
+      .select({ id: scheduleAttendance.id, name: scheduleAttendance.nome })
       .from(scheduleAttendance)
       .orderBy(asc(scheduleAttendance.nome));
 
     const byQueue = new Map<string, AgentOfQueue[]>();
     for (const m of membros) {
-      const padrao = linhas.find((l) => l.id === m.filaId)?.capacidadePadrao ?? 0;
+      const padrao = linhas.find((l) => l.id === m.filaId)?.capacityDefault ?? 0;
       const agent: AgentOfQueue = {
         id: m.usuarioId,
         name: m.nome,
@@ -147,7 +147,7 @@ export async function loadQueues(tx: TransactionPipe): Promise<{
     }
 
     return {
-      filas: linhas.map((l) => ({ ...l, atendentes: byQueue.get(l.id) ?? [] })),
+      queues: linhas.map((l) => ({ ...l, agents: byQueue.get(l.id) ?? [] })),
       horarios,
     };
   });
@@ -198,10 +198,10 @@ export async function carregarPausas(tx: TransactionPipe, dias = 30): Promise<Us
     const motivos = await tx
       .select({
         id: motivoPausa.id,
-        nome: motivoPausa.nome,
-        duracaoSugeridaMin: motivoPausa.durationSuggestedMin,
-        contaComoProdutivo: motivoPausa.accountAsProductive,
-        ativo: motivoPausa.ativo,
+        name: motivoPausa.nome,
+        durationSuggestedMin: motivoPausa.durationSuggestedMin,
+        countsAsProductive: motivoPausa.accountAsProductive,
+        active: motivoPausa.ativo,
       })
       .from(motivoPausa)
       .orderBy(asc(motivoPausa.nome));
@@ -231,7 +231,7 @@ export async function carregarPausas(tx: TransactionPipe, dias = 30): Promise<Us
         const u = byReason.get(m.id);
         return {
           ...m,
-          pausas: u?.pausas ?? 0,
+          pauses: u?.pausas ?? 0,
           mediaSeg: u && u.mediaSeg !== null ? Number(u.mediaSeg) : null,
         };
       }),
@@ -302,7 +302,7 @@ export async function carregarHorarios(tx: TransactionPipe): Promise<Horarios> {
     const cabecas = await tx
       .select({
         id: scheduleAttendance.id,
-        nome: scheduleAttendance.nome,
+        name: scheduleAttendance.nome,
         fuso: scheduleAttendance.fuso,
       })
       .from(scheduleAttendance)
@@ -338,37 +338,36 @@ export async function carregarHorarios(tx: TransactionPipe): Promise<Horarios> {
       .orderBy(asc(queue.order), asc(queue.nome));
 
     const horarios = cabecas.map((h) => {
-      const minhasFaixas: FaixaDoHorario[] = faixas
-        .filter((f) => f.horarioId === h.id)
-        .map((f) => ({
-          id: f.id,
-          diaSemana: f.diaSemana,
-          inicio: relogio(f.inicio),
-          fim: relogio(f.fim),
-        }));
+      const minhasFaixasCore = faixas.filter((f) => f.horarioId === h.id);
+      const myExceptionsCore = exceptions.filter((e) => e.horarioId === h.id);
 
-      const myExceptions: ExceptionOfSchedule[] = exceptions
-        .filter((e) => e.horarioId === h.id)
-        .map((e) => ({
-          id: e.id,
-          data: e.data,
-          fechado: e.fechado,
-          inicio: e.inicio === null ? null : relogio(e.inicio),
-          fim: e.fim === null ? null : relogio(e.fim),
-          motivo: e.motivo,
-        }));
+      const minhasFaixas: FaixaDoHorario[] = minhasFaixasCore.map((f) => ({
+        id: f.id,
+        dayWeek: f.diaSemana,
+        start: relogio(f.inicio),
+        end: relogio(f.fim),
+      }));
+
+      const myExceptions: ExceptionOfSchedule[] = myExceptionsCore.map((e) => ({
+        id: e.id,
+        data: e.data,
+        closed: e.fechado,
+        start: e.inicio === null ? null : relogio(e.inicio),
+        end: e.fim === null ? null : relogio(e.fim),
+        reason: e.motivo,
+      }));
 
       const paraOCore: ExpedienteDoCore = {
         fuso: h.fuso,
-        faixas: minhasFaixas,
-        exceptions: myExceptions,
+        faixas: minhasFaixasCore,
+        exceptions: myExceptionsCore,
       };
 
       return {
         ...h,
         faixas: minhasFaixas,
-        excecoes: myExceptions,
-        filas: queues.filter((f) => f.horarioId === h.id).map((f) => f.nome),
+        exceptions: myExceptions,
+        queues: queues.filter((f) => f.horarioId === h.id).map((f) => f.nome),
         abertoAgora: dentroDoExpediente(agora, paraOCore),
         proximaAberturaEm: proximaAbertura(agora, paraOCore),
         seteDiasSeg: durationTotalSeg(
@@ -379,7 +378,7 @@ export async function carregarHorarios(tx: TransactionPipe): Promise<Horarios> {
 
     return {
       horarios,
-      filasSemHorario: queues.filter((f) => f.ativa && f.horarioId === null).map((f) => f.nome),
+      queuesWithoutSchedule: queues.filter((f) => f.ativa && f.horarioId === null).map((f) => f.nome),
       agora,
     };
   });
@@ -474,7 +473,9 @@ export async function editarFaixaHorario(
   if (pedido.end !== undefined) depois.fim = relogioConferido(pedido.end, 'fim');
 
   const mudanca = diferenca(antes, depois);
-  if (Object.keys(mudanca.depois).length === 0) return atual;
+  if (Object.keys(mudanca.depois).length === 0) {
+    return { id: atual.id, scheduleId: atual.horarioId, dayWeek: antes.diaSemana, start: antes.inicio, end: antes.fim };
+  }
 
   if (minutosDoRelogio(depois.fim) <= minutosDoRelogio(depois.inicio)) {
     throw PipeError.conflito(
@@ -510,7 +511,7 @@ export async function editarFaixaHorario(
     depois: mudanca.depois,
   });
 
-  return { ...atual, ...depois };
+  return { id: atual.id, scheduleId: atual.horarioId, dayWeek: depois.diaSemana, start: depois.inicio, end: depois.fim };
 }
 
 export async function excluirFaixaHorario(
@@ -623,7 +624,17 @@ export async function editarExceptionSchedule(
   }
 
   const mudanca = diferenca(antes, depois);
-  if (Object.keys(mudanca.depois).length === 0) return atual;
+  if (Object.keys(mudanca.depois).length === 0) {
+    return {
+      id: atual.id,
+      scheduleId: atual.horarioId,
+      data: antes.data,
+      closed: antes.fechado,
+      start: antes.inicio,
+      end: antes.fim,
+      reason: antes.motivo,
+    };
+  }
 
   if (depois.data !== antes.data) {
     const [conflito] = await tx
@@ -656,7 +667,15 @@ export async function editarExceptionSchedule(
     depois: mudanca.depois,
   });
 
-  return { ...atual, ...depois, inicio: depois.fechado ? null : depois.inicio, fim: depois.fechado ? null : depois.fim };
+  return {
+    id: atual.id,
+    scheduleId: atual.horarioId,
+    data: depois.data,
+    closed: depois.fechado,
+    start: depois.fechado ? null : depois.inicio,
+    end: depois.fechado ? null : depois.fim,
+    reason: depois.motivo,
+  };
 }
 
 export async function deleteExceptionSchedule(
@@ -714,13 +733,13 @@ export async function loadRulesOfQueue(tx: TransactionPipe): Promise<{
     const cabecas = await tx
       .select({
         id: ruleQueue.id,
-        nome: ruleQueue.nome,
-        ordem: ruleQueue.order,
-        combinador: ruleQueue.combinador,
-        filaDestinoId: ruleQueue.queueDestinationId,
-        filaDestinoNome: queue.nome,
-        filaDestinoAtiva: queue.ativa,
-        ativa: ruleQueue.active,
+        name: ruleQueue.nome,
+        order: ruleQueue.order,
+        combiner: ruleQueue.combinador,
+        queueDestinationId: ruleQueue.queueDestinationId,
+        queueDestinationName: queue.nome,
+        queueDestinationActive: queue.ativa,
+        active: ruleQueue.active,
       })
       .from(ruleQueue)
       .innerJoin(queue, eq(queue.id, ruleQueue.queueDestinationId))
@@ -737,12 +756,12 @@ export async function loadRulesOfQueue(tx: TransactionPipe): Promise<{
       .orderBy(asc(ruleQueueCondition.campo), asc(ruleQueueCondition.id));
 
     const filas = await tx
-      .select({ id: queue.id, nome: queue.nome, ativa: queue.ativa })
+      .select({ id: queue.id, name: queue.nome, ativa: queue.ativa })
       .from(queue)
       .orderBy(asc(queue.order), asc(queue.nome));
 
     const caixas = await tx
-      .select({ inbox: inbox.nome, fila: queue.nome })
+      .select({ inbox: inbox.nome, queue: queue.nome })
       .from(inbox)
       .leftJoin(queue, eq(queue.id, inbox.queueDefaultId))
       .orderBy(asc(inbox.nome));
@@ -750,23 +769,23 @@ export async function loadRulesOfQueue(tx: TransactionPipe): Promise<{
     return {
       regras: cabecas.map((c) => ({
         id: c.id,
-        nome: c.nome,
-        ordem: c.ordem,
-        combinador: c.combinador as 'e' | 'ou',
-        filaDestinoId: c.filaDestinoId,
-        filaDestinoNome: c.filaDestinoNome,
-        filaDestinoAtiva: c.filaDestinoAtiva,
-        ativa: c.ativa,
-        condicoes: conditions
+        name: c.name,
+        order: c.order,
+        combiner: c.combiner as 'e' | 'ou',
+        queueDestinationId: c.queueDestinationId,
+        queueDestinationName: c.queueDestinationName,
+        queueDestinationActive: c.queueDestinationActive,
+        active: c.active,
+        conditions: conditions
           .filter((cond) => cond.regraId === c.id)
           .map((cond) => ({
-            campo: cond.campo,
-            operador: cond.operador as OperadorDeRegra,
-            valor: cond.valor ?? '',
+            field: cond.campo,
+            operator: cond.operador as OperadorDeRegra,
+            value: cond.valor ?? '',
           })),
       })),
-      filas,
-      padroes: caixas,
+      queues: filas,
+      defaults: caixas,
     };
   });
 }
@@ -809,31 +828,37 @@ export async function writeRuleQueue(
       .from(ruleQueue)
       .where(and(eq(ruleQueue.tenantId, tid), eq(ruleQueue.nome, inbound.name)))
       .limit(1);
-    if (conflito) return { ok: false, erro: `Já existe uma regra chamada "${inbound.name}".` };
+    if (conflito) return { ok: false, error: `Já existe uma regra chamada "${inbound.name}".` };
 
     const [destino] = await tx
       .select({ id: queue.id })
       .from(queue)
       .where(and(eq(queue.tenantId, tid), eq(queue.id, inbound.queueDestinationId)))
       .limit(1);
-    if (!destino) return { ok: false, erro: 'Fila de destino não encontrada.' };
+    if (!destino) return { ok: false, error: 'Fila de destino não encontrada.' };
 
     const [criada] = await tx
       .insert(ruleQueue)
       .values({
         tenantId: tid,
         nome: inbound.name,
-        ordem: inbound.order,
+        order: inbound.order,
         combinador: inbound.combiner,
-        filaDestinoId: inbound.queueDestinationId,
-        ativa: true,
+        queueDestinationId: inbound.queueDestinationId,
+        active: true,
       })
       .returning({ id: ruleQueue.id });
-    if (!criada) return { ok: false, erro: 'Não consegui gravar a regra.' };
+    if (!criada) return { ok: false, error: 'Não consegui gravar a regra.' };
 
-    await tx
-      .insert(ruleQueueCondition)
-      .values(inbound.conditions.map((c) => ({ tenantId: tid, regraId: criada.id, ...c })));
+    await tx.insert(ruleQueueCondition).values(
+      inbound.conditions.map((c) => ({
+        tenantId: tid,
+        regraId: criada.id,
+        campo: c.field,
+        operador: c.operator,
+        value: c.value,
+      })),
+    );
 
     await registrarAuditoria(tx, tid, {
       ator: quemGrava,
@@ -861,7 +886,7 @@ export async function toggleActiveOfRuleQueue(
       .from(ruleQueue)
       .where(and(eq(ruleQueue.tenantId, tid), eq(ruleQueue.id, id)))
       .limit(1);
-    if (!atual) return { ok: false, erro: 'Regra não encontrada.' };
+    if (!atual) return { ok: false, error: 'Regra não encontrada.' };
 
     await tx.update(ruleQueue).set({ active: !atual.ativa }).where(eq(ruleQueue.id, id));
 
@@ -941,12 +966,16 @@ async function ruleQueueViva(tx: TransactionPipe, tid: string, id: string): Prom
     .orderBy(asc(ruleQueueCondition.campo), asc(ruleQueueCondition.id));
 
   return {
-    ...atual,
-    combinador: atual.combinador as 'e' | 'ou',
+    id: atual.id,
+    name: atual.nome,
+    order: atual.ordem,
+    combiner: atual.combinador as 'e' | 'ou',
+    queueDestinationId: atual.filaDestinoId,
+    ativa: atual.ativa,
     condicoes: condicoes.map((c) => ({
-      campo: c.campo,
-      operador: c.operador as OperadorDeRegra,
-      valor: c.valor ?? '',
+      field: c.campo,
+      operator: c.operador as OperadorDeRegra,
+      value: c.valor ?? '',
     })),
   };
 }
@@ -969,7 +998,7 @@ function conditionsChecked(bruto: readonly ConditionOfEdit[]): ConditionOfEdit[]
     }
     if (!operadorValido(c.operator)) throw PipeError.request('operator_invalid', 'Operador inválido.');
     if (!valor) throw PipeError.request('value_required', `A condição sobre "${campo}" ficou sem valor.`);
-    return { campo, operador: c.operator, valor };
+    return { field: campo, operator: c.operator, value: valor };
   });
 }
 
@@ -1037,9 +1066,15 @@ export async function editarRuleQueue(
 
   if (conditionsNews !== undefined) {
     await tx.delete(ruleQueueCondition).where(eq(ruleQueueCondition.regraId, id));
-    await tx
-      .insert(ruleQueueCondition)
-      .values(conditionsNews.map((c) => ({ tenantId: tid, regraId: id, ...c })));
+    await tx.insert(ruleQueueCondition).values(
+      conditionsNews.map((c) => ({
+        tenantId: tid,
+        regraId: id,
+        campo: c.field,
+        operador: c.operator,
+        value: c.value,
+      })),
+    );
   }
 
   await registrarAuditoria(tx, tid, {
@@ -1117,10 +1152,10 @@ export async function loadAgents(tx: TransactionPipe): Promise<AgentRegistered[]
     const pessoas = await tx
       .select({
         id: user.id,
-        nome: user.nome,
+        name: user.nome,
         email: user.email,
-        ativo: user.ativo,
-        estado: statusAgent.estado,
+        active: user.ativo,
+        state: statusAgent.estado,
       })
       .from(user)
       .leftJoin(statusAgent, eq(statusAgent.usuarioId, user.id))
@@ -1139,9 +1174,9 @@ export async function loadAgents(tx: TransactionPipe): Promise<AgentRegistered[]
 
     const byPerson = new Map<string, { queues: string[]; limit: number }>();
     for (const m of members) {
-      const atual = byPerson.get(m.usuarioId) ?? { filas: [], limite: 0 };
-      atual.filas.push(m.filaNome);
-      atual.limite = Math.max(atual.limite, m.override ?? m.padrao);
+      const atual = byPerson.get(m.usuarioId) ?? { queues: [], limit: 0 };
+      atual.queues.push(m.filaNome);
+      atual.limit = Math.max(atual.limit, m.override ?? m.padrao);
       byPerson.set(m.usuarioId, atual);
     }
 
@@ -1149,7 +1184,7 @@ export async function loadAgents(tx: TransactionPipe): Promise<AgentRegistered[]
       const dela = byPerson.get(p.id);
       return {
         ...p,
-        filas: dela?.filas ?? [],
+        queues: dela?.queues ?? [],
         limiteSimultaneo: dela ? dela.limit : null,
       };
     });
@@ -1258,15 +1293,15 @@ function conflitoOfNameOfQueue(nome: string): PipeError {
 }
 
 /** A fila viva do tenant, ou 404 — o `fetch_inbox` de `ciclo-de-vida-do-fluxo.ts`. */
-async function queueViva(tx: TransactionPipe, tid: string, id: string) {
+async function queueViva(tx: TransactionPipe, tid: string, id: string): Promise<QueueWritten> {
   const [atual] = await tx
     .select({
       id: queue.id,
-      nome: queue.nome,
-      cor: queue.cor,
-      horarioId: queue.horarioId,
-      capacidadePadrao: queue.capacityDefault,
-      ordem: queue.order,
+      name: queue.nome,
+      color: queue.cor,
+      scheduleId: queue.horarioId,
+      capacityDefault: queue.capacityDefault,
+      order: queue.order,
       ativa: queue.ativa,
     })
     .from(queue)
@@ -1298,7 +1333,7 @@ export async function createQueue(
 
   const [criada] = await tx
     .insert(queue)
-    .values({ tenantId: tid, nome, cor, horarioId, capacityDefault, order, active })
+    .values({ tenantId: tid, nome, cor, horarioId, capacityDefault, order, ativa: active })
     .returning({ id: queue.id });
   if (!criada) throw PipeError.request('queue_not_created', 'Não consegui gravar a fila.');
 
@@ -1329,47 +1364,47 @@ export async function editarQueue(
   const antes = { ...atual };
   const depois = { ...antes };
 
-  if (pedido.name !== undefined) depois.nome = nameOfQueueChecked(pedido.name);
-  if (pedido.color !== undefined) depois.cor = colorOfQueueChecked(pedido.color);
+  if (pedido.name !== undefined) depois.name = nameOfQueueChecked(pedido.name);
+  if (pedido.color !== undefined) depois.color = colorOfQueueChecked(pedido.color);
   if (pedido.capacityDefault !== undefined) {
-    depois.capacidadePadrao = capacityChecked(pedido.capacityDefault);
+    depois.capacityDefault = capacityChecked(pedido.capacityDefault);
   }
-  if (pedido.order !== undefined) depois.ordem = orderChecked(pedido.order);
+  if (pedido.order !== undefined) depois.order = orderChecked(pedido.order);
   if (pedido.ativa !== undefined) depois.ativa = pedido.ativa;
   if (pedido.scheduleId !== undefined) {
     const horarioId = pedido.scheduleId ? String(pedido.scheduleId) : null;
     if (horarioId && !(await horarioExiste(tx, tid, horarioId))) {
       throw PipeError.request('schedule_not_found', 'Horário de atendimento não encontrado.');
     }
-    depois.horarioId = horarioId;
+    depois.scheduleId = horarioId;
   }
 
   const mudanca = diferenca(antes, depois);
   if (Object.keys(mudanca.depois).length === 0) return atual;
 
-  if (depois.nome !== antes.nome && (await nameOfQueueInUse(tx, tid, depois.nome, id))) {
-    throw conflitoOfNameOfQueue(depois.nome);
+  if (depois.name !== antes.name && (await nameOfQueueInUse(tx, tid, depois.name, id))) {
+    throw conflitoOfNameOfQueue(depois.name);
   }
 
   const [gravada] = await tx
     .update(queue)
     .set({
-      nome: depois.nome,
-      cor: depois.cor,
-      horarioId: depois.horarioId,
-      capacityDefault: depois.capacidadePadrao,
-      order: depois.ordem,
+      nome: depois.name,
+      cor: depois.color,
+      horarioId: depois.scheduleId,
+      capacityDefault: depois.capacityDefault,
+      order: depois.order,
       ativa: depois.ativa,
       atualizadoEm: new Date(),
     })
     .where(and(eq(queue.tenantId, tid), eq(queue.id, id)))
     .returning({
       id: queue.id,
-      nome: queue.nome,
-      cor: queue.cor,
-      horarioId: queue.horarioId,
-      capacidadePadrao: queue.capacityDefault,
-      ordem: queue.order,
+      name: queue.nome,
+      color: queue.cor,
+      scheduleId: queue.horarioId,
+      capacityDefault: queue.capacityDefault,
+      order: queue.order,
       ativa: queue.ativa,
     });
   if (!gravada) throw PipeError.naoEncontrado('fila');
@@ -1445,7 +1480,7 @@ export async function deleteQueue(
     acao: 'excluiu',
     objetoTipo: 'fila',
     objetoId: id,
-    antes: { nome: atual.nome, ativa: atual.ativa },
+    antes: { nome: atual.name, ativa: atual.ativa },
   });
 }
 
@@ -1475,7 +1510,7 @@ export async function vincularAgentInQueue(
 
   await tx
     .insert(queueAgent)
-    .values({ tenantId: tid, queueId, usuarioId: agentId, capacidadeOverride: override })
+    .values({ tenantId: tid, queueId, userId: agentId, capacityOverride: override })
     .onConflictDoUpdate({
       target: [queueAgent.queueId, queueAgent.userId],
       set: { capacityOverride: override },
@@ -1601,14 +1636,14 @@ async function nomeDeMotivoEmUso(
   return conflito !== undefined;
 }
 
-async function motivoVivo(tx: TransactionPipe, tid: string, id: string) {
+async function motivoVivo(tx: TransactionPipe, tid: string, id: string): Promise<MotivoPausaGravado> {
   const [atual] = await tx
     .select({
       id: motivoPausa.id,
-      nome: motivoPausa.nome,
-      duracaoSugeridaMin: motivoPausa.durationSuggestedMin,
-      contaComoProdutivo: motivoPausa.accountAsProductive,
-      ativo: motivoPausa.ativo,
+      name: motivoPausa.nome,
+      durationSuggestedMin: motivoPausa.durationSuggestedMin,
+      countsAsProductive: motivoPausa.accountAsProductive,
+      active: motivoPausa.ativo,
     })
     .from(motivoPausa)
     .where(and(eq(motivoPausa.tenantId, tid), eq(motivoPausa.id, id)))
@@ -1664,35 +1699,35 @@ export async function editarMotivoPausa(
   const antes = { ...atual };
   const depois = { ...antes };
 
-  if (pedido.name !== undefined) depois.nome = nomeDeMotivoConferido(pedido.name);
+  if (pedido.name !== undefined) depois.name = nomeDeMotivoConferido(pedido.name);
   if (pedido.durationSuggestedMin !== undefined) {
-    depois.duracaoSugeridaMin = durationSuggestedChecked(pedido.durationSuggestedMin);
+    depois.durationSuggestedMin = durationSuggestedChecked(pedido.durationSuggestedMin);
   }
-  if (pedido.countsAsProductive !== undefined) depois.contaComoProdutivo = pedido.countsAsProductive;
-  if (pedido.active !== undefined) depois.ativo = pedido.active;
+  if (pedido.countsAsProductive !== undefined) depois.countsAsProductive = pedido.countsAsProductive;
+  if (pedido.active !== undefined) depois.active = pedido.active;
 
   const mudanca = diferenca(antes, depois);
   if (Object.keys(mudanca.depois).length === 0) return atual;
 
-  if (depois.nome !== antes.nome && (await nomeDeMotivoEmUso(tx, tid, depois.nome, id))) {
-    throw PipeError.conflito('name_in_use', `Já existe um motivo chamado "${depois.nome}".`);
+  if (depois.name !== antes.name && (await nomeDeMotivoEmUso(tx, tid, depois.name, id))) {
+    throw PipeError.conflito('name_in_use', `Já existe um motivo chamado "${depois.name}".`);
   }
 
   const [gravado] = await tx
     .update(motivoPausa)
     .set({
-      nome: depois.nome,
-      durationSuggestedMin: depois.duracaoSugeridaMin,
-      accountAsProductive: depois.contaComoProdutivo,
-      ativo: depois.ativo,
+      nome: depois.name,
+      durationSuggestedMin: depois.durationSuggestedMin,
+      accountAsProductive: depois.countsAsProductive,
+      ativo: depois.active,
     })
     .where(and(eq(motivoPausa.tenantId, tid), eq(motivoPausa.id, id)))
     .returning({
       id: motivoPausa.id,
-      nome: motivoPausa.nome,
-      duracaoSugeridaMin: motivoPausa.durationSuggestedMin,
-      contaComoProdutivo: motivoPausa.accountAsProductive,
-      ativo: motivoPausa.ativo,
+      name: motivoPausa.nome,
+      durationSuggestedMin: motivoPausa.durationSuggestedMin,
+      countsAsProductive: motivoPausa.accountAsProductive,
+      active: motivoPausa.ativo,
     });
   if (!gravado) throw PipeError.naoEncontrado('motivo de pausa');
 
@@ -1723,6 +1758,6 @@ export async function excluirMotivoPausa(
     acao: 'excluiu',
     objetoTipo: 'motivo_pausa',
     objetoId: id,
-    antes: { nome: atual.nome, ativo: atual.ativo },
+    antes: { nome: atual.name, ativo: atual.active },
   });
 }
