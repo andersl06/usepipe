@@ -73,7 +73,7 @@ function colunasDaTabela(hoje: Date, fuso: string): readonly Column<LinhaOpportu
           );
         }
         if (o.closingPrevisto && o.closingPrevisto < hoje) {
-          return <Etiqueta tom="alert">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
+          return <Etiqueta tom="alerta">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
         }
         return o.closingPrevisto ? (
           <Etiqueta>fecha em {data(o.closingPrevisto, fuso)}</Etiqueta>
@@ -157,8 +157,8 @@ function QuadroDoFunil({ funil }: { funil: Awaited<ReturnType<typeof carregarFun
     column.cards.map((c) => ({
       id: c.id,
       nome: c.nome,
-      valorNum: c.value ?? 0,
-      valor: money(c.value),
+      valueNum: c.value ?? 0,
+      value: money(c.value),
       detalhe: [
         c.proprietario ?? 'sem proprietário',
         c.score !== null ? `score ${numero(c.score)}` : null,

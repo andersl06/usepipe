@@ -31,14 +31,14 @@ export const dynamic = 'force-dynamic';
  */
 
 const ABAS = [
-  { chave: 'historico', rotulo: 'Histórico' },
-  { chave: 'conta', rotulo: 'Na conta' },
+  { key: 'historico', rotulo: 'Histórico' },
+  { key: 'conta', rotulo: 'Na conta' },
 ] as const;
 
-type AbaOpportunity = (typeof ABAS)[number]['chave'];
+type AbaOpportunity = (typeof ABAS)[number]['key'];
 
 function abaValida(value: string | undefined): AbaOpportunity {
-  return (ABAS.find((a) => a.chave === value)?.chave ?? 'historico') as AbaOpportunity;
+  return (ABAS.find((a) => a.key === value)?.key ?? 'historico') as AbaOpportunity;
 }
 
 function colunasIrmas(hoje: Date, fuso: string): readonly Column<LinhaOpportunity>[] {
@@ -62,7 +62,7 @@ function colunasIrmas(hoje: Date, fuso: string): readonly Column<LinhaOpportunit
           );
         }
         if (o.closingPrevisto && o.closingPrevisto < hoje) {
-          return <Etiqueta tom="alert">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
+          return <Etiqueta tom="alerta">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
         }
         return o.closingPrevisto ? (
           <Etiqueta>fecha em {data(o.closingPrevisto, fuso)}</Etiqueta>
@@ -110,7 +110,7 @@ function OpportunityDestaque({
             <Etiqueta>{ficha.fase}</Etiqueta>
           )}
           {vencida && ficha.closingPrevisto ? (
-            <Etiqueta tom="alert">venceu em {data(ficha.closingPrevisto, fuso)}</Etiqueta>
+            <Etiqueta tom="alerta">venceu em {data(ficha.closingPrevisto, fuso)}</Etiqueta>
           ) : null}
         </>
       }

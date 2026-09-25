@@ -55,8 +55,8 @@ export async function listContacts(search = ''): Promise<LinhaContact[]> {
         nome: contact.nome,
         email: contact.email,
         telefone: contact.telefoneE164,
-        contaId: contact.accountId,
-        contaNome: account.nome,
+        accountId: contact.accountId,
+        accountName: account.nome,
         leadId: lead.id,
         faixa: lead.faixaAtual,
       })
@@ -88,8 +88,8 @@ export async function listContacts(search = ''): Promise<LinhaContact[]> {
       return {
         ...l,
         nome: l.nome ?? 'Contato sem nome',
-        conversas: c?.n ?? 0,
-        ultimaConversa: paraData(c?.ultima),
+        conversations: c?.n ?? 0,
+        ultimaConversation: paraData(c?.ultima),
       };
     });
   });
@@ -137,9 +137,9 @@ export async function loadContact(id: string): Promise<FichaContact | null> {
         nome: contact.nome,
         email: contact.email,
         telefone: contact.telefoneE164,
-        documento: contact.document,
-        contaId: contact.accountId,
-        contaNome: account.nome,
+        document: contact.document,
+        accountId: contact.accountId,
+        accountName: account.nome,
         criadoEm: contact.criadoEm,
         atributos: contact.atributos,
         leadId: lead.id,
@@ -162,9 +162,9 @@ export async function loadContact(id: string): Promise<FichaContact | null> {
     const conversations = await tx
       .select({
         id: conversation.id,
-        fila: queue.nome,
-        atendente: user.nome,
-        estado: conversation.state,
+        queue: queue.nome,
+        agent: user.nome,
+        state: conversation.state,
         categoria: classificationConversation.categoria,
         resumo: classificationConversation.resumo,
         criadaEm: conversation.criadaEm,
@@ -183,7 +183,7 @@ export async function loadContact(id: string): Promise<FichaContact | null> {
       nome: cabeca.nome ?? 'Contato sem nome',
       criadoEm: paraData(cabeca.criadoEm),
       atributos: (cabeca.atributos ?? {}) as Record<string, unknown>,
-      conversas: conversations.map((c) => ({
+      conversations: conversations.map((c) => ({
         ...c,
         criadaEm: paraData(c.criadaEm),
         encerradaEm: paraData(c.encerradaEm),

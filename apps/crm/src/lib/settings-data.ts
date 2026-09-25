@@ -94,7 +94,7 @@ export async function userCurrent(): Promise<Perfil> {
         nome: user.nome,
         email: user.email,
         avatarUrl: user.avatarUrl,
-        ultimoAcessoEm: user.lastAccessAt,
+        ultimoAccessIn: user.lastAccessAt,
       })
       .from(user)
       .where(fixo ? eq(user.id, fixo) : eq(user.ativo, true))
@@ -113,7 +113,7 @@ export async function userCurrent(): Promise<Perfil> {
 
     return {
       ...pessoa,
-      ultimoAcessoEm: paraData(pessoa.ultimoAcessoEm),
+      ultimoAccessIn: paraData(pessoa.ultimoAccessIn),
       papeis: papeis.map((p) => p.nome),
     };
   });
@@ -122,7 +122,7 @@ export async function userCurrent(): Promise<Perfil> {
 /** O ator das escritas desta tela. Sempre uma pessoa: aqui não há cron nem chave. */
 export async function atorAtual(): Promise<Ator> {
   const pessoa = await userCurrent();
-  return { tipo: 'usuario', id: pessoa.id };
+  return { type: 'usuario', id: pessoa.id };
 }
 
 export async function salvarPerfil(
@@ -171,7 +171,7 @@ export async function lerEspaco(): Promise<Espaco> {
         idioma: tenant.idioma,
         logoUrl: tenant.logoUrl,
         plano: tenant.plano,
-        implantacao: tenant.deployment,
+        deployment: tenant.deployment,
       })
       .from(tenant)
       .limit(1);
@@ -189,8 +189,8 @@ export async function lerEspaco(): Promise<Espaco> {
 
     return {
       ...linha,
-      membros: count?.n ?? 0,
-      dominios: dominios.map((d) => ({ dominio: d.dominio, verificado: d.verificadoEm !== null })),
+      members: count?.n ?? 0,
+      dominios: dominios.map((d) => ({ domain: d.dominio, verificado: d.verificadoEm !== null })),
     };
   });
 }
@@ -240,9 +240,9 @@ export async function listMembers(): Promise<Member[]> {
         nome: user.nome,
         email: user.email,
         ativo: user.ativo,
-        ultimoAcessoEm: user.lastAccessAt,
-        papelId: role.id,
-        papel: role.nome,
+        ultimoAccessIn: user.lastAccessAt,
+        roleId: role.id,
+        role: role.nome,
       })
       .from(user)
       .leftJoin(userRole, eq(userRole.userId, user.id))
@@ -256,7 +256,7 @@ export async function listMembers(): Promise<Member[]> {
     const byPessoa = new Map<string, Member>();
     for (const l of linhas) {
       if (byPessoa.has(l.id)) continue;
-      byPessoa.set(l.id, { ...l, ultimoAccessIn: paraData(l.ultimoAcessoEm) });
+      byPessoa.set(l.id, { ...l, ultimoAccessIn: paraData(l.ultimoAccessIn) });
     }
     return [...byPessoa.values()];
   });
@@ -269,9 +269,9 @@ export async function listarConvitesPendentes(): Promise<InvitationPendente[]> {
       email: string;
       role: string;
       expira_em: unknown;
-      convidadoBy: string | null;
+      convidado_by: string | null;
     }>(sql`
-      select c.id, c.email, p.nome as papel, c.expira_em, u.nome as convidado_por
+      select c.id, c.email, p.nome as role, c.expira_em, u.nome as convidado_by
         from convite c
         join papel p on p.id = c.papel_id
         left join usuario u on u.id = c.criado_por
@@ -281,9 +281,9 @@ export async function listarConvitesPendentes(): Promise<InvitationPendente[]> {
     return rows.map((r) => ({
       id: r.id,
       email: r.email,
-      papel: r.role,
+      role: r.role,
       expiraEm: paraData(r.expira_em) ?? new Date(),
-      convidadoPor: r.convidadoBy,
+      convidadoBy: r.convidado_by,
     }));
   });
 }
@@ -365,7 +365,7 @@ export async function convidar(
         papelId: alvo.id,
         tokenHash: novo.hash,
         expiraEm: new Date(Date.now() + PRAZO_INVITATION_MS),
-        criadoPor: ator.id ?? null,
+        invitationCreatedBy: ator.id ?? null,
       })
       .returning({ id: invitation.id });
 
@@ -439,7 +439,7 @@ export async function definirRole(
     await tx.delete(userRole).where(eq(userRole.userId, userIdAlvo));
     await tx
       .insert(userRole)
-      .values({ tenantId: tenantIdAtual, usuarioId: userIdAlvo, papelId: novo.id });
+      .values({ tenantId: tenantIdAtual, userId: userIdAlvo, papelId: novo.id });
 
     await registrarAuditoria(tx, tenantIdAtual, {
       ator,
@@ -500,10 +500,10 @@ export async function listarPapeis(): Promise<RoleSummary[]> {
     const { rows } = await tx.execute<{
       id: string;
       nome: string;
-      description: string | null;
+      descricao: string | null;
       de_sistema: boolean;
-      permissions: number;
-      members: number;
+      permissoes: number;
+      membros: number;
     }>(sql`
       select p.id, p.nome, p.descricao, p.de_sistema,
              (select count(*)::int from papel_permissao pp where pp.papel_id = p.id) as permissoes,
@@ -514,10 +514,10 @@ export async function listarPapeis(): Promise<RoleSummary[]> {
     return rows.map((r) => ({
       id: r.id,
       nome: r.nome,
-      descricao: r.description,
+      description: r.descricao,
       deSistema: r.de_sistema,
-      permissoes: Number(r.permissions),
-      membros: Number(r.members),
+      permissions: Number(r.permissoes),
+      members: Number(r.membros),
     }));
   });
 }
@@ -528,7 +528,7 @@ export async function permissionsListarCatalogo(): Promise<CatalogoPermission[]>
     tx
       .select({
         codigo: permission.codigo,
-        descricao: permission.descricao,
+        description: permission.descricao,
         grupo: permission.grupo,
       })
       .from(permission)
@@ -542,7 +542,7 @@ export async function readRole(id: string): Promise<RoleDetailed | null> {
       .select({
         id: role.id,
         nome: role.nome,
-        descricao: role.description,
+        description: role.description,
         deSistema: role.deSistema,
       })
       .from(role)
@@ -563,10 +563,10 @@ export async function readRole(id: string): Promise<RoleDetailed | null> {
 
     return {
       ...linha,
-      permissoes: concedidas.length,
-      membros: members.length,
+      permissions: concedidas.length,
+      members: members.length,
       concedidas: concedidas.map((c) => c.codigo),
-      nomesDosMembros: members.map((m) => m.nome),
+      membersNames: members.map((m) => m.nome),
     };
   });
 }
@@ -645,7 +645,7 @@ export async function roleSalvarPermissions(
         pedidas.map((codigo) => ({
           tenantId: tenantIdAtual,
           roleId,
-          permissaoCodigo: codigo,
+          permissionCode: codigo,
         })),
       );
     }
@@ -707,7 +707,7 @@ export async function listarCamposPersonalizados(): Promise<CampoPersonalizado[]
         codigo: dictionaryField.codigo,
         rotulo: dictionaryField.rotulo,
         tipo: dictionaryField.tipo,
-        descricao: dictionaryField.descricao,
+        description: dictionaryField.descricao,
       })
       .from(dictionaryField)
       .where(eq(dictionaryField.objetoCodigo, OBJETO_LEAD))
@@ -756,7 +756,7 @@ export async function createFieldCustom(
         codigo: codigo!,
         rotulo: rotulo!,
         tipo: data.tipo,
-        description,
+        descricao: description,
         consultavel: true,
         agregavel: data.tipo === 'numero',
       })
@@ -848,8 +848,8 @@ export async function listarChaves(): Promise<ApiKey[]> {
       .select({
         id: keyApi.id,
         nome: keyApi.nome,
-        prefixo: keyApi.prefix,
-        escopos: keyApi.scopes,
+        prefix: keyApi.prefix,
+        scopes: keyApi.scopes,
         criadoEm: keyApi.criadoEm,
         expiraEm: keyApi.expiraEm,
         ultimoUsoEm: keyApi.ultimoUsoEm,
@@ -900,7 +900,7 @@ export async function createKey(
         prefix,
         hash: createHash('sha256').update(secret).digest('hex'),
         scopes,
-        criadaPor: ator.id ?? null,
+        createdBy: ator.id ?? null,
       })
       .returning({ id: keyApi.id });
 
@@ -1006,7 +1006,7 @@ export async function createWebhook(
   return escrever(async (tx, tenantIdAtual) => {
     const [criado] = await tx
       .insert(webhookSaida)
-      .values({ tenantId: tenantIdAtual, url: url!, eventos, segredo: cifrado })
+      .values({ tenantId: tenantIdAtual, url: url!, eventos, secret: cifrado })
       .returning({ id: webhookSaida.id });
 
     await registrarAuditoria(tx, tenantIdAtual, {

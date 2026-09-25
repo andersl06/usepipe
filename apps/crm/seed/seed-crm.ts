@@ -228,35 +228,35 @@ const PERGUNTAS_DIAGNOSTICO = [
     codigo: 'patrimonio_faixa',
     rotulo: 'Patrimônio aproximado',
     tipo: 'selecao_unica',
-    opcoes: ['Até R$ 100 mil', 'R$ 100 a 250 mil', 'R$ 250 a 500 mil', 'Acima de R$ 500 mil'],
+    options: ['Até R$ 100 mil', 'R$ 100 a 250 mil', 'R$ 250 a 500 mil', 'Acima de R$ 500 mil'],
     obrigatoria: true,
   },
   {
     codigo: 'objetivo',
     rotulo: 'Principal objetivo',
     tipo: 'selecao_unica',
-    opcoes: ['Aposentadoria', 'Renda passiva', 'Reserva de emergência', 'Crescer patrimônio'],
+    options: ['Aposentadoria', 'Renda passiva', 'Reserva de emergência', 'Crescer patrimônio'],
     obrigatoria: true,
   },
   {
     codigo: 'ja_investe',
     rotulo: 'Já investe hoje?',
     tipo: 'booleano',
-    opcoes: [],
+    options: [],
     obrigatoria: true,
   },
   {
     codigo: 'renda_mensal',
     rotulo: 'Renda mensal',
     tipo: 'numero',
-    opcoes: [],
+    options: [],
     obrigatoria: false,
   },
   {
     codigo: 'horizonte',
     rotulo: 'Horizonte de investimento',
     tipo: 'selecao_unica',
-    opcoes: ['Menos de 2 anos', '2 a 5 anos', 'Mais de 5 anos'],
+    options: ['Menos de 2 anos', '2 a 5 anos', 'Mais de 5 anos'],
     obrigatoria: false,
   },
 ] as const;
@@ -268,14 +268,14 @@ const PERGUNTAS_DIAGNOSTICO_V2 = [
     codigo: 'perfil_risco',
     rotulo: 'Perfil de risco',
     tipo: 'selecao_unica',
-    opcoes: ['Conservador', 'Moderado', 'Arrojado'],
+    options: ['Conservador', 'Moderado', 'Arrojado'],
     obrigatoria: true,
   },
   {
     codigo: 'aporte_mensal',
     rotulo: 'Aporte mensal pretendido',
     tipo: 'numero',
-    opcoes: [],
+    options: [],
     obrigatoria: false,
   },
 ] as const;
@@ -285,21 +285,21 @@ const PERGUNTAS_PLANO = [
     codigo: 'plano',
     rotulo: 'Plano de interesse',
     tipo: 'selecao_unica',
-    opcoes: ['Mensal', 'Anual', 'Ainda não sei'],
+    options: ['Mensal', 'Anual', 'Ainda não sei'],
     obrigatoria: true,
   },
   {
     codigo: 'inicio_previsto',
     rotulo: 'Início previsto',
     tipo: 'data',
-    opcoes: [],
+    options: [],
     obrigatoria: false,
   },
   {
     codigo: 'observacao',
     rotulo: 'O que você espera do acompanhamento?',
     tipo: 'texto_longo',
-    opcoes: [],
+    options: [],
     obrigatoria: false,
   },
 ] as const;
@@ -401,7 +401,7 @@ async function seedCrm(db: DatabasePipe) {
    */
   await db
     .update(contact)
-    .set({ contaId: null })
+    .set({ accountId: null })
     .where(and(eq(contact.tenantId, tenantId), inArray(contact.accountId, idsAccount)));
   await db.delete(account).where(inArray(account.id, idsAccount));
 
@@ -530,8 +530,8 @@ async function seedCrm(db: DatabasePipe) {
     nome: r.nome,
     versao: VERSAO_REGRA,
     pontos: r.pontos,
-    condicao: r.condition,
-    ativa: true,
+    condition: r.condition,
+    active: true,
   }));
 
   const linhasLead: (typeof lead.$inferInsert)[] = [];
@@ -903,9 +903,9 @@ async function seedCrm(db: DatabasePipe) {
       conversaId: cv.id,
       categoria: escolher(CATEGORIAS),
       resumo: escolher(SUMMARIES_ATTENDANCE),
-      sentimento: escolher(['positivo', 'neutro', 'negativo'] as const),
+      sentiment: escolher(['positivo', 'neutro', 'negativo'] as const),
       confianca: '0.8600',
-      modelo: 'semente',
+      template: 'semente',
       criadaEm: cv.encerradaEm ?? agora,
     });
   }
