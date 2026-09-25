@@ -2,10 +2,10 @@
   "items": [
     {
       "id": "ponte-comment-51dec0db",
-      "action": "translate",
-      "new_text": "Closing requires a tag: a closed conversation without a reason makes later reports meaningless, and the source screen already enforced this. The screen sends selected tag names. If none are supplied, use the client's first tag; if the client has none, create \"Encerrado pelo atendente\". New companies commonly have no tags, and blocking closure would be worse than recording a generic reason.",
+      "action": "update",
+      "new_text": "Closing requires a tag: a closed conversation without a reason makes later reports meaningless, and the source screen already enforced this. The screen sends selected tag names. Use the first supplied tag if it exists; otherwise use the client's first conversation tag. If the client has none, create the supplied name or \"Encerrado pelo atendente\" when no name was supplied. New companies commonly have no tags, and blocking closure would be worse than recording a generic reason.",
       "sensitivity": "architecture",
-      "evidence": "apps/ponte/src/acoes.ts:104; pre-triage D-40; needs slice-time confirmation",
+      "evidence": "apps/ponte/src/acoes.ts:104-132; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
     {
@@ -58,10 +58,10 @@
     },
     {
       "id": "ponte-comment-749b8c4a",
-      "action": "translate",
-      "new_text": "The Builder saves and publishes a real flow. The client screen is a Blip copy; its Builder keeps the design in two buckets, state map (`builder_working_flow`) and global actions (`builder_working_global_actions`). Publishing stores the compiled flow in the \"Application\". Here those buckets become Pipe database records through the SAME domain used by the Management Builder (`apps/api/src/dominio/gestao/builder-do-fluxo.ts`): one draft per flow, overwritten on each save; publishing promotes the draft and archives the previous version. The copy opens the Builder for a bot, and the bot is the connection: its LIME commands contain no flow ID. Buckets such as `blip_portal:builder_working_flow` have no qualifier, and the bridge runs for ONE tenant (`PIPE_PONTE_TENANT_ID`). Therefore it edits ONE flow. Use `PIPE_PONTE_FLUXO_ID` when it points to a non-archived flow of type `fluxo` in this tenant; otherwise use `Fluxo do Builder`, created on first use. A per-session flow would require the lab copy to send a bot ID on every command; it does not. The Management screen already uses per-flow routes. The domain checks `automacao.fluxo.editar` for reading and saving and `automacao.fluxo.publicar` for publishing, as for Management. The person represented by the copy (`PIPE_PONTE_EMAIL`) needs those permissions; a tenant admin has both. Without permission return a LIME failure with the domain message, not a design that only appears saved.",
+      "action": "update",
+      "new_text": "The Builder saves and publishes a real flow. The client screen is a Blip copy; its Builder keeps the design in two buckets, state map (`builder_working_flow`) and global actions (`builder_working_global_actions`). Publishing stores the compiled flow in the \"Application\". Here those buckets become Pipe database records through the SAME domain used by the Management Builder (`apps/api/src/dominio/gestao/builder-do-fluxo.ts`): one draft per flow, overwritten on each save; publishing promotes the draft and archives the previous version. The copy opens the Builder for a bot, and the bot is the connection: its LIME commands contain no flow ID. Buckets such as `blip_portal:builder_working_flow` have no qualifier, and the bridge runs for ONE tenant (`PIPE_PONTE_TENANT_ID`). Therefore it edits ONE flow. If `PIPE_PONTE_FLUXO_ID` is set, require a non-archived flow of type `fluxo` in this tenant and fail if it is invalid. If it is unset, reuse or create `Fluxo do Builder`. A per-session flow would require the lab copy to send a bot ID on every command; it does not. The Management screen already uses per-flow routes. The domain checks `automacao.fluxo.editar` for reading and saving and `automacao.fluxo.publicar` for publishing, as for Management. The person represented by the copy (`PIPE_PONTE_EMAIL`) needs those permissions; a tenant admin has both. Without permission return a LIME failure with the domain message, not a design that only appears saved.",
       "sensitivity": "meta-blip",
-      "evidence": "apps/ponte/src/builder.ts:11; pre-triage D-40; needs slice-time confirmation",
+      "evidence": "apps/ponte/src/builder.ts:55-84,119-143; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
     {
