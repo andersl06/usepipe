@@ -53,8 +53,12 @@ test('open A from the list, open B while A is open, then Back: list shown, conve
   let index = 0;
   let selection: DeskSelection = { conversationId: null, contact: null };
 
+  function currentState(): unknown {
+    return history[index]?.state ?? null;
+  }
+
   function openConversation(id: string) {
-    const { replace } = navigationDecisionForPanel(history[index].state, PANEL_CONVERSATION);
+    const { replace } = navigationDecisionForPanel(currentState(), PANEL_CONVERSATION);
     selection = { ...selection, conversationId: id };
     if (replace) {
       history[index] = { state: panelState(PANEL_CONVERSATION) };
@@ -67,7 +71,7 @@ test('open A from the list, open B while A is open, then Back: list shown, conve
 
   function back() {
     if (index > 0) index--;
-    selection = selectionAfterLocationChange(selection, history[index].state);
+    selection = selectionAfterLocationChange(selection, currentState());
   }
 
   openConversation('A'); // push: list -> conversation marker
@@ -77,7 +81,7 @@ test('open A from the list, open B while A is open, then Back: list shown, conve
   openConversation('B'); // replace: A's marker becomes B's marker, same entry
   assert.equal(history.length, 2);
   assert.equal(selection.conversationId, 'B');
-  assert.deepEqual(Object.keys(history[index].state as object), ['panel']);
+  assert.deepEqual(Object.keys(currentState() as object), ['panel']);
 
   back(); // list shown, no conversation selected
   assert.equal(index, 0);
