@@ -15,7 +15,7 @@ packages-core-file-2b2376dc,packages-core,1,file,janela.ts,packages/core/src/win
 packages-core-file-2cc3f6a9,packages-core,1,file,condicao.teste.ts,packages/core/src/flow/condition.test.ts,packages/core/src/fluxo/condicao.teste.ts,1,no,,,proposed,codex2,
 packages-core-file-31f3a373,packages-core,1,file,esforco.teste.ts,packages/core/src/effort/effort.test.ts,packages/core/src/esforco/esforco.teste.ts,0,no,,,proposed,codex2,
 packages-core-file-39e551fc,packages-core,1,file,prioridade.ts,packages/core/src/conversation/priority.ts,packages/core/src/conversa/prioridade.ts,2,no,,,proposed,codex2,
-packages-core-file-519c6866,packages-core,1,file,modelos.teste.ts,packages/core/src/flow/templates.test.ts,packages/core/src/fluxo/modelos.teste.ts,1,no,,,proposed,codex2,
+packages-core-file-519c6866,packages-core,1,file,modelos.teste.ts,packages/core/src/flow/models.test.ts,packages/core/src/fluxo/modelos.teste.ts,1,no,,,proposed,codex2,"contextual: flow data-model types (ported from blip-sdk Models/), not a WhatsApp message template"
 packages-core-file-576cceea,packages-core,1,file,acoes.teste.ts,packages/core/src/flow/actions.test.ts,packages/core/src/fluxo/acoes.teste.ts,0,no,,,proposed,codex2,
 packages-core-file-58aae264,packages-core,1,file,janela.teste.ts,packages/core/src/window/window.test.ts,packages/core/src/janela/janela.teste.ts,0,no,,,proposed,codex2,
 packages-core-file-810fcac6,packages-core,1,file,tempo.ts,packages/core/src/comum/time.ts,packages/core/src/comum/tempo.ts,0,no,,,proposed,codex2,

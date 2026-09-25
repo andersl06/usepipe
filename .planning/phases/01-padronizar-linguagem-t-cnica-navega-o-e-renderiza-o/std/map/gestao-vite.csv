@@ -214,7 +214,7 @@ gestao-vite-file-ed112ca0,gestao-vite,3,file,condicoes.ts,apps/management-vite/s
 gestao-vite-file-ede3e92e,gestao-vite,3,file,csv-historico.test.ts,apps/management-vite/tests/csv-history.test.ts,apps/gestao-vite/tests/csv-historico.test.ts,2,no,,,proposed,codex2,
 gestao-vite-file-ee04cfd2,gestao-vite,3,file,estrutura-gestao.tsx,apps/management-vite/src/components/structure-management.tsx,apps/gestao-vite/src/componentes/estrutura-gestao.tsx,17,no,,,proposed,codex2,
 gestao-vite-file-ee417d34,gestao-vite,3,file,casca.tsx,apps/management-vite/src/pages/flow/integrations/shell.tsx,apps/gestao-vite/src/paginas/fluxo/integracoes/casca.tsx,16,no,,,proposed,codex2,
-gestao-vite-file-ee6a9795,gestao-vite,3,file,modelo.ts,apps/management-vite/src/pages/builder/template.ts,apps/gestao-vite/src/paginas/builder/modelo.ts,10,no,,,proposed,codex2,
+gestao-vite-file-ee6a9795,gestao-vite,3,file,modelo.ts,apps/management-vite/src/pages/builder/model.ts,apps/gestao-vite/src/paginas/builder/modelo.ts,10,no,,,proposed,codex2,"contextual: flow-builder data model (blocks/edges/positions), not a WhatsApp message template"
 gestao-vite-file-ef7ff2c9,gestao-vite,3,file,historico.ts,apps/management-vite/src/lib/history.ts,apps/gestao-vite/src/lib/historico.ts,4,no,,,proposed,codex2,
 gestao-vite-file-efe72832,gestao-vite,3,file,historico.test.ts,apps/management-vite/tests/history.test.ts,apps/gestao-vite/tests/historico.test.ts,4,no,,,proposed,codex2,
 gestao-vite-file-f05844c6,gestao-vite,3,file,ilustracoes.tsx,apps/management-vite/src/pages/flow/integrations/illustrations.tsx,apps/gestao-vite/src/paginas/fluxo/integracoes/ilustracoes.tsx,2,no,,,proposed,codex2,
