@@ -2435,7 +2435,7 @@ exactly its job.",security,Reviewed apps/crm/src/lib/busca-tipos.ts:1-10 — cli
 crm-comment-bdce9bc9,crm,apps/crm/src/lib/busca-tipos.ts,18,18,jsdoc,2,/** A linha de baixo: o que distingue dois registros de nome parecido. */,translate,The bottom line: what distinguishes two records with similar names.,other,,,proposed
 crm-comment-ad9610d2,crm,apps/crm/src/lib/busca-tipos.ts,23,23,jsdoc,1,"/** Rótulo de cada grupo, na ordem em que o menu os mostra. */",translate,"Each group's label, in the order the menu shows them.",other,,,proposed
 crm-comment-f78ba187,crm,apps/crm/src/lib/busca.ts,104,104,jsdoc,3,"/** `and` que aceita indefinido sem reclamar, para condição opcional. */",translate,"`and` that accepts undefined without complaining, for an optional condition.",other,,,proposed
-crm-comment-37ee6481,crm,apps/crm/src/lib/busca.ts,30,30,line,4,// Uma letra casa com meio banco e não ajuda ninguém a chegar em lugar nenhum.,,,,,,
+crm-comment-37ee6481,crm,apps/crm/src/lib/busca.ts,30,30,line,4,// Uma letra casa com meio banco e não ajuda ninguém a chegar em lugar nenhum.,translate,A single letter matches half the database and doesn't help anyone get anywhere.,other,,,proposed
 crm-comment-506c6203,crm,apps/crm/src/lib/busca.ts,8,24,jsdoc,19,"/**
  * Busca global, a que alimenta o menu de comando.
  *
@@ -2452,7 +2452,21 @@ crm-comment-506c6203,crm,apps/crm/src/lib/busca.ts,8,24,jsdoc,19,"/**
  * O teto de 5 por objeto é do Twenty (`MaxSearchResults`), e existe pelo mesmo
  * motivo: quem busca quer chegar, não navegar. Vinte resultados numa lista de
  * comando é uma segunda lista para percorrer.
- */",,,,,,
+ */",translate,"Global search, the one that feeds the command menu.
+
+Twenty solves navigation through search, not menus: you press Ctrl+K, type
+the name, and land on the record. It's the difference between a filtered
+list and a product operated by keyboard — and it's why their sidebar can be
+short.
+
+**One query per object, sequential.** Not `Promise.all`: inside `consultar`
+the transaction is a single connection, and parallelizing drops the
+session's `pipe.tenant_id` (README). The cost is irrelevant — it's four
+queries with `limit 5` and an index.
+
+The cap of 5 per object is Twenty's (`MaxSearchResults`), and it exists for
+the same reason: whoever searches wants to arrive, not browse. Twenty
+results in a command list is a second list to scroll through.",security,Reviewed apps/crm/src/lib/busca.ts:8-24 — tenant-isolation Promise.all warning; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-c032d8fe,crm,apps/crm/src/lib/campos-editaveis.ts,1,13,jsdoc,17,"/**
  * O catálogo dos campos da ficha que se editam no lugar.
  *
@@ -2465,9 +2479,20 @@ crm-comment-c032d8fe,crm,apps/crm/src/lib/campos-editaveis.ts,1,13,jsdoc,17,"/**
  * O catálogo também é a **lista branca da escrita**: `atualizarCampoDoLead` não
  * aceita nome de coluna vindo da tela, aceita chave daqui. Concatenar o que o
  * navegador mandou com um `update` é como se escreve na tabela errada.
- */",,,,,,
-crm-comment-9fc31b22,crm,apps/crm/src/lib/campos-editaveis.ts,29,29,jsdoc,2,"/** O valor é o id do usuário, não o nome: nome muda e atribuição não pode mudar junto. */",,,,,,
-crm-comment-415c390a,crm,apps/crm/src/lib/campos-editaveis.ts,41,41,jsdoc,1,"/** Espaço nas pontas fora; campo em branco é nulo, não string vazia. */",,,,,,
+ */",translate,"The catalog of record fields that get edited in place.
+
+**This file doesn't import the database, and that's on purpose.** The
+inline cell is a client component; any `import` here that pulls in `pg` for
+the browser bundle takes down the page with a 500 — the same trap
+`busca-tipos.ts` exists to avoid. A catalog is fact (name, label, type, cap),
+and fact doesn't need a connection.
+
+The catalog is also the **write allowlist**: `atualizarCampoDoLead` doesn't
+accept a column name coming from the screen, it accepts a key from here.
+Concatenating whatever the browser sent into an `update` is how you write to
+the wrong table.",security,Reviewed apps/crm/src/lib/campos-editaveis.ts:1-13 — write-column allowlist + client/server bundle boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-9fc31b22,crm,apps/crm/src/lib/campos-editaveis.ts,29,29,jsdoc,2,"/** O valor é o id do usuário, não o nome: nome muda e atribuição não pode mudar junto. */",translate,"The value is the user's id, not the name: the name changes and the assignment can't change along with it.",other,,,proposed
+crm-comment-415c390a,crm,apps/crm/src/lib/campos-editaveis.ts,41,41,jsdoc,1,"/** Espaço nas pontas fora; campo em branco é nulo, não string vazia. */",translate,"Leading/trailing space stripped; a blank field is null, not an empty string.",other,,,proposed
 crm-comment-994261a9,crm,apps/crm/src/lib/campos-editaveis.ts,47,55,jsdoc,10,"/**
  * O que a tela recusa antes de chamar o servidor, e o servidor recusa de novo.
  *
@@ -2476,7 +2501,14 @@ crm-comment-994261a9,crm,apps/crm/src/lib/campos-editaveis.ts,47,55,jsdoc,10,"/*
  * gravado: e-mail sem arroba, telefone com letra.
  *
  * Devolve a queixa, ou `null` quando está bom.
- */",,,,,,
+ */",translate,"What the screen rejects before calling the server, and what the server
+rejects again.
+
+Neither one is real email or phone validation — only sending it proves that.
+It's the filter that stops an obvious typo from becoming saved data: an
+email with no @, a phone with a letter in it.
+
+Returns the complaint, or `null` when it's fine.",security,"Reviewed apps/crm/src/lib/campos-editaveis.ts:47-55 — client+server double validation, server is authoritative; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
 crm-comment-cd1137d3,crm,apps/crm/src/lib/configuracoes-comum.ts,1,12,jsdoc,16,"/**
  * O vocabulário e as réguas da área de configurações.
  *
@@ -2488,7 +2520,17 @@ crm-comment-cd1137d3,crm,apps/crm/src/lib/configuracoes-comum.ts,1,12,jsdoc,16,"
  * Toda função de recusa devolve **a queixa em português** ou `null`. A tela mostra
  * a queixa direto; a server action chama a mesma função antes de gravar, porque
  * validação de navegador é conveniência e a do servidor é a que conta.
- */",,,,,,
+ */",translate,"The settings area's vocabulary and rulers.
+
+This file is PURE: no import of `pg`, `@pipe/db`, or `next`. That's why the
+client component (`'use client'`) can import from here without dragging the
+Postgres driver into the browser package, and why the test runs without a
+database.
+
+Every rejection function returns **the complaint in Portuguese** or `null`.
+The screen shows the complaint directly; the server action calls the same
+function before saving, because browser validation is a convenience and the
+server's is what counts.",security,Reviewed apps/crm/src/lib/configuracoes-comum.ts:1-12 — client/server bundle boundary + server as authoritative validator; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-3688a2e2,crm,apps/crm/src/lib/configuracoes-comum.ts,124,131,jsdoc,9,"/**
  * O código é a CHAVE dentro do `jsonb`, e por isso não é livre.
  *
@@ -2496,7 +2538,13 @@ crm-comment-3688a2e2,crm,apps/crm/src/lib/configuracoes-comum.ts,124,131,jsdoc,9
  * objeto — e a consulta passa a depender de qual delas quem cadastrou usou. O
  * `sugerirCodigo` transforma o rótulo digitado numa chave aceitável, para que
  * ninguém precise aprender a regra para cadastrar um campo.
- */",,,,,,
+ */",translate,"The code is the KEY inside the `jsonb`, and that's why it isn't free-form.
+
+Accent, space, and capitalization would turn into three spellings of the
+same idea inside the same object — and the query would start depending on
+which one whoever registered it used. `sugerirCodigo` turns the typed label
+into an acceptable key, so nobody needs to learn the rule to register a
+field.",other,,,proposed
 crm-comment-6b53b03e,crm,apps/crm/src/lib/configuracoes-comum.ts,153,160,jsdoc,10,"/**
  * O catálogo de escopos, o mesmo de `apps/api/src/autenticacao.ts`.
  *
@@ -2504,7 +2552,12 @@ crm-comment-6b53b03e,crm,apps/crm/src/lib/configuracoes-comum.ts,153,160,jsdoc,1
  * `apps/api` — um aplicativo importar o outro é o começo do monólito que o
  * `pnpm-workspace` existe para evitar. Quando a lista mudar lá, muda aqui; o
  * teste de baixo é o que faz a divergência aparecer.
- */",,,,,,
+ */",translate,"The scope catalog, the same one in `apps/api/src/autenticacao.ts`.
+
+It's repeated here, not imported, because `apps/crm` doesn't depend on
+`apps/api` — one app importing the other is the start of the monolith
+`pnpm-workspace` exists to prevent. When the list changes there, it changes
+here; the test below is what surfaces the drift.",architecture,Reviewed apps/crm/src/lib/configuracoes-comum.ts:153-160 — cross-app dependency boundary (monorepo isolation); translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-a3a33c66,crm,apps/crm/src/lib/configuracoes-comum.ts,16,23,jsdoc,8,"/**
  * Os três modos. `sistema` não é um tema: é a ausência de escolha, e é o que
  * deixa o `@media (prefers-color-scheme: dark)` de `tokens.css` decidir.
@@ -2512,22 +2565,32 @@ crm-comment-a3a33c66,crm,apps/crm/src/lib/configuracoes-comum.ts,16,23,jsdoc,8,"
  * O valor vive no navegador de propósito. Tema é preferência de aparelho — a
  * mesma pessoa quer escuro no notebook à noite e claro no monitor da mesa —, e
  * `usuario` não tem coluna para isso nem deveria ter.
- */",,,,,,
+ */",translate,"The three modes. `sistema` isn't a theme: it's the absence of a choice, and
+it's what lets `tokens.css`'s `@media (prefers-color-scheme: dark)` decide.
+
+The value lives in the browser on purpose. Theme is a device preference —
+the same person wants dark on their laptop at night and light on their desk
+monitor — and `usuario` has no column for that, nor should it.",other,,,proposed
 crm-comment-61321599,crm,apps/crm/src/lib/configuracoes-comum.ts,180,184,jsdoc,5,"/**
  * Os eventos que `apps/api/src/webhooks-saida.ts` emite. Mesma razão da lista de
  * escopos para estar repetida aqui: assinar um evento que ninguém emite é um
  * webhook que nunca dispara e ninguém entende por quê.
- */",,,,,,
+ */",translate,"The events `apps/api/src/webhooks-saida.ts` emits. Same reason as the scope
+list for being duplicated here: subscribing to an event nobody emits is a
+webhook that never fires and nobody understands why.",integration,Reviewed apps/crm/src/lib/configuracoes-comum.ts:180-184 — webhook event catalog must match the actual emitter; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-9241d419,crm,apps/crm/src/lib/configuracoes-comum.ts,205,209,jsdoc,7,"/**
  * O fuso é validado contra o banco de fusos do próprio runtime, não contra uma
  * lista escrita à mão: lista à mão envelhece a cada mudança de horário de verão
  * e passa a recusar um fuso que existe.
- */",,,,,,
-crm-comment-20e2d608,crm,apps/crm/src/lib/configuracoes-comum.ts,287,287,jsdoc,1,/** Quantos leads têm valor gravado nesta chave. É o que impede excluir às cegas. */,,,,,,
-crm-comment-9327ada8,crm,apps/crm/src/lib/configuracoes-comum.ts,311,311,jsdoc,3,/** O que a tela devolve de toda escrita. `erro` já vem em português. */,,,,,,
-crm-comment-b5bbc0d4,crm,apps/crm/src/lib/configuracoes-comum.ts,41,41,jsdoc,2,"/** Espaço nas pontas some; em branco vira `null`, que é o que apaga o campo. */",,,,,,
-crm-comment-baade816,crm,apps/crm/src/lib/configuracoes-comum.ts,47,47,jsdoc,1,"/** Nome de pessoa, de espaço, de papel: obrigatório e com teto. */",,,,,,
-crm-comment-5635404c,crm,apps/crm/src/lib/configuracoes-comum.ts,56,56,jsdoc,5,"/** Minúsculo e sem espaço: e-mail é chave, e `Ana@X.com` e `ana@x.com` são a mesma. */",,,,,,
+ */",translate,"The timezone is validated against the runtime's own timezone database, not
+against a hand-written list: a hand-written list ages with every
+daylight-saving change and starts rejecting a timezone that exists.",other,,,proposed
+crm-comment-20e2d608,crm,apps/crm/src/lib/configuracoes-comum.ts,287,287,jsdoc,1,/** Quantos leads têm valor gravado nesta chave. É o que impede excluir às cegas. */,translate,"How many leads have a value saved under this key. It's what stops someone
+from blindly deleting it.",other,,,proposed
+crm-comment-9327ada8,crm,apps/crm/src/lib/configuracoes-comum.ts,311,311,jsdoc,3,/** O que a tela devolve de toda escrita. `erro` já vem em português. */,translate,What the screen gets back from every write. `erro` already comes in Portuguese.,other,,,proposed
+crm-comment-b5bbc0d4,crm,apps/crm/src/lib/configuracoes-comum.ts,41,41,jsdoc,2,"/** Espaço nas pontas some; em branco vira `null`, que é o que apaga o campo. */",translate,"Leading/trailing space disappears; blank becomes `null`, which is what clears the field.",other,,,proposed
+crm-comment-baade816,crm,apps/crm/src/lib/configuracoes-comum.ts,47,47,jsdoc,1,"/** Nome de pessoa, de espaço, de papel: obrigatório e com teto. */",translate,"Person, workspace, or role name: required and capped.",other,,,proposed
+crm-comment-5635404c,crm,apps/crm/src/lib/configuracoes-comum.ts,56,56,jsdoc,5,"/** Minúsculo e sem espaço: e-mail é chave, e `Ana@X.com` e `ana@x.com` são a mesma. */",translate,"Lowercase and no spaces: email is a key, and `Ana@X.com` and `ana@x.com` are the same one.",security,Reviewed apps/crm/src/lib/configuracoes-comum.ts:56 — identity/email normalization for uniqueness; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-5ada0648,crm,apps/crm/src/lib/configuracoes-comum.ts,69,76,jsdoc,6,"/**
  * URL de imagem e de webhook.
  *
@@ -2535,7 +2598,13 @@ crm-comment-5ada0648,crm,apps/crm/src/lib/configuracoes-comum.ts,69,76,jsdoc,6,"
  * dado de cliente dentro; em `http` a assinatura protege contra adulteração e
  * não protege contra leitura. No logo, `http` passa — é imagem pública — mas
  * `javascript:` e `data:` não, que é o vetor clássico de `<img src>`.
- */",,,,,,
+ */",translate,"Image and webhook URLs.
+
+`https` is required on the webhook because the signed body leaves our network
+with customer data inside; over `http` the signature protects against
+tampering but not against reading. On the logo, `http` is allowed — it's a
+public image — but `javascript:` and `data:` aren't, which is the classic
+`<img src>` vector.",security,Reviewed apps/crm/src/lib/configuracoes-comum.ts:69-76 — SSRF/data-exposure + XSS URL-scheme validation; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-57bd0b92,crm,apps/crm/src/lib/configuracoes-comum.ts,99,107,jsdoc,11,"/**
  * Os tipos que o campo personalizado do lead aceita.
  *
@@ -2544,18 +2613,29 @@ crm-comment-57bd0b92,crm,apps/crm/src/lib/configuracoes-comum.ts,99,107,jsdoc,11
  * `jsonb`. Cinco tipos cobrem o que um formulário de lead coleta, e cada um tem
  * uma representação óbvia em JSON — que é a condição para a linguagem de
  * consulta (`dicionario_campo`) continuar sabendo o que fazer com o valor.
- */",,,,,,
-crm-comment-f6f16319,crm,apps/crm/src/lib/configuracoes-dados.ts,122,122,jsdoc,3,/** O ator das escritas desta tela. Sempre uma pessoa: aqui não há cron nem chave. */,,,,,,
-crm-comment-d00de9f6,crm,apps/crm/src/lib/configuracoes-dados.ts,161,161,block,0,/* ====================================================== espaço de trabalho */,,,,,,
-crm-comment-54dd25d7,crm,apps/crm/src/lib/configuracoes-dados.ts,252,252,line,2,"// O `left join` devolve uma linha por papel, e o schema permite vários. A tela",,,,,,
-crm-comment-d3045a2c,crm,apps/crm/src/lib/configuracoes-dados.ts,253,253,line,1,"// oferece UM papel (ver `definirPapel`), então aqui fica o primeiro em ordem",,,,,,
-crm-comment-33a5882b,crm,apps/crm/src/lib/configuracoes-dados.ts,254,254,line,3,"// alfabética — e nunca duas linhas para a mesma pessoa, que viraria chave",,,,,,
+ */",translate,"The types the lead's custom field accepts.
+
+The list is short on purpose. In Twenty the user creates an object and a
+field out of twenty types; here the schema is fixed and the value lives in
+`lead.customizados`, which is `jsonb`. Five types cover what a lead form
+collects, and each has an obvious JSON representation — which is the
+condition for the query language (`dicionario_campo`) to keep knowing what
+to do with the value.",other,,,proposed
+crm-comment-f6f16319,crm,apps/crm/src/lib/configuracoes-dados.ts,122,122,jsdoc,3,/** O ator das escritas desta tela. Sempre uma pessoa: aqui não há cron nem chave. */,translate,The actor for this screen's writes. Always a person: there's no cron and no key here.,security,Reviewed apps/crm/src/lib/configuracoes-dados.ts:122 — audit-log actor attribution; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-d00de9f6,crm,apps/crm/src/lib/configuracoes-dados.ts,161,161,block,0,/* ====================================================== espaço de trabalho */,translate,====================================================== workspace,other,,,proposed
+crm-comment-54dd25d7,crm,apps/crm/src/lib/configuracoes-dados.ts,252,252,line,2,"// O `left join` devolve uma linha por papel, e o schema permite vários. A tela",translate,"The `left join` returns one row per role, and the schema allows several. The screen",other,,,proposed
+crm-comment-d3045a2c,crm,apps/crm/src/lib/configuracoes-dados.ts,253,253,line,1,"// oferece UM papel (ver `definirPapel`), então aqui fica o primeiro em ordem",translate,"offers ONE role (see `definirPapel`), so here it's the first in alphabetical order —",other,,,proposed
+crm-comment-33a5882b,crm,apps/crm/src/lib/configuracoes-dados.ts,254,254,line,3,"// alfabética — e nunca duas linhas para a mesma pessoa, que viraria chave",translate,"and never two rows for the same person, which would become a duplicate key",other,,,proposed
 crm-comment-b5e63e91,crm,apps/crm/src/lib/configuracoes-dados.ts,294,299,jsdoc,9,"/**
  * O token de convite, no formato que `apps/api` já sabe aceitar: 32 bytes
  * aleatórios em base64url, e no banco só o `sha256` em hexa. Está reproduzido
  * aqui, e não importado de `@pipe/autenticacao`, porque o CRM não depende desse
  * pacote — são cinco linhas e uma dependência a menos no bundle do Next.
- */",,,,,,
+ */",translate,"The invite token, in the format `apps/api` already knows how to accept: 32
+random bytes in base64url, and only its `sha256` in hex in the database. It's
+reproduced here, not imported from `@pipe/autenticacao`, because the CRM
+doesn't depend on that package — it's five lines and one fewer dependency in
+the Next bundle.",security,Reviewed apps/crm/src/lib/configuracoes-dados.ts:294-299 — invite token generation/hashing scheme; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-9608c59a,crm,apps/crm/src/lib/configuracoes-dados.ts,305,313,jsdoc,20,"/**
  * O link que a tela mostra uma vez, e a única forma de o convidado entrar.
  *
@@ -2564,7 +2644,14 @@ crm-comment-9608c59a,crm,apps/crm/src/lib/configuracoes-dados.ts,305,313,jsdoc,2
  * `/convite/:token`: o convidado tomava 404 e o convite morria sem que ninguém
  * soubesse. Quando a variável não está posta, o destino honesto é ESTE
  * aplicativo, que tem a rota (`app/convite/[token]/page.tsx`).
- */",,,,,,
+ */",translate,"The link the screen shows once, and the only way for the invitee to sign in.
+
+`PIPE_URL_APP` is the SCREENS' base (Gestão, when the invite is accepted
+there). The default used to be `http://localhost:3000`, which is the **api**
+— and the api doesn't serve `/convite/:token`: the invitee hit a 404 and the
+invite died without anyone knowing. When the variable isn't set, the honest
+destination is THIS app, which has the route
+(`app/convite/[token]/page.tsx`).",security,Reviewed apps/crm/src/lib/configuracoes-dados.ts:305-313 — invite-link host fallback prevents silent invite failure; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-e5a5e652,crm,apps/crm/src/lib/configuracoes-dados.ts,323,332,jsdoc,9,"/**
  * Convidar.
  *
@@ -2574,7 +2661,16 @@ crm-comment-e5a5e652,crm,apps/crm/src/lib/configuracoes-dados.ts,323,332,jsdoc,9
  *
  * O token só existe nesta resposta: o banco guarda o hash, e a tela mostra o link
  * uma vez. Depois daqui ninguém o recupera, nem quem lê a tabela.
- */",,,,,,
+ */",translate,"Invite.
+
+Inviting again INVALIDATES the previous invite — without this every resend
+leaves one more live link, and revoking access would mean hunting down all
+of them. It's the same rule as the API's `criarConvite`, and
+`expira_em = now()` is what implements it.
+
+The token only exists in this response: the database stores the hash, and
+the screen shows the link once. After this nobody recovers it, not even
+whoever reads the table.",security,Reviewed apps/crm/src/lib/configuracoes-dados.ts:323-332 — invite token lifecycle / one-time display; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-f6b4e7c8,crm,apps/crm/src/lib/configuracoes-dados.ts,407,414,jsdoc,12,"/**
  * Trocar o papel de alguém.
  *
@@ -2582,14 +2678,25 @@ crm-comment-f6b4e7c8,crm,apps/crm/src/lib/configuracoes-dados.ts,407,414,jsdoc,1
  * papéis somam permissão em silêncio, e ""por que essa pessoa vê isso?"" vira uma
  * pergunta sem resposta na tela. Quem precisar de soma cria um papel que a
  * descreva — que é a resposta honesta e é a que a auditoria consegue explicar.
- */",,,,,,
+ */",translate,"Change someone's role.
+
+Pipe allows several roles per user in the schema, but the screen offers ONE:
+two roles add up permission silently, and ""why does this person see this?""
+becomes a question with no answer on screen. Whoever needs a sum creates a
+role that describes it — which is the honest answer, and the one audit can
+explain.",security,Reviewed apps/crm/src/lib/configuracoes-dados.ts:407-414 — single-role-per-user auditability rule; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-43ec3dbe,crm,apps/crm/src/lib/configuracoes-dados.ts,456,462,jsdoc,8,"/**
  * Desativar em vez de excluir.
  *
  * `usuario` é referenciado por conversa, avaliação, lead e log — apagar a linha
  * apagaria a autoria de tudo o que a pessoa fez. Desativar tira o acesso e mantém
  * a história, que é o que uma auditoria de contrato pede.
- */",,,,,,
+ */",translate,"Deactivate instead of delete.
+
+`usuario` is referenced by conversation, evaluation, lead, and log — deleting
+the row would erase the authorship of everything the person did. Deactivating
+removes access and keeps the history, which is what a contract audit asks
+for.",security,Reviewed apps/crm/src/lib/configuracoes-dados.ts:456-462 — soft-delete for audit-trail integrity; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-1a6bcae1,crm,apps/crm/src/lib/configuracoes-dados.ts,49,67,jsdoc,29,"/**
  * A camada de dados da área de configurações. **Só banco.**
  *
@@ -2608,9 +2715,26 @@ crm-comment-1a6bcae1,crm,apps/crm/src/lib/configuracoes-dados.ts,49,67,jsdoc,29,
  *    mudança é desfeita.
  * 2. **Consulta em série.** `Promise.all` dentro da transação derruba o
  *    `pipe.tenant_id` e a consulta passa a rodar sem tenant (README).
- */",,,,,,
-crm-comment-bc9f1a79,crm,apps/crm/src/lib/configuracoes-dados.ts,496,496,block,0,/* ================================================== papéis e permissões */,,,,,,
-crm-comment-64c58264,crm,apps/crm/src/lib/configuracoes-dados.ts,525,525,jsdoc,1,"/** O catálogo é global — vocabulário do produto, igual para todo cliente. */",,,,,,
+ */",translate,"The settings area's data layer. **Database only.**
+
+Nothing here knows Next exists: no `revalidatePath`, no JSX, no
+`'use server'`. It's called by the server action in
+`app/configuracoes/acoes.ts`, which revalidates the route afterward. The
+reason is in the README, under ""Who talks to the database — the boundary"":
+`apps/crm` is moving to Vite and `apps/api` becomes the only door to
+Postgres, and then becoming an endpoint means MOVING this file, not
+rewriting it.
+
+Two rules hold for every write here, without exception:
+
+1. **Every write logs an audit entry, in the SAME transaction.** Settings is
+   the area where ""who changed what"" matters most — especially member and
+   role, which is changing who sees what. A log in a separate transaction
+   lies when the change gets rolled back.
+2. **Sequential queries.** `Promise.all` inside the transaction drops
+   `pipe.tenant_id` and the query ends up running with no tenant (README).",security,Reviewed apps/crm/src/lib/configuracoes-dados.ts:49-67 — tenant isolation + same-transaction audit logging; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-bc9f1a79,crm,apps/crm/src/lib/configuracoes-dados.ts,496,496,block,0,/* ================================================== papéis e permissões */,translate,================================================== roles and permissions,other,,,proposed
+crm-comment-64c58264,crm,apps/crm/src/lib/configuracoes-dados.ts,525,525,jsdoc,1,"/** O catálogo é global — vocabulário do produto, igual para todo cliente. */",translate,"The catalog is global — product vocabulary, the same for every customer.",other,,,proposed
 crm-comment-7c73b7b2,crm,apps/crm/src/lib/configuracoes-dados.ts,603,612,jsdoc,11,"/**
  * Gravar as permissões de um papel.
  *
@@ -2620,17 +2744,29 @@ crm-comment-7c73b7b2,crm,apps/crm/src/lib/configuracoes-dados.ts,603,612,jsdoc,1
  *
  * Papel de sistema não é editável — é o do dia 1, e o cliente que quiser um
  * administrador diferente cria o dele.
- */",,,,,,
-crm-comment-8121c70f,crm,apps/crm/src/lib/configuracoes-dados.ts,69,69,jsdoc,5,"/** Abre a transação já com o tenant fixado, e entrega o id junto para a auditoria. */",,,,,,
-crm-comment-0d7d39b7,crm,apps/crm/src/lib/configuracoes-dados.ts,699,699,jsdoc,2,/** O objeto do dicionário que a tela de campos personalizados administra. */,,,,,,
-crm-comment-bf067ba0,crm,apps/crm/src/lib/configuracoes-dados.ts,718,718,line,2,"// Uma varredura só, com o índice GIN de `lead.customizados` fazendo o trabalho.",,,,,,
+ */",translate,"Save a role's permissions.
+
+The log keeps what came IN and what went OUT, not the whole list on both
+sides: whoever reads the audit log wants to know that `chave_api.gerenciar`
+was granted, not to reread the forty that stayed the same.
+
+A system role isn't editable — it's from day one, and a customer who wants a
+different admin creates their own.",security,Reviewed apps/crm/src/lib/configuracoes-dados.ts:603-612 — audit log records diff not full state; system roles protected; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-8121c70f,crm,apps/crm/src/lib/configuracoes-dados.ts,69,69,jsdoc,5,"/** Abre a transação já com o tenant fixado, e entrega o id junto para a auditoria. */",translate,"Opens the transaction already with the tenant pinned, and hands back the id for the audit log too.",security,Reviewed apps/crm/src/lib/configuracoes-dados.ts:69 — tenant isolation + audit actor; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-0d7d39b7,crm,apps/crm/src/lib/configuracoes-dados.ts,699,699,jsdoc,2,/** O objeto do dicionário que a tela de campos personalizados administra. */,translate,The dictionary object the custom-fields screen manages.,other,,,proposed
+crm-comment-bf067ba0,crm,apps/crm/src/lib/configuracoes-dados.ts,718,718,line,2,"// Uma varredura só, com o índice GIN de `lead.customizados` fazendo o trabalho.",translate,"A single scan, with `lead.customizados`'s GIN index doing the work.",other,,,proposed
 crm-comment-e0a76a9f,crm,apps/crm/src/lib/configuracoes-dados.ts,776,782,jsdoc,7,"/**
  * Renomear, nunca recodificar.
  *
  * O `codigo` é a chave dentro do `jsonb` de cada lead: mudá-lo deixaria o valor
  * gravado órfão em toda a base, em silêncio. Rótulo e descrição são o que a tela
  * mostra, e é o que se corrige quando alguém digitou errado.
- */",,,,,,
+ */",translate,"Rename, never re-code.
+
+`codigo` is the key inside each lead's `jsonb`: changing it would silently
+orphan the stored value across the entire database. Label and description
+are what the screen shows, and what gets corrected when someone typed it
+wrong.",architecture,"Reviewed apps/crm/src/lib/configuracoes-dados.ts:776-782 — jsonb key stability, consistent with configuracoes/campos decision; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
 crm-comment-6a6bd849,crm,apps/crm/src/lib/configuracoes-dados.ts,79,87,jsdoc,10,"/**
  * Quem está mexendo.
  *
@@ -2639,14 +2775,25 @@ crm-comment-6a6bd849,crm,apps/crm/src/lib/configuracoes-dados.ts,79,87,jsdoc,10,
  * o primeiro usuário ativo do tenant. Não é o desenho final, e está escrito para
  * ser trocado numa linha quando `packages/autenticacao` chegar nesta tela: o
  * resto do arquivo só conhece o `Ator` que sai daqui.
- */",,,,,,
+ */",translate,"Who's doing the changing.
+
+The CRM doesn't have its own session yet — `banco.ts` resolves the tenant
+through an environment variable, and it's the same story here:
+`PIPE_USUARIO_ID` when it exists, otherwise the tenant's first active user.
+It's not the final design, and it's written to be swapped in one line when
+`packages/autenticacao` reaches this screen: the rest of the file only knows
+the `Ator` that comes out of here.",security,Reviewed apps/crm/src/lib/configuracoes-dados.ts:79-87 — temporary auth placeholder — no real CRM session yet; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-9bd7d71f,crm,apps/crm/src/lib/configuracoes-dados.ts,812,818,jsdoc,8,"/**
  * Excluir o campo tira a DEFINIÇÃO, não o valor.
  *
  * O que estiver gravado em `lead.customizados` continua lá, e o log guarda o
  * código — sem isso, apagar a definição transformaria dado de cliente em lixo
  * sem nome. Recadastrar o mesmo código faz o valor voltar a aparecer.
- */",,,,,,
+ */",translate,"Deleting the field removes the DEFINITION, not the value.
+
+Whatever is stored in `lead.customizados` stays there, and the log keeps the
+code — without this, deleting the definition would turn customer data into
+nameless junk. Re-registering the same code makes the value reappear.",architecture,Reviewed apps/crm/src/lib/configuracoes-dados.ts:812-818 — data-preservation on field-definition delete; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-33215c61,crm,apps/crm/src/lib/configuracoes-dados.ts,871,879,jsdoc,13,"/**
  * Emitir chave.
  *
@@ -2655,7 +2802,14 @@ crm-comment-33215c61,crm,apps/crm/src/lib/configuracoes-dados.ts,871,879,jsdoc,1
  * a tela mostra para a pessoa reconhecer a chave — e com o `sha256` do segredo.
  * **O token completo só existe nesta resposta.** Quem perder pede outra: mostrar
  * de novo exigiria guardá-lo, e aí a tabela viraria a credencial.
- */",,,,,,
+ */",translate,"Issue a key.
+
+The token is `pipe_<prefix>_<secret>`, the format `apps/api` authenticates. The
+database keeps the prefix in the clear — it's how the API finds the row, and
+it's what the screen shows the person to recognize the key by — and the
+`sha256` of the secret. **The full token only exists in this response.**
+Whoever loses it asks for another: showing it again would require storing
+it, and then the table would become the credential.",security,"Reviewed apps/crm/src/lib/configuracoes-dados.ts:871-879 — API key one-time display, hash-only storage; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
 crm-comment-e9af2718,crm,apps/crm/src/lib/configuracoes-dados.ts,976,983,jsdoc,8,"/**
  * Criar webhook.
  *
@@ -2663,14 +2817,22 @@ crm-comment-e9af2718,crm,apps/crm/src/lib/configuracoes-dados.ts,976,983,jsdoc,8
  * `@pipe/db` — a mesma proteção do segredo de canal. Ele aparece uma vez, para
  * quem vai conferir a assinatura do outro lado; depois disso nem a tela o
  * recupera. `estaCifrado` já garante que ninguém grave texto claro por engano.
- */",,,,,,
+ */",translate,"Create a webhook.
+
+The HMAC secret is generated here and **encrypted at rest** with
+`@pipe/db`'s keyring — the same protection as the channel secret. It shows up
+once, for whoever will check the signature on the other side; after that not
+even the screen recovers it. `estaCifrado` already guarantees nobody saves
+plaintext by mistake.",security,"Reviewed apps/crm/src/lib/configuracoes-dados.ts:976-983 — webhook HMAC secret encrypted at rest, one-time display; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
 crm-comment-1fe67bb0,crm,apps/crm/src/lib/contas.ts,154,158,block,8,"/*
      * O contato traz o lead dele junto: quem abre a conta quer saber com quem
      * falar E o quanto esse alguém já avançou. Duas telas para responder isso
      * seriam uma a mais.
-     */",,,,,,
-crm-comment-05da302c,crm,apps/crm/src/lib/contas.ts,17,17,jsdoc,2,"/** A listagem é tela de trabalho, não de exportação. Mesmo teto da de leads. */",,,,,,
-crm-comment-c433c1c1,crm,apps/crm/src/lib/contas.ts,189,189,line,3,// Aberta primeiro: é o que ainda dá para mexer.,,,,,,
+     */",translate,"The contact brings its lead along: whoever opens the account wants to know
+who to talk to AND how far that person has gotten. Two screens to answer
+that would be one too many.",other,,,proposed
+crm-comment-05da302c,crm,apps/crm/src/lib/contas.ts,17,17,jsdoc,2,"/** A listagem é tela de trabalho, não de exportação. Mesmo teto da de leads. */",translate,"The listing is a work screen, not an export screen. Same cap as the leads one.",other,,,proposed
+crm-comment-c433c1c1,crm,apps/crm/src/lib/contas.ts,189,189,line,3,// Aberta primeiro: é o que ainda dá para mexer.,translate,Open first: it's what can still be acted on.,other,,,proposed
 crm-comment-b4bf0fd6,crm,apps/crm/src/lib/contas.ts,5,15,jsdoc,14,"/**
  * Contas.
  *
@@ -2681,9 +2843,19 @@ crm-comment-b4bf0fd6,crm,apps/crm/src/lib/contas.ts,5,15,jsdoc,14,"/**
  *
  * Tudo em série dentro do `consultar` — `Promise.all` dentro da transação
  * derruba o `pipe.tenant_id` e a consulta passa a rodar sem tenant (README).
- */",,,,,,
-crm-comment-c0666566,crm,apps/crm/src/lib/contas.ts,55,55,line,0,// Três agregações separadas em vez de subconsulta por linha: o banco lê,,,,,,
-crm-comment-1e42c681,crm,apps/crm/src/lib/contas.ts,56,56,line,2,"// cada tabela uma vez, e a junção acontece aqui, sobre catorze contas.",,,,,,
+ */",translate,"Accounts.
+
+The account was out of the menu because it had no screen, and it had no
+screen because nobody had decided what it shows. It shows two things, and
+that's what a company asks when you open one: **who do I know inside it**
+and **how much money is at stake**. Contacts and opportunities, in that
+order.
+
+Everything sequential inside `consultar` — `Promise.all` inside the
+transaction drops `pipe.tenant_id` and the query ends up running with no
+tenant (README).",security,Reviewed apps/crm/src/lib/contas.ts:5-15 — tenant-isolation Promise.all warning; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-c0666566,crm,apps/crm/src/lib/contas.ts,55,55,line,0,// Três agregações separadas em vez de subconsulta por linha: o banco lê,translate,Three separate aggregations instead of a per-row subquery: the database reads,other,,,proposed
+crm-comment-1e42c681,crm,apps/crm/src/lib/contas.ts,56,56,line,2,"// cada tabela uma vez, e a junção acontece aqui, sobre catorze contas.",translate,"each table once, and the join happens here, over fourteen accounts.",other,,,proposed
 crm-comment-77a4ef1d,crm,apps/crm/src/lib/contatos.ts,13,25,jsdoc,13,"/**
  * Contatos.
  *
@@ -2696,17 +2868,30 @@ crm-comment-77a4ef1d,crm,apps/crm/src/lib/contatos.ts,13,25,jsdoc,13,"/**
  * aqui cada linha é uma pessoa.
  *
  * Tudo em série dentro do `consultar` (README).
- */",,,,,,
-crm-comment-a471206d,crm,apps/crm/src/lib/formato.ts,1,1,jsdoc,1,"/** Formatação da tela. Mesma régua da Gestão, para as três telas lerem igual. */",,,,,,
-crm-comment-4a2cf081,crm,apps/crm/src/lib/formato.ts,25,25,jsdoc,1,/** Soma de coluna do funil: `R$ 812 mil` cabe onde `R$ 812.400` não cabe. */,,,,,,
-crm-comment-bac51cc6,crm,apps/crm/src/lib/formato.ts,54,54,jsdoc,1,"/** ""há 4 min"", ""há 3 h"", ""ontem"", ""27/08"" — a coluna de última atividade da listagem. */",,,,,,
+ */",translate,"Contacts.
+
+A contact is the person; a lead is their intent to buy. They're different
+things and Pipe keeps them separate — the same contact can become a lead
+twice, and their conversation stays a single one.
+
+That's why the contact record shows **the conversations** and **the lead**:
+it's what the leads list can't show, because there each row is an intent and
+here each row is a person.
+
+Everything sequential inside `consultar` (README).",security,Reviewed apps/crm/src/lib/contatos.ts:13-25 — tenant-isolation serial-query rule reference; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-a471206d,crm,apps/crm/src/lib/formato.ts,1,1,jsdoc,1,"/** Formatação da tela. Mesma régua da Gestão, para as três telas lerem igual. */",translate,"Screen formatting. Same ruler as Gestão, so the three screens read alike.",other,,,proposed
+crm-comment-4a2cf081,crm,apps/crm/src/lib/formato.ts,25,25,jsdoc,1,/** Soma de coluna do funil: `R$ 812 mil` cabe onde `R$ 812.400` não cabe. */,translate,"Funnel column sum: ""R$ 812k"" fits where ""R$ 812,400"" doesn't.",other,,,proposed
+crm-comment-bac51cc6,crm,apps/crm/src/lib/formato.ts,54,54,jsdoc,1,"/** ""há 4 min"", ""há 3 h"", ""ontem"", ""27/08"" — a coluna de última atividade da listagem. */",translate,"""4 min ago"", ""3 h ago"", ""yesterday"", ""08/27"" — the listing's last-activity column.",other,,,proposed
 crm-comment-f5de37b8,crm,apps/crm/src/lib/formato.ts,67,72,jsdoc,6,"/**
  * CPF ou CNPJ com máscara. O documento é guardado em `text` sem pontuação —
  * o CNPJ alfanumérico de 2026 quebra coluna numérica e máscara fixa —, então
  * a máscara é da tela e não do banco. Documento com tamanho fora do esperado
  * sai como veio, em vez de sair picado errado.
- */",,,,,,
-crm-comment-b20e9542,crm,apps/crm/src/lib/formato.ts,81,81,jsdoc,2,"/** Pontos da explicação do score: sinal explícito, porque a regra pode tirar ponto. */",,,,,,
+ */",translate,"CPF or CNPJ, masked. The document is stored in `text` with no punctuation —
+2026's alphanumeric CNPJ breaks a numeric column and a fixed mask — so the
+mask belongs to the screen, not the database. A document of an unexpected
+length comes out as it came in, instead of coming out chopped up wrong.",other,,,proposed
+crm-comment-b20e9542,crm,apps/crm/src/lib/formato.ts,81,81,jsdoc,2,"/** Pontos da explicação do score: sinal explícito, porque a regra pode tirar ponto. */",translate,"Points in the score explanation: explicit sign, because a rule can subtract points.",other,,,proposed
 crm-comment-67ba533b,crm,apps/crm/src/lib/formato.ts,86,93,block,14,"/*
  * Não há `classeDaFaixa` aqui, e a ausência é a decisão: faixa de score é
  * categoria, não estado. Ela diz para onde o lead foi roteado, não que alguém
@@ -2714,12 +2899,19 @@ crm-comment-67ba533b,crm,apps/crm/src/lib/formato.ts,86,93,block,14,"/*
  * origem e fila. A função existia para escolher entre verde e ocre, o que
  * pintava uma coluna inteira da lista e disputava atenção com as duas que
  * realmente pedem ação: dias na fase e desqualificação.
- */",,,,,,
+ */",translate,"There's no `classeDaFaixa` here, and the absence is the decision: a score band
+is a category, not a state. It says where the lead got routed, not that
+someone needs to act — and a category uses `@pipe/ui`'s neutral `Etiqueta`,
+like stage, source, and queue. The function used to choose between green and
+ochre, which painted a whole list column and competed for attention with the
+two that actually call for action: days in stage and disqualification.",other,,,proposed
 crm-comment-ff0ae452,crm,apps/crm/src/lib/funil.ts,105,109,jsdoc,6,"/**
  * Arrastar entre fases. A probabilidade acompanha a fase porque é dela que sai o
  * valor ponderado do painel — deixar a probabilidade parada faria o painel discordar
  * do quadro que o vendedor acabou de mexer.
- */",,,,,,
+ */",translate,"Dragging between stages. Probability follows the stage because that's what
+the dashboard's weighted value comes from — leaving probability unchanged
+would make the dashboard disagree with the board the salesperson just moved.",other,,,proposed
 crm-comment-d364501e,crm,apps/crm/src/lib/funil.ts,118,129,block,22,"/* ======================================================= listagem e ficha
  *
  * O quadro responde ""como está o funil""; a listagem responde ""quais são"", que é
@@ -2731,22 +2923,38 @@ crm-comment-d364501e,crm,apps/crm/src/lib/funil.ts,118,129,block,22,"/* ========
  * A diferença que importa: o quadro só mostra oportunidade ABERTA, porque
  * arrastar uma fechada não faz sentido. A listagem mostra as fechadas também —
  * é ela que responde ""o que ganhamos este mês"".
- */",,,,,,
-crm-comment-21fcd70c,crm,apps/crm/src/lib/funil.ts,144,144,jsdoc,3,"/** A listagem é tela de trabalho, não de exportação. Mesmo teto das outras. */",,,,,,
-crm-comment-2bb2d3e3,crm,apps/crm/src/lib/funil.ts,200,200,line,4,"// Aberta primeiro, e dentro disso a de maior valor: é o que ainda dá para",,,,,,
-crm-comment-01746834,crm,apps/crm/src/lib/funil.ts,218,218,jsdoc,3,"/** O score do lead que originou a negociação, quando ele existe. */",,,,,,
-crm-comment-c2c3959a,crm,apps/crm/src/lib/funil.ts,221,221,jsdoc,2,/** As outras da mesma conta: o contexto comercial de quem já está negociando. */,,,,,,
-crm-comment-5a002cfb,crm,apps/crm/src/lib/funil.ts,223,223,jsdoc,1,"/** O histórico do lead, que é o histórico da negociação. */",,,,,,
-crm-comment-00fc7506,crm,apps/crm/src/lib/funil.ts,259,259,line,0,"// Em série, nunca em paralelo: `Promise.all` aqui dentro derruba o",,,,,,
-crm-comment-3666165a,crm,apps/crm/src/lib/funil.ts,260,260,line,0,// `pipe.tenant_id` da transação (README).,,,,,,
+ */",translate,"======================================================= listing and record
+
+The board answers ""how is the funnel doing""; the listing answers ""which ones
+are there"", which is a different question and needed a different screen.
+It's the same split Twenty makes between a kanban view and a table view of
+the same object — the data is the same, what changes is the shape. That's
+why the two live at the same address, with `?vista=`: a screen view doesn't
+deserve its own route.
+
+The difference that matters: the board only shows OPEN opportunities,
+because dragging a closed one makes no sense. The listing shows the closed
+ones too — it's the one that answers ""what did we win this month"".",architecture,"Reviewed apps/crm/src/lib/funil.ts:118-129 — URL-encoded view-type pattern (nav-contract relevant), cites Twenty kanban/table split; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
+crm-comment-21fcd70c,crm,apps/crm/src/lib/funil.ts,144,144,jsdoc,3,"/** A listagem é tela de trabalho, não de exportação. Mesmo teto das outras. */",translate,"The listing is a work screen, not an export screen. Same cap as the others.",other,,,proposed
+crm-comment-2bb2d3e3,crm,apps/crm/src/lib/funil.ts,200,200,line,4,"// Aberta primeiro, e dentro disso a de maior valor: é o que ainda dá para",translate,"Open first, and within that the highest value: it's what can still",other,,,proposed
+crm-comment-01746834,crm,apps/crm/src/lib/funil.ts,218,218,jsdoc,3,"/** O score do lead que originou a negociação, quando ele existe. */",translate,"The score of the lead that originated the deal, when one exists.",other,,,proposed
+crm-comment-c2c3959a,crm,apps/crm/src/lib/funil.ts,221,221,jsdoc,2,/** As outras da mesma conta: o contexto comercial de quem já está negociando. */,translate,The account's other deals: the commercial context for whoever is already negotiating.,other,,,proposed
+crm-comment-5a002cfb,crm,apps/crm/src/lib/funil.ts,223,223,jsdoc,1,"/** O histórico do lead, que é o histórico da negociação. */",translate,"The lead's history, which is the deal's history.",other,,,proposed
+crm-comment-00fc7506,crm,apps/crm/src/lib/funil.ts,259,259,line,0,"// Em série, nunca em paralelo: `Promise.all` aqui dentro derruba o",translate,"Sequentially, never in parallel: `Promise.all` in here drops the",security,Reviewed apps/crm/src/lib/funil.ts:259 — tenant-isolation Promise.all warning; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-3666165a,crm,apps/crm/src/lib/funil.ts,260,260,line,0,// `pipe.tenant_id` da transação (README).,translate,transaction's `pipe.tenant_id` (README).,security,Reviewed apps/crm/src/lib/funil.ts:260 — tenant-isolation Promise.all warning; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-21fed17c,crm,apps/crm/src/lib/funil.ts,6,12,jsdoc,7,"/**
  * Funil de oportunidades.
  *
  * As fases são catálogo do produto e não coluna do banco (`oportunidade.fase` é
  * texto): trocar a ordem ou o nome de uma fase é configuração de tenant, não
  * migration. Enquanto a tela de configuração não existe, o catálogo vive aqui.
- */",,,,,,
-crm-comment-1bba31ee,crm,apps/crm/src/lib/funil.ts,79,79,line,0,// Fase fora do catálogo: some do quadro em vez de criar coluna órfã.,,,,,,
+ */",translate,"Opportunity funnel.
+
+Stages are the product's catalog, not a database column (`oportunidade.fase`
+is text): reordering or renaming a stage is tenant configuration, not a
+migration. While the settings screen doesn't exist yet, the catalog lives
+here.",other,,,proposed
+crm-comment-1bba31ee,crm,apps/crm/src/lib/funil.ts,79,79,line,0,// Fase fora do catálogo: some do quadro em vez de criar coluna órfã.,translate,A stage outside the catalog: disappears from the board instead of creating an orphan column.,other,,,proposed
 crm-comment-91a8d8ae,crm,apps/crm/src/lib/leads-visao.ts,1,13,jsdoc,20,"/**
  * O que a tela de leads sabe sem falar com o banco: rótulo, recorte,
  * agrupamento, ordenação e os tipos que atravessam a fronteira.
@@ -2759,8 +2967,19 @@ crm-comment-91a8d8ae,crm,apps/crm/src/lib/leads-visao.ts,1,13,jsdoc,20,"/**
  *
  * A regra: **nada aqui importa `@pipe/db` nem `./banco`.** O que precisa de
  * consulta mora em `leads.ts`, que importa daqui e reexporta o que a tela usa.
- */",,,,,,
-crm-comment-069cf12f,crm,apps/crm/src/lib/leads-visao.ts,111,111,jsdoc,3,"/** Dobra a lista pela coluna escolhida, preservando a ordem de dentro do grupo. */",,,,,,
+ */",translate,"What the leads screen knows without talking to the database: label, slice,
+grouping, sorting, and the types that cross the boundary.
+
+This file exists for a mechanical reason, not an aesthetic one. The listing
+has a part that runs in the browser (column width, selection, bulk action),
+and a client component that imported `leads.ts` would drag the Postgres
+driver into the browser package — exactly the error the bundler flags as
+`Can't resolve 'fs'`.
+
+The rule: **nothing here imports `@pipe/db` or `./banco`.** Whatever needs a
+query lives in `leads.ts`, which imports from here and re-exports what the
+screen uses.",security,Reviewed apps/crm/src/lib/leads-visao.ts:1-13 — client/server bundle boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-069cf12f,crm,apps/crm/src/lib/leads-visao.ts,111,111,jsdoc,3,"/** Dobra a lista pela coluna escolhida, preservando a ordem de dentro do grupo. */",translate,"Folds the list by the chosen column, preserving the order within each group.",other,,,proposed
 crm-comment-50f93b0e,crm,apps/crm/src/lib/leads-visao.ts,135,151,block,27,"/* ------------------------------------------------------------- ordenação
  *
  * A ordenação acontece no BANCO, não na lista já carregada, e a diferença não
@@ -2777,8 +2996,24 @@ crm-comment-50f93b0e,crm,apps/crm/src/lib/leads-visao.ts,135,151,block,27,"/* --
  *
  * Aqui ficam só os NOMES. A tradução de nome para coluna do Postgres mora em
  * `leads.ts`, porque é ela que precisa do esquema.
- */",,,,,,
-crm-comment-89a43e42,crm,apps/crm/src/lib/leads-visao.ts,15,15,jsdoc,1,/** O tipo cru vira rótulo aqui: `mudanca_fase` não é texto de tela. */,,,,,,
+ */",translate,"------------------------------------------------------------- sorting
+
+Sorting happens in the DATABASE, not on the already-loaded list, and the
+difference isn't performance: it's correctness. The listing caps at 200
+rows. Sorting the 200 already fetched answers ""the 200 newest leads,
+arranged by score""; sorting in the database answers ""the 200
+highest-scoring leads"", which is the question someone is asking by clicking
+Score.
+
+`Fila` and `Última atividade` aren't included: the first is derived from the
+band through an in-memory map and the second comes from a second query.
+Sorting by them would require turning both into a join, and neither answers
+anything Band and Days in stage don't already answer. A column that doesn't
+sort simply doesn't become a link, and there's no grayed-out header here.
+
+Only the NAMES live here. Translating a name into a Postgres column lives in
+`leads.ts`, because that's what needs the schema.",architecture,Reviewed apps/crm/src/lib/leads-visao.ts:135-151 — URL/DB sort correctness (nav-contract relevant); translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-89a43e42,crm,apps/crm/src/lib/leads-visao.ts,15,15,jsdoc,1,/** O tipo cru vira rótulo aqui: `mudanca_fase` não é texto de tela. */,translate,The raw type becomes a label here: `mudanca_fase` isn't screen text.,other,,,proposed
 crm-comment-56da6a6b,crm,apps/crm/src/lib/leads-visao.ts,177,190,block,24,"/* --------------------------------------------------------- filtro por coluna
  *
  * O filtro vive na URL, como a ordenação e o agrupamento, e por isso **a visão
@@ -2792,34 +3027,59 @@ crm-comment-56da6a6b,crm,apps/crm/src/lib/leads-visao.ts,177,190,block,24,"/* --
  * Quatro colunas, e são as categóricas. Score e Dias na fase pedem faixa (""de
  * 60 a 80""), que é outro controle e outra conversa; texto livre já é a busca.
  * Coluna que não filtra simplesmente não aparece no menu.
- */",,,,,,
+ */",translate,"--------------------------------------------------------- per-column filter
+
+The filter lives in the URL, like sorting and grouping, and that's why **the
+saved view keeps it for free**: a view is a name given to a query, and the
+filter is already part of it. That's why it never became component state.
+
+The `f.` prefix separates the filter from the rest of the parameters without
+a reserved-name list: `f.origem=Anúncio Meta` is a filter, `origem` wouldn't
+be — and tomorrow a new column can be added with no risk of colliding with
+`aba`, `q`, or `dir`.
+
+Four columns, and they're the categorical ones. Score and Days in stage ask
+for a range (""60 to 80""), which is a different control and a different
+conversation; free text is already the search. A column that doesn't filter
+simply doesn't show up in the menu.",architecture,Reviewed apps/crm/src/lib/leads-visao.ts:177-190 — URL-as-state filter design + namespaced param collision avoidance (nav-contract relevant); translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-c881954f,crm,apps/crm/src/lib/leads-visao.ts,203,209,jsdoc,8,"/**
  * O valor que representa ""em branco"".
  *
  * Filtrar por ""sem proprietário"" é uma das perguntas mais feitas da tela, e uma
  * string vazia na URL some no caminho — `?f.proprietario=` volta como `''` em
  * alguns navegadores e como ausente em outros. Uma palavra explícita não some.
- */",,,,,,
-crm-comment-456065ee,crm,apps/crm/src/lib/leads-visao.ts,216,216,jsdoc,3,"/** Lê os `f.*` do que veio na URL, jogando fora o que não é coluna filtrável. */",,,,,,
-crm-comment-ba84d133,crm,apps/crm/src/lib/leads-visao.ts,222,222,line,1,"// Um parâmetro repetido vira array; o primeiro vale, porque o filtro é de",,,,,,
-crm-comment-20338127,crm,apps/crm/src/lib/leads-visao.ts,223,223,line,2,// um valor só e dois valores para a mesma coluna é URL adulterada.,,,,,,
-crm-comment-f9a2535d,crm,apps/crm/src/lib/leads-visao.ts,230,230,jsdoc,1,"/** Escreve os filtros de volta numa consulta, no mesmo formato que se lê. */",,,,,,
-crm-comment-4c58e4d5,crm,apps/crm/src/lib/leads-visao.ts,240,240,jsdoc,1,"/** O texto do chip: ""Origem: Anúncio Meta"", ou ""Origem: sem origem"". */",,,,,,
+ */",translate,"The value that represents ""blank"".
+
+Filtering by ""no owner"" is one of the screen's most common questions, and an
+empty string in the URL disappears along the way — `?f.proprietario=` comes
+back as `''` in some browsers and as absent in others. An explicit word
+doesn't disappear.",architecture,Reviewed apps/crm/src/lib/leads-visao.ts:203-209 — URL serialization edge case (nav-contract relevant); translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-456065ee,crm,apps/crm/src/lib/leads-visao.ts,216,216,jsdoc,3,"/** Lê os `f.*` do que veio na URL, jogando fora o que não é coluna filtrável. */",translate,"Reads the `f.*` params from the URL, discarding anything that isn't a filterable column.",other,,,proposed
+crm-comment-ba84d133,crm,apps/crm/src/lib/leads-visao.ts,222,222,line,1,"// Um parâmetro repetido vira array; o primeiro vale, porque o filtro é de",translate,"A repeated parameter becomes an array; the first one counts, because the filter is for",security,Reviewed apps/crm/src/lib/leads-visao.ts:222 — duplicate-parameter tampering signal; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-20338127,crm,apps/crm/src/lib/leads-visao.ts,223,223,line,2,// um valor só e dois valores para a mesma coluna é URL adulterada.,translate,"a single value, and two values for the same column is a tampered URL.",security,Reviewed apps/crm/src/lib/leads-visao.ts:223 — duplicate-parameter tampering signal; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-f9a2535d,crm,apps/crm/src/lib/leads-visao.ts,230,230,jsdoc,1,"/** Escreve os filtros de volta numa consulta, no mesmo formato que se lê. */",translate,"Writes the filters back into a query, in the same format they're read in.",other,,,proposed
+crm-comment-4c58e4d5,crm,apps/crm/src/lib/leads-visao.ts,240,240,jsdoc,1,"/** O texto do chip: ""Origem: Anúncio Meta"", ou ""Origem: sem origem"". */",translate,"The chip's text: ""Source: Meta Ad"", or ""Source: no source"".",other,,,proposed
 crm-comment-3c5e4f87,crm,apps/crm/src/lib/leads-visao.ts,246,252,jsdoc,13,"/**
  * Para que lado a coluna começa quando ninguém a ordenou ainda.
  *
  * Número começa no maior (o score alto é o que interessa), texto começa no A.
  * Clicar em ""Proprietário"" e receber a lista do Z ao A é a coisa que faz a
  * pessoa clicar duas vezes em toda coluna nova.
- */",,,,,,
-crm-comment-e61c88e9,crm,apps/crm/src/lib/leads-visao.ts,26,26,jsdoc,5,"/** O status cru vira rótulo aqui, uma vez só para a listagem e para a ficha. */",,,,,,
-crm-comment-bb71c2b9,crm,apps/crm/src/lib/leads-visao.ts,50,50,jsdoc,2,"/** A listagem é tela de trabalho, não de exportação. */",,,,,,
-crm-comment-dd0e0867,crm,apps/crm/src/lib/leads-visao.ts,61,61,jsdoc,2,/** O id do dono. A listagem edita por id; o nome é só o que ela mostra. */,,,,,,
+ */",translate,"Which direction a column starts in when nobody has sorted it yet.
+
+A number starts at the highest (a high score is what matters), text starts
+at A. Clicking ""Owner"" and getting the list from Z to A is what makes
+someone click every new column twice.",other,,,proposed
+crm-comment-e61c88e9,crm,apps/crm/src/lib/leads-visao.ts,26,26,jsdoc,5,"/** O status cru vira rótulo aqui, uma vez só para a listagem e para a ficha. */",translate,"The raw status becomes a label here, once, for both the listing and the record.",other,,,proposed
+crm-comment-bb71c2b9,crm,apps/crm/src/lib/leads-visao.ts,50,50,jsdoc,2,"/** A listagem é tela de trabalho, não de exportação. */",translate,"The listing is a work screen, not an export screen.",other,,,proposed
+crm-comment-dd0e0867,crm,apps/crm/src/lib/leads-visao.ts,61,61,jsdoc,2,/** O id do dono. A listagem edita por id; o nome é só o que ela mostra. */,translate,The owner's id. The listing edits by id; the name is only what it displays.,other,,,proposed
 crm-comment-c09b3eee,crm,apps/crm/src/lib/leads-visao.ts,75,79,jsdoc,7,"/**
  * Como agrupar a lista. É o que substitui os quatro relatórios que eram item de
  * menu: ""por proprietário"" e ""origem e campanha"" são a mesma lista, dobrada por
  * uma coluna. Relatório que é recorte de lista mora na lista.
- */",,,,,,
+ */",translate,"How to group the list. It's what replaces the four reports that used to be
+menu items: ""by owner"" and ""source and campaign"" are the same list, folded
+by one column. A report that's just a list slice belongs in the list.",other,,,proposed
 crm-comment-5b3751ed,crm,apps/crm/src/lib/leads-visao.ts,94,101,jsdoc,12,"/**
  * Qual coluna da tabela o cabeçalho do grupo já está dizendo.
  *
@@ -2827,14 +3087,22 @@ crm-comment-5b3751ed,crm,apps/crm/src/lib/leads-visao.ts,94,101,jsdoc,12,"/**
  * nome em cada linha do grupo: é largura gasta para dizer o que o cabeçalho
  * acabou de dizer. As chaves do agrupamento e as das colunas são as mesmas de
  * propósito, e é o que mantém as duas listas casadas sem uma tabela de-para.
- */",,,,,,
+ */",translate,"Which table column the group header is already stating.
+
+A list grouped by owner with an ""Owner"" column repeats the same name on every
+row of the group: it's width spent saying what the header just said. The
+grouping keys and the column keys are the same on purpose, which is what
+keeps the two lists matched without a lookup table.",other,,,proposed
 crm-comment-e5944f9e,crm,apps/crm/src/lib/leads.ts,101,105,jsdoc,6,"/**
  * Nome de coluna da tela para coluna do Postgres. A lista de nomes ordenáveis
  * mora em `leads-visao.ts`, porque a tela precisa dela; a tradução mora aqui,
  * porque precisa do esquema.
- */",,,,,,
+ */",translate,"Screen column name to Postgres column. The list of sortable names lives in
+`leads-visao.ts`, because the screen needs it; the translation lives here,
+because it needs the schema.",other,,,proposed
 crm-comment-6f9b15c8,crm,apps/crm/src/lib/leads.ts,113,114,jsdoc,2,"/** Mais dias na fase é `fase_desde` mais antigo. O sentido inverte, e o
-   *  `desc` da coluna vira `asc` da data, resolvido em `ordenacaoSql`. */",,,,,,
+   *  `desc` da coluna vira `asc` da data, resolvido em `ordenacaoSql`. */",translate,"More days in stage is an older `fase_desde`. The direction inverts, and the
+column's `desc` becomes the date's `asc`, resolved in `ordenacaoSql`.",other,,,proposed
 crm-comment-255358d1,crm,apps/crm/src/lib/leads.ts,123,132,jsdoc,14,"/**
  * A cláusula `order by`, com três cuidados que a versão ingênua não tem:
  *
@@ -2844,7 +3112,14 @@ crm-comment-255358d1,crm,apps/crm/src/lib/leads.ts,123,132,jsdoc,14,"/**
  *   `desc` da coluna é `asc` da data.
  * - **Desempate estável.** Sem um segundo critério, dois leads de score 60
  *   trocam de lugar entre recargas, e a lista pisca sem nada ter mudado.
- */",,,,,,
+ */",translate,"The `order by` clause, with three cares the naive version doesn't have:
+
+- **Null always last.** A scoreless lead at the top of a list sorted by score
+  is the first thing anyone complains about. `nulls last` in both directions.
+- **Days in stage inverts.** ""More days"" is an older `fase_desde`, so the
+  column's `desc` is the date's `asc`.
+- **Stable tiebreak.** Without a second criterion, two leads with score 60
+  swap places between reloads, and the list flickers with nothing having changed.",other,,,proposed
 crm-comment-4baeee25,crm,apps/crm/src/lib/leads.ts,145,156,jsdoc,16,"/**
  * A coluna do Postgres que cada filtro interroga, e o que ""em branco"" significa
  * em cada uma.
@@ -2856,7 +3131,16 @@ crm-comment-4baeee25,crm,apps/crm/src/lib/leads.ts,145,156,jsdoc,16,"/**
  * `proprietario` compara pelo nome, e não pelo id, porque é o nome que a tela
  * mostra e é dele que o menu de valores é feito. Trocar por id exigiria o menu
  * carregar id e nome só para esconder um dos dois.
- */",,,,,,
+ */",translate,"The Postgres column each filter queries, and what ""blank"" means for each one.
+
+The column name **doesn't come from the screen**: `chave` is from the closed
+`FILTRAVEIS` catalog, and it's this map that decides where the comparison
+lands. Only the VALUE comes from outside, and it goes in as a driver
+parameter, never concatenated.
+
+`proprietario` compares by name, not by id, because the name is what the
+screen shows and the value menu is built from it. Switching to id would
+require the menu to load id and name just to hide one of the two.",security,Reviewed apps/crm/src/lib/leads.ts:145-156 — SQL-injection prevention: column allowlist + parameterized value; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-94658902,crm,apps/crm/src/lib/leads.ts,165,174,jsdoc,15,"/**
  * Os valores que cada coluna filtrável tem hoje, para o menu de filtro.
  *
@@ -2866,8 +3150,15 @@ crm-comment-94658902,crm,apps/crm/src/lib/leads.ts,165,174,jsdoc,15,"/**
  *
  * Em série dentro do mesmo `consultar` (README), e com teto por coluna: um menu
  * de trezentas origens não é um menu, é uma segunda listagem.
- */",,,,,,
-crm-comment-28e546a5,crm,apps/crm/src/lib/leads.ts,186,186,line,3,// O `is not null` já está no `where`; o filtro aqui é só para o tipo.,,,,,,
+ */",translate,"The values each filterable column has today, for the filter menu.
+
+Comes from the database, not from the 200 already-loaded rows: the capped
+list would only show the sources that made the cut, and filtering by a
+source that exists but didn't show up would be impossible from the screen.
+
+Sequential inside the same `consultar` (README), and capped per column: a
+menu of three hundred sources isn't a menu, it's a second listing.",other,,,proposed
+crm-comment-28e546a5,crm,apps/crm/src/lib/leads.ts,186,186,line,3,// O `is not null` já está no `where`; o filtro aqui é só para o tipo.,translate,The `is not null` is already in the `where`; the filter here is just for the type.,other,,,proposed
 crm-comment-5ccc42fd,crm,apps/crm/src/lib/leads.ts,205,217,jsdoc,19,"/**
  * Lista e contagem das abas na **mesma** transação. Eram duas, mais a do fuso: três
  * transações e três conexões do pool para desenhar uma tela. Dentro daqui as
@@ -2880,26 +3171,46 @@ crm-comment-5ccc42fd,crm,apps/crm/src/lib/leads.ts,205,217,jsdoc,19,"/**
  * As contagens das abas, essas, **ignoram o filtro de propósito**: elas dizem
  * quantos leads existem em cada recorte, e um número que muda conforme o filtro
  * não serve para escolher para qual recorte ir.
- */",,,,,,
-crm-comment-bc239b7a,crm,apps/crm/src/lib/leads.ts,25,25,line,3,"// Só o tipo, e de um arquivo sem banco: é o mesmo catálogo que a célula inline",,,,,,
-crm-comment-a94b0879,crm,apps/crm/src/lib/leads.ts,258,258,line,2,"// O id, e não só o nome: a célula editável da listagem grava o id, e",,,,,,
-crm-comment-5fea1f33,crm,apps/crm/src/lib/leads.ts,259,259,line,3,// nome muda sem que a atribuição mude junto.,,,,,,
-crm-comment-ac99c176,crm,apps/crm/src/lib/leads.ts,26,26,line,2,"// lê no navegador, e é ele que fecha a lista de colunas graváveis.",,,,,,
+ */",translate,"List and count of the tabs in the **same** transaction. There used to be two,
+plus the timezone one: three transactions and three pool connections to draw
+one screen. Inside here the queries stay sequential, which is mandatory
+(README).
+
+The filter goes into the `where`, not over the already-fetched rows, for the
+same reason as the sort: with a 200 cap, filtering afterward would answer
+""of the 200 newest, the ones from source X"" when the question is ""the 200
+leads from source X"".
+
+The tab counts, though, **ignore the filter on purpose**: they say how many
+leads exist in each slice, and a number that changes with the filter isn't
+useful for choosing which slice to go to.",security,Reviewed apps/crm/src/lib/leads.ts:205-217 — tenant-isolation serial-query rule reference; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-bc239b7a,crm,apps/crm/src/lib/leads.ts,25,25,line,3,"// Só o tipo, e de um arquivo sem banco: é o mesmo catálogo que a célula inline",translate,"Just the type, and from a database-free file: it's the same catalog the inline cell",security,Reviewed apps/crm/src/lib/leads.ts:25 — client/server bundle boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-a94b0879,crm,apps/crm/src/lib/leads.ts,258,258,line,2,"// O id, e não só o nome: a célula editável da listagem grava o id, e",translate,"The id, not just the name: the listing's editable cell saves the id, and",security,Reviewed apps/crm/src/lib/leads.ts:258 — write-column integrity: id not display name; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-5fea1f33,crm,apps/crm/src/lib/leads.ts,259,259,line,3,// nome muda sem que a atribuição mude junto.,translate,a name change doesn't change the assignment along with it.,other,,,proposed
+crm-comment-ac99c176,crm,apps/crm/src/lib/leads.ts,26,26,line,2,"// lê no navegador, e é ele que fecha a lista de colunas graváveis.",translate,"reads in the browser, and it's what closes the list of writable columns.",security,Reviewed apps/crm/src/lib/leads.ts:26 — write-column allowlist; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-f0bebb95,crm,apps/crm/src/lib/leads.ts,29,34,jsdoc,5,"/**
  * Leads: a listagem e a ficha.
  *
  * Tudo em série dentro do `consultar` — `Promise.all` dentro da transação derruba o
  * `pipe.tenant_id` e a consulta passa a rodar sem tenant (README).
- */",,,,,,
-crm-comment-4464e738,crm,apps/crm/src/lib/leads.ts,343,343,line,3,// Ordenado crescente: a última escrita por lead é a atividade mais recente.,,,,,,
+ */",translate,"Leads: the listing and the record.
+
+Everything sequential inside `consultar` — `Promise.all` in the transaction
+drops `pipe.tenant_id` and the query ends up running with no tenant
+(README).",security,Reviewed apps/crm/src/lib/leads.ts:29-34 — tenant-isolation Promise.all warning; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-4464e738,crm,apps/crm/src/lib/leads.ts,343,343,line,3,// Ordenado crescente: a última escrita por lead é a atividade mais recente.,translate,Sorted ascending: the last write per lead is the most recent activity.,other,,,proposed
 crm-comment-200b6e5c,crm,apps/crm/src/lib/leads.ts,36,41,block,8,"/*
  * Rótulo, recorte, agrupamento e ordenação moram em `leads-visao.ts`, que não
  * importa banco nenhum. É de lá que o componente de cliente da listagem lê:
  * importar deste arquivo arrastaria o driver do Postgres para o navegador.
  * Aqui eles são reexportados, para que a tela continue tendo um endereço só.
- */",,,,,,
-crm-comment-9449a771,crm,apps/crm/src/lib/leads.ts,363,363,jsdoc,1,/** Da faixa vigente: é ela que decide fila e proprietário. */,,,,,,
-crm-comment-e2034053,crm,apps/crm/src/lib/leads.ts,407,407,jsdoc,3,"/** O id, e não só o nome: a seleção inline grava id, porque nome muda. */",,,,,,
+ */",translate,"Label, slice, grouping, and sorting live in `leads-visao.ts`, which imports no
+database at all. That's what the listing's client component reads from:
+importing from this file would drag the Postgres driver into the browser.
+They're re-exported here, so the screen still has a single address to
+import from.",security,Reviewed apps/crm/src/lib/leads.ts:36-41 — client/server bundle boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-9449a771,crm,apps/crm/src/lib/leads.ts,363,363,jsdoc,1,/** Da faixa vigente: é ela que decide fila e proprietário. */,translate,From the current band: it's what decides queue and owner.,other,,,proposed
+crm-comment-e2034053,crm,apps/crm/src/lib/leads.ts,407,407,jsdoc,3,"/** O id, e não só o nome: a seleção inline grava id, porque nome muda. */",translate,"The id, not just the name: inline selection saves the id, because the name changes.",security,Reviewed apps/crm/src/lib/leads.ts:407 — write-column integrity: id not display name; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-e68cbf57,crm,apps/crm/src/lib/leads.ts,513,520,jsdoc,8,"/**
  * O painel que explica o número.
  *
@@ -2907,11 +3218,18 @@ crm-comment-e68cbf57,crm,apps/crm/src/lib/leads.ts,513,520,jsdoc,8,"/**
  * não o nome dela, porque o nome muda e o histórico não pode mudar junto. O nome vem
  * do join com `regra_score`; regra apagada aparece como ""regra removida"" em vez de
  * sumir da conta, senão a soma dos itens deixaria de bater com o total.
- */",,,,,,
+ */",translate,"The panel that explains the number.
+
+`score_lead.explicacao` stores `{regra, versao, pontos}` — the rule's
+identifier, not its name, because the name changes and the history can't
+change along with it. The name comes from the join with `regra_score`; a
+deleted rule shows up as ""rule removed"" instead of vanishing from the
+account, otherwise the sum of the items would stop matching the total.",architecture,Reviewed apps/crm/src/lib/leads.ts:513-520 — historical-record stability (id not name) — data integrity; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-6affce11,crm,apps/crm/src/lib/leads.ts,576,579,jsdoc,2,"/**
  * Respostas de formulário agrupadas por formulário e versão — nunca como colunas
  * soltas na ficha. É a decisão que evita os 304 campos customizados do Lead de hoje.
- */",,,,,,
+ */",translate,"Form responses grouped by form and version — never as loose columns on the
+record. It's the decision that avoids today's 304 custom fields on the Lead.",other,,,proposed
 crm-comment-c132b440,crm,apps/crm/src/lib/leads.ts,623,632,jsdoc,20,"/**
  * Atividades e conversas na mesma linha do tempo. A conversa entra com o resumo do
  * atendimento quando a monitoria já classificou — é a promessa do produto: o CRM se
