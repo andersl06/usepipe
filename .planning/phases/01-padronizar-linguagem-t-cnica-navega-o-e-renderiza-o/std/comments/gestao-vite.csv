@@ -2520,16 +2520,22 @@ gestao-vite-comment-396b3b52,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
    * origem a saída é refazer a conexão no mesmo canal — não há desconectar no
    * WhatsApp (`FICHA-conectar-canal-no-bot.md` §5).
    */",translate,"RECONNECT this channel instead of creating another. The client token expires, and in the source the way out is to redo the connection on the same channel — there's no disconnect for WhatsApp (`FICHA-conectar-canal-no-bot.md` §5).",meta-blip,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx:72-76,,proposed
-gestao-vite-comment-bc6c73b6,gestao-vite,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx,78,78,jsdoc,3,/** Preenche o formulário com o que já se sabe do canal. */,,,,,,
-gestao-vite-comment-278d0871,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx,105,105,line,3,// Corpo mudou: exemplos de variável que sumiram não servem mais de nada guardados.,,,,,,
+gestao-vite-comment-bc6c73b6,gestao-vite,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx,78,78,jsdoc,3,/** Preenche o formulário com o que já se sabe do canal. */,translate,/** Fills the form with what's already known about the channel. */,other,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx:78-78,,proposed
+gestao-vite-comment-278d0871,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx,105,105,line,3,// Corpo mudou: exemplos de variável que sumiram não servem mais de nada guardados.,translate,// Body changed: variable examples that disappeared no longer serve any purpose once stored.,other,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx:105-105,,proposed
 gestao-vite-comment-3eb577fb,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx,22,28,jsdoc,8,"/**
  * Cabeçalho na CRIAÇÃO só tem texto ou nenhum — mídia pede um arquivo de
  * exemplo (Resumable Upload API) que este formulário não coleta ainda
  * (ponytail já registrado em `modelos.ts`: ""criar só com cabeçalho de texto
  * ou sem cabeçalho""). Cabeçalho de mídia continua aparecendo na LISTA de
  * modelos sincronizados — só não é uma opção aqui.
- */",,,,,,
-gestao-vite-comment-44732716,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx,36,36,jsdoc,1,"/** As variáveis do corpo, na ordem em que aparecem — mesma regra de `variaveisDoTexto` na `api`. */",,,,,,
+ */",translate,"/**
+ * Header at CREATION only has text or none — media requires a sample file
+ * (Resumable Upload API) that this form doesn't collect yet (ponytail already
+ * logged in `modelos.ts`: ""create with text header only or no header"").
+ * Media header still appears in the LIST of synced templates — it just isn't
+ * an option here.
+ */",other,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx:22-28,,proposed
+gestao-vite-comment-44732716,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx,36,36,jsdoc,1,"/** As variáveis do corpo, na ordem em que aparecem — mesma regra de `variaveisDoTexto` na `api`. */",translate,"/** The body variables, in the order they appear — same rule as `variaveisDoTexto` in the `api`. */",other,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx:36-36,,proposed
 gestao-vite-comment-f224aa28,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx,5,15,jsdoc,6,"/**
  * Duplica, de propósito, os catálogos de `lib/comunicacao.ts` em vez de
  * importar de lá — comentário histórico deste arquivo. Continua valendo: são
@@ -2540,26 +2546,53 @@ gestao-vite-comment-f224aa28,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * (`apps/api/src/dominio/whatsapp/modelos.ts`) recusa Autenticação na
  * criação (""tem componentes próprios, não é texto livre""); ela só aparece
  * depois de SINCRONIZADA da Meta, na lista acima deste formulário.
- */",,,,,,
+ */",translate,"/**
+ * Deliberately duplicates the catalogs from `lib/comunicacao.ts` instead of
+ * importing them — a historical note for this file. Still holds: it's a few
+ * lines, and the client screen doesn't need to drag in the server module
+ * even though it's pure today.
+ *
+ * The CATEGORY here only has Utilidade/Marketing — `montarModelo`
+ * (`apps/api/src/dominio/whatsapp/modelos.ts`) refuses Autenticação at
+ * creation time (""has its own components, isn't free text""); it only
+ * appears after being SYNCED from Meta, in the list above this form.
+ */",meta-blip,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx:5-15,,proposed
 gestao-vite-comment-bfad925d,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx,118,120,block,1,"/* O texto literal do vazio deles (`FICHA-message-template.md` §6),
          apontando para onde o modelo se cadastra — aqui, o formulário logo
-         abaixo da lista. */",,,,,,
+         abaixo da lista. */",translate,"/* Their empty-state literal text (`FICHA-message-template.md` §6),
+         pointing to where the template gets registered — here, the form
+         right below the list. */",meta-blip,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:118-120,,proposed
 gestao-vite-comment-e15313ec,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx,157,162,block,13,"/* `FICHA-message-template.md` §2.1: cabeçalho SEM botão — a área à
           direita do título fica vazia na Blip, porque lá o modelo se cadastra
           em ""Conteúdos > Modelo de mensagem"" (§5), uma tela que não existe no
           Pipe hoje. Como não há para onde mandar essa criação, o formulário
           continua aqui — só desceu para depois da lista, para o topo da
-          página bater com o deles antes de chegar na parte que é só nossa. */",,,,,,
+          página bater com o deles antes de chegar na parte que é só nossa. */",translate,"/* `FICHA-message-template.md` §2.1: header WITHOUT a button — the area to
+          the right of the title stays empty in Blip, because there the
+          template is registered under ""Conteúdos > Modelo de mensagem"" (§5),
+          a screen that doesn't exist in Pipe today. Since there's nowhere to
+          send that creation, the form stays here — it just moved below the
+          list, so the top of the page matches theirs before reaching the
+          part that's ours alone. */",meta-blip,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:157-162,,proposed
 gestao-vite-comment-d4ac11dd,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx,169,175,block,11,"/* §2.2/§2.3: dentro do painel de conteúdo, o título repete e vem a
           linha ""Filtrar por:"" ANTES da busca. ""Fluxo de retorno"" (§3) fica de
           fora — a origem capturou esse filtro com `options=""[]""` (nem eles
           tinham dado ali), e o Pipe não tem esse conceito. ""Status"" também
           não é o mesmo campo (deles é habilitado/desabilitado local; o nosso
           é o status de aprovação na Meta), mas ocupa a mesma posição com o
-          dado real que a tela já mostra em cada cartão. */",,,,,,
+          dado real que a tela já mostra em cada cartão. */",translate,"/* §2.2/§2.3: inside the content panel, the title repeats and the
+          ""Filtrar por:"" line comes BEFORE the search. ""Fluxo de retorno"" (§3)
+          is left out — the source captured that filter with `options=""[]""`
+          (even they had nothing there), and Pipe has no such concept.
+          ""Status"" also isn't the same field (theirs is a local
+          enabled/disabled toggle; ours is the Meta approval status), but it
+          occupies the same position with the real data the screen already
+          shows on each card. */",meta-blip,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:169-175,,proposed
 gestao-vite-comment-8724ea5a,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx,179,181,block,5,"/* A linha deles: ""Filtrar por:"", os seletores, e a busca à direita
             ocupando 69% — com o placeholder literal ""Pesquise pelo nome do
-            modelo de mensagem"" (§3). */",,,,,,
+            modelo de mensagem"" (§3). */",translate,"/* Their row: ""Filtrar por:"", the selectors, and the search on the right
+            taking up 69% — with the literal placeholder ""Pesquise pelo nome
+            do modelo de mensagem"" (§3). */",meta-blip,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:179-181,,proposed
 gestao-vite-comment-9509f9cc,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx,20,28,jsdoc,6,"/**
  * Opções do filtro ""Status"" — `FICHA-message-template.md` §3 documenta
  * ""Habilitado""/""Desabilitado"" na origem, mas isso é o liga-desliga LOCAL
@@ -2568,15 +2601,29 @@ gestao-vite-comment-9509f9cc,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * para traduzir. O filtro usa as opções que a tela já mostra em cada
  * cartão (§4 ""Status na Meta""), na mesma POSIÇÃO documentada (""Filtrar
  * por:"", antes da busca).
- */",,,,,,
+ */",translate,"/**
+ * ""Status"" filter options — `FICHA-message-template.md` §3 documents
+ * ""Habilitado""/""Desabilitado"" at the source, but that's THEIR LOCAL
+ * on/off toggle; our `statusMeta` is something else (the template's Meta
+ * approval status, `ROTULO_STATUS_META`) — there's no ""habilitado"" here to
+ * translate. The filter uses the options the screen already shows on each
+ * card (§4 ""Status na Meta""), in the same documented POSITION (""Filtrar
+ * por:"", before the search).
+ */",meta-blip,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:20-28,,proposed
 gestao-vite-comment-c27e4c08,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx,31,36,jsdoc,7,"/**
  * Posições reais de disparo, para leitura direta no cartão: sem cabeçalho de
  * mídia é `{{1}}, {{2}}…`; com mídia, cada uma desliza +1 e o cartão já mostra
  * o número deslocado — é a regra do §""modelos"" da tarefa, visível na tela de
  * quem cadastra, não só no código de envio (`apps/workers/src/whatsapp/template.ts`).
- */",,,,,,
-gestao-vite-comment-2e2e456f,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx,44,44,jsdoc,2,"/** ""Sincronizar com a Meta"" — um botão por canal, `POST .../modelos/sincronizar`. */",,,,,,
-gestao-vite-comment-26c90d6d,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas-formulario.tsx,20,20,block,0,/* Ver o comentário equivalente em `regras-atendimento-formulario.tsx`. */,,,,,,
+ */",translate,"/**
+ * Real trigger positions, readable directly on the card: without a media
+ * header it's `{{1}}, {{2}}…`; with media, each one shifts by +1 and the
+ * card already shows the shifted number — it's the rule from the task's
+ * §""modelos"" section, visible on the registration screen, not just in the
+ * sending code (`apps/workers/src/whatsapp/template.ts`).
+ */",integration,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:31-36,,proposed
+gestao-vite-comment-2e2e456f,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx,44,44,jsdoc,2,"/** ""Sincronizar com a Meta"" — um botão por canal, `POST .../modelos/sincronizar`. */",translate,"/** ""Sincronizar com a Meta"" — one button per channel, `POST .../modelos/sincronizar`. */",meta-blip,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:44-44,,proposed
+gestao-vite-comment-26c90d6d,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas-formulario.tsx,20,20,block,0,/* Ver o comentário equivalente em `regras-atendimento-formulario.tsx`. */,translate,/* See the equivalent comment in `regras-atendimento-formulario.tsx`. */,other,apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas-formulario.tsx:20-20,,proposed
 gestao-vite-comment-3320bda7,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas-formulario.tsx,7,16,jsdoc,6,"/**
  * Cadastro de resposta pronta — só `escopo = 'empresa'` (ver comentário de
  * `lib/comunicacao.ts`). A pessoal o próprio atendente cria no Desk.
@@ -2586,8 +2633,17 @@ gestao-vite-comment-3320bda7,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * cartão de lista) e `.lbl`, que o comentário de `base.css` proíbe usar em
  * nome de campo. Por isso o rótulo aqui é `.sub` (legenda pequena, já
  * existente) em vez de uma classe nova.
- */",,,,,,
-gestao-vite-comment-6d427981,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas.tsx,10,10,jsdoc,0,"/** O switch + o ""Excluir"" do cartão-linha — `PATCH`/`DELETE` em `.../respostas-prontas/:id`. */",,,,,,
+ */",translate,"/**
+ * Canned-reply registration — only `escopo = 'empresa'` (see the comment in
+ * `lib/comunicacao.ts`). Attendants create their personal ones in Desk.
+ *
+ * No ""labeled form field"" class exists yet in the shared design system —
+ * only `.cl-campo` (label above a READ-ONLY VALUE, from the list card) and
+ * `.lbl`, which the comment in `base.css` forbids using for a field name. So
+ * the label here is `.sub` (a small caption, already existing) instead of a
+ * new class.
+ */",architecture,apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas-formulario.tsx:7-16,,proposed
+gestao-vite-comment-6d427981,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas.tsx,10,10,jsdoc,0,"/** O switch + o ""Excluir"" do cartão-linha — `PATCH`/`DELETE` em `.../respostas-prontas/:id`. */",translate,"/** The switch and the ""Excluir"" on the row card — `PATCH`/`DELETE` on `.../respostas-prontas/:id`. */",other,apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas.tsx:10-10,,proposed
 gestao-vite-comment-3cb750d2,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas.tsx,44,62,jsdoc,27,"/**
  * Respostas prontas — as da empresa. As pessoais o atendente cria e organiza
  * sozinho no Desk (§5 de `docs/specs/2026-09-05-desk-requisitos.md`), então não
@@ -2606,19 +2662,47 @@ gestao-vite-comment-3cb750d2,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * Reaproveita `ListaRegras`, o mesmo cartão-de-lista com busca da tela de
  * Regras — o cartão já resolve busca, agrupamento e estado vazio sem
  * reescrever nada disso aqui.
- */",,,,,,
+ */",translate,"/**
+ * Canned replies — the company's ones. Personal ones are created and
+ * organized by the attendant alone in Desk (§5 of
+ * `docs/specs/2026-09-05-desk-requisitos.md`), so they don't appear on this
+ * management screen.
+ *
+ * `FICHA-replies.md` was captured with an empty list — the material only
+ * confirms the header with ""Criar categoria"" on the right (§2.1) and the
+ * empty-state text (§6); there's no column or row with real data to copy. A
+ * structural mismatch the ficha doesn't resolve: Blip organizes replies into
+ * CATEGORIES (you create the category first, the reply lives inside it);
+ * our registration is a flat list, with no category — changing that is
+ * new-data design (table/API), beyond what this screen alone decides. That's
+ * why the header button here reads ""Nova resposta pronta"" (what the screen
+ * actually does) instead of ""Criar categoria"".
+ *
+ * Reuses `ListaRegras`, the same search-enabled list card from the Rules
+ * screen — the card already handles search, grouping and empty state
+ * without rewriting any of that here.
+ */",meta-blip,apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas.tsx:44-62,,proposed
 gestao-vite-comment-6aff065d,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas.tsx,86,89,block,6,"/* Texto literal do estado vazio deles — `FICHA-replies.md` §6, a única
          parte do material que não é sujeita ao desalinhamento de categorias
          descrito acima: o texto não fala de categoria nem de #, então copia
-         sem ressalva. */",,,,,,
+         sem ressalva. */",translate,"/* Their literal empty-state text — `FICHA-replies.md` §6, the only part
+         of the material not subject to the category mismatch described
+         above: the text doesn't mention category or #, so it's copied
+         without caveat. */",meta-blip,apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas.tsx:86-89,,proposed
 gestao-vite-comment-c58ca2a7,gestao-vite,apps/gestao-vite/src/paginas/cadastros/configuracoes-dados.tsx,14,20,jsdoc,7,"/**
  * Dados: o vocabulário da operação.
  *
  * A coluna de usos existe porque etiqueta sem uso é o entulho que faz a lista
  * do encerramento crescer sem informar — e o supervisor só descobre isso
  * contando.
- */",,,,,,
-gestao-vite-comment-b15c0f0c,gestao-vite,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx,152,152,block,0,/* ----------------------------------------------------------- cartão 3 */,,,,,,
+ */",translate,"/**
+ * Data: the operation's vocabulary.
+ *
+ * The usage column exists because a tag with no usage is the clutter that
+ * makes the closing-out list grow without informing anything — and the
+ * supervisor only finds out by counting.
+ */",other,apps/gestao-vite/src/paginas/cadastros/configuracoes-dados.tsx:14-20,,proposed
+gestao-vite-comment-b15c0f0c,gestao-vite,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx,152,152,block,0,/* ----------------------------------------------------------- cartão 3 */,translate,/* ----------------------------------------------------------- card 3 */,other,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx:152-152,,proposed
 gestao-vite-comment-d0bcb637,gestao-vite,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx,17,34,jsdoc,21,"/**
  * Preferências ├ Configurações gerais.
  *
@@ -2636,10 +2720,27 @@ gestao-vite-comment-d0bcb637,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * anterior e horário em `log_auditoria` — foi essa a condição registrada em
  * `lib/configuracoes.ts` para que edição de configuração deixasse de ser
  * passivo.
- */",,,,,,
-gestao-vite-comment-8f1c9691,gestao-vite,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx,46,46,block,1,/* `FICHA-general-settings.md` §1: sem subtítulo — só o título. */,,,,,,
-gestao-vite-comment-f4235eda,gestao-vite,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx,51,51,block,0,/* ----------------------------------------------------------- cartão 1 */,,,,,,
-gestao-vite-comment-cfa6715d,gestao-vite,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx,87,87,block,0,/* ----------------------------------------------------------- cartão 2 */,,,,,,
+ */",translate,"/**
+ * Preferências ├ General settings.
+ *
+ * The second gap that `estrutura-gestao.tsx` used to log. The layout follows
+ * §3 of `blip-telas-cadastro.md`: one card per setting, stacked with a 20
+ * gap, title 20/700 over a 14/400 explanation, the section's toggle on the
+ * right, and **each card saves itself** — there's no screen-level Save.
+ *
+ * Three settings, and all three touch a column that already exists. No
+ * preference was invented just to fill the screen: a setting that doesn't
+ * change behavior is a disabled item under another name.
+ *
+ * The Data screen keeps doing the SNAPSHOT (tags with usage counts,
+ * channels). What changes gets decided here, and every change records
+ * author, previous value and timestamp in `log_auditoria` — that was the
+ * condition logged in `lib/configuracoes.ts` for setting edits to stop being
+ * passive.
+ */",meta-blip,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx:17-34,,proposed
+gestao-vite-comment-8f1c9691,gestao-vite,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx,46,46,block,1,/* `FICHA-general-settings.md` §1: sem subtítulo — só o título. */,translate,/* `FICHA-general-settings.md` §1: no subtitle — title only. */,meta-blip,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx:46-46,,proposed
+gestao-vite-comment-f4235eda,gestao-vite,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx,51,51,block,0,/* ----------------------------------------------------------- cartão 1 */,translate,/* ----------------------------------------------------------- card 1 */,other,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx:51-51,,proposed
+gestao-vite-comment-cfa6715d,gestao-vite,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx,87,87,block,0,/* ----------------------------------------------------------- cartão 2 */,translate,/* ----------------------------------------------------------- card 2 */,other,apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx:87-87,,proposed
 gestao-vite-comment-e5a3398c,gestao-vite,apps/gestao-vite/src/paginas/cadastros/configuracoes-regras.tsx,11,24,jsdoc,16,"/**
  * Regras: o que decide o SLA e a capacidade de cada fila.
  *
@@ -2653,20 +2754,42 @@ gestao-vite-comment-e5a3398c,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  *
  * Somente leitura por enquanto — ver o comentário de `lib/configuracoes.ts` e a
  * divergência registrada no §6 da pesquisa.
- */",,,,,,
-gestao-vite-comment-a9f5b993,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,117,117,line,1,// Linha em branco não entra — mesmo filtro de `salvarRegraFila` (ação de criação).,,,,,,
+ */",translate,"/**
+ * Rules: what decides each queue's SLA and capacity.
+ *
+ * It's the answer to the question the monitoring screen's SLA column used to
+ * raise without answering: ""breached what, against which deadline?"".
+ *
+ * There used to be two tables. They became two card lists, which is what
+ * Blip does on the Rules, SLA and Hours screens — measured in
+ * `referencias-blip/pesquisa/blip-telas-atendimento.md` §5.3 through §5.5.
+ * The screen's order is theirs: title, search alone on its own line, list.
+ *
+ * Read-only for now — see the comment in `lib/configuracoes.ts` and the
+ * divergence logged in §6 of the research.
+ */",meta-blip,apps/gestao-vite/src/paginas/cadastros/configuracoes-regras.tsx:11-24,,proposed
+gestao-vite-comment-a9f5b993,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,117,117,line,1,// Linha em branco não entra — mesmo filtro de `salvarRegraFila` (ação de criação).,translate,// A blank row isn't included — same filter as `salvarRegraFila` (create action).,other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:117-117,,proposed
 gestao-vite-comment-8c3498d0,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,139,140,jsdoc,6,"/** Fecha o modal quando o salvamento dá certo — sem isso a pessoa fica
-      olhando para o próprio formulário limpo, sem saber se funcionou. */",,,,,,
+      olhando para o próprio formulário limpo, sem saber se funcionou. */",translate,"/** Closes the modal once saving succeeds — without this the person is left
+      staring at their own blank form, not knowing if it worked. */",other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:139-140,,proposed
 gestao-vite-comment-f6926868,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,146,148,block,5,"/* O `reset()` do formulário não desfaz o estado do seletor de campo, que é
      controlado. Trocar a geração remonta as linhas zeradas — é o mesmo efeito,
-     com uma linha em vez de um `useImperativeHandle` por linha. */",,,,,,
+     com uma linha em vez de um `useImperativeHandle` por linha. */",translate,"/* The form's `reset()` doesn't undo the field-selector state, which is
+     controlled. Changing the generation remounts the zeroed-out rows — same
+     effect, with one line instead of a `useImperativeHandle` per row. */",other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:146-148,,proposed
 gestao-vite-comment-5f7c9289,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,154,160,block,15,"/* `useActionState` nasce com `{ ok: true }` — o valor inicial, não uma
      confirmação de envio. Sem esta guarda, o efeito abaixo achava que acabou
      de salvar assim que o formulário monta (dentro do modal, por exemplo) e
      fechava tudo na hora, antes de a pessoa digitar qualquer coisa. Compara
      por identidade, e não por uma `ref` de ""já montou"": o `useEffect` do
      StrictMode roda invoke→cleanup→invoke uma vez a mais em desenvolvimento,
-     e uma `ref` de booleano vira verdadeira cedo demais nesse replay. */",,,,,,
+     e uma `ref` de booleano vira verdadeira cedo demais nesse replay. */",translate,"/* `useActionState` starts with `{ ok: true }` — the initial value, not a
+     submission confirmation. Without this guard, the effect below would
+     think saving had just finished as soon as the form mounts (inside the
+     modal, for instance) and would close everything immediately, before the
+     person typed anything. Compares by identity, not a ""just mounted"" `ref`:
+     StrictMode's `useEffect` runs invoke→cleanup→invoke one extra time in
+     development, and a boolean `ref` turns true too early in that replay. */",other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:154-160,,proposed
 gestao-vite-comment-b8dc71d8,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,16,27,jsdoc,11,"/**
  * Cadastro da regra de entrada.
  *
@@ -2678,18 +2801,32 @@ gestao-vite-comment-b8dc71d8,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * O envio passa por `envioQuePreserva` porque este é o formulário mais caro de
  * redigitar da Gestão: erro de validação com o `action` nativo do React 19
  * apagaria o nome, a fila, o combinador e todas as condições de uma vez.
- */",,,,,,
-gestao-vite-comment-a06f8e7b,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,183,183,line,3,// O campo extra vai para o servidor com o prefixo que o motor lê.,,,,,,
-gestao-vite-comment-b5047f76,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,185,185,line,1,// as três listas paralelas ficarem com tamanhos diferentes.,,,,,,
-gestao-vite-comment-120cac38,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,29,29,jsdoc,2,"/** Campo extra do contato: a chave é livre, e o prefixo é o que o motor entende. */",,,,,,
-gestao-vite-comment-7602b9d4,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,43,43,jsdoc,2,"/** Preenche a linha ao editar uma regra existente — ausente é ""linha em branco"" (criação). */",,,,,,
+ */",translate,"/**
+ * Entry rule registration.
+ *
+ * Conditions are repeated rows of `campo` / `operador` / `valor`: `FormData`
+ * returns fields with the same name as a list, and the action reads all
+ * three in parallel. A blank row is ignored — the form starts with one and
+ * the person adds as many as needed.
+ *
+ * Submission goes through `envioQuePreserva` because this is the most
+ * expensive form to retype in Gestão: a validation error with React 19's
+ * native `action` would wipe out the name, the queue, the combinator and
+ * every condition at once.
+ */",other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:16-27,,proposed
+gestao-vite-comment-a06f8e7b,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,183,183,line,3,// O campo extra vai para o servidor com o prefixo que o motor lê.,translate,// The extra field goes to the server with the prefix the engine reads.,other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:183-183,,proposed
+gestao-vite-comment-b5047f76,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,185,185,line,1,// as três listas paralelas ficarem com tamanhos diferentes.,translate,// the three parallel lists ending up with different lengths.,other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:185-185,,proposed
+gestao-vite-comment-120cac38,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,29,29,jsdoc,2,"/** Campo extra do contato: a chave é livre, e o prefixo é o que o motor entende. */",translate,"/** Extra contact field: the key is free-form, and the prefix is what the engine understands. */",other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:29-29,,proposed
+gestao-vite-comment-7602b9d4,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,43,43,jsdoc,2,"/** Preenche a linha ao editar uma regra existente — ausente é ""linha em branco"" (criação). */",translate,"/** Fills the row when editing an existing rule — absent means ""blank row"" (creation). */",other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:43-43,,proposed
 gestao-vite-comment-35142d94,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx,70,71,block,3,"/* O `name` é o mesmo `campo` da lista: o que muda é só como o valor
-              é montado. A ação recebe `contato.atributos.plano` dos dois jeitos. */",,,,,,
-gestao-vite-comment-c99f0da0,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,112,112,line,2,// `regras` já vem ordenada por `ordem`/id (mesma ordem que `ordenarRegras`,,,,,,
-gestao-vite-comment-f33351ec,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,113,113,line,0,// aplica no motor) — trocar de posição na lista é trocar de posição de,,,,,,
-gestao-vite-comment-6eeeb248,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,114,114,line,0,// avaliação. Renumera sequencialmente em vez de só trocar `ordem` entre as,,,,,,
-gestao-vite-comment-e05387ae,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,115,115,line,0,"// duas: se as duas empatarem (o padrão de toda regra nova é `ordem: 0`),",,,,,,
-gestao-vite-comment-cd7c57b0,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,116,116,line,1,// trocar valores iguais não move nada.,,,,,,
+              é montado. A ação recebe `contato.atributos.plano` dos dois jeitos. */",translate,"/* The `name` is the same `campo` as in the list: only how the value gets
+              assembled changes. The action receives `contato.atributos.plano`
+              either way. */",other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:70-71,,proposed
+gestao-vite-comment-c99f0da0,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,112,112,line,2,// `regras` já vem ordenada por `ordem`/id (mesma ordem que `ordenarRegras`,translate,// `regras` already comes sorted by `ordem`/id (the same order that `ordenarRegras`,other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:112-112,,proposed
+gestao-vite-comment-f33351ec,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,113,113,line,0,// aplica no motor) — trocar de posição na lista é trocar de posição de,translate,// applies to the engine) — moving position in the list means moving position of,other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:113-113,,proposed
+gestao-vite-comment-6eeeb248,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,114,114,line,0,// avaliação. Renumera sequencialmente em vez de só trocar `ordem` entre as,translate,// evaluation. Renumbers sequentially instead of just swapping `ordem` between the,other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:114-114,,proposed
+gestao-vite-comment-e05387ae,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,115,115,line,0,"// duas: se as duas empatarem (o padrão de toda regra nova é `ordem: 0`),",translate,"// two: if both tie (every new rule's default is `ordem: 0`),",other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:115-115,,proposed
+gestao-vite-comment-cd7c57b0,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,116,116,line,1,// trocar valores iguais não move nada.,translate,// swapping equal values moves nothing.,other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:116-116,,proposed
 gestao-vite-comment-6c63d307,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,18,42,jsdoc,29,"/**
  * Regras ├ Atendimento — a regra de entrada.
  *
@@ -2714,11 +2851,39 @@ gestao-vite-comment-6c63d307,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * mesmo diz isso). REORDENAR é as duas setas do rodapé: cada clique troca a
  * regra de posição com a vizinha e manda um `PATCH` por regra cuja `ordem`
  * mudou — sem endpoint próprio (decisão registrada em `cadastros.ts`).
- */",,,,,,
+ */",translate,"/**
+ * Regras ├ Atendimento — the entry rule.
+ *
+ * Skeleton measured in `FICHA-rules.md` §2: header with ""Criar nova regra""
+ * on the right (no subtitle), search alone below, row-card with only
+ * ""Nome da Regra""/""Fila"" as columns (§4), and the pagination footer (§2.5).
+ * The row-card itself — label 12/400 over value 16/700, a toggle that
+ * enables/disables the record right in the list — is the same one as
+ * always.
+ *
+ * The combinator, the evaluation order, and the unreachable-rule warning
+ * aren't columns in the ficha (it only documents ""Nome da Regra"" and
+ * ""Fila""), but they remain decisive for predicting what the rule does — so
+ * they live in the card's footer (`descreverRegra`/warnings), which is a
+ * per-row annotation, not a new column or a new block on the page. ""Criar
+ * nova regra"" opens a modal — Blip doesn't show the form on the page, it
+ * lives inside the closed modal the material captured for the sibling
+ * screens (`FICHA-queue-management.md` §2.6).
+ *
+ * Edit/delete (item 1, second part) were added: the ""Editar"" icon reopens
+ * the same modal with `FormularioRegraFila` in edit mode; the ""Excluir"" icon
+ * asks for confirmation via `ModalConfirmacao` — never `window.confirm`,
+ * which is the provisional pattern `atendentes-filas.tsx` still uses (the
+ * comment there says so itself). REORDER is the two footer arrows: each
+ * click swaps the rule's position with its neighbor and sends one `PATCH`
+ * per rule whose `ordem` changed — no dedicated endpoint (decision logged
+ * in `cadastros.ts`).
+ */",meta-blip,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:18-42,,proposed
 gestao-vite-comment-a14b20d3,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,199,200,block,0,"/* ""Resultados por página"" nasce em 5, como o `bds-select value=""5""` do
-          rodapé deles (`dom/rules.html`). */",,,,,,
-gestao-vite-comment-5895f079,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,44,44,jsdoc,2,/** O interruptor do cartão. Formulário de um botão: não há nada digitado a preservar. */,,,,,,
-gestao-vite-comment-7a780ea5,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,63,63,jsdoc,0,/** Switch + setas de reordenar + editar/excluir — o slot `acao` do cartão-linha. */,,,,,,
+          rodapé deles (`dom/rules.html`). */",translate,"/* ""Resultados por página"" starts at 5, like the `bds-select value=""5""` in
+          their footer (`dom/rules.html`). */",meta-blip,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:199-200,,proposed
+gestao-vite-comment-5895f079,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,44,44,jsdoc,2,/** O interruptor do cartão. Formulário de um botão: não há nada digitado a preservar. */,translate,/** The card's toggle. A one-button form: there's nothing typed to preserve. */,other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:44-44,,proposed
+gestao-vite-comment-7a780ea5,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx,63,63,jsdoc,0,/** Switch + setas de reordenar + editar/excluir — o slot `acao` do cartão-linha. */,translate,/** Switch + reorder arrows + edit/delete — the row-card's `acao` slot. */,other,apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:63-63,,proposed
 gestao-vite-comment-00e4294c,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-horarios-formulario.tsx,9,20,jsdoc,8,"/**
  * Cadastro de horário, em três formulários.
  *
@@ -2730,10 +2895,22 @@ gestao-vite-comment-00e4294c,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * Data e hora são `<input type=""date"">` e `<input type=""time"">` do navegador:
  * calendário, teclado e formato local vêm de graça, e nenhuma biblioteca entra
  * na tela por causa disso.
- */",,,,,,
-gestao-vite-comment-bbb3861e,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx,54,54,line,3,"// A situação do cartão é o USO, não um interruptor: horário sem fila",,,,,,
-gestao-vite-comment-a9a1e339,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx,55,55,line,2,"// nenhuma não é erro de dado, é trabalho pela metade — cadastrado e",,,,,,
-gestao-vite-comment-f9fce64e,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx,56,56,line,4,"// nunca ligado. Sai em etiqueta de alerta, que é o que a lista já sabe",,,,,,
+ */",translate,"/**
+ * Schedule registration, in three forms.
+ *
+ * A single ""whole week"" form would have to resend all seven rows on every
+ * correction — and since there's no `update` on this screen yet
+ * (configuration auditing doesn't exist yet), resending would turn into a
+ * duplicated schedule. So: the schedule is created, then a time range and a
+ * holiday are added one at a time.
+ *
+ * Date and time are the browser's `<input type=""date"">` and
+ * `<input type=""time"">`: calendar, keyboard and local format come for free,
+ * and no library gets pulled into the screen for this.
+ */",other,apps/gestao-vite/src/paginas/cadastros/regras-horarios-formulario.tsx:9-20,,proposed
+gestao-vite-comment-bbb3861e,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx,54,54,line,3,"// A situação do cartão é o USO, não um interruptor: horário sem fila",translate,"// The card's status is USAGE, not a toggle: a schedule with no queue at",other,apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx:54-54,,proposed
+gestao-vite-comment-a9a1e339,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx,55,55,line,2,"// nenhuma não é erro de dado, é trabalho pela metade — cadastrado e",translate,"// all isn't a data error, it's unfinished work — registered and",other,apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx:55-55,,proposed
+gestao-vite-comment-f9fce64e,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx,56,56,line,4,"// nunca ligado. Sai em etiqueta de alerta, que é o que a lista já sabe",translate,"// never turned on. It shows as an alert tag, which is already what the list knows",other,apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx:56-56,,proposed
 gestao-vite-comment-b9b978fd,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx,7,19,jsdoc,14,"/**
  * Horários de atendimento.
  *
@@ -2746,8 +2923,22 @@ gestao-vite-comment-b9b978fd,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * Os números da tela saem das mesmas funções do core que o SLA usa
  * (`dentroDoExpediente`, `proximaAbertura`, `intervalosUteis`): o que a tela
  * mostra é o que o cálculo enxerga, incluindo feriado e horário de verão.
- */",,,,,,
-gestao-vite-comment-add450aa,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-sla-formulario.tsx,42,42,line,1,"// Edição não manda escopo — ver ""Decisão Pipe"" no topo do arquivo.",,,,,,
+ */",translate,"/**
+ * Business hours.
+ *
+ * It's the missing reference for SLA. `@pipe/core`'s `avaliarSla` receives
+ * the queue's business hours and, without it, counts all 24 hours of the
+ * day: a two-hour deadline opened at 5:50pm on a Friday breaches Saturday
+ * morning, without anyone having actually taken long at all. The comment at
+ * the top of `lib/sla.ts` records exactly this — the clock runs with no
+ * business hours because none had been registered.
+ *
+ * The screen's numbers come from the same core functions the SLA uses
+ * (`dentroDoExpediente`, `proximaAbertura`, `intervalosUteis`): what the
+ * screen shows is what the calculation sees, including holidays and
+ * daylight saving time.
+ */",architecture,apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx:7-19,,proposed
+gestao-vite-comment-add450aa,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-sla-formulario.tsx,42,42,line,1,"// Edição não manda escopo — ver ""Decisão Pipe"" no topo do arquivo.",translate,"// Editing doesn't send scope — see ""Decisão Pipe"" at the top of the file.",other,apps/gestao-vite/src/paginas/cadastros/regras-sla-formulario.tsx:42-42,,proposed
 gestao-vite-comment-68f34e7b,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-sla-formulario.tsx,8,20,jsdoc,17,"/**
  * Cadastro de regra de SLA — item 2 da tarefa de cadastros do Atendimento.
  * Liga os botões da tela `regras-sla.tsx` (o `TODO(escrita)` de lá) na API
@@ -2760,7 +2951,21 @@ gestao-vite-comment-68f34e7b,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * (a regra nasce ligada a uma fila ou à operação inteira); quem precisar
  * troca de escopo exclui e recria, e a edição fica só com nome/alvo/
  * prazo/alerta — o que cobre o pedido da tarefa sem alargar a leitura.
- */",,,,,,
+ */",translate,"/**
+ * SLA rule registration — item 2 of the Attendance registration task. Wires
+ * up the buttons on the `regras-sla.tsx` screen (its `TODO(escrita)`) to the
+ * API without changing the visuals: the same `form-cadastro`/`Modal` as
+ * every registration screen.
+ *
+ * **Pipe decision — scope is only chosen on CREATE.** Reading
+ * (`carregarRegras`, `apps/api/.../configuracoes.ts`) returns `escopoNome`
+ * for display, not `escopoId` — there's no way to preselect the queue in
+ * the edit form without it. Changing scope after creation is rare (a rule
+ * is born tied to one queue or to the whole operation); anyone who needs a
+ * scope change deletes and recreates, and editing stays limited to
+ * name/target/deadline/alert — which covers the task's request without
+ * widening the read.
+ */",other,apps/gestao-vite/src/paginas/cadastros/regras-sla-formulario.tsx:8-20,,proposed
 gestao-vite-comment-185ff5ba,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-sla.tsx,11,18,jsdoc,12,"/**
  * A sigla que a coluna ""Metas"" deles usa para cada alvo (`dom/sla-policy.html`:
  * ""TME, TMR1, TMA"" — tempo médio de espera, tempo médio da 1ª resposta,
@@ -2768,7 +2973,14 @@ gestao-vite-comment-185ff5ba,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * só por regra, então a coluna traz uma sigla; o prazo e o alerta vão no
  * `title` da célula, que é onde cabem sem abrir coluna que a tela deles não
  * tem.
- */",,,,,,
+ */",translate,"/**
+ * The acronym their ""Metas"" column uses for each target (`dom/sla-policy.html`:
+ * ""TME, TMR1, TMA"" — average wait time, average first-response time,
+ * average handling time; `FICHA-sla-policy.md` §8). Our target is a single
+ * one per rule, so the column shows one acronym; the deadline and the alert
+ * go in the cell's `title`, which is where they fit without opening a
+ * column their screen doesn't have.
+ */",meta-blip,apps/gestao-vite/src/paginas/cadastros/regras-sla.tsx:11-18,,proposed
 gestao-vite-comment-b2ee5bf9,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-sla.tsx,26,51,jsdoc,19,"/**
  * Regras ├ SLA — `attendance/desk/sla-policy` da origem, medido em
  * `referencias-blip/fichas/FICHA-sla-policy.md` e conferido na foto
@@ -2794,27 +3006,67 @@ gestao-vite-comment-b2ee5bf9,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * Atendimento) — ""Criar regra"" e os ícones ""Editar""/""Excluir"" do cartão
  * (§5) entram, ligados como `regras-atendimento.tsx`: interruptor +
  * `ModalConfirmacao` para excluir, nunca `window.confirm`.
- */",,,,,,
-gestao-vite-comment-4c6f91e4,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-sla.tsx,53,53,jsdoc,0,/** Switch + editar/excluir — o slot `acao` do cartão-linha. */,,,,,,
+ */",translate,"/**
+ * Regras ├ SLA — the source's `attendance/desk/sla-policy`, measured in
+ * `referencias-blip/fichas/FICHA-sla-policy.md` and checked against the
+ * `fotos/original-sla-policy.png` screenshot.
+ *
+ * Same skeleton as theirs (§2): header, search alone below (""Buscar regras
+ * de SLA"", §3), card list, and the pagination footer (§5). The card has
+ * FOUR columns — ""Regras de SLA"", ""Metas"", ""Filas atribuídas"" and the
+ * unlabeled ""Padrão"" badge (§4) — and nothing else on the row besides the
+ * actions.
+ *
+ * DATA divergences, not layout ones:
+ * - **One target per rule.** There, one policy combines several targets
+ *   (""TME, TMR1""); here `regra_sla.alvo` is a single value. The column
+ *   shows the target's acronym, and the deadline/alert go in the `title`.
+ * - **""Padrão"" comes from scope.** What the source calls the default
+ *   policy is, here, the `tenant`-scope rule — the one `escolherRegra` uses
+ *   as fallback. The badge is that rule, not a new flag.
+ * - **""Filas atribuídas""** is at most one queue (or the whole operation):
+ *   `escopoTipo`/`escopoId` tie the rule to a single scope.
+ *
+ * `TODO(escrita)` removed: real `PATCH`/`POST`/`DELETE` on
+ * `/v1/gestao/configuracoes/regras` (item 2 of the Attendance registration
+ * task) — ""Criar regra"" and the card's ""Editar""/""Excluir"" icons (§5) are
+ * wired up the same way as `regras-atendimento.tsx`: toggle +
+ * `ModalConfirmacao` for delete, never `window.confirm`.
+ */",meta-blip,apps/gestao-vite/src/paginas/cadastros/regras-sla.tsx:26-51,,proposed
+gestao-vite-comment-4c6f91e4,gestao-vite,apps/gestao-vite/src/paginas/cadastros/regras-sla.tsx,53,53,jsdoc,0,/** Switch + editar/excluir — o slot `acao` do cartão-linha. */,translate,/** Switch + edit/delete — the row-card's `acao` slot. */,other,apps/gestao-vite/src/paginas/cadastros/regras-sla.tsx:53-53,,proposed
 gestao-vite-comment-0d200120,gestao-vite,apps/gestao-vite/src/paginas/contrato/acoes.ts,5,9,jsdoc,4,"/**
  * As ações do painel de Membros — as mesmas de antes, do navegador. A permissão
  * `conta.membros.escrever` é conferida na `api`, na gravação; aqui só se monta
  * o pedido e se volta com o motivo na URL, como a tela já sabe mostrar.
- */",,,,,,
+ */",translate,"/**
+ * The Members panel's actions — the same ones as before, from the browser
+ * app. The `conta.membros.escrever` permission is checked in the `api`, on
+ * write; here we only assemble the request and come back with the reason in
+ * the URL, the way the screen already knows how to display.
+ */",security,apps/gestao-vite/src/paginas/contrato/acoes.ts:5-9,,proposed
 gestao-vite-comment-5c6c1840,gestao-vite,apps/gestao-vite/src/paginas/contrato/acoes.ts,52,56,jsdoc,4,"/**
  * Reenvia um convite pendente: mesmo e-mail, mesmo papel, link novo — o de
  * antes para de funcionar (`POST /v1/convites/:id/reenviar`). Como o Pipe não
  * entrega e-mail, o link volta na resposta para a tela mostrar de novo.
- */",,,,,,
+ */",translate,"/**
+ * Resends a pending invite: same email, same role, new link — the old one
+ * stops working (`POST /v1/convites/:id/reenviar`). Since Pipe doesn't
+ * deliver email, the link comes back in the response for the screen to show
+ * again.
+ */",integration,apps/gestao-vite/src/paginas/contrato/acoes.ts:52-56,,proposed
 gestao-vite-comment-281e44f7,gestao-vite,apps/gestao-vite/src/paginas/contrato/acoes.ts,81,82,block,6,"/* Em série, e não em `Promise.all`: são poucos e-mails, e a ordem da lista
-     de links fica igual à ordem em que a pessoa digitou. */",,,,,,
-gestao-vite-comment-defdd53d,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,110,110,block,0,"/* `team` na origem, e o nosso `comunidade` É o `team` deles. */",,,,,,
+     de links fica igual à ordem em que a pessoa digitou. */",translate,"/* In series, not with `Promise.all`: it's few emails, and the order of the
+     links list stays the same as the order the person typed them in. */",integration,apps/gestao-vite/src/paginas/contrato/acoes.ts:81-82,,proposed
+gestao-vite-comment-defdd53d,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,110,110,block,0,"/* `team` na origem, e o nosso `comunidade` É o `team` deles. */",translate,"/* `team` at the source, and our `comunidade` IS their `team`. */",other,apps/gestao-vite/src/paginas/contrato/catalogo.ts:110-110,,proposed
 gestao-vite-comment-4728e390,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,121,122,block,4,"/* ""Blip Calls"" na origem. O nome da plataforma deles sai da nossa tela — a
-       régua é copiar a disposição e a regra, nunca a marca. */",,,,,,
+       régua é copiar a disposição e a regra, nunca a marca. */",translate,"/* ""Blip Calls"" at the source. Their platform's name doesn't appear on our
+       screen — the rule is to copy the layout and the logic, never the
+       brand. */",meta-blip,apps/gestao-vite/src/paginas/contrato/catalogo.ts:121-122,,proposed
 gestao-vite-comment-65e3c905,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,125,126,block,2,"/* `robot`, como no `yc` do `main.e8593b01.chunk.js` — e não o `blip-chat`
-       (`bot`), que é o ícone do cartão de contato do portal. */",,,,,,
-gestao-vite-comment-379408f6,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,129,129,block,1,"/* O único cartão que pede ESCRITA, como na origem (conferência `e`). */",,,,,,
-gestao-vite-comment-2327ffe7,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,137,137,jsdoc,1,/** O código de permissão que o cartão exige: chave + verbo. */,,,,,,
+       (`bot`), que é o ícone do cartão de contato do portal. */",translate,"/* `robot`, like the `yc` in `main.e8593b01.chunk.js` — and not `blip-chat`
+       (`bot`), which is the icon for the portal's contact card. */",meta-blip,apps/gestao-vite/src/paginas/contrato/catalogo.ts:125-126,,proposed
+gestao-vite-comment-379408f6,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,129,129,block,1,"/* O único cartão que pede ESCRITA, como na origem (conferência `e`). */",translate,"/* The only card that requires WRITE, like at the source (check `e`). */",security,apps/gestao-vite/src/paginas/contrato/catalogo.ts:129-129,,proposed
+gestao-vite-comment-2327ffe7,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,137,137,jsdoc,1,/** O código de permissão que o cartão exige: chave + verbo. */,translate,/** The permission code the card requires: key + verb. */,security,apps/gestao-vite/src/paginas/contrato/catalogo.ts:137-137,,proposed
 gestao-vite-comment-e51af054,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,143,150,jsdoc,8,"/**
    * Modo demonstração (`?demo=1`): devolve o catálogo INTEIRO, para quem ainda
    * não tem papel nem plano entender a tela antes de ela existir de verdade.
@@ -2822,15 +3074,31 @@ gestao-vite-comment-e51af054,gestao-vite,apps/gestao-vite/src/paginas/contrato/c
    * **É SÓ VISUAL.** Nenhuma escrita passa por aqui: as Server Actions de
    * `acoes.ts` conferem a permissão de verdade em `Eu.permissoes`, sempre, e não
    * leem esta opção nem a URL. Ver o comentário no topo daquele arquivo.
-   */",,,,,,
+   */",translate,"/**
+   * Demo mode (`?demo=1`): returns the ENTIRE catalog, so someone with no
+   * role or plan yet can understand the screen before it really exists for
+   * them.
+   *
+   * **DISPLAY ONLY.** No write goes through here: the Server Actions in
+   * `acoes.ts` always check the real permission in `Eu.permissoes`, and
+   * never read this flag or the URL. See the comment at the top of that
+   * file.
+   */",security,apps/gestao-vite/src/paginas/contrato/catalogo.ts:143-150,,proposed
 gestao-vite-comment-f55b87de,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,154,160,jsdoc,8,"/**
  * Os cartões que esta pessoa vê.
  *
  * Função pura de propósito — recebe a lista de permissões e devolve a lista de
  * cartões, sem tocar em sessão, banco nem URL. É o funil deles reduzido ao que
  * sobra sem flag e sem assinatura: um `hasPermission` por cartão.
- */",,,,,,
-gestao-vite-comment-35bdbb01,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,169,169,jsdoc,3,"/** Os `roleId` da origem, que no banco são o nome dos três papéis de conta (0021). */",,,,,,
+ */",translate,"/**
+ * The cards this person sees.
+ *
+ * Deliberately a pure function — takes the permission list and returns the
+ * card list, without touching session, database or URL. It's their funnel
+ * reduced to what's left with no flag and no subscription: one
+ * `hasPermission` per card.
+ */",security,apps/gestao-vite/src/paginas/contrato/catalogo.ts:154-160,,proposed
+gestao-vite-comment-35bdbb01,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,169,169,jsdoc,3,"/** Os `roleId` da origem, que no banco são o nome dos três papéis de conta (0021). */",translate,"/** The source's `roleId` values, which in our database are the names of the three account roles (0021). */",security,apps/gestao-vite/src/paginas/contrato/catalogo.ts:169-169,,proposed
 gestao-vite-comment-2c33e409,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,172,182,jsdoc,13,"/**
  * Os três papéis da tela de membros deles, pelo `roleId`: rótulo, descrição
  * oficial em pt-BR (i18n `inviteMemberModal`), ícone e cor da opção no convite
@@ -2841,14 +3109,30 @@ gestao-vite-comment-2c33e409,gestao-vite,apps/gestao-vite/src/paginas/contrato/c
  * Desde a migração 0021 o papel de conta É a faixa — não há mais o que calcular
  * a partir de permissão. A ordem das chaves é a da origem (`TenantRole`: guest,
  * member, admin), e é a ordem das listas.
- */",,,,,,
+ */",translate,"/**
+ * The three roles on their Members screen, by `roleId`: label, official
+ * pt-BR description (i18n `inviteMemberModal`), icon and invite-option color
+ * (`roleOptions`: `eye-open`, `edit`, `avatar-user`). See
+ * `blip-painel-do-contrato.md` §""A matriz de papéis"" and
+ * `blip-gestao-regras-tecnicas.md` §8.2.
+ *
+ * Since migration 0021 the account role IS the tier — there's nothing left
+ * to compute from permissions. The key order is the source's (`TenantRole`:
+ * guest, member, admin), and it's the order of the lists.
+ */",meta-blip,apps/gestao-vite/src/paginas/contrato/catalogo.ts:172-182,,proposed
 gestao-vite-comment-d8a408d1,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,213,218,jsdoc,5,"/**
  * Os cartões repartidos por grupo, na ordem dos grupos.
  *
  * Grupo sem nenhum cartão NÃO entra: na origem, seção vazia não rende cabeçalho
  * nem grade — o `guest` não vê um título de ""Configurações gerais"" sobre o nada.
- */",,,,,,
-gestao-vite-comment-7811b8ff,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,228,228,jsdoc,1,/** Uma linha marcada na tela de Membros: de qual tabela veio e qual é o id. */,,,,,,
+ */",translate,"/**
+ * Cards split by group, in group order.
+ *
+ * A group with no cards at all is left out: at the source, an empty section
+ * renders no header and no grid — `guest` doesn't see a ""Configurações
+ * gerais"" title over nothing.
+ */",architecture,apps/gestao-vite/src/paginas/contrato/catalogo.ts:213-218,,proposed
+gestao-vite-comment-7811b8ff,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,228,228,jsdoc,1,/** Uma linha marcada na tela de Membros: de qual tabela veio e qual é o id. */,translate,/** A checked row on the Members screen: which table it came from and what its id is. */,other,apps/gestao-vite/src/paginas/contrato/catalogo.ts:228-228,,proposed
 gestao-vite-comment-9e57c7f0,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,234,242,jsdoc,11,"/**
  * Lê os alvos que a tabela de Membros manda no formulário.
  *
@@ -2857,7 +3141,16 @@ gestao-vite-comment-9e57c7f0,gestao-vite,apps/gestao-vite/src/paginas/contrato/c
  * moram na mesma tabela. **Vem do navegador**, então tudo o que não casa com os
  * dois prefixos conhecidos é descartado aqui, antes de virar consulta: o que
  * sobra é usado para escolher QUAL função de escrita chamar.
- */",,,,,,
+ */",translate,"/**
+ * Reads the targets the Members table sends in the form.
+ *
+ * Each checked row arrives as `usuario:<id>` or `convite:<id>` — our
+ * `userIdentity`, which at the source is a single key only because there
+ * member and invitee live in the same table. **Comes from the browser**, so
+ * anything that doesn't match the two known prefixes is discarded here,
+ * before it becomes a query: what's left is used to decide WHICH write
+ * function to call.
+ */",security,apps/gestao-vite/src/paginas/contrato/catalogo.ts:234-242,,proposed
 gestao-vite-comment-0137f2f1,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,3,39,jsdoc,50,"/**
  * O catálogo de cartões do Painel do contrato — um registro por cartão, como na
  * origem.
@@ -2894,30 +3187,92 @@ gestao-vite-comment-0137f2f1,gestao-vite,apps/gestao-vite/src/paginas/contrato/c
  * que já têm uma permissão de verdade guardando a porta: a flag some da regra
  * (não temos nenhuma), a permissão continua valendo, e o nome da flag fica
  * registrado no campo — é o que o modo demonstração mostra ao lado do cartão.
- */",,,,,,
-gestao-vite-comment-2ff1ba5d,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,41,41,jsdoc,2,"/** Os grupos que sobraram, com o título e o tooltip da origem. */",,,,,,
-gestao-vite-comment-2e18f12e,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,66,66,jsdoc,2,"/** A chave da matriz, sem o verbo. O `accessPermission` deles. */",,,,,,
+ */",translate,"/**
+ * The Contract Panel's card catalog — one record per card, like at the
+ * source.
+ *
+ * There each card is an object with `group`, `option`, `icon`,
+ * `accessPermission`, `featureToggle`, `metrics`, `path` and
+ * `additionalCheck` (`referencias-blip/pesquisa/blip-painel-do-contrato.md`
+ * §""Os cartões, os três grupos""), and the screen is the result of running
+ * the funnel over that list. Here it's the same idea with the fields OUR
+ * base supports: no `featureToggle` and no `metrics`, because we have no
+ * LaunchDarkly and no subscription with metrics — and inventing both just
+ * to copy a funnel would mean inventing a product.
+ *
+ * **The check is the key+verb pair**, like their matrix: `accessPermission`
+ * is the key (`tenant-members`) and the check is the verb (`read`/`write`).
+ * The permission code the person needs is the join of the two —
+ * `conta.membros` + `ler` = `conta.membros.ler` —, and that's how the eleven
+ * permissions created in migration `0019_permissoes_da_conta` connect to
+ * the screen.
+ *
+ * ## What was left out, and why
+ *
+ * No card was invented, and none was copied for decoration. Left out are
+ * the ones that, at the source, only exist behind a flag or a plan — things
+ * we don't have:
+ *
+ * - **Atendentes** (`/agent`): depends on the subscription's `Agent`
+ *   metric.
+ * - **Base de conhecimento** (`/knowledge-base`): check `b` — write **and**
+ *   a paid or trial agent plan. Without an agent plan, `b` is always false.
+ * - **Pipeline** (`/pipeline`): check `c` — read **and** (the
+ *   `pipeline-enable` flag **or** an agent plan). Without the flag and
+ *   without the plan, always false.
+ * - **The entire ""Acompanhamento do plano"" group** (seven consumption
+ *   cards): all require `tenant-billing` PLUS a `billing-*` flag PLUS a
+ *   subscription metric, and the section only renders when more than one
+ *   card remains.
+ *
+ * The ones that stayed and carry `flagNaOrigem` are the ones the source
+ * hides behind a flag but that already have a real permission guarding the
+ * door: the flag disappears from the rule (we have none), the permission
+ * still applies, and the flag's name stays recorded in the field — that's
+ * what demo mode shows next to the card.
+ */",meta-blip,apps/gestao-vite/src/paginas/contrato/catalogo.ts:3-39,,proposed
+gestao-vite-comment-2ff1ba5d,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,41,41,jsdoc,2,"/** Os grupos que sobraram, com o título e o tooltip da origem. */",translate,"/** The groups left over, with the source's title and tooltip. */",architecture,apps/gestao-vite/src/paginas/contrato/catalogo.ts:41-41,,proposed
+gestao-vite-comment-2e18f12e,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,66,66,jsdoc,2,"/** A chave da matriz, sem o verbo. O `accessPermission` deles. */",translate,"/** The matrix key, without the verb. Their `accessPermission`. */",security,apps/gestao-vite/src/paginas/contrato/catalogo.ts:66-66,,proposed
 gestao-vite-comment-6409b103,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,70,73,jsdoc,8,"/**
    * `false` enquanto a rota não existe. O cartão continua na tela, apagado e
    * com o selo ""em breve"" — é o que o portal já faz com o que está em obra.
-   */",,,,,,
-gestao-vite-comment-1ab0966a,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,75,75,jsdoc,2,"/** A flag que, na origem, esconderia este cartão. Só o modo demonstração mostra. */",,,,,,
+   */",translate,"/**
+   * `false` while the route doesn't exist yet. The card stays on screen,
+   * dimmed, with the ""coming soon"" badge — the same thing the portal already
+   * does with what's under construction.
+   */",architecture,apps/gestao-vite/src/paginas/contrato/catalogo.ts:70-73,,proposed
+gestao-vite-comment-1ab0966a,gestao-vite,apps/gestao-vite/src/paginas/contrato/catalogo.ts,75,75,jsdoc,2,"/** A flag que, na origem, esconderia este cartão. Só o modo demonstração mostra. */",translate,"/** The flag that, at the source, would hide this card. Only demo mode shows it. */",architecture,apps/gestao-vite/src/paginas/contrato/catalogo.ts:75-75,,proposed
 gestao-vite-comment-a308261b,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/acoes.ts,16,20,jsdoc,4,"/**
  * O que a origem manda no ""Finalizar"": `password` + `file` no upload e depois
  * `description` + `hosts` no `set` — aqui tudo num POST só. A senha e o
  * arquivo só passam por aqui; a `api` os guarda cifrados e nunca os devolve.
- */",,,,,,
+ */",translate,"/**
+ * What the source sends on ""Finalizar"": `password` + `file` on upload, then
+ * `description` + `hosts` on `set` — here it's all in a single POST. The
+ * password and the file only pass through here; the `api` stores them
+ * encrypted and never returns them.
+ */",security,apps/gestao-vite/src/paginas/contrato/certificados/acoes.ts:16-20,,proposed
 gestao-vite-comment-b200fa8e,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/acoes.ts,41,45,jsdoc,5,"/**
  * O `erro.mensagem` do corpo da `api` (""A senha do certificado está
  * incorreta."", ""O arquivo não é um .pfx válido…""): é o que a origem mostra no
  * toast em vez do status.
- */",,,,,,
+ */",translate,"/**
+ * The `erro.mensagem` from the `api`'s body (""A senha do certificado está
+ * incorreta."", ""O arquivo não é um .pfx válido…""): it's what the source
+ * shows in the toast instead of the status.
+ */",security,apps/gestao-vite/src/paginas/contrato/certificados/acoes.ts:41-45,,proposed
 gestao-vite-comment-bba33de0,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/acoes.ts,5,10,jsdoc,1,"/**
  * As escritas da tela de Certificados, agora em `POST/DELETE
  * /v1/gestao/contrato/certificados*` (`apps/api/.../dominio/gestao/certificados.ts`).
  * A permissão (`conta.membros.escrever`) é conferida de novo na `api`; aqui só
  * se monta o pedido e se devolve o motivo, como em `../acoes.ts`.
- */",,,,,,
+ */",translate,"/**
+ * The Certificados screen's writes, now in `POST/DELETE
+ * /v1/gestao/contrato/certificados*` (`apps/api/.../dominio/gestao/certificados.ts`).
+ * The permission (`conta.membros.escrever`) is checked again in the `api`;
+ * here we only assemble the request and return the reason, as in
+ * `../acoes.ts`.
+ */",security,apps/gestao-vite/src/paginas/contrato/certificados/acoes.ts:5-10,,proposed
 gestao-vite-comment-b4ad1e3d,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/page.tsx,13,27,jsdoc,16,"/**
  * Certificados de autenticação — o cartão ""Gerencie seus certificados mTLS"" do
  * painel, que na origem abre a rota `/mtls` do fragmento (componente `zt`).
@@ -2932,13 +3287,30 @@ gestao-vite-comment-b4ad1e3d,gestao-vite,apps/gestao-vite/src/paginas/contrato/c
  *
  * O contrato de dados, os textos e os modais estão em
  * `referencias-blip/pesquisa/blip-certificados-mtls.md`.
- */",,,,,,
+ */",translate,"/**
+ * Authentication certificates — the ""Gerencie seus certificados mTLS"" card
+ * on the panel, which at the source opens the fragment's `/mtls` route
+ * (component `zt`).
+ *
+ * The route is called `certificados`, not `mtls`, for the same reason
+ * `membros` isn't called `panel`: the address is ours, in Portuguese; what
+ * gets copied is the screen.
+ *
+ * The guard is the source's — `Z.d(members)`, a `tenant-members` read —,
+ * which here is `conta.membros.ler`, the same one the card already
+ * requires. Anyone arriving without it goes back to the panel.
+ *
+ * The data contract, the copy and the modals are in
+ * `referencias-blip/pesquisa/blip-certificados-mtls.md`.
+ */",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/page.tsx:13-27,,proposed
 gestao-vite-comment-80c37ce3,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/page.tsx,46,47,block,3,"/* `setHeaderContent({ redirect: ""/"", text: ""Certificados MTLS de {0}"" })`:
-            na origem quem desenha a seta e a frase é a barra do portal. */",,,,,,
-gestao-vite-comment-6398a488,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,160,160,line,2,"// ""Se o certificado fica sem host, o modal de hosts fecha e a lista",,,,,,
-gestao-vite-comment-df699cda,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,161,161,line,1,"// recarrega depois de 1s"" — o `excluirHostDoCertificado` do domínio já",,,,,,
-gestao-vite-comment-2bab6ed6,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,162,162,line,2,// apaga o certificado junto quando era o último; aqui só se fecha a,,,,,,
-gestao-vite-comment-4fe5a08d,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,163,163,line,2,// janela de hosts se ele não existir mais na lista recarregada.,,,,,,
+            na origem quem desenha a seta e a frase é a barra do portal. */",translate,"/* `setHeaderContent({ redirect: ""/"", text: ""Certificados MTLS de {0}"" })`:
+            at the source, the portal bar is what draws the back arrow and
+            the phrase. */",architecture,apps/gestao-vite/src/paginas/contrato/certificados/page.tsx:46-47,,proposed
+gestao-vite-comment-6398a488,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,160,160,line,2,"// ""Se o certificado fica sem host, o modal de hosts fecha e a lista",translate,"// ""If the certificate ends up without a host, the hosts modal closes and the list",architecture,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:160-160,,proposed
+gestao-vite-comment-df699cda,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,161,161,line,1,"// recarrega depois de 1s"" — o `excluirHostDoCertificado` do domínio já",translate,"// reloads after 1s"" — the domain's `excluirHostDoCertificado` already",architecture,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:161-161,,proposed
+gestao-vite-comment-2bab6ed6,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,162,162,line,2,// apaga o certificado junto quando era o último; aqui só se fecha a,translate,// deletes the certificate too when it was the last one; here we only close the,architecture,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:162-162,,proposed
+gestao-vite-comment-4fe5a08d,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,163,163,line,2,// janela de hosts se ele não existir mais na lista recarregada.,translate,// hosts window if it no longer exists in the reloaded list.,architecture,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:163-163,,proposed
 gestao-vite-comment-b385dfc8,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,17,35,jsdoc,13,"/**
  * A tela de Certificados de autenticação, na mecânica do `zt` deles
  * (`main.e8593b01.chunk.js`): dois `bds-paper` empilhados — o de apresentação
@@ -2957,27 +3329,60 @@ gestao-vite-comment-b385dfc8,gestao-vite,apps/gestao-vite/src/paginas/contrato/c
  * vão de verdade no ""Finalizar"" (data URL + senha no JSON): a `api` lê o
  * arquivo, tira validade e impressão digital, guarda os dois cifrados e
  * calcula o status que a coluna mostra (`etiquetaDoStatus`).
- */",,,,,,
-gestao-vite-comment-5614bbc8,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,172,172,block,0,/* `xt`: o paper de apresentação. */,,,,,,
+ */",translate,"/**
+ * The authentication Certificados screen, following the mechanics of their
+ * `zt` (`main.e8593b01.chunk.js`): two stacked `bds-paper`s — the
+ * presentation one (`xt`) and the listing one (`Pt`) — and four modals: the
+ * three-step registration (`bds-modal#certificate-modal`), the
+ * certificate's hosts (`bds-modal#hosts-modal`), and the two delete warnings
+ * (`bds-alert#remove-certificate-alert` and `#remove-host-alert`).
+ *
+ * It's client-side because the source is: opening a modal, moving through
+ * the steps, and tracking which certificate is in hand are screen state.
+ * The measurements are in `certificados.css`; here are the copy and the
+ * rules.
+ *
+ * Every write falls through to `./acoes.ts` (`POST/DELETE
+ * /v1/gestao/contrato/certificados*`), which checks the permission on the
+ * server and returns the reason — shown in place of their toast. The `.pfx`
+ * and the password really do go out on ""Finalizar"" (data URL + password in
+ * the JSON): the `api` reads the file, extracts validity and fingerprint,
+ * stores both encrypted, and computes the status the column shows
+ * (`etiquetaDoStatus`).
+ */",meta-blip,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:17-35,,proposed
+gestao-vite-comment-5614bbc8,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,172,172,block,0,/* `xt`: o paper de apresentação. */,translate,/* `xt`: the presentation paper. */,other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:172-172,,proposed
 gestao-vite-comment-6c72cf87,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,175,176,block,4,"/* A `bds-illustration type=""spots"" name=""lock-2""` da origem fica de
-              fora: não foi capturada e não temos uma. */",,,,,,
+              fora: não foi capturada e não temos uma. */",translate,"/* Their `bds-illustration type=""spots"" name=""lock-2""` is left out: it
+              wasn't captured and we don't have one. */",other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:175-176,,proposed
 gestao-vite-comment-4a0eb7c2,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,213,214,block,5,"/* Sem certificado a tabela fica só com o cabeçalho: a origem não
-              tem mensagem de lista vazia. */",,,,,,
+              tem mensagem de lista vazia. */",translate,"/* With no certificates the table shows only the header: the source has
+              no empty-list message. */",other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:213-214,,proposed
 gestao-vite-comment-85da1109,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,224,225,block,3,"/* `bds-chip-tag` pelo `status` — o chip calculado da origem,
-                        com a impressão digital e o sujeito na dica. */",,,,,,
+                        com a impressão digital e o sujeito na dica. */",translate,"/* `bds-chip-tag` by `status` — the source's computed chip, with the
+                        fingerprint and subject in the tooltip. */",other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:224-225,,proposed
 gestao-vite-comment-2f440fa8,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,263,264,block,1,"/* `bds-modal#hosts-modal title=""Hosts do certificado""`: no web
-              component o `title` é o atributo do HTML — dica, não cabeçalho. */",,,,,,
-gestao-vite-comment-0b64fbd3,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,319,319,block,0,/* ---------------------------------------------------------------- peças */,,,,,,
+              component o `title` é o atributo do HTML — dica, não cabeçalho. */",translate,"/* `bds-modal#hosts-modal title=""Hosts do certificado""`: in the web
+              component, `title` is the HTML attribute — a tooltip, not a
+              header. */",other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:263-264,,proposed
+gestao-vite-comment-0b64fbd3,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,319,319,block,0,/* ---------------------------------------------------------------- peças */,translate,/* ---------------------------------------------------------------- pieces */,other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:319-319,,proposed
 gestao-vite-comment-646af478,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,348,351,jsdoc,3,"/**
  * `bds-chip-tag` da coluna Status: `success`/`disabled`/`default` conforme
  * `etiquetaDoStatus`. A dica traz o que a `api` leu do `.pfx`.
- */",,,,,,
-gestao-vite-comment-0765de76,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,37,37,jsdoc,1,"/** Os textos da tela, em pt-BR, dos dicionários `Et`, `Ct`, `ut`, `Dt`, `Mt` e `Tt`. */",,,,,,
-gestao-vite-comment-e1771af6,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,385,385,jsdoc,0,"/** O `close-button` do `bds-modal`: ícone `close` (medium, 24), o nosso `fechar`. */",,,,,,
+ */",translate,"/**
+ * `bds-chip-tag` for the Status column: `success`/`disabled`/`default` per
+ * `etiquetaDoStatus`. The tooltip carries what the `api` read from the
+ * `.pfx`.
+ */",other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:348-351,,proposed
+gestao-vite-comment-0765de76,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,37,37,jsdoc,1,"/** Os textos da tela, em pt-BR, dos dicionários `Et`, `Ct`, `ut`, `Dt`, `Mt` e `Tt`. */",translate,"/** The screen's texts, in pt-BR, from the `Et`, `Ct`, `ut`, `Dt`, `Mt` and `Tt` dictionaries. */",other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:37-37,,proposed
+gestao-vite-comment-e1771af6,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,385,385,jsdoc,0,"/** O `close-button` do `bds-modal`: ícone `close` (medium, 24), o nosso `fechar`. */",translate,"/** The `bds-modal`'s `close-button`: the `close` icon (medium, 24), our `fechar`. */",other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:385-385,,proposed
 gestao-vite-comment-6cb59097,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,441,444,jsdoc,2,"/**
  * O toast deles (`Object(m.g)({ type, message })`). `popover` para ficar por
  * cima até de uma janela aberta, como o toast fica; some sozinho.
- */",,,,,,
+ */",translate,"/**
+ * Their toast (`Object(m.g)({ type, message })`). `popover` so it stays on
+ * top even over an open modal, the way their toast does; disappears on its
+ * own.
+ */",other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:441-444,,proposed
 gestao-vite-comment-9a03cee0,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,468,479,jsdoc,18,"/**
  * O `yt`: o `bds-stepper` com três passos, a caixa rolável de 40×18rem e a
  * fileira de botões. ""Próximo"" só destrava com o passo atual preenchido; o
@@ -2989,13 +3394,25 @@ gestao-vite-comment-9a03cee0,gestao-vite,apps/gestao-vite/src/paginas/contrato/c
  * sendo o toast do ""Finalizar"" (""A senha do certificado está incorreta."").
  * O que vai para `POST /v1/gestao/contrato/certificados`: arquivo (data URL),
  * senha, descrição e hosts.
- */",,,,,,
-gestao-vite-comment-2efc42ea,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,525,525,line,1,"// Sucesso: formulário limpo, volta ao passo 1 e fecha — falha: a origem",,,,,,
-gestao-vite-comment-2d419f57,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,526,526,line,2,// mostra o toast e deixa a janela aberta (`aoAvisar` já cuidou do toast).,,,,,,
-gestao-vite-comment-479a6004,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,547,547,block,1,"/* O concluído troca o número pelo `bds-icon name=""true""` (medium): o nosso `concluido`. */",,,,,,
-gestao-vite-comment-80cdb52b,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,715,715,jsdoc,1,"/** `bds-input`: o rótulo em cima, dentro da mesma borda, e a mensagem embaixo. */",,,,,,
-gestao-vite-comment-5eb5f8af,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,750,750,block,0,"/* `bds-icon name=""error"" size=""x-small""`: o nosso `fechar-chip` é o `error`. */",,,,,,
-gestao-vite-comment-b136a832,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,94,94,jsdoc,1,"/** O `j` do `zt`: o formulário em branco, com um campo de URL. */",,,,,,
+ */",translate,"/**
+ * The `yt`: the `bds-stepper` with three steps, the 40×18rem scrollable box
+ * and the button row. ""Próximo"" only unlocks once the current step is
+ * filled in; the file is only checked at ""Finalizar"", same as there.
+ *
+ * **What changes from the source**: there, step 1 unlocks with just the
+ * filename, and the wrong password shows up at ""Finalizar""; here the
+ * password is also required to advance, because the `api` refuses the
+ * registration without it — getting the password wrong is still the
+ * ""Finalizar"" toast (""A senha do certificado está incorreta.""). What goes to
+ * `POST /v1/gestao/contrato/certificados`: file (data URL), password,
+ * description and hosts.
+ */",security,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:468-479,,proposed
+gestao-vite-comment-2efc42ea,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,525,525,line,1,"// Sucesso: formulário limpo, volta ao passo 1 e fecha — falha: a origem",translate,"// Success: form cleared, back to step 1, and closes — failure: the source",other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:525-525,,proposed
+gestao-vite-comment-2d419f57,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,526,526,line,2,// mostra o toast e deixa a janela aberta (`aoAvisar` já cuidou do toast).,translate,// shows the toast and leaves the window open (`aoAvisar` already handled the toast).,other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:526-526,,proposed
+gestao-vite-comment-479a6004,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,547,547,block,1,"/* O concluído troca o número pelo `bds-icon name=""true""` (medium): o nosso `concluido`. */",translate,"/* Completed swaps the number for the `bds-icon name=""true""` (medium): our `concluido`. */",other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:547-547,,proposed
+gestao-vite-comment-80cdb52b,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,715,715,jsdoc,1,"/** `bds-input`: o rótulo em cima, dentro da mesma borda, e a mensagem embaixo. */",translate,"/** `bds-input`: the label on top, inside the same border, and the message below. */",other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:715-715,,proposed
+gestao-vite-comment-5eb5f8af,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,750,750,block,0,"/* `bds-icon name=""error"" size=""x-small""`: o nosso `fechar-chip` é o `error`. */",translate,"/* `bds-icon name=""error"" size=""x-small""`: our `fechar-chip` is their `error`. */",other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:750-750,,proposed
+gestao-vite-comment-b136a832,gestao-vite,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx,94,94,jsdoc,1,"/** O `j` do `zt`: o formulário em branco, com um campo de URL. */",translate,"/** The `j` of `zt`: the blank form, with one URL field. */",other,apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:94-94,,proposed
 gestao-vite-comment-42bd2115,gestao-vite,apps/gestao-vite/src/paginas/contrato/copiar.tsx,3,18,jsdoc,14,"/**
  * O botão de copiar do cartão de resumo — o ícone com tooltip ""Copiar"" que fica
  * ao lado do endereço e do ID na tela deles.

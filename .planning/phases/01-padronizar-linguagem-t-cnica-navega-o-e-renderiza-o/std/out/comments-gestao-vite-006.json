@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "gestao-vite-comment-bc6c73b6",
+      "action": "translate",
+      "new_text": "/** Fills the form with what's already known about the channel. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx:78-78",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-278d0871",
+      "action": "translate",
+      "new_text": "// Body changed: variable examples that disappeared no longer serve any purpose once stored.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx:105-105",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3eb577fb",
+      "action": "translate",
+      "new_text": "/**\n * Header at CREATION only has text or none — media requires a sample file\n * (Resumable Upload API) that this form doesn't collect yet (ponytail already\n * logged in `modelos.ts`: \"create with text header only or no header\").\n * Media header still appears in the LIST of synced templates — it just isn't\n * an option here.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx:22-28",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-44732716",
+      "action": "translate",
+      "new_text": "/** The body variables, in the order they appear — same rule as `variaveisDoTexto` in the `api`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx:36-36",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f224aa28",
+      "action": "translate",
+      "new_text": "/**\n * Deliberately duplicates the catalogs from `lib/comunicacao.ts` instead of\n * importing them — a historical note for this file. Still holds: it's a few\n * lines, and the client screen doesn't need to drag in the server module\n * even though it's pure today.\n *\n * The CATEGORY here only has Utilidade/Marketing — `montarModelo`\n * (`apps/api/src/dominio/whatsapp/modelos.ts`) refuses Autenticação at\n * creation time (\"has its own components, isn't free text\"); it only\n * appears after being SYNCED from Meta, in the list above this form.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx:5-15",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-bfad925d",
+      "action": "translate",
+      "new_text": "/* Their empty-state literal text (`FICHA-message-template.md` §6),\n         pointing to where the template gets registered — here, the form\n         right below the list. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:118-120",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e15313ec",
+      "action": "translate",
+      "new_text": "/* `FICHA-message-template.md` §2.1: header WITHOUT a button — the area to\n          the right of the title stays empty in Blip, because there the\n          template is registered under \"Conteúdos > Modelo de mensagem\" (§5),\n          a screen that doesn't exist in Pipe today. Since there's nowhere to\n          send that creation, the form stays here — it just moved below the\n          list, so the top of the page matches theirs before reaching the\n          part that's ours alone. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:157-162",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-d4ac11dd",
+      "action": "translate",
+      "new_text": "/* §2.2/§2.3: inside the content panel, the title repeats and the\n          \"Filtrar por:\" line comes BEFORE the search. \"Fluxo de retorno\" (§3)\n          is left out — the source captured that filter with `options=\"[]\"`\n          (even they had nothing there), and Pipe has no such concept.\n          \"Status\" also isn't the same field (theirs is a local\n          enabled/disabled toggle; ours is the Meta approval status), but it\n          occupies the same position with the real data the screen already\n          shows on each card. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:169-175",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8724ea5a",
+      "action": "translate",
+      "new_text": "/* Their row: \"Filtrar por:\", the selectors, and the search on the right\n            taking up 69% — with the literal placeholder \"Pesquise pelo nome\n            do modelo de mensagem\" (§3). */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:179-181",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-9509f9cc",
+      "action": "translate",
+      "new_text": "/**\n * \"Status\" filter options — `FICHA-message-template.md` §3 documents\n * \"Habilitado\"/\"Desabilitado\" at the source, but that's THEIR LOCAL\n * on/off toggle; our `statusMeta` is something else (the template's Meta\n * approval status, `ROTULO_STATUS_META`) — there's no \"habilitado\" here to\n * translate. The filter uses the options the screen already shows on each\n * card (§4 \"Status na Meta\"), in the same documented POSITION (\"Filtrar\n * por:\", before the search).\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:20-28",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c27e4c08",
+      "action": "translate",
+      "new_text": "/**\n * Real trigger positions, readable directly on the card: without a media\n * header it's `{{1}}, {{2}}…`; with media, each one shifts by +1 and the\n * card already shows the shifted number — it's the rule from the task's\n * §\"modelos\" section, visible on the registration screen, not just in the\n * sending code (`apps/workers/src/whatsapp/template.ts`).\n */",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:31-36",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2e2e456f",
+      "action": "translate",
+      "new_text": "/** \"Sincronizar com a Meta\" — one button per channel, `POST .../modelos/sincronizar`. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos.tsx:44-44",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-26c90d6d",
+      "action": "translate",
+      "new_text": "/* See the equivalent comment in `regras-atendimento-formulario.tsx`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas-formulario.tsx:20-20",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3320bda7",
+      "action": "translate",
+      "new_text": "/**\n * Canned-reply registration — only `escopo = 'empresa'` (see the comment in\n * `lib/comunicacao.ts`). Attendants create their personal ones in Desk.\n *\n * No \"labeled form field\" class exists yet in the shared design system —\n * only `.cl-campo` (label above a READ-ONLY VALUE, from the list card) and\n * `.lbl`, which the comment in `base.css` forbids using for a field name. So\n * the label here is `.sub` (a small caption, already existing) instead of a\n * new class.\n */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas-formulario.tsx:7-16",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6d427981",
+      "action": "translate",
+      "new_text": "/** The switch and the \"Excluir\" on the row card — `PATCH`/`DELETE` on `.../respostas-prontas/:id`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas.tsx:10-10",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3cb750d2",
+      "action": "translate",
+      "new_text": "/**\n * Canned replies — the company's ones. Personal ones are created and\n * organized by the attendant alone in Desk (§5 of\n * `docs/specs/2026-09-05-desk-requisitos.md`), so they don't appear on this\n * management screen.\n *\n * `FICHA-replies.md` was captured with an empty list — the material only\n * confirms the header with \"Criar categoria\" on the right (§2.1) and the\n * empty-state text (§6); there's no column or row with real data to copy. A\n * structural mismatch the ficha doesn't resolve: Blip organizes replies into\n * CATEGORIES (you create the category first, the reply lives inside it);\n * our registration is a flat list, with no category — changing that is\n * new-data design (table/API), beyond what this screen alone decides. That's\n * why the header button here reads \"Nova resposta pronta\" (what the screen\n * actually does) instead of \"Criar categoria\".\n *\n * Reuses `ListaRegras`, the same search-enabled list card from the Rules\n * screen — the card already handles search, grouping and empty state\n * without rewriting any of that here.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas.tsx:44-62",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6aff065d",
+      "action": "translate",
+      "new_text": "/* Their literal empty-state text — `FICHA-replies.md` §6, the only part\n         of the material not subject to the category mismatch described\n         above: the text doesn't mention category or #, so it's copied\n         without caveat. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-respostas.tsx:86-89",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c58ca2a7",
+      "action": "translate",
+      "new_text": "/**\n * Data: the operation's vocabulary.\n *\n * The usage column exists because a tag with no usage is the clutter that\n * makes the closing-out list grow without informing anything — and the\n * supervisor only finds out by counting.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/configuracoes-dados.tsx:14-20",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b15c0f0c",
+      "action": "translate",
+      "new_text": "/* ----------------------------------------------------------- card 3 */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx:152-152",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d0bcb637",
+      "action": "translate",
+      "new_text": "/**\n * Preferências ├ General settings.\n *\n * The second gap that `estrutura-gestao.tsx` used to log. The layout follows\n * §3 of `blip-telas-cadastro.md`: one card per setting, stacked with a 20\n * gap, title 20/700 over a 14/400 explanation, the section's toggle on the\n * right, and **each card saves itself** — there's no screen-level Save.\n *\n * Three settings, and all three touch a column that already exists. No\n * preference was invented just to fill the screen: a setting that doesn't\n * change behavior is a disabled item under another name.\n *\n * The Data screen keeps doing the SNAPSHOT (tags with usage counts,\n * channels). What changes gets decided here, and every change records\n * author, previous value and timestamp in `log_auditoria` — that was the\n * condition logged in `lib/configuracoes.ts` for setting edits to stop being\n * passive.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx:17-34",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8f1c9691",
+      "action": "translate",
+      "new_text": "/* `FICHA-general-settings.md` §1: no subtitle — title only. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx:46-46",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f4235eda",
+      "action": "translate",
+      "new_text": "/* ----------------------------------------------------------- card 1 */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx:51-51",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-cfa6715d",
+      "action": "translate",
+      "new_text": "/* ----------------------------------------------------------- card 2 */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/configuracoes-gerais.tsx:87-87",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e5a3398c",
+      "action": "translate",
+      "new_text": "/**\n * Rules: what decides each queue's SLA and capacity.\n *\n * It's the answer to the question the monitoring screen's SLA column used to\n * raise without answering: \"breached what, against which deadline?\".\n *\n * There used to be two tables. They became two card lists, which is what\n * Blip does on the Rules, SLA and Hours screens — measured in\n * `referencias-blip/pesquisa/blip-telas-atendimento.md` §5.3 through §5.5.\n * The screen's order is theirs: title, search alone on its own line, list.\n *\n * Read-only for now — see the comment in `lib/configuracoes.ts` and the\n * divergence logged in §6 of the research.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/configuracoes-regras.tsx:11-24",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a9f5b993",
+      "action": "translate",
+      "new_text": "// A blank row isn't included — same filter as `salvarRegraFila` (create action).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:117-117",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-8c3498d0",
+      "action": "translate",
+      "new_text": "/** Closes the modal once saving succeeds — without this the person is left\n      staring at their own blank form, not knowing if it worked. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:139-140",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f6926868",
+      "action": "translate",
+      "new_text": "/* The form's `reset()` doesn't undo the field-selector state, which is\n     controlled. Changing the generation remounts the zeroed-out rows — same\n     effect, with one line instead of a `useImperativeHandle` per row. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:146-148",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5f7c9289",
+      "action": "translate",
+      "new_text": "/* `useActionState` starts with `{ ok: true }` — the initial value, not a\n     submission confirmation. Without this guard, the effect below would\n     think saving had just finished as soon as the form mounts (inside the\n     modal, for instance) and would close everything immediately, before the\n     person typed anything. Compares by identity, not a \"just mounted\" `ref`:\n     StrictMode's `useEffect` runs invoke→cleanup→invoke one extra time in\n     development, and a boolean `ref` turns true too early in that replay. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:154-160",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b8dc71d8",
+      "action": "translate",
+      "new_text": "/**\n * Entry rule registration.\n *\n * Conditions are repeated rows of `campo` / `operador` / `valor`: `FormData`\n * returns fields with the same name as a list, and the action reads all\n * three in parallel. A blank row is ignored — the form starts with one and\n * the person adds as many as needed.\n *\n * Submission goes through `envioQuePreserva` because this is the most\n * expensive form to retype in Gestão: a validation error with React 19's\n * native `action` would wipe out the name, the queue, the combinator and\n * every condition at once.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:16-27",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a06f8e7b",
+      "action": "translate",
+      "new_text": "// The extra field goes to the server with the prefix the engine reads.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:183-183",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b5047f76",
+      "action": "translate",
+      "new_text": "// the three parallel lists ending up with different lengths.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:185-185",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-120cac38",
+      "action": "translate",
+      "new_text": "/** Extra contact field: the key is free-form, and the prefix is what the engine understands. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:29-29",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7602b9d4",
+      "action": "translate",
+      "new_text": "/** Fills the row when editing an existing rule — absent means \"blank row\" (creation). */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:43-43",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-35142d94",
+      "action": "translate",
+      "new_text": "/* The `name` is the same `campo` as in the list: only how the value gets\n              assembled changes. The action receives `contato.atributos.plano`\n              either way. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:70-71",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c99f0da0",
+      "action": "translate",
+      "new_text": "// `regras` already comes sorted by `ordem`/id (the same order that `ordenarRegras`",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:112-112",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f33351ec",
+      "action": "translate",
+      "new_text": "// applies to the engine) — moving position in the list means moving position of",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:113-113",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6eeeb248",
+      "action": "translate",
+      "new_text": "// evaluation. Renumbers sequentially instead of just swapping `ordem` between the",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:114-114",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e05387ae",
+      "action": "translate",
+      "new_text": "// two: if both tie (every new rule's default is `ordem: 0`),",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:115-115",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-cd7c57b0",
+      "action": "translate",
+      "new_text": "// swapping equal values moves nothing.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:116-116",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6c63d307",
+      "action": "translate",
+      "new_text": "/**\n * Regras ├ Atendimento — the entry rule.\n *\n * Skeleton measured in `FICHA-rules.md` §2: header with \"Criar nova regra\"\n * on the right (no subtitle), search alone below, row-card with only\n * \"Nome da Regra\"/\"Fila\" as columns (§4), and the pagination footer (§2.5).\n * The row-card itself — label 12/400 over value 16/700, a toggle that\n * enables/disables the record right in the list — is the same one as\n * always.\n *\n * The combinator, the evaluation order, and the unreachable-rule warning\n * aren't columns in the ficha (it only documents \"Nome da Regra\" and\n * \"Fila\"), but they remain decisive for predicting what the rule does — so\n * they live in the card's footer (`descreverRegra`/warnings), which is a\n * per-row annotation, not a new column or a new block on the page. \"Criar\n * nova regra\" opens a modal — Blip doesn't show the form on the page, it\n * lives inside the closed modal the material captured for the sibling\n * screens (`FICHA-queue-management.md` §2.6).\n *\n * Edit/delete (item 1, second part) were added: the \"Editar\" icon reopens\n * the same modal with `FormularioRegraFila` in edit mode; the \"Excluir\" icon\n * asks for confirmation via `ModalConfirmacao` — never `window.confirm`,\n * which is the provisional pattern `atendentes-filas.tsx` still uses (the\n * comment there says so itself). REORDER is the two footer arrows: each\n * click swaps the rule's position with its neighbor and sends one `PATCH`\n * per rule whose `ordem` changed — no dedicated endpoint (decision logged\n * in `cadastros.ts`).\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:18-42",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a14b20d3",
+      "action": "translate",
+      "new_text": "/* \"Resultados por página\" starts at 5, like the `bds-select value=\"5\"` in\n          their footer (`dom/rules.html`). */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:199-200",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5895f079",
+      "action": "translate",
+      "new_text": "/** The card's toggle. A one-button form: there's nothing typed to preserve. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:44-44",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7a780ea5",
+      "action": "translate",
+      "new_text": "/** Switch + reorder arrows + edit/delete — the row-card's `acao` slot. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:63-63",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-00e4294c",
+      "action": "translate",
+      "new_text": "/**\n * Schedule registration, in three forms.\n *\n * A single \"whole week\" form would have to resend all seven rows on every\n * correction — and since there's no `update` on this screen yet\n * (configuration auditing doesn't exist yet), resending would turn into a\n * duplicated schedule. So: the schedule is created, then a time range and a\n * holiday are added one at a time.\n *\n * Date and time are the browser's `<input type=\"date\">` and\n * `<input type=\"time\">`: calendar, keyboard and local format come for free,\n * and no library gets pulled into the screen for this.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-horarios-formulario.tsx:9-20",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-bbb3861e",
+      "action": "translate",
+      "new_text": "// The card's status is USAGE, not a toggle: a schedule with no queue at",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx:54-54",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a9a1e339",
+      "action": "translate",
+      "new_text": "// all isn't a data error, it's unfinished work — registered and",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx:55-55",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f9fce64e",
+      "action": "translate",
+      "new_text": "// never turned on. It shows as an alert tag, which is already what the list knows",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx:56-56",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b9b978fd",
+      "action": "translate",
+      "new_text": "/**\n * Business hours.\n *\n * It's the missing reference for SLA. `@pipe/core`'s `avaliarSla` receives\n * the queue's business hours and, without it, counts all 24 hours of the\n * day: a two-hour deadline opened at 5:50pm on a Friday breaches Saturday\n * morning, without anyone having actually taken long at all. The comment at\n * the top of `lib/sla.ts` records exactly this — the clock runs with no\n * business hours because none had been registered.\n *\n * The screen's numbers come from the same core functions the SLA uses\n * (`dentroDoExpediente`, `proximaAbertura`, `intervalosUteis`): what the\n * screen shows is what the calculation sees, including holidays and\n * daylight saving time.\n */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx:7-19",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-add450aa",
+      "action": "translate",
+      "new_text": "// Editing doesn't send scope — see \"Decisão Pipe\" at the top of the file.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-sla-formulario.tsx:42-42",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-68f34e7b",
+      "action": "translate",
+      "new_text": "/**\n * SLA rule registration — item 2 of the Attendance registration task. Wires\n * up the buttons on the `regras-sla.tsx` screen (its `TODO(escrita)`) to the\n * API without changing the visuals: the same `form-cadastro`/`Modal` as\n * every registration screen.\n *\n * **Pipe decision — scope is only chosen on CREATE.** Reading\n * (`carregarRegras`, `apps/api/.../configuracoes.ts`) returns `escopoNome`\n * for display, not `escopoId` — there's no way to preselect the queue in\n * the edit form without it. Changing scope after creation is rare (a rule\n * is born tied to one queue or to the whole operation); anyone who needs a\n * scope change deletes and recreates, and editing stays limited to\n * name/target/deadline/alert — which covers the task's request without\n * widening the read.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-sla-formulario.tsx:8-20",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-185ff5ba",
+      "action": "translate",
+      "new_text": "/**\n * The acronym their \"Metas\" column uses for each target (`dom/sla-policy.html`:\n * \"TME, TMR1, TMA\" — average wait time, average first-response time,\n * average handling time; `FICHA-sla-policy.md` §8). Our target is a single\n * one per rule, so the column shows one acronym; the deadline and the alert\n * go in the cell's `title`, which is where they fit without opening a\n * column their screen doesn't have.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-sla.tsx:11-18",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b2ee5bf9",
+      "action": "translate",
+      "new_text": "/**\n * Regras ├ SLA — the source's `attendance/desk/sla-policy`, measured in\n * `referencias-blip/fichas/FICHA-sla-policy.md` and checked against the\n * `fotos/original-sla-policy.png` screenshot.\n *\n * Same skeleton as theirs (§2): header, search alone below (\"Buscar regras\n * de SLA\", §3), card list, and the pagination footer (§5). The card has\n * FOUR columns — \"Regras de SLA\", \"Metas\", \"Filas atribuídas\" and the\n * unlabeled \"Padrão\" badge (§4) — and nothing else on the row besides the\n * actions.\n *\n * DATA divergences, not layout ones:\n * - **One target per rule.** There, one policy combines several targets\n *   (\"TME, TMR1\"); here `regra_sla.alvo` is a single value. The column\n *   shows the target's acronym, and the deadline/alert go in the `title`.\n * - **\"Padrão\" comes from scope.** What the source calls the default\n *   policy is, here, the `tenant`-scope rule — the one `escolherRegra` uses\n *   as fallback. The badge is that rule, not a new flag.\n * - **\"Filas atribuídas\"** is at most one queue (or the whole operation):\n *   `escopoTipo`/`escopoId` tie the rule to a single scope.\n *\n * `TODO(escrita)` removed: real `PATCH`/`POST`/`DELETE` on\n * `/v1/gestao/configuracoes/regras` (item 2 of the Attendance registration\n * task) — \"Criar regra\" and the card's \"Editar\"/\"Excluir\" icons (§5) are\n * wired up the same way as `regras-atendimento.tsx`: toggle +\n * `ModalConfirmacao` for delete, never `window.confirm`.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-sla.tsx:26-51",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4c6f91e4",
+      "action": "translate",
+      "new_text": "/** Switch + edit/delete — the row-card's `acao` slot. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-sla.tsx:53-53",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0d200120",
+      "action": "translate",
+      "new_text": "/**\n * The Members panel's actions — the same ones as before, from the browser\n * app. The `conta.membros.escrever` permission is checked in the `api`, on\n * write; here we only assemble the request and come back with the reason in\n * the URL, the way the screen already knows how to display.\n */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/acoes.ts:5-9",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5c6c1840",
+      "action": "translate",
+      "new_text": "/**\n * Resends a pending invite: same email, same role, new link — the old one\n * stops working (`POST /v1/convites/:id/reenviar`). Since Pipe doesn't\n * deliver email, the link comes back in the response for the screen to show\n * again.\n */",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/acoes.ts:52-56",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-281e44f7",
+      "action": "translate",
+      "new_text": "/* In series, not with `Promise.all`: it's few emails, and the order of the\n     links list stays the same as the order the person typed them in. */",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/acoes.ts:81-82",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-defdd53d",
+      "action": "translate",
+      "new_text": "/* `team` at the source, and our `comunidade` IS their `team`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:110-110",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4728e390",
+      "action": "translate",
+      "new_text": "/* \"Blip Calls\" at the source. Their platform's name doesn't appear on our\n       screen — the rule is to copy the layout and the logic, never the\n       brand. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:121-122",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-65e3c905",
+      "action": "translate",
+      "new_text": "/* `robot`, like the `yc` in `main.e8593b01.chunk.js` — and not `blip-chat`\n       (`bot`), which is the icon for the portal's contact card. */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:125-126",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-379408f6",
+      "action": "translate",
+      "new_text": "/* The only card that requires WRITE, like at the source (check `e`). */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:129-129",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2327ffe7",
+      "action": "translate",
+      "new_text": "/** The permission code the card requires: key + verb. */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:137-137",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e51af054",
+      "action": "translate",
+      "new_text": "/**\n   * Demo mode (`?demo=1`): returns the ENTIRE catalog, so someone with no\n   * role or plan yet can understand the screen before it really exists for\n   * them.\n   *\n   * **DISPLAY ONLY.** No write goes through here: the Server Actions in\n   * `acoes.ts` always check the real permission in `Eu.permissoes`, and\n   * never read this flag or the URL. See the comment at the top of that\n   * file.\n   */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:143-150",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f55b87de",
+      "action": "translate",
+      "new_text": "/**\n * The cards this person sees.\n *\n * Deliberately a pure function — takes the permission list and returns the\n * card list, without touching session, database or URL. It's their funnel\n * reduced to what's left with no flag and no subscription: one\n * `hasPermission` per card.\n */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:154-160",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-35bdbb01",
+      "action": "translate",
+      "new_text": "/** The source's `roleId` values, which in our database are the names of the three account roles (0021). */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:169-169",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2c33e409",
+      "action": "translate",
+      "new_text": "/**\n * The three roles on their Members screen, by `roleId`: label, official\n * pt-BR description (i18n `inviteMemberModal`), icon and invite-option color\n * (`roleOptions`: `eye-open`, `edit`, `avatar-user`). See\n * `blip-painel-do-contrato.md` §\"A matriz de papéis\" and\n * `blip-gestao-regras-tecnicas.md` §8.2.\n *\n * Since migration 0021 the account role IS the tier — there's nothing left\n * to compute from permissions. The key order is the source's (`TenantRole`:\n * guest, member, admin), and it's the order of the lists.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:172-182",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-d8a408d1",
+      "action": "translate",
+      "new_text": "/**\n * Cards split by group, in group order.\n *\n * A group with no cards at all is left out: at the source, an empty section\n * renders no header and no grid — `guest` doesn't see a \"Configurações\n * gerais\" title over nothing.\n */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:213-218",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-7811b8ff",
+      "action": "translate",
+      "new_text": "/** A checked row on the Members screen: which table it came from and what its id is. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:228-228",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9e57c7f0",
+      "action": "translate",
+      "new_text": "/**\n * Reads the targets the Members table sends in the form.\n *\n * Each checked row arrives as `usuario:<id>` or `convite:<id>` — our\n * `userIdentity`, which at the source is a single key only because there\n * member and invitee live in the same table. **Comes from the browser**, so\n * anything that doesn't match the two known prefixes is discarded here,\n * before it becomes a query: what's left is used to decide WHICH write\n * function to call.\n */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:234-242",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-0137f2f1",
+      "action": "translate",
+      "new_text": "/**\n * The Contract Panel's card catalog — one record per card, like at the\n * source.\n *\n * There each card is an object with `group`, `option`, `icon`,\n * `accessPermission`, `featureToggle`, `metrics`, `path` and\n * `additionalCheck` (`referencias-blip/pesquisa/blip-painel-do-contrato.md`\n * §\"Os cartões, os três grupos\"), and the screen is the result of running\n * the funnel over that list. Here it's the same idea with the fields OUR\n * base supports: no `featureToggle` and no `metrics`, because we have no\n * LaunchDarkly and no subscription with metrics — and inventing both just\n * to copy a funnel would mean inventing a product.\n *\n * **The check is the key+verb pair**, like their matrix: `accessPermission`\n * is the key (`tenant-members`) and the check is the verb (`read`/`write`).\n * The permission code the person needs is the join of the two —\n * `conta.membros` + `ler` = `conta.membros.ler` —, and that's how the eleven\n * permissions created in migration `0019_permissoes_da_conta` connect to\n * the screen.\n *\n * ## What was left out, and why\n *\n * No card was invented, and none was copied for decoration. Left out are\n * the ones that, at the source, only exist behind a flag or a plan — things\n * we don't have:\n *\n * - **Atendentes** (`/agent`): depends on the subscription's `Agent`\n *   metric.\n * - **Base de conhecimento** (`/knowledge-base`): check `b` — write **and**\n *   a paid or trial agent plan. Without an agent plan, `b` is always false.\n * - **Pipeline** (`/pipeline`): check `c` — read **and** (the\n *   `pipeline-enable` flag **or** an agent plan). Without the flag and\n *   without the plan, always false.\n * - **The entire \"Acompanhamento do plano\" group** (seven consumption\n *   cards): all require `tenant-billing` PLUS a `billing-*` flag PLUS a\n *   subscription metric, and the section only renders when more than one\n *   card remains.\n *\n * The ones that stayed and carry `flagNaOrigem` are the ones the source\n * hides behind a flag but that already have a real permission guarding the\n * door: the flag disappears from the rule (we have none), the permission\n * still applies, and the flag's name stays recorded in the field — that's\n * what demo mode shows next to the card.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:3-39",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2ff1ba5d",
+      "action": "translate",
+      "new_text": "/** The groups left over, with the source's title and tooltip. */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:41-41",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2e18f12e",
+      "action": "translate",
+      "new_text": "/** The matrix key, without the verb. Their `accessPermission`. */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:66-66",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6409b103",
+      "action": "translate",
+      "new_text": "/**\n   * `false` while the route doesn't exist yet. The card stays on screen,\n   * dimmed, with the \"coming soon\" badge — the same thing the portal already\n   * does with what's under construction.\n   */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:70-73",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1ab0966a",
+      "action": "translate",
+      "new_text": "/** The flag that, at the source, would hide this card. Only demo mode shows it. */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/catalogo.ts:75-75",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a308261b",
+      "action": "translate",
+      "new_text": "/**\n * What the source sends on \"Finalizar\": `password` + `file` on upload, then\n * `description` + `hosts` on `set` — here it's all in a single POST. The\n * password and the file only pass through here; the `api` stores them\n * encrypted and never returns them.\n */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/acoes.ts:16-20",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b200fa8e",
+      "action": "translate",
+      "new_text": "/**\n * The `erro.mensagem` from the `api`'s body (\"A senha do certificado está\n * incorreta.\", \"O arquivo não é um .pfx válido…\"): it's what the source\n * shows in the toast instead of the status.\n */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/acoes.ts:41-45",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-bba33de0",
+      "action": "translate",
+      "new_text": "/**\n * The Certificados screen's writes, now in `POST/DELETE\n * /v1/gestao/contrato/certificados*` (`apps/api/.../dominio/gestao/certificados.ts`).\n * The permission (`conta.membros.escrever`) is checked again in the `api`;\n * here we only assemble the request and return the reason, as in\n * `../acoes.ts`.\n */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/acoes.ts:5-10",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b4ad1e3d",
+      "action": "translate",
+      "new_text": "/**\n * Authentication certificates — the \"Gerencie seus certificados mTLS\" card\n * on the panel, which at the source opens the fragment's `/mtls` route\n * (component `zt`).\n *\n * The route is called `certificados`, not `mtls`, for the same reason\n * `membros` isn't called `panel`: the address is ours, in Portuguese; what\n * gets copied is the screen.\n *\n * The guard is the source's — `Z.d(members)`, a `tenant-members` read —,\n * which here is `conta.membros.ler`, the same one the card already\n * requires. Anyone arriving without it goes back to the panel.\n *\n * The data contract, the copy and the modals are in\n * `referencias-blip/pesquisa/blip-certificados-mtls.md`.\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/page.tsx:13-27",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-80c37ce3",
+      "action": "translate",
+      "new_text": "/* `setHeaderContent({ redirect: \"/\", text: \"Certificados MTLS de {0}\" })`:\n            at the source, the portal bar is what draws the back arrow and\n            the phrase. */",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/page.tsx:46-47",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6398a488",
+      "action": "translate",
+      "new_text": "// \"If the certificate ends up without a host, the hosts modal closes and the list",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:160-160",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-df699cda",
+      "action": "translate",
+      "new_text": "// reloads after 1s\" — the domain's `excluirHostDoCertificado` already",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:161-161",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2bab6ed6",
+      "action": "translate",
+      "new_text": "// deletes the certificate too when it was the last one; here we only close the",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:162-162",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4fe5a08d",
+      "action": "translate",
+      "new_text": "// hosts window if it no longer exists in the reloaded list.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:163-163",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b385dfc8",
+      "action": "translate",
+      "new_text": "/**\n * The authentication Certificados screen, following the mechanics of their\n * `zt` (`main.e8593b01.chunk.js`): two stacked `bds-paper`s — the\n * presentation one (`xt`) and the listing one (`Pt`) — and four modals: the\n * three-step registration (`bds-modal#certificate-modal`), the\n * certificate's hosts (`bds-modal#hosts-modal`), and the two delete warnings\n * (`bds-alert#remove-certificate-alert` and `#remove-host-alert`).\n *\n * It's client-side because the source is: opening a modal, moving through\n * the steps, and tracking which certificate is in hand are screen state.\n * The measurements are in `certificados.css`; here are the copy and the\n * rules.\n *\n * Every write falls through to `./acoes.ts` (`POST/DELETE\n * /v1/gestao/contrato/certificados*`), which checks the permission on the\n * server and returns the reason — shown in place of their toast. The `.pfx`\n * and the password really do go out on \"Finalizar\" (data URL + password in\n * the JSON): the `api` reads the file, extracts validity and fingerprint,\n * stores both encrypted, and computes the status the column shows\n * (`etiquetaDoStatus`).\n */",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:17-35",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5614bbc8",
+      "action": "translate",
+      "new_text": "/* `xt`: the presentation paper. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:172-172",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6c72cf87",
+      "action": "translate",
+      "new_text": "/* Their `bds-illustration type=\"spots\" name=\"lock-2\"` is left out: it\n              wasn't captured and we don't have one. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:175-176",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4a0eb7c2",
+      "action": "translate",
+      "new_text": "/* With no certificates the table shows only the header: the source has\n              no empty-list message. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:213-214",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-85da1109",
+      "action": "translate",
+      "new_text": "/* `bds-chip-tag` by `status` — the source's computed chip, with the\n                        fingerprint and subject in the tooltip. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:224-225",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2f440fa8",
+      "action": "translate",
+      "new_text": "/* `bds-modal#hosts-modal title=\"Hosts do certificado\"`: in the web\n              component, `title` is the HTML attribute — a tooltip, not a\n              header. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:263-264",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0b64fbd3",
+      "action": "translate",
+      "new_text": "/* ---------------------------------------------------------------- pieces */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:319-319",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-646af478",
+      "action": "translate",
+      "new_text": "/**\n * `bds-chip-tag` for the Status column: `success`/`disabled`/`default` per\n * `etiquetaDoStatus`. The tooltip carries what the `api` read from the\n * `.pfx`.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:348-351",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0765de76",
+      "action": "translate",
+      "new_text": "/** The screen's texts, in pt-BR, from the `Et`, `Ct`, `ut`, `Dt`, `Mt` and `Tt` dictionaries. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:37-37",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e1771af6",
+      "action": "translate",
+      "new_text": "/** The `bds-modal`'s `close-button`: the `close` icon (medium, 24), our `fechar`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:385-385",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6cb59097",
+      "action": "translate",
+      "new_text": "/**\n * Their toast (`Object(m.g)({ type, message })`). `popover` so it stays on\n * top even over an open modal, the way their toast does; disappears on its\n * own.\n */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:441-444",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9a03cee0",
+      "action": "translate",
+      "new_text": "/**\n * The `yt`: the `bds-stepper` with three steps, the 40×18rem scrollable box\n * and the button row. \"Próximo\" only unlocks once the current step is\n * filled in; the file is only checked at \"Finalizar\", same as there.\n *\n * **What changes from the source**: there, step 1 unlocks with just the\n * filename, and the wrong password shows up at \"Finalizar\"; here the\n * password is also required to advance, because the `api` refuses the\n * registration without it — getting the password wrong is still the\n * \"Finalizar\" toast (\"A senha do certificado está incorreta.\"). What goes to\n * `POST /v1/gestao/contrato/certificados`: file (data URL), password,\n * description and hosts.\n */",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:468-479",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2efc42ea",
+      "action": "translate",
+      "new_text": "// Success: form cleared, back to step 1, and closes — failure: the source",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:525-525",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2d419f57",
+      "action": "translate",
+      "new_text": "// shows the toast and leaves the window open (`aoAvisar` already handled the toast).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:526-526",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-479a6004",
+      "action": "translate",
+      "new_text": "/* Completed swaps the number for the `bds-icon name=\"true\"` (medium): our `concluido`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:547-547",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-80cdb52b",
+      "action": "translate",
+      "new_text": "/** `bds-input`: the label on top, inside the same border, and the message below. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:715-715",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5eb5f8af",
+      "action": "translate",
+      "new_text": "/* `bds-icon name=\"error\" size=\"x-small\"`: our `fechar-chip` is their `error`. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:750-750",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b136a832",
+      "action": "translate",
+      "new_text": "/** The `j` of `zt`: the blank form, with one URL field. */",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:94-94",
+      "notes": "pre-triage D-40"
+    }
+  ]
+}
