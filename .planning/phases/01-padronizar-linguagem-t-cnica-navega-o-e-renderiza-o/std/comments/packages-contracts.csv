@@ -163,23 +163,23 @@ packages-contracts-comment-31291ed4,packages-contracts,packages/contracts/src/ge
 packages-contracts-comment-af790249,packages-contracts,packages/contracts/src/gestao-fluxo.ts,216,216,jsdoc,1,/** O id do VÍNCULO — é o que vai em `PATCH`/`DELETE …/servicos/:servicoId`. */,translate,Link ID used by `PATCH` and `DELETE …/servicos/:servicoId`.,integration,packages/contracts/src/gestao-fluxo.ts:216-216; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-5f157d07,packages-contracts,packages/contracts/src/gestao-fluxo.ts,218,218,jsdoc,0,/** O nome do serviço: é o `address` do `Redirect`. */,translate,Service name used as the `Redirect` address.,integration,packages/contracts/src/gestao-fluxo.ts:218-218; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-d8601240,packages-contracts,packages/contracts/src/gestao-fluxo.ts,220,220,jsdoc,0,"/** ""É o meu chatbot principal"". */",translate,Whether this is the primary chatbot.,other,packages/contracts/src/gestao-fluxo.ts:220-220,codex,reviewed
-packages-contracts-comment-bd166cd1,packages-contracts,packages/contracts/src/gestao-fluxo.ts,222,222,jsdoc,2,"/** ""Não redirecionar automaticamente para o principal"". */",,,,,,
-packages-contracts-comment-558a15d6,packages-contracts,packages/contracts/src/gestao-fluxo.ts,224,224,jsdoc,1,"/** ""Expiração do redirecionamento"", em minutos; nula para principal e persistente. */",,,,,,
+packages-contracts-comment-bd166cd1,packages-contracts,packages/contracts/src/gestao-fluxo.ts,222,222,jsdoc,2,"/** ""Não redirecionar automaticamente para o principal"". */",keep-original,,meta-blip,packages/contracts/src/gestao-fluxo.ts:222-222; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-558a15d6,packages-contracts,packages/contracts/src/gestao-fluxo.ts,224,224,jsdoc,1,"/** ""Expiração do redirecionamento"", em minutos; nula para principal e persistente. */",translate,"The `""Expiração do redirecionamento""` label gives redirect expiration in minutes; null for primary and persistent services.",meta-blip,packages/contracts/src/gestao-fluxo.ts:224-224; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-5fd82bff,packages-contracts,packages/contracts/src/gestao-fluxo.ts,229,233,jsdoc,6,"/**
  * `GET /v1/gestao/fluxos/:id/servicos` — só faz sentido para roteador: para fluxo,
  * `roteador` é nulo e as listas vêm vazias. `busca` são os chatbots que podem virar
  * serviço (tipo `fluxo`, não arquivados); o não publicado aparece apagado na tela.
- */",,,,,,
+ */",translate,"`GET /v1/gestao/fluxos/:id/servicos` applies only to routers: a regular flow has null `roteador` and empty lists. `busca` contains eligible service chatbots (type `fluxo`, not archived); unpublished ones appear dimmed.",integration,packages/contracts/src/gestao-fluxo.ts:229-233; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-acfe39c7,packages-contracts,packages/contracts/src/gestao-fluxo.ts,241,245,jsdoc,1,"/**
  * O formulário de serviço — `POST /v1/gestao/fluxos/:id/servicos` (tudo) e
  * `PATCH …/servicos/:servicoId` (só o que muda). Principal ignora `persistente` e
  * `expiracaoMin`; persistente ignora `expiracaoMin`.
- */",,,,,,
-packages-contracts-comment-efd3ae81,packages-contracts,packages/contracts/src/gestao-fluxo.ts,256,256,jsdoc,0,"/** Os tamanhos de página do `bds-pagination` da origem (`items-page=""[40,80,120]""`). */",,,,,,
-packages-contracts-comment-2907ee9c,packages-contracts,packages/contracts/src/gestao-fluxo.ts,259,259,jsdoc,0,/** Um cartão da grade do portal. */,,,,,,
-packages-contracts-comment-81c2d3fe,packages-contracts,packages/contracts/src/gestao-fluxo.ts,27,27,jsdoc,2,"/** O que identifica o canal para quem olha: número (WhatsApp), `@usuário` (Instagram), id da Página (Messenger). */",,,,,,
-packages-contracts-comment-6c60f3ca,packages-contracts,packages/contracts/src/gestao-fluxo.ts,271,271,jsdoc,2,"/** Quantos fluxos a conta tem ao todo, ignorando a busca. */",,,,,,
-packages-contracts-comment-c8a19ff4,packages-contracts,packages/contracts/src/gestao-fluxo.ts,273,273,jsdoc,3,"/** Quantos a busca encontrou. Sem busca, é igual a `total`. */",,,,,,
+ */",translate,Service form for `POST /v1/gestao/fluxos/:id/servicos` (all fields) and `PATCH …/servicos/:servicoId` (changed fields only). A primary service ignores `persistente` and `expiracaoMin`; a persistent service ignores `expiracaoMin`.,integration,packages/contracts/src/gestao-fluxo.ts:241-245; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-efd3ae81,packages-contracts,packages/contracts/src/gestao-fluxo.ts,256,256,jsdoc,0,"/** Os tamanhos de página do `bds-pagination` da origem (`items-page=""[40,80,120]""`). */",translate,"Page sizes from the source `bds-pagination` (`items-page=""[40,80,120]""`).",meta-blip,packages/contracts/src/gestao-fluxo.ts:256-256; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-2907ee9c,packages-contracts,packages/contracts/src/gestao-fluxo.ts,259,259,jsdoc,0,/** Um cartão da grade do portal. */,remove,,other,packages/contracts/src/gestao-fluxo.ts:259-259,codex,reviewed
+packages-contracts-comment-81c2d3fe,packages-contracts,packages/contracts/src/gestao-fluxo.ts,27,27,jsdoc,2,"/** O que identifica o canal para quem olha: número (WhatsApp), `@usuário` (Instagram), id da Página (Messenger). */",translate,"Channel identifier shown to viewers: phone number for WhatsApp, `@usuário` for Instagram, or Page ID for Messenger.",integration,packages/contracts/src/gestao-fluxo.ts:27-27; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-6c60f3ca,packages-contracts,packages/contracts/src/gestao-fluxo.ts,271,271,jsdoc,2,"/** Quantos fluxos a conta tem ao todo, ignorando a busca. */",translate,"Total flows in the account, ignoring search.",other,packages/contracts/src/gestao-fluxo.ts:271-271,codex,reviewed
+packages-contracts-comment-c8a19ff4,packages-contracts,packages/contracts/src/gestao-fluxo.ts,273,273,jsdoc,3,"/** Quantos a busca encontrou. Sem busca, é igual a `total`. */",translate,Number found by search; equals `total` when no search is active.,other,packages/contracts/src/gestao-fluxo.ts:273-273,codex,reviewed
 packages-contracts-comment-16043132,packages-contracts,packages/contracts/src/gestao-fluxo.ts,279,286,jsdoc,5,"/**
  * `GET/PATCH /v1/gestao/fluxos/:id/boas-vindas` — ""Defina a Mensagem de
  * Saudação e o botão Começar"" (`/configurations/welcome`).
@@ -187,8 +187,8 @@ packages-contracts-comment-16043132,packages-contracts,packages/contracts/src/ge
  * Desativado é `{ ativo: false }`: `mensagem`/`textoBotao` continuam com o
  * último valor gravado (não se apagam ao desligar o interruptor), mas a tela
  * só os mostra — e só exige preenchidos — quando `ativo` é `true`.
- */",,,,,,
-packages-contracts-comment-6ed62c17,packages-contracts,packages/contracts/src/gestao-fluxo.ts,293,293,jsdoc,2,"/** Uma linha do Menu Persistente: ""Texto"" e ""Link"" do item que dispara um comando. */",,,,,,
+ */",translate,"`GET/PATCH /v1/gestao/fluxos/:id/boas-vindas` mirrors the source `/configurations/welcome` screen, ""Defina a Mensagem de Saudação e o botão Começar"". Disabled means `{ ativo: false }`: `mensagem` and `textoBotao` retain their last stored values. The screen shows and requires them only while `ativo` is true.",meta-blip,packages/contracts/src/gestao-fluxo.ts:279-286; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-6ed62c17,packages-contracts,packages/contracts/src/gestao-fluxo.ts,293,293,jsdoc,2,"/** Uma linha do Menu Persistente: ""Texto"" e ""Link"" do item que dispara um comando. */",translate,"Persistent Menu item row: the command item's ""Texto"" and ""Link"".",meta-blip,packages/contracts/src/gestao-fluxo.ts:293-293; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-564ca634,packages-contracts,packages/contracts/src/gestao-fluxo.ts,299,306,jsdoc,5,"/**
  * `GET/PATCH /v1/gestao/fluxos/:id/menu-persistente` — ""Configure o menu
  * persistente de seu fluxo"" (`/configurations/persistentMenu`), até 3 itens.
@@ -196,43 +196,43 @@ packages-contracts-comment-564ca634,packages-contracts,packages/contracts/src/ge
  * `boasVindasPreenchida` é a segunda trava da origem (""Antes de salvar...
  * você precisa preencher a tela de boas-vindas""): a tela some o Salvar quando
  * falsa, e a `api` recusa o PATCH do mesmo jeito.
- */",,,,,,
+ */",translate,"`GET/PATCH /v1/gestao/fluxos/:id/menu-persistente` mirrors `/configurations/persistentMenu`, ""Configure o menu persistente de seu fluxo"", with at most three items. `boasVindasPreenchida` is the source's second guard (""Antes de salvar... você precisa preencher a tela de boas-vindas""): when false, the UI hides Save and the API also rejects PATCH.",meta-blip,packages/contracts/src/gestao-fluxo.ts:299-306; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-9311f49a,packages-contracts,packages/contracts/src/gestao-fluxo.ts,314,319,jsdoc,3,"/**
  * O desenho como o editor da Blip o guarda, e como a cópia do Builder o pede
  * à ponte: o mapa de estados (`blip_portal:builder_working_flow`) e as ações
  * globais (`blip_portal:builder_working_global_actions`). É o `{ flow,
  * globalActions }` do botão ""Exportar"" do Builder, com os nomes traduzidos.
- */",,,,,,
+ */",translate,"Builder drawing in the format Blip stores and the Builder copy requests from the bridge: state map `blip_portal:builder_working_flow` and global actions `blip_portal:builder_working_global_actions`. It corresponds to the Builder ""Exportar"" button's `{ flow, globalActions }`, with translated names.",meta-blip,packages/contracts/src/gestao-fluxo.ts:314-319; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-4f7b7b86,packages-contracts,packages/contracts/src/gestao-fluxo.ts,325,329,jsdoc,4,"/**
  * Um erro que o motor apontaria ao rodar o fluxo (`errosDoFluxo` de
  * `@pipe/core`), preso ao bloco que o causa. `bloco` é o `id` do estado no
  * editor; `null` quando o erro é do fluxo inteiro (sem raiz, por exemplo).
- */",,,,,,
+ */",translate,"Flow-engine error (`errosDoFluxo` in `@pipe/core`) attached to its causing block. `bloco` is the editor state `id`; null means a whole-flow error, such as a missing root.",architecture,packages/contracts/src/gestao-fluxo.ts:325-329; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-a18058bc,packages-contracts,packages/contracts/src/gestao-fluxo.ts,33,37,jsdoc,4,"/**
  * Um canal como a página ""Canais"" do bot o vê — `GET /v1/gestao/fluxos/:id/canal`
  * e a resposta de `PUT`. `fluxoId`/`fluxoNome` dizem qual bot vivo está com
  * ele (um bot por número — regra da origem, `FICHA-conectar-canal-no-bot.md` §4).
- */",,,,,,
-packages-contracts-comment-b96f1e5c,packages-contracts,packages/contracts/src/gestao-fluxo.ts,337,337,jsdoc,2,"/** Uma linha de `fluxo_versao`, como o histórico do Builder a lista. */",,,,,,
-packages-contracts-comment-007f3824,packages-contracts,packages/contracts/src/gestao-fluxo.ts,344,344,jsdoc,3,"/** Quem publicou, pelo nome — `null` quando a versão nunca foi publicada. */",,,,,,
+ */",translate,"A channel as the bot Channels page sees it, returned by `GET /v1/gestao/fluxos/:id/canal` and `PUT`. `fluxoId` and `fluxoNome` identify the live bot holding it: one bot per number, as in `FICHA-conectar-canal-no-bot.md` §4.",meta-blip,packages/contracts/src/gestao-fluxo.ts:33-37; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-b96f1e5c,packages-contracts,packages/contracts/src/gestao-fluxo.ts,337,337,jsdoc,2,"/** Uma linha de `fluxo_versao`, como o histórico do Builder a lista. */",translate,A `fluxo_versao` row as listed by Builder history.,integration,packages/contracts/src/gestao-fluxo.ts:337-337; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-007f3824,packages-contracts,packages/contracts/src/gestao-fluxo.ts,344,344,jsdoc,3,"/** Quem publicou, pelo nome — `null` quando a versão nunca foi publicada. */",translate,Publisher name; null when the version was never published.,other,packages/contracts/src/gestao-fluxo.ts:344-344,codex,reviewed
 packages-contracts-comment-5f995fe8,packages-contracts,packages/contracts/src/gestao-fluxo.ts,350,354,jsdoc,5,"/**
  * De onde veio o desenho que o Builder abre: o rascunho em edição, a versão
  * publicada (quando não há rascunho) ou o fluxo padrão (fluxo novo, nada
  * gravado ainda).
- */",,,,,,
-packages-contracts-comment-8c0d2d6e,packages-contracts,packages/contracts/src/gestao-fluxo.ts,361,361,jsdoc,5,"/** A versão carregada; `null` quando é o fluxo padrão, que ainda não existe no banco. */",,,,,,
-packages-contracts-comment-5868689c,packages-contracts,packages/contracts/src/gestao-fluxo.ts,363,363,jsdoc,3,"/** A versão que o motor está rodando agora, se houver. */",,,,,,
-packages-contracts-comment-419de239,packages-contracts,packages/contracts/src/gestao-fluxo.ts,366,366,jsdoc,1,/** O que impediria publicar o desenho carregado. Vazio = publicável. */,,,,,,
-packages-contracts-comment-edbd7eb4,packages-contracts,packages/contracts/src/gestao-fluxo.ts,368,368,jsdoc,3,"/** Ações que o motor do Pipe ainda não executa, por tipo — publicar é permitido, rodar falha. */",,,,,,
-packages-contracts-comment-d6fad229,packages-contracts,packages/contracts/src/gestao-fluxo.ts,382,382,jsdoc,4,"/** A que saiu do ar para esta entrar, se havia. */",,,,,,
+ */",translate,"Source of the Builder drawing: the editable draft, the published version when there is no draft, or the default flow when nothing has been stored yet.",architecture,packages/contracts/src/gestao-fluxo.ts:350-354; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-8c0d2d6e,packages-contracts,packages/contracts/src/gestao-fluxo.ts,361,361,jsdoc,5,"/** A versão carregada; `null` quando é o fluxo padrão, que ainda não existe no banco. */",translate,"Loaded version; null for the default flow, which does not yet exist in the database.",integration,packages/contracts/src/gestao-fluxo.ts:361-361; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-5868689c,packages-contracts,packages/contracts/src/gestao-fluxo.ts,363,363,jsdoc,3,"/** A versão que o motor está rodando agora, se houver. */",translate,"Version currently running in the engine, if any.",other,packages/contracts/src/gestao-fluxo.ts:363-363,codex,reviewed
+packages-contracts-comment-419de239,packages-contracts,packages/contracts/src/gestao-fluxo.ts,366,366,jsdoc,1,/** O que impediria publicar o desenho carregado. Vazio = publicável. */,translate,Errors blocking publication of the loaded drawing; empty means publishable.,other,packages/contracts/src/gestao-fluxo.ts:366-366,codex,reviewed
+packages-contracts-comment-edbd7eb4,packages-contracts,packages/contracts/src/gestao-fluxo.ts,368,368,jsdoc,3,"/** Ações que o motor do Pipe ainda não executa, por tipo — publicar é permitido, rodar falha. */",translate,"Action types the Pipe engine cannot yet run; publication is allowed, but execution fails.",architecture,packages/contracts/src/gestao-fluxo.ts:368-368; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-d6fad229,packages-contracts,packages/contracts/src/gestao-fluxo.ts,382,382,jsdoc,4,"/** A que saiu do ar para esta entrar, se havia. */",translate,"Previous version taken offline when this one went live, if any.",other,packages/contracts/src/gestao-fluxo.ts:382-382,codex,reviewed
 packages-contracts-comment-cfde2a4e,packages-contracts,packages/contracts/src/gestao-fluxo.ts,48,53,jsdoc,10,"/**
  * `GET /v1/gestao/fluxos/:id/canal`: o canal ligado a este bot (ou nulo) e os
  * canais ATIVOS da conta que a tela pode oferecer — os livres para ligar, e os
  * que já estão com outro bot (para dizer qual, como a origem manda ""remover do
  * anterior""). Decisão Pipe: na origem o número nasce no bot e não há lista.
- */",,,,,,
-packages-contracts-comment-4e176b31,packages-contracts,packages/contracts/src/gestao-fluxo.ts,66,66,jsdoc,2,"/** O fuso da conta, para o ""criado em"" e o ""hoje"" não serem o do navegador. */",,,,,,
-packages-contracts-comment-7d57d3ca,packages-contracts,packages/contracts/src/gestao-fluxo.ts,72,72,jsdoc,0,/** Um cartão da lista — `GET /v1/gestao/fluxos/:id/contatos`. */,,,,,,
+ */",translate,"`GET /v1/gestao/fluxos/:id/canal` returns this bot's linked channel (or null) and account channels that are ACTIVE: free channels and channels linked to another bot, so the UI can identify the previous bot as the source instructs (""remover do anterior""). Pipe deliberately differs from the source, where the number is created inside the bot and no list exists.",meta-blip,packages/contracts/src/gestao-fluxo.ts:48-53; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-4e176b31,packages-contracts,packages/contracts/src/gestao-fluxo.ts,66,66,jsdoc,2,"/** O fuso da conta, para o ""criado em"" e o ""hoje"" não serem o do navegador. */",translate,"Account timezone so ""created at"" and ""today"" use the account clock rather than the browser clock.",other,packages/contracts/src/gestao-fluxo.ts:66-66,codex,reviewed
+packages-contracts-comment-7d57d3ca,packages-contracts,packages/contracts/src/gestao-fluxo.ts,72,72,jsdoc,0,/** Um cartão da lista — `GET /v1/gestao/fluxos/:id/contatos`. */,remove,,other,packages/contracts/src/gestao-fluxo.ts:72-72,codex,reviewed
 packages-contracts-comment-c95e2905,packages-contracts,packages/contracts/src/index.ts,1,9,jsdoc,10,"/**
  * Tipos partilhados entre a `api` e os fronts.
  *
@@ -241,14 +241,14 @@ packages-contracts-comment-c95e2905,packages-contracts,packages/contracts/src/in
  * divergência só aparece quando alguém troca o nome — e aí em produção.
  *
  * Nada aqui importa banco, HTTP ou React. É contrato, não implementação.
- */",,,,,,
+ */",translate,"Shared types for the `api` and front ends. One concept has one definition, so screen and API field or plan names cannot silently diverge until production. This package imports no database, HTTP, or React implementation.",architecture,packages/contracts/src/index.ts:1-9; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-9ffa06b0,packages-contracts,packages/contracts/src/sessao.ts,1,6,jsdoc,9,"/**
  * O contrato de sessão, partilhado entre a `api` e os quatro fronts.
  *
  * Existe para que ""quem está logado"" tenha UMA definição. Sem isto, cada tela
  * inventa a sua e a divergência só aparece quando um campo muda de nome.
- */",,,,,,
-packages-contracts-comment-125f7ed8,packages-contracts,packages/contracts/src/sessao.ts,101,101,jsdoc,1,"/** ISO-8601, como sai da API. Quem formata é a tela. */",,,,,,
+ */",translate,Session contract shared by the `api` and four front ends. A single definition of the logged-in user exposes field-name divergence when fields change.,architecture,packages/contracts/src/sessao.ts:1-6; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-125f7ed8,packages-contracts,packages/contracts/src/sessao.ts,101,101,jsdoc,1,"/** ISO-8601, como sai da API. Quem formata é a tela. */",translate,ISO 8601 as returned by the API; the screen handles formatting.,integration,packages/contracts/src/sessao.ts:101-101; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-7a5bc133,packages-contracts,packages/contracts/src/sessao.ts,21,28,jsdoc,17,"/**
      * `false` enquanto a conta não passou por ""minha conta"".
      *
@@ -256,23 +256,23 @@ packages-contracts-comment-7a5bc133,packages-contracts,packages/contracts/src/se
      * disse de que empresa é vai para o onboarding, não para o produto. Fosse
      * uma chamada à parte, seria uma ida à rede por tela — e a consulta do
      * `Eu` já lê a linha do tenant.
-     */",,,,,,
-packages-contracts-comment-7a13cbfb,packages-contracts,packages/contracts/src/sessao.ts,31,31,jsdoc,4,"/** Códigos de permissão, do catálogo. A tela esconde o que não está aqui. */",,,,,,
-packages-contracts-comment-8f0f6ab9,packages-contracts,packages/contracts/src/sessao.ts,33,33,jsdoc,3,"/** Por onde a pessoa entrou. A tela de conta mostra, e a auditoria usa. */",,,,,,
+     */",translate,"False until the account has completed ""minha conta"". Every logged-in screen needs this in `Eu` to send accounts missing company details to onboarding rather than the product. Fetching it separately would add a network request per screen, while the `Eu` query already reads the tenant row.",architecture,packages/contracts/src/sessao.ts:21-28; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-7a13cbfb,packages-contracts,packages/contracts/src/sessao.ts,31,31,jsdoc,4,"/** Códigos de permissão, do catálogo. A tela esconde o que não está aqui. */",translate,Catalog permission codes; the screen hides features absent from this list.,security,packages/contracts/src/sessao.ts:31-31; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-8f0f6ab9,packages-contracts,packages/contracts/src/sessao.ts,33,33,jsdoc,3,"/** Por onde a pessoa entrou. A tela de conta mostra, e a auditoria usa. */",translate,"Login origin, shown on the account screen and used by audit.",security,packages/contracts/src/sessao.ts:33-33; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-a89e4514,packages-contracts,packages/contracts/src/sessao.ts,43,49,jsdoc,12,"/**
  * Por que a entrada foi recusada.
  *
  * Código, não frase: a tela decide o texto, e o texto muda sem quebrar contrato.
  * Cada um destes tem uma saída diferente para a pessoa, e é por isso que não
  * viram um ""não autorizado"" genérico.
- */",,,,,,
-packages-contracts-comment-484c0be6,packages-contracts,packages/contracts/src/sessao.ts,51,51,jsdoc,2,/** E-mail pessoal não identifica empresa. Saída: entrar pelo convite. */,,,,,,
-packages-contracts-comment-267cb3fa,packages-contracts,packages/contracts/src/sessao.ts,53,53,jsdoc,1,/** Nenhuma conta do Pipe usa este domínio. Saída: falar com quem contratou. */,,,,,,
-packages-contracts-comment-7fee6db5,packages-contracts,packages/contracts/src/sessao.ts,55,55,jsdoc,2,"/** O domínio é conhecido, mas a pessoa não foi convidada. Saída: pedir convite. */",,,,,,
-packages-contracts-comment-75ba17b8,packages-contracts,packages/contracts/src/sessao.ts,57,57,jsdoc,1,/** Estava dentro e o acesso foi desativado. Saída: falar com o administrador. */,,,,,,
-packages-contracts-comment-75baef66,packages-contracts,packages/contracts/src/sessao.ts,59,59,jsdoc,2,/** O provedor não confirmou o e-mail. Saída: verificar a conta no provedor. */,,,,,,
-packages-contracts-comment-25b7f827,packages-contracts,packages/contracts/src/sessao.ts,61,61,jsdoc,2,/** A empresa exige SSO. Saída: entrar pelo provedor de identidade dela. */,,,,,,
-packages-contracts-comment-22427d2d,packages-contracts,packages/contracts/src/sessao.ts,63,63,jsdoc,1,/** Falha na conversa com o Google. Saída: tentar de novo. */,,,,,,
+ */",translate,"Reason login was refused, represented as a code rather than a sentence. Screens choose text independently without breaking the contract; each code gives the person a distinct recovery path instead of generic unauthorized feedback.",security,packages/contracts/src/sessao.ts:43-49; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-484c0be6,packages-contracts,packages/contracts/src/sessao.ts,51,51,jsdoc,2,/** E-mail pessoal não identifica empresa. Saída: entrar pelo convite. */,translate,A personal email does not identify a company. Recovery: use an invitation.,security,packages/contracts/src/sessao.ts:51-51; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-267cb3fa,packages-contracts,packages/contracts/src/sessao.ts,53,53,jsdoc,1,/** Nenhuma conta do Pipe usa este domínio. Saída: falar com quem contratou. */,translate,No Pipe account uses this domain. Recovery: contact the purchaser.,security,packages/contracts/src/sessao.ts:53-53; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-7fee6db5,packages-contracts,packages/contracts/src/sessao.ts,55,55,jsdoc,2,"/** O domínio é conhecido, mas a pessoa não foi convidada. Saída: pedir convite. */",translate,"The domain is known, but this person was not invited. Recovery: request an invitation.",security,packages/contracts/src/sessao.ts:55-55; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-75ba17b8,packages-contracts,packages/contracts/src/sessao.ts,57,57,jsdoc,1,/** Estava dentro e o acesso foi desativado. Saída: falar com o administrador. */,translate,Access was disabled after joining. Recovery: contact the administrator.,security,packages/contracts/src/sessao.ts:57-57; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-75baef66,packages-contracts,packages/contracts/src/sessao.ts,59,59,jsdoc,2,/** O provedor não confirmou o e-mail. Saída: verificar a conta no provedor. */,translate,The provider did not verify the email. Recovery: verify the provider account.,security,packages/contracts/src/sessao.ts:59-59; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-25b7f827,packages-contracts,packages/contracts/src/sessao.ts,61,61,jsdoc,2,/** A empresa exige SSO. Saída: entrar pelo provedor de identidade dela. */,translate,The company requires SSO. Recovery: use its identity provider.,security,packages/contracts/src/sessao.ts:61-61; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-22427d2d,packages-contracts,packages/contracts/src/sessao.ts,63,63,jsdoc,1,/** Falha na conversa com o Google. Saída: tentar de novo. */,translate,Communication with Google failed. Recovery: retry.,integration,packages/contracts/src/sessao.ts:63-63; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-fdbe15e5,packages-contracts,packages/contracts/src/sessao.ts,73,83,jsdoc,15,"/**
  * O que `POST /v1/auth/descobrir` responde: por onde ESTE e-mail entra.
  *
@@ -283,13 +283,13 @@ packages-contracts-comment-fdbe15e5,packages-contracts,packages/contracts/src/se
  * A resposta é a MESMA para e-mail conhecido e desconhecido, exceto quando o
  * domínio é verificado e tem SSO ativo. Sem isso, a rota vira catálogo de ""quais
  * empresas usam Pipe"".
- */",,,,,,
-packages-contracts-comment-040859ca,packages-contracts,packages/contracts/src/sessao.ts,8,8,jsdoc,3,/** O que `GET /v1/eu` devolve. É a fonte de verdade de quem está logado. */,,,,,,
-packages-contracts-comment-af3dc64a,packages-contracts,packages/contracts/src/sessao.ts,86,86,jsdoc,2,"/** Caminho na API, quando `sso`. Falta só a base pública. */",,,,,,
+ */",translate,"`POST /v1/auth/descobrir` returns the login method for this email: `sso` directs to the company identity provider and `google` to Google. There is no `senha`: Pipe has never stored passwords, and promising a nonexistent method would make the screen offer an impossible flow. Known and unknown email addresses receive the same answer except when the domain is verified and has active SSO; otherwise the route would reveal which companies use Pipe.",security,packages/contracts/src/sessao.ts:73-83; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-040859ca,packages-contracts,packages/contracts/src/sessao.ts,8,8,jsdoc,3,/** O que `GET /v1/eu` devolve. É a fonte de verdade de quem está logado. */,translate,"`GET /v1/eu` response, the source of truth for the logged-in user.",integration,packages/contracts/src/sessao.ts:8-8; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-contracts-comment-af3dc64a,packages-contracts,packages/contracts/src/sessao.ts,86,86,jsdoc,2,"/** Caminho na API, quando `sso`. Falta só a base pública. */",translate,API path for `sso`; only the public base is missing.,integration,packages/contracts/src/sessao.ts:86-86; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-contracts-comment-666dd1e1,packages-contracts,packages/contracts/src/sessao.ts,90,96,jsdoc,11,"/**
  * O que `GET /v1/convites/:token` mostra a quem ainda está do lado de fora.
  *
  * O mínimo para a pessoa decidir se aquele convite é dela: qual empresa, para
  * qual e-mail, com qual papel e até quando. Nada de dado do tenant além do nome
  * — quem chega aqui não está logado.
- */",,,,,,
+ */",translate,"`GET /v1/convites/:token` exposes only enough for an unauthenticated recipient to decide whether the invitation is theirs: company name, target email, role, and expiry. No other tenant data is included because the recipient is not logged in.",security,packages/contracts/src/sessao.ts:90-96; pre-triage D-40; needs slice-time confirmation,codex,reviewed
