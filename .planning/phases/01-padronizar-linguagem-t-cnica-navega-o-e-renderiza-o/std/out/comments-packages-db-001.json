@@ -107,7 +107,7 @@
     {
       "id": "packages-db-comment-8b7ae677",
       "action": "translate",
-      "new_text": "The four stops of the source Team modal's \"Permissão\" slider, keyed by `team.addUserModal.slider`: `visualize`, `custom`, `edit`, `admin`.",
+      "new_text": "The four stops on the Team modals' \"Permissão\" scale, taken from `team.addUserModal.slider` in the source (`visualize`, `custom`, `edit`, `admin`).",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:103-106; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -115,7 +115,7 @@
     {
       "id": "packages-db-comment-d08800ef",
       "action": "translate",
-      "new_text": "Team for this contact: who may access this flow and at what permission. Migration 0035 explains why the source assigns permission to the BOT rather than the tenant and documents the `permissoes` shape from `PermissionsList.html` at `/team/team/edit`.",
+      "new_text": "The contact's team: who can access this flow and with which permission. Migration 0035 explains why permission belongs to the BOT rather than the tenant in the source, and records the `permissoes` format from `PermissionsList.html` at `/team/team/edit`.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:109-113; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -123,7 +123,7 @@
     {
       "id": "packages-db-comment-1e149212",
       "action": "translate",
-      "new_text": "`{ builder: 'escrever', analysis: 'ler', … }`: source resource to selected radio choice.",
+      "new_text": "`{ builder: 'escrever', analysis: 'ler', … }`: source resource mapped to a radio choice.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:126-126; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -131,7 +131,7 @@
     {
       "id": "packages-db-comment-0d1d9987",
       "action": "translate",
-      "new_text": "Who added this person; survives their deletion via `set null`.",
+      "new_text": "",
       "sensitivity": "other",
       "evidence": "packages/db/src/schema/automacao.ts:131-131",
       "notes": ""
@@ -139,7 +139,7 @@
     {
       "id": "packages-db-comment-fc5a82d2",
       "action": "translate",
-      "new_text": "Router services mirror Blip `master.services`. Migration 0024 explains each column and why Pipe has no tunnel.",
+      "new_text": "Router services mirror Blip's `master.services`. Migration 0024 explains each column and why Pipe has no tunnel.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:142-145; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -147,7 +147,7 @@
     {
       "id": "packages-db-comment-74bdb969",
       "action": "translate",
-      "new_text": "Service name used as the `Redirect` `content.address`.",
+      "new_text": "Service name from the `Redirect` field `content.address`.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:157-157; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -163,7 +163,7 @@
     {
       "id": "packages-db-comment-70fe2574",
       "action": "translate",
-      "new_text": "The source label \"Expiração do redirecionamento\", measured from the customer's last message.",
+      "new_text": "",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:162-162; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -171,7 +171,7 @@
     {
       "id": "packages-db-comment-069e4adf",
       "action": "translate",
-      "new_text": "Module 6 covers automation and extraction as three distinct parts: conversation flow builder, system workflow engine, and query language backed by the data dictionary.",
+      "new_text": "Module 6 covers automation and extraction: the flow builder for automated conversation, the workflow engine for system automation, and the query language with its data dictionary are distinct.",
       "sensitivity": "architecture",
       "evidence": "packages/db/src/schema/automacao.ts:17-21; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -179,7 +179,7 @@
     {
       "id": "packages-db-comment-a2e9c668",
       "action": "translate",
-      "new_text": "Master-State tracks which router service holds the contact. Blip's \"túnel\" uses the (router, contact) pair; Pipe uses the real contact, unique within the tenant. See migration 0024.",
+      "new_text": "Master-State records which router service holds the contact. Blip's \"tunnel\" is keyed by (router, contact); the contact is the real one, unique within a tenant. Migration 0024.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:189-192; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -187,7 +187,7 @@
     {
       "id": "packages-db-comment-bd1dd04d",
       "action": "translate",
-      "new_text": "Null means no expiry for a primary or persistent service.",
+      "new_text": "",
       "sensitivity": "other",
       "evidence": "packages/db/src/schema/automacao.ts:208-208",
       "notes": ""
@@ -211,7 +211,7 @@
     {
       "id": "packages-db-comment-5d9c7064",
       "action": "translate",
-      "new_text": "Published versions stay separate from editable versions, following Blip.",
+      "new_text": "Keep the published version separate from the editing version, following Blip's behavior.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:223-223; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -219,7 +219,7 @@
     {
       "id": "packages-db-comment-78232173",
       "action": "translate",
-      "new_text": "Blip `Flow` global actions and `configuration`; migration 0014.",
+      "new_text": "Blip `Flow` global actions and `configuration`. Migration 0014.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:236-236; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -227,7 +227,7 @@
     {
       "id": "packages-db-comment-a5f09581",
       "action": "translate",
-      "new_text": "Two roles for the same contact: its own conversation or routing other bots.",
+      "new_text": "The same contact has two roles: its own conversation or a distributor.",
       "sensitivity": "other",
       "evidence": "packages/db/src/schema/automacao.ts:25-25",
       "notes": ""
@@ -235,7 +235,7 @@
     {
       "id": "packages-db-comment-22f1cc88",
       "action": "translate",
-      "new_text": "Source `ng-maxlength=\"160\"` on the \"Descrição\" field in \"Editar Fluxo\".",
+      "new_text": "Source `ng-maxlength=\"160\"` for \"Descrição\" in \"Editar Fluxo\".",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:28-28; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -243,7 +243,7 @@
     {
       "id": "packages-db-comment-ee24c5a9",
       "action": "translate",
-      "new_text": "Blip `{{variável}}` destination resolved at runtime. Exactly one of the two destinations is set (migration 0014).",
+      "new_text": "Blip destination `{{variável}}` is resolved at runtime. Exactly one of the two destination fields is filled (migration 0014).",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:296-299; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -251,7 +251,7 @@
     {
       "id": "packages-db-comment-bc99058d",
       "action": "translate",
-      "new_text": "Exit conditions are evaluated in this order; the first match wins.",
+      "new_text": "",
       "sensitivity": "architecture",
       "evidence": "packages/db/src/schema/automacao.ts:304-304; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -259,7 +259,7 @@
     {
       "id": "packages-db-comment-d86c9be3",
       "action": "translate",
-      "new_text": "Variable map crosses the flow and survives handoff to a human agent, who receives what the bot already collected.",
+      "new_text": "Variables travel through the flow and survive handoff to a human agent, so the agent receives the customer with the bot's collected context.",
       "sensitivity": "architecture",
       "evidence": "packages/db/src/schema/automacao.ts:332-335; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -267,7 +267,7 @@
     {
       "id": "packages-db-comment-3bab5df8",
       "action": "translate",
-      "new_text": "Migration 0040: Dashboard, Overview, Journey, and message Log filter through `fluxo_versao.fluxo_id`, joining via `fluxo_versao_id`. Without this index, that join scans all of `execucao_fluxo`.",
+      "new_text": "Migration 0040: Dashboard, Visão Geral, Jornada, and the message log filter on `fluxo_versao.fluxo_id` through a join on `fluxo_versao_id`. Without this index that join would scan all of `execucao_fluxo`.",
       "sensitivity": "architecture",
       "evidence": "packages/db/src/schema/automacao.ts:347-351; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -275,7 +275,7 @@
     {
       "id": "packages-db-comment-01bdee01",
       "action": "translate",
-      "new_text": "The same Meta message becomes a step only once (migration 0014).",
+      "new_text": "The same Meta message creates a step only once (migration 0014).",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:374-374; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -291,7 +291,7 @@
     {
       "id": "packages-db-comment-29cbae1f",
       "action": "translate",
-      "new_text": "`fluxo` or `roteador` matches the source platform's `template` values (`builder` and `master`) and labels the portal card. A router is the same bot without its own content: it references other bots and chooses the destination, so it is a column rather than a separate table.",
+      "new_text": "`fluxo` or `roteador`.\n\nThis is the source platform's `template` (`builder` and `master`), shown on its portal card. A router is the SAME bot without its own content: it references other bots and chooses where the conversation goes. That is why this is a column rather than a new table.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:39-46; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -299,7 +299,7 @@
     {
       "id": "packages-db-comment-cd96fe30",
       "action": "translate",
-      "new_text": "A workflow that fails silently is worse than no workflow.",
+      "new_text": "A silently failing workflow is worse than no workflow.",
       "sensitivity": "architecture",
       "evidence": "packages/db/src/schema/automacao.ts:479-479; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -307,7 +307,7 @@
     {
       "id": "packages-db-comment-11616044",
       "action": "translate",
-      "new_text": "Contact photo URL, the source platform's `imageUri` used by the portal card avatar. It is genuinely optional: source upload runs inside `try/catch`, reports only to the console, and allows creation to continue. Migration 0020.",
+      "new_text": "Contact photo URL from the source platform's `imageUri`, used by the portal card to draw the avatar.\n\nIt is genuinely optional: the source wraps upload in `try/catch`, reporting only to the console and allowing creation to continue. Migration 0020.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:48-54; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -315,7 +315,7 @@
     {
       "id": "packages-db-comment-e648e96e",
       "action": "translate",
-      "new_text": "Structured query validated against the tenant data dictionary. Client input never becomes raw SQL, and the server imposes `tenant_id`.",
+      "new_text": "A structured query checked against the tenant data dictionary. Never raw client SQL; the server imposes `tenant_id`.",
       "sensitivity": "security",
       "evidence": "packages/db/src/schema/automacao.ts:526-529; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -323,7 +323,7 @@
     {
       "id": "packages-db-comment-d2a2a1be",
       "action": "translate",
-      "new_text": "Short identifier derived from the name (`name.toLowerCase()` in the source). It appears in source contact URLs (`/application/detail/{shortName}`) and requires names to begin with a letter. There is no unique index: uniqueness is still checked on `nome`. Migration 0020.",
+      "new_text": "Short identifier derived from the name (`name.toLowerCase()` in the source). It appears in the contact URL there (`/application/detail/{shortName}`), which is why the name must begin with a letter. There is no unique index; uniqueness is checked on `nome`. Migration 0020.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:56-62; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -331,7 +331,7 @@
     {
       "id": "packages-db-comment-dba0e221",
       "action": "translate",
-      "new_text": "Mirror of tenant CRM (Twenty) `objectMetadata`; see migration 0015. `codigo` is `nameSingular` and `rotulo` is `labelSingular`; other columns use Twenty property names. A row with `twentyId` came from synchronization; without it, the local CRM declared it manually.",
+      "new_text": "Mirror of the tenant CRM (Twenty) `objectMetadata`; see migration 0015.\n\n`codigo` maps to `nameSingular`, `rotulo` to `labelSingular`, and the remaining columns follow Twenty property names. Rows with `twentyId` came from synchronization; rows without it were declared manually in the local CRM.",
       "sensitivity": "integration",
       "evidence": "packages/db/src/schema/automacao.ts:562-568; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -339,7 +339,7 @@
     {
       "id": "packages-db-comment-e94f987d",
       "action": "translate",
-      "new_text": "Removed from Twenty; keep the row so a block referring to it reports the missing object.",
+      "new_text": "The item disappeared from Twenty. Keep its row so a referring block can report the missing item.",
       "sensitivity": "integration",
       "evidence": "packages/db/src/schema/automacao.ts:586-586; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -347,7 +347,7 @@
     {
       "id": "packages-db-comment-d9ee8a3a",
       "action": "translate",
-      "new_text": "Operational data for the query language, not documentation: it defines allowed fields. Mirrors Twenty `fieldMetadata`: `codigo` is `name`, `rotulo` is `label`, and `tipo` is literal `type` (`TEXT`, `CURRENCY`, `RELATION`, etc.). `options`, `defaultValue`, `settings`, and `relation` retain the exact Metadata API format.",
+      "new_text": "This is operational data, not just documentation: the query language reads it to decide what is allowed.\n\nMirror of Twenty `fieldMetadata`: `codigo` is `name`, `rotulo` is `label`, and `tipo` is the literal `type` (`TEXT`, `CURRENCY`, `RELATION`, ...). `options`, `defaultValue`, `settings`, and `relation` retain the exact Metadata API shape.",
       "sensitivity": "integration",
       "evidence": "packages/db/src/schema/automacao.ts:593-599; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -355,7 +355,7 @@
     {
       "id": "packages-db-comment-16dc5e7b",
       "action": "translate",
-      "new_text": "Outbound webhook authentication mirrors the source \"Configurações de autenticação\" (`referencias-blip/pesquisa/blip-integracoes-webhook.md`: switch and OAuth 2.0), plus Basic authentication requested here but absent from the source. Migration 0036.",
+      "new_text": "Outbound webhook authentication follows the source's \"Configurações de autenticação\" (`referencias-blip/pesquisa/blip-integracoes-webhook.md`: switch and OAuth 2.0), plus Basic authentication required by the task although absent from the source. Migration 0036.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:631-635; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -363,7 +363,7 @@
     {
       "id": "packages-db-comment-b8a81432",
       "action": "translate",
-      "new_text": "Contact description is the source \"Editar Fluxo\" `description` at `/configurations/basic`. Optional because the source textarea has no `required`; when present it must have 2–160 characters (`ng-minlength=\"2\"`, `ng-maxlength=\"160\"`). The database `check` enforces the maximum; the `api` enforces the minimum. Migration 0022.",
+      "new_text": "Contact description from the source platform's \"Editar Fluxo\" `description` at `/configurations/basic`.\n\nIt is optional (`<textarea>` lacks `required`); when present it must contain 2-160 characters (`ng-minlength=\"2\"`, `ng-maxlength=\"160\"`). The database `check` enforces the maximum, the only bound it can enforce alone; the `api` enforces the minimum. Migration 0022.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:64-72; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -371,7 +371,7 @@
     {
       "id": "packages-db-comment-d831b1d0",
       "action": "translate",
-      "new_text": "`nenhuma` (default), `basica`, or `oauth2_client_credentials`; migration 0036.",
+      "new_text": "`nenhuma` (default) | `basica` | `oauth2_client_credentials`. Migration 0036.",
       "sensitivity": "integration",
       "evidence": "packages/db/src/schema/automacao.ts:655-655; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -379,7 +379,7 @@
     {
       "id": "packages-db-comment-ea6d0ace",
       "action": "translate",
-      "new_text": "Basic-auth username is not secret and remains readable.",
+      "new_text": "",
       "sensitivity": "security",
       "evidence": "packages/db/src/schema/automacao.ts:657-657; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -387,7 +387,7 @@
     {
       "id": "packages-db-comment-d269700a",
       "action": "translate",
-      "new_text": "Basic-auth password is encrypted at rest by `@pipe/db/segredo`.",
+      "new_text": "Basic-auth password, encrypted at rest by `@pipe/db/segredo`.",
       "sensitivity": "security",
       "evidence": "packages/db/src/schema/automacao.ts:659-659; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -395,7 +395,7 @@
     {
       "id": "packages-db-comment-a6a7ab05",
       "action": "translate",
-      "new_text": "OAuth 2.0 `client_credentials` token URL is validated like the webhook URL: HTTPS and no private network.",
+      "new_text": "OAuth 2.0 token URL (`client_credentials`), validated like the webhook URL: HTTPS and no private network.",
       "sensitivity": "security",
       "evidence": "packages/db/src/schema/automacao.ts:661-661; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -403,7 +403,7 @@
     {
       "id": "packages-db-comment-6e9e3118",
       "action": "translate",
-      "new_text": "OAuth 2.0 Client ID is not secret.",
+      "new_text": "",
       "sensitivity": "security",
       "evidence": "packages/db/src/schema/automacao.ts:663-663; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -411,7 +411,7 @@
     {
       "id": "packages-db-comment-056a85e4",
       "action": "translate",
-      "new_text": "Custom headers are `[{ chave, valor }]`. They never include reserved signing headers (`content-type`, `x-pipe-signature`, `x-pipe-timestamp`, `x-pipe-delivery`) or `authorization`. The write rule in `dominio/gestao/integracoes.ts` rejects these before storage, so this column needs no `check`.",
+      "new_text": "Custom headers as `[{ chave, valor }]`. Never include signature-reserved headers (`content-type`, `x-pipe-signature`, `x-pipe-timestamp`, `x-pipe-delivery`) or `authorization`: the write rule in `dominio/gestao/integracoes.ts` rejects them before this column, so no database `check` is needed for that rule.",
       "sensitivity": "security",
       "evidence": "packages/db/src/schema/automacao.ts:667-673; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -419,7 +419,7 @@
     {
       "id": "packages-db-comment-0a608025",
       "action": "translate",
-      "new_text": "Source \"Utilizar o contexto do Roteador\" (`builder:useTunnelOwnerContext`): as a router service, share variables for the (router, contact) pair with other services that enable this option. Otherwise variables belong only to this flow. Migration 0024.",
+      "new_text": "\"Utilizar o contexto do Roteador\" (`builder:useTunnelOwnerContext`): as a router service, variables belong to the (router, contact) pair and are shared with other services that enable this option. Otherwise they belong only to this flow. Migration 0024.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:74-78; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -427,7 +427,7 @@
     {
       "id": "packages-db-comment-4168780b",
       "action": "translate",
-      "new_text": "Contact settings without a separate home: currently \"Tela de Boas-vindas\" (`{ boasVindas: { ativo, mensagem, textoBotao } }`) and \"Menu Persistente\" (`{ menuPersistente: { itens: [{texto,link}] } }`) at `/configurations/welcome` and `/configurations/persistentMenu`. An absent key means never configured. One column suffices because each screen has few fields and no separate history, unlike versioned `fluxo_versao.global`; this is the current contact snapshot like `nome` and `descricao`. Migration 0031.",
+      "new_text": "Contact settings without a dedicated home: currently \"Tela de Boas-vindas\" (`{ boasVindas: { ativo, mensagem, textoBotao } }`) and \"Menu Persistente\" (`{ menuPersistente: { itens: [{texto,link}] } }`) from `/configurations/welcome` and `/configurations/persistentMenu`. A missing key means never configured. Migration 0031.\n\nThese few fields describe one screen each and have no history of their own, unlike `fluxo_versao.global`, which belongs to a published VERSION. A column stores the contact's current snapshot like `nome` and `descricao`; a separate table is unnecessary.",
       "sensitivity": "meta-blip",
       "evidence": "packages/db/src/schema/automacao.ts:80-90; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"

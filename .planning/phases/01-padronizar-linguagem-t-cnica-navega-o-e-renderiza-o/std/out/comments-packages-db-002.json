@@ -1,0 +1,172 @@
+{
+  "items": [
+    {
+      "id": "packages-db-comment-8b7ae677",
+      "action": "translate",
+      "new_text": "The four stops on the Team modals' \"Permissão\" scale, taken from `team.addUserModal.slider` in the source (`visualize`, `custom`, `edit`, `admin`).",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:103-106",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-d08800ef",
+      "action": "translate",
+      "new_text": "The contact's team: who can access this flow and with which permission. Migration 0035 explains why permission belongs to the BOT rather than the tenant in the source, and records the `permissoes` format from `PermissionsList.html` at `/team/team/edit`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:109-113",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-1e149212",
+      "action": "translate",
+      "new_text": "`{ builder: 'escrever', analysis: 'ler', … }`: source resource mapped to a radio choice.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:126-126",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-0d1d9987",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/schema/automacao.ts:131-131",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-fc5a82d2",
+      "action": "translate",
+      "new_text": "Router services mirror Blip's `master.services`. Migration 0024 explains each column and why Pipe has no tunnel.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:142-145",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-74bdb969",
+      "action": "translate",
+      "new_text": "Service name from the `Redirect` field `content.address`.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:157-157",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-1a145c36",
+      "action": "keep-original",
+      "new_text": "",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:160-160; Literal source UI label.",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-70fe2574",
+      "action": "keep-original",
+      "new_text": "",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:162-162; Literal source UI label.",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-069e4adf",
+      "action": "translate",
+      "new_text": "Module 6 covers automation and extraction: the flow builder for automated conversation, the workflow engine for system automation, and the query language with its data dictionary are distinct.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/automacao.ts:17-21",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a2e9c668",
+      "action": "translate",
+      "new_text": "Master-State records which router service holds the contact. Blip's \"tunnel\" is keyed by (router, contact); the contact is the real one, unique within a tenant. Migration 0024.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:189-192",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-bd1dd04d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/schema/automacao.ts:208-208",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-6d77f613",
+      "action": "translate",
+      "new_text": "Router context shared by services with `usa_contexto_do_roteador`.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/automacao.ts:210-210",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-779a4d89",
+      "action": "translate",
+      "new_text": "Pending Change-User-State: the service starts at `bloco_inicial` or at the root.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:214-214",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-5d9c7064",
+      "action": "translate",
+      "new_text": "Keep the published version separate from the editing version, following Blip's behavior.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:223-223",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-78232173",
+      "action": "translate",
+      "new_text": "Blip `Flow` global actions and `configuration`. Migration 0014.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:236-236",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a5f09581",
+      "action": "translate",
+      "new_text": "The same contact has two roles: its own conversation or a distributor.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/automacao.ts:25-25",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-22f1cc88",
+      "action": "translate",
+      "new_text": "Source `ng-maxlength=\"160\"` for \"Descrição\" in \"Editar Fluxo\".",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:28-28",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-ee24c5a9",
+      "action": "translate",
+      "new_text": "Blip destination `{{variável}}` is resolved at runtime. Exactly one of the two destination fields is filled (migration 0014).",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/automacao.ts:296-299",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-bc99058d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/schema/automacao.ts:304-304",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-d86c9be3",
+      "action": "translate",
+      "new_text": "Variables travel through the flow and survive handoff to a human agent, so the agent receives the customer with the bot's collected context.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/automacao.ts:332-335",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-3bab5df8",
+      "action": "translate",
+      "new_text": "Migration 0040: Dashboard, Visão Geral, Jornada, and the message log filter on `fluxo_versao.fluxo_id` through a join on `fluxo_versao_id`. Without this index that join would scan all of `execucao_fluxo`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/automacao.ts:347-351",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

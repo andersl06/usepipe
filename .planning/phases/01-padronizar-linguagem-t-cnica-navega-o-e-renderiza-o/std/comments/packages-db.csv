@@ -70,13 +70,13 @@ packages-db-comment-591e18d0,packages-db,packages/db/src/particoes.ts,4,11,jsdoc
 packages-db-comment-8b7ae677,packages-db,packages/db/src/schema/automacao.ts,103,106,jsdoc,1,"/**
  * As quatro paradas do traço ""Permissão"" dos modais da Equipe — as chaves
  * `team.addUserModal.slider` da origem (`visualize`, `custom`, `edit`, `admin`).
- */",translate,"The four stops on the Team modals' ""Permiss?o"" scale, taken from `team.addUserModal.slider` in the source (`visualize`, `custom`, `edit`, `admin`).",meta-blip,packages/db/src/schema/automacao.ts:103-106; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,"The four stops on the Team modals' ""Permissão"" scale, taken from `team.addUserModal.slider` in the source (`visualize`, `custom`, `edit`, `admin`).",meta-blip,packages/db/src/schema/automacao.ts:103-106; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-d08800ef,packages-db,packages/db/src/schema/automacao.ts,109,113,jsdoc,7,"/**
  * A equipe DO contato: quem acessa este fluxo e com que permissão. Migration 0035,
  * que explica o porquê (na origem a permissão é do BOT, não do tenant) e o formato
  * do `permissoes` — o `PermissionsList.html` da rota `/team/team/edit`.
  */",translate,"The contact's team: who can access this flow and with which permission. Migration 0035 explains why permission belongs to the BOT rather than the tenant in the source, and records the `permissoes` format from `PermissionsList.html` at `/team/team/edit`.",meta-blip,packages/db/src/schema/automacao.ts:109-113; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-1e149212,packages-db,packages/db/src/schema/automacao.ts,126,126,jsdoc,0,"/** `{ builder: 'escrever', analysis: 'ler', … }` — recurso da origem → rádio. */",translate,"`{ builder: 'escrever', analysis: 'ler', ... }`: source resource mapped to a radio choice.",meta-blip,packages/db/src/schema/automacao.ts:126-126; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-1e149212,packages-db,packages/db/src/schema/automacao.ts,126,126,jsdoc,0,"/** `{ builder: 'escrever', analysis: 'ler', … }` — recurso da origem → rádio. */",translate,"`{ builder: 'escrever', analysis: 'ler', … }`: source resource mapped to a radio choice.",meta-blip,packages/db/src/schema/automacao.ts:126-126; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-0d1d9987,packages-db,packages/db/src/schema/automacao.ts,131,131,jsdoc,2,/** Quem pôs a pessoa aqui; sobrevive a ela (`set null`). */,remove,,other,packages/db/src/schema/automacao.ts:131-131,codex,reviewed
 packages-db-comment-fc5a82d2,packages-db,packages/db/src/schema/automacao.ts,142,145,jsdoc,3,"/**
  * Os serviços do roteador — o `master.services` da Blip. Migration 0024, que explica
@@ -100,11 +100,11 @@ packages-db-comment-779a4d89,packages-db,packages/db/src/schema/automacao.ts,214
 packages-db-comment-5d9c7064,packages-db,packages/db/src/schema/automacao.ts,223,223,jsdoc,2,/** Versão publicada é separada da versão em edição — copiado da Blip porque está certo. */,translate,"Keep the published version separate from the editing version, following Blip's behavior.",meta-blip,packages/db/src/schema/automacao.ts:223-223; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-78232173,packages-db,packages/db/src/schema/automacao.ts,236,236,jsdoc,0,/** Ações globais e `configuration` do `Flow` da Blip. Migration 0014. */,translate,Blip `Flow` global actions and `configuration`. Migration 0014.,meta-blip,packages/db/src/schema/automacao.ts:236-236; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-a5f09581,packages-db,packages/db/src/schema/automacao.ts,25,25,jsdoc,0,"/** Os dois papéis do mesmo contato: conversa própria, ou distribuidor. */",translate,The same contact has two roles: its own conversation or a distributor.,architecture,packages/db/src/schema/automacao.ts:25-25; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-22f1cc88,packages-db,packages/db/src/schema/automacao.ts,28,28,jsdoc,0,"/** O `ng-maxlength=""160""` do campo ""Descrição"" de ""Editar Fluxo"" na origem. */",translate,"Source `ng-maxlength=""160""` for ""Descri??o"" in ""Editar Fluxo"".",meta-blip,packages/db/src/schema/automacao.ts:28-28; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-22f1cc88,packages-db,packages/db/src/schema/automacao.ts,28,28,jsdoc,0,"/** O `ng-maxlength=""160""` do campo ""Descrição"" de ""Editar Fluxo"" na origem. */",translate,"Source `ng-maxlength=""160""` for ""Descrição"" in ""Editar Fluxo"".",meta-blip,packages/db/src/schema/automacao.ts:28-28; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-ee24c5a9,packages-db,packages/db/src/schema/automacao.ts,296,299,jsdoc,1,"/**
      * Destino `{{variável}}` da Blip, decidido em tempo de execução. Exatamente um dos
      * dois destinos é preenchido (migration 0014).
-     */",translate,Blip destination `{{vari?vel}}` is resolved at runtime. Exactly one of the two destination fields is filled (migration 0014).,meta-blip,packages/db/src/schema/automacao.ts:296-299; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,Blip destination `{{variável}}` is resolved at runtime. Exactly one of the two destination fields is filled (migration 0014).,meta-blip,packages/db/src/schema/automacao.ts:296-299; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-bc99058d,packages-db,packages/db/src/schema/automacao.ts,304,304,jsdoc,3,/** Condições de saída são avaliadas nesta ordem; a primeira que casar vence. */,remove,,other,packages/db/src/schema/automacao.ts:304-304,codex,reviewed
 packages-db-comment-d86c9be3,packages-db,packages/db/src/schema/automacao.ts,332,335,jsdoc,6,"/**
      * Mapa de variáveis que atravessa o fluxo e sobrevive à transferência para humano:
@@ -114,8 +114,8 @@ packages-db-comment-3bab5df8,packages-db,packages/db/src/schema/automacao.ts,347
      * Migration 0040: Dashboard, Visão Geral, Jornada e o Log de mensagens
      * filtram por `fluxo_versao.fluxo_id` (join até aqui por `fluxo_versao_id`).
      * Sem este índice essa perna do join varria `execucao_fluxo` inteira.
-     */",translate,"Migration 0040: Dashboard, Vis?o Geral, Jornada, and the message log filter on `fluxo_versao.fluxo_id` through a join on `fluxo_versao_id`. Without this index that join would scan all of `execucao_fluxo`.",architecture,packages/db/src/schema/automacao.ts:347-351; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-01bdee01,packages-db,packages/db/src/schema/automacao.ts,374,374,line,2,// A mesma mensagem da Meta só vira passo uma vez (migration 0014).,translate,The same Meta message becomes a step only once (migration 0014).,meta-blip,packages/db/src/schema/automacao.ts:374-374; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"Migration 0040: Dashboard, Visão Geral, Jornada, and the message log filter on `fluxo_versao.fluxo_id` through a join on `fluxo_versao_id`. Without this index that join would scan all of `execucao_fluxo`.",architecture,packages/db/src/schema/automacao.ts:347-351; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-01bdee01,packages-db,packages/db/src/schema/automacao.ts,374,374,line,2,// A mesma mensagem da Meta só vira passo uma vez (migration 0014).,translate,The same Meta message creates a step only once (migration 0014).,meta-blip,packages/db/src/schema/automacao.ts:374-374; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-be8ce6fe,packages-db,packages/db/src/schema/automacao.ts,383,383,jsdoc,1,/** O cursor de ProcessHttp vive separado para conservar cada posição executada. */,translate,Store the ProcessHttp cursor separately to retain every executed position.,architecture,packages/db/src/schema/automacao.ts:383-383; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-29cbae1f,packages-db,packages/db/src/schema/automacao.ts,39,46,jsdoc,6,"/**
      * `fluxo` ou `roteador`.
@@ -124,46 +124,54 @@ packages-db-comment-29cbae1f,packages-db,packages/db/src/schema/automacao.ts,39,
      * o cartão do portal etiqueta. Roteador é o MESMO bot sem conteúdo próprio:
      * ele só referencia outros e decide para qual deles a conversa vai — por
      * isso é coluna, e não tabela nova.
-     */",translate,"`fluxo` or `roteador` matches the source platform's `template` values (`builder` and `master`) and labels the portal card. A router is the same bot without its own content: it references other bots and chooses the destination, so it is a column rather than a separate table.",meta-blip,packages/db/src/schema/automacao.ts:39-46; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-cd96fe30,packages-db,packages/db/src/schema/automacao.ts,479,479,jsdoc,4,/** Workflow que falha em silêncio é pior que workflow que não existe. */,translate,A workflow that fails silently is worse than no workflow.,architecture,packages/db/src/schema/automacao.ts:479-479; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"`fluxo` or `roteador`.
+
+This is the source platform's `template` (`builder` and `master`), shown on its portal card. A router is the SAME bot without its own content: it references other bots and chooses where the conversation goes. That is why this is a column rather than a new table.",meta-blip,packages/db/src/schema/automacao.ts:39-46; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-cd96fe30,packages-db,packages/db/src/schema/automacao.ts,479,479,jsdoc,4,/** Workflow que falha em silêncio é pior que workflow que não existe. */,translate,A silently failing workflow is worse than no workflow.,architecture,packages/db/src/schema/automacao.ts:479-479; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-11616044,packages-db,packages/db/src/schema/automacao.ts,48,54,jsdoc,5,"/**
      * O endereço da foto do contato — o `imageUri` da plataforma de origem, que
      * é o que o cartão do portal lê para desenhar o avatar.
      *
      * Opcional de verdade: lá o upload roda dentro de um `try/catch` que só
      * avisa no console e deixa a criação seguir. Migration 0020.
-     */",translate,"Contact photo URL, the source platform's `imageUri` used by the portal card avatar. It is genuinely optional: source upload runs inside `try/catch`, reports only to the console, and allows creation to continue. Migration 0020.",meta-blip,packages/db/src/schema/automacao.ts:48-54; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"Contact photo URL from the source platform's `imageUri`, used by the portal card to draw the avatar.
+
+It is genuinely optional: the source wraps upload in `try/catch`, reporting only to the console and allowing creation to continue. Migration 0020.",meta-blip,packages/db/src/schema/automacao.ts:48-54; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-e648e96e,packages-db,packages/db/src/schema/automacao.ts,526,529,jsdoc,1,"/**
      * Consulta estruturada, analisada contra o dicionário de dados do tenant. Nunca
      * vira SQL cru vindo do cliente, e o `tenant_id` é imposto pelo servidor.
-     */",translate,"Structured query validated against the tenant data dictionary. Client input never becomes raw SQL, and the server imposes `tenant_id`.",security,packages/db/src/schema/automacao.ts:526-529; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,A structured query checked against the tenant data dictionary. Never raw client SQL; the server imposes `tenant_id`.,security,packages/db/src/schema/automacao.ts:526-529; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-d2a2a1be,packages-db,packages/db/src/schema/automacao.ts,56,62,jsdoc,4,"/**
      * O identificador curto, derivado do nome (`name.toLowerCase()` na origem).
      *
      * É ele que vai na URL do contato lá (`/application/detail/{shortName}`) e
      * é o motivo de o nome ter de começar com letra. Sem índice único: a
      * unicidade continua sendo conferida sobre `nome`. Migration 0020.
-     */",translate,Short identifier derived from the name (`name.toLowerCase()` in the source). It appears in source contact URLs (`/application/detail/{shortName}`) and requires names to begin with a letter. There is no unique index: uniqueness is still checked on `nome`. Migration 0020.,meta-blip,packages/db/src/schema/automacao.ts:56-62; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"Short identifier derived from the name (`name.toLowerCase()` in the source). It appears in the contact URL there (`/application/detail/{shortName}`), which is why the name must begin with a letter. There is no unique index; uniqueness is checked on `nome`. Migration 0020.",meta-blip,packages/db/src/schema/automacao.ts:56-62; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-dba0e221,packages-db,packages/db/src/schema/automacao.ts,562,568,jsdoc,5,"/**
  * Espelho do `objectMetadata` do CRM (Twenty) do tenant — ver a migration 0015.
  *
  * `codigo` é o `nameSingular` e `rotulo` o `labelSingular`; as demais colunas têm o nome
  * da propriedade do Twenty. Linha com `twentyId` veio da sincronização; sem ele, foi
  * declarada à mão pelo CRM caseiro.
- */",translate,"Mirror of tenant CRM (Twenty) `objectMetadata`; see migration 0015. `codigo` is `nameSingular` and `rotulo` is `labelSingular`; other columns use Twenty property names. A row with `twentyId` came from synchronization; without it, the local CRM declared it manually.",integration,packages/db/src/schema/automacao.ts:562-568; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-e94f987d,packages-db,packages/db/src/schema/automacao.ts,586,586,jsdoc,5,"/** Sumiu do Twenty. A linha fica, para o bloco que aponta para ela acusar a falta. */",translate,Removed from Twenty; keep the row so a block referring to it reports the missing object.,integration,packages/db/src/schema/automacao.ts:586-586; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,"Mirror of the tenant CRM (Twenty) `objectMetadata`; see migration 0015.
+
+`codigo` maps to `nameSingular`, `rotulo` to `labelSingular`, and the remaining columns follow Twenty property names. Rows with `twentyId` came from synchronization; rows without it were declared manually in the local CRM.",integration,packages/db/src/schema/automacao.ts:562-568; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-e94f987d,packages-db,packages/db/src/schema/automacao.ts,586,586,jsdoc,5,"/** Sumiu do Twenty. A linha fica, para o bloco que aponta para ela acusar a falta. */",translate,The item disappeared from Twenty. Keep its row so a referring block can report the missing item.,integration,packages/db/src/schema/automacao.ts:586-586; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-d9ee8a3a,packages-db,packages/db/src/schema/automacao.ts,593,599,jsdoc,7,"/**
  * Não é documentação: é o que a linguagem de consulta lê para decidir o que é permitido.
  *
  * Espelho do `fieldMetadata` do Twenty: `codigo` é o `name`, `rotulo` o `label`, `tipo`
  * o `type` literal (`TEXT`, `CURRENCY`, `RELATION`…). `options`, `defaultValue`,
  * `settings` e `relation` ficam no formato exato que a Metadata API devolve.
- */",translate,"Operational data for the query language, not documentation: it defines allowed fields. Mirrors Twenty `fieldMetadata`: `codigo` is `name`, `rotulo` is `label`, and `tipo` is literal `type` (`TEXT`, `CURRENCY`, `RELATION`, etc.). `options`, `defaultValue`, `settings`, and `relation` retain the exact Metadata API format.",integration,packages/db/src/schema/automacao.ts:593-599; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,"This is operational data, not just documentation: the query language reads it to decide what is allowed.
+
+Mirror of Twenty `fieldMetadata`: `codigo` is `name`, `rotulo` is `label`, and `tipo` is the literal `type` (`TEXT`, `CURRENCY`, `RELATION`, ...). `options`, `defaultValue`, `settings`, and `relation` retain the exact Metadata API shape.",integration,packages/db/src/schema/automacao.ts:593-599; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-16dc5e7b,packages-db,packages/db/src/schema/automacao.ts,631,635,jsdoc,6,"/**
  * Autenticação de saída do webhook — a ""Configurações de autenticação"" da
  * origem (`referencias-blip/pesquisa/blip-integracoes-webhook.md`: switch + OAuth 2.0),
  * mais Básica, que a origem não mostra mas a tarefa pede. Migration 0036.
- */",translate,"Outbound webhook authentication mirrors the source ""Configurações de autenticação"" (`referencias-blip/pesquisa/blip-integracoes-webhook.md`: switch and OAuth 2.0), plus Basic authentication requested here but absent from the source. Migration 0036.",meta-blip,packages/db/src/schema/automacao.ts:631-635; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,"Outbound webhook authentication follows the source's ""Configurações de autenticação"" (`referencias-blip/pesquisa/blip-integracoes-webhook.md`: switch and OAuth 2.0), plus Basic authentication required by the task although absent from the source. Migration 0036.",meta-blip,packages/db/src/schema/automacao.ts:631-635; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-b8a81432,packages-db,packages/db/src/schema/automacao.ts,64,72,jsdoc,5,"/**
      * A descrição do contato — o `description` de ""Editar Fluxo""
      * (`/configurations/basic`) da plataforma de origem.
@@ -172,24 +180,26 @@ packages-db-comment-b8a81432,packages-db,packages/db/src/schema/automacao.ts,64,
      * entre 2 e 160 caracteres (`ng-minlength=""2""`, `ng-maxlength=""160""`). O
      * teto é `check` porque é o único limite que o banco consegue guardar
      * sozinho; o mínimo é da `api`. Migration 0022.
-     */",translate,"Contact description is the source ""Editar Fluxo"" `description` at `/configurations/basic`. Optional because the source textarea has no `required`; when present it must have 2–160 characters (`ng-minlength=""2""`, `ng-maxlength=""160""`). The database `check` enforces the maximum; the `api` enforces the minimum. Migration 0022.",meta-blip,packages/db/src/schema/automacao.ts:64-72; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-d831b1d0,packages-db,packages/db/src/schema/automacao.ts,655,655,jsdoc,0,/** `nenhuma` (padrão) | `basica` | `oauth2_client_credentials`. Migration 0036. */,translate,"`nenhuma` (default), `basica`, or `oauth2_client_credentials`; migration 0036.",integration,packages/db/src/schema/automacao.ts:655-655; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-ea6d0ace,packages-db,packages/db/src/schema/automacao.ts,657,657,jsdoc,1,"/** Usuário da autenticação básica — não é segredo, fica legível. */",translate,Basic-auth username is not secret and remains readable.,security,packages/db/src/schema/automacao.ts:657-657; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-d269700a,packages-db,packages/db/src/schema/automacao.ts,659,659,jsdoc,0,/** Senha da autenticação básica — cifrada em repouso (`@pipe/db/segredo`). */,translate,Basic-auth password is encrypted at rest by `@pipe/db/segredo`.,security,packages/db/src/schema/automacao.ts:659-659; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-a6a7ab05,packages-db,packages/db/src/schema/automacao.ts,661,661,jsdoc,2,"/** URL do token do OAuth 2.0 (`client_credentials`) — validada como a do webhook (HTTPS, sem rede privada). */",translate,OAuth 2.0 `client_credentials` token URL is validated like the webhook URL: HTTPS and no private network.,security,packages/db/src/schema/automacao.ts:661-661; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-6e9e3118,packages-db,packages/db/src/schema/automacao.ts,663,663,jsdoc,1,/** Client ID do OAuth 2.0 — não é segredo. */,translate,OAuth 2.0 Client ID is not secret.,security,packages/db/src/schema/automacao.ts:663-663; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"Contact description from the source platform's ""Editar Fluxo"" `description` at `/configurations/basic`.
+
+It is optional (`<textarea>` lacks `required`); when present it must contain 2-160 characters (`ng-minlength=""2""`, `ng-maxlength=""160""`). The database `check` enforces the maximum, the only bound it can enforce alone; the `api` enforces the minimum. Migration 0022.",meta-blip,packages/db/src/schema/automacao.ts:64-72; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-d831b1d0,packages-db,packages/db/src/schema/automacao.ts,655,655,jsdoc,0,/** `nenhuma` (padrão) | `basica` | `oauth2_client_credentials`. Migration 0036. */,translate,`nenhuma` (default) | `basica` | `oauth2_client_credentials`. Migration 0036.,integration,packages/db/src/schema/automacao.ts:655-655; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-ea6d0ace,packages-db,packages/db/src/schema/automacao.ts,657,657,jsdoc,1,"/** Usuário da autenticação básica — não é segredo, fica legível. */",remove,,other,packages/db/src/schema/automacao.ts:657-657,codex,reviewed
+packages-db-comment-d269700a,packages-db,packages/db/src/schema/automacao.ts,659,659,jsdoc,0,/** Senha da autenticação básica — cifrada em repouso (`@pipe/db/segredo`). */,translate,"Basic-auth password, encrypted at rest by `@pipe/db/segredo`.",security,packages/db/src/schema/automacao.ts:659-659; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-a6a7ab05,packages-db,packages/db/src/schema/automacao.ts,661,661,jsdoc,2,"/** URL do token do OAuth 2.0 (`client_credentials`) — validada como a do webhook (HTTPS, sem rede privada). */",translate,"OAuth 2.0 token URL (`client_credentials`), validated like the webhook URL: HTTPS and no private network.",security,packages/db/src/schema/automacao.ts:661-661; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-6e9e3118,packages-db,packages/db/src/schema/automacao.ts,663,663,jsdoc,1,/** Client ID do OAuth 2.0 — não é segredo. */,remove,,other,packages/db/src/schema/automacao.ts:663-663,codex,reviewed
 packages-db-comment-056a85e4,packages-db,packages/db/src/schema/automacao.ts,667,673,jsdoc,6,"/**
      * Cabeçalhos customizados — `[{ chave, valor }]`. Nunca inclui os
      * reservados da assinatura (`content-type`, `x-pipe-signature`,
      * `x-pipe-timestamp`, `x-pipe-delivery`) nem `authorization`: a regra
      * de gravação (`dominio/gestao/integracoes.ts`) recusa antes de chegar
      * aqui, então a coluna não precisa de `check` para isso.
-     */",translate,"Custom headers are `[{ chave, valor }]`. They never include reserved signing headers (`content-type`, `x-pipe-signature`, `x-pipe-timestamp`, `x-pipe-delivery`) or `authorization`. The write rule in `dominio/gestao/integracoes.ts` rejects these before storage, so this column needs no `check`.",security,packages/db/src/schema/automacao.ts:667-673; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"Custom headers as `[{ chave, valor }]`. Never include signature-reserved headers (`content-type`, `x-pipe-signature`, `x-pipe-timestamp`, `x-pipe-delivery`) or `authorization`: the write rule in `dominio/gestao/integracoes.ts` rejects them before this column, so no database `check` is needed for that rule.",security,packages/db/src/schema/automacao.ts:667-673; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-0a608025,packages-db,packages/db/src/schema/automacao.ts,74,78,jsdoc,5,"/**
      * ""Utilizar o contexto do Roteador"" (`builder:useTunnelOwnerContext`): como serviço de
      * um roteador, as variáveis são as do par (roteador, contato), divididas com os outros
      * serviços que também ligaram isto. Desligado, são só deste fluxo. Migration 0024.
-     */",translate,"Source ""Utilizar o contexto do Roteador"" (`builder:useTunnelOwnerContext`): as a router service, share variables for the (router, contact) pair with other services that enable this option. Otherwise variables belong only to this flow. Migration 0024.",meta-blip,packages/db/src/schema/automacao.ts:74-78; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"""Utilizar o contexto do Roteador"" (`builder:useTunnelOwnerContext`): as a router service, variables belong to the (router, contact) pair and are shared with other services that enable this option. Otherwise they belong only to this flow. Migration 0024.",meta-blip,packages/db/src/schema/automacao.ts:74-78; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-4168780b,packages-db,packages/db/src/schema/automacao.ts,80,90,jsdoc,11,"/**
      * Configurações do contato que ainda não tinham lugar próprio: hoje só
      * ""Tela de Boas-vindas"" (`{ boasVindas: { ativo, mensagem, textoBotao } }`)
@@ -200,17 +210,19 @@ packages-db-comment-4168780b,packages-db,packages/db/src/schema/automacao.ts,80,
      * Por que uma coluna e não uma tabela: são poucos campos, de UMA tela cada,
      * sem histórico próprio (ao contrário de `fluxo_versao.global`, que é por
      * VERSÃO publicada) — é o retrato atual do contato, como `nome` e `descricao`.
-     */",translate,"Contact settings without a separate home: currently ""Tela de Boas-vindas"" (`{ boasVindas: { ativo, mensagem, textoBotao } }`) and ""Menu Persistente"" (`{ menuPersistente: { itens: [{texto,link}] } }`) at `/configurations/welcome` and `/configurations/persistentMenu`. An absent key means never configured. One column suffices because each screen has few fields and no separate history, unlike versioned `fluxo_versao.global`; this is the current contact snapshot like `nome` and `descricao`. Migration 0031.",meta-blip,packages/db/src/schema/automacao.ts:80-90; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-b90e9b29,packages-db,packages/db/src/schema/comum.ts,19,19,jsdoc,0,"/** Exclusão lógica: só onde o histórico importa. No resto, exclusão real. */",translate,Soft deletion only where history matters; otherwise delete the row.,architecture,packages/db/src/schema/comum.ts:19-19; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-46739511,packages-db,packages/db/src/schema/comum.ts,24,24,jsdoc,1,"/** Dinheiro nunca é ponto flutuante, e a moeda mora em coluna separada. */",translate,Money is never floating point; currency lives in a separate column.,architecture,packages/db/src/schema/comum.ts:24-24; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"Contact settings without a dedicated home: currently ""Tela de Boas-vindas"" (`{ boasVindas: { ativo, mensagem, textoBotao } }`) and ""Menu Persistente"" (`{ menuPersistente: { itens: [{texto,link}] } }`) from `/configurations/welcome` and `/configurations/persistentMenu`. A missing key means never configured. Migration 0031.
+
+These few fields describe one screen each and have no history of their own, unlike `fluxo_versao.global`, which belongs to a published VERSION. A column stores the contact's current snapshot like `nome` and `descricao`; a separate table is unnecessary.",meta-blip,packages/db/src/schema/automacao.ts:80-90; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-b90e9b29,packages-db,packages/db/src/schema/comum.ts,19,19,jsdoc,0,"/** Exclusão lógica: só onde o histórico importa. No resto, exclusão real. */",remove,,other,packages/db/src/schema/comum.ts:19-19,codex,reviewed
+packages-db-comment-46739511,packages-db,packages/db/src/schema/comum.ts,24,24,jsdoc,1,"/** Dinheiro nunca é ponto flutuante, e a moeda mora em coluna separada. */",translate,Never represent money with floating point; store currency in a separate column.,architecture,packages/db/src/schema/comum.ts:24-24; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-0088d272,packages-db,packages/db/src/schema/comum.ts,27,30,jsdoc,2,"/**
  * Enumeração é `text` com `check`, nunca `enum` nativo: acrescentar valor num enum do
  * Postgres trava a migration em produção, e vamos acrescentar valor o tempo todo.
- */",translate,"Use `text` plus `check` for enumerations, never native PostgreSQL `enum`: adding enum values can lock production migrations, and values will be added often.",architecture,packages/db/src/schema/comum.ts:27-30; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,"Use `text` plus `check` for enumerations, never a native Postgres `enum`: adding a native enum value can block production migration, and these lists will grow.",architecture,packages/db/src/schema/comum.ts:27-30; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-40938bbc,packages-db,packages/db/src/schema/comum.ts,5,8,jsdoc,4,"/**
  * Convenções da §1 do modelo de dados, num lugar só. Se uma delas mudar, muda aqui —
  * é o que impede a segunda tabela de nascer com um carimbo diferente da primeira.
- */",translate,Data-model §1 conventions live in one place. A change here prevents a second table from using a different timestamp convention.,architecture,packages/db/src/schema/comum.ts:5-8; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,Keep the data-model section 1 conventions in one place. A change here prevents a second table from acquiring different timestamps from the first.,architecture,packages/db/src/schema/comum.ts:5-8; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-a8526b2b,packages-db,packages/db/src/schema/comum.ts,54,62,block,8,"/*
  * A régua de prioridade vive em `@pipe/core/conversa`, e não aqui.
  *
@@ -219,53 +231,57 @@ packages-db-comment-a8526b2b,packages-db,packages/db/src/schema/comum.ts,54,62,b
  * componente de navegador; era por isso que ele mantinha um mapa paralelo de
  * pesos, que divergiu. Regra pura mora no pacote de regra pura, e o esquema
  * importa de lá para virar restrição — nunca o contrário.
- */",translate,"Priority ordering lives in `@pipe/core/conversa`, not here. Importing this file brings `drizzle-orm/pg-core` and its driver into browser consumers. The agent app formerly kept a parallel weight map that diverged. Pure rules belong in the pure rules package; the schema imports them for constraints, never the reverse.",architecture,packages/db/src/schema/comum.ts:54-62; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-1ec6c78d,packages-db,packages/db/src/schema/comum.ts,65,65,jsdoc,0,/** §4 do modelo de dados: catálogo fechado de `evento_atendimento.tipo`. */,translate,Data-model §4 closed catalog for `evento_atendimento.tipo`.,integration,packages/db/src/schema/comum.ts:65-65; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,"The priority scale belongs in `@pipe/core/conversa`, not here.
+
+This module imports `drizzle-orm/pg-core` to build constraints, so its consumers pull in the driver. A browser component sorts the agent queue; a separate weight map there had diverged. Pure rules belong in the pure-rule package and are imported into the schema for constraints, never the reverse.",architecture,packages/db/src/schema/comum.ts:54-62; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-1ec6c78d,packages-db,packages/db/src/schema/comum.ts,65,65,jsdoc,0,/** §4 do modelo de dados: catálogo fechado de `evento_atendimento.tipo`. */,translate,Closed catalog for `evento_atendimento.tipo` from data-model section 4.,architecture,packages/db/src/schema/comum.ts:65-65; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-973430f1,packages-db,packages/db/src/schema/conversas.ts,140,145,jsdoc,5,"/**
    * O canal de onde a mídia recebida veio — só preenchido pelo webhook
    * (`dominio/entrada.ts`), nunca pelo upload manual (`controladores/anexos.ts`).
    * É de onde o download (`dominio/midia.ts`) tira o token para falar com o Graph.
    * Ver `0033_download_de_midia.sql`.
-   */",translate,"Source channel for received media, populated only by the webhook (`dominio/entrada.ts`), never manual upload (`controladores/anexos.ts`). Download logic (`dominio/midia.ts`) uses it to select the Graph token. See `0033_download_de_midia.sql`.",integration,packages/db/src/schema/conversas.ts:140-145; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-0d4a866b,packages-db,packages/db/src/schema/conversas.ts,147,147,jsdoc,2,"/** `bytes = 0` com `chave_storage` de referência (`meta:` ou URL) é ""não baixado"". */",translate,`bytes = 0` with a reference `chave_storage` (`meta:` or URL) means not downloaded.,integration,packages/db/src/schema/conversas.ts:147-147; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-28c3fa8a,packages-db,packages/db/src/schema/conversas.ts,164,164,jsdoc,2,/** CPF/CNPJ é sempre `text`: o CNPJ passa a ser alfanumérico a partir de 2026. */,translate,CPF/CNPJ stays `text`: CNPJ becomes alphanumeric starting in 2026.,architecture,packages/db/src/schema/conversas.ts:164-164; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-2553f275,packages-db,packages/db/src/schema/conversas.ts,171,171,jsdoc,2,/** Conversa é dado pessoal: a exclusão a pedido do titular existe desde o começo. */,translate,Conversations are personal data; data-subject deletion is supported from the start.,security,packages/db/src/schema/conversas.ts:171-171; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+   */",translate,"The channel that supplied received media, set only by the webhook (`dominio/entrada.ts`), never by manual upload (`controladores/anexos.ts`). Download code (`dominio/midia.ts`) uses it to obtain the Graph token. See `0033_download_de_midia.sql`.",integration,packages/db/src/schema/conversas.ts:140-145; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-0d4a866b,packages-db,packages/db/src/schema/conversas.ts,147,147,jsdoc,2,"/** `bytes = 0` com `chave_storage` de referência (`meta:` ou URL) é ""não baixado"". */",translate,`bytes = 0` plus a reference `chave_storage` (`meta:` or URL) means not yet downloaded.,integration,packages/db/src/schema/conversas.ts:147-147; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-28c3fa8a,packages-db,packages/db/src/schema/conversas.ts,164,164,jsdoc,2,/** CPF/CNPJ é sempre `text`: o CNPJ passa a ser alfanumérico a partir de 2026. */,translate,Keep CPF/CNPJ in `text`: CNPJ becomes alphanumeric starting in 2026.,architecture,packages/db/src/schema/conversas.ts:164-164; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-2553f275,packages-db,packages/db/src/schema/conversas.ts,171,171,jsdoc,2,/** Conversa é dado pessoal: a exclusão a pedido do titular existe desde o começo. */,translate,"Conversations contain personal data, so deletion on the subject's request was supported from the start.",security,packages/db/src/schema/conversas.ts:171-171; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-11f90880,packages-db,packages/db/src/schema/conversas.ts,173,179,jsdoc,3,"/**
      * O `id` da `person` correspondente no Twenty. É o que permite o link direto do
      * Desk cair na FICHA do cliente em vez da home do CRM.
      *
      * Nulo enquanto o espelho não aconteceu — e enquanto for nulo, o Desk não mostra
      * link nenhum. Ver `docs/specs/2026-09-07-integracao-twenty.md` §4.
-     */",translate,"Corresponding Twenty `person` ID enables a direct Desk link to the customer record instead of the CRM home. Null until synchronization; while null, Desk shows no link. See `docs/specs/2026-09-07-integracao-twenty.md` §4.",integration,packages/db/src/schema/conversas.ts:173-179; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"The `id` of the matching Twenty `person`. It lets a Desk deep link open the customer RECORD rather than CRM home.
+
+It is null until mirroring completes; while null, Desk shows no link. See `docs/specs/2026-09-07-integracao-twenty.md` section 4.",integration,packages/db/src/schema/conversas.ts:173-179; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-e35c4b7e,packages-db,packages/db/src/schema/conversas.ts,278,280,block,3,"/* Nasce SEM prioridade. Quem dá prioridade é regra de priorização ou gente;
        o padrão antigo (`media`) fazia a fila ordenar por dado que ninguém
-       escolheu. Ver `NIVEIS_PRIORIDADE`. */",translate,Created without a priority. A prioritization rule or human sets it; the old `media` default ordered the queue using a value nobody selected. See `NIVEIS_PRIORIDADE`.,architecture,packages/db/src/schema/conversas.ts:278-280; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-ea17fcef,packages-db,packages/db/src/schema/conversas.ts,28,28,jsdoc,0,"/** Módulo 3 — Conversas. Canais do dia 1: WhatsApp Cloud API, e-mail e widget de site. */",translate,"Module 3, Conversations: initial channels are WhatsApp Cloud API, email, and site widget.",architecture,packages/db/src/schema/conversas.ts:28-28; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-2b21d069,packages-db,packages/db/src/schema/conversas.ts,291,291,jsdoc,2,/** Sustenta a trava do fechamento automático: não fecha se quem deve resposta é o atendente. */,translate,Supports automatic-close guard: do not close while an agent owes the next response.,architecture,packages/db/src/schema/conversas.ts:291-291; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+       escolheu. Ver `NIVEIS_PRIORIDADE`. */",translate,Start with NO priority. A prioritization rule or a person sets it; the old default (`media`) sorted the queue by a value nobody chose. See `NIVEIS_PRIORIDADE`.,architecture,packages/db/src/schema/conversas.ts:278-280; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-ea17fcef,packages-db,packages/db/src/schema/conversas.ts,28,28,jsdoc,0,"/** Módulo 3 — Conversas. Canais do dia 1: WhatsApp Cloud API, e-mail e widget de site. */",update,"Module 3 covers conversations. The initial channels were WhatsApp Cloud API, email, and site widget; `TIPOS_CANAL` now also includes Instagram and Messenger.",packages/db/src/schema/comum.ts:46-47; current TIPOS_CANAL includes Instagram and Messenger,packages/db/src/schema/conversas.ts:28-28; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-2b21d069,packages-db,packages/db/src/schema/conversas.ts,291,291,jsdoc,2,/** Sustenta a trava do fechamento automático: não fecha se quem deve resposta é o atendente. */,translate,Supports automatic-close protection: do not close when the agent owes a reply.,architecture,packages/db/src/schema/conversas.ts:291-291; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-d9a54694,packages-db,packages/db/src/schema/conversas.ts,293,296,jsdoc,2,"/**
      * Janela de atendimento de 24h do WhatsApp, recalculada a cada mensagem de entrada
      * do contato. Nulo é canal sem janela (e-mail, widget).
-     */",translate,"WhatsApp 24-hour service window, recalculated for each inbound contact message. Null for channels without a window, such as email and widget.",integration,packages/db/src/schema/conversas.ts:293-296; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-c0530870,packages-db,packages/db/src/schema/conversas.ts,298,298,jsdoc,1,"/** Sem chave estrangeira: `mensagem` é particionada e sua unicidade é (id, criada_em). */",translate,"No foreign key: `mensagem` is partitioned and its uniqueness is the pair (id, criada_em).",architecture,packages/db/src/schema/conversas.ts:298-298; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"WhatsApp's 24-hour customer-service window is recomputed for each inbound contact message. Null means a channel without a window, such as email or widget.",integration,packages/db/src/schema/conversas.ts:293-296; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-c0530870,packages-db,packages/db/src/schema/conversas.ts,298,298,jsdoc,1,"/** Sem chave estrangeira: `mensagem` é particionada e sua unicidade é (id, criada_em). */",translate,"No foreign key: `mensagem` is partitioned and unique by (id, criada_em).",architecture,packages/db/src/schema/conversas.ts:298-298; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-fcd47b17,packages-db,packages/db/src/schema/conversas.ts,310,314,jsdoc,2,"/**
      * Migration 0040: o Log de mensagens do fluxo (`carregarLogDeMensagens`)
      * acha as conversas do canal do bot por `inbox_id` antes de descer para
      * `mensagem` — sem este índice essa busca varria `conversa` inteira.
-     */",translate,"Migration 0040: the flow message log (`carregarLogDeMensagens`) finds bot-channel conversations by `inbox_id` before descending to `mensagem`. Without this index, the lookup scans all of `conversa`.",architecture,packages/db/src/schema/conversas.ts:310-314; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"Migration 0040: the flow message log (`carregarLogDeMensagens`) finds conversations for the bot's channel by `inbox_id` before descending to `mensagem`. Without this index, that lookup would scan all of `conversa`.",architecture,packages/db/src/schema/conversas.ts:310-314; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-bcd0a0e3,packages-db,packages/db/src/schema/conversas.ts,331,334,jsdoc,2,"/**
  * Particionada por mês em `criada_em`. A chave primária de tabela particionada precisa
  * conter a chave de partição — daí `(id, criada_em)` em vez de só `id`.
- */",translate,"Monthly partitioning by `criada_em` requires a partitioned table's primary key to contain the partition key, hence (id, criada_em) rather than id alone.",architecture,packages/db/src/schema/conversas.ts:331-334; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-d9b08b6d,packages-db,packages/db/src/schema/conversas.ts,351,351,jsdoc,2,"/** Preenchido, é o que permite ao relatório de esforço descontar o texto não digitado. */",translate,"When set, lets effort reports subtract text the agent did not type.",integration,packages/db/src/schema/conversas.ts:351-351; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,"Partitioned monthly on `criada_em`. A partitioned table's primary key must include the partition key, hence `(id, criada_em)` instead of `id` alone.",architecture,packages/db/src/schema/conversas.ts:331-334; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-d9b08b6d,packages-db,packages/db/src/schema/conversas.ts,351,351,jsdoc,2,"/** Preenchido, é o que permite ao relatório de esforço descontar o texto não digitado. */",translate,"When set, this lets the effort report discount text that the agent did not type.",integration,packages/db/src/schema/conversas.ts:351-351; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-67133978,packages-db,packages/db/src/schema/conversas.ts,368,371,jsdoc,8,"/**
      * Amarra a resposta do cliente ao disparo que a originou: é o que faz o relatório
      * contar a janela a partir do envio, e não pelo dia do calendário.
-     */",translate,"Links a customer reply to the outbound send that prompted it, so reports measure the window from send time rather than calendar day.",integration,packages/db/src/schema/conversas.ts:368-371; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"Link a customer reply to the campaign send that triggered it so the report counts the window from sending, not from a calendar day.",integration,packages/db/src/schema/conversas.ts:368-371; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-b73b1e4a,packages-db,packages/db/src/schema/conversas.ts,37,41,jsdoc,5,"/**
      * Token da Meta, senha SMTP: cifrado em repouso pela `packages/db/src/segredo.ts`,
      * com a chave fora do banco (§6). Só os campos da lista `CAMPOS_SECRETOS_DE_CANAL`
      * são cifrados — o resto continua legível para diagnóstico.
-     */",translate,Meta token and SMTP password are encrypted at rest by `packages/db/src/segredo.ts` using a key outside the database (§6). Only fields in `CAMPOS_SECRETOS_DE_CANAL` are encrypted; the rest remain readable for diagnosis.,security,packages/db/src/schema/conversas.ts:37-41; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"Meta token and SMTP password are encrypted at rest by `packages/db/src/segredo.ts`, with the key outside the database (section 6). Only fields in `CAMPOS_SECRETOS_DE_CANAL` are encrypted; the rest remain readable for diagnostics.",security,packages/db/src/schema/conversas.ts:37-41; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-77803b16,packages-db,packages/db/src/schema/conversas.ts,373,383,jsdoc,14,"/**
      * O que não cabe em coluna própria e é específico do canal ou do tipo.
      *
@@ -276,11 +292,15 @@ packages-db-comment-77803b16,packages-db,packages/db/src/schema/conversas.ts,373
      * No Instagram, guarda a origem da conversa: mensagem direta, resposta a story com a
      * referência do story, menção, ou comentário promovido a conversa privada com o
      * vínculo à publicação.
-     */",translate,"Channel- or type-specific data that has no dedicated column. Positional template values must survive sending: if they existed only in the queue job, a lost job would also lose retry and audit capability. For Instagram, store conversation origin: direct message, story reply and reference, mention, or comment promoted to a private conversation with its publication link.",integration,packages/db/src/schema/conversas.ts:373-383; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"Channel- or type-specific data without a dedicated column.
+
+Persist positional template values through sending. Otherwise they exist only in a queue job, and a lost job loses both retry and audit evidence.
+
+For Instagram, store the conversation origin: direct message, story reply with story reference, mention, or comment promoted to a private conversation with a link to the post.",integration,packages/db/src/schema/conversas.ts:373-383; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-da7f20cc,packages-db,packages/db/src/schema/conversas.ts,401,404,jsdoc,4,"/**
  * Toda mensagem de saída passa por aqui, com estado próprio e retry com backoff.
  * `mensagem_id` fica sem chave estrangeira porque `mensagem` é particionada.
- */",translate,Every outbound message passes through this outbox with its own status and backoff retries. `mensagem_id` has no foreign key because `mensagem` is partitioned.,architecture,packages/db/src/schema/conversas.ts:401-404; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,Every outbound message passes through this outbox with its own state and backoff retry. `mensagem_id` has no foreign key because `mensagem` is partitioned.,architecture,packages/db/src/schema/conversas.ts:401-404; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-5af4a28e,packages-db,packages/db/src/schema/conversas.ts,45,53,jsdoc,4,"/**
      * As duas chaves de roteamento do webhook, e a razão de estarem em COLUNA e
      * não no `config`: os eventos de template e de conta da Meta não aceitam URL
@@ -289,7 +309,7 @@ packages-db-comment-5af4a28e,packages-db,packages/db/src/schema/conversas.ts,45,
      * payload é consulta, e consulta em jsonb sem índice é varredura.
      *
      * Ver `docs/specs/2026-09-07-webhook-por-cliente.md`.
-     */",translate,"Webhook routing keys belong in columns rather than `config`. Meta template and account events cannot use per-customer URLs and all reach one route; the tenant must be resolved from payload (`entry[].id` is WABA, `metadata.phone_number_id` is the number). Payload resolution is a lookup, and unindexed jsonb lookup would scan. See `docs/specs/2026-09-07-webhook-por-cliente.md`.",meta-blip,packages/db/src/schema/conversas.ts:45-53; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"Two webhook routing keys live in COLUMNS rather than `config`: Meta template and account events cannot use a per-tenant URL, so they all reach one route. The payload identifies the tenant (`entry[].id` is the WABA; `metadata.phone_number_id` is the number). Payload resolution is a query; querying unindexed jsonb would scan it. See `docs/specs/2026-09-07-webhook-por-cliente.md`.",meta-blip,packages/db/src/schema/conversas.ts:45-53; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-bfd26cb4,packages-db,packages/db/src/schema/conversas.ts,550,557,jsdoc,9,"/**
  * Fixar e marcar como não lida — POR ATENDENTE, não por conversa (migração 0041).
  *
@@ -297,13 +317,15 @@ packages-db-comment-bfd26cb4,packages-db,packages/db/src/schema/conversas.ts,550
  * `fixada_em` nulo é ""não fixada""; `nao_lida_em` nulo é ""lida"". A linha só existe
  * enquanto ao menos um dos dois estiver marcado (CHECK); o domínio apaga a linha
  * que ficou sem marcação. O teto de 50 fixadas é conferido no domínio.
- */",translate,"Pinned and manually unread markers belong to each AGENT, not the conversation (migration 0041). They mirror source card menu PIN/UNPIN and UNREAD/READ (`TicketMenuOptions`). Null `fixada_em` means unpinned; null `nao_lida_em` means read. A row exists only while at least one marker is set (CHECK), and the domain deletes unmarked rows. The domain enforces a limit of 50 pinned conversations.",meta-blip,packages/db/src/schema/conversas.ts:550-557; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,"Pin and mark unread PER AGENT, not per conversation (migration 0041).
+
+This mirrors PIN/UNPIN and UNREAD/READ from the source card menu (`TicketMenuOptions`). Null `fixada_em` means unpinned; null `nao_lida_em` means read. A row exists only while at least one flag is set (CHECK), and the domain removes it when neither remains. The domain enforces a limit of 50 pinned conversations.",meta-blip,packages/db/src/schema/conversas.ts:550-557; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-6adc7165,packages-db,packages/db/src/schema/conversas.ts,62,67,block,5,"/*
      * Únicos e GLOBAIS, de propósito — não por tenant. Dois clientes com o mesmo
      * `numero_id` é estado impossível: significaria dois donos para o mesmo
      * número, e o banco recusa antes de a aplicação escolher errado. Parciais
      * porque só o WhatsApp tem esses identificadores.
-     */",translate,"These IDs are intentionally unique GLOBALLY, not per tenant. Two tenants sharing one `numero_id` would imply two owners of one number, so the database rejects it before the application routes incorrectly. Partial indexes apply because only WhatsApp has these IDs.",security,packages/db/src/schema/conversas.ts:62-67; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",update,"`numero_id` is deliberately globally unique, not tenant-scoped: two tenants cannot own the same number. The index is partial because only WhatsApp has this identifier. `waba_id` currently has a partial nonunique index for lookup.",packages/db/src/schema/conversas.ts:62-76: numeroId uses uniqueIndex; wabaId uses index,packages/db/src/schema/conversas.ts:62-67; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-6e1d000b,packages-db,packages/db/src/schema/conversas.ts,84,88,jsdoc,5,"/**
      * Aponta para `horario_atendimento`, que vive no módulo de Gestão. A chave
      * estrangeira nasce na migration `0003_chaves_cruzadas` para não fazer os dois
@@ -312,48 +334,48 @@ packages-db-comment-6e1d000b,packages-db,packages/db/src/schema/conversas.ts,84,
 packages-db-comment-a1204ae8,packages-db,packages/db/src/schema/crm.ts,156,159,jsdoc,4,"/**
  * A resposta é linha, com a versão do formulário junto: mudar o questionário não quebra
  * o histórico, e o questionário de março continua legível depois do de setembro.
- */",translate,"Store each form response as a row with its form version. Changing a questionnaire then preserves readable history, including a March response after a September revision.",architecture,packages/db/src/schema/crm.ts:156-159; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,Each answer is a row tied to a form version. Changing the questionnaire preserves readable history: March responses remain interpretable after the September version.,architecture,packages/db/src/schema/crm.ts:156-159; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-2e9326cb,packages-db,packages/db/src/schema/crm.ts,19,23,jsdoc,5,"/**
  * Módulo 2 — CRM. As duas decisões que sustentam o módulo: pergunta de formulário é
  * linha e não coluna (o Lead do Salesforce de hoje tem 353 campos, 304 customizados),
  * e o score se explica — cada cálculo é uma linha nova, não uma sobrescrita.
- */",translate,"Module 2, CRM, rests on two decisions: form questions are rows rather than columns (the referenced Salesforce Lead had 353 fields, 304 custom), and scoring is explainable, with each calculation stored as a new row rather than overwriting the previous score.",architecture,packages/db/src/schema/crm.ts:19-23; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,"Module 2 CRM rests on two decisions: form questions are rows, not columns (the cited Salesforce Lead had 353 fields, 304 custom), and scores are explainable through a new row for each calculation rather than overwriting history.",architecture,packages/db/src/schema/crm.ts:19-23; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-c2181385,packages-db,packages/db/src/schema/crm.ts,204,208,jsdoc,9,"/**
  * Cada cálculo é uma linha nova. `explicacao` guarda o array de {regra, versão, pontos}
  * que produziu o número: é o que responde *por que* o lead tirou 74 e o que permite
  * recalcular a base inteira quando a regra muda, sem perder o histórico.
- */",translate,"Each calculation creates a new row. `explicacao` stores the array of {regra, versão, pontos} behind the score, explaining why a lead scored 74 and allowing full recalculation when rules change without losing history.",architecture,packages/db/src/schema/crm.ts:204-208; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-d6e283cf,packages-db,packages/db/src/schema/crm.ts,230,230,jsdoc,3,"/** A faixa é a saída do motor de score, e é ela que decide fila e proprietário. */",translate,The score band is the scoring engine's output and determines queue and owner.,architecture,packages/db/src/schema/crm.ts:230-230; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-bbff4479,packages-db,packages/db/src/schema/crm.ts,31,31,jsdoc,0,/** CPF/CNPJ em `text`: o CNPJ alfanumérico de 2026 quebra coluna numérica e máscara fixa. */,translate,Store CPF/CNPJ as `text`: alphanumeric CNPJ from 2026 breaks numeric columns and fixed masks.,architecture,packages/db/src/schema/crm.ts:31-31; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-e57dadf0,packages-db,packages/db/src/schema/crm.ts,331,331,jsdoc,0,/** Chave no storage do relatório de linhas rejeitadas. */,translate,Storage key for the rejected-row report.,integration,packages/db/src/schema/crm.ts:331-331; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-ac1eb811,packages-db,packages/db/src/schema/crm.ts,74,74,jsdoc,2,/** Denormalizados de `score_lead` porque são os dois campos filtrados o tempo todo. */,translate,Denormalized from `score_lead` because these two fields are filtered constantly.,architecture,packages/db/src/schema/crm.ts:74-74; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-42fd5e12,packages-db,packages/db/src/schema/crm.ts,79,79,jsdoc,1,"/** Campo customizado por tenant vive aqui, com índice GIN — nunca `alter table` em runtime. */",translate,"Tenant-specific custom fields live here with a GIN index, never runtime `alter table`.",architecture,packages/db/src/schema/crm.ts:79-79; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,"Each calculation gets a new row. `explicacao` stores the `{regra, versão, pontos}` array behind the number: it explains why a lead scored 74 and allows full recalculation after rule changes without losing history.",architecture,packages/db/src/schema/crm.ts:204-208; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-d6e283cf,packages-db,packages/db/src/schema/crm.ts,230,230,jsdoc,3,"/** A faixa é a saída do motor de score, e é ela que decide fila e proprietário. */",translate,The band is the scoring engine's output and decides queue and owner.,integration,packages/db/src/schema/crm.ts:230-230; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-bbff4479,packages-db,packages/db/src/schema/crm.ts,31,31,jsdoc,0,/** CPF/CNPJ em `text`: o CNPJ alfanumérico de 2026 quebra coluna numérica e máscara fixa. */,translate,Use `text` for CPF/CNPJ: alphanumeric CNPJ in 2026 breaks numeric columns and fixed digit masks.,architecture,packages/db/src/schema/crm.ts:31-31; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-e57dadf0,packages-db,packages/db/src/schema/crm.ts,331,331,jsdoc,0,/** Chave no storage do relatório de linhas rejeitadas. */,remove,,other,packages/db/src/schema/crm.ts:331-331,codex,reviewed
+packages-db-comment-ac1eb811,packages-db,packages/db/src/schema/crm.ts,74,74,jsdoc,2,/** Denormalizados de `score_lead` porque são os dois campos filtrados o tempo todo. */,translate,Denormalized from `score_lead` because both fields are filtered frequently.,architecture,packages/db/src/schema/crm.ts:74-74; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-42fd5e12,packages-db,packages/db/src/schema/crm.ts,79,79,jsdoc,1,"/** Campo customizado por tenant vive aqui, com índice GIN — nunca `alter table` em runtime. */",translate,Store tenant custom fields here with a GIN index; never run `alter table` at runtime.,architecture,packages/db/src/schema/crm.ts:79-79; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-c5a51691,packages-db,packages/db/src/schema/gestao.ts,255,260,jsdoc,5,"/**
  * Palavras proibidas — migração 0042. A lista por CONTA que barra o envio do
  * atendente (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4). `termo` fica
  * como foi digitado; a comparação sem acento e sem caixa é do domínio
  * (`apps/api/src/dominio/gestao/palavras-proibidas.ts`).
- */",translate,"Forbidden words, migration 0042: an ACCOUNT-level list blocks agent sending (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` §3.4). `termo` retains the entered spelling; domain logic in `apps/api/src/dominio/gestao/palavras-proibidas.ts` compares without accents or case.",meta-blip,packages/db/src/schema/gestao.ts:255-260; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,Forbidden words (migration 0042): the per-account list blocks agent sends (`referencias-blip/pesquisa/blip-desk-regras-tecnicas.md` section 3.4). Store `termo` as entered; the domain performs case- and accent-insensitive matching (`apps/api/src/dominio/gestao/palavras-proibidas.ts`).,meta-blip,packages/db/src/schema/gestao.ts:255-260; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-ba08b62f,packages-db,packages/db/src/schema/gestao.ts,30,34,jsdoc,5,"/**
  * Módulo 4 — Gestão. Toda métrica é derivada de `evento_atendimento`, nunca de campo
  * mutável da conversa: é isso que permite recalcular o passado quando a definição de
  * uma métrica muda.
- */",translate,"Module 4, Management: derive every metric from `evento_atendimento`, never mutable conversation fields, so historical periods can be recalculated when metric definitions change.",architecture,packages/db/src/schema/gestao.ts:30-34; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,"Module 4 Management derives every metric from `evento_atendimento`, never from mutable conversation fields. This allows past periods to be recalculated when a metric definition changes.",architecture,packages/db/src/schema/gestao.ts:30-34; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-fe87731e,packages-db,packages/db/src/schema/gestao.ts,339,342,jsdoc,5,"/**
  * Guarda a escala junto da nota de propósito: sem isso, um 4 de CSAT e um 4 de NPS
  * acabam somados no mesmo gráfico quando a empresa tem os dois modelos.
- */",translate,Store the scale alongside the score; otherwise CSAT 4 and NPS 4 would be added to the same chart when an account uses both models.,architecture,packages/db/src/schema/gestao.ts:339-342; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-b09cb3df,packages-db,packages/db/src/schema/gestao.ts,357,357,jsdoc,2,/** `promotor` | `neutro` | `detrator` para NPS; `satisfeito` | `insatisfeito` para CSAT. */,translate,"NPS values are `promotor`, `neutro`, `detrator`; CSAT values are `satisfeito`, `insatisfeito`.",integration,packages/db/src/schema/gestao.ts:357-357; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,Store the scale with each score so a CSAT 4 and NPS 4 do not end up summed in the same chart when a tenant uses both models.,architecture,packages/db/src/schema/gestao.ts:339-342; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-b09cb3df,packages-db,packages/db/src/schema/gestao.ts,357,357,jsdoc,2,/** `promotor` | `neutro` | `detrator` para NPS; `satisfeito` | `insatisfeito` para CSAT. */,translate,Persisted class values: `promotor` | `neutro` | `detrator` for NPS; `satisfeito` | `insatisfeito` for CSAT.,integration,packages/db/src/schema/gestao.ts:357-357; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-c7d88b00,packages-db,packages/db/src/schema/gestao.ts,36,39,jsdoc,2,"/**
  * Imutável e particionada por mês em `em`. A chave primária carrega a chave de
  * partição, como em `mensagem`.
- */",translate,Immutable and monthly partitioned by `em`; the primary key includes the partition key as with `mensagem`.,architecture,packages/db/src/schema/gestao.ts:36-39; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-0cb49eb7,packages-db,packages/db/src/schema/gestao.ts,80,80,jsdoc,3,"/** Somas em segundos; a média é a soma dividida pela contagem, na hora de exibir. */",translate,Store sums in seconds; divide by count at display time to compute averages.,architecture,packages/db/src/schema/gestao.ts:80-80; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,"Immutable and partitioned monthly on `em`; the primary key includes the partition key, as with `mensagem`.",architecture,packages/db/src/schema/gestao.ts:36-39; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-0cb49eb7,packages-db,packages/db/src/schema/gestao.ts,80,80,jsdoc,3,"/** Somas em segundos; a média é a soma dividida pela contagem, na hora de exibir. */",remove,,other,packages/db/src/schema/gestao.ts:80-80,codex,reviewed
 packages-db-comment-5554642d,packages-db,packages/db/src/schema/gestao.ts,97,101,jsdoc,3,"/**
  * Régua determinística de esforço (§4.4 da spec): 200 char/min escrito, 1.000 char/min
  * lido, áudio em 1×. `chars_de_resposta_pronta` é o desconto do texto que o atendente
  * não digitou — sem ele, template e resposta pronta inflam o esforço.
- */",translate,"Deterministic effort measure (spec §4.4): 200 written characters/minute, 1,000 read characters/minute, and audio at 1×. `chars_de_resposta_pronta` discounts text the agent did not type; without it, templates and canned responses inflate effort.",architecture,packages/db/src/schema/gestao.ts:97-101; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,"Deterministic effort scale (spec section 4.4): 200 written characters/minute, 1,000 read characters/minute, and audio at 1x. `chars_de_resposta_pronta` discounts text the agent did not type, preventing templates and canned replies from inflating effort.",architecture,packages/db/src/schema/gestao.ts:97-101; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-4f5dba2f,packages-db,packages/db/src/schema/identidade.ts,101,113,jsdoc,16,"/**
      * A instância do Twenty deste cliente, e a chave para falar com ela.
      *
@@ -366,7 +388,11 @@ packages-db-comment-4f5dba2f,packages-db,packages/db/src/schema/identidade.ts,10
      * `twentyChave` é a chave de API, CIFRADA em repouso pelo mesmo chaveiro do token
      * da Meta (`PIPE_CHAVES_SEGREDO`). Diferente do token da Meta, esta também LÊ: quem
      * a tiver tem a base de clientes daquele tenant inteira.
-     */",translate,"Each customer has one Twenty instance and API key, per `docs/specs/2026-09-07-integracao-twenty.md` §5. CRM isolation is physical, with no default instance. Empty means no CRM and no integration, never a silent fallback that might send one tenant's data to another tenant's CRM. `twentyChave` is encrypted at rest with the Meta-token keyring (`PIPE_CHAVES_SEGREDO`). Unlike the Meta token, this key also grants read access to the entire tenant customer base.",security,packages/db/src/schema/identidade.ts:101-113; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"This tenant's Twenty instance and its access key.
+
+One instance PER TENANT, per `docs/specs/2026-09-07-integracao-twenty.md` section 5: CRM isolation is physical, with no default instance. Null means the tenant has no CRM, so the integration does not run. Never silently fall back to another instance, which could send one tenant's data to another tenant's CRM.
+
+`twentyChave` is an API key encrypted at rest with the Meta-token keyring (`PIPE_CHAVES_SEGREDO`). Unlike the Meta token, this key can READ the tenant's entire customer database.",security,packages/db/src/schema/identidade.ts:101-113; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-f15de131,packages-db,packages/db/src/schema/identidade.ts,116,123,jsdoc,12,"/**
      * Os dados que a própria pessoa preenche em ""minha conta"", depois de entrar.
      *
@@ -374,12 +400,14 @@ packages-db-comment-f15de131,packages-db,packages/db/src/schema/identidade.ts,11
      * tela de boas-vindas que anuncia isso. Exigi-los antes devolveria o
      * formulário para antes do login — que é justamente o que o autosserviço
      * evita. `funcionarios` é faixa em texto (""1 a 10""), como na origem.
-     */",translate,"Details the person supplies in ""minha conta"" after login. All are nullable because self-service creates the account without them, and the welcome screen then requests them; requiring them before login would defeat self-service. `funcionarios` is a text range such as ""1 a 10"", as in the source.",meta-blip,packages/db/src/schema/identidade.ts:116-123; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-db-comment-9a431871,packages-db,packages/db/src/schema/identidade.ts,131,131,jsdoc,2,"/** Nulo = onboarding em aberto, e a Gestão leva para ""minha conta"". */",translate,"Null means onboarding is incomplete, and Management routes to ""minha conta"".",integration,packages/db/src/schema/identidade.ts:131-131; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+     */",translate,"Data a person supplies in ""minha conta"" after login.
+
+All fields are nullable: a self-service account starts without them and the welcome screen explains that. Requiring them before login would recreate the pre-login form that self-service avoids. `funcionarios` is a text range such as ""1 a 10"", as in the source.",integration,packages/db/src/schema/identidade.ts:116-123; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-db-comment-9a431871,packages-db,packages/db/src/schema/identidade.ts,131,131,jsdoc,2,"/** Nulo = onboarding em aberto, e a Gestão leva para ""minha conta"". */",translate,"Null means onboarding is incomplete and Management sends the user to ""minha conta"".",integration,packages/db/src/schema/identidade.ts:131-131; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-38ec1dcb,packages-db,packages/db/src/schema/identidade.ts,141,144,jsdoc,5,"/**
  * Toda tabela de negócio referencia o tenant por aqui. Fica em identidade e não em
  * `comum` para não criar ciclo de import com a própria tabela `tenant`.
- */",translate,Business tables reference the tenant through this helper. It lives in identity rather than `comum` to avoid an import cycle with the `tenant` table itself.,architecture,packages/db/src/schema/identidade.ts:141-144; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+ */",translate,Every business table references its tenant here. Keep this in identity rather than `comum` to avoid a circular import with `tenant` itself.,architecture,packages/db/src/schema/identidade.ts:141-144; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-db-comment-28f85f60,packages-db,packages/db/src/schema/identidade.ts,15,19,jsdoc,2,"/**
  * Módulo 1 — Identidade e tenancy. Base de tudo; não depende de nenhum outro módulo.
  * O `tenant` carrega a personalização (nome, logo, cor, fuso, idioma): white-label é
