@@ -13,7 +13,7 @@ infra-dir-9dcefdba,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-
 infra-dir-c9d9d42b,infra,4,dir,infra/compose/segredos,infra/compose/secrets,infra/compose/segredos,0,no,,,proposed,codex1,
 infra-dir-d0b72e6c,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std,KEEP,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std,0,no,,,proposed,codex1,
 infra-dir-e10ba142,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map,KEEP,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map,0,no,,,proposed,codex1,
-infra-file-023fb567,infra,4,file,ferramentas-oportunidades.md,ferramentas-opportunities.md,docs/lp/ferramentas-oportunidades.md,0,no,,,proposed,codex1,
+infra-file-023fb567,infra,4,file,ferramentas-oportunidades.md,tools-opportunities.md,docs/lp/ferramentas-oportunidades.md,0,no,,,proposed,codex1,"fixed: ferramentas was left untranslated; aligned to site.csv's ferramentas->tools"
 infra-file-1d0d55e0,infra,4,file,2026-09-05-metricas-atendimento-1598d1d3.json,KEEP,.planning/intel/classifications/2026-09-05-metricas-atendimento-1598d1d3.json,0,no,,,proposed,codex1,
 infra-file-2241351b,infra,4,file,10-papel-app.sh,KEEP,infra/compose/postgres/init/10-papel-app.sh,3,no,,,proposed,codex1,
 infra-file-23016a7f,infra,4,file,packages-tempo-real.csv,packages-time-real.csv,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/packages-tempo-real.csv,4,no,,,proposed,codex1,
