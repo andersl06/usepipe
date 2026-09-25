@@ -4368,7 +4368,7 @@ gestao-vite-comment-02bcdfc1,gestao-vite,apps/gestao-vite/src/paginas/criar/flux
    * applies to ""Construir do zero"".
    */",meta-blip,apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:87-91,,proposed
 gestao-vite-comment-d10db41d,gestao-vite,apps/gestao-vite/src/paginas/criar/fluxo/regras.ts,95,95,jsdoc,0,/** `modules.ui.uploadButton.title` — o rótulo dentro do círculo tracejado. */,translate,/** `modules.ui.uploadButton.title` — the label inside the dashed circle. */,other,apps/gestao-vite/src/paginas/criar/fluxo/regras.ts:95,,proposed
-gestao-vite-comment-1f092fbb,gestao-vite,apps/gestao-vite/src/paginas/criar/gravar.ts,40,40,block,1,"/* Campo vazio chega como um `File` de zero byte, e não como `null`. */",,,,,,
+gestao-vite-comment-1f092fbb,gestao-vite,apps/gestao-vite/src/paginas/criar/gravar.ts,40,40,block,1,"/* Campo vazio chega como um `File` de zero byte, e não como `null`. */",translate,"An empty field arrives as a zero-byte `File`, not as `null`.",other,apps/gestao-vite/src/paginas/criar/gravar.ts:40,,proposed
 gestao-vite-comment-d88c6723,gestao-vite,apps/gestao-vite/src/paginas/criar/gravar.ts,5,12,jsdoc,7,"/**
  * Criar um contato (fluxo ou roteador): `POST /v1/gestao/fluxos`.
  *
@@ -4376,7 +4376,12 @@ gestao-vite-comment-d88c6723,gestao-vite,apps/gestao-vite/src/paginas/criar/grav
  * `api` (`gestao-fluxo.ts` → `dominio/gestao/ciclo-de-vida-do-fluxo.ts`), com
  * as regras de `regras-de-nome.ts`. Aqui a foto só vira `data:` para
  * atravessar o JSON — e nem vai se já passou do teto.
- */",,,,,,
+ */",translate,"Create a contact (flow or router): `POST /v1/gestao/fluxos`.
+
+Name validation, permission checks, and reading the photo by its bytes live in
+the `api` (`gestao-fluxo.ts` → `dominio/gestao/ciclo-de-vida-do-fluxo.ts`), with
+the rules from `regras-de-nome.ts`. Here the photo only becomes a `data:` URI
+to cross the JSON boundary — and doesn't even go if it's already past the cap.",architecture,apps/gestao-vite/src/paginas/criar/gravar.ts:5-12,,proposed
 gestao-vite-comment-755d967d,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,1,29,jsdoc,23,"/**
  * As regras do nome do contato — as MESMAS para o roteador e para o fluxo.
  *
@@ -4405,7 +4410,34 @@ gestao-vite-comment-755d967d,gestao-vite,apps/gestao-vite/src/paginas/criar/regr
  * Existe em arquivo, e não dentro da tela, porque precisa valer DUAS vezes: o
  * navegador barra (`required`, `minlength`, `maxlength`) e a Server Action barra
  * de novo, para quem mandar o POST por fora.
- */",,,,,,
+ */",translate,"The contact-name rules — the SAME for router and flow.
+
+This file was born inside `roteador/regras.ts` and moved out when the create-flow
+screen arrived. The split isn't tidying: in the source the two screens are
+literally the SAME template.
+
+The name step is module 96904, a single one, and what changes between router and
+flow are three `ng-if=""$ctrl.template != 'master'""` swapping labels — the
+overline, the title, and the field name. `required`, `ng-minlength=""2""`,
+`ng-maxlength=""30""`, the file `accept`, and the per-keystroke sanitization are the
+same bytes for both. Server-side, `validateApplicationName` is called from inside
+`prepareApplicationData`, which runs for EVERY template.
+
+In other words: a name rule that diverged between the two screens would be our
+own invention. That's why it lives here, and each screen only brings its own
+WORDS.
+
+The pieces from the source portal bundle (`portal.js`, `25.204.0-v0.43.1`):
+
+- `CreateApplicationController` (module 18502) — the real-time sanitization
+  (`validateSpecialCharacter`) and the two submission gates;
+- the name-step template (module 96904) — the `<input>` attributes;
+- `CreateApplicationService.validateApplicationName` — `/(^[a-zA-Z])/`, the
+  only rule their server checks by itself.
+
+It exists as its own file, not inside the screen, because it must hold TWICE: the
+browser blocks it (`required`, `minlength`, `maxlength`) and the Server Action
+blocks it again, for anyone who posts outside the browser.",architecture,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:1-29,,proposed
 gestao-vite-comment-dc338474,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,100,107,jsdoc,8,"/**
  * A primeira letra tem de ser LETRA.
  *
@@ -4413,8 +4445,13 @@ gestao-vite-comment-dc338474,gestao-vite,apps/gestao-vite/src/paginas/criar/regr
  * porquê está na linha anterior do serviço — `shortName = name.toLowerCase()`,
  * e o `shortName` é o identificador do contato na plataforma. Identificador que
  * começa com dígito ou com `(` não vira endereço.
- */",,,,,,
-gestao-vite-comment-e8441358,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,110,110,jsdoc,3,"/** Tira do nome tudo o que a origem tira, a cada tecla. */",,,,,,
+ */",translate,"The first character must be a LETTER.
+
+Their `validateApplicationName`: `if (!/(^[a-zA-Z])/.exec(e)) throw …`. The why
+is in the previous line of their service — `shortName = name.toLowerCase()`, and
+`shortName` is the contact's identifier on the platform. An identifier starting
+with a digit or with `(` doesn't become a valid address.",security,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:100-107,,proposed
+gestao-vite-comment-e8441358,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,110,110,jsdoc,3,"/** Tira do nome tudo o que a origem tira, a cada tecla. */",translate,"Strips from the name everything the source strips, on every keystroke.",other,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:110,,proposed
 gestao-vite-comment-a96c8b5c,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,115,128,jsdoc,12,"/**
  * O `shortName` da origem: `application.shortName = application.name.toLowerCase()`.
  *
@@ -4428,15 +4465,31 @@ gestao-vite-comment-a96c8b5c,gestao-vite,apps/gestao-vite/src/paginas/criar/regr
  * índice único: quem garante nome sem repetição continua sendo o `select` da
  * Server Action, sobre `nome`. Um índice aqui faria ""Meu Bot"" e ""meu-bot""
  * colidirem, que é regra nova e não é cópia de nada.
- */",,,,,,
-gestao-vite-comment-02c642af,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,133,133,jsdoc,3,/** O que a Server Action devolve quando recusa. */,,,,,,
+ */",translate,"The source's `shortName`: `application.shortName = application.name.toLowerCase()`.
+
+Noted divergence: there this leaves spaces inside the identifier (the name
+""Meu Fluxo"" would become `meu fluxo`), and none of the `shortName` values we've
+seen on a real account has a space — a sign that the cleanup happens in the
+other side's service, which we don't have. Here spaces become hyphens before
+saving, so the identifier is always usable in a URL.
+
+Since migration `0020` it IS PERSISTED, in column `fluxo.short_name`. WITHOUT a
+unique index: what guarantees a non-duplicate name is still the Server Action's
+`select` over `nome`. An index here would make ""Meu Bot"" and ""meu-bot"" collide,
+which is a new rule and not a copy of anything.",other,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:115-128,,proposed
+gestao-vite-comment-02c642af,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,133,133,jsdoc,3,/** O que a Server Action devolve quando recusa. */,translate,What the Server Action returns when it refuses.,other,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:133,,proposed
 gestao-vite-comment-1266f856,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,138,144,jsdoc,13,"/**
  * As duas frases que `conferir` pode devolver.
  *
  * Vêm de fora porque são a ÚNICA parte da regra que muda entre as telas: a
  * origem tem `errorMsg.invalidName` escrita com a palavra ""fluxo"" e a tela do
  * roteador troca para ""roteador"". A regra é a mesma; o substantivo não.
- */",,,,,,
+ */",translate,"The two phrases `conferir` can return.
+
+They come from outside because they're the ONLY part of the rule that changes
+between screens: the source has `errorMsg.invalidName` written with the word
+""fluxo"" and the router screen swaps it for ""roteador"". The rule is the same; the
+noun isn't.",other,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:138-144,,proposed
 gestao-vite-comment-1fa31e47,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,150,159,jsdoc,6,"/**
  * Confere o nome — na MESMA ordem da origem.
  *
@@ -4446,7 +4499,15 @@ gestao-vite-comment-1fa31e47,gestao-vite,apps/gestao-vite/src/paginas/criar/regr
  *
  * Devolve a PRIMEIRA recusa: o `checkFormValidity` deles também para no
  * primeiro campo inválido.
- */",,,,,,
+ */",translate,"Validates the name — in the SAME order as the source.
+
+There it's two gates in sequence: the form (`validApplicationFormErrors`, which
+only checks `required`/`minlength`/`maxlength`) and, after the click, the service
+(`validateApplicationName`). That's why length comes before the starting
+character.
+
+Returns the FIRST rejection: their `checkFormValidity` also stops at the first
+invalid field.",other,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:150-159,,proposed
 gestao-vite-comment-46243725,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,37,52,jsdoc,20,"/**
  * O seletor de imagem do passo do nome — o `<upload-button>` deles.
  *
@@ -4462,7 +4523,20 @@ gestao-vite-comment-46243725,gestao-vite,apps/gestao-vite/src/paginas/criar/regr
  * 256 KB de arquivo viram ~350 KB de texto em base64 — folgado para um avatar
  * que a tela desenha com 150px de diâmetro, e pequeno o bastante para a linha
  * continuar uma linha.
- */",,,,,,
+ */",translate,"The image picker for the name step — their `<upload-button>`.
+
+The types are the template's (module 96904), literal:
+  `accept=""'.gif, .png, .jpeg, .jpg'""`
+  `ng-mime-type=""image/png, image/jpg, image/jpeg, image/gif""`
+`.jpg` and `.jpeg` are the SAME MIME type (`image/jpeg`), so the real-type list
+has THREE items while the extension list has four.
+
+`maxBytes` is OURS, with no counterpart in the source: there the photo goes to
+the media store and the column only holds the URL. Here it's stored as a data
+URI in the column itself (see each screen's `acoes.ts`), so the cap protects the
+row. A 256 KB file becomes ~350 KB of base64 text — generous for an avatar the
+screen draws at 150px diameter, and small enough for the row to stay a single
+row.",other,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:37-52,,proposed
 gestao-vite-comment-6f422e23,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,59,70,jsdoc,13,"/**
  * As assinaturas dos três tipos aceitos, nos primeiros bytes.
  *
@@ -4474,8 +4548,17 @@ gestao-vite-comment-6f422e23,gestao-vite,apps/gestao-vite/src/paginas/criar/regr
  *
  * ponytail: tabela de três assinaturas; se estas telas passarem a aceitar mais
  * formato, troque pelo `tipoReal` de `@pipe/armazenamento`.
- */",,,,,,
-gestao-vite-comment-302b8ead,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,77,77,jsdoc,4,"/** O MIME que os bytes revelam, ou `null` quando não é nenhum dos três. */",,,,,,
+ */",translate,"The signatures of the three accepted types, in their first bytes.
+
+What decides is the CONTENT, never the extension or the `Content-Type`: both are
+text the sender wrote. The canonical version of this table — with the fifteen
+attachment formats — lives in `packages/armazenamento/src/tipo-real.ts`; here
+it's copied in three lines because that package publishes through `dist` and
+pulling it into Next costs a build step just for this `if`.
+
+ponytail: three-signature table; if these screens start accepting more formats,
+switch to `tipoReal` from `@pipe/armazenamento`.",other,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:59-70,,proposed
+gestao-vite-comment-302b8ead,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,77,77,jsdoc,4,"/** O MIME que os bytes revelam, ou `null` quando não é nenhum dos três. */",translate,"The MIME type revealed by the bytes, or `null` when it's none of the three.",other,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:77,,proposed
 gestao-vite-comment-96e1b865,gestao-vite,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts,86,97,jsdoc,15,"/**
  * O saneamento que a origem aplica a CADA TECLA (`ng-change` chamando
  * `validateSpecialCharacter`, que passa o valor pelo regex abaixo e reescreve
@@ -4487,17 +4570,32 @@ gestao-vite-comment-96e1b865,gestao-vite,apps/gestao-vite/src/paginas/criar/regr
  * o do idioma da tela. Copiamos o filtro porque ele protege o `shortName` (ver
  * `nomeCurto` abaixo), mas ACRESCENTAMOS as letras acentuadas do português —
  * copiar defeito não é copiar disposição.
- */",,,,,,
+ */",translate,"The sanitization the source applies on EVERY KEYSTROKE (`ng-change` calling
+`validateSpecialCharacter`, which runs the value through the regex below and
+rewrites the field).
+
+The allowed character class is literally `a-zA-Z0-9[]()_ -` — that is, no
+accents. ""Fluxo Padrão"" becomes ""Fluxo Padro"" as the person types, with no
+warning at all. It isn't a business rule: it's the filter falling on an alphabet
+that isn't the screen's language. We copy the filter because it protects
+`shortName` (see `nomeCurto` below), but we ADD the accented Portuguese
+letters — copying a defect isn't copying an intent.",other,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:86-97,,proposed
 gestao-vite-comment-1bde8db9,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/acoes.ts,5,9,jsdoc,5,"/**
  * Criar um roteador: grava pela `api` e vai para a tela do contato recém-criado
  * — o `goToApplicationDetails()` da origem. Com erro, volta ao passo do nome
  * com o motivo e o nome digitado na URL.
- */",,,,,,
+ */",translate,"Create a router: saves through the `api` and goes to the newly created contact's
+screen — the source's `goToApplicationDetails()`. On error, goes back to the
+name step with the reason and the typed name in the URL.",other,apps/gestao-vite/src/paginas/criar/roteador/acoes.ts:5-9,,proposed
 gestao-vite-comment-8dcad811,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/page.tsx,106,110,block,7,"/* Lá é `<img src=""/assets/img/templates/router.svg"">`, um desenho do
             conceito. Não temos ilustração de roteador (as quatro do `@pipe/ui`
             são estados vazios), então o lugar é ocupado pelo ícone `roteador`
             — o MESMO desenho do botão que trouxe a pessoa e da etiqueta do
-            cartão no portal, ampliado. Está no relatório. */",,,,,,
+            cartão no portal, ampliado. Está no relatório. */",translate,"There it's `<img src=""/assets/img/templates/router.svg"">`, a drawing of the
+concept. We don't have a router illustration (the four from `@pipe/ui` are empty
+states), so the spot is filled by the `roteador` icon — the SAME artwork as the
+button that brought the person here and the card label on the portal, enlarged.
+It's in the report.",other,apps/gestao-vite/src/paginas/criar/roteador/page.tsx:106-110,,proposed
 gestao-vite-comment-b54449b9,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/page.tsx,12,43,jsdoc,20,"/**
  * Criar roteador — cópia do fluxo `auth.application.create.router` do portal
  * deles, lido no bundle `portal.js` (`25.204.0-v0.43.1`).
@@ -4529,19 +4627,57 @@ gestao-vite-comment-b54449b9,gestao-vite,apps/gestao-vite/src/paginas/criar/rote
  *
  * O casco e o passo do nome, por serem os mesmos das duas, vivem em
  * `../casco.tsx` — na origem eles são literalmente o mesmo template.
- */",,,,,,
+ */",translate,"Create router — a copy of their portal's `auth.application.create.router` flow,
+read from the `portal.js` bundle (`25.204.0-v0.43.1`).
+
+═══ THE FLOW HAS TWO STEPS, AND ONLY TWO ═══
+
+In the source these are two `ui-router` states under the same `<form>`:
+
+  `auth.application.create.router` → `/application/create/router`
+    The invitation. Overline ""Criar roteador"", an image on the left, and on the
+    right the title ""Como funciona o roteador"", the description, the ""Quero
+    saber mais"" link, and ONE button. The button calls `selectTemplate('master')`,
+    which stores the template and does `$state.go('^.name', 'master')`.
+
+  `auth.application.create.name` → `/application/create/name/master`
+    The name. Same overline, title ""Dê um nome ao seu roteador"", the image
+    picker, the name field with a counter, and two buttons: ""Voltar"" and
+    ""Criar roteador"" (`type=""submit""`).
+
+Here the two steps are the SAME route, separated by `?passo=nome`. It's a Server
+Component: two steps with no client state are two renders, and the first step's
+button is a link, just as their `ui-sref` is a link.
+
+═══ WHAT THE ROUTER SKIPS, AND THE FLOW DOESN'T ═══
+
+`selectTemplate('master')` goes DIRECTLY to the name step. The sibling screen,
+`/criar/fluxo`, first enters the marketplace
+(`auth.application.create.marketplace`) to choose a template. It's the only
+difference in STEPS between the two.
+
+The shell and the name step, being the same for both, live in `../casco.tsx` —
+in the source they're literally the same template.",architecture,apps/gestao-vite/src/paginas/criar/roteador/page.tsx:12-43,,proposed
 gestao-vite-comment-09a03e54,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/page.tsx,121,123,block,5,"/* `bds-icon name=""external-file""` na origem. `icones-portal.tsx`
                   não tem esse desenho; `externo` do `icones-gestao.tsx` é o
-                  mesmo gesto — a folha com a seta que sai. */",,,,,,
+                  mesmo gesto — a folha com a seta que sai. */",translate,"`bds-icon name=""external-file""` in the source. `icones-portal.tsx` has no
+matching artwork; `externo` from `icones-gestao.tsx` is the same gesture — the
+sheet with the arrow pointing out.",other,apps/gestao-vite/src/paginas/criar/roteador/page.tsx:121-123,,proposed
 gestao-vite-comment-13e04d56,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/page.tsx,129,131,block,3,"/* O `<bds-button ng-click=""$ctrl.selectTemplate('master')"">` deles,
               com o texto da tagline. Aqui é link porque o passo seguinte é
-              outra renderização, e não outro estado na memória do navegador. */",,,,,,
+              outra renderização, e não outro estado na memória do navegador. */",translate,"Their `<bds-button ng-click=""$ctrl.selectTemplate('master')"">`, with the tagline
+text. Here it's a link because the next step is another render, not another
+state in the browser's memory.",other,apps/gestao-vite/src/paginas/criar/roteador/page.tsx:129-131,,proposed
 gestao-vite-comment-1085e422,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/page.tsx,44,46,block,8,"/* Vazio = item não desenhado, a mesma regra do `URL_AJUDA` do portal: link para
    página que ainda não existe é pior do que um convite a menos. Na origem é
-   `createApplication.router.learnMoreUrl`, um artigo do help deles. */",,,,,,
+   `createApplication.router.learnMoreUrl`, um artigo do help deles. */",translate,"Empty = item not rendered, the same rule as the portal's `URL_AJUDA`: a link to
+a page that doesn't exist yet is worse than one invitation fewer. In the source
+it's `createApplication.router.learnMoreUrl`, an article from their help center.",other,apps/gestao-vite/src/paginas/criar/roteador/page.tsx:44-46,,proposed
 gestao-vite-comment-65a23bd3,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/page.tsx,58,60,block,3,"/* `canCreateChatbot` deles é conferido no `$onInit` do controlador, ANTES de
      desenhar qualquer passo: quem não pode cai em `$state.go(getReturnState())`,
-     que é a lista de contatos. Aqui, `/portal`. */",,,,,,
+     que é a lista de contatos. Aqui, `/portal`. */",translate,"Their `canCreateChatbot` is checked in the controller's `$onInit`, BEFORE
+rendering any step: whoever can't do it falls into
+`$state.go(getReturnState())`, which is the contact list. Here, `/portal`.",security,apps/gestao-vite/src/paginas/criar/roteador/page.tsx:58-60,,proposed
 gestao-vite-comment-82fcde7f,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/page.tsx,83,93,jsdoc,9,"/**
  * `#create-application-router-step`.
  *
@@ -4552,11 +4688,23 @@ gestao-vite-comment-82fcde7f,gestao-vite,apps/gestao-vite/src/paginas/criar/rote
  * Fileira de duas colunas com 2.5rem de vão, 52.5rem no total: a imagem à
  * esquerda (40% da largura, no máximo 18.75rem) e o texto à direita (no máximo
  * 27.5rem). O botão fecha a coluna da direita — não é centrado na tela.
- */",,,,,,
+ */",translate,"`#create-application-router-step`.
+
+Not a `<form>`: in the source the `<form>` belongs to the shell and wraps both
+steps, but this one's only control is a button that changes state. Here it's a
+link, and a form with no field and no submission would be chrome for its own
+sake.
+
+Two-column row with a 2.5rem gap, 52.5rem total: the image on the left (40% of
+the width, at most 18.75rem) and the text on the right (at most 27.5rem). The
+button closes off the right column — it isn't centered on the screen.",other,apps/gestao-vite/src/paginas/criar/roteador/page.tsx:83-93,,proposed
 gestao-vite-comment-7f8a4768,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/page.tsx,97,100,block,7,"/* `.tagline-title-container`: coluna, vão de 1rem, centrada. O
           sobretítulo é o MESMO texto do botão que trouxe a pessoa até aqui
           (`createApplication.taglineRouter`) — é ele que diz, nos dois passos,
-          que o que está sendo criado é um roteador e não um fluxo. */",,,,,,
+          que o que está sendo criado é um roteador e não um fluxo. */",translate,"`.tagline-title-container`: column, 1rem gap, centered. The overline is the SAME
+text as the button that brought the person here
+(`createApplication.taglineRouter`) — it's what tells them, in both steps, that
+what's being created is a router and not a flow.",other,apps/gestao-vite/src/paginas/criar/roteador/page.tsx:97-100,,proposed
 gestao-vite-comment-fb87f3bf,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/regras.ts,1,12,jsdoc,7,"/**
  * As PALAVRAS da tela ""criar roteador"" — e só elas.
  *
@@ -4568,7 +4716,15 @@ gestao-vite-comment-fb87f3bf,gestao-vite,apps/gestao-vite/src/paginas/criar/rote
  * Os rótulos abaixo são os do arquivo de tradução deles (chave
  * `createApplication`, bloco `pt-BR`), copiados palavra por palavra. Onde
  * mudamos, está anotado.
- */",,,,,,
+ */",translate,"The WORDS of the ""create router"" screen — and only them.
+
+The name mechanics (length, sanitization, `shortName`, image types) live in
+`../regras-de-nome.ts`, shared with the create-flow screen: in the source both
+use the same name-step template (module 96904), and what changes between them
+are three `ng-if=""$ctrl.template != 'master'""` swapping labels.
+
+The labels below are from their translation file (key `createApplication`,
+`pt-BR` block), copied word for word. Where we changed something, it's noted.",other,apps/gestao-vite/src/paginas/criar/roteador/regras.ts:1-12,,proposed
 gestao-vite-comment-c23c5596,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/regras.ts,16,24,jsdoc,8,"/**
  * Os rótulos, com a chave da origem ao lado. Nada aqui é escrito por nós.
  *
@@ -4577,10 +4733,15 @@ gestao-vite-comment-c23c5596,gestao-vite,apps/gestao-vite/src/paginas/criar/rote
  * ""roteador"". É o caso de `errorMsg.1` e de `errorMsg.invalidName` — a tela
  * deles mostra ""Houve um erro na criação do seu FLUXO"" para quem acabou de
  * clicar em ""Criar roteador"".
- */",,,,,,
-gestao-vite-comment-d666e3fb,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/regras.ts,26,26,jsdoc,0,/** `createApplication.taglineRouter` — serve de sobretítulo E de botão. */,,,,,,
-gestao-vite-comment-b1b8b5bc,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/regras.ts,39,39,jsdoc,0,/** `modules.ui.uploadButton.title` — o rótulo dentro do círculo tracejado. */,,,,,,
-gestao-vite-comment-492dbfda,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/regras.ts,47,47,jsdoc,0,/** `errorMsg.title` — o título do aviso vermelho deles. */,,,,,,
+ */",translate,"The labels, with the source key alongside. Nothing here is written by us.
+
+The one systematic change: where the key is shared with flow creation and the
+text says ""fluxo"" while on the router screen, we write ""roteador"". That's the
+case for `errorMsg.1` and `errorMsg.invalidName` — their screen shows ""Houve um
+erro na criação do seu FLUXO"" to someone who just clicked ""Criar roteador"".",other,apps/gestao-vite/src/paginas/criar/roteador/regras.ts:16-24,,proposed
+gestao-vite-comment-d666e3fb,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/regras.ts,26,26,jsdoc,0,/** `createApplication.taglineRouter` — serve de sobretítulo E de botão. */,translate,`createApplication.taglineRouter` — serves as both overline AND button.,other,apps/gestao-vite/src/paginas/criar/roteador/regras.ts:26,,proposed
+gestao-vite-comment-b1b8b5bc,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/regras.ts,39,39,jsdoc,0,/** `modules.ui.uploadButton.title` — o rótulo dentro do círculo tracejado. */,translate,`modules.ui.uploadButton.title` — the label inside the dashed circle.,other,apps/gestao-vite/src/paginas/criar/roteador/regras.ts:39,,proposed
+gestao-vite-comment-492dbfda,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/regras.ts,47,47,jsdoc,0,/** `errorMsg.title` — o título do aviso vermelho deles. */,translate,`errorMsg.title` — the title of their red warning.,other,apps/gestao-vite/src/paginas/criar/roteador/regras.ts:47,,proposed
 gestao-vite-comment-56a49372,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/regras.ts,49,56,jsdoc,12,"/**
    * `errorMsg.invalidName`.
    *
@@ -4588,19 +4749,33 @@ gestao-vite-comment-56a49372,gestao-vite,apps/gestao-vite/src/paginas/criar/rote
    * lança com passo `DataValidation`, e o controlador traduz `DataValidation`
    * para `errorMsg.2` (""Este nome não é válido.""), que não diz o que fazer.
    * Usamos a frase que explica a regra; a vaga fica sem uso, como lá.
-   */",,,,,,
+   */",translate,"`errorMsg.invalidName`.
+
+In the source this phrase NEVER appears on this screen: `validateApplicationName`
+throws with step `DataValidation`, and the controller translates `DataValidation`
+to `errorMsg.2` (""Este nome não é válido.""), which doesn't say what to do. We use
+the phrase that explains the rule; the unused slot stays unused, as it does
+there.",other,apps/gestao-vite/src/paginas/criar/roteador/regras.ts:49-56,,proposed
 gestao-vite-comment-4378e077,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/regras.ts,60,63,jsdoc,2,"/**
    * `errorMsg.1` — ""Experimente usar outro nome"" é literal, e é a pista de que
    * o nome é único: o `shortName` sai dele, e dois iguais colidem no serviço.
-   */",,,,,,
-gestao-vite-comment-4de37d5d,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/regras.ts,65,65,jsdoc,2,"/** Nossa, sem correspondente: lá a permissão some o botão antes de chegar aqui. */",,,,,,
-gestao-vite-comment-b9b5dce8,gestao-vite,apps/gestao-vite/src/paginas/entrar.tsx,108,108,block,5,/* A entrada tem letra própria — é a única tela do produto que não usa a do aplicativo. */,,,,,,
-gestao-vite-comment-ce539e27,gestao-vite,apps/gestao-vite/src/paginas/entrar.tsx,129,129,block,4,"/* Link, e não botão: entrar com o Google é navegação de topo para a `api`. */",,,,,,
+   */",translate,"`errorMsg.1` — ""Experimente usar outro nome"" is literal, and it's the hint that
+the name is unique: `shortName` is derived from it, and two identical ones
+collide in the service.",other,apps/gestao-vite/src/paginas/criar/roteador/regras.ts:60-63,,proposed
+gestao-vite-comment-4de37d5d,gestao-vite,apps/gestao-vite/src/paginas/criar/roteador/regras.ts,65,65,jsdoc,2,"/** Nossa, sem correspondente: lá a permissão some o botão antes de chegar aqui. */",translate,"Ours, with no counterpart: there the permission check hides the button before
+reaching this point.",security,apps/gestao-vite/src/paginas/criar/roteador/regras.ts:65,,proposed
+gestao-vite-comment-b9b5dce8,gestao-vite,apps/gestao-vite/src/paginas/entrar.tsx,108,108,block,5,/* A entrada tem letra própria — é a única tela do produto que não usa a do aplicativo. */,translate,"The sign-in page has its own typeface — it's the only screen in the product
+that doesn't use the app's typeface.",other,apps/gestao-vite/src/paginas/entrar.tsx:108,,proposed
+gestao-vite-comment-ce539e27,gestao-vite,apps/gestao-vite/src/paginas/entrar.tsx,129,129,block,4,"/* Link, e não botão: entrar com o Google é navegação de topo para a `api`. */",translate,"A link, not a button: signing in with Google is a top-level navigation to the
+`api`.",integration,apps/gestao-vite/src/paginas/entrar.tsx:129,,proposed
 gestao-vite-comment-9057fc3f,gestao-vite,apps/gestao-vite/src/paginas/entrar.tsx,156,158,block,7,"/* O campo de senha do desenho. Sem `name`: o Pipe ainda não tem entrada
                 por senha, e a senha digitada não sai desta página.
-                ponytail: ganha `name` no dia em que a API aceitar senha. */",,,,,,
-gestao-vite-comment-aae8bab2,gestao-vite,apps/gestao-vite/src/paginas/entrar.tsx,190,190,jsdoc,2,"/** O ""G"" oficial, inline: a tela de entrada não depende de rede de terceiro. */",,,,,,
-gestao-vite-comment-69afc6c0,gestao-vite,apps/gestao-vite/src/paginas/entrar.tsx,59,59,jsdoc,6,/** O que a descoberta por e-mail devolve para a tela quando não roteia. */,,,,,,
+                ponytail: ganha `name` no dia em que a API aceitar senha. */",translate,"The password field from the design. No `name`: Pipe doesn't have password sign-in
+yet, and the typed password never leaves this page.
+ponytail: give it a `name` on the day the API accepts a password.",security,apps/gestao-vite/src/paginas/entrar.tsx:156-158,,proposed
+gestao-vite-comment-aae8bab2,gestao-vite,apps/gestao-vite/src/paginas/entrar.tsx,190,190,jsdoc,2,"/** O ""G"" oficial, inline: a tela de entrada não depende de rede de terceiro. */",translate,"The official ""G"", inline: the sign-in page doesn't depend on a third-party
+network request.",integration,apps/gestao-vite/src/paginas/entrar.tsx:190,,proposed
+gestao-vite-comment-69afc6c0,gestao-vite,apps/gestao-vite/src/paginas/entrar.tsx,59,59,jsdoc,6,/** O que a descoberta por e-mail devolve para a tela quando não roteia. */,translate,What email discovery returns to the screen when it doesn't route anywhere.,security,apps/gestao-vite/src/paginas/entrar.tsx:59,,proposed
 gestao-vite-comment-25c127a4,gestao-vite,apps/gestao-vite/src/paginas/entrar.tsx,7,20,jsdoc,20,"/**
  * A tela de entrada — a primeira coisa que um cliente vê, e a ÚNICA rota
  * pública deste aplicativo. É a mesma de `apps/gestao/src/app/entrar`, com a
@@ -4614,8 +4789,20 @@ gestao-vite-comment-25c127a4,gestao-vite,apps/gestao-vite/src/paginas/entrar.tsx
  * 2. **Cada recusa tem uma SAÍDA, não um ""não autorizado"".** Os sete códigos de
  *    `RECUSAS_DE_ENTRADA` chegam em `?erro=` e cada um manda a pessoa para um
  *    lugar diferente.
- */",,,,,,
-gestao-vite-comment-e566e7d4,gestao-vite,apps/gestao-vite/src/paginas/entrar.tsx,99,99,line,4,"// Sem SSO, a pessoa fica na mesma tela com o motivo e o e-mail já digitado.",,,,,,
+ */",translate,"The sign-in screen — the first thing a customer sees, and the ONLY public route
+of this application. Same as `apps/gestao/src/app/entrar`, with discovery done
+from the browser (Vite proxies it in development; in production this app's
+origin is in `PIPE_ORIGENS`).
+
+Two rules shape it:
+
+1. **No tenant here.** Whoever lands on this screen isn't signed in yet, so it
+   doesn't know (and can't reveal) which company uses Pipe.
+2. **Every rejection has an EXIT, not a ""not authorized"".** The seven codes in
+   `RECUSAS_DE_ENTRADA` arrive as `?erro=` and each one sends the person to a
+   different place.",security,apps/gestao-vite/src/paginas/entrar.tsx:7-20,,proposed
+gestao-vite-comment-e566e7d4,gestao-vite,apps/gestao-vite/src/paginas/entrar.tsx,99,99,line,4,"// Sem SSO, a pessoa fica na mesma tela com o motivo e o e-mail já digitado.",translate,"Without SSO, the person stays on the same screen with the reason and the email
+already typed in.",security,apps/gestao-vite/src/paginas/entrar.tsx:99,,proposed
 gestao-vite-comment-665eb418,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts,1,27,jsdoc,13,"/**
  * A fileira de abas da Análise — a regra, sem desenho.
  *
@@ -4642,19 +4829,50 @@ gestao-vite-comment-665eb418,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * ocorrências da string). O `isDisplayingAnalyticsTabs` que aparece nos
  * controladores de relatório é `!isHidingAnalyticsTabs()` — a flag
  * `is-hiding-analytics-tabs`, que está `false`.
- */",,,,,,
+ */",translate,"The Analysis tab row — the rule, with no rendering.
+
+Deliberately pure, like `../itens.ts`: it's the shell's only decision, and the
+`tests/analise-abas.test.ts` test locks down what comes out of here.
+
+═══ WHERE IT COMES FROM ═══
+
+The `#analytics-tabs-view` template (module 95760 of `portal.js`) lists eight
+`bds-tab` in the order below. Three have no condition at all (Dashboard,
+Relatórios Personalizados, Jornada dos Contatos); the other five have `ng-show`
+wired to the `ra` controller, which fills them in `checkFeatures()`:
+
+  isDisplayingActiveMessagesTab ← flag `is-displaying-analytics-active-messages-tab`
+  isDisplayingOverviewTab       ← flag `is-displaying-analytics-overview-tab`
+  isShowingDataExtractor        ← `Zn()` (see `mostraGerenciador`)
+  isShowingDataDictionary       ← flag `is-showing-data-dictionary`
+  isShowingGoodData             ← flag `is-showing-gooddata`
+
+And `isShowAnalyticsSuite` (flag `blip-analytics-suite-visibility`) only decides
+whether the `analytics-redirect-modal` opens on clicking ""Mensagens ativas"".
+
+`is-displaying-analytics-tabs` is NOT read by anyone in `portal.js` (zero
+occurrences of the string). The `isDisplayingAnalyticsTabs` that appears in the
+report controllers is `!isHidingAnalyticsTabs()` — the `is-hiding-analytics-tabs`
+flag, which is `false`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:1-27,,proposed
 gestao-vite-comment-d9030271,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts,104,108,block,3,"/*
  * A ordem é a do template. O Gerenciador é um `<iframe>` de outro aplicativo
  * (`DATA_EXTRACTOR_FRAME_URL`); o ZIP 9 trouxe esse aplicativo e ele vive na
  * rota filha `gerenciador-de-relatorios`. GoodData não aparece no contrato.
- */",,,,,,
+ */",translate,"The order matches the template. The Manager is an `<iframe>` from another
+application (`DATA_EXTRACTOR_FRAME_URL`); ZIP 9 brought that application in, and
+it lives at the child route `gerenciador-de-relatorios`. GoodData doesn't appear
+in the contract.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:104-108,,proposed
 gestao-vite-comment-f5c03f8e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts,39,45,jsdoc,6,"/**
  * Os valores do contexto do roteador na captura (LaunchDarkly, contexto multi
  * do bot `supernovaroteador`, contrato `supernova`).
  *
  * ponytail: fixos. Aqui não há serviço de flag; o dia em que houver, esta
  * constante vira a leitura dele, e a regra abaixo não muda.
- */",,,,,,
+ */",translate,"The router context values captured for the snapshot (LaunchDarkly, the
+`supernovaroteador` bot's multi-context, `supernova` contract).
+
+ponytail: fixed values. There's no flag service here; the day there is, this
+constant becomes its reading, and the rule below doesn't change.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:39-45,,proposed
 gestao-vite-comment-220812b2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts,62,71,jsdoc,3,"/**
  * `Zn()`, módulo `analytics`:
  *
@@ -4664,16 +4882,27 @@ gestao-vite-comment-220812b2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * `$n.D_` é `defaultClusterName`. As flags `is-showing-data-extractor-tab`
  * (`{""clusters"":""Golden,Doberman""}`) e `show-data-extractor-tab` também
  * existem no contexto, mas quem decide a aba é SÓ esta.
- */",,,,,,
-gestao-vite-comment-4d041855,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts,92,92,jsdoc,2,"/** `analyticsTabs.*` do pacote pt-BR, com a caixa da origem. */",,,,,,
-gestao-vite-comment-1df1f242,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts,94,94,jsdoc,3,"/** Segmento da rota; nulo quando a tela não existe aqui (vira ""em breve""). */",,,,,,
+ */",translate,"`Zn()`, `analytics` module:
+
+    const e = await ve.ak.dataExtractorShowTab(), i = $n.D_.toLowerCase();
+    return e[i in e ? i : ""default""].isEnabled
+
+`$n.D_` is `defaultClusterName`. The flags `is-showing-data-extractor-tab`
+(`{""clusters"":""Golden,Doberman""}`) and `show-data-extractor-tab` also exist in
+the context, but only this one decides the tab.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:62-71,,proposed
+gestao-vite-comment-4d041855,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts,92,92,jsdoc,2,"/** `analyticsTabs.*` do pacote pt-BR, com a caixa da origem. */",translate,"`analyticsTabs.*` from the pt-BR package, with the source's casing.",other,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:92,,proposed
+gestao-vite-comment-1df1f242,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts,94,94,jsdoc,3,"/** Segmento da rota; nulo quando a tela não existe aqui (vira ""em breve""). */",translate,"Route segment; null when the screen doesn't exist here (shows as ""coming soon"").",other,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:94,,proposed
 gestao-vite-comment-34295e21,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts,96,100,jsdoc,8,"/**
    * O `ng-show`. Aba escondida CONTINUA na fileira, com `hidden` — é o que
    * `ng-hide` faz, e importa: o `.bds-tab:not(:last-child)` conta a escondida,
    * então com o GoodData fora a última visível ainda leva os 32px à direita.
-   */",,,,,,
+   */",translate,"The `ng-show`. A hidden tab STAYS in the row, with `hidden` — that's what
+`ng-hide` does, and it matters: `.bds-tab:not(:last-child)` counts the hidden
+one, so with GoodData out, the last visible tab still gets the 32px on the
+right.",other,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:96-100,,proposed
 gestao-vite-comment-cfa56882,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/casca.tsx,28,29,block,2,"/* `#main-content-area.main-detail-content.pa0`: sem recuo — quem recua
-          é cada aba, com o `.container` dela. */",,,,,,
+          é cada aba, com o `.container` dela. */",translate,"`#main-content-area.main-detail-content.pa0`: no indent — each tab indents
+itself, with its own `.container`.",other,apps/gestao-vite/src/paginas/fluxo/analise/casca.tsx:28-29,,proposed
 gestao-vite-comment-5273e8b2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/casca.tsx,7,19,jsdoc,16,"/**
  * A Análise do contato — o estado `auth.application.detail.analytics` da
  * origem, `/application/detail/{shortName}/analytics/*`.
@@ -4686,7 +4915,17 @@ gestao-vite-comment-5273e8b2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  *
  * O `analytics-redirect-modal` do template NÃO entra: ele só abre com
  * `isShowAnalyticsSuite`, e a flag está `false` para este contrato.
- */",,,,,,
+ */",translate,"The contact's Analysis — the source's `auth.application.detail.analytics` state,
+`/application/detail/{shortName}/analytics/*`.
+
+The reference is `supernova.blip.ai/portal.js`: the `#analytics-tabs-view`
+template (module 95760), which the state renders in the contact detail's
+`tabsNav` view, and the `ra` controller. Each tab is a child state; here, each
+one is a child route, and this shell is what all eight share: the portal bar,
+the contact bar with ""Análise"" lit up, and the tab row.
+
+The template's `analytics-redirect-modal` does NOT enter here: it only opens with
+`isShowAnalyticsSuite`, and that flag is `false` for this contract.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/casca.tsx:7-19,,proposed
 gestao-vite-comment-8f71a7e4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.tsx,8,16,jsdoc,8,"/**
  * A aba Dashboard da Análise do contato — `/application/detail/{shortName}/analytics/dashboard`
  * na origem, onde o portal monta `<analytics-mfe page=""dashboard"">`.
@@ -4695,8 +4934,16 @@ gestao-vite-comment-8f71a7e4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * aberta) aqui mora na URL: `?periodo=` com as chaves da origem (`today`,
  * `7days`, `lastWeek`…), `de`/`ate` para o personalizado, `contatos=` para a
  * barra lateral. Período inválido cai em ""Hoje"", que é o inicial de lá.
- */",,,,,,
-gestao-vite-comment-9dacd5ad,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/periodo-personalizado.tsx,25,25,block,2,/* `tT.date-info`: a caixa de 32px com borda surface-2 e as duas `oT`. */,,,,,,
+ */",translate,"The Dashboard tab of the contact's Analysis —
+`/application/detail/{shortName}/analytics/dashboard` in the source, where the
+portal mounts `<analytics-mfe page=""dashboard"">`.
+
+The state that lives in React there (the chosen chip, the ""From/To"", the open
+sidebar) lives in the URL here: `?periodo=` with the source's keys (`today`,
+`7days`, `lastWeek`…), `de`/`ate` for the custom range, `contatos=` for the
+sidebar. An invalid period falls back to ""Hoje"", which is the source's initial
+value.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.tsx:8-16,,proposed
+gestao-vite-comment-9dacd5ad,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/periodo-personalizado.tsx,25,25,block,2,/* `tT.date-info`: a caixa de 32px com borda surface-2 e as duas `oT`. */,translate,`tT.date-info`: the 32px box with surface-2 border and the two `oT`.,other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/periodo-personalizado.tsx:25,,proposed
 gestao-vite-comment-c24b24c9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/periodo-personalizado.tsx,3,14,jsdoc,7,"/**
  * O ""De / Até"" do filtro do Dashboard — o `aT` da origem (`analytics-main.js`
  * ~58160). É a ÚNICA parte cliente da aba, porque a regra dele é de campo:
@@ -4708,21 +4955,40 @@ gestao-vite-comment-c24b24c9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * - ""Aplicar"" fica travado até os dois estarem preenchidos (`g()`).
  *
  * Aplicar é um GET com `periodo=custom`: a página relê o período da URL.
- */",,,,,,
+ */",translate,"The Dashboard filter's ""From / To"" — the source's `aT`
+(`analytics-main.js` ~58160). It's the ONLY client-side part of the tab, because
+its rule is field-level:
+
+- picking ""From"" clears ""To"" (`f(e, wc)` resets the end);
+- ""To"" doesn't accept a date before ""From"" (the second field's `min`);
+- nothing before 90 days ago or after today (`st(90)` and `rT`);
+- the keyboard doesn't type into it (`onKeyDown: preventDefault`), only the
+  calendar picker does;
+- ""Aplicar"" stays locked until both are filled (`g()`).
+
+Applying is a GET with `periodo=custom`: the page re-reads the period from the
+URL.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/periodo-personalizado.tsx:3-14,,proposed
 gestao-vite-comment-86797120,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,104,109,jsdoc,3,"/**
  * `xT` (o `ST` do `iN`): a faixa clara de largura cheia, com sombra embaixo e
  * cantos de baixo arredondados (`bT`). O chip ativo é `color=""default""`, os
  * outros `outline`; tamanho `tall` (40px). A segunda fileira é da flag
  * `is-displaying-dashboard-fixed-period-chips`.
- */",,,,,,
-gestao-vite-comment-1e4f3794,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,1059,1059,block,2,/* Sem `variacao`: o `Vw` só desenha o indicador quando ela existe. */,,,,,,
-gestao-vite-comment-0f3b2995,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,1069,1069,jsdoc,1,"/** `Vw`: 139px de altura, fio de 2px na cor da métrica, valores lado a lado. */",,,,,,
+ */",translate,"`xT` (the `ST` of `iN`): the full-width light strip, with a shadow underneath and
+rounded bottom corners (`bT`). The active chip is `color=""default""`, the others
+`outline`; size `tall` (40px). The second row is behind the
+`is-displaying-dashboard-fixed-period-chips` flag.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:104-109,,proposed
+gestao-vite-comment-1e4f3794,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,1059,1059,block,2,/* Sem `variacao`: o `Vw` só desenha o indicador quando ela existe. */,translate,No `variacao`: `Vw` only draws the indicator when it exists.,other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:1059,,proposed
+gestao-vite-comment-0f3b2995,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,1069,1069,jsdoc,1,"/** `Vw`: 139px de altura, fio de 2px na cor da métrica, valores lado a lado. */",translate,"`Vw`: 139px tall, 2px line in the metric's color, values side by side.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:1069,,proposed
 gestao-vite-comment-ea04c41b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,1106,1111,jsdoc,3,"/**
  * `WT`: as duas listas lado a lado (`bds-grid gap=""2""`), 288px de rolagem. O
  * ""Clique aqui"" abre o Dicionário de Dados em outra aba, no item ""Lista de
  * blocos"" — a URL da origem é `/analytics/dataDictionary?path=dashboard:listOfBlocks`.
  * No roteador o nome do bloco é texto; no fluxo, link para o Builder.
- */",,,,,,
+ */",translate,"`WT`: the two side-by-side lists (`bds-grid gap=""2""`), 288px of scroll. ""Clique
+aqui"" opens the Data Dictionary in another tab, at the ""Lista de blocos"" item —
+the source's URL is
+`/analytics/dataDictionary?path=dashboard:listOfBlocks`. In the router the block
+name is plain text; in the flow, a link to the Builder.",integration,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:1106-1111,,proposed
 gestao-vite-comment-3a780be3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,1174,1182,jsdoc,10,"/**
  * `uw`: o véu de tela cheia com a coluna de 416px encostada à direita —
  * cabeçalho escuro ""Número de Contatos"" com o fechar, a faixa surface-3 com o
@@ -4731,14 +4997,21 @@ gestao-vite-comment-3a780be3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  *
  * ponytail: lá o `top` do véu é medido por JavaScript abaixo da barra do
  * portal; aqui ele cobre a tela desde o topo.
- */",,,,,,
-gestao-vite-comment-1d7f6be4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,124,124,block,1,/* `mT`: rótulo fs-20 bold e a dica `info` sólida. */,,,,,,
-gestao-vite-comment-60676ed2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,149,149,block,0,/* ============================================================ as peças */,,,,,,
-gestao-vite-comment-a3fdfa66,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,153,153,jsdoc,0,"/** `bds-tooltip`: balão escuro de raio 8 e recheio 8, texto fs-12, seta de 6px. */",,,,,,
+ */",translate,"`uw`: the full-screen veil with the 416px column against the right edge — dark
+header ""Número de Contatos"" with the close button, the surface-3 strip with the
+card's title, ""v1 (v2 contatos)"" and ""Exportar lista"", and the scrollable list.
+Closing means going back to the URL without `contatos`.
+
+ponytail: there the veil's `top` is measured by JavaScript below the portal bar;
+here it covers the screen from the top.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:1174-1182,,proposed
+gestao-vite-comment-1d7f6be4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,124,124,block,1,/* `mT`: rótulo fs-20 bold e a dica `info` sólida. */,translate,`mT`: fs-20 bold label and the solid `info` tooltip icon.,other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:124,,proposed
+gestao-vite-comment-60676ed2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,149,149,block,0,/* ============================================================ as peças */,remove,,other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:149-149,,proposed
+gestao-vite-comment-a3fdfa66,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,153,153,jsdoc,0,"/** `bds-tooltip`: balão escuro de raio 8 e recheio 8, texto fs-12, seta de 6px. */",translate,"`bds-tooltip`: dark balloon, 8 radius and 8 padding, fs-12 text, 6px arrow.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:153,,proposed
 gestao-vite-comment-10b15c68,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,173,176,jsdoc,3,"/**
  * `XS`, o indicador de comparação: seta + variação inteira com sinal. Sem
  * número (""-"") não tem seta. `semDica` é o `hideTooltip` da tabela de canais.
- */",,,,,,
+ */",translate,"`XS`, the comparison indicator: arrow + whole-number signed variation. No number
+(""-"") means no arrow. `semDica` is the channel table's `hideTooltip`.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:173-176,,proposed
 gestao-vite-comment-a7f12ee4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,20,36,jsdoc,15,"/**
  * O miolo do Dashboard — o `iN` do `portal-fragment-analytics`
  * (`analytics-main.js`, linha ~59539), que o portal monta com
@@ -4755,17 +5028,39 @@ gestao-vite-comment-a7f12ee4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  *
  * Os gráficos da origem são chart.js; aqui são SVG + CSS, o mínimo que refaz o
  * desenho (`GraficoDeLinhas`, `BarrasDeParticipacao`), sem dependência nova.
- */",,,,,,
-gestao-vite-comment-c8f8af5f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,206,206,jsdoc,3,/** `kE`: título fs-24 bold (com a margem de 22px do typo) e a dica `info` sólida. */,,,,,,
+ */",translate,"The Dashboard core — the `iN` of `portal-fragment-analytics`
+(`analytics-main.js`, line ~59539), which the portal mounts with
+`<analytics-mfe page=""dashboard"">`.
+
+Only receives props: that's what lets it render the filled-in state without a
+database. Section order matches `iN`, with the test router's flags
+(LaunchDarkly): Contatos · Recorrência
+(`is-displaying-recurrence-section`) · Mensagens · Canais
+(`is-displaying-dashboard-analytics-channel-section`) · Fluxo conversacional
+(`is-displaying-conversational-flow-section`) · Lista de blocos
+(`is-displaying-block-listing-section`). The top ""Download"" button is OFF there
+(`is-displaying-analytics-dashboard-download-button` = false), which is why it
+doesn't exist here.
+
+The source's charts are chart.js; here they're SVG + CSS, the minimum that
+recreates the look (`GraficoDeLinhas`, `BarrasDeParticipacao`), without a new
+dependency.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:20-36,,proposed
+gestao-vite-comment-c8f8af5f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,206,206,jsdoc,3,/** `kE`: título fs-24 bold (com a margem de 22px do typo) e a dica `info` sólida. */,translate,"`kE`: fs-24 bold title (with the typo's 22px margin) and the solid `info`
+tooltip icon.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:206,,proposed
 gestao-vite-comment-d047c182,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,230,235,jsdoc,12,"/**
  * `wS`: o botão só de ícone que baixa o CSV da seção, com a dica à esquerda.
  * ponytail: o Pipe não gera esses CSVs; o botão tem a cara e o estado da origem
  * (travado quando não há dado), sem ação — quando houver, é um route handler
  * nesta pasta com a mesma consulta de `lib/analise.ts`.
- */",,,,,,
-gestao-vite-comment-7c744b87,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,253,253,jsdoc,0,"/** `mE`: o vazio da seção — ícone de 80, título fs-16 bold, texto fs-14 semi-bold. */",,,,,,
-gestao-vite-comment-185228b5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,279,279,block,0,/* =========================================================== gráficos */,,,,,,
-gestao-vite-comment-8f07cd8e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,281,281,jsdoc,2,/** Os tiques do eixo de valor: a mesma régua do chart.js que Mensagens ativas usa. */,,,,,,
+ */",translate,"`wS`: the icon-only button that downloads the section's CSV, with the tooltip on
+the left.
+ponytail: Pipe doesn't generate these CSVs; the button has the source's look and
+state (locked when there's no data), with no action — when it exists, it's a
+route handler in this folder using the same query as `lib/analise.ts`.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:230-235,,proposed
+gestao-vite-comment-7c744b87,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,253,253,jsdoc,0,"/** `mE`: o vazio da seção — ícone de 80, título fs-16 bold, texto fs-14 semi-bold. */",translate,"`mE`: the section's empty state — 80px icon, fs-16 bold title, fs-14 semi-bold
+text.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:253,,proposed
+gestao-vite-comment-185228b5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,279,279,block,0,/* =========================================================== gráficos */,remove,,other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:279-279,,proposed
+gestao-vite-comment-8f07cd8e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,281,281,jsdoc,2,/** Os tiques do eixo de valor: a mesma régua do chart.js que Mensagens ativas usa. */,translate,The value axis ticks: the same chart.js scale that Mensagens ativas uses.,other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:281,,proposed
 gestao-vite-comment-0fbcc46c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,284,291,jsdoc,8,"/**
  * `n_`: o gráfico de linhas das seções Contatos e Mensagens — legenda embaixo
  * com bolinha de 7px, sem grade, eixo a partir de zero, linha de 3px sem ponto
@@ -4773,79 +5068,116 @@ gestao-vite-comment-0fbcc46c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  *
  * ponytail: o chart.js gira o rótulo do eixo x antes de pular; aqui ele só
  * pula (no máximo 8 rótulos), sem girar.
- */",,,,,,
+ */",translate,"`n_`: the line chart for the Contatos and Mensagens sections — legend below with
+a 7px dot, no gridlines, axis starting at zero, 3px line with no point
+(`pointRadius: 0`), bold 14 title left-aligned when present.
+
+ponytail: chart.js rotates the x-axis label before skipping; here it only skips
+(at most 8 labels), without rotating.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:284-291,,proposed
 gestao-vite-comment-7c6142f1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,356,360,jsdoc,5,"/**
  * `QT`: duas barras deitadas numa categoria só, raio 8, o valor em ""%""
  * (`Math.round(100 * v)`) em 24px à direita da ponta, e a folga direita que
  * cresce de 50 a 80px com o maior valor (`PT`).
- */",,,,,,
+ */",translate,"`QT`: two horizontal bars in a single category, 8 radius, the value in ""%""
+(`Math.round(100 * v)`) at 24px to the right of the tip, and the right-side gap
+growing from 50 to 80px with the largest value (`PT`).",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:356-360,,proposed
 gestao-vite-comment-f52940df,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,390,395,jsdoc,3,"/**
  * `I_`. Com `is-using-contacts-section-identity-quantity-route` ligada, os
  * totais vêm das rotas de quantidade (`engaged-identity-quantity` e
  * `active-identity-quantity`), e as taxas saem deles: interação = com
  * interação ÷ total; rejeição = 1 − interação.
- */",,,,,,
-gestao-vite-comment-61f87ed3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,417,417,block,2,/* `isDisabled: A` — e o `A` do `iN` nunca sai de `false`. */,,,,,,
-gestao-vite-comment-2b381ba7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,422,422,block,0,/* `O_` 30% (`#paperCard`): o cartão escuro do total e dois claros. */,,,,,,
-gestao-vite-comment-75abd6aa,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,44,44,jsdoc,4,"/** A barra lateral aberta (`isDisplayingContactsSidebar`), com a lista já lida. */",,,,,,
-gestao-vite-comment-3b3cdaeb,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,48,48,jsdoc,2,/** O que a URL carrega entre um clique e outro: o período. */,,,,,,
-gestao-vite-comment-ce6c2736,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,494,494,jsdoc,2,/** `c_`: número fs-24 extra-bold com o indicador escuro e a dica; rótulo fs-12 embaixo. */,,,,,,
+ */",translate,"`I_`. With `is-using-contacts-section-identity-quantity-route` on, the totals
+come from the quantity routes (`engaged-identity-quantity` and
+`active-identity-quantity`), and the rates are derived from them: interaction =
+engaged ÷ total; bounce = 1 − interaction.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:390-395,,proposed
+gestao-vite-comment-61f87ed3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,417,417,block,2,/* `isDisabled: A` — e o `A` do `iN` nunca sai de `false`. */,translate,`isDisabled: A` — and `iN`'s `A` never leaves `false`.,other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:417,,proposed
+gestao-vite-comment-2b381ba7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,422,422,block,0,/* `O_` 30% (`#paperCard`): o cartão escuro do total e dois claros. */,translate,`O_` 30% (`#paperCard`): the dark total card and two light ones.,other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:422,,proposed
+gestao-vite-comment-75abd6aa,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,44,44,jsdoc,4,"/** A barra lateral aberta (`isDisplayingContactsSidebar`), com a lista já lida. */",translate,"Whether the sidebar is open (`isDisplayingContactsSidebar`), with the list
+already loaded.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:44,,proposed
+gestao-vite-comment-3b3cdaeb,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,48,48,jsdoc,2,/** O que a URL carrega entre um clique e outro: o período. */,translate,What the URL carries between one click and the next: the period.,other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:48,,proposed
+gestao-vite-comment-ce6c2736,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,494,494,jsdoc,2,/** `c_`: número fs-24 extra-bold com o indicador escuro e a dica; rótulo fs-12 embaixo. */,translate,"`c_`: fs-24 extra-bold number with the dark indicator and tooltip; fs-12 label
+underneath.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:494,,proposed
 gestao-vite-comment-9d78afb5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,519,523,jsdoc,5,"/**
  * `__`: o cartão com fio colorido embaixo do número. Com
  * `is-displaying-list-contacts-button`, o `external-file` abre a barra lateral
  * — travado (`not-allowed`) quando não há contato.
- */",,,,,,
-gestao-vite-comment-839ccd81,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,578,578,block,0,/* ========================================================= Recorrência */,,,,,,
-gestao-vite-comment-932ef502,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,580,580,jsdoc,5,/** `BR`: dois `DR` à esquerda e a tabela `DT` dos mais recorrentes à direita. */,,,,,,
-gestao-vite-comment-d60459ff,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,635,635,jsdoc,1,"/** `DR`: papel surface-3, título sem margem, descrição fs-16 e o número fs-24. */",,,,,,
+ */",translate,"`__`: the card with a colored line under the number. With
+`is-displaying-list-contacts-button`, `external-file` opens the sidebar —
+locked (`not-allowed`) when there's no contact.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:519-523,,proposed
+gestao-vite-comment-839ccd81,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,578,578,block,0,/* ========================================================= Recorrência */,remove,,other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:578-578,,proposed
+gestao-vite-comment-932ef502,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,580,580,jsdoc,5,/** `BR`: dois `DR` à esquerda e a tabela `DT` dos mais recorrentes à direita. */,translate,`BR`: two `DR` on the left and the `DT` table of most recurrent on the right.,other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:580,,proposed
+gestao-vite-comment-d60459ff,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,635,635,jsdoc,1,"/** `DR`: papel surface-3, título sem margem, descrição fs-16 e o número fs-24. */",translate,"`DR`: surface-3 card, title with no margin, fs-16 description, and fs-24 number.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:635,,proposed
 gestao-vite-comment-684d440d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,658,664,jsdoc,7,"/**
  * `DT`: o papel com título, descrição, botão de CSV e a tabela numerada (""1º""
  * num círculo de 32px). A tabela rola dentro de `altura` (150px por padrão,
  * 288px nas listas de blocos). `abrir` é a coluna do `external-file` do
  * `onItemClick` — na origem abre o contato no módulo Contatos, que o Pipe não
  * tem: o ícone fica, sem destino.
- */",,,,,,
-gestao-vite-comment-d760d0af,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,69,69,block,2,"/* `nN`: título à esquerda, `aN` (botões, gap 12) à direita. */",,,,,,
-gestao-vite-comment-100d1d08,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,743,743,jsdoc,0,/** `xR`: barras de participação 20% · cartões 25% · linhas 30% · médias 25%. */,,,,,,
-gestao-vite-comment-4c8506f1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,750,750,block,2,"/* `AS()`: fração da parte no total, zero quando não há total. */",,,,,,
-gestao-vite-comment-2cc0da57,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,860,860,jsdoc,1,"/** `iR`: o círculo de 32px com `message-sent`/`message-received`, rótulo fs-12 e número fs-20. */",,,,,,
+ */",translate,"`DT`: the card with title, description, CSV button, and the numbered table (""1º""
+in a 32px circle). The table scrolls within `altura` (150px by default, 288px in
+block listings). `abrir` is the `external-file` column from `onItemClick` — in
+the source it opens the contact in the Contacts module, which Pipe doesn't have:
+the icon stays, with no destination.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:658-664,,proposed
+gestao-vite-comment-d760d0af,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,69,69,block,2,"/* `nN`: título à esquerda, `aN` (botões, gap 12) à direita. */",translate,"`nN`: title on the left, `aN` (buttons, 12 gap) on the right.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:69,,proposed
+gestao-vite-comment-100d1d08,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,743,743,jsdoc,0,/** `xR`: barras de participação 20% · cartões 25% · linhas 30% · médias 25%. */,translate,`xR`: participation bars 20% · cards 25% · lines 30% · averages 25%.,other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:743,,proposed
+gestao-vite-comment-4c8506f1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,750,750,block,2,"/* `AS()`: fração da parte no total, zero quando não há total. */",translate,"`AS()`: the part's fraction of the total, zero when there's no total.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:750,,proposed
+gestao-vite-comment-2cc0da57,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,860,860,jsdoc,1,"/** `iR`: o círculo de 32px com `message-sent`/`message-received`, rótulo fs-12 e número fs-20. */",translate,"`iR`: the 32px circle with `message-sent`/`message-received`, fs-12 label, and
+fs-20 number.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:860,,proposed
 gestao-vite-comment-3a9b9bbf,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,895,901,jsdoc,8,"/**
  * `OE`. A linha do canal e a de ""Totais"" são o `zE` e o `PE` do `iN`; o Pipe
  * liga UM canal por contato, então as duas trazem os mesmos números. Sem
  * contato no período a origem recebe a lista vazia e desenha o vazio.
  * ""Mensagens ativas enviadas"" é ""-"": o bot do Pipe não manda mensagem ativa
  * (ver `carregarMensagensAtivas`).
- */",,,,,,
+ */",translate,"`OE`. The channel row and the ""Totais"" row are `iN`'s `zE` and `PE`; Pipe
+connects ONE channel per contact, so both bring the same numbers. With no
+contact in the period the source gets an empty list and renders the empty state.
+""Mensagens ativas enviadas"" is ""-"": Pipe's bot doesn't send active messages (see
+`carregarMensagensAtivas`).",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:895-901,,proposed
 gestao-vite-comment-9cf401dd,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx,984,989,jsdoc,5,"/**
  * `Yw`. O `isDisabled` que decide o vazio é o `Z` do `iN`: verdadeiro quando
  * TODO número da resposta é zero (`PR`) — aí a origem diz que os dados ""estão
  * sendo processados"". Botão de CSV desligado pela flag
  * `is-displaying-dashboard-csv-download-conversional-flow-button`.
- */",,,,,,
+ */",translate,"`Yw`. The `isDisabled` that decides the empty state is `iN`'s `Z`: true when
+EVERY number in the response is zero (`PR`) — in that case the source says the
+data ""estão sendo processados"". CSV button turned off by the
+`is-displaying-dashboard-csv-download-conversional-flow-button` flag.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:984-989,,proposed
 gestao-vite-comment-689c1119,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,107,108,block,3,"/* `rC`: o `bds-paper` com recheio de 10, menu à esquerda e a página ao
-            lado (`aC`). */",,,,,,
-gestao-vite-comment-0ef60cf8,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,138,138,block,0,/* ------------------------------------------------------------------ peças */,,,,,,
-gestao-vite-comment-a730bf46,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,140,140,jsdoc,1,"/** A classe de cor do título: `open` (primária) na seção clicada, `active` no resto. */",,,,,,
+            lado (`aC`). */",translate,"`rC`: the `bds-paper` with 10 padding, menu on the left and the page alongside
+(`aC`).",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx:107-108,,proposed
+gestao-vite-comment-0ef60cf8,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,138,138,block,0,/* ------------------------------------------------------------------ peças */,remove,,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx:138-138,,proposed
+gestao-vite-comment-a730bf46,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,140,140,jsdoc,1,"/** A classe de cor do título: `open` (primária) na seção clicada, `active` no resto. */",translate,"The title's color class: `open` (primary) on the clicked section, `active` on
+the rest.",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx:140,,proposed
 gestao-vite-comment-2b4d1f55,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,146,149,jsdoc,1,"/**
  * `ZV` — item de uma linha só: ""Sobre dados"" e os três ""Em Breve"". O ativo navega
  * (`handleSectionClick`); o inativo abre o alerta (`r(e => !e)`).
- */",,,,,,
+ */",translate,"`ZV` — a single-line item: ""Sobre dados"" and the three ""Em Breve"" ones. The
+active one navigates (`handleSectionClick`); the inactive one opens the alert
+(`r(e => !e)`).",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx:146-149,,proposed
 gestao-vite-comment-6f986751,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,172,176,jsdoc,3,"/**
  * `AV` — o acordeão (`details.accordion` na origem). Fechado, o `max-height: 50px`
  * do `QV` só deixa o sumário à mostra; aqui fechado simplesmente não desenha os
  * itens. A seta é `arrow-down` aberto e `arrow-right` fechado (`WV`).
- */",,,,,,
+ */",translate,"`AV` — the accordion (`details.accordion` in the source). Closed, the `QV`'s
+`max-height: 50px` only leaves the summary visible; here closed simply doesn't
+render the items. The arrow is `arrow-down` open and `arrow-right` closed (`WV`).",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx:172-176,,proposed
 gestao-vite-comment-58f40d30,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,230,234,jsdoc,2,"/**
  * O `bds-alert` do `jV` (em `ZV` e em `AV`): cabeçalho `variant=""error""` com o
  * ícone `error`, o texto, e ""Fechar"" como botão secundário. Na origem é estado de
  * React; aqui é `popover` nativo — abre e fecha sem JavaScript nosso.
- */",,,,,,
-gestao-vite-comment-a8c59378,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,44,44,jsdoc,0,/** Presente = acordeão (`AV`); ausente = item único (`ZV`). */,,,,,,
+ */",translate,"The `bds-alert` from `jV` (in `ZV` and in `AV`): `variant=""error""` header with
+the `error` icon, the text, and ""Fechar"" as a secondary button. In the source
+it's React state; here it's a native `popover` — opens and closes with no
+JavaScript of ours.",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx:230-234,,proposed
+gestao-vite-comment-a8c59378,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,44,44,jsdoc,0,/** Presente = acordeão (`AV`); ausente = item único (`ZV`). */,translate,Present = accordion (`AV`); absent = single item (`ZV`).,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx:44,,proposed
 gestao-vite-comment-0a6f747f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,48,52,block,4,"/*
  * O menu `HV`, na ordem do JSX, com os rótulos pt de `BV` (seções) e
  * `TV.menuOne` (subseções). ""Lista de blocos"" existe porque a flag
  * `is-displaying-block-listing-section` do roteador é `true` (`hidden: !a`).
- */",,,,,,
+ */",translate,"The `HV` menu, in JSX order, with the pt labels from `BV` (sections) and
+`TV.menuOne` (subsections). ""Lista de blocos"" exists because the router's
+`is-displaying-block-listing-section` flag is `true` (`hidden: !a`).",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx:48-52,,proposed
 gestao-vite-comment-783d5391,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,7,31,jsdoc,21,"/**
  * Dicionário de dados da Análise do contato — a página `dataDictionary` do
  * `portal-fragment-analytics`, que o portal monta com
@@ -4870,15 +5202,40 @@ gestao-vite-comment-783d5391,gestao-vite,apps/gestao-vite/src/paginas/fluxo/anal
  * - Clicar de novo numa seção aberta, lá, fecha o acordeão mantendo a página
  *   (`handleSectionClick` alterna `selectedSection`). Aqui o link reabre.
  *   ponytail: sem estado de ""fechado"" na URL; entra um parâmetro se alguém sentir falta.
- */",,,,,,
-gestao-vite-comment-8f51526d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,89,89,jsdoc,0,/** O `id` do alerta único; os itens inativos o abrem por `popovertarget`. */,,,,,,
-gestao-vite-comment-8fc62c4e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,95,95,block,3,"/* O `mV` do `bV`: sem `path` (ou com lixo), a seção é ""Sobre dados"". */",,,,,,
-gestao-vite-comment-50252060,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1042,1042,block,0,/* ------------------------------------------------ Gerenciador de Relatórios */,,,,,,
-gestao-vite-comment-56fef2c2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1044,1044,jsdoc,0,/** `KU` (dicionário `$U`). */,,,,,,
-gestao-vite-comment-138eddf7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1132,1132,block,1,/* As nove métricas que se repetem nas abas do Notifications Summary (`IU`). */,,,,,,
-gestao-vite-comment-b5561c4f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1154,1154,jsdoc,0,/** `ZU` (dicionário `OU`) + `WU` + `AU`. */,,,,,,
-gestao-vite-comment-d1028017,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,120,120,jsdoc,2,/** `jN` + `IN`: passo a passo com ícone ou print ao lado. */,,,,,,
-gestao-vite-comment-a4852aab,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,133,133,jsdoc,1,/** `dU`: o círculo escuro com o ícone do Builder. */,,,,,,
+ */",translate,"Data Dictionary for the contact's Analysis — the `dataDictionary` page of
+`portal-fragment-analytics`, which the portal mounts with
+`<analytics-mfe page=""dataDictionary"" params=""…"">`.
+
+The reference is `cap6s/portalmfe/analytics-main.js`: the `iC` component (the
+frame), the `HV` (the menu), the `bV` provider (the state), and one function per
+page (`zN`, `SU`, `lU`… see `paginas.tsx`). Nothing here reads a database: the
+source's dictionary is fixed text in the bundle itself.
+
+═══ STATE LIVES IN THE URL, AS IT DOES THERE ═══
+
+Their `bV` reads `params` in the `secao:subsecao` format — it's the
+`?path=dashboard:listOfBlocks` that the source's Dashboard builds in the ""Clique
+aqui"" link (`WT`, line ~58787). Here the same `path` becomes `searchParams`, and
+each menu click is a link: no client-side JavaScript. The keys are THEIRS, so
+the Dashboard's link still works.
+
+Two behavior divergences, both from having no client state:
+- `?path=dashboard` with no subsection opens the ""Dashboard"" page (`vU`). There,
+  ENTERING via the URL this way leaves the ""Sobre dados"" page with the accordion
+  open; CLICKING the section is what switches pages. We follow the click, which
+  is the normal path.
+- Clicking again on an open section, there, closes the accordion while keeping
+  the page (`handleSectionClick` toggles `selectedSection`). Here the link
+  reopens it.
+  ponytail: no ""closed"" state in the URL; add a parameter if anyone misses it.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx:7-31,,proposed
+gestao-vite-comment-8f51526d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,89,89,jsdoc,0,/** O `id` do alerta único; os itens inativos o abrem por `popovertarget`. */,translate,The single alert's `id`; inactive items open it via `popovertarget`.,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx:89,,proposed
+gestao-vite-comment-8fc62c4e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx,95,95,block,3,"/* O `mV` do `bV`: sem `path` (ou com lixo), a seção é ""Sobre dados"". */",translate,"`bV`'s `mV`: with no `path` (or with garbage), the section is ""Sobre dados"".",other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx:95,,proposed
+gestao-vite-comment-50252060,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1042,1042,block,0,/* ------------------------------------------------ Gerenciador de Relatórios */,remove,,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1042-1042,,proposed
+gestao-vite-comment-56fef2c2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1044,1044,jsdoc,0,/** `KU` (dicionário `$U`). */,translate,`KU` (dictionary `$U`).,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1044,,proposed
+gestao-vite-comment-138eddf7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1132,1132,block,1,/* As nove métricas que se repetem nas abas do Notifications Summary (`IU`). */,translate,The nine metrics repeated across the Notifications Summary tabs (`IU`).,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1132,,proposed
+gestao-vite-comment-b5561c4f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1154,1154,jsdoc,0,/** `ZU` (dicionário `OU`) + `WU` + `AU`. */,translate,`ZU` (dictionary `OU`) + `WU` + `AU`.,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1154,,proposed
+gestao-vite-comment-d1028017,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,120,120,jsdoc,2,/** `jN` + `IN`: passo a passo com ícone ou print ao lado. */,translate,`jN` + `IN`: step by step with an icon or screenshot alongside.,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:120,,proposed
+gestao-vite-comment-a4852aab,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,133,133,jsdoc,1,/** `dU`: o círculo escuro com o ícone do Builder. */,translate,`dU`: the dark circle with the Builder icon.,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:133,,proposed
 gestao-vite-comment-917a6b0d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1362,1362,jsdoc,0,/** `XU` (dicionário `qU`). */,,,,,,
 gestao-vite-comment-dc3cf42e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,1410,1410,jsdoc,0,/** `GU` (dicionário `BU`) + `QU` + `JU` + `PU`. */,,,,,,
 gestao-vite-comment-9b22ae86,gestao-vite,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx,147,147,jsdoc,2,"/** `FN`/`xU`: o indicador de comparação de exemplo, ""-5%"" com seta para baixo. */",,,,,,
