@@ -227,7 +227,7 @@
     {
       "id": "workers-comment-e4b2403c",
       "action": "update",
-      "new_text": "Mirror a contact into the client CRM. \u0007pi, not \u0007pps/workers, consumes this queue, as with pipe-entrada: API talks to CRM and owns the domain rule. The API consumer also runs the sweep that requeues missed work. The job carries identifiers only. The consumer rereads the contact inside that tenant's comTenant; a contatoId from another client cannot write to the wrong CRM because the query returns no row without the correct tenant.",
+      "new_text": "Mirror a contact into the client CRM. `api`, not `apps/workers`, consumes this queue, as with pipe-entrada: API talks to CRM and owns the domain rule. The API consumer also runs the sweep that requeues missed work. The job carries identifiers only. The consumer rereads the contact inside that tenant's comTenant; a contatoId from another client cannot write to the wrong CRM because the query returns no row without the correct tenant.",
       "sensitivity": "integration",
       "evidence": "apps/api/src/filas.ts:173-207; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -307,7 +307,7 @@
     {
       "id": "workers-comment-87cc5d3e",
       "action": "update",
-      "new_text": "Worker process. Three queues handle message delivery, daily aggregation, and contact import. Delivery has two triggers: a job published by \u0007pi when enqueuing, and a periodic sweep because a queue can lose a job while the outbox must retain the message.",
+      "new_text": "Worker process. Three queues handle message delivery, daily aggregation, and contact import. Delivery has two triggers: a job published by `api` when enqueuing, and a periodic sweep because a queue can lose a job while the outbox must retain the message.",
       "sensitivity": "integration",
       "evidence": "apps/workers/src/main.ts:5-7,20-56,65-71; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
