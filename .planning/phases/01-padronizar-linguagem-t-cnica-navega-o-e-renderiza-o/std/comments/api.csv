@@ -5800,8 +5800,8 @@ api-comment-eb50d07b,api,apps/api/src/provisionar.ts,156,156,line,2,"// A sement
 api-comment-00760f95,api,apps/api/src/provisionar.ts,161,161,line,0,"// Em série, nunca em `Promise.all`: paralelo dentro da transação derruba o",translate,"Run serially, never with `Promise.all`: parallel operations inside this transaction can lose `pipe.tenant_id` and run without a tenant; see the README.",architecture,apps/api/src/provisionar.ts:161; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-1559d2f1,api,apps/api/src/provisionar.ts,162,162,line,3,// `pipe.tenant_id` e a consulta passa a rodar sem tenant — ver o README.,remove,,architecture,apps/api/src/provisionar.ts:162; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-aec738cf,api,apps/api/src/provisionar.ts,185,185,line,0,// Dois papéis: `admin` na conta (o único papel de conta dele) e,translate,Assign two roles: `admin` at account scope (their only account role) and `administrador` at attendance scope (migration 0021).,architecture,apps/api/src/provisionar.ts:185; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
-api-comment-3731f813,api,apps/api/src/provisionar.ts,186,186,line,0,// `administrador` no atendimento (migração 0021).,,,,,,
-api-comment-0b988b3c,api,apps/api/src/provisionar.ts,220,220,jsdoc,2,"/** O que o dono do cliente precisa para entrar, em texto de terminal. */",,,,,,
+api-comment-3731f813,api,apps/api/src/provisionar.ts,186,186,line,0,// `administrador` no atendimento (migração 0021).,remove,,security,apps/api/src/provisionar.ts:186; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0b988b3c,api,apps/api/src/provisionar.ts,220,220,jsdoc,2,"/** O que o dono do cliente precisa para entrar, em texto de terminal. */",translate,Terminal text giving the tenant owner what they need to sign in.,security,apps/api/src/provisionar.ts:220; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-5388f818,api,apps/api/src/provisionar.ts,50,57,jsdoc,9,"/**
  * Motivos de pausa do dia 1.
  *
@@ -5809,10 +5809,10 @@ api-comment-5388f818,api,apps/api/src/provisionar.ts,50,57,jsdoc,9,"/**
  * território de outra pessoa nesta rodada. É lá que eles pertencem, ao lado dos
  * papéis e das filas de exemplo — este bloco deve mudar de casa junto com a
  * primeira alteração que abrir a semente.
- */",,,,,,
-api-comment-a124b251,api,apps/api/src/provisionar.ts,73,73,jsdoc,0,/** O e-mail do primeiro administrador. O domínio dele é o padrão do tenant. */,,,,,,
-api-comment-45f6cc90,api,apps/api/src/provisionar.ts,76,76,jsdoc,2,/** Confere o TXT agora. Só faz sentido quando o cliente já publicou o registro. */,,,,,,
-api-comment-24a45152,api,apps/api/src/provisionar.ts,78,78,jsdoc,4,"/** Deixa reaplicar sobre um slug que já existe. Sem isto, slug repetido para. */",,,,,,
+ */",remove,,security,apps/api/src/provisionar.ts:50-57; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a124b251,api,apps/api/src/provisionar.ts,73,73,jsdoc,0,/** O e-mail do primeiro administrador. O domínio dele é o padrão do tenant. */,translate,First administrator's email; its domain is the tenant default.,security,apps/api/src/provisionar.ts:73; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-45f6cc90,api,apps/api/src/provisionar.ts,76,76,jsdoc,2,/** Confere o TXT agora. Só faz sentido quando o cliente já publicou o registro. */,translate,"Check the TXT record now, only after the customer has published it.",security,apps/api/src/provisionar.ts:76; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-24a45152,api,apps/api/src/provisionar.ts,78,78,jsdoc,4,"/** Deixa reaplicar sobre um slug que já existe. Sem isto, slug repetido para. */",translate,Allow reapplying to an existing slug; otherwise a duplicate slug stops.,security,apps/api/src/provisionar.ts:78; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-cc8040ad,api,apps/api/src/provisionar.ts,80,87,jsdoc,10,"/**
    * Cria o cliente SEM registrar domínio.
    *
@@ -5820,26 +5820,26 @@ api-comment-cc8040ad,api,apps/api/src/provisionar.ts,80,87,jsdoc,10,"/**
    * pessoal não tem domínio para reivindicar, e registrar ""gmail.com"" como
    * domínio de um tenant daria a ele todo mundo que tem Gmail. Domínio ali é
    * assunto de depois, quando a empresa quiser entrada por domínio.
-   */",,,,,,
-api-comment-0c3bd90b,api,apps/api/src/saude.ts,19,19,jsdoc,2,"/** A imagem carimba `PIPE_VERSAO` no build; fora dela, vale a versão do pacote. */",,,,,,
+   */",translate,Create a tenant without registering a domain for self-service signups. Personal-email users cannot claim a company domain: registering `gmail.com` for one tenant would grant it every Gmail user. Domain-based sign-in can be configured later.,security,apps/api/src/provisionar.ts:80-87; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0c3bd90b,api,apps/api/src/saude.ts,19,19,jsdoc,2,"/** A imagem carimba `PIPE_VERSAO` no build; fora dela, vale a versão do pacote. */",translate,"The image stamps `PIPE_VERSAO` at build time; outside it, use the package version.",architecture,apps/api/src/saude.ts:19; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-3af90b5c,api,apps/api/src/saude.ts,31,37,jsdoc,6,"/**
  * Corre a sonda contra o relógio.
  *
  * O `catch` no perdedor não é enfeite: sem ele, a promessa que chega depois do
  * tempo-limite rejeita sozinha e derruba o processo por `unhandledRejection` —
  * o healthcheck matando o serviço que ele deveria vigiar.
- */",,,,,,
-api-comment-5443a48c,api,apps/api/src/saude.ts,58,58,line,1,// O pool sondado é o `app`: é por ele que passa todo o tráfego de negócio. O pool,,,,,,
-api-comment-c839fcf0,api,apps/api/src/saude.ts,59,59,line,2,// dono atende duas resoluções e não representa a saúde de quem serve o cliente.,,,,,,
-api-comment-d5ac58d7,api,apps/api/src/saude.ts,65,65,line,3,"// `ok` segue o banco, e só ele. Sem Redis a API ainda recebe webhook e responde",,,,,,
-api-comment-f07e142b,api,apps/api/src/saude.ts,66,66,line,3,// leitura; sem banco ela não faz nada — e é essa a diferença entre 503 e 200.,,,,,,
+ */",translate,"Race probes against a deadline. Catch the losing promise too: if it rejects after timeout without a handler, `unhandledRejection` could crash the service that the healthcheck is meant to monitor.",architecture,apps/api/src/saude.ts:31-37; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5443a48c,api,apps/api/src/saude.ts,58,58,line,1,// O pool sondado é o `app`: é por ele que passa todo o tráfego de negócio. O pool,translate,Probe the `app` pool used by business traffic. The owner pool handles only two resolutions and does not represent customer-facing health.,architecture,apps/api/src/saude.ts:58; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c839fcf0,api,apps/api/src/saude.ts,59,59,line,2,// dono atende duas resoluções e não representa a saúde de quem serve o cliente.,remove,,architecture,apps/api/src/saude.ts:59; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d5ac58d7,api,apps/api/src/saude.ts,65,65,line,3,"// `ok` segue o banco, e só ele. Sem Redis a API ainda recebe webhook e responde",translate,"Set `ok` from database health alone. Without Redis, the API can still receive webhooks and serve reads; without the database it cannot serve, which distinguishes 200 from 503.",architecture,apps/api/src/saude.ts:65; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-f07e142b,api,apps/api/src/saude.ts,66,66,line,3,// leitura; sem banco ela não faz nada — e é essa a diferença entre 503 e 200.,remove,,architecture,apps/api/src/saude.ts:66; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-98e53ffd,api,apps/api/src/saude.ts,70,76,jsdoc,12,"/**
  * Quantas migrations existem no repositório e ainda não foram aplicadas.
  *
  * Devolve `null` quando não dá para saber — imagem sem a pasta `drizzle`, banco
  * fora, tabela de controle ainda não criada. `null` some da coleta em vez de virar
  * um zero mentiroso, que é o que faria o alerta `MigrationPendente` calar para sempre.
- */",,,,,,
+ */",translate,"Count repository migrations not yet applied. Return null when unknowable (image lacks `drizzle`, database is down, or migration table is missing); omit that metric rather than emit a false zero that would silence `MigrationPendente`.",architecture,apps/api/src/saude.ts:70-76; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-3253045d,api,apps/api/src/saude.ts,8,15,jsdoc,10,"/**
  * `GET /saude` e as sondas que ele usa.
  *
@@ -5847,17 +5847,17 @@ api-comment-3253045d,api,apps/api/src/saude.ts,8,15,jsdoc,10,"/**
  * falha.** Um `select 1` que nunca volta faz o orquestrador ficar esperando em vez
  * de tirar o contêiner de rotação — e o cliente continua batendo num processo que
  * não atende. Por isso toda sonda tem tempo-limite curto e um veredito, sempre.
- */",,,,,,
-api-comment-0f039f25,api,apps/api/src/servidor.ts,105,105,line,1,"// O `.pfx` do certificado mTLS vai em base64 no JSON, junto da descrição, dos",,,,,,
-api-comment-cd099f62,api,apps/api/src/servidor.ts,106,106,line,3,"// hosts e da SENHA — que por isso não pode ir em querystring nem cabeçalho,",,,,,,
-api-comment-e907f572,api,apps/api/src/servidor.ts,107,107,line,1,// onde acabaria em log de proxy; é o que descarta o corpo cru de `/v1/anexos`,,,,,,
-api-comment-aee1daf4,api,apps/api/src/servidor.ts,133,133,jsdoc,1,/** Sobe e escuta. `porta = 0` deixa o sistema escolher — é o que o teste usa. */,,,,,,
-api-comment-ac8161c7,api,apps/api/src/servidor.ts,134,134,line,3,"// 3000, e não 3100: a Gestão roda em 3100, o Desk em 3200 e o CRM em 3300. Com o",,,,,,
-api-comment-961c280c,api,apps/api/src/servidor.ts,135,135,line,3,"// padrão antigo, quem subisse a api antes da Gestão tomava a porta dela, e a",,,,,,
-api-comment-daba6ce6,api,apps/api/src/servidor.ts,136,136,line,2,// Gestão morria em EADDRINUSE — que é o que acontecia nesta máquina.,,,,,,
-api-comment-6defb9b1,api,apps/api/src/servidor.ts,153,153,line,3,// Depois do `listen`: o canal se pendura no `upgrade` do servidor HTTP que já está,,,,,,
-api-comment-6de37989,api,apps/api/src/servidor.ts,154,154,line,4,"// no ar, e não abre porta própria. Uma porta só para o Desk, a Gestão e o CRM.",,,,,,
-api-comment-a783522c,api,apps/api/src/servidor.ts,161,161,line,0,// desligamento pendura até o timeout.,,,,,,
+ */",translate,`GET /saude` and its probes use short deadlines. A hanging healthcheck is worse than a failed one: a stuck `select 1` would keep the orchestrator waiting while customer traffic still reaches an unresponsive process.,architecture,apps/api/src/saude.ts:8-15; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0f039f25,api,apps/api/src/servidor.ts,105,105,line,1,"// O `.pfx` do certificado mTLS vai em base64 no JSON, junto da descrição, dos",translate,"Send the mTLS `.pfx`, description, hosts, and password as JSON body. Never use query strings or headers, which proxy logs may capture; this also rules out the raw body pattern used by `/v1/anexos`. A 10 MB certificate file limit (`gestao/certificados.ts`) expands to about 13.4 MB in base64.",security,apps/api/src/servidor.ts:105; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-cd099f62,api,apps/api/src/servidor.ts,106,106,line,3,"// hosts e da SENHA — que por isso não pode ir em querystring nem cabeçalho,",remove,,security,apps/api/src/servidor.ts:106; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e907f572,api,apps/api/src/servidor.ts,107,107,line,1,// onde acabaria em log de proxy; é o que descarta o corpo cru de `/v1/anexos`,remove,,security,apps/api/src/servidor.ts:107; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-aee1daf4,api,apps/api/src/servidor.ts,133,133,jsdoc,1,/** Sobe e escuta. `porta = 0` deixa o sistema escolher — é o que o teste usa. */,translate,"Start listening; port 0 lets the OS choose, as tests require.",security,apps/api/src/servidor.ts:133; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ac8161c7,api,apps/api/src/servidor.ts,134,134,line,3,"// 3000, e não 3100: a Gestão roda em 3100, o Desk em 3200 e o CRM em 3300. Com o",translate,"Use 3000 rather than 3100: Management uses 3100, Desk 3200, and CRM 3300. The old API default could take Management's port first and make it fail with EADDRINUSE.",security,apps/api/src/servidor.ts:134; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-961c280c,api,apps/api/src/servidor.ts,135,135,line,3,"// padrão antigo, quem subisse a api antes da Gestão tomava a porta dela, e a",remove,,security,apps/api/src/servidor.ts:135; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-daba6ce6,api,apps/api/src/servidor.ts,136,136,line,2,// Gestão morria em EADDRINUSE — que é o que acontecia nesta máquina.,remove,,security,apps/api/src/servidor.ts:136; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6defb9b1,api,apps/api/src/servidor.ts,153,153,line,3,// Depois do `listen`: o canal se pendura no `upgrade` do servidor HTTP que já está,translate,"Attach realtime to the existing HTTP server's `upgrade` after `listen`; do not open another port. One API port serves Desk, Management, and CRM.",security,apps/api/src/servidor.ts:153; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-6de37989,api,apps/api/src/servidor.ts,154,154,line,4,"// no ar, e não abre porta própria. Uma porta só para o Desk, a Gestão e o CRM.",remove,,security,apps/api/src/servidor.ts:154; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a783522c,api,apps/api/src/servidor.ts,161,161,line,0,// desligamento pendura até o timeout.,translate,Close the event channel first: a live socket keeps HTTP server `close` waiting and can stall shutdown until timeout.,security,apps/api/src/servidor.ts:161; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-a2a71452,api,apps/api/src/servidor.ts,32,39,jsdoc,8,"/**
  * Sobe a aplicação Nest.
  *
@@ -5865,29 +5865,29 @@ api-comment-a2a71452,api,apps/api/src/servidor.ts,32,39,jsdoc,8,"/**
  * assinatura `X-Hub-Signature-256` da Meta é sobre os bytes que chegaram, e
  * reserializar o objeto muda espaço e ordem de chave. Sem isso a assinatura nunca
  * bate e o webhook fica ""misteriosamente"" recusando tudo.
- */",,,,,,
+ */",translate,Start Nest with a custom JSON parser that preserves raw request bytes in `corpoCru`. Meta signs those bytes with `X-Hub-Signature-256`; reserializing parsed JSON can change spacing or key order and make valid webhooks fail signature verification.,security,apps/api/src/servidor.ts:32-39; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-ee54dec7,api,apps/api/src/servidor.ts,43,48,jsdoc,9,"/**
    * CORS com credencial: a API mora em `api.usepipe.com.br` e as telas em `app.`,
    * `gestao.` e `crm.`. A lista vem de `PIPE_ORIGENS` e **nunca é curinga** — com
    * `credentials: true` o navegador recusa `*`, e mesmo que aceitasse seria abrir a
    * API para qualquer site fazer requisição autenticada em nome de quem está logado.
-   */",,,,,,
-api-comment-69719668,api,apps/api/src/servidor.ts,52,52,line,4,"// Sem `Origin` é chamada que não veio de navegador (curl, o Prometheus, a",,,,,,
-api-comment-a2c62305,api,apps/api/src/servidor.ts,53,53,line,3,"// integração do cliente). O CORS não a governa; a autenticação, sim.",,,,,,
-api-comment-28329446,api,apps/api/src/servidor.ts,62,62,line,4,// Antes de tudo: o que não casa com rota nenhuma também precisa aparecer no gráfico.,,,,,,
-api-comment-62419d20,api,apps/api/src/servidor.ts,65,65,line,0,"// Upload de anexo entra como corpo CRU, e só nesta rota.",,,,,,
-api-comment-ab7a407e,api,apps/api/src/servidor.ts,67,67,line,2,"// Antes do `express.json` porque o parser que casa primeiro ganha, e escopado ao",,,,,,
-api-comment-bb2e1561,api,apps/api/src/servidor.ts,68,68,line,2,// caminho porque o teto aqui é de 100 MB — aplicá-lo a tudo transformaria o webhook,,,,,,
-api-comment-7f3067ec,api,apps/api/src/servidor.ts,71,71,line,1,"// Corpo cru, e não multipart: `multipart/form-data` exigiria `multer`, e um upload",,,,,,
-api-comment-3a2aa338,api,apps/api/src/servidor.ts,72,72,line,2,// de UM arquivo cabe inteiro em `POST` com `Content-Type` do próprio arquivo — que,,,,,,
-api-comment-34dfec87,api,apps/api/src/servidor.ts,73,73,line,1,"// é, aliás, a forma do `PUT Object` do S3.",,,,,,
-api-comment-3870d4ef,api,apps/api/src/servidor.ts,79,79,line,0,"// Importação de contatos entra como TEXTO cru (o CSV), e só nesta rota — mesmo",,,,,,
-api-comment-8e8ac0b9,api,apps/api/src/servidor.ts,80,80,line,2,// raciocínio do anexo: o teto de 20 MB daqui não pode valer para o webhook.,,,,,,
-api-comment-27dbc14d,api,apps/api/src/servidor.ts,87,87,line,2,"// próprio, só nesta rota, pelo mesmo motivo dos dois acima.",,,,,,
-api-comment-5d5761d1,api,apps/api/src/servidor.ts,90,90,line,0,// O exemplo de mídia do cabeçalho do modelo de mensagem vai do mesmo jeito,,,,,,
-api-comment-98dccb66,api,apps/api/src/servidor.ts,91,91,line,1,"// (base64 no JSON), e o tipo mais pesado é o documento: 100 MB viram ~134 MB.",,,,,,
-api-comment-b525e3d7,api,apps/api/src/servidor.ts,92,92,line,0,"// Teto próprio, só nesta rota — `lerMidiaDoCabecalho` recusa por tipo antes.",,,,,,
-api-comment-cdfc6144,api,apps/api/src/servidor.ts,99,99,line,0,"// de cada bloco): um fluxo de cliente passa fácil de 2 MB. Teto próprio, só aqui.",,,,,,
+   */",translate,"Credentialed CORS uses the closed `PIPE_ORIGENS` list for the API at `api.usepipe.com.br` and screens at `app.`, `gestao.`, and `crm.`. Never wildcard it: browsers reject `*` with `credentials: true`, and allowing arbitrary origins would expose authenticated requests from signed-in users.",security,apps/api/src/servidor.ts:43-48; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-69719668,api,apps/api/src/servidor.ts,52,52,line,4,"// Sem `Origin` é chamada que não veio de navegador (curl, o Prometheus, a",translate,"A request without `Origin` is not from a browser, for example curl, Prometheus, or a customer integration. CORS does not govern it; authentication still does.",security,apps/api/src/servidor.ts:52; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a2c62305,api,apps/api/src/servidor.ts,53,53,line,3,"// integração do cliente). O CORS não a governa; a autenticação, sim.",remove,,security,apps/api/src/servidor.ts:53; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-28329446,api,apps/api/src/servidor.ts,62,62,line,4,// Antes de tudo: o que não casa com rota nenhuma também precisa aparecer no gráfico.,translate,Measure unmatched routes too so they appear in metrics.,security,apps/api/src/servidor.ts:62; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-62419d20,api,apps/api/src/servidor.ts,65,65,line,0,"// Upload de anexo entra como corpo CRU, e só nesta rota.",translate,Accept raw attachment uploads only on this route.,security,apps/api/src/servidor.ts:65; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ab7a407e,api,apps/api/src/servidor.ts,67,67,line,2,"// Antes do `express.json` porque o parser que casa primeiro ganha, e escopado ao",translate,Register this parser before `express.json` because the first matching parser wins. Scope its 100 MB limit to the attachment route; applying it globally would expand the webhook's allowed body size.,security,apps/api/src/servidor.ts:67; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-bb2e1561,api,apps/api/src/servidor.ts,68,68,line,2,// caminho porque o teto aqui é de 100 MB — aplicá-lo a tudo transformaria o webhook,remove,,security,apps/api/src/servidor.ts:68; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7f3067ec,api,apps/api/src/servidor.ts,71,71,line,1,"// Corpo cru, e não multipart: `multipart/form-data` exigiria `multer`, e um upload",translate,"Use one raw POST body with the file's own `Content-Type`, as S3 `PUT Object` does. Multipart would require `multer` for a single file.",security,apps/api/src/servidor.ts:71; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3a2aa338,api,apps/api/src/servidor.ts,72,72,line,2,// de UM arquivo cabe inteiro em `POST` com `Content-Type` do próprio arquivo — que,remove,,security,apps/api/src/servidor.ts:72; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-34dfec87,api,apps/api/src/servidor.ts,73,73,line,1,"// é, aliás, a forma do `PUT Object` do S3.",remove,,security,apps/api/src/servidor.ts:73; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3870d4ef,api,apps/api/src/servidor.ts,79,79,line,0,"// Importação de contatos entra como TEXTO cru (o CSV), e só nesta rota — mesmo",translate,Accept the contact-import CSV as raw text only on this route. Its 20 MB limit must not apply to webhooks.,security,apps/api/src/servidor.ts:79; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8e8ac0b9,api,apps/api/src/servidor.ts,80,80,line,2,// raciocínio do anexo: o teto de 20 MB daqui não pode valer para o webhook.,remove,,security,apps/api/src/servidor.ts:80; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-27dbc14d,api,apps/api/src/servidor.ts,87,87,line,2,"// próprio, só nesta rota, pelo mesmo motivo dos dois acima.",translate,"A WhatsApp profile photo is base64 in JSON: 5 MB expands to about 6.7 MB. Give this route its own limit, as for attachment and import uploads.",security,apps/api/src/servidor.ts:87; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5d5761d1,api,apps/api/src/servidor.ts,90,90,line,0,// O exemplo de mídia do cabeçalho do modelo de mensagem vai do mesmo jeito,translate,Template header sample media is base64 in JSON. A 100 MB document grows to roughly 134 MB; give this route its own limit after `lerMidiaDoCabecalho` validates type.,security,apps/api/src/servidor.ts:90; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-98dccb66,api,apps/api/src/servidor.ts,91,91,line,1,"// (base64 no JSON), e o tipo mais pesado é o documento: 100 MB viram ~134 MB.",remove,,security,apps/api/src/servidor.ts:91; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b525e3d7,api,apps/api/src/servidor.ts,92,92,line,0,"// Teto próprio, só nesta rota — `lerMidiaDoCabecalho` recusa por tipo antes.",remove,,security,apps/api/src/servidor.ts:92; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-cdfc6144,api,apps/api/src/servidor.ts,99,99,line,0,"// de cada bloco): um fluxo de cliente passa fácil de 2 MB. Teto próprio, só aqui.",translate,"Send the entire Builder graph in `PUT`, including each block's `$cardContent`. A customer flow can exceed 2 MB, so this route has its own limit.",security,apps/api/src/servidor.ts:99; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-8e568b1a,api,apps/api/src/sessao.ts,100,116,jsdoc,22,"/**
  * A pessoa tem a permissão? Se não tiver, a requisição para aqui.
  *
@@ -5904,7 +5904,7 @@ api-comment-8e568b1a,api,apps/api/src/sessao.ts,100,116,jsdoc,22,"/**
  * Quem tem linha em `usuario_permissao` teve essa capacidade ligada ou
  * desligada na mão, na tela ""Permissões"" do atendente; sem linha, manda o
  * papel. O `coalesce` faz as duas leituras numa consulta só.
- */",,,,,,
+ */",translate,"Check a person's permission inside `noTenant` before writing. A separate guard before `pipe.tenant_id` is set would need an owner-role lookup duplicating what the transaction can answer. Effective permission is `COALESCE` of that person's `usuario_permissao` override (migration 0046) and the union of their roles, as in `GET /v1/eu`. A per-person row explicitly grants or denies the capability; without one, roles decide. One query combines both.",security,apps/api/src/sessao.ts:100-116; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-a52e8a19,api,apps/api/src/sessao.ts,12,24,jsdoc,13,"/**
  * Autenticação por SESSÃO, para as telas — irmã da autenticação por chave de API de
  * `autenticacao.ts`, e com a mesma promessa: o controlador nunca lê header nem
@@ -5917,10 +5917,10 @@ api-comment-a52e8a19,api,apps/api/src/sessao.ts,12,24,jsdoc,13,"/**
  *
  * O cookie é lido à mão, sem `cookie-parser`: é um `split` de ponto-e-vírgula, e
  * uma dependência a menos na imagem.
- */",,,,,,
-api-comment-fb83c921,api,apps/api/src/sessao.ts,151,151,line,1,// Rota que aceita as duas credenciais e recebeu Bearer: quem confere é o guarda,,,,,,
-api-comment-5545cf66,api,apps/api/src/sessao.ts,162,162,line,2,"// Pelo HASH, com índice único: o token em claro nunca chega ao banco.",,,,,,
-api-comment-473c2d9e,api,apps/api/src/sessao.ts,28,28,jsdoc,1,/** Marca a rota como exigindo sessão de navegador. */,,,,,,
+ */",translate,Browser session authentication complements API-key authentication in `autenticacao.ts`. Controllers read neither headers nor cookies and derive `tenant_id` server-side. Integrations use `Authorization: Bearer pipe_...`; people use browser cookie `pipe_sessao`. Routes declare `@Escopos(...)` or `@ComSessao()`; unmarked routes such as webhooks and `/saude` are intentionally public. Parse the cookie directly with semicolon splitting instead of adding `cookie-parser`.,security,apps/api/src/sessao.ts:12-24; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-fb83c921,api,apps/api/src/sessao.ts,151,151,line,1,// Rota que aceita as duas credenciais e recebeu Bearer: quem confere é o guarda,translate,"When a dual-credential route receives Bearer, its API-key guard handles authentication; the session guard yields.",security,apps/api/src/sessao.ts:151; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5545cf66,api,apps/api/src/sessao.ts,162,162,line,2,"// Pelo HASH, com índice único: o token em claro nunca chega ao banco.",translate,Look up the unique indexed hash; plaintext tokens never reach the database.,security,apps/api/src/sessao.ts:162; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-473c2d9e,api,apps/api/src/sessao.ts,28,28,jsdoc,1,/** Marca a rota como exigindo sessão de navegador. */,translate,Mark a route as requiring a browser session.,security,apps/api/src/sessao.ts:28; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e1e58120,api,apps/api/src/sessao.ts,31,48,jsdoc,22,"/**
  * Marca a rota como aceitando **chave de API OU sessão** — não as duas juntas.
  *
@@ -5938,12 +5938,12 @@ api-comment-e1e58120,api,apps/api/src/sessao.ts,31,48,jsdoc,22,"/**
  *
  * O decorador composto vive em `autenticacao.ts`, junto de `@Escopos`; aqui fica só a
  * chave, para os dois guardas a enxergarem sem ciclo de import.
- */",,,,,,
-api-comment-0a9b536a,api,apps/api/src/sessao.ts,51,51,jsdoc,1,/** Há `Authorization: Bearer` na requisição? É o que desempata as duas credenciais. */,,,,,,
+ */",translate,"Mark a route as accepting API key OR session. Without this mark, both global guards would independently require credentials when `@Escopos(...)` and `@ComSessao()` appear together. With it, `Authorization: Bearer pipe_…` selects the key guard and skips the session guard; without Bearer, the session guard checks the cookie; without either, return 401. Bearer deliberately wins over a cookie so an integration tested from a logged-in Desk browser is still treated as integration. The composed decorator stays with `@Escopos` in `autenticacao.ts`; only the shared marker lives here to avoid an import cycle.",security,apps/api/src/sessao.ts:31-48; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-0a9b536a,api,apps/api/src/sessao.ts,51,51,jsdoc,1,/** Há `Authorization: Bearer` na requisição? É o que desempata as duas credenciais. */,translate,Check for request `Authorization: Bearer` to choose between the two credentials.,security,apps/api/src/sessao.ts:51; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-cc9c28af,api,apps/api/src/sessao.ts,63,66,jsdoc,2,"/**
  * Token ausente, token inexistente, sessão expirada e sessão encerrada dão a MESMA
  * resposta. Distinguir seria contar a quem tenta qual metade do palpite acertou.
- */",,,,,,
+ */",translate,"Missing, unknown, expired, and revoked sessions return the same response so an attacker cannot learn which guess was partly correct.",security,apps/api/src/sessao.ts:63-66; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-9d461b36,api,apps/api/src/sessao.ts,75,83,jsdoc,9,"/**
  * TODOS os valores enviados com aquele nome, na ordem em que vieram.
  *
@@ -5952,22 +5952,22 @@ api-comment-9d461b36,api,apps/api/src/sessao.ts,75,83,jsdoc,9,"/**
  * para domínio-pai, por exemplo) e o antigo continua guardado. O primeiro da
  * lista nem sempre é o que vale — e ler só ele derruba o login de quem ainda
  * carrega o cookie velho, sem erro nenhum no caminho.
- */",,,,,,
-api-comment-452e2620,api,apps/api/src/tempo-real.ts,114,114,jsdoc,1,"/** Atalho de quem só quer dizer ""a conversa X mudou"". */",,,,,,
+ */",translate,Read every cookie value with this name in arrival order. Different cookie scopes can produce duplicate names after a `Domain` change; the first may be stale. Reading only it could silently log out people who still carry the old cookie.,security,apps/api/src/sessao.ts:75-83; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-452e2620,api,apps/api/src/tempo-real.ts,114,114,jsdoc,1,"/** Atalho de quem só quer dizer ""a conversa X mudou"". */",translate,Shortcut for publishing that conversation X changed.,security,apps/api/src/tempo-real.ts:114; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-3fc15bb2,api,apps/api/src/tempo-real.ts,124,130,jsdoc,6,"/**
  * Registra uma conexão e devolve como encerrá-la.
  *
  * O processo assina o canal do tenant na PRIMEIRA conexão dele e desassina na última
  * que sair — é o que garante que um processo sem ninguém de um cliente não receba
  * nada daquele cliente.
- */",,,,,,
-api-comment-68ad4ac3,api,apps/api/src/tempo-real.ts,154,154,jsdoc,0,/** Quantas conexões vivas há neste processo. Alimenta `/metrics` e o teste. */,,,,,,
-api-comment-7215cde6,api,apps/api/src/tempo-real.ts,27,27,jsdoc,2,/** O envelope que trafega no Redis: o evento do contrato mais o destinatário. */,,,,,,
-api-comment-e58d6f73,api,apps/api/src/tempo-real.ts,29,29,jsdoc,1,"/** Quando preenchido, só as conexões DESTA pessoa recebem. */",,,,,,
+ */",translate,"Register a connection and return how to close it. Subscribe this process to a tenant channel on its first connection and unsubscribe when its last connection leaves, so a process with no users from that tenant receives none of its data.",security,apps/api/src/tempo-real.ts:124-130; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-68ad4ac3,api,apps/api/src/tempo-real.ts,154,154,jsdoc,0,/** Quantas conexões vivas há neste processo. Alimenta `/metrics` e o teste. */,translate,"Live connection count in this process, used by `/metrics` and tests.",security,apps/api/src/tempo-real.ts:154; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7215cde6,api,apps/api/src/tempo-real.ts,27,27,jsdoc,2,/** O envelope que trafega no Redis: o evento do contrato mais o destinatário. */,translate,Redis envelope: the contract event plus its recipient.,security,apps/api/src/tempo-real.ts:27; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e58d6f73,api,apps/api/src/tempo-real.ts,29,29,jsdoc,1,"/** Quando preenchido, só as conexões DESTA pessoa recebem. */",translate,"When set, deliver only to this person's connections.",security,apps/api/src/tempo-real.ts:29; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-7fa1f5e6,api,apps/api/src/tempo-real.ts,47,50,jsdoc,8,"/**
  * Duas conexões, e não uma, porque o Redis exige: uma conexão em modo `subscribe`
  * não aceita mais nenhum comando. Publicar pela mesma travaria a assinatura.
- */",,,,,,
+ */",translate,"Redis needs separate subscriber and publisher connections: a connection in `subscribe` mode cannot issue other commands, so publishing on it would block.",security,apps/api/src/tempo-real.ts:47-50; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-46c01822,api,apps/api/src/tempo-real.ts,5,25,jsdoc,28,"/**
  * Tempo real: publicar o que mudou e entregar a quem tem direito de saber.
  *
@@ -5988,12 +5988,12 @@ api-comment-46c01822,api,apps/api/src/tempo-real.ts,5,25,jsdoc,28,"/**
  *    promessa do resto da API.
  * 3. **Evento com dono só vai para o dono.** `usuarioId` preenchido entrega apenas às
  *    conexões daquela pessoa — é o que o chat do gestor com o atendente exige.
- */",,,,,,
-api-comment-027ab526,api,apps/api/src/tempo-real.ts,56,56,jsdoc,0,"/** As conexões vivas DESTE processo, agrupadas por tenant. */",,,,,,
-api-comment-2d318d64,api,apps/api/src/tempo-real.ts,68,68,line,1,// Mensagem ilegível no canal não pode derrubar o processo inteiro.,,,,,,
-api-comment-1bc93945,api,apps/api/src/tempo-real.ts,82,82,line,2,"// O canal já é do tenant, mas a conferência é repetida de propósito: se um dia",,,,,,
-api-comment-7742bd92,api,apps/api/src/tempo-real.ts,83,83,line,2,"// alguém errar a chave do canal, o erro para aqui em vez de virar vazamento.",,,,,,
-api-comment-a311e391,api,apps/api/src/tempo-real.ts,90,90,line,4,// Um cliente com o socket já morrendo não pode impedir a entrega aos outros.,,,,,,
+ */",translate,"Realtime events announce what changed, never the record itself (`packages/contracts/src/eventos.ts`): send only `{assunto, id, em}` and let recipients fetch data through the API under RLS. Sending records over Redis would create another tenant-isolation path beside the existing policies and tests. Isolation has three layers: one Redis channel per tenant (`pipe:eventos:<tenant_id>`), subscribed only while this process has that tenant's connections; tenant identity comes from each connection's session, never client input; and an event with `usuarioId` reaches only that person's connections, as required for manager-agent chat.",security,apps/api/src/tempo-real.ts:5-25; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-027ab526,api,apps/api/src/tempo-real.ts,56,56,jsdoc,0,"/** As conexões vivas DESTE processo, agrupadas por tenant. */",translate,"Live connections in this process, grouped by tenant.",security,apps/api/src/tempo-real.ts:56; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2d318d64,api,apps/api/src/tempo-real.ts,68,68,line,1,// Mensagem ilegível no canal não pode derrubar o processo inteiro.,translate,An unreadable channel message must not crash the process.,security,apps/api/src/tempo-real.ts:68; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1bc93945,api,apps/api/src/tempo-real.ts,82,82,line,2,"// O canal já é do tenant, mas a conferência é repetida de propósito: se um dia",translate,Recheck the tenant even though the channel is tenant-scoped; a future channel-key mistake must stop here rather than leak events.,security,apps/api/src/tempo-real.ts:82; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-7742bd92,api,apps/api/src/tempo-real.ts,83,83,line,2,"// alguém errar a chave do canal, o erro para aqui em vez de virar vazamento.",remove,,security,apps/api/src/tempo-real.ts:83; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a311e391,api,apps/api/src/tempo-real.ts,90,90,line,4,// Um cliente com o socket já morrendo não pode impedir a entrega aos outros.,translate,One dying client socket must not prevent delivery to other clients.,security,apps/api/src/tempo-real.ts:90; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-c7459479,api,apps/api/src/tempo-real.ts,95,105,jsdoc,19,"/**
  * Publica um evento para todo o tenant (ou para uma pessoa dele).
  *
@@ -6004,25 +6004,25 @@ api-comment-c7459479,api,apps/api/src/tempo-real.ts,95,105,jsdoc,19,"/**
  *
  * Falhar aqui **não pode derrubar a operação**: a conversa já foi salva, e o preço de
  * não publicar é a tela demorar a atualizar, não perder dado.
- */",,,,,,
-api-comment-2f6d2de0,api,apps/api/src/webhooks-saida.ts,110,110,jsdoc,1,/** `null` = sem cabeçalho `Authorization` (autenticação `nenhuma`). */,,,,,,
+ */",translate,"Publish an event for a tenant or one of its users only after commit. Publishing inside the transaction lets the browser refetch before the new value is visible, with no later notice. Publishing failure must not undo saved conversation data; the consequence is only delayed UI refresh.",security,apps/api/src/tempo-real.ts:95-105; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-2f6d2de0,api,apps/api/src/webhooks-saida.ts,110,110,jsdoc,1,/** `null` = sem cabeçalho `Authorization` (autenticação `nenhuma`). */,translate,Null means no `Authorization` header (`nenhuma` authentication).,integration,apps/api/src/webhooks-saida.ts:110; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-1382d9a3,api,apps/api/src/webhooks-saida.ts,124,128,jsdoc,5,"/**
  * Os cabeçalhos customizados entram primeiro; os reservados são escritos
  * DEPOIS, por cima — assim nenhum cabeçalho do cliente derruba a assinatura
  * (a gravação já recusa nomes reservados, isto aqui é o cinto e a suspensório).
- */",,,,,,
+ */",translate,"Write custom headers first and reserved headers afterward, overriding them so customer-supplied values cannot disable signatures. Registration also rejects reserved names; this is defense in depth.",integration,apps/api/src/webhooks-saida.ts:124-128; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e6da9eb9,api,apps/api/src/webhooks-saida.ts,145,149,jsdoc,5,"/**
  * Decifra um campo de segredo de `webhook_saida`; `null`/vazio passa direto,
  * e texto que não é um envelope nosso também (o mesmo critério tolerante de
  * `dominio/twenty.ts`, para não derrubar dado gravado direto no banco).
- */",,,,,,
+ */",translate,"Decrypt a `webhook_saida` secret field. Pass null, empty, or non-Pipe-envelope text through, as in tolerant `dominio/twenty.ts`, so data written directly to the database does not break delivery.",integration,apps/api/src/webhooks-saida.ts:145-149; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-3f10c018,api,apps/api/src/webhooks-saida.ts,155,160,jsdoc,5,"/**
  * Enfileira o evento para todos os webhooks ativos que o assinam.
  *
  * Roda **dentro** da transação do fato que a originou: ou o fato e o evento entram
  * juntos, ou nenhum dos dois entra. Entregar é outro passo, fora da transação.
- */",,,,,,
-api-comment-b0ba577d,api,apps/api/src/webhooks-saida.ts,181,181,line,0,// Em série: `Promise.all` dentro da transação derruba o tenant da sessão.,,,,,,
+ */",translate,Enqueue an event for every subscribed active outbound webhook inside the transaction that wrote the underlying fact. Commit both fact and event together or neither; delivery happens separately after the transaction.,integration,apps/api/src/webhooks-saida.ts:155-160; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b0ba577d,api,apps/api/src/webhooks-saida.ts,181,181,line,0,// Em série: `Promise.all` dentro da transação derruba o tenant da sessão.,translate,Run serially: `Promise.all` inside this transaction can lose the session's tenant context.,integration,apps/api/src/webhooks-saida.ts:181; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-56288561,api,apps/api/src/webhooks-saida.ts,212,216,jsdoc,5,"/**
  * Drena as entregas pendentes de um tenant. Chamada depois do commit da operação e
  * também por varredura periódica — a entrega precisa acontecer mesmo que o processo
