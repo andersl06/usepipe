@@ -295,6 +295,25 @@ function rewriteDecorators(sourceFile: any, row: MapRow, dryRun: boolean): numbe
   return count;
 }
 
+// Collecting every literal node in a file is a full AST walk; rewriteAstRow used to redo it
+// for every row against every project file (O(rows x files) full walks) even though the same
+// file's literal list never changes across rows within one run. Cached per sourceFile - only in
+// dry-run, where nothing mutates the AST, so the cached node list can never go stale; a real
+// (non-dry-run) apply still recomputes it fresh per row, since an earlier row's edit in the same
+// run can shift or forget nodes ts-morph collected before the edit.
+const literalsCache = new WeakMap<object, any[]>();
+function fileLiterals(sourceFile: any, dryRun: boolean): any[] {
+  if (!dryRun)
+    return sourceFile.getDescendants().filter((node: any) => literalValue(node) !== undefined);
+  const cached = literalsCache.get(sourceFile);
+  if (cached) return cached;
+  const literals = sourceFile
+    .getDescendants()
+    .filter((node: any) => literalValue(node) !== undefined);
+  literalsCache.set(sourceFile, literals);
+  return literals;
+}
+
 function rewriteAstRow(
   root: string,
   sourceFile: any,
@@ -304,9 +323,7 @@ function rewriteAstRow(
 ): number {
   if (row.kind === 'wire-key') return rewriteWireKey(root, sourceFile, row, allRows, dryRun);
   let count = rewriteDecorators(sourceFile, row, dryRun);
-  const literals = sourceFile
-    .getDescendants()
-    .filter((node: any) => literalValue(node) !== undefined);
+  const literals = fileLiterals(sourceFile, dryRun);
   for (const literal of literals) {
     const value = literalValue(literal)!;
     let replacement: string | undefined;
