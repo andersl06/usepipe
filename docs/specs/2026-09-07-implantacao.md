@@ -43,7 +43,7 @@ Você tem duas VPS em uso hoje — Hostinger `76.13.170.84` e OVH `149.56.12.166
 **Nenhuma das duas serve**, e não é preciosismo:
 
 1. As duas já têm um Traefik ocupando as portas 80 e 443. Dois Traefik na mesma máquina não
-   convivem, e o `implantar.sh` para no passo 5 justamente por isso.
+   convivem, e o `bootstrap.sh` para no passo 5 justamente por isso.
 2. O compose do Pipe sobe um Postgres próprio, com `shared_buffers=2GB` e teto de 6 GB. Somado ao
    Postgres que já está lá, a máquina fica sem memória — e quem morre primeiro é o banco de quem
    estava sem culpa.
@@ -51,7 +51,7 @@ Você tem duas VPS em uso hoje — Hostinger `76.13.170.84` e OVH `149.56.12.166
    caro uma vez só.
 
 **Contrate uma máquina nova, exclusiva.** O que o compose pede: **4 vCPU, 16 GB de RAM, 100 GB de
-disco**, Ubuntu 24.04. É o `hostingercom-vps-kvm4` que o `infra/terraform/ambientes/producao`
+disco**, Ubuntu 24.04. É o `hostingercom-vps-kvm4` que o `infra/terraform/ambientes/production`
 já referencia — e como você já tem conta e token de API na Hostinger, é o caminho de menor
 atrito. Não é obrigatório: qualquer provedor com Ubuntu 24.04 e IP fixo serve, porque tudo é
 Docker.
@@ -176,11 +176,11 @@ O modelo completo, com comentário em cada linha, está em
 
 | Variável | O que é | Onde nasce | Sem ela |
 |---|---|---|---|
-| `PIPE_CHAVES_SEGREDO` | chaveiro AES-256 que cifra `canal.config` — token da Meta, appSecret, senha de SMTP | `node -e "…randomBytes(32)…"` (§1.5a) | **a API SOBE, `/saude` dá 200, e todo webhook do WhatsApp devolve 500.** A chave só é lida na hora de decifrar o canal. É a falha mais cara de diagnosticar da tabela, e por isso o `implantar.sh` recusa subir sem ela |
+| `PIPE_CHAVES_SEGREDO` | chaveiro AES-256 que cifra `canal.config` — token da Meta, appSecret, senha de SMTP | `node -e "…randomBytes(32)…"` (§1.5a) | **a API SOBE, `/saude` dá 200, e todo webhook do WhatsApp devolve 500.** A chave só é lida na hora de decifrar o canal. É a falha mais cara de diagnosticar da tabela, e por isso o `bootstrap.sh` recusa subir sem ela |
 | `PIPE_CHAVE_SEGREDO_ATUAL` | qual chave do chaveiro cifra o que for gravado agora | você escolhe (`k1`) | default é a primeira da lista; erra só se apontar para id inexistente |
 | `POSTGRES_SENHA` | senha do papel `pipe`, dono das tabelas | invente: `openssl rand -base64 24` | banco não sobe |
 | `POSTGRES_APP_SENHA` | senha do papel `pipe_app`, o da aplicação | idem, **diferente da anterior** | o papel não é criado e a API não conecta |
-| `DATABASE_URL` / `DATABASE_URL_APP` | as duas acima, em URL | você escreve | a senha na URL tem que bater com a variável; o `implantar.sh` confere |
+| `DATABASE_URL` / `DATABASE_URL_APP` | as duas acima, em URL | você escreve | a senha na URL tem que bater com a variável; o `bootstrap.sh` confere |
 | `GOOGLE_CLIENTE_ID` / `_SEGREDO` / `GOOGLE_URL_RETORNO` | aplicativo OAuth | Google Cloud Console (§1.3) | login redireciona para `?erro=falha_no_provedor` |
 | `PIPE_ORIGENS` | lista fechada de origens de navegador | as três URLs das telas | CORS recusa tudo e as telas ficam em branco |
 | `PIPE_COOKIE_DOMINIO` | `.usepipe.com.br`, **com ponto** | você escreve | login redireciona certo e volta deslogado |
@@ -207,10 +207,10 @@ Com o arquivo preenchido, cifre e commite:
 
 ```bash
 cd infra
-cp compose/env.prod.exemplo /tmp/producao.env   # preencha
-sops --encrypt /tmp/producao.env > compose/segredos/producao.enc.env
-shred -u /tmp/producao.env
-git add compose/segredos/producao.enc.env && git commit -m "segredo de produção"
+cp compose/env.prod.exemplo /tmp/production.env   # preencha
+sops --encrypt /tmp/production.env > compose/secrets/production.enc.env
+shred -u /tmp/production.env
+git add compose/secrets/production.enc.env && git commit -m "segredo de produção"
 ```
 
 **Não existe mais `producao-crm.enc.env`.** O `apps/crm` de hoje é código nosso, no mesmo
@@ -247,7 +247,7 @@ for h in usepipe.com.br app.usepipe.com.br gestao.usepipe.com.br crm.usepipe.com
 done
 ```
 
-O `implantar.sh` confere isto sozinho e **para** se não bater — mas conferir antes economiza uma
+O `bootstrap.sh` confere isto sozinho e **para** se não bater — mas conferir antes economiza uma
 rodada.
 
 ---
@@ -257,14 +257,14 @@ rodada.
 Construa e publique as imagens, da sua máquina:
 
 ```bash
-PUBLICAR=1 ./infra/construir-imagens.sh v1.0.0
+PUBLICAR=1 ./infra/build-images.sh v1.0.0
 ```
 
 Depois, na VPS:
 
 ```bash
 cd /opt/pipe && git pull
-./infra/compose/implantar.sh v1.0.0
+./infra/compose/bootstrap.sh v1.0.0
 ```
 
 O script faz nove passos e para com mensagem no primeiro que não puder resolver:
@@ -476,7 +476,7 @@ As quatro causas, em ordem de frequência:
 
 ### 8.2 A migration falha no meio
 
-Sintoma: o `implantar.sh` para no passo 8, ou o `deploy.sh` para antes do `up`.
+Sintoma: o `bootstrap.sh` para no passo 8, ou o `deploy.sh` para antes do `up`.
 
 **Primeiro, o alívio:** nada foi publicado. É exatamente por isso que a migration roda antes do
 código novo (§9 da spec) — a versão antiga continua no ar, atendendo, com o esquema antigo.
@@ -552,10 +552,10 @@ Honestidade sobre o que você vai encontrar depois do segundo marco:
 1. ~~**Os links entre as telas apontam para `localhost`.**~~ **Resolvido em 07/09/2026.**
    `NEXT_PUBLIC_PIPE_GESTAO_URL`, `NEXT_PUBLIC_PIPE_CRM_URL` e `NEXT_PUBLIC_PIPE_DESK_URL` são
    embutidas no bundle **em tempo de build**, e por isso não adianta pô-las no `.env` de runtime.
-   Os Dockerfiles do Desk e da Gestão agora aceitam `ARG`, e `construir-imagens.sh` passa os
+   Os Dockerfiles do Desk e da Gestão agora aceitam `ARG`, e `build-images.sh` passa os
    `--build-arg` com o domínio de produção por padrão (`PIPE_DOMINIO` muda os três de uma vez).
 2. **`apps/workers` não expõe métrica.** Não há `/metrics` nem porta HTTP. O alvo `pipe-workers` e
-   o alerta `WorkerParado` foram **removidos** de `infra/observabilidade/`: eles ficariam em
+   o alerta `WorkerParado` foram **removidos** de `infra/observability/`: eles ficariam em
    disparo permanente, tocando o telefone toda madrugada sem nada a fazer, que é o mecanismo pelo
    qual todo o resto do arquivo de alertas passa a ser ignorado. `FilaParada` cobre o sintoma real,
    com métrica que existe (a API a emite).

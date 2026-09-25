@@ -29,7 +29,7 @@ este rascunho — tudo abaixo vem da leitura do repositório.
 - [ ] **Backup do Postgres**: stanza `pipe` do pgBackRest com `archive_mode=on`
   (`infra/compose/docker-compose.prod.yml:281`, `PG_ARCHIVE_MODE`) e teste de
   restauração recente com `pipe_restauracao_ok=1`
-  (`infra/compose/backup/restaurar-teste.sh:40-66`). Tirar um full manual
+  (`infra/compose/backup/restore-test.sh:40-66`). Tirar um full manual
   antes de cortar:
   `docker compose -f docker-compose.prod.yml --env-file /opt/pipe-dados/.env --profile tarefa run --rm backup -c 'pgbackrest --stanza=pipe --type=full backup'`
   (perfil `tarefa` e imagem em `infra/compose/docker-compose.prod.yml:350-361`;
@@ -44,8 +44,8 @@ este rascunho — tudo abaixo vem da leitura do repositório.
   (`.../v1/auth/google/callback`) já escrito e commitado nas quatro cópias
   antes do deploy (D-06/D-36, 01-CONTEXT.md:75): `.env`, `.env.example`,
   `infra/compose/env.prod.exemplo:64` e o segredo cifrado da VPS
-  (`infra/compose/segredos/producao.enc.env`, editado com `sops` — ver
-  `infra/compose/implantar.sh:72-85`). **Nome** da variável não muda.
+  (`infra/compose/secrets/production.enc.env`, editado com `sops` — ver
+  `infra/compose/bootstrap.sh:72-85`). **Nome** da variável não muda.
 - [ ] **Google Cloud Console**: nenhuma ação ainda — feita no passo 8. Mas
   confirmar de antemão que o dono tem acesso ao projeto certo (PROJECT-HANDOFF
   linha 303-308: o redirect da VPS para `/retorno` nunca foi cadastrado, então
@@ -62,8 +62,8 @@ este rascunho — tudo abaixo vem da leitura do repositório.
   webhook retry é suposição A5, não confirmada — 01-RESEARCH.md linha 466).
 - [ ] **Acesso**: dono com root na VPS e acesso ao Google Cloud Console — Claude
   não tem nenhum dos dois (01-33-PLAN.md Task 2).
-- [ ] **Imagens**: `infra/construir-imagens.sh` já builda as 6 apps
-  (`api workers desk-vite gestao-vite crm site`, linha 19) com a tag da
+- [ ] **Imagens**: `infra/build-images.sh` já builda as 6 apps
+  (`api workers desk-vite management-vite crm site`, linha 19) com a tag da
   versão escolhida; decidir se o build roda local (com `PUBLICAR=1` e
   `docker login ghcr.io` já feito) ou é delegado ao dono.
 
@@ -73,8 +73,8 @@ Numeração alinhada à ação do plano 01-33 Task 1 (`01-33-PLAN.md:66`), com a
 fonte real de cada comando.
 
 1. **Build + push das imagens**, da máquina com credencial no registro:
-   `PUBLICAR=1 MSYS_NO_PATHCONV=1 bash infra/construir-imagens.sh <versao>`
-   (`infra/construir-imagens.sh:1-11,92-97`; `MSYS_NO_PATHCONV=1` é obrigatório
+   `PUBLICAR=1 MSYS_NO_PATHCONV=1 bash infra/build-images.sh <versao>`
+   (`infra/build-images.sh:1-11,92-97`; `MSYS_NO_PATHCONV=1` é obrigatório
    no Git Bash/Windows — PROJECT-HANDOFF linha 288-291, já quebrou a build do
    Desk em produção uma vez).
 2. **Na VPS, cortar a entrada externa (manutenção)**: parar só o Traefik, sem
@@ -116,7 +116,7 @@ fonte real de cada comando.
      run --rm --no-deps api node dist/drain-legacy-queues.js --obliterate
    ```
 7. **Trocar o valor de `GOOGLE_URL_RETORNO` no segredo da VPS** (nome igual,
-   valor novo — D-06/D-36): editar `infra/compose/segredos/producao.enc.env`
+   valor novo — D-06/D-36): editar `infra/compose/secrets/production.enc.env`
    com `sops` na máquina do dono e dar `git push`/`git pull` na VPS antes do
    deploy do passo 9, porque `deploy.sh` decifra esse arquivo a cada
    publicação (`infra/compose/deploy.sh:19-24`).
@@ -148,7 +148,7 @@ fonte real de cada comando.
     `01-RESEARCH.md:347`: `pipe_fila_profundidade`,
     `pipe_fila_idade_item_mais_velho_segundos`, `pipe_http_requisicoes_total`,
     `pipe_mensagem_entrega_total`, `pipe_migration_pendente`; regras em
-    `infra/observabilidade/alertas.yml`).
+    `infra/observability/alertas.yml`).
 
 ## 3. Drenagem BullMQ — condição de corte
 

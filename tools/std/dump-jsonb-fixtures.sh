@@ -18,7 +18,7 @@ set -euo pipefail
 
 RAIZ="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 FIXTURES="$RAIZ/apps/api/tests/fixtures/jsonb"
-REDIGIR="$RAIZ/tools/std/redacao.ts"
+REDIGIR="$RAIZ/tools/std/drafting.ts"
 mkdir -p "$FIXTURES"
 
 read -r DB_NAME DB_USER <<<"$(docker exec pipe-postgres sh -c 'echo $POSTGRES_DB $POSTGRES_USER')"

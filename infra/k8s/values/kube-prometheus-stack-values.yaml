@@ -41,7 +41,7 @@ grafana:
   enabled: true
   defaultDashboardsTimezone: America/Sao_Paulo
 
-# Regras de alerta próprias: o arquivo é o mesmo de infra/observabilidade/alertas.yml,
+# Regras de alerta próprias: o arquivo é o mesmo de infra/observability/alertas.yml,
 # aplicado como PrometheusRule pelo Kustomize. Manter duas cópias é garantir que
 # uma delas fica velha.
 additionalPrometheusRulesMap: {}

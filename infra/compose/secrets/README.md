@@ -1,6 +1,6 @@
-# segredos
+# secrets
 
-Aqui vivem `producao.enc.env` e o equivalente de homologação — **cifrados pelo
+Aqui vivem `production.enc.env` e o equivalente de homologação — **cifrados pelo
 SOPS**, e só assim. As regras de quem consegue decifrar estão em
 [`../../.sops.yaml`](../../.sops.yaml).
 
@@ -12,8 +12,8 @@ ele ganha o próprio: aí a separação existe por licença, não por hábito.
 
 ```bash
 cd infra
-sops compose/segredos/producao.enc.env          # edita já decifrado
-sops updatekeys compose/segredos/producao.enc.env  # depois de trocar destinatária
+sops compose/secrets/production.enc.env          # edita já decifrado
+sops updatekeys compose/secrets/production.enc.env  # depois de trocar destinatária
 ```
 
 Arquivo em texto claro nesta pasta é defeito, não pressa. O modelo do conteúdo

@@ -52,24 +52,24 @@ spec:
 ---
 # Gestão como SPA estática (Vite + nginx): sem `envFrom` — não fala com o
 # Postgres nem com o Redis, e as URLs que precisa (`api`, `desk`) já vêm
-# assadas no bundle pela imagem (`apps/gestao-vite/Dockerfile`, build-arg). A
+# assadas no bundle pela imagem (`apps/management-vite/Dockerfile`, build-arg). A
 # porta do contêiner é a 80 do nginx, não a 3000 do Next.
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: gestao-vite
-  labels: { app: gestao-vite }
+  name: management-vite
+  labels: { app: management-vite }
 spec:
   replicas: 2
   selector:
-    matchLabels: { app: gestao-vite }
+    matchLabels: { app: management-vite }
   template:
     metadata:
-      labels: { app: gestao-vite }
+      labels: { app: management-vite }
     spec:
       containers:
-        - name: gestao-vite
-          image: ghcr.io/pipe/gestao-vite:latest
+        - name: management-vite
+          image: ghcr.io/pipe/management-vite:latest
           ports: [{ name: http, containerPort: 80 }]
           resources:
             requests: { cpu: 25m, memory: 32Mi }
@@ -81,16 +81,16 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: gestao-vite
+  name: management-vite
 spec:
-  selector: { app: gestao-vite }
+  selector: { app: management-vite }
   ports: [{ name: http, port: 80, targetPort: http }]
 ---
 apiVersion: policy/v1
 kind: PodDisruptionBudget
 metadata:
-  name: gestao-vite
+  name: management-vite
 spec:
   minAvailable: 1
   selector:
-    matchLabels: { app: gestao-vite }
+    matchLabels: { app: management-vite }

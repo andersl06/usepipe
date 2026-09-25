@@ -2,7 +2,7 @@
 # Primeira implantação do Pipe numa VPS limpa. Roda na máquina, como root, a
 # partir de /opt/pipe/infra/compose.
 #
-#   ./implantar.sh v1.0.0
+#   ./bootstrap.sh v1.0.0
 #
 # O que ele faz: tudo que é automatizável, na ordem em que precisa acontecer.
 # O que ele NÃO faz: comprar domínio, apontar DNS, criar aplicativo no Google, criar
@@ -13,7 +13,7 @@
 # É idempotente: rodar de novo depois de corrigir alguma coisa retoma de onde dá.
 set -euo pipefail
 
-VERSAO="${1:?uso: implantar.sh <tag da imagem>   (ex.: implantar.sh v1.0.0)}"
+VERSAO="${1:?uso: bootstrap.sh <tag da imagem>   (ex.: bootstrap.sh v1.0.0)}"
 cd "$(dirname "$0")"
 
 DADOS=/opt/pipe-dados
@@ -32,7 +32,7 @@ parar() {
   shift
   for linha in "$@"; do vermelho "  $linha"; done
   vermelho ""
-  vermelho "Corrija e rode ./implantar.sh ${VERSAO} de novo."
+  vermelho "Corrija e rode ./bootstrap.sh ${VERSAO} de novo."
   exit 1
 }
 
@@ -69,20 +69,20 @@ passo "2/9  Segredos"
   "Na VPS:          instale o conteúdo em ${DADOS}/age.key e rode chmod 600 nele."
 chmod 600 "${DADOS}/age.key"
 
-[ -f segredos/producao.enc.env ] || parar "não existe segredos/producao.enc.env." \
+[ -f secrets/production.enc.env ] || parar "não existe secrets/production.enc.env." \
   "Na sua máquina, a partir de infra/:" \
-  "  cp compose/env.prod.exemplo /tmp/producao.env   # preencha os valores" \
-  "  sops --encrypt /tmp/producao.env > compose/segredos/producao.enc.env" \
-  "  shred -u /tmp/producao.env" \
+  "  cp compose/env.prod.exemplo /tmp/production.env   # preencha os valores" \
+  "  sops --encrypt /tmp/production.env > compose/secrets/production.enc.env" \
+  "  shred -u /tmp/production.env" \
   "Depois commite o .enc.env e dê git pull aqui."
 
 export SOPS_AGE_KEY_FILE="${DADOS}/age.key"
 umask 077
-sops --decrypt segredos/producao.enc.env > "${ENV}" \
-  || parar "o SOPS não conseguiu decifrar segredos/producao.enc.env." \
+sops --decrypt secrets/production.enc.env > "${ENV}" \
+  || parar "o SOPS não conseguiu decifrar secrets/production.enc.env." \
     "A chave em ${DADOS}/age.key não é destinatária desse arquivo." \
     "Na sua máquina: acrescente a pública em infra/.sops.yaml e rode" \
-    "  sops updatekeys compose/segredos/producao.enc.env"
+    "  sops updatekeys compose/secrets/production.enc.env"
 echo "PIPE_VERSAO=${VERSAO}" >> "${ENV}"
 chmod 600 "${ENV}"
 verde "ok — ${ENV} escrito com modo 600"
@@ -104,7 +104,7 @@ for chave in POSTGRES_SENHA POSTGRES_APP_SENHA DATABASE_URL DATABASE_URL_APP RED
 done
 [ ${#faltando[@]} -eq 0 ] || parar "faltam valores no arquivo de segredos: ${faltando[*]}" \
   "Cada um está descrito em docs/specs/2026-09-07-implantacao.md §3 — o que é," \
-  "onde nasce e como gerar. Edite com:  cd ../..  &&  sops infra/compose/segredos/producao.enc.env"
+  "onde nasce e como gerar. Edite com:  cd ../..  &&  sops infra/compose/secrets/production.enc.env"
 
 # PIPE_CHAVES_SEGREDO é a que a API deixa passar em silêncio: sem ela `/saude`
 # responde 200 e TODO webhook do WhatsApp devolve 500. A conferência é aqui
@@ -194,7 +194,7 @@ COMPOSE=(docker compose -f docker-compose.prod.yml --env-file "${ENV}")
 "${COMPOSE[@]}" build postgres
 "${COMPOSE[@]}" pull --ignore-buildable \
   || parar "não consegui baixar as imagens da tag ${VERSAO}." \
-    "Confira se elas foram publicadas:  PUBLICAR=1 ./infra/construir-imagens.sh ${VERSAO}" \
+    "Confira se elas foram publicadas:  PUBLICAR=1 ./infra/build-images.sh ${VERSAO}" \
     "e se esta máquina tem login no registro:  docker login ghcr.io"
 verde "ok"
 
