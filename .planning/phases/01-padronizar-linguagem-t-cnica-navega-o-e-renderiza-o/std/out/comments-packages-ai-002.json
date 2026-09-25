@@ -1,0 +1,15 @@
+{
+  "items": [
+    {"id":"packages-ai-comment-1c6938bf","action":"remove","new_text":"","sensitivity":"other","evidence":"packages/ai/src/transcricao/transcricao.ts:136-146","notes":""},
+    {"id":"packages-ai-comment-2e9f0b91","action":"translate","new_text":"Index only lines retained after truncation. A cited label outside this index is a hallucination that evaluation rejects.","sensitivity":"architecture","evidence":"packages/ai/src/transcricao/transcricao.ts:148-167; pre-triage D-40; needs slice-time confirmation","notes":"pre-triage D-40; needs slice-time confirmation"},
+    {"id":"packages-ai-comment-c58668a4","action":"translate","new_text":"Normalize the conversation and, if it exceeds the budget, retain its beginning and end while reporting the number of omitted messages. Enforce chronological order here; input order is not trusted.","sensitivity":"architecture","evidence":"packages/ai/src/transcricao/transcricao.ts:169-230; pre-triage D-40; needs slice-time confirmation","notes":"pre-triage D-40; needs slice-time confirmation"},
+    {"id":"packages-ai-comment-aa2f8a75","action":"translate","new_text":"Audio text when already transcribed; otherwise the line says the transcript is missing.","sensitivity":"other","evidence":"packages/ai/src/transcricao/transcricao.ts:23-25","notes":""},
+    {"id":"packages-ai-comment-d82899c4","action":"translate","new_text":"Short label used by the model to cite evidence.","sensitivity":"other","evidence":"packages/ai/src/transcricao/transcricao.ts:40-42","notes":""},
+    {"id":"packages-ai-comment-4502dc6c","action":"remove","new_text":"","sensitivity":"other","evidence":"packages/ai/src/transcricao/transcricao.ts:47-49","notes":""},
+    {"id":"packages-ai-comment-9103390d","action":"translate","new_text":"`rotulo` → `mensagem.id`, mapping cited evidence back to the database.","sensitivity":"integration","evidence":"packages/ai/src/transcricao/transcricao.ts:50-52; pre-triage D-40; needs slice-time confirmation","notes":"pre-triage D-40; needs slice-time confirmation"},
+    {"id":"packages-ai-comment-d283b30c","action":"translate","new_text":"Total character budget for the transcript.","sensitivity":"other","evidence":"packages/ai/src/transcricao/transcricao.ts:58-60","notes":""},
+    {"id":"packages-ai-comment-3844c16c","action":"translate","new_text":"Share of the budget reserved for the beginning when truncating; the remainder goes to the end. The request and outcome are usually at these two ends.","sensitivity":"architecture","evidence":"packages/ai/src/transcricao/transcricao.ts:63-67,169-230; pre-triage D-40; needs slice-time confirmation","notes":"pre-triage D-40; needs slice-time confirmation"},
+    {"id":"packages-ai-comment-001a8b1e","action":"remove","new_text":"","sensitivity":"other","evidence":"packages/ai/src/transcricao/transcricao.ts:76-95","notes":""},
+    {"id":"packages-ai-comment-f46f56b5","action":"translate","new_text":"`dd/mm HH:MM` in UTC, avoiding an implicit timezone so transcripts are deterministic.","sensitivity":"other","evidence":"packages/ai/src/transcricao/transcricao.ts:97-101","notes":""}
+  ]
+}

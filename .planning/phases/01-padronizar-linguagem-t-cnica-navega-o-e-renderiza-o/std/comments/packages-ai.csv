@@ -312,24 +312,24 @@ packages-ai-comment-bfec081f,packages-ai,packages/ai/src/transcricao/transcricao
  * O corpo de uma mensagem já resolvido: áudio usa o texto transcrito quando
  * existe, mídia vira descrição, mensagem vazia é dita como vazia.
  */",translate,"Resolved message body: audio uses its transcript when available, media becomes a description, and an empty message is identified as empty.",other,packages/ai/src/transcricao/transcricao.ts:103-125,codex,reviewed
-packages-ai-comment-1c6938bf,packages-ai,packages/ai/src/transcricao/transcricao.ts,136,136,jsdoc,4,"/** Monta a linha completa de uma mensagem, já com rótulo, hora e autor. */",,,,,,
+packages-ai-comment-1c6938bf,packages-ai,packages/ai/src/transcricao/transcricao.ts,136,136,jsdoc,4,"/** Monta a linha completa de uma mensagem, já com rótulo, hora e autor. */",remove,,other,packages/ai/src/transcricao/transcricao.ts:136-146,codex,reviewed
 packages-ai-comment-2e9f0b91,packages-ai,packages/ai/src/transcricao/transcricao.ts,148,151,jsdoc,4,"/**
  * Só as linhas que sobreviveram ao truncamento entram no índice: rótulo citado
  * fora dele é alucinação, e é assim que a avaliação a pega.
- */",,,,,,
+ */",translate,Index only lines retained after truncation. A cited label outside this index is a hallucination that evaluation rejects.,architecture,packages/ai/src/transcricao/transcricao.ts:148-167; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ai-comment-c58668a4,packages-ai,packages/ai/src/transcricao/transcricao.ts,169,173,jsdoc,5,"/**
  * Normaliza a conversa e, quando não cabe no orçamento, preserva início e fim,
  * dizendo quantas mensagens ficaram de fora. A ordem cronológica é imposta aqui:
  * não confie na ordem de entrada.
- */",,,,,,
-packages-ai-comment-aa2f8a75,packages-ai,packages/ai/src/transcricao/transcricao.ts,24,24,jsdoc,4,"/** Texto do áudio quando alguém já transcreveu. Ausente, a linha diz que falta. */",,,,,,
-packages-ai-comment-d82899c4,packages-ai,packages/ai/src/transcricao/transcricao.ts,41,41,jsdoc,2,/** Rótulo curto usado pelo modelo para citar evidência. */,,,,,,
-packages-ai-comment-4502dc6c,packages-ai,packages/ai/src/transcricao/transcricao.ts,48,48,jsdoc,2,/** O texto que vai para o modelo. */,,,,,,
-packages-ai-comment-9103390d,packages-ai,packages/ai/src/transcricao/transcricao.ts,51,51,jsdoc,3,/** `rotulo` → `mensagem.id`. É o que traduz a evidência de volta para o banco. */,,,,,,
-packages-ai-comment-d283b30c,packages-ai,packages/ai/src/transcricao/transcricao.ts,59,59,jsdoc,0,/** Orçamento total da transcrição em caracteres. */,,,,,,
+ */",translate,"Normalize the conversation and, if it exceeds the budget, retain its beginning and end while reporting the number of omitted messages. Enforce chronological order here; input order is not trusted.",architecture,packages/ai/src/transcricao/transcricao.ts:169-230; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-aa2f8a75,packages-ai,packages/ai/src/transcricao/transcricao.ts,24,24,jsdoc,4,"/** Texto do áudio quando alguém já transcreveu. Ausente, a linha diz que falta. */",translate,Audio text when already transcribed; otherwise the line says the transcript is missing.,other,packages/ai/src/transcricao/transcricao.ts:23-25,codex,reviewed
+packages-ai-comment-d82899c4,packages-ai,packages/ai/src/transcricao/transcricao.ts,41,41,jsdoc,2,/** Rótulo curto usado pelo modelo para citar evidência. */,translate,Short label used by the model to cite evidence.,other,packages/ai/src/transcricao/transcricao.ts:40-42,codex,reviewed
+packages-ai-comment-4502dc6c,packages-ai,packages/ai/src/transcricao/transcricao.ts,48,48,jsdoc,2,/** O texto que vai para o modelo. */,remove,,other,packages/ai/src/transcricao/transcricao.ts:47-49,codex,reviewed
+packages-ai-comment-9103390d,packages-ai,packages/ai/src/transcricao/transcricao.ts,51,51,jsdoc,3,/** `rotulo` → `mensagem.id`. É o que traduz a evidência de volta para o banco. */,translate,"`rotulo` → `mensagem.id`, mapping cited evidence back to the database.",integration,packages/ai/src/transcricao/transcricao.ts:50-52; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-d283b30c,packages-ai,packages/ai/src/transcricao/transcricao.ts,59,59,jsdoc,0,/** Orçamento total da transcrição em caracteres. */,translate,Total character budget for the transcript.,other,packages/ai/src/transcricao/transcricao.ts:58-60,codex,reviewed
 packages-ai-comment-3844c16c,packages-ai,packages/ai/src/transcricao/transcricao.ts,63,66,jsdoc,4,"/**
    * Fatia do orçamento reservada ao início quando precisa truncar. O resto vai
    * para o fim. Início e fim é onde está a informação: o pedido e o desfecho.
-   */",,,,,,
-packages-ai-comment-001a8b1e,packages-ai,packages/ai/src/transcricao/transcricao.ts,76,76,jsdoc,0,/** Como cada autor aparece na transcrição. */,,,,,,
-packages-ai-comment-f46f56b5,packages-ai,packages/ai/src/transcricao/transcricao.ts,97,97,jsdoc,3,"/** `dd/mm HH:MM` em UTC — sem fuso implícito, para a transcrição ser determinística. */",,,,,,
+   */",translate,Share of the budget reserved for the beginning when truncating; the remainder goes to the end. The request and outcome are usually at these two ends.,architecture,"packages/ai/src/transcricao/transcricao.ts:63-67,169-230; pre-triage D-40; needs slice-time confirmation",codex,reviewed
+packages-ai-comment-001a8b1e,packages-ai,packages/ai/src/transcricao/transcricao.ts,76,76,jsdoc,0,/** Como cada autor aparece na transcrição. */,remove,,other,packages/ai/src/transcricao/transcricao.ts:76-95,codex,reviewed
+packages-ai-comment-f46f56b5,packages-ai,packages/ai/src/transcricao/transcricao.ts,97,97,jsdoc,3,"/** `dd/mm HH:MM` em UTC — sem fuso implícito, para a transcrição ser determinística. */",translate,"`dd/mm HH:MM` in UTC, avoiding an implicit timezone so transcripts are deterministic.",other,packages/ai/src/transcricao/transcricao.ts:97-101,codex,reviewed
