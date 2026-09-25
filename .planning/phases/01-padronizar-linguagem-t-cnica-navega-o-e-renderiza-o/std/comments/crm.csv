@@ -2880,7 +2880,7 @@ here each row is a person.
 
 Everything sequential inside `consultar` (README).",security,Reviewed apps/crm/src/lib/contatos.ts:13-25 — tenant-isolation serial-query rule reference; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-a471206d,crm,apps/crm/src/lib/formato.ts,1,1,jsdoc,1,"/** Formatação da tela. Mesma régua da Gestão, para as três telas lerem igual. */",translate,"Screen formatting. Same ruler as Gestão, so the three screens read alike.",other,,,proposed
-crm-comment-4a2cf081,crm,apps/crm/src/lib/formato.ts,25,25,jsdoc,1,/** Soma de coluna do funil: `R$ 812 mil` cabe onde `R$ 812.400` não cabe. */,translate,"Funnel column sum: ""R$ 812k"" fits where ""R$ 812,400"" doesn't.",other,,,proposed
+crm-comment-4a2cf081,crm,apps/crm/src/lib/formato.ts,25,25,jsdoc,1,/** Soma de coluna do funil: `R$ 812 mil` cabe onde `R$ 812.400` não cabe. */,translate,"Funnel column sum: `R$ 812k` fits where `R$ 812,400` doesn't.",other,,,proposed
 crm-comment-bac51cc6,crm,apps/crm/src/lib/formato.ts,54,54,jsdoc,1,"/** ""há 4 min"", ""há 3 h"", ""ontem"", ""27/08"" — a coluna de última atividade da listagem. */",translate,"""4 min ago"", ""3 h ago"", ""yesterday"", ""08/27"" — the listing's last-activity column.",other,,,proposed
 crm-comment-f5de37b8,crm,apps/crm/src/lib/formato.ts,67,72,jsdoc,6,"/**
  * CPF ou CNPJ com máscara. O documento é guardado em `text` sem pontuação —
@@ -3239,9 +3239,17 @@ crm-comment-c132b440,crm,apps/crm/src/lib/leads.ts,623,632,jsdoc,20,"/**
  * uma negociação É o histórico do lead que a originou, e `atividade` não tem
  * coluna de oportunidade. Recebe a `tx` de quem chama, então continua cabendo
  * na transação da ficha que a pediu.
- */",,,,,,
-crm-comment-3cae88e0,crm,apps/crm/src/lib/leads.ts,698,698,block,0,/* ------------------------------------------------------- ações em massa */,,,,,,
-crm-comment-36db351d,crm,apps/crm/src/lib/leads.ts,700,700,jsdoc,0,"/** Quem pode receber um lead: usuário ativo do tenant, em ordem alfabética. */",,,,,,
+ */",translate,"Activities and conversations in the same timeline. The conversation comes in
+with the attendance summary once monitoring has already classified it — it's
+the product's promise: the CRM feeds off conversations, and the salesperson
+reads what happened without opening the Desk.
+
+Exported because the opportunity record shows the same timeline: a deal's
+history IS the history of the lead that originated it, and `atividade` has no
+opportunity column. Receives the caller's `tx`, so it still fits inside the
+record's transaction that requested it.",integration,Reviewed apps/crm/src/lib/leads.ts:623-632 — CRM surfaces Desk/conversation data; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-3cae88e0,crm,apps/crm/src/lib/leads.ts,698,698,block,0,/* ------------------------------------------------------- ações em massa */,translate,------------------------------------------------------- bulk actions,other,,,proposed
+crm-comment-36db351d,crm,apps/crm/src/lib/leads.ts,700,700,jsdoc,0,"/** Quem pode receber um lead: usuário ativo do tenant, em ordem alfabética. */",translate,"Who can receive a lead: an active user of the tenant, in alphabetical order.",other,,,proposed
 crm-comment-0fb193b8,crm,apps/crm/src/lib/leads.ts,711,720,jsdoc,14,"/**
  * Passar N leads para um proprietário.
  *
@@ -3251,16 +3259,28 @@ crm-comment-0fb193b8,crm,apps/crm/src/lib/leads.ts,711,720,jsdoc,14,"/**
  *
  * Devolve quantas linhas mudaram — é o que a tela precisa para dizer ""3 de 4"",
  * em vez de afirmar sucesso sobre linhas que não existem mais.
- */",,,,,,
+ */",translate,"Move N leads to an owner.
+
+The `where` repeats `excluido_em is null` even though the ids come from a list
+the screen just rendered: between rendering and clicking there's room for a
+deletion, and the write is the last chance to reject it.
+
+Returns how many rows changed — it's what the screen needs to say ""3 of 4"",
+instead of claiming success on rows that no longer exist.",security,Reviewed apps/crm/src/lib/leads.ts:711-720 — TOCTOU-safe bulk write; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-710e1b4a,crm,apps/crm/src/lib/leads.ts,733,739,jsdoc,7,"/**
  * Desqualificar N leads.
  *
  * Lead já convertido não volta atrás: virou oportunidade, e desqualificar o que
  * já virou receita é o tipo de escrita em massa que ninguém desfaz. Ele é
  * excluído do `where`, e a contagem devolvida mostra a diferença.
- */",,,,,,
-crm-comment-122e2ad1,crm,apps/crm/src/lib/leads.ts,75,75,line,2,"// Reexportar não traz o nome para o escopo deste arquivo, e as consultas abaixo",,,,,,
-crm-comment-235ec914,crm,apps/crm/src/lib/leads.ts,76,76,line,4,"// usam quase todos. Por isso a segunda linha, que parece redundante e não é.",,,,,,
+ */",translate,"Disqualify N leads.
+
+A lead that's already converted doesn't go back: it became an opportunity,
+and disqualifying something that's already revenue is the kind of bulk write
+nobody undoes. It's excluded from the `where`, and the returned count shows
+the difference.",security,Reviewed apps/crm/src/lib/leads.ts:733-739 — irreversible-write guard for bulk disqualify; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-122e2ad1,crm,apps/crm/src/lib/leads.ts,75,75,line,2,"// Reexportar não traz o nome para o escopo deste arquivo, e as consultas abaixo",translate,"Re-exporting doesn't bring the name into this file's scope, and the queries below",other,,,proposed
+crm-comment-235ec914,crm,apps/crm/src/lib/leads.ts,76,76,line,4,"// usam quase todos. Por isso a segunda linha, que parece redundante e não é.",translate,"use nearly all of it. Hence the second line, which looks redundant and isn't.",other,,,proposed
 crm-comment-edbe2749,crm,apps/crm/src/lib/leads.ts,764,788,jsdoc,38,"/**
  * Gravar um campo da ficha, o que a célula inline faz a cada Enter.
  *
@@ -3285,9 +3305,33 @@ crm-comment-edbe2749,crm,apps/crm/src/lib/leads.ts,764,788,jsdoc,38,"/**
  * quando ela é desfeita, e nos dois casos passa a mentir. O `antes` sai de uma
  * leitura feita aqui dentro, não do que a tela mandou — a tela pode estar
  * mostrando um valor de dois minutos atrás.
- */",,,,,,
-crm-comment-701fb2e9,crm,apps/crm/src/lib/leads.ts,848,848,line,3,"// O objeto do log é `contato`, e não `lead`: é a linha que mudou de verdade,",,,,,,
-crm-comment-a62c3bea,crm,apps/crm/src/lib/leads.ts,849,849,line,2,// e quem for ler o log procura pela tabela que tem o dado.,,,,,,
+ */",translate,"Save a record field, what the inline cell does on every Enter.
+
+Three cares the naive version doesn't have:
+
+- **The column never comes from the screen.** `campo` is a key from
+  `campos-editaveis.ts`'s closed catalog, and it's the `switch` here that
+  decides which column receives the write. There's no path where a name
+  coming from the browser becomes a column.
+- **Email and phone live in `contato`, not in `lead`.** The record joins the
+  two into a single screen; the write has to split them again — and a lead
+  with no contact simply has nowhere to store an email, so it rejects
+  instead of inventing a contact.
+- **`excluido_em is null` in the `where`**, for the same reason as the bulk
+  action: between rendering the record and clicking the field there's room
+  for a deletion, and the write is the last chance to reject it.
+
+Returns `false` when no row changed. That's what makes the screen **restore
+the previous value** instead of claiming it saved what it didn't.
+
+**The audit entry is written in the SAME transaction**
+(`registrarAuditoria` from `@pipe/db`): a log in a separate transaction
+disappears when the change fails and lingers when it's rolled back, and in
+both cases it ends up lying. The `antes` (before) value comes from a read
+done right here, not from what the screen sent — the screen could be showing
+a value from two minutes ago.",security,Reviewed apps/crm/src/lib/leads.ts:764-788 — write-column allowlist + TOCTOU guard + same-transaction audit integrity; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-701fb2e9,crm,apps/crm/src/lib/leads.ts,848,848,line,3,"// O objeto do log é `contato`, e não `lead`: é a linha que mudou de verdade,",translate,"The log's object is `contato`, not `lead`: it's the row that actually changed,",security,Reviewed apps/crm/src/lib/leads.ts:848 — audit log correctness; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-a62c3bea,crm,apps/crm/src/lib/leads.ts,849,849,line,2,// e quem for ler o log procura pela tabela que tem o dado.,translate,and whoever reads the log looks for the table that has the data.,security,Reviewed apps/crm/src/lib/leads.ts:849 — audit log correctness; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-3d4d9bb1,crm,apps/crm/src/lib/leads.ts,855,862,jsdoc,15,"/**
  * Registra a alteração, só com o que de fato mudou.
  *
@@ -3295,56 +3339,82 @@ crm-comment-3d4d9bb1,crm,apps/crm/src/lib/leads.ts,855,862,jsdoc,15,"/**
  * o que `diferenca` existe para evitar. E quando nada mudou não há linha
  * nenhuma: a escrita de um valor igual ao que já estava lá é um clique, não um
  * evento.
- */",,,,,,
-crm-comment-237ad92c,crm,apps/crm/src/lib/leads.ts,88,88,jsdoc,1,"/** Nome da fila por faixa, da versão mais recente de `faixa_score`. */",,,,,,
-crm-comment-f8f44657,crm,apps/crm/src/lib/leads.ts,96,96,line,4,"// Ordenado por versão crescente: a última escrita vence, que é a versão mais nova.",,,,,,
-crm-comment-30ca1b5d,crm,apps/crm/src/lib/painel.ts,105,105,jsdoc,3,"/** Leads por fase, com quantos estão parados há mais de 7 dias — o que custa dinheiro. */",,,,,,
+ */",translate,"Logs the change, with only what actually changed.
+
+Saving the whole object on both sides bloats the table and hides the change,
+which is what `diferenca` exists to prevent. And when nothing changed there's
+no row at all: writing a value equal to what was already there is a click,
+not an event.",security,Reviewed apps/crm/src/lib/leads.ts:855-862 — audit-log diffing avoids noise and false events; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-237ad92c,crm,apps/crm/src/lib/leads.ts,88,88,jsdoc,1,"/** Nome da fila por faixa, da versão mais recente de `faixa_score`. */",translate,"Queue name by band, from the most recent version of `faixa_score`.",other,,,proposed
+crm-comment-f8f44657,crm,apps/crm/src/lib/leads.ts,96,96,line,4,"// Ordenado por versão crescente: a última escrita vence, que é a versão mais nova.",translate,"Sorted by ascending version: the last write wins, which is the newest version.",other,,,proposed
+crm-comment-30ca1b5d,crm,apps/crm/src/lib/painel.ts,105,105,jsdoc,3,"/** Leads por fase, com quantos estão parados há mais de 7 dias — o que custa dinheiro. */",translate,"Leads by stage, with how many have been stalled for more than 7 days — which costs money.",other,,,proposed
 crm-comment-b768deb0,crm,apps/crm/src/lib/painel.ts,5,10,jsdoc,4,"/**
  * Indicadores do painel — os mesmos cinco cartões do mockup aprovado.
  *
  * Toda média mostra o denominador: a taxa de qualificação sem o total de leads é o
  * número que melhora justamente quando entram menos leads.
- */",,,,,,
-crm-comment-41795ea9,crm,apps/crm/src/lib/painel.ts,92,92,jsdoc,3,"/** Volume por origem no mês, que é a leitura que o gestor faz logo depois do total. */",,,,,,
-crm-comment-670b0b6a,crm,apps/crm/src/lib/regras.ts,119,119,jsdoc,4,"/** A condição em português, para o gestor ler a regra sem abrir o JSON. */",,,,,,
-crm-comment-135d39bf,crm,apps/crm/src/lib/regras.ts,20,20,jsdoc,2,"/** Quantos leads esta regra afetou, contando o cálculo mais recente de cada um. */",,,,,,
+ */",translate,"Dashboard indicators — the same five cards from the approved mockup.
+
+Every average shows its denominator: a qualification rate with no total lead
+count is the number that improves exactly when fewer leads come in.",other,,,proposed
+crm-comment-41795ea9,crm,apps/crm/src/lib/painel.ts,92,92,jsdoc,3,"/** Volume por origem no mês, que é a leitura que o gestor faz logo depois do total. */",translate,"Volume by source for the month, which is the reading a manager does right after the total.",other,,,proposed
+crm-comment-670b0b6a,crm,apps/crm/src/lib/regras.ts,119,119,jsdoc,4,"/** A condição em português, para o gestor ler a regra sem abrir o JSON. */",translate,"The condition in Portuguese, so the manager can read the rule without opening the JSON.",other,,,proposed
+crm-comment-135d39bf,crm,apps/crm/src/lib/regras.ts,20,20,jsdoc,2,"/** Quantos leads esta regra afetou, contando o cálculo mais recente de cada um. */",translate,"How many leads this rule affected, counting each one's most recent calculation.",other,,,proposed
 crm-comment-84b26bf9,crm,apps/crm/src/lib/regras.ts,48,52,jsdoc,2,"/**
      * ""Quantos leads esta regra afetou"" só faz sentido sobre o cálculo vigente de
      * cada lead: somar todos os `score_lead` contaria três vezes o lead recalculado
      * três vezes. Daí o `distinct on (lead_id)` antes de abrir a explicação.
-     */",,,,,,
+     */",translate,"""How many leads this rule affected"" only makes sense over each lead's current
+calculation: summing every `score_lead` would count a lead recalculated three
+times three times over. Hence `distinct on (lead_id)` before opening the
+explanation.",other,,,proposed
 crm-comment-7d989a9e,crm,apps/crm/src/lib/regras.ts,6,11,jsdoc,9,"/**
  * Regras de score, em leitura.
  *
  * A edição fica para a fase seguinte; a leitura não pode faltar, porque é ela que
  * transforma o número numa regra que alguém escreveu — e não num mistério herdado.
- */",,,,,,
-crm-comment-141cdd86,crm,apps/crm/src/lib/sessao.ts,107,107,block,4,"/* sem rede, o cookie local já resolve o que a pessoa pediu */",,,,,,
+ */",translate,"Score rules, read-only.
+
+Editing is for the next phase; reading can't be missing, because it's what
+turns the number into a rule someone wrote — not an inherited mystery.",other,,,proposed
+crm-comment-141cdd86,crm,apps/crm/src/lib/sessao.ts,107,107,block,4,"/* sem rede, o cookie local já resolve o que a pessoa pediu */",translate,"without a network call, the local cookie already answers what the person asked",security,Reviewed apps/crm/src/lib/sessao.ts:107 — forced sensitivity: CRM session boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-8d36a36a,crm,apps/crm/src/lib/sessao.ts,111,117,jsdoc,7,"/**
  * Por onde este e-mail entra.
  *
  * A API responde igual para e-mail conhecido e desconhecido, de propósito — só
  * domínio verificado com SSO ativo devolve `sso`. Não há o que a tela possa
  * deduzir daqui sobre quem é cliente do Pipe, e é assim que tem de ser.
- */",,,,,,
-crm-comment-61f204ab,crm,apps/crm/src/lib/sessao.ts,130,130,line,2,// 400 é sempre `email_invalido` nesta rota — a única validação que ela faz.,,,,,,
+ */",translate,"How this email signs in.
+
+The API answers the same way for a known and an unknown email, on purpose —
+only a verified domain with SSO active returns `sso`. There's nothing the
+screen can deduce from this about who is a Pipe customer, and that's how it
+has to be.",security,Reviewed apps/crm/src/lib/sessao.ts:111-117 — tenant-enumeration prevention; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-61f204ab,crm,apps/crm/src/lib/sessao.ts,130,130,line,2,// 400 é sempre `email_invalido` nesta rota — a única validação que ela faz.,translate,400 is always `email_invalido` on this route — the only validation it does.,security,Reviewed apps/crm/src/lib/sessao.ts:130 — forced sensitivity: CRM session boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-d20f1913,crm,apps/crm/src/lib/sessao.ts,136,140,jsdoc,6,"/**
  * Para quem é o convite. `null` cobre vencido, já usado e inexistente: para
  * quem está do lado de fora os três são a mesma coisa — peça outro — e separar
  * contaria se aquele token um dia existiu.
- */",,,,,,
+ */",translate,"Who the invite is for. `null` covers expired, already used, and nonexistent:
+from the outside all three are the same thing — ask for another — and
+telling them apart would reveal whether that token ever existed.",security,Reviewed apps/crm/src/lib/sessao.ts:136-140 — token-enumeration prevention; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-29fbc343,crm,apps/crm/src/lib/sessao.ts,150,154,jsdoc,3,"/**
  * O destino é sempre CAMINHO INTERNO. `//outro.site` num redirecionamento é
  * phishing usando o nosso domínio de trampolim; a API confere de novo do lado
  * dela, e conferir dos dois lados custa uma linha.
- */",,,,,,
-crm-comment-ab912381,crm,apps/crm/src/lib/sessao.ts,159,159,jsdoc,2,"/** O botão ""Entrar com Google"". Com `convite`, entra aceitando o convite. */",,,,,,
-crm-comment-39a459f8,crm,apps/crm/src/lib/sessao.ts,168,168,jsdoc,1,/** `irPara` vem da descoberta como caminho; aqui ele ganha a base pública. */,,,,,,
-crm-comment-82b8886c,crm,apps/crm/src/lib/sessao.ts,18,18,jsdoc,1,/** A API vista por ESTE servidor. Atrás de proxy é o nome interno do serviço. */,,,,,,
+ */",translate,"The destination is always an INTERNAL PATH. `//outro.site` in a redirect is
+phishing using our domain as a springboard; the API checks again on its own
+side, and checking on both sides costs one line.",security,Reviewed apps/crm/src/lib/sessao.ts:150-154 — open-redirect prevention (defense in depth); translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-ab912381,crm,apps/crm/src/lib/sessao.ts,159,159,jsdoc,2,"/** O botão ""Entrar com Google"". Com `convite`, entra aceitando o convite. */",translate,"The ""Sign in with Google"" button. With `convite`, it signs in accepting the invite.",security,Reviewed apps/crm/src/lib/sessao.ts:159 — forced sensitivity: CRM session boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-39a459f8,crm,apps/crm/src/lib/sessao.ts,168,168,jsdoc,1,/** `irPara` vem da descoberta como caminho; aqui ele ganha a base pública. */,translate,`irPara` comes from discovery as a path; here it gets the public base.,security,Reviewed apps/crm/src/lib/sessao.ts:168 — forced sensitivity: CRM session boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-82b8886c,crm,apps/crm/src/lib/sessao.ts,18,18,jsdoc,1,/** A API vista por ESTE servidor. Atrás de proxy é o nome interno do serviço. */,translate,The API as seen by THIS server. Behind the proxy it's the service's internal name.,security,Reviewed apps/crm/src/lib/sessao.ts:18 — forced sensitivity: CRM session boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-e0b1469b,crm,apps/crm/src/lib/sessao.ts,19,22,block,13,"/* 3000, e não 3100: a `api` mora na 3000 — a 3100 é a Gestão. O padrão errado
    aqui é meia hora atrás de um login que ""não faz nada"", porque `GET /v1/eu`
    bate num front que não serve a rota e volta 404. É o mesmo valor que a
-   Gestão e o Desk já usam. */",,,,,,
+   Gestão e o Desk já usam. */",translate,"3000, not 3100: the `api` lives on 3000 — 3100 is Gestão. The wrong default
+here is half an hour behind a login that ""does nothing"", because
+`GET /v1/eu` hits a front end that doesn't serve the route and comes back
+404. It's the same value Gestão and Desk already use.",security,Reviewed apps/crm/src/lib/sessao.ts:19-22 — forced sensitivity: CRM session boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-653acbf6,crm,apps/crm/src/lib/sessao.ts,25,32,jsdoc,12,"/**
  * A mesma API vista pelo NAVEGADOR.
  *
@@ -3352,7 +3422,13 @@ crm-comment-653acbf6,crm,apps/crm/src/lib/sessao.ts,25,32,jsdoc,12,"/**
  * sozinho, sem passar por este servidor. Se a base fosse a interna, o botão
  * apontaria para um nome que só existe dentro da rede do Docker. Em
  * desenvolvimento as duas são a mesma, e por isso uma cai na outra.
- */",,,,,,
+ */",translate,"The same API as seen by the BROWSER.
+
+Signing in with Google is a top-level navigation: the link goes out in the
+HTML and the browser goes on its own, without passing through this server. If
+the base were the internal one, the button would point at a name that only
+exists inside the Docker network. In development the two are the same, which
+is why one falls back to the other.",security,Reviewed apps/crm/src/lib/sessao.ts:25-32 — forced sensitivity: CRM session boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-ed5e8260,crm,apps/crm/src/lib/sessao.ts,3,16,jsdoc,16,"/**
  * A fronteira com a `api` para tudo que é entrada: quem está logado, por onde
  * esta empresa entra, e para quem é um convite.
@@ -3366,7 +3442,18 @@ crm-comment-ed5e8260,crm,apps/crm/src/lib/sessao.ts,3,16,jsdoc,16,"/**
  * `POST /v1/auth/descobrir`, `GET /v1/convites/:token` e os dois pontos de
  * partida do login (`/v1/auth/google` e `/v1/auth/sso/:slug`). Nada foi
  * inventado, e nada é reimplementado.
- */",,,,,,
+ */",translate,"The boundary with the `api` for everything sign-in related: who's logged in,
+how this company signs in, and who an invite is for.
+
+Nothing here knows about the screen — no JSX, no `revalidatePath`, no cookie
+read from the Next environment. The cookie arrives as TEXT, as a parameter,
+and that's what keeps the file movable without becoming a rewrite when the
+screen migrates to Vite (README, ""Who talks to the database"").
+
+Every endpoint used here already exists: `GET /v1/eu`, `POST /v1/auth/sair`,
+`POST /v1/auth/descobrir`, `GET /v1/convites/:token`, and the two sign-in
+entry points (`/v1/auth/google` and `/v1/auth/sso/:slug`). Nothing was
+invented, and nothing is reimplemented.",security,Reviewed apps/crm/src/lib/sessao.ts:3-16 — forced sensitivity: CRM session boundary — no reimplementation of auth endpoints; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-5c0d27fc,crm,apps/crm/src/lib/sessao.ts,35,42,jsdoc,9,"/**
  * ESTE aplicativo, visto pelo navegador.
  *
@@ -3374,22 +3461,35 @@ crm-comment-5c0d27fc,crm,apps/crm/src/lib/sessao.ts,35,42,jsdoc,9,"/**
  * front de outro módulo: a API atende os três e não tem como adivinhar de qual
  * deles a pessoa saiu. Do lado de lá só é aceita origem que esteja em
  * `PIPE_ORIGENS` — a mesma lista fechada do CORS.
- */",,,,,,
-crm-comment-0a59b4bb,crm,apps/crm/src/lib/sessao.ts,47,47,jsdoc,2,/** O cookie de sessão emitido pela API. `HttpOnly`; a tela só o repassa. */,,,,,,
+ */",translate,"THIS app, as seen by the browser.
+
+Goes out on the way into login as `?origem=`, and it's what makes the return
+land here and not on another module's front end: the API serves all three
+and has no way to guess which one the person left from. On the API side,
+only an origin that's in `PIPE_ORIGENS` is accepted — the same closed CORS
+list.",security,Reviewed apps/crm/src/lib/sessao.ts:35-42 — origin validation against closed CORS list; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-0a59b4bb,crm,apps/crm/src/lib/sessao.ts,47,47,jsdoc,2,/** O cookie de sessão emitido pela API. `HttpOnly`; a tela só o repassa. */,translate,The session cookie the API issues. `HttpOnly`; the screen only passes it along.,security,Reviewed apps/crm/src/lib/sessao.ts:47 — HttpOnly session cookie handling; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-a5aa011b,crm,apps/crm/src/lib/sessao.ts,50,56,jsdoc,9,"/** O que `POST /v1/auth/descobrir` responde, mais os dois modos de falha da tela.
  *
  * Os dois primeiros são o contrato (`MetodoDeEntrada` em
  * `packages/contracts/src/sessao.ts`): `sso` manda ao IdP da empresa, `google`
  * é o caminho de todo o resto. Os outros dois nunca vêm da API — são o que
  * ESTA tela precisa dizer quando não houve resposta para rotear.
- */",,,,,,
-crm-comment-d661bd85,crm,apps/crm/src/lib/sessao.ts,59,59,jsdoc,2,"/** Caminho na API, quando `sso`. Falta só a base pública. */",,,,,,
-crm-comment-b9604404,crm,apps/crm/src/lib/sessao.ts,63,63,jsdoc,4,/** O mínimo que `GET /v1/convites/:token` mostra a quem ainda está do lado de fora. */,,,,,,
-crm-comment-5e689b27,crm,apps/crm/src/lib/sessao.ts,68,68,jsdoc,1,"/** ISO-8601, como sai da API. Quem formata é a tela. */",,,,,,
+ */",translate,"What `POST /v1/auth/descobrir` returns, plus the screen's two failure modes.
+
+The first two are the contract (`MetodoDeEntrada` in
+`packages/contracts/src/sessao.ts`): `sso` sends to the company's IdP,
+`google` is the path for everyone else. The other two never come from the
+API — they're what THIS screen needs to say when there was no response to
+route on.",security,Reviewed apps/crm/src/lib/sessao.ts:50-56 — sign-in method contract vs local failure states; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-d661bd85,crm,apps/crm/src/lib/sessao.ts,59,59,jsdoc,2,"/** Caminho na API, quando `sso`. Falta só a base pública. */",translate,"API path, when `sso`. Only missing the public base.",security,Reviewed apps/crm/src/lib/sessao.ts:59 — forced sensitivity: CRM session boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-b9604404,crm,apps/crm/src/lib/sessao.ts,63,63,jsdoc,4,/** O mínimo que `GET /v1/convites/:token` mostra a quem ainda está do lado de fora. */,translate,The minimum `GET /v1/convites/:token` shows to someone still on the outside.,security,Reviewed apps/crm/src/lib/sessao.ts:63 — minimal-disclosure invite response; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-5e689b27,crm,apps/crm/src/lib/sessao.ts,68,68,jsdoc,1,"/** ISO-8601, como sai da API. Quem formata é a tela. */",translate,"ISO-8601, as it comes from the API. The screen is what formats it.",security,Reviewed apps/crm/src/lib/sessao.ts:68 — forced sensitivity: CRM session boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-e85b5e7e,crm,apps/crm/src/lib/sessao.ts,76,79,jsdoc,7,"/**
  * Quem está logado. `null` quando não há sessão — e isso NÃO é erro: a tela de
  * entrada é pública e chega aqui sem cookie o tempo todo.
- */",,,,,,
+ */",translate,"Who's logged in. `null` when there's no session — and that is NOT an error:
+the sign-in screen is public and reaches here with no cookie all the time.",security,Reviewed apps/crm/src/lib/sessao.ts:76-79 — forced sensitivity: CRM session boundary; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-181323dc,crm,apps/crm/src/lib/sessao.ts,89,98,jsdoc,16,"/**
  * Encerra a sessão do lado da API. Sair duas vezes não é erro lá, e não é aqui.
  *
@@ -3399,9 +3499,19 @@ crm-comment-181323dc,crm,apps/crm/src/lib/sessao.ts,89,98,jsdoc,16,"/**
  *
  * ponytail: a sessão sobreviveria no banco até vencer sozinha. Se um dia isso
  * importar, a saída é uma fila de revogação, não um `throw` aqui.
- */",,,,,,
-crm-comment-06f0f89e,crm,apps/crm/src/middleware.ts,25,25,line,4,// Para onde a pessoa queria ir. A API confere que é caminho interno antes de,,,,,,
-crm-comment-44ca40ba,crm,apps/crm/src/middleware.ts,26,26,line,1,"// usá-lo, e a tela confere de novo antes de mandar.",,,,,,
+ */",translate,"Ends the session on the API side. Signing out twice isn't an error there, and
+isn't one here either.
+
+Swallows a network failure on purpose: whoever clicked Sign out will get
+their cookie deleted from this browser regardless, and blocking sign-out
+because the API didn't respond would leave the person logged in on screen —
+which is the worse of the two outcomes.
+
+ponytail: the session would survive in the database until it expires on its
+own. If that ever matters, sign-out becomes a revocation queue, not a
+`throw` here.",security,Reviewed apps/crm/src/lib/sessao.ts:89-98 — fail-open sign-out is a deliberate UX/security tradeoff — keep the ponytail note verbatim; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-06f0f89e,crm,apps/crm/src/middleware.ts,25,25,line,4,// Para onde a pessoa queria ir. A API confere que é caminho interno antes de,translate,Where the person wanted to go. The API checks it's an internal path before,security,Reviewed apps/crm/src/middleware.ts:25 — forced sensitivity: CRM middleware.ts; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-44ca40ba,crm,apps/crm/src/middleware.ts,26,26,line,1,"// usá-lo, e a tela confere de novo antes de mandar.",translate,"using it, and the screen checks again before sending it.",security,Reviewed apps/crm/src/middleware.ts:26 — forced sensitivity: CRM middleware.ts; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-c055e45e,crm,apps/crm/src/middleware.ts,3,14,jsdoc,17,"/**
  * Sem cookie de sessão, a pessoa vai para `/entrar`. É a porta, e ela é uma só.
  *
@@ -3413,7 +3523,18 @@ crm-comment-c055e45e,crm,apps/crm/src/middleware.ts,3,14,jsdoc,17,"/**
  * Duas rotas ficam de fora, e são as duas públicas do produto: a de entrada e a
  * do convite. Sem essa exceção, quem não tem sessão seria mandado para `/entrar`
  * e de lá para `/entrar`, para sempre.
- */",,,,,,
+ */",translate,"With no session cookie, the person goes to `/entrar`. It's the door, and
+there's only one.
+
+Only the cookie's PRESENCE is checked here — no session validation: the
+middleware runs on every request, and a round trip to the API for an image
+navigation would be expensive and fragile. What validates it is
+`exigirEu()`, on the server, against `GET /v1/eu`: an expired or forged
+cookie falls through there and comes back here.
+
+Two routes are left out, and they're the product's two public ones: sign-in
+and the invite. Without this exception, whoever has no session would be sent
+to `/entrar`, and from there to `/entrar`, forever.",security,"Reviewed apps/crm/src/middleware.ts:3-14 — forced sensitivity: CRM middleware.ts — presence-only cookie check, real validation deferred to exigirEu(); translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
 crm-comment-e5189b38,crm,apps/crm/src/middleware.ts,31,38,jsdoc,11,"/**
  * Fora do matcher: o que não é navegação de página. Arquivo do build e ícone
  * não têm para onde ser redirecionados — e mandá-los para `/entrar` quebraria a
@@ -3421,7 +3542,12 @@ crm-comment-e5189b38,crm,apps/crm/src/middleware.ts,31,38,jsdoc,11,"/**
  *
  * Não há `public/` em nenhum dos três aplicativos (a marca é SVG em componente,
  * a fonte vem do Google), então `_next/` e o ícone cobrem tudo.
- */",,,,,,
+ */",translate,"Outside the matcher: whatever isn't a page navigation. A build file or an
+icon has nowhere to be redirected to — and sending them to `/entrar` would
+break the sign-in screen itself.
+
+There's no `public/` in any of the three apps (the logo is an SVG component,
+the font comes from Google), so `_next/` and the icon cover everything.",security,Reviewed apps/crm/src/middleware.ts:31-38 — forced sensitivity: CRM middleware.ts; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-5376019e,crm,apps/crm/tests/campos-editaveis.test.ts,10,21,jsdoc,16,"/**
  * A régua da edição inline.
  *
@@ -3433,10 +3559,19 @@ crm-comment-5376019e,crm,apps/crm/tests/campos-editaveis.test.ts,10,21,jsdoc,16,
  * O que ele protege: a lista branca não pode aceitar nome de coluna qualquer, e
  * campo em branco tem de virar `null` e não string vazia — é `null` que apaga o
  * proprietário, e `''` gravaria um id vazio na chave estrangeira.
- */",,,,,,
-crm-comment-58e0b4b5,crm,apps/crm/tests/campos-editaveis.test.ts,26,26,line,4,"// Os que a escrita NÃO pode alcançar, e que existem como coluna no banco.",,,,,,
-crm-comment-0d0dd56f,crm,apps/crm/tests/colunas.test.ts,36,36,line,4,// `faixa` e `proprietario` não existiam quando a pessoa arrumou a tabela.,,,,,,
-crm-comment-33e123af,crm,apps/crm/tests/colunas.test.ts,43,43,line,2,// É o que acontece ao agrupar por origem: a coluna redundante sai da lista.,,,,,,
+ */",translate,"The inline-edit ruler.
+
+`recusar` and `campoValido` run on both sides: in the browser to avoid a
+wasted round trip, and on the server because the server action is an HTTP
+address and anyone can reach it. A single test, no framework —
+`node --import tsx --test`, with the `tsx` the app already has.
+
+What it protects: the allowlist can't accept just any column name, and a
+blank field has to become `null` and not an empty string — it's `null` that
+clears the owner, and `''` would write an empty id into the foreign key.",security,Reviewed apps/crm/tests/campos-editaveis.test.ts:10-21 — tests the write-column allowlist + null-vs-empty-string invariant; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-58e0b4b5,crm,apps/crm/tests/campos-editaveis.test.ts,26,26,line,4,"// Os que a escrita NÃO pode alcançar, e que existem como coluna no banco.",translate,"The ones the write CANNOT reach, and that exist as a column in the database.",security,Reviewed apps/crm/tests/campos-editaveis.test.ts:26 — tests the write-column allowlist; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-0d0dd56f,crm,apps/crm/tests/colunas.test.ts,36,36,line,4,// `faixa` e `proprietario` não existiam quando a pessoa arrumou a tabela.,translate,`faixa` and `proprietario` didn't exist when the person arranged the table.,other,,,proposed
+crm-comment-33e123af,crm,apps/crm/tests/colunas.test.ts,43,43,line,2,// É o que acontece ao agrupar por origem: a coluna redundante sai da lista.,translate,It's what happens when grouping by source: the redundant column drops out of the list.,other,,,proposed
 crm-comment-f917c93f,crm,apps/crm/tests/colunas.test.ts,5,15,jsdoc,16,"/**
  * A régua do arranjo de colunas.
  *
@@ -3447,9 +3582,18 @@ crm-comment-f917c93f,crm,apps/crm/tests/colunas.test.ts,5,15,jsdoc,16,"/**
  *
  * Nenhum teste toca React nem `localStorage`: `arranjar` e `moverVisivel` são
  * funções de lista, e é assim que se testa lista.
- */",,,,,,
-crm-comment-5783255f,crm,apps/crm/tests/colunas.test.ts,71,71,line,2,// `score` está oculta entre `origem` e `faixa`. Mover `faixa` para o começo,,,,,,
-crm-comment-4f1a1873,crm,apps/crm/tests/colunas.test.ts,72,72,line,1,// não pode fazer `score` desaparecer da ordem gravada.,,,,,,
+ */",translate,"The column-arrangement ruler.
+
+What it protects is the merge between two lists that drift apart on their
+own: the one stored in the browser and the one the screen has today. A new
+column from a deploy, a column grouping removed, a column gone for good — all
+three have already broken a table in a product that does this, and all
+three show up here.
+
+No test touches React or `localStorage`: `arranjar` and `moverVisivel` are
+list functions, and that's how you test a list.",other,,,proposed
+crm-comment-5783255f,crm,apps/crm/tests/colunas.test.ts,71,71,line,2,// `score` está oculta entre `origem` e `faixa`. Mover `faixa` para o começo,translate,`score` is hidden between `origem` and `faixa`. Moving `faixa` to the front,other,,,proposed
+crm-comment-4f1a1873,crm,apps/crm/tests/colunas.test.ts,72,72,line,1,// não pode fazer `score` desaparecer da ordem gravada.,translate,can't make `score` disappear from the saved order.,other,,,proposed
 crm-comment-ab8092f9,crm,apps/crm/tests/configuracoes-comum.test.ts,131,138,jsdoc,13,"/**
  * As duas listas abaixo são cópias de `apps/api`, porque `apps/crm` não depende
  * dele. Cópia sem guarda diverge: a API ganha um evento, a tela de webhooks não
@@ -3457,7 +3601,13 @@ crm-comment-ab8092f9,crm,apps/crm/tests/configuracoes-comum.test.ts,131,138,jsdo
  *
  * Lê o arquivo como TEXTO em vez de importar de propósito — importar criaria a
  * dependência que a cópia existe para evitar.
- */",,,,,,
+ */",translate,"The two lists below are copies of `apps/api`'s, because `apps/crm` doesn't
+depend on it. An unguarded copy drifts: the API gets a new event, the
+webhooks screen doesn't offer it, and nobody finds out until someone asks
+why nothing arrives.
+
+Reads the file as TEXT instead of importing it on purpose — importing would
+create the dependency the copy exists to avoid.",architecture,Reviewed apps/crm/tests/configuracoes-comum.test.ts:131-138 — tests cross-app catalog drift (monorepo isolation); translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-554d10d5,crm,apps/crm/tests/configuracoes-comum.test.ts,23,34,jsdoc,12,"/**
  * A régua da área de configurações.
  *
@@ -3469,12 +3619,21 @@ crm-comment-554d10d5,crm,apps/crm/tests/configuracoes-comum.test.ts,23,34,jsdoc,
  * O que ele protege, em ordem de estrago: um código de campo que estraga a chave
  * do `jsonb`, uma URL de webhook em texto claro, e as duas listas copiadas de
  * `apps/api` divergindo em silêncio.
- */",,,,,,
-crm-comment-f6d521c3,crm,apps/crm/tests/configuracoes-comum.test.ts,63,63,line,2,"// A queixa nomeia o campo: ""O nome do papel"", não ""O nome"".",,,,,,
-crm-comment-c2a226c2,crm,apps/crm/tests/configuracoes-comum.test.ts,72,72,line,1,// O vetor clássico de `<img src>`: nem `javascript:` nem `data:` são URL de imagem.,,,,,,
-crm-comment-69d21e23,crm,apps/crm/tests/configuracoes-comum.test.ts,77,77,line,1,// Campo opcional em branco não é erro; obrigatório em branco é.,,,,,,
-crm-comment-8ed5ec20,crm,apps/crm/tests/configuracoes-comum.test.ts,86,86,line,3,"// Começar por dígito é o caso que a regra recusa, e o prefixo é o que salva.",,,,,,
-crm-comment-81d0c247,crm,apps/crm/tests/configuracoes-comum.test.ts,91,91,line,1,"// dia deixar de passar, é este assert que conta.",,,,,,
+ */",translate,"The settings area's ruler.
+
+Everything here runs on both sides: in the browser to avoid a wasted round
+trip, and on the server because the server action is an HTTP address and
+anyone can reach it. A single test, no framework — `node --import tsx --test`,
+the same pattern as `campos-editaveis.test.ts`.
+
+What it protects, in order of damage: a field code that corrupts the
+`jsonb` key, a webhook URL in plaintext, and the two lists copied from
+`apps/api` drifting silently.",security,"Reviewed apps/crm/tests/configuracoes-comum.test.ts:23-34 — tests jsonb-key safety, webhook URL scheme validation, and catalog drift; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
+crm-comment-f6d521c3,crm,apps/crm/tests/configuracoes-comum.test.ts,63,63,line,2,"// A queixa nomeia o campo: ""O nome do papel"", não ""O nome"".",translate,"The complaint names the field: ""The role's name"", not ""The name"".",other,,,proposed
+crm-comment-c2a226c2,crm,apps/crm/tests/configuracoes-comum.test.ts,72,72,line,1,// O vetor clássico de `<img src>`: nem `javascript:` nem `data:` são URL de imagem.,translate,The classic `<img src>` vector: neither `javascript:` nor `data:` are image URLs.,security,Reviewed apps/crm/tests/configuracoes-comum.test.ts:72 — tests XSS URL-scheme validation; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-69d21e23,crm,apps/crm/tests/configuracoes-comum.test.ts,77,77,line,1,// Campo opcional em branco não é erro; obrigatório em branco é.,translate,A blank optional field isn't an error; a blank required one is.,other,,,proposed
+crm-comment-8ed5ec20,crm,apps/crm/tests/configuracoes-comum.test.ts,86,86,line,3,"// Começar por dígito é o caso que a regra recusa, e o prefixo é o que salva.",translate,"Starting with a digit is the case the rule rejects, and the prefix is what saves it.",other,,,proposed
+crm-comment-81d0c247,crm,apps/crm/tests/configuracoes-comum.test.ts,91,91,line,1,"// dia deixar de passar, é este assert que conta.",translate,"should ever stop passing, this is the assert that catches it.",other,,,proposed
 crm-comment-ce044d07,crm,apps/crm/tests/filtros.test.ts,11,22,jsdoc,13,"/**
  * A régua do filtro por coluna.
  *
@@ -3486,4 +3645,14 @@ crm-comment-ce044d07,crm,apps/crm/tests/filtros.test.ts,11,22,jsdoc,13,"/**
  *   1. só coluna do catálogo vira filtro — nome de coluna não vem da tela;
  *   2. ida e volta pela URL não perde nem inventa filtro, que é o que faz a
  *      visão salva continuar valendo depois de compartilhada.
- */",,,,,,
+ */",translate,"The per-column filter ruler.
+
+The filter is the listing's only parameter that comes with a VARIABLE name
+in the URL, and that's why it needs a test: `aba` and `dir` can only be right
+or absent, but `f.anything` is whatever someone types into the address bar.
+
+What's protected here:
+  1. only a catalog column becomes a filter — the column name doesn't come
+     from the screen;
+  2. a round trip through the URL neither loses nor invents a filter, which
+     is what keeps a saved view valid after being shared.",security,Reviewed apps/crm/tests/filtros.test.ts:11-22 — tests the column allowlist and URL round-trip integrity for filters; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
