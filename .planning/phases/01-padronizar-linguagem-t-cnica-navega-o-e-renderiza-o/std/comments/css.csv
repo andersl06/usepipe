@@ -3429,7 +3429,7 @@ css-comment-21e7da20,css,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/cana
    (cabeçalho, papel, abas) é a de `../canal-do-bot.css`. */",translate,"WhatsApp inside the bot — the tabs ""Perfil da empresa"", ""Configurações""
    and ""Configurações de alerta"" (`FICHA-canal-whatsapp.md` §2–§4). The frame
    (header, paper, tabs) is `../canal-do-bot.css`'s.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/canal-whatsapp.css:1-3; cites referencias-blip FICHA doc, keeps literal Portuguese tab labels; pre-triage D-40; needs slice-time confirmation",,proposed
-css-comment-f1dc1f26,css,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/canal-whatsapp.css,100,100,css,0,/* --------------------------------------------------------- Configurações */,translate,--------------------------------------------------------- Configurações,other,"apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/canal-whatsapp.css:100; kept as literal Portuguese tab-name evidence, matching the quoted product copy in the preceding row",,proposed
+css-comment-f1dc1f26,css,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/canal-whatsapp.css,100,100,css,0,/* --------------------------------------------------------- Configurações */,translate,--------------------------------------------------------- Settings,other,"apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/canal-whatsapp.css:100; kept as literal Portuguese tab-name evidence, matching the quoted product copy in the preceding row",,proposed
 css-comment-4a00a1c4,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.css,1,9,css,7,"/**
  * `/configurations/basic`: título de seção, os dois campos com contador (cima
  * do `cf-campo*` de `configuracoes.css`) e a área de imagem — o resto (botão,
