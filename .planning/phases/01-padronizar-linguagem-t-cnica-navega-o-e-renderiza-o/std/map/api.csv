@@ -479,7 +479,7 @@ api-file-7d604ee1,api,2,file,dicionario-crm.ts,dictionary-crm.ts,apps/api/src/do
 api-file-805a1ac1,api,2,file,configuracoes.ts,settings.ts,apps/api/src/dominio/gestao/acoes/configuracoes.ts,11,no,,,proposed,codex1,
 api-file-81eba4c0,api,2,file,conversa.ts,conversation.ts,apps/api/src/dominio/conversa.ts,3,no,,,proposed,codex1,
 api-file-8313004b,api,2,file,distribuicao.ts,distribution.ts,apps/api/src/dominio/distribuicao.ts,1,no,,,proposed,codex1,
-api-file-83d02b9b,api,2,file,tempo-real.ts,time-real.ts,apps/api/src/tempo-real.ts,2,no,,,proposed,codex1,
+api-file-83d02b9b,api,2,file,tempo-real.ts,realtime.ts,apps/api/src/tempo-real.ts,2,no,,,proposed,codex1,"GLOSSARY.md: tempo-real -> realtime (was time-real, token-level engine missed the compound entry)"
 api-file-852d892e,api,2,file,builder-do-fluxo.ts,builder-of-flow.ts,apps/api/src/dominio/gestao/builder-do-fluxo.ts,4,no,,,proposed,codex1,
 api-file-8a5cf3d2,api,2,file,importacao-de-contatos.ts,domain/import-of-contacts.ts,apps/api/src/dominio/importacao-de-contatos.ts,8,no,,,proposed,codex1,
 api-file-8bda00a1,api,2,file,contrato.test.ts,contract.test.ts,apps/api/tests/contrato.test.ts,0,no,,,proposed,codex1,
@@ -523,7 +523,7 @@ api-file-d6d183b8,api,2,file,desmontagem-de-webhook.ts,teardown-of-webhook.ts,ap
 api-file-d7701cf4,api,2,file,anexo.ts,attachment.ts,apps/api/src/dominio/anexo.ts,2,no,,,proposed,codex1,
 api-file-d7a45067,api,2,file,permissoes-do-atendente.test.ts,permissions-of-agent.test.ts,apps/api/tests/permissoes-do-atendente.test.ts,0,no,,,proposed,codex1,
 api-file-d872b3cd,api,2,file,marcacoes.ts,taggings.ts,apps/api/src/dominio/desk/marcacoes.ts,1,no,,,proposed,codex1,
-api-file-d8c3d524,api,2,file,tempo-real.test.ts,tests/time-real.test.ts,apps/api/tests/tempo-real.test.ts,0,no,,,proposed,codex1,
+api-file-d8c3d524,api,2,file,tempo-real.test.ts,tests/realtime.test.ts,apps/api/tests/tempo-real.test.ts,0,no,,,proposed,codex1,"GLOSSARY.md: tempo-real -> realtime (was time-real, token-level engine missed the compound entry)"
 api-file-dc23b897,api,2,file,canal-do-fluxo.ts,channel-of-flow.ts,apps/api/src/dominio/gestao/canal-do-fluxo.ts,4,no,,,proposed,codex1,
 api-file-dd7fb5ff,api,2,file,configuracoes.ts,management/settings.ts,apps/api/src/dominio/gestao/configuracoes.ts,11,no,,,proposed,codex1,
 api-file-ddb922a5,api,2,file,gestao-builder.ts,management-builder.ts,apps/api/src/controladores/gestao-builder.ts,2,no,,,proposed,codex1,

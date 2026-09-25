@@ -1,12 +1,12 @@
 id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
-packages-tempo-real-dir-2ca346ea,packages-tempo-real,1,dir,packages/tempo-real/tests,packages/time-real/tests,packages/tempo-real/tests,0,no,,,proposed,codex1,
-packages-tempo-real-dir-732260a2,packages-tempo-real,1,dir,packages/tempo-real/src,packages/time-real/src,packages/tempo-real/src,0,no,,,proposed,codex1,
-packages-tempo-real-dir-a73abb1c,packages-tempo-real,1,dir,packages/tempo-real,packages/time-real,packages/tempo-real,0,no,,,proposed,codex1,
-packages-tempo-real-file-403647e2,packages-tempo-real,1,file,tempo-real.test.ts,time-real.test.ts,packages/tempo-real/tests/tempo-real.test.ts,0,no,,,proposed,codex1,
+packages-tempo-real-dir-2ca346ea,packages-tempo-real,1,dir,packages/tempo-real/tests,packages/realtime/tests,packages/tempo-real/tests,0,no,,,proposed,codex1,"GLOSSARY.md: tempo-real -> realtime (was time-real, token-level engine missed the compound entry)"
+packages-tempo-real-dir-732260a2,packages-tempo-real,1,dir,packages/tempo-real/src,packages/realtime/src,packages/tempo-real/src,0,no,,,proposed,codex1,"GLOSSARY.md: tempo-real -> realtime (was time-real, token-level engine missed the compound entry)"
+packages-tempo-real-dir-a73abb1c,packages-tempo-real,1,dir,packages/tempo-real,packages/realtime,packages/tempo-real,0,no,,,proposed,codex1,"GLOSSARY.md: tempo-real -> realtime (was time-real, token-level engine missed the compound entry)"
+packages-tempo-real-file-403647e2,packages-tempo-real,1,file,tempo-real.test.ts,realtime.test.ts,packages/tempo-real/tests/tempo-real.test.ts,0,no,,,proposed,codex1,"GLOSSARY.md: tempo-real -> realtime (was time-real, token-level engine missed the compound entry)"
 packages-tempo-real-literal-value-3c1bee82,packages-tempo-real,1,literal-value,caiu,fell,packages/tempo-real/src/index.ts:55,23,no,,D-11,proposed,codex1,
 packages-tempo-real-literal-value-4196b501,packages-tempo-real,1,literal-value,ligado,connected,packages/tempo-real/src/index.ts:55,137,no,,D-11,proposed,codex1,
 packages-tempo-real-literal-value-dccd6b9f,packages-tempo-real,1,literal-value,ligando,connecting,packages/tempo-real/src/index.ts:55,8,no,,D-11,proposed,codex1,
-packages-tempo-real-package-35c97f1c,packages-tempo-real,4,package,@pipe/tempo-real,@pipe/time-real,packages/tempo-real/package.json:1,0,no,,,proposed,codex1,
+packages-tempo-real-package-35c97f1c,packages-tempo-real,4,package,@pipe/tempo-real,@pipe/realtime,packages/tempo-real/package.json:1,0,no,,,proposed,codex1,"GLOSSARY.md: tempo-real -> realtime; aligned to infra-package-new-realtime (was time-real, token-level engine missed the compound entry)"
 packages-tempo-real-symbol-0e9b91fb,packages-tempo-real,1,symbol,criar,create,packages/tempo-real/src/index.ts:106,235,no,,,proposed,codex1,
 packages-tempo-real-symbol-2d3accde,packages-tempo-real,1,symbol,ligacao,connection,packages/tempo-real/tests/tempo-real.test.ts:116,23,no,,,proposed,codex1,
 packages-tempo-real-symbol-5cabca03,packages-tempo-real,1,symbol,padraoCriarSocket,defaultCreateSocket,packages/tempo-real/src/index.ts:238,2,no,,,proposed,codex1,
