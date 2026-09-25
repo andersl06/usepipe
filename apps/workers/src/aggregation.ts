@@ -43,12 +43,12 @@ export function diaAnterior(agora: Date = new Date(), fuso: string = FUSO_PADRAO
 }
 
 type LinhaEvento = {
-  conversationId: string;
-  type: TipoEvento;
-  at: Date | string;
-  userId: string | null;
-  queueId: string | null;
-  data: { closedBy?: ClosedBy } | null;
+  conversa_id: string;
+  tipo: TipoEvento;
+  em: Date | string;
+  usuario_id: string | null;
+  fila_id: string | null;
+  dados: { encerrada_por?: ClosedBy } | null;
 };
 
 /**
@@ -84,9 +84,9 @@ export async function agregarDia(
     `);
 
     const { rows: mensagens } = await tx.execute<{
-      queueId: string | null;
-      agentId: string | null;
-      direction: string;
+      fila_id: string | null;
+      atendente_id: string | null;
+      direcao: string;
       total: string;
     }>(sql`
       select c.fila_id, c.atendente_id, m.direcao, count(*)::text as total
@@ -156,31 +156,31 @@ function agruparByConversation(eventos: readonly LinhaEvento[]): ConversationOfD
   const mapa = new Map<string, ConversationOfDay>();
 
   for (const linha of eventos) {
-    let item = mapa.get(linha.conversationId);
+    let item = mapa.get(linha.conversa_id);
     if (!item) {
       item = {
-        conversation: { conversationId: linha.conversationId, eventos: [] },
+        conversation: { conversationId: linha.conversa_id, eventos: [] },
         queueId: null,
         agentId: null,
         slaEstourado: false,
         criada: false,
         encerrada: false,
       };
-      mapa.set(linha.conversationId, item);
+      mapa.set(linha.conversa_id, item);
     }
 
     const evento: EventAttendance = {
-      conversationId: linha.conversationId,
+      conversationId: linha.conversa_id,
       tipo: linha.tipo,
       em: linha.em instanceof Date ? linha.em : new Date(linha.em),
-      userId: linha.userId,
+      userId: linha.usuario_id,
       queueId: linha.fila_id,
-      encerradaBy: linha.data?.closedBy ?? null,
+      encerradaBy: linha.dados?.encerrada_por ?? null,
     };
     (item.conversation.eventos as EventAttendance[]).push(evento);
 
     if (linha.fila_id) item.queueId = linha.fila_id;
-    if (linha.userId) item.agentId = linha.userId;
+    if (linha.usuario_id) item.agentId = linha.usuario_id;
     if (linha.tipo === 'sla_estourado') item.slaEstourado = true;
     if (linha.tipo === 'criada') item.criada = true;
     if (linha.tipo === 'encerrada') item.encerrada = true;
@@ -211,9 +211,9 @@ interface LinhaMetrica {
 function montarLinhas(
   conversations: readonly ConversationOfDay[],
   messages: readonly {
-    queueId: string | null;
-    agentId: string | null;
-    direction: string;
+    fila_id: string | null;
+    atendente_id: string | null;
+    direcao: string;
     total: string;
   }[],
 ): LinhaMetrica[] {
@@ -221,7 +221,7 @@ function montarLinhas(
 
   for (const dimensaoTipo of ['fila', 'atendente'] as const) {
     const key = (item: ConversationOfDay) =>
-      dimensaoTipo === 'queue' ? item.queueId : item.agentId;
+      dimensaoTipo === 'fila' ? item.queueId : item.agentId;
 
     const groups = new Map<string | null, ConversationOfDay[]>();
     for (const item of conversations) {
@@ -247,8 +247,8 @@ function montarLinhas(
         messages
           .filter(
             (m) =>
-              (dimensaoTipo === 'queue' ? m.fila_id : m.atendente_id) === dimensaoId &&
-              m.direction === direction,
+              (dimensaoTipo === 'fila' ? m.fila_id : m.atendente_id) === dimensaoId &&
+              m.direcao === direction,
           )
           .reduce((soma, m) => soma + Number(m.total), 0);
 

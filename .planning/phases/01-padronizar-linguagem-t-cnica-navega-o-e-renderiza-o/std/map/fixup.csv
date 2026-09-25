@@ -1,0 +1,2 @@
+id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
+workers-symbol-fixup01,workers,typecheck-repair,symbol,import,importJob,apps/workers/src/main.ts,2,no,,,approved,claude-typecheck-repair,reserved word
