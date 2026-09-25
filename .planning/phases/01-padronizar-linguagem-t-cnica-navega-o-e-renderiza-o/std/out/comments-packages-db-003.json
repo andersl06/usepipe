@@ -1,0 +1,212 @@
+{
+  "items": [
+    {
+      "id": "packages-db-comment-f486a2bf",
+      "action": "translate",
+      "new_text": "CSV of rejected rows with an `erros` column; null when no rows were rejected.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/implantacao.ts:18-18",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-84704b71",
+      "action": "translate",
+      "new_text": "Contact-import file from migration `0016_entrada_do_cliente`. It corresponds to Chatwoot `DataImport` fields `import_file` and `failed_records`. Declared here so `drizzle-kit` does not generate a `DROP` for it in the next migration.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/implantacao.ts:6-11",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-44df50d1",
+      "action": "translate",
+      "new_text": "Pipe schema organized by module in data-model dependency order. Two foreign keys cross modules in a cycle (`fila.horario_id` to Management and `contato.conta_id` to CRM), so migration 0003 creates them outside this schema.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/index.ts:1-5",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-2be095b9",
+      "action": "translate",
+      "new_text": "The AI score starts as a suggestion and becomes effective according to tenant policy: always, only above this threshold, or never.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/monitoria.ts:106-109",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-1f982f18",
+      "action": "translate",
+      "new_text": "`evidencia_mensagem_id` identifies the quoted passage supporting the score. It has no foreign key because `mensagem` is partitioned and unique on (id, criada_em).",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/monitoria.ts:126-129",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-7597446f",
+      "action": "translate",
+      "new_text": "Calibration measures the gap between human and AI scores for each criterion.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/monitoria.ts:172-172",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-0ff399a6",
+      "action": "translate",
+      "new_text": "Module 5, AI quality review: form (group -> criterion -> weight, with a fatal criterion that zeroes the score), evaluation (human or AI), and cycle (feedback -> dispute -> calibration -> coaching).",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/monitoria.ts:19-23",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-1d829bc9",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/schema/monitoria.ts:273-273",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-9344ad26",
+      "action": "translate",
+      "new_text": "Without this, AI could be sold at a loss. These records support both the customer dashboard and billing.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/monitoria.ts:294-294",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-9f775248",
+      "action": "translate",
+      "new_text": "Incremental and versioned: documents are independent, and every passage traces to its document and version. This lets copilot suggestions cite their source.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/monitoria.ts:320-323",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-4af3d113",
+      "action": "translate",
+      "new_text": "A fatal criterion zeroes the entire evaluation score.",
+      "sensitivity": "integration",
+      "evidence": "packages/db/src/schema/monitoria.ts:69-69",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-9246c559",
+      "action": "translate",
+      "new_text": "GCM `final()` throws when the authentication tag is wrong. Do not expose the original error:",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/segredo.ts:126-126",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-2347eac3",
+      "action": "translate",
+      "new_text": "authentication-failure detail can become an oracle.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/segredo.ts:127-127",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-0f3562e6",
+      "action": "translate",
+      "new_text": "Secret fields in `canal.config`.\n\nUse a closed list instead of encrypting the whole object: other configuration must remain readable and queryable. `phoneNumberId` appears in diagnostics and `apiVersao` in support. Encrypting everything would require decryption for ordinary operations.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/segredo.ts:132-139",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-7b9c6f70",
+      "action": "translate",
+      "new_text": "Two-step PIN saved when registering the number (`configuracao-de-webhook.ts`).",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/segredo.ts:146-146",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-2dc38d34",
+      "action": "translate",
+      "new_text": "With it, someone controlling the number could migrate the tenant's WhatsApp to another provider.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/segredo.ts:147-147",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-fad5aabe",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/segredo.ts:153-153",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-e1533b3e",
+      "action": "translate",
+      "new_text": "Decrypt secret fields on read.\n\nPlaintext values pass through deliberately, and only here, so data written before encryption was introduced remains readable without disrupting operations. The write path has no such tolerance; new data is encrypted.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/segredo.ts:164-171",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a5d03112",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/segredo.ts:182-182",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-244f4dc3",
+      "action": "translate",
+      "new_text": "Encrypt tenant secrets at rest.\n\n`canal.config` holds Meta's permanent token, `appSecret`, `verifyToken`, and the SMTP password. A token holder can send messages **as the tenant's number**. The schema promised at-rest encryption from the start; this file implements it.\n\nRLS protects tenants through the application, but not a dump. Backups reach object storage and operator machines; a plaintext `pg_dump` would reveal EVERY tenant credential.\n\n**An envelope carries the key ID.** Rotate by making a new key current while retaining old keys until their data is rewritten. Without IDs, rotation would demand a one-shot migration and would tend never to happen.\n\n**AES-256-GCM, not CBC:** GCM authenticates ciphertext as well as encrypting it. Otherwise a database writer could tamper with ciphertext undetected; targeted corruption of `phoneNumberId` could route messages to the wrong number.\n\nKeys live OUTSIDE the database in `PIPE_CHAVES_SEGREDO` as comma-separated `<id>:<32 bytes em base64>` entries; `PIPE_CHAVE_SEGREDO_ATUAL` selects the current one. Production supplies them through SOPS (see `infra/`).",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/segredo.ts:3-30",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-56dc541a",
+      "action": "translate",
+      "new_text": "Envelope marker. No dot in its name because dots separate envelope fields.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/segredo.ts:32-32",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-069709fc",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/segredo.ts:43-43",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-1b030c36",
+      "action": "translate",
+      "new_text": "Read the keyring from the environment and fail loudly. A missing production key is a deployment error; continuing would write tokens in plaintext while appearing to encrypt them.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/segredo.ts:49-52",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-ae4f8a42",
+      "action": "translate",
+      "new_text": "96 bits is the GCM IV size and the only safe size here with a random nonce",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/segredo.ts:84-84",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-c65d15c2",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/segredo.ts:98-98",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-7966c412",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/semente-demo.ts:111-111",
+      "notes": ""
+    }
+  ]
+}

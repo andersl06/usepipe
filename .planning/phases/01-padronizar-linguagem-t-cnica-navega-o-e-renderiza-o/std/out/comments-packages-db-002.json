@@ -1,0 +1,196 @@
+{
+  "items": [
+    {
+      "id": "packages-db-comment-28f85f60",
+      "action": "translate",
+      "new_text": "Module 1, identity and tenancy, is the foundation and depends on no other module. `tenant` holds name, logo, color, timezone, and language customization: white-labeling is configuration, never a separate build.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/identidade.ts:15-19",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-542a03bf",
+      "action": "translate",
+      "new_text": "Role scope (migration 0021).\n\n`conta` covers contract roles `admin`, `member`, `guest`, matching the source labels \"Admin\", \"Pode editar\", and \"Pode visualizar\". Each person has ONE, and only those appear in Members and invitations. `atendimento` covers manager, supervisor, agent, and reviewer roles; a person may have zero or more. Effective permissions are the union.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/identidade.ts:166-174",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-aa1c4713",
+      "action": "translate",
+      "new_text": "Source `roleId` values represented here by the NAMES of the three account roles.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/identidade.ts:178-178",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-240de17f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/schema/identidade.ts:189-189",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-0cc44801",
+      "action": "translate",
+      "new_text": "Global catalog of named capabilities (`conversa.transferir`, `relatorio.esforco.ver`). It deliberately has no tenant: this product vocabulary is shared by everyone, making it the only table without RLS alongside `tenant`.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/identidade.ts:202-206",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-56419576",
+      "action": "translate",
+      "new_text": "Where the tenant is hosted.\n\n`compartilhada` is the shared database with RLS, the default for most tenants. `dedicada` is a tenant moved to its own instance for contractual or load reasons. See `referencias-blip/pesquisa/arquitetura-multi-tenant.md`.\n\nAdding this column while the table is small is cheap; doing so just before the first migration would be costly. The code needs this field to locate a tenant without consulting a spreadsheet.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/identidade.ts:21-32",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-3b81c39a",
+      "action": "translate",
+      "new_text": "Copy of `papel.escopo`, bound by a composite foreign key, allowing the partial index below to enforce ONE account role per person without a trigger. Writers pass `'conta'` for an account role; the FK rejects a wrong scope.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/identidade.ts:237-241",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-341917a7",
+      "action": "translate",
+      "new_text": "A person-level EXCEPTION on top of roles (migration 0046).\n\nThe source \"Permissões\" page edits a per-agent table of \"Tipo de permissão\" by \"Status\" (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` section a.4). A role grants a set; without overrides, removing one capability from one person would require a one-person role.\n\nEffective permission = COALESCE(the row's `concedida`, union of roles). Missing row means roles decide. `gravarPermissoesDoAtendente` deletes an override when it again matches the role, so this table contains exceptions rather than a stale RBAC copy.",
+      "sensitivity": "meta-blip",
+      "evidence": "packages/db/src/schema/identidade.ts:259-273",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-b5bad606",
+      "action": "translate",
+      "new_text": "`true` grants what the role lacks; `false` revokes what the role grants.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/identidade.ts:284-284",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-a921e6ba",
+      "action": "translate",
+      "new_text": "Records the login origin for audit and IdP-based revocation.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/identidade.ts:331-331",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-e8df1702",
+      "action": "update",
+      "new_text": "External provider account.\n\nThe key is NEVER email: it is `(emissor, sujeito)`; for Google the issuer is `https://accounts.google.com` and the subject is the `id_token` `sub`. Email ownership can change, so matching by email could give a successor the former user's account. `emailNoProvedor` is for display and diagnostics only.\n\nThe schema now enforces uniqueness PER TENANT on `(tenantId, emissor, sujeito)`, so the schema permits one provider account in several Pipe tenants. The login path currently looks up `(emissor, sujeito)` without a tenant filter and selects the first match; it cannot reliably use those multiple links. The original global-uniqueness claim is outdated.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/identidade.ts:345-359; packages/db/src/schema/identidade.ts:345-385; uniqueIndex includes tenantId",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-365970bd",
+      "action": "translate",
+      "new_text": "Three plans with limits used for billing, per `docs/specs/2026-09-07-preco.md`. Keep them in code, not environment configuration: the AI conversation cap must share a source with enforcement, and environment-based prices can diverge from the screen and invoice.\n\n`conversasIaPorAtendente` is the allowance protecting margin. AI is the cost that scales with use; without a cap a high-volume tenant could consume the margin before the bill reveals it.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/identidade.ts:35-46",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-0f38fe7a",
+      "action": "update",
+      "new_text": "Unique within a tenant, not globally (migration 0017). The schema permits one provider account across Pipe tenants, but `entrarComIdentidade` currently selects the first `(emissor, sujeito)` match without tenant context, so account switching needs slice-time verification.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/identidade.ts:375-380; packages/autenticacao/src/entrada.ts:101-130 selects first provider match without tenantId",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-010c67ad",
+      "action": "translate",
+      "new_text": "Email domain owned by a tenant.\n\nIt enables tenant discovery during login because the tenant is not in the subdomain (`infraestrutura.md` section 3). It counts only after TXT DNS verification; otherwise a user with `@banco.com.br` could claim the bank's tenant. Public domains such as Gmail, Hotmail, and Outlook cannot be registered; the exclusion list lives in code.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/identidade.ts:390-400",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-8f183001",
+      "action": "translate",
+      "new_text": "Tenant SSO connection, a thin mirror of IdP configuration.\n\n**One per tenant**, enforced by uniqueness on `tenant_id`. Multiple directories would make domain discovery ambiguous before anyone has signed in to disambiguate.\n\n**State and policy are separate.** `estado` tracks connection readiness (`rascunho` -> `testada` -> `ativa`); `politica` tracks whether password entry remains allowed (`desligado` -> `opcional` -> `obrigatorio`). Combining them can lock out an entire tenant; see `referencias-blip/pesquisa/sso-multi-tenant.md` sections 3 and 6.\n\n**The secret is not stored in plaintext here.** `clientSecret` is inside `config`, encrypted by `cifrarConfig` in `packages/db/src/segredo.ts`. A `pg_dump` contains an envelope rather than a credential.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/identidade.ts:414-432",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-39c009cb",
+      "action": "translate",
+      "new_text": "IdP kind changes claim parsing: in Entra, subject is `{tid}:{oid}`.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/identidade.ts:444-444",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-553872ac",
+      "action": "translate",
+      "new_text": "When the test passed. It remains valid for 30 days; a test from 2024 proves nothing today.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/identidade.ts:453-453",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-77543460",
+      "action": "translate",
+      "new_text": "API and MCP key. Never store the secret in plaintext: persist `hash` plus a visible `prefixo` for the customer to recognize the key. Separate write scopes from read scopes (spec section 4.6).",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/identidade.ts:467-471",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-85bb2390",
+      "action": "translate",
+      "new_text": "The key belongs to the ACCOUNT (`null`, the default) or ONE flow, as on the flow's \"Chaves de acesso\" screen (migration 0032). A foreign key to `fluxo` would cross `identidade` and `automacao`, creating a circular import as with `0003_chaves_cruzadas.sql`; migration 0032 owns the actual constraint, leaving a plain column here.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/identidade.ts:481-487",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-f68fd674",
+      "action": "update",
+      "new_text": "Invitation to join a tenant.\n\nAn invitation is required to join an existing account without a linked identity; it prevents a verified domain alone from granting access. Google self-service can create a NEW account for an unclaimed domain or a personal email, so the original claim that invitation is the only path for those cases is outdated. See `packages/autenticacao/src/entrada.ts`.\n\nAs with sessions and API keys, the database stores only the hash, never the token. Invitations expire after seven days and are single-use via `aceito_em`; the acceptance path uses `for update` to prevent link reuse.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/identidade.ts:526-538; packages/autenticacao/src/entrada.ts:152-181; self-service branches",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-27276726",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/db/src/schema/identidade.ts:54-54",
+      "notes": ""
+    },
+    {
+      "id": "packages-db-comment-0c2f0a1c",
+      "action": "translate",
+      "new_text": "Always `conta`: an invitation grants only an account role, enforced by the composite FK.",
+      "sensitivity": "security",
+      "evidence": "packages/db/src/schema/identidade.ts:548-548",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-6c2c5ec3",
+      "action": "translate",
+      "new_text": "The user created from this invitation is retained for audit; using an invitation does not delete it.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/identidade.ts:554-554",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-db-comment-06464880",
+      "action": "translate",
+      "new_text": "Contract-only plan: price and allowance live in the tenant record, not this table.",
+      "sensitivity": "architecture",
+      "evidence": "packages/db/src/schema/identidade.ts:77-77",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
