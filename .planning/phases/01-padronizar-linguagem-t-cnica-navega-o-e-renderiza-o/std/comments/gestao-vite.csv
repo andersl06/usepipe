@@ -6422,17 +6422,19 @@ gestao-vite-comment-2788b1dd,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cont
  * origem chama `master`, `fluxo` para o resto (`builder`). É a MESMA
  * distinção de `itens.ts`, aqui do lado de quem monta o caminho, não o menu.
  */",translate,"The contact's URL prefix, based on type — `roteador` for what the source calls `master`, `fluxo` for the rest (`builder`). It's the SAME distinction as `itens.ts`, here on the side that builds the path rather than the menu.",architecture,apps/gestao-vite/src/paginas/fluxo/contato.tsx:11-15,,proposed
-gestao-vite-comment-0a9dba4d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contato.tsx,118,118,jsdoc,7,/** A `api` respondeu erro que não é 404: dizer o que houve vale mais que a tela em branco. */,,,,,,
+gestao-vite-comment-0a9dba4d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contato.tsx,118,118,jsdoc,7,/** A `api` respondeu erro que não é 404: dizer o que houve vale mais que a tela em branco. */,translate,The `api` returned an error other than 404: showing what happened is worth more than a blank screen.,other,apps/gestao-vite/src/paginas/fluxo/contato.tsx:118-118,,proposed
 gestao-vite-comment-fb8b6a63,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contato.tsx,24,30,jsdoc,4,"/**
  * O contato (o `fluxo`) que TODAS as telas de `/fluxo/:id/**` desenham, lido
  * uma vez em `GET /v1/gestao/fluxos/:id` e entregue às filhas pelo contexto da
  * rota — o `auth.application.detail` da origem, que é o estado-pai de todas.
  *
  * `criadoEm` chega como texto (JSON); quem mostra data converte.
- */",,,,,,
+ */",translate,"The contact (the `fluxo`) that ALL `/fluxo/:id/**` screens render, read once via `GET /v1/gestao/fluxos/:id` and handed to the children through route context — the origin's `auth.application.detail`, the parent state for all of them.
+
+`criadoEm` arrives as text (JSON); whoever displays the date converts it.",architecture,apps/gestao-vite/src/paginas/fluxo/contato.tsx:24-30,,proposed
 gestao-vite-comment-a47987ed,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contato.tsx,36,38,block,2,"/* Contexto do React, e não o `useOutletContext` do roteador: este só alcança
    a filha direta, e as cascas de módulo (Contatos, Growth, Configurações)
-   têm um `<Outlet>` no meio do caminho. */",,,,,,
+   têm um `<Outlet>` no meio do caminho. */",translate,"React Context, not the router's `useOutletContext`: that one only reaches the direct child, and the module shells (Contatos, Growth, Configurações) have an `<Outlet>` in between.",architecture,apps/gestao-vite/src/paginas/fluxo/contato.tsx:36-38,,proposed
 gestao-vite-comment-0a2d8555,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contato.tsx,47,57,jsdoc,17,"/**
  * A rota-pai: valida o `id`, carrega o contato e só então desenha a filha.
  * Fora do padrão de uuid ou sem contato no tenant é 404 — como o `notFound()`
@@ -6443,44 +6445,46 @@ gestao-vite-comment-0a2d8555,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cont
  * tipo do contato é redirecionado aqui, uma vez só, para o prefixo certo —
  * preservando o resto do caminho, a busca e o hash. É a rede de segurança
  * para link antigo, favorito ou o link que uma tela ainda não ajustada gera.
- */",,,,,,
+ */",translate,"The parent route: validates the `id`, loads the contact, and only then renders the child. Anything outside uuid format, or with no contact in the tenant, is a 404 — like the `notFound()` each `page.tsx` used to do.
+
+`/fluxo/:id` and `/roteador/:id` render the SAME tree (App.tsx mounts both over the same child routes); whoever enters through the wrong prefix for the contact's type gets redirected here, once, to the right prefix — preserving the rest of the path, the query string, and the hash. It's the safety net for an old link, a bookmark, or a link a not-yet-updated screen still generates.",architecture,apps/gestao-vite/src/paginas/fluxo/contato.tsx:47-57,,proposed
 gestao-vite-comment-22fb5fad,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contato.tsx,84,87,jsdoc,5,"/**
  * A casca comum dos módulos do contato: barra do portal, barra do contato e o
  * miolo com a `fx-coluna` — o `CascaDoModulo` de antes, agora sem consulta.
- */",,,,,,
-gestao-vite-comment-653e443e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx,109,109,block,2,/* ponytail: exportação do histórico do ticket ainda não tem backend. */,,,,,,
+ */",translate,"The contact modules' common shell: portal bar, contact bar, and the body with `fx-coluna` — the former `CascaDoModulo`, now without a query.",architecture,apps/gestao-vite/src/paginas/fluxo/contato.tsx:84-87,,proposed
+gestao-vite-comment-653e443e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx,109,109,block,2,/* ponytail: exportação do histórico do ticket ainda não tem backend. */,translate,ponytail: ticket history export still has no backend.,other,"apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx:109-109; verified against current source, still unwired",,proposed
 gestao-vite-comment-f9d03528,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx,18,22,block,2,"/* Estrutura do template `details-container` da origem (portal.js, estado
    `auth.application.detail.users.user`): `.history-header` (voltar, avatar 56,
    nome fs-24, recarregar, `.separator`), `.tickets-list-view` com o cartão
    `.user-info-card` (40%) e `.tickets-history` (60%, `expandable-list`), e o
-   painel fixo `#user-detail-sidebar` (445px) com `.thread-header` e `.messages`. */",,,,,,
-gestao-vite-comment-be7a9ca9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx,110,110,line,2,"// ponytail: sem coluna própria para ""usuário de teste"" no schema do",,,,,,
-gestao-vite-comment-20862f57,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx,111,111,line,2,"// contato; a caixa fica visual, como já estava, até existir onde gravar.",,,,,,
+   painel fixo `#user-detail-sidebar` (445px) com `.thread-header` e `.messages`. */",translate,"Structure of the origin's `details-container` template (portal.js, state `auth.application.detail.users.user`): `.history-header` (back, 56px avatar, name fs-24, reload, `.separator`), `.tickets-list-view` with the `.user-info-card` card (40%) and `.tickets-history` (60%, `expandable-list`), and the fixed `#user-detail-sidebar` panel (445px) with `.thread-header` and `.messages`.",other,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx:18-22,,proposed
+gestao-vite-comment-be7a9ca9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx,110,110,line,2,"// ponytail: sem coluna própria para ""usuário de teste"" no schema do",translate,"// ponytail: no dedicated column for ""test user"" in the",other,"apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx:110-110; two-line comment split by scanner, continues at 20862f57; verified against current source, still unwired",,proposed
+gestao-vite-comment-20862f57,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx,111,111,line,2,"// contato; a caixa fica visual, como já estava, até existir onde gravar.",translate,"// contact schema; the checkbox stays visual, as before, until there's somewhere to store it.",other,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx:111-111; continuation of be7a9ca9,,proposed
 gestao-vite-comment-d31e0e4a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx,22,25,block,2,"/* Cartão `.user-info-card` do template `details-container`: cabeçalho
    ""Informações"" + lápis (`notes`), linhas rótulo 30% / valor 70% (`mt4`),
    ID do contato com dica, e ""Extras"" (`mt5`) com as chaves do JSON.
-   `PATCH /v1/contatos/:id` — `gravar.ts`. */",,,,,,
+   `PATCH /v1/contatos/:id` — `gravar.ts`. */",translate,"`.user-info-card` card from the `details-container` template: ""Informações"" header + pencil (`notes`), label 30% / value 70% rows (`mt4`), contact ID with a tooltip, and ""Extras"" (`mt5`) with the JSON keys. `PATCH /v1/contatos/:id` — `gravar.ts`.",other,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx:22-25,,proposed
 gestao-vite-comment-3b585de7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/gravar.ts,5,9,jsdoc,1,"/**
  * `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`, `ControladorContatos.editar`).
  * `null` apaga o campo; `undefined` (omitido) não mexe. `atributos` é mescla: só as
  * chaves mandadas aqui (`city`, `gender`) mudam — as extras do contato continuam.
- */",,,,,,
+ */",translate,"`PATCH /v1/contatos/:id` (`controladores/catalogo.ts`, `ControladorContatos.editar`). `null` clears the field; `undefined` (omitted) leaves it untouched. `atributos` is a merge: only the keys sent here (`city`, `gender`) change — the contact's extra keys are kept.",other,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/gravar.ts:5-9,,proposed
 gestao-vite-comment-9024a673,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx,14,18,block,4,"/* Estrutura do template `users-content-view` da origem (portal.js, módulo 2753):
    lateral `.static-sidebar` com cabeçalho escuro (Filtros + Aplicar) e corpo com o
    `user-dimension` (botão tracejado ""+ Adicionar filtros""); à direita `page-header`
    (Contatos + recarregar), `#contacts-filter` (contagem + `blip-daterange-picker`)
-   e a lista de `card.card--mini-card.user-card`. */",,,,,,
-gestao-vite-comment-df59f29a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx,31,31,block,1,/* ponytail: filtros por dimensão não têm backend; o botão nasce desabilitado como na origem. */,,,,,,
-gestao-vite-comment-d6c38649,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx,72,72,block,1,/* ponytail: o seletor de período é só visual; o filtro por data não tem backend. */,,,,,,
+   e a lista de `card.card--mini-card.user-card`. */",translate,"Structure of the origin's `users-content-view` template (portal.js, module 2753): sidebar `.static-sidebar` with a dark header (Filters + Apply) and a body with the `user-dimension` (dashed ""+ Adicionar filtros"" button); on the right, `page-header` (Contatos + reload), `#contacts-filter` (count + `blip-daterange-picker`), and the list of `card.card--mini-card.user-card`.",other,apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx:14-18,,proposed
+gestao-vite-comment-df59f29a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx,31,31,block,1,/* ponytail: filtros por dimensão não têm backend; o botão nasce desabilitado como na origem. */,translate,"ponytail: dimension filters have no backend; the button starts disabled, as in the origin.",other,apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx:31-31,,proposed
+gestao-vite-comment-d6c38649,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx,72,72,block,1,/* ponytail: o seletor de período é só visual; o filtro por data não tem backend. */,translate,ponytail: the period picker is visual only; date filtering has no backend.,other,apps/gestao-vite/src/paginas/fluxo/contatos/lista.tsx:72-72,,proposed
 gestao-vite-comment-f1dc9732,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts,1,3,block,0,"/* Regras de interface da tela de Contatos, copiadas do controlador da origem
    (`portal.js`, módulo `users`): contagem aproximada, período padrão do
-   seletor, formatação de data e o lado de cada balão do histórico. */",,,,,,
-gestao-vite-comment-5d16903a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts,11,11,jsdoc,0,"/** `getFormatedLastInteraction`: `toLocaleString(idioma, {ano, mês, dia, hora, minuto})`. */",,,,,,
-gestao-vite-comment-d74bf1b4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts,31,31,jsdoc,0,/** Carimbo do balão do histórico: `16/09/2026 - 13:26`. */,,,,,,
-gestao-vite-comment-4019872a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts,37,37,jsdoc,0,"/** Texto do seletor de período: `09 set, 2026 - 00:00`. */",,,,,,
-gestao-vite-comment-e6008aa9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts,45,45,jsdoc,0,"/** Período padrão da origem: últimos 7 dias, do início do dia inicial ao fim do dia atual. */",,,,,,
-gestao-vite-comment-80898a2c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts,55,55,jsdoc,3,"/** Na origem o contato fica à direita (`.right`) e o bot/atendente à esquerda, com foto. */",,,,,,
-gestao-vite-comment-0a86cd5b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts,82,82,jsdoc,1,"/** Ao abrir o detalhe, o ticket ativo é o da URL (`?ticketId`) ou o mais recente. */",,,,,,
+   seletor, formatação de data e o lado de cada balão do histórico. */",translate,"Contacts screen interface rules, copied from the origin's controller (`portal.js`, `users` module): approximate count, the picker's default period, date formatting, and which side each history bubble sits on.",other,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:1-3,,proposed
+gestao-vite-comment-5d16903a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts,11,11,jsdoc,0,"/** `getFormatedLastInteraction`: `toLocaleString(idioma, {ano, mês, dia, hora, minuto})`. */",translate,"`getFormatedLastInteraction`: `toLocaleString(locale, {year, month, day, hour, minute})`.",other,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:11-11,,proposed
+gestao-vite-comment-d74bf1b4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts,31,31,jsdoc,0,/** Carimbo do balão do histórico: `16/09/2026 - 13:26`. */,translate,History bubble timestamp: `16/09/2026 - 13:26`.,other,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:31-31,,proposed
+gestao-vite-comment-4019872a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts,37,37,jsdoc,0,"/** Texto do seletor de período: `09 set, 2026 - 00:00`. */",translate,"Period picker text: `09 set, 2026 - 00:00`.",other,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:37-37,,proposed
+gestao-vite-comment-e6008aa9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts,45,45,jsdoc,0,"/** Período padrão da origem: últimos 7 dias, do início do dia inicial ao fim do dia atual. */",translate,"Origin's default period: last 7 days, from the start of the first day to the end of the current day.",other,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:45-45,,proposed
+gestao-vite-comment-80898a2c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts,55,55,jsdoc,3,"/** Na origem o contato fica à direita (`.right`) e o bot/atendente à esquerda, com foto. */",translate,"In the origin the contact sits on the right (`.right`) and the bot/agent on the left, with a photo.",other,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:55-55,,proposed
+gestao-vite-comment-0a86cd5b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts,82,82,jsdoc,1,"/** Ao abrir o detalhe, o ticket ativo é o da URL (`?ticketId`) ou o mais recente. */",translate,"When opening the detail view, the active ticket is the one from the URL (`?ticketId`) or the most recent one.",other,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:82-82,,proposed
 gestao-vite-comment-cc30505a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.tsx,7,14,jsdoc,6,"/**
  * `/contents/messagetemplate` — estado `auth.application.detail.contents.messageTemplate`.
  * A casca de `contents` põe a `<aside class=""detail-aside fl"">` (397px, com os
@@ -6488,24 +6492,24 @@ gestao-vite-comment-cc30505a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cont
  * Configurações. A lista lê `template_mensagem` do canal do fluxo
  * (`lib/comunicacao.ts`); sem canal WhatsApp a origem mostra o
  * `unavailable-warning` (`isWhatsAppActive()`), e aqui é o mesmo critério.
- */",,,,,,
+ */",translate,"`/contents/messagetemplate` — state `auth.application.detail.contents.messageTemplate`. The `contents` shell places the `<aside class=""detail-aside fl"">` (397px, with the two navigation cards) next to `#main-content-area`, as in Configurações. The list reads `template_mensagem` from the flow's channel (`lib/comunicacao.ts`); without a WhatsApp channel the origin shows the `unavailable-warning` (`isWhatsAppActive()`), and here the same criterion applies.",integration,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.tsx:7-14,,proposed
 gestao-vite-comment-12a1fb8c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,1,5,jsdoc,3,"/**
  * As regras do sidebar ""Novo modelo de mensagem"" — o controlador
  * `CreateMessageTemplateSidebarController` (`dD`) de portal.js, sem a tela.
  * Puras de propósito: `tests/conteudos-regras.test.ts` trava o que sai daqui.
- */",,,,,,
-gestao-vite-comment-4c41fb8d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,104,104,jsdoc,2,/** `areTranslationsValid` para os tipos que o Pipe modela (texto e mídia exigem idioma + texto). */,,,,,,
-gestao-vite-comment-54404cb2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,115,115,jsdoc,0,/** `invalidTranlationLanguages`: idioma repetido em outra tradução. */,,,,,,
-gestao-vite-comment-70dc82dc,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,127,127,jsdoc,0,"/** `isMessageTemplateValid`: nome ok, categoria, traduções e idiomas. */",,,,,,
+ */",translate,"Rules for the ""New message template"" sidebar — the origin's `CreateMessageTemplateSidebarController` (`dD`) from portal.js, without the screen. Pure by design: `tests/conteudos-regras.test.ts` locks down what comes out of here.",other,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:1-5,,proposed
+gestao-vite-comment-4c41fb8d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,104,104,jsdoc,2,/** `areTranslationsValid` para os tipos que o Pipe modela (texto e mídia exigem idioma + texto). */,translate,`areTranslationsValid` for the types Pipe models (text and media require language + text).,other,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:104-104,,proposed
+gestao-vite-comment-54404cb2,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,115,115,jsdoc,0,/** `invalidTranlationLanguages`: idioma repetido em outra tradução. */,translate,`invalidTranlationLanguages`: a language repeated in another translation.,other,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:115-115,,proposed
+gestao-vite-comment-70dc82dc,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,127,127,jsdoc,0,"/** `isMessageTemplateValid`: nome ok, categoria, traduções e idiomas. */",translate,"`isMessageTemplateValid`: name ok, category, translations, and languages.",other,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:127-127,,proposed
 gestao-vite-comment-a10da496,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,144,147,jsdoc,6,"/**
  * O que a lista mostra (`messagetemplate.html`): sem canal WhatsApp é o
  * `unavailable-warning`; com canal e sem modelos, o `no-results`; senão a lista.
- */",,,,,,
+ */",translate,"What the list shows (`messagetemplate.html`): without a WhatsApp channel it's the `unavailable-warning`; with a channel and no templates, the `no-results`; otherwise the list.",integration,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:144-147,,proposed
 gestao-vite-comment-7f939b59,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,22,26,jsdoc,3,"/**
  * As flags que o `$onInit` consulta (`checkFeatures`). No Pipe, o schema de
  * `template_mensagem` aceita cabeçalho de imagem/vídeo/documento e não modela
  * pagamento nem carrossel — é daí que saem os padrões.
- */",,,,,,
+ */",translate,"The flags `$onInit` checks (`checkFeatures`). In Pipe, the `template_mensagem` schema accepts an image/video/document header and does not model payment or carousel — that's where the defaults come from.",integration,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:22-26,,proposed
 gestao-vite-comment-b4e40e70,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,40,49,jsdoc,3,"/**
  * O `menu-list` do template, linha a linha, com os `ng-if` de cada bloco:
  *
@@ -6515,9 +6519,14 @@ gestao-vite-comment-b4e40e70,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cont
  *
  * O bloco inteiro só existe com `messageTemplateType === 'default'`,
  * `!isAuthenticationType()` e `!isEmptyCategory()` — ver `mostrarEscolhaDeBloco`.
- */",,,,,,
-gestao-vite-comment-5c5d2cc3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,63,63,jsdoc,3,/** Compatibilidade: a lista achatada dos tipos que o menu oferece. */,,,,,,
-gestao-vite-comment-911f86a5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,88,88,jsdoc,2,/** `isTemplateNameInvalid`: `/^[a-z]([a-z0-9_])*$/` e até 512 caracteres. */,,,,,,
+ */",translate,"The template's `menu-list`, line by line, with each block's `ng-if`:
+
+  row 1: text · image (isMediaMessageTemplateEnabled) · document (same)
+  row 2: video (media && video) · payment (payment && isUtilityType) · carousel (carousel)
+
+The whole block only exists when `messageTemplateType === 'default'`, `!isAuthenticationType()`, and `!isEmptyCategory()` — see `mostrarEscolhaDeBloco`.",integration,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:40-49,,proposed
+gestao-vite-comment-5c5d2cc3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,63,63,jsdoc,3,/** Compatibilidade: a lista achatada dos tipos que o menu oferece. */,translate,Compatibility: the flattened list of types the menu offers.,other,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:63-63,,proposed
+gestao-vite-comment-911f86a5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts,88,88,jsdoc,2,/** `isTemplateNameInvalid`: `/^[a-z]([a-z0-9_])*$/` e até 512 caracteres. */,translate,`isTemplateNameInvalid`: `/^[a-z]([a-z0-9_])*$/` and up to 512 characters.,integration,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:88-88,,proposed
 gestao-vite-comment-09471395,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,102,110,jsdoc,7,"/**
  * A `<aside class=""detail-aside fl"">` de Conteúdos: `<bds-grid class=""sidebar-container""
  * direction=""column"">` com um `sidebar-item-container > a.sidebar-anchor >
@@ -6526,15 +6535,17 @@ gestao-vite-comment-09471395,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cont
  * Textos de `modules.application.detail.contents.menu.*`.
  *
  * ponytail: ""Recursos"" (`contents.resource`) ainda não tem tela aqui; fica sem destino.
- */",,,,,,
-gestao-vite-comment-ac73dba3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,158,158,jsdoc,2,/** Um exemplo por variável do corpo — a Meta exige para aprovar (`{{1}}` → exemplos['1']). */,,,,,,
+ */",translate,"Conteúdos' `<aside class=""detail-aside fl"">`: `<bds-grid class=""sidebar-container"" direction=""column"">` with one `sidebar-item-container > a.sidebar-anchor > bds-grid.sidebar-item` per entry (title fs-14 bold, subtitle fs-12, `bds-icon arrow-right` on the right; the active one gets `.selected-sidebar-item`). Text from `modules.application.detail.contents.menu.*`.
+
+ponytail: ""Recursos"" (`contents.resource`) still has no screen here; it's left without a destination.",architecture,"apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:102-110; verified ponytail note against current source, still no destination",,proposed
+gestao-vite-comment-ac73dba3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,158,158,jsdoc,2,/** Um exemplo por variável do corpo — a Meta exige para aprovar (`{{1}}` → exemplos['1']). */,translate,One example per body variable — Meta requires it for approval (`{{1}}` → `exemplos['1']`).,meta-blip,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:158-158,,proposed
 gestao-vite-comment-c98fb6dc,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,20,26,jsdoc,6,"/**
  * As variáveis do corpo, na ordem em que aparecem — mesma regra de
  * `variaveisDoTexto` em `dominio/whatsapp/modelos.ts` (o backend valida de
  * novo; isto só evita ida e volta para um erro que dá para ver aqui).
  * Duplicada de propósito, como em `comunicacao-modelos-formulario.tsx`: a
  * tela de cliente não precisa importar módulo do servidor.
- */",,,,,,
+ */",translate,"The body variables, in the order they appear — same rule as `variaveisDoTexto` in `dominio/whatsapp/modelos.ts` (the backend validates again; this only avoids a round trip for an error visible right here). Duplicated on purpose, as in `comunicacao-modelos-formulario.tsx`: the client screen shouldn't need to import a server module.",architecture,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:20-26,,proposed
 gestao-vite-comment-cd5e1cc6,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,321,335,jsdoc,13,"/**
  * `openNewMessageSidebar()` → `SidebarContentService.showSidebar` com o
  * template do módulo 95559 (`#create-message-template-sidebar`, 37.5rem,
@@ -6549,24 +6560,26 @@ gestao-vite-comment-cd5e1cc6,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cont
  * cabeçalho de mídia pede a Resumable Upload API (`modelos.ts`, ponytail
  * registrado lá) e Autenticação tem componentes próprios da Meta, não texto
  * livre — os dois casos ficam com o aviso explicando, sem tentar enviar.
- */",,,,,,
-gestao-vite-comment-ddefb4c4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,35,35,block,0,/* `messageTemplateSidebar.newTemplate.inputs.menuList.*` e o ícone de cada bloco. */,,,,,,
-gestao-vite-comment-d87f1542,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,46,46,block,1,/* `messageTemplate.categories.*` para as três da `fillTemplateCategories`. */,,,,,,
-gestao-vite-comment-eabff023,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,53,53,block,2,/* `messageTemplateLanguages.*` — o recorte que o Pipe já usa em `/comunicacao/modelos`. */,,,,,,
-gestao-vite-comment-34e47cdb,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,60,60,block,2,/* `messageTemplate.status.*` — os quatro que `template_mensagem.status_meta` guarda (a lib fica no servidor; aqui só o rótulo). */,,,,,,
+ */",translate,"`openNewMessageSidebar()` → `SidebarContentService.showSidebar` with module 95559's template (`#create-message-template-sidebar`, 37.5rem, `.sidebar-header` + `.sidebar-body`): name, category, one translation per language (language + block chosen in the `menu-list` + card), ""Adicionar tradução"", and the ""Enviar para avaliação"" footer.
+
+""Enviar para avaliação"" calls `POST /v1/canais/whatsapp/:id/modelos` (`criarModeloNaMeta`) — the SAME path as `comunicacao-modelos-formulario.tsx` in Cadastros — once per language (Meta versions by (name, language), not by ""template with translations""). It's the only block this endpoint accepts today: a media header needs the Resumable Upload API (`modelos.ts`, ponytail logged there), and Autenticação has Meta-specific components, not free text — both cases get the explanatory notice instead of attempting to send.",meta-blip,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:321-335,,proposed
+gestao-vite-comment-ddefb4c4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,35,35,block,0,/* `messageTemplateSidebar.newTemplate.inputs.menuList.*` e o ícone de cada bloco. */,translate,`messageTemplateSidebar.newTemplate.inputs.menuList.*` and each block's icon.,other,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:35-35,,proposed
+gestao-vite-comment-d87f1542,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,46,46,block,1,/* `messageTemplate.categories.*` para as três da `fillTemplateCategories`. */,translate,`messageTemplate.categories.*` for the three from `fillTemplateCategories`.,other,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:46-46,,proposed
+gestao-vite-comment-eabff023,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,53,53,block,2,/* `messageTemplateLanguages.*` — o recorte que o Pipe já usa em `/comunicacao/modelos`. */,translate,`messageTemplateLanguages.*` — the same subset Pipe already uses in `/comunicacao/modelos`.,other,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:53-53,,proposed
+gestao-vite-comment-34e47cdb,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,60,60,block,2,/* `messageTemplate.status.*` — os quatro que `template_mensagem.status_meta` guarda (a lib fica no servidor; aqui só o rótulo). */,translate,`messageTemplate.status.*` — the four values `template_mensagem.status_meta` stores (the library stays on the server; here it's just the label).,other,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:60-60,,proposed
 gestao-vite-comment-d7630dde,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,650,656,jsdoc,4,"/**
  * `<message-template-card>` (`.mt-card`): fora da edição, o placeholder
  * ""Insira aqui o conteúdo da mensagem"" (ou a prévia do texto); em edição, o
  * `textarea` de 3 linhas, a barra ""+ variável"" e os botões redondos de
  * confirmar/fechar no canto. Os ícones de negrito/itálico/tachado são da
  * fonte `blip-toolkit` e não existem aqui (só o ""+ variável"").
- */",,,,,,
+ */",translate,"`<message-template-card>` (`.mt-card`): outside edit mode, the placeholder ""Insira aqui o conteúdo da mensagem"" (or the text preview); in edit mode, a 3-line `textarea`, the ""+ variável"" bar, and the round confirm/close buttons in the corner. The bold/italic/strikethrough icons come from the `blip-toolkit` font and don't exist here (only ""+ variável"").",other,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:650-656,,proposed
 gestao-vite-comment-cf3bc033,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,740,745,jsdoc,9,"/**
  * A Meta só aprova um modelo com variável se cada uma vier com um exemplo de
  * preenchimento — não tem tela equivalente na origem (lá isso é passo do
  * `saveMessageTemplate`, sem componente próprio); aqui é o mínimo para
  * `POST /v1/canais/whatsapp/:id/modelos` aceitar o ""Enviar para avaliação"".
- */",,,,,,
+ */",translate,"Meta only approves a template with a variable if each one ships with a fill-in example — there's no equivalent screen in the origin (there it's a step of `saveMessageTemplate`, with no component of its own); here it's the minimum for `POST /v1/canais/whatsapp/:id/modelos` to accept ""Enviar para avaliação"".",meta-blip,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:740-745,,proposed
 gestao-vite-comment-c4ee11a8,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,774,781,jsdoc,5,"/**
  * `<message-template-buttons>`: `.menu-buttons-list` com ""Botões de ação"" e
  * ""Respostas rápidas""; nas respostas rápidas, um campo ""Texto do botão"" por
@@ -6574,20 +6587,21 @@ gestao-vite-comment-c4ee11a8,gestao-vite,apps/gestao-vite/src/paginas/fluxo/cont
  * `CallToAction`/`QuickReply` são da fonte `blip-toolkit` (não existem aqui).
  * ponytail: os botões de ação (telefone, link, dados do contato) ficam só na
  * escolha; o Pipe ainda não modela botões no `template_mensagem`.
- */",,,,,,
-gestao-vite-comment-b8b13a58,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,83,83,jsdoc,0,"/** `/assets/img/contents/unavailable-message-template.svg` — o balão do WhatsApp em contorno, 110×110. */",,,,,,
+ */",translate,"`<message-template-buttons>`: `.menu-buttons-list` with ""Botões de ação"" and ""Respostas rápidas""; under quick replies, one ""Texto do botão"" field per button (up to 3, 20 characters) and ""Adicionar outro botão"". The `CallToAction`/`QuickReply` icons come from the `blip-toolkit` font (not present here).
+ponytail: action buttons (phone, link, contact data) stay choice-only; Pipe doesn't model buttons in `template_mensagem` yet.",integration,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:774-781,,proposed
+gestao-vite-comment-b8b13a58,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,83,83,jsdoc,0,"/** `/assets/img/contents/unavailable-message-template.svg` — o balão do WhatsApp em contorno, 110×110. */",translate,"`/assets/img/contents/unavailable-message-template.svg` — the WhatsApp bubble outline, 110×110.",other,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:83-83,,proposed
 gestao-vite-comment-3a9e4a11,gestao-vite,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx,865,871,jsdoc,4,"/**
  * `<message-template-attachment-card>` (`.mt-card__attachtment`, 25vw): fora
  * da edição, a área do anexo e ""Clique aqui para editar o conteúdo do seu
  * modelo de mensagem""; em edição, o link do anexo (`attachment.<tipo>.link` +
  * compatibilidade), o texto e o rodapé (`attachment.footer`, 60 caracteres).
  * `is-translation`: a tradução herda o anexo e não muda o link.
- */",,,,,,
+ */",translate,"`<message-template-attachment-card>` (`.mt-card__attachtment`, 25vw): outside edit mode, the attachment area and ""Clique aqui para editar o conteúdo do seu modelo de mensagem""; in edit mode, the attachment link (`attachment.<tipo>.link` + compatibility), the text, and the footer (`attachment.footer`, 60 characters). `is-translation`: the translation inherits the attachment and doesn't change the link.",integration,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:865-871,,proposed
 gestao-vite-comment-a8ea1de6,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/editar.tsx,23,27,jsdoc,5,"/**
  * A página `auth.application.detail.team.edit` da Blip. O bundle prova
  * `url:""/team/edit""`, `back-button=""auth.application.detail.team""` e o botão
  * Salvar no cabeçalho; por isso a edição não volta a ser modal.
- */",,,,,,
+ */",translate,"Blip's `auth.application.detail.team.edit` page. The bundle shows `url:""/team/edit""`, `back-button=""auth.application.detail.team""`, and the Save button in the header; that's why editing doesn't go back to being a modal.",meta-blip,apps/gestao-vite/src/paginas/fluxo/equipe/editar.tsx:23-27,,proposed
 gestao-vite-comment-0e5a75b3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.tsx,7,24,jsdoc,21,"/**
  * `/team` do contato (LEIA.md, captura 1) — agora com o RBAC POR FLUXO que a
  * origem pressupõe (migração 0035).
@@ -6605,8 +6619,14 @@ gestao-vite-comment-0e5a75b3,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equi
  * Sem `CascaDoModulo`: `cf-cabecalho`/`cf-container` (de `configuracoes.css`)
  * já centram em 80% sozinhos, do mesmo jeito que a `fx-coluna` do casco
  * comum — empilhar os dois apertaria o miolo a 64% (80% de 80%).
- */",,,,,,
-gestao-vite-comment-3e767633,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts,26,26,jsdoc,2,"/** As três colunas, na ordem da origem, com o tooltip de cada uma. */",,,,,,
+ */",translate,"`/team` for the contact (LEIA.md, capture 1) — now with the PER-FLOW RBAC the origin assumes (migration 0035).
+
+Before, this screen read `/contrato/membros`: without `fluxo_membro`, anyone with account access had access to every flow, and the per-contact subset was the whole set. Now the list is `GET /v1/gestao/fluxos/:id/equipe`'s, which is THIS contact's team — what `TeamController._loadMembers()` does in the origin, per bot.
+
+Who can view and who can change is decided on the server (`dominio/gestao/equipe-do-fluxo.ts`): a 403 becomes the same notice as before, instead of an empty list that would read as ""there's no one here"".
+
+No `CascaDoModulo`: `cf-cabecalho`/`cf-container` (from `configuracoes.css`) already center at 80% on their own, the same way the common shell's `fx-coluna` does — stacking both would squeeze the body to 64% (80% of 80%).",security,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.tsx:7-24,,proposed
+gestao-vite-comment-3e767633,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts,26,26,jsdoc,2,"/** As três colunas, na ordem da origem, com o tooltip de cada uma. */",translate,"The three columns, in the origin's order, each with its own tooltip.",security,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:26-26,,proposed
 gestao-vite-comment-2aaa8933,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts,3,24,jsdoc,19,"/**
  * O vocabulário da Equipe — a barra do modal de adicionar e a matriz da página
  * de editar —, agora com dado de verdade atrás.
@@ -6628,19 +6648,28 @@ gestao-vite-comment-2aaa8933,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equi
  * Os RECURSOS (as linhas) não moram aqui: vêm de `GET .../equipe`, na ordem do
  * template da origem, porque quem decide o catálogo é o servidor
  * (`dominio/gestao/equipe-do-fluxo.ts`) — a tela só desenha.
- */",,,,,,
-gestao-vite-comment-12aae196,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts,56,56,jsdoc,3,/** A Blip troca o CTA ao preparar a passagem do cadastro curto para `/team/edit`. */,,,,,,
-gestao-vite-comment-b9d59ed9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts,60,60,jsdoc,5,/** O seletor da PÁGINA de editar tem uma opção a mais que a barra de adicionar. */,,,,,,
+ */",translate,"The Team vocabulary — the add-member modal's bar and the edit page's matrix —, now backed by real data.
+
+Until migration 0035 this screen MIRRORED the ACCOUNT role: Pipe had no per-flow RBAC, so the radios came from migration 0021's matrix and were born disabled. Now `fluxo_membro` exists, and the list is what it stores — the row/column layout stays the same, it just stopped being decorative.
+
+Two things come from the origin and aren't invented here:
+
+  levels    the three radios from `PermissionsList.html`: `none` (0), `read` (1), and `readWrite` (3), labeled ""Sem permissão"" / ""Visualizar"" / ""Ver e editar"", each with its own `info`;
+  stops     the four from the `rzslider` (`team.addUserModal.slider`): ""Visualizar · Customizado · Visualizar e editar · Admin"". The edit page uses a different control, a `custom-select` with five options.
+
+The RESOURCES (the rows) don't live here: they come from `GET .../equipe`, in the origin template's order, because the server decides the catalog (`dominio/gestao/equipe-do-fluxo.ts`) — the screen only renders it.",security,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:3-24,,proposed
+gestao-vite-comment-12aae196,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts,56,56,jsdoc,3,/** A Blip troca o CTA ao preparar a passagem do cadastro curto para `/team/edit`. */,translate,Blip swaps the CTA when preparing the handoff from the short signup form to `/team/edit`.,meta-blip,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:56-56,,proposed
+gestao-vite-comment-b9d59ed9,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts,60,60,jsdoc,5,/** O seletor da PÁGINA de editar tem uma opção a mais que a barra de adicionar. */,translate,The edit PAGE's selector has one more option than the add-member bar.,security,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:60-60,,proposed
 gestao-vite-comment-b0b813fa,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts,71,76,jsdoc,6,"/**
  * `selectAllPermissions()` da origem, do lado da tela: mover o traço MARCA os
  * rádios. É a mesma regra de `permissoesDoPapel` na `api` — aqui para a lista
  * acompanhar o traço antes de salvar, lá para o banco nunca contradizer o que
  * a pessoa viu.
- */",,,,,,
+ */",translate,"The origin's `selectAllPermissions()`, on the screen side: moving the slider MARKS the radios. It's the same rule as `permissoesDoPapel` in the `api` — here so the list follows the slider before saving, there so the database never contradicts what the person saw.",security,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:71-76,,proposed
 gestao-vite-comment-b2a1a502,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts,94,97,jsdoc,0,"/**
  * O `permissionSelect` de `/team/edit` na Blip é derivado da matriz:
  * tudo 0 = none, tudo 1 = read, tudo 3 = readWrite; mistura = custom.
- */",,,,,,
+ */",translate,"Blip's `/team/edit` `permissionSelect` is derived from the matrix: all 0 = none, all 1 = read, all 3 = readWrite; mixed = custom.",meta-blip,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:94-97,,proposed
 gestao-vite-comment-edf18b05,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,112,121,jsdoc,9,"/**
  * A lista de permissões granulares do EDITAR — o `PermissionsList.html` da
  * origem: cabeçalho ""Funcionalidades | Sem permissão | Visualizar | Ver e
@@ -6650,8 +6679,10 @@ gestao-vite-comment-edf18b05,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equi
  * A regra é a de lá, inteira: o nível de cima marca os rádios
  * (`selectAllPermissions()`) e só ""Personalizado"" solta cada linha para a mão
  * (`checkStatus()`). Os RECURSOS vêm do servidor, na ordem do template deles.
- */",,,,,,
-gestao-vite-comment-da437a1d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,165,165,block,0,"/* Fora de ""Personalizado"" o traço manda, como na origem. */",,,,,,
+ */",translate,"The EDIT page's granular permissions list — the origin's `PermissionsList.html`: header ""Funcionalidades | Sem permissão | Visualizar | Ver e editar"" (each column with its `info` and tooltip), and one row per resource with three radios.
+
+The rule is theirs entirely: the top-level radio marks the row radios (`selectAllPermissions()`) and only ""Personalizado"" frees each row for manual control (`checkStatus()`). The RESOURCES come from the server, in their template's order.",security,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:112-121,,proposed
+gestao-vite-comment-da437a1d,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,165,165,block,0,"/* Fora de ""Personalizado"" o traço manda, como na origem. */",translate,"Outside ""Personalizado"" the slider is in charge, as in the origin.",security,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:165-165,,proposed
 gestao-vite-comment-5cc1aa7f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,180,205,jsdoc,25,"/**
  * O `add-user-modal` da origem — DOM capturado com ele ABERTO em
  * `referencias-blip/equipe/equipe-adicionar-modal__pagina.html`:
@@ -6677,11 +6708,21 @@ gestao-vite-comment-5cc1aa7f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equi
  * essa mesma frase (`pessoa_fora_do_contrato`) e o modal oferece o convite —
  * `POST /v1/convites`, o mesmo de `/contrato/membros`, que devolve o link para
  * copiar porque o Pipe não manda e-mail.
- */",,,,,,
-gestao-vite-comment-6eedf49a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,220,220,jsdoc,6,/** Aparece quando a `api` diz que a pessoa não está no contrato. */,,,,,,
-gestao-vite-comment-68156cfa,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,251,251,jsdoc,1,"/** O `guest` de `confirmAddUser`: entrar no contrato é pré-requisito, não o gesto. */",,,,,,
+ */",translate,"The origin's `add-user-modal` — DOM captured with it OPEN in `referencias-blip/equipe/equipe-adicionar-modal__pagina.html`:
+
+  toolbar    only the `icon-close` in the corner;
+  header     CENTERED block (`.row.mh6.tc.mt3`): h1 ""Adicionar pessoa"" and the subtitle ""Adicione e defina as permissões de uma nova pessoa para sua equipe"";
+  email      EDITABLE `material-input`: small label on top, underline below, no box;
+  permission ""Permissão"" label on the left and the `rzslider` with the same stops as add;
+  footer     CENTERED `.modal-footer`: `Cancelar` (text) and `Salvar` (`bp-btn--bot`), which starts disabled (`ng-disabled=""$ctrl.userForm.$invalid""`) until the email is valid.
+
+On ""Customizado"", the origin calls `addCustomUser()`: the CTA becomes ""Continuar"" and only then navigates to the separate `/team/edit` page, where the matrix lives.
+
+THE INVITE is what the origin admits and we repeat a different way: there, `confirmAddUser` invites whoever isn't in the tenant yet as a `guest` and warns ""Essa pessoa não faz parte do contrato…"". Here the `api` rejects with that same phrase (`pessoa_fora_do_contrato`) and the modal offers the invite — `POST /v1/convites`, the same one from `/contrato/membros`, which returns the link to copy because Pipe doesn't send email.",meta-blip,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:180-205,,proposed
+gestao-vite-comment-6eedf49a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,220,220,jsdoc,6,/** Aparece quando a `api` diz que a pessoa não está no contrato. */,translate,Shows up when the `api` says the person isn't in the tenant.,security,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:220-220,,proposed
+gestao-vite-comment-68156cfa,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,251,251,jsdoc,1,"/** O `guest` de `confirmAddUser`: entrar no contrato é pré-requisito, não o gesto. */",translate,"The `guest` from `confirmAddUser`: joining the tenant is a prerequisite, not the action itself.",security,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:251-251,,proposed
 gestao-vite-comment-28ef60cd,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,26,27,jsdoc,2,"/** O mesmo formato de `contrato/membros/convidar.tsx` — o `emailValidation`
-    do blip-ds é um formato, não uma consulta. */",,,,,,
+    do blip-ds é um formato, não uma consulta. */",translate,"Same format as `contrato/membros/convidar.tsx` — blip-ds's `emailValidation` is a format check, not a lookup.",other,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:26-27,,proposed
 gestao-vite-comment-4e7f8dec,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,372,395,jsdoc,18,"/**
  * `/team` do contato — a mesma tela em `/fluxo/:id/equipe` e
  * `/roteador/:id/equipe`, porque na origem ela é um estado de
@@ -6705,10 +6746,19 @@ gestao-vite-comment-4e7f8dec,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equi
  * como `TeamController._loadMembers()` cruza `getUsersAccounts` com
  * `getApplicationUsersPermissions`, tudo por bot. Antes da migração 0035 ela
  * era a lista de `/contrato/membros` inteira, porque não havia RBAC por fluxo.
- */",,,,,,
-gestao-vite-comment-88d7b4d5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,438,438,block,0,"/* `addUser()` da origem — botão ""Adicionar Membro"" do cabeçalho. */",,,,,,
+ */",translate,"`/team` for the contact — the same screen at `/fluxo/:id/equipe` and `/roteador/:id/equipe`, because in the origin it's a state of `auth.application.detail` and applies equally to chatbot and router.
+
+The structure follows the origin's template (`portal.js`, the `<page-header class=""team-header"">` followed by `.container.mb-5 > .row.team-cards`, the same DOM captured in `referencias-blip/canais/roteador/roteador-team__pagina.html`):
+
+  header    h1 ""Equipe"" on the left; on the right, the search (""Pesquisar por nome ou e-mail"", `avatar-user` icon, 260px) and THEN the ""Adicionar Membro"" button — in that order;
+  subtitle  ""Adicione pessoas para a sua equipe e dê permissões para alterarem o Chatbot."" (`additional-info`), below the divider;
+  list      one `card--mini-card` per member: avatar (5%) · ""Membro"" + name (25%) · divider · ""E-mail"" + email (20%) · divider · role badge (10%) · divider · edit/delete (5%);
+  empty     ""Nenhum membro encontrado =("" (`.no-content-found`).
+
+The list is `GET /v1/gestao/fluxos/:id/equipe`'s — THIS contact's team, the way `TeamController._loadMembers()` joins `getUsersAccounts` with `getApplicationUsersPermissions`, all per bot. Before migration 0035 it was the entire `/contrato/membros` list, because there was no per-flow RBAC.",meta-blip,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:372-395,,proposed
+gestao-vite-comment-88d7b4d5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,438,438,block,0,"/* `addUser()` da origem — botão ""Adicionar Membro"" do cabeçalho. */",translate,"The origin's `addUser()` — the header's ""Adicionar Membro"" button.",other,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:438-438,,proposed
 gestao-vite-comment-0df9165f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,456,457,block,2,"/* `editUser(user)` da origem: o cartão inteiro (`<a class=""no-decoration"">`)
-               e o ícone de lápis abrem a MESMA edição. */",,,,,,
+               e o ícone de lápis abrem a MESMA edição. */",translate,"The origin's `editUser(user)`: the whole card (`<a class=""no-decoration"">`) and the pencil icon open the SAME edit view.",other,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:456-457,,proposed
 gestao-vite-comment-2b9d9591,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,50,57,jsdoc,5,"/**
  * As três ações da linha, agora POR FLUXO — `POST/PATCH/DELETE
  * /v1/gestao/fluxos/:id/equipe` (controlador `gestao-equipe.ts`). Antes da
@@ -6716,13 +6766,13 @@ gestao-vite-comment-2b9d9591,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equi
  * `/excluir`), porque o Pipe não tinha RBAC por fluxo: tirar alguém daqui
  * tirava do contrato inteiro. Agora tira só deste contato, que é o que a
  * origem sempre fez (`TeamController`, tudo por bot).
- */",,,,,,
+ */",translate,"The row's three actions, now PER FLOW — `POST/PATCH/DELETE /v1/gestao/fluxos/:id/equipe` (`gestao-equipe.ts` controller). Before migration 0035 they acted on the ACCOUNT role (`/contrato/membros/papel` and `/excluir`), because Pipe had no per-flow RBAC: removing someone here removed them from the whole tenant. Now it removes them only from this contact, which is what the origin always did (`TeamController`, everything per bot).",security,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:50-57,,proposed
 gestao-vite-comment-d1029bad,gestao-vite,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx,61,66,jsdoc,2,"/**
  * O `rzslider` ""Permissão"" do modal de adição da origem
  * (`rz-slider-model=""$ctrl.permissionsValue""`), com as mesmas quatro paradas.
  * Um `<input type=""range"">` de verdade por baixo dá arraste e teclado sem
  * reimplementar o comportamento nativo.
- */",,,,,,
+ */",translate,"The origin's ""Permissão"" `rzslider` (`rz-slider-model=""$ctrl.permissionsValue""`), with the same four stops. A real `<input type=""range"">` underneath gives dragging and keyboard support without reimplementing native behavior.",security,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:61-66,,proposed
 gestao-vite-comment-4bb554b7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/anuncios/anuncios.tsx,4,28,jsdoc,35,"/**
  * Growth › Anúncios (Beta) — `growth/adsbuying` na origem. Refeito por foto
  * (dono reclamou que a primeira versão ""ficou totalmente diferente""): a
@@ -6747,8 +6797,12 @@ gestao-vite-comment-4bb554b7,gestao-vite,apps/gestao-vite/src/paginas/fluxo/grow
  * `configuracoes/api/tela.tsx`: diz que a integração não está disponível, sem
  * fingir um clique que ""funciona"". TODO: quando existir a chave de Marketing
  * API do Pipe, trocar o aviso por `lib/growth.ts#conectarFacebook` de verdade.
- */",,,,,,
-gestao-vite-comment-71f705f6,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/casca.tsx,12,12,block,2,"/* `section.main-section > ui-view`: a lateral e o miolo, lado a lado. */",,,,,,
+ */",translate,"Growth › Anúncios (Beta) — `growth/adsbuying` in the origin. Rebuilt from a photo (the owner complained the first version ""came out totally different""): the origin doesn't open in the 8790 clone (the `ads-buying` MFE shows a blank screen — a mock with no Marketing API account) and the captured HTML doesn't render outside Blip's domain, so the ruler here is the rendered DOM saved at `referencias-blip/canais/roteador/roteador-anuncios__pagina.html` (measured: centered `bds-paper`, `container xxs=8`, `margin: y-9`, a `justify-content: space-between; align-items: center` row up to 625px — illustration on the left, text on the right, button right-aligned with `padding-top: 30px`) — not a centered vertical card like before.
+
+Title and copy match the origin (`typo-account-connection-title` and the paragraph right below). The icon is OURS: the origin uses `bds-illustration name=""notification-1""`, here it's `Ilustracao nome=""vazio""` from Pipe's design system — same role (initial-state illustration), without copying their artwork.
+
+Pipe has no Marketing API account and no Facebook OAuth — none of that exists yet. Instead of simulating the connection (or inventing a contract the `api` doesn't have), the button opens the same controlled notice from `configuracoes/api/tela.tsx`: it says the integration isn't available, without faking a click that ""works"". TODO: once Pipe's Marketing API key exists, replace the notice with the real `lib/growth.ts#conectarFacebook`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/anuncios/anuncios.tsx:4-28; verified against current source,,proposed
+gestao-vite-comment-71f705f6,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/casca.tsx,12,12,block,2,"/* `section.main-section > ui-view`: a lateral e o miolo, lado a lado. */",translate,"`section.main-section > ui-view`: the sidebar and the body, side by side.",architecture,apps/gestao-vite/src/paginas/fluxo/growth/casca.tsx:12-12,,proposed
 gestao-vite-comment-b46b5c13,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/clicktracker/clicktracker.tsx,4,12,block,7,"/* Painel do Click Tracker como o microfrontend `portal-fragment-click-tracker`
    renderiza na rota `growth/clicktracker` (medido na cópia com a régua):
    título fs-32 com dica, ""Evento de conversão"" + ""Período analisado"", papel do
@@ -6757,7 +6811,8 @@ gestao-vite-comment-b46b5c13,gestao-vite,apps/gestao-vite/src/paginas/fluxo/grow
    separador, ""Desempenho resumido de seus anúncios"" com quatro indicadores e o
    estado vazio ""Nenhum dado encontrado"". A tela ""Eventos de otimização"" é
    outra rota da origem (`growth/conversation-settings/events`).
-   ponytail: nada aqui conecta conta externa nem dispara evento; é só visual. */",,,,,,
+   ponytail: nada aqui conecta conta externa nem dispara evento; é só visual. */",translate,"The Click Tracker panel as the `portal-fragment-click-tracker` microfrontend renders it on the `growth/clicktracker` route (measured on the copy with a ruler): fs-32 title with a tooltip, ""Evento de conversão"" + ""Período analisado"", the event field with an edit chip and a From/To picker, the token field (status stripe, logo, ""Token de acesso à Marketing API"" / ""Conectado"", ""Alterar token""), a divider, ""Desempenho resumido de seus anúncios"" with four indicators, and the empty state ""Nenhum dado encontrado"". The ""Eventos de otimização"" screen is another origin route (`growth/conversation-settings/events`).
+ponytail: nothing here connects an external account or fires an event; it's visual only.",integration,"apps/gestao-vite/src/paginas/fluxo/growth/clicktracker/clicktracker.tsx:4-12; verified against current source, still purely visual",,proposed
 gestao-vite-comment-e90d70c6,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/dados.ts,1,18,jsdoc,22,"/**
  * Rastreador de cliques (Growth) — os tipos e a regra pura de
  * `GET`/`POST /v1/gestao/fluxos/:fluxoId/links-rastreados`
@@ -6775,20 +6830,24 @@ gestao-vite-comment-e90d70c6,gestao-vite,apps/gestao-vite/src/paginas/fluxo/grow
  * `import.meta.env` e quebra fora do Vite) — mesma separação de
  * `cadastros.ts`/`cadastros-gravar.ts` e `regras.ts`/`disparo.ts`: aqui só o
  * que `node --test` consegue importar puro.
- */",,,,,,
+ */",translate,"Click tracker (Growth) — the types and the pure rule for `GET`/`POST /v1/gestao/fluxos/:fluxoId/links-rastreados` (`apps/api/src/dominio/rastreador-de-cliques.ts`, tested in `apps/api/tests/growth.test.ts`).
+
+NOT the existing `growth/clicktracker` (`clicktracker/clicktracker.tsx`) — that one measures Meta's Click-to-WhatsApp ad performance, with no link to register at all; the comment at the top of the domain confirms the distinction. This is a sibling screen, new, with no equivalent Blip screen to measure against for the visual ruler — its shape follows the other Growth menu items (`mensagens-ativas`, `pagamentos`), not a captured reference.
+
+A SEPARATE file from `gravar.ts` (which imports `./api`, which reads `import.meta.env` and breaks outside Vite) — the same split as `cadastros.ts`/`cadastros-gravar.ts` and `regras.ts`/`disparo.ts`: here only what `node --test` can import cleanly.",architecture,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/dados.ts:1-18,,proposed
 gestao-vite-comment-bd965574,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/dados.ts,35,41,jsdoc,3,"/**
  * O corpo do erro (`{erro:{codigo,mensagem}}`) deste endpoint não manda
  * `detalhe.campo` — só o `codigo` diz qual campo é (`criarLinkRastreado` em
  * `dominio/rastreador-de-cliques.ts` e `confirmarUrlSegura` em
  * `dominio/gestao/integracoes.ts`). Mapeado aqui, não lá: mudar de campo é
  * mudar de tela, não de domínio.
- */",,,,,,
+ */",translate,"This endpoint's error body (`{erro:{codigo,mensagem}}`) doesn't send `detalhe.campo` — only the `codigo` says which field it is (`criarLinkRastreado` in `dominio/rastreador-de-cliques.ts` and `confirmarUrlSegura` in `dominio/gestao/integracoes.ts`). Mapped here, not there: changing a field is a screen change, not a domain change.",architecture,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/dados.ts:35-41,,proposed
 gestao-vite-comment-4c6f832f,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/gravar.ts,5,10,jsdoc,3,"/**
  * A escrita de verdade do rastreador de cliques — `POST
  * /v1/gestao/fluxos/:fluxoId/links-rastreados`. Tipos e a regra de campo do
  * erro moram em `dados.ts` (módulo puro); aqui só o que precisa de `./api`.
  * Mesmo formato de `mensagens-ativas/disparo.ts`.
- */",,,,,,
+ */",translate,The real write for the click tracker — `POST /v1/gestao/fluxos/:fluxoId/links-rastreados`. Types and the error-field rule live in `dados.ts` (a pure module); here only what needs `./api`. Same format as `mensagens-ativas/disparo.ts`.,architecture,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/gravar.ts:5-10,,proposed
 gestao-vite-comment-d0750394,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/links-rastreados.tsx,10,24,jsdoc,18,"/**
  * Growth › Links rastreados — tela irmã do `growth/clicktracker` que já
  * existe (aquele é a medição de anúncios Click-to-WhatsApp da Meta; este é o
@@ -6803,20 +6862,22 @@ gestao-vite-comment-d0750394,gestao-vite,apps/gestao-vite/src/paginas/fluxo/grow
  * pedido pede um seletor de datas aqui) — ""Cliques"" é sempre o total; se um
  * dia precisar do corte por período, é um `<input type=""date"">` a mais nesta
  * mesma leitura.
- */",,,,,,
-gestao-vite-comment-8e4b1918,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/links-rastreados.tsx,26,26,jsdoc,3,"/** Copia o link curto para a área de transferência — mesma ideia (palavra, não ícone) de `paginas/contrato/copiar.tsx`. */",,,,,,
+ */",translate,"Growth › Links rastreados — a sibling screen to the existing `growth/clicktracker` (that one measures Meta's Click-to-WhatsApp ad performance; this one is the short link with real click counting, backed by `apps/api/src/dominio/rastreador-de-cliques.ts`, already tested). No Blip reference for this screen — the origin doesn't have it —, so its shape follows the other menu items (`mensagens-ativas/tela.tsx`, `pagamentos.tsx`): `gr-container`/`gr-cabeca`/`gr-lista`/`gr-tabela-rolagem` and the creation modal in `gr-sobreposicao`/`gr-modal`.
+
+No period filter on the screen (the read endpoint accepts `?desde=&ate=`, but nothing in the request calls for a date picker here) — ""Cliques"" is always the total; if a period cut is ever needed, it's one more `<input type=""date"">` on this same read.",architecture,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/links-rastreados.tsx:10-24,,proposed
+gestao-vite-comment-8e4b1918,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/links-rastreados.tsx,26,26,jsdoc,3,"/** Copia o link curto para a área de transferência — mesma ideia (palavra, não ícone) de `paginas/contrato/copiar.tsx`. */",translate,"Copies the short link to the clipboard — same idea (word, not icon) as `paginas/contrato/copiar.tsx`.",other,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/links-rastreados.tsx:26-26,,proposed
 gestao-vite-comment-28afc206,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts,4,9,jsdoc,4,"/**
  * `POST /v1/mensagens-ativas` — a escrita que faltava ligar na tela (o resto,
  * `GET .../growth`, já lê dado real). Mesmo formato de `Resultado<T>` de
  * `configuracoes/basicas/gravar.ts`: `ok`/`valor` ou `ok`/`erro` em texto pronto
  * para o `aviso` da tela.
- */",,,,,,
-gestao-vite-comment-19b94218,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts,56,56,jsdoc,2,"/** O `erro.mensagem` que a `api` põe no corpo (`ErroPipe`), ou o texto padrão. */",,,,,,
-gestao-vite-comment-c8d122bd,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts,66,66,jsdoc,0,"/** `MotivoDeRecusa` de `dominio/mensagem-ativa.ts`, em português de tela. */",,,,,,
-gestao-vite-comment-b2fa6718,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/mensagens-ativas.tsx,6,6,jsdoc,1,"/** Growth › Mensagens ativas: os dados são da conta, lidos em `/v1/gestao/fluxos/:id/growth`. */",,,,,,
-gestao-vite-comment-ac307630,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/tela.tsx,15,15,block,2,"/* O ""Atualizar"" da origem recarrega a tela; aqui invalida a leitura do Growth. */",,,,,,
+ */",translate,"`POST /v1/mensagens-ativas` — the write that was missing to wire up the screen (the rest, `GET .../growth`, already reads real data). Same `Resultado<T>` format as `configuracoes/basicas/gravar.ts`: `ok`/`valor` or `ok`/`erro` with text ready for the screen's `aviso`.",other,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:4-9,,proposed
+gestao-vite-comment-19b94218,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts,56,56,jsdoc,2,"/** O `erro.mensagem` que a `api` põe no corpo (`ErroPipe`), ou o texto padrão. */",translate,"The `erro.mensagem` the `api` puts in the body (`ErroPipe`), or the default text.",other,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:56-56,,proposed
+gestao-vite-comment-c8d122bd,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts,66,66,jsdoc,0,"/** `MotivoDeRecusa` de `dominio/mensagem-ativa.ts`, em português de tela. */",translate,"`MotivoDeRecusa` from `dominio/mensagem-ativa.ts`, in screen-facing Portuguese.",other,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:66-66,,proposed
+gestao-vite-comment-b2fa6718,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/mensagens-ativas.tsx,6,6,jsdoc,1,"/** Growth › Mensagens ativas: os dados são da conta, lidos em `/v1/gestao/fluxos/:id/growth`. */",translate,"Growth › Mensagens ativas: the data is the account's, read from `/v1/gestao/fluxos/:id/growth`.",other,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/mensagens-ativas.tsx:6-6,,proposed
+gestao-vite-comment-ac307630,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/tela.tsx,15,15,block,2,"/* O ""Atualizar"" da origem recarrega a tela; aqui invalida a leitura do Growth. */",translate,"The origin's ""Atualizar"" reloads the screen; here it invalidates the Growth read.",other,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/tela.tsx:15-15,,proposed
 gestao-vite-comment-87083109,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/tela.tsx,39,40,block,3,"/* GET /v1/mensagens-ativas/limites — o teto de contatos por disparo, para a
-     tela não repetir número mágico (`ControladorMensagensAtivas.limites`). */",,,,,,
+     tela não repetir número mágico (`ControladorMensagensAtivas.limites`). */",translate,"GET /v1/mensagens-ativas/limites — the contact cap per dispatch, so the screen doesn't repeat a magic number (`ControladorMensagensAtivas.limites`).",other,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/tela.tsx:39-40,,proposed
 gestao-vite-comment-54924322,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/navegacao.tsx,5,26,jsdoc,14,"/**
  * A lateral do Growth — `<aside class=""detail-aside fl""><nav class=""sidenav"">
  * <sidenav-menu><ol><sidenav-menu-item>` (portal.js, estado
@@ -6838,7 +6899,16 @@ gestao-vite-comment-54924322,gestao-vite,apps/gestao-vite/src/paginas/fluxo/grow
  * relação com o ""Click Tracker"" acima (aquele é a medição de anúncios
  * Click-to-WhatsApp da Meta). Entra no fim da lista, sem badge, com texto
  * nosso — não há frase da Blip para copiar aqui.
- */",,,,,,
+ */",translate,"The Growth sidebar — `<aside class=""detail-aside fl""><nav class=""sidenav""><sidenav-menu><ol><sidenav-menu-item>` (portal.js, state `auth.application.detail.growth`). Each item is `li.relative > a` with `span.sidebar-title` and `span.sidebar-subtitle`; the active one is `$state.includes(sref)` — it also lights up on the screens inside it.
+
+The first four items, in order and with the pt-BR bundle's text (`modules.application.detail.growth.*`):
+
+  activeMessages                 ""Mensagens ativas""           → mensagens-ativas
+  clicktracker                   ""Click Tracker"" / subtitle   → clicktracker
+  adsbuying  (badge ""Beta"")      ""Anúncios"" / subtitle        → anuncios
+  activeMessages.paymentsReport  ""Relatório de Pagamentos"" / subtitle → pagamentos
+
+The fifth, ""Links rastreados"", does NOT exist in the origin — item 3 of the Attendance registrations task: a short link with real click counting (`links-rastreados/links-rastreados.tsx`), its own tested backend, unrelated to the ""Click Tracker"" above (that one measures Meta's Click-to-WhatsApp ad performance). It goes at the end of the list, with no badge, with our own text — there's no Blip copy to reuse here.",architecture,apps/gestao-vite/src/paginas/fluxo/growth/navegacao.tsx:5-26,,proposed
 gestao-vite-comment-6bc0c506,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/pagamentos/pagamentos.tsx,4,32,jsdoc,40,"/**
  * Growth › Relatório de Pagamentos — `growth/activemessages/paymentsReport`
  * na origem. Refeito por foto (dono reclamou que a primeira versão ""ficou
@@ -6867,13 +6937,19 @@ gestao-vite-comment-6bc0c506,gestao-vite,apps/gestao-vite/src/paginas/fluxo/grow
  * em ""—"" e as barras não fabricam altura — a disposição é a mesma, o dado é
  * honesto. TODO: quando existir a integração de cobrança, trocar por
  * `lib/growth.ts#relatorioDePagamentos`.
- */",,,,,,
+ */",translate,"Growth › Relatório de Pagamentos — `growth/activemessages/paymentsReport` in the origin. Rebuilt from a photo (the owner complained the first version ""came out totally different""): the origin doesn't open in the 8790 clone, and the captured HTML doesn't render outside Blip's domain (the `active-campaign-mfe` MFE embeds React with Tailwind classes), so the ruler here is the rendered DOM saved at `referencias-blip/canais/roteador/roteador-relatoriopagamentos__pagina.html`.
+
+Two findings that change the previous version's structure:
+1. **There's no page title.** `ui-view=""content""` receives the MFE directly — no `home-header-testid`, no `<h1>`. The name ""Relatório de Pagamentos"" only shows up in the sidebar item (`navegacao.tsx`). That's why this version has no `<h1>` — the old one had one the origin doesn't.
+2. **It's a two-column side-by-side layout**, not three stacked sections: ""Tráfego de mensagens"" on the left (two metric cards + one chart card with the legend for the 4 payment methods) and ""Pagamentos"" on the right (two summary cards side by side + the Top 5 below). Measured: `gap: 32`, cards with `border-radius: 12px; padding: 12px`.
+
+The origin shows fixed demo numbers (384,302 messages, R$ 91 million, a Top 5 of fashion products) — sample data for the Blip PRODUCT, not from the captured router. Pipe has no billing for active messages (PIX, card, boleto, link), for real or as a mock: instead of copying the demo numbers (which would look real but aren't), every value shows ""—"" and the bars don't fake a height — the layout is the same, the data is honest. TODO: once billing integration exists, swap in `lib/growth.ts#relatorioDePagamentos`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/growth/pagamentos/pagamentos.tsx:4-32; verified placeholder values against current source,,proposed
 gestao-vite-comment-70d569aa,gestao-vite,apps/gestao-vite/src/paginas/fluxo/growth/regras.ts,29,33,jsdoc,5,"/**
  * A planilha do disparo em massa: primeira linha é cabeçalho (descartada),
  * colunas seguintes são `telefone,nome,parametro1,parametro2,...` — nome e
  * parâmetros são opcionais. Linha sem telefone não vira destino.
- */",,,,,,
-gestao-vite-comment-8100f3aa,gestao-vite,apps/gestao-vite/src/paginas/fluxo/home.tsx,102,102,block,0,/* ------------------------------------------------------------------ peças */,,,,,,
+ */",translate,"The bulk-dispatch spreadsheet: the first row is a header (discarded), the following columns are `telefone,nome,parametro1,parametro2,...` — name and parameters are optional. A row with no phone number doesn't become a recipient.",integration,apps/gestao-vite/src/paginas/fluxo/growth/regras.ts:29-33,,proposed
+gestao-vite-comment-8100f3aa,gestao-vite,apps/gestao-vite/src/paginas/fluxo/home.tsx,102,102,block,0,/* ------------------------------------------------------------------ peças */,remove,,other,"apps/gestao-vite/src/paginas/fluxo/home.tsx:102-102; pure section divider, no semantic content",,proposed
 gestao-vite-comment-9f55d3b5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/home.tsx,13,45,jsdoc,47,"/**
  * A tela do contato — o `auth.application.detail.home` da origem,
  * `/application/detail/{shortName}/home`.
@@ -6906,17 +6982,31 @@ gestao-vite-comment-9f55d3b5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/home
  * ""Painel do contrato"": na origem esta tela troca a barra clara do portal pela
  * barra ESCURA do contato, mas a barra de cima continua a mesma. Por isso
  * `/fluxo` entrou na lista de casco próprio de `estrutura-gestao.tsx`.
- */",,,,,,
-gestao-vite-comment-2ffde84c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/home.tsx,54,54,block,1,/* `#main-content-area` é `pa0`: quem recua é a `.container` de dentro. */,,,,,,
+ */",translate,"The contact screen — the origin's `auth.application.detail.home`, `/application/detail/{shortName}/home`.
+
+This is where router creation ENDS: there, `goToApplicationDetails()` does `$state.go('auth.application.detail.home', { shortName })`, which is why `criar/roteador/acoes.ts` now redirects here.
+
+The ruler is the `supernova.blip.ai/portal.js` bundle (25.203.0-v0.43.0) — the `application.home` template (module 77021) and the `HomeController` controller (module 84909) —, plus the `portal.css` sheet for the grid layout.
+
+═══ THE ROUTE USES `id`, AND THAT'S A DELIBERATE DIVERGENCE ═══
+
+There the URL carries the `shortName`, the contact's key on the platform. Here the `fluxo.short_name` column exists (migration 0020) but is NOT unique — there's no index, and uniqueness is only checked against `nome` at creation. Routing by a field that can repeat means choosing, by the luck of `limit(1)`, which of two contacts the person opens. It stays on `id` until there's a unique index; `shortName` remains what the screen SHOWS, where the origin writes ""Id:"".
+
+═══ WHAT THE ORIGIN SHOWS THAT WE DON'T HAVE ═══
+
+Its body is a grid of up to five areas — Extensões, Canais, Equipe, Preferências, and Métricas. Each card (`cartoes.tsx`) receives its data by prop and applies the origin template's condition; this page passes what Pipe has, and empty for what it doesn't — and it's the origin's rule that decides what disappears.
+
+The chrome is the PORTAL's (`pt-app` + `BarraDoPortal`), as in ""Novidades"" and the ""Painel do contrato"": in the origin this screen swaps the portal's light bar for the contact's DARK bar, but the top bar stays the same. That's why `/fluxo` joined the list of screens with their own shell in `estrutura-gestao.tsx`.",architecture,apps/gestao-vite/src/paginas/fluxo/home.tsx:13-45,,proposed
+gestao-vite-comment-2ffde84c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/home.tsx,54,54,block,1,/* `#main-content-area` é `pa0`: quem recua é a `.container` de dentro. */,translate,`#main-content-area` is `pa0`: the inner `.container` is what adds the padding.,other,apps/gestao-vite/src/paginas/fluxo/home.tsx:54-54,,proposed
 gestao-vite-comment-62247f88,gestao-vite,apps/gestao-vite/src/paginas/fluxo/home.tsx,57,58,block,2,"/* O cabeçalho da origem: foto à esquerda, nome e ""Id:"" ao lado, e a
-              data de criação encostada na direita, na mesma linha. */",,,,,,
+              data de criação encostada na direita, na mesma linha. */",translate,"The origin's header: photo on the left, name and ""Id:"" beside it, and the creation date flush right, on the same line.",other,apps/gestao-vite/src/paginas/fluxo/home.tsx:57-58,,proposed
 gestao-vite-comment-91782f21,gestao-vite,apps/gestao-vite/src/paginas/fluxo/home.tsx,67,70,block,9,"/* Lá o nome é um `bds-input-editable` para quem tem a claim 109
                     (`basicConfigurations`), e um texto para quem não tem. Aqui é
                     sempre texto: renomear grava no mesmo lugar que a criação, e
-                    a Server Action dessa edição ainda não existe. */",,,,,,
+                    a Server Action dessa edição ainda não existe. */",translate,"There the name is a `bds-input-editable` for whoever has claim 109 (`basicConfigurations`), and plain text otherwise. Here it's always text: renaming would write to the same place creation does, and that edit's Server Action doesn't exist yet.",other,apps/gestao-vite/src/paginas/fluxo/home.tsx:67-70,,proposed
 gestao-vite-comment-4c10ae3b,gestao-vite,apps/gestao-vite/src/paginas/fluxo/home.tsx,82,84,block,5,"/* A ordem é a do template: extensões, canais, equipe, preferências,
               métricas — a grade posiciona por `grid-area`. O que o Pipe não tem
-              (loja, equipe por contato, contagem por contato) vai vazio. */",,,,,,
+              (loja, equipe por contato, contagem por contato) vai vazio. */",translate,"The order follows the template: extensions, channels, team, preferences, metrics — the grid positions them with `grid-area`. What Pipe doesn't have (store, per-contact team, per-contact count) is left empty.",other,apps/gestao-vite/src/paginas/fluxo/home.tsx:82-84,,proposed
 gestao-vite-comment-32da777e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/ilustracoes.tsx,1,13,jsdoc,11,"/**
  * As ilustrações dos cartões de Integrações — os `<img src=""/assets/img/integrations/*.svg"">`
  * da origem (módulo de template das integrações em portal.js), copiados dos arquivos
@@ -6929,9 +7019,13 @@ gestao-vite-comment-32da777e,gestao-vite,apps/gestao-vite/src/paginas/fluxo/inte
  *
  * Fica LOCAL nesta pasta pela regra de trabalho (escrever local e relatar); quando
  * outra tela pedir as mesmas figuras, sobe para `componentes/`.
- */",,,,,,
-gestao-vite-comment-e8b87d49,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/ilustracoes.tsx,101,101,jsdoc,0,"/** `webhook.svg` — `height=""57""` no cartão e 72×72 na página do Webhook. */",,,,,,
-gestao-vite-comment-6c5d8f8a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/ilustracoes.tsx,17,17,jsdoc,1,"/** `dashbot.svg` — no cartão vai com `height=""67""` e `class=""mb0""`. */",,,,,,
+ */",translate,"The Integrations cards' illustrations — the origin's `<img src=""/assets/img/integrations/*.svg"">` (the integrations template module in portal.js), copied from the capture's asset files by `gerar-ilustracoes.mjs` (scratchpad), with no redesign.
+
+Dashbot and Botanalytics are third-party brands and keep their colors as-is — the same rule as the channel logos in `componentes/icones-portal.tsx`. Webhook is the origin's own artwork: its stroke becomes `currentColor` and its highlight becomes Pipe's brand color.
+
+Stays LOCAL to this folder per the working rule (write locally and report); when another screen needs the same figures, it moves up to `componentes/`.",integration,apps/gestao-vite/src/paginas/fluxo/integracoes/ilustracoes.tsx:1-13,,proposed
+gestao-vite-comment-e8b87d49,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/ilustracoes.tsx,101,101,jsdoc,0,"/** `webhook.svg` — `height=""57""` no cartão e 72×72 na página do Webhook. */",translate,"`webhook.svg` — `height=""57""` on the card and 72×72 on the Webhook page.",other,apps/gestao-vite/src/paginas/fluxo/integracoes/ilustracoes.tsx:101-101,,proposed
+gestao-vite-comment-6c5d8f8a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/ilustracoes.tsx,17,17,jsdoc,1,"/** `dashbot.svg` — no cartão vai com `height=""67""` e `class=""mb0""`. */",translate,"`dashbot.svg` — on the card it's `height=""67""` and `class=""mb0""`.",other,apps/gestao-vite/src/paginas/fluxo/integracoes/ilustracoes.tsx:17-17,,proposed
 gestao-vite-comment-01de9587,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.tsx,5,29,jsdoc,11,"/**
  * A grade de Integrações — `auth.application.detail.integrations` da origem.
  *
@@ -6956,7 +7050,24 @@ gestao-vite-comment-01de9587,gestao-vite,apps/gestao-vite/src/paginas/fluxo/inte
  * ponytail: só o Webhook tem tela no Pipe. Dashbot e Botanalytics são
  * cartões visuais (a origem os manda para estados próprios que não existem
  * aqui) e nenhuma integração está ativa, então os três dizem ""Conectar"".
- */",,,,,,
+ */",translate,"The Integrations grid — the origin's `auth.application.detail.integrations`.
+
+Template (portal.js, the `IntegrationsController` controller's module):
+
+  <div class=""container""> <div class=""row""> <div class=""twelve columns"">
+    <div class=""integrations-list"">
+      <div class=""integration-item tc"">
+        <card class=""tc card card--with-hover card--square"" id=""dashbot-card-integration"">
+          <img src=""/assets/img/integrations/dashbot.svg"" height=""67"" class=""mb0""/>
+          <div class=""integration-item-text""> <h4>dashbot.title</h4> <small>dashbot.headline</small> </div>
+          <div class=""integration-item-button""> <bds-button variant=""tertiary"">{{$ctrl.dashbotButtonText}}</bds-button> </div>
+        </card>
+      </div>
+      … Botanalytics (height 57) … Webhook (height 57) …
+
+There's NO title above the grid: the page starts at the list. The button text is `utils.forms.connect` (""Conectar"") and becomes `utils.forms.connected` (""Conectado"", primary variant) when `<X>.IsValid` is ""true"" in the bot's configuration (`checkWebhook`/`checkDashbot`/`checkBotanalytics`).
+
+ponytail: only Webhook has a screen in Pipe. Dashbot and Botanalytics are visual cards (the origin sends them to their own states, which don't exist here) and no integration is active, so all three say ""Conectar"".",integration,apps/gestao-vite/src/paginas/fluxo/integracoes/integracoes.tsx:5-29,,proposed
 gestao-vite-comment-54f1771a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/interruptor.tsx,3,14,jsdoc,7,"/**
  * O `bds-switch` da origem: `<label class=""switch switch--size-standard"">
  * <input type=""checkbox""> <span class=""slider round""></span> </label>`.
@@ -6968,8 +7079,10 @@ gestao-vite-comment-54f1771a,gestao-vite,apps/gestao-vite/src/paginas/fluxo/inte
  *
  * Serve o Webhook (Integrações) e o Log (Growth); por isso mora aqui e não
  * dentro de uma tela. Sem estado próprio: quem liga é quem chama.
- */",,,,,,
-gestao-vite-comment-5d5e10ce,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts,24,24,jsdoc,2,"/** O que a tela ENVIA — os campos de segredo só aqui, nunca na resposta. */",,,,,,
+ */",translate,"The origin's `bds-switch`: `<label class=""switch switch--size-standard""> <input type=""checkbox""> <span class=""slider round""></span> </label>`. Measured on the copy: 42×24 track (default) and 32×18 (`size=""short""`), 34 radius, 18/12 white knob 3px from the edge, sliding its own diameter when on. Off, the track is `--color-content-ghost`; on, it's the primary color. The `bds-switch` host measures 42×32: 2px above and 6px below the track (the global `label`'s `margin-bottom: .375rem`).
+
+Serves both Webhook (Integrações) and Log (Growth); that's why it lives here and not inside one screen. No state of its own: whoever calls it controls the toggle.",other,apps/gestao-vite/src/paginas/fluxo/integracoes/interruptor.tsx:3-14,,proposed
+gestao-vite-comment-5d5e10ce,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts,24,24,jsdoc,2,"/** O que a tela ENVIA — os campos de segredo só aqui, nunca na resposta. */",translate,"What the screen SENDS — the secret fields only live here, never in the response.",security,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts:24-24,,proposed
 gestao-vite-comment-5055ffc5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts,5,13,jsdoc,5,"/**
  * CRUD de `webhook_saida` — `dominio/gestao/integracoes.ts`. É da CONTA, não
  * do fluxo (ver o comentário lá): a rota é `/v1/gestao/webhooks`, sem `:id`
@@ -6978,9 +7091,11 @@ gestao-vite-comment-5055ffc5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/inte
  * ""Configurações de autenticação"" e ""Cabeçalhos customizados"" (migration
  * 0036): `autenticacao.senha`/`autenticacao.clientSecret` só existem no
  * PEDIDO de criação/edição — a resposta nunca os devolve (nem cifrados).
- */",,,,,,
-gestao-vite-comment-e0852556,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts,50,50,jsdoc,3,"/** Só existe na resposta da criação — o banco guarda o segredo para assinar, a tela não. */",,,,,,
-gestao-vite-comment-6eebd9a1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts,58,58,jsdoc,1,"/** Prévia curta do corpo da resposta — ""mostra a resposta (status e corpo curto)"". */",,,,,,
+ */",translate,"CRUD for `webhook_saida` — `dominio/gestao/integracoes.ts`. It belongs to the ACCOUNT, not the flow (see the comment there): the route is `/v1/gestao/webhooks`, with no flow `:id`, even though the screen lives under `fluxo/:id/integracoes/webhook`.
+
+""Configurações de autenticação"" and ""Cabeçalhos customizados"" (migration 0036): `autenticacao.senha`/`autenticacao.clientSecret` only exist in the creation/edit REQUEST — the response never returns them (not even encrypted).",security,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts:5-13,,proposed
+gestao-vite-comment-e0852556,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts,50,50,jsdoc,3,"/** Só existe na resposta da criação — o banco guarda o segredo para assinar, a tela não. */",translate,"Only exists in the creation response — the database keeps the secret for signing, the screen doesn't.",security,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts:50-50,,proposed
+gestao-vite-comment-6eebd9a1,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts,58,58,jsdoc,1,"/** Prévia curta do corpo da resposta — ""mostra a resposta (status e corpo curto)"". */",translate,"Short preview of the response body — ""shows the response (status and a short body)"".",other,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts:58-58,,proposed
 gestao-vite-comment-060908cd,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/regras.ts,1,12,jsdoc,12,"/**
  * As regras do formulário do Webhook — o que o controlador `WebhookController`
  * da origem (portal.js) decide, sem a tela por perto, para o teste travar.
@@ -6992,9 +7107,15 @@ gestao-vite-comment-060908cd,gestao-vite,apps/gestao-vite/src/paginas/fluxo/inte
  *                  alguma URL é inválida ou a primeira está vazia
  *   shouldDisableSave(): alguma URL inválida (os outros ramos dependem de
  *                  feature flags de tipos de envio e cabeçalhos)
- */",,,,,,
-gestao-vite-comment-28cf31e5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/regras.ts,16,16,jsdoc,3,"/** A regex da origem (`VY`), tal qual: só HTTPS, host com TLD de 2 a 5 letras. */",,,,,,
-gestao-vite-comment-1afc4d40,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/regras.ts,35,35,jsdoc,0,/** `validateUrls()` no carregamento: linha vazia conta como válida até ser tocada. */,,,,,,
+ */",translate,"The Webhook form's rules — what the origin's `WebhookController` (portal.js) decides, with no screen nearby, so the test locks it down.
+
+  addUrl():      `this.urls.length >= 10 || (this.urls = this.urls.concat([""""]))`
+  removeUrl(i):  removes row `i`; with zero rows the integration is disabled
+  isUrlValid(e): length ≤ 512, matches the HTTPS regex, and isn't repeated in the list
+  handleSwitchBehavior(): the ""Ativar"" switch stays disabled when any URL is invalid or the first one is empty
+  shouldDisableSave(): any invalid URL (the other branches depend on feature flags for dispatch types and headers)",integration,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/regras.ts:1-12,,proposed
+gestao-vite-comment-28cf31e5,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/regras.ts,16,16,jsdoc,3,"/** A regex da origem (`VY`), tal qual: só HTTPS, host com TLD de 2 a 5 letras. */",translate,"The origin's regex (`VY`), verbatim: HTTPS only, host with a 2-to-5-letter TLD.",security,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/regras.ts:16-16,,proposed
+gestao-vite-comment-1afc4d40,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/regras.ts,35,35,jsdoc,0,/** `validateUrls()` no carregamento: linha vazia conta como válida até ser tocada. */,translate,`validateUrls()` on load: an empty row counts as valid until it's touched.,other,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/regras.ts:35-35,,proposed
 gestao-vite-comment-39e6c11c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/tela.tsx,20,42,jsdoc,22,"/**
  * A tela do Webhook — `auth.application.detail.integrations.webhook`
  * (portal.js, módulo 29045): abas ""Visão Geral""/""Configurações"", o cartão
@@ -7017,8 +7138,12 @@ gestao-vite-comment-39e6c11c,gestao-vite,apps/gestao-vite/src/paginas/fluxo/inte
  * três coisas por linha — a tela original também não tinha edição de URL/
  * eventos pós-criação, só ativar/desativar, testar e excluir. Adicionar
  * edição completa por linha, se pedirem.
- */",,,,,,
-gestao-vite-comment-a483b529,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/webhook.tsx,4,4,jsdoc,1,"/** `/integrations/webhook` da origem: cabeçalho com volta, interruptor e o papel de abas. */",,,,,,
+ */",translate,"The Webhook screen — `auth.application.detail.integrations.webhook` (portal.js, module 29045): ""Visão Geral""/""Configurações"" tabs, the `bds-paper` card, the URL list with ""+ Adicionar""/""Salvar"" in the footer, ""Configurações avançadas (Opcional)"" with dispatch types, authentication (switch + OAuth 2.0/Básica), and custom headers (`referencias-blip/pesquisa/blip-integracoes-webhook.md`).
+
+The origin saves ONE webhook with several URLs, all with the SAME configuration; Pipe saves the opposite in `webhook_saida` (`apis.md` §5.5) — several ROWS, each with its own URL, events, authentication, and headers. The screen reconciles both: the ""Novo webhook"" form is the origin's (URL list with `adicionarUrl`/`removerUrl`/`urlValida` from `regras.ts`, a single ""Configurações avançadas""), and ""Salvar"" creates ONE `webhook_saida` per filled URL, all with the same configuration — the origin's URL list becoming Pipe's row list.
+
+ponytail: events/authentication/headers for an ALREADY-CREATED webhook can only be edited by recreating it (delete + create again); there's no inline editing of those three things per row — the original screen also had no post-creation editing of URL/events, only enable/disable, test, and delete. Add full per-row editing if it's requested.",meta-blip,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/tela.tsx:20-42; verified ponytail note against current source,,proposed
+gestao-vite-comment-a483b529,gestao-vite,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/webhook.tsx,4,4,jsdoc,1,"/** `/integrations/webhook` da origem: cabeçalho com volta, interruptor e o papel de abas. */",translate,"The origin's `/integrations/webhook`: header with back button, toggle, and the tabs role.",other,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/webhook.tsx:4-4,,proposed
 gestao-vite-comment-456d11b4,gestao-vite,apps/gestao-vite/src/paginas/fluxo/itens.ts,1,33,jsdoc,34,"/**
  * O menu da barra do contato — o `subheader-menu` da origem.
  *
