@@ -1,0 +1,644 @@
+{
+  "items": [
+    {
+      "id": "api-comment-206c2f61",
+      "action": "translate",
+      "new_text": "Has `conta.membros.escrever` but isn't `admin` — see `usuarioOperador`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contrato.test.ts:153; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1adfc762",
+      "action": "translate",
+      "new_text": "A valid session from tenant B, to prove A's id isn't found there.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contrato.test.ts:155; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a27195cb",
+      "action": "translate",
+      "new_text": "// the original invite no longer exists (expired); the new id is the one that counts",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contrato.test.ts:224; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-79d0544f",
+      "action": "translate",
+      "new_text": "Contract — Members and Certificates: item 4 of the task.\n\nSame pattern as `cadastros-atendimento.test.ts`: two tenants, cookie session, happy path, refusals, cross-tenant, permission. Since Members uses the `Resultado` pattern (`{ ok, erro }` at 200, not `ErroPipe`), business refusals (last admin, cross-tenant) arrive as `ok: false`; invite and certificate use real `ErroPipe` (400/403/404), so those routes show an HTTP status too.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contrato.test.ts:25-34; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-58345679",
+      "action": "translate",
+      "new_text": "// returns to the original state, so it doesn't disrupt the other tests",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/contrato.test.ts:276",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-c24e3ac4",
+      "action": "translate",
+      "new_text": "// returns the admin and tests removal from the other side",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/contrato.test.ts:333",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-7879164d",
+      "action": "translate",
+      "new_text": "// The screen sends a data URL (FileReader); plain base64 also works.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/contrato.test.ts:363",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-b54b7fa5",
+      "action": "translate",
+      "new_text": "// The listing doesn't even include the encrypted value.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contrato.test.ts:451; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2fe84602",
+      "action": "translate",
+      "new_text": "// The audit log records only what's public about the certificate.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contrato.test.ts:459; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8cf7dcfe",
+      "action": "keep-original",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contrato.test.ts:473; false-positive URL string, not a comment; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-931ac9f2",
+      "action": "translate",
+      "new_text": "/* =========================================================================\n * Outbound mTLS: Pipe presents the certificate when calling the registered host\n * ========================================================================= */",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contrato.test.ts:553-555; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2dfc8655",
+      "action": "translate",
+      "new_text": "A tenant's webhook with a pending delivery for `url`, seeded by the owner.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/tests/contrato.test.ts:559; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-525d55ba",
+      "action": "translate",
+      "new_text": "No network: `https.request` (the path with a certificate) becomes a double that records the agent it received and answers 200; the global `fetch` (the path without a certificate) records the URL and answers 200 — except for what goes to the test `api` itself, which goes through the real fetch (the same care as `integracoes.test.ts`).",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contrato.test.ts:581-587; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0ae964a1",
+      "action": "keep-original",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contrato.test.ts:665; false-positive URL string, not a comment; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c6036b08",
+      "action": "translate",
+      "new_text": "Someone with `conta.membros.escrever` who is NOT `admin` — a custom account role, only to prove the \"last admin\" guard in `removerMembro` holds even coming from someone who isn't the target themselves (the \"can't remove myself\" already blocks the more obvious case before it).",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/contrato.test.ts:78-83; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9486622d",
+      "action": "translate",
+      "new_text": "// The mode has to be decided before any import that reads the variable.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/contrato.test.ts:9; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-faf85ed9",
+      "action": "translate",
+      "new_text": "Closing and pausing have to record `evento_atendimento`.\n\nThe bug these tests lock down: the Desk used to write directly to the `conversa` table and record no event at all. TMR, SLA and effort were blind to everything the agent did — Management showed a wrong number that looked right.\n\nMetrics come from `evento_atendimento`, which is immutable (data model §4); the conversation's state is a cache. That's why the assertion is always on the event, never on the column.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/conversa-eventos.test.ts:18-27; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a3251896",
+      "action": "translate",
+      "new_text": "// The conversation was born with `em_espera_desde` 30 seconds ago.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/conversa-eventos.test.ts:220",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-724f6a75",
+      "action": "translate",
+      "new_text": "// The ACCOUNT role the invites will use, one per tenant — plus one",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:116; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-df156457",
+      "action": "translate",
+      "new_text": "// attendance role in A, which the invite has to refuse.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:117; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3b80665e",
+      "action": "translate",
+      "new_text": "Tenants born from the provisioning command, for cleanup to take away.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/convites.test.ts:127",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-af9d1c09",
+      "action": "translate",
+      "new_text": "// The token can't be in the database anywhere: only the hash.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:168; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8967f42a",
+      "action": "translate",
+      "new_text": "// Seven days, not eight hours: an invite isn't a session.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:174; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-90a27257",
+      "action": "translate",
+      "new_text": "// The tenant's id isn't anyone's business while they're still on the outside.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:266; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-715499a5",
+      "action": "translate",
+      "new_text": "Invite and domain verification: the two doors new people come in through.\n\nWhat this file goes after isn't the happy path — it's the set of refusals, which is where the value is: an expired invite, a reused invite, an invite from another tenant, a role that doesn't exist, a public domain, and a missing TXT record. Each of them, if it slipped through, means someone getting into a customer they don't belong to.\n\nThe conversation with Google isn't here, for the same reason as `entrada.test.ts`: doubling the JWKS would prove again what `packages/autenticacao` already proves. The part of the invite that depends on it — linking `identidade_externa` and opening a session — is exercised by calling `aceitarConvite` with a hand-built `PessoaDoGoogle`, which is exactly what Google's callback delivers.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:30-43; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6fdc64bf",
+      "action": "translate",
+      "new_text": "// Single use: a second click on the same link doesn't create a second user.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:314; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-280c9a3f",
+      "action": "translate",
+      "new_text": "// The session is genuinely valid: it's the same cookie the screens use.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:364; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1200d491",
+      "action": "translate",
+      "new_text": "// And the account stayed linked by the (issuer, subject) pair — never by email.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:371; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2a879476",
+      "action": "translate",
+      "new_text": "// And the invite token does NOT leak to Google along with the rest of the challenge.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:402; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-81eee5b5",
+      "action": "translate",
+      "new_text": "// What Google's callback does with an invite that's expired, used, or for another email.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:416; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c1652c60",
+      "action": "translate",
+      "new_text": "// Our own error stays our own error: the way out is to try again.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/convites.test.ts:419",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-a48d78f2",
+      "action": "translate",
+      "new_text": "// Idempotent: calling it again returns the SAME token, otherwise whoever already published",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:445; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-89af7f5c",
+      "action": "translate",
+      "new_text": "// would see the verification fail without having touched anything.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:446; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9906b963",
+      "action": "translate",
+      "new_text": "// Whatever can be fixed on its own, gets fixed.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/convites.test.ts:473",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-8b3c5afb",
+      "action": "keep-original",
+      "new_text": "",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:474; false-positive URL string, not a comment; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-03efee01",
+      "action": "translate",
+      "new_text": "The session of whoever administers tenant A: has `conta.membros.escrever` and `tenant.configurar`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0c2e1709",
+      "action": "translate",
+      "new_text": "// The mode has to be decided before any import that reads the variable.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/convites.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e05fab06",
+      "action": "translate",
+      "new_text": "The session of someone who only handles attendance: proves the permission is really checked.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:50; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-01d418ab",
+      "action": "translate",
+      "new_text": "// DNS splits the TXT record into 255-byte chunks; the value is their concatenation.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:501; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-962f2aa1",
+      "action": "translate",
+      "new_text": "// DNS that doesn't even answer is the same thing: \"not yet,\" never 500.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/convites.test.ts:524",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-4e84975f",
+      "action": "translate",
+      "new_text": "// A doesn't even see B's row: RLS filters it out before any check.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:539; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7aca5300",
+      "action": "translate",
+      "new_text": "// The catalog comes from the base seed, not from a second list written here.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/convites.test.ts:564",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-4b93f50a",
+      "action": "translate",
+      "new_text": "// Three account roles (admin, member, guest) and five attendance roles.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/convites.test.ts:565",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-178a02a5",
+      "action": "translate",
+      "new_text": "// `admin` at the account level and `administrador` in attendance (migration 0021).",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/convites.test.ts:581",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-edc6808a",
+      "action": "translate",
+      "new_text": "// A domain is born pending: the DNS belongs to the customer, and the command doesn't invent proof.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:585; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b32d2b0d",
+      "action": "translate",
+      "new_text": "Writes a live session for the scenario's agent and returns the cookie's token.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/convites.test.ts:82; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-928fe4d4",
+      "action": "translate",
+      "new_text": "// Returns the scenario to online — other tests in this file depend on it.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/desk-acoes.test.ts:184",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-a7a4ab44",
+      "action": "translate",
+      "new_text": "`POST /v1/desk/acoes/:acao` (`controladores/desk.ts`, `dominio/desk/acoes.ts`).\n\nNo test existed for this entire controller — not the reads, not the five actions (`definirStatus`, `cairPorInatividade`, `salvarNotaInterna`, `atender`, `transferirEmMassa`). This file covers the actions: they WRITE, `atendenteId`/`tenantId` always come from the SESSION (never from the body), and the list of accepted names is CLOSED.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/desk-acoes.test.ts:19-27; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4c343daf",
+      "action": "translate",
+      "new_text": "// Returns the scenario to online.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/desk-acoes.test.ts:199",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-68bf300c",
+      "action": "translate",
+      "new_text": "// Returns the scenario: no override and no conversation stuck on the agent.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/desk-acoes.test.ts:372",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-7e7056ea",
+      "action": "translate",
+      "new_text": "// Re-fixing one of the 50 doesn't hit the ceiling.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/desk-acoes.test.ts:476",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-daa382a1",
+      "action": "translate",
+      "new_text": "// The mode has to be decided before any import that reads the variable.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/desk-acoes.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9893dd1d",
+      "action": "translate",
+      "new_text": "// The second page was requested with the cursor the first one returned.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/dicionario-crm.test.ts:106",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-853e91ee",
+      "action": "translate",
+      "new_text": "// A synthetic variant of the write: swaps applicationId for isCustom, as the old schema was.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/dicionario-crm.test.ts:122",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-ab6de3c8",
+      "action": "translate",
+      "new_text": "// There's no old instance running to write against for real.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/dicionario-crm.test.ts:123",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-362aa08e",
+      "action": "translate",
+      "new_text": "// A translated label stays only in the label; the code is the English `nameSingular`.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/dicionario-crm.test.ts:186",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-742577c7",
+      "action": "translate",
+      "new_text": "// A relation in the API's format, with the cardinality.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/dicionario-crm.test.ts:194",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-7d8a946d",
+      "action": "translate",
+      "new_text": "// SELECT options exactly as they came.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/dicionario-crm.test.ts:204",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-122ba775",
+      "action": "translate",
+      "new_text": "A REAL response from the Metadata API, captured from a local Twenty 2.39 and trimmed down — see `_origem` inside the file. The variations below (removed field, old version) branch from it.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/tests/dicionario-crm.test.ts:23-26; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b1ab3988",
+      "action": "translate",
+      "new_text": "// Declared by hand for the in-house CRM: it didn't come from Twenty, the sync doesn't touch it.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/dicionario-crm.test.ts:232",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-a22adfdd",
+      "action": "translate",
+      "new_text": "// No row of B has A's tenant, or the other way around.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/dicionario-crm.test.ts:277; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-75ec894c",
+      "action": "translate",
+      "new_text": "// A's: the pipeContatoId is removed there, and active in B.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/dicionario-crm.test.ts:325",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-5d78b4eb",
+      "action": "translate",
+      "new_text": "The in-house CRM's row, read raw: it has no object in `dicionario_objeto`.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/dicionario-crm.test.ts:343",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-d2a4b83d",
+      "action": "translate",
+      "new_text": "The responses, in the order the client asks for them: introspection, workspace, pages.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/dicionario-crm.test.ts:54",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-a080632f",
+      "action": "translate",
+      "new_text": "The same fixture, missing a field and an object — what \"went missing\" from the CRM.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/dicionario-crm.test.ts:59",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-c43b3451",
+      "action": "translate",
+      "new_text": "// Nobody to notify isn't an error, and nothing gets recorded.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/email.test.ts:164",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-b419761e",
+      "action": "translate",
+      "new_text": "// A provider refusal becomes an error with the status — and the token doesn't leak into the message.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/email.test.ts:212; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c6a3baf2",
+      "action": "translate",
+      "new_text": "Email: the double records it, the invite fires with the link, recategorization fires for the channel's list (and doesn't fire when disabled), and a provider failure does NOT bring down either operation.\n\nNo HTTP server: `criarConvite` and `aplicarEventosDeModelo` are called directly, as `convites.test.ts` and `canais.test.ts` already do. The real sender is exercised with a fake `fetch`, to prove the POST's contract without a network.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/email.test.ts:24-32",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-cbb76ff2",
+      "action": "translate",
+      "new_text": "// Says where the person is signing in and with what access.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/email.test.ts:243",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-0764af18",
+      "action": "translate",
+      "new_text": "// A template Pipe doesn't know doesn't fire anything.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/tests/email.test.ts:294; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ff6c278a",
+      "action": "translate",
+      "new_text": "// The scenario's agent doesn't manage the channel: doesn't make the list.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/email.test.ts:325; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3fecc2f1",
+      "action": "translate",
+      "new_text": "// The mode has to be decided before any import that reads the variable.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/email.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c0a2406f",
+      "action": "translate",
+      "new_text": "A person on the tenant with the given permission — who the alert finds when the list is empty.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/email.test.ts:59",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-bd7fdc60",
+      "action": "translate",
+      "new_text": "Writes the alert preference on the scenario's channel and clears the channel cache.",
+      "sensitivity": "other",
+      "evidence": "apps/api/tests/email.test.ts:86",
+      "notes": ""
+    },
+    {
+      "id": "api-comment-4370f0ae",
+      "action": "translate",
+      "new_text": "The recategorization event as Meta sends it, for the scenario's template.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/tests/email.test.ts:96; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-77f1663d",
+      "action": "translate",
+      "new_text": "The ninth digit on input. Meta still delivers old-style Brazilian mobile numbers without the 9 (`553199998888`), and the contact importer records the canonical form, with the 9 (`5531999998888`). Without matching the two, an imported customer who writes in opens a new record and loses the history and data the company uploaded.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/tests/entrada-telefone.test.ts:17-22; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ba4f6e0d",
+      "action": "translate",
+      "new_text": "// The mode has to be decided before any import that reads the variable.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/tests/entrada-telefone.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-95fcaf5e",
+      "action": "translate",
+      "new_text": "// Union of both roles, without repeating `conversa.ver`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/entrada.test.ts:149; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0bd23ead",
+      "action": "translate",
+      "new_text": "// The cookie's `state` has to match the one that went to Google, or the callback",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/entrada.test.ts:209; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9971167a",
+      "action": "translate",
+      "new_text": "Login, `GET /v1/eu`, logout, `/saude` and `/metrics`.\n\nWhat's deliberately not here: the conversation with Google. `trocarCodigo` and `entrarComGoogle` already have tests in `packages/autenticacao`, and repeating the code exchange here would require doubling the JWKS to prove again what's already proven. What this file covers is the shell: the guard, the shape of `Eu`, the translation of refusal codes, and what goes out in cookies and redirects.",
+      "sensitivity": "security",
+      "evidence": "apps/api/tests/entrada.test.ts:30-38; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

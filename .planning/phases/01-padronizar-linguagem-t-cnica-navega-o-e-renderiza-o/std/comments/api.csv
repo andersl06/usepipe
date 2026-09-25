@@ -6027,31 +6027,31 @@ api-comment-56288561,api,apps/api/src/webhooks-saida.ts,212,216,jsdoc,5,"/**
  * Drena as entregas pendentes de um tenant. Chamada depois do commit da operação e
  * também por varredura periódica — a entrega precisa acontecer mesmo que o processo
  * que a originou tenha morrido entre o commit e o POST.
- */",,,,,,
-api-comment-2d41cbc6,api,apps/api/src/webhooks-saida.ts,243,243,line,2,// Em série: cada entrega abre a própria transação para gravar o resultado.,,,,,,
-api-comment-94a04ff0,api,apps/api/src/webhooks-saida.ts,301,301,line,1,// `descartada` e não `falhou`: o catálogo de estados de `entrega_webhook` separa,,,,,,
-api-comment-37e5b603,api,apps/api/src/webhooks-saida.ts,302,302,line,2,"// ""ainda vai tentar"" de ""desistimos"", e a tela precisa distinguir os dois.",,,,,,
+ */",translate,Drains a tenant's pending deliveries. Called after the operation's commit and also by periodic sweep — delivery must happen even if the process that created it died between the commit and the POST.,integration,apps/api/src/webhooks-saida.ts:212-216; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-2d41cbc6,api,apps/api/src/webhooks-saida.ts,243,243,line,2,// Em série: cada entrega abre a própria transação para gravar o resultado.,translate,// Serially: each delivery opens its own transaction to record the result.,integration,apps/api/src/webhooks-saida.ts:243; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-94a04ff0,api,apps/api/src/webhooks-saida.ts,301,301,line,1,// `descartada` e não `falhou`: o catálogo de estados de `entrega_webhook` separa,translate,"// `descartada`, not `falhou`: the `entrega_webhook` status catalog distinguishes",integration,apps/api/src/webhooks-saida.ts:301; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-37e5b603,api,apps/api/src/webhooks-saida.ts,302,302,line,2,"// ""ainda vai tentar"" de ""desistimos"", e a tela precisa distinguir os dois.",translate,"// ""still retrying"" from ""gave up,"" and the screen needs to tell the two apart.",integration,apps/api/src/webhooks-saida.ts:302; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-2d45a247,api,apps/api/src/webhooks-saida.ts,320,324,jsdoc,8,"/**
  * Dispara a drenagem sem prender a resposta HTTP. Falha aqui não pode virar erro
  * para quem mandou a mensagem — a linha em `entrega_webhook` continua pendente e a
  * varredura pega depois.
- */",,,,,,
-api-comment-da0a14e3,api,apps/api/src/webhooks-saida.ts,36,36,jsdoc,0,/** O relógio de SLA (`dominio/gestao/sla-motor.ts`) atingiu o limiar de alerta/estouro. */,,,,,,
-api-comment-0337a367,api,apps/api/src/webhooks-saida.ts,45,45,jsdoc,0,"/** Tolerância recomendada ao consumidor, publicada junto do payload. */",,,,,,
+ */",translate,Triggers the drain without holding the HTTP response. A failure here must not become an error for whoever sent the message — the `entrega_webhook` row stays pending and the sweep picks it up later.,integration,apps/api/src/webhooks-saida.ts:320-324; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-da0a14e3,api,apps/api/src/webhooks-saida.ts,36,36,jsdoc,0,/** O relógio de SLA (`dominio/gestao/sla-motor.ts`) atingiu o limiar de alerta/estouro. */,translate,The SLA clock (`dominio/gestao/sla-motor.ts`) reached the alert/breach threshold.,integration,apps/api/src/webhooks-saida.ts:36; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-0337a367,api,apps/api/src/webhooks-saida.ts,45,45,jsdoc,0,"/** Tolerância recomendada ao consumidor, publicada junto do payload. */",translate,"Recommended tolerance for the consumer, published alongside the payload.",integration,apps/api/src/webhooks-saida.ts:45; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-3442afc0,api,apps/api/src/webhooks-saida.ts,52,58,jsdoc,3,"/**
  * Autenticação e cabeçalhos customizados — ""Configurações de autenticação"" e
  * ""Cabeçalhos customizados"" da origem (migration 0036,
  * `dominio/gestao/integracoes.ts`). Vive aqui porque tanto a entrega de
  * verdade (`entregarUma`) quanto o botão ""Testar"" (`testarWebhook`, no
  * domínio) montam a MESMA requisição.
- */",,,,,,
-api-comment-de044778,api,apps/api/src/webhooks-saida.ts,61,61,jsdoc,0,/** Os cabeçalhos reservados: nenhum cabeçalho customizado pode usar um destes nomes. */,,,,,,
-api-comment-db82b16b,api,apps/api/src/webhooks-saida.ts,75,75,jsdoc,4,"/** Já decifrada — o que sai do banco, pronto para montar a requisição. */",,,,,,
+ */",translate,"Authentication and custom headers — the origin's ""Configurações de autenticação"" and ""Cabeçalhos customizados"" (migration 0036, `dominio/gestao/integracoes.ts`). Lives here because both the real delivery (`entregarUma`) and the ""Testar"" button (`testarWebhook`, in the domain) build the SAME request.",security,apps/api/src/webhooks-saida.ts:52-58; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-de044778,api,apps/api/src/webhooks-saida.ts,61,61,jsdoc,0,/** Os cabeçalhos reservados: nenhum cabeçalho customizado pode usar um destes nomes. */,translate,The reserved headers: no custom header may use one of these names.,security,apps/api/src/webhooks-saida.ts:61; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-db82b16b,api,apps/api/src/webhooks-saida.ts,75,75,jsdoc,4,"/** Já decifrada — o que sai do banco, pronto para montar a requisição. */",translate,"Already decrypted — what comes out of the database, ready to build the request.",security,apps/api/src/webhooks-saida.ts:75; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-d00b5659,api,apps/api/src/webhooks-saida.ts,85,89,jsdoc,1,"/**
  * `POST` `client_credentials` — sem cache de token (ponytail: um token por
  * entrega; cachear por `(tenantId, webhookId)` até expirar, se o volume de
  * disparos pedir).
- */",,,,,,
+ */",translate,"`POST` `client_credentials` — no token cache (ponytail: one token per delivery; cache by `(tenantId, webhookId)` until it expires, if delivery volume calls for it).",security,apps/api/src/webhooks-saida.ts:85-89; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-8984b0a3,api,apps/api/src/webhooks-saida.ts,9,24,jsdoc,12,"/**
  * Webhooks de saída — `apis.md` §5.5.
  *
@@ -6067,8 +6067,14 @@ api-comment-8984b0a3,api,apps/api/src/webhooks-saida.ts,9,24,jsdoc,12,"/**
  * O POST em si sai por `chamarComMtls` (`dominio/mtls.ts`): se o host do
  * webhook tem certificado cadastrado em `/contrato/certificados`, a Pipe o
  * apresenta (mTLS); se não tem, é o `fetch` de sempre.
- */",,,,,,
-api-comment-e2295f97,api,apps/api/tests/ajuda-pfx.ts,100,100,jsdoc,2,"/** Certificado v1 autoassinado, `CN=<cn>`, com a validade em UTCTime (`YYMMDDHHMMSSZ`). */",,,,,,
+ */",translate,"Outbound webhooks — `apis.md` §5.5.
+
+Signature `X-Pipe-Signature: sha256=HMAC-SHA256(secret, ""<timestamp>.<body>"")`, with `X-Pipe-Timestamp` and `X-Pipe-Delivery` alongside it. The timestamp goes **inside** what gets signed: signing only the body makes replay free, one of the two gaps found in Chatwoot. The other — optional secret — the schema already closes: `webhook_saida.segredo` is `not null`.
+
+`entrega_webhook` stores the attempt and the error. A webhook that fails silently has the same disease as a send that fails silently.
+
+The POST itself goes out through `chamarComMtls` (`dominio/mtls.ts`): if the webhook's host has a certificate registered under `/contrato/certificados`, Pipe presents it (mTLS); if not, it's the usual `fetch`.",security,apps/api/src/webhooks-saida.ts:9-24; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-e2295f97,api,apps/api/tests/ajuda-pfx.ts,100,100,jsdoc,2,"/** Certificado v1 autoassinado, `CN=<cn>`, com a validade em UTCTime (`YYMMDDHHMMSSZ`). */",translate,"Self-signed v1 certificate, `CN=<cn>`, with validity in UTCTime (`YYMMDDHHMMSSZ`).",security,apps/api/tests/ajuda-pfx.ts:100; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-c79cad07,api,apps/api/tests/ajuda-pfx.ts,13,31,jsdoc,18,"/**
  * Um `.pfx` (PKCS#12) de verdade, montado no teste — sem arquivo binário no
  * repositório e sem dependência nova.
@@ -6087,27 +6093,37 @@ api-comment-c79cad07,api,apps/api/tests/ajuda-pfx.ts,13,31,jsdoc,18,"/**
  * Quem confere se isto está certo é o OpenSSL dentro do
  * `tls.createSecureContext` da `api`: se qualquer byte estivesse errado, o
  * cadastro no teste cairia com `pfx_invalido`/`senha_incorreta`.
- */",,,,,,
-api-comment-401995ab,api,apps/api/tests/ajuda-pfx.ts,148,148,jsdoc,3,"/** O DER do certificado, para conferir a impressão digital lida pela `api`. */",,,,,,
+ */",translate,"A real `.pfx` (PKCS#12), built in the test — no binary file in the repository and no new dependency.
+
+`node:crypto` generates the RSA key and signs, but does not build an X.509 certificate or PKCS#12; both DERs are written by hand here, in the format that OpenSSL 3's `openssl pkcs12 -export` produces by default:
+
+- the key in `pkcs8ShroudedKeyBag`, inside a `data` — it's the `EncryptedPrivateKeyInfo` that Node itself exports (`export({ cipher: 'aes-256-cbc', passphrase })`);
+- the certificate in `certBag`, inside an `encryptedData` encrypted with PBES2 (PBKDF2-HMAC-SHA256 + AES-256-CBC), like the default `-certpbe`;
+- the HMAC-SHA256 MAC with the PKCS#12 derivation (`derivarChavePkcs12`, the same one `api` uses for the old PBEs).
+
+OpenSSL, inside `api`'s `tls.createSecureContext`, is what checks whether this is correct: if any byte were wrong, registration in the test would fail with `pfx_invalido`/`senha_incorreta`.",security,apps/api/tests/ajuda-pfx.ts:13-31; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-401995ab,api,apps/api/tests/ajuda-pfx.ts,148,148,jsdoc,3,"/** O DER do certificado, para conferir a impressão digital lida pela `api`. */",translate,"The certificate's DER, to check the fingerprint `api` reads.",security,apps/api/tests/ajuda-pfx.ts:148; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-278488cd,api,apps/api/tests/ajuda-pfx.ts,156,159,jsdoc,3,"/**
  * Gera chave + certificado autoassinado e embrulha os dois num `.pfx` com a
  * senha. `validoAte` em `YYYY-MM-DD` (até 2049, pelo UTCTime).
- */",,,,,,
-api-comment-7aa77c94,api,apps/api/tests/ajuda-pfx.ts,178,178,line,3,// A chave: o EncryptedPrivateKeyInfo que o Node já sabe escrever.,,,,,,
-api-comment-03a4c036,api,apps/api/tests/ajuda-pfx.ts,201,201,line,1,"// O MAC: HMAC-SHA256 sobre o AuthenticatedSafe, chave pela derivação do PKCS#12 (id 3).",,,,,,
-api-comment-133057ae,api,apps/api/tests/ajuda.ts,120,120,jsdoc,2,"/** Um payload de mensagem recebida, no formato que a Meta manda. */",,,,,,
+ */",translate,"Generates a key plus self-signed certificate and wraps both in a `.pfx` with the password. `validoAte` in `YYYY-MM-DD` (up to 2049, per UTCTime).",security,apps/api/tests/ajuda-pfx.ts:156-159; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-7aa77c94,api,apps/api/tests/ajuda-pfx.ts,178,178,line,3,// A chave: o EncryptedPrivateKeyInfo que o Node já sabe escrever.,translate,// The key: the EncryptedPrivateKeyInfo that Node already knows how to write.,security,apps/api/tests/ajuda-pfx.ts:178; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-03a4c036,api,apps/api/tests/ajuda-pfx.ts,201,201,line,1,"// O MAC: HMAC-SHA256 sobre o AuthenticatedSafe, chave pela derivação do PKCS#12 (id 3).",translate,"// The MAC: HMAC-SHA256 over the AuthenticatedSafe, keyed by the PKCS#12 derivation (id 3).",security,apps/api/tests/ajuda-pfx.ts:201; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-133057ae,api,apps/api/tests/ajuda.ts,120,120,jsdoc,2,"/** Um payload de mensagem recebida, no formato que a Meta manda. */",translate,"An inbound message payload, in the format Meta sends.",integration,apps/api/tests/ajuda.ts:120; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-20bda375,api,apps/api/tests/ajuda.ts,24,30,jsdoc,9,"/**
  * Um tenant completo, com canal de WhatsApp configurado, uma fila, um atendente
  * online habilitado nela e duas chaves de API — uma com todos os escopos e outra
  * sem nenhum, para provar que o escopo é conferido de verdade.
  *
  * Montado com o papel dono: é semente, não caminho de produção.
- */",,,,,,
-api-comment-2a27d128,api,apps/api/tests/analise.test.ts,116,116,line,1,// A jornada: entrada -> b1 -> b2 -> saída.,,,,,,
-api-comment-d5e42e4d,api,apps/api/tests/analise.test.ts,129,129,line,1,"// Mensagens do DIA_1 (dentro do período): duas recebidas, uma enviada.",,,,,,
-api-comment-f2c064d9,api,apps/api/tests/analise.test.ts,138,138,line,1,"// Uma mensagem do DIA_0 (véspera, fora do período pedido nos testes de filtro).",,,,,,
-api-comment-e7ee4915,api,apps/api/tests/analise.test.ts,177,177,line,0,// Precisa caber no teto de 90 dias do período customizado do Dashboard,,,,,,
-api-comment-e32a5aaf,api,apps/api/tests/analise.test.ts,179,179,line,1,"// no padrão ""hoje"", que TEM mensagem semeada e mascararia o teste.",,,,,,
+ */",translate,"A complete tenant, with a WhatsApp channel configured, a queue, an agent online and enabled in it, and two API keys — one with every scope and another with none, to prove the scope is actually checked.
+
+Built with the owner role: it's a seed, not a production path.",security,apps/api/tests/ajuda.ts:24-30; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-2a27d128,api,apps/api/tests/analise.test.ts,116,116,line,1,// A jornada: entrada -> b1 -> b2 -> saída.,translate,// The journey: inbound -> b1 -> b2 -> outbound.,other,apps/api/tests/analise.test.ts:116,sonnet,reviewed
+api-comment-d5e42e4d,api,apps/api/tests/analise.test.ts,129,129,line,1,"// Mensagens do DIA_1 (dentro do período): duas recebidas, uma enviada.",translate,"// DIA_1 messages (inside the period): two received, one sent.",other,apps/api/tests/analise.test.ts:129,sonnet,reviewed
+api-comment-f2c064d9,api,apps/api/tests/analise.test.ts,138,138,line,1,"// Uma mensagem do DIA_0 (véspera, fora do período pedido nos testes de filtro).",translate,"// A DIA_0 message (the day before, outside the period requested in the filter tests).",other,apps/api/tests/analise.test.ts:138,sonnet,reviewed
+api-comment-e7ee4915,api,apps/api/tests/analise.test.ts,177,177,line,0,// Precisa caber no teto de 90 dias do período customizado do Dashboard,translate,// Needs to fit inside the Dashboard's custom-period 90-day ceiling,other,apps/api/tests/analise.test.ts:177,sonnet,reviewed
+api-comment-e32a5aaf,api,apps/api/tests/analise.test.ts,179,179,line,1,"// no padrão ""hoje"", que TEM mensagem semeada e mascararia o teste.",translate,"// on the ""today"" pattern, which HAS a seeded message and would mask the test.",other,apps/api/tests/analise.test.ts:179,sonnet,reviewed
 api-comment-e22f99e8,api,apps/api/tests/analise.test.ts,18,31,jsdoc,14,"/**
  * A ANÁLISE do contato — Dashboard, Visão Geral, Jornada e o Log de mensagens
  * (`controladores/gestao-analise.ts`). Semeia um fluxo publicado, uma conversa
@@ -6121,18 +6137,20 @@ api-comment-e22f99e8,api,apps/api/tests/analise.test.ts,18,31,jsdoc,14,"/**
  * mês (`packages/db/src/particoes.ts`), e `migrar()` só cria a partição do
  * mês corrente e dos três seguintes — uma data fixa no passado cairia fora
  * de qualquer partição e o insert falharia com ""no partition found"".
- */",,,,,,
+ */",translate,"The contact's ANALYTICS — Dashboard, Overview, Journey and the message Log (`controladores/gestao-analise.ts`). Seeds a published flow, a conversation handled by it, and messages on two days, all through direct SQL (not through the real engine: the engine's end-to-end tests already live in `fluxo.test.ts`; what's proven here is the aggregated READ).
+
+DIA_1 (inside the requested period) and DIA_0 (one day before, outside it) — prove the period filter without depending on ""now."" They need to stay close to the real today: `mensagem`/`evento_atendimento` are partitioned by month (`packages/db/src/particoes.ts`), and `migrar()` only creates the current month's partition and the next three — a fixed past date would fall outside any partition and the insert would fail with ""no partition found.""",architecture,apps/api/tests/analise.test.ts:18-31; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-f8cedcbd,api,apps/api/tests/analise.test.ts,33,38,block,6,"/*
  * No FUSO DO CLIENTE, não em UTC: a API recusa período que termina depois de
  * ""hoje"" no fuso do tenant (`intervaloDoPeriodo`, caso `custom`) e cai em
  * ""hoje"". Das 21h de Brasília em diante o dia UTC já virou, e o teste pedia um
  * período no futuro — passava de manhã e falhava à noite.
- */",,,,,,
-api-comment-8822d627,api,apps/api/tests/anexos-multiplos.test.ts,100,100,jsdoc,4,"/** Uma conversa com a janela de 24 h aberta (ou fechada), atribuída a `atendenteId`. */",,,,,,
-api-comment-f8522b27,api,apps/api/tests/anexos-multiplos.test.ts,166,166,line,5,"// Na ordem em que a resposta diz que saíram (a ordem do lote), não na do relógio.",,,,,,
-api-comment-7f82e9dd,api,apps/api/tests/anexos-multiplos.test.ts,171,171,line,1,"// A legenda vai na PRIMEIRA, só.",,,,,,
-api-comment-a9eab6b2,api,apps/api/tests/anexos-multiplos.test.ts,211,211,line,4,"// O upload já barra o tamanho; para provar a conferência por arquivo no LOTE, a",,,,,,
-api-comment-08cbb0ef,api,apps/api/tests/anexos-multiplos.test.ts,212,212,line,1,"// linha é adulterada com o papel dono, como se tivesse entrado por outro caminho.",,,,,,
+ */",translate,"In the CLIENT'S TIMEZONE, not UTC: the API rejects a period that ends after ""today"" in the tenant's timezone (`intervaloDoPeriodo`, `custom` case) and falls on ""today."" From 9 PM Brasília onward the UTC day has already turned, and the test asked for a period in the future — it passed in the morning and failed at night.",other,apps/api/tests/analise.test.ts:33-38,sonnet,reviewed
+api-comment-8822d627,api,apps/api/tests/anexos-multiplos.test.ts,100,100,jsdoc,4,"/** Uma conversa com a janela de 24 h aberta (ou fechada), atribuída a `atendenteId`. */",translate,"A conversation with the 24h window open (or closed), assigned to `atendenteId`.",other,apps/api/tests/anexos-multiplos.test.ts:100,sonnet,reviewed
+api-comment-f8522b27,api,apps/api/tests/anexos-multiplos.test.ts,166,166,line,5,"// Na ordem em que a resposta diz que saíram (a ordem do lote), não na do relógio.",translate,"// In the order the response says they went out (the batch's order), not the clock's.",other,apps/api/tests/anexos-multiplos.test.ts:166,sonnet,reviewed
+api-comment-7f82e9dd,api,apps/api/tests/anexos-multiplos.test.ts,171,171,line,1,"// A legenda vai na PRIMEIRA, só.",translate,"// The caption goes on the FIRST one, only.",other,apps/api/tests/anexos-multiplos.test.ts:171,sonnet,reviewed
+api-comment-a9eab6b2,api,apps/api/tests/anexos-multiplos.test.ts,211,211,line,4,"// O upload já barra o tamanho; para provar a conferência por arquivo no LOTE, a",translate,"// The upload already blocks by size; to prove the per-file check in the BATCH, the",security,apps/api/tests/anexos-multiplos.test.ts:211; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-08cbb0ef,api,apps/api/tests/anexos-multiplos.test.ts,212,212,line,1,"// linha é adulterada com o papel dono, como se tivesse entrado por outro caminho.",translate,"// line is tampered with the owner role, as if it had come in through another path.",security,apps/api/tests/anexos-multiplos.test.ts:212; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-05909241,api,apps/api/tests/anexos-multiplos.test.ts,22,31,jsdoc,6,"/**
  * `POST /v1/conversas/:id/mensagens/anexos` — vários arquivos num envio
  * (`enviarAnexos`, `dominio/envio.ts`; auditoria do Desk, item 2).
@@ -6142,24 +6160,26 @@ api-comment-05909241,api,apps/api/tests/anexos-multiplos.test.ts,22,31,jsdoc,6,"
  * primeira mensagem sair — mais de 10, anexo inexistente, arquivo fora do teto
  * do tipo, janela fechada ou conversa de outro atendente não deixam NENHUMA
  * mensagem para trás.
- */",,,,,,
-api-comment-e53d4406,api,apps/api/tests/anexos.test.ts,116,116,line,3,// O erro que o Desk da Blip comete: valida só os 100 MB e deixa subir o que a,,,,,,
-api-comment-fc3a2bd8,api,apps/api/tests/anexos.test.ts,159,159,line,5,"// Sem `authorization`, sem `cookie`. É o caso real do link que vai para a Meta.",,,,,,
-api-comment-bad2c46d,api,apps/api/tests/anexos.test.ts,173,173,line,0,"// Troca o primeiro dígito por OUTRO. Antes isto era `replace(/assinatura=./,",,,,,,
-api-comment-4a85af8e,api,apps/api/tests/anexos.test.ts,174,174,line,4,"// 'assinatura=0')`, que não alterava nada quando o dígito já era `0` — o teste",,,,,,
-api-comment-f18cd678,api,apps/api/tests/anexos.test.ts,175,175,line,0,// passava por sorte em 15 de 16 execuções.,,,,,,
-api-comment-5130a11f,api,apps/api/tests/anexos.test.ts,22,22,jsdoc,3,/** Armazenamento em memória: o teste não precisa de disco para provar a regra. */,,,,,,
-api-comment-74d84089,api,apps/api/tests/anexos.test.ts,41,41,line,5,"// O link é absoluto porque é a Meta que o baixa. No teste a porta é efêmera, então",,,,,,
-api-comment-387e3207,api,apps/api/tests/anexos.test.ts,42,42,line,4,// a base pública passa a ser a do servidor que acabou de subir.,,,,,,
+ */",translate,"`POST /v1/conversas/:id/mensagens/anexos` — several files in one send (`enviarAnexos`, `dominio/envio.ts`; Desk audit, item 2).
+
+The model follows the source: ONE message per file, in sequence, up to 10. What this file proves is ""all or nothing"": the whole batch is validated BEFORE the first message goes out — more than 10, a nonexistent attachment, a file over the type's ceiling, a closed window, or a conversation belonging to another agent leave NO message behind.",other,apps/api/tests/anexos-multiplos.test.ts:22-31,sonnet,reviewed
+api-comment-e53d4406,api,apps/api/tests/anexos.test.ts,116,116,line,3,// O erro que o Desk da Blip comete: valida só os 100 MB e deixa subir o que a,translate,// The mistake the Blip Desk makes: it only validates the 100 MB and lets through what the,security,apps/api/tests/anexos.test.ts:116; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-fc3a2bd8,api,apps/api/tests/anexos.test.ts,159,159,line,5,"// Sem `authorization`, sem `cookie`. É o caso real do link que vai para a Meta.",translate,"// No `authorization`, no `cookie`. This is the real case of the link that goes to Meta.",security,apps/api/tests/anexos.test.ts:159; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-bad2c46d,api,apps/api/tests/anexos.test.ts,173,173,line,0,"// Troca o primeiro dígito por OUTRO. Antes isto era `replace(/assinatura=./,",translate,"// Swap the first digit for ANOTHER one. This used to be `replace(/assinatura=./,",security,apps/api/tests/anexos.test.ts:173; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-4a85af8e,api,apps/api/tests/anexos.test.ts,174,174,line,4,"// 'assinatura=0')`, que não alterava nada quando o dígito já era `0` — o teste",translate,"// 'assinatura=0')`, which changed nothing when the digit was already `0` — the test",security,apps/api/tests/anexos.test.ts:174; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-f18cd678,api,apps/api/tests/anexos.test.ts,175,175,line,0,// passava por sorte em 15 de 16 execuções.,translate,// passed by luck in 15 of 16 runs.,security,apps/api/tests/anexos.test.ts:175; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-5130a11f,api,apps/api/tests/anexos.test.ts,22,22,jsdoc,3,/** Armazenamento em memória: o teste não precisa de disco para provar a regra. */,translate,In-memory storage: the test doesn't need disk to prove the rule.,other,apps/api/tests/anexos.test.ts:22,sonnet,reviewed
+api-comment-74d84089,api,apps/api/tests/anexos.test.ts,41,41,line,5,"// O link é absoluto porque é a Meta que o baixa. No teste a porta é efêmera, então",translate,"// The link is absolute because it's Meta that downloads it. In the test the port is ephemeral, so",other,apps/api/tests/anexos.test.ts:41,sonnet,reviewed
+api-comment-387e3207,api,apps/api/tests/anexos.test.ts,42,42,line,4,// a base pública passa a ser a do servidor que acabou de subir.,translate,// the public base becomes that of the server that just came up.,other,apps/api/tests/anexos.test.ts:42,sonnet,reviewed
 api-comment-c7609f7d,api,apps/api/tests/builder-por-fluxo.test.ts,107,108,block,3,"/* O corpo cru das respostas: `any` como em `cadastros-atendimento.test.ts`, para
-   navegar `corpo.erro.detalhe.erros` sem um tipo por rota. */",,,,,,
+   navegar `corpo.erro.detalhe.erros` sem um tipo por rota. */",translate,"The raw body of responses: `any` like in `cadastros-atendimento.test.ts`, to navigate `corpo.erro.detalhe.erros` without a type per route.",other,apps/api/tests/builder-por-fluxo.test.ts:107-108,sonnet,reviewed
 api-comment-41466b84,api,apps/api/tests/builder-por-fluxo.test.ts,149,154,jsdoc,4,"/**
  * Um desenho no formato do editor da Blip, como a cópia manda: a raiz espera a
  * primeira mensagem, o bloco seguinte pergunta o nome e espera, e o de
  * atendimento transborda. `texto` muda entre versões para o teste ver qual
  * versão o motor rodou.
- */",,,,,,
-api-comment-f48bbb40,api,apps/api/tests/builder-por-fluxo.test.ts,212,212,jsdoc,3,"/** O texto que o bloco `pergunta` manda, lido do desenho que a `api` devolve. */",,,,,,
+ */",translate,"A design in the Blip editor's format, as the copy dictates: the root expects the first message, the next block asks for the name and waits, and the attendance one overflows. `texto` changes between versions so the test can see which version the engine ran.",other,apps/api/tests/builder-por-fluxo.test.ts:149-154,sonnet,reviewed
+api-comment-f48bbb40,api,apps/api/tests/builder-por-fluxo.test.ts,212,212,jsdoc,3,"/** O texto que o bloco `pergunta` manda, lido do desenho que a `api` devolve. */",translate,"The text the `pergunta` block sends, read from the design the `api` returns.",other,apps/api/tests/builder-por-fluxo.test.ts:212,sonnet,reviewed
 api-comment-7dd066bb,api,apps/api/tests/builder-por-fluxo.test.ts,23,36,jsdoc,26,"/**
  * O ciclo EDITAR → SALVAR RASCUNHO → PUBLICAR do Builder, POR FLUXO
  * (`/v1/gestao/fluxos/:id/builder`, `dominio/gestao/builder-do-fluxo.ts`).
@@ -6173,33 +6193,37 @@ api-comment-7dd066bb,api,apps/api/tests/builder-por-fluxo.test.ts,23,36,jsdoc,26
  * antiga — que não foi apagada nem alterada; restaurar traz uma versão antiga
  * como rascunho sem tirar a publicada do ar; e as portas: 403 sem
  * `automacao.fluxo.publicar`, 404 de outro tenant, 409 no roteador.
- */",,,,,,
-api-comment-39e8d779,api,apps/api/tests/builder-por-fluxo.test.ts,286,286,line,3,"// Sem ninguém online: a conversa transferida fica NA FILA, sem atendente.",,,,,,
-api-comment-7d1b1545,api,apps/api/tests/builder-por-fluxo.test.ts,373,373,line,1,// O fluxo em si continua em rascunho: salvar não publica.,,,,,,
-api-comment-cbcc03b1,api,apps/api/tests/builder-por-fluxo.test.ts,388,388,line,5,"// Sem entrada na raiz, e a saída aponta para um bloco que não existe.",,,,,,
-api-comment-5e69b7fc,api,apps/api/tests/builder-por-fluxo.test.ts,409,409,line,4,// A leitura devolve os mesmos erros — a tela abre já sabendo o que falta.,,,,,,
-api-comment-2b873c2e,api,apps/api/tests/builder-por-fluxo.test.ts,41,41,jsdoc,1,"/** Quem cria e edita, mas não publica. */",,,,,,
-api-comment-bd004626,api,apps/api/tests/builder-por-fluxo.test.ts,414,414,line,3,"// E publicar recusa com a lista, sem mexer em nada.",,,,,,
-api-comment-7b43b3f1,api,apps/api/tests/builder-por-fluxo.test.ts,421,421,line,3,"// Corpo que não é o mapa do editor é 400, e não 500.",,,,,,
-api-comment-da57ffd8,api,apps/api/tests/builder-por-fluxo.test.ts,43,43,jsdoc,1,/** Quem também publica. */,,,,,,
-api-comment-c93dbe7c,api,apps/api/tests/builder-por-fluxo.test.ts,439,439,line,2,// O canal do cenário passa a ser deste fluxo: é por ele que o webhook chega ao motor.,,,,,,
-api-comment-6044b912,api,apps/api/tests/builder-por-fluxo.test.ts,442,442,line,3,// Sem rascunho não há o que publicar.,,,,,,
-api-comment-10b68ed0,api,apps/api/tests/builder-por-fluxo.test.ts,45,45,jsdoc,2,/** Gente do tenant A sem permissão nenhuma sobre fluxo. */,,,,,,
-api-comment-74d440f6,api,apps/api/tests/builder-por-fluxo.test.ts,461,461,line,2,"// Sem rascunho, o Builder abre a publicada.",,,,,,
-api-comment-839e3f0b,api,apps/api/tests/builder-por-fluxo.test.ts,467,467,line,3,"// O motor responde com a v1, e a conversa da Ana fica esperando o nome — em andamento.",,,,,,
-api-comment-853501c7,api,apps/api/tests/builder-por-fluxo.test.ts,47,47,jsdoc,1,"/** Quem tudo pode no tenant B: prova que o tenant vem da sessão, nunca da URL. */",,,,,,
-api-comment-01228e58,api,apps/api/tests/builder-por-fluxo.test.ts,474,474,line,1,// Salvar de novo cria o rascunho v2 (a v1 publicada é imutável) e publicar promove.,,,,,,
-api-comment-d72c04a8,api,apps/api/tests/builder-por-fluxo.test.ts,491,491,line,2,// A execução da Ana continua na v1 — a versão e os blocos dela ficaram intactos.,,,,,,
-api-comment-335622b7,api,apps/api/tests/builder-por-fluxo.test.ts,496,496,line,3,"// Conversa nova é da v2: pelo motor de verdade, e pela consulta que o motor usa.",,,,,,
-api-comment-d7b84b11,api,apps/api/tests/builder-por-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
-api-comment-fd485e9c,api,apps/api/tests/builder-por-fluxo.test.ts,506,506,line,4,"// O histórico lista as duas, da mais nova para a mais antiga.",,,,,,
-api-comment-13873338,api,apps/api/tests/builder-por-fluxo.test.ts,515,515,line,1,// E ficou registrado quem publicou o quê.,,,,,,
-api-comment-d21b4b8b,api,apps/api/tests/builder-por-fluxo.test.ts,562,562,line,2,// A segunda continua publicada: restaurar não publica.,,,,,,
-api-comment-102aebea,api,apps/api/tests/builder-por-fluxo.test.ts,576,576,line,4,// Versão que não existe (ou que não é número) é 404.,,,,,,
-api-comment-5bfc5160,api,apps/api/tests/builder-por-fluxo.test.ts,579,579,line,1,// De outro tenant também.,,,,,,
+ */",translate,"The Builder's EDIT → SAVE DRAFT → PUBLISH cycle, PER FLOW (`/v1/gestao/fluxos/:id/builder`, `dominio/gestao/builder-do-fluxo.ts`).
+
+What's worth proving: a new flow opens with the default publishable flow; saving writes OVER the draft (one version, not one per keystroke) and returns the engine's errors block by block even while saving; publishing numbers the next version, archives the previous one, and rejects an invalid flow with the list; the engine (`fluxoPublicadoDoCanal`/`rodarFluxoNaEntrada`, via the webhook) starts using the new one while a conversation already with the bot keeps pointing to the old one — which wasn't deleted or changed; restoring brings an old version back as a draft without taking the published one down; and the gates: 403 without `automacao.fluxo.publicar`, 404 for another tenant, 409 at the router.",architecture,apps/api/tests/builder-por-fluxo.test.ts:23-36; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-39e8d779,api,apps/api/tests/builder-por-fluxo.test.ts,286,286,line,3,"// Sem ninguém online: a conversa transferida fica NA FILA, sem atendente.",translate,"// With nobody online: the transferred conversation stays IN THE QUEUE, with no agent.",other,apps/api/tests/builder-por-fluxo.test.ts:286,sonnet,reviewed
+api-comment-7d1b1545,api,apps/api/tests/builder-por-fluxo.test.ts,373,373,line,1,// O fluxo em si continua em rascunho: salvar não publica.,translate,// The flow itself stays a draft: saving doesn't publish.,other,apps/api/tests/builder-por-fluxo.test.ts:373,sonnet,reviewed
+api-comment-cbcc03b1,api,apps/api/tests/builder-por-fluxo.test.ts,388,388,line,5,"// Sem entrada na raiz, e a saída aponta para um bloco que não existe.",translate,"// No entry at the root, and the exit points to a block that doesn't exist.",other,apps/api/tests/builder-por-fluxo.test.ts:388,sonnet,reviewed
+api-comment-5e69b7fc,api,apps/api/tests/builder-por-fluxo.test.ts,409,409,line,4,// A leitura devolve os mesmos erros — a tela abre já sabendo o que falta.,translate,// The read returns the same errors — the screen opens already knowing what's missing.,other,apps/api/tests/builder-por-fluxo.test.ts:409,sonnet,reviewed
+api-comment-2b873c2e,api,apps/api/tests/builder-por-fluxo.test.ts,41,41,jsdoc,1,"/** Quem cria e edita, mas não publica. */",translate,"Who creates and edits, but doesn't publish.",security,apps/api/tests/builder-por-fluxo.test.ts:41; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-bd004626,api,apps/api/tests/builder-por-fluxo.test.ts,414,414,line,3,"// E publicar recusa com a lista, sem mexer em nada.",translate,"// And publishing rejects with the list, without touching anything.",other,apps/api/tests/builder-por-fluxo.test.ts:414,sonnet,reviewed
+api-comment-7b43b3f1,api,apps/api/tests/builder-por-fluxo.test.ts,421,421,line,3,"// Corpo que não é o mapa do editor é 400, e não 500.",translate,"// A body that isn't the editor's map is 400, not 500.",other,apps/api/tests/builder-por-fluxo.test.ts:421,sonnet,reviewed
+api-comment-da57ffd8,api,apps/api/tests/builder-por-fluxo.test.ts,43,43,jsdoc,1,/** Quem também publica. */,translate,Who also publishes.,security,apps/api/tests/builder-por-fluxo.test.ts:43; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-c93dbe7c,api,apps/api/tests/builder-por-fluxo.test.ts,439,439,line,2,// O canal do cenário passa a ser deste fluxo: é por ele que o webhook chega ao motor.,translate,// The scenario's channel becomes this flow's: that's how the webhook reaches the engine.,other,apps/api/tests/builder-por-fluxo.test.ts:439,sonnet,reviewed
+api-comment-6044b912,api,apps/api/tests/builder-por-fluxo.test.ts,442,442,line,3,// Sem rascunho não há o que publicar.,translate,"// No draft, nothing to publish.",other,apps/api/tests/builder-por-fluxo.test.ts:442,sonnet,reviewed
+api-comment-10b68ed0,api,apps/api/tests/builder-por-fluxo.test.ts,45,45,jsdoc,2,/** Gente do tenant A sem permissão nenhuma sobre fluxo. */,translate,People from tenant A with no permission at all on the flow.,security,apps/api/tests/builder-por-fluxo.test.ts:45; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-74d440f6,api,apps/api/tests/builder-por-fluxo.test.ts,461,461,line,2,"// Sem rascunho, o Builder abre a publicada.",translate,"// With no draft, the Builder opens the published version.",other,apps/api/tests/builder-por-fluxo.test.ts:461,sonnet,reviewed
+api-comment-839e3f0b,api,apps/api/tests/builder-por-fluxo.test.ts,467,467,line,3,"// O motor responde com a v1, e a conversa da Ana fica esperando o nome — em andamento.",translate,"// The engine responds with v1, and Ana's conversation stays waiting for the name — in progress.",other,apps/api/tests/builder-por-fluxo.test.ts:467,sonnet,reviewed
+api-comment-853501c7,api,apps/api/tests/builder-por-fluxo.test.ts,47,47,jsdoc,1,"/** Quem tudo pode no tenant B: prova que o tenant vem da sessão, nunca da URL. */",translate,"Who can do everything in tenant B: proves the tenant comes from the session, never from the URL.",security,apps/api/tests/builder-por-fluxo.test.ts:47; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-01228e58,api,apps/api/tests/builder-por-fluxo.test.ts,474,474,line,1,// Salvar de novo cria o rascunho v2 (a v1 publicada é imutável) e publicar promove.,translate,"// Saving again creates draft v2 (the published v1 is immutable), and publishing promotes it.",other,apps/api/tests/builder-por-fluxo.test.ts:474,sonnet,reviewed
+api-comment-d72c04a8,api,apps/api/tests/builder-por-fluxo.test.ts,491,491,line,2,// A execução da Ana continua na v1 — a versão e os blocos dela ficaram intactos.,translate,// Ana's run stays on v1 — its version and blocks remain intact.,other,apps/api/tests/builder-por-fluxo.test.ts:491,sonnet,reviewed
+api-comment-335622b7,api,apps/api/tests/builder-por-fluxo.test.ts,496,496,line,3,"// Conversa nova é da v2: pelo motor de verdade, e pela consulta que o motor usa.",translate,"// A new conversation belongs to v2: by the real engine, and by the query the engine uses.",other,apps/api/tests/builder-por-fluxo.test.ts:496,sonnet,reviewed
+api-comment-d7b84b11,api,apps/api/tests/builder-por-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/builder-por-fluxo.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-fd485e9c,api,apps/api/tests/builder-por-fluxo.test.ts,506,506,line,4,"// O histórico lista as duas, da mais nova para a mais antiga.",translate,"// The history lists both, newest to oldest.",other,apps/api/tests/builder-por-fluxo.test.ts:506,sonnet,reviewed
+api-comment-13873338,api,apps/api/tests/builder-por-fluxo.test.ts,515,515,line,1,// E ficou registrado quem publicou o quê.,translate,// And it's on record who published what.,other,apps/api/tests/builder-por-fluxo.test.ts:515,sonnet,reviewed
+api-comment-d21b4b8b,api,apps/api/tests/builder-por-fluxo.test.ts,562,562,line,2,// A segunda continua publicada: restaurar não publica.,translate,// The second one stays published: restoring doesn't publish.,other,apps/api/tests/builder-por-fluxo.test.ts:562,sonnet,reviewed
+api-comment-102aebea,api,apps/api/tests/builder-por-fluxo.test.ts,576,576,line,4,// Versão que não existe (ou que não é número) é 404.,translate,// A version that doesn't exist (or isn't a number) is 404.,security,apps/api/tests/builder-por-fluxo.test.ts:576; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-5bfc5160,api,apps/api/tests/builder-por-fluxo.test.ts,579,579,line,1,// De outro tenant também.,translate,"// From another tenant, too.",security,apps/api/tests/builder-por-fluxo.test.ts:579; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-da1a860d,api,apps/api/tests/cadastros-atendimento.test.ts,1103,1105,block,0,"/* =========================================================================
  * Item 4 — CRUD básico de regra de prioridade
- * ========================================================================= */",,,,,,
+ * ========================================================================= */",translate,"/* =========================================================================
+ * Item 4 — basic CRUD for priority rule
+ * ========================================================================= */",other,apps/api/tests/cadastros-atendimento.test.ts:1103-1105,sonnet,reviewed
 api-comment-9de8c458,api,apps/api/tests/cadastros-atendimento.test.ts,19,29,jsdoc,6,"/**
  * As rotas de GRAVAÇÃO do módulo Atendimento (cadastros) — itens 1 a 3 da
  * tarefa: filas (criar/editar/excluir/vincular/desvincular atendente),
@@ -6210,29 +6234,33 @@ api-comment-9de8c458,api,apps/api/tests/cadastros-atendimento.test.ts,19,29,jsdo
  * cookie, caminho feliz, recusas, cross-tenant, permissão. `ErroPipe` sobe com
  * status de verdade (400/403/404/409) — diferente das `acoes/*` antigas
  * (`Resultado` em 200), porque são gestos com efeito de segurança.
- */",,,,,,
-api-comment-9f4382f6,api,apps/api/tests/cadastros-atendimento.test.ts,229,229,line,3,// Campo que não mudou não entra no registro.,,,,,,
-api-comment-7899584b,api,apps/api/tests/cadastros-atendimento.test.ts,311,311,line,3,// `a.filaId` é a fila padrão de `a.inboxId` (montada em `montarCenario`).,,,,,,
-api-comment-a8600687,api,apps/api/tests/cadastros-atendimento.test.ts,34,34,jsdoc,0,"/** Tem as três permissões novas/reaproveitadas — o ""gestor"" do teste. */",,,,,,
-api-comment-0dd765b7,api,apps/api/tests/cadastros-atendimento.test.ts,36,36,jsdoc,5,"/** Só `fila.gerenciar` — para provar que cada rota pede a SUA permissão, não qualquer uma. */",,,,,,
-api-comment-09a7b4e9,api,apps/api/tests/cadastros-atendimento.test.ts,38,38,jsdoc,2,/** Gente do tenant A sem permissão nenhuma. */,,,,,,
-api-comment-02d1f2ea,api,apps/api/tests/cadastros-atendimento.test.ts,40,40,jsdoc,1,"/** Sessão válida, mas de outro tenant — prova que o tenant vem da sessão, nunca da URL. */",,,,,,
-api-comment-68a13af3,api,apps/api/tests/cadastros-atendimento.test.ts,406,406,line,4,// `a.atendenteId` já está em `a.filaId` (montado em `montarCenario`).,,,,,,
-api-comment-893abd2e,api,apps/api/tests/cadastros-atendimento.test.ts,419,419,line,3,// Devolve o vínculo para não afetar outros testes deste arquivo que dependem dele.,,,,,,
-api-comment-69041627,api,apps/api/tests/cadastros-atendimento.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
+ */",translate,"The WRITE routes of the Attendance module (registrations) — items 1 to 3 of the task: queues (create/edit/delete/link/unlink agent), canned responses (create/edit/delete), and custom pauses (create/edit/delete).
+
+Same pattern as `ciclo-de-vida-do-fluxo.test.ts`: two tenants, cookie session, happy path, refusals, cross-tenant, permission. `ErroPipe` surfaces with a real status (400/403/404/409) — unlike the old `acoes/*` (`Resultado` at 200), because these are gestures with a security effect.",security,apps/api/tests/cadastros-atendimento.test.ts:19-29; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-9f4382f6,api,apps/api/tests/cadastros-atendimento.test.ts,229,229,line,3,// Campo que não mudou não entra no registro.,translate,// A field that didn't change doesn't go into the record.,other,apps/api/tests/cadastros-atendimento.test.ts:229,sonnet,reviewed
+api-comment-7899584b,api,apps/api/tests/cadastros-atendimento.test.ts,311,311,line,3,// `a.filaId` é a fila padrão de `a.inboxId` (montada em `montarCenario`).,translate,// `a.filaId` is `a.inboxId`'s default queue (built in `montarCenario`).,other,apps/api/tests/cadastros-atendimento.test.ts:311,sonnet,reviewed
+api-comment-a8600687,api,apps/api/tests/cadastros-atendimento.test.ts,34,34,jsdoc,0,"/** Tem as três permissões novas/reaproveitadas — o ""gestor"" do teste. */",translate,"Has the three new/reused permissions — the test's ""manager.""",security,apps/api/tests/cadastros-atendimento.test.ts:34; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-0dd765b7,api,apps/api/tests/cadastros-atendimento.test.ts,36,36,jsdoc,5,"/** Só `fila.gerenciar` — para provar que cada rota pede a SUA permissão, não qualquer uma. */",translate,"Only `fila.gerenciar` — to prove each route requires ITS OWN permission, not just any.",security,apps/api/tests/cadastros-atendimento.test.ts:36; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-09a7b4e9,api,apps/api/tests/cadastros-atendimento.test.ts,38,38,jsdoc,2,/** Gente do tenant A sem permissão nenhuma. */,translate,People from tenant A with no permission at all.,security,apps/api/tests/cadastros-atendimento.test.ts:38; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-02d1f2ea,api,apps/api/tests/cadastros-atendimento.test.ts,40,40,jsdoc,1,"/** Sessão válida, mas de outro tenant — prova que o tenant vem da sessão, nunca da URL. */",translate,"A valid session, but from another tenant — proves the tenant comes from the session, never from the URL.",security,apps/api/tests/cadastros-atendimento.test.ts:40; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-68a13af3,api,apps/api/tests/cadastros-atendimento.test.ts,406,406,line,4,// `a.atendenteId` já está em `a.filaId` (montado em `montarCenario`).,translate,// `a.atendenteId` is already in `a.filaId` (built in `montarCenario`).,other,apps/api/tests/cadastros-atendimento.test.ts:406,sonnet,reviewed
+api-comment-893abd2e,api,apps/api/tests/cadastros-atendimento.test.ts,419,419,line,3,// Devolve o vínculo para não afetar outros testes deste arquivo que dependem dele.,translate,// Returns the link so it doesn't affect other tests in this file that depend on it.,other,apps/api/tests/cadastros-atendimento.test.ts:419,sonnet,reviewed
+api-comment-69041627,api,apps/api/tests/cadastros-atendimento.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/cadastros-atendimento.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-c31d4209,api,apps/api/tests/cadastros-atendimento.test.ts,889,891,block,0,"/* =========================================================================
  * Item 3 — editar/excluir faixa e exceção de horário
- * ========================================================================= */",,,,,,
-api-comment-f5455528,api,apps/api/tests/canais.test.ts,1018,1018,line,2,"// Os outros canais desta WABA, dos testes anteriores, saem para este ser o último.",,,,,,
-api-comment-7d9ad059,api,apps/api/tests/canais.test.ts,105,105,jsdoc,2,"/** Conecta pelo controlador, com um `state` válido desta sessão. */",,,,,,
-api-comment-b49f5080,api,apps/api/tests/canais.test.ts,148,148,line,2,"// A WABA é assinada ANTES do override, com os campos do Chatwoot e os três",,,,,,
-api-comment-44f73e7e,api,apps/api/tests/canais.test.ts,149,149,line,2,// da rota guarda-chuva; o override aponta para a URL DAQUELE canal.,,,,,,
-api-comment-24f53738,api,apps/api/tests/canais.test.ts,156,156,line,2,// Número já verificado e provisionado: não registra (webhook_setup_service_spec).,,,,,,
-api-comment-39fdb37d,api,apps/api/tests/canais.test.ts,159,159,line,1,// Token e verify_token vivem CIFRADOS. Isto é o que um `pg_dump` veria.,,,,,,
-api-comment-2a4faabe,api,apps/api/tests/canais.test.ts,331,331,line,3,"// PIN já guardado: a próxima configuração reaproveita, não sorteia outro.",,,,,,
-api-comment-a0b52319,api,apps/api/tests/canais.test.ts,411,411,line,4,"// Com o `phone_number_id` do outro número, a Meta o acha e a reautorização recusa a troca.",,,,,,
-api-comment-d5643e49,api,apps/api/tests/canais.test.ts,419,419,line,5,"// Sem ele, casa pelo número do canal — que não está naquela WABA.",,,,,,
-api-comment-742cab5e,api,apps/api/tests/canais.test.ts,429,429,jsdoc,0,/** App Secret do app do cliente: 32 hexadecimais. `bad…` o dublê trata como de outro app. */,,,,,,
+ * ========================================================================= */",translate,"/* =========================================================================
+ * Item 3 — edit/delete time-window and schedule exception
+ * ========================================================================= */",other,apps/api/tests/cadastros-atendimento.test.ts:889-891,sonnet,reviewed
+api-comment-f5455528,api,apps/api/tests/canais.test.ts,1018,1018,line,2,"// Os outros canais desta WABA, dos testes anteriores, saem para este ser o último.",translate,"// The other channels on this WABA, from earlier tests, leave so this one is the last.",other,apps/api/tests/canais.test.ts:1018,sonnet,reviewed
+api-comment-7d9ad059,api,apps/api/tests/canais.test.ts,105,105,jsdoc,2,"/** Conecta pelo controlador, com um `state` válido desta sessão. */",translate,"Connects through the controller, with a valid `state` from this session.",security,apps/api/tests/canais.test.ts:105; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-b49f5080,api,apps/api/tests/canais.test.ts,148,148,line,2,"// A WABA é assinada ANTES do override, com os campos do Chatwoot e os três",translate,"// The WABA is signed BEFORE the override, with the Chatwoot fields and the three",security,apps/api/tests/canais.test.ts:148; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-44f73e7e,api,apps/api/tests/canais.test.ts,149,149,line,2,// da rota guarda-chuva; o override aponta para a URL DAQUELE canal.,translate,// from the umbrella route; the override points to THAT channel's URL.,security,apps/api/tests/canais.test.ts:149; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-24f53738,api,apps/api/tests/canais.test.ts,156,156,line,2,// Número já verificado e provisionado: não registra (webhook_setup_service_spec).,translate,// Number already verified and provisioned: doesn't register (webhook_setup_service_spec).,integration,apps/api/tests/canais.test.ts:156; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-39fdb37d,api,apps/api/tests/canais.test.ts,159,159,line,1,// Token e verify_token vivem CIFRADOS. Isto é o que um `pg_dump` veria.,translate,// Token and verify_token live ENCRYPTED. This is what a `pg_dump` would see.,security,apps/api/tests/canais.test.ts:159; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-2a4faabe,api,apps/api/tests/canais.test.ts,331,331,line,3,"// PIN já guardado: a próxima configuração reaproveita, não sorteia outro.",translate,"// PIN already stored: the next setup reuses it, doesn't roll a new one.",security,apps/api/tests/canais.test.ts:331; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-a0b52319,api,apps/api/tests/canais.test.ts,411,411,line,4,"// Com o `phone_number_id` do outro número, a Meta o acha e a reautorização recusa a troca.",translate,"// With the other number's `phone_number_id`, Meta finds it and reauthorization rejects the swap.",integration,apps/api/tests/canais.test.ts:411; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-d5643e49,api,apps/api/tests/canais.test.ts,419,419,line,5,"// Sem ele, casa pelo número do canal — que não está naquela WABA.",translate,"// Without it, it matches by the channel's number — which isn't in that WABA.",integration,apps/api/tests/canais.test.ts:419; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-742cab5e,api,apps/api/tests/canais.test.ts,429,429,jsdoc,0,/** App Secret do app do cliente: 32 hexadecimais. `bad…` o dublê trata como de outro app. */,translate,The client app's App Secret: 32 hex characters. `bad…` the double treats as belonging to another app.,security,apps/api/tests/canais.test.ts:429; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-92ccae17,api,apps/api/tests/canais.test.ts,46,53,jsdoc,8,"/**
  * Conectar o WhatsApp do cliente, com banco de verdade e sem tocar na Meta.
  *
@@ -6240,29 +6268,31 @@ api-comment-92ccae17,api,apps/api/tests/canais.test.ts,46,53,jsdoc,8,"/**
  * (`spec/services/whatsapp/*_spec.rb`), mais os do Pipe: o `state` contra CSRF, a
  * cifra do token e o isolamento entre clientes. O ""callback"" é exercitado pelo
  * controlador de verdade, com a permissão `canal.gerenciar` conferida no banco.
- */",,,,,,
-api-comment-1a8abac7,api,apps/api/tests/canais.test.ts,472,472,line,3,"// O webhook deste canal confere a assinatura com o segredo do app do cliente, não o nosso.",,,,,,
-api-comment-5e3737b3,api,apps/api/tests/canais.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
-api-comment-715c1229,api,apps/api/tests/canais.test.ts,518,518,line,1,// Campo ausente não é mexido.,,,,,,
-api-comment-46778ed8,api,apps/api/tests/canais.test.ts,608,608,line,0,"// Na Meta: aprovado, e aparece um segundo modelo criado lá fora; um terceiro de categoria desconhecida.",,,,,,
-api-comment-720a9631,api,apps/api/tests/canais.test.ts,623,623,line,2,// Os nomes dados às variáveis ficam: a quantidade não mudou.,,,,,,
-api-comment-0503efb0,api,apps/api/tests/canais.test.ts,628,628,line,0,// Apagado lá fora: some daqui na próxima sincronização.,,,,,,
-api-comment-5f23a248,api,apps/api/tests/canais.test.ts,649,649,line,1,// Autenticação passou a existir (describe próprio abaixo); categoria desconhecida continua recusada.,,,,,,
-api-comment-462b296b,api,apps/api/tests/canais.test.ts,697,697,line,3,"// Subiu UMA vez, antes de criar — a ordem é a da Resumable Upload API: handle primeiro.",,,,,,
-api-comment-ef0ca370,api,apps/api/tests/canais.test.ts,707,707,line,1,"// Embutido: o arquivo sobe no NOSSO app, e o dublê devolve `<app>-<sufixo dos bytes>`.",,,,,,
-api-comment-0f83d814,api,apps/api/tests/canais.test.ts,760,760,line,4,// Tipo fora da lista de cada formato: a frase é a que a origem mostra no campo.,,,,,,
-api-comment-1a821475,api,apps/api/tests/canais.test.ts,773,773,line,3,"// Tamanho: 5 MB para imagem, 16 MB para vídeo (documento é 100 MB — grande demais para o teste).",,,,,,
-api-comment-75b3357e,api,apps/api/tests/canais.test.ts,784,784,line,3,"// Não é data URL, está vazio, ou veio junto com cabeçalho de texto.",,,,,,
-api-comment-e89e6333,api,apps/api/tests/canais.test.ts,795,795,line,1,"// Mídia boa, mas corpo ruim: o arquivo NÃO sobe — tudo é conferido antes do upload.",,,,,,
-api-comment-bad36f93,api,apps/api/tests/canais.test.ts,822,822,line,2,// Nenhum texto nosso vai para a Meta nessa categoria.,,,,,,
-api-comment-e61a3ee4,api,apps/api/tests/canais.test.ts,849,849,line,4,"// Desligada: o campo não vai, e a cópia local fica sem a frase de segurança.",,,,,,
-api-comment-3f603c91,api,apps/api/tests/canais.test.ts,862,862,line,4,// A Meta aprovou e devolve o BODY com o texto dela: a sincronização troca a cópia local por ele.,,,,,,
-api-comment-72fc06cd,api,apps/api/tests/canais.test.ts,924,924,line,1,"// O resto do config (token, número) sobrevive à gravação.",,,,,,
-api-comment-532edea3,api,apps/api/tests/canal-do-fluxo.test.ts,107,107,jsdoc,4,"/** Um canal a mais no tenant, sem passar pela Meta. */",,,,,,
-api-comment-8ad87e5e,api,apps/api/tests/canal-do-fluxo.test.ts,225,225,line,1,// Ligar de novo o mesmo canal não é erro nem gera registro.,,,,,,
-api-comment-0ff051ec,api,apps/api/tests/canal-do-fluxo.test.ts,245,245,line,2,"// A tela do segundo vê o canal como ""em uso pelo primeiro"".",,,,,,
-api-comment-77447fe2,api,apps/api/tests/canal-do-fluxo.test.ts,250,250,line,0,"// Trocar de bot é: desligar no anterior, ligar no novo.",,,,,,
-api-comment-fed58318,api,apps/api/tests/canal-do-fluxo.test.ts,256,256,line,1,// Arquivado não segura número: um terceiro liga por cima.,,,,,,
+ */",translate,"Connecting the client's WhatsApp, with a real database and without touching Meta.
+
+The cases follow the Chatwoot specs the connection was ported from (`spec/services/whatsapp/*_spec.rb`), plus Pipe's own: the CSRF `state`, the token cipher, and isolation between customers. The ""callback"" is exercised through the real controller, with the `canal.gerenciar` permission checked in the database.",security,apps/api/tests/canais.test.ts:46-53; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-1a8abac7,api,apps/api/tests/canais.test.ts,472,472,line,3,"// O webhook deste canal confere a assinatura com o segredo do app do cliente, não o nosso.",translate,"// This channel's webhook checks the signature with the client app's secret, not ours.",security,apps/api/tests/canais.test.ts:472; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-5e3737b3,api,apps/api/tests/canais.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/canais.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-715c1229,api,apps/api/tests/canais.test.ts,518,518,line,1,// Campo ausente não é mexido.,translate,// A missing field isn't touched.,other,apps/api/tests/canais.test.ts:518,sonnet,reviewed
+api-comment-46778ed8,api,apps/api/tests/canais.test.ts,608,608,line,0,"// Na Meta: aprovado, e aparece um segundo modelo criado lá fora; um terceiro de categoria desconhecida.",translate,"// On Meta: approved, and a second template created out there shows up; a third of unknown category.",meta-blip,apps/api/tests/canais.test.ts:608; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-720a9631,api,apps/api/tests/canais.test.ts,623,623,line,2,// Os nomes dados às variáveis ficam: a quantidade não mudou.,translate,// The variable names stay: the count didn't change.,other,apps/api/tests/canais.test.ts:623,sonnet,reviewed
+api-comment-0503efb0,api,apps/api/tests/canais.test.ts,628,628,line,0,// Apagado lá fora: some daqui na próxima sincronização.,translate,// Deleted out there: disappears here on the next sync.,meta-blip,apps/api/tests/canais.test.ts:628; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-5f23a248,api,apps/api/tests/canais.test.ts,649,649,line,1,// Autenticação passou a existir (describe próprio abaixo); categoria desconhecida continua recusada.,translate,// Authentication category now exists (own describe below); unknown category is still rejected.,other,apps/api/tests/canais.test.ts:649,sonnet,reviewed
+api-comment-462b296b,api,apps/api/tests/canais.test.ts,697,697,line,3,"// Subiu UMA vez, antes de criar — a ordem é a da Resumable Upload API: handle primeiro.",translate,"// Uploaded ONCE, before creating — the order follows the Resumable Upload API: handle first.",integration,apps/api/tests/canais.test.ts:697; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-ef0ca370,api,apps/api/tests/canais.test.ts,707,707,line,1,"// Embutido: o arquivo sobe no NOSSO app, e o dublê devolve `<app>-<sufixo dos bytes>`.",translate,"// Embedded: the file uploads to OUR app, and the double returns `<app>-<bytes suffix>`.",integration,apps/api/tests/canais.test.ts:707; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-0f83d814,api,apps/api/tests/canais.test.ts,760,760,line,4,// Tipo fora da lista de cada formato: a frase é a que a origem mostra no campo.,translate,// A type outside each format's list: the message is the one the source shows in the field.,other,apps/api/tests/canais.test.ts:760,sonnet,reviewed
+api-comment-1a821475,api,apps/api/tests/canais.test.ts,773,773,line,3,"// Tamanho: 5 MB para imagem, 16 MB para vídeo (documento é 100 MB — grande demais para o teste).",translate,"// Size: 5 MB for image, 16 MB for video (document is 100 MB — too big for the test).",other,apps/api/tests/canais.test.ts:773,sonnet,reviewed
+api-comment-75b3357e,api,apps/api/tests/canais.test.ts,784,784,line,3,"// Não é data URL, está vazio, ou veio junto com cabeçalho de texto.",translate,"// Not a data URL, is empty, or came with a text header.",other,apps/api/tests/canais.test.ts:784,sonnet,reviewed
+api-comment-e89e6333,api,apps/api/tests/canais.test.ts,795,795,line,1,"// Mídia boa, mas corpo ruim: o arquivo NÃO sobe — tudo é conferido antes do upload.",translate,"// Good media, bad body: the file does NOT upload — everything is checked before the upload.",other,apps/api/tests/canais.test.ts:795,sonnet,reviewed
+api-comment-bad36f93,api,apps/api/tests/canais.test.ts,822,822,line,2,// Nenhum texto nosso vai para a Meta nessa categoria.,translate,// None of our text goes to Meta in this category.,meta-blip,apps/api/tests/canais.test.ts:822; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-e61a3ee4,api,apps/api/tests/canais.test.ts,849,849,line,4,"// Desligada: o campo não vai, e a cópia local fica sem a frase de segurança.",translate,"// Off: the field doesn't go out, and the local copy is left without the security phrase.",meta-blip,apps/api/tests/canais.test.ts:849; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-3f603c91,api,apps/api/tests/canais.test.ts,862,862,line,4,// A Meta aprovou e devolve o BODY com o texto dela: a sincronização troca a cópia local por ele.,translate,// Meta approved it and returns the BODY with its own text: the sync replaces the local copy with it.,meta-blip,apps/api/tests/canais.test.ts:862; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-72fc06cd,api,apps/api/tests/canais.test.ts,924,924,line,1,"// O resto do config (token, número) sobrevive à gravação.",translate,"// The rest of the config (token, number) survives the write.",other,apps/api/tests/canais.test.ts:924,sonnet,reviewed
+api-comment-532edea3,api,apps/api/tests/canal-do-fluxo.test.ts,107,107,jsdoc,4,"/** Um canal a mais no tenant, sem passar pela Meta. */",translate,"One more channel on the tenant, without going through Meta.",other,apps/api/tests/canal-do-fluxo.test.ts:107,sonnet,reviewed
+api-comment-8ad87e5e,api,apps/api/tests/canal-do-fluxo.test.ts,225,225,line,1,// Ligar de novo o mesmo canal não é erro nem gera registro.,translate,// Connecting the same channel again isn't an error and doesn't create a record.,other,apps/api/tests/canal-do-fluxo.test.ts:225,sonnet,reviewed
+api-comment-0ff051ec,api,apps/api/tests/canal-do-fluxo.test.ts,245,245,line,2,"// A tela do segundo vê o canal como ""em uso pelo primeiro"".",translate,"// The second one's screen sees the channel as ""in use by the first.""",other,apps/api/tests/canal-do-fluxo.test.ts:245,sonnet,reviewed
+api-comment-77447fe2,api,apps/api/tests/canal-do-fluxo.test.ts,250,250,line,0,"// Trocar de bot é: desligar no anterior, ligar no novo.",translate,"// Switching bots means: disconnect on the old one, connect on the new one.",other,apps/api/tests/canal-do-fluxo.test.ts:250,sonnet,reviewed
+api-comment-fed58318,api,apps/api/tests/canal-do-fluxo.test.ts,256,256,line,1,// Arquivado não segura número: um terceiro liga por cima.,translate,// Archived doesn't hold the number: a third one connects over it.,other,apps/api/tests/canal-do-fluxo.test.ts:256,sonnet,reviewed
 api-comment-7b358841,api,apps/api/tests/canal-do-fluxo.test.ts,27,38,jsdoc,19,"/**
  * O canal DO BOT — `PUT`/`DELETE /v1/gestao/fluxos/:id/canal`, o `GET` que a
  * página do canal lê, e a conexão manual com `fluxo_id`.
@@ -6274,31 +6304,33 @@ api-comment-7b358841,api,apps/api/tests/canal-do-fluxo.test.ts,27,38,jsdoc,19,"/
  * e, ligado o roteador ao número, a mensagem que chega nesse número cai nele.
  * Mais as travas do Pipe: canal inativo não liga (409), outro tenant e uuid
  * malformado são 404, e um bot tem um canal só (a coluna `fluxo.canal_id`).
- */",,,,,,
-api-comment-cc4e6700,api,apps/api/tests/canal-do-fluxo.test.ts,313,313,line,3,"// No fluxo em que não é membro, continua sem poder.",,,,,,
-api-comment-68a45623,api,apps/api/tests/canal-do-fluxo.test.ts,404,404,jsdoc,1,/** Um principal de uma pergunta só: responde e fica esperando. */,,,,,,
-api-comment-c1014c7f,api,apps/api/tests/canal-do-fluxo.test.ts,425,425,line,2,"// Publicar o roteador não é gesto desta tarefa: nasce publicado, mas SEM canal.",,,,,,
-api-comment-edecbe64,api,apps/api/tests/canal-do-fluxo.test.ts,432,432,line,2,// Pela tela: o canal do cenário (o número que recebe o webhook) vira o canal do roteador.,,,,,,
-api-comment-30b23c96,api,apps/api/tests/canal-do-fluxo.test.ts,45,45,jsdoc,2,/** Gente do tenant A sem permissão nenhuma. */,,,,,,
-api-comment-1f80ba3f,api,apps/api/tests/canal-do-fluxo.test.ts,461,461,line,3,"// Desligado o roteador do número, a próxima conversa nova já não passa por ele.",,,,,,
-api-comment-d67fb4f2,api,apps/api/tests/canal-do-fluxo.test.ts,47,47,jsdoc,1,"/** Quem só é membro de UM fluxo, com `channels: escrever` — nada na conta. */",,,,,,
+ */",translate,"The BOT'S channel — `PUT`/`DELETE /v1/gestao/fluxos/:id/canal`, the `GET` the channel page reads, and the manual connection with `fluxo_id`.
+
+What's proven is what the source decides (`referencias-blip/canais/FICHA-conectar-canal-no-bot.md` §4): the channel belongs to the bot and the permission is the bot's `channels`; one bot per number (""Oops… This number is already in use"" — Blip refuses, it doesn't transfer; whoever swaps disconnects the previous bot first); and, once the router is connected to the number, a message arriving on that number lands on it. Plus Pipe's own guards: an inactive channel doesn't connect (409), another tenant and a malformed uuid are 404, and a bot has only one channel (the `fluxo.canal_id` column).",security,apps/api/tests/canal-do-fluxo.test.ts:27-38; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-cc4e6700,api,apps/api/tests/canal-do-fluxo.test.ts,313,313,line,3,"// No fluxo em que não é membro, continua sem poder.",translate,"// On the flow they're not a member of, still no permission.",security,apps/api/tests/canal-do-fluxo.test.ts:313; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-68a45623,api,apps/api/tests/canal-do-fluxo.test.ts,404,404,jsdoc,1,/** Um principal de uma pergunta só: responde e fica esperando. */,translate,A one-question principal: answers and waits.,other,apps/api/tests/canal-do-fluxo.test.ts:404,sonnet,reviewed
+api-comment-c1014c7f,api,apps/api/tests/canal-do-fluxo.test.ts,425,425,line,2,"// Publicar o roteador não é gesto desta tarefa: nasce publicado, mas SEM canal.",translate,"// Publishing the router isn't this task's gesture: it's born published, but WITHOUT a channel.",other,apps/api/tests/canal-do-fluxo.test.ts:425,sonnet,reviewed
+api-comment-edecbe64,api,apps/api/tests/canal-do-fluxo.test.ts,432,432,line,2,// Pela tela: o canal do cenário (o número que recebe o webhook) vira o canal do roteador.,translate,// Through the screen: the scenario's channel (the number that receives the webhook) becomes the router's channel.,other,apps/api/tests/canal-do-fluxo.test.ts:432,sonnet,reviewed
+api-comment-30b23c96,api,apps/api/tests/canal-do-fluxo.test.ts,45,45,jsdoc,2,/** Gente do tenant A sem permissão nenhuma. */,translate,People from tenant A with no permission at all.,security,apps/api/tests/canal-do-fluxo.test.ts:45; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-1f80ba3f,api,apps/api/tests/canal-do-fluxo.test.ts,461,461,line,3,"// Desligado o roteador do número, a próxima conversa nova já não passa por ele.",translate,"// Once the router is disconnected from the number, the next new conversation no longer goes through it.",other,apps/api/tests/canal-do-fluxo.test.ts:461,sonnet,reviewed
+api-comment-d67fb4f2,api,apps/api/tests/canal-do-fluxo.test.ts,47,47,jsdoc,1,"/** Quem só é membro de UM fluxo, com `channels: escrever` — nada na conta. */",translate,"Someone who's only a member of ONE flow, with `channels: write` — nothing at the account level.",security,apps/api/tests/canal-do-fluxo.test.ts:47; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-09c56981,api,apps/api/tests/canal-do-fluxo.test.ts,471,476,jsdoc,4,"/**
    * O token do cliente expira, e na origem a saída é refazer a conexão no mesmo
    * canal — não há desconectar no WhatsApp (`FICHA-conectar-canal-no-bot.md`
    * §5). Sem `canal_id`, trocar o token ficava num beco: criar de novo esbarra
    * no próprio número.
-   */",,,,,,
+   */",translate,"The client's token expires, and in the source the way out is to redo the connection on the same channel — there's no disconnect on WhatsApp (`FICHA-conectar-canal-no-bot.md` §5). Without `canal_id`, swapping the token was a dead end: creating a new one runs into the same number.",integration,apps/api/tests/canal-do-fluxo.test.ts:471-476; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-88399fdd,api,apps/api/tests/canal-do-fluxo.test.ts,491,492,block,4,"/* Sem `canal_id`: é o beco que o dono encontrou — o número já é de um canal.
-       Fora do bot quem manda é `canal.gerenciar`, daí a sessão própria. */",,,,,,
+       Fora do bot quem manda é `canal.gerenciar`, daí a sessão própria. */",translate,"Without `canal_id`: this is the dead end the owner ran into — the number already belongs to a channel. Outside the bot, `canal.gerenciar` is in charge, hence the separate session.",integration,apps/api/tests/canal-do-fluxo.test.ts:491-492; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-9cb615e3,api,apps/api/tests/canal-do-fluxo.test.ts,499,500,block,4,"/* O duble da Meta casa token com número, então o token de teste é o mesmo;
-       o que prova a troca é o App Secret novo gravado no canal. */",,,,,,
-api-comment-91e9a187,api,apps/api/tests/canal-do-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
-api-comment-fcf43251,api,apps/api/tests/canal-do-fluxo.test.ts,509,509,block,1,/* O canal continua ligado ao mesmo bot e não nasceu um segundo. */,,,,,,
-api-comment-6c4fbb4a,api,apps/api/tests/canal-do-fluxo.test.ts,519,519,block,2,"/* Cifrado no banco: o que importa é ter MUDADO, não o valor em claro. */",,,,,,
-api-comment-731f49de,api,apps/api/tests/chave-de-fluxo.test.ts,126,126,jsdoc,2,"/** Cria a chave do fluxo pela ROTA da tela, e devolve o token `pipe_…`. */",,,,,,
-api-comment-1f806582,api,apps/api/tests/chave-de-fluxo.test.ts,133,133,jsdoc,5,/** Uma requisição do Express já casada com a rota — o que o guarda enxerga. */,,,,,,
-api-comment-1c4058d0,api,apps/api/tests/chave-de-fluxo.test.ts,157,157,line,4,// Uuid vem em caixa diferente conforme quem o escreveu; a cerca não é sensível a isso.,,,,,,
-api-comment-1a9f71b4,api,apps/api/tests/chave-de-fluxo.test.ts,200,200,line,3,"// `:id` de conversa não é fluxo, mesmo que o valor coincida com o id de um fluxo.",,,,,,
+       o que prova a troca é o App Secret novo gravado no canal. */",translate,"The Meta double matches token to number, so the test token is the same one; what proves the swap is the new App Secret stored on the channel.",integration,apps/api/tests/canal-do-fluxo.test.ts:499-500; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-91e9a187,api,apps/api/tests/canal-do-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/canal-do-fluxo.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-fcf43251,api,apps/api/tests/canal-do-fluxo.test.ts,509,509,block,1,/* O canal continua ligado ao mesmo bot e não nasceu um segundo. */,translate,"The channel stays connected to the same bot, and a second one wasn't born.",other,apps/api/tests/canal-do-fluxo.test.ts:509,sonnet,reviewed
+api-comment-6c4fbb4a,api,apps/api/tests/canal-do-fluxo.test.ts,519,519,block,2,"/* Cifrado no banco: o que importa é ter MUDADO, não o valor em claro. */",translate,"Encrypted in the database: what matters is that it CHANGED, not the plaintext value.",security,apps/api/tests/canal-do-fluxo.test.ts:519; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-731f49de,api,apps/api/tests/chave-de-fluxo.test.ts,126,126,jsdoc,2,"/** Cria a chave do fluxo pela ROTA da tela, e devolve o token `pipe_…`. */",translate,"Creates the flow key through the screen's ROUTE, and returns the `pipe_…` token.",security,apps/api/tests/chave-de-fluxo.test.ts:126; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-1f806582,api,apps/api/tests/chave-de-fluxo.test.ts,133,133,jsdoc,5,/** Uma requisição do Express já casada com a rota — o que o guarda enxerga. */,translate,An Express request already matched to the route — what the guard sees.,security,apps/api/tests/chave-de-fluxo.test.ts:133; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-1c4058d0,api,apps/api/tests/chave-de-fluxo.test.ts,157,157,line,4,// Uuid vem em caixa diferente conforme quem o escreveu; a cerca não é sensível a isso.,translate,// A uuid arrives in different case depending on who wrote it; the fence isn't sensitive to that.,security,apps/api/tests/chave-de-fluxo.test.ts:157; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-1a9f71b4,api,apps/api/tests/chave-de-fluxo.test.ts,200,200,line,3,"// `:id` de conversa não é fluxo, mesmo que o valor coincida com o id de um fluxo.",translate,"// A conversation `:id` isn't a flow, even if the value happens to match a flow's id.",security,apps/api/tests/chave-de-fluxo.test.ts:200; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-eddba5e0,api,apps/api/tests/chave-de-fluxo.test.ts,21,36,jsdoc,14,"/**
  * A chave de acesso criada na tela ""Chaves de acesso"" do fluxo
  * (`chave_api.fluxo_id`, migração 0032) é uma credencial CERCADA, não um
@@ -6314,13 +6346,20 @@ api-comment-eddba5e0,api,apps/api/tests/chave-de-fluxo.test.ts,21,36,jsdoc,14,"/
  * A chave é criada pela rota de verdade (`POST /v1/gestao/fluxos/:id/chaves`),
  * com sessão de navegador, para provar que é ESSA chave — a que a tela entrega
  * ao cliente — que sai cercada.
- */",,,,,,
-api-comment-919d5ea5,api,apps/api/tests/chave-de-fluxo.test.ts,227,227,line,4,"// A chave de fluxo nasce sem `filas:ler`: a recusa é de ESCOPO, não de fluxo.",,,,,,
-api-comment-e9d93a7d,api,apps/api/tests/chave-de-fluxo.test.ts,233,233,line,1,"// Chave de conta só com `filas:ler`: entra em filas, barra em conversas — como sempre.",,,,,,
-api-comment-0d9029fb,api,apps/api/tests/chave-de-fluxo.test.ts,244,244,line,0,"// válida, só cercada",,,,,,
-api-comment-f9bf5dc3,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,100,100,jsdoc,4,"/** Um PNG ""de mentira"" que é PNG de verdade para quem lê os bytes: a assinatura e mais nada. */",,,,,,
-api-comment-c48d9b24,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,105,105,jsdoc,0,"/** Rótulo de PNG, bytes de texto: o tipo mente. */",,,,,,
-api-comment-625d4c37,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,155,155,jsdoc,2,"/** Cria e devolve o id, ou falha o teste — para os cenários que precisam de um fluxo pronto. */",,,,,,
+ */",translate,"The access key created on the flow's ""Chaves de acesso"" screen (`chave_api.fluxo_id`, migration 0032) is a FENCED credential, not just a label: the key guard (`conferirFluxoDaChave`, `autenticacao.ts`) carries the key's session `fluxoId` and
+
+- on a route PER FLOW, only lets it act on its own flow (another flow is 403);
+- on a route that is NOT per flow, it refuses (403 `chave_de_fluxo`) — a Pipe decision, explained in the guard itself;
+- an ACCOUNT key (`fluxo_id` null) behaves as always: the whole tenant;
+- revoked is 401, and the scope is still checked before the fence.
+
+The key is created through the real route (`POST /v1/gestao/fluxos/:id/chaves`), with a browser session, to prove it's THIS key — the one the screen hands the client — that comes out fenced.",security,apps/api/tests/chave-de-fluxo.test.ts:21-36; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-919d5ea5,api,apps/api/tests/chave-de-fluxo.test.ts,227,227,line,4,"// A chave de fluxo nasce sem `filas:ler`: a recusa é de ESCOPO, não de fluxo.",translate,"// The flow key is born without `filas:ler`: the refusal is a SCOPE one, not a flow one.",security,apps/api/tests/chave-de-fluxo.test.ts:227; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-e9d93a7d,api,apps/api/tests/chave-de-fluxo.test.ts,233,233,line,1,"// Chave de conta só com `filas:ler`: entra em filas, barra em conversas — como sempre.",translate,"// An account key with only `filas:ler`: gets into queues, blocked on conversations — as always.",security,apps/api/tests/chave-de-fluxo.test.ts:233; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-0d9029fb,api,apps/api/tests/chave-de-fluxo.test.ts,244,244,line,0,"// válida, só cercada",translate,"// valid, just fenced",security,apps/api/tests/chave-de-fluxo.test.ts:244; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-f9bf5dc3,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,100,100,jsdoc,4,"/** Um PNG ""de mentira"" que é PNG de verdade para quem lê os bytes: a assinatura e mais nada. */",translate,"A ""fake"" PNG that's a real PNG to whoever reads the bytes: the signature and nothing else.",other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:100,sonnet,reviewed
+api-comment-c48d9b24,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,105,105,jsdoc,0,"/** Rótulo de PNG, bytes de texto: o tipo mente. */",translate,"PNG label, text bytes: the type lies.",other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:105,sonnet,reviewed
+api-comment-625d4c37,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,155,155,jsdoc,2,"/** Cria e devolve o id, ou falha o teste — para os cenários que precisam de um fluxo pronto. */",translate,"Creates and returns the id, or fails the test — for scenarios that need a ready flow.",other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:155,sonnet,reviewed
 api-comment-31bb6615,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,19,30,jsdoc,19,"/**
  * O ciclo de vida do contato (fluxo/roteador): `POST`, `PATCH /:id` e
  * `DELETE /:id` em `/v1/gestao/fluxos`.
@@ -6332,19 +6371,21 @@ api-comment-31bb6615,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,19,30,jsd
  * (`automacao.fluxo.excluir`), e a exclusão que ARQUIVA em vez de apagar — o
  * fluxo some da grade, o nome fica livre, e a versão publicada continua no
  * banco para o histórico das conversas que passaram por ela.
- */",,,,,,
-api-comment-8e19490c,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,333,333,line,5,"// A foto não mudou, então não está no registro.",,,,,,
-api-comment-1496cf10,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,347,347,line,3,// criou + a descrição; o PATCH vazio e o PATCH sem mudança não entram.,,,,,,
-api-comment-abcf66a9,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,35,35,jsdoc,1,"/** Quem cria e edita, mas não exclui — o `member` deles. */",,,,,,
-api-comment-a94c7fb0,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,37,37,jsdoc,1,/** Quem também exclui — o `admin` deles. */,,,,,,
-api-comment-5a553e94,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,386,386,line,1,// O próprio nome não é conflito consigo mesmo.,,,,,,
-api-comment-7f3f8007,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,39,39,jsdoc,2,/** Gente do tenant A sem permissão nenhuma sobre fluxo. */,,,,,,
-api-comment-0c0e2723,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,41,41,jsdoc,1,"/** Admin do tenant B: prova que o tenant vem da sessão, nunca da URL. */",,,,,,
-api-comment-135c52e0,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,480,480,line,1,"// Excluído é ""não existe"": excluir de novo e editar dão 404.",,,,,,
-api-comment-69b2acbe,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,484,484,line,2,// E o nome voltou a estar livre para um contato novo.,,,,,,
-api-comment-74557e70,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
-api-comment-6bae9b96,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,51,51,jsdoc,2,"/** Um usuário novo no tenant, com um papel que carrega estas permissões. */",,,,,,
-api-comment-07f5e018,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,86,86,jsdoc,3,/** Grava uma sessão viva para a pessoa e devolve o token do cookie. */,,,,,,
+ */",translate,"The contact's (flow/router) lifecycle: `POST`, `PATCH /:id` and `DELETE /:id` on `/v1/gestao/fluxos`.
+
+What's worth proving is what the screens' source decides and what Pipe decided on top of it: the name by the creation wizard's rules (2 to 30, starts with a letter, sanitized), the description by the ""Edit Flow"" DOM (2 to 160, optional), the photo by its BYTES, the delete permission for admins only (`automacao.fluxo.excluir`), and the deletion that ARCHIVES instead of erasing — the flow disappears from the grid, the name becomes free, and the published version stays in the database for the history of the conversations that went through it.",security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:19-30; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-8e19490c,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,333,333,line,5,"// A foto não mudou, então não está no registro.",translate,"// The photo didn't change, so it's not in the record.",other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:333,sonnet,reviewed
+api-comment-1496cf10,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,347,347,line,3,// criou + a descrição; o PATCH vazio e o PATCH sem mudança não entram.,translate,// created plus the description; the empty PATCH and the no-change PATCH don't go in.,other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:347,sonnet,reviewed
+api-comment-abcf66a9,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,35,35,jsdoc,1,"/** Quem cria e edita, mas não exclui — o `member` deles. */",translate,"Who creates and edits, but doesn't delete — their `member`.",security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:35; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-a94c7fb0,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,37,37,jsdoc,1,/** Quem também exclui — o `admin` deles. */,translate,Who also deletes — their `admin`.,security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:37; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-5a553e94,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,386,386,line,1,// O próprio nome não é conflito consigo mesmo.,translate,// Its own name isn't a conflict with itself.,other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:386,sonnet,reviewed
+api-comment-7f3f8007,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,39,39,jsdoc,2,/** Gente do tenant A sem permissão nenhuma sobre fluxo. */,translate,People from tenant A with no permission at all on the flow.,security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:39; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-0c0e2723,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,41,41,jsdoc,1,"/** Admin do tenant B: prova que o tenant vem da sessão, nunca da URL. */",translate,"Admin of tenant B: proves the tenant comes from the session, never from the URL.",security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:41; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-135c52e0,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,480,480,line,1,"// Excluído é ""não existe"": excluir de novo e editar dão 404.",translate,"// Deleted means ""doesn't exist"": deleting again and editing both return 404.",other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:480,sonnet,reviewed
+api-comment-69b2acbe,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,484,484,line,2,// E o nome voltou a estar livre para um contato novo.,translate,// And the name became free again for a new contact.,other,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:484,sonnet,reviewed
+api-comment-74557e70,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-6bae9b96,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,51,51,jsdoc,2,"/** Um usuário novo no tenant, com um papel que carrega estas permissões. */",translate,"A new user on the tenant, with a role carrying these permissions.",security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:51; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-07f5e018,api,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts,86,86,jsdoc,3,/** Grava uma sessão viva para a pessoa e devolve o token do cookie. */,translate,Writes a live session for the person and returns the cookie's token.,security,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:86; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-3cce12fd,api,apps/api/tests/configuracao-do-fluxo.test.ts,19,29,jsdoc,10,"/**
  * ""Tela de Boas-vindas"" e ""Menu Persistente"" — `GET/PATCH
  * /v1/gestao/fluxos/:id/{boas-vindas,menu-persistente}`
@@ -6355,28 +6396,30 @@ api-comment-3cce12fd,api,apps/api/tests/configuracao-do-fluxo.test.ts,19,29,jsdo
  * teste do PATCH do menu prova a RECUSA (a mesma trava que a origem mostra
  * com o Salvar desabilitado), não o sucesso: salvar de verdade só é possível
  * quando o canal Messenger existir no Pipe.
- */",,,,,,
-api-comment-c9ec401c,api,apps/api/tests/configuracao-do-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
+ */",translate,"""Welcome Screen"" and ""Persistent Menu"" — `GET/PATCH /v1/gestao/fluxos/:id/{boas-vindas,menu-persistente}` (`dominio/gestao/configuracao-do-fluxo.ts`).
+
+The persistent menu requires a Messenger channel — and `TIPOS_CANAL` (`packages/db/src/schema/comum.ts`) doesn't have that type yet. That's why the PATCH menu test proves the REFUSAL (the same guard the source shows with Save disabled), not success: actually saving is only possible once the Messenger channel exists in Pipe.",other,apps/api/tests/configuracao-do-fluxo.test.ts:19-29,sonnet,reviewed
+api-comment-c9ec401c,api,apps/api/tests/configuracao-do-fluxo.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/configuracao-do-fluxo.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-e5323d52,api,apps/api/tests/contas.test.ts,14,18,jsdoc,2,"/**
  * O cadastro de conta, fechado por padrão (`ENABLE_ACCOUNT_SIGNUP=false`), como
  * no Chatwoot de onde a flag foi portada. Aberto, ele provisiona pelo mesmo
  * `provisionarCliente` do comando.
- */",,,,,,
-api-comment-32dd106a,api,apps/api/tests/contas.test.ts,99,99,line,0,// `admin` na conta e `administrador` no atendimento (migração 0021).,,,,,,
+ */",translate,"Account signup, closed by default (`ENABLE_ACCOUNT_SIGNUP=false`), as in the Chatwoot it was ported from. When open, it provisions through the same `provisionarCliente` as the command.",security,apps/api/tests/contas.test.ts:14-18; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-32dd106a,api,apps/api/tests/contas.test.ts,99,99,line,0,// `admin` na conta e `administrador` no atendimento (migração 0021).,translate,// `admin` at the account level and `administrador` in attendance (migration 0021).,security,apps/api/tests/contas.test.ts:99; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-457dbbab,api,apps/api/tests/contatos-editar.test.ts,19,25,jsdoc,0,"/**
  * `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`,
  * `ControladorContatos.editar`) — o ""Editar"" de
  * `fluxo/contatos/detalhe/editar.tsx`. Sessão, permissão `contato.editar`,
  * telefone em E.164 validado e único no tenant, `atributos` mesclado (nunca
  * substituído por inteiro).
- */",,,,,,
-api-comment-de5b8f4a,api,apps/api/tests/contatos-editar.test.ts,194,194,line,3,// O mesmo telefone que o contato já tem não é conflito consigo mesmo.,,,,,,
-api-comment-8889401d,api,apps/api/tests/contatos-editar.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
-api-comment-4ece7549,api,apps/api/tests/contrato.test.ts,144,144,jsdoc,4,/** Tenant `a` com DOIS admins — para testar troca/remoção sem esbarrar no último. */,,,,,,
-api-comment-e2cff25e,api,apps/api/tests/contrato.test.ts,149,149,jsdoc,3,"/** Tenant à parte, com um ÚNICO admin — só para os dois testes de ""último admin"". */",,,,,,
-api-comment-206c2f61,api,apps/api/tests/contrato.test.ts,153,153,jsdoc,1,/** Tem `conta.membros.escrever` mas não é `admin` — ver `usuarioOperador`. */,,,,,,
-api-comment-1adfc762,api,apps/api/tests/contrato.test.ts,155,155,jsdoc,4,"/** Sessão válida do tenant B, para provar que o id de A não é achado nele. */",,,,,,
-api-comment-a27195cb,api,apps/api/tests/contrato.test.ts,224,224,line,3,// o convite original não existe mais (venceu); o novo id é o que vale,,,,,,
+ */",translate,"`PATCH /v1/contatos/:id` (`controladores/catalogo.ts`, `ControladorContatos.editar`) — the ""Edit"" of `fluxo/contatos/detalhe/editar.tsx`. Session, `contato.editar` permission, phone in E.164 validated and unique per tenant, `atributos` merged (never replaced wholesale).",security,apps/api/tests/contatos-editar.test.ts:19-25; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-de5b8f4a,api,apps/api/tests/contatos-editar.test.ts,194,194,line,3,// O mesmo telefone que o contato já tem não é conflito consigo mesmo.,translate,// The same phone the contact already has isn't a conflict with itself.,other,apps/api/tests/contatos-editar.test.ts:194,sonnet,reviewed
+api-comment-8889401d,api,apps/api/tests/contatos-editar.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/contatos-editar.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-4ece7549,api,apps/api/tests/contrato.test.ts,144,144,jsdoc,4,/** Tenant `a` com DOIS admins — para testar troca/remoção sem esbarrar no último. */,translate,Tenant `a` with TWO admins — to test swap/removal without hitting the last one.,security,apps/api/tests/contrato.test.ts:144; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-e2cff25e,api,apps/api/tests/contrato.test.ts,149,149,jsdoc,3,"/** Tenant à parte, com um ÚNICO admin — só para os dois testes de ""último admin"". */",translate,"A separate tenant, with a SINGLE admin — only for the two ""last admin"" tests.",security,apps/api/tests/contrato.test.ts:149; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-206c2f61,api,apps/api/tests/contrato.test.ts,153,153,jsdoc,1,/** Tem `conta.membros.escrever` mas não é `admin` — ver `usuarioOperador`. */,translate,Has `conta.membros.escrever` but isn't `admin` — see `usuarioOperador`.,security,apps/api/tests/contrato.test.ts:153; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-1adfc762,api,apps/api/tests/contrato.test.ts,155,155,jsdoc,4,"/** Sessão válida do tenant B, para provar que o id de A não é achado nele. */",translate,"A valid session from tenant B, to prove A's id isn't found there.",security,apps/api/tests/contrato.test.ts:155; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-a27195cb,api,apps/api/tests/contrato.test.ts,224,224,line,3,// o convite original não existe mais (venceu); o novo id é o que vale,translate,// the original invite no longer exists (expired); the new id is the one that counts,security,apps/api/tests/contrato.test.ts:224; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-79d0544f,api,apps/api/tests/contrato.test.ts,25,34,jsdoc,3,"/**
  * Contrato — Membros e Certificados: item 4 da tarefa.
  *
@@ -6386,32 +6429,36 @@ api-comment-79d0544f,api,apps/api/tests/contrato.test.ts,25,34,jsdoc,3,"/**
  * negócio (último admin, cross-tenant) chegam como `ok: false`; convite e
  * certificado usam `ErroPipe` de verdade (400/403/404), então essas rotas
  * mostram status HTTP também.
- */",,,,,,
-api-comment-58345679,api,apps/api/tests/contrato.test.ts,276,276,line,2,"// devolve ao estado original, para não atrapalhar os outros testes",,,,,,
-api-comment-c24e3ac4,api,apps/api/tests/contrato.test.ts,333,333,line,3,// devolve a admin e testa a remoção pelo outro lado,,,,,,
-api-comment-7879164d,api,apps/api/tests/contrato.test.ts,363,363,line,2,// A tela manda data URL (FileReader); base64 puro também vale.,,,,,,
-api-comment-b54b7fa5,api,apps/api/tests/contrato.test.ts,451,451,line,2,// A listagem não traz nem o cifrado.,,,,,,
-api-comment-2fe84602,api,apps/api/tests/contrato.test.ts,459,459,line,2,// A auditoria registra só o que é público do certificado.,,,,,,
-api-comment-8cf7dcfe,api,apps/api/tests/contrato.test.ts,473,473,line,2,"//nao-serve.com'] }),",,,,,,
+ */",translate,"Contract — Members and Certificates: item 4 of the task.
+
+Same pattern as `cadastros-atendimento.test.ts`: two tenants, cookie session, happy path, refusals, cross-tenant, permission. Since Members uses the `Resultado` pattern (`{ ok, erro }` at 200, not `ErroPipe`), business refusals (last admin, cross-tenant) arrive as `ok: false`; invite and certificate use real `ErroPipe` (400/403/404), so those routes show an HTTP status too.",security,apps/api/tests/contrato.test.ts:25-34; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-58345679,api,apps/api/tests/contrato.test.ts,276,276,line,2,"// devolve ao estado original, para não atrapalhar os outros testes",translate,"// returns to the original state, so it doesn't disrupt the other tests",other,apps/api/tests/contrato.test.ts:276,sonnet,reviewed
+api-comment-c24e3ac4,api,apps/api/tests/contrato.test.ts,333,333,line,3,// devolve a admin e testa a remoção pelo outro lado,translate,// returns the admin and tests removal from the other side,other,apps/api/tests/contrato.test.ts:333,sonnet,reviewed
+api-comment-7879164d,api,apps/api/tests/contrato.test.ts,363,363,line,2,// A tela manda data URL (FileReader); base64 puro também vale.,translate,// The screen sends a data URL (FileReader); plain base64 also works.,other,apps/api/tests/contrato.test.ts:363,sonnet,reviewed
+api-comment-b54b7fa5,api,apps/api/tests/contrato.test.ts,451,451,line,2,// A listagem não traz nem o cifrado.,translate,// The listing doesn't even include the encrypted value.,security,apps/api/tests/contrato.test.ts:451; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-2fe84602,api,apps/api/tests/contrato.test.ts,459,459,line,2,// A auditoria registra só o que é público do certificado.,translate,// The audit log records only what's public about the certificate.,security,apps/api/tests/contrato.test.ts:459; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-8cf7dcfe,api,apps/api/tests/contrato.test.ts,473,473,line,2,"//nao-serve.com'] }),",keep-original,,security,"apps/api/tests/contrato.test.ts:473; false-positive URL string, not a comment; pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
 api-comment-931ac9f2,api,apps/api/tests/contrato.test.ts,553,555,block,1,"/* =========================================================================
  * mTLS na saída: a Pipe apresenta o certificado ao chamar o host cadastrado
- * ========================================================================= */",,,,,,
-api-comment-2dfc8655,api,apps/api/tests/contrato.test.ts,559,559,jsdoc,4,"/** Um webhook do tenant com uma entrega pendente para `url`, semeado pelo dono. */",,,,,,
+ * ========================================================================= */",translate,"/* =========================================================================
+ * Outbound mTLS: Pipe presents the certificate when calling the registered host
+ * ========================================================================= */",security,apps/api/tests/contrato.test.ts:553-555; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-2dfc8655,api,apps/api/tests/contrato.test.ts,559,559,jsdoc,4,"/** Um webhook do tenant com uma entrega pendente para `url`, semeado pelo dono. */",translate,"A tenant's webhook with a pending delivery for `url`, seeded by the owner.",integration,apps/api/tests/contrato.test.ts:559; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-525d55ba,api,apps/api/tests/contrato.test.ts,581,587,jsdoc,10,"/**
    * Sem rede: `https.request` (o caminho com certificado) vira um dublê que
    * registra o agente recebido e responde 200; o `fetch` global (o caminho
    * sem certificado) registra a URL e responde 200 — menos o que vai para a
    * própria `api` de teste, que passa pelo fetch de verdade (o mesmo cuidado
    * de `integracoes.test.ts`).
-   */",,,,,,
-api-comment-0ae964a1,api,apps/api/tests/contrato.test.ts,665,665,line,2,"//sem-certificado.exemplo.com.br/hook-${randomUUID().slice(0, 6)}`;",,,,,,
+   */",translate,"No network: `https.request` (the path with a certificate) becomes a double that records the agent it received and answers 200; the global `fetch` (the path without a certificate) records the URL and answers 200 — except for what goes to the test `api` itself, which goes through the real fetch (the same care as `integracoes.test.ts`).",security,apps/api/tests/contrato.test.ts:581-587; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-0ae964a1,api,apps/api/tests/contrato.test.ts,665,665,line,2,"//sem-certificado.exemplo.com.br/hook-${randomUUID().slice(0, 6)}`;",keep-original,,security,"apps/api/tests/contrato.test.ts:665; false-positive URL string, not a comment; pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
 api-comment-c6036b08,api,apps/api/tests/contrato.test.ts,78,83,jsdoc,11,"/**
  * Alguém com `conta.membros.escrever` que NÃO é `admin` — um papel de conta
  * customizado, só para provar que a trava de ""último admin"" em
  * `removerMembro` vale mesmo vindo de quem não é o próprio alvo (o ""não posso
  * excluir a mim mesmo"" já barra o caso mais óbvio antes dela).
- */",,,,,,
-api-comment-9486622d,api,apps/api/tests/contrato.test.ts,9,9,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
+ */",translate,"Someone with `conta.membros.escrever` who is NOT `admin` — a custom account role, only to prove the ""last admin"" guard in `removerMembro` holds even coming from someone who isn't the target themselves (the ""can't remove myself"" already blocks the more obvious case before it).",security,apps/api/tests/contrato.test.ts:78-83; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-9486622d,api,apps/api/tests/contrato.test.ts,9,9,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/contrato.test.ts:9; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-faf85ed9,api,apps/api/tests/conversa-eventos.test.ts,18,27,jsdoc,11,"/**
  * Encerrar e pausar têm de gravar `evento_atendimento`.
  *
@@ -6421,14 +6468,18 @@ api-comment-faf85ed9,api,apps/api/tests/conversa-eventos.test.ts,18,27,jsdoc,11,
  *
  * Métrica sai de `evento_atendimento`, que é imutável (modelo de dados §4); o estado
  * da conversa é cache. Por isso a asserção é sempre sobre o evento, não sobre a coluna.
- */",,,,,,
-api-comment-a3251896,api,apps/api/tests/conversa-eventos.test.ts,220,220,line,2,// A conversa nasceu com `em_espera_desde` 30 segundos atrás.,,,,,,
-api-comment-724f6a75,api,apps/api/tests/convites.test.ts,116,116,line,1,"// O papel de CONTA que os convites vão usar, um em cada tenant — e um de",,,,,,
-api-comment-df156457,api,apps/api/tests/convites.test.ts,117,117,line,2,"// atendimento no A, que o convite tem de recusar.",,,,,,
-api-comment-3b80665e,api,apps/api/tests/convites.test.ts,127,127,jsdoc,2,"/** Tenants nascidos do comando de provisionamento, para a limpeza levar embora. */",,,,,,
-api-comment-af9d1c09,api,apps/api/tests/convites.test.ts,168,168,line,1,// O token não pode estar no banco em lugar nenhum: só o hash.,,,,,,
-api-comment-8967f42a,api,apps/api/tests/convites.test.ts,174,174,line,2,"// Sete dias, não oito horas: convite não é sessão.",,,,,,
-api-comment-90a27257,api,apps/api/tests/convites.test.ts,266,266,line,3,// O id do tenant não é assunto de quem ainda está do lado de fora.,,,,,,
+ */",translate,"Closing and pausing have to record `evento_atendimento`.
+
+The bug these tests lock down: the Desk used to write directly to the `conversa` table and record no event at all. TMR, SLA and effort were blind to everything the agent did — Management showed a wrong number that looked right.
+
+Metrics come from `evento_atendimento`, which is immutable (data model §4); the conversation's state is a cache. That's why the assertion is always on the event, never on the column.",architecture,apps/api/tests/conversa-eventos.test.ts:18-27; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-a3251896,api,apps/api/tests/conversa-eventos.test.ts,220,220,line,2,// A conversa nasceu com `em_espera_desde` 30 segundos atrás.,translate,// The conversation was born with `em_espera_desde` 30 seconds ago.,other,apps/api/tests/conversa-eventos.test.ts:220,sonnet,reviewed
+api-comment-724f6a75,api,apps/api/tests/convites.test.ts,116,116,line,1,"// O papel de CONTA que os convites vão usar, um em cada tenant — e um de",translate,"// The ACCOUNT role the invites will use, one per tenant — plus one",security,apps/api/tests/convites.test.ts:116; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-df156457,api,apps/api/tests/convites.test.ts,117,117,line,2,"// atendimento no A, que o convite tem de recusar.",translate,"// attendance role in A, which the invite has to refuse.",security,apps/api/tests/convites.test.ts:117; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-3b80665e,api,apps/api/tests/convites.test.ts,127,127,jsdoc,2,"/** Tenants nascidos do comando de provisionamento, para a limpeza levar embora. */",translate,"Tenants born from the provisioning command, for cleanup to take away.",other,apps/api/tests/convites.test.ts:127,sonnet,reviewed
+api-comment-af9d1c09,api,apps/api/tests/convites.test.ts,168,168,line,1,// O token não pode estar no banco em lugar nenhum: só o hash.,translate,// The token can't be in the database anywhere: only the hash.,security,apps/api/tests/convites.test.ts:168; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-8967f42a,api,apps/api/tests/convites.test.ts,174,174,line,2,"// Sete dias, não oito horas: convite não é sessão.",translate,"// Seven days, not eight hours: an invite isn't a session.",security,apps/api/tests/convites.test.ts:174; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-90a27257,api,apps/api/tests/convites.test.ts,266,266,line,3,// O id do tenant não é assunto de quem ainda está do lado de fora.,translate,// The tenant's id isn't anyone's business while they're still on the outside.,security,apps/api/tests/convites.test.ts:266; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-715499a5,api,apps/api/tests/convites.test.ts,30,43,jsdoc,23,"/**
  * Convite e verificação de domínio: as duas portas por onde gente nova entra.
  *
@@ -6442,29 +6493,33 @@ api-comment-715499a5,api,apps/api/tests/convites.test.ts,30,43,jsdoc,23,"/**
  * do convite que depende dela — ligar a `identidade_externa` e abrir sessão — é
  * exercitada chamando `aceitarConvite` com uma `PessoaDoGoogle` montada à mão, que
  * é exatamente o que a volta do Google entrega.
- */",,,,,,
-api-comment-6fdc64bf,api,apps/api/tests/convites.test.ts,314,314,line,1,// Uso único: o segundo clique no mesmo link não cria um segundo usuário.,,,,,,
-api-comment-280c9a3f,api,apps/api/tests/convites.test.ts,364,364,line,2,// A sessão vale de verdade: é o mesmo cookie que as telas usam.,,,,,,
-api-comment-1200d491,api,apps/api/tests/convites.test.ts,371,371,line,3,"// E a conta ficou ligada pelo par (emissor, sujeito) — nunca pelo e-mail.",,,,,,
-api-comment-2a879476,api,apps/api/tests/convites.test.ts,402,402,line,3,// E o token do convite NÃO vaza para o Google junto com o resto do desafio.,,,,,,
-api-comment-81eee5b5,api,apps/api/tests/convites.test.ts,416,416,line,3,"// O que a volta do Google faz com um convite vencido, usado ou de outro e-mail.",,,,,,
-api-comment-c1652c60,api,apps/api/tests/convites.test.ts,419,419,line,1,// Erro nosso continua sendo erro nosso: a saída é tentar de novo.,,,,,,
-api-comment-a48d78f2,api,apps/api/tests/convites.test.ts,445,445,line,1,"// Idempotente: chamar de novo devolve o MESMO token, senão quem já publicou",,,,,,
-api-comment-89af7f5c,api,apps/api/tests/convites.test.ts,446,446,line,2,// veria a verificação falhar sem ter mexido em nada.,,,,,,
-api-comment-9906b963,api,apps/api/tests/convites.test.ts,473,473,line,2,"// O que dá para consertar sozinho, conserta.",,,,,,
-api-comment-8b3c5afb,api,apps/api/tests/convites.test.ts,474,474,line,2,//Acme.COM.br/entrar ')).toBe('acme.com.br');,,,,,,
-api-comment-03efee01,api,apps/api/tests/convites.test.ts,48,48,jsdoc,1,/** Sessão de quem administra o tenant A: tem `conta.membros.escrever` e `tenant.configurar`. */,,,,,,
-api-comment-0c2e1709,api,apps/api/tests/convites.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
-api-comment-e05fab06,api,apps/api/tests/convites.test.ts,50,50,jsdoc,2,/** Sessão de quem só atende: prova que a permissão é conferida de verdade. */,,,,,,
-api-comment-01d418ab,api,apps/api/tests/convites.test.ts,501,501,line,1,// O DNS parte o TXT em pedaços de 255 bytes; o valor é a concatenação deles.,,,,,,
-api-comment-962f2aa1,api,apps/api/tests/convites.test.ts,524,524,line,4,"// DNS que nem responde é a mesma coisa: ""ainda não"", nunca 500.",,,,,,
-api-comment-4e84975f,api,apps/api/tests/convites.test.ts,539,539,line,3,// O A nem enxerga a linha do B: a RLS filtra antes de qualquer conferência.,,,,,,
-api-comment-7aca5300,api,apps/api/tests/convites.test.ts,564,564,line,2,"// O catálogo vem da semente base, não de uma segunda lista escrita aqui.",,,,,,
-api-comment-4b93f50a,api,apps/api/tests/convites.test.ts,565,565,line,0,"// Três de conta (admin, member, guest) e cinco de atendimento.",,,,,,
-api-comment-178a02a5,api,apps/api/tests/convites.test.ts,581,581,line,0,// `admin` na conta e `administrador` no atendimento (migração 0021).,,,,,,
-api-comment-edc6808a,api,apps/api/tests/convites.test.ts,585,585,line,1,"// Domínio nasce pendente: o DNS é do cliente, e o comando não inventa prova.",,,,,,
-api-comment-b32d2b0d,api,apps/api/tests/convites.test.ts,82,82,jsdoc,2,/** Grava uma sessão viva para o atendente do cenário e devolve o token do cookie. */,,,,,,
-api-comment-928fe4d4,api,apps/api/tests/desk-acoes.test.ts,184,184,line,1,// Devolve o cenário para online — outros testes deste arquivo dependem disso.,,,,,,
+ */",translate,"Invite and domain verification: the two doors new people come in through.
+
+What this file goes after isn't the happy path — it's the set of refusals, which is where the value is: an expired invite, a reused invite, an invite from another tenant, a role that doesn't exist, a public domain, and a missing TXT record. Each of them, if it slipped through, means someone getting into a customer they don't belong to.
+
+The conversation with Google isn't here, for the same reason as `entrada.test.ts`: doubling the JWKS would prove again what `packages/autenticacao` already proves. The part of the invite that depends on it — linking `identidade_externa` and opening a session — is exercised by calling `aceitarConvite` with a hand-built `PessoaDoGoogle`, which is exactly what Google's callback delivers.",security,apps/api/tests/convites.test.ts:30-43; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-6fdc64bf,api,apps/api/tests/convites.test.ts,314,314,line,1,// Uso único: o segundo clique no mesmo link não cria um segundo usuário.,translate,// Single use: a second click on the same link doesn't create a second user.,security,apps/api/tests/convites.test.ts:314; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-280c9a3f,api,apps/api/tests/convites.test.ts,364,364,line,2,// A sessão vale de verdade: é o mesmo cookie que as telas usam.,translate,// The session is genuinely valid: it's the same cookie the screens use.,security,apps/api/tests/convites.test.ts:364; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-1200d491,api,apps/api/tests/convites.test.ts,371,371,line,3,"// E a conta ficou ligada pelo par (emissor, sujeito) — nunca pelo e-mail.",translate,"// And the account stayed linked by the (issuer, subject) pair — never by email.",security,apps/api/tests/convites.test.ts:371; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-2a879476,api,apps/api/tests/convites.test.ts,402,402,line,3,// E o token do convite NÃO vaza para o Google junto com o resto do desafio.,translate,// And the invite token does NOT leak to Google along with the rest of the challenge.,security,apps/api/tests/convites.test.ts:402; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-81eee5b5,api,apps/api/tests/convites.test.ts,416,416,line,3,"// O que a volta do Google faz com um convite vencido, usado ou de outro e-mail.",translate,"// What Google's callback does with an invite that's expired, used, or for another email.",security,apps/api/tests/convites.test.ts:416; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-c1652c60,api,apps/api/tests/convites.test.ts,419,419,line,1,// Erro nosso continua sendo erro nosso: a saída é tentar de novo.,translate,// Our own error stays our own error: the way out is to try again.,other,apps/api/tests/convites.test.ts:419,sonnet,reviewed
+api-comment-a48d78f2,api,apps/api/tests/convites.test.ts,445,445,line,1,"// Idempotente: chamar de novo devolve o MESMO token, senão quem já publicou",translate,"// Idempotent: calling it again returns the SAME token, otherwise whoever already published",security,apps/api/tests/convites.test.ts:445; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-89af7f5c,api,apps/api/tests/convites.test.ts,446,446,line,2,// veria a verificação falhar sem ter mexido em nada.,translate,// would see the verification fail without having touched anything.,security,apps/api/tests/convites.test.ts:446; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-9906b963,api,apps/api/tests/convites.test.ts,473,473,line,2,"// O que dá para consertar sozinho, conserta.",translate,"// Whatever can be fixed on its own, gets fixed.",other,apps/api/tests/convites.test.ts:473,sonnet,reviewed
+api-comment-8b3c5afb,api,apps/api/tests/convites.test.ts,474,474,line,2,//Acme.COM.br/entrar ')).toBe('acme.com.br');,keep-original,,security,"apps/api/tests/convites.test.ts:474; false-positive URL string, not a comment; pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
+api-comment-03efee01,api,apps/api/tests/convites.test.ts,48,48,jsdoc,1,/** Sessão de quem administra o tenant A: tem `conta.membros.escrever` e `tenant.configurar`. */,translate,The session of whoever administers tenant A: has `conta.membros.escrever` and `tenant.configurar`.,security,apps/api/tests/convites.test.ts:48; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-0c2e1709,api,apps/api/tests/convites.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/convites.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-e05fab06,api,apps/api/tests/convites.test.ts,50,50,jsdoc,2,/** Sessão de quem só atende: prova que a permissão é conferida de verdade. */,translate,The session of someone who only handles attendance: proves the permission is really checked.,security,apps/api/tests/convites.test.ts:50; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-01d418ab,api,apps/api/tests/convites.test.ts,501,501,line,1,// O DNS parte o TXT em pedaços de 255 bytes; o valor é a concatenação deles.,translate,// DNS splits the TXT record into 255-byte chunks; the value is their concatenation.,security,apps/api/tests/convites.test.ts:501; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-962f2aa1,api,apps/api/tests/convites.test.ts,524,524,line,4,"// DNS que nem responde é a mesma coisa: ""ainda não"", nunca 500.",translate,"// DNS that doesn't even answer is the same thing: ""not yet,"" never 500.",other,apps/api/tests/convites.test.ts:524,sonnet,reviewed
+api-comment-4e84975f,api,apps/api/tests/convites.test.ts,539,539,line,3,// O A nem enxerga a linha do B: a RLS filtra antes de qualquer conferência.,translate,// A doesn't even see B's row: RLS filters it out before any check.,security,apps/api/tests/convites.test.ts:539; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-7aca5300,api,apps/api/tests/convites.test.ts,564,564,line,2,"// O catálogo vem da semente base, não de uma segunda lista escrita aqui.",translate,"// The catalog comes from the base seed, not from a second list written here.",other,apps/api/tests/convites.test.ts:564,sonnet,reviewed
+api-comment-4b93f50a,api,apps/api/tests/convites.test.ts,565,565,line,0,"// Três de conta (admin, member, guest) e cinco de atendimento.",translate,"// Three account roles (admin, member, guest) and five attendance roles.",other,apps/api/tests/convites.test.ts:565,sonnet,reviewed
+api-comment-178a02a5,api,apps/api/tests/convites.test.ts,581,581,line,0,// `admin` na conta e `administrador` no atendimento (migração 0021).,translate,// `admin` at the account level and `administrador` in attendance (migration 0021).,other,apps/api/tests/convites.test.ts:581,sonnet,reviewed
+api-comment-edc6808a,api,apps/api/tests/convites.test.ts,585,585,line,1,"// Domínio nasce pendente: o DNS é do cliente, e o comando não inventa prova.",translate,"// A domain is born pending: the DNS belongs to the customer, and the command doesn't invent proof.",security,apps/api/tests/convites.test.ts:585; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-b32d2b0d,api,apps/api/tests/convites.test.ts,82,82,jsdoc,2,/** Grava uma sessão viva para o atendente do cenário e devolve o token do cookie. */,translate,Writes a live session for the scenario's agent and returns the cookie's token.,security,apps/api/tests/convites.test.ts:82; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-928fe4d4,api,apps/api/tests/desk-acoes.test.ts,184,184,line,1,// Devolve o cenário para online — outros testes deste arquivo dependem disso.,translate,// Returns the scenario to online — other tests in this file depend on it.,other,apps/api/tests/desk-acoes.test.ts:184,sonnet,reviewed
 api-comment-a7a4ab44,api,apps/api/tests/desk-acoes.test.ts,19,27,jsdoc,2,"/**
  * `POST /v1/desk/acoes/:acao` (`controladores/desk.ts`, `dominio/desk/acoes.ts`).
  *
@@ -6473,29 +6528,31 @@ api-comment-a7a4ab44,api,apps/api/tests/desk-acoes.test.ts,19,27,jsdoc,2,"/**
  * `atender`, `transferirEmMassa`). Este arquivo cobre as ações: elas GRAVAM,
  * o `atendenteId`/`tenantId` vêm sempre da SESSÃO (nunca do corpo), e a lista
  * de nomes aceitos é FECHADA.
- */",,,,,,
-api-comment-4c343daf,api,apps/api/tests/desk-acoes.test.ts,199,199,line,1,// Devolve o cenário para online.,,,,,,
-api-comment-68bf300c,api,apps/api/tests/desk-acoes.test.ts,372,372,line,2,// Devolve o cenário: sem override e sem conversa presa no atendente.,,,,,,
-api-comment-7e7056ea,api,apps/api/tests/desk-acoes.test.ts,476,476,line,3,// Refixar uma das 50 não bate no teto.,,,,,,
-api-comment-daa382a1,api,apps/api/tests/desk-acoes.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
-api-comment-9893dd1d,api,apps/api/tests/dicionario-crm.test.ts,106,106,line,4,// A segunda página foi pedida com o cursor que a primeira devolveu.,,,,,,
-api-comment-853e91ee,api,apps/api/tests/dicionario-crm.test.ts,122,122,line,0,"// Variante sintética da gravação: troca applicationId por isCustom, como era o schema",,,,,,
-api-comment-ab6de3c8,api,apps/api/tests/dicionario-crm.test.ts,123,123,line,2,// antigo. Não há instância antiga no ar para gravar de verdade.,,,,,,
-api-comment-362aa08e,api,apps/api/tests/dicionario-crm.test.ts,186,186,line,0,// Rótulo traduzido fica só no rótulo; o código é o nameSingular em inglês.,,,,,,
-api-comment-742577c7,api,apps/api/tests/dicionario-crm.test.ts,194,194,line,2,"// Relação no formato da API, com a cardinalidade.",,,,,,
-api-comment-7d8a946d,api,apps/api/tests/dicionario-crm.test.ts,204,204,line,0,// Opções do SELECT exatamente como vieram.,,,,,,
+ */",translate,"`POST /v1/desk/acoes/:acao` (`controladores/desk.ts`, `dominio/desk/acoes.ts`).
+
+No test existed for this entire controller — not the reads, not the five actions (`definirStatus`, `cairPorInatividade`, `salvarNotaInterna`, `atender`, `transferirEmMassa`). This file covers the actions: they WRITE, `atendenteId`/`tenantId` always come from the SESSION (never from the body), and the list of accepted names is CLOSED.",security,apps/api/tests/desk-acoes.test.ts:19-27; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-4c343daf,api,apps/api/tests/desk-acoes.test.ts,199,199,line,1,// Devolve o cenário para online.,translate,// Returns the scenario to online.,other,apps/api/tests/desk-acoes.test.ts:199,sonnet,reviewed
+api-comment-68bf300c,api,apps/api/tests/desk-acoes.test.ts,372,372,line,2,// Devolve o cenário: sem override e sem conversa presa no atendente.,translate,// Returns the scenario: no override and no conversation stuck on the agent.,other,apps/api/tests/desk-acoes.test.ts:372,sonnet,reviewed
+api-comment-7e7056ea,api,apps/api/tests/desk-acoes.test.ts,476,476,line,3,// Refixar uma das 50 não bate no teto.,translate,// Re-fixing one of the 50 doesn't hit the ceiling.,other,apps/api/tests/desk-acoes.test.ts:476,sonnet,reviewed
+api-comment-daa382a1,api,apps/api/tests/desk-acoes.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/desk-acoes.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-9893dd1d,api,apps/api/tests/dicionario-crm.test.ts,106,106,line,4,// A segunda página foi pedida com o cursor que a primeira devolveu.,translate,// The second page was requested with the cursor the first one returned.,other,apps/api/tests/dicionario-crm.test.ts:106,sonnet,reviewed
+api-comment-853e91ee,api,apps/api/tests/dicionario-crm.test.ts,122,122,line,0,"// Variante sintética da gravação: troca applicationId por isCustom, como era o schema",translate,"// A synthetic variant of the write: swaps applicationId for isCustom, as the old schema was.",other,apps/api/tests/dicionario-crm.test.ts:122,sonnet,reviewed
+api-comment-ab6de3c8,api,apps/api/tests/dicionario-crm.test.ts,123,123,line,2,// antigo. Não há instância antiga no ar para gravar de verdade.,translate,// There's no old instance running to write against for real.,other,apps/api/tests/dicionario-crm.test.ts:123,sonnet,reviewed
+api-comment-362aa08e,api,apps/api/tests/dicionario-crm.test.ts,186,186,line,0,// Rótulo traduzido fica só no rótulo; o código é o nameSingular em inglês.,translate,// A translated label stays only in the label; the code is the English `nameSingular`.,other,apps/api/tests/dicionario-crm.test.ts:186,sonnet,reviewed
+api-comment-742577c7,api,apps/api/tests/dicionario-crm.test.ts,194,194,line,2,"// Relação no formato da API, com a cardinalidade.",translate,"// A relation in the API's format, with the cardinality.",other,apps/api/tests/dicionario-crm.test.ts:194,sonnet,reviewed
+api-comment-7d8a946d,api,apps/api/tests/dicionario-crm.test.ts,204,204,line,0,// Opções do SELECT exatamente como vieram.,translate,// SELECT options exactly as they came.,other,apps/api/tests/dicionario-crm.test.ts:204,sonnet,reviewed
 api-comment-122ba775,api,apps/api/tests/dicionario-crm.test.ts,23,26,jsdoc,0,"/**
  * Resposta REAL da Metadata API, gravada do Twenty 2.39 local e enxugada — ver `_origem`
  * dentro do arquivo. As variações abaixo (campo removido, versão antiga) partem dela.
- */",,,,,,
-api-comment-b1ab3988,api,apps/api/tests/dicionario-crm.test.ts,232,232,line,5,"// Declarado à mão pelo CRM caseiro: não veio do Twenty, a sincronização não toca.",,,,,,
-api-comment-a22adfdd,api,apps/api/tests/dicionario-crm.test.ts,277,277,line,1,"// Nenhuma linha de B tem tenant de A, nem o contrário.",,,,,,
-api-comment-75ec894c,api,apps/api/tests/dicionario-crm.test.ts,325,325,line,2,"// O de A: o pipeContatoId está removido lá, e ativo em B.",,,,,,
-api-comment-5d78b4eb,api,apps/api/tests/dicionario-crm.test.ts,343,343,jsdoc,2,"/** A linha do CRM caseiro, lida crua: ela não tem objeto em `dicionario_objeto`. */",,,,,,
-api-comment-d2a4b83d,api,apps/api/tests/dicionario-crm.test.ts,54,54,jsdoc,1,"/** As respostas, na ordem em que o cliente as pede: introspecção, workspace, páginas. */",,,,,,
-api-comment-a080632f,api,apps/api/tests/dicionario-crm.test.ts,59,59,jsdoc,4,"/** A mesma fixture, sem um campo e sem um objeto — o que ""sumiu"" do CRM. */",,,,,,
-api-comment-c43b3451,api,apps/api/tests/email.test.ts,164,164,line,3,"// Ninguém para avisar não é erro, e não registra nada.",,,,,,
-api-comment-b419761e,api,apps/api/tests/email.test.ts,212,212,line,2,// Recusa do provedor vira erro com o status — e o token não vaza na mensagem.,,,,,,
+ */",translate,"A REAL response from the Metadata API, captured from a local Twenty 2.39 and trimmed down — see `_origem` inside the file. The variations below (removed field, old version) branch from it.",integration,apps/api/tests/dicionario-crm.test.ts:23-26; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-b1ab3988,api,apps/api/tests/dicionario-crm.test.ts,232,232,line,5,"// Declarado à mão pelo CRM caseiro: não veio do Twenty, a sincronização não toca.",translate,"// Declared by hand for the in-house CRM: it didn't come from Twenty, the sync doesn't touch it.",other,apps/api/tests/dicionario-crm.test.ts:232,sonnet,reviewed
+api-comment-a22adfdd,api,apps/api/tests/dicionario-crm.test.ts,277,277,line,1,"// Nenhuma linha de B tem tenant de A, nem o contrário.",translate,"// No row of B has A's tenant, or the other way around.",security,apps/api/tests/dicionario-crm.test.ts:277; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-75ec894c,api,apps/api/tests/dicionario-crm.test.ts,325,325,line,2,"// O de A: o pipeContatoId está removido lá, e ativo em B.",translate,"// A's: the pipeContatoId is removed there, and active in B.",other,apps/api/tests/dicionario-crm.test.ts:325,sonnet,reviewed
+api-comment-5d78b4eb,api,apps/api/tests/dicionario-crm.test.ts,343,343,jsdoc,2,"/** A linha do CRM caseiro, lida crua: ela não tem objeto em `dicionario_objeto`. */",translate,"The in-house CRM's row, read raw: it has no object in `dicionario_objeto`.",other,apps/api/tests/dicionario-crm.test.ts:343,sonnet,reviewed
+api-comment-d2a4b83d,api,apps/api/tests/dicionario-crm.test.ts,54,54,jsdoc,1,"/** As respostas, na ordem em que o cliente as pede: introspecção, workspace, páginas. */",translate,"The responses, in the order the client asks for them: introspection, workspace, pages.",other,apps/api/tests/dicionario-crm.test.ts:54,sonnet,reviewed
+api-comment-a080632f,api,apps/api/tests/dicionario-crm.test.ts,59,59,jsdoc,4,"/** A mesma fixture, sem um campo e sem um objeto — o que ""sumiu"" do CRM. */",translate,"The same fixture, missing a field and an object — what ""went missing"" from the CRM.",other,apps/api/tests/dicionario-crm.test.ts:59,sonnet,reviewed
+api-comment-c43b3451,api,apps/api/tests/email.test.ts,164,164,line,3,"// Ninguém para avisar não é erro, e não registra nada.",translate,"// Nobody to notify isn't an error, and nothing gets recorded.",other,apps/api/tests/email.test.ts:164,sonnet,reviewed
+api-comment-b419761e,api,apps/api/tests/email.test.ts,212,212,line,2,// Recusa do provedor vira erro com o status — e o token não vaza na mensagem.,translate,// A provider refusal becomes an error with the status — and the token doesn't leak into the message.,security,apps/api/tests/email.test.ts:212; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-c6a3baf2,api,apps/api/tests/email.test.ts,24,32,jsdoc,14,"/**
  * E-mail: o dublê registra, o convite dispara com o link, a recategorização
  * dispara para a lista do canal (e não dispara desligada), e a falha do
@@ -6504,23 +6561,25 @@ api-comment-c6a3baf2,api,apps/api/tests/email.test.ts,24,32,jsdoc,14,"/**
  * Sem servidor HTTP: `criarConvite` e `aplicarEventosDeModelo` são chamados
  * direto, como `convites.test.ts` e `canais.test.ts` já fazem. O remetente real
  * é exercitado com um `fetch` falso, para provar o contrato do POST sem rede.
- */",,,,,,
-api-comment-cbb76ff2,api,apps/api/tests/email.test.ts,243,243,line,4,// Diz onde a pessoa está entrando e com que acesso.,,,,,,
-api-comment-0764af18,api,apps/api/tests/email.test.ts,294,294,line,3,// Modelo que o Pipe não conhece não dispara nada.,,,,,,
-api-comment-ff6c278a,api,apps/api/tests/email.test.ts,325,325,line,2,// O atendente do cenário não gerencia canal: não entra na lista.,,,,,,
-api-comment-3fecc2f1,api,apps/api/tests/email.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
-api-comment-c0a2406f,api,apps/api/tests/email.test.ts,59,59,jsdoc,6,/** Uma pessoa do tenant com a permissão dada — quem o alerta acha quando a lista está vazia. */,,,,,,
-api-comment-bd7fdc60,api,apps/api/tests/email.test.ts,86,86,jsdoc,1,/** Grava a preferência de alerta no canal do cenário e limpa o cache de canal. */,,,,,,
-api-comment-4370f0ae,api,apps/api/tests/email.test.ts,96,96,jsdoc,2,"/** O evento de recategorização como a Meta manda, para o modelo do cenário. */",,,,,,
+ */",translate,"Email: the double records it, the invite fires with the link, recategorization fires for the channel's list (and doesn't fire when disabled), and a provider failure does NOT bring down either operation.
+
+No HTTP server: `criarConvite` and `aplicarEventosDeModelo` are called directly, as `convites.test.ts` and `canais.test.ts` already do. The real sender is exercised with a fake `fetch`, to prove the POST's contract without a network.",other,apps/api/tests/email.test.ts:24-32,sonnet,reviewed
+api-comment-cbb76ff2,api,apps/api/tests/email.test.ts,243,243,line,4,// Diz onde a pessoa está entrando e com que acesso.,translate,// Says where the person is signing in and with what access.,other,apps/api/tests/email.test.ts:243,sonnet,reviewed
+api-comment-0764af18,api,apps/api/tests/email.test.ts,294,294,line,3,// Modelo que o Pipe não conhece não dispara nada.,translate,// A template Pipe doesn't know doesn't fire anything.,meta-blip,apps/api/tests/email.test.ts:294; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-ff6c278a,api,apps/api/tests/email.test.ts,325,325,line,2,// O atendente do cenário não gerencia canal: não entra na lista.,translate,// The scenario's agent doesn't manage the channel: doesn't make the list.,security,apps/api/tests/email.test.ts:325; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-3fecc2f1,api,apps/api/tests/email.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/email.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-c0a2406f,api,apps/api/tests/email.test.ts,59,59,jsdoc,6,/** Uma pessoa do tenant com a permissão dada — quem o alerta acha quando a lista está vazia. */,translate,A person on the tenant with the given permission — who the alert finds when the list is empty.,other,apps/api/tests/email.test.ts:59,sonnet,reviewed
+api-comment-bd7fdc60,api,apps/api/tests/email.test.ts,86,86,jsdoc,1,/** Grava a preferência de alerta no canal do cenário e limpa o cache de canal. */,translate,Writes the alert preference on the scenario's channel and clears the channel cache.,other,apps/api/tests/email.test.ts:86,sonnet,reviewed
+api-comment-4370f0ae,api,apps/api/tests/email.test.ts,96,96,jsdoc,2,"/** O evento de recategorização como a Meta manda, para o modelo do cenário. */",translate,"The recategorization event as Meta sends it, for the scenario's template.",meta-blip,apps/api/tests/email.test.ts:96; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-77f1663d,api,apps/api/tests/entrada-telefone.test.ts,17,22,jsdoc,10,"/**
  * O nono dígito na entrada. A Meta ainda entrega celular brasileiro antigo sem o 9
  * (`553199998888`), e o importador de contatos grava a forma canônica, com o 9
  * (`5531999998888`). Sem casar as duas, o cliente importado que escreve abre uma
  * ficha nova e perde o histórico e os dados que a empresa subiu.
- */",,,,,,
-api-comment-ba4f6e0d,api,apps/api/tests/entrada-telefone.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,,,,,,
-api-comment-95fcaf5e,api,apps/api/tests/entrada.test.ts,149,149,line,2,"// União dos dois papéis, sem repetir `conversa.ver`.",,,,,,
-api-comment-0bd23ead,api,apps/api/tests/entrada.test.ts,209,209,line,4,"// O `state` do cookie tem que ser o mesmo que foi para o Google, senão a volta",,,,,,
+ */",translate,"The ninth digit on input. Meta still delivers old-style Brazilian mobile numbers without the 9 (`553199998888`), and the contact importer records the canonical form, with the 9 (`5531999998888`). Without matching the two, an imported customer who writes in opens a new record and loses the history and data the company uploaded.",integration,apps/api/tests/entrada-telefone.test.ts:17-22; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-ba4f6e0d,api,apps/api/tests/entrada-telefone.test.ts,5,5,line,3,// O modo tem que ser decidido antes de qualquer import que leia a variável.,translate,// The mode has to be decided before any import that reads the variable.,architecture,apps/api/tests/entrada-telefone.test.ts:5; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-95fcaf5e,api,apps/api/tests/entrada.test.ts,149,149,line,2,"// União dos dois papéis, sem repetir `conversa.ver`.",translate,"// Union of both roles, without repeating `conversa.ver`.",security,apps/api/tests/entrada.test.ts:149; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+api-comment-0bd23ead,api,apps/api/tests/entrada.test.ts,209,209,line,4,"// O `state` do cookie tem que ser o mesmo que foi para o Google, senão a volta",translate,"// The cookie's `state` has to match the one that went to Google, or the callback",security,apps/api/tests/entrada.test.ts:209; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-9971167a,api,apps/api/tests/entrada.test.ts,30,38,jsdoc,16,"/**
  * Entrar, `GET /v1/eu`, sair, `/saude` e `/metrics`.
  *
@@ -6529,7 +6588,9 @@ api-comment-9971167a,api,apps/api/tests/entrada.test.ts,30,38,jsdoc,16,"/**
  * código aqui exigiria dublar o JWKS para provar de novo o que já está provado. O
  * que este arquivo cobre é a casca: o guarda, o formato do `Eu`, a tradução dos
  * códigos de recusa e o que sai em cookie e em redirecionamento.
- */",,,,,,
+ */",translate,"Login, `GET /v1/eu`, logout, `/saude` and `/metrics`.
+
+What's deliberately not here: the conversation with Google. `trocarCodigo` and `entrarComGoogle` already have tests in `packages/autenticacao`, and repeating the code exchange here would require doubling the JWKS to prove again what's already proven. What this file covers is the shell: the guard, the shape of `Eu`, the translation of refusal codes, and what goes out in cookies and redirects.",security,apps/api/tests/entrada.test.ts:30-38; pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 api-comment-239b7911,api,apps/api/tests/entrada.test.ts,328,328,line,1,"// O rótulo é o PADRÃO da rota, nunca o caminho com o uuid dentro.",,,,,,
 api-comment-8b0e0809,api,apps/api/tests/entrada.test.ts,332,332,line,0,// O balde acumulado nunca pode passar da contagem total da mesma série.,,,,,,
 api-comment-3d1005f6,api,apps/api/tests/entrada.test.ts,352,358,jsdoc,6,"/**

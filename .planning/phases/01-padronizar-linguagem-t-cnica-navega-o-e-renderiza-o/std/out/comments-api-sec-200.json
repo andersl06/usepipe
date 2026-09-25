@@ -1,0 +1,100 @@
+{
+  "items": [
+    {
+      "id": "api-comment-56288561",
+      "action": "translate",
+      "new_text": "Drains a tenant's pending deliveries. Called after the operation's commit and also by periodic sweep — delivery must happen even if the process that created it died between the commit and the POST.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/webhooks-saida.ts:212-216; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2d41cbc6",
+      "action": "translate",
+      "new_text": "// Serially: each delivery opens its own transaction to record the result.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/webhooks-saida.ts:243; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-94a04ff0",
+      "action": "translate",
+      "new_text": "// `descartada`, not `falhou`: the `entrega_webhook` status catalog distinguishes",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/webhooks-saida.ts:301; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-37e5b603",
+      "action": "translate",
+      "new_text": "// \"still retrying\" from \"gave up,\" and the screen needs to tell the two apart.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/webhooks-saida.ts:302; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2d45a247",
+      "action": "translate",
+      "new_text": "Triggers the drain without holding the HTTP response. A failure here must not become an error for whoever sent the message — the `entrega_webhook` row stays pending and the sweep picks it up later.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/webhooks-saida.ts:320-324; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-da0a14e3",
+      "action": "translate",
+      "new_text": "The SLA clock (`dominio/gestao/sla-motor.ts`) reached the alert/breach threshold.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/webhooks-saida.ts:36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0337a367",
+      "action": "translate",
+      "new_text": "Recommended tolerance for the consumer, published alongside the payload.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/webhooks-saida.ts:45; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3442afc0",
+      "action": "translate",
+      "new_text": "Authentication and custom headers — the origin's \"Configurações de autenticação\" and \"Cabeçalhos customizados\" (migration 0036, `dominio/gestao/integracoes.ts`). Lives here because both the real delivery (`entregarUma`) and the \"Testar\" button (`testarWebhook`, in the domain) build the SAME request.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/webhooks-saida.ts:52-58; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-de044778",
+      "action": "translate",
+      "new_text": "The reserved headers: no custom header may use one of these names.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/webhooks-saida.ts:61; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-db82b16b",
+      "action": "translate",
+      "new_text": "Already decrypted — what comes out of the database, ready to build the request.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/webhooks-saida.ts:75; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d00b5659",
+      "action": "translate",
+      "new_text": "`POST` `client_credentials` — no token cache (ponytail: one token per delivery; cache by `(tenantId, webhookId)` until it expires, if delivery volume calls for it).",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/webhooks-saida.ts:85-89; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-8984b0a3",
+      "action": "translate",
+      "new_text": "Outbound webhooks — `apis.md` §5.5.\n\nSignature `X-Pipe-Signature: sha256=HMAC-SHA256(secret, \"<timestamp>.<body>\")`, with `X-Pipe-Timestamp` and `X-Pipe-Delivery` alongside it. The timestamp goes **inside** what gets signed: signing only the body makes replay free, one of the two gaps found in Chatwoot. The other — optional secret — the schema already closes: `webhook_saida.segredo` is `not null`.\n\n`entrega_webhook` stores the attempt and the error. A webhook that fails silently has the same disease as a send that fails silently.\n\nThe POST itself goes out through `chamarComMtls` (`dominio/mtls.ts`): if the webhook's host has a certificate registered under `/contrato/certificados`, Pipe presents it (mTLS); if not, it's the usual `fetch`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/webhooks-saida.ts:9-24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
