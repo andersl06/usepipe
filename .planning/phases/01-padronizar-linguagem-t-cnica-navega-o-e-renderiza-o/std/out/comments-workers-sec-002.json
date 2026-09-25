@@ -10,8 +10,8 @@
     },
     {
       "id": "workers-comment-a5a16275",
-      "action": "translate",
-      "new_text": "Cloud API content field name for each Pipe media type.",
+      "action": "remove",
+      "new_text": "",
       "sensitivity": "integration",
       "evidence": "apps/workers/src/whatsapp/real.ts:22; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -122,8 +122,8 @@
     },
     {
       "id": "workers-comment-4d009e7c",
-      "action": "translate",
-      "new_text": "Body variable name by send position, as shown to the operator.",
+      "action": "remove",
+      "new_text": "",
       "sensitivity": "integration",
       "evidence": "apps/workers/src/whatsapp/template.ts:107; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -146,8 +146,8 @@
     },
     {
       "id": "workers-comment-6cbda4a2",
-      "action": "translate",
-      "new_text": "Body variable names in `{{1}}`, `{{2}}`, … order.",
+      "action": "remove",
+      "new_text": "",
       "sensitivity": "integration",
       "evidence": "apps/workers/src/whatsapp/template.ts:40; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"

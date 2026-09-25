@@ -354,8 +354,8 @@
     },
     {
       "id": "workers-comment-478ad942",
-      "action": "translate",
-      "new_text": "`WHATSAPP_PHONE_NUMBER_ID` identifies the sending number.",
+      "action": "remove",
+      "new_text": "",
       "sensitivity": "integration",
       "evidence": "apps/workers/src/whatsapp/cliente.ts:17; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -402,8 +402,8 @@
     },
     {
       "id": "workers-comment-ac30d026",
-      "action": "translate",
-      "new_text": "Flow question as buttons or a list; see `interativo.ts`.",
+      "action": "remove",
+      "new_text": "",
       "sensitivity": "integration",
       "evidence": "apps/workers/src/whatsapp/cliente.ts:45; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -474,16 +474,16 @@
     },
     {
       "id": "workers-comment-b530305e",
-      "action": "translate",
-      "new_text": "Simulated failure is either permanent (no retry) or temporary (back to outbox).",
+      "action": "remove",
+      "new_text": "",
       "sensitivity": "integration",
       "evidence": "apps/workers/src/whatsapp/duble.ts:22; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
     {
       "id": "workers-comment-11142d30",
-      "action": "translate",
-      "new_text": "Code and text of the simulated failure.",
+      "action": "remove",
+      "new_text": "",
       "sensitivity": "integration",
       "evidence": "apps/workers/src/whatsapp/duble.ts:24; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -506,8 +506,8 @@
     },
     {
       "id": "workers-comment-37592908",
-      "action": "translate",
-      "new_text": "Reset calls, statuses, and sequence between test scenarios.",
+      "action": "remove",
+      "new_text": "",
       "sensitivity": "integration",
       "evidence": "apps/workers/src/whatsapp/duble.ts:77; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"

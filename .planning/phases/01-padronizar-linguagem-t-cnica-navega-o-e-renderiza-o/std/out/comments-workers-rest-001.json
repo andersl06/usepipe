@@ -154,8 +154,8 @@
     },
     {
       "id": "workers-comment-a3bc5a51",
-      "action": "translate",
-      "new_text": "All forms of the same number, with `+`.",
+      "action": "remove",
+      "new_text": "",
       "sensitivity": "integration",
       "evidence": "apps/workers/src/gerenciador-de-contatos.ts:80; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
