@@ -928,18 +928,18 @@ packages-core-comment-afeb87b6,packages-core,packages/core/src/sla/expediente.ts
  * Faixas de expediente de um dia do calendário local, em minutos do dia.
  * Exceção do dia manda sobre a faixa semanal — é assim que feriado funciona.
  */",translate,"Business-hour ranges for a local calendar day, in minutes from midnight. A date-specific exception overrides the weekly schedule, enabling holidays.",architecture,packages/core/src/sla/expediente.ts:164-167; pre-triage D-40; needs slice-time confirmation,codex,reviewed
-packages-core-comment-2940ef77,packages-core,packages/core/src/sla/expediente.ts,180,180,line,1,// Exceção aberta sem horário próprio cai no expediente normal do dia.,,,,,,
-packages-core-comment-b12833d5,packages-core,packages/core/src/sla/expediente.ts,19,19,jsdoc,0,/** `HH:MM` no fuso do tenant. `24:00` é meia-noite do dia seguinte. */,,,,,,
+packages-core-comment-2940ef77,packages-core,packages/core/src/sla/expediente.ts,180,180,line,1,// Exceção aberta sem horário próprio cai no expediente normal do dia.,translate,An open exception with no custom hours falls back to the normal schedule for that day.,architecture,packages/core/src/sla/expediente.ts:180-180; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-b12833d5,packages-core,packages/core/src/sla/expediente.ts,19,19,jsdoc,0,/** `HH:MM` no fuso do tenant. `24:00` é meia-noite do dia seguinte. */,translate,`HH:MM` in the tenant timezone; `24:00` means midnight of the next day.,architecture,packages/core/src/sla/expediente.ts:19-19; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-c5f70dfe,packages-core,packages/core/src/sla/expediente.ts,196,199,jsdoc,1,"/**
  * Intervalos de expediente entre dois instantes, já em tempo absoluto.
  * `horario` nulo significa atendimento ininterrupto (24×7).
- */",,,,,,
-packages-core-comment-a0d655b6,packages-core,packages/core/src/sla/expediente.ts,210,210,line,4,// Começa um dia antes para não perder faixa que já estava correndo.,,,,,,
-packages-core-comment-213be41a,packages-core,packages/core/src/sla/expediente.ts,236,236,jsdoc,3,/** Remove das faixas o que estiver coberto por uma espera. */,,,,,,
+ */",translate,Business-hour intervals between two absolute instants. Null `horario` means uninterrupted 24×7 service.,architecture,packages/core/src/sla/expediente.ts:196-199; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-a0d655b6,packages-core,packages/core/src/sla/expediente.ts,210,210,line,4,// Começa um dia antes para não perder faixa que já estava correndo.,translate,Start one day early so an interval already in progress is not missed.,architecture,packages/core/src/sla/expediente.ts:210-210; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-213be41a,packages-core,packages/core/src/sla/expediente.ts,236,236,jsdoc,3,/** Remove das faixas o que estiver coberto por uma espera. */,translate,Subtract waiting periods from business-hour intervals.,architecture,packages/core/src/sla/expediente.ts:236-236; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-6595895f,packages-core,packages/core/src/sla/expediente.ts,270,273,jsdoc,0,"/**
  * Segundos úteis entre dois instantes, descontando as esperas.
  * É o ""decorrido"" do SLA.
- */",,,,,,
+ */",translate,Business seconds between two instants excluding waits; the SLA elapsed time.,architecture,packages/core/src/sla/expediente.ts:270-273; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-56cd5734,packages-core,packages/core/src/sla/expediente.ts,283,290,jsdoc,9,"/**
  * Avança `segundos` de tempo útil a partir de `de`, pulando o que está fora do
  * expediente e o que está em espera.
@@ -947,17 +947,17 @@ packages-core-comment-56cd5734,packages-core,packages/core/src/sla/expediente.ts
  * Devolve `null` quando o prazo não cabe em `LIMITE_DIAS_VARREDURA` dias — é o
  * caso de expediente vazio ou de espera aberta sem fim: prazo indefinido é
  * informação, não erro silencioso.
- */",,,,,,
-packages-core-comment-aa59c1a0,packages-core,packages/core/src/sla/expediente.ts,299,299,line,2,// Janelas crescentes: o caso comum resolve em dois dias e não paga a varredura,,,,,,
+ */",translate,"Advance `segundos` business seconds from `de`, skipping off-hours and waits. Return null if the deadline does not fit within `LIMITE_DIAS_VARREDURA` days, including an empty schedule or open-ended wait. An undefined deadline is information, not silent failure.",architecture,packages/core/src/sla/expediente.ts:283-290; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-aa59c1a0,packages-core,packages/core/src/sla/expediente.ts,299,299,line,2,// Janelas crescentes: o caso comum resolve em dois dias e não paga a varredura,translate,Grow search windows gradually: common cases resolve in two days without scanning a full year.,architecture,packages/core/src/sla/expediente.ts:299-299; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-54508546,packages-core,packages/core/src/sla/expediente.ts,317,320,jsdoc,3,"/**
  * Primeiro instante de expediente a partir de `instante` (ele mesmo, se já
  * estiver dentro). É a ""abertura seguinte"" da §10.
- */",,,,,,
-packages-core-comment-41edda58,packages-core,packages/core/src/sla/expediente.ts,334,334,jsdoc,1,/** Está dentro do expediente neste instante? */,,,,,,
-packages-core-comment-56e4525b,packages-core,packages/core/src/sla/expediente.ts,44,44,jsdoc,1,/** Janela em que o relógio fica parado (conversa aguardando o cliente). */,,,,,,
-packages-core-comment-53041893,packages-core,packages/core/src/sla/expediente.ts,52,52,jsdoc,3,"/** Teto de varredura, para horário sem nenhuma faixa não virar laço infinito. */",,,,,,
-packages-core-comment-20e3204e,packages-core,packages/core/src/sla/expediente.ts,83,83,jsdoc,0,/** Quebra um instante nas partes de calendário do fuso do tenant. */,,,,,,
-packages-core-comment-87f6e62e,packages-core,packages/core/src/sla/expediente.ts,90,90,line,2,"// Alguns runtimes devolvem ""24"" para meia-noite com hour12:false.",,,,,,
+ */",translate,"First business instant at or after `instante`, including itself when open; the next opening from §10.",architecture,packages/core/src/sla/expediente.ts:317-320; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-41edda58,packages-core,packages/core/src/sla/expediente.ts,334,334,jsdoc,1,/** Está dentro do expediente neste instante? */,remove,,other,packages/core/src/sla/expediente.ts:334-334,codex,reviewed
+packages-core-comment-56e4525b,packages-core,packages/core/src/sla/expediente.ts,44,44,jsdoc,1,/** Janela em que o relógio fica parado (conversa aguardando o cliente). */,translate,Interval during which the clock is paused while the conversation awaits the customer.,architecture,packages/core/src/sla/expediente.ts:44-44; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-53041893,packages-core,packages/core/src/sla/expediente.ts,52,52,jsdoc,3,"/** Teto de varredura, para horário sem nenhuma faixa não virar laço infinito. */",translate,Scan horizon prevents a schedule with no open interval from looping forever.,architecture,packages/core/src/sla/expediente.ts:52-52; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-20e3204e,packages-core,packages/core/src/sla/expediente.ts,83,83,jsdoc,0,/** Quebra um instante nas partes de calendário do fuso do tenant. */,translate,Split an instant into calendar components in the tenant timezone.,architecture,packages/core/src/sla/expediente.ts:83-83; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-87f6e62e,packages-core,packages/core/src/sla/expediente.ts,90,90,line,2,"// Alguns runtimes devolvem ""24"" para meia-noite com hour12:false.",translate,"Some runtimes return hour ""24"" for midnight with `hour12:false`.",integration,packages/core/src/sla/expediente.ts:90-90; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-423b9845,packages-core,packages/core/src/sla/regra.ts,1,8,jsdoc,3,"/**
  * SLA — §11 da spec de métricas.
  *
@@ -965,9 +965,9 @@ packages-core-comment-423b9845,packages-core,packages/core/src/sla/regra.ts,1,8,
  * até encerramento), prazo, escopo e duas ações: uma no limiar de alerta, outra
  * no estouro. O relógio respeita o horário de atendimento da fila e **pausa**
  * enquanto a conversa aguarda o cliente.
- */",,,,,,
-packages-core-comment-ccdf5154,packages-core,packages/core/src/sla/regra.ts,101,101,jsdoc,1,/** Marcos mínimos para escolher o início do relógio conforme o alvo. */,,,,,,
-packages-core-comment-372b5158,packages-core,packages/core/src/sla/regra.ts,107,107,jsdoc,2,/** Última mensagem do cliente ainda sem resposta — início do alvo `tempo_resposta`. */,,,,,,
+ */",translate,"SLA from metrics spec §11. A rule has a target (time to first response, response time, or time to closure), deadline, scope, and two actions: one at warning threshold and another on breach. The clock follows the queue business hours and pauses while the conversation awaits the customer.",architecture,packages/core/src/sla/regra.ts:1-8; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-ccdf5154,packages-core,packages/core/src/sla/regra.ts,101,101,jsdoc,1,/** Marcos mínimos para escolher o início do relógio conforme o alvo. */,remove,,other,packages/core/src/sla/regra.ts:101-101,codex,reviewed
+packages-core-comment-372b5158,packages-core,packages/core/src/sla/regra.ts,107,107,jsdoc,2,/** Última mensagem do cliente ainda sem resposta — início do alvo `tempo_resposta`. */,translate,"Most recent unanswered customer message, the start for `tempo_resposta`.",architecture,packages/core/src/sla/regra.ts:107-107; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-1d9f1f90,packages-core,packages/core/src/sla/regra.ts,111,118,jsdoc,7,"/**
  * De onde o relógio parte, por alvo.
  *
@@ -975,15 +975,15 @@ packages-core-comment-1d9f1f90,packages-core,packages/core/src/sla/regra.ts,111,
  *   atribuição, da criação — conversa parada na fila também consome SLA.
  * - `tempo_resposta`: da última mensagem do cliente ainda sem resposta.
  * - `encerramento`: da criação.
- */",,,,,,
-packages-core-comment-ffb83829,packages-core,packages/core/src/sla/regra.ts,132,132,jsdoc,1,/** Quando o alvo é considerado cumprido. */,,,,,,
-packages-core-comment-d3bcd64c,packages-core,packages/core/src/sla/regra.ts,36,36,jsdoc,2,"/** Quando o relógio começou a valer (criação, atribuição ou última entrada do cliente). */",,,,,,
-packages-core-comment-28eb084a,packages-core,packages/core/src/sla/regra.ts,38,38,jsdoc,0,/** Instante da avaliação. */,,,,,,
-packages-core-comment-e7a32408,packages-core,packages/core/src/sla/regra.ts,42,42,jsdoc,2,/** Períodos em que a conversa aguardava o cliente. Pausam o relógio. */,,,,,,
-packages-core-comment-bd03f537,packages-core,packages/core/src/sla/regra.ts,51,51,jsdoc,1,"/** Tempo útil já gasto, em segundos. */",,,,,,
-packages-core-comment-75f5d7a8,packages-core,packages/core/src/sla/regra.ts,53,53,jsdoc,2,/** Quanto ainda cabe no prazo. Zero quando estourou. */,,,,,,
-packages-core-comment-bdc31a61,packages-core,packages/core/src/sla/regra.ts,57,57,jsdoc,2,/** Instante absoluto do alerta. `null` sem limiar de alerta ou quando indefinido. */,,,,,,
-packages-core-comment-77e9c67c,packages-core,packages/core/src/sla/regra.ts,59,59,jsdoc,3,"/** Quando o relógio de fato começou a correr — a abertura seguinte, se chegou fora do expediente. */",,,,,,
+ */",translate,"Clock start by target: `primeira_resposta` starts at assignment to match §2, or creation when unassigned so a queued conversation still consumes SLA; `tempo_resposta` starts at the latest unanswered customer message; `encerramento` starts at creation.",architecture,packages/core/src/sla/regra.ts:111-118; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-ffb83829,packages-core,packages/core/src/sla/regra.ts,132,132,jsdoc,1,/** Quando o alvo é considerado cumprido. */,remove,,other,packages/core/src/sla/regra.ts:132-132,codex,reviewed
+packages-core-comment-d3bcd64c,packages-core,packages/core/src/sla/regra.ts,36,36,jsdoc,2,"/** Quando o relógio começou a valer (criação, atribuição ou última entrada do cliente). */",translate,"When the clock became applicable: creation, assignment, or latest inbound customer message.",architecture,packages/core/src/sla/regra.ts:36-36; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-28eb084a,packages-core,packages/core/src/sla/regra.ts,38,38,jsdoc,0,/** Instante da avaliação. */,remove,,other,packages/core/src/sla/regra.ts:38-38,codex,reviewed
+packages-core-comment-e7a32408,packages-core,packages/core/src/sla/regra.ts,42,42,jsdoc,2,/** Períodos em que a conversa aguardava o cliente. Pausam o relógio. */,translate,Periods awaiting the customer pause the clock.,architecture,packages/core/src/sla/regra.ts:42-42; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-bd03f537,packages-core,packages/core/src/sla/regra.ts,51,51,jsdoc,1,"/** Tempo útil já gasto, em segundos. */",translate,"Business time already spent, in seconds.",other,packages/core/src/sla/regra.ts:51-51,codex,reviewed
+packages-core-comment-75f5d7a8,packages-core,packages/core/src/sla/regra.ts,53,53,jsdoc,2,/** Quanto ainda cabe no prazo. Zero quando estourou. */,translate,"Time left until deadline, zero after breach.",other,packages/core/src/sla/regra.ts:53-53,codex,reviewed
+packages-core-comment-bdc31a61,packages-core,packages/core/src/sla/regra.ts,57,57,jsdoc,2,/** Instante absoluto do alerta. `null` sem limiar de alerta ou quando indefinido. */,translate,Absolute warning instant; null without a threshold or when undefined.,architecture,packages/core/src/sla/regra.ts:57-57; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-77e9c67c,packages-core,packages/core/src/sla/regra.ts,59,59,jsdoc,3,"/** Quando o relógio de fato começou a correr — a abertura seguinte, se chegou fora do expediente. */",translate,When the clock actually began running: the next opening if arrival was outside business hours.,architecture,packages/core/src/sla/regra.ts:59-59; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-d0617c23,packages-core,packages/core/src/sla/regra.ts,63,70,jsdoc,10,"/**
  * Estado e prazo de um SLA.
  *
@@ -991,30 +991,30 @@ packages-core-comment-d0617c23,packages-core,packages/core/src/sla/regra.ts,63,7
  * nenhuma faixa, prazo além do horizonte de varredura, ou espera ainda aberta —
  * enquanto a conversa aguarda o cliente, não há data de estouro a prometer. O
  * `estado` continua sendo calculado pelo decorrido, que é o que a tela mostra.
- */",,,,,,
-packages-core-comment-f65160eb,packages-core,packages/core/src/sla/sla.teste.ts,100,100,line,0,// Sábado → abre na segunda seguinte.,,,,,,
-packages-core-comment-414c1f63,packages-core,packages/core/src/sla/sla.teste.ts,121,121,line,0,// 17:30 de segunda até 09:30 de terça: 30 min de segunda + 30 min de terça.,,,,,,
-packages-core-comment-1b479145,packages-core,packages/core/src/sla/sla.teste.ts,132,132,line,0,// 11:30 → 13:30 local: 30 min antes do almoço + 30 min depois.,,,,,,
-packages-core-comment-3783cc68,packages-core,packages/core/src/sla/sla.teste.ts,175,175,line,0,"// Começa às 17:30 local: 30 min cabem na segunda, os outros 30 caem às 09:30 de terça.",,,,,,
-packages-core-comment-04db5b8f,packages-core,packages/core/src/sla/sla.teste.ts,177,177,line,0,// Chegou de madrugada: o relógio só começa às 09:00 local.,,,,,,
-packages-core-comment-fe51b9b5,packages-core,packages/core/src/sla/sla.teste.ts,179,179,line,0,"// Sexta às 17:30 → 30 min na sexta, resto na segunda.",,,,,,
+ */",translate,"SLA state and deadline. `prazoEm` is null when breach time is undefined: the schedule has no open interval, the deadline exceeds the scan horizon, or a wait is still open. While awaiting the customer there is no breach date to promise. `estado` still follows elapsed business time, which the UI displays.",architecture,packages/core/src/sla/regra.ts:63-70; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-f65160eb,packages-core,packages/core/src/sla/sla.teste.ts,100,100,line,0,// Sábado → abre na segunda seguinte.,remove,,other,packages/core/src/sla/sla.teste.ts:100-100,codex,reviewed
+packages-core-comment-414c1f63,packages-core,packages/core/src/sla/sla.teste.ts,121,121,line,0,// 17:30 de segunda até 09:30 de terça: 30 min de segunda + 30 min de terça.,remove,,other,packages/core/src/sla/sla.teste.ts:121-121,codex,reviewed
+packages-core-comment-1b479145,packages-core,packages/core/src/sla/sla.teste.ts,132,132,line,0,// 11:30 → 13:30 local: 30 min antes do almoço + 30 min depois.,remove,,other,packages/core/src/sla/sla.teste.ts:132-132,codex,reviewed
+packages-core-comment-3783cc68,packages-core,packages/core/src/sla/sla.teste.ts,175,175,line,0,"// Começa às 17:30 local: 30 min cabem na segunda, os outros 30 caem às 09:30 de terça.",remove,,other,packages/core/src/sla/sla.teste.ts:175-175,codex,reviewed
+packages-core-comment-04db5b8f,packages-core,packages/core/src/sla/sla.teste.ts,177,177,line,0,// Chegou de madrugada: o relógio só começa às 09:00 local.,remove,,other,packages/core/src/sla/sla.teste.ts:177-177,codex,reviewed
+packages-core-comment-fe51b9b5,packages-core,packages/core/src/sla/sla.teste.ts,179,179,line,0,"// Sexta às 17:30 → 30 min na sexta, resto na segunda.",remove,,other,packages/core/src/sla/sla.teste.ts:179-179,codex,reviewed
 packages-core-comment-a1ca7047,packages-core,packages/core/src/sla/sla.teste.ts,18,24,jsdoc,4,"/**
  * Expediente comercial de segunda a sexta, 09:00–18:00, no fuso do tenant.
  * São Paulo está em UTC−3 o ano inteiro desde 2019, então 09:00 local = 12:00Z.
  *
  * Datas de referência (todas de 2026):
  *   02/03 segunda · 03/03 terça · 04/03 quarta · 07/03 sábado · 08/03 domingo
- */",,,,,,
-packages-core-comment-e4b8b378,packages-core,packages/core/src/sla/sla.teste.ts,182,182,line,2,// 40 horas úteis a partir de segunda 09:00: 9h por dia de segunda a quinta,,,,,,
-packages-core-comment-17eb0da8,packages-core,packages/core/src/sla/sla.teste.ts,196,196,line,0,"// 17:30 de segunda, prazo de 1h: 30 min na segunda; terça é feriado; sobra",,,,,,
-packages-core-comment-095534ee,packages-core,packages/core/src/sla/sla.teste.ts,197,197,line,0,"// meia hora na quarta, às 09:30 local = 12:30Z.",,,,,,
-packages-core-comment-57f16dd2,packages-core,packages/core/src/sla/sla.teste.ts,245,245,line,2,// Chegou às 02:00 local de terça; às 08:00 local o relógio ainda não começou.,,,,,,
-packages-core-comment-ce14b5c6,packages-core,packages/core/src/sla/sla.teste.ts,37,37,jsdoc,1,"/** Expediente partido: 09:00–12:00 e 13:00–18:00, com almoço fora. */",,,,,,
-packages-core-comment-c7214651,packages-core,packages/core/src/sla/sla.teste.ts,58,58,line,0,// sábado,,,,,,
-packages-core-comment-f5a819a2,packages-core,packages/core/src/sla/sla.teste.ts,79,79,line,0,// sábado,,,,,,
-packages-core-comment-60c6af41,packages-core,packages/core/src/sla/sla.teste.ts,94,94,line,1,// Dentro do expediente: a abertura é o próprio instante.,,,,,,
-packages-core-comment-507c476a,packages-core,packages/core/src/sla/sla.teste.ts,96,96,line,0,// Madrugada de segunda → abre às 09:00 local da própria segunda.,,,,,,
-packages-core-comment-56a4ef3e,packages-core,packages/core/src/sla/sla.teste.ts,98,98,line,0,// Depois do fechamento de segunda → abre na terça.,,,,,,
+ */",translate,"Weekday business hours are 09:00–18:00 in the tenant timezone. São Paulo remains UTC−3 throughout these 2026 tests, so 09:00 local equals 12:00Z. Reference dates: 02/03 Monday, 03/03 Tuesday, 04/03 Wednesday, 07/03 Saturday, 08/03 Sunday.",other,packages/core/src/sla/sla.teste.ts:18-24,codex,reviewed
+packages-core-comment-e4b8b378,packages-core,packages/core/src/sla/sla.teste.ts,182,182,line,2,// 40 horas úteis a partir de segunda 09:00: 9h por dia de segunda a quinta,translate,Forty business hours from Monday 09:00: Monday through Thursday supply 36 hours; the remaining four run Friday from 09:00 to 13:00 local (16:00Z).,other,packages/core/src/sla/sla.teste.ts:182-182,codex,reviewed
+packages-core-comment-17eb0da8,packages-core,packages/core/src/sla/sla.teste.ts,196,196,line,0,"// 17:30 de segunda, prazo de 1h: 30 min na segunda; terça é feriado; sobra",translate,"Monday 17:30 with a one-hour deadline uses 30 minutes Monday; Tuesday is a holiday, leaving",other,packages/core/src/sla/sla.teste.ts:196-196,codex,reviewed
+packages-core-comment-095534ee,packages-core,packages/core/src/sla/sla.teste.ts,197,197,line,0,"// meia hora na quarta, às 09:30 local = 12:30Z.",translate,"30 minutes on Wednesday, ending at 09:30 local or 12:30Z.",other,packages/core/src/sla/sla.teste.ts:197-197,codex,reviewed
+packages-core-comment-57f16dd2,packages-core,packages/core/src/sla/sla.teste.ts,245,245,line,2,// Chegou às 02:00 local de terça; às 08:00 local o relógio ainda não começou.,remove,,other,packages/core/src/sla/sla.teste.ts:245-245,codex,reviewed
+packages-core-comment-ce14b5c6,packages-core,packages/core/src/sla/sla.teste.ts,37,37,jsdoc,1,"/** Expediente partido: 09:00–12:00 e 13:00–18:00, com almoço fora. */",translate,"Split schedule: 09:00–12:00 and 13:00–18:00, excluding lunch.",other,packages/core/src/sla/sla.teste.ts:37-37,codex,reviewed
+packages-core-comment-c7214651,packages-core,packages/core/src/sla/sla.teste.ts,58,58,line,0,// sábado,remove,,other,packages/core/src/sla/sla.teste.ts:58-58,codex,reviewed
+packages-core-comment-f5a819a2,packages-core,packages/core/src/sla/sla.teste.ts,79,79,line,0,// sábado,remove,,other,packages/core/src/sla/sla.teste.ts:79-79,codex,reviewed
+packages-core-comment-60c6af41,packages-core,packages/core/src/sla/sla.teste.ts,94,94,line,1,// Dentro do expediente: a abertura é o próprio instante.,remove,,other,packages/core/src/sla/sla.teste.ts:94-94,codex,reviewed
+packages-core-comment-507c476a,packages-core,packages/core/src/sla/sla.teste.ts,96,96,line,0,// Madrugada de segunda → abre às 09:00 local da própria segunda.,remove,,other,packages/core/src/sla/sla.teste.ts:96-96,codex,reviewed
+packages-core-comment-56a4ef3e,packages-core,packages/core/src/sla/sla.teste.ts,98,98,line,0,// Depois do fechamento de segunda → abre na terça.,remove,,other,packages/core/src/sla/sla.teste.ts:98-98,codex,reviewed
 packages-core-comment-b985770e,packages-core,packages/core/src/telefone/index.ts,1,23,jsdoc,24,"/**
  * Portado de chatwoot/chatwoot (MIT):
  * - app/services/whatsapp/phone_normalizers/base_phone_normalizer.rb
@@ -1037,13 +1037,13 @@ packages-core-comment-b985770e,packages-core,packages/core/src/telefone/index.ts
  *
  * `paraE164`, no fim, NÃO é porte: é o que o Pipe acrescenta para telefone
  * digitado por gente (CSV de planilha brasileira).
- */",,,,,,
-packages-core-comment-0078d3d4,packages-core,packages/core/src/telefone/index.ts,28,28,jsdoc,1,/** `normalize`: a forma canônica. */,,,,,,
-packages-core-comment-677ec41e,packages-core,packages/core/src/telefone/index.ts,30,30,jsdoc,3,"/** `variants`: as formas em que o contato pode já estar guardado, a canônica primeiro. */",,,,,,
-packages-core-comment-70545776,packages-core,packages/core/src/telefone/index.ts,32,32,jsdoc,2,"/** `contact_candidates`: a forma recebida primeiro, para o casamento exato ganhar. */",,,,,,
-packages-core-comment-592a40a0,packages-core,packages/core/src/telefone/index.ts,64,64,jsdoc,2,"/** O espelho de `normalizar`: tira o 9 só quando o que sobra é faixa antiga de celular, nunca fixo. */",,,,,,
-packages-core-comment-d7291ad2,packages-core,packages/core/src/telefone/index.ts,83,83,jsdoc,3,"/** `phone_number_candidates`: sem normalizador para o país, só a própria forma. */",,,,,,
-packages-core-comment-86aac898,packages-core,packages/core/src/telefone/index.ts,94,94,jsdoc,2,"/** O formato que o `Contact` do Chatwoot valida: `/\A\+[1-9]\d{1,14}\z/`. */",,,,,,
+ */",translate,"Ported from chatwoot/chatwoot (MIT): app/services/whatsapp/phone_normalizers/base_phone_normalizer.rb, app/services/whatsapp/phone_normalizers/brazil_phone_normalizer.rb, and `phone_number_candidates` from app/services/whatsapp/phone_number_normalization_service.rb. Brazil added the ninth mobile digit in 2012–2016. The same customer may still appear in both forms, including old spreadsheets, other systems, and Meta `wa_id` values from older accounts. The original rule is narrow: add 9 only to eight-digit numbers starting with 6, 7, 8, or 9, the old mobile range. Landlines start with 2–5 and must remain unchanged; adding 9 could identify another person. Only Brazil is implemented of the source's three countries; its normalizer list allows Argentina and Mexico to be added without rewriting. `paraE164` is a Pipe addition for human-entered Brazilian CSV numbers, not a port.",integration,packages/core/src/telefone/index.ts:1-23; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-0078d3d4,packages-core,packages/core/src/telefone/index.ts,28,28,jsdoc,1,/** `normalize`: a forma canônica. */,translate,`normalize`: canonical form.,integration,packages/core/src/telefone/index.ts:28-28; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-677ec41e,packages-core,packages/core/src/telefone/index.ts,30,30,jsdoc,3,"/** `variants`: as formas em que o contato pode já estar guardado, a canônica primeiro. */",translate,"`variants`: stored forms of this contact, canonical first.",integration,packages/core/src/telefone/index.ts:30-30; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-70545776,packages-core,packages/core/src/telefone/index.ts,32,32,jsdoc,2,"/** `contact_candidates`: a forma recebida primeiro, para o casamento exato ganhar. */",translate,`contact_candidates`: received form first so an exact match wins.,integration,packages/core/src/telefone/index.ts:32-32; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-592a40a0,packages-core,packages/core/src/telefone/index.ts,64,64,jsdoc,2,"/** O espelho de `normalizar`: tira o 9 só quando o que sobra é faixa antiga de celular, nunca fixo. */",translate,"Mirror of `normalizar`: remove 9 only when the remainder is an old mobile range, never a landline.",integration,packages/core/src/telefone/index.ts:64-64; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-d7291ad2,packages-core,packages/core/src/telefone/index.ts,83,83,jsdoc,3,"/** `phone_number_candidates`: sem normalizador para o país, só a própria forma. */",translate,"`phone_number_candidates`: with no normalizer for the country, return only the input form.",integration,packages/core/src/telefone/index.ts:83-83; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-core-comment-86aac898,packages-core,packages/core/src/telefone/index.ts,94,94,jsdoc,2,"/** O formato que o `Contact` do Chatwoot valida: `/\A\+[1-9]\d{1,14}\z/`. */",translate,E.164 format validated by Chatwoot `Contact`.,integration,packages/core/src/telefone/index.ts:94-94; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-core-comment-139dc38f,packages-core,packages/core/src/telefone/index.ts,97,107,jsdoc,8,"/**
  * Telefone como gente digita → E.164 canônico. Acréscimo do Pipe.
  *
@@ -1054,4 +1054,4 @@ packages-core-comment-139dc38f,packages-core,packages/core/src/telefone/index.ts
  *
  * Não valida: quem valida é `FORMATO_E164`, para a recusa sair com o motivo.
  * Vazio devolve `null` — ""sem telefone"" é diferente de ""telefone inválido"".
- */",,,,,,
+ */",translate,"Convert human-entered phone numbers to canonical E.164; this is a Pipe addition. Remove spaces, hyphens, periods, and parentheses. Without `+`, remove a leading trunk zero; a 10- or 11-digit Brazilian DDD plus number gets the default country code. Apply Brazil's ninth mobile digit. Do not validate here: `FORMATO_E164` validates so refusal can explain why. Empty input returns null because no phone differs from an invalid phone.",integration,packages/core/src/telefone/index.ts:97-107; pre-triage D-40; needs slice-time confirmation,codex,reviewed

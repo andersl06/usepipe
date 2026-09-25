@@ -1,0 +1,420 @@
+{
+  "items": [
+    {
+      "id": "packages-core-comment-2940ef77",
+      "action": "translate",
+      "new_text": "An open exception with no custom hours falls back to the normal schedule for that day.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:180-180; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-b12833d5",
+      "action": "translate",
+      "new_text": "`HH:MM` in the tenant timezone; `24:00` means midnight of the next day.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:19-19; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-c5f70dfe",
+      "action": "translate",
+      "new_text": "Business-hour intervals between two absolute instants. Null `horario` means uninterrupted 24×7 service.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:196-199; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-a0d655b6",
+      "action": "translate",
+      "new_text": "Start one day early so an interval already in progress is not missed.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:210-210; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-213be41a",
+      "action": "translate",
+      "new_text": "Subtract waiting periods from business-hour intervals.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:236-236; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-6595895f",
+      "action": "translate",
+      "new_text": "Business seconds between two instants excluding waits; the SLA elapsed time.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:270-273; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-56cd5734",
+      "action": "translate",
+      "new_text": "Advance `segundos` business seconds from `de`, skipping off-hours and waits. Return null if the deadline does not fit within `LIMITE_DIAS_VARREDURA` days, including an empty schedule or open-ended wait. An undefined deadline is information, not silent failure.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:283-290; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-aa59c1a0",
+      "action": "translate",
+      "new_text": "Grow search windows gradually: common cases resolve in two days without scanning a full year.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:299-299; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-54508546",
+      "action": "translate",
+      "new_text": "First business instant at or after `instante`, including itself when open; the next opening from §10.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:317-320; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-41edda58",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/expediente.ts:334-334",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-56e4525b",
+      "action": "translate",
+      "new_text": "Interval during which the clock is paused while the conversation awaits the customer.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:44-44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-53041893",
+      "action": "translate",
+      "new_text": "Scan horizon prevents a schedule with no open interval from looping forever.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:52-52; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-20e3204e",
+      "action": "translate",
+      "new_text": "Split an instant into calendar components in the tenant timezone.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/expediente.ts:83-83; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-87f6e62e",
+      "action": "translate",
+      "new_text": "Some runtimes return hour \"24\" for midnight with `hour12:false`.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/sla/expediente.ts:90-90; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-423b9845",
+      "action": "translate",
+      "new_text": "SLA from metrics spec §11. A rule has a target (time to first response, response time, or time to closure), deadline, scope, and two actions: one at warning threshold and another on breach. The clock follows the queue business hours and pauses while the conversation awaits the customer.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/regra.ts:1-8; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-ccdf5154",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/regra.ts:101-101",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-372b5158",
+      "action": "translate",
+      "new_text": "Most recent unanswered customer message, the start for `tempo_resposta`.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/regra.ts:107-107; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-1d9f1f90",
+      "action": "translate",
+      "new_text": "Clock start by target: `primeira_resposta` starts at assignment to match §2, or creation when unassigned so a queued conversation still consumes SLA; `tempo_resposta` starts at the latest unanswered customer message; `encerramento` starts at creation.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/regra.ts:111-118; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-ffb83829",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/regra.ts:132-132",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-d3bcd64c",
+      "action": "translate",
+      "new_text": "When the clock became applicable: creation, assignment, or latest inbound customer message.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/regra.ts:36-36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-28eb084a",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/regra.ts:38-38",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-e7a32408",
+      "action": "translate",
+      "new_text": "Periods awaiting the customer pause the clock.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/regra.ts:42-42; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-bd03f537",
+      "action": "translate",
+      "new_text": "Business time already spent, in seconds.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/regra.ts:51-51",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-75f5d7a8",
+      "action": "translate",
+      "new_text": "Time left until deadline, zero after breach.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/regra.ts:53-53",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-bdc31a61",
+      "action": "translate",
+      "new_text": "Absolute warning instant; null without a threshold or when undefined.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/regra.ts:57-57; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-77e9c67c",
+      "action": "translate",
+      "new_text": "When the clock actually began running: the next opening if arrival was outside business hours.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/regra.ts:59-59; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-d0617c23",
+      "action": "translate",
+      "new_text": "SLA state and deadline. `prazoEm` is null when breach time is undefined: the schedule has no open interval, the deadline exceeds the scan horizon, or a wait is still open. While awaiting the customer there is no breach date to promise. `estado` still follows elapsed business time, which the UI displays.",
+      "sensitivity": "architecture",
+      "evidence": "packages/core/src/sla/regra.ts:63-70; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-f65160eb",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:100-100",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-414c1f63",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:121-121",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-1b479145",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:132-132",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-3783cc68",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:175-175",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-04db5b8f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:177-177",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-fe51b9b5",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:179-179",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-a1ca7047",
+      "action": "translate",
+      "new_text": "Weekday business hours are 09:00–18:00 in the tenant timezone. São Paulo remains UTC−3 throughout these 2026 tests, so 09:00 local equals 12:00Z. Reference dates: 02/03 Monday, 03/03 Tuesday, 04/03 Wednesday, 07/03 Saturday, 08/03 Sunday.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:18-24",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-e4b8b378",
+      "action": "translate",
+      "new_text": "Forty business hours from Monday 09:00: Monday through Thursday supply 36 hours; the remaining four run Friday from 09:00 to 13:00 local (16:00Z).",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:182-182",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-17eb0da8",
+      "action": "translate",
+      "new_text": "Monday 17:30 with a one-hour deadline uses 30 minutes Monday; Tuesday is a holiday, leaving",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:196-196",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-095534ee",
+      "action": "translate",
+      "new_text": "30 minutes on Wednesday, ending at 09:30 local or 12:30Z.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:197-197",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-57f16dd2",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:245-245",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-ce14b5c6",
+      "action": "translate",
+      "new_text": "Split schedule: 09:00–12:00 and 13:00–18:00, excluding lunch.",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:37-37",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-c7214651",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:58-58",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-f5a819a2",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:79-79",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-60c6af41",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:94-94",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-507c476a",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:96-96",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-56a4ef3e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "packages/core/src/sla/sla.teste.ts:98-98",
+      "notes": ""
+    },
+    {
+      "id": "packages-core-comment-b985770e",
+      "action": "translate",
+      "new_text": "Ported from chatwoot/chatwoot (MIT): app/services/whatsapp/phone_normalizers/base_phone_normalizer.rb, app/services/whatsapp/phone_normalizers/brazil_phone_normalizer.rb, and `phone_number_candidates` from app/services/whatsapp/phone_number_normalization_service.rb. Brazil added the ninth mobile digit in 2012–2016. The same customer may still appear in both forms, including old spreadsheets, other systems, and Meta `wa_id` values from older accounts. The original rule is narrow: add 9 only to eight-digit numbers starting with 6, 7, 8, or 9, the old mobile range. Landlines start with 2–5 and must remain unchanged; adding 9 could identify another person. Only Brazil is implemented of the source's three countries; its normalizer list allows Argentina and Mexico to be added without rewriting. `paraE164` is a Pipe addition for human-entered Brazilian CSV numbers, not a port.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/telefone/index.ts:1-23; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-0078d3d4",
+      "action": "translate",
+      "new_text": "`normalize`: canonical form.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/telefone/index.ts:28-28; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-677ec41e",
+      "action": "translate",
+      "new_text": "`variants`: stored forms of this contact, canonical first.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/telefone/index.ts:30-30; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-70545776",
+      "action": "translate",
+      "new_text": "`contact_candidates`: received form first so an exact match wins.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/telefone/index.ts:32-32; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-592a40a0",
+      "action": "translate",
+      "new_text": "Mirror of `normalizar`: remove 9 only when the remainder is an old mobile range, never a landline.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/telefone/index.ts:64-64; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-d7291ad2",
+      "action": "translate",
+      "new_text": "`phone_number_candidates`: with no normalizer for the country, return only the input form.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/telefone/index.ts:83-83; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-86aac898",
+      "action": "translate",
+      "new_text": "E.164 format validated by Chatwoot `Contact`.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/telefone/index.ts:94-94; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "packages-core-comment-139dc38f",
+      "action": "translate",
+      "new_text": "Convert human-entered phone numbers to canonical E.164; this is a Pipe addition. Remove spaces, hyphens, periods, and parentheses. Without `+`, remove a leading trunk zero; a 10- or 11-digit Brazilian DDD plus number gets the default country code. Apply Brazil's ninth mobile digit. Do not validate here: `FORMATO_E164` validates so refusal can explain why. Empty input returns null because no phone differs from an invalid phone.",
+      "sensitivity": "integration",
+      "evidence": "packages/core/src/telefone/index.ts:97-107; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
