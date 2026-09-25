@@ -86,7 +86,7 @@ packages-ai-symbol-aff1aee8,packages-ai,1,symbol,fracaoInicio,fractionInicio,pac
 packages-ai-symbol-b36387ca,packages-ai,1,symbol,montarTranscricao,montarTranscription,packages/ai/src/transcricao/transcricao.ts:174,19,no,,,proposed,codex2,
 packages-ai-symbol-b3d88520,packages-ai,1,symbol,OpcoesResumo,OptionsSummary,packages/ai/src/resumo/index.ts:22,4,no,,,proposed,codex2,
 packages-ai-symbol-b525c6fb,packages-ai,1,symbol,valoresAceitos,valuesAceitos,packages/ai/src/prompts/avaliacao.ts:27,2,no,,,proposed,codex2,
-packages-ai-symbol-b5a7445c,packages-ai,1,symbol,ResultadoAvaliacao,ResultadoEvaluation,packages/ai/src/avaliacao/tipos.ts:64,7,no,,,proposed,codex2,
+packages-ai-symbol-b5a7445c,packages-ai,1,symbol,ResultadoAvaliacao,ResultEvaluation,packages/ai/src/avaliacao/tipos.ts:64,7,no,,,proposed,codex2,"fixed: resultado was missing from the dictionary (left PT)"
 packages-ai-symbol-bf7721df,packages-ai,1,symbol,SENTIMENTOS,SENTIMENTS,packages/ai/src/classificacao/index.ts:26,5,no,,,proposed,codex2,
 packages-ai-symbol-c4a722d6,packages-ai,1,symbol,FRACAO_INICIO_PADRAO,FRACTION_INICIO_DEFAULT,packages/ai/src/transcricao/transcricao.ts:72,2,no,,,proposed,codex2,
 packages-ai-symbol-c5f333c0,packages-ai,1,symbol,mensagemId,messageId,packages/ai/src/avaliacao/avaliacao.ts:67,59,no,,,proposed,codex2,
@@ -104,7 +104,7 @@ packages-ai-symbol-dde470dd,packages-ai,1,symbol,EsquemaMensagem,EsquemaMessage,
 packages-ai-symbol-e3143b00,packages-ai,1,symbol,duracao,duration,packages/ai/src/transcricao/transcricao.ts:91,55,no,,,proposed,codex2,
 packages-ai-symbol-e60fd4a6,packages-ai,1,symbol,EsquemaClassificacao,EsquemaClassification,packages/ai/src/classificacao/index.ts:33,2,no,,,proposed,codex2,
 packages-ai-symbol-ec1ba6fc,packages-ai,1,symbol,contexto,context,packages/ai/src/prompts/resumo.ts:40,300,no,,,proposed,codex2,
-packages-ai-symbol-ee36de89,packages-ai,1,symbol,ResultadoClassificacao,ResultadoClassification,packages/ai/src/classificacao/index.ts:52,2,no,,,proposed,codex2,
+packages-ai-symbol-ee36de89,packages-ai,1,symbol,ResultadoClassificacao,ResultClassification,packages/ai/src/classificacao/index.ts:52,2,no,,,proposed,codex2,"fixed: resultado was missing from the dictionary (left PT)"
 packages-ai-symbol-f0216ca8,packages-ai,1,symbol,ErroModeloSemPreco,TemplateWithoutPrecoError,packages/ai/src/consumo/index.ts:35,5,no,,,proposed,codex2,
 packages-ai-symbol-fb9ec381,packages-ai,1,symbol,intencoes,intents,packages/ai/src/prompts/classificacao.ts:81,3,no,,,proposed,codex2,
 packages-ai-symbol-ffa9ba5f,packages-ai,1,symbol,evidenciaMensagemId,evidenciaMessageId,packages/ai/src/avaliacao/avaliacao.ts:117,13,no,,,proposed,codex2,

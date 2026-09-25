@@ -187,7 +187,7 @@ desk-vite-symbol-d62bcfd4,desk-vite,3,symbol,grupos,groups,apps/desk-vite/src/li
 desk-vite-symbol-d6f44903,desk-vite,3,symbol,PaginaMetricas,PageMetrics,apps/desk-vite/src/paginas/analytics/page.tsx:34,3,no,,,proposed,codex2,
 desk-vite-symbol-d8028f53,desk-vite,3,symbol,destino,destination,apps/desk-vite/src/componentes/exigir-sessao.tsx:24,303,no,,,proposed,codex2,
 desk-vite-symbol-d904d86f,desk-vite,3,symbol,grupos,groups,apps/desk-vite/tests/periodo.test.ts:59,85,no,,,proposed,codex2,
-desk-vite-symbol-da7e4d70,desk-vite,3,symbol,lerPreferencias,lerPreferences,apps/desk-vite/src/lib/preferencias.ts:35,12,no,,,proposed,codex2,
+desk-vite-symbol-da7e4d70,desk-vite,3,symbol,lerPreferencias,readPreferences,apps/desk-vite/src/lib/preferencias.ts:35,12,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 desk-vite-symbol-dbad957d,desk-vite,3,symbol,EtiquetasDoContato,ContactTags,apps/desk-vite/src/paginas/atendimentos/painel.tsx:304,2,no,,,proposed,codex2,
 desk-vite-symbol-dc3ba82d,desk-vite,3,symbol,opcoes,options,apps/desk-vite/src/componentes/trilho.tsx:158,157,no,,,proposed,codex2,
 desk-vite-symbol-dc9c7a38,desk-vite,3,symbol,mensagem,message,apps/desk-vite/src/lib/api.ts:53,1267,no,,,proposed,codex2,

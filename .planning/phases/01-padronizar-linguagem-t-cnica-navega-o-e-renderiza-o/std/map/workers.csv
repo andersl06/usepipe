@@ -22,7 +22,7 @@ workers-symbol-01e192db,workers,2,symbol,mensagem,message,apps/workers/src/messe
 workers-symbol-04d48d68,workers,2,symbol,filaEntrega,queueDelivery,apps/workers/src/main.ts:21,6,no,,,proposed,codex1,
 workers-symbol-07350099,workers,2,symbol,validarMidia,validateMedia,apps/workers/src/whatsapp/midia.ts:102,7,no,,,proposed,codex1,
 workers-symbol-0a2b5a3a,workers,2,symbol,JobEspelhoCrm,JobMirrorCrm,apps/workers/src/filas.ts:73,6,no,,,proposed,codex1,
-workers-symbol-0a9e0a26,workers,2,symbol,lerVariaveis,lerVariables,apps/workers/src/entrega.ts:388,7,no,,,proposed,codex1,
+workers-symbol-0a9e0a26,workers,2,symbol,lerVariaveis,readVariables,apps/workers/src/entrega.ts:388,7,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 workers-symbol-1350631e,workers,2,symbol,ConversaDoDia,ConversationOfDay,apps/workers/src/agregacao.ts:146,6,no,,,proposed,codex1,
 workers-symbol-136f66aa,workers,2,symbol,LinhaContato,LineContact,apps/workers/src/gerenciador-de-contatos.ts:45,13,no,,,proposed,codex1,
 workers-symbol-15390831,workers,2,symbol,FILA_DICIONARIO_CRM,QUEUE_DICTIONARY_CRM,apps/workers/src/filas.ts:84,7,no,,,proposed,codex1,

@@ -72,7 +72,7 @@ packages-core-symbol-15596205,packages-core,1,symbol,corpoVariavel,corpoVariable
 packages-core-symbol-167e50d6,packages-core,1,symbol,EntradaPreguicosa,InboundPreguicosa,packages/core/src/fluxo/contexto.ts:71,6,no,,,proposed,codex2,
 packages-core-symbol-17f7f24d,packages-core,1,symbol,validarEntradaDoEstado,stateValidarInbound,packages/core/src/fluxo/gerenciador.ts:476,2,no,,,proposed,codex2,
 packages-core-symbol-18b7fdb6,packages-core,1,symbol,contexto,context,packages/core/src/fluxo/gerenciador.teste.ts:612,300,no,,,proposed,codex2,
-packages-core-symbol-196e54c2,packages-core,1,symbol,lerFluxoDaBlip,blipLerFlow,packages/core/src/fluxo/editor.ts:138,9,no,,,proposed,codex2,
+packages-core-symbol-196e54c2,packages-core,1,symbol,lerFluxoDaBlip,blipReadFlow,packages/core/src/fluxo/editor.ts:138,9,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 packages-core-symbol-19ad8a6e,packages-core,1,symbol,atendimento,attendance,packages/core/src/fluxo/acoes.ts:150,673,no,,,proposed,codex2,
 packages-core-symbol-1be92322,packages-core,1,symbol,atendimento,attendance,packages/core/src/fluxo/acoes.ts:128,673,no,,,proposed,codex2,
 packages-core-symbol-1c655347,packages-core,1,symbol,contagem,count,packages/core/src/metricas/agregacao.ts:32,134,no,,,proposed,codex2,
@@ -84,9 +84,9 @@ packages-core-symbol-1e0883ee,packages-core,1,symbol,TransicaoEntregaInvalidaErr
 packages-core-symbol-20c6020f,packages-core,1,symbol,valor,value,packages/core/src/fluxo/contexto.ts:352,1656,no,,,proposed,codex2,
 packages-core-symbol-24303da7,packages-core,1,symbol,OpcoesDistribuicao,OptionsDistribution,packages/core/src/distribuicao/carga.ts:45,6,no,,,proposed,codex2,
 packages-core-symbol-25ec2337,packages-core,1,symbol,contagem,count,packages/core/src/metricas/encerramento.ts:47,134,no,,,proposed,codex2,
-packages-core-symbol-26a7e192,packages-core,1,symbol,resultadoVazio,resultadoEmpty,packages/core/src/comum/tipos.ts:43,6,no,,,proposed,codex2,
+packages-core-symbol-26a7e192,packages-core,1,symbol,resultadoVazio,resultEmpty,packages/core/src/comum/tipos.ts:43,6,no,,,proposed,codex2,fixed: resultado was missing from the dictionary (left PT)
 packages-core-symbol-26c62a7d,packages-core,1,symbol,casosLeitura,casosRead,packages/core/src/esforco/esforco.teste.ts:49,2,no,,,proposed,codex2,
-packages-core-symbol-280d5ea5,packages-core,1,symbol,VARIAVEIS_NO_TEXTO,VARIABLES_IN_TEXTO,packages/core/src/fluxo/contexto.ts:366,3,no,,,proposed,codex2,
+packages-core-symbol-280d5ea5,packages-core,1,symbol,VARIAVEIS_NO_TEXTO,VARIABLES_IN_TEXT,packages/core/src/fluxo/contexto.ts:366,3,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 packages-core-symbol-29312b8b,packages-core,1,symbol,EstadoDoEditor,EditorState,packages/core/src/fluxo/editor.ts:34,14,no,,,proposed,codex2,
 packages-core-symbol-2961f075,packages-core,1,symbol,REGRAS_DE_VALIDACAO,RULES_OF_VALIDATION,packages/core/src/fluxo/modelos.ts:27,3,no,,,proposed,codex2,
 packages-core-symbol-2b3e70dc,packages-core,1,symbol,ProvedorDeVariavel,VariableProvider,packages/core/src/fluxo/contexto.ts:155,3,no,,,proposed,codex2,"fix(01-12): missing lexicon word (provedor), was VariableProvedor"
@@ -104,7 +104,7 @@ packages-core-symbol-30d85338,packages-core,1,symbol,DirecaoMensagem,DirectionMe
 packages-core-symbol-31de00d7,packages-core,1,symbol,NivelPrioridade,NivelPriority,packages/core/src/conversa/prioridade.ts:36,9,no,,,proposed,codex2,
 packages-core-symbol-32f22f01,packages-core,1,symbol,dentroDaJanela,windowDentro,packages/core/src/janela/janela.ts:138,30,no,,,proposed,codex2,
 packages-core-symbol-334947b6,packages-core,1,symbol,ConsultaEnvio,QueryEnvio,packages/core/src/janela/janela.ts:84,2,no,,,proposed,codex2,
-packages-core-symbol-34d397d9,packages-core,1,symbol,ResultadoTempoDeResposta,RespostaResultadoTime,packages/core/src/metricas/tempos.ts:22,10,no,,,proposed,codex2,
+packages-core-symbol-34d397d9,packages-core,1,symbol,ResultadoTempoDeResposta,ResponseTimeResult,packages/core/src/metricas/tempos.ts:22,10,no,,,proposed,codex2,"fixed: resultado and resposta were missing from the dictionary (left PT), and the reorder attempt had produced a garbled RespostaResultadoTime"
 packages-core-symbol-34de99ef,packages-core,1,symbol,EstadoSla,StateSla,packages/core/src/sla/regra.ts:19,3,no,,,proposed,codex2,
 packages-core-symbol-3500c2c4,packages-core,1,symbol,atendimentos,attendances,packages/core/src/fluxo/editor.teste.ts:155,45,no,,,proposed,codex2,
 packages-core-symbol-367cd431,packages-core,1,symbol,configuracao,configuration,packages/core/src/fluxo/gerenciador.ts:166,31,no,,,proposed,codex2,
@@ -158,7 +158,7 @@ packages-core-symbol-5ae35917,packages-core,1,symbol,definirEstadoId,definirStat
 packages-core-symbol-5cf07856,packages-core,1,symbol,tempoTotalDeEsperaDoCliente,timeTotalOfEsperaOfCliente,packages/core/src/metricas/tempos.ts:80,7,no,,,proposed,codex2,
 packages-core-symbol-5d3b5fea,packages-core,1,symbol,estado,state,packages/core/src/fluxo/padrao.ts:33,1269,no,,,proposed,codex2,
 packages-core-symbol-5d9a6b28,packages-core,1,symbol,verCondicoes,verConditions,packages/core/src/fluxo/editor.ts:184,4,no,,,proposed,codex2,
-packages-core-symbol-5de01cc8,packages-core,1,symbol,lerPeriodo,lerPeriod,packages/core/src/analise/index.ts:71,8,no,,,proposed,codex2,
+packages-core-symbol-5de01cc8,packages-core,1,symbol,lerPeriodo,readPeriod,packages/core/src/analise/index.ts:71,8,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 packages-core-symbol-5de79936,packages-core,1,symbol,comparacao,comparison,packages/core/src/analise/index.ts:165,42,no,,,proposed,codex2,
 packages-core-symbol-5ec88201,packages-core,1,symbol,erro,error,packages/core/src/fluxo/gerenciador.teste.ts:367,1478,no,,,proposed,codex2,
 packages-core-symbol-5f821430,packages-core,1,symbol,relatorioDaImportacao,importReport,packages/core/src/fluxo/editor.ts:175,10,no,,,proposed,codex2,
@@ -174,7 +174,7 @@ packages-core-symbol-66578ebd,packages-core,1,symbol,consolidarDiaDoAtendente,ag
 packages-core-symbol-67520128,packages-core,1,symbol,Atendimento,Attendance,packages/core/src/fluxo/contexto.ts:105,146,no,,,proposed,codex2,
 packages-core-symbol-67dd36de,packages-core,1,symbol,classificarConversa,classificarConversation,packages/core/src/metricas/encerramento.ts:40,9,no,,,proposed,codex2,
 packages-core-symbol-6a761f15,packages-core,1,symbol,primeiraRespostaEm,firstRespostaIn,packages/core/src/metricas/eventos.ts:87,26,no,,,proposed,codex2,
-packages-core-symbol-6b6cb1f5,packages-core,1,symbol,lerNomeDeVariavel,variableLerName,packages/core/src/fluxo/contexto.ts:228,2,no,,,proposed,codex2,
+packages-core-symbol-6b6cb1f5,packages-core,1,symbol,lerNomeDeVariavel,readVariableName,packages/core/src/fluxo/contexto.ts:228,2,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 packages-core-symbol-6b90953d,packages-core,1,symbol,mensagens,messages,packages/core/src/esforco/esforco.teste.ts:95,363,no,,,proposed,codex2,
 packages-core-symbol-6c9c7c2c,packages-core,1,symbol,CARACTERES_POR_MINUTO_LEITURA,CARACTERES_BY_MINUTO_READ,packages/core/src/esforco/regua.ts:26,4,no,,,proposed,codex2,
 packages-core-symbol-6d39993e,packages-core,1,symbol,valor,value,packages/core/src/fluxo/contexto.ts:271,1656,no,,,proposed,codex2,
@@ -183,7 +183,7 @@ packages-core-symbol-70b86161,packages-core,1,symbol,ExcecaoExpediente,Exception
 packages-core-symbol-717fe1ff,packages-core,1,symbol,contarEncerramentos,contarClosures,packages/core/src/metricas/encerramento.ts:44,7,no,,,proposed,codex2,
 packages-core-symbol-723ae719,packages-core,1,symbol,JanelaDeInstantes,InstantesWindow,packages/core/src/analise/index.ts:324,5,no,,,proposed,codex2,
 packages-core-symbol-7314d540,packages-core,1,symbol,primeira,first,packages/core/src/janela/janela.teste.ts:38,377,no,,,proposed,codex2,
-packages-core-symbol-738114c7,packages-core,1,symbol,ResultadoAplicacao,ResultadoApplication,packages/core/src/conversa/maquina.ts:119,3,no,,,proposed,codex2,
+packages-core-symbol-738114c7,packages-core,1,symbol,ResultadoAplicacao,ResultApplication,packages/core/src/conversa/maquina.ts:119,3,no,,,proposed,codex2,fixed: resultado was missing from the dictionary (left PT)
 packages-core-symbol-73de853c,packages-core,1,symbol,esforcoSeg,effortSeg,packages/core/src/esforco/regua.ts:169,18,no,,,proposed,codex2,
 packages-core-symbol-73efc3b4,packages-core,1,symbol,obterVariavelDeContexto,contextObterVariable,packages/core/src/fluxo/contexto.ts:185,4,no,,,proposed,codex2,
 packages-core-symbol-747ae58d,packages-core,1,symbol,pesoPrioridade,pesoPriority,packages/core/src/conversa/prioridade.ts:59,13,no,,,proposed,codex2,

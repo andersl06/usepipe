@@ -479,9 +479,9 @@ gestao-vite-symbol-081550fd,gestao-vite,3,symbol,busca,search,apps/gestao-vite/s
 gestao-vite-symbol-081e779c,gestao-vite,3,symbol,demais,rest,apps/gestao-vite/src/paginas/novidades/page.tsx:47,56,no,,,proposed,codex2,
 gestao-vite-symbol-083c7ee1,gestao-vite,3,symbol,secoes,sections,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx:93,37,no,,,proposed,codex2,
 gestao-vite-symbol-08682233,gestao-vite,3,symbol,leitura,read,apps/gestao-vite/src/paginas/operacao/historico.tsx:126,251,no,,,proposed,codex2,
-gestao-vite-symbol-08e89e3d,gestao-vite,3,symbol,ResultadoDaSincronizacao,SyncResultado,apps/gestao-vite/src/lib/canais-gravar.ts:143,8,no,,,proposed,codex2,
+gestao-vite-symbol-08e89e3d,gestao-vite,3,symbol,ResultadoDaSincronizacao,SyncResult,apps/gestao-vite/src/lib/canais-gravar.ts:143,8,no,,,proposed,codex2,fixed: resultado was missing from the dictionary (left PT)
 gestao-vite-symbol-092a2a53,gestao-vite,3,symbol,PaginaDaVisaoGeral,OverviewPage,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/pagina.tsx:21,3,no,,,proposed,codex2,
-gestao-vite-symbol-09950bfe,gestao-vite,3,symbol,ResultadoDeCartao,CardResultado,apps/gestao-vite/src/componentes/cartao-config.tsx:25,3,no,,,proposed,codex2,
+gestao-vite-symbol-09950bfe,gestao-vite,3,symbol,ResultadoDeCartao,CardResult,apps/gestao-vite/src/componentes/cartao-config.tsx:25,3,no,,,proposed,codex2,fixed: resultado was missing from the dictionary (left PT)
 gestao-vite-symbol-099ceec5,gestao-vite,3,symbol,BarraDoContato,ContactBarra,apps/gestao-vite/src/paginas/fluxo/barra-do-contato.tsx:41,4,no,,,proposed,codex2,
 gestao-vite-symbol-09b951ca,gestao-vite,3,symbol,alvoDaLigacao,connectionAlvo,apps/gestao-vite/src/paginas/builder/canvas.tsx:276,2,no,,,proposed,codex2,
 gestao-vite-symbol-0a5c0b3f,gestao-vite,3,symbol,IconePaginacao,IconePagination,apps/gestao-vite/src/componentes/paginacao.tsx:136,5,no,,,proposed,codex2,
@@ -583,7 +583,7 @@ gestao-vite-symbol-1e868366,gestao-vite,3,symbol,casca,shell,apps/gestao-vite/sr
 gestao-vite-symbol-1ebb9d16,gestao-vite,3,symbol,leitura,read,apps/gestao-vite/src/paginas/cadastros/atendentes-permissoes.tsx:38,251,no,,,proposed,codex2,
 gestao-vite-symbol-1edcc332,gestao-vite,3,symbol,globais,global,apps/gestao-vite/tests/builder-painels.test.ts:238,134,no,,,proposed,codex2,
 gestao-vite-symbol-1edcdf48,gestao-vite,3,symbol,SECOES,SECTIONS,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx:53,4,no,,,proposed,codex2,
-gestao-vite-symbol-1efa8117,gestao-vite,3,symbol,variaveisDoTexto,textoVariables,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:27,14,no,,,proposed,codex2,
+gestao-vite-symbol-1efa8117,gestao-vite,3,symbol,variaveisDoTexto,textVariables,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:27,14,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 gestao-vite-symbol-1f20a02d,gestao-vite,3,symbol,errosLocais,errorsLocal,apps/gestao-vite/src/paginas/builder/validacao.ts:56,6,no,,,proposed,codex2,
 gestao-vite-symbol-1f26cf3d,gestao-vite,3,symbol,PaginaMonitoramento,PageMonitoring,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx:270,3,no,,,proposed,codex2,
 gestao-vite-symbol-1f48282d,gestao-vite,3,symbol,porCluster,byCluster,apps/gestao-vite/tests/analise-abas.test.ts:44,7,no,,,proposed,codex2,
@@ -594,7 +594,7 @@ gestao-vite-symbol-1fe15ce0,gestao-vite,3,symbol,totalPaginas,totalPages,apps/ge
 gestao-vite-symbol-201428ad,gestao-vite,3,symbol,leitura,read,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/alerta.tsx:24,251,no,,,proposed,codex2,
 gestao-vite-symbol-201acd9f,gestao-vite,3,symbol,arquivo,file,apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:62,462,no,,,proposed,codex2,
 gestao-vite-symbol-2068dc80,gestao-vite,3,symbol,PaginaBuilder,PageBuilder,apps/gestao-vite/src/paginas/builder.tsx:101,3,no,,,proposed,codex2,
-gestao-vite-symbol-2093d2f7,gestao-vite,3,symbol,lerArquivo,lerFile,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/tela.tsx:69,2,no,,,proposed,codex2,
+gestao-vite-symbol-2093d2f7,gestao-vite,3,symbol,lerArquivo,readFile,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/tela.tsx:69,2,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 gestao-vite-symbol-20a4a3c5,gestao-vite,3,symbol,FormularioRegraDePrioridade,PriorityFormularioRule,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx:387,2,no,,,proposed,codex2,
 gestao-vite-symbol-20aa1ad3,gestao-vite,3,symbol,chave,key,apps/gestao-vite/src/lib/regra-fila.ts:87,1153,no,,,proposed,codex2,
 gestao-vite-symbol-21344fed,gestao-vite,3,symbol,MonitoramentoDetalhado,MonitoringDetalhado,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:648,3,no,,,proposed,codex2,
@@ -773,7 +773,7 @@ gestao-vite-symbol-464d7967,gestao-vite,3,symbol,BlocoDeTempos,TemposBlock,apps/
 gestao-vite-symbol-46ebbbe2,gestao-vite,3,symbol,daFila,ofQueue,apps/gestao-vite/src/lib/sla.ts:43,15,no,,,proposed,codex2,
 gestao-vite-symbol-46f7762b,gestao-vite,3,symbol,Contatos,Contacts,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:424,109,no,,,proposed,codex2,
 gestao-vite-symbol-46ff55f9,gestao-vite,3,symbol,NIVEIS_DA_EDICAO,NIVEIS_OF_EDIT,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:63,3,no,,,proposed,codex2,
-gestao-vite-symbol-474a994d,gestao-vite,3,symbol,ResultadoDeImportacao,ImportResultado,apps/gestao-vite/src/paginas/builder/importar-exportar.ts:27,2,no,,,proposed,codex2,
+gestao-vite-symbol-474a994d,gestao-vite,3,symbol,ResultadoDeImportacao,ImportResult,apps/gestao-vite/src/paginas/builder/importar-exportar.ts:27,2,no,,,proposed,codex2,fixed: resultado was missing from the dictionary (left PT)
 gestao-vite-symbol-47a6c817,gestao-vite,3,symbol,abrirPainel,abrirPanel,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx:276,3,no,,,proposed,codex2,
 gestao-vite-symbol-47db10e0,gestao-vite,3,symbol,descricao,description,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:1114,299,no,,,proposed,codex2,
 gestao-vite-symbol-48077cf7,gestao-vite,3,symbol,casca,shell,apps/gestao-vite/src/paginas/contrato/membros/page.tsx:41,98,no,,,proposed,codex2,
@@ -809,7 +809,7 @@ gestao-vite-symbol-4dde8d39,gestao-vite,3,symbol,CartaoDeFluxo,FlowCard,apps/ges
 gestao-vite-symbol-4e1c8f2a,gestao-vite,3,symbol,PAGINAS,PAGES,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:2024,3,no,,,proposed,codex2,
 gestao-vite-symbol-4e7a764f,gestao-vite,3,symbol,avaliarSlaDaConversa,conversationAvaliarSla,apps/gestao-vite/src/lib/sla.ts:47,15,no,,,proposed,codex2,
 gestao-vite-symbol-4ee5fd21,gestao-vite,3,symbol,METRICAS_DE_NOTIFICACAO,METRICS_OF_NOTIFICATION,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1133,1,no,,,proposed,codex2,
-gestao-vite-symbol-4fa2cecf,gestao-vite,3,symbol,CartaoDeTexto,TextoCard,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:657,2,no,,,proposed,codex2,
+gestao-vite-symbol-4fa2cecf,gestao-vite,3,symbol,CartaoDeTexto,TextCard,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:657,2,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 gestao-vite-symbol-5009838c,gestao-vite,3,symbol,TituloDaSecao,SectionTitulo,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:207,13,no,,,proposed,codex2,
 gestao-vite-symbol-502aec07,gestao-vite,3,symbol,tituloDaEdicao,editTitulo,apps/gestao-vite/src/lib/atendentes.ts:77,6,no,,,proposed,codex2,
 gestao-vite-symbol-5032c046,gestao-vite,3,symbol,seletorDeDestino,destinationSeletor,apps/gestao-vite/src/paginas/builder/painel-saidas.tsx:57,4,no,,,proposed,codex2,
@@ -826,7 +826,7 @@ gestao-vite-symbol-53f778ff,gestao-vite,3,symbol,useContato,useContact,apps/gest
 gestao-vite-symbol-54393350,gestao-vite,3,symbol,duracao,duration,apps/gestao-vite/src/lib/formato.ts:4,55,no,,,proposed,codex2,
 gestao-vite-symbol-5476b90d,gestao-vite,3,symbol,Cartao,Card,apps/gestao-vite/src/paginas/fluxo/analise/pecas.tsx:131,46,no,,,proposed,codex2,
 gestao-vite-symbol-54ac1dcc,gestao-vite,3,symbol,ModeloListado,TemplateListado,apps/gestao-vite/src/lib/comunicacao.ts:68,16,no,,,proposed,codex2,
-gestao-vite-symbol-54c94397,gestao-vite,3,symbol,textoDeExportacao,exportTexto,apps/gestao-vite/src/paginas/builder/importar-exportar.ts:32,6,no,,,proposed,codex2,
+gestao-vite-symbol-54c94397,gestao-vite,3,symbol,textoDeExportacao,exportText,apps/gestao-vite/src/paginas/builder/importar-exportar.ts:32,6,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 gestao-vite-symbol-54e1a0c7,gestao-vite,3,symbol,Secao,Section,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.tsx:39,27,no,,,proposed,codex2,
 gestao-vite-symbol-552075ce,gestao-vite,3,symbol,atendimento,attendance,apps/gestao-vite/src/paginas/builder/painel-saidas.tsx:55,673,no,,,proposed,codex2,
 gestao-vite-symbol-55629108,gestao-vite,3,symbol,renomearBloco,renomearBlock,apps/gestao-vite/src/paginas/builder/modelo.ts:325,1,no,,,proposed,codex2,
@@ -866,7 +866,7 @@ gestao-vite-symbol-5d69a027,gestao-vite,3,symbol,destino,destination,apps/gestao
 gestao-vite-symbol-5e6584c1,gestao-vite,3,symbol,arquivo,file,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/perfil.tsx:160,462,no,,,proposed,codex2,
 gestao-vite-symbol-5e7a22df,gestao-vite,3,symbol,secoes,sections,apps/gestao-vite/src/paginas/cadastros/atendentes-pausas.tsx:57,37,no,,,proposed,codex2,
 gestao-vite-symbol-5e8dff92,gestao-vite,3,symbol,totalEsforco,totalEffort,apps/gestao-vite/src/paginas/operacao/relatorios-esforco.tsx:34,3,no,,,proposed,codex2,
-gestao-vite-symbol-5e9c0df7,gestao-vite,3,symbol,lerArquivoComoDataUrl,lerFileComoDataUrl,apps/gestao-vite/src/lib/certificados.ts:111,4,no,,,proposed,codex2,
+gestao-vite-symbol-5e9c0df7,gestao-vite,3,symbol,lerArquivoComoDataUrl,readFileAsDataUrl,apps/gestao-vite/src/lib/certificados.ts:111,4,no,,,proposed,codex2,fixed: ler and como were missing from the dictionary (left PT)
 gestao-vite-symbol-5ec62b6f,gestao-vite,3,symbol,leitura,read,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.tsx:17,251,no,,,proposed,codex2,
 gestao-vite-symbol-5ee131a5,gestao-vite,3,symbol,emailJaMembro,emailJaMember,apps/gestao-vite/src/paginas/fluxo/equipe/tela.tsx:227,3,no,,,proposed,codex2,
 gestao-vite-symbol-5f4d53d8,gestao-vite,3,symbol,baseDoContato,contactBase,apps/gestao-vite/src/paginas/fluxo/contato.tsx:20,38,no,,,proposed,codex2,
@@ -902,7 +902,7 @@ gestao-vite-symbol-63b296a5,gestao-vite,3,symbol,semPermissao,withoutPermission,
 gestao-vite-symbol-63c4bad6,gestao-vite,3,symbol,periodoValido,periodValido,apps/gestao-vite/src/paginas/fluxo/analise/gerenciador-de-relatorios/regras.ts:11,8,no,,,proposed,codex2,
 gestao-vite-symbol-64230546,gestao-vite,3,symbol,FiltroDeAtendentes,AgentsFilter,apps/gestao-vite/src/lib/atendentes.ts:16,3,no,,,proposed,codex2,
 gestao-vite-symbol-642ca2f4,gestao-vite,3,symbol,busca,search,apps/gestao-vite/src/paginas/criar/fluxo/acoes.ts:29,420,no,,,proposed,codex2,
-gestao-vite-symbol-64fb408f,gestao-vite,3,symbol,ResultadoPorContato,ResultadoByContact,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:18,2,no,,,proposed,codex2,
+gestao-vite-symbol-64fb408f,gestao-vite,3,symbol,ResultadoPorContato,ResultByContact,apps/gestao-vite/src/paginas/fluxo/growth/mensagens-ativas/disparo.ts:18,2,no,,,proposed,codex2,fixed: resultado was missing from the dictionary (left PT)
 gestao-vite-symbol-65102bf8,gestao-vite,3,symbol,casca,shell,apps/gestao-vite/src/paginas/fluxo/contato.tsx:105,98,no,,,proposed,codex2,
 gestao-vite-symbol-656af46e,gestao-vite,3,symbol,permissoesDoNivelDaEdicao,permissionsOfNivelOfEdit,apps/gestao-vite/src/paginas/fluxo/equipe/permissoes.ts:112,7,no,,,proposed,codex2,
 gestao-vite-symbol-6570f35e,gestao-vite,3,symbol,novaCondicao,novaCondition,apps/gestao-vite/src/paginas/builder/condicoes.ts:90,4,no,,,proposed,codex2,
@@ -1062,7 +1062,7 @@ gestao-vite-symbol-884076e0,gestao-vite,3,symbol,bloco,block,apps/gestao-vite/te
 gestao-vite-symbol-88780360,gestao-vite,3,symbol,valor,value,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts:42,1656,no,,,proposed,codex2,
 gestao-vite-symbol-887a4248,gestao-vite,3,symbol,IMAGEM,IMAGE,apps/gestao-vite/src/paginas/criar/regras-de-nome.ts:53,8,no,,,proposed,codex2,
 gestao-vite-symbol-88d7cf74,gestao-vite,3,symbol,MetricasDeChatbot,ChatbotMetrics,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1411,2,no,,,proposed,codex2,
-gestao-vite-symbol-895b51b5,gestao-vite,3,symbol,ResultadoDoConvite,InvitationResultado,apps/gestao-vite/src/paginas/contrato/acoes.ts:40,6,no,,,proposed,codex2,
+gestao-vite-symbol-895b51b5,gestao-vite,3,symbol,ResultadoDoConvite,InvitationResult,apps/gestao-vite/src/paginas/contrato/acoes.ts:40,6,no,,,proposed,codex2,fixed: resultado was missing from the dictionary (left PT)
 gestao-vite-symbol-8964caf9,gestao-vite,3,symbol,erros,errors,apps/gestao-vite/src/paginas/builder/editor.tsx:106,110,no,,,proposed,codex2,
 gestao-vite-symbol-898c908a,gestao-vite,3,symbol,atuais,current,apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:333,48,no,,,proposed,codex2,
 gestao-vite-symbol-89b484ae,gestao-vite,3,symbol,fila,queue,apps/gestao-vite/src/lib/casca.ts:51,993,no,,,proposed,codex2,
@@ -1081,13 +1081,13 @@ gestao-vite-symbol-8b8fde54,gestao-vite,3,symbol,posicaoNoCentro,positionInCentr
 gestao-vite-symbol-8b901acc,gestao-vite,3,symbol,gravarPreferenciasWhatsapp,gravarPreferencesWhatsapp,apps/gestao-vite/src/lib/canais-gravar.ts:130,7,no,,,proposed,codex2,
 gestao-vite-symbol-8c36440a,gestao-vite,3,symbol,destino,destination,apps/gestao-vite/src/componentes/selecao.tsx:89,303,no,,,proposed,codex2,
 gestao-vite-symbol-8c70f69b,gestao-vite,3,symbol,CartaoDeColunas,ColumnsCard,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:1070,4,no,,,proposed,codex2,
-gestao-vite-symbol-8ce20106,gestao-vite,3,symbol,lerImagem,lerImage,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts:77,4,no,,,proposed,codex2,
+gestao-vite-symbol-8ce20106,gestao-vite,3,symbol,lerImagem,readImage,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/gravar.ts:77,4,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 gestao-vite-symbol-8cf0e2a3,gestao-vite,3,symbol,leitura,read,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:97,251,no,,,proposed,codex2,
 gestao-vite-symbol-8dae8dcb,gestao-vite,3,symbol,idsDoFiltro,filterIds,apps/gestao-vite/src/lib/filtros-monitoramento.ts:2,12,no,,,proposed,codex2,
 gestao-vite-symbol-8dd1fafd,gestao-vite,3,symbol,reenviarConvite,reenviarInvitation,apps/gestao-vite/src/paginas/contrato/acoes.ts:57,9,no,,,proposed,codex2,
 gestao-vite-symbol-8de5df1e,gestao-vite,3,symbol,escopo,scope,apps/gestao-vite/src/paginas/cadastros/configuracoes-regras.tsx:37,227,no,,,proposed,codex2,
 gestao-vite-symbol-8e0256e0,gestao-vite,3,symbol,SAIDAS_DE_ATENDIMENTO,SAIDAS_OF_ATTENDANCE,apps/gestao-vite/src/paginas/builder/modelo.ts:129,2,no,,,proposed,codex2,
-gestao-vite-symbol-8e2ab706,gestao-vite,3,symbol,posicaoComoTexto,positionComoTexto,apps/gestao-vite/src/paginas/builder/modelo.ts:156,5,no,,,proposed,codex2,
+gestao-vite-symbol-8e2ab706,gestao-vite,3,symbol,posicaoComoTexto,positionAsText,apps/gestao-vite/src/paginas/builder/modelo.ts:156,5,no,,,proposed,codex2,fixed: como and texto were missing from the dictionary (left PT)
 gestao-vite-symbol-8ecda726,gestao-vite,3,symbol,FiltrosDaOperacao,SOperationFilter,apps/gestao-vite/src/componentes/filtros-rapidos.tsx:75,3,no,,,proposed,codex2,
 gestao-vite-symbol-8efb6c24,gestao-vite,3,symbol,FORMATO_DE_EMAIL,FORMAT_OF_EMAIL,apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:37,2,no,,,proposed,codex2,
 gestao-vite-symbol-8f254b78,gestao-vite,3,symbol,informacoesCompletas,informationCompletas,apps/gestao-vite/src/lib/certificados.ts:84,8,no,,,proposed,codex2,
@@ -1106,7 +1106,7 @@ gestao-vite-symbol-920cff42,gestao-vite,3,symbol,NomeDeIlustracao,IllustrationNa
 gestao-vite-symbol-92166095,gestao-vite,3,symbol,chave,key,apps/gestao-vite/src/paginas/fluxo/analise/abas.ts:76,1153,no,,,proposed,codex2,
 gestao-vite-symbol-9265a1ca,gestao-vite,3,symbol,ExigirSessao,ExigirSession,apps/gestao-vite/src/componentes/exigir-sessao.tsx:15,13,no,,,proposed,codex2,
 gestao-vite-symbol-92956b73,gestao-vite,3,symbol,contrato,contract,apps/gestao-vite/src/paginas/contrato/certificados/page.tsx:38,324,no,,,proposed,codex2,
-gestao-vite-symbol-93042e13,gestao-vite,3,symbol,variaveisDoTexto,textoVariables,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx:37,14,no,,,proposed,codex2,
+gestao-vite-symbol-93042e13,gestao-vite,3,symbol,variaveisDoTexto,textVariables,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx:37,14,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 gestao-vite-symbol-930ef139,gestao-vite,3,symbol,acoes,actions,apps/gestao-vite/src/paginas/builder/painel-acoes.tsx:137,155,no,,,proposed,codex2,
 gestao-vite-symbol-93cce0b0,gestao-vite,3,symbol,leitura,read,apps/gestao-vite/src/paginas/contrato/page.tsx:41,251,no,,,proposed,codex2,
 gestao-vite-symbol-93e2052f,gestao-vite,3,symbol,CascaDeIntegracoes,IntegrationsShell,apps/gestao-vite/src/paginas/fluxo/integracoes/casca.tsx:6,3,no,,,proposed,codex2,
@@ -1154,7 +1154,7 @@ gestao-vite-symbol-9d9cc3b2,gestao-vite,3,symbol,mensagem,message,apps/gestao-vi
 gestao-vite-symbol-9dc01129,gestao-vite,3,symbol,grupos,groups,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:101,85,no,,,proposed,codex2,
 gestao-vite-symbol-9e8823cb,gestao-vite,3,symbol,HistoricoDeAtendimento,AttendanceHistory,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/paginas.tsx:1983,2,no,,,proposed,codex2,
 gestao-vite-symbol-9e8e5e3e,gestao-vite,3,symbol,RespostaDoEsforco,EffortResposta,apps/gestao-vite/src/paginas/operacao/relatorios-esforco.tsx:8,2,no,,,proposed,codex2,
-gestao-vite-symbol-9e9c7aca,gestao-vite,3,symbol,ResultadoDeLigacao,ConnectionResultado,apps/gestao-vite/src/paginas/builder/modelo.ts:436,2,no,,,proposed,codex2,
+gestao-vite-symbol-9e9c7aca,gestao-vite,3,symbol,ResultadoDeLigacao,ConnectionResult,apps/gestao-vite/src/paginas/builder/modelo.ts:436,2,no,,,proposed,codex2,fixed: resultado was missing from the dictionary (left PT)
 gestao-vite-symbol-9eb717f9,gestao-vite,3,symbol,dados,data,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/detalhe.tsx:35,669,no,,,proposed,codex2,
 gestao-vite-symbol-9ed66127,gestao-vite,3,symbol,SemDados,WithoutData,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/tela.tsx:254,10,no,,,proposed,codex2,
 gestao-vite-symbol-9f53a2f3,gestao-vite,3,symbol,posicao,position,apps/gestao-vite/src/paginas/builder/modelo.ts:364,84,no,,,proposed,codex2,
@@ -1254,7 +1254,7 @@ gestao-vite-symbol-b23d820f,gestao-vite,3,symbol,iniciais,initials,apps/gestao-v
 gestao-vite-symbol-b27da72a,gestao-vite,3,symbol,agrupamentoValido,groupingValido,apps/gestao-vite/src/lib/historico.ts:82,15,no,,,proposed,codex2,
 gestao-vite-symbol-b2f12cf2,gestao-vite,3,symbol,importarContatos,importContacts,apps/gestao-vite/src/paginas/implantacao/acoes.ts:121,3,no,,,proposed,codex2,
 gestao-vite-symbol-b3429694,gestao-vite,3,symbol,ladoDaMensagem,messageLado,apps/gestao-vite/src/paginas/fluxo/contatos/regras.ts:56,7,no,,,proposed,codex2,
-gestao-vite-symbol-b347035f,gestao-vite,3,symbol,ResultadoDeTeste,TestResultado,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts:54,3,no,,,proposed,codex2,
+gestao-vite-symbol-b347035f,gestao-vite,3,symbol,ResultadoDeTeste,TestResult,apps/gestao-vite/src/paginas/fluxo/integracoes/webhook/gravar.ts:54,3,no,,,proposed,codex2,fixed: resultado was missing from the dictionary (left PT)
 gestao-vite-symbol-b3c167b1,gestao-vite,3,symbol,DESTINO_PADRAO,DESTINATION_DEFAULT,apps/gestao-vite/src/lib/entrada.ts:9,4,no,,,proposed,codex2,
 gestao-vite-symbol-b3fe91e0,gestao-vite,3,symbol,modeloValido,templateValido,apps/gestao-vite/src/paginas/fluxo/conteudos/regras.ts:128,11,no,,,proposed,codex2,
 gestao-vite-symbol-b43d84ba,gestao-vite,3,symbol,leitura,read,apps/gestao-vite/src/paginas/cadastros/atendentes-filas.tsx:85,251,no,,,proposed,codex2,
@@ -1283,7 +1283,7 @@ gestao-vite-symbol-b93cf8c9,gestao-vite,3,symbol,grupos,groups,apps/gestao-vite/
 gestao-vite-symbol-b94237c8,gestao-vite,3,symbol,daColuna,ofColumn,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts:88,1,no,,,proposed,codex2,
 gestao-vite-symbol-b95dd591,gestao-vite,3,symbol,colarBloco,colarBlock,apps/gestao-vite/src/paginas/builder/modelo.ts:385,7,no,,,proposed,codex2,
 gestao-vite-symbol-b9e13934,gestao-vite,3,symbol,dados,data,apps/gestao-vite/src/paginas/builder.tsx:106,669,no,,,proposed,codex2,
-gestao-vite-symbol-b9e27a3d,gestao-vite,3,symbol,blocoDoTextoCopiado,textoCopiadoBlock,apps/gestao-vite/src/paginas/builder/modelo.ts:373,6,no,,,proposed,codex2,
+gestao-vite-symbol-b9e27a3d,gestao-vite,3,symbol,blocoDoTextoCopiado,copiedTextBlock,apps/gestao-vite/src/paginas/builder/modelo.ts:373,6,no,,,proposed,codex2,"fixed: copiado was missing from the dictionary (left PT), and the two blocoDoTextoCopiado/textoDoBlocoCopiado rows had their nouns swapped"
 gestao-vite-symbol-b9e46fb8,gestao-vite,3,symbol,chaveDaAresta,arestaKey,apps/gestao-vite/src/paginas/builder/canvas.tsx:75,2,no,,,proposed,codex2,
 gestao-vite-symbol-b9fed545,gestao-vite,3,symbol,valor,value,apps/gestao-vite/src/paginas/fluxo/analise/jornada/sankey.ts:83,1656,no,,,proposed,codex2,
 gestao-vite-symbol-ba23a3c6,gestao-vite,3,symbol,atuais,current,apps/gestao-vite/src/paginas/builder/conteudo.ts:166,48,no,,,proposed,codex2,
@@ -1294,7 +1294,7 @@ gestao-vite-symbol-bafd408e,gestao-vite,3,symbol,PedidoDeEdicaoDeFila,RequestOfE
 gestao-vite-symbol-bb023637,gestao-vite,3,symbol,SEGMENTO_DO_CANAL,SEGMENT_OF_CHANNEL,apps/gestao-vite/src/lib/canal-do-fluxo.ts:17,2,no,,,proposed,codex2,
 gestao-vite-symbol-bb0f5c48,gestao-vite,3,symbol,TipoDeContato,ContactTipo,apps/gestao-vite/src/paginas/fluxo/itens.ts:39,2,no,,,proposed,codex2,
 gestao-vite-symbol-bb32fbcf,gestao-vite,3,symbol,leitura,read,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/casca.tsx:59,251,no,,,proposed,codex2,
-gestao-vite-symbol-bb4698d8,gestao-vite,3,symbol,textoDoBlocoCopiado,blockCopiadoTexto,apps/gestao-vite/src/paginas/builder/modelo.ts:369,5,no,,,proposed,codex2,
+gestao-vite-symbol-bb4698d8,gestao-vite,3,symbol,textoDoBlocoCopiado,copiedBlockText,apps/gestao-vite/src/paginas/builder/modelo.ts:369,5,no,,,proposed,codex2,"fixed: copiado was missing from the dictionary (left PT), and the two blocoDoTextoCopiado/textoDoBlocoCopiado rows had their nouns swapped"
 gestao-vite-symbol-bb5fc06f,gestao-vite,3,symbol,periodoAtual,periodCurrent,apps/gestao-vite/src/lib/periodos.ts:41,9,no,,,proposed,codex2,
 gestao-vite-symbol-bb72931e,gestao-vite,3,symbol,cartao,card,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/miolo.tsx:354,46,no,,,proposed,codex2,
 gestao-vite-symbol-bbef093f,gestao-vite,3,symbol,leitura,read,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/pagina.tsx:15,251,no,,,proposed,codex2,
@@ -1515,7 +1515,7 @@ gestao-vite-symbol-e826017e,gestao-vite,3,symbol,coluna,column,apps/gestao-vite/
 gestao-vite-symbol-e949e855,gestao-vite,3,symbol,ErroDaApi,ApiError,apps/gestao-vite/src/lib/api.ts:24,43,no,,,proposed,codex2,
 gestao-vite-symbol-e9691e44,gestao-vite,3,symbol,prefixoCerto,prefixCerto,apps/gestao-vite/src/paginas/fluxo/contato.tsx:70,3,no,,,proposed,codex2,
 gestao-vite-symbol-e974f907,gestao-vite,3,symbol,Monitoramento,Monitoring,apps/gestao-vite/src/lib/monitoramento.ts:101,62,no,,,proposed,codex2,
-gestao-vite-symbol-e99357b6,gestao-vite,3,symbol,lerAlvosDeMembro,memberLerAlvos,apps/gestao-vite/src/paginas/contrato/catalogo.ts:243,5,no,,,proposed,codex2,
+gestao-vite-symbol-e99357b6,gestao-vite,3,symbol,lerAlvosDeMembro,readMemberTargets,apps/gestao-vite/src/paginas/contrato/catalogo.ts:243,5,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 gestao-vite-symbol-ea00af09,gestao-vite,3,symbol,CartaoHistorico,CardHistory,apps/gestao-vite/src/componentes/lista-historico.tsx:21,15,no,,,proposed,codex2,
 gestao-vite-symbol-ea824025,gestao-vite,3,symbol,CredenciaisDoCadastro,RegistrationCredentials,apps/gestao-vite/src/paginas/implantacao/acoes.ts:26,2,no,,,proposed,codex2,
 gestao-vite-symbol-ea94f6f2,gestao-vite,3,symbol,PaginaSatisfacao,PageSatisfaction,apps/gestao-vite/src/paginas/operacao/relatorios-satisfacao.tsx:87,3,no,,,proposed,codex2,
@@ -1633,7 +1633,7 @@ gestao-vite-symbol-fd5c4a65,gestao-vite,3,symbol,permissaoExigida,permissionExig
 gestao-vite-symbol-fd65b66b,gestao-vite,3,symbol,situacao,situation,apps/gestao-vite/src/paginas/fluxo/canais/instagram/pagina.tsx:44,42,no,,,proposed,codex2,
 gestao-vite-symbol-fe051517,gestao-vite,3,symbol,ordem,order,apps/gestao-vite/src/paginas/builder/painel-conteudo.tsx:250,517,no,,,proposed,codex2,
 gestao-vite-symbol-fe0b6ed6,gestao-vite,3,symbol,irParaPermissoes,irForPermissions,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx:79,3,no,,,proposed,codex2,
-gestao-vite-symbol-fe1cb127,gestao-vite,3,symbol,lerImagem,lerImage,apps/gestao-vite/src/paginas/criar/gravar.ts:39,4,no,,,proposed,codex2,
+gestao-vite-symbol-fe1cb127,gestao-vite,3,symbol,lerImagem,readImage,apps/gestao-vite/src/paginas/criar/gravar.ts:39,4,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 gestao-vite-symbol-fe28a3c8,gestao-vite,3,symbol,por,by,apps/gestao-vite/src/paginas/operacao/historico.tsx:144,2747,no,,,proposed,codex2,
 gestao-vite-symbol-fe36baa7,gestao-vite,3,symbol,nomeDaFila,queueName,apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:207,7,no,,,proposed,codex2,
 gestao-vite-symbol-feb35190,gestao-vite,3,symbol,criarFluxo,createFlow,apps/gestao-vite/src/paginas/criar/fluxo/acoes.ts:20,15,no,,,proposed,codex2,
@@ -1872,7 +1872,7 @@ gestao-vite-ts-local-0d6db8c5,gestao-vite,3,ts-local,setGeracao,setGeneration,ap
 gestao-vite-ts-local-0d89e3d7,gestao-vite,3,ts-local,valor,value,apps/gestao-vite/src/paginas/minha-conta/regras.ts:123,1656,no,,,proposed,codex2,
 gestao-vite-ts-local-0d8a2051,gestao-vite,3,ts-local,definirAtiva,definirActive,apps/gestao-vite/src/paginas/contrato/membros/convidar.tsx:72,8,no,,,proposed,codex2,
 gestao-vite-ts-local-0d9e8ed3,gestao-vite,3,ts-local,bloco,block,apps/gestao-vite/src/paginas/builder/modelo.ts:321,665,no,,,proposed,codex2,
-gestao-vite-ts-local-0e095aa0,gestao-vite,3,ts-local,setTextoDaBusca,searchSetTexto,apps/gestao-vite/src/paginas/fluxo/servicos/tela.tsx:56,4,no,,,proposed,codex2,
+gestao-vite-ts-local-0e095aa0,gestao-vite,3,ts-local,setTextoDaBusca,searchSetText,apps/gestao-vite/src/paginas/fluxo/servicos/tela.tsx:56,4,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 gestao-vite-ts-local-0e32c984,gestao-vite,3,ts-local,chave,key,apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:175,1153,no,,,proposed,codex2,
 gestao-vite-ts-local-0e5c7c1d,gestao-vite,3,ts-local,posicao,position,apps/gestao-vite/src/paginas/builder/modelo.ts:331,84,no,,,proposed,codex2,
 gestao-vite-ts-local-0e8073e2,gestao-vite,3,ts-local,contato,contact,apps/gestao-vite/src/paginas/fluxo/canais/casca-do-canal.tsx:54,1026,no,,,proposed,codex2,
@@ -1984,7 +1984,7 @@ gestao-vite-ts-local-234f9de2,gestao-vite,3,ts-local,contato,contact,apps/gestao
 gestao-vite-ts-local-2377896b,gestao-vite,3,ts-local,bloco,block,apps/gestao-vite/src/paginas/builder/modelo.ts:404,665,no,,,proposed,codex2,
 gestao-vite-ts-local-238bb49e,gestao-vite,3,ts-local,bloco,block,apps/gestao-vite/src/paginas/builder/conteudo.ts:232,665,no,,,proposed,codex2,
 gestao-vite-ts-local-23c26d27,gestao-vite,3,ts-local,valor,value,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx:192,1656,no,,,proposed,codex2,
-gestao-vite-ts-local-23ca4f73,gestao-vite,3,ts-local,textoBusca,textoSearch,apps/gestao-vite/src/paginas/portal.tsx:303,3,no,,,proposed,codex2,
+gestao-vite-ts-local-23ca4f73,gestao-vite,3,ts-local,textoBusca,textSearch,apps/gestao-vite/src/paginas/portal.tsx:303,3,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 gestao-vite-ts-local-241bfe1e,gestao-vite,3,ts-local,setCriar,setCreate,apps/gestao-vite/src/paginas/fluxo/growth/links-rastreados/links-rastreados.tsx:121,10,no,,,proposed,codex2,
 gestao-vite-ts-local-24395509,gestao-vite,3,ts-local,quantidade,quantity,apps/gestao-vite/src/lib/atendentes.ts:77,63,no,,,proposed,codex2,
 gestao-vite-ts-local-246982be,gestao-vite,3,ts-local,estado,state,apps/gestao-vite/src/paginas/builder/editor.tsx:44,1269,no,,,proposed,codex2,
@@ -2203,7 +2203,7 @@ gestao-vite-ts-local-5a916b9a,gestao-vite,3,ts-local,variaveisAberto,variablesAb
 gestao-vite-ts-local-5ab19051,gestao-vite,3,ts-local,descricao,description,apps/gestao-vite/src/paginas/fluxo/configuracoes/pecas.tsx:17,299,no,,,proposed,codex2,
 gestao-vite-ts-local-5abd59d9,gestao-vite,3,ts-local,valor,value,apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:240,1656,no,,,proposed,codex2,
 gestao-vite-ts-local-5adb35ee,gestao-vite,3,ts-local,globais,global,apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx:46,134,no,,,proposed,codex2,
-gestao-vite-ts-local-5b02ad53,gestao-vite,3,ts-local,blocoCopiado,blockCopiado,apps/gestao-vite/src/paginas/builder/canvas.tsx:104,2,no,,,proposed,codex2,
+gestao-vite-ts-local-5b02ad53,gestao-vite,3,ts-local,blocoCopiado,copiedBlock,apps/gestao-vite/src/paginas/builder/canvas.tsx:104,2,no,,,proposed,codex2,fixed: copiado was missing from the dictionary (left PT)
 gestao-vite-ts-local-5b5da132,gestao-vite,3,ts-local,variaveis,variables,apps/gestao-vite/src/paginas/builder/variaveis.ts:91,134,no,,,proposed,codex2,
 gestao-vite-ts-local-5b9c97e7,gestao-vite,3,ts-local,setFilaId,setQueueId,apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx:65,6,no,,,proposed,codex2,
 gestao-vite-ts-local-5bae8dac,gestao-vite,3,ts-local,botoes,buttons,apps/gestao-vite/src/paginas/fluxo/conteudos/tela.tsx:735,24,no,,,proposed,codex2,
@@ -2373,7 +2373,7 @@ gestao-vite-ts-local-834f0126,gestao-vite,3,ts-local,cartao,card,apps/gestao-vit
 gestao-vite-ts-local-838d26d2,gestao-vite,3,ts-local,dados,data,apps/gestao-vite/src/paginas/fluxo/servicos/tela.tsx:40,669,no,,,proposed,codex2,
 gestao-vite-ts-local-840bd34e,gestao-vite,3,ts-local,busca,search,apps/gestao-vite/src/componentes/selecao-chips.tsx:21,420,no,,,proposed,codex2,
 gestao-vite-ts-local-846e62f3,gestao-vite,3,ts-local,filaId,queueId,apps/gestao-vite/src/lib/regras-prioridade.ts:36,170,no,,,proposed,codex2,
-gestao-vite-ts-local-84aab8d5,gestao-vite,3,ts-local,textoDaBusca,searchTexto,apps/gestao-vite/src/paginas/fluxo/servicos/tela.tsx:56,3,no,,,proposed,codex2,
+gestao-vite-ts-local-84aab8d5,gestao-vite,3,ts-local,textoDaBusca,searchText,apps/gestao-vite/src/paginas/fluxo/servicos/tela.tsx:56,3,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 gestao-vite-ts-local-84c6aeb8,gestao-vite,3,ts-local,erro,error,apps/gestao-vite/src/lib/canais-gravar.ts:194,1478,no,,,proposed,codex2,
 gestao-vite-ts-local-8549dccf,gestao-vite,3,ts-local,buscaAberta,searchAberta,apps/gestao-vite/src/paginas/portal.tsx:302,5,no,,,proposed,codex2,
 gestao-vite-ts-local-8557211d,gestao-vite,3,ts-local,contato,contact,apps/gestao-vite/src/paginas/fluxo/growth/casca.tsx:7,1026,no,,,proposed,codex2,
@@ -2469,7 +2469,7 @@ gestao-vite-ts-local-9c5b6acd,gestao-vite,3,ts-local,setPainelAberto,setPanelAbe
 gestao-vite-ts-local-9c95f6ed,gestao-vite,3,ts-local,abrirBusca,abrirSearch,apps/gestao-vite/src/paginas/contrato/membros/tabela.tsx:106,6,no,,,proposed,codex2,
 gestao-vite-ts-local-9c9927f4,gestao-vite,3,ts-local,opcao,option,apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:258,22,no,,,proposed,codex2,
 gestao-vite-ts-local-9ccd3c9b,gestao-vite,3,ts-local,valor,value,apps/gestao-vite/src/paginas/builder/condicoes.ts:111,1656,no,,,proposed,codex2,
-gestao-vite-ts-local-9ce4c39f,gestao-vite,3,ts-local,setBlocoCopiado,setBlockCopiado,apps/gestao-vite/src/paginas/builder/canvas.tsx:104,2,no,,,proposed,codex2,
+gestao-vite-ts-local-9ce4c39f,gestao-vite,3,ts-local,setBlocoCopiado,setCopiedBlock,apps/gestao-vite/src/paginas/builder/canvas.tsx:104,2,no,,,proposed,codex2,fixed: copiado was missing from the dictionary (left PT)
 gestao-vite-ts-local-9cf01e85,gestao-vite,3,ts-local,canal,channel,apps/gestao-vite/src/lib/canal-do-fluxo.ts:40,970,no,,,proposed,codex2,
 gestao-vite-ts-local-9d2222d0,gestao-vite,3,ts-local,servico,service,apps/gestao-vite/src/paginas/fluxo/servicos/tela.tsx:144,17,no,,,proposed,codex2,
 gestao-vite-ts-local-9d294aae,gestao-vite,3,ts-local,fluxoId,flowId,apps/gestao-vite/src/paginas/fluxo/canais/conexao.tsx:69,504,no,,,proposed,codex2,
@@ -2846,7 +2846,7 @@ gestao-vite-ts-local-f7e55d18,gestao-vite,3,ts-local,setErro,setError,apps/gesta
 gestao-vite-ts-local-f849a827,gestao-vite,3,ts-local,dados,data,apps/gestao-vite/src/paginas/builder/use-editor.ts:34,669,no,,,proposed,codex2,
 gestao-vite-ts-local-f89775c8,gestao-vite,3,ts-local,fluxoId,flowId,apps/gestao-vite/src/paginas/builder/use-editor.ts:50,504,no,,,proposed,codex2,
 gestao-vite-ts-local-f8eb10a5,gestao-vite,3,ts-local,valor,value,apps/gestao-vite/src/paginas/operacao/historico.tsx:85,1656,no,,,proposed,codex2,
-gestao-vite-ts-local-f924b6b0,gestao-vite,3,ts-local,setTextoBusca,setTextoSearch,apps/gestao-vite/src/paginas/portal.tsx:303,2,no,,,proposed,codex2,
+gestao-vite-ts-local-f924b6b0,gestao-vite,3,ts-local,setTextoBusca,setTextSearch,apps/gestao-vite/src/paginas/portal.tsx:303,2,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 gestao-vite-ts-local-f957770a,gestao-vite,3,ts-local,valores,values,apps/gestao-vite/src/paginas/contrato/catalogo.ts:243,140,no,,,proposed,codex2,
 gestao-vite-ts-local-f9b608b0,gestao-vite,3,ts-local,tempoReal,realTime,apps/gestao-vite/src/paginas/operacao/monitoramento.tsx:315,5,no,,,proposed,codex2,
 gestao-vite-ts-local-f9ea3411,gestao-vite,3,ts-local,chave,key,apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx:175,1153,no,,,proposed,codex2,

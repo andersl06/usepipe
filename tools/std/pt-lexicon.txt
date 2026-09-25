@@ -24,8 +24,10 @@ cartao
 casca
 chave
 coluna
+como
 componente
 componentes
+copiado
 compositor
 construtor
 construir
@@ -85,6 +87,7 @@ intervalo
 intervalos
 janela
 leitura
+ler
 limite
 limites
 massa
@@ -122,6 +125,7 @@ relatorio
 relatorios
 renovacao
 requisicao
+resultado
 restaurar
 retorno
 roteador
@@ -131,11 +135,13 @@ segredos
 semear
 semente
 servico
+servir
 sessao
 subir
 tempo
 teste
 testes
+texto
 trilho
 trocar
 usuario

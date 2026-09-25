@@ -231,7 +231,7 @@ crm-symbol-835aa87d,crm,3,symbol,condicoes,conditions,apps/crm/src/lib/leads.ts:
 crm-symbol-83ce721e,crm,3,symbol,busca,search,apps/crm/src/app/leads/page.tsx:51,420,no,,,proposed,codex2,
 crm-symbol-85202475,crm,3,symbol,BarraEmMassa,BarraInBulk,apps/crm/src/componentes/lista-de-leads.tsx:652,2,no,,,proposed,codex2,
 crm-symbol-85cd584e,crm,3,symbol,busca,search,apps/crm/src/app/oportunidades/page.tsx:96,420,no,,,proposed,codex2,
-crm-symbol-85d095cf,crm,3,symbol,condicaoEmTexto,conditionInTexto,apps/crm/src/lib/regras.ts:120,4,no,,,proposed,codex2,
+crm-symbol-85d095cf,crm,3,symbol,condicaoEmTexto,conditionInText,apps/crm/src/lib/regras.ts:120,4,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 crm-symbol-85f31c79,crm,3,symbol,conversas,conversations,apps/crm/src/lib/contatos.ts:162,540,no,,,proposed,codex2,
 crm-symbol-876c1d13,crm,3,symbol,RESUMOS_ATENDIMENTO,SUMMARIES_ATTENDANCE,apps/crm/semente/semente-crm.ts:324,2,no,,,proposed,codex2,
 crm-symbol-87ed277c,crm,3,symbol,Ordem,Order,apps/crm/src/lib/leads-visao.ts:162,34,no,,,proposed,codex2,
@@ -333,12 +333,12 @@ crm-symbol-d17d962b,crm,3,symbol,valor,value,apps/crm/src/lib/regras.ts:130,1656
 crm-symbol-d183adac,crm,3,symbol,ChaveDeFiltro,FilterKey,apps/crm/src/lib/leads-visao.ts:198,11,no,,,proposed,codex2,
 crm-symbol-d2a100c7,crm,3,symbol,contas,accounts,apps/crm/src/lib/busca.ts:59,85,no,,,proposed,codex2,
 crm-symbol-d3a2eb13,crm,3,symbol,COOKIE_SESSAO,COOKIE_SESSION,apps/crm/src/lib/sessao.ts:48,9,no,,,proposed,codex2,
-crm-symbol-d3c5bd3d,crm,3,symbol,lerFiltros,lerFilters,apps/crm/src/lib/leads-visao.ts:217,9,no,,,proposed,codex2,
+crm-symbol-d3c5bd3d,crm,3,symbol,lerFiltros,readFilters,apps/crm/src/lib/leads-visao.ts:217,9,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 crm-symbol-d4fca273,crm,3,symbol,CabecalhoDaSecao,SectionHeader,apps/crm/src/componentes/configuracoes/cabecalho.tsx:128,19,no,,,proposed,codex2,
 crm-symbol-d678cd4d,crm,3,symbol,POR_OBJETO,BY_OBJETO,apps/crm/src/lib/busca.ts:26,5,no,,,proposed,codex2,
 crm-symbol-d68b2580,crm,3,symbol,AbaOportunidade,AbaOpportunity,apps/crm/src/app/oportunidades/[id]/page.tsx:38,3,no,,,proposed,codex2,
 crm-symbol-d7bcd692,crm,3,symbol,inteiro,entire,apps/crm/semente/semente-crm.ts:71,183,no,,,proposed,codex2,
-crm-symbol-d9bdafe9,crm,3,symbol,ResultadoEmMassa,ResultadoInBulk,apps/crm/src/app/leads/acoes.ts:28,3,no,,,proposed,codex2,
+crm-symbol-d9bdafe9,crm,3,symbol,ResultadoEmMassa,ResultInBulk,apps/crm/src/app/leads/acoes.ts:28,3,no,,,proposed,codex2,fixed: resultado was missing from the dictionary (left PT)
 crm-symbol-da6362c8,crm,3,symbol,PaginaContatos,PageContacts,apps/crm/src/app/contatos/page.tsx:59,5,no,,,proposed,codex2,
 crm-symbol-db96fe5b,crm,3,symbol,desqualificarEmMassa,desqualificarInBulk,apps/crm/src/app/leads/acoes.ts:58,3,no,,,proposed,codex2,
 crm-symbol-dcd2ab2e,crm,3,symbol,valor,value,apps/crm/src/app/configuracoes/acoes.ts:58,1656,no,,,proposed,codex2,
@@ -357,7 +357,7 @@ crm-symbol-e509d36f,crm,3,symbol,PaginaConfiguracoes,PageSettings,apps/crm/src/a
 crm-symbol-e52c59c9,crm,3,symbol,CATALOGO_DE_ESCOPOS,CATALOGO_OF_SCOPES,apps/crm/src/lib/configuracoes-comum.ts:161,3,no,,,proposed,codex2,
 crm-symbol-e7d7b813,crm,3,symbol,membros,members,apps/crm/src/app/configuracoes/membros/page.tsx:137,128,no,,,proposed,codex2,
 crm-symbol-e8504155,crm,3,symbol,PaginaFaixas,PageTiers,apps/crm/src/app/configuracoes/faixas/page.tsx:28,1,no,,,proposed,codex2,
-crm-symbol-e91d1f55,crm,3,symbol,lerPapel,lerRole,apps/crm/src/lib/configuracoes-dados.ts:539,3,no,,,proposed,codex2,
+crm-symbol-e91d1f55,crm,3,symbol,lerPapel,readRole,apps/crm/src/lib/configuracoes-dados.ts:539,3,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 crm-symbol-ea333a4d,crm,3,symbol,PaginaMembros,PageMembers,apps/crm/src/app/configuracoes/membros/page.tsx:132,1,no,,,proposed,codex2,
 crm-symbol-eab3b11d,crm,3,symbol,GRUPOS,GROUPS,apps/crm/src/componentes/configuracoes/cabecalho.tsx:26,6,no,,,proposed,codex2,
 crm-symbol-eb5c50f0,crm,3,symbol,papel,role,apps/crm/src/app/configuracoes/papeis/[id]/page.tsx:58,521,no,,,proposed,codex2,
@@ -583,7 +583,7 @@ crm-ts-local-ffb2694a,crm,3,ts-local,secao,section,apps/crm/src/componentes/estr
 crm-ts-prop-056d5a86,crm,3,ts-prop,valor,value,apps/crm/src/componentes/celula-inline.tsx:42,1656,no,,,proposed,codex2,
 crm-ts-prop-0679b05d,crm,3,ts-prop,contaNome,accountName,apps/crm/src/lib/contatos.ts:35,14,no,,,proposed,codex2,
 crm-ts-prop-070180ba,crm,3,ts-prop,atendente,agent,apps/crm/src/lib/contatos.ts:103,768,no,,,proposed,codex2,
-crm-ts-prop-074f154d,crm,3,ts-prop,valorTexto,valueTexto,apps/crm/src/lib/leads.ts:418,10,no,,,proposed,codex2,
+crm-ts-prop-074f154d,crm,3,ts-prop,valorTexto,valueText,apps/crm/src/lib/leads.ts:418,10,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 crm-ts-prop-087c6c99,crm,3,ts-prop,valor,value,apps/crm/src/lib/contas.ts:111,1656,no,,,proposed,codex2,
 crm-ts-prop-1237cb89,crm,3,ts-prop,prefixo,prefix,apps/crm/src/lib/configuracoes-comum.ts:294,89,no,,,proposed,codex2,
 crm-ts-prop-150a12ed,crm,3,ts-prop,chave,key,apps/crm/src/lib/configuracoes-dados.ts:719,1153,no,,,proposed,codex2,
@@ -662,7 +662,7 @@ crm-ts-prop-96adc8cf,crm,3,ts-prop,oportunidadesAbertas,opportunitiesAbertas,app
 crm-ts-prop-971485be,crm,3,ts-prop,documento,document,apps/crm/src/lib/contatos.ts:116,217,no,,,proposed,codex2,
 crm-ts-prop-97c1b894,crm,3,ts-prop,oportunidades,opportunities,apps/crm/src/lib/contas.ts:28,53,no,,,proposed,codex2,
 crm-ts-prop-983ce2a6,crm,3,ts-prop,convidadoPor,convidadoBy,apps/crm/src/lib/configuracoes-comum.ts:258,4,no,,,proposed,codex2,
-crm-ts-prop-98ccbf83,crm,3,ts-prop,valorTexto,valueTexto,apps/crm/semente/semente-crm.ts:934,10,no,,,proposed,codex2,
+crm-ts-prop-98ccbf83,crm,3,ts-prop,valorTexto,valueText,apps/crm/semente/semente-crm.ts:934,10,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 crm-ts-prop-99e1453a,crm,3,ts-prop,aoRestaurar,toRestore,apps/crm/src/componentes/colunas.tsx:172,6,no,,,proposed,codex2,
 crm-ts-prop-9abc5c06,crm,3,ts-prop,linhaDoTempo,timeLinha,apps/crm/src/lib/leads.ts:413,6,no,,,proposed,codex2,
 crm-ts-prop-9afd198d,crm,3,ts-prop,vazio,empty,apps/crm/src/componentes/ficha.tsx:176,290,no,,,proposed,codex2,

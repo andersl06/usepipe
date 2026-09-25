@@ -17,7 +17,7 @@ packages-armazenamento-symbol-c1a4af2b,packages-armazenamento,1,symbol,MAX_BYTES
 packages-armazenamento-symbol-e22418b6,packages-armazenamento,1,symbol,MIMES_ARQUIVO,MIME_TYPES_FILE,packages/armazenamento/src/limites.ts:57,4,no,,,proposed,codex1,
 packages-armazenamento-symbol-0e3c8b4b,packages-armazenamento,1,symbol,MIMES_IMAGEM,MIME_TYPES_IMAGE,packages/armazenamento/src/limites.ts:44,2,no,,,proposed,codex1,
 packages-armazenamento-symbol-88471a73,packages-armazenamento,1,symbol,SEGREDO,SECRET,packages/armazenamento/tests/armazenamento.test.ts:21,18,no,,,proposed,codex1,
-packages-armazenamento-symbol-399b37d3,packages-armazenamento,1,symbol,servirComoAnexo,servirAsAttachment,packages/armazenamento/src/tipo-real.ts:69,9,no,,,proposed,codex1,
+packages-armazenamento-symbol-399b37d3,packages-armazenamento,1,symbol,servirComoAnexo,serveAsAttachment,packages/armazenamento/src/tipo-real.ts:69,9,no,,,proposed,codex1,"fixed: servir was missing from the dictionary (left PT)"
 packages-armazenamento-symbol-ee2ed949,packages-armazenamento,1,symbol,VALIDADE_LINK_MS,VALIDITY_LINK_MS,packages/armazenamento/src/limites.ts:41,4,no,,,proposed,codex1,
 packages-armazenamento-test-title-20d96e21,packages-armazenamento,1,test-title,"a chave começa pelo tenant, sempre","a key começa by tenant, always",packages/armazenamento/tests/armazenamento.test.ts:99,0,no,,,proposed,codex1,
 packages-armazenamento-test-title-dc9da8ad,packages-armazenamento,1,test-title,aceita a assinatura certa dentro da validade,accepts a signature correct inside of validity,packages/armazenamento/tests/armazenamento.test.ts:126,0,no,,,proposed,codex1,

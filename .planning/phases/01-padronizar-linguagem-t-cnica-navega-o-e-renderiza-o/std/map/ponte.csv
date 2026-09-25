@@ -11,9 +11,9 @@ ponte-file-cd34f5de,ponte,2,file,fluxo-padrao.test.ts,apps/bridge/tests/flow-def
 ponte-file-f0f4b97d,ponte,2,file,banco.ts,apps/bridge/src/database.ts,apps/ponte/src/banco.ts,12,no,,,proposed,codex2,
 ponte-package-07e56c71,ponte,4,package,@pipe/ponte,@pipe/bridge,apps/ponte/package.json:1,0,no,,D-04,proposed,codex2,
 ponte-symbol-0209700e,ponte,2,symbol,STATUS_ATENDENTE_BLIP,STATUS_AGENT_BLIP,apps/ponte/src/traducao.ts:38,3,no,,,proposed,codex2,
-ponte-symbol-037ecf6d,ponte,2,symbol,comoDocumento,comoDocument,apps/ponte/src/traducao.ts:166,12,no,,,proposed,codex2,
-ponte-symbol-0395ce55,ponte,2,symbol,comoDocumentos,comoDocuments,apps/ponte/src/traducao.ts:184,5,no,,,proposed,codex2,
-ponte-symbol-0ba5c987,ponte,2,symbol,comoConta,comoAccount,apps/ponte/src/traducao.ts:198,9,no,,,proposed,codex2,
+ponte-symbol-037ecf6d,ponte,2,symbol,comoDocumento,asDocument,apps/ponte/src/traducao.ts:166,12,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
+ponte-symbol-0395ce55,ponte,2,symbol,comoDocumentos,asDocuments,apps/ponte/src/traducao.ts:184,5,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
+ponte-symbol-0ba5c987,ponte,2,symbol,comoConta,asAccount,apps/ponte/src/traducao.ts:198,9,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 ponte-symbol-0c5e73f0,ponte,2,symbol,ROTA_ACOES_GLOBAIS,ROTA_ACTIONS_GLOBAL,apps/ponte/src/rotas.ts:95,2,no,,,proposed,codex2,
 ponte-symbol-130d70cd,ponte,2,symbol,dados,data,apps/ponte/src/rotas.ts:183,669,no,,,proposed,codex2,
 ponte-symbol-1d3f41b9,ponte,2,symbol,STATUS_POR_ESTADO,STATUS_BY_STATE,apps/ponte/src/traducao.ts:13,3,no,,,proposed,codex2,
@@ -68,7 +68,7 @@ ponte-symbol-d626ba3f,ponte,2,symbol,identidade,identity,apps/ponte/src/traducao
 ponte-symbol-d81decdd,ponte,2,symbol,LinhaAtendente,LinhaAgent,apps/ponte/src/traducao.ts:188,5,no,,,proposed,codex2,
 ponte-symbol-e77abe03,ponte,2,symbol,bancoApp,databaseApp,apps/ponte/src/banco.ts:20,29,no,,,proposed,codex2,
 ponte-symbol-f3430da4,ponte,2,symbol,globais,global,apps/ponte/src/rotas.ts:353,134,no,,,proposed,codex2,
-ponte-symbol-fddc8eca,ponte,2,symbol,ResultadoDaGravacao,RecordingResultado,apps/ponte/src/builder.ts:110,2,no,,,proposed,codex2,
+ponte-symbol-fddc8eca,ponte,2,symbol,ResultadoDaGravacao,RecordingResult,apps/ponte/src/builder.ts:110,2,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 ponte-test-title-0da8a580,ponte,2,test-title,na fila vira Waiting; em atendimento vira Open; encerrada vira Closed,queued becomes Waiting; in attendance becomes Open; closed becomes Closed,apps/ponte/tests/traducao.test.ts:43,0,no,,,proposed,codex2,
 ponte-test-title-3263fc9b,ponte,2,test-title,"sem atendente, `agentIdentity` é nulo — e não uma identidade inventada","without an agent, `agentIdentity` is null — not a made-up identity",apps/ponte/tests/traducao.test.ts:67,0,no,,,proposed,codex2,
 ponte-test-title-33e8e896,ponte,2,test-title,fluxo padrão do Builder,Builder's default flow,apps/ponte/tests/fluxo-padrao.test.ts:13,0,no,,,proposed,codex2,
@@ -153,7 +153,7 @@ ponte-ts-prop-c0bec6ce,ponte,2,ts-prop,contato_telefone,contactTelefone,apps/pon
 ponte-ts-prop-c2c85740,ponte,2,ts-prop,dentroDaJanela,windowDentro,apps/ponte/src/acoes.ts:77,30,no,,,proposed,codex2,
 ponte-ts-prop-e8a6914f,ponte,2,ts-prop,sessao,session,apps/ponte/src/rotas.ts:32,382,no,,,proposed,sonnet,cx/merge-01-11: same as sessao->session elsewhere in ponte (01-11 dictionary)
 ponte-ts-prop-f121fc15,ponte,2,ts-prop,conversaId,conversationId,apps/ponte/src/rotas.ts:168,523,no,,,proposed,codex2,
-ponte-ts-prop-f514aa82,ponte,2,ts-prop,ultima_mensagem_texto,ultimaMessageTexto,apps/ponte/src/traducao.ts:64,3,no,,,proposed,codex2,
+ponte-ts-prop-f514aa82,ponte,2,ts-prop,ultima_mensagem_texto,lastMessageText,apps/ponte/src/traducao.ts:64,3,no,,,proposed,codex2,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 ponte-ts-prop-f56e9416,ponte,2,ts-prop,contato_id,contactId,apps/ponte/src/traducao.ts:59,113,no,,,proposed,codex2,
 ponte-ts-prop-faa22d20,ponte,2,ts-prop,prioridade,priority,apps/ponte/src/traducao.ts:48,146,no,,,proposed,codex2,
 ponte-ts-prop-a83bf924,ponte,2,ts-prop,caminho,path,apps/ponte/src/rotas.ts:33,1,no,,,proposed,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"

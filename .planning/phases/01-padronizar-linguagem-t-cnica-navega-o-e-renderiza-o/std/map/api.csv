@@ -715,7 +715,7 @@ api-symbol-0df39766,api,2,symbol,emAndamento,inProgress,apps/api/tests/builder-p
 api-symbol-0df6f8fb,api,2,symbol,enfileirarEspelhoCrm,enfileirarMirrorCrm,apps/api/src/filas.ts:147,8,no,,,proposed,codex1,
 api-symbol-0e694c58,api,2,symbol,EstadoDoPasso,StateOfPasso,apps/api/src/dominio/gestao/passos-da-implantacao.ts:38,7,no,,,proposed,codex1,
 api-symbol-0e6e46c1,api,2,symbol,CanalMessengerVisivel,ChannelMessengerVisible,apps/api/src/dominio/messenger/canal.ts:12,14,no,,,proposed,codex1,
-api-symbol-0e6fa726,api,2,symbol,lerCanalVisivel,lerChannelVisible,apps/api/src/dominio/canais.ts:121,4,no,,,proposed,codex1,
+api-symbol-0e6fa726,api,2,symbol,lerCanalVisivel,readChannelVisible,apps/api/src/dominio/canais.ts:121,4,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-0e91cb21,api,2,symbol,pagina,page,apps/api/src/dominio/gestao-analise.ts:508,89,no,,,proposed,codex1,
 api-symbol-0ea70786,api,2,symbol,fluxo,flow,apps/api/tests/equipe-do-fluxo.test.ts:358,1172,no,,,proposed,codex1,
 api-symbol-0eea6a8f,api,2,symbol,primeiro,first,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:164,258,no,,,proposed,codex1,
@@ -782,7 +782,7 @@ api-symbol-163090f5,api,2,symbol,usuarioId,userId,apps/api/src/dominio/convites.
 api-symbol-1635e1b0,api,2,symbol,sessaoAdmin,sessionAdmin,apps/api/tests/convites.test.ts:49,15,no,,,proposed,codex1,
 api-symbol-1636c5db,api,2,symbol,comoErro,asError,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:60,6,no,,,proposed,codex1,
 api-symbol-1688546f,api,2,symbol,hashDoSegredo,hashOfSecret,apps/api/src/autenticacao.ts:248,4,no,,,proposed,codex1,
-api-symbol-16c9cbff,api,2,symbol,lerCanalMessenger,lerChannelMessenger,apps/api/src/dominio/messenger/canal.ts:16,8,no,,,proposed,codex1,
+api-symbol-16c9cbff,api,2,symbol,lerCanalMessenger,readChannelMessenger,apps/api/src/dominio/messenger/canal.ts:16,8,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-17139958,api,2,symbol,GuardaChaveApi,ApiKeyGuard,apps/api/src/autenticacao.ts:171,5,no,,D-05,proposed,sonnet,
 api-symbol-17362cfe,api,2,symbol,ativa,active,apps/api/src/dominio/gestao/acoes/configuracoes.ts:102,340,no,,,proposed,codex1,
 api-symbol-174c87c3,api,2,symbol,carregarRelatorios,loadReports,apps/api/src/dominio/gestao-analise.ts:365,3,no,,,proposed,codex1,
@@ -990,7 +990,7 @@ api-symbol-3409b9b2,api,2,symbol,linhaAnexo,lineAttachment,apps/api/tests/midia-
 api-symbol-340ca247,api,2,symbol,CanalConfigurado,ChannelConfigurado,apps/api/src/dominio/gestao/configuracoes.ts:135,7,no,,,proposed,codex1,
 api-symbol-3443f8f3,api,2,symbol,listarItensDaConversa,listarItensOfConversation,apps/api/src/dominio/desk/consultas.ts:197,1,no,,,proposed,codex1,
 api-symbol-34705cd4,api,2,symbol,assumirConversa,assumeConversation,apps/api/src/dominio/assumir.ts:22,4,no,,,proposed,codex1,
-api-symbol-347dda08,api,2,symbol,lerVariaveis,lerVariables,apps/api/src/dominio/gestao-fluxo.ts:404,7,no,,,proposed,codex1,
+api-symbol-347dda08,api,2,symbol,lerVariaveis,readVariables,apps/api/src/dominio/gestao-fluxo.ts:404,7,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-34ccb450,api,2,symbol,contato,contact,apps/api/src/dominio/gestao/configuracao-do-fluxo.ts:213,1026,no,,,proposed,codex1,
 api-symbol-34d1470d,api,2,symbol,ResultadoDaSincronizacao,ResultOfSynchronization,apps/api/src/dominio/whatsapp/modelos.ts:179,8,no,,,proposed,codex1,
 api-symbol-35753d3a,api,2,symbol,cliquesDoPeriodo,cliquesOfPeriod,apps/api/tests/growth.test.ts:208,2,no,,,proposed,codex1,
@@ -1112,7 +1112,7 @@ api-symbol-46c514d1,api,2,symbol,opcoes,options,apps/api/tests/contrato.test.ts:
 api-symbol-47416583,api,2,symbol,comoConversa,asConversation,apps/api/src/controladores/conversas.ts:424,3,no,,,proposed,codex1,
 api-symbol-4750169b,api,2,symbol,primeira,first,apps/api/src/dominio/gestao/configuracoes.ts:313,377,no,,,proposed,codex1,
 api-symbol-475b95b9,api,2,symbol,criarWebhook,createWebhook,apps/api/tests/sla-motor.test.ts:97,13,no,,,proposed,codex1,
-api-symbol-475ec1ba,api,2,symbol,LER_MEMBROS,LER_MEMBERS,apps/api/src/controladores/gestao-conta.ts:50,5,no,,,proposed,codex1,
+api-symbol-475ec1ba,api,2,symbol,LER_MEMBROS,READ_MEMBERS,apps/api/src/controladores/gestao-conta.ts:50,5,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-47b942af,api,2,symbol,ContatoDaLista,ContactOfList,apps/api/src/dominio/desk/consultas.ts:504,11,no,,,proposed,codex1,
 api-symbol-47c0fab5,api,2,symbol,criarFila,createQueue,apps/api/src/dominio/gestao/cadastros.ts:1279,26,no,,,proposed,codex1,
 api-symbol-47d58594,api,2,symbol,mensagem,message,apps/api/src/controladores/sso.ts:233,1267,no,,,proposed,codex1,
@@ -1266,7 +1266,7 @@ api-symbol-5c817cb6,api,2,symbol,filas,queues,apps/api/src/dominio/gestao/cadast
 api-symbol-5cb4d610,api,2,symbol,carregarFilas,loadQueues,apps/api/src/dominio/gestao/cadastros.ts:96,1,no,,,proposed,codex1,
 api-symbol-5ce728e2,api,2,symbol,ControladorGestaoAnalise,ManagementAnalyticsController,apps/api/src/controladores/gestao-analise.ts:105,3,no,,D-05,proposed,sonnet,
 api-symbol-5d0c6519,api,2,symbol,carregarMembros,loadMembers,apps/api/src/dominio/gestao/contrato.ts:142,3,no,,,proposed,codex1,
-api-symbol-5d6e9dae,api,2,symbol,AnexoParaServir,AttachmentForServir,apps/api/src/dominio/anexo.ts:152,2,no,,,proposed,codex1,
+api-symbol-5d6e9dae,api,2,symbol,AnexoParaServir,AttachmentForServe,apps/api/src/dominio/anexo.ts:152,2,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-5d751cb9,api,2,symbol,filasDoAtendente,queuesOfAgent,apps/api/src/dominio/distribuicao.ts:80,4,no,,,proposed,codex1,
 api-symbol-5d99753c,api,2,symbol,contrato,contract,apps/api/tests/anexos-multiplos.test.ts:154,324,no,,,proposed,codex1,
 api-symbol-5db5a672,api,2,symbol,PedidoDeEdicaoDeRegraFila,RequestOfEditOfRuleQueue,apps/api/src/dominio/gestao/cadastros.ts:903,5,no,,,proposed,codex1,
@@ -1394,7 +1394,7 @@ api-symbol-7157f503,api,2,symbol,dispararMensagemAtiva,dispararMessageActive,app
 api-symbol-715973d2,api,2,symbol,escopoConferido,scopeConferido,apps/api/src/dominio/gestao/regras-prioridade.ts:107,6,no,,,proposed,codex1,
 api-symbol-71850096,api,2,symbol,carregarCanais,loadChannels,apps/api/src/dominio/gestao/configuracoes.ts:193,1,no,,,proposed,codex1,
 api-symbol-71bab133,api,2,symbol,PedidoDePreferencias,RequestOfPreferences,apps/api/src/dominio/whatsapp/preferencias.ts:44,8,no,,,proposed,codex1,
-api-symbol-71f7c3d7,api,2,symbol,lerOrdenacao,lerSorting,apps/api/src/paginacao.ts:72,8,no,,,proposed,codex1,
+api-symbol-71f7c3d7,api,2,symbol,lerOrdenacao,readSorting,apps/api/src/paginacao.ts:72,8,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-721d288d,api,2,symbol,canal,channel,apps/api/src/dominio/gestao/configuracao-do-fluxo.ts:148,970,no,,,proposed,codex1,
 api-symbol-722fc1a5,api,2,symbol,ContatoGrowth,ContactGrowth,apps/api/src/dominio/gestao-fluxo.ts:285,4,no,,,proposed,codex1,
 api-symbol-72605be5,api,2,symbol,condicoes,conditions,apps/api/src/dominio/gestao/builder-do-fluxo.ts:244,76,no,,,proposed,codex1,
@@ -1629,7 +1629,7 @@ api-symbol-90d8f06a,api,2,symbol,ControladorGestaoCadastros,ManagementRegistrati
 api-symbol-913621f6,api,2,symbol,checarSlaDaConversa,checarSlaOfConversation,apps/api/src/dominio/gestao/sla-motor.ts:291,19,no,,,proposed,codex1,
 api-symbol-92050964,api,2,symbol,criar,create,apps/api/tests/permissoes-do-atendente.test.ts:275,235,no,,,proposed,codex1,
 api-symbol-920c50af,api,2,symbol,usuarioAdmin2Id,userAdmin2Id,apps/api/tests/contrato.test.ts:146,5,no,,,proposed,codex1,
-api-symbol-9250b503,api,2,symbol,lerCanal,lerChannel,apps/api/tests/canal-do-fluxo.test.ts:148,6,no,,,proposed,codex1,
+api-symbol-9250b503,api,2,symbol,lerCanal,readChannel,apps/api/tests/canal-do-fluxo.test.ts:148,6,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-9251d487,api,2,symbol,passoDosContatos,passoOfContacts,apps/api/src/dominio/gestao/passos-da-implantacao.ts:61,2,no,,,proposed,codex1,
 api-symbol-928114d3,api,2,symbol,podeReconectarNoFluxo,canReconnectInFlow,apps/api/src/dominio/gestao/canal-do-fluxo.ts:239,3,no,,,proposed,codex1,
 api-symbol-9281c7aa,api,2,symbol,PedidoDeContato,RequestOfContact,apps/api/src/controladores/gestao-fluxo.ts:112,2,no,,,proposed,codex1,
@@ -1712,7 +1712,7 @@ api-symbol-9ec72f9f,api,2,symbol,mensagensDe,messagesOf,apps/api/tests/anexos-mu
 api-symbol-9ecdf9e5,api,2,symbol,ModeloGrowth,TemplateGrowth,apps/api/src/dominio/gestao-fluxo.ts:273,4,no,,,proposed,codex1,
 api-symbol-9ed48fdd,api,2,symbol,disposicao,layout,apps/api/src/controladores/anexos.ts:85,2,no,,,proposed,codex1,
 api-symbol-9ed73630,api,2,symbol,normalizarArquivo,normalizeFile,apps/api/src/dominio/gestao/certificados.ts:119,2,no,,,proposed,codex1,
-api-symbol-9eeb720a,api,2,symbol,lerCanalWhatsApp,lerChannelWhatsApp,apps/api/src/dominio/whatsapp/canal.ts:61,29,no,,,proposed,codex1,
+api-symbol-9eeb720a,api,2,symbol,lerCanalWhatsApp,readChannelWhatsApp,apps/api/src/dominio/whatsapp/canal.ts:61,29,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-9eee69ea,api,2,symbol,EscopoPrioridade,ScopePriority,apps/api/src/dominio/gestao/regras-prioridade.ts:47,3,no,,,proposed,codex1,
 api-symbol-9f0d0ec4,api,2,symbol,requisicao,request,apps/api/src/erros.ts:31,450,no,,,proposed,codex1,
 api-symbol-9f2b994d,api,2,symbol,regrasDePrioridade,rulesOfPriority,apps/api/src/controladores/gestao-cadastros.ts:161,3,no,,,proposed,codex1,
@@ -1729,7 +1729,7 @@ api-symbol-a0663fec,api,2,symbol,RespostaDoRelatorioDeAtendimento,ResponseOfRepo
 api-symbol-a0acb72f,api,2,symbol,LinhaAnexo,LineAttachment,apps/api/src/dominio/envio.ts:318,12,no,,,proposed,codex1,
 api-symbol-a0b2b220,api,2,symbol,definirEstado,defineState,apps/api/src/dominio/sso.ts:191,12,no,,,proposed,codex1,
 api-symbol-a0f3ebc4,api,2,symbol,fila,queue,apps/api/src/dominio/messenger/canal.ts:33,993,no,,,proposed,codex1,
-api-symbol-a10c4437,api,2,symbol,lerMidiaDoCabecalho,lerMediaOfHeader,apps/api/src/dominio/whatsapp/modelos.ts:299,3,no,,,proposed,codex1,
+api-symbol-a10c4437,api,2,symbol,lerMidiaDoCabecalho,readMediaOfHeader,apps/api/src/dominio/whatsapp/modelos.ts:299,3,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-a115ecc9,api,2,symbol,criarConversa,createConversation,apps/api/tests/etiquetas.test.ts:115,25,no,,,proposed,codex1,
 api-symbol-a1289d78,api,2,symbol,erros,errors,apps/api/src/dominio/gestao/builder-do-fluxo.ts:506,110,no,,,proposed,codex1,
 api-symbol-a1427da5,api,2,symbol,conversaAberta,conversationOpen,apps/api/tests/roteador.test.ts:499,21,no,,,proposed,codex1,
@@ -1798,7 +1798,7 @@ api-symbol-a9d993db,api,2,symbol,bancoDono,databaseOwner,apps/api/src/banco.ts:3
 api-symbol-a9f9555c,api,2,symbol,comChave,withKey,apps/api/tests/anexos-multiplos.test.ts:82,18,no,,,proposed,codex1,
 api-symbol-aa0f8cad,api,2,symbol,editarRegraPrioridade,editarRulePriority,apps/api/src/controladores/gestao-cadastros.ts:429,2,no,,,proposed,codex1,
 api-symbol-aa33c67e,api,2,symbol,contarMensagens,contarMessages,apps/api/tests/palavras-proibidas.test.ts:142,4,no,,,proposed,codex1,
-api-symbol-aa9bc469,api,2,symbol,lerPreferencias,lerPreferences,apps/api/src/dominio/whatsapp/preferencias.ts:83,12,no,,,proposed,codex1,
+api-symbol-aa9bc469,api,2,symbol,lerPreferencias,readPreferences,apps/api/src/dominio/whatsapp/preferencias.ts:83,12,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-aaa16ec5,api,2,symbol,capacidadeConferida,capacityConferida,apps/api/src/dominio/gestao/cadastros.ts:1212,4,no,,,proposed,codex1,
 api-symbol-aab266b8,api,2,symbol,contato,contact,apps/api/src/controladores/gestao-analise.ts:197,1026,no,,,proposed,codex1,
 api-symbol-aaf12c6e,api,2,symbol,conversa,conversation,apps/api/src/dominio/etiquetas.ts:106,1270,no,,,proposed,codex1,
@@ -1807,7 +1807,7 @@ api-symbol-ab222e57,api,2,symbol,excluirRegraFila,deleteRuleQueue,apps/api/src/c
 api-symbol-ab464670,api,2,symbol,enfileirarEntrega,enfileirarDelivery,apps/api/src/filas.ts:131,7,no,,,proposed,codex1,
 api-symbol-ab58ddc9,api,2,symbol,imagemDosBytes,imageOfBytes,apps/api/src/dominio/gestao/ciclo-de-vida-do-fluxo.ts:145,3,no,,,proposed,codex1,
 api-symbol-ab5d05b5,api,2,symbol,versoes,versions,apps/api/tests/builder-por-fluxo.test.ts:144,32,no,,,proposed,codex1,
-api-symbol-ab675806,api,2,symbol,lerAnexoAssinado,lerAttachmentSigned,apps/api/src/dominio/anexo.ts:170,4,no,,,proposed,codex1,
+api-symbol-ab675806,api,2,symbol,lerAnexoAssinado,readAttachmentSigned,apps/api/src/dominio/anexo.ts:170,4,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-ab7fc62b,api,2,symbol,valoresDoInstagram,valuesOfInstagram,apps/api/src/dominio/instagram/entrada.ts:64,3,no,,,proposed,codex1,
 api-symbol-ab859d70,api,2,symbol,monitoramento,monitoring,apps/api/src/controladores/gestao-operacao.ts:133,102,no,,,proposed,codex1,
 api-symbol-ab950a5a,api,2,symbol,condicoesNovas,conditionsNews,apps/api/src/dominio/gestao/cadastros.ts:1022,5,no,,,proposed,codex1,
@@ -2079,7 +2079,7 @@ api-symbol-d4c01b1c,api,2,symbol,TETO_DE_DIAS_DAS_METRICAS,TETO_OF_DAYS_OF_METRI
 api-symbol-d4f8de9d,api,2,symbol,valores,values,apps/api/src/dominio/entrada.ts:138,140,no,,,proposed,codex1,
 api-symbol-d505af0f,api,2,symbol,PAPEL_ADMIN,ROLE_ADMIN,apps/api/src/dominio/gestao/contrato.ts:200,5,no,,,proposed,codex1,
 api-symbol-d5161065,api,2,symbol,filaDicionarioCrm,queueDictionaryCrm,apps/api/src/filas.ts:407,6,no,,,proposed,codex1,
-api-symbol-d54392a4,api,2,symbol,lerVariaveis,lerVariables,apps/api/src/dominio/gestao/comunicacao.ts:114,7,no,,,proposed,codex1,
+api-symbol-d54392a4,api,2,symbol,lerVariaveis,readVariables,apps/api/src/dominio/gestao/comunicacao.ts:114,7,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-d550efee,api,2,symbol,fluxoDoBuilder,flowOfBuilder,apps/api/src/dominio/gestao/builder-do-fluxo.ts:85,6,no,,,proposed,codex1,
 api-symbol-d56475a3,api,2,symbol,dicionario,dictionary,apps/api/src/controladores/crm.ts:43,10,no,,,proposed,codex1,
 api-symbol-d5753ac2,api,2,symbol,semSessao,withoutSession,apps/api/tests/cadastros-atendimento.test.ts:206,8,no,,,proposed,codex1,
@@ -2210,9 +2210,9 @@ api-symbol-e82b1925,api,2,symbol,ContextoDoClique,ContextOfClique,apps/api/src/d
 api-symbol-e841aa51,api,2,symbol,NovoModeloDaMeta,NewTemplateOfMeta,apps/api/src/dominio/whatsapp/cliente-graph.ts:115,7,no,,,proposed,codex1,
 api-symbol-e853ee8b,api,2,symbol,ordemSql,orderSql,apps/api/src/paginacao.ts:108,10,no,,,proposed,codex1,
 api-symbol-e855e4b7,api,2,symbol,nomeDoPapel,nameOfRole,apps/api/src/dominio/convites.ts:133,10,no,,,proposed,codex1,
-api-symbol-e8841664,api,2,symbol,lerConvite,lerInvitation,apps/api/src/dominio/convites.ts:290,6,no,,,proposed,codex1,
+api-symbol-e8841664,api,2,symbol,lerConvite,readInvitation,apps/api/src/dominio/convites.ts:290,6,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-e8c0409e,api,2,symbol,ResultadoDoFluxo,ResultOfFlow,apps/api/src/dominio/fluxo.ts:190,3,no,,,proposed,codex1,
-api-symbol-e8e01665,api,2,symbol,lerImportacao,lerImport,apps/api/src/dominio/importacao-de-contatos.ts:110,6,no,,,proposed,codex1,
+api-symbol-e8e01665,api,2,symbol,lerImportacao,readImport,apps/api/src/dominio/importacao-de-contatos.ts:110,6,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-e8e6f318,api,2,symbol,editarFila,editarQueue,apps/api/src/controladores/gestao-cadastros.ts:182,10,no,,,proposed,codex1,
 api-symbol-e8f63939,api,2,symbol,canalDoCore,channelOfCore,apps/api/src/dominio/envio.ts:80,3,no,,,proposed,codex1,
 api-symbol-e93c00e6,api,2,symbol,excluirExcecaoHorario,deleteExceptionSchedule,apps/api/src/controladores/gestao-cadastros.ts:314,2,no,,,proposed,codex1,
@@ -2228,7 +2228,7 @@ api-symbol-ebc997ca,api,2,symbol,permissoes,permissions,apps/api/src/dominio/wha
 api-symbol-ebd5d431,api,2,symbol,chave,key,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:155,1153,no,,,proposed,codex1,
 api-symbol-ebfdff0d,api,2,symbol,papelId,roleId,apps/api/tests/entrada.test.ts:63,121,no,,,proposed,codex1,
 api-symbol-ec8ad544,api,2,symbol,canalRoteadorId,channelRouterId,apps/api/tests/gerar-fixtures-jsonb.helper.ts:211,5,no,,,proposed,codex1,
-api-symbol-ec9aae80,api,2,symbol,lerCanalInstagram,lerChannelInstagram,apps/api/src/dominio/instagram/canal.ts:81,7,no,,,proposed,codex1,
+api-symbol-ec9aae80,api,2,symbol,lerCanalInstagram,readChannelInstagram,apps/api/src/dominio/instagram/canal.ts:81,7,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-eca68394,api,2,symbol,duracaoInvalida,durationInvalid,apps/api/tests/cadastros-atendimento.test.ts:537,1,no,,,proposed,codex1,
 api-symbol-ecbbcfae,api,2,symbol,primeiro,first,apps/api/src/dominio/gestao/pfx.ts:115,258,no,,,proposed,codex1,
 api-symbol-ed0337c1,api,2,symbol,mensagens,messages,apps/api/src/controladores/conversas.ts:164,363,no,,,proposed,codex1,
@@ -2277,7 +2277,7 @@ api-symbol-f384bee6,api,2,symbol,ligarCanal,connectChannel,apps/api/src/controla
 api-symbol-f3a18f14,api,2,symbol,ESCREVER_MEMBROS,ESCREVER_MEMBERS,apps/api/src/controladores/gestao-conta.ts:51,7,no,,,proposed,codex1,
 api-symbol-f3a4c2ef,api,2,symbol,dados,data,apps/api/src/dominio/fluxo.ts:763,669,no,,,proposed,codex1,
 api-symbol-f3c6e7d6,api,2,symbol,publicacao,publication,apps/api/tests/gerar-fixtures-jsonb.helper.ts:64,1,no,,,proposed,codex1,
-api-symbol-f3e17459,api,2,symbol,lerPerfilDoCanal,lerProfileOfChannel,apps/api/src/dominio/whatsapp/perfil.ts:100,7,no,,,proposed,codex1,
+api-symbol-f3e17459,api,2,symbol,lerPerfilDoCanal,readProfileOfChannel,apps/api/src/dominio/whatsapp/perfil.ts:100,7,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-f428ada4,api,2,symbol,anexo,attachment,apps/api/tests/ponta-a-ponta.test.ts:294,150,no,,,proposed,codex1,
 api-symbol-f43fc367,api,2,symbol,canalDoTenant,channelOfTenant,apps/api/src/tempo-real.ts:40,9,no,,,proposed,codex1,
 api-symbol-f458bcde,api,2,symbol,criarChave,createKey,apps/api/tests/ajuda.ts:101,11,no,,,proposed,codex1,
@@ -2315,7 +2315,7 @@ api-symbol-fafd4ff3,api,2,symbol,canal,channel,apps/api/src/banco.ts:86,970,no,,
 api-symbol-fb9685ca,api,2,symbol,cabecalhosDestino,headersDestination,apps/api/tests/integracoes.test.ts:606,2,no,,,proposed,codex1,
 api-symbol-fbb92ce2,api,2,symbol,contato,contact,apps/api/src/dominio/espelho-crm.ts:57,1026,no,,,proposed,codex1,
 api-symbol-fbe9dcfc,api,2,symbol,carregarCanalDoFluxoNaTela,loadChannelOfFlowInScreen,apps/api/src/dominio/gestao/canal-do-fluxo.ts:99,3,no,,,proposed,codex1,
-api-symbol-fbf20a52,api,2,symbol,lerDicionario,lerDictionary,apps/api/src/dominio/dicionario-crm.ts:398,5,no,,,proposed,codex1,
+api-symbol-fbf20a52,api,2,symbol,lerDicionario,readDictionary,apps/api/src/dominio/dicionario-crm.ts:398,5,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-fc01e24a,api,2,symbol,LinhaDeMembro,LineOfMember,apps/api/src/dominio/gestao/equipe-do-fluxo.ts:173,6,no,,,proposed,codex1,
 api-symbol-fc027646,api,2,symbol,carregarRegrasDePrioridadeAtivas,loadRulesOfPriorityActive,apps/api/src/dominio/gestao/prioridade-motor.ts:44,6,no,,,proposed,codex1,
 api-symbol-fc5c4a8f,api,2,symbol,naFila,inQueue,apps/api/tests/desk-acoes.test.ts:413,17,no,,,proposed,codex1,
@@ -2653,7 +2653,7 @@ api-test-title-7f5f4c2c,api,2,test-title,Rastreador de cliques — redirecioname
 api-test-title-8035a1b8,api,2,test-title,"tenant sem CRM é pulado sem chamar ninguém, e não é erro","tenant without CRM and pulado without call nobody, and not and error",apps/api/tests/dicionario-crm.test.ts:286,0,no,,,proposed,codex1,
 api-test-title-81018c3b,api,2,test-title,exclui de verdade (204) e registra no log,deletes of truth (204) and logs in log,apps/api/tests/cadastros-atendimento.test.ts:274,0,no,,,proposed,codex1,
 api-test-title-81d72247,api,2,test-title,"não ativa sem teste verde — ""salvei e liguei"" manda todo mundo para um IdP mudo","not active without test verde — ""salvei and liguei"" sends every mundo for um IdP mudo",apps/api/tests/sso.test.ts:154,0,no,,,proposed,codex1,
-api-test-title-8244ab21,api,2,test-title,sem conta.membros.ler é 403 para listar,without account.members.ler and 403 for listar,apps/api/tests/contrato.test.ts:547,0,no,,,proposed,codex1,
+api-test-title-8244ab21,api,2,test-title,sem conta.membros.ler é 403 para listar,without account.members.read and 403 for listar,apps/api/tests/contrato.test.ts:547,0,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-test-title-82ff8af4,api,2,test-title,sem inscrição não chega evento nenhum,without subscription not arrives event no,apps/api/tests/tempo-real.test.ts:181,0,no,,,proposed,codex1,
 api-test-title-834b74d9,api,2,test-title,recusa e-mail de domínio que não é do tenant que iniciou o fluxo,refuses and-mail of domain that not and of tenant that iniciou o flow,apps/api/tests/sso.test.ts:273,0,no,,,proposed,codex1,
 api-test-title-838a6652,api,2,test-title,sem contato.editar é 403; contato de outro tenant e uuid malformado são 404,without contact.editar and 403; contact of other tenant and uuid malformed are 404,apps/api/tests/contatos-editar.test.ts:208,0,no,,,proposed,codex1,
@@ -2668,7 +2668,7 @@ api-test-title-852dbef4,api,2,test-title,convite vencido não cria ninguém,invi
 api-test-title-8564cb6c,api,2,test-title,"sem a permissão `conversa.transferir`, não transfere conversa de outro","without a permission `conversation.transfer`, not transfers conversation of other",apps/api/tests/transferencia.test.ts:268,0,no,,,proposed,codex1,
 api-test-title-85e23b7a,api,2,test-title,"cookie corrompido também vira recusa, não erro interno","cookie corrompido also becomes refuses, not error internal",apps/api/tests/entrada.test.ts:236,0,no,,,proposed,codex1,
 api-test-title-866c944a,api,2,test-title,domínio verificado com SSO ativo vai para o IdP da empresa,domain verified with SSO active goes for o IdP of company,apps/api/tests/sso.test.ts:210,0,no,,,proposed,codex1,
-api-test-title-871b1845,api,2,test-title,"por chave: `contatos:escrever` aplica, `contatos:ler` lista, chave sem escopo não","by key: `contacts:escrever` aplica, `contacts:ler` list, key without scope not",apps/api/tests/etiquetas.test.ts:398,0,no,,,proposed,codex1,
+api-test-title-871b1845,api,2,test-title,"por chave: `contatos:escrever` aplica, `contatos:ler` lista, chave sem escopo não","by key: `contacts:escrever` aplica, `contacts:read` list, key without scope not",apps/api/tests/etiquetas.test.ts:398,0,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-test-title-8753ff2a,api,2,test-title,"lista todas sem filtro, e só as que cabem no alvo com `?escopo=`","list all without filter, and only as that cabem in target with `?scope=`",apps/api/tests/etiquetas.test.ts:164,0,no,,,proposed,codex1,
 api-test-title-877c08e4,api,2,test-title,"lê pela /metadata, pagina até o fim e traz os campos de cada objeto","lê by /metadata, page until o end and traz os fields of each object",apps/api/tests/dicionario-crm.test.ts:94,0,no,,,proposed,codex1,
 api-test-title-87c99d28,api,2,test-title,caminho inteiro com o dublê,caminho integer with o dublê,apps/api/tests/ponta-a-ponta.test.ts:108,0,no,,,proposed,codex1,
@@ -2742,7 +2742,7 @@ api-test-title-9ffec9a0,api,2,test-title,PUT e GET /v1/gestao/fluxos/:id/canal,P
 api-test-title-a0408281,api,2,test-title,Log de mensagens,Log of messages,apps/api/tests/analise.test.ts:255,0,no,,,proposed,codex1,
 api-test-title-a1a02e1e,api,2,test-title,"recusa condições vazias (400), campo inválido (400) e fila de destino inexistente (400)","refuses conditions emptys (400), field invalid (400) and queue of destination nonexistent (400)",apps/api/tests/cadastros-atendimento.test.ts:630,0,no,,,proposed,codex1,
 api-test-title-a2d05b50,api,2,test-title,"desenho inválido grava mesmo assim e devolve os erros do motor, bloco a bloco","design invalid writes same assim and returns os errors of engine, block a block",apps/api/tests/builder-por-fluxo.test.ts:380,0,no,,,proposed,codex1,
-api-test-title-a2e08008,api,2,test-title,permissão: sem cookie de sessão a rota nem chega a ler o banco,permission: without cookie of session a route nor arrives a ler o database,apps/api/tests/analise.test.ts:199,0,no,,,proposed,codex1,
+api-test-title-a2e08008,api,2,test-title,permissão: sem cookie de sessão a rota nem chega a ler o banco,permission: without cookie of session a route nor arrives a read o database,apps/api/tests/analise.test.ts:199,0,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-test-title-a3f4a76e,api,2,test-title,"atributos é mescla: só as chaves enviadas mudam, as extras do contato continuam","atributos and merges: only as keys enviadas mudam, as extras of contact continuam",apps/api/tests/contatos-editar.test.ts:199,0,no,,,proposed,codex1,
 api-test-title-a44acb4c,api,2,test-title,grava todas as tags escolhidas e mantém a primeira como motivo do evento legado,writes all as tags escolhidas and mantém a first as reason of event legacy,apps/api/tests/conversa-eventos.test.ts:131,0,no,,,proposed,codex1,
 api-test-title-a5250696,api,2,test-title,recusa (409) data que colide com outra exceção do mesmo horário,refuses (409) data that colide with other exception of same schedule,apps/api/tests/cadastros-atendimento.test.ts:1047,0,no,,,proposed,codex1,
@@ -2779,7 +2779,7 @@ api-test-title-b53333e9,api,2,test-title,"domínio de outro tenant é conflito, 
 api-test-title-b59d051c,api,2,test-title,checarSlaDaConversa — isolamento entre tenants,checarSlaOfConversation — isolation between tenants,apps/api/tests/sla-motor.test.ts:302,0,no,,,proposed,codex1,
 api-test-title-b5b842fc,api,2,test-title,hostDeMidiaPermitido — a lista de hosts da Meta (SSRF),hostOfMediaAllowed — a list of hosts of Meta (SSRF),apps/api/tests/midia-recebida.test.ts:139,0,no,,,proposed,codex1,
 api-test-title-b63bf5d5,api,2,test-title,"com o TXT publicado, marca verificado — e o login por domínio passa a valer","with o TXT published, marca verified — and o login by domain passa a valer",apps/api/tests/convites.test.ts:497,0,no,,,proposed,codex1,
-api-test-title-b6614d5d,api,2,test-title,"nenhuma das duas recusa, e ""ler"" no fluxo não vira ""escrever""","no of two refuses, and ""ler"" in flow not becomes ""escrever""",apps/api/tests/equipe-do-fluxo.test.ts:376,0,no,,,proposed,codex1,
+api-test-title-b6614d5d,api,2,test-title,"nenhuma das duas recusa, e ""ler"" no fluxo não vira ""escrever""","no of two refuses, and ""read"" in flow not becomes ""escrever""",apps/api/tests/equipe-do-fluxo.test.ts:376,0,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-test-title-b6eaac38,api,2,test-title,classificação de falha do CRM,classification of fails of CRM,apps/api/tests/twenty.test.ts:88,0,no,,,proposed,codex1,
 api-test-title-b7621488,api,2,test-title,conta 30 datas civis no fuso do tenant ao atravessar o horário de verão,account 30 datas civis in fuso of tenant to atravessar o schedule of verão,apps/api/tests/historico.test.ts:54,0,no,,,proposed,codex1,
 api-test-title-b7ad6515,api,2,test-title,limite de taxa: muitos cliques do mesmo IP em pouco tempo devolvem 429,limit of rate: verys cliques of same IP em little time devolvem 429,apps/api/tests/growth.test.ts:215,0,no,,,proposed,codex1,
@@ -2922,7 +2922,7 @@ api-test-title-f31a7c08,api,2,test-title,pagina por cursor sem repetir nem pular
 api-test-title-f35c93e4,api,2,test-title,recusa transição inválida — encerrar o que já está encerrado,refuses transition invalid — close o that already this encerrado,apps/api/tests/conversa-eventos.test.ts:168,0,no,,,proposed,codex1,
 api-test-title-f3e81f3b,api,2,test-title,preenche as 24 horas sem inventar dados entre os horários retornados pelo banco,preenche as 24 hours without inventar data between os schedules retornados by database,apps/api/tests/monitoramento-resumo.test.ts:31,0,no,,,proposed,codex1,
 api-test-title-f4636117,api,2,test-title,exige etiqueta: conversa fechada sem motivo não explica nada depois,exige label: conversation closed without reason not explica nothing after,apps/api/tests/conversa-eventos.test.ts:147,0,no,,,proposed,codex1,
-api-test-title-f4d61cee,api,2,test-title,"lista com o papel de cada um, e recusa quem não tem conta.membros.ler","list with o role of each um, and refuses who not has account.members.ler",apps/api/tests/contrato.test.ts:191,0,no,,,proposed,codex1,
+api-test-title-f4d61cee,api,2,test-title,"lista com o papel de cada um, e recusa quem não tem conta.membros.ler","list with o role of each um, and refuses who not has account.members.read",apps/api/tests/contrato.test.ts:191,0,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-test-title-f4dda47f,api,2,test-title,um job com o tenant de B e a importação de A não acha nada para processar,um job with o tenant of B and a import of A not acha nothing for processar,apps/api/tests/importacao.test.ts:243,0,no,,,proposed,codex1,
 api-test-title-f781c1a1,api,2,test-title,"filtro por período: um dia sem mensagem semeada devolve zero, não a mensagem de outro dia","filter by period: um day without message semeada returns zero, not a message of other day",apps/api/tests/analise.test.ts:176,0,no,,,proposed,codex1,
 api-test-title-f7953d9f,api,2,test-title,sair sem cookie não é erro,sair without cookie not and error,apps/api/tests/entrada.test.ts:182,0,no,,,proposed,codex1,
@@ -3058,7 +3058,7 @@ api-ts-local-267609b5,api,2,ts-local,execucaoRows,executionRows,apps/api/tests/g
 api-ts-local-272fbf3a,api,2,ts-local,subirApi,upApi,apps/api/tests/messenger.test.ts:14,114,no,,,proposed,codex1,
 api-ts-local-276085ea,api,2,ts-local,erro,error,apps/api/src/dominio/dominios.ts:114,1478,no,,,proposed,codex1,
 api-ts-local-2783da21,api,2,ts-local,usuarioId,userId,apps/api/tests/cadastros-atendimento.test.ts:77,604,no,,,proposed,codex1,
-api-ts-local-27deee79,api,2,ts-local,lerDicionario,lerDictionary,apps/api/tests/dicionario-crm.test.ts:14,5,no,,,proposed,codex1,
+api-ts-local-27deee79,api,2,ts-local,lerDicionario,readDictionary,apps/api/tests/dicionario-crm.test.ts:14,5,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-ts-local-27f5b5c8,api,2,ts-local,payloadDeMensagem,payloadOfMessage,apps/api/tests/builder-por-fluxo.test.ts:18,20,no,,,proposed,codex1,
 api-ts-local-2817ce3c,api,2,ts-local,renovarTokenDoCanal,renovarTokenOfChannel,apps/api/tests/instagram.test.ts:24,6,no,,,proposed,codex1,
 api-ts-local-28255ded,api,2,ts-local,cadastroDeContaHabilitado,registrationOfAccountEnabled,apps/api/tests/contas.test.ts:11,11,no,,,proposed,codex1,
@@ -3237,7 +3237,7 @@ api-ts-local-56639dea,api,2,ts-local,subirMidia,upMedia,apps/api/src/dominio/wha
 api-ts-local-566531ee,api,2,ts-local,papelNome,roleName,apps/api/tests/contrato.test.ts:63,8,no,,,proposed,codex1,
 api-ts-local-5676e0f1,api,2,ts-local,fluxo,flow,apps/api/src/dominio/fluxo.ts:295,1172,no,,,proposed,codex1,
 api-ts-local-568354a2,api,2,ts-local,checarSlaDaConversa,checarSlaOfConversation,apps/api/tests/sla-motor.test.ts:12,19,no,,,proposed,codex1,
-api-ts-local-56cec808,api,2,ts-local,lerPerfilDoCanal,lerProfileOfChannel,apps/api/tests/canais.test.ts:33,7,no,,,proposed,codex1,
+api-ts-local-56cec808,api,2,ts-local,lerPerfilDoCanal,readProfileOfChannel,apps/api/tests/canais.test.ts:33,7,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-ts-local-573496bf,api,2,ts-local,ordenarFilaDeEspera,ordenarQueueOfWait,apps/api/tests/sla-motor.test.ts:15,13,no,,,proposed,codex1,
 api-ts-local-57525d80,api,2,ts-local,sessao,session,apps/api/tests/desk-acoes.test.ts:49,382,no,,,proposed,codex1,
 api-ts-local-57e89ad9,api,2,ts-local,dados,data,apps/api/src/dominio/fluxo.ts:830,669,no,,,proposed,codex1,
@@ -3282,7 +3282,7 @@ api-ts-local-63d46028,api,2,ts-local,filaId,queueId,apps/api/src/dominio/distrib
 api-ts-local-644ec625,api,2,ts-local,ordem,order,apps/api/tests/cadastros-atendimento.test.ts:585,517,no,,,proposed,codex1,
 api-ts-local-64c43cf4,api,2,ts-local,encerrarConversa,closeConversation,apps/api/tests/roteador.test.ts:18,11,no,,,proposed,codex1,
 api-ts-local-64ff656f,api,2,ts-local,requisicao,request,apps/api/src/controladores/canais.ts:129,450,no,,,proposed,codex1,
-api-ts-local-65ad2d87,api,2,ts-local,lerConvite,lerInvitation,apps/api/tests/convites.test.ts:19,6,no,,,proposed,codex1,
+api-ts-local-65ad2d87,api,2,ts-local,lerConvite,readInvitation,apps/api/tests/convites.test.ts:19,6,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-ts-local-65ee2630,api,2,ts-local,subirApi,upApi,apps/api/tests/chave-de-fluxo.test.ts:14,114,no,,,proposed,codex1,
 api-ts-local-6630f525,api,2,ts-local,sessao,session,apps/api/tests/contatos-editar.test.ts:90,382,no,,,proposed,codex1,
 api-ts-local-66a51a45,api,2,ts-local,papel,role,apps/api/src/dominio/gestao/equipe-do-fluxo.ts:120,521,no,,,proposed,codex1,
@@ -3310,7 +3310,7 @@ api-ts-local-6fb54920,api,2,ts-local,usuarioId,userId,apps/api/src/controladores
 api-ts-local-6fb6ad01,api,2,ts-local,subirApi,upApi,apps/api/tests/palavras-proibidas.test.ts:15,114,no,,,proposed,codex1,
 api-ts-local-6fce7c18,api,2,ts-local,porPagina,byPage,apps/api/src/controladores/gestao-fluxo.ts:219,23,no,,,proposed,codex1,
 api-ts-local-6feffdd3,api,2,ts-local,fluxoId,flowId,apps/api/tests/canal-do-fluxo.test.ts:144,504,no,,,proposed,codex1,
-api-ts-local-70637c0b,api,2,ts-local,lerImportacao,lerImport,apps/api/tests/importacao.test.ts:15,6,no,,,proposed,codex1,
+api-ts-local-70637c0b,api,2,ts-local,lerImportacao,readImport,apps/api/tests/importacao.test.ts:15,6,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-ts-local-70ae6f23,api,2,ts-local,conversas,conversations,apps/api/tests/entrada-telefone.test.ts:75,540,no,,,proposed,codex1,
 api-ts-local-715bbc8d,api,2,ts-local,papelAtual,roleAtual,apps/api/src/dominio/gestao/contrato.ts:314,2,no,,,proposed,codex1,
 api-ts-local-728b32f7,api,2,ts-local,escopo,scope,apps/api/src/controladores/etiquetas.ts:49,227,no,,,proposed,codex1,
@@ -3506,7 +3506,7 @@ api-ts-local-adfcdf85,api,2,ts-local,chave,key,apps/api/src/dominio/gestao/equip
 api-ts-local-ae204649,api,2,ts-local,direcao,direction,apps/api/src/controladores/gestao-analise.ts:244,175,no,,,proposed,codex1,
 api-ts-local-ae301bd1,api,2,ts-local,usuarioId,userId,apps/api/tests/palavras-proibidas.test.ts:87,604,no,,,proposed,codex1,
 api-ts-local-afb5d34c,api,2,ts-local,importacoes,imports,apps/api/src/dominio/gestao/implantacao.ts:77,11,no,,,proposed,codex1,
-api-ts-local-afc428a1,api,2,ts-local,lerCanalInstagram,lerChannelInstagram,apps/api/tests/instagram.test.ts:23,7,no,,,proposed,codex1,
+api-ts-local-afc428a1,api,2,ts-local,lerCanalInstagram,readChannelInstagram,apps/api/tests/instagram.test.ts:23,7,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-ts-local-afd72fd0,api,2,ts-local,alteracoes,changes,apps/api/src/dominio/whatsapp/canal.ts:90,4,no,,,proposed,codex1,
 api-ts-local-afea82c3,api,2,ts-local,erro,error,apps/api/src/filas.ts:164,1478,no,,,proposed,codex1,
 api-ts-local-b04669a4,api,2,ts-local,criarToken,createToken,apps/api/tests/cadastros-atendimento.test.ts:12,68,no,,,proposed,codex1,
@@ -3530,7 +3530,7 @@ api-ts-local-b7565bbb,api,2,ts-local,atendenteId,agentId,apps/api/tests/envio-se
 api-ts-local-b788ffa5,api,2,ts-local,dados,data,apps/api/src/webhooks-saida.ts:165,669,no,,,proposed,codex1,
 api-ts-local-b793633f,api,2,ts-local,usuarioId,userId,apps/api/src/dominio/whatsapp/preferencias.ts:89,604,no,,,proposed,codex1,
 api-ts-local-b79dfff5,api,2,ts-local,contatoId,contactId,apps/api/src/dominio/roteador.ts:65,226,no,,,proposed,codex1,
-api-ts-local-b7c1ef0d,api,2,ts-local,lerCanalWhatsApp,lerChannelWhatsApp,apps/api/tests/canais.test.ts:29,29,no,,,proposed,codex1,
+api-ts-local-b7c1ef0d,api,2,ts-local,lerCanalWhatsApp,readChannelWhatsApp,apps/api/tests/canais.test.ts:29,29,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-ts-local-b81213ca,api,2,ts-local,semear,seed,apps/api/tests/midia-recebida.test.ts:14,55,no,,,proposed,codex1,
 api-ts-local-b8596fe0,api,2,ts-local,contexto,context,apps/api/src/dominio/convites.ts:328,300,no,,,proposed,codex1,
 api-ts-local-b98f9ba9,api,2,ts-local,canal,channel,apps/api/src/dominio/whatsapp/cadastro-embutido.ts:100,970,no,,,proposed,codex1,
@@ -3590,7 +3590,7 @@ api-ts-local-c5d1d3b1,api,2,ts-local,usuarioId,userId,apps/api/src/dominio/gesta
 api-ts-local-c600c9cd,api,2,ts-local,conversa,conversation,apps/api/tests/anexos-multiplos.test.ts:180,1270,no,,,proposed,codex1,
 api-ts-local-c66101a2,api,2,ts-local,anexoId,attachmentId,apps/api/src/controladores/anexos.ts:74,70,no,,,proposed,codex1,
 api-ts-local-c679988d,api,2,ts-local,listarCanaisWhatsApp,listarChannelsWhatsApp,apps/api/tests/canais.test.ts:22,7,no,,,proposed,codex1,
-api-ts-local-c6fcac75,api,2,ts-local,lerPreferencias,lerPreferences,apps/api/tests/canais.test.ts:37,12,no,,,proposed,codex1,
+api-ts-local-c6fcac75,api,2,ts-local,lerPreferencias,readPreferences,apps/api/tests/canais.test.ts:37,12,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-ts-local-c77d0c8e,api,2,ts-local,criarToken,createToken,apps/api/tests/contrato.test.ts:18,68,no,,,proposed,codex1,
 api-ts-local-c7d63092,api,2,ts-local,criarToken,createToken,apps/api/tests/convites.test.ts:17,68,no,,,proposed,codex1,
 api-ts-local-c7da2c3d,api,2,ts-local,fluxoId,flowId,apps/api/src/controladores/rastreador-de-cliques.ts:46,504,no,,,proposed,codex1,
@@ -3706,7 +3706,7 @@ api-ts-local-e9dccc2b,api,2,ts-local,usuarioId,userId,apps/api/src/controladores
 api-ts-local-ea3a52d2,api,2,ts-local,contatos,contacts,apps/api/src/controladores/gestao-analise.ts:115,438,no,,,proposed,codex1,
 api-ts-local-eaa58982,api,2,ts-local,criarToken,createToken,apps/api/tests/envio-sessao.test.ts:11,68,no,,,proposed,codex1,
 api-ts-local-eac1791c,api,2,ts-local,canalId,channelId,apps/api/src/dominio/whatsapp/canal.ts:40,387,no,,,proposed,codex1,
-api-ts-local-eb4b3de3,api,2,ts-local,lerCanalMessenger,lerChannelMessenger,apps/api/tests/messenger.test.ts:17,8,no,,,proposed,codex1,
+api-ts-local-eb4b3de3,api,2,ts-local,lerCanalMessenger,readChannelMessenger,apps/api/tests/messenger.test.ts:17,8,no,,,proposed,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-ts-local-ebd430f4,api,2,ts-local,valor,value,apps/api/src/dominio/gestao/integracoes.ts:407,1656,no,,,proposed,codex1,
 api-ts-local-ec508f41,api,2,ts-local,permissoes,permissions,apps/api/tests/cadastros-atendimento.test.ts:43,149,no,,,proposed,codex1,
 api-ts-local-ec818e1e,api,2,ts-local,canalId,channelId,apps/api/tests/canais.test.ts:570,387,no,,,proposed,codex1,
