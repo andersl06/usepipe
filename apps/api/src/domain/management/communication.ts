@@ -85,10 +85,10 @@ export async function carregarRespostasProntas(
     return tx
       .select({
         id: respostaPronta.id,
-        atalho: respostaPronta.atalho,
-        titulo: respostaPronta.titulo,
-        corpo: respostaPronta.corpo,
-        categoria: respostaPronta.categoria,
+        shortcut: respostaPronta.atalho,
+        title: respostaPronta.titulo,
+        body: respostaPronta.corpo,
+        category: respostaPronta.categoria,
         ativa: respostaPronta.active,
       })
       .from(respostaPronta)
@@ -123,22 +123,22 @@ export async function carregarModelos(
     const linhas = await tx
       .select({
         id: templateMessage.id,
-        canalId: templateMessage.canalId,
-        corpo: templateMessage.corpo,
-        nome: templateMessage.nome,
+        channelId: templateMessage.canalId,
+        body: templateMessage.corpo,
+        name: templateMessage.nome,
         idioma: templateMessage.idioma,
-        categoria: templateMessage.categoria,
+        category: templateMessage.categoria,
         statusMeta: templateMessage.statusMeta,
-        cabecalhoTipo: templateMessage.cabecalhoTipo,
+        headerType: templateMessage.cabecalhoTipo,
         variaveis: templateMessage.variables,
-        canalNome: channel.nome,
+        channelName: channel.nome,
       })
       .from(templateMessage)
       .innerJoin(channel, eq(channel.id, templateMessage.canalId))
       .where(channelId ? eq(templateMessage.canalId, channelId) : undefined)
       .orderBy(asc(templateMessage.nome));
 
-    return linhas.map((l) => ({ ...l, variaveis: readVariables(l.variaveis) }));
+    return linhas.map(({ variaveis, ...l }) => ({ ...l, variables: readVariables(variaveis) }));
   });
 }
 
@@ -166,7 +166,7 @@ export interface ChannelWhatsapp {
 export async function loadChannelsWhatsapp(tx: TransactionPipe): Promise<ChannelWhatsapp[]> {
   return consultar(tx, async (tx) => {
     return tx
-      .select({ id: channel.id, nome: channel.nome })
+      .select({ id: channel.id, name: channel.nome })
       .from(channel)
       .where(and(eq(channel.tipo, 'whatsapp_cloud'), eq(channel.ativo, true)))
       .orderBy(asc(channel.nome));
@@ -255,10 +255,10 @@ async function respostaProntaViva(
   const [atual] = await tx
     .select({
       id: respostaPronta.id,
-      atalho: respostaPronta.atalho,
-      titulo: respostaPronta.titulo,
-      corpo: respostaPronta.corpo,
-      categoria: respostaPronta.categoria,
+      shortcut: respostaPronta.atalho,
+      title: respostaPronta.titulo,
+      body: respostaPronta.corpo,
+      category: respostaPronta.categoria,
       ativa: respostaPronta.active,
     })
     .from(respostaPronta)
@@ -298,7 +298,7 @@ export async function createResponseReady(
 
   const [criada] = await tx
     .insert(respostaPronta)
-    .values({ tenantId: tid, escopo: 'empresa', categoria, atalho, titulo, corpo, active })
+    .values({ tenantId: tid, scope: 'empresa', categoria, atalho, titulo, corpo, active })
     .returning({ id: respostaPronta.id });
   if (!criada) throw PipeError.request('response_not_created', 'Não consegui gravar a resposta.');
 
@@ -360,10 +360,10 @@ export async function editarRespostaPronta(
     .where(and(eq(respostaPronta.tenantId, tid), eq(respostaPronta.id, id)))
     .returning({
       id: respostaPronta.id,
-      atalho: respostaPronta.atalho,
-      titulo: respostaPronta.titulo,
-      corpo: respostaPronta.corpo,
-      categoria: respostaPronta.categoria,
+      shortcut: respostaPronta.atalho,
+      title: respostaPronta.titulo,
+      body: respostaPronta.corpo,
+      category: respostaPronta.categoria,
       ativa: respostaPronta.active,
     });
   if (!gravada) throw PipeError.naoEncontrado('resposta pronta');

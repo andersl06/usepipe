@@ -131,7 +131,7 @@ export async function saveTemplate(
 
     await tx.insert(templateMessage).values({
       tenantId: tid,
-      channelId,
+      canalId: channelId,
       nome,
       idioma,
       categoria,
