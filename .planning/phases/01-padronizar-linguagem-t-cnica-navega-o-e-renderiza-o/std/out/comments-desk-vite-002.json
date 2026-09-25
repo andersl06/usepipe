@@ -1,0 +1,348 @@
+{
+  "items": [
+    {
+      "id": "desk-vite-comment-be99f8ce",
+      "action": "translate",
+      "new_text": "`Transferir atendimento do Ticket #N` (`transfer-modal-content.html`) offers Queue and Agent radio choices, a selector, and `Cancelar` / `Transferir ticket`. As in the reference and `packages/core/src/conversa/maquina.ts`, transfer closes this ticket and opens another.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/conversa.tsx:475-597; original core and reference paths",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-d9de9b29",
+      "action": "translate",
+      "new_text": "Remove a tag from the open conversation through `DELETE /v1/conversas/:id/etiquetas/:etiquetaId`. This does not close the ticket: source `ADD_TAGS` is separate from `CLOSE_TICKET`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/conversa.tsx:63-80",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-e0a2e383",
+      "action": "translate",
+      "new_text": "`Finalizar atendimento do Ticket #N` (`close-modal-container.js`) includes confirmation text, `Adicionar tags`, and `Cancelar` / `Finalizar ticket`. The `api` requires a tag for `POST /encerrar`.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/conversa.tsx:603-653",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-01a784a0",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/conversa.tsx:655-658: query endpoint is adjacent",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-c1f84c87",
+      "action": "translate",
+      "new_text": "`Exportar ticket` needs no new backend: all thread `itens` are already loaded, so build a `.txt` transcript and download it in the browser. This is the simple version of reference transcript download (`blip-desk-funcoes.md` §7), without asynchronous email for a 90-day-to-5-year manager report outside this agent screen.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/conversa.tsx:667-710; original reference path",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-7ef178e6",
+      "action": "translate",
+      "new_text": "Attendance screen at `/` and `/chat/:id` follows three reference columns: `.sidenav` (25%), `.pane-chat` (50%), `.drawer` (25%). Poll `GET /v1/desk/fila` and `GET /v1/desk/conversas/:id` every 15s, matching source `POLLING_INTERVAL` in settings.json. Advance `agora` every second for relative times and timers. Center states follow source `pane-chat`: `Buscando tickets` before queue load; `Fique online para atender` with a reason when invisible/paused without tickets; `Tudo pronto para atender` without selection; then the conversation.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/page.tsx:25-110; current paths pending D-42",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-c64c0e58",
+      "action": "translate",
+      "new_text": "If this conversation does not belong to the agent or does not exist, return to the list as in the reference.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/page.tsx:44-46",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-cfd34c7c",
+      "action": "translate",
+      "new_text": "Reference contact `.drawer` (`~/desk-clone/capturas/parciais/drawer.html`) has `Dados do Contato` and `Informações`, `Histórico`, `Comentários` tabs with `bds-paper` stacks. Source `Falar com gestor` is manager chat, absent in Pipe. Information includes name, ID, email, phone, document, raw key/value extras, and copy buttons. `Comentários` shows an empty state or entry field; these are internal conversation notes (`itens` of kind `nota`) saved through `salvarNotaInterna`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/painel.tsx:26-185; original reference path",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-825f0ada",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/painel.tsx:187-218: simple field presentation",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-32e41231",
+      "action": "translate",
+      "new_text": "Contact-panel `Editar` calls `PATCH /v1/contatos/:id` (`controladores/catalogo.ts`), already tested and guarded by `contato.editar`. Send only changed fields; an empty field sends an empty string, which the API stores as given. The API distinguishes clearing a field from leaving it untouched.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/painel.tsx:225-296; original controller reference",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-36d9fa12",
+      "action": "translate",
+      "new_text": "Contact tags live in `contato_etiqueta`, previously without a route or screen. Fetch the catalog from `GET /v1/etiquetas?escopo=contato` (scopes `contato` and `ambos`); apply/remove via `POST`/`DELETE /v1/contatos/:id/etiquetas` under contact-edit permission `contato.editar`. A contact tag is contact data.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/painel.tsx:304-385",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-3a81691f",
+      "action": "translate",
+      "new_text": "Leave edit mode when switching tickets, so one contact's form cannot remain open over another contact's data.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/painel.tsx:33-35; next line completes split comment",
+      "notes": "pre-triage D-40; needs slice-time confirmation; adjacent following PT comment line was not inventoried"
+    },
+    {
+      "id": "desk-vite-comment-5123baff",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/thread.tsx:145-165: media/text rendering is explicit",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-8b1f0d2a",
+      "action": "translate",
+      "new_text": "Start at the bottom (`startBottom`) and scroll back to the bottom after each new message.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/thread.tsx:37-45",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-3e101959",
+      "action": "translate",
+      "new_text": "Reference thread `message-list--panechat` (`~/desk-clone/capturas/parciais/thread.html`) groups `.blip-card` bubbles in `.card-group-container` with `.blip-message-group > .blip-card-group.left|right`, with `.group-notification` time on the speaker's side and delivery signal before time for outgoing groups. Put ticket-opening `.ticket .fancy` and `h3` before messages. Show the return-to-bottom button beyond 150px from the bottom (source settings.json `MINIMUM_SCROLL_DISTANCE`).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/thread.tsx:19-143; original reference path",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-dd56881f",
+      "action": "translate",
+      "new_text": "Contacts tab follows reference MFE `desk-contact-history`, measured on the mock in `~/desk-clone/clone/mfe-teste.html` (`desk2/blip-contacts-1200.png`, `blip-contatos-aberto.png`): 300/600/300 columns. Left has 110px heading/search/sort and grouped 62px contact cards. Center shows an empty prompt, then new-conversation card, or ticket transcript. Right has `Histórico` and `Contato` tabs. Read only through `GET /v1/desk/contatos?busca=`, `/contatos/:id`, and `/tickets/:id`, as in the reference.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/contatos/page.tsx:32-341; original evidence references",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-a915b969",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/contatos/page.tsx:343-359: fallback presentation is explicit",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-b1a2df1c",
+      "action": "translate",
+      "new_text": "Use `dd/mm/aaaa, HH:mm` for MFE `Última interação`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/contatos/page.tsx:361-370",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-118e22d3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/contatos/page.tsx:372-390: switch directly lists domain states",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-7953ddce",
+      "action": "translate",
+      "new_text": "Invitation screen is public like sign-in: requiring a session for `GET /v1/convites/:token` would create a cycle for the account this invitation creates. Show only the API's minimal invite details: recipient, role, company, expiry. Possession of the link already reveals the email, not other account data. Continue through `/v1/auth/google?convite=<token>` for users without a verified domain; the invitation, not the domain, selects the tenant.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/paginas/convite.tsx:23-90; original security rationale",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-25cf41ec",
+      "action": "translate",
+      "new_text": "Expired, used, and nonexistent invitations share the same screen so the link holder cannot learn whether a token ever existed.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/paginas/convite.tsx:65-80",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-bd60d186",
+      "action": "translate",
+      "new_text": "Sign-in uses its own font; it is the only product screen outside the app's typography.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/entrar.tsx:108-115",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-7bb78bc4",
+      "action": "translate",
+      "new_text": "Google sign-in is a link because it navigates to the `api` at the top level.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/paginas/entrar.tsx:130-133",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-ede3b6dd",
+      "action": "translate",
+      "new_text": "The pictured password field has no `name`: Pipe does not yet support password sign-in, and typed passwords never leave this page. Ponytail: add `name` only when the API accepts passwords.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/paginas/entrar.tsx:159-171",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-e6ad361f",
+      "action": "translate",
+      "new_text": "Inline official Google `G` so sign-in does not depend on a third-party image request.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/paginas/entrar.tsx:191-205",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-410c213d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/entrar.tsx:60-78: discovery outcome mapping follows directly",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-7990d35f",
+      "action": "translate",
+      "new_text": "Desk sign-in copies `apps/gestao-vite/src/paginas/entrar.tsx`, changing only the title to `Entrar no Pipe Desk`. Discovery runs in the browser: Vite proxies in development and this app's origin belongs in `PIPE_ORIGENS` in production. No tenant is known or disclosed before login. Each of the seven `RECUSAS_DE_ENTRADA` codes in `?erro=` gives a specific exit rather than a generic unauthorized message.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/paginas/entrar.tsx:21-106; original cross-app and deployment rationale",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-92e763a6",
+      "action": "translate",
+      "new_text": "Without SSO, keep the person on this screen with the reason and the email already entered.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/paginas/entrar.tsx:99-105",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-cda01167",
+      "action": "translate",
+      "new_text": "That extra pixel would provide no visible benefit.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/fundo-pipe.tsx:129-133: continuation of pixel-ratio cap comment",
+      "notes": "pre-triage D-40; adjacent preceding PT comment line was not inventoried; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-012f1c6a",
+      "action": "translate",
+      "new_text": "Arc center as a fraction of the box; radius as a fraction of the diagonal.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/fundo-pipe.tsx:24",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-1e7f5bf5",
+      "action": "translate",
+      "new_text": "Three layers from edge inward; `op` is the opacity range.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/fundo-pipe.tsx:27-31",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-fa816fd3",
+      "action": "translate",
+      "new_text": "Sign-in background draws about 10,800 particles in browser `<canvas>`, avoiding a GIF, video, or image download (the reference background was 14.6 MB). The enlarged brand curve forms one arc centered outside the lower-right frame, in three layers: sharp edge, diffuse body, mist. Leave upper-left space clear for the form. Continuous particle positions avoid a repeated animation seam. With `prefers-reduced-motion`, draw one frame and stop; no separate still image is downloaded.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/paginas/fundo-pipe.tsx:23-145; original design rationale",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-09988f82",
+      "action": "translate",
+      "new_text": "Use a fixed particle-generator seed so every machine and reload shows the same design. A changing background adds noise and prevents comparing screenshots.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/paginas/fundo-pipe.tsx:48-58",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-13eff47f",
+      "action": "translate",
+      "new_text": "`1 - rnd^0.7` concentrates particles near the edge, creating the sharp line.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/fundo-pipe.tsx:60-61",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-39e186b4",
+      "action": "translate",
+      "new_text": "Each particle has its own speed; outer particles move more slowly, so the beam shears rather than rotating as one block.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/fundo-pipe.tsx:65-67; next line completes split comment",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-4556c53d",
+      "action": "translate",
+      "new_text": "Add a diffuse bright mass in the corner so the card does not float over flat cream.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/fundo-pipe.tsx:99-110",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-41cae433",
+      "action": "translate",
+      "new_text": "`Enviar mensagem ativa` at `/activeMessage/send` follows the reference three-step flow (`~/desk-clone/clone/index.html`, active-msg section; `desk2/blip-clone-active.png`): select contact, choose template, review content; show privacy notice, contact form and selected-contacts panel (0/15), then `Cancelar` / `Continuar`. Copy comes from MFE `desk-active-message` (`referencias-blip/pesquisa/blip-desk-vocabulario.md`). Send channel, template, and contacts to existing `api` endpoint `POST /v1/mensagens-ativas`; reference `chatbot` corresponds to our channel.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/mensagem-ativa/page.tsx:28-180; original evidence references",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-597a52ec",
+      "action": "translate",
+      "new_text": "When arriving from `Conversar novamente` in Contacts, preselect that contact.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/paginas/mensagem-ativa/page.tsx:69-82",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-be664515",
+      "action": "translate",
+      "new_text": "Reference `/not-found` is brief: the route does not exist.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/nao-encontrado.tsx:4-15",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-98a5fb74",
+      "action": "translate",
+      "new_text": "`Preferências` at `/preferences` has no measurable rendered reference because `~/desk-clone` leaves MFE `desk-preferences-mfe` blank. Structure follows reference `app.js` i18n (`\"preferences\":\"Preferências\",\"notifications\":\"Notificações\"`) and `referencias-blip/pesquisa/blip-desk-preferencias.md`: immediate switches in sections, no Save button. Ponytail: confirm measurements when the reference screen is extracted. Copy replaces `Blip Desk` with `Pipe Desk`. The five preferences use separate browser keys and belong to this machine, not the person (`referencias-blip/pesquisa/blip-desk-medidas.md` §12).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/preferencias/page.tsx:18-105; original evidence references",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-a49f8dcd",
+      "action": "translate",
+      "new_text": "If storage is unavailable (for example, a private window), this preference applies only in the current tab.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/paginas/preferencias/page.tsx:85-94",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-7c029dfb",
+      "action": "translate",
+      "new_text": "On the VPS Desk lives under `/desk` to share the Gest?o session.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/vite.config.ts:16-17; deployed base must be confirmed at slice time",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-5d76e17a",
+      "action": "translate",
+      "new_text": "Pipe Desk is a SPA configured like `apps/gestao-vite/vite.config.ts`: Vite/SWC builds a static front end and NestJS `api` remains the only database gateway. In development `/v1` proxies to `api` on 3010 so HttpOnly `pipe_sessao` travels on the same origin without CORS or browser tokens. Desk uses port 3210 and Gestão 3110. Consume `@pipe/ui` as source without a separate build step.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/vite.config.ts:15-40; original cross-app rationale",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

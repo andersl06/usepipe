@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "gestao-vite-comment-6e350993",
+      "action": "translate",
+      "new_text": "Waiting for attendance follows reference column order: queue wait, priority, ticket, contact, queue. There is no agent by definition.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:404-408",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c18ebbb5",
+      "action": "translate",
+      "new_text": "The Agent tab shows dashes for average response and attendance times: `CargaAtendente` supplies counts and limits, not averages. Inventing a value would be worse than leaving the missing API datum visibly empty; this gap is recorded in the delivery report.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:459-465",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-3e1e153d",
+      "action": "translate",
+      "new_text": "Queue maximum wait is not average wait. Leave all three average columns empty until the query returns actual averages; never label a maximum as a mean.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:505-510",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ad9fc613",
+      "action": "translate",
+      "new_text": "The Tags sheet asks for finished tickets, but the tag query returns `abertas`, open conversations with that tag. Do not relabel a different metric to fit available data; show a dash until closed-by-tag data exists.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:549-554",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-bb3cf55e",
+      "action": "translate",
+      "new_text": "`carga` already includes each agent's status, so the `Status do atendente` filter needs no extra request.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:663-664",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-0235060b",
+      "action": "translate",
+      "new_text": "Search inside this card uses the ticket number only; Contact has its own field in the filter strip.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:668-669",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-7f42cd57",
+      "action": "translate",
+      "new_text": "Sort the waiting queue by priority through `ordenarFilaDeEspera`; leave assigned conversations in the creation order returned by the query.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:680-681",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-639013fc",
+      "action": "translate",
+      "new_text": "Blip places ticket-number search here inside the card, not in the filter strip.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:696-697",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8c54b567",
+      "action": "translate",
+      "new_text": "Blip `transfer` is used only in this column; keep it local rather than touching sidebar icons.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:76-76",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-59a5dbfc",
+      "action": "translate",
+      "new_text": "Row severity has three precedence levels. The previously missing third level highlights a contact awaiting an agent's first response (`blip-gestao-funcoes.md` Section 1), the only highlight unrelated to SLA. First-response wait matters to the customer even when SLA may still be within time. Breached SLA wins because the deadline passed; SLA warning and first-response wait share yellow deliberately because both need the same supervisor action.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/monitoramento-detalhado.tsx:96-108",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c8e7f2ce",
+      "action": "translate",
+      "new_text": "Show current page number between arrows, matching reference `data-testid=\"current-page-test\"`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/paginacao.tsx:105-106",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-d9bad3b4",
+      "action": "translate",
+      "new_text": "Detailed Monitoring pagination follows `FICHA-monitoring.md` Section 5: exact Results-per-page options, `1-5 de 8` counter, and four navigation buttons. Keep it client-side because `useLeitura` already loads all open rows in one transaction; slicing locally needs no additional server request.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/paginacao.tsx:4-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-7f7ba43a",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/painel-filtros.tsx:125-125",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-12d27ddf",
+      "action": "translate",
+      "new_text": "The Period filter matches reference `bds-select data-testid=\"period-filter-select\"` in History and both Reports: `PERIODOS` shortcuts plus Custom, whose choice fills the date pair.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/painel-filtros.tsx:146-150",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2ee16e2e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/componentes/painel-filtros.tsx:33-33",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-156a4b97",
+      "action": "translate",
+      "new_text": "Reference Filter sidebar `data-testid=\"saved-filters-sidebar\"` (`referencias-blip/fichas/FICHA-monitoring.md`, `FICHA-history.md`) starts closed, with title/subtitle, New query and Saved filters tabs, screen fields, saved-filter switch, and two footer buttons. Saved filters are structural only: no storage exists, so show an honest empty state; disable the footer switch with a reason. Apply uses a GET form, closes the panel, and navigates while state remains in the URL.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/painel-filtros.tsx:7-21",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-dcb3ea39",
+      "action": "translate",
+      "new_text": "Match the geometry of reference Attendance `bds-select-chips` and `chip-clickable`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/componentes/selecao-chips.tsx:6-6",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-0f62d4d0",
+      "action": "translate",
+      "new_text": "Provide one Gestao select matching Blip `bds-select` box and list. Its hidden input preserves `name` for existing GET/POST forms, while its event still exposes `.target.value` like the native select it replaces.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/componentes/selecao.tsx:32-36",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-d0b7c332",
+      "action": "translate",
+      "new_text": "`null` means no session; `undefined` means the first session check is pending.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/contexto/sessao.tsx:13-13",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e560e89a",
+      "action": "translate",
+      "new_text": "Current signed-in user comes only from `GET /v1/eu`. Only an actual server 401/403 clears the session; a network outage keeps the last known `Eu`, and a later `atualizar` corrects it. Do not sign someone out over a Wi-Fi interruption, as learned in conselheiros-auvp.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/contexto/sessao.tsx:5-11",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a3c5f8e7",
+      "action": "translate",
+      "new_text": "Use on product screens guarded by `ExigirSessao` to obtain a guaranteed `Eu`.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/contexto/sessao.tsx:54-54",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-55893fa4",
+      "action": "translate",
+      "new_text": "Gestao form actions now call `api` while keeping the old Server Action signature (formerly `revalidatePath` for refresh) `(anterior, FormData) => Resultado`, so forms retain `useActionState` and `envioQuePreserva`. Convert `FormData` to JSON, collecting repeated keys like `getAll`; post to `POST /v1/gestao/acoes/:nome`, return `Resultado`, and invalidate cached reads after success.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/acoes.ts:10-19",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-29bc05ed",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/acoes.ts:4-4",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-36aa8871",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/acoes.ts:50-50",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0965660a",
+      "action": "translate",
+      "new_text": "`salvarModelo` was removed: `comunicacao-modelos-formulario.tsx` creates templates directly through `POST /v1/canais/whatsapp/:id/modelos`. Meta is now the source, replacing local `insert` through `acoes/salvarModelo`.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/acoes.ts:52-54",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8c1fb055",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/acoes.ts:55-55",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e4602c68",
+      "action": "translate",
+      "new_text": "After success, invalidate cached reads, replacing the former `revalidatePath` behavior.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/acoes.ts:60-60",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2e51839c",
+      "action": "translate",
+      "new_text": "Gestao HTTP client uses browser `fetch` with the session cookie to call NestJS `api`. Under the README database boundary (`Quem fala com o banco`), the front requests data rather than opening a DB connection. `/v1/...` uses Vite proxy to `api` on 3010 in development; production shares a parent domain so the cookie crosses via `Domain`. Return types come from `@pipe/contracts` or the endpoint contract, never guessed here.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/api.ts:1-11",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8dc7801f",
+      "action": "translate",
+      "new_text": "Build an `api` URL from the configured base, or a same-origin path if no base is set, for top-level login and `fetch`.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/api.ts:15-15",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5ae9226a",
+      "action": "translate",
+      "new_text": "A non-success API response differs from a network outage: server 401/403 can prove the session ended, while `fetch` `TypeError` cannot.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/lib/api.ts:20-23",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-03bc0c46",
+      "action": "translate",
+      "new_text": "An empty or non-JSON body is acceptable here; the status already identifies failure.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/api.ts:51-51",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c0691576",
+      "action": "translate",
+      "new_text": "Raw `fetch`-style `api` call for callers needing `Response` status, text body, or CSV. The browser includes the cookie.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/api.ts:83-86",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-185e625d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/api.ts:91-91",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-670a6755",
+      "action": "translate",
+      "new_text": "One row of the reference Permission type by Status table.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/lib/atendentes-gravar.ts:14-14",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-30ef87a0",
+      "action": "translate",
+      "new_text": "Mixed state means some selected agents have this permission and others do not; possible only with multiple selection.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/atendentes-gravar.ts:22-22",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6f61417a",
+      "action": "translate",
+      "new_text": "Build the read path with IDs in the query, matching the reference edit route without `:id`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/lib/atendentes-gravar.ts:31-31",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1226dd7e",
+      "action": "translate",
+      "new_text": "Save only fields changed on the screen for `Salvar alterações`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/atendentes-gravar.ts:37-37",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3b2031af",
+      "action": "translate",
+      "new_text": "Reference bulk edit (`Editar N atendentes`, requiring at least one field) assigns selected agents to a queue and/or sets an individual concurrent-ticket limit. Pipe has no separate edit-agent route: concurrency comes from queue membership (`fila_atendente.capacidade_override` over `fila.capacidade_padrao`), so both fields write through `POST /filas/:id/atendentes`. Existing members get an updated capacity; others join.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/atendentes-gravar.ts:54-64",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-fc8918d6",
+      "action": "translate",
+      "new_text": "Keep agent-screen writes (permissions, bulk edit, Excluir) separate from pure `cadastros.ts` and `atendentes.ts`. This module imports `./api`, whose `import.meta.env` dependency breaks tests outside Vite, as happened to `comunicacao.ts` before its writes moved out.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/atendentes-gravar.ts:6-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-804b6b38",
+      "action": "translate",
+      "new_text": "Recorded difference from the reference: its Excluir icon removes a person from the attendance team. Pipe has no such team record; tenant `usuario` is the account, and only queue members receive conversations. Here Excluir removes the agent from all queues while retaining the account and conversation history. Deleting the user would destroy history and exceed what the icon promises.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/lib/atendentes-gravar.ts:77-86",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e1e136e4",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/atendentes-gravar.ts:98-98",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6204af27",
+      "action": "translate",
+      "new_text": "Search both name and email as the placeholder promises; searching only names would fail on an email visibly listed on screen.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/atendentes.ts:25-28",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2ff80e3a",
+      "action": "translate",
+      "new_text": "Keep agent search, queue filter, and permission-page description in a pure module like `cadastros.ts` without `./api` or JSX, so `tests/atendentes.test.ts` runs with `node --test` and `tsx` outside Vite. Reference `FICHA-atendentes-filas-pausas.md` Section b.2 has one name/email search and one multi-select queue filter with clear/cancel/apply, nothing else.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/lib/atendentes.ts:3-14",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-82a287b3",
+      "action": "translate",
+      "new_text": "One matched queue is enough: an agent in both Support and Finance appears under Support.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/atendentes.ts:37-38",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-26b770e7",
+      "action": "translate",
+      "new_text": "Offer only queues carried by listed agents, deduplicated and sorted. The reference filter lists queues represented on screen, not every tenant queue.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/lib/atendentes.ts:44-48",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a669858f",
+      "action": "translate",
+      "new_text": "Format the card's Queue field like captured `team.html` line 628: `Default,Suporte`, comma without spaces or chips.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/lib/atendentes.ts:55-58",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-9a2f7516",
+      "action": "translate",
+      "new_text": "Permission-page description has the source's three variants: `singleMemberDescription`, `coupleMembersDescription`, `multiplesMembersDescription` (reference sheet Section a.4).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/lib/atendentes.ts:63-67",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-3d65983d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/atendentes.ts:76-76",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3fb900bc",
+      "action": "translate",
+      "new_text": "Conversations in this report's period are the population used by the denominators above.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/atendimento.ts:22-22",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3fa09393",
+      "action": "translate",
+      "new_text": "Attendance report follows metrics spec Sections 2 and 4. Fetch raw conversations closed in the period and their events, then call `packages/core/src/metricas`; this module calculates no metrics. Every displayed number comes from a core function with its `excluidas` count, which the screen must show. Population is CLOSED conversations in the period (spec Section 3, closed period); open conversations are excluded because their timer has not stopped.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/atendimento.ts:3-13",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5ebd11ab",
+      "action": "translate",
+      "new_text": "The report adds inbox and label (tag) dimensions missing from our earlier view, compared with Chatwoot (`referencias-blip/pesquisa/chatwoot.md`). Chatwoot's tag report counts taggings instead of distinct conversations and mixes event-date counts with conversation-creation-date averages. Here both populations use the same CLOSED conversations in the report period.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/atendimento.ts:34-43",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a3b3d8a4",
+      "action": "translate",
+      "new_text": "Count conversations closed in the period that have no tag.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/atendimento.ts:46-46",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0ccb87a6",
+      "action": "translate",
+      "new_text": "Link an agent to a queue through `POST .../filas/:id/atendentes`; omitting capacity uses the queue default.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/cadastros-gravar.ts:107-107",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-40ecb536",
+      "action": "translate",
+      "new_text": "Write attendance-rule edits and deletes through actual `PATCH`/`DELETE` at `/v1/gestao/regras/atendimento/:id`, alongside `salvarRegraFila` and `alternarRegraFila` in `lib/acoes.ts` for creation and toggling. Reordering calls the same `editarRegraFila` with only `{ ordem }`; the page sends one PATCH per moved row.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/cadastros-gravar.ts:159-165",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-5b98ad13",
+      "action": "translate",
+      "new_text": "Toggle a row card without opening its form.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros-gravar.ts:18-18",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-df2eefb7",
+      "action": "translate",
+      "new_text": "`Resultado` also identifies a field from the expected `{erro:{codigo,mensagem,detalhe?:{campo}}}` response so Edit queue can show rejection beside the relevant field. Current `editarFila` and `vincularAtendenteNaFila` in `apps/api/src/dominio/gestao/cadastros.ts` omit `detalhe.campo`; map `nome_obrigatorio` and `nome_em_uso` to name, `capacidade_invalida` to capacidadeOverride. If the `api` later supplies `detalhe.campo`, use it first.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/cadastros-gravar.ts:39-48",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-0aa1458a",
+      "action": "translate",
+      "new_text": "Write real queue/pause `PATCH` and `DELETE` at `/v1/gestao/atendentes/{filas,pausas}/:id`, unlike `acoes.ts` which only exposes creators `salvarFila` and `salvarMotivoPausa`; match `paginas/fluxo/configuracoes/basicas/gravar.ts`. Keep this separate from pure `cadastros.ts`, so a future `tests/cadastros.test.ts` can run outside Vite as `tests/comunicacao.test.ts` does. Importing `./api` from the pure module would read `import.meta.env` and break there, as happened with `comunicacao.ts` before its writes moved.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/cadastros-gravar.ts:6-16",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e7509b1e",
+      "action": "translate",
+      "new_text": "Edit queue via `PATCH /v1/gestao/atendentes/filas/:id`. Four additional middle fields arrived when `Dados da fila` moved from the creation modal to the edit page (`FICHA-atendentes-filas-pausas.md` Section a.2); `api` type `cadastros.PedidoDeEdicaoDeFila` already accepted them, but the old screen did not send them.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/cadastros-gravar.ts:77-84",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-06a2d657",
+      "action": "translate",
+      "new_text": "Queue names pointing to this schedule; empty means the schedule is unused.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:101-101",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2a5bf30d",
+      "action": "translate",
+      "new_text": "`null` means the core found no upcoming opening, so the schedule has no time slot.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:104-104",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3a9aed9e",
+      "action": "translate",
+      "new_text": "Next seven days of working time, after holidays are deducted.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:106-106",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c20900cb",
+      "action": "translate",
+      "new_text": "Active queues without a schedule accrue SLA time 24x7.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:112-112",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a11ecc85",
+      "action": "translate",
+      "new_text": "Entry rules follow metrics spec Section 8. Sort by `ordem` and then ID, the same order applied by `ordenarRegras` in `regra-fila.ts`; differing screen and engine orders would make rule tests misleading. Include queues for the form and to warn when a rule points at a disabled queue, which could swallow conversations.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:119-130",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ed6cbcb4",
+      "action": "translate",
+      "new_text": "The DB rule adds whether its destination queue is active, beyond what the engine rule holds.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:137-137",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-bc730358",
+      "action": "update",
+      "new_text": "This front module now declares the `NovaRegraDeFila` data shape; the `api` owns entry-rule writes and database access (README `Quem fala com o banco`). Keep audit writes in the SAME transaction as the change through `registrarAuditoria` from `@pipe/db`: a separate log could disappear after a failed change or remain after a rollback, misreporting what happened. Historical Server Action and `revalidatePath` references describe the migration, not work performed here.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:142-154; apps/api/src/dominio/gestao/cadastros.ts:24,53-63,783-843",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-95ddf19c",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:165-165",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-29b60e2a",
+      "action": "translate",
+      "new_text": "`null` means the person never connected, distinct from offline.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:172-172",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-56254905",
+      "action": "translate",
+      "new_text": "`null` concurrent-ticket limit means no queue membership and therefore no source of incoming conversations, not an unlimited active agent.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:175-178",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f6821a2a",
+      "action": "translate",
+      "new_text": "Use `fila_atendente.capacidade_override` when present, otherwise the queue's default capacity.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:29-29",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-fb3dfe1a",
+      "action": "update",
+      "new_text": "This module now contains pure types for queue, pause, and schedule forms; `configuracoes.ts` is the read-only tenant snapshot. The `apps/api` implementation, not this front file, owns writes and isolation. `registrarAuditoria` from `@pipe/db` records actor, prior value, and time in the SAME transaction, enabling rule toggles. Keep tenant queries SERIAL inside one `comTenant` transaction: parallel `Promise.all` on one connection can unset `set_config('pipe.tenant_id')` and bypass RLS (README `Como o isolamento entre clientes funciona`). No `revalidatePath` or JSX belongs in this type module; preserve its browser-independent contract.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:3-21; apps/api/src/dominio/gestao/cadastros.ts:24,53-63,783-843",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-71565285",
+      "action": "translate",
+      "new_text": "An agent-specific limit differs from the queue default.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:31-31",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e0269bb9",
+      "action": "translate",
+      "new_text": "Closed pauses in the reporting period.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:60-60",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-925edc6a",
+      "action": "translate",
+      "new_text": "Observed average duration in seconds; `null` means nobody used the pause.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:62-62",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2cd4076f",
+      "action": "translate",
+      "new_text": "Start of the observation window.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:68-68",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-53073718",
+      "action": "translate",
+      "new_text": "Closed pauses whose reason was deleted or never supplied.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:71-71",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4f69acbb",
+      "action": "translate",
+      "new_text": "Currently open pauses are excluded from the average because they have not ended.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:73-73",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-55f0e616",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/cadastros.ts:77-77",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-1e97411a",
+      "action": "translate",
+      "new_text": "WhatsApp and Instagram channel writes at `/v1/canais/whatsapp` and `/v1/canais/instagram` mirror `paginas/fluxo/configuracoes/basicas/gravar.ts`: `Resultado<T>` carries displayable `erro` and optional `campo` when `api` identifies the field (expected `{erro:{codigo,mensagem,detalhe?:{campo}}}`).",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/canais-gravar.ts:14-20",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-14164ac9",
+      "action": "translate",
+      "new_text": "A connection made inside the bot creates the channel already linked to it via `fluxo_id`.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/canais-gravar.ts:45-45",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-62d2d70d",
+      "action": "translate",
+      "new_text": "Reconnection replaces THIS channel's credential instead of creating another channel.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/canais-gravar.ts:47-47",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8499b8e0",
+      "action": "translate",
+      "new_text": "`Ativar número`: `PUT /v1/gestao/fluxos/:id/canal` assigns the channel to this bot.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/canais-gravar.ts:82-82",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b9028fcb",
+      "action": "translate",
+      "new_text": "`Desconectar canal`: `DELETE /v1/gestao/fluxos/:id/canal` detaches the channel from this bot while the channel itself remains connected to Meta.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/canais-gravar.ts:93-93",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a8b29324",
+      "action": "translate",
+      "new_text": "Pure screen-side WhatsApp/Instagram channel types and rules mirror `apps/api/src/controladores/canais.ts` and `canais-instagram.ts` without importing backend Postgres code. Omit `./api` intentionally so `tests/canais.test.ts` can run without Vite or `import.meta.env`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/canais.ts:1-8",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-239d77e6",
+      "action": "translate",
+      "new_text": "Keep the `motivo` of `indisponivel` in Portuguese, using the same domain codes as `api`.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/canais.ts:115-115",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-d9acf18d",
+      "action": "translate",
+      "new_text": "Convert reference `Insira os e-mails separados por vírgula` (sheet Section 4) to a list. Accept commas or newlines, trim whitespace, drop empty values and duplicates.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/canais.ts:128-131",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b2d0a777",
+      "action": "translate",
+      "new_text": "Convert email list back to comma-separated field text.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/canais.ts:144-144",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f94f74ca",
+      "action": "translate",
+      "new_text": "Parse profile sites one per field line into an API list, capped at `LIMITES_DO_PERFIL.sites`.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/canais.ts:149-149",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-0ea88500",
+      "action": "translate",
+      "new_text": "Use the same profile limits as `apps/api/src/dominio/whatsapp/perfil.ts` for screen counters only.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/canais.ts:78-78",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6ab6356c",
+      "action": "translate",
+      "new_text": "WhatsApp Business Profile `vertical` codes come from Meta's public Cloud API list, not invented locally. Profile `categoria` accepts those codes; backend checks only syntax (`/^[A-Z_]{2,40}$/`), while Meta validates the actual value.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/canais.ts:87-92",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f339e98e",
+      "action": "translate",
+      "new_text": "These are the channel kinds with dedicated Pipe pages, matching `tipo` in `canal.tipo`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/canal-do-fluxo.ts:13-13",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3a766469",
+      "action": "translate",
+      "new_text": "Channel state for THIS bot: `conectado` means an active channel of this kind (source `VERIFIED`); `nao_conectado` means none (source `LOGIN`); `outro_canal` means a different kind is already attached, a Pipe decision because `fluxo.canal_id` is a single column while the reference bot can have several.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/canal-do-fluxo.ts:27-33",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-118d287f",
+      "action": "translate",
+      "new_text": "Pure screen-side rules for this BOT's channel (`fluxo/canais/**`) avoid `./api` so `tests/canal-do-fluxo.test.ts` runs without `import.meta.env`. Reference `FICHA-conectar-canal-no-bot.md` Section 1 has one channel page inside the bot; list cards choose Connected or Connect and navigate to that same page. This module decides the card and page states.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/lib/canal-do-fluxo.ts:3-11",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ecbd0b09",
+      "action": "translate",
+      "new_text": "The list card says Connected only for an ACTIVE channel of this kind on the bot.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/lib/canal-do-fluxo.ts:49-49",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-29b76bff",
+      "action": "translate",
+      "new_text": "Pipe's number-activation step differs from the reference, where the number starts attached to the bot. Offer active free channels of this kind and channels attached to another live bot so the screen can name that bot; the reference requires removal from the previous bot.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/lib/canal-do-fluxo.ts:57-62",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-43d380f5",
+      "action": "translate",
+      "new_text": "Show a channel's number, Instagram `@usuário`, or Page ID, falling back to its name.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/canal-do-fluxo.ts:75-75",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5ed91f49",
+      "action": "translate",
+      "new_text": "Use digits only for the Test on WhatsApp `https://wa.me/{numero}` URL.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/canal-do-fluxo.ts:80-80",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-56e42b93",
+      "action": "translate",
+      "new_text": "Source Disconnect button requires both a reason and agreement (`class H`, portal.js 120544: `disconnectButtonDisabled = !agreedChecked || !motiveInputValue`).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/lib/canal-do-fluxo.ts:85-89",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-af56036f",
+      "action": "translate",
+      "new_text": "Failure to load account choices must not bring down the screen; show only the current account in the selector.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/casca.ts:33-33",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-7a199bbd",
+      "action": "translate",
+      "new_text": "`POST /v1/contas/trocar` issues a new cookie to the browser. Then reread session state and navigate to the NEW account's Portal, where the person's new context is visible.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/lib/casca.ts:43-47",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-afced113",
+      "action": "translate",
+      "new_text": "Sign out through `api`, clear cached data, and return to sign-in.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/lib/casca.ts:63-63",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

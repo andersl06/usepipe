@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "desk-vite-comment-0754dee4",
+      "action": "translate",
+      "new_text": "Desk routes mirror the reference (`~/desk-clone/README.md`, \"Telas replicadas\"): `/` attendance, `/chat` the open conversation, `/activeMessage/send`, `/analytics`, `/contacts`, `/bulk-ticket`, and `/preferences`. `/chat/:id` puts the conversation ID in the URL so it survives F5. Only `/entrar` and `/convite/:token` are public; `ExigirSessao` guards everything else.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/App.tsx:25-53; current routing, pending D-42 route change",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-0fe472a9",
+      "action": "translate",
+      "new_text": "Reference `bds-avatar`: a system-colored circle with initials when `name` is supplied, or a person icon otherwise (list cards provide only the photo; the header and rail provide the name). Sizes: `extra-small` 32, `small` 40, `standard` 56.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/componentes/avatar.tsx:10-40",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-a4c1e9aa",
+      "action": "translate",
+      "new_text": "Desk shell: a left rail and right screen at fixed height with internal scrolling (`#app` > `.navbar` + `#container` in the reference). `data-painel` and `data-estado` correspond to its `drawer-hidden` and `state--chat`/`state--drawer` classes; they control layout below 1600px and 950px.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/componentes/casca.tsx:13-40",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-e642c1f1",
+      "action": "update",
+      "new_text": "Desk screen guard, like `apps/gestao-vite` but without a detour through `/bem-vindo`: account onboarding belongs to Gest?o, and agents arrive here with an account. Without a session, redirect to `/entrar` and preserve the destination. While the initial session check is pending, show only the loading status so a protected screen never flashes.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/componentes/exigir-sessao.tsx:13-29: renders loading status, not an empty screen",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-a441a131",
+      "action": "translate",
+      "new_text": "Desk icons follow the source design. Like `icones-portal.tsx`, this file adds the agent-screen icons missing from the Portal. These are reference `bds-icon` assets extracted from the package loaded by `~/desk-clone` (`desk-local/static/js/58.*.js`, keys `asset-icon-<nome>-<tema>`), not hand-drawn. Local names appear on the left and source names in comments. The draft `gerar-icones-desk.mjs` regenerates them after adding an icon to `QUERO`. All paths use `fill: currentColor`; stylesheet `--p-*` tokens supply their color.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/componentes/icones-desk.tsx:17-30; source references in original comment",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-ad8ecd5d",
+      "action": "translate",
+      "new_text": "Portal icons follow the source design. `@pipe/ui` uses 24px Tabler outlines with 1.75px strokes, while the Blip Portal rail uses filled icons; this visible difference prompted the owner's request to match it. These local paths were measured in the rendered DOM at `supernova.blip.ai` (see `referencias-blip/pesquisa/blip-portal-contrato.md`); local names appear on the left and source names in comments. Keep them local to Gestão until another app needs them, then move them to the package facade without changing callers. `parOuImpar` implements `fill-rule=\"evenodd\"` so enclosed gaps do not fill in.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/componentes/icones-portal.tsx:21-40; original evidence reference",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-4ae10b90",
+      "action": "translate",
+      "new_text": "Channel logos match the reference `bds-icon type=\"logo\"` (`asset-logo-<nome>` from blip-ds) on an 80px grid. Unlike UI icons, the WhatsApp and Instagram logos retain their own colors and gradients. The `email` logo is Blip artwork in its primary #1E6BF1, replaced with `currentColor` so our stylesheet controls it. Exclude `blip-chat`, which is Blip branding.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/componentes/icones-portal.tsx:699-805",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-b2cc9303",
+      "action": "translate",
+      "new_text": "The light rail's search icon is the only one outside the 24px set. The reference uses `<icon name=\"Search\" width=\"32\" height=\"32\">` on a 72px grid, drawn separately from the design system. Copy it as drawn so the stroke does not thicken.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/componentes/icones-portal.tsx:811-825",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-fe87ccf5",
+      "action": "translate",
+      "new_text": "Screen `<Link href>` keeps the former `next/link` `href` signature so migrated Blip-measured screens only change their import. It delegates client-side navigation to React Router. External `href` values (`http…`, `mailto:`) use a plain `<a>` because the router cannot handle them.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/componentes/link.tsx:14-32",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-fada2eb3",
+      "action": "translate",
+      "new_text": "Reference vertical rail (`~/desk-clone/templates/navbar.html`, `navbar-menu-item.html`, `navbar-avatar.html`): brand at the top; five destinations; help, preferences, and presence avatar at the bottom. Order and icons follow the clone README (`message-talk`, `paperplane`, `monitoring`, `contact`, `ticket`; `question`, `settings-general`), and tooltips use its `$t(name)` labels. Clicking the avatar opens `profile-side-menu` beside the rail at 300px, pushing the columns as measured in `desk2/blip-menu-status.png`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/componentes/trilho.tsx:22-125; original evidence references",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-adb20fe9",
+      "action": "translate",
+      "new_text": "`profile-side-menu` follows the reference: back-arrow header (`.sidebar-header`, 40px, gap 10), `user-info` (56px avatar, name 14/600, email 12), and three statuses (`.change-status-button`: 56px, 16px inset, 8px radius, with 8% background and a check on the active one). Place `Desconectar` in the footer. `Em pausa` opens `personalized-breaks-select`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/componentes/trilho.tsx:131-215",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-4df27ae3",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/componentes/trilho.tsx:31-36: adjacent status-label mapping is self-explanatory",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-07a52212",
+      "action": "translate",
+      "new_text": "The reference help link opens Blip's help center; this one goes to Pipe support.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/componentes/trilho.tsx:77-83",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-b4503d8d",
+      "action": "translate",
+      "new_text": "`null` means no session; `undefined` means the initial session check is pending.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/contexto/sessao.tsx:12-17,30-52",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-29b436a2",
+      "action": "translate",
+      "new_text": "Current signed-in user, sourced only from `GET /v1/eu`. Only an actual server 401/403 clears the session. A network failure keeps the last known `Eu`; a later `atualizar` refreshes it. Do not sign someone out because Wi-Fi briefly drops, as learned in conselheiros-auvp.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/contexto/sessao.tsx:19-52",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-f4879bd9",
+      "action": "translate",
+      "new_text": "Use on product screens guarded by `ExigirSessao` to obtain a guaranteed `Eu`.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/contexto/sessao.tsx:55-59",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-1507ae9e",
+      "action": "translate",
+      "new_text": "Desk form action through `api`, equivalent to `acaoRemota` in `apps/gestao-vite/src/lib/acoes.ts`, targeting `POST /v1/desk/acoes/:nome`. Convert `FormData` to JSON, collecting repeated keys as arrays like `getAll`; return `Resultado` and invalidate cached reads after success.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/lib/acoes.ts:17-36",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-8d8f799d",
+      "action": "translate",
+      "new_text": "Invoke the same action with an object instead of `FormData`, for buttons without forms.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/acoes.ts:39-50",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-2d6e6624",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/acoes.ts:5-8: `Resultado` shape is self-explanatory",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-abd8a7d9",
+      "action": "translate",
+      "new_text": "Internal composer note maps to `Comentário` in the contact panel.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/lib/acoes.ts:54; original cross-screen relationship",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-71d69e28",
+      "action": "translate",
+      "new_text": "After success, invalidate cached reads; this replaces the former `revalidatePath` behavior.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/lib/acoes.ts:59-61",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-d7b2e178",
+      "action": "translate",
+      "new_text": "Validate the entire attachment batch before upload. Following `blip-desk-regras-tecnicas.md` §3.3, check each file in this order: empty type, format, size, count. The reference shows a banner per failure and aborts the whole loop on count failure; here any failure rejects the entire batch so a partially sent set cannot leave the customer with only some files. Limits mirror `@pipe/armazenamento` (`MAX_ARQUIVOS_POR_MENSAGEM`, `MAX_BYTES_POR_ARQUIVO`, `MAX_BYTES_AUDIO_VIDEO`) rather than importing its index, which loads backend `node:fs` and cannot run in the browser. The server remains authoritative: `POST /v1/anexos` checks type from bytes and size from the actual type, and no batch becomes messages until all files pass.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/lib/anexos.ts:17-85; original Blip evidence reference",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-fabffcf5",
+      "action": "translate",
+      "new_text": "16 MB for audio and video (`MAX_BYTES_AUDIO_VIDEO`); Meta rejects larger files.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/lib/anexos.ts:22; Meta limit stated in source comment",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-baa77230",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/anexos.ts:25-29: interface fields already describe browser file metadata",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-c8370de9",
+      "action": "translate",
+      "new_text": "Return the reason the batch is rejected, or `null` when it can upload. Name the failing file so the error remains useful when many files were selected.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/anexos.ts:45-85",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-7b8b9900",
+      "action": "update",
+      "new_text": "Desk HTTP client for the NestJS `api`: browser `fetch` sends the session cookie. The front end requests data; it does not connect to the database (README's \"Quem fala com o banco\" boundary). Calls use `/v1/...` through `VITE_URL_API` when configured, otherwise the current origin; Vite proxies development requests to `api`; in production the front and API share a parent domain and the cookie crosses via `Domain`. Return types come from `@pipe/contracts` or the endpoint contract rather than being guessed here.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/lib/api.ts:13-89; this is Desk, not Gestão, and BASE is configurable",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-6f0cb9de",
+      "action": "update",
+      "new_text": "Build an `api` URL from the configured base, or a same-origin path when no base is configured, for top-level login navigation and `fetch`.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/lib/api.ts:13-18: `BASE` defaults to empty, so URL is not always absolute",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-2768b891",
+      "action": "translate",
+      "new_text": "A non-successful API response differs from a network outage: server 401/403 can prove the session ended, while a `fetch` `TypeError` cannot.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/lib/api.ts:24-80; apps/desk-vite/src/contexto/sessao.tsx:19-52",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-dbb1270e",
+      "action": "translate",
+      "new_text": "An empty or non-JSON body is acceptable here; the status already identifies the failure.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/api.ts:49-56",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-946771f0",
+      "action": "translate",
+      "new_text": "Raw `fetch`-style `api` call for callers that need the `Response` status, text body, or CSV. The browser includes the cookie.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/lib/api.ts:87-89",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-ef0fb606",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/api.ts:92-98: function body directly expresses the fallback",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-b4730d24",
+      "action": "translate",
+      "new_text": "Display a ticket number such as `#1002`. Our domain has only a conversation UUID, not a sequential number; display its first six characters in uppercase, stable for that conversation. Ponytail: add a `sequencial` column to the conversation and use the real number here.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/lib/canal.ts:31-33",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-075c3b1a",
+      "action": "translate",
+      "new_text": "Match the reference channel display: overlay a logo on the contact avatar (`bds-icon type=\"logo\" name=\"whatsapp\"` on a card) and spell out the name in the panel (`Canal: WhatsApp`). Logos come from `componentes/icones-portal.tsx` (`asset-logo-*`); `widget` uses the email logo because no unbranded chat logo is available.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/canal.ts:12-23; original reference evidence",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-560629fe",
+      "action": "translate",
+      "new_text": "Application-wide `api` read cache lives in a module rather than only `main.tsx` so form actions can invalidate reads without a hook, replacing the former `revalidatePath` behavior. A 30s `staleTime` avoids refetching while moving between screens for one contact; screens requiring fresh data, such as Monitoring and Log, request it explicitly.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/lib/cliente-de-consultas.ts:12-14; apps/desk-vite/src/lib/acoes.ts:59-61",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-99038602",
+      "action": "translate",
+      "new_text": "Expose an `api` read as loading, error, and data screen state through TanStack Query, as specified in `2026-09-07-arquitetura-de-front.md` §2. The path is the cache key, so screens requesting the same path share data and invalidation targets that path.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/lib/consulta.ts:11-30; original spec reference",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-a6f7d5b5",
+      "action": "translate",
+      "new_text": "Pure Contacts-tab sorting and grouping from `referencias-blip/pesquisa/blip-desk-medidas.md` §11. `Ordem alfabética` (default) groups by the first letter of the name, always putting unnamed contacts in `#` last; `Última interação` groups by the latest message date, newest first.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/contatos.ts:14-68; original Blip measurement reference",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-fa67b705",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/contatos.ts:63-66: adjacent sort explicitly puts `#` last",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-7768f8fb",
+      "action": "translate",
+      "new_text": "Only an internal path is a valid return destination; `//outro.site` must not become a redirect target.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/lib/entrada.ts:13-15",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-cccc5cf0",
+      "action": "translate",
+      "new_text": "Build the `Entrar com Google` URL; when `convite` is present, sign in while accepting the invitation.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/lib/entrada.ts:23-29",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-c684b1ac",
+      "action": "translate",
+      "new_text": "Discovery supplies `irPara` as a path; add the API base and browser origin here.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/lib/entrada.ts:32-37",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-077122e8",
+      "action": "translate",
+      "new_text": "Sign-in entry copied from `apps/gestao-vite/src/lib/entrada.ts`, with `/` (Desk attendance) as its different default destination. Browser code does not read the cookie manually: the `api` issues an HttpOnly session cookie and the browser carries it.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/lib/entrada.ts:10-54",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-3c5c265f",
+      "action": "translate",
+      "new_text": "Discover how this email signs in. The API deliberately answers identically for known and unknown addresses; only a verified domain with active SSO returns `sso`.",
+      "sensitivity": "security",
+      "evidence": "apps/desk-vite/src/lib/entrada.ts:45-65; API behavior stated in source comment",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-5dbefe13",
+      "action": "translate",
+      "new_text": "Desk date and time formats follow the reference `DateUtils` (`~/desk-clone/fonte-original/app.js`, `getRelativeDate` and `getChatDisplayDate`), reimplemented with `Intl` instead of moment. Card relative time is `HH:mm` today and elapsed time without a suffix (`fromNow(true)`, e.g. `um dia`, `2 dias`, `um mês`) on other days. Bubble time is `HH:mm` today and abbreviated full date (`lll` in pt-BR, e.g. `26 de Ago de 2026 12:41`) otherwise.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/formato.ts:15-100; original source reference",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-38716d9c",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/formato.ts:103-108: function directly selects first and last initials",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-9150273d",
+      "action": "translate",
+      "new_text": "Match moment's pt-BR `lll` output (`26 de Ago de 2026 12:41`): capitalize the abbreviated month and remove its period, which `Intl` does not do by itself (`set.` becomes `Set`).",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/lib/formato.ts:41-55",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-2f73ce98",
+      "action": "translate",
+      "new_text": "Elapsed time without a suffix follows moment `relativeTime` thresholds (45 s, 90 s, 45 min, 90 min, 22 h, 36 h, 26 d, 45 d, 320 d, 548 d) and uses pt-br words.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/lib/formato.ts:62-80",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-9ffa7890",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/formato.ts:83-85: wrapper directly expresses list-card time",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-da991785",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/formato.ts:88-90: wrapper directly expresses bubble time",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-5de8bab1",
+      "action": "translate",
+      "new_text": "Format `00:00:00` for standby and pause timers (`AgentPauseTimer`).",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/formato.ts:93-100",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-0680151a",
+      "action": "translate",
+      "new_text": "Group consecutive messages on the same side like reference `.blip-message-group`, showing only the last bubble's time. An internal note interrupts the group and stands alone.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/grupos.ts:11-31",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-f37faa5b",
+      "action": "translate",
+      "new_text": "Show delivery state below an outgoing group using its last bubble. Domain values are `estado_entrega`; the reference shows a clock for pending, one check for sent, two for delivered, and two blue checks for read.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/grupos.ts:37-55",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-94ab9812",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/modelo.ts:2-4: simple replacement visible in code",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-2ee0b90d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/navegacao.ts:23-29: hook registration is clear from code",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-f5a2f6ee",
+      "action": "translate",
+      "new_text": "Module-level navigation replaces the former Server Action `redirect()` in the browser. Form actions remain module functions for `useActionState` and `<form action>`, so they cannot call a hook. `App` registers React Router's `navigate` once; `irPara` uses the most recently registered one. Before registration or outside the router, fall back to `location`, which reaches the same destination with a reload.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/lib/navegacao.ts:14-30; apps/desk-vite/src/App.tsx:25-26",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-9249dd6b",
+      "action": "translate",
+      "new_text": "Count each filter chip over the full list, since the chip reports all matching items rather than only visible ones.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/ordem.ts:101-112",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-61532daf",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/ordem.ts:114-116: regex directly strips nondigits",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-37507a13",
+      "action": "translate",
+      "new_text": "Search list-column contacts by name without accents or case, and by phone digits, so `(31) 99471` matches stored `+5531994714471`. Reference placeholder: `Busque pelo nome ou telefone...`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/ordem.ts:123-140; original reference placeholder",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-12dd6df5",
+      "action": "translate",
+      "new_text": "List ordering: `ultima-mensagem` is the reference default (`Ver novas mensagens no topo`); `abertura` is the other option (`Ver mensagens por ordem de abertura do ticket`). For a conversation without messages, use its opening time. Pinned conversations always precede others and are ordered by pin time, most recent first, as the source `pinnedTickets` / `notPinnedTickets` lists do (`blip-desk-regras-tecnicas.md` §6.2: `mantém fixados no topo`).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/ordem.ts:151-166; original evidence reference",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-c3eb5979",
+      "action": "translate",
+      "new_text": "Reference contact display fallback (`referencias-blip/pesquisa/blip-desk-medidas.md` §11): name, then phone, then email, then the part before `@`. Never return blank.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/ordem.ts:173-183; original evidence reference",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-c02e279f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/ordem.ts:18-25: mapping includes labels and counts",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-8fdc71b6",
+      "action": "translate",
+      "new_text": "Format `+5531994714471` as `+55 31 99471-4471`; return non-Brazilian or non-13-digit input unchanged.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/ordem.ts:186-195",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-c29f9a4d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/ordem.ts:28-29: constants directly state one hour and 24-hour window",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-e70f9c2a",
+      "action": "translate",
+      "new_text": "A conversation is `Não lida` when the contact sent the latest message or the agent marked it manually through the card menu (`naoLidaEm`, source `UNREAD`). We do not store an unread count, only who spoke last; the chip and card bolding derive from this rule.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/ordem.ts:37-39; original source semantics",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-58932a7c",
+      "action": "translate",
+      "new_text": "Pure attendance-column rules cover filter chips, search, ordering, and the 24-hour window. Callers pass `agora` instead of these functions reading the clock, which makes them testable. Names mirror `~/desk-clone/templates/chat-list.html` (`all-tickets-chip`, `unread-tickets-chip`, `standby-tickets-chip`, `inactive-tickets-chip`); default ordering mirrors `sortChatsBy: 'lastMessageDate'` in `/agents/preferences` (`docs/desk-store.md`).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/ordem.ts:15-195; original reference paths",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-7d85986a",
+      "action": "translate",
+      "new_text": "`Inativo` means the conversation's 24-hour window has closed: the contact stopped replying and the agent can only resume via a template. This is the closest domain state to the reference `inactive`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/ordem.ts:55-57; original parity rationale",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-32aa0228",
+      "action": "translate",
+      "new_text": "Free-text eligibility follows `@pipe/core` (`janela/janela.ts`) and the `api` send rule: channels without a window (email, chat) are always open; WhatsApp without `janelaExpiraEm` means the contact never spoke and is closed. Instagram follows WhatsApp.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/lib/ordem.ts:65-73; original core reference",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-25957643",
+      "action": "translate",
+      "new_text": "Return whole hours remaining in the window for the warning; return `null` after closure or when there is no window.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/ordem.ts:76-85",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-5e6f5cef",
+      "action": "translate",
+      "new_text": "`Minhas métricas` periods mirror the reference's five shortcuts plus a custom range capped at 90 days (`referencias-blip/pesquisa/blip-desk-analytics.md`, `.seg` in `~/desk-clone/clone/index.html#metrics`): `Hoje` (default), `Ontem`, `7 Dias`, `30 dias`, `90 dias`, `Personalizado`. Compute dates in the viewer's clock; the `api` only applies the resulting interval.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/periodo.ts:9-80; original reference paths",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-e13b1bb7",
+      "action": "translate",
+      "new_text": "Custom range starts at the beginning of the first day and ends at the end of the last. Swap reversed dates; if longer than the cap, move the start forward to fit.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/periodo.ts:72-80",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-bc5b9a9f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/periodo.ts:82-84: format specified in toLocaleDateString",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-f54528ec",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/lib/periodo.ts:87-91: function directly builds axis label",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-bf262feb",
+      "action": "translate",
+      "new_text": "Format average durations as `00:00:00`, or `-` when no value exists, as in the reference.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/periodo.ts:94-102",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-320f2136",
+      "action": "translate",
+      "new_text": "Agent preferences mirror reference `/agents/preferences` keys and mock defaults (`~/desk-clone/docs/desk-store.md`: `enableBrowserNotification`, `enableTicketOnQueueAlert`, `enableReceivedMessageAlert`, `enableAlertWithDeskActive`, `enableSpellChecker`, `sortChatsBy`, `keepAgentOnline`). They live in browser `localStorage` under `desk.pref.<chave>`, so they belong to this machine rather than the person. `lerPreferencias` applies defaults when reading.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/lib/preferencias.ts:11-80; original source reference",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-e85d344d",
+      "action": "translate",
+      "new_text": "Import order matters: design tokens and base styles must load before the app stylesheet so local rules override the base.",
+      "sensitivity": "architecture",
+      "evidence": "apps/desk-vite/src/main.tsx:10-11; first half of split comment",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-82318bae",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/main.tsx:8-11: second half of split comment covered by preceding row",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-760d257c",
+      "action": "translate",
+      "new_text": "Ponytail: the reference has one chatbot per account; this screen currently uses the whole account.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/acoes-em-massa/page.tsx:69-72",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-f3f6be08",
+      "action": "translate",
+      "new_text": "`Ações em Massa` at `/bulk-ticket` follows the reference bulk transfer screen (`~/desk-clone/clone/index.html`, bulk section; `desk2/blip-clone-bulk.png`): 20/400 title, `Chatbot` card and `Transferir` chip, select-all and open-ticket list on the left (or `Nenhum atendimento aberto para transferir.`), queue/agent destination choices on the right, and `Cancelar`/`Transferir` below. `transferirEmMassa` repeats `transferirConversa` per ticket; as in the reference, transferring closes one ticket and opens another.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/acoes-em-massa/page.tsx:21-125; original evidence references",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-e99874ff",
+      "action": "translate",
+      "new_text": "`Minhas métricas: {nome}` at `/analytics` follows the reference metrics screen (`~/desk-clone/clone/index.html`, metrics section; `desk2/blip-clone-metrics.png`): header and period bar, six-card ticket overview with donut, daily ticket series, and three average durations. Omit the reference `blip copilot` marketing column. Data comes from `GET /v1/desk/metricas?inicio=&fim=` for the current agent. `Transferidos` and `Perdidos` arrive as `null` because the domain does not store them yet; show a dash, not zero.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/analytics/page.tsx:34-182; original evidence references",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-f3596198",
+      "action": "translate",
+      "new_text": "Reference six-segment donut: 118px, 5.5 stroke, in a 42px box.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/analytics/page.tsx:183-220",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-275c412d",
+      "action": "translate",
+      "new_text": "Reference `<article class=\"chat-list-item\">` list card (`~/desk-clone/capturas/parciais/card-lista.html`, `templates/chat-list-item.html`): upper `.ticket-content` has a `small` avatar and channel badge, name and relative time, message preview, and alert line; lower `.ticket-info` has info icon, `#N`, queue name, and ⋮ menu. Name and preview use `bold=\"bold\"` when unread. The source `TicketMenuOptions` (`PIN`/`UNPIN`, `UNREAD`/`READ`, `blip-desk-regras-tecnicas.md` §1.8) pins and marks unread per agent via `POST /v1/desk/acoes/fixar` and `/marcarNaoLida`. `Modo de Espera` stays in the open-conversation menu.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/cartao.tsx:29-181; original reference paths",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-5f525695",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/cartao.tsx:183-195: preview function directly implements this",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-a8834c27",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/cartao.tsx:41-181: error rendering is explicit",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-dc47b345",
+      "action": "translate",
+      "new_text": "Ponytail: the reference's Kanban `Quadro` mode has no screen in this copy, so keep it listed without a destination.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/coluna.tsx:118-128",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-a0781698",
+      "action": "translate",
+      "new_text": "Attendance column follows reference `.sidenav` (`~/desk-clone/templates/sidenav.html`, `sidenav-header.html`, `chat-list.html`): `.header-content` title and list selector; `.sidenav-header` status-dependent waiting count and answer button or current status and online button; name/phone search; `.header-chat-list` all-count chip, folder button, and reclassification; then cards or empty state. Reference labels come from its i18n keys `thereCustumer`, `customers`, `waiting`, `answerCustomer`, `currentStatus`, `getOnline`, `getOnlineToAtend`, `noOpenTickets`, `allTickets`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/coluna.tsx:35-266; original reference paths",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-4d227417",
+      "action": "translate",
+      "new_text": "Ponytail: Pipe has no ticket folders; keep the button in the reference position.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/coluna.tsx:216-225",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-c06ea73e",
+      "action": "translate",
+      "new_text": "Ponytail: `Reclassificar os tickets com inteligência artificial` depends on `@pipe/ai`.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/coluna.tsx:227-239",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-1e1aeb42",
+      "action": "translate",
+      "new_text": "Render `.sidenav-header` by agent status, matching reference renderer `lzgT`: Online shows waiting count and `Atender`; Invisible and Offline show current status and `Ficar Online`; Pause shows reason and `AgentPauseTimer`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/coluna.tsx:273-345",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-26afa300",
+      "action": "translate",
+      "new_text": "Opening a conversation clears its manual `Não lida` mark, as the source unread chip automatically removes an opened/read ticket (`blip-desk-funcoes.md` §1). A failure to clear the mark does not block opening.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/coluna.tsx:85-98; original reference path",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-c45fc1cd",
+      "action": "translate",
+      "new_text": "Reference composer `.pane-chat-message-input` (`~/desk-clone/capturas/parciais/composer.html`): `bds-paper` holds the message textarea above a reply, attachment, emoji, and audio/action row; audio is primary until text turns it into Send. When free text is unavailable, replace the composer with a centered message and button for `standbyInputLock`, `clientClosed`, `clientClosedInactivity`, `attendantClosed`, or closed 24-hour window (`failedMaxTimeChannelInterval`, which opens template sending here). Send text, attachment, or template through `POST /v1/conversas/:id/mensagens`. Internal notes use contact-panel `Comentário` instead.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/compositor.tsx:26-315; original reference path",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-d6b1783b",
+      "action": "translate",
+      "new_text": "Allow up to 10 files per send, one message per file in order, following source `SEND_MULT_FILE`/`mediaLinkDocuments` (`blip-desk-regras-tecnicas.md` §3.3). The batch is all-or-nothing: if count, size, or type validation fails in the screen or `POST /v1/anexos`, send no messages and name the failing file. Only after every upload succeeds does `POST /v1/conversas/:id/mensagens/anexos` create messages in order.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/compositor.tsx:119-159; original reference path",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-5f71b35b",
+      "action": "update",
+      "new_text": "Ponytail: the reference emoji picker (`emoji-mart`) is represented here only by a button.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/compositor.tsx:240-250: inventory row starts in JSX `accept` string and must be re-scanned at the actual JSX comment on line 243 before apply",
+      "notes": "pre-triage D-40; needs slice-time confirmation; malformed inventory span includes JSX, repair row text before apply"
+    },
+    {
+      "id": "desk-vite-comment-05e1ad90",
+      "action": "translate",
+      "new_text": "Ponytail: audio recording requires `MediaRecorder` and attachment upload; the button remains primary as in the reference.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/compositor.tsx:267-280",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-c2752c81",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/compositor.tsx:288-315: component is simple screen block",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-4a941a3a",
+      "action": "translate",
+      "new_text": "Reference quick-reply panel `.custom-reply`: list on the left, preview on the right (`Pré-visualização` / `Pressione Enter para selecionar`). Show `Não há título de resposta pronta que contenha este texto.` when none match; filter titles by the entered text.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/compositor.tsx:322-393",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-b8329822",
+      "action": "translate",
+      "new_text": "When the window has closed, choose an approved template, fill `{{1}}`, `{{2}}` and later variables in order, and send through `POST /v1/conversas/:id/mensagens` with `template_id` and `parametros`.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/compositor.tsx:399-475",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-c3179ebb",
+      "action": "translate",
+      "new_text": "Track the selected quick reply for effort reporting; clear its ID if the text is edited.",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/compositor.tsx:45-108",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-9b1702dc",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/compositor.tsx:58-75: height bounds are explicit in code",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "desk-vite-comment-e7966eb5",
+      "action": "translate",
+      "new_text": "Ponytail: `Ligação Ativa` depends on the calling MFE; keep the button where the reference places it.",
+      "sensitivity": "integration",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/conversa.tsx:131-145",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-373ef83c",
+      "action": "translate",
+      "new_text": "Reference conversation panel `.pane-chat` (`~/desk-clone/capturas/parciais/header-conversa.html`, `thread.html`, `composer.html`): header with avatar, name, ticket/bot/queue, call/search/transfer/finish/menu controls and contact-panel toggle; then tags, conversation search, thread, and composer. Transfer and Finish use source modals `transfer-modal-content` and `close-modal-container`, calling `POST /v1/conversas/:id/transferir` and `/encerrar`; menu `Modo de Espera` calls `/espera`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/conversa.tsx:32-387; original reference paths",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "desk-vite-comment-d83e032d",
+      "action": "translate",
+      "new_text": "`Adicionar tags` on the open conversation mirrors source `ModalType.ADD_TAGS`, separate from `CLOSE_TICKET` (`blip-desk-regras-tecnicas.md` §1.8). Toggle tags without closing: each click persists through `POST`/`DELETE /v1/conversas/:id/etiquetas`. Tags selected here are preselected in Finish because both use `conversa_etiqueta`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/desk-vite/src/paginas/atendimentos/conversa.tsx:395-445; original reference path",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

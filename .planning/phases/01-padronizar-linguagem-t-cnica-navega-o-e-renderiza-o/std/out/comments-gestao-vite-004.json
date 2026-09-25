@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "gestao-vite-comment-7e24951b",
+      "action": "translate",
+      "new_text": "Find the shortcut matching current `de`/`ate`, if any; otherwise select Custom.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/periodos.ts:40-40",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-07be4493",
+      "action": "translate",
+      "new_text": "Survey scale follows metrics spec Section 6. Blip uses two incompatible market models without merging them; Pipe supports both but requires one type per survey and stores the scale with each response. Otherwise CSAT 4 and NPS 4 could enter the same chart. Type determines scale; do not allow manual scale entry that could create a 0-to-10 CSAT no report can classify. Keep this pure for the `'use client'` configuration card.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/pesquisa.ts:1-14",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-28496bea",
+      "action": "translate",
+      "new_text": "Expose metrics-spec Section 6 boundaries as text so the screen does not repeat numeric thresholds.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/pesquisa.ts:22-22",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-26476fb5",
+      "action": "translate",
+      "new_text": "The database allows free text for survey trigger; this screen offers exactly three choices.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/pesquisa.ts:40-40",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-8b22b443",
+      "action": "translate",
+      "new_text": "Classify a score within its type's scale for configuration preview. Keep this here, not `satisfacao.ts`: that report reads the class stored with historical responses, while this function shows what a new score WOULD mean before saving. Do not reclassify history.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/pesquisa.ts:54-61",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-18496022",
+      "action": "translate",
+      "new_text": "Context offered by a newly arrived conversation to an entry rule.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/regra-fila.ts:108-108",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5cc71a91",
+      "action": "translate",
+      "new_text": "Order rule evaluation deterministically by `ordem` then ID, as distribution spec Section 7 does. Without a tie-break, equal-order rules depend on unspecified Postgres row order.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/regra-fila.ts:126-132",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1f90b434",
+      "action": "translate",
+      "new_text": "Use the first matching active rule, or `null` so the conversation falls to the inbox default queue. An active rule with no conditions must never match: `avaliarExpressao` returns false for an empty list, avoiding an accidental universal catchall.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/regra-fila.ts:148-156",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6ca9f363",
+      "action": "translate",
+      "new_text": "Describe a rule in full as the card displays it.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/regra-fila.ts:175-175",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-aa790812",
+      "action": "translate",
+      "new_text": "Identify unreachable rules by evaluation-order index. An active conditionless rule never matches; a rule below an identical earlier rule never wins. Surface both configuration mistakes so managers can understand why a tested rule has no effect.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/regra-fila.ts:184-191",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-3eb2876f",
+      "action": "translate",
+      "new_text": "Entry rules decide the destination queue (metrics spec Section 8). Blip docs leave two points open: evaluate ordered rules top-down and take the FIRST match; combine each rule's conditions with user-selected AND/OR exactly as displayed. If none match, `inbox.fila_padrao_id` selects the default, outside this module. Keep the module pure, without drizzle or `@pipe/db`, because a `'use client'` form imports it and DB code would pull `pg` into the browser. Evaluation delegates to `@pipe/core` (`score/motor.ts`) for identical operators, accent/case normalization, and dotted paths; a second Contains implementation would be a second rule definition.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/regra-fila.ts:3-27",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-10ccfa96",
+      "action": "translate",
+      "new_text": "Condition fields use first customer `mensagem` or contact data. `contato.atributos.` is a PREFIX, not a field; the suffix names a tenant-defined extra key such as `contato.atributos.plano`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/regra-fila.ts:40-46",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-567846b6",
+      "action": "translate",
+      "new_text": "Label fixed or extra fields, including ones absent from the registered list.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/regra-fila.ts:63-63",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f00993c8",
+      "action": "translate",
+      "new_text": "Accept one of four fixed fields or an extra field with a nonempty key. Validate because a typo in a free field silently creates a rule that never matches and routes conversations to the wrong queue.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/regra-fila.ts:77-83",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c8d01186",
+      "action": "translate",
+      "new_text": "Use core `ROTULOS_PRIORIDADE` for Portuguese priority labels instead of a parallel map.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/regras-prioridade.ts:28-28",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a05616e6",
+      "action": "translate",
+      "new_text": "Priority rules supply the queue-edit section from `FICHA-atendentes-filas-pausas.md` Section a.3. `GET /v1/gestao/regras/prioridade` returns the whole tenant: `regra_prioridade` has `escopo_tipo` (`tenant` or `fila`) and `escopo_id`. Show only rules with `fila` scope and this queue's `escopoId`; tenant rules apply here too but are not edited in this section. Keep this pure (no `./api` or JSX) so `tests/regras-prioridade.test.ts` runs with `node --test` and `tsx`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/regras-prioridade.ts:3-14",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-7e609f90",
+      "action": "translate",
+      "new_text": "Keep rules for this queue in the API's existing name order.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/regras-prioridade.ts:33-33",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-7813e6ed",
+      "action": "translate",
+      "new_text": "Tenant-scoped rules apply to this queue too but cannot be edited here.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/regras-prioridade.ts:41-41",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2d414fc2",
+      "action": "translate",
+      "new_text": "Return `erro.mensagem` from `api` `ErroPipe` or the default text.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/rest.ts:15-15",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4a801633",
+      "action": "translate",
+      "new_text": "A true REST write returns status 400/403/404/409 for `POST`/`PATCH`/`DELETE`, unlike legacy `acoes.ts` `Resultado` with `{ok,erro}` in a 200 for `useActionState`. Match the per-call result shape in `paginas/fluxo/configuracoes/basicas/gravar.ts`.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/rest.ts:3-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-9a4cf86c",
+      "action": "translate",
+      "new_text": "Satisfaction report follows metrics spec Section 6. Store scale WITH each `resposta_pesquisa` score (`escala_min`, `escala_max`): CSAT 4 on 1-5 and NPS 4 on 0-10 mean different things. Group by type AND scale so incompatible scores cannot share a mean. Use the same closed-conversation period population for response numerator and rate denominator; mismatched populations would make the response rate meaningless.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/satisfacao.ts:1-14",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-0ea985b5",
+      "action": "translate",
+      "new_text": "Bar fraction divides counts; it is not a metric from the spec.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/satisfacao.ts:19-19",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c3e6d323",
+      "action": "translate",
+      "new_text": "Surveys generated for conversations closed in the period, answered or unanswered.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/satisfacao.ts:31-31",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b493e433",
+      "action": "translate",
+      "new_text": "Show responses divided by closed conversations in the period beside the average.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/satisfacao.ts:33-33",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-69b18562",
+      "action": "translate",
+      "new_text": "Response-rate denominator is conversations closed in the period.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/satisfacao.ts:50-50",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-56ff98de",
+      "action": "translate",
+      "new_text": "Comment cap is a recent sample, not a full survey export.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/satisfacao.ts:56-56",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5b2a32a4",
+      "action": "translate",
+      "new_text": "Seconds beyond the SLA deadline when breached.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/lib/sla.ts:29-29",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c6421d80",
+      "action": "translate",
+      "new_text": "Detailed Monitoring SLA uses `@pipe/core` `avaliarSla` (metrics spec Section 11); this module selects the applicable rule and maps the result to screen text. Ponytail: the clock currently ignores working hours because `horario_atendimento` is not seeded, so no queue has a schedule to honor. `avaliarSla` already accepts hours; pass the queue schedule when available.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/lib/sla.ts:3-12",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-90a7541c",
+      "action": "translate",
+      "new_text": "A queue-scoped rule beats a tenant-scoped one because the manager deliberately configured the more specific rule.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/lib/sla.ts:35-38",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-997adf24",
+      "action": "translate",
+      "new_text": "Import tokens and design-system base before the app stylesheet so local rules override the base.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/main.tsx:8-8",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-fa05063d",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/main.tsx:9-9",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-bee4fac5",
+      "action": "translate",
+      "new_text": "Let the beam cover the whole window rather than one column: the reference right column is an illustration, while our artwork is the background; boxing it left half the screen blank.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/bem-vindo/page.tsx:34-36",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-29509192",
+      "action": "translate",
+      "new_text": "Use our stroke for the reference button arrow (`arrow=\"true\"`).",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/bem-vindo/page.tsx:68-68",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-486f9423",
+      "action": "translate",
+      "new_text": "Welcome screen announces that the account was just created at login. Reference `#welcome-screen` places brand upper-left, centered text in a 40% column, right-aligned arrow button, and artwork in the right 55%, hidden below 1286px. Like the reference, this is a one-time gate: completed onboarding cannot revisit it even by URL. Keep forms on the next step so first entry is not an eight-field form.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/bem-vindo/page.tsx:8-24",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-18ab9672",
+      "action": "translate",
+      "new_text": "Builder writes use `PUT /v1/gestao/fluxos/:id/builder` to save, `POST .../builder/publicar` to publish, and `POST .../builder/versoes/:versao/restaurar` for history. `api` owns rules in `dominio/gestao/builder-do-fluxo.ts`; here turn refusals into screen text and expose per-block engine errors from `detalhe.erros` on 409.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/builder-gravar.ts:11-18",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f943b1c0",
+      "action": "translate",
+      "new_text": "A publish refusal carries engine errors as well as a message.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder-gravar.ts:20-20",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0284959d",
+      "action": "translate",
+      "new_text": "Extract per-block errors from `api` 409 `detalhe` when provided.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/builder-gravar.ts:24-24",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ec7f4a0d",
+      "action": "translate",
+      "new_text": "Publish 409 can add errors to those already known from saving.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:124-124",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-56d7ace1",
+      "action": "translate",
+      "new_text": "Show the `api` refusal message for read failures: 409 for router and 403 for missing permission. This is not Not found; the parent route handles 404.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:133-134",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1989721f",
+      "action": "translate",
+      "new_text": "Publish exactly what is on screen. Save first if changes are dirty or this is a new default flow; the Blip copy performs those two steps in order when publishing.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:150-152",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8fa48b7f",
+      "action": "translate",
+      "new_text": "Explain why Publish is disabled in its tooltip.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:179-179",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-10d42106",
+      "action": "translate",
+      "new_text": "Footer Saved status includes its underlying persistence state.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:186-186",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0f3563df",
+      "action": "translate",
+      "new_text": "Builder layout follows captured production DOM (`referencias-blip/builder/builder-fluxo__pagina.html`; mapping in `builder.css`): notice strip, block-icon pill, dark canvas, status/zoom footer, conversation button. Pure `./builder/` modules `modelo.ts`, `condicoes.ts`, `conteudo.ts`, and `acoes-do-bloco.ts` edit the graph; `estado.ts` and `use-editor.ts` provide undo/redo and API-backed draft autosave; `canvas.tsx`, `no.tsx`, and `painel*.tsx` render graph and sidebar. Existing `/v1/gestao/fluxos/:id/builder` PUT saves a draft, Publish promotes it with per-block engine errors, history lists versions and restores an older one as draft. Unsupported frame controls remain disabled; confirmations use `Modal` from `cadastros/_modal`, never `window.confirm`. Route `/fluxo/:id/builder` stays inside the contact like source `/application/detail/<bot>/templates/builder`; `ESCONDIDOS_NO_ROTEADOR` in `fluxo/itens.ts` hides Builder for routers, and `api` returns 409 if opened by URL.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:22-51",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b43844f6",
+      "action": "keep-original",
+      "new_text": "",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:223: href URL is not a comment; scanner false positive",
+      "notes": "pre-triage D-40; needs slice-time confirmation; scanner false-positive: URL in JSX href, not a comment; preserve URL bytes, remove inventory row before apply"
+    },
+    {
+      "id": "gestao-vite-comment-b2a1465c",
+      "action": "translate",
+      "new_text": "Use `aplicar`, not `carregar`: imported flow must become dirty for autosave and undo, like any edit.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:303-303",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-31383654",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:304-304",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e900c2d2",
+      "action": "translate",
+      "new_text": "`carregar` only syncs server state and would leave an imported flow visible but unsaved.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:305-305",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1c053d4e",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:306-306",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2a29c070",
+      "action": "translate",
+      "new_text": "Source icon pill `.builder-icon-button-list` follows captured DOM order: Add block, Builder Assistant, Publish flow, Configuration, Variable library, Search, Queue management, each `bds-button-icon variant=\"secondary\" size=\"short\"` with literal tooltips. Builder Assistant calls `$ctrl.createCopilotModal()`; with no AI provider in Pipe's engine, disable it like other unsupported controls.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:324-330",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1a7ef979",
+      "action": "translate",
+      "new_text": "Reference `.builder-footer` has a light status pill (Saved with `checkball`), three separate Undo/Redo/Fullscreen icons spaced by 10px, `100%`, and 100px slider from 20% to 100%.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:405-408",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2267ecd8",
+      "action": "translate",
+      "new_text": "Publish confirmation uses reference `bds-modal` and lists engine errors when refused; never use `window.confirm`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:499-500",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f5f0aeb6",
+      "action": "translate",
+      "new_text": "Sidebar-pill button matches `bds-button-icon variant=\"secondary\" size=\"short\"` with right tooltip. Disable controls without an implementation by default and explain that state beside the control name.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:53-57",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-50d68aa3",
+      "action": "translate",
+      "new_text": "When disabled, give a specific tooltip reason; otherwise say it is not built yet.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder.tsx:71-71",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-000e5520",
+      "action": "translate",
+      "new_text": "System-run actions belong to the Human block, not the person.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:150-150",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-9af506e0",
+      "action": "translate",
+      "new_text": "The engine does not execute this action: it throws at runtime and the conversation falls into the queue.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:158-158",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-33cdb986",
+      "action": "translate",
+      "new_text": "Create an action like the plus button: no title, empty settings, no condition.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:163-163",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-8fac6684",
+      "action": "translate",
+      "new_text": "Read `settings.a.b` case-insensitively because Newtonsoft matches keys without regard to case, and the screen must agree.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:177-177",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f37c4215",
+      "action": "translate",
+      "new_text": "Write `settings.a.b`; empty text deletes the key.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:190-190",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ceccbb38",
+      "action": "translate",
+      "new_text": "Remove an empty nested object too; `context: {}` is not meaningful context.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:203-203",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-14d311c1",
+      "action": "translate",
+      "new_text": "Flow headers must stay objects; leave invalid text visible for validation instead of silently discarding it.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:212-212",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1a9a42e8",
+      "action": "translate",
+      "new_text": "Point to the invalid field without erasing what the user typed.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:221-221",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-43015d2a",
+      "action": "translate",
+      "new_text": "Flow stores headers as an object; Builder edits them as key/value pairs.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:231-231",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-d917087c",
+      "action": "translate",
+      "new_text": "Return missing action fields in panel wording; skip validation for actions the engine cannot execute.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:259-259",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a020c629",
+      "action": "translate",
+      "new_text": "Paste a full selection atomically or change nothing; copies must not share settings objects or IDs.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:301-301",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6d817d29",
+      "action": "translate",
+      "new_text": "Move an action up/down in execution order.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:337-337",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2b1ece87",
+      "action": "translate",
+      "new_text": "A `settings` key may use a dot for nested keys, such as `context.type`.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:35-35",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b86d9f2d",
+      "action": "translate",
+      "new_text": "`texto` is one line; `longo` uses a textarea.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:40-40",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-598ad48a",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:50-50",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-27e04a10",
+      "action": "translate",
+      "new_text": "Block enter/leave actions follow Blip editor Actions tab (`builder-tabs-actions`) but offer only what Pipe's `PROVEDOR_PADRAO` executes (`packages/core/src/fluxo/acoes.ts`). Add Tools offers `SetVariable`, `DeleteVariable` (Pipe label; absent from Blip's menu), `TrackEvent`, and `Redirect` with their Manipulate/Execute groups. `SendMessage`/`SendRawMessage` belong to block Content; `ForwardToDesk`, `LeavingFromDesk`, `CreateTicket` belong to Human and are created with it, hiding its Actions tab. Unsupported imported actions such as `ExecuteScript` or `MergeContact` remain readable and removable but marked Not executed in Pipe. Limit each action list to 15.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-do-bloco.ts:7-30",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4cada5f0",
+      "action": "translate",
+      "new_text": "Global Actions in Configuration (`portal.js` `builder-configurations.globalActions.title`, `<actions state=\"$ctrl.globalActions\">`) use the same `$enteringCustomActions` and `$leavingCustomActions` lists as a block, but for the whole flow. `editor.ts` confirms `globalActions.$enteringCustomActions` and `$leavingCustomActions` become executed flow-wide actions in published form. Reuse `acoes-do-bloco.ts` catalog, labels, and validation (`novaAcao`, `tipoDeAcao`, `valorDoCampo`, `comCampo`, `comTitulo`, `comCondicoes`, `errosDaAcao`); only list CRUD changes to `globais` (`Record<string, unknown>`) rather than `Bloco` with `id`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/acoes-globais.ts:5-20",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-05dd1749",
+      "action": "translate",
+      "new_text": "Measure each card's actual height so its arrow leaves the correct edge.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/canvas.tsx:107-107",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3834a65a",
+      "action": "translate",
+      "new_text": "Delete removes the selected arrow, or the selected block when that block may be removed.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/canvas.tsx:121-121",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-94ba6d48",
+      "action": "translate",
+      "new_text": "Convert pointer screen coordinates to unzoomed canvas coordinates.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/canvas.tsx:156-156",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2fd53e18",
+      "action": "translate",
+      "new_text": "Find the block under the pointer in canvas coordinates; `elementFromPoint` can fail during pointer capture or with arrows overlaid.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/canvas.tsx:171-172",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-df5ec24f",
+      "action": "translate",
+      "new_text": "Builder canvas mirrors reference `#canvas.grabbable` with scaled `#diagramContainer`: absolute blocks, SVG arrows behind, background drag to pan, Ctrl+wheel zoom by 10 from 20% to 100% like footer `rzslider`. Captured Pointer Events support mouse/pen/touch and keep drags outside elements. Block drag calls `onMover` repeatedly and `onSoltar` once for one `soltar` reducer step for undo; a click calls `onAbrir` like source `builder-node`. Drag from an output to another block calls `onLigar(de, para)`; dropping outside does nothing. Clicking an arrow selects it; Delete calls `onDesligar`, mirroring source `bind(\"click\")` and `keydown Delete`. Right-click opens Duplicate/Copy ID/Delete except on Start. Measure card height after render so arrows leave the proper face as labels and titles change it.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/canvas.tsx:20-41",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-973d4fc1",
+      "action": "translate",
+      "new_text": "Without real dragging, this is a click on the output point; do not create a self-loop merely from the click.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/canvas.tsx:253-253",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-40f6d308",
+      "action": "translate",
+      "new_text": "A Builder copy remains available even if the browser clipboard permission is denied.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/canvas.tsx:312-312",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-4a04cb18",
+      "action": "translate",
+      "new_text": "Reference `condition-wrapper` for an exit or action lists If, source, variable, comparison, values in each row. All conditions must match; the engine stops at the first false one. Enter or comma adds a value tag, with OR/AND between values.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicao.tsx:25-31",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1bd0a062",
+      "action": "translate",
+      "new_text": "Changing the source clears a variable name that no longer applies.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicoes.ts:101-101",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-367dfad6",
+      "action": "translate",
+      "new_text": "Add one value on Enter; ignore duplicates and blanks.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicoes.ts:110-110",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-de0868e8",
+      "action": "translate",
+      "new_text": "Return `validarCondicao` engine wording or nothing when valid.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicoes.ts:123-123",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-3dba33b2",
+      "action": "translate",
+      "new_text": "Pipe's engine has no AI provider, so intent and entity conditions can never match.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicoes.ts:134-134",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-dd193252",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicoes.ts:140-140",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f78729a6",
+      "action": "translate",
+      "new_text": "Add an exit with no destination and one empty condition.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicoes.ts:142-142",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f2656651",
+      "action": "translate",
+      "new_text": "Move an exit up/down in evaluation order; out-of-range positions do nothing.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicoes.ts:160-160",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-d11bd43a",
+      "action": "translate",
+      "new_text": "Show exit errors using panel wording.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicoes.ts:189-189",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-b8afdc2d",
+      "action": "translate",
+      "new_text": "Label any source, including ones the screen does not offer.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicoes.ts:29-29",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2c99198b",
+      "action": "translate",
+      "new_text": "Block-exit and action conditions use engine vocabulary (`packages/core/src/fluxo/condicao.ts`) and literal Blip Exit conditions tab labels (`builder-tabs-outputs`, pt-BR `sources`, `comparisons`, `and`/`or`). Offer only supported `input` and `context` sources, 13 `COMPARACOES` in enum order, and `or`/`and` among values. Blip `intent`/`entity` lack a Pipe AI provider: show an imported condition with a warning but do not offer creation. Exit order is evaluation order; the engine takes the first match (`FlowManager.ProcessOutputsAsync` ported in `gerenciador.ts`), then default. Provide up/down controls.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicoes.ts:6-22",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-e03209d1",
+      "action": "translate",
+      "new_text": "Read comparison as the engine does: case-insensitively, defaulting to `equals`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicoes.ts:81-81",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-684e3650",
+      "action": "translate",
+      "new_text": "New condition defaults to user response equals, matching the engine.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicoes.ts:89-89",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b12e3afe",
+      "action": "translate",
+      "new_text": "Changing comparison clears values when that comparison no longer needs them.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/condicoes.ts:94-94",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-a31ff9e6",
+      "action": "translate",
+      "new_text": "Render block `$contentActions` as cards in robot-send order.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/conteudo.ts:104-104",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-53dfa2fb",
+      "action": "translate",
+      "new_text": "Add content BEFORE user input: input remains last because the engine sends messages before waiting (`converterEstado` stores `input` outside the action list, while cards show the user's order).",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/conteudo.ts:160-164",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-2d33b4ec",
+      "action": "translate",
+      "new_text": "Move a robot utterance up/down; user input stays last.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/conteudo.ts:185-185",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b76f4a05",
+      "action": "translate",
+      "new_text": "Change text and options of a menu or quick reply while preserving `scope`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/conteudo.ts:219-219",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-33e4e59d",
+      "action": "translate",
+      "new_text": "Replace a block's `input`; do nothing when no input exists.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/conteudo.ts:231-231",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-632912ac",
+      "action": "translate",
+      "new_text": "Aguardar resposta enables waiting; Não aguardar maps to `bypass`. Create an input if none exists.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/conteudo.ts:237-237",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-ba02a6dd",
+      "action": "translate",
+      "new_text": "Return validation with a substituted rule and prefilled instruction, as the editor does.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/src/paginas/builder/conteudo.ts:247-247",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-9340d042",
+      "action": "translate",
+      "new_text": "Show block-content errors in panel wording.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/src/paginas/builder/conteudo.ts:257-257",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-390a85e8",
+      "action": "translate",
+      "new_text": "Block Content tab follows Blip's conversation-like `$contentActions` cards, robot utterances left and user input right. Offer only Pipe channel `CONTEUDOS_SUPORTADOS` (`packages/core/src/fluxo/editor.ts`): text `text/plain` and two `application/vnd.lime.select+json` variants, Menu without `scope` and Quick reply with `scope: \"immediate\"`. Other Blip menu types (image, audio, video, document, sticker, carousel, HTTP, dynamic content, survey, location, web link, call request) are rejected on publish as unsupported `conteudo:<mime>`. Imported `chatstate` Typing appears but cannot be newly created and runs without effect. Limits match editor copy: 25 content items per block, menus up to 10 options of 24 characters, quick replies up to 3 options of 20 characters.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/src/paginas/builder/conteudo.ts:5-23",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

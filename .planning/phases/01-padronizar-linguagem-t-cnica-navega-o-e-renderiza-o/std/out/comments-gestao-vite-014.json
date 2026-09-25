@@ -1,0 +1,604 @@
+{
+  "items": [
+    {
+      "id": "gestao-vite-comment-00d4806c",
+      "action": "translate",
+      "new_text": "The id may contain colons; only the FIRST one splits it from the prefix.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/contrato.test.ts:90-90",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-fc78dc52",
+      "action": "translate",
+      "new_text": "The first bytes of each of the three types the source accepts.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/tests/criar-regras-de-nome.test.ts:17-17",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-01193a15",
+      "action": "translate",
+      "new_text": "`<!DOCTYPE h` — the start of a file that turns into script execution if",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/tests/criar-regras-de-nome.test.ts:29-29",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-fe4b94a6",
+      "action": "translate",
+      "new_text": "served with the type the upload claimed.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/tests/criar-regras-de-nome.test.ts:30-30",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8c8e074b",
+      "action": "translate",
+      "new_text": "The short identifier, which migration 0020 started persisting.\n\n`shortName = name.toLowerCase()` in the source, and it explains the rule requiring a starting letter: an identifier starting with a digit doesn't become a valid address.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/criar-regras-de-nome.test.ts:50-55",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-1ab722e5",
+      "action": "translate",
+      "new_text": "Sanitization strips what the source strips, and accents remain (documented divergence).",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/criar-regras-de-nome.test.ts:59-59",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-d2a461c3",
+      "action": "translate",
+      "new_text": "The image picker for the name step.\n\nWhat this file locks down is the screen's only security decision: the photo's type comes from its BYTES, never from the extension or the browser-reported `type`. Getting this wrong doesn't break the screen — the file still gets saved, the page still loads, and the `data:` URI the portal grid renders starts loading whatever anyone has renamed to `.png`.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/tests/criar-regras-de-nome.test.ts:7-15",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-83452333",
+      "action": "translate",
+      "new_text": "The same rule, each screen's wording.\n\nIn the source the name step is a SINGLE template (module 96904), and what changes between router and flow are three `ng-if=\"$ctrl.template != 'master'\"` swapping the label. This test locks exactly that: the rejection must be the same in both, and the wording must match the screen — whoever creates a flow must not read \"router\", which is the source's own defect that we don't copy.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/tests/criar-regras-de-nome.test.ts:70-78",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-01b7bed3",
+      "action": "translate",
+      "new_text": "File lines, already stripped of the BOM and the trailing line break.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/csv-historico.test.ts:31-31",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ac831ad5",
+      "action": "translate",
+      "new_text": "Without the BOM, Excel in Portuguese opens the file as latin-1 and every accented name turns into garbage — \"Conceição\" disappears from the whole spreadsheet.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/csv-historico.test.ts:37-38",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5b9b6175",
+      "action": "translate",
+      "new_text": "An empty slice must not produce an empty file: the manager needs to see the columns and conclude the filter simply found nothing.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/csv-historico.test.ts:49-50",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-666fa800",
+      "action": "translate",
+      "new_text": "The separator is `;` because it's Excel's Portuguese-locale list separator. Without quoting, \"Silva; Souza\" would push every following column one slot to the right, and the handling time would land in the status column.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/csv-historico.test.ts:55-57",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0304a1dc",
+      "action": "translate",
+      "new_text": "The CSV the manager exports from History.\n\nIt's the repository's easiest format to break silently: the file opens, Excel doesn't complain, and the columns are swapped because a contact name had a semicolon. Nobody notices until someone sums the wrong column.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/csv-historico.test.ts:6-12",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6e1152f9",
+      "action": "translate",
+      "new_text": "A contact name pasted from WhatsApp comes with `\\n`. Outside quotes, it turns into a new line in the file, and the export ends up with more lines than conversations.",
+      "sensitivity": "integration",
+      "evidence": "apps/gestao-vite/tests/csv-historico.test.ts:70-72",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-8d702af9",
+      "action": "translate",
+      "new_text": "Only `\\r\\n` separates a record; a lone `\\n` stays inside the field.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/csv-historico.test.ts:75-75",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-89a640af",
+      "action": "keep-original",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/desk-url.test.ts:7: fragment of the `https://pipe.exemplo/desk/` URL literal inside the test call is not a comment; scanner false positive",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-81290cdf",
+      "action": "keep-original",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/desk-url.test.ts:8: fragment of the `https://pipe.exemplo/desk/chat/...` URL literal inside the test call is not a comment; scanner false positive",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a52e75da",
+      "action": "translate",
+      "new_text": "The contact bar's row (`/fluxo/{id}`).\n\nWhat this file locks down is the screen's only decision: what the ROUTER shows and the FLOW doesn't, and vice versa. In the source this comes from two places far apart from each other — `getTemplateSetupItem()` (which prepends \"Serviços\" for `master`) and the claims map's `hideInTemplate` (which hides `builder` and `desk` in that same `master`) — and it's exactly the kind of rule that comes back wrong in a silent refactor: the screen keeps loading, it just starts offering the router a builder it doesn't have.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/tests/fluxo-detalhe.test.ts:10-20",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-1220b969",
+      "action": "translate",
+      "new_text": "`application-detail-pipeprincipal-configurations-basic.html` (builder) and `roteador-team__pagina.html` (master), the source of both.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/tests/fluxo-detalhe.test.ts:105-106",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-f96a9bc1",
+      "action": "translate",
+      "new_text": "If the row ever fits entirely in five, the \"…\" disappears from the screen — and that's what the design expects. The test exists to flag it when that changes.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/fluxo-detalhe.test.ts:116-117",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-16a88ea8",
+      "action": "translate",
+      "new_text": "The source's step 2 (`getUpdatedMenus()`): the row sieved by THIS PERSON's permissions on that bot. Without the argument nothing changes — that's what the tests above lock down, and it's what every tenant that never opened Team sees.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/tests/fluxo-detalhe.test.ts:122-126",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c2165305",
+      "action": "translate",
+      "new_text": "It's the only key on which the source's two lists disagree by name.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/fluxo-detalhe.test.ts:151-151",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-40ae8823",
+      "action": "translate",
+      "new_text": "The other side of the double gate: account permission isn't sieved by the flow's permission, otherwise 0035 would strip access from people who already had it.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/tests/fluxo-detalhe.test.ts:160-161",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-673df28a",
+      "action": "translate",
+      "new_text": "`getTemplateSetupItem()` runs BEFORE `getUpdatedMenus()` and isn't from the catalog: \"Serviços\" stays even when the person has no resource at all.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/tests/fluxo-detalhe.test.ts:167-168",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-b9e19cf9",
+      "action": "translate",
+      "new_text": "And the flow has no template item at all: the source's `switch` has no case for `builder`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/tests/fluxo-detalhe.test.ts:71-72",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-31b6eb87",
+      "action": "translate",
+      "new_text": "02:00 UTC is still the previous day in São Paulo. If the timezone is ignored, the History period filter picks the wrong day and the manager sees yesterday's numbers thinking they're today's.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:100-102",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-fddcd91a",
+      "action": "translate",
+      "new_text": "The `time` type returns `HH:MM:SS`; `<input type=\"time\">` and the screen want `HH:MM`. With the seconds included, the schedule form field comes back empty.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:111-112",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5b49e6c6",
+      "action": "translate",
+      "new_text": "Postgres's `extract(dow)` and core's `getUTCDay` both use 0 = Sunday. If this list is rotated, Monday's business hours start applying on Sunday.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:118-119",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-66e952c7",
+      "action": "translate",
+      "new_text": "`?fila=abc` reached Postgres as `abc::uuid` and brought the screen down with a 500. A malformed filter is, at most, an ignored filter — not a server error.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:126-127",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-f4bad1c3",
+      "action": "translate",
+      "new_text": "Near-UUID: one extra digit is still not a UUID.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:135-135",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-3af568d9",
+      "action": "translate",
+      "new_text": "February 31st passes the format check and doesn't exist: `::date` would reject it with a 500.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:143-143",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e98320e7",
+      "action": "translate",
+      "new_text": "The formatting for every number the manager reads.\n\nNothing here touches the database: it's the layer that turns seconds into text, and it's the last thing that runs before the number shows up on the supervisor's screen. A bug here doesn't crash the app — it prints a plausible, wrong number, which is exactly the kind of failure nobody notices until someone makes a decision about people based on it.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:17-25",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c377f2da",
+      "action": "translate",
+      "new_text": "If the 3,600 boundary slips, the open-conversations list shows \"59:59\" for an hour-plus conversation, and the critical case disappears.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:28-29",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-49019bea",
+      "action": "translate",
+      "new_text": "`segundosEntre` returns negative when the database clock and the server clock disagree. Without the floor at zero, the screen would show \"-1:-5\" live.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:37-38",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-380053e9",
+      "action": "translate",
+      "new_text": "Rounding the hour's remainder separately added 60 minutes without adding the hour. 7,190s is 1h59min48s: the effort report printed \"1h 60min\".",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:46-47",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-947bb5cc",
+      "action": "translate",
+      "new_text": "Averaging over a zero population returns `NaN` from core. Without this guard, the report prints \"NaNmin\" instead of admitting there's no data.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:56-57",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-30ec75b5",
+      "action": "translate",
+      "new_text": "Thousands dot and decimal comma. With English formatting, \"1.234\" would be read as a thousand times smaller by whoever reads the screen.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:64-65",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-784b8de5",
+      "action": "translate",
+      "new_text": "Metrics ruler (§2): an average that hides the denominator improves precisely when service quality worsens, because the bad conversations drop out of the count. If this text disappears, the number goes back to lying without warning.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:82-84",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0c44fb3f",
+      "action": "translate",
+      "new_text": "No exclusion means no suffix: zero isn't announced.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:89-89",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-468c6540",
+      "action": "translate",
+      "new_text": "The label for what was excluded changes per metric.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/formato.test.ts:92-92",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c180706c",
+      "action": "translate",
+      "new_text": "By design the groups' sum exceeds the total: the question is \"how many conversations touched this tag\", not \"how do I split the total\". If someone \"fixes\" this, the per-tag count starts undercounting.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/historico.test.ts:102-104",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-9100577a",
+      "action": "translate",
+      "new_text": "The same list feeds the CSV export right after.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/historico.test.ts:117-117",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-64150555",
+      "action": "translate",
+      "new_text": "History's grouping and the ticket number.\n\nBoth are read by people: grouping decides how many conversations the manager attributes to each queue, and the ticket is what the agent dictates over the phone. Neither one touches the database.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/historico.test.ts:13-19",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-1ccfbc22",
+      "action": "translate",
+      "new_text": "It's the number the agent reads aloud and the manager pastes into search. If the rule changes, already-dictated tickets stop finding the conversation.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/historico.test.ts:139-140",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-bf75bd25",
+      "action": "translate",
+      "new_text": "The value arrives from `searchParams`, meaning from anyone who types into the address bar. Without this filter, a stray value would pass through and `agruparHistorico` would return the list duplicated under a nonexistent key.",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/tests/historico.test.ts:37-39",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-6a235e4b",
+      "action": "translate",
+      "new_text": "A conversation lost at the root queue has a null `filaNome`. If it doesn't become its own group, the groups' sum falls short of the total, and the manager concludes the day had fewer conversations than it actually did.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/historico.test.ts:57-59",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4c804241",
+      "action": "translate",
+      "new_text": "The order is the screen's answer: the first group is where the volume is.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/historico.test.ts:72-72",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-334d3617",
+      "action": "translate",
+      "new_text": "The label is what the manager reads. A new status in the database must not make the group disappear — it shows up under its technical name, which is ugly but visible.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/historico.test.ts:91-92",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-8400d5a3",
+      "action": "translate",
+      "new_text": "The deployment wizard's steps, derived from the database signals. Each step is done when what it requires exists — never by a click.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/implantacao.test.ts:6-9",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-94620ff3",
+      "action": "translate",
+      "new_text": "`campoDoErroDeLink` decides under which form field (name/destination) the screen shows the rejection from `POST /v1/gestao/fluxos/:fluxoId/links-rastreados` — this endpoint's error body doesn't send `detalhe.campo`, only `codigo` (see `dominio/rastreador-de-cliques.ts` and `dominio/gestao/integracoes.ts::confirmarUrlSegura`).",
+      "sensitivity": "security",
+      "evidence": "apps/gestao-vite/tests/links-rastreados.test.ts:5-11; cross-references dominio/rastreador-de-cliques.ts and dominio/gestao/integracoes.ts::confirmarUrlSegura",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-0d3685f6",
+      "action": "translate",
+      "new_text": "A fatal criterion zeroes out the whole evaluation. Getting this wrong means giving a zero to someone who doesn't deserve it — or hiding the zero from someone who does — and in both cases the number becomes a decision about a person.\n\nThe caps are copied from `packages/ai/src/avaliacao/tipos.ts`, and the test also exists to flag it if they ever diverge.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/nota-avaliacao.test.ts:10-17; cross-references packages/ai/src/avaliacao/tipos.ts",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-0ab85d59",
+      "action": "translate",
+      "new_text": "Comma is the decimal separator the model returns when writing in Portuguese.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/nota-avaliacao.test.ts:40-40",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-2276c9a9",
+      "action": "translate",
+      "new_text": "An unanswered criterion means an incomplete form, not a failed agent.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/nota-avaliacao.test.ts:54-54",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4ab2edb3",
+      "action": "translate",
+      "new_text": "And a non-fatal criterion never fails the evaluation, no matter how bad the answer.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/nota-avaliacao.test.ts:56-56",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-eb9b9535",
+      "action": "translate",
+      "new_text": "§6 of the metrics spec: CSAT and NPS are incompatible scales, and each class's boundary differs. A 4 is a promoter on CSAT and a detractor on NPS — this is exactly the pair the test protects, because swapping the two boundaries flips the whole report's signal without anything breaking.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/pesquisa.test.ts:10-15",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5d7d31af",
+      "action": "translate",
+      "new_text": "Minimal row for the ordering: it's all it reads.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/prioridade.test.ts:15-15",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-4c6da0da",
+      "action": "translate",
+      "new_text": "The old defect sent unknown values to the \"média\" weight, which handed",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/prioridade.test.ts:36-36",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-62366836",
+      "action": "translate",
+      "new_text": "free priority to garbage data.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/prioridade.test.ts:37-37",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-5599cbfb",
+      "action": "translate",
+      "new_text": "The priority ruler and the waiting-queue order.\n\nThe test that matters is the third: **`baixa` cuts ahead of `sem_prioridade`**. It's the rule that motivated the fifth step, and it's the one that breaks silently if someone reorders `NIVEIS_PRIORIDADE` or reintroduces a parallel weight map.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/prioridade.test.ts:6-13",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-33642ad6",
+      "action": "translate",
+      "new_text": "Case and accent don't count: normalization is `@pipe/core`'s.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/regra-fila.test.ts:105-105",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-32b28f64",
+      "action": "translate",
+      "new_text": "The entry rule — §8 of the metrics spec.\n\nWhat this decides is which queue the conversation falls into, and getting it wrong means silently routing the customer to the wrong team: a rule that doesn't match produces no error. That's why the test covers the two decisions the spec makes against Blip's — evaluation ORDER and AND/OR COMPOSITION — and not the operators, which belong to `@pipe/core` and already have their own test there.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/tests/regra-fila.test.ts:12-20",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-c0608b13",
+      "action": "translate",
+      "new_text": "The \"Regras de Priorização\" section slice from the queue-edit page (`FICHA-atendentes-filas-pausas.md` §a.3).\n\n`GET /v1/gestao/regras/prioridade` returns the whole tenant; the queue section shows only `escopoTipo === 'fila'` with this queue's `escopoId`. Without this slice, editing the \"Suporte\" queue would list \"Financeiro\"'s rules — and deleting one there would delete the other queue's rule.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/gestao-vite/tests/regras-prioridade.test.ts:10-18",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "gestao-vite-comment-26de435e",
+      "action": "translate",
+      "new_text": "A level the database has and core doesn't recognize passes through raw, instead of disappearing.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/regras-prioridade.test.ts:59-59",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-214b534b",
+      "action": "translate",
+      "new_text": "Fulfilled is a final state: the clock stops. Without this, an old conversation would blow its deadline later just because time kept passing.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/sla.test.ts:107-108",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-a5d5840f",
+      "action": "translate",
+      "new_text": "`tempo_resposta` only starts once there's an unanswered client message. Without that marker, counting time since creation would fabricate a breach.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/sla.test.ts:120-121",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-ffd441e9",
+      "action": "translate",
+      "new_text": "\"DENTRO\" without a configured rule would be a lie: it claims the deadline is being met when no deadline exists. The em dash is what makes the manager notice a rule still needs to be registered.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/sla.test.ts:41-43",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-213957ad",
+      "action": "translate",
+      "new_text": "The specific rule is the one the manager configured on purpose. If the tenant's won instead, the urgent queue would inherit the default's loose deadline.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/sla.test.ts:50-51",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-e0c761c0",
+      "action": "translate",
+      "new_text": "Another queue isn't reached by the specific rule and falls back to the tenant default.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/sla.test.ts:58-58",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-17302ec9",
+      "action": "translate",
+      "new_text": "The SLA pill in detailed monitoring.\n\nThe calculation belongs to `@pipe/core`; what lives here is choosing the applicable rule and translating it into the screen's label. Both decide whether the supervisor sees \"ESTOUROU\" and goes after the conversation, or sees \"—\" and moves on. Neither touches the database: they receive the rules already loaded.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/sla.test.ts:6-13",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-50d05e64",
+      "action": "translate",
+      "new_text": "A conversation still at the root has a null `filaId` — it's precisely the one at risk of being forgotten, and the one that most needs the clock.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/sla.test.ts:63-64",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-6da8f7e1",
+      "action": "translate",
+      "new_text": "The threshold is inclusive: exactly at the alert point, it already alerts.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/sla.test.ts:74-74",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c1860ae7",
+      "action": "translate",
+      "new_text": "It's the number that orders the queue of what needs attention first. Without it, \"ESTOUROU\" 10 seconds ago and two hours ago look the same.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/sla.test.ts:81-82",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-c5465dc7",
+      "action": "translate",
+      "new_text": "The SLA report exists to count what failed. If answering late erased the breach, answering late would be enough to keep the indicator clean — and the breach would disappear exactly in the cases that matter.",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/sla.test.ts:94-96",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-785c2c16",
+      "action": "keep-original",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/gestao-vite/tests/webhook-regras.test.ts:13: fragment of the `https://a.pipe.app` URL literal inside the test assertion is not a comment; scanner false positive",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "gestao-vite-comment-082d0f63",
+      "action": "translate",
+      "new_text": "Pipe Gestão as an SPA — the design from `docs/specs/2026-09-07-arquitetura-de-front.md`: Vite with SWC, a static front, and the NestJS `api` as the only gateway to the database.\n\nIn development `/v1` is proxied to the `api` (3010), so the `pipe_sessao` (HttpOnly) cookie can travel back and forth on the SAME origin — no CORS, no token in the browser. In production both live under `.usepipe.com.br` and the cookie crosses via `Domain`, as the spec describes.\n\n`@pipe/ui` is consumed as source, with no build step — the same arrangement the Next app used with `transpilePackages`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/gestao-vite/vite.config.ts:5-16; cites docs/specs/2026-09-07-arquitetura-de-front.md",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
