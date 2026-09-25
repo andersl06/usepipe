@@ -102,7 +102,12 @@ export function checkMap(options: { map: string; scopes?: string[]; requireStatu
     // scope. front-route is additionally scoped by `scope`: each front-end app owns an independent
     // router, so the same path (e.g. the shared /invite/:token route) legitimately recurs across apps.
     const perOccurrenceKind = ['symbol', 'ts-local', 'ts-prop', 'front-route', 'endpoint'].includes(row.kind);
-    const key = ['file', 'dir'].includes(row.kind) ? `path:${row.new.replaceAll('\\', '/')}` : row.kind === 'front-route' ? `route:front-route:${row.scope}:${row.new}` : row.kind === 'endpoint' ? `route:endpoint:${row.new}` : `symbol:${row.kind}:${file}:${row.new}`;
+    // `dir` rows carry a full path in `new`, directly comparable. `file` rows carry a bare
+    // basename in `old` and an inconsistently-shaped `new` across scopes/generators (bare
+    // basename, app-relative fragment, or full path) - only `new`'s basename is trustworthy;
+    // the directory always comes from `declared_at` (matching move-files.ts's rowMove).
+    const fileDestination = `${file.slice(0, file.lastIndexOf('/'))}/${row.new.replaceAll('\\', '/').split('/').pop()}`;
+    const key = row.kind === 'file' ? `path:${fileDestination}` : row.kind === 'dir' ? `path:${row.new.replaceAll('\\', '/')}` : row.kind === 'front-route' ? `route:front-route:${row.scope}:${row.new}` : row.kind === 'endpoint' ? `route:endpoint:${row.new}` : `symbol:${row.kind}:${file}:${row.new}`;
     const previous = collision.get(key);
     const repeatableKind = perOccurrenceKind || ['css-class', 'css-var', 'data-attr'].includes(row.kind);
     if (previous && (previous.old !== row.old || !repeatableKind)) add('error', [previous, row], 'duplicate target');
