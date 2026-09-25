@@ -1,13 +1,13 @@
 id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
-packages-ai-comment-02a9981c,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,140,140,line,2,// Peso total cai de 10 para 8; quem sobrou está todo conforme.,,,,,,
-packages-ai-comment-eeb61a64,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,166,166,line,1,// ——— avaliação com dublê do modelo ———,,,,,,
-packages-ai-comment-9b5c0783,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,198,198,jsdoc,1,/** Dublê com resposta gravada: nenhum teste gasta chamada real. */,,,,,,
+packages-ai-comment-02a9981c,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,140,140,line,2,// Peso total cai de 10 para 8; quem sobrou está todo conforme.,remove,,other,packages/ai/src/avaliacao/avaliacao.teste.ts:138-142,codex,reviewed
+packages-ai-comment-eeb61a64,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,166,166,line,1,// ——— avaliação com dublê do modelo ———,remove,,other,packages/ai/src/avaliacao/avaliacao.teste.ts:166-168,codex,reviewed
+packages-ai-comment-9b5c0783,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,198,198,jsdoc,1,/** Dublê com resposta gravada: nenhum teste gasta chamada real. */,translate,Recorded response stub: tests make no real model calls.,other,packages/ai/src/avaliacao/avaliacao.teste.ts:198-201,codex,reviewed
 packages-ai-comment-a096a87c,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,9,13,jsdoc,2,"/**
  * Pesos: c1=1×1, c2=1×2, c3=2×2, c4=3×1. Somam 10, então cada ponto de peso vale
  * 10 pontos de nota. Números redondos de propósito: teste de cálculo com número
  * feio esconde erro de arredondamento.
- */",,,,,,
-packages-ai-comment-43308d34,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,95,95,line,0,// Só o c1 (peso 1 de 10) caiu.,,,,,,
+ */",translate,"Weights: c1=1×1, c2=1×2, c3=2×2, c4=3×1, totaling 10; each weight point is worth 10 score points. Round numbers are intentional: awkward arithmetic would obscure rounding errors in this calculation test.",other,packages/ai/src/avaliacao/avaliacao.teste.ts:9-25,codex,reviewed
+packages-ai-comment-43308d34,packages-ai,packages/ai/src/avaliacao/avaliacao.teste.ts,95,95,line,0,// Só o c1 (peso 1 de 10) caiu.,remove,,other,packages/ai/src/avaliacao/avaliacao.teste.ts:93-96,codex,reviewed
 packages-ai-comment-a9d5f828,packages-ai,packages/ai/src/avaliacao/avaliacao.ts,1,12,jsdoc,19,"/**
  * Avaliação de atendimento por IA: recebe transcrição e formulário, devolve
  * resposta critério a critério com valor, pontos, justificativa e a mensagem que
@@ -19,13 +19,13 @@ packages-ai-comment-a9d5f828,packages-ai,packages/ai/src/avaliacao/avaliacao.ts,
  * mesma disciplina que no case-sync validava a subcategoria contra a picklist —
  * lá, aceitar a resposta do modelo sem conferir produziu Cases em branco que
  * ninguém viu por meses.
- */",,,,,,
-packages-ai-comment-27069a08,packages-ai,packages/ai/src/avaliacao/avaliacao.ts,46,46,jsdoc,1,"/** Dublê nos testes; na produção, a chamada real. */",,,,,,
-packages-ai-comment-c92064ec,packages-ai,packages/ai/src/avaliacao/avaliacao.ts,50,50,jsdoc,1,/** Sobra folga para justificativa e evidência de cada critério. */,,,,,,
+ */",translate,"AI ticket evaluation takes a transcript and form and returns each criterion's value, points, rationale, and supporting message. Every model result is checked against the form and transcript before acceptance: unknown criterion IDs, nonexistent evidence labels, and noncompliant criteria without evidence fail. This follows the case-sync practice of checking subcategories against the picklist; accepting unchecked model answers there produced blank Cases unnoticed for months.",architecture,"packages/ai/src/avaliacao/avaliacao.ts:1-12,60-125; pre-triage D-40; needs slice-time confirmation",codex,reviewed
+packages-ai-comment-27069a08,packages-ai,packages/ai/src/avaliacao/avaliacao.ts,46,46,jsdoc,1,"/** Dublê nos testes; na produção, a chamada real. */",translate,Test stub when injected; the real call in production.,other,packages/ai/src/avaliacao/avaliacao.ts:44-47,codex,reviewed
+packages-ai-comment-c92064ec,packages-ai,packages/ai/src/avaliacao/avaliacao.ts,50,50,jsdoc,1,/** Sobra folga para justificativa e evidência de cada critério. */,translate,Leaves room for each criterion's rationale and evidence.,other,packages/ai/src/avaliacao/avaliacao.ts:50-54,codex,reviewed
 packages-ai-comment-7c886c41,packages-ai,packages/ai/src/avaliacao/avaliacao.ts,56,59,jsdoc,2,"/**
  * Resolve o rótulo citado (`m12`) para o `mensagem.id` correspondente. Rótulo
  * fora do índice da transcrição é alucinação e derruba a avaliação.
- */",,,,,,
+ */",translate,Resolves a cited label (`m12`) to its corresponding `mensagem.id`. A label outside the transcript index is a hallucination and fails the evaluation.,architecture,packages/ai/src/avaliacao/avaliacao.ts:56-72; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ai-comment-b15cb700,packages-ai,packages/ai/src/avaliacao/nota.ts,1,11,jsdoc,12,"/**
  * Cálculo da nota. Determinístico e feito aqui, nunca pelo modelo.
  *
@@ -36,37 +36,37 @@ packages-ai-comment-b15cb700,packages-ai,packages/ai/src/avaliacao/nota.ts,1,11,
  * `pontos` de cada resposta já vem na escala da nota: a soma dos pontos é a nota
  * antes do fatal. É essa propriedade que faz a tela conseguir mostrar ""perdeu 12
  * pontos aqui"" sem recalcular nada.
- */",,,,,,
-packages-ai-comment-79b3a781,packages-ai,packages/ai/src/avaliacao/nota.ts,17,17,jsdoc,3,"/** Quanto do critério foi cumprido, de 0 a 1. `null` quando não se aplica. */",,,,,,
-packages-ai-comment-0a93f546,packages-ai,packages/ai/src/avaliacao/nota.ts,49,49,jsdoc,2,"/** Arredonda para as duas casas de `numeric(6,2)`, sem herdar erro de ponto flutuante. */",,,,,,
+ */",translate,"Score calculation is deterministic here, never left to the model. The score is weighted by group and criterion weights on the `formulario_avaliacao.nota_maxima` scale. A `nao_se_aplica` criterion leaves the denominator; it is absent, not zero. A failed fatal criterion zeroes the total. Each response's `pontos` already uses the score scale: their sum is the score before the fatal rule, allowing the UI to show points lost per response without recalculation.",architecture,"packages/ai/src/avaliacao/nota.ts:1-11,60-125; pre-triage D-40; needs slice-time confirmation",codex,reviewed
+packages-ai-comment-79b3a781,packages-ai,packages/ai/src/avaliacao/nota.ts,17,17,jsdoc,3,"/** Quanto do critério foi cumprido, de 0 a 1. `null` quando não se aplica. */",translate,"Fraction of the criterion met, from 0 to 1; `null` means not applicable.",other,packages/ai/src/avaliacao/nota.ts:17-47,codex,reviewed
+packages-ai-comment-0a93f546,packages-ai,packages/ai/src/avaliacao/nota.ts,49,49,jsdoc,2,"/** Arredonda para as duas casas de `numeric(6,2)`, sem herdar erro de ponto flutuante. */",translate,"Rounds to the two decimal places of `numeric(6,2)` without carrying floating-point error.",other,packages/ai/src/avaliacao/nota.ts:49-52,codex,reviewed
 packages-ai-comment-24e9fdeb,packages-ai,packages/ai/src/avaliacao/nota.ts,54,59,jsdoc,3,"/**
  * Aplica pesos, escala e critério fatal sobre as respostas já validadas.
  *
  * `respostas` precisa cobrir todos os critérios do formulário — quem monta essa
  * lista (`avaliacao/avaliacao.ts`) já garantiu isso. Aqui, faltar critério é erro.
- */",,,,,,
+ */",translate,"Applies weights, scale, and fatal criteria to validated responses. `respostas` must cover every form criterion; its builder (`avaliacao/avaliacao.ts`) already guarantees this, so a missing criterion is an error here.",architecture,packages/ai/src/avaliacao/nota.ts:54-90; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ai-comment-0beaccd1,packages-ai,packages/ai/src/avaliacao/tipos.ts,1,5,jsdoc,2,"/**
  * Formulário de avaliação e resultado, espelhando `formulario_avaliacao` →
  * `grupo_criterio` → `criterio` e `avaliacao` → `resposta_avaliacao` (§6 do
  * modelo de dados). Sem acesso a banco: entra dado, sai resultado.
- */",,,,,,
-packages-ai-comment-3e83ed87,packages-ai,packages/ai/src/avaliacao/tipos.ts,11,11,jsdoc,6,"/** Escalas dos tipos que não são `conforme`. `escala` vai a 5, `nota` vai a 10. */",,,,,,
-packages-ai-comment-6e5ceb87,packages-ai,packages/ai/src/avaliacao/tipos.ts,15,15,jsdoc,3,/** `nao_se_aplica` tira o critério do denominador — não é o mesmo que zero. */,,,,,,
-packages-ai-comment-a55a54cf,packages-ai,packages/ai/src/avaliacao/tipos.ts,25,25,jsdoc,2,/** Critério fatal marcado como não conforme zera a nota da avaliação inteira. */,,,,,,
-packages-ai-comment-ad19683c,packages-ai,packages/ai/src/avaliacao/tipos.ts,44,44,jsdoc,3,"/** O que a IA responde por critério, antes de a nota ser calculada aqui. */",,,,,,
-packages-ai-comment-84b6e0fb,packages-ai,packages/ai/src/avaliacao/tipos.ts,47,47,jsdoc,2,"/** `conforme` | `nao_conforme` | `nao_se_aplica`, ou o número da escala como texto. */",,,,,,
-packages-ai-comment-e8654aa2,packages-ai,packages/ai/src/avaliacao/tipos.ts,50,50,jsdoc,2,/** Rótulo da linha da transcrição (`m7`) que sustenta a resposta. */,,,,,,
-packages-ai-comment-0a143167,packages-ai,packages/ai/src/avaliacao/tipos.ts,54,54,jsdoc,1,"/** Espelha `resposta_avaliacao`. `pontos` é calculado aqui, nunca pelo modelo. */",,,,,,
-packages-ai-comment-18e09cea,packages-ai,packages/ai/src/avaliacao/tipos.ts,60,60,jsdoc,2,/** `mensagem.id` já resolvido a partir do rótulo. */,,,,,,
-packages-ai-comment-dcfd4826,packages-ai,packages/ai/src/avaliacao/tipos.ts,66,66,jsdoc,2,"/** Nota final na escala do formulário, já com o critério fatal aplicado. */",,,,,,
-packages-ai-comment-5c841c2f,packages-ai,packages/ai/src/avaliacao/tipos.ts,68,68,jsdoc,1,/** Nota antes do critério fatal — é o que mostra o tamanho do estrago. */,,,,,,
-packages-ai-comment-d5dbc39f,packages-ai,packages/ai/src/avaliacao/tipos.ts,70,70,jsdoc,2,/** Critérios fatais reprovados. Vazio quando nenhum zerou a nota. */,,,,,,
-packages-ai-comment-39e6e8c1,packages-ai,packages/ai/src/avaliacao/tipos.ts,73,73,jsdoc,2,"/** Confiança geral declarada pelo modelo, de 0 a 1. */",,,,,,
-packages-ai-comment-8e181dbc,packages-ai,packages/ai/src/avaliacao/tipos.ts,81,81,jsdoc,0,"/** Percorre os critérios de todos os grupos, na ordem do formulário. */",,,,,,
-packages-ai-comment-73286c4a,packages-ai,packages/ai/src/bancada/bancada.teste.ts,128,128,line,2,"// Em um caso, a IA marca conforme onde o humano marcou não conforme.",,,,,,
-packages-ai-comment-792c6b20,packages-ai,packages/ai/src/bancada/bancada.teste.ts,167,167,line,3,"// A IA deixa passar a exposição de dado de terceiro: o humano zerou, ela não.",,,,,,
-packages-ai-comment-e7eabc48,packages-ai,packages/ai/src/bancada/bancada.teste.ts,19,19,jsdoc,2,"/** Avaliador de mentira: responde o gabarito, com as trocas que o teste pedir. */",,,,,,
-packages-ai-comment-3b0531f1,packages-ai,packages/ai/src/bancada/bancada.teste.ts,191,191,line,2,"// A falha não vira acurácia melhor nem pior: some do cálculo, mas é dita.",,,,,,
+ */",translate,"Evaluation form and result mirror `formulario_avaliacao` → `grupo_criterio` → `criterio` and `avaliacao` → `resposta_avaliacao` (§6 of the data model). No database access: data in, result out.",architecture,packages/ai/src/avaliacao/tipos.ts:1-5; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-3e83ed87,packages-ai,packages/ai/src/avaliacao/tipos.ts,11,11,jsdoc,6,"/** Escalas dos tipos que não são `conforme`. `escala` vai a 5, `nota` vai a 10. */",translate,Limits for types other than `conforme`: `escala` reaches 5 and `nota` reaches 10.,other,packages/ai/src/avaliacao/tipos.ts:9-13,codex,reviewed
+packages-ai-comment-6e5ceb87,packages-ai,packages/ai/src/avaliacao/tipos.ts,15,15,jsdoc,3,/** `nao_se_aplica` tira o critério do denominador — não é o mesmo que zero. */,translate,`nao_se_aplica` removes the criterion from the denominator; it is not zero.,other,packages/ai/src/avaliacao/tipos.ts:15-17,codex,reviewed
+packages-ai-comment-a55a54cf,packages-ai,packages/ai/src/avaliacao/tipos.ts,25,25,jsdoc,2,/** Critério fatal marcado como não conforme zera a nota da avaliação inteira. */,translate,A fatal criterion marked noncompliant zeroes the entire evaluation score.,other,packages/ai/src/avaliacao/tipos.ts:23-26,codex,reviewed
+packages-ai-comment-ad19683c,packages-ai,packages/ai/src/avaliacao/tipos.ts,44,44,jsdoc,3,"/** O que a IA responde por critério, antes de a nota ser calculada aqui. */",translate,"The model's response per criterion, before the score is calculated here.",other,packages/ai/src/avaliacao/tipos.ts:44-46,codex,reviewed
+packages-ai-comment-84b6e0fb,packages-ai,packages/ai/src/avaliacao/tipos.ts,47,47,jsdoc,2,"/** `conforme` | `nao_conforme` | `nao_se_aplica`, ou o número da escala como texto. */",translate,"`conforme`, `nao_conforme`, `nao_se_aplica`, or the scale number as text.",other,packages/ai/src/avaliacao/tipos.ts:47-48,codex,reviewed
+packages-ai-comment-e8654aa2,packages-ai,packages/ai/src/avaliacao/tipos.ts,50,50,jsdoc,2,/** Rótulo da linha da transcrição (`m7`) que sustenta a resposta. */,translate,Transcript line label (`m7`) supporting the answer.,other,packages/ai/src/avaliacao/tipos.ts:50-51,codex,reviewed
+packages-ai-comment-0a143167,packages-ai,packages/ai/src/avaliacao/tipos.ts,54,54,jsdoc,1,"/** Espelha `resposta_avaliacao`. `pontos` é calculado aqui, nunca pelo modelo. */",translate,"Mirrors `resposta_avaliacao`; `pontos` is calculated here, never by the model.",architecture,packages/ai/src/avaliacao/tipos.ts:54-58; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-18e09cea,packages-ai,packages/ai/src/avaliacao/tipos.ts,60,60,jsdoc,2,/** `mensagem.id` já resolvido a partir do rótulo. */,translate,`mensagem.id` resolved from the label.,other,packages/ai/src/avaliacao/tipos.ts:60-61,codex,reviewed
+packages-ai-comment-dcfd4826,packages-ai,packages/ai/src/avaliacao/tipos.ts,66,66,jsdoc,2,"/** Nota final na escala do formulário, já com o critério fatal aplicado. */",translate,"Final score on the form's scale, after applying fatal criteria.",other,packages/ai/src/avaliacao/tipos.ts:66-67,codex,reviewed
+packages-ai-comment-5c841c2f,packages-ai,packages/ai/src/avaliacao/tipos.ts,68,68,jsdoc,1,/** Nota antes do critério fatal — é o que mostra o tamanho do estrago. */,translate,"Score before fatal criteria, showing their impact.",other,packages/ai/src/avaliacao/tipos.ts:68-69,codex,reviewed
+packages-ai-comment-d5dbc39f,packages-ai,packages/ai/src/avaliacao/tipos.ts,70,70,jsdoc,2,/** Critérios fatais reprovados. Vazio quando nenhum zerou a nota. */,translate,Failed fatal criteria; empty when none zeroed the score.,other,packages/ai/src/avaliacao/tipos.ts:70-71,codex,reviewed
+packages-ai-comment-39e6e8c1,packages-ai,packages/ai/src/avaliacao/tipos.ts,73,73,jsdoc,2,"/** Confiança geral declarada pelo modelo, de 0 a 1. */",translate,"Overall model-reported confidence, from 0 to 1.",other,packages/ai/src/avaliacao/tipos.ts:73-74,codex,reviewed
+packages-ai-comment-8e181dbc,packages-ai,packages/ai/src/avaliacao/tipos.ts,81,81,jsdoc,0,"/** Percorre os critérios de todos os grupos, na ordem do formulário. */",remove,,other,packages/ai/src/avaliacao/tipos.ts:81-88,codex,reviewed
+packages-ai-comment-73286c4a,packages-ai,packages/ai/src/bancada/bancada.teste.ts,128,128,line,2,"// Em um caso, a IA marca conforme onde o humano marcou não conforme.",remove,,other,packages/ai/src/bancada/bancada.teste.ts:126-130,codex,reviewed
+packages-ai-comment-792c6b20,packages-ai,packages/ai/src/bancada/bancada.teste.ts,167,167,line,3,"// A IA deixa passar a exposição de dado de terceiro: o humano zerou, ela não.",translate,"The AI misses exposure of a third party's data: the human zeroed the score, but the AI did not.",security,packages/ai/src/bancada/bancada.teste.ts:165-175; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-e7eabc48,packages-ai,packages/ai/src/bancada/bancada.teste.ts,19,19,jsdoc,2,"/** Avaliador de mentira: responde o gabarito, com as trocas que o teste pedir. */",remove,,other,packages/ai/src/bancada/bancada.teste.ts:19-27,codex,reviewed
+packages-ai-comment-3b0531f1,packages-ai,packages/ai/src/bancada/bancada.teste.ts,191,191,line,2,"// A falha não vira acurácia melhor nem pior: some do cálculo, mas é dita.",translate,A failed case neither improves nor worsens accuracy: it is excluded from the calculation but reported.,other,packages/ai/src/bancada/bancada.teste.ts:189-193,codex,reviewed
 packages-ai-comment-6199c7a7,packages-ai,packages/ai/src/bancada/bancada.ts,1,19,jsdoc,21,"/**
  * A bancada de medição, generalizada do case-sync.
  *
@@ -85,28 +85,28 @@ packages-ai-comment-6199c7a7,packages-ai,packages/ai/src/bancada/bancada.ts,1,19
  *   `falhas` e fica fora do denominador, dito em voz alta.
  *
  * A saída por critério tem o mesmo formato de `calibracao_item.desvio_por_criterio`.
- */",,,,,,
-packages-ai-comment-a55dbac4,packages-ai,packages/ai/src/bancada/bancada.ts,117,117,jsdoc,1,/** Compara duas respostas de critério do jeito que o banco as guardaria. */,,,,,,
+ */",translate,"The measurement bench, generalized from case-sync. There, measuring every change against human labels case by case raised classification accuracy from 26% to 64%; similarity examples, distilled definitions, and majority voting were discarded after measurement because they worsened results or cost 5× more without gains. Compare cases individually: a gain that breaks other cases is no gain, so results report deviation by criterion from worst to best as well as overall accuracy. A failed case must not improve the average: record it in `falhas` and exclude it from the denominator. The per-criterion output matches `calibracao_item.desvio_por_criterio`.",architecture,"packages/ai/src/bancada/bancada.ts:1-19,126-210; pre-triage D-40; needs slice-time confirmation",codex,reviewed
+packages-ai-comment-a55dbac4,packages-ai,packages/ai/src/bancada/bancada.ts,117,117,jsdoc,1,/** Compara duas respostas de critério do jeito que o banco as guardaria. */,remove,,other,packages/ai/src/bancada/bancada.ts:117-120,codex,reviewed
 packages-ai-comment-b5276d34,packages-ai,packages/ai/src/bancada/bancada.ts,122,125,jsdoc,1,"/**
  * Roda a avaliação por IA contra o conjunto de referência e devolve acurácia geral
  * e desvio por critério.
- */",,,,,,
-packages-ai-comment-532ee27b,packages-ai,packages/ai/src/bancada/bancada.ts,30,30,jsdoc,3,"/** Uma conversa do conjunto de referência, com a avaliação feita por humano. */",,,,,,
-packages-ai-comment-a31d40f4,packages-ai,packages/ai/src/bancada/bancada.ts,37,37,jsdoc,3,/** Gabarito: o valor que o humano deu a cada critério. A nota sai daqui. */,,,,,,
-packages-ai-comment-22edfadd,packages-ai,packages/ai/src/bancada/bancada.ts,44,44,jsdoc,1,/** Casos em que este critério foi medido. */,,,,,,
-packages-ai-comment-6fb12001,packages-ai,packages/ai/src/bancada/bancada.ts,49,49,jsdoc,0,"/** Média de |pontos da IA − pontos do humano|, na escala da nota. */",,,,,,
-packages-ai-comment-509b8319,packages-ai,packages/ai/src/bancada/bancada.ts,72,72,jsdoc,0,/** Respostas idênticas ao gabarito ÷ respostas comparadas. */,,,,,,
-packages-ai-comment-e43973bd,packages-ai,packages/ai/src/bancada/bancada.ts,74,74,jsdoc,0,"/** Média de |nota da IA − nota humana|, na escala do formulário. */",,,,,,
-packages-ai-comment-e5fd50ea,packages-ai,packages/ai/src/bancada/bancada.ts,76,76,jsdoc,3,/** Do pior critério para o melhor: é a lista de prompts a revisar. */,,,,,,
-packages-ai-comment-8ad26fdb,packages-ai,packages/ai/src/bancada/bancada.ts,82,82,jsdoc,3,/** Como a bancada obtém a avaliação da IA. Trocável para medir outra variação. */,,,,,,
-packages-ai-comment-d4586ac5,packages-ai,packages/ai/src/bancada/bancada.ts,87,87,jsdoc,1,/** Por padrão: monta a transcrição e chama `avaliarConversa`. */,,,,,,
-packages-ai-comment-51795dbb,packages-ai,packages/ai/src/bancada/bancada.ts,92,92,jsdoc,3,"/** Chamado a cada caso, para a linha de comando mostrar progresso. */",,,,,,
+ */",remove,,other,packages/ai/src/bancada/bancada.ts:122-127,codex,reviewed
+packages-ai-comment-532ee27b,packages-ai,packages/ai/src/bancada/bancada.ts,30,30,jsdoc,3,"/** Uma conversa do conjunto de referência, com a avaliação feita por humano. */",translate,A reference-set conversation with a human evaluation.,other,packages/ai/src/bancada/bancada.ts:30-37,codex,reviewed
+packages-ai-comment-a31d40f4,packages-ai,packages/ai/src/bancada/bancada.ts,37,37,jsdoc,3,/** Gabarito: o valor que o humano deu a cada critério. A nota sai daqui. */,translate,Ground truth: the value assigned by a human to each criterion; the score follows from it.,other,packages/ai/src/bancada/bancada.ts:36-38,codex,reviewed
+packages-ai-comment-22edfadd,packages-ai,packages/ai/src/bancada/bancada.ts,44,44,jsdoc,1,/** Casos em que este critério foi medido. */,translate,Number of cases in which this criterion was measured.,other,packages/ai/src/bancada/bancada.ts:43-45,codex,reviewed
+packages-ai-comment-6fb12001,packages-ai,packages/ai/src/bancada/bancada.ts,49,49,jsdoc,0,"/** Média de |pontos da IA − pontos do humano|, na escala da nota. */",translate,"Mean absolute difference between AI and human points, on the score scale.",other,packages/ai/src/bancada/bancada.ts:48-50,codex,reviewed
+packages-ai-comment-509b8319,packages-ai,packages/ai/src/bancada/bancada.ts,72,72,jsdoc,0,/** Respostas idênticas ao gabarito ÷ respostas comparadas. */,translate,Responses identical to ground truth divided by compared responses.,other,packages/ai/src/bancada/bancada.ts:71-73,codex,reviewed
+packages-ai-comment-e43973bd,packages-ai,packages/ai/src/bancada/bancada.ts,74,74,jsdoc,0,"/** Média de |nota da IA − nota humana|, na escala do formulário. */",translate,"Mean absolute difference between AI and human scores, on the form's scale.",other,packages/ai/src/bancada/bancada.ts:73-75,codex,reviewed
+packages-ai-comment-e5fd50ea,packages-ai,packages/ai/src/bancada/bancada.ts,76,76,jsdoc,3,/** Do pior critério para o melhor: é a lista de prompts a revisar. */,translate,Criteria from worst to best; the prompt review list.,other,packages/ai/src/bancada/bancada.ts:75-77,codex,reviewed
+packages-ai-comment-8ad26fdb,packages-ai,packages/ai/src/bancada/bancada.ts,82,82,jsdoc,3,/** Como a bancada obtém a avaliação da IA. Trocável para medir outra variação. */,translate,How the bench obtains an AI evaluation; replaceable to measure another variant.,architecture,packages/ai/src/bancada/bancada.ts:81-83; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-d4586ac5,packages-ai,packages/ai/src/bancada/bancada.ts,87,87,jsdoc,1,/** Por padrão: monta a transcrição e chama `avaliarConversa`. */,translate,"By default, builds the transcript and calls `avaliarConversa`.",other,packages/ai/src/bancada/bancada.ts:86-88,codex,reviewed
+packages-ai-comment-51795dbb,packages-ai,packages/ai/src/bancada/bancada.ts,92,92,jsdoc,3,"/** Chamado a cada caso, para a linha de comando mostrar progresso. */",translate,Called after each case so the CLI can show progress.,other,packages/ai/src/bancada/bancada.ts:91-93,codex,reviewed
 packages-ai-comment-7f813d1c,packages-ai,packages/ai/src/bancada/conjunto.ts,1,6,jsdoc,6,"/**
  * Leitura do conjunto de referência a partir de JSON, validada.
  *
  * Conjunto malformado falha aqui, alto e cedo. Bancada que roda com dado torto
  * devolve número bonito e mentiroso — que é pior do que não medir.
- */",,,,,,
+ */",translate,"Reads and validates the JSON reference set. Malformed cases fail early and visibly: running the bench on bad data would return attractive but false numbers, worse than not measuring.",architecture,"packages/ai/src/bancada/conjunto.ts:1-6,8-60; pre-triage D-40; needs slice-time confirmation",codex,reviewed
 packages-ai-comment-1ab442f4,packages-ai,packages/ai/src/classificacao/index.ts,1,13,jsdoc,19,"/**
  * Classificação de atendimento: categoria, subcategoria, intenção e sentimento a
  * partir de uma taxonomia que vem por parâmetro.
@@ -119,19 +119,19 @@ packages-ai-comment-1ab442f4,packages-ai,packages/ai/src/classificacao/index.ts,
  * defensável e a própria atendente repetia o próprio rótulo só 53% das vezes.
  * Por isso `confianca` é parte da resposta, não um detalhe: é ela que decide se a
  * classificação entra sozinha ou vai para revisão.
- */",,,,,,
-packages-ai-comment-928cd862,packages-ai,packages/ai/src/classificacao/index.ts,126,126,line,3,"// O rótulo gravado é o **da taxonomia**, não o que o modelo digitou: é ele que",,,,,,
-packages-ai-comment-07b1f9ad,packages-ai,packages/ai/src/classificacao/index.ts,127,127,line,3,// vai casar com o filtro da tela e com a agregação de `insight`.,,,,,,
+ */",translate,"Ticket classification derives category, subcategory, intent, and sentiment from a supplied taxonomy. Returned labels are checked against that taxonomy with the normalization learned in case-sync: double spaces and HTML quotes caused blank Cases when labels were compared literally. In case-sync, 84% of cases had more than one defensible answer, and the same agent repeated her own label only 53% of the time. Thus `confianca` controls whether classification is accepted automatically or sent for review.",architecture,"packages/ai/src/classificacao/index.ts:1-13,65-145; pre-triage D-40; needs slice-time confirmation",codex,reviewed
+packages-ai-comment-928cd862,packages-ai,packages/ai/src/classificacao/index.ts,126,126,line,3,"// O rótulo gravado é o **da taxonomia**, não o que o modelo digitou: é ele que",translate,"Persist the taxonomy's label, not the model's spelling: it must match UI filters and `insight` aggregation.",integration,packages/ai/src/classificacao/index.ts:125-130; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-07b1f9ad,packages-ai,packages/ai/src/classificacao/index.ts,127,127,line,3,// vai casar com o filtro da tela e com a agregação de `insight`.,remove,,other,packages/ai/src/classificacao/index.ts:126-128; previous line's proposed translation carries the complete rationale,codex,reviewed
 packages-ai-comment-acbb3470,packages-ai,packages/ai/src/classificacao/index.ts,29,32,jsdoc,1,"/**
  * `desfecho` vem primeiro de propósito: o modelo escreve o que aconteceu antes de
  * escolher o rótulo. Foram +4,3pp de acurácia no case-sync.
- */",,,,,,
-packages-ai-comment-4d18c7d8,packages-ai,packages/ai/src/classificacao/index.ts,53,53,jsdoc,3,/** Uma frase do que o cliente pediu e do que o atendente fez. */,,,,,,
+ */",translate,`desfecho` comes first so the model describes what happened before choosing a label; this improved case-sync accuracy by 4.3 percentage points.,architecture,packages/ai/src/classificacao/index.ts:29-33; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-4d18c7d8,packages-ai,packages/ai/src/classificacao/index.ts,53,53,jsdoc,3,/** Uma frase do que o cliente pediu e do que o atendente fez. */,translate,One sentence describing what the customer requested and what the agent did.,other,packages/ai/src/classificacao/index.ts:52-54,codex,reviewed
 packages-ai-comment-abd427e3,packages-ai,packages/ai/src/classificacao/index.ts,65,68,jsdoc,6,"/**
  * Normaliza para comparar rótulo: sem acento, sem caixa, espaço colapsado e sem
  * entidade HTML. Cada uma dessas quatro já custou retrabalho no case-sync.
- */",,,,,,
-packages-ai-comment-ead50337,packages-ai,packages/ai/src/classificacao/index.ts,80,80,jsdoc,2,"/** Acha na taxonomia a opção que o modelo escolheu, ou `undefined`. */",,,,,,
+ */",translate,"Normalizes labels for comparison by stripping accents, ignoring case, collapsing spaces, and decoding HTML entities. Each of these caused rework in case-sync.",architecture,packages/ai/src/classificacao/index.ts:65-78; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-ead50337,packages-ai,packages/ai/src/classificacao/index.ts,80,80,jsdoc,2,"/** Acha na taxonomia a opção que o modelo escolheu, ou `undefined`. */",remove,,other,packages/ai/src/classificacao/index.ts:80-90,codex,reviewed
 packages-ai-comment-cbec85a8,packages-ai,packages/ai/src/cliente/cliente.ts,1,12,jsdoc,9,"/**
  * Uma única porta para a API da Anthropic: saída estruturada validada por esquema,
  * consumo medido e nova tentativa com espera crescente.
@@ -143,24 +143,24 @@ packages-ai-comment-cbec85a8,packages-ai,packages/ai/src/cliente/cliente.ts,1,12
  * O tipo `ChamadaEstruturada` é a costura de teste: toda função pública do pacote
  * aceita uma no lugar da real, e é assim que os testes rodam com resposta gravada
  * em vez de gastar chamada de verdade.
- */",,,,,,
+ */",translate,"Single entry point to the Anthropic API: schema-validated structured output, measured usage, and retries with increasing delay. No key is embedded: the SDK reads `ANTHROPIC_API_KEY` from the environment. The default model is `claude-sonnet-5`, overridden by `PIPE_IA_MODELO`. `ChamadaEstruturada` is the test seam: public package functions accept an injected call, allowing recorded responses instead of real paid calls.",integration,"packages/ai/src/cliente/cliente.ts:1-12,20-60,135-198; pre-triage D-40; needs slice-time confirmation",codex,reviewed
 packages-ai-comment-3b9e6d4d,packages-ai,packages/ai/src/cliente/cliente.ts,135,139,jsdoc,6,"/**
  * A chamada de verdade. Falha explicitamente quando o modelo recusa, quando a
  * resposta é cortada por `max_tokens` e quando o conteúdo não passa no esquema —
  * em nenhum desses casos ela adivinha.
- */",,,,,,
-packages-ai-comment-08512513,packages-ai,packages/ai/src/cliente/cliente.ts,197,197,jsdoc,3,"/** Chamada padrão do pacote, usada quando o chamador não injeta uma. */",,,,,,
-packages-ai-comment-b7f81ec3,packages-ai,packages/ai/src/cliente/cliente.ts,21,21,jsdoc,1,/** Níveis de esforço aceitos pela API (`output_config.effort`). */,,,,,,
-packages-ai-comment-05f23a51,packages-ai,packages/ai/src/cliente/cliente.ts,25,25,jsdoc,0,/** Instrução persistente da tarefa. Vem sempre de um arquivo de `prompts/`. */,,,,,,
-packages-ai-comment-d40dca11,packages-ai,packages/ai/src/cliente/cliente.ts,27,27,jsdoc,0,"/** O material da vez: transcrição, taxonomia, formulário. */",,,,,,
-packages-ai-comment-609d65f5,packages-ai,packages/ai/src/cliente/cliente.ts,45,45,jsdoc,2,/** Assinatura da chamada ao modelo. Injetável para teste com dublê. */,,,,,,
+ */",translate,"Real API call. Refusal, truncation at `max_tokens`, and schema-invalid content fail explicitly; none is guessed into a result.",integration,packages/ai/src/cliente/cliente.ts:135-195; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-08512513,packages-ai,packages/ai/src/cliente/cliente.ts,197,197,jsdoc,3,"/** Chamada padrão do pacote, usada quando o chamador não injeta uma. */",translate,Default package call when the caller does not inject one.,other,packages/ai/src/cliente/cliente.ts:197-198,codex,reviewed
+packages-ai-comment-b7f81ec3,packages-ai,packages/ai/src/cliente/cliente.ts,21,21,jsdoc,1,/** Níveis de esforço aceitos pela API (`output_config.effort`). */,translate,Effort levels accepted by the API (`output_config.effort`).,integration,packages/ai/src/cliente/cliente.ts:20-22; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-05f23a51,packages-ai,packages/ai/src/cliente/cliente.ts,25,25,jsdoc,0,/** Instrução persistente da tarefa. Vem sempre de um arquivo de `prompts/`. */,translate,"Persistent task instruction, always loaded from a `prompts/` file.",other,packages/ai/src/cliente/cliente.ts:24-26,codex,reviewed
+packages-ai-comment-d40dca11,packages-ai,packages/ai/src/cliente/cliente.ts,27,27,jsdoc,0,"/** O material da vez: transcrição, taxonomia, formulário. */",translate,"Current input: transcript, taxonomy, or form.",other,packages/ai/src/cliente/cliente.ts:26-28,codex,reviewed
+packages-ai-comment-609d65f5,packages-ai,packages/ai/src/cliente/cliente.ts,45,45,jsdoc,2,/** Assinatura da chamada ao modelo. Injetável para teste com dublê. */,translate,Model-call signature; injectable to test with a stub.,architecture,packages/ai/src/cliente/cliente.ts:44-46; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ai-comment-265ed440,packages-ai,packages/ai/src/cliente/cliente.ts,48,52,jsdoc,3,"/**
  * Esforço baixo por padrão. Não é economia às cegas: no case-sync, aumentar o
  * orçamento de raciocínio **piorou** a acurácia da classificação, e zero saiu
  * igual ou melhor. Quem precisar de mais passa `esforco` no pedido.
- */",,,,,,
-packages-ai-comment-b14a0676,packages-ai,packages/ai/src/cliente/cliente.ts,57,57,jsdoc,1,"/** Modelo em uso: `PIPE_IA_MODELO` quando definido, senão `claude-sonnet-5`. */",,,,,,
-packages-ai-comment-f4dca19c,packages-ai,packages/ai/src/cliente/cliente.ts,67,67,jsdoc,2,/** Injetável para o teste não dormir de verdade. */,,,,,,
+ */",translate,"Low effort by default, based on case-sync measurements: increasing the reasoning budget worsened classification accuracy, while zero effort matched or improved it. Callers needing more can pass `esforco` in the request.",architecture,packages/ai/src/cliente/cliente.ts:48-53; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-b14a0676,packages-ai,packages/ai/src/cliente/cliente.ts,57,57,jsdoc,1,"/** Modelo em uso: `PIPE_IA_MODELO` quando definido, senão `claude-sonnet-5`. */",translate,"Configured model: `PIPE_IA_MODELO` when set, otherwise `claude-sonnet-5`.",other,packages/ai/src/cliente/cliente.ts:57-62,codex,reviewed
+packages-ai-comment-f4dca19c,packages-ai,packages/ai/src/cliente/cliente.ts,67,67,jsdoc,2,/** Injetável para o teste não dormir de verdade. */,translate,Injectable so tests do not actually sleep.,other,packages/ai/src/cliente/cliente.ts:66-68,codex,reviewed
 packages-ai-comment-64da9ded,packages-ai,packages/ai/src/cliente/cliente.ts,73,80,jsdoc,7,"/**
  * Erro de rede ou limite de taxa: vale tentar de novo. Erro nosso (4xx de
  * requisição malformada, chave errada, modelo inexistente): não — repetir só
@@ -168,20 +168,20 @@ packages-ai-comment-64da9ded,packages-ai,packages/ai/src/cliente/cliente.ts,73,8
  *
  * A decisão é pelo **código HTTP**, não pela classe do erro: 408, 409, 429 e 5xx.
  * Classe é detalhe do SDK e muda de versão para versão; o código não.
- */",,,,,,
+ */",translate,"Retry network failures or rate limits; do not retry our request errors, bad keys, or nonexistent models, because that wastes money and delays diagnosis. Use HTTP status rather than SDK error classes, which may change across versions: 408, 409, 429, and 5xx are retryable.",integration,packages/ai/src/cliente/cliente.ts:73-91; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ai-comment-ec436ca4,packages-ai,packages/ai/src/cliente/cliente.ts,93,96,jsdoc,5,"/**
  * Espera crescente com sorteio: 500ms, 1s, 2s… cada uma com até 25% de variação,
  * para não ressincronizar todas as conversas encerradas no mesmo segundo.
- */",,,,,,
+ */",translate,"Exponential backoff with jitter: 500 ms, 1 s, 2 s, and so on, each varied by up to 25%, to avoid resynchronizing conversations closed in the same second.",integration,packages/ai/src/cliente/cliente.ts:93-112; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ai-comment-c3f33960,packages-ai,packages/ai/src/cliente/erros.ts,1,5,jsdoc,5,"/**
  * Erros do pacote. Todos explícitos: a lição mais cara do case-sync é que os oito
  * defeitos tinham a mesma assinatura — **devolviam sucesso sem fazer o trabalho**,
  * e nenhum aparecia em log de erro. Aqui nada devolve resultado parcial em silêncio.
- */",,,,,,
-packages-ai-comment-c566f247,packages-ai,packages/ai/src/cliente/erros.ts,11,11,jsdoc,2,"/** O que o modelo devolveu, para o chamador gravar mesmo recusando o resultado. */",,,,,,
-packages-ai-comment-5d377e2a,packages-ai,packages/ai/src/cliente/erros.ts,19,19,jsdoc,3,"/** A chamada não chegou a produzir resposta utilizável (recusa, corte, rede). */",,,,,,
-packages-ai-comment-bb7ea282,packages-ai,packages/ai/src/consumo/consumo.teste.ts,22,22,line,2,// 1M de entrada a US$ 2 = 200 centavos; 1M de saída a US$ 10 = 1.000 centavos.,,,,,,
-packages-ai-comment-e15d0597,packages-ai,packages/ai/src/consumo/consumo.teste.ts,29,29,line,0,"// 12.000 de entrada e 800 de saída: US$ 0,024 + US$ 0,008 = 3,2 centavos.",,,,,,
+ */",translate,Package errors are explicit. The costliest lesson from case-sync was that eight defects shared one signature: they returned success without doing the work and never appeared in error logs. Nothing here silently returns a partial result.,architecture,"packages/ai/src/cliente/erros.ts:1-5,7-30; pre-triage D-40; needs slice-time confirmation",codex,reviewed
+packages-ai-comment-c566f247,packages-ai,packages/ai/src/cliente/erros.ts,11,11,jsdoc,2,"/** O que o modelo devolveu, para o chamador gravar mesmo recusando o resultado. */",translate,Raw model response for callers to record even when rejecting the result.,other,packages/ai/src/cliente/erros.ts:10-12,codex,reviewed
+packages-ai-comment-5d377e2a,packages-ai,packages/ai/src/cliente/erros.ts,19,19,jsdoc,3,"/** A chamada não chegou a produzir resposta utilizável (recusa, corte, rede). */",translate,"The call produced no usable response due to refusal, truncation, or network failure.",other,packages/ai/src/cliente/erros.ts:19-22,codex,reviewed
+packages-ai-comment-bb7ea282,packages-ai,packages/ai/src/consumo/consumo.teste.ts,22,22,line,2,// 1M de entrada a US$ 2 = 200 centavos; 1M de saída a US$ 10 = 1.000 centavos.,remove,,other,packages/ai/src/consumo/consumo.teste.ts:21-24; assertion shows the arithmetic,codex,reviewed
+packages-ai-comment-e15d0597,packages-ai,packages/ai/src/consumo/consumo.teste.ts,29,29,line,0,"// 12.000 de entrada e 800 de saída: US$ 0,024 + US$ 0,008 = 3,2 centavos.",remove,,other,packages/ai/src/consumo/consumo.teste.ts:28-31; assertion shows the arithmetic,codex,reviewed
 packages-ai-comment-3c555fea,packages-ai,packages/ai/src/consumo/index.ts,1,10,jsdoc,4,"/**
  * Consumo de IA — tokens e custo de cada chamada.
  *
@@ -191,26 +191,26 @@ packages-ai-comment-3c555fea,packages-ai,packages/ai/src/consumo/index.ts,1,10,j
  *
  * Modelo desconhecido **estoura** em vez de devolver custo zero. Custo zero
  * silencioso é o defeito clássico do case-sync: sucesso sem fazer o trabalho.
- */",,,,,,
-packages-ai-comment-b870723e,packages-ai,packages/ai/src/consumo/index.ts,12,12,jsdoc,0,"/** Preço de um modelo, em dólares por milhão de tokens. */",,,,,,
+ */",translate,"AI usage tracks tokens and cost per call. Each package function returns `Consumo` alongside its result; callers store it in `consumo_ia` (§6 of the data model) for the customer dashboard and billing, avoiding unbilled AI usage. Unknown models fail instead of silently returning zero cost, the same false-success failure mode seen in case-sync.",architecture,"packages/ai/src/consumo/index.ts:1-10,57-65; pre-triage D-40; needs slice-time confirmation",codex,reviewed
+packages-ai-comment-b870723e,packages-ai,packages/ai/src/consumo/index.ts,12,12,jsdoc,0,"/** Preço de um modelo, em dólares por milhão de tokens. */",translate,Model price in dollars per million tokens.,other,packages/ai/src/consumo/index.ts:12-16,codex,reviewed
 packages-ai-comment-d1d98078,packages-ai,packages/ai/src/consumo/index.ts,18,22,jsdoc,4,"/**
  * Tabela de preços da API da Anthropic (primeira parte, valores de 2026-06).
  * Fica aqui e não em variável de ambiente porque preço errado é erro de cobrança,
  * e erro de cobrança tem que aparecer em teste, não em produção.
- */",,,,,,
-packages-ai-comment-4a8b0b5f,packages-ai,packages/ai/src/consumo/index.ts,32,32,jsdoc,0,/** Modelo padrão do pacote. Configurável por `PIPE_IA_MODELO`. */,,,,,,
+ */",translate,"Anthropic API prices for the first set of models, as of 2026-06. Prices live here instead of an environment variable so billing errors are caught by tests rather than in production.",integration,packages/ai/src/consumo/index.ts:18-30; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-4a8b0b5f,packages-ai,packages/ai/src/consumo/index.ts,32,32,jsdoc,0,/** Modelo padrão do pacote. Configurável por `PIPE_IA_MODELO`. */,translate,"Package default model, configurable through `PIPE_IA_MODELO`.",other,packages/ai/src/consumo/index.ts:32-34,codex,reviewed
 packages-ai-comment-200f7f77,packages-ai,packages/ai/src/consumo/index.ts,45,49,jsdoc,3,"/**
  * Espelha as colunas de `consumo_ia`. `custoCentavos` é **fracionário de
  * propósito**: uma chamada custa muito menos que um centavo. Acumule o período
  * inteiro e arredonde só na hora de gravar, com `arredondarCentavos`.
- */",,,,,,
-packages-ai-comment-664b90c7,packages-ai,packages/ai/src/consumo/index.ts,57,57,jsdoc,1,"/** Custo em centavos de dólar, sem arredondar. */",,,,,,
-packages-ai-comment-8eeb6d7a,packages-ai,packages/ai/src/consumo/index.ts,67,67,jsdoc,4,/** Monta o `Consumo` de uma chamada a partir dos tokens devolvidos pela API. */,,,,,,
+ */",translate,Mirrors `consumo_ia` columns. `custoCentavos` is intentionally fractional because a call can cost far less than one cent; accumulate the whole period and round only when writing with `arredondarCentavos`.,integration,packages/ai/src/consumo/index.ts:45-55; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-664b90c7,packages-ai,packages/ai/src/consumo/index.ts,57,57,jsdoc,1,"/** Custo em centavos de dólar, sem arredondar. */",translate,"Cost in US cents, without rounding.",other,packages/ai/src/consumo/index.ts:57-65,codex,reviewed
+packages-ai-comment-8eeb6d7a,packages-ai,packages/ai/src/consumo/index.ts,67,67,jsdoc,4,/** Monta o `Consumo` de uma chamada a partir dos tokens devolvidos pela API. */,remove,,other,packages/ai/src/consumo/index.ts:67-75,codex,reviewed
 packages-ai-comment-4d7d910b,packages-ai,packages/ai/src/consumo/index.ts,77,80,jsdoc,2,"/**
  * Soma consumos do mesmo modelo. Modelos diferentes viram linhas diferentes em
  * `consumo_ia` — por isso a soma recusa misturar modelos.
- */",,,,,,
-packages-ai-comment-0e9b9750,packages-ai,packages/ai/src/consumo/index.ts,96,96,jsdoc,2,"/** Arredonda para o `integer` de `consumo_ia.custo_centavos`, nunca para baixo de zero. */",,,,,,
+ */",translate,"Adds usage for the same model. Different models require separate `consumo_ia` rows, so this rejects mixing them.",integration,packages/ai/src/consumo/index.ts:77-94; pre-triage D-40; needs slice-time confirmation,codex,reviewed
+packages-ai-comment-0e9b9750,packages-ai,packages/ai/src/consumo/index.ts,96,96,jsdoc,2,"/** Arredonda para o `integer` de `consumo_ia.custo_centavos`, nunca para baixo de zero. */",translate,"Rounds for `consumo_ia.custo_centavos` integer storage, never below zero.",integration,packages/ai/src/consumo/index.ts:96-100; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ai-comment-acc2ddbe,packages-ai,packages/ai/src/index.ts,1,14,jsdoc,7,"/**
  * `@pipe/ai` — resumo, classificação e avaliação de atendimento com IA.
  *
@@ -224,7 +224,7 @@ packages-ai-comment-acc2ddbe,packages-ai,packages/ai/src/index.ts,1,14,jsdoc,7,"
  *
  * A régua de qualidade é a `bancada/`: nenhuma mudança de prompt entra sem passar
  * por ela contra o conjunto de referência.
- */",,,,,,
+ */",translate,"`@pipe/ai` provides typed AI summaries, classification, and ticket evaluation without database access. Callers persist results in `classificacao_conversa`, `avaliacao`, `resposta_avaliacao`, and `consumo_ia` (§6 of the data model). Every call returns token and cost usage; schema-invalid output fails explicitly rather than becoming a silently wrong record. Prompt changes must pass the `bancada/` reference-set evaluation.",architecture,packages/ai/src/index.ts:1-19; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ai-comment-d717039f,packages-ai,packages/ai/src/prompts/avaliacao.ts,1,13,jsdoc,20,"/**
  * Prompt de avaliação: o modelo responde o formulário critério a critério e cita a
  * linha da transcrição que sustenta cada resposta.
@@ -237,7 +237,7 @@ packages-ai-comment-d717039f,packages-ai,packages/ai/src/prompts/avaliacao.ts,1,
  *
  * A nota **não** é pedida ao modelo. Ele responde valor e justificativa; o peso, o
  * grupo e o critério fatal são conta nossa, em `avaliacao/nota.ts`.
- */",,,,,,
+ */",translate,"The evaluation prompt answers each form criterion and cites the supporting transcript line. Evidence lets agents contest a score with facts (§6 of the data model) and makes AI scoring reviewable. Require evidence for every noncompliant criterion as a verifiable transcript label, rather than copied text the model might invent. Do not ask the model for a score: it returns value and rationale; `avaliacao/nota.ts` applies weights, groups, and fatal criteria.",architecture,packages/ai/src/prompts/avaliacao.ts:1-13; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ai-comment-02b2cf79,packages-ai,packages/ai/src/prompts/classificacao.ts,1,16,jsdoc,9,"/**
  * Prompt de classificação.
  *
@@ -253,15 +253,15 @@ packages-ai-comment-02b2cf79,packages-ai,packages/ai/src/prompts/classificacao.t
  *   medidos: sozinhos davam pouco, juntos com o prior *derrubavam* a acurácia.
  *
  * A taxonomia é parâmetro, nunca constante de código.
- */",,,,,,
-packages-ai-comment-b88f5c8d,packages-ai,packages/ai/src/prompts/classificacao.ts,24,24,jsdoc,3,/** Quantas vezes um humano escolheu esta opção. É o que ordena e poda a lista. */,,,,,,
-packages-ai-comment-fddf0cad,packages-ai,packages/ai/src/prompts/classificacao.ts,30,30,jsdoc,0,"/** Intenções aceitas. Vazio, o modelo responde livre. */",,,,,,
-packages-ai-comment-a0d24c60,packages-ai,packages/ai/src/prompts/classificacao.ts,39,39,jsdoc,1,/** Teto de opções apresentadas. Lista longa demais dilui a escolha. */,,,,,,
-packages-ai-comment-207ea739,packages-ai,packages/ai/src/prompts/classificacao.ts,46,46,jsdoc,2,"/** Chave textual de uma opção, do jeito que ela aparece na lista e volta na resposta. */",,,,,,
+ */",translate,"Classification prompt choices follow case-sync measurements that raised accuracy from 26% to 64%: order and prune options by observed use (+22.6 percentage points); ask for a one-sentence `desfecho` before a label (+4.3 points), preserving schema property order; omit similarity examples and distilled definitions, which reduced accuracy when combined with the prior. Taxonomy is supplied as a parameter, never hard-coded.",architecture,"packages/ai/src/prompts/classificacao.ts:1-16,50-110; pre-triage D-40; needs slice-time confirmation",codex,reviewed
+packages-ai-comment-b88f5c8d,packages-ai,packages/ai/src/prompts/classificacao.ts,24,24,jsdoc,3,/** Quantas vezes um humano escolheu esta opção. É o que ordena e poda a lista. */,translate,How often a human chose this option; used to order and prune the list.,other,packages/ai/src/prompts/classificacao.ts:23-25,codex,reviewed
+packages-ai-comment-fddf0cad,packages-ai,packages/ai/src/prompts/classificacao.ts,30,30,jsdoc,0,"/** Intenções aceitas. Vazio, o modelo responde livre. */",translate,"Accepted intents; when empty, the model answers freely.",other,packages/ai/src/prompts/classificacao.ts:29-31,codex,reviewed
+packages-ai-comment-a0d24c60,packages-ai,packages/ai/src/prompts/classificacao.ts,39,39,jsdoc,1,/** Teto de opções apresentadas. Lista longa demais dilui a escolha. */,translate,Maximum options shown; an overly long list dilutes the choice.,other,packages/ai/src/prompts/classificacao.ts:38-40,codex,reviewed
+packages-ai-comment-207ea739,packages-ai,packages/ai/src/prompts/classificacao.ts,46,46,jsdoc,2,"/** Chave textual de uma opção, do jeito que ela aparece na lista e volta na resposta. */",translate,"Option's text key, as shown in the list and returned in the answer.",other,packages/ai/src/prompts/classificacao.ts:46-49,codex,reviewed
 packages-ai-comment-82f7db24,packages-ai,packages/ai/src/prompts/classificacao.ts,51,54,jsdoc,5,"/**
  * Ordena por uso real (desc) e poda ao teto, com desempate alfabético para a lista
  * ser estável entre execuções — prompt que muda sozinho não pode ser medido.
- */",,,,,,
+ */",translate,"Sorts by observed use descending and prunes to the limit, breaking ties alphabetically for stable runs; a prompt that changes by itself cannot be measured.",architecture,packages/ai/src/prompts/classificacao.ts:51-72; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ai-comment-17b37812,packages-ai,packages/ai/src/prompts/resumo.ts,1,8,jsdoc,14,"/**
  * Prompts de resumo. Dois, porque são duas perguntas diferentes:
  *
@@ -269,10 +269,10 @@ packages-ai-comment-17b37812,packages-ai,packages/ai/src/prompts/resumo.ts,1,8,j
  *   aconteceu e o que ficou pendente. Escreve-se para quem vai responder em seguida.
  * - **encerramento**: sobe para a linha do tempo do lead. Escreve-se para quem vai
  *   ler daqui a três meses sem abrir a conversa.
- */",,,,,,
-packages-ai-comment-e734884d,packages-ai,packages/ai/src/prompts/resumo.ts,18,18,jsdoc,4,"/** Fila, produto, ou o que mais ajude o modelo a situar a conversa. */",,,,,,
-packages-ai-comment-843438a6,packages-ai,packages/ai/src/prompts/resumo.ts,44,44,jsdoc,3,"/** Resumo de abertura: o que aconteceu antes, para quem está assumindo. */",,,,,,
-packages-ai-comment-f17ab389,packages-ai,packages/ai/src/prompts/resumo.ts,66,66,jsdoc,3,"/** Resumo de encerramento: o que aconteceu agora, para a linha do tempo do lead. */",,,,,,
+ */",translate,Two summary prompts serve different readers: opening summarizes prior events and pending work for the agent taking over now; closing summarizes the current outcome for someone reading the lead timeline months later.,architecture,"packages/ai/src/prompts/resumo.ts:1-8,44-80; pre-triage D-40; needs slice-time confirmation",codex,reviewed
+packages-ai-comment-e734884d,packages-ai,packages/ai/src/prompts/resumo.ts,18,18,jsdoc,4,"/** Fila, produto, ou o que mais ajude o modelo a situar a conversa. */",translate,"Queue, product, or other context that helps the model situate the conversation.",other,packages/ai/src/prompts/resumo.ts:17-19,codex,reviewed
+packages-ai-comment-843438a6,packages-ai,packages/ai/src/prompts/resumo.ts,44,44,jsdoc,3,"/** Resumo de abertura: o que aconteceu antes, para quem está assumindo. */",translate,Opening summary: prior events for the agent taking over.,other,packages/ai/src/prompts/resumo.ts:44-45,codex,reviewed
+packages-ai-comment-f17ab389,packages-ai,packages/ai/src/prompts/resumo.ts,66,66,jsdoc,3,"/** Resumo de encerramento: o que aconteceu agora, para a linha do tempo do lead. */",translate,Closing summary: current events for the lead timeline.,other,packages/ai/src/prompts/resumo.ts:66-67,codex,reviewed
 packages-ai-comment-36f44fe3,packages-ai,packages/ai/src/prompts/tipos.ts,1,10,jsdoc,11,"/**
  * Todo prompt do pacote vive num arquivo próprio, tem nome e tem **versão**.
  *
@@ -282,18 +282,18 @@ packages-ai-comment-36f44fe3,packages-ai,packages/ai/src/prompts/tipos.ts,1,10,j
  *
  * Convenção da versão: `v<n>` incrementada a cada mudança de texto que possa
  * alterar a saída. Trocar vírgula conta.
- */",,,,,,
-packages-ai-comment-ea465ba2,packages-ai,packages/ai/src/prompts/tipos.ts,23,23,jsdoc,2,/** Identificador que vai para o registro: `resumo-encerramento@v1`. */,,,,,,
+ */",translate,"Each package prompt has its own file, name, and version. The bench (`bancada/`) compares prompt versions against the same reference set; without versions, improvement is only opinion, the failure case-sync's bench was built to prevent. Increment `v<n>` for every text change that could affect output, including punctuation.",architecture,"packages/ai/src/prompts/tipos.ts:1-10,12-25; pre-triage D-40; needs slice-time confirmation",codex,reviewed
+packages-ai-comment-ea465ba2,packages-ai,packages/ai/src/prompts/tipos.ts,23,23,jsdoc,2,/** Identificador que vai para o registro: `resumo-encerramento@v1`. */,translate,"Identifier written to the record, such as `resumo-encerramento@v1`.",integration,packages/ai/src/prompts/tipos.ts:23-26; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ai-comment-8ca2aed4,packages-ai,packages/ai/src/resumo/index.ts,1,5,jsdoc,5,"/**
  * Resumo de atendimento. Duas saídas distintas, porque são dois leitores
  * diferentes: quem vai assumir a conversa agora e quem vai ler a linha do tempo
  * do lead daqui a meses.
- */",,,,,,
-packages-ai-comment-9983a1f8,packages-ai,packages/ai/src/resumo/index.ts,24,24,jsdoc,3,"/** Fila, produto, campanha — o que ajude a situar a conversa. */",,,,,,
-packages-ai-comment-2ba46da3,packages-ai,packages/ai/src/resumo/index.ts,67,67,jsdoc,5,"/** O que aconteceu antes, para o atendente que está assumindo a conversa. */",,,,,,
-packages-ai-comment-ab1e2664,packages-ai,packages/ai/src/resumo/index.ts,72,72,jsdoc,2,"/** O que aconteceu agora, para subir na linha do tempo do lead. */",,,,,,
-packages-ai-comment-8dddbb7e,packages-ai,packages/ai/src/transcricao/transcricao.teste.ts,152,152,line,2,// A primeira e a última mensagem sobrevivem sempre.,,,,,,
-packages-ai-comment-c4c9dfd1,packages-ai,packages/ai/src/transcricao/transcricao.teste.ts,38,38,line,0,// Sistema nunca herda nome de gente: é o próprio produto falando.,,,,,,
+ */",translate,Ticket summary has two outputs for two readers: the agent taking over now and someone reading the lead timeline months later.,architecture,"packages/ai/src/resumo/index.ts:1-5,67-75; pre-triage D-40; needs slice-time confirmation",codex,reviewed
+packages-ai-comment-9983a1f8,packages-ai,packages/ai/src/resumo/index.ts,24,24,jsdoc,3,"/** Fila, produto, campanha — o que ajude a situar a conversa. */",translate,"Queue, product, campaign, or other context for the conversation.",other,packages/ai/src/resumo/index.ts:23-25,codex,reviewed
+packages-ai-comment-2ba46da3,packages-ai,packages/ai/src/resumo/index.ts,67,67,jsdoc,5,"/** O que aconteceu antes, para o atendente que está assumindo a conversa. */",translate,Prior events for the agent taking over the conversation.,other,packages/ai/src/resumo/index.ts:67-70,codex,reviewed
+packages-ai-comment-ab1e2664,packages-ai,packages/ai/src/resumo/index.ts,72,72,jsdoc,2,"/** O que aconteceu agora, para subir na linha do tempo do lead. */",translate,Current events for the lead timeline.,other,packages/ai/src/resumo/index.ts:72-75,codex,reviewed
+packages-ai-comment-8dddbb7e,packages-ai,packages/ai/src/transcricao/transcricao.teste.ts,152,152,line,2,// A primeira e a última mensagem sobrevivem sempre.,remove,,other,packages/ai/src/transcricao/transcricao.teste.ts:151-154; assertions state the behavior,codex,reviewed
+packages-ai-comment-c4c9dfd1,packages-ai,packages/ai/src/transcricao/transcricao.teste.ts,38,38,line,0,// Sistema nunca herda nome de gente: é o próprio produto falando.,translate,System messages never inherit a person's name; they speak for the product itself.,other,packages/ai/src/transcricao/transcricao.teste.ts:37-42,codex,reviewed
 packages-ai-comment-561bed6e,packages-ai,packages/ai/src/transcricao/transcricao.ts,1,14,jsdoc,16,"/**
  * Normaliza uma conversa em transcrição legível para o modelo: quem falou, quando,
  * o quê.
@@ -307,11 +307,11 @@ packages-ai-comment-561bed6e,packages-ai,packages/ai/src/transcricao/transcricao
  * 2. **Áudio sem transcrição é marcado como não transcrito, não some.** No
  *    case-sync, 229 áudios viraram silêncio e o resumo saiu confiante sobre uma
  *    conversa que ninguém tinha lido.
- */",,,,,,
+ */",translate,"Converts a conversation to a model-readable transcript with speaker, time, and content. Two case-sync lessons shape this: give each line a short label (`m1`, `m2`, etc.) instead of a message UUID, then resolve citations by index, saving tokens and making unknown labels explicit errors; and mark audio without a transcript as untranscribed rather than omitting it. In case-sync, 229 omitted audio clips left a summary confidently describing a conversation no one had read.",architecture,packages/ai/src/transcricao/transcricao.ts:1-14; pre-triage D-40; needs slice-time confirmation,codex,reviewed
 packages-ai-comment-bfec081f,packages-ai,packages/ai/src/transcricao/transcricao.ts,103,106,jsdoc,3,"/**
  * O corpo de uma mensagem já resolvido: áudio usa o texto transcrito quando
  * existe, mídia vira descrição, mensagem vazia é dita como vazia.
- */",,,,,,
+ */",translate,"Resolved message body: audio uses its transcript when available, media becomes a description, and an empty message is identified as empty.",other,packages/ai/src/transcricao/transcricao.ts:103-125,codex,reviewed
 packages-ai-comment-1c6938bf,packages-ai,packages/ai/src/transcricao/transcricao.ts,136,136,jsdoc,4,"/** Monta a linha completa de uma mensagem, já com rótulo, hora e autor. */",,,,,,
 packages-ai-comment-2e9f0b91,packages-ai,packages/ai/src/transcricao/transcricao.ts,148,151,jsdoc,4,"/**
  * Só as linhas que sobreviveram ao truncamento entram no índice: rótulo citado
