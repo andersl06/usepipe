@@ -24,6 +24,21 @@ function validStyle(value: string, style: string): boolean {
   return /^[a-z][a-z0-9]*$/.test(value);
 }
 function segments(value: string): string[] { return value.replaceAll('\\', '/').split('/').filter(Boolean); }
+function unprotectedTitleText(row: MapRow): string {
+  if (row.kind !== 'test-title' || !row.notes.includes('D-47 retranslated')) return row.new;
+  const technical = row.old.match(/\/[\w:./-]+|[A-Za-z_][\w-]*(?:\.[A-Za-z_][\w-]*)+|[A-Za-z_][\w.-]*:[a-z_]+|[A-Za-z_][\w]*_[A-Za-z_][\w]*|[a-z][A-Za-z0-9]*[A-Z][A-Za-z0-9]*|[A-Z][A-Z0-9_]{2,}/g) ?? [];
+  for (const match of row.old.matchAll(/([A-Za-z_][A-Za-z0-9_]*)\[['"][^'"]+['"]\]/g)) technical.push(match[1]);
+  for (const match of row.old.matchAll(/`([^`]+)`|"([^"]+)"|'([^']+)'/g)) {
+    const literal = match[1] ?? match[2] ?? match[3];
+    if (literal && !/\s/.test(literal)) technical.push(literal);
+  }
+  let text = row.new;
+  for (const token of technical.sort((a, b) => b.length - a.length)) {
+    const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    text = text.replace(new RegExp(`(?<![\\w.:-])${escaped}(?![\\w.:-])`, 'g'), '');
+  }
+  return text;
+}
 function validCase(row: MapRow): boolean {
   const value = row.new;
   if (row.kind === 'data-attr') {
@@ -88,7 +103,7 @@ export function checkMap(options: { map: string; scopes?: string[]; requireStatu
       if (allowed.length && !allowed.some((decision) => new RegExp(`\\b${decision}\\b`).test(row.decision_ref))) add('error', [row], `${row.new} needs decision_ref`);
       continue;
     }
-    const pt = splitIdentifier(row.new).filter((token) => isPtToken(token, extra));
+    const pt = splitIdentifier(unprotectedTitleText(row)).filter((token) => isPtToken(token, extra) && !(row.kind === 'test-title' && ['echoes', 'zeroes'].includes(token)));
     if (pt.length) add('error', [row], `PT token: ${pt.join(', ')}`);
     if (!validCase(row)) add('error', [row], 'invalid casing');
     const suffix = Object.entries({ Controlador: 'Controller', Servico: 'Service', Guarda: 'Guard', Erro: 'Error', Filtro: 'Filter', Modulo: 'Module' }).find(([prefix]) => row.old.startsWith(prefix));
@@ -102,7 +117,12 @@ export function checkMap(options: { map: string; scopes?: string[]; requireStatu
     // scope. front-route is additionally scoped by `scope`: each front-end app owns an independent
     // router, so the same path (e.g. the shared /invite/:token route) legitimately recurs across apps.
     const perOccurrenceKind = ['symbol', 'ts-local', 'ts-prop', 'front-route', 'endpoint'].includes(row.kind);
-    const key = ['file', 'dir'].includes(row.kind) ? `path:${row.new.replaceAll('\\', '/')}` : row.kind === 'front-route' ? `route:front-route:${row.scope}:${row.new}` : row.kind === 'endpoint' ? `route:endpoint:${row.new}` : `symbol:${row.kind}:${file}:${row.new}`;
+    // `dir` rows carry a full path in `new`, directly comparable. `file` rows carry a bare
+    // basename in `old` and an inconsistently-shaped `new` across scopes/generators (bare
+    // basename, app-relative fragment, or full path) - only `new`'s basename is trustworthy;
+    // the directory always comes from `declared_at` (matching move-files.ts's rowMove).
+    const fileDestination = `${file.slice(0, file.lastIndexOf('/'))}/${row.new.replaceAll('\\', '/').split('/').pop()}`;
+    const key = row.kind === 'file' ? `path:${fileDestination}` : row.kind === 'dir' ? `path:${row.new.replaceAll('\\', '/')}` : row.kind === 'front-route' ? `route:front-route:${row.scope}:${row.new}` : row.kind === 'endpoint' ? `route:endpoint:${row.new}` : `symbol:${row.kind}:${file}:${row.new}`;
     const previous = collision.get(key);
     const repeatableKind = perOccurrenceKind || ['css-class', 'css-var', 'data-attr'].includes(row.kind);
     if (previous && (previous.old !== row.old || !repeatableKind)) add('error', [previous, row], 'duplicate target');
