@@ -1,10 +1,10 @@
 import { and, asc, count, desc, eq, gte, ilike, isNotNull, isNull, ne, sql } from 'drizzle-orm';
 import {
   channel,
-  classificacaoConversa as classificationConversation,
+  classificationConversation,
   contact as contact,
   contactIdentity,
-  conversa as conversation,
+  conversation,
   queue,
   flow,
   inbox,
@@ -90,7 +90,7 @@ export async function listContactsOfFlow(tx: TransactionPipe, tid: string, fluxo
       canalNome: channel.nome,
       canalTipo: channel.tipo,
       conversas: sql<number>`count(distinct ${conversation.id})::int`,
-      ultimaConversa: sql<Date | null>`max(coalesce(${conversation.ultimaMensagemEm}, ${conversation.criadaEm}))`,
+      ultimaConversa: sql<Date | null>`max(coalesce(${conversation.lastMessageAt}, ${conversation.criadaEm}))`,
     })
     .from(contact)
     .innerJoin(conversation, eq(conversation.contatoId, contact.id))
@@ -155,7 +155,7 @@ export async function loadDetalheContactOfFlow(
     ? await tx
         .select({
           id: conversation.id,
-          estado: conversation.estado,
+          estado: conversation.state,
           criadaEm: conversation.criadaEm,
           encerradaEm: conversation.encerradaEm,
           inbox: inbox.nome,
@@ -167,7 +167,7 @@ export async function loadDetalheContactOfFlow(
         .from(conversation)
         .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
         .leftJoin(queue, eq(queue.id, conversation.filaId))
-        .leftJoin(user, eq(user.id, conversation.atendenteId))
+        .leftJoin(user, eq(user.id, conversation.agentId))
         .leftJoin(classificationConversation, eq(classificationConversation.conversaId, conversation.id))
         .where(
           and(

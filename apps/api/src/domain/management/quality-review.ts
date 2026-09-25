@@ -2,9 +2,9 @@ import { and, asc, desc, eq, gte, lt } from 'drizzle-orm';
 import { resultado, resultEmpty, type ResultadoMetrica } from '@pipe/core';
 import {
   evaluation,
-  classificacaoConversa as classificationConversation,
+  classificationConversation,
   contact as contact,
-  conversa as conversation,
+  conversation,
   criterio,
   queue,
   formEvaluation,
@@ -167,7 +167,7 @@ export async function loadQualityReview(
         estado: evaluation.state,
         avaliadaEm: evaluation.avaliadaEm,
         categoria: classificationConversation.categoria,
-        sentimento: classificationConversation.sentimento,
+        sentimento: classificationConversation.sentiment,
       })
       .from(evaluation)
       .innerJoin(formEvaluation, eq(formEvaluation.id, evaluation.formularioId))
@@ -299,9 +299,9 @@ export async function carregarFicha(
         estado: evaluation.state,
         avaliadaEm: evaluation.avaliadaEm,
         categoria: classificationConversation.categoria,
-        sentimento: classificationConversation.sentimento,
+        sentimento: classificationConversation.sentiment,
         resumo: classificationConversation.resumo,
-        modeloClassificacao: classificationConversation.modelo,
+        modeloClassificacao: classificationConversation.template,
       })
       .from(evaluation)
       .innerJoin(formEvaluation, eq(formEvaluation.id, evaluation.formularioId))
@@ -374,7 +374,7 @@ export async function carregarFicha(
         criterionId: l.criterioId,
         criterio: l.criterioNome,
         description: l.descricao,
-        tipo: l.tipo,
+        type: l.tipo,
         fatal: l.fatal,
         peso: Number(l.peso),
         value: l.valor,

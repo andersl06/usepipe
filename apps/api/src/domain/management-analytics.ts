@@ -11,7 +11,7 @@ import {
   type InstantesWindow,
   type ReportCustom,
   type VisaoGeral,
-} from '@pipe/core/analise';
+} from '@pipe/core/analytics';
 import {
   conditionOfCursor,
   assemblePage,

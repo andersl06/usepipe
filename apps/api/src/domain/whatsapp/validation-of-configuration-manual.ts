@@ -143,7 +143,7 @@ export async function validateConfigurationManual(data: {
   return {
     nomeVerificado,
     number: numero,
-    numeroId: String(achado.id),
+    numberId: String(achado.id),
     wabaId: String(wabaId),
     accessToTemplates: true,
     nomeSugerido: `${nomeVerificado ?? numero} WhatsApp`,

@@ -146,24 +146,24 @@ export function flowOfRoute(requisicao: Request): string | null {
  *   uma for aberta a chave, a regra de cima já vale sem mexer em nada.
  */
 export function checkFlowOfKey(
-  key: Pick<ContextOfKey, 'fluxoId'>,
+  key: Pick<ContextOfKey, 'flowId'>,
   flowInRoute: string | null,
 ): void {
-  if (!key.fluxoId) return;
+  if (!key.flowId) return;
   if (flowInRoute === null) {
     throw new PipeError(
       403,
       'key_of_flow',
       'Esta chave é de um fluxo e só vale nas rotas desse fluxo (/v1/management/flows/:id/…).',
-      { fluxoId: key.fluxoId },
+      { fluxoId: key.flowId },
     );
   }
-  if (flowInRoute.toLowerCase() !== key.fluxoId.toLowerCase()) {
+  if (flowInRoute.toLowerCase() !== key.flowId.toLowerCase()) {
     throw new PipeError(
       403,
       'key_of_other_flow',
       'Esta chave pertence a outro fluxo e não pode agir neste.',
-      { fluxoId: key.fluxoId },
+      { fluxoId: key.flowId },
     );
   }
 }

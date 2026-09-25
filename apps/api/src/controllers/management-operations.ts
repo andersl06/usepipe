@@ -216,7 +216,7 @@ export class ManagementOperationsController {
       await exigirPermission(tx, sessao.userId, 'conversa.encerrar');
       const resultado = await closeConversation(
         { tenantId: sessao.tenantId, agentId: sessao.userId, exigirAssignment: false },
-        { conversationId: id, etiquetaIds: corpo?.etiqueta_ids, etiquetaIds: corpo?.etiqueta_id },
+        { conversationId: id, etiquetaIds: corpo?.etiqueta_ids ?? (corpo?.etiqueta_id ? [corpo.etiqueta_id] : undefined) },
       );
       await registrarAuditoria(tx, sessao.tenantId, {
         ator: { type: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,

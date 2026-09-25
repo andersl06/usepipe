@@ -470,7 +470,7 @@ export async function editarMember(
 
   await tx
     .update(flowMember)
-    .set({ roleInFlow: papelNoFluxo, permissoes, atualizadoEm: new Date() })
+    .set({ roleInFlow: papelNoFluxo, permissions: permissoes, atualizadoEm: new Date() })
     .where(and(eq(flowMember.flowId, fluxoId), eq(flowMember.userId, alvoId)));
 
   await registrarAuditoria(tx, tenantId, {
@@ -482,7 +482,7 @@ export async function editarMember(
     depois: mudanca.depois,
   });
 
-  return forContract({ ...atual, roleInFlow: papelNoFluxo, permissoes });
+  return forContract({ ...atual, roleInFlow: papelNoFluxo, permissions: permissoes });
 }
 
 /** `removeUser()` — e a trava do último administrador, que a origem não precisa ter. */

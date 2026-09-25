@@ -2,7 +2,7 @@ import { and, asc, count, desc, eq, inArray, isNull, notInArray } from 'drizzle-
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import {
   channel,
-  conversa as conversation,
+  conversation,
   conversationLabel,
   etiqueta,
   queue,

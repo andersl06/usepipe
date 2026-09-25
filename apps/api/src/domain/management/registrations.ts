@@ -7,7 +7,7 @@ import {
   type HourAttendance as ExpedienteDoCore,
 } from '@pipe/core';
 import {
-  conversa as conversation,
+  conversation,
   queue,
   queueAgent,
   scheduleAttendance,
@@ -1029,7 +1029,7 @@ export async function editarRuleQueue(
         nome: depois.nome,
         order: depois.ordem,
         combinador: depois.combinador,
-        filaDestinoId: depois.filaDestinoId,
+        queueDestinationId: depois.filaDestinoId,
         atualizadoEm: new Date(),
       })
       .where(and(eq(ruleQueue.tenantId, tid), eq(ruleQueue.id, id)));
@@ -1358,7 +1358,7 @@ export async function editarQueue(
       cor: depois.cor,
       horarioId: depois.horarioId,
       capacityDefault: depois.capacidadePadrao,
-      ordem: depois.ordem,
+      order: depois.ordem,
       ativa: depois.ativa,
       atualizadoEm: new Date(),
     })
@@ -1683,7 +1683,7 @@ export async function editarMotivoPausa(
     .set({
       nome: depois.nome,
       durationSuggestedMin: depois.duracaoSugeridaMin,
-      contaComoProdutivo: depois.contaComoProdutivo,
+      accountAsProductive: depois.contaComoProdutivo,
       ativo: depois.ativo,
     })
     .where(and(eq(motivoPausa.tenantId, tid), eq(motivoPausa.id, id)))

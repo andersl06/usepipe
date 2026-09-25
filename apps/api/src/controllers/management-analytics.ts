@@ -10,8 +10,8 @@ import {
   type ArestaDaJornada,
   type ReportCustom,
   type VisaoGeral,
-} from '@pipe/core/analise';
-import { DIRECOES_MENSAGEM as DIRECTIONS_MESSAGE, TYPES_MESSAGE } from '@pipe/db/schema';
+} from '@pipe/core/analytics';
+import { DIRECTIONS_MESSAGE, TYPES_MESSAGE } from '@pipe/db/schema';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { WithSession, sessionOf } from '../session.js';

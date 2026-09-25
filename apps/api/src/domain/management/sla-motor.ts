@@ -7,7 +7,7 @@ import {
   type MarcosSla,
   type NivelPriority,
 } from '@pipe/core';
-import { conversa as conversation, slaConversa as slaConversation } from '@pipe/db/schema';
+import { conversation, slaConversation } from '@pipe/db/schema';
 import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../../database.js';
 import { registrarEvento } from '../eventos.js';
@@ -125,7 +125,7 @@ async function executarAcao(
     if (!novoNivel) return;
     await tx
       .update(conversation)
-      .set({ prioridade: novoNivel, atualizadoEm: new Date() })
+      .set({ priority: novoNivel, atualizadoEm: new Date() })
       .where(eq(conversation.id, ctx.conversationId));
   }
 }
@@ -185,7 +185,7 @@ async function processarRegra(
     if (existente) {
       await tx
         .update(slaConversation)
-        .set({ estado: 'cumprido', atualizadoEm: agora })
+        .set({ state: 'cumprido', atualizadoEm: agora })
         .where(eq(slaConversation.id, existente.id));
     }
     return;
@@ -251,7 +251,7 @@ async function processarRegra(
   ) {
     await tx
       .update(slaConversation)
-      .set({ estado: newState, alertadoEm, estouradoEm, atualizadoEm: agora })
+      .set({ state: newState, alertadoEm, estouradoEm, atualizadoEm: agora })
       .where(eq(slaConversation.id, existente.id));
   }
 
@@ -298,13 +298,13 @@ export async function checarSlaOfConversation(
       .select({
         id: conversation.id,
         filaId: conversation.filaId,
-        prioridade: conversation.prioridade,
+        prioridade: conversation.priority,
         criadaEm: conversation.criadaEm,
         atribuidaEm: conversation.atribuidaEm,
-        primeiraRespostaEm: conversation.primeiraRespostaEm,
+        primeiraRespostaEm: conversation.firstResponseAt,
         encerradaEm: conversation.encerradaEm,
-        ultimaMensagemEm: conversation.ultimaMensagemEm,
-        ultimaMensagemDe: conversation.ultimaMensagemDe,
+        ultimaMensagemEm: conversation.lastMessageAt,
+        ultimaMensagemDe: conversation.lastMessageOf,
       })
       .from(conversation)
       .where(eq(conversation.id, conversationId))
@@ -322,7 +322,7 @@ export async function checarSlaOfConversation(
       .select({
         id: slaConversation.id,
         regraId: slaConversation.regraId,
-        estado: slaConversation.estado,
+        estado: slaConversation.state,
         alertadoEm: slaConversation.alertadoEm,
         estouradoEm: slaConversation.estouradoEm,
       })

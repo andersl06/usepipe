@@ -11,7 +11,7 @@ import {
 } from '@pipe/core';
 import {
   contact as contact,
-  conversa as conversation,
+  conversation,
   conversationLabel,
   etiqueta,
   eventAttendance,
@@ -85,7 +85,7 @@ export async function loadHistory(
   return consultar(tx, async (tx) => {
     const recorte = [
       filter.queueId ? eq(conversation.filaId, filter.queueId) : undefined,
-      filter.agentId ? eq(conversation.atendenteId, filter.agentId) : undefined,
+      filter.agentId ? eq(conversation.agentId, filter.agentId) : undefined,
     ].filter((c) => c !== undefined);
 
     const base = tx
@@ -98,7 +98,7 @@ export async function loadHistory(
       })
       .from(conversation)
       .leftJoin(queue, eq(queue.id, conversation.filaId))
-      .leftJoin(user, eq(user.id, conversation.atendenteId))
+      .leftJoin(user, eq(user.id, conversation.agentId))
       .leftJoin(contact, eq(contact.id, conversation.contatoId));
 
     const comEtiqueta = filter.labelId

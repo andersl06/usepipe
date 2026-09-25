@@ -328,7 +328,7 @@ export async function editarService(
       serviceId: f.chatbotId,
       principal: f.principal,
       persistente: f.persistente,
-      expiracaoMin: f.expiracaoMin,
+      expirationMin: f.expiracaoMin,
       atualizadoEm: new Date(),
     })
     .where(and(eq(routerService.tenantId, tid), eq(routerService.id, id)));

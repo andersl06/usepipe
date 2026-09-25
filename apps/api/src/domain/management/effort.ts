@@ -6,7 +6,7 @@ import {
   type EffortConversation,
   type MessageEffort,
 } from '@pipe/core';
-import { attachment, conversa as conversation, message, user } from '@pipe/db/schema';
+import { attachment, conversation, message, user } from '@pipe/db/schema';
 import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 
@@ -71,7 +71,7 @@ export async function loadEffort(
         templateId: message.templateId,
         duracaoSeg: attachment.durationSeg,
         bytes: attachment.bytes,
-        atendenteId: conversation.atendenteId,
+        atendenteId: conversation.agentId,
       })
       .from(message)
       .innerJoin(conversation, eq(conversation.id, message.conversationId))

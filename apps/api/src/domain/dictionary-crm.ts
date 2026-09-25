@@ -25,7 +25,7 @@ import type { ConfigTwenty } from './twenty.js';
  *    em outro tenant.
  */
 
-const { dictionaryObjectdicionarioObjetodictionaryObject, dictionaryFielddicionarioCampodictionaryField } = schema;
+const { dictionaryObject, dictionaryField } = schema;
 
 /** Tenant sem CRM configurado. Não é erro: é ausência, e a sincronização é pulada. */
 export const SEM_CRM = 'sem_crm' as const;
@@ -306,20 +306,20 @@ async function gravar(
 
   for (const lote of emLotes(objetos)) {
     await tx
-      .insert(dictionaryObjectdicionarioObjetodictionaryObject)
+      .insert(dictionaryObject)
       .values(lote)
       .onConflictDoUpdate({
-        target: [dictionaryObjectdicionarioObjetodictionaryObject.tenantId, dictionaryObjectdicionarioObjetodictionaryObject.code],
-        set: doExcluded(dictionaryObjectdicionarioObjetodictionaryObject, Object.keys(lote[0]!), ['tenantId', 'codigo']),
+        target: [dictionaryObject.tenantId, dictionaryObject.code],
+        set: doExcluded(dictionaryObject, Object.keys(lote[0]!), ['tenantId', 'codigo']),
       });
   }
   for (const lote of emLotes(campos)) {
     await tx
-      .insert(dictionaryFielddicionarioCampodictionaryField)
+      .insert(dictionaryField)
       .values(lote)
       .onConflictDoUpdate({
-        target: [dictionaryFielddicionarioCampodictionaryField.tenantId, dictionaryFielddicionarioCampodictionaryField.objetoCodigo, dictionaryFielddicionarioCampodictionaryField.code],
-        set: doExcluded(dictionaryFielddicionarioCampodictionaryField, Object.keys(lote[0]!), [
+        target: [dictionaryField.tenantId, dictionaryField.objetoCodigo, dictionaryField.code],
+        set: doExcluded(dictionaryField, Object.keys(lote[0]!), [
           'tenantId',
           'objetoCodigo',
           'codigo',
@@ -358,7 +358,7 @@ async function gravar(
 
 /** `excluded.<coluna>` para cada coluna da linha, menos a chave do conflito. */
 function doExcluded(
-  tabela: typeof dictionaryObjectdicionarioObjetodictionaryObject | typeof dictionaryFielddicionarioCampodictionaryField,
+  tabela: typeof dictionaryObject | typeof dictionaryField,
   chavesDaLinha: string[],
   keyOfConflito: string[],
 ) {
@@ -378,10 +378,10 @@ function emLotes<T>(linhas: T[], tamanho = 500): T[][] {
 }
 
 export type FieldOfDictionary = Omit<
-  typeof dictionaryFielddicionarioCampodictionaryField.$inferSelect,
+  typeof dictionaryField.$inferSelect,
   'id' | 'tenantId' | 'objetoCodigo'
 >;
-export type ObjectOfDictionary = Omit<typeof dictionaryObjectdicionarioObjetodictionaryObject.$inferSelect, 'id' | 'tenantId'> & {
+export type ObjectOfDictionary = Omit<typeof dictionaryObject.$inferSelect, 'id' | 'tenantId'> & {
   campos: FieldOfDictionary[];
 };
 
@@ -396,11 +396,11 @@ export type ObjectOfDictionary = Omit<typeof dictionaryObjectdicionarioObjetodic
  * Roda dentro do `noTenant` de quem chama; as duas leituras vão em série.
  */
 export async function readDictionary(tx: TransactionPipe): Promise<ObjectOfDictionary[]> {
-  const objetos = await tx.select().from(dictionaryObjectdicionarioObjetodictionaryObject).orderBy(asc(dictionaryObjectdicionarioObjetodictionaryObject.code));
+  const objetos = await tx.select().from(dictionaryObject).orderBy(asc(dictionaryObject.code));
   const campos = await tx
     .select()
-    .from(dictionaryFielddicionarioCampodictionaryField)
-    .orderBy(asc(dictionaryFielddicionarioCampodictionaryField.objetoCodigo), asc(dictionaryFielddicionarioCampodictionaryField.code));
+    .from(dictionaryField)
+    .orderBy(asc(dictionaryField.objetoCodigo), asc(dictionaryField.code));
 
   const byObject = new Map<string, FieldOfDictionary[]>();
   for (const linha of campos) {

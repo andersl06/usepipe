@@ -120,7 +120,7 @@ function asKey(linha: LineKey): KeyOfFlow {
     escopos: linha.scopes ?? [],
     criadaEm: linha.criadoEm.toISOString(),
     ultimoUsoEm: linha.ultimoUsoEm?.toISOString() ?? null,
-    revogadaEm: linha.revokedAt?.toISOString() ?? null,
+    revokedAt: linha.revokedAt?.toISOString() ?? null,
     requisitante: linha.requisitante ?? null,
   };
 }

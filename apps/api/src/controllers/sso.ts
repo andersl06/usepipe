@@ -186,7 +186,7 @@ export class SsoLoginController {
         apagarDesafio,
         cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie()),
       ]);
-      resposta.redirect(302, destinationAbsolute(desafio.destination, desafio.origem));
+      resposta.redirect(302, destinationAbsolute(desafio.destination, desafio.origin));
     } catch (error) {
       const codigo = codigoDaRecusa(error);
       if (codigo === 'falha_no_provedor') console.error('[api] falha ao entrar por SSO', error);
@@ -196,7 +196,7 @@ export class SsoLoginController {
         resposta.status(200).json({ result: 'falhou', codigo, motivo: message(error) });
         return;
       }
-      resposta.redirect(302, urlOfError(codigo, desafio.origem));
+      resposta.redirect(302, urlOfError(codigo, desafio.origin));
     }
   }
 

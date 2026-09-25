@@ -388,10 +388,10 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       { tenantId, nome: 'anual', cor: '#2E4A5D' },
       { tenantId, nome: 'primeiro-contato', cor: '#8A9A5B' },
       { tenantId, nome: 'cliente-antigo', cor: '#2E4A5D', escopo: 'contato' },
-      { tenantId, nome: 'resolvido', cor: '#4A5D23', obrigatoriaNoEncerramento: true },
-      { tenantId, nome: 'nao-resolvido', cor: '#C4442E', obrigatoriaNoEncerramento: true },
-      { tenantId, nome: 'sem-resposta-do-cliente', cor: '#9A7420', obrigatoriaNoEncerramento: true },
-      { tenantId, nome: 'fora-de-escopo', cor: '#55544D', obrigatoriaNoEncerramento: true },
+      { tenantId, nome: 'resolvido', cor: '#4A5D23', requiredInClosure: true },
+      { tenantId, nome: 'nao-resolvido', cor: '#C4442E', requiredInClosure: true },
+      { tenantId, nome: 'sem-resposta-do-cliente', cor: '#9A7420', requiredInClosure: true },
+      { tenantId, nome: 'fora-de-escopo', cor: '#55544D', requiredInClosure: true },
     ])
     .returning({ id: etiqueta.id, nome: etiqueta.nome });
   const labelBy = (nome: string) => {
@@ -413,7 +413,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     telefone: string | null,
     email: string | null,
     atributos: Record<string, string>,
-  ): Pessoa => ({ id: randomUUID(), name: nome, telefone, email, atributos });
+  ): Pessoa => ({ id: randomUUID(), name: nome, phone: telefone, email, atributos });
 
   const marcelo = pessoa('Marcelo Tavares', '+5531994714471', 'marcelo.tavares@exemplo.com.br', {
     Origem: 'Anúncio Meta',
@@ -489,7 +489,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       priority: 'alta',
       lastOfContactAtras: 2 * HORA + 12 * MIN,
       lastMessageAtras: 2 * HORA + 5 * MIN,
-      lastMessageOf: 'agent',
+      lastMessageOf: 'atendente',
       criadaAtras: 3 * HORA,
     },
     {
@@ -502,7 +502,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       // Janela perto de expirar: faltam ~38 minutos.
       lastOfContactAtras: 23 * HORA + 22 * MIN,
       lastMessageAtras: 23 * HORA + 20 * MIN,
-      lastMessageOf: 'agent',
+      lastMessageOf: 'atendente',
       criadaAtras: 26 * HORA,
     },
     {
@@ -540,9 +540,9 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       // Janela já fechada: passou de 24h desde a última mensagem dela.
       lastOfContactAtras: 30 * HORA,
       lastMessageAtras: 29 * HORA,
-      lastMessageOf: 'agent',
+      lastMessageOf: 'atendente',
       criadaAtras: 32 * HORA,
-      emEsperaDesde: 28 * HORA,
+      inWaitSince: 28 * HORA,
     },
     {
       id: randomUUID(),
@@ -553,7 +553,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       priority: 'alta',
       lastOfContactAtras: 18 * HORA,
       lastMessageAtras: 17 * HORA + 50 * MIN,
-      lastMessageOf: 'agent',
+      lastMessageOf: 'atendente',
       criadaAtras: 19 * HORA,
     },
     // Conversa antiga do Marcelo, para o histórico do painel do contato.
@@ -566,7 +566,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       priority: 'baixa',
       lastOfContactAtras: null,
       lastMessageAtras: 3 * 24 * HORA,
-      lastMessageOf: 'agent',
+      lastMessageOf: 'atendente',
       criadaAtras: 3 * 24 * HORA + 30 * MIN,
       encerradaAtras: 3 * 24 * HORA,
     },
@@ -589,7 +589,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       ultimaMensagemDe: c.lastMessageOf,
       janelaExpiraEm:
         c.lastOfContactAtras === null ? null : atras(c.lastOfContactAtras - 24 * HORA),
-      ...(c.inWaitSince ? { emEsperaDesde: atras(c.inWaitSince) } : {}),
+      ...(c.inWaitSince ? { inWaitSince: atras(c.inWaitSince) } : {}),
       ...(c.encerradaAtras
         ? { encerradaEm: atras(c.encerradaAtras), encerradaPor: anaId, motivoEncerramento: 'resolvido' }
         : {}),
@@ -630,13 +630,13 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convMarcelo,
-      de: 'agent',
+      de: 'atendente',
       texto:
         'Boa tarde, Marcelo! Sou a Ana, do comercial. O plano anual sai por R$ 4.788, ' +
         'o que dá R$ 399 por mês.',
       atras: 2 * HORA + 55 * MIN,
-      estado: 'lida',
-      respostaProntaId: responseBy('proposta-anual'),
+      state: 'lida',
+      responseReadyId: responseBy('proposta-anual'),
     },
     {
       conversationId: convMarcelo,
@@ -646,22 +646,22 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convMarcelo,
-      de: 'agent',
+      de: 'atendente',
       texto: 'Áudio de 0:34 — explicação do desconto à vista',
       atras: 2 * HORA + 9 * MIN,
-      tipo: 'audio',
-      estado: 'falhou',
+      type: 'audio',
+      state: 'falhou',
       errorCode: 'meta_131053',
       errorText:
         'A Meta recusou o áudio: formato ogg/opus fora do aceito. Converter para mp3 e enviar?',
     },
     {
       conversationId: convMarcelo,
-      de: 'agent',
+      de: 'atendente',
       texto: 'Tem sim — 10% à vista, fica R$ 4.309. Posso te mandar a proposta agora?',
       atras: 2 * HORA + 5 * MIN,
-      estado: 'lida',
-      respostaProntaId: responseBy('desconto-avista'),
+      state: 'lida',
+      responseReadyId: responseBy('desconto-avista'),
     },
     // Juliana — suporte, janela quase estourando.
     {
@@ -672,10 +672,10 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convJuliana,
-      de: 'agent',
+      de: 'atendente',
       texto: 'Oi, Juliana! Vou verificar aqui. Aparece alguma mensagem de erro na tela?',
       atras: 25 * HORA + 40 * MIN,
-      estado: 'lida',
+      state: 'lida',
     },
     {
       conversationId: convJuliana,
@@ -685,12 +685,12 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convJuliana,
-      de: 'agent',
+      de: 'atendente',
       texto:
         'Entendi. Acabei de destravar o acesso e mandei um link de redefinição para o seu ' +
         'e-mail. Consegue testar?',
       atras: 23 * HORA + 20 * MIN,
-      estado: 'entregue',
+      state: 'entregue',
     },
     // Renata — e-mail, financeiro.
     {
@@ -718,12 +718,12 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convCassia,
-      de: 'agent',
+      de: 'atendente',
       texto:
         'Oi, Cássia! Já pedi para o financeiro reemitir. Coloquei a conversa em espera e te ' +
         'aviso assim que sair.',
       atras: 29 * HORA,
-      estado: 'lida',
+      state: 'lida',
     },
     // Paulo — closer.
     {
@@ -734,12 +734,12 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convPaulo,
-      de: 'agent',
+      de: 'atendente',
       texto:
         'Que ótima notícia, Paulo! Mando o link de pagamento e o contrato ainda hoje. ' +
         'Prefere boleto ou cartão?',
       atras: 17 * HORA + 50 * MIN,
-      estado: 'entregue',
+      state: 'entregue',
     },
     // Conversa antiga do Marcelo.
     {
@@ -750,32 +750,32 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convMarceloAntiga,
-      de: 'agent',
+      de: 'atendente',
       texto: 'Que bom! Qualquer coisa é só chamar.',
       atras: 3 * 24 * HORA,
-      estado: 'lida',
+      state: 'lida',
     },
   ];
 
   await db.insert(message).values(
     falas.map((f) => ({
       tenantId,
-      conversaId: f.conversationId,
-      direcao: f.de === 'contato' ? ('entrada' as const) : ('saida' as const),
+      conversationId: f.conversationId,
+      direction: f.de === 'contato' ? ('entrada' as const) : ('saida' as const),
       autorTipo: f.de,
-      autorId: f.de === 'agent' ? anaId : null,
+      autorId: f.de === 'atendente' ? anaId : null,
       tipo: f.type ?? 'texto',
       conteudo: f.texto,
-      estadoEntrega: f.de === 'agent' ? (f.state ?? 'enviada') : null,
-      erroCodigo: f.errorCode ?? null,
-      erroTexto: f.errorText ?? null,
+      stateDelivery: f.de === 'atendente' ? (f.state ?? 'enviada') : null,
+      errorCode: f.errorCode ?? null,
+      errorText: f.errorText ?? null,
       respostaProntaId: f.responseReadyId ?? null,
       criadaEm: atras(f.atras),
       entregueEm:
-        f.de === 'agent' && f.state !== 'falhou' ? atras(f.atras - 20_000) : null,
+        f.de === 'atendente' && f.state !== 'falhou' ? atras(f.atras - 20_000) : null,
       lidaEm: f.state === 'lida' ? atras(f.atras - 60_000) : null,
-      dentroDaJanela: f.de === 'agent' ? (f.insideOfWindow ?? true) : null,
-      categoriaCobranca: f.de === 'agent' ? ('livre' as const) : null,
+      insideOfWindow: f.de === 'atendente' ? (f.insideOfWindow ?? true) : null,
+      categoriaCobranca: f.de === 'atendente' ? ('livre' as const) : null,
     })),
   );
 
@@ -809,9 +809,9 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
         'Veio do anúncio, quer o plano anual e está negociando desconto à vista. Objeção ' +
         'principal é preço; já recebeu o valor com 10% de desconto. O áudio com a explicação ' +
         'do desconto falhou e não chegou até ele.',
-      intencao: 'comprar',
-      sentimento: 'neutro',
-      modelo: 'semente-demo',
+      intent: 'comprar',
+      sentiment: 'neutro',
+      template: 'semente-demo',
       criadaEm: atras(2 * HORA),
     },
     {
@@ -822,9 +822,9 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       resumo:
         'Cliente sem acesso desde ontem, erro de credenciais inválidas. Acesso já destravado ' +
         'e link de redefinição enviado; falta a confirmação dela.',
-      intencao: 'resolver_problema',
-      sentimento: 'negativo',
-      modelo: 'semente-demo',
+      intent: 'resolver_problema',
+      sentiment: 'negativo',
+      template: 'semente-demo',
       criadaEm: atras(23 * HORA),
     },
     {
@@ -835,9 +835,9 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       resumo:
         'Aguarda reemissão da nota fiscal de agosto. Conversa em espera com o financeiro; ' +
         'a janela de 24h fechou, então o retorno precisa sair por template aprovado.',
-      intencao: 'cobrar_retorno',
-      sentimento: 'negativo',
-      modelo: 'semente-demo',
+      intent: 'cobrar_retorno',
+      sentiment: 'negativo',
+      template: 'semente-demo',
       criadaEm: atras(28 * HORA),
     },
   ]);

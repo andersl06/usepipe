@@ -1084,14 +1084,14 @@ export async function importFlowOfBlip(
     const conteudo: Record<string, unknown> = { ...state };
     delete conteudo['id'];
     delete conteudo['outputs'];
-    const original = original?.[codigo];
+    const originalState = original?.[codigo];
     const nome =
       typeof state['name'] === 'string' && state['name'].trim() ? state['name'] : codigo;
     const { rows } = await tx.execute<{ id: string }>(sql`
       insert into bloco (tenant_id, versao_id, codigo, nome, tipo, conteudo, posicao)
       values (
         ${pedido.tenantId}, ${versaoId}, ${codigo}, ${nome}, ${classificarState(state)},
-        ${JSON.stringify(original ? { ...conteudo, original } : conteudo)}::jsonb,
+        ${JSON.stringify(originalState ? { ...conteudo, original: originalState } : conteudo)}::jsonb,
         ${JSON.stringify(state['$position'] ?? {})}::jsonb
       )
       returning id
@@ -1118,7 +1118,7 @@ export async function importFlowOfBlip(
   return {
     flowId,
     versaoId,
-    versaoId: versao,
+    version: versao,
     publicado: pedido.publicar,
     report: importReport(flow),
     errorOfValidation,

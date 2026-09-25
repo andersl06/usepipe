@@ -317,7 +317,7 @@ export async function seed(
 
   await db
     .insert(permission)
-    .values(CATALOG_PERMISSIONS.map(([codigo, grupo, description]) => ({ codigo, grupo, description })))
+    .values(CATALOG_PERMISSIONS.map(([codigo, grupo, description]) => ({ codigo, grupo, descricao: description })))
     .onConflictDoNothing();
 
   await db.insert(tenant).values({ nome, slug }).onConflictDoNothing();
@@ -337,9 +337,9 @@ export async function seed(
       .values({
         tenantId,
         nome: definition.nome,
-        descricao: definition.descricao,
+        description: definition.descricao,
         deSistema: true,
-        escopo: definition.escopo,
+        scope: definition.escopo,
       })
       .onConflictDoNothing();
     const [gravado] = await db
@@ -353,8 +353,8 @@ export async function seed(
       .values(
         definition.permissoes.map((codigo) => ({
           tenantId,
-          papelId: gravado.id,
-          permissaoCodigo: codigo,
+          roleId: gravado.id,
+          permissionCode: codigo,
         })),
       )
       .onConflictDoNothing();

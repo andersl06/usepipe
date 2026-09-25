@@ -1,6 +1,6 @@
 import { and, count, eq, gte, isNotNull, lt } from 'drizzle-orm';
 import { compararIdentificador, mediaPonderadaDePares, taxaDeResposta } from '@pipe/core';
-import { conversa as conversation, pesquisa, respostaPesquisa } from '@pipe/db/schema';
+import { conversation, pesquisa, respostaPesquisa } from '@pipe/db/schema';
 import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 

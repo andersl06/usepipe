@@ -159,7 +159,7 @@ export class ChannelsController {
       numberId: corpo.phone_number_id?.trim(),
       token: corpo.access_token?.trim(),
       appSecret: corpo.app_secret?.trim(),
-      nome: corpo.name,
+      name: corpo.name,
       channelId: corpo.channelId,
     });
     if (flowId) await connectToFlow(session.tenantId, session.userId, flowId, feito.channel.id);

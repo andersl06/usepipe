@@ -1,5 +1,5 @@
 import { and, eq, ne } from 'drizzle-orm';
-import { queue, regraSla, slaConversa as slaConversation, ALVOS_SLA } from '@pipe/db/schema';
+import { queue, regraSla, slaConversation, ALVOS_SLA } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
 import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
@@ -279,7 +279,7 @@ export async function excluirRegraSla(tx: TransactionPipe, tid: string, usuarioI
   const [inProgress] = await tx
     .select({ id: slaConversation.id })
     .from(slaConversation)
-    .where(and(eq(slaConversation.regraId, id), eq(slaConversation.estado, 'correndo')))
+    .where(and(eq(slaConversation.regraId, id), eq(slaConversation.state, 'correndo')))
     .limit(1);
   if (inProgress) {
     throw PipeError.conflito(

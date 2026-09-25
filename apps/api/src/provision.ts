@@ -293,7 +293,7 @@ if (executadoDiretamente) {
       slug: values.slug ?? '',
       plan: values.plano ?? 'essencial',
       admin: values.admin ?? '',
-      dominio: values.dominio,
+      domain: values.dominio,
       verificar: values.verificar,
       reaplicar: values.reaplicar,
     })

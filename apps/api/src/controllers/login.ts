@@ -337,12 +337,12 @@ export class LoginController {
         apagarDesafio,
         cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie()),
       ]);
-      resposta.redirect(302, destinationAbsolute(desafio.destination, desafio.origem));
+      resposta.redirect(302, destinationAbsolute(desafio.destination, desafio.origin));
     } catch (erro) {
       const codigo = codigoDaRecusa(erro);
       if (codigo === 'falha_no_provedor') console.error('[api] falha ao entrar', erro);
       resposta.setHeader('set-cookie', apagarDesafio);
-      resposta.redirect(302, urlOfError(codigo, desafio.origem));
+      resposta.redirect(302, urlOfError(codigo, desafio.origin));
     }
   }
 

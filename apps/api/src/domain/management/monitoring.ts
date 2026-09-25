@@ -17,7 +17,7 @@ import {
 } from '@pipe/core';
 import {
   contact as contact,
-  conversa as conversation,
+  conversation,
   conversationLabel,
   etiqueta,
   eventAttendance,
@@ -385,26 +385,26 @@ export async function loadMonitoring(
     // para os cartões e a tabela nunca discordarem sobre o que está sendo olhado.
     const recorte = [
       filter.queueIds?.length ? inArray(conversation.filaId, filter.queueIds) : filter.queueId ? eq(conversation.filaId, filter.queueId) : undefined,
-      filter.agentIds?.length ? inArray(conversation.atendenteId, filter.agentIds) : filter.agentId ? eq(conversation.atendenteId, filter.agentId) : undefined,
+      filter.agentIds?.length ? inArray(conversation.agentId, filter.agentIds) : filter.agentId ? eq(conversation.agentId, filter.agentId) : undefined,
     ].filter((c) => c !== undefined);
 
     // ---- 1. conversas ainda abertas -------------------------------------
     const abertasCru = await tx
       .select({
         id: conversation.id,
-        estado: conversation.estado,
-        prioridade: conversation.prioridade,
+        estado: conversation.state,
+        prioridade: conversation.priority,
         filaId: conversation.filaId,
         filaNome: queue.nome,
-        atendenteId: conversation.atendenteId,
+        atendenteId: conversation.agentId,
         atendenteNome: user.nome,
         contatoNome: contact.nome,
         emEsperaDesde: conversation.emEsperaDesde,
-        ultimaMensagemDe: conversation.ultimaMensagemDe,
+        ultimaMensagemDe: conversation.lastMessageOf,
       })
       .from(conversation)
       .leftJoin(queue, eq(queue.id, conversation.filaId))
-      .leftJoin(user, eq(user.id, conversation.atendenteId))
+      .leftJoin(user, eq(user.id, conversation.agentId))
       .leftJoin(contact, eq(contact.id, conversation.contatoId))
       .where(and(isNull(conversation.encerradaEm), ...recorte))
       .orderBy(asc(conversation.criadaEm));

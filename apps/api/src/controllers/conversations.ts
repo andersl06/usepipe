@@ -310,7 +310,7 @@ export class ConversationsController {
         agentId: ator.userId,
         exigirAssignment: ator.viaSession,
       },
-      { conversationId: id, etiquetaIds: corpo.etiqueta_ids, etiquetaIds: corpo.etiqueta_id },
+      { conversationId: id, etiquetaIds: corpo.etiqueta_ids ?? (corpo.etiqueta_id ? [corpo.etiqueta_id] : undefined) },
     );
     return { estado: r.state, reasonClosure: r.reason };
   }

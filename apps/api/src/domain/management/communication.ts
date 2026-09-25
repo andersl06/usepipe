@@ -51,7 +51,7 @@ export const ROTULO_CABECALHO: Record<CabecalhoTemplate, string> = {
   texto: 'Texto',
   imagem: 'Imagem',
   video: 'Vídeo',
-  document: 'Documento',
+  documento: 'Documento',
 };
 
 /**
