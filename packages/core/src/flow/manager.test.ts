@@ -29,7 +29,7 @@ function servicosFalsos(falharAttendance = false) {
     attendances,
     eventos,
     servicos: {
-      async enviar(m: OutputMessage) {
+      async send(m: OutputMessage) {
         enviadas.push(m);
       },
       async encaminharForAttendance(p: unknown) {
@@ -37,7 +37,7 @@ function servicosFalsos(falharAttendance = false) {
         attendances.push(p);
         return { id: 'atd-1', status: 'Open' };
       },
-      async registrarEvento(e: Record<string, unknown>) {
+      async registerEvent(e: Record<string, unknown>) {
         eventos.push(e);
       },
     },
@@ -126,7 +126,7 @@ describe('FlowManager.ProcessInputAsync', () => {
       ...base,
       inboundContext: new Map(),
       services: {
-        ...base.servicos,
+        ...base.services,
         async callHttp() { return { status: 200, corpo: '{}' }; },
         async suspendHttp() { throw new Error('não deveria suspender de novo'); },
       },
@@ -146,8 +146,8 @@ describe('FlowManager.ProcessInputAsync', () => {
       'Ping!',
     );
     expect(r.textos).toEqual(['Pong!']);
-    expect(r.variaveis[KEY_STATE]).toBeUndefined();
-    expect(r.variaveis[`previous-stateId@${FLOW_ID}`]).toBe('ping');
+    expect(r.variables[KEY_STATE]).toBeUndefined();
+    expect(r.variables[`previous-stateId@${FLOW_ID}`]).toBe('ping');
     expect(r.rastro.estados.map((e) => e.stateId)).toEqual(['root', 'ping']);
   });
 
@@ -232,8 +232,8 @@ describe('FlowManager.ProcessInputAsync', () => {
 
   it('input.variable stores the input in the context', async () => {
     const r = await rodar([{ id: 'root', root: true, input: { variable: 'MyVariable' } }], 'Ping!');
-    expect(r.variaveis['MyVariable']).toBe('Ping!');
-    expect(r.variaveis[KEY_STATE]).toBeUndefined();
+    expect(r.variables['MyVariable']).toBe('Ping!');
+    expect(r.variables[KEY_STATE]).toBeUndefined();
   });
 
   it('a state with bypass does not write input.variable', async () => {
@@ -244,7 +244,7 @@ describe('FlowManager.ProcessInputAsync', () => {
       ],
       'Ping!',
     );
-    expect(r.variaveis['MyVariable']).toBeUndefined();
+    expect(r.variables['MyVariable']).toBeUndefined();
   });
 
   it('{{contact.name}} comes from the contact', async () => {
@@ -281,7 +281,7 @@ describe('FlowManager.ProcessInputAsync', () => {
     ];
     const r = await rodar(estados, 'Ping!');
     expect(r.textos).toEqual(['Pong!']);
-    expect(r.variaveis['Word']).toBe('Ping!');
+    expect(r.variables['Word']).toBe('Ping!');
   });
 
   const inboundStatesWithCondition = (value: string): State[] => [
@@ -309,14 +309,14 @@ describe('FlowManager.ProcessInputAsync', () => {
 
   it('met entry condition: it stays in the waiting state', async () => {
     const r = await rodar(inboundStatesWithCondition('true'), 'OK!');
-    expect(r.variaveis[KEY_STATE]).toBe('Start');
+    expect(r.variables[KEY_STATE]).toBe('Start');
     expect(r.textos).toEqual([]);
   });
 
   it('unmet entry condition: it does not wait, it follows the outputs', async () => {
     const r = await rodar(inboundStatesWithCondition('false'), 'NOK!');
     expect(r.textos).toEqual(['NOK']);
-    expect(r.variaveis[KEY_STATE]).toBeUndefined();
+    expect(r.variables[KEY_STATE]).toBeUndefined();
   });
 
   it('two entries in sequence with the same context', async () => {
@@ -415,7 +415,7 @@ describe('OutputConditions', () => {
   it('no output matches: it clears the state and sends nothing', async () => {
     const r = await rodar(pingMarco, 'XPTO!', { variables: { [KEY_STATE]: 'root' } });
     expect(r.textos).toEqual([]);
-    expect(r.variaveis[KEY_STATE]).toBeUndefined();
+    expect(r.variables[KEY_STATE]).toBeUndefined();
   });
 
   it('matches over a context variable', async () => {
@@ -503,8 +503,8 @@ describe('ActionConditions', () => {
       ),
       'Ping!',
     );
-    expect(r.variaveis['primeira']).toBe('sim');
-    expect(r.variaveis['outra']).toBeUndefined();
+    expect(r.variables['primeira']).toBe('sim');
+    expect(r.variables['outra']).toBeUndefined();
   });
 
   it('the exit action only runs when the condition matches', async () => {
@@ -515,8 +515,8 @@ describe('ActionConditions', () => {
       ),
       'Ping!',
     );
-    expect(r.variaveis['primeira']).toBe('sim');
-    expect(r.variaveis['outra']).toBeUndefined();
+    expect(r.variables['primeira']).toBe('sim');
+    expect(r.variables['outra']).toBeUndefined();
   });
 
   it('the "after state change" action runs in the state that was exited', async () => {
@@ -524,7 +524,7 @@ describe('ActionConditions', () => {
       doisEstados({ afterStateChangedActions: [marcar('trocou', 'Ping!')] }, 'root'),
       'Ping!',
     );
-    expect(r.variaveis['trocou']).toBe('sim');
+    expect(r.variables['trocou']).toBe('sim');
   });
 });
 
@@ -569,9 +569,9 @@ describe('attendance block (desk:) the way Blip\'s editor builds it', () => {
 
   it('forwards and stays silent on the desk: waiting for attendance to end', async () => {
     const r = await rodar(deskStates, 'quero falar com alguém');
-    expect(r.atendimentos).toHaveLength(1);
-    expect(r.variaveis['desk_forwardToDeskState_status']).toBe('Success');
-    expect(r.variaveis[KEY_STATE]).toBe('desk:suporte');
+    expect(r.attendances).toHaveLength(1);
+    expect(r.variables['desk_forwardToDeskState_status']).toBe('Success');
+    expect(r.variables[KEY_STATE]).toBe('desk:suporte');
     expect(r.textos).toEqual([]);
   });
 
@@ -589,7 +589,7 @@ describe('attendance block (desk:) the way Blip\'s editor builds it', () => {
 
   it('a forwarding failure becomes Error and follows attendance\'s default output', async () => {
     const r = await rodar(deskStates, 'quero falar com alguém', { falharAttendance: true });
-    expect(r.variaveis['desk_forwardToDeskState_status']).toBe('Error');
+    expect(r.variables['desk_forwardToDeskState_status']).toBe('Error');
     expect(r.textos).toEqual(['Sem atendente agora.']);
   });
 });

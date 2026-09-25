@@ -135,7 +135,7 @@ describe('Deduplicate contacts by phone number within a tenant', () => {
     `);
     const idDaEva = rows[0]!.id;
 
-    const import = await importar(
+    const importacao = await runImport(
       A,
       [
         'name,phone_number,email',
@@ -145,7 +145,7 @@ describe('Deduplicate contacts by phone number within a tenant', () => {
         'Fabi,(11) 97777-6666,fabi@exemplo.com.br',
       ].join('\n'),
     );
-    expect(import).toMatchObject({ estado: 'concluida', aceitos: 4, rejeitados: 0 });
+    expect(importacao).toMatchObject({ estado: 'concluida', aceitos: 4, rejeitados: 0 });
 
     const eva = await contactsWith(A.tenantId, ['+554199990000', '+5541999990000']);
     expect(eva).toHaveLength(1);

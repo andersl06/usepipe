@@ -195,7 +195,7 @@ export class ManagementOperationsController {
         { conversationId: id, forQueueId: corpo?.forQueueId ?? null, forAgentId: corpo?.forAgentId ?? null, motivo: null },
       );
       await registrarAuditoria(tx, sessao.tenantId, {
-        ator: { tipo: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
+        ator: { type: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
         depois: { acao: 'transferiu_no_monitoramento', para: resultado.forConversationId },
       });
       return { para_conversa_id: resultado.forConversationId };
@@ -219,7 +219,7 @@ export class ManagementOperationsController {
         { conversaId: id, etiquetaIds: corpo?.etiqueta_ids, etiquetaId: corpo?.etiqueta_id },
       );
       await registrarAuditoria(tx, sessao.tenantId, {
-        ator: { tipo: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
+        ator: { type: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
         depois: { acao: 'finalizou_no_monitoramento' },
       });
       return { estado: resultado.estado };

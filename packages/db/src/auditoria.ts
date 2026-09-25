@@ -99,7 +99,7 @@ export async function registrarAuditoria(
 ): Promise<void> {
   await tx.insert(logAuditoria).values({
     tenantId,
-    atorTipo: evento.ator.tipo,
+    atorTipo: evento.ator.type,
     atorId: evento.ator.id ?? null,
     acao: evento.acao,
     objetoTipo: evento.objetoTipo,

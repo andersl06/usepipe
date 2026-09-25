@@ -236,7 +236,7 @@ export async function sincronizarModelos(
     resultado.removidos = removidos.length;
 
     await registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: userId },
+      ator: { type: 'usuario', id: userId },
       acao: 'alterou',
       objetoTipo: 'canal',
       objetoId: channelId,
@@ -504,7 +504,7 @@ export async function createTemplateInMeta(
     `);
     const id = rows[0]!.id;
     await registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: usuarioId },
+      ator: { type: 'usuario', id: usuarioId },
       acao: 'criou',
       objetoTipo: 'template_mensagem',
       objetoId: id,
@@ -530,7 +530,7 @@ export async function deleteTemplateInMeta(
     `);
     for (const { id } of rows) {
       await registrarAuditoria(tx, tenantId, {
-        ator: { tipo: 'usuario', id: usuarioId },
+        ator: { type: 'usuario', id: usuarioId },
         acao: 'excluiu',
         objetoTipo: 'template_mensagem',
         objetoId: id,

@@ -254,7 +254,7 @@ export class ContactsController {
       );
       if (Object.keys(mudanca.depois).length > 0 || atributos !== undefined) {
         await registrarAuditoria(tx, session.tenantId, {
-          ator: { tipo: 'usuario', id: session.userId },
+          ator: { type: 'usuario', id: session.userId },
           acao: 'alterou',
           objetoTipo: 'contato',
           objetoId: id,

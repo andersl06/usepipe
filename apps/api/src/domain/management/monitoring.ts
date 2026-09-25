@@ -240,7 +240,7 @@ export async function falarWithAgentInMonitoring(
     values (${tenantId}, ${conversaId}::uuid, ${usuarioId}::uuid, ${corpo})
   `);
   await registrarAuditoria(tx, tenantId, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'conversa',
     objetoId: conversaId,

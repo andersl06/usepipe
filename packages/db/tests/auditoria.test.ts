@@ -23,7 +23,7 @@ describe('auditoria', () => {
   it('grava ator, ação e objeto', async () => {
     const { tx, gravado } = txFalsa();
     await registrarAuditoria(tx, 't-1', {
-      ator: { tipo: 'usuario', id: 'u-1', ip: '10.0.0.1' },
+      ator: { type: 'usuario', id: 'u-1', ip: '10.0.0.1' },
       acao: 'alterou',
       objetoTipo: 'fila',
       objetoId: 'f-1',
@@ -47,7 +47,7 @@ describe('auditoria', () => {
     // `segredo.ts` aplica no banco.
     const { tx, gravado } = txFalsa();
     await registrarAuditoria(tx, 't-1', {
-      ator: { tipo: 'usuario', id: 'u-1' },
+      ator: { type: 'usuario', id: 'u-1' },
       acao: 'alterou',
       objetoTipo: 'canal',
       objetoId: 'c-1',
@@ -64,7 +64,7 @@ describe('auditoria', () => {
   it('Record a system audit event without an actor ID', async () => {
     const { tx, gravado } = txFalsa();
     await registrarAuditoria(tx, 't-1', {
-      ator: { tipo: 'sistema' },
+      ator: { type: 'sistema' },
       acao: 'desativou',
       objetoTipo: 'canal',
       objetoId: 'c-1',
@@ -77,7 +77,7 @@ describe('auditoria', () => {
     const { tx, gravado } = txFalsa();
     const quando = new Date('2026-09-07T12:00:00Z');
     await registrarAuditoria(tx, 't-1', {
-      ator: { tipo: 'usuario', id: 'u-1' },
+      ator: { type: 'usuario', id: 'u-1' },
       acao: 'criou',
       objetoTipo: 'pausa',
       objetoId: 'p-1',

@@ -303,7 +303,7 @@ export async function createResponseReady(
   if (!criada) throw PipeError.request('response_not_created', 'Não consegui gravar a resposta.');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: userId },
+    ator: { type: 'usuario', id: userId },
     acao: 'criou',
     objetoTipo: 'resposta_pronta',
     objetoId: criada.id,
@@ -369,7 +369,7 @@ export async function editarRespostaPronta(
   if (!gravada) throw PipeError.naoEncontrado('resposta pronta');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'resposta_pronta',
     objetoId: id,
@@ -391,7 +391,7 @@ export async function excluirRespostaPronta(
   await tx.delete(respostaPronta).where(and(eq(respostaPronta.tenantId, tid), eq(respostaPronta.id, id)));
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'excluiu',
     objetoTipo: 'resposta_pronta',
     objetoId: id,

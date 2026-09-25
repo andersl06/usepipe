@@ -1,5 +1,5 @@
 import 'dotenv/config';
-import { migrate } from 'drizzle-orm/node-postgres/migrator';
+import { migrate as migrateDrizzle } from 'drizzle-orm/node-postgres/migrator';
 import { fileURLToPath } from 'node:url';
 import path from 'node:path';
 import { createDatabase, closeDatabase } from './cliente.js';
@@ -13,7 +13,7 @@ export const PASTA_MIGRATIONS = path.resolve(AQUI, '..', 'drizzle');
 export async function migrate(url?: string): Promise<void> {
   const db = createDatabase({ url: url ?? process.env['DATABASE_URL'], maxConnections: 1 });
   try {
-    await migrate(db, { migrationsFolder: PASTA_MIGRATIONS });
+    await migrateDrizzle(db, { migrationsFolder: PASTA_MIGRATIONS });
     await garantirPartitions(db);
   } finally {
     await closeDatabase(db);

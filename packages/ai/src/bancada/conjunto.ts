@@ -22,7 +22,7 @@ const EsquemaMessage = z.object({
   id: z.string(),
   criadaEm: z.string(),
   direcao: z.enum(['entrada', 'saida', 'interna']),
-  autorTipo: z.enum(['contato', 'agent', 'bot', 'sistema']),
+  autorTipo: z.enum(['contato', 'atendente', 'bot', 'sistema']),
   autorNome: z.string().nullish(),
   tipo: z.enum(['texto', 'imagem', 'audio', 'video', 'documento', 'localizacao', 'template']),
   conteudo: z.string().nullish(),
@@ -95,8 +95,44 @@ export function carregarConjunto(bruto: unknown): CasoReferencia[] {
     }
 
     return {
-      ...caso,
-      messages: caso.mensagens.map((m) => ({ ...m, criadaEm: new Date(m.criadaEm) })),
+      id: caso.id,
+      description: caso.descricao,
+      context: caso.contexto,
+      messages: caso.mensagens.map((m) => ({
+        id: m.id,
+        criadaEm: new Date(m.criadaEm),
+        direction: m.direcao,
+        autorTipo: m.autorTipo,
+        autorNome: m.autorNome,
+        tipo: m.tipo,
+        conteudo: m.conteudo,
+        attachment: m.anexo
+          ? {
+              nameFile: m.anexo.nomeArquivo,
+              durationSeg: m.anexo.duracaoSeg,
+              transcription: m.anexo.transcricao,
+            }
+          : m.anexo,
+      })),
+      formulario: {
+        id: caso.formulario.id,
+        nome: caso.formulario.nome,
+        notaMaxima: caso.formulario.notaMaxima,
+        groups: caso.formulario.grupos.map((grupo) => ({
+          id: grupo.id,
+          nome: grupo.nome,
+          peso: grupo.peso,
+          criterios: grupo.criterios.map((criterio) => ({
+            id: criterio.id,
+            nome: criterio.nome,
+            description: criterio.descricao,
+            peso: criterio.peso,
+            tipo: criterio.tipo,
+            fatal: criterio.fatal,
+          })),
+        })),
+      },
+      gabarito: caso.gabarito.map((g) => ({ criterioId: g.criterioId, value: g.valor })),
     } as CasoReferencia;
   });
 }

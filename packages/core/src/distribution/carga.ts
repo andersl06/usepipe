@@ -75,7 +75,7 @@ export const PESO_AGUARDANDO_CLIENTE = 1;
  */
 export function cargaPonderada(
   agent: AgentDisponivel,
-  options: Pick<OptionsDistribution, 'pesoAguardandoAtendente' | 'pesoAguardandoCliente'> = {},
+  options: Pick<OptionsDistribution, 'pesoAguardandoAgent' | 'pesoAguardandoCliente'> = {},
 ): number {
   const pesoAgent = options.pesoAguardandoAgent ?? PESO_AGUARDANDO_AGENT;
   const pesoCliente = options.pesoAguardandoCliente ?? PESO_AGUARDANDO_CLIENTE;

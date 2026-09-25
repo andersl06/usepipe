@@ -33,7 +33,7 @@ describe('quem falou', () => {
       'Marcos',
     );
     expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'contato' }))).toBe('Cliente');
-    expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'agent' }))).toBe('Atendente');
+    expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'atendente' }))).toBe('Atendente');
     expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'bot' }))).toBe('Bot');
     // Sistema nunca herda nome de gente: é o próprio produto falando.
     expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'sistema', autorNome: 'Rafael' }))).toBe(
@@ -107,7 +107,7 @@ describe('transcript assembly', () => {
       msg({
         id: 'a',
         direction: 'interna',
-        autorTipo: 'agent',
+        autorTipo: 'atendente',
         autorNome: 'Diego',
         conteudo: 'abri o RMA',
       }),

@@ -206,7 +206,7 @@ export async function createRulePriority(
   if (!criada) throw PipeError.request('rule_not_created', 'Não consegui gravar a regra de prioridade.');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: userId },
+    ator: { type: 'usuario', id: userId },
     acao: 'criou',
     objetoTipo: 'regra_prioridade',
     objetoId: criada.id,
@@ -274,7 +274,7 @@ export async function editarRulePriority(
   if (!gravada) throw PipeError.naoEncontrado('regra de prioridade');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'regra_prioridade',
     objetoId: id,
@@ -291,7 +291,7 @@ export async function deleteRulePriority(tx: TransactionPipe, tid: string, usuar
   await tx.delete(rulePriority).where(and(eq(rulePriority.tenantId, tid), eq(rulePriority.id, id)));
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'excluiu',
     objetoTipo: 'regra_prioridade',
     objetoId: id,

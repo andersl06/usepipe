@@ -66,7 +66,7 @@ export const LIMITES_DO_PLANO: Readonly<Record<Plano, LimitesDoPlano>> = {
     excessCentavosByConversation: 25,
     sso: false,
   },
-  operations: {
+  operacao: {
     priceByAgentCentavos: 17_900,
     minimumOfAgents: 5,
     conversationsAiByAgent: 1_000,

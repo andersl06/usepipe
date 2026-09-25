@@ -27,7 +27,7 @@ function agent(parcial: Partial<AgentDisponivel> & { id: string }): AgentDisponi
   };
 }
 
-const QUEUE = { filaId: 'suporte' };
+const QUEUE = { queueId: 'suporte' };
 
 describe('carga ponderada', () => {
   const casos: {
@@ -140,10 +140,10 @@ describe('choice by load', () => {
     expect(escolha.escolhido).toBeNull();
     expect(escolha.elegiveis).toEqual([]);
     expect(escolha.descartados).toEqual([
-      { atendenteId: 'a1', motivo: 'nao_esta_online' },
-      { atendenteId: 'a2', motivo: 'fora_da_fila' },
-      { atendenteId: 'a3', motivo: 'sem_vaga' },
-      { atendenteId: 'a4', motivo: 'teto_sem_primeira_resposta' },
+      { agentId: 'a1', motivo: 'nao_esta_online' },
+      { agentId: 'a2', motivo: 'fora_da_fila' },
+      { agentId: 'a3', motivo: 'sem_vaga' },
+      { agentId: 'a4', motivo: 'teto_sem_primeira_resposta' },
     ]);
   });
 

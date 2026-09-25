@@ -159,7 +159,7 @@ export async function desconectarWhatsApp(
     const gravado = rows[0];
     if (!gravado) throw PipeError.naoEncontrado('Canal');
     await registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: userId },
+      ator: { type: 'usuario', id: userId },
       acao: 'desativou',
       objetoTipo: 'canal',
       objetoId: canalId,

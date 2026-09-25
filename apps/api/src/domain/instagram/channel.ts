@@ -255,7 +255,7 @@ export async function conectarInstagramManual(pedido: {
         `);
       }
       await registrarAuditoria(tx, pedido.tenantId, {
-        ator: { tipo: 'usuario', id: pedido.userId },
+        ator: { type: 'usuario', id: pedido.userId },
         acao: existente ? 'ativou' : 'criou',
         objetoTipo: 'canal',
         objetoId: id,
@@ -308,7 +308,7 @@ export async function desconectarInstagram(
     const gravado = rows[0];
     if (!gravado) throw PipeError.naoEncontrado('Canal');
     await registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: userId },
+      ator: { type: 'usuario', id: userId },
       acao: 'desativou',
       objetoTipo: 'canal',
       objetoId: canalId,

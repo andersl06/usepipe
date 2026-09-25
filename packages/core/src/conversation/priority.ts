@@ -48,7 +48,7 @@ export const ROTULOS_PRIORITY: Record<NivelPriority, string> = {
   alta: 'Alta',
   media: 'Média',
   baixa: 'Baixa',
-  withoutPriority: 'Sem prioridade',
+  sem_prioridade: 'Sem prioridade',
 };
 
 /**

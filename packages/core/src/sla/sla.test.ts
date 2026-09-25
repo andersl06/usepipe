@@ -335,14 +335,14 @@ describe('start and fulfillment per target', () => {
   const marcos = {
     criadaEm: utc('2026-03-02T12:00:00Z'),
     atribuidaEm: utc('2026-03-02T12:10:00Z'),
-    primeiraRespostaEm: utc('2026-03-02T12:20:00Z'),
+    firstRespostaIn: utc('2026-03-02T12:20:00Z'),
     encerradaEm: utc('2026-03-02T13:00:00Z'),
     aguardandoRespostaDesde: utc('2026-03-02T12:40:00Z'),
   };
 
   it('first response counts from assignment', () => {
     expect(inicioDoAlvo('primeira_resposta', marcos)).toEqual(marcos.atribuidaEm);
-    expect(alvoFulfillment('primeira_resposta', marcos)).toEqual(marcos.primeiraRespostaEm);
+    expect(alvoFulfillment('primeira_resposta', marcos)).toEqual(marcos.firstRespostaIn);
   });
 
   it('with no assignment, the first response counts from creation', () => {

@@ -24,9 +24,9 @@ function avaliadorQueResponde(trocas: Record<string, Record<string, string>> = {
       caso.formulario,
       caso.gabarito.map((g) => ({
         criterioId: g.criterioId,
-        valor: troca[g.criterioId] ?? g.value,
+        value: troca[g.criterioId] ?? g.value,
         justificativa: 'dublê',
-        evidenciaMensagemId: null,
+        evidenciaMessageId: null,
       })),
     );
     return {
@@ -62,7 +62,7 @@ describe('conjunto de referência', () => {
     const caso = (await conjunto()).find((c) => c.id === 'dado-de-terceiro')!;
     const nota = calcularNota(
       caso.formulario,
-      caso.gabarito.map((g) => ({ ...g, justificativa: 'g', evidenciaMensagemId: null })),
+      caso.gabarito.map((g) => ({ ...g, justificativa: 'g', evidenciaMessageId: null })),
     );
     expect(nota.nota).toBe(0);
     expect(nota.notaAntesDoFatal).toBeGreaterThan(0);
@@ -98,7 +98,7 @@ describe('conjunto de referência', () => {
                 },
               ],
             },
-            gabarito: [{ criterioId: 'c-que-nao-existe', valor: 'conforme' }],
+            gabarito: [{ criterioId: 'c-que-nao-existe', value: 'conforme' }],
           },
         ],
       }),

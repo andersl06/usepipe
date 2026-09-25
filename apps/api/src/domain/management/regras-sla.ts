@@ -178,7 +178,7 @@ export async function createRuleSla(
   if (!criada) throw PipeError.request('rule_not_created', 'Não consegui gravar a regra de SLA.');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: userId },
+    ator: { type: 'usuario', id: userId },
     acao: 'criou',
     objetoTipo: 'regra_sla',
     objetoId: criada.id,
@@ -260,7 +260,7 @@ export async function editarRegraSla(
   if (!gravada) throw PipeError.naoEncontrado('regra de SLA');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'regra_sla',
     objetoId: id,
@@ -291,7 +291,7 @@ export async function excluirRegraSla(tx: TransactionPipe, tid: string, usuarioI
   await tx.delete(regraSla).where(and(eq(regraSla.tenantId, tid), eq(regraSla.id, id)));
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'excluiu',
     objetoTipo: 'regra_sla',
     objetoId: id,

@@ -86,7 +86,7 @@ export function createInbound(
       : JSON.stringify(message.conteudo ?? null);
   return {
     message,
-    serializedContent,
+    serializedContent: conteudoSerializado,
     intent: ia?.intent ?? null,
     entities: ia?.entities ?? null,
   };

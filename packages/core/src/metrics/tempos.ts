@@ -117,7 +117,7 @@ export function respostaTime(conversations: readonly ConversationEvents[]): Resp
     }
   }
 
-  return { ...resultado(soma, intervalos, excluidas), conversationsConsidered };
+  return { ...resultado(soma, intervalos, excluidas), conversationsConsideradas: conversationsConsidered };
 }
 
 /**

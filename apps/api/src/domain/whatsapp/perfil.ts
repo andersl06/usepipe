@@ -207,7 +207,7 @@ export async function writeProfileOfChannel(
 
   await noTenant(tenantId, (tx) =>
     registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: userId },
+      ator: { type: 'usuario', id: userId },
       acao: 'alterou',
       objetoTipo: 'canal',
       objetoId: canal.id,

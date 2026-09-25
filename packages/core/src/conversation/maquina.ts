@@ -39,9 +39,9 @@ export const STATES_CONVERSATION: readonly StateConversation[] = [
 
 /** Transições permitidas, exatamente as do diagrama da §8. */
 export const TRANSITIONS: Readonly<Record<StateConversation, readonly StateConversation[]>> = {
-  inQueue: ['atribuida', 'encerrada'],
+  na_fila: ['atribuida', 'encerrada'],
   atribuida: ['em_atendimento', 'encerrada'],
-  inAttendance: ['em_espera', 'encerrada'],
+  em_atendimento: ['em_espera', 'encerrada'],
   em_espera: ['em_atendimento', 'encerrada'],
   encerrada: ['na_fila'],
 };
@@ -183,7 +183,7 @@ export const TRANSITIONS_DELIVERY: Readonly<Record<StateDelivery, readonly State
   entregue: ['lida'],
   lida: [],
   // Reenviar volta para a fila de saída — nunca falha em silêncio.
-  falhou: ['pending'],
+  falhou: ['pendente'],
 };
 
 export class TransitionDeliveryInvalidError extends Error {

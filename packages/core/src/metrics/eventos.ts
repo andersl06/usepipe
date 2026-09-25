@@ -130,7 +130,7 @@ export function derivarMarcos(conversation: ConversationEvents): Marcos {
     atribuidaEm,
     firstRespostaIn: firstRespostaIn ?? agentInFirstOutput,
     encerradaEm,
-    closedBy,
+    encerradaBy: closedBy,
     assignments,
   };
 }

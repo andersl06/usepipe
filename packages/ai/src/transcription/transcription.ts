@@ -79,7 +79,7 @@ export function rotuloDoAutor(m: MessageTranscription): string {
   switch (m.autorTipo) {
     case 'contato':
       return nome || 'Cliente';
-    case 'agent':
+    case 'atendente':
       return nome || 'Atendente';
     case 'bot':
       return nome || 'Bot';

@@ -124,7 +124,13 @@ export async function avaliarConversation(options: OptionsEvaluation): Promise<R
       );
     }
 
-    enriquecidas.push({ ...resposta, evidenciaMessageId });
+    enriquecidas.push({
+      criterioId: resposta.criterioId,
+      value: resposta.valor,
+      justificativa: resposta.justificativa,
+      evidencia: resposta.evidencia,
+      evidenciaMessageId,
+    });
   }
 
   const calculada = calcularNota(formulario, enriquecidas);

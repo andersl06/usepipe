@@ -40,7 +40,7 @@ export class StorageInDisk implements Storage {
     const alvo = this.caminho(chave);
     await mkdir(dirname(alvo), { recursive: true });
     await writeFile(alvo, data);
-    return { key, bytes: data.byteLength };
+    return { key: chave, bytes: data.byteLength };
   }
 
   async ler(chave: string): Promise<ObjetoLido | null> {

@@ -1,4 +1,4 @@
-import { NIVEIS_PRIORITY } from '@pipe/core/conversa';
+import { NIVEIS_PRIORITY } from '@pipe/core/conversation';
 import { sql } from 'drizzle-orm';
 import {
   boolean,

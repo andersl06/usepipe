@@ -48,7 +48,7 @@ const respostas = (
     criterioId,
     value,
     justificativa: 'porque sim',
-    evidenciaMensagemId: evidencias[criterioId] ?? null,
+    evidenciaMessageId: evidencias[criterioId] ?? null,
   }));
 
 describe('fraction of the value', () => {
@@ -178,7 +178,7 @@ const conversation: MessageTranscription[] = [
     id: 'uuid-b',
     criadaEm: new Date('2026-03-02T13:01:00Z'),
     direction: 'saida',
-    autorTipo: 'agent',
+    autorTipo: 'atendente',
     autorNome: 'Camila',
     tipo: 'texto',
     conteudo: 'segue em anexo',

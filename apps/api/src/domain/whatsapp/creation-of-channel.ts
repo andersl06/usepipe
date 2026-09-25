@@ -114,7 +114,7 @@ export async function createChannel(pedido: RequestOfCreation): Promise<ChannelW
       `);
 
       await registrarAuditoria(tx, pedido.tenantId, {
-        ator: { tipo: 'usuario', id: pedido.userId },
+        ator: { type: 'usuario', id: pedido.userId },
         acao: 'criou',
         objetoTipo: 'canal',
         objetoId: id,

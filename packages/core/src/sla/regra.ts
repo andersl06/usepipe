@@ -83,9 +83,9 @@ export function avaliarSla(inbound: InboundSla): ResultadoSla {
       ? avancarNoExpediente(inicio, regra.alertaSeg, horario, esperas)
       : null;
 
-  let state: StateSla = 'inside';
-  if (decorridoSeg >= regra.prazoSeg) state = 'exceeded';
-  else if (typeof regra.alertaSeg === 'number' && decorridoSeg >= regra.alertaSeg) state = 'alert';
+  let state: StateSla = 'dentro';
+  if (decorridoSeg >= regra.prazoSeg) state = 'estourado';
+  else if (typeof regra.alertaSeg === 'number' && decorridoSeg >= regra.alertaSeg) state = 'alerta';
 
   return {
     state,

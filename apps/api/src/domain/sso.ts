@@ -147,7 +147,7 @@ export async function salvarConexao(
 
     const linha = rows[0]!;
     await registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: userId },
+      ator: { type: 'usuario', id: userId },
       acao: antes[0] ? 'alterou' : 'criou',
       objetoTipo: 'conexao_sso',
       objetoId: linha.id,
@@ -231,7 +231,7 @@ export async function defineState(
     `);
     const linha = rows[0]!;
     await registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: usuarioId },
+      ator: { type: 'usuario', id: usuarioId },
       acao: state === 'ativa' ? 'ativou' : 'alterou',
       objetoTipo: 'conexao_sso',
       objetoId: linha.id,

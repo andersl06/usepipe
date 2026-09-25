@@ -49,7 +49,7 @@ const C1: ConversationEvents = {
     evento('c1', 'criada', '10:00:00'),
     evento('c1', 'atribuida', '10:02:30', { userId: 'u1' }),
     evento('c1', 'primeira_resposta', '10:03:30', { userId: 'u1' }),
-    evento('c1', 'encerrada', '10:20:00', { encerradaBy: 'agent' }),
+    evento('c1', 'encerrada', '10:20:00', { encerradaBy: 'atendente' }),
   ],
 };
 
@@ -125,7 +125,7 @@ describe('derivarMarcos', () => {
       conversationId: 'c',
       eventos: [
         evento('c', 'criada', '10:00:00'),
-        evento('c', 'encerrada', '10:10:00', { encerradaBy: 'agent' }),
+        evento('c', 'encerrada', '10:10:00', { encerradaBy: 'atendente' }),
         evento('c', 'reaberta', '10:20:00'),
       ],
     });
@@ -140,7 +140,7 @@ describe('derivarMarcos', () => {
         evento('c', 'criada', '10:00:00'),
         evento('c', 'encerrada', '10:10:00', { encerradaBy: 'inatividade' }),
         evento('c', 'reaberta', '10:20:00'),
-        evento('c', 'encerrada', '10:50:00', { encerradaBy: 'agent' }),
+        evento('c', 'encerrada', '10:50:00', { encerradaBy: 'atendente' }),
       ],
     });
     expect(marcos.encerradaEm).toEqual(em('10:50:00'));
@@ -319,8 +319,8 @@ describe('closure status (§4)', () => {
     { nome: 'inatividade antes de atribuir', atribuida: false, encerradaBy: 'inatividade', encerrada: true, esperado: 'perdida' },
     { nome: 'cliente saiu depois de atribuir', atribuida: true, encerradaBy: 'cliente', encerrada: true, esperado: 'abandonada' },
     { nome: 'inatividade depois de atribuir', atribuida: true, encerradaBy: 'inatividade', encerrada: true, esperado: 'abandonada' },
-    { nome: 'atendente fechou', atribuida: true, encerradaBy: 'agent', encerrada: true, esperado: 'finalizada' },
-    { nome: 'gestor fechou sem atribuição', atribuida: false, encerradaBy: 'agent', encerrada: true, esperado: 'finalizada' },
+    { nome: 'atendente fechou', atribuida: true, encerradaBy: 'atendente', encerrada: true, esperado: 'finalizada' },
+    { nome: 'gestor fechou sem atribuição', atribuida: false, encerradaBy: 'atendente', encerrada: true, esperado: 'finalizada' },
     { nome: 'transferida', atribuida: true, encerradaBy: 'transferencia', encerrada: true, esperado: 'finalizada' },
     { nome: 'origem desconhecida com atribuição', atribuida: true, encerradaBy: null, encerrada: true, esperado: 'abandonada' },
     { nome: 'origem desconhecida sem atribuição', atribuida: false, encerradaBy: null, encerrada: true, esperado: 'perdida' },

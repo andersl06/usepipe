@@ -24,9 +24,9 @@ export interface ImportVisible {
   id: string;
   nome: string | null;
   /** `pronta` (pending), `executando` (processing), `concluida` (completed) ou `falhou` (failed). */
-  state: string;
+  estado: string;
   total: number;
-  accepted: number;
+  aceitos: number;
   rejeitados: number;
   /** Há CSV de linhas rejeitadas para baixar. */
   temFalhas: boolean;
@@ -37,21 +37,21 @@ export interface ImportVisible {
 type LineImport = {
   [column: string]: unknown;
   id: string;
-  file: string | null;
-  state: string;
+  arquivo: string | null;
+  estado: string;
   total: number;
-  accepted: number;
+  aceitos: number;
   rejeitados: number;
   tem_falhas: boolean;
-  createdAt: string | Date;
+  criado_em: string | Date;
   atualizado_em: string | Date | null;
 };
 
 function visivel(linha: LineImport): ImportVisible {
   return {
     id: linha.id,
-    nome: linha.file,
-    state: linha.estado,
+    nome: linha.arquivo,
+    estado: linha.estado,
     total: Number(linha.total),
     aceitos: Number(linha.aceitos),
     rejeitados: Number(linha.rejeitados),
@@ -87,7 +87,7 @@ export async function createImport(
       values (${novo}::uuid, ${tenantId}::uuid, ${limpo})
     `);
     await registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: userId },
+      ator: { type: 'usuario', id: userId },
       acao: 'criou',
       objetoTipo: 'importacao',
       objetoId: novo,

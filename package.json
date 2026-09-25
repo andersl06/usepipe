@@ -16,9 +16,9 @@
     "format": "prettier --write .",
     "db:up": "docker compose up -d postgres redis",
     "db:down": "docker compose down",
-    "db:migrate": "pnpm --filter @pipe/db migrar",
-    "db:seed": "pnpm --filter @pipe/db semear",
-    "seed:demo": "pnpm --filter @pipe/db semear:demo",
+    "db:migrate": "pnpm --filter @pipe/db migrate",
+    "db:seed": "pnpm --filter @pipe/db seed",
+    "seed:demo": "pnpm --filter @pipe/db seed:demo",
     "desk": "pnpm --filter @pipe/desk-vite dev",
     "bridge": "pnpm --filter @pipe/bridge dev"
   },

@@ -58,7 +58,7 @@ describe('option preparation', () => {
   });
 
   it('breaks ties alphabetically so the list stays stable across runs', () => {
-    const sem = { opcoes: [{ categoria: 'Zeta' }, { categoria: 'Alfa' }, { categoria: 'Meio' }] };
+    const sem = { options: [{ categoria: 'Zeta' }, { categoria: 'Alfa' }, { categoria: 'Meio' }] };
     expect(prepararOptions(sem).map(optionKey)).toEqual(['Alfa', 'Meio', 'Zeta']);
   });
 

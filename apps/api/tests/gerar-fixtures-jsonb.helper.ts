@@ -299,7 +299,7 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
     // --- audit: log_auditoria.antes/depois (registrarAuditoria() de verdade) ---
     await noTenant(cenario.tenantId, (tx) =>
       registrarAuditoria(tx, cenario.tenantId, {
-        ator: { tipo: 'usuario', id: cenario.agentId },
+        ator: { type: 'usuario', id: cenario.agentId },
         acao: 'alterou',
         objetoTipo: 'contato',
         objetoId: contactCreated.id,

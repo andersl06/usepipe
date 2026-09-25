@@ -206,17 +206,17 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     });
 
   await db.insert(motivoPausa).values([
-    { tenantId, nome: 'Almoço', duracaoSugeridaMin: 60 },
-    { tenantId, nome: 'Banheiro', duracaoSugeridaMin: 10 },
-    { tenantId, nome: 'Reunião', duracaoSugeridaMin: 30, contaComoProdutivo: true },
-    { tenantId, nome: 'Treinamento', duracaoSugeridaMin: 60, contaComoProdutivo: true },
-    { tenantId, nome: 'Feedback com supervisor', duracaoSugeridaMin: 20, contaComoProdutivo: true },
+    { tenantId, nome: 'Almoço', durationSuggestedMin: 60 },
+    { tenantId, nome: 'Banheiro', durationSuggestedMin: 10 },
+    { tenantId, nome: 'Reunião', durationSuggestedMin: 30, accountAsProductive: true },
+    { tenantId, nome: 'Treinamento', durationSuggestedMin: 60, accountAsProductive: true },
+    { tenantId, nome: 'Feedback com supervisor', durationSuggestedMin: 20, accountAsProductive: true },
   ]);
 
   const queues = await db.select().from(queue).where(eq(queue.tenantId, tenantId));
   const queueBy = (nome: string) => {
     const achada = queues.find((f) => f.nome === nome);
-    if (!achada) throw new Error(`fila "${nome}" não existe: rode "pnpm banco:semear" antes.`);
+    if (!achada) throw new Error(`fila "${nome}" não existe: rode "pnpm db:seed" antes.`);
     return achada.id;
   };
   const comercialId = queueBy('Comercial');
@@ -228,7 +228,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     [comercialId, closerId, suporteId, financialId].map((queueId) => ({
       tenantId,
       queueId,
-      usuarioId: anaId,
+      userId: anaId,
     })),
   ).onConflictDoNothing();
 
@@ -249,23 +249,23 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     {
       id: inboxWhatsId,
       tenantId,
-      canalId: channelWhatsId,
+      channelId: channelWhatsId,
       nome: 'WhatsApp — Atendimento',
-      filaPadraoId: comercialId,
+      queueDefaultId: comercialId,
     },
     {
       id: inboxEmailId,
       tenantId,
-      canalId: channelEmailId,
+      channelId: channelEmailId,
       nome: 'E-mail — Financeiro',
-      filaPadraoId: financialId,
+      queueDefaultId: financialId,
     },
     {
       id: inboxSiteId,
       tenantId,
-      canalId: channelSiteId,
+      channelId: channelSiteId,
       nome: 'Site — Chat',
-      filaPadraoId: comercialId,
+      queueDefaultId: comercialId,
     },
   ]);
 
@@ -280,7 +280,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       corpo:
         'Olá {{1}}, aqui é {{2}} da Pipe. Passando para retomar nosso atendimento. ' +
         'Posso seguir por aqui?',
-      variaveis: ['contato.nome', 'atendente.primeiro_nome'],
+      variables: ['contato.nome', 'atendente.primeiro_nome'],
     },
     {
       tenantId,
@@ -289,7 +289,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       categoria: 'utilidade',
       statusMeta: 'aprovado',
       corpo: 'Olá {{1}}, confirmando nossa conversa para {{2}}. Qualquer coisa, é só responder.',
-      variaveis: ['contato.nome', 'data'],
+      variables: ['contato.nome', 'data'],
     },
     {
       tenantId,
@@ -298,7 +298,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       categoria: 'marketing',
       statusMeta: 'aprovado',
       corpo: 'Oi {{1}}! O plano anual está com 10% até o fim do mês. Quer que eu te mande?',
-      variaveis: ['contato.nome'],
+      variables: ['contato.nome'],
     },
   ]);
 
@@ -308,7 +308,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     .values([
       {
         tenantId,
-        escopo: 'empresa',
+        scope: 'empresa',
         categoria: 'Saudação',
         atalho: 'saudacao',
         titulo: 'Saudação de abertura',
@@ -318,7 +318,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       },
       {
         tenantId,
-        escopo: 'empresa',
+        scope: 'empresa',
         categoria: 'Comercial',
         atalho: 'proposta-anual',
         titulo: 'Valor do plano anual',
@@ -328,7 +328,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       },
       {
         tenantId,
-        escopo: 'empresa',
+        scope: 'empresa',
         categoria: 'Comercial',
         atalho: 'desconto-avista',
         titulo: 'Desconto à vista',
@@ -336,7 +336,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       },
       {
         tenantId,
-        escopo: 'empresa',
+        scope: 'empresa',
         categoria: 'Suporte',
         atalho: 'horario',
         titulo: 'Horário de atendimento',
@@ -346,7 +346,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       },
       {
         tenantId,
-        escopo: 'empresa',
+        scope: 'empresa',
         categoria: 'Financeiro',
         atalho: 'comprovante',
         titulo: 'Confirmação de comprovante',
@@ -356,7 +356,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       },
       {
         tenantId,
-        escopo: 'pessoal',
+        scope: 'pessoal',
         usuarioId: anaId,
         categoria: 'Minhas',
         atalho: 'agendar-call',
@@ -367,7 +367,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       },
       {
         tenantId,
-        escopo: 'pessoal',
+        scope: 'pessoal',
         usuarioId: anaId,
         categoria: 'Minhas',
         atalho: 'obrigado',

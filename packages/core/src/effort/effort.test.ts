@@ -95,12 +95,12 @@ describe('effort per conversation', () => {
   const messages: MessageEffort[] = [
     { conversationId: 'c1', em: em('10:00:00'), autor: 'bot', direction: 'saida', tipo: 'texto', conteudo: texto(5000) },
     { conversationId: 'c1', em: em('10:01:00'), autor: 'contato', direction: 'entrada', tipo: 'texto', conteudo: texto(2000) },
-    { conversationId: 'c1', em: em('10:02:00'), autor: 'agent', direction: 'saida', tipo: 'texto', conteudo: texto(400), userId: 'u1' },
-    { conversationId: 'c1', em: em('10:03:00'), autor: 'agent', direction: 'saida', tipo: 'texto', conteudo: texto(600), userId: 'u1', respostaProntaId: 'rp-1' },
+    { conversationId: 'c1', em: em('10:02:00'), autor: 'atendente', direction: 'saida', tipo: 'texto', conteudo: texto(400), userId: 'u1' },
+    { conversationId: 'c1', em: em('10:03:00'), autor: 'atendente', direction: 'saida', tipo: 'texto', conteudo: texto(600), userId: 'u1', respostaProntaId: 'rp-1' },
     { conversationId: 'c1', em: em('10:04:00'), autor: 'contato', direction: 'entrada', tipo: 'audio', attachment: { durationSeg: 45 } },
-    { conversationId: 'c1', em: em('10:05:00'), autor: 'agent', direction: 'saida', tipo: 'audio', userId: 'u1', attachment: { bytes: 60_000 } },
+    { conversationId: 'c1', em: em('10:05:00'), autor: 'atendente', direction: 'saida', tipo: 'audio', userId: 'u1', attachment: { bytes: 60_000 } },
     { conversationId: 'c1', em: em('10:06:00'), autor: 'contato', direction: 'entrada', tipo: 'audio', attachment: {} },
-    { conversationId: 'c1', em: em('10:07:00'), autor: 'agent', direction: 'interna', tipo: 'texto', conteudo: texto(100), userId: 'u1' },
+    { conversationId: 'c1', em: em('10:07:00'), autor: 'atendente', direction: 'interna', tipo: 'texto', conteudo: texto(100), userId: 'u1' },
     { conversationId: 'c1', em: em('10:08:00'), autor: 'sistema', direction: 'interna', tipo: 'texto', conteudo: texto(300) },
   ];
 
@@ -140,7 +140,7 @@ describe('effort per conversation', () => {
 
   it('template também não foi digitado à mão', () => {
     const comTemplate = calcularEffortConversation([
-      { conversationId: 'x', em: em('10:00:00'), autor: 'agent', direction: 'saida', tipo: 'template', conteudo: texto(200), userId: 'u1' },
+      { conversationId: 'x', em: em('10:00:00'), autor: 'atendente', direction: 'saida', tipo: 'template', conteudo: texto(200), userId: 'u1' },
     ]);
     expect(comTemplate.charsEscritos).toBe(0);
     expect(comTemplate.charsDeRespostaPronta).toBe(200);
@@ -162,7 +162,7 @@ describe('effort per conversation', () => {
   it('groups by conversation in deterministic order', () => {
     const byConversation = calcularEffortByConversation([
       { conversationId: 'c2', em: em('10:00:00'), autor: 'contato', direction: 'entrada', tipo: 'texto', conteudo: texto(1000) },
-      { conversationId: 'c1', em: em('10:00:00'), autor: 'agent', direction: 'saida', tipo: 'texto', conteudo: texto(200), userId: 'u1' },
+      { conversationId: 'c1', em: em('10:00:00'), autor: 'atendente', direction: 'saida', tipo: 'texto', conteudo: texto(200), userId: 'u1' },
     ]);
     expect(byConversation.map((e) => e.conversationId)).toEqual(['c1', 'c2']);
     expect(byConversation[0]?.effortSeg).toBe(60);

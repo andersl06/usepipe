@@ -249,7 +249,7 @@ export async function createWordForbidden(
   if (!criada) throw PipeError.request('word_not_created', 'Não consegui gravar a palavra.');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: userId },
+    ator: { type: 'usuario', id: userId },
     acao: 'criou',
     objetoTipo: 'palavra_proibida',
     objetoId: criada.id,
@@ -294,7 +294,7 @@ export async function editarPalavraProibida(
   if (!gravada) throw PipeError.naoEncontrado('palavra proibida');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'palavra_proibida',
     objetoId: id,
@@ -317,7 +317,7 @@ export async function excluirPalavraProibida(
   await tx.delete(palavraProibida).where(and(eq(palavraProibida.tenantId, tid), eq(palavraProibida.id, id)));
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'excluiu',
     objetoTipo: 'palavra_proibida',
     objetoId: id,

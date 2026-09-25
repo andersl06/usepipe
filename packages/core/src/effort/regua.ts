@@ -133,11 +133,11 @@ export function calcularEffortConversation(
   let agentId: string | null = options.agentId ?? null;
 
   for (const message of messages) {
-    if (message.autor === 'agent' && !agentId && message.userId) {
+    if (message.autor === 'atendente' && !agentId && message.userId) {
       agentId = message.userId;
     }
 
-    if (message.autor === 'agent') {
+    if (message.autor === 'atendente') {
       if (message.tipo === 'audio') {
         const duration = audioDuration(message.attachment);
         if (duration === null) audiosSemMetadado += 1;

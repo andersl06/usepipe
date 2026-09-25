@@ -144,9 +144,9 @@ export async function rodarBancada(options: OptionsWorkbench): Promise<Resultado
         caso.formulario,
         caso.gabarito.map((g) => ({
           criterioId: g.criterioId,
-          valor: g.value,
+          value: g.value,
           justificativa: 'gabarito humano',
-          evidenciaMensagemId: null,
+          evidenciaMessageId: null,
         })),
       );
 

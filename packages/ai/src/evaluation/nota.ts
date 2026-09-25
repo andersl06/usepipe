@@ -109,7 +109,7 @@ export function calcularNota(
   return {
     nota: fatalRejected.length > 0 ? 0 : notaAntesDoFatal,
     notaAntesDoFatal,
-    fatalRejected,
+    fatalReprovados: fatalRejected,
     respostas: saida,
   };
 }

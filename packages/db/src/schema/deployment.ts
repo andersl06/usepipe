@@ -1,7 +1,7 @@
 import { pgTable, text, uuid } from 'drizzle-orm/pg-core';
 import { moment } from './comum.js';
 import { refTenant } from './identity.js';
-import { import } from './crm.js';
+import { contactImport } from './crm.js';
 
 /**
  * O arquivo da importação de contatos — migration `0016_entrada_do_cliente`.
@@ -12,7 +12,7 @@ import { import } from './crm.js';
 export const importFile = pgTable('importacao_arquivo', {
   importId: uuid('importacao_id')
     .primaryKey()
-    .references(() => import.id, { onDelete: 'cascade' }),
+    .references(() => contactImport.id, { onDelete: 'cascade' }),
   tenantId: refTenant(),
   conteudo: text('conteudo').notNull(),
   /** O CSV das linhas rejeitadas, com a coluna `erros`. Nulo quando nada foi rejeitado. */

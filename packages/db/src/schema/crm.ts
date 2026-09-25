@@ -198,7 +198,7 @@ export const regraScore = pgTable(
     active: boolean('ativa').notNull().default(true),
     ...carimbos(),
   },
-  (t) => [index('regra_score_versao_idx').on(t.tenantId, t.version, t.ativa)],
+  (t) => [index('regra_score_versao_idx').on(t.tenantId, t.version, t.active)],
 );
 
 /**
@@ -268,7 +268,7 @@ export const opportunity = pgTable(
   },
   (t) => [
     index('oportunidade_tenant_fase_idx').on(t.tenantId, t.fase),
-    index('oportunidade_tenant_fechamento_idx').on(t.tenantId, t.fechamentoPrevisto),
+    index('oportunidade_tenant_fechamento_idx').on(t.tenantId, t.closingExpected),
   ],
 );
 
@@ -314,12 +314,12 @@ export const STATES_IMPORT = [
   'falhou',
 ] as const;
 
-export const import = pgTable(
+export const contactImport = pgTable(
   'importacao',
   {
     id: id(),
     tenantId: refTenant(),
-    origem: text('origem').notNull(),
+    origin: text('origem').notNull(),
     file: text('arquivo'),
     mapping: jsonb('mapeamento')
       .notNull()

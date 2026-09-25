@@ -198,17 +198,17 @@ describe('aplicar evento', () => {
 
 describe('outbound message state machine', () => {
   const permitidas: [StateDelivery, StateDelivery][] = [
-    ['pending', 'enviando'],
+    ['pendente', 'enviando'],
     ['enviando', 'enviada'],
     ['enviando', 'falhou'],
     ['enviada', 'entregue'],
     ['enviada', 'lida'],
     ['enviada', 'falhou'],
     ['entregue', 'lida'],
-    ['falhou', 'pending'],
+    ['falhou', 'pendente'],
   ];
 
-  const todos: StateDelivery[] = ['pending', 'enviando', 'enviada', 'entregue', 'lida', 'falhou'];
+  const todos: StateDelivery[] = ['pendente', 'enviando', 'enviada', 'entregue', 'lida', 'falhou'];
 
   for (const de of todos) {
     for (const para of todos) {
@@ -220,7 +220,7 @@ describe('outbound message state machine', () => {
   }
 
   it('resending takes it out of failed and returns it to the outbound queue', () => {
-    expect(transitarDelivery('falhou', 'pending')).toBe('pendente');
+    expect(transitarDelivery('falhou', 'pendente')).toBe('pendente');
   });
 
   it('lida é terminal', () => {
