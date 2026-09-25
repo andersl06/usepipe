@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -34,7 +34,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -49,8 +49,8 @@ async function acao(
   session: string | null,
   nome: string,
   campos: Record<string, string | string[]> = {},
-): Promise<{ status: number; corpo: Record<string, unknown> }> {
-  const resposta = await fetch(`${api.url}/v1/desk/acoes/${nome}`, {
+): Promise<{ status: number; body: Record<string, unknown> }> {
+  const resposta = await fetch(`${api.url}/v1/desk/actions/${nome}`, {
     method: 'POST',
     headers: session ? comCookie(session) : { 'content-type': 'application/json' },
     body: JSON.stringify({ campos }),
@@ -60,8 +60,8 @@ async function acao(
 
 async function statusDe(
   usuarioId: string,
-): Promise<{ estado: string; desde: Date | string } | undefined> {
-  const { rows } = await a.dono.execute<{ estado: string; desde: Date | string }>(
+): Promise<{ state: string; since: Date | string } | undefined> {
+  const { rows } = await a.dono.execute<{ state: string; since: Date | string }>(
     sql`select estado, desde from status_atendente where usuario_id = ${usuarioId}::uuid`,
   );
   return rows[0];
@@ -128,20 +128,20 @@ afterAll(async () => {
   await a?.encerrar();
 });
 
-describe('POST /v1/desk/acoes/:acao — lista fechada e sessão obrigatória', () => {
+describe('POST /v1/desk/actions/:acao — lista fechada e sessão obrigatória', () => {
   it('nome fora do mapa é 404', async () => {
     const { status } = await acao(sessionAgent, 'naoExiste');
     expect(status).toBe(404);
   });
 
-  it('sem sessão é 401', async () => {
+  it('Return 401 for Desk actions without a session', async () => {
     const { status } = await acao(null, 'definirStatus', { estado: 'online' });
     expect(status).toBe(401);
   });
 });
 
 describe('definirStatus', () => {
-  it('recusa estado desconhecido', async () => {
+  it('Reject an unknown agent status', async () => {
     const { status, corpo } = await acao(sessionAgent, 'definirStatus', { estado: 'sonolento' });
     expect(status).toBe(200);
     expect(corpo).toMatchObject({ ok: false, erro: 'Estado desconhecido.' });
@@ -154,7 +154,7 @@ describe('definirStatus', () => {
     expect((await statusDe(a.agentId))?.estado).toBe('online');
   });
 
-  it('pausa com motivo grava o estado e abre uma linha em `pausa`', async () => {
+  it('Record a reasoned pausa as an agent state and an open `pause` row', async () => {
     const motivoId = await createReasonOfPause();
     const { corpo } = await acao(sessionAgent, 'definirStatus', { estado: 'pausa', motivoId });
     expect(corpo).toMatchObject({ ok: true });
@@ -162,7 +162,7 @@ describe('definirStatus', () => {
     expect((await pausaAbertaDe(a.agentId))?.motivo_id).toBe(motivoId);
   });
 
-  it('sair da pausa para online fecha a pausa anterior — sem isso o relatório soma o minuto duas vezes', async () => {
+  it('Close the previous pause when an agent returns online so reports do not double-count time', async () => {
     const motivoId = await createReasonOfPause();
     await acao(sessionAgent, 'definirStatus', { estado: 'pausa', motivoId });
     expect(await pausaAbertaDe(a.agentId)).not.toBeNull();
@@ -186,8 +186,8 @@ describe('definirStatus', () => {
   });
 });
 
-describe('cairPorInatividade', () => {
-  it('derruba o atendente Online para offline e fecha a pausa em aberto', async () => {
+describe('Set an inactive agent offline and close any open pause', () => {
+  it('Move an inactive agent offline and close its open pause', async () => {
     const motivoId = await createReasonOfPause();
     await acao(sessionAgent, 'definirStatus', { estado: 'pausa', motivoId });
 
@@ -214,7 +214,7 @@ describe('cairPorInatividade', () => {
 });
 
 describe('salvarNotaInterna', () => {
-  it('grava a nota, assinada pelo atendente da sessão', async () => {
+  it('Save an internal note attributed to the session agent', async () => {
     const conversationId = await createConversationAssigned(a.agentId);
     const { corpo } = await acao(sessionAgent, 'salvarNotaInterna', {
       conversationId,
@@ -222,14 +222,14 @@ describe('salvarNotaInterna', () => {
     });
     expect(corpo).toMatchObject({ ok: true });
 
-    const { rows } = await a.dono.execute<{ corpo: string; userId: string }>(sql`
+    const { rows } = await a.dono.execute<{ body: string; userId: string }>(sql`
       select corpo, usuario_id from nota_interna where conversa_id = ${conversationId}::uuid
     `);
     expect(rows[0]?.corpo).toBe('Cliente pediu retorno amanhã.');
     expect(rows[0]?.userId).toBe(a.agentId);
   });
 
-  it('recusa sem conversaId e sem texto', async () => {
+  it('Reject an internal note without conversationId or text', async () => {
     const withoutConversation = await acao(sessionAgent, 'salvarNotaInterna', { texto: 'oi' });
     expect(withoutConversation.corpo).toMatchObject({ ok: false, erro: 'Conversa não informada.' });
 
@@ -250,7 +250,7 @@ describe('atender', () => {
     await acao(sessionAgent, 'definirStatus', { estado: 'online' });
   });
 
-  it('sem ninguém na fila, recusa', async () => {
+  it('Reject a queue pull when no conversations are waiting', async () => {
     // Esvazia qualquer sobra de outro teste: consome a fila antes de checar o vazio.
     for (;;) {
       const { corpo } = await acao(sessionAgent, 'atender');
@@ -261,7 +261,7 @@ describe('atender', () => {
     }
   });
 
-  it('puxa a conversa mais antiga da fila do atendente, atribui e registra o evento', async () => {
+  it('Assign the oldest waiting conversation to the agent and record the event', async () => {
     const conversaId = await createConversationInQueue();
     const { corpo } = await acao(sessionAgent, 'atender');
     expect(corpo).toMatchObject({ ok: true, conversaId });
@@ -271,18 +271,18 @@ describe('atender', () => {
     );
     expect(conversations[0]).toMatchObject({ estado: 'atribuida', atendente_id: a.agentId });
 
-    const { rows: assignments } = await a.dono.execute<{ motivo: string }>(
+    const { rows: assignments } = await a.dono.execute<{ reason: string }>(
       sql`select motivo from atribuicao where conversa_id = ${conversaId}::uuid`,
     );
     expect(assignments[0]?.motivo).toBe('assumida_pelo_atendente');
 
-    const { rows: eventos } = await a.dono.execute<{ tipo: string }>(
+    const { rows: eventos } = await a.dono.execute<{ type: string }>(
       sql`select tipo from evento_atendimento where conversa_id = ${conversaId}::uuid`,
     );
     expect(eventos.map((e) => e.tipo)).toContain('atribuida');
   });
 
-  it('não puxa conversa de uma fila em que o atendente não está', async () => {
+  it('Do not pull conversations from a queue the agent has not joined', async () => {
     const { rows: otherQueue } = await a.dono.execute<{ id: string }>(
       sql`insert into fila (tenant_id, nome) values (${a.tenantId}, ${`Outra ${randomUUID().slice(0, 6)}`}) returning id`,
     );
@@ -293,7 +293,7 @@ describe('atender', () => {
   });
 });
 
-describe('atender — o limite de vagas, como na distribuição automática', () => {
+describe('Enforce the agent\'s available-slot limit when pulling from a queue', () => {
   /** Zera o atendente: encerra o que ele tem e fixa o limite da fila em `limite`. */
   async function zerarComLimite(limite: number): Promise<void> {
     await a.dono.execute(sql`
@@ -314,7 +314,7 @@ describe('atender — o limite de vagas, como na distribuição automática', ()
     return Number(rows[0]?.n ?? 0);
   }
 
-  it('com limite 1, a segunda puxada é recusada com a mensagem de limite — e a fila continua com gente', async () => {
+  it('Reject a second queue pull when the agent reaches the limit while leaving others queued', async () => {
     await zerarComLimite(1);
     await createConversationInQueue();
     await createConversationInQueue();
@@ -356,7 +356,7 @@ describe('atender — o limite de vagas, como na distribuição automática', ()
     expect(await activeOfAgent()).toBe(1);
   });
 
-  it('o limite maior (capacidade da fila) deixa puxar várias; sem ninguém na fila, a mensagem é a de fila vazia', async () => {
+  it('Allow multiple pulls up to queue capacity and report an empty queue afterward', async () => {
     await zerarComLimite(3);
     await a.dono.execute(sql`
       update conversa set estado = 'encerrada', encerrada_em = now()
@@ -377,7 +377,7 @@ describe('atender — o limite de vagas, como na distribuição automática', ()
   });
 });
 
-describe('fixar e marcarNaoLida — o menu do cartão, por atendente', () => {
+describe('Pin conversations and mark them unread per agent', () => {
   async function taggingOf(conversationId: string) {
     const { rows } = await a.dono.execute<{
       fixada_em: Date | string | null;
@@ -390,14 +390,14 @@ describe('fixar e marcarNaoLida — o menu do cartão, por atendente', () => {
   }
 
   async function queueOfDesk(): Promise<{ id: string; fixadaEm: string | null; naoLidaEm: string | null }[]> {
-    const resposta = await fetch(`${api.url}/v1/desk/fila`, { headers: comCookie(sessionAgent) });
+    const resposta = await fetch(`${api.url}/v1/desk/queue`, { headers: comCookie(sessionAgent) });
     const corpo = (await resposta.json()) as {
       conversations: { id: string; fixadaEm: string | null; naoLidaEm: string | null }[];
     };
     return corpo.conversations;
   }
 
-  it('fixa, aparece na fila com `fixadaEm`, refixar mantém o carimbo, desafixar apaga a linha', async () => {
+  it('Pin a conversation with `fixadaAt`, keep the timestamp on repeat, and remove it on unpin', async () => {
     const conversaId = await createConversationAssigned(a.agentId);
     const fixada = await acao(sessionAgent, 'fixar', { conversaId, fixada: 'true' });
     expect(fixada.corpo).toMatchObject({ ok: true, fixada: true });
@@ -419,7 +419,7 @@ describe('fixar e marcarNaoLida — o menu do cartão, por atendente', () => {
     expect(await taggingOf(conversaId)).toBeNull();
   });
 
-  it('marca como não lida e como lida; as duas marcações convivem na mesma linha', async () => {
+  it('Mark a conversation unread and read without losing its pin state', async () => {
     const conversaId = await createConversationAssigned(a.agentId);
     await acao(sessionAgent, 'fixar', { conversaId, fixada: 'true' });
     const naoLida = await acao(sessionAgent, 'marcarNaoLida', { conversaId, naoLida: 'true' });
@@ -438,7 +438,7 @@ describe('fixar e marcarNaoLida — o menu do cartão, por atendente', () => {
     expect(await taggingOf(conversaId)).toBeNull();
   });
 
-  it('recusa sem o valor, conversa de outro atendente e conversa encerrada', async () => {
+  it('Reject pinning without a value, for another agent\'s conversation, or after closure', async () => {
     const minha = await createConversationAssigned(a.agentId);
     const withoutValue = await acao(sessionAgent, 'fixar', { conversaId: minha });
     expect(withoutValue.corpo).toMatchObject({ ok: false });
@@ -483,8 +483,8 @@ describe('fixar e marcarNaoLida — o menu do cartão, por atendente', () => {
   });
 });
 
-describe('transferirEmMassa', () => {
-  it('recusa sem conversas selecionadas, e sem destino', async () => {
+describe('Transfer selected conversations in bulk', () => {
+  it('Reject a bulk transfer without selected conversations or a destination', async () => {
     const semConversa = await acao(sessionAgent, 'transferirEmMassa', { paraAtendenteId: colegaId });
     expect(semConversa.corpo).toMatchObject({
       ok: false,
@@ -499,7 +499,7 @@ describe('transferirEmMassa', () => {
     });
   });
 
-  it('transfere várias conversas do atendente para um colega', async () => {
+  it('Transfer multiple assigned conversations to another agent', async () => {
     const c1 = await createConversationAssigned(a.agentId);
     const c2 = await createConversationAssigned(a.agentId);
 
@@ -509,7 +509,7 @@ describe('transferirEmMassa', () => {
     });
     expect(corpo).toMatchObject({ ok: true, transferidas: 2 });
 
-    const { rows } = await a.dono.execute<{ id: string; estado: string }>(sql`
+    const { rows } = await a.dono.execute<{ id: string; state: string }>(sql`
       select id, estado from conversa where id in (${c1}::uuid, ${c2}::uuid)
     `);
     expect(rows.every((r) => r.estado === 'encerrada')).toBe(true);
@@ -521,7 +521,7 @@ describe('transferirEmMassa', () => {
     expect(Number(novas[0]?.n)).toBeGreaterThanOrEqual(2);
   });
 
-  it('conversa inexistente no meio do lote não derruba as demais — devolve o primeiro erro', async () => {
+  it('Continue a bulk transfer past a missing conversation and return the first error', async () => {
     const c1 = await createConversationAssigned(a.agentId);
     const { corpo } = await acao(sessionAgent, 'transferirEmMassa', {
       conversaId: [c1, randomUUID()],

@@ -31,7 +31,7 @@ test('só HTTPS vale, e não pode repetir', () => {
   assert.ok(!urlValida(repetida, [repetida, repetida]));
 });
 
-test('o interruptor Ativar só libera com a primeira URL preenchida e válida', () => {
+test('the Enable switch only unlocks with the first URL filled in and valid', () => {
   assert.ok(interruptorDesabilitado([]));
   assert.ok(interruptorDesabilitado(['']));
   assert.ok(interruptorDesabilitado(['https://a.pipe.app', 'ftp://x']));

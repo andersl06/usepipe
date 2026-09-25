@@ -8,7 +8,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 17).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -39,7 +39,7 @@ beforeAll(async () => {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   cookie = novo.token;
 
@@ -89,7 +89,7 @@ async function newConversation(
 }
 
 function transferir(conversationId: string, corpo: Record<string, unknown>): Promise<Response> {
-  return fetch(`${api.url}/v1/conversas/${conversationId}/transferir`, {
+  return fetch(`${api.url}/v1/conversations/${conversationId}/transfer`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
     body: JSON.stringify(corpo),
@@ -116,20 +116,20 @@ async function conversation(id: string) {
 }
 
 async function eventosDe(id: string): Promise<string[]> {
-  const { rows } = await cenario.dono.execute<{ tipo: string }>(
+  const { rows } = await cenario.dono.execute<{ type: string }>(
     sql`select tipo from evento_atendimento where conversa_id = ${id}::uuid order by em, tipo`,
   );
   return rows.map((r) => r.tipo);
 }
 
-describe('transferir para fila', () => {
-  it('encerra a conversa e abre outra na fila de destino', async () => {
+describe('Transfer a conversation to a queue', () => {
+  it('Close the old conversation and open one in the destination queue', async () => {
     const antiga = await newConversation();
 
     const resposta = await transferir(antiga, { para_fila_id: otherQueueId, motivo: 'Setor errado' });
 
     expect(resposta.status).toBe(201);
-    const corpo = (await resposta.json()) as { ofConversationId: string; forConversationId: string; estado: string };
+    const corpo = (await resposta.json()) as { ofConversationId: string; forConversationId: string; state: string };
     expect(corpo.ofConversationId).toBe(antiga);
     expect(corpo.estado).toBe('na_fila');
 
@@ -140,7 +140,7 @@ describe('transferir para fila', () => {
     expect(nova.agentId).toBeNull();
   });
 
-  it('a conversa encerrada carimba `encerrada_por = transferencia`', async () => {
+  it('Mark the old conversation with `encerrada_por = transfer`', async () => {
     const antiga = await newConversation();
     await transferir(antiga, { para_fila_id: otherQueueId });
 
@@ -153,7 +153,7 @@ describe('transferir para fila', () => {
     expect(rows[0]?.data['encerrada_por']).toBe('transferencia');
   });
 
-  it('HERDA a janela de 24 horas — sem isso quem recebe não manda texto livre', async () => {
+  it('Carry the 24-hour messaging window into the transferred conversation', async () => {
     const antiga = await newConversation();
     const antes = await conversation(antiga);
 
@@ -169,11 +169,11 @@ describe('transferir para fila', () => {
     expect(nova.lastMessageOf).toBe('contato');
   });
 
-  it('herda a prioridade e NÃO herda a primeira resposta', async () => {
+  it('Carry priority but not first-response time into the new conversation', async () => {
     const antiga = await newConversation();
 
     const r = await transferir(antiga, { para_fila_id: otherQueueId });
-    const { para_conversa_id } = (await r.json()) as { para_conversa_id: string };
+    const { para_conversa_id } = (await r.json()) as { forConversationId: string };
     const nova = await conversation(para_conversa_id);
 
     expect(nova.priority).toBe('alta');
@@ -181,7 +181,7 @@ describe('transferir para fila', () => {
     expect(nova.firstResponseAt).toBeNull();
   });
 
-  it('grava a linha em `atribuicao`, que costura as duas conversas', async () => {
+  it('Link the old and new conversations through an `assignment` row', async () => {
     const antiga = await newConversation();
     await transferir(antiga, { para_fila_id: otherQueueId, motivo: 'Setor errado' });
 
@@ -189,7 +189,7 @@ describe('transferir para fila', () => {
       ofQueueId: string;
       forQueueId: string;
       ofUserId: string | null;
-      motivo: string | null;
+      reason: string | null;
       byUserId: string;
     }>(sql`select * from atribuicao where conversa_id = ${antiga}::uuid`);
     expect(rows).toHaveLength(1);
@@ -200,10 +200,10 @@ describe('transferir para fila', () => {
     expect(rows[0]!.byUserId).toBe(cenario.agentId);
   });
 
-  it('a conversa nova nasce com `criada` e `transferida_fila`', async () => {
+  it('Record `criada` and `transferida_fila` on a queue transfer', async () => {
     const antiga = await newConversation();
     const r = await transferir(antiga, { para_fila_id: otherQueueId });
-    const { para_conversa_id } = (await r.json()) as { para_conversa_id: string };
+    const { para_conversa_id } = (await r.json()) as { forConversationId: string };
 
     const eventos = await eventosDe(para_conversa_id);
     expect(eventos).toContain('criada');
@@ -211,12 +211,12 @@ describe('transferir para fila', () => {
   });
 });
 
-describe('transferir para atendente', () => {
-  it('a conversa nova já nasce atribuída, com evento `atribuida`', async () => {
+describe('Transfer a conversation to an agent', () => {
+  it('Assign the new conversation immediately and record `atribuida`', async () => {
     const antiga = await newConversation();
 
     const r = await transferir(antiga, { para_atendente_id: otherAgentId });
-    const corpo = (await r.json()) as { para_conversa_id: string; estado: string };
+    const corpo = (await r.json()) as { forConversationId: string; state: string };
 
     expect(corpo.estado).toBe('atribuida');
     const nova = await conversation(corpo.para_conversa_id);
@@ -230,7 +230,7 @@ describe('transferir para atendente', () => {
     await transferir(antiga, { para_atendente_id: otherAgentId });
 
     expect(await eventosDe(antiga)).toContain('espera_encerrada');
-    const { rows } = await cenario.dono.execute<{ pausado_seg: number }>(
+    const { rows } = await cenario.dono.execute<{ pausadoSeg: number }>(
       sql`select pausado_seg from conversa where id = ${antiga}::uuid`,
     );
     expect(rows[0]!.pausado_seg).toBeGreaterThan(0);
@@ -238,7 +238,7 @@ describe('transferir para atendente', () => {
 });
 
 describe('recusas', () => {
-  it('exige exatamente um destino', async () => {
+  it('Require exactly one transfer destination', async () => {
     const antiga = await newConversation();
     expect((await transferir(antiga, {})).status).toBe(400);
     expect(
@@ -247,25 +247,25 @@ describe('recusas', () => {
     ).toBe(400);
   });
 
-  it('recusa transferir para o mesmo destino', async () => {
+  it('Reject transfer to the current destination', async () => {
     const antiga = await newConversation();
     const resposta = await transferir(antiga, { para_atendente_id: cenario.agentId });
     expect(resposta.status).toBe(409);
   });
 
-  it('recusa fila e atendente inexistentes', async () => {
+  it('Reject missing destination queues and agents', async () => {
     const antiga = await newConversation();
     expect((await transferir(antiga, { para_fila_id: randomUUID() })).status).toBe(404);
     expect((await transferir(antiga, { para_atendente_id: randomUUID() })).status).toBe(404);
   });
 
-  it('recusa conversa já encerrada', async () => {
+  it('Reject transfer of an already closed conversation', async () => {
     const antiga = await newConversation();
     await transferir(antiga, { para_fila_id: otherQueueId });
     expect((await transferir(antiga, { para_fila_id: cenario.queueId })).status).toBe(409);
   });
 
-  it('sem a permissão `conversa.transferir`, não transfere conversa de outro', async () => {
+  it('Require `conversa.transferir` to transfer another agent\'s conversation', async () => {
     // É a diferença entre atendente e supervisor: quem transfere a própria não precisa
     // da permissão; quem transfere a alheia precisa.
     const deOutro = await newConversation(otherAgentId);
@@ -274,7 +274,7 @@ describe('recusas', () => {
     expect((await conversation(deOutro)).state).toBe('em_atendimento');
   });
 
-  it('COM a permissão, o supervisor transfere a conversa de outro', async () => {
+  it('Allow a permitted supervisor to transfer another agent\'s conversation', async () => {
     const { rows: p } = await cenario.dono.execute<{ id: string }>(sql`
       insert into papel (tenant_id, nome) values (${cenario.tenantId}, ${`Supervisor ${randomUUID().slice(0, 6)}`})
       returning id

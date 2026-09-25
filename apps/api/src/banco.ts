@@ -46,8 +46,8 @@ export function noTenant<T>(tenantId: string, fn: (tx: TransactionPipe) => Promi
 export interface ChannelResolved {
   id: string;
   tenantId: string;
-  tipo: string;
-  ativo: boolean;
+  type: string;
+  active: boolean;
   config: Record<string, unknown>;
 }
 
@@ -76,8 +76,8 @@ export async function resolveChannel(canalId: string): Promise<ChannelResolved |
   const { rows } = await databaseOwner().execute<{
     id: string;
     tenant_id: string;
-    tipo: string;
-    ativo: boolean;
+    type: string;
+    active: boolean;
     config: Record<string, unknown> | null;
   }>(sql`select id, tenant_id, tipo, ativo, config from canal where id = ${canalId} limit 1`);
 
@@ -118,8 +118,8 @@ export async function resolveChannelByIdentifier(
   const { rows } = await databaseOwner().execute<{
     id: string;
     tenant_id: string;
-    tipo: string;
-    ativo: boolean;
+    type: string;
+    active: boolean;
     config: Record<string, unknown> | null;
   }>(sql`
     select id, tenant_id, tipo, ativo, config

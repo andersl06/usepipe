@@ -28,7 +28,7 @@ export function PageEffort() {
   const q = new URLSearchParams();
   if (params.de) q.set('de', params.de);
   if (params.ate) q.set('ate', params.ate);
-  const read = useRead<EffortResposta>(`/v1/gestao/relatorios/esforco?${q}`);
+  const read = useRead<EffortResposta>(`/v1/management/reports/effort?${q}`);
   if (!read.data) return null;
   const { de, ate, report } = read.data;
   const totalEffort = report.agents.reduce((t, a) => t + a.effortSeg, 0);

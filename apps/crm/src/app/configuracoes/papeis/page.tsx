@@ -28,7 +28,7 @@ const COLUNAS: readonly Column<RoleSummary>[] = [
     key: 'nome',
     rotulo: 'Papel',
     celula: (p) => (
-      <Link className="cfg-link-forte" href={`/configuracoes/papeis/${p.id}`}>
+      <Link className="cfg-link-forte" href={`/settings/roles/${p.id}`}>
         {p.nome}
         {p.deSistema ? <Etiqueta titulo="Papel do dia 1: não é editável">Sistema</Etiqueta> : null}
       </Link>

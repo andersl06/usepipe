@@ -61,7 +61,7 @@ describe('carga ponderada', () => {
   });
 });
 
-describe('elegibilidade (§7)', () => {
+describe('eligibility (§7)', () => {
   const casos: { nome: string; agent: AgentDisponivel; motivo: MotivoInelegivel | null }[] = [
     { nome: 'online, na fila e com vaga', agent: agent({ id: 'ok', ativas: 2 }), motivo: null },
     { nome: 'não pertence à fila', agent: agent({ id: 'x', queues: ['vendas'] }), motivo: 'fora_da_fila' },
@@ -80,7 +80,7 @@ describe('elegibilidade (§7)', () => {
     });
   }
 
-  it('o segundo teto: conversas atribuídas sem primeira resposta', () => {
+  it('the second ceiling: assigned conversations without a first response', () => {
     const acumulador = agent({ id: 'x', ativas: 1, withoutFirstResposta: 3 });
     expect(motivoInelegivel(acumulador, { ...QUEUE, tetoWithoutFirstResposta: 3 })).toBe(
       'teto_sem_primeira_resposta',
@@ -97,7 +97,7 @@ describe('elegibilidade (§7)', () => {
   });
 });
 
-describe('escolha por carga', () => {
+describe('choice by load', () => {
   it('1º critério: menor carga ponderada', () => {
     const a1 = agent({ id: 'a1', ativas: 4, aguardandoAgent: 1 }); // carga 5
     const a2 = agent({ id: 'a2', ativas: 3, aguardandoAgent: 2 }); // carga 5
@@ -107,19 +107,19 @@ describe('escolha por carga', () => {
     expect(escolha.elegiveis.map((a) => a.id)).toEqual(['a3', 'a1', 'a2']);
   });
 
-  it('2º critério: empate na carga vai para quem está há mais tempo sem receber', () => {
+  it('2nd criterion: a tie on load goes to whoever has gone longest without receiving one', () => {
     const a1 = agent({ id: 'a1', ativas: 4, aguardandoAgent: 1, ultimaAssignmentIn: em('10:00:00') });
     const a2 = agent({ id: 'a2', ativas: 3, aguardandoAgent: 2, ultimaAssignmentIn: em('09:00:00') });
     expect(escolherAgent([a1, a2], QUEUE).escolhido?.id).toBe('a2');
   });
 
-  it('quem nunca recebeu conversa ganha o desempate por tempo ocioso', () => {
+  it('whoever never received a conversation wins the tiebreak by idle time', () => {
     const a1 = agent({ id: 'a1', ativas: 2, ultimaAssignmentIn: em('08:00:00') });
     const novato = agent({ id: 'z9', ativas: 2, ultimaAssignmentIn: null });
     expect(escolherAgent([a1, novato], QUEUE).escolhido?.id).toBe('z9');
   });
 
-  it('3º critério: empate persistente resolve por identificador, de forma estável', () => {
+  it('3rd criterion: a persistent tie is resolved by identifier, stably', () => {
     const a = agent({ id: 'aaa', ativas: 2, aguardandoAgent: 1, ultimaAssignmentIn: em('09:30:00') });
     const b = agent({ id: 'bbb', ativas: 2, aguardandoAgent: 1, ultimaAssignmentIn: em('09:30:00') });
     expect(escolherAgent([a, b], QUEUE).escolhido?.id).toBe('aaa');
@@ -127,7 +127,7 @@ describe('escolha por carga', () => {
     expect(escolherAgent([b, a], QUEUE).escolhido?.id).toBe('aaa');
   });
 
-  it('não escolhe ninguém quando ninguém é elegível, e diz por quê', () => {
+  it('picks no one when no one is eligible, and says why', () => {
     const escolha = escolherAgent(
       [
         agent({ id: 'a1', state: 'pausa' }),
@@ -151,7 +151,7 @@ describe('escolha por carga', () => {
     expect(escolherAgent([], QUEUE)).toEqual({ escolhido: null, elegiveis: [], descartados: [] });
   });
 
-  it('dez conversas paradas não valem o mesmo que dez conversas quentes', () => {
+  it('ten idle conversations are not worth the same as ten hot ones', () => {
     const parado = agent({ id: 'parado', limiteSimultaneo: 20, ativas: 10, aguardandoAgent: 0 });
     const quente = agent({ id: 'quente', limiteSimultaneo: 20, ativas: 6, aguardandoAgent: 6 });
     // carga do parado = 10; carga do quente = 12. O rodízio por "menos tickets"

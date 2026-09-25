@@ -4,8 +4,8 @@ import { tenant } from '@pipe/db/schema';
 
 /** Um intervalo em instantes, já no fuso da conta — o `Janela` de `lib/banco.ts` da Gestão. */
 export interface Window {
-  inicio: Date;
-  fim: Date;
+  start: Date;
+  end: Date;
 }
 
 /** O fuso do tenant, para o "hoje" dos cartões não ser o fuso do servidor. */
@@ -21,7 +21,7 @@ export async function fusoDoTenant(tx: TransactionPipe): Promise<string> {
  * e reimplementar horário de verão em JavaScript é como se perde um dia inteiro.
  */
 export async function windowOfToday(tx: TransactionPipe, fuso: string): Promise<Window> {
-  const r = await tx.execute<{ inicio: Date; fim: Date }>(
+  const r = await tx.execute<{ start: Date; end: Date }>(
     sql`select date_trunc('day', now() at time zone ${fuso}) at time zone ${fuso} as inicio,
                (date_trunc('day', now() at time zone ${fuso}) + interval '1 day') at time zone ${fuso} as fim`,
   );
@@ -37,7 +37,7 @@ export async function windowOfDatas(
   de: string,
   ate: string,
 ): Promise<Window> {
-  const r = await tx.execute<{ inicio: Date; fim: Date }>(
+  const r = await tx.execute<{ start: Date; end: Date }>(
     sql`select (${de}::date)::timestamp at time zone ${fuso} as inicio,
                ((${ate}::date + 1)::timestamp) at time zone ${fuso} as fim`,
   );

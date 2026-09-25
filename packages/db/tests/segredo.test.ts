@@ -26,7 +26,7 @@ function keyring(atual = 'k1'): ReturnType<typeof keyringOfAmbiente> {
  * qualquer um manda mensagem pelo número dele. O risco não é a aplicação vazar
  * — é o dump do banco.
  */
-describe('cifra de segredo de canal', () => {
+describe('Encrypt and decrypt channel secrets', () => {
   it('vai e volta', () => {
     const k = keyring();
     const pacote = cifrar('EAAG-token-da-meta', k);
@@ -53,7 +53,7 @@ describe('cifra de segredo de canal', () => {
     expect(() => decifrar(partes.join('.'), k)).toThrow(SecretError);
   });
 
-  it('o envelope diz qual chave cifrou, e a antiga continua abrindo', () => {
+  it('Identify the encryption key in the envelope and keep old keys usable for decryption', () => {
     const antigo = cifrar('segredo velho', keyring('k1'));
     // Rotacionou: agora grava com k2, mas k1 continua no chaveiro.
     const depois = keyring('k2');
@@ -61,7 +61,7 @@ describe('cifra de segredo de canal', () => {
     expect(cifrar('segredo novo', depois)).toContain('pipev1.k2.');
   });
 
-  it('chave que sumiu do chaveiro falha com nome, não em silêncio', () => {
+  it('Name the missing key when decrypting with an incomplete keyring', () => {
     const pacote = cifrar('x', keyring('k1'));
     const soK2 = keyringOfAmbiente({
       PIPE_CHAVES_SEGREDO: `k2:${keyB}`,
@@ -74,7 +74,7 @@ describe('cifra de segredo de canal', () => {
     expect(() => decifrar('token-em-texto-claro', keyring())).toThrow(SecretError);
   });
 
-  it('cifrar a configuração duas vezes não empilha envelope', () => {
+  it('Encrypting a channel configuration twice does not wrap its secrets twice', () => {
     const k = keyring();
     const uma = cifrarConfig({ tokenAcesso: 'abc', phoneNumberId: '123' }, k);
     const duas = cifrarConfig(uma, k);
@@ -96,14 +96,14 @@ describe('cifra de segredo de canal', () => {
     expect(decifrarConfig(cifrada, k)['tokenAcesso']).toBe('EAAG-secreto');
   });
 
-  it('a leitura tolera texto claro do que ainda não migrou; a escrita não', () => {
+  it('Read legacy plaintext secrets but encrypt them on write', () => {
     const k = keyring();
     const legado = { tokenAcesso: 'gravado-antes-da-cifra' };
     expect(decifrarConfig(legado, k)['tokenAcesso']).toBe('gravado-antes-da-cifra');
     expect(estaCifrado(String(cifrarConfig(legado, k)['tokenAcesso']))).toBe(true);
   });
 
-  it('a lista de campos secretos cobre os quatro que dão acesso ao número', () => {
+  it('Cover all four channel credentials in the secret field list', () => {
     // Se alguém adicionar um segredo novo ao canal e esquecer desta lista, ele
     // nasce em texto claro. O teste é o lembrete.
     expect([...FIELDS_SECRETOS_OF_CHANNEL]).toEqual(
@@ -111,7 +111,7 @@ describe('cifra de segredo de canal', () => {
     );
   });
 
-  it('chave de tamanho errado falha na leitura do ambiente, não no primeiro uso', () => {
+  it('Reject an incorrectly sized key while loading the environment', () => {
     expect(() =>
       keyringOfAmbiente({
         PIPE_CHAVES_SEGREDO: `curta:${Buffer.alloc(16).toString('base64')}`,
@@ -119,7 +119,7 @@ describe('cifra de segredo de canal', () => {
     ).toThrow(/32 bytes/);
   });
 
-  it('ambiente sem chave falha alto em vez de gravar em texto claro', () => {
+  it('Reject missing encryption keys before storing plaintext', () => {
     expect(() => keyringOfAmbiente({} as NodeJS.ProcessEnv)).toThrow(/PIPE_CHAVES_SEGREDO/);
   });
 });

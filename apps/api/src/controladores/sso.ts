@@ -7,7 +7,7 @@ import {
   loginWithSso,
   exchangeCodeOidc,
   urlOfAuthorizationOidc,
-} from '@pipe/autenticacao';
+} from '@pipe/authentication';
 import { databaseApp, databaseOwner, noTenant } from '../banco.js';
 import { WithSession, exigirPermission, sessionOf } from '../sessao.js';
 import type { RequestWithSession } from '../sessao.js';
@@ -75,12 +75,12 @@ export class SsoConnectionController {
    * auditoria**, e é de propósito: ligar o SSO e exigir o SSO nunca podem ser o
    * mesmo botão.
    */
-  @Post('estado')
+  @Post('state')
   @HttpCode(200)
   @WithSession()
   async state(
     @Req() requisicao: RequestWithSession,
-    @Body() corpo: { state?: string; politica?: string },
+    @Body() corpo: { state?: string; policy?: string },
   ): Promise<Record<string, unknown>> {
     const sessao = sessionOf(requisicao);
     await permitido(sessao.tenantId, sessao.userId, 'tenant.configurar');
@@ -133,7 +133,7 @@ export class SsoLoginController {
    * que esta volta pertence àquela ida. Aceitar tenant vindo da query seria
    * deixar quem monta a URL escolher em qual cliente entrar.
    */
-  @Get('sso/retorno')
+  @Get('sso/callback')
   async callback(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
     const apagarDesafio = cookieDoDesafio(null);
     const desafio = lerDesafio(requisicao);
@@ -160,11 +160,11 @@ export class SsoLoginController {
         await marcarTestada(desafio.tenantId);
         resposta.status(200).json({
           resultado: 'ok',
-          emissor: pessoa.emissor,
-          sujeito: pessoa.sujeito,
+          issuer: pessoa.emissor,
+          subject: pessoa.sujeito,
           email: pessoa.email,
-          emailVerificado: pessoa.emailVerificado,
-          nome: pessoa.nome ?? null,
+          emailVerified: pessoa.emailVerificado,
+          name: pessoa.nome ?? null,
           casaComUsuario: await userWithEmail(desafio.tenantId, pessoa.email),
           // O aviso que evita o chamado de segunda-feira: sem e-mail verificado
           // o login real recusa, mesmo com o teste "passando".
@@ -237,7 +237,7 @@ function message(erro: unknown): string {
 /** Só diz SE casa, e com quem. É o admin do próprio tenant quem lê. */
 async function userWithEmail(tenantId: string, email: string): Promise<string | null> {
   return noTenant(tenantId, async (tx) => {
-    const { rows } = await tx.execute<{ nome: string }>(
+    const { rows } = await tx.execute<{ name: string }>(
       sql`select nome from usuario where email = ${email} and ativo limit 1`,
     );
     return rows[0]?.nome ?? null;

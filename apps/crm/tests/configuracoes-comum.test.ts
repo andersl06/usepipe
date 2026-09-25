@@ -46,7 +46,7 @@ test('branco vira nulo, e espaço nas pontas some', () => {
   assert.equal(normalizar('  Ana Ribeiro '), 'Ana Ribeiro');
 });
 
-test('e-mail é chave: minúsculo e sem espaço', () => {
+test('email is the key: lowercase and without spaces', () => {
   assert.equal(normalizarEmail('  Ana@Exemplo.COM.br '), 'ana@exemplo.com.br');
   assert.equal(normalizarEmail(''), null);
   assert.equal(recusarEmail('ana@exemplo.com.br'), null);
@@ -79,7 +79,7 @@ test('webhook exige https; logo aceita http mas nunca javascript:', () => {
   assert.ok(recusarUrl(null));
 });
 
-test('o código do campo sai do rótulo sem acento, sem espaço e começando por letra', () => {
+test('the field code is derived from the label without accents or spaces, and starting with a letter', () => {
   assert.equal(sugerirCodigo('Faturamento anual'), 'faturamento_anual');
   assert.equal(sugerirCodigo('Nº de funcionários'), 'n_de_funcionarios');
   assert.equal(sugerirCodigo('  Região / UF  '), 'regiao_uf');
@@ -94,7 +94,7 @@ test('o código do campo sai do rótulo sem acento, sem espaço e começando por
   }
 });
 
-test('o código do campo recusa o que estragaria a chave do jsonb', () => {
+test('the field code rejects anything that would break the jsonb key', () => {
   assert.equal(recusarCodigoDeCampo('faturamento_anual'), null);
   for (const ruim of ['', 'A', 'Faturamento', 'com espaço', 'com-traço', '2026', 'ç', 'a'.repeat(41)]) {
     assert.ok(recusarCodigoDeCampo(ruim), `${ruim} não pode passar`);
@@ -102,13 +102,13 @@ test('o código do campo recusa o que estragaria a chave do jsonb', () => {
   assert.ok(recusarCodigoDeCampo(null));
 });
 
-test('tipo de campo vem do catálogo, não da requisição', () => {
+test('field type comes from the catalog, not from the request', () => {
   assert.ok(tipoDeCampoValido('texto'));
   assert.ok(tipoDeCampoValido('numero'));
   for (const ruim of ['jsonb', 'TEXTO', '', null]) assert.equal(tipoDeCampoValido(ruim), false);
 });
 
-test('escopo e evento desconhecidos são descartados, não recusados em bloco', () => {
+test('unknown scope and event are discarded individually, not rejected as a whole batch', () => {
   assert.deepEqual(scopesValid(['conversas:ler', 'inventado', 'conversas:ler']), [
     'conversas:ler',
   ]);
@@ -116,12 +116,12 @@ test('escopo e evento desconhecidos são descartados, não recusados em bloco', 
   assert.deepEqual(eventosValidos(['conversa.criada', 'nada.disso']), ['conversa.criada']);
 });
 
-test('uuid: o que vira `where` passa por aqui antes', () => {
+test('uuid: whatever becomes a `where` clause passes through here first', () => {
   assert.ok(ehUuid('3f2504e0-4f89-41d3-9a0c-0305e82c3301'));
   for (const ruim of ["' or 1=1--", '3f2504e0', '', null, 42]) assert.equal(ehUuid(ruim), false);
 });
 
-test('fuso é validado contra o banco de fusos do runtime', () => {
+test('timezone is validated against the runtime\'s timezone database', () => {
   assert.ok(fusoValido('America/Sao_Paulo'));
   assert.ok(fusoValido('UTC'));
   assert.equal(fusoValido('America/Nao_Existe'), false);
@@ -143,7 +143,7 @@ function listaInFile(caminho: string, constante: string): string[] {
   return [...block[1]!.matchAll(/'([^']+)'/g)].map((m) => m[1]!);
 }
 
-test('o catálogo de escopos não divergiu de apps/api', () => {
+test('the scope catalog has not diverged from apps/api', () => {
   assert.deepEqual(
     CATALOGO_OF_SCOPES.map((e) => e.codigo),
     listaInFile('apps/api/src/autenticacao.ts', 'CATALOGO_ESCOPOS'),

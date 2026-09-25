@@ -10,7 +10,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { ID_DA_RAIZ_PADRAO, ID_OF_ATTENDANCE_DEFAULTID_DO_ATENDIMENTO_PADRAOID_OF_ATTENDANCE_DEFAULT } = await import('@pipe/core');
 const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/banco.js');
@@ -95,7 +95,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -114,7 +114,7 @@ async function pedir(
   metodo: string,
   caminho: string,
   corpo?: unknown,
-): Promise<{ status: number; corpo: Corpo }> {
+): Promise<{ status: number; body: Corpo }> {
   const resposta = await fetch(`${api.url}${caminho}`, {
     method: metodo,
     headers: comCookie(session),
@@ -126,7 +126,7 @@ async function pedir(
 
 /** Cria o contato pela rota de criar e devolve o id. */
 async function criado(nome: string, tipo: 'fluxo' | 'roteador' = 'fluxo'): Promise<string> {
-  const { status, corpo } = await pedir(sessionEditor, 'POST', '/v1/gestao/fluxos', {
+  const { status, corpo } = await pedir(sessionEditor, 'POST', '/v1/management/flows', {
     recados: RECADOS,
     nome,
     tipo,
@@ -136,15 +136,15 @@ async function criado(nome: string, tipo: 'fluxo' | 'roteador' = 'fluxo'): Promi
   return corpo['id'] as string;
 }
 
-const builder = (sessao: string, id: string) => pedir(sessao, 'GET', `/v1/gestao/fluxos/${id}/builder`);
+const builder = (sessao: string, id: string) => pedir(sessao, 'GET', `/v1/management/flows/${id}/builder`);
 const salvar = (sessao: string, id: string, desenho: unknown) =>
-  pedir(sessao, 'PUT', `/v1/gestao/fluxos/${id}/builder`, desenho);
+  pedir(sessao, 'PUT', `/v1/management/flows/${id}/builder`, desenho);
 const publicar = (sessao: string, id: string) =>
-  pedir(sessao, 'POST', `/v1/gestao/fluxos/${id}/builder/publicar`);
+  pedir(sessao, 'POST', `/v1/management/flows/${id}/builder/publish`);
 const versions = (sessao: string, id: string) =>
-  pedir(sessao, 'GET', `/v1/gestao/fluxos/${id}/builder/versoes`);
+  pedir(sessao, 'GET', `/v1/management/flows/${id}/builder/versions`);
 const restore = (sessao: string, id: string, versao: string | number) =>
-  pedir(sessao, 'POST', `/v1/gestao/fluxos/${id}/builder/versoes/${versao}/restaurar`);
+  pedir(sessao, 'POST', `/v1/management/flows/${id}/builder/versions/${versao}/restore`);
 
 /**
  * Um desenho no formato do editor da Blip, como a cópia manda: a raiz espera a
@@ -215,7 +215,7 @@ function falaDaPergunta(corpo: Corpo): string {
   return pergunta['$contentActions'][0]['action']['settings']['content'] as string;
 }
 
-type LinhaVersao = { id: string; versao: number; state: string; blocos: number };
+type LinhaVersao = { id: string; version: number; state: string; blocks: number };
 
 async function versionsInDatabase(flowId: string): Promise<LinhaVersao[]> {
   const { rows } = await a.dono.execute<LinhaVersao>(sql`
@@ -238,7 +238,7 @@ async function falar(de: string, texto: string): Promise<void> {
 }
 
 async function conversationOf(telefone: string): Promise<{ id: string; contactId: string }> {
-  const { rows } = await a.dono.execute<{ id: string; contato_id: string }>(sql`
+  const { rows } = await a.dono.execute<{ id: string; contactId: string }>(sql`
     select c.id, c.contato_id from conversa c join contato ct on ct.id = c.contato_id
      where c.tenant_id = ${a.tenantId}::uuid and ct.telefone_e164 = ${`+${telefone}`}
      order by c.criada_em desc limit 1
@@ -248,14 +248,14 @@ async function conversationOf(telefone: string): Promise<{ id: string; contactId
 }
 
 async function doBot(conversationId: string): Promise<string[]> {
-  const { rows } = await a.dono.execute<{ conteudo: string }>(sql`
+  const { rows } = await a.dono.execute<{ content: string }>(sql`
     select conteudo from mensagem
      where conversa_id = ${conversationId}::uuid and autor_tipo = 'bot' order by criada_em
   `);
   return rows.map((r) => r.conteudo);
 }
 
-type LineExecution = { estado: string; flowVersionId: string; blockVersionId: string | null };
+type LineExecution = { state: string; flowVersionId: string; blockVersionId: string | null };
 
 async function executionOf(conversaId: string): Promise<LineExecution> {
   const { rows } = await a.dono.execute<LineExecution>(sql`
@@ -295,8 +295,8 @@ afterAll(async () => {
   await b?.encerrar();
 });
 
-describe('GET /v1/gestao/fluxos/:id/builder', () => {
-  it('fluxo novo abre com o fluxo padrão — publicável, e sem nada gravado', async () => {
+describe('GET /v1/management/flows/:id/builder', () => {
+  it('Open a new flow with a publishable default and no saved draft', async () => {
     const id = await criado(`Novo ${randomUUID().slice(0, 6)}`);
     const { status, corpo } = await builder(sessionEditor, id);
     expect(status).toBe(200);
@@ -309,7 +309,7 @@ describe('GET /v1/gestao/fluxos/:id/builder', () => {
     expect(await versionsInDatabase(id)).toHaveLength(0);
   });
 
-  it('roteador não tem Builder: 409 em todas as rotas', async () => {
+  it('Return 409 on every Builder route for router bots', async () => {
     const id = await criado(`Roteador ${randomUUID().slice(0, 6)}`, 'roteador');
     const respostas = [
       await builder(sessionPublicador, id),
@@ -320,12 +320,12 @@ describe('GET /v1/gestao/fluxos/:id/builder', () => {
     ];
     for (const { status, corpo } of respostas) {
       expect(status).toBe(409);
-      expect(corpo['erro']['codigo']).toBe('roteador_sem_builder');
-      expect(corpo['erro']['mensagem']).toContain('Roteador não tem Builder');
+      expect(corpo['erro']['code']).toBe('roteador_sem_builder');
+      expect(corpo['erro']['message']).toContain('Roteador não tem Builder');
     }
   });
 
-  it('sem automacao.fluxo.editar é 403; de outro tenant e id malformado são 404', async () => {
+  it('Return 403 without `automacao.fluxo.editar` and 404 for invalid or cross-tenant IDs', async () => {
     const id = await criado(`Guardado ${randomUUID().slice(0, 6)}`);
 
     const semPoder = await builder(sessionWithoutPoder, id);
@@ -340,13 +340,13 @@ describe('GET /v1/gestao/fluxos/:id/builder', () => {
     expect((await versions(sessionOfOtherTenant, id)).status).toBe(404);
     expect((await builder(sessionEditor, 'nao-e-uuid')).status).toBe(404);
 
-    const withoutSession = await fetch(`${api.url}/v1/gestao/fluxos/${id}/builder`);
+    const withoutSession = await fetch(`${api.url}/v1/management/flows/${id}/builder`);
     expect(withoutSession.status).toBe(401);
   });
 });
 
-describe('PUT /v1/gestao/fluxos/:id/builder', () => {
-  it('grava o rascunho como v1 e, salvando de novo, grava POR CIMA — uma versão, não uma por tecla', async () => {
+describe('PUT /v1/management/flows/:id/builder', () => {
+  it('Save draft v1 in place on repeated edits instead of creating a version per keystroke', async () => {
     const id = await criado(`Rascunho ${randomUUID().slice(0, 6)}`);
 
     const first = await salvar(sessionEditor, id, desenho('Olá! Qual é o seu nome?'));
@@ -357,13 +357,13 @@ describe('PUT /v1/gestao/fluxos/:id/builder', () => {
 
     const aberto = await builder(sessionEditor, id);
     expect(aberto.corpo).toMatchObject({ origem: 'rascunho', publicada: null });
-    expect(aberto.corpo['versao']['versao']).toBe(1);
+    expect(aberto.corpo['versao']['version']).toBe(1);
     expect(falaDaPergunta(aberto.corpo)).toBe('Olá! Qual é o seu nome?');
 
     const segunda = await salvar(sessionEditor, id, desenho('Oi! Como você se chama?'));
     expect(segunda.status).toBe(200);
     expect(segunda.corpo['versao']['id']).toBe(first.corpo['versao']['id']);
-    expect(segunda.corpo['versao']['versao']).toBe(1);
+    expect(segunda.corpo['versao']['version']).toBe(1);
 
     const inDatabase = await versionsInDatabase(id);
     expect(inDatabase).toHaveLength(1);
@@ -371,13 +371,13 @@ describe('PUT /v1/gestao/fluxos/:id/builder', () => {
     expect(falaDaPergunta((await builder(sessionEditor, id)).corpo)).toBe('Oi! Como você se chama?');
 
     // O fluxo em si continua em rascunho: salvar não publica.
-    const { rows } = await a.dono.execute<{ estado: string }>(
+    const { rows } = await a.dono.execute<{ state: string }>(
       sql`select estado from fluxo where id = ${id}::uuid`,
     );
     expect(rows[0]?.estado).toBe('rascunho');
   });
 
-  it('desenho inválido grava mesmo assim e devolve os erros do motor, bloco a bloco', async () => {
+  it('Save an invalid design while returning engine errors per block', async () => {
     const id = await criado(`Invalido ${randomUUID().slice(0, 6)}`);
     const quebrado = {
       fluxo: {
@@ -414,27 +414,27 @@ describe('PUT /v1/gestao/fluxos/:id/builder', () => {
     // E publicar recusa com a lista, sem mexer em nada.
     const recusa = await publicar(sessionPublicador, id);
     expect(recusa.status).toBe(409);
-    expect(recusa.corpo['erro']['codigo']).toBe('fluxo_invalido');
-    expect(recusa.corpo['erro']['detalhe']['erros']).toEqual(errors);
+    expect(recusa.corpo['erro']['code']).toBe('fluxo_invalido');
+    expect(recusa.corpo['erro']['detalhe']['errors']).toEqual(errors);
     expect((await versionsInDatabase(id))[0]?.state).toBe('rascunho');
 
     // Corpo que não é o mapa do editor é 400, e não 500.
     const torto = await salvar(sessionEditor, id, { fluxo: 'isto não é um mapa' });
     expect(torto.status).toBe(400);
-    expect(torto.corpo['erro']['codigo']).toBe('desenho_invalido');
+    expect(torto.corpo['erro']['code']).toBe('desenho_invalido');
   });
 
-  it('sem automacao.fluxo.editar, salvar é 403 e nada é gravado', async () => {
+  it('Do not save a draft without `automacao.fluxo.editar`', async () => {
     const id = await criado(`Trancado ${randomUUID().slice(0, 6)}`);
     const { status, corpo } = await salvar(sessionWithoutPoder, id, desenho('x'));
     expect(status).toBe(403);
-    expect(corpo['erro']['codigo']).toBe('sem_permissao');
+    expect(corpo['erro']['code']).toBe('sem_permissao');
     expect(await versionsInDatabase(id)).toHaveLength(0);
   });
 });
 
-describe('POST /v1/gestao/fluxos/:id/builder/publicar', () => {
-  it('publica v1; a v2 arquiva a v1, o motor passa a usar a nova e a conversa em andamento continua apontando para a antiga', async () => {
+describe('POST /v1/management/flows/:id/builder/publish', () => {
+  it('Publish v2, archive v1, switch the engine, and keep active conversations on v1', async () => {
     const id = await criado(`Publicado ${randomUUID().slice(0, 6)}`);
     // O canal do cenário passa a ser deste fluxo: é por ele que o webhook chega ao motor.
     await a.dono.execute(sql`update fluxo set canal_id = ${a.channelId}::uuid where id = ${id}::uuid`);
@@ -442,18 +442,18 @@ describe('POST /v1/gestao/fluxos/:id/builder/publicar', () => {
     // Sem rascunho não há o que publicar.
     const semRascunho = await publicar(sessionPublicador, id);
     expect(semRascunho.status).toBe(409);
-    expect(semRascunho.corpo['erro']['codigo']).toBe('sem_rascunho');
+    expect(semRascunho.corpo['erro']['code']).toBe('sem_rascunho');
 
     await salvar(sessionEditor, id, desenho('Olá! Qual é o seu nome? (v1)'));
     const v1 = await publicar(sessionPublicador, id);
     expect(v1.status).toBe(200);
     expect(v1.corpo['versao']).toMatchObject({ versao: 1, estado: 'publicada', blocos: 3 });
-    expect(v1.corpo['versao']['publicadaEm']).toEqual(expect.any(String));
-    expect(v1.corpo['versao']['publicadaPor']).toMatch(/^Pessoa /);
+    expect(v1.corpo['versao']['publishedAt']).toEqual(expect.any(String));
+    expect(v1.corpo['versao']['publishedBy']).toMatch(/^Pessoa /);
     expect(v1.corpo['arquivada']).toBeNull();
     const v1Id = v1.corpo['versao']['id'] as string;
 
-    const { rows: flows } = await a.dono.execute<{ estado: string }>(
+    const { rows: flows } = await a.dono.execute<{ state: string }>(
       sql`select estado from fluxo where id = ${id}::uuid`,
     );
     expect(flows[0]?.estado).toBe('publicado');
@@ -461,8 +461,8 @@ describe('POST /v1/gestao/fluxos/:id/builder/publicar', () => {
     // Sem rascunho, o Builder abre a publicada.
     const aberto = await builder(sessionEditor, id);
     expect(aberto.corpo['origem']).toBe('publicada');
-    expect(aberto.corpo['versao']['versao']).toBe(1);
-    expect(aberto.corpo['publicada']['versao']).toBe(1);
+    expect(aberto.corpo['versao']['version']).toBe(1);
+    expect(aberto.corpo['publicada']['version']).toBe(1);
 
     // O motor responde com a v1, e a conversa da Ana fica esperando o nome — em andamento.
     await falar(ANA, 'oi');
@@ -506,7 +506,7 @@ describe('POST /v1/gestao/fluxos/:id/builder/publicar', () => {
     // O histórico lista as duas, da mais nova para a mais antiga.
     const history = await versions(sessionEditor, id);
     expect(history.status).toBe(200);
-    const listadas = history.corpo as unknown as { versao: number; estado: string }[];
+    const listadas = history.corpo as unknown as { version: number; state: string }[];
     expect(listadas.map((v) => [v.versao, v.estado])).toEqual([
       [2, 'publicada'],
       [1, 'arquivada'],
@@ -523,7 +523,7 @@ describe('POST /v1/gestao/fluxos/:id/builder/publicar', () => {
     ]);
   });
 
-  it('só quem tem automacao.fluxo.publicar publica — editar não basta; de outro tenant é 404', async () => {
+  it('Require `automacao.fluxo.publicar` and return 404 for another tenant\'s flow', async () => {
     const id = await criado(`Protegido ${randomUUID().slice(0, 6)}`);
     await salvar(sessionEditor, id, desenho('x'));
 
@@ -542,7 +542,7 @@ describe('POST /v1/gestao/fluxos/:id/builder/publicar', () => {
   });
 });
 
-describe('POST /v1/gestao/fluxos/:id/builder/versoes/:versao/restaurar', () => {
+describe('POST /v1/management/flows/:id/builder/versions/:versao/restore', () => {
   it('traz uma versão antiga de volta como rascunho, sem tirar a publicada do ar', async () => {
     const id = await criado(`Restaurado ${randomUUID().slice(0, 6)}`);
     await salvar(sessionEditor, id, desenho('primeira'));
@@ -557,7 +557,7 @@ describe('POST /v1/gestao/fluxos/:id/builder/versoes/:versao/restaurar', () => {
 
     const aberto = await builder(sessionEditor, id);
     expect(aberto.corpo['origem']).toBe('rascunho');
-    expect(aberto.corpo['versao']['versao']).toBe(3);
+    expect(aberto.corpo['versao']['version']).toBe(3);
     expect(falaDaPergunta(aberto.corpo)).toBe('primeira');
     // A segunda continua publicada: restaurar não publica.
     expect(aberto.corpo['publicada']).toMatchObject({ versao: 2, estado: 'publicada' });
@@ -570,7 +570,7 @@ describe('POST /v1/gestao/fluxos/:id/builder/versoes/:versao/restaurar', () => {
 
     // Restaurar de novo grava por cima do mesmo rascunho.
     const outra = await restore(sessionEditor, id, 2);
-    expect(outra.corpo['versao']['versao']).toBe(3);
+    expect(outra.corpo['versao']['version']).toBe(3);
     expect(falaDaPergunta((await builder(sessionEditor, id)).corpo)).toBe('segunda');
 
     // Versão que não existe (ou que não é número) é 404.

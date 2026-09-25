@@ -10,7 +10,7 @@ export function urlForLimparFilters(
   atual: { queue?: string },
   preservarQueue = false,
 ): string {
-  return preservarQueue && atual.queue ? `${base}?fila=${encodeURIComponent(atual.queue)}` : base;
+  return preservarQueue && atual.queue ? `${base}?queue=${encodeURIComponent(atual.queue)}` : base;
 }
 
 /** Copia a query inteira: abas, busca e parâmetros futuros continuam no link. */

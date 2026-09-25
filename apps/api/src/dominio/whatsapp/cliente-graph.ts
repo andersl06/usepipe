@@ -212,7 +212,7 @@ function credentialsOfApp(): { id: string; secret: string } {
     // o que vira um erro dela sem dizer qual variável falta.
     throw new PipeError(
       500,
-      'app_sem_credencial',
+      'app_without_credential',
       'Faltam WHATSAPP_APP_ID e WHATSAPP_APP_SECRET: sem elas não há como trocar o código do cadastro embutido.',
     );
   }
@@ -258,7 +258,7 @@ export class ClienteGraphReal extends ClienteGraph {
     } catch (error) {
       throw new PipeError(
         502,
-        'meta_inacessivel',
+        'meta_unreachable',
         `${message}: ${esconder(String((error as Error)?.message ?? error), ...ocultos)}`,
       );
     }
@@ -274,7 +274,7 @@ export class ClienteGraphReal extends ClienteGraph {
     if (!resposta.ok) {
       const error = (corpo as { error?: { code?: number; message?: string } } | null)?.error;
       const detalhe = error?.message ? esconder(error.message, ...ocultos) : `HTTP ${resposta.status}`;
-      throw new PipeError(502, 'meta_recusou', `${message}: ${detalhe}`, {
+      throw new PipeError(502, 'meta_refused', `${message}: ${detalhe}`, {
         http: resposta.status,
         ...(error?.code === undefined ? {} : { codigo_meta: error.code }),
       });
@@ -426,7 +426,7 @@ export class ClienteGraphReal extends ClienteGraph {
       return true;
     } catch (erro) {
       // Só a recusa da Meta quer dizer "segredo errado"; rede fora é outro problema.
-      if (erro instanceof PipeError && erro.codigo === 'meta_recusou') return false;
+      if (erro instanceof PipeError && erro.codigo === 'meta_refused') return false;
       throw erro;
     }
   }
@@ -463,7 +463,7 @@ export class ClienteGraphReal extends ClienteGraph {
       { method: 'POST', headers: this.cabecalhos() },
       'A abertura do envio da foto falhou',
     );
-    if (!session?.id) throw new PipeError(502, 'meta_recusou', 'A Meta não abriu a sessão de envio da foto.');
+    if (!session?.id) throw new PipeError(502, 'meta_refused', 'A Meta não abriu a sessão de envio da foto.');
     const enviado = await this.pedir<{ h?: string }>(
       `${URL_BASE}/${versaoDaApi()}/${session.id}`,
       {
@@ -473,7 +473,7 @@ export class ClienteGraphReal extends ClienteGraph {
       },
       'O envio da foto falhou',
     );
-    if (!enviado?.h) throw new PipeError(502, 'meta_recusou', 'A Meta não devolveu o identificador da foto.');
+    if (!enviado?.h) throw new PipeError(502, 'meta_refused', 'A Meta não devolveu o identificador da foto.');
     return enviado.h;
   }
 
@@ -573,7 +573,7 @@ export class ClienteGraphDuble extends ClienteGraph {
       return Promise.reject(
         new PipeError(
           502,
-          'meta_recusou',
+          'meta_refused',
           'A troca do token falhou: código de cadastro inválido ou expirado.',
           { http: 400, codigo_meta: 100 },
         ),
@@ -590,7 +590,7 @@ export class ClienteGraphDuble extends ClienteGraph {
     this.registrar({ acao: 'buscar_numeros', wabaId });
     if (this.withoutPermission()) {
       return Promise.reject(
-        new PipeError(502, 'meta_recusou', 'A busca dos números da WABA falhou: (#200) Permissions error', {
+        new PipeError(502, 'meta_refused', 'A busca dos números da WABA falhou: (#200) Permissions error', {
           http: 403,
           codigo_meta: 200,
         }),
@@ -611,7 +611,7 @@ export class ClienteGraphDuble extends ClienteGraph {
     this.registrar({ acao: 'buscar_modelos', wabaId });
     if (this.withoutPermission()) {
       return Promise.reject(
-        new PipeError(502, 'meta_recusou', 'A busca dos modelos de mensagem da WABA falhou: (#200) Permissions error'),
+        new PipeError(502, 'meta_refused', 'A busca dos modelos de mensagem da WABA falhou: (#200) Permissions error'),
       );
     }
     return Promise.resolve({ data: [] });
@@ -725,7 +725,7 @@ export class ClienteGraphDuble extends ClienteGraph {
     const lista = ClienteGraphDuble.modelos.get(wabaId) ?? [];
     if (lista.some((m) => m.name === modelo.name && m.language === modelo.language)) {
       return Promise.reject(
-        new PipeError(502, 'meta_recusou', 'A criação do modelo de mensagem falhou: já existe conteúdo neste idioma.', {
+        new PipeError(502, 'meta_refused', 'A criação do modelo de mensagem falhou: já existe conteúdo neste idioma.', {
           http: 400,
           codigo_meta: 100,
         }),

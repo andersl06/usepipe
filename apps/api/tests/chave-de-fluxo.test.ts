@@ -9,7 +9,7 @@ process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 31).toString('base64')}`;
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { checkFlowOfKey, flowOfRoute } = await import('../src/autenticacao.js');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
@@ -79,7 +79,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -99,7 +99,7 @@ function withKey(token: string): Record<string, string> {
   return { authorization: `Bearer ${token}`, 'content-type': 'application/json' };
 }
 
-type Resposta = { status: number; corpo: Record<string, unknown> };
+type Resposta = { status: number; body: Record<string, unknown> };
 
 async function chamar(
   metodo: 'GET' | 'POST' | 'DELETE',
@@ -119,13 +119,13 @@ async function chamar(
 }
 
 /** O erro estruturado de `erros.ts`: `{ erro: { codigo, mensagem, detalhe? } }`. */
-function errorOf(resposta: Resposta): { codigo: string; message: string; detalhe?: Record<string, unknown> } {
-  return resposta.corpo['erro'] as { codigo: string; mensagem: string; detalhe?: Record<string, unknown> };
+function errorOf(resposta: Resposta): { code: string; message: string; detalhe?: Record<string, unknown> } {
+  return resposta.corpo['erro'] as { code: string; message: string; detalhe?: Record<string, unknown> };
 }
 
 /** Cria a chave do fluxo pela ROTA da tela, e devolve o token `pipe_…`. */
 async function keyOfScreen(flowId: string, nome: string): Promise<{ id: string; token: string }> {
-  const criada = await chamar('POST', `/v1/gestao/fluxos/${flowId}/chaves`, comCookie(session), { nome });
+  const criada = await chamar('POST', `/v1/management/flows/${flowId}/keys`, comCookie(session), { nome });
   expect(criada.status).toBe(201);
   return { id: criada.corpo['id'] as string, token: criada.corpo['token'] as string };
 }
@@ -150,8 +150,8 @@ afterAll(async () => {
   await a?.encerrar();
 });
 
-describe('a cerca do guarda (conferirFluxoDaChave + fluxoDaRota)', () => {
-  it('chave do fluxo A age no fluxo A e é 403 no fluxo B, com o código e a mensagem certos', () => {
+describe('Enforce the flow-key boundary using the key flow and matched route', () => {
+  it('Allow a flow A key only on flow A and return 403 on flow B', () => {
     const key = { fluxoId: flowA };
     expect(() => checkFlowOfKey(key, flowA)).not.toThrow();
     // Uuid vem em caixa diferente conforme quem o escreveu; a cerca não é sensível a isso.
@@ -171,7 +171,7 @@ describe('a cerca do guarda (conferirFluxoDaChave + fluxoDaRota)', () => {
     expect((error as Error).message).toBe('Esta chave pertence a outro fluxo e não pode agir neste.');
   });
 
-  it('chave de fluxo em rota que não é por fluxo é 403 `chave_de_fluxo`; chave de conta passa em qualquer rota', () => {
+  it('Return 403 with `chave_de_fluxo` for flow keys on nonflow routes while allowing account keys', () => {
     let erro: unknown;
     try {
       checkFlowOfKey({ flowId: flowA }, null);
@@ -179,84 +179,84 @@ describe('a cerca do guarda (conferirFluxoDaChave + fluxoDaRota)', () => {
       erro = e;
     }
     expect(erro).toMatchObject({ status: 403, codigo: 'chave_de_fluxo' });
-    expect((erro as Error).message).toContain('/v1/gestao/fluxos/:id/');
+    expect((erro as Error).message).toContain('/v1/management/flows/:id/');
 
     expect(() => checkFlowOfKey({ flowId: null }, null)).not.toThrow();
     expect(() => checkFlowOfKey({ flowId: null }, flowA)).not.toThrow();
     expect(() => checkFlowOfKey({ flowId: null }, flowB)).not.toThrow();
   });
 
-  it('fluxoDaRota lê o PADRÃO da rota: `:id` depois de /fluxos/, `:fluxoId` em qualquer lugar, e nada fora disso', () => {
-    expect(flowOfRoute(requestMatched('/v1/gestao/fluxos/:id/chaves', { id: flowA }))).toBe(flowA);
-    expect(flowOfRoute(requestMatched('/v1/gestao/fluxos/:id', { id: flowB }))).toBe(flowB);
+  it('Read `:id` after /fluxos/ or `:flowId` elsewhere without matching unrelated routes', () => {
+    expect(flowOfRoute(requestMatched('/v1/management/flows/:id/keys', { id: flowA }))).toBe(flowA);
+    expect(flowOfRoute(requestMatched('/v1/management/flows/:id', { id: flowB }))).toBe(flowB);
     expect(
       flowOfRoute(
-        requestMatched('/v1/gestao/fluxos/:fluxoId/links-rastreados/:linkId', {
+        requestMatched('/v1/management/flows/:fluxoId/links-tracked/:linkId', {
           fluxoId: flowA,
           linkId: randomUUID(),
         }),
       ),
     ).toBe(flowA);
     // `:id` de conversa não é fluxo, mesmo que o valor coincida com o id de um fluxo.
-    expect(flowOfRoute(requestMatched('/v1/conversas/:id/mensagens', { id: flowA }))).toBeNull();
-    expect(flowOfRoute(requestMatched('/v1/conversas', {}))).toBeNull();
+    expect(flowOfRoute(requestMatched('/v1/conversations/:id/messages', { id: flowA }))).toBeNull();
+    expect(flowOfRoute(requestMatched('/v1/conversations', {}))).toBeNull();
   });
 });
 
-describe('a chave do fluxo na API (Bearer)', () => {
-  it('é recusada em rota que não é por fluxo, com 403 e mensagem clara — a chave de conta continua passando', async () => {
-    const recusada = await chamar('GET', '/v1/conversas', withKey(keyOfFlowA));
+describe('Constrain flow API keys to flow routes', () => {
+  it('Return 403 for flow keys on nonflow routes while allowing account keys', async () => {
+    const recusada = await chamar('GET', '/v1/conversations', withKey(keyOfFlowA));
     expect(recusada.status).toBe(403);
-    expect(errorOf(recusada).codigo).toBe('chave_de_fluxo');
+    expect(errorOf(recusada).codigo).toBe('key_of_flow');
     expect(errorOf(recusada).message).toContain('só vale nas rotas desse fluxo');
     expect(errorOf(recusada).detalhe).toEqual({ fluxoId: flowA });
 
-    const escrita = await chamar('POST', `/v1/conversas/${randomUUID()}/mensagens`, withKey(keyOfFlowA), {
+    const escrita = await chamar('POST', `/v1/conversations/${randomUUID()}/messages`, withKey(keyOfFlowA), {
       texto: 'oi',
     });
     expect(escrita.status).toBe(403);
-    expect(errorOf(escrita).codigo).toBe('chave_de_fluxo');
+    expect(errorOf(escrita).codigo).toBe('key_of_flow');
 
     // Chave de CONTA: o tenant inteiro, como hoje.
-    const account = await chamar('GET', '/v1/conversas', withKey(a.token));
+    const account = await chamar('GET', '/v1/conversations', withKey(a.token));
     expect(account.status).toBe(200);
     expect(account.corpo).toHaveProperty('data');
   });
 
-  it('o escopo continua valendo, e é conferido antes da cerca de fluxo', async () => {
+  it('Check the scope before enforcing the flow-key boundary', async () => {
     // A chave de fluxo nasce sem `filas:ler`: a recusa é de ESCOPO, não de fluxo.
-    const withoutScope = await chamar('GET', '/v1/filas', withKey(keyOfFlowA));
+    const withoutScope = await chamar('GET', '/v1/queues', withKey(keyOfFlowA));
     expect(withoutScope.status).toBe(403);
-    expect(errorOf(withoutScope).codigo).toBe('sem_escopo');
+    expect(errorOf(withoutScope).codigo).toBe('without_scope');
     expect(errorOf(withoutScope).detalhe).toEqual({ escopo: 'filas:ler' });
 
     // Chave de conta só com `filas:ler`: entra em filas, barra em conversas — como sempre.
-    const queues = await chamar('GET', '/v1/filas', withKey(a.tokenWithoutScope));
+    const queues = await chamar('GET', '/v1/queues', withKey(a.tokenWithoutScope));
     expect(queues.status).toBe(200);
-    const conversations = await chamar('GET', '/v1/conversas', withKey(a.tokenWithoutScope));
+    const conversations = await chamar('GET', '/v1/conversations', withKey(a.tokenWithoutScope));
     expect(conversations.status).toBe(403);
-    expect(errorOf(conversations).codigo).toBe('sem_escopo');
+    expect(errorOf(conversations).codigo).toBe('without_scope');
   });
 
-  it('revogada na tela é 401 em qualquer rota, antes de escopo e de cerca', async () => {
+  it('Return 401 for revoked flow keys before checking scope or flow', async () => {
     const { id, token } = await keyOfScreen(flowB, 'A revogar');
-    const viva = await chamar('GET', '/v1/conversas', withKey(token));
+    const viva = await chamar('GET', '/v1/conversations', withKey(token));
     expect(viva.status).toBe(403); // válida, só cercada
-    expect(errorOf(viva).codigo).toBe('chave_de_fluxo');
+    expect(errorOf(viva).codigo).toBe('key_of_flow');
 
-    const revogada = await chamar('DELETE', `/v1/gestao/fluxos/${flowB}/chaves/${id}`, comCookie(session));
+    const revogada = await chamar('DELETE', `/v1/management/flows/${flowB}/keys/${id}`, comCookie(session));
     expect(revogada.status).toBe(204);
 
-    const depois = await chamar('GET', '/v1/conversas', withKey(token));
+    const depois = await chamar('GET', '/v1/conversations', withKey(token));
     expect(depois.status).toBe(401);
-    expect(errorOf(depois).codigo).toBe('nao_autorizado');
+    expect(errorOf(depois).codigo).toBe('not_authorized');
     expect(errorOf(depois).message).toBe('Chave revogada.');
 
-    const filas = await chamar('GET', '/v1/filas', withKey(token));
+    const filas = await chamar('GET', '/v1/queues', withKey(token));
     expect(filas.status).toBe(401);
   });
 
-  it('a linha da chave carrega o fluxo, e é dele que a cerca vem', async () => {
+  it('Bind the access key row to its flow for authorization', async () => {
     const { rows } = await a.dono.execute<{ flowId: string | null; scopes: string[] }>(sql`
       select fluxo_id, escopos from chave_api
        where tenant_id = ${a.tenantId} and prefixo = ${keyOfFlowA.split('_')[1]}

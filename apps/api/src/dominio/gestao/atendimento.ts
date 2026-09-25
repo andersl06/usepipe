@@ -54,7 +54,7 @@ export interface BlockOfTimes {
 }
 
 export interface LinhaDeQuebra extends BlockOfTimes {
-  chave: string;
+  key: string;
 }
 
 export interface ReportAttendance {
@@ -104,7 +104,7 @@ function medir(conversas: readonly ConversationEvents[]): BlockOfTimes {
  * `ResultadoMetrica`. Então a dobra é feita aqui e a conta continua toda no
  * core, com a mesma ordenação determinística por chave que ele usa.
  */
-type EixoDeQuebra = 'fila' | 'atendente' | 'inbox';
+type EixoDeQuebra = 'queue' | 'agent' | 'inbox';
 
 function quebrar(
   conversations: readonly {
@@ -247,8 +247,8 @@ export async function loadAttendance(
 
     return {
       geral: medir(conversations.map((c) => c.eventos)),
-      porFila: quebrar(conversations, 'fila'),
-      porAtendente: quebrar(conversations, 'atendente'),
+      porFila: quebrar(conversations, 'queue'),
+      porAtendente: quebrar(conversations, 'agent'),
       porInbox: quebrar(conversations, 'inbox'),
       porEtiqueta: quebrarByMuitas(eventsByConversation, vinculos),
       semEtiqueta: conversations.filter((c) => !etiquetadas.has(c.eventos.conversationId)).length,

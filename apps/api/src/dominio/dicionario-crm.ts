@@ -309,7 +309,7 @@ async function gravar(
       .insert(dictionaryObjectdicionarioObjetodictionaryObject)
       .values(lote)
       .onConflictDoUpdate({
-        target: [dictionaryObjectdicionarioObjetodictionaryObject.tenantId, dictionaryObjectdicionarioObjetodictionaryObject.codigo],
+        target: [dictionaryObjectdicionarioObjetodictionaryObject.tenantId, dictionaryObjectdicionarioObjetodictionaryObject.code],
         set: doExcluded(dictionaryObjectdicionarioObjetodictionaryObject, Object.keys(lote[0]!), ['tenantId', 'codigo']),
       });
   }
@@ -318,7 +318,7 @@ async function gravar(
       .insert(dictionaryFielddicionarioCampodictionaryField)
       .values(lote)
       .onConflictDoUpdate({
-        target: [dictionaryFielddicionarioCampodictionaryField.tenantId, dictionaryFielddicionarioCampodictionaryField.objetoCodigo, dictionaryFielddicionarioCampodictionaryField.codigo],
+        target: [dictionaryFielddicionarioCampodictionaryField.tenantId, dictionaryFielddicionarioCampodictionaryField.objetoCodigo, dictionaryFielddicionarioCampodictionaryField.code],
         set: doExcluded(dictionaryFielddicionarioCampodictionaryField, Object.keys(lote[0]!), [
           'tenantId',
           'objetoCodigo',
@@ -396,11 +396,11 @@ export type ObjectOfDictionary = Omit<typeof dictionaryObjectdicionarioObjetodic
  * Roda dentro do `noTenant` de quem chama; as duas leituras vão em série.
  */
 export async function readDictionary(tx: TransactionPipe): Promise<ObjectOfDictionary[]> {
-  const objetos = await tx.select().from(dictionaryObjectdicionarioObjetodictionaryObject).orderBy(asc(dictionaryObjectdicionarioObjetodictionaryObject.codigo));
+  const objetos = await tx.select().from(dictionaryObjectdicionarioObjetodictionaryObject).orderBy(asc(dictionaryObjectdicionarioObjetodictionaryObject.code));
   const campos = await tx
     .select()
     .from(dictionaryFielddicionarioCampodictionaryField)
-    .orderBy(asc(dictionaryFielddicionarioCampodictionaryField.objetoCodigo), asc(dictionaryFielddicionarioCampodictionaryField.codigo));
+    .orderBy(asc(dictionaryFielddicionarioCampodictionaryField.objetoCodigo), asc(dictionaryFielddicionarioCampodictionaryField.code));
 
   const byObject = new Map<string, FieldOfDictionary[]>();
   for (const linha of campos) {
@@ -411,7 +411,7 @@ export async function readDictionary(tx: TransactionPipe): Promise<ObjectOfDicti
   }
   return objetos.map((linha) => ({
     ...semIds(linha),
-    campos: byObject.get(linha.codigo) ?? [],
+    campos: byObject.get(linha.code) ?? [],
   }));
 }
 

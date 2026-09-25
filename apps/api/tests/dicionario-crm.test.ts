@@ -10,7 +10,7 @@ process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 9).toString('ba
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
 const { cifrar, keyringOfAmbientechaveiroDoAmbientekeyringOfAmbiente } = await import('@pipe/db');
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { readDictionary, lerMetadados, syncDictionary } = await import(
   '../src/dominio/dicionario-crm.js'
 );
@@ -72,9 +72,9 @@ function semAlgo(objetoRemovido: string, campoRemovido: [string, string]): Fixtu
 
 function fetchFalso(lista: unknown[]): {
   buscar: typeof fetch;
-  chamadas: { url: string; corpo: { query: string; variables: Record<string, unknown> } }[];
+  chamadas: { url: string; body: { query: string; variables: Record<string, unknown> } }[];
 } {
-  const chamadas: { url: string; corpo: { query: string; variables: Record<string, unknown> } }[] =
+  const chamadas: { url: string; body: { query: string; variables: Record<string, unknown> } }[] =
     [];
   let i = 0;
   const buscar = (async (url: string, init: RequestInit) => {
@@ -91,7 +91,7 @@ const naoChame = (async () => {
 }) as unknown as typeof fetch;
 
 describe('cliente da Metadata API, contra a resposta gravada do Twenty 2.39', () => {
-  it('lê pela /metadata, pagina até o fim e traz os campos de cada objeto', async () => {
+  it('Read `/metadata` through every page and fetch each object\'s fields', async () => {
     const { buscar, chamadas } = fetchFalso(respostas());
 
     const meta = await lerMetadados(CONFIG, buscar);
@@ -147,7 +147,7 @@ describe('cliente da Metadata API, contra a resposta gravada do Twenty 2.39', ()
   });
 });
 
-describe('sincronização do dicionário, no banco', () => {
+describe('Synchronize the CRM dictionary in the database', () => {
   let a: Cenario;
   let b: Cenario;
 
@@ -172,7 +172,7 @@ describe('sincronização do dicionário, no banco', () => {
   const campo = async (c: Cenario, objeto: string, nome: string) =>
     (await ler(c)).find((o) => o.codigo === objeto)?.campos.find((x) => x.codigo === nome);
 
-  it('grava objetos e campos no formato do Twenty, casando por name', async () => {
+  it('Store Twenty objects and fields matched by name', async () => {
     const r = await syncDictionary(a.tenantId, fetchFalso(respostas()).buscar);
 
     expect(r).toMatchObject({
@@ -209,7 +209,7 @@ describe('sincronização do dicionário, no banco', () => {
     expect((await campo(a, 'opportunity', 'stage'))?.options).toEqual(gravado?.options);
   });
 
-  it('marca agregável só número e moeda, e tira o vetor de busca da consulta', async () => {
+  it('Mark only number and currency fields as aggregatable and exclude search vectors from queries', async () => {
     expect(await campo(a, 'messageCampaign', 'sentCount')).toMatchObject({
       tipo: 'NUMBER',
       agregavel: true,
@@ -260,7 +260,7 @@ describe('sincronização do dicionário, no banco', () => {
     expect(devolvido).toMatchObject({ isActive: true, excluidoEm: null });
   });
 
-  it('isola os tenants: a sincronização de um não aparece, nem muda, no outro', async () => {
+  it('Keep each tenant\'s CRM dictionary independent during synchronization', async () => {
     expect(await ler(b)).toEqual([]);
 
     await syncDictionary(b.tenantId, fetchFalso(respostas()).buscar);
@@ -283,7 +283,7 @@ describe('sincronização do dicionário, no banco', () => {
     ]);
   });
 
-  it('tenant sem CRM é pulado sem chamar ninguém, e não é erro', async () => {
+  it('Skip tenants without a CRM without calling the provider or failing', async () => {
     const c = await montarCenario(`dic-c-${randomUUID().slice(0, 8)}`);
     try {
       expect(await syncDictionary(c.tenantId, naoChame)).toEqual({ estado: 'sem_crm' });
@@ -292,7 +292,7 @@ describe('sincronização do dicionário, no banco', () => {
     }
   });
 
-  it('CRM que devolve zero objetos não apaga o dicionário', async () => {
+  it('Preserve the dictionary when the CRM returns no objects', async () => {
     const empty = copia(FIXTURE);
     empty.pages = [
       { data: { objects: { pageInfo: { hasNextPage: false, endCursor: null }, edges: [] } } },
@@ -304,23 +304,23 @@ describe('sincronização do dicionário, no banco', () => {
     expect((await campo(b, 'person', 'name'))?.excluidoEm).toBeNull();
   });
 
-  it('GET /v1/crm/dicionario exige sessão e devolve só o dicionário do tenant dela', async () => {
+  it('Require a session for GET /v1/crm/dictionary and return only that tenant\'s dictionary', async () => {
     const api = await upApi(0);
     try {
-      const withoutSession = await fetch(`${api.url}/v1/crm/dicionario`);
+      const withoutSession = await fetch(`${api.url}/v1/crm/dictionary`);
       expect(withoutSession.status).toBe(401);
 
       const novo = createTokencriarTokencreateToken();
       await a.dono.execute(sql`
         insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-        values (${a.tenantId}, ${a.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+        values (${a.tenantId}, ${a.agentId}, ${novo.hash}, ${novo.expiresAt}, 'google')
       `);
-      const r = await fetch(`${api.url}/v1/crm/dicionario`, {
+      const r = await fetch(`${api.url}/v1/crm/dictionary`, {
         headers: { cookie: `${NOME_DO_COOKIE}=${novo.token}` },
       });
       expect(r.status).toBe(200);
       const corpo = (await r.json()) as {
-        objetos: { codigo: string; campos: { codigo: string; isActive: boolean }[] }[];
+        objetos: { code: string; campos: { code: string; isActive: boolean }[] }[];
       };
       // O de A: o pipeContatoId está removido lá, e ativo em B.
       const pessoa = corpo.objetos.find((o) => o.codigo === 'person');

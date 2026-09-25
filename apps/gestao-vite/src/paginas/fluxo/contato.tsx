@@ -59,7 +59,7 @@ export function ContactRota() {
   const { id = '' } = useParams();
   const local = useLocation();
   const valido = UUID.test(id);
-  const read = useRead<ContactLoaded>(valido ? `/v1/gestao/fluxos/${id}` : null);
+  const read = useRead<ContactLoaded>(valido ? `/v1/management/flows/${id}` : null);
 
   if (!valido || (read.error instanceof ApiError && read.error.status === 404)) {
     return <NaoEncontrado />;

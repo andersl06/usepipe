@@ -1,5 +1,5 @@
 {
-  "name": "@pipe/ponte",
+  "name": "@pipe/bridge",
   "version": "0.1.0",
   "private": true,
   "description": "Traduz o protocolo LIME da cópia do Blip para o domínio do Pipe",

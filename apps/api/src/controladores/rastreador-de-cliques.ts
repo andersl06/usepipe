@@ -33,7 +33,7 @@ function periodOfQuery(desde: string | undefined, ate: string | undefined): Peri
 }
 
 interface CorpoDeLink {
-  nome?: string;
+  name?: string;
   destination?: string;
 }
 
@@ -45,7 +45,7 @@ export class TrackedLinksController {
     @Req() request: RequestWithSession,
     @Param('fluxoId') flowId: string,
     @Query('desde') desde: string | undefined,
-    @Query('ate') ate: string | undefined,
+    @Query('to') ate: string | undefined,
   ): Promise<{ data: LinkRastreado[] }> {
     const session = sessionOf(request);
     uuidOu404(flowId);
@@ -66,7 +66,7 @@ export class TrackedLinksController {
     const sessao = sessionOf(requisicao);
     uuidOu404(fluxoId);
     if (!corpo.destination) {
-      throw PipeError.request('destino_obrigatorio', 'Informe a URL de destino.');
+      throw PipeError.request('destination_required', 'Informe a URL de destino.');
     }
     return noTenant(sessao.tenantId, (tx) =>
       createLinkTracked(tx, sessao.tenantId, fluxoId, {

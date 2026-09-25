@@ -31,7 +31,7 @@ export class InstagramWebhookController {
     const channel = await channelOfInstagram(channelId);
     const esperado = String(channel.config['verifyToken'] ?? '');
     if (modo !== 'subscribe' || !esperado || !secretConfere(token ?? '', esperado)) {
-      throw new PipeError(403, 'verificacao_recusada', 'hub.verify_token não confere.');
+      throw new PipeError(403, 'verification_refused', 'hub.verify_token não confere.');
     }
     resposta.status(200).type('text/plain').send(desafio ?? '');
   }
@@ -43,20 +43,20 @@ export class InstagramWebhookController {
     @Req() request: RequestWithBodyRaw,
   ): Promise<{ recebido: true }> {
     const canal = await channelOfInstagram(canalId);
-    if (!canal.ativo) throw PipeError.conflito('canal_inativo', 'O canal está desativado.');
+    if (!canal.ativo) throw PipeError.conflito('channel_inactive', 'O canal está desativado.');
 
     const secret = String(canal.config['appSecret'] ?? '');
     if (!secret) {
       throw new PipeError(
         403,
-        'canal_sem_app_secret',
+        'channel_without_app_secret',
         'O canal não tem appSecret configurado: sem ele a assinatura não pode ser conferida.',
       );
     }
     const corpo = request.corpoCru;
-    if (!corpo) throw new PipeError(400, 'corpo_ausente', 'O corpo cru não chegou ao validador.');
+    if (!corpo) throw new PipeError(400, 'body_missing', 'O corpo cru não chegou ao validador.');
     if (!assinaturaConfere(secret, corpo, request.header('x-hub-signature-256'))) {
-      throw new PipeError(401, 'assinatura_invalida', 'X-Hub-Signature-256 não confere.');
+      throw new PipeError(401, 'signature_invalid', 'X-Hub-Signature-256 não confere.');
     }
 
     await enqueueInbound(canalId, request.body);

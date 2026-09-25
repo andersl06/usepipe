@@ -22,7 +22,7 @@ export function AbaAlerta() {
   const context = useOutletContext<ChannelWhatsappContext | ContextWithoutChannel>();
   const channelId = 'canal' in context ? context.channel.id : null;
   const read = useRead<ChannelPreferences>(
-    channelId ? `/v1/canais/whatsapp/${channelId}/preferencias` : null,
+    channelId ? `/v1/channels/whatsapp/${channelId}/preferences` : null,
     { retry: false },
   );
   const [emailsTexto, setEmailsTexto] = useState('');

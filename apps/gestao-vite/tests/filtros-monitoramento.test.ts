@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { filterIds, parametrosWithFilters, urlForLimparFilters } from '../src/lib/filtros-monitoramento.ts';
 
-test('seleção múltipla sobrevive ao envio e à reabertura, inclusive em links antigos', () => {
+test('multiple selection survives submission and reopening, including in old links', () => {
   const a = '11111111-1111-4111-8111-111111111111';
   const b = '22222222-2222-4222-8222-222222222222';
   assert.deepEqual(filterIds([a, `${b},${a}`, 'inválido']), [a, b]);
@@ -12,22 +12,22 @@ test('seleção múltipla sobrevive ao envio e à reabertura, inclusive em links
   assert.deepEqual(filterIds(''), []);
 });
 
-test('limpar filtros permanece no monitoramento do bot atual', () => {
+test('clearing filters stays on the current bot\'s monitoring', () => {
   assert.equal(
     urlForLimparFilters('/fluxo/bot-1/atendimento/monitoramento', { queue: 'fila-1' }),
     '/fluxo/bot-1/atendimento/monitoramento',
   );
 });
 
-test('limpar a lista preserva o filtro de fila da operação', () => {
+test('clearing the list preserves the operation\'s queue filter', () => {
   assert.equal(
     urlForLimparFilters('/fluxo/bot-1/atendimento/monitoramento', { queue: 'fila-1' }, true),
-    '/fluxo/bot-1/atendimento/monitoramento?fila=fila-1',
+    '/fluxo/bot-1/atendimento/monitoramento?queue=fila-1',
   );
 });
 
-test('aplicar uma pílula preserva os demais parâmetros, inclusive busca e aba', () => {
-  const current = new URLSearchParams('fila=f1&atendente=a1&contato=Ana&status=online&aba=espera&busca=123&extra=x');
+test('applying one chip preserves the other parameters, including search and tab', () => {
+  const current = new URLSearchParams('fila=f1&agent=a1&contato=Ana&status=online&aba=espera&busca=123&extra=x');
   const proximos = parametrosWithFilters(current, { atendente: 'a2' });
   assert.equal(proximos.get('atendente'), 'a2');
   for (const key of ['fila', 'contato', 'status', 'aba', 'busca', 'extra']) {
@@ -36,13 +36,13 @@ test('aplicar uma pílula preserva os demais parâmetros, inclusive busca e aba'
   assert.equal(current.get('atendente'), 'a1');
 });
 
-test('limpar somente o filtro corrente preserva os outros', () => {
-  const proximos = parametrosWithFilters(new URLSearchParams('fila=f1&contato=Ana&aba=atribuido&busca=456'), { contato: '' });
+test('clearing only the current filter preserves the others', () => {
+  const proximos = parametrosWithFilters(new URLSearchParams('fila=f1&contact=Ana&aba=atribuido&busca=456'), { contato: '' });
   assert.equal(proximos.has('contato'), false);
-  assert.equal(proximos.toString(), 'fila=f1&aba=atribuido&busca=456');
+  assert.equal(proximos.toString(), 'fila=f1&aba=atribuido&search=456');
 });
 
-test('aplicar múltiplos valores mantém repetições onde a query permite', () => {
+test('applying multiple values keeps repeats where the query allows it', () => {
   const proximos = parametrosWithFilters(new URLSearchParams('aba=espera&tag=antiga'), { tag: ['nova', 'urgente'] });
   assert.deepEqual(proximos.getAll('tag'), ['nova', 'urgente']);
   assert.equal(proximos.get('aba'), 'espera');

@@ -31,7 +31,7 @@ export interface CountClosure {
  */
 export function classificarClosure(marcos: Marcos): StatusClosure | null {
   if (!marcos.encerradaEm) return null;
-  if (marcos.encerradaBy === 'atendente' || marcos.encerradaBy === 'transferencia') {
+  if (marcos.encerradaBy === 'agent' || marcos.encerradaBy === 'transferencia') {
     return 'finalizada';
   }
   return marcos.atribuidaEm ? 'abandonada' : 'perdida';

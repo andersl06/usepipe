@@ -8,7 +8,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -52,7 +52,7 @@ async function session(cenario: Cenario, userId: string): Promise<string> {
   const token = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${token.hash}, ${token.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${token.hash}, ${token.expiresAt}, 'google')
   `);
   return token.token;
 }
@@ -101,8 +101,8 @@ beforeAll(async () => {
 
 afterAll(async () => { await api?.fechar(); await a?.encerrar(); await b?.encerrar(); });
 
-describe('monitoramento/conversas', () => {
-  it('consulta várias filas e atendentes sem reduzir a seleção ao último id', async () => {
+describe('Monitor conversations across queues and agents', () => {
+  it('Query several queues and agents without dropping all but the last selected ID', async () => {
     const first = await conversation();
     const segunda = await conversation();
     const fora = await conversation(b);
@@ -113,29 +113,29 @@ describe('monitoramento/conversas', () => {
     const fila2 = queues[0]!.id;
     await a.dono.execute(sql`update conversa set fila_id = ${fila2}, atendente_id = ${atendente2} where id = ${segunda}`);
     for (const query of [
-      `fila=${a.queueId},${fila2}&atendente=${a.agentId},${atendente2}`,
-      `fila=${a.queueId}&fila=${fila2}&atendente=${a.agentId}&atendente=${atendente2}`,
+      `fila=${a.queueId},${fila2}&agent=${a.agentId},${atendente2}`,
+      `fila=${a.queueId}&fila=${fila2}&agent=${a.agentId}&atendente=${atendente2}`,
     ]) {
-      const resposta = await pedir(gestor, 'GET', `/v1/gestao/monitoramento?${query}`);
+      const resposta = await pedir(gestor, 'GET', `/v1/management/monitoring?${query}`);
       expect(resposta.status).toBe(200);
-      const corpo = await resposta.json() as { data: { abertas: { id: string }[] } };
+      const corpo = await resposta.json() as { data: { opens: { id: string }[] } };
       const ids = corpo.data.abertas.map(c => c.id);
       expect(ids).toEqual(expect.arrayContaining([first, segunda]));
       expect(ids).not.toContain(fora);
     }
-    const unica = await pedir(gestor, 'GET', `/v1/gestao/monitoramento?fila=${fila2}`);
-    const corpo = await unica.json() as { dados: { abertas: { id: string }[] } };
+    const unica = await pedir(gestor, 'GET', `/v1/management/monitoring?fila=${fila2}`);
+    const corpo = await unica.json() as { data: { opens: { id: string }[] } };
     expect(corpo.dados.abertas.map(c => c.id)).toEqual([segunda]);
   });
 
   it('lê a prévia, grava nota e deixa auditoria', async () => {
     const id = await conversation();
-    const previa = await pedir(gestor, 'GET', `/v1/gestao/monitoramento/conversas/${id}`);
+    const previa = await pedir(gestor, 'GET', `/v1/management/monitoring/conversations/${id}`);
     expect(previa.status).toBe(200);
     expect((await previa.json() as { id: string }).id).toBe(id);
 
-    expect((await pedir(gestor, 'POST', `/v1/gestao/monitoramento/conversas/${id}/notas`, { texto: 'Acompanhar este atendimento.' })).status).toBe(201);
-    const { rows: notas } = await a.dono.execute<{ corpo: string }>(sql`select corpo from nota_interna where conversa_id = ${id}::uuid`);
+    expect((await pedir(gestor, 'POST', `/v1/management/monitoring/conversations/${id}/notes`, { texto: 'Acompanhar este atendimento.' })).status).toBe(201);
+    const { rows: notas } = await a.dono.execute<{ body: string }>(sql`select corpo from nota_interna where conversa_id = ${id}::uuid`);
     expect(notas[0]?.corpo).toBe('Acompanhar este atendimento.');
     const { rows: log } = await a.dono.execute<{ depois: { acao: string } }>(sql`
       select depois from log_auditoria where objeto_tipo = 'conversa' and objeto_id = ${id}::uuid order by em desc limit 1
@@ -143,14 +143,14 @@ describe('monitoramento/conversas', () => {
     expect(log[0]?.depois.acao).toBe('falar_com_atendente');
   });
 
-  it('transfere e finaliza com capacidades próprias e registra auditoria', async () => {
+  it('Transfer or close monitored conversations under separate permissions and audit both', async () => {
     const transferida = await conversation();
-    const transferencia = await pedir(gestor, 'POST', `/v1/gestao/monitoramento/conversas/${transferida}/transferir`, { para_fila_id: a.queueId });
+    const transferencia = await pedir(gestor, 'POST', `/v1/management/monitoring/conversations/${transferida}/transfer`, { para_fila_id: a.queueId });
     expect(transferencia.status).toBe(201);
     expect((await transferencia.json() as { forConversationId: string }).forConversationId).toMatch(/^[0-9a-f-]{36}$/);
 
     const finalizada = await conversation();
-    const resposta = await pedir(gestor, 'POST', `/v1/gestao/monitoramento/conversas/${finalizada}/finalizar`, { etiqueta_ids: [await etiqueta()] });
+    const resposta = await pedir(gestor, 'POST', `/v1/management/monitoring/conversations/${finalizada}/finalize`, { etiqueta_ids: [await etiqueta()] });
     expect(resposta.status).toBe(201);
     expect((await resposta.json() as { state: string }).state).toBe('encerrada');
     const { rows: log } = await a.dono.execute<{ depois: { acao: string } }>(sql`
@@ -159,15 +159,15 @@ describe('monitoramento/conversas', () => {
     expect(log.some((linha) => linha.depois.acao === 'finalizou_no_monitoramento')).toBe(true);
   });
 
-  it('isola tenant, rejeita uuid malformado, falta de permissão e finalização sem etiqueta', async () => {
+  it('Enforce tenant isolation, valid IDs, permissions, and a closure label in monitoring', async () => {
     const id = await conversation();
-    expect((await pedir(gestorB, 'GET', `/v1/gestao/monitoramento/conversas/${id}`)).status).toBe(404);
-    expect((await pedir(gestorB, 'POST', `/v1/gestao/monitoramento/conversas/${id}/finalizar`, { etiqueta_ids: [] })).status).toBe(404);
-    expect((await pedir(gestor, 'GET', '/v1/gestao/monitoramento/conversas/nao-e-uuid')).status).toBe(404);
-    expect((await pedir(semPoder, 'POST', `/v1/gestao/monitoramento/conversas/${id}/transferir`, { para_fila_id: a.queueId })).status).toBe(403);
-    expect((await pedir(semPoder, 'POST', `/v1/gestao/monitoramento/conversas/${id}/finalizar`, { etiqueta_ids: [] })).status).toBe(403);
-    const semEtiqueta = await pedir(gestor, 'POST', `/v1/gestao/monitoramento/conversas/${id}/finalizar`, {});
+    expect((await pedir(gestorB, 'GET', `/v1/management/monitoring/conversations/${id}`)).status).toBe(404);
+    expect((await pedir(gestorB, 'POST', `/v1/management/monitoring/conversations/${id}/finalize`, { etiqueta_ids: [] })).status).toBe(404);
+    expect((await pedir(gestor, 'GET', '/v1/management/monitoring/conversations/nao-e-uuid')).status).toBe(404);
+    expect((await pedir(semPoder, 'POST', `/v1/management/monitoring/conversations/${id}/transfer`, { para_fila_id: a.queueId })).status).toBe(403);
+    expect((await pedir(semPoder, 'POST', `/v1/management/monitoring/conversations/${id}/finalize`, { etiqueta_ids: [] })).status).toBe(403);
+    const semEtiqueta = await pedir(gestor, 'POST', `/v1/management/monitoring/conversations/${id}/finalize`, {});
     expect(semEtiqueta.status).toBe(400);
-    expect((await semEtiqueta.json() as { error: { codigo: string } }).error.codigo).toBe('etiqueta_obrigatoria');
+    expect((await semEtiqueta.json() as { error: { code: string } }).error.codigo).toBe('label_required');
   });
 });

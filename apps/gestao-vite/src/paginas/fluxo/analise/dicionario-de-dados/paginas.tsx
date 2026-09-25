@@ -58,7 +58,7 @@ function Destaque({ children, solto }: { children: ReactNode; solto?: boolean })
 function Importante({ titulo = 'Importante' }: { titulo?: string }) {
   return (
     <span className="dd-etiqueta">
-      <IconePortal nome="alerta" tamanho={16} />
+      <IconePortal nome="alert" tamanho={16} />
       <span>{titulo}</span>
     </span>
   );
@@ -713,7 +713,7 @@ function FlowConversacional() {
         <Linha>
           {/* `mU`: o `warning` x-small em vermelho. */}
           <span className="dd-atencao">
-            <IconePortal nome="alerta" tamanho={16} />
+            <IconePortal nome="alert" tamanho={16} />
           </span>
           <Destaque>{'Atenção: '}</Destaque>o filtro de data fixo ou personalizado não se aplica a
           esta seção. Os dados da seção da canais dizem respeito aos últimos 7 dias (D-7 a D-1), não
@@ -803,7 +803,7 @@ function ListaDeBlocos() {
           </p>
         </div>
         <p className="dd-atencao-texto">
-          <IconePortal nome="alerta" tamanho={16} className="dd-cor-erro" />{' '}
+          <IconePortal nome="alert" tamanho={16} className="dd-cor-erro" />{' '}
           <span className="dd-p14">
             <b>Atenção:</b> o filtro de data fixo ou personalizado não se aplica a esta seção. Os
             dados da seção da canais dizem respeito aos últimos 7 dias (D-7 a D-1), não incluindo o

@@ -136,7 +136,7 @@ const PNG = Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 1, 2, 3
 const JPEG = Buffer.from([0xff, 0xd8, 0xff, 1, 2, 3]);
 const URL_INSTAGRAM = 'https://scontent-gru2-1.cdninstagram.com/v/foto.jpg';
 
-describe('hostDeMidiaPermitido — a lista de hosts da Meta (SSRF)', () => {
+describe('Allow only documented Meta media hosts over HTTPS', () => {
   it('aceita os hosts documentados, só em https', () => {
     expect(hostOfMediaAllowed('https://graph.facebook.com/v26.0/123')).toBe(true);
     expect(hostOfMediaAllowed('https://lookaside.fbsbx.com/whatsapp_business/attachments/?mid=1')).toBe(
@@ -147,7 +147,7 @@ describe('hostDeMidiaPermitido — a lista de hosts da Meta (SSRF)', () => {
     expect(hostOfMediaAllowed(URL_INSTAGRAM)).toBe(true);
   });
 
-  it('recusa host fora da lista, esquema não https e domínio forjado por sufixo', () => {
+  it('Reject unlisted hosts, non-HTTPS URLs, and forged host suffixes', () => {
     expect(hostOfMediaAllowed('https://evil.example/roubado.jpg')).toBe(false);
     expect(hostOfMediaAllowed('http://graph.facebook.com/v26.0/123')).toBe(false);
     // "termina com fbcdn.net.evil.com" não é "termina com fbcdn.net".
@@ -156,7 +156,7 @@ describe('hostDeMidiaPermitido — a lista de hosts da Meta (SSRF)', () => {
   });
 });
 
-describe('WhatsApp: busca metadado e baixa com o mesmo Bearer', () => {
+describe('Download WhatsApp media with one Bearer token, verify sha256, and detect MIME from bytes', () => {
   it('baixa, confere sha256 e grava — o MIME final é o dos bytes, não o declarado', async () => {
     const tenantId = await novoTenant(`wa-ok-${S}`);
     const token = 'token-do-canal-de-teste';
@@ -224,7 +224,7 @@ describe('Instagram: baixa direto da URL do CDN, sem token', () => {
 });
 
 describe('sha256 divergente', () => {
-  it('recusa e não grava — nem o anexo, nem os bytes no storage', async () => {
+  it('Reject bad media without storing the attachment or bytes', async () => {
     const tenantId = await novoTenant(`sha-${S}`);
     const canalId = await newChannel(tenantId, 'whatsapp_cloud', { tokenAcesso: 'tok' });
     const anexoId = await newAttachment(tenantId, canalId, 'meta:media-sha');
@@ -325,7 +325,7 @@ describe('falha temporária', () => {
 });
 
 describe('idempotência', () => {
-  it('anexo já baixado (bytes > 0) não baixa de novo', async () => {
+  it('Skip downloading an attachment whose bytes are already stored', async () => {
     const tenantId = await novoTenant(`idemp-${S}`);
     const canalId = await newChannel(tenantId, 'instagram', {});
     const anexoId = await newAttachment(tenantId, canalId, URL_INSTAGRAM);
@@ -345,8 +345,8 @@ describe('idempotência', () => {
   });
 });
 
-describe('isolamento entre tenants', () => {
-  it('anexo de um tenant é invisível para o outro — a RLS barra antes do download', async () => {
+describe('Isolate downloaded media by tenant', () => {
+  it('Hide one tenant\'s attachment from another before download', async () => {
     const tenantA = await novoTenant(`iso-a-${S}`);
     const tenantB = await novoTenant(`iso-b-${S}`);
     const channelA = await newChannel(tenantA, 'instagram', {});

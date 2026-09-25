@@ -49,7 +49,7 @@ const COLUMNS_CONTACT: readonly Column<AccountContact>[] = [
   {
     key: 'nome',
     rotulo: 'Contato',
-    celula: (c) => <Link href={`/contatos/${c.id}`}>{c.nome}</Link>,
+    celula: (c) => <Link href={`/contacts/${c.id}`}>{c.nome}</Link>,
   },
   { key: 'email', rotulo: 'E-mail', celula: (c) => c.email ?? '—' },
   { key: 'telefone', rotulo: 'Telefone', numerica: true, celula: (c) => c.telefone ?? '—' },
@@ -77,7 +77,7 @@ function columnsOpportunity(hoje: Date, fuso: string): readonly Column<AccountOp
     {
       key: 'nome',
       rotulo: 'Oportunidade',
-      celula: (o) => <Link href={`/oportunidades/${o.id}`}>{o.nome}</Link>,
+      celula: (o) => <Link href={`/opportunities/${o.id}`}>{o.nome}</Link>,
     },
     { key: 'fase', rotulo: 'Fase', celula: (o) => <Etiqueta>{o.fase}</Etiqueta> },
     { key: 'valor', rotulo: 'Valor', numerica: true, celula: (o) => money(o.value) },
@@ -96,7 +96,7 @@ function columnsOpportunity(hoje: Date, fuso: string): readonly Column<AccountOp
           return <Etiqueta>{o.ganha ? 'Ganha' : 'Perdida'} em {data(o.fechadaEm, fuso)}</Etiqueta>;
         }
         if (o.closingPrevisto && o.closingPrevisto < hoje) {
-          return <Etiqueta tom="alerta">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
+          return <Etiqueta tom="alert">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
         }
         return o.closingPrevisto ? (
           <Etiqueta>fecha em {data(o.closingPrevisto, fuso)}</Etiqueta>
@@ -184,7 +184,7 @@ export default async function PageAccount({
                     <Campo
                       key={c.id}
                       k={c.faixa ?? 'contato'}
-                      v={<Link href={`/contatos/${c.id}`}>{c.nome}</Link>}
+                      v={<Link href={`/contacts/${c.id}`}>{c.nome}</Link>}
                     />
                   ))}
                 </div>
@@ -224,7 +224,7 @@ export default async function PageAccount({
               </>
             ) : null}
 
-            {aba === 'contatos' ? (
+            {aba === 'contacts' ? (
               <Tabela
                 colunas={COLUMNS_CONTACT}
                 linhas={ficha.contacts}

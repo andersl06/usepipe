@@ -34,7 +34,7 @@ const TODAS = [
   regra('4', 'Fila de segunda', 'fila', 'fila-suporte', 'baixa'),
 ];
 
-test('a seção da fila só enxerga as regras daquela fila', () => {
+test('the queue\'s section only sees that queue\'s rules', () => {
   assert.deepEqual(
     queueRules(TODAS, 'fila-suporte').map((r) => r.nome),
     ['VIP', 'Fila de segunda'],
@@ -42,7 +42,7 @@ test('a seção da fila só enxerga as regras daquela fila', () => {
   assert.deepEqual(queueRules(TODAS, 'fila-sem-regra'), []);
 });
 
-test('a regra de escopo tenant não entra na seção da fila', () => {
+test('a tenant-scoped rule does not appear in the queue\'s section', () => {
   assert.equal(
     queueRules(TODAS, 'fila-suporte').some((r) => r.scopeType === 'tenant'),
     false,

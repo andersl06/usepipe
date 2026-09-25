@@ -51,7 +51,7 @@ export interface SaudeDoNumero {
 
 export interface AlvoDaSaude {
   tokenAccess: string | null;
-  numeroId: string | null;
+  numberId: string | null;
   wabaId: string | null;
 }
 

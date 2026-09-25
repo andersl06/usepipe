@@ -38,7 +38,7 @@ afterAll(async () => {
 });
 
 describe('a flag (global_config_service)', () => {
-  it('ausente ou "false" é desligada; qualquer outro valor liga', () => {
+  it('Disable account signup when unset or set to "false" and enable it for any other value', () => {
     expect(registrationOfAccountEnabled({})).toBe(false);
     expect(registrationOfAccountEnabled({ ENABLE_ACCOUNT_SIGNUP: 'false' })).toBe(false);
     expect(registrationOfAccountEnabled({ ENABLE_ACCOUNT_SIGNUP: '' })).toBe(false);
@@ -47,7 +47,7 @@ describe('a flag (global_config_service)', () => {
   });
 });
 
-describe('POST /v1/contas (accounts_controller#create)', () => {
+describe('Return 404 from POST /v1/accounts when signup is disabled by default (`accounts_controller`)', () => {
   it('desligada, que é o padrão: 404, e nada é criado — é a venda assistida', async () => {
     await expect(
       controller.create({ account_name: `Acme ${S}`, email: `ana@acme-${S}.com.br` }),
@@ -58,7 +58,7 @@ describe('POST /v1/contas (accounts_controller#create)', () => {
     expect(rows[0]!.n).toBe('0');
   });
 
-  it('ligada, sem nome de conta nem de pessoa: recusado', async () => {
+  it('Reject account signup without an account or person name when enabled', async () => {
     process.env['ENABLE_ACCOUNT_SIGNUP'] = 'true';
     await expect(controller.create({ email: `ana@acme-${S}.com.br` })).rejects.toMatchObject({
       codigo: 'parametros_invalidos',
@@ -87,7 +87,7 @@ describe('POST /v1/contas (accounts_controller#create)', () => {
     });
     expect(resposta).toEqual({ email });
 
-    const { rows } = await dono.execute<{ nome: string; role: string }>(sql`
+    const { rows } = await dono.execute<{ name: string; role: string }>(sql`
       select u.nome, p.nome as papel
         from usuario u
         join tenant t on t.id = u.tenant_id

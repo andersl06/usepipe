@@ -120,7 +120,7 @@ export default function PageTrackedLinks() {
   const flowId = contact.id;
   const [create, setCreate] = useState(false);
   const read = useRead<{ data: LinkRastreado[] }>(
-    `/v1/gestao/fluxos/${flowId}/links-rastreados`,
+    `/v1/management/flows/${flowId}/links-tracked`,
   );
   const links = read.data?.data ?? [];
 

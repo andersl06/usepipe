@@ -23,7 +23,7 @@ test('adicionar oferece somente as quatro paradas da barra da Blip', () => {
   );
 });
 
-test('editar tem os cinco estados literais e deriva o seletor da matriz', () => {
+test('edit has the five literal states and derives the selector from the matrix', () => {
   assert.deepEqual(
     NIVEIS_OF_EDIT.map((option) => option.rotulo),
     ['Sem permissão', 'Customizado', 'Visualizar', 'Ver e editar', 'Admin'],

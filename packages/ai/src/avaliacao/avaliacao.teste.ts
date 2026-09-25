@@ -51,7 +51,7 @@ const respostas = (
     evidenciaMensagemId: evidencias[criterioId] ?? null,
   }));
 
-describe('fração do valor', () => {
+describe('fraction of the value', () => {
   it('traduz conforme, não conforme e não se aplica', () => {
     const c = formulario.groups[0]!.criterios[0]!;
     expect(valueFraction(c, 'conforme')).toBe(1);
@@ -68,7 +68,7 @@ describe('fração do valor', () => {
     expect(valueFraction({ ...escala, tipo: 'nota' }, '7')).toBeCloseTo(0.7, 10);
   });
 
-  it('recusa valor fora do domínio em vez de chutar', () => {
+  it('rejects a value outside the domain instead of guessing', () => {
     const c = formulario.groups[0]!.criterios[0]!;
     expect(() => valueFraction(c, 'mais ou menos')).toThrow(FormatIaError);
     expect(() => valueFraction(formulario.groups[1]!.criterios[0]!, '9')).toThrow(FormatIaError);
@@ -113,7 +113,7 @@ describe('cálculo da nota', () => {
     expect(soma).toBeCloseTo(r.notaAntesDoFatal, 10);
   });
 
-  it('critério fatal reprovado zera a nota, mas guarda quanto valeria', () => {
+  it('a failed fatal criterion zeros the score but keeps what it would have been worth', () => {
     const r = calcularNota(
       formulario,
       respostas({ c1: 'conforme', c2: 'conforme', c3: '5', c4: 'nao_conforme' }),
@@ -142,7 +142,7 @@ describe('cálculo da nota', () => {
     expect(r.respostas.find((x) => x.criterioId === 'c2')!.pontos).toBe(0);
   });
 
-  it('tudo não se aplica dá zero sem dividir por zero', () => {
+  it('all not-applicable gives zero without dividing by zero', () => {
     const r = calcularNota(
       formulario,
       respostas({
@@ -156,7 +156,7 @@ describe('cálculo da nota', () => {
     expect(Number.isNaN(r.nota)).toBe(false);
   });
 
-  it('critério sem resposta é erro, nunca zero silencioso', () => {
+  it('a criterion with no answer is an error, never a silent zero', () => {
     expect(() =>
       calcularNota(formulario, respostas({ c1: 'conforme', c2: 'conforme', c3: '5' })),
     ).toThrow(FormatIaError);
@@ -178,7 +178,7 @@ const conversation: MessageTranscription[] = [
     id: 'uuid-b',
     criadaEm: new Date('2026-03-02T13:01:00Z'),
     direction: 'saida',
-    autorTipo: 'atendente',
+    autorTipo: 'agent',
     autorNome: 'Camila',
     tipo: 'texto',
     conteudo: 'segue em anexo',
@@ -207,8 +207,8 @@ function duble(saida: SaidaGravada): ChamadaEstruturada {
 
 const transcription = montarTranscription(conversation);
 
-describe('avaliarConversa', () => {
-  it('resolve o rótulo da evidência para o id da mensagem', async () => {
+describe('evaluateConversation', () => {
+  it('resolves the evidence label to the message id', async () => {
     const r = await avaliarConversation({
       formulario,
       transcription,
@@ -241,7 +241,7 @@ describe('avaliarConversa', () => {
     expect(r.consumo.custoCentavos).toBeGreaterThan(0);
   });
 
-  it('recusa evidência que não existe na transcrição', async () => {
+  it('rejects evidence that does not exist in the transcript', async () => {
     await expect(
       avaliarConversation({
         formulario,

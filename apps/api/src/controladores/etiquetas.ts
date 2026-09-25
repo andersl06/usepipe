@@ -34,7 +34,7 @@ interface CorpoDeEtiqueta {
 function etiquetaIdDe(corpo: CorpoDeEtiqueta | undefined): string {
   const id = corpo?.etiqueta_id;
   if (!id || typeof id !== 'string') {
-    throw PipeError.request('etiqueta_obrigatoria', 'Informe `etiqueta_id`.');
+    throw PipeError.request('label_required', 'Informe `etiqueta_id`.');
   }
   return id;
 }
@@ -50,7 +50,7 @@ export class LabelsController {
   ): Promise<{ etiquetas: EtiquetaDoTenant[] }> {
     const session = sessionOf(requisicao);
     if (scope !== undefined && scope !== 'conversa' && scope !== 'contato') {
-      throw PipeError.request('escopo_invalido', 'Escopo aceito: conversa ou contato.');
+      throw PipeError.request('scope_invalid', 'Escopo aceito: conversa ou contato.');
     }
     return noTenant(session.tenantId, async (tx) => ({
       etiquetas: await listarEtiquetasDoTenant(tx, scope ?? null),

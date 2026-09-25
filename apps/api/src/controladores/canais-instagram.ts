@@ -13,7 +13,7 @@ import { flowIdOfBody, connectToFlow, permitidoConectar } from './conexao-no-flu
  * cliente é 404. Com `fluxo_id`, a permissão é a do bot e o canal nasce ligado
  * a ele (`permitidoConectar`/`ligarAoFluxo`, em `canais.ts`).
  */
-@Controller('v1/canais/instagram')
+@Controller('v1/channels/instagram')
 export class InstagramChannelsController {
   @Get()
   @WithSession()
@@ -29,7 +29,7 @@ export class InstagramChannelsController {
   @WithSession()
   async manual(
     @Req() requisicao: RequestWithSession,
-    @Body() corpo: { access_token?: string; app_secret?: string; nome?: string; flowId?: string },
+    @Body() corpo: { access_token?: string; app_secret?: string; name?: string; flowId?: string },
   ): Promise<ChannelInstagramVisible & Omit<ConexaoInstagram, 'canal'>> {
     const sessao = sessionOf(requisicao);
     const flowId = flowIdOfBody(corpo);

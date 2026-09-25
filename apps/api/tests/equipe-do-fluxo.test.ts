@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 const { noTenant } = await import('../src/banco.js');
@@ -91,7 +91,7 @@ async function openSession(cenario: Cenario, usuarioId: string): Promise<string>
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${usuarioId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${usuarioId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -109,7 +109,7 @@ async function createFlowInDatabase(cenario: Cenario, nome: string): Promise<str
   return rows[0]!.id;
 }
 
-type Resposta = { status: number; corpo: Record<string, unknown> };
+type Resposta = { status: number; body: Record<string, unknown> };
 
 async function chamar(session: string, caminho: string, init: RequestInit = {}): Promise<Resposta> {
   const resposta = await fetch(`${api.url}${caminho}`, { ...init, headers: comCookie(session) });
@@ -120,22 +120,22 @@ async function chamar(session: string, caminho: string, init: RequestInit = {}):
   };
 }
 
-const listar = (sessao: string, id = flowId) => chamar(sessao, `/v1/gestao/fluxos/${id}/equipe`);
+const listar = (sessao: string, id = flowId) => chamar(sessao, `/v1/management/flows/${id}/team`);
 
 const adicionar = (sessao: string, corpo: Record<string, unknown>, id = flowId) =>
-  chamar(sessao, `/v1/gestao/fluxos/${id}/equipe`, {
+  chamar(sessao, `/v1/management/flows/${id}/team`, {
     method: 'POST',
     body: JSON.stringify(corpo),
   });
 
 const editar = (sessao: string, alvo: string, corpo: Record<string, unknown>, id = flowId) =>
-  chamar(sessao, `/v1/gestao/fluxos/${id}/equipe/${alvo}`, {
+  chamar(sessao, `/v1/management/flows/${id}/team/${alvo}`, {
     method: 'PATCH',
     body: JSON.stringify(corpo),
   });
 
 const remover = (sessao: string, alvo: string, id = flowId) =>
-  chamar(sessao, `/v1/gestao/fluxos/${id}/equipe/${alvo}`, { method: 'DELETE' });
+  chamar(sessao, `/v1/management/flows/${id}/team/${alvo}`, { method: 'DELETE' });
 
 /** Põe alguém direto no banco, sem passar pela rota — para montar cenário. */
 async function seed(
@@ -194,8 +194,8 @@ afterAll(async () => {
   await b?.encerrar();
 });
 
-describe('POST /v1/gestao/fluxos/:id/equipe', () => {
-  it('adiciona quem já está no contrato e marca os rádios pelo nível, como a origem', async () => {
+describe('POST /v1/management/flows/:id/team', () => {
+  it('Add an existing account member to a flow with role-based permissions', async () => {
     const { status, corpo } = await adicionar(sessionEditor, {
       email: ana.email,
       papelNoFluxo: 'editar',
@@ -231,7 +231,7 @@ describe('POST /v1/gestao/fluxos/:id/equipe', () => {
     });
   });
 
-  it('recusa quem não está no contrato com a frase da origem', async () => {
+  it('Reject users who are not account members with the expected message', async () => {
     const { status, corpo } = await adicionar(sessionEditor, {
       email: 'ninguem@e2e.pipe.app',
       papelNoFluxo: 'visualizar',
@@ -257,8 +257,8 @@ describe('POST /v1/gestao/fluxos/:id/equipe', () => {
   });
 });
 
-describe('a permissão de gerir a equipe', () => {
-  it('recusa quem não tem nem a permissão no fluxo nem a da conta', async () => {
+describe('Require permission to manage the flow team', () => {
+  it('Return 403 without either flow or account team permission', async () => {
     const lista = await listar(sessionWithoutPoder);
     expect(lista.status).toBe(403);
     expect(lista.corpo).toMatchObject({ erro: { codigo: 'sem_permissao' } });
@@ -270,7 +270,7 @@ describe('a permissão de gerir a equipe', () => {
     expect(posta.status).toBe(403);
   });
 
-  it('aceita o admin DO FLUXO, que não tem permissão nenhuma na conta', async () => {
+  it('Allow flow admins with no account-level permission', async () => {
     await seed(a, flowId, semPoderId, 'admin');
     const lista = await listar(sessionWithoutPoder);
     expect(lista.status).toBe(200);
@@ -282,7 +282,7 @@ describe('a permissão de gerir a equipe', () => {
     `);
   });
 
-  it('a lista traz os recursos do modal de editar, na ordem da origem', async () => {
+  it('List team editor resources in their expected order', async () => {
     const { status, corpo } = await listar(sessionEditor);
     expect(status).toBe(200);
     const chaves = (corpo['recursos'] as { key: string }[]).map((r) => r.key);
@@ -290,14 +290,14 @@ describe('a permissão de gerir a equipe', () => {
     expect(chaves).toContain('team');
   });
 
-  it('fluxo de outro tenant é 404, e uuid malformado também', async () => {
+  it('Return 404 for cross-tenant or malformed flow IDs', async () => {
     expect((await listar(sessionOfOtherTenant)).status).toBe(404);
     expect((await listar(sessionEditor, 'isto-nao-e-uuid')).status).toBe(404);
     expect((await listar(sessionEditor, randomUUID())).status).toBe(404);
   });
 });
 
-describe('PATCH e DELETE /v1/gestao/fluxos/:id/equipe/:usuarioId', () => {
+describe('PATCH e DELETE /v1/management/flows/:id/team/:usuarioId', () => {
   it('altera o nível, registra no log e não grava quando nada mudou', async () => {
     const mudou = await editar(sessionEditor, ana.id, { papelNoFluxo: 'visualizar' });
     expect(mudou.status).toBe(200);
@@ -316,13 +316,13 @@ describe('PATCH e DELETE /v1/gestao/fluxos/:id/equipe/:usuarioId', () => {
     });
   });
 
-  it('membro de outro fluxo, ou inexistente, é 404', async () => {
+  it('Return 404 for absent members or members of another flow', async () => {
     const outro = await createFlowInDatabase(a, `Outro ${randomUUID().slice(0, 6)}`);
     expect((await editar(sessionEditor, ana.id, { papelNoFluxo: 'admin' }, outro)).status).toBe(404);
     expect((await remover(sessionEditor, randomUUID())).status).toBe(404);
   });
 
-  it('não deixa sair o ÚLTIMO administrador do fluxo, nem rebaixá-lo', async () => {
+  it('Prevent the last flow admin from leaving or being demoted', async () => {
     const so = await createFlowInDatabase(a, `Só um admin ${randomUUID().slice(0, 6)}`);
     await seed(a, so, ana.id, 'admin');
     await seed(a, so, bruno.id, 'visualizar');
@@ -347,21 +347,21 @@ describe('PATCH e DELETE /v1/gestao/fluxos/:id/equipe/:usuarioId', () => {
   });
 });
 
-describe('exigirPermissaoNoFluxo — o duplo portão', () => {
+describe('Check flow and account permissions at both access gates', () => {
   /** Roda a função crua na transação do tenant, como as rotas fazem. */
   const tentar = (usuarioId: string, fluxo: string, codigo: string) =>
     noTenant(a.tenantId, (tx) => exigirPermissionInFlow(tx, usuarioId, fluxo, codigo))
       .then(() => 'passou')
-      .catch((error: Error & { codigo?: string }) => error.codigo ?? error.message);
+      .catch((error: Error & { code?: string }) => error.codigo ?? error.message);
 
-  it('permissão só NO FLUXO passa', async () => {
+  it('Allow flow-only permission without account permission', async () => {
     const flow = await createFlowInDatabase(a, `Portão A ${randomUUID().slice(0, 6)}`);
     await seed(a, flow, carla.id, 'editar');
     expect(await tentar(carla.id, flow, 'builder.escrever')).toBe('passou');
     expect(await tentar(carla.id, flow, 'channels.ler')).toBe('passou');
   });
 
-  it('permissão só NA CONTA passa, mesmo sem ser membro', async () => {
+  it('Allow account permission even without flow membership', async () => {
     const fluxo = await createFlowInDatabase(a, `Portão B ${randomUUID().slice(0, 6)}`);
     const { rows } = await a.dono.execute<{ id: string }>(sql`
       select u.id from usuario u
@@ -373,7 +373,7 @@ describe('exigirPermissaoNoFluxo — o duplo portão', () => {
     expect(await tentar(rows[0]!.id, fluxo, 'builder.escrever')).toBe('passou');
   });
 
-  it('nenhuma das duas recusa, e "ler" no fluxo não vira "escrever"', async () => {
+  it('Reject missing permissions and prevent `ler` access from granting `escrever` access', async () => {
     const fluxo = await createFlowInDatabase(a, `Portão C ${randomUUID().slice(0, 6)}`);
     expect(await tentar(semPoderId, fluxo, 'builder.escrever')).toBe('sem_permissao');
 
@@ -382,12 +382,12 @@ describe('exigirPermissaoNoFluxo — o duplo portão', () => {
     expect(await tentar(semPoderId, fluxo, 'builder.escrever')).toBe('sem_permissao');
   });
 
-  it('já vale nas rotas do contato: quem só é membro edita as configurações básicas', async () => {
+  it('Allow flow-only members to edit basic flow settings', async () => {
     /* `PATCH /v1/gestao/fluxos/:id` é "Configurações básicas"
        (`basicConfigurations`): antes da 0035 exigia `automacao.fluxo.editar` na
        conta, e quem não tinha levava 403. */
     const fluxo = await createFlowInDatabase(a, `Básicas ${randomUUID().slice(0, 6)}`);
-    const antes = await fetch(`${api.url}/v1/gestao/fluxos/${fluxo}`, {
+    const antes = await fetch(`${api.url}/v1/management/flows/${fluxo}`, {
       method: 'PATCH',
       headers: comCookie(sessionWithoutPoder),
       body: JSON.stringify({ descricao: 'sem poder nenhum' }),
@@ -395,7 +395,7 @@ describe('exigirPermissaoNoFluxo — o duplo portão', () => {
     expect(antes.status).toBe(403);
 
     await seed(a, fluxo, semPoderId, 'editar');
-    const depois = await fetch(`${api.url}/v1/gestao/fluxos/${fluxo}`, {
+    const depois = await fetch(`${api.url}/v1/management/flows/${fluxo}`, {
       method: 'PATCH',
       headers: comCookie(sessionWithoutPoder),
       body: JSON.stringify({ descricao: 'agora sou membro' }),
@@ -403,7 +403,7 @@ describe('exigirPermissaoNoFluxo — o duplo portão', () => {
     expect(depois.status).toBe(200);
   });
 
-  it('o admin do fluxo passa em tudo, sem olhar linha a linha', async () => {
+  it('Allow flow admins through every permission check', async () => {
     const fluxo = await createFlowInDatabase(a, `Portão D ${randomUUID().slice(0, 6)}`);
     await a.dono.execute(sql`
       insert into fluxo_membro (tenant_id, fluxo_id, usuario_id, papel_no_fluxo, permissoes)

@@ -66,18 +66,18 @@ export async function listConversations(
 ): Promise<ConversationOfList[]> {
   const { rows } = await tx.execute<{
     id: string;
-    estado: StateConversation;
-    prioridade: Prioridade;
+    state: StateConversation;
+    priority: Prioridade;
     criada_em: Date | string;
     primeira_resposta_em: Date | string | null;
     ultima_mensagem_em: Date | string | null;
     lastMessageOf: string | null;
-    janela_expira_em: Date | string | null;
+    windowExpiresAt: Date | string | null;
     em_espera_desde: Date | string | null;
     contato_nome: string | null;
     contactPhone: string | null;
     fila_nome: string | null;
-    canal_tipo: TypeChannelDatabase;
+    channelType: TypeChannelDatabase;
     lastMessage: string | null;
     lastMessageType: string | null;
     fixada_em: Date | string | null;
@@ -146,11 +146,11 @@ export async function loadConversation(
     channelType: TypeChannelDatabase;
     contactId: string;
     contactName: string | null;
-    telefone_e164: string | null;
+    phoneE164: string | null;
     email: string | null;
     document: string | null;
     atributos: Record<string, unknown> | null;
-    resumo: string | null;
+    summary: string | null;
     resumo_em: Date | string | null;
     summaryTemplate: string | null;
   }>(sql`
@@ -202,13 +202,13 @@ export async function listItemsOfConversation(
     id: string;
     criada_em: Date | string;
     direction: 'entrada' | 'saida' | 'interna';
-    tipo: string;
-    conteudo: string | null;
+    type: string;
+    content: string | null;
     stateDelivery: string | null;
     errorCode: string | null;
     errorText: string | null;
-    lida_em: Date | string | null;
-    entregue_em: Date | string | null;
+    lidaAt: Date | string | null;
+    entregueAt: Date | string | null;
     resposta_pronta_id: string | null;
     template_id: string | null;
   }>(sql`
@@ -221,9 +221,9 @@ export async function listItemsOfConversation(
 
   const notas = await tx.execute<{
     id: string;
-    em: Date | string;
-    corpo: string;
-    autor: string | null;
+    at: Date | string;
+    body: string;
+    author: string | null;
   }>(sql`
     select n.id, n.em, n.corpo, u.nome as autor
       from nota_interna n
@@ -291,8 +291,8 @@ export async function listarTemplatesAprovados(
 export async function listarEtiquetas(tx: TransactionPipe): Promise<EtiquetaDoDesk[]> {
   const { rows } = await tx.execute<{
     id: string;
-    nome: string;
-    cor: string | null;
+    name: string;
+    color: string | null;
     requiredInClosure: boolean;
   }>(sql`
     select id, nome, cor, obrigatoria_no_encerramento
@@ -325,7 +325,7 @@ export async function listLabelsOfConversation(
 export async function listarMotivosDePausa(tx: TransactionPipe): Promise<MotivoDePausa[]> {
   const { rows } = await tx.execute<{
     id: string;
-    nome: string;
+    name: string;
     durationSuggestedMin: number | null;
   }>(sql`
     select id, nome, duracao_sugerida_min
@@ -345,9 +345,9 @@ export async function carregarStatus(
   atendenteId: string,
 ): Promise<StatusOfAgent> {
   const { rows } = await tx.execute<{
-    estado: StateAgent;
-    desde: Date | string;
-    motivo: string | null;
+    state: StateAgent;
+    since: Date | string;
+    reason: string | null;
   }>(sql`
     select s.estado, s.desde, mp.nome as motivo
       from status_atendente s
@@ -381,7 +381,7 @@ export async function listHistoryOfContact(
     id: string;
     criada_em: Date | string;
     encerrada_em: Date | string | null;
-    estado: StateConversation;
+    state: StateConversation;
     fila_nome: string | null;
   }>(sql`
     select c.id, c.criada_em, c.encerrada_em, c.estado, f.nome as fila_nome
@@ -419,19 +419,19 @@ export async function carregarTicketAntigo(
 ): Promise<TicketAntigo | null> {
   const { rows } = await tx.execute<{
     id: string;
-    estado: StateConversation;
-    prioridade: Prioridade;
+    state: StateConversation;
+    priority: Prioridade;
     criada_em: Date | string;
     primeira_resposta_em: Date | string | null;
     lastMessageAt: Date | string | null;
     encerrada_em: Date | string | null;
     reasonClosure: string | null;
-    pausado_seg: number | string;
+    pausadoSeg: number | string;
     fila_nome: string | null;
-    canal_tipo: TypeChannelDatabase;
-    contato_id: string;
+    channelType: TypeChannelDatabase;
+    contactId: string;
     contato_nome: string | null;
-    telefone_e164: string | null;
+    phoneE164: string | null;
     agentName: string | null;
     agentEmail: string | null;
     closedByName: string | null;
@@ -492,8 +492,8 @@ export async function contarAguardando(tx: TransactionPipe, atendenteId: string)
 }
 
 /** As filas ativas do cliente — o destino do modal de transferência ("Fila"). */
-export async function listQueues(tx: TransactionPipe): Promise<{ id: string; nome: string }[]> {
-  const { rows } = await tx.execute<{ id: string; nome: string }>(sql`
+export async function listQueues(tx: TransactionPipe): Promise<{ id: string; name: string }[]> {
+  const { rows } = await tx.execute<{ id: string; name: string }>(sql`
     select id, nome from fila where ativa order by nome
   `);
   return rows;
@@ -503,8 +503,8 @@ export async function listQueues(tx: TransactionPipe): Promise<{ id: string; nom
 
 export interface ContactOfList {
   id: string;
-  nome: string | null;
-  telefone: string | null;
+  name: string | null;
+  phone: string | null;
   email: string | null;
   /** A última mensagem trocada com o contato, em qualquer conversa. */
   lastInteractionAt: string | null;
@@ -525,10 +525,10 @@ export async function listContacts(tx: TransactionPipe, search: string): Promise
       : sql``;
   const { rows } = await tx.execute<{
     id: string;
-    nome: string | null;
-    telefone: string | null;
+    name: string | null;
+    phone: string | null;
     email: string | null;
-    ultima_interacao_em: Date | string | null;
+    lastInteractionAt: Date | string | null;
   }>(sql`
     select ct.id, ct.nome, ct.telefone_e164 as telefone, ct.email,
            (select max(c.ultima_mensagem_em) from conversa c where c.contato_id = ct.id) as ultima_interacao_em
@@ -549,10 +549,10 @@ export async function listContacts(tx: TransactionPipe, search: string): Promise
 
 export interface RecordOfContact {
   id: string;
-  nome: string | null;
-  telefone: string | null;
+  name: string | null;
+  phone: string | null;
   email: string | null;
-  documento: string | null;
+  document: string | null;
   atributos: Record<string, unknown>;
 }
 
@@ -562,10 +562,10 @@ export async function loadContact(
 ): Promise<RecordOfContact | null> {
   const { rows } = await tx.execute<{
     id: string;
-    nome: string | null;
-    telefone: string | null;
+    name: string | null;
+    phone: string | null;
     email: string | null;
-    documento: string | null;
+    document: string | null;
     atributos: Record<string, unknown> | null;
   }>(sql`
     select id, nome, telefone_e164 as telefone, email, documento, atributos
@@ -588,8 +588,8 @@ export async function loadContact(
 /** Os canais ativos com os seus modelos aprovados — o passo "Escolher modelo" da mensagem ativa. */
 export async function listChannelsWithTemplates(
   tx: TransactionPipe,
-): Promise<{ id: string; nome: string; tipo: TypeChannelDatabase; templates: TemplateAprovado[] }[]> {
-  const { rows } = await tx.execute<{ id: string; nome: string; tipo: TypeChannelDatabase }>(sql`
+): Promise<{ id: string; name: string; type: TypeChannelDatabase; templates: TemplateAprovado[] }[]> {
+  const { rows } = await tx.execute<{ id: string; name: string; type: TypeChannelDatabase }>(sql`
     select id, nome, tipo from canal where ativo order by nome
   `);
   const saida = [];

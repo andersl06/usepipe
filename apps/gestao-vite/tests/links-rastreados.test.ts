@@ -10,17 +10,17 @@ import { fieldOfErrorOfLink } from '../src/paginas/fluxo/growth/links-rastreados
  * `dominio/gestao/integracoes.ts::confirmarUrlSegura`).
  */
 
-test('campoDoErroDeLink: nome_obrigatorio vai para o campo nome', () => {
+test('fieldForLinkError: nome_obrigatorio goes to the name field', () => {
   assert.equal(fieldOfErrorOfLink('nome_obrigatorio'), 'nome');
 });
 
-test('campoDoErroDeLink: os quatro códigos de URL vão para o campo destino', () => {
+test('fieldForLinkError: the four URL codes go to the destination field', () => {
   for (const codigo of ['destino_obrigatorio', 'url_invalida', 'url_precisa_https', 'url_proibida']) {
     assert.equal(fieldOfErrorOfLink(codigo), 'destino');
   }
 });
 
-test('campoDoErroDeLink: código desconhecido não aponta campo nenhum', () => {
+test('fieldForLinkError: an unknown code does not point to any field', () => {
   assert.equal(fieldOfErrorOfLink('fluxo_nao_encontrado'), undefined);
   assert.equal(fieldOfErrorOfLink('algo_novo'), undefined);
 });

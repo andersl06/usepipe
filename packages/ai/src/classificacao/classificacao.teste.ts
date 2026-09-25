@@ -39,8 +39,8 @@ function duble(saida: Record<string, unknown>): ChamadaEstruturada {
     }) as never;
 }
 
-describe('preparo das opções', () => {
-  it('ordena por uso real, do mais escolhido para o menos', () => {
+describe('option preparation', () => {
+  it('sorts by actual usage, from most chosen to least', () => {
     expect(prepararOptions(taxonomia).map(optionKey)).toEqual([
       'Financeiro > Segunda via',
       'Suporte > Troca de produto',
@@ -57,7 +57,7 @@ describe('preparo das opções', () => {
     ]);
   });
 
-  it('desempata em ordem alfabética para a lista ser estável entre execuções', () => {
+  it('breaks ties alphabetically so the list stays stable across runs', () => {
     const sem = { opcoes: [{ categoria: 'Zeta' }, { categoria: 'Alfa' }, { categoria: 'Meio' }] };
     expect(prepararOptions(sem).map(optionKey)).toEqual(['Alfa', 'Meio', 'Zeta']);
   });
@@ -67,8 +67,8 @@ describe('preparo das opções', () => {
   });
 });
 
-describe('prompt de classificação', () => {
-  it('lista as opções na ordem de uso e informa o corte da transcrição', () => {
+describe('classification prompt', () => {
+  it('lists options in usage order and reports the transcript cutoff', () => {
     const texto = PROMPT_CLASSIFICATION.montar({
       transcription: 'oi',
       truncada: true,
@@ -84,21 +84,21 @@ describe('prompt de classificação', () => {
   });
 });
 
-describe('normalização do rótulo', () => {
+describe('label normalization', () => {
   it('perdoa acento, caixa, espaço duplo e aspa em HTML', () => {
     expect(normalizarRotulo('Cobrança  em   Duplicidade')).toBe('cobranca em duplicidade');
     expect(normalizarRotulo('Diz &quot;oi&quot;')).toBe('diz "oi"');
     expect(normalizarRotulo('  Café & Cia ')).toBe('cafe & cia');
   });
 
-  it('casa a opção mesmo com o modelo escrevendo diferente', () => {
+  it('matches the option even when the model writes it differently', () => {
     const achada = matchOption(prepararOptions(taxonomia), 'financeiro', 'cobranca  em duplicidade');
     expect(achada?.subcategoria).toBe('Cobrança em duplicidade');
   });
 });
 
-describe('classificarConversa', () => {
-  it('grava o rótulo da taxonomia, não o que o modelo digitou', async () => {
+describe('classifyConversation', () => {
+  it('stores the taxonomy label, not what the model typed', async () => {
     const r = await classificarConversation({
       transcription,
       taxonomia,
@@ -119,7 +119,7 @@ describe('classificarConversa', () => {
     expect(r.prompt).toBe('classificacao@v1');
   });
 
-  it('aceita opção sem subcategoria', async () => {
+  it('accepts an option without a subcategory', async () => {
     const r = await classificarConversation({
       transcription,
       taxonomia,
@@ -153,7 +153,7 @@ describe('classificarConversa', () => {
     ).rejects.toThrow(FormatIaError);
   });
 
-  it('recusa opção podada da lista, mesmo existindo na taxonomia', async () => {
+  it('rejects an option pruned from the list, even if it exists in the taxonomy', async () => {
     await expect(
       classificarConversation({
         transcription,

@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -88,7 +88,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -108,8 +108,8 @@ const NOT_IMAGE = `data:image/png;base64,${Buffer.from('isto não é uma imagem'
 )}`;
 
 type LineOfFlow = {
-  nome: string;
-  tipo: string;
+  name: string;
+  type: string;
   state: string;
   short_name: string | null;
   description: string | null;
@@ -143,11 +143,11 @@ type ResponseOfCreation = { id?: string; error?: string };
 async function create(
   session: string,
   corpo: Record<string, unknown>,
-): Promise<{ status: number; corpo: ResponseOfCreation }> {
-  const resposta = await fetch(`${api.url}/v1/gestao/fluxos`, {
+): Promise<{ status: number; body: ResponseOfCreation }> {
+  const resposta = await fetch(`${api.url}/v1/management/flows`, {
     method: 'POST',
     headers: comCookie(session),
-    body: JSON.stringify({ recados: RECADOS, tipo: 'fluxo', ...corpo }),
+    body: JSON.stringify({ recados: RECADOS, type: 'fluxo', ...corpo }),
   });
   return { status: resposta.status, corpo: (await resposta.json()) as ResponseOfCreation };
 }
@@ -161,7 +161,7 @@ async function criado(nome: string, extra: Record<string, unknown> = {}): Promis
 }
 
 async function editar(sessao: string, id: string, corpo: Record<string, unknown>) {
-  const resposta = await fetch(`${api.url}/v1/gestao/fluxos/${id}`, {
+  const resposta = await fetch(`${api.url}/v1/management/flows/${id}`, {
     method: 'PATCH',
     headers: comCookie(sessao),
     body: JSON.stringify(corpo),
@@ -170,7 +170,7 @@ async function editar(sessao: string, id: string, corpo: Record<string, unknown>
 }
 
 async function excluir(sessao: string, id: string): Promise<Response> {
-  return fetch(`${api.url}/v1/gestao/fluxos/${id}`, {
+  return fetch(`${api.url}/v1/management/flows/${id}`, {
     method: 'DELETE',
     headers: comCookie(sessao),
   });
@@ -198,8 +198,8 @@ afterAll(async () => {
   await b?.encerrar();
 });
 
-describe('POST /v1/gestao/fluxos', () => {
-  it('cria o fluxo em rascunho, com o shortName derivado do nome, e registra no log', async () => {
+describe('POST /v1/management/flows', () => {
+  it('Create a draft flow with a name-derived shortName and audit the creation', async () => {
     const nome = `Atendimento ${randomUUID().slice(0, 6)}`;
     const { status, corpo } = await create(sessionEditor, { nome });
     expect(status).toBe(200);
@@ -221,7 +221,7 @@ describe('POST /v1/gestao/fluxos', () => {
     expect(log[0]).toMatchObject({ acao: 'criou', depois: { nome, tipo: 'fluxo' } });
   });
 
-  it('roteador é o mesmo contato com outro tipo', async () => {
+  it('Create a router through the flow form with a different type', async () => {
     const id = await criado(`Roteador ${randomUUID().slice(0, 6)}`, { tipo: 'roteador' });
     expect((await lineOfFlow(id))?.tipo).toBe('roteador');
   });
@@ -258,7 +258,7 @@ describe('POST /v1/gestao/fluxos', () => {
     expect(rows[0]?.n).toBe('1');
   });
 
-  it('sem automacao.fluxo.editar, a recusa é a frase da tela — e nada é gravado', async () => {
+  it('Reject flow creation without `automacao.fluxo.editar` using the screen message and save nothing', async () => {
     const nome = `Proibido ${randomUUID().slice(0, 6)}`;
     const { status, corpo } = await create(sessionWithoutPoder, { nome });
     expect(status).toBe(200);
@@ -269,25 +269,25 @@ describe('POST /v1/gestao/fluxos', () => {
     expect(rows[0]?.n).toBe('0');
   });
 
-  it('sem sessão, 401; sem os recados da tela, 400', async () => {
-    const withoutSession = await fetch(`${api.url}/v1/gestao/fluxos`, {
+  it('Return 401 without a session and 400 for missing required fields', async () => {
+    const withoutSession = await fetch(`${api.url}/v1/management/flows`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ nome: 'Qualquer', tipo: 'fluxo', recados: RECADOS }),
+      body: JSON.stringify({ name: 'Qualquer', type: 'fluxo', recados: RECADOS }),
     });
     expect(withoutSession.status).toBe(401);
 
-    const semRecados = await fetch(`${api.url}/v1/gestao/fluxos`, {
+    const semRecados = await fetch(`${api.url}/v1/management/flows`, {
       method: 'POST',
       headers: comCookie(sessionEditor),
-      body: JSON.stringify({ nome: 'Qualquer', tipo: 'fluxo' }),
+      body: JSON.stringify({ name: 'Qualquer', type: 'fluxo' }),
     });
     expect(semRecados.status).toBe(400);
-    const corpo = (await semRecados.json()) as { erro: { codigo: string } };
-    expect(corpo.erro.codigo).toBe('recados_ausentes');
+    const corpo = (await semRecados.json()) as { error: { code: string } };
+    expect(corpo.erro.codigo).toBe('messages_missing');
   });
 
-  it('a foto é lida pelos bytes: PNG entra, rótulo mentindo é engolido e o fluxo nasce sem foto', async () => {
+  it('Detect flow images from bytes and ignore mislabeled nonimages', async () => {
     const comFoto = await criado(`Com foto ${randomUUID().slice(0, 6)}`, { imagem: PNG });
     expect((await lineOfFlow(comFoto))?.imageUrl).toBe(PNG);
 
@@ -296,8 +296,8 @@ describe('POST /v1/gestao/fluxos', () => {
   });
 });
 
-describe('PATCH /v1/gestao/fluxos/:id', () => {
-  it('edita nome e descrição, refaz o shortName e registra só o que mudou', async () => {
+describe('PATCH /v1/management/flows/:id', () => {
+  it('Edit a flow\'s name and description, recompute shortName, and audit only changes', async () => {
     const marca = randomUUID().slice(0, 6);
     const id = await criado(`Antes ${marca}`);
 
@@ -348,7 +348,7 @@ describe('PATCH /v1/gestao/fluxos/:id', () => {
     expect(await auditoriaDe(id)).toHaveLength(2);
   });
 
-  it('descrição: vazia vira nula; 1 caractere ou mais de 160 é 400', async () => {
+  it('Store empty descriptions as null and reject lengths of one or over 160 characters', async () => {
     const id = await criado(`Descrito ${randomUUID().slice(0, 6)}`);
     await editar(sessionEditor, id, { descricao: 'Tem descrição' });
 
@@ -360,28 +360,28 @@ describe('PATCH /v1/gestao/fluxos/:id', () => {
     for (const invalida of ['x', 'a'.repeat(161)]) {
       const { status, corpo } = await editar(sessionEditor, id, { descricao: invalida });
       expect(status).toBe(400);
-      expect((corpo['erro'] as { codigo: string }).codigo).toBe('descricao_tamanho');
+      expect((corpo['erro'] as { code: string }).codigo).toBe('description_size');
     }
     const noLimite = await editar(sessionEditor, id, { descricao: 'a'.repeat(160) });
     expect(noLimite.status).toBe(200);
   });
 
-  it('nome: as mesmas regras da criação, e o nome de outro fluxo VIVO é conflito', async () => {
+  it('Apply creation name rules on edit and reject duplicate live-flow names', async () => {
     const marca = randomUUID().slice(0, 6);
     const id = await criado(`Um ${marca}`);
     const outro = await criado(`Dois ${marca}`);
 
     const curto = await editar(sessionEditor, id, { nome: 'A' });
     expect(curto.status).toBe(400);
-    expect((curto.corpo['erro'] as { codigo: string }).codigo).toBe('nome_tamanho');
+    expect((curto.corpo['erro'] as { code: string }).codigo).toBe('name_size');
 
     const numero = await editar(sessionEditor, id, { nome: '9 vidas' });
     expect(numero.status).toBe(400);
-    expect((numero.corpo['erro'] as { codigo: string }).codigo).toBe('nome_comeco');
+    expect((numero.corpo['erro'] as { code: string }).codigo).toBe('name_start');
 
     const emUso = await editar(sessionEditor, id, { nome: `Dois ${marca}` });
     expect(emUso.status).toBe(409);
-    expect((emUso.corpo['erro'] as { codigo: string }).codigo).toBe('nome_em_uso');
+    expect((emUso.corpo['erro'] as { code: string }).codigo).toBe('name_in_use');
 
     // O próprio nome não é conflito consigo mesmo.
     const mesmo = await editar(sessionEditor, id, { nome: `Um ${marca}` });
@@ -393,7 +393,7 @@ describe('PATCH /v1/gestao/fluxos/:id', () => {
     expect(liberado.status).toBe(200);
   });
 
-  it('imagem: `null` tira, `data:` troca, e o que não é imagem é 400', async () => {
+  it('Remove images with `null`, replace them with `data:`, and reject nonimages', async () => {
     const id = await criado(`Retrato ${randomUUID().slice(0, 6)}`, { imagem: PNG });
 
     const tirada = await editar(sessionEditor, id, { imagem: null });
@@ -406,16 +406,16 @@ describe('PATCH /v1/gestao/fluxos/:id', () => {
 
     const falsa = await editar(sessionEditor, id, { imagem: NOT_IMAGE });
     expect(falsa.status).toBe(400);
-    expect((falsa.corpo['erro'] as { codigo: string }).codigo).toBe('imagem_invalida');
+    expect((falsa.corpo['erro'] as { code: string }).codigo).toBe('image_invalid');
     expect((await lineOfFlow(id))?.imageUrl).toBe(PNG);
   });
 
-  it('sem permissão é 403; de outro tenant é 404; id malformado é 404', async () => {
+  it('Return 403 without permission and 404 for invalid or cross-tenant flow IDs', async () => {
     const id = await criado(`Guardado ${randomUUID().slice(0, 6)}`);
 
     const semPoder = await editar(sessionWithoutPoder, id, { nome: 'Invasor' });
     expect(semPoder.status).toBe(403);
-    expect((semPoder.corpo['erro'] as { codigo: string }).codigo).toBe('sem_permissao');
+    expect((semPoder.corpo['erro'] as { code: string }).codigo).toBe('without_permission');
 
     const outroTenant = await editar(sessionOfOtherTenant, id, { nome: 'Vizinho' });
     expect(outroTenant.status).toBe(404);
@@ -427,16 +427,16 @@ describe('PATCH /v1/gestao/fluxos/:id', () => {
   });
 });
 
-describe('DELETE /v1/gestao/fluxos/:id', () => {
-  it('só quem tem automacao.fluxo.excluir exclui — editar não basta', async () => {
+describe('DELETE /v1/management/flows/:id', () => {
+  it('Require `automacao.fluxo.excluir` to archive a flow even when the user can edit', async () => {
     const id = await criado(`Protegido ${randomUUID().slice(0, 6)}`);
 
     const editor = await excluir(sessionEditor, id);
     expect(editor.status).toBe(403);
     const corpo = (await editor.json()) as {
-      erro: { codigo: string; detalhe: { permission: string } };
+      error: { code: string; detalhe: { permission: string } };
     };
-    expect(corpo.erro.codigo).toBe('sem_permissao');
+    expect(corpo.erro.codigo).toBe('without_permission');
     expect(corpo.erro.detalhe.permission).toBe('automacao.fluxo.excluir');
     expect((await lineOfFlow(id))?.state).toBe('rascunho');
 
@@ -444,7 +444,7 @@ describe('DELETE /v1/gestao/fluxos/:id', () => {
     expect((await lineOfFlow(id))?.state).toBe('rascunho');
   });
 
-  it('arquiva em vez de apagar: some da grade, o nome fica livre, a versão fica para o histórico', async () => {
+  it('Archive flows without deleting versions and free their names for reuse', async () => {
     const nome = `Efemero ${randomUUID().slice(0, 6)}`;
     const id = await criado(nome);
     await a.dono.execute(sql`
@@ -464,7 +464,7 @@ describe('DELETE /v1/gestao/fluxos/:id', () => {
     );
     expect(versions[0]?.n).toBe('1');
 
-    const grade = await fetch(`${api.url}/v1/gestao/fluxos?busca=${encodeURIComponent(nome)}`, {
+    const grade = await fetch(`${api.url}/v1/management/flows?busca=${encodeURIComponent(nome)}`, {
       headers: comCookie(sessionAdmin),
     });
     const { flows } = (await grade.json()) as { flows: { id: string }[] };
@@ -487,8 +487,8 @@ describe('DELETE /v1/gestao/fluxos/:id', () => {
     expect(novo.corpo.id).not.toBe(id);
   });
 
-  it('sem sessão, 401', async () => {
-    const resposta = await fetch(`${api.url}/v1/gestao/fluxos/${randomUUID()}`, {
+  it('Return 401 without a session', async () => {
+    const resposta = await fetch(`${api.url}/v1/management/flows/${randomUUID()}`, {
       method: 'DELETE',
     });
     expect(resposta.status).toBe(401);

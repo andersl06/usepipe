@@ -29,7 +29,7 @@ export type Resultado<T> = { ok: true; value: T } | { ok: false; error: string }
 
 export async function createKey(flowId: string, nome: string): Promise<Resultado<KeyCreated>> {
   try {
-    const value = await api.post<KeyCreated>(`/v1/gestao/fluxos/${flowId}/chaves`, { nome });
+    const value = await api.post<KeyCreated>(`/v1/management/flows/${flowId}/keys`, { nome });
     atualizarLeituras();
     return { ok: true, value };
   } catch (error) {
@@ -39,7 +39,7 @@ export async function createKey(flowId: string, nome: string): Promise<Resultado
 
 export async function revogarKey(flowId: string, keyId: string): Promise<Resultado<void>> {
   try {
-    await api.delete<void>(`/v1/gestao/fluxos/${flowId}/chaves/${keyId}`);
+    await api.delete<void>(`/v1/management/flows/${flowId}/keys/${keyId}`);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {

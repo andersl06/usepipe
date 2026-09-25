@@ -37,16 +37,16 @@ const marcos = (parcial: Partial<Marcos> = {}): Marcos => ({
   ...parcial,
 });
 
-test('sem regra ativa a pastilha some, e não vira "DENTRO"', () => {
+test('with no active rule the pill disappears, and never becomes "WITHIN"', () => {
   /* "DENTRO" sem regra configurada seria mentira: afirma que o prazo está sendo
      cumprido quando não existe prazo. O travessão é o que faz o gestor
      perceber que falta cadastrar a regra. */
   const pill = conversationAvaliarSla([], marcos(), 'fila-1', depois(10));
-  assert.equal(pill.state, 'sem_regra');
+  assert.equal(pill.state, 'without_rule');
   assert.equal(pill.rotulo, '—');
 });
 
-test('regra da fila vence a regra do tenant', () => {
+test('the queue rule beats the tenant rule', () => {
   /* A específica é a que o gestor configurou de propósito. Se a do tenant
      ganhasse, a fila de urgência herdaria o prazo frouxo do padrão. */
   const regras = [
@@ -54,34 +54,34 @@ test('regra da fila vence a regra do tenant', () => {
     regra({ id: 'fila', scopeType: 'fila', scopeId: 'fila-1', prazoSeg: 60, alertaSeg: null }),
   ];
   // 120s: dentro do prazo do tenant (3600) e fora do prazo da fila (60).
-  assert.equal(conversationAvaliarSla(regras, marcos(), 'fila-1', depois(120)).state, 'estourado');
+  assert.equal(conversationAvaliarSla(regras, marcos(), 'fila-1', depois(120)).state, 'exceeded');
   // Outra fila não é alcançada pela regra específica e cai no padrão do tenant.
-  assert.equal(conversationAvaliarSla(regras, marcos(), 'fila-2', depois(120)).state, 'dentro');
+  assert.equal(conversationAvaliarSla(regras, marcos(), 'fila-2', depois(120)).state, 'inside');
 });
 
-test('conversa sem fila cai na regra do tenant, não em "sem regra"', () => {
+test('a conversation with no queue falls back to the tenant rule, not to "no rule"', () => {
   /* Conversa ainda na raiz tem `filaId` nulo — é justamente a que corre risco
      de ficar esquecida, e é a que mais precisa do relógio. */
   const pill = conversationAvaliarSla([regra({ alertaSeg: null })], marcos(), null, depois(400));
-  assert.equal(pill.state, 'estourado');
+  assert.equal(pill.state, 'exceeded');
 });
 
 test('alerta, dentro e estourado seguem os limiares configurados', () => {
   const regras = [regra({ prazoSeg: 300, alertaSeg: 240 })];
   const em = (s: number) => conversationAvaliarSla(regras, marcos(), null, depois(s)).state;
-  assert.equal(em(10), 'dentro');
-  assert.equal(em(239), 'dentro');
+  assert.equal(em(10), 'inside');
+  assert.equal(em(239), 'inside');
   // O limiar é inclusivo: exatamente no alerta já alerta.
-  assert.equal(em(240), 'alerta');
-  assert.equal(em(299), 'alerta');
-  assert.equal(em(300), 'estourado');
+  assert.equal(em(240), 'alert');
+  assert.equal(em(299), 'alert');
+  assert.equal(em(300), 'exceeded');
 });
 
 test('estouro anuncia quantos segundos passaram do prazo', () => {
   /* É o número que ordena a fila do que precisa de atenção primeiro. Sem ele,
      "ESTOUROU" há 10 segundos e há duas horas parecem a mesma coisa. */
   const pill = conversationAvaliarSla([regra({ prazoSeg: 300 })], marcos(), null, depois(500));
-  assert.equal(pill.state, 'estourado');
+  assert.equal(pill.state, 'exceeded');
   assert.equal(pill.excedidoSeg, 200);
 });
 
@@ -100,7 +100,7 @@ test('responder depois do prazo continua sendo estouro', () => {
     null,
     depois(600),
   );
-  assert.equal(pill.state, 'estourado');
+  assert.equal(pill.state, 'exceeded');
 });
 
 test('responder dentro do prazo fecha a pastilha em "CUMPRIDO"', () => {
@@ -125,5 +125,5 @@ test('alvo sem marco de início não vira pastilha', () => {
     null,
     depois(9999),
   );
-  assert.equal(pill.state, 'sem_regra');
+  assert.equal(pill.state, 'without_rule');
 });

@@ -34,7 +34,7 @@ import type { TransactionPipe } from '@pipe/db';
 
 export interface RulePriorityForEngine {
   id: string;
-  nivel: string;
+  level: string;
   scopeType: string;
   scopeId: string | null;
   condition: Record<string, unknown>;

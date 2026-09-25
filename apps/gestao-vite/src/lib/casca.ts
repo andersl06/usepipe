@@ -31,7 +31,7 @@ export interface PortalShell {
 export function portalUseShell(): PortalShell {
   const eu = useEu();
   // A lista do seletor não derruba a tela: sem ela, o seletor mostra só a conta em vigor.
-  const accounts = useRead<AccountInLista[]>('/v1/contas/minhas', { staleTime: 5 * 60_000 });
+  const accounts = useRead<AccountInLista[]>('/v1/accounts/my', { staleTime: 5 * 60_000 });
   return {
     user: { nome: eu.user.nome, email: eu.user.email, avatarUrl: eu.user.avatarUrl },
     tenant: { nome: eu.tenant.nome, slug: eu.tenant.slug, plano: eu.tenant.plano },
@@ -50,13 +50,13 @@ export function accountUseSwitch() {
   const navegar = useNavigate();
   const queue = useQueryClient();
   return useMutation({
-    mutationFn: (tenantId: string) => api.post('/v1/contas/trocar', { tenantId }),
+    mutationFn: (tenantId: string) => api.post('/v1/accounts/exchange', { tenantId }),
     onSuccess: async () => {
       await atualizar();
       queue.clear();
       navegar('/portal');
     },
-    onError: () => navegar('/portal?erro=troca'),
+    onError: () => navegar('/portal?error=troca'),
   });
 }
 

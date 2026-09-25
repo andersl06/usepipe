@@ -129,7 +129,7 @@ function InvitationPasso() {
           {/* O `<bds-button ng-click="$ctrl.selectTemplate('master')">` deles,
               com o texto da tagline. Aqui é link porque o passo seguinte é
               outra renderização, e não outro estado na memória do navegador. */}
-          <Link className="btn primario cr-botao" href="/criar/roteador?passo=nome">
+          <Link className="btn primario cr-botao" href="/create/router?passo=nome">
             {ROTULOS.tagline}
           </Link>
         </div>

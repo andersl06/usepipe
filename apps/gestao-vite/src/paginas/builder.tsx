@@ -101,7 +101,7 @@ const ROTULO_DA_ORIGEM = {
 export function PageBuilder() {
   const { contact } = useContact();
   const eu = useEu();
-  const caminho = `/v1/gestao/fluxos/${contact.id}/builder`;
+  const caminho = `/v1/management/flows/${contact.id}/builder`;
   const read = useRead<BuilderOfFlow>(caminho);
   const data = read.data ?? null;
 
@@ -188,10 +188,10 @@ export function PageBuilder() {
     switch (recording.state) {
       case 'salvando':
         return { icone: 'atualizar', texto: 'Salvando…' };
-      case 'pendente':
+      case 'pending':
         return { icone: 'atualizar', texto: 'Alterações não salvas' };
       case 'erro':
-        return { icone: 'alerta', texto: recording.error };
+        return { icone: 'alert', texto: recording.error };
       case 'salvo':
         return { icone: 'circuloOk', texto: 'Salvo' };
     }
@@ -244,7 +244,7 @@ export function PageBuilder() {
           <div className="bl-aviso bl-aviso--erro" role="alert">
             <div className="bl-aviso-texto">
               <span>
-                <Icone nome="alerta" tamanho={16} /> O motor recusaria este fluxo — {errors.length}{' '}
+                <Icone nome="alert" tamanho={16} /> O motor recusaria este fluxo — {errors.length}{' '}
                 {errors.length === 1 ? 'erro' : 'erros'} a corrigir antes de publicar:
               </span>
               <ul className="bl-erros">
@@ -262,7 +262,7 @@ export function PageBuilder() {
         <div className="bl-corpo">
           {readRecusa ? (
             <div className="bl-vazio">
-              <Icone nome="alerta" tamanho={40} />
+              <Icone nome="alert" tamanho={40} />
               <p>{readRecusa}</p>
             </div>
           ) : !editor.carregado ? (
@@ -411,7 +411,7 @@ export function PageBuilder() {
               {data ? (
                 <>
                   <IconeManagement
-                    nome={status.icone === 'alerta' ? 'informacao' : status.icone}
+                    nome={status.icone === 'alert' ? 'informacao' : status.icone}
                     tamanho={24}
                     className={recording.state === 'salvando' ? 'bl-girando' : undefined}
                   />

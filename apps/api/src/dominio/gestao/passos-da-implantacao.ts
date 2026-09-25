@@ -28,16 +28,16 @@ export interface SignalsOfDeployment {
   lastImport: {
     id: string;
     state: string;
-    aceitos: number;
+    accepted: number;
     rejeitados: number;
     temFalhas: boolean;
   } | null;
   conversationAtendida: boolean;
 }
 
-export type StateOfPasso = 'feito' | 'andamento' | 'pendente';
+export type StateOfPasso = 'done' | 'progress' | 'pending';
 
-export type IdDoPasso = 'acesso' | 'whatsapp' | 'equipe' | 'fila' | 'contatos' | 'conversa';
+export type IdDoPasso = 'access' | 'whatsapp' | 'equipe' | 'queue' | 'contacts' | 'conversation';
 
 export interface AcaoDoPasso {
   rotulo: string;
@@ -47,8 +47,8 @@ export interface AcaoDoPasso {
 
 export interface PassoOfDeployment {
   id: IdDoPasso;
-  titulo: string;
-  estado: StateOfPasso;
+  title: string;
+  state: StateOfPasso;
   /** O que falta, ou o que já existe. Uma frase. */
   resumo: string;
   acao: AcaoDoPasso | null;
@@ -64,19 +64,19 @@ function passoOfContacts(
   const ultima = s.lastImport;
   if (!ultima) {
     return {
-      estado: 'pendente',
+      estado: 'pending',
       resumo: 'Opcional: traga a base de clientes de uma planilha CSV.',
     };
   }
   if (ultima.state === 'pronta' || ultima.state === 'executando') {
     return {
-      estado: 'andamento',
+      estado: 'progress',
       resumo: 'Importação em andamento. Arquivo grande leva alguns minutos.',
     };
   }
   if (ultima.state === 'falhou') {
     return {
-      estado: 'pendente',
+      estado: 'pending',
       resumo:
         'A última importação falhou: o arquivo tem aspas malformadas. Corrija e envie de novo.',
     };
@@ -86,7 +86,7 @@ function passoOfContacts(
       ? `, ${quantos(ultima.rejeitados, 'linha rejeitada', 'linhas rejeitadas')}`
       : '';
   return {
-    estado: ultima.aceitos > 0 ? 'feito' : 'pendente',
+    estado: ultima.aceitos > 0 ? 'done' : 'pending',
     resumo: `${quantos(ultima.aceitos, 'contato importado', 'contatos importados')}${rejeitadas}.`,
   };
 }
@@ -95,9 +95,9 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
   const temWhatsApp = s.channelsConectados > 0;
   return [
     {
-      id: 'acesso',
+      id: 'access',
       titulo: 'Primeiro acesso do administrador',
-      estado: s.adminEntrou ? 'feito' : 'pendente',
+      estado: s.adminEntrou ? 'done' : 'pending',
       resumo: s.adminEntrou
         ? 'O administrador já entrou pelo Google.'
         : 'Nenhum administrador entrou ainda. Ele entra pelo Google, com o e-mail provisionado.',
@@ -106,7 +106,7 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
     {
       id: 'whatsapp',
       titulo: 'Conectar o WhatsApp',
-      estado: temWhatsApp ? 'feito' : s.channelsPending > 0 ? 'andamento' : 'pendente',
+      estado: temWhatsApp ? 'done' : s.channelsPending > 0 ? 'progress' : 'pending',
       resumo: temWhatsApp
         ? `${quantos(s.channelsConectados, 'número conectado', 'números conectados')}.`
         : s.channelsPending > 0
@@ -119,7 +119,7 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
     {
       id: 'equipe',
       titulo: 'Convidar a equipe',
-      estado: s.members > 1 ? 'feito' : s.convites > 0 ? 'andamento' : 'pendente',
+      estado: s.members > 1 ? 'done' : s.convites > 0 ? 'progress' : 'pending',
       resumo:
         s.members > 1
           ? `${quantos(s.members, 'pessoa', 'pessoas')} com acesso.`
@@ -129,9 +129,9 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
       acao: { rotulo: 'Convidar', href: '#equipe' },
     },
     {
-      id: 'fila',
+      id: 'queue',
       titulo: 'Criar a primeira fila com atendente',
-      estado: s.queuesWithAgent > 0 ? 'feito' : 'pendente',
+      estado: s.queuesWithAgent > 0 ? 'done' : 'pending',
       resumo:
         s.queuesWithAgent > 0
           ? `${quantos(s.queuesWithAgent, 'fila', 'filas')} com atendente habilitado.`
@@ -141,15 +141,15 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
       acao: { rotulo: 'Abrir filas', href: '/atendentes/filas' },
     },
     {
-      id: 'contatos',
+      id: 'contacts',
       titulo: 'Importar contatos',
       ...passoOfContacts(s),
       acao: { rotulo: 'Importar', href: '#contatos' },
     },
     {
-      id: 'conversa',
+      id: 'conversation',
       titulo: 'Atender a conversa de teste',
-      estado: s.conversationAtendida ? 'feito' : 'pendente',
+      estado: s.conversationAtendida ? 'done' : 'pending',
       resumo: s.conversationAtendida
         ? 'Uma conversa já foi respondida pelo Desk.'
         : temWhatsApp

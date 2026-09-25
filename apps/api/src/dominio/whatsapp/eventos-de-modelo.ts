@@ -85,7 +85,7 @@ async function emailsOfWhoGerenciaChannel(tx: TransactionPipe): Promise<string[]
 
 export interface AlertOfRecategorization {
   templateId: string;
-  nome: string;
+  name: string;
   idioma: string;
   categoriaAnterior: string | null;
   categoriaNova: string;
@@ -192,7 +192,7 @@ export async function aplicarEventsOfTemplate(channel: ChannelResolved, payload:
           });
         }
       }
-      const { rows: channels } = await tx.execute<{ nome: string }>(
+      const { rows: channels } = await tx.execute<{ name: string }>(
         sql`select nome from canal where id = ${channel.id}::uuid limit 1`,
       );
       return { mudados: rows.length, alertas, channelName: channels[0]?.nome ?? 'WhatsApp' };

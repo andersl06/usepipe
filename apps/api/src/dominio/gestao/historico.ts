@@ -39,24 +39,24 @@ export interface LineHistory {
   contactName: string;
   queueName: string | null;
   agentName: string | null;
-  encerradaEm: Date | null;
+  closedAt: Date | null;
   status: StatusClosure | null;
   esperaSeg: number | null;
   firstResponseSeg: number | null;
   attendanceSeg: number | null;
-  etiquetas: string[];
+  labels: string[];
 }
 
 export interface HistoryFilter {
   queueId?: string | undefined;
   agentId?: string | undefined;
-  etiquetaId?: string | undefined;
+  labelId?: string | undefined;
 }
 
 export interface Catalogos {
-  queues: { id: string; nome: string }[];
-  agents: { id: string; nome: string }[];
-  etiquetas: { id: string; nome: string }[];
+  queues: { id: string; name: string }[];
+  agents: { id: string; name: string }[];
+  labels: { id: string; name: string }[];
 }
 
 /** Teto de linhas: o histórico é uma tela de consulta, não de exportação. */
@@ -211,8 +211,8 @@ export async function loadHistory(
  */
 export const GROUPINGS = [
   { chave: 'nenhum', rotulo: 'Sem agrupamento' },
-  { chave: 'fila', rotulo: 'Fila' },
-  { chave: 'atendente', rotulo: 'Atendente' },
+  { chave: 'queue', rotulo: 'Fila' },
+  { chave: 'agent', rotulo: 'Atendente' },
   { chave: 'status', rotulo: 'Desfecho' },
   { chave: 'etiqueta', rotulo: 'Etiqueta' },
 ] as const;
@@ -249,8 +249,8 @@ export function agruparHistory(
   if (by === 'nenhum') return [{ titulo: '', linhas: [...linhas] }];
 
   const chavesDe = (l: LineHistory): string[] => {
-    if (by === 'fila') return [l.queueName ?? 'Sem fila'];
-    if (by === 'atendente') return [l.agentName ?? 'Sem atendente'];
+    if (by === 'queue') return [l.queueName ?? 'Sem fila'];
+    if (by === 'agent') return [l.agentName ?? 'Sem atendente'];
     if (by === 'status') {
       return [l.status ? (ROTULO_DESFECHO[l.status] ?? l.status) : 'Sem desfecho'];
     }

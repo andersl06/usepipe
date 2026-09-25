@@ -30,7 +30,7 @@ export async function cadastrarCertificado(
   pedido: PedidoDeCertificado,
 ): Promise<{ ok: true; certificado: CertificadoMtls } | { ok: false; error: string }> {
   try {
-    const certificado = await api.post<CertificadoMtls>('/v1/gestao/contrato/certificados', pedido);
+    const certificado = await api.post<CertificadoMtls>('/v1/management/contract/certificates', pedido);
     atualizarLeituras();
     return { ok: true, certificado };
   } catch (e) {
@@ -54,7 +54,7 @@ function errorMotivo(e: unknown): string {
 
 export async function excluirCertificado(id: string): Promise<ResultadoSimples> {
   try {
-    const resultado = await api.delete<ResultadoSimples>(`/v1/gestao/contrato/certificados/${id}`);
+    const resultado = await api.delete<ResultadoSimples>(`/v1/management/contract/certificates/${id}`);
     if (resultado.ok) atualizarLeituras();
     return resultado;
   } catch (e) {
@@ -68,7 +68,7 @@ export async function excluirHostDoCertificado(
 ): Promise<ResultadoSimples> {
   try {
     const resultado = await api.delete<ResultadoSimples>(
-      `/v1/gestao/contrato/certificados/${certificadoId}/hosts/${hostId}`,
+      `/v1/management/contract/certificates/${certificadoId}/hosts/${hostId}`,
     );
     if (resultado.ok) atualizarLeituras();
     return resultado;

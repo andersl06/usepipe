@@ -36,33 +36,33 @@ const EMAIL_RAZOAVEL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type LineContact = {
   id: string;
-  nome: string | null;
-  telefone_e164: string | null;
+  name: string | null;
+  phoneE164: string | null;
   email: string | null;
   document: string | null;
-  bloqueado: boolean;
-  criado_em: Date | string;
+  blocked: boolean;
+  createdAt: Date | string;
   atributos: Record<string, unknown> | null;
 };
 
 interface BodyContact {
-  nome?: string;
-  telefone_e164?: string;
+  name?: string;
+  phoneE164?: string;
   email?: string;
-  documento?: string;
+  document?: string;
   atributos?: Record<string, unknown>;
 }
 
 /** `PATCH /v1/contatos/:id`. Ausente não mexe; `null` apaga (menos `atributos`, que mescla). */
 interface BodyEditContact {
-  nome?: string | null;
+  name?: string | null;
   email?: string | null;
-  telefone_e164?: string | null;
-  documento?: string | null;
+  phoneE164?: string | null;
+  document?: string | null;
   atributos?: Record<string, unknown>;
 }
 
-@Controller('v1/contatos')
+@Controller('v1/contacts')
 export class ContactsController {
   @Get()
   @Scopes('contatos:ler')
@@ -131,7 +131,7 @@ export class ContactsController {
     const { tenantId } = contextOf(requisicao);
     if (!corpo.telefone_e164 && !corpo.email) {
       throw PipeError.request(
-        'contato_sem_identificador',
+        'contact_without_identifier',
         'Informe telefone_e164 ou email: contato sem identificador não recebe mensagem.',
       );
     }
@@ -186,11 +186,11 @@ export class ContactsController {
     const atributos = corpo?.atributos;
 
     if (typeof email === 'string' && email && !EMAIL_RAZOAVEL.test(email)) {
-      throw PipeError.request('contato_email_invalido', 'Informe um e-mail válido.');
+      throw PipeError.request('contact_email_invalid', 'Informe um e-mail válido.');
     }
     if (typeof telefone === 'string' && telefone && !telefoneValido(telefone)) {
       throw PipeError.request(
-        'contato_telefone_invalido',
+        'contact_phone_invalid',
         'Informe um telefone no formato E.164 (ex.: +5511987654321).',
       );
     }
@@ -216,7 +216,7 @@ export class ContactsController {
         `);
         if (conflitos[0]) {
           throw PipeError.conflito(
-            'contato_telefone_em_uso',
+            'contact_phone_in_use',
             'Já existe um contato com este telefone.',
           );
         }
@@ -267,7 +267,7 @@ export class ContactsController {
   }
 }
 
-@Controller('v1/filas')
+@Controller('v1/queues')
 export class QueuesController {
   @Get()
   @Scopes('filas:ler')
@@ -289,8 +289,8 @@ export class QueuesController {
     const linhas = await noTenant(tenantId, async (tx) => {
       const { rows } = await tx.execute<{
         id: string;
-        nome: string;
-        cor: string | null;
+        name: string;
+        color: string | null;
         order: number;
         active: boolean;
         capacityDefault: number;
@@ -330,7 +330,7 @@ export class QueuesController {
   }
 }
 
-@Controller('v1/atendentes')
+@Controller('v1/agents')
 export class AgentsController {
   /**
    * Muda o status de presença. Sem `usuario_id` é o próprio; com ele é supervisão
@@ -346,13 +346,13 @@ export class AgentsController {
     const state = corpo.state ?? '';
     if (!ehStateAgent(state)) {
       throw PipeError.request(
-        'estado_desconhecido',
+        'state_unknown',
         `"${state}" não é um status válido.`,
       );
     }
     const alvo = corpo.userId ?? ator.userId;
     if (!alvo) {
-      throw PipeError.request('usuario_obrigatorio', 'Informe `usuario_id`.');
+      throw PipeError.request('user_required', 'Informe `usuario_id`.');
     }
     const r = await definirStatus({
       tenantId: ator.tenantId,
@@ -396,10 +396,10 @@ export class AgentsController {
     const linhas = await noTenant(tenantId, async (tx) => {
       const { rows } = await tx.execute<{
         id: string;
-        nome: string;
+        name: string;
         email: string;
-        estado: string;
-        desde: Date | string | null;
+        state: string;
+        since: Date | string | null;
         ativas: string;
       }>(sql`
         select u.id, u.nome, u.email, coalesce(s.estado, 'offline') as estado, s.desde,

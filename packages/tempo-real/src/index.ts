@@ -52,7 +52,7 @@ const ESPERA_TETO_MS = 30_000;
  */
 const SILENCIO_ATE_MORRER_MS = 35_000;
 
-export type StateOfConnection = 'ligando' | 'ligado' | 'caiu';
+export type StateOfConnection = 'connecting' | 'connected' | 'fell';
 
 /** O mínimo de `WebSocket` que este cliente usa. Existe para o teste injetar o seu. */
 export interface SocketMinimo {
@@ -108,7 +108,7 @@ export function ligar(options: OptionsOfConnection): Connection {
   let socket: SocketMinimo | null = null;
   let tentativa = 0;
   let fechadoDeProposito = false;
-  let state: StateOfConnection = 'ligando';
+  let state: StateOfConnection = 'connecting';
   let reconexao: ReturnType<typeof setTimeout> | null = null;
   let vigia: ReturnType<typeof setTimeout> | null = null;
 
@@ -136,7 +136,7 @@ export function ligar(options: OptionsOfConnection): Connection {
     if (fechadoDeProposito) return;
     if (reconexao) return; // já há uma tentativa agendada
     socket = null;
-    changeState('caiu');
+    changeState('fell');
     tentativa += 1;
     reconexao = setTimeout(() => {
       reconexao = null;
@@ -146,7 +146,7 @@ export function ligar(options: OptionsOfConnection): Connection {
 
   const abrir = (): void => {
     if (fechadoDeProposito) return;
-    changeState('ligando');
+    changeState('connecting');
     let novo: SocketMinimo;
     try {
       novo = create(url);
@@ -158,7 +158,7 @@ export function ligar(options: OptionsOfConnection): Connection {
 
     novo.onopen = () => {
       tentativa = 0;
-      changeState('ligado');
+      changeState('connected');
       // **A inscrição é reenviada a cada reconexão.** O servidor não guarda nada de
       // quem caiu: socket novo começa sem assunto nenhum e não entrega nada até isto.
       const subscription: Subscription = { assuntos: options.assuntos };

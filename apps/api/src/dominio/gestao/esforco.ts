@@ -25,7 +25,7 @@ const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<
 
 export interface EffortOfAgent {
   id: string;
-  nome: string;
+  name: string;
   tickets: number;
   effortSeg: number;
   /** Esforço ÷ tickets. Ponderado por construção (§5 da spec de métricas). */

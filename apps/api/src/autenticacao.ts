@@ -105,7 +105,7 @@ export function contextOf(request: RequestAuthenticated): ContextOfKey {
 type LineKey = {
   id: string;
   tenant_id: string;
-  fluxo_id: string | null;
+  flowId: string | null;
   hash: string;
   scopes: string[] | null;
   expirada: boolean;
@@ -153,15 +153,15 @@ export function checkFlowOfKey(
   if (flowInRoute === null) {
     throw new PipeError(
       403,
-      'chave_de_fluxo',
-      'Esta chave é de um fluxo e só vale nas rotas desse fluxo (/v1/gestao/fluxos/:id/…).',
+      'key_of_flow',
+      'Esta chave é de um fluxo e só vale nas rotas desse fluxo (/v1/management/flows/:id/…).',
       { fluxoId: key.flowId },
     );
   }
   if (flowInRoute.toLowerCase() !== key.flowId.toLowerCase()) {
     throw new PipeError(
       403,
-      'chave_de_outro_fluxo',
+      'key_of_other_flow',
       'Esta chave pertence a outro fluxo e não pode agir neste.',
       { fluxoId: key.flowId },
     );

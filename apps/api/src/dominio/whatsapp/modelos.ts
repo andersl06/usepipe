@@ -106,7 +106,7 @@ const MEDIA_OF_HEADER: Readonly<
 };
 
 function recusa(campo: string, message: string): PipeError {
-  return new PipeError(422, 'modelo_invalido', message, { campo });
+  return new PipeError(422, 'template_invalid', message, { campo });
 }
 
 /**
@@ -134,12 +134,12 @@ export function variablesOfText(textOfTemplate: string): string[] {
 }
 
 interface TemplateLocal {
-  nome: string;
+  name: string;
   idioma: string;
-  categoria: string;
+  category: string;
   statusMeta: string;
-  corpo: string;
-  cabecalhoTipo: string;
+  body: string;
+  headerType: string;
   quantasVariables: number;
 }
 
@@ -166,20 +166,20 @@ export function comoLocal(template: TemplateOfMeta): TemplateLocal | null {
 }
 
 function wabaDo(channel: ChannelWhatsApp): string {
-  if (!channel.wabaId) throw PipeError.conflito('canal_sem_waba', 'O canal não tem WABA: reconecte o WhatsApp.');
+  if (!channel.wabaId) throw PipeError.conflito('channel_without_waba', 'O canal não tem WABA: reconecte o WhatsApp.');
   return channel.wabaId;
 }
 
 function tokenDo(canal: ChannelWhatsApp): string {
   const token = texto(canal.config['tokenAcesso']);
-  if (!token) throw PipeError.conflito('canal_sem_token', 'O canal não tem token: reconecte o WhatsApp.');
+  if (!token) throw PipeError.conflito('channel_without_token', 'O canal não tem token: reconecte o WhatsApp.');
   return token;
 }
 
 export interface ResultOfSynchronization {
-  criados: number;
-  atualizados: number;
-  removidos: number;
+  created: number;
+  updated: number;
+  removed: number;
   /** Modelos de categoria que o Pipe não conhece, deixados de fora. */
   ignorados: number;
 }
@@ -261,9 +261,9 @@ export interface OptionsOfAuthentication {
 }
 
 export interface RequestOfTemplate {
-  nome?: string;
+  name?: string;
   idioma?: string;
-  categoria?: string;
+  category?: string;
   /** Texto do cabeçalho; ausente ou vazio = sem cabeçalho de texto. */
   cabecalho?: string;
   /**
@@ -272,7 +272,7 @@ export interface RequestOfTemplate {
    * do cabeçalho sai do MIME. Exclui `cabecalho` (é texto OU mídia).
    */
   headerMedia?: string;
-  corpo?: string;
+  body?: string;
   rodape?: string;
   /** Um exemplo por variável do corpo, na ordem em que aparecem — a Meta exige. */
   exemplos?: string[];
@@ -292,7 +292,7 @@ export interface MediaOfHeader {
   format: FormatOfMedia;
   bytes: Buffer;
   /** O MIME, que é o `file_type` da Resumable Upload API. */
-  tipo: string;
+  type: string;
 }
 
 /** A mídia de exemplo do cabeçalho, conferida por tipo e tamanho — antes de qualquer chamada à Meta. */
@@ -323,9 +323,9 @@ export function readMediaOfHeader(dataUrl: string): MediaOfHeader {
 }
 
 type Cabecalho =
-  | { tipo: 'nenhum' }
-  | { tipo: 'texto'; texto: string; exemplo: string | null }
-  | { tipo: 'midia'; media: MediaOfHeader };
+  | { type: 'nenhum' }
+  | { type: 'texto'; texto: string; exemplo: string | null }
+  | { type: 'midia'; media: MediaOfHeader };
 
 function conferirCabecalho(pedido: RequestOfTemplate): Cabecalho {
   const textoDoCabecalho = (pedido.cabecalho ?? '').trim();
@@ -469,7 +469,7 @@ function appDo(canal: ChannelWhatsApp): string {
   const appId = texto(canal.config['appId']) ?? process.env['WHATSAPP_APP_ID'] ?? '';
   if (!appId) {
     throw PipeError.conflito(
-      'canal_sem_app',
+      'channel_without_app',
       'Não sabemos o aplicativo deste canal para enviar o arquivo do cabeçalho: reconecte o WhatsApp.',
     );
   }
@@ -519,7 +519,7 @@ export async function deleteTemplateInMeta(
   usuarioId: string,
   canalId: string,
   nome: string,
-): Promise<{ removidos: number }> {
+): Promise<{ removed: number }> {
   const canal = await readChannelWhatsApp(tenantId, canalId);
   if (!NOME_VALIDO.test(nome)) throw PipeError.naoEncontrado('Modelo');
   await clienteGraph(tokenDo(canal)).deleteTemplate(wabaDo(canal), nome);

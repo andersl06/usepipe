@@ -88,8 +88,8 @@ async function flowOfBuilder(
   usuarioId: string,
   id: string,
   permission: string,
-): Promise<{ id: string; nome: string; estado: string }> {
-  const { rows } = await tx.execute<{ id: string; nome: string; tipo: string; estado: string }>(sql`
+): Promise<{ id: string; name: string; state: string }> {
+  const { rows } = await tx.execute<{ id: string; name: string; type: string; state: string }>(sql`
     select id, nome, tipo, estado from fluxo
      where tenant_id = ${tid} and id = ${id} and estado <> 'arquivado'
      limit 1
@@ -103,7 +103,7 @@ async function flowOfBuilder(
   else await exigirPermission(tx, usuarioId, permission);
   if (atual.tipo === 'roteador') {
     throw PipeError.conflito(
-      'roteador_sem_builder',
+      'router_without_builder',
       'Roteador não tem Builder: ele só distribui a conversa entre os serviços. Edite o desenho no fluxo de cada serviço.',
     );
   }
@@ -114,12 +114,12 @@ async function flowOfBuilder(
 
 type LinhaVersao = {
   id: string;
-  versao: number;
+  version: number;
   state: StateOfVersion;
-  blocos: number;
+  blocks: number;
   publicada_em: Date | string | null;
   publishedByName: string | null;
-  criado_em: Date | string | null;
+  createdAt: Date | string | null;
   atualizado_em: Date | string | null;
 };
 
@@ -170,7 +170,7 @@ async function versionInState(
 
 /* ------------------------------------------------------------ O desenho */
 
-type LineBlock = { id: string; codigo: string; conteudo: Record<string, unknown> };
+type LineBlock = { id: string; code: string; content: Record<string, unknown> };
 type LineTransition = {
   ofBlockId: string;
   para_codigo: string | null;
@@ -282,7 +282,7 @@ interface Compilado {
   flow: FlowBlip;
   desenho: DesenhoDoBuilder;
   errors: BlockError[];
-  naoSuportado: Record<string, number>;
+  notSupported: Record<string, number>;
 }
 
 const ehObjeto = (v: unknown): v is Record<string, unknown> =>
@@ -298,7 +298,7 @@ function compilar(desenho: unknown, fluxoId: string): Compilado {
   const mapa = bruto['fluxo'];
   if (!ehObjeto(mapa) || Object.values(mapa).some((e) => !ehObjeto(e))) {
     throw PipeError.request(
-      'desenho_invalido',
+      'design_invalid',
       'O desenho precisa ser o mapa de blocos do editor: um objeto com um bloco por chave.',
     );
   }
@@ -319,7 +319,7 @@ function compilar(desenho: unknown, fluxoId: string): Compilado {
     // Bloco com `$contentActions` que não é lista, saída que não é objeto: o
     // conversor tropeça, e a culpa é do desenho, não do servidor.
     throw PipeError.request(
-      'desenho_invalido',
+      'design_invalid',
       `O desenho não está no formato do editor: ${(error as Error).message}`,
     );
   }
@@ -495,7 +495,7 @@ export async function publicarRascunho(
   const rascunho = await versionInState(tx, fluxoId, 'rascunho');
   if (!rascunho) {
     throw PipeError.conflito(
-      'sem_rascunho',
+      'without_draft',
       'Não há rascunho para publicar: salve o desenho antes de publicar.',
     );
   }
@@ -512,14 +512,14 @@ export async function publicarRascunho(
   }
   if (errors.length > 0) {
     throw PipeError.conflito(
-      'fluxo_invalido',
+      'flow_invalid',
       `O fluxo não pode ser publicado: ${errors[0]!.mensagem}`,
       { errors },
     );
   }
 
   const anterior = await versionInState(tx, fluxoId, 'publicada');
-  const { rows: maior } = await tx.execute<{ versao: number }>(sql`
+  const { rows: maior } = await tx.execute<{ version: number }>(sql`
     select coalesce(max(versao), 0) as versao from fluxo_versao
      where fluxo_id = ${fluxoId} and id <> ${rascunho.id}
   `);

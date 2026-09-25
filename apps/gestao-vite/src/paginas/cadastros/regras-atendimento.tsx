@@ -104,7 +104,7 @@ export function AttendancePageRules() {
   const [excluindo, setExcluindo] = useState(false);
   const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
   const [errorReordenar, setErrorReordenar] = useState<string | null>(null);
-  const read = useRead<QueueRules>('/v1/gestao/regras/atendimento');
+  const read = useRead<QueueRules>('/v1/management/rules/attendance');
   if (!read.data) return null;
   const { regras, queues, defaults } = read.data;
   const mortas = new Set(regrasInalcancaveis(regras));

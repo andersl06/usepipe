@@ -63,7 +63,7 @@ export function Conversation({
   async function removerEtiqueta(etiquetaId: string) {
     setError(null);
     try {
-      await api.delete(`/v1/conversas/${conversation.id}/etiquetas/${etiquetaId}`);
+      await api.delete(`/v1/conversations/${conversation.id}/labels/${etiquetaId}`);
       atualizarLeituras();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Não foi possível remover a etiqueta.');
@@ -74,7 +74,7 @@ export function Conversation({
     setMenu(false);
     setError(null);
     try {
-      await api.post(`/v1/conversas/${conversation.id}/espera`);
+      await api.post(`/v1/conversations/${conversation.id}/wait`);
       atualizarLeituras();
     } catch (e) {
       setError(
@@ -86,7 +86,7 @@ export function Conversation({
   async function reenviar(messageId: string) {
     setError(null);
     try {
-      await api.post(`/v1/conversas/${conversation.id}/mensagens/${messageId}/reenviar`);
+      await api.post(`/v1/conversations/${conversation.id}/messages/${messageId}/resend`);
       atualizarLeituras();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Ocorreu um erro ao enviar a mensagem.');
@@ -415,9 +415,9 @@ function ModalEtiquetas({
     setError(null);
     try {
       if (aplicadas.has(etiqueta.id)) {
-        await api.delete(`/v1/conversas/${conversationId}/etiquetas/${etiqueta.id}`);
+        await api.delete(`/v1/conversations/${conversationId}/labels/${etiqueta.id}`);
       } else {
-        await api.post(`/v1/conversas/${conversationId}/etiquetas`, { etiqueta_id: etiqueta.id });
+        await api.post(`/v1/conversations/${conversationId}/labels`, { etiqueta_id: etiqueta.id });
       }
       atualizarLeituras();
     } catch (e) {
@@ -485,7 +485,7 @@ function ModalTransferir({
   aoFechar: () => void;
   aoTransferir: () => void;
 }) {
-  const [alvo, setAlvo] = useState<'fila' | 'atendente'>('fila');
+  const [alvo, setAlvo] = useState<'fila' | 'atendente'>('queue');
   const [queueId, setQueueId] = useState('');
   const [agentId, setAgentId] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -496,8 +496,8 @@ function ModalTransferir({
     setEnviando(true);
     setError(null);
     try {
-      await api.post(`/v1/conversas/${conversationId}/transferir`, {
-        ...(alvo === 'fila' ? { para_fila_id: queueId } : { para_atendente_id: agentId }),
+      await api.post(`/v1/conversations/${conversationId}/transfer`, {
+        ...(alvo === 'queue' ? { para_fila_id: queueId } : { para_atendente_id: agentId }),
       });
       atualizarLeituras();
       aoTransferir();
@@ -509,7 +509,7 @@ function ModalTransferir({
     }
   }
 
-  const podeTransferir = alvo === 'fila' ? Boolean(queueId) : Boolean(agentId);
+  const podeTransferir = alvo === 'queue' ? Boolean(queueId) : Boolean(agentId);
 
   return (
     <div className="dk-veu" role="presentation" onClick={aoFechar}>
@@ -527,8 +527,8 @@ function ModalTransferir({
             <input
               type="radio"
               name="alvo"
-              checked={alvo === 'fila'}
-              onChange={() => setAlvo('fila')}
+              checked={alvo === 'queue'}
+              onChange={() => setAlvo('queue')}
             />{' '}
             Fila
           </label>
@@ -536,13 +536,13 @@ function ModalTransferir({
             <input
               type="radio"
               name="alvo"
-              checked={alvo === 'atendente'}
-              onChange={() => setAlvo('atendente')}
+              checked={alvo === 'agent'}
+              onChange={() => setAlvo('agent')}
             />{' '}
             Atendente
           </label>
         </div>
-        {alvo === 'fila' ? (
+        {alvo === 'queue' ? (
           <>
             <label htmlFor="fila">Fila</label>
             <select id="fila" value={queueId} onChange={(e) => setQueueId(e.target.value)}>
@@ -623,7 +623,7 @@ function ModalFinalizar({
     setEnviando(true);
     setError(null);
     try {
-      await api.post(`/v1/conversas/${conversationId}/encerrar`, { etiqueta_ids: etiquetasIds });
+      await api.post(`/v1/conversations/${conversationId}/close`, { etiqueta_ids: etiquetasIds });
       atualizarLeituras();
       avisarTicketFinalizado(numero);
       aoFinalizar();
@@ -653,7 +653,7 @@ function ModalFinalizar({
 
 /** As filas do tenant, para o seletor de transferência (`GET /v1/desk/filas`). */
 function useQueues(): { id: string; nome: string }[] {
-  const read = useRead<{ queues: { id: string; nome: string }[] }>('/v1/desk/filas');
+  const read = useRead<{ queues: { id: string; nome: string }[] }>('/v1/desk/queues');
   return read.data?.queues ?? [];
 }
 

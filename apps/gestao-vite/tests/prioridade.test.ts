@@ -38,7 +38,7 @@ test('nível desconhecido cai no FIM, não no meio', () => {
   assert.ok(pesoPriority('urgentissima') > pesoPriority('sem_prioridade'));
 });
 
-test('baixa fura a frente de sem prioridade', () => {
+test('low cuts in front of no-priority', () => {
   const queue = esperaOrdenarQueue([
     linha('sem-prioridade-antiga', 'sem_prioridade', 0),
     linha('baixa-recente', 'baixa', 59),
@@ -56,7 +56,7 @@ test('máxima vem antes de alta, e o empate desempata pela mais antiga', () => {
   assert.deepEqual(nomes(queue), ['maxima', 'alta-velha', 'alta-nova', 'media']);
 });
 
-test('conversa sem marco de criação vai para o fim do seu degrau', () => {
+test('a conversation with no creation marker goes to the end of its tier', () => {
   const queue = esperaOrdenarQueue([
     { nome: 'sem-marco', priority: 'alta', marcos: { criadaEm: null } },
     linha('com-marco', 'alta', 59),

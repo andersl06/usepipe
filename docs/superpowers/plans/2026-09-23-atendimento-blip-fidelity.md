@@ -45,7 +45,7 @@ Substituir o retorno `null` por estado de carregamento com esqueleto estável e 
 
 - [ ] **Step 4: Executar testes da tarefa**
 
-Run: `pnpm --filter @pipe/gestao-vite test -- filtros-monitoramento.test.ts`
+Run: `pnpm --filter @pipe/management-vite test -- filtros-monitoramento.test.ts`
 Expected: PASS.
 
 ### Task 2: Coerência funcional e visual do Histórico
@@ -78,7 +78,7 @@ Cartões de 88 px, padding 20 px, raio 16 px, labels 12/400, values 16/700, pass
 
 - [ ] **Step 4: Executar testes da tarefa**
 
-Run: `pnpm --filter @pipe/api test -- historico.test.ts && pnpm --filter @pipe/gestao-vite test -- historico.test.ts csv-historico.test.ts`
+Run: `pnpm --filter @pipe/api test -- historico.test.ts && pnpm --filter @pipe/management-vite test -- historico.test.ts csv-historico.test.ts`
 Expected: PASS.
 
 ### Task 3: Validação visual e regressão
@@ -93,7 +93,7 @@ Expected: PASS.
 
 - [ ] **Step 1: Rodar testes, typecheck e build**
 
-Run: `pnpm --filter @pipe/gestao-vite test && pnpm --filter @pipe/gestao-vite typecheck && pnpm --filter @pipe/gestao-vite build`
+Run: `pnpm --filter @pipe/management-vite test && pnpm --filter @pipe/management-vite typecheck && pnpm --filter @pipe/management-vite build`
 Expected: PASS.
 
 - [ ] **Step 2: Validar com navegador real**

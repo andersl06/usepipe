@@ -34,7 +34,7 @@ let A: { tenantId: string; adminId: string };
 let B: { tenantId: string; adminId: string };
 
 async function tenantComAdmin(nome: string): Promise<{ tenantId: string; adminId: string }> {
-  const { tenantId } = await seedsemearseed(dono, { nome: `importa ${nome}`, slug: `importa-${nome}` });
+  const { tenantId } = await seedsemearseed(dono, { name: `importa ${nome}`, slug: `importa-${nome}` });
   const adminId = await userWith(tenantId, `admin-${nome}`, 'administrador');
   return { tenantId, adminId };
 }
@@ -56,9 +56,9 @@ async function userWith(tenantId: string, nome: string, role: string): Promise<s
 type Contact = {
   [c: string]: unknown;
   id: string;
-  nome: string | null;
+  name: string | null;
   email: string | null;
-  telefone_e164: string | null;
+  phoneE164: string | null;
   atributos: Record<string, unknown>;
 };
 
@@ -127,8 +127,8 @@ describe('telefone em E.164, com o nono dígito do Brasil', () => {
   });
 });
 
-describe('deduplicação por telefone dentro do tenant', () => {
-  it('a mesma pessoa duas vezes no arquivo, e já cadastrada na forma antiga, vira um contato só', async () => {
+describe('Deduplicate contacts by phone number within a tenant', () => {
+  it('Deduplicate repeated CSV rows and existing contacts with legacy phone formatting', async () => {
     const { rows } = await dono.execute<{ id: string }>(sql`
       insert into contato (tenant_id, nome, telefone_e164)
       values (${A.tenantId}::uuid, 'Eva antiga', '+554199990000') returning id
@@ -163,7 +163,7 @@ describe('deduplicação por telefone dentro do tenant', () => {
     expect(fabi[0]!.email).toBe('fabi@exemplo.com.br');
   });
 
-  it('reimportar o mesmo arquivo não cria ninguém de novo', async () => {
+  it('Reimport the same CSV without creating duplicate contacts', async () => {
     const csv = 'nome,telefone\nGui,11966665555\n';
     await runImport(A, csv);
     await runImport(A, csv);
@@ -203,7 +203,7 @@ describe('linhas inválidas', () => {
     expect(aceito?.nome).toBe('Aspas, e vírgula');
   });
 
-  it('CSV malformado falha inteiro, e nada dele entra (data_import_job_spec)', async () => {
+  it('Fail a malformed CSV import atomically (`data_import_job_spec`)', async () => {
     const importacao = await runImport(
       A,
       'id,name,email,phone_number,company_name\n' +
@@ -214,20 +214,20 @@ describe('linhas inválidas', () => {
     expect(await contactsWith(A.tenantId, ['+918080808081'])).toHaveLength(0);
   });
 
-  it('tira o BOM, e coluna desconhecida vira atributo do contato', async () => {
+  it('Strip the BOM and store unknown CSV columns as contact attributes', async () => {
     await runImport(A, '﻿nome,telefone,empresa,plano\nHeitor,11955554444,Acme,ouro\n');
     const [heitor] = await contactsWith(A.tenantId, ['+5511955554444']);
     expect(heitor?.nome).toBe('Heitor');
     expect(heitor?.atributos).toMatchObject({ company_name: 'Acme', plano: 'ouro' });
   });
 
-  it('arquivo vazio é recusado antes de gravar qualquer coisa', async () => {
+  it('Reject an empty import file before saving anything', async () => {
     await expect(runImport(A, '   \n')).rejects.toMatchObject({ codigo: 'arquivo_vazio', status: 422 });
   });
 });
 
-describe('isolamento entre tenants', () => {
-  it('o mesmo telefone em outro cliente é outro contato, e o do primeiro não muda', async () => {
+describe('Isolate downloaded media by tenant', () => {
+  it('Keep the same phone number as separate contacts across tenants', async () => {
     await runImport(A, 'nome,telefone\nIsa de A,11944443333\n');
     await runImport(B, 'nome,telefone\nIsa de B,11944443333\n');
 
@@ -240,7 +240,7 @@ describe('isolamento entre tenants', () => {
     expect(deA[0]!.id).not.toBe(deB[0]!.id);
   });
 
-  it('um job com o tenant de B e a importação de A não acha nada para processar', async () => {
+  it('Do not process another tenant\'s import job', async () => {
     const deA = await runImport(A, 'nome,telefone\nJoão,11933332222\n');
     const resultado = await workers.processarImport({
       tenantId: B.tenantId,
@@ -249,19 +249,19 @@ describe('isolamento entre tenants', () => {
     expect(resultado.state).toBe('ausente');
   });
 
-  it('a importação e o relatório de A são 404 para B', async () => {
+  it('Return 404 for another tenant\'s import and failure report', async () => {
     const deA = await runImport(A, 'nome,telefone\nSem Telefone,\n');
     await expect(readImport(B.tenantId, deA.id)).rejects.toMatchObject({ status: 404 });
     await expect(lerFalhas(B.tenantId, deA.id)).rejects.toMatchObject({ status: 404 });
   });
 });
 
-describe('a rota, com a permissão conferida no banco', () => {
+describe('Check import-route permission against the database', () => {
   const controller = new ContactImportsController();
   const request = (tenantId: string, userId: string) =>
     ({ sessao: { tenantId, userId, origem: 'google' } }) as unknown as RequestWithSession;
 
-  it('atendente não importa: 403 sem_permissao', async () => {
+  it('Return 403 when an agent imports contacts without permission (`sem_permissao`)', async () => {
     const agent = await userWith(A.tenantId, `atendente-${S}`, 'atendente');
     await expect(
       controller.import(request(A.tenantId, agent), 'nome,telefone\nX,11911112222\n', undefined),

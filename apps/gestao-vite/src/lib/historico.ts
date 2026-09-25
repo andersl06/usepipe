@@ -109,8 +109,8 @@ export function agruparHistory(
   if (by === 'nenhum') return [{ titulo: '', linhas: [...linhas] }];
 
   const chavesDe = (l: LinhaHistory): string[] => {
-    if (by === 'fila') return [l.queueName ?? 'Sem fila'];
-    if (by === 'atendente') return [l.agentName ?? 'Sem atendente'];
+    if (by === 'queue') return [l.queueName ?? 'Sem fila'];
+    if (by === 'agent') return [l.agentName ?? 'Sem atendente'];
     if (by === 'status') {
       return [l.status ? (ROTULO_DESFECHO[l.status] ?? l.status) : 'Sem desfecho'];
     }

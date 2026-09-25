@@ -8,11 +8,11 @@
 
 // O BullMQ recusa `:` no nome da fila — ele usa o caractere como separador de chave
 // no Redis. Daí o hífen.
-export const QUEUE_INBOUND = 'pipe-entrada';
-export const QUEUE_DELIVERY = 'pipe-entrega';
-export const QUEUE_AGGREGATION = 'pipe-agregacao';
-export const QUEUE_MIRROR_CRM = 'pipe-espelho-crm';
-export const QUEUE_MEDIA = 'pipe-midia';
+export const QUEUE_INBOUND = 'pipe-inbound';
+export const QUEUE_DELIVERY = 'pipe-delivery';
+export const QUEUE_AGGREGATION = 'pipe-aggregation';
+export const QUEUE_MIRROR_CRM = 'pipe-crm-mirror';
+export const QUEUE_MEDIA = 'pipe-media';
 export const QUEUE_SLA = 'pipe-sla';
 export const QUEUE_PROCESS_HTTP = 'pipe-process-http';
 
@@ -81,7 +81,7 @@ export interface JobMirrorCrm {
  * Mesmo desenho do espelho: quem CONSOME é a `api` (quem fala com o CRM), o job leva só
  * o `tenantId`, e a sincronização relê a configuração dentro do `comTenant` dele.
  */
-export const QUEUE_DICTIONARY_CRM = 'pipe-dicionario-crm';
+export const QUEUE_DICTIONARY_CRM = 'pipe-crm-dictionary';
 
 export interface JobDictionaryCrm {
   tenantId: string;
@@ -98,7 +98,7 @@ export function conexaoRedis(): { url: string } {
  * serviço externo. O arquivo não viaja no job — mora em `importacao_arquivo` —,
  * e o job leva só os dois ids; o processamento relê tudo no `comTenant` do tenant.
  */
-export const QUEUE_IMPORT = 'pipe-importacao';
+export const QUEUE_IMPORT = 'pipe-import';
 
 export interface JobImport {
   tenantId: string;

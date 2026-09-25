@@ -83,7 +83,7 @@ const raiz = (outputs: State['outputs'], extra: Partial<State> = {}): State => (
 });
 
 describe('FlowManager.ProcessInputAsync', () => {
-  it('suspende antes do ProcessHttp e retoma depois da ação sem repetir a mensagem anterior', async () => {
+  it('suspends before ProcessHttp and resumes after the action without repeating the previous message', async () => {
     const enviados: string[] = [];
     const flow: FlowBlip = {
       id: FLOW_ID,
@@ -140,7 +140,7 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(variables.status).toBe('200');
   });
 
-  it('sem condição troca de estado, manda a mensagem e, sem saída, apaga o estado', async () => {
+  it('with no condition it changes state, sends the message, and with no output it clears the state', async () => {
     const r = await rodar(
       [raiz([{ stateId: 'ping' }]), { id: 'ping', inputActions: [enviar('Pong!')] }],
       'Ping!',
@@ -151,7 +151,7 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(r.rastro.estados.map((e) => e.stateId)).toEqual(['root', 'ping']);
   });
 
-  it('troca a variável do texto pelo valor', async () => {
+  it('replaces the text variable with the value', async () => {
     const r = await rodar(
       [
         raiz([{ stateId: 'ping' }]),
@@ -165,7 +165,7 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(r.textos).toEqual(['Hello OutputVariable value 1!']);
   });
 
-  it('variável com JSON é escapada e trocada sem quebrar as configurações', async () => {
+  it('a variable with JSON is escaped and swapped without breaking the settings', async () => {
     const value = '{"propertyName1":"propertyValue1","propertyName2":2}';
     const r = await rodar(
       [
@@ -180,7 +180,7 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(r.textos).toEqual([`Hello ${value}!`]);
   });
 
-  it('variável que não existe vira vazio', async () => {
+  it('a variable that does not exist becomes empty', async () => {
     const r = await rodar(
       [
         raiz([{ stateId: 'ping' }]),
@@ -191,7 +191,7 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(r.textos).toEqual(['Hello !']);
   });
 
-  it('propriedade de variável JSON com @', async () => {
+  it('JSON variable property with @', async () => {
     const r = await rodar(
       [
         raiz([{ stateId: 'ping' }]),
@@ -205,7 +205,7 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(r.textos).toEqual(['Ana']);
   });
 
-  it('TrackEvent com fonte de variável inválida quebra o processamento', async () => {
+  it('TrackEvent with an invalid variable source breaks processing', async () => {
     const error = await rodar(
       [
         raiz(null, {
@@ -220,7 +220,7 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect((error as Error).message).toContain('TrackEvent');
   });
 
-  it('onze transições sem entrada estouram o limite de 10 (MaxTransitionsByInput)', async () => {
+  it('eleven transitions without input exceed the limit of 10 (MaxTransitionsByInput)', async () => {
     const estados: State[] = [raiz([{ stateId: 't2' }])];
     for (let i = 2; i <= 10; i++)
       estados.push({ id: `t${i}`, outputs: [{ stateId: `t${i + 1}` }] });
@@ -230,13 +230,13 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect((error as Error).message).toContain('limite de 10 transições');
   });
 
-  it('input.variable grava a entrada no contexto', async () => {
+  it('input.variable stores the input in the context', async () => {
     const r = await rodar([{ id: 'root', root: true, input: { variable: 'MyVariable' } }], 'Ping!');
     expect(r.variaveis['MyVariable']).toBe('Ping!');
     expect(r.variaveis[KEY_STATE]).toBeUndefined();
   });
 
-  it('estado com bypass não grava input.variable', async () => {
+  it('a state with bypass does not write input.variable', async () => {
     const r = await rodar(
       [
         raiz([{ stateId: 'first' }]),
@@ -247,7 +247,7 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(r.variaveis['MyVariable']).toBeUndefined();
   });
 
-  it('{{contact.name}} vem do contato', async () => {
+  it('{{contact.name}} comes from the contact', async () => {
     const r = await rodar(
       [
         raiz([{ stateId: 'welcome' }]),
@@ -261,7 +261,7 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(r.textos).toEqual(['Hello, Bob']);
   });
 
-  it('condição de contexto escolhe a saída', async () => {
+  it('a context condition picks the output', async () => {
     const estados: State[] = [
       raiz(
         [
@@ -307,19 +307,19 @@ describe('FlowManager.ProcessInputAsync', () => {
     { id: 'error', inputActions: [enviar('failed to set variable')] },
   ];
 
-  it('condição de entrada satisfeita: fica no estado esperando', async () => {
+  it('met entry condition: it stays in the waiting state', async () => {
     const r = await rodar(inboundStatesWithCondition('true'), 'OK!');
     expect(r.variaveis[KEY_STATE]).toBe('Start');
     expect(r.textos).toEqual([]);
   });
 
-  it('condição de entrada não satisfeita: não espera, segue pelas saídas', async () => {
+  it('unmet entry condition: it does not wait, it follows the outputs', async () => {
     const r = await rodar(inboundStatesWithCondition('false'), 'NOK!');
     expect(r.textos).toEqual(['NOK']);
     expect(r.variaveis[KEY_STATE]).toBeUndefined();
   });
 
-  it('duas entradas em sequência com o mesmo contexto', async () => {
+  it('two entries in sequence with the same context', async () => {
     const estados: State[] = [
       raiz([
         { stateId: 'marco', conditions: [{ values: ['Marco!'] }] },
@@ -352,7 +352,7 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect(r.rastro.estados[1]!.actions[0]).toMatchObject({ tipo: 'SetVariable', esquecida: true });
   });
 
-  it('sem continueOnError a ação que falhou quebra o processamento', async () => {
+  it('without continueOnError, the action that failed breaks processing', async () => {
     const error = await rodar(
       [
         raiz([{ stateId: 'ping' }]),
@@ -363,7 +363,7 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect((error as Error).message).toContain("ação 'SetVariable' falhou");
   });
 
-  it('ação sem implementação no Pipe (ExecuteScript) quebra o processamento', async () => {
+  it('an action with no implementation in Pipe (ExecuteScript) breaks processing', async () => {
     const error = await rodar(
       [
         raiz([{ stateId: 'ping' }]),
@@ -375,7 +375,7 @@ describe('FlowManager.ProcessInputAsync', () => {
     expect((error as Error).message).toContain("'ExecuteScript' não existe no Pipe");
   });
 
-  it('validação de entrada: fora da regra manda o erro e fica no estado', async () => {
+  it('entry validation: outside the rule it sends the error and stays in the state', async () => {
     const estados: State[] = [
       raiz([{ stateId: 'idade' }]),
       {
@@ -412,13 +412,13 @@ describe('OutputConditions', () => {
     expect(r.textos).toEqual(['Pong!']);
   });
 
-  it('nenhuma saída casa: apaga o estado e não manda nada', async () => {
+  it('no output matches: it clears the state and sends nothing', async () => {
     const r = await rodar(pingMarco, 'XPTO!', { variables: { [KEY_STATE]: 'root' } });
     expect(r.textos).toEqual([]);
     expect(r.variaveis[KEY_STATE]).toBeUndefined();
   });
 
-  it('matches sobre variável de contexto', async () => {
+  it('matches over a context variable', async () => {
     const r = await rodar(
       [
         raiz(
@@ -453,7 +453,7 @@ describe('OutputConditions', () => {
     { id: 'state2' },
   ];
 
-  it('destino {{variável}} vai para o estado que a variável diz', async () => {
+  it('a {{variable}} destination goes to the state the variable names', async () => {
     const r = await rodar(stateByVariable, 'hello', {
       variables: { variableWithState: 'state2' },
     });
@@ -495,7 +495,7 @@ describe('ActionConditions', () => {
     conditions: [{ values: [value] }],
   });
 
-  it('ação de entrada só roda quando a condição casa', async () => {
+  it('the entry action only runs when the condition matches', async () => {
     const r = await rodar(
       doisEstados(
         { inputActions: [marcar('primeira', 'Ping!'), marcar('outra', 'Other!')] },
@@ -507,7 +507,7 @@ describe('ActionConditions', () => {
     expect(r.variaveis['outra']).toBeUndefined();
   });
 
-  it('ação de saída só roda quando a condição casa', async () => {
+  it('the exit action only runs when the condition matches', async () => {
     const r = await rodar(
       doisEstados(
         { outputActions: [marcar('primeira', 'Ping!'), marcar('outra', 'Other!')] },
@@ -519,7 +519,7 @@ describe('ActionConditions', () => {
     expect(r.variaveis['outra']).toBeUndefined();
   });
 
-  it('ação de "depois de trocar de estado" roda no estado que saiu', async () => {
+  it('the "after state change" action runs in the state that was exited', async () => {
     const r = await rodar(
       doisEstados({ afterStateChangedActions: [marcar('trocou', 'Ping!')] }, 'root'),
       'Ping!',
@@ -528,7 +528,7 @@ describe('ActionConditions', () => {
   });
 });
 
-describe('bloco de atendimento (desk:) como o editor da Blip monta', () => {
+describe('attendance block (desk:) the way Blip\'s editor builds it', () => {
   const deskStates: State[] = [
     raiz([{ stateId: 'desk:suporte' }]),
     {
@@ -567,7 +567,7 @@ describe('bloco de atendimento (desk:) como o editor da Blip monta', () => {
     { id: 'erro', inputActions: [enviar('Sem atendente agora.')] },
   ];
 
-  it('encaminha e fica calado no desk: esperando o fim do atendimento', async () => {
+  it('forwards and stays silent on the desk: waiting for attendance to end', async () => {
     const r = await rodar(deskStates, 'quero falar com alguém');
     expect(r.atendimentos).toHaveLength(1);
     expect(r.variaveis['desk_forwardToDeskState_status']).toBe('Success');
@@ -575,7 +575,7 @@ describe('bloco de atendimento (desk:) como o editor da Blip monta', () => {
     expect(r.textos).toEqual([]);
   });
 
-  it('o ticket encerrado pelo atendente é a entrada que destrava o bloco', async () => {
+  it('the ticket closed by the agent is the entry that unblocks the block', async () => {
     const variables: Record<string, string> = {};
     await rodar(deskStates, 'quero falar com alguém', { variables });
     const r = await rodar(
@@ -587,14 +587,14 @@ describe('bloco de atendimento (desk:) como o editor da Blip monta', () => {
     expect(variables[KEY_STATE]).toBe('pos');
   });
 
-  it('encaminhamento que falha vira Error e segue pela saída padrão do atendimento', async () => {
+  it('a forwarding failure becomes Error and follows attendance\'s default output', async () => {
     const r = await rodar(deskStates, 'quero falar com alguém', { falharAttendance: true });
     expect(r.variaveis['desk_forwardToDeskState_status']).toBe('Error');
     expect(r.textos).toEqual(['Sem atendente agora.']);
   });
 });
 
-describe('Redirect (serviço do roteador)', () => {
+describe('Redirect (router service)', () => {
   const redirecionar = (address: string): State[] => [
     raiz([{ stateId: 'vai' }]),
     {
@@ -606,7 +606,7 @@ describe('Redirect (serviço do roteador)', () => {
     },
   ];
 
-  it('pede ao roteador o serviço pelo nome, com o contexto junto', async () => {
+  it('asks the router for the service by name, along with the context', async () => {
     const pedidos: unknown[] = [];
     const f = servicosFalsos();
     const context: Context = {
@@ -628,7 +628,7 @@ describe('Redirect (serviço do roteador)', () => {
     ]);
   });
 
-  it('fora do roteador, o Redirect falha — na Blip vai para o bloco de exceções', async () => {
+  it('outside the router, Redirect fails — in Blip it goes to the exceptions block', async () => {
     await expect(rodar(redirecionar('suporte'), 'oi')).rejects.toBeInstanceOf(MotorError);
   });
 

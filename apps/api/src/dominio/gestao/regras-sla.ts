@@ -37,46 +37,46 @@ function scopeSlaValid(bruto: string): bruto is ScopeSla {
 const PRAZO_SEG_MAX = 7 * 86_400;
 
 export interface PedidoDeRegraSla {
-  nome: string;
-  alvo: string;
-  prazoSeg: number;
-  alertaSeg?: number | null;
-  escopoTipo?: string;
-  escopoId?: string | null;
+  name: string;
+  target: string;
+  deadlineSeg: number;
+  alertSeg?: number | null;
+  scopeType?: string;
+  scopeId?: string | null;
   active?: boolean;
 }
 
 export interface RequestOfEditOfRuleSla {
-  nome?: string;
-  alvo?: string;
-  prazoSeg?: number;
-  alertaSeg?: number | null;
-  escopoTipo?: string;
-  escopoId?: string | null;
+  name?: string;
+  target?: string;
+  deadlineSeg?: number;
+  alertSeg?: number | null;
+  scopeType?: string;
+  scopeId?: string | null;
   ativa?: boolean;
 }
 
 export interface RegraSlaGravada {
   id: string;
-  nome: string;
-  alvo: string;
-  prazoSeg: number;
-  alertaSeg: number | null;
-  escopoTipo: string;
-  escopoId: string | null;
+  name: string;
+  target: string;
+  deadlineSeg: number;
+  alertSeg: number | null;
+  scopeType: string;
+  scopeId: string | null;
   ativa: boolean;
 }
 
 function nomeConferido(bruto: unknown): string {
   const nome = String(bruto ?? '').trim();
-  if (!nome) throw PipeError.request('nome_obrigatorio', 'Informe o nome da regra.');
+  if (!nome) throw PipeError.request('name_required', 'Informe o nome da regra.');
   return nome;
 }
 
 function alvoConferido(bruto: unknown): string {
   const alvo = String(bruto ?? '');
   if (!(ALVOS_SLA as readonly string[]).includes(alvo)) {
-    throw PipeError.request('alvo_invalido', `"${alvo}" não é um alvo de SLA válido.`);
+    throw PipeError.request('target_invalid', `"${alvo}" não é um alvo de SLA válido.`);
   }
   return alvo;
 }
@@ -85,7 +85,7 @@ function prazoConferido(bruto: unknown): number {
   const n = Number(bruto);
   if (!Number.isInteger(n) || n < 1 || n > PRAZO_SEG_MAX) {
     throw PipeError.request(
-      'prazo_invalido',
+      'deadline_invalid',
       `O prazo é um inteiro de 1 a ${PRAZO_SEG_MAX} segundos (uma semana).`,
     );
   }
@@ -98,7 +98,7 @@ function alertaConferido(bruto: unknown, prazoSeg: number): number | null {
   const n = Number(bruto);
   if (!Number.isInteger(n) || n < 1 || n >= prazoSeg) {
     throw PipeError.request(
-      'alerta_invalido',
+      'alert_invalid',
       'O alerta é um inteiro positivo, menor que o prazo — alerta que soa depois do estouro não avisa nada.',
     );
   }
@@ -122,16 +122,16 @@ async function scopeChecked(
 ): Promise<{ scopeType: ScopeSla; scopeId: string | null }> {
   if (!scopeSlaValid(scopeType)) {
     throw PipeError.request(
-      'escopo_invalido',
+      'scope_invalid',
       `Escopo "${scopeType}" não é aplicado pelo motor de SLA hoje. Use "tenant" ou "fila".`,
     );
   }
   if (scopeType === 'tenant') return { scopeType, scopeId: null };
 
   const id = String(scopeId ?? '').trim();
-  if (!id) throw PipeError.request('escopo_id_obrigatorio', 'Escolha a fila deste escopo.');
+  if (!id) throw PipeError.request('scope_id_required', 'Escolha a fila deste escopo.');
   const [alvo] = await tx.select({ id: queue.id }).from(queue).where(and(eq(queue.tenantId, tid), eq(queue.id, id))).limit(1);
-  if (!alvo) throw PipeError.request('fila_nao_encontrada', 'Fila não encontrada.');
+  if (!alvo) throw PipeError.request('queue_not_found', 'Fila não encontrada.');
   return { scopeType, scopeId: id };
 }
 
@@ -169,13 +169,13 @@ export async function createRuleSla(
   const { scopeType, scopeId } = await scopeChecked(tx, tid, pedido.escopoTipo ?? 'tenant', pedido.escopoId);
   const active = pedido.active ?? true;
 
-  if (await nomeEmUso(tx, tid, nome)) throw PipeError.conflito('nome_em_uso', `Já existe uma regra chamada "${nome}".`);
+  if (await nomeEmUso(tx, tid, nome)) throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${nome}".`);
 
   const [criada] = await tx
     .insert(regraSla)
     .values({ tenantId: tid, nome, alvo, prazoSeg, alertaSeg, escopoTipo, escopoId, active })
     .returning({ id: regraSla.id });
-  if (!criada) throw PipeError.request('regra_nao_criada', 'Não consegui gravar a regra de SLA.');
+  if (!criada) throw PipeError.request('rule_not_created', 'Não consegui gravar a regra de SLA.');
 
   await registrarAuditoria(tx, tid, {
     ator: { tipo: 'usuario', id: userId },
@@ -211,7 +211,7 @@ export async function editarRegraSla(
   else if (depois.alertaSeg !== null && depois.alertaSeg >= depois.prazoSeg) {
     // Prazo encolheu abaixo do alerta que já existia — recusa em vez de deixar um alerta que nunca soa.
     throw PipeError.request(
-      'alerta_invalido',
+      'alert_invalid',
       'O novo prazo é menor ou igual ao alerta já cadastrado. Informe também o novo alerta.',
     );
   }
@@ -228,7 +228,7 @@ export async function editarRegraSla(
   }
 
   if (depois.nome !== antes.nome && (await nomeEmUso(tx, tid, depois.nome, id))) {
-    throw PipeError.conflito('nome_em_uso', `Já existe uma regra chamada "${depois.nome}".`);
+    throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${depois.nome}".`);
   }
 
   const mudanca = diferenca(antes, depois);
@@ -283,7 +283,7 @@ export async function excluirRegraSla(tx: TransactionPipe, tid: string, usuarioI
     .limit(1);
   if (inProgress) {
     throw PipeError.conflito(
-      'regra_com_sla_correndo',
+      'rule_with_sla_running',
       'Esta regra tem cronômetro de SLA correndo em conversa aberta. Desative-a em vez de excluir, ou espere as conversas encerrarem.',
     );
   }

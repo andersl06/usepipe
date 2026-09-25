@@ -24,7 +24,7 @@ export function middleware(request: NextRequest): NextResponse {
   url.search = '';
   // Para onde a pessoa queria ir. A API confere que é caminho interno antes de
   // usá-lo, e a tela confere de novo antes de mandar.
-  if (pathname !== '/') url.searchParams.set('destino', `${pathname}${search}`);
+  if (pathname !== '/') url.searchParams.set('returnTo', `${pathname}${search}`);
   return NextResponse.redirect(url);
 }
 

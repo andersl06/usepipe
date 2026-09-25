@@ -67,7 +67,7 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
               da conta em vigor em 10px embaixo (`organization-panel-options`).
               A conta em vigor NÃO aparece na lista abaixo: ela já é o título
               do botão que abriu este menu. */}
-          <Link className="pt-painel" href="/contrato">
+          <Link className="pt-painel" href="/contract">
             <IconePortal nome="painel" tamanho={24} />
             <span>
               Painel do contrato
@@ -215,11 +215,11 @@ export function BarraDoPortal({ data }: { data: PortalShell }) {
                 `logout`. "Minhas preferências" lá é tela à parte; aqui é a
                 segunda aba de "Minha conta" (idioma e fuso), que é onde o mesmo
                 par de campos vive. */}
-            <Link href="/minha-conta">
+            <Link href="/my-account">
               <IconePortal nome="pessoa" tamanho={20} />
               Minha conta
             </Link>
-            <Link href="/minha-conta?aba=preferencias">
+            <Link href="/my-account?aba=preferencias">
               <IconePortal nome="preferencias" tamanho={20} />
               Minhas preferências
             </Link>

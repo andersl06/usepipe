@@ -70,18 +70,18 @@ const ACTIONS: Record<string, Acao> = {
   salvarEtiquetasDeEncerramento: acoesConfiguracoes.saveLabelsOfClosure,
 };
 
-@Controller('v1/gestao')
+@Controller('v1/management')
 export class ManagementRegistrationsController {
   /* ------------------------------------------------------------ leituras */
 
-  @Get('regras/atendimento')
+  @Get('rules/attendance')
   @WithSession()
   rulesOfAttendance(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => cadastros.loadRulesOfQueue(tx));
   }
 
-  @Get('regras/horarios')
+  @Get('rules/schedules')
   @WithSession()
   horarios(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
@@ -91,28 +91,28 @@ export class ManagementRegistrationsController {
     }));
   }
 
-  @Get('atendentes/gestao')
+  @Get('agents/management')
   @WithSession()
   agents(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => cadastros.loadAgents(tx));
   }
 
-  @Get('atendentes/filas')
+  @Get('agents/queues')
   @WithSession()
   queues(@Req() request: RequestWithSession) {
     const session = sessionOf(request);
     return noTenant(session.tenantId, (tx) => cadastros.loadQueues(tx));
   }
 
-  @Get('atendentes/pausas')
+  @Get('agents/pauses')
   @WithSession()
   pausas(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => cadastros.carregarPausas(tx));
   }
 
-  @Get('comunicacao/modelos')
+  @Get('communication/templates')
   @WithSession()
   modelos(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
@@ -123,42 +123,42 @@ export class ManagementRegistrationsController {
     }));
   }
 
-  @Get('comunicacao/respostas-prontas')
+  @Get('communication/responses-ready')
   @WithSession()
   respostasProntas(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => comunicacao.carregarRespostasProntas(tx));
   }
 
-  @Get('canais')
+  @Get('channels')
   @WithSession()
   channels(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => configuracoes.loadChannels(tx));
   }
 
-  @Get('configuracoes/regras')
+  @Get('settings/rules')
   @WithSession()
   regrasDeSla(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => configuracoes.carregarRegras(tx));
   }
 
-  @Get('configuracoes/dados')
+  @Get('settings/data')
   @WithSession()
   data(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => configuracoes.loadData(tx));
   }
 
-  @Get('configuracoes/gerais')
+  @Get('settings/general')
   @WithSession()
   general(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => configuracoes.loadGeneral(tx));
   }
 
-  @Get('regras/prioridade')
+  @Get('rules/priority')
   @WithSession()
   rulesOfPriority(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
@@ -167,7 +167,7 @@ export class ManagementRegistrationsController {
 
   /* -------------------------------------------------------- filas (item 1) */
 
-  @Post('atendentes/filas')
+  @Post('agents/queues')
   @WithSession()
   async createQueue(
     @Req() requisicao: RequestWithSession,
@@ -324,7 +324,7 @@ export class ManagementRegistrationsController {
 
   /* ------------------------------------------------------------ SLA (item 2) */
 
-  @Post('configuracoes/regras')
+  @Post('settings/rules')
   @WithSession()
   async createRuleSla(
     @Req() requisicao: RequestWithSession,
@@ -363,7 +363,7 @@ export class ManagementRegistrationsController {
 
   /* ------------------------------------------------------ palavras proibidas */
 
-  @Get('configuracoes/palavras-proibidas')
+  @Get('settings/words-forbidden')
   @WithSession()
   listarPalavrasProibidas(@Req() requisicao: RequestWithSession) {
     const sessao = sessionOf(requisicao);
@@ -372,7 +372,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Post('configuracoes/palavras-proibidas')
+  @Post('settings/words-forbidden')
   @WithSession()
   async createWordForbidden(
     @Req() requisicao: RequestWithSession,
@@ -414,7 +414,7 @@ export class ManagementRegistrationsController {
 
   /* ------------------------------------------------------- prioridade (item 4) */
 
-  @Post('regras/prioridade')
+  @Post('rules/priority')
   @WithSession()
   async createRulePriority(
     @Req() requisicao: RequestWithSession,
@@ -458,11 +458,11 @@ export class ManagementRegistrationsController {
      `?atendentes=id,id` — a rota da origem também não tem `:id` na URL, porque
      a página atende vários de uma vez. */
 
-  @Get('atendentes/permissoes')
+  @Get('agents/permissions')
   @WithSession()
   permissionsOfAgent(
     @Req() requisicao: RequestWithSession,
-    @Query('atendentes') agents = '',
+    @Query('agents') agents = '',
   ): Promise<permissoesDoAtendente.PermissionsOfAgent> {
     const sessao = sessionOf(requisicao);
     const ids = agents
@@ -475,7 +475,7 @@ export class ManagementRegistrationsController {
     );
   }
 
-  @Patch('atendentes/permissoes')
+  @Patch('agents/permissions')
   @WithSession()
   async savePermissionsOfAgent(
     @Req() requisicao: RequestWithSession,
@@ -490,7 +490,7 @@ export class ManagementRegistrationsController {
 
   /* ------------------------------------------------ respostas prontas (item 2) */
 
-  @Post('comunicacao/respostas-prontas')
+  @Post('communication/responses-ready')
   @WithSession()
   async createResponseReady(
     @Req() requisicao: RequestWithSession,
@@ -532,7 +532,7 @@ export class ManagementRegistrationsController {
 
   /* -------------------------------------------------------- pausas (item 3) */
 
-  @Post('atendentes/pausas')
+  @Post('agents/pauses')
   @WithSession()
   async createReasonPause(
     @Req() requisicao: RequestWithSession,

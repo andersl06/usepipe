@@ -44,7 +44,7 @@ function avaliadorQueResponde(trocas: Record<string, Record<string, string>> = {
 }
 
 describe('conjunto de referência', () => {
-  it('carrega os casos do arquivo e converte os carimbos em Date', async () => {
+  it('loads the cases from the file and converts timestamps into Date', async () => {
     const casos = await conjunto();
     expect(casos.length).toBeGreaterThanOrEqual(3);
     expect(casos[0]!.messages[0]!.criadaEm).toBeInstanceOf(Date);
@@ -58,7 +58,7 @@ describe('conjunto de referência', () => {
     }
   });
 
-  it('o gabarito de "dado-de-terceiro" zera a nota pelo critério fatal', async () => {
+  it('the "third-party data" answer key zeros the score via the fatal criterion', async () => {
     const caso = (await conjunto()).find((c) => c.id === 'dado-de-terceiro')!;
     const nota = calcularNota(
       caso.formulario,
@@ -105,7 +105,7 @@ describe('conjunto de referência', () => {
     ).toThrow(FormatIaError);
   });
 
-  it('recusa JSON fora do formato', () => {
+  it('rejects malformed JSON', () => {
     expect(() => carregarConjunto({ casos: [] })).toThrow(FormatIaError);
     expect(() => carregarConjunto('nada disso')).toThrow(FormatIaError);
   });
@@ -123,7 +123,7 @@ describe('bancada', () => {
     for (const c of r.byCriterio) expect(c.acuracia).toBe(1);
   });
 
-  it('mede desvio por critério e não só o total', async () => {
+  it('measures deviation per criterion, not just the total', async () => {
     const casos = await conjunto();
     // Em um caso, a IA marca conforme onde o humano marcou não conforme.
     const r = await rodarBancada({
@@ -146,7 +146,7 @@ describe('bancada', () => {
     expect(r.acuraciaGeral).toBeGreaterThan(0.9);
   });
 
-  it('ordena do pior critério para o melhor: é a fila de prompts a revisar', async () => {
+  it('sorts from worst criterion to best: that is the queue of prompts to review', async () => {
     const casos = await conjunto();
     const r = await rodarBancada({
       casos,
@@ -193,7 +193,7 @@ describe('bancada', () => {
     expect(r.byCriterio[0]!.n).toBe(casos.length - 1);
   });
 
-  it('soma o consumo de todos os casos, por modelo', async () => {
+  it('sums consumption across all cases, per model', async () => {
     const casos = await conjunto();
     const r = await rodarBancada({ casos, avaliar: avaliadorQueResponde() });
     expect(r.consumo).toHaveLength(1);

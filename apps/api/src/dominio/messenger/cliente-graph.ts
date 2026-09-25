@@ -28,15 +28,15 @@ export class ClienteGraphMessengerReal extends ClienteGraphMessenger {
   private async pedir<T>(caminho: string, init: RequestInit = {}, consulta: Record<string, string> = {}): Promise<T> {
     let resposta: Response;
     try { resposta = await this.buscar(this.url(caminho, consulta), { ...init, headers: { authorization: `Bearer ${this.token}`, 'content-type': 'application/json', ...init.headers } }); }
-    catch (error) { throw new PipeError(502, 'meta_inacessivel', esconder(String((error as Error).message), this.token)); }
+    catch (error) { throw new PipeError(502, 'meta_unreachable', esconder(String((error as Error).message), this.token)); }
     const corpo = await resposta.json().catch(() => ({})) as { error?: { message?: string } };
-    if (!resposta.ok || corpo.error) throw new PipeError(502, 'meta_recusou', esconder(corpo.error?.message ?? `HTTP ${resposta.status}`, this.token));
+    if (!resposta.ok || corpo.error) throw new PipeError(502, 'meta_refused', esconder(corpo.error?.message ?? `HTTP ${resposta.status}`, this.token));
     return corpo as T;
   }
   fetchPage(): Promise<PageMessenger> { return this.pedir('me', {}, { fields: 'id,name' }); }
   async checkSecretOfApp(segredo: string): Promise<boolean> {
     try { await this.pedir('me', {}, { fields: 'id', appsecret_proof: createHmac('sha256', segredo).update(this.token).digest('hex') }); return true; }
-    catch (erro) { if (erro instanceof PipeError && erro.codigo === 'meta_recusou') return false; throw erro; }
+    catch (erro) { if (erro instanceof PipeError && erro.codigo === 'meta_refused') return false; throw erro; }
   }
   assinarWebhook(paginaId: string): Promise<unknown> { return this.pedir(`${paginaId}/subscribed_apps`, { method: 'POST', body: JSON.stringify({ subscribed_fields: ['messages', 'messaging_postbacks', 'messaging_optins'].join(',') }) }); }
   desassinarWebhook(paginaId: string): Promise<unknown> { return this.pedir(`${paginaId}/subscribed_apps`, { method: 'DELETE' }); }
@@ -52,7 +52,7 @@ export class ClienteGraphMessengerDuble extends ClienteGraphMessenger {
   static reiniciar(): void { this.chamadas.length = 0; }
   static idOfPage(token: string): string { return `1${BigInt(`0x${createHash('sha256').update(token).digest('hex').slice(0, 14)}`).toString().padStart(16, '0').slice(0, 16)}`; }
   constructor(private readonly token = '') { super(); }
-  fetchPage(): Promise<PageMessenger> { ClienteGraphMessengerDuble.chamadas.push({ acao: 'buscar_pagina' }); if (!this.token || this.token.startsWith('invalido')) return Promise.reject(new PipeError(502, 'meta_recusou', 'Token inválido.')); const id = ClienteGraphMessengerDuble.idOfPage(this.token); return Promise.resolve({ id, name: 'Página de Ensaio' }); }
+  fetchPage(): Promise<PageMessenger> { ClienteGraphMessengerDuble.chamadas.push({ acao: 'buscar_pagina' }); if (!this.token || this.token.startsWith('invalido')) return Promise.reject(new PipeError(502, 'meta_refused', 'Token inválido.')); const id = ClienteGraphMessengerDuble.idOfPage(this.token); return Promise.resolve({ id, name: 'Página de Ensaio' }); }
   checkSecretOfApp(segredo: string): Promise<boolean> { ClienteGraphMessengerDuble.chamadas.push({ acao: 'conferir_segredo' }); return Promise.resolve(!segredo.startsWith('bad')); }
   assinarWebhook(paginaId: string): Promise<unknown> { ClienteGraphMessengerDuble.chamadas.push({ acao: 'assinar', pageId }); return Promise.resolve({ success: true }); }
   desassinarWebhook(paginaId: string): Promise<unknown> { ClienteGraphMessengerDuble.chamadas.push({ acao: 'desassinar', pageId }); return Promise.resolve({ success: true }); }

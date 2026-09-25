@@ -24,7 +24,7 @@ const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<
  */
 
 export interface FatiaDeClasse {
-  nome: string;
+  name: string;
   quantity: number;
   /** Participação na barra. Divisão de contagens, não é métrica da spec. */
   fraction: number;
@@ -32,12 +32,12 @@ export interface FatiaDeClasse {
 
 export interface GroupSatisfaction {
   /** `csat` ou `nps`. */
-  tipo: string;
+  type: string;
   escalaMin: number;
   escalaMax: number;
   media: number | null;
   /** Respostas com nota — o "parcial" e o "completo" da Blip somados. */
-  respostas: number;
+  responses: number;
   /** Pesquisas geradas para conversas encerradas no período, respondidas ou não. */
   enviadas: number;
   /** Respostas ÷ conversas encerradas no período. Obrigatória ao lado da média. */
@@ -47,8 +47,8 @@ export interface GroupSatisfaction {
 
 export interface ComentarioRecente {
   id: string;
-  tipo: string;
-  nota: number | null;
+  type: string;
+  note: number | null;
   escalaMin: number;
   escalaMax: number;
   classe: string | null;
@@ -117,11 +117,11 @@ export async function loadSatisfaction(
       .where(closedInPeriod);
 
     type Acumulador = {
-      tipo: string;
+      type: string;
       escalaMin: number;
       escalaMax: number;
       enviadas: number;
-      respostas: number;
+      responses: number;
       /** Um par por pesquisa: a média do grupo é soma ÷ soma, nunca média de médias. */
       pares: Map<string, { soma: number; count: number }>;
       classes: Map<string, number>;

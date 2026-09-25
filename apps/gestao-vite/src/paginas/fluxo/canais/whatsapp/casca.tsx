@@ -56,11 +56,11 @@ export interface ContextWithoutChannel {
 
 export function ShellChannelWhatsapp() {
   const { contact } = useContact();
-  const read = useRead<ChannelOfFlowInScreen>(`/v1/gestao/fluxos/${contact.id}/canal`);
+  const read = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
   const situation = read.data ? channelInBotState(read.data.channel, 'whatsapp_cloud') : null;
   const conectado = situation?.state === 'conectado';
   /* A saúde só interessa conectado; 403 (sem `canal.gerenciar`) não é falha da página. */
-  const saudes = useRead<{ channels: ChannelWhatsAppVisivel[] }>(conectado ? '/v1/canais/whatsapp' : null, {
+  const saudes = useRead<{ channels: ChannelWhatsAppVisivel[] }>(conectado ? '/v1/channels/whatsapp' : null, {
     retry: false,
   });
 

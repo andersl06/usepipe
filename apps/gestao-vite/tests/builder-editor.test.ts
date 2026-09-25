@@ -18,7 +18,7 @@ import {
 import { caixaContemPonto, houveArrasto } from '../src/paginas/builder/setas.ts';
 import { blockErrors } from '../src/paginas/builder/validacao.ts';
 
-test('montarDesenho exporta os blocos da tela e as ações globais sem alterar o mapa', () => {
+test('buildDrawing exports the screen\'s blocks and the global actions without changing the map', () => {
   const first = newBlock({}, { top: 10, left: 20 }, 'primeiro');
   const mapa = { first };
 
@@ -30,7 +30,7 @@ test('montarDesenho exporta os blocos da tela e as ações globais sem alterar o
   assert.notEqual(desenho.flow.primeiro, first);
 });
 
-test('cria, move e exclui bloco, removendo destinos que apontavam para ele', () => {
+test('creates, moves and deletes a block, removing destinations that pointed to it', () => {
   const origem = newBlock({}, { top: 10, left: 20 }, 'origem');
   const destination = newBlock({ origem }, { top: 50, left: 60 }, 'destino');
   const mapa = addBlock({ origem }, destination);
@@ -45,7 +45,7 @@ test('cria, move e exclui bloco, removendo destinos que apontavam para ele', () 
   assert.deepEqual(excluirBlock(movido, 'destino').origem!.$conditionOutputs, []);
 });
 
-test('copia um bloco para a área de transferência e cola uma cópia na posição escolhida', () => {
+test('copies a block to the clipboard and pastes a copy at the chosen position', () => {
   const origem = newBlock({}, { top: 10, left: 20 }, 'origem');
   const copiado = copiedTextBlock(copiedBlockText(origem));
   assert.ok(copiado);
@@ -57,7 +57,7 @@ test('copia um bloco para a área de transferência e cola uma cópia na posiç�
   assert.equal(copiedTextBlock('texto comum'), null);
 });
 
-test('liga e desliga uma aresta sem duplicar a condição de saída', () => {
+test('toggles an edge on and off without duplicating the output\'s condition', () => {
   const origem = newBlock({}, { top: 0, left: 0 }, 'origem');
   const destination = newBlock({ origem }, { top: 0, left: 200 }, 'destino');
   const mapa = { origem, destination };
@@ -84,7 +84,7 @@ test('desfazer e refazer tratam o arrasto como uma mudança única', () => {
   assert.deepEqual(positionOf(reduzir(reduzir(solto, { tipo: 'desfazer' }), { tipo: 'refazer' }).mapa.bloco!), { top: 30, left: 40 });
 });
 
-test('mantém a ordem das condições de saída porque a primeira condição compatível vence', () => {
+test('keeps the outputs\' condition order because the first matching condition wins', () => {
   const block = newBlock({}, { top: 0, left: 0 }, 'origem');
   block.$conditionOutputs = [
     { $id: 'primeira', stateId: 'um', conditions: [] },
@@ -94,7 +94,7 @@ test('mantém a ordem das condições de saída porque a primeira condição com
   assert.deepEqual(moverSaida(block, 1, 0).$conditionOutputs?.map((saida) => saida.$id), ['segunda', 'primeira']);
 });
 
-test('Ctrl+Z some enquanto um bloco está sendo arrastado, para não perder o desfazer do arrasto', () => {
+test('Ctrl+Z disappears while a block is being dragged, so the drag\'s undo is not lost', () => {
   const mapa = { bloco: newBlock({}, { top: 0, left: 0 }, 'bloco') };
   const carregado = reduzir(stateInitial(), { tipo: 'carregar', mapa, global: {} });
 
@@ -127,7 +127,7 @@ test('Ctrl+Z some enquanto um bloco está sendo arrastado, para não perder o de
   assert.deepEqual(positionOf(segundoDesfazer.mapa.bloco!), { top: 0, left: 0 });
 });
 
-test('aplicarGlobais marca sujo sem mexer na pilha de desfazer do desenho', () => {
+test('applyGlobals marks dirty without touching the canvas undo stack', () => {
   const mapa = { bloco: newBlock({}, { top: 0, left: 0 }, 'bloco') };
   const carregado = reduzir(stateInitial(), { tipo: 'carregar', mapa, global: {} });
   assert.equal(carregado.sujo, false);
@@ -143,7 +143,7 @@ test('aplicarGlobais marca sujo sem mexer na pilha de desfazer do desenho', () =
   assert.equal(comAcaoGlobal.mapa, mapa);
 });
 
-test('houveArrasto: só conta arrasto de verdade, não um clique que tremeu um pixel', () => {
+test('wasDragged: only counts a real drag, not a click that jittered a pixel', () => {
   assert.equal(houveArrasto(0, 0), false);
   assert.equal(houveArrasto(1, 1), false);
   assert.equal(houveArrasto(2, 0), true);
@@ -151,7 +151,7 @@ test('houveArrasto: só conta arrasto de verdade, não um clique que tremeu um p
   assert.equal(houveArrasto(-5, 5), true);
 });
 
-test('o alvo de uma ligação é resolvido pela caixa do bloco, sem depender do elemento do DOM sob o cursor', () => {
+test('a connection\'s target is resolved from the block\'s box, without depending on the DOM element under the cursor', () => {
   const caixa = { left: 100, top: 80, largura: 175, altura: 76 };
   assert.equal(caixaContemPonto(caixa, { x: 100, y: 80 }), true);
   assert.equal(caixaContemPonto(caixa, { x: 275, y: 156 }), true);
@@ -159,7 +159,7 @@ test('o alvo de uma ligação é resolvido pela caixa do bloco, sem depender do 
   assert.equal(caixaContemPonto(caixa, { x: 140, y: 157 }), false);
 });
 
-test('validação do painel aponta os campos obrigatórios da entrada antes de salvar', () => {
+test('the panel\'s validation flags the entry\'s required fields before saving', () => {
   const block = newBlock({}, { top: 0, left: 0 }, 'bloco');
   const inbound = block.$contentActions?.[0]?.input;
   assert.ok(inbound);

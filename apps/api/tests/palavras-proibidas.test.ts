@@ -11,7 +11,7 @@ process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { encontrarPalavrasProibidas, normalizarTermo } = await import(
   '../src/dominio/gestao/palavras-proibidas.js'
@@ -88,7 +88,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -105,7 +105,7 @@ async function pedir(
   caminho: string,
   session: string,
   corpo?: Record<string, unknown>,
-): Promise<{ status: number; corpo: Corpo }> {
+): Promise<{ status: number; body: Corpo }> {
   const resposta = await fetch(`${api.url}${caminho}`, {
     method: metodo,
     headers: comCookie(session),
@@ -146,7 +146,7 @@ async function contarMessages(cenario: Cenario, conversationId: string): Promise
   return rows[0]?.n ?? 0;
 }
 
-const CAMINHO = '/v1/gestao/configuracoes/palavras-proibidas';
+const CAMINHO = '/v1/management/settings/words-forbidden';
 
 async function createWord(sessao: string, corpo: Record<string, unknown> = {}) {
   return pedir('POST', CAMINHO, sessao, { termo: `termo-${randomUUID().slice(0, 8)}`, ...corpo });
@@ -215,7 +215,7 @@ describe('encontrarPalavrasProibidas — a régua de §3.4', () => {
     ).toEqual(['boleto falso']);
   });
 
-  it('separa pelos mesmos caracteres da origem: pontuação corta, hífen não', () => {
+  it('Split banned-word matches at punctuation and hyphens', () => {
     expect(encontrarPalavrasProibidas('idiota!', ['idiota'])).toEqual(['idiota']);
     expect(encontrarPalavrasProibidas('bem-vindo', ['vindo'])).toEqual(['vindo']);
     expect(encontrarPalavrasProibidas('ok', ['idiota'])).toEqual([]);
@@ -239,31 +239,31 @@ describe(`POST ${CAMINHO}`, () => {
 
     const lista = await pedir('GET', CAMINHO, sessionManager);
     expect(lista.status).toBe(200);
-    expect((lista.corpo as { id: string; termo: string }[]).some((p) => p.id === corpo.id)).toBe(true);
+    expect((lista.corpo as { id: string; term: string }[]).some((p) => p.id === corpo.id)).toBe(true);
   });
 
-  it('recusa termo vazio (400) e termo repetido sem acento e sem caixa (409)', async () => {
+  it('Reject empty banned terms and accent- or case-insensitive duplicates', async () => {
     const empty = await createWord(sessionManager, { termo: '   ' });
     expect(empty.status).toBe(400);
-    expect(empty.corpo.erro.codigo).toBe('termo_obrigatorio');
+    expect(empty.corpo.erro.code).toBe('term_required');
 
     const marca = randomUUID().slice(0, 6);
     expect((await createWord(sessionManager, { termo: `Açúcar ${marca}` })).status).toBe(201);
     const repetido = await createWord(sessionManager, { termo: `ACUCAR ${marca}` });
     expect(repetido.status).toBe(409);
-    expect(repetido.corpo.erro.codigo).toBe('termo_em_uso');
+    expect(repetido.corpo.erro.code).toBe('term_in_use');
   });
 
-  it('sem tenant.configurar é 403; sem sessão é 401', async () => {
+  it('Return 403 without `tenant.configurar` and 401 without a session', async () => {
     const semPoder = await createWord(sessionWithoutPoder);
     expect(semPoder.status).toBe(403);
-    expect(semPoder.corpo.erro.codigo).toBe('sem_permissao');
+    expect(semPoder.corpo.erro.code).toBe('without_permission');
     expect(semPoder.corpo.erro.detalhe.permissao).toBe('tenant.configurar');
 
     const withoutSession = await fetch(`${api.url}${CAMINHO}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ termo: 'qualquer' }),
+      body: JSON.stringify({ term: 'qualquer' }),
     });
     expect(withoutSession.status).toBe(401);
   });
@@ -303,14 +303,14 @@ describe(`PATCH ${CAMINHO}/:id`, () => {
     const { corpo: first } = await createWord(sessionManager);
     const { corpo: segunda } = await createWord(sessionManager);
     const lista = await pedir('GET', CAMINHO, sessionManager);
-    const termOfFirst = (lista.corpo as { id: string; termo: string }[]).find(
+    const termOfFirst = (lista.corpo as { id: string; term: string }[]).find(
       (p) => p.id === first.id,
     )!.termo;
     const repetido = await pedir('PATCH', `${CAMINHO}/${segunda.id}`, sessionManager, {
       termo: termOfFirst.toUpperCase(),
     });
     expect(repetido.status).toBe(409);
-    expect(repetido.corpo.erro.codigo).toBe('termo_em_uso');
+    expect(repetido.corpo.erro.code).toBe('term_in_use');
   });
 
   it('sem tenant.configurar é 403; de outro tenant é 404; id malformado é 404', async () => {
@@ -330,7 +330,7 @@ describe(`PATCH ${CAMINHO}/:id`, () => {
 });
 
 describe(`DELETE ${CAMINHO}/:id`, () => {
-  it('exclui de verdade (204) e registra no log; de outro tenant é 404; id malformado é 404', async () => {
+  it('Delete and audit banned terms, returning 404 for invalid or cross-tenant IDs', async () => {
     const { corpo: criada } = await createWord(sessionManager);
 
     const outroTenant = await fetch(`${api.url}${CAMINHO}/${criada.id}`, {
@@ -375,7 +375,7 @@ describe(`DELETE ${CAMINHO}/:id`, () => {
  * A recusa no envio
  * ========================================================================= */
 
-describe('POST /v1/conversas/:id/mensagens — a lista barra o envio do atendente', () => {
+describe('POST /v1/conversations/:id/mensagens — a lista barra o envio do atendente', () => {
   it('recusa (400) com a palavra encontrada, e nada é gravado; sem acento e sem caixa; palavra desativada não barra; outro tenant não é afetado', async () => {
     const marca = randomUUID().slice(0, 6);
     const palavra = `idiota${marca}`;
@@ -385,25 +385,25 @@ describe('POST /v1/conversas/:id/mensagens — a lista barra o envio do atendent
 
     // Palavra solta, com acento e caixa diferentes, e num token que a CONTÉM.
     const conversationA = await newConversation(a, contactA);
-    const recusada = await pedir('POST', `/v1/conversas/${conversationA}/mensagens`, sessionAgentA, {
+    const recusada = await pedir('POST', `/v1/conversations/${conversationA}/messages`, sessionAgentA, {
       texto: `Vocês são uns IDIÓTA${marca}s!`,
     });
     expect(recusada.status).toBe(400);
-    expect(recusada.corpo.erro.codigo).toBe('palavra_proibida');
-    expect(recusada.corpo.erro.mensagem).toContain(`"${palavra}"`);
+    expect(recusada.corpo.erro.code).toBe('word_forbidden');
+    expect(recusada.corpo.erro.message).toContain(`"${palavra}"`);
     expect(recusada.corpo.erro.detalhe.palavras).toEqual([palavra]);
     // Não gravou mensagem nem outbox: a recusa é ANTES de gravar.
     expect(await contarMessages(a, conversationA)).toBe(0);
 
     // Frase: substring do texto inteiro, com espaços a mais e caixa diferente.
-    const recusadaFrase = await pedir('POST', `/v1/conversas/${conversationA}/mensagens`, sessionAgentA, {
+    const recusadaFrase = await pedir('POST', `/v1/conversations/${conversationA}/messages`, sessionAgentA, {
       texto: `Mandei o Boleto   FALSO ${marca} ontem`,
     });
     expect(recusadaFrase.status).toBe(400);
     expect(recusadaFrase.corpo.erro.detalhe.palavras).toEqual([frase]);
 
     // Texto limpo passa.
-    const limpa = await pedir('POST', `/v1/conversas/${conversationA}/mensagens`, sessionAgentA, {
+    const limpa = await pedir('POST', `/v1/conversations/${conversationA}/messages`, sessionAgentA, {
       texto: 'Olá, tudo bem? Segue o boleto.',
     });
     expect(limpa.status).toBe(201);
@@ -414,28 +414,28 @@ describe('POST /v1/conversas/:id/mensagens — a lista barra o envio do atendent
       ativo: false,
     });
     expect(desativada.status).toBe(200);
-    const liberada = await pedir('POST', `/v1/conversas/${conversationA}/mensagens`, sessionAgentA, {
+    const liberada = await pedir('POST', `/v1/conversations/${conversationA}/messages`, sessionAgentA, {
       texto: `Vocês são uns ${palavra}s!`,
     });
     expect(liberada.status).toBe(201);
 
     // Reativada, volta a barrar.
     await pedir('PATCH', `${CAMINHO}/${criadaPalavra.id}`, sessionManager, { ativo: true });
-    const deNovo = await pedir('POST', `/v1/conversas/${conversationA}/mensagens`, sessionAgentA, {
+    const deNovo = await pedir('POST', `/v1/conversations/${conversationA}/messages`, sessionAgentA, {
       texto: `${palavra}`,
     });
     expect(deNovo.status).toBe(400);
 
     // A lista é do tenant A: o atendente do B manda a mesma palavra sem ser barrado.
     const conversationB = await newConversation(b, contactB);
-    const doB = await pedir('POST', `/v1/conversas/${conversationB}/mensagens`, sessionAgentB, {
+    const doB = await pedir('POST', `/v1/conversations/${conversationB}/messages`, sessionAgentB, {
       texto: `${palavra} e ${frase}`,
     });
     expect(doB.status).toBe(201);
     expect(await contarMessages(b, conversationB)).toBe(1);
   });
 
-  it('a legenda do anexo passa pelo mesmo filtro; mensagem do sistema (chave de API, sem atendente) não', async () => {
+  it('Filter attachment captions while allowing system messages from API keys', async () => {
     const marca = randomUUID().slice(0, 6);
     const palavra = `golpe${marca}`;
     expect((await createWord(sessionManager, { termo: palavra })).status).toBe(201);
@@ -443,7 +443,7 @@ describe('POST /v1/conversas/:id/mensagens — a lista barra o envio do atendent
     const conversaA = await newConversation(a, contactA);
     // Chave de API sem `atendente_id`: é mensagem do sistema — o filtro da origem
     // é do Desk, e o bot/integração não passa por ele.
-    const doSistema = await fetch(`${api.url}/v1/conversas/${conversaA}/mensagens`, {
+    const doSistema = await fetch(`${api.url}/v1/conversations/${conversaA}/messages`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${a.token}` },
       body: JSON.stringify({ texto: `isso é ${palavra}` }),
@@ -451,14 +451,14 @@ describe('POST /v1/conversas/:id/mensagens — a lista barra o envio do atendent
     expect(doSistema.status).toBe(201);
 
     // A mesma chave assinando por um atendente cai no filtro.
-    const byAgent = await fetch(`${api.url}/v1/conversas/${conversaA}/mensagens`, {
+    const byAgent = await fetch(`${api.url}/v1/conversations/${conversaA}/messages`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${a.token}` },
       body: JSON.stringify({ texto: `isso é ${palavra}`, atendente_id: a.agentId }),
     });
     expect(byAgent.status).toBe(400);
-    expect(((await byAgent.json()) as { error: { codigo: string } }).error.codigo).toBe(
-      'palavra_proibida',
+    expect(((await byAgent.json()) as { error: { code: string } }).error.codigo).toBe(
+      'word_forbidden',
     );
   });
 });

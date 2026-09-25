@@ -20,13 +20,13 @@ export interface CredentialsInstagram {
 }
 
 export type ConteudoInstagram =
-  | { tipo: 'texto'; texto: string }
-  | { tipo: 'imagem' | 'audio' | 'video' | 'documento'; link: string; legenda?: string | undefined };
+  | { type: 'texto'; texto: string }
+  | { type: 'imagem' | 'audio' | 'video' | 'documento'; link: string; legenda?: string | undefined };
 
 export interface PedidoInstagram {
   /** IGSID do contato (`contato_identidade.identificador`). */
   para: string;
-  conteudo: ConteudoInstagram;
+  content: ConteudoInstagram;
   credentials: CredentialsInstagram;
 }
 
@@ -95,7 +95,7 @@ export class ClienteInstagramReal implements ClienteInstagram {
 /** Dublê: devolve `mid` sequencial e registra a chamada, sem token. */
 export class ClienteInstagramDuble implements ClienteInstagram {
   readonly nome = 'duble' as const;
-  readonly chamadas: { para: string; tipo: string; igUserId: string; idProvedor: string | null }[] = [];
+  readonly chamadas: { para: string; type: string; igUserId: string; idProvedor: string | null }[] = [];
   /** IGSIDs que sempre falham, de forma permanente. */
   falharPara: string[] = [];
   private sequencia = 0;

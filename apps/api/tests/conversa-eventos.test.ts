@@ -8,7 +8,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 11).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -40,7 +40,7 @@ beforeAll(async () => {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   cookie = novo.token;
 
@@ -98,26 +98,26 @@ function chamar(caminho: string, corpo?: unknown): Promise<Response> {
 }
 
 async function eventosDe(conversationId: string): Promise<string[]> {
-  const { rows } = await cenario.dono.execute<{ tipo: string }>(sql`
+  const { rows } = await cenario.dono.execute<{ type: string }>(sql`
     select tipo from evento_atendimento where conversa_id = ${conversationId}::uuid order by em, tipo
   `);
   return rows.map((r) => r.tipo);
 }
 
-describe('encerrar conversa', () => {
-  it('grava o evento `encerrada` — sem ele o relatório não sabe que fechou', async () => {
+describe('Close conversations and record their events', () => {
+  it('Record the `encerrada` event so reports recognize conversation closure', async () => {
     const id = await newConversation('em_atendimento');
 
-    const resposta = await chamar(`/v1/conversas/${id}/encerrar`, { etiqueta_id: etiquetaId });
+    const resposta = await chamar(`/v1/conversations/${id}/close`, { etiqueta_id: etiquetaId });
 
     expect(resposta.status).toBe(201);
     expect(await eventosDe(id)).toContain('encerrada');
   });
 
-  it('carimba quem encerrou e com que etiqueta, nos dados do evento', async () => {
+  it('Record who closed a conversation and which label was used in its event', async () => {
     const id = await newConversation('em_atendimento');
 
-    await chamar(`/v1/conversas/${id}/encerrar`, { etiqueta_id: etiquetaId });
+    await chamar(`/v1/conversations/${id}/close`, { etiqueta_id: etiquetaId });
 
     const { rows } = await cenario.dono.execute<{ userId: string; data: Record<string, string> }>(sql`
       select usuario_id, dados from evento_atendimento
@@ -128,57 +128,57 @@ describe('encerrar conversa', () => {
     expect(rows[0]?.data['etiqueta']).toBe('Resolvido');
   });
 
-  it('grava todas as tags escolhidas e mantém a primeira como motivo do evento legado', async () => {
+  it('Record all selected labels and retain the first as the legacy event reason', async () => {
     const id = await newConversation('em_atendimento');
     const { rows } = await cenario.dono.execute<{ id: string }>(sql`
       insert into etiqueta (tenant_id, nome) values (${cenario.tenantId}, 'Dúvida') returning id
     `);
-    const resposta = await chamar(`/v1/conversas/${id}/encerrar`, {
+    const resposta = await chamar(`/v1/conversations/${id}/close`, {
       etiqueta_ids: [etiquetaId, rows[0]!.id],
     });
     expect(resposta.status).toBe(201);
-    const { rows: associadas } = await cenario.dono.execute<{ nome: string }>(sql`
+    const { rows: associadas } = await cenario.dono.execute<{ name: string }>(sql`
       select e.nome from conversa_etiqueta ce join etiqueta e on e.id = ce.etiqueta_id
        where ce.conversa_id = ${id}::uuid order by e.nome
     `);
     expect(associadas.map((etiqueta) => etiqueta.nome)).toEqual(['Dúvida', 'Resolvido']);
   });
 
-  it('exige etiqueta: conversa fechada sem motivo não explica nada depois', async () => {
+  it('Require a label when closing a conversation to preserve its reason', async () => {
     const id = await newConversation('em_atendimento');
-    const resposta = await chamar(`/v1/conversas/${id}/encerrar`, {});
+    const resposta = await chamar(`/v1/conversations/${id}/close`, {});
     expect(resposta.status).toBe(400);
     expect(await eventosDe(id)).toHaveLength(0);
   });
 
-  it('fecha a espera em aberto antes de encerrar, senão o pausado some do esforço', async () => {
+  it('End an active wait before closing a conversation so paused time counts toward effort', async () => {
     const id = await newConversation('em_espera');
 
-    await chamar(`/v1/conversas/${id}/encerrar`, { etiqueta_id: etiquetaId });
+    await chamar(`/v1/conversations/${id}/close`, { etiqueta_id: etiquetaId });
 
     const eventos = await eventosDe(id);
     expect(eventos).toContain('espera_encerrada');
     expect(eventos).toContain('encerrada');
-    const { rows } = await cenario.dono.execute<{ pausado_seg: number }>(
+    const { rows } = await cenario.dono.execute<{ pausadoSeg: number }>(
       sql`select pausado_seg from conversa where id = ${id}::uuid`,
     );
     expect(rows[0]!.pausado_seg).toBeGreaterThan(0);
   });
 
-  it('recusa transição inválida — encerrar o que já está encerrado', async () => {
+  it('Reject closing a conversation that is already closed', async () => {
     const id = await newConversation('encerrada');
-    const resposta = await chamar(`/v1/conversas/${id}/encerrar`, { etiqueta_id: etiquetaId });
+    const resposta = await chamar(`/v1/conversations/${id}/close`, { etiqueta_id: etiquetaId });
     expect(resposta.status).toBe(409);
   });
 
-  it('recusa conversa de outro atendente', async () => {
+  it('Reject closure of another agent\'s conversation', async () => {
     const id = await newConversation('em_atendimento', otherAgentId);
-    const resposta = await chamar(`/v1/conversas/${id}/encerrar`, { etiqueta_id: etiquetaId });
+    const resposta = await chamar(`/v1/conversations/${id}/close`, { etiqueta_id: etiquetaId });
     expect(resposta.status).toBe(403);
     expect(await eventosDe(id)).toHaveLength(0);
   });
 
-  it('permite ao supervisor encerrar conversa de outro atendente', async () => {
+  it('Allow a supervisor to close another agent\'s conversation', async () => {
     const { rows: p } = await cenario.dono.execute<{ id: string }>(sql`
       insert into papel (tenant_id, nome) values (${cenario.tenantId}, ${`Supervisor ${randomUUID().slice(0, 6)}`})
       returning id
@@ -194,16 +194,16 @@ describe('encerrar conversa', () => {
     `);
 
     const id = await newConversation('em_atendimento', otherAgentId);
-    expect((await chamar(`/v1/conversas/${id}/encerrar`, { etiqueta_id: etiquetaId })).status).toBe(201);
+    expect((await chamar(`/v1/conversations/${id}/close`, { etiqueta_id: etiquetaId })).status).toBe(201);
     expect(await eventosDe(id)).toContain('encerrada');
   });
 });
 
 describe('espera', () => {
-  it('entrar em espera grava `espera_iniciada`', async () => {
+  it('Record `espera_iniciada` when a conversation enters the waiting state', async () => {
     const id = await newConversation('em_atendimento');
 
-    const resposta = await chamar(`/v1/conversas/${id}/espera`);
+    const resposta = await chamar(`/v1/conversations/${id}/wait`);
 
     expect(resposta.status).toBe(201);
     expect(((await resposta.json()) as { state: string }).state).toBe('em_espera');
@@ -213,33 +213,33 @@ describe('espera', () => {
   it('sair da espera grava `espera_encerrada` com os segundos pausados', async () => {
     const id = await newConversation('em_espera');
 
-    const resposta = await chamar(`/v1/conversas/${id}/espera`);
-    const corpo = (await resposta.json()) as { estado: string; pausado_seg: number };
+    const resposta = await chamar(`/v1/conversations/${id}/wait`);
+    const corpo = (await resposta.json()) as { state: string; pausadoSeg: number };
 
     expect(corpo.estado).toBe('em_atendimento');
     // A conversa nasceu com `em_espera_desde` 30 segundos atrás.
     expect(corpo.pausado_seg).toBeGreaterThanOrEqual(29);
-    const { rows } = await cenario.dono.execute<{ dados: Record<string, number> }>(sql`
+    const { rows } = await cenario.dono.execute<{ data: Record<string, number> }>(sql`
       select dados from evento_atendimento
        where conversa_id = ${id}::uuid and tipo = 'espera_encerrada' limit 1
     `);
     expect(rows[0]?.dados['pausado_seg']).toBeGreaterThanOrEqual(29);
   });
 
-  it('ida e volta deixam o par de eventos, e o acumulado na conversa', async () => {
+  it('Record both wait transitions and accumulated waiting time on the conversation', async () => {
     const id = await newConversation('em_atendimento');
 
-    await chamar(`/v1/conversas/${id}/espera`);
-    await chamar(`/v1/conversas/${id}/espera`);
+    await chamar(`/v1/conversations/${id}/wait`);
+    await chamar(`/v1/conversations/${id}/wait`);
 
     const eventos = await eventosDe(id);
     expect(eventos.filter((t) => t === 'espera_iniciada')).toHaveLength(1);
     expect(eventos.filter((t) => t === 'espera_encerrada')).toHaveLength(1);
   });
 
-  it('recusa conversa de outro atendente', async () => {
+  it('Reject closure of another agent\'s conversation', async () => {
     const id = await newConversation('em_atendimento', otherAgentId);
-    const resposta = await chamar(`/v1/conversas/${id}/espera`);
+    const resposta = await chamar(`/v1/conversations/${id}/wait`);
     expect(resposta.status).toBe(403);
     expect(await eventosDe(id)).toHaveLength(0);
   });

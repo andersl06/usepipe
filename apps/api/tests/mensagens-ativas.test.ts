@@ -8,7 +8,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 19).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 const { telefoneValido, MAX_CONTACTS_BY_TRIGGER } = await import('../src/dominio/mensagem-ativa.js');
@@ -37,7 +37,7 @@ beforeAll(async () => {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   cookie = novo.token;
 
@@ -57,7 +57,7 @@ afterAll(async () => {
 });
 
 function disparar(corpo: Record<string, unknown>): Promise<Response> {
-  return fetch(`${api.url}/v1/mensagens-ativas`, {
+  return fetch(`${api.url}/v1/messages-active`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
     body: JSON.stringify({ canal_id: cenario.channelId, template_id: templateId, ...corpo }),
@@ -71,8 +71,8 @@ function telefoneNovo(): string {
   return `+5511${String(sequencia).padStart(9, '9')}`.slice(0, 14);
 }
 
-describe('validação de telefone', () => {
-  it('aceita E.164 brasileiro com 10 e 11 dígitos nacionais', () => {
+describe('Validate Brazilian phone numbers', () => {
+  it('Accept Brazilian E.164 numbers with ten or eleven national digits', () => {
     expect(telefoneValido('+5511988887777')).toBe(true);
     expect(telefoneValido('+551188887777')).toBe(true);
   });
@@ -86,7 +86,7 @@ describe('validação de telefone', () => {
 });
 
 describe('disparo', () => {
-  it('dispara para a lista e devolve o resultado POR contato', async () => {
+  it('Send to a list and return a result for each contact', async () => {
     const a = telefoneNovo();
     const b = telefoneNovo();
 
@@ -98,17 +98,17 @@ describe('disparo', () => {
     expect(resposta.status).toBe(201);
     const corpo = (await resposta.json()) as {
       enviadas: number;
-      recusadas: number;
-      data: { telefone: string; enviada: boolean; messageId: string | null }[];
+      refused: number;
+      data: { phone: string; enviada: boolean; messageId: string | null }[];
     };
     expect(corpo.enviadas).toBe(2);
     expect(corpo.recusadas).toBe(0);
     expect(corpo.data.every((d) => d.messageId !== null)).toBe(true);
   });
 
-  it('a mensagem entra no OUTBOX, como qualquer envio', async () => {
+  it('Queue active messages in the outbox like other sends', async () => {
     const r = await disparar({ contatos: [{ telefone: telefoneNovo() }], parametros: ['x'] });
-    const { data } = (await r.json()) as { data: { mensagem_id: string }[] };
+    const { data } = (await r.json()) as { data: { messageId: string }[] };
 
     const { rows } = await cenario.dono.execute<{ state: string }>(
       sql`select estado from outbox_mensagem where mensagem_id = ${data[0]!.mensagem_id}::uuid`,
@@ -116,11 +116,11 @@ describe('disparo', () => {
     expect(rows[0]?.state).toBe('pendente');
   });
 
-  it('cria a conversa já atribuída a quem disparou, com evento de origem', async () => {
+  it('Create an assigned conversation with an origin event for each send', async () => {
     const r = await disparar({ contatos: [{ telefone: telefoneNovo() }], parametros: ['x'] });
     const { data } = (await r.json()) as { data: { conversationId: string }[] };
 
-    const { rows } = await cenario.dono.execute<{ agentId: string; estado: string }>(
+    const { rows } = await cenario.dono.execute<{ agentId: string; state: string }>(
       sql`select atendente_id, estado from conversa where id = ${data[0]!.conversationId}::uuid`,
     );
     expect(rows[0]!.agentId).toBe(cenario.agentId);
@@ -135,7 +135,7 @@ describe('disparo', () => {
     expect(ev[0]?.data['origem']).toBe('mensagem_ativa');
   });
 
-  it('NÃO marca a janela de 24h — quem abre é a resposta do cliente', async () => {
+  it('Leave the 24-hour window closed until the customer replies', async () => {
     const r = await disparar({ contatos: [{ telefone: telefoneNovo() }], parametros: ['x'] });
     const { data } = (await r.json()) as { data: { conversa_id: string }[] };
 
@@ -145,7 +145,7 @@ describe('disparo', () => {
     expect(rows[0]!.windowExpiresAt).toBeNull();
   });
 
-  it('NÃO conta como primeira resposta — senão o TMR ganharia zeros de graça', async () => {
+  it('Do not count an outbound active message as the first response', async () => {
     // Resposta pressupõe pergunta. Numa conversa aberta por disparo quem começou
     // fomos nós; carimbar `primeira_resposta` aqui cravaria TMR de zero segundo e
     // enfeitaria a média — exatamente o que a spec de métricas proíbe.
@@ -164,7 +164,7 @@ describe('disparo', () => {
     expect(ev[0]!.n).toBe(0);
   });
 
-  it('reaproveita o contato existente em vez de duplicar', async () => {
+  it('Reuse an existing contact instead of creating a duplicate', async () => {
     const telefone = telefoneNovo();
     const first = await disparar({ contatos: [{ telefone }], parametros: ['x'] });
     const { data: d1 } = (await first.json()) as { data: { contactId: string }[] };
@@ -175,21 +175,21 @@ describe('disparo', () => {
     );
 
     const segundo = await disparar({ contatos: [{ telefone }], parametros: ['x'] });
-    const { data: d2 } = (await segundo.json()) as { data: { contato_id: string }[] };
+    const { data: d2 } = (await segundo.json()) as { data: { contactId: string }[] };
 
     expect(d2[0]!.contato_id).toBe(d1[0]!.contactId);
   });
 
-  it('aceita parâmetros POR contato', async () => {
+  it('Accept different template parameters for each contact', async () => {
     const r = await disparar({
       contatos: [
         { telefone: telefoneNovo(), parametros: ['Ana'] },
         { telefone: telefoneNovo(), parametros: ['Bia'] },
       ],
     });
-    const { data } = (await r.json()) as { data: { mensagem_id: string }[] };
+    const { data } = (await r.json()) as { data: { messageId: string }[] };
 
-    const { rows } = await cenario.dono.execute<{ conteudo: string }>(sql`
+    const { rows } = await cenario.dono.execute<{ content: string }>(sql`
       select conteudo from mensagem where id in
         (${data[0]!.mensagem_id}::uuid, ${data[1]!.mensagem_id}::uuid)
       order by conteudo
@@ -212,33 +212,33 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
 
     const corpo = (await resposta.json()) as {
       enviadas: number;
-      recusadas: number;
-      data: { enviada: boolean; motivo: string | null }[];
+      refused: number;
+      data: { enviada: boolean; reason: string | null }[];
     };
     expect(corpo.enviadas).toBe(2);
     expect(corpo.recusadas).toBe(1);
     expect(corpo.data.find((d) => !d.enviada)?.motivo).toBe('numero_invalido');
   });
 
-  it('recusa contato já em atendimento — o 1602 deles', async () => {
+  it('Reject contacts already in an active ticket with error 1602', async () => {
     const telefone = telefoneNovo();
     await disparar({ contatos: [{ telefone }], parametros: ['x'] });
 
     // A conversa do primeiro disparo continua aberta.
     const resposta = await disparar({ contatos: [{ telefone }], parametros: ['x'] });
 
-    const corpo = (await resposta.json()) as { data: { enviada: boolean; motivo: string }[] };
+    const corpo = (await resposta.json()) as { data: { enviada: boolean; reason: string }[] };
     expect(corpo.data[0]!.enviada).toBe(false);
     expect(corpo.data[0]!.motivo).toBe('ja_em_atendimento');
   });
 
-  it('recusa contato duplicado dentro do mesmo disparo', async () => {
+  it('Reject duplicate contacts within one send', async () => {
     const telefone = telefoneNovo();
     const resposta = await disparar({
       contatos: [{ telefone }, { telefone }],
       parametros: ['x'],
     });
-    const corpo = (await resposta.json()) as { data: { enviada: boolean; motivo: string }[] };
+    const corpo = (await resposta.json()) as { data: { enviada: boolean; reason: string }[] };
     expect(corpo.data[0]!.enviada).toBe(true);
     expect(corpo.data[1]!.motivo).toBe('contato_duplicado');
   });
@@ -249,14 +249,14 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     }));
     const resposta = await disparar({ contacts, parametros: ['x'] });
     expect(resposta.status).toBe(400);
-    expect(((await resposta.json()) as { error: { codigo: string } }).error.codigo).toBe(
-      'limite_de_contatos',
+    expect(((await resposta.json()) as { error: { code: string } }).error.codigo).toBe(
+      'limit_of_contacts',
     );
   });
 
   it('recusa lista vazia e template ausente', async () => {
     expect((await disparar({ contatos: [] })).status).toBe(400);
-    const semTemplate = await fetch(`${api.url}/v1/mensagens-ativas`, {
+    const semTemplate = await fetch(`${api.url}/v1/messages-active`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
       body: JSON.stringify({ canal_id: cenario.channelId, contatos: [{ telefone: telefoneNovo() }] }),
@@ -264,7 +264,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     expect(semTemplate.status).toBe(400);
   });
 
-  it('template não aprovado derruba o LOTE — é erro do disparo, não do contato', async () => {
+  it('Reject the entire send batch when its template is unapproved', async () => {
     const { rows } = await cenario.dono.execute<{ id: string }>(sql`
       insert into template_mensagem (tenant_id, canal_id, nome, idioma, categoria, corpo,
                                      status_meta, cabecalho_tipo)
@@ -272,7 +272,7 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
               'oi', 'rejeitado', 'nenhum')
       returning id
     `);
-    const resposta = await fetch(`${api.url}/v1/mensagens-ativas`, {
+    const resposta = await fetch(`${api.url}/v1/messages-active`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
       body: JSON.stringify({
@@ -284,10 +284,10 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
     expect(resposta.status).toBe(409);
   });
 
-  it('canal de outro tenant é 404, não disparo no número alheio', async () => {
+  it('Return 404 for another tenant\'s channel without sending to its number', async () => {
     const outro = await montarCenario(`ativa-outro-${randomUUID().slice(0, 8)}`);
     try {
-      const resposta = await fetch(`${api.url}/v1/mensagens-ativas`, {
+      const resposta = await fetch(`${api.url}/v1/messages-active`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookie}` },
         body: JSON.stringify({
@@ -303,19 +303,19 @@ describe('recusas — e o disparo nunca é tudo-ou-nada', () => {
   });
 });
 
-describe('painel das últimas 72 horas', () => {
-  it('lista o que foi disparado, com estado de entrega', async () => {
+describe('List sends from the last 72 hours with delivery status', () => {
+  it('List sent active messages with delivery status', async () => {
     const telefone = telefoneNovo();
     await disparar({ contatos: [{ telefone }], parametros: ['x'] });
 
-    const resposta = await fetch(`${api.url}/v1/mensagens-ativas`, {
+    const resposta = await fetch(`${api.url}/v1/messages-active`, {
       headers: { cookie: `${NOME_DO_COOKIE}=${cookie}` },
     });
 
     expect(resposta.status).toBe(200);
     const corpo = (await resposta.json()) as {
       windowHours: number;
-      data: { telefone: string; stateDelivery: string; template_nome: string }[];
+      data: { phone: string; stateDelivery: string; templateName: string }[];
     };
     expect(corpo.windowHours).toBe(72);
     const linha = corpo.data.find((d) => d.telefone === telefone);
@@ -324,7 +324,7 @@ describe('painel das últimas 72 horas', () => {
   });
 
   it('devolve os limites em vigor, para a tela não repetir número mágico', async () => {
-    const resposta = await fetch(`${api.url}/v1/mensagens-ativas/limites`, {
+    const resposta = await fetch(`${api.url}/v1/messages-active/limits`, {
       headers: { cookie: `${NOME_DO_COOKIE}=${cookie}` },
     });
     const corpo = (await resposta.json()) as { maxContactsByTrigger: number };

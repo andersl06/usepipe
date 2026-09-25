@@ -39,8 +39,8 @@ function conversation(sobre: Partial<LinhaConversation> = {}): LinhaConversation
   };
 }
 
-describe('conversa → ticket', () => {
-  it('na fila vira Waiting; em atendimento vira Open; encerrada vira Closed', () => {
+describe('conversation -> ticket', () => {
+  it('queued becomes Waiting; in attendance becomes Open; closed becomes Closed', () => {
     expect(comoTicket(conversation()).status).toBe('Waiting');
     expect(comoTicket(conversation({ state: 'em_atendimento' })).status).toBe('Open');
     expect(comoTicket(conversation({ state: 'atribuida' })).status).toBe('Open');
@@ -48,14 +48,14 @@ describe('conversa → ticket', () => {
     expect(comoTicket(conversation({ state: 'encerrada' })).status).toBe('Closed');
   });
 
-  it('leva nome, telefone e fila do jeito que a tela lê', () => {
+  it('carries name, phone and queue the way the screen reads them', () => {
     const t = comoTicket(conversation());
     expect(t['customerName']).toBe('Maria Souza');
     expect(t['customerPhoneNumber']).toBe('+5531999998888');
     expect(t['team']).toBe('Suporte');
   });
 
-  it('a última mensagem do contato é `received`; a nossa é `sent`', () => {
+  it('the contact\'s last message is `received`; ours is `sent`', () => {
     const doCliente = comoTicket(conversation()) as { lastMessage: { direction: string } };
     expect(doCliente.lastMessage.direction).toBe('received');
     const nossa = comoTicket(conversation({ ultimaMessageOf: 'atendente' })) as {
@@ -64,7 +64,7 @@ describe('conversa → ticket', () => {
     expect(nossa.lastMessage.direction).toBe('sent');
   });
 
-  it('sem atendente, `agentIdentity` é nulo — e não uma identidade inventada', () => {
+  it('without an agent, `agentIdentity` is null — not a made-up identity', () => {
     expect(comoTicket(conversation())['agentIdentity']).toBeNull();
     const withAgent = comoTicket(
       conversation({ agentEmail: 'ana@demo.pipe.app', agentName: 'Ana' }),
@@ -72,7 +72,7 @@ describe('conversa → ticket', () => {
     expect(withAgent['agentIdentity']).toBe('ana%40demo.pipe.app@pipe.local');
   });
 
-  it('a prioridade do Pipe viaja como está, sem traduzir por aproximação', () => {
+  it('Pipe\'s priority travels as-is, without an approximate translation', () => {
     const t = comoTicket(conversation({ priority: 'maxima' })) as {
       customerAccount: { extras: Record<string, string> };
     };
@@ -88,7 +88,7 @@ describe('conversa → ticket', () => {
   });
 });
 
-describe('mensagem → documento', () => {
+describe('message -> document', () => {
   const base: LinhaMessage = {
     id: 'm1',
     criada_em: '2026-09-12T10:05:00.000Z',
@@ -98,14 +98,14 @@ describe('mensagem → documento', () => {
     conteudo: 'oi',
   };
 
-  it('entrada vira received e saída vira sent', () => {
+  it('inbound becomes received and outbound becomes sent', () => {
     expect(asDocument(base)!['direction']).toBe('received');
     expect(asDocument({ ...base, direction: 'saida', autor_tipo: 'atendente' })!['direction']).toBe(
       'sent',
     );
   });
 
-  it('nota interna não entra na conversa do cliente', () => {
+  it('an internal note never enters the customer\'s conversation', () => {
     expect(asDocument({ ...base, direction: 'interna', autor_tipo: 'atendente' })).toBeNull();
     const lista = asDocuments([base, { ...base, id: 'm2', direction: 'interna' }]);
     expect(lista).toHaveLength(1);
@@ -127,8 +127,8 @@ describe('mensagem → documento', () => {
   });
 });
 
-describe('conta do atendente', () => {
-  it('traduz o estado e nunca devolve status vazio', () => {
+describe('agent account', () => {
+  it('translates state and never returns an empty status', () => {
     const account = asAccount(
       { id: 'u1', nome: 'Ana Ribeiro', email: 'ana@demo.pipe.app', state: 'online' },
       ['Suporte'],
@@ -157,7 +157,7 @@ describe('conta do atendente', () => {
   });
 });
 
-describe('identidade', () => {
+describe('identity', () => {
   it('escapa o arroba do e-mail, como a Blip faz', () => {
     expect(identity('ana.ribeiro@demo.pipe.app')).toBe('ana.ribeiro%40demo.pipe.app@pipe.local');
     expect(identity(null)).toBe('desconhecido@pipe.local');

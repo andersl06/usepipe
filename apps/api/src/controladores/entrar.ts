@@ -16,8 +16,8 @@ import {
   sair as encerrarSessao,
   exchangeCode,
   urlOfAuthorization,
-} from '@pipe/autenticacao';
-import type { DesafioDeLogin, OptionsOfCookie, PessoaDoGoogle } from '@pipe/autenticacao';
+} from '@pipe/authentication';
+import type { DesafioDeLogin, OptionsOfCookie, PessoaDoGoogle } from '@pipe/authentication';
 import type { Eu, OriginOfSession, Plano, RefusesOfInbound } from '@pipe/contracts';
 import { databaseApp, databaseOwner, noTenant } from '../banco.js';
 import { aceitarInvitation } from '../dominio/convites.js';
@@ -90,7 +90,7 @@ export function urlOfError(codigo: RefusesOfInbound, origem?: string): string {
   const url = new URL(
     origem ? `${base}/entrar` : (process.env['PIPE_URL_ENTRADA'] ?? `${base}/entrar`),
   );
-  url.searchParams.set('erro', codigo);
+  url.searchParams.set('error', codigo);
   return url.toString();
 }
 
@@ -115,7 +115,7 @@ export function destinationAbsolute(destination: string, origem?: string): strin
 export type ChallengeWithInvitation = DesafioDeLogin & {
   invitation?: string;
   /** De qual dos três aplicativos saiu o login. É para lá que a volta vai. */
-  origem?: string;
+  origin?: string;
   /** O tenant que iniciou o fluxo de SSO. É ele que decide de quem é a pessoa. */
   tenantId?: string;
   /** Fluxo de teste da conexão: valida tudo e NÃO cria sessão. */
@@ -169,7 +169,7 @@ export function codigoDaRecusa(error: unknown): RefusesOfInbound {
     // Conta do provedor que já é de outro cliente: para quem está entrando é a
     // mesma coisa que não ter sido convidado, e dizer mais contaria que aquele
     // e-mail existe em outra empresa do Pipe.
-    return error.codigo === 'outro_tenant' ? 'sem_convite' : error.codigo;
+    return error.codigo === 'outro_tenant' ? 'without_invitation' : error.codigo;
   }
   if (error instanceof LoginError && error.codigo === 'email_nao_verificado') {
     return 'email_nao_verificado';
@@ -177,7 +177,7 @@ export function codigoDaRecusa(error: unknown): RefusesOfInbound {
   // Convite vencido, já usado, de outro e-mail, ou conta do Google que já é de
   // outra pessoa: para quem está entrando é tudo a mesma coisa — o convite não
   // serve, peça outro. `sem_convite` é o código que a tela já sabe explicar.
-  if (error instanceof PipeError && error.status !== 500) return 'sem_convite';
+  if (error instanceof PipeError && error.status !== 500) return 'without_invitation';
   // Todo o resto — `state` errado, troca de código falhada, config ausente — é
   // problema nosso ou do provedor, e para quem está entrando a saída é uma só:
   // tentar de novo.
@@ -286,7 +286,7 @@ export class LoginController {
   }
 
   /** A volta do Google. Daqui a pessoa sai logada ou sai com um código de recusa. */
-  @Get('google/retorno')
+  @Get('google/callback')
   async callback(@Req() requisicao: Request, @Res() resposta: Response): Promise<void> {
     const apagarDesafio = cookieDoDesafio(null);
     const desafio = lerDesafio(requisicao);
@@ -358,13 +358,13 @@ export class LoginController {
 
 type LinhaEu = {
   id: string;
-  nome: string;
+  name: string;
   email: string;
   avatar_url: string | null;
   tenant_id: string;
   tenant_nome: string;
   slug: string;
-  plano: string;
+  plan: string;
   onboarding_concluido_em: Date | string | null;
 };
 
@@ -399,7 +399,7 @@ export class MeController {
       // não quer o duplicado. Em série, nunca em `Promise.all`: paralelo dentro
       // da transação derruba o `pipe.tenant_id` e a consulta passa a rodar sem
       // tenant.
-      const { rows: permissions } = await tx.execute<{ codigo: string }>(sql`
+      const { rows: permissions } = await tx.execute<{ code: string }>(sql`
         select codigo from (
           select distinct pp.permissao_codigo as codigo
             from usuario_papel up

@@ -11,7 +11,7 @@ process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 const { useStorage } = await import('../src/dominio/anexo.js');
-const { MAX_BYTES_AUDIO_VIDEO } = await import('@pipe/armazenamento');
+const { MAX_BYTES_AUDIO_VIDEO } = await import('@pipe/storage');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;
@@ -57,15 +57,15 @@ function up(
   nome = 'arquivo.png',
   token = cenario.token,
 ): Promise<Response> {
-  return fetch(`${api.url}/v1/anexos?nome=${encodeURIComponent(nome)}`, {
+  return fetch(`${api.url}/v1/attachments?nome=${encodeURIComponent(nome)}`, {
     method: 'POST',
     headers: { 'content-type': mime, authorization: `Bearer ${token}` },
     body: new Uint8Array(dados),
   });
 }
 
-describe('subir anexo', () => {
-  it('guarda o arquivo e devolve link assinado', async () => {
+describe('Upload attachments and return signed links', () => {
+  it('Store an attachment and return a signed link', async () => {
     const resposta = await up(PNG, 'image/png');
 
     expect(resposta.status).toBe(201);
@@ -73,7 +73,7 @@ describe('subir anexo', () => {
       id: string;
       mime: string;
       bytes: number;
-      tipo: string;
+      type: string;
       link: string;
     };
     expect(corpo.mime).toBe('image/png');
@@ -83,7 +83,7 @@ describe('subir anexo', () => {
     expect(corpo.link).toContain('expira=');
   });
 
-  it('a chave do objeto começa pelo tenant — isolamento no caminho', async () => {
+  it('Prefix attachment object keys with the tenant ID', async () => {
     const resposta = await up(PNG, 'image/png');
     const { id } = (await resposta.json()) as { id: string };
 
@@ -96,8 +96,8 @@ describe('subir anexo', () => {
   it('recusa tipo fora da lista da Blip', async () => {
     const resposta = await up(Buffer.from([0x4d, 0x5a, 0x90]), 'application/x-msdownload', 'a.exe');
     expect(resposta.status).toBe(400);
-    expect(((await resposta.json()) as { erro: { codigo: string } }).erro.codigo).toBe(
-      'tipo_nao_aceito',
+    expect(((await resposta.json()) as { error: { code: string } }).erro.codigo).toBe(
+      'type_not_accepted',
     );
   });
 
@@ -107,7 +107,7 @@ describe('subir anexo', () => {
     expect(((await resposta.json()) as { mime: string }).mime).toBe('image/png');
   });
 
-  it('recusa arquivo vazio', async () => {
+  it('Reject empty attachment files', async () => {
     const resposta = await up(Buffer.alloc(0), 'image/png');
     expect(resposta.status).toBe(400);
   });
@@ -123,13 +123,13 @@ describe('subir anexo', () => {
     const resposta = await up(grande, 'audio/mpeg', 'longo.mp3');
 
     expect(resposta.status).toBe(400);
-    const corpo = (await resposta.json()) as { error: { codigo: string; message: string } };
-    expect(corpo.error.codigo).toBe('arquivo_grande_demais');
+    const corpo = (await resposta.json()) as { error: { code: string; message: string } };
+    expect(corpo.error.codigo).toBe('file_large_excessive');
     expect(corpo.error.message).toContain('16');
   });
 
   it('sem credencial, 401', async () => {
-    const resposta = await fetch(`${api.url}/v1/anexos`, {
+    const resposta = await fetch(`${api.url}/v1/attachments`, {
       method: 'POST',
       headers: { 'content-type': 'image/png' },
       body: new Uint8Array(PNG),
@@ -138,7 +138,7 @@ describe('subir anexo', () => {
   });
 });
 
-describe('baixar por link assinado', () => {
+describe('Download attachments through signed links', () => {
   async function linkDe(data: Buffer, mime: string, nome: string): Promise<string> {
     const r = await up(data, mime, nome);
     return ((await r.json()) as { link: string }).link;
@@ -154,7 +154,7 @@ describe('baixar por link assinado', () => {
     expect(Buffer.from(await resposta.arrayBuffer()).equals(PNG)).toBe(true);
   });
 
-  it('não pede cookie nem chave — a Meta baixa a mídia sem credencial nossa', async () => {
+  it('Allow Meta to download signed media links without our cookie or API key', async () => {
     const link = await linkDe(PNG, 'image/png', 'foto.png');
     // Sem `authorization`, sem `cookie`. É o caso real do link que vai para a Meta.
     expect((await fetch(link)).status).toBe(200);
@@ -169,27 +169,27 @@ describe('baixar por link assinado', () => {
   it('recusa assinatura adulterada', async () => {
     const link = await linkDe(PNG, 'image/png', 'foto.png');
     const url = new URL(link);
-    const assinatura = url.searchParams.get('assinatura')!;
+    const assinatura = url.searchParams.get('signature')!;
     // Troca o primeiro dígito por OUTRO. Antes isto era `replace(/assinatura=./,
     // 'assinatura=0')`, que não alterava nada quando o dígito já era `0` — o teste
     // passava por sorte em 15 de 16 execuções.
-    url.searchParams.set('assinatura', (assinatura[0] === '0' ? '1' : '0') + assinatura.slice(1));
+    url.searchParams.set('signature', (assinatura[0] === '0' ? '1' : '0') + assinatura.slice(1));
 
     expect((await fetch(url.toString())).status).toBe(401);
   });
 
-  it('recusa validade esticada na mão', async () => {
+  it('Reject a manually extended signed-link expiration', async () => {
     const link = await linkDe(PNG, 'image/png', 'foto.png');
-    const expira = Number(new URL(link).searchParams.get('expira'));
+    const expira = Number(new URL(link).searchParams.get('expires'));
     const esticado = link.replace(`expira=${expira}`, `expira=${expira + 3_600_000}`);
     expect((await fetch(esticado)).status).toBe(401);
   });
 
-  it('não deixa trocar o id do anexo mantendo a assinatura', async () => {
+  it('Reject an attachment ID changed without updating its signature', async () => {
     const link = await linkDe(PNG, 'image/png', 'foto.png');
     const outro = await linkDe(PNG, 'image/png', 'outra.png');
     const idOutro = new URL(outro).pathname.split('/').pop()!;
-    const trocado = link.replace(/\/v1\/anexos\/[^?]+/, `/v1/anexos/${idOutro}`);
+    const trocado = link.replace(/\/v1\/anexos\/[^?]+/, `/v1/attachments/${idOutro}`);
     expect((await fetch(trocado)).status).toBe(401);
   });
 
@@ -211,7 +211,7 @@ describe('baixar por link assinado', () => {
     expect(resposta.headers.get('content-disposition')).toContain('attachment');
   });
 
-  it('anexo inexistente, 404 — depois de a assinatura passar', async () => {
+  it('Return 404 for a missing attachment after validating its signature', async () => {
     const link = await linkDe(PNG, 'image/png', 'foto.png');
     const id = new URL(link).pathname.split('/').pop()!;
     await cenario.dono.execute(sql`delete from anexo where id = ${id}::uuid`);

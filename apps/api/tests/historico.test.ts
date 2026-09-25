@@ -44,14 +44,14 @@ beforeEach(() => {
   duplos.janelaDeDatas.mockClear();
 });
 
-describe('GET /v1/gestao/historico', () => {
+describe('GET /v1/management/history', () => {
   it('usa os últimos 30 dias, incluindo hoje, quando não recebe datas', async () => {
     const resposta = await controller.history(request);
     expect([resposta.de, resposta.ate]).toEqual(['2026-08-25', '2026-09-23']);
     expect(duplos.janelaDeDatas).toHaveBeenCalledWith({}, 'UTC', '2026-08-25', '2026-09-23');
   });
 
-  it('conta 30 datas civis no fuso do tenant ao atravessar o horário de verão', async () => {
+  it('Count 30 tenant-local calendar dates across daylight saving transitions', async () => {
     duplos.fusoDoTenant.mockResolvedValue('America/New_York');
     duplos.janelaDeHoje.mockResolvedValue({
       inicio: new Date('2026-03-20T04:00:00.000Z'),
@@ -69,7 +69,7 @@ describe('GET /v1/gestao/historico', () => {
     expect(duplos.janelaDeDatas).toHaveBeenLastCalledWith({}, 'UTC', '2026-07-01', '2026-07-15');
   });
 
-  it('mantém o cálculo legado dos demais relatórios ao atravessar DST', async () => {
+  it('Preserve legacy date calculations for other reports across daylight saving transitions', async () => {
     duplos.fusoDoTenant.mockResolvedValue('America/New_York');
     duplos.janelaDeHoje.mockResolvedValue({
       inicio: new Date('2026-03-10T04:00:00.000Z'),

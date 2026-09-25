@@ -17,9 +17,9 @@ const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<
 
 export interface ChannelOfDeployment {
   id: string;
-  nome: string;
-  ativo: boolean;
-  numero: string | null;
+  name: string;
+  active: boolean;
+  number: string | null;
   reauthorizationPending: boolean;
 }
 
@@ -48,10 +48,10 @@ export async function loadDeployment(tx: TransactionPipe): Promise<Deployment> {
 
     const { rows: channels } = await tx.execute<{
       id: string;
-      nome: string;
-      ativo: boolean;
+      name: string;
+      active: boolean;
       numero_id: string | null;
-      numero: string | null;
+      number: string | null;
       reauthorization: boolean;
     }>(sql`
       select id, nome, ativo, numero_id, config->>'numero' as numero,
@@ -77,7 +77,7 @@ export async function loadDeployment(tx: TransactionPipe): Promise<Deployment> {
     const { rows: imports } = await tx.execute<{
       id: string;
       state: string;
-      aceitos: number;
+      accepted: number;
       rejeitados: number;
       tem_falhas: boolean;
     }>(sql`

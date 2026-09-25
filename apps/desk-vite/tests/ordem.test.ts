@@ -37,7 +37,7 @@ function conversation(parte: Partial<ConversationOfList>): ConversationOfList {
   };
 }
 
-test('as fichas contam sobre a lista inteira', () => {
+test('the cards count over the entire list', () => {
   const lista = [
     conversation({ id: '1', lastMessageFrom: 'contato' }),
     conversation({ id: '2', estado: 'em_espera' }),
@@ -59,7 +59,7 @@ test('as fichas contam sobre a lista inteira', () => {
   );
 });
 
-test('a ordem padrão põe a mensagem mais nova no topo; a de abertura, o ticket mais antigo', () => {
+test('the default order puts the newest message on top; the opening order puts the oldest ticket on top', () => {
   const lista = [
     conversation({
       id: 'velha',
@@ -82,7 +82,7 @@ test('a ordem padrão põe a mensagem mais nova no topo; a de abertura, o ticket
   );
 });
 
-test('as fixadas ficam no topo, a fixada mais recente por cima, e o resto segue a ordem normal', () => {
+test('pinned items stay on top, the most recently pinned above the others, and the rest follow the normal order', () => {
   const lista = [
     conversation({ id: 'nova', ultimaMensagemEm: '2026-09-17T11:00:00Z' }),
     conversation({
@@ -107,7 +107,7 @@ test('as fixadas ficam no topo, a fixada mais recente por cima, e o resto segue 
   );
 });
 
-test('marcada à mão como não lida entra na ficha "Não lidos" mesmo com a última palavra do atendente', () => {
+test('manually marked as unread appears in the "Unread" card even when the agent sent the last message', () => {
   const lista = [
     conversation({ id: 'manual', lastMessageFrom: 'atendente', naoLidaEm: '2026-09-17T11:30:00Z' }),
     conversation({ id: 'lida', lastMessageFrom: 'atendente' }),
@@ -119,7 +119,7 @@ test('marcada à mão como não lida entra na ficha "Não lidos" mesmo com a úl
   assert.equal(contagens(lista, agora)['nao-lidos'], 1);
 });
 
-test('a busca acha por nome sem acento e por dígitos do telefone', () => {
+test('search matches by name without accents and by phone digits', () => {
   const lista = [
     conversation({ id: '1', contatoNome: 'João Álvares' }),
     conversation({ id: '2', contatoNome: 'Ana' }),
@@ -135,7 +135,7 @@ test('a busca acha por nome sem acento e por dígitos do telefone', () => {
   assert.equal(buscar(lista, '').length, 2);
 });
 
-test('a janela de 24 horas', () => {
+test('the 24-hour window', () => {
   assert.equal(windowAberta(null, 'email', agora), true);
   assert.equal(windowAberta(null, 'whatsapp_cloud', agora), false);
   assert.equal(windowAberta('2026-09-17T13:00:00Z', 'whatsapp_cloud', agora), true);
@@ -144,7 +144,7 @@ test('a janela de 24 horas', () => {
   assert.equal(horasRestantes('2026-09-17T11:00:00Z', agora), null);
 });
 
-test('o nome de exibição nunca fica em branco', () => {
+test('the display name is never left blank', () => {
   assert.equal(displayName({ contactName: ' Ana ', contactTelefone: null }), 'Ana');
   assert.equal(
     displayName({ contactName: null, contactTelefone: '+5531994714471' }),

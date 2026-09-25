@@ -1,7 +1,7 @@
 import { Controller, Get, HttpCode, Param, Post, Query, Req, Res } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import type { Response } from 'express';
-import { MAX_FILES_BY_MESSAGE } from '@pipe/armazenamento';
+import { MAX_FILES_BY_MESSAGE } from '@pipe/storage';
 import { KeyOrSession, atorDe } from '../autenticacao.js';
 import type { RequestAuthenticated } from '../autenticacao.js';
 import { databaseOwner } from '../banco.js';
@@ -21,7 +21,7 @@ import type { RequestWithSession } from '../sessao.js';
  * mesmo *file token* da Blip).
  */
 
-@Controller('v1/anexos')
+@Controller('v1/attachments')
 export class AttachmentsController {
   @Post()
   @HttpCode(201)
@@ -33,7 +33,7 @@ export class AttachmentsController {
     const ator = atorDe(request);
     const corpo = request.body as unknown;
     if (!Buffer.isBuffer(corpo) || corpo.byteLength === 0) {
-      throw PipeError.request('arquivo_vazio', 'Mande o arquivo no corpo da requisição.');
+      throw PipeError.request('file_empty', 'Mande o arquivo no corpo da requisição.');
     }
 
     // O `Content-Type` é só o DECLARADO. Quem decide o tipo são os bytes, dentro de
@@ -60,8 +60,8 @@ export class AttachmentsController {
   @Get(':id')
   async baixar(
     @Param('id') id: string,
-    @Query('expira') expira: string | undefined,
-    @Query('assinatura') assinatura: string | undefined,
+    @Query('expires') expira: string | undefined,
+    @Query('signature') assinatura: string | undefined,
     @Res() resposta: Response,
   ): Promise<void> {
     const anexo = await readAttachmentSigned(

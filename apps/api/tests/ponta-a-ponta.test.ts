@@ -79,8 +79,8 @@ async function entregarStatusDoDuble(): Promise<void> {
   }
 }
 
-describe('webhook de entrada', () => {
-  it('responde ao desafio de inscrição da Meta', async () => {
+describe('Handle inbound webhook events', () => {
+  it('Answer Meta\'s webhook subscription challenge', async () => {
     const url =
       `${api.url}/webhooks/whatsapp/${cenario.channelId}` +
       `?hub.mode=subscribe&hub.verify_token=${VERIFY_TOKEN}&hub.challenge=1234567890`;
@@ -100,16 +100,16 @@ describe('webhook de entrada', () => {
   it('recusa payload com assinatura inválida', async () => {
     const resposta = await postarWebhook(payloadOfMessage(CLIENTE, 'oi'), 'sha256=00');
     expect(resposta.status).toBe(401);
-    const corpo = (await resposta.json()) as { error: { codigo: string } };
-    expect(corpo.error.codigo).toBe('assinatura_invalida');
+    const corpo = (await resposta.json()) as { error: { code: string } };
+    expect(corpo.error.codigo).toBe('signature_invalid');
   });
 });
 
-describe('caminho inteiro com o dublê', () => {
+describe('Run the full webhook-to-delivery flow with a Meta stub', () => {
   let conversationId: string;
   let messageOutputId: string;
 
-  it('mensagem de entrada cria contato, conversa e mensagem, e abre a janela', async () => {
+  it('Create a contact, conversation, and message from an inbound webhook and open the window', async () => {
     const resposta = await postarWebhook(
       payloadOfMessage(CLIENTE, 'Bom dia, preciso da segunda via'),
     );
@@ -141,14 +141,14 @@ describe('caminho inteiro com o dublê', () => {
     const daquiA24h = Date.now() + 24 * 60 * 60 * 1000;
     expect(Math.abs(expira - daquiA24h)).toBeLessThan(60_000);
 
-    const message = await umaLinha<{ direction: string; conteudo: string }>(sql`
+    const message = await umaLinha<{ direction: string; content: string }>(sql`
       select direcao, conteudo from mensagem
        where conversa_id = ${conversationId}::uuid and direcao = 'entrada' limit 1
     `);
     expect(message?.conteudo).toBe('Bom dia, preciso da segunda via');
   });
 
-  it('reentrega do mesmo evento não duplica a mensagem', async () => {
+  it('Do not duplicate a message when Meta redelivers the same event', async () => {
     const idProvedor = `wamid.REPETIDA.${randomUUID()}`;
     const payload = payloadOfMessage(CLIENTE, 'mensagem repetida', { id: idProvedor });
     expect((await postarWebhook(payload)).status).toBe(200);
@@ -160,8 +160,8 @@ describe('caminho inteiro com o dublê', () => {
     expect(Number(count?.total)).toBe(1);
   });
 
-  it('o atendente responde pela API e a mensagem nasce pendente no outbox', async () => {
-    const resposta = await comApi(`/v1/conversas/${conversationId}/mensagens`, {
+  it('Create a pending outbox message when an agent replies through the API', async () => {
+    const resposta = await comApi(`/v1/conversations/${conversationId}/messages`, {
       method: 'POST',
       body: JSON.stringify({
         texto: 'Bom dia! Já vou providenciar.',
@@ -173,7 +173,7 @@ describe('caminho inteiro com o dublê', () => {
       id: string;
       stateDelivery: string;
       insideOfWindow: boolean;
-      categoria_cobranca: string;
+      categoryCobranca: string;
     };
     messageOutputId = corpo.id;
 
@@ -182,7 +182,7 @@ describe('caminho inteiro com o dublê', () => {
     expect(corpo.insideOfWindow).toBe(true);
     expect(corpo.categoria_cobranca).toBe('livre');
 
-    const outbox = await umaLinha<{ estado: string; tentativas: number }>(
+    const outbox = await umaLinha<{ state: string; tentativas: number }>(
       sql`select estado, tentativas from outbox_mensagem where mensagem_id = ${messageOutputId}::uuid`,
     );
     expect(outbox?.estado).toBe('pendente');
@@ -196,31 +196,31 @@ describe('caminho inteiro com o dublê', () => {
     expect(meu?.state).toBe('enviada');
     expect(dubleWhatsApp.chamadas.length).toBe(antes + 1);
 
-    const mensagem = await umaLinha<{ estado_entrega: string; id_provedor: string | null }>(
+    const mensagem = await umaLinha<{ stateDelivery: string; idProvider: string | null }>(
       sql`select estado_entrega, id_provedor from mensagem where id = ${messageOutputId}::uuid`,
     );
     expect(mensagem?.estado_entrega).toBe('enviada');
     expect(mensagem?.id_provedor).toMatch(/^wamid\.DUBLE/);
   });
 
-  it('o status de entrega chega por webhook e a mensagem vira entregue', async () => {
+  it('Update a message to delivered when its delivery webhook arrives', async () => {
     await entregarStatusDoDuble();
 
-    const mensagem = await umaLinha<{ estado_entrega: string; entregue_em: string | null }>(
+    const mensagem = await umaLinha<{ stateDelivery: string; entregueAt: string | null }>(
       sql`select estado_entrega, entregue_em from mensagem where id = ${messageOutputId}::uuid`,
     );
     expect(mensagem?.estado_entrega).toBe('entregue');
     expect(mensagem?.entregue_em).not.toBeNull();
 
-    const outbox = await umaLinha<{ estado: string }>(
+    const outbox = await umaLinha<{ state: string }>(
       sql`select estado from outbox_mensagem where mensagem_id = ${messageOutputId}::uuid`,
     );
     expect(outbox?.estado).toBe('entregue');
   });
 
-  it('o status de leitura chega por webhook e a mensagem vira lida', async () => {
+  it('Update a message to read when its read-status webhook arrives', async () => {
     const idProvedor = (
-      await umaLinha<{ id_provedor: string }>(
+      await umaLinha<{ idProvider: string }>(
         sql`select id_provedor from mensagem where id = ${messageOutputId}::uuid`,
       )
     )?.id_provedor;
@@ -229,16 +229,16 @@ describe('caminho inteiro com o dublê', () => {
     dubleWhatsApp.marcarLida(idProvedor!);
     await entregarStatusDoDuble();
 
-    const mensagem = await umaLinha<{ estado_entrega: string; lida_em: string | null }>(
+    const mensagem = await umaLinha<{ stateDelivery: string; lidaAt: string | null }>(
       sql`select estado_entrega, lida_em from mensagem where id = ${messageOutputId}::uuid`,
     );
     expect(mensagem?.estado_entrega).toBe('lida');
     expect(mensagem?.lida_em).not.toBeNull();
   });
 
-  it('status fora de ordem não faz a mensagem regredir', async () => {
+  it('Do not regress message state when status webhooks arrive out of order', async () => {
     const idProvedor = (
-      await umaLinha<{ id_provedor: string }>(
+      await umaLinha<{ idProvider: string }>(
         sql`select id_provedor from mensagem where id = ${messageOutputId}::uuid`,
       )
     )!.id_provedor;
@@ -253,24 +253,24 @@ describe('caminho inteiro com o dublê', () => {
         em: new Date(),
       }),
     );
-    const mensagem = await umaLinha<{ estado_entrega: string }>(
+    const mensagem = await umaLinha<{ stateDelivery: string }>(
       sql`select estado_entrega from mensagem where id = ${messageOutputId}::uuid`,
     );
     expect(mensagem?.estado_entrega).toBe('lida');
   });
 
-  it('a conversa e as mensagens aparecem na REST, com cursor', async () => {
-    const lista = await comApi('/v1/conversas?limit=1&order_by=criada_em[desc]');
+  it('List conversations and messages through REST with cursor pagination', async () => {
+    const lista = await comApi('/v1/conversations?limit=1&order_by=criada_em[desc]');
     expect(lista.status).toBe(200);
     const page = (await lista.json()) as {
-      data: { id: string; contact: { telefone_e164: string } }[];
+      data: { id: string; contact: { phoneE164: string } }[];
       page_info: { has_next_page: boolean; end_cursor: string | null };
     };
     expect(page.data).toHaveLength(1);
     expect(page.page_info.end_cursor).toBeTruthy();
 
-    const messages = await comApi(`/v1/conversas/${conversationId}/mensagens?limit=50`);
-    const corpo = (await messages.json()) as { data: { direcao: string; estado_entrega: string | null }[] };
+    const messages = await comApi(`/v1/conversations/${conversationId}/messages?limit=50`);
+    const corpo = (await messages.json()) as { data: { direction: string; stateDelivery: string | null }[] };
     expect(corpo.data.some((m) => m.direcao === 'entrada')).toBe(true);
     expect(corpo.data.some((m) => m.direcao === 'saida' && m.estado_entrega === 'lida')).toBe(true);
   });
@@ -290,7 +290,7 @@ describe('caminho da falha', () => {
     conversaId = conversa!.id;
   });
 
-  it('mídia em formato recusado nunca chega a chamar a Meta e termina em falhou', async () => {
+  it('Reject unsupported media before calling Meta and mark the delivery failed', async () => {
     const attachment = await umaLinha<{ id: string }>(sql`
       insert into anexo (tenant_id, chave_storage, mime, bytes, nome_original)
       values (${cenario.tenantId}, 'e2e/instalador.exe', 'application/x-msdownload', 4096,
@@ -298,7 +298,7 @@ describe('caminho da falha', () => {
       returning id
     `);
 
-    const resposta = await comApi(`/v1/conversas/${conversaId}/mensagens`, {
+    const resposta = await comApi(`/v1/conversations/${conversaId}/messages`, {
       method: 'POST',
       body: JSON.stringify({
         tipo: 'documento',
@@ -308,7 +308,7 @@ describe('caminho da falha', () => {
       }),
     });
     expect(resposta.status).toBe(201);
-    const criada = (await resposta.json()) as { id: string; estado_entrega: string };
+    const criada = (await resposta.json()) as { id: string; stateDelivery: string };
     expect(criada.estado_entrega).toBe('pendente');
 
     const chamadasAntes = dubleWhatsApp.chamadas.length;
@@ -321,7 +321,7 @@ describe('caminho da falha', () => {
     expect(dubleWhatsApp.chamadas.length).toBe(chamadasAntes);
 
     const mensagem = await umaLinha<{
-      estado_entrega: string;
+      stateDelivery: string;
       errorCode: string;
       errorText: string;
     }>(sql`select estado_entrega, erro_codigo, erro_texto from mensagem where id = ${criada.id}::uuid`);
@@ -331,28 +331,28 @@ describe('caminho da falha', () => {
     expect(mensagem?.errorText).toContain('application/x-msdownload');
     expect(mensagem?.errorText).toContain('não é aceito');
 
-    const outbox = await umaLinha<{ estado: string; lastError: string }>(
+    const outbox = await umaLinha<{ state: string; lastError: string }>(
       sql`select estado, ultimo_erro from outbox_mensagem where mensagem_id = ${criada.id}::uuid`,
     );
     expect(outbox?.estado).toBe('falhou');
     expect(outbox?.lastError).toContain('midia_formato_recusado');
   });
 
-  it('texto livre fora da janela é recusado com o motivo escrito', async () => {
+  it('Reject free-text messages outside the window and explain why', async () => {
     await cenario.dono.execute(sql`
       update conversa set janela_expira_em = now() - interval '1 hour'
        where id = ${conversaId}::uuid
     `);
 
     const chamadasAntes = dubleWhatsApp.chamadas.length;
-    const resposta = await comApi(`/v1/conversas/${conversaId}/mensagens`, {
+    const resposta = await comApi(`/v1/conversations/${conversaId}/messages`, {
       method: 'POST',
       body: JSON.stringify({ texto: 'oi de novo', atendente_id: cenario.agentId }),
     });
 
     expect(resposta.status).toBe(409);
     const corpo = (await resposta.json()) as {
-      erro: { codigo: string; message: string; detalhe: { modo: string } };
+      error: { code: string; message: string; detalhe: { modo: string } };
     };
     expect(corpo.erro.codigo).toBe('janela_fechada');
     expect(corpo.erro.message).toContain('template aprovado pela Meta');
@@ -361,7 +361,7 @@ describe('caminho da falha', () => {
   });
 });
 
-describe('agregação diária', () => {
+describe('Aggregate daily metrics from events idempotently', () => {
   it('fecha metrica_diaria a partir dos eventos e é idempotente', async () => {
     // O dia corrente no fuso do tenant — os eventos deste teste acabaram de acontecer.
     const hoje = new Intl.DateTimeFormat('en-CA', {
@@ -402,24 +402,24 @@ describe('agregação diária', () => {
   });
 });
 
-describe('autenticação por chave de API', () => {
+describe('Authenticate API requests with an API key', () => {
   it('sem Bearer, 401', async () => {
-    const resposta = await fetch(`${api.url}/v1/conversas`);
+    const resposta = await fetch(`${api.url}/v1/conversations`);
     expect(resposta.status).toBe(401);
   });
 
   it('token inexistente, 401', async () => {
-    const resposta = await comApi('/v1/conversas', {}, 'pipe_naoexiste_segredo');
+    const resposta = await comApi('/v1/conversations', {}, 'pipe_naoexiste_segredo');
     expect(resposta.status).toBe(401);
   });
 
-  it('chave sem o escopo do recurso, 403', async () => {
-    const resposta = await comApi('/v1/conversas', {}, cenario.tokenWithoutScope);
+  it('Return 403 when an API key lacks the resource scope', async () => {
+    const resposta = await comApi('/v1/conversations', {}, cenario.tokenWithoutScope);
     expect(resposta.status).toBe(403);
-    const corpo = (await resposta.json()) as { erro: { codigo: string } };
-    expect(corpo.erro.codigo).toBe('sem_escopo');
+    const corpo = (await resposta.json()) as { error: { code: string } };
+    expect(corpo.erro.codigo).toBe('without_scope');
 
     // A mesma chave lê fila, porque esse escopo ela tem.
-    expect((await comApi('/v1/filas', {}, cenario.tokenWithoutScope)).status).toBe(200);
+    expect((await comApi('/v1/queues', {}, cenario.tokenWithoutScope)).status).toBe(200);
   });
 });

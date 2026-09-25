@@ -12,8 +12,8 @@ import {
   tokensEqual,
 } from '../src/sessao.js';
 
-describe('sessão', () => {
-  it('o token vai para o cookie e só o hash para o banco', () => {
+describe('Create and validate sessions', () => {
+  it('Store the session token in the cookie and only its hash in the database', () => {
     const s = createToken();
     expect(s.hash).toHaveLength(64);
     expect(s.hash).not.toContain(s.token);
@@ -25,14 +25,14 @@ describe('sessão', () => {
     expect(vistos.size).toBe(200);
   });
 
-  it('expira em 8 horas por padrão', () => {
+  it('Expire sessions after eight hours by default', () => {
     const agora = new Date('2026-09-07T10:00:00Z');
     expect(createToken(DURATION_DEFAULT_MS, agora).expiraEm.toISOString()).toBe(
       '2026-09-07T18:00:00.000Z',
     );
   });
 
-  it('sessão expirada e sessão encerrada dão a mesma resposta: inválida', () => {
+  it('Treat expired and closed sessions as invalid', () => {
     const agora = new Date('2026-09-07T12:00:00Z');
     const futuro = new Date('2026-09-07T20:00:00Z');
     const passado = new Date('2026-09-07T09:00:00Z');
@@ -60,7 +60,7 @@ describe('sessão', () => {
     expect(c).not.toContain('Domain=');
   });
 
-  it('com domínio-pai o cookie viaja entre os subdomínios dos aplicativos', () => {
+  it('Share the session cookie across application subdomains using the parent domain', () => {
     // A api mora em api.pipe.com.br e as telas em gestao/app/crm.pipe.com.br.
     // Sem o domínio-pai, cada uma precisaria do próprio login.
     const c = cookieOfSession('abc', new Date(), { domain: '.pipe.com.br' });
@@ -69,7 +69,7 @@ describe('sessão', () => {
     expect(c).toContain('SameSite=Lax');
   });
 
-  it('o cookie de saída apaga o valor no mesmo domínio', () => {
+  it('Clear the logout cookie on the same domain', () => {
     expect(cookieDeSaida()).toContain('Max-Age=0');
     expect(cookieDeSaida({ domain: '.pipe.com.br' })).toContain('Domain=.pipe.com.br');
   });
@@ -87,7 +87,7 @@ describe('sessão', () => {
     expect(origemPermitida(undefined, permitidas)).toBe(false);
   });
 
-  it('comparação de token não vaza tamanho de acerto', () => {
+  it('Compare tokens without leaking the length of a matching prefix', () => {
     expect(tokensEqual('abc', 'abc')).toBe(true);
     expect(tokensEqual('abc', 'abd')).toBe(false);
     expect(tokensEqual('abc', 'abcd')).toBe(false);

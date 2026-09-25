@@ -5,8 +5,8 @@ import { montarCorpo } from '../src/whatsapp/real.js';
 const ligado = { quickReply: true, menu: true };
 const credentials = { phoneNumberId: '1', tokenAcesso: 't' };
 
-describe('pergunta do fluxo como mensagem interativa', () => {
-  it('régua da origem: até 3 botões, até 10 lista, senão texto; interruptores nascem ligados', () => {
+describe('Turn flow questions into interactive messages', () => {
+  it('Choose buttons for up to three options, a list for up to ten, and text otherwise', () => {
     expect(formatOfPergunta(3, ligado)).toBe('botoes');
     expect(formatOfPergunta(4, ligado)).toBe('lista');
     expect(formatOfPergunta(11, ligado)).toBe('texto');
@@ -16,7 +16,7 @@ describe('pergunta do fluxo como mensagem interativa', () => {
     expect(preferencesInteractiveOf({ preferencias: { menu: false } })).toEqual({ quickReply: true, menu: false });
   });
 
-  it('opção longa, repetida ou corpo vazio cai para texto em vez de cortar', () => {
+  it('Fall back to text for long or duplicate options or an empty question', () => {
     expect(conteudoDaPergunta({ texto: 'Oi', opcoes: ['a'.repeat(21)] }, ligado)).toBeNull();
     expect(conteudoDaPergunta({ texto: 'Oi', opcoes: ['Sim', 'Sim'] }, ligado)).toBeNull();
     expect(conteudoDaPergunta({ texto: '  ', opcoes: ['Sim'] }, ligado)).toBeNull();
@@ -25,7 +25,7 @@ describe('pergunta do fluxo como mensagem interativa', () => {
     expect(conteudoDaPergunta({ texto: 'Oi', opcoes: quatro }, ligado)).toMatchObject({ formato: 'lista' });
   });
 
-  it('corpo da Cloud API: botões de resposta e lista com uma seção', () => {
+  it('Build Cloud API reply buttons and a single-section list', () => {
     const buttons = conteudoDaPergunta({ texto: 'Como ajudar?', opcoes: ['Financeiro', 'Suporte'] }, ligado)!;
     expect(montarCorpo({ para: '55', conteudo: buttons, credentials })).toMatchObject({
       type: 'interactive',

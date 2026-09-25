@@ -118,8 +118,8 @@ beforeEach(() => {
   esquecerChannel();
 });
 
-describe('conexão manual (POST /v1/canais/instagram/manual)', () => {
-  it('recusa sem token, sem segredo, segredo fora do formato, token inválido e segredo de outro app', async () => {
+describe('conexão manual (POST /v1/channels/instagram/manual)', () => {
+  it('Reject missing or invalid tokens and App Secrets from the wrong app', async () => {
     const recusas: [Record<string, string | undefined>, string][] = [
       [{ access_token: undefined }, 'O token de acesso é obrigatório.'],
       [{ app_secret: undefined }, 'O App Secret é obrigatório.'],
@@ -138,7 +138,7 @@ describe('conexão manual (POST /v1/canais/instagram/manual)', () => {
     expect(ClienteGraphInstagramDuble.chamadas.filter((c) => c.acao === 'assinar')).toHaveLength(0);
   });
 
-  it('sucesso: canal + caixa, segredos cifrados, webhook assinado e { url, verifyToken } devolvido', async () => {
+  it('Create a channel and inbox, encrypt secrets, subscribe the webhook, and return its credentials', async () => {
     const token = `ok-${S}`;
     const feito = await conectar(A, token, { nome: 'Direct da loja' });
     const igUserId = ClienteGraphInstagramDuble.idOfAccount(token);
@@ -148,7 +148,7 @@ describe('conexão manual (POST /v1/canais/instagram/manual)', () => {
     expect(feito.webhook.verifyToken).toMatch(/^[0-9a-f]{32}$/);
     expect(ClienteGraphInstagramDuble.chamadas).toContainEqual({ acao: 'assinar', igUserId });
 
-    const [linha] = await linhas<{ tipo: string; numero_id: string; config: Record<string, unknown> }>(
+    const [linha] = await linhas<{ type: string; numero_id: string; config: Record<string, unknown> }>(
       sql`select tipo, numero_id, config from canal where id = ${feito.id}::uuid`,
     );
     expect(linha).toMatchObject({ tipo: 'instagram', numero_id: igUserId });
@@ -162,7 +162,7 @@ describe('conexão manual (POST /v1/canais/instagram/manual)', () => {
     expect(channels.map((c) => c.id)).toContain(feito.id);
   });
 
-  it('a mesma conta não entra em outro cliente, nem duas vezes no mesmo', async () => {
+  it('Prevent the same Instagram account from connecting twice or across tenants', async () => {
     const token = `unica-${S}`;
     await conectar(A, token);
     await expect(conectar(B, token)).rejects.toMatchObject({
@@ -173,7 +173,7 @@ describe('conexão manual (POST /v1/canais/instagram/manual)', () => {
     expect(await linhas(sql`select 1 from canal where tenant_id = ${B.tenantId}::uuid`)).toHaveLength(0);
   });
 
-  it('o cliente real nunca põe token nem segredo na mensagem de erro', async () => {
+  it('Keep customer tokens and secrets out of Graph client error messages', async () => {
     const token = 'IGAAtoken-secreto-do-cliente';
     const buscar = (async () =>
       new Response(JSON.stringify({ error: { code: 190, message: `token ${token} inválido` } }), {
@@ -209,7 +209,7 @@ describe('conexão manual (POST /v1/canais/instagram/manual)', () => {
   });
 });
 
-describe('webhook, entrada e saída', () => {
+describe('Handle Instagram inbound and outbound webhooks', () => {
   let channelId: string;
   let igUserId: string;
   let verifyToken: string;
@@ -223,7 +223,7 @@ describe('webhook, entrada e saída', () => {
     verifyToken = feito.webhook.verifyToken;
   });
 
-  it('responde ao desafio com o verify_token do canal e recusa o errado', async () => {
+  it('Answer webhook challenges with the channel verify_token and reject wrong tokens', async () => {
     const base = `${api.url}/webhooks/instagram/${channelId}?hub.mode=subscribe&hub.challenge=4242`;
     const certo = await fetch(`${base}&hub.verify_token=${verifyToken}`);
     expect(certo.status).toBe(200);
@@ -237,7 +237,7 @@ describe('webhook, entrada e saída', () => {
     expect(await linhas(sql`select 1 from mensagem where id_provedor = ${`mid-x-${S}`}`)).toHaveLength(0);
   });
 
-  it('corpo válido: cria contato SEM telefone, identidade pelo IGSID, conversa e mensagem; repetir não duplica', async () => {
+  it('Create a phone-free contact by IGSID, conversation, and message without duplicating a repeated event', async () => {
     const payload = evento(igUserId, IGSID, { mid: `mid-1-${S}`, text: 'Olá, quero um orçamento' });
     expect((await postar(channelId, payload)).status).toBe(200);
     expect((await postar(channelId, payload)).status).toBe(200);
@@ -248,7 +248,7 @@ describe('webhook, entrada e saída', () => {
     expect(msgs).toHaveLength(1);
     expect(msgs[0]).toMatchObject({ conteudo: 'Olá, quero um orçamento', direcao: 'entrada' });
 
-    const [contact] = await linhas<{ telefone_e164: string | null; channelType: string }>(sql`
+    const [contact] = await linhas<{ phoneE164: string | null; channelType: string }>(sql`
       select ct.telefone_e164, ci.canal_tipo from contato_identidade ci
         join contato ct on ct.id = ci.contato_id
        where ci.tenant_id = ${A.tenantId}::uuid and ci.identificador = ${IGSID}
@@ -261,13 +261,13 @@ describe('webhook, entrada e saída', () => {
     expect(conversation!.channelId).toBe(channelId);
   });
 
-  it('eco da própria conta é ignorado; anexo chega pela URL; conta alheia é descartada', async () => {
+  it('Ignore account echoes, resolve attachment URLs, and discard other accounts\' events', async () => {
     await postar(channelId, evento(igUserId, igUserId, { mid: `mid-eco-${S}`, text: 'eco', is_echo: true }));
     expect(await linhas(sql`select 1 from mensagem where id_provedor = ${`mid-eco-${S}`}`)).toHaveLength(0);
 
     const url = 'https://lookaside.fbsbx.com/ig_messaging_cdn/?asset_id=1';
     await postar(channelId, evento(igUserId, IGSID, { mid: `mid-img-${S}`, attachments: [{ type: 'image', payload: { url } }] }));
-    const [img] = await linhas<{ tipo: string; keyStorage: string }>(sql`
+    const [img] = await linhas<{ type: string; keyStorage: string }>(sql`
       select m.tipo, a.chave_storage from mensagem m join anexo a on a.id = m.anexo_id
        where m.id_provedor = ${`mid-img-${S}`}
     `);
@@ -290,7 +290,7 @@ describe('webhook, entrada e saída', () => {
       expect.objectContaining({ para: IGSID, tipo: 'texto', igUserId }),
     );
 
-    const [saida] = await linhas<{ id_provedor: string; stateDelivery: string }>(
+    const [saida] = await linhas<{ idProvider: string; stateDelivery: string }>(
       sql`select id_provedor, estado_entrega from mensagem where id = ${enviada.id}::uuid`,
     );
     expect(saida!.stateDelivery).toBe('enviada');
@@ -299,19 +299,19 @@ describe('webhook, entrada e saída', () => {
       object: 'instagram',
       entry: [{ id: igUserId, messaging: [{ sender: { id: IGSID }, recipient: { id: igUserId }, timestamp: Date.now(), read: { mid: saida!.id_provedor } }] }],
     });
-    const [lida] = await linhas<{ estado_entrega: string }>(
+    const [lida] = await linhas<{ stateDelivery: string }>(
       sql`select estado_entrega from mensagem where id = ${enviada.id}::uuid`,
     );
     expect(lida!.estado_entrega).toBe('lida');
   });
 
-  it('outro cliente não vê nem desconecta o canal: 404', async () => {
+  it('Hide another tenant\'s channel from listing and return 404 on disconnect', async () => {
     const { channels } = await controller.listar(request(B));
     expect(channels.map((c) => c.id)).not.toContain(channelId);
     await expect(controller.desconectar(request(B), channelId)).rejects.toMatchObject({ status: 404 });
   });
 
-  it('renovação: cedo demais não chama a Meta; depois de 24h troca o token cifrado; recusa marca reautorização', async () => {
+  it('Renew encrypted tokens after 24 hours and mark rejected renewals for reauthorization', async () => {
     let channel = await readChannelInstagram(A.tenantId, channelId);
     expect(await renovarTokenOfChannel(channel)).toBe('cedo_demais');
     expect(ClienteGraphInstagramDuble.chamadas.filter((c) => c.acao === 'renovar')).toHaveLength(0);
@@ -336,7 +336,7 @@ describe('webhook, entrada e saída', () => {
     expect(channels.find((c) => c.id === channelId)).toMatchObject({ estado: 'indisponivel', motivo: 'reautorizacao_pendente' });
   });
 
-  it('desconectar desassina, desliga sem apagar histórico, fecha o webhook e deixa reconectar', async () => {
+  it('Unsubscribe and disable on disconnect without deleting history, then allow reconnection', async () => {
     const desligado = await controller.desconectar(request(A), channelId);
     expect(desligado.state).toBe('desligado');
     expect(ClienteGraphInstagramDuble.chamadas).toContainEqual({ acao: 'desassinar', igUserId });

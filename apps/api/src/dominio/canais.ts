@@ -23,11 +23,11 @@ export { urlDoWebhook };
 
 export interface ChannelWhatsAppVisible {
   id: string;
-  nome: string;
-  ativo: boolean;
+  name: string;
+  active: boolean;
   wabaId: string | null;
   numeroId: string | null;
-  numero: string | null;
+  number: string | null;
   displayName: string | null;
   /**
    * `conectado` — a Meta respondeu sobre o número.
@@ -47,11 +47,11 @@ export interface ChannelWhatsAppVisible {
 interface LineChannel {
   [column: string]: unknown;
   id: string;
-  nome: string;
-  ativo: boolean;
+  name: string;
+  active: boolean;
   waba_id: string | null;
   numero_id: string | null;
-  criado_em: string | Date;
+  createdAt: string | Date;
   config: Record<string, unknown> | null;
 }
 

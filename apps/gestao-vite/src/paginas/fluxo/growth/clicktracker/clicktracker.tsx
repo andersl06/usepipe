@@ -169,7 +169,7 @@ export default function PageClickTracker() {
                             className="ck-indicador-alerta"
                             title="Evento de conversão não encontrado"
                           >
-                            <IconePortal nome="alerta" tamanho={28} />
+                            <IconePortal nome="alert" tamanho={28} />
                           </span>
                         ) : (
                           indicador.valor

@@ -18,7 +18,7 @@ import { FormulariosDeHorario } from './regras-horarios-formulario';
  * mostra é o que o cálculo enxerga, incluindo feriado e horário de verão.
  */
 export function PageHours() {
-  const read = useRead<Horarios & { fuso: string }>('/v1/gestao/regras/horarios');
+  const read = useRead<Horarios & { fuso: string }>('/v1/management/rules/schedules');
   if (!read.data) return null;
   const { fuso, horarios, queuesWithoutHour, agora } = read.data;
 

@@ -85,7 +85,7 @@ test('personalizado respeita o limite para trás, não passa de hoje e não inve
   assert.equal(periodInterval('custom', HOJE, { limiteDias: 90 }), null);
 });
 
-test('período desconhecido na URL cai em "Hoje"', () => {
+test('an unknown period in the URL falls back to "Today"', () => {
   assert.equal(readPeriod('ontem'), 'today');
   assert.equal(readPeriod(undefined), 'today');
   assert.equal(readPeriod('15days'), '15days');
@@ -99,7 +99,7 @@ test('o anterior tem o mesmo tanto de dias, logo antes', () => {
   assert.equal(diasDoIntervalo({ inicio: '2026-08-30', fim: '2026-09-05' }).length, 7);
 });
 
-test('rótulo do período e a dica da comparação', () => {
+test('period label and the comparison hint', () => {
   assert.equal(
     rotuloDoIntervalo({ inicio: HOJE, fim: HOJE }),
     '13 de setembro de 2026 - 00h às 23h59',
@@ -142,7 +142,7 @@ test('eixo do chart.js 3.9.1: zero é 0 a 1, e o passo é o niceNum sem arredond
   assert.deepEqual(escalaDoEixo(12).tiques, [0, 2, 4, 6, 8, 10, 12]);
 });
 
-test('variação: igual é zero, anterior zero é infinito, ausente é indefinida', () => {
+test('variation: equal is zero, previous zero is infinite, absent is undefined', () => {
   assert.equal(variation(5, 5), 0);
   assert.equal(variation(0, 0), 0);
   assert.equal(variation(3, 0), Infinity);

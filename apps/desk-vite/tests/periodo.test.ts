@@ -7,7 +7,7 @@ import { readPreferences } from '../src/lib/preferencias';
 
 const agora = new Date(2026, 8, 17, 15, 30);
 
-test('os atalhos de período', () => {
+test('the period shortcuts', () => {
   assert.deepEqual(intervaloDoAtalho('hoje', agora), {
     inicio: new Date(2026, 8, 17, 0, 0, 0, 0),
     fim: agora,
@@ -27,7 +27,7 @@ test('o intervalo à mão vira quando invertido e cabe no teto de 90 dias', () =
   assert.ok((longo.fim.getTime() - longo.inicio.getTime()) / 86_400_000 <= 91);
 });
 
-test('o tempo médio sem valor é traço, não zero', () => {
+test('average time with no value shows a dash, not zero', () => {
   assert.equal(timeMedio(null), '-');
   assert.equal(timeMedio(61), '00:01:01');
 });
@@ -40,7 +40,7 @@ const c = (id: string, nome: string | null, ultima: string | null) => ({
   ultimaInteracaoEm: ultima,
 });
 
-test('ordem alfabética agrupa pela letra e manda os sem-nome para o fim', () => {
+test('alphabetical order groups by letter and sends unnamed items to the end', () => {
   const groups = agruparContacts(
     [c('1', null, null), c('2', 'Álvaro', null), c('3', 'Bia', null), c('4', 'ana', null)],
     'alfabetica',
@@ -55,7 +55,7 @@ test('ordem alfabética agrupa pela letra e manda os sem-nome para o fim', () =>
   );
 });
 
-test('última interação agrupa por dia, do mais recente', () => {
+test('last interaction groups by day, most recent first', () => {
   const groups = agruparContacts(
     [
       c('1', 'A', '2026-09-01T10:00:00'),
@@ -70,7 +70,7 @@ test('última interação agrupa por dia, do mais recente', () => {
   );
 });
 
-test('parâmetros do modelo e preferências com padrão', () => {
+test('template parameters and preferences with a default', () => {
   assert.equal(
     aplicarParametros('Olá {{1}}, seu pedido {{2}}', ['Ana']),
     'Olá Ana, seu pedido {{2}}',

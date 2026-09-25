@@ -71,9 +71,9 @@ export async function configurarWebhook(
   const coexistencia = options.coexistencia === undefined ? null : options.coexistencia;
 
   // `validate_parameters!`
-  if (!wabaId) throw PipeError.request('waba_ausente', 'O WABA ID é obrigatório.');
-  if (!token) throw PipeError.request('token_ausente', 'O token de acesso é obrigatório.');
-  if (!numeroId) throw PipeError.request('numero_ausente', 'O Phone Number ID é obrigatório.');
+  if (!wabaId) throw PipeError.request('waba_missing', 'O WABA ID é obrigatório.');
+  if (!token) throw PipeError.request('token_missing', 'O token de acesso é obrigatório.');
+  if (!numeroId) throw PipeError.request('number_missing', 'O Phone Number ID é obrigatório.');
 
   const cliente = clienteGraph(token);
 
@@ -125,7 +125,7 @@ export async function configurarWebhook(
   if (url.length > LIMITE_DA_URL) {
     throw new PipeError(
       500,
-      'url_longa_demais',
+      'url_long_excessive',
       `A URL do webhook tem ${url.length} caracteres e a Meta aceita ${LIMITE_DA_URL}. Encurte PIPE_URL_API.`,
     );
   }
@@ -136,7 +136,7 @@ export async function configurarWebhook(
   } catch (erro) {
     const message = asError(erro).message;
     console.error(`[whatsapp] a configuração do webhook falhou: ${message}`);
-    throw new PipeError(502, 'webhook_falhou', `Falha ao configurar o webhook: ${message}`);
+    throw new PipeError(502, 'webhook_failed', `Falha ao configurar o webhook: ${message}`);
   }
 
   return { channel: atual, errorOfRegistro };

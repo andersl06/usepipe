@@ -60,7 +60,7 @@ export async function euAtual(): Promise<Eu | null> {
  */
 export async function exigirEu(): Promise<Eu> {
   const eu = await carregarEu();
-  if (!eu) redirect('/entrar');
+  if (!eu) redirect('/login');
   return eu;
 }
 

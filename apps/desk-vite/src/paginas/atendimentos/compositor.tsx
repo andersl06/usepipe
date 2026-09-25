@@ -68,7 +68,7 @@ export function Composer({
         titulo="Retire o cliente do Modo de espera clicando no botão abaixo."
         botao="Remover do Modo de Espera"
         aoClicar={async () => {
-          await api.post(`/v1/conversas/${conversation.id}/espera`);
+          await api.post(`/v1/conversations/${conversation.id}/wait`);
           atualizarLeituras();
         }}
       />
@@ -91,7 +91,7 @@ export function Composer({
     setEnviando(true);
     setError(null);
     try {
-      await api.post(`/v1/conversas/${conversation.id}/mensagens`, {
+      await api.post(`/v1/conversations/${conversation.id}/messages`, {
         texto: corpo,
         tipo: 'texto',
         ...(respostaProntaId ? { resposta_pronta_id: respostaProntaId } : {}),
@@ -127,7 +127,7 @@ export function Composer({
 
       const attachmentIds: string[] = [];
       for (const f of arquivos) {
-        const resposta = await chamarApi(`/v1/anexos?nome=${encodeURIComponent(f.name)}`, {
+        const resposta = await chamarApi(`/v1/attachments?nome=${encodeURIComponent(f.name)}`, {
           method: 'POST',
           headers: { 'content-type': f.type || 'application/octet-stream' },
           body: f,
@@ -138,7 +138,7 @@ export function Composer({
         const attachment = (await resposta.json()) as { id: string };
         attachmentIds.push(attachment.id);
       }
-      await api.post(`/v1/conversas/${conversation.id}/mensagens/anexos`, { anexo_ids: attachmentIds });
+      await api.post(`/v1/conversations/${conversation.id}/messages/anexos`, { anexo_ids: attachmentIds });
       atualizarLeituras();
       aoEnviar();
     } catch (e) {
@@ -419,7 +419,7 @@ function TemplateModal({
     setEnviando(true);
     setError(null);
     try {
-      await api.post(`/v1/conversas/${conversation.id}/mensagens`, {
+      await api.post(`/v1/conversations/${conversation.id}/messages`, {
         tipo: 'template',
         template_id: template.id,
         parametros: variables.map((_, i) => parametros[i] ?? ''),

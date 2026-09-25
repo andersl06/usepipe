@@ -243,7 +243,7 @@ function ContactEdit({
     setSalvando(true);
     setError(null);
     try {
-      await api.patch(`/v1/contatos/${conversation.contactId}`, {
+      await api.patch(`/v1/contacts/${conversation.contactId}`, {
         nome: nome.trim() || null,
         telefone_e164: telefone.trim() || null,
         email: email.trim() || null,
@@ -319,7 +319,7 @@ function ContactTags({
     setOcupado(true);
     setError(null);
     try {
-      await api.post(`/v1/contatos/${contactId}/etiquetas`, { etiqueta_id: etiquetaId });
+      await api.post(`/v1/contacts/${contactId}/labels`, { etiqueta_id: etiquetaId });
       atualizarLeituras();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Não foi possível etiquetar o contato.');
@@ -333,7 +333,7 @@ function ContactTags({
     setOcupado(true);
     setError(null);
     try {
-      await api.delete(`/v1/contatos/${contactId}/etiquetas/${etiqueta.id}`);
+      await api.delete(`/v1/contacts/${contactId}/labels/${etiqueta.id}`);
       atualizarLeituras();
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Não foi possível remover a etiqueta.');

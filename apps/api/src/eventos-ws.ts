@@ -2,7 +2,7 @@ import type { IncomingMessage, Server } from 'node:http';
 import type { Duplex } from 'node:stream';
 import { WebSocketServer } from 'ws';
 import type { WebSocket } from 'ws';
-import { hashDoToken, origemPermitida, origensPermitidas, resolveSession } from '@pipe/autenticacao';
+import { hashDoToken, origemPermitida, origensPermitidas, resolveSession } from '@pipe/authentication';
 import { ASSUNTOS } from '@pipe/contracts';
 import type { Assunto, EventoDoServidor, Subscription, QuadroDeControle } from '@pipe/contracts';
 import { databaseOwner } from './banco.js';
@@ -147,7 +147,7 @@ async function aoConectar(ws: WebSocket, tenantId: string, userId: string): Prom
     try {
       pedido = JSON.parse(String(cru)) as Subscription;
     } catch {
-      enviar(ws, { tipo: 'recusado', motivo: 'assunto_desconhecido' });
+      enviar(ws, { tipo: 'refused', motivo: 'assunto_desconhecido' });
       return;
     }
     // Qualquer mensagem do cliente conta como sinal de vida: navegador que fala está
@@ -156,7 +156,7 @@ async function aoConectar(ws: WebSocket, tenantId: string, userId: string): Prom
 
     const pedidos = Array.isArray(pedido.assuntos) ? pedido.assuntos : [];
     if (pedidos.length === 0 || !pedidos.every(ehAssunto)) {
-      enviar(ws, { tipo: 'recusado', motivo: 'assunto_desconhecido' });
+      enviar(ws, { tipo: 'refused', motivo: 'assunto_desconhecido' });
       return;
     }
 

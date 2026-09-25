@@ -23,7 +23,7 @@ export async function salvarConexao(
   pedido: { urlMessages?: string | null; urlNotifications?: string | null },
 ): Promise<Resultado<FlowConexao>> {
   try {
-    const value = await api.put<FlowConexao>(`/v1/gestao/fluxos/${flowId}/conexao`, pedido);
+    const value = await api.put<FlowConexao>(`/v1/management/flows/${flowId}/connection`, pedido);
     atualizarLeituras();
     return { ok: true, value };
   } catch (error) {

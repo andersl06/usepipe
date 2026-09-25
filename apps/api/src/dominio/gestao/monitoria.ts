@@ -69,18 +69,18 @@ export interface EvaluationInList {
   conversationId: string;
   contact: string | null;
   queue: string | null;
-  avaliado: string | null;
-  formulario: string;
-  notaMaxima: number;
+  evaluated: string | null;
+  form: string;
+  noteMaximum: number;
   /** `null` quando a avaliação ainda não fechou nota — e aí ela sai da média. */
-  nota: number | null;
-  conceito: string | null;
-  avaliadorTipo: string;
-  confiancaIa: number | null;
+  note: number | null;
+  concept: string | null;
+  evaluatorType: string;
+  confidenceAi: number | null;
   state: string;
-  avaliadaEm: Date | null;
+  evaluatedAt: Date | null;
   /** Categoria e sentimento da classificação da conversa, quando houver. */
-  categoria: string | null;
+  category: string | null;
   sentiment: string | null;
 }
 
@@ -97,16 +97,16 @@ export interface ApplicationOfQualityReview {
   media: ResultadoMetrica;
   byAgent: LineByAgent[];
   /** Quantas foram da IA e quantas de gente: a nota da IA é sugestão até revisão. */
-  byEvaluator: { tipo: string; total: number }[];
+  byEvaluator: { type: string; total: number }[];
   /** Confiança média declarada pelo modelo, de 0 a 1. Só das avaliações da IA. */
-  confiancaIa: ResultadoMetrica;
+  confidenceAi: ResultadoMetrica;
   /** Nota máxima do formulário mais usado no recorte — a escala em que a média é lida. */
   escala: number;
 }
 
 export interface QualityReviewFilter {
   agentId?: string | undefined;
-  avaliadorTipo?: string | undefined;
+  evaluatorType?: string | undefined;
 }
 
 /** `numeric` volta como texto do driver; `null` continua `null`. */
@@ -237,10 +237,10 @@ export async function loadQualityReview(
 /* ------------------------------------------------------- a ficha da avaliação */
 
 export interface RespostaDeCriterio {
-  criterioId: string;
+  criterionId: string;
   criterio: string;
   description: string | null;
-  tipo: string;
+  type: string;
   fatal: boolean;
   peso: number;
   value: string | null;
@@ -255,7 +255,7 @@ export interface RespostaDeCriterio {
 
 export interface GrupoDaFicha {
   id: string;
-  nome: string;
+  name: string;
   peso: number;
   criterios: RespostaDeCriterio[];
 }
@@ -268,7 +268,7 @@ export interface RecordOfEvaluation {
   /** Nomes dos critérios fatais reprovados. Vazio quando nenhum zerou a nota. */
   fatalRejecteds: string[];
   /** O resumo da classificação da conversa, quando a IA também classificou. */
-  resumo: string | null;
+  summary: string | null;
   modelClassification: string | null;
 }
 

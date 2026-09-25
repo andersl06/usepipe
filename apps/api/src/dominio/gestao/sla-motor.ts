@@ -132,12 +132,12 @@ async function executarAcao(
 
 interface ConversationForSla {
   id: string;
-  filaId: string | null;
+  queueId: string | null;
   priority: string;
   criadaEm: Date;
-  atribuidaEm: Date | null;
+  assignedAt: Date | null;
   firstResponseAt: Date | null;
-  encerradaEm: Date | null;
+  closedAt: Date | null;
   lastMessageAt: Date | null;
   lastMessageFrom: string | null;
 }
@@ -145,8 +145,8 @@ interface ConversationForSla {
 interface LinhaSlaExistente {
   id: string;
   state: string;
-  alertadoEm: Date | null;
-  estouradoEm: Date | null;
+  alertedAt: Date | null;
+  exceededAt: Date | null;
 }
 
 /** Uma regra, contra uma conversa: decide o novo estado e dispara alerta/estouro no máximo uma vez cada. */
@@ -211,13 +211,13 @@ async function processarRegra(
 
   if (resultado.cumprido) {
     newState = 'cumprido';
-  } else if (resultado.state === 'estourado') {
+  } else if (resultado.state === 'exceeded') {
     newState = 'estourado';
     if (!estouradoEm) {
       estouradoEm = fimEfetivo;
       dispararEstouro = true;
     }
-  } else if (resultado.state === 'alerta') {
+  } else if (resultado.state === 'alert') {
     newState = 'alertado';
     if (!alertadoEm) {
       alertadoEm = fimEfetivo;
@@ -346,7 +346,7 @@ export async function checarSlaOfConversation(
 
 export interface CandidataASla {
   tenantId: string;
-  conversaId: string;
+  conversationId: string;
 }
 
 /**

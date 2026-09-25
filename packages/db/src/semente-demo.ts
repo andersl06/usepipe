@@ -403,8 +403,8 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
   // --- contatos ---
   interface Pessoa {
     id: string;
-    nome: string;
-    telefone: string | null;
+    name: string;
+    phone: string | null;
     email: string | null;
     atributos: Record<string, string>;
   }
@@ -476,7 +476,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     lastMessageOf: 'contato' | 'atendente';
     criadaAtras: number;
     encerradaAtras?: number;
-    emEsperaDesde?: number;
+    inWaitSince?: number;
   }
 
   const conversations: NewConversation[] = [
@@ -489,7 +489,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       priority: 'alta',
       lastOfContactAtras: 2 * HORA + 12 * MIN,
       lastMessageAtras: 2 * HORA + 5 * MIN,
-      lastMessageOf: 'atendente',
+      lastMessageOf: 'agent',
       criadaAtras: 3 * HORA,
     },
     {
@@ -502,7 +502,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       // Janela perto de expirar: faltam ~38 minutos.
       lastOfContactAtras: 23 * HORA + 22 * MIN,
       lastMessageAtras: 23 * HORA + 20 * MIN,
-      lastMessageOf: 'atendente',
+      lastMessageOf: 'agent',
       criadaAtras: 26 * HORA,
     },
     {
@@ -540,7 +540,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       // Janela já fechada: passou de 24h desde a última mensagem dela.
       lastOfContactAtras: 30 * HORA,
       lastMessageAtras: 29 * HORA,
-      lastMessageOf: 'atendente',
+      lastMessageOf: 'agent',
       criadaAtras: 32 * HORA,
       emEsperaDesde: 28 * HORA,
     },
@@ -553,7 +553,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       priority: 'alta',
       lastOfContactAtras: 18 * HORA,
       lastMessageAtras: 17 * HORA + 50 * MIN,
-      lastMessageOf: 'atendente',
+      lastMessageOf: 'agent',
       criadaAtras: 19 * HORA,
     },
     // Conversa antiga do Marcelo, para o histórico do painel do contato.
@@ -566,7 +566,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       priority: 'baixa',
       lastOfContactAtras: null,
       lastMessageAtras: 3 * 24 * HORA,
-      lastMessageOf: 'atendente',
+      lastMessageOf: 'agent',
       criadaAtras: 3 * 24 * HORA + 30 * MIN,
       encerradaAtras: 3 * 24 * HORA,
     },
@@ -612,11 +612,11 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     de: 'contato' | 'atendente';
     texto: string;
     atras: number;
-    tipo?: 'texto' | 'audio' | 'documento';
-    estado?: 'enviada' | 'entregue' | 'lida' | 'falhou';
+    type?: 'texto' | 'audio' | 'documento';
+    state?: 'enviada' | 'entregue' | 'lida' | 'falhou';
     errorCode?: string;
     errorText?: string;
-    respostaProntaId?: string | null;
+    responseReadyId?: string | null;
     insideOfWindow?: boolean;
   };
 
@@ -630,7 +630,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convMarcelo,
-      de: 'atendente',
+      de: 'agent',
       texto:
         'Boa tarde, Marcelo! Sou a Ana, do comercial. O plano anual sai por R$ 4.788, ' +
         'o que dá R$ 399 por mês.',
@@ -646,7 +646,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convMarcelo,
-      de: 'atendente',
+      de: 'agent',
       texto: 'Áudio de 0:34 — explicação do desconto à vista',
       atras: 2 * HORA + 9 * MIN,
       tipo: 'audio',
@@ -657,7 +657,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convMarcelo,
-      de: 'atendente',
+      de: 'agent',
       texto: 'Tem sim — 10% à vista, fica R$ 4.309. Posso te mandar a proposta agora?',
       atras: 2 * HORA + 5 * MIN,
       estado: 'lida',
@@ -672,7 +672,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convJuliana,
-      de: 'atendente',
+      de: 'agent',
       texto: 'Oi, Juliana! Vou verificar aqui. Aparece alguma mensagem de erro na tela?',
       atras: 25 * HORA + 40 * MIN,
       estado: 'lida',
@@ -685,7 +685,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convJuliana,
-      de: 'atendente',
+      de: 'agent',
       texto:
         'Entendi. Acabei de destravar o acesso e mandei um link de redefinição para o seu ' +
         'e-mail. Consegue testar?',
@@ -718,7 +718,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convCassia,
-      de: 'atendente',
+      de: 'agent',
       texto:
         'Oi, Cássia! Já pedi para o financeiro reemitir. Coloquei a conversa em espera e te ' +
         'aviso assim que sair.',
@@ -734,7 +734,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convPaulo,
-      de: 'atendente',
+      de: 'agent',
       texto:
         'Que ótima notícia, Paulo! Mando o link de pagamento e o contrato ainda hoje. ' +
         'Prefere boleto ou cartão?',
@@ -750,7 +750,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     },
     {
       conversationId: convMarceloAntiga,
-      de: 'atendente',
+      de: 'agent',
       texto: 'Que bom! Qualquer coisa é só chamar.',
       atras: 3 * 24 * HORA,
       estado: 'lida',
@@ -763,19 +763,19 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       conversaId: f.conversationId,
       direcao: f.de === 'contato' ? ('entrada' as const) : ('saida' as const),
       autorTipo: f.de,
-      autorId: f.de === 'atendente' ? anaId : null,
+      autorId: f.de === 'agent' ? anaId : null,
       tipo: f.tipo ?? 'texto',
       conteudo: f.texto,
-      estadoEntrega: f.de === 'atendente' ? (f.estado ?? 'enviada') : null,
+      estadoEntrega: f.de === 'agent' ? (f.estado ?? 'enviada') : null,
       erroCodigo: f.errorCode ?? null,
       erroTexto: f.errorText ?? null,
       respostaProntaId: f.respostaProntaId ?? null,
       criadaEm: atras(f.atras),
       entregueEm:
-        f.de === 'atendente' && f.estado !== 'falhou' ? atras(f.atras - 20_000) : null,
+        f.de === 'agent' && f.estado !== 'falhou' ? atras(f.atras - 20_000) : null,
       lidaEm: f.estado === 'lida' ? atras(f.atras - 60_000) : null,
-      dentroDaJanela: f.de === 'atendente' ? (f.insideOfWindow ?? true) : null,
-      categoriaCobranca: f.de === 'atendente' ? ('livre' as const) : null,
+      dentroDaJanela: f.de === 'agent' ? (f.insideOfWindow ?? true) : null,
+      categoriaCobranca: f.de === 'agent' ? ('livre' as const) : null,
     })),
   );
 

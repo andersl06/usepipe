@@ -161,9 +161,9 @@ See `key-decisions` in frontmatter. In short: (1) D-40 authorized building a dir
 
 **4. [Rule 2 - missing critical] Package-kind rows for `package`/`app` used the wrong translation path**
 - **Found during:** Task 2 acceptance-criteria check (infra.csv `package`/`app` rows all showed `new=KEEP`, wrong)
-- **Issue:** `package` kind (scoped npm names like `@pipe/autenticacao`) was routed through the bare-identifier translator, which cannot parse the `@scope/name` shape and left it untouched.
+- **Issue:** `package` kind (scoped npm names like `@pipe/authentication`) was routed through the bare-identifier translator, which cannot parse the `@scope/name` shape and left it untouched.
 - **Fix:** Moved `package` into the path-translation group (same as `file`/`dir`/`app`), which correctly preserves the `@pipe/` prefix and translates the name segment.
-- **Verification:** `infra.csv` now shows `@pipe/autenticacao -> @pipe/authentication`, etc.; `packages-autenticacao.csv`'s own package row fixed the same way.
+- **Verification:** `infra.csv` now shows `@pipe/authentication -> @pipe/authentication`, etc.; `packages-autenticacao.csv`'s own package row fixed the same way.
 - **Committed in:** `4d9ae9d`
 
 **5. [Rule 1 - bug] ~90 missing-vocabulary and mistranslation issues found during the error-code review**
@@ -224,7 +224,7 @@ None - no external service configuration required.
 ## Self-Check: PASSED
 
 - All 9 scope CSVs exist, 0 rows at `status=candidate`, `check-map --require-status proposed --glossary GLOSSARY.md` exits 0 (0 errors, 0 warnings).
-- `/v1/auth/google/callback` and `/v1/auth/sso/callback` present in `api.csv`; `pipe-entrada`/`pipe_session` renamed with non-KEEP values; `infra.csv` has `package` rows for `@pipe/autenticacao`/`@pipe/armazenamento`/`@pipe/tempo-real` and `app` rows for `gestao-vite`/`ponte`.
+- `/v1/auth/google/callback` and `/v1/auth/sso/callback` present in `api.csv`; `pipe-entrada`/`pipe_session` renamed with non-KEEP values; `infra.csv` has `package` rows for `@pipe/authentication`/`@pipe/storage`/`@pipe/realtime` and `app` rows for `gestao-vite`/`ponte`.
 - `std/reports/sample-backend.csv` exists (635 rows, seed 1).
 - `std/persisted.csv` has 11 rows (10 from 01-35 + `persisted-wire-11`).
 - Commits `e940a82`, `4d9ae9d`, `bdcf87b` found in `git log --oneline`.

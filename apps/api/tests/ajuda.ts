@@ -121,7 +121,7 @@ export function assinar(corpo: string): string {
 export function payloadOfMessage(
   de: string,
   texto: string,
-  options: { id?: string; nome?: string; em?: Date } = {},
+  options: { id?: string; name?: string; at?: Date } = {},
 ): unknown {
   const em = options.em ?? new Date();
   return {

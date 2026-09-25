@@ -110,8 +110,8 @@ export interface ShellOfContact {
  * mesma; a palavra não.
  */
 export interface RequestOfContact {
-  nome: string;
-  tipo: 'fluxo' | 'roteador';
+  name: string;
+  type: 'fluxo' | 'roteador';
   /** `data:image/...;base64,...` ou nada. Os bytes decidem o tipo, não o rótulo. */
   image?: string | null;
   recados: RecadosDoNome & { nomeEmUso: string; withoutPermission: string };
@@ -128,14 +128,14 @@ export type ResultOfContact =
   { id: string; error?: undefined } | { id?: undefined; error: string };
 
 export interface RequestOfEditOfContact {
-  nome?: string;
+  name?: string;
   /** `null` ou vazio apaga; ausente não mexe. */
   description?: string | null;
   /** `data:` troca, `null` tira, ausente não mexe. */
   imagem?: string | null;
 }
 
-@Controller('v1/gestao/fluxos')
+@Controller('v1/management/flows')
 export class ManagementFlowController {
   /**
    * Criar um contato (fluxo ou roteador). A regra inteira — permissão, nome,
@@ -151,7 +151,7 @@ export class ManagementFlowController {
   ): Promise<ResultOfContact> {
     const session = sessionOf(request);
     const recados = corpo?.recados;
-    if (!recados) throw PipeError.request('recados_ausentes', 'Faltam os recados da tela.');
+    if (!recados) throw PipeError.request('messages_missing', 'Faltam os recados da tela.');
     const frases: Record<string, string | undefined> = {
       nome_tamanho: recados.tamanho,
       nome_comeco: recados.comecoInvalido,
@@ -214,7 +214,7 @@ export class ManagementFlowController {
   @WithSession()
   async grade(
     @Req() requisicao: RequestWithSession,
-    @Query('busca') search?: string,
+    @Query('search') search?: string,
     @Query('pagina') page?: string,
     @Query('porPagina') byPage?: string,
   ): Promise<GradeDoPortal> {
@@ -273,7 +273,7 @@ export class ManagementFlowController {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
     const channelId = typeof corpo?.canalId === 'string' ? corpo.canalId : '';
-    if (!channelId) throw PipeError.request('canal_obrigatorio', 'Informe `canalId`.');
+    if (!channelId) throw PipeError.request('channel_required', 'Informe `canalId`.');
     uuidOu404(channelId, 'canal');
     return noTenant(sessao.tenantId, (tx) =>
       connectChannelToFlow(tx, sessao.tenantId, sessao.userId, id, channelId),
@@ -290,7 +290,7 @@ export class ManagementFlowController {
   async disconnectChannel(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo?: { motivo?: string },
+    @Body() corpo?: { reason?: string },
   ): Promise<void> {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
@@ -317,7 +317,7 @@ export class ManagementFlowController {
   async salvarBoasVindasRota(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: { ativo?: boolean; message?: string; textoBotao?: string },
+    @Body() corpo: { active?: boolean; message?: string; textoBotao?: string },
   ): Promise<ConfigurationOfWelcome> {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');
@@ -397,7 +397,7 @@ export class ManagementFlowController {
   async logs(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Query('busca') busca?: string,
+    @Query('search') busca?: string,
   ): Promise<LogOfFlow[]> {
     const sessao = sessionOf(requisicao);
     uuidOu404(id, 'fluxo');

@@ -16,7 +16,7 @@ const COLUNAS: readonly Column<LinhaAccount>[] = [
   {
     key: 'nome',
     rotulo: 'Conta',
-    celula: (c) => <Link href={`/contas/${c.id}`}>{c.nome}</Link>,
+    celula: (c) => <Link href={`/accounts/${c.id}`}>{c.nome}</Link>,
   },
   { key: 'documento', rotulo: 'CNPJ', numerica: true, celula: (c) => document(c.document) },
   {

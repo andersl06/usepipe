@@ -29,9 +29,9 @@ const CONFIG = { url: 'https://crm.cliente.teste', chave: 'chave-de-teste' };
 /** Um `fetch` de mentira que devolve o que o teste mandar e guarda o que recebeu. */
 function fetchFalso(respostas: unknown[]): {
   buscar: typeof fetch;
-  chamadas: { url: string; corpo: Record<string, unknown> }[];
+  chamadas: { url: string; body: Record<string, unknown> }[];
 } {
-  const chamadas: { url: string; corpo: Record<string, unknown> }[] = [];
+  const chamadas: { url: string; body: Record<string, unknown> }[] = [];
   let i = 0;
   const buscar = (async (url: string, init: RequestInit) => {
     chamadas.push({
@@ -48,7 +48,7 @@ function fetchFalso(respostas: unknown[]): {
 }
 
 describe('conversão de campo entre Pipe e Twenty', () => {
-  it('parte o nome no primeiro espaço', () => {
+  it('Split a full name at the first space', () => {
     expect(partirNome('Maria Clara Souza')).toEqual({
       firstName: 'Maria',
       lastName: 'Clara Souza',
@@ -58,7 +58,7 @@ describe('conversão de campo entre Pipe e Twenty', () => {
     expect(partirNome(null)).toEqual({ firstName: '', lastName: '' });
   });
 
-  it('parte o telefone brasileiro em número, DDI e país', () => {
+  it('Split Brazilian phone numbers into national number, calling code, and country', () => {
     expect(partirTelefone('+5511988887777')).toEqual({
       primaryPhoneNumber: '11988887777',
       primaryPhoneCallingCode: '+55',
@@ -85,8 +85,8 @@ describe('conversão de campo entre Pipe e Twenty', () => {
   });
 });
 
-describe('classificação de falha do CRM', () => {
-  it('trata 401 e 403 como permanentes — repetir não conserta chave errada', async () => {
+describe('Classify permanent and retryable CRM failures', () => {
+  it('Classify CRM 401 and 403 responses as permanent failures', async () => {
     for (const status of [401, 403]) {
       const buscar = (async () => new Response('', { status })) as unknown as typeof fetch;
       const erro = await chamar(CONFIG, '/graphql', '{ ok }', {}, buscar).catch((e: unknown) => e);
@@ -103,14 +103,14 @@ describe('classificação de falha do CRM', () => {
     expect((error as InstanceType<typeof TwentyError>).permanente).toBe(false);
   });
 
-  it('nunca deixa a chave de API vazar na mensagem de erro', async () => {
+  it('Never expose the CRM API key in error messages', async () => {
     const buscar = (async () => new Response('', { status: 500 })) as unknown as typeof fetch;
     const erro = await chamar(CONFIG, '/graphql', '{ ok }', {}, buscar).catch((e: unknown) => e);
     expect(String((erro as Error).message)).not.toContain(CONFIG.chave);
   });
 });
 
-describe('espelho do contato, e a defesa contra duplicata', () => {
+describe('Mirror contacts to the CRM without creating duplicates', () => {
   const contact = {
     id: '11111111-1111-4111-8111-111111111111',
     nome: 'Maria Souza',
@@ -120,7 +120,7 @@ describe('espelho do contato, e a defesa contra duplicata', () => {
     empresaTwentyId: null,
   };
 
-  it('procura pelo pipeContatoId antes de criar, e adota o órfão que achar', async () => {
+  it('Find a contact by pipeContatoId before creating it and adopt an orphan match', async () => {
     const { buscar, chamadas } = fetchFalso([
       { data: { people: { edges: [{ node: { id: 'orfao-1', pipeContatoId: contact.id } }] } } },
       { data: { updatePerson: { id: 'orfao-1', pipeContatoId: contact.id } } },
@@ -133,7 +133,7 @@ describe('espelho do contato, e a defesa contra duplicata', () => {
     expect(String(chamadas[1]?.corpo['query'])).toContain('updatePerson');
   });
 
-  it('cria quando não existe espelho nenhum', async () => {
+  it('Create a CRM contact when no mirror exists', async () => {
     const { buscar, chamadas } = fetchFalso([
       { data: { people: { edges: [] } } },
       { data: { createPerson: { id: 'nova-1', pipeContatoId: contact.id } } },
@@ -145,7 +145,7 @@ describe('espelho do contato, e a defesa contra duplicata', () => {
     expect(String(chamadas[1]?.corpo['query'])).toContain('createPerson');
   });
 
-  it('aborta se o CRM devolver o contato de OUTRO cliente', async () => {
+  it('Abort when the CRM returns another tenant\'s contact', async () => {
     // O caso da URL trocada na implantação: chave válida, instância errada.
     const { buscar } = fetchFalso([
       { data: { people: { edges: [] } } },
@@ -160,7 +160,7 @@ describe('espelho do contato, e a defesa contra duplicata', () => {
   });
 });
 
-describe('configuração do CRM por tenant — falha fechada', () => {
+describe('Load CRM configuration per tenant with fail-closed behavior', () => {
   let cenario: Cenario;
 
   beforeAll(async () => {
@@ -185,7 +185,7 @@ describe('configuração do CRM por tenant — falha fechada', () => {
     expect(config).toBeNull();
   });
 
-  it('sem chave, não há CRM', async () => {
+  it('Disable CRM integration when no API key is configured', async () => {
     await definir('https://crm.cliente.teste', null);
     const config = await noTenant(cenario.tenantId, (tx) =>
       configDoTenant(tx, cenario.tenantId),
@@ -193,7 +193,7 @@ describe('configuração do CRM por tenant — falha fechada', () => {
     expect(config).toBeNull();
   });
 
-  it('decifra a chave, e ela não fica em texto puro no banco', async () => {
+  it('Decrypt the CRM key while keeping it encrypted in the database', async () => {
     const cifrada = cifrar('chave-secreta-do-crm', keyringOfAmbientechaveiroDoAmbientekeyringOfAmbiente());
     await definir('https://crm.cliente.teste/', cifrada);
 
@@ -210,7 +210,7 @@ describe('configuração do CRM por tenant — falha fechada', () => {
     expect(config?.url).toBe('https://crm.cliente.teste');
   });
 
-  it('tenant sem CRM não espelha, e não é erro', async () => {
+  it('Skip contact mirroring for tenants without CRM', async () => {
     await definir(null, null);
     const contactId = await seedContact(cenario);
 
@@ -219,7 +219,7 @@ describe('configuração do CRM por tenant — falha fechada', () => {
     expect(r.state).toBe('sem_espelho');
   });
 
-  it('grava o id devolvido pelo CRM no contato', async () => {
+  it('Store the CRM-returned ID on the contact', async () => {
     await definir('https://crm.cliente.teste', cifrar('k', keyringOfAmbientechaveiroDoAmbientekeyringOfAmbiente()));
     const contatoId = await seedContact(cenario);
 
@@ -237,7 +237,7 @@ describe('configuração do CRM por tenant — falha fechada', () => {
     expect(rows[0]?.twenty_pessoa_id).toBe('pessoa-nova');
   });
 
-  it('contato de outro tenant não vira escrita no CRM', async () => {
+  it('Do not write another tenant\'s contact to the CRM', async () => {
     await definir('https://crm.cliente.teste', cifrar('k', keyringOfAmbientechaveiroDoAmbientekeyringOfAmbiente()));
 
     // Um id que não existe neste tenant tem o mesmo destino de um de outro cliente:

@@ -36,7 +36,7 @@ export function lerLimite(bruto: unknown): number {
   if (bruto === undefined || bruto === null || bruto === '') return LIMITE_PADRAO;
   const numero = Number(bruto);
   if (!Number.isInteger(numero) || numero < 1) {
-    throw PipeError.request('limite_invalido', 'limit precisa ser inteiro maior que zero.');
+    throw PipeError.request('limit_invalid', 'limit precisa ser inteiro maior que zero.');
   }
   // O cliente pode pedir menos, nunca mais.
   return Math.min(numero, LIMITE_TETO);
@@ -53,7 +53,7 @@ export function lerCursor(bruto: unknown): Cursor | null {
     if (typeof objeto.value !== 'string' || typeof objeto.id !== 'string') throw new Error();
     return objeto;
   } catch {
-    throw PipeError.request('cursor_invalido', 'cursor não é um cursor desta API.');
+    throw PipeError.request('cursor_invalid', 'cursor não é um cursor desta API.');
   }
 }
 
@@ -79,7 +79,7 @@ export function readSorting(
   const casado = /^([a-z_]+)(?:\[(asc|desc)\])?$/i.exec(texto);
   if (!casado || !casado[1] || !permitidos.includes(casado[1])) {
     throw PipeError.request(
-      'order_by_invalido',
+      'order_by_invalid',
       `order_by aceita ${permitidos.join(', ')} com [asc] ou [desc].`,
     );
   }

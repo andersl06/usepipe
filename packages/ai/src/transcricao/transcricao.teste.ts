@@ -28,12 +28,12 @@ describe('carimbo de hora', () => {
 });
 
 describe('quem falou', () => {
-  it('usa o nome quando tem, e o papel quando não tem', () => {
+  it('uses the name when there is one, and the role when there is not', () => {
     expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'contato', autorNome: 'Marcos' }))).toBe(
       'Marcos',
     );
     expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'contato' }))).toBe('Cliente');
-    expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'atendente' }))).toBe('Atendente');
+    expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'agent' }))).toBe('Atendente');
     expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'bot' }))).toBe('Bot');
     // Sistema nunca herda nome de gente: é o próprio produto falando.
     expect(rotuloDoAutor(msg({ id: 'a', autorTipo: 'sistema', autorNome: 'Rafael' }))).toBe(
@@ -42,7 +42,7 @@ describe('quem falou', () => {
   });
 });
 
-describe('corpo da mensagem', () => {
+describe('message body', () => {
   it('usa o texto transcrito do áudio quando existe', () => {
     const corpo = messageCorpo(
       msg({
@@ -55,7 +55,7 @@ describe('corpo da mensagem', () => {
     expect(corpo).toBe('(áudio de 18s, transcrito) bom dia, queria a segunda via');
   });
 
-  it('marca áudio sem transcrição em vez de deixá-lo virar silêncio', () => {
+  it('flags audio without a transcript instead of letting it turn into silence', () => {
     const corpo = messageCorpo(
       msg({ id: 'a', tipo: 'audio', conteudo: null, attachment: { durationSeg: 34 } }),
     );
@@ -63,13 +63,13 @@ describe('corpo da mensagem', () => {
     expect(corpo).toContain('34s');
   });
 
-  it('diz quando nem a duração do áudio veio', () => {
+  it('reports when even the audio duration is missing', () => {
     expect(messageCorpo(msg({ id: 'a', tipo: 'audio', conteudo: null }))).toContain(
       'duração desconhecida',
     );
   });
 
-  it('descreve mídia com nome de arquivo e legenda', () => {
+  it('describes media with file name and caption', () => {
     expect(
       messageCorpo(
         msg({
@@ -85,13 +85,13 @@ describe('corpo da mensagem', () => {
     );
   });
 
-  it('não deixa mensagem vazia sumir', () => {
+  it('does not let an empty message disappear', () => {
     expect(messageCorpo(msg({ id: 'a', conteudo: '   ' }))).toBe('(mensagem vazia)');
   });
 });
 
-describe('montagem da transcrição', () => {
-  it('ordena por tempo, numera e indexa cada linha', () => {
+describe('transcript assembly', () => {
+  it('sorts by time, numbers and indexes each line', () => {
     const t = montarTranscription([
       msg({ id: 'b', criadaEm: new Date('2026-03-02T14:10:00Z'), conteudo: 'segunda' }),
       msg({ id: 'a', criadaEm: new Date('2026-03-02T14:05:00Z'), conteudo: 'primeira' }),
@@ -107,7 +107,7 @@ describe('montagem da transcrição', () => {
       msg({
         id: 'a',
         direction: 'interna',
-        autorTipo: 'atendente',
+        autorTipo: 'agent',
         autorNome: 'Diego',
         conteudo: 'abri o RMA',
       }),
@@ -115,20 +115,20 @@ describe('montagem da transcrição', () => {
     expect(t.texto).toBe('[m1] 02/03 14:07 Diego (nota interna): abri o RMA');
   });
 
-  it('colapsa quebras de linha para a transcrição continuar uma linha por mensagem', () => {
+  it('collapses line breaks so the transcript stays one line per message', () => {
     const t = montarTranscription([msg({ id: 'a', conteudo: 'linha um\nlinha dois' })]);
     expect(t.texto.split('\n')).toHaveLength(1);
     expect(t.texto).toContain('linha um linha dois');
   });
 
-  it('corta mensagem gigante individualmente, sem estourar a linha', () => {
+  it('trims a giant message individually, without overflowing the line', () => {
     const t = montarTranscription([msg({ id: 'a', conteudo: 'x'.repeat(9_000) })]);
     expect(t.texto.length).toBeLessThan(MAX_CARACTERES_BY_MESSAGE_DEFAULT + 100);
     expect(t.texto.endsWith('…(cortado)')).toBe(true);
   });
 });
 
-describe('truncamento', () => {
+describe('truncation', () => {
   const muitas = Array.from({ length: 200 }, (_, i) =>
     msg({
       id: `m${i}`,
@@ -144,7 +144,7 @@ describe('truncamento', () => {
     expect(t.linhas).toHaveLength(3);
   });
 
-  it('preserva início e fim, que é onde está a informação', () => {
+  it('preserves the start and end, where the information is', () => {
     const t = montarTranscription(muitas, { maxCaracteres: 4_000 });
     expect(t.truncada).toBe(true);
     expect(t.totalMessages).toBe(200);
@@ -157,7 +157,7 @@ describe('truncamento', () => {
     );
   });
 
-  it('respeita o orçamento de caracteres com folga da marca de corte', () => {
+  it('respects the character budget with headroom from the cutoff marker', () => {
     const t = montarTranscription(muitas, { maxCaracteres: 4_000 });
     expect(t.texto.length).toBeLessThanOrEqual(4_000 + 100);
   });
@@ -170,18 +170,18 @@ describe('truncamento', () => {
     expect(doFim).toBeGreaterThan(doInicio);
   });
 
-  it('as contas fecham: início + fim + omitidas = total', () => {
+  it('the counts add up: start + end + omitted = total', () => {
     const t = montarTranscription(muitas, { maxCaracteres: 4_000 });
     expect(t.linhas.length + t.messagesOmitidas).toBe(t.totalMessages);
   });
 
-  it('só indexa o que sobrou — rótulo de mensagem omitida não pode ser citado como evidência', () => {
+  it('only indexes what remains — an omitted message\'s label cannot be cited as evidence', () => {
     const t = montarTranscription(muitas, { maxCaracteres: 4_000 });
     expect(Object.keys(t.indice)).toHaveLength(t.linhas.length);
     for (const linha of t.linhas) expect(t.indice[linha.rotulo]).toBe(linha.messageId);
   });
 
-  it('conversa de duas mensagens nunca é truncada, por maior que seja', () => {
+  it('a two-message conversation is never truncated, no matter how large', () => {
     const t = montarTranscription(muitas.slice(0, 2), { maxCaracteres: 10 });
     expect(t.truncada).toBe(false);
     expect(t.linhas).toHaveLength(2);

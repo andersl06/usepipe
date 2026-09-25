@@ -15,7 +15,7 @@ process.env['PIPE_COOKIE_DOMINIO'] = '';
 // O `.pfx` e a senha do certificado mTLS entram cifrados (`segredo.ts`).
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 23).toString('base64')}`;
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { createDatabasecriarBancocreateDatabase, closeDatabasefecharBancocloseDatabase, seedsemearseed } = await import('@pipe/db');
 const { entregarPendentes } = await import('../src/webhooks-saida.js');
@@ -42,11 +42,11 @@ interface Cenario {
 
 async function assembleContract(sufixo: string): Promise<Cenario> {
   const dono = createDatabasecriarBancocreateDatabase({ url: URL_DONO, maxConexoes: 3 });
-  const semeado = await seedsemearseed(dono, { nome: `contrato ${sufixo}`, slug: `contrato-${sufixo}` });
-  const { rows: papeis } = await dono.execute<{ id: string; nome: 'admin' | 'member' | 'guest' }>(
+  const semeado = await seedsemearseed(dono, { name: `contrato ${sufixo}`, slug: `contrato-${sufixo}` });
+  const { rows: papeis } = await dono.execute<{ id: string; name: 'admin' | 'member' | 'guest' }>(
     sql`select id, nome from papel where tenant_id = ${semeado.tenantId}::uuid and escopo = 'conta'`,
   );
-  const byName = Object.fromEntries(papeis.map((p) => [p.nome, p.id])) as Cenario['papeis'];
+  const byName = Object.fromEntries(papeis.map((p) => [p.name, p.id])) as Cenario['papeis'];
   return {
     dono,
     tenantId: semeado.tenantId,
@@ -109,7 +109,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}::uuid, ${userId}::uuid, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}::uuid, ${userId}::uuid, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -129,7 +129,7 @@ async function pedir(
   caminho: string,
   session: string | null,
   corpo?: Record<string, unknown>,
-): Promise<{ status: number; corpo: Corpo }> {
+): Promise<{ status: number; body: Corpo }> {
   const resposta = await fetch(`${api.url}${caminho}`, {
     method: metodo,
     headers: session ? comCookie(session) : { 'content-type': 'application/json' },
@@ -187,20 +187,20 @@ afterAll(async () => {
  * Membros
  * ========================================================================= */
 
-describe('GET /v1/gestao/contrato/membros', () => {
-  it('lista com o papel de cada um, e recusa quem não tem conta.membros.ler', async () => {
-    const { status, corpo } = await pedir('GET', '/v1/gestao/contrato/membros', sessionAdmin1);
+describe('GET /v1/management/contract/members', () => {
+  it('List each member\'s role and reject users without conta.membros.ler', async () => {
+    const { status, corpo } = await pedir('GET', '/v1/management/contract/members', sessionAdmin1);
     expect(status).toBe(200);
     const member = corpo.membros.find((m: Corpo) => m.id === userMemberId);
     expect(member).toMatchObject({ tipo: 'usuario', papelNome: 'member' });
 
-    const withoutSession = await fetch(`${api.url}/v1/gestao/contrato/membros`);
+    const withoutSession = await fetch(`${api.url}/v1/management/contract/members`);
     expect(withoutSession.status).toBe(401);
   });
 });
 
 describe('convidar, reenviar e revogar', () => {
-  it('convida com papel, reenvia (o link antigo morre) e revoga', async () => {
+  it('Invite with a role, invalidate the old link on resend, and revoke the invitation', async () => {
     const email = `convidado-${randomUUID().slice(0, 8)}@e2e.pipe.app`;
     const criado = await pedir('POST', '/v1/convites', sessionAdmin1, { email, papel: 'member' });
     expect(criado.status).toBe(201);
@@ -208,7 +208,7 @@ describe('convidar, reenviar e revogar', () => {
     expect(criado.corpo.url).toContain('/convite/');
 
     // aparece em Membros como pendente
-    const lista1 = await pedir('GET', '/v1/gestao/contrato/membros', sessionAdmin1);
+    const lista1 = await pedir('GET', '/v1/management/contract/members', sessionAdmin1);
     const pendente1 = lista1.corpo.membros.find((m: Corpo) => m.id === criado.corpo.id);
     expect(pendente1).toMatchObject({ tipo: 'convite', email, papelNome: 'member' });
 
@@ -230,26 +230,26 @@ describe('convidar, reenviar e revogar', () => {
     expect(naoAchaOAntigo.status).toBe(404);
 
     // revoga (o "Excluir" da tabela, sobre um alvo do tipo convite)
-    const revogado = await pedir('POST', '/v1/gestao/contrato/membros/excluir', sessionAdmin1, {
+    const revogado = await pedir('POST', '/v1/management/contract/members/delete', sessionAdmin1, {
       alvos: [`convite:${reenviado.corpo.id}`],
     });
     expect(revogado.corpo).toEqual({ ok: true });
 
-    const lista2 = await pedir('GET', '/v1/gestao/contrato/membros', sessionAdmin1);
+    const lista2 = await pedir('GET', '/v1/management/contract/members', sessionAdmin1);
     expect(lista2.corpo.membros.some((m: Corpo) => m.id === reenviado.corpo.id)).toBe(false);
   });
 
-  it('sem conta.membros.escrever é 403', async () => {
+  it('Return 403 when inviting without `conta.membros.escrever`', async () => {
     const semPoder = await pedir('POST', '/v1/convites', sessionGuest, {
       email: `x-${randomUUID().slice(0, 6)}@e2e.pipe.app`,
       papel: 'guest',
     });
     expect(semPoder.status).toBe(403);
-    expect(semPoder.corpo.erro.codigo).toBe('sem_permissao');
+    expect(semPoder.corpo.erro.code).toBe('without_permission');
     expect(semPoder.corpo.erro.detalhe.permissao).toBe('conta.membros.escrever');
   });
 
-  it('convite de outro tenant não é achado (404) ao reenviar', async () => {
+  it('Return 404 when resending another tenant\'s invitation', async () => {
     const email = `cross-${randomUUID().slice(0, 8)}@e2e.pipe.app`;
     const criado = await pedir('POST', '/v1/convites', sessionAdmin1, { email, papel: 'guest' });
     const doOutroTenant = await pedir(
@@ -261,29 +261,29 @@ describe('convidar, reenviar e revogar', () => {
   });
 });
 
-describe('POST /v1/gestao/contrato/membros/papel', () => {
-  it('troca o papel de um membro', async () => {
-    const resultado = await pedir('POST', '/v1/gestao/contrato/membros/papel', sessionAdmin1, {
+describe('POST /v1/management/contract/members/role', () => {
+  it('Change a member\'s role', async () => {
+    const resultado = await pedir('POST', '/v1/management/contract/members/role', sessionAdmin1, {
       papelId: a.papeis.guest,
       alvos: [`usuario:${userMemberId}`],
     });
     expect(resultado.corpo).toEqual({ ok: true });
 
-    const lista = await pedir('GET', '/v1/gestao/contrato/membros', sessionAdmin1);
+    const lista = await pedir('GET', '/v1/management/contract/members', sessionAdmin1);
     const membro = lista.corpo.membros.find((m: Corpo) => m.id === userMemberId);
-    expect(membro.papelNome).toBe('guest');
+    expect(membro.roleName).toBe('guest');
 
     // devolve ao estado original, para não atrapalhar os outros testes
-    await pedir('POST', '/v1/gestao/contrato/membros/papel', sessionAdmin1, {
+    await pedir('POST', '/v1/management/contract/members/role', sessionAdmin1, {
       papelId: a.papeis.member,
       alvos: [`usuario:${userMemberId}`],
     });
   });
 
-  it('membro de outro tenant não é achado', async () => {
+  it('Do not find a member belonging to another tenant', async () => {
     const resultado = await pedir(
       'POST',
-      '/v1/gestao/contrato/membros/papel',
+      '/v1/management/contract/members/role',
       sessionOfOtherTenant,
       { papelId: a.papeis.guest, alvos: [`usuario:${userMemberId}`] },
     );
@@ -295,7 +295,7 @@ describe('o último administrador', () => {
   it('recusa rebaixar o último admin', async () => {
     const resultado = await pedir(
       'POST',
-      '/v1/gestao/contrato/membros/papel',
+      '/v1/management/contract/members/role',
       sessionUniqueAdmin,
       { papelId: umAdmin.papeis.member, alvos: [`usuario:${userUniqueAdminId}`] },
     );
@@ -303,39 +303,39 @@ describe('o último administrador', () => {
     expect(resultado.corpo.erro).toMatch(/último administrador/);
 
     // continua admin
-    const lista = await pedir('GET', '/v1/gestao/contrato/membros', sessionUniqueAdmin);
+    const lista = await pedir('GET', '/v1/management/contract/members', sessionUniqueAdmin);
     expect(
-      lista.corpo.membros.find((m: Corpo) => m.id === userUniqueAdminId)?.papelNome,
+      lista.corpo.membros.find((m: Corpo) => m.id === userUniqueAdminId)?.roleName,
     ).toBe('admin');
   });
 
-  it('recusa remover o último admin (mesmo por quem não é o próprio alvo)', async () => {
+  it('Prevent removal of the last admin even by another user', async () => {
     const resultado = await pedir(
       'POST',
-      '/v1/gestao/contrato/membros/excluir',
+      '/v1/management/contract/members/delete',
       sessionOperator,
       { alvos: [`usuario:${userUniqueAdminId}`] },
     );
     expect(resultado.corpo.ok).toBe(false);
     expect(resultado.corpo.erro).toMatch(/último administrador/);
 
-    const lista = await pedir('GET', '/v1/gestao/contrato/membros', sessionUniqueAdmin);
+    const lista = await pedir('GET', '/v1/management/contract/members', sessionUniqueAdmin);
     expect(lista.corpo.membros.some((m: Corpo) => m.id === userUniqueAdminId)).toBe(true);
   });
 
   it('com DOIS admins, rebaixar ou remover um deles funciona', async () => {
-    const rebaixa = await pedir('POST', '/v1/gestao/contrato/membros/papel', sessionAdmin1, {
+    const rebaixa = await pedir('POST', '/v1/management/contract/members/role', sessionAdmin1, {
       papelId: a.papeis.member,
       alvos: [`usuario:${userAdmin2Id}`],
     });
     expect(rebaixa.corpo).toEqual({ ok: true });
 
     // devolve a admin e testa a remoção pelo outro lado
-    await pedir('POST', '/v1/gestao/contrato/membros/papel', sessionAdmin1, {
+    await pedir('POST', '/v1/management/contract/members/role', sessionAdmin1, {
       papelId: a.papeis.admin,
       alvos: [`usuario:${userAdmin2Id}`],
     });
-    const remove = await pedir('POST', '/v1/gestao/contrato/membros/excluir', sessionAdmin1, {
+    const remove = await pedir('POST', '/v1/management/contract/members/delete', sessionAdmin1, {
       alvos: [`usuario:${userAdmin2Id}`],
     });
     expect(remove.corpo).toEqual({ ok: true });
@@ -358,10 +358,10 @@ const pedidoDeCertificado = (extra: Record<string, unknown> = {}) => ({
   ...extra,
 });
 
-describe('certificados de autenticação (mTLS)', () => {
-  it('lê validade, impressão digital, sujeito e emissor do .pfx; status calculado', async () => {
+describe('Manage mTLS authentication certificates', () => {
+  it('Read validity, fingerprint, subject, and issuer from a .pfx and calculate its status', async () => {
     // A tela manda data URL (FileReader); base64 puro também vale.
-    const criado = await pedir('POST', '/v1/gestao/contrato/certificados', sessionAdmin1, {
+    const criado = await pedir('POST', '/v1/management/contract/certificates', sessionAdmin1, {
       ...pedidoDeCertificado({
         arquivo: `data:application/x-pkcs12;base64,${pfxValido.pfx.toString('base64')}`,
       }),
@@ -375,7 +375,7 @@ describe('certificados de autenticação (mTLS)', () => {
       status: 'valido',
     });
 
-    const lista = await pedir('GET', '/v1/gestao/contrato/certificados', sessionAdmin1);
+    const lista = await pedir('GET', '/v1/management/contract/certificates', sessionAdmin1);
     expect(lista.status).toBe(200);
     const linha = lista.corpo.find((c: Corpo) => c.id === criado.corpo.id);
     expect(linha).toMatchObject({
@@ -387,7 +387,7 @@ describe('certificados de autenticação (mTLS)', () => {
 
   it('certificado vencido entra com status expirado', async () => {
     const vencido = generatePfxOfTest({ senha: 'outra', validoDesde: '2019-01-01', validoAte: '2021-01-01' });
-    const criado = await pedir('POST', '/v1/gestao/contrato/certificados', sessionAdmin1, {
+    const criado = await pedir('POST', '/v1/management/contract/certificates', sessionAdmin1, {
       ...pedidoDeCertificado({ senha: 'outra', arquivo: vencido.pfx.toString('base64') }),
     });
     expect(criado.status).toBe(201);
@@ -395,13 +395,13 @@ describe('certificados de autenticação (mTLS)', () => {
     expect(criado.corpo.expiraEm).toBe('2021-01-01T00:00:00.000Z');
   });
 
-  it('senha errada recusa, e nada entra no banco', async () => {
+  it('Reject a wrong certificate password without saving anything', async () => {
     const description = `Errada ${randomUUID().slice(0, 6)}`;
-    const resultado = await pedir('POST', '/v1/gestao/contrato/certificados', sessionAdmin1, {
+    const resultado = await pedir('POST', '/v1/management/contract/certificates', sessionAdmin1, {
       ...pedidoDeCertificado({ description, senha: 'nao-e-essa' }),
     });
     expect(resultado.status).toBe(400);
-    expect(resultado.corpo.erro.codigo).toBe('senha_incorreta');
+    expect(resultado.corpo.erro.code).toBe('password_incorrect');
     expect(JSON.stringify(resultado.corpo)).not.toContain('nao-e-essa');
 
     const { rows } = await a.dono.execute<{ n: string }>(
@@ -410,25 +410,25 @@ describe('certificados de autenticação (mTLS)', () => {
     expect(rows[0]?.n).toBe('0');
   });
 
-  it('arquivo que não é .pfx e senha ausente são 400', async () => {
-    const lixo = await pedir('POST', '/v1/gestao/contrato/certificados', sessionAdmin1, {
+  it('Return 400 for a non-.pfx file or missing password', async () => {
+    const lixo = await pedir('POST', '/v1/management/contract/certificates', sessionAdmin1, {
       ...pedidoDeCertificado({ arquivo: Buffer.from('isto não é um pfx').toString('base64') }),
     });
     expect(lixo.status).toBe(400);
-    expect(lixo.corpo.erro.codigo).toBe('pfx_invalido');
+    expect(lixo.corpo.erro.code).toBe('pfx_invalid');
 
-    const semSenha = await pedir('POST', '/v1/gestao/contrato/certificados', sessionAdmin1, {
+    const semSenha = await pedir('POST', '/v1/management/contract/certificates', sessionAdmin1, {
       ...pedidoDeCertificado({ senha: '' }),
     });
     expect(semSenha.status).toBe(400);
-    expect(semSenha.corpo.erro.codigo).toBe('senha_obrigatoria');
+    expect(semSenha.corpo.erro.code).toBe('password_required');
   });
 
-  it('guarda o arquivo e a senha cifrados; nunca os devolve nem os audita', async () => {
+  it('Encrypt stored certificate files and passwords without returning or auditing them', async () => {
     const base64 = pfxValido.pfx.toString('base64');
     const criado = await pedir(
       'POST',
-      '/v1/gestao/contrato/certificados',
+      '/v1/management/contract/certificates',
       sessionAdmin1,
       pedidoDeCertificado(),
     );
@@ -449,7 +449,7 @@ describe('certificados de autenticação (mTLS)', () => {
     expect(rows[0]!.senha_cifrada).not.toContain(SENHA_DO_PFX);
 
     // A listagem não traz nem o cifrado.
-    const lista = await pedir('GET', '/v1/gestao/contrato/certificados', sessionAdmin1);
+    const lista = await pedir('GET', '/v1/management/contract/certificates', sessionAdmin1);
     const linha = lista.corpo.find((c: Corpo) => c.id === criado.corpo.id);
     for (const key of ['senha', 'arquivo', 'senha_cifrada', 'arquivo_cifrado', 'senhaCifrada']) {
       expect(linha).not.toHaveProperty(key);
@@ -469,35 +469,35 @@ describe('certificados de autenticação (mTLS)', () => {
   });
 
   it('recusa host que não é HTTPS válido', async () => {
-    const resultado = await pedir('POST', '/v1/gestao/contrato/certificados', sessionAdmin1, {
+    const resultado = await pedir('POST', '/v1/management/contract/certificates', sessionAdmin1, {
       ...pedidoDeCertificado({ hosts: ['ftp://nao-serve.com'] }),
     });
     expect(resultado.status).toBe(400);
-    expect(resultado.corpo.erro.codigo).toBe('host_invalido');
+    expect(resultado.corpo.erro.code).toBe('host_invalid');
   });
 
   it('exclui o certificado', async () => {
     const criado = await pedir(
       'POST',
-      '/v1/gestao/contrato/certificados',
+      '/v1/management/contract/certificates',
       sessionAdmin1,
       pedidoDeCertificado(),
     );
     const excluido = await pedir(
       'DELETE',
-      `/v1/gestao/contrato/certificados/${criado.corpo.id}`,
+      `/v1/management/contract/certificates/${criado.corpo.id}`,
       sessionAdmin1,
     );
     expect(excluido.corpo).toEqual({ ok: true });
 
-    const lista = await pedir('GET', '/v1/gestao/contrato/certificados', sessionAdmin1);
+    const lista = await pedir('GET', '/v1/management/contract/certificates', sessionAdmin1);
     expect(lista.corpo.some((c: Corpo) => c.id === criado.corpo.id)).toBe(false);
   });
 
   it('excluir o último host apaga o certificado junto', async () => {
     const criado = await pedir(
       'POST',
-      '/v1/gestao/contrato/certificados',
+      '/v1/management/contract/certificates',
       sessionAdmin1,
       pedidoDeCertificado({ hosts: ['https://unico.exemplo.com.br'] }),
     );
@@ -505,38 +505,38 @@ describe('certificados de autenticação (mTLS)', () => {
 
     const excluiu = await pedir(
       'DELETE',
-      `/v1/gestao/contrato/certificados/${criado.corpo.id}/hosts/${hostId}`,
+      `/v1/management/contract/certificates/${criado.corpo.id}/hosts/${hostId}`,
       sessionAdmin1,
     );
     expect(excluiu.corpo).toEqual({ ok: true });
 
-    const lista = await pedir('GET', '/v1/gestao/contrato/certificados', sessionAdmin1);
+    const lista = await pedir('GET', '/v1/management/contract/certificates', sessionAdmin1);
     expect(lista.corpo.some((c: Corpo) => c.id === criado.corpo.id)).toBe(false);
   });
 
   it('certificado de outro tenant não é achado', async () => {
     const criado = await pedir(
       'POST',
-      '/v1/gestao/contrato/certificados',
+      '/v1/management/contract/certificates',
       sessionAdmin1,
       pedidoDeCertificado(),
     );
     const doOutroTenant = await pedir(
       'DELETE',
-      `/v1/gestao/contrato/certificados/${criado.corpo.id}`,
+      `/v1/management/contract/certificates/${criado.corpo.id}`,
       sessionOfOtherTenant,
     );
     expect(doOutroTenant.corpo).toMatchObject({ ok: false });
 
     // continua existindo no tenant certo
-    const lista = await pedir('GET', '/v1/gestao/contrato/certificados', sessionAdmin1);
+    const lista = await pedir('GET', '/v1/management/contract/certificates', sessionAdmin1);
     expect(lista.corpo.some((c: Corpo) => c.id === criado.corpo.id)).toBe(true);
   });
 
-  it('sem conta.membros.escrever é 403 para cadastrar', async () => {
+  it('Return 403 when a user without `conta.membros.escrever` registers a certificate', async () => {
     const resultado = await pedir(
       'POST',
-      '/v1/gestao/contrato/certificados',
+      '/v1/management/contract/certificates',
       sessionGuest,
       pedidoDeCertificado(),
     );
@@ -544,8 +544,8 @@ describe('certificados de autenticação (mTLS)', () => {
     expect(resultado.corpo.erro.detalhe.permissao).toBe('conta.membros.escrever');
   });
 
-  it('sem conta.membros.ler é 403 para listar', async () => {
-    const semSessao = await fetch(`${api.url}/v1/gestao/contrato/certificados`);
+  it('Return 403 when listing certificates without conta.membros.ler', async () => {
+    const semSessao = await fetch(`${api.url}/v1/management/contract/certificates`);
     expect(semSessao.status).toBe(401);
   });
 });
@@ -622,10 +622,10 @@ describe('mTLS na saída (webhooks)', () => {
 
   let certificadoId: string;
 
-  it('host com certificado: a entrega sai por https com o agente que carrega o .pfx', async () => {
+  it('Send HTTPS deliveries to a certified host using an agent loaded with its .pfx', async () => {
     const criado = await pedir(
       'POST',
-      '/v1/gestao/contrato/certificados',
+      '/v1/management/contract/certificates',
       sessionAdmin1,
       pedidoDeCertificado({ hosts: [HOST_COM_CERTIFICADO] }),
     );
@@ -672,7 +672,7 @@ describe('mTLS na saída (webhooks)', () => {
     expect(chamadasHttps).toHaveLength(0);
   });
 
-  it('isolamento: o certificado de A não é apresentado nas entregas de B para o mesmo host', async () => {
+  it('Never use tenant A\'s certificate for tenant B\'s deliveries to the same host', async () => {
     const url = `${HOST_COM_CERTIFICADO}/hook-do-b`;
     const entregaId = await deliveryPending(b, url);
     fingirRede();
@@ -683,10 +683,10 @@ describe('mTLS na saída (webhooks)', () => {
     expect(chamadasHttps).toHaveLength(0);
   });
 
-  it('excluir o certificado invalida o cache: a entrega seguinte vai sem ele', async () => {
+  it('Invalidate the certificate cache on deletion so the next delivery uses no certificate', async () => {
     const excluido = await pedir(
       'DELETE',
-      `/v1/gestao/contrato/certificados/${certificadoId}`,
+      `/v1/management/contract/certificates/${certificadoId}`,
       sessionAdmin1,
     );
     expect(excluido.corpo).toEqual({ ok: true });

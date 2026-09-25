@@ -203,7 +203,7 @@ export async function scheduleSweepMirrorCrm(): Promise<void> {
   if (modo() === 'memoria') return;
   queueMirrorCrm ??= new Queue(QUEUE_MIRROR_CRM, { connection: redis() });
   await queueMirrorCrm.upsertJobScheduler(
-    'varredura-espelho-crm',
+    'sweep-crm-mirror',
     { every: Number(process.env['PIPE_ESPELHO_CRM_VARREDURA_MS'] ?? 300_000) },
     { name: 'varredura', data: {} },
   );
@@ -302,7 +302,7 @@ export async function scheduleSweepDownloadMedia(): Promise<void> {
   }
   queueMedia ??= new Queue(QUEUE_MEDIA, { connection: redis() });
   await queueMedia.upsertJobScheduler(
-    'varredura-midia',
+    'sweep-media',
     { every: Number(process.env['PIPE_MIDIA_VARREDURA_MS'] ?? 300_000) },
     { name: 'varredura', data: {} as JobMedia },
   );
@@ -398,7 +398,7 @@ export async function scheduleSweepSla(): Promise<void> {
   }
   queueSla ??= new Queue(QUEUE_SLA, { connection: redis() });
   await queueSla.upsertJobScheduler(
-    'varredura-sla',
+    'sweep-sla',
     { every: Number(process.env['PIPE_SLA_VARREDURA_MS'] ?? 60_000) },
     { name: 'varredura', data: {} as JobSla },
   );
@@ -461,7 +461,7 @@ export async function scheduleSweepDictionaryCrm(): Promise<void> {
   if (modo() === 'memoria') return;
   queueDictionaryCrm ??= new Queue(QUEUE_DICTIONARY_CRM, { connection: redis() });
   await queueDictionaryCrm.upsertJobScheduler(
-    'varredura-dicionario-crm',
+    'sweep-crm-dictionary',
     { every: Number(process.env['PIPE_DICIONARIO_CRM_VARREDURA_MS'] ?? 3_600_000) },
     { name: 'varredura', data: {} as JobDictionaryCrm },
   );
@@ -488,7 +488,7 @@ export async function scheduleRenewalInstagram(): Promise<void> {
   if (modo() === 'memoria') return;
   queueInstagramToken ??= new Queue(QUEUE_INSTAGRAM_TOKEN, { connection: redis() });
   await queueInstagramToken.upsertJobScheduler(
-    'renovacao-token-instagram',
+    'instagram-token-renewal',
     { every: Number(process.env['PIPE_INSTAGRAM_RENOVACAO_MS'] ?? 86_400_000) },
     { name: 'varredura', data: {} },
   );

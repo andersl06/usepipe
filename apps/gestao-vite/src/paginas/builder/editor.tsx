@@ -203,7 +203,7 @@ export function Editor({
 
       {aviso ? (
         <div className="bl-toast" role="status">
-          <Etiqueta tom="alerta">{aviso}</Etiqueta>
+          <Etiqueta tom="alert">{aviso}</Etiqueta>
         </div>
       ) : null}
 

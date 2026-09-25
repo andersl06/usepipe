@@ -11,7 +11,7 @@ import './servicos.css';
 export function ServicesPage() {
   const { contact } = useContact();
   const shell = portalUseShell();
-  const read = useRead<DataOfServices>(`/v1/gestao/fluxos/${contact.id}/servicos`);
+  const read = useRead<DataOfServices>(`/v1/management/flows/${contact.id}/services`);
   if (contact.tipo !== 'roteador') return <NaoEncontrado />;
   if (read.error) return <NaoEncontrado />;
   if (!read.data) return null;

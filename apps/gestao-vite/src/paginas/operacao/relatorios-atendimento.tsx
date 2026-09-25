@@ -196,7 +196,7 @@ export function PageAttendance() {
     if (params[key]) q.set(key, params[key] as string);
   }
   const read = useRead<RespostaOfReportOfAttendance>(
-    `/v1/gestao/relatorios/atendimento?${q}`,
+    `/v1/management/reports/attendance?${q}`,
   );
   const [panelAberto, setPanelAberto] = useState(false);
   if (!read.data) return null;
@@ -271,7 +271,7 @@ export function PageAttendance() {
         aberto={panelAberto}
         aoFechar={() => setPanelAberto(false)}
         acao={`${base}/relatorios/atendimento`}
-        limpar={temFilter ? `${base}/relatorios/atendimento?de=${de}&ate=${ate}` : null}
+        limpar={temFilter ? `${base}/relatorios/atendimento?de=${de}&to=${ate}` : null}
       >
         {crus.aba ? <input type="hidden" name="aba" value={crus.aba} /> : null}
         <FieldPeriod de={de} ate={ate} fuso={fuso} />

@@ -33,11 +33,11 @@ const linha = (parcial: Partial<LinhaHistory> = {}): LinhaHistory => ({
   ...parcial,
 });
 
-test('agrupamento vindo da URL cai em "nenhum" quando não é do catálogo', () => {
+test('grouping from the URL falls back to "none" when it is not in the catalog', () => {
   /* O valor chega de `searchParams`, ou seja, de qualquer um que digite na
      barra de endereço. Sem esta peneira, um valor estranho passaria adiante e
      `agruparHistorico` devolveria a lista dobrada por uma chave inexistente. */
-  assert.equal(groupingValid('fila'), 'fila');
+  assert.equal(groupingValid('fila'), 'queue');
   assert.equal(groupingValid(undefined), 'nenhum');
   assert.equal(groupingValid(''), 'nenhum');
   assert.equal(groupingValid('atendente; drop'), 'nenhum');
@@ -45,7 +45,7 @@ test('agrupamento vindo da URL cai em "nenhum" quando não é do catálogo', () 
   for (const a of GROUPINGS) assert.equal(groupingValid(a.chave), a.chave);
 });
 
-test('sem agrupamento, sai um grupo só com a lista inteira', () => {
+test('with no grouping, a single group comes out with the entire list', () => {
   const linhas = [linha(), linha({ id: 'b' })];
   const groups = agruparHistory(linhas, 'nenhum');
   assert.equal(groups.length, 1);
@@ -53,13 +53,13 @@ test('sem agrupamento, sai um grupo só com a lista inteira', () => {
   assert.equal(groups[0]!.linhas.length, 2);
 });
 
-test('por fila, quem não tem fila ganha um grupo próprio em vez de sumir', () => {
+test('by queue, whoever has no queue gets its own group instead of disappearing', () => {
   /* Conversa perdida na fila raiz tem `filaNome` nulo. Se ela não virar grupo,
      a soma dos grupos fica menor que o total e o gestor conclui que o dia teve
      menos conversa do que teve. */
   const groups = agruparHistory(
     [linha({ queueName: 'Suporte' }), linha({ id: 'b', queueName: null })],
-    'fila',
+    'queue',
   );
   assert.deepEqual(groups.map((g) => g.titulo).sort(), ['Sem fila', 'Suporte']);
   assert.equal(
@@ -68,7 +68,7 @@ test('por fila, quem não tem fila ganha um grupo próprio em vez de sumir', () 
   );
 });
 
-test('os grupos saem do maior para o menor', () => {
+test('the groups come out from largest to smallest', () => {
   /* A ordem é a resposta da tela: o primeiro grupo é onde o volume está. */
   const groups = agruparHistory(
     [
@@ -76,7 +76,7 @@ test('os grupos saem do maior para o menor', () => {
       linha({ id: 'b', agentName: 'Bia' }),
       linha({ id: 'c', agentName: 'Bia' }),
     ],
-    'atendente',
+    'agent',
   );
   assert.deepEqual(
     groups.map((g) => [g.titulo, g.linhas.length]),
@@ -98,7 +98,7 @@ test('o desfecho vira rótulo em português, e o desconhecido passa cru', () => 
   assert.deepEqual(titulos, ['Abandonada', 'Sem desfecho']);
 });
 
-test('por etiqueta a conversa entra em cada etiqueta que tem', () => {
+test('by tag, the conversation enters every tag it has', () => {
   /* De propósito a soma dos grupos passa do total: a pergunta é "quantas
      conversas encostaram nesta etiqueta", não "como reparto o total". Se
      alguém "consertar" isso, a contagem por etiqueta passa a subnotificar. */
@@ -116,11 +116,11 @@ test('por etiqueta a conversa entra em cada etiqueta que tem', () => {
 test('agrupar não mexe na lista que recebeu', () => {
   /* A mesma lista alimenta a exportação em CSV logo depois. */
   const linhas = [linha(), linha({ id: 'b' })];
-  agruparHistory(linhas, 'fila');
+  agruparHistory(linhas, 'queue');
   assert.equal(linhas.length, 2);
 });
 
-test('seleção descarta IDs ausentes da lista visível sem alterar a entrada', () => {
+test('selection discards IDs missing from the visible list without changing the input', () => {
   const original = new Set(['a', 'b', 'c']);
   const atual = reconciliarMarcados(original, ['b', 'd']);
   assert.deepEqual([...atual], ['b']);

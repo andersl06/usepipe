@@ -14,9 +14,9 @@
  */
 export * from './consumo/index.js';
 export * from './cliente/index.js';
-export * from './transcricao/index.js';
+export * from './transcription/index.js';
 export * from './prompts/index.js';
 export * from './resumo/index.js';
-export * from './classificacao/index.js';
-export * from './avaliacao/index.js';
+export * from './classification/index.js';
+export * from './evaluation/index.js';
 export * from './bancada/index.js';

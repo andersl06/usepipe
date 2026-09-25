@@ -177,7 +177,7 @@ const COLUNAS: readonly ColumnLead[] = [
       l.diasNaFase === null ? (
         '—'
       ) : l.diasNaFase >= 7 && l.status !== 'desqualificado' ? (
-        <Etiqueta tom="alerta">{numero(l.diasNaFase)}</Etiqueta>
+        <Etiqueta tom="alert">{numero(l.diasNaFase)}</Etiqueta>
       ) : (
         numero(l.diasNaFase)
       ),
@@ -381,7 +381,7 @@ export function ListaDeLeads({
   /** Endereço desta mesma lista com um parâmetro trocado. `comFiltros` só muda
    *  quando a saída é justamente largar o filtro. */
   function endereco(extra: Record<string, string | null>, withFilters: SFilter = filters) {
-    const p = new URLSearchParams({ aba });
+    const p = new URLSearchParams({ tab });
     if (search) p.set('q', search);
     if (by !== 'nenhum') p.set('agrupar', by);
     if (order !== 'nenhuma') {

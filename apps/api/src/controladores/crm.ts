@@ -26,7 +26,7 @@ import { Req } from '@nestjs/common';
 export interface FichaDoCrm {
   /** `null` quando o contato ainda não tem espelho, ou o tenant não tem CRM. */
   ficha: {
-    nome: string;
+    name: string;
     email: string | null;
     empresa: string | null;
     link: string;
@@ -40,7 +40,7 @@ export class CrmController {
    * metadados do Twenty. É o que o builder de fluxo e a IA consomem. Lido do nosso banco,
    * sob RLS — não chama o CRM.
    */
-  @Get('dicionario')
+  @Get('dictionary')
   @WithSession()
   async dictionary(
     @Req() request: RequestWithSession,
@@ -50,7 +50,7 @@ export class CrmController {
   }
 
   /** Pede a sincronização agora — para depois que o admin cria um campo no CRM. */
-  @Post('dicionario/sincronizar')
+  @Post('dictionary/sync')
   @WithSession()
   @HttpCode(202)
   async syncDictionary(
@@ -60,7 +60,7 @@ export class CrmController {
     return { enfileirado: await enqueueDictionaryCrm({ tenantId: sessao.tenantId }) };
   }
 
-  @Get('contato/:contatoId')
+  @Get('contact/:contactId')
   @WithSession()
   async ofContact(
     @Req() requisicao: RequestWithSession,

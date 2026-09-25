@@ -17,7 +17,7 @@ describe('quando vale tentar de novo', () => {
     expect(vaiDeNovo(apiError(529))).toBe(true);
   });
 
-  it('erro nosso não vale: repetir só gasta dinheiro', () => {
+  it('our own error does not count: retrying only wastes money', () => {
     expect(vaiDeNovo(apiError(400))).toBe(false);
     expect(vaiDeNovo(apiError(401))).toBe(false);
     expect(vaiDeNovo(apiError(404))).toBe(false);
@@ -33,14 +33,14 @@ describe('espera crescente', () => {
     expect(esperaDaTentativa(2, 500, semSorteio)).toBe(2_000);
   });
 
-  it('soma até 25% de variação para não ressincronizar tudo no mesmo segundo', () => {
+  it('adds up to 25% of variation so everything does not resync in the same second', () => {
     expect(esperaDaTentativa(0, 500, () => 1)).toBe(625);
     expect(esperaDaTentativa(0, 500, () => 0.5)).toBe(563);
   });
 });
 
 describe('retentativa', () => {
-  it('não repete quando dá certo de primeira', async () => {
+  it('does not retry when it succeeds on the first try', async () => {
     let vezes = 0;
     const r = await comRetentativa(async () => {
       vezes++;
@@ -50,7 +50,7 @@ describe('retentativa', () => {
     expect(vezes).toBe(1);
   });
 
-  it('repete erro de rede até dar certo', async () => {
+  it('retries a network error until it succeeds', async () => {
     const esperas: number[] = [];
     let vezes = 0;
     const r = await comRetentativa(
@@ -67,7 +67,7 @@ describe('retentativa', () => {
     expect(esperas[1]!).toBeGreaterThan(esperas[0]!);
   });
 
-  it('desiste depois do total de tentativas e propaga o erro original', async () => {
+  it('gives up after the total number of attempts and propagates the original error', async () => {
     let vezes = 0;
     await expect(
       comRetentativa(
@@ -81,7 +81,7 @@ describe('retentativa', () => {
     expect(vezes).toBe(3);
   });
 
-  it('erro que não vale repetir sobe na primeira', async () => {
+  it('an error not worth retrying surfaces on the first attempt', async () => {
     let vezes = 0;
     await expect(
       comRetentativa(

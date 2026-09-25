@@ -99,7 +99,7 @@ function KeyModal({ token, onFechar }: { token: string; onFechar: () => void }) 
  * seguinte já vem só com o prefixo.
  */
 export function TelaDeChaves({ flowId }: { flowId: string }) {
-  const caminho = `/v1/gestao/fluxos/${flowId}/chaves`;
+  const caminho = `/v1/management/flows/${flowId}/keys`;
   const { data, isLoading } = useRead<KeyListed[]>(caminho);
   const chaves = marcarPadrao(data ?? []);
 

@@ -10,7 +10,7 @@ Substitui `apps/gestao` (Next) tela a tela; quando chegar à paridade, o Next sa
 
 ```bash
 pnpm --filter @pipe/api dev          # :3010 (o .env da raiz)
-pnpm --filter @pipe/gestao-vite dev  # :3110, com proxy de /v1 para a api
+pnpm --filter @pipe/management-vite dev  # :3110, com proxy de /v1 para a api
 ```
 
 Sessão em desenvolvimento: abrir `http://localhost:3010/v1/auth/dev` uma vez

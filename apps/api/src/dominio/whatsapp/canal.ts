@@ -21,10 +21,10 @@ import { PipeError } from '../../erros.js';
 export interface ChannelWhatsApp {
   id: string;
   tenantId: string;
-  nome: string;
-  ativo: boolean;
+  name: string;
+  active: boolean;
   wabaId: string | null;
-  numeroId: string | null;
+  numberId: string | null;
   /** Decifrado. Existe só em memória, nunca volta assim para o banco. */
   config: Record<string, unknown>;
 }
@@ -50,8 +50,8 @@ type LineChannel = {
   [column: string]: unknown;
   id: string;
   tenant_id: string;
-  nome: string;
-  ativo: boolean;
+  name: string;
+  active: boolean;
   waba_id: string | null;
   numero_id: string | null;
   config: Record<string, unknown> | null;
@@ -88,7 +88,7 @@ export async function readChannelWhatsApp(tenantId: string, canalId: string): Pr
 export async function atualizarChannel(
   canal: ChannelWhatsApp,
   changes: Record<string, unknown>,
-  colunas: { wabaId?: string; numeroId?: string } = {},
+  colunas: { wabaId?: string; numberId?: string } = {},
 ): Promise<ChannelWhatsApp> {
   const config = { ...canal.config, ...changes };
   const cifrado = cifrarConfig(config, keyring());

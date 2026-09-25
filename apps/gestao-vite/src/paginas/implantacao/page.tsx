@@ -47,13 +47,13 @@ const ROTULO: Record<PassoState, string> = {
 const TOM: Record<PassoState, TomDeEtiqueta> = {
   feito: 'sucesso',
   andamento: 'info',
-  pendente: 'alerta',
+  pendente: 'alert',
 };
 
 export function PageDeployment() {
   const eu = useEu();
   const shell = portalUseShell();
-  const read = useRead<Deployment>('/v1/gestao/implantacao');
+  const read = useRead<Deployment>('/v1/management/deployment');
   if (!read.data) {
     return (
       <div className="pt-app">
@@ -63,7 +63,7 @@ export function PageDeployment() {
   }
   const { signals, channels } = read.data;
   const passos = montarPassos(signals, URL_DESK);
-  const feitos = passos.filter((p) => p.state === 'feito').length;
+  const feitos = passos.filter((p) => p.state === 'done').length;
   const firstName = eu.user.nome.split(' ')[0] ?? eu.user.nome;
   const ultima = signals.ultimaImport;
 
@@ -92,7 +92,7 @@ export function PageDeployment() {
                   <span className="v">{passo.titulo}</span>
                 </div>
                 <div className="cl-campo">
-                  <span className="r">{passo.state === 'feito' ? 'Situação' : 'O que falta'}</span>
+                  <span className="r">{passo.state === 'done' ? 'Situação' : 'O que falta'}</span>
                   <span className="v" title={passo.resumo}>
                     {passo.resumo}
                   </span>
@@ -100,7 +100,7 @@ export function PageDeployment() {
               </div>
               <div className="cl-acoes">
                 <Etiqueta tom={TOM[passo.state]}>{ROTULO[passo.state]}</Etiqueta>
-                {passo.acao && passo.state !== 'feito' ? (
+                {passo.acao && passo.state !== 'done' ? (
                   <a
                     className="btn"
                     href={passo.acao.href}
@@ -140,7 +140,7 @@ export function PageDeployment() {
                       </div>
                     </div>
                     <div className="cl-acoes">
-                      <Etiqueta tom={precisaReconectar ? 'alerta' : 'sucesso'}>
+                      <Etiqueta tom={precisaReconectar ? 'alert' : 'sucesso'}>
                         {!c.ativo
                           ? 'Desligado'
                           : c.reauthorizationPending
@@ -185,7 +185,7 @@ export function PageDeployment() {
               Última importação: <b>{ROTULO_IMPORT[ultima.state] ?? ultima.state}</b>,{' '}
               {numero(ultima.aceitos)} aceito(s) e {numero(ultima.rejeitados)} rejeitado(s).{' '}
               {ultima.temFalhas ? (
-                <a href={`/v1/contatos/importacoes/${ultima.id}/falhas`}>
+                <a href={`/v1/contacts/imports/${ultima.id}/failures`}>
                   Baixar as linhas rejeitadas, com o motivo
                 </a>
               ) : null}

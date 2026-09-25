@@ -83,7 +83,7 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
 
     const { rows: blockRows } = await cenario.dono.execute<{
       id: string;
-      conteudo: unknown;
+      content: unknown;
       position: unknown;
     }>(sql`select id, conteudo, posicao from bloco where versao_id = ${publication.versaoId}::uuid`);
     for (const b of blockRows) {
@@ -276,14 +276,14 @@ export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
     }
 
     // --- crm: contato.atributos (POST /v1/contatos de verdade, chave escopo contatos:escrever) ---
-    const responseContact = await fetch(`${api.url}/v1/contatos`, {
+    const responseContact = await fetch(`${api.url}/v1/contacts`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
         authorization: `Bearer ${cenario.token}`,
       },
       body: JSON.stringify({
-        telefone_e164: '+5511922220003',
+        phoneE164: '+5511922220003',
         nome: 'Contato de exemplo',
         atributos: { plano: 'pro', origem_utm: 'anuncio-instagram', pontuacao_nps: 9 },
       }),

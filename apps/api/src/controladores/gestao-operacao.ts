@@ -55,7 +55,7 @@ async function period(
   de: string | undefined,
   ate: string | undefined,
   dias: number,
-): Promise<{ de: string; ate: string; window: { inicio: Date; fim: Date } }> {
+): Promise<{ de: string; ate: string; window: { start: Date; fim: Date } }> {
   const hoje = await windowOfToday(tx, fuso);
   const ateFinal = ate || dataIso(hoje.inicio, fuso);
   const deFinal = de || dataIso(new Date(hoje.inicio.getTime() - (dias - 1) * 86400e3), fuso);
@@ -68,7 +68,7 @@ async function periodHistory(
   fuso: string,
   de: string | undefined,
   ate: string | undefined,
-): Promise<{ de: string; ate: string; janela: { inicio: Date; fim: Date } }> {
+): Promise<{ de: string; ate: string; janela: { start: Date; fim: Date } }> {
   const hoje = await windowOfToday(tx, fuso);
   const hojeLocal = dataIso(hoje.inicio, fuso);
   const ateFinal = ate || hojeLocal;
@@ -81,7 +81,7 @@ async function periodHistory(
 export interface ResponseOfMonitoring {
   fuso: string;
   /** O dia de hoje no fuso da conta, para o título. */
-  janela: { inicio: Date; fim: Date };
+  janela: { start: Date; fim: Date };
   data: Monitoring;
 }
 
@@ -117,10 +117,10 @@ export interface ResponseOfQualityReview {
   application: ApplicationOfQualityReview;
 }
 
-@Controller('v1/gestao')
+@Controller('v1/management')
 export class ManagementOperationsController {
   /** As duas barras do topo: canais e avisos. Conta e pessoa vêm de `GET /v1/eu`. */
-  @Get('cabecalho')
+  @Get('header')
   @WithSession()
   async cabecalho(@Req() request: RequestWithSession): Promise<HeaderOfManagement> {
     const session = sessionOf(request);
@@ -130,12 +130,12 @@ export class ManagementOperationsController {
     );
   }
 
-  @Get('monitoramento')
+  @Get('monitoring')
   @WithSession()
   async monitoring(
     @Req() requisicao: RequestWithSession,
-    @Query('fila') queue?: string | string[],
-    @Query('atendente') agent?: string | string[],
+    @Query('queue') queue?: string | string[],
+    @Query('agent') agent?: string | string[],
   ): Promise<ResponseOfMonitoring> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
@@ -226,15 +226,15 @@ export class ManagementOperationsController {
     });
   }
 
-  @Get('historico')
+  @Get('history')
   @WithSession()
   async history(
     @Req() requisicao: RequestWithSession,
-    @Query('fila') fila?: string,
-    @Query('atendente') atendente?: string,
+    @Query('queue') fila?: string,
+    @Query('agent') atendente?: string,
     @Query('etiqueta') etiqueta?: string,
-    @Query('de') de?: string,
-    @Query('ate') ate?: string,
+    @Query('from') de?: string,
+    @Query('to') ate?: string,
   ): Promise<ResponseOfHistory> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
@@ -250,14 +250,14 @@ export class ManagementOperationsController {
     });
   }
 
-  @Get('relatorios/atendimento')
+  @Get('reports/attendance')
   @WithSession()
   async reportOfAttendance(
     @Req() requisicao: RequestWithSession,
-    @Query('fila') fila?: string,
-    @Query('atendente') atendente?: string,
-    @Query('de') de?: string,
-    @Query('ate') ate?: string,
+    @Query('queue') fila?: string,
+    @Query('agent') atendente?: string,
+    @Query('from') de?: string,
+    @Query('to') ate?: string,
   ): Promise<ResponseOfReportOfAttendance> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
@@ -272,12 +272,12 @@ export class ManagementOperationsController {
     });
   }
 
-  @Get('relatorios/esforco')
+  @Get('reports/effort')
   @WithSession()
   async reportOfEffort(
     @Req() requisicao: RequestWithSession,
-    @Query('de') de?: string,
-    @Query('ate') ate?: string,
+    @Query('from') de?: string,
+    @Query('to') ate?: string,
   ): Promise<ResponseOfReport<ReportEffort>> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
@@ -287,12 +287,12 @@ export class ManagementOperationsController {
     });
   }
 
-  @Get('relatorios/satisfacao')
+  @Get('reports/satisfaction')
   @WithSession()
   async reportOfSatisfaction(
     @Req() requisicao: RequestWithSession,
-    @Query('de') de?: string,
-    @Query('ate') ate?: string,
+    @Query('from') de?: string,
+    @Query('to') ate?: string,
   ): Promise<ResponseOfReport<ReportSatisfaction>> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {
@@ -303,14 +303,14 @@ export class ManagementOperationsController {
     });
   }
 
-  @Get('monitoria')
+  @Get('quality-review')
   @WithSession()
   async qualityReview(
     @Req() requisicao: RequestWithSession,
-    @Query('atendente') atendente?: string,
+    @Query('agent') atendente?: string,
     @Query('avaliador') avaliador?: string,
-    @Query('de') de?: string,
-    @Query('ate') ate?: string,
+    @Query('from') de?: string,
+    @Query('to') ate?: string,
   ): Promise<ResponseOfQualityReview> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => {

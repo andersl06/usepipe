@@ -37,7 +37,7 @@ import {
  * trancada. `permissoesDe` é a mesma união de papéis que `GET /v1/eu` devolve.
  */
 async function permissionsOf(tx: TransactionPipe, userId: string): Promise<string[]> {
-  const { rows } = await tx.execute<{ codigo: string }>(sql`
+  const { rows } = await tx.execute<{ code: string }>(sql`
     select distinct pp.permissao_codigo as codigo
       from usuario_papel up
       join papel_permissao pp on pp.papel_id = up.papel_id
@@ -51,7 +51,7 @@ const READ_MEMBERS = 'conta.membros.ler';
 const ESCREVER_MEMBERS = 'conta.membros.escrever';
 
 export interface TargetOfMember {
-  tipo: 'usuario' | 'convite';
+  type: 'usuario' | 'convite';
   id: string;
 }
 
@@ -76,16 +76,16 @@ export interface ResultadoSimples {
 const falha = (error: string): ResultadoSimples => ({ ok: false, error });
 const checkRecording = (g: Recording): ResultadoSimples => (g.ok ? { ok: true } : falha(g.error));
 
-@Controller('v1/gestao')
+@Controller('v1/management')
 export class ManagementAccountController {
-  @Get('contrato/resumo')
+  @Get('contract/summary')
   @WithSession()
   resumo(@Req() requisicao: RequestWithSession): Promise<SummaryOfContract> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, (tx) => loadSummaryOfContract(tx, sessao.tenantId));
   }
 
-  @Get('contrato/membros')
+  @Get('contract/members')
   @WithSession()
   async members(
     @Req() requisicao: RequestWithSession,
@@ -98,7 +98,7 @@ export class ManagementAccountController {
     });
   }
 
-  @Post('contrato/membros/papel')
+  @Post('contract/members/role')
   @HttpCode(200)
   @WithSession()
   async exchangeRole(
@@ -128,7 +128,7 @@ export class ManagementAccountController {
     });
   }
 
-  @Post('contrato/membros/excluir')
+  @Post('contract/members/delete')
   @HttpCode(200)
   @WithSession()
   async deleteMembers(
@@ -161,7 +161,7 @@ export class ManagementAccountController {
     });
   }
 
-  @Get('implantacao')
+  @Get('deployment')
   @WithSession()
   deployment(@Req() requisicao: RequestWithSession): Promise<Deployment> {
     const sessao = sessionOf(requisicao);
@@ -173,7 +173,7 @@ export class ManagementAccountController {
    * (`conta.membros.ler`/`.escrever`): a origem também tranca as duas telas
    * atrás de `tenant-members` (`blip-certificados-mtls.md`).
    */
-  @Get('contrato/certificados')
+  @Get('contract/certificates')
   @WithSession()
   async certificados(@Req() requisicao: RequestWithSession): Promise<CertificadoMtls[]> {
     const sessao = sessionOf(requisicao);
@@ -184,7 +184,7 @@ export class ManagementAccountController {
     });
   }
 
-  @Post('contrato/certificados')
+  @Post('contract/certificates')
   @HttpCode(201)
   @WithSession()
   async cadastrarCertificado(

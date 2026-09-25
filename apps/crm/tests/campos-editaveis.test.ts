@@ -35,20 +35,20 @@ test('branco vira nulo, e espaço nas pontas some', () => {
   assert.equal(normalizar('  ana@exemplo.com '), 'ana@exemplo.com');
 });
 
-test('nulo passa em qualquer campo: apagar é operação legítima', () => {
+test('null passes for any field: clearing it is a legitimate operation', () => {
   for (const campo of Object.keys(CAMPOS_EDITAVEIS)) {
     assert.equal(recusar(campo as keyof typeof CAMPOS_EDITAVEIS, null), null);
   }
 });
 
-test('e-mail sem arroba ou sem domínio é recusado', () => {
+test('an email without an @ or without a domain is rejected', () => {
   assert.equal(recusar('email', 'ana@exemplo.com.br'), null);
   assert.ok(recusar('email', 'ana'));
   assert.ok(recusar('email', 'ana@exemplo'));
   assert.ok(recusar('email', 'a na@exemplo.com'));
 });
 
-test('telefone recusa letra e aceita o formato brasileiro escrito à mão', () => {
+test('phone rejects letters and accepts the Brazilian format written by hand', () => {
   assert.equal(recusar('telefone', '+55 (11) 99999-0000'), null);
   assert.equal(recusar('telefone', '11999990000'), null);
   assert.ok(recusar('telefone', 'liga pra mim'));

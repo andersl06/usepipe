@@ -283,7 +283,7 @@ export async function saveRuleQueue(
   const operadores = dados.getAll('operador').map((v) => String(v).trim());
   const values = dados.getAll('valor').map((v) => String(v).trim());
 
-  const conditions: { campo: string; operador: OperadorDeRegra; value: string }[] = [];
+  const conditions: { field: string; operator: OperadorDeRegra; value: string }[] = [];
   for (let i = 0; i < campos.length; i += 1) {
     const campo = campos[i] ?? '';
     const operador = operadores[i] ?? '';

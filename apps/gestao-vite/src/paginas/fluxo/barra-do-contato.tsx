@@ -46,7 +46,7 @@ export function ContactBarra({ contact, ativo }: { contact: Contact; ativo?: str
      fileira inteira — piscar a barra completa e depois encolher é pior do que o
      quadro curto de atraso, e quem não pode entrar continua recebendo 403 na
      tela de destino, que é onde a permissão vale de verdade. */
-  const minhas = useRead<MyPermissionsInFlow>(`/v1/gestao/fluxos/${contact.id}/equipe/eu`);
+  const minhas = useRead<MyPermissionsInFlow>(`/v1/management/flows/${contact.id}/team/i`);
   const itens = itensDoMenu(tipo, contact.id, minhas.data);
   const visiveis = itens.slice(0, LIMITE_VISIVEL);
   const excedentes = itens.slice(LIMITE_VISIVEL);

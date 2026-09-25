@@ -29,7 +29,7 @@ function context(): Context {
 }
 
 describe('ProcessHttp', () => {
-  it('interpola a requisição e grava status e corpo nas variáveis configuradas', async () => {
+  it('interpolates the request and stores status and body in the configured variables', async () => {
     const c = context();
     c.flow.states[0]!.outputActions = [{
       type: 'ProcessHttp',

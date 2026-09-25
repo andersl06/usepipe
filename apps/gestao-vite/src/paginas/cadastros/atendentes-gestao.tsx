@@ -46,7 +46,7 @@ export function AgentsPageManagement() {
   const [excluindo, setExcluindo] = useState(false);
   const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
 
-  const read = useRead<AgentRegistered[]>('/v1/gestao/atendentes/gestao');
+  const read = useRead<AgentRegistered[]>('/v1/management/agents/management');
   if (!read.data) return null;
   const agents = read.data;
 
@@ -73,11 +73,11 @@ export function AgentsPageManagement() {
   }
 
   function irForEdit(ids: readonly string[]) {
-    navegar(`${base}/atendentes/gestao/editar?atendentes=${ids.join(',')}`);
+    navegar(`${base}/atendentes/gestao/editar?agents=${ids.join(',')}`);
   }
 
   function irForPermissions(ids: readonly string[]) {
-    navegar(`${base}/atendentes/gestao/permissoes?atendentes=${ids.join(',')}`);
+    navegar(`${base}/atendentes/gestao/permissoes?agents=${ids.join(',')}`);
   }
 
   async function excluir() {

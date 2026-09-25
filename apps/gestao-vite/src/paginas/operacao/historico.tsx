@@ -123,7 +123,7 @@ export function PageHistory() {
   for (const key of ['fila', 'atendente', 'etiqueta', 'de', 'ate'] as const) {
     if (params[key]) q.set(key, params[key] as string);
   }
-  const read = useRead<HistoryResposta>(`/v1/gestao/historico?${q}`);
+  const read = useRead<HistoryResposta>(`/v1/management/history?${q}`);
   const [panelAberto, setPanelAberto] = useState(false);
   const [marcados, setMarcados] = useState<ReadonlySet<string>>(new Set());
 
@@ -244,7 +244,7 @@ export function PageHistory() {
   const temFilter = Boolean(
     params.queue || params.agent || params.etiqueta || params.ticket || params.contact,
   );
-  const limparFilters = `${base}/historico?de=${de}&ate=${ate}`;
+  const limparFilters = `${base}/historico?de=${de}&to=${ate}`;
 
   return (
     <>

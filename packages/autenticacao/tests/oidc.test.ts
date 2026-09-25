@@ -35,7 +35,7 @@ const config: ConfigOidc = {
   emissor: EMISSOR,
   clienteId: 'cliente-do-pipe',
   customerSecret: 'segredo-do-pipe',
-  urlOfCallback: 'https://api.usepipe.com.br/v1/auth/sso/retorno',
+  urlOfCallback: 'https://api.usepipe.com.br/v1/auth/sso/callback',
 };
 
 async function keysOfTest() {
@@ -61,8 +61,8 @@ function buscarDescoberta(document: unknown, ok = true): typeof fetch {
     unknown as typeof fetch;
 }
 
-describe('descoberta por .well-known', () => {
-  it('lê os endpoints do documento', async () => {
+describe('Discover identity provider endpoints through `.well-known`', () => {
+  it('Read authorization and token endpoints from discovery metadata', async () => {
     const achado = await descobrir(
       EMISSOR,
       buscarDescoberta({
@@ -81,7 +81,7 @@ describe('descoberta por .well-known', () => {
     await expect(descobrir('http://acme.example')).rejects.toThrow(/https/);
   });
 
-  it('recusa documento que se declara emissor de outro', async () => {
+  it('Reject discovery metadata that names a different issuer', async () => {
     // A raiz da família de ataques de mix-up: um emissor se dizer outro e roubar
     // a validação de `iss` que faríamos depois.
     await expect(
@@ -97,7 +97,7 @@ describe('descoberta por .well-known', () => {
     ).rejects.toThrow(/emissora/);
   });
 
-  it('recusa documento sem os endpoints', async () => {
+  it('Reject discovery metadata without required endpoints', async () => {
     await expect(descobrir(EMISSOR, buscarDescoberta({ issuer: EMISSOR }))).rejects.toThrow(
       /endpoints/,
     );
@@ -119,7 +119,7 @@ describe('ida ao IdP', () => {
   });
 });
 
-describe('verificação do id_token', () => {
+describe('Verify ID tokens (`id_token`)', () => {
   it('aceita o token bem formado e devolve emissor, sujeito e e-mail', async () => {
     const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
@@ -153,7 +153,7 @@ describe('verificação do id_token', () => {
     await expect(verificarIdTokenOidc(token, config, descoberta, 'n-1', publica)).rejects.toThrow();
   });
 
-  it('com aud de vários valores, exige azp igual ao nosso cliente', async () => {
+  it('Require `azp` to match our client when `aud` contains multiple audiences', async () => {
     const { privateKey, publica } = await keysOfTest();
     const token = await assinar(privateKey, {
       iss: EMISSOR,
@@ -182,7 +182,7 @@ describe('verificação do id_token', () => {
     await expect(verificarIdTokenOidc(token, config, descoberta, 'n-1', publica)).rejects.toThrow();
   });
 
-  it('recusa token assinado por outra chave', async () => {
+  it('Reject a token signed with an untrusted key', async () => {
     const { privateKey } = await keysOfTest();
     const { publica: outra } = await keysOfTest();
     const token = await assinar(privateKey, {
@@ -232,7 +232,7 @@ describe('Microsoft Entra ID', () => {
     tenantsEntra: [tid],
   };
 
-  it('a chave da conta é {tid}:{oid}, nunca o sub', () => {
+  it('Use `{tid}:{oid}` as the account key instead of `sub`', () => {
     // O `sub` é *pairwise* por registro de aplicativo: recriar o app troca o
     // `sub` de todo mundo e órfã TODAS as contas de uma vez. O `oid` não muda.
     expect(sujeitoDoToken('entra', { sub: 'pairwise-xyz', tid, oid: 'oid-1' })).toBe(
@@ -309,7 +309,7 @@ describe('Microsoft Entra ID', () => {
 });
 
 describe('troca do código', () => {
-  it('manda o verificador PKCE e o segredo, e só na troca', async () => {
+  it('Send the PKCE verifier and client secret only during code exchange', async () => {
     const { privateKey, publica } = await keysOfTest();
     const desafio = createChallenge();
     const idToken = await assinar(privateKey, {
@@ -349,7 +349,7 @@ describe('troca do código', () => {
     ).rejects.toThrow(/state/);
   });
 
-  it('recusa a volta quando o IdP devolve erro', async () => {
+  it('Reject an identity provider callback containing an error', async () => {
     const desafio = createChallenge();
     await expect(
       exchangeCodeOidc(config, descoberta, desafio, {

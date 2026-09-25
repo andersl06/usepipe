@@ -126,7 +126,7 @@ async function createTemplate(nome: string, categoria: string): Promise<string> 
 }
 
 async function categoryOfTemplate(id: string): Promise<string> {
-  const { rows } = await cenario.dono.execute<{ categoria: string }>(
+  const { rows } = await cenario.dono.execute<{ category: string }>(
     sql`select categoria from template_mensagem where id = ${id}::uuid`,
   );
   return rows[0]!.categoria;
@@ -166,7 +166,7 @@ describe('o remetente', () => {
     expect(RemetenteDuble.enviados).toHaveLength(1);
   });
 
-  it('o real faz o POST no formato do provedor, com o token no cabeçalho — e sem credencial recusa antes', async () => {
+  it('POST provider-formatted emails with an authorization token and reject missing credentials', async () => {
     const chamadas: { url: string; init: RequestInit }[] = [];
     const buscarFalso = ((url: string, init: RequestInit) => {
       chamadas.push({ url, init });
@@ -229,8 +229,8 @@ describe('o remetente', () => {
   });
 });
 
-describe('convite', () => {
-  it('cria o convite e manda o link por e-mail — e o link continua na resposta', async () => {
+describe('Create and email invitations', () => {
+  it('Email the invitation link while also returning it in the response', async () => {
     const email = `ana.${randomUUID().slice(0, 6)}@cliente.teste`;
     const invitation = await createInvitation(cenario.tenantId, { email, papel: 'guest' });
     expect(invitation.url).toContain('http://telas.teste/convite/');
@@ -258,7 +258,7 @@ describe('convite', () => {
     expect(RemetenteDuble.enviados[0]!.texto).not.toContain(first.url);
   });
 
-  it('o provedor fora do ar NÃO derruba o convite: ele existe e a resposta traz o link', async () => {
+  it('Preserve an invitation and return its link when the email provider is unavailable', async () => {
     definirRemetente(new RemetenteQueFalha());
     const email = `carla.${randomUUID().slice(0, 6)}@cliente.teste`;
     const convite = await createInvitation(cenario.tenantId, { email, papel: 'guest' });
@@ -271,10 +271,10 @@ describe('convite', () => {
   });
 });
 
-describe('alerta de recategorização de modelo', () => {
-  it('dispara para os e-mails configurados no canal, um por modelo recategorizado', async () => {
+describe('Send template recategorization alerts', () => {
+  it('Send one alert per recategorized template to channel-configured emails', async () => {
     const templateId = await createTemplate(`lembrete_${randomUUID().slice(0, 6)}`, 'utilidade');
-    const { rows } = await cenario.dono.execute<{ nome: string }>(
+    const { rows } = await cenario.dono.execute<{ name: string }>(
       sql`select nome from template_mensagem where id = ${templateId}::uuid`,
     );
     const nome = rows[0]!.nome;
@@ -296,9 +296,9 @@ describe('alerta de recategorização de modelo', () => {
     expect(RemetenteDuble.enviados).toHaveLength(1);
   });
 
-  it('não dispara quando o alerta está desligado — mas o modelo muda do mesmo jeito', async () => {
+  it('Skip email alerts when disabled while still updating the template category', async () => {
     const modeloId = await createTemplate(`aviso_${randomUUID().slice(0, 6)}`, 'utilidade');
-    const { rows } = await cenario.dono.execute<{ nome: string }>(
+    const { rows } = await cenario.dono.execute<{ name: string }>(
       sql`select nome from template_mensagem where id = ${modeloId}::uuid`,
     );
     await configurarAlerta(false, ['ana@pipe.app']);
@@ -309,11 +309,11 @@ describe('alerta de recategorização de modelo', () => {
     expect(RemetenteDuble.enviados).toHaveLength(0);
   });
 
-  it('lista vazia = quem gerencia canal no tenant, como diz a tela da origem', async () => {
+  it('Send alerts to tenant channel managers when the recipient list is empty', async () => {
     const emailDoGestor = `gestor.${randomUUID().slice(0, 6)}@cliente.teste`;
     await pessoaCom('canal.gerenciar', emailDoGestor);
     const modeloId = await createTemplate(`cobranca_${randomUUID().slice(0, 6)}`, 'marketing');
-    const { rows } = await cenario.dono.execute<{ nome: string }>(
+    const { rows } = await cenario.dono.execute<{ name: string }>(
       sql`select nome from template_mensagem where id = ${modeloId}::uuid`,
     );
     await configurarAlerta(true, []);
@@ -329,10 +329,10 @@ describe('alerta de recategorização de modelo', () => {
     expect(RemetenteDuble.enviados[0]!.para).not.toContain(agent[0]!.email);
   });
 
-  it('o provedor fora do ar NÃO derruba a recategorização', async () => {
+  it('Complete template recategorization even when the email provider is unavailable', async () => {
     definirRemetente(new RemetenteQueFalha());
     const modeloId = await createTemplate(`falha_${randomUUID().slice(0, 6)}`, 'utilidade');
-    const { rows } = await cenario.dono.execute<{ nome: string }>(
+    const { rows } = await cenario.dono.execute<{ name: string }>(
       sql`select nome from template_mensagem where id = ${modeloId}::uuid`,
     );
     await configurarAlerta(true, ['ana@pipe.app']);

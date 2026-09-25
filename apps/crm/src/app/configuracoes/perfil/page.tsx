@@ -121,7 +121,7 @@ export default async function PageProfile() {
           </div>
         </dl>
         <p className="sub">
-          O fuso se muda em <Link href="/configuracoes/espaco">Espaço de trabalho</Link>.
+          O fuso se muda em <Link href="/settings/workspace">Espaço de trabalho</Link>.
         </p>
       </Block>
     </>

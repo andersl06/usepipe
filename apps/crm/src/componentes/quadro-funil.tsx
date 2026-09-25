@@ -124,7 +124,7 @@ export function QuadroFunil({ fases, cards }: Props) {
                   {/* O cartão leva à ficha da PRÓPRIA oportunidade, e não mais à do
                       lead: a negociação agora tem endereço, e é o dela que se cola
                       no chat quando alguém pergunta por esta negociação. */}
-                  <Link href={`/oportunidades/${c.id}`}>{c.nome}</Link>
+                  <Link href={`/opportunities/${c.id}`}>{c.nome}</Link>
                 </b>
                 <span className="val">{c.value}</span>
                 <span className="ow">{c.detalhe}</span>
@@ -135,7 +135,7 @@ export function QuadroFunil({ fases, cards }: Props) {
                 */}
                 {c.diasVencido !== null ? (
                   <span>
-                    <Etiqueta tom="alerta">
+                    <Etiqueta tom="alert">
                       fechamento vencido há {numero(c.diasVencido)} dias
                     </Etiqueta>
                   </span>

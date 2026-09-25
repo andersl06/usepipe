@@ -38,7 +38,7 @@ import {
  * (`channels.escrever`, `canal-do-fluxo.ts`) e o canal nasce já ligado a ele
  * (`conexao-no-fluxo.ts`).
  */
-@Controller('v1/canais')
+@Controller('v1/channels')
 export class ChannelsController {
   /** O que a tela de Canais mostra: ligado, número, qualidade e limite. */
   @Get('whatsapp')
@@ -54,7 +54,7 @@ export class ChannelsController {
    * SDK da Meta precisa. Acréscimo do Pipe (`estado-de-conexao.ts`); no Chatwoot
    * esses valores vêm de `window.chatwootConfig` e não há `state`.
    */
-  @Post('whatsapp/estado')
+  @Post('whatsapp/state')
   @HttpCode(201)
   @WithSession()
   async iniciar(@Req() requisicao: RequestWithSession): Promise<Record<string, string>> {
@@ -81,7 +81,7 @@ export class ChannelsController {
     @Req() requisicao: RequestWithSession,
     @Body()
     corpo: {
-      codigo?: string;
+      code?: string;
       waba_id?: string;
       phone_number_id?: string;
       business_id?: string;
@@ -133,7 +133,7 @@ export class ChannelsController {
       phone_number_id?: string;
       access_token?: string;
       app_secret?: string;
-      nome?: string;
+      name?: string;
       flowId?: string;
       channelId?: string;
     },

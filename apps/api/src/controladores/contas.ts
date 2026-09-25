@@ -15,19 +15,19 @@ import { PipeError } from '../erros.js';
  * Resposta igual à do cadastro web não autenticado do original: só o e-mail. Não
  * há sessão aqui — a pessoa entra depois, pelo Google, com aquele e-mail.
  */
-@Controller('v1/contas')
+@Controller('v1/accounts')
 export class AccountsController {
   @Post()
   @HttpCode(200)
   async create(
     @Body() corpo: { account_name?: string; user_full_name?: string; email?: string },
   ): Promise<{ email: string }> {
-    if (!registrationOfAccountEnabled()) throw new PipeError(404, 'nao_encontrado', 'Não encontrado.');
+    if (!registrationOfAccountEnabled()) throw new PipeError(404, 'not_found', 'Não encontrado.');
 
     // `ensure_account_name`
     if (!corpo.account_name?.trim() && !corpo.user_full_name?.trim()) {
       throw PipeError.request(
-        'parametros_invalidos',
+        'parameters_invalid',
         'Inválido, por favor, verifique os parâmetros de inscrição e tente novamente',
       );
     }

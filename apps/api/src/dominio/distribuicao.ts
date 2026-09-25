@@ -17,7 +17,7 @@ import { registrarEvento } from './eventos.js';
 type LineAgent = {
   id: string;
   state: StateAgent;
-  limite: number;
+  limit: number;
   ativas: string;
   aguardandoAgent: string;
   withoutFirstResponse: string;

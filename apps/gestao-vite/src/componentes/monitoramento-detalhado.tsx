@@ -107,8 +107,8 @@ function querystring(filter: Filter, aba: string): URLSearchParams {
  * de propósito — os dois pedem a mesma coisa do supervisor.
  */
 function classeDaLinha(linha: LinhaConversationAberta): string | undefined {
-  if (linha.sla.state === 'estourado') return 'critico';
-  if (linha.sla.state === 'alerta') return 'grave';
+  if (linha.sla.state === 'exceeded') return 'critico';
+  if (linha.sla.state === 'alert') return 'grave';
   if (linha.firstRespostaCorrendo) return 'grave';
   return undefined;
 }
@@ -216,20 +216,20 @@ function ModalTransferirMonitoring({
   catalogos: MonitoringActions;
   aoFechar: () => void;
 }) {
-  const [alvo, setAlvo] = useState<'fila' | 'atendente'>('fila');
+  const [alvo, setAlvo] = useState<'fila' | 'atendente'>('queue');
   const [destination, setDestination] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
   const consultas = useQueryClient();
-  const options = alvo === 'fila' ? catalogos.queues : catalogos.listaAgents;
+  const options = alvo === 'queue' ? catalogos.queues : catalogos.listaAgents;
 
   async function transferir() {
     if (!destination) return;
     setEnviando(true);
     setError(null);
     try {
-      await api.post(`/v1/gestao/monitoramento/conversas/${linha.id}/transferir`,
-        alvo === 'fila' ? { para_fila_id: destination } : { para_atendente_id: destination },
+      await api.post(`/v1/management/monitoring/conversations/${linha.id}/transfer`,
+        alvo === 'queue' ? { para_fila_id: destination } : { para_atendente_id: destination },
       );
       await consultas.invalidateQueries({ queryKey: ['api'] });
       aoFechar();
@@ -243,18 +243,18 @@ function ModalTransferirMonitoring({
     <MonitoringModal titulo={`Transferir atendimento do Ticket ${linha.ticket}`} aoFechar={aoFechar}>
       <div className="mon-radios">
         <label>
-          <input type="radio" checked={alvo === 'fila'} onChange={() => { setAlvo('fila'); setDestination(''); }} />
+          <input type="radio" checked={alvo === 'queue'} onChange={() => { setAlvo('queue'); setDestination(''); }} />
           Fila
         </label>
         <label>
-          <input type="radio" checked={alvo === 'atendente'} onChange={() => { setAlvo('atendente'); setDestination(''); }} />
+          <input type="radio" checked={alvo === 'agent'} onChange={() => { setAlvo('agent'); setDestination(''); }} />
           Atendente
         </label>
       </div>
       <label className="mon-campo">
-        {alvo === 'fila' ? 'Fila' : 'Atendente'}
-        <Selection value={destination} onChange={(evento) => setDestination(evento.target.value)} aria-label={alvo === 'fila' ? 'Fila' : 'Atendente'}>
-          <option value="">{alvo === 'fila' ? 'Selecionar fila' : 'Selecionar atendente'}</option>
+        {alvo === 'queue' ? 'Fila' : 'Atendente'}
+        <Selection value={destination} onChange={(evento) => setDestination(evento.target.value)} aria-label={alvo === 'queue' ? 'Fila' : 'Atendente'}>
+          <option value="">{alvo === 'queue' ? 'Selecionar fila' : 'Selecionar atendente'}</option>
           {options.map((option) => (
             <option key={option.id} value={option.id}>{option.nome}</option>
           ))}
@@ -591,7 +591,7 @@ type Previa = {
 };
 
 function ConversationPrevia({ id, aoFechar }: { id: string; aoFechar: () => void }) {
-  const read = useRead<Previa>(`/v1/gestao/monitoramento/conversas/${id}`);
+  const read = useRead<Previa>(`/v1/management/monitoring/conversations/${id}`);
   const [texto, setTexto] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [enviando, setEnviando] = useState(false);
@@ -603,9 +603,9 @@ function ConversationPrevia({ id, aoFechar }: { id: string; aoFechar: () => void
     setEnviando(true);
     setError(null);
     try {
-      await api.post(`/v1/gestao/monitoramento/conversas/${id}/notas`, { texto });
+      await api.post(`/v1/management/monitoring/conversations/${id}/notes`, { texto });
       setTexto('');
-      await consultas.invalidateQueries({ queryKey: ['api', `/v1/gestao/monitoramento/conversas/${id}`] });
+      await consultas.invalidateQueries({ queryKey: ['api', `/v1/management/monitoring/conversations/${id}`] });
     } catch (causa) {
       setError(causa instanceof Error ? causa.message : 'Não foi possível falar com o atendente.');
     } finally {

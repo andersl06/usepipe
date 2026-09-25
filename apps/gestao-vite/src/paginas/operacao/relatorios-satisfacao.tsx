@@ -94,7 +94,7 @@ export function PageSatisfaction() {
   const q = new URLSearchParams();
   if (params.de) q.set('de', params.de);
   if (params.ate) q.set('ate', params.ate);
-  const read = useRead<SatisfactionResposta>(`/v1/gestao/relatorios/satisfacao?${q}`);
+  const read = useRead<SatisfactionResposta>(`/v1/management/reports/satisfaction?${q}`);
   const [panelAberto, setPanelAberto] = useState(false);
   if (!read.data) return null;
   const { fuso, de, ate, report } = read.data;

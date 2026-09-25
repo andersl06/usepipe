@@ -59,8 +59,8 @@ export function AgentPageEdit({ modo }: { modo: 'editar' | 'adicionar' }) {
 
 function EditInLote({ ids, base }: { ids: readonly string[]; base: string }) {
   const navegar = useNavigate();
-  const readAgents = useRead<AgentRegistered[]>('/v1/gestao/atendentes/gestao');
-  const readQueues = useRead<{ queues: QueueRegistered[] }>('/v1/gestao/atendentes/filas');
+  const readAgents = useRead<AgentRegistered[]>('/v1/management/agents/management');
+  const readQueues = useRead<{ queues: QueueRegistered[] }>('/v1/management/agents/queues');
 
   const [queueId, setQueueId] = useState('');
   const [capacity, setCapacity] = useState('');

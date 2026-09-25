@@ -29,11 +29,11 @@ export function CertificatesPage() {
   const eu = useEu();
   const shell = portalUseShell();
   const podeLer = eu.permissions.includes('conta.membros.ler');
-  const read = useRead<ContractSummary>(podeLer ? '/v1/gestao/contrato/resumo' : null);
+  const read = useRead<ContractSummary>(podeLer ? '/v1/management/contract/summary' : null);
   const lista = useRead<CertificadoMtls[]>(
-    podeLer ? '/v1/gestao/contrato/certificados' : null,
+    podeLer ? '/v1/management/contract/certificates' : null,
   );
-  if (!podeLer) return <Navigate to="/contrato" replace />;
+  if (!podeLer) return <Navigate to="/contract" replace />;
   if (!read.data || !lista.data) return null;
   const contract = read.data;
   const podeEscrever = eu.permissions.includes('conta.membros.escrever');
@@ -46,7 +46,7 @@ export function CertificatesPage() {
         {/* `setHeaderContent({ redirect: "/", text: "Certificados MTLS de {0}" })`:
             na origem quem desenha a seta e a frase é a barra do portal. */}
         <div className="cm-cabecalho">
-          <Link className="cm-voltar" href="/contrato" aria-label="Voltar ao painel do contrato">
+          <Link className="cm-voltar" href="/contract" aria-label="Voltar ao painel do contrato">
             <IconePortal nome="esquerda" tamanho={24} />
           </Link>
           <h1>Certificados MTLS de {contract.nome}</h1>

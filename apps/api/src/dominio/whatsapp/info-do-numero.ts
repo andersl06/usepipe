@@ -29,19 +29,19 @@ export async function buscarInfoDoNumero(
   token: string | undefined,
   numeroEsperado?: string | null,
 ): Promise<InfoDoNumero> {
-  if (!wabaId) throw PipeError.request('waba_ausente', 'O WABA ID é obrigatório.');
-  if (!token) throw PipeError.request('token_ausente', 'O token de acesso é obrigatório.');
+  if (!wabaId) throw PipeError.request('waba_missing', 'O WABA ID é obrigatório.');
+  if (!token) throw PipeError.request('token_missing', 'O token de acesso é obrigatório.');
 
   const numeros = await clienteGraph(token).buscarTodosOsNumeros(wabaId);
   if (numeros.length === 0) {
-    throw new PipeError(422, 'waba_sem_numero', `Nenhum número encontrado para a WABA ${wabaId}.`);
+    throw new PipeError(422, 'waba_without_number', `Nenhum número encontrado para a WABA ${wabaId}.`);
   }
 
   const data = acharNumero(numeros, wabaId, numeroId, numeroEsperado ?? null);
   if (!data) {
     throw new PipeError(
       422,
-      'numero_nao_encontrado',
+      'number_not_found',
       `Nenhum número correspondente encontrado para a WABA ${wabaId}.`,
     );
   }
@@ -71,7 +71,7 @@ function acharNumero(
   if (numeros.length > 1) {
     throw new PipeError(
       422,
-      'numero_ambiguo',
+      'number_ambiguous',
       `Vários números encontrados para a WABA ${wabaId}; não dá para saber qual foi conectado.`,
     );
   }

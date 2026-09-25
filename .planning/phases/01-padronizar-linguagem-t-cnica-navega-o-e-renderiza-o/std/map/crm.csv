@@ -1,5 +1,5 @@
 id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
-crm-cookie-c60f36ce,crm,3,cookie,pipe_sessao,pipe_session,apps/crm/src/lib/sessao.ts:48,29,no,,D-38,approved,codex2,cookie rename per D-38; accepted logout at deploy
+crm-cookie-c60f36ce,crm,3,cookie,pipe_sessao,pipe_session,apps/crm/src/lib/sessao.ts:48,29,no,,D-38,applied,codex2,cookie rename per D-38; accepted logout at deploy
 crm-dir-153faccf,crm,3,dir,apps/crm/src/app/configuracoes/papeis,apps/crm/src/app/settings/roles,apps/crm/src/app/configuracoes/papeis,0,no,,,approved,codex2,
 crm-dir-15f590a7,crm,3,dir,apps/crm/src/app/configuracoes/faixas,apps/crm/src/app/settings/tiers,apps/crm/src/app/configuracoes/faixas,0,no,,,approved,codex2,
 crm-dir-1be7d6a6,crm,3,dir,apps/crm/src/app/configuracoes/espaco,apps/crm/src/app/settings/workspace,apps/crm/src/app/configuracoes/espaco,0,no,,,approved,codex2,
@@ -46,25 +46,25 @@ crm-file-eafb2892,crm,3,file,linha-do-tempo.tsx,apps/crm/src/components/linha-of
 crm-file-ee1b573d,crm,3,file,semente-crm.ts,apps/crm/seed/seed-crm.ts,apps/crm/semente/semente-crm.ts,3,no,,,approved,codex2,
 crm-file-f97bc38d,crm,3,file,contatos.ts,apps/crm/src/lib/contacts.ts,apps/crm/src/lib/contatos.ts,0,no,,,approved,codex2,
 crm-file-fe8b32d0,crm,3,file,acoes.ts,apps/crm/src/app/leads/actions.ts,apps/crm/src/app/leads/acoes.ts,39,no,,,approved,codex2,
-crm-front-route-0736e905,crm,3,front-route,/configuracoes,/settings,apps/crm/src/app/configuracoes/page.tsx,5,no,,,approved,codex2,
-crm-front-route-07e0e538,crm,3,front-route,/configuracoes/api,/settings/api,apps/crm/src/app/configuracoes/api/page.tsx,7,no,,,approved,codex2,
-crm-front-route-09f8e27a,crm,3,front-route,/contas,/accounts,apps/crm/src/app/contas/page.tsx,3,no,,,approved,codex2,
-crm-front-route-0d0c5e5b,crm,3,front-route,/configuracoes/perfil,/settings/profile,apps/crm/src/app/configuracoes/perfil/page.tsx,3,no,,,approved,codex2,
-crm-front-route-214f19df,crm,3,front-route,/contatos,/contacts,apps/crm/src/app/contatos/page.tsx,3,no,,,approved,codex2,
-crm-front-route-2ea1e404,crm,3,front-route,/configuracoes/membros,/settings/members,apps/crm/src/app/configuracoes/membros/page.tsx,6,no,,,approved,codex2,
-crm-front-route-34d9114c,crm,3,front-route,/oportunidades,/opportunities,apps/crm/src/app/oportunidades/page.tsx,9,no,,,approved,codex2,
-crm-front-route-410a4d50,crm,3,front-route,/convite/:*,/invite/:token,apps/crm/src/app/convite/[token]/page.tsx,3,no,,D-14,approved,codex2,invite route; same value in desk-vite.csv and gestao-vite.csv
-crm-front-route-4fdda532,crm,3,front-route,/configuracoes/regras-de-score,/settings/score-rules,apps/crm/src/app/configuracoes/regras-de-score/page.tsx,2,no,,,approved,codex2,
-crm-front-route-525671ef,crm,3,front-route,/entrar,/login,apps/crm/src/app/entrar/page.tsx,13,no,,,approved,codex2,
-crm-front-route-571e090e,crm,3,front-route,/oportunidades/:*,/opportunities/:id,apps/crm/src/app/oportunidades/[id]/page.tsx,5,no,,,approved,codex2,
-crm-front-route-689e3425,crm,3,front-route,/configuracoes/campos,/settings/fields,apps/crm/src/app/configuracoes/campos/page.tsx,5,no,,,approved,codex2,
-crm-front-route-a1049bf7,crm,3,front-route,/configuracoes/faixas,/settings/tiers,apps/crm/src/app/configuracoes/faixas/page.tsx,2,no,,,approved,codex2,
-crm-front-route-b15f7769,crm,3,front-route,/contas/:*,/accounts/:id,apps/crm/src/app/contas/[id]/page.tsx,10,no,,,approved,codex2,
-crm-front-route-b48d6eae,crm,3,front-route,/contatos/:*,/contacts/:id,apps/crm/src/app/contatos/[id]/page.tsx,5,no,,,approved,codex2,
-crm-front-route-b7d8a8d8,crm,3,front-route,/configuracoes/papeis,/settings/roles,apps/crm/src/app/configuracoes/papeis/page.tsx,9,no,,,approved,codex2,
-crm-front-route-cbdcfd55,crm,3,front-route,/configuracoes/espaco,/settings/workspace,apps/crm/src/app/configuracoes/espaco/page.tsx,4,no,,,approved,codex2,
-crm-front-route-ceb72bcd,crm,3,front-route,/configuracoes/papeis/:*,/settings/roles/:id,apps/crm/src/app/configuracoes/papeis/[id]/page.tsx,2,no,,,approved,codex2,
-crm-front-route-ecefc767,crm,3,front-route,/configuracoes,/settings,apps/crm/src/app/configuracoes/layout.tsx,5,no,,,approved,codex2,
+crm-front-route-0736e905,crm,3,front-route,/configuracoes,/settings,apps/crm/src/app/configuracoes/page.tsx,5,no,,,applied,codex2,
+crm-front-route-07e0e538,crm,3,front-route,/configuracoes/api,/settings/api,apps/crm/src/app/configuracoes/api/page.tsx,7,no,,,applied,codex2,
+crm-front-route-09f8e27a,crm,3,front-route,/contas,/accounts,apps/crm/src/app/contas/page.tsx,3,no,,,applied,codex2,
+crm-front-route-0d0c5e5b,crm,3,front-route,/configuracoes/perfil,/settings/profile,apps/crm/src/app/configuracoes/perfil/page.tsx,3,no,,,applied,codex2,
+crm-front-route-214f19df,crm,3,front-route,/contatos,/contacts,apps/crm/src/app/contatos/page.tsx,3,no,,,applied,codex2,
+crm-front-route-2ea1e404,crm,3,front-route,/configuracoes/membros,/settings/members,apps/crm/src/app/configuracoes/membros/page.tsx,6,no,,,applied,codex2,
+crm-front-route-34d9114c,crm,3,front-route,/oportunidades,/opportunities,apps/crm/src/app/oportunidades/page.tsx,9,no,,,applied,codex2,
+crm-front-route-410a4d50,crm,3,front-route,/convite/:*,/invite/:token,apps/crm/src/app/convite/[token]/page.tsx,3,no,,D-14,applied,codex2,invite route; same value in desk-vite.csv and gestao-vite.csv
+crm-front-route-4fdda532,crm,3,front-route,/configuracoes/regras-de-score,/settings/score-rules,apps/crm/src/app/configuracoes/regras-de-score/page.tsx,2,no,,,applied,codex2,
+crm-front-route-525671ef,crm,3,front-route,/entrar,/login,apps/crm/src/app/entrar/page.tsx,13,no,,,applied,codex2,
+crm-front-route-571e090e,crm,3,front-route,/oportunidades/:*,/opportunities/:id,apps/crm/src/app/oportunidades/[id]/page.tsx,5,no,,,applied,codex2,
+crm-front-route-689e3425,crm,3,front-route,/configuracoes/campos,/settings/fields,apps/crm/src/app/configuracoes/campos/page.tsx,5,no,,,applied,codex2,
+crm-front-route-a1049bf7,crm,3,front-route,/configuracoes/faixas,/settings/tiers,apps/crm/src/app/configuracoes/faixas/page.tsx,2,no,,,applied,codex2,
+crm-front-route-b15f7769,crm,3,front-route,/contas/:*,/accounts/:id,apps/crm/src/app/contas/[id]/page.tsx,10,no,,,applied,codex2,
+crm-front-route-b48d6eae,crm,3,front-route,/contatos/:*,/contacts/:id,apps/crm/src/app/contatos/[id]/page.tsx,5,no,,,applied,codex2,
+crm-front-route-b7d8a8d8,crm,3,front-route,/configuracoes/papeis,/settings/roles,apps/crm/src/app/configuracoes/papeis/page.tsx,9,no,,,applied,codex2,
+crm-front-route-cbdcfd55,crm,3,front-route,/configuracoes/espaco,/settings/workspace,apps/crm/src/app/configuracoes/espaco/page.tsx,4,no,,,applied,codex2,
+crm-front-route-ceb72bcd,crm,3,front-route,/configuracoes/papeis/:*,/settings/roles/:id,apps/crm/src/app/configuracoes/papeis/[id]/page.tsx,2,no,,,applied,codex2,
+crm-front-route-ecefc767,crm,3,front-route,/configuracoes,/settings,apps/crm/src/app/configuracoes/layout.tsx,5,no,,,applied,codex2,
 crm-literal-value-1804af4e,crm,3,literal-value,nenhuma,KEEP,apps/crm/src/lib/leads-visao.ts:162,268,no,,D-11,approved,codex2,"glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
 crm-literal-value-2f2faffa,crm,3,literal-value,conta,KEEP,apps/crm/src/lib/busca-tipos.ts:12,808,no,,D-11,approved,codex2,"glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
 crm-literal-value-357bf3d9,crm,3,literal-value,historico,KEEP,apps/crm/src/app/oportunidades/[id]/page.tsx:34,41,no,,D-11,approved,codex2,"glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
@@ -382,30 +382,30 @@ crm-symbol-fe243b93,crm,3,symbol,juncao,junction,apps/crm/src/lib/regras.ts:122,
 crm-symbol-fe4f87cc,crm,3,symbol,FichaContato,FichaContact,apps/crm/src/lib/contatos.ts:111,4,no,,,applied,codex2,
 crm-symbol-fea4ab12,crm,3,symbol,PaginaLeads,PageLeads,apps/crm/src/app/leads/page.tsx:48,1,no,,,applied,codex2,
 crm-symbol-ff40abdc,crm,3,symbol,posicao,position,apps/crm/src/componentes/menu-de-comando.tsx:134,84,no,,,applied,codex2,
-crm-test-title-0ef50146,crm,3,test-title,"ida e volta pela URL preserva o filtro, inclusive o de valor em branco","a round trip through the URL preserves the filter, including one with a blank value",apps/crm/tests/filtros.test.ts:48,0,no,,,approved,codex2,
-crm-test-title-12e2f1e4,crm,3,test-title,o catálogo de escopos não divergiu de apps/api,the scope catalog has not diverged from apps/api,apps/crm/tests/configuracoes-comum.test.ts:146,0,no,,,approved,codex2,
-crm-test-title-1b54e943,crm,3,test-title,"o chip diz a coluna e o valor, e ""em branco"" tem nome de gente","the chip shows the column and value, and a blank value is labeled in plain language",apps/crm/tests/filtros.test.ts:61,0,no,,,approved,codex2,
-crm-test-title-32979667,crm,3,test-title,telefone recusa letra e aceita o formato brasileiro escrito à mão,phone rejects letters and accepts the Brazilian format written by hand,apps/crm/tests/campos-editaveis.test.ts:51,0,no,,,approved,codex2,
-crm-test-title-32fd4593,crm,3,test-title,"tipo de campo vem do catálogo, não da requisição","field type comes from the catalog, not from the request",apps/crm/tests/configuracoes-comum.test.ts:105,0,no,,,approved,codex2,
-crm-test-title-3c830f28,crm,3,test-title,o que não é `f.` da lista é ignorado na leitura,anything in the list that is not `f.` is ignored when reading,apps/crm/tests/filtros.test.ts:32,0,no,,,approved,codex2,
-crm-test-title-6b4d3ae6,crm,3,test-title,fuso é validado contra o banco de fusos do runtime,timezone is validated against the runtime's timezone database,apps/crm/tests/configuracoes-comum.test.ts:124,0,no,,,approved,codex2,
-crm-test-title-6ecbb935,crm,3,test-title,mover para baixo põe a coluna depois da que ocupava o destino,moving down places the column after the one that occupied the destination,apps/crm/tests/colunas.test.ts:60,0,no,,,approved,codex2,
-crm-test-title-8b5bc36b,crm,3,test-title,"tirar um filtro apaga o parâmetro dele, e não o deixa vazio na URL",removing a filter deletes its parameter instead of leaving it empty in the URL,apps/crm/tests/filtros.test.ts:55,0,no,,,approved,codex2,
-crm-test-title-93d6ae06,crm,3,test-title,"sem nada guardado, a ordem é a da tela e a fixa fica de fora das móveis","with nothing saved, the order matches the screen and the pinned column stays out of the movable ones",apps/crm/tests/colunas.test.ts:20,0,no,,,approved,codex2,
-crm-test-title-941dea90,crm,3,test-title,"a coluna nova de um deploy entra no fim, sem empurrar o que já estava","a new column from a deploy is appended at the end, without pushing existing ones",apps/crm/tests/colunas.test.ts:35,0,no,,,approved,codex2,
-crm-test-title-944a25f7,crm,3,test-title,o código do campo recusa o que estragaria a chave do jsonb,the field code rejects anything that would break the jsonb key,apps/crm/tests/configuracoes-comum.test.ts:97,0,no,,,approved,codex2,
-crm-test-title-9bc814e8,crm,3,test-title,mover para cima põe a coluna antes da que ocupava o destino,moving up places the column before the one that occupied the destination,apps/crm/tests/colunas.test.ts:65,0,no,,,approved,codex2,
-crm-test-title-9e606df8,crm,3,test-title,e-mail sem arroba ou sem domínio é recusado,an email without an @ or without a domain is rejected,apps/crm/tests/campos-editaveis.test.ts:44,0,no,,,approved,codex2,
-crm-test-title-a8b29b77,crm,3,test-title,"mover devolve a ordem COMPLETA, com as ocultas ancoradas na vizinha","moving returns the FULL order, with hidden columns anchored to their neighbor",apps/crm/tests/colunas.test.ts:70,0,no,,,approved,codex2,
-crm-test-title-acdc2967,crm,3,test-title,a oculta guarda o lugar: mostrar de volta não a joga no fim,a hidden column keeps its place: showing it again does not push it to the end,apps/crm/tests/colunas.test.ts:51,0,no,,,approved,codex2,
-crm-test-title-b9b33f58,crm,3,test-title,"coluna que sumiu da tela some do arranjo, e não deixa buraco",a column removed from the screen disappears from the arrangement without leaving a gap,apps/crm/tests/colunas.test.ts:42,0,no,,,approved,codex2,
-crm-test-title-bfb6182a,crm,3,test-title,"o código do campo sai do rótulo sem acento, sem espaço e começando por letra","the field code is derived from the label without accents or spaces, and starting with a letter",apps/crm/tests/configuracoes-comum.test.ts:82,0,no,,,approved,codex2,
-crm-test-title-c061f5dc,crm,3,test-title,"a coluna fixa nunca é ocultada, nem que alguém edite o armazenamento","the pinned column is never hidden, even if someone edits storage directly",apps/crm/tests/colunas.test.ts:27,0,no,,,approved,codex2,
-crm-test-title-cf536a1e,crm,3,test-title,"escopo e evento desconhecidos são descartados, não recusados em bloco","unknown scope and event are discarded individually, not rejected as a whole batch",apps/crm/tests/configuracoes-comum.test.ts:111,0,no,,,approved,codex2,
-crm-test-title-d3a67685,crm,3,test-title,uuid: o que vira `where` passa por aqui antes,uuid: whatever becomes a `where` clause passes through here first,apps/crm/tests/configuracoes-comum.test.ts:119,0,no,,,approved,codex2,
-crm-test-title-d4516ff6,crm,3,test-title,e-mail é chave: minúsculo e sem espaço,email is the key: lowercase and without spaces,apps/crm/tests/configuracoes-comum.test.ts:49,0,no,,,approved,codex2,
-crm-test-title-e5a8d92e,crm,3,test-title,"parâmetro repetido: o primeiro vale, e o resto não vira segundo filtro","repeated parameter: the first one counts, the rest do not become a second filter",apps/crm/tests/filtros.test.ts:44,0,no,,,approved,codex2,
-crm-test-title-ec172a9e,crm,3,test-title,nulo passa em qualquer campo: apagar é operação legítima,null passes for any field: clearing it is a legitimate operation,apps/crm/tests/campos-editaveis.test.ts:38,0,no,,,approved,codex2,
+crm-test-title-0ef50146,crm,3,test-title,"ida e volta pela URL preserva o filtro, inclusive o de valor em branco","a round trip through the URL preserves the filter, including one with a blank value",apps/crm/tests/filtros.test.ts:48,0,no,,,applied,codex2,
+crm-test-title-12e2f1e4,crm,3,test-title,o catálogo de escopos não divergiu de apps/api,the scope catalog has not diverged from apps/api,apps/crm/tests/configuracoes-comum.test.ts:146,0,no,,,applied,codex2,
+crm-test-title-1b54e943,crm,3,test-title,"o chip diz a coluna e o valor, e ""em branco"" tem nome de gente","the chip shows the column and value, and a blank value is labeled in plain language",apps/crm/tests/filtros.test.ts:61,0,no,,,applied,codex2,
+crm-test-title-32979667,crm,3,test-title,telefone recusa letra e aceita o formato brasileiro escrito à mão,phone rejects letters and accepts the Brazilian format written by hand,apps/crm/tests/campos-editaveis.test.ts:51,0,no,,,applied,codex2,
+crm-test-title-32fd4593,crm,3,test-title,"tipo de campo vem do catálogo, não da requisição","field type comes from the catalog, not from the request",apps/crm/tests/configuracoes-comum.test.ts:105,0,no,,,applied,codex2,
+crm-test-title-3c830f28,crm,3,test-title,o que não é `f.` da lista é ignorado na leitura,anything in the list that is not `f.` is ignored when reading,apps/crm/tests/filtros.test.ts:32,0,no,,,applied,codex2,
+crm-test-title-6b4d3ae6,crm,3,test-title,fuso é validado contra o banco de fusos do runtime,timezone is validated against the runtime's timezone database,apps/crm/tests/configuracoes-comum.test.ts:124,0,no,,,applied,codex2,
+crm-test-title-6ecbb935,crm,3,test-title,mover para baixo põe a coluna depois da que ocupava o destino,moving down places the column after the one that occupied the destination,apps/crm/tests/colunas.test.ts:60,0,no,,,applied,codex2,
+crm-test-title-8b5bc36b,crm,3,test-title,"tirar um filtro apaga o parâmetro dele, e não o deixa vazio na URL",removing a filter deletes its parameter instead of leaving it empty in the URL,apps/crm/tests/filtros.test.ts:55,0,no,,,applied,codex2,
+crm-test-title-93d6ae06,crm,3,test-title,"sem nada guardado, a ordem é a da tela e a fixa fica de fora das móveis","with nothing saved, the order matches the screen and the pinned column stays out of the movable ones",apps/crm/tests/colunas.test.ts:20,0,no,,,applied,codex2,
+crm-test-title-941dea90,crm,3,test-title,"a coluna nova de um deploy entra no fim, sem empurrar o que já estava","a new column from a deploy is appended at the end, without pushing existing ones",apps/crm/tests/colunas.test.ts:35,0,no,,,applied,codex2,
+crm-test-title-944a25f7,crm,3,test-title,o código do campo recusa o que estragaria a chave do jsonb,the field code rejects anything that would break the jsonb key,apps/crm/tests/configuracoes-comum.test.ts:97,0,no,,,applied,codex2,
+crm-test-title-9bc814e8,crm,3,test-title,mover para cima põe a coluna antes da que ocupava o destino,moving up places the column before the one that occupied the destination,apps/crm/tests/colunas.test.ts:65,0,no,,,applied,codex2,
+crm-test-title-9e606df8,crm,3,test-title,e-mail sem arroba ou sem domínio é recusado,an email without an @ or without a domain is rejected,apps/crm/tests/campos-editaveis.test.ts:44,0,no,,,applied,codex2,
+crm-test-title-a8b29b77,crm,3,test-title,"mover devolve a ordem COMPLETA, com as ocultas ancoradas na vizinha","moving returns the FULL order, with hidden columns anchored to their neighbor",apps/crm/tests/colunas.test.ts:70,0,no,,,applied,codex2,
+crm-test-title-acdc2967,crm,3,test-title,a oculta guarda o lugar: mostrar de volta não a joga no fim,a hidden column keeps its place: showing it again does not push it to the end,apps/crm/tests/colunas.test.ts:51,0,no,,,applied,codex2,
+crm-test-title-b9b33f58,crm,3,test-title,"coluna que sumiu da tela some do arranjo, e não deixa buraco",a column removed from the screen disappears from the arrangement without leaving a gap,apps/crm/tests/colunas.test.ts:42,0,no,,,applied,codex2,
+crm-test-title-bfb6182a,crm,3,test-title,"o código do campo sai do rótulo sem acento, sem espaço e começando por letra","the field code is derived from the label without accents or spaces, and starting with a letter",apps/crm/tests/configuracoes-comum.test.ts:82,0,no,,,applied,codex2,
+crm-test-title-c061f5dc,crm,3,test-title,"a coluna fixa nunca é ocultada, nem que alguém edite o armazenamento","the pinned column is never hidden, even if someone edits storage directly",apps/crm/tests/colunas.test.ts:27,0,no,,,applied,codex2,
+crm-test-title-cf536a1e,crm,3,test-title,"escopo e evento desconhecidos são descartados, não recusados em bloco","unknown scope and event are discarded individually, not rejected as a whole batch",apps/crm/tests/configuracoes-comum.test.ts:111,0,no,,,applied,codex2,
+crm-test-title-d3a67685,crm,3,test-title,uuid: o que vira `where` passa por aqui antes,uuid: whatever becomes a `where` clause passes through here first,apps/crm/tests/configuracoes-comum.test.ts:119,0,no,,,applied,codex2,
+crm-test-title-d4516ff6,crm,3,test-title,e-mail é chave: minúsculo e sem espaço,email is the key: lowercase and without spaces,apps/crm/tests/configuracoes-comum.test.ts:49,0,no,,,applied,codex2,
+crm-test-title-e5a8d92e,crm,3,test-title,"parâmetro repetido: o primeiro vale, e o resto não vira segundo filtro","repeated parameter: the first one counts, the rest do not become a second filter",apps/crm/tests/filtros.test.ts:44,0,no,,,applied,codex2,
+crm-test-title-ec172a9e,crm,3,test-title,nulo passa em qualquer campo: apagar é operação legítima,null passes for any field: clearing it is a legitimate operation,apps/crm/tests/campos-editaveis.test.ts:38,0,no,,,applied,codex2,
 crm-ts-local-0273054b,crm,3,ts-local,colunaEmArraste,columnInArraste,apps/crm/src/componentes/redimensionar.ts:77,2,no,,,applied,codex2,
 crm-ts-local-036c8f4b,crm,3,ts-local,filtros,filters,apps/crm/src/lib/leads.ts:223,91,no,,,applied,codex2,
 crm-ts-local-062dca64,crm,3,ts-local,valor,value,apps/crm/src/lib/configuracoes-comum.ts:78,1656,no,,,applied,codex2,
@@ -732,9 +732,9 @@ crm-ts-prop-74719315,crm,3,ts-prop,fuso,timezone,apps/crm/src/componentes/lista-
 crm-ts-prop-91efdef0,crm,3,ts-prop,id,KEEP,apps/crm/src/lib/leads-visao.ts:71,1,no,,,approved,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
 crm-ts-prop-d310bade,crm,3,ts-prop,nome,name,apps/crm/src/lib/leads-visao.ts:72,1,no,,,applied,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
 crm-ts-prop-87a46b7b,crm,3,ts-prop,proprietarios,owners,apps/crm/src/componentes/lista-de-leads.tsx:75,1,no,,,applied,sonnet,"rejected persisted-candidate (01-12 gate-2 reconciliation): not reached by any Postgres jsonb column per std/reports/jsonb-reach.csv; false-positive name match, proposed like a normal candidate"
-crm-query-param-destino,crm,3,query-param,destino,returnTo,apps/crm/src/middleware.ts:27,,no,,,approved,sonnet,"gate 2 query-param audit (W-audit): missing from the original inventory (URLSearchParams/useSearchParams/@Query literal, not a symbol/prop declaration)"
-crm-query-param-convite,crm,3,query-param,convite,invite,apps/crm/src/lib/sessao.ts:162,,no,,,approved,sonnet,"gate 2 query-param audit (W-audit): missing from the original inventory (URLSearchParams/useSearchParams/@Query literal, not a symbol/prop declaration)"
-crm-query-param-origem,crm,3,query-param,origem,origin,apps/crm/src/lib/sessao.ts:164,,no,,,approved,sonnet,"gate 2 query-param audit (W-audit): missing from the original inventory (URLSearchParams/useSearchParams/@Query literal, not a symbol/prop declaration)"
-crm-query-param-aba,crm,3,query-param,aba,tab,apps/crm/tests/filtros.test.ts:51,,no,,,approved,sonnet,"gate 2 query-param audit (W-audit): missing from the original inventory (URLSearchParams/useSearchParams/@Query literal, not a symbol/prop declaration)"
+crm-query-param-destino,crm,3,query-param,destino,returnTo,apps/crm/src/middleware.ts:27,,no,,,applied,sonnet,"gate 2 query-param audit (W-audit): missing from the original inventory (URLSearchParams/useSearchParams/@Query literal, not a symbol/prop declaration)"
+crm-query-param-convite,crm,3,query-param,convite,invite,apps/crm/src/lib/sessao.ts:162,,no,,,applied,sonnet,"gate 2 query-param audit (W-audit): missing from the original inventory (URLSearchParams/useSearchParams/@Query literal, not a symbol/prop declaration)"
+crm-query-param-origem,crm,3,query-param,origem,origin,apps/crm/src/lib/sessao.ts:164,,no,,,applied,sonnet,"gate 2 query-param audit (W-audit): missing from the original inventory (URLSearchParams/useSearchParams/@Query literal, not a symbol/prop declaration)"
+crm-query-param-aba,crm,3,query-param,aba,tab,apps/crm/tests/filtros.test.ts:51,,no,,,applied,sonnet,"gate 2 query-param audit (W-audit): missing from the original inventory (URLSearchParams/useSearchParams/@Query literal, not a symbol/prop declaration)"
 crm-query-param-agrupar,crm,3,query-param,agrupar,groupBy,apps/crm/src/componentes/lista-de-leads.tsx:386,,no,,,approved,sonnet,"gate 2 query-param audit (W-audit): missing from the original inventory. rewrite-literals unmatched: set on `const p = new URLSearchParams(...)` (p.set), not the `useSearchParams`/`searchParams.` spelling rewrite-literals' query-param matcher looks for; apply manually or extend the matcher before mechanical execution"
 crm-query-param-ordem,crm,3,query-param,ordem,order,apps/crm/src/componentes/lista-de-leads.tsx:388,,no,,,approved,sonnet,"gate 2 query-param audit (W-audit): missing from the original inventory. rewrite-literals unmatched: set on `const p = new URLSearchParams(...)` (p.set), not the `useSearchParams`/`searchParams.` spelling rewrite-literals' query-param matcher looks for; apply manually or extend the matcher before mechanical execution"

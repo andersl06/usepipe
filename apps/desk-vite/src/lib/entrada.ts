@@ -22,17 +22,17 @@ function origemDesteApp(): string {
 /** O botão "Entrar com Google". Com `convite`, entra aceitando o convite. */
 export function inboundWithGoogleUrl(options: { destination?: string; invitation?: string } = {}): string {
   const url = new URL(urlDaApi('/v1/auth/google'), window.location.origin);
-  if (options.invitation) url.searchParams.set('convite', options.invitation);
-  url.searchParams.set('destino', caminhoInterno(options.destination));
-  url.searchParams.set('origem', origemDesteApp());
+  if (options.invitation) url.searchParams.set('invite', options.invitation);
+  url.searchParams.set('returnTo', caminhoInterno(options.destination));
+  url.searchParams.set('origin', origemDesteApp());
   return url.toString();
 }
 
 /** `irPara` vem da descoberta como caminho; aqui ele ganha a base e a origem. */
 export function urlNaApi(caminho: string, destination?: string): string {
   const url = new URL(urlDaApi(caminho), window.location.origin);
-  url.searchParams.set('destino', caminhoInterno(destination));
-  url.searchParams.set('origem', origemDesteApp());
+  url.searchParams.set('returnTo', caminhoInterno(destination));
+  url.searchParams.set('origin', origemDesteApp());
   return url.toString();
 }
 

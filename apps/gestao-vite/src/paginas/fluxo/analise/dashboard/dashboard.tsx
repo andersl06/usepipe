@@ -23,7 +23,7 @@ export function DashboardPage() {
     if (v) q.set(key, v);
   }
   const read = useRead<RespostaDoDashboard>(
-    `/v1/gestao/fluxos/${contact.id}/analise/dashboard?${q.toString()}`,
+    `/v1/management/flows/${contact.id}/analytics/dashboard?${q.toString()}`,
   );
   if (!read.data) return null;
   const { period, intervalo, hoje, data, lista } = read.data;

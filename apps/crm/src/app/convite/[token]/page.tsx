@@ -79,7 +79,7 @@ export default async function PageInvitation({
               Convite vale sete dias e uma vez só. Peça um novo a quem administra o Pipe na sua
               empresa.
             </p>
-            <a className="btn entrar-google" href="/entrar">
+            <a className="btn entrar-google" href="/login">
               Ir para a tela de entrada
             </a>
           </>

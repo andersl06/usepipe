@@ -21,21 +21,21 @@ import {
 
 const ID = '5b6843ae-b4f8-4bc0-bce2-e32318043297';
 
-test('a Análise leva à análise DO contato, no prefixo do próprio tipo', () => {
+test('analytics leads to the contact\'s OWN analytics, under its own type prefix', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const analytics = itensDoMenu(tipo, ID).find((i) => i.rotulo === 'Análise');
     assert.equal(analytics?.href, `/${tipo}/${ID}/analise`);
   }
 });
 
-test('Canais leva aos canais DO contato, no prefixo do próprio tipo', () => {
+test('Channels leads to the contact\'s OWN channels, under its own type prefix', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const channels = itensDoMenu(tipo, ID).find((i) => i.rotulo === 'Canais');
     assert.equal(channels?.href, `/${tipo}/${ID}/canais`);
   }
 });
 
-test('Contatos e Conteúdos abrem suas áreas no contexto do contato', () => {
+test('Contacts and Content open their areas within the contact\'s context', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const itens = itensDoMenu(tipo, ID);
     assert.equal(itens.find((i) => i.rotulo === 'Contatos')?.href, `/${tipo}/${ID}/contatos`);
@@ -43,7 +43,7 @@ test('Contatos e Conteúdos abrem suas áreas no contexto do contato', () => {
   }
 });
 
-test('Growth e Log abrem suas telas no contexto do contato', () => {
+test('Growth and Log open their screens within the contact\'s context', () => {
   for (const tipo of ['roteador', 'fluxo'] as const) {
     const itens = itensDoMenu(tipo, ID);
     assert.equal(
@@ -60,31 +60,31 @@ test('a fonte da subbarra não inclui Inteligência artificial sem claims do bot
   }
 });
 
-test('o roteador não oferece Builder nem Atendimento', () => {
+test('the router offers neither Builder nor Attendance', () => {
   const rotulos = itensDoMenu('roteador', ID).map((i) => i.rotulo);
   assert.ok(!rotulos.includes('Builder'));
   assert.ok(!rotulos.includes('Atendimento'));
 });
 
-test('o roteador abre com "Serviços", que é o item do template', () => {
+test('the router opens with "Services", the template\'s item', () => {
   assert.equal(itensDoMenu('roteador', ID)[0]?.rotulo, 'Serviços');
   /* E o fluxo não tem item de template nenhum: o `switch` da origem não tem
      caso para `builder`. */
   assert.equal(itensDoMenu('fluxo', ID)[0]?.rotulo, 'Builder');
 });
 
-test('o fluxo mantém os dois que o roteador perde', () => {
+test('the flow keeps the two the router loses', () => {
   const rotulos = itensDoMenu('fluxo', ID).map((i) => i.rotulo);
   assert.ok(rotulos.includes('Builder'));
   assert.ok(rotulos.includes('Atendimento'));
 });
 
-test('Atendimento continua na rota interna de monitoramento', () => {
+test('Attendance still lands on the internal monitoring route', () => {
   const attendance = itensDoMenu('fluxo', ID).find((item) => item.rotulo === 'Atendimento');
   assert.equal(attendance?.href, `/fluxo/${ID}/atendimento/monitoramento`);
 });
 
-test('o resto da fileira é o mesmo nos dois, e na mesma ordem', () => {
+test('the rest of the row is the same in both, and in the same order', () => {
   const semEspecificos = (tipo: 'fluxo' | 'roteador') =>
     itensDoMenu(tipo, ID)
       .map((i) => i.rotulo)
@@ -101,7 +101,7 @@ test('o resto da fileira é o mesmo nos dois, e na mesma ordem', () => {
   ]);
 });
 
-test('os cinco visíveis são a ordem medida na origem', () => {
+test('the five visible ones are the order measured in the source', () => {
   /* `application-detail-pipeprincipal-configurations-basic.html` (builder) e
      `roteador-team__pagina.html` (master), a fonte dos dois. */
   const rotulos = (tipo: 'fluxo' | 'roteador') =>
@@ -130,7 +130,7 @@ const SO_ISSO = (permissions: Record<string, 'nenhum' | 'ler' | 'escrever'>) => 
   editaPelaConta: false,
 });
 
-test('as permissões do fluxo escondem o que a pessoa não pode ver', () => {
+test('the flow\'s permissions hide what the person cannot see', () => {
   const itens = itensDoMenu('fluxo', ID, SO_ISSO({ builder: 'escrever', analysis: 'ler' }));
   assert.deepEqual(
     itens.map((i) => i.rotulo),
@@ -138,7 +138,7 @@ test('as permissões do fluxo escondem o que a pessoa não pode ver', () => {
   );
 });
 
-test('"Sem permissão" some da barra, e o destino continua o mesmo de sempre', () => {
+test('"No permission" disappears from the bar, and the destination stays the same as always', () => {
   const itens = itensDoMenu('fluxo', ID, SO_ISSO({ builder: 'nenhum', channels: 'ler' }));
   assert.deepEqual(
     itens.map((i) => i.rotulo),
@@ -147,7 +147,7 @@ test('"Sem permissão" some da barra, e o destino continua o mesmo de sempre', (
   assert.equal(itens[0]?.href, `/fluxo/${ID}/canais`);
 });
 
-test('"Conteúdos" é o recurso `resources` da lista de permissões, não `contents`', () => {
+test('"Conteúdos" is the `resources` entry on the permission list, not `contents`', () => {
   /* É a única chave em que as duas listas da origem discordam de nome. */
   assert.deepEqual(
     itensDoMenu('fluxo', ID, SO_ISSO({ resources: 'ler' })).map((i) => i.rotulo),
@@ -156,14 +156,14 @@ test('"Conteúdos" é o recurso `resources` da lista de permissões, não `conte
   assert.deepEqual(itensDoMenu('fluxo', ID, SO_ISSO({ contents: 'ler' })), []);
 });
 
-test('quem edita fluxo pela CONTA continua vendo a fileira inteira', () => {
+test('whoever edits the flow through the ACCOUNT still sees the entire row', () => {
   /* O outro lado do duplo portão: a permissão de conta não é peneirada pela
      do fluxo, senão a 0035 tiraria acesso de quem já tinha. */
   const account = { papelNoFluxo: null, permissoes: {}, editaPelaConta: true };
   assert.deepEqual(itensDoMenu('fluxo', ID, account), itensDoMenu('fluxo', ID));
 });
 
-test('o item do template do roteador não passa pela peneira de permissão', () => {
+test('the router template\'s item does not go through the permission sieve', () => {
   /* `getTemplateSetupItem()` roda ANTES de `getUpdatedMenus()` e não é do
      catálogo: "Serviços" fica mesmo quando a pessoa não tem recurso nenhum. */
   const itens = itensDoMenu('roteador', ID, SO_ISSO({}));

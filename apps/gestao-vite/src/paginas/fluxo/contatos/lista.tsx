@@ -20,7 +20,7 @@ export function BotListaContacts() {
   const { contact: bot } = useContact();
   const id = bot.id;
   const base = contactBase(bot.tipo, id);
-  const read = useRead<ContactListed[]>(`/v1/gestao/fluxos/${id}/contatos`);
+  const read = useRead<ContactListed[]>(`/v1/management/flows/${id}/contacts`);
   const contacts = read.data ?? [];
   const period = periodDefault(new Date());
   return (

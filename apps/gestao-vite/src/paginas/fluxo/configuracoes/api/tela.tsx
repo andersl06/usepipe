@@ -29,7 +29,7 @@ import { salvarConexao, type FlowConexao } from './gravar';
  * origem também não resolve `isCheckedOAuth` no mock).
  */
 export function TelaDeConexao({ flowId }: { flowId: string }) {
-  const caminho = `/v1/gestao/fluxos/${flowId}/conexao`;
+  const caminho = `/v1/management/flows/${flowId}/connection`;
   const { data, isLoading } = useRead<FlowConexao>(caminho);
 
   const [modo, setModo] = useState<'builder' | 'sdk' | 'http'>('builder');

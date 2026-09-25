@@ -23,9 +23,9 @@
     "test": "vitest run",
     "gerar": "drizzle-kit generate",
     "gerar:custom": "drizzle-kit generate --custom",
-    "migrar": "tsx src/migrar.ts",
-    "semear": "tsx src/semente.ts",
-    "semear:demo": "tsx src/semente-demo.ts"
+    "migrate": "tsx src/migrar.ts",
+    "seed": "tsx src/semente.ts",
+    "seed:demo": "tsx src/semente-demo.ts"
   },
   "dependencies": {
     "@pipe/core": "workspace:*",

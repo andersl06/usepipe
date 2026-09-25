@@ -101,7 +101,7 @@ export function encontrarPalavrasProibidas(texto: string, termos: readonly strin
 
 interface ListaGuardada {
   termos: string[];
-  expiraEm: number;
+  expiresAt: number;
 }
 
 /** Uma lista por tenant. Vive no processo da `api`, como `cacheDeCanal` em `banco.ts`. */
@@ -147,7 +147,7 @@ export async function exigirSemPalavrasProibidas(
   if (achadas.length === 0) return;
   const lista = achadas.map((p) => `"${p}"`).join(', ');
   throw PipeError.request(
-    'palavra_proibida',
+    'word_forbidden',
     `Palavras proibidas: sua mensagem contém ${lista} e não foi enviada. Remova e tente de novo.`,
     { palavras: achadas },
   );
@@ -157,18 +157,18 @@ export async function exigirSemPalavrasProibidas(
 
 export interface PalavraProibidaListada {
   id: string;
-  termo: string;
-  ativo: boolean;
+  term: string;
+  active: boolean;
 }
 
 export interface PedidoDePalavraProibida {
-  termo: string;
-  ativo?: boolean;
+  term: string;
+  active?: boolean;
 }
 
 export interface RequestOfEditOfWordForbidden {
-  termo?: string;
-  ativo?: boolean;
+  term?: string;
+  active?: boolean;
 }
 
 const COLUNAS = {
@@ -193,7 +193,7 @@ function termoConferido(bruto: unknown): string {
   const termo = String(bruto ?? '')
     .replace(/\s+/g, ' ')
     .trim();
-  if (!termo) throw PipeError.request('termo_obrigatorio', 'Informe a palavra ou frase.');
+  if (!termo) throw PipeError.request('term_required', 'Informe a palavra ou frase.');
   return termo;
 }
 
@@ -239,14 +239,14 @@ export async function createWordForbidden(
 
   const conflito = await termoEmUso(tx, tid, termo);
   if (conflito) {
-    throw PipeError.conflito('termo_em_uso', `"${conflito}" já está na lista de palavras proibidas.`);
+    throw PipeError.conflito('term_in_use', `"${conflito}" já está na lista de palavras proibidas.`);
   }
 
   const [criada] = await tx
     .insert(palavraProibida)
     .values({ tenantId: tid, termo, ativo })
     .returning({ id: palavraProibida.id });
-  if (!criada) throw PipeError.request('palavra_nao_criada', 'Não consegui gravar a palavra.');
+  if (!criada) throw PipeError.request('word_not_created', 'Não consegui gravar a palavra.');
 
   await registrarAuditoria(tx, tid, {
     ator: { tipo: 'usuario', id: userId },
@@ -282,7 +282,7 @@ export async function editarPalavraProibida(
   if (depois.termo !== antes.termo) {
     const conflito = await termoEmUso(tx, tid, depois.termo, id);
     if (conflito) {
-      throw PipeError.conflito('termo_em_uso', `"${conflito}" já está na lista de palavras proibidas.`);
+      throw PipeError.conflito('term_in_use', `"${conflito}" já está na lista de palavras proibidas.`);
     }
   }
 

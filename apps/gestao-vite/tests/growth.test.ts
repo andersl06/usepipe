@@ -28,12 +28,12 @@ const envios: EnvioGrowth[] = [
   },
 ];
 
-describe('Growth — mensagens ativas', () => {
-  it('resume destinatários únicos e estados de entrega', () => {
+describe('Growth — active messages', () => {
+  it('summarizes unique recipients and delivery states', () => {
     assert.deepEqual(resumirEnvios(envios), { audiencia: 2, recebidas: 1, lidas: 1, falharam: 1 });
   });
 
-  it('filtra por nome de modelo e estado simultaneamente', () => {
+  it('filters by template name and state at the same time', () => {
     assert.deepEqual(
       filtrarEnvios(envios, 'boas', 'lida').map(({ id }) => id),
       ['1'],
@@ -42,8 +42,8 @@ describe('Growth — mensagens ativas', () => {
   });
 });
 
-describe('Growth — audiência em massa (CSV)', () => {
-  it('descarta o cabeçalho e lê telefone, nome e parâmetros por posição', () => {
+describe('Growth — bulk audience (CSV)', () => {
+  it('discards the header and reads phone, name and parameters by position', () => {
     const texto = 'telefone,nome,param1,param2\n+5511988887777,Ana,Pedido 123,Amanhã\n+5511977776666,,,';
     assert.deepEqual(analisarCsv(texto), [
       { telefone: '+5511988887777', nome: 'Ana', parametros: ['Pedido 123', 'Amanhã'] },

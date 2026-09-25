@@ -89,7 +89,7 @@ function SyncBarra({ channels }: { channels: ChannelWhatsapp[] }) {
 
 export function PageTemplates() {
   const read = useRead<{ modelos: TemplateListed[]; channels: ChannelWhatsapp[] }>(
-    '/v1/gestao/comunicacao/modelos',
+    '/v1/management/communication/templates',
   );
   const [status, setStatus] = useState('');
   const [paraExcluir, setParaExcluir] = useState<TemplateListed | null>(null);

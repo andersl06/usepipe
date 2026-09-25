@@ -21,14 +21,14 @@ import { clienteGraphInstagram } from './cliente-graph.js';
 
 const UM_DIA_MS = 24 * 3600 * 1000;
 
-export type ResultOfRenewal = 'renovado' | 'cedo_demais' | 'vencido' | 'recusado';
+export type ResultOfRenewal = 'renovado' | 'early_excessive' | 'expired' | 'refused';
 
 /** `token_eligible_for_refresh?`: mais de 24h de vida e ainda não vencido. */
 export function tokenElegivel(config: Record<string, unknown>, agora = new Date()): ResultOfRenewal | null {
   const renovadoEm = Date.parse(texto(config['tokenRenovadoEm']) ?? '');
   const expiraEm = Date.parse(texto(config['tokenExpiraEm']) ?? '');
-  if (Number.isFinite(expiraEm) && expiraEm <= agora.getTime()) return 'vencido';
-  if (Number.isFinite(renovadoEm) && agora.getTime() - renovadoEm < UM_DIA_MS) return 'cedo_demais';
+  if (Number.isFinite(expiraEm) && expiraEm <= agora.getTime()) return 'expired';
+  if (Number.isFinite(renovadoEm) && agora.getTime() - renovadoEm < UM_DIA_MS) return 'early_excessive';
   return null;
 }
 
@@ -38,15 +38,15 @@ export async function renovarTokenOfChannel(
 ): Promise<ResultOfRenewal> {
   const token = texto(channel.config['tokenAcesso']);
   const blocker = token ? tokenElegivel(channel.config, agora) : 'vencido';
-  if (blocker === 'cedo_demais') return blocker;
-  if (blocker === 'vencido' || !token) {
+  if (blocker === 'early_excessive') return blocker;
+  if (blocker === 'expired' || !token) {
     await atualizarConfigInstagram(channel, { reautorizacaoPendente: true });
-    return 'vencido';
+    return 'expired';
   }
 
   try {
     const novo = await clienteGraphInstagram(token).renovarToken();
-    if (!novo.access_token) throw new PipeError(502, 'meta_recusou', 'A renovação voltou sem access_token.');
+    if (!novo.access_token) throw new PipeError(502, 'meta_refused', 'A renovação voltou sem access_token.');
     const validityMs = (novo.expires_in ?? VALIDITY_OF_TOKEN_MS / 1000) * 1000;
     await atualizarConfigInstagram(channel, {
       tokenAcesso: novo.access_token,
@@ -57,10 +57,10 @@ export async function renovarTokenOfChannel(
     return 'renovado';
   } catch (error) {
     // Só a recusa da Meta marca reautorização; rede fora tenta de novo amanhã.
-    if (!(error instanceof PipeError && error.codigo === 'meta_recusou')) throw error;
+    if (!(error instanceof PipeError && error.codigo === 'meta_refused')) throw error;
     console.error(`[instagram] o token do canal ${channel.id} foi recusado na renovação: ${error.message}`);
     await atualizarConfigInstagram(channel, { reautorizacaoPendente: true });
-    return 'recusado';
+    return 'refused';
   }
 }
 

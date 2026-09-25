@@ -22,12 +22,12 @@ export async function createFlow(data: FormData): Promise<void> {
   if (resultado.error) {
     return voltarWithError(resultado.error, String(data.get('nome') ?? ''), data.get('template'));
   }
-  irPara(`/fluxo/${resultado.id}`);
+  irPara(`/flow/${resultado.id}`);
 }
 
 function voltarWithError(motivo: string, nome: string, template: FormDataEntryValue | null): void {
-  const search = new URLSearchParams({ passo: 'nome', erro: motivo });
+  const search = new URLSearchParams({ passo: 'nome', error: motivo });
   if (nome) search.set('nome', nome);
   if (typeof template === 'string' && template) search.set('template', template);
-  irPara(`/criar/fluxo?${search}`);
+  irPara(`/create/flow?${search}`);
 }

@@ -25,7 +25,7 @@ export async function assumeConversation(
   em = new Date(),
 ): Promise<{ conversationId: string; queueId: string | null }> {
   return noTenant(ator.tenantId, async (tx) => {
-    const { rows: antes } = await tx.execute<{ state: string; fila_id: string | null }>(
+    const { rows: antes } = await tx.execute<{ state: string; queueId: string | null }>(
       sql`select estado, fila_id from conversa where id = ${conversationId}::uuid limit 1`,
     );
     const conversation = antes[0];
@@ -40,7 +40,7 @@ export async function assumeConversation(
 
     if (!rowCount) {
       throw PipeError.request(
-        'conversa_indisponivel',
+        'conversation_unavailable',
         conversation.state === 'na_fila'
           ? 'Não foi possível assumir a conversa.'
           : `A conversa não está na fila (estado: ${conversation.state}).`,

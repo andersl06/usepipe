@@ -28,8 +28,8 @@ export interface ConfigurationDuble {
 
 export interface ChamadaDuble {
   para: string;
-  tipo: string;
-  em: Date;
+  type: string;
+  at: Date;
   idProvedor: string | null;
 }
 
@@ -39,7 +39,7 @@ export interface StatusSimulado {
   id: string;
   status: 'sent' | 'delivered' | 'read' | 'failed';
   recipientId: string;
-  em: Date;
+  at: Date;
 }
 
 function daEnv(): ConfigurationDuble {

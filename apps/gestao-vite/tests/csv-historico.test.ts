@@ -33,25 +33,25 @@ function linhasDe(csv: string): string[] {
   return csv.slice(1).trimEnd().split('\r\n');
 }
 
-test('o arquivo começa com BOM', () => {
+test('the file starts with a BOM', () => {
   /* Sem o BOM, o Excel em português abre o arquivo em latin-1 e todo nome
      acentuado vira lixo — "Conceição" some da planilha inteira. */
   assert.ok(montarCsv([card()]).startsWith('﻿'));
 });
 
-test('o cabeçalho traz as dez colunas, na ordem', () => {
+test('the header carries the ten columns, in order', () => {
   const [cabecalho] = linhasDe(montarCsv([]));
   assert.equal(cabecalho, COLUNAS_CSV.map((c) => `"${c}"`).join(';'));
   assert.equal(COLUNAS_CSV.length, 10);
 });
 
-test('sem conversa, sai só o cabeçalho', () => {
+test('with no conversation, only the header comes out', () => {
   /* Recorte vazio não pode gerar arquivo vazio: o gestor precisa ver as colunas
      e concluir que o filtro é que não achou nada. */
   assert.equal(linhasDe(montarCsv([])).length, 1);
 });
 
-test('ponto e vírgula dentro do campo não abre coluna nova', () => {
+test('a semicolon inside the field does not open a new column', () => {
   /* O separador é `;` porque é o separador de lista do Excel em português. Sem
      as aspas, "Silva; Souza" empurra todas as colunas seguintes uma casa para a
      direita e o tempo de atendimento aparece na coluna de situação. */
@@ -60,7 +60,7 @@ test('ponto e vírgula dentro do campo não abre coluna nova', () => {
   assert.equal(linha!.split('";"').length, COLUNAS_CSV.length);
 });
 
-test('aspas do valor saem dobradas', () => {
+test('quotes in the value come out doubled', () => {
   /* Aspas soltas fecham o campo no meio e a linha inteira se desmonta. */
   assert.equal(celulaCsv('O "Grande"'), '"O ""Grande"""');
   assert.equal(celulaCsv(''), '""');
@@ -76,11 +76,11 @@ test('quebra de linha dentro do campo continua presa em um campo só', () => {
   assert.equal(linhasDe(csv).length, 2);
 });
 
-test('as etiquetas viram uma coluna só, separadas por vírgula', () => {
+test('tags become a single comma-separated column', () => {
   const [, linha] = linhasDe(montarCsv([card({ etiquetas: ['Elogio', 'Reclamação'] })]));
   assert.ok(linha!.endsWith('"Elogio, Reclamação"'));
 });
 
-test('cada conversa é uma linha', () => {
+test('each conversation is one row', () => {
   assert.equal(linhasDe(montarCsv([card(), card(), card()])).length, 4);
 });

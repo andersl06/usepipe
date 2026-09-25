@@ -40,7 +40,7 @@ export function PageBreaks() {
   const [motivoParaExcluir, setMotivoParaExcluir] = useState<MotivoDePausa | null>(null);
   const [excluindo, setExcluindo] = useState(false);
   const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
-  const read = useRead<UsoDePausas>('/v1/gestao/atendentes/pausas');
+  const read = useRead<UsoDePausas>('/v1/management/agents/pauses');
   if (!read.data) return null;
   const { motivos, dias, semMotivo, abertas } = read.data;
 

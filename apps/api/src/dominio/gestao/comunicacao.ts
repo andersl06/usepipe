@@ -71,10 +71,10 @@ export function offsetOfHeader(cabecalho: string): 0 | 1 {
 
 export interface RespostaProntaListada {
   id: string;
-  atalho: string;
-  titulo: string;
-  corpo: string;
-  categoria: string | null;
+  shortcut: string;
+  title: string;
+  body: string;
+  category: string | null;
   ativa: boolean;
 }
 
@@ -100,12 +100,12 @@ export async function carregarRespostasProntas(
 export interface TemplateListed {
   id: string;
   channelId: string;
-  corpo: string;
-  nome: string;
+  body: string;
+  name: string;
   idioma: string;
-  categoria: string;
+  category: string;
   statusMeta: string;
-  cabecalhoTipo: string;
+  headerType: string;
   variables: string[];
   channelName: string;
 }
@@ -159,7 +159,7 @@ export async function loadChannelOfFlow(
 
 export interface ChannelWhatsapp {
   id: string;
-  nome: string;
+  name: string;
 }
 
 /** Só canal WhatsApp: modelo de mensagem é coisa da Cloud API, os outros canais não têm. */
@@ -180,18 +180,18 @@ export async function loadChannelsWhatsapp(tx: TransactionPipe): Promise<Channel
    para `salvarRespostaPronta`, a criação antiga, sem quebrar quem já chama). */
 
 export interface PedidoDeRespostaPronta {
-  atalho: string;
-  titulo: string;
-  corpo: string;
-  categoria?: string | null;
+  shortcut: string;
+  title: string;
+  body: string;
+  category?: string | null;
   active?: boolean;
 }
 
 export interface RequestOfEditOfResponseReady {
-  atalho?: string;
-  titulo?: string;
-  corpo?: string;
-  categoria?: string | null;
+  shortcut?: string;
+  title?: string;
+  body?: string;
+  category?: string | null;
   ativa?: boolean;
 }
 
@@ -199,10 +199,10 @@ function atalhoConferido(bruto: unknown): string {
   const atalho = String(bruto ?? '')
     .trim()
     .replace(/^#/, '');
-  if (!atalho) throw PipeError.request('atalho_obrigatorio', 'Informe o atalho.');
+  if (!atalho) throw PipeError.request('shortcut_required', 'Informe o atalho.');
   if (/\s/.test(atalho)) {
     throw PipeError.request(
-      'atalho_com_espaco',
+      'shortcut_with_space',
       'O atalho não pode ter espaço — é o que o atendente digita direto depois do #.',
     );
   }
@@ -211,13 +211,13 @@ function atalhoConferido(bruto: unknown): string {
 
 function tituloConferido(bruto: unknown): string {
   const titulo = String(bruto ?? '').trim();
-  if (!titulo) throw PipeError.request('titulo_obrigatorio', 'Informe o título.');
+  if (!titulo) throw PipeError.request('title_required', 'Informe o título.');
   return titulo;
 }
 
 function corpoConferido(bruto: unknown): string {
   const corpo = String(bruto ?? '').trim();
-  if (!corpo) throw PipeError.request('corpo_obrigatorio', 'Informe o corpo da resposta.');
+  if (!corpo) throw PipeError.request('body_required', 'Informe o corpo da resposta.');
   return corpo;
 }
 
@@ -291,7 +291,7 @@ export async function createResponseReady(
   const conflito = await atalhoEmUso(tx, tid, atalho);
   if (conflito) {
     throw PipeError.conflito(
-      'atalho_em_uso',
+      'shortcut_in_use',
       `O atalho "#${atalho}" já é usado por "${conflito}". Escolha outro.`,
     );
   }
@@ -300,7 +300,7 @@ export async function createResponseReady(
     .insert(respostaPronta)
     .values({ tenantId: tid, escopo: 'empresa', categoria, atalho, titulo, corpo, active })
     .returning({ id: respostaPronta.id });
-  if (!criada) throw PipeError.request('resposta_nao_criada', 'Não consegui gravar a resposta.');
+  if (!criada) throw PipeError.request('response_not_created', 'Não consegui gravar a resposta.');
 
   await registrarAuditoria(tx, tid, {
     ator: { tipo: 'usuario', id: userId },
@@ -341,7 +341,7 @@ export async function editarRespostaPronta(
     const conflito = await atalhoEmUso(tx, tid, depois.atalho, id);
     if (conflito) {
       throw PipeError.conflito(
-        'atalho_em_uso',
+        'shortcut_in_use',
         `O atalho "#${depois.atalho}" já é usado por "${conflito}". Escolha outro.`,
       );
     }

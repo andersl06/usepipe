@@ -32,7 +32,7 @@ export function JourneyPage() {
     if (v) q.set(key, v);
   }
   const read = useRead<RespostaDaJornada>(
-    `/v1/gestao/fluxos/${contact.id}/analise/jornada?${q.toString()}`,
+    `/v1/management/flows/${contact.id}/analytics/journey?${q.toString()}`,
   );
   if (!read.data) return null;
   const { arestas, de, ate, min, max, router } = read.data;

@@ -27,7 +27,7 @@ export const account = pgTable(
   {
     id: id(),
     tenantId: refTenant(),
-    nome: text('nome').notNull(),
+    name: text('nome').notNull(),
     /** CPF/CNPJ em `text`: o CNPJ alfanumérico de 2026 quebra coluna numérica e máscara fixa. */
     document: text('documento'),
     domain: text('dominio'),
@@ -41,8 +41,8 @@ export const account = pgTable(
     ...carimbos(),
   },
   (t) => [
-    index('conta_tenant_documento_idx').on(t.tenantId, t.documento),
-    index('conta_tenant_nome_idx').on(t.tenantId, t.nome),
+    index('conta_tenant_documento_idx').on(t.tenantId, t.document),
+    index('conta_tenant_nome_idx').on(t.tenantId, t.name),
     index('conta_atributos_gin').using('gin', t.atributos),
   ],
 );
@@ -62,7 +62,7 @@ export const lead = pgTable(
     tenantId: refTenant(),
     contactId: uuid('contato_id').references(() => contact.id, { onDelete: 'set null' }),
     contaId: uuid('conta_id').references(() => account.id, { onDelete: 'set null' }),
-    origem: text('origem'),
+    origin: text('origem'),
     campanha: text('campanha'),
     utm: jsonb('utm')
       .notNull()
@@ -97,9 +97,9 @@ export const formulario = pgTable(
   {
     id: id(),
     tenantId: refTenant(),
-    nome: text('nome').notNull(),
+    name: text('nome').notNull(),
     slug: text('slug').notNull(),
-    ativo: boolean('ativo').notNull().default(true),
+    active: boolean('ativo').notNull().default(true),
     ...carimbos(),
   },
   (t) => [uniqueIndex('formulario_tenant_slug_uk').on(t.tenantId, t.slug)],
@@ -110,14 +110,14 @@ export const formularioVersao = pgTable(
   {
     id: id(),
     tenantId: refTenant(),
-    formularioId: uuid('formulario_id')
+    formId: uuid('formulario_id')
       .notNull()
       .references(() => formulario.id, { onDelete: 'cascade' }),
-    versao: integer('versao').notNull(),
+    version: integer('versao').notNull(),
     publicadaEm: moment('publicada_em'),
     ...carimbos(),
   },
-  (t) => [uniqueIndex('formulario_versao_uk').on(t.formularioId, t.versao)],
+  (t) => [uniqueIndex('formulario_versao_uk').on(t.formId, t.version)],
 );
 
 export const TIPOS_PERGUNTA = [
@@ -138,18 +138,18 @@ export const formularioPergunta = pgTable(
     versaoId: uuid('versao_id')
       .notNull()
       .references(() => formularioVersao.id, { onDelete: 'cascade' }),
-    codigo: text('codigo').notNull(),
+    code: text('codigo').notNull(),
     rotulo: text('rotulo').notNull(),
-    tipo: text('tipo').notNull(),
+    type: text('tipo').notNull(),
     options: jsonb('opcoes')
       .notNull()
       .default(sql`'[]'::jsonb`),
     order: integer('ordem').notNull().default(0),
-    obrigatoria: boolean('obrigatoria').notNull().default(false),
+    required: boolean('obrigatoria').notNull().default(false),
   },
   (t) => [
-    listaCheck('formulario_pergunta_tipo_ck', t.tipo, TIPOS_PERGUNTA),
-    uniqueIndex('formulario_pergunta_uk').on(t.versaoId, t.codigo),
+    listaCheck('formulario_pergunta_tipo_ck', t.type, TIPOS_PERGUNTA),
+    uniqueIndex('formulario_pergunta_uk').on(t.versaoId, t.code),
   ],
 );
 
@@ -189,8 +189,8 @@ export const regraScore = pgTable(
   {
     id: id(),
     tenantId: refTenant(),
-    versao: integer('versao').notNull(),
-    nome: text('nome').notNull(),
+    version: integer('versao').notNull(),
+    name: text('nome').notNull(),
     condition: jsonb('condicao')
       .notNull()
       .default(sql`'{}'::jsonb`),
@@ -198,7 +198,7 @@ export const regraScore = pgTable(
     active: boolean('ativa').notNull().default(true),
     ...carimbos(),
   },
-  (t) => [index('regra_score_versao_idx').on(t.tenantId, t.versao, t.ativa)],
+  (t) => [index('regra_score_versao_idx').on(t.tenantId, t.version, t.ativa)],
 );
 
 /**
@@ -233,8 +233,8 @@ export const faixaScore = pgTable(
   {
     id: id(),
     tenantId: refTenant(),
-    versao: integer('versao').notNull(),
-    nome: text('nome').notNull(),
+    version: integer('versao').notNull(),
+    name: text('nome').notNull(),
     minimo: integer('minimo').notNull(),
     maximo: integer('maximo').notNull(),
     queueId: uuid('fila_id').references(() => queue.id, { onDelete: 'set null' }),
@@ -243,7 +243,7 @@ export const faixaScore = pgTable(
   },
   (t) => [
     listaCheck('faixa_score_estrategia_ck', t.estrategiaProprietario, ESTRATEGIAS_PROPRIETARIO),
-    uniqueIndex('faixa_score_uk').on(t.tenantId, t.versao, t.nome),
+    uniqueIndex('faixa_score_uk').on(t.tenantId, t.version, t.name),
   ],
 );
 
@@ -254,8 +254,8 @@ export const opportunity = pgTable(
     tenantId: refTenant(),
     leadId: uuid('lead_id').references(() => lead.id, { onDelete: 'set null' }),
     accountId: uuid('conta_id').references(() => account.id, { onDelete: 'set null' }),
-    nome: text('nome').notNull(),
-    valor: money('valor'),
+    name: text('nome').notNull(),
+    value: money('valor'),
     moeda: text('moeda').notNull().default('BRL'),
     fase: text('fase').notNull(),
     probability: smallint('probabilidade'),
@@ -287,18 +287,18 @@ export const activity = pgTable(
   {
     id: id(),
     tenantId: refTenant(),
-    tipo: text('tipo').notNull(),
+    type: text('tipo').notNull(),
     leadId: uuid('lead_id').references(() => lead.id, { onDelete: 'cascade' }),
     contaId: uuid('conta_id').references(() => account.id, { onDelete: 'cascade' }),
     conversationId: uuid('conversa_id').references(() => conversation.id, { onDelete: 'set null' }),
     userId: uuid('usuario_id').references(() => user.id, { onDelete: 'set null' }),
-    resumo: text('resumo'),
-    corpo: text('corpo'),
+    summary: text('resumo'),
+    body: text('corpo'),
     ocorridaEm: moment('ocorrida_em').notNull().defaultNow(),
     criadoEm: moment('criado_em').notNull().defaultNow(),
   },
   (t) => [
-    listaCheck('atividade_tipo_ck', t.tipo, TYPES_ACTIVITY),
+    listaCheck('atividade_tipo_ck', t.type, TYPES_ACTIVITY),
     index('atividade_lead_idx').on(t.tenantId, t.leadId, t.ocorridaEm.desc()),
     index('atividade_conta_idx').on(t.tenantId, t.contaId, t.ocorridaEm.desc()),
   ],
@@ -333,8 +333,8 @@ export const import = pgTable(
     ...carimbos(),
   },
   (t) => [
-    listaCheck('importacao_origem_ck', t.origem, ORIGINS_IMPORT),
-    listaCheck('importacao_estado_ck', t.estado, STATES_IMPORT),
+    listaCheck('importacao_origem_ck', t.origin, ORIGINS_IMPORT),
+    listaCheck('importacao_estado_ck', t.state, STATES_IMPORT),
   ],
 );
 
@@ -346,9 +346,9 @@ export const campoCustomizado = pgTable(
     id: id(),
     tenantId: refTenant(),
     objeto: text('objeto').notNull(),
-    codigo: text('codigo').notNull(),
+    code: text('codigo').notNull(),
     rotulo: text('rotulo').notNull(),
-    tipo: text('tipo').notNull(),
+    type: text('tipo').notNull(),
     opcoes: jsonb('opcoes')
       .notNull()
       .default(sql`'[]'::jsonb`),
@@ -356,7 +356,7 @@ export const campoCustomizado = pgTable(
   },
   (t) => [
     listaCheck('campo_customizado_objeto_ck', t.objeto, OBJETOS_CUSTOMIZAVEIS),
-    listaCheck('campo_customizado_tipo_ck', t.tipo, TIPOS_PERGUNTA),
-    uniqueIndex('campo_customizado_uk').on(t.tenantId, t.objeto, t.codigo),
+    listaCheck('campo_customizado_tipo_ck', t.type, TIPOS_PERGUNTA),
+    uniqueIndex('campo_customizado_uk').on(t.tenantId, t.objeto, t.code),
   ],
 );

@@ -37,9 +37,9 @@ export interface RequestOfCreation {
   infoDaWaba: InfoDaWaba | null;
   infoDoNumero: InfoDoNumero | null;
   token: string;
-  origem?: OriginOfChannel;
+  origin?: OriginOfChannel;
   /** Só a configuração manual permite escolher o nome; o cadastro embutido usa o da empresa. */
-  nome?: string | undefined;
+  name?: string | undefined;
   /** Configuração manual: o segredo e o id do app DO CLIENTE, que assina o webhook dele. */
   appSecret?: string | undefined;
   appId?: string | null | undefined;
@@ -48,21 +48,21 @@ export interface RequestOfCreation {
 /** `errors.whatsapp.phone_number_already_exists`, no texto do pt_BR do próprio Chatwoot. */
 export function numeroEmUso(numero: string): PipeError {
   return PipeError.conflito(
-    'numero_em_uso',
+    'number_in_use',
     `Já existe um canal para este número de telefone: ${numero}. Entre em contato com o suporte se o erro persistir`,
   );
 }
 
 export async function createChannel(pedido: RequestOfCreation): Promise<ChannelWhatsApp> {
   // `validate_parameters!`
-  if (!pedido.tenantId) throw PipeError.request('conta_ausente', 'A conta é obrigatória.');
+  if (!pedido.tenantId) throw PipeError.request('account_missing', 'A conta é obrigatória.');
   if (!pedido.infoDaWaba?.wabaId) {
-    throw PipeError.request('waba_ausente', 'As informações da WABA são obrigatórias.');
+    throw PipeError.request('waba_missing', 'As informações da WABA são obrigatórias.');
   }
   if (!pedido.infoDoNumero) {
-    throw PipeError.request('numero_ausente', 'As informações do número são obrigatórias.');
+    throw PipeError.request('number_missing', 'As informações do número são obrigatórias.');
   }
-  if (!pedido.token) throw PipeError.request('token_ausente', 'O token de acesso é obrigatório.');
+  if (!pedido.token) throw PipeError.request('token_missing', 'O token de acesso é obrigatório.');
 
   const info = pedido.infoDoNumero;
   const waba = pedido.infoDaWaba;

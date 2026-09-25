@@ -41,20 +41,20 @@ export function esperaMs(tentativas: number, sortear: () => number = Math.random
 type Reivindicada = {
   id: string;
   tenant_id: string;
-  mensagem_id: string;
+  messageId: string;
   tentativas: number;
 };
 
 type LinhaDeEnvio = {
-  tipo: string;
-  conteudo: string | null;
+  type: string;
+  content: string | null;
   data: Record<string, unknown> | null;
   template_id: string | null;
-  telefone_e164: string | null;
+  phoneE164: string | null;
   identificador: string | null;
   channelConfig: Record<string, unknown> | null;
   channelType: string;
-  template_nome: string | null;
+  templateName: string | null;
   template_idioma: string | null;
   template_cabecalho: string | null;
   templateVariables: unknown;
@@ -159,7 +159,7 @@ async function entregarUma(
 
   const preparado = data.channelType === 'instagram' ? prepararEnvioInstagram(data) : data.channelType === 'messenger' ? prepararEnvioMessenger(data) : prepararEnvio(data, parametros);
   if ('erro' in preparado) {
-    return gravarFalha(linha, preparado.error.codigo, preparado.error.texto);
+    return gravarFalha(linha, preparado.error.code, preparado.error.texto);
   }
 
   try {
@@ -199,7 +199,7 @@ async function entregarUma(
   }
 }
 
-type Preparado = { pedido: PedidoEnvio } | { error: { codigo: string; texto: string } };
+type Preparado = { pedido: PedidoEnvio } | { error: { code: string; texto: string } };
 
 /**
  * O Instagram manda para o IGSID (`contato_identidade`), nunca para telefone, e só
@@ -212,7 +212,7 @@ type Preparado = { pedido: PedidoEnvio } | { error: { codigo: string; texto: str
  */
 function prepararEnvioInstagram(
   linha: LinhaDeEnvio,
-): { instagram: PedidoInstagram } | { erro: { codigo: string; texto: string } } {
+): { instagram: PedidoInstagram } | { error: { code: string; texto: string } } {
   if (!linha.identificador) {
     return { erro: { codigo: 'sem_destinatario', texto: 'O contato não tem conta do Instagram neste canal.' } };
   }
@@ -252,7 +252,7 @@ function prepararEnvioInstagram(
   };
 }
 
-function prepararEnvioMessenger(linha: LinhaDeEnvio): { messenger: PedidoMessenger } | { erro: { codigo: string; texto: string } } {
+function prepararEnvioMessenger(linha: LinhaDeEnvio): { messenger: PedidoMessenger } | { error: { code: string; texto: string } } {
   if (!linha.identificador) return { erro: { codigo: 'sem_destinatario', texto: 'O contato não tem PSID neste canal.' } };
   let config: Record<string, unknown>; try { config = decifrarConfig(linha.channelConfig ?? {}, keyringOfAmbiente()); } catch { return { erro: { codigo: 'canal_sem_credencial', texto: 'O token do canal não decifrou.' } }; }
   if (typeof config['tokenAcesso'] !== 'string' || !config['tokenAcesso']) return { erro: { codigo: 'canal_sem_credencial', texto: 'O canal não tem token de acesso.' } };
@@ -295,7 +295,7 @@ function prepararEnvio(
 function montarConteudo(
   linha: LinhaDeEnvio,
   parametros: Record<string, string> | undefined,
-): { conteudo: Conteudo } | { erro: { codigo: string; texto: string } } {
+): { content: Conteudo } | { error: { code: string; texto: string } } {
   if (linha.tipo === 'texto') {
     const texto = linha.conteudo?.trim();
     if (!texto) {
@@ -470,7 +470,7 @@ async function reagendar(
        where id = ${linha.id}
     `);
   });
-  return { messageId: linha.mensagem_id, state: 'pendente', errorCode: falha.codigo };
+  return { messageId: linha.mensagem_id, state: 'pending', errorCode: falha.codigo };
 }
 
 /** Guarda contra status fora de ordem vindo de webhook. */

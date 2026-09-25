@@ -18,7 +18,7 @@ import type { ContactForEspelhar } from './twenty.js';
  */
 
 /** O contato não existe, ou o tenant não tem CRM. Não é erro: é ausência. */
-export const WITHOUT_MIRROR = 'sem_espelho' as const;
+export const WITHOUT_MIRROR = 'without_mirror' as const;
 
 export type ResultMirror =
   | { state: 'espelhado'; pessoaId: string }
@@ -38,9 +38,9 @@ export async function syncContact(
 
     const { rows } = await tx.execute<{
       id: string;
-      nome: string | null;
+      name: string | null;
       email: string | null;
-      telefone_e164: string | null;
+      phoneE164: string | null;
       twenty_pessoa_id: string | null;
       empresa_twenty_id: string | null;
     }>(sql`

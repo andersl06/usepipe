@@ -350,7 +350,7 @@ export function ConvidarMembers({
 
               {alreadyMember ? (
                 <div className="mb-convite-aviso" role="alert">
-                  <IconePortal nome="alerta" tamanho={40} />
+                  <IconePortal nome="alert" tamanho={40} />
                   <span>
                     Existem pessoas que já fazem parte desse contrato. Para editar o
                     permissionamento desses membros{' '}

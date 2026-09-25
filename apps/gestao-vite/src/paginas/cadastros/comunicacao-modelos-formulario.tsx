@@ -120,7 +120,7 @@ export function FormularioTemplate({ channels }: { channels: { id: string; nome:
       </p>
 
       {channels.length === 0 ? (
-        <Etiqueta tom="alerta">
+        <Etiqueta tom="alert">
           Nenhum canal WhatsApp ativo neste tenant. Cadastre o canal antes de cadastrar o modelo.
         </Etiqueta>
       ) : (

@@ -56,7 +56,7 @@ async function gravar(chamada: Promise<unknown>): Promise<ResultadoSimples> {
  * origem sempre fez (`TeamController`, tudo por bot).
  */
 const caminho = (flowId: string, alvo?: string) =>
-  `/v1/gestao/fluxos/${flowId}/equipe${alvo ? `/${alvo}` : ''}`;
+  `/v1/management/flows/${flowId}/equipe${alvo ? `/${alvo}` : ''}`;
 
 /**
  * O `rzslider` "Permissão" do modal de adição da origem
@@ -242,7 +242,7 @@ function ModalDeAdicionar({
     } catch (error) {
       const resultado = recusa(error);
       setAviso(resultado.error ?? 'Não foi possível adicionar.');
-      setConvidar(resultado.codigo === 'pessoa_fora_do_contrato');
+      setConvidar(resultado.codigo === 'person_outside_of_contract');
     } finally {
       setEnviando(false);
     }

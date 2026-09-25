@@ -42,10 +42,10 @@ export const SETTINGS_GENERAL_MANAGE = 'tenant.configurar';
 
 export interface RegraSlaConfigurada {
   id: string;
-  nome: string;
-  alvo: string;
-  prazoSeg: number;
-  alertaSeg: number | null;
+  name: string;
+  target: string;
+  deadlineSeg: number;
+  alertSeg: number | null;
   scopeType: string;
   scopeName: string | null;
   ativa: boolean;
@@ -53,7 +53,7 @@ export interface RegraSlaConfigurada {
 
 export interface QueueConfigured {
   id: string;
-  nome: string;
+  name: string;
   capacityDefault: number;
   order: number;
   temHorario: boolean;
@@ -126,7 +126,7 @@ export async function carregarRegras(tx: TransactionPipe): Promise<{
 
 export interface EtiquetaConfigurada {
   id: string;
-  nome: string;
+  name: string;
   scope: string;
   requiredInClosure: boolean;
   usos: number;
@@ -134,9 +134,9 @@ export interface EtiquetaConfigurada {
 
 export interface ChannelConfigured {
   id: string;
-  nome: string;
-  tipo: string;
-  ativo: boolean;
+  name: string;
+  type: string;
+  active: boolean;
 }
 
 export async function loadData(tx: TransactionPipe): Promise<{
@@ -180,7 +180,7 @@ export async function loadData(tx: TransactionPipe): Promise<{
  */
 export interface CaixaOfChannel {
   id: string;
-  nome: string;
+  name: string;
   queueDefault: string | null;
   abertas: number;
 }
@@ -237,25 +237,25 @@ export async function loadChannels(tx: TransactionPipe): Promise<ChannelDetailed
    Salvar da tela". */
 
 export interface IdentityOfTenant {
-  nome: string;
+  name: string;
   fuso: string;
   idioma: string;
-  plano: string;
+  plan: string;
 }
 
 export interface PesquisaConfigurada {
   id: string;
-  tipo: string;
+  type: string;
   escalaMin: number;
   escalaMax: number;
   pergunta: string;
-  disparo: string;
+  trigger: string;
   active: boolean;
 }
 
 export interface LabelOfClosure {
   id: string;
-  nome: string;
+  name: string;
   obrigatoria: boolean;
   usos: number;
 }
@@ -350,7 +350,7 @@ export type Recording = { ok: true } | { ok: false; error: string };
 /* `type` e não `interface`: só o alias ganha índice implícito, e é isso que
    deixa `diferenca` — que recebe `Record<string, unknown>` — aceitar o objeto. */
 export type IdentityForWrite = {
-  nome: string;
+  name: string;
   fuso: string;
   idioma: string;
 };
@@ -391,11 +391,11 @@ export async function writeIdentity(
 export interface PesquisaParaGravar {
   /** Vazio cria; preenchido altera a pesquisa existente. */
   id: string;
-  tipo: string;
+  type: string;
   escalaMin: number;
   escalaMax: number;
   pergunta: string;
-  disparo: string;
+  trigger: string;
   ativa: boolean;
 }
 

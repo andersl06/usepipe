@@ -25,13 +25,13 @@ test('nó de partida: quem saiu sobre todos da etapa seguinte', () => {
   assert.equal(sufixoDoRotulo('Início [0]', 0, arestas), '100.00%');
 });
 
-test('etapa negativa devolve a contagem crua da etapa seguinte', () => {
+test('a negative step returns the next step\'s raw count', () => {
   /* Ninguém chega no nó de partida, então `r` vira a soma da etapa `i + 1` —
      a 0, que não tem aresta. É o que a origem mostra, e não uma porcentagem. */
   assert.equal(sufixoDoRotulo('Início [0]', -1, arestas), '0');
 });
 
-test('a coluna mais cheia ocupa a altura, com 30 entre nós', () => {
+test('the fullest column takes the height, with 30 between nodes', () => {
   const { nos, colunas } = desenharSankey(arestas, 1000, 500);
   assert.equal(colunas, 3);
   const coluna1 = nos.filter((n) => n.column === 1);

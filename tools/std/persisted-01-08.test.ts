@@ -10,7 +10,7 @@ const [header, ...records] = parseCsv(fs.readFileSync(`${std}/persisted.csv`, 'u
 const persisted = records.filter((row) => row.length === header.length)
   .map((row) => Object.fromEntries(header.map((key, index) => [key, row[index]])));
 
-test('todos os escopos gravados no banco ficam fora do mapa, inclusive nomes proximos', () => {
+test('Exclude all stored scopes and similarly named values from the rename map', () => {
   const source = fs.readFileSync('apps/api/src/autenticacao.ts', 'utf8');
   const catalog = source.match(/export const CATALOGO_ESCOPOS = \[([\s\S]*?)\] as const;/)?.[1];
   assert.ok(catalog);
@@ -24,7 +24,7 @@ test('todos os escopos gravados no banco ficam fora do mapa, inclusive nomes pro
   assert.equal(scopes.includes('conversas:ler_extra'), false);
 });
 
-test('codigos realmente escritos em erro_codigo e ultimo_erro permanecem; erro HTTP isolado renomeia', () => {
+test('Keep codes stored in `erro_codigo` and `ultimo_erro` while renaming an isolated HTTP error', () => {
   const worker = fs.readFileSync('apps/workers/src/entrega.ts', 'utf8') + fs.readFileSync('apps/workers/src/whatsapp/midia.ts', 'utf8');
   const codes = new Set([...worker.matchAll(/\bcodigo:\s*'([^']+)'/g)].map((match) => match[1]));
   codes.add('mensagem_sumiu');
@@ -33,10 +33,10 @@ test('codigos realmente escritos em erro_codigo e ultimo_erro permanecem; erro H
     assert.ok(persisted.some((row) => row.old === code && row.where_persisted.includes('erro_codigo') && row.where_persisted.includes('ultimo_erro')), code);
     assert.equal(map.some((row) => row.kind === 'error-code' && row.old === code), false, code);
   }
-  assert.ok(map.some((row) => row.kind === 'error-code' && row.old === 'arquivo_vazio' && row.persisted === 'no'));
+  assert.ok(map.some((row) => row.kind === 'error-code' && row.old === 'file_empty' && row.persisted === 'no'));
 });
 
-test('catalogo completo de permissoes semeadas permanece no banco', () => {
+test('Keep the full seeded permission catalog in the database', () => {
   const source = fs.readFileSync('packages/db/src/semente.ts', 'utf8');
   const catalog = source.match(/export const CATALOGO_PERMISSOES = \[([\s\S]*?)\] as const satisfies/)?.[1];
   assert.ok(catalog);
@@ -47,7 +47,7 @@ test('catalogo completo de permissoes semeadas permanece no banco', () => {
   }
 });
 
-test('valores com prefixos semelhantes seguem decisoes diferentes por fronteira real', () => {
+test('Apply different decisions to similar prefixes according to their persistence boundary', () => {
   const sessionCookies = map.filter((row) => row.kind === 'cookie' && row.old === 'pipe_sessao');
   assert.equal(sessionCookies.length, 2);
   assert.ok(sessionCookies.every((row) => row.persisted === 'no' && row.decision_ref === 'D-38'));

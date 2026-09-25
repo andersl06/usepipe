@@ -272,24 +272,24 @@ export interface EnvioGrowth {
 
 export interface TemplateGrowth {
   id: string;
-  nome: string;
+  name: string;
   idioma: string;
-  categoria: string;
+  category: string;
   statusMeta: string;
-  corpo: string;
+  body: string;
   variables: string[];
   channelId: string;
-  canalNome: string;
+  channelName: string;
 }
 
 export interface ContactGrowth {
   id: string;
-  nome: string | null;
-  telefone: string;
+  name: string | null;
+  phone: string;
 }
 
 export interface DataOfGrowth {
-  channels: { id: string; nome: string }[];
+  channels: { id: string; name: string }[];
   modelos: TemplateGrowth[];
   contacts: ContactGrowth[];
   envios: EnvioGrowth[];
@@ -389,15 +389,15 @@ export async function carregarGrowth(tx: TransactionPipe, tid: string): Promise<
 
 export interface TemplateListed {
   id: string;
-  canalId: string;
-  corpo: string;
-  nome: string;
+  channelId: string;
+  body: string;
+  name: string;
   idioma: string;
-  categoria: string;
+  category: string;
   statusMeta: string;
-  cabecalhoTipo: string;
-  variaveis: string[];
-  canalNome: string;
+  headerType: string;
+  variables: string[];
+  channelName: string;
 }
 
 /** `variaveis` é `jsonb` sem `check`: uma linha corrompida não pode derrubar a lista inteira. */

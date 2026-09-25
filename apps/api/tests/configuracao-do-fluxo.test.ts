@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -65,7 +65,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -88,8 +88,8 @@ async function chamar(
   metodo: string,
   caminho: string,
   corpo?: unknown,
-): Promise<{ status: number; corpo: Record<string, unknown> }> {
-  const resposta = await fetch(`${api.url}/v1/gestao/fluxos/${caminho}`, {
+): Promise<{ status: number; body: Record<string, unknown> }> {
+  const resposta = await fetch(`${api.url}/v1/management/flows/${caminho}`, {
     method: metodo,
     headers: comCookie(session),
     ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }),
@@ -131,15 +131,15 @@ afterAll(async () => {
   await b?.encerrar();
 });
 
-describe('GET/PATCH /v1/gestao/fluxos/:id/boas-vindas', () => {
-  it('desligada por padrão, sem mensagem nem texto de botão', async () => {
+describe('GET/PATCH /v1/management/flows/:id/welcome', () => {
+  it('Start with the welcome message disabled and no message or button text', async () => {
     const id = await newFlow(a);
     const { status, corpo } = await chamar(sessionEditor, 'GET', `${id}/boas-vindas`);
     expect(status).toBe(200);
     expect(corpo).toEqual({ ativo: false, mensagem: '', textoBotao: 'Começar' });
   });
 
-  it('liga com mensagem e texto do botão, e audita', async () => {
+  it('Enable the welcome message with button text and audit the change', async () => {
     const id = await newFlow(a);
     const { status, corpo } = await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, {
       ativo: true,
@@ -154,7 +154,7 @@ describe('GET/PATCH /v1/gestao/fluxos/:id/boas-vindas', () => {
     expect(log[0]).toMatchObject({ acao: 'alterou', depois: { ativo: true } });
   });
 
-  it('recusa ativar sem mensagem ou sem texto do botão, e o teto de 20 no texto do botão', async () => {
+  it('Require welcome message and button text and limit button text to 20 characters', async () => {
     const id = await newFlow(a);
     const withoutMessage = await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, {
       ativo: true,
@@ -176,7 +176,7 @@ describe('GET/PATCH /v1/gestao/fluxos/:id/boas-vindas', () => {
     expect(botaoGrande.status).toBe(400);
   });
 
-  it('desligar não apaga a mensagem — religar sem mandar de novo mantém o que já estava', async () => {
+  it('Keep saved welcome text when disabled and reuse it when reenabled', async () => {
     const id = await newFlow(a);
     await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, {
       ativo: true,
@@ -192,7 +192,7 @@ describe('GET/PATCH /v1/gestao/fluxos/:id/boas-vindas', () => {
     expect(read.corpo).toEqual({ ativo: false, mensagem: 'Mensagem original', textoBotao: 'Começar' });
   });
 
-  it('sem automacao.fluxo.editar é 403; fluxo de outro tenant e uuid malformado são 404', async () => {
+  it('Return 403 without `automacao.fluxo.editar` and 404 for invalid or cross-tenant IDs', async () => {
     const id = await newFlow(a);
     const semPoder = await chamar(sessionWithoutPoder, 'PATCH', `${id}/boas-vindas`, {
       ativo: true,
@@ -209,8 +209,8 @@ describe('GET/PATCH /v1/gestao/fluxos/:id/boas-vindas', () => {
   });
 });
 
-describe('GET/PATCH /v1/gestao/fluxos/:id/menu-persistente', () => {
-  it('sem itens e boasVindasPreenchida falsa por padrão', async () => {
+describe('GET/PATCH /v1/management/flows/:id/menu-persistent', () => {
+  it('Start with an empty persistent menu and no completed welcome message', async () => {
     const id = await newFlow(a);
     const { status, corpo } = await chamar(sessionEditor, 'GET', `${id}/menu-persistente`);
     expect(status).toBe(200);
@@ -228,7 +228,7 @@ describe('GET/PATCH /v1/gestao/fluxos/:id/menu-persistente', () => {
     expect(corpo['boasVindasPreenchida']).toBe(true);
   });
 
-  it('sem canal Messenger, o PATCH recusa mesmo com boas-vindas preenchida', async () => {
+  it('Reject persistent-menu updates without a Messenger channel even when welcome is complete through PATCH', async () => {
     const id = await newFlow(a);
     await chamar(sessionEditor, 'PATCH', `${id}/boas-vindas`, {
       ativo: true,
@@ -242,7 +242,7 @@ describe('GET/PATCH /v1/gestao/fluxos/:id/menu-persistente', () => {
     expect(corpo).toMatchObject({ erro: { codigo: 'menu_persistente_canal' } });
   });
 
-  it('sem automacao.fluxo.editar é 403 antes de checar canal ou boas-vindas', async () => {
+  it('Check `automacao.fluxo.editar` before channel and welcome validation', async () => {
     const id = await newFlow(a);
     const { status, corpo } = await chamar(sessionWithoutPoder, 'PATCH', `${id}/menu-persistente`, {
       itens: [],

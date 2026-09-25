@@ -165,7 +165,7 @@ export const actionExcluirRole: Acao = async (_anterior, data) => {
   // A tela de onde o clique veio deixou de existir. Ficar nela mostraria um
   // papel que já não está no banco até alguém navegar por conta própria.
   recarregar('/configuracoes/papeis');
-  redirect('/configuracoes/papeis');
+  redirect('/settings/roles');
 };
 
 /* --------------------------------------------------- campos personalizados */

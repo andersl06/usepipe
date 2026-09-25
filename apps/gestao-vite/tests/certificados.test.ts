@@ -17,17 +17,17 @@ import {
  * e `sem_arquivo` para o cadastro antigo); aqui só se escolhe o chip.
  */
 
-test('a expiração sai em dia/mês/ano, contada em UTC', () => {
+test('expiration is shown as day/month/year, counted in UTC', () => {
   assert.equal(expirationData('2026-09-13T01:00:00Z'), '13/09/2026');
 });
 
-test('o chip do status: válido → success, expirado → disabled, sem arquivo → default', () => {
+test('the status chip: valid -> success, expired -> disabled, no file -> default', () => {
   assert.deepEqual(etiquetaDoStatus('valido'), { texto: 'Válido', classe: 'sucesso' });
   assert.deepEqual(etiquetaDoStatus('expirado'), { texto: 'Expirado', classe: 'desabilitado' });
-  assert.deepEqual(etiquetaDoStatus('sem_arquivo'), { texto: 'Sem arquivo', classe: 'padrao' });
+  assert.deepEqual(etiquetaDoStatus('without_file'), { texto: 'Sem arquivo', classe: 'padrao' });
 });
 
-test('a URL precisa ser HTTPS com domínio e não pode repetir', () => {
+test('the URL must be HTTPS with a domain and cannot repeat', () => {
   const current = [{ host: 'https://a.exemplo.com', valido: true }];
   assert.equal(hostValido('https://b.exemplo.com:8443/x', current), true);
   assert.equal(hostValido('http://b.exemplo.com', current), false);
@@ -35,7 +35,7 @@ test('a URL precisa ser HTTPS com domínio e não pode repetir', () => {
   assert.equal(hostValido('https://a.exemplo.com', current), false);
 });
 
-test('só avança com descrição e toda URL preenchida e válida', () => {
+test('only advances with a description and the whole URL filled in and valid', () => {
   const boa = { host: 'https://a.exemplo.com', valido: true };
   assert.equal(informationCompletas('Banco', [boa]), true);
   assert.equal(informationCompletas('', [boa]), false);
@@ -43,7 +43,7 @@ test('só avança com descrição e toda URL preenchida e válida', () => {
   assert.equal(informationCompletas('Banco', [{ host: 'x', valido: false }]), false);
 });
 
-test('o arquivo precisa ser .pfx de até 10MB', () => {
+test('the file must be a .pfx up to 10MB', () => {
   assert.match(problemaInFile(null) ?? '', /erro ao fazer o upload/);
   assert.equal(
     problemaInFile({ type: 'text/plain', size: 1 }),

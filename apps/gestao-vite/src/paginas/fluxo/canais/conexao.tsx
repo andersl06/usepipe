@@ -257,7 +257,7 @@ export function ModalDesconectar({
 export function OtherChannelNotice({ channel, rotulo }: { channel: ChannelOfFlow; rotulo: string }) {
   return (
     <div className="ig-faixa-alerta" role="status">
-      <IconePortal nome="alerta" tamanho={24} />
+      <IconePortal nome="alert" tamanho={24} />
       <p className="ig-typo-16">
         Este bot já está conectado ao canal <strong>{channelRotulo(channel)}</strong>. Desconecte-o
         na página daquele canal antes de conectar o {rotulo}.

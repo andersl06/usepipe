@@ -96,7 +96,7 @@ async function marcar(job: JobImport, state: 'executando' | 'falhou'): Promise<v
 
 export async function processarImport(job: JobImport): Promise<ResultOfImport> {
   const carregado = await noTenant(job.tenantId, async (tx) => {
-    const { rows } = await tx.execute<{ conteudo: string }>(sql`
+    const { rows } = await tx.execute<{ content: string }>(sql`
       select a.conteudo
         from importacao i
         join importacao_arquivo a on a.importacao_id = i.id

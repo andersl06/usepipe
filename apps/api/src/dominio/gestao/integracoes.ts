@@ -87,12 +87,12 @@ const SCOPES_OF_KEY_OF_FLOW = [
 
 export interface KeyOfFlow {
   id: string;
-  nome: string;
-  prefixo: string;
+  name: string;
+  prefix: string;
   escopos: string[];
   criadaEm: string;
   ultimoUsoEm: string | null;
-  revogadaEm: string | null;
+  revokedAt: string | null;
   requisitante: string | null;
 }
 
@@ -103,12 +103,12 @@ export interface KeyOfFlowCreated extends KeyOfFlow {
 
 type LineKey = {
   id: string;
-  nome: string;
+  name: string;
   prefix: string;
   scopes: string[] | null;
   criadoEm: Date;
   ultimoUsoEm: Date | null;
-  revogadaEm: Date | null;
+  revokedAt: Date | null;
   requisitante?: string | null;
 };
 
@@ -174,10 +174,10 @@ export async function createKeyOfFlow(
 
   const nomeAparado = nome.trim();
   if (!nomeAparado) {
-    throw PipeError.request('nome_ausente', 'Adicione um nome para identificar a chave.');
+    throw PipeError.request('name_missing', 'Adicione um nome para identificar a chave.');
   }
   if (nomeAparado.length > 100) {
-    throw PipeError.request('nome_grande', 'O nome da chave pode ter até 100 caracteres.');
+    throw PipeError.request('name_large', 'O nome da chave pode ter até 100 caracteres.');
   }
 
   const { rows: count } = await tx.execute<{ n: string }>(sql`
@@ -187,7 +187,7 @@ export async function createKeyOfFlow(
        and revogada_em is null
   `);
   if (Number(count[0]?.n ?? 0) >= LIMITE_DE_CHAVES) {
-    throw PipeError.request('limite_de_chaves', `Limite de ${LIMITE_DE_CHAVES} chaves atingido`);
+    throw PipeError.request('limit_of_keys', `Limite de ${LIMITE_DE_CHAVES} chaves atingido`);
   }
 
   const prefix = randomBytes(6).toString('hex');
@@ -271,18 +271,18 @@ export function confirmarUrlSegura(url: string): void {
   try {
     analisada = new URL(url);
   } catch {
-    throw PipeError.request('url_invalida', 'Informe uma URL válida.');
+    throw PipeError.request('url_invalid', 'Informe uma URL válida.');
   }
   if (analisada.protocol !== 'https:') {
-    throw PipeError.request('url_precisa_https', 'A URL precisa usar HTTPS.');
+    throw PipeError.request('url_needs_https', 'A URL precisa usar HTTPS.');
   }
   const host = analisada.hostname.toLowerCase();
   if (host === 'localhost' || host.endsWith('.localhost') || host === '0.0.0.0') {
-    throw PipeError.request('url_proibida', 'A URL não pode apontar para localhost.');
+    throw PipeError.request('url_forbidden', 'A URL não pode apontar para localhost.');
   }
   if (ipPrivado(host)) {
     throw PipeError.request(
-      'url_proibida',
+      'url_forbidden',
       'A URL não pode apontar para um endereço de rede privada.',
     );
   }
@@ -321,7 +321,7 @@ function ipPrivado(host: string): boolean {
  * nem em auditoria) — só entram na entrega/teste, decifrados na hora.
  */
 export interface AuthenticationWebhookVisible {
-  tipo: TypeAuthenticationWebhook;
+  type: TypeAuthenticationWebhook;
   user: string | null;
   urlAuthorization: string | null;
   clientId: string | null;
@@ -331,7 +331,7 @@ export interface WebhookDeSaida {
   id: string;
   url: string;
   eventos: string[];
-  ativo: boolean;
+  active: boolean;
   criadoEm: string;
   authentication: AuthenticationWebhookVisible;
   cabecalhos: CabecalhoCustomizado[];
@@ -347,7 +347,7 @@ type LinhaWebhook = {
   id: string;
   url: string;
   eventos: string[] | null;
-  ativo: boolean;
+  active: boolean;
   criadoEm: Date;
   typeAuthentication: string;
   authenticationUser: string | null;
@@ -390,12 +390,12 @@ const COLUNAS_WEBHOOK = {
 
 function eventosConferidos(eventos: unknown): EventoWebhook[] {
   if (!Array.isArray(eventos) || eventos.length === 0) {
-    throw PipeError.request('eventos_ausentes', 'Selecione ao menos um evento.');
+    throw PipeError.request('events_missing', 'Selecione ao menos um evento.');
   }
   const unicos = [...new Set(eventos)];
   for (const evento of unicos) {
     if (!(EVENTOS as readonly string[]).includes(String(evento))) {
-      throw PipeError.request('evento_invalido', `Evento desconhecido: "${String(evento)}".`);
+      throw PipeError.request('event_invalid', `Evento desconhecido: "${String(evento)}".`);
     }
   }
   return unicos as EventoWebhook[];
@@ -407,11 +407,11 @@ const LIMITE_CABECALHOS = 20;
 function cabecalhosConferidos(value: unknown): CabecalhoCustomizado[] {
   if (value === undefined) return [];
   if (!Array.isArray(value)) {
-    throw PipeError.request('cabecalhos_invalidos', 'Cabeçalhos customizados inválidos.');
+    throw PipeError.request('headers_invalid', 'Cabeçalhos customizados inválidos.');
   }
   if (value.length > LIMITE_CABECALHOS) {
     throw PipeError.request(
-      'cabecalhos_no_limite',
+      'headers_in_limit',
       `Limite de ${LIMITE_CABECALHOS} cabeçalhos customizados.`,
     );
   }
@@ -423,20 +423,20 @@ function cabecalhosConferidos(value: unknown): CabecalhoCustomizado[] {
     const valueOfHeader = typeof bruto?.['valor'] === 'string' ? bruto['valor'] : '';
     if (!key || key.length > 200 || valueOfHeader.length > 2000) {
       throw PipeError.request(
-        'cabecalho_invalido',
+        'header_invalid',
         'Cada cabeçalho precisa de uma chave (até 200 caracteres) e um valor (até 2000).',
       );
     }
     const keyNormal = key.toLowerCase();
     if ((CABECALHOS_RESERVADOS as readonly string[]).includes(keyNormal)) {
       throw PipeError.request(
-        'cabecalho_reservado',
+        'header_reserved',
         `O cabeçalho "${key}" é reservado pela assinatura do webhook.`,
       );
     }
     if (vistos.has(keyNormal)) {
       throw PipeError.request(
-        'cabecalho_repetido',
+        'header_repeated',
         `O cabeçalho "${key}" foi informado mais de uma vez.`,
       );
     }
@@ -454,8 +454,8 @@ function cabecalhosConferidos(value: unknown): CabecalhoCustomizado[] {
  * cifrada de um jeito que o formulário nunca viu em claro.
  */
 export interface AuthenticationWebhookInbound {
-  tipo: TypeAuthenticationWebhook;
-  usuario?: string;
+  type: TypeAuthenticationWebhook;
+  user?: string;
   senha?: string;
   urlAutorizacao?: string;
   clientId?: string;
@@ -466,7 +466,7 @@ function authenticationChecked(valor: unknown): AuthenticationWebhookInbound {
   const bruto = (valor ?? { tipo: 'nenhuma' }) as Record<string, unknown>;
   const tipo = String(bruto['tipo'] ?? '');
   if (!(TYPES_AUTHENTICATION_WEBHOOK as readonly string[]).includes(tipo)) {
-    throw PipeError.request('autenticacao_invalida', 'Tipo de autenticação desconhecido.');
+    throw PipeError.request('authentication_invalid', 'Tipo de autenticação desconhecido.');
   }
 
   if (tipo === 'basica') {
@@ -474,7 +474,7 @@ function authenticationChecked(valor: unknown): AuthenticationWebhookInbound {
     const senha = typeof bruto['senha'] === 'string' ? bruto['senha'] : '';
     if (!user || !senha) {
       throw PipeError.request(
-        'autenticacao_incompleta',
+        'authentication_incomplete',
         'Informe usuário e senha da autenticação básica.',
       );
     }
@@ -488,7 +488,7 @@ function authenticationChecked(valor: unknown): AuthenticationWebhookInbound {
     const clientSecret = typeof bruto['clientSecret'] === 'string' ? bruto['clientSecret'] : '';
     if (!urlAuthorization || !clientId || !clientSecret) {
       throw PipeError.request(
-        'autenticacao_incompleta',
+        'authentication_incomplete',
         'Informe URL de autorização, Client ID e Client Secret do OAuth 2.0.',
       );
     }
@@ -607,7 +607,7 @@ async function webhookVivo(
   id: string,
 ): Promise<
   WebhookDeSaida & {
-    segredo: string;
+    secret: string;
     authenticationPassword: string | null;
     oauth2ClientSecret: string | null;
   }
@@ -634,7 +634,7 @@ async function webhookVivo(
 export interface RequestOfEditOfWebhook {
   url?: string;
   eventos?: string[];
-  ativo?: boolean;
+  active?: boolean;
   /** Substitui por inteiro, como `eventos` — ver o comentário de `autenticacaoConferida`. */
   autenticacao?: unknown;
   cabecalhos?: unknown;

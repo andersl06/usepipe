@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { domainOfEmail, ehDomainPublic } from '@pipe/autenticacao';
+import { domainOfEmail, ehDomainPublic } from '@pipe/authentication';
 import { databaseOwner, noTenant } from '../banco.js';
 import { PipeError } from '../erros.js';
 import { provisionCustomer } from '../provisionar.js';
@@ -82,7 +82,7 @@ export function slugOfAccount(nome: string, email: string): string {
  */
 export async function buildAccountOfLogin(pessoa: {
   email: string;
-  nome?: string | undefined;
+  name?: string | undefined;
 }): Promise<{ tenantId: string; userId: string; slug: string }> {
   const email = pessoa.email.trim().toLowerCase();
   const publico = ehDomainPublic(email);
@@ -165,11 +165,11 @@ export async function buildAccount(pedido: RequestOfAccount): Promise<AccountCre
 
   // `validate_email` — o `SignUpEmailValidationService`, com as frases do pt_BR dele.
   if (!EMAIL_ACEITAVEL.test(email)) {
-    throw PipeError.request('email_invalido', 'Você digitou um email inválido');
+    throw PipeError.request('email_invalid', 'Você digitou um email inválido');
   }
   if (ehDomainPublic(email)) {
     throw PipeError.request(
-      'dominio_bloqueado',
+      'domain_blocked',
       'Este domínio não é permitido. Se você acredita que isso é um erro, por favor contate o suporte.',
     );
   }
@@ -180,7 +180,7 @@ export async function buildAccount(pedido: RequestOfAccount): Promise<AccountCre
     sql`select exists (select 1 from usuario where lower(email) = ${email}) as existe`,
   );
   if (rows[0]?.existe) {
-    throw PipeError.conflito('usuario_existe', `Você já se cadastrou para uma conta com ${email}`);
+    throw PipeError.conflito('user_exists', `Você já se cadastrou para uma conta com ${email}`);
   }
 
   // `create_account` e `create_and_link_user`, pelo provisionamento de sempre.

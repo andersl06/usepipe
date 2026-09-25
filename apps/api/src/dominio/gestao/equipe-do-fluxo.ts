@@ -137,7 +137,7 @@ function roleChecked(bruto: unknown): RoleInFlow {
     return bruto as RoleInFlow;
   }
   throw PipeError.request(
-    'papel_no_fluxo_invalido',
+    'role_in_flow_invalid',
     `A permissão precisa ser uma de: ${PAPEIS.join(', ')}.`,
   );
 }
@@ -146,14 +146,14 @@ function roleChecked(bruto: unknown): RoleInFlow {
 function permissionsChecked(bruto: unknown): PermissionsInFlow {
   if (bruto === undefined || bruto === null) return {};
   if (typeof bruto !== 'object') {
-    throw PipeError.request('permissoes_invalidas', 'As permissões precisam ser um objeto.');
+    throw PipeError.request('permissions_invalid', 'As permissões precisam ser um objeto.');
   }
   const mapa: PermissionsInFlow = {};
   for (const [key, value] of Object.entries(bruto as Record<string, unknown>)) {
     if (!CHAVES.has(key)) continue;
     if (typeof value !== 'string' || !(NIVEIS as readonly string[]).includes(value)) {
       throw PipeError.request(
-        'nivel_invalido',
+        'level_invalid',
         `O nível de "${key}" precisa ser um de: ${NIVEIS.join(', ')}.`,
       );
     }
@@ -262,10 +262,10 @@ async function flowVivo(tx: TransactionPipe, tenantId: string, fluxoId: string):
 
 function forContract(linha: {
   userId: string;
-  nome: string;
+  name: string;
   email: string;
-  papelNoFluxo: string;
-  permissoes: PermissionsInFlow;
+  roleInFlow: string;
+  permissions: PermissionsInFlow;
   criadoEm: Date;
 }): MemberOfFlow {
   return {
@@ -354,7 +354,7 @@ function ultimoAdmin(): PipeError {
      dono, então a trava é numérica: um contato sem administrador nenhum é um
      contato que ninguém mais consegue administrar. */
   return PipeError.conflito(
-    'ultimo_admin',
+    'last_admin',
     'Este é o último administrador do fluxo. Promova outra pessoa antes.',
   );
 }
@@ -378,7 +378,7 @@ export async function adicionarMember(
   await exigirPermissionInFlow(tx, usuarioId, fluxoId, GERIR_EQUIPE);
 
   const email = (pedido.email ?? '').trim().toLowerCase();
-  if (!email) throw PipeError.request('email_ausente', 'Informe o e-mail de quem entra.');
+  if (!email) throw PipeError.request('email_missing', 'Informe o e-mail de quem entra.');
 
   const [pessoa] = await tx
     .select({ id: user.id, nome: user.nome, email: user.email })
@@ -387,7 +387,7 @@ export async function adicionarMember(
     .limit(1);
   if (!pessoa) {
     throw PipeError.request(
-      'pessoa_fora_do_contrato',
+      'person_outside_of_contract',
       'Essa pessoa não faz parte do contrato. O administrador deve incluir a pessoa no ' +
         'contrato antes de adicioná-la ao chatbot.',
       { email },
@@ -410,7 +410,7 @@ export async function adicionarMember(
     .onConflictDoNothing({ target: [flowMember.flowId, flowMember.userId] })
     .returning({ criadoEm: flowMember.criadoEm });
   if (!criado) {
-    throw PipeError.conflito('ja_e_membro', `${email} já faz parte da equipe deste fluxo.`);
+    throw PipeError.conflito('already_member', `${email} já faz parte da equipe deste fluxo.`);
   }
 
   await registrarAuditoria(tx, tenantId, {

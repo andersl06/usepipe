@@ -34,7 +34,7 @@ export async function windowOfDatas(
   de: string,
   ate: string,
 ): Promise<InstantesWindow> {
-  const r = await tx.execute<{ inicio: Date; fim: Date }>(
+  const r = await tx.execute<{ start: Date; end: Date }>(
     sql`select (${de}::date)::timestamp at time zone ${fuso} as inicio,
                ((${ate}::date + 1)::timestamp) at time zone ${fuso} as fim`,
   );
@@ -68,7 +68,7 @@ export async function carregarDashboard(
 ): Promise<DashboardData | null> {
   const anterior = intervaloAnterior(intervalo);
   {
-    const { rows: contact } = await tx.execute<{ tipo: string; canal: string | null }>(
+    const { rows: contact } = await tx.execute<{ type: string; channel: string | null }>(
       sql`select f.tipo, k.tipo as canal from fluxo f left join canal k on k.id = f.canal_id where f.id = ${fluxoId}`,
     );
     if (!contact[0]) return null;
@@ -147,8 +147,8 @@ export async function carregarDashboard(
     });
 
     const { rows: topo } = await tx.execute<{
-      nome: string | null;
-      telefone: string | null;
+      name: string | null;
+      phone: string | null;
       id: string;
       recorrencia: number;
     }>(sql`
@@ -226,7 +226,7 @@ export async function loadListOfContacts(
   tipo: 'interacao' | 'rejeicao',
 ): Promise<string[]> {
   {
-    const { rows } = await tx.execute<{ nome: string }>(sql`
+    const { rows } = await tx.execute<{ name: string }>(sql`
       select coalesce(c.nome, c.telefone_e164, c.id::text) as nome
         from mensagem m
         join conversa cv on cv.id = m.conversa_id
@@ -421,8 +421,8 @@ export interface LinhaDoLog {
   id: string;
   criadaEm: string;
   direction: string;
-  tipo: string;
-  conteudo: string | null;
+  type: string;
+  content: string | null;
   metadata: unknown;
   de: string | null;
   para: string | null;
@@ -432,8 +432,8 @@ export interface LogFilter {
   /** `AAAA-MM-DD`, no fuso da conta — mesmo formato de `intervaloDoPeriodo`. */
   de?: string;
   ate?: string;
-  direcao?: string;
-  tipo?: string;
+  direction?: string;
+  type?: string;
   search?: string;
 }
 
@@ -484,9 +484,9 @@ export async function loadLogOfMessages(
   const { rows } = await tx.execute<{
     id: string;
     criada_em: Date | string;
-    direcao: string;
-    tipo: string;
-    conteudo: string | null;
+    direction: string;
+    type: string;
+    content: string | null;
     metadata: unknown;
     contact: string | null;
     channel: string;

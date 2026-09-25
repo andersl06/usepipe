@@ -45,7 +45,7 @@ const ORIGEM_DESTE_APP = (
 ).replace(/\/$/, '');
 
 /** O cookie de sessão emitido pela API. `HttpOnly`; a tela só o repassa. */
-export const COOKIE_SESSION = 'pipe_sessao';
+export const COOKIE_SESSION = 'pipe_session';
 
 /** O que `POST /v1/auth/descobrir` responde, mais os dois modos de falha da tela.
  *
@@ -159,16 +159,16 @@ export function caminhoInterno(destination: string | undefined | null): string {
 /** O botão "Entrar com Google". Com `convite`, entra aceitando o convite. */
 export function inboundWithGoogleUrl(options: { destination?: string; invitation?: string } = {}): string {
   const url = new URL(`${URL_API_PUBLICA}/v1/auth/google`);
-  if (options.invitation) url.searchParams.set('convite', options.invitation);
-  url.searchParams.set('destino', caminhoInterno(options.destination));
-  url.searchParams.set('origem', ORIGEM_DESTE_APP);
+  if (options.invitation) url.searchParams.set('invite', options.invitation);
+  url.searchParams.set('returnTo', caminhoInterno(options.destination));
+  url.searchParams.set('origin', ORIGEM_DESTE_APP);
   return url.toString();
 }
 
 /** `irPara` vem da descoberta como caminho; aqui ele ganha a base pública. */
 export function urlNaApi(caminho: string, destination?: string): string {
   const url = new URL(`${URL_API_PUBLICA}${caminho}`);
-  url.searchParams.set('destino', caminhoInterno(destination));
-  url.searchParams.set('origem', ORIGEM_DESTE_APP);
+  url.searchParams.set('returnTo', caminhoInterno(destination));
+  url.searchParams.set('origin', ORIGEM_DESTE_APP);
   return url.toString();
 }

@@ -28,8 +28,8 @@ export function App() {
     <>
     <ClosureNotice />
     <Routes>
-      <Route path="/entrar" element={<PageLogin />} />
-      <Route path="/convite/:token" element={<PageInvitation />} />
+      <Route path="/login" element={<PageLogin />} />
+      <Route path="/invite/:token" element={<PageInvitation />} />
 
       <Route element={<ExigirSession />}>
         <Route element={<Shell />}>

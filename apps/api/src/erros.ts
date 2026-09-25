@@ -33,22 +33,22 @@ export class PipeError extends Error {
   }
 
   static naoAutorizado(mensagem = 'Chave de API ausente ou inválida.'): PipeError {
-    return new PipeError(401, 'nao_autorizado', mensagem);
+    return new PipeError(401, 'not_authorized', mensagem);
   }
 
   static withoutScope(scope: string): PipeError {
-    return new PipeError(403, 'sem_escopo', `A chave não tem o escopo "${scope}".`, { scope });
+    return new PipeError(403, 'without_scope', `A chave não tem o escopo "${scope}".`, { scope });
   }
 
   /** Irmã de `semEscopo`, para gente logada: escopo é chave de API, permissão é pessoa. */
   static withoutPermission(codigo: string): PipeError {
-    return new PipeError(403, 'sem_permissao', `Você não tem a permissão "${codigo}".`, {
+    return new PipeError(403, 'without_permission', `Você não tem a permissão "${codigo}".`, {
       permissao: codigo,
     });
   }
 
   static naoEncontrado(oQue: string): PipeError {
-    return new PipeError(404, 'nao_encontrado', `${oQue} não encontrado.`);
+    return new PipeError(404, 'not_found', `${oQue} não encontrado.`);
   }
 
   static conflito(codigo: string, mensagem: string, detalhe?: Record<string, unknown>): PipeError {

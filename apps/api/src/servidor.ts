@@ -4,9 +4,9 @@ import { NestFactory } from '@nestjs/core';
 import type { INestApplication } from '@nestjs/common';
 import type { Request } from 'express';
 import type { Server } from 'node:http';
-import { origemPermitida, origensPermitidas } from '@pipe/autenticacao';
+import { origemPermitida, origensPermitidas } from '@pipe/authentication';
 import { AppModulo } from './app.modulo.js';
-import { MAX_BYTES_BY_FILE } from '@pipe/armazenamento';
+import { MAX_BYTES_BY_FILE } from '@pipe/storage';
 import { fecharBancos } from './banco.js';
 import { ErrorFilter } from './erros.js';
 import { connectChannelOfEvents } from './eventos-ws.js';
@@ -72,33 +72,33 @@ export async function createApplication(): Promise<INestApplication> {
   // de UM arquivo cabe inteiro em `POST` com `Content-Type` do próprio arquivo — que
   // é, aliás, a forma do `PUT Object` do S3.
   app.use(
-    '/v1/anexos',
+    '/v1/attachments',
     express.raw({ type: () => true, limit: MAX_BYTES_BY_FILE }),
   );
 
   // Importação de contatos entra como TEXTO cru (o CSV), e só nesta rota — mesmo
   // raciocínio do anexo: o teto de 20 MB daqui não pode valer para o webhook.
   app.use(
-    '/v1/contatos/importacoes',
+    '/v1/contacts/imports',
     express.text({ type: () => true, limit: process.env['PIPE_LIMITE_IMPORTACAO'] ?? '20mb' }),
   );
 
   // A foto do perfil do WhatsApp vai em base64 no JSON: 5 MB viram ~6,7 MB. Teto
   // próprio, só nesta rota, pelo mesmo motivo dos dois acima.
-  app.use('/v1/canais/whatsapp/:id/perfil', express.json({ limit: '8mb' }));
+  app.use('/v1/channels/whatsapp/:id/profile', express.json({ limit: '8mb' }));
 
   // O exemplo de mídia do cabeçalho do modelo de mensagem vai do mesmo jeito
   // (base64 no JSON), e o tipo mais pesado é o documento: 100 MB viram ~134 MB.
   // Teto próprio, só nesta rota — `lerMidiaDoCabecalho` recusa por tipo antes.
   app.use(
-    '/v1/canais/whatsapp/:id/modelos',
+    '/v1/channels/whatsapp/:id/templates',
     express.json({ limit: process.env['PIPE_LIMITE_MODELO'] ?? '140mb' }),
   );
 
   // O desenho do Builder vai inteiro no `PUT` (o mapa do editor, com `$cardContent`
   // de cada bloco): um fluxo de cliente passa fácil de 2 MB. Teto próprio, só aqui.
   app.use(
-    '/v1/gestao/fluxos/:id/builder',
+    '/v1/management/flows/:id/builder',
     express.json({ limit: process.env['PIPE_LIMITE_BUILDER'] ?? '16mb' }),
   );
 
@@ -108,7 +108,7 @@ export async function createApplication(): Promise<INestApplication> {
   // aqui. Teto de 10 MB do arquivo (regra da origem, conferida de novo em
   // `gestao/certificados.ts`) vira ~13,4 MB de base64.
   app.use(
-    '/v1/gestao/contrato/certificados',
+    '/v1/management/contract/certificates',
     express.json({ limit: process.env['PIPE_LIMITE_CERTIFICADO'] ?? '15mb' }),
   );
 

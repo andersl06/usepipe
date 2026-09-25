@@ -13,13 +13,13 @@
 
 export const ASSUNTOS = [
   /** Uma conversa mudou: mensagem nova, estado, atribuição, janela. */
-  'conversa',
+  'conversation',
   /** A fila mudou de tamanho ou de composição. */
-  'fila',
+  'queue',
   /** Um atendente mudou de status (online, pausa, invisível). */
-  'atendente',
+  'agent',
   /** Os números do Monitoramento mudaram o bastante para valer repintar. */
-  'monitoramento',
+  'monitoring',
   /** Um lead mudou de fase, ou nasceu. */
   'lead',
 ] as const;

@@ -22,7 +22,7 @@ export function ExigirSession() {
   }
   if (eu === null) {
     const destination = pathname + search;
-    return <Navigate to={`/entrar?destino=${encodeURIComponent(destination)}`} replace />;
+    return <Navigate to={`/login?destino=${encodeURIComponent(destination)}`} replace />;
   }
   return <Outlet />;
 }

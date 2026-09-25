@@ -74,7 +74,7 @@ export function PageInvitation() {
                 Convite vale sete dias e uma vez só. Peça um novo a quem administra o Pipe na sua
                 empresa.
               </p>
-              <a className="entrar-google" href="/entrar">
+              <a className="entrar-google" href="/login">
                 Ir para a tela de entrada
               </a>
             </>

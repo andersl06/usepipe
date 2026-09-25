@@ -30,7 +30,7 @@ describe('limites, copiados do settings.json da Blip', () => {
     expect(MAX_BYTES_AUDIO_VIDEO).toBe(16_777_216);
   });
 
-  it('áudio e vídeo têm teto menor — o erro que o Desk deles comete', () => {
+  it('Apply the lower size limit to audio and video files', () => {
     // O cliente da Blip valida só os 100 MB e deixa subir áudio que a plataforma
     // recusa depois. Aqui o teto certo vale desde a validação.
     expect(maxBytesDoMime('audio/mpeg')).toBe(MAX_BYTES_AUDIO_VIDEO);
@@ -47,7 +47,7 @@ describe('limites, copiados do settings.json da Blip', () => {
     expect(mimeAceito('application/octet-stream')).toBe(false);
   });
 
-  it('SVG é aceito, mas nunca tratado como imagem', () => {
+  it('Accept SVG as a document and force attachment delivery', () => {
     // SVG é XML executável: renderizado inline vira XSS.
     expect(mimeAceito('image/svg+xml')).toBe(true);
     expect(tipoDoMime('image/svg+xml')).toBe('documento');
@@ -87,16 +87,16 @@ describe('tipo real pelos bytes, não pela extensão', () => {
     expect(mimeParaServir('text/csv', new TextEncoder().encode('a;b'))).toBe('text/csv');
   });
 
-  it('aguenta arquivo curto demais sem estourar', () => {
+  it('Return no detected type for files too short to identify', () => {
     expect(tipoReal(new Uint8Array([]))).toBeNull();
     expect(tipoReal(new Uint8Array([0x89]))).toBeNull();
   });
 });
 
-describe('isolamento por tenant no caminho do objeto', () => {
+describe('Isolate object paths by tenant', () => {
   const tenant = '11111111-1111-4111-8111-111111111111';
 
-  it('a chave começa pelo tenant, sempre', () => {
+  it('Prefix every attachment key with its tenant ID', () => {
     expect(keyOfAttachment(tenant, 'foto.png').startsWith(`${tenant}/`)).toBe(true);
   });
 
@@ -104,7 +104,7 @@ describe('isolamento por tenant no caminho do objeto', () => {
     expect(keyOfAttachment(tenant, 'foto.png')).not.toBe(keyOfAttachment(tenant, 'foto.png'));
   });
 
-  it('recusa chave de outro tenant e travessia de diretório', () => {
+  it('Reject another tenant\'s key and directory traversal', () => {
     const outro = '22222222-2222-4222-8222-222222222222';
     expect(keyOfTenant(`${tenant}/2026/09/x.png`, tenant)).toBe(true);
     expect(keyOfTenant(`${outro}/2026/09/x.png`, tenant)).toBe(false);
@@ -113,17 +113,17 @@ describe('isolamento por tenant no caminho do objeto', () => {
     expect(keyOfTenant(`${tenant}\\x.png`, tenant)).toBe(false);
   });
 
-  it('não deixa extensão maluca virar parte da chave', () => {
+  it('Sanitize suspicious filename extensions before creating object keys', () => {
     const key = keyOfAttachment(tenant, 'arquivo.exe%00.png');
     expect(key).toMatch(/\.png$/);
     expect(key).not.toContain('%00');
   });
 });
 
-describe('link assinado com validade', () => {
+describe('Sign attachment links with an expiration time', () => {
   const attachmentId = 'aaaaaaaa-1111-4111-8111-111111111111';
 
-  it('aceita a assinatura certa dentro da validade', () => {
+  it('Accept a valid signature before it expires', () => {
     const expira = Date.now() + 60_000;
     const s = assinar(attachmentId, expira, SECRET);
     expect(assinaturaValida(attachmentId, expira, s, SECRET)).toBe(true);
@@ -135,19 +135,19 @@ describe('link assinado com validade', () => {
     expect(assinaturaValida(attachmentId, expira, s, SECRET)).toBe(false);
   });
 
-  it('recusa assinatura de OUTRO anexo — nada de trocar o id na URL', () => {
+  it('Reject a signature made for a different attachment ID', () => {
     const expira = Date.now() + 60_000;
     const s = assinar('bbbbbbbb-2222-4222-8222-222222222222', expira, SECRET);
     expect(assinaturaValida(attachmentId, expira, s, SECRET)).toBe(false);
   });
 
-  it('recusa validade esticada na mão', () => {
+  it('Reject a manually extended signed-link expiration', () => {
     const expira = Date.now() + 60_000;
     const s = assinar(attachmentId, expira, SECRET);
     expect(assinaturaValida(attachmentId, expira + 3_600_000, s, SECRET)).toBe(false);
   });
 
-  it('recusa assinatura de outro segredo', () => {
+  it('Reject a signature made with a different secret', () => {
     const expira = Date.now() + 60_000;
     expect(assinaturaValida(attachmentId, expira, assinar(attachmentId, expira, 'outro'), SECRET)).toBe(
       false,
@@ -163,7 +163,7 @@ describe('link assinado com validade', () => {
 });
 
 describe('backend em disco', () => {
-  it('guarda e lê de volta os mesmos bytes', async () => {
+  it('Read back the same bytes that were stored', async () => {
     const armazem = new StorageInDisk(await raizTemporaria());
     const data = new Uint8Array([1, 2, 3, 4, 5]);
 
@@ -175,7 +175,7 @@ describe('backend em disco', () => {
     expect(Array.from(lido!.data)).toEqual([1, 2, 3, 4, 5]);
   });
 
-  it('objeto que não existe é ausência, não erro', async () => {
+  it('Return null for a missing object', async () => {
     const armazem = new StorageInDisk(await raizTemporaria());
     expect(await armazem.ler('tenant-a/nao/existe.bin')).toBeNull();
   });
@@ -198,7 +198,7 @@ describe('backend em disco', () => {
     await expect(armazem.ler('../../etc/passwd')).rejects.toThrow(/fora da raiz/);
   });
 
-  it('o vizinho de prefixo não passa por raiz', async () => {
+  it('Reject a sibling path that merely shares the storage root prefix', async () => {
     // `/tmp/pipe-storage-abc` não pode alcançar `/tmp/pipe-storage-abcMAL`.
     const raiz = await raizTemporaria();
     const armazem = new StorageInDisk(raiz);

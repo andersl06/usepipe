@@ -95,11 +95,11 @@ Toda mudança visível de fora do processo (rota pública, nome de fila, código
 |---|---|---|
 | `apps/gestao-vite` | `apps/management-vite` | D-04 |
 | `apps/ponte` | `apps/bridge` | D-04 |
-| `@pipe/gestao-vite` | `@pipe/management-vite` | D-04 |
-| `@pipe/ponte` | `@pipe/bridge` | D-04 |
-| `@pipe/autenticacao` | `@pipe/authentication` | D-04 |
-| `@pipe/armazenamento` | `@pipe/storage` | D-04 |
-| `@pipe/tempo-real` | `@pipe/realtime` | D-04 (corrigido nesta reconciliação — era `time-real`, violava o glossário) |
+| `@pipe/management-vite` | `@pipe/management-vite` | D-04 |
+| `@pipe/bridge` | `@pipe/bridge` | D-04 |
+| `@pipe/authentication` | `@pipe/authentication` | D-04 |
+| `@pipe/storage` | `@pipe/storage` | D-04 |
+| `@pipe/realtime` | `@pipe/realtime` | D-04 (corrigido nesta reconciliação — era `time-real`, violava o glossário) |
 
 A execução destas 2 linhas de `app` (Dockerfiles, compose, scripts de build, caminhos de VPS) precisa validar build/deploy um app por vez (histórico conhecido de quebra de build do Desk numa VPS).
 

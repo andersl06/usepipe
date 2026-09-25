@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Patch, Post, Req, Res } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
 import type { Response } from 'express';
-import { openSessionAt, cookieOfSession } from '@pipe/autenticacao';
+import { openSessionAt, cookieOfSession } from '@pipe/authentication';
 import { databaseApp, databaseOwner, noTenant } from '../banco.js';
 import { PipeError } from '../erros.js';
 import { WithSession, sessionOf } from '../sessao.js';
@@ -68,15 +68,15 @@ const FUSOS = [
 
 export interface AccountInForce {
   id: string;
-  nome: string;
+  name: string;
   slug: string;
-  plano: string;
+  plan: string;
   site: string | null;
-  funcionarios: string | null;
-  cidade: string | null;
-  estado: string | null;
+  employees: string | null;
+  city: string | null;
+  state: string | null;
   pais: string | null;
-  telefone: string | null;
+  phone: string | null;
   optinWhatsapp: boolean;
   /**
    * A aba "Preferências" da tela de origem: idioma e fuso.
@@ -96,15 +96,15 @@ export interface AccountInForce {
 
 type LineAccount = {
   id: string;
-  nome: string;
+  name: string;
   slug: string;
-  plano: string;
+  plan: string;
   site: string | null;
-  funcionarios: string | null;
+  employees: string | null;
   city: string | null;
   state: string | null;
   pais: string | null;
-  telefone: string | null;
+  phone: string | null;
   optin_whatsapp: boolean;
   idioma: string;
   fuso: string;
@@ -136,9 +136,9 @@ function forContract(linha: LineAccount): AccountInForce {
 
 export interface AccountInList {
   tenantId: string;
-  nome: string;
+  name: string;
   slug: string;
-  plano: string;
+  plan: string;
   /** A conta desta sessão. É a que o seletor marca. */
   emVigor: boolean;
   onboardingConcluido: boolean;
@@ -150,7 +150,7 @@ export interface AccountInList {
    * domínio verificado: quem contrata publica o TXT no DNS da empresa; quem
    * entrou sozinho com o próprio e-mail não publicou nada.
    */
-  pessoal: boolean;
+  personal: boolean;
 }
 
 /** Um valor da lista, ou nulo quando não veio. Fora da lista é recusa. */
@@ -176,7 +176,7 @@ function texto(valor: unknown, limite: number): string | null {
 @Controller('v1')
 export class MyAccountController {
   /** A conta em vigor, com o que o formulário precisa mostrar e oferecer. */
-  @Get('conta')
+  @Get('account')
   @WithSession()
   async account(@Req() request: RequestWithSession): Promise<AccountInForce> {
     const session = sessionOf(request);
@@ -202,7 +202,7 @@ export class MyAccountController {
    * Salvar de novo depois não reabre nem remarca: a data é a da primeira vez,
    * e é ela que conta quanto tempo a conta levou para sair do papel.
    */
-  @Patch('conta')
+  @Patch('account')
   @WithSession()
   async salvar(
     @Req() requisicao: RequestWithSession,
@@ -214,7 +214,7 @@ export class MyAccountController {
     const funcionarios = texto(corpo['funcionarios'], 40);
     if (funcionarios && !FAIXAS_DE_FUNCIONARIOS.includes(funcionarios as never)) {
       throw PipeError.request(
-        'funcionarios_invalido',
+        'employees_invalid',
         `Escolha uma das faixas: ${FAIXAS_DE_FUNCIONARIOS.join(', ')}.`,
       );
     }
@@ -256,7 +256,7 @@ export class MyAccountController {
    * conta de um cliente e ainda não entrou por lá pelo Google também aparece —
    * é o mesmo critério que a entrada usa para ligar a conta na primeira vez.
    */
-  @Get('contas/minhas')
+  @Get('accounts/my')
   @WithSession()
   async minhas(@Req() requisicao: RequestWithSession): Promise<AccountInList[]> {
     const sessao = sessionOf(requisicao);
@@ -264,11 +264,11 @@ export class MyAccountController {
 
     const { rows } = await databaseOwner().execute<{
       tenant_id: string;
-      nome: string;
+      name: string;
       slug: string;
-      plano: string;
+      plan: string;
       onboarding_concluido_em: Date | string | null;
-      pessoal: boolean;
+      personal: boolean;
     }>(sql`
       select t.id as tenant_id, t.nome, t.slug, t.plano, t.onboarding_concluido_em,
              not exists (
@@ -301,7 +301,7 @@ export class MyAccountController {
    * propósito: quem troca de conta costuma voltar, e derrubar a outra aba no
    * meio de um atendimento seria pior.
    */
-  @Post('contas/trocar')
+  @Post('accounts/exchange')
   @WithSession()
   async exchange(
     @Req() requisicao: RequestWithSession,
@@ -313,7 +313,7 @@ export class MyAccountController {
        seletor tem o id em mãos, e o endereço da conta (o subdomínio) só tem o
        slug — é ele que a URL carrega. */
     const destination = (corpo?.tenantId ?? '').trim() || (await idDoSlug(corpo?.slug));
-    if (!destination) throw PipeError.request('tenant_ausente', 'Informe a conta de destino.');
+    if (!destination) throw PipeError.request('tenant_missing', 'Informe a conta de destino.');
     if (destination === sessao.tenantId) {
       const atual = await noTenant(sessao.tenantId, async (tx) => {
         const { rows } = await tx.execute<{ slug: string }>(
@@ -336,7 +336,7 @@ export class MyAccountController {
     const alvo = rows[0];
     // Sem vínculo a resposta é "não existe", e não "você não pode": dizer que a
     // conta existe já conta ao curioso que empresa usa o Pipe.
-    if (!alvo) throw new PipeError(404, 'nao_encontrado', 'Não encontrado.');
+    if (!alvo) throw new PipeError(404, 'not_found', 'Não encontrado.');
 
     const inbound = await openSessionAt(
       databaseOwner(),

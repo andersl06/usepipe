@@ -24,7 +24,7 @@ import {
  * sobre gente em cima dele.
  */
 
-test('duração passa a mostrar a hora só quando existe hora', () => {
+test('duration only shows the hour once there is an hour', () => {
   /* Se a fronteira dos 3.600 escorregar, a lista de conversas abertas mostra
      "59:59" para atendimento de mais de uma hora, e some com o caso crítico. */
   assert.equal(duration(3599), '59:59');
@@ -33,7 +33,7 @@ test('duração passa a mostrar a hora só quando existe hora', () => {
   assert.equal(duration(59), '00:59');
 });
 
-test('duração nunca vira negativa nem "NaN"', () => {
+test('duration never becomes negative or "NaN"', () => {
   /* `segundosEntre` devolve negativo quando o relógio do banco e o do servidor
      discordam. Sem o piso em zero, a tela mostraria "-1:-5" ao vivo. */
   assert.equal(duration(-5), '00:00');
@@ -42,7 +42,7 @@ test('duração nunca vira negativa nem "NaN"', () => {
   assert.equal(duration(undefined), '—');
 });
 
-test('duração longa não fabrica "1h 60min"', () => {
+test('a long duration never produces "1h 60min"', () => {
   /* Arredondar o resto da hora separado somava 60 minutos sem somar a hora.
      7.190s são 1h59min48s: o relatório de esforço imprimia "1h 60min". */
   assert.equal(durationLonga(7190), '2h 00min');
@@ -52,7 +52,7 @@ test('duração longa não fabrica "1h 60min"', () => {
   assert.equal(durationLonga(0), '0min');
 });
 
-test('duração longa devolve travessão para ausência, e não "NaNmin"', () => {
+test('a long duration returns a dash for absence, not "NaNmin"', () => {
   /* Média sobre população zero volta `NaN` do core. Sem esta guarda, o
      relatório imprime "NaNmin" em vez de admitir que não há dado. */
   assert.equal(durationLonga(NaN), '—');
@@ -60,7 +60,7 @@ test('duração longa devolve travessão para ausência, e não "NaNmin"', () =>
   assert.equal(durationLonga(undefined), '—');
 });
 
-test('número usa a separação brasileira', () => {
+test('numbers use Brazilian separators', () => {
   /* Ponto de milhar e vírgula decimal. Com a formatação inglesa, "1.234"
      seria lido como mil vezes menor por quem lê a tela. */
   assert.equal(numero(1234), '1.234');
@@ -70,7 +70,7 @@ test('número usa a separação brasileira', () => {
   assert.equal(numero(NaN), '—');
 });
 
-test('percentual arredonda para inteiro e recusa o que não é número', () => {
+test('a percentage rounds to an integer and rejects anything that is not a number', () => {
   assert.equal(percentual(0.8756), '88%');
   assert.equal(percentual(0), '0%');
   assert.equal(percentual(1), '100%');
@@ -78,7 +78,7 @@ test('percentual arredonda para inteiro e recusa o que não é número', () => {
   assert.equal(percentual(null), '—');
 });
 
-test('o denominador mostra a população e o que ficou de fora', () => {
+test('the denominator shows the population and what was left out', () => {
   /* Régua de métricas (§2): média que esconde o denominador melhora justamente
      quando o atendimento piora, porque as conversas ruins caem da conta. Se
      este texto sumir, o número volta a mentir sem avisar. */
@@ -114,7 +114,7 @@ test('o relógio corta os segundos que o Postgres devolve', () => {
   assert.equal(relogio('23:59:59'), '23:59');
 });
 
-test('a semana começa no domingo, como o Postgres conta', () => {
+test('the week starts on Sunday, the way Postgres counts it', () => {
   /* `extract(dow)` do Postgres e `getUTCDay` do core usam 0 = domingo. Se esta
      lista girar, o horário de atendimento de segunda passa a valer no domingo. */
   assert.equal(DIAS_DA_SEMANA[0], 'Domingo');
@@ -122,7 +122,7 @@ test('a semana começa no domingo, como o Postgres conta', () => {
   assert.equal(DIAS_DA_SEMANA.length, 7);
 });
 
-test('filtro da URL que não é UUID vira "sem filtro", nunca consulta', () => {
+test('a URL filter that is not a UUID becomes "no filter", never a query', () => {
   /* `?fila=abc` chegava ao Postgres como `abc::uuid` e derrubava a tela em 500.
      Filtro torto é, no máximo, filtro ignorado — não é erro de servidor. */
   assert.equal(
@@ -136,7 +136,7 @@ test('filtro da URL que não é UUID vira "sem filtro", nunca consulta', () => {
   assert.equal(uuidOuNada('bed9a832-13d2-456e-a623-5f8de4a91e733'), undefined);
 });
 
-test('data da URL passa só no formato que o Postgres aceita, e existindo no calendário', () => {
+test('a URL date only passes in the format Postgres accepts, and only if it exists on the calendar', () => {
   assert.equal(dataOuNada('2026-09-07'), '2026-09-07');
   assert.equal(dataOuNada('abc'), undefined);
   assert.equal(dataOuNada('07/09/2026'), undefined);

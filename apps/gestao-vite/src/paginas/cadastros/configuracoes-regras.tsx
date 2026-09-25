@@ -24,7 +24,7 @@ import { ListaRegras, type RulesSection } from '../../componentes/lista-regras';
  */
 export function PageRules() {
   const read = useRead<{ queues: QueueConfigured[]; regras: RegraSlaConfigurada[] }>(
-    '/v1/gestao/configuracoes/regras',
+    '/v1/management/settings/rules',
   );
   if (!read.data) return null;
   const { queues, regras } = read.data;

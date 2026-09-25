@@ -57,22 +57,22 @@ describe('ConditionComparison', () => {
 });
 
 describe('Condition.Validate', () => {
-  it('condição válida passa', () => {
+  it('a valid condition passes', () => {
     expect(() =>
       validateCondition({ source: 'context', variable: 'variable', values: ['value'] }),
     ).not.toThrow();
   });
-  it('sem valor falha', () => {
+  it('with no value it fails', () => {
     expect(() => validateCondition({ source: 'context', variable: 'variable' })).toThrow(
       'A condição precisa de valores quando a comparação não é exists nem notExists.',
     );
   });
-  it('fonte contexto sem variável falha', () => {
+  it('a context source without a variable fails', () => {
     expect(() => validateCondition({ source: 'context', values: ['value'] })).toThrow(
       'O nome da variável é obrigatório quando a fonte da comparação é o contexto.',
     );
   });
-  it('fonte entidade sem entidade falha', () => {
+  it('an entity source without an entity fails', () => {
     expect(() => validateCondition({ source: 'entity', values: ['value'] })).toThrow(
       'O nome da entidade é obrigatório quando a fonte da comparação é entidade.',
     );
@@ -97,10 +97,10 @@ describe('Condition.EvaluateConditionAsync', () => {
     return avaliarConditionBlip(c, ctx.inbound, ctx);
   };
 
-  it('sem fonte é a entrada, sem comparação é equals, e com vários valores basta um (or)', async () => {
+  it('with no source it is the input, with no comparison it is equals, and with several values one is enough (or)', async () => {
     expect(await avaliar({ values: ['1', 'Financeiro'] }, 'financeiro')).toBe(true);
   });
-  it('and exige todos os valores', async () => {
+  it('and requires every value', async () => {
     expect(
       await avaliar({ comparison: 'contains', operator: 'and', values: ['bo', 'leto'] }, 'boleto'),
     ).toBe(true);

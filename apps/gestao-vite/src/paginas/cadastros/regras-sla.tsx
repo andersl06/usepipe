@@ -89,7 +89,7 @@ export function SlaPageRules() {
   const [excluindo, setExcluindo] = useState(false);
   const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
   const read = useRead<{ queues: QueueConfigured[]; regras: RegraSlaConfigurada[] }>(
-    '/v1/gestao/configuracoes/regras',
+    '/v1/management/settings/rules',
   );
   if (!read.data) return null;
   const { queues, regras } = read.data;

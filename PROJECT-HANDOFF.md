@@ -296,7 +296,7 @@ git). Ainda NÃO foi mesclada em `master` (só existe no ramo `limpeza`).
 - **`pnpm typecheck` na raiz (turbo, todos os pacotes) está QUEBRADO** por
   `packages/core/src/fluxo/gerenciador.teste.ts:140` —
   `variaveis.status` não existe no tipo inferido. Os typechecks por app
-  (`pnpm -F @pipe/api typecheck`, `@pipe/gestao-vite`, `@pipe/desk-vite`) NÃO
+  (`pnpm -F @pipe/api typecheck`, `@pipe/management-vite`, `@pipe/desk-vite`) NÃO
   cobrem `packages/core` isoladamente e por isso vinham passando "verdes" sem
   pegar isto — rodar `pnpm -F @pipe/core typecheck` para confirmar. Não
   corrigido nesta sessão (fora do escopo do handoff, que é só leitura).

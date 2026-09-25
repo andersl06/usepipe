@@ -83,7 +83,7 @@ export async function carregarBoasVindas(
 }
 
 export interface PedidoDeBoasVindas {
-  ativo: boolean;
+  active: boolean;
   /** Só exigidos (e só lidos) quando `ativo` é `true`. */
   message?: string;
   textoBotao?: string;
@@ -116,14 +116,14 @@ export async function salvarBoasVindas(
     const message = typeof pedido.message === 'string' ? pedido.message.trim() : '';
     const textoBotao = typeof pedido.textoBotao === 'string' ? pedido.textoBotao.trim() : '';
     if (!message) {
-      throw PipeError.request('boas_vindas_mensagem', 'Escreva a mensagem de saudação.');
+      throw PipeError.request('welcome_vindas_message', 'Escreva a mensagem de saudação.');
     }
     if (!textoBotao) {
-      throw PipeError.request('boas_vindas_botao', 'Escreva o texto do botão.');
+      throw PipeError.request('welcome_vindas_button', 'Escreva o texto do botão.');
     }
     if (textoBotao.length > TEXTO_BOTAO_MAX) {
       throw PipeError.request(
-        'boas_vindas_botao',
+        'welcome_vindas_button',
         `O texto do botão pode ter até ${TEXTO_BOTAO_MAX} caracteres.`,
       );
     }
@@ -213,13 +213,13 @@ export async function salvarMenuPersistente(
   const contact = await loadContact(tx, tid, id);
   if (contact?.canalTipo !== 'messenger' || contact.canalAtivo !== true) {
     throw PipeError.request(
-      'menu_persistente_canal',
+      'menu_persistent_channel',
       'Só é possível ativar o menu persistente se o seu chatbot estiver conectado ao Facebook Messenger.',
     );
   }
   if (!boasVindasPreenchidaEm(configuration)) {
     throw PipeError.request(
-      'menu_persistente_boas_vindas',
+      'menu_persistent_welcome_vindas',
       'Antes de salvar o menu persistente, você precisa preencher a tela de boas-vindas.',
     );
   }
@@ -233,7 +233,7 @@ export async function salvarMenuPersistente(
   for (const item of itens) {
     if (Boolean(item.texto) !== Boolean(item.link)) {
       throw PipeError.request(
-        'menu_persistente_item',
+        'menu_persistent_item',
         'Preencha o texto e o link do item, ou deixe os dois vazios.',
       );
     }

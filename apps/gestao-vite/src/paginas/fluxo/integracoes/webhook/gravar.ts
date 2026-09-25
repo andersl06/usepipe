@@ -68,7 +68,7 @@ export async function createWebhook(
   cabecalhos?: CabecalhoCustomizado[],
 ): Promise<Resultado<WebhookCriado>> {
   try {
-    const value = await api.post<WebhookCriado>('/v1/gestao/webhooks', {
+    const value = await api.post<WebhookCriado>('/v1/management/webhooks', {
       url,
       eventos,
       authentication,
@@ -92,7 +92,7 @@ export async function editarWebhook(
   },
 ): Promise<Resultado<WebhookListado>> {
   try {
-    const value = await api.patch<WebhookListado>(`/v1/gestao/webhooks/${id}`, pedido);
+    const value = await api.patch<WebhookListado>(`/v1/management/webhooks/${id}`, pedido);
     atualizarLeituras();
     return { ok: true, value };
   } catch (error) {
@@ -102,7 +102,7 @@ export async function editarWebhook(
 
 export async function excluirWebhook(id: string): Promise<Resultado<void>> {
   try {
-    await api.delete<void>(`/v1/gestao/webhooks/${id}`);
+    await api.delete<void>(`/v1/management/webhooks/${id}`);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -112,7 +112,7 @@ export async function excluirWebhook(id: string): Promise<Resultado<void>> {
 
 export async function testarWebhook(id: string): Promise<Resultado<TestResult>> {
   try {
-    const value = await api.post<TestResult>(`/v1/gestao/webhooks/${id}/testar`);
+    const value = await api.post<TestResult>(`/v1/management/webhooks/${id}/test`);
     return { ok: true, value };
   } catch (error) {
     return { ok: false, error: motivoDe(error, 'Não foi possível testar o webhook.') };

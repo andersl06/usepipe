@@ -7,7 +7,7 @@ import {
   periodValid,
 } from '../src/paginas/fluxo/analise/gerenciador-de-relatorios/regras.ts';
 
-test('o período do gerenciador repete o differenceInDays e o teto de 90 dias', () => {
+test('the manager\'s period repeats differenceInDays and the 90-day ceiling', () => {
   assert.equal(periodDias('2026-06-15', '2026-09-13'), 90);
   assert.equal(periodValid('2026-06-15', '2026-09-13'), true);
   assert.equal(periodValid('2026-06-14', '2026-09-13'), false);

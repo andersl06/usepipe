@@ -13,12 +13,12 @@ interface ResultadoSimples {
 }
 
 function voltarWithError(error: string): void {
-  irPara(`/contrato/membros?erro=${encodeURIComponent(error)}`);
+  irPara(`/contract/members?erro=${encodeURIComponent(error)}`);
 }
 
 export async function switchRole(data: FormData): Promise<void> {
   const resultado = await api
-    .post<ResultadoSimples>('/v1/gestao/contrato/membros/papel', {
+    .post<ResultadoSimples>('/v1/management/contract/members/role', {
       papelId: String(data.get('papelId') ?? '').trim(),
       alvos: data.getAll('alvo').map(String),
     })
@@ -29,7 +29,7 @@ export async function switchRole(data: FormData): Promise<void> {
 
 export async function excluirMembers(data: FormData): Promise<void> {
   const resultado = await api
-    .post<ResultadoSimples>('/v1/gestao/contrato/membros/excluir', {
+    .post<ResultadoSimples>('/v1/management/contract/members/delete', {
       alvos: data.getAll('alvo').map(String),
     })
     .catch((e: Error) => ({ ok: false, error: e.message }) as ResultadoSimples);

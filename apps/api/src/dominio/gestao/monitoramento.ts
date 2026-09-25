@@ -66,13 +66,13 @@ function inicioDoHorizonte(agora: Date): Date {
 export interface LineConversationOpen {
   id: string;
   ticket: string;
-  contatoNome: string;
-  filaId: string | null;
-  filaNome: string | null;
-  atendenteId: string | null;
-  atendenteNome: string | null;
-  estado: string;
-  prioridade: string;
+  contactName: string;
+  queueId: string | null;
+  queueName: string | null;
+  agentId: string | null;
+  agentName: string | null;
+  state: string;
+  priority: string;
   marcos: Marcos;
   /** Segundos na fila: fechado quando já foi atribuída, correndo quando não. */
   inQueueSeg: number | null;
@@ -84,7 +84,7 @@ export interface LineConversationOpen {
   /** A bola está com o atendente: o cliente falou por último, ou ninguém respondeu ainda. */
   aguardandoAtendente: boolean;
   sla: PillSla;
-  etiquetas: string[];
+  labels: string[];
 }
 
 export interface CardsTimeReal {
@@ -120,7 +120,7 @@ export interface CardsOfToday {
 
 export interface CargaAgent {
   id: string;
-  nome: string;
+  name: string;
   state: StateAgent;
   ativas: number;
   aguardandoAgent: number;
@@ -134,7 +134,7 @@ export interface CargaAgent {
 
 export interface SummaryQueue {
   id: string;
-  nome: string;
+  name: string;
   inQueue: number;
   emAtendimento: number;
   maiorEsperaSeg: number | null;
@@ -146,8 +146,8 @@ export interface SummaryQueue {
 
 export interface ResumoEtiqueta {
   id: string;
-  nome: string;
-  cor: string | null;
+  name: string;
+  color: string | null;
   abertas: number;
   finalizadas: number;
   tempoMedioAtendimentoSeg: number | null;
@@ -162,10 +162,10 @@ export interface Monitoring {
   abertas: LineConversationOpen[];
   carga: CargaAgent[];
   queues: SummaryQueue[];
-  etiquetas: ResumoEtiqueta[];
+  labels: ResumoEtiqueta[];
   ticketsOpenByHour: number[];
   /** Catálogo para os filtros rápidos. */
-  listAgents: { id: string; nome: string }[];
+  listAgents: { id: string; name: string }[];
 }
 
 export interface PreviaOfConversationInMonitoring {
@@ -174,7 +174,7 @@ export interface PreviaOfConversationInMonitoring {
   contactName: string;
   queueName: string | null;
   agentName: string | null;
-  itens: { id: string; em: Date | string; tipo: 'mensagem' | 'nota'; direction?: string; texto: string; autor?: string | null }[];
+  itens: { id: string; at: Date | string; type: 'mensagem' | 'nota'; direction?: string; texto: string; autor?: string | null }[];
 }
 
 /** A Gestão lê qualquer ticket do tenant; o Desk só lê o que está atribuído ao próprio atendente. */
@@ -185,7 +185,7 @@ export async function loadPreviaOfConversation(
 ): Promise<PreviaOfConversationInMonitoring | null> {
   await exigirPermission(tx, userId, 'monitoramento.tempo_real.ver');
   const { rows } = await tx.execute<{
-    id: string; contato_nome: string | null; fila_nome: string | null; atendente_nome: string | null;
+    id: string; contactName: string | null; queueName: string | null; agentName: string | null;
   }>(sql`
     select c.id, ct.nome as contato_nome, f.nome as fila_nome, u.nome as atendente_nome
       from conversa c
@@ -198,7 +198,7 @@ export async function loadPreviaOfConversation(
   const conversationOpen = rows[0];
   if (!conversationOpen) return null;
   const itens = await tx.execute<{
-    id: string; em: Date | string; tipo: 'mensagem' | 'nota'; direction: string | null; texto: string; autor: string | null;
+    id: string; at: Date | string; type: 'mensagem' | 'nota'; direction: string | null; texto: string; autor: string | null;
   }>(sql`
     select m.id, m.criada_em as em, 'mensagem'::text as tipo, m.direcao,
            coalesce(m.conteudo, '') as texto, u.nome as autor
@@ -230,7 +230,7 @@ export async function falarWithAgentInMonitoring(
 ): Promise<void> {
   await exigirPermission(tx, usuarioId, 'conversa.nota_interna');
   const corpo = texto.trim();
-  if (!corpo) throw PipeError.request('nota_vazia', 'Escreva uma mensagem antes de enviar.');
+  if (!corpo) throw PipeError.request('note_empty', 'Escreva uma mensagem antes de enviar.');
   const { rows } = await tx.execute<{ id: string }>(sql`
     select id from conversa where id = ${conversaId}::uuid limit 1
   `);
@@ -262,7 +262,7 @@ export function metricsByKey(linhas: readonly LinhaDeQuebra[]) {
   );
 }
 
-export function normalizeTicketsByHour(linhas: readonly { hora: number; total: number }[]): number[] {
+export function normalizeTicketsByHour(linhas: readonly { hour: number; total: number }[]): number[] {
   const horas = Array<number>(24).fill(0);
   for (const linha of linhas) {
     if (Number.isInteger(linha.hora) && linha.hora >= 0 && linha.hora < 24) {
@@ -279,8 +279,8 @@ export function ticketDe(id: string): string {
 
 type LinhaEvento = {
   conversationId: string;
-  tipo: string;
-  em: Date;
+  type: string;
+  at: Date;
   userId: string | null;
   queueId: string | null;
   data: unknown;
@@ -338,7 +338,7 @@ function maiorDe(values: readonly (number | null)[]): number | null {
  * dos cartões não fecha com a tabela.
  */
 export interface MonitoringFilter {
-  filaId?: string | undefined;
+  queueId?: string | undefined;
   agentId?: string | undefined;
   queueIds?: string[];
   agentIds?: string[];
@@ -374,7 +374,7 @@ export function ordenarQueueOfWait<
 
 export async function loadMonitoring(
   tx: TransactionPipe,
-  window: { inicio: Date; fim: Date },
+  window: { start: Date; end: Date },
   fuso: string,
   filter: MonitoringFilter = {},
   agora = new Date(),
@@ -699,7 +699,7 @@ export async function loadMonitoring(
 /** Contagem de conversas encerradas no período — usada pelo cabeçalho do histórico. */
 export async function contarClosedsInPeriod(
   tx: TransactionPipe,
-  janela: { inicio: Date; fim: Date },
+  janela: { start: Date; end: Date },
 ): Promise<number> {
   return consultar(tx, async (tx) => {
     const r = await tx

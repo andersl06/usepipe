@@ -257,21 +257,21 @@ export function App() {
     <>
     <ClosureNotice />
     <Routes>
-      <Route path="/entrar" element={<PageLogin />} />
-      <Route path="/convite/:token" element={<PageInvitation />} />
+      <Route path="/login" element={<PageLogin />} />
+      <Route path="/invite/:token" element={<PageInvitation />} />
 
       <Route element={<ExigirSession />}>
         <Route path="/" element={<Navigate to="/portal" replace />} />
         <Route path="/portal" element={<PagePortal />} />
-        <Route path="/novidades" element={<PageUpdates />} />
-        <Route path="/contrato" element={<ContractPage />} />
-        <Route path="/contrato/certificados" element={<CertificatesPage />} />
-        <Route path="/contrato/membros" element={<MembersPage />} />
-        <Route path="/minha-conta" element={<PageMyAccount />} />
+        <Route path="/updates" element={<PageUpdates />} />
+        <Route path="/contract" element={<ContractPage />} />
+        <Route path="/contract/certificates" element={<CertificatesPage />} />
+        <Route path="/contract/members" element={<MembersPage />} />
+        <Route path="/my-account" element={<PageMyAccount />} />
         <Route path="/bem-vindo" element={<PageWelcome />} />
-        <Route path="/trocar-conta/sem-acesso" element={<PageNoAccess />} />
-        <Route path="/criar/fluxo" element={<PageCreateFlow />} />
-        <Route path="/criar/roteador" element={<PageCreateRouter />} />
+        <Route path="/switch-account/no-access" element={<PageNoAccess />} />
+        <Route path="/create/flow" element={<PageCreateFlow />} />
+        <Route path="/create/router" element={<PageCreateRouter />} />
 
         {/* Implantação — onboarding de CONTA, sem contato nenhum para
             pendurar. Cromo próprio (`pt-app` + `BarraDoPortal`, como
@@ -280,7 +280,7 @@ export function App() {
             `EstruturaGestao` desenhava fora do contato, se mudaram para
             dentro dele (abaixo); sem os dois, aquele casco de duas barras
             ficou sem rota nenhuma e saiu. */}
-        <Route path="/implantacao" element={<PageDeployment />} />
+        <Route path="/deployment" element={<PageDeployment />} />
 
         {/* As rotas de antes de morarem no contato (Atendimento em
             `/{tipo}/:id/atendimento/*`, Builder em `/fluxo/:id/builder`,
@@ -292,14 +292,14 @@ export function App() {
           <Route key={caminho} path={caminho} element={<Navigate to="/portal" replace />} />
         ))}
 
-        <Route path="/fluxo/:id" element={<ContactRota />}>
+        <Route path="/flow/:id" element={<ContactRota />}>
           {contactRotas}
           {/* Builder é escondido do menu do roteador (`ESCONDIDOS_NO_ROTEADOR`
               em `fluxo/itens.ts`, a mesma regra da origem) — por isso a rota
               só existe aqui, e não na árvore de `/roteador/:id` logo abaixo. */}
           <Route path="builder" element={<PageBuilder />} />
         </Route>
-        <Route path="/roteador/:id" element={<ContactRota />}>
+        <Route path="/router/:id" element={<ContactRota />}>
           {contactRotas}
         </Route>
 

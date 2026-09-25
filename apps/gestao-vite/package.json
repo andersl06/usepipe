@@ -1,5 +1,5 @@
 {
-  "name": "@pipe/gestao-vite",
+  "name": "@pipe/management-vite",
   "version": "0.1.0",
   "private": true,
   "description": "Pipe Gestão — a mesma tela, em Vite + React (SPA). Substitui `@pipe/gestao` (Next) quando chegar à paridade.",

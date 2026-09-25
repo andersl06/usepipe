@@ -23,8 +23,8 @@ import { clienteGraphInstagram, versaoDaApiInstagram } from './cliente-graph.js'
 export interface ChannelInstagram {
   id: string;
   tenantId: string;
-  nome: string;
-  ativo: boolean;
+  name: string;
+  active: boolean;
   igUserId: string;
   /** Decifrado. Só em memória. */
   config: Record<string, unknown>;
@@ -32,13 +32,13 @@ export interface ChannelInstagram {
 
 export interface ChannelInstagramVisible {
   id: string;
-  nome: string;
-  ativo: boolean;
+  name: string;
+  active: boolean;
   igUserId: string | null;
   username: string | null;
   state: 'conectado' | 'desligado' | 'indisponivel';
   motivo: string | null;
-  tokenExpiraEm: string | null;
+  tokenExpiresAt: string | null;
   webhookUrl: string;
   criadoEm: Date;
 }
@@ -62,7 +62,7 @@ export function urlDoWebhookInstagram(canalId: string): string {
 }
 
 function recusa(message: string): PipeError {
-  return new PipeError(422, 'configuracao_invalida', message);
+  return new PipeError(422, 'configuration_invalid', message);
 }
 
 const accountInUse = () => recusa('Esta conta do Instagram já está conectada a outra caixa de entrada.');
@@ -71,10 +71,10 @@ type LineChannel = {
   [column: string]: unknown;
   id: string;
   tenant_id: string;
-  nome: string;
-  ativo: boolean;
+  name: string;
+  active: boolean;
   numero_id: string | null;
-  criado_em: string | Date;
+  createdAt: string | Date;
   config: Record<string, unknown> | null;
 };
 
@@ -173,7 +173,7 @@ export async function conectarInstagramManual(pedido: {
   userId: string;
   token?: string | undefined;
   appSecret?: string | undefined;
-  nome?: string | undefined;
+  name?: string | undefined;
 }): Promise<ConexaoInstagram> {
   if (!pedido.token) throw recusa('O token de acesso é obrigatório.');
   if (!pedido.appSecret) throw recusa('O App Secret é obrigatório.');
@@ -187,7 +187,7 @@ export async function conectarInstagramManual(pedido: {
   try {
     account = await cliente.fetchAccount();
   } catch (error) {
-    if (error instanceof PipeError && error.codigo === 'meta_recusou') {
+    if (error instanceof PipeError && error.codigo === 'meta_refused') {
       throw recusa('O token não foi aceito pelo Instagram. Gere de novo o token de longa duração no painel do app.');
     }
     throw error;
@@ -201,7 +201,7 @@ export async function conectarInstagramManual(pedido: {
 
   // Unicidade GLOBAL, com o papel dono: a RLS esconderia justamente o canal do outro
   // cliente. Devolve só o necessário para decidir.
-  const { rows: existentes } = await databaseOwner().execute<{ id: string; tenant_id: string; ativo: boolean }>(sql`
+  const { rows: existentes } = await databaseOwner().execute<{ id: string; tenant_id: string; active: boolean }>(sql`
     select id, tenant_id, ativo from canal where numero_id = ${igUserId} limit 1
   `);
   const existente = existentes[0];

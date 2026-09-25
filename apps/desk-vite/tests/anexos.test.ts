@@ -21,7 +21,7 @@ test('lote dentro dos limites passa', () => {
   assert.equal(recusaDoLote(lote), null);
 });
 
-test('mais de dez arquivos recusa o lote inteiro, dizendo quantos vieram', () => {
+test('more than ten files rejects the whole batch, reporting how many were sent', () => {
   const lote = Array.from({ length: MAX_FILES_BY_ENVIO + 1 }, (_, i) =>
     file(`f${i}.png`, 'image/png', 10),
   );
@@ -31,7 +31,7 @@ test('mais de dez arquivos recusa o lote inteiro, dizendo quantos vieram', () =>
   assert.ok(motivo?.includes('Nenhum arquivo foi enviado.'));
 });
 
-test('um arquivo grande demais no meio recusa o lote e cita o nome', () => {
+test('an oversized file in the middle rejects the batch and names it', () => {
   const lote = [
     file('ok.png', 'image/png', 10),
     file('video.mp4', 'video/mp4', MAX_BYTES_AUDIO_VIDEO + 1),
@@ -42,12 +42,12 @@ test('um arquivo grande demais no meio recusa o lote e cita o nome', () => {
   assert.ok(motivo?.includes('16 MB'));
 });
 
-test('documento acima de 100 MB recusa; áudio de 20 MB recusa mesmo abaixo de 100', () => {
+test('a document over 100 MB is rejected; audio over 20 MB is rejected even though it is under 100', () => {
   assert.ok(recusaDoLote([file('a.pdf', 'application/pdf', MAX_BYTES_BY_FILE + 1)]));
   assert.ok(recusaDoLote([file('a.mp3', 'audio/mpeg', 20 * 1_048_576)]));
 });
 
-test('arquivo vazio e seleção vazia são recusados', () => {
+test('an empty file and an empty selection are both rejected', () => {
   assert.ok(recusaDoLote([file('vazio.txt', 'text/plain', 0)])?.includes('"vazio.txt"'));
   assert.equal(recusaDoLote([]), 'Escolha ao menos um arquivo.');
 });

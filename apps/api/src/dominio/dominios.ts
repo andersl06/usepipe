@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { resolveTxt } from 'node:dns/promises';
 import { sql } from 'drizzle-orm';
-import { DOMINIOS_PUBLICOS } from '@pipe/autenticacao';
+import { DOMINIOS_PUBLICOS } from '@pipe/authentication';
 import { noTenant } from '../banco.js';
 import { PipeError } from '../erros.js';
 
@@ -23,14 +23,14 @@ import { PipeError } from '../erros.js';
 export const PREFIX_TXT = '_pipe-verificacao';
 
 export interface RegistroOfVerification {
-  nome: string;
+  name: string;
   tipo: 'TXT';
   value: string;
 }
 
 export interface DomainRegistered {
   id: string;
-  dominio: string;
+  domain: string;
   verificadoEm: Date | null;
   registro: RegistroOfVerification;
 }
@@ -50,11 +50,11 @@ export function normalizeDomain(cru: string | undefined): string {
     .replace(/\.$/, '');
 
   if (!DOMAIN_ACEITAVEL.test(domain)) {
-    throw PipeError.request('dominio_invalido', `"${cru ?? ''}" não é um domínio.`);
+    throw PipeError.request('domain_invalid', `"${cru ?? ''}" não é um domínio.`);
   }
   if (DOMINIOS_PUBLICOS.has(domain)) {
     throw PipeError.request(
-      'dominio_publico',
+      'domain_public',
       `${domain} é domínio de e-mail pessoal e nunca identifica uma empresa. Convide por link.`,
       { domain },
     );
@@ -113,7 +113,7 @@ export async function logDomain(
       };
     } catch (error) {
       if (codigoDoPostgres(error) === '23505') {
-        throw PipeError.conflito('dominio_em_uso', `${dominio} já pertence a outra conta do Pipe.`);
+        throw PipeError.conflito('domain_in_use', `${dominio} já pertence a outra conta do Pipe.`);
       }
       throw error;
     }
@@ -146,7 +146,7 @@ export async function checkDomain(
   const linha = await noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{
       id: string;
-      dominio: string;
+      domain: string;
       tokenVerification: string | null;
     }>(sql`select id, dominio, token_verificacao from dominio_tenant
              where id = ${id}::uuid limit 1`);
@@ -168,7 +168,7 @@ export async function checkDomain(
   const publicado = registros.some((pedacos) => pedacos.join('').trim() === esperado.value);
   if (!publicado) {
     throw PipeError.request(
-      'dominio_nao_verificado',
+      'domain_not_verified',
       `Não encontrei ${esperado.value} em ${esperado.nome}. Publique o TXT e tente de novo — a propagação leva alguns minutos.`,
       { registro: { ...esperado } },
     );

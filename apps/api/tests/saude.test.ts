@@ -30,7 +30,7 @@ afterAll(async () => {
   await api?.fechar();
 });
 
-describe('GET /saude com o banco fora', () => {
+describe('Return 503 from GET `/saude` and identify the unavailable database', () => {
   it('responde 503 e diz qual peça caiu', async () => {
     const comecou = Date.now();
     const resposta = await fetch(`${api.url}/saude`);
@@ -39,7 +39,7 @@ describe('GET /saude com o banco fora', () => {
     expect(resposta.status).toBe(503);
     const corpo = (await resposta.json()) as {
       ok: boolean;
-      versao: string;
+      version: string;
       database: string;
       redis: string;
     };

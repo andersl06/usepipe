@@ -40,7 +40,7 @@ export function deliverySignal(messages: readonly Message[]): DeliverySignal {
   const ultima = messages[messages.length - 1];
   if (!ultima) return null;
   switch (ultima.stateDelivery) {
-    case 'pendente':
+    case 'pending':
     case 'enviando':
       return 'relogio';
     case 'enviada':

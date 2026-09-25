@@ -88,7 +88,7 @@ export const POLICY_MEDIA_DEFAULT: PolicyMedia = {
 };
 
 export interface Media {
-  tipo: TypeMedia;
+  type: TypeMedia;
   mime: string;
   bytes: number;
 }

@@ -17,7 +17,7 @@ export async function salvarMenuPersistente(
 ): Promise<Resultado<ConfigurationOfMenuPersistent>> {
   try {
     const value = await api.patch<ConfigurationOfMenuPersistent>(
-      `/v1/gestao/fluxos/${id}/menu-persistente`,
+      `/v1/management/flows/${id}/menu-persistent`,
       { itens },
     );
     atualizarLeituras();

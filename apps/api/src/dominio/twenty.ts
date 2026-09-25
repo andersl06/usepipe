@@ -174,7 +174,7 @@ export function linkDaEmpresa(url: string, empresaId: string): string {
 
 export interface ContactForEspelhar {
   id: string;
-  nome: string | null;
+  name: string | null;
   email: string | null;
   telefoneE164: string | null;
   twentyPessoaId: string | null;
@@ -272,7 +272,7 @@ function conferirDono(no: NoPessoa, contatoId: string, url: string): void {
 
 export interface FichaNoCrm {
   pessoaId: string;
-  nome: string;
+  name: string;
   email: string | null;
   empresa: string | null;
   link: string;

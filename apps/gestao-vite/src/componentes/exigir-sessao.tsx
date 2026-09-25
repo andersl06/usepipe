@@ -18,7 +18,7 @@ export function ExigirSession() {
   if (eu === undefined) return null;
   if (eu === null) {
     const destination = pathname + search;
-    return <Navigate to={`/entrar?destino=${encodeURIComponent(destination)}`} replace />;
+    return <Navigate to={`/login?destino=${encodeURIComponent(destination)}`} replace />;
   }
   if (!eu.tenant.onboardingConcluido && !ROTAS_DO_ONBOARDING.test(pathname)) {
     return <Navigate to="/bem-vindo" replace />;

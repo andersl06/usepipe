@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { cifrarConfig, decifrarConfig, registrarAuditoria } from '@pipe/db';
-import { DOMINIOS_PUBLICOS, descobrir, domainOfEmail } from '@pipe/autenticacao';
-import type { ConfigOidc, DescobertaOidc, ProvedorSso } from '@pipe/autenticacao';
+import { DOMINIOS_PUBLICOS, descobrir, domainOfEmail } from '@pipe/authentication';
+import type { ConfigOidc, DescobertaOidc, ProvedorSso } from '@pipe/authentication';
 import type { RespostaDaDescoberta } from '@pipe/contracts';
 import { databaseOwner, keyring, noTenant } from '../banco.js';
 import { PipeError } from '../erros.js';
@@ -38,11 +38,11 @@ export type PoliticaSso = (typeof POLITICAS)[number];
 /** O que a tela vê. Sem segredo, e é por isso que existe um tipo só para isto. */
 export interface ConexaoSsoVisivel {
   id: string;
-  provedor: ProvedorSso;
-  emissor: string;
-  clienteId: string;
-  estado: StateConnection;
-  politica: PoliticaSso;
+  provider: ProvedorSso;
+  issuer: string;
+  clientId: string;
+  state: StateConnection;
+  policy: PoliticaSso;
   testadaEm: Date | null;
   ativadaEm: Date | null;
   /** O que o cliente cola no IdP dele. */
@@ -54,12 +54,12 @@ interface LinhaConexao {
   [column: string]: unknown;
   id: string;
   tenant_id: string;
-  provedor: string;
-  emissor: string;
+  provider: string;
+  issuer: string;
   cliente_id: string;
   config: Record<string, unknown> | null;
-  estado: string;
-  politica: string;
+  state: string;
+  policy: string;
   testada_em: string | null;
   ativada_em: string | null;
 }
@@ -67,7 +67,7 @@ interface LinhaConexao {
 /** A URL de retorno é UMA, para todos os clientes: o tenant vem do `state`, não da URL. */
 export function ssoCallbackUrl(): string {
   const base = (process.env['PIPE_URL_API'] ?? 'http://localhost:3100').replace(/\/$/, '');
-  return `${base}/v1/auth/sso/retorno`;
+  return `${base}/v1/auth/sso/callback`;
 }
 
 function visivel(linha: LinhaConexao): ConexaoSsoVisivel {
@@ -85,9 +85,9 @@ function visivel(linha: LinhaConexao): ConexaoSsoVisivel {
 }
 
 export interface CorpoDeConexao {
-  provedor?: string;
-  emissor?: string;
-  clienteId?: string;
+  provider?: string;
+  issuer?: string;
+  clientId?: string;
   customerSecret?: string;
 }
 
@@ -105,20 +105,20 @@ export async function salvarConexao(
 ): Promise<ConexaoSsoVisivel> {
   const provedor = (corpo.provedor ?? 'generico').trim();
   if (!PROVEDORES.includes(provedor as ProvedorSso)) {
-    throw PipeError.request('provedor_invalido', `"${provedor}" não é um provedor conhecido.`);
+    throw PipeError.request('provider_invalid', `"${provedor}" não é um provedor conhecido.`);
   }
 
   const emissor = (corpo.emissor ?? '').trim().replace(/\/$/, '');
   if (!emissor.startsWith('https://')) {
     throw PipeError.request(
-      'emissor_invalido',
+      'issuer_invalid',
       'O emissor precisa ser a URL https do provedor — a mesma de onde sai o `.well-known`.',
     );
   }
   const clienteId = (corpo.clienteId ?? '').trim();
   const customerSecret = (corpo.customerSecret ?? '').trim();
   if (!clienteId || !customerSecret) {
-    throw PipeError.request('config_incompleta', 'Faltam `clienteId` ou `clienteSegredo`.');
+    throw PipeError.request('config_incomplete', 'Faltam `clienteId` ou `clienteSegredo`.');
   }
 
   const config = cifrarConfig({ clientSecret: customerSecret }, keyring());
@@ -176,7 +176,7 @@ async function linhaDoTenant(tenantId: string): Promise<LinhaConexao | null> {
 
 export interface MudancaOfState {
   state?: string;
-  politica?: string;
+  policy?: string;
 }
 
 /**
@@ -199,21 +199,21 @@ export async function defineState(
   const state = (mudanca.state ?? atual.estado) as StateConnection;
   const politica = (mudanca.politica ?? atual.politica) as PoliticaSso;
   if (!ESTADOS.includes(state)) {
-    throw PipeError.request('estado_invalido', `"${state}" não é um estado de conexão.`);
+    throw PipeError.request('state_invalid', `"${state}" não é um estado de conexão.`);
   }
   if (!POLITICAS.includes(politica)) {
-    throw PipeError.request('politica_invalida', `"${politica}" não é uma política de SSO.`);
+    throw PipeError.request('policy_invalid', `"${politica}" não é uma política de SSO.`);
   }
 
   if (state === 'ativa' && !testValid(atual.testada_em)) {
     throw PipeError.request(
-      'sem_teste_valido',
+      'without_test_valid',
       `Teste a conexão antes de ativá-la — o teste vale ${DAYS_OF_TEST_VALID} dias.`,
     );
   }
   if (politica !== 'desligado' && state !== 'ativa') {
     throw PipeError.request(
-      'conexao_inativa',
+      'connection_inactive',
       'Exigir SSO com a conexão desligada tranca todo mundo do lado de fora. Ative primeiro.',
     );
   }
@@ -282,13 +282,13 @@ export async function connectionForFlow(
   const linha = await linhaDoTenant(tenantId);
   if (!linha) throw PipeError.naoEncontrado('Conexão de SSO');
   if (options.exigirActive && linha.estado !== 'ativa') {
-    throw PipeError.request('sso_inativo', 'O SSO desta conta ainda não foi ativado.');
+    throw PipeError.request('sso_inactive', 'O SSO desta conta ainda não foi ativado.');
   }
 
   const config = decifrarConfig(linha.config ?? {}, keyring());
   const clienteSegredo = typeof config['clientSecret'] === 'string' ? config['clientSecret'] : '';
   if (!clienteSegredo) {
-    throw PipeError.request('config_incompleta', 'A conexão está sem o segredo do cliente.');
+    throw PipeError.request('config_incomplete', 'A conexão está sem o segredo do cliente.');
   }
 
   return {
@@ -318,7 +318,7 @@ function tenantsDoEntra(emissor: string): readonly string[] {
   const tid = casado?.[1];
   if (!tid || tid === 'common' || tid === 'organizations' || tid === 'consumers') {
     throw PipeError.request(
-      'emissor_multi_tenant',
+      'issuer_multi_tenant',
       'Use o emissor do diretório da empresa (com o id do tenant), não `common`: com `common` qualquer diretório da Microsoft entraria.',
     );
   }
@@ -343,7 +343,7 @@ export type { RespostaDaDescoberta };
 export async function discoverInbound(emailCru: string | undefined): Promise<RespostaDaDescoberta> {
   const email = (emailCru ?? '').trim().toLowerCase();
   if (!email.includes('@')) {
-    throw PipeError.request('email_invalido', 'Informe um e-mail.');
+    throw PipeError.request('email_invalid', 'Informe um e-mail.');
   }
   const domain = domainOfEmail(email);
 

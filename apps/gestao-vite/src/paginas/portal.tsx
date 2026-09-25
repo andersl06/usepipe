@@ -81,7 +81,7 @@ export function PagePortal() {
      do portal permanece limpa; só a chamada à API recebe esses parâmetros. */
   const shell = portalUseShell();
   const grade = useRead<GradeDoPortal>(
-    `/v1/gestao/fluxos?busca=${encodeURIComponent(search)}&pagina=${page}&porPagina=${byPage}`,
+    `/v1/management/flows?busca=${encodeURIComponent(search)}&pagina=${page}&porPagina=${byPage}`,
 );
   /* Banco fora do ar não pode apagar a barra: a grade cai no estado vazio. */
   const data: PortalData = {
@@ -356,11 +356,11 @@ function SubBarra({
 
           {data.canCreate ? (
             <>
-              <Link className="btn" href="/criar/roteador">
+              <Link className="btn" href="/create/router">
                 <IconePortal nome="roteador" tamanho={20} />
                 Criar roteador
               </Link>
-              <Link className="btn primario" href="/criar/fluxo">
+              <Link className="btn primario" href="/create/flow">
                 <IconePortal nome="fluxo" tamanho={20} />
                 Criar fluxo
               </Link>
@@ -431,7 +431,7 @@ function ActionCards() {
       {/* Os quatro deles, na mesma ordem: novidades, contrato, ajuda e
           comunidade. A comunidade ainda está sendo feita e entra apagada. */}
       <ActionCard
-        href="/novidades"
+        href="/updates"
         icone="novidades"
         rotulo="Novidades no Pipe"
         texto="O que mudou, o que chegou e o que está a caminho."
@@ -441,7 +441,7 @@ function ActionCards() {
           \`tenant\`), não ao cadastro da pessoa. Estava apontando para o lugar
           errado. */}
       <ActionCard
-        href="/contrato"
+        href="/contract"
         icone="contrato"
         rotulo="Acompanhe seu contrato"
         texto="Plano, endereço, pessoas com acesso e os dados do contrato."

@@ -190,10 +190,10 @@ export async function processarPayload(
   // dado existir: ela buscaria o valor velho e não receberia segundo aviso — que é
   // o próprio defeito que o tempo real existe para consertar.
   for (const conversationId of tocadas) {
-    await publicar(channel.tenantId, evento('conversa', conversationId));
+    await publicar(channel.tenantId, evento('conversation', conversationId));
   }
   // Mensagem nova mexe no tamanho e na ordem da fila; a lista do Desk repinta por isto.
-  if (entrouInQueue) await publicar(channel.tenantId, evento('fila'));
+  if (entrouInQueue) await publicar(channel.tenantId, evento('queue'));
 
   return resumo;
 }
@@ -333,7 +333,7 @@ async function aplicarStatus(canal: ChannelResolved, status: StatusDaMeta): Prom
   return noTenant(canal.tenantId, async (tx) => {
     const { rows } = await tx.execute<{
       id: string;
-      conversa_id: string;
+      conversationId: string;
       stateDelivery: StateDelivery | null;
     }>(sql`
       select id, conversa_id, estado_entrega from mensagem
@@ -406,7 +406,7 @@ interface InboxResolvida {
 }
 
 async function acharInbox(tx: TransactionPipe, channelId: string): Promise<InboxResolvida> {
-  const { rows } = await tx.execute<{ id: string; fila_padrao_id: string | null }>(
+  const { rows } = await tx.execute<{ id: string; queueDefaultId: string | null }>(
     sql`select id, fila_padrao_id from inbox where canal_id = ${channelId} order by criado_em limit 1`,
   );
   const linha = rows[0];
@@ -485,9 +485,9 @@ async function findOrOpenConversation(
 ): Promise<ConversationResolved> {
   const { rows } = await tx.execute<{
     id: string;
-    estado: string;
-    atendente_id: string | null;
-    fila_id: string | null;
+    state: string;
+    agentId: string | null;
+    queueId: string | null;
   }>(sql`
     select id, estado, atendente_id, fila_id from conversa
      where contato_id = ${contactId} and inbox_id = ${inbox.id} and estado <> 'encerrada'

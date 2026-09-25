@@ -127,7 +127,7 @@ function PassoDoMarketplace() {
             `bds-chip-tag color="success"` da origem — "Ideal para começar" —
             continua meio a meio sobre a borda de cima: ele é o que faz a
             pessoa olhar primeiro para este cartão. */}
-        <Link className="cf-cartao" href="/criar/fluxo?passo=template">
+        <Link className="cf-cartao" href="/create/flow?passo=template">
           <span className="cf-selo-recomendado">{ROTULOS.selo}</span>
           {/* `bds-icon name="integration" size="brand"`. O nosso `loja` é o
               desenho `plugin` do mesmo conjunto — a tomada que encaixa. */}
@@ -139,7 +139,7 @@ function PassoDoMarketplace() {
         {/* `selectTemplate('builder')` → `^.name`. É o caminho inteiro que
             copiamos: daqui sai o `template = 'builder'`, que é o nosso
             `tipo = 'fluxo'`. */}
-        <Link className="cf-cartao" href="/criar/fluxo?passo=nome">
+        <Link className="cf-cartao" href="/create/flow?passo=nome">
           {/* `bds-icon name="file-empty-file" size="brand"` — a folha em
               branco. `icones-portal.tsx` não tem esse desenho; o `fluxo`
               (`builder-new-state`, o bloco vazio do construtor) é o mesmo
@@ -193,13 +193,13 @@ function PassoDoTemplate() {
 
         <div className="cr-acoes">
           {/* Volta ao passo 1, como o `back()` deles guardado em `beforeNameStep`. */}
-          <Link className="btn cr-botao" href="/criar/fluxo">
+          <Link className="btn cr-botao" href="/create/flow">
             <IconePortal nome="esquerda" tamanho={20} />
             {ROTULOS.voltar}
           </Link>
           <Link
             className="btn primario cr-botao"
-            href={`/criar/fluxo?passo=nome&template=${TEMPLATE_PADRAO}`}
+            href={`/create/flow?passo=nome&template=${TEMPLATE_PADRAO}`}
           >
             {ROTULOS.escolherEsseTemplate}
           </Link>

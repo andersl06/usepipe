@@ -35,7 +35,7 @@ const ABAS: readonly ChannelAba[] = [
 
 export function PageChannelInstagram() {
   const { contact } = useContact();
-  const read = useRead<ChannelOfFlowInScreen>(`/v1/gestao/fluxos/${contact.id}/canal`);
+  const read = useRead<ChannelOfFlowInScreen>(`/v1/management/flows/${contact.id}/channel`);
 
   if (read.error && !(read.error instanceof ApiError && read.error.status === 404)) {
     return <ReadFalha error={read.error} />;

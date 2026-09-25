@@ -21,20 +21,20 @@ const utc = (iso: string) => new Date(iso);
 const ULTIMA_OF_CONTACT = utc('2026-03-02T10:00:00Z');
 const EXPIRA_EM = utc('2026-03-03T10:00:00Z');
 
-describe('janela de 24 horas', () => {
+describe('24-hour window', () => {
   it('dura exatamente 86.400 segundos', () => {
     expect(WINDOW_SEG).toBe(86_400);
   });
 
-  it('expiração é a última mensagem do contato mais 24h', () => {
+  it('expiration is the contact\'s last message plus 24h', () => {
     expect(calcularExpiration(ULTIMA_OF_CONTACT)).toEqual(EXPIRA_EM);
   });
 
-  it('sem mensagem do contato não há janela', () => {
+  it('with no message from the contact there is no window', () => {
     expect(calcularExpiration(null)).toBeNull();
   });
 
-  it('cada mensagem nova do contato reabre a janela', () => {
+  it('every new message from the contact reopens the window', () => {
     const first = contactRegistrarMessage(ULTIMA_OF_CONTACT, 'm1');
     const segunda = contactRegistrarMessage(utc('2026-03-02T18:00:00Z'), 'm2');
     expect(first.expiraEm).toEqual(EXPIRA_EM);
@@ -59,7 +59,7 @@ describe('janela de 24 horas', () => {
     });
   }
 
-  it('janela nula está fechada', () => {
+  it('a null window is closed', () => {
     expect(windowAberta(null, ULTIMA_OF_CONTACT)).toBe(false);
     expect(segundosRestantes(null, ULTIMA_OF_CONTACT)).toBe(0);
   });
@@ -77,7 +77,7 @@ describe('janela de 24 horas', () => {
   }
 });
 
-describe('canais', () => {
+describe('channels', () => {
   const casos: [TipoChannel, boolean][] = [
     ['whatsapp_cloud', true],
     ['email', false],
@@ -90,7 +90,7 @@ describe('canais', () => {
   }
 });
 
-describe('classificação de custo', () => {
+describe('cost classification', () => {
   const casos: {
     nome: string;
     conteudo: 'texto_livre' | 'template';
@@ -119,11 +119,11 @@ describe('classificação de custo', () => {
   }
 });
 
-describe('avaliação de envio', () => {
+describe('send evaluation', () => {
   const dentro = utc('2026-03-02T20:00:00Z');
   const fora = utc('2026-03-04T20:00:00Z');
 
-  it('dentro da janela o Desk oferece texto livre', () => {
+  it('inside the window the Desk offers free text', () => {
     const saida = avaliarEnvio({
       channel: 'whatsapp_cloud',
       expiraEm: EXPIRA_EM,
@@ -140,7 +140,7 @@ describe('avaliação de envio', () => {
     });
   });
 
-  it('fora da janela o campo de texto vira seletor de template, com motivo', () => {
+  it('outside the window the text field becomes a template selector, with a reason', () => {
     const saida = avaliarEnvio({
       channel: 'whatsapp_cloud',
       expiraEm: EXPIRA_EM,
@@ -154,7 +154,7 @@ describe('avaliação de envio', () => {
     expect(saida.categoriaCobranca).toBeNull();
   });
 
-  it('fora da janela, template aprovado passa', () => {
+  it('outside the window, an approved template passes', () => {
     const saida = avaliarEnvio({
       channel: 'whatsapp_cloud',
       expiraEm: EXPIRA_EM,
@@ -177,7 +177,7 @@ describe('avaliação de envio', () => {
     expect(saida.motivo).toBe('template_sem_categoria');
   });
 
-  it('contato que nunca falou não tem janela aberta', () => {
+  it('a contact who never spoke has no open window', () => {
     const saida = avaliarEnvio({
       channel: 'whatsapp_cloud',
       expiraEm: null,
@@ -188,7 +188,7 @@ describe('avaliação de envio', () => {
     expect(saida.motivo).toBe('janela_fechada');
   });
 
-  it('no exato segundo da expiração o envio livre já é recusado', () => {
+  it('at the exact second of expiration, free-form sending is already rejected', () => {
     const saida = avaliarEnvio({
       channel: 'whatsapp_cloud',
       expiraEm: EXPIRA_EM,

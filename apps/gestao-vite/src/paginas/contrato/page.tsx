@@ -38,7 +38,7 @@ export function ContractPage() {
   const shell = portalUseShell();
   const [search] = useSearchParams();
   const parametros = { demo: search.get('demo') ?? undefined };
-  const read = useRead<ContractSummary>('/v1/gestao/contrato/resumo');
+  const read = useRead<ContractSummary>('/v1/management/contract/summary');
   if (!read.data) return null;
   const resumo = read.data;
 
@@ -117,7 +117,7 @@ function DemoTier() {
     <div className="ct-previa" role="status">
       <b>Prévia do painel.</b> Você está vendo todos os cartões, como se o contrato tivesse o plano
       mais alto e você fosse administrador. Nada aqui pode ser salvo neste modo.
-      <Link href="/contrato">Sair da prévia</Link>
+      <Link href="/contract">Sair da prévia</Link>
     </div>
   );
 }
@@ -179,7 +179,7 @@ function SummaryCard({
 
         {podeEditar ? (
           <p className="ct-bloco">
-            <Link className="ct-editar" href="/minha-conta">
+            <Link className="ct-editar" href="/my-account">
               Editar os dados do contrato
             </Link>
           </p>

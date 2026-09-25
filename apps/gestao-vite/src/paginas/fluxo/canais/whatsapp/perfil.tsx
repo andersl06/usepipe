@@ -43,12 +43,12 @@ function DisplayAcordeaoName({ perfil }: { perfil: PerfilVisivel }) {
           <Campo value={perfil.nome.display ?? ''} readOnly disabled />
         </label>
         {perfil.nome.status ? (
-          <Etiqueta tom={perfil.nome.status === 'APPROVED' ? 'sucesso' : 'alerta'}>
+          <Etiqueta tom={perfil.nome.status === 'APPROVED' ? 'sucesso' : 'alert'}>
             Status: {rotuloDoStatusMeta(perfil.nome.status)}
           </Etiqueta>
         ) : null}
         {perfil.nome.novoNome ? (
-          <Etiqueta tom="alerta">
+          <Etiqueta tom="alert">
             Nome pendente de aprovação: {perfil.nome.novoNome} ({rotuloDoStatusMeta(perfil.nome.novoStatus)})
           </Etiqueta>
         ) : null}
@@ -261,7 +261,7 @@ function PreViewPanel({ nome, perfil }: { nome: string; perfil: PerfilVisivel })
  */
 export function AbaPerfil() {
   const { channel, saude } = useChannelWhatsapp();
-  const read = useRead<PerfilVisivel>(`/v1/canais/whatsapp/${channel.id}/perfil`, { retry: false });
+  const read = useRead<PerfilVisivel>(`/v1/channels/whatsapp/${channel.id}/profile`, { retry: false });
   const [perfil, setPerfil] = useState<PerfilVisivel | null>(null);
 
   useEffect(() => {

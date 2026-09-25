@@ -8,7 +8,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 19).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -54,7 +54,7 @@ async function createCookieOfSession(c: Cenario): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await c.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${c.tenantId}, ${c.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${c.tenantId}, ${c.agentId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -83,7 +83,7 @@ beforeAll(async () => {
   `);
   const versaoId = versao.rows[0]!.id;
 
-  const blocos = await cenario.dono.execute<{ id: string; codigo: string }>(sql`
+  const blocos = await cenario.dono.execute<{ id: string; code: string }>(sql`
     insert into bloco (tenant_id, versao_id, codigo, nome, tipo)
     values (${cenario.tenantId}, ${versaoId}, 'b1', 'Boas-vindas', 'mensagem'),
            (${cenario.tenantId}, ${versaoId}, 'b2', 'Transbordo', 'transferencia')
@@ -152,10 +152,10 @@ function url(caminho: string): string {
   return `${api.url}${caminho}`;
 }
 
-describe('Dashboard — agregação de dados semeados', () => {
-  it('conta contatos e mensagens do período pedido', async () => {
+describe('Aggregate seeded data for the analytics dashboard', () => {
+  it('Count contacts and messages in the requested period', async () => {
     const r = await fetch(
-      url(`/v1/gestao/fluxos/${flowId}/analise/dashboard?periodo=custom&de=${DIA_1}&ate=${DIA_1}`),
+      url(`/v1/management/flows/${flowId}/analytics/dashboard?periodo=custom&de=${DIA_1}&ate=${DIA_1}`),
       { headers: cabecalho(cookie) },
     );
     expect(r.status).toBe(200);
@@ -173,36 +173,36 @@ describe('Dashboard — agregação de dados semeados', () => {
     expect(corpo.data.flow.transbordo.atual).toBe(1);
   });
 
-  it('filtro por período: um dia sem mensagem semeada devolve zero, não a mensagem de outro dia', async () => {
+  it('Return zero for a date with no seeded messages', async () => {
     // Precisa caber no teto de 90 dias do período customizado do Dashboard
     // (`intervaloDoPeriodo(..., { limiteDias: 90 })`) — fora dele a rota cai
     // no padrão "hoje", que TEM mensagem semeada e mascararia o teste.
     const semDado = iso(new Date(HOJE.getTime() - 3 * 24 * 60 * 60 * 1000));
     const r = await fetch(
       url(
-        `/v1/gestao/fluxos/${flowId}/analise/dashboard?periodo=custom&de=${semDado}&ate=${semDado}`,
+        `/v1/management/flows/${flowId}/analytics/dashboard?periodo=custom&de=${semDado}&ate=${semDado}`,
       ),
       { headers: cabecalho(cookie) },
     );
-    const corpo = (await r.json()) as { dados: { contatos: { total: { atual: number } } } };
+    const corpo = (await r.json()) as { data: { contatos: { total: { atual: number } } } };
     expect(corpo.dados.contatos.total.atual).toBe(0);
   });
 
-  it('isolamento entre tenants: sessão de um tenant não lê o fluxo de outro', async () => {
+  it('Prevent one tenant\'s session from reading another\'s flow analytics', async () => {
     const cookieDoOutro = await createCookieOfSession(outro);
-    const r = await fetch(url(`/v1/gestao/fluxos/${flowId}/analise/dashboard`), {
+    const r = await fetch(url(`/v1/management/flows/${flowId}/analytics/dashboard`), {
       headers: cabecalho(cookieDoOutro),
     });
     expect(r.status).toBe(404);
   });
 
-  it('permissão: sem cookie de sessão a rota nem chega a ler o banco', async () => {
-    const r = await fetch(url(`/v1/gestao/fluxos/${flowId}/analise/dashboard`));
+  it('Require a session before querying dashboard data', async () => {
+    const r = await fetch(url(`/v1/management/flows/${flowId}/analytics/dashboard`));
     expect(r.status).toBe(401);
   });
 
-  it('id fora do formato uuid é 404, não 500 do Postgres', async () => {
-    const r = await fetch(url('/v1/gestao/fluxos/nao-e-um-uuid/analise/dashboard'), {
+  it('Return 404 for malformed UUIDs instead of a PostgreSQL error', async () => {
+    const r = await fetch(url('/v1/management/flows/nao-e-um-uuid/analytics/dashboard'), {
       headers: cabecalho(cookie),
     });
     expect(r.status).toBe(404);
@@ -210,14 +210,14 @@ describe('Dashboard — agregação de dados semeados', () => {
 });
 
 describe('Visão Geral', () => {
-  it('soma ativos, engajados e mensagens do período', async () => {
+  it('Count active contacts, engaged contacts, and messages in the period', async () => {
     const r = await fetch(
-      url(`/v1/gestao/fluxos/${flowId}/analise/visao-geral?de=${DIA_1}&ate=${DIA_1}`),
+      url(`/v1/management/flows/${flowId}/analytics/view-overview?de=${DIA_1}&ate=${DIA_1}`),
       { headers: cabecalho(cookie) },
     );
     expect(r.status).toBe(200);
     const corpo = (await r.json()) as {
-      dados: { contagens: { ativos: number; engajados: number; recebidas: number; enviadas: number } };
+      data: { contagens: { ativos: number; engajados: number; recebidas: number; enviadas: number } };
     };
     expect(corpo.dados.contagens.ativos).toBe(1);
     expect(corpo.dados.contagens.engajados).toBe(1);
@@ -226,10 +226,10 @@ describe('Visão Geral', () => {
   });
 });
 
-describe('Jornada dos contatos', () => {
-  it('desenha a aresta entrada -> b1 -> b2 -> Saída, no período', async () => {
+describe('Trace contact journeys through analytics', () => {
+  it('Draw the entry-to-exit path through blocks b1 and b2 for the period', async () => {
     const r = await fetch(
-      url(`/v1/gestao/fluxos/${flowId}/analise/jornada?de=${DIA_1}&ate=${DIA_1}`),
+      url(`/v1/management/flows/${flowId}/analytics/journey?de=${DIA_1}&ate=${DIA_1}`),
       { headers: cabecalho(cookie) },
     );
     expect(r.status).toBe(200);
@@ -241,10 +241,10 @@ describe('Jornada dos contatos', () => {
     expect(corpo.arestas.some((a) => a.para.startsWith('Saída ['))).toBe(true);
   });
 
-  it('fora do período, sem execução, devolve o diagrama vazio', async () => {
+  it('Return an empty journey diagram when no execution falls within the period', async () => {
     const semDado = '2026-02-01';
     const r = await fetch(
-      url(`/v1/gestao/fluxos/${flowId}/analise/jornada?de=${semDado}&ate=${semDado}`),
+      url(`/v1/management/flows/${flowId}/analytics/journey?de=${semDado}&ate=${semDado}`),
       { headers: cabecalho(cookie) },
     );
     const corpo = (await r.json()) as { arestas: unknown[] };
@@ -252,9 +252,9 @@ describe('Jornada dos contatos', () => {
   });
 });
 
-describe('Log de mensagens', () => {
-  it('lista as mensagens do fluxo, mais recente primeiro', async () => {
-    const r = await fetch(url(`/v1/gestao/fluxos/${flowId}/analise/log?limit=10`), {
+describe('List message logs newest first', () => {
+  it('List flow messages newest first', async () => {
+    const r = await fetch(url(`/v1/management/flows/${flowId}/analytics/log?limit=10`), {
       headers: cabecalho(cookie),
     });
     expect(r.status).toBe(200);
@@ -268,20 +268,20 @@ describe('Log de mensagens', () => {
     expect(corpo.data.map((m) => m.id)).toEqual(ordenado.map((m) => m.id));
   });
 
-  it('filtra por período, direção e tipo', async () => {
+  it('Filter message logs by period, direction, and type', async () => {
     const r = await fetch(
       url(
-        `/v1/gestao/fluxos/${flowId}/analise/log?de=${DIA_1}&ate=${DIA_1}&direcao=entrada&tipo=imagem`,
+        `/v1/management/flows/${flowId}/analytics/log?de=${DIA_1}&ate=${DIA_1}&direcao=entrada&tipo=imagem`,
       ),
       { headers: cabecalho(cookie) },
     );
-    const corpo = (await r.json()) as { data: { conteudo: string | null }[] };
+    const corpo = (await r.json()) as { data: { content: string | null }[] };
     expect(corpo.data).toHaveLength(1);
     expect(corpo.data[0]?.conteudo).toBe('foto.jpg');
   });
 
-  it('direção fora da lista é ignorada, não derruba a consulta', async () => {
-    const r = await fetch(url(`/v1/gestao/fluxos/${flowId}/analise/log?direcao=nao-existe`), {
+  it('Ignore unknown directions without failing the query', async () => {
+    const r = await fetch(url(`/v1/management/flows/${flowId}/analytics/log?direcao=nao-existe`), {
       headers: cabecalho(cookie),
     });
     expect(r.status).toBe(200);
@@ -289,8 +289,8 @@ describe('Log de mensagens', () => {
     expect(corpo.data).toHaveLength(4);
   });
 
-  it('pagina por cursor sem repetir nem pular mensagem', async () => {
-    const first = await fetch(url(`/v1/gestao/fluxos/${flowId}/analise/log?limit=2`), {
+  it('Page message logs by cursor without duplicates or gaps', async () => {
+    const first = await fetch(url(`/v1/management/flows/${flowId}/analytics/log?limit=2`), {
       headers: cabecalho(cookie),
     });
     const p1 = (await first.json()) as {
@@ -302,7 +302,7 @@ describe('Log de mensagens', () => {
     expect(p1.page_info.end_cursor).not.toBeNull();
 
     const segunda = await fetch(
-      url(`/v1/gestao/fluxos/${flowId}/analise/log?limit=2&cursor=${p1.page_info.end_cursor}`),
+      url(`/v1/management/flows/${flowId}/analytics/log?limit=2&cursor=${p1.page_info.end_cursor}`),
       { headers: cabecalho(cookie) },
     );
     const p2 = (await segunda.json()) as { data: { id: string }[]; page_info: { has_next_page: boolean } };
@@ -314,9 +314,9 @@ describe('Log de mensagens', () => {
     expect(new Set([...ids1, ...ids2]).size).toBe(4);
   });
 
-  it('isolamento entre tenants: outro tenant não vê estas mensagens', async () => {
+  it('Hide one tenant\'s flow messages from another tenant', async () => {
     const cookieDoOutro = await createCookieOfSession(outro);
-    const r = await fetch(url(`/v1/gestao/fluxos/${flowId}/analise/log`), {
+    const r = await fetch(url(`/v1/management/flows/${flowId}/analytics/log`), {
       headers: cabecalho(cookieDoOutro),
     });
     expect(r.status).toBe(404);

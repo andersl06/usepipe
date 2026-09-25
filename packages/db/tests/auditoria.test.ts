@@ -42,7 +42,7 @@ describe('auditoria', () => {
     });
   });
 
-  it('NUNCA registra segredo, mesmo quando vem no objeto', async () => {
+  it('Never write secrets from an audit object to the log', async () => {
     // Gravar token no log desfaria, num lugar mais visível, a cifra que o
     // `segredo.ts` aplica no banco.
     const { tx, gravado } = txFalsa();
@@ -61,7 +61,7 @@ describe('auditoria', () => {
     expect(depois).not.toHaveProperty('config');
   });
 
-  it('sistema não tem id, e isso não é erro', async () => {
+  it('Record a system audit event without an actor ID', async () => {
     const { tx, gravado } = txFalsa();
     await registrarAuditoria(tx, 't-1', {
       ator: { tipo: 'sistema' },

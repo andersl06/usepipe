@@ -59,11 +59,11 @@ describe('relógio local do tenant', () => {
     expect(faixasDoDia(COMERCIAL, 2026, 3, 8)).toEqual([]); // domingo
   });
 
-  it('feriado fecha o dia inteiro', () => {
+  it('a holiday closes the whole day', () => {
     expect(faixasDoDia(COM_FERIADO, 2026, 3, 3)).toEqual([]);
   });
 
-  it('exceção com horário próprio manda sobre a faixa semanal', () => {
+  it('an exception with its own hours overrides the weekly band', () => {
     const vespera: HourAttendance = {
       ...COMERCIAL,
       exceptions: [{ data: '2026-03-03', fechado: false, inicio: '09:00', fim: '13:00' }],
@@ -128,20 +128,20 @@ describe('segundos úteis entre dois instantes', () => {
     });
   }
 
-  it('almoço fora do expediente não conta', () => {
+  it('lunch outside business hours does not count', () => {
     // 11:30 → 13:30 local: 30 min antes do almoço + 30 min depois.
     expect(
       segundosUteisEntre(utc('2026-03-02T14:30:00Z'), utc('2026-03-02T16:30:00Z'), COM_ALMOCO),
     ).toBe(3600);
   });
 
-  it('sem horário configurado conta tudo', () => {
+  it('with no configured hours, everything counts', () => {
     expect(segundosUteisEntre(utc('2026-03-08T03:00:00Z'), utc('2026-03-08T04:00:00Z'), null)).toBe(3600);
   });
 });
 
 describe('esperas pausam o relógio', () => {
-  it('subtrai a janela de espera dos intervalos', () => {
+  it('subtracts the wait window from the intervals', () => {
     const intervalos = [{ inicio: utc('2026-03-02T10:00:00Z'), fim: utc('2026-03-02T11:00:00Z') }];
     const esperas: Espera[] = [
       { inicio: utc('2026-03-02T10:10:00Z'), fim: utc('2026-03-02T10:40:00Z') },
@@ -159,7 +159,7 @@ describe('esperas pausam o relógio', () => {
     ]);
   });
 
-  it('espera que cobre o intervalo inteiro zera o relógio', () => {
+  it('a wait covering the whole interval zeros the clock', () => {
     const intervalos = [{ inicio: utc('2026-03-02T10:00:00Z'), fim: utc('2026-03-02T11:00:00Z') }];
     expect(
       subtrairEsperas(intervalos, [
@@ -215,7 +215,7 @@ describe('avançar no expediente', () => {
   });
 });
 
-describe('avaliação de SLA (§11)', () => {
+describe('SLA evaluation (§11)', () => {
   const regra = { prazoSeg: 3600, alertaSeg: 1800 };
 
   const casos: { nome: string; agora: string; state: string; decorrido: number }[] = [
@@ -241,7 +241,7 @@ describe('avaliação de SLA (§11)', () => {
     });
   }
 
-  it('conversa que chega fora do expediente não estoura na madrugada', () => {
+  it('a conversation arriving outside business hours does not breach overnight', () => {
     // Chegou às 02:00 local de terça; às 08:00 local o relógio ainda não começou.
     const saida = avaliarSla({
       regra,
@@ -319,7 +319,7 @@ describe('avaliação de SLA (§11)', () => {
     expect(saida.alertaEm).toBeNull();
   });
 
-  it('atendimento ininterrupto ignora expediente', () => {
+  it('uninterrupted attendance ignores business hours', () => {
     const saida = avaliarSla({
       regra,
       inicio: utc('2026-03-08T03:00:00Z'), // domingo de madrugada
@@ -331,7 +331,7 @@ describe('avaliação de SLA (§11)', () => {
   });
 });
 
-describe('início e cumprimento por alvo', () => {
+describe('start and fulfillment per target', () => {
   const marcos = {
     criadaEm: utc('2026-03-02T12:00:00Z'),
     atribuidaEm: utc('2026-03-02T12:10:00Z'),
@@ -340,21 +340,21 @@ describe('início e cumprimento por alvo', () => {
     aguardandoRespostaDesde: utc('2026-03-02T12:40:00Z'),
   };
 
-  it('primeira resposta parte da atribuição', () => {
+  it('first response counts from assignment', () => {
     expect(inicioDoAlvo('primeira_resposta', marcos)).toEqual(marcos.atribuidaEm);
     expect(alvoFulfillment('primeira_resposta', marcos)).toEqual(marcos.primeiraRespostaEm);
   });
 
-  it('sem atribuição, a primeira resposta parte da criação', () => {
+  it('with no assignment, the first response counts from creation', () => {
     expect(inicioDoAlvo('primeira_resposta', { ...marcos, atribuidaEm: null })).toEqual(marcos.criadaEm);
   });
 
-  it('tempo de resposta parte da última mensagem do cliente sem resposta', () => {
+  it('response time counts from the customer\'s last unanswered message', () => {
     expect(inicioDoAlvo('tempo_resposta', marcos)).toEqual(marcos.aguardandoRespostaDesde);
     expect(inicioDoAlvo('tempo_resposta', { ...marcos, aguardandoRespostaDesde: null })).toBeNull();
   });
 
-  it('encerramento parte da criação', () => {
+  it('closure counts from creation', () => {
     expect(inicioDoAlvo('encerramento', marcos)).toEqual(marcos.criadaEm);
     expect(alvoFulfillment('encerramento', marcos)).toEqual(marcos.encerradaEm);
   });

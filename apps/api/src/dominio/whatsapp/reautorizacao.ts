@@ -23,7 +23,7 @@ import type { InfoDoNumero } from './info-do-numero.js';
 export interface RequestOfReauthorization {
   tenantId: string;
   channelId: string;
-  numeroId?: string | undefined;
+  numberId?: string | undefined;
   wabaId: string;
   token: string;
   info: InfoDoNumero;
@@ -36,7 +36,7 @@ export async function reautorizar(pedido: RequestOfReauthorization): Promise<Cha
   if (pedido.info.numero !== esperado) {
     throw new PipeError(
       422,
-      'numero_divergente',
+      'number_mismatched',
       `O número não confere. Esperado ${esperado}, recebido ${pedido.info.numero}`,
     );
   }

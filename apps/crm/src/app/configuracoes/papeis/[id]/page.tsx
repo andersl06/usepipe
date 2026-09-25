@@ -64,7 +64,7 @@ export default async function RolePage({ params }: { params: Promise<{ id: strin
   return (
     <>
       <div className="cfg-cabecalho">
-        <Link className="cfg-voltar" href="/configuracoes/papeis">
+        <Link className="cfg-voltar" href="/settings/roles">
           <Icone nome="esquerda" tamanho={14} />
           Papéis e permissões
         </Link>
@@ -83,7 +83,7 @@ export default async function RolePage({ params }: { params: Promise<{ id: strin
         <p className="cfg-nota" role="note">
           Este é um dos papéis do dia 1. Ele é a base que a semente garante, e mexer nele mudaria o
           Desk e a Gestão de todo mundo aqui dentro. Para uma combinação diferente,{' '}
-          <Link href="/configuracoes/papeis">crie um papel próprio</Link>.
+          <Link href="/settings/roles">crie um papel próprio</Link>.
         </p>
       ) : null}
 

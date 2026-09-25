@@ -33,7 +33,7 @@ export const ACTIONS = ['criou', 'alterou', 'excluiu', 'ativou', 'desativou'] as
 export type Acao = (typeof ACTIONS)[number];
 
 export interface Ator {
-  tipo: TipoDeAtor;
+  type: TipoDeAtor;
   /** Nulo para `sistema`: o cron não tem id. */
   id?: string | null;
   ip?: string | null;

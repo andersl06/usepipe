@@ -26,7 +26,7 @@ export interface ImportVisible {
   /** `pronta` (pending), `executando` (processing), `concluida` (completed) ou `falhou` (failed). */
   state: string;
   total: number;
-  aceitos: number;
+  accepted: number;
   rejeitados: number;
   /** Há CSV de linhas rejeitadas para baixar. */
   temFalhas: boolean;
@@ -38,12 +38,12 @@ type LineImport = {
   [column: string]: unknown;
   id: string;
   file: string | null;
-  estado: string;
+  state: string;
   total: number;
-  aceitos: number;
+  accepted: number;
   rejeitados: number;
   tem_falhas: boolean;
-  criado_em: string | Date;
+  createdAt: string | Date;
   atualizado_em: string | Date | null;
 };
 
@@ -68,7 +68,7 @@ export async function createImport(
   nome?: string | undefined,
 ): Promise<ImportVisible> {
   // `errors.contacts.import.failed`, no pt_BR do Chatwoot.
-  if (!conteudo || !conteudo.trim()) throw new PipeError(422, 'arquivo_vazio', 'Arquivo vazio');
+  if (!conteudo || !conteudo.trim()) throw new PipeError(422, 'file_empty', 'Arquivo vazio');
 
   // `set_default_name`: "Contacts - 2026-09-11".
   const nomeFinal = nome?.trim() || `Contatos - ${new Date().toISOString().slice(0, 10)}`;

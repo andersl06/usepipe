@@ -24,7 +24,7 @@ export type RequestOfEditOfRuleSla = Partial<PedidoDeRegraSla>;
 
 export async function createRuleSla(pedido: PedidoDeRegraSla): Promise<Resultado<{ id: string }>> {
   try {
-    const criada = await api.post<{ id: string }>('/v1/gestao/configuracoes/regras', pedido);
+    const criada = await api.post<{ id: string }>('/v1/management/settings/rules', pedido);
     atualizarLeituras();
     return { ok: true, value: criada };
   } catch (error) {
@@ -37,7 +37,7 @@ export async function editarRegraSla(
   pedido: RequestOfEditOfRuleSla,
 ): Promise<Resultado<void>> {
   try {
-    await api.patch(`/v1/gestao/configuracoes/regras/${id}`, pedido);
+    await api.patch(`/v1/management/settings/rules/${id}`, pedido);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -47,7 +47,7 @@ export async function editarRegraSla(
 
 export async function excluirRegraSla(id: string): Promise<Resultado<void>> {
   try {
-    await api.delete(`/v1/gestao/configuracoes/regras/${id}`);
+    await api.delete(`/v1/management/settings/rules/${id}`);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {

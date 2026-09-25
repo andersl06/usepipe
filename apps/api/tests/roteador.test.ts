@@ -10,7 +10,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { noTenant } = await import('../src/banco.js');
 const { importFlowOfBlip } = await import('../src/dominio/fluxo.js');
@@ -67,7 +67,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -80,7 +80,7 @@ function comCookie(token: string): Record<string, string> {
 async function newFlow(
   cenario: Cenario,
   tipo: 'fluxo' | 'roteador',
-  extra: { estado?: string; channelId?: string } = {},
+  extra: { state?: string; channelId?: string } = {},
 ): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into fluxo (tenant_id, nome, tipo, estado, canal_id)
@@ -98,8 +98,8 @@ async function chamar(
   metodo: string,
   caminho: string,
   corpo?: unknown,
-): Promise<{ status: number; corpo: Record<string, unknown> }> {
-  const resposta = await fetch(`${api.url}/v1/gestao/fluxos/${caminho}`, {
+): Promise<{ status: number; body: Record<string, unknown> }> {
+  const resposta = await fetch(`${api.url}/v1/management/flows/${caminho}`, {
     method: metodo,
     headers: comCookie(session),
     ...(corpo === undefined ? {} : { body: JSON.stringify(corpo) }),
@@ -108,8 +108,8 @@ async function chamar(
   return { status: resposta.status, corpo: texto ? (JSON.parse(texto) as Record<string, unknown>) : {} };
 }
 
-const codigo = (r: { corpo: Record<string, unknown> }) =>
-  (r.corpo['erro'] as { codigo?: string } | undefined)?.codigo;
+const codigo = (r: { body: Record<string, unknown> }) =>
+  (r.corpo['erro'] as { code?: string } | undefined)?.codigo;
 
 beforeAll(async () => {
   a = await montarCenario(`rt-${randomUUID().slice(0, 8)}`);
@@ -128,7 +128,7 @@ afterAll(async () => {
 
 /* ------------------------------------------------------------ A tela */
 
-describe('/v1/gestao/fluxos/:id/servicos', () => {
+describe('/v1/management/flows/:id/services', () => {
   it('cadastra o principal e os filhos, e o GET preenche `filhos`', async () => {
     const router = await newFlow(a, 'roteador');
     const principal = await newFlow(a, 'fluxo', { estado: 'publicado' });
@@ -138,12 +138,12 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
     expect(empty.status).toBe(200);
     expect(empty.corpo).toMatchObject({ principal: null, filhos: [] });
     expect((empty.corpo['roteador'] as { id: string }).id).toBe(router);
-    const search = empty.corpo['busca'] as { id: string; tipo: string }[];
+    const search = empty.corpo['busca'] as { id: string; type: string }[];
     expect(search.some((f) => f.id === suporte)).toBe(true);
     expect(search.every((f) => f.tipo === 'fluxo')).toBe(true);
 
     const p = await chamar(sessionEditor, 'POST', `${router}/servicos`, {
-      nome: 'Principal',
+      name: 'Principal',
       chatbotId: principal,
       principal: true,
       // Principal esconde (e ignora) os dois campos.
@@ -160,7 +160,7 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
     });
 
     const s = await chamar(sessionEditor, 'POST', `${router}/servicos`, {
-      nome: 'Suporte',
+      name: 'Suporte',
       chatbotId: suporte,
       principal: false,
       persistente: false,
@@ -171,7 +171,7 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
 
     const lido = await chamar(sessionEditor, 'GET', `${router}/servicos`);
     expect((lido.corpo['principal'] as { id: string }).id).toBe(p.corpo['id']);
-    expect((lido.corpo['filhos'] as { id: string; nome: string }[]).map((f) => f.nome)).toEqual([
+    expect((lido.corpo['filhos'] as { id: string; name: string }[]).map((f) => f.nome)).toEqual([
       'Suporte',
     ]);
 
@@ -182,7 +182,7 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
     expect(rows.map((r) => r.acao)).toEqual(['criou']);
   });
 
-  it('recusa o que o formulário recusa: segundo principal, nome e chatbot repetidos, sem expiração, chatbot que não é fluxo', async () => {
+  it('Reject duplicate primary services, names, or chatbots and invalid expiration or chatbot types', async () => {
     const roteador = await newFlow(a, 'roteador');
     const f1 = await newFlow(a, 'fluxo');
     const f2 = await newFlow(a, 'fluxo');
@@ -236,11 +236,11 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
     expect(rows[0]?.n).toBe('2');
   });
 
-  it('só roteador tem serviços, e só quem edita fluxo mexe neles', async () => {
+  it('Allow services only on router bots and edits only by flow editors', async () => {
     const flow = await newFlow(a, 'fluxo');
     const outro = await newFlow(a, 'fluxo');
     const notRouter = await chamar(sessionEditor, 'POST', `${flow}/servicos`, {
-      nome: 'S',
+      name: 'S',
       chatbotId: outro,
       principal: true,
     });
@@ -249,19 +249,19 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
 
     const roteador = await newFlow(a, 'roteador');
     const semPoder = await chamar(sessionWithoutPoder, 'POST', `${roteador}/servicos`, {
-      nome: 'S',
+      name: 'S',
       chatbotId: outro,
       principal: true,
     });
     expect(semPoder.status).toBe(403);
   });
 
-  it('PATCH muda só o que veio e passa pelas mesmas regras; DELETE tira o serviço', async () => {
+  it('Apply only supplied service changes through PATCH and remove services through DELETE', async () => {
     const roteador = await newFlow(a, 'roteador');
     const f1 = await newFlow(a, 'fluxo');
     const f2 = await newFlow(a, 'fluxo');
     const criado = await chamar(sessionEditor, 'POST', `${roteador}/servicos`, {
-      nome: 'Vendas',
+      name: 'Vendas',
       chatbotId: f1,
       principal: false,
       persistente: false,
@@ -308,11 +308,11 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
     expect((await chamar(sessionEditor, 'DELETE', `${roteador}/servicos/${id}`)).status).toBe(404);
   });
 
-  it('o tenant vem da sessão: o roteador de outra conta é 404 em todos os gestos', async () => {
+  it('Return 404 for another tenant\'s router on every service action', async () => {
     const roteador = await newFlow(a, 'roteador');
     const f1 = await newFlow(a, 'fluxo');
     const criado = await chamar(sessionEditor, 'POST', `${roteador}/servicos`, {
-      nome: 'Principal',
+      name: 'Principal',
       chatbotId: f1,
       principal: true,
     });
@@ -323,7 +323,7 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
     expect(
       (
         await chamar(sessionOfOtherTenant, 'POST', `${roteador}/servicos`, {
-          nome: 'Intruso',
+          name: 'Intruso',
           chatbotId: deB,
           principal: false,
           persistente: true,
@@ -331,13 +331,13 @@ describe('/v1/gestao/fluxos/:id/servicos', () => {
       ).status,
     ).toBe(404);
     expect(
-      (await chamar(sessionOfOtherTenant, 'PATCH', `${roteador}/servicos/${id}`, { nome: 'X' }))
+      (await chamar(sessionOfOtherTenant, 'PATCH', `${roteador}/servicos/${id}`, { name: 'X' }))
         .status,
     ).toBe(404);
     expect((await chamar(sessionOfOtherTenant, 'DELETE', `${roteador}/servicos/${id}`)).status).toBe(
       404,
     );
-    const { rows } = await a.dono.execute<{ nome: string }>(
+    const { rows } = await a.dono.execute<{ name: string }>(
       sql`select nome from roteador_servico where id = ${id}::uuid`,
     );
     expect(rows[0]?.nome).toBe('Principal');
@@ -452,7 +452,7 @@ const VENDAS = {
   ],
 };
 
-describe('a conversa passando pelo roteador', () => {
+describe('Route conversations through services', () => {
   let routerId: string;
   let principalId: string;
   let suporteId: string;
@@ -510,7 +510,7 @@ describe('a conversa passando pelo roteador', () => {
 
   /** A última resposta do bot ao contato, em qualquer conversa. */
   async function ultimaDoBot(telefone: string): Promise<string | undefined> {
-    const { rows } = await a.dono.execute<{ conteudo: string }>(sql`
+    const { rows } = await a.dono.execute<{ content: string }>(sql`
       select m.conteudo from mensagem m
         join conversa c on c.id = m.conversa_id
         join contato ct on ct.id = c.contato_id
@@ -538,7 +538,7 @@ describe('a conversa passando pelo roteador', () => {
     return rows[0]!;
   }
 
-  it('a primeira interação cai no principal, que não expira', async () => {
+  it('Start a router conversation in the nonexpiring primary service', async () => {
     const ANA = '5511922220001';
     await falar(ANA, 'oi');
     expect(await ultimaDoBot(ANA)).toBe('Principal: menu');
@@ -548,7 +548,7 @@ describe('a conversa passando pelo roteador', () => {
     expect((await conversationOpen(ANA)).queueId).toBeNull();
   });
 
-  it('o Redirect muda de serviço, a mensagem seguinte cai lá e a outra continua no bloco guardado', async () => {
+  it('Route the next message to a redirected service while preserving the prior block', async () => {
     const BIA = '5511922220002';
     await falar(BIA, 'oi');
     await falar(BIA, 'suporte');
@@ -580,7 +580,7 @@ describe('a conversa passando pelo roteador', () => {
     ]);
   });
 
-  it('expirado o redirecionamento, o contato volta ao principal', async () => {
+  it('Return to the primary service after a redirect expires', async () => {
     const CAIO = '5511922220003';
     await falar(CAIO, 'oi');
     await falar(CAIO, 'suporte');
@@ -600,7 +600,7 @@ describe('a conversa passando pelo roteador', () => {
     expect(p.expira_em).toBeNull();
   });
 
-  it('serviço persistente não expira, e o contexto do roteador é dividido só com quem liga a opção', async () => {
+  it('Keep persistent services active and share router context only when enabled', async () => {
     const DAVI = '5511922220004';
     await falar(DAVI, 'primeira coisa');
     await falar(DAVI, 'vendas');
@@ -621,7 +621,7 @@ describe('a conversa passando pelo roteador', () => {
     expect((await position(DAVI)).serviceId).toBe(vendasId);
   });
 
-  it('bloco explícito depois do Master-State: o destino não exibe o conteúdo, só avalia as saídas', async () => {
+  it('Evaluate exits without displaying the explicit block after Master-State', async () => {
     const EVA = '5511922220005';
     await falar(EVA, 'oi');
     const { contactId } = await position(EVA);
@@ -637,7 +637,7 @@ describe('a conversa passando pelo roteador', () => {
     // Na raiz, "voltar" iria para `pergunta`; em `resposta`, vai para `volta`.
     await falar(EVA, 'voltar');
     expect(await ultimaDoBot(EVA)).toBe('Suporte: voltando');
-    const { rows } = await a.dono.execute<{ conteudo: string }>(sql`
+    const { rows } = await a.dono.execute<{ content: string }>(sql`
       select m.conteudo from mensagem m join conversa c on c.id = m.conversa_id
        where c.contato_id = ${contactId}::uuid and m.autor_tipo = 'bot'
     `);
@@ -646,7 +646,7 @@ describe('a conversa passando pelo roteador', () => {
     expect((await position(EVA)).serviceId).toBe(principalId);
   });
 
-  it('encerrado o atendimento humano, a volta é ao serviço em que ele estava — não ao principal', async () => {
+  it('Return from a human ticket to the previous service, not the primary one', async () => {
     const FABIO = '5511922220006';
     await falar(FABIO, 'oi');
     await falar(FABIO, 'suporte');

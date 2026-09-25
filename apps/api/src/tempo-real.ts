@@ -32,7 +32,7 @@ export interface EventoPublicado extends EventoDoServidor {
 
 export interface Conexao {
   tenantId: string;
-  usuarioId: string;
+  userId: string;
   assuntos: ReadonlySet<Assunto>;
   entregar: (evento: EventoDoServidor) => void;
 }

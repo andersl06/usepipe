@@ -67,7 +67,7 @@ function authenticationRotulo(tipo: TipoAuthentication): string {
 type Aba = 'visao-geral' | 'configuracoes';
 
 export function TelaDoWebhook({ base }: { base: string }) {
-  const { data, isLoading } = useRead<WebhookListado[]>('/v1/gestao/webhooks');
+  const { data, isLoading } = useRead<WebhookListado[]>('/v1/management/webhooks');
   const webhooks = data ?? [];
   const algumAtivo = webhooks.some((w) => w.ativo);
 
@@ -246,7 +246,7 @@ export function TelaDoWebhook({ base }: { base: string }) {
                   </p>
                   {!algumAtivo && !isLoading ? (
                     <div className="ig-faixa-alerta" role="status">
-                      <IconePortal nome="alerta" tamanho={24} />
+                      <IconePortal nome="alert" tamanho={24} />
                       <p className="ig-typo-16">
                         Esta integração precisa ser configurada antes de ser ativada.
                       </p>

@@ -183,7 +183,7 @@ export const TRANSITIONS_DELIVERY: Readonly<Record<StateDelivery, readonly State
   entregue: ['lida'],
   lida: [],
   // Reenviar volta para a fila de saída — nunca falha em silêncio.
-  falhou: ['pendente'],
+  falhou: ['pending'],
 };
 
 export class TransitionDeliveryInvalidError extends Error {

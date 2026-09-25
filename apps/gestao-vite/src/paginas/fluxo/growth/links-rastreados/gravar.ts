@@ -29,7 +29,7 @@ export async function createLinkTracked(
 ): Promise<Resultado<LinkRastreado>> {
   try {
     const value = await api.post<LinkRastreado>(
-      `/v1/gestao/fluxos/${flowId}/links-rastreados`,
+      `/v1/management/flows/${flowId}/links-tracked`,
       pedido,
     );
     atualizarLeituras();

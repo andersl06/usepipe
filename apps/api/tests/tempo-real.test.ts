@@ -12,7 +12,7 @@ process.env['PIPE_ORIGENS'] = 'http://localhost:3200';
 // Ping rápido para o teste não esperar 15 segundos pelo quadro de controle.
 process.env['PIPE_WS_PING_MS'] = '150';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 const { evento, publicar, connectionsVivas } = await import('../src/tempo-real.js');
@@ -38,7 +38,7 @@ async function openSession(alvo: Cenario, userId?: string): Promise<string> {
   await alvo.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
     values (${alvo.tenantId}, ${userId ?? alvo.agentId}, ${novo.hash},
-            ${novo.expiraEm}, 'google')
+            ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -92,7 +92,7 @@ async function conectar(token: string, assuntos: string[] = ['conversa', 'fila',
   });
   const inscrito = new Promise<void>((resolve) => {
     ws.on('message', (cru) => {
-      const q = JSON.parse(String(cru)) as { tipo?: string };
+      const q = JSON.parse(String(cru)) as { type?: string };
       if (q.tipo === 'inscrito') resolve();
       // O `ping` do contrato não é evento; não polui o que o teste inspeciona.
       else if (q.tipo !== 'ping') recebidos.push(q);
@@ -111,7 +111,7 @@ async function esperar(cliente: Cliente, quantos = 1, tetoMs = 3_000): Promise<v
   }
 }
 
-describe('autenticação do canal', () => {
+describe('Authenticate WebSocket connections', () => {
   it('sem cookie, o socket nem chega a existir', async () => {
     const ws = new WebSocket(urlWs, { headers: { origin: 'http://localhost:3200' } });
     const error = await new Promise<Error>((resolve) => ws.once('error', resolve));
@@ -147,7 +147,7 @@ describe('autenticação do canal', () => {
   });
 });
 
-describe('inscrição', () => {
+describe('Confirm requested topic subscriptions', () => {
   it('confirma os assuntos pedidos', async () => {
     const cliente = await conectar(await openSession(cenario), ['conversa']);
     // A confirmação já foi esperada em `conectar`.
@@ -164,9 +164,9 @@ describe('inscrição', () => {
     });
     abertos.push(ws);
     await new Promise<void>((resolve) => ws.once('open', () => resolve()));
-    const resposta = new Promise<{ tipo: string; motivo?: string }>((resolve) => {
+    const resposta = new Promise<{ type: string; reason?: string }>((resolve) => {
       ws.on('message', (cru) => {
-        const q = JSON.parse(String(cru)) as { tipo: string; motivo?: string };
+        const q = JSON.parse(String(cru)) as { type: string; reason?: string };
         if (q.tipo !== 'ping') resolve(q);
       });
     });
@@ -178,7 +178,7 @@ describe('inscrição', () => {
     ws.close();
   });
 
-  it('sem inscrição não chega evento nenhum', async () => {
+  it('Deliver no events before a subscription', async () => {
     const ws = new WebSocket(urlWs, {
       headers: {
         cookie: `${NOME_DO_COOKIE}=${await openSession(cenario)}`,
@@ -189,11 +189,11 @@ describe('inscrição', () => {
     const recebidos: unknown[] = [];
     await new Promise<void>((resolve) => ws.once('open', () => resolve()));
     ws.on('message', (cru) => {
-      const q = JSON.parse(String(cru)) as { tipo?: string };
+      const q = JSON.parse(String(cru)) as { type?: string };
       if (q.tipo !== 'ping') recebidos.push(q);
     });
 
-    await publicar(cenario.tenantId, evento('conversa', randomUUID()));
+    await publicar(cenario.tenantId, evento('conversation', randomUUID()));
     await new Promise((r) => setTimeout(r, 400));
 
     expect(recebidos).toHaveLength(0);
@@ -201,12 +201,12 @@ describe('inscrição', () => {
   });
 });
 
-describe('isolamento — a regra que não se dobra', () => {
-  it('entrega o evento do PRÓPRIO tenant', async () => {
+describe('Isolate real-time events by tenant', () => {
+  it('Deliver events published to the connected tenant', async () => {
     const cliente = await conectar(await openSession(cenario));
     const conversationId = randomUUID();
 
-    await publicar(cenario.tenantId, evento('conversa', conversationId));
+    await publicar(cenario.tenantId, evento('conversation', conversationId));
     await esperar(cliente);
 
     expect(cliente.recebidos).toEqual([
@@ -215,11 +215,11 @@ describe('isolamento — a regra que não se dobra', () => {
     cliente.fechar();
   });
 
-  it('NUNCA entrega evento de outro tenant', async () => {
+  it('Never deliver another tenant\'s events', async () => {
     const meu = await conectar(await openSession(cenario));
     const alheio = await conectar(await openSession(outro));
 
-    await publicar(outro.tenantId, evento('conversa', randomUUID()));
+    await publicar(outro.tenantId, evento('conversation', randomUUID()));
     await esperar(alheio);
     // Folga extra: se fosse vazar, teria tempo de sobra para chegar.
     await new Promise((r) => setTimeout(r, 300));
@@ -243,7 +243,7 @@ describe('isolamento — a regra que não se dobra', () => {
     const colega = await conectar(await openSession(cenario));
 
     await publicar(cenario.tenantId, {
-      ...evento('atendente', outraPessoaId),
+      ...evento('agent', outraPessoaId),
       userId: outraPessoaId,
     });
     await esperar(dono);
@@ -256,11 +256,11 @@ describe('isolamento — a regra que não se dobra', () => {
     colega.fechar();
   });
 
-  it('só entrega o assunto assinado', async () => {
+  it('Deliver only events for subscribed topics', async () => {
     const cliente = await conectar(await openSession(cenario), ['fila']);
 
-    await publicar(cenario.tenantId, evento('conversa', randomUUID()));
-    await publicar(cenario.tenantId, evento('fila'));
+    await publicar(cenario.tenantId, evento('conversation', randomUUID()));
+    await publicar(cenario.tenantId, evento('queue'));
     await esperar(cliente);
     await new Promise((r) => setTimeout(r, 200));
 
@@ -274,7 +274,7 @@ describe('o evento diz O QUE mudou, nunca O QUE É', () => {
     const cliente = await conectar(await openSession(cenario), ['conversa']);
     const conversaId = randomUUID();
 
-    await publicar(cenario.tenantId, evento('conversa', conversaId));
+    await publicar(cenario.tenantId, evento('conversation', conversaId));
     await esperar(cliente);
 
     const recebido = cliente.recebidos[0] as Record<string, unknown>;
@@ -301,7 +301,7 @@ describe('queda', () => {
     expect(connectionsVivas(cenario.tenantId)).toBe(antes);
   });
 
-  it('manda o `ping` do contrato, que é como a tela sabe que está viva', async () => {
+  it('Send the contract `ping` so the screen can detect a live connection', async () => {
     const ws = new WebSocket(urlWs, {
       headers: {
         cookie: `${NOME_DO_COOKIE}=${await openSession(cenario)}`,
@@ -310,9 +310,9 @@ describe('queda', () => {
     });
     abertos.push(ws);
     await new Promise<void>((resolve) => ws.once('open', () => resolve()));
-    const ping = await new Promise<{ tipo: string }>((resolve) => {
+    const ping = await new Promise<{ type: string }>((resolve) => {
       ws.on('message', (cru) => {
-        const q = JSON.parse(String(cru)) as { tipo: string };
+        const q = JSON.parse(String(cru)) as { type: string };
         if (q.tipo === 'ping') resolve(q);
       });
     });

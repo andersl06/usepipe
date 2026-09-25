@@ -14,7 +14,7 @@ export function PersistentMenuPage() {
   const { contact } = useContact();
   const channelCompativel = contact.channelActive === true && contact.channelTipo === 'messenger';
   const read = useRead<ConfigurationOfMenuPersistent>(
-    `/v1/gestao/fluxos/${contact.id}/menu-persistente`,
+    `/v1/management/flows/${contact.id}/menu-persistent`,
   );
   if (!read.data) return null;
   return (

@@ -13,11 +13,11 @@ process.env['PIPE_URL_ENTRADA'] = 'http://telas.teste/entrar';
 process.env['PIPE_ORIGENS'] = 'http://telas.teste,http://gestao.teste';
 process.env['GOOGLE_CLIENTE_ID'] = 'cliente-de-teste.apps.googleusercontent.com';
 process.env['GOOGLE_CLIENTE_SEGREDO'] = 'segredo-de-teste';
-process.env['GOOGLE_URL_RETORNO'] = 'http://127.0.0.1:3100/v1/auth/google/retorno';
+process.env['GOOGLE_URL_RETORNO'] = 'http://127.0.0.1:3100/v1/auth/google/callback';
 process.env['PIPE_METRICS_TOKEN'] = 'token-de-metricas';
 
 const { InboundRefusedEntradaRecusadaInboundRefused, LoginErrorLoginErroLoginError, NOME_DO_COOKIE, createTokencriarTokencreateToken } =
-  await import('@pipe/autenticacao');
+  await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { baseDoApp, codigoDaRecusa, destinationAbsolute, urlOfError } = await import(
   '../src/controladores/entrar.js',
@@ -83,7 +83,7 @@ async function openSession(durationMs?: number): Promise<string> {
   const novo = createTokencriarTokencreateToken(durationMs);
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm},
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiresAt},
             'google')
   `);
   return novo.token;
@@ -105,12 +105,12 @@ afterAll(async () => {
   await cenario?.encerrar();
 });
 
-describe('guarda de sessão', () => {
+describe('Require a session cookie for protected routes', () => {
   it('sem cookie, 401', async () => {
     const resposta = await fetch(`${api.url}/v1/eu`);
     expect(resposta.status).toBe(401);
-    const corpo = (await resposta.json()) as { error: { codigo: string } };
-    expect(corpo.error.codigo).toBe('nao_autorizado');
+    const corpo = (await resposta.json()) as { error: { code: string } };
+    expect(corpo.error.codigo).toBe('not_authorized');
   });
 
   it('cookie com token inexistente, 401', async () => {
@@ -120,7 +120,7 @@ describe('guarda de sessão', () => {
     expect(resposta.status).toBe(401);
   });
 
-  it('sessão expirada, 401 — e a mesma resposta de quem não mandou nada', async () => {
+  it('Return the same 401 for expired and absent sessions', async () => {
     const vencida = await openSession(-1_000);
     const resposta = await fetch(`${api.url}/v1/eu`, { headers: comCookie(vencida) });
     expect(resposta.status).toBe(401);
@@ -128,15 +128,15 @@ describe('guarda de sessão', () => {
 });
 
 describe('GET /v1/eu', () => {
-  it('devolve o Eu do contrato, com as permissões dos papéis', async () => {
+  it('Return the contracted current-user object with role permissions', async () => {
     const resposta = await fetch(`${api.url}/v1/eu`, { headers: comCookie(sessionToken) });
     expect(resposta.status).toBe(200);
 
     const eu = (await resposta.json()) as {
-      user: { id: string; nome: string; email: string; avatarUrl: string | null };
-      tenant: { id: string; nome: string; slug: string; plano: string };
+      user: { id: string; name: string; email: string; avatarUrl: string | null };
+      tenant: { id: string; name: string; slug: string; plan: string };
       permissions: string[];
-      origem: string;
+      origin: string;
     };
 
     expect(eu.user.id).toBe(cenario.agentId);
@@ -150,7 +150,7 @@ describe('GET /v1/eu', () => {
     expect(eu.permissions).toEqual(PERMISSIONS);
   });
 
-  it('sessão de usuário desativado não entra', async () => {
+  it('Reject sessions belonging to disabled users', async () => {
     const token = await openSession();
     await cenario.dono.execute(
       sql`update usuario set ativo = false where id = ${cenario.agentId}::uuid`,
@@ -167,7 +167,7 @@ describe('GET /v1/eu', () => {
 });
 
 describe('POST /v1/auth/sair', () => {
-  it('encerra a sessão, apaga o cookie e o token não vale mais', async () => {
+  it('Close the session, clear its cookie, and invalidate the token', async () => {
     const token = await openSession();
     const resposta = await fetch(`${api.url}/v1/auth/sair`, {
       method: 'POST',
@@ -179,15 +179,15 @@ describe('POST /v1/auth/sair', () => {
     expect((await fetch(`${api.url}/v1/eu`, { headers: comCookie(token) })).status).toBe(401);
   });
 
-  it('sair sem cookie não é erro', async () => {
+  it('Allow logout without a cookie', async () => {
     const resposta = await fetch(`${api.url}/v1/auth/sair`, { method: 'POST' });
     expect(resposta.status).toBe(204);
   });
 });
 
 describe('GET /v1/auth/google', () => {
-  it('guarda o desafio em cookie curto e manda para o Google com PKCE', async () => {
-    const resposta = await fetch(`${api.url}/v1/auth/google?destino=/conversas/42`, {
+  it('Store a short-lived challenge cookie and redirect to Google with PKCE', async () => {
+    const resposta = await fetch(`${api.url}/v1/auth/google?returnTo=/conversas/42`, {
       redirect: 'manual',
     });
     expect(resposta.status).toBe(302);
@@ -213,28 +213,28 @@ describe('GET /v1/auth/google', () => {
     expect(desafio.destination).toBe('/conversas/42');
   });
 
-  it('destino absoluto é descartado: redirecionamento aberto é phishing com o nosso domínio', async () => {
+  it('Discard absolute redirect destinations to prevent phishing', async () => {
     const resposta = await fetch(
-      `${api.url}/v1/auth/google?destino=${encodeURIComponent('https://malvado.example/roubar')}`,
+      `${api.url}/v1/auth/google?returnTo=${encodeURIComponent('https://malvado.example/roubar')}`,
       { redirect: 'manual' },
     );
     expect(lerDesafioDoCookie(resposta.headers.get('set-cookie') ?? '').destination).toBe('/');
   });
 });
 
-describe('GET /v1/auth/google/retorno', () => {
-  it('sem o cookie do desafio, volta para a tela de entrada — nunca 500', async () => {
-    const resposta = await fetch(`${api.url}/v1/auth/google/retorno?code=qualquer`, {
+describe('GET /v1/auth/google/callback', () => {
+  it('Redirect to login when the challenge cookie is missing instead of returning 500', async () => {
+    const resposta = await fetch(`${api.url}/v1/auth/google/callback?code=qualquer`, {
       redirect: 'manual',
     });
     expect(resposta.status).toBe(302);
     expect(resposta.headers.get('location')).toBe(
-      'http://telas.teste/entrar?erro=falha_no_provedor',
+      'http://telas.teste/entrar?error=falha_no_provedor',
     );
   });
 
-  it('cookie corrompido também vira recusa, não erro interno', async () => {
-    const resposta = await fetch(`${api.url}/v1/auth/google/retorno?code=x`, {
+  it('Treat a corrupt challenge cookie as a login refusal', async () => {
+    const resposta = await fetch(`${api.url}/v1/auth/google/callback?code=x`, {
       redirect: 'manual',
       headers: { cookie: 'pipe_desafio=nao-e-base64-de-json' },
     });
@@ -244,12 +244,12 @@ describe('GET /v1/auth/google/retorno', () => {
 });
 
 describe('códigos de recusa', () => {
-  it('recusa de entrada mantém o próprio código', () => {
+  it('Preserve the original login refusal code', () => {
     for (const codigo of [
-      'dominio_publico',
-      'dominio_desconhecido',
-      'sem_convite',
-      'usuario_inativo',
+      'domain_public',
+      'domain_unknown',
+      'without_invitation',
+      'user_inactive',
     ] as const) {
       expect(codigoDaRecusa(new InboundRefusedEntradaRecusadaInboundRefused(codigo, 'motivo'))).toBe(codigo);
     }
@@ -287,12 +287,12 @@ describe('CORS', () => {
 });
 
 describe('GET /saude', () => {
-  it('com banco no ar, 200', async () => {
+  it('Return 200 from health when the database is available', async () => {
     const resposta = await fetch(`${api.url}/saude`);
     expect(resposta.status).toBe(200);
     const corpo = (await resposta.json()) as {
       ok: boolean;
-      versao: string;
+      version: string;
       database: string;
       redis: string;
     };
@@ -302,7 +302,7 @@ describe('GET /saude', () => {
     expect(['ok', 'falha']).toContain(corpo.redis);
   });
 
-  it('não exige autenticação', async () => {
+  it('Allow unauthenticated health checks', async () => {
     expect((await fetch(`${api.url}/saude`)).status).toBe(200);
   });
 });
@@ -313,7 +313,7 @@ describe('GET /metrics', () => {
     expect(resposta.status).toBe(401);
   });
 
-  it('com o token, devolve o formato do Prometheus', async () => {
+  it('Return Prometheus metrics with a valid token', async () => {
     const resposta = await fetch(`${api.url}/metrics`, {
       headers: { authorization: 'Bearer token-de-metricas' },
     });
@@ -327,7 +327,7 @@ describe('GET /metrics', () => {
     expect(texto).toContain('le="+Inf"');
     // O rótulo é o PADRÃO da rota, nunca o caminho com o uuid dentro.
     expect(texto).toContain('rota="/v1/eu"');
-    expect(texto).not.toContain(`rota="/v1/conversas/${cenario.tenantId}`);
+    expect(texto).not.toContain(`rota="/v1/conversations/${cenario.tenantId}`);
 
     // O balde acumulado nunca pode passar da contagem total da mesma série.
     const infinito = /http_request_duration_seconds_bucket\{[^}]*le="\+Inf"\} (\d+)/.exec(texto);
@@ -339,13 +339,13 @@ describe('GET /metrics', () => {
 function lerDesafioDoCookie(cabecalho: string): {
   state: string;
   destination: string;
-  origem?: string;
+  origin?: string;
 } {
   const value = /pipe_desafio=([^;]*)/.exec(cabecalho)?.[1] ?? '';
   return JSON.parse(Buffer.from(value, 'base64url').toString('utf8')) as {
     state: string;
     destino: string;
-    origem?: string;
+    origin?: string;
   };
 }
 
@@ -359,12 +359,12 @@ function lerDesafioDoCookie(cabecalho: string): {
 describe('a origem de quem começou o login', () => {
   it('origem da lista manda a volta para o aplicativo certo', () => {
     expect(destinationAbsolute('/leads', 'http://gestao.teste')).toBe('http://gestao.teste/leads');
-    expect(urlOfError('sem_convite', 'http://gestao.teste')).toBe(
-      'http://gestao.teste/entrar?erro=sem_convite',
+    expect(urlOfError('without_invitation', 'http://gestao.teste')).toBe(
+      'http://gestao.teste/entrar?error=sem_convite',
     );
   });
 
-  it('origem fora da lista é ignorada — senão o login vira redirecionamento aberto', () => {
+  it('Ignore unapproved origins to prevent open redirects during login', () => {
     expect(baseDoApp('https://malvado.example')).toBe('http://telas.teste');
     expect(destinationAbsolute('/', 'https://malvado.example')).toBe('http://telas.teste/');
   });
@@ -377,9 +377,9 @@ describe('a origem de quem começou o login', () => {
     expect(baseDoApp('http://gestao.teste/')).toBe('http://gestao.teste');
   });
 
-  it('a ida guarda a origem no cookie do desafio', async () => {
+  it('Store the request origin in the challenge cookie', async () => {
     const resposta = await fetch(
-      `${api.url}/v1/auth/google?origem=${encodeURIComponent('http://gestao.teste')}`,
+      `${api.url}/v1/auth/google?origin=${encodeURIComponent('http://gestao.teste')}`,
       { redirect: 'manual' },
     );
     expect(lerDesafioDoCookie(resposta.headers.get('set-cookie') ?? '').origem).toBe(

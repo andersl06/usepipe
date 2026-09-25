@@ -74,7 +74,7 @@ export interface CabecalhoCustomizado {
 
 /** Já decifrada — o que sai do banco, pronto para montar a requisição. */
 export interface AuthenticationOfOutputDecrypted {
-  tipo: TypeAuthenticationWebhook;
+  type: TypeAuthenticationWebhook;
   user?: string | null;
   senha?: string | null;
   oauth2UrlAuthorization?: string | null;
@@ -129,7 +129,7 @@ export async function headerOfAuthorization(
 export function cabecalhosDeSaida(params: {
   secret: string;
   timestamp: string;
-  corpo: string;
+  body: string;
   deliveryId: string;
   customizados?: readonly CabecalhoCustomizado[] | null;
 }): Record<string, string> {
@@ -197,13 +197,13 @@ export interface ResultDeliveryWebhook {
 type LineDelivery = {
   id: string;
   url: string;
-  segredo: string;
+  secret: string;
   payload: unknown;
   tentativas: number;
   typeAuthentication: TypeAuthenticationWebhook;
   authenticationUser: string | null;
   authenticationPassword: string | null;
-  oauth2_url_autorizacao: string | null;
+  oauth2UrlAuthorization: string | null;
   oauth2_client_id: string | null;
   oauth2_client_secret: string | null;
   cabecalhos: CabecalhoCustomizado[] | null;
@@ -314,7 +314,7 @@ async function entregarUma(
        where id = ${linha.id}
     `);
   });
-  return { id: linha.id, state: desistiu ? 'descartada' : 'pendente', error };
+  return { id: linha.id, state: desistiu ? 'descartada' : 'pending', error };
 }
 
 /**

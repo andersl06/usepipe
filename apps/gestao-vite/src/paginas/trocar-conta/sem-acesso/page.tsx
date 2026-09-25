@@ -18,7 +18,7 @@ import '../../bem-vindo/boas-vindas.css';
 export function PageNoAccess() {
   const [search] = useSearchParams();
   const slug = (search.get('para') ?? '').trim().toLowerCase();
-  const read = useRead<AccountInLista[]>('/v1/contas/minhas');
+  const read = useRead<AccountInLista[]>('/v1/accounts/my');
   const accounts = read.data ?? [];
   const emVigor = accounts.find((c) => c.emVigor);
 

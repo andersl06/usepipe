@@ -11,21 +11,21 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
-    "./transcricao": {
-      "types": "./dist/transcricao/index.d.ts",
-      "default": "./dist/transcricao/index.js"
+    "./transcription": {
+      "types": "./dist/transcription/index.d.ts",
+      "default": "./dist/transcription/index.js"
     },
     "./resumo": {
       "types": "./dist/resumo/index.d.ts",
       "default": "./dist/resumo/index.js"
     },
-    "./classificacao": {
-      "types": "./dist/classificacao/index.d.ts",
-      "default": "./dist/classificacao/index.js"
+    "./classification": {
+      "types": "./dist/classification/index.d.ts",
+      "default": "./dist/classification/index.js"
     },
-    "./avaliacao": {
-      "types": "./dist/avaliacao/index.d.ts",
-      "default": "./dist/avaliacao/index.js"
+    "./evaluation": {
+      "types": "./dist/evaluation/index.d.ts",
+      "default": "./dist/evaluation/index.js"
     },
     "./consumo": {
       "types": "./dist/consumo/index.d.ts",
@@ -41,7 +41,7 @@
     "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.testes.json",
     "lint": "eslint src",
     "test": "vitest run",
-    "test:observar": "vitest"
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.124.0",

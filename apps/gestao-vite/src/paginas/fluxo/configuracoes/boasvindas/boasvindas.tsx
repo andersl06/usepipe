@@ -10,7 +10,7 @@ import { TelaDeBoasVindas } from './tela';
 export function WelcomePage() {
   const { contact } = useContact();
   const read = useRead<ConfigurationOfWelcome>(
-    `/v1/gestao/fluxos/${contact.id}/boas-vindas`,
+    `/v1/management/flows/${contact.id}/welcome`,
   );
   if (!read.data) return null;
   return <TelaDeBoasVindas id={contact.id} inicial={read.data} />;

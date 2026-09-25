@@ -38,7 +38,7 @@ import {
 
 /* ------------------------------------------------------------- variaveis.ts */
 
-test('colar ações preserva origem, cria ids únicos e respeita o limite atomicamente', () => {
+test('pasting actions preserves origin, creates unique ids and respects the limit atomically', () => {
   const block = newBlock({}, { top: 0, left: 0 }, 'bloco');
   const original = {
     $id: 'origem',
@@ -62,7 +62,7 @@ test('colar ações preserva origem, cria ids únicos e respeita o limite atomic
   assert.equal(cheio.$enteringCustomActions.length, 14);
 });
 
-test('ProcessHttp edita cabeçalhos em pares e mantém o objeto do fluxo', () => {
+test('ProcessHttp edits headers in pairs and keeps the flow\'s object', () => {
   const acao = novaAcao('ProcessHttp');
   assert.equal(acao.settings?.method, 'GET');
   assert.deepEqual(tipoDeAcao('ProcessHttp')?.campos[0]?.options, ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']);
@@ -82,7 +82,7 @@ test('ProcessHttp edita cabeçalhos em pares e mantém o objeto do fluxo', () =>
   assert.deepEqual(actionErrors(invalida), ['URL: campo obrigatório.']);
 });
 
-test('rascunho de saída vazio fica no cartão e não entra no alerta de publicação', () => {
+test('an empty output draft stays on the card and does not enter the publish alert', () => {
   const block = newBlock({}, { top: 0, left: 0 }, 'inicio');
   block.$conditionOutputs = [{ conditions: [{ source: 'input', comparison: 'equals', values: [] }] }];
   const errors = blockErrors(block, { inicio: block });
@@ -90,7 +90,7 @@ test('rascunho de saída vazio fica no cartão e não entra no alerta de publica
   assert.ok(!errors.includes('A condição precisa de valores quando a comparação não é exists nem notExists.'));
 });
 
-test('card do bloco mostra ações de conteúdo, entrada e ações personalizadas sem repetir', () => {
+test('the block card shows content, entry and custom actions without repeating', () => {
   const block = newBlock({}, { top: 0, left: 0 }, 'inicio');
   block.$contentActions = [
     { action: { type: 'SendMessage' } },
@@ -107,7 +107,7 @@ test('card do bloco mostra ações de conteúdo, entrada e ações personalizada
   assert.equal(etiquetas[0]?.cor, '#4a5d23');
 });
 
-test('variaveisDoUsuario junta as variáveis de context de blocos e ações globais, sem repetir', () => {
+test('userVariables merges context variables from blocks and global actions, without repeating', () => {
   const block = newBlock({}, { top: 0, left: 0 }, 'bloco');
   block.$enteringCustomActions = [{ type: 'SetVariable', settings: { variable: 'saldo' } }];
   block.$conditionOutputs = [
@@ -129,12 +129,12 @@ test('variaveisDoUsuario junta as variáveis de context de blocos e ações glob
   assert.deepEqual(userVariables(mapa, global), ['etapa', 'resposta', 'saldo', 'temp']);
 });
 
-test('variaveisDoUsuario devolve lista vazia quando o fluxo não referencia nenhuma variável de context', () => {
+test('userVariables returns an empty list when the flow references no context variable', () => {
   const mapa = { bloco: newBlock({}, { top: 0, left: 0 }, 'bloco') };
   assert.deepEqual(userVariables(mapa, {}), []);
 });
 
-test('filtrarVariaveis ignora acento e caixa', () => {
+test('filterVariables ignores accents and case', () => {
   const nomes = ['Saldo', 'situação', 'temp'];
   assert.deepEqual(filterVariables(nomes, 'situacao'), ['situação']);
   assert.deepEqual(filterVariables(nomes, 'SALDO'), ['Saldo']);
@@ -142,7 +142,7 @@ test('filtrarVariaveis ignora acento e caixa', () => {
   assert.deepEqual(filterVariables(nomes, 'zzz'), []);
 });
 
-test('filtrarVariaveisDoSistema busca no nome e na descrição', () => {
+test('filterSystemVariables searches the name and the description', () => {
   const byName = sistemaFiltrarVariables(VARIABLES_OF_SISTEMA, 'contact.email');
   assert.deepEqual(
     byName.map((v) => v.nome),
@@ -155,7 +155,7 @@ test('filtrarVariaveisDoSistema busca no nome e na descrição', () => {
 
 /* --------------------------------------------------------- importar-exportar.ts */
 
-test('textoDeExportacao produz {flow, globalActions} com o bloco pela chave do id', () => {
+test('exportText produces {flow, globalActions} with the block keyed by id', () => {
   const block = newBlock({}, { top: 0, left: 0 }, 'onboarding');
   block.root = true;
   const mapa = { onboarding: block };
@@ -171,23 +171,23 @@ test('textoDeExportacao produz {flow, globalActions} com o bloco pela chave do i
   assert.deepEqual(json.globalActions, global);
 });
 
-test('nomeDoArquivoDeExportacao sanitiza o nome do fluxo e nunca fica vazio', () => {
+test('exportFileName sanitizes the flow\'s name and is never empty', () => {
   assert.equal(nameOfFileOfExport('Meu Bot!'), 'meu-bot.json');
   assert.equal(nameOfFileOfExport('  '), 'fluxo.json');
   assert.equal(nameOfFileOfExport('Atendimento/Vendas'), 'atendimento-vendas.json');
 });
 
-test('validarImportacao recusa texto que não é JSON', () => {
+test('validateImport rejects text that is not JSON', () => {
   const r = validateImport('{ isso não é json');
   assert.deepEqual(r, { ok: false, erro: MESSAGES_OF_IMPORT.arquivoInvalido });
 });
 
-test('validarImportacao recusa JSON que não tem o formato do export do editor', () => {
+test('validateImport rejects JSON that does not match the editor\'s export format', () => {
   const r = validateImport(JSON.stringify({ nada: 'a ver' }));
   assert.deepEqual(r, { ok: false, erro: MESSAGES_OF_IMPORT.arquivoInvalido });
 });
 
-test('validarImportacao recusa um fluxo sem bloco raiz', () => {
+test('validateImport rejects a flow with no root block', () => {
   const semRaiz = {
     flow: { onboarding: { id: 'onboarding', $contentActions: [] } },
     globalActions: {},
@@ -196,7 +196,7 @@ test('validarImportacao recusa um fluxo sem bloco raiz', () => {
   assert.deepEqual(r, { ok: false, erro: MESSAGES_OF_IMPORT.semRaiz });
 });
 
-test('validarImportacao aceita um export válido e devolve o mapa pronto pra carregar', () => {
+test('validateImport accepts a valid export and returns the map ready to load', () => {
   const valido = {
     flow: { onboarding: { id: 'onboarding', root: true, $contentActions: [] } },
     globalActions: { $enteringCustomActions: [] },
@@ -210,7 +210,7 @@ test('validarImportacao aceita um export válido e devolve o mapa pronto pra car
 
 /* ------------------------------------------------------------- acoes-globais.ts */
 
-test('listaDeAcoesGlobais devolve lista vazia quando a chave não existe', () => {
+test('globalActionList returns an empty list when the key does not exist', () => {
   assert.deepEqual(actionsGlobalLista({}, '$enteringCustomActions'), []);
 });
 
@@ -224,7 +224,7 @@ test('adicionarAcaoGlobal acrescenta na lista certa sem mexer na outra', () => {
   assert.deepEqual(actionsGlobalLista(r.global, '$leavingCustomActions'), []);
 });
 
-test('adicionarAcaoGlobal recusa depois do limite de 15, igual às ações de bloco', () => {
+test('addGlobalAction rejects past the limit of 15, same as block actions', () => {
   const cheias = {
     $enteringCustomActions: Array.from({ length: ACTIONS_LIMIT }, () => ({
       type: 'SetVariable',

@@ -42,13 +42,13 @@ function colunasDaTabela(hoje: Date, fuso: string): readonly Column<LinhaOpportu
     {
       key: 'nome',
       rotulo: 'Oportunidade',
-      celula: (o) => <Link href={`/oportunidades/${o.id}`}>{o.nome}</Link>,
+      celula: (o) => <Link href={`/opportunities/${o.id}`}>{o.nome}</Link>,
     },
     {
       key: 'conta',
       rotulo: 'Conta',
       celula: (o) =>
-        o.accountId ? <Link href={`/contas/${o.accountId}`}>{o.accountName}</Link> : '—',
+        o.accountId ? <Link href={`/accounts/${o.accountId}`}>{o.accountName}</Link> : '—',
     },
     { key: 'fase', rotulo: 'Fase', celula: (o) => <Etiqueta>{o.fase}</Etiqueta> },
     { key: 'valor', rotulo: 'Valor', numerica: true, celula: (o) => money(o.value) },
@@ -73,7 +73,7 @@ function colunasDaTabela(hoje: Date, fuso: string): readonly Column<LinhaOpportu
           );
         }
         if (o.closingPrevisto && o.closingPrevisto < hoje) {
-          return <Etiqueta tom="alerta">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
+          return <Etiqueta tom="alert">venceu em {data(o.closingPrevisto, fuso)}</Etiqueta>;
         }
         return o.closingPrevisto ? (
           <Etiqueta>fecha em {data(o.closingPrevisto, fuso)}</Etiqueta>
@@ -128,11 +128,11 @@ export default async function PageOpportunities({
 
       <div className="tblwrap">
         <div className="tabs" role="tablist">
-          <Link href="/oportunidades" role="tab" aria-current={vista === 'quadro' ? 'true' : undefined}>
+          <Link href="/opportunities" role="tab" aria-current={vista === 'quadro' ? 'true' : undefined}>
             Quadro
           </Link>
           <Link
-            href="/oportunidades?vista=tabela"
+            href="/opportunities?vista=tabela"
             role="tab"
             aria-current={vista === 'tabela' ? 'true' : undefined}
           >
@@ -189,7 +189,7 @@ function QuadroDoFunil({ funil }: { funil: Awaited<ReturnType<typeof carregarFun
           na coluna da fase em que estiver.
         </span>
         <span className="acoes-erro">
-          <Link className="btn" href="/leads?aba=qualificados">
+          <Link className="btn" href="/leads?tab=qualificados">
             Ver os leads qualificados
           </Link>
         </span>
@@ -247,7 +247,7 @@ async function OpportunitiesTabela({
         <EmptyState titulo="Nenhuma oportunidade para esta busca." illustration="busca">
           <span>Nada casou com “{search}” no nome da oportunidade nem no da conta.</span>
           <span className="acoes-erro">
-            <Link className="btn" href={`/oportunidades?${withoutSearch}`}>
+            <Link className="btn" href={`/opportunities?${withoutSearch}`}>
               Limpar a busca
             </Link>
           </span>

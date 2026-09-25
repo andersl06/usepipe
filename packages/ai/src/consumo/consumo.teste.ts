@@ -11,14 +11,14 @@ import {
 } from './index.js';
 
 describe('tabela de preços', () => {
-  it('tem o modelo padrão cadastrado', () => {
+  it('has the default model registered', () => {
     expect(TEMPLATE_DEFAULT).toBe('claude-sonnet-5');
     expect(PRECOS[TEMPLATE_DEFAULT]).toEqual({ entradaUsdPorMilhao: 2, saidaUsdPorMilhao: 10 });
   });
 });
 
 describe('custo', () => {
-  it('cobra entrada e saída pelas tarifas do modelo', () => {
+  it('charges input and output at the model\'s rates', () => {
     // 1M de entrada a US$ 2 = 200 centavos; 1M de saída a US$ 10 = 1.000 centavos.
     expect(calcularCusto('claude-sonnet-5', 1_000_000, 0)).toBeCloseTo(200, 10);
     expect(calcularCusto('claude-sonnet-5', 0, 1_000_000)).toBeCloseTo(1_000, 10);
@@ -30,11 +30,11 @@ describe('custo', () => {
     expect(calcularCusto('claude-sonnet-5', 12_000, 800)).toBeCloseTo(3.2, 10);
   });
 
-  it('cobra mais caro no modelo mais caro', () => {
+  it('charges more for the more expensive model', () => {
     expect(calcularCusto('claude-opus-5', 1_000_000, 0)).toBeCloseTo(500, 10);
   });
 
-  it('estoura em modelo sem preço em vez de devolver custo zero', () => {
+  it('throws for a model without a price instead of returning zero cost', () => {
     expect(() => calcularCusto('modelo-inventado', 1_000, 1_000)).toThrow(TemplateWithoutPrecoError);
   });
 });
@@ -48,7 +48,7 @@ describe('consumo', () => {
     expect(c.custoCentavos).toBeCloseTo(3, 10);
   });
 
-  it('soma por modelo e nunca mistura modelos numa linha só', () => {
+  it('sums per model and never mixes models in a single row', () => {
     const soma = somarConsumo([
       consumoDe('claude-sonnet-5', 1_000, 100),
       consumoDe('claude-sonnet-5', 2_000, 200),

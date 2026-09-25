@@ -310,7 +310,7 @@ export interface ResultSeed {
 
 export async function seed(
   db: DatabasePipe,
-  data: { nome?: string; slug?: string } = {},
+  data: { name?: string; slug?: string } = {},
 ): Promise<ResultSeed> {
   const nome = data.nome ?? 'Pipe — tenant de demonstração';
   const slug = data.slug ?? 'demo';

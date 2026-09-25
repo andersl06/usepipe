@@ -52,7 +52,7 @@ export function PageLog() {
   const filterKey = queryBase.toString();
 
   const firstPage = useRead<LogPage>(
-    `/v1/gestao/fluxos/${contact.id}/analise/log?${filterKey}`,
+    `/v1/management/flows/${contact.id}/analytics/log?${filterKey}`,
     { staleTime: 0 },
   );
 
@@ -80,7 +80,7 @@ export function PageLog() {
       const q = new URLSearchParams(queryBase);
       q.set('cursor', cursor);
       const page = await api.get<LogPage>(
-        `/v1/gestao/fluxos/${contact.id}/analise/log?${q.toString()}`,
+        `/v1/management/flows/${contact.id}/analytics/log?${q.toString()}`,
       );
       setExtras((current) => [...current, ...page.data]);
       setCursor(page.page_info.end_cursor);

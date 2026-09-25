@@ -4,7 +4,7 @@ import { extractSources, type SourceText } from './inventory.ts';
 
 const run = (...sources: SourceText[]) => extractSources(sources);
 
-test('extrai classe, metodo e parametro PT com local de declaracao', () => {
+test('Extract Portuguese class, method, and parameter names with their declaration locations', () => {
   const result = run({ fileName: 'apps/api/src/anexos.ts', sourceText: 'export class ControladorAnexos { buscarAnexo(idAnexo: string) {} }' });
   for (const [kind, old] of [['symbol', 'ControladorAnexos'], ['symbol', 'buscarAnexo'], ['ts-local', 'idAnexo']]) {
     const row = result.rows.find((item) => item.kind === kind && item.old === old);
@@ -17,7 +17,7 @@ test('ignora identificadores ingleses', () => {
   assert.equal(result.rows.some((row) => ['status', 'useState'].includes(row.old)), false);
 });
 
-test('registra chave TS Drizzle e preserva nome SQL apenas nas notas', () => {
+test('Record the Drizzle TypeScript key and keep its SQL name only in notes', () => {
   const result = run({ fileName: 'packages/db/src/schema/x.ts', sourceText: "export const t = pgTable('t', { contatoId: text('contato_id') });" });
   const item = result.rows.find((row) => row.old === 'contatoId'); assert.ok(item); assert.match(item.notes, /sql=contato_id/);
   assert.equal(result.rows.some((row) => row.old === 'contato_id'), false);
@@ -40,7 +40,7 @@ test('extrai literal union e atributos data', () => {
   assert.ok(result.rows.some((row) => row.scope === 'css' && row.old === 'data-painel=aberto'));
 });
 
-test('lista dependentes de rota por arquivo e tipo', () => {
+test('List route consumers by file and kind', () => {
   const result = run(
     { fileName: 'apps/gestao-vite/src/App.tsx', sourceText: 'const x = <Routes><Route path="/fluxo/:id/contatos" element={<div />} /></Routes>;' },
     { fileName: 'apps/gestao-vite/src/nav.ts', sourceText: 'navigate(`/fluxo/${id}/contatos`);' },
@@ -59,7 +59,7 @@ test('captura nomes tecnicos em constantes e agendadores sem casar nomes proximo
   assert.equal(result.rows.some((row) => row.kind === 'queue' && row.old === 'fila.gerenciar'), false);
 });
 
-test('liga sufixo de rota a construtor com base dinamica sem aceitar prefixo curto', () => {
+test('Match a route suffix to a dynamic base URL without matching a shorter prefix', () => {
   const result = run(
     { fileName: 'apps/gestao-vite/src/App.tsx', sourceText: 'const x = <Routes><Route path="/fluxo/:id"><Route path="analise/dicionario-de-dados" element={<div />} /></Route></Routes>;' },
     { fileName: 'apps/gestao-vite/src/nav.ts', sourceText: 'const url = `${baseDoContato("fluxo", id)}/analise/dicionario-de-dados`; const near = "/fluxo";' },
@@ -69,13 +69,13 @@ test('liga sufixo de rota a construtor com base dinamica sem aceitar prefixo cur
   assert.equal(result.routeDependents.filter((item) => item.route_row_id === route.id).length, 1);
 });
 
-test('nao inclui texto visivel de listas const no mapa de literais tecnicos', () => {
+test('Exclude visible labels and descriptions from technical literal mappings', () => {
   const result = run({ fileName: 'apps/gestao-vite/src/menu.ts', sourceText: "const ITENS = [{ rotulo: 'Atendimento', descricao: 'Ver conversas da fila', rota: 'atendimento' }] as const;" });
   assert.ok(result.rows.some((row) => row.kind === 'literal-value' && row.old === 'atendimento'));
   assert.equal(result.rows.some((row) => row.kind === 'literal-value' && ['Atendimento', 'Ver conversas da fila'].includes(row.old)), false);
 });
 
-test('extrai codigo real de erro sem confundir entidade ou permissao', () => {
+test('Extract actual error codes without mistaking entities or permissions for codes', () => {
   const result = run({ fileName: 'apps/api/src/erros.ts', sourceText: "ErroPipe.naoEncontrado('Anexo'); ErroPipe.semPermissao('fila.gerenciar'); ErroPipe.requisicao('arquivo_vazio', 'Arquivo vazio'); new ErroPipe(500, 'arquivo_grande', 'Falhou');" });
   const codes = result.rows.filter((row) => row.kind === 'error-code').map((row) => row.old);
   assert.deepEqual(codes.sort(), ['arquivo_grande', 'arquivo_vazio']);

@@ -65,14 +65,14 @@ async function up(): Promise<void> {
   // Varredura de segurança da entrega: recupera o que a fila deixou cair e o que
   // está esperando a próxima tentativa do backoff.
   await queueDelivery.upsertJobScheduler(
-    'varredura-outbox',
+    'sweep-outbox',
     { every: Number(process.env['PIPE_ENTREGA_VARREDURA_MS'] ?? 15_000) },
     { name: 'varredura', data: {} },
   );
 
   // 03:10 no fuso do processo: depois da virada do dia e antes do expediente.
   await queueAggregation.upsertJobScheduler(
-    'metrica-diaria',
+    'daily-metric',
     { pattern: process.env['PIPE_AGREGACAO_CRON'] ?? '10 3 * * *' },
     { name: 'dia-anterior', data: {} },
   );

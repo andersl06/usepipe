@@ -105,7 +105,7 @@ function ConditionLinha({
       <div className="bl-condicao-linha bl-condicao-campos">
         <span className="bl-condicao-se">{first ? ROTULOS_DAS_SAIDAS.se : 'e'}</span>
         {semSuporte ? (
-          <Etiqueta tom="alerta" titulo="O Pipe não tem provedor de IA: esta condição nunca casa.">
+          <Etiqueta tom="alert" titulo="O Pipe não tem provedor de IA: esta condição nunca casa.">
             {ROTULO_DA_FONTE[fonte] ?? fonte}
           </Etiqueta>
         ) : (

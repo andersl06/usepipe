@@ -38,7 +38,7 @@ async function assinar(
 }
 
 describe('login com Google', () => {
-  it('a URL de autorização leva state, nonce e o desafio PKCE derivado', () => {
+  it('Include `state`, `nonce`, and the derived PKCE challenge in the authorization URL', () => {
     const desafio = createChallenge('/relatorios');
     const url = new URL(urlOfAuthorization(config, desafio));
 
@@ -53,7 +53,7 @@ describe('login com Google', () => {
     expect(url.search).not.toContain(desafio.verificadorPkce);
   });
 
-  it('destino externo vira raiz, para não virar trampolim de phishing', () => {
+  it('Replace external redirect destinations with the root path', () => {
     expect(createChallenge('https://malicioso.example/x').destination).toBe('/');
     expect(createChallenge('//malicioso.example').destination).toBe('/');
     expect(createChallenge('/historico').destination).toBe('/historico');
@@ -66,7 +66,7 @@ describe('login com Google', () => {
     ).rejects.toThrow(/state/);
   });
 
-  it('recusa a volta quando o Google devolve erro', async () => {
+  it('Reject a Google callback containing an error', async () => {
     const desafio = createChallenge();
     await expect(
       exchangeCode(config, desafio, { error: 'access_denied', state: desafio.state }),
@@ -133,7 +133,7 @@ describe('login com Google', () => {
     await expect(verificarIdToken(token, config, 'n-1', publica)).rejects.toThrow();
   });
 
-  it('recusa token assinado por outra chave', async () => {
+  it('Reject a token signed with an untrusted key', async () => {
     const { privateKey } = await keysOfTest();
     const { publica: outraPublica } = await keysOfTest();
     const token = await assinar(privateKey, {
@@ -147,7 +147,7 @@ describe('login com Google', () => {
     await expect(verificarIdToken(token, config, 'n-1', outraPublica)).rejects.toThrow();
   });
 
-  it('a troca do código manda o verificador PKCE e o segredo', async () => {
+  it('Send the PKCE verifier and client secret during Google code exchange', async () => {
     const { privateKey, publica } = await keysOfTest();
     const desafio = createChallenge();
     const idToken = await assinar(privateKey, {
@@ -183,7 +183,7 @@ describe('login com Google', () => {
     expect(corpoEnviado).toContain('grant_type=authorization_code');
   });
 
-  it('a troca falha alto quando o Google devolve erro HTTP', async () => {
+  it('Fail when Google returns an HTTP error during code exchange', async () => {
     const desafio = createChallenge();
     const buscar = (async () => ({ ok: false, status: 400 }) as Response) as unknown as typeof fetch;
     await expect(
@@ -191,7 +191,7 @@ describe('login com Google', () => {
     ).rejects.toThrow(/400/);
   });
 
-  it('separa domínio de empresa de domínio pessoal', () => {
+  it('Distinguish company email domains from public email providers', () => {
     expect(domainOfEmail('ana@empresa.com.br')).toBe('empresa.com.br');
     expect(ehDomainPublic('ana@gmail.com')).toBe(true);
     expect(ehDomainPublic('ana@empresa.com.br')).toBe(false);

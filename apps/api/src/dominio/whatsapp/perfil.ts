@@ -36,12 +36,12 @@ const FOTO_MAX_BYTES = 5 * 1024 * 1024;
 const TIPOS_DE_FOTO = ['image/jpeg', 'image/png'] as const;
 
 export interface PerfilVisivel {
-  sobre: string;
+  about: string;
   endereco: string;
   description: string;
   email: string;
   sites: string[];
-  categoria: string;
+  category: string;
   fotoUrl: string | null;
   /** Só leitura: o nome e o estado da análise da Meta. */
   nome: {
@@ -53,29 +53,29 @@ export interface PerfilVisivel {
 }
 
 export interface PedidoDePerfil {
-  sobre?: string;
+  about?: string;
   endereco?: string;
-  descricao?: string;
+  description?: string;
   email?: string;
   sites?: string[];
-  categoria?: string;
+  category?: string;
   /** `data:image/jpeg;base64,…` — o mesmo formato da foto do fluxo. */
   foto?: string;
 }
 
 function recusa(campo: string, message: string): PipeError {
-  return new PipeError(422, 'perfil_invalido', message, { campo });
+  return new PipeError(422, 'profile_invalid', message, { campo });
 }
 
 function tokenDo(channel: ChannelWhatsApp): string {
   const token = texto(channel.config['tokenAcesso']);
-  if (!token) throw PipeError.conflito('canal_sem_token', 'O canal não tem token: reconecte o WhatsApp.');
+  if (!token) throw PipeError.conflito('channel_without_token', 'O canal não tem token: reconecte o WhatsApp.');
   return token;
 }
 
 function numeroDo(canal: ChannelWhatsApp): string {
   const numero = texto(canal.config['phoneNumberId']) ?? canal.numeroId;
-  if (!numero) throw PipeError.conflito('canal_sem_numero', 'O canal não tem número: reconecte o WhatsApp.');
+  if (!numero) throw PipeError.conflito('channel_without_number', 'O canal não tem número: reconecte o WhatsApp.');
   return numero;
 }
 
@@ -164,7 +164,7 @@ export function validarPerfil(pedido: PedidoDePerfil): PerfilParaGravar {
   return saida;
 }
 
-export function lerFoto(foto: string): { bytes: Buffer; tipo: string } {
+export function lerFoto(foto: string): { bytes: Buffer; type: string } {
   const partes = /^data:([^;,]+);base64,(.+)$/s.exec(foto);
   if (!partes) throw recusa('foto', 'A foto tem de vir como imagem.');
   const tipo = partes[1]!.toLowerCase();
@@ -187,7 +187,7 @@ export async function writeProfileOfChannel(
   const perfil = validarPerfil(pedido);
   const foto = pedido.foto === undefined ? null : lerFoto(pedido.foto);
   if (!foto && Object.keys(perfil).length === 0) {
-    throw PipeError.request('nada_para_gravar', 'Nada mudou no perfil.');
+    throw PipeError.request('nothing_for_write', 'Nada mudou no perfil.');
   }
 
   const cliente = clienteGraph(tokenDo(canal));
@@ -197,7 +197,7 @@ export async function writeProfileOfChannel(
     const appId = texto(canal.config['appId']) ?? process.env['WHATSAPP_APP_ID'] ?? '';
     if (!appId) {
       throw PipeError.conflito(
-        'canal_sem_app',
+        'channel_without_app',
         'Não sabemos o aplicativo deste canal para enviar a foto: reconecte o WhatsApp.',
       );
     }

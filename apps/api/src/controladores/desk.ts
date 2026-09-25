@@ -69,7 +69,7 @@ export class DeskController {
   /* ------------------------------------------------------------ leituras */
 
   /** A fila do atendente e os catálogos da coluna, numa ida só. */
-  @Get('fila')
+  @Get('queue')
   @WithSession()
   queue(@Req() requisicao: RequestWithSession): Promise<QueueOfDesk> {
     const sessao = sessionOf(requisicao);
@@ -111,7 +111,7 @@ export class DeskController {
   }
 
   /** As filas do cliente, para o seletor do modal de transferência. */
-  @Get('filas')
+  @Get('queues')
   @WithSession()
   queues(
     @Req() request: RequestWithSession,
@@ -121,11 +121,11 @@ export class DeskController {
   }
 
   /** A aba Contatos: a lista, com busca por nome ou telefone. */
-  @Get('contatos')
+  @Get('contacts')
   @WithSession()
   contacts(
     @Req() requisicao: RequestWithSession,
-    @Query('busca') search?: string,
+    @Query('search') search?: string,
   ): Promise<{ contacts: consultas.ContactOfList[] }> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => ({
@@ -149,7 +149,7 @@ export class DeskController {
   }
 
   /** Os canais com os modelos aprovados — para a mensagem ativa e as ações em massa. */
-  @Get('canais')
+  @Get('channels')
   @WithSession()
   channels(
     @Req() requisicao: RequestWithSession,
@@ -182,7 +182,7 @@ export class DeskController {
    * navegador; sem os dois instantes (ou com um deles ilegível) vale o dia de
    * hoje, e um recorte maior que o teto da tela é cortado no fim.
    */
-  @Get('metricas')
+  @Get('metrics')
   @WithSession()
   metrics(
     @Req() requisicao: RequestWithSession,

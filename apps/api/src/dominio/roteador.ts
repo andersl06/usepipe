@@ -33,7 +33,7 @@ import type { FlowPublished } from './fluxo.js';
 type LineOfService = {
   servico_id: string;
   principal: boolean;
-  persistente: boolean;
+  persistent: boolean;
   expiracao_min: number | null;
   usesContext: boolean;
   versao_id: string | null;
@@ -44,11 +44,11 @@ type LineOfPosition = {
   expirou: boolean;
   context: Record<string, string>;
   reiniciar: boolean;
-  bloco_inicial: string | null;
+  blockInicial: string | null;
 };
 
 /** O prazo do serviço a partir de agora; nulo = não expira. */
-function prazo(s: { principal: boolean; persistente: boolean; expiracao_min: number | null }) {
+function prazo(s: { principal: boolean; persistent: boolean; expiracao_min: number | null }) {
   return s.principal || s.persistente || !s.expiracao_min
     ? null
     : sql`now() + ${s.expiracao_min}::int * interval '1 minute'`;
@@ -136,7 +136,7 @@ export async function redirecionarInRouter(
   const { rows } = await tx.execute<{
     serviceId: string;
     principal: boolean;
-    persistente: boolean;
+    persistent: boolean;
     expirationMin: number | null;
   }>(sql`
     select servico_id, principal, persistente, expiracao_min from roteador_servico

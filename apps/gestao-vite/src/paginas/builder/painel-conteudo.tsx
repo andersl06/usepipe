@@ -386,7 +386,7 @@ function ContentCard({
             {excluir}
           </header>
           {!card.suportado ? (
-            <Etiqueta tom="alerta">{ROTULOS_DO_CONTEUDO.naoSuportado}</Etiqueta>
+            <Etiqueta tom="alert">{ROTULOS_DO_CONTEUDO.naoSuportado}</Etiqueta>
           ) : null}
         </article>
       );

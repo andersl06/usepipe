@@ -68,8 +68,8 @@ const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
 
 export interface AgentOfQueue {
   id: string;
-  nome: string;
-  estado: string | null;
+  name: string;
+  state: string | null;
   /** `fila_atendente.capacidade_override` ou a capacidade padrão da fila. */
   capacity: number;
   /** O atendente tem limite próprio, diferente do padrão da fila. */
@@ -78,23 +78,23 @@ export interface AgentOfQueue {
 
 export interface QueueRegistered {
   id: string;
-  nome: string;
-  cor: string | null;
-  capacidadePadrao: number;
-  ordem: number;
+  name: string;
+  color: string | null;
+  capacityDefault: number;
+  order: number;
   ativa: boolean;
-  horarioId: string | null;
+  scheduleId: string | null;
   horarioNome: string | null;
   agents: AgentOfQueue[];
 }
 
 export interface HorarioParaEscolher {
   id: string;
-  nome: string;
+  name: string;
 }
 
 export async function loadQueues(tx: TransactionPipe): Promise<{
-  filas: QueueRegistered[];
+  queues: QueueRegistered[];
   horarios: HorarioParaEscolher[];
 }> {
   return consultar(tx, async (tx) => {
@@ -157,12 +157,12 @@ export async function loadQueues(tx: TransactionPipe): Promise<{
 
 export interface MotivoDePausa {
   id: string;
-  nome: string;
-  duracaoSugeridaMin: number | null;
-  contaComoProdutivo: boolean;
-  ativo: boolean;
+  name: string;
+  durationSuggestedMin: number | null;
+  countsAsProductive: boolean;
+  active: boolean;
   /** Pausas encerradas no período. */
-  pausas: number;
+  pauses: number;
   /** Duração média observada, em segundos. `null` quando ninguém usou. */
   mediaSeg: number | null;
 }
@@ -247,28 +247,28 @@ export async function carregarPausas(tx: TransactionPipe, dias = 30): Promise<Us
 
 export interface FaixaDoHorario {
   id: string;
-  diaSemana: number;
-  inicio: string;
-  fim: string;
+  dayWeek: number;
+  start: string;
+  end: string;
 }
 
 export interface ExceptionOfSchedule {
   id: string;
   data: string;
-  fechado: boolean;
-  inicio: string | null;
-  fim: string | null;
-  motivo: string | null;
+  closed: boolean;
+  start: string | null;
+  end: string | null;
+  reason: string | null;
 }
 
 export interface HorarioCadastrado {
   id: string;
-  nome: string;
+  name: string;
   fuso: string;
   faixas: FaixaDoHorario[];
   exceptions: ExceptionOfSchedule[];
   /** Nomes das filas que apontam para este horário. Vazio = horário sem uso. */
-  filas: string[];
+  queues: string[];
   abertoAgora: boolean;
   /** `null` = nenhuma abertura no horizonte do core — horário sem faixa nenhuma. */
   proximaAberturaEm: Date | null;
@@ -396,17 +396,17 @@ export async function carregarHorarios(tx: TransactionPipe): Promise<Horarios> {
    não deixar a fila trocar de tenant. */
 
 export interface RequestOfEditOfRange {
-  diaSemana?: number;
-  inicio?: string;
-  fim?: string;
+  dayWeek?: number;
+  start?: string;
+  end?: string;
 }
 
 export interface FaixaGravada {
   id: string;
-  horarioId: string;
-  diaSemana: number;
-  inicio: string;
-  fim: string;
+  scheduleId: string;
+  dayWeek: number;
+  start: string;
+  end: string;
 }
 
 async function faixaViva(tx: TransactionPipe, tid: string, id: string) {
@@ -428,7 +428,7 @@ async function faixaViva(tx: TransactionPipe, tid: string, id: string) {
 function diaSemanaConferido(bruto: unknown): number {
   const n = Number(bruto);
   if (!Number.isInteger(n) || n < 0 || n > 6) {
-    throw PipeError.request('dia_semana_invalido', 'Dia da semana inválido.');
+    throw PipeError.request('day_week_invalid', 'Dia da semana inválido.');
   }
   return n;
 }
@@ -478,7 +478,7 @@ export async function editarFaixaHorario(
 
   if (minutosDoRelogio(depois.fim) <= minutosDoRelogio(depois.inicio)) {
     throw PipeError.conflito(
-      'fim_antes_do_inicio',
+      'end_before_of_start',
       'O fim tem de ser depois do início. Expediente que vira o dia são duas faixas, uma em cada dia.',
     );
   }
@@ -493,7 +493,7 @@ export async function editarFaixaHorario(
     (f) => inicioMin < minutosDoRelogio(f.fim) && minutosDoRelogio(f.inicio) < fimMin,
   );
   if (sobrepoe) {
-    throw PipeError.conflito('faixa_sobreposta', 'Esta faixa se sobrepõe a outra já cadastrada neste dia.');
+    throw PipeError.conflito('range_overlapping', 'Esta faixa se sobrepõe a outra já cadastrada neste dia.');
   }
 
   await tx
@@ -535,20 +535,20 @@ export async function excluirFaixaHorario(
 
 export interface RequestOfEditOfException {
   data?: string;
-  fechado?: boolean;
-  inicio?: string | null;
-  fim?: string | null;
-  motivo?: string | null;
+  closed?: boolean;
+  start?: string | null;
+  end?: string | null;
+  reason?: string | null;
 }
 
 export interface ExceptionWritten {
   id: string;
-  horarioId: string;
+  scheduleId: string;
   data: string;
-  fechado: boolean;
-  inicio: string | null;
-  fim: string | null;
-  motivo: string | null;
+  closed: boolean;
+  start: string | null;
+  end: string | null;
+  reason: string | null;
 }
 
 async function exceptionViva(tx: TransactionPipe, tid: string, id: string) {
@@ -595,7 +595,7 @@ export async function editarExceptionSchedule(
 
   if (pedido.data !== undefined) {
     const data = String(pedido.data).trim();
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) throw PipeError.request('data_invalida', 'Informe a data.');
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) throw PipeError.request('data_invalid', 'Informe a data.');
     depois.data = data;
   }
   if (pedido.fechado !== undefined) depois.fechado = pedido.fechado;
@@ -606,19 +606,19 @@ export async function editarExceptionSchedule(
   if (depois.fechado) {
     if (depois.inicio || depois.fim) {
       throw PipeError.request(
-        'excecao_fechada_com_horario',
+        'exception_closed_with_schedule',
         'Dia fechado não tem horário. Desmarque "fechado" para abrir em horário especial.',
       );
     }
   } else {
     if (!depois.inicio || !depois.fim) {
       throw PipeError.request(
-        'excecao_sem_horario',
+        'exception_without_schedule',
         'Exceção que abre precisa de horário próprio; sem ele o dia cai no expediente normal e a exceção não faz nada.',
       );
     }
     if (minutosDoRelogio(depois.fim) <= minutosDoRelogio(depois.inicio)) {
-      throw PipeError.conflito('fim_antes_do_inicio', 'O fim tem de ser depois do início.');
+      throw PipeError.conflito('end_before_of_start', 'O fim tem de ser depois do início.');
     }
   }
 
@@ -632,7 +632,7 @@ export async function editarExceptionSchedule(
       .where(and(eq(scheduleException.horarioId, atual.horarioId), eq(scheduleException.data, depois.data), ne(scheduleException.id, id)))
       .limit(1);
     if (conflito) {
-      throw PipeError.conflito('data_em_uso', `Já existe uma exceção em ${depois.data} para este horário.`);
+      throw PipeError.conflito('data_in_use', `Já existe uma exceção em ${depois.data} para este horário.`);
     }
   }
 
@@ -695,7 +695,7 @@ export async function deleteExceptionSchedule(
  */
 export interface QueueForEscolher {
   id: string;
-  nome: string;
+  name: string;
   ativa: boolean;
 }
 
@@ -706,7 +706,7 @@ export interface RuleOfQueueRegistered extends RuleOfQueue {
 
 export async function loadRulesOfQueue(tx: TransactionPipe): Promise<{
   regras: RuleOfQueueRegistered[];
-  filas: QueueForEscolher[];
+  queues: QueueForEscolher[];
   /** Nomes das caixas de entrada e a fila padrão delas: o destino de quem não casa nenhuma regra. */
   defaults: { inbox: string; queue: string | null }[];
 }> {
@@ -785,11 +785,11 @@ export async function loadRulesOfQueue(tx: TransactionPipe): Promise<{
  * desfeita, e nos dois casos passa a mentir.
  */
 export interface NewRuleOfQueue {
-  nome: string;
-  ordem: number;
-  combinador: 'e' | 'ou';
+  name: string;
+  order: number;
+  combiner: 'e' | 'ou';
   queueDestinationId: string;
-  conditions: readonly { campo: string; operador: OperadorDeRegra; value: string }[];
+  conditions: readonly { field: string; operator: OperadorDeRegra; value: string }[];
 }
 
 export type Recording = { ok: true } | { ok: false; error: string };
@@ -894,26 +894,26 @@ export async function toggleActiveOfRuleQueue(
    arquivo só grava o número, nunca reordena por conta própria. */
 
 export interface ConditionOfEdit {
-  campo: string;
-  operador: OperadorDeRegra;
-  valor: string;
+  field: string;
+  operator: OperadorDeRegra;
+  value: string;
 }
 
 /** Só o que veio muda — igual a `PedidoDeEdicaoDeFila`. `condicoes`, quando vem, SUBSTITUI todas as anteriores. */
 export interface RequestOfEditOfRuleQueue {
-  nome?: string;
-  ordem?: number;
-  combinador?: 'e' | 'ou';
-  filaDestinoId?: string;
+  name?: string;
+  order?: number;
+  combiner?: 'e' | 'ou';
+  queueDestinationId?: string;
   condicoes?: readonly ConditionOfEdit[];
 }
 
 export interface RuleQueueWritten {
   id: string;
-  nome: string;
-  ordem: number;
-  combinador: 'e' | 'ou';
-  filaDestinoId: string;
+  name: string;
+  order: number;
+  combiner: 'e' | 'ou';
+  queueDestinationId: string;
   ativa: boolean;
   condicoes: ConditionOfEdit[];
 }
@@ -954,7 +954,7 @@ async function ruleQueueViva(tx: TransactionPipe, tid: string, id: string): Prom
 function conditionsChecked(bruto: readonly ConditionOfEdit[]): ConditionOfEdit[] {
   if (bruto.length === 0) {
     throw PipeError.request(
-      'sem_condicao',
+      'without_condition',
       'Uma regra sem condição nunca casa. Preencha pelo menos uma.',
     );
   }
@@ -963,12 +963,12 @@ function conditionsChecked(bruto: readonly ConditionOfEdit[]): ConditionOfEdit[]
     const valor = String(c.valor ?? '').trim();
     if (!campoValido(campo)) {
       throw PipeError.request(
-        'campo_invalido',
+        'field_invalid',
         `"${campo}" não é um campo válido. Use um dos fixos ou um campo extra como contato.atributos.plano.`,
       );
     }
-    if (!operadorValido(c.operador)) throw PipeError.request('operador_invalido', 'Operador inválido.');
-    if (!valor) throw PipeError.request('valor_obrigatorio', `A condição sobre "${campo}" ficou sem valor.`);
+    if (!operadorValido(c.operador)) throw PipeError.request('operator_invalid', 'Operador inválido.');
+    if (!valor) throw PipeError.request('value_required', `A condição sobre "${campo}" ficou sem valor.`);
     return { campo, operador: c.operador, valor };
   });
 }
@@ -989,13 +989,13 @@ export async function editarRuleQueue(
 
   if (pedido.nome !== undefined) {
     const nome = String(pedido.nome).trim();
-    if (!nome) throw PipeError.request('nome_obrigatorio', 'Informe o nome da regra.');
+    if (!nome) throw PipeError.request('name_required', 'Informe o nome da regra.');
     depois.nome = nome;
   }
   if (pedido.ordem !== undefined) depois.ordem = orderChecked(pedido.ordem);
   if (pedido.combinador !== undefined) {
     if (pedido.combinador !== 'e' && pedido.combinador !== 'ou') {
-      throw PipeError.request('combinador_invalido', 'Combinador inválido.');
+      throw PipeError.request('combiner_invalid', 'Combinador inválido.');
     }
     depois.combinador = pedido.combinador;
   }
@@ -1005,7 +1005,7 @@ export async function editarRuleQueue(
       .from(queue)
       .where(and(eq(queue.tenantId, tid), eq(queue.id, pedido.filaDestinoId)))
       .limit(1);
-    if (!destination) throw PipeError.request('fila_nao_encontrada', 'Fila de destino não encontrada.');
+    if (!destination) throw PipeError.request('queue_not_found', 'Fila de destino não encontrada.');
     depois.filaDestinoId = pedido.filaDestinoId;
   }
 
@@ -1015,7 +1015,7 @@ export async function editarRuleQueue(
       .from(ruleQueue)
       .where(and(eq(ruleQueue.tenantId, tid), eq(ruleQueue.nome, depois.nome), ne(ruleQueue.id, id)))
       .limit(1);
-    if (conflito) throw PipeError.conflito('nome_em_uso', `Já existe uma regra chamada "${depois.nome}".`);
+    if (conflito) throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${depois.nome}".`);
   }
 
   const mudanca = diferenca(antes, depois);
@@ -1079,9 +1079,9 @@ export async function deleteRuleQueue(
 
 export interface AgentRegistered {
   id: string;
-  nome: string;
+  name: string;
   email: string;
-  ativo: boolean;
+  active: boolean;
   /** `null` quando a pessoa nunca conectou: não é "offline", é "nunca esteve". */
   state: string | null;
   queues: string[];
@@ -1137,7 +1137,7 @@ export async function loadAgents(tx: TransactionPipe): Promise<AgentRegistered[]
       .innerJoin(queue, eq(queue.id, queueAgent.queueId))
       .orderBy(asc(queue.order), asc(queue.nome));
 
-    const byPerson = new Map<string, { filas: string[]; limite: number }>();
+    const byPerson = new Map<string, { queues: string[]; limit: number }>();
     for (const m of members) {
       const atual = byPerson.get(m.usuarioId) ?? { filas: [], limite: 0 };
       atual.filas.push(m.filaNome);
@@ -1166,9 +1166,9 @@ export async function loadAgents(tx: TransactionPipe): Promise<AgentRegistered[]
    de formulário. */
 
 export interface RequestOfQueue {
-  nome: string;
-  cor?: string | null;
-  horarioId?: string | null;
+  name: string;
+  color?: string | null;
+  scheduleId?: string | null;
   capacityDefault: number;
   order?: number;
   active?: boolean;
@@ -1176,27 +1176,27 @@ export interface RequestOfQueue {
 
 /** Só o que veio muda — igual a `PedidoDeEdicao` de `ciclo-de-vida-do-fluxo.ts`. */
 export interface RequestOfEditOfQueue {
-  nome?: string;
-  cor?: string | null;
-  horarioId?: string | null;
-  capacidadePadrao?: number;
-  ordem?: number;
+  name?: string;
+  color?: string | null;
+  scheduleId?: string | null;
+  capacityDefault?: number;
+  order?: number;
   ativa?: boolean;
 }
 
 export interface QueueWritten {
   id: string;
-  nome: string;
-  cor: string | null;
-  horarioId: string | null;
-  capacidadePadrao: number;
-  ordem: number;
+  name: string;
+  color: string | null;
+  scheduleId: string | null;
+  capacityDefault: number;
+  order: number;
   ativa: boolean;
 }
 
 function nameOfQueueChecked(bruto: unknown): string {
   const nome = String(bruto ?? '').trim();
-  if (!nome) throw PipeError.request('nome_obrigatorio', 'Informe o nome da fila.');
+  if (!nome) throw PipeError.request('name_required', 'Informe o nome da fila.');
   return nome;
 }
 
@@ -1204,7 +1204,7 @@ function colorOfQueueChecked(bruto: unknown): string | null {
   if (bruto === undefined || bruto === null) return null;
   const cor = String(bruto).trim();
   if (!cor) return null;
-  if (!corValida(cor)) throw PipeError.request('cor_invalida', 'Cor fora da paleta.');
+  if (!corValida(cor)) throw PipeError.request('color_invalid', 'Cor fora da paleta.');
   return cor;
 }
 
@@ -1213,7 +1213,7 @@ function capacityChecked(bruto: unknown): number {
   const n = Number(bruto);
   if (!Number.isInteger(n) || n < 1 || n > 200) {
     throw PipeError.request(
-      'capacidade_invalida',
+      'capacity_invalid',
       'A capacidade padrão é um inteiro de 1 a 200 — é quantas conversas simultâneas cada atendente da fila aguenta.',
     );
   }
@@ -1223,7 +1223,7 @@ function capacityChecked(bruto: unknown): number {
 function orderChecked(bruto: unknown): number {
   const n = Number(bruto ?? 0);
   if (!Number.isInteger(n) || n < 0 || n > 999) {
-    throw PipeError.request('ordem_invalida', 'A ordem é um inteiro de 0 a 999.');
+    throw PipeError.request('order_invalid', 'A ordem é um inteiro de 0 a 999.');
   }
   return n;
 }
@@ -1254,7 +1254,7 @@ async function nameOfQueueInUse(
 }
 
 function conflitoOfNameOfQueue(nome: string): PipeError {
-  return PipeError.conflito('nome_em_uso', `Já existe uma fila chamada "${nome}".`);
+  return PipeError.conflito('name_in_use', `Já existe uma fila chamada "${nome}".`);
 }
 
 /** A fila viva do tenant, ou 404 — o `fetch_inbox` de `ciclo-de-vida-do-fluxo.ts`. */
@@ -1293,14 +1293,14 @@ export async function createQueue(
 
   if (await nameOfQueueInUse(tx, tid, nome)) throw conflitoOfNameOfQueue(nome);
   if (horarioId && !(await horarioExiste(tx, tid, horarioId))) {
-    throw PipeError.request('horario_nao_encontrado', 'Horário de atendimento não encontrado.');
+    throw PipeError.request('schedule_not_found', 'Horário de atendimento não encontrado.');
   }
 
   const [criada] = await tx
     .insert(queue)
     .values({ tenantId: tid, nome, cor, horarioId, capacityDefault, order, active })
     .returning({ id: queue.id });
-  if (!criada) throw PipeError.request('fila_nao_criada', 'Não consegui gravar a fila.');
+  if (!criada) throw PipeError.request('queue_not_created', 'Não consegui gravar a fila.');
 
   await registrarAuditoria(tx, tid, {
     ator: ator(usuarioId),
@@ -1339,7 +1339,7 @@ export async function editarQueue(
   if (pedido.horarioId !== undefined) {
     const horarioId = pedido.horarioId ? String(pedido.horarioId) : null;
     if (horarioId && !(await horarioExiste(tx, tid, horarioId))) {
-      throw PipeError.request('horario_nao_encontrado', 'Horário de atendimento não encontrado.');
+      throw PipeError.request('schedule_not_found', 'Horário de atendimento não encontrado.');
     }
     depois.horarioId = horarioId;
   }
@@ -1407,7 +1407,7 @@ export async function deleteQueue(
     .limit(1);
   if (withConversation) {
     throw PipeError.conflito(
-      'fila_com_conversa_aberta',
+      'queue_with_conversation_open',
       'Esta fila tem conversa em aberto e não pode ser excluída. Transfira ou encerre as conversas primeiro.',
     );
   }
@@ -1419,7 +1419,7 @@ export async function deleteQueue(
     .limit(1);
   if (comoPadrao) {
     throw PipeError.conflito(
-      'fila_padrao_de_inbox',
+      'queue_default_of_inbox',
       `Esta fila é a fila padrão da caixa de entrada "${comoPadrao.nome}" e não pode ser excluída.`,
     );
   }
@@ -1433,7 +1433,7 @@ export async function deleteQueue(
     .limit(1);
   if (asDestinationOfRule) {
     throw PipeError.conflito(
-      'fila_usada_em_regra',
+      'queue_used_in_rule',
       `A regra de entrada "${asDestinationOfRule.nome}" manda conversa para esta fila. Edite ou exclua a regra antes.`,
     );
   }
@@ -1535,33 +1535,33 @@ export async function unlinkAgentOfQueue(
 export const NOME_DA_PAUSA_MAX = 30;
 
 export interface PedidoDeMotivoPausa {
-  nome: string;
+  name: string;
   durationSuggestedMin?: number | null;
   countsAsProductive?: boolean;
-  ativo?: boolean;
+  active?: boolean;
 }
 
 export interface RequestOfEditOfReasonPause {
-  nome?: string;
-  duracaoSugeridaMin?: number | null;
-  contaComoProdutivo?: boolean;
-  ativo?: boolean;
+  name?: string;
+  durationSuggestedMin?: number | null;
+  countsAsProductive?: boolean;
+  active?: boolean;
 }
 
 export interface MotivoPausaGravado {
   id: string;
-  nome: string;
-  duracaoSugeridaMin: number | null;
-  contaComoProdutivo: boolean;
-  ativo: boolean;
+  name: string;
+  durationSuggestedMin: number | null;
+  countsAsProductive: boolean;
+  active: boolean;
 }
 
 function nomeDeMotivoConferido(bruto: unknown): string {
   const nome = String(bruto ?? '').trim();
-  if (!nome) throw PipeError.request('nome_obrigatorio', 'Informe o nome do motivo.');
+  if (!nome) throw PipeError.request('name_required', 'Informe o nome do motivo.');
   if (nome.length > NOME_DA_PAUSA_MAX) {
     throw PipeError.request(
-      'nome_tamanho',
+      'name_size',
       `O nome da pausa tem até ${NOME_DA_PAUSA_MAX} caracteres.`,
     );
   }
@@ -1574,7 +1574,7 @@ function durationSuggestedChecked(bruto: unknown): number | null {
   const n = Number(bruto);
   if (!Number.isInteger(n) || n < 1 || n > 480) {
     throw PipeError.request(
-      'duracao_invalida',
+      'duration_invalid',
       'A duração sugerida é um inteiro de 1 a 480 minutos.',
     );
   }
@@ -1631,14 +1631,14 @@ export async function createReasonPause(
   const ativo = pedido.ativo ?? true;
 
   if (await nomeDeMotivoEmUso(tx, tid, nome)) {
-    throw PipeError.conflito('nome_em_uso', `Já existe um motivo chamado "${nome}".`);
+    throw PipeError.conflito('name_in_use', `Já existe um motivo chamado "${nome}".`);
   }
 
   const [criado] = await tx
     .insert(motivoPausa)
     .values({ tenantId: tid, nome, durationSuggestedMin, accountAsProductive, ativo })
     .returning({ id: motivoPausa.id });
-  if (!criado) throw PipeError.request('motivo_nao_criado', 'Não consegui gravar o motivo.');
+  if (!criado) throw PipeError.request('reason_not_created', 'Não consegui gravar o motivo.');
 
   await registrarAuditoria(tx, tid, {
     ator: ator(usuarioId),
@@ -1675,7 +1675,7 @@ export async function editarMotivoPausa(
   if (Object.keys(mudanca.depois).length === 0) return atual;
 
   if (depois.nome !== antes.nome && (await nomeDeMotivoEmUso(tx, tid, depois.nome, id))) {
-    throw PipeError.conflito('nome_em_uso', `Já existe um motivo chamado "${depois.nome}".`);
+    throw PipeError.conflito('name_in_use', `Já existe um motivo chamado "${depois.nome}".`);
   }
 
   const [gravado] = await tx

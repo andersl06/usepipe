@@ -30,8 +30,8 @@ export type ScopeOfLabel = 'conversa' | 'contato';
 
 export interface EtiquetaDoTenant {
   id: string;
-  nome: string;
-  cor: string | null;
+  name: string;
+  color: string | null;
   scope: 'conversa' | 'contato' | 'ambos';
   requiredInClosure: boolean;
 }
@@ -43,10 +43,10 @@ export async function listarEtiquetasDoTenant(
 ): Promise<EtiquetaDoTenant[]> {
   const { rows } = await tx.execute<{
     id: string;
-    nome: string;
-    cor: string | null;
-    escopo: 'conversa' | 'contato' | 'ambos';
-    obrigatoria_no_encerramento: boolean;
+    name: string;
+    color: string | null;
+    scope: 'conversa' | 'contato' | 'ambos';
+    requiredInClosure: boolean;
   }>(sql`
     select id, nome, cor, escopo, obrigatoria_no_encerramento
       from etiqueta
@@ -62,7 +62,7 @@ export async function listarEtiquetasDoTenant(
   }));
 }
 
-type LinhaEtiqueta = { id: string; nome: string; escopo: string };
+type LinhaEtiqueta = { id: string; name: string; scope: string };
 
 /** A etiqueta existe no tenant e cabe no alvo. */
 async function carregarEtiqueta(
@@ -78,8 +78,8 @@ async function carregarEtiqueta(
   if (!etiqueta) throw PipeError.naoEncontrado('Etiqueta');
   if (etiqueta.escopo !== alvo && etiqueta.escopo !== 'ambos') {
     throw PipeError.request(
-      'etiqueta_de_outro_escopo',
-      alvo === 'conversa'
+      'label_of_other_scope',
+      alvo === 'conversation'
         ? `A etiqueta "${etiqueta.nome}" é de contato, não de conversa.`
         : `A etiqueta "${etiqueta.nome}" é de conversa, não de contato.`,
     );
@@ -107,14 +107,14 @@ async function loadConversationOpen(
   if (!conversation) throw PipeError.naoEncontrado('Conversa');
   if (conversation.state === 'encerrada') {
     throw PipeError.conflito(
-      'conversa_encerrada',
+      'conversation_closed',
       'A conversa está encerrada: a etiqueta de encerramento já foi dada.',
     );
   }
   if (ator.exigirAssignment && conversation.agentId !== ator.agentId) {
     throw new PipeError(
       403,
-      'conversa_de_outro_atendente',
+      'conversation_of_other_agent',
       conversation.agentId
         ? 'Esta conversa está com outro atendente.'
         : 'Esta conversa não está atribuída a você.',
@@ -125,7 +125,7 @@ async function loadConversationOpen(
 
 export interface EtiquetaAplicada {
   etiquetaId: string;
-  nome: string;
+  name: string;
   /** `false` quando já estava lá — aplicar duas vezes não é erro, é no-op. */
   aplicada: boolean;
 }
@@ -141,7 +141,7 @@ export async function labelConversation(
       await exigirPermission(tx, ator.agentId, 'conversa.etiquetar');
     }
     const conversa = await loadConversationOpen(tx, conversationId, ator);
-    const etiqueta = await carregarEtiqueta(tx, etiquetaId, 'conversa');
+    const etiqueta = await carregarEtiqueta(tx, etiquetaId, 'conversation');
 
     const { rowCount } = await tx.execute(sql`
       insert into conversa_etiqueta (tenant_id, conversa_id, etiqueta_id, por_usuario_id)
@@ -162,7 +162,7 @@ export async function labelConversation(
   });
 
   // Depois do commit: a faixa de etiquetas da conversa mudou.
-  await publicar(ator.tenantId, evento('conversa', conversationId));
+  await publicar(ator.tenantId, evento('conversation', conversationId));
   return resultado;
 }
 
@@ -179,7 +179,7 @@ export async function unlabelConversation(
     const conversa = await loadConversationOpen(tx, conversaId, ator);
     if (!UUID.test(etiquetaId)) throw PipeError.naoEncontrado('Etiqueta');
 
-    const { rows } = await tx.execute<{ nome: string }>(sql`
+    const { rows } = await tx.execute<{ name: string }>(sql`
       delete from conversa_etiqueta ce
        using etiqueta e
        where e.id = ce.etiqueta_id
@@ -199,7 +199,7 @@ export async function unlabelConversation(
     return { removida };
   });
 
-  await publicar(ator.tenantId, evento('conversa', conversaId));
+  await publicar(ator.tenantId, evento('conversation', conversaId));
   return resultado;
 }
 
@@ -207,8 +207,8 @@ export async function unlabelConversation(
 
 export type LabelOfContact = {
   id: string;
-  nome: string;
-  cor: string | null;
+  name: string;
+  color: string | null;
 }
 
 export async function listLabelsOfContact(
@@ -289,7 +289,7 @@ export async function unlabelContact(
     const contato = await loadContact(tx, contatoId);
     if (!UUID.test(etiquetaId)) throw PipeError.naoEncontrado('Etiqueta');
 
-    const { rows } = await tx.execute<{ nome: string }>(sql`
+    const { rows } = await tx.execute<{ name: string }>(sql`
       delete from contato_etiqueta ce
        using etiqueta e
        where e.id = ce.etiqueta_id

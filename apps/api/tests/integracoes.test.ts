@@ -9,7 +9,7 @@ process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 29).toString('base64')}`;
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -79,7 +79,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -95,7 +95,7 @@ async function createFlow(cenario: Cenario, nome: string): Promise<string> {
   return rows[0]!.id;
 }
 
-type Resposta<T> = { status: number; corpo: T };
+type Resposta<T> = { status: number; body: T };
 
 async function pedir<T>(
   caminho: string,
@@ -149,20 +149,20 @@ afterAll(async () => {
   await b?.encerrar();
 });
 
-describe('Chaves de acesso do fluxo', () => {
-  it('cria, mostra o token só na criação, e a lista seguinte só tem o prefixo', async () => {
+describe('Manage flow access keys', () => {
+  it('Show a flow access token only at creation and its prefix in later lists', async () => {
     const { status, corpo } = await post<{
       id: string;
       nome: string;
       prefix: string;
       token: string;
-    }>(`/v1/gestao/fluxos/${flowId}/chaves`, sessionComplete, { nome: 'Integração CRM' });
+    }>(`/v1/management/flows/${flowId}/keys`, sessionComplete, { nome: 'Integração CRM' });
     expect(status).toBe(201);
     expect(corpo.token).toMatch(/^pipe_[0-9a-f]{12}_[0-9a-f]{48}$/);
     expect(corpo.prefix).toBe(corpo.token.split('_')[1]);
 
     const linha = (
-      await a.dono.execute<{ hash: string; fluxo_id: string }>(sql`
+      await a.dono.execute<{ hash: string; flowId: string }>(sql`
         select hash, fluxo_id from chave_api where id = ${corpo.id}::uuid
       `)
     ).rows[0];
@@ -172,7 +172,7 @@ describe('Chaves de acesso do fluxo', () => {
     expect(linha?.hash).not.toBe(corpo.token.split('_')[2]);
 
     const lista = await get<Array<Record<string, unknown>>>(
-      `/v1/gestao/fluxos/${flowId}/chaves`,
+      `/v1/management/flows/${flowId}/keys`,
       sessionComplete,
     );
     expect(lista.status).toBe(200);
@@ -185,57 +185,57 @@ describe('Chaves de acesso do fluxo', () => {
 
   it('sem nome é 400; no limite de 3 chaves vivas, a quarta é 400', async () => {
     const flowOfLimit = await createFlow(a, `Limite ${randomUUID().slice(0, 6)}`);
-    const semNome = await post(`/v1/gestao/fluxos/${flowOfLimit}/chaves`, sessionComplete, {
+    const semNome = await post(`/v1/management/flows/${flowOfLimit}/keys`, sessionComplete, {
       nome: '   ',
     });
     expect(semNome.status).toBe(400);
-    expect((semNome.corpo as { error: { codigo: string } }).error.codigo).toBe('nome_ausente');
+    expect((semNome.corpo as { error: { code: string } }).error.codigo).toBe('name_missing');
 
     for (let i = 0; i < 3; i += 1) {
-      const criada = await post(`/v1/gestao/fluxos/${flowOfLimit}/chaves`, sessionComplete, {
+      const criada = await post(`/v1/management/flows/${flowOfLimit}/keys`, sessionComplete, {
         nome: `Chave ${i}`,
       });
       expect(criada.status).toBe(201);
     }
-    const quarta = await post(`/v1/gestao/fluxos/${flowOfLimit}/chaves`, sessionComplete, {
+    const quarta = await post(`/v1/management/flows/${flowOfLimit}/keys`, sessionComplete, {
       nome: 'Quarta',
     });
     expect(quarta.status).toBe(400);
-    expect((quarta.corpo as { erro: { codigo: string } }).erro.codigo).toBe('limite_de_chaves');
+    expect((quarta.corpo as { error: { code: string } }).erro.codigo).toBe('limit_of_keys');
   });
 
-  it('sem chave_api.gerenciar é 403; de outro tenant e uuid malformado são 404', async () => {
-    const semPoder = await post(`/v1/gestao/fluxos/${flowId}/chaves`, sessionWithoutPoder, {
+  it('Return 403 without `chave_api.gerenciar` and 404 for invalid or cross-tenant IDs', async () => {
+    const semPoder = await post(`/v1/management/flows/${flowId}/keys`, sessionWithoutPoder, {
       nome: 'Proibida',
     });
     expect(semPoder.status).toBe(403);
-    expect((semPoder.corpo as { erro: { detalhe: { permission: string } } }).erro.detalhe.permission).toBe(
+    expect((semPoder.corpo as { error: { detalhe: { permission: string } } }).erro.detalhe.permission).toBe(
       'chave_api.gerenciar',
     );
 
-    const outroTenant = await post(`/v1/gestao/fluxos/${flowId}/chaves`, sessionOfOtherTenant, {
+    const outroTenant = await post(`/v1/management/flows/${flowId}/keys`, sessionOfOtherTenant, {
       nome: 'Vizinho',
     });
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await get(`/v1/gestao/fluxos/nao-e-uuid/chaves`, sessionComplete);
+    const malformado = await get(`/v1/management/flows/nao-e-uuid/keys`, sessionComplete);
     expect(malformado.status).toBe(404);
   });
 
-  it('excluir REVOGA (não apaga a linha) e é idempotente; cross-tenant e sem permissão são recusa', async () => {
-    const criada = await post<{ id: string }>(`/v1/gestao/fluxos/${flowId}/chaves`, sessionComplete, {
+  it('Revoke access keys idempotently and reject cross-tenant or unauthorized requests', async () => {
+    const criada = await post<{ id: string }>(`/v1/management/flows/${flowId}/keys`, sessionComplete, {
       nome: `A revogar ${randomUUID().slice(0, 6)}`,
     });
     expect(criada.status).toBe(201);
     const keyId = criada.corpo.id;
 
-    const outroTenant = await del(`/v1/gestao/fluxos/${flowId}/chaves/${keyId}`, sessionOfOtherTenant);
+    const outroTenant = await del(`/v1/management/flows/${flowId}/keys/${keyId}`, sessionOfOtherTenant);
     expect(outroTenant.status).toBe(404);
 
-    const semPoder = await del(`/v1/gestao/fluxos/${flowId}/chaves/${keyId}`, sessionWithoutPoder);
+    const semPoder = await del(`/v1/management/flows/${flowId}/keys/${keyId}`, sessionWithoutPoder);
     expect(semPoder.status).toBe(403);
 
-    const first = await del(`/v1/gestao/fluxos/${flowId}/chaves/${keyId}`, sessionComplete);
+    const first = await del(`/v1/management/flows/${flowId}/keys/${keyId}`, sessionComplete);
     expect(first.status).toBe(204);
 
     const linha = (
@@ -247,7 +247,7 @@ describe('Chaves de acesso do fluxo', () => {
     expect(linha?.revogada_em).not.toBeNull();
 
     // Idempotente: revogar de novo não é erro, e não duplica o registro de auditoria.
-    const segunda = await del(`/v1/gestao/fluxos/${flowId}/chaves/${keyId}`, sessionComplete);
+    const segunda = await del(`/v1/management/flows/${flowId}/keys/${keyId}`, sessionComplete);
     expect(segunda.status).toBe(204);
     const log = await a.dono.execute<{ n: string }>(sql`
       select count(*)::text as n from log_auditoria
@@ -256,20 +256,20 @@ describe('Chaves de acesso do fluxo', () => {
     expect(log.rows[0]?.n).toBe('1');
 
     const visiveis = await get<Array<{ id: string }>>(
-      `/v1/gestao/fluxos/${flowId}/chaves`,
+      `/v1/management/flows/${flowId}/keys`,
       sessionComplete,
     );
     expect(visiveis.corpo.some((key) => key.id === keyId)).toBe(false);
 
-    const nova = await post(`/v1/gestao/fluxos/${flowId}/chaves`, sessionComplete, {
+    const nova = await post(`/v1/management/flows/${flowId}/keys`, sessionComplete, {
       nome: 'Depois de revogar',
     });
     expect(nova.status).toBe(201);
   });
 });
 
-describe('Informações de conexão do fluxo', () => {
-  it('lê com automacao.fluxo.editar; identificador e endpoint são reais', async () => {
+describe('Read flow connection details', () => {
+  it('Read real flow connection identifiers and endpoints with `automacao.fluxo.editar`', async () => {
     const connectionFlow = await createFlow(a, `Conexão ${randomUUID().slice(0, 6)}`);
     const { status, corpo } = await get<{
       flowId: string;
@@ -277,7 +277,7 @@ describe('Informações de conexão do fluxo', () => {
       keyPrefix: string | null;
       urlMessages: string | null;
       urlNotifications: string | null;
-    }>(`/v1/gestao/fluxos/${connectionFlow}/conexao`, sessionOnlyEditor);
+    }>(`/v1/management/flows/${connectionFlow}/connection`, sessionOnlyEditor);
     expect(status).toBe(200);
     expect(corpo.flowId).toBe(connectionFlow);
     expect(corpo.endpoint).toMatch(/\/v1$/);
@@ -295,14 +295,14 @@ describe('Informações de conexão do fluxo', () => {
       'https://10.0.0.5/webhook',
       'https://192.168.1.1/webhook',
     ]) {
-      const resposta = await put(`/v1/gestao/fluxos/${conexaoFluxo}/conexao`, sessionComplete, {
+      const resposta = await put(`/v1/management/flows/${conexaoFluxo}/connection`, sessionComplete, {
         urlMensagens: urlProibida,
       });
       expect(resposta.status, urlProibida).toBe(400);
     }
 
     const salva = await put<{ urlMensagens: string | null }>(
-      `/v1/gestao/fluxos/${conexaoFluxo}/conexao`,
+      `/v1/management/flows/${conexaoFluxo}/connection`,
       sessionComplete,
       { urlMensagens: 'https://exemplo.pipe.app/mensagens' },
     );
@@ -310,13 +310,13 @@ describe('Informações de conexão do fluxo', () => {
     expect(salva.corpo.urlMensagens).toBe('https://exemplo.pipe.app/mensagens');
 
     const relida = await get<{ urlMensagens: string | null }>(
-      `/v1/gestao/fluxos/${conexaoFluxo}/conexao`,
+      `/v1/management/flows/${conexaoFluxo}/connection`,
       sessionOnlyEditor,
     );
     expect(relida.corpo.urlMensagens).toBe('https://exemplo.pipe.app/mensagens');
 
     const apagada = await put<{ urlMensagens: string | null }>(
-      `/v1/gestao/fluxos/${conexaoFluxo}/conexao`,
+      `/v1/management/flows/${conexaoFluxo}/connection`,
       sessionComplete,
       { urlMensagens: null },
     );
@@ -324,86 +324,86 @@ describe('Informações de conexão do fluxo', () => {
     expect(apagada.corpo.urlMensagens).toBeNull();
   });
 
-  it('só editar fluxo não basta para GRAVAR a conexão: pede automacao.integracao.gerenciar', async () => {
+  it('Require `automacao.integracao.gerenciar` to save a flow connection, even for flow editors', async () => {
     const conexaoFluxo = await createFlow(a, `Sem integração ${randomUUID().slice(0, 6)}`);
-    const resposta = await put(`/v1/gestao/fluxos/${conexaoFluxo}/conexao`, sessionOnlyEditor, {
+    const resposta = await put(`/v1/management/flows/${conexaoFluxo}/connection`, sessionOnlyEditor, {
       urlMensagens: 'https://exemplo.pipe.app/mensagens',
     });
     expect(resposta.status).toBe(403);
-    expect((resposta.corpo as { erro: { detalhe: { permissao: string } } }).erro.detalhe.permissao).toBe(
+    expect((resposta.corpo as { error: { detalhe: { permissao: string } } }).erro.detalhe.permissao).toBe(
       'automacao.integracao.gerenciar',
     );
   });
 
   it('cross-tenant e uuid malformado são 404', async () => {
-    const outroTenant = await get(`/v1/gestao/fluxos/${flowId}/conexao`, sessionOfOtherTenant);
+    const outroTenant = await get(`/v1/management/flows/${flowId}/connection`, sessionOfOtherTenant);
     expect(outroTenant.status).toBe(404);
-    const malformado = await get(`/v1/gestao/fluxos/nao-e-uuid/conexao`, sessionComplete);
+    const malformado = await get(`/v1/management/flows/nao-e-uuid/connection`, sessionComplete);
     expect(malformado.status).toBe(404);
   });
 });
 
-describe('Webhook de saída (Integrações)', () => {
+describe('Send outgoing webhooks for integrations', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it('cria com segredo mostrado só uma vez; recusa SSRF e evento fora do catálogo', async () => {
-    const semEventos = await post(`/v1/gestao/webhooks`, sessionComplete, {
+  it('Show a webhook secret once and reject SSRF targets or unsupported events', async () => {
+    const semEventos = await post(`/v1/management/webhooks`, sessionComplete, {
       url: 'https://exemplo.pipe.app/hook',
       eventos: [],
     });
     expect(semEventos.status).toBe(400);
-    expect((semEventos.corpo as { erro: { codigo: string } }).erro.codigo).toBe('eventos_ausentes');
+    expect((semEventos.corpo as { error: { code: string } }).erro.codigo).toBe('events_missing');
 
-    const eventoInvalido = await post(`/v1/gestao/webhooks`, sessionComplete, {
+    const eventoInvalido = await post(`/v1/management/webhooks`, sessionComplete, {
       url: 'https://exemplo.pipe.app/hook',
       eventos: ['isto.nao.existe'],
     });
     expect(eventoInvalido.status).toBe(400);
-    expect((eventoInvalido.corpo as { erro: { codigo: string } }).erro.codigo).toBe('evento_invalido');
+    expect((eventoInvalido.corpo as { error: { code: string } }).erro.codigo).toBe('event_invalid');
 
-    const http = await post(`/v1/gestao/webhooks`, sessionComplete, {
+    const http = await post(`/v1/management/webhooks`, sessionComplete, {
       url: 'http://exemplo.pipe.app/hook',
       eventos: ['mensagem.criada'],
     });
     expect(http.status).toBe(400);
 
-    const privado = await post(`/v1/gestao/webhooks`, sessionComplete, {
+    const privado = await post(`/v1/management/webhooks`, sessionComplete, {
       url: 'https://169.254.169.254/hook',
       eventos: ['mensagem.criada'],
     });
     expect(privado.status).toBe(400);
 
     const criado = await post<{ id: string; url: string; eventos: string[]; secret: string }>(
-      `/v1/gestao/webhooks`,
+      `/v1/management/webhooks`,
       sessionComplete,
       { url: `https://exemplo.pipe.app/hook-${randomUUID().slice(0, 8)}`, eventos: ['mensagem.criada', 'conversa.criada'] },
     );
     expect(criado.status).toBe(201);
     expect(criado.corpo.secret).toMatch(/^[0-9a-f]{64}$/);
 
-    const lista = await get<Array<Record<string, unknown>>>(`/v1/gestao/webhooks`, sessionComplete);
+    const lista = await get<Array<Record<string, unknown>>>(`/v1/management/webhooks`, sessionComplete);
     const linha = lista.corpo.find((w) => w['id'] === criado.corpo.id);
     expect(linha).not.toHaveProperty('segredo');
     expect(linha?.['ativo']).toBe(true);
   });
 
-  it('ativar/desativar registra a ação certa; excluir apaga a linha de verdade', async () => {
-    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessionComplete, {
+  it('Audit webhook activation and deletion and remove deleted rows', async () => {
+    const criado = await post<{ id: string }>(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/toggle-${randomUUID().slice(0, 8)}`,
       eventos: ['contato.criado'],
     });
     const id = criado.corpo.id;
 
-    const desativado = await patch<{ ativo: boolean }>(`/v1/gestao/webhooks/${id}`, sessionComplete, {
-      ativo: false,
+    const desativado = await patch<{ active: boolean }>(`/v1/management/webhooks/${id}`, sessionComplete, {
+      active: false,
     });
     expect(desativado.status).toBe(200);
     expect(desativado.corpo.ativo).toBe(false);
 
-    const ativado = await patch<{ ativo: boolean }>(`/v1/gestao/webhooks/${id}`, sessionComplete, {
-      ativo: true,
+    const ativado = await patch<{ active: boolean }>(`/v1/management/webhooks/${id}`, sessionComplete, {
+      active: true,
     });
     expect(ativado.corpo.ativo).toBe(true);
 
@@ -414,7 +414,7 @@ describe('Webhook de saída (Integrações)', () => {
     `);
     expect(log.rows.map((l) => l.acao)).toEqual(['criou', 'desativou', 'ativou']);
 
-    const excluido = await del(`/v1/gestao/webhooks/${id}`, sessionComplete);
+    const excluido = await del(`/v1/management/webhooks/${id}`, sessionComplete);
     expect(excluido.status).toBe(204);
     const restante = await a.dono.execute<{ n: string }>(
       sql`select count(*)::text as n from webhook_saida where id = ${id}::uuid`,
@@ -422,8 +422,8 @@ describe('Webhook de saída (Integrações)', () => {
     expect(restante.rows[0]?.n).toBe('0');
   });
 
-  it('testar assina e envia; falha de rede volta como { ok: false }, sem gravar entrega', async () => {
-    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessionComplete, {
+  it('Sign and send test webhooks and return a network failure without recording a delivery', async () => {
+    const criado = await post<{ id: string }>(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/teste-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
     });
@@ -446,7 +446,7 @@ describe('Webhook de saída (Integrações)', () => {
     );
 
     const ok = await post<{ ok: boolean; status?: number }>(
-      `/v1/gestao/webhooks/${id}/testar`,
+      `/v1/management/webhooks/${id}/test`,
       sessionComplete,
     );
     expect(ok.status).toBe(200);
@@ -464,8 +464,8 @@ describe('Webhook de saída (Integrações)', () => {
         throw new Error('falha de rede simulada');
       }),
     );
-    const falhou = await post<{ ok: boolean; erro?: string }>(
-      `/v1/gestao/webhooks/${id}/testar`,
+    const falhou = await post<{ ok: boolean; error?: string }>(
+      `/v1/management/webhooks/${id}/test`,
       sessionComplete,
     );
     expect(falhou.status).toBe(200);
@@ -478,32 +478,32 @@ describe('Webhook de saída (Integrações)', () => {
     expect(entregas.rows[0]?.n).toBe('0');
   });
 
-  it('sem automacao.integracao.gerenciar é 403; de outro tenant e uuid malformado são 404', async () => {
-    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessionComplete, {
+  it('Return 403 without `automacao.integracao.gerenciar` and 404 for invalid or cross-tenant IDs', async () => {
+    const criado = await post<{ id: string }>(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/perm-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
     });
     const id = criado.corpo.id;
 
-    const semPoder = await get(`/v1/gestao/webhooks`, sessionWithoutPoder);
+    const semPoder = await get(`/v1/management/webhooks`, sessionWithoutPoder);
     expect(semPoder.status).toBe(403);
 
-    const outroTenant = await patch(`/v1/gestao/webhooks/${id}`, sessionOfOtherTenant, { ativo: false });
+    const outroTenant = await patch(`/v1/management/webhooks/${id}`, sessionOfOtherTenant, { active: false });
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await del(`/v1/gestao/webhooks/nao-e-uuid`, sessionComplete);
+    const malformado = await del(`/v1/management/webhooks/nao-e-uuid`, sessionComplete);
     expect(malformado.status).toBe(404);
   });
 });
 
-describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', () => {
+describe('Authenticate outgoing webhooks and attach custom headers', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
 
-  it('autenticação básica: senha cifrada no banco, nunca devolvida, vira Authorization: Basic no teste', async () => {
+  it('Encrypt Basic-auth passwords and use them without returning them', async () => {
     const criado = await post<{ id: string; authentication: Record<string, unknown> }>(
-      `/v1/gestao/webhooks`,
+      `/v1/management/webhooks`,
       sessionComplete,
       {
         url: `https://exemplo.pipe.app/basica-${randomUUID().slice(0, 8)}`,
@@ -528,7 +528,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
     expect(linha?.authenticationPassword).toMatch(/^pipev1\./);
     expect(linha?.authenticationPassword).not.toContain('segredo-123');
 
-    const lista = await get<Array<Record<string, unknown>>>(`/v1/gestao/webhooks`, sessionComplete);
+    const lista = await get<Array<Record<string, unknown>>>(`/v1/management/webhooks`, sessionComplete);
     const naLista = lista.corpo.find((w) => w['id'] === id);
     expect(JSON.stringify(naLista)).not.toContain('segredo-123');
     expect(JSON.stringify(naLista)).not.toContain('pipev1.');
@@ -543,8 +543,8 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
         return new Response('recebido', { status: 200 });
       }),
     );
-    const test = await post<{ ok: boolean; corpo?: string }>(
-      `/v1/gestao/webhooks/${id}/testar`,
+    const test = await post<{ ok: boolean; body?: string }>(
+      `/v1/management/webhooks/${id}/test`,
       sessionComplete,
     );
     expect(test.status).toBe(200);
@@ -556,9 +556,9 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
     );
   });
 
-  it('OAuth 2.0 client_credentials: busca o token na URL de autorização e usa Bearer', async () => {
+  it('Fetch an OAuth client_credentials token and use it as a Bearer token', async () => {
     const urlToken = `https://exemplo.pipe.app/oauth-${randomUUID().slice(0, 8)}/token`;
-    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessionComplete, {
+    const criado = await post<{ id: string }>(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/oauth-destino-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       autenticacao: {
@@ -592,7 +592,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
         return new Response('ok', { status: 200 });
       }),
     );
-    const teste = await post<{ ok: boolean }>(`/v1/gestao/webhooks/${id}/testar`, sessionComplete);
+    const teste = await post<{ ok: boolean }>(`/v1/management/webhooks/${id}/test`, sessionComplete);
     expect(teste.status).toBe(200);
     expect(teste.corpo.ok).toBe(true);
     expect(chamadas).toHaveLength(2);
@@ -607,8 +607,8 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
     expect(headersDestination['authorization']).toBe('Bearer token-de-mentira');
   });
 
-  it('cabeçalhos customizados chegam na entrega, sem derrubar a assinatura', async () => {
-    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessionComplete, {
+  it('Include custom headers in webhook deliveries without breaking the signature', async () => {
+    const criado = await post<{ id: string }>(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/cabecalhos-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       cabecalhos: [{ chave: 'X-Minha-Chave', valor: 'valor-customizado' }],
@@ -626,7 +626,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
         return new Response('ok', { status: 200 });
       }),
     );
-    const teste = await post<{ ok: boolean }>(`/v1/gestao/webhooks/${id}/testar`, sessionComplete);
+    const teste = await post<{ ok: boolean }>(`/v1/management/webhooks/${id}/test`, sessionComplete);
     expect(teste.status).toBe(200);
     expect(teste.corpo.ok).toBe(true);
     const cabecalhos = chamadas[0]?.[1]?.headers as Record<string, string>;
@@ -634,16 +634,16 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
     expect(cabecalhos['x-pipe-signature']).toMatch(/^sha256=[0-9a-f]{64}$/);
   });
 
-  it('recusa cabeçalho reservado, cabeçalho repetido e autenticação incompleta', async () => {
-    const reservado = await post(`/v1/gestao/webhooks`, sessionComplete, {
+  it('Reject reserved or duplicate headers and incomplete authentication', async () => {
+    const reservado = await post(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/reservado-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       cabecalhos: [{ chave: 'Content-Type', valor: 'text/plain' }],
     });
     expect(reservado.status).toBe(400);
-    expect((reservado.corpo as { erro: { codigo: string } }).erro.codigo).toBe('cabecalho_reservado');
+    expect((reservado.corpo as { error: { code: string } }).erro.codigo).toBe('header_reserved');
 
-    const repetido = await post(`/v1/gestao/webhooks`, sessionComplete, {
+    const repetido = await post(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/repetido-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       cabecalhos: [
@@ -652,17 +652,17 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
       ],
     });
     expect(repetido.status).toBe(400);
-    expect((repetido.corpo as { erro: { codigo: string } }).erro.codigo).toBe('cabecalho_repetido');
+    expect((repetido.corpo as { error: { code: string } }).erro.codigo).toBe('header_repeated');
 
-    const semSenha = await post(`/v1/gestao/webhooks`, sessionComplete, {
+    const semSenha = await post(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/incompleta-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       autenticacao: { tipo: 'basica', usuario: 'robo' },
     });
     expect(semSenha.status).toBe(400);
-    expect((semSenha.corpo as { erro: { codigo: string } }).erro.codigo).toBe('autenticacao_incompleta');
+    expect((semSenha.corpo as { error: { code: string } }).erro.codigo).toBe('authentication_incomplete');
 
-    const oauthSsrf = await post(`/v1/gestao/webhooks`, sessionComplete, {
+    const oauthSsrf = await post(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/oauth-ssrf-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       autenticacao: {
@@ -675,8 +675,8 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
     expect(oauthSsrf.status).toBe(400);
   });
 
-  it('editar autenticação substitui por inteiro; cross-tenant é 404', async () => {
-    const criado = await post<{ id: string }>(`/v1/gestao/webhooks`, sessionComplete, {
+  it('Replace webhook authentication as a whole on edit and return 404 across tenants', async () => {
+    const criado = await post<{ id: string }>(`/v1/management/webhooks`, sessionComplete, {
       url: `https://exemplo.pipe.app/editar-auth-${randomUUID().slice(0, 8)}`,
       eventos: ['mensagem.criada'],
       autenticacao: { tipo: 'basica', usuario: 'robo', senha: 'senha-1' },
@@ -684,7 +684,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
     const id = criado.corpo.id;
 
     const editado = await patch<{ autenticacao: Record<string, unknown> }>(
-      `/v1/gestao/webhooks/${id}`,
+      `/v1/management/webhooks/${id}`,
       sessionComplete,
       { autenticacao: { tipo: 'nenhuma' } },
     );
@@ -696,7 +696,7 @@ describe('Webhook de saída — autenticação e cabeçalhos (migration 0036)', 
       clientId: null,
     });
 
-    const outroTenant = await patch(`/v1/gestao/webhooks/${id}`, sessionOfOtherTenant, {
+    const outroTenant = await patch(`/v1/management/webhooks/${id}`, sessionOfOtherTenant, {
       autenticacao: { tipo: 'nenhuma' },
     });
     expect(outroTenant.status).toBe(404);

@@ -27,7 +27,7 @@ export function OverviewPage() {
     if (v) q.set(key, v);
   }
   const read = useRead<RespostaDaVisaoGeral>(
-    `/v1/gestao/fluxos/${contact.id}/analise/visao-geral?${q.toString()}`,
+    `/v1/management/flows/${contact.id}/analytics/view-overview?${q.toString()}`,
   );
   if (!read.data) return null;
   const { data, de, ate } = read.data;

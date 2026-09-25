@@ -46,10 +46,10 @@ export function QueuePageEdit() {
   const { contact } = useContact();
   const base = attendanceBase(contact.tipo, contact.id);
 
-  const readQueues = useRead<{ queues: QueueRegistered[] }>('/v1/gestao/atendentes/filas');
-  const readHours = useRead<Horarios & { fuso: string }>('/v1/gestao/regras/horarios');
+  const readQueues = useRead<{ queues: QueueRegistered[] }>('/v1/management/agents/queues');
+  const readHours = useRead<Horarios & { fuso: string }>('/v1/management/rules/schedules');
   const readRules = useRead<PriorityRule[]>(
-    '/v1/gestao/regras/prioridade',
+    '/v1/management/rules/priority',
   );
 
   if (!readQueues.data || !readHours.data || !readRules.data) return null;
@@ -398,7 +398,7 @@ function PriorityFormularioRule({ queueId, onFechar }: { queueId: string; onFech
     const resultado = await priorityCreateRule({
       nome: nome.trim(),
       nivel,
-      scopeType: 'fila',
+      scopeType: 'queue',
       scopeId: queueId,
     });
     setEnviando(false);

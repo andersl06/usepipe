@@ -33,7 +33,7 @@ import { closureSalvarTags, salvarIdentity, salvarPesquisa } from '../../lib/aco
  * passivo.
  */
 export function PageSettingsGeneral() {
-  const read = useRead<SettingsGeneral>('/v1/gestao/configuracoes/gerais');
+  const read = useRead<SettingsGeneral>('/v1/management/settings/general');
   if (!read.data) return null;
   const { identity, pesquisa, outrasPesquisas, etiquetas } = read.data;
 

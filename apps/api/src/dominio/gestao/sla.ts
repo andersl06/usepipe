@@ -16,18 +16,18 @@ import type { TransactionPipe } from '@pipe/db';
 
 export interface RegraSlaCarregada {
   id: string;
-  nome: string;
-  alvo: AlvoSla;
-  prazoSeg: number;
-  alertaSeg: number | null;
+  name: string;
+  target: AlvoSla;
+  deadlineSeg: number;
+  alertSeg: number | null;
   scopeType: string;
   scopeId: string | null;
   /** `{ tipo: 'notificar_supervisor' | 'elevar_prioridade', ... }` — motor em `sla-motor.ts`. */
-  acaoAlerta: Record<string, unknown>;
+  acaoAlert: Record<string, unknown>;
   acaoEstouro: Record<string, unknown>;
 }
 
-export type StatePill = 'dentro' | 'alerta' | 'estourado' | 'sem_regra' | 'cumprido';
+export type StatePill = 'inside' | 'alert' | 'exceeded' | 'without_rule' | 'cumprido';
 
 export interface PillSla {
   state: StatePill;
@@ -76,7 +76,7 @@ export async function carregarRegrasSla(tx: TransactionPipe): Promise<RegraSlaCa
   });
 }
 
-const SEM_REGRA: PillSla = { state: 'sem_regra', rotulo: '—', excedidoSeg: null };
+const SEM_REGRA: PillSla = { state: 'without_rule', rotulo: '—', excedidoSeg: null };
 
 /**
  * Regra aplicável: a de escopo de fila vence a de escopo do tenant, porque a mais
@@ -110,14 +110,14 @@ export function avaliarSlaOfConversation(
     cumpridoEm,
   });
 
-  if (r.state === 'estourado') {
+  if (r.state === 'exceeded') {
     return {
-      state: 'estourado',
+      state: 'exceeded',
       rotulo: 'ESTOUROU',
       excedidoSeg: r.decorridoSeg - regra.prazoSeg,
     };
   }
   if (r.cumprido) return { state: 'cumprido', rotulo: 'CUMPRIDO', excedidoSeg: null };
-  if (r.state === 'alerta') return { state: 'alerta', rotulo: 'ALERTA', excedidoSeg: null };
-  return { state: 'dentro', rotulo: 'DENTRO', excedidoSeg: null };
+  if (r.state === 'alert') return { state: 'alert', rotulo: 'ALERTA', excedidoSeg: null };
+  return { state: 'inside', rotulo: 'DENTRO', excedidoSeg: null };
 }

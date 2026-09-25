@@ -68,7 +68,7 @@ export function PageQualityReview() {
   for (const key of ['atendente', 'avaliador', 'de', 'ate'] as const) {
     if (params[key]) q.set(key, params[key] as string);
   }
-  const read = useRead<QualityReviewResposta>(`/v1/gestao/monitoria?${q}`);
+  const read = useRead<QualityReviewResposta>(`/v1/management/quality-review?${q}`);
   if (!read.data) return null;
   const { fuso, de, ate, catalogos, panel } = read.data;
 

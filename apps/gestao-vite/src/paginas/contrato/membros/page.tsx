@@ -42,11 +42,11 @@ export function MembersPage() {
   const [search] = useSearchParams();
   const parametros = { erro: search.get('erro') ?? undefined };
   const podeLer = eu.permissions.includes('conta.membros.ler');
-  const resumo = useRead<ContractSummary>(podeLer ? '/v1/gestao/contrato/resumo' : null);
+  const resumo = useRead<ContractSummary>(podeLer ? '/v1/management/contract/summary' : null);
   const lista = useRead<{ members: ContractMember[]; papeis: AccountRole[] }>(
-    podeLer ? '/v1/gestao/contrato/membros' : null,
+    podeLer ? '/v1/management/contract/members' : null,
   );
-  if (!podeLer) return <Navigate to="/contrato" replace />;
+  if (!podeLer) return <Navigate to="/contract" replace />;
   if (!resumo.data || !lista.data) return null;
   const contract = resumo.data;
   const { members, papeis } = lista.data;
@@ -68,7 +68,7 @@ export function MembersPage() {
       <main className="pt-conteudo">
         <div className="mb-tela">
           <div className="mb-cabecalho">
-            <Link className="mb-voltar" href="/contrato" aria-label="Voltar ao painel do contrato">
+            <Link className="mb-voltar" href="/contract" aria-label="Voltar ao painel do contrato">
               <IconePortal nome="esquerda" tamanho={24} />
             </Link>
             <h1>Membros do contrato {contract.nome}</h1>

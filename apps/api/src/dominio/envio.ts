@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import { MAX_FILES_BY_MESSAGE, maxBytesDoMime, mimeAceito, tipoDoMime } from '@pipe/armazenamento';
+import { MAX_FILES_BY_MESSAGE, maxBytesDoMime, mimeAceito, tipoDoMime } from '@pipe/storage';
 import { avaliarEnvio, classificarCusto } from '@pipe/core';
 import type { CategoriaTemplate, TipoChannel } from '@pipe/core';
 import { positionOfVariable } from '@pipe/workers/whatsapp';
@@ -29,10 +29,10 @@ export type TipoEnvio = 'texto' | 'imagem' | 'audio' | 'video' | 'documento' | '
 
 export interface PedidoDeEnvio {
   tenantId: string;
-  conversaId: string;
+  conversationId: string;
   /** Atendente que assina a mensagem. Ausente = integração, e a mensagem é do sistema. */
-  atendenteId?: string | null;
-  tipo?: TipoEnvio;
+  agentId?: string | null;
+  type?: TipoEnvio;
   texto?: string | null;
   templateId?: string | null;
   /** Valores das variáveis do corpo, na ordem de `{{1}}`, `{{2}}`, … */
@@ -47,7 +47,7 @@ export interface PedidoDeEnvio {
    * depois do envio, e toda vez que aquela segunda escrita falhava a marca sumia sem
    * ninguém notar.
    */
-  respostaProntaId?: string | null;
+  responseReadyId?: string | null;
   /**
    * Exige que a conversa esteja atribuída a `atendenteId`.
    *
@@ -66,7 +66,7 @@ export interface MessageQueued {
   estadoEntrega: 'pendente';
   insideOfWindow: boolean;
   categoriaCobranca: string | null;
-  conteudo: string | null;
+  content: string | null;
 }
 
 /**
@@ -85,7 +85,7 @@ type LineConversation = {
   id: string;
   state: string;
   queueId: string | null;
-  atendente_id: string | null;
+  agentId: string | null;
   windowExpiresAt: Date | string | null;
   firstResponseAt: Date | string | null;
   lastMessageAt: Date | string | null;
@@ -95,9 +95,9 @@ type LineConversation = {
 
 type LinhaTemplate = {
   id: string;
-  nome: string;
-  categoria: CategoriaTemplate;
-  corpo: string;
+  name: string;
+  category: CategoriaTemplate;
+  body: string;
   status_meta: string;
   cabecalho_tipo: string;
   variables: unknown;
@@ -120,7 +120,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     if (!conversation) throw PipeError.naoEncontrado('Conversa');
     if (conversation.state === 'encerrada') {
       throw PipeError.conflito(
-        'conversa_encerrada',
+        'conversation_closed',
         'A conversa está encerrada. Reabra antes de responder.',
       );
     }
@@ -131,7 +131,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     if (pedido.exigirAtribuicao && conversation.atendente_id !== pedido.atendenteId) {
       throw new PipeError(
         403,
-        'conversa_de_outro_atendente',
+        'conversation_of_other_agent',
         // O texto segue o da Blip ("Contato sendo atendido por outra pessoa. Para
         // atender, solicite a transferência a…"): diz o que houve e o que fazer.
         conversation.atendente_id
@@ -184,7 +184,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
       ? renderizar(template.corpo, pedido.parametros ?? [])
       : (pedido.texto?.trim() ?? null);
     if (!conteudo && !pedido.attachmentId) {
-      throw PipeError.request('conteudo_vazio', 'Escreva algo ou anexe um arquivo.');
+      throw PipeError.request('content_empty', 'Escreva algo ou anexe um arquivo.');
     }
 
     // Palavras proibidas — ANTES de gravar, como o `sendTextMessage` do Desk da
@@ -293,11 +293,11 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
   });
   drenarEmSegundoPlano(pedido.tenantId);
   // Depois do commit, sempre. Ver `tempo-real.ts`.
-  await publicar(pedido.tenantId, evento('conversa', pedido.conversaId));
+  await publicar(pedido.tenantId, evento('conversation', pedido.conversaId));
 
   return {
     id: resultado.mensagemId,
-    estadoEntrega: 'pendente',
+    estadoEntrega: 'pending',
     insideOfWindow: resultado.dentroDaJanela,
     categoriaCobranca: resultado.categoriaCobranca,
     conteudo: resultado.conteudo,
@@ -342,11 +342,11 @@ type LineAttachment = { id: string; mime: string; bytes: string; nome_original: 
 export async function sendAttachments(pedido: RequestOfLoteOfAttachments): Promise<MessageQueued[]> {
   const ids = pedido.attachmentIds.filter((id, i, lista) => lista.indexOf(id) === i);
   if (ids.length === 0) {
-    throw PipeError.request('conteudo_vazio', 'Anexe ao menos um arquivo.');
+    throw PipeError.request('content_empty', 'Anexe ao menos um arquivo.');
   }
   if (ids.length > MAX_FILES_BY_MESSAGE) {
     throw PipeError.request(
-      'anexos_demais',
+      'attachments_excessive',
       `São no máximo ${MAX_FILES_BY_MESSAGE} arquivos por envio; vieram ${ids.length}.`,
       { limite: MAX_FILES_BY_MESSAGE, enviados: ids.length },
     );
@@ -371,7 +371,7 @@ export async function sendAttachments(pedido: RequestOfLoteOfAttachments): Promi
     // por arquivo: o lote inteiro cai se um deles não couber, com o nome dele.
     const nome = attachment.nome_original ?? attachment.id;
     if (!mimeAceito(attachment.mime)) {
-      throw PipeError.request('tipo_nao_aceito', `O arquivo "${nome}" é de um tipo não aceito.`, {
+      throw PipeError.request('type_not_accepted', `O arquivo "${nome}" é de um tipo não aceito.`, {
         anexo_id: attachment.id,
         mime: attachment.mime,
       });
@@ -379,7 +379,7 @@ export async function sendAttachments(pedido: RequestOfLoteOfAttachments): Promi
     const teto = maxBytesDoMime(attachment.mime);
     if (Number(attachment.bytes) > teto) {
       throw PipeError.request(
-        'arquivo_grande_demais',
+        'file_large_excessive',
         `O arquivo "${nome}" tem ${mb(Number(attachment.bytes))} MB e o limite para este tipo é ${mb(teto)} MB.`,
         { anexo_id: attachment.id, bytes: Number(attachment.bytes), limite: teto },
       );
@@ -439,7 +439,7 @@ export async function resendMessage(
     if (!rows[0]) {
       // Sem linha afetada, a mensagem não existe ou já não estava falha. Responder
       // 200 calado fazia o botão parecer que resolveu.
-      throw PipeError.conflito('mensagem_nao_falhou', 'Esta mensagem não está mais em falha.');
+      throw PipeError.conflito('message_not_failed', 'Esta mensagem não está mais em falha.');
     }
 
     const { rows: outbox } = await tx.execute<{ id: string }>(sql`
@@ -461,7 +461,7 @@ export async function resendMessage(
   });
 
   await enqueueDelivery({ messageId });
-  return { id: messageId, stateDelivery: 'pendente' };
+  return { id: messageId, stateDelivery: 'pending' };
 }
 
 /** `{{1}}`, `{{2}}`, … no corpo do template. A numeração aqui é a do **corpo**. */

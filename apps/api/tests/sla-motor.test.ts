@@ -50,11 +50,11 @@ async function createContact(cenario: Cenario, nome = 'Cliente'): Promise<string
 async function createConversation(
   cenario: Cenario,
   opts: {
-    prioridade?: string;
+    priority?: string;
     criadaEm: Date;
-    atribuidaEm?: Date | null;
+    assignedAt?: Date | null;
     firstResponseAt?: Date | null;
-    encerradaEm?: Date | null;
+    closedAt?: Date | null;
   },
 ): Promise<string> {
   const contactId = await createContact(cenario);
@@ -75,10 +75,10 @@ async function createConversation(
 async function createRuleSla(
   cenario: Cenario,
   opts: {
-    alvo: string;
-    prazoSeg: number;
-    alertaSeg?: number | null;
-    acaoAlerta?: Record<string, unknown>;
+    target: string;
+    deadlineSeg: number;
+    alertSeg?: number | null;
+    acaoAlert?: Record<string, unknown>;
     acaoEstouro?: Record<string, unknown>;
   },
 ): Promise<string> {
@@ -110,9 +110,9 @@ async function createWebhook(cenario: Cenario, eventos: string[]): Promise<void>
 async function slaConversationOf(
   cenario: Cenario,
   conversationId: string,
-): Promise<{ state: string; alertadoEm: Date | null; estouradoEm: Date | null } | null> {
+): Promise<{ state: string; alertedAt: Date | null; exceededAt: Date | null } | null> {
   const { rows } = await cenario.dono.execute<{
-    estado: string;
+    state: string;
     alertado_em: Date | null;
     estourado_em: Date | null;
   }>(sql`select estado, alertado_em, estourado_em from sla_conversa where conversa_id = ${conversationId}::uuid`);
@@ -141,8 +141,8 @@ async function priorityOf(cenario: Cenario, conversaId: string): Promise<string>
   return rows[0]!.priority;
 }
 
-describe('regrasVencedorasPorAlvo — escopo mais específico vence (sem DB)', () => {
-  it('regra de escopo fila vence a de escopo tenant, no MESMO alvo', () => {
+describe('Choose the most specific SLA rule for each target', () => {
+  it('Prefer queue-scoped SLA rules over tenant-scoped rules for the same target', () => {
     const ofQueue = {
       id: 'r-fila',
       nome: 'da fila',
@@ -160,7 +160,7 @@ describe('regrasVencedorasPorAlvo — escopo mais específico vence (sem DB)', (
     expect(rulesWinningByTarget([doTenant, ofQueue], 'fila-2')).toEqual([doTenant]);
   });
 
-  it('alvos diferentes rendem regras vencedoras diferentes — sla_conversa rastreia por regra', () => {
+  it('Track separate winning SLA rules for different targets (`sla_conversa`)', () => {
     const firstResponse = {
       id: 'r1',
       nome: '1a resposta',
@@ -180,7 +180,7 @@ describe('regrasVencedorasPorAlvo — escopo mais específico vence (sem DB)', (
   });
 });
 
-describe('checarSlaDaConversa — alerta e estouro', () => {
+describe('Check conversation SLA alerts and breaches', () => {
   // Cada teste cadastra a(s) SUA(S) própria(s) regra(s). Sem isto, a segunda regra
   // de um alvo já usado por um teste anterior (mesmo escopo `tenant`) empataria
   // com a primeira, e `regrasVencedorasPorAlvo` escolheria uma delas por ordem
@@ -226,7 +226,7 @@ describe('checarSlaDaConversa — alerta e estouro', () => {
     expect(await contarEventos(a, conversationId, 'sla_estourado')).toBe(1);
   });
 
-  it('conversa encerrada antes do prazo (e antes do alerta) não dispara nada', async () => {
+  it('Send no SLA alert or breach for a conversation closed before either deadline', async () => {
     await createRuleSla(a, { alvo: 'primeira_resposta', prazoSeg: 600, alertaSeg: 300 });
     const agora = new Date();
     const criadaEm = new Date(agora.getTime() - 100_000);
@@ -263,7 +263,7 @@ describe('checarSlaDaConversa — alerta e estouro', () => {
     expect(await contarEntregas(a, 'sla.alertou')).toBe(1);
   });
 
-  it('elevar_prioridade sobe um degrau e muda a ordem da fila de espera', async () => {
+  it('Raise priority one step and reorder the waiting queue after an SLA breach (`elevar_prioridade`)', async () => {
     // `resolucao` é o nome do alvo NO BANCO (`ALVOS_SLA`); `sla.ts` traduz para o
     // alvo `encerramento` do `@pipe/core` (`ALVO_DO_BANCO`).
     await createRuleSla(a, {
@@ -299,8 +299,8 @@ describe('checarSlaDaConversa — alerta e estouro', () => {
   });
 });
 
-describe('checarSlaDaConversa — isolamento entre tenants', () => {
-  it('regra de SLA de um tenant não se aplica à conversa de outro', async () => {
+describe('Isolate conversation SLA checks by tenant', () => {
+  it('Never apply one tenant\'s SLA rule to another tenant\'s conversation', async () => {
     // Tenant novo, sem NENHUMA regra própria — `a` já acumulou regras dos testes
     // acima neste arquivo, e usá-lo aqui provaria menos que "sem regra cadastrada".
     const semRegra = await montarCenario(`sla-sem-regra-${randomUUID().slice(0, 8)}`);

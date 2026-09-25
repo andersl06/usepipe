@@ -44,7 +44,7 @@ export function EvaluationPageFicha() {
   const { contact } = useContact();
   const base = attendanceBase(contact.tipo, contact.id);
   const read = useRead<{ fuso: string; ficha: EvaluationFicha }>(
-    `/v1/gestao/monitoria/${id}`,
+    `/v1/management/quality-review/${id}`,
   );
   if (read.error instanceof ApiError && read.error.status === 404) return <NaoEncontrado />;
   if (!read.data) return null;

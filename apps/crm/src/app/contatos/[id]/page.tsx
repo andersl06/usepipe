@@ -65,7 +65,7 @@ function ContactDestaque({ ficha, fuso }: { ficha: FichaContact; fuso: string })
         {
           rotulo: 'Conta',
           value: ficha.accountId ? (
-            <Link href={`/contas/${ficha.accountId}`}>{ficha.accountName}</Link>
+            <Link href={`/accounts/${ficha.accountId}`}>{ficha.accountName}</Link>
           ) : (
             'sem conta'
           ),
@@ -117,7 +117,7 @@ export default async function PageContact({
                   k="Conta"
                   v={
                     ficha.accountId ? (
-                      <Link href={`/contas/${ficha.accountId}`}>{ficha.accountName}</Link>
+                      <Link href={`/accounts/${ficha.accountId}`}>{ficha.accountName}</Link>
                     ) : (
                       '—'
                     )

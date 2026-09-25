@@ -14,8 +14,8 @@ function source(fileName: string, text: string): ts.SourceFile {
 }
 
 test('normalizePath normalizes templates, parameters and query strings', () => {
-  assert.equal(normalizePath('/v1/conversas/${id}/mensagens?x=1'), '/v1/conversas/:*/mensagens');
-  assert.equal(normalizePath('v1/conversas/:id'), '/v1/conversas/:*');
+  assert.equal(normalizePath('/v1/conversations/${id}/messages?x=1'), '/v1/conversations/:*/messages');
+  assert.equal(normalizePath('v1/conversas/:id'), '/v1/conversations/:*');
 });
 
 test('collectRoutes joins controller and method paths and captures decorators', () => {

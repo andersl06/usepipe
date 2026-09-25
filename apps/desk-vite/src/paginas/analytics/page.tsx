@@ -48,7 +48,7 @@ export function PageMetrics() {
 
   const read = useRead<ResponseOfMetrics>(
     intervalo
-      ? `/v1/desk/metricas?inicio=${encodeURIComponent(intervalo.inicio.toISOString())}&fim=${encodeURIComponent(intervalo.fim.toISOString())}`
+      ? `/v1/desk/metrics?inicio=${encodeURIComponent(intervalo.inicio.toISOString())}&fim=${encodeURIComponent(intervalo.fim.toISOString())}`
       : null,
   );
   const m = read.data?.metrics ?? null;

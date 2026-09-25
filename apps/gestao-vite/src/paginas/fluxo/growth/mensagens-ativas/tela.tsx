@@ -38,7 +38,7 @@ export function ActiveMessagesTela({ data }: { data: DataOfGrowth }) {
 
   /* GET /v1/mensagens-ativas/limites — o teto de contatos por disparo, para a
      tela não repetir número mágico (`ControladorMensagensAtivas.limites`). */
-  const limites = useRead<LimitesDeDisparo>('/v1/mensagens-ativas/limites');
+  const limites = useRead<LimitesDeDisparo>('/v1/messages-active/limits');
   const maxContacts = limites.data?.maxContactsByTrigger ?? 15;
 
   const modelosAprovados = data.modelos.filter(

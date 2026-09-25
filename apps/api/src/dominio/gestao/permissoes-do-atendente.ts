@@ -67,8 +67,8 @@ const ROTULO_DA_ORIGEM: Record<string, string> = {
 const ator = (userId: string): Ator => ({ tipo: 'usuario', id: userId });
 
 export interface LineOfPermission {
-  codigo: string;
-  grupo: string;
+  code: string;
+  group: string;
   description: string;
   /** O que a união dos papéis dá, antes de qualquer exceção. */
   dosPapeis: boolean;
@@ -82,13 +82,13 @@ export interface LineOfPermission {
 
 export interface AgentOfPermissions {
   id: string;
-  nome: string;
+  name: string;
   email: string;
 }
 
 export interface PermissionsOfAgent {
   agents: AgentOfPermissions[];
-  permissoes: LineOfPermission[];
+  permissions: LineOfPermission[];
 }
 
 /** Ids repetidos, vazios ou fora do tenant não passam: a tela manda o que marcou. */
@@ -98,7 +98,7 @@ async function agentsVivos(
 ): Promise<AgentOfPermissions[]> {
   const unicos = [...new Set(ids.filter((i) => i))];
   if (unicos.length === 0) {
-    throw PipeError.request('atendente_obrigatorio', 'Escolha ao menos um atendente.');
+    throw PipeError.request('agent_required', 'Escolha ao menos um atendente.');
   }
   const pessoas = await tx
     .select({ id: user.id, nome: user.nome, email: user.email })
@@ -206,10 +206,10 @@ export async function writePermissionsOfAgent(
   const valida = new Set(conhecidas.map((c) => c.codigo));
   for (const codigo of codigos) {
     if (!EH_OF_AGENT.test(codigo)) {
-      throw PipeError.request("permissao_fora_do_atendente", `"${codigo}" não se concede por atendente: vem do papel.`);
+      throw PipeError.request("permission_outside_of_agent", `"${codigo}" não se concede por atendente: vem do papel.`);
     }
     if (!valida.has(codigo)) {
-      throw PipeError.request('permissao_desconhecida', `"${codigo}" não é uma permissão do Pipe.`);
+      throw PipeError.request('permission_unknown', `"${codigo}" não é uma permissão do Pipe.`);
     }
   }
 

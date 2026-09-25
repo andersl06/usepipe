@@ -29,22 +29,22 @@ import { exchangeCode } from './troca-de-token.js';
 export interface RequestOfRegistrationEmbedded {
   tenantId: string;
   userId: string;
-  codigo?: string | undefined;
+  code?: string | undefined;
   wabaId?: string | undefined;
-  numeroId?: string | undefined;
+  numberId?: string | undefined;
   coexistencia?: boolean | undefined;
   /** O `inbox_id` do original: presente, é reautorização daquele canal. */
   channelId?: string | undefined;
 }
 
 /** `validate_parameters!` do serviço e `validate_embedded_signup_params!` do controlador. */
-export function validarParametros(pedido: { codigo?: string | undefined; wabaId?: string | undefined }): void {
+export function validarParametros(pedido: { code?: string | undefined; wabaId?: string | undefined }): void {
   const ausentes: string[] = [];
   if (!pedido.codigo?.trim()) ausentes.push('code');
   if (!pedido.wabaId?.trim()) ausentes.push('waba_id');
   if (ausentes.length === 0) return;
   throw PipeError.request(
-    'parametros_ausentes',
+    'parameters_missing',
     `Parâmetros obrigatórios ausentes: ${ausentes.join(', ')}`,
   );
 }

@@ -58,15 +58,15 @@ export function PageActiveMessage() {
   const [enviando, setEnviando] = useState(false);
   const [resultado, setResultado] = useState<{ enviadas: number; recusadas: number } | null>(null);
 
-  const channels = useRead<{ channels: Channel[] }>('/v1/desk/canais');
+  const channels = useRead<{ channels: Channel[] }>('/v1/desk/channels');
   const contacts = useRead<{ contacts: ListaContact[] }>(
     origem === 'existente'
-      ? `/v1/desk/contatos${search.trim().length >= 2 ? `?busca=${encodeURIComponent(search.trim())}` : ''}`
+      ? `/v1/desk/contatos${search.trim().length >= 2 ? `?search=${encodeURIComponent(search.trim())}` : ''}`
       : null,
   );
   const contactInitial = useRead<{
     contact: { id: string; nome: string | null; telefone: string | null };
-  }>(parametros.get('contato') ? `/v1/desk/contatos/${parametros.get('contato')}` : null);
+  }>(parametros.get('contato') ? `/v1/desk/contacts/${parametros.get('contato')}` : null);
   /* Vindo de "Conversar novamente" (Contatos), o contato já entra selecionado. */
   useEffect(() => {
     const c = contactInitial.data?.contact;
@@ -106,7 +106,7 @@ export function PageActiveMessage() {
     setEnviando(true);
     setError(null);
     try {
-      const r = await api.post<{ enviadas: number; recusadas: number }>('/v1/mensagens-ativas', {
+      const r = await api.post<{ enviadas: number; recusadas: number }>('/v1/messages-active', {
         canal_id: channel.id,
         template_id: template.id,
         parametros: variables.map((_, i) => templateParametros[i] ?? ''),

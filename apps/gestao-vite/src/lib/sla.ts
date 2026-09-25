@@ -30,7 +30,7 @@ export interface PillSla {
   excedidoSeg: number | null;
 }
 
-const SEM_REGRA: PillSla = { state: 'sem_regra', rotulo: '—', excedidoSeg: null };
+const SEM_REGRA: PillSla = { state: 'without_rule', rotulo: '—', excedidoSeg: null };
 
 /**
  * Regra aplicável: a de escopo de fila vence a de escopo do tenant, porque a mais
@@ -64,14 +64,14 @@ export function conversationAvaliarSla(
     cumpridoEm,
   });
 
-  if (r.state === 'estourado') {
+  if (r.state === 'exceeded') {
     return {
-      state: 'estourado',
+      state: 'exceeded',
       rotulo: 'ESTOUROU',
       excedidoSeg: r.decorridoSeg - regra.prazoSeg,
     };
   }
   if (r.cumprido) return { state: 'cumprido', rotulo: 'CUMPRIDO', excedidoSeg: null };
-  if (r.state === 'alerta') return { state: 'alerta', rotulo: 'ALERTA', excedidoSeg: null };
-  return { state: 'dentro', rotulo: 'DENTRO', excedidoSeg: null };
+  if (r.state === 'alert') return { state: 'alert', rotulo: 'ALERTA', excedidoSeg: null };
+  return { state: 'inside', rotulo: 'DENTRO', excedidoSeg: null };
 }

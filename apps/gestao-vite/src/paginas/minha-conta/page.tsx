@@ -74,8 +74,8 @@ export function PageMyAccount() {
     erro: search.get('erro') ?? undefined,
     campo: search.get('campo') ?? undefined,
   };
-  const read = useRead<AccountInVigor>('/v1/conta');
-  if (read.error) return <Navigate to="/entrar" replace />;
+  const read = useRead<AccountInVigor>('/v1/account');
+  if (read.error) return <Navigate to="/login" replace />;
   if (!read.data) return null;
   const account = read.data;
 
@@ -92,7 +92,7 @@ export function PageMyAccount() {
           <span className="conta-barra-marca" role="img" aria-label="Pipe" />
           <span className="conta-barra-risco" />
           <nav>
-            <a href="/minha-conta" aria-current="page">
+            <a href="/my-account" aria-current="page">
               Minha conta
             </a>
             <Link href="/portal">Portal</Link>

@@ -40,10 +40,10 @@ export function PageContacts() {
   const ticketId = parametros.get('ticket');
 
   const lista = useRead<{ contacts: ListaContact[] }>(
-    `/v1/desk/contatos${search.trim().length >= 2 ? `?busca=${encodeURIComponent(search.trim())}` : ''}`,
+    `/v1/desk/contatos${search.trim().length >= 2 ? `?search=${encodeURIComponent(search.trim())}` : ''}`,
   );
   const contact = useRead<{ contact: ContactFicha; history: ConversationOfHistory[] }>(
-    id ? `/v1/desk/contatos/${id}` : null,
+    id ? `/v1/desk/contacts/${id}` : null,
   );
   const ticket = useRead<TicketDoDesk>(ticketId ? `/v1/desk/tickets/${ticketId}` : null);
   const groups = useMemo(
@@ -189,7 +189,7 @@ export function PageContacts() {
               <button
                 type="button"
                 className="dk-botao"
-                onClick={() => navegar(`/activeMessage/send?contato=${id}`)}
+                onClick={() => navegar(`/activeMessage/send?contact=${id}`)}
               >
                 Conversar novamente
               </button>

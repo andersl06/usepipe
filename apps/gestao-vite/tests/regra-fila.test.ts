@@ -36,7 +36,7 @@ const context = {
   contato: { nome: 'Ana Maria', email: 'ana@empresa.com.br', atributos: { plano: 'ouro' } },
 };
 
-test('a primeira regra que casa vence, e a ordem é a da tela', () => {
+test('the first matching rule wins, and the order is the one on the screen', () => {
   const casou = destinationQueue(
     [
       regra({ id: 'b', order: 2, queueDestinationId: 'f-financeiro', queueDestinationName: 'Financeiro' }),
@@ -47,7 +47,7 @@ test('a primeira regra que casa vence, e a ordem é a da tela', () => {
   assert.equal(casou?.queueDestinationName, 'Cobrança');
 });
 
-test('empate de ordem desempata por identificador, e não pela ordem do banco', () => {
+test('an order tie is broken by identifier, not by the database order', () => {
   const ordenadas = ordenarRegras([
     regra({ id: 'zz', order: 0 }),
     regra({ id: 'aa', order: 0 }),
@@ -59,7 +59,7 @@ test('empate de ordem desempata por identificador, e não pela ordem do banco', 
   );
 });
 
-test('nenhuma regra casada devolve nulo — a conversa segue para a fila padrão', () => {
+test('no matching rule returns null — the conversation goes to the default queue', () => {
   assert.equal(destinationQueue([regra()], { message: 'quero cancelar' }), null);
 });
 
@@ -67,7 +67,7 @@ test('regra desativada não é avaliada, mesmo casando', () => {
   assert.equal(destinationQueue([regra({ active: false })], context), null);
 });
 
-test('combinador E exige todas as condições', () => {
+test('the AND combinator requires every condition', () => {
   const todas = regra({
     combinador: 'e',
     conditions: [
@@ -87,7 +87,7 @@ test('combinador E exige todas as condições', () => {
   assert.equal(destinationQueue([uma], context), null);
 });
 
-test('combinador OU basta uma condição', () => {
+test('the OR combinator only needs one condition', () => {
   const ou = regra({
     combinador: 'ou',
     conditions: [
@@ -98,7 +98,7 @@ test('combinador OU basta uma condição', () => {
   assert.ok(destinationQueue([ou], context));
 });
 
-test('campo extra do contato é lido pelo caminho com ponto', () => {
+test('the contact\'s extra field is read via a dotted path', () => {
   const extra = regra({
     conditions: [{ campo: 'contato.atributos.plano', operador: 'igual', value: 'Ouro' }],
   });
@@ -106,7 +106,7 @@ test('campo extra do contato é lido pelo caminho com ponto', () => {
   assert.ok(destinationQueue([extra], context));
 });
 
-test('regra ativa sem condição nunca casa, e é apontada como inalcançável', () => {
+test('an active rule with no condition never matches, and is flagged as unreachable', () => {
   const vazia = regra({ conditions: [] });
   assert.equal(destinationQueue([vazia], context), null);
   assert.deepEqual(regrasInalcancaveis([vazia]), ['r1']);
@@ -125,14 +125,14 @@ test('regra idêntica abaixo de outra é inalcançável — a de cima vence semp
   assert.deepEqual(mortas, ['sombra']);
 });
 
-test('campo livre só passa com chave de atributo utilizável', () => {
+test('a free-form field only passes with a usable attribute key', () => {
   assert.ok(campoValido('mensagem'));
   assert.ok(campoValido('contato.atributos.plano'));
   assert.equal(campoValido('contato.atributos.'), false);
   assert.equal(campoValido('contato.telefone_do_avô'), false);
 });
 
-test('a regra sai por extenso com o combinador visível', () => {
+test('the rule is spelled out in full with the combinator visible', () => {
   assert.equal(
     descreverRegra(
       regra({

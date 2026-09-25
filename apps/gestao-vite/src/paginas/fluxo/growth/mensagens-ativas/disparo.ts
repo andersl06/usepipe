@@ -45,7 +45,7 @@ export async function dispararActiveMessages(pedido: {
   parametros?: string[];
 }): Promise<Resultado<RespostaDoDisparo>> {
   try {
-    const value = await api.post<RespostaDoDisparo>('/v1/mensagens-ativas', pedido);
+    const value = await api.post<RespostaDoDisparo>('/v1/messages-active', pedido);
     atualizarLeituras();
     return { ok: true, value };
   } catch (error) {

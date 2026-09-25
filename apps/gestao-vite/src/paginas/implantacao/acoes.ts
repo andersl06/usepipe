@@ -45,7 +45,7 @@ function postarJson(caminho: string, corpo: unknown): Promise<Response> {
 
 /** O primeiro passo do cadastro embutido: a `api` gera o estado e diz o modo. */
 export async function iniciarRegistrationEmbedded(): Promise<RegistrationStart> {
-  const resposta = await chamarApi('/v1/canais/whatsapp/estado', { method: 'POST' });
+  const resposta = await chamarApi('/v1/channels/whatsapp/estado', { method: 'POST' });
   if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };
   return { ok: true, ...((await resposta.json()) as Omit<RegistrationStart, 'ok'>) };
 }
@@ -54,7 +54,7 @@ export async function iniciarRegistrationEmbedded(): Promise<RegistrationStart> 
 export async function concluirRegistrationEmbedded(
   credentials: RegistrationCredentials,
 ): Promise<ResultadoDaAcao> {
-  const resposta = await postarJson('/v1/canais/whatsapp', {
+  const resposta = await postarJson('/v1/channels/whatsapp', {
     codigo: credentials.codigo,
     waba_id: credentials.wabaId,
     phone_number_id: credentials.numeroId || undefined,
@@ -90,7 +90,7 @@ export async function conectarManual(
   data: FormData,
 ): Promise<ResultadoDaAcao> {
   const campo = (nome: string) => String(data.get(nome) ?? '').trim();
-  const resposta = await postarJson('/v1/canais/whatsapp/manual', {
+  const resposta = await postarJson('/v1/channels/whatsapp/manual', {
     waba_id: campo('wabaId'),
     phone_number_id: campo('numeroId'),
     access_token: campo('token'),
@@ -127,7 +127,7 @@ export async function importContacts(
     return { ok: false, error: 'Escolha um arquivo CSV.' };
   }
   const resposta = await chamarApi(
-    `/v1/contatos/importacoes?nome=${encodeURIComponent(file.name)}`,
+    `/v1/contacts/imports?nome=${encodeURIComponent(file.name)}`,
     { method: 'POST', body: await file.text(), headers: { 'content-type': 'text/csv' } },
   );
   if (!resposta.ok) return { ok: false, error: await motivoDaFalha(resposta) };

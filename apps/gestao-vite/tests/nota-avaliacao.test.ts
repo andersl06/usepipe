@@ -32,7 +32,7 @@ test('não se aplica sai do cálculo — não é zero, é ausência', () => {
   assert.equal(fatalReprovado('conforme', true, 'nao_se_aplica'), false);
 });
 
-test('escala e nota viram fração pelo próprio teto', () => {
+test('scale and score become a fraction of their own ceiling', () => {
   assert.equal(fractionAnswered('escala', '5'), 1);
   assert.equal(fractionAnswered('escala', '4'), 0.8);
   assert.equal(fractionAnswered('nota', '10'), 1);
@@ -41,13 +41,13 @@ test('escala e nota viram fração pelo próprio teto', () => {
   assert.equal(fractionAnswered('nota', '7,5'), 0.75);
 });
 
-test('valor fora da escala não vira zero — vira desconhecido', () => {
+test('a value outside the scale does not become zero — it becomes unknown', () => {
   assert.equal(fractionAnswered('escala', '9'), null);
   assert.equal(fractionAnswered('nota', '-1'), null);
   assert.equal(fractionAnswered('conforme', 'talvez'), null);
 });
 
-test('fatal só reprova com fração conhecida abaixo do máximo', () => {
+test('fatal only fails with a known fraction below the maximum', () => {
   assert.equal(fatalReprovado('conforme', true, 'nao_conforme'), true);
   assert.equal(fatalReprovado('escala', true, '4'), true);
   assert.equal(fatalReprovado('escala', true, '5'), false);

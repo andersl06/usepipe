@@ -144,7 +144,7 @@ export function AbasDaFicha({
       {abas.map((a) => (
         <Link
           key={a.key}
-          href={`${base}?aba=${a.key}`}
+          href={`${base}?tab=${a.key}`}
           role="tab"
           aria-current={a.key === aba ? 'true' : undefined}
           scroll={false}

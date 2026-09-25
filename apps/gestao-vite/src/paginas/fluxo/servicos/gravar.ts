@@ -14,7 +14,7 @@ export async function salvarService(
   serviceId: string | null,
   pedido: RequestOfService,
 ): Promise<Resultado<LinkedService>> {
-  const caminho = `/v1/gestao/fluxos/${routerId}/servicos`;
+  const caminho = `/v1/management/flows/${routerId}/services`;
   try {
     const value = serviceId
       ? await api.patch<LinkedService>(`${caminho}/${serviceId}`, pedido)
@@ -31,7 +31,7 @@ export async function excluirService(
   serviceId: string,
 ): Promise<Resultado<void>> {
   try {
-    await api.delete<void>(`/v1/gestao/fluxos/${routerId}/servicos/${serviceId}`);
+    await api.delete<void>(`/v1/management/flows/${routerId}/services/${serviceId}`);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {

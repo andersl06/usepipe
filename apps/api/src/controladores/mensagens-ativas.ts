@@ -25,14 +25,14 @@ import type { RequestWithSession } from '../sessao.js';
 interface CorpoDoDisparo {
   channelId?: string;
   template_id?: string;
-  contacts?: { contactId?: string; telefone?: string; nome?: string; parametros?: string[] }[];
+  contacts?: { contactId?: string; phone?: string; name?: string; parametros?: string[] }[];
   parametros?: string[];
 }
 
-@Controller('v1/mensagens-ativas')
+@Controller('v1/messages-active')
 export class ActiveMessagesController {
   /** Os limites em vigor, para a tela não repetir número mágico. */
-  @Get('limites')
+  @Get('limits')
   @KeyOrSession('mensagens:ler')
   limites(): Record<string, unknown> {
     return {
@@ -76,9 +76,9 @@ export class ActiveMessagesController {
     @Body() corpo: CorpoDoDisparo,
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
-    if (!corpo.channelId) throw PipeError.request('canal_obrigatorio', 'Informe `canal_id`.');
+    if (!corpo.channelId) throw PipeError.request('channel_required', 'Informe `canal_id`.');
     if (!corpo.template_id) {
-      throw PipeError.request('template_obrigatorio', 'Escolha um modelo aprovado.');
+      throw PipeError.request('template_required', 'Escolha um modelo aprovado.');
     }
 
     const channel = await resolveChannel(corpo.channelId);
@@ -86,7 +86,7 @@ export class ActiveMessagesController {
     // paranoia: sem isto, um `canal_id` de outro cliente viraria disparo no número
     // dele com a nossa credencial.
     if (!channel || channel.tenantId !== ator.tenantId) throw PipeError.naoEncontrado('Canal');
-    if (!channel.ativo) throw PipeError.conflito('canal_inativo', 'O canal está desativado.');
+    if (!channel.ativo) throw PipeError.conflito('channel_inactive', 'O canal está desativado.');
 
     const destinos: DestinationOfTrigger[] = (corpo.contacts ?? []).map((c) => ({
       contatoId: c.contactId ?? null,
@@ -96,7 +96,7 @@ export class ActiveMessagesController {
     }));
     if (destinos.some((d) => !d.contatoId && !d.telefone)) {
       throw PipeError.request(
-        'destino_invalido',
+        'destination_invalid',
         'Cada contato precisa de `contato_id` ou `telefone`.',
       );
     }

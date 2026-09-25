@@ -3,7 +3,7 @@ import { sql } from 'drizzle-orm';
 import { decifrarConfig, estaCifrado } from '@pipe/db';
 import { esperaMs } from '@pipe/workers';
 import type { JobMedia } from '@pipe/workers';
-import { keyOfAttachment, maxBytesDoMime, mimeParaServir } from '@pipe/armazenamento';
+import { keyOfAttachment, maxBytesDoMime, mimeParaServir } from '@pipe/storage';
 import { databaseOwner, keyring, noTenant } from '../banco.js';
 import { storage } from './anexo.js';
 

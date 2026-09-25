@@ -21,7 +21,7 @@ function message(stateDelivery: string | null): ItemOfConversation {
   };
 }
 
-test('consulta a conversa rapidamente enquanto uma mensagem está em trânsito', () => {
+test('polls the conversation quickly while a message is in transit', () => {
   assert.equal(deliveryInterval([message('pendente')]), 1_000);
   assert.equal(deliveryInterval([message('enviando')]), 1_000);
   assert.equal(deliveryInterval([message('enviada')]), 15_000);

@@ -12,13 +12,13 @@ import {
   tiposDisponiveis,
 } from '../src/paginas/fluxo/conteudos/regras.ts';
 
-test('pagamento só fica disponível para templates de Utilidade', () => {
+test('payment is only available for Utility templates', () => {
   assert.ok(tiposDisponiveis('utilidade').includes('pagamento'));
   assert.ok(!tiposDisponiveis('marketing').includes('pagamento'));
   assert.ok(!tiposDisponiveis('autenticacao').includes('pagamento'));
 });
 
-test('o menu de blocos segue as flags: no Pipe são texto/imagem/documento e vídeo', () => {
+test('the block menu follows the flags: in Pipe they are text/image/document and video', () => {
   assert.deepEqual(blocosDoMenu('marketing'), [['texto', 'imagem', 'documento'], ['video']]);
   assert.deepEqual(blocosDoMenu('utilidade', FLAGS_DO_PIPE), [
     ['texto', 'imagem', 'documento'],
@@ -26,7 +26,7 @@ test('o menu de blocos segue as flags: no Pipe são texto/imagem/documento e ví
   ]);
 });
 
-test('sem mídia só sobra texto; com tudo ligado, pagamento e carrossel entram na segunda linha', () => {
+test('with no media only text remains; with everything on, payment and carousel enter the second row', () => {
   assert.deepEqual(
     blocosDoMenu('utilidade', { media: false, video: true, payment: true, carrossel: true }),
     [['texto'], ['pagamento', 'carrossel']],
@@ -40,21 +40,21 @@ test('sem mídia só sobra texto; com tudo ligado, pagamento e carrossel entram 
   );
 });
 
-test('a escolha de bloco só aparece antes de escolher, com categoria e fora de Autenticação', () => {
+test('block choice only shows before choosing, with a category and outside Authentication', () => {
   assert.equal(blockMostrarEscolha('default', ''), false);
   assert.equal(blockMostrarEscolha('default', 'marketing'), true);
   assert.equal(blockMostrarEscolha('default', 'autenticacao'), false);
   assert.equal(blockMostrarEscolha('texto', 'marketing'), false);
 });
 
-test('o "voltar" só existe na primeira tradução, com bloco escolhido e sem outras traduções', () => {
+test('the "back" step only exists on the first translation, with a block chosen and no other translations', () => {
   assert.equal(mostrarVoltar('texto', 'marketing', 1), true);
   assert.equal(mostrarVoltar('default', 'marketing', 1), false);
   assert.equal(mostrarVoltar('texto', 'marketing', 2), false);
   assert.equal(mostrarVoltar('texto', 'autenticacao', 1), false);
 });
 
-test('o nome do modelo segue /^[a-z]([a-z0-9_])*$/, até 512, e não repete', () => {
+test('the template\'s name follows /^[a-z]([a-z0-9_])*$/, up to 512, and never repeats', () => {
   assert.equal(nameError('promo_2026'), null);
   assert.equal(nameError('Promo'), 'invalido');
   assert.equal(nameError('1promo'), 'invalido');
@@ -62,7 +62,7 @@ test('o nome do modelo segue /^[a-z]([a-z0-9_])*$/, até 512, e não repete', ()
   assert.equal(nameError('promo', ['promo']), 'usado');
 });
 
-test('idiomas repetidos entre traduções são apontados', () => {
+test('repeated languages across translations are flagged', () => {
   assert.deepEqual(
     idiomasRepetidos([
       { idioma: 'pt_BR', texto: 'a' },
@@ -73,7 +73,7 @@ test('idiomas repetidos entre traduções são apontados', () => {
   );
 });
 
-test('o envio só libera com nome, categoria, bloco e traduções completas', () => {
+test('sending only unlocks with name, category, block and complete translations', () => {
   const base = {
     nome: 'promo',
     categoria: 'marketing' as const,
@@ -87,13 +87,13 @@ test('o envio só libera com nome, categoria, bloco e traduções completas', ()
   assert.equal(templateValid({ ...base, nome: 'Promo' }), false);
 });
 
-test('autenticação dispensa o texto (a mensagem é fixa) mas exige idioma', () => {
+test('authentication skips the text (the message is fixed) but requires a language', () => {
   const base = { nome: 'otp', categoria: 'autenticacao' as const, tipo: 'default' as const };
   assert.equal(templateValid({ ...base, translations: [{ idioma: 'pt_BR', texto: '' }] }), true);
   assert.equal(templateValid({ ...base, translations: [{ idioma: '', texto: '' }] }), false);
 });
 
-test('a lista mostra indisponível sem WhatsApp, vazio sem modelos e a lista com modelos', () => {
+test('the list shows unavailable without WhatsApp, empty without templates, and the list with templates', () => {
   assert.equal(listaState(false, 3), 'indisponivel');
   assert.equal(listaState(true, 0), 'vazio');
   assert.equal(listaState(true, 2), 'lista');

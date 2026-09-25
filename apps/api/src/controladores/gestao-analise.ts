@@ -69,7 +69,7 @@ export interface RespostaDoDashboard {
   intervalo: Intervalo;
   hoje: string;
   data: DashboardData;
-  lista: { tipo: 'interacao' | 'rejeicao'; nomes: string[] } | null;
+  lista: { type: 'interacao' | 'rejeicao'; nomes: string[] } | null;
 }
 
 export interface ResponseOfMessagesActive {
@@ -110,8 +110,8 @@ export class ManagementAnalyticsController {
     @Req() request: RequestWithSession,
     @Param('id') id: string,
     @Query('periodo') periodRequest?: string,
-    @Query('de') de?: string,
-    @Query('ate') ate?: string,
+    @Query('from') de?: string,
+    @Query('to') ate?: string,
     @Query('contatos') contacts?: string,
   ): Promise<RespostaDoDashboard> {
     const session = sessionOf(request);
@@ -143,8 +143,8 @@ export class ManagementAnalyticsController {
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
     @Query('periodo') periodoPedido?: string,
-    @Query('de') de?: string,
-    @Query('ate') ate?: string,
+    @Query('from') de?: string,
+    @Query('to') ate?: string,
     @Query('template') templatePedido?: string,
   ): Promise<ResponseOfMessagesActive> {
     const sessao = sessionOf(requisicao);
@@ -169,8 +169,8 @@ export class ManagementAnalyticsController {
   async visaoGeral(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Query('de') dePedido?: string,
-    @Query('ate') atePedido?: string,
+    @Query('from') dePedido?: string,
+    @Query('to') atePedido?: string,
   ): Promise<RespostaDaVisaoGeral> {
     const sessao = sessionOf(requisicao);
     uuidOu404(id);
@@ -188,8 +188,8 @@ export class ManagementAnalyticsController {
   async jornada(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Query('de') dePedido?: string,
-    @Query('ate') atePedido?: string,
+    @Query('from') dePedido?: string,
+    @Query('to') atePedido?: string,
   ): Promise<RespostaDaJornada> {
     const sessao = sessionOf(requisicao);
     uuidOu404(id);
@@ -238,11 +238,11 @@ export class ManagementAnalyticsController {
   async log(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-    @Query('busca') search?: string,
-    @Query('de') de?: string,
-    @Query('ate') ate?: string,
-    @Query('direcao') direction?: string,
-    @Query('tipo') tipo?: string,
+    @Query('search') search?: string,
+    @Query('from') de?: string,
+    @Query('to') ate?: string,
+    @Query('direction') direction?: string,
+    @Query('type') tipo?: string,
     @Query('cursor') cursorBruto?: string,
     @Query('limit') limiteBruto?: string,
   ): Promise<Page<LinhaDoLog>> {

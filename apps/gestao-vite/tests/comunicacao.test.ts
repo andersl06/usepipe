@@ -18,7 +18,7 @@ import {
  * dispara de fato. Este teste é o que trava o lado da tela na mesma regra.
  */
 
-test('só cabeçalho de mídia consome a posição 1', () => {
+test('only a media header consumes position 1', () => {
   assert.equal(headerTemMedia('imagem'), true);
   assert.equal(headerTemMedia('video'), true);
   assert.equal(headerTemMedia('documento'), true);
@@ -27,7 +27,7 @@ test('só cabeçalho de mídia consome a posição 1', () => {
   assert.equal(headerTemMedia('nenhum'), false);
 });
 
-test('cabeçalho desconhecido é tratado como sem mídia', () => {
+test('an unknown header is treated as no media', () => {
   /* O valor vem de coluna de texto do banco. Assumir mídia por engano
      deslocaria variáveis de templates que não têm cabeçalho nenhum. */
   assert.equal(headerTemMedia(''), false);
@@ -35,13 +35,13 @@ test('cabeçalho desconhecido é tratado como sem mídia', () => {
   assert.equal(headerTemMedia('carrossel'), false);
 });
 
-test('o deslocamento é 1 com mídia e 0 sem', () => {
+test('the offset is 1 with media and 0 without', () => {
   assert.equal(headerOffset('imagem'), 1);
   assert.equal(headerOffset('texto'), 0);
   assert.equal(headerOffset('nenhum'), 0);
 });
 
-test('todo cabeçalho do catálogo tem deslocamento decidido', () => {
+test('every header in the catalog has a decided offset', () => {
   /* Se alguém somar um tipo novo à lista sem decidir se ele gasta posição, o
      teste continua passando — mas pelo menos o valor fica escrito aqui. */
   const mapa = Object.fromEntries(CABECALHOS_TEMPLATE.map((c) => [c, headerOffset(c)]));

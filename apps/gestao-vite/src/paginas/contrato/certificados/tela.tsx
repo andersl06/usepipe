@@ -412,7 +412,7 @@ function Alerta({
   return (
     <dialog ref={window} id={id} className="cm-alerta">
       <div className="cm-alerta-topo">
-        <IconePortal nome="alerta" tamanho={32} />
+        <IconePortal nome="alert" tamanho={32} />
         <b>{TEXTO.alerta.atencao}</b>
       </div>
       <p className="cm-alerta-corpo">{message}</p>

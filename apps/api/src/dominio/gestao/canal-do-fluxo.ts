@@ -63,7 +63,7 @@ async function botOfChannel(
   tx: TransactionPipe,
   tenantId: string,
   canalId: string,
-): Promise<{ id: string; nome: string } | null> {
+): Promise<{ id: string; name: string } | null> {
   const [linha] = await tx
     .select({ id: flow.id, nome: flow.nome })
     .from(flow)
@@ -87,7 +87,7 @@ async function channelOfTenant(tx: TransactionPipe, tenantId: string, canalId: s
 async function forContract(
   tx: TransactionPipe,
   tenantId: string,
-  linha: { id: string; tipo: string; nome: string; numero: string | null; ativo: boolean },
+  linha: { id: string; type: string; name: string; numero: string | null; active: boolean },
 ): Promise<ChannelOfFlow> {
   const bot = await botOfChannel(tx, tenantId, linha.id);
   return { ...linha, flowId: bot?.id ?? null, flowName: bot?.nome ?? null };
@@ -140,9 +140,9 @@ export async function conferirQuePodeLigar(
   if (atual.canalId) throw flowAlreadyHasChannel(await channelOfTenant(tx, tenantId, atual.canalId));
 }
 
-function flowAlreadyHasChannel(existente: { id: string; tipo: string; nome: string }): PipeError {
+function flowAlreadyHasChannel(existente: { id: string; type: string; name: string }): PipeError {
   return PipeError.conflito(
-    'fluxo_ja_tem_canal',
+    'flow_already_has_channel',
     `Este bot já está conectado ao canal "${existente.nome}". Desconecte-o antes de conectar outro.`,
     { canalId: existente.id, canalTipo: existente.tipo, canalNome: existente.nome },
   );
@@ -163,7 +163,7 @@ export async function connectChannelToFlow(
   if (atual.canalId === alvo.id) return forContract(tx, tenantId, alvo);
   if (!alvo.ativo) {
     throw PipeError.conflito(
-      'canal_inativo',
+      'channel_inactive',
       'Este canal está desconectado. Reconecte-o antes de ligá-lo a um bot.',
       { canalId: alvo.id },
     );
@@ -174,7 +174,7 @@ export async function connectChannelToFlow(
   if (dono) {
     /* O título e a mensagem são os da origem (`whatsapp.errorMsg.phoneNumberIsAlreadyConnected`). */
     throw PipeError.conflito(
-      'numero_em_uso',
+      'number_in_use',
       'Ops… Este número já está em uso. Para ativar o número neste bot, remova do anterior e tente novamente.',
       { fluxoId: dono.id, fluxoNome: dono.nome },
     );

@@ -376,7 +376,7 @@ export function ActionCard({
         <button type="button" className="bl-acao-abrir" onClick={onAbrir} aria-expanded={aberta}>
           <span className="bl-acao-tipo">{acao.$title || rotuloDaAcao(acao.type)}</span>
         </button>
-        {semSuporte ? <Etiqueta tom="alerta">{ROTULOS_OF_ACTIONS.naoExecutada}</Etiqueta> : null}
+        {semSuporte ? <Etiqueta tom="alert">{ROTULOS_OF_ACTIONS.naoExecutada}</Etiqueta> : null}
         {doSistema ? <Etiqueta>{ROTULOS_OF_ACTIONS.doSistema}</Etiqueta> : null}
         {errors.length > 0 ? (
           <Etiqueta tom="erro" redonda>

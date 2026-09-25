@@ -14,7 +14,7 @@ import { Interruptor } from '../../integracoes/interruptor';
  */
 export function AbaSettings() {
   const { channel } = useChannelWhatsapp();
-  const read = useRead<ChannelPreferences>(`/v1/canais/whatsapp/${channel.id}/preferencias`, { retry: false });
+  const read = useRead<ChannelPreferences>(`/v1/channels/whatsapp/${channel.id}/preferences`, { retry: false });
   const [gravando, setGravando] = useState<'quickReply' | 'menu' | null>(null);
   const [error, setError] = useState<string | null>(null);
 

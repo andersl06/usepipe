@@ -29,7 +29,7 @@ test('isPtToken reconhece lexico, morfologia e allowlist inglesa', () => {
   assert.equal(isPtToken('station'), false);
 });
 
-test('isPtComment reconhece palavras funcionais e diacriticos', () => {
+test('`isPtComment` detects Portuguese function words and diacritics', () => {
   assert.equal(isPtComment('// Busca a conversa quando o id existe'), true);
   assert.equal(isPtComment('// TODO: fix race'), false);
   assert.equal(isPtComment('// não'), true);
@@ -63,6 +63,6 @@ test('isPtToken aceita lexico extra sem superar EN_ALLOW', () => {
   assert.equal(isPtToken('status', new Set(['status'])), false);
 });
 
-test('lexiconHash independe da ordem de insercao', () => {
+test('`lexiconHash` is independent of insertion order', () => {
   assert.equal(lexiconHash(new Set(['fila', 'leitura'])), lexiconHash(new Set(['leitura', 'fila'])));
 });

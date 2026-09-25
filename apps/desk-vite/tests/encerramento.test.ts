@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { describe, it } from 'node:test';
 import { closureCanConfirm } from '../../../packages/ui/src/regras-encerramento';
 
-describe('regra do cartão de encerramento copiado da Blip', () => {
+describe('closure card rule copied from Blip', () => {
   const tags = [
     { id: 'obrigatoria', nome: 'Resolvido', obrigatoriaNoEncerramento: true },
     { id: 'opcional', nome: 'Dúvida', obrigatoriaNoEncerramento: false },
@@ -19,7 +19,7 @@ describe('regra do cartão de encerramento copiado da Blip', () => {
     assert.equal(closureCanConfirm(tags, ['obrigatoria'], false), true);
   });
 
-  it('bloqueia confirmação durante o envio', () => {
+  it('blocks confirmation while sending', () => {
     assert.equal(closureCanConfirm([], [], true), false);
   });
 });

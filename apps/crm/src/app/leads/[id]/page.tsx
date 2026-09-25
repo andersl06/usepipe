@@ -82,7 +82,7 @@ function DestaqueDoLead({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
             <Etiqueta>{ROTULO_STATUS[ficha.status] ?? ficha.status}</Etiqueta>
           )}
           {ficha.diasNaFase !== null && parado && !desqualificado ? (
-            <Etiqueta tom="alerta">parado há {numero(ficha.diasNaFase)} dias</Etiqueta>
+            <Etiqueta tom="alert">parado há {numero(ficha.diasNaFase)} dias</Etiqueta>
           ) : null}
         </>
       }
@@ -103,7 +103,7 @@ function DestaqueDoLead({ ficha, fuso }: { ficha: Ficha; fuso: string }) {
         {
           rotulo: 'Conta',
           value: ficha.accountId ? (
-            <Link href={`/contas/${ficha.accountId}`}>{ficha.accountName}</Link>
+            <Link href={`/accounts/${ficha.accountId}`}>{ficha.accountName}</Link>
           ) : (
             (ficha.accountName ?? '—')
           ),

@@ -46,7 +46,7 @@ function uuidOu404(value: string, oQue: string): string {
 }
 
 interface BodyOfKey {
-  nome?: unknown;
+  name?: unknown;
 }
 
 interface CorpoDeConexao {
@@ -57,7 +57,7 @@ interface CorpoDeConexao {
 interface CorpoDeWebhook {
   url?: unknown;
   eventos?: unknown;
-  ativo?: unknown;
+  active?: unknown;
   authentication?: unknown;
   cabecalhos?: unknown;
 }

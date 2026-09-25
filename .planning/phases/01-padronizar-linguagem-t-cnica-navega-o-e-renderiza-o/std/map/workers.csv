@@ -7,15 +7,15 @@ workers-file-e447fdf0,workers,2,file,banco.ts,database.ts,apps/workers/src/banco
 workers-file-e999225f,workers,2,file,midia.ts,media.ts,apps/workers/src/whatsapp/midia.ts,7,no,,,approved,codex1,
 workers-file-f422ecb7,workers,2,file,entrega.ts,delivery.ts,apps/workers/src/entrega.ts,3,no,,,approved,codex1,
 workers-file-facd35f7,workers,2,file,importacao-de-contatos.ts,import-of-contacts.ts,apps/workers/src/importacao-de-contatos.ts,8,no,,,approved,codex1,
-workers-job-name-8f0dde6c,workers,2,job-name,metrica-diaria,daily-metric,apps/workers/src/main.ts:75,4,no,,D-10,approved,sonnet,
-workers-job-name-ceacb869,workers,2,job-name,varredura-outbox,sweep-outbox,apps/workers/src/main.ts:68,8,no,,D-10,approved,sonnet,
-workers-queue-5508ad5a,workers,2,queue,pipe-entrada,pipe-inbound,apps/workers/src/filas.ts:11,24,no,,D-10,approved,sonnet,
-workers-queue-588e7283,workers,2,queue,pipe-importacao,pipe-import,apps/workers/src/filas.ts:101,12,no,,D-10,approved,sonnet,
-workers-queue-83adfdfd,workers,2,queue,pipe-agregacao,pipe-aggregation,apps/workers/src/filas.ts:13,5,no,,D-10,approved,sonnet,
-workers-queue-a3a6c0e5,workers,2,queue,pipe-dicionario-crm,pipe-crm-dictionary,apps/workers/src/filas.ts:84,5,no,,D-10,approved,sonnet,
-workers-queue-aa646349,workers,2,queue,pipe-espelho-crm,pipe-crm-mirror,apps/workers/src/filas.ts:14,6,no,,D-10,approved,sonnet,
-workers-queue-c1deed63,workers,2,queue,pipe-entrega,pipe-delivery,apps/workers/src/filas.ts:12,5,no,,D-10,approved,sonnet,
-workers-queue-cbe9142a,workers,2,queue,pipe-midia,pipe-media,apps/workers/src/filas.ts:15,6,no,,D-10,approved,sonnet,
+workers-job-name-8f0dde6c,workers,2,job-name,metrica-diaria,daily-metric,apps/workers/src/main.ts:75,4,no,,D-10,applied,sonnet,
+workers-job-name-ceacb869,workers,2,job-name,varredura-outbox,sweep-outbox,apps/workers/src/main.ts:68,8,no,,D-10,applied,sonnet,
+workers-queue-5508ad5a,workers,2,queue,pipe-entrada,pipe-inbound,apps/workers/src/filas.ts:11,24,no,,D-10,applied,sonnet,
+workers-queue-588e7283,workers,2,queue,pipe-importacao,pipe-import,apps/workers/src/filas.ts:101,12,no,,D-10,applied,sonnet,
+workers-queue-83adfdfd,workers,2,queue,pipe-agregacao,pipe-aggregation,apps/workers/src/filas.ts:13,5,no,,D-10,applied,sonnet,
+workers-queue-a3a6c0e5,workers,2,queue,pipe-dicionario-crm,pipe-crm-dictionary,apps/workers/src/filas.ts:84,5,no,,D-10,applied,sonnet,
+workers-queue-aa646349,workers,2,queue,pipe-espelho-crm,pipe-crm-mirror,apps/workers/src/filas.ts:14,6,no,,D-10,applied,sonnet,
+workers-queue-c1deed63,workers,2,queue,pipe-entrega,pipe-delivery,apps/workers/src/filas.ts:12,5,no,,D-10,applied,sonnet,
+workers-queue-cbe9142a,workers,2,queue,pipe-midia,pipe-media,apps/workers/src/filas.ts:15,6,no,,D-10,applied,sonnet,
 workers-queue-new-process-http,workers,2,queue,pipe-process-http,KEEP,apps/workers/src/filas.ts:17,0,unknown,,D-10,approved,sonnet,
 workers-queue-new-sla,workers,2,queue,pipe-sla,KEEP,apps/workers/src/filas.ts:16,0,unknown,,D-10,approved,sonnet,
 workers-symbol-01e192db,workers,2,symbol,mensagem,message,apps/workers/src/messenger.ts:6,1267,no,,,applied,codex1,
@@ -119,25 +119,25 @@ workers-symbol-f58c16da,workers,2,symbol,contato,contact,apps/workers/src/gerenc
 workers-symbol-f9761021,workers,2,symbol,posicaoDeVariavel,positionOfVariable,apps/workers/src/whatsapp/template.ts:32,12,no,,,applied,codex1,
 workers-symbol-fac39836,workers,2,symbol,valor,value,apps/workers/src/importacao-de-contatos.ts:76,1656,no,,,applied,codex1,
 workers-symbol-fd618820,workers,2,symbol,FILA_SLA,QUEUE_SLA,apps/workers/src/filas.ts:16,5,no,,,applied,codex1,
-workers-test-title-03342c6c,workers,2,test-title,validação de mídia (regras-blip §1.6),Validate media types and sizes against Blip rules ?1.6,apps/workers/tests/whatsapp.test.ts:13,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-1a442363,workers,2,test-title,deslocamento de parâmetro por mídia no cabeçalho (regras-blip §1.4),Shift body parameter positions when a template has header media,apps/workers/tests/whatsapp.test.ts:45,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-292d9d71,workers,2,test-title,"com mídia no cabeçalho, tudo desliza +1",Offset body parameter positions by one for a media header,apps/workers/tests/whatsapp.test.ts:61,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-3d3b42b3,workers,2,test-title,decifra o token do canal antes de mandar para a Meta,Decrypt the channel token before sending a request to Meta,apps/workers/tests/credenciais.test.ts:11,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-521847f1,workers,2,test-title,"numerar como se não houvesse mídia falha alto, e não em silêncio",Reject unshifted parameter numbers when header media occupies position one,apps/workers/tests/whatsapp.test.ts:105,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-74100d89,workers,2,test-title,o mapa de posições mostra onde cada variável vai,Map each body variable to its expected parameter position,apps/workers/tests/whatsapp.test.ts:67,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-7a2c61c2,workers,2,test-title,credenciaisDo,Resolve channel credentials from encrypted configuration,apps/workers/tests/credenciais.test.ts:10,6,no,,,approved,codex1,D-47 retranslated
-workers-test-title-7dbc5ab6,workers,2,test-title,monta os componentes sem mídia,Build template components without header media,apps/workers/tests/whatsapp.test.ts:78,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-89e45930,workers,2,test-title,"régua da origem: até 3 botões, até 10 lista, senão texto; interruptores nascem ligados","Choose buttons for up to three options, a list for up to ten, and text otherwise",apps/workers/tests/interativo.test.ts:9,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-8eeea1c1,workers,2,test-title,monta os componentes com mídia na posição 1 e o corpo deslocado,Put header media in position one and shift body parameters,apps/workers/tests/whatsapp.test.ts:90,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-a2169e94,workers,2,test-title,"número parcial fica como está, sem erro",Leave incomplete phone numbers unchanged,apps/workers/tests/telefone-e-csv.test.ts:15,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-a507b942,workers,2,test-title,corpo da Cloud API: botões de resposta e lista com uma seção,Build Cloud API reply buttons and a single-section list,apps/workers/tests/interativo.test.ts:28,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-a52c0454,workers,2,test-title,aspas malformadas são erro (CSV::MalformedCSVError),Reject malformed CSV quoting with `CSV::MalformedCSVError`,apps/workers/tests/telefone-e-csv.test.ts:74,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-a5c49559,workers,2,test-title,"opção longa, repetida ou corpo vazio cai para texto em vez de cortar",Fall back to text for long or duplicate options or an empty question,apps/workers/tests/interativo.test.ts:19,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-c334153e,workers,2,test-title,"as variantes de um celular são as duas formas, a canônica primeiro",Return both mobile number variants with the canonical form first,apps/workers/tests/telefone-e-csv.test.ts:27,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-c4dccc0b,workers,2,test-title,"sem mídia, {{1}} é a posição 1",Keep `{{1}}` at position one without header media,apps/workers/tests/whatsapp.test.ts:55,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-c73b523a,workers,2,test-title,config sem nada cifrado não exige chaveiro,Allow plaintext channel configuration without a keyring,apps/workers/tests/credenciais.test.ts:19,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-e010128f,workers,2,test-title,pergunta do fluxo como mensagem interativa,Turn flow questions into interactive messages,apps/workers/tests/interativo.test.ts:8,0,no,,,approved,codex1,D-47 retranslated
-workers-test-title-ffc627c3,workers,2,test-title,telefone digitado por gente → E.164 (acréscimo do Pipe),Normalize human-entered Brazilian phone numbers to E.164,apps/workers/tests/telefone-e-csv.test.ts:41,0,no,,,approved,codex1,D-47 retranslated
+workers-test-title-03342c6c,workers,2,test-title,validação de mídia (regras-blip §1.6),Validate media types and sizes against Blip rules ?1.6,apps/workers/tests/whatsapp.test.ts:13,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-1a442363,workers,2,test-title,deslocamento de parâmetro por mídia no cabeçalho (regras-blip §1.4),Shift body parameter positions when a template has header media,apps/workers/tests/whatsapp.test.ts:45,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-292d9d71,workers,2,test-title,"com mídia no cabeçalho, tudo desliza +1",Offset body parameter positions by one for a media header,apps/workers/tests/whatsapp.test.ts:61,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-3d3b42b3,workers,2,test-title,decifra o token do canal antes de mandar para a Meta,Decrypt the channel token before sending a request to Meta,apps/workers/tests/credenciais.test.ts:11,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-521847f1,workers,2,test-title,"numerar como se não houvesse mídia falha alto, e não em silêncio",Reject unshifted parameter numbers when header media occupies position one,apps/workers/tests/whatsapp.test.ts:105,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-74100d89,workers,2,test-title,o mapa de posições mostra onde cada variável vai,Map each body variable to its expected parameter position,apps/workers/tests/whatsapp.test.ts:67,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-7a2c61c2,workers,2,test-title,credenciaisDo,Resolve channel credentials from encrypted configuration,apps/workers/tests/credenciais.test.ts:10,6,no,,,applied,codex1,D-47 retranslated
+workers-test-title-7dbc5ab6,workers,2,test-title,monta os componentes sem mídia,Build template components without header media,apps/workers/tests/whatsapp.test.ts:78,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-89e45930,workers,2,test-title,"régua da origem: até 3 botões, até 10 lista, senão texto; interruptores nascem ligados","Choose buttons for up to three options, a list for up to ten, and text otherwise",apps/workers/tests/interativo.test.ts:9,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-8eeea1c1,workers,2,test-title,monta os componentes com mídia na posição 1 e o corpo deslocado,Put header media in position one and shift body parameters,apps/workers/tests/whatsapp.test.ts:90,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-a2169e94,workers,2,test-title,"número parcial fica como está, sem erro",Leave incomplete phone numbers unchanged,apps/workers/tests/telefone-e-csv.test.ts:15,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-a507b942,workers,2,test-title,corpo da Cloud API: botões de resposta e lista com uma seção,Build Cloud API reply buttons and a single-section list,apps/workers/tests/interativo.test.ts:28,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-a52c0454,workers,2,test-title,aspas malformadas são erro (CSV::MalformedCSVError),Reject malformed CSV quoting with `CSV::MalformedCSVError`,apps/workers/tests/telefone-e-csv.test.ts:74,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-a5c49559,workers,2,test-title,"opção longa, repetida ou corpo vazio cai para texto em vez de cortar",Fall back to text for long or duplicate options or an empty question,apps/workers/tests/interativo.test.ts:19,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-c334153e,workers,2,test-title,"as variantes de um celular são as duas formas, a canônica primeiro",Return both mobile number variants with the canonical form first,apps/workers/tests/telefone-e-csv.test.ts:27,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-c4dccc0b,workers,2,test-title,"sem mídia, {{1}} é a posição 1",Keep `{{1}}` at position one without header media,apps/workers/tests/whatsapp.test.ts:55,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-c73b523a,workers,2,test-title,config sem nada cifrado não exige chaveiro,Allow plaintext channel configuration without a keyring,apps/workers/tests/credenciais.test.ts:19,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-e010128f,workers,2,test-title,pergunta do fluxo como mensagem interativa,Turn flow questions into interactive messages,apps/workers/tests/interativo.test.ts:8,0,no,,,applied,codex1,D-47 retranslated
+workers-test-title-ffc627c3,workers,2,test-title,telefone digitado por gente → E.164 (acréscimo do Pipe),Normalize human-entered Brazilian phone numbers to E.164,apps/workers/tests/telefone-e-csv.test.ts:41,0,no,,,applied,codex1,D-47 retranslated
 workers-ts-local-2cbded4f,workers,2,ts-local,erro,error,apps/workers/src/whatsapp/real.ts:67,1478,no,,,applied,codex1,
 workers-ts-local-2f0e72ca,workers,2,ts-local,erro,error,apps/workers/src/importacao-de-contatos.ts:115,1478,no,,,applied,codex1,
 workers-ts-local-30cfca34,workers,2,ts-local,entrada,inbound,apps/workers/tests/telefone-e-csv.test.ts:52,473,no,,,applied,codex1,
@@ -171,7 +171,7 @@ workers-ts-local-fe7a73ba,workers,2,ts-local,estado,state,apps/workers/src/impor
 workers-ts-prop-0661be82,workers,2,ts-prop,canal_config,channelConfig,apps/workers/src/entrega.ts:55,4,no,,,applied,codex1,
 workers-ts-prop-068f565f,workers,2,ts-prop,conversasAbandonadas,conversationsAbandonadas,apps/workers/src/agregacao.ts:198,3,no,,,applied,codex1,
 workers-ts-prop-072f2bcc,workers,2,ts-prop,anexo_mime,attachmentMime,apps/workers/src/entrega.ts:62,2,no,,,applied,codex1,
-workers-ts-prop-0ccb4d66,workers,2,wire-key,mensagem_id,messageId,apps/workers/src/entrega.ts:44,apps/workers/src/entrega.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
+workers-ts-prop-0ccb4d66,workers,2,wire-key,mensagem_id,messageId,apps/workers/src/entrega.ts:44,apps/workers/src/entrega.ts,no,,D-09,applied,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 workers-ts-prop-1607e154,workers,2,ts-prop,mensagensSaida,messagesOutput,apps/workers/src/agregacao.ts:200,3,no,,,applied,codex1,
 workers-ts-prop-233e13cf,workers,2,ts-prop,tokenAcesso,tokenAccess,apps/workers/src/whatsapp/cliente.ts:20,75,no,,,applied,codex1,
 workers-ts-prop-32408df3,workers,2,ts-prop,conversasEncerradas,conversationsCloseds,apps/workers/src/agregacao.ts:196,3,no,,,applied,codex1,
@@ -199,8 +199,8 @@ workers-ts-prop-8384eb92,workers,2,ts-prop,tokenAcesso,tokenAccess,apps/workers/
 workers-ts-prop-9016e891,workers,2,ts-prop,conversasPerdidas,conversationsPerdidas,apps/workers/src/agregacao.ts:197,3,no,,,applied,codex1,
 workers-ts-prop-930c5a6c,workers,2,ts-prop,esperaFilaSeg,waitQueueSeg,apps/workers/src/agregacao.ts:201,3,no,,,applied,codex1,
 workers-ts-prop-95a09c72,workers,2,ts-prop,canal_tipo,channelType,apps/workers/src/entrega.ts:56,35,no,,,applied,codex1,
-workers-ts-prop-95b93d6e,workers,2,wire-key,atendente_id,agentId,apps/workers/src/agregacao.ts:215,apps/workers/src/agregacao.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
-workers-ts-prop-982e15d8,workers,2,wire-key,fila_id,queueId,apps/workers/src/agregacao.ts:214,apps/workers/src/agregacao.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
+workers-ts-prop-95b93d6e,workers,2,wire-key,atendente_id,agentId,apps/workers/src/agregacao.ts:215,apps/workers/src/agregacao.ts,no,,D-09,applied,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
+workers-ts-prop-982e15d8,workers,2,wire-key,fila_id,queueId,apps/workers/src/agregacao.ts:214,apps/workers/src/agregacao.ts,no,,D-09,applied,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 workers-ts-prop-9da5bccb,workers,2,ts-prop,erroCodigo,errorCode,apps/workers/src/entrega.ts:71,18,no,,,applied,codex1,
 workers-ts-prop-a097cd3e,workers,2,ts-prop,credenciais,credentials,apps/workers/src/messenger.ts:3,34,no,,,applied,codex1,
 workers-ts-prop-a9fe0dbb,workers,2,ts-prop,canalId,channelId,apps/workers/src/filas.ts:27,387,no,,,applied,codex1,

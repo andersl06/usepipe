@@ -57,8 +57,8 @@ async function createUser(roleOfAttendance: string | null): Promise<string> {
   return userId;
 }
 
-describe('papel de conta para todo usuário semeado', () => {
-  it('quem nasceu sem papel de conta ganha um, pela mesma régua da migração 0021', async () => {
+describe('Assign account roles to every seeded user', () => {
+  it('Assign account roles to users who have none, following migration 0021', async () => {
     const agent = await createUser('atendente');
     const gestor = await createUser('gestor');
     const administrador = await createUser('administrador');
@@ -74,7 +74,7 @@ describe('papel de conta para todo usuário semeado', () => {
     expect(await papeisOfAccount(semNada)).toEqual(['guest']);
   });
 
-  it('é idempotente: a segunda rodada não dá nada a quem já tem, e não troca papel dado à mão', async () => {
+  it('Rerunning the seed adds no duplicate account roles and preserves manually assigned roles', async () => {
     const pessoa = await createUser('atendente');
     await dono.execute(sql`
       insert into usuario_papel (tenant_id, usuario_id, papel_id, escopo)

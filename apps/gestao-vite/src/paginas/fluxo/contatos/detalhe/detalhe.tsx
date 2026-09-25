@@ -28,7 +28,7 @@ export function BotDetalheContact() {
   const [parametros] = useSearchParams();
   const ticketId = parametros.get('ticketId') ?? undefined;
   const read = useRead<DetalheOfContact>(
-    `/v1/gestao/fluxos/${id}/contatos/${contactId}${ticketId ? `?ticketId=${encodeURIComponent(ticketId)}` : ''}`,
+    `/v1/management/flows/${id}/contacts/${contactId}${ticketId ? `?ticketId=${encodeURIComponent(ticketId)}` : ''}`,
   );
   if (read.error instanceof ApiError && read.error.status === 404) return <NaoEncontrado />;
   if (!read.data) return null;
@@ -104,7 +104,7 @@ export function BotDetalheContact() {
                               title="Ver conversa"
                               aria-label="Ver conversa"
                             >
-                              <IconePortal nome="conversa" tamanho={24} />
+                              <IconePortal nome="conversation" tamanho={24} />
                             </Link>
                             {/* ponytail: exportação do histórico do ticket ainda não tem backend. */}
                             <span

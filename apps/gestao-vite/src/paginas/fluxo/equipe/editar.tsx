@@ -28,7 +28,7 @@ import './equipe.css';
 export function EditMemberPage() {
   const { contact } = useContact();
   const { userId = '' } = useParams();
-  const read = useRead<TeamOfFlow>(`/v1/gestao/fluxos/${contact.id}/equipe`);
+  const read = useRead<TeamOfFlow>(`/v1/management/flows/${contact.id}/team`);
   const withoutPermission = read.error instanceof ApiError && read.error.status === 403;
   const member = read.data?.members.find((item) => item.userId === userId);
 
@@ -100,7 +100,7 @@ function Edit({
     setEnviando(true);
     setAviso('');
     try {
-      await api.patch(`/v1/gestao/fluxos/${flowId}/equipe/${member.userId}`, {
+      await api.patch(`/v1/management/flows/${flowId}/team/${member.userId}`, {
         roleInFlow,
         permissions,
       });

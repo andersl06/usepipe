@@ -23,8 +23,8 @@ import './boas-vindas.css';
  * formulário de oito campos.
  */
 export function PageWelcome() {
-  const read = useRead<AccountInVigor>('/v1/conta');
-  if (read.error) return <Navigate to="/entrar" replace />;
+  const read = useRead<AccountInVigor>('/v1/account');
+  if (read.error) return <Navigate to="/login" replace />;
   if (!read.data) return null;
   const account = read.data;
   if (account.onboardingConcluidoEm) return <Navigate to="/portal" replace />;
@@ -53,7 +53,7 @@ export function PageWelcome() {
             </p>
 
             <div className="bv-acao">
-              <Link href="/minha-conta">
+              <Link href="/my-account">
                 Vamos lá
                 <Seta />
               </Link>

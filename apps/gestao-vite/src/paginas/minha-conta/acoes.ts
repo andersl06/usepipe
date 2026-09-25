@@ -24,7 +24,7 @@ export async function salvarAccount(data: FormData): Promise<void> {
   };
   /* As listas válidas vêm da `api`, e não de uma cópia daqui: lista duplicada é
      lista que envelhece do lado errado. */
-  const account = await api.get<AccountInVigor>('/v1/conta').catch(() => null);
+  const account = await api.get<AccountInVigor>('/v1/account').catch(() => null);
   const recusa = conferir({
     ...corpo,
     faixas: account?.faixasDeFuncionarios ?? [],
@@ -32,7 +32,7 @@ export async function salvarAccount(data: FormData): Promise<void> {
     fusos: account?.fusos ?? [],
   });
   if (recusa) return voltarWithError(recusa.motivo, recusa.campo);
-  const resposta = await chamarApi('/v1/conta', {
+  const resposta = await chamarApi('/v1/account', {
     method: 'PATCH',
     body: JSON.stringify(corpo),
     headers: { 'content-type': 'application/json' },
@@ -44,7 +44,7 @@ export async function salvarAccount(data: FormData): Promise<void> {
 }
 
 function voltarWithError(motivo: string, campo?: string): void {
-  const search = new URLSearchParams({ erro: motivo });
+  const search = new URLSearchParams({ error: motivo });
   if (campo) search.set('campo', campo);
-  irPara(`/minha-conta?${search}`);
+  irPara(`/my-account?${search}`);
 }

@@ -43,7 +43,7 @@ export interface ReadOfPfx {
 
 interface Tlv {
   tag: number;
-  conteudo: Buffer;
+  content: Buffer;
   /** O elemento inteiro (tag + tamanho + conteúdo), para repassar ao OpenSSL. */
   bruto: Buffer;
 }
@@ -158,7 +158,7 @@ const PRF_DO_PBKDF2: Record<string, string> = {
   '1.2.840.113549.2.11': 'sha512',
 };
 
-const CIFRA_DO_PBES2: Record<string, { nome: string; key: number }> = {
+const CIFRA_DO_PBES2: Record<string, { name: string; key: number }> = {
   '2.16.840.1.101.3.4.1.2': { nome: 'aes-128-cbc', key: 16 },
   '2.16.840.1.101.3.4.1.22': { nome: 'aes-192-cbc', key: 24 },
   '2.16.840.1.101.3.4.1.42': { nome: 'aes-256-cbc', key: 32 },
@@ -240,7 +240,7 @@ function decifrarConteudo(algoritmo: Tlv, cifrado: Buffer, senha: string): Buffe
 
   if (PBE_ANTIGO.has(oid)) {
     throw PipeError.request(
-      'pfx_formato_antigo',
+      'pfx_format_old',
       'O arquivo usa uma cifra antiga (RC2/RC4) que não é mais suportada. Exporte o certificado de novo com AES-256 (no OpenSSL: `openssl pkcs12 -export` sem `-legacy`).',
     );
   }
@@ -380,18 +380,18 @@ function classificarFalhaDoOpenSsl(falha: unknown): PipeError {
   const error = falha as { message?: string; code?: string } | null;
   const message = `${error?.code ?? ''} ${error?.message ?? ''}`;
   if (/mac[ _]verify[ _]failure/i.test(message)) {
-    return PipeError.request('senha_incorreta', 'A senha do certificado está incorreta.');
+    return PipeError.request('password_incorrect', 'A senha do certificado está incorreta.');
   }
   if (/unsupported/i.test(message)) {
     return PipeError.request(
-      'pfx_formato_antigo',
+      'pfx_format_old',
       'O arquivo usa uma cifra antiga (RC2/RC4) que não é mais suportada. Exporte o certificado de novo com AES-256 (no OpenSSL: `openssl pkcs12 -export` sem `-legacy`).',
     );
   }
   // Não repassamos a mensagem do OpenSSL: ela descreve a estrutura do arquivo,
   // e o que interessa a quem cadastra é que o arquivo não é um .pfx que sirva.
   return PipeError.request(
-    'pfx_invalido',
+    'pfx_invalid',
     'O arquivo não é um .pfx válido, ou não tem a chave privada junto do certificado.',
   );
 }
@@ -416,7 +416,7 @@ export function lerPfx(pfx: Buffer, senha: string): ReadOfPfx {
   } catch (falha) {
     if (falha instanceof PipeError) throw falha;
     throw PipeError.request(
-      'pfx_ilegivel',
+      'pfx_unreadable',
       'O arquivo abriu com a senha, mas o certificado dentro dele não pôde ser lido.',
     );
   }
@@ -429,7 +429,7 @@ export function lerPfx(pfx: Buffer, senha: string): ReadOfPfx {
     }
   }
   if (certificados.length === 0) {
-    throw PipeError.request('pfx_ilegivel', 'O arquivo não tem nenhum certificado X.509 legível.');
+    throw PipeError.request('pfx_unreadable', 'O arquivo não tem nenhum certificado X.509 legível.');
   }
 
   // A chave só serve para apontar qual certificado é o próprio: vive nesta

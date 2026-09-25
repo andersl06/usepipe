@@ -16,7 +16,7 @@ import { motivoDe, type Resultado } from './rest';
 /** O interruptor do cartão-linha: liga/desliga sem abrir formulário. */
 export async function alternarRespostaPronta(id: string, active: boolean): Promise<Resultado<void>> {
   try {
-    await api.patch(`/v1/gestao/comunicacao/respostas-prontas/${id}`, { ativa: !active });
+    await api.patch(`/v1/management/communication/responses-ready/${id}`, { ativa: !active });
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -26,7 +26,7 @@ export async function alternarRespostaPronta(id: string, active: boolean): Promi
 
 export async function excluirRespostaPronta(id: string): Promise<Resultado<void>> {
   try {
-    await api.delete(`/v1/gestao/comunicacao/respostas-prontas/${id}`);
+    await api.delete(`/v1/management/communication/responses-ready/${id}`);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {

@@ -95,7 +95,7 @@ export default async function PagePanel() {
           <span className="sub">
             {numero(funil.quantityGeneral)} abertas · {money(funil.totalGeral)}
           </span>
-          <Link href="/oportunidades" className="btn" style={{ marginLeft: 'auto' }}>
+          <Link href="/opportunities" className="btn" style={{ marginLeft: 'auto' }}>
             Abrir o quadro
           </Link>
         </header>
@@ -172,8 +172,8 @@ export default async function PagePanel() {
                           e é o que alguém resolve clicando — o resto da linha é
                           contagem, e contagem não pede ação.
                         */}
-                        <Link href="/leads?aba=parados">
-                          <Etiqueta tom="alerta">{numero(f.parados)} parados</Etiqueta>
+                        <Link href="/leads?tab=parados">
+                          <Etiqueta tom="alert">{numero(f.parados)} parados</Etiqueta>
                         </Link>
                       </>
                     ) : null}

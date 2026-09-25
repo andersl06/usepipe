@@ -13,7 +13,7 @@ interface ReportsResposta {
 export function ReportsPage() {
   const { contact } = useContact();
   const read = useRead<ReportsResposta>(
-    `/v1/gestao/fluxos/${contact.id}/analise/relatorios`,
+    `/v1/management/flows/${contact.id}/analytics/reports`,
   );
   if (!read.data) return null;
   return (

@@ -33,11 +33,11 @@ export interface PedidoDeStatus {
   motivoPausaId?: string | null;
 }
 
-export async function definirStatus(pedido: PedidoDeStatus): Promise<{ estado: StateAgent }> {
+export async function definirStatus(pedido: PedidoDeStatus): Promise<{ state: StateAgent }> {
   // Pausa exige motivo, escolhido da lista que o gestor cadastra. Sem motivo, o tempo
   // de pausa não alimenta relatório nenhum — e é por isso que é obrigatório.
   if (pedido.state === 'pausa' && !pedido.motivoPausaId) {
-    throw PipeError.request('motivo_obrigatorio', 'Escolha o motivo da pausa.');
+    throw PipeError.request('reason_required', 'Escolha o motivo da pausa.');
   }
 
   const agora = new Date();
@@ -94,9 +94,9 @@ export async function definirStatus(pedido: PedidoDeStatus): Promise<{ estado: S
   // SEM `usuarioId` de propósito: mudança de status é do interesse do time inteiro —
   // a Gestão pinta o painel de presença e o Desk sabe quem pode receber transferência.
   // Não é dado privado da pessoa.
-  await publicar(pedido.tenantId, evento('atendente', pedido.targetUserId));
+  await publicar(pedido.tenantId, evento('agent', pedido.targetUserId));
   // Quem sai de online devolve conversa para a fila na prática; a lista repinta.
-  await publicar(pedido.tenantId, evento('fila'));
+  await publicar(pedido.tenantId, evento('queue'));
 
   return { estado: pedido.state };
 }

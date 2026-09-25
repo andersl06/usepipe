@@ -26,7 +26,7 @@ const LIMITE_EMAILS = 20;
 export interface PreferencesOfChannel {
   quickReply: boolean;
   menu: boolean;
-  alertRecategorization: { ativo: boolean; emails: string[] };
+  alertRecategorization: { active: boolean; emails: string[] };
 }
 
 export function preferencesOf(channel: { config: Record<string, unknown> }): PreferencesOfChannel {
@@ -44,11 +44,11 @@ export function preferencesOf(channel: { config: Record<string, unknown> }): Pre
 export interface RequestOfPreferences {
   quickReply?: boolean;
   menu?: boolean;
-  alertaRecategorizacao?: { ativo?: boolean; emails?: string[] | string };
+  alertRecategorization?: { active?: boolean; emails?: string[] | string };
 }
 
 function recusa(campo: string, message: string): PipeError {
-  return new PipeError(422, 'preferencias_invalidas', message, { campo });
+  return new PipeError(422, 'preferences_invalid', message, { campo });
 }
 
 /** A tela manda "separados por vírgula"; a API aceita a lista pronta também. */

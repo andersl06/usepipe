@@ -12,7 +12,7 @@ import { keyOfColumn } from '../src/importacao-de-contatos.js';
 describe('nono dígito do Brasil (brazil_phone_normalizer)', () => {
   const br = new NormalizadorBrasil();
 
-  it('número parcial fica como está, sem erro', () => {
+  it('Leave incomplete phone numbers unchanged', () => {
     expect(br.contactCandidatos('55')).toEqual(['55']);
   });
 
@@ -24,7 +24,7 @@ describe('nono dígito do Brasil (brazil_phone_normalizer)', () => {
     expect(br.normalizar('554132345678')).toBe('554132345678');
   });
 
-  it('as variantes de um celular são as duas formas, a canônica primeiro', () => {
+  it('Return both mobile number variants with the canonical form first', () => {
     expect(br.variantes('5541988887777')).toEqual(['5541988887777', '554188887777']);
     expect(br.variantes('554188887777')).toEqual(['5541988887777', '554188887777']);
   });
@@ -38,7 +38,7 @@ describe('nono dígito do Brasil (brazil_phone_normalizer)', () => {
   });
 });
 
-describe('telefone digitado por gente → E.164 (acréscimo do Pipe)', () => {
+describe('Normalize human-entered Brazilian phone numbers to E.164', () => {
   const casos: [string | null, string | null][] = [
     ['(11) 8888-7777', '+5511988887777'],
     ['11 98765-4321', '+5511987654321'],
@@ -71,7 +71,7 @@ describe('leitor de CSV', () => {
     expect(lerCsv('﻿nome\n\nAna\n\n').linhas).toEqual([['Ana']]);
   });
 
-  it('aspas malformadas são erro (CSV::MalformedCSVError)', () => {
+  it('Reject malformed CSV quoting with `CSV::MalformedCSVError`', () => {
     expect(() => lerCsv('a,b\n1,"Clarice,"missing,2\n')).toThrow(CsvMalformado);
     expect(() => lerCsv('a\n"sem fechar\n')).toThrow(CsvMalformado);
     expect(() => lerCsv('a\nmeio"de campo\n')).toThrow(CsvMalformado);

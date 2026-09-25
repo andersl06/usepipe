@@ -44,14 +44,14 @@ test('as fronteiras do NPS: 0–6 detrator, 7–8 neutro, 9–10 promotor', () =
   );
 });
 
-test('nota fora da escala não recebe classe — não vira detrator por descuido', () => {
+test('a score outside the scale gets no class — it never becomes a detractor by accident', () => {
   assert.equal(classeDaNota('csat', 0), null);
   assert.equal(classeDaNota('csat', 6), null);
   assert.equal(classeDaNota('nps', 11), null);
   assert.equal(classeDaNota('nps', Number.NaN), null);
 });
 
-test('o que a tela aceita é o que o banco tem check', () => {
+test('what the screen accepts is what the database has a check constraint for', () => {
   assert.ok(tipoDePesquisaValido('nps'));
   assert.equal(tipoDePesquisaValido('csat-2'), false);
   assert.ok(disparoValido('encerramento'));

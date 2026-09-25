@@ -113,7 +113,7 @@ export class ClienteGraphInstagramReal extends ClienteGraphInstagram {
     } catch (error) {
       throw new PipeError(
         502,
-        'meta_inacessivel',
+        'meta_unreachable',
         `${message}: ${esconder(String((error as Error)?.message ?? error), ...ocultos)}`,
       );
     }
@@ -127,7 +127,7 @@ export class ClienteGraphInstagramReal extends ClienteGraphInstagram {
     if (!resposta.ok) {
       const error = (corpo as { error?: { code?: number; message?: string } } | null)?.error;
       const detalhe = error?.message ? esconder(error.message, ...ocultos) : `HTTP ${resposta.status}`;
-      throw new PipeError(502, 'meta_recusou', `${message}: ${detalhe}`, {
+      throw new PipeError(502, 'meta_refused', `${message}: ${detalhe}`, {
         http: resposta.status,
         ...(error?.code === undefined ? {} : { codigo_meta: error.code }),
       });
@@ -156,7 +156,7 @@ export class ClienteGraphInstagramReal extends ClienteGraphInstagram {
       );
       return true;
     } catch (erro) {
-      if (erro instanceof PipeError && erro.codigo === 'meta_recusou') return false;
+      if (erro instanceof PipeError && erro.codigo === 'meta_refused') return false;
       throw erro;
     }
   }
@@ -225,7 +225,7 @@ export class ClienteGraphInstagramDuble extends ClienteGraphInstagram {
 
   private recusar(mensagem: string): Promise<never> {
     return Promise.reject(
-      new PipeError(502, 'meta_recusou', `${mensagem}: Invalid OAuth access token.`, { http: 400, codigo_meta: 190 }),
+      new PipeError(502, 'meta_refused', `${mensagem}: Invalid OAuth access token.`, { http: 400, codigo_meta: 190 }),
     );
   }
 

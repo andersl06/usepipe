@@ -37,7 +37,7 @@ test('SVG não entra: a origem não o aceita, e ele carrega script', () => {
   assert.equal(imageTipoReal(svg), null);
 });
 
-test('arquivo curto demais para ter assinatura não estoura', () => {
+test('a file too short to have a signature does not throw', () => {
   assert.equal(imageTipoReal(new Uint8Array([0x89, 0x50])), null);
   assert.equal(imageTipoReal(new Uint8Array()), null);
 });
@@ -60,7 +60,7 @@ test('o identificador curto sai do nome, sem espaço', () => {
   assert.equal(nomeCurto('Roteador #1!'), 'roteador-1');
 });
 
-test('nome que não começa com letra é recusado, como no serviço deles', () => {
+test('a name that does not start with a letter is rejected, matching their service', () => {
   assert.equal(conferir('Roteador', RECADOS_ROTEADOR), null);
   assert.notEqual(conferir('1Roteador', RECADOS_ROTEADOR), null);
   assert.notEqual(conferir('a', RECADOS_ROTEADOR), null);

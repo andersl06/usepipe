@@ -48,7 +48,7 @@ function remetenteDoAmbiente(): { url: string; token: string; de: string; timeou
   if (!token || !de) {
     throw new PipeError(
       500,
-      'email_sem_credencial',
+      'email_without_credential',
       'Faltam PIPE_EMAIL_TOKEN e PIPE_EMAIL_REMETENTE: sem eles não há como mandar e-mail no modo real.',
     );
   }
@@ -88,7 +88,7 @@ export class RemetenteHttp extends RemetenteDeEmail {
     } catch (erro) {
       throw new PipeError(
         502,
-        'email_inacessivel',
+        'email_unreachable',
         `O provedor de e-mail não respondeu: ${esconder(String((erro as Error)?.message ?? erro), token)}`,
       );
     }
@@ -96,7 +96,7 @@ export class RemetenteHttp extends RemetenteDeEmail {
       const texto = await resposta.text().catch(() => '');
       throw new PipeError(
         502,
-        'email_recusado',
+        'email_refused',
         `O provedor de e-mail recusou (HTTP ${resposta.status}): ${esconder(texto.slice(0, 200), token)}`,
         { http: resposta.status },
       );

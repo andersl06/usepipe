@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -106,7 +106,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -116,7 +116,7 @@ function comCookie(token: string): Record<string, string> {
 }
 
 type Linha = {
-  codigo: string;
+  code: string;
   grupo: string;
   description: string;
   dosPapeis: boolean;
@@ -132,14 +132,14 @@ type Resposta = {
 
 async function ler(session: string, ids: string[]) {
   const resposta = await fetch(
-    `${api.url}/v1/gestao/atendentes/permissoes?atendentes=${ids.join(',')}`,
+    `${api.url}/v1/management/agents/permissions?atendentes=${ids.join(',')}`,
     { headers: comCookie(session) },
   );
   return { status: resposta.status, corpo: (await resposta.json()) as Resposta };
 }
 
 async function salvar(sessao: string, userIds: string[], permissions: Record<string, boolean>) {
-  const resposta = await fetch(`${api.url}/v1/gestao/atendentes/permissoes`, {
+  const resposta = await fetch(`${api.url}/v1/management/agents/permissions`, {
     method: 'PATCH',
     headers: comCookie(sessao),
     body: JSON.stringify({ userIds, permissions }),
@@ -181,8 +181,8 @@ afterAll(async () => {
   await b?.encerrar();
 });
 
-describe('GET /v1/gestao/atendentes/permissoes', () => {
-  it('devolve o catálogo inteiro e o Status vindo do papel, sem exceção nenhuma', async () => {
+describe('GET /v1/management/agents/permissions', () => {
+  it('Return the full permission catalog and role-derived status without overrides', async () => {
     const { status, corpo } = await ler(sessionManager, [agentId]);
     expect(status).toBe(200);
     expect(corpo.agents).toHaveLength(1);
@@ -209,13 +209,13 @@ describe('GET /v1/gestao/atendentes/permissoes', () => {
     }
   });
 
-  it("não concede por atendente o que é de gestão", async () => {
+  it("Reject agent overrides for management-only permissions", async () => {
     const { status } = await salvar(sessionManager, [agentId], { "usuario.gerenciar": true });
     expect(status).toBe(400);
     expect(await linhaDe(agentId, "usuario.gerenciar")).toBeUndefined();
   });
 
-  it('com dois atendentes, o que um tem e o outro não vem como parcial', async () => {
+  it('Show a permission as partial when selected agents differ', async () => {
     const { corpo } = await ler(sessionManager, [agentId, segundoId]);
     expect(corpo.agents).toHaveLength(2);
     /* Os dois têm `conversa.ver`; só o primeiro tem `conversa.responder`. */
@@ -223,21 +223,21 @@ describe('GET /v1/gestao/atendentes/permissoes', () => {
     expect(permission(corpo, 'conversa.responder')).toMatchObject({ ligada: false, parcial: true });
   });
 
-  it('atendente de outro tenant é 404, e id que não é uuid também', async () => {
+  it('Return 404 for another tenant\'s agent or malformed IDs', async () => {
     expect((await ler(sessionOfOtherTenant, [agentId])).status).toBe(404);
     expect((await ler(sessionManager, ['nao-e-uuid'])).status).toBe(404);
   });
 
-  it('sem atendente nenhum é recusa de requisição, não lista vazia', async () => {
-    const resposta = await fetch(`${api.url}/v1/gestao/atendentes/permissoes?atendentes=`, {
+  it('Reject a permission request with no agents rather than returning an empty list', async () => {
+    const resposta = await fetch(`${api.url}/v1/management/agents/permissions?atendentes=`, {
       headers: comCookie(sessionManager),
     });
     expect(resposta.status).toBe(400);
   });
 });
 
-describe('PATCH /v1/gestao/atendentes/permissoes', () => {
-  it('liga o que o papel não dá e grava a exceção', async () => {
+describe('PATCH /v1/management/agents/permissions', () => {
+  it('Grant an agent permission absent from the role and store the override', async () => {
     const { status } = await salvar(sessionManager, [agentId], { 'conversa.encerrar': true });
     expect(status).toBe(200);
     expect(await linhaDe(agentId, 'conversa.encerrar')).toMatchObject({ concedida: true });
@@ -250,7 +250,7 @@ describe('PATCH /v1/gestao/atendentes/permissoes', () => {
     });
   });
 
-  it('desliga o que o papel dá e grava a negativa', async () => {
+  it('Deny an agent permission granted by the role and store the override', async () => {
     await salvar(sessionManager, [agentId], { 'conversa.responder': false });
     expect(await linhaDe(agentId, 'conversa.responder')).toMatchObject({ concedida: false });
 
@@ -262,7 +262,7 @@ describe('PATCH /v1/gestao/atendentes/permissoes', () => {
     });
   });
 
-  it('voltar a coincidir com o papel APAGA a exceção — a tabela só guarda o que difere', async () => {
+  it('Delete an override when it matches the role again', async () => {
     await salvar(sessionManager, [agentId], { 'conversa.responder': true });
     expect(await linhaDe(agentId, 'conversa.responder')).toBeUndefined();
 
@@ -270,10 +270,10 @@ describe('PATCH /v1/gestao/atendentes/permissoes', () => {
     expect(await linhaDe(agentId, 'conversa.encerrar')).toBeUndefined();
   });
 
-  it('a exceção vale de verdade: desligar tira o acesso da rota, religar devolve', async () => {
+  it('Apply agent permission overrides to routes immediately', async () => {
     /* `regra.gerenciar` é o que `POST /v1/gestao/regras/prioridade` cobra. */
     const create = () =>
-      fetch(`${api.url}/v1/gestao/regras/prioridade`, {
+      fetch(`${api.url}/v1/management/rules/priority`, {
         method: 'POST',
         headers: comCookie(sessionAgent),
         body: JSON.stringify({ nome: `Regra ${randomUUID().slice(0, 6)}`, nivel: 'alta' }),
@@ -297,7 +297,7 @@ describe('PATCH /v1/gestao/atendentes/permissoes', () => {
     expect((await create()).status).toBe(403);
   });
 
-  it('salva para vários atendentes de uma vez', async () => {
+  it('Save permission overrides for several agents at once', async () => {
     await salvar(sessionManager, [agentId, segundoId], { 'conversa.nota_interna': true });
     expect(await linhaDe(agentId, 'conversa.nota_interna')).toMatchObject({ concedida: true });
     expect(await linhaDe(segundoId, 'conversa.nota_interna')).toMatchObject({ concedida: true });
@@ -306,18 +306,18 @@ describe('PATCH /v1/gestao/atendentes/permissoes', () => {
     expect(permission(corpo, 'conversa.nota_interna')).toMatchObject({ ligada: true, parcial: false });
   });
 
-  it('quem não tem usuario.gerenciar não mexe na permissão de ninguém — nem na própria', async () => {
+  it('Prevent users without `usuario.gerenciar` from editing any agent\'s permissions', async () => {
     const { status } = await salvar(sessionAgent, [agentId], { 'usuario.gerenciar': true });
     expect(status).toBe(403);
     expect(await linhaDe(agentId, 'usuario.gerenciar')).toBeUndefined();
   });
 
-  it('permissão que não está no catálogo é recusa, não linha órfã', async () => {
+  it('Reject permissions absent from the catalog without orphan rows', async () => {
     const { status } = await salvar(sessionManager, [agentId], { 'inventada.total': true });
     expect(status).toBe(400);
   });
 
-  it('gestor de outro tenant não alcança o atendente daqui', async () => {
+  it('Prevent another tenant\'s manager from editing this agent', async () => {
     const { status } = await salvar(sessionOfOtherTenant, [agentId], { 'conversa.ver': false });
     expect(status).toBe(404);
   });

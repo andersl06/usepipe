@@ -12,8 +12,8 @@ import {
   mimeParaServir,
   serveAsAttachment,
   tipoDoMime,
-} from '@pipe/armazenamento';
-import type { Storage } from '@pipe/armazenamento';
+} from '@pipe/storage';
+import type { Storage } from '@pipe/storage';
 import { keyringOfAmbiente } from '@pipe/db';
 import { noTenant } from '../banco.js';
 import { PipeError } from '../erros.js';
@@ -68,13 +68,13 @@ export interface PedidoDeUpload {
   tenantId: string;
   nomeOriginal: string | null;
   mimeDeclarado: string;
-  dados: Uint8Array;
+  data: Uint8Array;
 }
 
 export async function saveAttachment(pedido: PedidoDeUpload): Promise<AttachmentSaved> {
   if (!mimeAceito(pedido.mimeDeclarado)) {
     throw PipeError.request(
-      'tipo_nao_aceito',
+      'type_not_accepted',
       `O tipo "${pedido.mimeDeclarado}" não é aceito.`,
       { mime: pedido.mimeDeclarado },
     );
@@ -85,7 +85,7 @@ export async function saveAttachment(pedido: PedidoDeUpload): Promise<Attachment
   const mime = mimeParaServir(pedido.mimeDeclarado, pedido.dados);
   if (!mimeAceito(mime)) {
     throw PipeError.request(
-      'tipo_real_nao_aceito',
+      'type_real_not_accepted',
       `O arquivo diz ser "${pedido.mimeDeclarado}", mas o conteúdo é "${mime}".`,
       { declarado: pedido.mimeDeclarado, real: mime },
     );
@@ -94,13 +94,13 @@ export async function saveAttachment(pedido: PedidoDeUpload): Promise<Attachment
   const teto = maxBytesDoMime(mime);
   if (pedido.dados.byteLength > teto) {
     throw PipeError.request(
-      'arquivo_grande_demais',
+      'file_large_excessive',
       `O arquivo tem ${mb(pedido.dados.byteLength)} MB e o limite para este tipo é ${mb(teto)} MB.`,
       { bytes: pedido.dados.byteLength, limite: teto },
     );
   }
   if (pedido.dados.byteLength === 0) {
-    throw PipeError.request('arquivo_vazio', 'O arquivo está vazio.');
+    throw PipeError.request('file_empty', 'O arquivo está vazio.');
   }
 
   const key = keyOfAttachment(pedido.tenantId, pedido.nomeOriginal);
@@ -146,7 +146,7 @@ export function linkOfAttachment(attachmentId: string, agora = Date.now()): stri
     process.env['PIPE_URL_API'] ??
     'http://localhost:3000'
   ).replace(/\/$/, '');
-  return `${base}/v1/anexos/${attachmentId}?expira=${expira}&assinatura=${assinatura}`;
+  return `${base}/v1/attachments/${attachmentId}?expira=${expira}&assinatura=${assinatura}`;
 }
 
 export interface AttachmentForServe {

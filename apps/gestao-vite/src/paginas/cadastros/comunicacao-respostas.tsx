@@ -66,7 +66,7 @@ export function PageCannedResponses() {
   const [excluindo, setExcluindo] = useState(false);
   const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
   const [errorAlternar, setErrorAlternar] = useState<string | null>(null);
-  const read = useRead<RespostaProntaListada[]>('/v1/gestao/comunicacao/respostas-prontas');
+  const read = useRead<RespostaProntaListada[]>('/v1/management/communication/responses-ready');
   if (!read.data) return null;
   const respostas = read.data;
 

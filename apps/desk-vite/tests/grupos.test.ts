@@ -25,7 +25,7 @@ function msg(
   };
 }
 
-test('mensagens seguidas do mesmo lado formam um grupo; a nota quebra', () => {
+test('consecutive messages from the same side form a group; a note breaks it', () => {
   const nota: ItemOfConversation = {
     genero: 'nota',
     id: 'n',
@@ -46,7 +46,7 @@ test('mensagens seguidas do mesmo lado formam um grupo; a nota quebra', () => {
   );
 });
 
-test('o sinal de entrega é o do último balão', () => {
+test('the delivery indicator is the one from the last bubble', () => {
   assert.equal(deliverySignal([msg('1', 'saida', 'lida'), msg('2', 'saida', 'enviada')]), 'check');
   assert.equal(deliverySignal([msg('1', 'saida', 'lida')]), 'lida');
   assert.equal(deliverySignal([msg('1', 'saida', 'pendente')]), 'relogio');

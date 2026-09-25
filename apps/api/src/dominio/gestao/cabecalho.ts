@@ -9,7 +9,7 @@ import { channel, motivoPausa, pausa } from '@pipe/db/schema';
  * e o tenant vêm da sessão, no controlador.
  */
 export interface HeaderOfManagement {
-  channels: { id: string; nome: string; tipo: string; ativo: boolean }[];
+  channels: { id: string; name: string; type: string; active: boolean }[];
   avisos: number;
 }
 

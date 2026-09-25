@@ -7,12 +7,12 @@ import { clienteGraphMessenger } from './cliente-graph.js';
 
 const UUID = /^[0-9a-f-]{36}$/i;
 const SECRET = /^[0-9a-f]{32}$/i;
-type Linha = { id: string; tenant_id: string; nome: string; ativo: boolean; numero_id: string | null; criado_em: Date | string; config: Record<string, unknown> | null };
-export interface ChannelMessenger { id: string; tenantId: string; pageId: string; config: Record<string, unknown>; ativo: boolean }
-export interface ChannelMessengerVisible { id: string; nome: string; ativo: boolean; paginaId: string | null; state: 'conectado' | 'desligado'; webhookUrl: string; criadoEm: Date }
+type Linha = { id: string; tenant_id: string; name: string; active: boolean; numero_id: string | null; createdAt: Date | string; config: Record<string, unknown> | null };
+export interface ChannelMessenger { id: string; tenantId: string; pageId: string; config: Record<string, unknown>; active: boolean }
+export interface ChannelMessengerVisible { id: string; name: string; active: boolean; paginaId: string | null; state: 'conectado' | 'desligado'; webhookUrl: string; criadoEm: Date }
 export function urlDoWebhookMessenger(id: string): string { return `${(process.env['PIPE_URL_API'] ?? 'http://localhost:3100').replace(/\/$/, '')}/webhooks/messenger/${id}`; }
 const visivel = (l: Linha): ChannelMessengerVisible => ({ id: l.id, nome: l.nome, ativo: l.ativo, paginaId: l.numero_id, state: l.ativo ? 'conectado' : 'desligado', webhookUrl: urlDoWebhookMessenger(l.id), criadoEm: l.criado_em instanceof Date ? l.criado_em : new Date(l.criado_em) });
-const recusa = (m: string) => new PipeError(422, 'configuracao_invalida', m);
+const recusa = (m: string) => new PipeError(422, 'configuration_invalid', m);
 export async function readChannelMessenger(tenantId: string, id: string): Promise<ChannelMessenger> {
   if (!UUID.test(id)) throw PipeError.naoEncontrado('Canal');
   const linha = await noTenant(tenantId, async tx => (await tx.execute<Linha>(sql`select id, tenant_id, nome, ativo, numero_id, criado_em, config from canal where id=${id}::uuid and tipo='messenger' limit 1`)).rows[0]);
@@ -20,12 +20,12 @@ export async function readChannelMessenger(tenantId: string, id: string): Promis
   return { id: linha.id, tenantId: linha.tenant_id, pageId: linha.numero_id ?? '', ativo: linha.ativo, config: decifrarConfig(linha.config ?? {}, keyring()) };
 }
 export async function listChannelsMessenger(tenantId: string): Promise<ChannelMessengerVisible[]> { return noTenant(tenantId, async tx => (await tx.execute<Linha>(sql`select id, tenant_id, nome, ativo, numero_id, criado_em, config from canal where tipo='messenger' order by criado_em`)).rows.map(visivel)); }
-export async function conectarMessengerManual(pedido: { tenantId: string; userId: string; token?: string; appSecret?: string; nome?: string }): Promise<{ channel: ChannelMessengerVisible; webhookError: string | null; webhook: { url: string; verifyToken: string } }> {
+export async function conectarMessengerManual(pedido: { tenantId: string; userId: string; token?: string; appSecret?: string; name?: string }): Promise<{ channel: ChannelMessengerVisible; webhookError: string | null; webhook: { url: string; verifyToken: string } }> {
   if (!pedido.token) throw recusa('O token de página é obrigatório.'); if (!pedido.appSecret) throw recusa('O App Secret é obrigatório.'); if (!SECRET.test(pedido.appSecret)) throw recusa('O App Secret tem 32 caracteres, só números e letras de a a f.');
   const cliente = clienteGraphMessenger(pedido.token); let page;
-  try { page = await cliente.fetchPage(); } catch (error) { if (error instanceof PipeError && error.codigo === 'meta_recusou') throw recusa('O token não foi aceito pelo Facebook Messenger.'); throw error; }
+  try { page = await cliente.fetchPage(); } catch (error) { if (error instanceof PipeError && error.codigo === 'meta_refused') throw recusa('O token não foi aceito pelo Facebook Messenger.'); throw error; }
   const pageId = String(page.id ?? ''); if (!pageId) throw recusa('O token não é de uma Página do Facebook.'); if (!(await cliente.checkSecretOfApp(pedido.appSecret))) throw recusa('Este App Secret não é do aplicativo que gerou o token.');
-  const existente = (await databaseOwner().execute<{ id: string; tenant_id: string; ativo: boolean }>(sql`select id, tenant_id, ativo from canal where numero_id=${pageId} limit 1`)).rows[0];
+  const existente = (await databaseOwner().execute<{ id: string; tenant_id: string; active: boolean }>(sql`select id, tenant_id, ativo from canal where numero_id=${pageId} limit 1`)).rows[0];
   if (existente && (existente.tenant_id !== pedido.tenantId || existente.ativo)) throw recusa('Esta Página do Facebook já está conectada a outra caixa de entrada.');
   const nome = pedido.nome?.trim() || `${page.name ?? pageId} Messenger`; const configNovo = { tokenAcesso: pedido.token, appSecret: pedido.appSecret, verifyToken: novoVerifyToken(), pageId, apiVersao: process.env['MESSENGER_API_VERSAO'] ?? 'v23.0', origem: 'manual' };
   const id = await noTenant(pedido.tenantId, async tx => { let channelId: string;

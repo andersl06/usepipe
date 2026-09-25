@@ -35,7 +35,7 @@ const LISTA = [
   pessoa('Diego Faria', 'diego.faria@pipe.com.br', [], null),
 ];
 
-test('a busca acha pelo nome e pelo e-mail, sem caixa', () => {
+test('search matches by name and email, case-insensitively', () => {
   assert.deepEqual(
     filterAgents(LISTA, { search: 'ANA sou', queues: [] }).map((a) => a.nome),
     ['Ana Souza'],
@@ -46,7 +46,7 @@ test('a busca acha pelo nome e pelo e-mail, sem caixa', () => {
   );
 });
 
-test('o filtro de fila é OU: quem está em Suporte aparece mesmo estando também em Default', () => {
+test('the queue filter is OR: whoever is in Support shows up even if also in Default', () => {
   assert.deepEqual(
     filterAgents(LISTA, { search: '', queues: ['Suporte'] }).map((a) => a.nome),
     ['Ana Souza', 'Bruno Dias'],
@@ -57,7 +57,7 @@ test('o filtro de fila é OU: quem está em Suporte aparece mesmo estando també
   );
 });
 
-test('busca e filtro se somam, e nenhuma fila marcada quer dizer todas', () => {
+test('search and filter add up, and no queue checked means all of them', () => {
   assert.deepEqual(
     filterAgents(LISTA, { search: 'a', queues: ['Financeiro'] }).map((a) => a.nome),
     ['Carla Menezes'],
@@ -65,16 +65,16 @@ test('busca e filtro se somam, e nenhuma fila marcada quer dizer todas', () => {
   assert.equal(filterAgents(LISTA, { search: '   ', queues: [] }).length, 4);
 });
 
-test('o painel de filtro oferece as filas da própria lista, sem repetição e em ordem', () => {
+test('the filter panel offers the list\'s own queues, without repeats and in order', () => {
   assert.deepEqual(agentsQueues(LISTA), ['Default', 'Financeiro', 'Suporte']);
 });
 
-test('a coluna Filas do cartão é vírgula sem espaço, como na captura', () => {
+test('the card\'s Queues column is comma-separated without spaces, matching the capture', () => {
   assert.equal(queuesInCard(['Default', 'Suporte']), 'Default,Suporte');
   assert.equal(queuesInCard([]), '—');
 });
 
-test('a descrição da página de permissões tem as três variantes da origem', () => {
+test('the permissions page\'s description has the three variants from the source', () => {
   assert.equal(permissionsDescription(['Ana Souza']), 'Configure as permissões de Ana Souza');
   assert.equal(
     permissionsDescription(['Ana Souza', 'Bruno Dias']),
@@ -86,7 +86,7 @@ test('a descrição da página de permissões tem as três variantes da origem',
   );
 });
 
-test('o título da edição em lote concorda em número', () => {
+test('the bulk-edit title agrees in number', () => {
   assert.equal(editTitulo(1), 'Editar 1 atendente');
   assert.equal(editTitulo(3), 'Editar 3 atendentes');
 });

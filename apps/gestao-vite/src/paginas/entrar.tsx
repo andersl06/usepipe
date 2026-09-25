@@ -97,7 +97,7 @@ export function PageLogin() {
       return;
     }
     // Sem SSO, a pessoa fica na mesma tela com o motivo e o e-mail já digitado.
-    const volta = new URLSearchParams({ metodo: inbound.metodo, email: email.trim() });
+    const volta = new URLSearchParams({ method: inbound.metodo, email: email.trim() });
     if (destination !== '/portal') volta.set('destino', destination);
     setParametros(volta, { replace: true });
     setEnviando(false);

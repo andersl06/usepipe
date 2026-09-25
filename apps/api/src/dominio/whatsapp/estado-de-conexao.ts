@@ -59,7 +59,7 @@ export function checkState(
   if (!conteudo || conteudo.t !== tenantId || conteudo.u !== usuarioId || !(conteudo.e > agora)) {
     throw new PipeError(
       403,
-      'estado_invalido',
+      'state_invalid',
       'A conexão com a Meta não partiu desta sessão, ou demorou demais. Abra o cadastro de novo.',
     );
   }

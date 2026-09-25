@@ -33,20 +33,20 @@ function channel(extra: Partial<ChannelOfFlow> = {}): ChannelOfFlow {
   };
 }
 
-test('o cartão da lista leva à página do canal dentro do bot, no prefixo do próprio tipo', () => {
+test('the list card leads to the channel page inside the bot, under its own type prefix', () => {
   assert.equal(channelRota(`/roteador/${BOT}`, 'whatsapp_cloud'), `/roteador/${BOT}/canais/whatsapp`);
   assert.equal(channelRota(`/fluxo/${BOT}`, 'instagram'), `/fluxo/${BOT}/canais/instagram`);
   assert.equal(channelRota(`/fluxo/${BOT}`, 'messenger'), `/fluxo/${BOT}/canais/messenger`);
 });
 
-test('"Conectado" no cartão é o bot com canal ATIVO daquele tipo; desligado ou de outro tipo é "Conectar"', () => {
+test('"Connected" on the card is the bot with an ACTIVE channel of that type; disconnected or another type is "Connect"', () => {
   assert.equal(cardConnected({ channelTipo: 'whatsapp_cloud', channelActive: true }, 'whatsapp_cloud'), true);
   assert.equal(cardConnected({ channelTipo: 'whatsapp_cloud', channelActive: false }, 'whatsapp_cloud'), false);
   assert.equal(cardConnected({ channelTipo: 'instagram', channelActive: true }, 'whatsapp_cloud'), false);
   assert.equal(cardConnected({ channelTipo: null, channelActive: null }, 'whatsapp_cloud'), false);
 });
 
-test('a página do canal: conectado, não conectado, ou o bot já está com OUTRO canal (decisão Pipe)', () => {
+test('the channel page: connected, not connected, or the bot already has ANOTHER channel (Pipe\'s decision)', () => {
   assert.deepEqual(channelInBotState(null, 'whatsapp_cloud'), { estado: 'nao_conectado' });
 
   const wa = channel({ flowId: BOT });
@@ -58,7 +58,7 @@ test('a página do canal: conectado, não conectado, ou o bot já está com OUTR
   assert.deepEqual(channelInBotState(desligado, 'whatsapp_cloud'), { estado: 'nao_conectado' });
 });
 
-test('"Ativação do número": só os canais ativos do tipo; livres de um lado, em uso por outro bot do outro', () => {
+test('"Number activation": only active channels of that type; free on one side, in use by another bot on the other', () => {
   const livre = channel({ id: 'livre' });
   const meu = channel({ id: 'meu', flowId: BOT, flowName: 'Este bot' });
   const deOutro = channel({ id: 'de-outro', flowId: OUTRO_BOT, flowName: 'Vendas' });
@@ -72,7 +72,7 @@ test('"Ativação do número": só os canais ativos do tipo; livres de um lado, 
   assert.deepEqual(channelsForOferecer([instagram], 'instagram', BOT).livres.map((c) => c.id), ['ig']);
 });
 
-test('o rótulo do canal na lista é o número e o nome; sem número, só o nome', () => {
+test('the channel\'s label in the list is the number and the name; without a number, just the name', () => {
   assert.equal(channelRotulo({ nome: 'Suporte', numero: '+5511999990000' }), '+5511999990000 — Suporte');
   assert.equal(channelRotulo({ nome: 'Página da loja', numero: null }), 'Página da loja');
 });

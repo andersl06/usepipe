@@ -98,7 +98,7 @@ test('symbol/ts-local/ts-prop rows repeating the same old->new pair in one file 
   assert.ok(!errors.some((e) => e.message === 'duplicate target' && e.ids.includes('local-a') && e.ids.includes('local-b')));
   assert.ok(errors.some((e) => e.message === 'duplicate target' && e.ids.includes('local-c')));
 });
-test('scanner lexicon does not reject English use/get; untranslated useLeitura still errors', () => {
+test('Accept English `use` and `get` while flagging a mixed-language identifier', () => {
   const f = fixture(); mapRows(f.map, [row('hook', { old: 'useLeitura', new: 'useReading' }), row('getter', { old: 'getConversa', new: 'getConversation' })]);
   assert.equal(checkMap({ map: f.map }).errors.length, 0);
   mapRows(f.map, [row('hook', { old: 'useLeitura', new: 'useLeitura' })]);
@@ -127,7 +127,7 @@ test('requested glossary without an approved term table fails visibly', () => {
   mapRows(f.map, [row('a')]); assert.throws(() => checkMap({ map: f.map, glossary }), /approved glossary table not found/);
 });
 test('real package scope and multi-extension source paths satisfy casing', () => {
-  const f = fixture(); mapRows(f.map, [row('pkg', { kind: 'package', old: '@pipe/autenticacao', new: '@pipe/authentication' }), row('file', { kind: 'file', old: 'apps/api/src/fluxo.teste.ts', new: 'apps/api/src/flow.test.ts' })]);
+  const f = fixture(); mapRows(f.map, [row('pkg', { kind: 'package', old: '@pipe/authentication', new: '@pipe/authentication' }), row('file', { kind: 'file', old: 'apps/api/src/fluxo.teste.ts', new: 'apps/api/src/flow.test.ts' })]);
   assert.equal(checkMap({ map: f.map }).errors.length, 0);
 });
 test('symbol constants keep UPPER_SNAKE casing', () => {

@@ -35,7 +35,7 @@ export function ModalFinalizarMonitoring({
     setEnviando(true);
     setError(null);
     try {
-      await api.post(`/v1/gestao/monitoramento/conversas/${linha.id}/finalizar`, { etiqueta_ids: selecionadas });
+      await api.post(`/v1/management/monitoring/conversations/${linha.id}/finalize`, { etiqueta_ids: selecionadas });
       await consultas.invalidateQueries({ queryKey: ['api'] });
       avisarTicketFinalizado(linha.ticket);
       aoFechar();

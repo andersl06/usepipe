@@ -128,7 +128,7 @@ export function Block({
 export function SectionHeader({ titulo, children }: { titulo: string; children?: React.ReactNode }) {
   return (
     <div className="cfg-cabecalho">
-      <Link className="cfg-voltar" href="/configuracoes">
+      <Link className="cfg-voltar" href="/settings">
         <Icone nome="esquerda" tamanho={14} />
         Configurações
       </Link>

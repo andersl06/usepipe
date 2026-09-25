@@ -103,7 +103,7 @@ export async function flowPublishedOfChannel(
   if (router) {
     return serviceOfRouter(tx, { id: router.id, tenantId: router.tenant_id }, contatoId);
   }
-  const { rows } = await tx.execute<{ fluxo_id: string; versao_id: string }>(sql`
+  const { rows } = await tx.execute<{ flowId: string; versao_id: string }>(sql`
     select f.id as fluxo_id, v.id as versao_id
       from fluxo f
       join fluxo_versao v on v.fluxo_id = f.id
@@ -115,7 +115,7 @@ export async function flowPublishedOfChannel(
   return linha ? { flowId: linha.fluxo_id, versaoId: linha.versao_id } : null;
 }
 
-type LineBlock = { id: string; codigo: string; conteudo: Record<string, unknown> };
+type LineBlock = { id: string; code: string; content: Record<string, unknown> };
 type LineTransition = {
   ofBlockId: string;
   para_codigo: string | null;
@@ -184,7 +184,7 @@ export interface InboundInFlow {
     queueDefaultId: string | null;
   };
   contactId: string;
-  message: { id: string | null; idProvedor: string; tipo: string; conteudo: string | null };
+  message: { id: string | null; idProvedor: string; type: string; content: string | null };
 }
 
 export interface ResultOfFlow {
@@ -200,7 +200,7 @@ const NAO_TRATOU: ResultOfFlow = { tratou: false, respostas: 0 };
 type LineExecution = {
   id: string;
   flowVersionId: string;
-  fluxo_id: string;
+  flowId: string;
   context: Record<string, string>;
 };
 
@@ -376,9 +376,9 @@ export async function rodarFlowInInbound(
           ${cursor.estadoId ?? ''}, ${cursor.lista}, ${cursor.indice},
           ${JSON.stringify({
             id: e.message.id,
-            id_provedor: e.message.idProvedor,
-            tipo: e.message.tipo,
-            conteudo: e.message.conteudo,
+            idProvider: e.message.idProvedor,
+            type: e.message.tipo,
+            content: e.message.conteudo,
           })}::jsonb,
           ${JSON.stringify(variables)}::jsonb, ${JSON.stringify(pedido)}::jsonb, 'pendente'
         )
@@ -532,7 +532,7 @@ export async function rodarFlowInInbound(
 /** Executa o HTTP fora da transação e, numa segunda transação, retoma o cursor. */
 export async function executarProcessHttp(processoId: string): Promise<string[]> {
   type Linha = {
-    id: string; tenant_id: string; execucao_id: string; state: string;
+    id: string; tenant_id: string; executionId: string; state: string;
     pedido: PedidoDeHttp; inbound: Record<string, unknown>; blockCode: string;
     lista: CursorDeProcessHttp['lista']; indice: number;
   };
@@ -575,10 +575,10 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
   const novosProcessos: string[] = [];
   await noTenant(encontrado.tenant_id, async (tx) => {
     const { rows } = await tx.execute<{
-      execucao_id: string; bloco_codigo: string; lista: CursorDeProcessHttp['lista'];
+      executionId: string; bloco_codigo: string; lista: CursorDeProcessHttp['lista'];
       indice: number; entrada: Record<string, unknown>; contexto: Record<string, string>;
-      conversationId: string; contato_id: string; canal_id: string; fila_id: string | null;
-      atendente_id: string | null; fila_padrao_id: string | null;
+      conversationId: string; contactId: string; channelId: string; queueId: string | null;
+      agentId: string | null; queueDefaultId: string | null;
     }>(sql`
       select p.execucao_id, p.bloco_codigo, p.lista, p.indice, p.entrada, p.contexto,
              e.conversa_id, e.contato_id, f.canal_id, c.fila_id, c.atendente_id,
@@ -621,7 +621,7 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
     if (retomada.processHttpId) novosProcessos.push(retomada.processHttpId);
 
     const { rows: messagesPending } = await tx.execute<{
-      id: string; id_provedor: string; tipo: string; conteudo: string | null;
+      id: string; idProvider: string; type: string; content: string | null;
     }>(sql`
       select m.id, m.id_provedor, m.tipo, m.conteudo
         from mensagem m
@@ -920,8 +920,8 @@ async function loadContact(
   contactId: string,
 ): Promise<Record<string, unknown> | null> {
   const { rows } = await tx.execute<{
-    nome: string | null;
-    telefone_e164: string | null;
+    name: string | null;
+    phoneE164: string | null;
     email: string | null;
     atributos: Record<string, unknown> | null;
   }>(
@@ -976,9 +976,9 @@ function relogioCrescente(): () => Date {
 // --- importação ---
 
 export interface ImportOfFlow {
-  fluxoId: string;
+  flowId: string;
   versaoId: string;
-  versao: number;
+  version: number;
   publicado: boolean;
   report: ImportReport;
   /** O fluxo foi gravado, mas o motor recusaria rodar: por isso não publica. */
@@ -1016,7 +1016,7 @@ export async function importFlowOfBlip(
   tx: TransactionPipe,
   pedido: {
     tenantId: string;
-    nome: string;
+    name: string;
     channelId: string | null;
     json: unknown;
     publicar: boolean;
@@ -1046,7 +1046,7 @@ export async function importFlowOfBlip(
     throw new Error(`O fluxo não pode ser publicado: ${errorOfValidation}`);
   }
 
-  const { rows: numero } = await tx.execute<{ versao: number }>(
+  const { rows: numero } = await tx.execute<{ version: number }>(
     sql`select coalesce(max(versao), 0) + 1 as versao from fluxo_versao where fluxo_id = ${flowId}`,
   );
   const versao = Number(numero[0]?.versao ?? 1);

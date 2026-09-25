@@ -160,7 +160,7 @@ function LateralCrm({
         <b>Pipe CRM</b>
         <Link
           className="c-iconbtn"
-          href="/configuracoes"
+          href="/settings"
           title="Configurações"
           aria-label="Configurações"
         >

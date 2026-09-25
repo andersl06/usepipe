@@ -11,7 +11,7 @@ import type { Cenario } from './ajuda.js';
  * Tudo aqui roda com o papel `pipe_app`, que não é dono das tabelas e não tem
  * `bypassrls`. Rodar com o papel dono faria os três testes passarem sem provar nada.
  */
-describe('isolamento por tenant', () => {
+describe('Enforce tenant isolation through row-level security', () => {
   let cenario: Cenario;
 
   beforeAll(async () => {
@@ -49,7 +49,7 @@ describe('isolamento por tenant', () => {
     expect(espiada).toHaveLength(0);
   });
 
-  it('consulta sem pipe.tenant_id definido falha fechada', async () => {
+  it('Deny queries when `pipe.tenant_id` is unset', async () => {
     const fechou = await falhouFechada(() =>
       cenario.app.execute<{ id: string }>(sql`select id from fila`),
     );
@@ -70,7 +70,7 @@ describe('isolamento por tenant', () => {
     ).rejects.toThrow();
   });
 
-  it('o helper comTenant fixa a variável na transação e ela não vaza para a seguinte', async () => {
+  it('`withTenant` sets the tenant only for its transaction', async () => {
     const dentro = await comTenant(cenario.app, cenario.tenantA, async (tx) => tenantAtual(tx));
     expect(dentro).toBe(cenario.tenantA);
 
@@ -99,7 +99,7 @@ describe('isolamento por tenant', () => {
     ).rejects.toThrow();
   });
 
-  it('recusa tenant_id que não é uuid antes de tocar no banco', async () => {
+  it('Reject an invalid `tenant_id` before querying the database', async () => {
     await expect(
       comTenant(cenario.app, "' or true --", async (tx) => tenantAtual(tx)),
     ).rejects.toThrow(/tenant_id inválido/);
@@ -111,7 +111,7 @@ describe('isolamento por tenant', () => {
    * passariam sem provar nada.
    */
 
-  it('o papel da aplicação não é dono das tabelas e não tem bypassrls', async () => {
+  it('The application role owns no tables and cannot bypass row-level security', async () => {
     const { rows } = await cenario.dono.execute<{
       bypassrls: boolean;
       superusuario: boolean;
@@ -147,7 +147,7 @@ describe('isolamento por tenant', () => {
     expect(rows.map((r) => r.tabela)).toEqual([]);
   });
 
-  it('a partição criada agora nasce com a política, e não é porta dos fundos', async () => {
+  it('Apply row-level security to newly created partitions', async () => {
     const mes = new Date();
     mes.setMonth(mes.getMonth() + 2);
     const first = `${mes.getFullYear()}-${String(mes.getMonth() + 1).padStart(2, '0')}-01`;
@@ -165,7 +165,7 @@ describe('isolamento por tenant', () => {
     expect(politica[0]?.n).toBe('1');
   });
 
-  it('a política avalia current_setting uma vez, não por linha', async () => {
+  it('Evaluate `current_setting` once per query rather than once per row', async () => {
     // A forma com subconsulta escalar é o que o planejador promove a InitPlan.
     // Sem ela a política volta a rodar a função em cada linha examinada, e a
     // varredura de `mensagem` fica cara sem ninguém perceber.
@@ -180,7 +180,7 @@ describe('isolamento por tenant', () => {
     expect(rows.map((r) => r.tabela)).toEqual([]);
   });
 
-  it('o tenant de uma transação não sobrevive ao erro da anterior', async () => {
+  it('Clear the tenant setting after a failed transaction', async () => {
     // Conexão devolvida ao pool com variável suja seria vazamento silencioso:
     // a consulta seguinte enxergaria o tenant de quem falhou antes.
     await expect(

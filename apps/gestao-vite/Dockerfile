@@ -33,11 +33,11 @@ COPY packages/mcp/package.json packages/mcp/
 COPY packages/ui/package.json packages/ui/
 
 # --- build ------------------------------------------------------------------
-# `@pipe/gestao-vite...` = o aplicativo e as dependências dele no workspace. Os
+# `@pipe/management-vite...` = o aplicativo e as dependências dele no workspace. Os
 # outros front-ends, a API e o Next da Gestão nem chegam a ser baixados.
 FROM manifestos AS build
 RUN --mount=type=cache,id=pnpm-store,target=/pnpm/store \
-    pnpm install --frozen-lockfile --filter "@pipe/gestao-vite..."
+    pnpm install --frozen-lockfile --filter "@pipe/management-vite..."
 COPY tsconfig.base.json ./
 # `packages` inteiro em vez de listar contracts/core/ui: o grafo de dependência
 # muda e uma lista aqui envelheceria em silêncio. O peso de verdade — os
@@ -54,7 +54,7 @@ ARG VITE_PIPE_DESK_URL=http://localhost:3200
 ARG VITE_URL_API=http://localhost:3010
 ENV VITE_PIPE_DESK_URL=$VITE_PIPE_DESK_URL
 ENV VITE_URL_API=$VITE_URL_API
-RUN pnpm --filter "@pipe/gestao-vite..." build
+RUN pnpm --filter "@pipe/management-vite..." build
 
 # --- imagem final -----------------------------------------------------------
 # Só o `dist/`: o `vite build` já deixa em disco exatamente o que o navegador

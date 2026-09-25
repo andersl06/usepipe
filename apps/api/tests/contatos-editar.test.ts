@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -61,7 +61,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -72,7 +72,7 @@ function comCookie(token: string): Record<string, string> {
 
 async function newContact(
   cenario: Cenario,
-  extra: { nome?: string; email?: string; telefone?: string; atributos?: Record<string, unknown> } = {},
+  extra: { name?: string; email?: string; phone?: string; atributos?: Record<string, unknown> } = {},
 ): Promise<string> {
   const { rows } = await cenario.dono.execute<{ id: string }>(sql`
     insert into contato (tenant_id, nome, email, telefone_e164, atributos)
@@ -91,7 +91,7 @@ async function editar(
   id: string,
   corpo: Record<string, unknown>,
 ): Promise<{ status: number; corpo: Record<string, unknown> }> {
-  const resposta = await fetch(`${api.url}/v1/contatos/${id}`, {
+  const resposta = await fetch(`${api.url}/v1/contacts/${id}`, {
     method: 'PATCH',
     headers: comCookie(session),
     body: JSON.stringify(corpo),
@@ -101,9 +101,9 @@ async function editar(
 
 async function lineOfContact(id: string) {
   const { rows } = await a.dono.execute<{
-    nome: string | null;
+    name: string | null;
     email: string | null;
-    telefone_e164: string | null;
+    phoneE164: string | null;
     document: string | null;
     atributos: Record<string, unknown>;
   }>(sql`
@@ -141,7 +141,7 @@ afterAll(async () => {
   await b?.encerrar();
 });
 
-describe('PATCH /v1/contatos/:id', () => {
+describe('PATCH /v1/contacts/:id', () => {
   it('edita nome, e-mail e telefone, e registra só o que mudou', async () => {
     const id = await newContact(a, { nome: 'Ana', telefone: '+5511900000001' });
     const { status, corpo } = await editar(sessionEditor, id, {
@@ -177,14 +177,14 @@ describe('PATCH /v1/contatos/:id', () => {
     expect(corpo).toMatchObject({ erro: { codigo: 'contato_telefone_invalido' } });
   });
 
-  it('recusa e-mail sem formato de e-mail', async () => {
+  it('Reject malformed contact email addresses', async () => {
     const id = await newContact(a);
     const { status, corpo } = await editar(sessionEditor, id, { email: 'não é um email' });
     expect(status).toBe(400);
     expect(corpo).toMatchObject({ erro: { codigo: 'contato_email_invalido' } });
   });
 
-  it('telefone único no tenant: recusa repetir o de outro contato', async () => {
+  it('Reject a phone number already used by another contact in the tenant', async () => {
     await newContact(a, { telefone: '+5511900000002' });
     const id = await newContact(a, { telefone: '+5511900000003' });
     const { status, corpo } = await editar(sessionEditor, id, { telefone_e164: '+5511900000002' });
@@ -196,7 +196,7 @@ describe('PATCH /v1/contatos/:id', () => {
     expect(semMudanca.status).toBe(200);
   });
 
-  it('atributos é mescla: só as chaves enviadas mudam, as extras do contato continuam', async () => {
+  it('Merge supplied contact attributes while preserving unspecified attributes', async () => {
     const id = await newContact(a, { atributos: { city: 'Fortaleza', origem: 'importação' } });
     const { status } = await editar(sessionEditor, id, { atributos: { gender: 'female' } });
     expect(status).toBe(200);
@@ -205,7 +205,7 @@ describe('PATCH /v1/contatos/:id', () => {
     expect(linha?.atributos).toEqual({ city: 'Fortaleza', origem: 'importação', gender: 'female' });
   });
 
-  it('sem contato.editar é 403; contato de outro tenant e uuid malformado são 404', async () => {
+  it('Return 403 without `contato.editar` and 404 for cross-tenant or malformed IDs', async () => {
     const id = await newContact(a);
     const semPoder = await editar(sessionWithoutPoder, id, { nome: 'X' });
     expect(semPoder.status).toBe(403);
@@ -217,12 +217,12 @@ describe('PATCH /v1/contatos/:id', () => {
     expect(malformado.status).toBe(404);
   });
 
-  it('sem sessão é 401', async () => {
+  it('Return 401 for Desk actions without a session', async () => {
     const id = await newContact(a);
-    const resposta = await fetch(`${api.url}/v1/contatos/${id}`, {
+    const resposta = await fetch(`${api.url}/v1/contacts/${id}`, {
       method: 'PATCH',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ nome: 'X' }),
+      body: JSON.stringify({ name: 'X' }),
     });
     expect(resposta.status).toBe(401);
   });

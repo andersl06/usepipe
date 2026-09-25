@@ -71,23 +71,23 @@ export const DELETE_FLOW = 'automacao.fluxo.excluir';
 export const DESCRIPTION = { min: 2, max: DESCRIPTION_FLOW_MAX } as const;
 
 export interface RequestOfCreation {
-  nome: string;
-  tipo: 'fluxo' | 'roteador';
+  name: string;
+  type: 'fluxo' | 'roteador';
   /** `data:image/...;base64,...`, ou nada. */
   image?: string | null | undefined;
 }
 
 /** Só o que veio muda; `undefined` é "não mexa", `null` é "apague". */
 export interface RequestOfEdit {
-  nome?: string | undefined;
+  name?: string | undefined;
   description?: string | null | undefined;
   imagem?: string | null | undefined;
 }
 
 export interface FlowWritten {
   id: string;
-  nome: string;
-  descricao: string | null;
+  name: string;
+  description: string | null;
   imageUrl: string | null;
   shortName: string | null;
 }
@@ -105,13 +105,13 @@ function nomeConferido(bruto: string): string {
   const recusa = conferir(nome, { tamanho: 'tamanho', comecoInvalido: 'comeco' });
   if (recusa?.motivo === 'tamanho') {
     throw PipeError.request(
-      'nome_tamanho',
+      'name_size',
       `O nome do fluxo precisa ter entre ${TAMANHO.nomeMin} e ${TAMANHO.nomeMax} caracteres.`,
     );
   }
   if (recusa) {
     throw PipeError.request(
-      'nome_comeco',
+      'name_start',
       'O nome de seu fluxo não pode começar com números ou caracteres especiais.',
     );
   }
@@ -129,7 +129,7 @@ function descriptionChecked(bruta: string | null): string | null {
   if (description.length === 0) return null;
   if (description.length < DESCRIPTION.min || description.length > DESCRIPTION.max) {
     throw PipeError.request(
-      'descricao_tamanho',
+      'description_size',
       `A descrição precisa ter entre ${DESCRIPTION.min} e ${DESCRIPTION.max} caracteres.`,
     );
   }
@@ -177,7 +177,7 @@ async function nomeEmUso(
 function conflitoDeNome(): PipeError {
   /* "Experimente usar outro nome" é o `errorMsg.1` da origem, literal. */
   return PipeError.conflito(
-    'nome_em_uso',
+    'name_in_use',
     'Já existe um fluxo com este nome. Experimente usar outro nome.',
   );
 }
@@ -272,7 +272,7 @@ export async function editarFlow(
         const tipos = IMAGE.aceitos.join(', ');
         const teto = Math.round(IMAGE.maxBytes / 1024);
         throw PipeError.request(
-          'imagem_invalida',
+          'image_invalid',
           `A imagem precisa ser ${tipos} e ter até ${teto} KB.`,
         );
       }

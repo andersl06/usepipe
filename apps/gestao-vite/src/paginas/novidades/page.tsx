@@ -137,7 +137,7 @@ function Card({ update, grande }: { update: Update; grande?: boolean }) {
             o tema já filtrado, que é o mais perto de útil sem inventar rota. */}
         <Link
           className="nv-ler"
-          href={`/novidades?categoria=${encodeURIComponent(update.categoria)}`}
+          href={`/updates?categoria=${encodeURIComponent(update.categoria)}`}
         >
           Ler mais <span aria-hidden="true">→</span>
         </Link>

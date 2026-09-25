@@ -22,7 +22,7 @@ export function PageData() {
   const { contact } = useContact();
   const base = attendanceBase(contact.tipo, contact.id);
   const read = useRead<{ etiquetas: EtiquetaConfigurada[]; channels: ChannelConfigured[] }>(
-    '/v1/gestao/configuracoes/dados',
+    '/v1/management/settings/data',
   );
   if (!read.data) return null;
   const { etiquetas, channels } = read.data;

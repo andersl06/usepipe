@@ -52,35 +52,35 @@ function scopeValid(bruto: string): bruto is ScopePriority {
 
 export interface RulePriorityWritten {
   id: string;
-  nome: string;
-  nivel: string;
-  escopoTipo: string;
-  escopoId: string | null;
-  condicao: Record<string, unknown>;
+  name: string;
+  level: string;
+  scopeType: string;
+  scopeId: string | null;
+  condition: Record<string, unknown>;
   ativa: boolean;
 }
 
 export interface RequestOfRulePriority {
-  nome: string;
-  nivel: string;
-  escopoTipo?: string;
-  escopoId?: string | null;
-  condicao?: Record<string, unknown>;
+  name: string;
+  level: string;
+  scopeType?: string;
+  scopeId?: string | null;
+  condition?: Record<string, unknown>;
   ativa?: boolean;
 }
 
 export interface RequestOfEditOfRulePriority {
-  nome?: string;
-  nivel?: string;
-  escopoTipo?: string;
-  escopoId?: string | null;
-  condicao?: Record<string, unknown>;
+  name?: string;
+  level?: string;
+  scopeType?: string;
+  scopeId?: string | null;
+  condition?: Record<string, unknown>;
   ativa?: boolean;
 }
 
 function nomeConferido(bruto: unknown): string {
   const nome = String(bruto ?? '').trim();
-  if (!nome) throw PipeError.request('nome_obrigatorio', 'Informe o nome da regra.');
+  if (!nome) throw PipeError.request('name_required', 'Informe o nome da regra.');
   return nome;
 }
 
@@ -88,7 +88,7 @@ function nivelConferido(bruto: unknown): string {
   const nivel = String(bruto ?? '');
   if (!(NIVEIS_ATRIBUIVEIS as readonly string[]).includes(nivel)) {
     throw PipeError.request(
-      'nivel_invalido',
+      'level_invalid',
       `"${nivel}" não é um nível atribuível. Use um de: ${NIVEIS_ATRIBUIVEIS.join(', ')}.`,
     );
   }
@@ -99,7 +99,7 @@ function nivelConferido(bruto: unknown): string {
 function conditionChecked(bruto: unknown): Record<string, unknown> {
   if (bruto === undefined) return {};
   if (bruto === null || typeof bruto !== 'object' || Array.isArray(bruto)) {
-    throw PipeError.request('condicao_invalida', 'A condição é um objeto (chave/valor), não lista nem texto solto.');
+    throw PipeError.request('condition_invalid', 'A condição é um objeto (chave/valor), não lista nem texto solto.');
   }
   return bruto as Record<string, unknown>;
 }
@@ -111,14 +111,14 @@ async function scopeChecked(
   scopeId: unknown,
 ): Promise<{ scopeType: ScopePriority; scopeId: string | null }> {
   if (!scopeValid(scopeType)) {
-    throw PipeError.request('escopo_invalido', `Escopo "${scopeType}" não é suportado hoje. Use "tenant" ou "fila".`);
+    throw PipeError.request('scope_invalid', `Escopo "${scopeType}" não é suportado hoje. Use "tenant" ou "fila".`);
   }
   if (scopeType === 'tenant') return { scopeType, scopeId: null };
 
   const id = String(scopeId ?? '').trim();
-  if (!id) throw PipeError.request('escopo_id_obrigatorio', 'Escolha a fila deste escopo.');
+  if (!id) throw PipeError.request('scope_id_required', 'Escolha a fila deste escopo.');
   const [alvo] = await tx.select({ id: queue.id }).from(queue).where(and(eq(queue.tenantId, tid), eq(queue.id, id))).limit(1);
-  if (!alvo) throw PipeError.request('fila_nao_encontrada', 'Fila não encontrada.');
+  if (!alvo) throw PipeError.request('queue_not_found', 'Fila não encontrada.');
   return { scopeType, scopeId: id };
 }
 
@@ -139,10 +139,10 @@ async function nomeEmUso(tx: TransactionPipe, tid: string, nome: string, excetoI
 
 function linha(r: {
   id: string;
-  nome: string;
-  nivel: string;
-  escopoTipo: string;
-  escopoId: string | null;
+  name: string;
+  level: string;
+  scopeType: string;
+  scopeId: string | null;
   condition: unknown;
   active: boolean;
 }): RulePriorityWritten {
@@ -197,13 +197,13 @@ export async function createRulePriority(
   const { scopeType, scopeId } = await scopeChecked(tx, tid, pedido.escopoTipo ?? 'tenant', pedido.escopoId);
   const active = pedido.ativa ?? true;
 
-  if (await nomeEmUso(tx, tid, nome)) throw PipeError.conflito('nome_em_uso', `Já existe uma regra chamada "${nome}".`);
+  if (await nomeEmUso(tx, tid, nome)) throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${nome}".`);
 
   const [criada] = await tx
     .insert(rulePriority)
     .values({ tenantId: tid, nome, nivel, escopoTipo, escopoId, condition, active })
     .returning({ id: rulePriority.id });
-  if (!criada) throw PipeError.request('regra_nao_criada', 'Não consegui gravar a regra de prioridade.');
+  if (!criada) throw PipeError.request('rule_not_created', 'Não consegui gravar a regra de prioridade.');
 
   await registrarAuditoria(tx, tid, {
     ator: { tipo: 'usuario', id: userId },
@@ -244,7 +244,7 @@ export async function editarRulePriority(
   }
 
   if (depois.nome !== antes.nome && (await nomeEmUso(tx, tid, depois.nome, id))) {
-    throw PipeError.conflito('nome_em_uso', `Já existe uma regra chamada "${depois.nome}".`);
+    throw PipeError.conflito('name_in_use', `Já existe uma regra chamada "${depois.nome}".`);
   }
 
   const mudanca = diferenca(antes, depois);

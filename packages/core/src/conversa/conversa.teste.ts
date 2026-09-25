@@ -38,7 +38,7 @@ function ehPermitida(de: StateConversation, para: StateConversation): boolean {
   return PERMITIDAS.some(([d, p]) => d === de && p === para);
 }
 
-describe('tabela de transições da conversa', () => {
+describe('conversation transition table', () => {
   for (const de of STATES_CONVERSATION) {
     for (const para of STATES_CONVERSATION) {
       const esperado = ehPermitida(de, para);
@@ -48,13 +48,13 @@ describe('tabela de transições da conversa', () => {
     }
   }
 
-  it('nenhum estado transita para si mesmo', () => {
+  it('no state transitions to itself', () => {
     for (const state of STATES_CONVERSATION) {
       expect(transitionAllowed(state, state)).toBe(false);
     }
   });
 
-  it('transferência não é aresta: sai por encerrada e abre conversa nova', () => {
+  it('transfer is not an edge: it exits through closed and opens a new conversation', () => {
     expect(transitionAllowed('atribuida', 'na_fila')).toBe(false);
     expect(transitionAllowed('em_atendimento', 'na_fila')).toBe(false);
     expect(transitionAllowed('atribuida', 'encerrada')).toBe(true);
@@ -62,11 +62,11 @@ describe('tabela de transições da conversa', () => {
 });
 
 describe('transitar', () => {
-  it('devolve o estado novo quando a transição existe', () => {
+  it('returns the new state when the transition exists', () => {
     expect(transitar('na_fila', 'atribuida')).toBe('atribuida');
   });
 
-  it('lança erro tipado quando não existe', () => {
+  it('throws a typed error when it does not exist', () => {
     expect(() => transitar('encerrada', 'em_atendimento')).toThrow(TransitionInvalidError);
     try {
       transitar('encerrada', 'em_atendimento');
@@ -74,14 +74,14 @@ describe('transitar', () => {
     } catch (error) {
       expect(error).toBeInstanceOf(TransitionInvalidError);
       const tipado = error as TransitionInvalidError;
-      expect(tipado.codigo).toBe('transicao_invalida');
+      expect(tipado.codigo).toBe('transition_invalid');
       expect(tipado.de).toBe('encerrada');
       expect(tipado.para).toBe('em_atendimento');
       expect(tipado.message).toContain('encerrada');
     }
   });
 
-  it('versão sem exceção devolve o erro no resultado', () => {
+  it('the no-exception version returns the error in the result', () => {
     expect(tentarTransitar('na_fila', 'atribuida')).toEqual({ ok: true, estado: 'atribuida' });
     const recusa = tentarTransitar('na_fila', 'em_espera');
     expect(recusa.ok).toBe(false);
@@ -89,7 +89,7 @@ describe('transitar', () => {
   });
 });
 
-describe('estado alvo de cada evento', () => {
+describe('target state of each event', () => {
   const casos: [TipoEvento, StateConversation | null][] = [
     ['criada', 'na_fila'],
     ['enfileirada', 'na_fila'],
@@ -133,14 +133,14 @@ describe('aplicar evento', () => {
     });
   }
 
-  it('evento que não mapeia estado nunca muda estado', () => {
+  it('an event that maps to no state never changes state', () => {
     for (const state of STATES_CONVERSATION) {
       expect(aplicarEvento(state, { tipo: 'mensagem_entrada' })).toEqual({ state, mudou: false });
       expect(aplicarEvento(state, { tipo: 'sla_alertado' })).toEqual({ state, mudou: false });
     }
   });
 
-  it('reentrega de webhook é idempotente, não vira exceção', () => {
+  it('webhook redelivery is idempotent, it does not turn into an exception', () => {
     expect(aplicarEvento('encerrada', { tipo: 'encerrada' })).toEqual({
       estado: 'encerrada',
       mudou: false,
@@ -151,7 +151,7 @@ describe('aplicar evento', () => {
     });
   });
 
-  describe('evento do cliente não leva a conversa a estado inválido', () => {
+  describe('a customer event never takes the conversation to an invalid state', () => {
     const recusas: { nome: string; de: StateConversation; tipo: TipoEvento }[] = [
       { nome: 'fluxo tenta pôr em espera uma conversa já encerrada', de: 'encerrada', tipo: 'espera_iniciada' },
       { nome: 'resposta em conversa que ainda está na fila', de: 'na_fila', tipo: 'primeira_resposta' },
@@ -174,7 +174,7 @@ describe('aplicar evento', () => {
     }
   });
 
-  it('reproduz um ciclo de vida inteiro', () => {
+  it('reproduces an entire lifecycle', () => {
     const ciclo: TipoEvento[] = [
       'criada',
       'mensagem_entrada',
@@ -190,25 +190,25 @@ describe('aplicar evento', () => {
     expect(reproduzirEventos(ciclo.map((tipo) => ({ tipo })))).toBe('encerrada');
   });
 
-  it('reaberta volta para a fila e o ciclo recomeça', () => {
+  it('reopened goes back to the queue and the cycle restarts', () => {
     const ciclo: TipoEvento[] = ['criada', 'atribuida', 'encerrada', 'reaberta', 'atribuida'];
     expect(reproduzirEventos(ciclo.map((tipo) => ({ tipo })))).toBe('atribuida');
   });
 });
 
-describe('máquina da mensagem de saída', () => {
+describe('outbound message state machine', () => {
   const permitidas: [StateDelivery, StateDelivery][] = [
-    ['pendente', 'enviando'],
+    ['pending', 'enviando'],
     ['enviando', 'enviada'],
     ['enviando', 'falhou'],
     ['enviada', 'entregue'],
     ['enviada', 'lida'],
     ['enviada', 'falhou'],
     ['entregue', 'lida'],
-    ['falhou', 'pendente'],
+    ['falhou', 'pending'],
   ];
 
-  const todos: StateDelivery[] = ['pendente', 'enviando', 'enviada', 'entregue', 'lida', 'falhou'];
+  const todos: StateDelivery[] = ['pending', 'enviando', 'enviada', 'entregue', 'lida', 'falhou'];
 
   for (const de of todos) {
     for (const para of todos) {
@@ -219,8 +219,8 @@ describe('máquina da mensagem de saída', () => {
     }
   }
 
-  it('reenviar tira do falhou e devolve à fila de saída', () => {
-    expect(transitarDelivery('falhou', 'pendente')).toBe('pendente');
+  it('resending takes it out of failed and returns it to the outbound queue', () => {
+    expect(transitarDelivery('falhou', 'pending')).toBe('pendente');
   });
 
   it('lida é terminal', () => {

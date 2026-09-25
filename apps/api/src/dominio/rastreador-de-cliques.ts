@@ -26,27 +26,27 @@ import { confirmarUrlSegura } from './gestao/integracoes.js';
 export interface LinkRastreado {
   id: string;
   flowId: string;
-  nome: string;
+  name: string;
   destinationUrl: string;
-  codigo: string;
+  code: string;
   urlCurta: string;
   cliques: number;
   criadoEm: string;
 }
 
 export interface PedidoDeLink {
-  nome: string;
+  name: string;
   destination: string;
 }
 
 export interface PeriodOfCount {
-  desde: Date | null;
+  since: Date | null;
   ate: Date | null;
 }
 
 export interface ContextOfClique {
   agenteUser: string | null;
-  origem: string | null;
+  origin: string | null;
   /** Chave do limitador de taxa — o IP visto pelo servidor. */
   ip: string;
 }
@@ -83,7 +83,7 @@ export async function createLinkTracked(
   pedido: PedidoDeLink,
 ): Promise<LinkRastreado> {
   const nome = pedido.nome.trim();
-  if (!nome) throw PipeError.request('nome_obrigatorio', 'Dê um nome para o link.');
+  if (!nome) throw PipeError.request('name_required', 'Dê um nome para o link.');
   confirmarUrlSegura(pedido.destination);
   await flowExists(tx, tenantId, fluxoId);
 
@@ -92,7 +92,7 @@ export async function createLinkTracked(
   for (let tentativa = 0; tentativa < 5; tentativa++) {
     const codigo = randomBytes(6).toString('base64url');
     try {
-      const { rows } = await tx.execute<{ id: string; criado_em: string }>(sql`
+      const { rows } = await tx.execute<{ id: string; createdAt: string }>(sql`
         insert into link_rastreado (tenant_id, fluxo_id, nome, destino_url, codigo)
         values (${tenantId}, ${fluxoId}::uuid, ${nome}, ${pedido.destination}, ${codigo})
         returning id, criado_em
@@ -130,10 +130,10 @@ export async function listarLinksRastreados(
 
   const { rows } = await tx.execute<{
     id: string;
-    nome: string;
-    destino_url: string;
-    codigo: string;
-    criado_em: string;
+    name: string;
+    destinationUrl: string;
+    code: string;
+    createdAt: string;
     cliques: string;
   }>(sql`
     select l.id, l.nome, l.destino_url, l.codigo, l.criado_em,
@@ -158,7 +158,7 @@ export async function listarLinksRastreados(
 
 const WINDOW_OF_RATE_MS = 60_000;
 const LIMIT_BY_WINDOW = 30;
-const countByKey = new Map<string, { inicio: number; n: number }>();
+const countByKey = new Map<string, { start: number; n: number }>();
 
 /**
  * Limitador de taxa simples: N cliques por IP por minuto na rota pública.
@@ -190,13 +190,13 @@ export async function redirecionarClique(
   context: ContextOfClique,
 ): Promise<string | null> {
   if (!respeitaLimiteDeTaxa(context.ip)) {
-    throw new PipeError(429, 'limite_de_taxa', 'Muitos cliques em pouco tempo. Tente de novo em instantes.');
+    throw new PipeError(429, 'limit_of_rate', 'Muitos cliques em pouco tempo. Tente de novo em instantes.');
   }
 
   const { rows } = await databaseOwner().execute<{
     id: string;
     tenant_id: string;
-    destino_url: string;
+    destinationUrl: string;
   }>(sql`select id, tenant_id, destino_url from link_rastreado where codigo = ${codigo} limit 1`);
   const link = rows[0];
   if (!link) return null;

@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -78,7 +78,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -95,7 +95,7 @@ async function pedir(
   caminho: string,
   sessao: string,
   corpo?: Record<string, unknown>,
-): Promise<{ status: number; corpo: Corpo }> {
+): Promise<{ status: number; body: Corpo }> {
   const resposta = await fetch(`${api.url}${caminho}`, {
     method: metodo,
     headers: comCookie(sessao),
@@ -152,15 +152,15 @@ async function auditoriaDe(objetoTipo: string, id: string) {
  * ========================================================================= */
 
 async function createQueue(sessao: string, corpo: Record<string, unknown>) {
-  return pedir('POST', '/v1/gestao/atendentes/filas', sessao, {
+  return pedir('POST', '/v1/management/agents/queues', sessao, {
     nome: `Fila ${randomUUID().slice(0, 8)}`,
     capacidadePadrao: 5,
     ...corpo,
   });
 }
 
-describe('POST /v1/gestao/atendentes/filas', () => {
-  it('cria a fila e registra no log de auditoria', async () => {
+describe('POST /v1/management/agents/queues', () => {
+  it('Create a queue and record it in the audit log', async () => {
     const nome = `Cobrança ${randomUUID().slice(0, 6)}`;
     const { status, corpo } = await createQueue(sessionManager, { nome, capacidadePadrao: 8, ordem: 2 });
     expect(status).toBe(201);
@@ -171,53 +171,53 @@ describe('POST /v1/gestao/atendentes/filas', () => {
     expect(log[0]).toMatchObject({ acao: 'criou', depois: { nome, capacidadePadrao: 8 } });
   });
 
-  it('recusa nome vazio (400), capacidade fora da faixa (400) e nome repetido (409)', async () => {
+  it('Reject empty queue names, out-of-range capacity, and duplicate names', async () => {
     const semNome = await createQueue(sessionManager, { nome: '  ' });
     expect(semNome.status).toBe(400);
-    expect(semNome.corpo.erro.codigo).toBe('nome_obrigatorio');
+    expect(semNome.corpo.erro.code).toBe('name_required');
 
     const capInvalida = await createQueue(sessionManager, { capacidadePadrao: 0 });
     expect(capInvalida.status).toBe(400);
-    expect(capInvalida.corpo.erro.codigo).toBe('capacidade_invalida');
+    expect(capInvalida.corpo.erro.code).toBe('capacity_invalid');
 
     const nome = `Repetida ${randomUUID().slice(0, 6)}`;
     expect((await createQueue(sessionManager, { nome })).status).toBe(201);
     const repetida = await createQueue(sessionManager, { nome });
     expect(repetida.status).toBe(409);
-    expect(repetida.corpo.erro.codigo).toBe('nome_em_uso');
+    expect(repetida.corpo.erro.code).toBe('name_in_use');
   });
 
   it('horário inexistente é 400; cor fora da paleta é 400', async () => {
     const semHorario = await createQueue(sessionManager, { horarioId: randomUUID() });
     expect(semHorario.status).toBe(400);
-    expect(semHorario.corpo.erro.codigo).toBe('horario_nao_encontrado');
+    expect(semHorario.corpo.erro.code).toBe('schedule_not_found');
 
     const corInvalida = await createQueue(sessionManager, { cor: 'vermelho-sangue' });
     expect(corInvalida.status).toBe(400);
-    expect(corInvalida.corpo.erro.codigo).toBe('cor_invalida');
+    expect(corInvalida.corpo.erro.code).toBe('color_invalid');
   });
 
-  it('sem fila.gerenciar é 403; sem sessão é 401', async () => {
+  it('Return 403 without `fila.gerenciar` and 401 without a session', async () => {
     const semPoder = await createQueue(sessionWithoutPoder, {});
     expect(semPoder.status).toBe(403);
-    expect(semPoder.corpo.erro.codigo).toBe('sem_permissao');
+    expect(semPoder.corpo.erro.code).toBe('without_permission');
     expect(semPoder.corpo.erro.detalhe.permissao).toBe('fila.gerenciar');
 
-    const withoutSession = await fetch(`${api.url}/v1/gestao/atendentes/filas`, {
+    const withoutSession = await fetch(`${api.url}/v1/management/agents/queues`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ nome: 'Qualquer', capacidadePadrao: 5 }),
+      body: JSON.stringify({ name: 'Qualquer', capacidadePadrao: 5 }),
     });
     expect(withoutSession.status).toBe(401);
   });
 });
 
-describe('PATCH /v1/gestao/atendentes/filas/:id — renomear e ativar/desativar', () => {
-  it('renomeia, muda capacidade/ordem/cor e registra só o que mudou', async () => {
+describe('PATCH /v1/management/agents/queues/:id — renomear e ativar/desativar', () => {
+  it('Update a queue\'s name, capacity, order, and color and audit only changes', async () => {
     const { corpo: criada } = await createQueue(sessionManager, { nome: `Antes ${randomUUID().slice(0, 6)}` });
     const novoNome = `Depois ${randomUUID().slice(0, 6)}`;
 
-    const { status, corpo } = await pedir('PATCH', `/v1/gestao/atendentes/filas/${criada.id}`, sessionManager, {
+    const { status, corpo } = await pedir('PATCH', `/v1/management/agents/queues/${criada.id}`, sessionManager, {
       nome: novoNome,
       capacidadePadrao: 12,
     });
@@ -230,9 +230,9 @@ describe('PATCH /v1/gestao/atendentes/filas/:id — renomear e ativar/desativar'
     expect(log.at(-1)?.depois).not.toHaveProperty('ordem');
   });
 
-  it('ativar/desativar é o mesmo PATCH, com `ativa`', async () => {
+  it('Toggle a queue with PATCH using `ativa`', async () => {
     const { corpo: criada } = await createQueue(sessionManager, {});
-    const desativada = await pedir('PATCH', `/v1/gestao/atendentes/filas/${criada.id}`, sessionManager, {
+    const desativada = await pedir('PATCH', `/v1/management/agents/queues/${criada.id}`, sessionManager, {
       ativa: false,
     });
     expect(desativada.status).toBe(200);
@@ -242,38 +242,38 @@ describe('PATCH /v1/gestao/atendentes/filas/:id — renomear e ativar/desativar'
   it('nada mudado não grava nem registra', async () => {
     const { corpo: criada } = await createQueue(sessionManager, {});
     const antes = await auditoriaDe('fila', criada.id);
-    const empty = await pedir('PATCH', `/v1/gestao/atendentes/filas/${criada.id}`, sessionManager, {});
+    const empty = await pedir('PATCH', `/v1/management/agents/queues/${criada.id}`, sessionManager, {});
     expect(empty.status).toBe(200);
     expect(await auditoriaDe('fila', criada.id)).toHaveLength(antes.length);
   });
 
-  it('sem fila.gerenciar é 403; de outro tenant é 404; id malformado é 404', async () => {
+  it('Return 403 without `fila.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
     const { corpo: criada } = await createQueue(sessionManager, {});
 
-    const semPoder = await pedir('PATCH', `/v1/gestao/atendentes/filas/${criada.id}`, sessionWithoutPoder, {
+    const semPoder = await pedir('PATCH', `/v1/management/agents/queues/${criada.id}`, sessionWithoutPoder, {
       nome: 'Invasor',
     });
     expect(semPoder.status).toBe(403);
 
     const outroTenant = await pedir(
       'PATCH',
-      `/v1/gestao/atendentes/filas/${criada.id}`,
+      `/v1/management/agents/queues/${criada.id}`,
       sessionOfOtherTenant,
       { nome: 'Vizinho' },
     );
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await pedir('PATCH', '/v1/gestao/atendentes/filas/nao-e-uuid', sessionManager, {
+    const malformado = await pedir('PATCH', '/v1/management/agents/queues/nao-e-uuid', sessionManager, {
       nome: 'Tanto faz',
     });
     expect(malformado.status).toBe(404);
   });
 });
 
-describe('DELETE /v1/gestao/atendentes/filas/:id', () => {
-  it('exclui de verdade (204) e registra no log', async () => {
+describe('DELETE /v1/management/agents/queues/:id', () => {
+  it('Delete a queue with 204 and record the action in the audit log', async () => {
     const { corpo: criada } = await createQueue(sessionManager, {});
-    const resposta = await fetch(`${api.url}/v1/gestao/atendentes/filas/${criada.id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
@@ -288,7 +288,7 @@ describe('DELETE /v1/gestao/atendentes/filas/:id', () => {
     expect(log.at(-1)).toMatchObject({ acao: 'excluiu' });
   });
 
-  it('recusa (409) fila com conversa em aberto', async () => {
+  it('Return 409 when deleting a queue with an open conversation', async () => {
     const { corpo: criada } = await createQueue(sessionManager, {});
     const { rows: contacts } = await a.dono.execute<{ id: string }>(
       sql`insert into contato (tenant_id, nome) values (${a.tenantId}, 'Cliente teste') returning id`,
@@ -298,53 +298,53 @@ describe('DELETE /v1/gestao/atendentes/filas/:id', () => {
       values (${a.tenantId}, ${a.inboxId}::uuid, ${contacts[0]!.id}::uuid, ${criada.id}::uuid)
     `);
 
-    const resposta = await fetch(`${api.url}/v1/gestao/atendentes/filas/${criada.id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
     expect(resposta.status).toBe(409);
-    const corpo = (await resposta.json()) as { error: { codigo: string } };
-    expect(corpo.error.codigo).toBe('fila_com_conversa_aberta');
+    const corpo = (await resposta.json()) as { error: { code: string } };
+    expect(corpo.error.codigo).toBe('queue_with_conversation_open');
   });
 
-  it('recusa (409) fila padrão de caixa de entrada — mensagem clara', async () => {
+  it('Return 409 when deleting the inbox default queue', async () => {
     // `a.filaId` é a fila padrão de `a.inboxId` (montada em `montarCenario`).
-    const resposta = await fetch(`${api.url}/v1/gestao/atendentes/filas/${a.queueId}`, {
+    const resposta = await fetch(`${api.url}/v1/management/agents/queues/${a.queueId}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
     expect(resposta.status).toBe(409);
-    const corpo = (await resposta.json()) as { erro: { codigo: string; message: string } };
-    expect(corpo.erro.codigo).toBe('fila_padrao_de_inbox');
+    const corpo = (await resposta.json()) as { error: { code: string; message: string } };
+    expect(corpo.erro.codigo).toBe('queue_default_of_inbox');
     expect(corpo.erro.message).toContain('caixa de entrada');
   });
 
-  it('recusa (409) fila usada como destino de regra de entrada', async () => {
+  it('Return 409 when deleting a queue used by an inbound routing rule', async () => {
     const { corpo: criada } = await createQueue(sessionManager, {});
     await a.dono.execute(sql`
       insert into regra_fila (tenant_id, nome, fila_destino_id, ordem)
       values (${a.tenantId}, ${`Regra ${randomUUID().slice(0, 6)}`}, ${criada.id}::uuid, 0)
     `);
 
-    const resposta = await fetch(`${api.url}/v1/gestao/atendentes/filas/${criada.id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
     expect(resposta.status).toBe(409);
-    const corpo = (await resposta.json()) as { erro: { codigo: string } };
-    expect(corpo.erro.codigo).toBe('fila_usada_em_regra');
+    const corpo = (await resposta.json()) as { error: { code: string } };
+    expect(corpo.erro.codigo).toBe('queue_used_in_rule');
   });
 
-  it('sem fila.gerenciar é 403; de outro tenant é 404', async () => {
+  it('Return 403 without `fila.gerenciar` and 404 for another tenant\'s queue', async () => {
     const { corpo: criada } = await createQueue(sessionManager, {});
 
-    const semPoder = await fetch(`${api.url}/v1/gestao/atendentes/filas/${criada.id}`, {
+    const semPoder = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionWithoutPoder),
     });
     expect(semPoder.status).toBe(403);
 
-    const outroTenant = await fetch(`${api.url}/v1/gestao/atendentes/filas/${criada.id}`, {
+    const outroTenant = await fetch(`${api.url}/v1/management/agents/queues/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionOfOtherTenant),
     });
@@ -352,12 +352,12 @@ describe('DELETE /v1/gestao/atendentes/filas/:id', () => {
   });
 });
 
-describe('atendentes na fila (vincular/desvincular)', () => {
-  it('vincula um atendente novo, e o override troca ao vincular de novo', async () => {
+describe('Assign and unassign agents from a queue', () => {
+  it('Assign an agent to a queue and update the override on reassignment', async () => {
     const { corpo: criada } = await createQueue(sessionManager, {});
     const vinculo = await pedir(
       'POST',
-      `/v1/gestao/atendentes/filas/${criada.id}/atendentes`,
+      `/v1/management/agents/queues/${criada.id}/agents`,
       sessionManager,
       { usuarioId: a.agentId, capacidadeOverride: 3 },
     );
@@ -371,7 +371,7 @@ describe('atendentes na fila (vincular/desvincular)', () => {
 
     const de_novo = await pedir(
       'POST',
-      `/v1/gestao/atendentes/filas/${criada.id}/atendentes`,
+      `/v1/management/agents/queues/${criada.id}/agents`,
       sessionManager,
       { usuarioId: a.agentId, capacidadeOverride: 9 },
     );
@@ -383,11 +383,11 @@ describe('atendentes na fila (vincular/desvincular)', () => {
     expect(depois[0]?.capacidade_override).toBe(9);
   });
 
-  it('atendente inexistente é 404; fila inexistente é 404', async () => {
+  it('Return 404 for a missing agent or queue', async () => {
     const { corpo: criada } = await createQueue(sessionManager, {});
     const withoutAgent = await pedir(
       'POST',
-      `/v1/gestao/atendentes/filas/${criada.id}/atendentes`,
+      `/v1/management/agents/queues/${criada.id}/agents`,
       sessionManager,
       { usuarioId: randomUUID() },
     );
@@ -395,7 +395,7 @@ describe('atendentes na fila (vincular/desvincular)', () => {
 
     const withoutQueue = await pedir(
       'POST',
-      `/v1/gestao/atendentes/filas/${randomUUID()}/atendentes`,
+      `/v1/management/agents/queues/${randomUUID()}/agents`,
       sessionManager,
       { usuarioId: a.agentId },
     );
@@ -405,13 +405,13 @@ describe('atendentes na fila (vincular/desvincular)', () => {
   it('desvincula, e desvincular de novo é 404', async () => {
     // `a.atendenteId` já está em `a.filaId` (montado em `montarCenario`).
     const resposta = await fetch(
-      `${api.url}/v1/gestao/atendentes/filas/${a.queueId}/atendentes/${a.agentId}`,
+      `${api.url}/v1/management/agents/queues/${a.queueId}/agents/${a.agentId}`,
       { method: 'DELETE', headers: comCookie(sessionManager) },
     );
     expect(resposta.status).toBe(204);
 
     const de_novo = await fetch(
-      `${api.url}/v1/gestao/atendentes/filas/${a.queueId}/atendentes/${a.agentId}`,
+      `${api.url}/v1/management/agents/queues/${a.queueId}/agents/${a.agentId}`,
       { method: 'DELETE', headers: comCookie(sessionManager) },
     );
     expect(de_novo.status).toBe(404);
@@ -429,7 +429,7 @@ describe('atendentes na fila (vincular/desvincular)', () => {
  * ========================================================================= */
 
 async function createResponse(sessao: string, corpo: Record<string, unknown> = {}) {
-  return pedir('POST', '/v1/gestao/comunicacao/respostas-prontas', sessao, {
+  return pedir('POST', '/v1/management/communication/responses-ready', sessao, {
     atalho: `atalho-${randomUUID().slice(0, 8)}`,
     titulo: 'Saudação',
     corpo: 'Olá, tudo bem?',
@@ -437,7 +437,7 @@ async function createResponse(sessao: string, corpo: Record<string, unknown> = {
   });
 }
 
-describe('POST /v1/gestao/comunicacao/respostas-prontas', () => {
+describe('POST /v1/management/communication/responses-ready', () => {
   it('cria e registra no log', async () => {
     const { status, corpo } = await createResponse(sessionManager);
     expect(status).toBe(201);
@@ -446,35 +446,35 @@ describe('POST /v1/gestao/comunicacao/respostas-prontas', () => {
     expect(log[0]?.acao).toBe('criou');
   });
 
-  it('recusa atalho com espaço, atalho repetido, e campo obrigatório vazio', async () => {
+  it('Reject shortcuts with spaces, duplicate shortcuts, and empty required fields', async () => {
     const comEspaco = await createResponse(sessionManager, { atalho: 'com espaco' });
     expect(comEspaco.status).toBe(400);
-    expect(comEspaco.corpo.erro.codigo).toBe('atalho_com_espaco');
+    expect(comEspaco.corpo.erro.code).toBe('shortcut_with_space');
 
     const semTitulo = await createResponse(sessionManager, { titulo: '' });
     expect(semTitulo.status).toBe(400);
-    expect(semTitulo.corpo.erro.codigo).toBe('titulo_obrigatorio');
+    expect(semTitulo.corpo.erro.code).toBe('title_required');
 
     const atalho = `unico-${randomUUID().slice(0, 6)}`;
     expect((await createResponse(sessionManager, { atalho })).status).toBe(201);
     const repetido = await createResponse(sessionManager, { atalho: `#${atalho}` });
     expect(repetido.status).toBe(409);
-    expect(repetido.corpo.erro.codigo).toBe('atalho_em_uso');
+    expect(repetido.corpo.erro.code).toBe('shortcut_in_use');
   });
 
-  it('sem resposta_pronta.gerenciar é 403 — ter só fila.gerenciar não basta', async () => {
+  it('Return 403 without `resposta_pronta.gerenciar` even with `fila.gerenciar`', async () => {
     const resposta = await createResponse(sessionOnlyQueues);
     expect(resposta.status).toBe(403);
     expect(resposta.corpo.erro.detalhe.permissao).toBe('resposta_pronta.gerenciar');
   });
 });
 
-describe('PATCH e DELETE /v1/gestao/comunicacao/respostas-prontas/:id', () => {
-  it('edita o corpo e a categoria, e alterna ativa/desativada', async () => {
+describe('PATCH e DELETE /v1/management/communication/responses-ready/:id', () => {
+  it('Edit a saved response\'s body and category and toggle its active state', async () => {
     const { corpo: criada } = await createResponse(sessionManager);
     const editada = await pedir(
       'PATCH',
-      `/v1/gestao/comunicacao/respostas-prontas/${criada.id}`,
+      `/v1/management/communication/responses-ready/${criada.id}`,
       sessionManager,
       { corpo: 'Novo corpo', categoria: 'Suporte', ativa: false },
     );
@@ -486,18 +486,18 @@ describe('PATCH e DELETE /v1/gestao/comunicacao/respostas-prontas/:id', () => {
     const { corpo: criada } = await createResponse(sessionManager);
 
     const outroTenant = await fetch(
-      `${api.url}/v1/gestao/comunicacao/respostas-prontas/${criada.id}`,
+      `${api.url}/v1/management/communication/responses-ready/${criada.id}`,
       { method: 'DELETE', headers: comCookie(sessionOfOtherTenant) },
     );
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await fetch(`${api.url}/v1/gestao/comunicacao/respostas-prontas/nao-e-uuid`, {
+    const malformado = await fetch(`${api.url}/v1/management/communication/responses-ready/nao-e-uuid`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
     expect(malformado.status).toBe(404);
 
-    const excluida = await fetch(`${api.url}/v1/gestao/comunicacao/respostas-prontas/${criada.id}`, {
+    const excluida = await fetch(`${api.url}/v1/management/communication/responses-ready/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
@@ -515,13 +515,13 @@ describe('PATCH e DELETE /v1/gestao/comunicacao/respostas-prontas/:id', () => {
  * ========================================================================= */
 
 async function createPause(sessao: string, corpo: Record<string, unknown> = {}) {
-  return pedir('POST', '/v1/gestao/atendentes/pausas', sessao, {
+  return pedir('POST', '/v1/management/agents/pauses', sessao, {
     nome: `Pausa ${randomUUID().slice(0, 6)}`,
     ...corpo,
   });
 }
 
-describe('POST /v1/gestao/atendentes/pausas', () => {
+describe('POST /v1/management/agents/pauses', () => {
   it('cria e registra no log', async () => {
     const { status, corpo } = await createPause(sessionManager, { duracaoSugeridaMin: 15 });
     expect(status).toBe(201);
@@ -529,14 +529,14 @@ describe('POST /v1/gestao/atendentes/pausas', () => {
     expect(log[0]).toMatchObject({ acao: 'criou', depois: { duracaoSugeridaMin: 15 } });
   });
 
-  it('recusa nome maior que 30 caracteres, duração fora de 1–480, e nome repetido', async () => {
+  it('Reject pause names over 30 characters, durations outside 1?480 minutes, and duplicate names', async () => {
     const nomeLongo = await createPause(sessionManager, { nome: 'x'.repeat(31) });
     expect(nomeLongo.status).toBe(400);
-    expect(nomeLongo.corpo.erro.codigo).toBe('nome_tamanho');
+    expect(nomeLongo.corpo.erro.code).toBe('name_size');
 
     const durationInvalid = await createPause(sessionManager, { duracaoSugeridaMin: 481 });
     expect(durationInvalid.status).toBe(400);
-    expect(durationInvalid.corpo.erro.codigo).toBe('duracao_invalida');
+    expect(durationInvalid.corpo.erro.code).toBe('duration_invalid');
 
     const nome = `Repetida ${randomUUID().slice(0, 6)}`;
     expect((await createPause(sessionManager, { nome })).status).toBe(201);
@@ -544,17 +544,17 @@ describe('POST /v1/gestao/atendentes/pausas', () => {
     expect(repetida.status).toBe(409);
   });
 
-  it('sem pausa.gerenciar é 403', async () => {
+  it('Return 403 without `pausa.gerenciar`', async () => {
     const resposta = await createPause(sessionOnlyQueues);
     expect(resposta.status).toBe(403);
     expect(resposta.corpo.erro.detalhe.permissao).toBe('pausa.gerenciar');
   });
 });
 
-describe('PATCH e DELETE /v1/gestao/atendentes/pausas/:id', () => {
-  it('ativa/desativa e edita "conta como produtivo"', async () => {
+describe('PATCH e DELETE /v1/management/agents/pauses/:id', () => {
+  it('Toggle a pause reason and edit whether it counts as productive time', async () => {
     const { corpo: criada } = await createPause(sessionManager);
-    const editada = await pedir('PATCH', `/v1/gestao/atendentes/pausas/${criada.id}`, sessionManager, {
+    const editada = await pedir('PATCH', `/v1/management/agents/pauses/${criada.id}`, sessionManager, {
       ativo: false,
       contaComoProdutivo: true,
     });
@@ -562,15 +562,15 @@ describe('PATCH e DELETE /v1/gestao/atendentes/pausas/:id', () => {
     expect(editada.corpo).toMatchObject({ ativo: false, contaComoProdutivo: true });
   });
 
-  it('exclui de verdade (204); pausas antigas não são afetadas por FK', async () => {
+  it('Delete a pause reason without affecting historical pauses', async () => {
     const { corpo: criada } = await createPause(sessionManager);
-    const resposta = await fetch(`${api.url}/v1/gestao/atendentes/pausas/${criada.id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/agents/pauses/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
     expect(resposta.status).toBe(204);
 
-    const outraVez = await fetch(`${api.url}/v1/gestao/atendentes/pausas/${criada.id}`, {
+    const outraVez = await fetch(`${api.url}/v1/management/agents/pauses/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
@@ -597,13 +597,13 @@ async function createRuleQueueSql(queueDestinationId: string, order = 0, nome?: 
   return { id, nome: nomeRegra };
 }
 
-describe('PATCH /v1/gestao/regras/atendimento/:id', () => {
-  it('renomeia, muda ordem/combinador e registra só o que mudou — REORDENAR é este mesmo PATCH', async () => {
+describe('PATCH /v1/management/rules/attendance/:id', () => {
+  it('Rename and reorder a queue routing rule through PATCH, change its combiner, and audit only changed fields', async () => {
     const { id } = await createRuleQueueSql(a.queueId, 0);
     const novoNome = `Depois ${randomUUID().slice(0, 6)}`;
     const { status, corpo } = await pedir(
       'PATCH',
-      `/v1/gestao/regras/atendimento/${id}`,
+      `/v1/management/rules/attendance/${id}`,
       sessionManager,
       { nome: novoNome, ordem: 5 },
     );
@@ -615,11 +615,11 @@ describe('PATCH /v1/gestao/regras/atendimento/:id', () => {
     expect(log.at(-1)?.depois).not.toHaveProperty('combinador');
   });
 
-  it('substitui todas as condições quando `condicoes` vem no pedido', async () => {
+  it('Replace all rule condicoes when `conditions` is supplied', async () => {
     const { id } = await createRuleQueueSql(a.queueId);
     const { status, corpo } = await pedir(
       'PATCH',
-      `/v1/gestao/regras/atendimento/${id}`,
+      `/v1/management/rules/attendance/${id}`,
       sessionManager,
       { condicoes: [{ campo: 'contato.nome', operador: 'igual', valor: 'Ana' }] },
     );
@@ -627,42 +627,42 @@ describe('PATCH /v1/gestao/regras/atendimento/:id', () => {
     expect(corpo.condicoes).toEqual([{ campo: 'contato.nome', operador: 'igual', valor: 'Ana' }]);
   });
 
-  it('recusa condições vazias (400), campo inválido (400) e fila de destino inexistente (400)', async () => {
+  it('Reject empty conditions, invalid fields, and missing destination queues', async () => {
     const { id } = await createRuleQueueSql(a.queueId);
 
-    const withoutCondition = await pedir('PATCH', `/v1/gestao/regras/atendimento/${id}`, sessionManager, {
+    const withoutCondition = await pedir('PATCH', `/v1/management/rules/attendance/${id}`, sessionManager, {
       condicoes: [],
     });
     expect(withoutCondition.status).toBe(400);
-    expect(withoutCondition.corpo.erro.codigo).toBe('sem_condicao');
+    expect(withoutCondition.corpo.erro.code).toBe('without_condition');
 
-    const campoInvalido = await pedir('PATCH', `/v1/gestao/regras/atendimento/${id}`, sessionManager, {
+    const campoInvalido = await pedir('PATCH', `/v1/management/rules/attendance/${id}`, sessionManager, {
       condicoes: [{ campo: 'nao-existe', operador: 'igual', valor: 'x' }],
     });
     expect(campoInvalido.status).toBe(400);
-    expect(campoInvalido.corpo.erro.codigo).toBe('campo_invalido');
+    expect(campoInvalido.corpo.erro.code).toBe('field_invalid');
 
-    const semFila = await pedir('PATCH', `/v1/gestao/regras/atendimento/${id}`, sessionManager, {
+    const semFila = await pedir('PATCH', `/v1/management/rules/attendance/${id}`, sessionManager, {
       filaDestinoId: randomUUID(),
     });
     expect(semFila.status).toBe(400);
-    expect(semFila.corpo.erro.codigo).toBe('fila_nao_encontrada');
+    expect(semFila.corpo.erro.code).toBe('queue_not_found');
   });
 
   it('nome repetido é 409', async () => {
     const { nome: nomeExistente } = await createRuleQueueSql(a.queueId);
     const { id: outraId } = await createRuleQueueSql(a.queueId);
-    const repetido = await pedir('PATCH', `/v1/gestao/regras/atendimento/${outraId}`, sessionManager, {
+    const repetido = await pedir('PATCH', `/v1/management/rules/attendance/${outraId}`, sessionManager, {
       nome: nomeExistente,
     });
     expect(repetido.status).toBe(409);
-    expect(repetido.corpo.erro.codigo).toBe('nome_em_uso');
+    expect(repetido.corpo.erro.code).toBe('name_in_use');
   });
 
-  it('sem regra.gerenciar é 403 (ter só fila.gerenciar não basta); de outro tenant é 404; id malformado é 404', async () => {
+  it('Return 403 without `regra.gerenciar` even with `fila.gerenciar`, and 404 for cross-tenant or malformed IDs', async () => {
     const { id } = await createRuleQueueSql(a.queueId);
 
-    const semPoder = await pedir('PATCH', `/v1/gestao/regras/atendimento/${id}`, sessionOnlyQueues, {
+    const semPoder = await pedir('PATCH', `/v1/management/rules/attendance/${id}`, sessionOnlyQueues, {
       nome: 'Invasor',
     });
     expect(semPoder.status).toBe(403);
@@ -670,23 +670,23 @@ describe('PATCH /v1/gestao/regras/atendimento/:id', () => {
 
     const outroTenant = await pedir(
       'PATCH',
-      `/v1/gestao/regras/atendimento/${id}`,
+      `/v1/management/rules/attendance/${id}`,
       sessionOfOtherTenant,
       { nome: 'Vizinho' },
     );
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await pedir('PATCH', '/v1/gestao/regras/atendimento/nao-e-uuid', sessionManager, {
+    const malformado = await pedir('PATCH', '/v1/management/rules/attendance/nao-e-uuid', sessionManager, {
       nome: 'Tanto faz',
     });
     expect(malformado.status).toBe(404);
   });
 });
 
-describe('DELETE /v1/gestao/regras/atendimento/:id', () => {
-  it('exclui de verdade (204) e registra no log', async () => {
+describe('DELETE /v1/management/rules/attendance/:id', () => {
+  it('Delete a queue with 204 and record the action in the audit log', async () => {
     const { id } = await createRuleQueueSql(a.queueId);
-    const resposta = await fetch(`${api.url}/v1/gestao/regras/atendimento/${id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/rules/attendance/${id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
@@ -701,16 +701,16 @@ describe('DELETE /v1/gestao/regras/atendimento/:id', () => {
     expect(log.at(-1)).toMatchObject({ acao: 'excluiu' });
   });
 
-  it('sem regra.gerenciar é 403; de outro tenant é 404', async () => {
+  it('Return 403 without `regra.gerenciar` and 404 for another tenant\'s queue routing rule', async () => {
     const { id } = await createRuleQueueSql(a.queueId);
 
-    const semPoder = await fetch(`${api.url}/v1/gestao/regras/atendimento/${id}`, {
+    const semPoder = await fetch(`${api.url}/v1/management/rules/attendance/${id}`, {
       method: 'DELETE',
       headers: comCookie(sessionOnlyQueues),
     });
     expect(semPoder.status).toBe(403);
 
-    const outroTenant = await fetch(`${api.url}/v1/gestao/regras/atendimento/${id}`, {
+    const outroTenant = await fetch(`${api.url}/v1/management/rules/attendance/${id}`, {
       method: 'DELETE',
       headers: comCookie(sessionOfOtherTenant),
     });
@@ -723,7 +723,7 @@ describe('DELETE /v1/gestao/regras/atendimento/:id', () => {
  * ========================================================================= */
 
 async function createRuleSla(sessao: string, corpo: Record<string, unknown> = {}) {
-  return pedir('POST', '/v1/gestao/configuracoes/regras', sessao, {
+  return pedir('POST', '/v1/management/settings/rules', sessao, {
     nome: `SLA ${randomUUID().slice(0, 8)}`,
     alvo: 'primeira_resposta',
     prazoSeg: 600,
@@ -731,7 +731,7 @@ async function createRuleSla(sessao: string, corpo: Record<string, unknown> = {}
   });
 }
 
-describe('POST /v1/gestao/configuracoes/regras', () => {
+describe('POST /v1/management/settings/rules', () => {
   it('cria e registra no log de auditoria', async () => {
     const { status, corpo } = await createRuleSla(sessionManager, { alertaSeg: 300 });
     expect(status).toBe(201);
@@ -743,53 +743,53 @@ describe('POST /v1/gestao/configuracoes/regras', () => {
   it('recusa alvo inválido (400), prazo inválido (400), alerta ≥ prazo (400) e nome repetido (409)', async () => {
     const alvoInvalido = await createRuleSla(sessionManager, { alvo: 'chute' });
     expect(alvoInvalido.status).toBe(400);
-    expect(alvoInvalido.corpo.erro.codigo).toBe('alvo_invalido');
+    expect(alvoInvalido.corpo.erro.code).toBe('target_invalid');
 
     const prazoInvalido = await createRuleSla(sessionManager, { prazoSeg: 0 });
     expect(prazoInvalido.status).toBe(400);
-    expect(prazoInvalido.corpo.erro.codigo).toBe('prazo_invalido');
+    expect(prazoInvalido.corpo.erro.code).toBe('deadline_invalid');
 
     const alertaInvalido = await createRuleSla(sessionManager, { prazoSeg: 100, alertaSeg: 200 });
     expect(alertaInvalido.status).toBe(400);
-    expect(alertaInvalido.corpo.erro.codigo).toBe('alerta_invalido');
+    expect(alertaInvalido.corpo.erro.code).toBe('alert_invalid');
 
     const nome = `Única ${randomUUID().slice(0, 6)}`;
     expect((await createRuleSla(sessionManager, { nome })).status).toBe(201);
     const repetida = await createRuleSla(sessionManager, { nome });
     expect(repetida.status).toBe(409);
-    expect(repetida.corpo.erro.codigo).toBe('nome_em_uso');
+    expect(repetida.corpo.erro.code).toBe('name_in_use');
   });
 
-  it('escopo "fila" exige escopoId existente; escopo fora do suportado é 400', async () => {
+  it('Require an existing scope ID for queue-scoped SLA rules and reject unsupported scopes (`fila`)', async () => {
     const withoutScopeId = await createRuleSla(sessionManager, { escopoTipo: 'fila' });
     expect(withoutScopeId.status).toBe(400);
-    expect(withoutScopeId.corpo.erro.codigo).toBe('escopo_id_obrigatorio');
+    expect(withoutScopeId.corpo.erro.code).toBe('scope_id_required');
 
     const queueWrong = await createRuleSla(sessionManager, { escopoTipo: 'fila', escopoId: randomUUID() });
     expect(queueWrong.status).toBe(400);
-    expect(queueWrong.corpo.erro.codigo).toBe('fila_nao_encontrada');
+    expect(queueWrong.corpo.erro.code).toBe('queue_not_found');
 
     const scopeOutside = await createRuleSla(sessionManager, { escopoTipo: 'inbox', escopoId: a.inboxId });
     expect(scopeOutside.status).toBe(400);
-    expect(scopeOutside.corpo.erro.codigo).toBe('escopo_invalido');
+    expect(scopeOutside.corpo.erro.code).toBe('scope_invalid');
 
     const withQueue = await createRuleSla(sessionManager, { escopoTipo: 'fila', escopoId: a.queueId });
     expect(withQueue.status).toBe(201);
   });
 
-  it('sem regra.gerenciar é 403', async () => {
+  it('Return 403 when creating an SLA rule without `regra.gerenciar` permission', async () => {
     const resposta = await createRuleSla(sessionOnlyQueues);
     expect(resposta.status).toBe(403);
     expect(resposta.corpo.erro.detalhe.permissao).toBe('regra.gerenciar');
   });
 });
 
-describe('PATCH e DELETE /v1/gestao/configuracoes/regras/:id', () => {
+describe('PATCH e DELETE /v1/management/settings/rules/:id', () => {
   it('edita prazo e alerta juntos, e registra só o que mudou', async () => {
     const { corpo: criada } = await createRuleSla(sessionManager, { prazoSeg: 600, alertaSeg: 300 });
     const editada = await pedir(
       'PATCH',
-      `/v1/gestao/configuracoes/regras/${criada.id}`,
+      `/v1/management/settings/rules/${criada.id}`,
       sessionManager,
       { prazoSeg: 1200, alertaSeg: 900 },
     );
@@ -801,20 +801,20 @@ describe('PATCH e DELETE /v1/gestao/configuracoes/regras/:id', () => {
     const { corpo: criada } = await createRuleSla(sessionManager, { prazoSeg: 600, alertaSeg: 500 });
     const resposta = await pedir(
       'PATCH',
-      `/v1/gestao/configuracoes/regras/${criada.id}`,
+      `/v1/management/settings/rules/${criada.id}`,
       sessionManager,
       { prazoSeg: 400 },
     );
     expect(resposta.status).toBe(400);
-    expect(resposta.corpo.erro.codigo).toBe('alerta_invalido');
+    expect(resposta.corpo.erro.code).toBe('alert_invalid');
   });
 
-  it('sem regra.gerenciar é 403; de outro tenant é 404; id malformado é 404', async () => {
+  it('Return 403 without `regra.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
     const { corpo: criada } = await createRuleSla(sessionManager);
 
     const semPoder = await pedir(
       'PATCH',
-      `/v1/gestao/configuracoes/regras/${criada.id}`,
+      `/v1/management/settings/rules/${criada.id}`,
       sessionOnlyQueues,
       { nome: 'Invasor' },
     );
@@ -822,34 +822,34 @@ describe('PATCH e DELETE /v1/gestao/configuracoes/regras/:id', () => {
 
     const outroTenant = await pedir(
       'PATCH',
-      `/v1/gestao/configuracoes/regras/${criada.id}`,
+      `/v1/management/settings/rules/${criada.id}`,
       sessionOfOtherTenant,
       { nome: 'Vizinho' },
     );
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await pedir('PATCH', '/v1/gestao/configuracoes/regras/nao-e-uuid', sessionManager, {
+    const malformado = await pedir('PATCH', '/v1/management/settings/rules/nao-e-uuid', sessionManager, {
       nome: 'Tanto faz',
     });
     expect(malformado.status).toBe(404);
   });
 
-  it('exclui de verdade (204); de outro tenant é 404; id malformado é 404', async () => {
+  it('Delete an SLA rule with 204 and return 404 for cross-tenant or malformed IDs', async () => {
     const { corpo: criada } = await createRuleSla(sessionManager);
 
-    const outroTenant = await fetch(`${api.url}/v1/gestao/configuracoes/regras/${criada.id}`, {
+    const outroTenant = await fetch(`${api.url}/v1/management/settings/rules/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionOfOtherTenant),
     });
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await fetch(`${api.url}/v1/gestao/configuracoes/regras/nao-e-uuid`, {
+    const malformado = await fetch(`${api.url}/v1/management/settings/rules/nao-e-uuid`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
     expect(malformado.status).toBe(404);
 
-    const excluida = await fetch(`${api.url}/v1/gestao/configuracoes/regras/${criada.id}`, {
+    const excluida = await fetch(`${api.url}/v1/management/settings/rules/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
@@ -861,7 +861,7 @@ describe('PATCH e DELETE /v1/gestao/configuracoes/regras/:id', () => {
     expect(rows[0]?.n).toBe('0');
   });
 
-  it('recusa (409) excluir regra com SLA correndo em conversa aberta', async () => {
+  it('Return 409 when deleting an SLA rule active on an open conversation', async () => {
     const { corpo: criada } = await createRuleSla(sessionManager);
     const { rows: contatos } = await a.dono.execute<{ id: string }>(
       sql`insert into contato (tenant_id, nome) values (${a.tenantId}, 'Cliente SLA') returning id`,
@@ -876,13 +876,13 @@ describe('PATCH e DELETE /v1/gestao/configuracoes/regras/:id', () => {
       values (${a.tenantId}, ${conversations[0]!.id}::uuid, ${criada.id}::uuid, now() + interval '10 minutes', 'correndo')
     `);
 
-    const resposta = await fetch(`${api.url}/v1/gestao/configuracoes/regras/${criada.id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/settings/rules/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
     expect(resposta.status).toBe(409);
-    const corpo = (await resposta.json()) as { erro: { codigo: string } };
-    expect(corpo.erro.codigo).toBe('regra_com_sla_correndo');
+    const corpo = (await resposta.json()) as { error: { code: string } };
+    expect(corpo.erro.codigo).toBe('rule_with_sla_running');
   });
 });
 
@@ -928,13 +928,13 @@ async function createExceptionSql(
   return rows[0]!.id;
 }
 
-describe('PATCH e DELETE /v1/gestao/regras/horarios/faixas/:id', () => {
+describe('PATCH e DELETE /v1/management/rules/schedules/ranges/:id', () => {
   it('edita início/fim e registra só o que mudou', async () => {
     const horarioId = await createScheduleSql();
     const id = await createRangeSql(horarioId, 1, '09:00', '18:00');
     const { status, corpo } = await pedir(
       'PATCH',
-      `/v1/gestao/regras/horarios/faixas/${id}`,
+      `/v1/management/rules/schedules/ranges/${id}`,
       sessionManager,
       { inicio: '08:00' },
     );
@@ -948,29 +948,29 @@ describe('PATCH e DELETE /v1/gestao/regras/horarios/faixas/:id', () => {
   it('recusa (409) fim antes ou igual ao início', async () => {
     const horarioId = await createScheduleSql();
     const id = await createRangeSql(horarioId);
-    const resposta = await pedir('PATCH', `/v1/gestao/regras/horarios/faixas/${id}`, sessionManager, {
+    const resposta = await pedir('PATCH', `/v1/management/rules/schedules/ranges/${id}`, sessionManager, {
       fim: '09:00',
     });
     expect(resposta.status).toBe(409);
-    expect(resposta.corpo.erro.codigo).toBe('fim_antes_do_inicio');
+    expect(resposta.corpo.erro.code).toBe('end_before_of_start');
   });
 
-  it('recusa (409) sobreposição com outra faixa do mesmo dia', async () => {
+  it('Return 409 for overlapping schedule ranges on the same day', async () => {
     const horarioId = await createScheduleSql();
     await createRangeSql(horarioId, 2, '09:00', '12:00');
     const id = await createRangeSql(horarioId, 2, '14:00', '18:00');
-    const resposta = await pedir('PATCH', `/v1/gestao/regras/horarios/faixas/${id}`, sessionManager, {
+    const resposta = await pedir('PATCH', `/v1/management/rules/schedules/ranges/${id}`, sessionManager, {
       inicio: '10:00',
     });
     expect(resposta.status).toBe(409);
-    expect(resposta.corpo.erro.codigo).toBe('faixa_sobreposta');
+    expect(resposta.corpo.erro.code).toBe('range_overlapping');
   });
 
-  it('sem horario.gerenciar é 403; de outro tenant é 404; id malformado é 404', async () => {
+  it('Return 403 without `horario.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
     const horarioId = await createScheduleSql();
     const id = await createRangeSql(horarioId);
 
-    const semPoder = await pedir('PATCH', `/v1/gestao/regras/horarios/faixas/${id}`, sessionOnlyQueues, {
+    const semPoder = await pedir('PATCH', `/v1/management/rules/schedules/ranges/${id}`, sessionOnlyQueues, {
       inicio: '08:00',
     });
     expect(semPoder.status).toBe(403);
@@ -978,22 +978,22 @@ describe('PATCH e DELETE /v1/gestao/regras/horarios/faixas/:id', () => {
 
     const outroTenant = await pedir(
       'PATCH',
-      `/v1/gestao/regras/horarios/faixas/${id}`,
+      `/v1/management/rules/schedules/ranges/${id}`,
       sessionOfOtherTenant,
       { inicio: '08:00' },
     );
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await pedir('PATCH', '/v1/gestao/regras/horarios/faixas/nao-e-uuid', sessionManager, {
+    const malformado = await pedir('PATCH', '/v1/management/rules/schedules/ranges/nao-e-uuid', sessionManager, {
       inicio: '08:00',
     });
     expect(malformado.status).toBe(404);
   });
 
-  it('exclui de verdade (204)', async () => {
+  it('Delete a schedule exception with 204', async () => {
     const horarioId = await createScheduleSql();
     const id = await createRangeSql(horarioId);
-    const resposta = await fetch(`${api.url}/v1/gestao/regras/horarios/faixas/${id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/rules/schedules/ranges/${id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
@@ -1006,13 +1006,13 @@ describe('PATCH e DELETE /v1/gestao/regras/horarios/faixas/:id', () => {
   });
 });
 
-describe('PATCH e DELETE /v1/gestao/regras/horarios/excecoes/:id', () => {
+describe('PATCH e DELETE /v1/management/rules/schedules/exceptions/:id', () => {
   it('edita motivo e data', async () => {
     const horarioId = await createScheduleSql();
     const id = await createExceptionSql(horarioId, '2026-12-25', true);
     const { status, corpo } = await pedir(
       'PATCH',
-      `/v1/gestao/regras/horarios/excecoes/${id}`,
+      `/v1/management/rules/schedules/exceptions/${id}`,
       sessionManager,
       { motivo: 'Natal' },
     );
@@ -1026,50 +1026,50 @@ describe('PATCH e DELETE /v1/gestao/regras/horarios/excecoes/:id', () => {
     const fechada = await createExceptionSql(horarioId, '2026-12-24', true);
     const abrirSemHorario = await pedir(
       'PATCH',
-      `/v1/gestao/regras/horarios/excecoes/${fechada}`,
+      `/v1/management/rules/schedules/exceptions/${fechada}`,
       sessionManager,
       { fechado: false },
     );
     expect(abrirSemHorario.status).toBe(400);
-    expect(abrirSemHorario.corpo.erro.codigo).toBe('excecao_sem_horario');
+    expect(abrirSemHorario.corpo.erro.code).toBe('exception_without_schedule');
 
     const aberta = await createExceptionSql(horarioId, '2026-11-01', false, '08:00', '12:00');
     const fecharComHorario = await pedir(
       'PATCH',
-      `/v1/gestao/regras/horarios/excecoes/${aberta}`,
+      `/v1/management/rules/schedules/exceptions/${aberta}`,
       sessionManager,
       { fechado: true },
     );
     expect(fecharComHorario.status).toBe(400);
-    expect(fecharComHorario.corpo.erro.codigo).toBe('excecao_fechada_com_horario');
+    expect(fecharComHorario.corpo.erro.code).toBe('exception_closed_with_schedule');
   });
 
-  it('recusa (409) data que colide com outra exceção do mesmo horário', async () => {
+  it('Return 409 when a schedule exception date overlaps another exception', async () => {
     const horarioId = await createScheduleSql();
     await createExceptionSql(horarioId, '2026-01-01', true);
     const id = await createExceptionSql(horarioId, '2026-01-02', true);
     const resposta = await pedir(
       'PATCH',
-      `/v1/gestao/regras/horarios/excecoes/${id}`,
+      `/v1/management/rules/schedules/exceptions/${id}`,
       sessionManager,
       { data: '2026-01-01' },
     );
     expect(resposta.status).toBe(409);
-    expect(resposta.corpo.erro.codigo).toBe('data_em_uso');
+    expect(resposta.corpo.erro.code).toBe('data_in_use');
   });
 
-  it('sem horario.gerenciar é 403; de outro tenant é 404; id malformado é 404', async () => {
+  it('Return 403 without `horario.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
     const horarioId = await createScheduleSql();
     const id = await createExceptionSql(horarioId, '2026-03-01', true);
 
-    const semPoder = await pedir('PATCH', `/v1/gestao/regras/horarios/excecoes/${id}`, sessionOnlyQueues, {
+    const semPoder = await pedir('PATCH', `/v1/management/rules/schedules/exceptions/${id}`, sessionOnlyQueues, {
       motivo: 'x',
     });
     expect(semPoder.status).toBe(403);
 
     const outroTenant = await pedir(
       'PATCH',
-      `/v1/gestao/regras/horarios/excecoes/${id}`,
+      `/v1/management/rules/schedules/exceptions/${id}`,
       sessionOfOtherTenant,
       { motivo: 'x' },
     );
@@ -1077,17 +1077,17 @@ describe('PATCH e DELETE /v1/gestao/regras/horarios/excecoes/:id', () => {
 
     const malformado = await pedir(
       'PATCH',
-      '/v1/gestao/regras/horarios/excecoes/nao-e-uuid',
+      '/v1/management/rules/schedules/exceptions/nao-e-uuid',
       sessionManager,
       { motivo: 'x' },
     );
     expect(malformado.status).toBe(404);
   });
 
-  it('exclui de verdade (204)', async () => {
+  it('Delete a schedule exception with 204', async () => {
     const horarioId = await createScheduleSql();
     const id = await createExceptionSql(horarioId, '2026-04-01', true);
-    const resposta = await fetch(`${api.url}/v1/gestao/regras/horarios/excecoes/${id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/rules/schedules/exceptions/${id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });
@@ -1105,55 +1105,55 @@ describe('PATCH e DELETE /v1/gestao/regras/horarios/excecoes/:id', () => {
  * ========================================================================= */
 
 async function createRulePriority(session: string, corpo: Record<string, unknown> = {}) {
-  return pedir('POST', '/v1/gestao/regras/prioridade', session, {
+  return pedir('POST', '/v1/management/rules/priority', session, {
     nome: `Prioridade ${randomUUID().slice(0, 8)}`,
     nivel: 'alta',
     ...corpo,
   });
 }
 
-describe('GET/POST/PATCH/DELETE /v1/gestao/regras/prioridade', () => {
+describe('GET/POST/PATCH/DELETE /v1/management/rules/priority', () => {
   it('cria, lista e registra no log', async () => {
     const { status, corpo } = await createRulePriority(sessionManager);
     expect(status).toBe(201);
     const log = await auditoriaDe('regra_prioridade', corpo.id);
     expect(log[0]).toMatchObject({ acao: 'criou' });
 
-    const listing = await pedir('GET', '/v1/gestao/regras/prioridade', sessionManager);
+    const listing = await pedir('GET', '/v1/management/rules/priority', sessionManager);
     expect(listing.status).toBe(200);
     expect((listing.corpo as { id: string }[]).some((r) => r.id === corpo.id)).toBe(true);
   });
 
-  it('recusa nível não atribuível (400), condição que não é objeto (400) e nome repetido (409)', async () => {
+  it('Reject an unassignable priority, invalid condition, or duplicate rule name', async () => {
     const nivelInvalido = await createRulePriority(sessionManager, { nivel: 'sem_prioridade' });
     expect(nivelInvalido.status).toBe(400);
-    expect(nivelInvalido.corpo.erro.codigo).toBe('nivel_invalido');
+    expect(nivelInvalido.corpo.erro.code).toBe('level_invalid');
 
     const conditionInvalid = await createRulePriority(sessionManager, { condicao: 'nao e objeto' });
     expect(conditionInvalid.status).toBe(400);
-    expect(conditionInvalid.corpo.erro.codigo).toBe('condicao_invalida');
+    expect(conditionInvalid.corpo.erro.code).toBe('condition_invalid');
 
     const nome = `Única ${randomUUID().slice(0, 6)}`;
     expect((await createRulePriority(sessionManager, { nome })).status).toBe(201);
     const repetida = await createRulePriority(sessionManager, { nome });
     expect(repetida.status).toBe(409);
-    expect(repetida.corpo.erro.codigo).toBe('nome_em_uso');
+    expect(repetida.corpo.erro.code).toBe('name_in_use');
   });
 
-  it('escopo fora do suportado (inbox/equipe/etiqueta) é 400', async () => {
+  it('Return 400 for unsupported priority-rule scopes', async () => {
     const resposta = await createRulePriority(sessionManager, {
       escopoTipo: 'etiqueta',
       escopoId: randomUUID(),
     });
     expect(resposta.status).toBe(400);
-    expect(resposta.corpo.erro.codigo).toBe('escopo_invalido');
+    expect(resposta.corpo.erro.code).toBe('scope_invalid');
   });
 
-  it('edita nível e condição, e registra só o que mudou', async () => {
+  it('Edit a priority rule\'s level and condition and audit only changes', async () => {
     const { corpo: criada } = await createRulePriority(sessionManager);
     const editada = await pedir(
       'PATCH',
-      `/v1/gestao/regras/prioridade/${criada.id}`,
+      `/v1/management/rules/priority/${criada.id}`,
       sessionManager,
       { nivel: 'maxima', condicao: { etiqueta: 'vip' } },
     );
@@ -1161,12 +1161,12 @@ describe('GET/POST/PATCH/DELETE /v1/gestao/regras/prioridade', () => {
     expect(editada.corpo).toMatchObject({ nivel: 'maxima', condicao: { etiqueta: 'vip' } });
   });
 
-  it('sem regra.gerenciar é 403; de outro tenant é 404; id malformado é 404', async () => {
+  it('Return 403 without `regra.gerenciar` and 404 for cross-tenant or malformed IDs', async () => {
     const { corpo: criada } = await createRulePriority(sessionManager);
 
     const semPoder = await pedir(
       'PATCH',
-      `/v1/gestao/regras/prioridade/${criada.id}`,
+      `/v1/management/rules/priority/${criada.id}`,
       sessionOnlyQueues,
       { nivel: 'baixa' },
     );
@@ -1175,21 +1175,21 @@ describe('GET/POST/PATCH/DELETE /v1/gestao/regras/prioridade', () => {
 
     const outroTenant = await pedir(
       'PATCH',
-      `/v1/gestao/regras/prioridade/${criada.id}`,
+      `/v1/management/rules/priority/${criada.id}`,
       sessionOfOtherTenant,
       { nivel: 'baixa' },
     );
     expect(outroTenant.status).toBe(404);
 
-    const malformado = await pedir('PATCH', '/v1/gestao/regras/prioridade/nao-e-uuid', sessionManager, {
+    const malformado = await pedir('PATCH', '/v1/management/rules/priority/nao-e-uuid', sessionManager, {
       nivel: 'baixa',
     });
     expect(malformado.status).toBe(404);
   });
 
-  it('exclui de verdade (204)', async () => {
+  it('Delete a schedule exception with 204', async () => {
     const { corpo: criada } = await createRulePriority(sessionManager);
-    const resposta = await fetch(`${api.url}/v1/gestao/regras/prioridade/${criada.id}`, {
+    const resposta = await fetch(`${api.url}/v1/management/rules/priority/${criada.id}`, {
       method: 'DELETE',
       headers: comCookie(sessionManager),
     });

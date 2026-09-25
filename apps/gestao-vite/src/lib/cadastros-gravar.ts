@@ -18,7 +18,7 @@ import type { OperadorDeRegra } from './regra-fila';
 /** O interruptor do cartão-linha: liga/desliga sem abrir formulário. */
 export async function alternarQueue(id: string, active: boolean): Promise<Resultado<void>> {
   try {
-    await api.patch(`/v1/gestao/atendentes/filas/${id}`, { ativa: !active });
+    await api.patch(`/v1/management/agents/queues/${id}`, { ativa: !active });
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -28,7 +28,7 @@ export async function alternarQueue(id: string, active: boolean): Promise<Result
 
 export async function excluirQueue(id: string): Promise<Resultado<void>> {
   try {
-    await api.delete(`/v1/gestao/atendentes/filas/${id}`);
+    await api.delete(`/v1/management/agents/queues/${id}`);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -96,7 +96,7 @@ export async function editQueue(
   pedido: RequestOfEditOfQueue,
 ): Promise<ResultadoComCampo<void>> {
   try {
-    await api.patch(`/v1/gestao/atendentes/filas/${id}`, pedido);
+    await api.patch(`/v1/management/agents/queues/${id}`, pedido);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -111,7 +111,7 @@ export async function vincularAgentInQueue(
   capacityOverride?: number | null,
 ): Promise<ResultadoComCampo<void>> {
   try {
-    await api.post(`/v1/gestao/atendentes/filas/${queueId}/atendentes`, {
+    await api.post(`/v1/management/agents/queues/${queueId}/agents`, {
       usuarioId: agentId,
       ...(capacityOverride != null ? { capacityOverride } : {}),
     });
@@ -128,7 +128,7 @@ export async function queueDesvincularAgent(
   agentId: string,
 ): Promise<Resultado<void>> {
   try {
-    await api.delete(`/v1/gestao/atendentes/filas/${queueId}/atendentes/${agentId}`);
+    await api.delete(`/v1/management/agents/queues/${queueId}/agents/${agentId}`);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -138,7 +138,7 @@ export async function queueDesvincularAgent(
 
 export async function alternarMotivoPausa(id: string, ativo: boolean): Promise<Resultado<void>> {
   try {
-    await api.patch(`/v1/gestao/atendentes/pausas/${id}`, { ativo: !ativo });
+    await api.patch(`/v1/management/agents/pauses/${id}`, { ativo: !ativo });
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -148,7 +148,7 @@ export async function alternarMotivoPausa(id: string, ativo: boolean): Promise<R
 
 export async function excluirMotivoPausa(id: string): Promise<Resultado<void>> {
   try {
-    await api.delete(`/v1/gestao/atendentes/pausas/${id}`);
+    await api.delete(`/v1/management/agents/pauses/${id}`);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -176,7 +176,7 @@ export async function editRuleQueue(
   pedido: RequestOfEditOfRuleQueue,
 ): Promise<Resultado<void>> {
   try {
-    await api.patch(`/v1/gestao/regras/atendimento/${id}`, pedido);
+    await api.patch(`/v1/management/rules/attendance/${id}`, pedido);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -186,7 +186,7 @@ export async function editRuleQueue(
 
 export async function excluirRuleQueue(id: string): Promise<Resultado<void>> {
   try {
-    await api.delete(`/v1/gestao/regras/atendimento/${id}`);
+    await api.delete(`/v1/management/rules/attendance/${id}`);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {

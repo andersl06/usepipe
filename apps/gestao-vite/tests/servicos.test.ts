@@ -6,15 +6,15 @@ import {
   pedidoDoFormulario,
 } from '../src/paginas/fluxo/servicos/regras';
 
-describe('formulário de serviço', () => {
-  it('esconde redirecionamento quando o serviço é o principal', () => {
+describe('service form', () => {
+  it('hides the redirect when the service is the main one', () => {
     assert.deepEqual(serviceFieldsVisiveis(true, false), {
       mostrarPersistente: false,
       mostrarExpiracao: false,
     });
   });
 
-  it('esconde somente a expiração quando o redirecionamento é persistente', () => {
+  it('hides only the expiration when the redirect is persistent', () => {
     assert.deepEqual(serviceFieldsVisiveis(false, true), {
       mostrarPersistente: true,
       mostrarExpiracao: false,
@@ -40,7 +40,7 @@ describe('formulário de serviço', () => {
     );
   });
 
-  it('a busca filtra por nome e tira o que já é serviço', () => {
+  it('search filters by name and excludes what is already a service', () => {
     const bot = (id: string, nome: string) => ({
       id,
       nome,

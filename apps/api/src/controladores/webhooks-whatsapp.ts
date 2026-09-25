@@ -36,7 +36,7 @@ export class WhatsAppWebhookController {
 
     const esperado = String(canal.config['verifyToken'] ?? process.env['WHATSAPP_VERIFY_TOKEN'] ?? '');
     if (modo !== 'subscribe' || !esperado || !igual(token ?? '', esperado)) {
-      throw new PipeError(403, 'verificacao_recusada', 'hub.verify_token não confere.');
+      throw new PipeError(403, 'verification_refused', 'hub.verify_token não confere.');
     }
     // A Meta espera o desafio cru, em texto — não JSON.
     resposta.status(200).type('text/plain').send(desafio ?? '');
@@ -50,24 +50,24 @@ export class WhatsAppWebhookController {
   ): Promise<{ recebido: true }> {
     const canal = await resolveChannel(canalId);
     if (!canal) throw PipeError.naoEncontrado('Canal');
-    if (!canal.ativo) throw PipeError.conflito('canal_inativo', 'O canal está desativado.');
+    if (!canal.ativo) throw PipeError.conflito('channel_inactive', 'O canal está desativado.');
 
     const segredo = String(canal.config['appSecret'] ?? process.env['WHATSAPP_APP_SECRET'] ?? '');
     if (!segredo) {
       // Sem segredo não há como distinguir a Meta de qualquer um. Recusa fechada.
       throw new PipeError(
         403,
-        'canal_sem_app_secret',
+        'channel_without_app_secret',
         'O canal não tem appSecret configurado: sem ele a assinatura não pode ser conferida.',
       );
     }
 
     const corpo = requisicao.corpoCru;
     if (!corpo) {
-      throw new PipeError(400, 'corpo_ausente', 'O corpo cru não chegou ao validador.');
+      throw new PipeError(400, 'body_missing', 'O corpo cru não chegou ao validador.');
     }
     if (!assinaturaConfere(segredo, corpo, requisicao.header('x-hub-signature-256'))) {
-      throw new PipeError(401, 'assinatura_invalida', 'X-Hub-Signature-256 não confere.');
+      throw new PipeError(401, 'signature_invalid', 'X-Hub-Signature-256 não confere.');
     }
 
     // Enfileira e responde. Processar aqui dentro é o que faz a Meta reenviar.
@@ -106,7 +106,7 @@ export class WhatsAppWebhookController {
   ): Promise<void> {
     const esperado = process.env['WHATSAPP_VERIFY_TOKEN'] ?? '';
     if (modo !== 'subscribe' || !esperado || !igual(token ?? '', esperado)) {
-      throw new PipeError(403, 'verificacao_recusada', 'hub.verify_token não confere.');
+      throw new PipeError(403, 'verification_refused', 'hub.verify_token não confere.');
     }
     resposta.status(200).type('text/plain').send(desafio ?? '');
   }
@@ -118,15 +118,15 @@ export class WhatsAppWebhookController {
     if (!secret) {
       throw new PipeError(
         403,
-        'app_sem_secret',
+        'app_without_secret',
         'WHATSAPP_APP_SECRET não está definida: sem ela a assinatura não pode ser conferida.',
       );
     }
 
     const corpo = request.corpoCru;
-    if (!corpo) throw new PipeError(400, 'corpo_ausente', 'O corpo cru não chegou ao validador.');
+    if (!corpo) throw new PipeError(400, 'body_missing', 'O corpo cru não chegou ao validador.');
     if (!assinaturaConfere(secret, corpo, request.header('x-hub-signature-256'))) {
-      throw new PipeError(401, 'assinatura_invalida', 'X-Hub-Signature-256 não confere.');
+      throw new PipeError(401, 'signature_invalid', 'X-Hub-Signature-256 não confere.');
     }
 
     for (const inbound of identificarEntradas(request.body)) {
@@ -146,8 +146,8 @@ export class WhatsAppWebhookController {
 
 interface InboundIdentified {
   wabaId: string | undefined;
-  numeroId: string | undefined;
-  corpo: unknown;
+  numberId: string | undefined;
+  body: unknown;
 }
 
 /**

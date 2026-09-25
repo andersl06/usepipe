@@ -40,10 +40,10 @@ export async function executarConfigurationManual(pedido: {
   tenantId: string;
   userId: string;
   wabaId?: string | undefined;
-  numeroId?: string | undefined;
+  numberId?: string | undefined;
   token?: string | undefined;
   appSecret?: string | undefined;
-  nome?: string | undefined;
+  name?: string | undefined;
   /**
    * Reconexão POR CIMA do canal que já existe. Na origem o token é da
    * plataforma e, quando ele cai, refaz-se a conexão no mesmo canal — não há

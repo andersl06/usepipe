@@ -14,7 +14,7 @@ export class RedirectController {
   @Get(':codigo')
   async redirecionar(
     @Param('codigo') codigo: string,
-    @Query('origem') origem: string | undefined,
+    @Query('origin') origem: string | undefined,
     @Req() request: Request,
     @Res() resposta: Response,
   ): Promise<void> {

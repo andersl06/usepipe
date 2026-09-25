@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
-import { InboundRefused, createToken, hashDoToken } from '@pipe/autenticacao';
-import type { PessoaDoGoogle } from '@pipe/autenticacao';
+import { InboundRefused, createToken, hashDoToken } from '@pipe/authentication';
+import type { PessoaDoGoogle } from '@pipe/authentication';
 import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../banco.js';
 import { PipeError } from '../erros.js';
@@ -32,32 +32,32 @@ const EMAIL_ACEITAVEL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 export interface InvitationCreated {
   id: string;
   email: string;
-  papel: string;
+  role: string;
   /** Só existe nesta resposta. Depois daqui, no banco só há o hash. */
   token: string;
   url: string;
-  expiraEm: Date;
+  expiresAt: Date;
 }
 
 /** O que `GET /v1/convites/:token` mostra, sem exigir sessão. */
 export interface InvitationVisible {
   email: string;
-  papel: string;
-  tenant: { nome: string; slug: string };
-  expiraEm: Date;
+  role: string;
+  tenant: { name: string; slug: string };
+  expiresAt: Date;
 }
 
 export interface InboundByInvitation {
   tenantId: string;
   usuarioId: string;
   token: string;
-  expiraEm: Date;
+  expiresAt: Date;
 }
 
 function normalizarEmail(cru: string | undefined): string {
   const email = (cru ?? '').trim().toLowerCase();
   if (!EMAIL_ACEITAVEL.test(email)) {
-    throw PipeError.request('email_invalido', 'Informe um e-mail válido para convidar.');
+    throw PipeError.request('email_invalid', 'Informe um e-mail válido para convidar.');
   }
   return email;
 }
@@ -113,7 +113,7 @@ async function avisarConvidado(invitation: InvitationCreated, tenantNome: string
 
 /** O nome do tenant em vigor, para o e-mail dizer onde a pessoa está entrando. */
 async function nomeDoTenant(tx: TransactionPipe): Promise<string> {
-  const { rows } = await tx.execute<{ nome: string }>(sql`select nome from tenant limit 1`);
+  const { rows } = await tx.execute<{ name: string }>(sql`select nome from tenant limit 1`);
   return rows[0]?.nome ?? 'Pipe';
 }
 
@@ -138,13 +138,13 @@ async function emitirInvitation(
   );
   const roleId = papeis[0]?.id;
   if (!roleId) {
-    throw PipeError.request('papel_invalido', `Não existe o papel "${nameOfRole}" nesta conta.`, {
+    throw PipeError.request('role_invalid', `Não existe o papel "${nameOfRole}" nesta conta.`, {
       papel: nameOfRole,
     });
   }
   if (papeis[0]?.scope !== 'conta') {
     throw PipeError.request(
-      'papel_de_atendimento',
+      'role_of_attendance',
       `"${nameOfRole}" é papel de atendimento, dado no atendimento de cada contato. ` +
         'O convite dá o papel no contrato: admin, member ou guest.',
       { papel: nameOfRole },
@@ -155,7 +155,7 @@ async function emitirInvitation(
     sql`select id from usuario where email = ${email} limit 1`,
   );
   if (jaDentro[0]) {
-    throw PipeError.conflito('ja_e_membro', `${email} já tem acesso a esta conta.`);
+    throw PipeError.conflito('already_member', `${email} já tem acesso a esta conta.`);
   }
 
   // Convidar (ou reenviar) de novo INVALIDA o convite anterior. Sem isto, cada
@@ -195,12 +195,12 @@ async function emitirInvitation(
  */
 export async function createInvitation(
   tenantId: string,
-  dados: { email?: string; papel?: string; criadoPor?: string },
+  dados: { email?: string; role?: string; criadoPor?: string },
 ): Promise<InvitationCreated> {
   const email = normalizarEmail(dados.email);
   const nomeDoPapel = (dados.papel ?? '').trim();
   if (!nomeDoPapel) {
-    throw PipeError.request('papel_ausente', 'Informe o papel de quem está sendo convidado.');
+    throw PipeError.request('role_missing', 'Informe o papel de quem está sendo convidado.');
   }
 
   const { convite, tenantNome } = await noTenant(tenantId, async (tx) => ({
@@ -224,7 +224,7 @@ export async function resendInvitation(
   createdBy?: string,
 ): Promise<InvitationCreated> {
   const { convite, tenantNome } = await noTenant(tenantId, async (tx) => {
-    const { rows } = await tx.execute<{ email: string; papel: string }>(sql`
+    const { rows } = await tx.execute<{ email: string; role: string }>(sql`
       select c.email, p.nome as papel
         from convite c
         join papel p on p.id = c.papel_id
@@ -247,7 +247,7 @@ type LineInvitation = {
   tenant_id: string;
   email: string;
   roleId: string;
-  papel: string;
+  role: string;
   tenant_nome: string;
   slug: string;
   expira_em: Date;
@@ -279,10 +279,10 @@ async function acharPeloToken(tokenCru: string): Promise<LineInvitation> {
   // Daqui para baixo quem pergunta JÁ tem um token válido, e merece saber por que
   // ele não funciona mais — senão o suporte recebe "o link não faz nada".
   if (linha.aceito_em) {
-    throw new PipeError(410, 'convite_usado', 'Este convite já foi usado. Peça outro.');
+    throw new PipeError(410, 'invitation_used', 'Este convite já foi usado. Peça outro.');
   }
   if (new Date(linha.expira_em).getTime() <= Date.now()) {
-    throw new PipeError(410, 'convite_expirado', 'Este convite venceu. Peça outro.');
+    throw new PipeError(410, 'invitation_expired', 'Este convite venceu. Peça outro.');
   }
   return linha;
 }
@@ -301,8 +301,8 @@ export interface InvitationAccepted {
   tenantId: string;
   userId: string;
   email: string;
-  papel: string;
-  tenant: { nome: string; slug: string };
+  role: string;
+  tenant: { name: string; slug: string };
   /** Só vem quando a pessoa aceitou já autenticada pelo Google. */
   session?: InboundByInvitation;
 }
@@ -333,7 +333,7 @@ export async function aceitarInvitation(
     // O convite é para UM endereço. Entrar com outra conta do Google e cair dentro
     // do cliente seria o link virando porta para quem quer que o receba encaminhado.
     throw PipeError.request(
-      'convite_de_outro_email',
+      'invitation_of_other_email',
       `Este convite é para ${achado.email}. Entre com essa conta.`,
     );
   }
@@ -345,10 +345,10 @@ export async function aceitarInvitation(
     const atual = travados[0];
     if (!atual) throw PipeError.naoEncontrado('Convite');
     if (atual.aceito_em) {
-      throw new PipeError(410, 'convite_usado', 'Este convite já foi usado. Peça outro.');
+      throw new PipeError(410, 'invitation_used', 'Este convite já foi usado. Peça outro.');
     }
     if (new Date(atual.expira_em).getTime() <= Date.now()) {
-      throw new PipeError(410, 'convite_expirado', 'Este convite venceu. Peça outro.');
+      throw new PipeError(410, 'invitation_expired', 'Este convite venceu. Peça outro.');
     }
 
     // Em série, nunca em `Promise.all`: paralelo dentro da transação derruba o
@@ -400,7 +400,7 @@ export async function aceitarInvitation(
 async function garantirUser(
   tx: TransactionPipe,
   tenantId: string,
-  dados: { email: string; nome: string; avatarUrl: string | null },
+  dados: { email: string; name: string; avatarUrl: string | null },
 ): Promise<string> {
   const { rows } = await tx.execute<{ id: string }>(sql`
     insert into usuario (tenant_id, nome, email, avatar_url)
@@ -430,7 +430,7 @@ async function connectAndLogin(
   `);
   if (jaLigada[0]?.n !== '0') {
     throw PipeError.conflito(
-      'conta_ja_ligada',
+      'account_already_connected',
       'Esta conta do Google já pertence a outro acesso do Pipe.',
     );
   }
@@ -447,7 +447,7 @@ async function connectAndLogin(
   // que emite sessão, e o convite por link é um deles. Sem esta linha, um tenant
   // que exige SSO continua entrando pelo Google se alguém tiver um convite na
   // mão — é a porta dos fundos clássica, irmã do "esqueci minha senha".
-  const { rows: politica } = await tx.execute<{ politica: string }>(
+  const { rows: politica } = await tx.execute<{ policy: string }>(
     sql`select politica from conexao_sso where tenant_id = ${tenantId}::uuid limit 1`,
   );
   if (politica[0]?.politica === 'obrigatorio') {

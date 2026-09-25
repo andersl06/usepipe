@@ -75,7 +75,7 @@ completed: 2026-09-24
 - All 68 unique Gestão path-builder segments verified to map consistently (no old segment maps to two different new segments) — checked programmatically across all 134 non-REMOVE front-route rows.
 - CRM `apps/crm/src/app/**` dir rows and their matching front-route rows use identical segment translations (STD-09); the public-route regex duplicated in `middleware.ts`/`estrutura-crm.tsx` references only `entrar`/`convite`, both covered consistently by the same dictionary.
 - 154 rows flagged persisted (D-09 jsonb reachability, D-40 stored API-key scopes) moved to `persisted-candidates-codex2-01-11.csv` instead of being renamed.
-- packages-core/packages-ai subpath exports translated: `./metricas`, `./esforco`, `./distribuicao`, `./conversa`, `./janela`, `./analise` and `./avaliacao`, `./classificacao`, `./transcricao`.
+- packages-core/packages-ai subpath exports translated: `./metrics`, `./effort`, `./distribution`, `./conversation`, `./window`, `./analytics` and `./evaluation`, `./classification`, `./transcription`.
 - `apps/gestao-vite` and `apps/ponte` app/package name rows proposed as `management-vite`/`bridge` per CONVENTIONS-EN.md's explicit example (D-04).
 
 ## Task Commits

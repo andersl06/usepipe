@@ -24,7 +24,7 @@ import { TelaDeEquipe } from './tela';
  */
 export function TeamPage() {
   const { contact } = useContact();
-  const read = useRead<TeamOfFlow>(`/v1/gestao/fluxos/${contact.id}/equipe`);
+  const read = useRead<TeamOfFlow>(`/v1/management/flows/${contact.id}/team`);
   const withoutPermission = read.error instanceof ApiError && read.error.status === 403;
 
   return (

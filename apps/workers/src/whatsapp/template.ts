@@ -36,7 +36,7 @@ export function positionOfVariable(indiceNoCorpo: number, cabecalho: CabecalhoTe
 export interface TemplateParaEnvio {
   nome: string;
   idioma: string;
-  cabecalhoTipo: CabecalhoTemplate;
+  headerType: CabecalhoTemplate;
   /** Nomes das variáveis do corpo, na ordem de `{{1}}`, `{{2}}`, … */
   variables: readonly string[];
 }

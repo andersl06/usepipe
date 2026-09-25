@@ -56,22 +56,22 @@ type LineMessage = {
   criada_em: Date | string;
   direction: string;
   autor_tipo: string;
-  autor_id: string | null;
-  tipo: string;
-  conteudo: string | null;
+  authorId: string | null;
+  type: string;
+  content: string | null;
   stateDelivery: string | null;
   errorCode: string | null;
   errorText: string | null;
-  id_provedor: string | null;
-  entregue_em: Date | string | null;
-  lida_em: Date | string | null;
+  idProvider: string | null;
+  entregueAt: Date | string | null;
+  lidaAt: Date | string | null;
   insideOfWindow: boolean | null;
-  categoria_cobranca: string | null;
+  categoryCobranca: string | null;
 };
 
 interface CorpoDeEnvio {
   texto?: string;
-  tipo?: TipoEnvio;
+  type?: TipoEnvio;
   template_id?: string;
   parametros?: string[];
   attachmentId?: string;
@@ -80,7 +80,7 @@ interface CorpoDeEnvio {
   resposta_pronta_id?: string;
 }
 
-@Controller('v1/conversas')
+@Controller('v1/conversations')
 export class ConversationsController {
   @Get()
   @Scopes('conversas:ler')
@@ -144,7 +144,7 @@ export class ConversationsController {
   ): Promise<Record<string, unknown>> {
     const { tenantId } = contextOf(request);
     const linha = await noTenant(tenantId, async (tx) => {
-      const { rows } = await tx.execute<LineConversation & { chave: Date | string }>(sql`
+      const { rows } = await tx.execute<LineConversation & { key: Date | string }>(sql`
         select c.criada_em as chave, ${sql.raw(COLUMNS_CONVERSATION)}
           from conversa c
           join contato ct on ct.id = c.contato_id
@@ -272,7 +272,7 @@ export class ConversationsController {
       ? corpo.attachmentIds.filter((v): v is string => typeof v === 'string')
       : [];
     if (ids.length === 0) {
-      throw PipeError.request('conteudo_vazio', 'Informe `anexo_ids` com ao menos um anexo.');
+      throw PipeError.request('content_empty', 'Informe `anexo_ids` com ao menos um anexo.');
     }
     const enviadas = await sendAttachments({
       tenantId: ator.tenantId,
@@ -345,7 +345,7 @@ export class ConversationsController {
   async transferir(
     @Req() requisicao: RequestAuthenticated & RequestWithSession,
     @Param('id') id: string,
-    @Body() corpo: { forQueueId?: string; forAgentId?: string; motivo?: string },
+    @Body() corpo: { forQueueId?: string; forAgentId?: string; reason?: string },
   ): Promise<Record<string, unknown>> {
     const ator = atorDe(requisicao);
     const r = await transferConversation(
@@ -405,7 +405,7 @@ export function igualEmLista(column: string, bruto: string, permitidos: readonly
   const invalido = values.find((v) => !permitidos.includes(v));
   if (invalido) {
     throw PipeError.request(
-      'filtro_invalido',
+      'filter_invalid',
       `"${invalido}" não é valor de ${column}. Aceitos: ${permitidos.join(', ')}.`,
     );
   }
@@ -434,12 +434,12 @@ function asConversation(linha: LineConversation): Record<string, unknown> {
     ultima_mensagem_de: linha.lastMessageOf,
     janela_expira_em: iso(linha.windowExpiresAt),
     canal_tipo: linha.channelType,
-    fila: linha.queueId ? { id: linha.queueId, nome: linha.queueName } : null,
-    atendente: linha.atendente_id ? { id: linha.atendente_id, nome: linha.agentName } : null,
+    fila: linha.queueId ? { id: linha.queueId, name: linha.queueName } : null,
+    atendente: linha.atendente_id ? { id: linha.atendente_id, name: linha.agentName } : null,
     contato: {
       id: linha.contactId,
-      nome: linha.contactName,
-      telefone_e164: linha.contactPhone,
+      name: linha.contactName,
+      phoneE164: linha.contactPhone,
     },
   };
 }

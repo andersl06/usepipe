@@ -23,9 +23,9 @@ import { evento, publicar } from '../tempo-real.js';
 
 type LineConversation = {
   id: string;
-  estado: string;
+  state: string;
   queueId: string | null;
-  atendente_id: string | null;
+  agentId: string | null;
   em_espera_desde: Date | string | null;
 };
 
@@ -56,7 +56,7 @@ async function carregar(
     }
     throw new PipeError(
       403,
-      'conversa_de_outro_atendente',
+      'conversation_of_other_agent',
       conversa.atendente_id
         ? 'Esta conversa está com outro atendente.'
         : 'Esta conversa não está atribuída a você.',
@@ -71,27 +71,27 @@ function exigirTransition(de: string, para: StateConversation): void {
     transitar(de as StateConversation, para);
   } catch (error) {
     if (error instanceof TransitionInvalidError) {
-      throw PipeError.conflito('transicao_invalida', error.message);
+      throw PipeError.conflito('transition_invalid', error.message);
     }
     throw error;
   }
 }
 
 export interface RequestOfClosure {
-  conversaId: string;
+  conversationId: string;
   /**
    * A Blip (`close-modal-container.js`) envia uma coleção e bloqueia só quando
    * a política exige tags; no Pipe, as etiquetas marcadas na Gestão são essa lista.
    */
   etiquetaIds?: readonly string[];
   /** Compatibilidade com clientes que ainda enviam a forma antiga. */
-  etiquetaId?: string;
+  labelId?: string;
 }
 
 export async function closeConversation(
   ator: AtorOfConversation,
   pedido: RequestOfClosure,
-): Promise<{ estado: 'encerrada'; motivo: string }> {
+): Promise<{ state: 'encerrada'; reason: string }> {
   const agora = new Date();
 
   const resultado = await noTenant(ator.tenantId, async (tx) => {
@@ -100,11 +100,11 @@ export async function closeConversation(
 
     const etiquetaIds = [...new Set(pedido.etiquetaIds ?? (pedido.etiquetaId ? [pedido.etiquetaId] : []))];
     const { rows: etiquetas } = etiquetaIds.length
-      ? await tx.execute<{ id: string; nome: string; requiredInClosure: boolean }>(sql`
+      ? await tx.execute<{ id: string; name: string; requiredInClosure: boolean }>(sql`
           select id, nome, obrigatoria_no_encerramento from etiqueta
            where id in (${sql.join(etiquetaIds.map((id) => sql`${id}::uuid`), sql`, `)})
         `)
-      : { rows: [] as { id: string; nome: string; obrigatoria_no_encerramento: boolean }[] };
+      : { rows: [] as { id: string; name: string; obrigatoria_no_encerramento: boolean }[] };
     if (etiquetas.length !== etiquetaIds.length) throw PipeError.naoEncontrado('Etiqueta');
 
     const { rows: obrigatorias } = await tx.execute<{ id: string }>(sql`
@@ -112,7 +112,7 @@ export async function closeConversation(
        where obrigatoria_no_encerramento = true and escopo in ('conversa', 'ambos')
     `);
     if (obrigatorias.some((obrigatoria) => !etiquetaIds.includes(obrigatoria.id))) {
-      throw PipeError.request('etiqueta_obrigatoria', 'Escolha as tags obrigatórias para finalizar.');
+      throw PipeError.request('label_required', 'Escolha as tags obrigatórias para finalizar.');
     }
 
     for (const etiqueta of etiquetas) {
@@ -177,8 +177,8 @@ export async function closeConversation(
 
   drenarEmSegundoPlano(ator.tenantId);
   // Depois do commit. A conversa mudou e saiu da fila do atendente.
-  await publicar(ator.tenantId, evento('conversa', pedido.conversaId));
-  await publicar(ator.tenantId, evento('fila'));
+  await publicar(ator.tenantId, evento('conversation', pedido.conversaId));
+  await publicar(ator.tenantId, evento('queue'));
   return { estado: 'encerrada', motivo: resultado.motivo };
 }
 
@@ -249,7 +249,7 @@ export async function alternarEspera(
   });
 
   // Depois do commit, como em toda ação de domínio. Ver `tempo-real.ts`.
-  await publicar(ator.tenantId, evento('conversa', conversationId));
+  await publicar(ator.tenantId, evento('conversation', conversationId));
   return resultado;
 }
 
@@ -258,7 +258,7 @@ export interface PedidoDeTransferencia {
   /** Exatamente UM dos dois. Fila devolve para a fila; atendente entrega direto. */
   forQueueId?: string | null;
   forAgentId?: string | null;
-  motivo?: string | null;
+  reason?: string | null;
 }
 
 export interface Transferida {
@@ -266,7 +266,7 @@ export interface Transferida {
   ofConversationId: string;
   /** A conversa NOVA, no destino. */
   forConversationId: string;
-  estado: 'na_fila' | 'atribuida';
+  state: 'na_fila' | 'atribuida';
 }
 
 /**
@@ -305,7 +305,7 @@ export async function transferConversation(
   const forAgent = pedido.forAgentId ?? null;
   if ((forQueue && forAgent) || (!forQueue && !forAgent)) {
     throw PipeError.request(
-      'destino_invalido',
+      'destination_invalid',
       'Informe `para_fila_id` OU `para_atendente_id`, um só.',
     );
   }
@@ -332,7 +332,7 @@ export async function transferConversation(
     const conversa = rows[0];
     if (!conversa) throw PipeError.naoEncontrado('Conversa');
     if (conversa.estado === 'encerrada') {
-      throw PipeError.conflito('conversa_encerrada', 'A conversa já está encerrada.');
+      throw PipeError.conflito('conversation_closed', 'A conversa já está encerrada.');
     }
 
     // Transferir a conversa de OUTRO é ação de supervisão, e é para isso que a
@@ -351,7 +351,7 @@ export async function transferConversation(
       );
       if (!f[0]) throw PipeError.naoEncontrado('Fila');
       if (forQueue === conversa.queueId && !conversa.atendente_id) {
-        throw PipeError.conflito('mesmo_destino', 'A conversa já está nesta fila.');
+        throw PipeError.conflito('same_destination', 'A conversa já está nesta fila.');
       }
     } else {
       const { rows: u } = await tx.execute<{ id: string }>(
@@ -359,7 +359,7 @@ export async function transferConversation(
       );
       if (!u[0]) throw PipeError.naoEncontrado('Atendente');
       if (forAgent === conversa.atendente_id) {
-        throw PipeError.conflito('mesmo_destino', 'A conversa já está com este atendente.');
+        throw PipeError.conflito('same_destination', 'A conversa já está com este atendente.');
       }
     }
 
@@ -468,9 +468,9 @@ export async function transferConversation(
 
   drenarEmSegundoPlano(ator.tenantId);
   // Duas conversas mudaram: a que encerrou e a que nasceu no destino.
-  await publicar(ator.tenantId, evento('conversa', resultado.deConversaId));
-  await publicar(ator.tenantId, evento('conversa', resultado.paraConversaId));
-  await publicar(ator.tenantId, evento('fila'));
+  await publicar(ator.tenantId, evento('conversation', resultado.deConversaId));
+  await publicar(ator.tenantId, evento('conversation', resultado.paraConversaId));
+  await publicar(ator.tenantId, evento('queue'));
   return resultado;
 }
 

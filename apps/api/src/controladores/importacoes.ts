@@ -22,7 +22,7 @@ import type { RequestWithSession } from '../sessao.js';
  * `crm.importar` ("Importar base de outro CRM"), que é de administrador e gestor.
  * O tenant é o da sessão; nada no corpo o escolhe.
  */
-@Controller('v1/contatos/importacoes')
+@Controller('v1/contacts/imports')
 export class ContactImportsController {
   @Post()
   @HttpCode(201)

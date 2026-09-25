@@ -10,21 +10,21 @@ import {
   ticketAtivo,
 } from '../src/paginas/fluxo/contatos/regras';
 
-describe('contatos: contagem e período', () => {
-  it('conta como a origem: singular até 1, "Aproximadamente" acima', () => {
+describe('contacts: count and period', () => {
+  it('counts like the source: singular up to 1, "Approximately" above that', () => {
     assert.equal(countRotulo(0), '0 Contato');
     assert.equal(countRotulo(1), '1 Contato');
     assert.equal(countRotulo(6), '6 Contatos Aproximadamente');
   });
 
-  it('período padrão cobre os últimos 7 dias, do 00:00 ao 23:59', () => {
+  it('the default period covers the last 7 days, from 00:00 to 23:59', () => {
     const { inicio, fim } = periodDefault(new Date(2026, 8, 16, 15, 30));
     assert.equal(formatPeriodLimit(inicio), '09 set, 2026 - 00:00');
     assert.equal(formatPeriodLimit(fim), '16 set, 2026 - 23:59');
   });
 });
 
-describe('contatos: abertura do detalhe', () => {
+describe('contacts: opening the detail view', () => {
   const tickets = [{ id: 'novo' }, { id: 'antigo' }];
 
   it('abre o ticket da URL quando existe, senão o mais recente', () => {
@@ -34,13 +34,13 @@ describe('contatos: abertura do detalhe', () => {
     assert.equal(ticketAtivo([], 'x'), undefined);
   });
 
-  it('põe o contato à direita e o bot/atendente à esquerda', () => {
+  it('puts the contact on the right and the bot/agent on the left', () => {
     assert.equal(messageLado('entrada'), 'direita');
     assert.equal(messageLado('saida'), 'esquerda');
     assert.equal(messageLado('interna'), 'esquerda');
   });
 
-  it('carimba a mensagem como dia - hora e traduz o estado do ticket', () => {
+  it('stamps the message as day - time and translates the ticket\'s state', () => {
     assert.equal(messageCarimbo(new Date(2026, 8, 16, 13, 26)), '16/09/2026 - 13:26');
     assert.equal(rotuloDoStatus('encerrada'), 'Atendido');
     assert.equal(rotuloDoStatus('na_fila'), 'Na fila');

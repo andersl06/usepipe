@@ -51,8 +51,8 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-describe('a URL do canal', () => {
-  it('troca http por ws e https por wss', () => {
+describe('Build the WebSocket channel URL', () => {
+  it('Convert HTTP URLs to `ws` and HTTPS URLs to `wss`', () => {
     expect(urlOfChannel('http://localhost:3000')).toBe('ws://localhost:3000/v1/eventos');
     expect(urlOfChannel('https://api.usepipe.com.br/')).toBe(
       'wss://api.usepipe.com.br/v1/eventos',
@@ -78,11 +78,11 @@ describe('backoff', () => {
   });
 });
 
-describe('ligação', () => {
-  it('manda a inscrição assim que abre', () => {
+describe('Manage the real-time connection', () => {
+  it('Subscribe to topics as soon as the socket opens', () => {
     const ligacao = ligar({
       urlApi: 'http://api.teste',
-      assuntos: ['conversa', 'fila'],
+      assuntos: ['conversation', 'queue'],
       aoEvento: () => undefined,
       createSocket,
     });
@@ -93,11 +93,11 @@ describe('ligação', () => {
     ligacao.fechar();
   });
 
-  it('entrega evento e IGNORA quadro de controle', () => {
+  it('Deliver event frames and ignore control frames', () => {
     const recebidos: unknown[] = [];
     const ligacao = ligar({
       urlApi: 'http://api.teste',
-      assuntos: ['conversa'],
+      assuntos: ['conversation'],
       aoEvento: (e) => recebidos.push(e),
       createSocket,
     });
@@ -115,7 +115,7 @@ describe('ligação', () => {
   it('aguenta corpo ilegível sem derrubar a tela', () => {
     const connection = ligar({
       urlApi: 'http://api.teste',
-      assuntos: ['conversa'],
+      assuntos: ['conversation'],
       aoEvento: () => {
         throw new Error('não deveria ser chamado');
       },
@@ -128,10 +128,10 @@ describe('ligação', () => {
 });
 
 describe('reconexão', () => {
-  it('reconecta depois da queda e REENVIA a inscrição', () => {
+  it('Reconnect after a drop and send the subscription again', () => {
     const ligacao = ligar({
       urlApi: 'http://api.teste',
-      assuntos: ['fila'],
+      assuntos: ['queue'],
       aoEvento: () => undefined,
       createSocket,
     });
@@ -152,7 +152,7 @@ describe('reconexão', () => {
   it('espera mais a cada tentativa seguida', () => {
     const ligacao = ligar({
       urlApi: 'http://api.teste',
-      assuntos: ['fila'],
+      assuntos: ['queue'],
       aoEvento: () => undefined,
       createSocket,
     });
@@ -171,10 +171,10 @@ describe('reconexão', () => {
     ligacao.fechar();
   });
 
-  it('zera o backoff depois de uma ligação que deu certo', () => {
+  it('Reset reconnect backoff after a successful connection', () => {
     const ligacao = ligar({
       urlApi: 'http://api.teste',
-      assuntos: ['fila'],
+      assuntos: ['queue'],
       aoEvento: () => undefined,
       createSocket,
     });
@@ -195,7 +195,7 @@ describe('reconexão', () => {
     // embora. Sem este vigia, a tela pareceria viva e parada.
     const ligacao = ligar({
       urlApi: 'http://api.teste',
-      assuntos: ['conversa'],
+      assuntos: ['conversation'],
       aoEvento: () => undefined,
       createSocket,
     });
@@ -227,7 +227,7 @@ describe('reconexão', () => {
   it('o ping do servidor adia a sentença de morte', () => {
     const ligacao = ligar({
       urlApi: 'http://api.teste',
-      assuntos: ['conversa'],
+      assuntos: ['conversation'],
       aoEvento: () => undefined,
       createSocket,
     });
@@ -245,11 +245,11 @@ describe('reconexão', () => {
     ligacao.fechar();
   });
 
-  it('avisa a tela do estado, para ela poder dizer "reconectando"', () => {
+  it('Notify the screen when the connection state changes', () => {
     const estados: string[] = [];
     const ligacao = ligar({
       urlApi: 'http://api.teste',
-      assuntos: ['conversa'],
+      assuntos: ['conversation'],
       aoEvento: () => undefined,
       toState: (e) => estados.push(e),
       createSocket,
@@ -266,7 +266,7 @@ describe('reconexão', () => {
   it('fechar de propósito não reconecta', () => {
     const ligacao = ligar({
       urlApi: 'http://api.teste',
-      assuntos: ['conversa'],
+      assuntos: ['conversation'],
       aoEvento: () => undefined,
       createSocket,
     });
@@ -284,7 +284,7 @@ describe('reconexão', () => {
     let vezes = 0;
     const ligacao = ligar({
       urlApi: 'http://api.teste',
-      assuntos: ['conversa'],
+      assuntos: ['conversation'],
       aoEvento: () => undefined,
       createSocket: () => {
         vezes += 1;

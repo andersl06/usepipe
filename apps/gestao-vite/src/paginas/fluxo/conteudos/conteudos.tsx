@@ -15,7 +15,7 @@ import './conteudos.css';
 export function PageContents() {
   const { contact } = useContact();
   const read = useRead<{ channelId: string | null; modelos: TemplateListed[] }>(
-    `/v1/gestao/fluxos/${contact.id}/conteudos`,
+    `/v1/management/flows/${contact.id}/content-items`,
   );
   return (
     <ModuloShell ativo="Conteúdos">

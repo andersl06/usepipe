@@ -31,7 +31,7 @@ export interface AgentPermissions {
 /** O caminho da leitura — os ids vão na busca, como na rota sem `:id` da origem. */
 export function permissionsCaminho(ids: readonly string[]): string | null {
   if (ids.length === 0) return null;
-  return `/v1/gestao/atendentes/permissoes?atendentes=${ids.join(',')}`;
+  return `/v1/management/agents/permissions?atendentes=${ids.join(',')}`;
 }
 
 /** "Salvar alterações": manda só o que a tela MEXEU. */
@@ -40,7 +40,7 @@ export async function salvarPermissions(
   permissions: Record<string, boolean>,
 ): Promise<Resultado<void>> {
   try {
-    await api.patch('/v1/gestao/atendentes/permissoes', {
+    await api.patch('/v1/management/agents/permissions', {
       usuarioIds: [...userIds],
       permissions,
     });
@@ -108,7 +108,7 @@ export async function priorityCreateRule(
   pedido: RequestOfRuleOfPriority,
 ): Promise<Resultado<void>> {
   try {
-    await api.post('/v1/gestao/regras/prioridade', pedido);
+    await api.post('/v1/management/rules/priority', pedido);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {
@@ -118,7 +118,7 @@ export async function priorityCreateRule(
 
 export async function priorityExcluirRule(id: string): Promise<Resultado<void>> {
   try {
-    await api.delete(`/v1/gestao/regras/prioridade/${id}`);
+    await api.delete(`/v1/management/rules/priority/${id}`);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {

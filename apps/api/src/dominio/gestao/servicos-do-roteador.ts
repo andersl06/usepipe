@@ -125,26 +125,26 @@ async function routerVivo(tx: TransactionPipe, tid: string, id: string) {
     .limit(1);
   if (!atual) throw PipeError.naoEncontrado('fluxo');
   if (atual.tipo !== 'roteador') {
-    throw PipeError.request('nao_e_roteador', 'Só o roteador tem serviços.');
+    throw PipeError.request('not_router', 'Só o roteador tem serviços.');
   }
   return atual;
 }
 
-type Formulario = Omit<RequestOfService, 'nome'> & { nome: string };
+type Formulario = Omit<RequestOfService, 'nome'> & { name: string };
 
 /** O formulário normalizado: o que a tela esconde, o banco não guarda. */
 function conferido(pedido: Partial<RequestOfService>): Formulario {
   const nome = typeof pedido.nome === 'string' ? pedido.nome.trim() : '';
-  if (!nome) throw PipeError.request('servico_nome', 'Crie um nome para seu serviço.');
+  if (!nome) throw PipeError.request('service_name', 'Crie um nome para seu serviço.');
   if (nome.length > NAME_OF_SERVICE_MAX) {
     throw PipeError.request(
-      'servico_nome',
+      'service_name',
       `O nome do serviço pode ter até ${NAME_OF_SERVICE_MAX} caracteres.`,
     );
   }
   const chatbotId = typeof pedido.chatbotId === 'string' ? pedido.chatbotId : '';
   if (!UUID.test(chatbotId)) {
-    throw PipeError.request('servico_chatbot', 'Associe um chatbot para este serviço.');
+    throw PipeError.request('service_chatbot', 'Associe um chatbot para este serviço.');
   }
   const principal = pedido.principal === true;
   const persistente = !principal && pedido.persistente === true;
@@ -153,7 +153,7 @@ function conferido(pedido: Partial<RequestOfService>): Formulario {
     const n = pedido.expiracaoMin;
     if (typeof n !== 'number' || !Number.isInteger(n) || n < 1 || n > EXPIRATION_MAX_MIN) {
       throw PipeError.request(
-        'servico_expiracao',
+        'service_expiration',
         `Informe a expiração do redirecionamento, em minutos (de 1 a ${EXPIRATION_MAX_MIN}).`,
       );
     }
@@ -179,7 +179,7 @@ async function conferirConflitos(
       .limit(1);
     if (!bot || bot.tipo !== 'fluxo' || bot.estado === 'arquivado') {
       throw PipeError.request(
-        'servico_chatbot',
+        'service_chatbot',
         'O chatbot do serviço precisa ser um fluxo desta conta, e não pode estar excluído.',
       );
     }
@@ -197,19 +197,19 @@ async function conferirConflitos(
   ).filter((s) => s.id !== excetoId);
   if (outros.some((s) => s.nome === f.nome)) {
     throw PipeError.conflito(
-      'servico_nome_em_uso',
+      'service_name_in_use',
       'Já existe um serviço com este nome neste roteador.',
     );
   }
   if (outros.some((s) => s.servicoId === f.chatbotId)) {
     throw PipeError.conflito(
-      'servico_chatbot_em_uso',
+      'service_chatbot_in_use',
       'Este chatbot já é um serviço deste roteador.',
     );
   }
   if (f.principal && outros.some((s) => s.principal)) {
     throw PipeError.conflito(
-      'servico_principal_em_uso',
+      'service_principal_in_use',
       'Este roteador já tem um chatbot principal.',
     );
   }

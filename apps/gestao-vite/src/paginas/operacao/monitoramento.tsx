@@ -289,7 +289,7 @@ export function PageMonitoring() {
   const q = new URLSearchParams();
   if (params.queue) q.set('fila', params.queue);
   if (params.agent) q.set('atendente', params.agent);
-  const read = useRead<MonitoringResposta>(`/v1/gestao/monitoramento?${q}`, {
+  const read = useRead<MonitoringResposta>(`/v1/management/monitoring?${q}`, {
     staleTime: 0,
   });
   useRecargaSilenciosa(30);
@@ -517,7 +517,7 @@ export function PageMonitoring() {
         )}
         {fieldPanel === 'fila' ? (
           <>
-            <PanelField rotulo="Filas" icone="fila" apoio="Selecione uma ou mais filas">
+            <PanelField rotulo="Filas" icone="queue" apoio="Selecione uma ou mais filas">
               <SelectionChips
                 name="fila"
                 rotulo="Filas"

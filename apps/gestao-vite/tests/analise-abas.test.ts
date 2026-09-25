@@ -21,7 +21,7 @@ const visiveis = (flags = FLAGS_DA_CAPTURA, cluster = CLUSTER_DA_CAPTURA) =>
     .filter((a) => a.visivel)
     .map((a) => a.rotulo);
 
-test('o contrato da captura vê sete abas, na ordem do template', () => {
+test('the capture\'s contract sees seven tabs, in the template\'s order', () => {
   assert.deepEqual(visiveis(), [
     'Dashboard',
     'Mensagens ativas',
@@ -33,21 +33,21 @@ test('o contrato da captura vê sete abas, na ordem do template', () => {
   ]);
 });
 
-test('o Gerenciador navega na árvore atual do fluxo', () => {
+test('the Manager navigates the flow\'s current tree', () => {
   const aba = analyticsAbas(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA).find(
     (item) => item.key === 'dataExtractor',
   );
   assert.equal(aba?.segment, 'gerenciador-de-relatorios');
 });
 
-test('o Gerenciador cai em `default` quando o cluster não tem chave própria', () => {
+test('the Manager falls back to `default` when the cluster has no key of its own', () => {
   const byCluster = FLAGS_DA_CAPTURA.managerByCluster;
   assert.equal(mostraManager(byCluster, 'Beagle'), true);
   assert.equal(mostraManager(byCluster, 'Golden'), false);
   assert.equal(mostraManager(byCluster, 'DOBERMANN'), false);
 });
 
-test('aba escondida continua na fileira, só que invisível', () => {
+test('a hidden tab stays in the row, just invisible', () => {
   const abas = analyticsAbas(FLAGS_DA_CAPTURA, CLUSTER_DA_CAPTURA);
   assert.equal(abas.length, 8);
   assert.equal(abas.at(-1)?.key, 'goodData');

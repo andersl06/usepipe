@@ -13,18 +13,18 @@ import {
  * ficha §4) — ida e volta entre o texto do campo e a lista que a API espera.
  */
 
-test('textoParaEmails separa por vírgula, tira espaço e minúscula', () => {
+test('textToEmails splits by comma, trims spaces and lowercases', () => {
   assert.deepEqual(textoParaEmails('Ana@ex.com, bia@ex.com ,  ana@ex.com'), [
     'ana@ex.com',
     'bia@ex.com',
   ]);
 });
 
-test('textoParaEmails aceita quebra de linha e ignora vazio', () => {
+test('textToEmails accepts line breaks and ignores empty ones', () => {
   assert.deepEqual(textoParaEmails('a@ex.com\n\nb@ex.com\n'), ['a@ex.com', 'b@ex.com']);
 });
 
-test('textoParaEmails de texto vazio é lista vazia', () => {
+test('textToEmails of empty text is an empty list', () => {
   assert.deepEqual(textoParaEmails(''), []);
   assert.deepEqual(textoParaEmails('   '), []);
 });
@@ -34,7 +34,7 @@ test('emailsParaTexto junta com vírgula e espaço', () => {
   assert.equal(emailsParaTexto([]), '');
 });
 
-test('sites: ida e volta preserva a ordem e tira repetido/vazio', () => {
+test('sites: a round trip preserves order and removes duplicate/empty entries', () => {
   const texto = 'https://a.com\n\nhttps://b.com\nhttps://a.com';
   assert.deepEqual(textoParaSites(texto), ['https://a.com', 'https://b.com']);
   assert.equal(sitesParaTexto(['https://a.com', 'https://b.com']), 'https://a.com\nhttps://b.com');

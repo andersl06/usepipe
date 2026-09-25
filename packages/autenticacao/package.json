@@ -1,5 +1,5 @@
 {
-  "name": "@pipe/autenticacao",
+  "name": "@pipe/authentication",
   "version": "0.1.0",
   "private": true,
   "description": "Login com provedor externo (OIDC), sessão e resolução de tenant",

@@ -11,8 +11,8 @@ export async function registrarEvento(
   inbound: {
     tenantId: string;
     conversationId: string;
-    tipo: TipoEvento;
-    em?: Date;
+    type: TipoEvento;
+    at?: Date;
     userId?: string | null;
     queueId?: string | null;
     data?: Record<string, unknown>;

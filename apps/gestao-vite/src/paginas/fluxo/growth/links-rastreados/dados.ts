@@ -40,12 +40,12 @@ export type Resultado<T> =
  * mudar de tela, não de domínio.
  */
 export function fieldOfErrorOfLink(codigo: string): 'nome' | 'destino' | undefined {
-  if (codigo === 'nome_obrigatorio') return 'nome';
+  if (codigo === 'name_required') return 'nome';
   if (
-    codigo === 'destino_obrigatorio' ||
-    codigo === 'url_invalida' ||
-    codigo === 'url_precisa_https' ||
-    codigo === 'url_proibida'
+    codigo === 'destination_required' ||
+    codigo === 'url_invalid' ||
+    codigo === 'url_needs_https' ||
+    codigo === 'url_forbidden'
   ) {
     return 'destino';
   }

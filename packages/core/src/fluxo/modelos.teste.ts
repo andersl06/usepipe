@@ -10,7 +10,7 @@ import type { State, FlowBlip } from './modelos.js';
 const flow = (states: State[], id = '0'): FlowBlip => ({ id, states });
 
 describe('Flow.Validate', () => {
-  it('fluxo de um estado válido passa', () => {
+  it('a valid one-state flow passes', () => {
     expect(() => validateFlow(flow([{ id: '0', root: true, input: {} }]))).not.toThrow();
   });
 
@@ -20,13 +20,13 @@ describe('Flow.Validate', () => {
     );
   });
 
-  it('sem estado raiz falha', () => {
+  it('with no root state it fails', () => {
     expect(() => validateFlow(flow([{ id: '0', input: {} }]))).toThrow(
       'O fluxo precisa de exatamente um estado raiz.',
     );
   });
 
-  it('raiz sem entrada falha', () => {
+  it('a root without an entry fails', () => {
     expect(() => validateFlow(flow([{ id: '0', root: true }]))).toThrow(
       'O estado raiz precisa esperar uma entrada.',
     );
@@ -105,7 +105,7 @@ describe('Flow.Validate', () => {
     ).not.toThrow();
   });
 
-  it('destino de saída inexistente falha, e {{variável}} passa', () => {
+  it('a nonexistent output destination fails, and {{variable}} passes', () => {
     expect(() =>
       validateFlow(flow([{ id: '0', root: true, input: {}, outputs: [{ stateId: 'x' }] }])),
     ).toThrow("O estado de destino 'x' da saída não existe.");

@@ -156,7 +156,7 @@ export async function loginWithIdentity(
       return openAccountNew(databaseApp, pessoa, options, context);
     }
     throw new InboundRefused(
-      'dominio_publico',
+      'domain_public',
       'E-mail pessoal não identifica empresa. Entre pelo convite que você recebeu.',
     );
   }
@@ -176,7 +176,7 @@ export async function loginWithIdentity(
       return openAccountNew(databaseApp, pessoa, options, context);
     }
     throw new InboundRefused(
-      'dominio_desconhecido',
+      'domain_unknown',
       `Nenhuma conta do Pipe usa o domínio "${domain}".`,
     );
   }
@@ -193,12 +193,12 @@ export async function loginWithIdentity(
     const encontrado = convidado[0];
     if (!encontrado) {
       throw new InboundRefused(
-        'sem_convite',
+        'without_invitation',
         'Você ainda não foi convidado para esta conta. Peça a quem administra.',
       );
     }
     if (!encontrado.ativo) {
-      throw new InboundRefused('usuario_inativo', 'Este acesso foi desativado.');
+      throw new InboundRefused('user_inactive', 'Este acesso foi desativado.');
     }
 
     await tx.insert(identityExternal).values({
@@ -300,7 +300,7 @@ export async function openSessionAt(
       .where(eq(user.id, userId))
       .limit(1);
     if (!atual[0]?.ativo) {
-      throw new InboundRefused('usuario_inativo', 'Este acesso foi desativado.');
+      throw new InboundRefused('user_inactive', 'Este acesso foi desativado.');
     }
     return writeSession(tx, tenantId, userId, origem, contexto);
   });
@@ -353,7 +353,7 @@ async function openSession(
       .where(eq(user.id, usuarioId))
       .limit(1);
     if (!atual[0]?.ativo) {
-      throw new InboundRefused('usuario_inativo', 'Este acesso foi desativado.');
+      throw new InboundRefused('user_inactive', 'Este acesso foi desativado.');
     }
 
     // Em série, nunca em `Promise.all`: dentro da transação o paralelo derruba o

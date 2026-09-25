@@ -20,8 +20,8 @@ const PERMISSION_OF_MESSAGE = 'whatsapp_business_messaging';
 
 export interface PreviaOfConfiguration {
   nomeVerificado: string | null;
-  numero: string;
-  numeroId: string;
+  number: string;
+  numberId: string;
   wabaId: string;
   accessToTemplates: true;
   nomeSugerido: string;
@@ -33,7 +33,7 @@ export interface PreviaOfConfiguration {
 const FORMAT_OF_SECRET = /^[0-9a-f]{32}$/i;
 
 function recusa(message: string): PipeError {
-  return new PipeError(422, 'configuracao_invalida', message);
+  return new PipeError(422, 'configuration_invalid', message);
 }
 
 export function numeroNormalizado(numero: unknown): string {
@@ -42,7 +42,7 @@ export function numeroNormalizado(numero: unknown): string {
 
 export async function validateConfigurationManual(data: {
   wabaId?: string | undefined;
-  numeroId?: string | undefined;
+  numberId?: string | undefined;
   token?: string | undefined;
   appSecret?: string | undefined;
   /** Reconexão: o canal que JÁ tem este número não disputa consigo mesmo. */
@@ -60,7 +60,7 @@ export async function validateConfigurationManual(data: {
   }
   const { wabaId, numeroId, token, appSecret } = data as {
     wabaId: string;
-    numeroId: string;
+    numberId: string;
     token: string;
     appSecret: string;
   };
@@ -89,7 +89,7 @@ export async function validateConfigurationManual(data: {
   /* Na reconexão o dono do número é o próprio canal que está sendo reconectado:
      ele não disputa consigo mesmo, senão trocar o token vencido seria impossível. */
   const eu = data.channelId ?? null;
-  const { rows } = await databaseOwner().execute<{ numero: boolean; id: boolean }>(sql`
+  const { rows } = await databaseOwner().execute<{ number: boolean; id: boolean }>(sql`
     select exists (
              select 1 from canal
               where tipo = 'whatsapp_cloud' and config->>'numero' = ${numero}

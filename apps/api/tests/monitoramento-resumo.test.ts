@@ -3,8 +3,8 @@ import { metricsByKey, normalizeTicketsByHour } from '../src/dominio/gestao/moni
 
 const metrica = (value: number | null) => ({ value, populacao: value === null ? 0 : 1, excluidas: 0, soma: value ?? 0 });
 
-describe('resumo detalhado do monitoramento', () => {
-  it('leva as médias já calculadas no relatório para cada linha da tabela', () => {
+describe('Build the detailed monitoring summary', () => {
+  it('Carry precomputed report averages into each summary table row', () => {
     const resumo = metricsByKey([
       {
         chave: 'Comercial',
@@ -27,8 +27,8 @@ describe('resumo detalhado do monitoramento', () => {
   });
 });
 
-describe('tickets abertos por hora', () => {
-  it('preenche as 24 horas sem inventar dados entre os horários retornados pelo banco', () => {
+describe('Count opened tickets by hour', () => {
+  it('Fill all 24 hourly slots with zeroes where the database returned no data', () => {
     expect(normalizeTicketsByHour([{ hora: 8, total: 3 }, { hora: 23, total: 1 }])).toEqual([
       0, 0, 0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
     ]);

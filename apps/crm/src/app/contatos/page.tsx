@@ -20,13 +20,13 @@ function colunas(fuso: string, agora: Date): readonly Column<LinhaContact>[] {
     {
       key: 'nome',
       rotulo: 'Contato',
-      celula: (c) => <Link href={`/contatos/${c.id}`}>{c.nome}</Link>,
+      celula: (c) => <Link href={`/contacts/${c.id}`}>{c.nome}</Link>,
     },
     {
       key: 'conta',
       rotulo: 'Conta',
       celula: (c) =>
-        c.accountId ? <Link href={`/contas/${c.accountId}`}>{c.accountName}</Link> : '—',
+        c.accountId ? <Link href={`/accounts/${c.accountId}`}>{c.accountName}</Link> : '—',
     },
     { key: 'email', rotulo: 'E-mail', celula: (c) => c.email ?? '—' },
     { key: 'telefone', rotulo: 'Telefone', numerica: true, celula: (c) => c.telefone ?? '—' },

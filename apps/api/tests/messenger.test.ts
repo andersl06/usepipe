@@ -22,13 +22,13 @@ const { payloadDoMessenger, valuesOfMessenger } = await import('../src/dominio/m
 
 describe('Messenger', () => {
   beforeEach(() => { definirFabricaGraphMessenger(null); ClienteGraphMessengerDuble.reiniciar(); });
-  it('identifica a Página de forma determinística e confere o segredo', async () => {
+  it('Resolve Page IDs deterministically and verify the App Secret', async () => {
     const cliente = clienteGraphMessenger('pagina-teste');
     expect((await cliente.fetchPage()).id).toBe(ClienteGraphMessengerDuble.idOfPage('pagina-teste'));
     expect(await cliente.checkSecretOfApp('ab'.repeat(16))).toBe(true);
     expect(await cliente.checkSecretOfApp(`bad${'0'.repeat(29)}`)).toBe(false);
   });
-  it('traduz PSID, postback e mídia, mas ignora echo', () => {
+  it('Translate Messenger PSIDs, postbacks, and media while ignoring echoes', () => {
     const payload = { object: 'page', entry: [{ id: 'pagina', messaging: [
       { sender: { id: 'psid' }, timestamp: 1_700_000_000_000, message: { mid: 'mid-1', text: 'Olá' } },
       { sender: { id: 'psid' }, timestamp: 1_700_000_000_000, postback: { mid: 'mid-2', title: 'Começar' } },
@@ -40,10 +40,10 @@ describe('Messenger', () => {
       { from: 'psid', id: 'mid-1', text: { body: 'Olá' } }, { id: 'mid-2', text: { body: 'Começar' } }, { id: 'mid-3', image: { url: 'https://imagem.teste/a.jpg' } },
     ]);
   });
-  it('descarta eventos de outra Página', () => expect(valuesOfMessenger({ object: 'page', entry: [{ id: 'outra', messaging: [] }] }, 'pagina')).toEqual([]));
+  it('Discard events from another Facebook Page', () => expect(valuesOfMessenger({ object: 'page', entry: [{ id: 'outra', messaging: [] }] }, 'pagina')).toEqual([]));
 });
 
-describe('Messenger com banco, webhook e worker', () => {
+describe('Exercise Messenger with the database, webhook, and worker', () => {
   const secret = 'ab'.repeat(16);
   const sufixo = randomUUID().slice(0, 8);
   let dono: ReturnType<typeof createDatabasecriarBancocreateDatabase>;
@@ -97,7 +97,7 @@ describe('Messenger com banco, webhook e worker', () => {
   afterAll(async () => { await api?.fechar(); await dono.execute(sql`delete from tenant where id in (${A.tenantId}::uuid, ${B.tenantId}::uuid)`); await closeDatabasefecharBancocloseDatabase(dono); });
   beforeEach(() => { ClienteGraphMessengerDuble.reiniciar(); dubleMessenger.reiniciar(); });
 
-  it('recusa token inválido, App Secret ausente ou fora do formato e cifra credenciais', async () => {
+  it('Reject invalid tokens or App Secrets and encrypt valid credentials', async () => {
     await expect(conectar(A, `invalido-${sufixo}`)).rejects.toMatchObject({ status: 422 });
     await expect(controller.manual(request(A), { access_token: 'ok', app_secret: undefined })).rejects.toMatchObject({ status: 422 });
     await expect(controller.manual(request(A), { access_token: 'ok', app_secret: 'curto' })).rejects.toMatchObject({ status: 422 });
@@ -108,7 +108,7 @@ describe('Messenger com banco, webhook e worker', () => {
     expect(estaCifrado(String(linha!.config['appSecret']))).toBe(true);
   });
 
-  it('recusa a mesma página em outro tenant e mantém isolamento ao desconectar', async () => {
+  it('Reject a page already connected to another tenant and isolate disconnects', async () => {
     await expect(conectar(B, `ok-${sufixo}`)).rejects.toMatchObject({ status: 422 });
     await expect(controller.desconectar(request(B), channelId)).rejects.toMatchObject({ status: 404 });
     const desligado = await controller.desconectar(request(A), channelId);
@@ -116,7 +116,7 @@ describe('Messenger com banco, webhook e worker', () => {
     expect(ClienteGraphMessengerDuble.chamadas).toContainEqual({ acao: 'desassinar', pageId });
   });
 
-  it('verifica desafio, recusa assinatura inválida e enfileira corpo válido sem duplicar mid', async () => {
+  it('Verify the challenge, reject bad signatures, and enqueue valid events only once per mid', async () => {
     const ligado = await conectar(A, `novo-${sufixo}`); channelId = ligado.id; pageId = ligado.paginaId!;
     const certo = await fetch(`${api.url}/webhooks/messenger/${channelId}?hub.mode=subscribe&hub.verify_token=${ligado.webhook.verifyToken}&hub.challenge=42`);
     expect(certo.status).toBe(200); expect(await certo.text()).toBe('42');
@@ -125,14 +125,14 @@ describe('Messenger com banco, webhook e worker', () => {
     expect((await postar(payload('mid-1'))).status).toBe(200);
     const messages = await linhas<{ id_provedor: string; conversationId: string }>(sql`select id_provedor, conversa_id from mensagem where id_provedor='mid-1'`);
     expect(messages).toHaveLength(1);
-    const [contact] = await linhas<{ telefone_e164: string | null }>(sql`select c.telefone_e164 from contato c join contato_identidade i on i.contato_id=c.id where i.identificador='psid-1'`);
+    const [contact] = await linhas<{ phoneE164: string | null }>(sql`select c.telefone_e164 from contato c join contato_identidade i on i.contato_id=c.id where i.identificador='psid-1'`);
     expect(contact!.telefone_e164).toBeNull();
     const enviada = await sendMessage({ tenantId: A.tenantId, conversaId: messages[0]!.conversationId, texto: 'Olá de volta' });
     expect((await processarOutbox()).find((r) => r.messageId === enviada.id)).toMatchObject({ estado: 'enviada' });
     expect(dubleMessenger.chamadas).toContainEqual(expect.objectContaining({ para: 'psid-1', tipo: 'texto' }));
   });
 
-  it('ignora echo e aplica Começar e menu persistente no perfil da Página', async () => {
+  it('Ignore echoes and apply Get Started and persistent-menu settings to the Page', async () => {
     const canal = await readChannelMessenger(A.tenantId, channelId);
     await aplicarPerfilMessenger(canal, { get_started: { payload: 'PIPE_COMECAR' }, greeting: [{ locale: 'default', text: 'Bem-vindo' }] });
     await aplicarPerfilMessenger(canal, { persistent_menu: [{ locale: 'default', call_to_actions: [{ type: 'web_url', title: 'Ajuda', url: 'https://pipe.test/ajuda' }] }] });

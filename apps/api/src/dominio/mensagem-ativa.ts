@@ -39,23 +39,23 @@ export type MotivoDeRecusa =
   | 'numero_invalido'
   | 'ja_em_atendimento'
   | 'limite_diario'
-  | 'contato_duplicado';
+  | 'contact_duplicated';
 
 export interface DestinationOfTrigger {
   /** Um dos dois: contato já cadastrado, ou telefone para achar/cadastrar. */
   contatoId?: string | null;
-  telefone?: string | null;
-  nome?: string | null;
+  phone?: string | null;
+  name?: string | null;
   /** Variáveis do corpo só deste contato. Sem elas, valem as do lote. */
   parametros?: string[] | null;
 }
 
 export interface ResultOfDestination {
-  telefone: string | null;
+  phone: string | null;
   contatoId: string | null;
   enviada: boolean;
   mensagemId?: string;
-  conversaId?: string;
+  conversationId?: string;
   motivo?: MotivoDeRecusa;
   detalhe?: string;
 }
@@ -98,11 +98,11 @@ export async function dispararMessageActive(
   pedido: PedidoDeDisparo,
 ): Promise<ResultOfDestination[]> {
   if (pedido.destinos.length === 0) {
-    throw PipeError.request('sem_destino', 'Escolha ao menos um contato.');
+    throw PipeError.request('without_destination', 'Escolha ao menos um contato.');
   }
   if (pedido.destinos.length > MAX_CONTACTS_BY_TRIGGER) {
     throw PipeError.request(
-      'limite_de_contatos',
+      'limit_of_contacts',
       `O limite é de ${MAX_CONTACTS_BY_TRIGGER} contatos por disparo.`,
       { limite: MAX_CONTACTS_BY_TRIGGER, enviados: pedido.destinos.length },
     );
@@ -134,7 +134,7 @@ async function aDestination(
 
   const key = destino.contatoId ?? telefone ?? '';
   if (jaVistos.has(key)) {
-    return { telefone, contatoId: destino.contatoId ?? null, enviada: false, motivo: 'contato_duplicado' };
+    return { telefone, contatoId: destino.contatoId ?? null, enviada: false, motivo: 'contact_duplicated' };
   }
   jaVistos.add(key);
 
@@ -150,7 +150,7 @@ async function aDestination(
     if (inAttendance[0]) {
       // Código 1602 deles. Conversa aberta é caminho de envio normal, não de ativa —
       // e `enviarMensagem` já manda template fora da janela quando preciso.
-      return { contactId, recusa: 'ja_em_atendimento' as const };
+      return { contactId, recusa: 'already_in_attendance' as const };
     }
 
     if (DAILY_LIMIT_BY_CONTACT > 0) {
@@ -214,7 +214,7 @@ async function findOrCreateByPhone(
   // `acharOuCriarContato` usa no caminho de entrada. Divergir aqui criaria um contato
   // paralelo para a mesma pessoa na primeira mensagem que ela respondesse.
   const identificador = telefone.replace(/^\+/, '');
-  const { rows } = await tx.execute<{ contato_id: string }>(sql`
+  const { rows } = await tx.execute<{ contactId: string }>(sql`
     select contato_id from contato_identidade
      where canal_tipo = ${canal.tipo} and identificador = ${identificador} limit 1
   `);
@@ -264,7 +264,7 @@ async function openConversationOfTrigger(
     sql`select id, fila_padrao_id from inbox where canal_id = ${pedido.channelId} order by criado_em limit 1`,
   );
   const inbox = inboxes[0];
-  if (!inbox) throw PipeError.conflito('canal_sem_inbox', 'O canal não tem inbox configurada.');
+  if (!inbox) throw PipeError.conflito('channel_without_inbox', 'O canal não tem inbox configurada.');
 
   const agora = new Date();
   const agent = pedido.agentId ?? null;
@@ -311,7 +311,7 @@ export interface LineOfApplication {
   conversationId: string;
   contactId: string;
   contactName: string | null;
-  telefone: string | null;
+  phone: string | null;
   templateNome: string | null;
   stateDelivery: string | null;
   errorCode: string | null;
@@ -332,13 +332,13 @@ export async function applicationOfActive(
   return noTenant(tenantId, async (tx) => {
     const { rows } = await tx.execute<{
       id: string;
-      conversa_id: string;
-      contato_id: string;
-      contato_nome: string | null;
-      telefone_e164: string | null;
-      template_nome: string | null;
-      estado_entrega: string | null;
-      erro_codigo: string | null;
+      conversationId: string;
+      contactId: string;
+      contactName: string | null;
+      phoneE164: string | null;
+      templateName: string | null;
+      stateDelivery: string | null;
+      errorCode: string | null;
       criada_em: Date | string;
     }>(sql`
       select m.id, m.conversa_id, ct.id as contato_id, ct.nome as contato_nome,

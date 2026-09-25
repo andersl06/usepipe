@@ -32,13 +32,13 @@ type Rotulos = Record<string, string>;
 export const BALDES_SEGUNDOS = [0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10] as const;
 
 interface Contador {
-  nome: string;
+  name: string;
   rotulos: Rotulos;
   value: number;
 }
 
 interface Histograma {
-  nome: string;
+  name: string;
   rotulos: Rotulos;
   /** Contagem por balde, já acumulada — é o que o formato `le` exige. */
   baldes: number[];

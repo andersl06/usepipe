@@ -23,7 +23,7 @@ function em(relogio: string): Date {
 const texto = (n: number) => 'a'.repeat(n);
 
 describe('constantes da régua', () => {
-  it('são exatamente as do relatório validado em produção', () => {
+  it('they are exactly the ones from the report validated in production', () => {
     expect(CARACTERES_BY_MINUTO_ESCRITA).toBe(200);
     expect(CARACTERES_BY_MINUTO_READ).toBe(1000);
     // Opus a ~16 kbps: 16.000 bits ÷ 8 = 2.000 bytes por segundo.
@@ -64,7 +64,7 @@ describe('conversão de caracteres em segundos', () => {
   });
 });
 
-describe('duração de áudio', () => {
+describe('audio duration', () => {
   const casos: { nome: string; attachment: unknown; esperado: number | null }[] = [
     { nome: 'metadado presente manda', attachment: { duracaoSeg: 12, bytes: 999_999 }, esperado: 12 },
     { nome: 'sem metadado, estima por tamanho', attachment: { bytes: 30_000 }, esperado: 15 },
@@ -82,7 +82,7 @@ describe('duração de áudio', () => {
   }
 });
 
-describe('esforço por conversa', () => {
+describe('effort per conversation', () => {
   /**
    * Conta feita à mão:
    *  escrita  = 400 (texto) + 100 (nota interna) = 500 chars → 500×60÷200 = 150s
@@ -95,40 +95,40 @@ describe('esforço por conversa', () => {
   const messages: MessageEffort[] = [
     { conversationId: 'c1', em: em('10:00:00'), autor: 'bot', direction: 'saida', tipo: 'texto', conteudo: texto(5000) },
     { conversationId: 'c1', em: em('10:01:00'), autor: 'contato', direction: 'entrada', tipo: 'texto', conteudo: texto(2000) },
-    { conversationId: 'c1', em: em('10:02:00'), autor: 'atendente', direction: 'saida', tipo: 'texto', conteudo: texto(400), userId: 'u1' },
-    { conversationId: 'c1', em: em('10:03:00'), autor: 'atendente', direction: 'saida', tipo: 'texto', conteudo: texto(600), userId: 'u1', respostaProntaId: 'rp-1' },
+    { conversationId: 'c1', em: em('10:02:00'), autor: 'agent', direction: 'saida', tipo: 'texto', conteudo: texto(400), userId: 'u1' },
+    { conversationId: 'c1', em: em('10:03:00'), autor: 'agent', direction: 'saida', tipo: 'texto', conteudo: texto(600), userId: 'u1', respostaProntaId: 'rp-1' },
     { conversationId: 'c1', em: em('10:04:00'), autor: 'contato', direction: 'entrada', tipo: 'audio', attachment: { durationSeg: 45 } },
-    { conversationId: 'c1', em: em('10:05:00'), autor: 'atendente', direction: 'saida', tipo: 'audio', userId: 'u1', attachment: { bytes: 60_000 } },
+    { conversationId: 'c1', em: em('10:05:00'), autor: 'agent', direction: 'saida', tipo: 'audio', userId: 'u1', attachment: { bytes: 60_000 } },
     { conversationId: 'c1', em: em('10:06:00'), autor: 'contato', direction: 'entrada', tipo: 'audio', attachment: {} },
-    { conversationId: 'c1', em: em('10:07:00'), autor: 'atendente', direction: 'interna', tipo: 'texto', conteudo: texto(100), userId: 'u1' },
+    { conversationId: 'c1', em: em('10:07:00'), autor: 'agent', direction: 'interna', tipo: 'texto', conteudo: texto(100), userId: 'u1' },
     { conversationId: 'c1', em: em('10:08:00'), autor: 'sistema', direction: 'interna', tipo: 'texto', conteudo: texto(300) },
   ];
 
   const effort = calcularEffortConversation(messages);
 
-  it('separa escrita, leitura, escuta e fala', () => {
+  it('separates writing, reading, listening and speaking', () => {
     expect(effort.charsEscritos).toBe(500);
     expect(effort.charsLidos).toBe(2000);
     expect(effort.audioOuvidoSeg).toBe(45);
     expect(effort.audioGravadoSeg).toBe(30);
   });
 
-  it('soma 345 segundos de esforço', () => {
+  it('adds up to 345 seconds of effort', () => {
     expect(effort.effortSeg).toBe(345);
   });
 
-  it('resposta pronta sai do esforço e vai para coluna separada', () => {
+  it('a canned response leaves effort and goes to a separate column', () => {
     expect(effort.charsDeRespostaPronta).toBe(600);
     expect(effort.effortCannedResponseSeg).toBe(180);
     // Os 180s da resposta pronta ficam fora dos 345s de esforço.
     expect(effort.effortSeg).toBe(345);
   });
 
-  it('conta o áudio sem metadado de duração em vez de inventar tempo', () => {
+  it('counts audio without duration metadata instead of making up a time', () => {
     expect(effort.audiosSemMetadado).toBe(1);
   });
 
-  it('mensagem de bot e de sistema não geram esforço nenhum', () => {
+  it('bot and system messages generate no effort at all', () => {
     const soMaquina = calcularEffortConversation([
       { conversationId: 'x', em: em('10:00:00'), autor: 'bot', direction: 'saida', tipo: 'texto', conteudo: texto(9000) },
       { conversationId: 'x', em: em('10:01:00'), autor: 'sistema', direction: 'interna', tipo: 'texto', conteudo: texto(9000) },
@@ -140,7 +140,7 @@ describe('esforço por conversa', () => {
 
   it('template também não foi digitado à mão', () => {
     const comTemplate = calcularEffortConversation([
-      { conversationId: 'x', em: em('10:00:00'), autor: 'atendente', direction: 'saida', tipo: 'template', conteudo: texto(200), userId: 'u1' },
+      { conversationId: 'x', em: em('10:00:00'), autor: 'agent', direction: 'saida', tipo: 'template', conteudo: texto(200), userId: 'u1' },
     ]);
     expect(comTemplate.charsEscritos).toBe(0);
     expect(comTemplate.charsDeRespostaPronta).toBe(200);
@@ -148,21 +148,21 @@ describe('esforço por conversa', () => {
     expect(comTemplate.effortCannedResponseSeg).toBe(60);
   });
 
-  it('conversa vazia devolve tudo zerado', () => {
+  it('an empty conversation returns everything zeroed', () => {
     const empty = calcularEffortConversation([], { conversationId: 'vazia' });
     expect(empty.effortSeg).toBe(0);
     expect(empty.conversationId).toBe('vazia');
     expect(empty.agentId).toBeNull();
   });
 
-  it('descobre o atendente pela primeira mensagem dele', () => {
+  it('finds the agent from their first message', () => {
     expect(effort.agentId).toBe('u1');
   });
 
-  it('agrupa por conversa em ordem determinística', () => {
+  it('groups by conversation in deterministic order', () => {
     const byConversation = calcularEffortByConversation([
       { conversationId: 'c2', em: em('10:00:00'), autor: 'contato', direction: 'entrada', tipo: 'texto', conteudo: texto(1000) },
-      { conversationId: 'c1', em: em('10:00:00'), autor: 'atendente', direction: 'saida', tipo: 'texto', conteudo: texto(200), userId: 'u1' },
+      { conversationId: 'c1', em: em('10:00:00'), autor: 'agent', direction: 'saida', tipo: 'texto', conteudo: texto(200), userId: 'u1' },
     ]);
     expect(byConversation.map((e) => e.conversationId)).toEqual(['c1', 'c2']);
     expect(byConversation[0]?.effortSeg).toBe(60);
@@ -170,7 +170,7 @@ describe('esforço por conversa', () => {
   });
 });
 
-describe('régua de apoio: tempo em sessão', () => {
+describe('support metric: time in session', () => {
   /**
    * Mensagens do atendente no dia, em minutos a partir das 10:00:
    *   0, 3, 8, 25, 30, 31, 60
@@ -210,7 +210,7 @@ describe('régua de apoio: tempo em sessão', () => {
     });
   }
 
-  it('não depende da ordem em que as mensagens chegam', () => {
+  it('does not depend on the order messages arrive in', () => {
     const embaralhado = [...instantes].reverse();
     expect(calcularTimeInSession(embaralhado).sessionSeg).toBe(840);
   });
@@ -220,8 +220,8 @@ describe('régua de apoio: tempo em sessão', () => {
   });
 });
 
-describe('consolidação do dia do atendente', () => {
-  it('esforço ÷ sessão vira ocupação; esforço ÷ tickets é média ponderada por construção', () => {
+describe('agent-day consolidation', () => {
+  it('effort ÷ session becomes occupancy; effort ÷ tickets is a weighted average by construction', () => {
     const dia = agentConsolidarDia({
       dia: '2026-03-02',
       userId: 'u1',
@@ -235,7 +235,7 @@ describe('consolidação do dia do atendente', () => {
     expect(dia.occupancy).toBe(0.75);
   });
 
-  it('sem sessão medida a ocupação é null, nunca infinito', () => {
+  it('with no measured session, occupancy is null, never infinite', () => {
     expect(occupancy(600, 0)).toBeNull();
     const dia = agentConsolidarDia({
       dia: '2026-03-02',
@@ -247,7 +247,7 @@ describe('consolidação do dia do atendente', () => {
     expect(dia.effortMedioByTicketSeg).toBeNull();
   });
 
-  it('dia cheio pesa mais que dia vazio na média por ticket', () => {
+  it('a full day weighs more than an empty day in the per-ticket average', () => {
     const cheio = agentConsolidarDia({
       dia: '2026-03-02',
       userId: 'u1',

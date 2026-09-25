@@ -39,7 +39,7 @@ export async function salvarRascunho(
   desenho: DesenhoDoBuilder,
 ): Promise<Resultado<RascunhoGravado>> {
   try {
-    const value = await api.put<RascunhoGravado>(`/v1/gestao/fluxos/${id}/builder`, desenho);
+    const value = await api.put<RascunhoGravado>(`/v1/management/flows/${id}/builder`, desenho);
     atualizarLeituras();
     return { ok: true, value };
   } catch (error) {
@@ -49,7 +49,7 @@ export async function salvarRascunho(
 
 export async function publishFlow(id: string): Promise<ResultadoDoBuilder<VersaoPublicada>> {
   try {
-    const value = await api.post<VersaoPublicada>(`/v1/gestao/fluxos/${id}/builder/publicar`);
+    const value = await api.post<VersaoPublicada>(`/v1/management/flows/${id}/builder/publish`);
     atualizarLeituras();
     return { ok: true, value };
   } catch (error) {
@@ -67,7 +67,7 @@ export async function restoreVersion(
 ): Promise<Resultado<RascunhoGravado>> {
   try {
     const value = await api.post<RascunhoGravado>(
-      `/v1/gestao/fluxos/${id}/builder/versoes/${versao}/restaurar`,
+      `/v1/management/flows/${id}/builder/versions/${versao}/restore`,
     );
     atualizarLeituras();
     return { ok: true, value };

@@ -9,7 +9,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -70,7 +70,7 @@ async function openSession(cenario: Cenario, userId: string): Promise<string> {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${userId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   return novo.token;
 }
@@ -88,7 +88,7 @@ async function chamar(
   caminho: string,
   cabecalhos: Record<string, string>,
   corpo?: unknown,
-): Promise<{ status: number; corpo: Record<string, unknown> }> {
+): Promise<{ status: number; body: Record<string, unknown> }> {
   const resposta = await fetch(`${api.url}${caminho}`, {
     method: metodo,
     headers: cabecalhos,
@@ -150,7 +150,7 @@ beforeAll(async () => {
   sessionWithoutPoder = await openSession(a, await pessoaCom(a, []));
   colegaId = await pessoaCom(a, ['conversa.etiquetar']);
   sessionColleague = await openSession(a, colegaId);
-  labelConversation = await createLabel('conversa');
+  labelConversation = await createLabel('conversation');
   labelContact = await createLabel('contato');
   etiquetaAmbos = await createLabel('ambos');
 }, 180_000);
@@ -161,7 +161,7 @@ afterAll(async () => {
 });
 
 describe('GET /v1/etiquetas — o catálogo do tenant', () => {
-  it('lista todas sem filtro, e só as que cabem no alvo com `?escopo=`', async () => {
+  it('List all labels without a filter and only matching labels with `?scope=`', async () => {
     const todas = await chamar('GET', '/v1/etiquetas', comCookie(sessionAgent));
     expect(todas.status).toBe(200);
     const ids = (todas.corpo['etiquetas'] as { id: string }[]).map((e) => e.id);
@@ -174,7 +174,7 @@ describe('GET /v1/etiquetas — o catálogo do tenant', () => {
     expect(idsContact).not.toContain(labelConversation);
   });
 
-  it('escopo desconhecido é 400; sem sessão é 401', async () => {
+  it('Return 400 for an unknown scope and 401 without a session', async () => {
     const invalido = await chamar('GET', '/v1/etiquetas?escopo=fila', comCookie(sessionAgent));
     expect(invalido.status).toBe(400);
     const withoutSession = await chamar('GET', '/v1/etiquetas', { 'content-type': 'application/json' });
@@ -182,13 +182,13 @@ describe('GET /v1/etiquetas — o catálogo do tenant', () => {
   });
 });
 
-describe('POST/DELETE /v1/conversas/:id/etiquetas — a conversa aberta', () => {
+describe('POST/DELETE /v1/conversations/:id/etiquetas — a conversa aberta', () => {
   it('aplica, é idempotente, remove, e cada gesto grava auditoria', async () => {
     const { conversationId } = await createConversation(agentId);
 
     const aplicada = await chamar(
       'POST',
-      `/v1/conversas/${conversationId}/etiquetas`,
+      `/v1/conversations/${conversationId}/labels`,
       comCookie(sessionAgent),
       { etiqueta_id: labelConversation },
     );
@@ -204,7 +204,7 @@ describe('POST/DELETE /v1/conversas/:id/etiquetas — a conversa aberta', () => 
 
     const deNovo = await chamar(
       'POST',
-      `/v1/conversas/${conversationId}/etiquetas`,
+      `/v1/conversations/${conversationId}/labels`,
       comCookie(sessionAgent),
       { etiqueta_id: labelConversation },
     );
@@ -213,7 +213,7 @@ describe('POST/DELETE /v1/conversas/:id/etiquetas — a conversa aberta', () => 
 
     const removida = await chamar(
       'DELETE',
-      `/v1/conversas/${conversationId}/etiquetas/${labelConversation}`,
+      `/v1/conversations/${conversationId}/labels/${labelConversation}`,
       comCookie(sessionAgent),
     );
     expect(removida.status).toBe(200);
@@ -222,7 +222,7 @@ describe('POST/DELETE /v1/conversas/:id/etiquetas — a conversa aberta', () => 
 
     const semNada = await chamar(
       'DELETE',
-      `/v1/conversas/${conversationId}/etiquetas/${labelConversation}`,
+      `/v1/conversations/${conversationId}/labels/${labelConversation}`,
       comCookie(sessionAgent),
     );
     expect(semNada.corpo).toEqual({ removida: false });
@@ -234,21 +234,21 @@ describe('POST/DELETE /v1/conversas/:id/etiquetas — a conversa aberta', () => 
     expect(log[1]?.antes).toMatchObject({ etiqueta_id: labelConversation });
   });
 
-  it('a etiqueta aplicada aparece em GET /v1/desk/conversas/:id e pré-marca o encerramento', async () => {
+  it('a etiqueta aplicada aparece em GET /v1/desk/conversations/:id e pré-marca o encerramento', async () => {
     const { conversationId } = await createConversation(agentId);
-    await chamar('POST', `/v1/conversas/${conversationId}/etiquetas`, comCookie(sessionAgent), {
+    await chamar('POST', `/v1/conversations/${conversationId}/labels`, comCookie(sessionAgent), {
       etiqueta_id: etiquetaAmbos,
     });
-    const tela = await chamar('GET', `/v1/desk/conversas/${conversationId}`, comCookie(sessionAgent));
+    const tela = await chamar('GET', `/v1/desk/conversations/${conversationId}`, comCookie(sessionAgent));
     const aberta = tela.corpo['aberta'] as { labelsOfConversation: { id: string }[] };
     expect(aberta.labelsOfConversation.map((e) => e.id)).toEqual([etiquetaAmbos]);
   });
 
-  it('exige `etiqueta_id`, e recusa etiqueta de escopo contato numa conversa', async () => {
+  it('Require `etiqueta_id` and reject contact-only labels on conversations', async () => {
     const { conversationId } = await createConversation(agentId);
     const semId = await chamar(
       'POST',
-      `/v1/conversas/${conversationId}/etiquetas`,
+      `/v1/conversations/${conversationId}/labels`,
       comCookie(sessionAgent),
       {},
     );
@@ -256,46 +256,46 @@ describe('POST/DELETE /v1/conversas/:id/etiquetas — a conversa aberta', () => 
 
     const scopeWrong = await chamar(
       'POST',
-      `/v1/conversas/${conversationId}/etiquetas`,
+      `/v1/conversations/${conversationId}/labels`,
       comCookie(sessionAgent),
       { etiqueta_id: labelContact },
     );
     expect(scopeWrong.status).toBe(400);
-    expect((scopeWrong.corpo['erro'] as { codigo: string }).codigo).toBe('etiqueta_de_outro_escopo');
+    expect((scopeWrong.corpo['erro'] as { code: string }).codigo).toBe('label_of_other_scope');
 
     const inexistente = await chamar(
       'POST',
-      `/v1/conversas/${conversationId}/etiquetas`,
+      `/v1/conversations/${conversationId}/labels`,
       comCookie(sessionAgent),
       { etiqueta_id: randomUUID() },
     );
     expect(inexistente.status).toBe(404);
   });
 
-  it('sem `conversa.etiquetar` é 403; conversa de outro atendente é 403; encerrada é 409', async () => {
+  it('Return 403 without `conversa.etiquetar` or for another agent\'s conversation, and 409 for a closed conversation', async () => {
     const { conversationId } = await createConversation(agentId);
     const semPoder = await chamar(
       'POST',
-      `/v1/conversas/${conversationId}/etiquetas`,
+      `/v1/conversations/${conversationId}/labels`,
       comCookie(sessionWithoutPoder),
       { etiqueta_id: labelConversation },
     );
     expect(semPoder.status).toBe(403);
-    expect((semPoder.corpo['erro'] as { codigo: string }).codigo).toBe('sem_permissao');
+    expect((semPoder.corpo['erro'] as { code: string }).codigo).toBe('without_permission');
 
     const deOutro = await chamar(
       'POST',
-      `/v1/conversas/${conversationId}/etiquetas`,
+      `/v1/conversations/${conversationId}/labels`,
       comCookie(sessionColleague),
       { etiqueta_id: labelConversation },
     );
     expect(deOutro.status).toBe(403);
-    expect((deOutro.corpo['erro'] as { codigo: string }).codigo).toBe('conversa_de_outro_atendente');
+    expect((deOutro.corpo['erro'] as { code: string }).codigo).toBe('conversation_of_other_agent');
 
     const { conversationId: encerrada } = await createConversation(agentId, 'encerrada');
     const fechada = await chamar(
       'POST',
-      `/v1/conversas/${encerrada}/etiquetas`,
+      `/v1/conversations/${encerrada}/labels`,
       comCookie(sessionAgent),
       { etiqueta_id: labelConversation },
     );
@@ -303,11 +303,11 @@ describe('POST/DELETE /v1/conversas/:id/etiquetas — a conversa aberta', () => 
     expect(await labelsOfConversation(conversationId)).toEqual([]);
   });
 
-  it('por chave de API com `conversas:escrever`, sem exigir dono; sem o escopo, 403', async () => {
+  it('Allow API keys with `conversas:escrever` to label any conversation and return 403 without that scope', async () => {
     const { conversationId } = await createConversation(colegaId);
     const byKey = await chamar(
       'POST',
-      `/v1/conversas/${conversationId}/etiquetas`,
+      `/v1/conversations/${conversationId}/labels`,
       withKey(a.token),
       { etiqueta_id: labelConversation },
     );
@@ -316,7 +316,7 @@ describe('POST/DELETE /v1/conversas/:id/etiquetas — a conversa aberta', () => 
 
     const withoutScope = await chamar(
       'POST',
-      `/v1/conversas/${conversationId}/etiquetas`,
+      `/v1/conversations/${conversationId}/labels`,
       withKey(a.tokenWithoutScope),
       { etiqueta_id: labelConversation },
     );
@@ -324,26 +324,26 @@ describe('POST/DELETE /v1/conversas/:id/etiquetas — a conversa aberta', () => 
   });
 });
 
-describe('GET/POST/DELETE /v1/contatos/:id/etiquetas — o contato', () => {
-  it('aplica com `contato.editar`, lista, remove e audita', async () => {
+describe('GET/POST/DELETE /v1/contacts/:id/etiquetas — o contato', () => {
+  it('Apply, list, remove, and audit contact labels with `contato.editar`', async () => {
     const contactId = await createContact();
 
     const aplicada = await chamar(
       'POST',
-      `/v1/contatos/${contactId}/etiquetas`,
+      `/v1/contacts/${contactId}/labels`,
       comCookie(sessionAgent),
       { etiqueta_id: labelContact },
     );
     expect(aplicada.status).toBe(201);
     expect(aplicada.corpo).toMatchObject({ etiqueta_id: labelContact, aplicada: true });
 
-    const lista = await chamar('GET', `/v1/contatos/${contactId}/etiquetas`, comCookie(sessionAgent));
+    const lista = await chamar('GET', `/v1/contacts/${contactId}/labels`, comCookie(sessionAgent));
     expect(lista.status).toBe(200);
     expect((lista.corpo['etiquetas'] as { id: string }[]).map((e) => e.id)).toEqual([labelContact]);
 
     const removida = await chamar(
       'DELETE',
-      `/v1/contatos/${contactId}/etiquetas/${labelContact}`,
+      `/v1/contacts/${contactId}/labels/${labelContact}`,
       comCookie(sessionAgent),
     );
     expect(removida.corpo).toEqual({ removida: true });
@@ -352,14 +352,14 @@ describe('GET/POST/DELETE /v1/contatos/:id/etiquetas — o contato', () => {
     expect(log.map((l) => l.acao)).toEqual(['criou', 'excluiu']);
   });
 
-  it('a etiqueta do contato viaja no painel da conversa (`etiquetasDoContato`)', async () => {
+  it('Include contact labels in the conversation screen response (`labelsOfContact`)', async () => {
     const { conversationId, contactId } = await createConversation(agentId);
-    await chamar('POST', `/v1/contatos/${contactId}/etiquetas`, comCookie(sessionAgent), {
+    await chamar('POST', `/v1/contacts/${contactId}/labels`, comCookie(sessionAgent), {
       etiqueta_id: etiquetaAmbos,
     });
-    const tela = await chamar('GET', `/v1/desk/conversas/${conversationId}`, comCookie(sessionAgent));
+    const tela = await chamar('GET', `/v1/desk/conversations/${conversationId}`, comCookie(sessionAgent));
     const aberta = tela.corpo['aberta'] as {
-      etiquetasDaConversa: { id: string }[];
+      labelsOfConversation: { id: string }[];
       labelsOfContact: { id: string }[];
     };
     expect(aberta.labelsOfContact.map((e) => e.id)).toEqual([etiquetaAmbos]);
@@ -367,11 +367,11 @@ describe('GET/POST/DELETE /v1/contatos/:id/etiquetas — o contato', () => {
     expect(aberta.etiquetasDaConversa).toEqual([]);
   });
 
-  it('sem `contato.editar` é 403 (o colega só tem `conversa.etiquetar`); escopo errado é 400', async () => {
+  it('Return 403 without `contato.editar` even with `conversa.etiquetar`, and 400 for a label with the wrong scope', async () => {
     const contatoId = await createContact();
     const semPoder = await chamar(
       'POST',
-      `/v1/contatos/${contatoId}/etiquetas`,
+      `/v1/contacts/${contatoId}/labels`,
       comCookie(sessionColleague),
       { etiqueta_id: labelContact },
     );
@@ -379,32 +379,32 @@ describe('GET/POST/DELETE /v1/contatos/:id/etiquetas — o contato', () => {
 
     const escopoErrado = await chamar(
       'POST',
-      `/v1/contatos/${contatoId}/etiquetas`,
+      `/v1/contacts/${contatoId}/labels`,
       comCookie(sessionAgent),
       { etiqueta_id: labelConversation },
     );
     expect(escopoErrado.status).toBe(400);
-    expect((escopoErrado.corpo['erro'] as { codigo: string }).codigo).toBe('etiqueta_de_outro_escopo');
+    expect((escopoErrado.corpo['erro'] as { code: string }).codigo).toBe('label_of_other_scope');
 
     const inexistente = await chamar(
       'POST',
-      `/v1/contatos/${randomUUID()}/etiquetas`,
+      `/v1/contacts/${randomUUID()}/labels`,
       comCookie(sessionAgent),
       { etiqueta_id: labelContact },
     );
     expect(inexistente.status).toBe(404);
   });
 
-  it('por chave: `contatos:escrever` aplica, `contatos:ler` lista, chave sem escopo não', async () => {
+  it('Allow API keys with `contatos:escrever` to apply labels and `contatos:ler` to list them; reject missing scopes', async () => {
     const contatoId = await createContact();
-    const aplicada = await chamar('POST', `/v1/contatos/${contatoId}/etiquetas`, withKey(a.token), {
+    const aplicada = await chamar('POST', `/v1/contacts/${contatoId}/labels`, withKey(a.token), {
       etiqueta_id: etiquetaAmbos,
     });
     expect(aplicada.status).toBe(201);
-    const lista = await chamar('GET', `/v1/contatos/${contatoId}/etiquetas`, withKey(a.token));
+    const lista = await chamar('GET', `/v1/contacts/${contatoId}/labels`, withKey(a.token));
     expect((lista.corpo['etiquetas'] as { id: string }[]).map((e) => e.id)).toEqual([etiquetaAmbos]);
 
-    const semEscopo = await chamar('GET', `/v1/contatos/${contatoId}/etiquetas`, withKey(a.tokenWithoutScope));
+    const semEscopo = await chamar('GET', `/v1/contacts/${contatoId}/labels`, withKey(a.tokenWithoutScope));
     expect(semEscopo.status).toBe(403);
   });
 });

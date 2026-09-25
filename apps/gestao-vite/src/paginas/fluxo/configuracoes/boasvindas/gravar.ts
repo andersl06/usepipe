@@ -16,7 +16,7 @@ export async function salvarBoasVindas(
 ): Promise<Resultado<ConfigurationOfWelcome>> {
   try {
     const value = await api.patch<ConfigurationOfWelcome>(
-      `/v1/gestao/fluxos/${id}/boas-vindas`,
+      `/v1/management/flows/${id}/welcome`,
       pedido,
     );
     atualizarLeituras();

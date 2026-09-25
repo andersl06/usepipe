@@ -44,7 +44,7 @@ export function ActiveMessagesPage() {
     if (v) q.set(key, v);
   }
   const read = useRead<ActiveMessagesResposta>(
-    `/v1/gestao/fluxos/${contact.id}/analise/mensagens-ativas?${q.toString()}`,
+    `/v1/management/flows/${contact.id}/analytics/messages-active?${q.toString()}`,
   );
   if (!read.data) return null;
   const { period, intervalo, hoje, limite, template, data } = read.data;

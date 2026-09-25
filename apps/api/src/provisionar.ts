@@ -5,7 +5,7 @@ import { sql } from 'drizzle-orm';
 import { seed } from '@pipe/db';
 import { LIMITES_DO_PLANO, PLANOS } from '@pipe/db/schema';
 import type { Plano } from '@pipe/db/schema';
-import { domainOfEmail, ehDomainPublic } from '@pipe/autenticacao';
+import { domainOfEmail, ehDomainPublic } from '@pipe/authentication';
 import { databaseOwner, fecharBancos, noTenant } from './banco.js';
 import { PipeError } from './erros.js';
 import { logDomain, checkDomain } from './dominio/dominios.js';
@@ -67,12 +67,12 @@ const SLUG_ACEITAVEL = /^[a-z0-9]+(-[a-z0-9]+)*$/;
 const EMAIL_ACEITAVEL = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
 export interface RequestOfProvisioning {
-  nome: string;
+  name: string;
   slug: string;
-  plano: string;
+  plan: string;
   /** O e-mail do primeiro administrador. O domínio dele é o padrão do tenant. */
   admin: string;
-  dominio?: string | undefined;
+  domain?: string | undefined;
   /** Confere o TXT agora. Só faz sentido quando o cliente já publicou o registro. */
   verificar?: boolean | undefined;
   /** Deixa reaplicar sobre um slug que já existe. Sem isto, slug repetido para. */
@@ -91,7 +91,7 @@ export interface RequestOfProvisioning {
 export interface ClienteProvisionado {
   tenantId: string;
   slug: string;
-  plano: Plano;
+  plan: Plano;
   adminId: string;
   adminEmail: string;
   papeis: number;
@@ -101,7 +101,7 @@ export interface ClienteProvisionado {
   /** Nulo quando o cliente nasceu sem domínio — ver `semDominio` no pedido. */
   domain: {
     id: string;
-    dominio: string;
+    domain: string;
     verificado: boolean;
     registro: RegistroOfVerification;
   } | null;
@@ -114,19 +114,19 @@ export async function provisionCustomer(
   const slug = pedido.slug.trim().toLowerCase();
   const admin = pedido.admin.trim().toLowerCase();
 
-  if (!nome) throw PipeError.request('nome_ausente', 'O cliente precisa de nome.');
+  if (!nome) throw PipeError.request('name_missing', 'O cliente precisa de nome.');
   if (!SLUG_ACEITAVEL.test(slug)) {
     throw PipeError.request(
-      'slug_invalido',
+      'slug_invalid',
       `"${slug}" não serve como slug: minúsculas, números e hífen no meio.`,
     );
   }
   if (!EMAIL_ACEITAVEL.test(admin)) {
-    throw PipeError.request('admin_invalido', 'Informe o e-mail do primeiro administrador.');
+    throw PipeError.request('admin_invalid', 'Informe o e-mail do primeiro administrador.');
   }
   if (!PLANOS.includes(pedido.plano as Plano)) {
     throw PipeError.request(
-      'plano_invalido',
+      'plan_invalid',
       `Plano "${pedido.plano}" não existe. Os planos são: ${PLANOS.join(', ')}.`,
     );
   }
@@ -137,7 +137,7 @@ export async function provisionCustomer(
   const domainTarget = pedido.dominio ?? domainOfEmail(admin);
   if (!pedido.withoutDomain && !pedido.dominio && ehDomainPublic(admin)) {
     throw PipeError.request(
-      'dominio_publico',
+      'domain_public',
       `${admin} é e-mail pessoal e não identifica empresa. Passe --dominio, ou provisione com o e-mail corporativo do administrador.`,
     );
   }
@@ -148,7 +148,7 @@ export async function provisionCustomer(
   );
   if (existentes[0] && !pedido.reaplicar) {
     throw PipeError.conflito(
-      'slug_em_uso',
+      'slug_in_use',
       `Já existe um tenant com o slug "${slug}". Use outro slug, ou --reaplicar se a intenção é completar um provisionamento que falhou no meio.`,
     );
   }

@@ -39,7 +39,7 @@ export async function salvarBasicas(
     return { ok: false, error: `A imagem precisa ser ${tipos} e ter até ${teto} KB.` };
   }
   try {
-    const value = await api.patch<FlowSaved>(`/v1/gestao/fluxos/${id}`, {
+    const value = await api.patch<FlowSaved>(`/v1/management/flows/${id}`, {
       nome: edit.nome,
       descricao: edit.description,
       ...(image === undefined ? {} : { image }),
@@ -54,7 +54,7 @@ export async function salvarBasicas(
 
 export async function excluirFlow(id: string): Promise<Resultado<void>> {
   try {
-    await api.delete<void>(`/v1/gestao/fluxos/${id}`);
+    await api.delete<void>(`/v1/management/flows/${id}`);
     atualizarLeituras();
     return { ok: true, value: undefined };
   } catch (error) {

@@ -8,7 +8,7 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 process.env['PIPE_CHAVES_SEGREDO'] ??= `teste:${Buffer.alloc(32, 5).toString('base64')}`;
 process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 
-const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/autenticacao');
+const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
 
@@ -38,7 +38,7 @@ beforeAll(async () => {
   const novo = createTokencriarTokencreateToken();
   await cenario.dono.execute(sql`
     insert into sessao (tenant_id, usuario_id, token_hash, expira_em, origem)
-    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiraEm}, 'google')
+    values (${cenario.tenantId}, ${cenario.agentId}, ${novo.hash}, ${novo.expiresAt}, 'google')
   `);
   cookieOfAgent = novo.token;
 
@@ -86,7 +86,7 @@ function enviar(
   const cabecalhos: Record<string, string> = { 'content-type': 'application/json' };
   if (credencial.cookie) cabecalhos['cookie'] = `${NOME_DO_COOKIE}=${credencial.cookie}`;
   if (credencial.token) cabecalhos['authorization'] = `Bearer ${credencial.token}`;
-  return fetch(`${api.url}/v1/conversas/${conversaId}/mensagens`, {
+  return fetch(`${api.url}/v1/conversations/${conversaId}/messages`, {
     method: 'POST',
     headers: cabecalhos,
     body: JSON.stringify(corpo),
@@ -103,8 +103,8 @@ async function contarOutbox(conversaId: string): Promise<number> {
   return rows[0]?.n ?? 0;
 }
 
-describe('responder pelo Desk, com cookie de sessão', () => {
-  it('grava a mensagem PENDENTE e cria a linha no outbox — o defeito que existia', async () => {
+describe('Send Desk replies with a session cookie', () => {
+  it('Create a pending message and outbox row for a Desk reply', async () => {
     const conversationId = await newConversation(cenario.agentId);
 
     const resposta = await enviar(conversationId, { texto: 'Boa tarde!' }, { cookie: cookieOfAgent });
@@ -116,19 +116,19 @@ describe('responder pelo Desk, com cookie de sessão', () => {
     expect(await contarOutbox(conversationId)).toBe(1);
   });
 
-  it('assina a mensagem com o usuário do COOKIE', async () => {
+  it('Attribute the message to the user identified by the cookie', async () => {
     const conversaId = await newConversation(cenario.agentId);
 
     await enviar(conversaId, { texto: 'Oi' }, { cookie: cookieOfAgent });
 
-    const { rows } = await cenario.dono.execute<{ autor_tipo: string; autor_id: string }>(sql`
+    const { rows } = await cenario.dono.execute<{ autor_tipo: string; authorId: string }>(sql`
       select autor_tipo, autor_id from mensagem where conversa_id = ${conversaId}::uuid limit 1
     `);
     expect(rows[0]?.autor_tipo).toBe('atendente');
     expect(rows[0]?.autor_id).toBe(cenario.agentId);
   });
 
-  it('IGNORA atendente_id do corpo — ninguém manda mensagem em nome de colega', async () => {
+  it('Ignore agent IDs in the request body so users cannot impersonate colleagues (`atendente_id`)', async () => {
     const conversaId = await newConversation(cenario.agentId);
 
     const resposta = await enviar(
@@ -138,19 +138,19 @@ describe('responder pelo Desk, com cookie de sessão', () => {
     );
 
     expect(resposta.status).toBe(201);
-    const { rows } = await cenario.dono.execute<{ autor_id: string }>(sql`
+    const { rows } = await cenario.dono.execute<{ authorId: string }>(sql`
       select autor_id from mensagem where conversa_id = ${conversaId}::uuid limit 1
     `);
     expect(rows[0]?.autor_id).toBe(cenario.agentId);
     expect(rows[0]?.autor_id).not.toBe(otherAgentId);
   });
 
-  it('registra `mensagem_saida` e `primeira_resposta` — sem isso a Gestão mente', async () => {
+  it('Record `mensagem_saida` and `primeira_resposta` events for management reports', async () => {
     const conversaId = await newConversation(cenario.agentId);
 
     await enviar(conversaId, { texto: 'Primeira resposta' }, { cookie: cookieOfAgent });
 
-    const { rows } = await cenario.dono.execute<{ tipo: string }>(sql`
+    const { rows } = await cenario.dono.execute<{ type: string }>(sql`
       select tipo from evento_atendimento where conversa_id = ${conversaId}::uuid order by tipo
     `);
     const tipos = rows.map((r) => r.tipo);
@@ -158,19 +158,19 @@ describe('responder pelo Desk, com cookie de sessão', () => {
     expect(tipos).toContain('primeira_resposta');
   });
 
-  it('recusa conversa de OUTRO atendente', async () => {
+  it('Reject a Desk reply to another agent\'s conversation', async () => {
     const conversaId = await newConversation(otherAgentId);
 
     const resposta = await enviar(conversaId, { texto: 'Não é minha' }, { cookie: cookieOfAgent });
 
     expect(resposta.status).toBe(403);
-    const corpo = (await resposta.json()) as { error: { codigo: string } };
-    expect(corpo.error.codigo).toBe('conversa_de_outro_atendente');
+    const corpo = (await resposta.json()) as { error: { code: string } };
+    expect(corpo.error.codigo).toBe('conversation_of_other_agent');
     // E nada foi para a fila de entrega.
     expect(await contarOutbox(conversaId)).toBe(0);
   });
 
-  it('recusa conversa que ainda está na fila, sem dono', async () => {
+  it('Reject sending from an unassigned conversation still in the queue', async () => {
     const conversaId = await newConversation(null);
 
     const resposta = await enviar(conversaId, { texto: 'Ninguém pegou' }, { cookie: cookieOfAgent });
@@ -179,7 +179,7 @@ describe('responder pelo Desk, com cookie de sessão', () => {
     expect(await contarOutbox(conversaId)).toBe(0);
   });
 
-  it('sem cookie e sem chave, 401', async () => {
+  it('Return 401 without a session cookie or API key', async () => {
     const conversaId = await newConversation(cenario.agentId);
     const resposta = await enviar(conversaId, { texto: 'anônimo' }, {});
     expect(resposta.status).toBe(401);
@@ -192,7 +192,7 @@ describe('responder pelo Desk, com cookie de sessão', () => {
   });
 });
 
-describe('reenviar mensagem em falha', () => {
+describe('Retry failed message sends', () => {
   /** Uma mensagem falha, com a linha de outbox também em falha — o estado real. */
   async function messageFails(conversationId: string): Promise<string> {
     const { rows } = await cenario.dono.execute<{ id: string }>(sql`
@@ -212,7 +212,7 @@ describe('reenviar mensagem em falha', () => {
   }
 
   function reenviar(conversaId: string, messageId: string): Promise<Response> {
-    return fetch(`${api.url}/v1/conversas/${conversaId}/mensagens/${messageId}/reenviar`, {
+    return fetch(`${api.url}/v1/conversations/${conversaId}/messages/${messageId}/resend`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', cookie: `${NOME_DO_COOKIE}=${cookieOfAgent}` },
     });
@@ -241,16 +241,16 @@ describe('reenviar mensagem em falha', () => {
     expect(rows[0]!.proxima_tentativa_em).toBeNull();
   });
 
-  it('limpa o erro da mensagem e NÃO carimba entrega', async () => {
+  it('Clear the message error on retry without marking it delivered', async () => {
     const conversaId = await newConversation(cenario.agentId);
     const mensagemId = await messageFails(conversaId);
 
     await reenviar(conversaId, mensagemId);
 
     const { rows } = await cenario.dono.execute<{
-      estado_entrega: string;
+      stateDelivery: string;
       errorCode: string | null;
-      entregue_em: Date | null;
+      entregueAt: Date | null;
     }>(sql`
       select estado_entrega, erro_codigo, entregue_em from mensagem where id = ${mensagemId}::uuid
     `);
@@ -260,7 +260,7 @@ describe('reenviar mensagem em falha', () => {
     expect(rows[0]!.entregue_em).toBeNull();
   });
 
-  it('recria a linha de outbox de mensagem antiga que nunca teve uma', async () => {
+  it('Recreate an outbox row for an old message that never had one', async () => {
     // A assinatura do defeito antigo: a tela gravava a mensagem e não enfileirava nada.
     const conversaId = await newConversation(cenario.agentId);
     const { rows } = await cenario.dono.execute<{ id: string }>(sql`
@@ -274,13 +274,13 @@ describe('reenviar mensagem em falha', () => {
 
     expect((await reenviar(conversaId, mensagemId)).status).toBe(201);
 
-    const { rows: outbox } = await cenario.dono.execute<{ estado: string }>(
+    const { rows: outbox } = await cenario.dono.execute<{ state: string }>(
       sql`select estado from outbox_mensagem where mensagem_id = ${mensagemId}::uuid`,
     );
     expect(outbox[0]?.estado).toBe('pendente');
   });
 
-  it('recusa mensagem que não está em falha', async () => {
+  it('Reject retries for messages that are not failed', async () => {
     const conversaId = await newConversation(cenario.agentId);
     const { rows } = await cenario.dono.execute<{ id: string }>(sql`
       insert into mensagem (tenant_id, conversa_id, direcao, autor_tipo, tipo, conteudo,
@@ -291,14 +291,14 @@ describe('reenviar mensagem em falha', () => {
     `);
     const resposta = await reenviar(conversaId, rows[0]!.id);
     expect(resposta.status).toBe(409);
-    expect(((await resposta.json()) as { erro: { codigo: string } }).erro.codigo).toBe(
-      'mensagem_nao_falhou',
+    expect(((await resposta.json()) as { error: { code: string } }).erro.codigo).toBe(
+      'message_not_failed',
     );
   });
 });
 
 describe('resposta pronta carimbada no mesmo insert', () => {
-  it('grava `resposta_pronta_id` junto da mensagem', async () => {
+  it('Store `resposta_pronta_id` with the message', async () => {
     const conversaId = await newConversation(cenario.agentId);
     const { rows: r } = await cenario.dono.execute<{ id: string }>(sql`
       insert into resposta_pronta (tenant_id, escopo, atalho, titulo, corpo)
@@ -322,8 +322,8 @@ describe('resposta pronta carimbada no mesmo insert', () => {
   });
 });
 
-describe('a mesma rota, com chave de API — comportamento antigo intacto', () => {
-  it('continua enviando, e continua aceitando atendente_id do corpo', async () => {
+describe('Preserve API-key behavior on the same send route', () => {
+  it('Keep API-key sends and request-body agent IDs working (`atendente_id`)', async () => {
     const conversaId = await newConversation(otherAgentId);
 
     // Chave de API NÃO é atendente: a regra de "conversa atribuída a você" não vale,
@@ -336,13 +336,13 @@ describe('a mesma rota, com chave de API — comportamento antigo intacto', () =
 
     expect(resposta.status).toBe(201);
     expect(await contarOutbox(conversaId)).toBe(1);
-    const { rows } = await cenario.dono.execute<{ autor_id: string }>(sql`
+    const { rows } = await cenario.dono.execute<{ authorId: string }>(sql`
       select autor_id from mensagem where conversa_id = ${conversaId}::uuid limit 1
     `);
     expect(rows[0]?.autor_id).toBe(otherAgentId);
   });
 
-  it('sem o escopo mensagens:escrever, 403', async () => {
+  it('Return 403 without the message write scope (`mensagens:escrever`)', async () => {
     const conversaId = await newConversation(cenario.agentId);
     const resposta = await enviar(conversaId, { texto: 'x' }, { token: cenario.tokenWithoutScope });
     expect(resposta.status).toBe(403);
@@ -353,7 +353,7 @@ describe('a mesma rota, com chave de API — comportamento antigo intacto', () =
     // ignorado, bastaria mandar lixo no header para ser tratado como visitante — e,
     // com um cookie válido junto, virar a pessoa. Bearer presente é Bearer conferido.
     const conversaId = await newConversation(cenario.agentId);
-    const resposta = await fetch(`${api.url}/v1/conversas/${conversaId}/mensagens`, {
+    const resposta = await fetch(`${api.url}/v1/conversations/${conversaId}/messages`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',

@@ -106,7 +106,7 @@ export class InvitationsController {
       email: aceito.email,
       papel: aceito.papel,
       tenant: aceito.tenant,
-      entrarEm: `/v1/auth/google?convite=${encodeURIComponent(token)}`,
+      entrarEm: `/v1/auth/google?invite=${encodeURIComponent(token)}`,
     };
   }
 }

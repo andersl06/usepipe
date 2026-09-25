@@ -20,7 +20,7 @@ const consultar = <T>(tx: TransactionPipe, fn: (tx: TransactionPipe) => Promise<
 
 export interface SummaryOfContract {
   id: string;
-  nome: string;
+  name: string;
   slug: string;
   logoUrl: string | null;
   criadoEm: Date | null;
@@ -88,7 +88,7 @@ export async function loadSummaryOfContract(
  */
 export interface RoleOfAccount {
   id: string;
-  nome: string;
+  name: string;
 }
 
 export interface MemberOfContract {
@@ -100,7 +100,7 @@ export interface MemberOfContract {
    * distinção, com o dado guardado em dois lugares.
    */
   tipo: 'usuario' | 'convite';
-  nome: string;
+  name: string;
   email: string;
   avatarUrl: string | null;
   roleId: string | null;

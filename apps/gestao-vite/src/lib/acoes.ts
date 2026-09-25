@@ -29,7 +29,7 @@ export function acaoRemota(nome: string) {
     }
     let resultado: Resultado;
     try {
-      resultado = await api.post<Resultado>(`/v1/gestao/acoes/${nome}`, { campos });
+      resultado = await api.post<Resultado>(`/v1/management/actions/${nome}`, { campos });
     } catch (error) {
       return { ok: false, error: error instanceof Error ? error.message : 'Não foi possível salvar.' };
     }

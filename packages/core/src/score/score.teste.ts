@@ -86,7 +86,7 @@ const LEAD_MORNO: DataLead = {
 
 const LEAD_EMPTY: DataLead = {};
 
-describe('leitura de campo', () => {
+describe('field read', () => {
   const casos: [string, unknown][] = [
     ['renda', 12_000],
     ['contato.email', 'ana@empresa.com.br'],
@@ -100,7 +100,7 @@ describe('leitura de campo', () => {
   }
 });
 
-describe('operadores de condição', () => {
+describe('condition operators', () => {
   const data: DataLead = {
     nome: 'Ana Maria',
     idade: 34,
@@ -136,7 +136,7 @@ describe('operadores de condição', () => {
   }
 });
 
-describe('composição com E e OU', () => {
+describe('composition with AND and OR', () => {
   const data: DataLead = { a: 1, b: 2 };
 
   it('E exige todas', () => {
@@ -181,7 +181,7 @@ describe('composição com E e OU', () => {
     ).toBe(true);
   });
 
-  it('aninhamento de E dentro de OU', () => {
+  it('nesting AND inside OR', () => {
     expect(
       avaliarExpressao(
         {
@@ -202,7 +202,7 @@ describe('composição com E e OU', () => {
     ).toBe(true);
   });
 
-  it('composta sem condição nenhuma não casa', () => {
+  it('a composite with no condition at all never matches', () => {
     expect(avaliarExpressao({ combinador: 'e', condicoes: [] }, data)).toBe(false);
   });
 });
@@ -238,7 +238,7 @@ describe('cálculo de score', () => {
     expect(saida.versaoRegra).toBe(2);
   });
 
-  it('lead morno: 20 de interesse menos 15 por não ter telefone = 5', () => {
+  it('warm lead: 20 for interest minus 15 for no phone = 5', () => {
     const saida = calcularScore(REGRAS, LEAD_MORNO, { faixas: FAIXAS });
     expect(saida.value).toBe(5);
     expect(saida.faixa).toBe('frio');
@@ -248,33 +248,33 @@ describe('cálculo de score', () => {
     ]);
   });
 
-  it('lead vazio: só a penalidade de -15, e faixa nenhuma', () => {
+  it('empty lead: only the -15 penalty, and no tier', () => {
     const saida = calcularScore(REGRAS, LEAD_EMPTY, { faixas: FAIXAS });
     expect(saida.value).toBe(-15);
     expect(saida.faixa).toBeNull();
     expect(saida.explanation).toEqual([{ regra: 'r4', versao: 1, pontos: -15 }]);
   });
 
-  it('regra desativada não conta nem aparece na explicação', () => {
+  it('a disabled rule neither counts nor appears in the explanation', () => {
     // r3 casaria com ana@empresa.com.br, mas está inativa.
     const saida = calcularScore(REGRAS, LEAD_QUENTE, { faixas: FAIXAS });
     expect(saida.explanation.some((item) => item.regra === 'r3')).toBe(false);
     expect(saida.value).toBe(75);
   });
 
-  it('a explicação soma exatamente o valor', () => {
+  it('the explanation adds up to exactly the value', () => {
     const saida = calcularScore(REGRAS, LEAD_QUENTE);
     expect(saida.explanation.reduce((total, item) => total + item.pontos, 0)).toBe(saida.value);
   });
 
-  it('é determinístico: a ordem das regras na entrada não muda a saída', () => {
+  it('it is deterministic: the order of rules in the input does not change the output', () => {
     const embaralhada = [REGRAS[4], REGRAS[1], REGRAS[3], REGRAS[0], REGRAS[2]] as RegraScore[];
     expect(calcularScore(embaralhada, LEAD_QUENTE, { faixas: FAIXAS })).toEqual(
       calcularScore(REGRAS, LEAD_QUENTE, { faixas: FAIXAS }),
     );
   });
 
-  it('é reprodutível: dez execuções seguidas produzem o mesmo JSON', () => {
+  it('it is reproducible: ten runs in a row produce the same JSON', () => {
     const first = JSON.stringify(calcularScore(REGRAS, LEAD_QUENTE, { faixas: FAIXAS }));
     for (let i = 0; i < 10; i += 1) {
       expect(JSON.stringify(calcularScore(REGRAS, LEAD_QUENTE, { faixas: FAIXAS }))).toBe(first);
@@ -289,7 +289,7 @@ describe('cálculo de score', () => {
     expect(saida.versaoRegra).toBe(0);
   });
 
-  it('limites travam o valor quando o tenant quer escala fechada', () => {
+  it('limits clamp the value when the tenant wants a closed scale', () => {
     expect(calcularScore(REGRAS, LEAD_EMPTY, { limites: { minimo: 0 } }).value).toBe(0);
     expect(calcularScore(REGRAS, LEAD_QUENTE, { limites: { maximo: 50 } }).value).toBe(50);
   });

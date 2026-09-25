@@ -21,17 +21,17 @@ describe('importador do export do editor da Blip', () => {
   const flow = converterDoEditor(exportado, 'f1');
   const state = (id: string) => flow.states.find((s) => s.id === id)!;
 
-  it('reconhece o export do editor e o fluxo publicado', () => {
+  it('recognizes both the editor\'s export and the published flow', () => {
     expect(ehExportDoEditor(exportado)).toBe(true);
     expect(ehExportDoEditor({ settings: { flow: flow } })).toBe(false);
   });
 
-  it('converte para o formato publicado, e o resultado passa na validação do motor', () => {
+  it('converts to the published format, and the result passes the engine\'s validation', () => {
     expect(flow.states).toHaveLength(7);
     expect(() => validateFlow(flow)).not.toThrow();
   });
 
-  it('ação de entrada vem antes do conteúdo, e o input vira `input`', () => {
+  it('the entry action comes before the content, and input becomes `input`', () => {
     expect(state('boas-vindas').inputActions!.map((a) => a.type)).toEqual([
       'TrackEvent',
       'SendMessage',
@@ -40,7 +40,7 @@ describe('importador do export do editor da Blip', () => {
     expect(state('boas-vindas').input).toEqual({ bypass: false, variable: 'nome' });
   });
 
-  it('saídas com condição em ordem e a saída padrão por último, sem condição', () => {
+  it('outputs with a condition in order, and the default output last, without a condition', () => {
     expect(state('menu').outputs).toEqual([
       {
         order: 0,
@@ -56,7 +56,7 @@ describe('importador do export do editor da Blip', () => {
     ]);
   });
 
-  it('saída sem destino (bloco de atendimento recém-criado) não vira transição', () => {
+  it('an output with no destination (a freshly created attendance block) does not become a transition', () => {
     const e = copia();
     const desk = e.flow['desk:suporte']!;
     desk.$conditionOutputs = [
@@ -90,14 +90,14 @@ describe('importador do export do editor da Blip', () => {
     });
   });
 
-  it('o publicado é lido como está (identidade), só com o id de quem importa', () => {
+  it('the published version is read as-is (identity), only with the importer\'s id', () => {
     const publicado: FlowBlip = { id: 'outro', states: flow.states };
     expect(blipReadFlow({ settings: { flow: publicado } }, 'meu').states).toBe(flow.states);
     expect(blipReadFlow(publicado, 'meu').id).toBe('meu');
     expect(() => blipReadFlow({ nada: 1 }, 'x')).toThrow('não é um fluxo da Blip');
   });
 
-  it('relatório: o fluxo sintético não tem nada fora do suporte', () => {
+  it('report: the synthetic flow has nothing outside of support', () => {
     const r = importReport(flow);
     expect(r.estados).toBe(7);
     expect(r.saidas).toBe(11);
@@ -109,7 +109,7 @@ describe('importador do export do editor da Blip', () => {
     expect(r.actions['SendMessage']).toBe(6);
   });
 
-  it('relatório: lista por tipo o que o Pipe não executa, sem descartar nada', () => {
+  it('report: lists by type what Pipe does not execute, without discarding anything', () => {
     const e = copia();
     const menu = e.flow['menu']!;
     menu.$enteringCustomActions = [
@@ -148,7 +148,7 @@ describe('importador do export do editor da Blip', () => {
   });
 });
 
-describe('o fluxo importado rodando no motor', () => {
+describe('the imported flow running in the engine', () => {
   const flow = converterDoEditor(exportado, 'f1');
   const variables: Record<string, string> = {};
   const enviadas: OutputMessage[] = [];
@@ -174,7 +174,7 @@ describe('o fluxo importado rodando no motor', () => {
       .map((m) => m.conteudo);
   };
 
-  it('oi → pergunta o nome; nome → menu com a variável; 2 → atendimento com o contexto guardado', async () => {
+  it('hi -> asks for the name; name -> menu with the variable; 2 -> attendance with the context kept', async () => {
     expect(await login('oi')).toEqual(['Olá! Qual é o seu nome?']);
     const menu = await login('Ana');
     expect(menu).toHaveLength(1);
@@ -189,7 +189,7 @@ describe('o fluxo importado rodando no motor', () => {
     });
   });
 
-  it('o fim do atendimento destrava o bloco e segue para o bloco configurado', async () => {
+  it('the end of attendance unblocks the block and moves to the configured block', async () => {
     expect(
       await login(
         { id: 'conversa-1', status: 'ClosedAttendant' },

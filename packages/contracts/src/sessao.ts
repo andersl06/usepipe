@@ -49,13 +49,13 @@ export type OriginOfSession = (typeof ORIGINS_OF_SESSION)[number];
  */
 export const REFUSESS_OF_INBOUND = [
   /** E-mail pessoal não identifica empresa. Saída: entrar pelo convite. */
-  'dominio_publico',
+  'domain_public',
   /** Nenhuma conta do Pipe usa este domínio. Saída: falar com quem contratou. */
-  'dominio_desconhecido',
+  'domain_unknown',
   /** O domínio é conhecido, mas a pessoa não foi convidada. Saída: pedir convite. */
-  'sem_convite',
+  'without_invitation',
   /** Estava dentro e o acesso foi desativado. Saída: falar com o administrador. */
-  'usuario_inativo',
+  'user_inactive',
   /** O provedor não confirmou o e-mail. Saída: verificar a conta no provedor. */
   'email_nao_verificado',
   /** A empresa exige SSO. Saída: entrar pelo provedor de identidade dela. */

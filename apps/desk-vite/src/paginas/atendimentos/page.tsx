@@ -5,7 +5,7 @@ import { useRead } from '../../lib/consulta';
 import { deliveryInterval } from '../../lib/intervalo-entrega';
 import { IconeDesk } from '../../componentes/icones-desk';
 import { Column } from './coluna';
-import { Conversation } from './conversa';
+import { Conversation } from './conversation';
 import { Panel } from './painel';
 
 /**
@@ -30,8 +30,8 @@ export function PageAttendances() {
   const [agora, setAgora] = useState(() => new Date());
   const [panelAberto, setPanelAberto] = useState(true);
 
-  const queue = useRead<QueueOfDesk>('/v1/desk/fila', { refetchInterval: POLLING_INTERVAL });
-  const conversation = useRead<ResponseOfConversation>(id ? `/v1/desk/conversas/${id}` : null, {
+  const queue = useRead<QueueOfDesk>('/v1/desk/queue', { refetchInterval: POLLING_INTERVAL });
+  const conversation = useRead<ResponseOfConversation>(id ? `/v1/desk/conversations/${id}` : null, {
     refetchInterval: (query) => deliveryInterval(query.state.data?.aberta?.itens),
   });
 

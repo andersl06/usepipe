@@ -44,10 +44,10 @@ export function diaAnterior(agora: Date = new Date(), fuso: string = FUSO_PADRAO
 
 type LinhaEvento = {
   conversationId: string;
-  tipo: TipoEvento;
-  em: Date | string;
+  type: TipoEvento;
+  at: Date | string;
   userId: string | null;
-  fila_id: string | null;
+  queueId: string | null;
   data: { closedBy?: ClosedBy } | null;
 };
 
@@ -84,9 +84,9 @@ export async function agregarDia(
     `);
 
     const { rows: mensagens } = await tx.execute<{
-      fila_id: string | null;
-      atendente_id: string | null;
-      direcao: string;
+      queueId: string | null;
+      agentId: string | null;
+      direction: string;
       total: string;
     }>(sql`
       select c.fila_id, c.atendente_id, m.direcao, count(*)::text as total
@@ -211,8 +211,8 @@ interface LinhaMetrica {
 function montarLinhas(
   conversations: readonly ConversationOfDay[],
   messages: readonly {
-    fila_id: string | null;
-    atendente_id: string | null;
+    queueId: string | null;
+    agentId: string | null;
     direction: string;
     total: string;
   }[],
@@ -221,7 +221,7 @@ function montarLinhas(
 
   for (const dimensaoTipo of ['fila', 'atendente'] as const) {
     const key = (item: ConversationOfDay) =>
-      dimensaoTipo === 'fila' ? item.queueId : item.agentId;
+      dimensaoTipo === 'queue' ? item.queueId : item.agentId;
 
     const groups = new Map<string | null, ConversationOfDay[]>();
     for (const item of conversations) {
@@ -247,7 +247,7 @@ function montarLinhas(
         messages
           .filter(
             (m) =>
-              (dimensaoTipo === 'fila' ? m.fila_id : m.atendente_id) === dimensaoId &&
+              (dimensaoTipo === 'queue' ? m.fila_id : m.atendente_id) === dimensaoId &&
               m.direction === direction,
           )
           .reduce((soma, m) => soma + Number(m.total), 0);

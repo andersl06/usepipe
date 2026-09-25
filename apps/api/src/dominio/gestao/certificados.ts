@@ -41,24 +41,24 @@ export interface HostDoCertificado {
 }
 
 /** `valid`/`invalid` da origem, com nome pelo motivo — a tela escolhe o chip por aqui. */
-export type StatusDoCertificado = 'valido' | 'expirado' | 'sem_arquivo';
+export type StatusDoCertificado = 'valido' | 'expirado' | 'without_file';
 
 export interface CertificadoMtls {
   id: string;
-  descricao: string;
+  description: string;
   /** ISO 8601, só a data (`date` no banco). Lida do `.pfx`. */
-  expiraEm: string;
+  expiresAt: string;
   /** SHA-256 `AB:CD:…`, lida do `.pfx`. */
   impressaoDigital: string;
-  emissor: string | null;
-  sujeito: string | null;
+  issuer: string | null;
+  subject: string | null;
   status: StatusDoCertificado;
   hosts: HostDoCertificado[];
   criadoEm: string;
 }
 
 export interface PedidoDeCertificado {
-  descricao: string;
+  description: string;
   hosts: string[];
   /** A senha do `.pfx`. Cifrada no banco, nunca devolvida. */
   senha: string;
@@ -83,14 +83,14 @@ function normalizarHosts(crus: string[] | undefined): string[] {
     const host = (cru ?? '').trim();
     if (!host) continue;
     if (!URL_HTTPS.test(host)) {
-      throw PipeError.request('host_invalido', `"${host}" não é uma URL HTTPS válida.`, { host });
+      throw PipeError.request('host_invalid', `"${host}" não é uma URL HTTPS válida.`, { host });
     }
     if (vistos.has(host)) continue;
     vistos.add(host);
     limpos.push(host);
   }
   if (limpos.length === 0) {
-    throw PipeError.request('host_obrigatorio', 'Informe ao menos um host para o certificado.');
+    throw PipeError.request('host_required', 'Informe ao menos um host para o certificado.');
   }
   return limpos;
 }
@@ -98,11 +98,11 @@ function normalizarHosts(crus: string[] | undefined): string[] {
 function normalizeDescription(cru: string | undefined): string {
   const descricao = (cru ?? '').trim();
   if (!descricao) {
-    throw PipeError.request('descricao_obrigatoria', 'Informe a descrição do certificado.');
+    throw PipeError.request('description_required', 'Informe a descrição do certificado.');
   }
   if (descricao.length > 50) {
     throw PipeError.request(
-      'descricao_longa',
+      'description_long',
       'A descrição do certificado tem no máximo 50 caracteres.',
     );
   }
@@ -111,7 +111,7 @@ function normalizeDescription(cru: string | undefined): string {
 
 function normalizarSenha(crua: unknown): string {
   const senha = typeof crua === 'string' ? crua : '';
-  if (!senha) throw PipeError.request('senha_obrigatoria', 'Informe a senha do certificado.');
+  if (!senha) throw PipeError.request('password_required', 'Informe a senha do certificado.');
   return senha;
 }
 
@@ -120,14 +120,14 @@ function normalizeFile(cru: unknown): Buffer {
   const texto = typeof cru === 'string' ? cru.trim() : '';
   const base64 = texto.startsWith('data:') ? texto.slice(texto.indexOf(',') + 1) : texto;
   if (!base64 || !/^[A-Za-z0-9+/=\s]+$/.test(base64)) {
-    throw PipeError.request('arquivo_obrigatorio', 'Mande o arquivo .pfx em base64.');
+    throw PipeError.request('file_required', 'Mande o arquivo .pfx em base64.');
   }
   const bytes = Buffer.from(base64, 'base64');
   if (bytes.byteLength === 0) {
-    throw PipeError.request('arquivo_obrigatorio', 'Mande o arquivo .pfx em base64.');
+    throw PipeError.request('file_required', 'Mande o arquivo .pfx em base64.');
   }
   if (bytes.byteLength > MAX_BYTES_DO_PFX) {
-    throw PipeError.request('arquivo_grande', 'O arquivo deve ter no máximo 10MB.');
+    throw PipeError.request('file_large', 'O arquivo deve ter no máximo 10MB.');
   }
   return bytes;
 }
@@ -137,15 +137,15 @@ type LinhaDeCertificado = {
   description: string;
   expira_em: string;
   impressao_digital: string;
-  emissor: string | null;
-  sujeito: string | null;
+  issuer: string | null;
+  subject: string | null;
   hasFile: boolean;
   expirado: boolean;
-  criado_em: string;
+  createdAt: string;
 };
 
 function statusDe(linha: { tem_arquivo: boolean; expirado: boolean }): StatusDoCertificado {
-  if (!linha.tem_arquivo) return 'sem_arquivo';
+  if (!linha.tem_arquivo) return 'without_file';
   return linha.expirado ? 'expirado' : 'valido';
 }
 
@@ -228,7 +228,7 @@ export async function createCertificate(
   const senhaCifrada = cifrar(senha, chaves);
   const expiraEm = read.expiraEm.toISOString().slice(0, 10);
 
-  const { rows } = await tx.execute<{ id: string; criado_em: string; expirado: boolean }>(sql`
+  const { rows } = await tx.execute<{ id: string; createdAt: string; expirado: boolean }>(sql`
     insert into certificado_mtls
       (tenant_id, descricao, expira_em, impressao_digital, emissor, sujeito,
        arquivo_cifrado, senha_cifrada, criado_por)
@@ -291,7 +291,7 @@ export async function excluirCertificado(
   ator: Ator,
   certificadoId: string,
 ): Promise<Recording> {
-  const { rows } = await tx.execute<{ id: string; descricao: string }>(sql`
+  const { rows } = await tx.execute<{ id: string; description: string }>(sql`
     select id, descricao from certificado_mtls
      where id = ${certificadoId}::uuid and tenant_id = ${tenantId}::uuid
      limit 1

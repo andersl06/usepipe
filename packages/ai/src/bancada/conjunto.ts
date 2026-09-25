@@ -22,7 +22,7 @@ const EsquemaMessage = z.object({
   id: z.string(),
   criadaEm: z.string(),
   direcao: z.enum(['entrada', 'saida', 'interna']),
-  autorTipo: z.enum(['contato', 'atendente', 'bot', 'sistema']),
+  autorTipo: z.enum(['contato', 'agent', 'bot', 'sistema']),
   autorNome: z.string().nullish(),
   tipo: z.enum(['texto', 'imagem', 'audio', 'video', 'documento', 'localizacao', 'template']),
   conteudo: z.string().nullish(),

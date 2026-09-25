@@ -82,7 +82,7 @@ export function PageQueues() {
   const [excluindo, setExcluindo] = useState(false);
   const [errorExclusao, setErrorExclusao] = useState<string | null>(null);
   const [errorAlternar, setErrorAlternar] = useState<string | null>(null);
-  const read = useRead<{ queues: QueueRegistered[] }>('/v1/gestao/atendentes/filas');
+  const read = useRead<{ queues: QueueRegistered[] }>('/v1/management/agents/queues');
   if (!read.data) return null;
   const { queues } = read.data;
 

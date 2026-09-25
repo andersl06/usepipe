@@ -176,7 +176,7 @@ async function montarFluxoDeTeste(
 interface ResultadoDoMotor {
   mensagens: unknown[];
   estadoFinalId: string | null;
-  variaveis: Record<string, string>;
+  variables: Record<string, string>;
 }
 
 async function rodarMotor(
@@ -301,11 +301,11 @@ describe('jsonb-compat: outbox', () => {
     }
 
     const pedido = capturado.find(
-      (p): p is { para: string; conteudo: unknown } =>
+      (p): p is { para: string; content: unknown } =>
         typeof p === 'object' && p !== null && (p as { para?: string }).para === '5511900000999',
     );
     expect(pedido).toBeDefined();
-    golden('outbox-delivery.json', { conteudo: pedido!.conteudo });
+    golden('outbox-delivery.json', { content: pedido!.conteudo });
   });
 
   it('entrega_webhook.payload é lido pelo remetente de webhook de verdade, fetch mockado', async () => {
@@ -322,7 +322,7 @@ describe('jsonb-compat: outbox', () => {
       values (${cenario.tenantId}::uuid, ${webhookId}::uuid, 'conversa.criada', ${JSON.stringify(payloadFixture)}::jsonb, 'pendente')
     `);
 
-    const capturado: { url: string; corpo: unknown }[] = [];
+    const capturado: { url: string; body: unknown }[] = [];
     const fetchDeVerdade = fetch;
     vi.stubGlobal(
       'fetch',
@@ -339,7 +339,7 @@ describe('jsonb-compat: outbox', () => {
     }
 
     expect(capturado).toHaveLength(1);
-    golden('webhook-delivery.json', { corpo: capturado[0]!.corpo });
+    golden('webhook-delivery.json', { body: capturado[0]!.corpo });
   });
 });
 
@@ -388,7 +388,7 @@ describe('jsonb-compat: crm', () => {
     `);
 
     // contato.atributos: caminho real, `GET /v1/contatos/:id` (apps/api/src/controladores/catalogo.ts).
-    const respostaContato = await fetch(`${api.url}/v1/contatos/${contatoId}`, {
+    const respostaContato = await fetch(`${api.url}/v1/contacts/${contatoId}`, {
       headers: { authorization: `Bearer ${cenario.token}` },
     });
     expect(respostaContato.status).toBe(200);
@@ -409,7 +409,7 @@ describe('jsonb-compat: crm', () => {
     expect(leadLido?.customizados).toEqual(customizadosFixture);
 
     golden('crm-read.json', {
-      contato: { atributos: corpoContato.atributos },
+      contact: { atributos: corpoContato.atributos },
       lead: { utm: leadLido?.utm, customizados: leadLido?.customizados },
     });
   });

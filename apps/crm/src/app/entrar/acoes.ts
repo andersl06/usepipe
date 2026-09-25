@@ -34,9 +34,9 @@ export async function continuar(data: FormData): Promise<void> {
   // Sem SSO, a pessoa volta para a mesma tela com o motivo e o e-mail já
   // digitado. Mandar de volta em branco é fazer quem errou o domínio começar
   // do zero.
-  const volta = new URLSearchParams({ metodo: inbound.metodo, email });
+  const volta = new URLSearchParams({ method: inbound.metodo, email });
   if (destination !== '/') volta.set('destino', destination);
-  redirect(`/entrar?${volta.toString()}`);
+  redirect(`/login?${volta.toString()}`);
 }
 
 /**
@@ -63,5 +63,5 @@ export async function sair(): Promise<void> {
     secure: process.env['PIPE_COOKIE_SEGURO'] !== 'false',
   });
 
-  redirect('/entrar');
+  redirect('/login');
 }

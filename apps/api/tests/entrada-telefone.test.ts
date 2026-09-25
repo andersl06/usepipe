@@ -56,8 +56,8 @@ async function contactsWithPhone(...telefones: string[]): Promise<string[]> {
   return rows.map((r) => r.id);
 }
 
-describe('nono dígito na entrada', () => {
-  it('contato importado com o 9 recebe a mensagem que chega sem o 9', async () => {
+describe('Match inbound phone numbers across Brazilian ninth-digit variants', () => {
+  it('Deliver a message without the ninth digit to an imported contact with it', async () => {
     // Exatamente o que o importador de CSV grava.
     const { rows } = await cenario.dono.execute<{ id: string }>(sql`
       insert into contato (tenant_id, nome, telefone_e164)
@@ -78,7 +78,7 @@ describe('nono dígito na entrada', () => {
     expect(conversations[0]!.n).toBe(1);
   });
 
-  it('contato novo que chega sem o 9 é gravado na forma canônica', async () => {
+  it('Normalize new inbound contacts missing the ninth mobile digit', async () => {
     await falar('552188887777', 'primeira vez');
 
     expect(await contactsWithPhone('+552188887777')).toEqual([]);
