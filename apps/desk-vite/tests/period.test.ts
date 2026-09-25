@@ -37,7 +37,7 @@ const c = (id: string, nome: string | null, ultima: string | null) => ({
   nome,
   telefone: null,
   email: null,
-  ultimaInteracaoEm: ultima,
+  lastInteractionAt: ultima,
 });
 
 test('alphabetical order groups by letter and sends unnamed items to the end', () => {

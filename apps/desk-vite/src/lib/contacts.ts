@@ -59,7 +59,7 @@ export function agruparContacts(
     if (lista) lista.push(c);
     else groups.set(key, [c]);
   }
-  const saida = [...groups.entries()].map(([rotulo, lista]) => ({ rotulo, contatos: lista }));
+  const saida = [...groups.entries()].map(([rotulo, lista]) => ({ rotulo, contacts: lista }));
   if (order === 'alfabetica') {
     // O grupo `#` sempre por último, como lá.
     saida.sort((a, b) => (a.rotulo === '#' ? 1 : b.rotulo === '#' ? -1 : 0));

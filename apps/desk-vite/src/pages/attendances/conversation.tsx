@@ -53,7 +53,7 @@ export function Conversation({
   const [menu, setMenu] = useState(false);
   const [search, setSearch] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const nome = displayName(conversation);
+  const nome = displayName({ ...conversation, contactTelefone: conversation.contactPhone });
   const numero = numeroDoTicket(conversation.id);
 
   /**
@@ -485,7 +485,7 @@ function ModalTransferir({
   aoFechar: () => void;
   aoTransferir: () => void;
 }) {
-  const [alvo, setAlvo] = useState<'fila' | 'atendente'>('queue');
+  const [alvo, setAlvo] = useState<'fila' | 'atendente'>('fila');
   const [queueId, setQueueId] = useState('');
   const [agentId, setAgentId] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -497,7 +497,7 @@ function ModalTransferir({
     setError(null);
     try {
       await api.post(`/v1/conversations/${conversationId}/transfer`, {
-        ...(alvo === 'queue' ? { para_fila_id: queueId } : { para_atendente_id: agentId }),
+        ...(alvo === 'fila' ? { para_fila_id: queueId } : { para_atendente_id: agentId }),
       });
       atualizarLeituras();
       aoTransferir();
@@ -509,7 +509,7 @@ function ModalTransferir({
     }
   }
 
-  const podeTransferir = alvo === 'queue' ? Boolean(queueId) : Boolean(agentId);
+  const podeTransferir = alvo === 'fila' ? Boolean(queueId) : Boolean(agentId);
 
   return (
     <div className="dk-veu" role="presentation" onClick={aoFechar}>
@@ -527,8 +527,8 @@ function ModalTransferir({
             <input
               type="radio"
               name="alvo"
-              checked={alvo === 'queue'}
-              onChange={() => setAlvo('queue')}
+              checked={alvo === 'fila'}
+              onChange={() => setAlvo('fila')}
             />{' '}
             Fila
           </label>
@@ -536,13 +536,13 @@ function ModalTransferir({
             <input
               type="radio"
               name="alvo"
-              checked={alvo === 'agent'}
-              onChange={() => setAlvo('agent')}
+              checked={alvo === 'atendente'}
+              onChange={() => setAlvo('atendente')}
             />{' '}
             Atendente
           </label>
         </div>
-        {alvo === 'queue' ? (
+        {alvo === 'fila' ? (
           <>
             <label htmlFor="fila">Fila</label>
             <select id="fila" value={queueId} onChange={(e) => setQueueId(e.target.value)}>
@@ -640,7 +640,12 @@ function ModalFinalizar({
   return (
     <CardClosureTicket
       numero={numero}
-      etiquetas={etiquetas}
+      etiquetas={etiquetas.map((e) => ({
+        id: e.id,
+        nome: e.nome,
+        cor: e.cor,
+        obrigatoriaInClosure: e.requiredInClosure,
+      }))}
       selecionadas={etiquetasIds}
       error={error}
       enviando={enviando}
