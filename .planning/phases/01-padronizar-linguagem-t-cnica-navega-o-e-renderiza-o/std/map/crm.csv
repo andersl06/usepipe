@@ -81,7 +81,7 @@ crm-literal-value-ec583835,crm,3,literal-value,conta,KEEP,apps/crm/src/app/oport
 crm-literal-value-efb2fad3,crm,3,literal-value,contato,KEEP,apps/crm/src/lib/busca-tipos.ts:12,1026,no,,D-11,approved,codex2,"glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
 crm-literal-value-f3343f6a,crm,3,literal-value,conversas,KEEP,apps/crm/src/app/contatos/[id]/page.tsx:37,540,no,,D-11,approved,codex2,"glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
 crm-symbol-001319c1,crm,3,symbol,filtroBusca,filterSearch,apps/crm/src/lib/leads.ts:239,6,no,,,approved,codex2,
-crm-symbol-00371eae,crm,3,symbol,listarOportunidades,listarOpportunities,apps/crm/src/lib/funil.ts:170,3,no,,,approved,codex2,
+crm-symbol-00371eae,crm,3,symbol,listarOportunidades,listOpportunities,apps/crm/src/lib/funil.ts:170,3,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-011b7e6f,crm,3,symbol,dados,data,apps/crm/semente/semente-crm.ts:572,669,no,,,approved,codex2,
 crm-symbol-02e48e9b,crm,3,symbol,revogarChave,revogarKey,apps/crm/src/lib/configuracoes-dados.ts:919,7,no,,,approved,codex2,
 crm-symbol-03e64267,crm,3,symbol,chaveDe,keyOf,apps/crm/src/lib/leads-visao.ts:114,2,no,,,approved,codex2,
@@ -108,14 +108,14 @@ crm-symbol-14be344a,crm,3,symbol,filtros,filters,apps/crm/tests/filtros.test.ts:
 crm-symbol-152755f5,crm,3,symbol,busca,search,apps/crm/src/componentes/lista-de-leads.tsx:288,420,no,,,approved,codex2,
 crm-symbol-15ca4c7f,crm,3,symbol,porFaixa,byTier,apps/crm/src/lib/regras.ts:92,2,no,,,approved,codex2,
 crm-symbol-182ff0ac,crm,3,symbol,descobrirEntrada,descobrirInbound,apps/crm/src/lib/sessao.ts:118,16,no,,,approved,codex2,
-crm-symbol-1891b032,crm,3,symbol,ordemValida,orderValida,apps/crm/src/lib/leads-visao.ts:165,4,no,,,approved,codex2,
+crm-symbol-1891b032,crm,3,symbol,ordemValida,orderValid,apps/crm/src/lib/leads-visao.ts:165,4,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-18a3ddb8,crm,3,symbol,BotaoDeConfirmacao,ConfirmationButton,apps/crm/src/componentes/configuracoes/formulario.tsx:117,8,no,,,approved,codex2,
 crm-symbol-18e5915e,crm,3,symbol,PaginaOportunidade,PageOpportunity,apps/crm/src/app/oportunidades/[id]/page.tsx:143,1,no,,,approved,codex2,
 crm-symbol-1b35be54,crm,3,symbol,Direcao,Direction,apps/crm/src/lib/leads-visao.ts:163,14,no,,,approved,codex2,
 crm-symbol-1b5f3088,crm,3,symbol,CartaoOportunidade,CardOpportunity,apps/crm/src/lib/funil.ts:20,2,no,,,approved,codex2,
 crm-symbol-1bfd769a,crm,3,symbol,membros,members,apps/crm/src/lib/configuracoes-dados.ts:557,128,no,,,approved,codex2,
 crm-symbol-1cb08549,crm,3,symbol,FichaConta,FichaAccount,apps/crm/src/lib/contas.ts:120,4,no,,,approved,codex2,
-crm-symbol-1d9c3861,crm,3,symbol,carregarContato,carregarContact,apps/crm/src/lib/contatos.ts:132,20,no,,,approved,codex2,
+crm-symbol-1d9c3861,crm,3,symbol,carregarContato,loadContact,apps/crm/src/lib/contatos.ts:132,20,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-1dff44a1,crm,3,symbol,descricao,description,apps/crm/src/lib/configuracoes-dados.ts:586,299,no,,,approved,codex2,
 crm-symbol-1efd6fe8,crm,3,symbol,descricao,description,apps/crm/src/lib/configuracoes-dados.ts:750,299,no,,,approved,codex2,
 crm-symbol-2098db6f,crm,3,symbol,Contexto,Context,apps/crm/src/componentes/lista-de-leads.tsx:72,76,no,,,approved,codex2,
@@ -129,8 +129,8 @@ crm-symbol-29287c39,crm,3,symbol,recorteDaSituacao,situationRecorte,apps/crm/src
 crm-symbol-294abfda,crm,3,symbol,PermissaoDoCatalogo,CatalogoPermission,apps/crm/src/lib/configuracoes-comum.ts:270,7,no,,,approved,codex2,
 crm-symbol-297a63fc,crm,3,symbol,TETO_DE_OPCOES,TETO_OF_OPTIONS,apps/crm/src/lib/leads.ts:175,3,no,,,approved,codex2,
 crm-symbol-2a985535,crm,3,symbol,segredo,secret,apps/crm/src/lib/configuracoes-dados.ts:995,212,no,,,approved,codex2,
-crm-symbol-2bf07d1b,crm,3,symbol,carregarConta,carregarAccount,apps/crm/src/lib/contas.ts:135,3,no,,,approved,codex2,
-crm-symbol-2ec7ae58,crm,3,symbol,PapelDetalhado,RoleDetalhado,apps/crm/src/lib/configuracoes-comum.ts:276,3,no,,,approved,codex2,
+crm-symbol-2bf07d1b,crm,3,symbol,carregarConta,loadAccount,apps/crm/src/lib/contas.ts:135,3,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
+crm-symbol-2ec7ae58,crm,3,symbol,PapelDetalhado,RoleDetailed,apps/crm/src/lib/configuracoes-comum.ts:276,3,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-2eecd8d3,crm,3,symbol,ultimaAtividadePorLead,ultimaActivityByLead,apps/crm/src/lib/leads.ts:326,2,no,,,approved,codex2,
 crm-symbol-2fb399b7,crm,3,symbol,janelaDoMes,mesWindow,apps/crm/src/lib/banco.ts:114,4,no,,,approved,codex2,
 crm-symbol-2fc5eb12,crm,3,symbol,filas,queues,apps/crm/src/lib/leads.ts:272,297,no,,,approved,codex2,
@@ -141,7 +141,7 @@ crm-symbol-3274f7b0,crm,3,symbol,PROBABILIDADE,PROBABILITY,apps/crm/semente/seme
 crm-symbol-33767b49,crm,3,symbol,bloco,block,apps/crm/src/lib/leads.ts:608,665,no,,,approved,codex2,
 crm-symbol-35962223,crm,3,symbol,ErroDoCrm,CrmError,apps/crm/src/app/error.tsx:24,1,no,,,approved,codex2,
 crm-symbol-36144d25,crm,3,symbol,valor,value,apps/crm/semente/semente-crm.ts:689,1656,no,,,approved,codex2,
-crm-symbol-36b417da,crm,3,symbol,listarMembros,listarMembers,apps/crm/src/lib/configuracoes-dados.ts:235,3,no,,,approved,codex2,
+crm-symbol-36b417da,crm,3,symbol,listarMembros,listMembers,apps/crm/src/lib/configuracoes-dados.ts:235,3,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-372372d1,crm,3,symbol,OportunidadeDaConta,AccountOpportunity,apps/crm/src/lib/contas.ts:108,5,no,,,approved,codex2,
 crm-symbol-38dfd96f,crm,3,symbol,estado,state,apps/crm/semente/semente-crm.ts:59,1269,no,,,approved,codex2,
 crm-symbol-3a32bd5e,crm,3,symbol,AGRUPAMENTOS,GROUPINGS,apps/crm/src/lib/leads-visao.ts:80,11,no,,,approved,codex2,
@@ -157,12 +157,12 @@ crm-symbol-43645023,crm,3,symbol,SecaoLateral,SectionLateral,apps/crm/src/compon
 crm-symbol-43ea75f5,crm,3,symbol,acaoCriarCampo,actionCreateField,apps/crm/src/app/configuracoes/acoes.ts:173,3,no,,,approved,codex2,
 crm-symbol-4414ecf5,crm,3,symbol,contatos,contacts,apps/crm/src/lib/contas.ts:159,438,no,,,approved,codex2,
 crm-symbol-4419197c,crm,3,symbol,AvisoDeCarregamento,LoadingNotice,apps/crm/src/componentes/esqueleto.tsx:70,13,no,,,approved,codex2,
-crm-symbol-45c8b7b3,crm,3,symbol,listarContas,listarAccounts,apps/crm/src/lib/contas.ts:32,3,no,,,approved,codex2,
+crm-symbol-45c8b7b3,crm,3,symbol,listarContas,listAccounts,apps/crm/src/lib/contas.ts:32,3,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-460bb91b,crm,3,symbol,filaPorNome,queueByName,apps/crm/semente/semente-crm.ts:352,1,no,,,approved,codex2,
 crm-symbol-4862a8ba,crm,3,symbol,contexto,context,apps/crm/src/componentes/lista-de-leads.tsx:251,300,no,,,approved,codex2,
 crm-symbol-490b7edf,crm,3,symbol,papelId,roleId,apps/crm/src/app/configuracoes/acoes.ts:113,121,no,,,approved,codex2,
-crm-symbol-4aeec506,crm,3,symbol,filtroValido,filterValido,apps/crm/src/lib/leads-visao.ts:212,9,no,,,approved,codex2,
-crm-symbol-4b31c20d,crm,3,symbol,agrupamentoValido,groupingValido,apps/crm/src/lib/leads-visao.ts:90,15,no,,,approved,codex2,
+crm-symbol-4aeec506,crm,3,symbol,filtroValido,filterValid,apps/crm/src/lib/leads-visao.ts:212,9,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
+crm-symbol-4b31c20d,crm,3,symbol,agrupamentoValido,groupingValid,apps/crm/src/lib/leads-visao.ts:90,15,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-4b7086fc,crm,3,symbol,valor,value,apps/crm/semente/semente-crm.ts:812,1656,no,,,approved,codex2,
 crm-symbol-4c6a0197,crm,3,symbol,contagem,count,apps/crm/src/lib/regras.ts:97,134,no,,,approved,codex2,
 crm-symbol-4dcd7c4f,crm,3,symbol,ordem,order,apps/crm/src/app/leads/page.tsx:53,517,no,,,approved,codex2,
@@ -184,13 +184,13 @@ crm-symbol-5a2751c2,crm,3,symbol,quantasAtividades,quantasActivities,apps/crm/se
 crm-symbol-5a541b31,crm,3,symbol,porOportunidade,byOpportunity,apps/crm/src/lib/contas.ts:69,1,no,,,approved,codex2,
 crm-symbol-5c7e2ec8,crm,3,symbol,listarCatalogoDePermissoes,permissionsListarCatalogo,apps/crm/src/lib/configuracoes-dados.ts:526,5,no,,,approved,codex2,
 crm-symbol-5df62826,crm,3,symbol,urlDoConvite,invitationUrl,apps/crm/src/lib/configuracoes-dados.ts:314,4,no,,,approved,codex2,
-crm-symbol-5e7c45a9,crm,3,symbol,direcaoValida,directionValida,apps/crm/src/lib/leads-visao.ts:169,4,no,,,approved,codex2,
+crm-symbol-5e7c45a9,crm,3,symbol,direcaoValida,directionValid,apps/crm/src/lib/leads-visao.ts:169,4,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-5eb1d952,crm,3,symbol,contatosDaConta,accountContacts,apps/crm/semente/semente-crm.ts:554,2,no,,,approved,codex2,
 crm-symbol-5f04f345,crm,3,symbol,conversas,conversations,apps/crm/src/lib/leads.ts:663,540,no,,,approved,codex2,
 crm-symbol-5f1b41c1,crm,3,symbol,valor,value,apps/crm/src/app/leads/acoes.ts:101,1656,no,,,approved,codex2,
 crm-symbol-5fa5dd16,crm,3,symbol,cartoes,cards,apps/crm/src/app/oportunidades/page.tsx:156,39,no,,,approved,codex2,
 crm-symbol-62bfc8dd,crm,3,symbol,carregarLinhaDoTempo,timeCarregarLinha,apps/crm/src/lib/leads.ts:633,4,no,,,approved,codex2,
-crm-symbol-62d7bd04,crm,3,symbol,atribuirEmMassa,atribuirInBulk,apps/crm/src/app/leads/acoes.ts:44,4,no,,,approved,codex2,
+crm-symbol-62d7bd04,crm,3,symbol,atribuirEmMassa,assignInBulk,apps/crm/src/app/leads/acoes.ts:44,4,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-63323b7f,crm,3,symbol,LinhaConta,LinhaAccount,apps/crm/src/lib/contas.ts:20,8,no,,,approved,codex2,
 crm-symbol-637f1c21,crm,3,symbol,Secao,Section,apps/crm/src/componentes/configuracoes/cabecalho.tsx:20,27,no,,,approved,codex2,
 crm-symbol-63ade207,crm,3,symbol,destino,destination,apps/crm/src/componentes/colunas.tsx:278,303,no,,,approved,codex2,
@@ -222,7 +222,7 @@ crm-symbol-7af0e7ed,crm,3,symbol,acaoSalvarPermissoes,actionSalvarPermissions,ap
 crm-symbol-7af805ce,crm,3,symbol,PRAZO_CONVITE_MS,PRAZO_INVITATION_MS,apps/crm/src/lib/configuracoes-dados.ts:292,4,no,,,approved,codex2,
 crm-symbol-7c873098,crm,3,symbol,PROBABILIDADE_POR_FASE,PROBABILITY_BY_FASE,apps/crm/src/lib/funil.ts:110,2,no,,,approved,codex2,
 crm-symbol-7d9393f8,crm,3,symbol,linhaDoTempo,timeLinha,apps/crm/src/lib/leads.ts:482,6,no,,,approved,codex2,
-crm-symbol-7f1f9375,crm,3,symbol,escoposValidos,scopesValidos,apps/crm/src/lib/configuracoes-comum.ts:173,6,no,,,approved,codex2,
+crm-symbol-7f1f9375,crm,3,symbol,escoposValidos,scopesValid,apps/crm/src/lib/configuracoes-comum.ts:173,6,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-7f4f6693,crm,3,symbol,SITUACOES,SITUATIONS,apps/crm/src/lib/funil.ts:131,3,no,,,approved,codex2,
 crm-symbol-7f55e8b8,crm,3,symbol,acaoCriarChave,actionCreateKey,apps/crm/src/app/configuracoes/acoes.ts:212,3,no,,,approved,codex2,
 crm-symbol-80e329f3,crm,3,symbol,contaId,accountId,apps/crm/semente/semente-crm.ts:553,27,no,,,approved,codex2,
@@ -284,7 +284,7 @@ crm-symbol-af1ed70b,crm,3,symbol,criarPapel,createRole,apps/crm/src/lib/configur
 crm-symbol-b07cc484,crm,3,symbol,coluna,column,apps/crm/src/lib/leads.ts:137,520,no,,,approved,codex2,
 crm-symbol-b20eaffb,crm,3,symbol,filas,queues,apps/crm/semente/semente-crm.ts:348,297,no,,,approved,codex2,
 crm-symbol-b21b0656,crm,3,symbol,contas,accounts,apps/crm/src/app/contas/page.tsx:51,85,no,,,approved,codex2,
-crm-symbol-b3201267,crm,3,symbol,carregarOportunidade,carregarOpportunity,apps/crm/src/lib/funil.ts:227,3,no,,,approved,codex2,
+crm-symbol-b3201267,crm,3,symbol,carregarOportunidade,loadOpportunity,apps/crm/src/lib/funil.ts:227,3,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-b3590996,crm,3,symbol,linhaDoTempo,timeLinha,apps/crm/src/lib/funil.ts:284,6,no,,,approved,codex2,
 crm-symbol-b3b06141,crm,3,symbol,usuarios,users,apps/crm/semente/semente-crm.ts:341,36,no,,,approved,codex2,
 crm-symbol-b3d52072,crm,3,symbol,acaoCriarPapel,actionCreateRole,apps/crm/src/app/configuracoes/acoes.ts:136,3,no,,,approved,codex2,
@@ -294,7 +294,7 @@ crm-symbol-b543a978,crm,3,symbol,prefixo,prefix,apps/crm/src/lib/configuracoes-d
 crm-symbol-b65798bc,crm,3,symbol,leadsPorFase,leadsByFase,apps/crm/src/lib/painel.ts:106,3,no,,,approved,codex2,
 crm-symbol-b6f704da,crm,3,symbol,linhasContatoEtiqueta,linhasContactTag,apps/crm/semente/semente-crm.ts:542,2,no,,,approved,codex2,
 crm-symbol-b72a6df6,crm,3,symbol,filasPorFaixa,queuesByTier,apps/crm/src/lib/leads.ts:89,2,no,,,approved,codex2,
-crm-symbol-b815d33f,crm,3,symbol,situacaoValida,situationValida,apps/crm/src/lib/funil.ts:140,4,no,,,approved,codex2,
+crm-symbol-b815d33f,crm,3,symbol,situacaoValida,situationValid,apps/crm/src/lib/funil.ts:140,4,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-b8616682,crm,3,symbol,ColunaFunil,ColumnFunil,apps/crm/src/lib/funil.ts:32,3,no,,,approved,codex2,
 crm-symbol-b871a177,crm,3,symbol,PaginaDoPapel,RolePage,apps/crm/src/app/configuracoes/papeis/[id]/page.tsx:54,1,no,,,approved,codex2,
 crm-symbol-b97f5ba4,crm,3,symbol,faixaPorContato,tierByContact,apps/crm/semente/semente-crm.ts:545,1,no,,,approved,codex2,
@@ -305,7 +305,7 @@ crm-symbol-bc86e992,crm,3,symbol,ItemLinhaDoTempo,TimeItemLinha,apps/crm/src/lib
 crm-symbol-bcb3d4a8,crm,3,symbol,ValorResposta,ValueResposta,apps/crm/semente/semente-crm.ts:933,2,no,,,approved,codex2,
 crm-symbol-bcd05a90,crm,3,symbol,BlocoRespostas,BlockRespostas,apps/crm/src/lib/leads.ts:374,4,no,,,approved,codex2,
 crm-symbol-bd426064,crm,3,symbol,atividades,activities,apps/crm/src/lib/leads.ts:638,4,no,,,approved,codex2,
-crm-symbol-bd52b3df,crm,3,symbol,criarCampoPersonalizado,createFieldPersonalizado,apps/crm/src/lib/configuracoes-dados.ts:731,3,no,,,approved,codex2,
+crm-symbol-bd52b3df,crm,3,symbol,criarCampoPersonalizado,createFieldCustom,apps/crm/src/lib/configuracoes-dados.ts:731,3,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-bead0f01,crm,3,symbol,situacao,situation,apps/crm/src/app/oportunidades/page.tsx:95,42,no,,,approved,codex2,
 crm-symbol-bf4557cc,crm,3,symbol,colunasOportunidade,columnsOpportunity,apps/crm/src/app/contas/[id]/page.tsx:75,2,no,,,approved,codex2,
 crm-symbol-bf685553,crm,3,symbol,ContatoDaConta,AccountContact,apps/crm/src/lib/contas.ts:98,4,no,,,approved,codex2,
@@ -345,7 +345,7 @@ crm-symbol-dcd2ab2e,crm,3,symbol,valor,value,apps/crm/src/app/configuracoes/acoe
 crm-symbol-dd314b93,crm,3,symbol,filaDaFaixa,tierQueue,apps/crm/src/lib/leads.ts:552,3,no,,,approved,codex2,
 crm-symbol-dd53b0ab,crm,3,symbol,usoPorChave,usoByKey,apps/crm/src/lib/configuracoes-dados.ts:725,1,no,,,approved,codex2,
 crm-symbol-dd7f35db,crm,3,symbol,colunaDoAgrupamento,groupingColumn,apps/crm/src/lib/leads-visao.ts:102,4,no,,,approved,codex2,
-crm-symbol-de3f0b97,crm,3,symbol,listarContatos,listarContacts,apps/crm/src/lib/contatos.ts:42,4,no,,,approved,codex2,
+crm-symbol-de3f0b97,crm,3,symbol,listarContatos,listContacts,apps/crm/src/lib/contatos.ts:42,4,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 crm-symbol-dec02d4e,crm,3,symbol,Busca,Search,apps/crm/src/app/leads/page.tsx:27,38,no,,,approved,codex2,
 crm-symbol-e1043467,crm,3,symbol,COLUNAS_CONTATO,COLUMNS_CONTACT,apps/crm/src/app/contas/[id]/page.tsx:48,2,no,,,approved,codex2,
 crm-symbol-e1976425,crm,3,symbol,UsuarioNaLateral,UserInLateral,apps/crm/src/componentes/estrutura-crm.tsx:59,3,no,,,approved,codex2,

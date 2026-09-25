@@ -142,7 +142,7 @@ desk-vite-symbol-79b00dc3,desk-vite,3,symbol,canal,channel,apps/desk-vite/src/pa
 desk-vite-symbol-7cc5a9db,desk-vite,3,symbol,OrdemDeContatos,ContactsOrder,apps/desk-vite/src/lib/contatos.ts:16,4,no,,,approved,codex2,
 desk-vite-symbol-7eca9f84,desk-vite,3,symbol,agruparContatos,agruparContacts,apps/desk-vite/src/lib/contatos.ts:39,6,no,,,approved,codex2,
 desk-vite-symbol-88e71510,desk-vite,3,symbol,Conversa,Conversation,apps/desk-vite/src/paginas/atendimentos/conversa.tsx:32,90,no,,,approved,codex2,
-desk-vite-symbol-8949e1c8,desk-vite,3,symbol,tempoDecorrido,timeDecorrido,apps/desk-vite/src/lib/formato.ts:62,9,no,,,approved,codex2,
+desk-vite-symbol-8949e1c8,desk-vite,3,symbol,tempoDecorrido,timeElapsed,apps/desk-vite/src/lib/formato.ts:62,9,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 desk-vite-symbol-8e16cb68,desk-vite,3,symbol,Preferencias,Preferences,apps/desk-vite/src/lib/preferencias.ts:11,7,no,,,approved,codex2,
 desk-vite-symbol-94c395db,desk-vite,3,symbol,canais,channels,apps/desk-vite/src/paginas/mensagem-ativa/page.tsx:61,243,no,,,approved,codex2,
 desk-vite-symbol-957f222e,desk-vite,3,symbol,MAX_CONTATOS,MAX_CONTACTS,apps/desk-vite/src/paginas/mensagem-ativa/page.tsx:28,6,no,,,approved,codex2,

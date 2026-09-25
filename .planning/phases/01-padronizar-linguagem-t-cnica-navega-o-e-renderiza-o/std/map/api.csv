@@ -25,7 +25,7 @@ api-endpoint-1c118938,api,2,endpoint,/v1/contatos/:*/etiquetas,/v1/contacts/:id/
 api-endpoint-1c704269,api,2,endpoint,/v1/gestao/regras/atendimento/:*,/v1/management/rules/attendance/:id,apps/api/src/controladores/gestao-cadastros.ts:248,0,no,,,approved,codex1,
 api-endpoint-22f10e97,api,2,endpoint,/v1/gestao/atendentes/pausas/:*,/v1/management/agents/pauses/:id,apps/api/src/controladores/gestao-cadastros.ts:547,0,no,,,approved,codex1,
 api-endpoint-237ace98,api,2,endpoint,/v1/gestao/atendentes/pausas,/v1/management/agents/pauses,apps/api/src/controladores/gestao-cadastros.ts:108,0,no,,,approved,codex1,
-api-endpoint-23d6a2d0,api,2,endpoint,/v1/gestao/contrato/certificados,/v1/management/contract/certificados,apps/api/src/controladores/gestao-conta.ts:176,0,no,,,approved,codex1,
+api-endpoint-23d6a2d0,api,2,endpoint,/v1/gestao/contrato/certificados,/v1/management/contract/certificates,apps/api/src/controladores/gestao-conta.ts:176,0,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-endpoint-26fd6593,api,2,endpoint,/v1/gestao/monitoria/:*,/v1/management/quality-review/:id,apps/api/src/controladores/gestao-operacao.ts:328,0,no,,,approved,codex1,glossary-exception:D-01
 api-endpoint-323fdd70,api,2,endpoint,/v1/gestao/regras/horarios/faixas/:*,/v1/management/rules/schedules/ranges/:id,apps/api/src/controladores/gestao-cadastros.ts:275,0,no,,,approved,codex1,
 api-endpoint-326c71ed,api,2,endpoint,/v1/gestao/monitoramento,/v1/management/monitoring,apps/api/src/controladores/gestao-operacao.ts:133,0,no,,,approved,codex1,
@@ -48,7 +48,7 @@ api-endpoint-5155d0e7,api,2,endpoint,/v1/gestao/fluxos/:*/servicos,/v1/managemen
 api-endpoint-53734e1a,api,2,endpoint,/v1/conversas/:*/encerrar,/v1/conversations/:id/close,apps/api/src/controladores/conversas.ts:299,0,no,,,approved,codex1,
 api-endpoint-55ea708d,api,2,endpoint,/v1/gestao/monitoramento/conversas/:*/transferir,/v1/management/monitoring/conversations/:id/transfer,apps/api/src/controladores/gestao-operacao.ts:181,0,no,,,approved,codex1,
 api-endpoint-57a4f869,api,2,endpoint,/v1/gestao/configuracoes/palavras-proibidas/:*,/v1/management/settings/words-forbidden/:id,apps/api/src/controladores/gestao-cadastros.ts:387,0,no,,,approved,codex1,
-api-endpoint-57c4b106,api,2,endpoint,/v1/gestao/fluxos/:*/boas-vindas,/v1/management/flows/:id/welcome-vindas,apps/api/src/controladores/gestao-fluxo.ts:304,0,no,,,approved,codex1,
+api-endpoint-57c4b106,api,2,endpoint,/v1/gestao/fluxos/:*/boas-vindas,/v1/management/flows/:id/welcome,apps/api/src/controladores/gestao-fluxo.ts:304,0,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-endpoint-57dbf8aa,api,2,endpoint,/v1/gestao/atendentes/filas/:*,/v1/management/agents/queues/:id,apps/api/src/controladores/gestao-cadastros.ts:182,0,no,,,approved,codex1,
 api-endpoint-59764ccb,api,2,endpoint,/v1/gestao/contrato/membros/excluir,/v1/management/contract/members/delete,apps/api/src/controladores/gestao-conta.ts:131,0,no,,,approved,codex1,
 api-endpoint-5a5a239f,api,2,endpoint,/v1/atendentes,/v1/agents,apps/api/src/controladores/catalogo.ts:367,0,no,,,approved,codex1,
@@ -72,11 +72,11 @@ api-endpoint-7e52d7dd,api,2,endpoint,/v1/gestao/fluxos/:*/equipe/eu,/v1/manageme
 api-endpoint-7ed1848c,api,2,endpoint,/v1/gestao/implantacao,/v1/management/deployment,apps/api/src/controladores/gestao-conta.ts:164,0,no,,,approved,codex1,
 api-endpoint-7f11b074,api,2,endpoint,/v1/gestao/configuracoes/dados,/v1/management/settings/data,apps/api/src/controladores/gestao-cadastros.ts:147,0,no,,,approved,codex1,
 api-endpoint-802e3739,api,2,endpoint,/v1/crm/dicionario,/v1/crm/dictionary,apps/api/src/controladores/crm.ts:43,0,no,,,approved,codex1,
-api-endpoint-81136b5a,api,2,endpoint,/v1/gestao/fluxos/:*/links-rastreados,/v1/management/flows/:flowId/links-rastreados,apps/api/src/controladores/rastreador-de-cliques.ts:42,0,no,,,approved,codex1,
+api-endpoint-81136b5a,api,2,endpoint,/v1/gestao/fluxos/:*/links-rastreados,/v1/management/flows/:flowId/links-tracked,apps/api/src/controladores/rastreador-de-cliques.ts:42,0,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-endpoint-825ae5d8,api,2,endpoint,/v1/gestao/fluxos/:*/contatos,/v1/management/flows/:id/contacts,apps/api/src/controladores/gestao-fluxo.ts:360,0,no,,,approved,codex1,
 api-endpoint-87805e9c,api,2,endpoint,/v1/mensagens-ativas,/v1/messages-active,apps/api/src/controladores/mensagens-ativas.ts:46,0,no,,,approved,codex1,
 api-endpoint-880d8f34,api,2,endpoint,/v1/canais/whatsapp/:*/modelos/sincronizar,/v1/channels/whatsapp/:id/templates/sync,apps/api/src/controladores/canais.ts:223,0,no,,,approved,codex1,
-api-endpoint-897cf8ca,api,2,endpoint,/v1/gestao/contrato/certificados/:*/hosts/:*,/v1/management/contract/certificados/:id/hosts/:hostId,apps/api/src/controladores/gestao-conta.ts:221,0,no,,,approved,codex1,
+api-endpoint-897cf8ca,api,2,endpoint,/v1/gestao/contrato/certificados/:*/hosts/:*,/v1/management/contract/certificates/:id/hosts/:hostId,apps/api/src/controladores/gestao-conta.ts:221,0,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-endpoint-8ba1b1ba,api,2,endpoint,/v1/auth/sso/retorno,/v1/auth/sso/callback,apps/api/src/controladores/sso.ts:136,0,no,,D-13,approved,sonnet,
 api-endpoint-8bb7fa41,api,2,endpoint,/v1/desk/contatos/:*,/v1/desk/contacts/:id,apps/api/src/controladores/desk.ts:137,0,no,,,approved,codex1,
 api-endpoint-8da1c9c3,api,2,endpoint,/v1/canais/messenger,/v1/channels/messenger,apps/api/src/controladores/canais-messenger.ts:6,0,no,,,approved,codex1,
@@ -108,7 +108,7 @@ api-endpoint-af5c4216,api,2,endpoint,/v1/gestao/fluxos/:*,/v1/management/flows/:
 api-endpoint-b1afcf7d,api,2,endpoint,/v1/gestao/configuracoes/gerais,/v1/management/settings/general,apps/api/src/controladores/gestao-cadastros.ts:154,0,no,,,approved,codex1,
 api-endpoint-b23fdaf1,api,2,endpoint,/v1/gestao/fluxos/:*/conteudos,/v1/management/flows/:id/content-items,apps/api/src/controladores/gestao-fluxo.ts:421,0,no,,,approved,codex1,
 api-endpoint-b28fe6c6,api,2,endpoint,/v1/contatos/importacoes,/v1/contacts/imports,apps/api/src/controladores/importacoes.ts:27,0,no,,,approved,codex1,
-api-endpoint-b562b563,api,2,endpoint,/v1/gestao/contrato/certificados/:*,/v1/management/contract/certificados/:id,apps/api/src/controladores/gestao-conta.ts:203,0,no,,,approved,codex1,
+api-endpoint-b562b563,api,2,endpoint,/v1/gestao/contrato/certificados/:*,/v1/management/contract/certificates/:id,apps/api/src/controladores/gestao-conta.ts:203,0,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-endpoint-b6a3e037,api,2,endpoint,/v1/gestao/cabecalho,/v1/management/header,apps/api/src/controladores/gestao-operacao.ts:123,0,no,,,approved,codex1,
 api-endpoint-ba56b91f,api,2,endpoint,/v1/gestao/atendentes/filas,/v1/management/agents/queues,apps/api/src/controladores/gestao-cadastros.ts:101,0,no,,,approved,codex1,
 api-endpoint-bbbf9f3d,api,2,endpoint,/v1/desk/filas,/v1/desk/queues,apps/api/src/controladores/desk.ts:114,0,no,,,approved,codex1,
@@ -430,7 +430,7 @@ api-file-11d7f18f,api,2,file,conversas.ts,controllers/conversations.ts,apps/api/
 api-file-155d1232,api,2,file,monitoria.ts,management/quality-review.ts,apps/api/src/dominio/gestao/monitoria.ts,3,no,,,approved,codex1,glossary-exception:D-01
 api-file-158785d0,api,2,file,roteador.ts,router.ts,apps/api/src/dominio/roteador.ts,1,no,,,approved,codex1,
 api-file-1743d548,api,2,file,gestao-cadastros.ts,controllers/management-registrations.ts,apps/api/src/controladores/gestao-cadastros.ts,0,no,,,approved,codex1,
-api-file-1c5b2e01,api,2,file,cadastro-embutido.ts,registration-embutido.ts,apps/api/src/dominio/whatsapp/cadastro-embutido.ts,2,no,,,approved,codex1,
+api-file-1c5b2e01,api,2,file,cadastro-embutido.ts,registration-embedded.ts,apps/api/src/dominio/whatsapp/cadastro-embutido.ts,2,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-file-1d3b26e0,api,2,file,importacao.test.ts,import.test.ts,apps/api/tests/importacao.test.ts,1,no,,,approved,codex1,
 api-file-1da69c4b,api,2,file,conexao-no-fluxo.ts,connection-in-flow.ts,apps/api/src/controladores/conexao-no-fluxo.ts,2,no,,,approved,codex1,
 api-file-1dc922de,api,2,file,importacoes.ts,imports.ts,apps/api/src/controladores/importacoes.ts,0,no,,,approved,codex1,
@@ -470,7 +470,7 @@ api-file-69571637,api,2,file,entrada.ts,messenger/inbound.ts,apps/api/src/domini
 api-file-69f3dfa2,api,2,file,integracoes.test.ts,integrations.test.ts,apps/api/tests/integracoes.test.ts,4,no,,,approved,codex1,
 api-file-6be73a7c,api,2,file,prioridade.test.ts,priority.test.ts,apps/api/tests/prioridade.test.ts,0,no,,,approved,codex1,
 api-file-706c1149,api,2,file,reautorizacao.ts,reauthorization.ts,apps/api/src/dominio/whatsapp/reautorizacao.ts,1,no,,,approved,codex1,
-api-file-70e2dd08,api,2,file,midia-recebida.test.ts,media-recebida.test.ts,apps/api/tests/midia-recebida.test.ts,2,no,,,approved,codex1,
+api-file-70e2dd08,api,2,file,midia-recebida.test.ts,media-received.test.ts,apps/api/tests/midia-recebida.test.ts,2,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-file-71c872b9,api,2,file,contas.test.ts,accounts.test.ts,apps/api/tests/contas.test.ts,1,no,,,approved,codex1,
 api-file-75204b71,api,2,file,configuracao-do-fluxo.test.ts,configuration-of-flow.test.ts,apps/api/tests/configuracao-do-fluxo.test.ts,0,no,,,approved,codex1,
 api-file-755efc15,api,2,file,provisionar.ts,provision.ts,apps/api/src/provisionar.ts,1,no,,,approved,codex1,
@@ -622,7 +622,7 @@ api-symbol-03abe600,api,2,symbol,sessaoMembro,sessionMember,apps/api/tests/canal
 api-symbol-03d2905a,api,2,symbol,excecoes,exceptions,apps/api/src/dominio/gestao/cadastros.ts:322,22,no,,,approved,codex1,
 api-symbol-03e583f2,api,2,symbol,metricasPorChave,metricsByKey,apps/api/src/dominio/gestao/monitoramento.ts:251,6,no,,,approved,codex1,
 api-symbol-04114a84,api,2,symbol,CaixaDoCanal,CaixaOfChannel,apps/api/src/dominio/gestao/configuracoes.ts:181,4,no,,,approved,codex1,
-api-symbol-0466ca5d,api,2,symbol,enfileirarEntrada,enfileirarInbound,apps/api/src/filas.ts:71,8,no,,,approved,codex1,
+api-symbol-0466ca5d,api,2,symbol,enfileirarEntrada,enqueueInbound,apps/api/src/filas.ts:71,8,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-046c10c5,api,2,symbol,pagina,page,apps/api/src/dominio/messenger/canal.ts:25,89,no,,,approved,codex1,
 api-symbol-04a42be5,api,2,symbol,valor,value,apps/api/src/dominio/construtor-de-conta.ts:33,1656,no,,,approved,codex1,
 api-symbol-04c4afd0,api,2,symbol,variaveisPadrao,variablesDefault,apps/api/tests/gerar-fixtures-jsonb.helper.ts:357,2,no,,,approved,codex1,
@@ -632,14 +632,14 @@ api-symbol-04f4d124,api,2,symbol,escopoFora,scopeOutside,apps/api/tests/cadastro
 api-symbol-050659fb,api,2,symbol,PfxDeTeste,PfxOfTest,apps/api/tests/ajuda-pfx.ts:145,2,no,,,approved,codex1,
 api-symbol-051c254b,api,2,symbol,usuarioId,userId,apps/api/tests/contatos-editar.test.ts:41,604,no,,,approved,codex1,
 api-symbol-05408bc8,api,2,symbol,PREFIXO_TXT,PREFIX_TXT,apps/api/src/dominio/dominios.ts:23,2,no,,,approved,codex1,
-api-symbol-05870ed0,api,2,symbol,ConversaResolvida,ConversationResolvida,apps/api/src/dominio/entrada.ts:468,2,no,,,approved,codex1,
+api-symbol-05870ed0,api,2,symbol,ConversaResolvida,ConversationResolved,apps/api/src/dominio/entrada.ts:468,2,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-058dbdfd,api,2,symbol,blocoPorCodigo,blockByCode,apps/api/src/dominio/fluxo.ts:1076,12,no,,,approved,codex1,
 api-symbol-05967d3e,api,2,symbol,sessao,session,apps/api/src/controladores/gestao-builder.ts:100,382,no,,,approved,codex1,
 api-symbol-05976cd3,api,2,symbol,daConta,ofAccount,apps/api/src/dominio/gestao/contrato.ts:253,3,no,,,approved,codex1,
 api-symbol-06007cb3,api,2,symbol,valoresDoMessenger,valuesOfMessenger,apps/api/src/dominio/messenger/entrada.ts:5,6,no,,,approved,codex1,
 api-symbol-062481f3,api,2,symbol,validacao,validation,apps/api/src/importar-fluxo.ts:41,10,no,,,approved,codex1,
 api-symbol-0633b69f,api,2,symbol,consumidorMidia,consumerMedia,apps/api/src/filas.ts:240,5,no,,,approved,codex1,
-api-symbol-0634f382,api,2,symbol,AutenticacaoDeSaidaDecifrada,AuthenticationOfOutputDecifrada,apps/api/src/webhooks-saida.ts:76,3,no,,,approved,codex1,
+api-symbol-0634f382,api,2,symbol,AutenticacaoDeSaidaDecifrada,AuthenticationOfOutputDecrypted,apps/api/src/webhooks-saida.ts:76,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-064d9c59,api,2,symbol,ControladorCanaisMessenger,MessengerChannelsController,apps/api/src/controladores/canais-messenger.ts:5,5,no,,D-05,approved,sonnet,
 api-symbol-06575b3a,api,2,symbol,valor,value,apps/api/tests/entrada.test.ts:344,1656,no,,,approved,codex1,
 api-symbol-0689924c,api,2,symbol,fluxoVivo,flowVivo,apps/api/src/dominio/gestao/equipe-do-fluxo.ts:253,20,no,,,approved,codex1,
@@ -685,7 +685,7 @@ api-symbol-0a47a43c,api,2,symbol,carregarPreviaDaConversa,loadPreviaOfConversati
 api-symbol-0a8414e1,api,2,symbol,papelId,roleId,apps/api/tests/integracoes.test.ts:64,121,no,,,approved,codex1,
 api-symbol-0aa4956f,api,2,symbol,sessaoEditor,sessionEditor,apps/api/tests/equipe-do-fluxo.test.ts:38,150,no,,,approved,codex1,
 api-symbol-0aca261d,api,2,symbol,RespostaDoMonitoramento,ResponseOfMonitoring,apps/api/src/controladores/gestao-operacao.ts:81,4,no,,,approved,codex1,
-api-symbol-0ad23a14,api,2,symbol,DominioRegistrado,DomainRegistrado,apps/api/src/dominio/dominios.ts:31,2,no,,,approved,codex1,
+api-symbol-0ad23a14,api,2,symbol,DominioRegistrado,DomainRegistered,apps/api/src/dominio/dominios.ts:31,2,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-0ad4d9bf,api,2,symbol,versoes,versions,apps/api/src/controladores/gestao-builder.ts:79,32,no,,,approved,codex1,
 api-symbol-0b2ea289,api,2,symbol,mensagem,message,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:137,1267,no,,,approved,codex1,
 api-symbol-0b379c78,api,2,symbol,ativa,active,apps/api/src/dominio/gestao/regras-prioridade.ts:198,340,no,,,approved,codex1,
@@ -703,7 +703,7 @@ api-symbol-0ce53cd3,api,2,symbol,abrirSessao,openSession,apps/api/tests/cadastro
 api-symbol-0ceb2799,api,2,symbol,contatosComTelefone,contactsWithPhone,apps/api/tests/entrada-telefone.test.ts:47,6,no,,,approved,codex1,
 api-symbol-0d1e771d,api,2,symbol,CorpoEdicaoContato,BodyEditContact,apps/api/src/controladores/catalogo.ts:57,2,no,,,approved,codex1,
 api-symbol-0d5371ed,api,2,symbol,atendentes,agents,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:122,309,no,,,approved,codex1,
-api-symbol-0d5598a0,api,2,symbol,ContatoListado,ContactListado,apps/api/src/dominio/gestao-fluxo.ts:107,6,no,,,approved,codex1,
+api-symbol-0d5598a0,api,2,symbol,ContatoListado,ContactListed,apps/api/src/dominio/gestao-fluxo.ts:107,6,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-0d8d89f8,api,2,symbol,semearIdentidade,seedIdentity,apps/api/tests/entrada.test.ts:46,2,no,,,approved,codex1,
 api-symbol-0d90c4dc,api,2,symbol,cairPorInatividade,cairByInactivity,apps/api/src/dominio/desk/acoes.ts:99,9,no,,,approved,codex1,
 api-symbol-0dc71e20,api,2,symbol,EtiquetaDoContato,LabelOfContact,apps/api/src/dominio/etiquetas.ts:208,5,no,,,approved,codex1,
@@ -712,7 +712,7 @@ api-symbol-0de1b543,api,2,symbol,LinhaDePermissao,LineOfPermission,apps/api/src/
 api-symbol-0de4de41,api,2,symbol,AtorDoContato,AtorOfContact,apps/api/src/dominio/etiquetas.ts:240,3,no,,,approved,codex1,
 api-symbol-0deada95,api,2,symbol,dominio,domain,apps/api/src/dominio/sso.ts:348,476,no,,,approved,codex1,
 api-symbol-0df39766,api,2,symbol,emAndamento,inProgress,apps/api/tests/builder-por-fluxo.test.ts:471,4,no,,,approved,codex1,
-api-symbol-0df6f8fb,api,2,symbol,enfileirarEspelhoCrm,enfileirarMirrorCrm,apps/api/src/filas.ts:147,8,no,,,approved,codex1,
+api-symbol-0df6f8fb,api,2,symbol,enfileirarEspelhoCrm,enqueueMirrorCrm,apps/api/src/filas.ts:147,8,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-0e694c58,api,2,symbol,EstadoDoPasso,StateOfPasso,apps/api/src/dominio/gestao/passos-da-implantacao.ts:38,7,no,,,approved,codex1,
 api-symbol-0e6e46c1,api,2,symbol,CanalMessengerVisivel,ChannelMessengerVisible,apps/api/src/dominio/messenger/canal.ts:12,14,no,,,approved,codex1,
 api-symbol-0e6fa726,api,2,symbol,lerCanalVisivel,readChannelVisible,apps/api/src/dominio/canais.ts:121,4,no,,,approved,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
@@ -754,7 +754,7 @@ api-symbol-12e3f1db,api,2,symbol,abrirSessao,openSession,apps/api/tests/integrac
 api-symbol-12e7e091,api,2,symbol,inteiroDe,integerOf,apps/api/src/dominio/gestao/pfx.ts:125,4,no,,,approved,codex1,
 api-symbol-132a7106,api,2,symbol,erro,error,apps/api/src/dominio/fluxo.ts:709,1478,no,,,approved,codex1,
 api-symbol-132d0767,api,2,symbol,ContaCriada,AccountCreated,apps/api/src/dominio/construtor-de-conta.ts:45,2,no,,,approved,codex1,
-api-symbol-1365927b,api,2,symbol,guardarAnexo,guardarAttachment,apps/api/src/dominio/entrada.ts:600,9,no,,,approved,codex1,
+api-symbol-1365927b,api,2,symbol,guardarAnexo,saveAttachment,apps/api/src/dominio/entrada.ts:600,9,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-1370877d,api,2,symbol,autorizacao,authorization,apps/api/src/webhooks-saida.ts:268,11,no,,,approved,codex1,
 api-symbol-137a9e96,api,2,symbol,CascaDoContato,ShellOfContact,apps/api/src/controladores/gestao-fluxo.ts:99,3,no,,,approved,codex1,
 api-symbol-13944638,api,2,symbol,papelId,roleId,apps/api/tests/builder-por-fluxo.test.ts:80,121,no,,,approved,codex1,
@@ -771,7 +771,7 @@ api-symbol-14d57ac9,api,2,symbol,sessao,session,apps/api/src/controladores/convi
 api-symbol-150013c9,api,2,symbol,sessaoDoOutroTenant,sessionOfOtherTenant,apps/api/tests/cadastros-atendimento.test.ts:41,64,no,,,approved,codex1,
 api-symbol-1536f1fa,api,2,symbol,ConversaParaSla,ConversationForSla,apps/api/src/dominio/gestao/sla-motor.ts:133,2,no,,,approved,codex1,
 api-symbol-15512532,api,2,symbol,semSessao,withoutSession,apps/api/tests/palavras-proibidas.test.ts:263,8,no,,,approved,codex1,
-api-symbol-156915ce,api,2,symbol,listarCanaisInstagram,listarChannelsInstagram,apps/api/src/dominio/instagram/canal.ts:141,3,no,,,approved,codex1,
+api-symbol-156915ce,api,2,symbol,listarCanaisInstagram,listChannelsInstagram,apps/api/src/dominio/instagram/canal.ts:141,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-1570582a,api,2,symbol,validadeMs,validityMs,apps/api/src/dominio/instagram/renovacao.ts:50,2,no,,,approved,codex1,
 api-symbol-15d875de,api,2,symbol,PERMISSOES,PERMISSIONS,apps/api/tests/entrada.test.ts:43,3,no,,,approved,codex1,
 api-symbol-15dddf23,api,2,symbol,salvarExecucao,saveExecution,apps/api/src/dominio/fluxo.ts:668,3,no,,,approved,codex1,
@@ -793,7 +793,7 @@ api-symbol-17a47108,api,2,symbol,PREFIXO_ATRIBUTO,PREFIX_ATRIBUTO,apps/api/src/d
 api-symbol-17c48591,api,2,symbol,estado,state,apps/api/src/controladores/sso.ts:78,1269,no,,,approved,codex1,
 api-symbol-17cf4197,api,2,symbol,descricao,description,apps/api/src/dominio/gestao/certificados.ts:220,299,no,,,approved,codex1,
 api-symbol-17eeb17b,api,2,symbol,SEGREDO,SECRET,apps/api/tests/instagram.test.ts:37,18,no,,,approved,codex1,
-api-symbol-183a05ef,api,2,symbol,conferirSegredoDoApp,conferirSecretOfApp,apps/api/src/dominio/instagram/cliente-graph.ts:147,10,no,,,approved,codex1,
+api-symbol-183a05ef,api,2,symbol,conferirSegredoDoApp,checkSecretOfApp,apps/api/src/dominio/instagram/cliente-graph.ts:147,10,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-183abfb5,api,2,symbol,adicionarMembro,adicionarMember,apps/api/src/dominio/gestao/equipe-do-fluxo.ts:370,3,no,,,approved,codex1,
 api-symbol-1896a798,api,2,symbol,variaveisDoTexto,variablesOfText,apps/api/src/dominio/whatsapp/modelos.ts:128,14,no,,,approved,codex1,
 api-symbol-189d1176,api,2,symbol,primeira,first,apps/api/tests/desk-acoes.test.ts:322,377,no,,,approved,codex1,
@@ -830,7 +830,7 @@ api-symbol-1cc07ed5,api,2,symbol,OrigemDoCanal,OriginOfChannel,apps/api/src/domi
 api-symbol-1d0c718c,api,2,symbol,conversaId,conversationId,apps/api/src/dominio/mensagem-ativa.ts:168,523,no,,,approved,codex1,
 api-symbol-1d2ed2a3,api,2,symbol,arquivado,archived,apps/api/tests/roteador.test.ts:191,42,no,,,approved,codex1,
 api-symbol-1d31629c,api,2,symbol,LinhaEntrega,LineDelivery,apps/api/src/webhooks-saida.ts:197,3,no,,,approved,codex1,
-api-symbol-1d3e377a,api,2,symbol,FilaCadastrada,QueueCadastrada,apps/api/src/dominio/gestao/cadastros.ts:79,15,no,,,approved,codex1,
+api-symbol-1d3e377a,api,2,symbol,FilaCadastrada,QueueRegistered,apps/api/src/dominio/gestao/cadastros.ts:79,15,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-1d3e70b2,api,2,symbol,pagina,page,apps/api/tests/ponta-a-ponta.test.ts:265,89,no,,,approved,codex1,
 api-symbol-1dc1dd80,api,2,symbol,consumirRenovacaoInstagram,consumeRenewalInstagram,apps/api/src/filas.ts:479,3,no,,,approved,codex1,
 api-symbol-1dc88a6f,api,2,symbol,novaConversa,newConversation,apps/api/tests/conversa-eventos.test.ts:73,49,no,,,approved,codex1,
@@ -870,8 +870,8 @@ api-symbol-2366ec21,api,2,symbol,vazio,empty,apps/api/tests/palavras-proibidas.t
 api-symbol-23729dbd,api,2,symbol,idDaPagina,idOfPage,apps/api/src/dominio/messenger/cliente-graph.ts:53,1,no,,,approved,codex1,
 api-symbol-238b3c33,api,2,symbol,daFila,ofQueue,apps/api/src/dominio/gestao/monitoramento.ts:628,15,no,,,approved,codex1,
 api-symbol-23b9567e,api,2,symbol,semCondicao,withoutCondition,apps/api/tests/cadastros-atendimento.test.ts:633,3,no,,,approved,codex1,
-api-symbol-23bf5ca5,api,2,symbol,CanalResolvido,ChannelResolvido,apps/api/src/banco.ts:46,20,no,,,approved,codex1,
-api-symbol-23c03c87,api,2,symbol,criarCertificado,createCertificado,apps/api/src/dominio/gestao/certificados.ts:214,3,no,,,approved,codex1,
+api-symbol-23bf5ca5,api,2,symbol,CanalResolvido,ChannelResolved,apps/api/src/banco.ts:46,20,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
+api-symbol-23c03c87,api,2,symbol,criarCertificado,createCertificate,apps/api/src/dominio/gestao/certificados.ts:214,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-23cb1b89,api,2,symbol,criarServico,createService,apps/api/src/controladores/gestao-fluxo.ts:452,4,no,,,approved,codex1,
 api-symbol-23f0e261,api,2,symbol,roteadorVivo,routerVivo,apps/api/src/dominio/gestao/servicos-do-roteador.ts:120,4,no,,,approved,codex1,
 api-symbol-23fb20cc,api,2,symbol,ControladorContas,AccountsController,apps/api/src/controladores/contas.ts:18,5,no,,D-05,approved,sonnet,
@@ -886,7 +886,7 @@ api-symbol-25d4a901,api,2,symbol,excluirFila,deleteQueue,apps/api/src/dominio/ge
 api-symbol-25f1e1fb,api,2,symbol,CartoesTempoReal,CardsTimeReal,apps/api/src/dominio/gestao/monitoramento.ts:90,5,no,,,approved,codex1,
 api-symbol-2610219f,api,2,symbol,FilaGravada,QueueWritten,apps/api/src/dominio/gestao/cadastros.ts:1187,3,no,,,approved,codex1,
 api-symbol-264cb38e,api,2,symbol,criarFaixaSql,createRangeSql,apps/api/tests/cadastros-atendimento.test.ts:902,7,no,,,approved,codex1,
-api-symbol-265eb05e,api,2,symbol,papelConferido,roleConferido,apps/api/src/dominio/gestao/equipe-do-fluxo.ts:135,3,no,,,approved,codex1,
+api-symbol-265eb05e,api,2,symbol,papelConferido,roleChecked,apps/api/src/dominio/gestao/equipe-do-fluxo.ts:135,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-2670cc6b,api,2,symbol,uuidsDoFiltro,uuidsOfFilter,apps/api/src/controladores/gestao-operacao.ts:47,3,no,,,approved,codex1,
 api-symbol-26b6cd92,api,2,symbol,contato,contact,apps/api/src/controladores/gestao-fluxo.ts:232,1026,no,,,approved,codex1,
 api-symbol-26f713be,api,2,symbol,canalId,channelId,apps/api/src/dominio/instagram/canal.ts:231,387,no,,,approved,codex1,
@@ -901,7 +901,7 @@ api-symbol-27e05bd4,api,2,symbol,periodoHistorico,periodHistory,apps/api/src/con
 api-symbol-27f7e6be,api,2,symbol,filaImportacao,queueImport,apps/api/src/filas.ts:618,2,no,,,approved,codex1,
 api-symbol-28089b3e,api,2,symbol,conta,account,apps/api/src/controladores/contas.ts:35,808,no,,,approved,codex1,
 api-symbol-284d03fe,api,2,symbol,AlvoDeMembro,TargetOfMember,apps/api/src/controladores/gestao-conta.ts:53,6,no,,,approved,codex1,
-api-symbol-28877ab8,api,2,symbol,listarCanaisMessenger,listarChannelsMessenger,apps/api/src/dominio/messenger/canal.ts:22,3,no,,,approved,codex1,
+api-symbol-28877ab8,api,2,symbol,listarCanaisMessenger,listChannelsMessenger,apps/api/src/dominio/messenger/canal.ts:22,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-288dbafa,api,2,symbol,Implantacao,Deployment,apps/api/src/dominio/gestao/implantacao.ts:26,7,no,,,approved,codex1,
 api-symbol-28c17c76,api,2,symbol,dados,data,apps/api/src/controladores/gestao-analise.ts:130,669,no,,,approved,codex1,
 api-symbol-28ccf64f,api,2,symbol,carregarSatisfacao,loadSatisfaction,apps/api/src/dominio/gestao/satisfacao.ts:86,3,no,,,approved,codex1,
@@ -942,7 +942,7 @@ api-symbol-2d7f90f7,api,2,symbol,criarConversa,createConversation,apps/api/tests
 api-symbol-2de39638,api,2,symbol,dados,data,apps/api/src/filas.ts:190,669,no,,,approved,codex1,
 api-symbol-2e0ff7d1,api,2,symbol,historico,history,apps/api/src/controladores/gestao-operacao.ts:229,41,no,,,approved,codex1,
 api-symbol-2e5a47c7,api,2,symbol,ControladorOperacao,OperationsController,apps/api/src/controladores/operacao.ts:51,3,no,,D-05,approved,sonnet,
-api-symbol-2e7af924,api,2,symbol,listarContatos,listarContacts,apps/api/src/dominio/desk/consultas.ts:519,4,no,,,approved,codex1,
+api-symbol-2e7af924,api,2,symbol,listarContatos,listContacts,apps/api/src/dominio/desk/consultas.ts:519,4,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-2ed90c54,api,2,symbol,Conversa,Conversation,apps/api/tests/roteador.test.ts:497,90,no,,,approved,codex1,
 api-symbol-2ef19d8a,api,2,symbol,canalA,channelA,apps/api/tests/midia-recebida.test.ts:352,2,no,,,approved,codex1,
 api-symbol-2f155a57,api,2,symbol,TEMPO_LIMITE_MS,TIME_LIMIT_MS,apps/api/src/saude.ts:17,5,no,,,approved,codex1,
@@ -957,7 +957,7 @@ api-symbol-2ffb1ef7,api,2,symbol,modelo,template,apps/api/src/dominio/whatsapp/m
 api-symbol-3010f485,api,2,symbol,vincularAtendenteNaFila,vincularAgentInQueue,apps/api/src/dominio/gestao/cadastros.ts:1453,5,no,,,approved,codex1,
 api-symbol-304f0aba,api,2,symbol,criarRegraSla,createRuleSla,apps/api/src/controladores/gestao-cadastros.ts:327,28,no,,,approved,codex1,
 api-symbol-309434c9,api,2,symbol,conversa,conversation,apps/api/tests/transferencia.test.ts:99,1270,no,,,approved,codex1,
-api-symbol-30ac2cb0,api,2,symbol,requisicaoCasada,requestCasada,apps/api/tests/chave-de-fluxo.test.ts:134,6,no,,,approved,codex1,
+api-symbol-30ac2cb0,api,2,symbol,requisicaoCasada,requestMatched,apps/api/tests/chave-de-fluxo.test.ts:134,6,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-30b06500,api,2,symbol,papelId,roleId,apps/api/tests/palavras-proibidas.test.ts:73,121,no,,,approved,codex1,
 api-symbol-30d4958b,api,2,symbol,erro,error,apps/api/tests/instagram.test.ts:183,1478,no,,,approved,codex1,
 api-symbol-30f8d51e,api,2,symbol,criarModelo,createTemplate,apps/api/tests/email.test.ts:119,9,no,,,approved,codex1,
@@ -967,10 +967,10 @@ api-symbol-31145b19,api,2,symbol,dados,data,apps/api/src/dominio/gestao/historic
 api-symbol-3119ab3b,api,2,symbol,salvarConexaoDoFluxo,saveConnectionOfFlow,apps/api/src/dominio/gestao/integracoes.ts:1014,4,no,,,approved,codex1,
 api-symbol-312e4012,api,2,symbol,ControladorGestaoBuilder,ManagementBuilderController,apps/api/src/controladores/gestao-builder.ts:36,3,no,,D-05,approved,sonnet,
 api-symbol-313043b5,api,2,symbol,contatos,contacts,apps/api/tests/mensagens-ativas.test.ts:247,438,no,,,approved,codex1,
-api-symbol-31332d67,api,2,symbol,corDeFilaConferida,colorOfQueueConferida,apps/api/src/dominio/gestao/cadastros.ts:1203,3,no,,,approved,codex1,
+api-symbol-31332d67,api,2,symbol,corDeFilaConferida,colorOfQueueChecked,apps/api/src/dominio/gestao/cadastros.ts:1203,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-313d66e0,api,2,symbol,desligarCanal,disconnectChannel,apps/api/src/controladores/gestao-fluxo.ts:287,1,no,,,approved,codex1,
 api-symbol-31480085,api,2,symbol,canalDoInstagram,channelOfInstagram,apps/api/src/controladores/webhooks-instagram.ts:68,3,no,,,approved,codex1,
-api-symbol-31bac386,api,2,symbol,chaveiroGuardado,keyringGuardado,apps/api/src/banco.ts:61,3,no,,,approved,codex1,
+api-symbol-31bac386,api,2,symbol,chaveiroGuardado,keyringSaved,apps/api/src/banco.ts:61,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-31c3b133,api,2,symbol,canalId,channelId,apps/api/src/dominio/whatsapp/criacao-de-canal.ts:95,387,no,,,approved,codex1,
 api-symbol-31cee7f7,api,2,symbol,conexoesVivas,connectionsVivas,apps/api/src/tempo-real.ts:155,9,no,,,approved,codex1,
 api-symbol-32287c29,api,2,symbol,carregarCanalDoFluxo,loadChannelOfFlow,apps/api/src/dominio/gestao-fluxo.ts:433,4,no,,,approved,codex1,
@@ -987,8 +987,8 @@ api-symbol-33d0eeb6,api,2,symbol,globais,globals,apps/api/src/dominio/gestao/bui
 api-symbol-33d12925,api,2,symbol,sessao,session,apps/api/src/controladores/gestao-integracoes.ts:106,382,no,,,approved,codex1,
 api-symbol-33efd441,api,2,symbol,gravarIdentidade,writeIdentity,apps/api/src/dominio/gestao/configuracoes.ts:358,3,no,,,approved,codex1,
 api-symbol-3409b9b2,api,2,symbol,linhaAnexo,lineAttachment,apps/api/tests/midia-recebida.test.ts:113,9,no,,,approved,codex1,
-api-symbol-340ca247,api,2,symbol,CanalConfigurado,ChannelConfigurado,apps/api/src/dominio/gestao/configuracoes.ts:135,7,no,,,approved,codex1,
-api-symbol-3443f8f3,api,2,symbol,listarItensDaConversa,listarItensOfConversation,apps/api/src/dominio/desk/consultas.ts:197,1,no,,,approved,codex1,
+api-symbol-340ca247,api,2,symbol,CanalConfigurado,ChannelConfigured,apps/api/src/dominio/gestao/configuracoes.ts:135,7,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
+api-symbol-3443f8f3,api,2,symbol,listarItensDaConversa,listItemsOfConversation,apps/api/src/dominio/desk/consultas.ts:197,1,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-34705cd4,api,2,symbol,assumirConversa,assumeConversation,apps/api/src/dominio/assumir.ts:22,4,no,,,approved,codex1,
 api-symbol-347dda08,api,2,symbol,lerVariaveis,readVariables,apps/api/src/dominio/gestao-fluxo.ts:404,7,no,,,approved,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
 api-symbol-34ccb450,api,2,symbol,contato,contact,apps/api/src/dominio/gestao/configuracao-do-fluxo.ts:213,1026,no,,,approved,codex1,
@@ -1019,7 +1019,7 @@ api-symbol-3834b507,api,2,symbol,agruparHistorico,agruparHistory,apps/api/src/do
 api-symbol-383b0715,api,2,symbol,relatorio,report,apps/api/src/controladores/gestao-operacao.ts:267,26,no,,,approved,codex1,
 api-symbol-38c14ea0,api,2,symbol,sessaoDoOutroTenant,sessionOfOtherTenant,apps/api/tests/contrato.test.ts:156,64,no,,,approved,codex1,
 api-symbol-38db11f6,api,2,symbol,cookieDoAtendente,cookieOfAgent,apps/api/tests/envio-sessao.test.ts:30,11,no,,,approved,codex1,
-api-symbol-38f3fa2e,api,2,symbol,conferirConversa,conferirConversation,apps/api/src/dominio/desk/marcacoes.ts:43,3,no,,,approved,codex1,
+api-symbol-38f3fa2e,api,2,symbol,conferirConversa,checkConversation,apps/api/src/dominio/desk/marcacoes.ts:43,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-390cc392,api,2,symbol,porAtendente,byAgent,apps/api/tests/palavras-proibidas.test.ts:454,11,no,,,approved,codex1,
 api-symbol-391b7423,api,2,symbol,usuarioOperador,userOperator,apps/api/tests/contrato.test.ts:84,3,no,,,approved,codex1,
 api-symbol-39412cc0,api,2,symbol,usuarioCom,userWith,apps/api/tests/importacao.test.ts:42,3,no,,,approved,codex1,
@@ -1033,31 +1033,31 @@ api-symbol-3a7a2c09,api,2,symbol,chave,key,apps/api/src/dominio/mensagem-ativa.t
 api-symbol-3a92a8ee,api,2,symbol,chaveDoMac,keyOfMac,apps/api/tests/ajuda-pfx.ts:204,2,no,,,approved,codex1,
 api-symbol-3af1bdbc,api,2,symbol,nomeDaFila,nameOfQueue,apps/api/src/dominio/gestao/configuracoes.ts:93,7,no,,,approved,codex1,
 api-symbol-3af20b82,api,2,symbol,mensagem,message,apps/api/src/dominio/fluxo.ts:358,1267,no,,,approved,codex1,
-api-symbol-3afb9e86,api,2,symbol,ordemConferida,orderConferida,apps/api/src/dominio/gestao/cadastros.ts:1223,4,no,,,approved,codex1,
+api-symbol-3afb9e86,api,2,symbol,ordemConferida,orderChecked,apps/api/src/dominio/gestao/cadastros.ts:1223,4,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-3b1d3343,api,2,symbol,filaInstagramToken,queueInstagramToken,apps/api/src/filas.ts:476,4,no,,,approved,codex1,
 api-symbol-3b3b840a,api,2,symbol,ErroPipe,PipeError,apps/api/src/erros.ts:13,243,no,,D-05,approved,sonnet,
 api-symbol-3b5580c6,api,2,symbol,ControladorWebhookInstagram,InstagramWebhookController,apps/api/src/controladores/webhooks-instagram.ts:21,3,no,,D-05,approved,sonnet,
 api-symbol-3b66c0c2,api,2,symbol,canal,channel,apps/api/src/dominio/whatsapp/modelos.ts:192,970,no,,,approved,codex1,
 api-symbol-3b97f463,api,2,symbol,sessao,session,apps/api/src/controladores/canais.ts:143,382,no,,,approved,codex1,
-api-symbol-3ba52d16,api,2,symbol,autenticacaoConferida,authenticationConferida,apps/api/src/dominio/gestao/integracoes.ts:465,5,no,,,approved,codex1,
+api-symbol-3ba52d16,api,2,symbol,autenticacaoConferida,authenticationChecked,apps/api/src/dominio/gestao/integracoes.ts:465,5,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-3ba84a62,api,2,symbol,canal,channel,apps/api/src/filas.ts:509,970,no,,,approved,codex1,
 api-symbol-3bc55372,api,2,symbol,dados,data,apps/api/tests/anexos.test.ts:32,669,no,,,approved,codex1,
 api-symbol-3bcafe73,api,2,symbol,ControladorDominios,DomainsController,apps/api/src/controladores/convites.ts:114,3,no,,D-05,approved,sonnet,
 api-symbol-3bebeafc,api,2,symbol,fila,queue,apps/api/src/controladores/desk.ts:72,993,no,,,approved,codex1,
 api-symbol-3c2189c6,api,2,symbol,escopoErrado,scopeWrong,apps/api/tests/etiquetas.test.ts:257,2,no,,,approved,codex1,
-api-symbol-3c4b18b9,api,2,symbol,duracaoSugeridaConferida,durationSuggestedConferida,apps/api/src/dominio/gestao/cadastros.ts:1572,3,no,,,approved,codex1,
+api-symbol-3c4b18b9,api,2,symbol,duracaoSugeridaConferida,durationSuggestedChecked,apps/api/src/dominio/gestao/cadastros.ts:1572,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-3c7d7319,api,2,symbol,novoFluxo,newFlow,apps/api/tests/configuracao-do-fluxo.test.ts:77,45,no,,,approved,codex1,
 api-symbol-3cbe1391,api,2,symbol,aplicarRegraDePrioridade,aplicarRuleOfPriority,apps/api/src/dominio/entrada.ts:559,3,no,,,approved,codex1,
 api-symbol-3cc52082,api,2,symbol,naFilaSeg,inQueueSeg,apps/api/src/dominio/gestao/monitoramento.ts:455,4,no,,,approved,codex1,
-api-symbol-3cc9c859,api,2,symbol,conferirSegredoDoApp,conferirSecretOfApp,apps/api/src/dominio/whatsapp/cliente-graph.ts:158,10,no,,,approved,codex1,
+api-symbol-3cc9c859,api,2,symbol,conferirSegredoDoApp,checkSecretOfApp,apps/api/src/dominio/whatsapp/cliente-graph.ts:158,10,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-3ce46e43,api,2,symbol,primeiro,first,apps/api/tests/canal-do-fluxo.test.ts:231,258,no,,,approved,codex1,
 api-symbol-3d000e5a,api,2,symbol,transferirNoMonitoramento,transferInMonitoring,apps/api/src/controladores/gestao-operacao.ts:181,1,no,,,approved,codex1,
 api-symbol-3d559721,api,2,symbol,definirPapelDoMembro,defineRoleOfMember,apps/api/src/dominio/gestao/contrato.ts:231,5,no,,,approved,codex1,
 api-symbol-3d7c271a,api,2,symbol,ResultadoDoTeste,ResultOfTest,apps/api/src/dominio/gestao/integracoes.ts:735,4,no,,,approved,codex1,
 api-symbol-3da30c5b,api,2,symbol,semEscopo,withoutScope,apps/api/tests/chave-de-fluxo.test.ts:228,8,no,,,approved,codex1,
-api-symbol-3dbec869,api,2,symbol,listarFilas,listarQueues,apps/api/src/dominio/desk/consultas.ts:495,1,no,,,approved,codex1,
+api-symbol-3dbec869,api,2,symbol,listarFilas,listQueues,apps/api/src/dominio/desk/consultas.ts:495,1,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-3e4878f4,api,2,symbol,abrirSessao,openSession,apps/api/tests/contatos-editar.test.ts:60,91,no,,,approved,codex1,
-api-symbol-3e97a738,api,2,symbol,criarLinkRastreado,createLinkRastreado,apps/api/src/dominio/rastreador-de-cliques.ts:79,7,no,,,approved,codex1,
+api-symbol-3e97a738,api,2,symbol,criarLinkRastreado,createLinkTracked,apps/api/src/dominio/rastreador-de-cliques.ts:79,7,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-3eab2794,api,2,symbol,primeira,first,apps/api/tests/monitoramento-conversas.test.ts:106,377,no,,,approved,codex1,
 api-symbol-3f253836,api,2,symbol,emailDoConvite,emailOfInvitation,apps/api/src/dominio/convites.ts:87,2,no,,,approved,codex1,
 api-symbol-3f321270,api,2,symbol,fluxoVivo,flowVivo,apps/api/src/dominio/gestao/ciclo-de-vida-do-fluxo.ts:219,20,no,,,approved,codex1,
@@ -1075,7 +1075,7 @@ api-symbol-41a85a8a,api,2,symbol,primeiraResposta,firstResponse,apps/api/tests/s
 api-symbol-41aa2041,api,2,symbol,sessaoGuest,sessionGuest,apps/api/tests/contrato.test.ts:148,4,no,,,approved,codex1,
 api-symbol-41bd7334,api,2,symbol,filaDestinoId,queueDestinationId,apps/api/src/dominio/gestao/acoes/regras.ts:269,33,no,,,approved,codex1,
 api-symbol-421eab3e,api,2,symbol,fluxoId,flowId,apps/api/tests/growth.test.ts:28,504,no,,,approved,codex1,
-api-symbol-42a9f2f5,api,2,symbol,ModeloListado,TemplateListado,apps/api/src/dominio/gestao-fluxo.ts:390,16,no,,,approved,codex1,
+api-symbol-42a9f2f5,api,2,symbol,ModeloListado,TemplateListed,apps/api/src/dominio/gestao-fluxo.ts:390,16,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-42f09273,api,2,symbol,onlinePorFila,onlineByQueue,apps/api/src/dominio/gestao/monitoramento.ts:620,1,no,,,approved,codex1,
 api-symbol-42f1741e,api,2,symbol,primeira,first,apps/api/tests/contrato.test.ts:635,377,no,,,approved,codex1,
 api-symbol-430090e8,api,2,symbol,NOME_DO_SERVICO_MAX,NAME_OF_SERVICE_MAX,apps/api/src/dominio/gestao/servicos-do-roteador.ts:44,3,no,,,approved,codex1,
@@ -1086,7 +1086,7 @@ api-symbol-43867fe3,api,2,symbol,editarServico,editarService,apps/api/src/contro
 api-symbol-439a504b,api,2,symbol,execucaoId,executionId,apps/api/src/dominio/fluxo.ts:293,21,no,,,approved,codex1,
 api-symbol-43aa6327,api,2,symbol,criarImportacao,createImport,apps/api/src/dominio/importacao-de-contatos.ts:64,5,no,,,approved,codex1,
 api-symbol-43cb44a1,api,2,symbol,contato,contact,apps/api/tests/analise.test.ts:95,1026,no,,,approved,codex1,
-api-symbol-43cfade9,api,2,symbol,umDestino,umDestination,apps/api/src/dominio/mensagem-ativa.ts:123,2,no,,,approved,codex1,
+api-symbol-43cfade9,api,2,symbol,umDestino,aDestination,apps/api/src/dominio/mensagem-ativa.ts:123,2,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-43ed5c6b,api,2,symbol,valor,value,apps/api/src/dominio/gestao/cadastros.ts:437,1656,no,,,approved,codex1,
 api-symbol-44112312,api,2,symbol,sessaoDoOutroTenant,sessionOfOtherTenant,apps/api/tests/roteador.test.ts:38,64,no,,,approved,codex1,
 api-symbol-441b612f,api,2,symbol,filas,queues,apps/api/src/dominio/gestao/monitoramento.ts:571,297,no,,,approved,codex1,
@@ -1123,7 +1123,7 @@ api-symbol-4856f457,api,2,symbol,tipoRealDaImagem,typeRealOfImage,apps/api/src/d
 api-symbol-487651d0,api,2,symbol,valor,value,apps/api/src/dominio/gestao/pfx.ts:110,1656,no,,,approved,codex1,
 api-symbol-4876e498,api,2,symbol,ContatoParaEspelhar,ContactForEspelhar,apps/api/src/dominio/twenty.ts:175,4,no,,,approved,codex1,
 api-symbol-488289bd,api,2,symbol,consumidorDicionarioCrm,consumerDictionaryCrm,apps/api/src/filas.ts:408,5,no,,,approved,codex1,
-api-symbol-48a31a81,api,2,symbol,listarHistoricoDoContato,listarHistoryOfContact,apps/api/src/dominio/desk/consultas.ts:374,1,no,,,approved,codex1,
+api-symbol-48a31a81,api,2,symbol,listarHistoricoDoContato,listHistoryOfContact,apps/api/src/dominio/desk/consultas.ts:374,1,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-48b3cdcc,api,2,symbol,minhasPermissoesNoFluxo,myPermissionsInFlow,apps/api/src/dominio/gestao/equipe-do-fluxo.ts:319,3,no,,,approved,codex1,
 api-symbol-48e05422,api,2,symbol,sessao,session,apps/api/src/controladores/gestao-operacao.ts:126,382,no,,,approved,codex1,
 api-symbol-48e7ef62,api,2,symbol,ValorDeModelo,ValueOfTemplate,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:50,2,no,,,approved,codex1,
@@ -1168,7 +1168,7 @@ api-symbol-4f320e5d,api,2,symbol,ChaveDeFluxoCriada,KeyOfFlowCreated,apps/api/sr
 api-symbol-4f392581,api,2,symbol,contextoDe,contextOf,apps/api/src/autenticacao.ts:100,11,no,,,approved,codex1,
 api-symbol-4f3de99e,api,2,symbol,semEscopo,withoutScope,apps/api/tests/growth.test.ts:273,8,no,,,approved,codex1,
 api-symbol-4f943cb2,api,2,symbol,escopoValido,scopeValid,apps/api/src/dominio/gestao/regras-prioridade.ts:49,2,no,,,approved,codex1,
-api-symbol-4f9e2475,api,2,symbol,enfileirarDicionarioCrm,enfileirarDictionaryCrm,apps/api/src/filas.ts:418,4,no,,,approved,codex1,
+api-symbol-4f9e2475,api,2,symbol,enfileirarDicionarioCrm,enqueueDictionaryCrm,apps/api/src/filas.ts:418,4,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-4fad9a7e,api,2,symbol,sessaoUnicoAdmin,sessionUniqueAdmin,apps/api/tests/contrato.test.ts:151,5,no,,,approved,codex1,
 api-symbol-4fc5080c,api,2,symbol,carregarDetalheContatoDoFluxo,loadDetalheContactOfFlow,apps/api/src/dominio/gestao-fluxo.ts:109,4,no,,,approved,codex1,
 api-symbol-4fdd8a3f,api,2,symbol,ESCOPOS_SLA_SUPORTADOS,SCOPES_SLA_SUPPORTED,apps/api/src/dominio/gestao/regras-sla.ts:29,3,no,,,approved,codex1,
@@ -1187,7 +1187,7 @@ api-symbol-50c70b27,api,2,symbol,Monitoramento,Monitoring,apps/api/src/dominio/g
 api-symbol-50db61bc,api,2,symbol,gravarPerfilDoCanal,writeProfileOfChannel,apps/api/src/dominio/whatsapp/perfil.ts:180,8,no,,,approved,codex1,
 api-symbol-50f3346c,api,2,symbol,sessaoSoEditor,sessionOnlyEditor,apps/api/tests/integracoes.test.ts:37,5,no,,,approved,codex1,
 api-symbol-5111c1c9,api,2,symbol,PedidoDeEdicaoDeContato,RequestOfEditOfContact,apps/api/src/controladores/gestao-fluxo.ts:130,2,no,,,approved,codex1,
-api-symbol-5132f9f8,api,2,symbol,resolverCanalPorIdentificador,resolverChannelByIdentifier,apps/api/src/banco.ts:112,3,no,,,approved,codex1,
+api-symbol-5132f9f8,api,2,symbol,resolverCanalPorIdentificador,resolveChannelByIdentifier,apps/api/src/banco.ts:112,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-515dfd5d,api,2,symbol,servico,service,apps/api/tests/gerar-fixtures-jsonb.helper.ts:224,17,no,,,approved,codex1,
 api-symbol-5161d8cd,api,2,symbol,duracaoSugeridaMin,durationSuggestedMin,apps/api/src/dominio/gestao/cadastros.ts:1629,34,no,,,approved,codex1,
 api-symbol-5168abf7,api,2,symbol,conversaB,conversationB,apps/api/tests/palavras-proibidas.test.ts:430,9,no,,,approved,codex1,
@@ -1198,7 +1198,7 @@ api-symbol-51bac4a2,api,2,symbol,carregarCanalDoFluxo,loadChannelOfFlow,apps/api
 api-symbol-51d450d7,api,2,symbol,primeiroErro,firstError,apps/api/src/dominio/desk/acoes.ts:305,5,no,,,approved,codex1,
 api-symbol-51ebaffa,api,2,symbol,papelId,roleId,apps/api/tests/permissoes-do-atendente.test.ts:91,121,no,,,approved,codex1,
 api-symbol-522b2dfe,api,2,symbol,execucaoId,executionId,apps/api/tests/analise.test.ts:114,21,no,,,approved,codex1,
-api-symbol-524cbaf0,api,2,symbol,EntradaIdentificada,InboundIdentificada,apps/api/src/controladores/webhooks-whatsapp.ts:147,2,no,,,approved,codex1,
+api-symbol-524cbaf0,api,2,symbol,EntradaIdentificada,InboundIdentified,apps/api/src/controladores/webhooks-whatsapp.ts:147,2,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-52f91ce7,api,2,symbol,urlDeRetornoSso,ssoCallbackUrl,apps/api/src/dominio/sso.ts:68,3,no,,D-13,approved,sonnet,
 api-symbol-52fd0af1,api,2,symbol,requisicao,request,apps/api/tests/historico.test.ts:36,450,no,,,approved,codex1,
 api-symbol-530321d2,api,2,symbol,relatorioDeSatisfacao,reportOfSatisfaction,apps/api/src/controladores/gestao-operacao.ts:290,1,no,,,approved,codex1,
@@ -1230,7 +1230,7 @@ api-symbol-56f2611b,api,2,symbol,conversaId,conversationId,apps/api/tests/ponta-
 api-symbol-5714eb18,api,2,symbol,papelId,roleId,apps/api/tests/cadastros-atendimento.test.ts:63,121,no,,,approved,codex1,
 api-symbol-57cc8a99,api,2,symbol,gravacao,recording,apps/api/src/dominio/gestao/acoes/regras.ts:334,5,no,,,approved,codex1,
 api-symbol-57eee0b7,api,2,symbol,filtro,filter,apps/api/src/dominio/gestao-fluxo.ts:459,231,no,,,approved,codex1,
-api-symbol-5813706d,api,2,symbol,AnexoGuardado,AttachmentGuardado,apps/api/src/dominio/anexo.ts:59,2,no,,,approved,codex1,
+api-symbol-5813706d,api,2,symbol,AnexoGuardado,AttachmentSaved,apps/api/src/dominio/anexo.ts:59,2,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-581504d9,api,2,symbol,membros,members,apps/api/src/controladores/gestao-conta.ts:88,128,no,,,approved,codex1,
 api-symbol-582381d0,api,2,symbol,sessaoDoOutroTenant,sessionOfOtherTenant,apps/api/tests/equipe-do-fluxo.test.ts:43,64,no,,,approved,codex1,
 api-symbol-583c9064,api,2,symbol,excecaoViva,exceptionViva,apps/api/src/dominio/gestao/cadastros.ts:554,3,no,,,approved,codex1,
@@ -1322,7 +1322,7 @@ api-symbol-6709351c,api,2,symbol,filaDoDesk,queueOfDesk,apps/api/tests/desk-acoe
 api-symbol-67285065,api,2,symbol,LinhaAnexo,LineAttachment,apps/api/src/dominio/midia.ts:68,12,no,,,approved,codex1,
 api-symbol-673da600,api,2,symbol,editarRegraPrioridade,editarRulePriority,apps/api/src/dominio/gestao/regras-prioridade.ts:218,2,no,,,approved,codex1,
 api-symbol-674b678f,api,2,symbol,mensagemId,messageId,apps/api/src/dominio/entrada.ts:265,59,no,,,approved,codex1,
-api-symbol-677d1da3,api,2,symbol,buscarConta,buscarAccount,apps/api/src/dominio/instagram/cliente-graph.ts:138,4,no,,,approved,codex1,
+api-symbol-677d1da3,api,2,symbol,buscarConta,fetchAccount,apps/api/src/dominio/instagram/cliente-graph.ts:138,4,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-678a15c3,api,2,symbol,ordem,order,apps/api/src/controladores/conversas.ts:174,517,no,,,approved,codex1,
 api-symbol-67a261df,api,2,symbol,LinhaDeFluxo,LineOfFlow,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:110,3,no,,,approved,codex1,
 api-symbol-67a6cc39,api,2,symbol,conflitoDeNomeDeFila,conflitoOfNameOfQueue,apps/api/src/dominio/gestao/cadastros.ts:1256,3,no,,,approved,codex1,
@@ -1391,7 +1391,7 @@ api-symbol-70a699e6,api,2,symbol,PedidoDeEdicao,RequestOfEdit,apps/api/src/domin
 api-symbol-70c641ae,api,2,symbol,requisicao,request,apps/api/tests/messenger.test.ts:69,450,no,,,approved,codex1,
 api-symbol-70c6fe5e,api,2,symbol,canal,channel,apps/api/src/dominio/whatsapp/cadastro-embutido.ts:72,970,no,,,approved,codex1,
 api-symbol-7157f503,api,2,symbol,dispararMensagemAtiva,dispararMessageActive,apps/api/src/dominio/mensagem-ativa.ts:96,3,no,,,approved,codex1,
-api-symbol-715973d2,api,2,symbol,escopoConferido,scopeConferido,apps/api/src/dominio/gestao/regras-prioridade.ts:107,6,no,,,approved,codex1,
+api-symbol-715973d2,api,2,symbol,escopoConferido,scopeChecked,apps/api/src/dominio/gestao/regras-prioridade.ts:107,6,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-71850096,api,2,symbol,carregarCanais,loadChannels,apps/api/src/dominio/gestao/configuracoes.ts:193,1,no,,,approved,codex1,
 api-symbol-71bab133,api,2,symbol,PedidoDePreferencias,RequestOfPreferences,apps/api/src/dominio/whatsapp/preferencias.ts:44,8,no,,,approved,codex1,
 api-symbol-71f7c3d7,api,2,symbol,lerOrdenacao,readSorting,apps/api/src/paginacao.ts:72,8,no,,,approved,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
@@ -1409,10 +1409,10 @@ api-symbol-73427628,api,2,symbol,criar,create,apps/api/tests/ciclo-de-vida-do-fl
 api-symbol-73977811,api,2,symbol,dadosDoNumero,dataOfNumber,apps/api/src/dominio/whatsapp/validacao-da-configuracao-manual.ts:74,7,no,,,approved,codex1,
 api-symbol-7402ad81,api,2,symbol,fluxoId,flowId,apps/api/src/controladores/canais-instagram.ts:35,504,no,,,approved,codex1,
 api-symbol-74275af5,api,2,symbol,alternarRegraFila,toggleRuleQueue,apps/api/src/dominio/gestao/acoes/regras.ts:326,7,no,,,approved,codex1,
-api-symbol-742cbe42,api,2,symbol,ConfiguracaoArmazenada,ConfigurationArmazenada,apps/api/src/dominio/gestao/configuracao-do-fluxo.ts:31,7,no,,,approved,codex1,
+api-symbol-742cbe42,api,2,symbol,ConfiguracaoArmazenada,ConfigurationStored,apps/api/src/dominio/gestao/configuracao-do-fluxo.ts:31,7,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-74363b5b,api,2,symbol,convite,invitation,apps/api/tests/convites.test.ts:140,338,no,,,approved,codex1,
 api-symbol-745019e9,api,2,symbol,execucao,execution,apps/api/tests/analise.test.ts:109,29,no,,,approved,codex1,
-api-symbol-74737d8b,api,2,symbol,conferirGravacao,conferirRecording,apps/api/src/controladores/gestao-conta.ts:77,5,no,,,approved,codex1,
+api-symbol-74737d8b,api,2,symbol,conferirGravacao,checkRecording,apps/api/src/controladores/gestao-conta.ts:77,5,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-748c7c57,api,2,symbol,filtroDe,filterOf,apps/api/src/dominio/gestao-analise.ts:477,2,no,,,approved,codex1,
 api-symbol-74a89d39,api,2,symbol,sessao,session,apps/api/src/controladores/rastreador-de-cliques.ts:50,382,no,,,approved,codex1,
 api-symbol-74af2881,api,2,symbol,termoDaPrimeira,termOfFirst,apps/api/tests/palavras-proibidas.test.ts:306,1,no,,,approved,codex1,
@@ -1430,7 +1430,7 @@ api-symbol-7622d75a,api,2,symbol,prefixo,prefix,apps/api/src/dominio/instagram/c
 api-symbol-7687ee26,api,2,symbol,LogDoFluxo,LogOfFlow,apps/api/src/dominio/gestao-fluxo.ts:257,4,no,,,approved,codex1,
 api-symbol-76904492,api,2,symbol,PedidoDeEdicaoDeRegraPrioridade,RequestOfEditOfRulePriority,apps/api/src/dominio/gestao/regras-prioridade.ts:72,3,no,,,approved,codex1,
 api-symbol-7692bb64,api,2,symbol,sessao,session,apps/api/src/controladores/gestao-fluxo.ts:152,382,no,,,approved,codex1,
-api-symbol-769e833d,api,2,symbol,conferirSegredoDoApp,conferirSecretOfApp,apps/api/src/dominio/messenger/cliente-graph.ts:10,10,no,,,approved,codex1,
+api-symbol-769e833d,api,2,symbol,conferirSegredoDoApp,checkSecretOfApp,apps/api/src/dominio/messenger/cliente-graph.ts:10,10,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-76a81eb1,api,2,symbol,contatos,contacts,apps/api/tests/importacao.test.ts:107,438,no,,,approved,codex1,
 api-symbol-76e80741,api,2,symbol,LinhaConversa,LineConversation,apps/api/src/controladores/conversas.ts:33,22,no,,,approved,codex1,
 api-symbol-76ee72c7,api,2,symbol,entregaId,deliveryId,apps/api/tests/contrato.test.ts:666,11,no,,,approved,codex1,
@@ -1446,15 +1446,15 @@ api-symbol-785ea07e,api,2,symbol,agendarVarreduraEspelhoCrm,scheduleSweepMirrorC
 api-symbol-785ef477,api,2,symbol,canal,channel,apps/api/src/dominio/canais.ts:150,970,no,,,approved,codex1,
 api-symbol-7909246e,api,2,symbol,fluxo,flow,apps/api/src/importar-fluxo.ts:40,1172,no,,,approved,codex1,
 api-symbol-7966db22,api,2,symbol,paginaId,pageId,apps/api/src/dominio/messenger/canal.ts:27,35,no,,,approved,codex1,
-api-symbol-797d860b,api,2,symbol,listarCanaisComModelos,listarChannelsWithTemplates,apps/api/src/dominio/desk/consultas.ts:589,1,no,,,approved,codex1,
+api-symbol-797d860b,api,2,symbol,listarCanaisComModelos,listChannelsWithTemplates,apps/api/src/dominio/desk/consultas.ts:589,1,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-79903a03,api,2,symbol,semConversa,withoutConversation,apps/api/tests/desk-acoes.test.ts:233,2,no,,,approved,codex1,
 api-symbol-79bae4d7,api,2,symbol,RegraFilaGravada,RuleQueueWritten,apps/api/src/dominio/gestao/cadastros.ts:911,4,no,,,approved,codex1,
 api-symbol-7a40bbc6,api,2,symbol,AtendenteDasPermissoes,AgentOfPermissions,apps/api/src/dominio/gestao/permissoes-do-atendente.ts:83,3,no,,,approved,codex1,
-api-symbol-7a665913,api,2,symbol,listarChavesDoFluxo,listarKeysOfFlow,apps/api/src/dominio/gestao/integracoes.ts:141,3,no,,,approved,codex1,
+api-symbol-7a665913,api,2,symbol,listarChavesDoFluxo,listKeysOfFlow,apps/api/src/dominio/gestao/integracoes.ts:141,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-7ab5c792,api,2,symbol,comoEntrar,asLogin,apps/api/src/provisionar.ts:221,5,no,,,approved,codex1,
 api-symbol-7ae62831,api,2,symbol,transferirConversa,transferConversation,apps/api/src/dominio/conversa.ts:300,12,no,,,approved,codex1,
 api-symbol-7ae8d3d5,api,2,symbol,eventosPorConversa,eventsByConversation,apps/api/src/dominio/gestao/atendimento.ts:245,3,no,,,approved,codex1,
-api-symbol-7b81aa8f,api,2,symbol,guardarAnexo,guardarAttachment,apps/api/src/dominio/anexo.ts:74,9,no,,,approved,codex1,
+api-symbol-7b81aa8f,api,2,symbol,guardarAnexo,saveAttachment,apps/api/src/dominio/anexo.ts:74,9,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-7b84fcdf,api,2,symbol,BlocoDeTempos,BlockOfTimes,apps/api/src/dominio/gestao/atendimento.ts:45,7,no,,,approved,codex1,
 api-symbol-7b853544,api,2,symbol,mensagens,messages,apps/api/src/dominio/desk/consultas.ts:201,363,no,,,approved,codex1,
 api-symbol-7b985fe5,api,2,symbol,usuarioId,userId,apps/api/tests/chave-de-fluxo.test.ts:53,604,no,,,approved,codex1,
@@ -1469,7 +1469,7 @@ api-symbol-7c835de2,api,2,symbol,editarMembro,editarMember,apps/api/src/dominio/
 api-symbol-7c958716,api,2,symbol,servicoDoRoteador,serviceOfRouter,apps/api/src/dominio/roteador.ts:62,3,no,,,approved,codex1,
 api-symbol-7c9d3f99,api,2,symbol,contato,contact,apps/api/tests/canal-do-fluxo.test.ts:216,1026,no,,,approved,codex1,
 api-symbol-7cbb560c,api,2,symbol,ContextoDaConversa,ContextOfConversation,apps/api/src/dominio/gestao/regra-fila.ts:109,5,no,,,approved,codex1,
-api-symbol-7cc12dfa,api,2,symbol,guardarContextoDoRoteador,guardarContextOfRouter,apps/api/src/dominio/fluxo.ts:310,5,no,,,approved,codex1,
+api-symbol-7cc12dfa,api,2,symbol,guardarContextoDoRoteador,saveContextOfRouter,apps/api/src/dominio/fluxo.ts:310,5,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-7cc43bf2,api,2,symbol,janela,window,apps/api/src/controladores/gestao-operacao.ts:143,260,no,,,approved,codex1,
 api-symbol-7d252aaf,api,2,symbol,fetchDeVerdade,fetchOfTruth,apps/api/tests/contrato.test.ts:607,11,no,,,approved,codex1,
 api-symbol-7d31bf86,api,2,symbol,retorno,callback,apps/api/src/controladores/entrar.ts:289,68,no,,D-12,approved,sonnet,
@@ -1488,7 +1488,7 @@ api-symbol-7e311a60,api,2,symbol,executarConfiguracaoManual,executarConfiguratio
 api-symbol-7e5d61c3,api,2,symbol,fluxoVivo,flowVivo,apps/api/src/dominio/gestao/canal-do-fluxo.ts:43,20,no,,,approved,codex1,
 api-symbol-7e82aa21,api,2,symbol,OpcoesDoWebhook,OptionsOfWebhook,apps/api/src/dominio/whatsapp/configuracao-de-webhook.ts:44,2,no,,,approved,codex1,
 api-symbol-7e90d386,api,2,symbol,cachePorTenant,cacheByTenant,apps/api/src/dominio/gestao/palavras-proibidas.ts:108,1,no,,,approved,codex1,
-api-symbol-7ea84b97,api,2,symbol,listarConversas,listarConversations,apps/api/src/dominio/desk/consultas.ts:63,1,no,,,approved,codex1,
+api-symbol-7ea84b97,api,2,symbol,listarConversas,listConversations,apps/api/src/dominio/desk/consultas.ts:63,1,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-7eb181cf,api,2,symbol,importacao,import,apps/api/tests/importacao.test.ts:138,29,no,,,approved,codex1,
 api-symbol-7ef7803f,api,2,symbol,variavel,variable,apps/api/src/dominio/fluxo.ts:1100,27,no,,,approved,codex1,
 api-symbol-7efe5bbc,api,2,symbol,sessaoSoFilas,sessionOnlyQueues,apps/api/tests/cadastros-atendimento.test.ts:37,11,no,,,approved,codex1,
@@ -1536,7 +1536,7 @@ api-symbol-835890e3,api,2,symbol,comSegredo,withSecret,apps/api/src/dominio/what
 api-symbol-836607bf,api,2,symbol,normalizarDominio,normalizeDomain,apps/api/src/dominio/dominios.ts:41,6,no,,,approved,codex1,
 api-symbol-839c1073,api,2,symbol,ativa,active,apps/api/src/dominio/gestao/regras-sla.ts:170,340,no,,,approved,codex1,
 api-symbol-841c42c6,api,2,symbol,semearPapeis,seedPapeis,apps/api/tests/convites.test.ts:55,5,no,,,approved,codex1,
-api-symbol-8432f92a,api,2,symbol,conferirEstado,conferirState,apps/api/src/dominio/whatsapp/estado-de-conexao.ts:45,3,no,,,approved,codex1,
+api-symbol-8432f92a,api,2,symbol,conferirEstado,checkState,apps/api/src/dominio/whatsapp/estado-de-conexao.ts:45,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-844c3bf0,api,2,symbol,EstadoPill,StatePill,apps/api/src/dominio/gestao/sla.ts:30,4,no,,,approved,codex1,
 api-symbol-84747c79,api,2,symbol,distribuirConversa,distribuirConversation,apps/api/src/dominio/distribuicao.ts:146,6,no,,,approved,codex1,
 api-symbol-848adf61,api,2,symbol,ControladorWebhookMessenger,MessengerWebhookController,apps/api/src/controladores/webhooks-messenger.ts:3,3,no,,D-05,approved,sonnet,
@@ -1548,7 +1548,7 @@ api-symbol-85412d12,api,2,symbol,preferencias,preferences,apps/api/tests/email.t
 api-symbol-85468de2,api,2,symbol,abrirSessao,openSession,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:87,91,no,,,approved,codex1,
 api-symbol-854d42bd,api,2,symbol,fluxoId,flowId,apps/api/tests/integracoes.test.ts:42,504,no,,,approved,codex1,
 api-symbol-856d2330,api,2,symbol,atendente,agent,apps/api/tests/importacao.test.ts:265,768,no,,,approved,codex1,
-api-symbol-85c729b9,api,2,symbol,listarContatosDoFluxo,listarContactsOfFlow,apps/api/src/dominio/gestao-fluxo.ts:74,4,no,,,approved,codex1,
+api-symbol-85c729b9,api,2,symbol,listarContatosDoFluxo,listContactsOfFlow,apps/api/src/dominio/gestao-fluxo.ts:74,4,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-85dc3b59,api,2,symbol,LinhaBloco,LineBlock,apps/api/src/dominio/fluxo.ts:118,4,no,,,approved,codex1,
 api-symbol-85e80eb7,api,2,symbol,novoAnexo,newAttachment,apps/api/tests/midia-recebida.test.ts:85,9,no,,,approved,codex1,
 api-symbol-86085bb2,api,2,symbol,opcoes,options,apps/api/src/dominio/desk/acoes.ts:206,157,no,,,approved,codex1,
@@ -1587,7 +1587,7 @@ api-symbol-8acc8f1b,api,2,symbol,dados,data,apps/api/src/controladores/gestao-fl
 api-symbol-8ae0a5c2,api,2,symbol,montarContrato,assembleContract,apps/api/tests/contrato.test.ts:43,4,no,,,approved,codex1,
 api-symbol-8b306286,api,2,symbol,permissao,permission,apps/api/tests/permissoes-do-atendente.test.ts:158,54,no,,,approved,codex1,
 api-symbol-8b30b526,api,2,symbol,dominio,domain,apps/api/src/provisionar.ts:197,476,no,,,approved,codex1,
-api-symbol-8b58de00,api,2,symbol,decifrarSegredoDeWebhook,decifrarSecretOfWebhook,apps/api/src/webhooks-saida.ts:150,6,no,,,approved,codex1,
+api-symbol-8b58de00,api,2,symbol,decifrarSegredoDeWebhook,decryptSecretOfWebhook,apps/api/src/webhooks-saida.ts:150,6,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-8b5c3b82,api,2,symbol,redirecionarNoRoteador,redirecionarInRouter,apps/api/src/dominio/roteador.ts:126,5,no,,,approved,codex1,
 api-symbol-8b7ac751,api,2,symbol,categoriaDoModelo,categoryOfTemplate,apps/api/tests/email.test.ts:128,4,no,,,approved,codex1,
 api-symbol-8b991733,api,2,symbol,regrasDeAtendimento,rulesOfAttendance,apps/api/src/controladores/gestao-cadastros.ts:77,1,no,,,approved,codex1,
@@ -1601,7 +1601,7 @@ api-symbol-8c6b60da,api,2,symbol,canalId,channelId,apps/api/src/dominio/gestao-a
 api-symbol-8c71ce67,api,2,symbol,EXPIRACAO_MAX_MIN,EXPIRATION_MAX_MIN,apps/api/src/dominio/gestao/servicos-do-roteador.ts:45,3,no,,,approved,codex1,
 api-symbol-8cc26a0a,api,2,symbol,paraAtendente,forAgent,apps/api/src/dominio/conversa.ts:305,11,no,,,approved,codex1,
 api-symbol-8cd82e76,api,2,symbol,restaurarVersao,restoreVersion,apps/api/src/dominio/gestao/builder-do-fluxo.ts:584,5,no,,,approved,codex1,
-api-symbol-8ce0aae2,api,2,symbol,listarVersoes,listarVersions,apps/api/src/dominio/gestao/builder-do-fluxo.ts:568,3,no,,,approved,codex1,
+api-symbol-8ce0aae2,api,2,symbol,listarVersoes,listVersions,apps/api/src/dominio/gestao/builder-do-fluxo.ts:568,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-8d3a3c4b,api,2,symbol,condicoes,conditions,apps/api/src/dominio/gestao/cadastros.ts:729,76,no,,,approved,codex1,
 api-symbol-8d666df6,api,2,symbol,criarResposta,createResponse,apps/api/tests/cadastros-atendimento.test.ts:431,9,no,,,approved,codex1,
 api-symbol-8d98a1e7,api,2,symbol,RelatorioSatisfacao,ReportSatisfaction,apps/api/src/dominio/gestao/satisfacao.ts:59,7,no,,,approved,codex1,
@@ -1644,7 +1644,7 @@ api-symbol-93be08a9,api,2,symbol,porPessoa,byPerson,apps/api/src/dominio/gestao/
 api-symbol-93f9c105,api,2,symbol,CONECTAR_CANAL,CONNECT_CHANNEL,apps/api/src/dominio/gestao/canal-do-fluxo.ts:38,5,no,,,approved,codex1,
 api-symbol-941f1163,api,2,symbol,ehEstadoAtendente,ehStateAgent,apps/api/src/dominio/status-atendente.ts:22,3,no,,,approved,codex1,
 api-symbol-9424e755,api,2,symbol,FiltroHistorico,HistoryFilter,apps/api/src/dominio/gestao/historico.ts:50,4,no,,D-05,approved,sonnet,
-api-symbol-94c855c6,api,2,symbol,listarImportacoes,listarImports,apps/api/src/dominio/importacao-de-contatos.ts:126,3,no,,,approved,codex1,
+api-symbol-94c855c6,api,2,symbol,listarImportacoes,listImports,apps/api/src/dominio/importacao-de-contatos.ts:126,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-94eddc2f,api,2,symbol,PedidoDeProvisionamento,RequestOfProvisioning,apps/api/src/provisionar.ts:69,2,no,,,approved,codex1,
 api-symbol-94ef4f41,api,2,symbol,conversa,conversation,apps/api/tests/ponta-a-ponta.test.ts:118,1270,no,,,approved,codex1,
 api-symbol-9501afb3,api,2,symbol,consumidorEspelhoCrm,consumerMirrorCrm,apps/api/src/filas.ts:169,5,no,,,approved,codex1,
@@ -1655,13 +1655,13 @@ api-symbol-96083318,api,2,symbol,ativa,active,apps/api/src/dominio/gestao/cadast
 api-symbol-960d8fdf,api,2,symbol,canalId,channelId,apps/api/src/dominio/messenger/canal.ts:31,387,no,,,approved,codex1,
 api-symbol-9657b137,api,2,symbol,filaEntrada,queueInbound,apps/api/src/filas.ts:52,5,no,,,approved,codex1,
 api-symbol-968c9fda,api,2,symbol,segredo,secret,apps/api/src/controladores/webhooks-whatsapp.ts:117,212,no,,,approved,codex1,
-api-symbol-96b45f84,api,2,symbol,enfileirarChecagemSla,enfileirarCheckSla,apps/api/src/filas.ts:322,3,no,,,approved,codex1,
+api-symbol-96b45f84,api,2,symbol,enfileirarChecagemSla,enqueueCheckSla,apps/api/src/filas.ts:322,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-96d4ffad,api,2,symbol,etiquetaContato,labelContact,apps/api/tests/etiquetas.test.ts:40,11,no,,,approved,codex1,
 api-symbol-97143dcb,api,2,symbol,deContato,ofContact,apps/api/tests/etiquetas.test.ts:170,1,no,,,approved,codex1,
 api-symbol-9735c51f,api,2,symbol,contatosSemEspelho,contactsWithoutMirror,apps/api/src/dominio/espelho-crm.ts:101,8,no,,,approved,codex1,
 api-symbol-97445636,api,2,symbol,EVENTOS_MENSAGENS,EVENTS_MESSAGES,apps/api/src/dominio/gestao/integracoes.ts:820,4,no,,,approved,codex1,
 api-symbol-975de83b,api,2,symbol,tempoReal,timeReal,apps/api/src/dominio/gestao/monitoramento.ts:528,5,no,,,approved,codex1,
-api-symbol-97618351,api,2,symbol,PedidoDeCadastroEmbutido,RequestOfRegistrationEmbutido,apps/api/src/dominio/whatsapp/cadastro-embutido.ts:29,2,no,,,approved,codex1,
+api-symbol-97618351,api,2,symbol,PedidoDeCadastroEmbutido,RequestOfRegistrationEmbedded,apps/api/src/dominio/whatsapp/cadastro-embutido.ts:29,2,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-9785a1e4,api,2,symbol,roteadorId,routerId,apps/api/tests/gerar-fixtures-jsonb.helper.ts:222,52,no,,,approved,codex1,
 api-symbol-978bb00a,api,2,symbol,abrirSessao,openSession,apps/api/tests/equipe-do-fluxo.test.ts:90,91,no,,,approved,codex1,
 api-symbol-978ed964,api,2,symbol,importar,runImport,apps/api/tests/importacao.test.ts:75,56,no,,,approved,sonnet,
@@ -1673,7 +1673,7 @@ api-symbol-988f5975,api,2,symbol,carregarContato,loadContact,apps/api/src/domini
 api-symbol-9898a2d3,api,2,symbol,abrirSessao,openSession,apps/api/tests/tempo-real.test.ts:36,91,no,,,approved,codex1,
 api-symbol-98b2d4ab,api,2,symbol,GERENCIAR_INTEGRACAO,MANAGE_INTEGRATION,apps/api/src/dominio/gestao/integracoes.ts:51,8,no,,,approved,codex1,
 api-symbol-98b3225e,api,2,symbol,impedimento,blocker,apps/api/src/dominio/instagram/renovacao.ts:40,4,no,,,approved,codex1,
-api-symbol-990b6975,api,2,symbol,nomeDeFilaConferido,nameOfQueueConferido,apps/api/src/dominio/gestao/cadastros.ts:1197,5,no,,,approved,codex1,
+api-symbol-990b6975,api,2,symbol,nomeDeFilaConferido,nameOfQueueChecked,apps/api/src/dominio/gestao/cadastros.ts:1197,5,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-99d4b078,api,2,symbol,ControladorEntrada,LoginController,apps/api/src/controladores/entrar.ts:215,3,no,,D-05,approved,sonnet,glossary-exception:D-12
 api-symbol-99ef9c2a,api,2,symbol,etiquetarContato,labelContact,apps/api/src/dominio/etiquetas.ts:246,3,no,,,approved,codex1,
 api-symbol-99f406f1,api,2,symbol,chaveCifrada,keyEncrypted,apps/api/tests/ajuda-pfx.ts:179,2,no,,,approved,codex1,
@@ -1693,7 +1693,7 @@ api-symbol-9c795fe6,api,2,symbol,canalId,channelId,apps/api/tests/instagram.test
 api-symbol-9c85c0a9,api,2,symbol,minhasExcecoes,myExceptions,apps/api/src/dominio/gestao/cadastros.ts:350,3,no,,,approved,codex1,
 api-symbol-9c8ecfc5,api,2,symbol,terceiro,third,apps/api/tests/canal-do-fluxo.test.ts:258,30,no,,,approved,codex1,
 api-symbol-9ca03baf,api,2,symbol,chave,key,apps/api/tests/chave-de-fluxo.test.ts:155,1153,no,,,approved,codex1,
-api-symbol-9ca9a5c5,api,2,symbol,escopoConferido,scopeConferido,apps/api/src/dominio/gestao/regras-sla.ts:117,6,no,,,approved,codex1,
+api-symbol-9ca9a5c5,api,2,symbol,escopoConferido,scopeChecked,apps/api/src/dominio/gestao/regras-sla.ts:117,6,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-9cdd370f,api,2,symbol,ordenarRegrasDePrioridade,ordenarRulesOfPriority,apps/api/src/dominio/gestao/prioridade-motor.ts:67,5,no,,,approved,codex1,
 api-symbol-9d1a01a7,api,2,symbol,conversaId,conversationId,apps/api/tests/sla-motor.test.ts:196,523,no,,,approved,codex1,
 api-symbol-9d77ae64,api,2,symbol,sessaoToken,sessionToken,apps/api/tests/entrada.test.ts:42,5,no,,,approved,codex1,
@@ -1703,7 +1703,7 @@ api-symbol-9d9b833d,api,2,symbol,PERMISSAO_DE_MENSAGEM,PERMISSION_OF_MESSAGE,app
 api-symbol-9daaf811,api,2,symbol,AlertaDeRecategorizacao,AlertOfRecategorization,apps/api/src/dominio/whatsapp/eventos-de-modelo.ts:86,3,no,,,approved,codex1,
 api-symbol-9db64bd1,api,2,symbol,podeVerMetricas,canVerMetrics,apps/api/src/controladores/operacao.ts:29,2,no,,,approved,codex1,
 api-symbol-9e407dbc,api,2,symbol,Conversa,Conversation,apps/api/tests/fluxo.test.ts:87,90,no,,,approved,codex1,
-api-symbol-9e47755a,api,2,symbol,FilaConfigurada,QueueConfigurada,apps/api/src/dominio/gestao/configuracoes.ts:54,9,no,,,approved,codex1,
+api-symbol-9e47755a,api,2,symbol,FilaConfigurada,QueueConfigured,apps/api/src/dominio/gestao/configuracoes.ts:54,9,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-9e894389,api,2,symbol,listagem,listing,apps/api/tests/cadastros-atendimento.test.ts:1122,34,no,,,approved,codex1,
 api-symbol-9eb09502,api,2,symbol,pagina,page,apps/api/src/controladores/catalogo.ts:316,89,no,,,approved,codex1,
 api-symbol-9ebfd2e0,api,2,symbol,ControladorCanaisInstagram,InstagramChannelsController,apps/api/src/controladores/canais-instagram.ts:16,5,no,,D-05,approved,sonnet,
@@ -1736,7 +1736,7 @@ api-symbol-a1427da5,api,2,symbol,conversaAberta,conversationOpen,apps/api/tests/
 api-symbol-a156217b,api,2,symbol,janelaDeDatas,windowOfDatas,apps/api/src/dominio/gestao/janela.ts:34,11,no,,,approved,codex1,
 api-symbol-a15ccc12,api,2,symbol,ControladorEtiquetasDaConversa,ConversationLabelsController,apps/api/src/controladores/etiquetas.ts:61,3,no,,D-05,approved,sonnet,
 api-symbol-a19b7e39,api,2,symbol,destino,destination,apps/api/src/dominio/roteador.ts:145,303,no,,,approved,codex1,
-api-symbol-a1c09a98,api,2,symbol,descricaoConferida,descriptionConferida,apps/api/src/dominio/gestao/ciclo-de-vida-do-fluxo.ts:127,2,no,,,approved,codex1,
+api-symbol-a1c09a98,api,2,symbol,descricaoConferida,descriptionChecked,apps/api/src/dominio/gestao/ciclo-de-vida-do-fluxo.ts:127,2,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-a1ca0ad9,api,2,symbol,grupos,groups,apps/api/src/dominio/gestao/satisfacao.ts:130,85,no,,,approved,codex1,
 api-symbol-a1d1e66e,api,2,symbol,sessaoColega,sessionColleague,apps/api/tests/etiquetas.test.ts:38,4,no,,,approved,codex1,
 api-symbol-a1f6de5c,api,2,symbol,destino,destination,apps/api/tests/growth.test.ts:144,303,no,,,approved,codex1,
@@ -1799,12 +1799,12 @@ api-symbol-a9f9555c,api,2,symbol,comChave,withKey,apps/api/tests/anexos-multiplo
 api-symbol-aa0f8cad,api,2,symbol,editarRegraPrioridade,editarRulePriority,apps/api/src/controladores/gestao-cadastros.ts:429,2,no,,,approved,codex1,
 api-symbol-aa33c67e,api,2,symbol,contarMensagens,contarMessages,apps/api/tests/palavras-proibidas.test.ts:142,4,no,,,approved,codex1,
 api-symbol-aa9bc469,api,2,symbol,lerPreferencias,readPreferences,apps/api/src/dominio/whatsapp/preferencias.ts:83,12,no,,,approved,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
-api-symbol-aaa16ec5,api,2,symbol,capacidadeConferida,capacityConferida,apps/api/src/dominio/gestao/cadastros.ts:1212,4,no,,,approved,codex1,
+api-symbol-aaa16ec5,api,2,symbol,capacidadeConferida,capacityChecked,apps/api/src/dominio/gestao/cadastros.ts:1212,4,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-aab266b8,api,2,symbol,contato,contact,apps/api/src/controladores/gestao-analise.ts:197,1026,no,,,approved,codex1,
 api-symbol-aaf12c6e,api,2,symbol,conversa,conversation,apps/api/src/dominio/etiquetas.ts:106,1270,no,,,approved,codex1,
 api-symbol-ab0cb2c0,api,2,symbol,requisicao,request,apps/api/tests/instagram.test.ts:62,450,no,,,approved,codex1,
 api-symbol-ab222e57,api,2,symbol,excluirRegraFila,deleteRuleQueue,apps/api/src/controladores/gestao-cadastros.ts:262,5,no,,,approved,codex1,
-api-symbol-ab464670,api,2,symbol,enfileirarEntrega,enfileirarDelivery,apps/api/src/filas.ts:131,7,no,,,approved,codex1,
+api-symbol-ab464670,api,2,symbol,enfileirarEntrega,enqueueDelivery,apps/api/src/filas.ts:131,7,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-ab58ddc9,api,2,symbol,imagemDosBytes,imageOfBytes,apps/api/src/dominio/gestao/ciclo-de-vida-do-fluxo.ts:145,3,no,,,approved,codex1,
 api-symbol-ab5d05b5,api,2,symbol,versoes,versions,apps/api/tests/builder-por-fluxo.test.ts:144,32,no,,,approved,codex1,
 api-symbol-ab675806,api,2,symbol,lerAnexoAssinado,readAttachmentSigned,apps/api/src/dominio/anexo.ts:170,4,no,,,approved,codex1,"fixed: leftover PT token (dictionary gap: ler/texto/como/resultado/servir), gate 2 dry-run sweep"
@@ -1827,7 +1827,7 @@ api-symbol-ad93ea5c,api,2,symbol,CartoesDeHoje,CardsOfToday,apps/api/src/dominio
 api-symbol-add3edf0,api,2,symbol,posicao,position,apps/api/src/dominio/gestao/sla-motor.ts:89,84,no,,,approved,codex1,
 api-symbol-ade9a228,api,2,symbol,roteadorId,routerId,apps/api/tests/roteador.test.ts:456,52,no,,,approved,codex1,
 api-symbol-adf8c03f,api,2,symbol,permissoesDoAtendente,permissionsOfAgent,apps/api/src/controladores/gestao-cadastros.ts:461,2,no,,,approved,codex1,
-api-symbol-ae2cb07f,api,2,symbol,condicoesConferidas,conditionsConferidas,apps/api/src/dominio/gestao/cadastros.ts:954,2,no,,,approved,codex1,
+api-symbol-ae2cb07f,api,2,symbol,condicoesConferidas,conditionsChecked,apps/api/src/dominio/gestao/cadastros.ts:954,2,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-ae3c03c7,api,2,symbol,porNome,byName,apps/api/tests/contrato.test.ts:49,3,no,,,approved,codex1,
 api-symbol-ae42ff2b,api,2,symbol,ControladorGestaoFluxo,ManagementFlowController,apps/api/src/controladores/gestao-fluxo.ts:138,3,no,,D-05,approved,sonnet,
 api-symbol-ae618ba5,api,2,symbol,arquivoCifrado,fileEncrypted,apps/api/src/dominio/gestao/certificados.ts:227,2,no,,,approved,codex1,
@@ -1884,8 +1884,8 @@ api-symbol-b72a7844,api,2,symbol,consumirDicionarioCrm,consumeDictionaryCrm,apps
 api-symbol-b7684c51,api,2,symbol,contatoB,contactB,apps/api/tests/palavras-proibidas.test.ts:51,3,no,,,approved,codex1,
 api-symbol-b783a9aa,api,2,symbol,soFilas,onlyQueues,apps/api/tests/cadastros-atendimento.test.ts:120,2,no,,,approved,codex1,
 api-symbol-b784de17,api,2,symbol,dados,data,apps/api/src/controladores/gestao-operacao.ts:144,669,no,,,approved,codex1,
-api-symbol-b80ca8fe,api,2,symbol,enfileirarDownloadMidia,enfileirarDownloadMedia,apps/api/src/filas.ts:223,6,no,,,approved,codex1,
-api-symbol-b825c912,api,2,symbol,buscarPermissoes,buscarPermissions,apps/api/src/dominio/whatsapp/cliente-graph.ts:128,5,no,,,approved,codex1,
+api-symbol-b80ca8fe,api,2,symbol,enfileirarDownloadMidia,enqueueDownloadMedia,apps/api/src/filas.ts:223,6,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
+api-symbol-b825c912,api,2,symbol,buscarPermissoes,fetchPermissions,apps/api/src/dominio/whatsapp/cliente-graph.ts:128,5,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-b856d222,api,2,symbol,conexaoFluxo,connectionFlow,apps/api/tests/integracoes.test.ts:273,10,no,,,approved,codex1,
 api-symbol-b8ba4cdc,api,2,symbol,TipoAutenticacaoWebhook,TypeAuthenticationWebhook,apps/api/src/webhooks-saida.ts:59,7,no,,,approved,codex1,
 api-symbol-b8bb92a5,api,2,symbol,LinhaTransicao,LineTransition,apps/api/src/dominio/fluxo.ts:119,4,no,,,approved,codex1,
@@ -1924,7 +1924,7 @@ api-symbol-bcfe65e5,api,2,symbol,comoChave,asKey,apps/api/src/dominio/gestao/int
 api-symbol-bd40dc24,api,2,symbol,ROTULO_ESCOPO,LABEL_SCOPE,apps/api/src/dominio/gestao/configuracoes.ts:71,4,no,,,approved,codex1,
 api-symbol-bd67bf39,api,2,symbol,condicoes,conditions,apps/api/src/dominio/fluxo.ts:153,76,no,,,approved,codex1,
 api-symbol-bd7053b5,api,2,symbol,trocarPapel,exchangeRole,apps/api/src/controladores/gestao-conta.ts:101,4,no,,,approved,codex1,
-api-symbol-bde1565e,api,2,symbol,condicaoConferida,conditionConferida,apps/api/src/dominio/gestao/regras-prioridade.ts:99,3,no,,,approved,codex1,
+api-symbol-bde1565e,api,2,symbol,condicaoConferida,conditionChecked,apps/api/src/dominio/gestao/regras-prioridade.ts:99,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-bdedcb70,api,2,symbol,verificarDaConta,checkOfAccount,apps/api/src/controladores/webhooks-whatsapp.ts:100,1,no,,,approved,codex1,
 api-symbol-bdfa7b16,api,2,symbol,canalId,channelId,apps/api/src/dominio/gestao/canal-do-fluxo.ts:116,387,no,,,approved,codex1,
 api-symbol-be08316a,api,2,symbol,agendarVarreduraDownloadMidia,scheduleSweepDownloadMedia,apps/api/src/filas.ts:279,4,no,,,approved,codex1,
@@ -1940,7 +1940,7 @@ api-symbol-bf550728,api,2,symbol,porFila,byQueue,apps/api/src/dominio/desk/acoes
 api-symbol-bf9dcfb8,api,2,symbol,sessaoSemPoder,sessionWithoutPoder,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:40,52,no,,,approved,codex1,
 api-symbol-bfa6be60,api,2,symbol,carregarCanaisWhatsapp,loadChannelsWhatsapp,apps/api/src/dominio/gestao/comunicacao.ts:166,1,no,,,approved,codex1,
 api-symbol-bfb4389d,api,2,symbol,semDestino,withoutDestination,apps/api/tests/desk-acoes.test.ts:495,5,no,,,approved,codex1,
-api-symbol-c04abe44,api,2,symbol,RequisicaoAutenticada,RequestAutenticada,apps/api/src/autenticacao.ts:50,33,no,,,approved,codex1,
+api-symbol-c04abe44,api,2,symbol,RequisicaoAutenticada,RequestAuthenticated,apps/api/src/autenticacao.ts:50,33,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-c057183b,api,2,symbol,tetoSemPrimeiraResposta,tetoWithoutFirstResponse,apps/api/src/dominio/distribuicao.ts:124,11,no,,,approved,codex1,
 api-symbol-c098f83e,api,2,symbol,canal,channel,apps/api/tests/email.test.ts:282,970,no,,,approved,codex1,
 api-symbol-c0aa2f16,api,2,symbol,filtros,filters,apps/api/src/controladores/conversas.ts:105,91,no,,,approved,codex1,
@@ -1958,7 +1958,7 @@ api-symbol-c2652e28,api,2,symbol,editarRegraFila,editarRuleQueue,apps/api/src/co
 api-symbol-c287752e,api,2,symbol,contatoId,contactId,apps/api/tests/envio-sessao.test.ts:32,226,no,,,approved,codex1,
 api-symbol-c2cfb3e9,api,2,symbol,GuardaSessao,SessionGuard,apps/api/src/sessao.ts:139,11,no,,D-05,approved,sonnet,
 api-symbol-c3062da4,api,2,symbol,ConviteCriado,InvitationCreated,apps/api/src/dominio/convites.ts:32,6,no,,,approved,codex1,
-api-symbol-c30ce0e6,api,2,symbol,ModeloListado,TemplateListado,apps/api/src/dominio/gestao/comunicacao.ts:100,16,no,,,approved,codex1,
+api-symbol-c30ce0e6,api,2,symbol,ModeloListado,TemplateListed,apps/api/src/dominio/gestao/comunicacao.ts:100,16,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-c3202778,api,2,symbol,montarModelo,assembleTemplate,apps/api/src/dominio/whatsapp/modelos.ts:413,4,no,,,approved,codex1,
 api-symbol-c336a5cc,api,2,symbol,filas,queues,apps/api/tests/chave-de-fluxo.test.ts:234,297,no,,,approved,codex1,
 api-symbol-c370c719,api,2,symbol,inteiro,integer,apps/api/src/dominio/desk/metricas.ts:31,183,no,,,approved,codex1,
@@ -1969,7 +1969,7 @@ api-symbol-c45f873a,api,2,symbol,CampoDoDicionario,FieldOfDictionary,apps/api/sr
 api-symbol-c46076f8,api,2,symbol,descobrirEntrada,discoverInbound,apps/api/src/dominio/sso.ts:343,16,no,,,approved,codex1,
 api-symbol-c49ca3bb,api,2,symbol,etiquetarConversa,labelConversation,apps/api/src/dominio/etiquetas.ts:133,3,no,,,approved,codex1,
 api-symbol-c4f962c0,api,2,symbol,editarFluxo,editarFlow,apps/api/src/dominio/gestao/ciclo-de-vida-do-fluxo.ts:239,4,no,,,approved,codex1,
-api-symbol-c4fa5d5b,api,2,symbol,enfileirarImportacao,enfileirarImport,apps/api/src/filas.ts:633,3,no,,,approved,codex1,
+api-symbol-c4fa5d5b,api,2,symbol,enfileirarImportacao,enqueueImport,apps/api/src/filas.ts:633,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-c536eb43,api,2,symbol,historico,history,apps/api/tests/builder-por-fluxo.test.ts:507,41,no,,,approved,codex1,
 api-symbol-c559ed49,api,2,symbol,ControladorCanais,ChannelsController,apps/api/src/controladores/canais.ts:41,5,no,,D-05,approved,sonnet,
 api-symbol-c591ae0e,api,2,symbol,ConexaoParaFluxo,ConnectionForFlow,apps/api/src/dominio/sso.ts:264,2,no,,,approved,codex1,
@@ -2004,7 +2004,7 @@ api-symbol-c939ae30,api,2,symbol,paraContrato,forContract,apps/api/src/dominio/g
 api-symbol-c94803e5,api,2,symbol,carregarContato,loadContact,apps/api/src/dominio/etiquetas.ts:229,20,no,,,approved,codex1,
 api-symbol-c9835e12,api,2,symbol,semValor,withoutValue,apps/api/tests/desk-acoes.test.ts:443,1,no,,,approved,codex1,
 api-symbol-c9ac1c9a,api,2,symbol,locais,locations,apps/api/src/dominio/whatsapp/modelos.ts:194,9,no,,,approved,codex1,
-api-symbol-c9c416f1,api,2,symbol,permissoesConferidas,permissionsConferidas,apps/api/src/dominio/gestao/equipe-do-fluxo.ts:146,3,no,,,approved,codex1,
+api-symbol-c9c416f1,api,2,symbol,permissoesConferidas,permissionsChecked,apps/api/src/dominio/gestao/equipe-do-fluxo.ts:146,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-c9e2926a,api,2,symbol,sessaoDoOutroTenant,sessionOfOtherTenant,apps/api/tests/permissoes-do-atendente.test.ts:40,64,no,,,approved,codex1,
 api-symbol-c9eaa9ac,api,2,symbol,contexto,context,apps/api/src/dominio/gestao/sla-motor.ts:258,300,no,,,approved,codex1,
 api-symbol-c9f5edd7,api,2,symbol,naoRoteador,notRouter,apps/api/tests/roteador.test.ts:242,2,no,,,approved,codex1,
@@ -2103,7 +2103,7 @@ api-symbol-d82af3e1,api,2,symbol,convite,invitation,apps/api/src/controladores/e
 api-symbol-d86c97a1,api,2,symbol,consumirEspelhoCrm,consumeMirrorCrm,apps/api/src/filas.ts:179,3,no,,,approved,codex1,
 api-symbol-d8ad46c4,api,2,symbol,sessao,session,apps/api/src/controladores/desk.ts:119,382,no,,,approved,codex1,
 api-symbol-d8bd88a4,api,2,symbol,PassoDaImplantacao,PassoOfDeployment,apps/api/src/dominio/gestao/passos-da-implantacao.ts:48,6,no,,,approved,codex1,
-api-symbol-d8c6d775,api,2,symbol,listarEtiquetasDaConversa,listarLabelsOfConversation,apps/api/src/dominio/desk/consultas.ts:311,1,no,,,approved,codex1,
+api-symbol-d8c6d775,api,2,symbol,listarEtiquetasDaConversa,listLabelsOfConversation,apps/api/src/dominio/desk/consultas.ts:311,1,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-d8d04a70,api,2,symbol,autenticacao,authentication,apps/api/src/dominio/gestao/integracoes.ts:568,181,no,,,approved,codex1,
 api-symbol-d90df3e4,api,2,symbol,sincronizarDicionario,syncDictionary,apps/api/src/dominio/dicionario-crm.ts:235,13,no,,,approved,codex1,
 api-symbol-d95ada15,api,2,symbol,mensagem,message,apps/api/src/dominio/gestao/pfx.ts:381,1267,no,,,approved,codex1,
@@ -2130,7 +2130,7 @@ api-symbol-dc8a911b,api,2,symbol,usuario,user,apps/api/src/dominio/gestao/integr
 api-symbol-dcbf717c,api,2,symbol,permissoes,permissions,apps/api/tests/monitoramento-conversas.test.ts:95,149,no,,,approved,codex1,
 api-symbol-dcd17099,api,2,symbol,editarServico,editarService,apps/api/src/dominio/gestao/servicos-do-roteador.ts:292,4,no,,,approved,codex1,
 api-symbol-dcd8db16,api,2,symbol,chave,key,apps/api/src/dominio/fluxo.ts:368,1153,no,,,approved,codex1,
-api-symbol-dce3aa01,api,2,symbol,RegraDeFilaCadastrada,RuleOfQueueCadastrada,apps/api/src/dominio/gestao/cadastros.ts:703,10,no,,,approved,codex1,
+api-symbol-dce3aa01,api,2,symbol,RegraDeFilaCadastrada,RuleOfQueueRegistered,apps/api/src/dominio/gestao/cadastros.ts:703,10,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-dcfd7434,api,2,symbol,conversaId,conversationId,apps/api/tests/analise.test.ts:51,523,no,,,approved,codex1,
 api-symbol-dd02d08d,api,2,symbol,valores,values,apps/api/src/controladores/conversas.ts:401,140,no,,,approved,codex1,
 api-symbol-dd431860,api,2,symbol,CanalDeEventos,ChannelOfEvents,apps/api/src/eventos-ws.ts:63,2,no,,,approved,codex1,
@@ -2146,7 +2146,7 @@ api-symbol-ded9204c,api,2,symbol,porObjeto,byObject,apps/api/src/dominio/diciona
 api-symbol-dee6f56a,api,2,symbol,excluirServico,deleteService,apps/api/src/controladores/gestao-fluxo.ts:482,7,no,,,approved,codex1,
 api-symbol-df1740ba,api,2,symbol,paginaId,pageId,apps/api/tests/messenger.test.ts:54,35,no,,,approved,codex1,
 api-symbol-df604d49,api,2,symbol,regraFilaViva,ruleQueueViva,apps/api/src/dominio/gestao/cadastros.ts:922,4,no,,,approved,codex1,
-api-symbol-df92df85,api,2,symbol,hostsPorCertificado,hostsByCertificado,apps/api/src/dominio/gestao/certificados.ts:187,1,no,,,approved,codex1,
+api-symbol-df92df85,api,2,symbol,hostsPorCertificado,hostsByCertificate,apps/api/src/dominio/gestao/certificados.ts:187,1,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-e02c187b,api,2,symbol,usuarioMemberId,userMemberId,apps/api/tests/contrato.test.ts:147,7,no,,,approved,codex1,
 api-symbol-e03189a1,api,2,symbol,prioridadeDe,priorityOf,apps/api/tests/sla-motor.test.ts:137,4,no,,,approved,codex1,
 api-symbol-e0558087,api,2,symbol,ResumoFila,SummaryQueue,apps/api/src/dominio/gestao/monitoramento.ts:135,5,no,,,approved,codex1,
@@ -2178,19 +2178,19 @@ api-symbol-e2f70073,api,2,symbol,quantasVariaveis,quantasVariables,apps/api/test
 api-symbol-e2fefd73,api,2,symbol,janela,window,apps/api/src/controladores/mensagens-ativas.ts:53,260,no,,,approved,codex1,
 api-symbol-e30ef908,api,2,symbol,corDaFila,colorOfQueue,apps/api/src/dominio/gestao/cores-de-fila.ts:37,1,no,,,approved,codex1,
 api-symbol-e35c27cd,api,2,symbol,sessaoDoOutroTenant,sessionOfOtherTenant,apps/api/tests/configuracao-do-fluxo.test.ts:36,64,no,,,approved,codex1,
-api-symbol-e3b1034d,api,2,symbol,resolverCanal,resolverChannel,apps/api/src/banco.ts:72,25,no,,,approved,codex1,
+api-symbol-e3b1034d,api,2,symbol,resolverCanal,resolveChannel,apps/api/src/banco.ts:72,25,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-e3c485cc,api,2,symbol,LinhaDeServico,LineOfService,apps/api/src/dominio/roteador.ts:33,2,no,,,approved,codex1,
 api-symbol-e3d6f28d,api,2,symbol,ContaInstagram,AccountInstagram,apps/api/src/dominio/instagram/cliente-graph.ts:47,4,no,,,approved,codex1,
 api-symbol-e40bd3f3,api,2,symbol,RequisicaoComSessao,RequestWithSession,apps/api/src/sessao.ts:56,217,no,,,approved,codex1,
 api-symbol-e4518e9e,api,2,symbol,camposDaOportunidade,fieldsOfOpportunity,apps/api/tests/dicionario-crm.test.ts:244,2,no,,,approved,codex1,
 api-symbol-e46a8373,api,2,symbol,ComponenteDoModelo,ComponentOfTemplate,apps/api/src/dominio/whatsapp/cliente-graph.ts:96,10,no,,,approved,codex1,
 api-symbol-e46a9d0b,api,2,symbol,opcoesDeCookie,optionsOfCookie,apps/api/src/controladores/entrar.ts:53,9,no,,,approved,codex1,
-api-symbol-e48994e9,api,2,symbol,listarEtiquetasDoContato,listarLabelsOfContact,apps/api/src/dominio/etiquetas.ts:214,5,no,,,approved,codex1,
+api-symbol-e48994e9,api,2,symbol,listarEtiquetasDoContato,listLabelsOfContact,apps/api/src/dominio/etiquetas.ts:214,5,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-e4ae3a53,api,2,symbol,ResultadoDoDestino,ResultOfDestination,apps/api/src/dominio/mensagem-ativa.ts:53,4,no,,,approved,codex1,
 api-symbol-e4dcea9a,api,2,symbol,filaId,queueId,apps/api/src/dominio/fluxo.ts:333,170,no,,,approved,codex1,
 api-symbol-e52e1206,api,2,symbol,PAGINA,PAGE,apps/api/src/dominio/dicionario-crm.ts:85,2,no,,,approved,codex1,
 api-symbol-e52ea6a4,api,2,symbol,papelId,roleId,apps/api/tests/equipe-do-fluxo.test.ts:76,121,no,,,approved,codex1,
-api-symbol-e567f2eb,api,2,symbol,listarCanaisWhatsApp,listarChannelsWhatsApp,apps/api/src/dominio/canais.ts:63,7,no,,,approved,codex1,
+api-symbol-e567f2eb,api,2,symbol,listarCanaisWhatsApp,listChannelsWhatsApp,apps/api/src/dominio/canais.ts:63,7,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-e5a79362,api,2,symbol,novaConversa,newConversation,apps/api/tests/palavras-proibidas.test.ts:128,49,no,,,approved,codex1,
 api-symbol-e5fa283b,api,2,symbol,criarFluxoNoBanco,createFlowInDatabase,apps/api/tests/equipe-do-fluxo.test.ts:103,9,no,,,approved,codex1,
 api-symbol-e620f637,api,2,symbol,novoCanal,newChannel,apps/api/tests/canal-do-fluxo.test.ts:108,21,no,,,approved,codex1,
@@ -2217,7 +2217,7 @@ api-symbol-e8e6f318,api,2,symbol,editarFila,editarQueue,apps/api/src/controlador
 api-symbol-e8f63939,api,2,symbol,canalDoCore,channelOfCore,apps/api/src/dominio/envio.ts:80,3,no,,,approved,codex1,
 api-symbol-e93c00e6,api,2,symbol,excluirExcecaoHorario,deleteExceptionSchedule,apps/api/src/controladores/gestao-cadastros.ts:314,2,no,,,approved,codex1,
 api-symbol-e9426543,api,2,symbol,linhaDoFluxo,lineOfFlow,apps/api/tests/ciclo-de-vida-do-fluxo.test.ts:120,14,no,,,approved,codex1,
-api-symbol-e96a81b7,api,2,symbol,executarCadastroEmbutido,executarRegistrationEmbutido,apps/api/src/dominio/whatsapp/cadastro-embutido.ts:52,5,no,,,approved,codex1,
+api-symbol-e96a81b7,api,2,symbol,executarCadastroEmbutido,executarRegistrationEmbedded,apps/api/src/dominio/whatsapp/cadastro-embutido.ts:52,5,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-e96a9416,api,2,symbol,ControladorGestaoConta,ManagementAccountController,apps/api/src/controladores/gestao-conta.ts:79,3,no,,D-05,approved,sonnet,
 api-symbol-e9d66df8,api,2,symbol,conversa,conversation,apps/api/tests/fluxo.test.ts:120,1270,no,,,approved,codex1,
 api-symbol-ea5a5c94,api,2,symbol,exigirPermissaoNoFluxo,exigirPermissionInFlow,apps/api/src/dominio/gestao/equipe-do-fluxo.ts:217,31,no,,,approved,codex1,
@@ -2239,7 +2239,7 @@ api-symbol-ed1db0c4,api,2,symbol,dados,data,apps/api/tests/anexos-multiplos.test
 api-symbol-ed909a56,api,2,symbol,sessaoSemPoder,sessionWithoutPoder,apps/api/tests/canal-do-fluxo.test.ts:46,52,no,,,approved,codex1,
 api-symbol-eddc532d,api,2,symbol,anexoId,attachmentId,apps/api/tests/midia-recebida.test.ts:164,70,no,,,approved,codex1,
 api-symbol-ee2e01fb,api,2,symbol,ESCALA_POR_TIPO,ESCALA_BY_TYPE,apps/api/src/dominio/gestao/pesquisa.ts:26,9,no,,,approved,codex1,
-api-symbol-ee6784ef,api,2,symbol,buscarPagina,buscarPage,apps/api/src/dominio/messenger/cliente-graph.ts:36,3,no,,,approved,codex1,
+api-symbol-ee6784ef,api,2,symbol,buscarPagina,fetchPage,apps/api/src/dominio/messenger/cliente-graph.ts:36,3,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-ee693675,api,2,symbol,Escopos,Scopes,apps/api/src/autenticacao.ts:55,43,no,,,approved,codex1,
 api-symbol-eec76268,api,2,symbol,linkDoAnexo,linkOfAttachment,apps/api/src/dominio/anexo.ts:141,2,no,,,approved,codex1,
 api-symbol-eeeaad97,api,2,symbol,conversa,conversation,apps/api/src/dominio/envio.ts:119,1270,no,,,approved,codex1,
@@ -2261,7 +2261,7 @@ api-symbol-f09132b5,api,2,symbol,LIMITE_DIARIO_POR_CONTATO,DAILY_LIMIT_BY_CONTAC
 api-symbol-f0b9906c,api,2,symbol,atendente,agent,apps/api/src/dominio/gestao/cadastros.ts:137,768,no,,,approved,codex1,
 api-symbol-f0c14d1b,api,2,symbol,variaveis,variables,apps/api/src/dominio/whatsapp/modelos.ts:340,134,no,,,approved,codex1,
 api-symbol-f0d297f0,api,2,symbol,usuarioComEmail,userWithEmail,apps/api/src/controladores/sso.ts:238,2,no,,,approved,codex1,
-api-symbol-f11beb15,api,2,symbol,agentePorCertificado,agenteByCertificado,apps/api/src/dominio/mtls.ts:53,1,no,,,approved,codex1,
+api-symbol-f11beb15,api,2,symbol,agentePorCertificado,agentByCertificate,apps/api/src/dominio/mtls.ts:53,1,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-f138fafa,api,2,symbol,versaoNoEstado,versionInState,apps/api/src/dominio/gestao/builder-do-fluxo.ts:157,6,no,,,approved,codex1,
 api-symbol-f173aa09,api,2,symbol,CATALOGO_ESCOPOS,CATALOG_SCOPES,apps/api/src/autenticacao.ts:23,3,no,,,approved,codex1,
 api-symbol-f1c690d7,api,2,symbol,sessaoDeCanal,sessionOfChannel,apps/api/tests/canal-do-fluxo.test.ts:493,2,no,,,approved,codex1,
@@ -2292,7 +2292,7 @@ api-symbol-f65618fc,api,2,symbol,segredo,secret,apps/api/tests/messenger.test.ts
 api-symbol-f66f0b2c,api,2,symbol,ContaEmVigor,AccountInForce,apps/api/src/controladores/minha-conta.ts:69,11,no,,,approved,codex1,
 api-symbol-f689c1dc,api,2,symbol,leitura,read,apps/api/tests/configuracao-do-fluxo.test.ts:191,251,no,,,approved,codex1,
 api-symbol-f696c004,api,2,symbol,deslocamentoDoCabecalho,offsetOfHeader,apps/api/src/dominio/gestao/comunicacao.ts:68,10,no,,,approved,codex1,
-api-symbol-f6e2676f,api,2,symbol,conferirFluxoDaChave,conferirFlowOfKey,apps/api/src/autenticacao.ts:148,14,no,,,approved,codex1,
+api-symbol-f6e2676f,api,2,symbol,conferirFluxoDaChave,checkFlowOfKey,apps/api/src/autenticacao.ts:148,14,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-f743c358,api,2,symbol,canal,channel,apps/api/src/dominio/whatsapp/preferencias.ts:93,970,no,,,approved,codex1,
 api-symbol-f7540757,api,2,symbol,COLUNAS_CHAVE_LISTA,COLUMNS_KEY_LIST,apps/api/src/dominio/gestao/integracoes.ts:138,2,no,,,approved,codex1,
 api-symbol-f756d912,api,2,symbol,descricao,description,apps/api/src/dominio/whatsapp/perfil.ts:138,299,no,,,approved,codex1,
@@ -2331,7 +2331,7 @@ api-symbol-fd0926b9,api,2,symbol,registroDeVerificacao,registroOfVerification,ap
 api-symbol-fd266f28,api,2,symbol,comFila,withQueue,apps/api/tests/cadastros-atendimento.test.ts:776,1,no,,,approved,codex1,
 api-symbol-fd36bc14,api,2,symbol,FiltroDeMonitoria,QualityReviewFilter,apps/api/src/dominio/gestao/monitoria.ts:107,3,no,,D-05,approved,sonnet,glossary-exception:D-01
 api-symbol-fd505934,api,2,symbol,gerais,general,apps/api/src/controladores/gestao-cadastros.ts:154,23,no,,,approved,codex1,
-api-symbol-fdae7592,api,2,symbol,MensagemEnfileirada,MessageEnfileirada,apps/api/src/dominio/envio.ts:64,4,no,,,approved,codex1,
+api-symbol-fdae7592,api,2,symbol,MensagemEnfileirada,MessageQueued,apps/api/src/dominio/envio.ts:64,4,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 api-symbol-fdbf4c05,api,2,symbol,sessaoEditor,sessionEditor,apps/api/tests/roteador.test.ts:36,150,no,,,approved,codex1,
 api-symbol-fde0b35d,api,2,symbol,PUBLICAR_FLUXO,PUBLISH_FLOW,apps/api/src/dominio/gestao/builder-do-fluxo.ts:74,2,no,,,approved,codex1,
 api-symbol-fde9395a,api,2,symbol,payloadDeMensagem,payloadOfMessage,apps/api/tests/ajuda.ts:121,20,no,,,approved,codex1,

@@ -15,7 +15,7 @@ packages-contracts-literal-value-fe720af7,packages-contracts,1,literal-value,sem
 packages-contracts-symbol-043e9220,packages-contracts,1,symbol,EstadoDaVersao,StateOfVersion,packages/contracts/src/gestao-fluxo.ts:335,5,no,,,approved,codex1,
 packages-contracts-symbol-0484beeb,packages-contracts,1,symbol,DadosDeGrowth,DataOfGrowth,packages/contracts/src/gestao-fluxo.ts:175,9,no,,,approved,codex1,
 packages-contracts-symbol-068e1808,packages-contracts,1,symbol,RespostaDaConversa,ResponseOfConversation,packages/contracts/src/desk.ts:192,5,no,,,approved,codex1,
-packages-contracts-symbol-0f55c2c9,packages-contracts,1,symbol,ContatoListado,ContactListado,packages/contracts/src/gestao-fluxo.ts:73,6,no,,,approved,codex1,
+packages-contracts-symbol-0f55c2c9,packages-contracts,1,symbol,ContatoListado,ContactListed,packages/contracts/src/gestao-fluxo.ts:73,6,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-contracts-symbol-10a47073,packages-contracts,1,symbol,PedidoDeRegraPrioridade,RequestOfRulePriority,packages/contracts/src/gestao-cadastros.ts:202,3,no,,,approved,codex1,
 packages-contracts-symbol-11175a75,packages-contracts,1,symbol,RespostaDasMetricas,ResponseOfMetrics,packages/contracts/src/desk.ts:275,5,no,,,approved,codex1,
 packages-contracts-symbol-146893ac,packages-contracts,1,symbol,ConversaAberta,ConversationOpen,packages/contracts/src/desk.ts:106,7,no,,,approved,codex1,
@@ -46,7 +46,7 @@ packages-contracts-symbol-74a2f625,packages-contracts,1,symbol,ConfiguracaoDeMen
 packages-contracts-symbol-753df02a,packages-contracts,1,symbol,PedidoDeEdicaoDeRespostaPronta,RequestOfEditOfResponseReady,packages/contracts/src/gestao-cadastros.ts:86,3,no,,,approved,codex1,
 packages-contracts-symbol-76132838,packages-contracts,1,symbol,ModeloGrowth,TemplateGrowth,packages/contracts/src/gestao-fluxo.ts:156,4,no,,,approved,codex1,
 packages-contracts-symbol-7c822a17,packages-contracts,1,symbol,ContatoDoFluxo,ContactOfFlow,packages/contracts/src/gestao-fluxo.ts:13,6,no,,,approved,codex1,
-packages-contracts-symbol-7dbdeab2,packages-contracts,1,symbol,ModeloListado,TemplateListado,packages/contracts/src/gestao-fluxo.ts:184,16,no,,,approved,codex1,
+packages-contracts-symbol-7dbdeab2,packages-contracts,1,symbol,ModeloListado,TemplateListed,packages/contracts/src/gestao-fluxo.ts:184,16,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-contracts-symbol-819abe24,packages-contracts,1,symbol,PedidoDeServico,RequestOfService,packages/contracts/src/gestao-fluxo.ts:246,14,no,,,approved,codex1,
 packages-contracts-symbol-824d19bd,packages-contracts,1,symbol,OrigemDeSessao,OriginOfSession,packages/contracts/src/sessao.ts:41,4,no,,,approved,codex1,
 packages-contracts-symbol-8af1a163,packages-contracts,1,symbol,PedidoDeCanalDoFluxo,RequestOfChannelOfFlow,packages/contracts/src/gestao-fluxo.ts:60,3,no,,,approved,codex1,
@@ -80,7 +80,7 @@ packages-contracts-symbol-cf919b99,packages-contracts,1,symbol,BuilderDoFluxo,Bu
 packages-contracts-symbol-d1786036,packages-contracts,1,symbol,ConversaDaLista,ConversationOfList,packages/contracts/src/desk.ts:26,24,no,,,approved,codex1,
 packages-contracts-symbol-e9128ffd,packages-contracts,1,symbol,OperadorDeRegraFila,OperatorOfRuleQueue,packages/contracts/src/gestao-cadastros.ts:106,2,no,,,approved,codex1,
 packages-contracts-symbol-e9b26816,packages-contracts,1,symbol,PedidoDeEdicaoDeRegraFila,RequestOfEditOfRuleQueue,packages/contracts/src/gestao-cadastros.ts:115,5,no,,,approved,codex1,
-packages-contracts-symbol-ed5e932e,packages-contracts,1,symbol,ConfiguracaoDeBoasVindas,ConfigurationOfWelcomeVindas,packages/contracts/src/gestao-fluxo.ts:287,17,no,,,approved,codex1,
+packages-contracts-symbol-ed5e932e,packages-contracts,1,symbol,ConfiguracaoDeBoasVindas,ConfigurationOfWelcome,packages/contracts/src/gestao-fluxo.ts:287,17,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-contracts-symbol-f14e672a,packages-contracts,1,symbol,FluxoDoPortal,FlowOfPortal,packages/contracts/src/gestao-fluxo.ts:260,4,no,,,approved,codex1,
 packages-contracts-symbol-f59bca6b,packages-contracts,1,symbol,PermissoesNoFluxo,PermissionsInFlow,packages/contracts/src/gestao-equipe.ts:19,23,no,,,approved,codex1,
 packages-contracts-symbol-f5ec6128,packages-contracts,1,symbol,ContagemDeSituacao,CountOfSituation,packages/contracts/src/desk.ts:236,2,no,,,approved,codex1,

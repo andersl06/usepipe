@@ -57,7 +57,7 @@ packages-core-symbol-04dd2193,packages-core,1,symbol,DescarteDistribuicao,Descar
 packages-core-symbol-06ae730f,packages-core,1,symbol,dados,data,packages/core/src/score/score.teste.ts:140,669,no,,,approved,codex2,
 packages-core-symbol-0a0c2717,packages-core,1,symbol,atendenteId,agentId,packages/core/src/esforco/regua.ts:133,217,no,,,approved,codex2,
 packages-core-symbol-0a2e1367,packages-core,1,symbol,fluxo,flow,packages/core/src/fluxo/gerenciador.ts:168,1172,no,,,approved,codex2,
-packages-core-symbol-0ce19dba,packages-core,1,symbol,RelatorioPersonalizado,ReportPersonalizado,packages/core/src/analise/index.ts:366,9,no,,,approved,codex2,
+packages-core-symbol-0ce19dba,packages-core,1,symbol,RelatorioPersonalizado,ReportCustom,packages/core/src/analise/index.ts:366,9,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-0e62ab9f,packages-core,1,symbol,comparacao,comparison,packages/core/src/fluxo/condicao.ts:254,42,no,,,approved,codex2,
 packages-core-symbol-0f5b0f4e,packages-core,1,symbol,sessao,session,packages/core/src/esforco/esforco.teste.ts:192,382,no,,,approved,codex2,
 packages-core-symbol-0f7020b2,packages-core,1,symbol,candidatosDeContato,contactCandidatos,packages/core/src/telefone/index.ts:33,2,no,,,approved,codex2,
@@ -79,8 +79,8 @@ packages-core-symbol-1c655347,packages-core,1,symbol,contagem,count,packages/cor
 packages-core-symbol-1cc5be0e,packages-core,1,symbol,entrada,inbound,packages/core/src/fluxo/contexto.ts:278,473,no,,,approved,codex2,
 packages-core-symbol-1d692a21,packages-core,1,symbol,CHAVE_DO_TICKET,KEY_OF_TICKET,packages/core/src/fluxo/contexto.ts:179,5,no,,,approved,codex2,
 packages-core-symbol-1d7993bc,packages-core,1,symbol,configuracoes,settings,packages/core/src/fluxo/gerenciador.ts:392,190,no,,,approved,codex2,
-packages-core-symbol-1da5642c,packages-core,1,symbol,validarDocumento,validarDocument,packages/core/src/fluxo/gerenciador.ts:538,2,no,,,approved,codex2,
-packages-core-symbol-1e0883ee,packages-core,1,symbol,TransicaoEntregaInvalidaError,TransitionDeliveryInvalidaError,packages/core/src/conversa/maquina.ts:189,5,no,,,approved,codex2,
+packages-core-symbol-1da5642c,packages-core,1,symbol,validarDocumento,validateDocument,packages/core/src/fluxo/gerenciador.ts:538,2,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
+packages-core-symbol-1e0883ee,packages-core,1,symbol,TransicaoEntregaInvalidaError,TransitionDeliveryInvalidError,packages/core/src/conversa/maquina.ts:189,5,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-20c6020f,packages-core,1,symbol,valor,value,packages/core/src/fluxo/contexto.ts:352,1656,no,,,approved,codex2,
 packages-core-symbol-24303da7,packages-core,1,symbol,OpcoesDistribuicao,OptionsDistribution,packages/core/src/distribuicao/carga.ts:45,6,no,,,approved,codex2,
 packages-core-symbol-25ec2337,packages-core,1,symbol,contagem,count,packages/core/src/metricas/encerramento.ts:47,134,no,,,approved,codex2,
@@ -92,14 +92,14 @@ packages-core-symbol-2961f075,packages-core,1,symbol,REGRAS_DE_VALIDACAO,RULES_O
 packages-core-symbol-2b3e70dc,packages-core,1,symbol,ProvedorDeVariavel,VariableProvider,packages/core/src/fluxo/contexto.ts:155,3,no,,,approved,codex2,"fix(01-12): missing lexicon word (provedor), was VariableProvedor"
 packages-core-symbol-2b860784,packages-core,1,symbol,transitarEntrega,transitarDelivery,packages/core/src/conversa/maquina.ts:206,4,no,,,approved,codex2,
 packages-core-symbol-2ddc1890,packages-core,1,symbol,AnexoEsforco,AttachmentEffort,packages/core/src/esforco/regua.ts:45,3,no,,,approved,codex2,
-packages-core-symbol-2e4c39e8,packages-core,1,symbol,encerradaPor,encerradaBy,packages/core/src/metricas/eventos.ts:90,37,no,,,approved,codex2,
+packages-core-symbol-2e4c39e8,packages-core,1,symbol,encerradaPor,closedBy,packages/core/src/metricas/eventos.ts:90,37,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-2efe41df,packages-core,1,symbol,EstadoAtendente,StateAgent,packages/core/src/distribuicao/carga.ts:20,27,no,,,approved,codex2,
 packages-core-symbol-2f202d3e,packages-core,1,symbol,valores,values,packages/core/src/fluxo/condicao.ts:258,140,no,,,approved,codex2,
 packages-core-symbol-2f3ae598,packages-core,1,symbol,valor,value,packages/core/src/fluxo/condicao.ts:235,1656,no,,,approved,codex2,
 packages-core-symbol-306e2b7e,packages-core,1,symbol,FluxoBlip,FlowBlip,packages/core/src/fluxo/modelos.ts:84,29,no,,,approved,codex2,
 packages-core-symbol-30944d47,packages-core,1,symbol,OpcoesScore,OptionsScore,packages/core/src/score/motor.ts:73,2,no,,,approved,codex2,
 packages-core-symbol-30a06ae3,packages-core,1,symbol,dados,data,packages/core/src/score/score.teste.ts:104,669,no,,,approved,codex2,
-packages-core-symbol-30ab5251,packages-core,1,symbol,estadoGuardado,stateGuardado,packages/core/src/fluxo/contexto.ts:219,5,no,,,approved,codex2,
+packages-core-symbol-30ab5251,packages-core,1,symbol,estadoGuardado,stateSaved,packages/core/src/fluxo/contexto.ts:219,5,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-30d85338,packages-core,1,symbol,DirecaoMensagem,DirectionMessage,packages/core/src/esforco/regua.ts:35,4,no,,,approved,codex2,
 packages-core-symbol-31de00d7,packages-core,1,symbol,NivelPrioridade,NivelPriority,packages/core/src/conversa/prioridade.ts:36,9,no,,,approved,codex2,
 packages-core-symbol-32f22f01,packages-core,1,symbol,dentroDaJanela,windowDentro,packages/core/src/janela/janela.ts:138,30,no,,,approved,codex2,
@@ -144,7 +144,7 @@ packages-core-symbol-4f497c40,packages-core,1,symbol,NOME_DO_CANAL,NAME_OF_CHANN
 packages-core-symbol-50156130,packages-core,1,symbol,LIMITE_INTERVALO_SESSAO_SEG,SESSION_INTERVAL_LIMIT_SEG,packages/core/src/esforco/sessao.ts:15,4,no,,,approved,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was LIMITE_INTERVALO_SESSION_SEG"
 packages-core-symbol-5027a8a4,packages-core,1,symbol,variavel,variable,packages/core/src/fluxo/contexto.ts:324,27,no,,,approved,codex2,
 packages-core-symbol-51859269,packages-core,1,symbol,grupos,groups,packages/core/src/esforco/regua.ts:193,85,no,,,approved,codex2,
-packages-core-symbol-5264a237,packages-core,1,symbol,EncerradaPor,EncerradaBy,packages/core/src/metricas/eventos.ts:28,14,no,,,approved,codex2,
+packages-core-symbol-5264a237,packages-core,1,symbol,EncerradaPor,ClosedBy,packages/core/src/metricas/eventos.ts:28,14,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-52c93dd1,packages-core,1,symbol,EntradaSla,InboundSla,packages/core/src/sla/regra.ts:34,2,no,,,approved,codex2,
 packages-core-symbol-53167c33,packages-core,1,symbol,semJanela,withoutWindow,packages/core/src/janela/janela.teste.ts:203,2,no,,,approved,codex2,
 packages-core-symbol-541c764c,packages-core,1,symbol,estado,state,packages/core/src/fluxo/editor.teste.ts:22,1269,no,,,approved,codex2,
@@ -211,7 +211,7 @@ packages-core-symbol-883f761f,packages-core,1,symbol,porExtenso,byExtenso,packag
 packages-core-symbol-88548f22,packages-core,1,symbol,obterEstadoId,obterStateId,packages/core/src/fluxo/contexto.ts:208,6,no,,,approved,codex2,
 packages-core-symbol-8bd8ce3a,packages-core,1,symbol,transicoes,transitions,packages/core/src/fluxo/gerenciador.ts:183,6,no,,,approved,codex2,
 packages-core-symbol-8bfcc9ca,packages-core,1,symbol,variavel,variable,packages/core/src/fluxo/acoes.ts:133,27,no,,,approved,codex2,
-packages-core-symbol-8c6831b8,packages-core,1,symbol,validarEntrada,validarInbound,packages/core/src/fluxo/modelos.ts:112,2,no,,,approved,codex2,
+packages-core-symbol-8c6831b8,packages-core,1,symbol,validarEntrada,validateInbound,packages/core/src/fluxo/modelos.ts:112,2,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-8ce8958d,packages-core,1,symbol,contato,contact,packages/core/src/fluxo/contexto.ts:332,1026,no,,,approved,codex2,
 packages-core-symbol-8d5f2ce5,packages-core,1,symbol,Periodo,Period,packages/core/src/analise/index.ts:37,13,no,,,approved,codex2,
 packages-core-symbol-8d804bdd,packages-core,1,symbol,comTempoLimite,withTimeLimit,packages/core/src/fluxo/gerenciador.ts:140,2,no,,,approved,codex2,"fix(01-12): missing lexicon word (limite/diario/intervalo), was withTimeLimite"
@@ -228,11 +228,11 @@ packages-core-symbol-946a50d4,packages-core,1,symbol,ESTADOS_CONVERSA,STATES_CON
 packages-core-symbol-94e47e13,packages-core,1,symbol,valores,values,packages/core/src/fluxo/contexto.ts:370,140,no,,,approved,codex2,
 packages-core-symbol-957c0202,packages-core,1,symbol,vazio,empty,packages/core/src/esforco/esforco.teste.ts:152,290,no,,,approved,codex2,
 packages-core-symbol-960017a0,packages-core,1,symbol,definirVariavel,definirVariable,packages/core/src/fluxo/contexto.ts:195,14,no,,,approved,codex2,
-packages-core-symbol-97586a62,packages-core,1,symbol,TempoEsgotado,TimeEsgotado,packages/core/src/fluxo/gerenciador.ts:138,4,no,,,approved,codex2,
+packages-core-symbol-97586a62,packages-core,1,symbol,TempoEsgotado,TimeExpired,packages/core/src/fluxo/gerenciador.ts:138,4,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-97c2288e,packages-core,1,symbol,esperaEntrada,esperaInbound,packages/core/src/fluxo/gerenciador.ts:198,4,no,,,approved,codex2,
 packages-core-symbol-985dc066,packages-core,1,symbol,ErroPorEstado,ByStateError,packages/core/src/fluxo/modelos.ts:216,3,no,,,approved,codex2,
 packages-core-symbol-9873cf87,packages-core,1,symbol,duracao,duration,packages/core/src/sla/expediente.ts:307,55,no,,,approved,codex2,
-packages-core-symbol-988e5fc1,packages-core,1,symbol,TransicaoInvalidaError,TransitionInvalidaError,packages/core/src/conversa/maquina.ts:50,17,no,,,approved,codex2,
+packages-core-symbol-988e5fc1,packages-core,1,symbol,TransicaoInvalidaError,TransitionInvalidError,packages/core/src/conversa/maquina.ts:50,17,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-98976014,packages-core,1,symbol,MensagemEsforco,MessageEffort,packages/core/src/esforco/regua.ts:52,12,no,,,approved,codex2,
 packages-core-symbol-98c55e18,packages-core,1,symbol,RastroDaEntrada,InboundRastro,packages/core/src/fluxo/gerenciador.ts:73,7,no,,,approved,codex2,
 packages-core-symbol-9981ae28,packages-core,1,symbol,VARIAVEL_DE_ENTRADA,VARIABLE_OF_INBOUND,packages/core/src/fluxo/modelos.ts:98,1,no,,,approved,codex2,
@@ -244,20 +244,20 @@ packages-core-symbol-9b521dc4,packages-core,1,symbol,Comparacao,Comparison,packa
 packages-core-symbol-9ba62de0,packages-core,1,symbol,porCausaDe,byCausaOf,packages/core/src/conversa/maquina.ts:57,2,no,,,approved,codex2,
 packages-core-symbol-9bcb05ed,packages-core,1,symbol,valor,value,packages/core/src/fluxo/gerenciador.teste.ts:169,1656,no,,,approved,codex2,
 packages-core-symbol-9bff18c6,packages-core,1,symbol,estado,state,packages/core/src/conversa/maquina.ts:168,1269,no,,,approved,codex2,
-packages-core-symbol-9c369ccf,packages-core,1,symbol,transicaoPermitida,transitionPermitida,packages/core/src/conversa/maquina.ts:66,10,no,,,approved,codex2,
+packages-core-symbol-9c369ccf,packages-core,1,symbol,transicaoPermitida,transitionAllowed,packages/core/src/conversa/maquina.ts:66,10,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-9cd7872e,packages-core,1,symbol,StatusEncerramento,StatusClosure,packages/core/src/metricas/encerramento.ts:11,7,no,,,approved,codex2,
 packages-core-symbol-9d5c9edf,packages-core,1,symbol,variaveis,variables,packages/core/src/fluxo/gerenciador.teste.ts:101,134,no,,,approved,codex2,
 packages-core-symbol-9faaccd5,packages-core,1,symbol,erros,errors,packages/core/src/fluxo/modelos.ts:243,110,no,,,approved,codex2,
 packages-core-symbol-a029bb19,packages-core,1,symbol,esforco,effort,packages/core/src/esforco/esforco.teste.ts:107,26,no,,,approved,codex2,
 packages-core-symbol-a14166b8,packages-core,1,symbol,FLUXO_ID,FLOW_ID,packages/core/src/fluxo/gerenciador.teste.ts:20,6,no,,,approved,codex2,
-packages-core-symbol-a29e7061,packages-core,1,symbol,fimDaContagem,countFim,packages/core/src/sla/regra.ts:73,2,no,,,approved,codex2,
+packages-core-symbol-a29e7061,packages-core,1,symbol,fimDaContagem,countEnd,packages/core/src/sla/regra.ts:73,2,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-a42a062f,packages-core,1,symbol,PartesLocais,PartesLocal,packages/core/src/sla/expediente.ts:55,2,no,,,approved,codex2,
 packages-core-symbol-a42f8db2,packages-core,1,symbol,canalTemJanela,channelTemWindow,packages/core/src/janela/janela.ts:111,6,no,,,approved,codex2,
-packages-core-symbol-a4cccaa3,packages-core,1,symbol,conversasConsideradas,conversationsConsideradas,packages/core/src/metricas/tempos.ts:104,9,no,,,approved,codex2,
+packages-core-symbol-a4cccaa3,packages-core,1,symbol,conversasConsideradas,conversationsConsidered,packages/core/src/metricas/tempos.ts:104,9,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-a4ea0a4e,packages-core,1,symbol,esforcoSeg,effortSeg,packages/core/src/esforco/sessao.ts:110,18,no,,,approved,codex2,
 packages-core-symbol-a505f53d,packages-core,1,symbol,variaveis,variables,packages/core/src/fluxo/gerenciador.teste.ts:59,134,no,,,approved,codex2,
 packages-core-symbol-a51f8b5a,packages-core,1,symbol,segundosDeLeitura,readSegundos,packages/core/src/esforco/regua.ts:93,5,no,,,approved,codex2,
-packages-core-symbol-a53c423b,packages-core,1,symbol,PeriodoNomeado,PeriodNomeado,packages/core/src/analise/index.ts:35,3,no,,,approved,codex2,
+packages-core-symbol-a53c423b,packages-core,1,symbol,PeriodoNomeado,PeriodNamed,packages/core/src/analise/index.ts:35,3,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-a6560c3d,packages-core,1,symbol,FONTES_DE_VARIAVEL,FONTES_OF_VARIABLE,packages/core/src/fluxo/contexto.ts:18,4,no,,,approved,codex2,
 packages-core-symbol-a66929d1,packages-core,1,symbol,TempoEmSessao,TimeInSession,packages/core/src/esforco/sessao.ts:25,2,no,,,approved,codex2,
 packages-core-symbol-aa353402,packages-core,1,symbol,tempoAtePrimeiraResposta,timeAteFirstResposta,packages/core/src/metricas/tempos.ts:66,9,no,,,approved,codex2,
@@ -268,7 +268,7 @@ packages-core-symbol-ad56cf18,packages-core,1,symbol,temValores,temValues,packag
 packages-core-symbol-aed427c5,packages-core,1,symbol,ErroDeProcessamentoDeAcao,ProcessingActionError,packages/core/src/fluxo/gerenciador.ts:90,3,no,,,approved,codex2,
 packages-core-symbol-aefcab2a,packages-core,1,symbol,CARACTERES_POR_MINUTO_ESCRITA,CARACTERES_BY_MINUTO_ESCRITA,packages/core/src/esforco/regua.ts:23,4,no,,,approved,codex2,
 packages-core-symbol-afbdbacd,packages-core,1,symbol,NIVEIS_PRIORIDADE,NIVEIS_PRIORITY,packages/core/src/conversa/prioridade.ts:34,12,no,,,approved,codex2,
-packages-core-symbol-afe1eb0a,packages-core,1,symbol,validarEstado,validarState,packages/core/src/fluxo/modelos.ts:138,4,no,,,approved,codex2,
+packages-core-symbol-afe1eb0a,packages-core,1,symbol,validarEstado,validateState,packages/core/src/fluxo/modelos.ts:138,4,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-b21ed9cf,packages-core,1,symbol,FonteDeVariavel,VariableFonte,packages/core/src/fluxo/contexto.ts:36,8,no,,,approved,codex2,
 packages-core-symbol-b3d8f956,packages-core,1,symbol,variavel,variable,packages/core/src/fluxo/acoes.ts:63,27,no,,,approved,codex2,
 packages-core-symbol-b3e498d3,packages-core,1,symbol,globais,global,packages/core/src/fluxo/editor.ts:123,134,no,,,approved,codex2,
@@ -286,7 +286,7 @@ packages-core-symbol-bd99ec44,packages-core,1,symbol,encaminharParaAtendimento,e
 packages-core-symbol-be30e853,packages-core,1,symbol,ACOES_GLOBAIS_PADRAO,ACTIONS_GLOBAL_DEFAULT,packages/core/src/fluxo/padrao.ts:140,6,no,,,approved,codex2,
 packages-core-symbol-beaf66b2,packages-core,1,symbol,FORMATO_E164,FORMAT_E164,packages/core/src/telefone/index.ts:95,3,no,,,approved,codex2,
 packages-core-symbol-bf05cbf5,packages-core,1,symbol,variavel,variable,packages/core/src/fluxo/contexto.ts:351,27,no,,,approved,codex2,
-packages-core-symbol-bf3ea36e,packages-core,1,symbol,transicaoEntregaPermitida,transitionDeliveryPermitida,packages/core/src/conversa/maquina.ts:202,8,no,,,approved,codex2,
+packages-core-symbol-bf3ea36e,packages-core,1,symbol,transicaoEntregaPermitida,transitionDeliveryAllowed,packages/core/src/conversa/maquina.ts:202,8,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-c012c97c,packages-core,1,symbol,primeira,first,packages/core/src/score/score.teste.ts:278,377,no,,,approved,codex2,
 packages-core-symbol-c217fa83,packages-core,1,symbol,ProvedorDeAcoes,ActionsProvider,packages/core/src/fluxo/acoes.ts:26,6,no,,,approved,codex2,"fix(01-12): missing lexicon word (provedor), was ActionsProvedor"
 packages-core-symbol-c252d1d8,packages-core,1,symbol,TipoMensagem,TipoMessage,packages/core/src/esforco/regua.ts:36,4,no,,,approved,codex2,
@@ -325,7 +325,7 @@ packages-core-symbol-d70e2fe2,packages-core,1,symbol,CondicaoComposta,ConditionC
 packages-core-symbol-d72616ed,packages-core,1,symbol,posicao,position,packages/core/src/conversa/prioridade.ts:60,84,no,,,approved,codex2,
 packages-core-symbol-d7a35d2e,packages-core,1,symbol,processarAcoes,processarActions,packages/core/src/fluxo/gerenciador.ts:357,7,no,,,approved,codex2,
 packages-core-symbol-d8bc0d1e,packages-core,1,symbol,EventoAtendimento,EventAttendance,packages/core/src/metricas/eventos.ts:30,24,no,,,approved,codex2,
-packages-core-symbol-dc9dc11c,packages-core,1,symbol,validarCondicao,validarCondition,packages/core/src/fluxo/condicao.ts:81,11,no,,,approved,codex2,
+packages-core-symbol-dc9dc11c,packages-core,1,symbol,validarCondicao,validateCondition,packages/core/src/fluxo/condicao.ts:81,11,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-dd6441e2,packages-core,1,symbol,mensagensNoBloco,messagesInBlock,packages/core/src/esforco/sessao.ts:51,4,no,,,approved,codex2,
 packages-core-symbol-ddad0bea,packages-core,1,symbol,MensagemDeSaida,OutputMessage,packages/core/src/fluxo/contexto.ts:96,13,no,,,approved,codex2,
 packages-core-symbol-dddfa6ac,packages-core,1,symbol,explicacao,explanation,packages/core/src/score/motor.ts:204,15,no,,,approved,codex2,
@@ -354,7 +354,7 @@ packages-core-symbol-ece4804c,packages-core,1,symbol,porDimensao,byDimensao,pack
 packages-core-symbol-ee2620fd,packages-core,1,symbol,VARIAVEL_DO_ENCAMINHAMENTO,VARIABLE_OF_FORWARDING,packages/core/src/fluxo/acoes.ts:139,6,no,,,approved,codex2,
 packages-core-symbol-ee5832f2,packages-core,1,symbol,BlocoSessao,BlockSession,packages/core/src/esforco/sessao.ts:17,3,no,,,approved,codex2,
 packages-core-symbol-ee9a3e05,packages-core,1,symbol,corpoValor,corpoValue,packages/core/src/fluxo/acoes.ts:211,6,no,,,approved,codex2,
-packages-core-symbol-ef8e1d68,packages-core,1,symbol,validarFluxo,validarFlow,packages/core/src/fluxo/modelos.ts:152,33,no,,,approved,codex2,
+packages-core-symbol-ef8e1d68,packages-core,1,symbol,validarFluxo,validateFlow,packages/core/src/fluxo/modelos.ts:152,33,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-core-symbol-f13d88bb,packages-core,1,symbol,BYTES_POR_SEGUNDO_AUDIO,BYTES_BY_SEGUNDO_AUDIO,packages/core/src/esforco/regua.ts:32,4,no,,,approved,codex2,
 packages-core-symbol-f1783925,packages-core,1,symbol,atendente,agent,packages/core/src/distribuicao/distribuicao.teste.ts:17,768,no,,,approved,codex2,
 packages-core-symbol-f47f242e,packages-core,1,symbol,populacao,population,packages/core/src/metricas/tempos.ts:32,34,no,,,approved,codex2,

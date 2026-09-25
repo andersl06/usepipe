@@ -17,10 +17,10 @@ ponte-symbol-0ba5c987,ponte,2,symbol,comoConta,asAccount,apps/ponte/src/traducao
 ponte-symbol-0c5e73f0,ponte,2,symbol,ROTA_ACOES_GLOBAIS,ROTA_ACTIONS_GLOBAL,apps/ponte/src/rotas.ts:95,2,no,,,approved,codex2,
 ponte-symbol-130d70cd,ponte,2,symbol,dados,data,apps/ponte/src/rotas.ts:183,669,no,,,approved,codex2,
 ponte-symbol-1d3f41b9,ponte,2,symbol,STATUS_POR_ESTADO,STATUS_BY_STATE,apps/ponte/src/traducao.ts:13,3,no,,,approved,codex2,
-ponte-symbol-1e787da6,ponte,2,symbol,resolverSessao,resolverSession,apps/ponte/src/servidor.ts:36,8,no,,,approved,codex2,
+ponte-symbol-1e787da6,ponte,2,symbol,resolverSessao,resolveSession,apps/ponte/src/servidor.ts:36,8,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 ponte-symbol-206ac460,ponte,2,symbol,filaId,queueId,apps/ponte/src/acoes.ts:94,170,no,,,approved,codex2,
-ponte-symbol-2097488d,ponte,2,symbol,gravarFluxo,gravarFlow,apps/ponte/src/builder.ts:125,5,no,,,approved,codex2,
-ponte-symbol-279f8bb7,ponte,2,symbol,carregarGlobais,carregarGlobal,apps/ponte/src/builder.ts:102,5,no,,,approved,codex2,
+ponte-symbol-2097488d,ponte,2,symbol,gravarFluxo,saveFlow,apps/ponte/src/builder.ts:125,5,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
+ponte-symbol-279f8bb7,ponte,2,symbol,carregarGlobais,loadGlobal,apps/ponte/src/builder.ts:102,5,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 ponte-symbol-2c55fc4f,ponte,2,symbol,fluxoId,flowId,apps/ponte/src/builder.ts:103,504,no,,,approved,codex2,
 ponte-symbol-2cb0dcf6,ponte,2,symbol,fecharBanco,fecharDatabase,apps/ponte/src/banco.ts:39,35,no,,,approved,codex2,
 ponte-symbol-2df1541c,ponte,2,symbol,colecao,collection,apps/ponte/src/lime.ts:44,9,no,,,approved,codex2,
@@ -33,7 +33,7 @@ ponte-symbol-4cf549ea,ponte,2,symbol,subirPonte,startBridge,apps/ponte/src/servi
 ponte-symbol-4d9ce231,ponte,2,symbol,fluxoId,flowId,apps/ponte/src/builder.ts:95,504,no,,,approved,codex2,
 ponte-symbol-50439c4b,ponte,2,symbol,usuario,user,apps/ponte/src/servidor.ts:38,347,no,,,approved,codex2,
 ponte-symbol-53c1f0b4,ponte,2,symbol,fluxoId,flowId,apps/ponte/src/builder.ts:131,504,no,,,approved,codex2,
-ponte-symbol-682ef010,ponte,2,symbol,fluxoIdResolvido,flowIdResolvido,apps/ponte/src/builder.ts:53,5,no,,,approved,codex2,
+ponte-symbol-682ef010,ponte,2,symbol,fluxoIdResolvido,flowIdResolved,apps/ponte/src/builder.ts:53,5,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 ponte-symbol-6be308b4,ponte,2,symbol,naFila,inQueue,apps/ponte/src/rotas.ts:227,17,no,,,approved,codex2,
 ponte-symbol-6c4806c5,ponte,2,symbol,DIRECAO_BLIP,DIRECTION_BLIP,apps/ponte/src/traducao.ts:22,3,no,,,approved,codex2,
 ponte-symbol-6c6d2f74,ponte,2,symbol,NOME_DO_FLUXO,NAME_OF_FLOW,apps/ponte/src/builder.ts:50,3,no,,,approved,codex2,
@@ -41,7 +41,7 @@ ponte-symbol-6c7b5fa6,ponte,2,symbol,Sessao,Session,apps/ponte/src/rotas.ts:24,2
 ponte-symbol-72cd561a,ponte,2,symbol,erroDeValidacao,validationError,apps/ponte/src/builder.ts:137,13,no,,,approved,codex2,
 ponte-symbol-74ff513c,ponte,2,symbol,ROTA_CONTA,ROTA_ACCOUNT,apps/ponte/src/rotas.ts:86,2,no,,,approved,codex2,
 ponte-symbol-79cd5f94,ponte,2,symbol,semEstado,withoutState,apps/ponte/tests/traducao.test.ts:147,3,no,,,approved,codex2,
-ponte-symbol-7c699909,ponte,2,symbol,sessaoConfigurada,sessionConfigurada,apps/ponte/src/servidor.ts:25,2,no,,,approved,codex2,
+ponte-symbol-7c699909,ponte,2,symbol,sessaoConfigurada,sessionConfigured,apps/ponte/src/servidor.ts:25,2,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 ponte-symbol-7f99182d,ponte,2,symbol,LinhaMensagem,LinhaMessage,apps/ponte/src/traducao.ts:67,10,no,,,approved,codex2,
 ponte-symbol-832bf62b,ponte,2,symbol,TIPO_COLECAO,TIPO_COLLECTION,apps/ponte/src/lime.ts:14,2,no,,,approved,codex2,
 ponte-symbol-8414c192,ponte,2,symbol,ROTA_MENSAGENS,ROTA_MESSAGES,apps/ponte/src/rotas.ts:91,2,no,,,approved,codex2,
@@ -51,7 +51,7 @@ ponte-symbol-8e759772,ponte,2,symbol,PonteNoAr,BridgeInAr,apps/ponte/src/servido
 ponte-symbol-8f82d5f5,ponte,2,symbol,transferirParaFila,transferirForQueue,apps/ponte/src/acoes.ts:89,3,no,,,approved,codex2,
 ponte-symbol-91a319d5,ponte,2,symbol,comAtendente,withAgent,apps/ponte/tests/traducao.test.ts:69,2,no,,,approved,codex2,
 ponte-symbol-920fda4e,ponte,2,symbol,direcao,direction,apps/ponte/src/traducao.ts:167,175,no,,,approved,codex2,
-ponte-symbol-962a1dad,ponte,2,symbol,ROTA_FLUXO_PUBLICADO,ROTA_FLOW_PUBLICADO,apps/ponte/src/rotas.ts:96,2,no,,,approved,codex2,
+ponte-symbol-962a1dad,ponte,2,symbol,ROTA_FLUXO_PUBLICADO,ROTA_FLOW_PUBLISHED,apps/ponte/src/rotas.ts:96,2,no,,,approved,codex2,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 ponte-symbol-97f49672,ponte,2,symbol,conversaId,conversationId,apps/ponte/src/rotas.ts:172,523,no,,,approved,codex2,
 ponte-symbol-a9166946,ponte,2,symbol,conta,account,apps/ponte/tests/traducao.test.ts:132,808,no,,,approved,codex2,
 ponte-symbol-af3489c6,ponte,2,symbol,LinhaConversa,LinhaConversation,apps/ponte/src/traducao.ts:45,22,no,,,approved,codex2,

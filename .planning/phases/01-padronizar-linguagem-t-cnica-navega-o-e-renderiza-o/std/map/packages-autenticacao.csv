@@ -16,7 +16,7 @@ packages-autenticacao-symbol-1ee67bb0,packages-autenticacao,1,symbol,documento,d
 packages-autenticacao-symbol-2b851779,packages-autenticacao,1,symbol,criarDesafio,createChallenge,packages/autenticacao/src/google.ts:73,20,no,,,approved,codex1,
 packages-autenticacao-symbol-3d554534,packages-autenticacao,1,symbol,urlDeAutorizacaoOidc,urlOfAuthorizationOidc,packages/autenticacao/src/oidc.ts:123,6,no,,,approved,codex1,
 packages-autenticacao-symbol-3e2ff432,packages-autenticacao,1,symbol,criarToken,createToken,packages/autenticacao/src/sessao.ts:28,68,no,,,approved,codex1,
-packages-autenticacao-symbol-3fd5ad62,packages-autenticacao,1,symbol,resolverSessao,resolverSession,packages/autenticacao/src/entrada.ts:409,8,no,,,approved,codex1,
+packages-autenticacao-symbol-3fd5ad62,packages-autenticacao,1,symbol,resolverSessao,resolveSession,packages/autenticacao/src/entrada.ts:409,8,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 packages-autenticacao-symbol-43f284a2,packages-autenticacao,1,symbol,gravarSessao,writeSession,packages/autenticacao/src/entrada.ts:379,5,no,,,approved,codex1,
 packages-autenticacao-symbol-49f21f21,packages-autenticacao,1,symbol,ehDominioPublico,ehDomainPublic,packages/autenticacao/src/google.ts:239,12,no,,,approved,codex1,
 packages-autenticacao-symbol-6d2e7495,packages-autenticacao,1,symbol,dominio,domain,packages/autenticacao/src/entrada.ts:164,476,no,,,approved,codex1,

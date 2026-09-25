@@ -79,7 +79,7 @@ workers-symbol-9308d821,workers,2,symbol,POLITICA_MIDIA_PADRAO,POLICY_MEDIA_DEFA
 workers-symbol-9453005f,workers,2,symbol,tokenAcesso,tokenAccess,apps/workers/src/entrega.ts:228,75,no,,,approved,codex1,
 workers-symbol-99240705,workers,2,symbol,agregacao,aggregation,apps/workers/src/main.ts:42,3,no,,,approved,codex1,
 workers-symbol-99ca5e88,workers,2,symbol,erros,errors,apps/workers/src/gerenciador-de-contatos.ts:147,110,no,,,approved,codex1,
-workers-symbol-99de108b,workers,2,symbol,umContato,umContact,apps/workers/src/gerenciador-de-contatos.ts:61,4,no,,,approved,codex1,
+workers-symbol-99de108b,workers,2,symbol,umContato,aContact,apps/workers/src/gerenciador-de-contatos.ts:61,4,no,,,approved,codex1,"fixed leftover PT token (gate-2 compound audit, D-47 follow-up)"
 workers-symbol-9ad7c4e5,workers,2,symbol,PreferenciasInterativas,PreferencesInteractive,apps/workers/src/whatsapp/interativo.ts:26,5,no,,,approved,codex1,
 workers-symbol-9b2b040f,workers,2,symbol,entrega,delivery,apps/workers/src/main.ts:24,207,no,,,approved,codex1,
 workers-symbol-9b9e8db6,workers,2,symbol,CredenciaisInstagram,CredentialsInstagram,apps/workers/src/instagram.ts:15,2,no,,,approved,codex1,
