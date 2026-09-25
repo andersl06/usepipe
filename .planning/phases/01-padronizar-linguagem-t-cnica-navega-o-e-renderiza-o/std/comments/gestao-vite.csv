@@ -1837,8 +1837,8 @@ gestao-vite-comment-390a85e8,gestao-vite,apps/gestao-vite/src/paginas/builder/co
  * atingido""); menu com até 10 opções de 24 caracteres; quick reply com até 3
  * opções de 20 caracteres (os avisos do WhatsApp na aba).
  */",translate,"Block Content tab follows Blip's conversation-like `$contentActions` cards, robot utterances left and user input right. Offer only Pipe channel `CONTEUDOS_SUPORTADOS` (`packages/core/src/fluxo/editor.ts`): text `text/plain` and two `application/vnd.lime.select+json` variants, Menu without `scope` and Quick reply with `scope: ""immediate""`. Other Blip menu types (image, audio, video, document, sticker, carousel, HTTP, dynamic content, survey, location, web link, call request) are rejected on publish as unsupported `conteudo:<mime>`. Imported `chatstate` Typing appears but cannot be newly created and runs without effect. Limits match editor copy: 25 content items per block, menus up to 10 options of 24 characters, quick replies up to 3 options of 20 characters.",meta-blip,apps/gestao-vite/src/paginas/builder/conteudo.ts:5-23,,proposed
-gestao-vite-comment-255f1383,gestao-vite,apps/gestao-vite/src/paginas/builder/conteudo.ts,61,61,jsdoc,1,"/** As regras de validação da entrada, com o rótulo do `bds-select` do editor. */",,,,,,
-gestao-vite-comment-20eb0fbc,gestao-vite,apps/gestao-vite/src/paginas/builder/conteudo.ts,70,70,jsdoc,2,"/** A ""Instrução de validação"" que o editor sugere por regra. */",,,,,,
+gestao-vite-comment-255f1383,gestao-vite,apps/gestao-vite/src/paginas/builder/conteudo.ts,61,61,jsdoc,1,"/** As regras de validação da entrada, com o rótulo do `bds-select` do editor. */",translate,"The input validation rules, with the label of the editor's `bds-select`.",other,apps/gestao-vite/src/paginas/builder/conteudo.ts:61,,proposed
+gestao-vite-comment-20eb0fbc,gestao-vite,apps/gestao-vite/src/paginas/builder/conteudo.ts,70,70,jsdoc,2,"/** A ""Instrução de validação"" que o editor sugere por regra. */",translate,"The ""Instrução de validação"" (validation instruction) the editor suggests per rule.",other,apps/gestao-vite/src/paginas/builder/conteudo.ts:70,,proposed
 gestao-vite-comment-6502bd93,gestao-vite,apps/gestao-vite/src/paginas/builder/editor.tsx,29,41,jsdoc,13,"/**
  * O editor em si, dentro do canvas escuro da moldura: os blocos e as setas
  * (`Canvas`), a barra lateral do bloco aberto (`PainelDoBloco`), o papel ""NOVO
@@ -1851,10 +1851,12 @@ gestao-vite-comment-6502bd93,gestao-vite,apps/gestao-vite/src/paginas/builder/ed
  * cada gesto vira um mapa novo pelas funções de `modelo.ts` e um `aplicar`.
  * Os erros por bloco são a soma dos da tela (`errosLocais`) com os que a
  * `api` devolveu (`errosDaApi`) e os do 409 de publicar (`errosDoMotor`).
- */",,,,,,
+ */",translate,"The editor itself, inside the frame's dark canvas: the blocks and arrows (`Canvas`), the sidebar of the open block (`PainelDoBloco`), the ""NOVO BLOCO"" sheet next to the pill, and the two warnings — the rejection toast (""Limite de 25 condições de saída atingidos""…) and the delete confirmation, which here is `ModalConfirmacao` and not `window.confirm` (the Blip editor deletes without asking and relies on undo; Pipe has undo AND asks).
+
+The drawing lives in the `estado.ts` reducer, reached through `estado`/`despachar`; each gesture becomes a new map via the `modelo.ts` functions and an `aplicar`. Per-block errors are the sum of the screen's (`errosLocais`) with the ones the `api` returned (`errosDaApi`) and the ones from the 409 on publish (`errosDoMotor`).",meta-blip,apps/gestao-vite/src/paginas/builder/editor.tsx:29-41,,proposed
 gestao-vite-comment-1b09b283,gestao-vite,apps/gestao-vite/src/paginas/builder/editor.tsx,74,75,block,3,"/* Os painéis de Configuração e Filas ocupam o mesmo lado que o painel do
-     bloco; abrir um deles fecha o editor de bloco para não sobrepor conteúdo. */",,,,,,
-gestao-vite-comment-2052d54d,gestao-vite,apps/gestao-vite/src/paginas/builder/estado.ts,28,28,jsdoc,1,"/** O mapa antes do arrasto em curso, para o `soltar` gravar um passo só. */",,,,,,
+     bloco; abrir um deles fecha o editor de bloco para não sobrepor conteúdo. */",translate,The Configuração and Filas panels occupy the same side as the block panel; opening one of them closes the block editor so it doesn't overlap content.,other,apps/gestao-vite/src/paginas/builder/editor.tsx:74-75,,proposed
+gestao-vite-comment-2052d54d,gestao-vite,apps/gestao-vite/src/paginas/builder/estado.ts,28,28,jsdoc,1,"/** O mapa antes do arrasto em curso, para o `soltar` gravar um passo só. */",translate,"The map before the drag in progress, so `soltar` records a single step.",other,apps/gestao-vite/src/paginas/builder/estado.ts:28,,proposed
 gestao-vite-comment-0fe6f2f6,gestao-vite,apps/gestao-vite/src/paginas/builder/estado.ts,3,19,jsdoc,15,"/**
  * O estado do editor e o desfazer/refazer — os dois botões do rodapé deles
  * (""Desfazer (Ctrl+z)"", ""Refazer (Ctrl+Shift+z)""), que a moldura já desenhava
@@ -1871,21 +1873,25 @@ gestao-vite-comment-0fe6f2f6,gestao-vite,apps/gestao-vite/src/paginas/builder/es
  * `sujo` é o que o ""Salvo"" do rodapé lê: liga em qualquer mudança e só desliga
  * em `salvo`, com o mapa que foi gravado — mudança que chegou enquanto o `PUT`
  * estava no ar continua suja.
- */",,,,,,
-gestao-vite-comment-d29133e4,gestao-vite,apps/gestao-vite/src/paginas/builder/estado.ts,31,31,jsdoc,3,/** O último mapa gravado — para `salvo` saber se o que voltou ainda é o atual. */,,,,,,
+ */",translate,"The editor's state and undo/redo — its two footer buttons (""Desfazer (Ctrl+z)"", ""Refazer (Ctrl+Shift+z)""), which the frame already rendered disabled.
+
+It's a pure reducer over the block map: every gesture that changes the drawing arrives as `aplicar` with the new map (the functions in `modelo.ts`, `condicoes.ts`, `conteudo.ts` and `acoes-do-bloco.ts` already return the ready map or block), the previous map goes to the past stack, and the future is cleared. `mover` is the exception: while the block is being dragged the map changes on every pixel, and only `soltar` records a step — otherwise Ctrl+Z would undo the drag pixel by pixel.
+
+`sujo` is what the footer's ""Salvo"" reads: it turns on with any change and only turns off on `salvo`, with the map that was saved — a change that arrived while the `PUT` was in flight stays dirty.",other,apps/gestao-vite/src/paginas/builder/estado.ts:3-19,,proposed
+gestao-vite-comment-d29133e4,gestao-vite,apps/gestao-vite/src/paginas/builder/estado.ts,31,31,jsdoc,3,/** O último mapa gravado — para `salvo` saber se o que voltou ainda é o atual. */,translate,The last saved map — so `salvo` can tell whether what came back is still current.,other,apps/gestao-vite/src/paginas/builder/estado.ts:31,,proposed
 gestao-vite-comment-1dfaf059,gestao-vite,apps/gestao-vite/src/paginas/builder/estado.ts,43,45,jsdoc,1,"/** As ações globais (aba ""Ações Globais"" da Configuração) — fora da pilha de
    * desfazer/refazer, que só guarda `Mapa` (ver `passado`/`futuro`); Ctrl+Z
-   * continua desfazendo só o desenho, como antes desta aba existir. */",,,,,,
-gestao-vite-comment-5757e2a6,gestao-vite,apps/gestao-vite/src/paginas/builder/estado.ts,74,74,line,2,// Um arrasto em curso ainda não virou passo do histórico (só `soltar` o,,,,,,
-gestao-vite-comment-32d0be2b,gestao-vite,apps/gestao-vite/src/paginas/builder/estado.ts,77,77,line,1,// o desfazer. Ctrl+Z some enquanto o botão do mouse está apertado.,,,,,,
-gestao-vite-comment-0ad1e261,gestao-vite,apps/gestao-vite/src/paginas/builder/etiquetas-do-bloco.ts,23,23,jsdoc,0,"/** Etiquetas do card, na mesma ordem do Builder: tags, ações e entrada. */",,,,,,
-gestao-vite-comment-52219a1f,gestao-vite,apps/gestao-vite/src/paginas/builder/importar-exportar.ts,38,38,jsdoc,2,/** `${shortName}.json` — sem caracteres que quebrem o nome do arquivo. */,,,,,,
+   * continua desfazendo só o desenho, como antes desta aba existir. */",translate,"Global actions (""Ações Globais"" tab of Configuração) — outside the undo/redo stack, which only stores `Mapa` (see `passado`/`futuro`); Ctrl+Z keeps undoing only the drawing, as it did before this tab existed.",other,apps/gestao-vite/src/paginas/builder/estado.ts:43-45,,proposed
+gestao-vite-comment-5757e2a6,gestao-vite,apps/gestao-vite/src/paginas/builder/estado.ts,74,74,line,2,// Um arrasto em curso ainda não virou passo do histórico (só `soltar` o,translate,A drag in progress hasn't become a history step yet (only `soltar`,other,"apps/gestao-vite/src/paginas/builder/estado.ts:74; fragment of a single 4-line comment spanning lines 74-77 (case 'desfazer' in reduzir()) — lines 75-76 are not present as separate items in this batch (likely extraction-tool artifact splitting one comment into two 'line' entries with the middle dropped); pairs with gestao-vite-comment-32d0be2b. Full meaning: ""A drag in progress hasn't yet become a history step (only `soltar` pushes it) — undoing now would swap the map out from under the drag, and the next `soltar` would push the old `antesDoArrasto` on top, losing the undo. Ctrl+Z disappears while the mouse button is held down."" Flagging for slice-time merge/reconstruction.",,proposed
+gestao-vite-comment-32d0be2b,gestao-vite,apps/gestao-vite/src/paginas/builder/estado.ts,77,77,line,1,// o desfazer. Ctrl+Z some enquanto o botão do mouse está apertado.,translate,undo. Ctrl+Z disappears while the mouse button is held down.,other,apps/gestao-vite/src/paginas/builder/estado.ts:77; second half of the same fragmented 4-line comment as gestao-vite-comment-5757e2a6 (lines 74-77) — see that item's evidence for the full reconstructed meaning and the flag for slice-time review.,,proposed
+gestao-vite-comment-0ad1e261,gestao-vite,apps/gestao-vite/src/paginas/builder/etiquetas-do-bloco.ts,23,23,jsdoc,0,"/** Etiquetas do card, na mesma ordem do Builder: tags, ações e entrada. */",translate,"Block card labels, in the same order as the Builder: tags, actions, and input.",other,apps/gestao-vite/src/paginas/builder/etiquetas-do-bloco.ts:23,,proposed
+gestao-vite-comment-52219a1f,gestao-vite,apps/gestao-vite/src/paginas/builder/importar-exportar.ts,38,38,jsdoc,2,/** `${shortName}.json` — sem caracteres que quebrem o nome do arquivo. */,translate,`${shortName}.json` — without characters that would break the file name.,other,apps/gestao-vite/src/paginas/builder/importar-exportar.ts:38,,proposed
 gestao-vite-comment-e5197803,gestao-vite,apps/gestao-vite/src/paginas/builder/importar-exportar.ts,48,53,jsdoc,3,"/**
  * Lê e valida o `.json` importado; devolve o mapa e as ações globais prontos
  * pro chamador aplicar. Não é `despachar({tipo:'carregar'})` — isso marcaria
  * sujo:false e o fluxo importado nunca seria salvo (ver `builder.tsx`, que usa
  * `aplicar`/`aplicarGlobais`, os mesmos gestos de qualquer edição).
- */",,,,,,
+ */",translate,"Reads and validates the imported `.json`; returns the map and global actions ready for the caller to apply. It isn't `despachar({tipo:'carregar'})` — that would mark sujo:false and the imported flow would never be saved (see `builder.tsx`, which uses `aplicar`/`aplicarGlobais`, the same gestures as any edit).",other,apps/gestao-vite/src/paginas/builder/importar-exportar.ts:48-53,,proposed
 gestao-vite-comment-c87b325c,gestao-vite,apps/gestao-vite/src/paginas/builder/importar-exportar.ts,5,19,jsdoc,12,"/**
  * ""Exportar fluxo"" / ""Importar fluxo"" do editor da Blip — não é botão solto
  * na pílula, é a aba ""Versões"" do painel ""Configuração"" (`portal.js`,
@@ -1900,7 +1906,9 @@ gestao-vite-comment-c87b325c,gestao-vite,apps/gestao-vite/src/paginas/builder/im
  * que o motor usa pra saber se um JSON é um export do editor) e o próprio
  * `lerDesenho` (a mesma leitura do carregamento normal, então um bloco sem
  * posição também ganha lugar na grade).
- */",,,,,,
+ */",translate,"""Exportar fluxo"" / ""Importar fluxo"" from the Blip editor — not a standalone button on the pill, it's the ""Versões"" tab of the ""Configuração"" panel (`portal.js`, `BuilderConfigurationVersionsView.html`: `$ctrl.exportFlow()` downloads `{flow, globalActions}` as `.json`; `$ctrl.importFlow()` reads a matching `.json`, validates it and swaps the draft, with a confirmation warning first).
+
+The format matches on both sides: `DesenhoDoBuilder` (`{fluxo, globais}`) IS `{flow, globalActions}` with translated names — which is why you can export from here and reopen it in the Blip editor, and vice versa. File validation reuses `ehExportDoEditor` from `@pipe/core` (the same guard the engine uses to know whether a JSON is an editor export) and `lerDesenho` itself (the same read used for normal loading, so a block without a position also gets a spot on the grid).",meta-blip,apps/gestao-vite/src/paginas/builder/importar-exportar.ts:5-19,,proposed
 gestao-vite-comment-8b25eae5,gestao-vite,apps/gestao-vite/src/paginas/builder/menu-novo-bloco.tsx,3,12,jsdoc,9,"/**
  * O papel ""NOVO BLOCO"" que o ""Adicionar bloco"" da pílula abre
  * (`#builder-command-buttons-add`): título em caixa alta 16/semi-bold com o
@@ -1910,50 +1918,50 @@ gestao-vite-comment-8b25eae5,gestao-vite,apps/gestao-vite/src/paginas/builder/me
  * ""Padrão"" (`builder-new-state`) e ""Humano"" (`agent`). Agente, Pagamento,
  * Componentes exclusivos, Catálogo, AI Answers, Biblioteca de blocos e
  * Subfluxo são recursos de plano da Blip sem motor por trás aqui.
- */",,,,,,
-gestao-vite-comment-2c13790d,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,102,102,jsdoc,2,/** Uma seta do canvas: de um bloco a outro. */,,,,,,
-gestao-vite-comment-21dfcb20,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,125,125,jsdoc,2,/** O `Ticket` que o Desk devolve ao bloco de atendimento quando o atendimento acaba. */,,,,,,
-gestao-vite-comment-1712a2b2,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,128,128,jsdoc,0,"/** As três ""Saídas de atendimento"" do bloco `desk:`, na ordem do editor. */",,,,,,
-gestao-vite-comment-cf124379,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,163,163,jsdoc,2,"/** A raiz do desenho, se houver uma só. */",,,,,,
-gestao-vite-comment-4a70c7aa,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,176,176,jsdoc,4,"/** O que veio do `GET`, com a garantia de que cada bloco carrega o próprio id. */",,,,,,
+ */",translate,"The ""NOVO BLOCO"" sheet that the pill's ""Adicionar bloco"" opens (`#builder-command-buttons-add`): uppercase 16/semi-bold title with the ""x"" on the right, a divider, and a list of `bds-button variant=""secondary"" full-width justify-content=""space-between""` — icon on the left, name on the right. Of their menu, only the two blocks the Pipe engine runs make it in: ""Padrão"" (`builder-new-state`) and ""Humano"" (`agent`). Agente, Pagamento, Componentes exclusivos, Catálogo, AI Answers, Biblioteca de blocos, and Subfluxo are Blip plan features with no engine behind them here.",meta-blip,apps/gestao-vite/src/paginas/builder/menu-novo-bloco.tsx:3-12,,proposed
+gestao-vite-comment-2c13790d,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,102,102,jsdoc,2,/** Uma seta do canvas: de um bloco a outro. */,translate,An arrow on the canvas: from one block to another.,other,apps/gestao-vite/src/paginas/builder/modelo.ts:102,,proposed
+gestao-vite-comment-21dfcb20,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,125,125,jsdoc,2,/** O `Ticket` que o Desk devolve ao bloco de atendimento quando o atendimento acaba. */,translate,The `Ticket` that Desk returns to the attendance block when the attendance ends.,other,apps/gestao-vite/src/paginas/builder/modelo.ts:125,,proposed
+gestao-vite-comment-1712a2b2,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,128,128,jsdoc,0,"/** As três ""Saídas de atendimento"" do bloco `desk:`, na ordem do editor. */",translate,"The three ""Saídas de atendimento"" (attendance outputs) of the `desk:` block, in the editor's order.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:128,,proposed
+gestao-vite-comment-cf124379,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,163,163,jsdoc,2,"/** A raiz do desenho, se houver uma só. */",translate,"The root of the drawing, if there is exactly one.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:163,,proposed
+gestao-vite-comment-4a70c7aa,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,176,176,jsdoc,4,"/** O que veio do `GET`, com a garantia de que cada bloco carrega o próprio id. */",translate,"What came from the `GET`, with the guarantee that every block carries its own id.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:176,,proposed
 gestao-vite-comment-c25f6249,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,177,181,jsdoc,3,"/**
  * Onde o primeiro bloco sem posição cai, e o passo entre eles. O `left` começa
  * longe da borda porque a barra de ferramentas do canvas mora lá — bloco em 40
  * nasce escondido atrás dela.
- */",,,,,,
+ */",translate,"Where the first block without a position lands, and the spacing between them. `left` starts far from the edge because the canvas toolbar lives there — a block at 40 would be born hidden behind it.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:177-181,,proposed
 gestao-vite-comment-6a75dfe2,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,184,188,jsdoc,4,"/**
  * Fluxo que nunca passou por este editor (importado, ou publicado por outro
  * caminho) vem com `$position` vazio em todo bloco, e todos nasceriam empilhados
  * no mesmo ponto. Quem não tem posição ganha uma, em grade, na ordem do mapa.
- */",,,,,,
+ */",translate,"A flow that never went through this editor (imported, or published some other way) arrives with `$position` empty on every block, and they'd all be born stacked at the same point. Whoever has no position gets one, in a grid, in map order.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:184-188,,proposed
 gestao-vite-comment-7573125c,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,211,216,jsdoc,8,"/**
  * O que vai no `PUT /v1/gestao/fluxos/:id/builder`: o mapa de blocos como
  * está — o formato do editor É o que a `api` guarda em `bloco.conteudo.original`
  * — mais as ações globais. Só a chave do mapa é conferida contra o `id`, para
  * um bloco renomeado por fora nunca sair com dois nomes.
- */",,,,,,
-gestao-vite-comment-23c16e04,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,225,225,jsdoc,4,/** O cartão que o editor desenha para uma fala ou uma entrada. */,,,,,,
-gestao-vite-comment-2089a32a,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,236,236,jsdoc,2,"/** A ""Entrada do usuário"" que todo bloco novo traz. */",,,,,,
-gestao-vite-comment-b484a917,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,268,268,jsdoc,1,"/** A saída padrão de bloco novo: `fallback`, como no editor — se houver um. */",,,,,,
-gestao-vite-comment-d3559662,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,273,273,jsdoc,0,"/** ""Padrão"" do menu NOVO BLOCO (`createContentState`). */",,,,,,
-gestao-vite-comment-d02fdc5c,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,316,316,line,2,"// Encerrado o atendimento, a conversa volta a este mesmo bloco por padrão.",,,,,,
-gestao-vite-comment-7c6ef721,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,337,337,jsdoc,1,"/** Troca o bloco inteiro — é o que o painel faz ao editar conteúdo, ações e saídas. */",,,,,,
-gestao-vite-comment-3e94d2ae,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,342,342,jsdoc,1,"/** ""Duplicar"" do menu de contexto: cópia com id novo, ""[Cópia]"" no título, 20px ao lado. */",,,,,,
-gestao-vite-comment-9b8b390e,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,384,384,jsdoc,1,"/** ""Colar"" cria uma cópia na posição do clique e nunca sobrescreve o original. */",,,,,,
-gestao-vite-comment-20dd6544,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,390,390,jsdoc,1,"/** Início, Exceções e Fim não saem — como no editor. */",,,,,,
+ */",translate,"What goes in the `PUT /v1/gestao/fluxos/:id/builder`: the block map as it stands — the editor's format IS what the `api` stores in `bloco.conteudo.original` — plus the global actions. Only the map's key is checked against the `id`, so a block renamed from outside never goes out under two names.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:211-216,,proposed
+gestao-vite-comment-23c16e04,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,225,225,jsdoc,4,/** O cartão que o editor desenha para uma fala ou uma entrada. */,translate,The card the editor draws for a message or an input.,other,apps/gestao-vite/src/paginas/builder/modelo.ts:225,,proposed
+gestao-vite-comment-2089a32a,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,236,236,jsdoc,2,"/** A ""Entrada do usuário"" que todo bloco novo traz. */",translate,"The ""Entrada do usuário"" (user input) every new block comes with.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:236,,proposed
+gestao-vite-comment-b484a917,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,268,268,jsdoc,1,"/** A saída padrão de bloco novo: `fallback`, como no editor — se houver um. */",translate,"The default output of a new block: `fallback`, like in the editor — if one exists.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:268,,proposed
+gestao-vite-comment-d3559662,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,273,273,jsdoc,0,"/** ""Padrão"" do menu NOVO BLOCO (`createContentState`). */",translate,"""Padrão"" from the NOVO BLOCO menu (`createContentState`).",other,apps/gestao-vite/src/paginas/builder/modelo.ts:273,,proposed
+gestao-vite-comment-d02fdc5c,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,316,316,line,2,"// Encerrado o atendimento, a conversa volta a este mesmo bloco por padrão.",translate,"Once the attendance ends, the conversation returns to this same block by default.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:316,,proposed
+gestao-vite-comment-7c6ef721,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,337,337,jsdoc,1,"/** Troca o bloco inteiro — é o que o painel faz ao editar conteúdo, ações e saídas. */",translate,"Replaces the whole block — what the panel does when editing content, actions, and outputs.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:337,,proposed
+gestao-vite-comment-3e94d2ae,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,342,342,jsdoc,1,"/** ""Duplicar"" do menu de contexto: cópia com id novo, ""[Cópia]"" no título, 20px ao lado. */",translate,"""Duplicar"" from the context menu: a copy with a new id, ""[Cópia]"" in the title, 20px to the side.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:342,,proposed
+gestao-vite-comment-9b8b390e,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,384,384,jsdoc,1,"/** ""Colar"" cria uma cópia na posição do clique e nunca sobrescreve o original. */",translate,"""Colar"" (paste) creates a copy at the click position and never overwrites the original.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:384,,proposed
+gestao-vite-comment-20dd6544,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,390,390,jsdoc,1,"/** Início, Exceções e Fim não saem — como no editor. */",translate,"Início, Exceções, and Fim can't be removed — same as in the editor.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:390,,proposed
 gestao-vite-comment-8d0e4efe,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,397,400,jsdoc,3,"/**
  * Exclui o bloco e o que apontava para ele: condição de saída comum some,
  * ""Saída de atendimento"" fica sem destino, saída padrão fica vazia.
- */",,,,,,
-gestao-vite-comment-895b468a,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,413,413,jsdoc,5,"/** A saída sem o destino — o que o editor faz com uma ""Saída de atendimento"" desligada. */",,,,,,
-gestao-vite-comment-d7c96a44,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,420,420,jsdoc,3,"/** As setas a desenhar: uma por par (origem, destino), só de saída com destino existente. */",,,,,,
-gestao-vite-comment-6929eed4,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,438,438,jsdoc,4,/** Arrastou da saída de `de` até `para`: nasce uma condição de saída nova para `para`. */,,,,,,
+ */",translate,"Deletes the block and whatever pointed to it: a regular output condition disappears, a ""Saída de atendimento"" is left without a destination, the default output becomes empty.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:397-400,,proposed
+gestao-vite-comment-895b468a,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,413,413,jsdoc,5,"/** A saída sem o destino — o que o editor faz com uma ""Saída de atendimento"" desligada. */",translate,"The output without its destination — what the editor does with a disabled ""Saída de atendimento"".",other,apps/gestao-vite/src/paginas/builder/modelo.ts:413,,proposed
+gestao-vite-comment-d7c96a44,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,420,420,jsdoc,3,"/** As setas a desenhar: uma por par (origem, destino), só de saída com destino existente. */",translate,"The arrows to draw: one per (source, destination) pair, only outputs whose destination exists.",other,apps/gestao-vite/src/paginas/builder/modelo.ts:420,,proposed
+gestao-vite-comment-6929eed4,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,438,438,jsdoc,4,/** Arrastou da saída de `de` até `para`: nasce uma condição de saída nova para `para`. */,translate,Dragged from `de`'s output to `para`: a new output condition is born targeting `para`.,other,apps/gestao-vite/src/paginas/builder/modelo.ts:438,,proposed
 gestao-vite-comment-4e6330b8,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,456,460,jsdoc,7,"/**
  * A primeira saída de `bloco` para `alvo` perde a ligação: saída de atendimento
  * fica sem destino, as outras somem. Com `tudo`, TODAS as saídas para `alvo`
  * (é o que excluir o bloco de destino precisa).
- */",,,,,,
-gestao-vite-comment-0d6dd5fe,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,482,482,jsdoc,3,/** Apagou a seta de `de` para `para`. */,,,,,,
+ */",translate,"The first output from `bloco` to `alvo` loses its link: an attendance output is left without a destination, the others disappear. With `tudo`, ALL outputs to `alvo` (what deleting the destination block needs).",other,apps/gestao-vite/src/paginas/builder/modelo.ts:456-460,,proposed
+gestao-vite-comment-0d6dd5fe,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,482,482,jsdoc,3,/** Apagou a seta de `de` para `para`. */,translate,Deleted the arrow from `de` to `para`.,other,apps/gestao-vite/src/paginas/builder/modelo.ts:482,,proposed
 gestao-vite-comment-f5bbf913,gestao-vite,apps/gestao-vite/src/paginas/builder/modelo.ts,5,34,jsdoc,35,"/**
  * O desenho do Builder como a TELA o segura: o mapa de blocos no formato do
  * editor da Blip (`{ <id>: estado }` com `$contentActions`, `$conditionOutputs`,
@@ -1983,9 +1991,19 @@ gestao-vite-comment-f5bbf913,gestao-vite,apps/gestao-vite/src/paginas/builder/mo
  *   exibida"");
  * - Início (raiz), `fallback` e `end` não se excluem (""Não é possível
  *   deletar este estado"").
- */",,,,,,
-gestao-vite-comment-dd40f532,gestao-vite,apps/gestao-vite/src/paginas/builder/no.tsx,26,26,jsdoc,2,/** Alvo possível da ligação que está sendo arrastada. */,,,,,,
-gestao-vite-comment-8cc4a061,gestao-vite,apps/gestao-vite/src/paginas/builder/no.tsx,34,34,jsdoc,0,"/** As etiquetas automáticas do editor: o tipo de cada ação, e ""UserInput"" se espera resposta. */",,,,,,
+ */",translate,"The Builder's drawing as the SCREEN holds it: the block map in the Blip editor's format (`{ <id>: estado }` with `$contentActions`, `$conditionOutputs`, `$defaultOutput`…), which is what `GET /v1/gestao/fluxos/:id/builder` returns and what `PUT` receives back — the `ExportDoEditor` from `@pipe/core`, with `flow` called `fluxo` and `globalActions` called `globais` (`DesenhoDoBuilder`).
+
+Everything here is a pure function over that map: create, rename, move, duplicate, delete a block; link and unlink two blocks; and assemble what goes in the `PUT`. Components only call these and store the result. Nothing mutates the received map — every gesture returns a new map, which is what undo/redo stacks.
+
+The rules copied from the Blip editor (`portal.js`, `BuilderStateService`, and the jsPlumb `bind`s in `setConectionsListeners`):
+- a new block is born with a ""Entrada do usuário"" (no bypass), title ""Novo bloco"", and a default output to the `fallback` block (when one exists);
+- the ""Humano"" block is `desk:<uuid>` version 3.0.0: `ForwardToDesk` on entry, `LeavingFromDesk` after the state change, the entry waits for `desk_forwardToDeskState_status = Success`, and the three ""Saídas de atendimento"" are born without a destination;
+- dragging from one block's output to another creates ONE new output condition (no condition) targeting the destination; if one already exists for the same destination → nothing happens (the editor deletes the repeated arrow); 25 is the limit;
+- deleting the arrow removes the FIRST output condition to that destination — on ""Saídas de atendimento"" only the destination is cleared, the output stays;
+- the default output isn't drawn (""The arrow linking blocks will not be displayed"");
+- Início (root), `fallback`, and `end` can't be deleted (""It's not possible to delete this state"").",meta-blip,apps/gestao-vite/src/paginas/builder/modelo.ts:5-34,,proposed
+gestao-vite-comment-dd40f532,gestao-vite,apps/gestao-vite/src/paginas/builder/no.tsx,26,26,jsdoc,2,/** Alvo possível da ligação que está sendo arrastada. */,translate,Possible target of the link currently being dragged.,other,apps/gestao-vite/src/paginas/builder/no.tsx:26,,proposed
+gestao-vite-comment-8cc4a061,gestao-vite,apps/gestao-vite/src/paginas/builder/no.tsx,34,34,jsdoc,0,"/** As etiquetas automáticas do editor: o tipo de cada ação, e ""UserInput"" se espera resposta. */",translate,"The editor's automatic labels: each action's type, and ""UserInput"" if a reply is expected.",other,apps/gestao-vite/src/paginas/builder/no.tsx:34,,proposed
 gestao-vite-comment-a82a09a7,gestao-vite,apps/gestao-vite/src/paginas/builder/no.tsx,7,19,jsdoc,10,"/**
  * O cartão de um bloco no canvas — o `builder-node.diagram-node` deles:
  * 175px de largura, raio 8, sombra `0 8px 16px`, texto centrado, o título em
@@ -1998,8 +2016,10 @@ gestao-vite-comment-a82a09a7,gestao-vite,apps/gestao-vite/src/paginas/builder/no
  *
  * A tinta é a nossa: fundo de superfície, marca no bloco de Início (o
  * `#3f7de8` deles) e no anel, musgo no de atendimento, erro no inválido.
- */",,,,,,
-gestao-vite-comment-8e69d482,gestao-vite,apps/gestao-vite/src/paginas/builder/painel-acoes.tsx,279,279,jsdoc,0,/** Exportado: o painel de Ações Globais (`painel-configuracao.tsx`) reaproveita o mesmo cartão. */,,,,,,
+ */",translate,"The card for a block on the canvas — their `builder-node.diagram-node`: 175px wide, radius 8, `0 8px 16px` shadow, centered text, the title in 14/400 that becomes 700 when the block is selected or being edited, the 4px ring around it on hover, and the output dot (`.diagram-node-endpoint`, 1em, middle of the bottom edge) that only appears on hover and is where the link is dragged from. The tags underneath (`builder-node-tags`) are the ones the editor adds automatically: each block action's type and ""UserInput"" when it expects a reply.
+
+The colors are ours: surface background, brand color on the Início block (their `#3f7de8`) and on the ring, moss on the attendance one, error on the invalid one.",other,apps/gestao-vite/src/paginas/builder/no.tsx:7-19,,proposed
+gestao-vite-comment-8e69d482,gestao-vite,apps/gestao-vite/src/paginas/builder/painel-acoes.tsx,279,279,jsdoc,0,/** Exportado: o painel de Ações Globais (`painel-configuracao.tsx`) reaproveita o mesmo cartão. */,translate,Exported: the Global Actions panel (`painel-configuracao.tsx`) reuses the same card.,other,apps/gestao-vite/src/paginas/builder/painel-acoes.tsx:279,,proposed
 gestao-vite-comment-65bb7a44,gestao-vite,apps/gestao-vite/src/paginas/builder/painel-acoes.tsx,35,46,jsdoc,12,"/**
  * A aba ""Ações"" do editor: as duas listas — ""Ações de Entrada"" (""Inclua ações
  * que serão executadas antes do envio do primeiro conteúdo"") e ""Ações de
@@ -2011,7 +2031,9 @@ gestao-vite-comment-65bb7a44,gestao-vite,apps/gestao-vite/src/paginas/builder/pa
  *
  * No bloco de atendimento a aba só mostra o aviso do editor: ""o bot não deve
  * interferir nas ações de entrada e saída"".
- */",,,,,,
+ */",translate,"The editor's ""Ações"" tab: the two lists — ""Ações de Entrada"" (""Inclua ações que serão executadas antes do envio do primeiro conteúdo"") and ""Ações de Saída"" (""…após o envio do último conteúdo ou resposta do usuário"") — each with an ""Adicionar ação de entrada/saída"" button that opens the grouped ""ADICIONAR FERRAMENTAS"" menu (Executar, Manipular), and each action as a card that expands for editing: ""Nome da ação"", the type's fields, and the ""Condição para executar a ação"".
+
+On the attendance block the tab only shows the editor's warning: ""o bot não deve interferir nas ações de entrada e saída"" (the bot must not interfere with entry and exit actions).",other,apps/gestao-vite/src/paginas/builder/painel-acoes.tsx:35-46,,proposed
 gestao-vite-comment-4cc5f084,gestao-vite,apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx,24,39,jsdoc,14,"/**
  * O painel ""Configuração"" (`$ctrl.editConfig()`, ícone `settings-builder`) —
  * na origem tem 3 abas (`portal.js`: ""Variáveis"", ""Versões"", ""Ações
@@ -2027,8 +2049,13 @@ gestao-vite-comment-4cc5f084,gestao-vite,apps/gestao-vite/src/paginas/builder/pa
  * mínimo de IA, contexto do dono do túnel…) é configuração do motor da Blip
  * que o motor do Pipe não tem — não construída, para não fingir um controle
  * que não faz nada.
- */",,,,,,
-gestao-vite-comment-331ff51a,gestao-vite,apps/gestao-vite/src/paginas/builder/painel-conteudo.tsx,242,242,jsdoc,3,"/** Início e atendimento: a entrada não sai nem se troca por ""Não aguardar"". */",,,,,,
+ */",translate,"The ""Configuração"" panel (`$ctrl.editConfig()`, `settings-builder` icon) — the source has 3 tabs (`portal.js`: ""Variáveis"", ""Versões"", ""Ações Globais""). Here only the two with an engine behind them:
+
+- ""Ações Globais"": the same two lists as a block (`$enteringCustomActions`/`$leavingCustomActions`), but for the whole flow — the engine actually runs them (`editor.ts` from `@pipe/core`).
+- ""Versões"" (which in the source is where ""Importar""/""Exportar"" live, not a standalone button): downloads/reads the same `{flow, globalActions}` Blip uses.
+
+The source's ""Variáveis"" tab (state expiration, action timeout, minimum AI score, tunnel owner context…) is Blip engine configuration that the Pipe engine doesn't have — not built, so as not to fake a control that does nothing.",meta-blip,apps/gestao-vite/src/paginas/builder/painel-configuracao.tsx:24-39,,proposed
+gestao-vite-comment-331ff51a,gestao-vite,apps/gestao-vite/src/paginas/builder/painel-conteudo.tsx,242,242,jsdoc,3,"/** Início e atendimento: a entrada não sai nem se troca por ""Não aguardar"". */",translate,"Início and attendance: the input can't be removed nor swapped for ""Não aguardar"".",other,apps/gestao-vite/src/paginas/builder/painel-conteudo.tsx:242,,proposed
 gestao-vite-comment-98e38122,gestao-vite,apps/gestao-vite/src/paginas/builder/painel-conteudo.tsx,29,40,jsdoc,15,"/**
  * A aba ""Conteúdo"" do editor: a conversa do bloco em cartões — as falas do
  * robô à esquerda (Texto, Menu, Quick reply), a ""Entrada do usuário"" à direita
@@ -2040,12 +2067,14 @@ gestao-vite-comment-98e38122,gestao-vite,apps/gestao-vite/src/paginas/builder/pa
  *
  * No bloco de atendimento a aba se chama ""Atendimento"" e só tem a entrada,
  * que espera o fim do atendimento — nada a editar além da variável.
- */",,,,,,
+ */",translate,"The editor's ""Conteúdo"" tab: the block's conversation as cards — the bot's messages on the left (Texto, Menu, Quick reply), the ""Entrada do usuário"" on the right — and the ""+"" that offers the types. Each card edits in place; the input opens its own panel: ""Salvar resposta em variável"" (with the ""Variável"" field), ""Validar a entrada do usuário"" (""Tipo de validação"", ""Expressão regular"", ""Instrução de validação""), and the choice between ""Aguardar resposta"" and ""Não aguardar"".
+
+On the attendance block the tab is called ""Atendimento"" and only has the input, which waits for the attendance to end — nothing to edit besides the variable.",other,apps/gestao-vite/src/paginas/builder/painel-conteudo.tsx:29-40,,proposed
 gestao-vite-comment-0334391b,gestao-vite,apps/gestao-vite/src/paginas/builder/painel-filas.tsx,6,10,jsdoc,2,"/**
  * Atalho do Builder ao cadastro real de filas. A listagem, criação, edição,
  * ativação e exclusão já existem em PaginaFilas e nas rotas de gestão; manter
  * o formulário aqui duplicaria regras de cadastro e validação.
- */",,,,,,
+ */",translate,"A Builder shortcut to the real queue registry. Listing, creation, editing, activation, and deletion already exist in PaginaFilas and the management routes; keeping the form here would duplicate registration and validation rules.",other,apps/gestao-vite/src/paginas/builder/painel-filas.tsx:6-10,,proposed
 gestao-vite-comment-036ae240,gestao-vite,apps/gestao-vite/src/paginas/builder/painel-saidas.tsx,19,32,jsdoc,19,"/**
  * A aba ""Condições de saída"" do editor: o texto de abertura (""Defina as regras
  * e o bloco para o qual o usuário será direcionado""), um cartão por saída
@@ -2059,8 +2088,12 @@ gestao-vite-comment-036ae240,gestao-vite,apps/gestao-vite/src/paginas/builder/pa
  * No bloco de atendimento (`desk:`), as quatro saídas que o editor criou são
  * as ""Saídas de atendimento"": condição fixa (o `Ticket` encerrado, ou o
  * encaminhamento que falhou), e só o destino se escolhe.
- */",,,,,,
-gestao-vite-comment-70987098,gestao-vite,apps/gestao-vite/src/paginas/builder/painel-saidas.tsx,52,52,line,1,// O editor permite laço (`allowLoopback`): o próprio bloco também é destino.,,,,,,
+ */",translate,"The editor's ""Condições de saída"" tab: the opening text (""Defina as regras e o bloco para o qual o usuário será direcionado""), one card per output (`output-card-container`: surface-2 background, radius 10) with the conditions and the ""Ir para"", the ""+ Adicionar condição de saída"", and finally the ""Saída padrão"" with the notice that its arrow isn't shown.
+
+The cards' order is the order the engine evaluates them in — the first match wins — which is why each card has move up/down.
+
+On the attendance block (`desk:`), the four outputs the editor created are the ""Saídas de atendimento"": a fixed condition (the closed `Ticket`, or the forwarding that failed), with only the destination to choose.",other,apps/gestao-vite/src/paginas/builder/painel-saidas.tsx:19-32,,proposed
+gestao-vite-comment-70987098,gestao-vite,apps/gestao-vite/src/paginas/builder/painel-saidas.tsx,52,52,line,1,// O editor permite laço (`allowLoopback`): o próprio bloco também é destino.,translate,The editor allows a loopback (`allowLoopback`): the block itself can also be a destination.,other,apps/gestao-vite/src/paginas/builder/painel-saidas.tsx:52,,proposed
 gestao-vite-comment-17c9b08e,gestao-vite,apps/gestao-vite/src/paginas/builder/painel-variaveis.tsx,12,24,jsdoc,14,"/**
  * A ""Biblioteca de variáveis"" (`$ctrl.openVarLib()`, ícone `library`) — painel
  * à ESQUERDA na origem (`library-sidebar`, `position-left`), diferente do
@@ -2073,7 +2106,9 @@ gestao-vite-comment-17c9b08e,gestao-vite,apps/gestao-vite/src/paginas/builder/pa
  * o que ESTE fluxo de fato referencia (`variaveisDoUsuario`, dado real do
  * desenho) e ""do sistema"" é a lista fixa das fontes com provedor no motor do
  * Pipe (`VARIAVEIS_DO_SISTEMA`, de `variaveis.ts` — ver o porquê lá).
- */",,,,,,
+ */",translate,"The ""Biblioteca de variáveis"" (`$ctrl.openVarLib()`, `library` icon) — a panel on the LEFT in the source (`library-sidebar`, `position-left`), unlike the block panel (`position-right`). Two tabs, `bds-tab-group`: ""Variáveis do sistema"" and ""Variáveis do usuário"", each with search and a list with a copy button per item — structure confirmed in `portal.js` (`BuilderVariablesLibrary`).
+
+Without the account's variable registry that the source uses, ""do usuário"" here is what THIS flow actually references (`variaveisDoUsuario`, real data from the drawing) and ""do sistema"" is the fixed list of sources with a provider in the Pipe engine (`VARIAVEIS_DO_SISTEMA`, from `variaveis.ts` — see the reasoning there).",other,apps/gestao-vite/src/paginas/builder/painel-variaveis.tsx:12-24,,proposed
 gestao-vite-comment-d932e362,gestao-vite,apps/gestao-vite/src/paginas/builder/painel.tsx,13,24,jsdoc,6,"/**
  * A barra lateral do bloco — o `sidebar-content-component.builder-sidebar`
  * deles: colada à direita a 1rem, com raio de 1rem e altura `calc(100% -
@@ -2085,20 +2120,22 @@ gestao-vite-comment-d932e362,gestao-vite,apps/gestao-vite/src/paginas/builder/pa
  *
  * Tudo o que se edita aqui vira `onMudar(bloco)` — o bloco inteiro, novo —
  * e é o `aplicar` do redutor, um passo de desfazer por gesto.
- */",,,,,,
-gestao-vite-comment-97ead922,gestao-vite,apps/gestao-vite/src/paginas/builder/painel.tsx,63,63,jsdoc,2,"/** Os erros do bloco (da tela e do motor), para a faixa do topo. */",,,,,,
-gestao-vite-comment-e1aad0ae,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,119,119,jsdoc,2,"/** A ponta de seta de 10px do jsPlumb, apontando para dentro do bloco de destino. */",,,,,,
-gestao-vite-comment-dc890df2,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,128,128,jsdoc,2,/** Uma reta provisória enquanto a pessoa arrasta da saída até soltar. */,,,,,,
-gestao-vite-comment-3950ae56,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,133,133,jsdoc,2,"/** Onde o ""Adicionar bloco"" põe o bloco novo: no meio do que se vê, arredondado à grade de 16. */",,,,,,
-gestao-vite-comment-6183a2e4,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,14,14,jsdoc,1,/** As medidas do cartão deles: 175px de largura (`.diagram-node`). A altura é medida no DOM. */,,,,,,
-gestao-vite-comment-c0cdc1d5,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,148,148,jsdoc,3,"/** O zoom do editor: de 20% a 100%, e a roda com Ctrl anda de 10 em 10. */",,,,,,
+ */",translate,"The block's sidebar — their `sidebar-content-component.builder-sidebar`: docked to the right at 1rem, with a 1rem radius and `calc(100% - 2rem)` height, 28.75rem wide. At the top, the block's title in a text field (`#builder-sidebar-title`, `maxlength=""50""`, placeholder ""Nome do bloco"", read-only on the Início block) and the ""x""; a divider; and the `bds-tab-group` with the three tabs: ""Conteúdo"" (on the attendance block, ""Atendimento""), ""Condições de saída"", and ""Ações"".
+
+Everything edited here becomes `onMudar(bloco)` — the whole, new block — and it's the reducer's `aplicar`, one undo step per gesture.",other,apps/gestao-vite/src/paginas/builder/painel.tsx:13-24,,proposed
+gestao-vite-comment-97ead922,gestao-vite,apps/gestao-vite/src/paginas/builder/painel.tsx,63,63,jsdoc,2,"/** Os erros do bloco (da tela e do motor), para a faixa do topo. */",translate,"The block's errors (from the screen and the engine), for the top banner.",other,apps/gestao-vite/src/paginas/builder/painel.tsx:63,,proposed
+gestao-vite-comment-e1aad0ae,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,119,119,jsdoc,2,"/** A ponta de seta de 10px do jsPlumb, apontando para dentro do bloco de destino. */",translate,"jsPlumb's 10px arrowhead, pointing into the destination block.",other,apps/gestao-vite/src/paginas/builder/setas.ts:119,,proposed
+gestao-vite-comment-dc890df2,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,128,128,jsdoc,2,/** Uma reta provisória enquanto a pessoa arrasta da saída até soltar. */,translate,A provisional line while the person drags from the output until releasing.,other,apps/gestao-vite/src/paginas/builder/setas.ts:128,,proposed
+gestao-vite-comment-3950ae56,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,133,133,jsdoc,2,"/** Onde o ""Adicionar bloco"" põe o bloco novo: no meio do que se vê, arredondado à grade de 16. */",translate,"Where ""Adicionar bloco"" places the new block: in the middle of what's visible, rounded to the 16 grid.",other,apps/gestao-vite/src/paginas/builder/setas.ts:133,,proposed
+gestao-vite-comment-6183a2e4,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,14,14,jsdoc,1,/** As medidas do cartão deles: 175px de largura (`.diagram-node`). A altura é medida no DOM. */,translate,Their card's measurements: 175px wide (`.diagram-node`). Height is measured from the DOM.,other,apps/gestao-vite/src/paginas/builder/setas.ts:14,,proposed
+gestao-vite-comment-c0cdc1d5,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,148,148,jsdoc,3,"/** O zoom do editor: de 20% a 100%, e a roda com Ctrl anda de 10 em 10. */",translate,"The editor's zoom: 20% to 100%, and the wheel with Ctrl moves in steps of 10.",other,apps/gestao-vite/src/paginas/builder/setas.ts:148,,proposed
 gestao-vite-comment-1ed87ef4,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,20,26,jsdoc,9,"/**
  * Abaixo disto, pressionar-e-soltar conta como clique, não arrasto — nem move
  * o bloco nem completa uma ligação. Sem esse piso, clicar (sem soltar fora)
  * no ponto de saída de um bloco criava sozinho um laço do bloco para ele
  * mesmo, porque `elementFromPoint` no instante do clique ainda está sobre o
  * próprio bloco de onde a saída saiu.
- */",,,,,,
+ */",translate,"Below this, press-and-release counts as a click, not a drag — it neither moves the block nor completes a link. Without this floor, clicking (without releasing outside) on a block's output point would create a loop from the block to itself on its own, because `elementFromPoint` at the instant of the click is still over the very block the output came from.",other,apps/gestao-vite/src/paginas/builder/setas.ts:20-26,,proposed
 gestao-vite-comment-3f181483,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,3,12,jsdoc,9,"/**
  * A geometria das setas: o conector ""Flowchart"" do jsPlumb com que o editor da
  * Blip liga os blocos (`JsPlumbService.createInstance`: `Connector:
@@ -2108,16 +2145,18 @@ gestao-vite-comment-3f181483,gestao-vite,apps/gestao-vite/src/paginas/builder/se
  * ""Flowchart"" sai reto dessa face por um toco de 30px, dobra em ângulo reto
  * até a metade do caminho e chega reto pelo toco do outro lado — é o `M -0.5 0
  * L 30.5 0 … L 278 10` capturado no DOM. Aqui o mesmo desenho, em SVG nosso.
- */",,,,,,
+ */",translate,"The arrows' geometry: the jsPlumb ""Flowchart"" connector the Blip editor uses to link blocks (`JsPlumbService.createInstance`: `Connector: ""Flowchart""`, `Continuous` anchor, 10px arrowhead, 2px stroke).
+
+""Continuous"" picks the face of each block that looks toward the other; ""Flowchart"" leaves that face straight for a 30px stub, turns at a right angle to the midpoint of the path, and arrives straight through the other side's stub — it's the `M -0.5 0 L 30.5 0 … L 278 10` captured from the DOM. Here, the same drawing, in our own SVG.",meta-blip,apps/gestao-vite/src/paginas/builder/setas.ts:3-12,,proposed
 gestao-vite-comment-6065fa74,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,45,47,jsdoc,4,"/** O alvo do conector é a caixa do bloco no plano do canvas, não o elemento
  * sob o cursor. Assim a captura do ponteiro e SVGs sobrepostos não fazem o
- * destino desaparecer no `pointerup`. */",,,,,,
-gestao-vite-comment-57136c1d,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,59,59,jsdoc,2,/** As faces que se olham: mais horizontal → direita/esquerda; senão baixo/cima. */,,,,,,
-gestao-vite-comment-5bc9b90e,gestao-vite,apps/gestao-vite/src/paginas/builder/use-editor.ts,41,41,jsdoc,2,/** Os erros que a `api` apontou no último salvar (ou na leitura). */,,,,,,
-gestao-vite-comment-b9b3d7e0,gestao-vite,apps/gestao-vite/src/paginas/builder/use-editor.ts,43,43,jsdoc,2,/** Grava agora o que está na tela; devolve se deu certo. */,,,,,,
-gestao-vite-comment-279db871,gestao-vite,apps/gestao-vite/src/paginas/builder/use-editor.ts,45,45,jsdoc,3,/** Depois de restaurar: recarrega quando a leitura trouxer esta versão. */,,,,,,
-gestao-vite-comment-b372cd0d,gestao-vite,apps/gestao-vite/src/paginas/builder/use-editor.ts,59,59,block,2,"/* Carrega do servidor: na primeira leitura, e quando a versão esperada chegar. */",,,,,,
-gestao-vite-comment-a0bd16c1,gestao-vite,apps/gestao-vite/src/paginas/builder/use-editor.ts,87,87,block,1,/* A gravação automática: um pouco depois da última mudança. */,,,,,,
+ * destino desaparecer no `pointerup`. */",translate,"The connector's target is the block's box on the canvas plane, not the element under the cursor. This way pointer capture and overlapping SVGs don't make the destination disappear on `pointerup`.",other,apps/gestao-vite/src/paginas/builder/setas.ts:45-47,,proposed
+gestao-vite-comment-57136c1d,gestao-vite,apps/gestao-vite/src/paginas/builder/setas.ts,59,59,jsdoc,2,/** As faces que se olham: mais horizontal → direita/esquerda; senão baixo/cima. */,translate,The faces that face each other: more horizontal → right/left; otherwise bottom/top.,other,apps/gestao-vite/src/paginas/builder/setas.ts:59,,proposed
+gestao-vite-comment-5bc9b90e,gestao-vite,apps/gestao-vite/src/paginas/builder/use-editor.ts,41,41,jsdoc,2,/** Os erros que a `api` apontou no último salvar (ou na leitura). */,translate,The errors the `api` flagged on the last save (or on read).,other,apps/gestao-vite/src/paginas/builder/use-editor.ts:41,,proposed
+gestao-vite-comment-b9b3d7e0,gestao-vite,apps/gestao-vite/src/paginas/builder/use-editor.ts,43,43,jsdoc,2,/** Grava agora o que está na tela; devolve se deu certo. */,translate,Saves what's on screen right now; returns whether it succeeded.,other,apps/gestao-vite/src/paginas/builder/use-editor.ts:43,,proposed
+gestao-vite-comment-279db871,gestao-vite,apps/gestao-vite/src/paginas/builder/use-editor.ts,45,45,jsdoc,3,/** Depois de restaurar: recarrega quando a leitura trouxer esta versão. */,translate,After restoring: reload when the read brings back this version.,other,apps/gestao-vite/src/paginas/builder/use-editor.ts:45,,proposed
+gestao-vite-comment-b372cd0d,gestao-vite,apps/gestao-vite/src/paginas/builder/use-editor.ts,59,59,block,2,"/* Carrega do servidor: na primeira leitura, e quando a versão esperada chegar. */",translate,"Loads from the server: on the first read, and when the expected version arrives.",other,apps/gestao-vite/src/paginas/builder/use-editor.ts:59,,proposed
+gestao-vite-comment-a0bd16c1,gestao-vite,apps/gestao-vite/src/paginas/builder/use-editor.ts,87,87,block,1,/* A gravação automática: um pouco depois da última mudança. */,translate,Autosave: a little while after the last change.,other,apps/gestao-vite/src/paginas/builder/use-editor.ts:87,,proposed
 gestao-vite-comment-ba249159,gestao-vite,apps/gestao-vite/src/paginas/builder/use-editor.ts,9,24,jsdoc,26,"/**
  * O estado do editor ligado à `api`: carrega o desenho que o `GET` trouxe,
  * grava sozinho um pouco depois de cada mudança (o `debouncedSave` do editor
@@ -2133,7 +2172,11 @@ gestao-vite-comment-ba249159,gestao-vite,apps/gestao-vite/src/paginas/builder/us
  * Duas gravações nunca correm ao mesmo tempo: a segunda espera a primeira e,
  * se um pedido mais novo já ficou agendado, a antiga desiste — o que chega ao
  * servidor é sempre o mapa mais recente, uma vez.
- */",,,,,,
+ */",translate,"The editor's state wired to the `api`: loads the drawing the `GET` brought, saves itself automatically a bit after each change (the Blip editor's `debouncedSave`, which is what makes the footer's ""Salvo"" exist), and stores the per-block errors the `PUT` returns.
+
+The local drawing is NOT overwritten when the cached read is redone after a save — otherwise every save would erase what the person typed while the `PUT` was in flight. It's only reloaded from the server when the screen asks for it (`recarregarQuando`, after restoring a version), and only once the read already brings the expected version.
+
+Two saves never run at the same time: the second waits for the first, and if a newer request has already been scheduled, the old one gives up — what reaches the server is always the most recent map, once.",other,apps/gestao-vite/src/paginas/builder/use-editor.ts:9-24,,proposed
 gestao-vite-comment-0450bacc,gestao-vite,apps/gestao-vite/src/paginas/builder/validacao.ts,12,22,jsdoc,15,"/**
  * O que a TELA sabe apontar antes de mandar ao servidor — o `$invalid` do
  * editor da Blip, bloco a bloco: campo obrigatório vazio, saída sem destino,
@@ -2144,9 +2187,11 @@ gestao-vite-comment-0450bacc,gestao-vite,apps/gestao-vite/src/paginas/builder/va
  *
  * As frases são as do painel e as do motor — nunca dois textos para o mesmo
  * problema, e por isso `juntarErros` tira o repetido.
- */",,,,,,
-gestao-vite-comment-65bb7cf9,gestao-vite,apps/gestao-vite/src/paginas/builder/validacao.ts,37,37,line,1,"// O Builder mantém o rascunho incompleto no cartão, sem o promover ao alerta do fluxo.",,,,,,
-gestao-vite-comment-4a0c70db,gestao-vite,apps/gestao-vite/src/paginas/builder/validacao.ts,47,47,line,3,"// A extração do Builder marca a URL no cartão ProcessHttp, sem promovê-la ao alerta do fluxo.",,,,,,
+ */",translate,"What the SCREEN can flag before sending to the server — the Blip editor's `$invalid`, block by block: required field empty, output without a destination, condition without values, variable with an invalid name. It's the first of the two lists the block's card paints; the second comes from the `api` (the engine's `errosDoFluxo`: root without an input, loop without an input, nonexistent destination), after each save and on the 409 from publishing.
+
+The wording is the panel's and the engine's — never two texts for the same problem, which is why `juntarErros` removes duplicates.",meta-blip,apps/gestao-vite/src/paginas/builder/validacao.ts:12-22,,proposed
+gestao-vite-comment-65bb7cf9,gestao-vite,apps/gestao-vite/src/paginas/builder/validacao.ts,37,37,line,1,"// O Builder mantém o rascunho incompleto no cartão, sem o promover ao alerta do fluxo.",translate,"The Builder keeps the incomplete draft on the card, without promoting it to the flow's alert.",other,apps/gestao-vite/src/paginas/builder/validacao.ts:37,,proposed
+gestao-vite-comment-4a0c70db,gestao-vite,apps/gestao-vite/src/paginas/builder/validacao.ts,47,47,line,3,"// A extração do Builder marca a URL no cartão ProcessHttp, sem promovê-la ao alerta do fluxo.",translate,"The Builder's extraction flags the URL on the ProcessHttp card, without promoting it to the flow's alert.",other,apps/gestao-vite/src/paginas/builder/validacao.ts:47,,proposed
 gestao-vite-comment-9813eb39,gestao-vite,apps/gestao-vite/src/paginas/builder/variaveis.ts,4,19,jsdoc,17,"/**
  * A ""Biblioteca de variáveis"" do editor (`$ctrl.openVarLib()`, painel à
  * esquerda com as abas ""Variáveis do sistema"" e ""Variáveis do usuário"",
@@ -2162,9 +2207,12 @@ gestao-vite-comment-9813eb39,gestao-vite,apps/gestao-vite/src/paginas/builder/va
  *   nomes de propriedade que o motor realmente lê (`provedorDeEntrada`,
  *   `provedorDeContato`, etc.) — não é a lista de sistema da Blip (`bucket`,
  *   `resource`, `tunnel`… não têm provedor aqui e ficariam mentindo).
- */",,,,,,
-gestao-vite-comment-ebe11860,gestao-vite,apps/gestao-vite/src/paginas/builder/variaveis.ts,66,66,jsdoc,1,"/** Toda variável de `context` que este fluxo cria ou lê, em ordem alfabética. */",,,,,,
-gestao-vite-comment-ca6b8a63,gestao-vite,apps/gestao-vite/src/paginas/builder/variaveis.ts,76,76,jsdoc,2,"/** O filtro de busca de cada aba do painel: sem acento, sem caixa. */",,,,,,
+ */",translate,"The editor's ""Biblioteca de variáveis"" (`$ctrl.openVarLib()`, left-side panel with the ""Variáveis do sistema"" and ""Variáveis do usuário"" tabs, full structure found in `portal.js`). There, both lists come from an account-level service; here that service doesn't exist — so:
+
+- ""Variáveis do usuário"" is what THIS flow actually references: the name of every `SetVariable`/`DeleteVariable` (block or global action), every `context` variable in a condition, and the variable of each ""Entrada do usuário"" — real data from the drawing, not a separate registry;
+- ""Variáveis do sistema"" is the fixed list of sources with a provider in the Pipe engine (`FONTES_SUPORTADAS` from `@pipe/core/fluxo/contexto.ts`), with the property names the engine actually reads (`provedorDeEntrada`, `provedorDeContato`, etc.) — not Blip's system list (`bucket`, `resource`, `tunnel`… have no provider here and would be lying).",meta-blip,apps/gestao-vite/src/paginas/builder/variaveis.ts:4-19,,proposed
+gestao-vite-comment-ebe11860,gestao-vite,apps/gestao-vite/src/paginas/builder/variaveis.ts,66,66,jsdoc,1,"/** Toda variável de `context` que este fluxo cria ou lê, em ordem alfabética. */",translate,"Every `context` variable this flow creates or reads, in alphabetical order.",other,apps/gestao-vite/src/paginas/builder/variaveis.ts:66,,proposed
+gestao-vite-comment-ca6b8a63,gestao-vite,apps/gestao-vite/src/paginas/builder/variaveis.ts,76,76,jsdoc,2,"/** O filtro de busca de cada aba do painel: sem acento, sem caixa. */",translate,"The search filter for each panel tab: no accents, case-insensitive.",other,apps/gestao-vite/src/paginas/builder/variaveis.ts:76,,proposed
 gestao-vite-comment-a0fda240,gestao-vite,apps/gestao-vite/src/paginas/cadastros/_modal.tsx,4,14,jsdoc,12,"/**
  * Modal centralizado, para o botão ""Criar X""/""Nova X"" do cabeçalho de cada
  * tela de cadastro — o `bds-modal` que a Blip abre ali (`FICHA-queue-
@@ -2175,15 +2223,17 @@ gestao-vite-comment-a0fda240,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * pegou o modal fechado, `open=""false""`), então aqui dentro a liberdade é
  * total — só a existência do modal, no lugar do formulário solto na página,
  * é o que os DOMs capturados confirmam.
- */",,,,,,
+ */",translate,"Centered modal, for the ""Criar X""/""Nova X"" button in each registration screen's header — the `bds-modal` Blip opens there (`FICHA-queue-management.md` §2.6, `FICHA-personalizedbreaks.md` §2.3, `FICHA-replies.md` §2.3): title, body with the form, and an ""x"" to close.
+
+The form's actual content isn't in the material (the capture always caught the modal closed, `open=""false""`), so inside here we have full freedom — only the modal's existence, in place of a standalone form on the page, is what the captured DOMs confirm.",meta-blip,apps/gestao-vite/src/paginas/cadastros/_modal.tsx:4-14,,proposed
 gestao-vite-comment-66738c73,gestao-vite,apps/gestao-vite/src/paginas/cadastros/_modal.tsx,46,52,jsdoc,3,"/**
  * Confirmação de gesto destrutivo, dentro do `Modal` acima — no lugar do
  * `window.confirm`/`window.alert` que `atendentes-filas.tsx` usa hoje
  * (comentário lá: ""provisório""). Tarefa de cadastros do Atendimento, itens
  * 1 e 2: toda exclusão nova (regra de atendimento, regra de SLA) passa por
  * aqui, não pelo diálogo nativo do navegador.
- */",,,,,,
-gestao-vite-comment-070e7e56,gestao-vite,apps/gestao-vite/src/paginas/cadastros/_modal.tsx,66,66,jsdoc,4,"/** Motivo da recusa, se a última tentativa falhou — a mesma mensagem que iria para `window.alert`. */",,,,,,
+ */",update,"Destructive-action confirmation, inside the `Modal` above — replacing `window.confirm`/`window.alert`, which is what this component was built to remove from cadastros screens (Atendimento cadastros task, items 1 and 2). Every new deletion (attendance rule, SLA rule) goes through here instead of the browser's native dialog — and `atendentes-filas.tsx` has since migrated to it too; no screen in this module still calls `window.confirm`/`window.alert`.",other,"apps/gestao-vite/src/paginas/cadastros/_modal.tsx:46-52; the original comment's claim that atendentes-filas.tsx ""usa hoje"" (uses today) window.confirm/window.alert as a 'provisório' stopgap is stale — apps/gestao-vite/src/paginas/cadastros/atendentes-filas.tsx:35-38 explicitly states it now uses ModalConfirmacao and 'nunca window.confirm/window.alert'; same for regras-atendimento.tsx:37 and regras-sla.tsx:50 (grep for window.confirm|window.alert across apps/gestao-vite/src found zero remaining call sites, only comments describing the replacement)",,proposed
+gestao-vite-comment-070e7e56,gestao-vite,apps/gestao-vite/src/paginas/cadastros/_modal.tsx,66,66,jsdoc,4,"/** Motivo da recusa, se a última tentativa falhou — a mesma mensagem que iria para `window.alert`. */",translate,"The rejection reason, if the last attempt failed — the same message that would have gone to `window.alert`.",other,apps/gestao-vite/src/paginas/cadastros/_modal.tsx:66,,proposed
 gestao-vite-comment-1bc938b7,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx,12,29,jsdoc,22,"/**
  * `/team/create` e `/team/edit` da origem — as DUAS páginas próprias que
  * `modal.addAgent`/`modal.editAgent` nomeiam (`FICHA-atendentes-filas-
@@ -2201,7 +2251,11 @@ gestao-vite-comment-1bc938b7,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * Pipe só existe FILA — o teto de conversas simultâneas nasce da
  * participação nela (`aplicarNaSelecao`, `lib/atendentes-gravar.ts`), não de
  * um cadastro de atendente à parte. ""Equipe""/`teamsPlaceholder` ficou fora.
- */",,,,,,
+ */",translate,"The source's `/team/create` and `/team/edit` — the TWO dedicated pages `modal.addAgent`/`modal.editAgent` name (`FICHA-atendentes-filas-pausas.md` §a.1/§a.4). No `:id` in the URL: the selection travels in `?atendentes=`, because editing is done IN BULK — the three variants of `editDropdown.title` (""Editar 1 atendente"" / ""Editar N atendentes"") only exist for that.
+
+**""Adicionar atendente"" has no form here, and that's stated, not hidden.** Pipe has no standalone account creation: whoever joins gets an invite (`/convite/:token`). Inventing a form that saves nothing would be worse than admitting the gap.
+
+**The batch fields are the ones Pipe has.** The source asks for ""Equipe"" and ""Fila"" as two separate concepts (`team`/`queue` in `i18n.js`); Pipe only has QUEUE — the simultaneous-conversation cap comes from being in it (`aplicarNaSelecao`, `lib/atendentes-gravar.ts`), not from a separate attendant registry. ""Equipe""/`teamsPlaceholder` was left out.",meta-blip,apps/gestao-vite/src/paginas/cadastros/atendentes-edicao.tsx:12-29,,proposed
 gestao-vite-comment-a27739c7,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx,19,42,jsdoc,27,"/**
  * Edição de fila — PÁGINA PRÓPRIA, não modal.
  *
@@ -2225,13 +2279,21 @@ gestao-vite-comment-a27739c7,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * **""Dados da fila"" é seção só nossa**, sem sub-rota na origem: cor, ordem,
  * capacidade padrão, horário e o interruptor ""Ativa"" migraram do modal de
  * criação para cá (`atendentes-filas-formulario.tsx` já documentava isso).
- */",,,,,,
-gestao-vite-comment-c11daa49,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx,314,314,block,0,/* ------------------------------------------------- regras de priorização */,,,,,,
-gestao-vite-comment-bb227430,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx,34,34,jsdoc,1,/** Fecha o modal quando o salvamento dá certo. */,,,,,,
+ */",translate,"Editing a queue — its OWN PAGE, not a modal.
+
+The source's `attendance.desk.queueManagement.edit` is `url:""/edit/:id""` (`FICHA-atendentes-filas-pausas.md` §a.1) — what the owner asked for. The anatomy follows §a.3: three sections in the order **Atendentes → Regras de Priorização → Tags**, with the literal text from `i18n.js`.
+
+**Tags was left out.** The source has ""Gerenciar tags da fila"", but in Pipe `etiqueta` is per TENANT, with no link to a queue (§e.7 of the ficha) — building that link is migration + domain + route + Desk consumption, and it's logged as a pending item, not invented here.
+
+**""Adicionar atendente"" NAVIGATES, it doesn't open a form here.** The source proves this with the empty-state text itself (`noAttendantsBody`: ""clicking Adicionar atendente redirects to the Equipe de atendimento page""). In Pipe, linking someone into the queue is the SAME save as batch ""Editar atendente"" (`POST .../filas/:id/atendentes`) — which is why the button goes to `atendentes/gestao`, not to a picker on this page.
+
+**""Dados da fila"" is a section that's ours alone**, with no sub-route in the source: color, order, default capacity, schedule, and the ""Ativa"" toggle moved here from the creation modal (`atendentes-filas-formulario.tsx` already documented this).",meta-blip,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx:19-42,,proposed
+gestao-vite-comment-c11daa49,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx,314,314,block,0,/* ------------------------------------------------- regras de priorização */,translate,------------------------------------------------- priority rules,other,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-edicao.tsx:314,,proposed
+gestao-vite-comment-bb227430,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx,34,34,jsdoc,1,/** Fecha o modal quando o salvamento dá certo. */,translate,Closes the modal when the save succeeds.,other,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx:34,,proposed
 gestao-vite-comment-11bce85e,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx,38,39,block,5,"/* Controlado só para o ""Salvar"" nascer desabilitado, como o `save-button`
-     da origem — não para guardar o valor, que o `FormData` já leva. */",,,,,,
+     da origem — não para guardar o valor, que o `FormData` já leva. */",translate,"Controlled only so ""Salvar"" starts disabled, like the source's `save-button` — not to hold the value, which `FormData` already carries.",other,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx:38-39,,proposed
 gestao-vite-comment-e928c42d,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx,42,43,block,2,"/* Ver o comentário equivalente em `regras-atendimento-formulario.tsx`: o
-     valor inicial do `useActionState` não é uma confirmação de envio. */",,,,,,
+     valor inicial do `useActionState` não é uma confirmação de envio. */",translate,See the equivalent comment in `regras-atendimento-formulario.tsx`: `useActionState`'s initial value isn't a submission confirmation.,other,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx:42-43,,proposed
 gestao-vite-comment-9600a0fb,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx,7,30,jsdoc,27,"/**
  * O modal ""Criar nova fila"" — a FORMA é a da origem, e ela é mínima
  * (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §a.2, extraída do
@@ -2255,9 +2317,19 @@ gestao-vite-comment-9600a0fb,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * A ajuda sobre caracteres é literal da origem. Nós não recusamos nome com
  * acento (`nomeDeFilaConferido` só exige não-vazio), então ela é orientação e
  * não promessa de validação — está dita assim de propósito.
- */",,,,,,
+ */",translate,"The ""Criar nova fila"" modal — the FORM matches the source, and it's minimal (`referencias-blip/fichas/FICHA-atendentes-filas-pausas.md` §a.2, extracted from the `bds-modal` that `queue-management.html` carries in the DOM with `open=""false""`):
+
+  title    ""Criar nova fila""
+  text     ""Dê um nome para essa fila de atendimento""
+  field    placeholder ""Nome da fila""
+  hint     ""Use apenas letras, números, hifens (-) e sublinhados (_)""
+  buttons  ""Cancelar""  ""Salvar""  (the second disabled until there's a name)
+
+**Only one field, and the other four went to the edit page.** This form used to have color, default capacity, order, schedule, and ""ativa"" in the same box — five fields the source doesn't ask for here. They didn't disappear: they live in ""Dados da fila"", on the `atendentes/filas/:id/editar` page, which is also where the source puts queue configuration. What still travels along at creation are the DEFAULTS (capacity 5, order 0, active), in a hidden field, because `criarFila` requires `capacidadePadrao` between 1 and 200 and a queue is born active.
+
+The character hint is literal from the source. We don't reject names with accents (`nomeDeFilaConferido` only requires non-empty), so it's guidance, not a promise of validation — stated that way on purpose.",meta-blip,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx:7-30,,proposed
 gestao-vite-comment-e77e37cd,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx,71,72,block,2,"/* Os padrões da fila nova. Editáveis em ""Dados da fila"", na página de
-          edição — aqui só existem porque `criarFila` cobra a capacidade. */",,,,,,
+          edição — aqui só existem porque `criarFila` cobra a capacidade. */",translate,"The new queue's defaults. Editable in ""Dados da fila"", on the edit page — they only exist here because `criarFila` requires the capacity.",other,apps/gestao-vite/src/paginas/cadastros/atendentes-filas-formulario.tsx:71-72,,proposed
 gestao-vite-comment-cee9d643,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-filas.tsx,14,39,jsdoc,32,"/**
  * Filas de atendimento — a lista.
  *
@@ -2283,11 +2355,19 @@ gestao-vite-comment-cee9d643,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * `/v1/gestao/atendentes/filas/:id`), com a confirmação em `ModalConfirmacao`
  * — nunca `window.confirm`/`window.alert`. A recusa do toggle vira `Etiqueta`
  * acima da lista, porque não há modal aberto onde ela pudesse morar.
- */",,,,,,
-gestao-vite-comment-5545789a,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-filas.tsx,41,41,jsdoc,0,/** O interruptor + editar/excluir do cartão-linha — o slot `acao` de `lista-regras.tsx`. */,,,,,,
+ */",translate,"Queues — the list.
+
+Skeleton and copy measured in `referencias-blip/portal/dom/FICHA-atendentes-filas-pausas.md` §b.1: header ""Filas de atendimento"" with ""Nova fila"" on the right and no subtitle, search ""Buscar fila"" alone on the line below, an 86px row card with TWO columns — ""Fila de atendimento"" and ""Atendentes atribuídos"" — and, on the right, toggle + ""Editar"" + ""Excluir"". Footer ""Resultados por página"" with the source's options.
+
+**What left the card, and why.** It used to carry a footer with color, default capacity, order, schedule, simultaneous cap, and the list of enabled attendants — six lines of information the source doesn't put here (ficha §d.1: ""Card footer: doesn't exist""). All of that moved to the queue's edit page, which is also where the source puts configuration. The card went back to being just a card.
+
+**""Editar"" opens a PAGE, not a modal.** That's what the owner asked for, and what the source's router says: `attendance.desk.queueManagement.edit` has `url:""/edit/:id""` (ficha §a.1). Here: `atendentes/filas/:id/editar`.
+
+Toggle and deletion stay on the card (`PATCH`/`DELETE` on `/v1/gestao/atendentes/filas/:id`), confirmed via `ModalConfirmacao` — never `window.confirm`/`window.alert`. A toggle rejection becomes an `Etiqueta` above the list, since there's no open modal for it to live in.",meta-blip,apps/gestao-vite/src/paginas/cadastros/atendentes-filas.tsx:14-39,,proposed
+gestao-vite-comment-5545789a,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-filas.tsx,41,41,jsdoc,0,/** O interruptor + editar/excluir do cartão-linha — o slot `acao` de `lista-regras.tsx`. */,translate,The row card's toggle + edit/delete — the `acao` slot of `lista-regras.tsx`.,other,apps/gestao-vite/src/paginas/cadastros/atendentes-filas.tsx:41,,proposed
 gestao-vite-comment-3f63c277,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx,121,123,block,3,"/* A origem não tem coluna de status (§d.2 da ficha: ""voltar para 4
            colunas"") — `ativa` só decidiria o selo de `Cartao`, e como as três
-           ações sempre existem aqui, ele nunca aparece de qualquer forma. */",,,,,,
+           ações sempre existem aqui, ele nunca aparece de qualquer forma. */",translate,"The source has no status column (ficha §d.2: ""go back to 4 columns"") — `ativa` would only decide `Cartao`'s badge, and since the three actions always exist here, it never shows up anyway.",meta-blip,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx:121-123,,proposed
 gestao-vite-comment-4b0902e9,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx,14,37,jsdoc,26,"/**
  * Gestão de atendentes — a lista.
  *
@@ -2311,14 +2391,21 @@ gestao-vite-comment-4b0902e9,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * (`tirarDeTodasAsFilas`, `lib/atendentes-gravar.ts`: no Pipe não existe
  * ""equipe de atendimento"" como cadastro à parte; quem recebe conversa é quem
  * está em fila).
- */",,,,,,
+ */",translate,"Attendant management — the list.
+
+Skeleton and copy measured in `FICHA-atendentes-filas-pausas.md` §b.2/§a.4: header ""Gestão de atendentes"" with ""Adicionar atendentes"" on the right, search ""Buscar por nome ou e-mail"" + ""Filtrar por: Filas"", a ""Selecionar todos"" bar, a card with checkbox + avatar + four fields (Atendente/E-mail/Filas/Tickets simultâneos) and, on the right, Editar/Permissões/Excluir.
+
+**""Selecionar todos"" and what it selects.** The source paginates on the SERVER (ficha §e.6); our list already arrives whole and paginates on the client, inside `ListaRegras`, which doesn't expose the visible slice from outside. `alternarTodos` marks/unmarks the entire FILTERED set (queue search + text), not just the visible page — the honest simplification while pagination stays display-only.
+ponytail: selects the whole filtered set, not the page; adjust if `ListaRegras` starts exposing the visible slice.
+
+**""Excluir"" removes from all queues** — it doesn't delete the user (`tirarDeTodasAsFilas`, `lib/atendentes-gravar.ts`: Pipe has no ""attendance team"" as a separate registry; whoever receives a conversation is whoever is in a queue).",meta-blip,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx:14-37,,proposed
 gestao-vite-comment-2cfdfd4e,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx,207,212,jsdoc,7,"/**
  * ""Filtrar por: Filas"" — painel suspenso ancorado no controle
  * (`FICHA-atendentes-filas-pausas.md` §a.4: seletor ""Selecione a(s) fila(s)"",
  * ""Limpar seleção"", ""Cancelar"", ""Aplicar""). A escolha só vale para a lista
  * depois de ""Aplicar"" — cancelar ou fechar sem aplicar não muda nada.
- */",,,,,,
-gestao-vite-comment-481b6291,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-pausas-formulario.tsx,23,23,block,0,/* Ver o comentário equivalente em `regras-atendimento-formulario.tsx`. */,,,,,,
+ */",translate,"""Filtrar por: Filas"" — a dropdown panel anchored to the control (`FICHA-atendentes-filas-pausas.md` §a.4: ""Selecione a(s) fila(s)"" picker, ""Limpar seleção"", ""Cancelar"", ""Aplicar""). The choice only takes effect on the list after ""Aplicar"" — cancelling or closing without applying changes nothing.",meta-blip,apps/gestao-vite/src/paginas/cadastros/atendentes-gestao.tsx:207-212,,proposed
+gestao-vite-comment-481b6291,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-pausas-formulario.tsx,23,23,block,0,/* Ver o comentário equivalente em `regras-atendimento-formulario.tsx`. */,translate,See the equivalent comment in `regras-atendimento-formulario.tsx`.,other,apps/gestao-vite/src/paginas/cadastros/atendentes-pausas-formulario.tsx:23,,proposed
 gestao-vite-comment-a00729d1,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-pausas-formulario.tsx,7,19,jsdoc,11,"/**
  * Conteúdo do modal ""Criar nova pausa personalizada"" — a forma é a literal da
  * origem (`FICHA-atendentes-filas-pausas.md` §a.5/§c): campo **""Nome da
@@ -2331,7 +2418,9 @@ gestao-vite-comment-a00729d1,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * reunião) ou como tempo fora (almoço, café). Sem ele o relatório não sabe
  * separar as duas coisas — por isso fica, compacto, abaixo dos dois campos
  * literais, e não no lugar de nenhum deles.
- */",,,,,,
+ */",translate,"Content of the ""Criar nova pausa personalizada"" modal — the form is literally the source's (`FICHA-atendentes-filas-pausas.md` §a.5/§c): **""Nome da pausa""** field (`maxlength=""30""`), **""Duração em minutos""** field (`type=""number"" max=""999"" maxlength=""3""`, initial value `0`), **""Cancelar""** and **""Criar""** buttons. No description — the source opens the modal straight into the form.
+
+**""Conta como produtivo"" is a field that's ours alone**, with no counterpart in the source: it decides whether this break's time counts toward the effort report as work (training, meetings) or as time off (lunch, coffee). Without it the report can't tell the two apart — so it stays, compact, below the two literal fields, and not in place of either.",meta-blip,apps/gestao-vite/src/paginas/cadastros/atendentes-pausas-formulario.tsx:7-19,,proposed
 gestao-vite-comment-5da0db86,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-pausas.tsx,11,18,jsdoc,11,"/**
  * Só ""Excluir"" — a origem não tem interruptor nem editar nesta linha, e não
  * tem ""Resultados por página"" no rodapé (`FICHA-atendentes-filas-pausas.md`
@@ -2339,7 +2428,7 @@ gestao-vite-comment-5da0db86,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * setas + o número da página + o contador""). `alternarMotivoPausa`
  * (`cadastros-gravar.ts`) fica sem uso nesta tela por isso — não foi apagado
  * porque a rota `PATCH .../pausas/:id` continua válida e testada.
- */",,,,,,
+ */",translate,"Only ""Excluir"" — the source has no toggle or edit on this row, and no ""Resultados por página"" in the footer (`FICHA-atendentes-filas-pausas.md` §a.5 and §b.3: ""There's no edit icon, no toggle"" / ""just the arrows + page number + counter""). `alternarMotivoPausa` (`cadastros-gravar.ts`) goes unused on this screen for that reason — it wasn't deleted because the `PATCH .../pausas/:id` route is still valid and tested.",meta-blip,apps/gestao-vite/src/paginas/cadastros/atendentes-pausas.tsx:11-18,,proposed
 gestao-vite-comment-3be404f7,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-pausas.tsx,23,37,jsdoc,18,"/**
  * Pausas personalizadas — a lista.
  *
@@ -2354,7 +2443,11 @@ gestao-vite-comment-3be404f7,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * `semMotivo`/`abertas` que dava esse contexto fica só no `title` do
  * cabeçalho — informação que não aparece como texto na tela, então não
  * compete com a forma literal.
- */",,,,,,
+ */",translate,"Custom breaks — the list.
+
+Skeleton and copy measured in `FICHA-atendentes-filas-pausas.md` §b.3/§c: header ""Pausas personalizadas"" with ""Nova Pausa"" (capital P) on the right, no search, a card with only ""Nome da pausa""/""Duração"" as columns and only ""Excluir"" on the right, a footer with just a counter + arrows (no ""Resultados por página"" — `ocultarTamanhoDePagina` in `ListaRegras`).
+
+**What left the card.** The real-usage footer (counts as, number of breaks, average vs. suggested) doesn't exist in the source (§d.3: ""remove""). The `semMotivo`/`abertas` pair that gave that context now lives only in the header's `title` — information that doesn't appear as visible text, so it doesn't compete with the literal form.",meta-blip,apps/gestao-vite/src/paginas/cadastros/atendentes-pausas.tsx:23-37,,proposed
 gestao-vite-comment-357cbdaa,gestao-vite,apps/gestao-vite/src/paginas/cadastros/atendentes-permissoes.tsx,14,29,jsdoc,16,"/**
  * `/team/permission` da origem — PÁGINA PRÓPRIA, não modal
  * (`FICHA-atendentes-filas-pausas.md` §a.1/§a.4: ""a parte de permissões
@@ -2370,7 +2463,11 @@ gestao-vite-comment-357cbdaa,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * rotas de verdade conferem. `usuario_permissao` (migração 0046) é a exceção
  * por pessoa sobre o papel — ver o comentário daquele arquivo para a conta
  * completa.
- */",,,,,,
+ */",translate,"The source's `/team/permission` — its OWN PAGE, not a modal (`FICHA-atendentes-filas-pausas.md` §a.1/§a.4: ""the permissions part also [opens a page]"", a literal owner requirement).
+
+Literal form: title ""Permissões"", the `descricaoDasPermissoes` copy in its three variants, the ""Permissões disponíveis"" section with the two-column table — ""Tipo de permissão"" / ""Status"" — and ""Salvar alterações"".
+
+**The row content is ours.** The source lists ten Blip Desk capabilities; here it's Pipe's permission catalog (`apps/api/src/dominio/gestao/permissoes-do-atendente.ts`), which is what the actual routes check. `usuario_permissao` (migration 0046) is the per-person exception over the role — see that file's comment for the full account.",security,"apps/gestao-vite/src/paginas/cadastros/atendentes-permissoes.tsx:14-29; also cites Blip Desk permission list and a FICHA reference, so meta-blip also applies — flagging as a dual-category judgment call (chose security since the content centers on the Pipe permission/authorization catalog that routes actually enforce)",,proposed
 gestao-vite-comment-e264bcd7,gestao-vite,apps/gestao-vite/src/paginas/cadastros/canais.tsx,5,25,jsdoc,25,"/**
  * Canais de atendimento — `attendance/desk/channels` da origem
  * (`referencias-blip/fichas/FICHA-channels.md`, foto `07` em
@@ -2391,7 +2488,11 @@ gestao-vite-comment-e264bcd7,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * com o botão da origem sem destino (`aria-disabled`), em vez de fingir um
  * fluxo de conexão que a captura também não abriu (foto `07`: ""não foram
  * clicados"").
- */",,,,,,
+ */",translate,"Attendance channels — the source's `attendance/desk/channels` (`referencias-blip/fichas/FICHA-channels.md`, photo `07` in `referencias-blip/canais/`): a title with no subtitle or button, and a fixed GRID of 4 cards (`bds-paper`, 242×292), each with an icon, 16/700 title, 14/400 subtitle, and a button at the bottom — ""Conectado"" (tertiary, with the `checkball`) or ""Conectar"" (primary, with the arrow).
+
+This is the Desk's list of ATTENDANCE INTEGRATIONS (who receives the tickets), not conversation-channel configuration: WhatsApp, Instagram, and Messenger are connected and configured INSIDE THE BOT, at `/{tipo}/{id}/canais/*` (`FICHA-conectar-canal-no-bot.md` §4.1). What used to live here — the cards for connecting WhatsApp/Instagram/Messenger, ""Detalhes"", and ""Desconectar"" — moved there; only what belongs to this screen stayed.
+
+Pipe Desk is Pipe's own Desk, always connected. Salesforce, Salesforce MIAW, and Canal Personalizado are integrations Pipe doesn't have: the cards stay, with the source's button pointing nowhere (`aria-disabled`), instead of faking a connection flow that the capture never opened either (photo `07`: ""not clicked"").",meta-blip,apps/gestao-vite/src/paginas/cadastros/canais.tsx:5-25,,proposed
 gestao-vite-comment-6eac61fe,gestao-vite,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx,13,25,jsdoc,11,"/**
  * O caminho manual de conectar WhatsApp/Instagram — sem aplicativo aprovado
  * na Meta, o cadastro embutido (`cadastro-embutido-whatsapp.tsx`) não é uma
@@ -2404,19 +2505,21 @@ gestao-vite-comment-6eac61fe,gestao-vite,apps/gestao-vite/src/paginas/cadastros/
  * e preferências, que apontam o campo. Por isso aqui o erro só cabe num
  * banner geral, não embaixo de um campo específico (achado de backend, não
  * corrigido: a tarefa pede só consumir).
- */",,,,,,
-gestao-vite-comment-18798f92,gestao-vite,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx,45,45,jsdoc,2,"/** Na reconexão, WABA e número já são conhecidos: vêm preenchidos. */",,,,,,
+ */",translate,"The manual path for connecting WhatsApp/Instagram — without an app approved by Meta, the embedded signup (`cadastro-embutido-whatsapp.tsx`) isn't an option for the average customer; this is the main path now (`POST /v1/canais/{whatsapp,instagram}/manual`, `canais.ts`/`canais-instagram.ts`).
+
+The two connection forms (`configuracao-manual.ts`/`instagram/canal.ts`) reject with `ErroPipe` WITHOUT `detalhe.campo` — unlike profile and preferences, which point to the field. So here the error only fits in a general banner, not under a specific field (a backend finding, not fixed here: the task only asks to consume it).",meta-blip,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx:13-25,,proposed
+gestao-vite-comment-18798f92,gestao-vite,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx,45,45,jsdoc,2,"/** Na reconexão, WABA e número já são conhecidos: vêm preenchidos. */",translate,"On reconnection, WABA and the number are already known: they come prefilled.",integration,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx:45,,proposed
 gestao-vite-comment-43380bc9,gestao-vite,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx,64,69,jsdoc,6,"/**
  * O que os três modais têm em comum, agora que moram na página do canal DO BOT
  * (`fluxo/canais/**`): `fluxoId` faz o canal nascer já ligado ao bot
  * (`fluxo_id` nas rotas de conexão), e o botão que abre o modal leva o rótulo
  * e a variante da tela que o hospeda.
- */",,,,,,
+ */",translate,"What the three modals have in common, now that they live on the channel's page INSIDE THE BOT (`fluxo/canais/**`): `fluxoId` makes the channel born already linked to the bot (`fluxo_id` in the connection routes), and the button that opens the modal carries the label and variant of the screen hosting it.",integration,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx:64-69,,proposed
 gestao-vite-comment-396b3b52,gestao-vite,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx,72,76,jsdoc,3,"/**
    * RECONECTAR este canal em vez de criar outro. O token do cliente expira, e na
    * origem a saída é refazer a conexão no mesmo canal — não há desconectar no
    * WhatsApp (`FICHA-conectar-canal-no-bot.md` §5).
-   */",,,,,,
+   */",translate,"RECONNECT this channel instead of creating another. The client token expires, and in the source the way out is to redo the connection on the same channel — there's no disconnect for WhatsApp (`FICHA-conectar-canal-no-bot.md` §5).",meta-blip,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx:72-76,,proposed
 gestao-vite-comment-bc6c73b6,gestao-vite,apps/gestao-vite/src/paginas/cadastros/canal-conectar-manual.tsx,78,78,jsdoc,3,/** Preenche o formulário com o que já se sabe do canal. */,,,,,,
 gestao-vite-comment-278d0871,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx,105,105,line,3,// Corpo mudou: exemplos de variável que sumiram não servem mais de nada guardados.,,,,,,
 gestao-vite-comment-3eb577fb,gestao-vite,apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx,22,28,jsdoc,8,"/**
