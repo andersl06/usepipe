@@ -1,0 +1,15 @@
+.dk-conversa-vazia, .dk-conversa-vazia:hover > .x {
+  color: red;
+}
+.dk-conversa-vazia-2 {
+  color: blue;
+}
+:root {
+  --cor-fundo: #fff;
+}
+.uso {
+  color: var(--cor-fundo);
+}
+[data-painel='aberto'] .y {
+  display: block;
+}
