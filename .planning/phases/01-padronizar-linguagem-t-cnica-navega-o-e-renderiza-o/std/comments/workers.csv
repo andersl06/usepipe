@@ -144,7 +144,7 @@ workers-comment-e4b2403c,workers,apps/workers/src/filas.ts,62,72,jsdoc,15,"/**
  * O job carrega só os identificadores. O worker relê o contato dentro do `comTenant`
  * daquele tenant, e é isso que impede um `contatoId` de outro cliente de virar
  * escrita no CRM errado — sem tenant em vigor, a consulta não retorna linha.
- */",update,"Mirror a contact into the client CRM. `api`, not `apps/workers`, consumes this queue, as with pipe-entrada: API talks to CRM and owns the domain rule. The API consumer also runs the sweep that requeues missed work. The job carries identifiers only. The consumer rereads the contact inside that tenant's comTenant; a contatoId from another client cannot write to the wrong CRM because the query returns no row without the correct tenant.",integration,apps/api/src/filas.ts:173-207; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ */",update,"Mirror a contact into the client CRM. `api`, not the workers, consumes this queue, as with `pipe-entrada`: the API talks to CRM and owns the domain rule. The API consumer also runs the sweep that requeues missed work. The job carries identifiers only. The consumer rereads the contact inside that tenant's `comTenant`; a `contatoId` from another client cannot write to the wrong CRM because the query returns no row without the correct tenant.",integration,apps/api/src/filas.ts:173-207; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 workers-comment-4fed691f,workers,apps/workers/src/filas.ts,78,83,jsdoc,5,"/**
  * Sincronizar o dicionário de dados de um tenant com os metadados do CRM dele.
  *
