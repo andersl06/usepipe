@@ -11,7 +11,7 @@
     {
       "id": "packages-mcp-comment-5023b811",
       "action": "translate",
-      "new_text": "Phase 1 skeleton: content is added in later roadmap phases (?9 of the spec).",
+      "new_text": "Phase 1 skeleton: content is added in later roadmap phases (§9 of the spec).",
       "sensitivity": "architecture",
       "evidence": "packages/mcp/src/index.ts:2-3",
       "notes": "pre-triage D-40; needs slice-time confirmation"
