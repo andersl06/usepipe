@@ -1,0 +1,604 @@
+{
+ "items": [
+  {
+   "id": "api-comment-46a1b83d",
+   "action": "translate",
+   "new_text": "The point of the timeout: respond quickly. A healthcheck that hangs leaves the",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/saude.test.ts:50; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-81381719",
+   "action": "translate",
+   "new_text": "orchestrator waiting instead of taking the container out of rotation.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/saude.test.ts:51; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-1e82c3ef",
+   "action": "translate",
+   "new_text": "`{a,b}` turns into a bare text parameter and Postgres rejects it.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:100; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-8821410d",
+   "action": "translate",
+   "new_text": "Outside the queue the specific rule targeted: only the tenant's rule applies.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:159; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-b0454c29",
+   "action": "translate",
+   "new_text": "Each test registers its OWN rule(s). Without this, the second rule",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:184; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-e823f6b6",
+   "action": "translate",
+   "new_text": "for a target already used by an earlier test (same `tenant` scope) would tie",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:185; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-414d5e49",
+   "action": "translate",
+   "new_text": "with the first one, and `regrasVencedorasPorAlvo` would pick between them by",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:186; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-4b343441",
+   "action": "translate",
+   "new_text": "alphabetical name order — not necessarily the one THIS test just created.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:187; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-dbd648f8",
+   "action": "translate",
+   "new_text": "The SLA clock (`dominio/gestao/sla-motor.ts`), called DIRECTLY — without going through the BullMQ queue. `PIPE_FILAS=memoria` already makes `enfileirarChecagemSla` a no-op (the same rule as media and the CRM mirror), so proving the real clock means calling `checarSlaDaConversa` directly, exactly what the queue consumer does in production. The fixtures use raw SQL against `cenario.dono` (bypassing RLS, since it is seed data) — the same pattern as `entrada-telefone.test.ts` and `midia-recebida.test.ts`.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sla-motor.test.ts:19-28; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-4d273331",
+   "action": "translate",
+   "new_text": "400s ago: already past the alert threshold (300s), but not the deadline (600s)",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:195; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-c3ac4a8f",
+   "action": "translate",
+   "new_text": "Idempotency: running it again at the SAME instant does not duplicate the event or change the timestamp.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:205; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-3e378a50",
+   "action": "translate",
+   "new_text": "Idempotency of the breach: running it again neither duplicates nor regresses the state.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:220; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-c500dad8",
+   "action": "translate",
+   "new_text": "Closed without being met (never had a first response) and without breaching: canceled, not",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:242; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-5bf3f508",
+   "action": "translate",
+   "new_text": "left \"running\" forever — a Pipe decision made in `sla-motor.ts`.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:243; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-6372714c",
+   "action": "translate",
+   "new_text": "already past the alert threshold (100s)",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:256; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-89538fd9",
+   "action": "translate",
+   "new_text": "`resolucao` is the target's name IN THE DATABASE (`ALVOS_SLA`); `sla.ts` translates it to the",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:267; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-46b5f6a4",
+   "action": "translate",
+   "new_text": "A: older, `baixa` priority, resolution deadline already breached (created 100s ago, deadline is 60s).",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:276; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f5153d31",
+   "action": "translate",
+   "new_text": "B: newer, `media` priority — with no SLA rule breaching for it.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:279; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-ea7ef387",
+   "action": "translate",
+   "new_text": "Afterwards: A and B tie at `media`; the tiebreaker is the OLDER one — A wins now.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:297; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-89e05990",
+   "action": "translate",
+   "new_text": "A new tenant, with NO rule of its own — `a` has already accumulated rules from the tests",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:304; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-d28015f9",
+   "action": "translate",
+   "new_text": "above in this file, and reusing it here would prove less than \"no rule registered\".",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:305; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-3d4f7921",
+   "action": "translate",
+   "new_text": "A rule registered ONLY in tenant B.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:308; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-cd664ea6",
+   "action": "translate",
+   "new_text": "It would easily breach IF B's rule applied to this tenant.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:312; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-88a24130",
+   "action": "translate",
+   "new_text": "With no rule registered in THIS tenant: nothing changes, no row in `sla_conversa`.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:318; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f535e457",
+   "action": "translate",
+   "new_text": "The mode must be decided before any import that reads the variable, as",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-b8589798",
+   "action": "translate",
+   "new_text": "A Postgres array literal built by hand — the same trick as `ajuda.ts`",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/sla-motor.test.ts:98; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-5d675cb6",
+   "action": "translate",
+   "new_text": "(`criarChave`, `escopos` column): passing a raw JS array straight into raw `sql` does not turn into",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sla-motor.test.ts:99; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-e60d9720",
+   "action": "translate",
+   "new_text": "The risk this closes is not one customer reading another's data — RLS already handles that.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:111; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f213949e",
+   "action": "translate",
+   "new_text": "It is `pg_dump`, which would hand over every customer's credential at once.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:112; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-77eaf1d5",
+   "action": "translate",
+   "new_text": "What the screen shows has no secret at all, nor a field for one.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:120; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-d595583a",
+   "action": "translate",
+   "new_text": "Activating does NOT require SSO: password and Google login both remain valid.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:174; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-046610a6",
+   "action": "translate",
+   "new_text": "Changing an active connection's issuer without downgrading its state would point every",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:182; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-5e24e109",
+   "action": "translate",
+   "new_text": "customer at a directory nobody has tested.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:183; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f1d545de",
+   "action": "translate",
+   "new_text": "Without this symmetry, the endpoint becomes a catalog of \"which companies use Pipe\".",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:217; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-80e3b2b2",
+   "action": "translate",
+   "new_text": "Whoever mapped `gmail.com` would capture the login of half of Brazil. The guard is",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:224; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-13ab7c33",
+   "action": "translate",
+   "new_text": "in the code, not only in registration — that is why the test forces the row into the database.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:225; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-7c4272bd",
+   "action": "translate",
+   "new_text": "Anyone who gets an IdP to issue the victim's email would sign in as her, with the",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:261; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-e9e52df8",
+   "action": "translate",
+   "new_text": "her roles. In Entra, it is the absence of `xms_edov` that triggers this.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:262; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-8dd4073e",
+   "action": "translate",
+   "new_text": "One customer's IdP does not authenticate someone from another just by sending the email",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:274; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-7c1e269c",
+   "action": "translate",
+   "new_text": "correctly: the domain still has to be verified, and verified here specifically.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:275; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-626609d6",
+   "action": "translate",
+   "new_text": "The per-tenant SSO connection, and the pitfalls from `referencias-blip/pesquisa/sso-multi-tenant.md` that only show up with a real database: the state machine, the secret encrypted at rest, domain-based discovery, and the policy checked on the server. What is deliberately NOT here: the conversation with the IdP. That has its own test in `packages/autenticacao/tests/oidc.test.ts`, and repeating it here would require faking the JWKS just to re-prove what is already proven.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:28-37; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-bf249c0c",
+   "action": "translate",
+   "new_text": "It is not the screen hiding the button. The identity is already linked, the user",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:295; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-39ddc8e4",
+   "action": "translate",
+   "new_text": "is active, and login through the other path is still rejected.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:296; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-7a42af8f",
+   "action": "translate",
+   "new_text": "...and SSO still succeeds, which is the whole point of the policy.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:310; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-642aebcc",
+   "action": "translate",
+   "new_text": "A fake IdP: only `.well-known`, which is all `conexaoParaFluxo` reads.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:47; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-7d71548d",
+   "action": "translate",
+   "new_text": "The tenant's verified domain: it is what links an email address to a company.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/sso.test.ts:74; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-df269d9a",
+   "action": "translate",
+   "new_text": "Waits for the event to arrive, without a fixed `sleep`: the channel is fast, the machine is not always.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/tempo-real.test.ts:106; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-5a2ce05f",
+   "action": "translate",
+   "new_text": "A fast ping so the test does not wait 15 seconds for the control frame.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/tempo-real.test.ts:12; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-a6627f6c",
+   "action": "translate",
+   "new_text": "Without this check, any site could open the socket, and the browser would attach",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/tempo-real.test.ts:130; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-0dd2eed7",
+   "action": "translate",
+   "new_text": "the victim's cookie: cross-site WebSocket hijacking.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/tempo-real.test.ts:131; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-06db424a",
+   "action": "translate",
+   "new_text": "The confirmation was already awaited in `conectar`.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/tempo-real.test.ts:153; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-a9720402",
+   "action": "translate",
+   "new_text": "Real time: the channel, authentication and — what matters most — ISOLATION. The rule the owner will not compromise on: a connection only receives events from its own tenant, and whatever belongs to one person only reaches that person. This cannot be verified by reading the code; it is verified by opening two real tenants and proving that one cannot listen to the other.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/tempo-real.test.ts:23-29; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-197c542a",
+   "action": "translate",
+   "new_text": "This is what the manager-to-agent chat requires.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/tempo-real.test.ts:234; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-e6829030",
+   "action": "translate",
+   "new_text": "Same tenant, same subscription — and still does not receive it.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/tempo-real.test.ts:253; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-ddec1014",
+   "action": "translate",
+   "new_text": "`usuarioId` is internal addressing and must never leak to the client.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/tempo-real.test.ts:282; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f594cbb7",
+   "action": "translate",
+   "new_text": "A connection that never disappears from the registry is a memory leak, and delivery would go to a",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/tempo-real.test.ts:299; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-6bdb5d63",
+   "action": "translate",
+   "new_text": "dead socket — the process would keep writing to someone who has already left.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/tempo-real.test.ts:300; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-c0956d4f",
+   "action": "translate",
+   "new_text": "Closes EVERY socket left open by the previous case and waits for the registry to empty. Without this, one case lends its connection to the next and `conexoesVivas` counts garbage — the isolation test would end up depending on run order, the worst way for a security test to fail.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/tempo-real.test.ts:61-67; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-d989c864",
+   "action": "translate",
+   "new_text": "Connects, subscribes to the subjects and waits for the server's confirmation.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/tempo-real.test.ts:82; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-5e1e8169",
+   "action": "translate",
+   "new_text": "The contract's `ping` is not an event; it does not pollute what the test inspects.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/tempo-real.test.ts:97; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-d418bba7",
+   "action": "translate",
+   "new_text": "This is what separates, in the report, a conversation that ENDED from one that just changed hands.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/transferencia.test.ts:152; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-06eb3602",
+   "action": "translate",
+   "new_text": "And the last message too, otherwise automatic closure would treat the new one as newborn.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/transferencia.test.ts:168; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-b79f6122",
+   "action": "translate",
+   "new_text": "Transfer: closes the conversation and opens another one at the destination. This is not a state transition — it is decided in `packages/core/src/conversa/maquina.ts` (\"Transfer is not a transition: it closes the conversation … and opens another at the destination\"), which is Blip's rule. These tests lock down the consequences that hurt if forgotten: the inherited 24h window, the closing event with `encerrada_por = transferencia`, and the `atribuicao` row that stitches the two together.",
+   "sensitivity": "meta-blip",
+   "evidence": "apps/api/tests/transferencia.test.ts:18-26; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-fe6e5de9",
+   "action": "translate",
+   "new_text": "The receiving agent's TMR measures the receiving agent — the cost of Blip's model.",
+   "sensitivity": "meta-blip",
+   "evidence": "apps/api/tests/transferencia.test.ts:180; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-d1d3a589",
+   "action": "translate",
+   "new_text": "This is the difference between an agent and a supervisor: transferring your own conversation does not require",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/transferencia.test.ts:269; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-6d394227",
+   "action": "translate",
+   "new_text": "the permission; transferring someone else's does.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/transferencia.test.ts:270; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-7f84d561",
+   "action": "translate",
+   "new_text": "`conversa.transferir` already comes from the seed data (`packages/db/src/semente.ts`): the",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/transferencia.test.ts:283; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f610dcb0",
+   "action": "translate",
+   "new_text": "permission is a global catalog entry, not tenant-specific data.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/transferencia.test.ts:284; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-0bd3c26e",
+   "action": "translate",
+   "new_text": "The case of a swapped URL in the deployment: a valid key, but the wrong instance.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/twenty.test.ts:149; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-35319888",
+   "action": "translate",
+   "new_text": "The trailing slash is removed: otherwise the link would become `…//object/person/…`.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/twenty.test.ts:209; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-d6309657",
+   "action": "translate",
+   "new_text": "An id that does not exist in this tenant has the same outcome as one from another customer:",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/twenty.test.ts:243; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-e2400aa6",
+   "action": "translate",
+   "new_text": "RLS returns no row, and the mirror does not happen.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/twenty.test.ts:244; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f9b0c61c",
+   "action": "translate",
+   "new_text": "A `fetch` that fails the test if called. Proves it never even tried to talk to the CRM.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/twenty.test.ts:251; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-d9f7ef03",
+   "action": "translate",
+   "new_text": "A fake `fetch` that returns whatever the test instructs and records what it received.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/twenty.test.ts:29; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-4d47e341",
+   "action": "translate",
+   "new_text": "The end-to-end test applies the migration, starts the API and drains the outbox.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/vitest.config.ts:7; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  }
+ ]
+}

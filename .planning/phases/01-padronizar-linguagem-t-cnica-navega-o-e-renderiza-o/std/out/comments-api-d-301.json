@@ -1,0 +1,644 @@
+{
+ "items": [
+  {
+   "id": "api-comment-239b7911",
+   "action": "translate",
+   "new_text": "The label is always the route pattern, never the path containing the uuid.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/entrada.test.ts:328; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-8b0e0809",
+   "action": "translate",
+   "new_text": "The accumulated bucket can never exceed the total count of the same series.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/entrada.test.ts:332; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-3d1005f6",
+   "action": "translate",
+   "new_text": "Login return with THREE front-ends. `PIPE_URL_APP` is a single value, and the API serves Management, Desk and CRM. Without the origin traveling in the challenge, someone signing in through the CRM would be returned to Management — on the VPS this would show up as \"login works, but sends me to the wrong app\".",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/entrada.test.ts:352-358; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-725abd51",
+   "action": "translate",
+   "new_text": "Two roles sharing a permission: proves the union has no duplicates.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/entrada.test.ts:45; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-d75e101b",
+   "action": "translate",
+   "new_text": "The mode must be decided before any import that reads the variable.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/entrada.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-fb1ee812",
+   "action": "translate",
+   "new_text": "Writes a live session and returns the token that would go into the cookie.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/entrada.test.ts:81; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-fd3ce801",
+   "action": "translate",
+   "new_text": "`pendente`, not `enviada`: only Meta's confirmation advances the state.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:114; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-3a17673f",
+   "action": "translate",
+   "new_text": "And nothing went to the delivery queue.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:169; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-3ee12410",
+   "action": "translate",
+   "new_text": "Replying from the Desk must DELIVER. The defect these tests lock down: the Desk wrote `mensagem` with `estado_entrega='enviada'` without inserting into `outbox_mensagem`. The agent saw the ✓ and the customer received nothing. The fix made the screen use the SAME route as the integration, and what these tests prove is that the route accepts both credentials without loosening any rule.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:18-26; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-df92de21",
+   "action": "translate",
+   "new_text": "A failed message, with its outbox row also in failure — the real state.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:196; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-de605f45",
+   "action": "translate",
+   "new_text": "This is exactly what the screen used to fail to do: it touched only `mensagem`, and the",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:236; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-2d2c264e",
+   "action": "translate",
+   "new_text": "Backoff reset to zero: clicking means the person said the cause was resolved.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:239; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-59930330",
+   "action": "translate",
+   "new_text": "`entregue_em` is the time Meta confirmed. Setting it here would fabricate evidence.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:259; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-27447153",
+   "action": "translate",
+   "new_text": "The signature of the old defect: the screen wrote the message and enqueued nothing.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:264; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-bce817c6",
+   "action": "translate",
+   "new_text": "Previously this came from a SECOND write after sending, and it vanished whenever",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:319; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-b2610409",
+   "action": "translate",
+   "new_text": "An API key is NOT an agent: the \"conversation assigned to you\" rule does not apply,",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:329; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-8b612b85",
+   "action": "translate",
+   "new_text": "because an integration has no owner. That is why this request succeeds where the cookie was rejected.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:330; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-78a99929",
+   "action": "translate",
+   "new_text": "The trap in a route that accepts two credentials: if the wrong Bearer token were",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:352; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-c934cbcd",
+   "action": "translate",
+   "new_text": "accepted alongside a valid cookie, it would impersonate the person. A Bearer token, once present, must be verified.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:354; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-d29f543c",
+   "action": "translate",
+   "new_text": "An open conversation, with its 24h window still open, assigned to whoever the test asks for.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/envio-sessao.test.ts:65; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-0d82b07b",
+   "action": "translate",
+   "new_text": "Inserts someone directly in the database, bypassing the route, to set up the scenario.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/equipe-do-fluxo.test.ts:140; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-11442fff",
+   "action": "translate",
+   "new_text": "`selectAllPermissions()`: \"View and edit\" sets EVERY row to `readWrite`.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/equipe-do-fluxo.test.ts:205; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-af36703d",
+   "action": "translate",
+   "new_text": "The flow's OWN team — `/v1/gestao/fluxos/:id/equipe` — and the guard it exists to feed, `exigirPermissaoNoFluxo`. What is worth proving is what the source product decides and what Pipe decided on top of it: the higher level SETS the lower radios (`selectAllPermissions()`), anyone outside the contract is rejected with the source's own wording, the double gate accepts anyone with the permission on the FLOW **or** on the account (and rejects anyone with neither), and the flow's last administrator cannot leave — this last rule is ours, because the source has `owner` and we do not.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/equipe-do-fluxo.test.ts:22-32; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-0e310008",
+   "action": "translate",
+   "new_text": "Whatever is absent falls into \"No permission\" — the source's zero radio option.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/equipe-do-fluxo.test.ts:229; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-0ade0d18",
+   "action": "translate",
+   "new_text": "Back to how it was: the remaining cases rely on him having no permission at all.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/equipe-do-fluxo.test.ts:278; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-0b3bc578",
+   "action": "translate",
+   "new_text": "Runs the raw function inside the tenant's transaction, the same way the routes do.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/equipe-do-fluxo.test.ts:351; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-037cbb10",
+   "action": "translate",
+   "new_text": "`PATCH /v1/gestao/fluxos/:id` is \"Basic configurations\" (`basicConfigurations`): before migration 0035 it required `automacao.fluxo.editar` on the account, and anyone without it got a 403.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/equipe-do-fluxo.test.ts:386-388; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-44ad93a8",
+   "action": "translate",
+   "new_text": "People from tenant A with no flow permission at all, and not even a member.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/equipe-do-fluxo.test.ts:39; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-fc46a995",
+   "action": "translate",
+   "new_text": "An editor from tenant B: proves the tenant comes from the session, never from the URL.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/equipe-do-fluxo.test.ts:42; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-fef7f583",
+   "action": "translate",
+   "new_text": "Three people from tenant A with no account-level permission, so they enter through the flow.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/equipe-do-fluxo.test.ts:44; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-15f0cfc8",
+   "action": "translate",
+   "new_text": "The mode must be decided before any import that reads the variable.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/equipe-do-fluxo.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-3f1fff4e",
+   "action": "translate",
+   "new_text": "A new user in the tenant, with a role carrying these permissions.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/equipe-do-fluxo.test.ts:51; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-8a9920ac",
+   "action": "translate",
+   "new_text": "Tagging an OPEN conversation and tagging a CONTACT — `controladores/etiquetas.ts`, `dominio/etiquetas.ts` (Desk audit, items 16 and 17). Until now the only way to tag a conversation was to close it (`POST /encerrar`), and `contato_etiqueta` had no route at all. The three new routes: the catalog (`GET /v1/etiquetas?escopo=`), the conversation (`POST`/`DELETE /v1/conversas/:id/etiquetas`, permission `conversa.etiquetar` and the caller must be the owner) and the contact (`GET`/`POST`/`DELETE /v1/contatos/:id/etiquetas`, permission `contato.editar`). The tag's scope is checked on the server and every action writes an audit record.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/etiquetas.test.ts:19-30; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-8c9906ea",
+   "action": "translate",
+   "new_text": "The conversation stays OPEN: tagging is not closing.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/etiquetas.test.ts:199; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-52a21f16",
+   "action": "translate",
+   "new_text": "One `criou` and one `excluiu` event — the no-op writes no row.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/etiquetas.test.ts:230; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-9289ecc6",
+   "action": "translate",
+   "new_text": "It does not leak into the conversation: they are different scopes.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/etiquetas.test.ts:366; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-ce086bda",
+   "action": "translate",
+   "new_text": "The mode must be decided before any import that reads the variable.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/etiquetas.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-e8aa73b4",
+   "action": "translate",
+   "new_text": "Time spent with the bot is not queue time: neither `criada` nor `enfileirada` has happened yet.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/fluxo.test.ts:125; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-cdf2bb91",
+   "action": "translate",
+   "new_text": "The menu is structured in `dados`, and with 2 options the worker sends it as buttons",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/fluxo.test.ts:149; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-09c5adde",
+   "action": "translate",
+   "new_text": "(quick reply is enabled by default). The numbered text remains the content that gets recorded.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/fluxo.test.ts:150; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-06c2171b",
+   "action": "translate",
+   "new_text": "The end-to-end bot, with the WhatsApp double and the queue running in-process: message comes in → the bot replies through the outbox → the customer chooses → transfer → conversation queued with its context → a human takes it → closes it → the next message returns to the flow at the block the ticket points to. The flow is the core's SYNTHETIC fixture, in the format of Blip's Builder editor, imported through the same path a customer flow would use.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/fluxo.test.ts:22-30; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-aede1ba1",
+   "action": "translate",
+   "new_text": "The context belongs to the contact: the new conversation knows the name.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/fluxo.test.ts:232; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-7d5430f3",
+   "action": "translate",
+   "new_text": "The mode must be decided before any import that reads the variable.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/fluxo.test.ts:6; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-34da04fa",
+   "action": "translate",
+   "new_text": "With no one online: the transferred conversation must stay IN THE QUEUE for the test to observe.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/fluxo.test.ts:65; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-cab03734",
+   "action": "translate",
+   "new_text": "Core of `tools/std/gerar-fixtures-jsonb.ts`, placed here (rather than in `tools/std/`) because it needs to resolve `drizzle-orm`/`@pipe/db` and all of the `api`'s domain code through this workspace's `node_modules` — `tools/std` does not have those packages installed. It is not a test (no `.test.` in the name, so `node --test`/Vitest do not collect it); it is only the part of the generator that must run from here. See the header of `tools/std/gerar-fixtures-jsonb.ts` for the purpose and the owner's decisions.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/gerar-fixtures-jsonb.helper.ts:1-8; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-ef57953f",
+   "action": "translate",
+   "new_text": "Set `tenant_id = cenario.tenantId` explicitly, never by phone/id alone — without RLS",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/gerar-fixtures-jsonb.helper.ts:102; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-fd9ebf73",
+   "action": "translate",
+   "new_text": "enforcing it, a test phone number equal to one from another run (of this or another",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/gerar-fixtures-jsonb.helper.ts:103; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-1946d777",
+   "action": "translate",
+   "new_text": "`contexto.servicos.suspenderHttp` is always set in `rodarFluxoNaEntrada`, so",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/gerar-fixtures-jsonb.helper.ts:143; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-e52a7019",
+   "action": "translate",
+   "new_text": "every ProcessHttp action ALWAYS suspends before making a real network call — the row is created",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/gerar-fixtures-jsonb.helper.ts:144; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-dc3990d2",
+   "action": "translate",
+   "new_text": "with entrada/contexto/pedido filled in and `resposta` null (state 'pendente'), without",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/gerar-fixtures-jsonb.helper.ts:145; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-b31e3b8b",
+   "action": "translate",
+   "new_text": "any request ever leaving the machine.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/gerar-fixtures-jsonb.helper.ts:146; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-cb6e02f6",
+   "action": "translate",
+   "new_text": "Generates all fixtures inside a SINGLE disposable tenant (created and deleted here, the same way `montarCenario` already does for the entire test suite) and returns the raw records, keyed by fixture file name — the caller redacts and writes them.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/gerar-fixtures-jsonb.helper.ts:25-29; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f656e574",
+   "action": "translate",
+   "new_text": "There is no dedicated write route for it today; the format matches what",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/gerar-fixtures-jsonb.helper.ts:327; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-91a47f04",
+   "action": "translate",
+   "new_text": "`apps/crm/semente/semente-crm.ts:625-654` writes (referenced, not executed).",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/gerar-fixtures-jsonb.helper.ts:328; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-4c8cef52",
+   "action": "translate",
+   "new_text": "No call to Meta's Graph API; it reproduces the SAME deterministic transformation as",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/gerar-fixtures-jsonb.helper.ts:354; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-086f3c88",
+   "action": "translate",
+   "new_text": "Reuses the engine's synthetic fixture (the same one from `apps/api/tests/fluxo.test.ts`):",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/gerar-fixtures-jsonb.helper.ts:60; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-cdf18b41",
+   "action": "translate",
+   "new_text": "Growth: the click tracker (short link + public redirect) and what was still missing from active-message coverage (`mensagens-ativas.test.ts` already covers the bulk of the dispatch itself).",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/growth.test.ts:19-23; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-93af8eff",
+   "action": "translate",
+   "new_text": "A click from 10 days ago, written directly — outside the \"since today\" window.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/growth.test.ts:193; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-c653f3c3",
+   "action": "translate",
+   "new_text": "`resolverCanal` caches in memory; without this the test would see the stale cache.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/growth.test.ts:247; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-899a12df",
+   "action": "translate",
+   "new_text": "The WhatsApp identity is created at the same time: Ana's first message lands on this record.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/importacao.test.ts:120; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-80c55227",
+   "action": "translate",
+   "new_text": "The contact that already existed is the one that remains, merged: name from the last row, email",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/importacao.test.ts:152; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-8df6f606",
+   "action": "translate",
+   "new_text": "from the first, and phone number now in its canonical form.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/importacao.test.ts:153; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-90b0f616",
+   "action": "translate",
+   "new_text": "CSV contact import, against a real database: a port of Chatwoot's `DataImportJob` plus what Pipe additionally requires — phone numbers in E.164 with the ninth digit, deduplication by phone within the tenant, a report of rejected rows, and isolation between customers.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/importacao.test.ts:21-26; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-87f9454d",
+   "action": "translate",
+   "new_text": "In memory mode the API processes the import inline — the same code path as the worker.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/importacao.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-4c797a36",
+   "action": "translate",
+   "new_text": "The Instagram (Direct) channel through the manual path, against a real database and without touching Meta: connecting (and its rejections), the cipher, the HTTP webhook, inbound messages without a phone number, idempotency, echo, outbound delivery through the worker, disconnecting, isolation between customers, and token renewal.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/instagram.test.ts:28-33; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-a3d51c69",
+   "action": "translate",
+   "new_text": "The mode must be decided before any import that reads the variable.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/instagram.test.ts:5; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-4f60d9c0",
+   "action": "translate",
+   "new_text": "The database stores the sha256 HASH, not the plaintext secret that came in the token.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/integracoes.test.ts:170; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-0fad146f",
+   "action": "translate",
+   "new_text": "The flow's three Integrations screens (`dominio/gestao/integracoes.ts`): per-flow access keys, connection information and the outbound webhook. Worth proving: the two distinct permissions (`chave_api.gerenciar` for the key, `automacao.integracao.gerenciar` for webhook/connection — reading the connection uses `automacao.fluxo.editar`), the 3-key limit, the secret/token appearing only at creation and never again, SSRF rejection (http, localhost, private IP), cross-tenant and malformed uuid both returning 404, and `webhook_saida` belonging to the ACCOUNT (it does not filter by flow).",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/integracoes.test.ts:19-29; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-a23559e6",
+   "action": "translate",
+   "new_text": "Idempotent: revoking again is not an error, and it does not duplicate the audit record.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/integracoes.test.ts:249; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-5e5571e1",
+   "action": "translate",
+   "new_text": "Has all three permissions — key, integration and flow editing.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/integracoes.test.ts:34; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-83edc0f8",
+   "action": "translate",
+   "new_text": "Only edits the flow: proves that reading the connection does not require the integration permission.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/integracoes.test.ts:36; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-bf098844",
+   "action": "translate",
+   "new_text": "None of the three.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/integracoes.test.ts:38; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-9c4c5683",
+   "action": "translate",
+   "new_text": "Tenant B, with all three permissions — proves the tenant comes from the session.",
+   "sensitivity": "security",
+   "evidence": "apps/api/tests/integracoes.test.ts:40; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f86917b2",
+   "action": "translate",
+   "new_text": "The global `fetch` is used both by the domain code (to \"deliver\" to the webhook)",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/integracoes.test.ts:432; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-762a2781",
+   "action": "translate",
+   "new_text": "and by THIS test itself (to call the `api` process) — the same process,",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/integracoes.test.ts:433; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-6cf39b96",
+   "action": "translate",
+   "new_text": "the same global. The stub intercepts only the fake webhook URL and lets",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/integracoes.test.ts:434; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-bfac0471",
+   "action": "translate",
+   "new_text": "everything bound for `api.url` (the test server) pass through the real fetch,",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/integracoes.test.ts:435; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-accb1c02",
+   "action": "translate",
+   "new_text": "otherwise the test would be talking to itself.",
+   "sensitivity": "integration",
+   "evidence": "apps/api/tests/integracoes.test.ts:436; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-f0c226fc",
+   "action": "translate",
+   "new_text": "It is created as `atribuida`, and the dispatch itself already moves it to `em_atendimento` — the template",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/mensagens-ativas.test.ts:127; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  },
+  {
+   "id": "api-comment-6d1fce20",
+   "action": "translate",
+   "new_text": "is the agent's first message.",
+   "sensitivity": "architecture",
+   "evidence": "apps/api/tests/mensagens-ativas.test.ts:128; pre-triage D-40; needs slice-time confirmation",
+   "notes": "pre-triage D-40; needs slice-time confirmation"
+  }
+ ]
+}
