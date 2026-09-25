@@ -24,6 +24,21 @@ function validStyle(value: string, style: string): boolean {
   return /^[a-z][a-z0-9]*$/.test(value);
 }
 function segments(value: string): string[] { return value.replaceAll('\\', '/').split('/').filter(Boolean); }
+function unprotectedTitleText(row: MapRow): string {
+  if (row.kind !== 'test-title' || !row.notes.includes('D-47 retranslated')) return row.new;
+  const technical = row.old.match(/\/[\w:./-]+|[A-Za-z_][\w-]*(?:\.[A-Za-z_][\w-]*)+|[A-Za-z_][\w.-]*:[a-z_]+|[A-Za-z_][\w]*_[A-Za-z_][\w]*|[a-z][A-Za-z0-9]*[A-Z][A-Za-z0-9]*|[A-Z][A-Z0-9_]{2,}/g) ?? [];
+  for (const match of row.old.matchAll(/([A-Za-z_][A-Za-z0-9_]*)\[['"][^'"]+['"]\]/g)) technical.push(match[1]);
+  for (const match of row.old.matchAll(/`([^`]+)`|"([^"]+)"|'([^']+)'/g)) {
+    const literal = match[1] ?? match[2] ?? match[3];
+    if (literal && !/\s/.test(literal)) technical.push(literal);
+  }
+  let text = row.new;
+  for (const token of technical.sort((a, b) => b.length - a.length)) {
+    const escaped = token.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    text = text.replace(new RegExp(`(?<![\\w.:-])${escaped}(?![\\w.:-])`, 'g'), '');
+  }
+  return text;
+}
 function validCase(row: MapRow): boolean {
   const value = row.new;
   if (row.kind === 'data-attr') {
@@ -88,7 +103,7 @@ export function checkMap(options: { map: string; scopes?: string[]; requireStatu
       if (allowed.length && !allowed.some((decision) => new RegExp(`\\b${decision}\\b`).test(row.decision_ref))) add('error', [row], `${row.new} needs decision_ref`);
       continue;
     }
-    const pt = splitIdentifier(row.new).filter((token) => isPtToken(token, extra));
+    const pt = splitIdentifier(unprotectedTitleText(row)).filter((token) => isPtToken(token, extra) && !(row.kind === 'test-title' && ['echoes', 'zeroes'].includes(token)));
     if (pt.length) add('error', [row], `PT token: ${pt.join(', ')}`);
     if (!validCase(row)) add('error', [row], 'invalid casing');
     const suffix = Object.entries({ Controlador: 'Controller', Servico: 'Service', Guarda: 'Guard', Erro: 'Error', Filtro: 'Filter', Modulo: 'Module' }).find(([prefix]) => row.old.startsWith(prefix));
