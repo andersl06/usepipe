@@ -1,7 +1,7 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import type { ConversationOfDesk, LabelOfConversation, EtiquetaDoDesk } from '@pipe/contracts';
 import { IconeDesk } from '../../components/icones-desk';
-import { Link } from '../../components/link';
+import { useDeskSelection } from '../../context/desk-selection';
 import { api } from '../../lib/api';
 import { useRead } from '../../lib/query';
 import { executar, atualizarLeituras } from '../../lib/actions';
@@ -28,6 +28,7 @@ type Aba = 'informacoes' | 'historico' | 'comentarios';
 export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; agora: Date }) {
   const [aba, setAba] = useState<Aba>('informacoes');
   const [editandoContact, setEditandoContact] = useState(false);
+  const { openContact } = useDeskSelection();
   const conversationId = aberta?.conversation.id ?? null;
 
   // Trocar de ticket sai do modo de edição: senão o formulário de um contato fica
@@ -155,17 +156,18 @@ export function Panel({ aberta, agora }: { aberta: ConversationOfDesk | null; ag
                 </div>
               ) : (
                 history.map((h) => (
-                  <Link
+                  <button
                     key={h.id}
-                    href={`/contacts/${conversation.contactId}?ticket=${h.id}`}
-                    className="dk-historico-item"
+                    type="button"
+                    onClick={() => openContact(conversation.contactId, h.id)}
+                    className="dk-historico-item dk-historico-botao"
                   >
                     <b>Ticket {numeroDoTicket(h.id)}</b>
                     <span>{h.filaNome ?? 'Transferência direta'}</span>
                     <small>
                       {h.encerradaEm ? dataAbreviada(new Date(h.encerradaEm)) : 'Aberto'}
                     </small>
-                  </Link>
+                  </button>
                 ))
               )}
             </section>

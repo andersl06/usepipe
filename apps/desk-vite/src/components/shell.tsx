@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Outlet } from 'react-router-dom';
+import { DeskSelectionProvider } from '../context/desk-selection';
 import { Rail } from './rail';
 
 /**
@@ -9,15 +10,21 @@ import { Rail } from './rail';
  * `data-painel` e `data-estado` são as classes `drawer-hidden` e
  * `state--chat`/`state--drawer` do `#container` de lá: governam as faixas
  * abaixo de 1600 e de 950 no CSS.
+ *
+ * `DeskSelectionProvider` mora aqui, não no `App`: rail e páginas
+ * compartilham a mesma seleção (conversa/contato), e as rotas públicas
+ * (login, convite) nunca precisam dela (D-27/D-29).
  */
 export function Shell() {
   const [statusAberto, setStatusAberto] = useState(false);
   return (
-    <div className="dk-app" data-status={statusAberto ? 'aberto' : 'fechado'}>
-      <Rail aberto={statusAberto} aoAbrir={setStatusAberto} />
-      <div className="dk-container">
-        <Outlet />
+    <DeskSelectionProvider>
+      <div className="dk-app" data-status={statusAberto ? 'aberto' : 'fechado'}>
+        <Rail aberto={statusAberto} aoAbrir={setStatusAberto} />
+        <div className="dk-container">
+          <Outlet />
+        </div>
       </div>
-    </div>
+    </DeskSelectionProvider>
   );
 }
