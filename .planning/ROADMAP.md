@@ -78,7 +78,7 @@ Plans:
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
-- [ ] 01-12-PLAN.md — Prepare and run owner gate 2 (D-03): prove the map is applicable, present a review packet, record approval, and close slice 0.
+- [x] 01-12-PLAN.md — Prepare and run owner gate 2 (D-03): prove the map is applicable, present a review packet, record approval, and close slice 0.
 
 **Wave 9** *(blocked on Wave 8 completion)*
 
@@ -319,7 +319,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Padronizar linguagem técnica, navegação e renderização | 15/41 | In Progress|  |
+| 1. Padronizar linguagem técnica, navegação e renderização | 16/41 | In Progress|  |
 | 2. Fechar o Builder | 0/TBD | Not started | - |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
