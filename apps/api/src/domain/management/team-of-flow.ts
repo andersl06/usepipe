@@ -181,7 +181,7 @@ async function member(
   flowId: string,
 ): Promise<LineOfMember | undefined> {
   const [linha] = await tx
-    .select({ papelNoFluxo: flowMember.roleInFlow, permissoes: flowMember.permissions })
+    .select({ roleInFlow: flowMember.roleInFlow, permissions: flowMember.permissions })
     .from(flowMember)
     .where(and(eq(flowMember.flowId, flowId), eq(flowMember.userId, userId)))
     .limit(1);
@@ -279,11 +279,11 @@ function forContract(linha: {
 }
 
 const COLUNAS = {
-  usuarioId: flowMember.userId,
-  nome: user.nome,
+  userId: flowMember.userId,
+  name: user.nome,
   email: user.email,
-  papelNoFluxo: flowMember.roleInFlow,
-  permissoes: flowMember.permissions,
+  roleInFlow: flowMember.roleInFlow,
+  permissions: flowMember.permissions,
   criadoEm: flowMember.criadoEm,
 };
 
@@ -401,11 +401,11 @@ export async function adicionarMember(
     .insert(flowMember)
     .values({
       tenantId,
-      fluxoId,
-      usuarioId: pessoa.id,
+      flowId: fluxoId,
+      userId: pessoa.id,
       roleInFlow,
       permissions,
-      convidadoPor: usuarioId,
+      convidadoBy: usuarioId,
     })
     .onConflictDoNothing({ target: [flowMember.flowId, flowMember.userId] })
     .returning({ criadoEm: flowMember.criadoEm });
@@ -421,7 +421,14 @@ export async function adicionarMember(
     depois: { fluxoId, email, roleInFlow, permissions },
   });
 
-  return forContract({ ...pessoa, userId: pessoa.id, roleInFlow, permissions, ...criado });
+  return forContract({
+    userId: pessoa.id,
+    name: pessoa.nome,
+    email: pessoa.email,
+    roleInFlow,
+    permissions,
+    criadoEm: criado.criadoEm,
+  });
 }
 
 /** O "Salvar alterações" do modal de editar. Nada mudou, nada é gravado. */
@@ -446,12 +453,12 @@ export async function editarMember(
 
   const papelNoFluxo =
     pedido.papelNoFluxo === undefined
-      ? (atual.papelNoFluxo as RoleInFlow)
+      ? (atual.roleInFlow as RoleInFlow)
       : roleChecked(pedido.papelNoFluxo);
   const permissoes = permissionsOfRole(
     papelNoFluxo,
     pedido.permissoes === undefined
-      ? (atual.permissoes ?? {})
+      ? (atual.permissions ?? {})
       : permissionsChecked(pedido.permissoes),
   );
 
@@ -459,12 +466,12 @@ export async function editarMember(
      mapas iguais são objetos diferentes, e sem achatar todo Salvar viraria
      mudança. De quebra o log diz QUAL linha da lista mudou. */
   const mudanca = diferenca(
-    { papelNoFluxo: atual.papelNoFluxo, ...(atual.permissoes ?? {}) },
+    { papelNoFluxo: atual.roleInFlow, ...(atual.permissions ?? {}) },
     { papelNoFluxo, ...permissoes },
   );
   if (Object.keys(mudanca.depois).length === 0) return forContract(atual);
 
-  if (atual.papelNoFluxo === 'admin' && papelNoFluxo !== 'admin') {
+  if (atual.roleInFlow === 'admin' && papelNoFluxo !== 'admin') {
     if ((await outrosAdmins(tx, fluxoId, alvoId)) === 0) throw ultimoAdmin();
   }
 

@@ -76,7 +76,7 @@ export function watch(nome: string, rotulos: Rotulos, valor: number): void {
   const k = key(nome, rotulos);
   let histograma = histogramas.get(k);
   if (!histograma) {
-    histograma = { nome, rotulos, baldes: BALDES_SEGUNDOS.map(() => 0), soma: 0, count: 0 };
+    histograma = { name: nome, rotulos, baldes: BALDES_SEGUNDOS.map(() => 0), soma: 0, count: 0 };
     histogramas.set(k, histograma);
   }
   histograma.soma += valor;
