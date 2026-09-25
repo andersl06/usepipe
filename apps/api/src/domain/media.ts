@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { sql } from 'drizzle-orm';
 import { decifrarConfig, estaCifrado } from '@pipe/db';
 import { esperaMs } from '@pipe/workers';
-import type { JobMidia as JobMedia } from '@pipe/workers';
+import type { JobMedia } from '@pipe/workers';
 import { keyOfAttachment, maxBytesDoMime, mimeParaServir } from '@pipe/storage';
 import { databaseOwner, keyring, noTenant } from '../database.js';
 import { storage } from './attachment.js';
@@ -114,7 +114,7 @@ export async function baixarMediaOfAttachment(tenantId: string, attachmentId: st
       linha.channelType === 'whatsapp_cloud'
         ? await baixarDoWhatsApp(linha)
         : await baixarDoInstagram(linha);
-    if ('erroPermanente' in baixado) return marcarFalha(tenantId, linha, baixado.erroPermanente);
+    if ('errorPermanente' in baixado) return marcarFalha(tenantId, linha, baixado.errorPermanente);
 
     const mimeFinal = mimeParaServir(baixado.mime, baixado.bytes);
     const teto = maxBytesDoMime(mimeFinal);
@@ -277,5 +277,5 @@ export async function midiasPendentes(lote = 200): Promise<JobMedia[]> {
      order by criado_em
      limit ${lote}
   `);
-  return rows.map((l) => ({ tenantId: l.tenant_id, anexoId: l.id }));
+  return rows.map((l) => ({ tenantId: l.tenant_id, attachmentId: l.id }));
 }
