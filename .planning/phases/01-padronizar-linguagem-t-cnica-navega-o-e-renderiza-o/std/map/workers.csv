@@ -171,7 +171,7 @@ workers-ts-local-fe7a73ba,workers,2,ts-local,estado,state,apps/workers/src/impor
 workers-ts-prop-0661be82,workers,2,ts-prop,canal_config,channelConfig,apps/workers/src/entrega.ts:55,4,no,,,approved,codex1,
 workers-ts-prop-068f565f,workers,2,ts-prop,conversasAbandonadas,conversationsAbandonadas,apps/workers/src/agregacao.ts:198,3,no,,,approved,codex1,
 workers-ts-prop-072f2bcc,workers,2,ts-prop,anexo_mime,attachmentMime,apps/workers/src/entrega.ts:62,2,no,,,approved,codex1,
-workers-ts-prop-0ccb4d66,workers,2,wire-key,mensagem_id,messageId,apps/workers/src/entrega.ts:44,29,no,,D-09,approved,codex1,
+workers-ts-prop-0ccb4d66,workers,2,wire-key,mensagem_id,messageId,apps/workers/src/entrega.ts:44,apps/workers/src/entrega.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 workers-ts-prop-1607e154,workers,2,ts-prop,mensagensSaida,messagesOutput,apps/workers/src/agregacao.ts:200,3,no,,,approved,codex1,
 workers-ts-prop-233e13cf,workers,2,ts-prop,tokenAcesso,tokenAccess,apps/workers/src/whatsapp/cliente.ts:20,75,no,,,approved,codex1,
 workers-ts-prop-32408df3,workers,2,ts-prop,conversasEncerradas,conversationsCloseds,apps/workers/src/agregacao.ts:196,3,no,,,approved,codex1,
@@ -199,8 +199,8 @@ workers-ts-prop-8384eb92,workers,2,ts-prop,tokenAcesso,tokenAccess,apps/workers/
 workers-ts-prop-9016e891,workers,2,ts-prop,conversasPerdidas,conversationsPerdidas,apps/workers/src/agregacao.ts:197,3,no,,,approved,codex1,
 workers-ts-prop-930c5a6c,workers,2,ts-prop,esperaFilaSeg,waitQueueSeg,apps/workers/src/agregacao.ts:201,3,no,,,approved,codex1,
 workers-ts-prop-95a09c72,workers,2,ts-prop,canal_tipo,channelType,apps/workers/src/entrega.ts:56,35,no,,,approved,codex1,
-workers-ts-prop-95b93d6e,workers,2,wire-key,atendente_id,agentId,apps/workers/src/agregacao.ts:215,68,no,,D-09,approved,codex1,
-workers-ts-prop-982e15d8,workers,2,wire-key,fila_id,queueId,apps/workers/src/agregacao.ts:214,72,no,,D-09,approved,codex1,
+workers-ts-prop-95b93d6e,workers,2,wire-key,atendente_id,agentId,apps/workers/src/agregacao.ts:215,apps/workers/src/agregacao.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
+workers-ts-prop-982e15d8,workers,2,wire-key,fila_id,queueId,apps/workers/src/agregacao.ts:214,apps/workers/src/agregacao.ts,no,,D-09,approved,codex1,consumers field held a leftover ts-prop occurrence count after this row was reclassified to wire-key (check-map rule 10); replaced with the declared_at file so rewrite-literals' file-list consumer gate can find it
 workers-ts-prop-9da5bccb,workers,2,ts-prop,erroCodigo,errorCode,apps/workers/src/entrega.ts:71,18,no,,,approved,codex1,
 workers-ts-prop-a097cd3e,workers,2,ts-prop,credenciais,credentials,apps/workers/src/messenger.ts:3,34,no,,,approved,codex1,
 workers-ts-prop-a9fe0dbb,workers,2,ts-prop,canalId,channelId,apps/workers/src/filas.ts:27,387,no,,,approved,codex1,
