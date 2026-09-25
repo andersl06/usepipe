@@ -1,109 +1,145 @@
 id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
-infra-dir-9dcefdba,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o,0,no,,,candidate,,
-infra-dir-d0b72e6c,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std,0,no,,,candidate,,
-infra-dir-8fe2ffe7,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments,0,no,,,candidate,,
-infra-dir-e10ba142,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map,0,no,,,candidate,,
-infra-dir-19a8b0fe,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/out,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/out,0,no,,,candidate,,
-infra-dir-6175a149,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/prompts,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/prompts,0,no,,,candidate,,
-infra-dir-0848ac73,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/reports,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/reports,0,no,,,candidate,,
-infra-dir-c9d9d42b,infra,4,dir,infra/compose/segredos,,infra/compose/segredos,0,no,,,candidate,,
-infra-dir-3e9f3b91,infra,4,dir,infra/k8s/valores,,infra/k8s/valores,0,no,,,candidate,,
-infra-dir-505d6b11,infra,4,dir,infra/observabilidade,,infra/observabilidade,0,no,,,candidate,,
-infra-dir-33119301,infra,4,dir,infra/terraform/ambientes/homologacao,,infra/terraform/ambientes/homologacao,0,no,,,candidate,,
-infra-dir-42f78476,infra,4,dir,infra/terraform/ambientes/producao,,infra/terraform/ambientes/producao,0,no,,,candidate,,
-infra-file-2241351b,infra,4,file,10-papel-app.sh,,infra/compose/postgres/init/10-papel-app.sh,3,no,,,candidate,,
-infra-file-1d0d55e0,infra,4,file,2026-09-05-metricas-atendimento-1598d1d3.json,,.planning/intel/classifications/2026-09-05-metricas-atendimento-1598d1d3.json,0,no,,,candidate,,
-infra-file-e45b95e3,infra,4,file,2026-09-05-metricas-atendimento.md,,docs/specs/2026-09-05-metricas-atendimento.md,7,no,,,candidate,,
-infra-file-cda98bba,infra,4,file,2026-09-05-modelo-de-dados-07c88b43.json,,.planning/intel/classifications/2026-09-05-modelo-de-dados-07c88b43.json,0,no,,,candidate,,
-infra-file-b1824c80,infra,4,file,2026-09-05-modelo-de-dados.md,,docs/specs/2026-09-05-modelo-de-dados.md,4,no,,,candidate,,
-infra-file-c9e06c80,infra,4,file,2026-09-06-mensagem-ativa-e-janelas-21cba072.json,,.planning/intel/classifications/2026-09-06-mensagem-ativa-e-janelas-21cba072.json,0,no,,,candidate,,
-infra-file-55e9690b,infra,4,file,2026-09-06-mensagem-ativa-e-janelas.md,,docs/specs/2026-09-06-mensagem-ativa-e-janelas.md,2,no,,,candidate,,
-infra-file-a557ee67,infra,4,file,2026-09-07-implantacao-e96615ce.json,,.planning/intel/classifications/2026-09-07-implantacao-e96615ce.json,0,no,,,candidate,,
-infra-file-71a2c538,infra,4,file,2026-09-07-implantacao.md,,docs/specs/2026-09-07-implantacao.md,6,no,,,candidate,,
-infra-file-6efd6053,infra,4,file,2026-09-07-integracao-twenty-f0e6c294.json,,.planning/intel/classifications/2026-09-07-integracao-twenty-f0e6c294.json,0,no,,,candidate,,
-infra-file-ceb6082a,infra,4,file,2026-09-07-integracao-twenty.md,,docs/specs/2026-09-07-integracao-twenty.md,12,no,,,candidate,,
-infra-file-94ca2b97,infra,4,file,2026-09-07-storage-de-anexos-32365431.json,,.planning/intel/classifications/2026-09-07-storage-de-anexos-32365431.json,0,no,,,candidate,,
-infra-file-7166b75c,infra,4,file,2026-09-07-storage-de-anexos.md,,docs/specs/2026-09-07-storage-de-anexos.md,2,no,,,candidate,,
-infra-file-f91c3162,infra,4,file,2026-09-07-webhook-por-cliente-cc698675.json,,.planning/intel/classifications/2026-09-07-webhook-por-cliente-cc698675.json,0,no,,,candidate,,
-infra-file-9fd05e55,infra,4,file,2026-09-07-webhook-por-cliente.md,,docs/specs/2026-09-07-webhook-por-cliente.md,8,no,,,candidate,,
-infra-file-896a37d1,infra,4,file,2026-09-12-ponte-lime-6ee45ecb.json,,.planning/intel/classifications/2026-09-12-ponte-lime-6ee45ecb.json,0,no,,,candidate,,
-infra-file-354e1dfa,infra,4,file,2026-09-12-ponte-lime.md,,docs/specs/2026-09-12-ponte-lime.md,4,no,,,candidate,,
-infra-file-46e34b99,infra,4,file,2026-09-23-atendimento-blip-fidelity-d1b521f2.json,,.planning/intel/classifications/2026-09-23-atendimento-blip-fidelity-d1b521f2.json,0,no,,,candidate,,
-infra-file-aecf4b04,infra,4,file,2026-09-23-atendimento-blip-fidelity.md,,docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md,1,no,,,candidate,,
-infra-file-c6b18e8e,infra,4,file,construir-imagens.sh,,infra/construir-imagens.sh,30,no,,,candidate,,
-infra-file-023fb567,infra,4,file,ferramentas-oportunidades.md,,docs/lp/ferramentas-oportunidades.md,0,no,,,candidate,,
-infra-file-8deef85c,infra,4,file,gestao-vite.csv,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/gestao-vite.csv,19,no,,,candidate,,
-infra-file-693e8026,infra,4,file,gestao-vite.csv,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/gestao-vite.csv,19,no,,,candidate,,
-infra-file-8465f45d,infra,4,file,imagens-prompts.md,,docs/lp/imagens-prompts.md,0,no,,,candidate,,
-infra-file-eb2473ec,infra,4,file,implantar.sh,,infra/compose/implantar.sh,16,no,,,candidate,,
-infra-file-dffd3515,infra,4,file,packages-armazenamento.csv,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/packages-armazenamento.csv,4,no,,,candidate,,
-infra-file-d20fc464,infra,4,file,packages-armazenamento.csv,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/packages-armazenamento.csv,4,no,,,candidate,,
-infra-file-4cc434b3,infra,4,file,packages-autenticacao.csv,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/packages-autenticacao.csv,6,no,,,candidate,,
-infra-file-560388dc,infra,4,file,packages-autenticacao.csv,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/packages-autenticacao.csv,6,no,,,candidate,,
-infra-file-23016a7f,infra,4,file,packages-tempo-real.csv,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/packages-tempo-real.csv,4,no,,,candidate,,
-infra-file-9d62383e,infra,4,file,packages-tempo-real.csv,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/packages-tempo-real.csv,4,no,,,candidate,,
-infra-file-e823de9f,infra,4,file,ponte.csv,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/ponte.csv,19,no,,,candidate,,
-infra-file-df5b25e3,infra,4,file,ponte.csv,,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/ponte.csv,19,no,,,candidate,,
-infra-file-d84d246a,infra,4,file,redacao.ts,,tools/std/redacao.ts,0,no,,,candidate,,
-infra-file-81d038d3,infra,4,file,restaurar-teste.sh,,infra/compose/backup/restaurar-teste.sh,2,no,,,candidate,,
-infra-literal-value-aa0c7cbe,infra,4,literal-value,gestao-vite,,tools/std/inventory.ts:31,244,no,,D-11,candidate,,Non-stored discriminator at tools/std/inventory.ts:31
-infra-literal-value-ae96941c,infra,4,literal-value,packages-armazenamento,,tools/std/inventory.ts:30,19,no,,D-11,candidate,,Non-stored discriminator at tools/std/inventory.ts:30
-infra-literal-value-074df66f,infra,4,literal-value,packages-autenticacao,,tools/std/inventory.ts:30,22,no,,D-11,candidate,,Non-stored discriminator at tools/std/inventory.ts:30
-infra-literal-value-b453657a,infra,4,literal-value,packages-tempo-real,,tools/std/inventory.ts:30,23,no,,D-11,candidate,,Non-stored discriminator at tools/std/inventory.ts:30
-infra-literal-value-dfbfcfe1,infra,4,literal-value,ponte,,tools/std/inventory.ts:31,199,no,,D-11,candidate,,Non-stored discriminator at tools/std/inventory.ts:31
-infra-script-b55f9d3b,infra,4,script,banco:descer,,package.json:1,0,no,,,candidate,,
-infra-script-99e6de00,infra,4,script,banco:migrar,,package.json:1,0,no,,,candidate,,
-infra-script-6cb0e9c9,infra,4,script,banco:semear,,package.json:1,0,no,,,candidate,,
-infra-script-0c294f6c,infra,4,script,banco:subir,,package.json:1,0,no,,,candidate,,
-infra-script-fceb8ef3,infra,4,script,ponte,,package.json:1,0,no,,,candidate,,
-infra-symbol-3962c314,infra,4,symbol,chavesPorArquivo,,tools/std/jsonb-keys.ts:163,2,no,,,candidate,,
-infra-symbol-e9d3bf8f,infra,4,symbol,EntradaDoManifesto,,tools/std/jsonb-keys.ts:25,4,no,,,candidate,,
-infra-symbol-b87fa08d,infra,4,symbol,erros,,scripts/foto.mjs:25,110,no,,,candidate,,
-infra-symbol-ec10c458,infra,4,symbol,fluxo,,tools/std/route-match.ts:486,1172,no,,,candidate,,
-infra-symbol-05bef5ef,infra,4,symbol,nomeDePropriedade,,tools/std/jsonb-keys.ts:75,2,no,,,candidate,,
-infra-symbol-e25133d6,infra,4,symbol,PADRAO_CHAVE_SEGREDO,,tools/std/redacao.ts:14,1,no,,,candidate,,
-infra-symbol-a69ad9fe,infra,4,symbol,pagina,,scripts/foto.mjs:24,89,no,,,candidate,,
-infra-symbol-2e13b49c,infra,4,symbol,relatorio,,tools/std/jsonb-keys.ts:169,26,no,,,candidate,,
-infra-symbol-924dba84,infra,4,symbol,RELATORIO,,tools/std/jsonb-keys.ts:20,7,no,,,candidate,,
-infra-test-title-f2c8bae7,infra,1,test-title,$type alcanca propriedades e literais transitivos,,tools/std/jsonb-reach.test.ts:9,0,no,,,candidate,,
-infra-test-title-ac41a203,infra,1,test-title,casts e anotacoes de leitura sao alcancados,,tools/std/jsonb-reach.test.ts:24,0,no,,,candidate,,
-infra-test-title-3d5693f7,infra,1,test-title,catalogo completo de permissoes semeadas permanece no banco,,tools/std/persisted-01-08.test.ts:39,0,no,,,candidate,,
-infra-test-title-6b5bcab8,infra,1,test-title,codePropertyNames pega acesso.propriedade e acesso['indice'],,tools/std/jsonb-keys.test.ts:58,0,no,,,candidate,,
-infra-test-title-1f117441,infra,1,test-title,"codePropertyNames pega chave de objeto literal, inclusive shorthand",,tools/std/jsonb-keys.test.ts:44,0,no,,,candidate,,
-infra-test-title-36091841,infra,1,test-title,codePropertyNames pega membro de interface e de type literal,,tools/std/jsonb-keys.test.ts:33,0,no,,,candidate,,
-infra-test-title-56da1204,infra,1,test-title,codigos realmente escritos em erro_codigo e ultimo_erro permanecem; erro HTTP isolado renomeia,,tools/std/persisted-01-08.test.ts:27,0,no,,,candidate,,
-infra-test-title-efe5eab3,infra,1,test-title,collectKeys exclui filhos de caminho opaco mas mantém a própria chave,,tools/std/jsonb-keys.test.ts:11,0,no,,,candidate,,
-infra-test-title-45c41d1e,infra,1,test-title,collectKeys sem doc nem chave nenhuma devolve vazio,,tools/std/jsonb-keys.test.ts:23,0,no,,,candidate,,
-infra-test-title-0db218d5,infra,1,test-title,"extrai classe, metodo e parametro PT com local de declaracao",,tools/std/inventory.test.ts:7,0,no,,,candidate,,
-infra-test-title-3cf05af0,infra,1,test-title,extrai codigo real de erro sem confundir entidade ou permissao,,tools/std/inventory.test.ts:78,0,no,,,candidate,,
-infra-test-title-cd8cea31,infra,1,test-title,isPtComment reconhece palavras funcionais e diacriticos,,tools/std/pt-detect.test.ts:32,0,no,,,candidate,,
-infra-test-title-df4c8aa2,infra,1,test-title,lexiconHash independe da ordem de insercao,,tools/std/pt-detect.test.ts:66,0,no,,,candidate,,
-infra-test-title-4073fa8b,infra,1,test-title,liga sufixo de rota a construtor com base dinamica sem aceitar prefixo curto,,tools/std/inventory.test.ts:62,0,no,,,candidate,,
-infra-test-title-5f834093,infra,1,test-title,lista dependentes de rota por arquivo e tipo,,tools/std/inventory.test.ts:43,0,no,,,candidate,,
-infra-test-title-c50094e2,infra,1,test-title,"literal de alias usa sua linha real, sem capturar alias homonimo de outro arquivo",,tools/std/jsonb-reach.test.ts:51,0,no,,,candidate,,
-infra-test-title-4c1025b0,infra,1,test-title,nao inclui texto visivel de listas const no mapa de literais tecnicos,,tools/std/inventory.test.ts:72,0,no,,,candidate,,
-infra-test-title-07adc9a0,infra,1,test-title,nomes iguais em outros arquivos e metodos de Array nao viram chaves persistidas,,tools/std/jsonb-reach.test.ts:42,0,no,,,candidate,,
-infra-test-title-dda292ec,infra,1,test-title,registra chave TS Drizzle e preserva nome SQL apenas nas notas,,tools/std/inventory.test.ts:20,0,no,,,candidate,,
-infra-test-title-2f19bc65,infra,1,test-title,relatorio fornece chave de declaracao para integracao com inventario,,tools/std/jsonb-reach.test.ts:34,0,no,,,candidate,,
-infra-test-title-544b6986,infra,1,test-title,scanner lexicon does not reject English use/get; untranslated useLeitura still errors,,tools/std/map-tools.test.ts:63,0,no,,,candidate,,
-infra-test-title-ae1ba92e,infra,1,test-title,"todos os escopos gravados no banco ficam fora do mapa, inclusive nomes proximos",,tools/std/persisted-01-08.test.ts:13,0,no,,,candidate,,
-infra-test-title-c6754e2f,infra,1,test-title,update set e conflito alcancam valores,,tools/std/jsonb-reach.test.ts:19,0,no,,,candidate,,
-infra-test-title-c42e7632,infra,1,test-title,valores com prefixos semelhantes seguem decisoes diferentes por fronteira real,,tools/std/persisted-01-08.test.ts:50,0,no,,,candidate,,
-infra-ts-local-8449c9da,infra,4,ts-local,arquivo,,tools/std/gerar-fixtures-jsonb.ts:62,462,no,,,candidate,,
-infra-ts-local-e7c84253,infra,4,ts-local,arquivo,,tools/std/jsonb-keys.ts:170,462,no,,,candidate,,
-infra-ts-local-9d1c02cf,infra,4,ts-local,arquivo,,tools/std/jsonb-keys.ts:193,462,no,,,candidate,,
-infra-ts-local-bb349058,infra,4,ts-local,chaveSegredo,,tools/std/redacao.ts:24,2,no,,,candidate,,
-infra-ts-local-24146956,infra,4,ts-local,chave,,tools/std/gerar-fixtures-jsonb.ts:65,1153,no,,,candidate,,
-infra-ts-local-931af05c,infra,4,ts-local,chave,,tools/std/jsonb-keys.ts:151,1153,no,,,candidate,,
-infra-ts-local-edaaa6c1,infra,4,ts-local,chave,,tools/std/jsonb-keys.ts:166,1153,no,,,candidate,,
-infra-ts-local-d998a04d,infra,4,ts-local,chave,,tools/std/jsonb-keys.ts:194,1153,no,,,candidate,,
-infra-ts-local-b7a64674,infra,4,ts-local,chave,,tools/std/jsonb-keys.ts:53,1153,no,,,candidate,,
-infra-ts-local-77c686cc,infra,4,ts-local,chave,,tools/std/redacao.ts:39,1153,no,,,candidate,,
-infra-ts-local-678a9d67,infra,4,ts-local,chave,,tools/std/redacao.ts:65,1153,no,,,candidate,,
-infra-ts-local-89471142,infra,4,ts-local,entrada,,tools/std/jsonb-keys.ts:145,473,no,,,candidate,,
-infra-ts-local-d893cf11,infra,4,ts-local,entrada,,tools/std/jsonb-keys.ts:164,473,no,,,candidate,,
-infra-ts-local-5e168f87,infra,4,ts-local,valor,,scripts/foto.mjs:16,1656,no,,,candidate,,
-infra-ts-local-380f7ed5,infra,4,ts-local,valor,,tools/std/gerar-fixtures-jsonb.ts:65,1656,no,,,candidate,,
-infra-ts-local-33006fc0,infra,4,ts-local,valor,,tools/std/jsonb-keys.ts:47,1656,no,,,candidate,,
-infra-ts-local-b1a611ab,infra,4,ts-local,valor,,tools/std/redacao.ts:20,1656,no,,,candidate,,
-infra-ts-local-45b06168,infra,4,ts-local,valor,,tools/std/redacao.ts:65,1656,no,,,candidate,,
+infra-app-new-gestao-vite,infra,4,app,gestao-vite,management-vite,apps/gestao-vite/Dockerfile:25,0,no,,D-04,proposed,sonnet,
+infra-app-new-ponte,infra,4,app,ponte,bridge,package.json:1,0,no,,D-04,proposed,sonnet,
+infra-dir-0848ac73,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/reports,KEEP,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/reports,0,no,,,proposed,codex1,
+infra-dir-19a8b0fe,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/out,KEEP,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/out,0,no,,,proposed,sonnet,cx/merge-01-10: matches sibling .../std/* bookkeeping dirs (all KEEP)
+infra-dir-33119301,infra,4,dir,infra/terraform/ambientes/homologacao,infra/terraform/ambientes/staging,infra/terraform/ambientes/homologacao,0,no,,,proposed,codex1,
+infra-dir-3e9f3b91,infra,4,dir,infra/k8s/valores,infra/k8s/values,infra/k8s/valores,0,no,,,proposed,codex1,
+infra-dir-42f78476,infra,4,dir,infra/terraform/ambientes/producao,infra/terraform/ambientes/production,infra/terraform/ambientes/producao,0,no,,,proposed,codex1,
+infra-dir-505d6b11,infra,4,dir,infra/observabilidade,infra/observability,infra/observabilidade,0,no,,,proposed,codex1,
+infra-dir-6175a149,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/prompts,KEEP,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/prompts,0,no,,,proposed,codex1,
+infra-dir-8fe2ffe7,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments,KEEP,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments,0,no,,,proposed,codex1,
+infra-dir-9dcefdba,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o,KEEP,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o,0,no,,,proposed,codex1,
+infra-dir-c9d9d42b,infra,4,dir,infra/compose/segredos,infra/compose/secrets,infra/compose/segredos,0,no,,,proposed,codex1,
+infra-dir-d0b72e6c,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std,KEEP,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std,0,no,,,proposed,codex1,
+infra-dir-e10ba142,infra,4,dir,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map,KEEP,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map,0,no,,,proposed,codex1,
+infra-file-023fb567,infra,4,file,ferramentas-oportunidades.md,ferramentas-opportunities.md,docs/lp/ferramentas-oportunidades.md,0,no,,,proposed,codex1,
+infra-file-1d0d55e0,infra,4,file,2026-09-05-metricas-atendimento-1598d1d3.json,KEEP,.planning/intel/classifications/2026-09-05-metricas-atendimento-1598d1d3.json,0,no,,,proposed,codex1,
+infra-file-2241351b,infra,4,file,10-papel-app.sh,KEEP,infra/compose/postgres/init/10-papel-app.sh,3,no,,,proposed,codex1,
+infra-file-23016a7f,infra,4,file,packages-tempo-real.csv,packages-time-real.csv,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/packages-tempo-real.csv,4,no,,,proposed,codex1,
+infra-file-354e1dfa,infra,4,file,2026-09-12-ponte-lime.md,KEEP,docs/specs/2026-09-12-ponte-lime.md,4,no,,,proposed,codex1,
+infra-file-46e34b99,infra,4,file,2026-09-23-atendimento-blip-fidelity-d1b521f2.json,KEEP,.planning/intel/classifications/2026-09-23-atendimento-blip-fidelity-d1b521f2.json,0,no,,,proposed,codex1,
+infra-file-4cc434b3,infra,4,file,packages-autenticacao.csv,packages-authentication.csv,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/packages-autenticacao.csv,6,no,,,proposed,codex1,
+infra-file-55e9690b,infra,4,file,2026-09-06-mensagem-ativa-e-janelas.md,KEEP,docs/specs/2026-09-06-mensagem-ativa-e-janelas.md,2,no,,,proposed,codex1,
+infra-file-560388dc,infra,4,file,packages-autenticacao.csv,map/packages-authentication.csv,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/packages-autenticacao.csv,6,no,,,proposed,codex1,
+infra-file-693e8026,infra,4,file,gestao-vite.csv,map/management-vite.csv,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/gestao-vite.csv,19,no,,,proposed,codex1,
+infra-file-6efd6053,infra,4,file,2026-09-07-integracao-twenty-f0e6c294.json,KEEP,.planning/intel/classifications/2026-09-07-integracao-twenty-f0e6c294.json,0,no,,,proposed,codex1,
+infra-file-7166b75c,infra,4,file,2026-09-07-storage-de-anexos.md,KEEP,docs/specs/2026-09-07-storage-de-anexos.md,2,no,,,proposed,codex1,
+infra-file-71a2c538,infra,4,file,2026-09-07-implantacao.md,KEEP,docs/specs/2026-09-07-implantacao.md,6,no,,,proposed,codex1,
+infra-file-81d038d3,infra,4,file,restaurar-teste.sh,restore-test.sh,infra/compose/backup/restaurar-teste.sh,2,no,,,proposed,codex1,
+infra-file-8465f45d,infra,4,file,imagens-prompts.md,images-prompts.md,docs/lp/imagens-prompts.md,0,no,,,proposed,codex1,
+infra-file-896a37d1,infra,4,file,2026-09-12-ponte-lime-6ee45ecb.json,KEEP,.planning/intel/classifications/2026-09-12-ponte-lime-6ee45ecb.json,0,no,,,proposed,codex1,
+infra-file-8deef85c,infra,4,file,gestao-vite.csv,management-vite.csv,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/gestao-vite.csv,19,no,,,proposed,codex1,
+infra-file-94ca2b97,infra,4,file,2026-09-07-storage-de-anexos-32365431.json,KEEP,.planning/intel/classifications/2026-09-07-storage-de-anexos-32365431.json,0,no,,,proposed,codex1,
+infra-file-9d62383e,infra,4,file,packages-tempo-real.csv,map/packages-time-real.csv,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/packages-tempo-real.csv,4,no,,,proposed,codex1,
+infra-file-9fd05e55,infra,4,file,2026-09-07-webhook-por-cliente.md,KEEP,docs/specs/2026-09-07-webhook-por-cliente.md,8,no,,,proposed,codex1,
+infra-file-a557ee67,infra,4,file,2026-09-07-implantacao-e96615ce.json,KEEP,.planning/intel/classifications/2026-09-07-implantacao-e96615ce.json,0,no,,,proposed,codex1,
+infra-file-aecf4b04,infra,4,file,2026-09-23-atendimento-blip-fidelity.md,KEEP,docs/superpowers/plans/2026-09-23-atendimento-blip-fidelity.md,1,no,,,proposed,codex1,
+infra-file-b1824c80,infra,4,file,2026-09-05-modelo-de-dados.md,KEEP,docs/specs/2026-09-05-modelo-de-dados.md,4,no,,,proposed,codex1,
+infra-file-c6b18e8e,infra,4,file,construir-imagens.sh,build-images.sh,infra/construir-imagens.sh,30,no,,,proposed,codex1,
+infra-file-c9e06c80,infra,4,file,2026-09-06-mensagem-ativa-e-janelas-21cba072.json,KEEP,.planning/intel/classifications/2026-09-06-mensagem-ativa-e-janelas-21cba072.json,0,no,,,proposed,codex1,
+infra-file-cda98bba,infra,4,file,2026-09-05-modelo-de-dados-07c88b43.json,KEEP,.planning/intel/classifications/2026-09-05-modelo-de-dados-07c88b43.json,0,no,,,proposed,codex1,
+infra-file-ceb6082a,infra,4,file,2026-09-07-integracao-twenty.md,KEEP,docs/specs/2026-09-07-integracao-twenty.md,12,no,,,proposed,codex1,
+infra-file-d20fc464,infra,4,file,packages-armazenamento.csv,map/packages-storage.csv,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/packages-armazenamento.csv,4,no,,,proposed,codex1,
+infra-file-d84d246a,infra,4,file,redacao.ts,drafting.ts,tools/std/redacao.ts,0,no,,,proposed,codex1,
+infra-file-df5b25e3,infra,4,file,ponte.csv,map/bridge.csv,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map/ponte.csv,19,no,,,proposed,codex1,
+infra-file-dffd3515,infra,4,file,packages-armazenamento.csv,packages-storage.csv,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/packages-armazenamento.csv,4,no,,,proposed,codex1,
+infra-file-e45b95e3,infra,4,file,2026-09-05-metricas-atendimento.md,KEEP,docs/specs/2026-09-05-metricas-atendimento.md,7,no,,,proposed,codex1,
+infra-file-e823de9f,infra,4,file,ponte.csv,bridge.csv,.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/comments/ponte.csv,19,no,,,proposed,codex1,
+infra-file-eb2473ec,infra,4,file,implantar.sh,deploy.sh,infra/compose/implantar.sh,16,no,,,proposed,codex1,
+infra-file-f91c3162,infra,4,file,2026-09-07-webhook-por-cliente-cc698675.json,KEEP,.planning/intel/classifications/2026-09-07-webhook-por-cliente-cc698675.json,0,no,,,proposed,codex1,
+infra-literal-value-074df66f,infra,4,literal-value,packages-autenticacao,packages-authentication,tools/std/inventory.ts:30,22,no,,D-11,proposed,codex1,
+infra-literal-value-aa0c7cbe,infra,4,literal-value,gestao-vite,management-vite,tools/std/inventory.ts:31,244,no,,D-11,proposed,codex1,
+infra-literal-value-ae96941c,infra,4,literal-value,packages-armazenamento,packages-storage,tools/std/inventory.ts:30,19,no,,D-11,proposed,codex1,
+infra-literal-value-b453657a,infra,4,literal-value,packages-tempo-real,packages-time-real,tools/std/inventory.ts:30,23,no,,D-11,proposed,codex1,
+infra-literal-value-dfbfcfe1,infra,4,literal-value,ponte,bridge,tools/std/inventory.ts:31,199,no,,D-11,proposed,codex1,
+infra-package-new-auth,infra,4,package,@pipe/autenticacao,@pipe/authentication,pnpm-workspace.yaml:2,0,no,,D-04,proposed,sonnet,
+infra-package-new-realtime,infra,4,package,@pipe/tempo-real,@pipe/realtime,pnpm-workspace.yaml:2,0,no,,D-04,proposed,sonnet,
+infra-package-new-storage,infra,4,package,@pipe/armazenamento,@pipe/storage,pnpm-workspace.yaml:2,0,no,,D-04,proposed,sonnet,
+infra-script-0c294f6c,infra,4,script,banco:subir,db:up,package.json:1,0,no,,D-07,proposed,sonnet,glossary-exception:D-07
+infra-script-6cb0e9c9,infra,4,script,banco:semear,db:seed,package.json:1,0,no,,D-07,proposed,sonnet,glossary-exception:D-07
+infra-script-99e6de00,infra,4,script,banco:migrar,db:migrate,package.json:1,0,no,,D-07,proposed,sonnet,glossary-exception:D-07
+infra-script-b55f9d3b,infra,4,script,banco:descer,db:down,package.json:1,0,no,,D-07,proposed,sonnet,glossary-exception:D-07
+infra-script-fceb8ef3,infra,4,script,ponte,bridge,package.json:1,0,no,,D-07,proposed,sonnet,
+infra-script-new-desk,infra,4,script,desk,KEEP,package.json:1,0,no,,D-07,proposed,sonnet,
+infra-script-new-seed-demo,infra,4,script,seed:demo,KEEP,package.json:1,0,no,,D-07,proposed,sonnet,
+infra-symbol-05bef5ef,infra,4,symbol,nomeDePropriedade,nameOfProperty,tools/std/jsonb-keys.ts:75,2,no,,,proposed,codex1,
+infra-symbol-2e13b49c,infra,4,symbol,relatorio,report,tools/std/jsonb-keys.ts:169,26,no,,,proposed,codex1,
+infra-symbol-3962c314,infra,4,symbol,chavesPorArquivo,keysByFile,tools/std/jsonb-keys.ts:163,2,no,,,proposed,codex1,
+infra-symbol-924dba84,infra,4,symbol,RELATORIO,REPORT,tools/std/jsonb-keys.ts:20,7,no,,,proposed,codex1,
+infra-symbol-a69ad9fe,infra,4,symbol,pagina,page,scripts/foto.mjs:24,89,no,,,proposed,codex1,
+infra-symbol-b87fa08d,infra,4,symbol,erros,errors,scripts/foto.mjs:25,110,no,,,proposed,codex1,
+infra-symbol-e25133d6,infra,4,symbol,PADRAO_CHAVE_SEGREDO,DEFAULT_KEY_SECRET,tools/std/redacao.ts:14,1,no,,,proposed,codex1,
+infra-symbol-e9d3bf8f,infra,4,symbol,EntradaDoManifesto,InboundOfManifesto,tools/std/jsonb-keys.ts:25,4,no,,,proposed,codex1,
+infra-symbol-ec10c458,infra,4,symbol,fluxo,flow,tools/std/route-match.ts:486,1172,no,,,proposed,codex1,
+infra-test-title-07adc9a0,infra,1,test-title,nomes iguais em outros arquivos e metodos de Array nao viram chaves persistidas,same names in other files and Array methods do not become persisted keys,tools/std/jsonb-reach.test.ts:42,0,no,,,proposed,sonnet,"cx/merge-01-10: mechanical PT->EN, same style as other test-title rows"
+infra-test-title-0db218d5,infra,1,test-title,"extrai classe, metodo e parametro PT com local de declaracao","extrai classe, metodo and parametro PT with local of declaration",tools/std/inventory.test.ts:7,0,no,,,proposed,codex1,
+infra-test-title-1f117441,infra,1,test-title,"codePropertyNames pega chave de objeto literal, inclusive shorthand","codePropertyNames pega key of object literal, inclusive shorthand",tools/std/jsonb-keys.test.ts:44,0,no,,,proposed,codex1,
+infra-test-title-2f19bc65,infra,1,test-title,relatorio fornece chave de declaracao para integracao com inventario,report fornece key of declaration for integration with inventario,tools/std/jsonb-reach.test.ts:34,0,no,,,proposed,codex1,
+infra-test-title-36091841,infra,1,test-title,codePropertyNames pega membro de interface e de type literal,codePropertyNames pega member of interface and of type literal,tools/std/jsonb-keys.test.ts:33,0,no,,,proposed,codex1,
+infra-test-title-3cf05af0,infra,1,test-title,extrai codigo real de erro sem confundir entidade ou permissao,extrai code real of error without confundir entity or permission,tools/std/inventory.test.ts:78,0,no,,,proposed,codex1,
+infra-test-title-3d5693f7,infra,1,test-title,catalogo completo de permissoes semeadas permanece no banco,full catalog of seeded permissions stays in the database,tools/std/persisted-01-08.test.ts:39,0,no,,,proposed,sonnet,"cx/merge-01-10: mechanical PT->EN, same style as other test-title rows"
+infra-test-title-4073fa8b,infra,1,test-title,liga sufixo de rota a construtor com base dinamica sem aceitar prefixo curto,connects sufixo of route a builder with base dinamica without aceitar prefix short,tools/std/inventory.test.ts:62,0,no,,,proposed,codex1,
+infra-test-title-45c41d1e,infra,1,test-title,collectKeys sem doc nem chave nenhuma devolve vazio,collectKeys without doc nor key no returns empty,tools/std/jsonb-keys.test.ts:23,0,no,,,proposed,codex1,
+infra-test-title-4c1025b0,infra,1,test-title,nao inclui texto visivel de listas const no mapa de literais tecnicos,not inclui text visible of lists const in mapa of literals tecnicos,tools/std/inventory.test.ts:72,0,no,,,proposed,codex1,
+infra-test-title-544b6986,infra,1,test-title,scanner lexicon does not reject English use/get; untranslated useLeitura still errors,scanner lexicon does not reject English use/get; untranslated useRead still errors,tools/std/map-tools.test.ts:63,0,no,,,proposed,codex1,
+infra-test-title-56da1204,infra,1,test-title,codigos realmente escritos em erro_codigo e ultimo_erro permanecem; erro HTTP isolado renomeia,codes actually written in error_code and last_error remain; isolated HTTP error renames,tools/std/persisted-01-08.test.ts:27,0,no,,,proposed,sonnet,"cx/merge-01-10: mechanical PT->EN, same style as other test-title rows"
+infra-test-title-5f834093,infra,1,test-title,lista dependentes de rota por arquivo e tipo,list dependentes of route by file and type,tools/std/inventory.test.ts:43,0,no,,,proposed,codex1,
+infra-test-title-6b5bcab8,infra,1,test-title,codePropertyNames pega acesso.propriedade e acesso['indice'],codePropertyNames pega access.property and access['index'],tools/std/jsonb-keys.test.ts:58,0,no,,,proposed,codex1,
+infra-test-title-ac41a203,infra,1,test-title,casts e anotacoes de leitura sao alcancados,casts and annotations of read are alcancados,tools/std/jsonb-reach.test.ts:24,0,no,,,proposed,codex1,
+infra-test-title-ae1ba92e,infra,1,test-title,"todos os escopos gravados no banco ficam fora do mapa, inclusive nomes proximos","all scopes written to the database stay out of the map, including similar names",tools/std/persisted-01-08.test.ts:13,0,no,,,proposed,sonnet,"cx/merge-01-10: mechanical PT->EN, same style as other test-title rows"
+infra-test-title-c42e7632,infra,1,test-title,valores com prefixos semelhantes seguem decisoes diferentes por fronteira real,values with similar prefixes follow different decisions by real boundary,tools/std/persisted-01-08.test.ts:50,0,no,,,proposed,sonnet,"cx/merge-01-10: mechanical PT->EN, same style as other test-title rows"
+infra-test-title-c50094e2,infra,1,test-title,"literal de alias usa sua linha real, sem capturar alias homonimo de outro arquivo","alias literal uses its real line, without capturing a homonymous alias from another file",tools/std/jsonb-reach.test.ts:51,0,no,,,proposed,sonnet,"cx/merge-01-10: mechanical PT->EN, same style as other test-title rows"
+infra-test-title-c6754e2f,infra,1,test-title,update set e conflito alcancam valores,update set and conflito alcancam values,tools/std/jsonb-reach.test.ts:19,0,no,,,proposed,codex1,
+infra-test-title-cd8cea31,infra,1,test-title,isPtComment reconhece palavras funcionais e diacriticos,isPtComment reconhece words functional and diacriticos,tools/std/pt-detect.test.ts:32,0,no,,,proposed,codex1,
+infra-test-title-dda292ec,infra,1,test-title,registra chave TS Drizzle e preserva nome SQL apenas nas notas,logs key TS Drizzle and preserva name SQL only nas notes,tools/std/inventory.test.ts:20,0,no,,,proposed,codex1,
+infra-test-title-df4c8aa2,infra,1,test-title,lexiconHash independe da ordem de insercao,lexiconHash independe of order of insertion,tools/std/pt-detect.test.ts:66,0,no,,,proposed,codex1,
+infra-test-title-efe5eab3,infra,1,test-title,collectKeys exclui filhos de caminho opaco mas mantém a própria chave,collectKeys deletes filhos of caminho opaco but mantém a own key,tools/std/jsonb-keys.test.ts:11,0,no,,,proposed,codex1,
+infra-test-title-f2c8bae7,infra,1,test-title,$type alcanca propriedades e literais transitivos,$type reaches properties and literals transitivos,tools/std/jsonb-reach.test.ts:9,0,no,,,proposed,codex1,
+infra-ts-local-24146956,infra,4,ts-local,chave,key,tools/std/gerar-fixtures-jsonb.ts:65,1153,no,,,proposed,codex1,
+infra-ts-local-33006fc0,infra,4,ts-local,valor,value,tools/std/jsonb-keys.ts:47,1656,no,,,proposed,codex1,
+infra-ts-local-380f7ed5,infra,4,ts-local,valor,value,tools/std/gerar-fixtures-jsonb.ts:65,1656,no,,,proposed,codex1,
+infra-ts-local-5e168f87,infra,4,ts-local,valor,value,scripts/foto.mjs:16,1656,no,,,proposed,codex1,
+infra-ts-local-77c686cc,infra,4,ts-local,chave,key,tools/std/redacao.ts:39,1153,no,,,proposed,codex1,
+infra-ts-local-8449c9da,infra,4,ts-local,arquivo,file,tools/std/gerar-fixtures-jsonb.ts:62,462,no,,,proposed,codex1,
+infra-ts-local-89471142,infra,4,ts-local,entrada,inbound,tools/std/jsonb-keys.ts:145,473,no,,,proposed,codex1,
+infra-ts-local-931af05c,infra,4,ts-local,chave,key,tools/std/jsonb-keys.ts:151,1153,no,,,proposed,codex1,
+infra-ts-local-b1a611ab,infra,4,ts-local,valor,value,tools/std/redacao.ts:20,1656,no,,,proposed,codex1,
+infra-ts-local-bb349058,infra,4,ts-local,chaveSegredo,keySecret,tools/std/redacao.ts:24,2,no,,,proposed,codex1,
+infra-ts-local-e7c84253,infra,4,ts-local,arquivo,file,tools/std/jsonb-keys.ts:170,462,no,,,proposed,codex1,
+infra-ts-prop-0390d8fa,infra,4,ts-prop,reverse,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-0568dab1,infra,4,ts-prop,indexOf,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-0ceec3aa,infra,4,ts-prop,forEach,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-0de66450,infra,4,ts-prop,at,KEEP,/node_modules/typescript/lib/lib.es2022.array.d.ts:1,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-240a13ec,infra,4,ts-prop,keys,KEEP,/node_modules/typescript/lib/lib.es2015.iterable.d.ts:2,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-2e2db325,infra,4,ts-prop,push,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-31458c2b,infra,4,ts-prop,fill,KEEP,/node_modules/typescript/lib/lib.es2015.core.d.ts:1,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-31fbe503,infra,4,ts-prop,[Symbol.unscopables],KEEP,/node_modules/typescript/lib/lib.es2015.symbol.wellknown.d.ts:2,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-3376701a,infra,4,ts-prop,splice,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-445829d9,infra,4,ts-prop,reduce,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-4645cc25,infra,4,ts-prop,unshift,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-4b4ff4b4,infra,4,ts-prop,copyWithin,KEEP,/node_modules/typescript/lib/lib.es2015.core.d.ts:1,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-5983fb2a,infra,4,ts-prop,flat,KEEP,/node_modules/typescript/lib/lib.es2019.array.d.ts:1,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-6a73c462,infra,4,ts-prop,[Symbol.iterator],KEEP,/node_modules/typescript/lib/lib.es2015.iterable.d.ts:2,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-6df56c39,infra,4,ts-prop,find,KEEP,/node_modules/typescript/lib/lib.es2015.core.d.ts:1,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-7061b606,infra,4,ts-prop,slice,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-7d434416,infra,4,ts-prop,join,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-8024011f,infra,4,ts-prop,includes,KEEP,/node_modules/typescript/lib/lib.es2016.array.include.d.ts:1,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-84fe1736,infra,4,ts-prop,toString,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-85c7ad8e,infra,4,ts-prop,values,KEEP,/node_modules/typescript/lib/lib.es2015.iterable.d.ts:2,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-88e8e2fa,infra,4,ts-prop,reduceRight,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-8a0aa13b,infra,4,ts-prop,pop,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-8c10eae1,infra,4,ts-prop,some,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-9261b9bc,infra,4,ts-prop,filter,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-93bf4afe,infra,4,ts-prop,sort,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-9730adf9,infra,4,ts-prop,lastIndexOf,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-a48f5800,infra,4,ts-prop,findIndex,KEEP,/node_modules/typescript/lib/lib.es2015.core.d.ts:1,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-a7a9f97b,infra,4,ts-prop,every,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-a856f19c,infra,4,ts-prop,toLocaleString,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-b07a1e6e,infra,4,ts-prop,length,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-bc651f03,infra,4,ts-prop,concat,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-c3f39add,infra,4,ts-prop,map,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-f09c3071,infra,4,ts-prop,shift,KEEP,/node_modules/typescript/lib/lib.es5.d.ts:3,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-f7748eae,infra,4,ts-prop,flatMap,KEEP,/node_modules/typescript/lib/lib.es2019.array.d.ts:1,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-fc69ba50,infra,4,ts-prop,toLocaleString,KEEP,/node_modules/typescript/lib/lib.es2015.core.d.ts:1,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
+infra-ts-prop-fdc2498f,infra,4,ts-prop,entries,KEEP,/node_modules/typescript/lib/lib.es2015.iterable.d.ts:2,0,unknown,,D-09,proposed,sonnet,jsonb:templateMensagem.variaveis
