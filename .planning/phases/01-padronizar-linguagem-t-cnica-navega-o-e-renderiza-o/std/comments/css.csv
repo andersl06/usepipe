@@ -2987,19 +2987,19 @@ css-comment-bb97d32c,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/da
 css-comment-87d90d69,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,684,684,css,0,/* `E_`: o `external-file` small; travado é `not-allowed`. */,translate,`E_`: the small `external-file`; disabled is `not-allowed`.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:684; cites Blip's minified class E_; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-fb9b0a39,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,695,695,css,0,/* ============================================================ gráficos */,translate,============================================================ charts,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:695; section divider within the Blip dashboard parity block; pre-triage D-40; needs slice-time confirmation; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-51fa9eec,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,707,708,css,4,"/* A altura da coluna na origem é a dos três cartões ao lado (~240px de área
-   de desenho); com menos, os 11 tiques do chart.js se atropelam. */",,,,,,
-css-comment-9d90ce4b,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,716,716,css,0,"/* `plugins.title`: bold 14, alinhado ao começo, 10 em cima e embaixo. */",,,,,,
-css-comment-cbfa1e34,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,730,730,css,0,"/* Tiques do chart.js: 12px, cor padrão #666, 3px de folga até o eixo. */",,,,,,
+   de desenho); com menos, os 11 tiques do chart.js se atropelam. */",translate,"The source column's height is that of the three cards beside it (~240px drawing area); with less, chart.js's 11 ticks collide.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:707-708; ""na origem"" cites the Blip Portal analytics capture; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-9d90ce4b,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,716,716,css,0,"/* `plugins.title`: bold 14, alinhado ao começo, 10 em cima e embaixo. */",translate,"`plugins.title`: bold 14, aligned to the start, 10 on top and bottom.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:716,,proposed
+css-comment-cbfa1e34,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,730,730,css,0,"/* Tiques do chart.js: 12px, cor padrão #666, 3px de folga até o eixo. */",translate,"chart.js ticks: 12px, default color #666, 3px gap to the axis.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:730,,proposed
 css-comment-3afa71b1,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,751,753,css,7,"/* Absoluto: sem isso o `viewBox` quadrado dá altura própria ao desenho e
    estica a seção. O canvas do chart.js (`maintainAspectRatio: false`) só
-   ocupa a altura que a coluna já tem. */",,,,,,
-css-comment-b05d09e0,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,787,787,css,0,"/* `legend` embaixo: `usePointStyle` círculo 7×7, 10 de recheio, 12px #666. */",,,,,,
-css-comment-6eb00fcb,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,847,847,css,1,"/* datalabels: 24px ""bolder"" à direita da ponta, cor #292929. */",,,,,,
-css-comment-d74b28f7,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,855,855,css,0,/* ========================================================= Recorrência */,,,,,,
-css-comment-e4016043,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,944,944,css,2,"/* `gS`/`kS`/`xS`/`bS`: a cabeça é uma tabela fixa, o corpo rola sozinho. */",,,,,,
+   ocupa a altura que a coluna já tem. */",translate,Absolute: without this the square `viewBox` gives the drawing its own height and stretches the section. chart.js's canvas (`maintainAspectRatio: false`) only takes the height the column already has.,architecture,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:751-753; viewBox/canvas sizing mechanism; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-b05d09e0,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,787,787,css,0,"/* `legend` embaixo: `usePointStyle` círculo 7×7, 10 de recheio, 12px #666. */",translate,"`legend` at the bottom: `usePointStyle` circle 7×7, 10 padding, 12px #666.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:787,,proposed
+css-comment-6eb00fcb,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,847,847,css,1,"/* datalabels: 24px ""bolder"" à direita da ponta, cor #292929. */",translate,"datalabels: 24px ""bolder"" to the right of the tip, color #292929.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:847,,proposed
+css-comment-d74b28f7,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,855,855,css,0,/* ========================================================= Recorrência */,translate,========================================================= Recurrence,other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:855,,proposed
+css-comment-e4016043,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,944,944,css,2,"/* `gS`/`kS`/`xS`/`bS`: a cabeça é uma tabela fixa, o corpo rola sozinho. */",translate,"`gS`/`kS`/`xS`/`bS`: the head is a fixed table, the body scrolls on its own.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:944,,proposed
 css-comment-8c2364df,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,974,975,css,1,"/* O `table` global do Pipe põe caixa-alta e fio em cada linha; os `vS`/`yS`
-   da origem não têm nem um nem outro. */",,,,,,
-css-comment-d684e4c6,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,990,990,css,1,"/* `fS.color-circle`: 32px, redondo, 14 à esquerda, fundo `system`. */",,,,,,
+   da origem não têm nem um nem outro. */",translate,The Pipe global `table` sets uppercase and a rule on every row; the source's `vS`/`yS` have neither.,meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:974-975; ""da origem"" cites the Blip Portal analytics capture; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-d684e4c6,css,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css,990,990,css,1,"/* `fS.color-circle`: 32px, redondo, 14 à esquerda, fundo `system`. */",translate,"`fS.color-circle`: 32px, round, 14 on the left, `system` background.",other,apps/gestao-vite/src/paginas/fluxo/analise/dashboard/dashboard.css:990,,proposed
 css-comment-6974973c,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,1,42,css,24,"/* ==========================================================================
    Dicionário de dados (/fluxo/[id]/analise/dicionario-de-dados)
 
@@ -3041,59 +3041,86 @@ css-comment-6974973c,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-d
      sombra do alerta (shadow-0 + shadow-1)     → var(--p-sombra-2)
      véu do alerta rgba(0,0,0,.7)               → --dd-veu (tinta a 70%)
      color-hover do botão secundário            → --dd-passagem (tinta a 8%)
-   ========================================================================== */",,,,,,
-css-comment-86affc0f,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,109,109,css,1,/* `QV`: 8 em cima e embaixo e o fio à direita. */,,,,,,
+   ========================================================================== */",translate,"==========================================================================
+   Data Dictionary (/fluxo/[id]/analise/dicionario-de-dados)
+
+   THE LAYOUT IS THEIRS, THE PAINT IS OURS. The screen is the `dataDictionary` page from `portal-fragment-analytics` (`cap6s/portalmfe/analytics-main.js`): the `iC` frame (`nC`, `oC`, `rC`, `aC`), the `HV` menu (`LV`, `QV`, `ZV`, `AV`, `wV`, `SV`) and the page pieces (`lN`, `UN`, `VN`, `CN`, `ON`, `iU`, `sN`, `dU`, `BN`…). The blip-ds components come from the Stencil sheets in the same capture: `bds-typo`/`bds-paper`/`bds-grid` from `bds-grid_5`, `bds-icon` from `bds-icon`, the four `bds-alert*`, and the `bds-chip-tag color=""outline""` from the Desk capture (`blip-calls-mfe`).
+
+   Type scale (`typo__variant--*`): fs-10 = 10px/150%, fs-12 = 12px/150%, fs-14 = 14px/150%, fs-16 = 16px/150%, fs-20 = 20px/100%, fs-24 = 24px/100%, fs-32 = 32px/100%; regular 400, semi-bold 600, bold 700, extra-bold 800. `typo margin` (on by default) at fs-20/24/32 = 22px at the bottom. Icons (`icon__size--*`): x-small 16, small 20, medium 24, x-large 32.
+
+   The MFE's `createGlobalStyle` (`cC`) zeroes `margin`, `padding` and `border` for EVERYTHING and sets `box-sizing: border-box`: that's why raw lists have no indent and `dU`'s circle comes out at 16px. Here the same rule goes under `:where`, with no specificity, so the classes below still take precedence.
+
+   The color mapping:
+     color-content-default                      → var(--ink)
+     color-content-ghost (menu, data, th)       → var(--ink-3)
+     color-primary / color-brand / #1E6BF1      → var(--p-marca)
+     color-surface-1 (paper, alert, tag)  → var(--surface)
+     color-surface-2 (odd table row)  → var(--surface-2)
+     color-border-1 (outline tag) → --dd-borda-1 (color at 20%)
+     color-system (default tag)            → var(--p-info-fundo)
+     color-error (alert header)            → var(--p-erro-fundo)
+     #B9CBD3 (menu rule) · #A5A5A5 (`BN`)     → var(--line-strong)
+     #b3d4ff (""Em Breve"" badge)                  → var(--p-info-fundo)
+     #202c44 / white (`dU`'s circle)          → var(--p-superficie-4) / var(--p-conteudo-claro)
+     red · #ff4c4c (red warnings)               → var(--p-erro-conteudo)
+     scrollbar #f1f1f1 / #888 / #555              → var(--surface-2) / var(--ink-3) / var(--ink-2)
+     paper elevation static                     → var(--p-sombra-1)
+     alert shadow (shadow-0 + shadow-1)     → var(--p-sombra-2)
+     alert veil rgba(0,0,0,.7)               → --dd-veu (color at 70%)
+     secondary button color-hover            → --dd-passagem (color at 8%)
+   ==========================================================================",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:1-42; Blip Portal analytics capture (portal-fragment-analytics, blip-ds Stencil sheets), keeps captured minified selector names and literal ""Em Breve"" badge copy; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-86affc0f,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,109,109,css,1,/* `QV`: 8 em cima e embaixo e o fio à direita. */,translate,`QV`: 8 on top and bottom and the rule on the right.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:109; reuses the file header's Blip capture selector `QV`; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-dfa1c8aa,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,116,117,css,0,"/* Cores do título: `open` na seção clicada, `active` no resto, fantasma no
-   inativo (`.accordion`, `.menu_item_single-content`, `.item_Title_menu-content`). */",,,,,,
+   inativo (`.accordion`, `.menu_item_single-content`, `.item_Title_menu-content`). */",translate,"Title colors: `open` on the clicked section, `active` on the rest, ghost on the inactive one (`.accordion`, `.menu_item_single-content`, `.item_Title_menu-content`).",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:116-117; Blip capture class names; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-236d1670,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,185,187,css,6,"/* `DV` (`details.accordion`): 8 à esquerda, 5 à direita, no mínimo 55 de
    altura, 16px semi-bold. Lá o `details` é `display: flex`; o Chrome põe o
-   conteúdo num slot interno, e o que se vê é a pilha — que é o que vai aqui. */",,,,,,
+   conteúdo num slot interno, e o que se vê é a pilha — que é o que vai aqui. */",translate,"`DV` (`details.accordion`): 8 on the left, 5 on the right, minimum height 55, 16px semi-bold. There `details` is `display: flex`; Chrome puts the content in an internal slot, and what shows is the stack — which is what goes here.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:185-187; reuses the Blip capture selector `DV`; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ab6bdb9a,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,200,201,css,0,"/* `OV` (summary) + `IV`: 15 em cima e 10 embaixo (o `details summary` do `QV`
-   vence os 25 do `OV`), título e seta nas pontas. */",,,,,,
-css-comment-af0c03ab,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,246,246,css,3,/* `.item_Title_menu-circle`: 8 de mínimo e 8 à direita; a bolinha é a marca. */,,,,,,
-css-comment-daf33030,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,269,269,css,1,/* --------------------------------------------------------------- a área */,,,,,,
+   vence os 25 do `OV`), título e seta nas pontas. */",translate,"`OV` (summary) + `IV`: 15 on top and 10 at the bottom (the `QV`'s `details summary` overrides `OV`'s 25), title and arrow at the ends.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:200-201; Blip capture selectors `OV`/`IV`/`QV`; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-af0c03ab,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,246,246,css,3,/* `.item_Title_menu-circle`: 8 de mínimo e 8 à direita; a bolinha é a marca. */,translate,`.item_Title_menu-circle`: 8 minimum and 8 on the right; the dot is the brand color.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:246; Blip capture class name; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-daf33030,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,269,269,css,1,/* --------------------------------------------------------------- a área */,translate,--------------------------------------------------------------- the area,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:269,,proposed
 css-comment-4e277680,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,271,274,css,9,"/* `aC`: 20 à esquerda, rola na vertical. A origem começa em `max-height: 560px`
    e um `ResizeObserver` passa a igualar a altura do `rC` — na prática, a
    altura do menu quando ele é mais alto que 560. `contain: size` tira a
-   página da conta da altura da linha, e o `min-height` devolve os 560. */",,,,,,
-css-comment-de2cbeb6,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,300,300,css,0,/* -------------------------------------------------------------- as peças */,,,,,,
-css-comment-d8d35ba6,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,302,302,css,1,"/* `lN`: `bds-grid xxs=12` à direita, fantasma, `bds-typo fs-10`. */",,,,,,
-css-comment-00a6ac43,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,359,359,css,3,/* `VN`: fs-14 por padrão (`dd-p16` quando a origem não passa `variant`). */,,,,,,
-css-comment-d75d785b,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,369,369,css,0,"/* `CN` (o último da vírgula, `gN`). */",,,,,,
-css-comment-d7aba36a,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,378,378,css,3,"/* `ON`: flex sem quebra; com `fs-14 bold`, e solto (sem variante) em fs-16. */",,,,,,
+   página da conta da altura da linha, e o `min-height` devolve os 560. */",translate,"`aC`: 20 on the left, scrolls vertically. The source starts at `max-height: 560px` and a `ResizeObserver` then matches `rC`'s height — in practice, the menu's height when it's taller than 560. `contain: size` removes the row's height from the page's calculation, and `min-height` restores the 560.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:271-274; ""a origem"" plus Blip capture selectors `aC`/`rC`; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-de2cbeb6,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,300,300,css,0,/* -------------------------------------------------------------- as peças */,translate,-------------------------------------------------------------- the pieces,other,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:300,,proposed
+css-comment-d8d35ba6,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,302,302,css,1,"/* `lN`: `bds-grid xxs=12` à direita, fantasma, `bds-typo fs-10`. */",translate,"`lN`: `bds-grid xxs=12` on the right, ghost, `bds-typo fs-10`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:302; blip-ds bds-grid/bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-00a6ac43,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,359,359,css,3,/* `VN`: fs-14 por padrão (`dd-p16` quando a origem não passa `variant`). */,translate,`VN`: fs-14 by default (`dd-p16` when the source doesn't pass a `variant`).,meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:359; ""a origem"" cites Blip capture; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-d75d785b,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,369,369,css,0,"/* `CN` (o último da vírgula, `gN`). */",translate,"`CN` (the last after the comma, `gN`).",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:369; Blip capture selectors; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-d7aba36a,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,378,378,css,3,"/* `ON`: flex sem quebra; com `fs-14 bold`, e solto (sem variante) em fs-16. */",translate,"`ON`: flex without wrapping; with `fs-14 bold`, and loose (no variant) at fs-16.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:378; Blip capture selector `ON`; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-c602ad48,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,394,395,css,2,"/* `sN` = `bds-chip-tag color=""outline"" icon=""warning""`: 24 de altura, raio 12,
-   4 de lado, ícone de 16 e a palavra fs-12 bold com 8 de cada lado. */",,,,,,
-css-comment-1eb15b7a,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,447,447,css,1,"/* `jN`: item alinhado ao centro; link, círculo e print com 5 de cada lado. */",,,,,,
+   4 de lado, ícone de 16 e a palavra fs-12 bold com 8 de cada lado. */",translate,"`sN` = `bds-chip-tag color=""outline"" icon=""warning""`: 24 height, radius 12, 4 side padding, 16 icon, and the fs-12 bold word with 8 on each side.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:394-395; blip-ds bds-chip-tag; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-1eb15b7a,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,447,447,css,1,"/* `jN`: item alinhado ao centro; link, círculo e print com 5 de cada lado. */",translate,"`jN`: item centered; link, circle and print with 5 on each side.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:447; Blip capture selector `jN`; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-51a1ccca,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,459,460,css,3,"/* `dU` (`uU`): 14 de largura com 8 de recheio em `border-box` — o recheio
-   ganha, e o círculo fica com 16, com o ícone small (20) transbordando. */",,,,,,
+   ganha, e o círculo fica com 16, com o ícone small (20) transbordando. */",translate,"`dU` (`uU`): 14 wide with 8 padding in `border-box` — the padding wins, and the circle ends up at 16, with the small icon (20) overflowing.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:459-460; Blip capture selectors `dU`/`uU`; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d4428d56,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,489,490,css,3,"/* `FN` (`bds-paper` com `padding: 3px`, mínimo 40, até 20 de altura) — o `DN` é
-   a mesma caixa sem papel. `xU` troca o mínimo por máximo de 40. */",,,,,,
-css-comment-56039516,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,521,521,css,1,"/* `HN`: até 180, encostado à direita, 10 de folga. */",,,,,,
-css-comment-0e7aaba5,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,531,531,css,0,"/* `MN` (o último da vírgula, `yN`). */",,,,,,
-css-comment-a3c28252,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,540,540,css,1,"/* `MU`: o rótulo dos exemplos da Recorrência, entre 83 e 100. */",,,,,,
-css-comment-8078b301,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,553,553,css,0,"/* `mU`: o `warning` do ""Atenção"" do Fluxo conversacional, em vermelho. */",,,,,,
+   a mesma caixa sem papel. `xU` troca o mínimo por máximo de 40. */",translate,"`FN` (`bds-paper` with `padding: 3px`, minimum 40, up to 20 height) — `DN` is the same box without paper. `xU` swaps the minimum for a maximum of 40.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:489-490; blip-ds bds-paper; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-56039516,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,521,521,css,1,"/* `HN`: até 180, encostado à direita, 10 de folga. */",translate,"`HN`: up to 180, flush right, 10 gap.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:521; Blip capture selector `HN`; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-0e7aaba5,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,531,531,css,0,"/* `MN` (o último da vírgula, `yN`). */",translate,"`MN` (the last after the comma, `yN`).",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:531; Blip capture selectors; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-a3c28252,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,540,540,css,1,"/* `MU`: o rótulo dos exemplos da Recorrência, entre 83 e 100. */",translate,"`MU`: the Recurrence examples' label, between 83 and 100.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:540; Blip capture selector `MU`; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-8078b301,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,553,553,css,0,"/* `mU`: o `warning` do ""Atenção"" do Fluxo conversacional, em vermelho. */",translate,"`mU`: the ""warning"" from the Conversational Flow's ""Atenção"", in red.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:553; Blip capture selector, keeps literal quoted product copy ""Atenção""; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-100aac21,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,572,573,css,4,"/* `iU`: `table` sem borda com 15 embaixo; o espaçamento de 2px entre células é
-   o do navegador, que o reset global não toca. */",,,,,,
+   o do navegador, que o reset global não toca. */",translate,"`iU`: borderless `table` with 15 at the bottom; the 2px gap between cells is the browser's, untouched by the global reset.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:572-573; Blip capture selector `iU`; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-08c26b3d,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,581,584,css,5,"/* `oU`/`rU`: 10 de recheio, primeira coluna com 20%. O resto desfaz o `th`/`td`
    sem classe de `packages/ui/estilos/base.css` (caixa alta, `nowrap`, altura
    fixa, fio embaixo, fundo e cor próprios), que lá não existe: o `th` da origem
-   é texto cru da página (16px, negrito do navegador) e o `td` herda a linha. */",,,,,,
+   é texto cru da página (16px, negrito do navegador) e o `td` herda a linha. */",translate,"`oU`/`rU`: 10 padding, first column at 20%. The rest undoes `th`/`td` without a class from `packages/ui/estilos/base.css` (uppercase, `nowrap`, fixed height, bottom rule, its own background and color), which doesn't exist there: the source's `th` is raw page text (16px, browser bold) and the `td` inherits the line.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:581-584; ""que lá não existe""/""da origem"" cites Blip capture; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-f3846978,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,59,60,css,0,"/* `nC` + `.dictionary-container { color: content-default }`. O texto solto
-   (fora de um `bds-typo`) herda da página: 16px, altura normal. */",,,,,,
-css-comment-1c5b04ed,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,624,624,css,0,"/* `bds-typo fs-14`, bold na primeira célula. */",,,,,,
-css-comment-d1ceefa4,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,631,631,css,1,/* `aU`: cada chave da célula-objeto vira um parágrafo com 15 embaixo. */,,,,,,
-css-comment-1b887fad,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,648,648,css,1,"/* `attentionText`: `bds-typo tag=""span""` (fs-16) com o ícone e o texto fs-14. */",,,,,,
-css-comment-aa8d2563,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,676,676,css,0,"/* 164×19: seta, ""TRACKING AUTOMÁTICO"" e o interruptor ligado. */",,,,,,
+   (fora de um `bds-typo`) herda da página: 16px, altura normal. */",translate,"`nC` + `.dictionary-container { color: content-default }`. Loose text (outside a `bds-typo`) inherits from the page: 16px, normal height.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:59-60; blip-ds bds-typo, Blip capture selector `nC`; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-1c5b04ed,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,624,624,css,0,"/* `bds-typo fs-14`, bold na primeira célula. */",translate,"`bds-typo fs-14`, bold in the first cell.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:624; blip-ds bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-d1ceefa4,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,631,631,css,1,/* `aU`: cada chave da célula-objeto vira um parágrafo com 15 embaixo. */,translate,`aU`: each object-cell key becomes a paragraph with 15 at the bottom.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:631; Blip capture selector `aU`; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-1b887fad,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,648,648,css,1,"/* `attentionText`: `bds-typo tag=""span""` (fs-16) com o ícone e o texto fs-14. */",translate,"`attentionText`: `bds-typo tag=""span""` (fs-16) with the icon and the fs-14 text.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:648; blip-ds bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-aa8d2563,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,676,676,css,0,"/* 164×19: seta, ""TRACKING AUTOMÁTICO"" e o interruptor ligado. */",translate,"164×19: arrow, ""TRACKING AUTOMÁTICO"" and the switch turned on.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:676; keeps literal quoted Blip capture copy ""TRACKING AUTOMÁTICO""; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-0f4f368d,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,717,718,css,3,"/* `.alert__dialog`: véu a 70% na tela inteira; a caixa a 48 do topo. O
-   `display` só entra aberto — fechado, quem esconde é o próprio `popover`. */",,,,,,
-css-comment-b65d4318,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,735,735,css,0,"/* `.alert__dialog .alert`: até 424, raio 8, surface-1, sombra secondary. */",,,,,,
-css-comment-247eed64,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,746,746,css,0,"/* `.alert__header--error`: 64 de mínimo, 12/16, ícone x-large e título fs-16 bold. */",,,,,,
-css-comment-c799a0de,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,777,777,css,1,"/* `.alert__actions`: à direita, 12/16. */",,,,,,
-css-comment-02c7d894,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,79,79,css,2,"/* `bds-typo variant=""fs-32"" bold` com a margem padrão de 22. */",,,,,,
-css-comment-9507d39b,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,87,87,css,1,"/* `rC` = `bds-paper` (raio 16, elevação static) com `padding: 10px`, em linha. */",,,,,,
+   `display` só entra aberto — fechado, quem esconde é o próprio `popover`. */",translate,"`.alert__dialog`: 70% veil over the whole screen; the box 48 from the top. `display` only enters open — closed, the `popover` itself hides it.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:717-718; blip-ds alert capture; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-b65d4318,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,735,735,css,0,"/* `.alert__dialog .alert`: até 424, raio 8, surface-1, sombra secondary. */",translate,"`.alert__dialog .alert`: up to 424, radius 8, surface-1, secondary shadow.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:735; blip-ds alert capture; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-247eed64,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,746,746,css,0,"/* `.alert__header--error`: 64 de mínimo, 12/16, ícone x-large e título fs-16 bold. */",translate,"`.alert__header--error`: 64 minimum, 12/16, x-large icon and fs-16 bold title.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:746; blip-ds alert capture; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-c799a0de,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,777,777,css,1,"/* `.alert__actions`: à direita, 12/16. */",translate,"`.alert__actions`: right-aligned, 12/16.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:777; blip-ds alert capture; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-02c7d894,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,79,79,css,2,"/* `bds-typo variant=""fs-32"" bold` com a margem padrão de 22. */",translate,"`bds-typo variant=""fs-32"" bold` with the default 22 margin.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:79; blip-ds bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-9507d39b,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,87,87,css,1,"/* `rC` = `bds-paper` (raio 16, elevação static) com `padding: 10px`, em linha. */",translate,"`rC` = `bds-paper` (radius 16, static elevation) with `padding: 10px`, inline.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:87; blip-ds bds-paper, Blip capture selector `rC`; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-c4fc4d86,css,apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css,99,101,css,4,"/* `LV width=""350px""`: coluna, 5 em cima e embaixo. Sem `flex-shrink: 0` de
    propósito: lá o menu encolhe junto com a área (`width: 100%`), até o
-   mínimo que o acordeão aguenta. */",,,,,,
+   mínimo que o acordeão aguenta. */",translate,"`LV width=""350px""`: column, 5 on top and bottom. No `flex-shrink: 0` on purpose: there the menu shrinks along with the area (`width: 100%`), down to the minimum the accordion can take.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/dicionario-de-dados/dicionario.css:99-101; ""lá"" cites the Blip capture, selector `LV`; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-3d562e91,css,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css,1,16,css,5,"/* ============================================ Jornada dos Contatos (`jornada/`)
 
    `contactsJourney`, template 55218 do `portal.js`, as regras
@@ -3109,21 +3136,35 @@ css-comment-3d562e91,css,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jorn
      #e3e3e3 `--color-surface-3` (borda da legenda)         → `--surface-3`
      #738192 `.bp-c-rooftop` (texto do ""sem dado"")          → `--ink-3`
      #1e6bf1 `.main-blip-color` (ícone do link)             → `--p-marca`
-   ========================================================================== */",,,,,,
-css-comment-109fcffa,css,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css,132,132,css,1,/* `#contacts-journey-content`: rolagem e sem seleção de texto. */,,,,,,
+   ========================================================================== */",translate,"============================================ Contacts Journey (`jornada/`)
+
+   `contactsJourney`, template 55218 from `portal.js`, the `#contacts-journey*` rules, `.labeled-color-card` from `portal.css`, and Google Sankey's `Ci` options (15 node, 30 between nodes, fs-10 bold label, 2-width edge stroke).
+
+   The color mapping:
+     #1968f0 / #3f7de8 (default node, `colorPrimary` legend)  → `--p-marca`
+     `extended_orange` / #f06305 (outbound node and legend)   → `--p-alerta-conteudo`
+     #141414 (""other"" node and legend)                        → `--p-conteudo`
+     edge color `L`                                    → `--p-marca-suave`
+     #e3e3e3 `--color-surface-3` (legend border)         → `--surface-3`
+     #738192 `.bp-c-rooftop` (""sem dado"" text)          → `--ink-3`
+     #1e6bf1 `.main-blip-color` (link icon)             → `--p-marca`
+   ==========================================================================",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css:1-16; Blip Portal analytics capture (portal.js template, .main-blip-color), keeps literal quoted ""sem dado"" copy; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-109fcffa,css,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css,132,132,css,1,/* `#contacts-journey-content`: rolagem e sem seleção de texto. */,translate,`#contacts-journey-content`: scrolls and no text selection.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css:132; Blip capture selector; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-e8ffc0cb,css,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css,179,180,css,2,"/* O ""sem dado"": `div.pa3.mh4.flex.flex-column.items-center.justify-center` com
-   `#contacts-journey-container .communication-div { height: 550px }`. */",,,,,,
+   `#contacts-journey-container .communication-div { height: 550px }`. */",translate,"The ""sem dado"" (no-data) state: `div.pa3.mh4.flex.flex-column.items-center.justify-center` with `#contacts-journey-container .communication-div { height: 550px }`.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css:179-180; keeps literal quoted ""sem dado"" copy; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-b8769b80,css,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css,197,198,css,1,"/* `bds-typo.ma3.tc tag=""span"" fs-24 bold`: só os 10 do `.ma3` no hospedeiro —
-   os 22 do `typo__margin` caem no `span` inline e não contam. */",,,,,,
-css-comment-76b82cc3,css,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css,207,207,css,0,/* `bds-typo.bp-c-rooftop.ph7.tc fs-16`: `.ph7` é 10rem de cada lado. */,,,,,,
+   os 22 do `typo__margin` caem no `span` inline e não contam. */",translate,"`bds-typo.ma3.tc tag=""span"" fs-24 bold`: only the `.ma3`'s 10 on the host — the `typo__margin`'s 22 land on the inline `span` and don't count.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css:197-198; blip-ds bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-76b82cc3,css,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css,207,207,css,0,/* `bds-typo.bp-c-rooftop.ph7.tc fs-16`: `.ph7` é 10rem de cada lado. */,translate,`bds-typo.bp-c-rooftop.ph7.tc fs-16`: `.ph7` is 10rem on each side.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css:207; blip-ds bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-5baf570d,css,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css,257,258,css,2,"/* `labeled-color-card.w-33.mr4` > `card.labeled-color-card.flex-column.mv0.pa3`:
-   borda 1px `--color-surface-3`, a esquerda com 10px, altura cheia. */",,,,,,
+   borda 1px `--color-surface-3`, a esquerda com 10px, altura cheia. */",translate,"`labeled-color-card.w-33.mr4` > `card.labeled-color-card.flex-column.mv0.pa3`: 1px border `--color-surface-3`, 10px on the left, full height.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css:257-258; Blip capture classes; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-2f220871,css,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css,289,292,css,3,"/* ---------------------------------------------- o modal de ajuda (22616)
 
    `div.layout-center-y.flex > div.w-30.relative` (a ilustração) `+
-   div.w-60.pl4` (1.25rem à esquerda); o link é `a.flex.pt3` (.625rem em cima). */",,,,,,
+   div.w-60.pl4` (1.25rem à esquerda); o link é `a.flex.pt3` (.625rem em cima). */",translate,"---------------------------------------------- the help modal (22616)
+
+   `div.layout-center-y.flex > div.w-30.relative` (the illustration) `+ div.w-60.pl4` (1.25rem on the left); the link is `a.flex.pt3` (.625rem on top).",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css:289-292; Blip capture classes; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ba90fc83,css,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css,35,36,css,2,"/* `tag=""span""`: o `typo__margin--fs-24` cai num `span` inline, e margem vertical
-   de inline não conta — o título não leva os 22px embaixo. */",,,,,,
+   de inline não conta — o título não leva os 22px embaixo. */",translate,"`tag=""span""`: `typo__margin--fs-24` lands on an inline `span`, and inline vertical margin doesn't count — the title doesn't get the 22px at the bottom.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/jornada/jornada.css:35-36; blip-ds typo margin mechanism; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ecc749f0,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,1,42,css,19,"/* ==========================================================================
    Análise › Mensagens ativas (/fluxo/[id]/analise/mensagens-ativas)
 
@@ -3165,61 +3206,91 @@ css-comment-ecc749f0,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-at
        rgba(0,150,250) · rgba(53,222,144) · rgba(249,159,159)
                                                   → grafico-2 · grafico-1 · grafico-4
      Picos de resposta `vc` #0096fa               → var(--p-grafico-2)
-   ========================================================================== */",,,,,,
-css-comment-c1d85a6e,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,130,130,css,0,/* ------------------------------------------------------------ cabeçalho */,,,,,,
-css-comment-b92fa09c,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,137,137,css,0,"/* `Ix`: título de um lado, botão do outro, 16 embaixo. */",,,,,,
-css-comment-fafdafc0,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,146,146,css,2,"/* `Xe variant=""fs-32"" bold=""bold""`, com a margem de typo ligada. */",,,,,,
+   ========================================================================== */",translate,"==========================================================================
+   Analytics › Active messages (/fluxo/[id]/analise/mensagens-ativas)
+
+   THE LAYOUT IS THEIRS, THE PAINT IS OURS. The screen is `page=""activeMessages""` from `portal-fragment-analytics` (`scratchpad/cap6s/portalmfe/analytics-main.js`): `Lx` (56300) and its children `St` (filter, 33556), `Mt`/`Ft` (numbers, 33870), `fc` (funnel), `Dl` (conversions), `Wl` (rates), `_c` (peaks) and `bc` (failures), between 43453 and 44990. Each one carries its own sheet in a `<style>` — the measurements below come from there. The blip-ds pieces come from the captured Stencil sheets: `bdscss/chipClickableCss.css`, `bdscss/tooltipCss.css`, `bdscss/buttonCss.css`, the `bds-grid_5` from cap6s (typo, paper, grid), the `bds-icon` from cap6s (sizes), the `bds-autocomplete` from cap4 and the Desk's `bds-datepicker` from blip-ds.
+
+   Type scale (`bds-typo`): fs-12 = 12px/150%, fs-14 = 14px/150%, fs-16 = 16px/150%, fs-20 = 20px/100%, fs-24 = 24px/100%, fs-32 = 32px/100%, fs-40 = 40px/100%; `margin` (on by default) adds 22px at the bottom of fs-20/24/32. Grid (`bds-grid`): gap/padding ""1"" = 8px, ""2"" = 16px.
+
+   The color mapping:
+     color-content-default #282828/#454545       → var(--ink)
+     color-content-disable #454545/#636363        → var(--ink-2)
+     color-content-ghost #8c8c8c · rgb(100,100,100) axes → var(--ink-3) · var(--ink-2)
+     color-surface-1 #F6F6F6 (outline chip and field background) → var(--ground)
+     bds-paper (no background of its own)                → var(--surface), as in certificados.css
+     paper elevation static                → var(--p-sombra-1)
+     rgba(0,0,0,.2) · color-border-1              → --ma-borda (color at 20%)
+     rgba(0,0,0,.1) (chart.js grid, peaks' middle line) → var(--line)
+     color-system #B2DFFD (active chip)            → var(--p-info-fundo)
+     color-primary #1e6bf1 (primary button, link, field focus) → var(--p-marca)
+     color-hover 8%                               → var(--g-tinta-hover)
+     tooltip content-default / surface-1          → var(--ink) / var(--surface)
+     The five series (`Mt`, `fc`), pastels on white:
+       sent #fd9bdc (pink)                    → --ma-enviadas (grafico-3 at 45%)
+       received rgb(128,227,235) (color-info)     → --ma-recebidas (grafico-1 at 45%)
+       read rgba(25,104,240,.6) (extended-blue)   → --ma-lidas (grafico-2 at 60%)
+       replied rgb(132,235,188) (success)      → --ma-respondidas (grafico-5 at 35%)
+       failed rgb(249,159,159) (color-error)     → --ma-falharam (grafico-4 at 40%)
+     Conversions (`Dl`), solid line and bar at 65%:
+       rgba(0,150,250) · rgba(53,222,144) · rgba(249,159,159)
+                                                    → grafico-2 · grafico-1 · grafico-4
+     Response peaks `vc` #0096fa               → var(--p-grafico-2)
+   ==========================================================================",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:1-42; Blip Portal analytics capture (portal-fragment-analytics, blip-ds Stencil sheets); pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-c1d85a6e,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,130,130,css,0,/* ------------------------------------------------------------ cabeçalho */,translate,------------------------------------------------------------ header,other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:130,,proposed
+css-comment-b92fa09c,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,137,137,css,0,"/* `Ix`: título de um lado, botão do outro, 16 embaixo. */",translate,"`Ix`: title on one side, button on the other, 16 at the bottom.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:137; Blip capture selector `Ix`; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-fafdafc0,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,146,146,css,2,"/* `Xe variant=""fs-32"" bold=""bold""`, com a margem de typo ligada. */",translate,"`Xe variant=""fs-32"" bold=""bold""`, with typo margin on.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:146; Blip capture selector `Xe`; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bbb39e1d,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,161,163,css,2,"/* `bds-button`: raio 8, 16 de lado, 40 de altura (`standard`, e `large` é o
    `tall` legado — os dois dão 40), rótulo `bds-typo fs-14 bold` lh 100%, ícone
-   24 com 4 à direita. */",,,,,,
-css-comment-a774f310,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,182,182,css,1,"/* `button__secondary`: sem fundo, tinta de conteúdo. */",,,,,,
+   24 com 4 à direita. */",translate,"`bds-button`: radius 8, 16 side padding, 40 height (`standard`, and `large` is the legacy `tall` — both give 40), label `bds-typo fs-14 bold` lh 100%, 24 icon with 4 on the right.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:161-163; blip-ds bds-button/bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-a774f310,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,182,182,css,1,"/* `button__secondary`: sem fundo, tinta de conteúdo. */",translate,"`button__secondary`: no background, content color.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:182; blip-ds button capture; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-35eba73a,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,212,214,css,1,"/* `.active-messages-filter-wrapper { width: 100%; max-height: 72px; margin: 0 }`.
    O teto de 72 é deles e as duas fileiras de chip passam dele: a sobra invade
-   o recuo de baixo, como lá. */",,,,,,
+   o recuo de baixo, como lá. */",translate,"`.active-messages-filter-wrapper { width: 100%; max-height: 72px; margin: 0 }`. The 72 ceiling is theirs and the two chip rows go over it: the overflow invades the bottom indent, same as there.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:212-214; ""deles""/""como lá"" cites the Blip capture; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-133d0aec,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,256,258,css,4,"/* `bds-chip-clickable size=""standard""`: 32 de altura, raio 16, `padding: 2px
    4px`; `outline` com borda e fundo surface-1, `default` com a cor de sistema.
-   O rádio fica por baixo: é ele que leva o período no GET. */",,,,,,
+   O rádio fica por baixo: é ele que leva o período no GET. */",translate,"`bds-chip-clickable size=""standard""`: 32 height, radius 16, `padding: 2px 4px`; `outline` with border and surface-1 background, `default` with the system color. The radio sits underneath: it's what carries the period in the GET.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:256-258; blip-ds bds-chip-clickable; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-0b2c7389,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,311,312,css,1,"/* `bds-input` com rótulo (`.input.input--label`): `padding: 7px 4px 8px 12px`,
-   borda 20%, raio 8; primária no cursor, anel de 2px no foco. */",,,,,,
+   borda 20%, raio 8; primária no cursor, anel de 2px no foco. */",translate,"`bds-input` with label (`.input.input--label`): `padding: 7px 4px 8px 12px`, 20% border, radius 8; primary color on the cursor, 2px ring on focus.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:311-312; blip-ds bds-input; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-d8e53513,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,332,333,css,1,"/* `input__icon input__icon--large`: `padding: 4px`, fundo de passagem 8% com
-   raio 8 (`::before`), ícone `medium` (24). */",,,,,,
-css-comment-7ca2a8af,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,346,346,css,0,/* `input__container`: rótulo `bds-typo fs-12 bold` em cima do texto. */,,,,,,
+   raio 8 (`::before`), ícone `medium` (24). */",translate,"`input__icon input__icon--large`: `padding: 4px`, 8% transition background with radius 8 (`::before`), `medium` icon (24).",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:332-333; blip-ds input capture; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-7ca2a8af,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,346,346,css,0,/* `input__container`: rótulo `bds-typo fs-12 bold` em cima do texto. */,translate,`input__container`: label `bds-typo fs-12 bold` above the text.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:346; blip-ds bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-1a562fdc,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,364,365,css,1,"/* `input__container__text`: sem borda nem fundo, `.875rem/150%`, cursor
-   primário, placeholder fantasma. */",,,,,,
+   primário, placeholder fantasma. */",translate,"`input__container__text`: no border or background, `.875rem/150%`, primary cursor, ghost placeholder.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:364-365; blip-ds input capture; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-39819dbe,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,384,385,css,2,"/* `.select__icon { color: ghost; display: flex }`, `bds-icon { margin-left:
-   10px }` — o `error` sólido (só com valor) e a seta. */",,,,,,
-css-comment-13f2975a,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,428,428,css,0,/* ------------------------------------------------------------ números (`Mt`) */,,,,,,
-css-comment-58f287fa,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,473,473,css,0,/* `::part(bds-typo__text) { line-height: 40px }` e `28px` do título. */,,,,,,
+   10px }` — o `error` sólido (só com valor) e a seta. */",translate,"`.select__icon { color: ghost; display: flex }`, `bds-icon { margin-left: 10px }` — the solid `error` (only with a value) and the arrow.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:384-385; blip-ds bds-icon; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-13f2975a,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,428,428,css,0,/* ------------------------------------------------------------ números (`Mt`) */,translate,------------------------------------------------------------ numbers (`Mt`),meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:428; Blip capture selector `Mt`; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-58f287fa,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,473,473,css,0,/* `::part(bds-typo__text) { line-height: 40px }` e `28px` do título. */,translate,`::part(bds-typo__text) { line-height: 40px }` and `28px` for the title.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:473; blip-ds bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-11df6d31,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,549,550,css,2,"/* `.tooltip__wrapper` + `.tooltip__tip`: raio 8, recheio 8, até 320 de
-   largura, seta de 6; `top-right` sobe 10 e encosta à direita com 15%. */",,,,,,
+   largura, seta de 6; `top-right` sobe 10 e encosta à direita com 15%. */",translate,"`.tooltip__wrapper` + `.tooltip__tip`: radius 8, 8 padding, up to 320 wide, 6 arrow; `top-right` rises 10 and sits flush right at 15%.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:549-550; blip-ds tooltip capture; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-7d7ccd68,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,612,613,css,4,"/* `__title { margin-bottom: 0 }` no host não tira a margem de typo de dentro:
-   é o `__description { margin-top: -22px }` que a devolve. */",,,,,,
+   é o `__description { margin-top: -22px }` que a devolve. */",translate,`__title { margin-bottom: 0 }` on the host doesn't remove the typo margin inside: it's `__description { margin-top: -22px }` that gives it back.,meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:612-613; blip-ds typo margin mechanism; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bd53b2fa,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,628,629,css,2,"/* `.conversion-funnel__chart { height: 218px }`; o chart.js com `indexAxis: y`,
-   `layout.padding.right: 50` e as categorias com `bar/categoryPercentage .95`. */",,,,,,
+   `layout.padding.right: 50` e as categorias com `bar/categoryPercentage .95`. */",translate,"`.conversion-funnel__chart { height: 218px }`; chart.js with `indexAxis: y`, `layout.padding.right: 50` and the categories with `bar/categoryPercentage .95`.",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:628-629,,proposed
 css-comment-69d62901,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,638,639,css,1,"/* Tique do eixo y: 12px, `rgb(100,100,100)`, `crossAlign: far` (colado à
-   esquerda) e os 3px de recuo padrão do chart.js. */",,,,,,
-css-comment-4fe1d840,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,65,65,css,2,/* Especificidade zero de propósito: a margem de typo das classes vence. */,,,,,,
-css-comment-564fd418,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,661,661,css,2,"/* Solto do fluxo: a barra mede contra a área inteira, como no canvas. */",,,,,,
-css-comment-5df2c6b6,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,671,671,css,0,/* ------------------------------------------------------------ conversões (`Dl`) */,,,,,,
-css-comment-250f6cf2,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,688,688,css,0,"/* Área do gráfico: eixo y | plotagem, e embaixo o eixo x. */",,,,,,
-css-comment-f531435c,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,696,696,css,2,/* O chart.js reserva meio rótulo à direita para o último dia caber. */,,,,,,
+   esquerda) e os 3px de recuo padrão do chart.js. */",translate,"Y-axis tick: 12px, `rgb(100,100,100)`, `crossAlign: far` (flush left) and chart.js's default 3px indent.",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:638-639,,proposed
+css-comment-4fe1d840,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,65,65,css,2,/* Especificidade zero de propósito: a margem de typo das classes vence. */,translate,Zero specificity on purpose: the classes' typo margin wins.,architecture,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:65; deliberate zero-specificity cascade technique; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-564fd418,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,661,661,css,2,"/* Solto do fluxo: a barra mede contra a área inteira, como no canvas. */",translate,"Out of flow: the bar measures against the whole area, like on the canvas.",architecture,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:661; out-of-flow sizing rationale; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-5df2c6b6,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,671,671,css,0,/* ------------------------------------------------------------ conversões (`Dl`) */,translate,------------------------------------------------------------ conversions (`Dl`),meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:671; Blip capture selector `Dl`; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-250f6cf2,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,688,688,css,0,"/* Área do gráfico: eixo y | plotagem, e embaixo o eixo x. */",translate,"Chart area: y axis | plot, and the x axis at the bottom.",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:688,,proposed
+css-comment-f531435c,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,696,696,css,2,/* O chart.js reserva meio rótulo à direita para o último dia caber. */,translate,chart.js reserves half a label on the right so the last day fits.,other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:696,,proposed
 css-comment-16e5e95b,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,70,71,css,5,"/* `.active-messages-charts-container`: os recuos laterais por faixa de tela.
-   A ordem das regras é a deles — a última que casa vence. */",,,,,,
-css-comment-2824adb3,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,700,700,css,2,"/* Eixo y do chart.js: tique 12px à esquerda, 8 de folga até a área. */",,,,,,
+   A ordem das regras é a deles — a última que casa vence. */",translate,`.active-messages-charts-container`: the side indents per screen band. The rule order is theirs — the last one that matches wins.,meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:70-71; ""deles"" cites the Blip capture; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-2824adb3,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,700,700,css,2,"/* Eixo y do chart.js: tique 12px à esquerda, 8 de folga até a área. */",translate,"chart.js y axis: 12px tick on the left, 8 gap to the plot area.",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:700,,proposed
 css-comment-403a42e8,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,750,751,css,3,"/* As barras do dia único (`f()`): três categorias, sem eixos nem grade, raio 8
-   e sem borda (o `f()` não define `borderWidth`, e o padrão da barra é 0). */",,,,,,
+   e sem borda (o `f()` não define `borderWidth`, e o padrão da barra é 0). */",translate,"The single-day bars (`f()`): three categories, no axes or grid, radius 8 and no border (`f()` doesn't set `borderWidth`, and the bar's default is 0).",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:750-751,,proposed
 css-comment-7e1ef1c8,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,854,856,css,3,"/* `fs-16 bold` e `fs-14 regular`. O `lineHeight=""double""/""simple""` do código
    não pega: o `bds-typo` é criado por string no React, que põe `lineheight`
-   como atributo, e o Stencil só lê `line-height`. Vale a altura da variante. */",,,,,,
-css-comment-9a6e6b6f,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,874,874,css,1,/* `.response-peaks-container { padding: 16px }`; cabeça de 50 com 12 embaixo. */,,,,,,
+   como atributo, e o Stencil só lê `line-height`. Vale a altura da variante. */",translate,"`fs-16 bold` and `fs-14 regular`. The code's `lineHeight=""double""/""simple""` doesn't take effect: `bds-typo` is created as a string in React, which sets `lineheight` as an attribute, and Stencil only reads `line-height`. Use the variant's height instead.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:854-856; blip-ds bds-typo/Stencil rendering quirk; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-9a6e6b6f,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,874,874,css,1,/* `.response-peaks-container { padding: 16px }`; cabeça de 50 com 12 embaixo. */,translate,`.response-peaks-container { padding: 16px }`; 50 head with 12 at the bottom.,other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:874,,proposed
 css-comment-2bb5d5fc,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,898,899,css,3,"/* A grade do x fica no meio de cada categoria (`grid.offset: false`) e a do y
-   é só a linha do meio da escala. */",,,,,,
-css-comment-e0e15f4c,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,914,914,css,0,"/* 95% × 95%, raio 8 só em cima, borda 1,5 na mesma cor. */",,,,,,
+   é só a linha do meio da escala. */",translate,The x grid sits in the middle of each category (`grid.offset: false`) and the y grid is only the scale's middle line.,other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:898-899,,proposed
+css-comment-e0e15f4c,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,914,914,css,0,"/* 95% × 95%, raio 8 só em cima, borda 1,5 na mesma cor. */",translate,"95% × 95%, radius 8 only on top, 1.5 border in the same color.",other,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:914,,proposed
 css-comment-296c165e,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,947,948,css,2,"/* O `bds-typo fs-20 bold` embrulha o de fs-14: sem `bold` próprio, o de dentro
-   herda o negrito do de fora — a descrição sai em negrito, como lá. */",,,,,,
+   herda o negrito do de fora — a descrição sai em negrito, como lá. */",translate,"`bds-typo fs-20 bold` wraps the fs-14 one: without its own `bold`, the inner one inherits the outer's bold — the description comes out bold, same as there.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:947-948; blip-ds bds-typo, ""como lá"" cites the Blip capture; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-bad46fcd,css,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css,975,977,css,3,"/* `bds-table style={{ width: 100%, tableLayout: fixed }}`; linhas e células
    com as medidas já tiradas em `certificados.css` (64 de altura, 8 de lado e 16
-   nas pontas). Os `th`/`td` globais de `@pipe/ui` são da tabela densa: zerados. */",,,,,,
+   nas pontas). Os `th`/`td` globais de `@pipe/ui` são da tabela densa: zerados. */",translate,"`bds-table style={{ width: 100%, tableLayout: fixed }}`; rows and cells with the measurements already taken from `certificados.css` (64 height, 8 side and 16 at the ends). `@pipe/ui`'s global `th`/`td` are for the dense table: zeroed out.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/mensagens-ativas/mensagens-ativas.css:975-977; blip-ds bds-table; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bae83b61,css,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css,1,14,css,3,"/* ============================ Relatórios Personalizados (`relatorios/`)
 
    `customReports`, template 47754 do `portal.js`, e as regras `#reports-id`,
@@ -3233,30 +3304,44 @@ css-comment-bae83b61,css,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/r
      #a8bfc4 (`.no-content-found`)                    → `--ink-3`
      #8ca0b3 (a lupa)                                 → `--ink-3`
      #1e6bf1 `--color-primary` (traço do campo em foco) → `--p-marca`
-   ========================================================================== */",,,,,,
+   ========================================================================== */",translate,"============================ Custom Reports (`relatorios/`)
+
+   `customReports`, template 47754 from `portal.js`, and the `#reports-id`, `.no-content-found` and `.search-input-container` rules from `portal.css`.
+
+   The color mapping:
+     #f6f6f6 `--color-surface-1` (`.cards`)          → `--surface`
+     `bds-paper elevation=""Static""`                  → `--p-sombra-1`
+     #595959 `--color-content-disable` (`.label`)    → `--ink-2`
+     #282828 `--color-content-default` (`.description`, icons) → `--ink`
+     #a8bfc4 (`.no-content-found`)                    → `--ink-3`
+     #8ca0b3 (the magnifier)                                 → `--ink-3`
+     #1e6bf1 `--color-primary` (focused field's stroke) → `--p-marca`
+   ==========================================================================",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css:1-14; Blip Portal analytics capture (portal.js template, blip-ds bds-paper); pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-0cb8ad89,css,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css,106,108,css,3,"/* `.card-icons`: `flex`, centro, `space-between`, 35 de altura, 5 à esquerda e
    5 de recheio; `--hidden` some (`opacity: 0; visibility: hidden`, .5s) até o
-   cursor passar pelo cartão, quando ganha `font-size: large` (18px). */",,,,,,
+   cursor passar pelo cartão, quando ganha `font-size: large` (18px). */",translate,"`.card-icons`: `flex`, centered, `space-between`, 35 height, 5 left and 5 padding; `--hidden` disappears (`opacity: 0; visibility: hidden`, .5s) until the cursor passes over the card, when it gets `font-size: large` (18px).",other,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css:106-108,,proposed
 css-comment-a3b7c196,css,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css,129,130,css,1,"/* `bds-icon size=""x-large""`: a caixa de 32; o desenho é o glifo `icon-edit` /
-   `icon-delete` no `font-size: large` do cartão em foco. */",,,,,,
+   `icon-delete` no `font-size: large` do cartão em foco. */",translate,"`bds-icon size=""x-large""`: the 32 box; the drawing is the `icon-edit` / `icon-delete` glyph at the focused card's `font-size: large`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css:129-130; blip-ds bds-icon; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-88e80c2d,css,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css,140,142,css,3,"/* `.no-content-found`: `flex` centrado, 31 de altura, `padding: 80px 0`,
    `margin: auto`, largura cheia, cor #a8bfc4. O texto é o `bds-typo` de
-   dentro — fs-16 regular —, que não herda o `font-size` de 1.25rem do host. */",,,,,,
+   dentro — fs-16 regular —, que não herda o `font-size` de 1.25rem do host. */",translate,"`.no-content-found`: centered `flex`, 31 height, `padding: 80px 0`, `margin: auto`, full width, color #a8bfc4. The text is the `bds-typo` inside — fs-16 regular —, which doesn't inherit the host's 1.25rem `font-size`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css:140-142; blip-ds bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-c91a889c,css,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css,155,160,css,5,"/* ------------------------------------ o modal de confirmação (84817)
 
    `.modal-toolbar` com o `bds-icon close` encostado à direita; o título é
    `bds-typo fs-32.mb5` (2.5rem no hospedeiro + os 22 do typo); o corpo,
    `bds-typo.mh6.ph4` (5rem de margem e 1.25rem de recheio dos lados);
-   `.modal-footer` centraliza, com `padding-top: 9px`, e o ""Não"" tem `.mr3`. */",,,,,,
+   `.modal-footer` centraliza, com `padding-top: 9px`, e o ""Não"" tem `.mr3`. */",translate,"------------------------------------ the confirmation modal (84817)
+
+   `.modal-toolbar` with `bds-icon close` flush right; the title is `bds-typo fs-32.mb5` (2.5rem on the host + the typo's 22); the body, `bds-typo.mh6.ph4` (5rem margin and 1.25rem side padding); `.modal-footer` centers, with `padding-top: 9px`, and ""Não"" has `.mr3`.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css:155-160; blip-ds bds-icon/bds-typo, keeps literal quoted button label ""Não""; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-28c6276d,css,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css,16,17,css,1,"/* `.custom-header-content search-input { margin-right: .8rem }` — ganha do
-   `.mr3` pela especificidade — e `.search-input-container` é `flex` centrado. */",,,,,,
+   `.mr3` pela especificidade — e `.search-input-container` é `flex` centrado. */",translate,`.custom-header-content search-input { margin-right: .8rem }` — wins over `.mr3` by specificity — and `.search-input-container` is centered `flex`.,other,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css:16-17,,proposed
 css-comment-b1d3fe34,css,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css,30,31,css,4,"/* `input[type=text]`: sem fundo e sem borda, 2.25rem de altura, largura 0 com
-   `transition: width .4s`; em foco, 200px, 10 à esquerda e traço de 2px. */",,,,,,
+   `transition: width .4s`; em foco, 200px, 10 à esquerda e traço de 2px. */",translate,"`input[type=text]`: no background or border, 2.25rem height, 0 width with `transition: width .4s`; on focus, 200px, 10 on the left and a 2px line.",other,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css:30-31,,proposed
 css-comment-def3faa7,css,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css,61,63,css,2,"/* `#reports-id .cards`: fundo da superfície 1, fileira com `space-between`,
    5 embaixo, 25 de recheio, `white-space: nowrap`, largura cheia. O
-   `bds-paper` põe raio 16 e a sombra `Static`. */",,,,,,
+   `bds-paper` põe raio 16 e a sombra `Static`. */",translate,"`#reports-id .cards`: surface-1 background, row with `space-between`, 5 at the bottom, 25 padding, `white-space: nowrap`, full width. `bds-paper` sets radius 16 and the `Static` shadow.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css:61-63; blip-ds bds-paper; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8f24f380,css,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css,79,80,css,3,"/* `.w-25.truncate` e `.w-30.truncate`: o `#reports-id .truncate` fixa 250px e
-   corta com reticências — ganha da porcentagem. A data é `.w-25` sem corte. */",,,,,,
+   corta com reticências — ganha da porcentagem. A data é `.w-25` sem corte. */",translate,`.w-25.truncate` and `.w-30.truncate`: `#reports-id .truncate` fixes 250px and truncates with an ellipsis — it wins over the percentage. The date is `.w-25` without truncation.,other,apps/gestao-vite/src/paginas/fluxo/analise/relatorios/relatorios.css:79-80,,proposed
 css-comment-6d646fee,css,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css,1,15,css,4,"/* ==================================================== Visão Geral (`visao-geral/`)
 
    `generalDashboard`, template 7780 do `portal.js`, e as regras
@@ -3271,16 +3356,28 @@ css-comment-6d646fee,css,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/
      #a8bfc4 (`.no-content-found`)                        → `--ink-3`
      #505f79 / #3a4a65 (`.general-info` título / corpo)  → `--ink-2` / `--ink`
      as duas linhas do gráfico (cor do Google Charts)    → `--p-marca` / `--p-alerta-conteudo`
-   ========================================================================== */",,,,,,
+   ========================================================================== */",translate,"==================================================== Overview (`visao-geral/`)
+
+   `generalDashboard`, template 7780 from `portal.js`, and the `#general-dashboard`, `.general-card-*`, `.counter-child-card`, `analytics-chart`, `.no-content-found` and `.general-info` rules from `portal.css`.
+
+   The color mapping:
+     #f6f6f6 `--color-surface-1` (`.card`)               → `--surface`
+     #e0e0e0 `--color-surface-2` (`.card`'s shadow)     → `--surface-2`
+     #282828 `--color-content-default` (titles, numbers) → `--ink`
+     #738192 `.bp-c-rooftop` (filter band)          → `--ink-3`
+     #a8bfc4 (`.no-content-found`)                        → `--ink-3`
+     #505f79 / #3a4a65 (`.general-info` title / body)  → `--ink-2` / `--ink`
+     the chart's two lines (Google Charts color)    → `--p-marca` / `--p-alerta-conteudo`
+   ==========================================================================",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css:1-15; Blip Portal analytics capture (portal.js template); pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b704802e,css,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css,158,159,css,1,"/* `div.mr2.ml2` e `div.row.mr2.ml2`: 5 dos lados; `.row` põe 3 em cima e 9
-   embaixo, e o `analytics-chart` de dentro, `margin-top: 1.5rem`. */",,,,,,
+   embaixo, e o `analytics-chart` de dentro, `margin-top: 1.5rem`. */",translate,"`div.mr2.ml2` and `div.row.mr2.ml2`: 5 on the sides; `.row` sets 3 on top and 9 at the bottom, and the `analytics-chart` inside, `margin-top: 1.5rem`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css:158-159; Blip capture class analytics-chart; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b6a1f3c3,css,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css,17,19,css,2,"/* `<custom-title>`: `div.flex.flex-items-center` com o `bds-typo fs-32
    extra-bold` e, depois de um `&nbsp;`, outro `bds-typo fs-32` com o
-   `bds-icon info solid medium` (24). Os dois fs-32 levam os 22px de margem. */",,,,,,
+   `bds-icon info solid medium` (24). Os dois fs-32 levam os 22px de margem. */",translate,"`<custom-title>`: `div.flex.flex-items-center` with the `bds-typo fs-32 extra-bold` and, after a `&nbsp;`, another `bds-typo fs-32` with `bds-icon info solid medium` (24). Both fs-32s carry the 22px margin.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css:17-19; blip-ds bds-typo/bds-icon; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-e90d8f46,css,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css,184,185,css,1,"/* `.no-content-found`: 31 de altura, `padding: 80px 0`, cor #a8bfc4; o texto é
-   o `bds-typo fs-20` de dentro. */",,,,,,
+   o `bds-typo fs-20` de dentro. */",translate,"`.no-content-found`: 31 height, `padding: 80px 0`, color #a8bfc4; the text is the `bds-typo fs-20` inside.",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css:184-185; blip-ds bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b4810273,css,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css,251,252,css,1,"/* O `chart type=""list""`: a tabela do Google, cabeçalho em
-   `--color-content-default` (`.active-message-chart-list thead tr th`). */",,,,,,
+   `--color-content-default` (`.active-message-chart-list thead tr th`). */",translate,"The `chart type=""list""`: Google's table, header in `--color-content-default` (`.active-message-chart-list thead tr th`).",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css:251-252; Google Charts capture cited by the file's header; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bf30deb2,css,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css,51,52,css,2,"/* `#dashboard-filters.bp-c-rooftop.flex.justify-between.z-5.relative`, e o
    `.picker-view.mr2` do seletor: `flex: 1`, alinhado à direita, 5 à direita. */",,,,,,
 css-comment-da5bda28,css,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css,78,80,css,2,"/* `.card.z-2.ma0.pa4.flex1.mt4.mr2.ml2.card-content`: 20 em cima, 5 dos lados,
