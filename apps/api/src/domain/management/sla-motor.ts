@@ -204,20 +204,20 @@ async function processarRegra(
   });
 
   let newState: string;
-  let alertadoEm = existente?.alertadoEm ?? null;
-  let estouradoEm = existente?.estouradoEm ?? null;
+  let alertadoEm = existente?.alertedAt ?? null;
+  let estouradoEm = existente?.exceededAt ?? null;
   let dispararAlerta = false;
   let dispararEstouro = false;
 
   if (resultado.cumprido) {
     newState = 'cumprido';
-  } else if (resultado.state === 'exceeded') {
+  } else if (resultado.state === 'estourado') {
     newState = 'estourado';
     if (!estouradoEm) {
       estouradoEm = fimEfetivo;
       dispararEstouro = true;
     }
-  } else if (resultado.state === 'alert') {
+  } else if (resultado.state === 'alerta') {
     newState = 'alertado';
     if (!alertadoEm) {
       alertadoEm = fimEfetivo;
@@ -240,7 +240,7 @@ async function processarRegra(
       conversaId: c.id,
       regraId: regra.id,
       prazoEm: resultado.prazoEm ?? fimEfetivo,
-      estado: newState,
+      state: newState,
       alertadoEm,
       estouradoEm,
     });
@@ -255,7 +255,7 @@ async function processarRegra(
       .where(eq(slaConversation.id, existente.id));
   }
 
-  const context = { tenantId, conversaId: c.id, filaId: c.queueId, prioridadeAtual: c.priority };
+  const context = { tenantId, conversationId: c.id, queueId: c.queueId, priorityAtual: c.priority };
 
   if (dispararAlerta) {
     await registrarEvento(tx, {
@@ -297,14 +297,14 @@ export async function checarSlaOfConversation(
     const [c] = await tx
       .select({
         id: conversation.id,
-        filaId: conversation.filaId,
-        prioridade: conversation.priority,
+        queueId: conversation.filaId,
+        priority: conversation.priority,
         criadaEm: conversation.criadaEm,
-        atribuidaEm: conversation.atribuidaEm,
-        primeiraRespostaEm: conversation.firstResponseAt,
-        encerradaEm: conversation.encerradaEm,
-        ultimaMensagemEm: conversation.lastMessageAt,
-        ultimaMensagemDe: conversation.lastMessageOf,
+        assignedAt: conversation.atribuidaEm,
+        firstResponseAt: conversation.firstResponseAt,
+        closedAt: conversation.encerradaEm,
+        lastMessageAt: conversation.lastMessageAt,
+        lastMessageFrom: conversation.lastMessageOf,
       })
       .from(conversation)
       .where(eq(conversation.id, conversationId))
@@ -314,7 +314,7 @@ export async function checarSlaOfConversation(
     if (!c) return;
 
     const regras = await carregarRegrasSla(tx);
-    const vencedoras = rulesWinningByTarget(regras, c.filaId);
+    const vencedoras = rulesWinningByTarget(regras, c.queueId);
     // Sem regra cadastrada para esta fila/tenant: não muda nada, como pedido.
     if (vencedoras.length === 0) return;
 
@@ -322,9 +322,9 @@ export async function checarSlaOfConversation(
       .select({
         id: slaConversation.id,
         regraId: slaConversation.regraId,
-        estado: slaConversation.state,
-        alertadoEm: slaConversation.alertadoEm,
-        estouradoEm: slaConversation.estouradoEm,
+        state: slaConversation.state,
+        alertedAt: slaConversation.alertadoEm,
+        exceededAt: slaConversation.estouradoEm,
       })
       .from(slaConversation)
       .where(
@@ -370,5 +370,5 @@ export async function conversationsForChecarSla(lote = 200): Promise<CandidataAS
      order by c.id
      limit ${lote}
   `);
-  return rows.map((l) => ({ tenantId: l.tenant_id, conversaId: l.id }));
+  return rows.map((l) => ({ tenantId: l.tenant_id, conversationId: l.id }));
 }
