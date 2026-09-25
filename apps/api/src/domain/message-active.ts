@@ -129,12 +129,12 @@ async function aDestination(
   const telefone = destino.phone ? normalizar(destino.phone) : null;
 
   if (telefone && !telefoneValido(telefone)) {
-    return { telefone, contatoId: null, enviada: false, motivo: 'numero_invalido' };
+    return { phone: telefone, contatoId: null, enviada: false, motivo: 'numero_invalido' };
   }
 
   const key = destino.contatoId ?? telefone ?? '';
   if (jaVistos.has(key)) {
-    return { telefone, contatoId: destino.contatoId ?? null, enviada: false, motivo: 'contact_duplicated' };
+    return { phone: telefone, contatoId: destino.contatoId ?? null, enviada: false, motivo: 'contact_duplicated' };
   }
   jaVistos.add(key);
 
@@ -150,7 +150,7 @@ async function aDestination(
     if (inAttendance[0]) {
       // Código 1602 deles. Conversa aberta é caminho de envio normal, não de ativa —
       // e `enviarMensagem` já manda template fora da janela quando preciso.
-      return { contactId, recusa: 'already_in_attendance' as const };
+      return { contactId, recusa: 'ja_em_atendimento' as const };
     }
 
     if (DAILY_LIMIT_BY_CONTACT > 0) {
@@ -170,7 +170,7 @@ async function aDestination(
   });
 
   if (preparo.recusa) {
-    return { telefone, contatoId: preparo.contactId, enviada: false, motivo: preparo.recusa };
+    return { phone: telefone, contatoId: preparo.contactId, enviada: false, motivo: preparo.recusa };
   }
 
   try {
@@ -183,11 +183,11 @@ async function aDestination(
       parametros: destino.parametros ?? pedido.parametros ?? [],
     });
     return {
-      telefone,
+      phone: telefone,
       contatoId: preparo.contactId,
       enviada: true,
       mensagemId: enfileirada.id,
-      conversaId: preparo.conversationId!,
+      conversationId: preparo.conversationId!,
     };
   } catch (error) {
     // Template reprovado ou sumido derruba o LOTE inteiro, e deve mesmo: é erro do
@@ -195,7 +195,7 @@ async function aDestination(
     if (error instanceof PipeError && error.status === 404) throw error;
     if (error instanceof PipeError && error.codigo === 'template_nao_aprovado') throw error;
     return {
-      telefone,
+      phone: telefone,
       contatoId: preparo.contactId,
       enviada: false,
       motivo: 'numero_invalido',
@@ -282,7 +282,7 @@ async function openConversationOfTrigger(
 
   await registrarEvento(tx, {
     tenantId: canal.tenantId,
-    conversationId,
+    conversationId: conversaId,
     type: 'criada',
     at: agora,
     userId: agent,
@@ -341,8 +341,9 @@ export async function applicationOfActive(
       errorCode: string | null;
       criada_em: Date | string;
     }>(sql`
-      select m.id, m.conversa_id, ct.id as contato_id, ct.nome as contato_nome,
-             ct.telefone_e164, t.nome as template_nome, m.estado_entrega, m.erro_codigo,
+      select m.id, m.conversa_id as "conversationId", ct.id as "contactId", ct.nome as "contactName",
+             ct.telefone_e164 as "phoneE164", t.nome as "templateName",
+             m.estado_entrega as "stateDelivery", m.erro_codigo as "errorCode",
              m.criada_em
         from mensagem m
         join conversa c on c.id = m.conversa_id
@@ -354,14 +355,14 @@ export async function applicationOfActive(
        limit 500
     `);
     return rows.map((l) => ({
-      mensagemId: l.id,
-      conversaId: l.conversationId,
-      contatoId: l.contactId,
-      contatoNome: l.contactName,
-      telefone: l.phoneE164,
+      messageId: l.id,
+      conversationId: l.conversationId,
+      contactId: l.contactId,
+      contactName: l.contactName,
+      phone: l.phoneE164,
       templateNome: l.templateName,
-      estadoEntrega: l.stateDelivery,
-      erroCodigo: l.errorCode,
+      stateDelivery: l.stateDelivery,
+      errorCode: l.errorCode,
       criadaEm: l.criada_em instanceof Date ? l.criada_em.toISOString() : String(l.criada_em),
     }));
   });
