@@ -1,21 +1,26 @@
 id,scope,file,start_line,end_line,kind,pt_score,text,action,new_text,sensitivity,evidence,reviewed_by,status
-crm-comment-bc0a4c31,crm,apps/crm/next.config.ts,12,12,line,2,// Servidor autocontido em `.next/standalone`: é o que deixa a imagem final,,,,,,
-crm-comment-60230263,crm,apps/crm/next.config.ts,13,13,line,2,// rodar sem devDependencies e sem o Next instalado ao lado.,,,,,,
-crm-comment-af50bc1c,crm,apps/crm/next.config.ts,15,15,line,1,// Sem isto o Next enraíza o rastreamento em `apps/crm` e deixa de fora,,,,,,
+crm-comment-bc0a4c31,crm,apps/crm/next.config.ts,12,12,line,2,// Servidor autocontido em `.next/standalone`: é o que deixa a imagem final,translate,Self-contained server in `.next/standalone`: this is what lets the final image,architecture,Reviewed apps/crm/next.config.ts:12; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-60230263,crm,apps/crm/next.config.ts,13,13,line,2,// rodar sem devDependencies e sem o Next instalado ao lado.,translate,run without devDependencies and without Next installed alongside it.,architecture,Reviewed apps/crm/next.config.ts:13; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-af50bc1c,crm,apps/crm/next.config.ts,15,15,line,1,// Sem isto o Next enraíza o rastreamento em `apps/crm` e deixa de fora,translate,"Without this, Next roots the tracing at `apps/crm` and leaves out",architecture,Reviewed apps/crm/next.config.ts:15; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-a34ab7d4,crm,apps/crm/next.config.ts,4,10,jsdoc,3,"/**
  * `pg` e `drizzle-orm` só rodam no servidor: fora do bundle do Next, senão o
  * webpack tenta empacotar o driver nativo do Postgres.
  *
  * `@pipe/ui` é consumido como fonte (não tem passo de build), então o Next
  * precisa transpilá-lo junto com o aplicativo.
- */",,,,,,
-crm-comment-de31e77b,crm,apps/crm/semente/semente-crm.ts,124,124,jsdoc,1,"/** CNPJ fictício e determinístico. Catorze dígitos, sem dígito verificador real. */",,,,,,
+ */",translate,"`pg` and `drizzle-orm` only run on the server: outside the Next bundle, otherwise
+webpack tries to bundle the native Postgres driver.
+
+`@pipe/ui` is consumed as source (no build step), so Next
+needs to transpile it together with the app.",architecture,Reviewed apps/crm/next.config.ts:4-10; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-de31e77b,crm,apps/crm/semente/semente-crm.ts,124,124,jsdoc,1,"/** CNPJ fictício e determinístico. Catorze dígitos, sem dígito verificador real. */",translate,"Fake, deterministic CNPJ. Fourteen digits, no real check digit.",other,,,proposed
 crm-comment-ca663cf4,crm,apps/crm/semente/semente-crm.ts,139,142,jsdoc,4,"/**
  * As regras da versão 4. Os pesos são os do mockup aprovado, e o corte em 60 é a
  * regra de negócio que já roda no webhook de hoje.
- */",,,,,,
-crm-comment-764ce4c6,crm,apps/crm/semente/semente-crm.ts,219,219,jsdoc,0,/** As faixas no formato do motor: `maximo` do topo é aberto. */,,,,,,
-crm-comment-c7329620,crm,apps/crm/semente/semente-crm.ts,264,264,jsdoc,1,/** A versão 2 acrescenta duas perguntas — e o histórico da versão 1 continua legível. */,,,,,,
+ */",translate,"Version 4 rules. The weights come from the approved mockup, and the cutoff at 60 is the
+business rule that already runs in today's webhook.",other,,,proposed
+crm-comment-764ce4c6,crm,apps/crm/semente/semente-crm.ts,219,219,jsdoc,0,/** As faixas no formato do motor: `maximo` do topo é aberto. */,translate,Bands in the engine's format: the top band's `maximo` is open-ended.,other,,,proposed
+crm-comment-c7329620,crm,apps/crm/semente/semente-crm.ts,264,264,jsdoc,1,/** A versão 2 acrescenta duas perguntas — e o histórico da versão 1 continua legível. */,translate,Version 2 adds two more questions — and version 1's history stays readable.,other,,,proposed
 crm-comment-830f24ba,crm,apps/crm/semente/semente-crm.ts,28,43,jsdoc,17,"/**
  * Semente do Pipe CRM.
  *
@@ -31,50 +36,68 @@ crm-comment-830f24ba,crm,apps/crm/semente/semente-crm.ts,28,43,jsdoc,17,"/**
  * tela: a linha do tempo do lead traz o atendimento que já aconteceu.
  *
  * Uso: `pnpm --filter @pipe/crm seed:crm`
- */",,,,,,
+ */",translate,"Pipe CRM seed.
+
+**Appends, never sweeps.** Other agents seed the same `demo` tenant, and deleting what
+isn't yours has already broken someone else's work in this project once. That's why each
+row created here has an identifier **derived from a name** (sha1 of a CRM
+namespace), and the initial cleanup deletes exactly those identifiers and nothing else:
+running it twice doesn't duplicate, and it never touches anyone else's contact, conversation, or queue.
+
+It builds on what already exists — contacts and conversations from the Gestão seed, queues and
+users from the base seed — because that's how the product's promise shows up on
+screen: the lead's timeline brings in attendance that really happened.
+
+Usage: `pnpm --filter @pipe/crm seed:crm`",architecture,Reviewed apps/crm/semente/semente-crm.ts:28-43 — idempotent seeding + cross-app data reuse rationale; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-b6f8ead9,crm,apps/crm/semente/semente-crm.ts,354,357,jsdoc,5,"/**
    * Contatos que já conversaram vêm primeiro: é o que faz a linha do tempo do lead
    * mostrar atendimento de verdade em vez de uma lista de notas inventadas.
-   */",,,,,,
-crm-comment-cf46795c,crm,apps/crm/semente/semente-crm.ts,374,374,block,1,/* ---------------------------------------------------- limpeza do que é meu */,,,,,,
-crm-comment-c0c0f08b,crm,apps/crm/semente/semente-crm.ts,388,388,line,2,"// Ordem: oportunidade e lead antes do formulário, senão a resposta segura a versão.",,,,,,
+   */",translate,"Contacts who have already talked come first: that's what makes the lead's timeline
+show real attendance instead of a list of made-up notes.",other,,,proposed
+crm-comment-cf46795c,crm,apps/crm/semente/semente-crm.ts,374,374,block,1,/* ---------------------------------------------------- limpeza do que é meu */,translate,---------------------------------------------------- cleanup of what's mine,other,,,proposed
+crm-comment-c0c0f08b,crm,apps/crm/semente/semente-crm.ts,388,388,line,2,"// Ordem: oportunidade e lead antes do formulário, senão a resposta segura a versão.",translate,"Order: opportunity and lead before the form, otherwise the response holds up the version.",other,,,proposed
 crm-comment-d61824f9,crm,apps/crm/semente/semente-crm.ts,397,401,block,7,"/*
    * O contato é de outra semente: só o vínculo com a conta é meu, e é só ele
    * que a limpeza desfaz. Solto o vínculo antes de apagar a conta, senão a
    * chave estrangeira segura a linha.
-   */",,,,,,
-crm-comment-d8c95494,crm,apps/crm/semente/semente-crm.ts,461,461,block,0,/* --------------------------------------------------------------- formulários */,,,,,,
-crm-comment-545998f0,crm,apps/crm/semente/semente-crm.ts,47,47,jsdoc,1,"/** UUID determinístico a partir de um nome. Mesmo nome, mesmo id, sempre. */",,,,,,
-crm-comment-e7f24730,crm,apps/crm/semente/semente-crm.ts,546,546,jsdoc,1,"/** Conta → contatos dela. Vira um `update` por conta, não sessenta. */",,,,,,
-crm-comment-4d89e299,crm,apps/crm/semente/semente-crm.ts,551,551,line,3,"// Rodízio pelas contas: cada uma fica com três ou quatro contatos, que é o",,,,,,
-crm-comment-0d46c226,crm,apps/crm/semente/semente-crm.ts,552,552,line,4,// bastante para a ficha da conta ter mais de uma linha em cada bloco.,,,,,,
-crm-comment-24aa1240,crm,apps/crm/semente/semente-crm.ts,557,557,line,2,// Metade entrou nos últimos dias e metade nos meses anteriores: sem isso o painel,,,,,,
-crm-comment-6a91f670,crm,apps/crm/semente/semente-crm.ts,558,558,line,2,// compara um mês cheio com um mês de cinco dias e a variação vira ruído.,,,,,,
-crm-comment-4588064c,crm,apps/crm/semente/semente-crm.ts,564,564,line,1,// O perfil é a fonte única: alimenta o score e as respostas do formulário.,,,,,,
-crm-comment-c9ede5e0,crm,apps/crm/semente/semente-crm.ts,57,57,jsdoc,1,/** Gerador determinístico: rodar duas vezes dá exatamente a mesma base. */,,,,,,
-crm-comment-aaa4fd0b,crm,apps/crm/semente/semente-crm.ts,582,582,line,4,"// Nem todo lead é pontuado: o que não respondeu nada fica sem score, e a ficha",,,,,,
-crm-comment-2005ffde,crm,apps/crm/semente/semente-crm.ts,583,583,line,2,"// diz isso em vez de exibir zero — zero é um número, ausência de cálculo não é.",,,,,,
-crm-comment-d320d1bd,crm,apps/crm/semente/semente-crm.ts,593,593,line,1,"// Nunca antes da criação do lead nem no futuro: ""dias na fase"" é uma contagem, e",,,,,,
-crm-comment-169fc8f7,crm,apps/crm/semente/semente-crm.ts,594,594,line,3,// contagem negativa é a maneira mais barata de perder a confiança na coluna.,,,,,,
-crm-comment-f2858419,crm,apps/crm/semente/semente-crm.ts,619,619,line,3,"// Lead da faixa de nutrição não tem dono: é exatamente a aba ""sem proprietário"".",,,,,,
-crm-comment-5204d325,crm,apps/crm/semente/semente-crm.ts,676,676,block,0,/* ------------------------------------------------ respostas de formulário */,,,,,,
-crm-comment-a9d1aa4e,crm,apps/crm/semente/semente-crm.ts,678,678,line,2,"// Lead antigo respondeu a versão 1 do diagnóstico; lead recente, a versão 2.",,,,,,
-crm-comment-3845a723,crm,apps/crm/semente/semente-crm.ts,684,684,line,2,// Diagnóstico incompleto responde só as duas primeiras — e a regra dos 18 pontos,,,,,,
-crm-comment-b32aef00,crm,apps/crm/semente/semente-crm.ts,685,685,line,4,// não casa. É o que faz a explicação do score contar uma história verdadeira.,,,,,,
-crm-comment-bd9ea1db,crm,apps/crm/semente/semente-crm.ts,76,76,block,0,/* ------------------------------------------------------------------ catálogos */,,,,,,
-crm-comment-ba474c41,crm,apps/crm/semente/semente-crm.ts,808,808,line,2,"// Só lead acima do corte vira oportunidade, que é a regra do funil de hoje.",,,,,,
-crm-comment-092d88cb,crm,apps/crm/semente/semente-crm.ts,810,810,line,1,"// cima. Abaixo disso é nutrição, e nutrição não ocupa coluna do funil.",,,,,,
-crm-comment-90cae581,crm,apps/crm/semente/semente-crm.ts,829,829,line,2,"// Um punhado já fechou neste mês: sem elas o cartão ""fechado no mês"" fica em",,,,,,
-crm-comment-5a05fd1d,crm,apps/crm/semente/semente-crm.ts,830,830,line,2,// zero e o painel não tem o que comparar.,,,,,,
-crm-comment-ee81ab68,crm,apps/crm/semente/semente-crm.ts,854,854,line,1,"// Um `update` por conta, não um por contato: catorze consultas em vez de sessenta.",,,,,,
+   */",translate,"The contact belongs to another seed: only the link to the account is mine, and that's the
+only thing cleanup undoes. I release the link before deleting the account, otherwise the
+foreign key holds onto the row.",architecture,Reviewed apps/crm/semente/semente-crm.ts:397-401 — referential-integrity-safe delete order; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-d8c95494,crm,apps/crm/semente/semente-crm.ts,461,461,block,0,/* --------------------------------------------------------------- formulários */,translate,--------------------------------------------------------------- forms,other,,,proposed
+crm-comment-545998f0,crm,apps/crm/semente/semente-crm.ts,47,47,jsdoc,1,"/** UUID determinístico a partir de um nome. Mesmo nome, mesmo id, sempre. */",translate,"Deterministic UUID from a name. Same name, same id, always.",other,,,proposed
+crm-comment-e7f24730,crm,apps/crm/semente/semente-crm.ts,546,546,jsdoc,1,"/** Conta → contatos dela. Vira um `update` por conta, não sessenta. */",translate,"Account → its contacts. Turns into one `update` per account, not sixty.",other,,,proposed
+crm-comment-4d89e299,crm,apps/crm/semente/semente-crm.ts,551,551,line,3,"// Rodízio pelas contas: cada uma fica com três ou quatro contatos, que é o",translate,"Rotating through accounts: each one gets three or four contacts, which is",other,,,proposed
+crm-comment-0d46c226,crm,apps/crm/semente/semente-crm.ts,552,552,line,4,// bastante para a ficha da conta ter mais de uma linha em cada bloco.,translate,enough for the account record to have more than one row in each block.,other,,,proposed
+crm-comment-24aa1240,crm,apps/crm/semente/semente-crm.ts,557,557,line,2,// Metade entrou nos últimos dias e metade nos meses anteriores: sem isso o painel,translate,Half arrived in the last few days and half in previous months: without this the dashboard,other,,,proposed
+crm-comment-6a91f670,crm,apps/crm/semente/semente-crm.ts,558,558,line,2,// compara um mês cheio com um mês de cinco dias e a variação vira ruído.,translate,compares a full month against a five-day month and the variation turns into noise.,other,,,proposed
+crm-comment-4588064c,crm,apps/crm/semente/semente-crm.ts,564,564,line,1,// O perfil é a fonte única: alimenta o score e as respostas do formulário.,translate,The profile is the single source: it feeds the score and the form answers.,other,,,proposed
+crm-comment-c9ede5e0,crm,apps/crm/semente/semente-crm.ts,57,57,jsdoc,1,/** Gerador determinístico: rodar duas vezes dá exatamente a mesma base. */,translate,Deterministic generator: running it twice gives exactly the same base data.,other,,,proposed
+crm-comment-aaa4fd0b,crm,apps/crm/semente/semente-crm.ts,582,582,line,4,"// Nem todo lead é pontuado: o que não respondeu nada fica sem score, e a ficha",translate,"Not every lead is scored: one that answered nothing has no score, and the record",other,,,proposed
+crm-comment-2005ffde,crm,apps/crm/semente/semente-crm.ts,583,583,line,2,"// diz isso em vez de exibir zero — zero é um número, ausência de cálculo não é.",translate,"says so instead of showing zero — zero is a number, absence of a calculation isn't.",other,,,proposed
+crm-comment-d320d1bd,crm,apps/crm/semente/semente-crm.ts,593,593,line,1,"// Nunca antes da criação do lead nem no futuro: ""dias na fase"" é uma contagem, e",translate,"Never before the lead's creation nor in the future: ""days in stage"" is a count, and",other,,,proposed
+crm-comment-169fc8f7,crm,apps/crm/semente/semente-crm.ts,594,594,line,3,// contagem negativa é a maneira mais barata de perder a confiança na coluna.,translate,a negative count is the cheapest way to lose trust in the column.,other,,,proposed
+crm-comment-f2858419,crm,apps/crm/semente/semente-crm.ts,619,619,line,3,"// Lead da faixa de nutrição não tem dono: é exatamente a aba ""sem proprietário"".",translate,"A lead in the nurture band has no owner: that's exactly the ""unassigned"" tab.",other,,,proposed
+crm-comment-5204d325,crm,apps/crm/semente/semente-crm.ts,676,676,block,0,/* ------------------------------------------------ respostas de formulário */,translate,------------------------------------------------ form responses,other,,,proposed
+crm-comment-a9d1aa4e,crm,apps/crm/semente/semente-crm.ts,678,678,line,2,"// Lead antigo respondeu a versão 1 do diagnóstico; lead recente, a versão 2.",translate,"An old lead answered diagnostic version 1; a recent lead, version 2.",other,,,proposed
+crm-comment-3845a723,crm,apps/crm/semente/semente-crm.ts,684,684,line,2,// Diagnóstico incompleto responde só as duas primeiras — e a regra dos 18 pontos,translate,An incomplete diagnostic only answers the first two — and the 18-point rule,other,,,proposed
+crm-comment-b32aef00,crm,apps/crm/semente/semente-crm.ts,685,685,line,4,// não casa. É o que faz a explicação do score contar uma história verdadeira.,translate,doesn't match. That's what makes the score's explanation tell a true story.,other,,,proposed
+crm-comment-bd9ea1db,crm,apps/crm/semente/semente-crm.ts,76,76,block,0,/* ------------------------------------------------------------------ catálogos */,translate,------------------------------------------------------------------ catalogs,other,,,proposed
+crm-comment-ba474c41,crm,apps/crm/semente/semente-crm.ts,808,808,line,2,"// Só lead acima do corte vira oportunidade, que é a regra do funil de hoje.",translate,"Only a lead above the cutoff becomes an opportunity, which is today's funnel rule.",other,,,proposed
+crm-comment-092d88cb,crm,apps/crm/semente/semente-crm.ts,810,810,line,1,"// cima. Abaixo disso é nutrição, e nutrição não ocupa coluna do funil.",translate,"top. Below that is nurture, and nurture doesn't occupy a funnel column.",other,,,proposed
+crm-comment-90cae581,crm,apps/crm/semente/semente-crm.ts,829,829,line,2,"// Um punhado já fechou neste mês: sem elas o cartão ""fechado no mês"" fica em",translate,"A handful have already closed this month: without them the ""closed this month"" card would sit",other,,,proposed
+crm-comment-5a05fd1d,crm,apps/crm/semente/semente-crm.ts,830,830,line,2,// zero e o painel não tem o que comparar.,translate,at zero and the dashboard would have nothing to compare against.,other,,,proposed
+crm-comment-ee81ab68,crm,apps/crm/semente/semente-crm.ts,854,854,line,1,"// Um `update` por conta, não um por contato: catorze consultas em vez de sessenta.",translate,"One `update` per account, not one per contact: fourteen queries instead of sixty.",other,,,proposed
 crm-comment-e3da84c2,crm,apps/crm/semente/semente-crm.ts,873,878,jsdoc,11,"/**
    * A promessa do produto é que o CRM se alimenta das conversas. Sem classificação,
    * a linha do tempo mostra ""houve um atendimento"" e nada mais. Estas linhas são
    * criadas com id próprio e `onConflictDoNothing`: se o worker de IA já classificou
    * a conversa, a dele fica.
-   */",,,,,,
-crm-comment-659bbc95,crm,apps/crm/semente/semente-crm.ts,897,897,line,3,"// Uma conversa resumida por contato: o objetivo é a ficha, não o dataset da IA.",,,,,,
-crm-comment-a1233284,crm,apps/crm/semente/semente-crm.ts,928,928,jsdoc,2,/** `AAAA-MM-DD` para a coluna `date` de `fechamento_previsto`. */,,,,,,
+   */",translate,"The product's promise is that the CRM feeds off conversations. Without classification,
+the timeline just shows ""there was an attendance"" and nothing else. These rows are
+created with their own id and `onConflictDoNothing`: if the AI worker already classified
+the conversation, its version wins.",integration,Reviewed apps/crm/semente/semente-crm.ts:873-878 — cross-service coordination with AI classification worker; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-659bbc95,crm,apps/crm/semente/semente-crm.ts,897,897,line,3,"// Uma conversa resumida por contato: o objetivo é a ficha, não o dataset da IA.",translate,"One summarized conversation per contact: the goal is the record, not the AI's dataset.",other,,,proposed
+crm-comment-a1233284,crm,apps/crm/semente/semente-crm.ts,928,928,jsdoc,2,/** `AAAA-MM-DD` para a coluna `date` de `fechamento_previsto`. */,translate,`YYYY-MM-DD` for the `date` column `fechamento_previsto`.,other,,,proposed
 crm-comment-620a215c,crm,apps/crm/semente/semente-crm.ts,98,106,jsdoc,11,"/**
  * Contas. A semente da Gestão cria contato e conversa, e a base deste CRM cria
  * lead e oportunidade — ninguém criava `conta`, e por isso a coluna `conta_id`
@@ -83,7 +106,13 @@ crm-comment-620a215c,crm,apps/crm/semente/semente-crm.ts,98,106,jsdoc,11,"/**
  *
  * Nomes fictícios de propósito: é tenant de demonstração, e cliente real de
  * ninguém entra em semente que vai para o repositório.
- */",,,,,,
+ */",translate,"Accounts. The Gestão seed creates contact and conversation, and this CRM's base seed
+creates lead and opportunity — nobody was creating `conta`, which is why the lead's
+`conta_id` column came back null on every row. The Accounts screen was born empty, which
+is the worst way to find out a table was never populated.
+
+Fictitious names on purpose: this is a demo tenant, and nobody's real customer data
+goes into a seed that ships to the repository.",security,Reviewed apps/crm/semente/semente-crm.ts:98-106 — no real customer data committed to repo seed; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-00dd4900,crm,apps/crm/src/app/acoes-busca.ts,6,16,jsdoc,16,"/**
  * A busca do menu de comando, chamada a cada tecla.
  *
@@ -94,10 +123,18 @@ crm-comment-00dd4900,crm,apps/crm/src/app/acoes-busca.ts,6,16,jsdoc,16,"/**
  *
  * Nunca lança: o menu de comando não pode derrubar a tela em que a pessoa está.
  * Falha vira lista vazia, e a pessoa fecha e continua o que fazia.
- */",,,,,,
-crm-comment-41991bb8,crm,apps/crm/src/app/configuracoes/acoes.ts,134,134,block,0,/* ------------------------------------------------------ papéis e permissões */,,,,,,
-crm-comment-096445fa,crm,apps/crm/src/app/configuracoes/acoes.ts,166,166,line,4,// papel que já não está no banco até alguém navegar por conta própria.,,,,,,
-crm-comment-72727b21,crm,apps/crm/src/app/configuracoes/acoes.ts,175,175,line,1,// Código em branco vira o rótulo em forma de chave: ninguém precisa aprender a,,,,,,
+ */",translate,"The command menu's search, called on every keystroke.
+
+Server action, not a route: the menu is its only consumer, and a route would require
+re-authenticating what the session has already resolved. When the front end moves to Vite
+this becomes an endpoint in the `api` — it's tracked in
+`docs/specs/2026-09-07-arquitetura-de-front.md`.
+
+Never throws: the command menu can't take down the screen the person is on.
+A failure becomes an empty list, and the person closes it and keeps doing what they were doing.",security,Reviewed apps/crm/src/app/acoes-busca.ts:6-16 — server action avoids re-auth of an already-resolved session; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-41991bb8,crm,apps/crm/src/app/configuracoes/acoes.ts,134,134,block,0,/* ------------------------------------------------------ papéis e permissões */,translate,------------------------------------------------------ roles and permissions,other,,,proposed
+crm-comment-096445fa,crm,apps/crm/src/app/configuracoes/acoes.ts,166,166,line,4,// papel que já não está no banco até alguém navegar por conta própria.,translate,"role that's no longer in the database, until someone navigates away on their own.",other,,,proposed
+crm-comment-72727b21,crm,apps/crm/src/app/configuracoes/acoes.ts,175,175,line,1,// Código em branco vira o rótulo em forma de chave: ninguém precisa aprender a,translate,A blank code turns into the label written as a key: nobody needs to learn the,other,,,proposed
 crm-comment-02c68b7c,crm,apps/crm/src/app/configuracoes/acoes.ts,27,44,jsdoc,26,"/**
  * As ações de escrita da área de configurações.
  *
@@ -115,8 +152,23 @@ crm-comment-02c68b7c,crm,apps/crm/src/app/configuracoes/acoes.ts,27,44,jsdoc,26,
  * O `id` que chega do navegador nunca é confiado: passa por `ehUuid` antes de
  * virar `where`. É a mesma regra de `app/leads/acoes.ts` — entrada de cliente
  * não define valor de escrita.
- */",,,,,,
-crm-comment-f2d4e3fc,crm,apps/crm/src/app/configuracoes/acoes.ts,79,79,block,0,/* ------------------------------------------------------ espaço de trabalho */,,,,,,
+ */",translate,"The settings area's write actions.
+
+This layer is thin on purpose, and the boundary it guards is in the README (""Who talks
+to the database""): what lives here is Next-specific — reading `FormData`,
+revalidating the route — and nothing else. Querying and auditing live in
+`lib/configuracoes-dados.ts`, which doesn't know Next exists. When the CRM moves
+to Vite and `apps/api` becomes the only door to Postgres, this file is the
+one that gets thrown away; the other one moves.
+
+Every action has the `useActionState` signature: it receives the previous result and
+the `FormData`, and returns the new result. That's what makes the form work
+**without JavaScript** and still show the complaint in Portuguese on screen.
+
+The `id` that arrives from the browser is never trusted: it passes through `ehUuid` before
+becoming a `where` clause. It's the same rule as `app/leads/acoes.ts` — client input
+never determines a write value.",security,Reviewed apps/crm/src/app/configuracoes/acoes.ts:27-44 — trust-boundary rule: client input never defines a write value; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-f2d4e3fc,crm,apps/crm/src/app/configuracoes/acoes.ts,79,79,block,0,/* ------------------------------------------------------ espaço de trabalho */,translate,------------------------------------------------------ workspace,other,,,proposed
 crm-comment-4c1cf368,crm,apps/crm/src/app/configuracoes/api/page.tsx,26,50,jsdoc,34,"/**
  * Chaves de API e webhooks de saída.
  *
@@ -141,7 +193,29 @@ crm-comment-4c1cf368,crm,apps/crm/src/app/configuracoes/api/page.tsx,26,50,jsdoc
  * - **O segredo do webhook é nosso e é obrigatório.** No Twenty ele é opcional;
  *   aqui a coluna é `not null` e a assinatura inclui o timestamp
  *   (`sha256=HMAC(segredo, ""<timestamp>.<corpo>"")`), que é o que fecha o replay.
- */",,,,,,
+ */",translate,"API keys and outgoing webhooks.
+
+This is Twenty's ""MCP & APIs"", with what Pipe actually has behind it. Both halves of
+this screen already existed in the product with no way to reach them: `chave_api`
+has authenticated the REST API since the start (`apps/api/src/autenticacao.ts`) and
+`webhook_saida` is emitted on every event (`apps/api/src/webhooks-saida.ts`).
+What was missing was a place to issue one and sign the other without `psql`.
+
+What changes compared to Twenty, and why:
+
+- **The key carries a SCOPE, not a role.** There, the key receives a user's role. Here
+  `chave_api.escopos` is the ruler `apps/api` checks per route, and a role belongs to
+  a person. Lending a person's role to a program is the path for a read-only
+  integration to gain permission to delete a contact.
+- **There's no regenerate.** Regenerating is revoke-and-issue, under a name that suggests
+  the old key keeps working for a while. Revoke it and issue another: two clicks and
+  no ambiguity about what still works.
+- **The webhook has an on/off switch.** There, a webhook either exists or is deleted. Here
+  `webhook_saida.ativo` already existed, and turning it off during maintenance on the other
+  side is better than deleting and re-registering with a new secret.
+- **The webhook secret is ours and mandatory.** In Twenty it's optional;
+  here the column is `not null` and the signature includes the timestamp
+  (`sha256=HMAC(secret, ""<timestamp>.<body>"")`), which is what closes off replay.",security,Reviewed apps/crm/src/app/configuracoes/api/page.tsx:26-50 — API key scope-vs-role design and webhook HMAC replay protection; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-7019719d,crm,apps/crm/src/app/configuracoes/campos/page.tsx,15,42,jsdoc,31,"/**
  * Campos personalizados do lead.
  *
@@ -169,7 +243,31 @@ crm-comment-7019719d,crm,apps/crm/src/app/configuracoes/campos/page.tsx,15,42,js
  * - **Excluir tira a definição, não o valor.** O que estiver gravado continua
  *   lá, e o log de auditoria guarda o código. Recadastrar o mesmo código faz o
  *   dado voltar a aparecer.
- */",,,,,,
+ */",translate,"Custom fields for the lead.
+
+**What Twenty has here that Pipe won't.** There, ""Data model"" lets the customer create
+an OBJECT and a FIELD — which means running `alter table` at runtime, on a database
+with RLS and versioned migrations. Pipe decided the opposite at the foundation, and
+it's written into the schema: *""a tenant's custom field lives here, with a GIN
+index — never `alter table` at runtime""*. The value lives in `lead.customizados`,
+which is `jsonb`.
+
+So the honest equivalent isn't ""create a field in the database"": it's **declaring the
+key**. That's what this screen does, in `dicionario_campo` — the same table the
+query language reads to decide what's queryable. Declaring it here is what makes
+the field exist for search, for export, and for whoever fills out the form.
+
+Three consequences of this decision, all visible on the screen:
+
+- **The code isn't editable.** It's the key inside each lead's `jsonb`; changing it
+  would silently orphan the stored value across the entire database. Label and
+  description, yes.
+- **""Filled in"" counts real leads**, scanning `customizados`. It's the number that stops
+  someone from blindly deleting a field that 400 leads use — the opposite of Twenty's
+  ""Mostly empty"".
+- **Deleting removes the definition, not the value.** Whatever was stored stays there,
+  and the audit log keeps the code. Re-registering the same code makes the data
+  reappear.",architecture,Reviewed apps/crm/src/app/configuracoes/campos/page.tsx:15-42 — no-runtime-DDL data modeling decision for custom fields; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-2d5e7d4d,crm,apps/crm/src/app/configuracoes/espaco/page.tsx,10,20,jsdoc,14,"/**
  * A lista de fusos vem do runtime, não de uma constante nossa.
  *
@@ -180,7 +278,15 @@ crm-comment-2d5e7d4d,crm,apps/crm/src/app/configuracoes/espaco/page.tsx,10,20,js
  *
  * O `catch` cobre runtime antigo sem `supportedValuesOf`: sem a lista, o que
  * resta é o fuso atual, e o campo continua salvável.
- */",,,,,,
+ */",translate,"The timezone list comes from the runtime, not from a constant of ours.
+
+A hand-written list ages every time a country changes its daylight-saving rules, and the
+way you find out is a report coming out an hour off. `Intl` already carries the
+system's timezone database; using another source would just mean keeping a worse
+copy of the same thing.
+
+The `catch` covers older runtimes without `supportedValuesOf`: without the list, all
+that's left is the current timezone, and the field stays savable.",other,,,proposed
 crm-comment-d049b33e,crm,apps/crm/src/app/configuracoes/espaco/page.tsx,36,49,jsdoc,14,"/**
  * Espaço de trabalho.
  *
@@ -194,7 +300,18 @@ crm-comment-d049b33e,crm,apps/crm/src/app/configuracoes/espaco/page.tsx,36,49,js
  * (`identidade.ts`) e só vale VERIFICADO, por registro TXT no DNS: um campo de
  * texto aqui deixaria qualquer administrador reivindicar `@banco.com.br` e
  * receber, no dia seguinte, quem tentasse entrar com aquele endereço.
- */",,,,,,
+ */",translate,"Workspace.
+
+This is Twenty's ""General"", in the same order: image, name, domain, and the danger
+zone last. The danger zone **wasn't included**: ""delete the workspace"" in a
+multi-tenant product with RLS cascades into deleting the whole customer, and that's
+a contract operation, not a screen button — whoever cancels talks to a person, and
+`tenant.ativo` is what turns it off.
+
+The domain is read-only. It exists to discover the tenant from the login
+(`identidade.ts`), and it's only valid once VERIFIED, via a DNS TXT record: a
+free-text field here would let any admin claim `@banco.com.br` and, the next
+day, receive anyone who tried to log in with that address.",security,Reviewed apps/crm/src/app/configuracoes/espaco/page.tsx:36-49 — tenant isolation / domain-claim prevention via DNS verification; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-9e3b3f95,crm,apps/crm/src/app/configuracoes/layout.tsx,4,19,jsdoc,12,"/**
  * O invólucro da área de configurações.
  *
@@ -210,9 +327,22 @@ crm-comment-9e3b3f95,crm,apps/crm/src/app/configuracoes/layout.tsx,4,19,jsdoc,12
  *
  * O `try` não é decoração: `localStorage` lança em janela anônima com cookies
  * bloqueados, e um erro aqui derrubaria a página inteira antes do primeiro pixel.
- */",,,,,,
-crm-comment-342d058c,crm,apps/crm/src/app/configuracoes/membros/page.tsx,133,133,line,3,"// Em série, nunca em `Promise.all`: cada uma abre a sua transação com o tenant",,,,,,
-crm-comment-56334b15,crm,apps/crm/src/app/configuracoes/membros/page.tsx,134,134,line,1,"// fixado, e paralelizar aqui é o caminho conhecido para perder `pipe.tenant_id`.",,,,,,
+ */",translate,"The settings area's wrapper.
+
+It does two things, and neither is navigation: the sidebar already comes from
+`AreaConfiguracoes`, assembled in `componentes/estrutura-crm.tsx`.
+
+1. Loads the area's stylesheet, which is local and only exists here.
+2. Writes the saved theme onto `<html>` **before** the page paints. Without this,
+   anyone who picked dark mode would see a white flash on every load — the theme's
+   CSS depends on the attribute, and the attribute would only exist after React
+   hydrates. It's the same trick every theme switcher uses, and it's the only
+   reason there's an inline `<script>` in the project.
+
+The `try` isn't decoration: `localStorage` throws in a private window with cookies
+blocked, and an error here would take down the whole page before the first pixel.",architecture,Reviewed apps/crm/src/app/configuracoes/layout.tsx:4-19 — FOUC-prevention theme script + shell composition from estrutura-crm.tsx; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-342d058c,crm,apps/crm/src/app/configuracoes/membros/page.tsx,133,133,line,3,"// Em série, nunca em `Promise.all`: cada uma abre a sua transação com o tenant",translate,"Sequentially, never in `Promise.all`: each one opens its own transaction with the tenant",security,Reviewed apps/crm/src/app/configuracoes/membros/page.tsx:133 — tenant-scoped transaction concurrency hazard; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-56334b15,crm,apps/crm/src/app/configuracoes/membros/page.tsx,134,134,line,1,"// fixado, e paralelizar aqui é o caminho conhecido para perder `pipe.tenant_id`.",translate,"pinned, and parallelizing here is the known way to lose `pipe.tenant_id`.",security,Reviewed apps/crm/src/app/configuracoes/membros/page.tsx:134 — tenant-scoped transaction concurrency hazard; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-a5b3e3ec,crm,apps/crm/src/app/configuracoes/membros/page.tsx,17,35,jsdoc,26,"/**
  * Membros.
  *
@@ -231,7 +361,23 @@ crm-comment-a5b3e3ec,crm,apps/crm/src/app/configuracoes/membros/page.tsx,17,35,j
  * reenviar convite (convidar de novo já invalida o anterior e emite outro) e
  * papéis de agente e de chave de API, que no Pipe não existem — chave carrega
  * escopo, não papel.
- */",,,,,,
+ */",translate,"Members.
+
+In Twenty this is three tabs — Team, Invite, Roles. Here it's three blocks on the same
+screen, because our list fits: a tab that hides a two-field form costs an extra click
+without adding information.
+
+The difference that matters compared to Twenty is what happens when you remove someone:
+there, the member leaves the workspace; here they're **deactivated**. `usuario` is
+referenced by conversation, evaluation, lead, and audit log — deleting the row would
+erase the authorship of everything the person did, which is exactly what a contract
+audit would go looking for.
+
+Three things Twenty has here that didn't make it in: invite via public link (an
+invite is for ONE address, and a link anyone can use is the opposite of that),
+resend invite (inviting again already invalidates the previous one and issues
+another), and agent roles and API-key roles, which don't exist in Pipe — a key
+carries a scope, not a role.",security,Reviewed apps/crm/src/app/configuracoes/membros/page.tsx:17-35 — soft-deactivate rationale for audit-trail integrity; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-40b6002f,crm,apps/crm/src/app/configuracoes/page.tsx,4,13,jsdoc,15,"/**
  * O índice das configurações.
  *
@@ -241,7 +387,15 @@ crm-comment-40b6002f,crm,apps/crm/src/app/configuracoes/page.tsx,4,13,jsdoc,15,"
  * Cada item traz uma linha do que a seção faz. É o que um menu de 28px não
  * consegue dizer, e é a diferença entre a pessoa procurar ""onde muda o fuso"" no
  * menu inteiro e ler ""fuso horário"" na descrição do espaço de trabalho.
- */",,,,,,
+ */",translate,"The settings index.
+
+It used to be a `redirect` to the first section, and that made sense back when there
+were two: with nine, the gear icon needs to open somewhere that says what exists.
+
+Each item carries one line about what the section does. That's what a 28px menu
+can't say, and it's the difference between someone hunting for ""where do I change
+the timezone"" through the whole menu versus reading ""timezone"" in the workspace's
+description.",other,,,proposed
 crm-comment-cda305e9,crm,apps/crm/src/app/configuracoes/papeis/[id]/page.tsx,16,32,jsdoc,20,"/**
  * Um papel, permissão por permissão.
  *
@@ -258,7 +412,22 @@ crm-comment-cda305e9,crm,apps/crm/src/app/configuracoes/papeis/[id]/page.tsx,16,
  * A zona de perigo é o padrão do Twenty, com uma diferença: aqui o botão só
  * arma depois do primeiro clique, e recusa quando ainda há gente com o papel.
  * Excluir papel com membro dentro é tirar acesso de alguém sem dizer de quem.
- */",,,,,,
+ */",translate,"A role, permission by permission.
+
+The grouping follows the catalog itself (`permissao.grupo`), not some new taxonomy:
+the database already knows `conversa.transferir` belongs to conversation, and
+inventing another split here would create two truths about the same thing.
+
+The checkbox is a real `<input type=""checkbox"">`, wrapped in a `<label>`: keyboard
+support, `aria-checked`, and the state read aloud come for free, and the repeated
+`name=""permissao""` is what makes `FormData` arrive as a list on the server.
+Reimplementing this with a `div` and `role=""checkbox""` is work that leaves you
+with less.
+
+The danger zone follows Twenty's pattern, with one difference: here the button only
+arms after the first click, and refuses when there are still people with the role.
+Deleting a role that still has members in it takes away someone's access without
+saying whose.",security,Reviewed apps/crm/src/app/configuracoes/papeis/[id]/page.tsx:16-32 — permission-grouping integrity + safe-delete on roles with members; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-6f9c5703,crm,apps/crm/src/app/configuracoes/papeis/page.tsx,12,24,jsdoc,17,"/**
  * Papéis.
  *
@@ -271,7 +440,18 @@ crm-comment-6f9c5703,crm,apps/crm/src/app/configuracoes/papeis/page.tsx,12,24,js
  * contrato que a semente garante, e um cliente que remova `conversa.responder`
  * do `atendente` quebra o Desk de todo mundo dele sem saber por quê. Quem precisa
  * de outra combinação cria um papel próprio, que é o que este bloco oferece.
- */",,,,,,
+ */",translate,"Roles.
+
+The permission catalog already existed in `permissao` and `papel_permissao` since day
+one, with 47 named capabilities and five day-one roles — and no screen showed it.
+This is that screen.
+
+**System roles aren't editable**, and show up with a lock icon. It's the same
+decision Twenty made (`isEditable: false`) and for the same reason: the five
+day-one roles are the contract the seed guarantees, and a customer who removes
+`conversa.responder` from `atendente` breaks their whole Desk without knowing
+why. Whoever needs a different combination creates their own role, which is what
+this block offers.",security,Reviewed apps/crm/src/app/configuracoes/papeis/page.tsx:12-24 — protects system roles that other products (Desk) depend on; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-8ba47454,crm,apps/crm/src/app/configuracoes/perfil/page.tsx,12,33,jsdoc,31,"/**
  * Perfil da pessoa.
  *
@@ -293,7 +473,26 @@ crm-comment-8ba47454,crm,apps/crm/src/app/configuracoes/perfil/page.tsx,12,33,js
  * - **Escala da interface e formatos de data.** A régua de densidade é do design
  *   system e vale igual para os três aplicativos; deixá-la configurável por
  *   pessoa desfaz o que `packages/ui` existe para garantir.
- */",,,,,,
+ */",translate,"The person's profile.
+
+In Twenty this is TWO screens: ""Profile"" (photo, name, email, password, danger zone)
+and ""Experience"" (theme, language, density, date and number formats). Here it's
+one, and the reason is countable: of the thirteen things those two screens offer
+there, Pipe has four. A screen with four controls and another with one wouldn't be
+two screens — they'd be one screen and a waiting room.
+
+What was left out, and why:
+
+- **Separate last name.** `usuario.nome` is a single field, and splitting it in two
+  would require a migration to solve a problem nobody has.
+- **Change email, change password, delete the account, end sessions.** All of
+  these depend on the CRM's own session, which doesn't exist yet (`banco.ts`
+  resolves everything through an environment variable). A button that doesn't do
+  what it promises is worse than no button, and the project's rule is explicit: an
+  item that doesn't work doesn't appear.
+- **Interface density and date formats.** The density scale belongs to the design
+  system and applies equally to all three apps; making it configurable per person
+  would undo what `packages/ui` exists to guarantee.",architecture,Reviewed apps/crm/src/app/configuracoes/perfil/page.tsx:12-33 — notes CRM has no own-session yet — auth relies on env var; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-1b9fdd09,crm,apps/crm/src/app/configuracoes/regras-de-score/page.tsx,7,18,jsdoc,18,"/**
  * As colunas da tabela de regras.
  *
@@ -305,14 +504,24 @@ crm-comment-1b9fdd09,crm,apps/crm/src/app/configuracoes/regras-de-score/page.tsx
  * ""Ativa"" também deixou de ser verde: dez regras ativas pintavam dez etiquetas
  * verdes, e o verde deixava de querer dizer alguma coisa. As duas são neutras,
  * e a palavra basta.
- */",,,,,,
-crm-comment-2d895b5f,crm,apps/crm/src/app/contas/[id]/page.tsx,119,119,line,2,"// Domínio é categoria, e categoria é neutra. A conta não tem estado",,,,,,
-crm-comment-33b48de8,crm,apps/crm/src/app/contas/[id]/page.tsx,120,120,line,1,"// terminal nem prazo, então nenhuma etiqueta dela recebe cor.",,,,,,
+ */",translate,"The scoring rules table's columns.
+
+Two things were dropped here: the condition is no longer monospaced (it's Portuguese
+text, not a number, and monospace only serves columns that need to align) and a
+negative weight is no longer red (a rule that subtracts points isn't a failure — the
+sign already says what it does).
+
+""Active"" also stopped being green: ten active rules painted ten green badges, and
+green stopped meaning anything. Both are neutral now, and the word is enough.",other,,,proposed
+crm-comment-2d895b5f,crm,apps/crm/src/app/contas/[id]/page.tsx,119,119,line,2,"// Domínio é categoria, e categoria é neutra. A conta não tem estado",translate,"Domain is a category, and categories are neutral. The account has no state",other,,,proposed
+crm-comment-33b48de8,crm,apps/crm/src/app/contas/[id]/page.tsx,120,120,line,1,"// terminal nem prazo, então nenhuma etiqueta dela recebe cor.",translate,"that's terminal or has a deadline, so none of its badges get color.",other,,,proposed
 crm-comment-0865e726,crm,apps/crm/src/app/contas/[id]/page.tsx,172,176,block,7,"/*
             A lista curta de quem falar. Fica na lateral, e não só na aba, porque
             é o que a pessoa consulta ENQUANTO lê as oportunidades: o nome de
             quem assina do outro lado não pode exigir uma troca de aba.
-          */",,,,,,
+          */",translate,"The short list of who to talk to. It's in the sidebar, not just in a tab, because
+it's what the person checks WHILE reading the opportunities: the name of whoever
+signs on the other side shouldn't require switching tabs.",other,,,proposed
 crm-comment-75222260,crm,apps/crm/src/app/contas/[id]/page.tsx,22,35,jsdoc,18,"/**
  * A ficha da conta, na mesma estrutura da ficha do lead.
  *
@@ -326,23 +535,42 @@ crm-comment-75222260,crm,apps/crm/src/app/contas/[id]/page.tsx,22,35,jsdoc,18,"/
  * responde: **quem eu conheço lá dentro** e **quanto dinheiro está em jogo**. A
  * lateral responde a primeira em lista curta, sempre visível; as abas respondem
  * as duas em tabela cheia.
- */",,,,,,
+ */",translate,"The account record, in the same structure as the lead record.
+
+It used to be the CRM's poorest screen: a plain page header, a strip of four
+numbers, and two stacked tables. Now it has what the lead's record has, for the
+same reasons — a highlight header, a sidebar with the data in sections, and tabs
+for the heavy content. The pieces come from `componentes/ficha.tsx`, so the three
+records can't drift apart.
+
+The content split follows what `lib/contas.ts` already said the account answers:
+**who do I know inside it** and **how much money is at stake**. The sidebar
+answers the first in a short, always-visible list; the tabs answer both in full
+tables.",other,,,proposed
 crm-comment-5fd28198,crm,apps/crm/src/app/contas/[id]/page.tsx,70,74,jsdoc,7,"/**
  * A oportunidade fechada não sai da lista: ela é o histórico da conta, e é o
  * que responde ""já compraram alguma vez"". A única cor da tela é o fechamento
  * vencido de uma oportunidade que continua aberta — o resto é categoria.
- */",,,,,,
+ */",translate,"A closed opportunity doesn't leave the list: it's the account's history, and it's
+what answers ""have they ever bought before"". The only color on the screen is an
+overdue close date on an opportunity that's still open — everything else is a
+category.",other,,,proposed
 crm-comment-0f5abc62,crm,apps/crm/src/app/contas/page.tsx,8,14,jsdoc,11,"/**
  * Lista de contas, no mesmo padrão da lista de leads: uma caixa, uma busca, e
  * a tabela do pacote.
  *
  * Nenhuma cor. Uma conta não tem estado que exija ação — o que exige ação está
  * dentro dela, nas oportunidades e nos leads, e é para lá que a linha leva.
- */",,,,,,
+ */",translate,"Account list, following the same pattern as the lead list: a box, a search field,
+and the package's table.
+
+No color. An account has no state that demands action — what demands action is
+inside it, in the opportunities and leads, and that's where the row leads.",other,,,proposed
 crm-comment-1ad95f74,crm,apps/crm/src/app/contatos/[id]/page.tsx,148,151,block,5,"/*
               As conversas. É a promessa do produto do lado do contato: quem abre
               a pessoa vê o que já foi atendido sem precisar do Desk.
-            */",,,,,,
+            */",translate,"The conversations. This is the product's promise on the contact side: whoever opens
+the person sees what's already been handled without needing the Desk.",integration,Reviewed apps/crm/src/app/contatos/[id]/page.tsx:148-151 — CRM surfaces Desk attendance data; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-127bcf1d,crm,apps/crm/src/app/contatos/[id]/page.tsx,18,26,jsdoc,18,"/**
  * A ficha do contato, na mesma estrutura da ficha do lead.
  *
@@ -351,9 +579,15 @@ crm-comment-127bcf1d,crm,apps/crm/src/app/contatos/[id]/page.tsx,18,26,jsdoc,18,
  * intenção some, e é por isso que a aba do lead pode estar vazia sem que a
  * ficha esteja. O destaque diz quem é a pessoa; as abas dizem o que aconteceu
  * com ela — conversa de um lado, intenção de compra do outro.
- */",,,,,,
-crm-comment-77b2a816,crm,apps/crm/src/app/contatos/[id]/page.tsx,56,56,line,3,"// A única cor possível aqui é a desqualificação do lead, que é o estado",,,,,,
-crm-comment-57402ccc,crm,apps/crm/src/app/contatos/[id]/page.tsx,57,57,line,2,// terminal. A pessoa não tem estado: ela existe.,,,,,,
+ */",translate,"The contact record, in the same structure as the lead record.
+
+The difference between the two is what the data model says: **the contact is the
+person, the lead is their intent to buy.** The person stays the same when the
+intent disappears, which is why the lead tab can be empty without the record
+itself being empty. The highlight says who the person is; the tabs say what
+happened to them — conversation on one side, buying intent on the other.",other,,,proposed
+crm-comment-77b2a816,crm,apps/crm/src/app/contatos/[id]/page.tsx,56,56,line,3,"// A única cor possível aqui é a desqualificação do lead, que é o estado",translate,"The only possible color here is the lead's disqualification, which is the",other,,,proposed
+crm-comment-57402ccc,crm,apps/crm/src/app/contatos/[id]/page.tsx,57,57,line,2,// terminal. A pessoa não tem estado: ela existe.,translate,terminal state. The person has no state: they simply exist.,other,,,proposed
 crm-comment-c3a35b64,crm,apps/crm/src/app/contatos/page.tsx,9,17,jsdoc,12,"/**
  * Lista de contatos, no mesmo padrão da de leads e da de contas.
  *
@@ -362,7 +596,13 @@ crm-comment-c3a35b64,crm,apps/crm/src/app/contatos/page.tsx,9,17,jsdoc,12,"/**
  * mostrar, porque lá cada linha é uma intenção.
  *
  * Sem cor: um contato não tem estado que exija ação.
- */",,,,,,
+ */",translate,"Contact list, following the same pattern as leads and accounts.
+
+A contact is a person; a lead is their intent to buy. The list shows the person
+and says whether a lead is linked to them — something the lead list can't show,
+because there each row is an intent.
+
+No color: a contact has no state that demands action.",other,,,proposed
 crm-comment-f6b281cf,crm,apps/crm/src/app/convite/[token]/page.tsx,5,18,jsdoc,24,"/**
  * O convite visto por quem ainda está do lado de fora.
  *
@@ -376,9 +616,22 @@ crm-comment-f6b281cf,crm,apps/crm/src/app/convite/[token]/page.tsx,5,18,jsdoc,24
  *
  * O botão manda para `/v1/auth/google?convite=<token>`, que é o caminho de quem
  * não tem domínio verificado: é o convite que decide o tenant, e não o domínio.
- */",,,,,,
+ */",translate,"The invite as seen by someone still on the outside.
+
+Public route, like the sign-in one — and for the same reason the API doesn't
+require a session on `GET /v1/convites/:token`: requiring the account the invite
+exists in to create it would be circular.
+
+It shows the MINIMUM the API returns: who it's for, with what role, from which
+company, and until when it's valid. Whoever has the link already knows the email;
+the rest of the account isn't the business of someone who hasn't joined yet.
+
+The button sends them to `/v1/auth/google?convite=<token>`, which is the path for
+someone without a verified domain: it's the invite that decides the tenant, not
+the domain.",security,Reviewed apps/crm/src/app/convite/[token]/page.tsx:5-18 — public-route minimal-disclosure rationale for invite token; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-4a953bc1,crm,apps/crm/src/app/convite/[token]/page.tsx,76,77,block,3,"/* Vencido, já usado e inexistente dão a MESMA tela: separar
-                contaria a quem tem o link se aquele token um dia existiu. */",,,,,,
+                contaria a quem tem o link se aquele token um dia existiu. */",translate,"Expired, already used, and nonexistent all give the SAME screen: distinguishing
+between them would tell whoever has the link whether that token ever existed.",security,Reviewed apps/crm/src/app/convite/[token]/page.tsx:76-77 — token-enumeration / information-disclosure prevention; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-cf557567,crm,apps/crm/src/app/entrar/acoes.ts,13,22,jsdoc,9,"/**
  * As duas ações da entrada: descobrir por onde este e-mail entra, e sair.
  *
@@ -388,9 +641,16 @@ crm-comment-cf557567,crm,apps/crm/src/app/entrar/acoes.ts,13,22,jsdoc,9,"/**
  * A descoberta acontece no SERVIDOR, e não no navegador, por um motivo prático:
  * `PIPE_ORIGENS` é lista fechada e as origens das três telas não estão nela.
  * Um `fetch` do navegador para `/v1/auth/descobrir` morreria no CORS.
- */",,,,,,
-crm-comment-9c757af9,crm,apps/crm/src/app/entrar/acoes.ts,34,34,line,6,"// Sem SSO, a pessoa volta para a mesma tela com o motivo e o e-mail já",,,,,,
-crm-comment-4fc89df7,crm,apps/crm/src/app/entrar/acoes.ts,35,35,line,0,// digitado. Mandar de volta em branco é fazer quem errou o domínio começar,,,,,,
+ */",translate,"The two sign-in actions: discover how this email signs in, and sign out.
+
+The API call doesn't live here — it lives in `src/lib/sessao.ts`, and this file is
+just the form's shell: it reads `FormData`, touches the cookie, and redirects.
+
+Discovery happens on the SERVER, not in the browser, for a practical reason:
+`PIPE_ORIGENS` is a closed list and the three screens' origins aren't on it. A
+browser `fetch` to `/v1/auth/descobrir` would die on CORS.",security,Reviewed apps/crm/src/app/entrar/acoes.ts:13-22 — forced sensitivity: sign-in page; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-9c757af9,crm,apps/crm/src/app/entrar/acoes.ts,34,34,line,6,"// Sem SSO, a pessoa volta para a mesma tela com o motivo e o e-mail já",translate,"Without SSO, the person goes back to the same screen with the reason and the email already",security,Reviewed apps/crm/src/app/entrar/acoes.ts:34 — forced sensitivity: sign-in page; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-4fc89df7,crm,apps/crm/src/app/entrar/acoes.ts,35,35,line,0,// digitado. Mandar de volta em branco é fazer quem errou o domínio começar,translate,typed in. Sending them back to a blank screen would make whoever got the domain wrong start over,security,Reviewed apps/crm/src/app/entrar/acoes.ts:35 — forced sensitivity: sign-in page; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-652d3b71,crm,apps/crm/src/app/entrar/acoes.ts,42,49,jsdoc,13,"/**
  * Sair: encerra a sessão na API e apaga o cookie deste navegador.
  *
@@ -398,17 +658,27 @@ crm-comment-652d3b71,crm,apps/crm/src/app/entrar/acoes.ts,42,49,jsdoc,13,"/**
  * resposta chegou a este servidor, não ao navegador. O `Domain` tem de ser o
  * mesmo com que ele foi emitido — sem isso o navegador guarda um segundo
  * cookie vazio, o original continua valendo, e a pessoa ""sai"" sem sair.
- */",,,,,,
+ */",translate,"Sign out: ends the session on the API and deletes this browser's cookie.
+
+The cookie is deleted HERE, not via the `Set-Cookie` the API returns: that response
+reached this server, not the browser. The `Domain` has to match the one it was
+issued with — without that the browser keeps a second, empty cookie, the original
+one stays valid, and the person ""signs out"" without actually signing out.",security,Reviewed apps/crm/src/app/entrar/acoes.ts:42-49 — cookie Domain mismatch would leave the session effectively active; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-961784b4,crm,apps/crm/src/app/entrar/page.tsx,132,133,block,3,"/* Em ordem de leitura ANTES dos botões, e com título próprio: quem usa
-            leitor de tela precisa do motivo antes da ação, não depois dela. */",,,,,,
+            leitor de tela precisa do motivo antes da ação, não depois dela. */",translate,"In reading order BEFORE the buttons, with its own heading: someone using a screen
+reader needs the reason before the action, not after it.",security,Reviewed apps/crm/src/app/entrar/page.tsx:132-133 — forced sensitivity: sign-in page; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-17f12cdd,crm,apps/crm/src/app/entrar/page.tsx,141,142,block,4,"/* Link, e não botão: entrar com o Google é navegação de topo para outra
-            origem. Um `fetch` daqui esbarraria no CORS e não traria o cookie. */",,,,,,
+            origem. Um `fetch` daqui esbarraria no CORS e não traria o cookie. */",translate,"A link, not a button: signing in with Google is a top-level navigation to another
+origin. A `fetch` here would run into CORS and wouldn't bring back the cookie.",security,Reviewed apps/crm/src/app/entrar/page.tsx:141-142 — forced sensitivity: sign-in page; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-3e2d18cf,crm,apps/crm/src/app/entrar/page.tsx,33,38,jsdoc,6,"/**
  * Os sete códigos do contrato, cada um com o que aconteceu e o que fazer.
  *
  * `Record<RecusaDeEntrada, …>` de propósito: se a API acrescentar um código, o
  * `tsc` quebra AQUI, e não em produção com um erro em branco na cara do cliente.
- */",,,,,,
+ */",translate,"The contract's seven codes, each with what happened and what to do about it.
+
+`Record<RecusaDeEntrada, …>` on purpose: if the API adds a code, `tsc` breaks HERE,
+not in production with a blank error in the customer's face.",security,Reviewed apps/crm/src/app/entrar/page.tsx:33-38 — forced sensitivity: sign-in page; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-47ea40f8,crm,apps/crm/src/app/entrar/page.tsx,7,25,jsdoc,36,"/**
  * A tela de entrada — a primeira coisa que um cliente vê, e a ÚNICA rota
  * pública deste aplicativo.
@@ -427,14 +697,36 @@ crm-comment-47ea40f8,crm,apps/crm/src/app/entrar/page.tsx,7,25,jsdoc,36,"/**
  *
  * Sem sessão e sem banco: só `fetch` na API, e por isso ela abre com o Postgres
  * fora do ar — que é exatamente quando alguém precisa entrar para ver o que houve.
- */",,,,,,
+ */",translate,"The sign-in screen — the first thing a customer sees, and the ONLY public route in
+this app.
+
+Two rules shape it:
+
+1. **No tenant here.** Whoever lands on this screen isn't logged in, so it doesn't
+   know (and can't reveal) which company uses Pipe. That's why the account name
+   doesn't appear, and why email discovery answers the same way for a known
+   domain and an unknown one — the symmetry comes from the API, and the screen
+   doesn't break it by showing what it ""found"".
+2. **Every refusal has an EXIT, not a ""not authorized"".** The seven
+   `RECUSAS_DE_ENTRADA` codes arrive as `?erro=` and each one sends the person
+   somewhere different: ask for an invite, talk to whoever bought the plan, sign
+   in through the company's provider. Generic here means the person gives up.
+
+No session and no database: only a `fetch` to the API, and that's exactly why it
+still opens with Postgres down — which is exactly when someone needs to sign in
+to see what happened.",security,Reviewed apps/crm/src/app/entrar/page.tsx:7-25 — tenant-enumeration-prevention symmetry — high-value security rationale; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-25e7b693,crm,apps/crm/src/app/entrar/page.tsx,77,83,jsdoc,17,"/**
  * O que a descoberta por e-mail devolve para a tela quando não roteia.
  *
  * A chave é o `metodo` que volta da API, e ele é `google` — não `senha`. Com a
  * chave errada o `AVISOS[...]` dava `undefined`, e ""Continuar"" recarregava a
  * tela idêntica, sem uma palavra: um botão que, para quem usa, não fazia nada.
- */",,,,,,
+ */",translate,"What email discovery returns to the screen when it doesn't route anywhere.
+
+The key is the `metodo` that comes back from the API, and it's `google` — not
+`senha`. With the wrong key, `AVISOS[...]` used to return `undefined`, and
+""Continue"" would reload the exact same screen without a word: a button that,
+from the user's side, did nothing.",security,Reviewed apps/crm/src/app/entrar/page.tsx:77-83 — forced sensitivity: sign-in page; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-b5f4731d,crm,apps/crm/src/app/error.tsx,6,23,jsdoc,30,"/**
  * A tela de erro do CRM inteiro. Cobre todas as rotas filhas, que é o que o
  * Next faz com um `error.tsx` na raiz do `app/`.
@@ -452,7 +744,22 @@ crm-comment-b5f4731d,crm,apps/crm/src/app/error.tsx,6,23,jsdoc,30,"/**
  * A mensagem crua do erro NÃO aparece: em produção o Next já a substitui por um
  * texto genérico, e em desenvolvimento ela vai para o console, que é onde se
  * lê rastro de pilha.
- */",,,,,,
+ */",translate,"The error screen for the whole CRM. It covers all child routes, which is what Next
+does with an `error.tsx` at the root of `app/`.
+
+Three things, and nothing more:
+
+1. **What happened, in Portuguese.** ""Something went wrong"" doesn't help anyone;
+   ""the database query didn't respond"" tells you who to call.
+2. **A retry button.** `reset()` remounts the segment without reloading the whole
+   page — most errors here are a dropped connection, and retrying fixes it.
+3. **The error identifier**, when Next provides one (`digest`). It's what links
+   the screen to the server log without asking the person to describe what they
+   saw.
+
+The raw error message does NOT show: in production Next already replaces it with a
+generic text, and in development it goes to the console, which is where you read
+the stack trace.",security,Reviewed apps/crm/src/app/error.tsx:6-23 — prevents leaking raw error details to end users; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-3f57e991,crm,apps/crm/src/app/layout.tsx,15,27,jsdoc,11,"/**
  * Escreve o tema salvo no `<html>` **antes** de a página pintar.
  *
@@ -465,25 +772,41 @@ crm-comment-3f57e991,crm,apps/crm/src/app/layout.tsx,15,27,jsdoc,11,"/**
  *
  * O `try` não é decoração — `localStorage` lança em janela anônima com cookies
  * bloqueados, e um erro aqui derrubaria a página antes do primeiro pixel.
- */",,,,,,
+ */",translate,"Writes the saved theme onto `<html>` **before** the page paints.
+
+Without this, anyone who picked dark mode sees a white flash on every load: the
+theme's CSS depends on the attribute, and the attribute would only exist after
+React hydrates. It's the only reason there's an inline `<script>` in the project.
+
+It lives in the ROOT layout, not the settings one: the theme belongs to the whole
+app, and limiting it to one area would make the screen flash everywhere else.
+
+The `try` isn't decoration — `localStorage` throws in a private window with
+cookies blocked, and an error here would take down the page before the first
+pixel.",architecture,"Reviewed apps/crm/src/app/layout.tsx:15-27 — FOUC-prevention theme script, root-level scope rationale; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
 crm-comment-15cee91c,crm,apps/crm/src/app/layout.tsx,31,33,block,8,"/* `euAtual` e não `exigirEu`: este layout também embrulha `/entrar` e
      `/convite`, que são públicas. Exigir sessão aqui mandaria quem não a tem
-     para `/entrar` a partir do layout da própria `/entrar`, em círculo. */",,,,,,
-crm-comment-b9106f6e,crm,apps/crm/src/app/layout.tsx,5,5,line,2,// A ordem importa: o token e a base do design system entram antes da folha do,,,,,,
-crm-comment-a5c7b534,crm,apps/crm/src/app/layout.tsx,6,6,line,4,"// aplicativo, para que a folha local sobrescreva a base e nunca o contrário.",,,,,,
+     para `/entrar` a partir do layout da própria `/entrar`, em círculo. */",translate,"`euAtual`, not `exigirEu`: this layout also wraps `/entrar` and `/convite`, which
+are public. Requiring a session here would send whoever doesn't have one to
+`/entrar` from `/entrar`'s own layout, in a loop.",security,Reviewed apps/crm/src/app/layout.tsx:31-33 — CRM session-guard-equivalent logic — analogous to forced exigir-sessao category; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
+crm-comment-b9106f6e,crm,apps/crm/src/app/layout.tsx,5,5,line,2,// A ordem importa: o token e a base do design system entram antes da folha do,translate,Order matters: the design system's tokens and base sheet load before the app's,other,,,proposed
+crm-comment-a5c7b534,crm,apps/crm/src/app/layout.tsx,6,6,line,4,"// aplicativo, para que a folha local sobrescreva a base e nunca o contrário.",translate,"stylesheet, so the local sheet overrides the base and never the other way around.",other,,,proposed
 crm-comment-4f0d7d76,crm,apps/crm/src/app/leads/[id]/loading.tsx,3,7,jsdoc,8,"/**
  * O esqueleto da ficha, na mesma grade de duas colunas da tela pronta: a lateral
  * estreita com os campos, a principal com o painel do score. Sem isso a ficha
  * abre em uma coluna e reorganiza sozinha meio segundo depois.
- */",,,,,,
-crm-comment-b7f6681d,crm,apps/crm/src/app/leads/[id]/page.tsx,131,131,line,3,// Quem pode receber o lead. Vem aqui e não dentro da célula porque a lista é,,,,,,
-crm-comment-3d08f1c2,crm,apps/crm/src/app/leads/[id]/page.tsx,132,132,line,3,"// a mesma para os cinco campos da lateral, e uma consulta serve os cinco.",,,,,,
-crm-comment-9c560904,crm,apps/crm/src/app/leads/[id]/page.tsx,135,135,line,2,"// UTM e campo customizado dividem a mesma seção, e o prefixo é o que os",,,,,,
-crm-comment-632dc730,crm,apps/crm/src/app/leads/[id]/page.tsx,136,136,line,3,// mantém distinguíveis sem duas caixas para dizer a mesma coisa.,,,,,,
+ */",translate,"The record's skeleton, in the same two-column grid as the finished screen: the
+narrow sidebar with the fields, the main area with the score panel. Without this
+the record opens in a single column and reorganizes itself half a second later.",other,,,proposed
+crm-comment-b7f6681d,crm,apps/crm/src/app/leads/[id]/page.tsx,131,131,line,3,// Quem pode receber o lead. Vem aqui e não dentro da célula porque a lista é,translate,Who can receive the lead. It's fetched here and not inside the cell because the list is,other,,,proposed
+crm-comment-3d08f1c2,crm,apps/crm/src/app/leads/[id]/page.tsx,132,132,line,3,"// a mesma para os cinco campos da lateral, e uma consulta serve os cinco.",translate,"the same for all five sidebar fields, and one query serves all five.",other,,,proposed
+crm-comment-9c560904,crm,apps/crm/src/app/leads/[id]/page.tsx,135,135,line,2,"// UTM e campo customizado dividem a mesma seção, e o prefixo é o que os",translate,"UTM and custom fields share the same section, and the prefix is what keeps",other,,,proposed
+crm-comment-632dc730,crm,apps/crm/src/app/leads/[id]/page.tsx,136,136,line,3,// mantém distinguíveis sem duas caixas para dizer a mesma coisa.,translate,them distinguishable without two boxes saying the same thing.,other,,,proposed
 crm-comment-83152724,crm,apps/crm/src/app/leads/[id]/page.tsx,153,156,block,7,"/*
           A lateral fixa: os dados que descrevem o lead. Ficam sempre visíveis
           porque é o que a pessoa consulta enquanto lê qualquer uma das abas.
-        */",,,,,,
+        */",translate,"The fixed sidebar: the data describing the lead. It stays visible at all times
+because it's what the person checks while reading any of the tabs.",other,,,proposed
 crm-comment-e73ad45a,crm,apps/crm/src/app/leads/[id]/page.tsx,159,170,block,18,"/*
               A lateral é onde se EDITA, como no Twenty: os campos simples
               trocam de valor no lugar, sem formulário e sem sair da página. A
@@ -495,7 +818,16 @@ crm-comment-e73ad45a,crm,apps/crm/src/app/leads/[id]/page.tsx,159,170,block,18,"
               precisa de validação de CPF/CNPJ que ainda não existe, e os dois
               últimos são carimbo do sistema — data que a pessoa digita é data
               que deixa de significar quando a coisa aconteceu.
-            */",,,,,,
+            */",translate,"The sidebar is where you EDIT, like in Twenty: simple fields swap their value in
+place, with no form and without leaving the page. The header strip stays a
+summary — it's the same split Salesforce and Twenty both make, and repeating the
+field in both places is their pattern too: one repeats it for a quick read, the
+other for editing.
+
+Document, ""created at"", and ""in stage since"" are left out: the first needs
+CPF/CNPJ validation that doesn't exist yet, and the other two are system
+timestamps — a date the person types in is a date that stops meaning when the
+thing actually happened.",other,,,proposed
 crm-comment-6f84bfc3,crm,apps/crm/src/app/leads/[id]/page.tsx,24,47,jsdoc,36,"/**
  * A ficha do lead, na estrutura que o Twenty usa e nós não usávamos.
  *
@@ -519,7 +851,29 @@ crm-comment-6f84bfc3,crm,apps/crm/src/app/leads/[id]/page.tsx,24,47,jsdoc,36,"/*
  *
  * As abas são links, não estado de cliente. A ficha inteira continua sendo
  * servidor: sem JavaScript, ela funciona igual.
- */",,,,,,
+ */",translate,"The lead record, in the structure Twenty uses and we didn't.
+
+What reading their approach changed here, in order of importance:
+
+1. **Highlight header.** The name used to be an `h2` with four loose badges next
+   to it. Now it's an identity strip (avatar, name, state) plus a row of fields
+   that decide what to do with this lead: owner, score, stage, days stalled, and
+   source. It's Salesforce's ""highlight panel"" and Twenty's ""identifier bar"",
+   which arrived at the same design without talking to each other.
+2. **Internal tabs.** Score, Forms, and Timeline used to be three blocks stacked
+   in an infinitely scrolling column. They became tabs, and the tab lives in the
+   URL: a record opened on the timeline is an address you can paste into chat.
+3. **Fixed sidebar column** with fields in sections that expand and collapse,
+   instead of three equal-height boxes competing for attention with the score
+   panel.
+
+What we deliberately did NOT copy: they pin the first tab (""Home"") as the sidebar
+and leave the rest as tabs. We pin the DATA in the sidebar and put the SCORE as
+the first tab, because explaining the score is what this product has and theirs
+doesn't — it can't be the tab nobody opens.
+
+The tabs are links, not client state. The whole record is still server-rendered:
+without JavaScript, it works the same.",architecture,"Reviewed apps/crm/src/app/leads/[id]/page.tsx:24-47 — server-rendered, URL-addressable tab architecture; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation",sonnet,reviewed
 crm-comment-f67c2a7c,crm,apps/crm/src/app/leads/[id]/page.tsx,247,255,jsdoc,17,"/**
  * O painel que explica o número. Regra por regra, quanto entrou e quanto saiu,
  * com a versão da regra e a hora do cálculo, lido de `score_lead.explicacao` e
@@ -528,18 +882,28 @@ crm-comment-f67c2a7c,crm,apps/crm/src/app/leads/[id]/page.tsx,247,255,jsdoc,17,"
  * É a única tela do CRM em que a cor não indica ação e continua valendo: aqui o
  * verde e o vermelho SÃO a informação, e é a tela que justifica o produto. Por
  * isso é a primeira aba, e não a última.
- */",,,,,,
+ */",translate,"The panel that explains the number. Rule by rule, how much was added and how much
+was subtracted, with the rule's version and the time it was calculated, read from
+`score_lead.explicacao` and not recalculated on screen.
+
+It's the only screen in the CRM where color doesn't indicate an action and is
+still meaningful: here green and red ARE the information, and it's the screen
+that justifies the product. That's why it's the first tab, not the last.",other,,,proposed
 crm-comment-4fe1f8f3,crm,apps/crm/src/app/leads/[id]/page.tsx,311,314,jsdoc,2,"/**
  * Respostas de formulário, por formulário e por versão. Nunca como colunas
  * soltas: é a decisão que evita os 304 campos customizados do Lead de hoje.
- */",,,,,,
-crm-comment-7f4a2e2b,crm,apps/crm/src/app/leads/[id]/page.tsx,61,61,jsdoc,2,"/** O destaque do lead, montado sobre a peça comum das três fichas. */",,,,,,
+ */",translate,"Form responses, by form and by version. Never as loose columns: that's the
+decision that avoids today's 304 custom fields on the Lead.",other,,,proposed
+crm-comment-7f4a2e2b,crm,apps/crm/src/app/leads/[id]/page.tsx,61,61,jsdoc,2,"/** O destaque do lead, montado sobre a peça comum das três fichas. */",translate,"The lead's highlight, built on top of the piece shared by all three records.",other,,,proposed
 crm-comment-8d4d7d02,crm,apps/crm/src/app/leads/[id]/page.tsx,73,78,block,7,"/*
             O estado em etiquetas, e só duas podem ter cor: a desqualificação,
             que é o único estado terminal, e a parada de mais de sete dias, que é
             o que alguém resolve hoje. Fase e faixa são categoria, e categoria é
             neutra.
-          */",,,,,,
+          */",translate,"State shown as badges, and only two can have color: disqualification, the only
+terminal state, and being stalled for more than seven days, which is what someone
+needs to act on today. Stage and band are categories, and categories are
+neutral.",other,,,proposed
 crm-comment-6abd68d3,crm,apps/crm/src/app/leads/acoes.ts,12,23,jsdoc,14,"/**
  * As ações em massa da listagem.
  *
@@ -551,7 +915,16 @@ crm-comment-6abd68d3,crm,apps/crm/src/app/leads/acoes.ts,12,23,jsdoc,14,"/**
  *
  * O teto de 200 é o mesmo da listagem. Ninguém seleciona mais do que a tela
  * mostra, então um pedido com 5.000 ids não veio da tela.
- */",,,,,,
+ */",translate,"The listing's bulk actions.
+
+All input comes from the browser and is treated as such: ids pass through a UUID
+filter before becoming an `in (...)`, and the owner is checked against the
+tenant's list of active users. It's not paranoia — it's the same rule
+`moverOportunidade` already follows for stage: **client input never determines a
+write value**.
+
+The cap of 200 matches the listing. Nobody selects more than the screen shows, so
+a request with 5,000 ids didn't come from the screen.",security,Reviewed apps/crm/src/app/leads/acoes.ts:12-23 — input-validation trust-boundary rule for bulk actions; translation preserves original technical/security meaning. pre-triage D-40; needs slice-time confirmation,sonnet,reviewed
 crm-comment-a777a538,crm,apps/crm/src/app/leads/acoes.ts,65,65,block,0,/* ------------------------------------------------ edição de campo na ficha */,,,,,,
 crm-comment-2a1d4e30,crm,apps/crm/src/app/leads/acoes.ts,69,69,jsdoc,3,"/** O valor que **ficou gravado**. A tela mostra este, nunca o que foi digitado. */",,,,,,
 crm-comment-dcb8489e,crm,apps/crm/src/app/leads/acoes.ts,71,71,jsdoc,3,"/** Só quando `ok` é falso, e sempre em português: vai direto para a tela. */",,,,,,
