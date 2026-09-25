@@ -5,7 +5,7 @@ import { useRegistrarNavigation } from './lib/navigation';
 import { PageLogin } from './pages/login';
 import { NaoEncontrado } from './pages/nao-encontrado';
 import { PagePortal } from './pages/portal';
-import { ContactRota, contactBase, useContact } from './pages/flow/contact';
+import { ContactRota } from './pages/flow/contact';
 import { ContactHome } from './pages/flow/home';
 import { ChannelsPage } from './pages/flow/channels/channels';
 import { ServicesPage } from './pages/flow/services/servicos';
@@ -83,12 +83,6 @@ import { PageInvitation } from './pages/invitation/page';
 import { PageNoAccess } from './pages/switch-account/no-access/page';
 import { PageBuilder } from './pages/builder';
 
-/** O redirecionamento do link antigo do canal WhatsApp para a página do canal DO BOT. */
-function ParaOCanalDoBot() {
-  const { contact } = useContact();
-  return <Navigate to={`${contactBase(contact.tipo, contact.id)}/canais/whatsapp`} replace />;
-}
-
 /**
  * As rotas-filhas do contato — o que `/fluxo/:id` e `/roteador/:id` desenham
  * embaixo do estado-pai (`RotaDoContato`).
@@ -155,9 +149,6 @@ const contactRotas = (
       <Route path="preferencias/dados" element={<PageData />} />
       <Route path="preferencias/regras" element={<PageRules />} />
       <Route path="canais" element={<PageChannels />} />
-      {/* O link antigo das abas do WhatsApp (`atendimento/canais/whatsapp/:canalId`)
-          cai na página do canal do bot — o canal agora é o do bot, não o da URL. */}
-      <Route path="canais/whatsapp/:canalId/*" element={<ParaOCanalDoBot />} />
     </Route>
 
     <Route path="contatos" element={<ContactsShell />}>
@@ -209,41 +200,6 @@ const contactRotas = (
 );
 
 /**
- * As rotas que viviam soltas na raiz, sem contato, hoje redirecionadas para o
- * portal — ver a nota onde são usadas.
- *
- * A maior parte é o Atendimento de antes de morar no contato. `/builder` e
- * `/growth` entraram nesta entrega: Builder e Growth eram os dois módulos que
- * `estrutura-gestao.tsx` desenhava fora de qualquer contato, e os dois se
- * mudaram para dentro dele — Builder para `/fluxo/:id/builder`, Growth para
- * `/fluxo/:id/growth/*` e `/roteador/:id/growth/*` (que já existiam; `/growth`
- * solto, em `paginas/growth-portal.tsx`, era duplicata e foi removido).
- */
-const ROTAS_ANTIGAS_SEM_CONTATO = [
-  '/builder',
-  '/growth',
-  '/monitoramento',
-  '/historico',
-  '/relatorios/atendimento',
-  '/relatorios/esforco',
-  '/relatorios/satisfacao',
-  '/monitoria',
-  '/monitoria/:id',
-  '/regras/atendimento',
-  '/regras/horarios',
-  '/atendentes/gestao',
-  '/atendentes/filas',
-  '/atendentes/pausas',
-  '/comunicacao/modelos',
-  '/comunicacao/respostas-prontas',
-  '/configuracoes',
-  '/configuracoes/regras',
-  '/configuracoes/dados',
-  '/configuracoes/gerais',
-  '/canais',
-];
-
-/**
  * As rotas da Gestão — as mesmas URLs do aplicativo em Next, para link salvo
  * e histórico continuarem valendo. A árvore segue a da origem: o contato
  * (`/fluxo/:id` para chatbot, `/roteador/:id` para roteador) é o estado-pai,
@@ -281,16 +237,6 @@ export function App() {
             dentro dele (abaixo); sem os dois, aquele casco de duas barras
             ficou sem rota nenhuma e saiu. */}
         <Route path="/deployment" element={<PageDeployment />} />
-
-        {/* As rotas de antes de morarem no contato (Atendimento em
-            `/{tipo}/:id/atendimento/*`, Builder em `/fluxo/:id/builder`,
-            Growth em `/{tipo}/:id/growth/*`, todas abaixo). Nenhuma carrega um
-            id de contato — não há como adivinhar de qual fluxo ou roteador era
-            o link salvo — então a única saída honesta é o portal, de onde a
-            pessoa escolhe o contato e chega lá de novo. */}
-        {ROTAS_ANTIGAS_SEM_CONTATO.map((caminho) => (
-          <Route key={caminho} path={caminho} element={<Navigate to="/portal" replace />} />
-        ))}
 
         <Route path="/flow/:id" element={<ContactRota />}>
           {contactRotas}
