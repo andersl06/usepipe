@@ -66,10 +66,10 @@
     },
     {
       "id": "packages-db-comment-c048d0b2",
-      "action": "translate",
-      "new_text": "Write the audit event in the same transaction as the change. The function accepts `tx`, not a database handle, so rollback removes both the change and its record. `tenant_id` comes from the transaction session, not a caller parameter; accepting a caller-supplied tenant would permit logging events under another tenant.",
+      "action": "update",
+      "new_text": "Write the audit event in the same transaction as the change. The function accepts `tx`, so rollback removes the log with the change. It also accepts a caller-supplied `tenantId` and writes it to SQL `tenant_id`; callers must use the transaction tenant or the event could be attributed to another tenant.",
       "sensitivity": "security",
-      "evidence": "packages/db/src/auditoria.ts:86-94; pre-triage D-40; needs slice-time confirmation",
+      "evidence": "packages/db/src/auditoria.ts:86-94; packages/db/src/auditoria.ts:86-111; signature and insert use explicit tenantId",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
     {
@@ -530,10 +530,10 @@
     },
     {
       "id": "packages-db-comment-ea17fcef",
-      "action": "translate",
-      "new_text": "Module 3, Conversations: initial channels are WhatsApp Cloud API, email, and site widget.",
+      "action": "update",
+      "new_text": "Module 3 covers conversations. The initial channels were WhatsApp Cloud API, email, and site widget; `TIPOS_CANAL` now also includes Instagram and Messenger.",
       "sensitivity": "architecture",
-      "evidence": "packages/db/src/schema/conversas.ts:28-28; pre-triage D-40; needs slice-time confirmation",
+      "evidence": "packages/db/src/schema/conversas.ts:28-28; packages/db/src/schema/comum.ts:36",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
     {
@@ -634,10 +634,10 @@
     },
     {
       "id": "packages-db-comment-6adc7165",
-      "action": "translate",
-      "new_text": "These IDs are intentionally unique GLOBALLY, not per tenant. Two tenants sharing one `numero_id` would imply two owners of one number, so the database rejects it before the application routes incorrectly. Partial indexes apply because only WhatsApp has these IDs.",
+      "action": "update",
+      "new_text": "`numero_id` is deliberately globally unique, not tenant-scoped: two tenants cannot own one number. Its index is partial because only WhatsApp has this ID. `waba_id` has a partial nonunique lookup index, so the original claim that both IDs are unique is inaccurate.",
       "sensitivity": "security",
-      "evidence": "packages/db/src/schema/conversas.ts:62-67; pre-triage D-40; needs slice-time confirmation",
+      "evidence": "packages/db/src/schema/conversas.ts:62-67; packages/db/src/schema/conversas.ts:62-74; numeroId uniqueIndex vs wabaId index",
       "notes": "pre-triage D-40; needs slice-time confirmation"
     },
     {
