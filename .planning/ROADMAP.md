@@ -72,9 +72,9 @@ Plans:
 
 **Wave 7** *(blocked on Wave 6 completion)*
 
-- [ ] 01-10-PLAN.md — Record the approved language rule in PROJECT.md (STD-08) and propose the old->new map for the backend and infra scopes (D-03 gate 2 input).
-- [ ] 01-11-PLAN.md — Propose the old->new map for front and flow-engine scopes: packages-core, packages-ai, packages-ui, desk-vite, gestao-vite, crm, ponte, site.
-- [ ] 01-36-PLAN.md — Propose and review the CSS map: classes, custom properties and data-* attributes (D-35).
+- [x] 01-10-PLAN.md — Record the approved language rule in PROJECT.md (STD-08) and propose the old->new map for the backend and infra scopes (D-03 gate 2 input).
+- [x] 01-11-PLAN.md — Propose the old->new map for front and flow-engine scopes: packages-core, packages-ai, packages-ui, desk-vite, gestao-vite, crm, ponte, site.
+- [x] 01-36-PLAN.md — Propose and review the CSS map: classes, custom properties and data-* attributes (D-35).
 
 **Wave 8** *(blocked on Wave 7 completion)*
 
@@ -319,7 +319,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5 → 6 → 7 → 8
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Padronizar linguagem técnica, navegação e renderização | 12/41 | In Progress|  |
+| 1. Padronizar linguagem técnica, navegação e renderização | 15/41 | In Progress|  |
 | 2. Fechar o Builder | 0/TBD | Not started | - |
 | 3. Validar e fechar superfícies atuais | 0/TBD | Not started | - |
 | 4. Resolver o CRM e consolidar o repositório | 0/TBD | Not started | - |
