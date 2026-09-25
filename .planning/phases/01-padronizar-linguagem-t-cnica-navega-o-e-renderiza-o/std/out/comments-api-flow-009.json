@@ -1,0 +1,804 @@
+{
+  "items": [
+    {
+      "id": "api-comment-2b9d2e16",
+      "action": "translate",
+      "new_text": "Apply the `definirPapelDoMembro` guard here too: removing the last active admin",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/contrato.ts:320-320; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6b240c17",
+      "action": "translate",
+      "new_text": "would leave nobody able to assign the role again.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/contrato.ts:321-321; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-547c622c",
+      "action": "translate",
+      "new_text": "Change the role of an unused invite. Blip uses the same `definirPapelDoMembro` operation because invitees are already `tenant-user` rows and `set .../role` applies equally. Here they live in `convite`, so a separate function has the same effect: the new role applies at first sign-in.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/contrato.ts:340-347; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e3e0520f",
+      "action": "translate",
+      "new_text": "Always show the contract summary: source `tenant-summary` is readable by all three roles. Pipe calculates both counts in the database for every viewer. In the source `tenant.applications` stays `[]`, so 'Chatbots' is absent in practice, and `members` loads only for `admin` with the subscription.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/contrato.ts:35-44; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-361d8567",
+      "action": "translate",
+      "new_text": "Cancel an open invitation by expiring, not deleting it. Keep the row as evidence of who invited whom; expiry invalidates its link, as `criarConvite` does before issuing a replacement.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/contrato.ts:387-394; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c12ba790",
+      "action": "translate",
+      "new_text": "The transaction already has the tenant fixed; `consultar` only names the block, as in Management.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/contrato.ts:6-6; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cb6c813f",
+      "action": "translate",
+      "new_text": "Run one query at a time: a transaction has one connection, and concurrent queries can interfere, as noted in `lib/portal.ts`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/contrato.ts:63-64; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-af833ff0",
+      "action": "translate",
+      "new_text": "One of three ACCOUNT roles (`papel.escopo = 'conta'`, migration 0021). `nome` is source `roleId` (`admin`, `member`, `guest`), which `PAPEIS_DA_ORIGEM` maps to label, description and icon.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/contrato.ts:84-88; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d6919b8e",
+      "action": "translate",
+      "new_text": "Record the source table for this row. Blip uses one `tenant-user` table and `userStatus` distinguishes `Accepted` from `PendingUser`; Pipe stores accepted users in `usuario` and pending invitees in `convite`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/contrato.ts:96-101; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b541463d",
+      "action": "translate",
+      "new_text": "Queue colors are customer data recognized in Desk, but selection is closed rather than arbitrary hex. Use the extended `@pipe/ui` palette (`TEMA.grafico.serie`), which can carry hue without implying status. Store the token NAME in `fila.cor`, never hex, so palette changes update existing queues without Management color literals.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cores-de-fila.ts:1-15; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3afb559b",
+      "action": "translate",
+      "new_text": "Return the stored color's `var()` or `null` when it is outside the palette. Older seed rows stored raw hex in `fila.cor`; they stay readable as text but get no color dot, since using raw hex would violate the palette. Later registration replaces those values.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/cores-de-fila.ts:29-36; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-12eeb72c",
+      "action": "translate",
+      "new_text": "The resource governing the Team tab itself.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:109-109; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ea6d189d",
+      "action": "translate",
+      "new_text": "Source `selectAllPermissions()` uses the top-level role to fill lower radios. Only `personalizado` reads screen-selected entries; other levels determine the map, avoiding stored permissions that contradict the displayed role.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:114-118; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2e832973",
+      "action": "translate",
+      "new_text": "Ignore keys unknown to the source; reject an invalid level rather than silently accepting it.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:145-145; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cbd0c636",
+      "action": "translate",
+      "new_text": "`ler` is satisfied by `escrever`; `escrever` is not satisfied by `ler`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:165-165; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f28638a4",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:171-171",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-d97c0965",
+      "action": "translate",
+      "new_text": "Duplicate `EDITAR_FLUXO` here deliberately: `ciclo-de-vida-do-fluxo.ts` now imports `exigirPermissaoNoFluxo`; importing its constant back would create a module cycle.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:18-22; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-81b53697",
+      "action": "translate",
+      "new_text": "Split `<recurso>.<verbo>` into its two parts or reject a programming error.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:191-191; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-78775da6",
+      "action": "translate",
+      "new_text": "Authorize THIS flow's permission or its account equivalent, matching `exigirPermissao` in `sessao.ts` and the second gate in research §4.3. `codigo` is a source `<recurso>.<verbo>` such as `builder.escrever`, `channels.ler`, or `team.escrever`. Permit a flow member with the requested resource level (`admin` grants all) OR an account member with `EQUIVALENTE_NA_CONTA`. Check the flow's unique-key row first, then the account's `exists` with two joins; many tenants have no flow membership rows.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:202-216; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9e60016f",
+      "action": "translate",
+      "new_text": "Check the same permission without throwing, so the screen can decide what to render.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:232-232; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f65753a1",
+      "action": "translate",
+      "new_text": "The contact Team tab mirrors source `/team` and PER-FLOW RBAC. Source `getUsersAccounts` (`/applications/{shortName}@msging.net/users/accounts`) combines with `getApplicationUsersPermissions` (`.../permissions`) per contact in `TeamController._loadMembers`; research `referencias-blip/pesquisa/blip-identidade-tenant-permissao.md` §3 records 'a permissão não é do tenant, é do bot'. Contract membership is prerequisite, as the source says: 'Essa pessoa não faz parte do contrato. O administrador deve incluir a pessoa no contrato antes de adicioná-la ao chatbot.'. The role slider (`team.addUserModal.slider`: `visualize`, `custom`, `edit`, `admin`) fills per-resource radios (`PermissionsList.html`: `none` 0, `read` 1, `readWrite` 3) through `selectAllPermissions()`; only custom grants are edited individually. Store the full permission map via `permissoesDoPapel`. Team edits pass `team.escrever` ON THE FLOW or `automacao.fluxo.editar` ON THE ACCOUNT through `exigirPermissaoNoFluxo`. Requiring only flow admin would lock out tenants with no existing members; requiring only account permission would discard per-flow granularity.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:25-59; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0ad8d9a1",
+      "action": "translate",
+      "new_text": "List members like `TeamController._loadMembers()`. Viewing the team requires `team.ler`, because the edit modal exposes each member's permissions to contact administrators, not every participant.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:290-294; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c585f0c0",
+      "action": "translate",
+      "new_text": "Return what the contact menu may show, including when the user is not a member.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:318-318; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-99c02bbb",
+      "action": "translate",
+      "new_text": "Blip hides actions for `owner` (`ng-if=\"!user.owner\"`). Pipe has no owner role, so numerically prevent a contact from losing its last administrator.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:353-355; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0e959369",
+      "action": "translate",
+      "new_text": "Source `confirmAddUser()` first invites non-contract users as `guest`. Pipe keeps invitation separate at `POST /v1/convites` in `dominio/convites.ts`; it starts its own transaction and returns a copyable link because Pipe sends no email. Use the source refusal text and let the screen offer invitation afterward.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:362-369; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1882ab65",
+      "action": "translate",
+      "new_text": "The edit modal's 'Salvar alterações'; write nothing when no values changed.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:427-427; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-90b1672d",
+      "action": "translate",
+      "new_text": "Flatten to one field per resource because `diferenca` compares with `===`: equal maps are different objects, so nested values would make every Save appear changed. Flattening also names the changed permission row in the log.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:458-460; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-472faa8e",
+      "action": "translate",
+      "new_text": "`removeUser()` includes a last-administrator guard absent from the source.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:488-488; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1974875a",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:61-61",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-4abd0fa7",
+      "action": "translate",
+      "new_text": "Rows follow source `PermissionsList.html` order (`payments`, `channels`, `desk`, `users`, `basicConfigurations`, `connectionInformations`, `resources`, `growth`, `logMessages`, `builder`, `analysis`) and use pt-BR titles under `modules.application.detail.permissions.*.title`. Omit `iaModel`/`iaEnhancement`/`iaProviders` because AI was removed from `apps/gestao-vite/src/paginas/fluxo/itens.ts`, and omit untitled `scheduler`. Add `team` from `permissions.team.title` to govern this screen, although the source template lacks it.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:63-75; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-342b8928",
+      "action": "translate",
+      "new_text": "Map each flow resource to an equivalent ACCOUNT permission for the second authorization gate. Currently all map to `automacao.fluxo.editar`: catalog 0019 has only 'Cria e edita chatbots', with no separate `automacao.fluxo.ler` (`paginas/fluxo/equipe/permissoes.ts`). Keep this mapping central so future account permissions for `desk` or `payments` do not require route changes.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/equipe-do-fluxo.ts:96-104; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-177bfbb4",
+      "action": "translate",
+      "new_text": "Template text was not typed by the agent either; report it in the same separate column.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/esforco.ts:102-102; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3cf52607",
+      "action": "translate",
+      "new_text": "The transaction already has the tenant fixed; `consultar` only names the block, as in Management.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/esforco.ts:13-13; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0d527257",
+      "action": "translate",
+      "new_text": "Agent effort report, design §4.4. `packages/core/src/esforco/` owns the calculation: 200 typed characters/minute, 1,000 read characters/minute, audio at 1×, and quick-reply/template text excluded from effort and shown in a separate column. This module fetches inputs and sums core results.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/esforco.ts:17-24; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-43e3ad17",
+      "action": "translate",
+      "new_text": "Effort divided by tickets; weighted by construction (metrics spec §5).",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/esforco.ts:31-31; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4cdd5eb9",
+      "action": "translate",
+      "new_text": "Text the agent did NOT type: quick replies and templates.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/esforco.ts:39-39; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-fc1ed7ca",
+      "action": "translate",
+      "new_text": "Effort this text would add if counted as typing.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/esforco.ts:41-41; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-aa2562c7",
+      "action": "translate",
+      "new_text": "Conversations closed in the period without effort from any agent.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/esforco.ts:50-50; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-78580f46",
+      "action": "translate",
+      "new_text": "Load messages from conversations closed in the period with audio attachments:",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/esforco.ts:59-59; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b1fcdeda",
+      "action": "translate",
+      "new_text": "without attachment duration, the effort model cannot measure listening or speaking.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/esforco.ts:60-60; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5fd2b0a3",
+      "action": "translate",
+      "new_text": "Timestamps of each agent's outgoing messages form the session-time basis.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/esforco.ts:89-89; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d0dd967c",
+      "action": "translate",
+      "new_text": "Convert PostgreSQL `time` output `HH:MM:SS` to `HH:MM`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/formato.ts:113-113; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-01fb5551",
+      "action": "translate",
+      "new_text": "Validate `HH:MM`, allowing `24:00` because core treats it as next-day midnight. Share validation between `acoes/regras.ts` creation and `cadastros.ts` range/exception editing to prevent divergent copies.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/formato.ts:118-123; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7e69169f",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/formato.ts:128-128",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-a5adcf2d",
+      "action": "translate",
+      "new_text": "Format long report durations as `4h 12min`. Round total minutes, not the remainder after hours: rounding 7,190 seconds' remainder alone yielded `1h 60min` instead of carrying into the hour.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/formato.ts:14-20; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7e04625a",
+      "action": "translate",
+      "new_text": "Duration as `mm:ss`, or `hh:mm:ss` above one hour; use a dash for null.",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/formato.ts:3-3",
+      "notes": "pre-triage D-40"
+    },
+    {
+      "id": "api-comment-752859d6",
+      "action": "translate",
+      "new_text": "Show the metric denominator in text, e.g. '289 de 312 · 23 sem resposta'. Metrics spec §2 rejects an average hiding its denominator, because that average can improve when service worsens.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/formato.ts:42-48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-42976596",
+      "action": "translate",
+      "new_text": "`en-CA` yields `YYYY-MM-DD`, accepted by `<input type=\"date\">`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/formato.ts:67-67; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c4dd0d4c",
+      "action": "translate",
+      "new_text": "Validate both URL filters BEFORE querying: pasted links, old bookmarks and bots are untrusted input. Without validation, `?fila=abc` reaches PostgreSQL as `abc::uuid` and makes the whole screen return 500. Invalid values become `undefined`, meaning no filter, so the screen opens with all rows. Keep this in pure `formato.ts`, which these screens already import and which knows `YYYY-MM-DD`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/formato.ts:71-82; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-44f5e28d",
+      "action": "translate",
+      "new_text": "`YYYY-MM-DD` accepted by PostgreSQL; it still rejects impossible dates such as 31/02.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/formato.ts:89-89; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-74127e7e",
+      "action": "translate",
+      "new_text": "Use Sunday = 0, matching PostgreSQL `extract(dow)` and core `getUTCDay`. Define it here, not in `cadastros.ts`: the schedule form is a client component, and importing that module would pull Drizzle and the PostgreSQL pool into the browser bundle.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/formato.ts:96-102; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-617aab61",
+      "action": "translate",
+      "new_text": "Total customer wait runs until the answer, or until closure when unanswered.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/historico.ts:185-185; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-16aef93d",
+      "action": "translate",
+      "new_text": "Group the history list by queue, agent, label or outcome instead of creating six unused Reports screens for the same cuts. A distinct report screen is needed only for a different axis, such as Effort's character and audio counts. Group the already loaded page, not SQL's full population: `carregarHistorico` caps results at `LIMITE_HISTORICO`, and grouping more rows than the screen displays would mislead.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/historico.ts:199-211; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-887fd670",
+      "action": "translate",
+      "new_text": "Group loaded rows by the selected column while retaining order within groups. A conversation appears under each of its labels, so group totals intentionally exceed row count: the question is how many conversations touched each label, not how to partition the total.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/historico.ts:238-244; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-de559aba",
+      "action": "translate",
+      "new_text": "The transaction already has the tenant fixed; `consultar` only names the block, as in Management.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/historico.ts:25-25; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cebbf16a",
+      "action": "translate",
+      "new_text": "History of closed conversations. As in monitoring, derive status and durations from `evento_atendimento` through `@pipe/core`, never from the mutable conversation field.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/historico.ts:29-34; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3f61a87b",
+      "action": "translate",
+      "new_text": "Limit rows because history is for lookup, not export.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/historico.ts:62-62; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-669fbacd",
+      "action": "translate",
+      "new_text": "The transaction already has the tenant fixed; `consultar` only names the block, as in Management.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/implantacao.ts:5-5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-53615fed",
+      "action": "translate",
+      "new_text": "Read setup-wizard signals through the application database role with session-tenant RLS. Use one transaction with short SERIAL queries: `Promise.all` inside `comTenant` can clear `pipe.tenant_id`. Step meanings live in `passos-da-implantacao.ts`; this module only queries the database.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/implantacao.ts:9-16; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-97465e2f",
+      "action": "translate",
+      "new_text": "`pipe_<prefixo>_<segredo>` appears only here; the database stores its hash alone.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:100-100; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c649e1f3",
+      "action": "translate",
+      "new_text": "Write 'Informações de conexão' with its own integration permission.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:1013-1013; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-0264e40f",
+      "action": "translate",
+      "new_text": "`createKey()` rejects a missing name or reached limit; otherwise it generates and stores the key.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:164-164; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-56436cb6",
+      "action": "translate",
+      "new_text": "Already revoked: idempotent, with no new audit entry.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:239-239; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9961c7db",
+      "action": "translate",
+      "new_text": "The source 'Conectar usando HTTP' card says 'Nos dois casos, use um protocolo seguro (HTTPS)'. Pipe also treats the user-chosen destination URL as an SSRF boundary because `api` will call it. `ponytail` validates protocol and literal IP/hostname but does NOT resolve DNS. A public hostname resolving to a private IP (rebinding) can pass; covering that requires checking the resolved IP at DELIVERY, not at save time, and is not implemented.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:259-268; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1cc86891",
+      "action": "translate",
+      "new_text": "Replace three mocked flow Integration screens. 'Chaves de acesso' (`configuracoes/keys`) may scope existing account `chave_api` to ONE flow via `chave_api.fluxo_id` (migration 0032); its `pipe_<prefixo>_<segredo>` token remains the same credential as `autenticacao.ts`. 'Informações de conexão' (`configuracoes/api`) reads flow ID, active key and API endpoint, and writes the two 'Conectar usando HTTP' URLs as `webhook_saida` resources by event set. 'Webhook' (`integracoes/webhook`) adds CRUD and test to existing delivery in `webhooks-saida.ts`. Keys require `chave_api.gerenciar`; webhook/connection writes require new `automacao.integracao.gerenciar` (migration 0032); connection reads use `EDITAR_FLUXO`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:26-48; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-f558fb08",
+      "action": "translate",
+      "new_text": "`webhook_saida` belongs to the ACCOUNT, not the flow (`apis.md` §5.5). The source nests the webhook screen under a bot, but Pipe retains tenant-wide delivery: `emitir()` notifies ALL active subscribers to an event rather than duplicating storage per flow.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:309-315; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-57d03c6d",
+      "action": "translate",
+      "new_text": "Support source 'Configurações de autenticação' switch and OAuth 2.0 `client_credentials`, plus task-requested Basic auth. Return nonsecret `usuario`, `urlAutorizacao`, and `clientId`; encrypt `senha` and `clientSecret` at rest and NEVER return them here or in audit. Decrypt only for delivery or test.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:316-322; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5d47dcf2",
+      "action": "translate",
+      "new_text": "Show the signing secret only on creation. `webhook_saida.segredo` stores it in plaintext for signing, but the screen never returns it again.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:341-342; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b9022bbb",
+      "action": "translate",
+      "new_text": "The driver parses `jsonb`, but the column type is lost in this `select`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:356-356; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d2a06ff8",
+      "action": "translate",
+      "new_text": "Never include `autenticacaoSenha` or `oauth2ClientSecret`; only private `webhookVivo` reads them.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:377-377; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-771c850d",
+      "action": "translate",
+      "new_text": "Source '+ Adicionar cabeçalho' accepts Key/Value pairs without duplicates or headers reserved for the signature.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:404-404; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-45209858",
+      "action": "translate",
+      "new_text": "Authentication defaults to `nenhuma` when absent, matching the database. Editing REPLACES the whole configuration, as with `eventos`: switching between OAuth 2.0 and Basic requires resubmitting credentials, since the form never saw the old encrypted password.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:449-455; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-375019ca",
+      "action": "translate",
+      "new_text": "Columns written on save; both secrets leave this function encrypted.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:502-502; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b9f9d528",
+      "action": "translate",
+      "new_text": "`undefined` means no headers; `cabecalhosConferidos` validates them.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:555-555; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-21277769",
+      "action": "translate",
+      "new_text": "Load a complete row including secrets only for delivery, `testarWebhook`, editing or deletion.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:603-603; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-df49228f",
+      "action": "translate",
+      "new_text": "Replace all authentication fields like `eventos`; see `autenticacaoConferida`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:638-638; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b7a2aa41",
+      "action": "translate",
+      "new_text": "`PATCH` changes supplied URL, events, active state, authentication and headers. Activation and deactivation have their own `Acao`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:643-643; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-879e9d50",
+      "action": "translate",
+      "new_text": "Source `MAX_TOKENS = 3` (`referencias-blip/pesquisa/blip-configuracoes-api-e-chaves.md`, mirrored in `apps/gestao-vite/.../configuracoes/regras.ts`) is enforced here too: frontend validation cannot protect direct API calls.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:66-70; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-db0abf21",
+      "action": "translate",
+      "new_text": "Real `DELETE`: `entrega_webhook.webhook_id` is `ON DELETE CASCADE`, with no history to protect.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:706-706; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-7223559d",
+      "action": "translate",
+      "new_text": "Default scopes for a flow key. Scope says WHAT; `fluxo_id` says WHERE. `conferirFluxoDaChave` in `autenticacao.ts` puts `fluxoId` in the key session and permits only routes for THAT flow. Non-flow routes return 403 `chave_de_fluxo`; routes for another flow return `chave_de_outro_fluxo`.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:73-79; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-41405d7e",
+      "action": "translate",
+      "new_text": "Truncate test-response previews; never show or log the complete body.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:743-743; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9832713a",
+      "action": "translate",
+      "new_text": "The 'Testar' button sends an immediate POST outside `webhooks-saida.ts` queue: a human click is not a business event, creates no `entrega_webhook` row, and failure must not retry. Use the SAME authentication and custom headers as real delivery (`cabecalhosDeSaida`/`cabecalhoDeAutorizacao`), and the SAME host mTLS certificate via `chamarComMtls`.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:746-753; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-e14fd0d4",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:813-813",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-8a7fcd3c",
+      "action": "translate",
+      "new_text": "'Informações de conexão' stores two event sets as separate `webhook_saida` rows, the same Integration resource addressed by event set rather than ID.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:815-819; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3ae47a40",
+      "action": "translate",
+      "new_text": "Build an array literal manually: Drizzle's `sql` template FLATTENS JS arrays into parameters; a one-element array becomes scalar and `= $1::text[]` fails with 'malformed array literal'. This matches `igualEmLista` in `controladores/conversas.ts`. Values here come only from closed catalogs `EVENTOS_MENSAGENS` and `EVENTOS_NOTIFICACOES`, so there is no customer input to escape.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:837-844; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b6fea7ee",
+      "action": "translate",
+      "new_text": "Read 'Informações de conexão' with flow-edit permission.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:890-890; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2ac5e1f0",
+      "action": "translate",
+      "new_text": "`undefined` leaves the value unchanged; `null` or `''` deletes that event set's webhook.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:903-903; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d74f9a1f",
+      "action": "translate",
+      "new_text": "The three helpers call `criarWebhook`/`editarWebhook`/`excluirWebhook` without another permission check: `salvarConexaoDoFluxo` already checked `GERENCIAR_INTEGRACAO` in the same transaction; checking twice adds queries without changing authorization.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/integracoes.ts:938-943; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3d6bcdb7",
+      "action": "translate",
+      "new_text": "Use the tenant time zone for card 'today', not the server time zone.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/janela.ts:11-11; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-da5d6d75",
+      "action": "translate",
+      "new_text": "Compute current-day bounds in the tenant time zone with PostgreSQL, which knows the time-zone database; duplicating daylight-saving logic in JavaScript risks losing a whole day.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/janela.ts:17-22; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-5ebe2cdc",
+      "action": "translate",
+      "new_text": "From the start of `de` through the inclusive end of `ate`, as calendar days in the account time zone.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/janela.ts:33-33; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-630d35b4",
+      "action": "translate",
+      "new_text": "Instant range in the account time zone, equivalent to Management's `Janela` in `lib/banco.ts`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/janela.ts:5-5; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-000ccd79",
+      "action": "translate",
+      "new_text": "Maximum possible load: full capacity occupied by conversations waiting for an agent.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/monitoramento.ts:129-129; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-ef6e69d6",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/monitoramento.ts:167-167",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-4297b76f",
+      "action": "translate",
+      "new_text": "Management may read any tenant ticket; Desk may read only tickets assigned to that agent.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/monitoramento.ts:180-180; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-3919be98",
+      "action": "translate",
+      "new_text": "An internal note is the supervisor-agent conversation opened by the source bubble; it must not reach the customer.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao/monitoramento.ts:223-223; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-149873da",
+      "action": "translate",
+      "new_text": "Derive a readable ticket number from UUID because the model has no separate sequence.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/monitoramento.ts:275-275; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cc8efee6",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao/monitoramento.ts:321-321",
+      "notes": "redundant code narration or divider"
+    },
+    {
+      "id": "api-comment-1f79d01c",
+      "action": "translate",
+      "new_text": "Read everything monitoring needs in one transaction. Pass `agora` so running real-time counters use one instant across cards; otherwise card totals disagree with the table.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao/monitoramento.ts:333-339; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-6a8e1151",
+      "action": "translate",
+      "new_text": "Order the WAITING QUEUE by priority, then oldest first. The source requires low priority (`baixa`) before no priority (`sem_prioridade`); when the column defaulted to medium, priority had not been chosen, so the list used creation time alone. Oldest-first ties prevent the queue from becoming a stack. Assigned/in-progress tickets still use creation order because priority no longer changes who serves them.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao/monitoramento.ts:347-360; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}
