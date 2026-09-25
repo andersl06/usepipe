@@ -2203,16 +2203,16 @@ api-comment-762c1a56,api,apps/api/src/dominio/gestao-fluxo.ts,298,304,jsdoc,11,"
  */",translate,"The source lists campaigns, but Pipe does not yet persist campaigns or audiences. Read real template messages from the past 72 hours, the API panel and source screen window. Each row is a message, not a campaign. Once a campaign entity exists, group by `disparo_id`; do not infer campaigns from time or model.",meta-blip,apps/api/src/dominio/gestao-fluxo.ts:298; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-89e1aac5,api,apps/api/src/dominio/gestao-fluxo.ts,307,308,block,1,"/* As consultas vão em série: em paralelo o driver disputa a mesma conexão
      e o `set_config` do tenant se perde. */",translate,Run queries serially: in parallel the driver contends for one connection and the tenant `set_config` is lost.,security,apps/api/src/dominio/gestao-fluxo.ts:307; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
-api-comment-720b26a8,api,apps/api/src/dominio/gestao-fluxo.ts,388,388,block,0,/* ------------------------------------------------------------ Conteúdos */,,,,,,
-api-comment-33aca499,api,apps/api/src/dominio/gestao-fluxo.ts,403,403,jsdoc,4,/** `variaveis` é `jsonb` sem `check`: uma linha corrompida não pode derrubar a lista inteira. */,,,,,,
+api-comment-720b26a8,api,apps/api/src/dominio/gestao-fluxo.ts,388,388,block,0,/* ------------------------------------------------------------ Conteúdos */,remove,,other,apps/api/src/dominio/gestao-fluxo.ts:388,codex3,reviewed
+api-comment-33aca499,api,apps/api/src/dominio/gestao-fluxo.ts,403,403,jsdoc,4,/** `variaveis` é `jsonb` sem `check`: uma linha corrompida não pode derrubar a lista inteira. */,translate,`variaveis` is `jsonb` without a `check`; one corrupt row must not break the whole list.,architecture,apps/api/src/dominio/gestao-fluxo.ts:403; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-68d6340a,api,apps/api/src/dominio/gestao-fluxo.ts,448,452,jsdoc,9,"/**
  * A grade do portal, PAGINADA no banco (a origem conta com centenas de bots por
  * conta). `arquivado` fica fora: arquivar é tirar de circulação sem apagar.
  * Do mais novo para o mais antigo, que é a ordem da origem.
- */",,,,,,
-api-comment-3f74586b,api,apps/api/src/dominio/gestao-fluxo.ts,460,460,block,2,/* UMA de cada vez: a transação vive numa conexão só. */,,,,,,
-api-comment-fde279f5,api,apps/api/src/dominio/gestao-fluxo.ts,66,66,jsdoc,2,"/** O fuso do tenant, para o ""hoje"" e o ""criado em"" não serem o fuso do servidor. */",,,,,,
-api-comment-e870ce11,api,apps/api/src/dominio/gestao/acoes/atendentes.ts,30,30,jsdoc,1,/** `ErroPipe` de validação/permissão/conflito vira a frase da tela; qualquer outro erro sobe. */,,,,,,
+ */",translate,"Page the portal grid in the database: the source expects hundreds of bots per account. Exclude `arquivado` because archiving removes a bot from circulation without deleting it. Sort newest first, as in the source.",meta-blip,apps/api/src/dominio/gestao-fluxo.ts:448; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3f74586b,api,apps/api/src/dominio/gestao-fluxo.ts,460,460,block,2,/* UMA de cada vez: a transação vive numa conexão só. */,translate,Run ONE query at a time: the transaction has a single connection.,security,apps/api/src/dominio/gestao-fluxo.ts:460; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-fde279f5,api,apps/api/src/dominio/gestao-fluxo.ts,66,66,jsdoc,2,"/** O fuso do tenant, para o ""hoje"" e o ""criado em"" não serem o fuso do servidor. */",translate,"Use the tenant time zone so ""today"" and ""created at"" do not use the server time zone.",architecture,apps/api/src/dominio/gestao-fluxo.ts:66; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-e870ce11,api,apps/api/src/dominio/gestao/acoes/atendentes.ts,30,30,jsdoc,1,/** `ErroPipe` de validação/permissão/conflito vira a frase da tela; qualquer outro erro sobe. */,translate,"Convert `ErroPipe` validation, permission, and conflict failures into the screen message; let other errors propagate.",security,apps/api/src/dominio/gestao/acoes/atendentes.ts:30; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-7601e999,api,apps/api/src/dominio/gestao/acoes/atendentes.ts,6,22,jsdoc,11,"/**
  * Server Actions de Atendentes — filas e motivos de pausa.
  *
@@ -2229,18 +2229,18 @@ api-comment-7601e999,api,apps/api/src/dominio/gestao/acoes/atendentes.ts,6,22,js
  * `nomeDeFilaConferido` etc. lançam) vira `Resultado` aqui, e só aqui: é a
  * fronteira entre o padrão REST (status de verdade) e o padrão de formulário
  * (`Resultado` em 200) que este arquivo sempre teve.
- */",,,,,,
+ */",translate,"Agent Server Actions manage queues and pause reasons. Follow `Resultado` from `app/comunicacao/acoes.ts`: an expected form error is returned as a value so `useActionState` can display it without try/catch. These actions wrap `criarFila` and `criarMotivoPausa` in `cadastros.ts`, which the new REST routes (`POST /v1/gestao/atendentes/filas`, `POST /v1/gestao/atendentes/pausas`) also call. Previously each action validated and wrote here without permission checks, creating duplicate implementations. Only at this form boundary convert `ErroPipe` from `exigirPermissao`, `nomeDeFilaConferido`, etc. into `Resultado`; REST retains real status codes.",security,apps/api/src/dominio/gestao/acoes/atendentes.ts:6; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-bdc4109e,api,apps/api/src/dominio/gestao/acoes/campos.ts,1,7,jsdoc,3,"/**
  * O que um formulário da Gestão manda: o `FormData` de antes, agora como JSON.
  *
  * Mesma interface de leitura (`get`/`getAll`) para as ações continuarem
  * iguais às Server Actions de onde vieram. Chave repetida vira lista; caixa
  * de seleção marcada vem como `'on'` e desmarcada não vem — como no FormData.
- */",,,,,,
-api-comment-bbe73266,api,apps/api/src/dominio/gestao/acoes/campos.ts,30,30,jsdoc,3,"/** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */",,,,,,
-api-comment-cd23e9e1,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,113,113,line,0,"// `template_mensagem_uk` é `uniqueIndex` de verdade (tenant, canal, nome, idioma),",,,,,,
-api-comment-ba3d41d8,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,114,114,line,0,// mas o conflito é checado aqui mesmo assim: erro de constraint no banco vira,,,,,,
-api-comment-5c9d7c11,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,115,115,line,2,"// 500 sem contexto, e quem cadastra precisa saber QUAL modelo já existe.",,,,,,
+ */",translate,"Management form input: former `FormData`, now JSON. Keep `get`/`getAll` so actions read it as they did in Server Actions. A repeated key becomes a list; a checked box sends 'on' and an unchecked box is absent, as with FormData.",architecture,apps/api/src/dominio/gestao/acoes/campos.ts:1; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-bbe73266,api,apps/api/src/dominio/gestao/acoes/campos.ts,30,30,jsdoc,3,"/** O que toda ação devolve: deu certo, ou o motivo em texto para a tela. */",translate,Every action returns success or a text reason for the screen.,other,apps/api/src/dominio/gestao/acoes/campos.ts:30; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-cd23e9e1,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,113,113,line,0,"// `template_mensagem_uk` é `uniqueIndex` de verdade (tenant, canal, nome, idioma),",translate,"`template_mensagem_uk` is a real `uniqueIndex` on tenant, channel, name, and language,",architecture,apps/api/src/dominio/gestao/acoes/comunicacao.ts:113; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-ba3d41d8,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,114,114,line,0,// mas o conflito é checado aqui mesmo assim: erro de constraint no banco vira,translate,but check for conflict here anyway: a database constraint error becomes,architecture,apps/api/src/dominio/gestao/acoes/comunicacao.ts:114; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-5c9d7c11,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,115,115,line,2,"// 500 sem contexto, e quem cadastra precisa saber QUAL modelo já existe.",translate,"an unexplained 500, and the user needs to know WHICH template exists.",architecture,apps/api/src/dominio/gestao/acoes/comunicacao.ts:115; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-7ae574c6,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,12,21,jsdoc,6,"/**
  * Server Actions de Comunicação. Seguem o mesmo formato `Resultado` de
  * `apps/desk/src/app/acoes.ts`: sem exceção para o caso esperado de erro de
@@ -2250,16 +2250,16 @@ api-comment-7ae574c6,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,12,21,
  * As duas ações fazem UMA transação cada, com os `selects` de conflito antes
  * do `insert` — nunca em paralelo (`Promise.all` dentro de `comTenant` derruba
  * o `set_config('pipe.tenant_id')` da sessão, ver README §Banco de dados).
- */",,,,,,
-api-comment-3eb1e1cc,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,141,141,line,1,"// Nasce pendente sempre: aprovação é da Meta, não desta tela. Ver comentário",,,,,,
-api-comment-4211309f,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,31,31,jsdoc,1,/** `ErroPipe` de validação/permissão/conflito vira a frase da tela; qualquer outro erro sobe. */,,,,,,
+ */",translate,"Communication Server Actions return expected form errors as `Resultado`, following `apps/desk/src/app/acoes.ts`, so client `useActionState` can show them without try/catch. Each action performs ONE transaction, using conflict `selects` before insert. Never use `Promise.all` inside `comTenant`: parallel queries can lose the session `set_config('pipe.tenant_id')`; see README section Banco de dados.",security,apps/api/src/dominio/gestao/acoes/comunicacao.ts:12; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-3eb1e1cc,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,141,141,line,1,"// Nasce pendente sempre: aprovação é da Meta, não desta tela. Ver comentário",translate,"A template always starts pending: Meta approves it, not this screen. See the `status_meta` comment in `packages/db/src/schema/conversas.ts`.",integration,apps/api/src/dominio/gestao/acoes/comunicacao.ts:141; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4211309f,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,31,31,jsdoc,1,/** `ErroPipe` de validação/permissão/conflito vira a frase da tela; qualquer outro erro sobe. */,translate,"Convert `ErroPipe` validation, permission, and conflict failures into the screen message; let other errors propagate.",security,apps/api/src/dominio/gestao/acoes/comunicacao.ts:31; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-4bb43a84,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,44,48,jsdoc,4,"/**
  * Casca fina sobre `criarRespostaPronta` de `comunicacao.ts` — a mesma que a
  * rota REST nova (`POST /v1/gestao/comunicacao/respostas-prontas`) chama.
  * Antes desta ação validava e gravava aqui, sem permissão nenhuma.
- */",,,,,,
-api-comment-4b54fece,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,8,8,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",,,,,,
-api-comment-8c43688a,api,apps/api/src/dominio/gestao/acoes/configuracoes.ts,129,129,line,0,// ------------------------------------------- etiqueta obrigatória ao encerrar,,,,,,
+ */",translate,"Thin wrapper around `criarRespostaPronta` in `comunicacao.ts`, also used by `POST /v1/gestao/comunicacao/respostas-prontas`. Previously this action validated and wrote here without permission checks.",security,apps/api/src/dominio/gestao/acoes/comunicacao.ts:44; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-4b54fece,api,apps/api/src/dominio/gestao/acoes/comunicacao.ts,8,8,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",translate,"The transaction already has its tenant fixed; `consultar` only names the block, as in Management.",security,apps/api/src/dominio/gestao/acoes/comunicacao.ts:8; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-8c43688a,api,apps/api/src/dominio/gestao/acoes/configuracoes.ts,129,129,line,0,// ------------------------------------------- etiqueta obrigatória ao encerrar,remove,,other,apps/api/src/dominio/gestao/acoes/configuracoes.ts:129,codex3,reviewed
 api-comment-641368da,api,apps/api/src/dominio/gestao/acoes/configuracoes.ts,131,140,jsdoc,7,"/**
  * ""Tornar obrigatória a inclusão de tags em atendimentos finalizados
  * manualmente"" — o texto é deles (`blip-telas-cadastro.md` §3), a coluna é
@@ -2269,7 +2269,7 @@ api-comment-641368da,api,apps/api/src/dominio/gestao/acoes/configuracoes.ts,131,
  * entram. Desligar a seção limpa todas — é o que faz o interruptor significar
  * alguma coisa em vez de virar decoração acima de uma lista que continua
  * valendo.
- */",,,,,,
+ */",translate,"The source setting (""Tornar obrigatória a inclusão de tags em atendimentos finalizados manualmente""; `blip-telas-cadastro.md` §3) maps to our `etiqueta.obrigatoria_no_encerramento`. The section switch enables the requirement; the body chooses WHICH tags qualify. Disabling the section clears them all, so the switch has effect instead of sitting above a still-active list.",meta-blip,apps/api/src/dominio/gestao/acoes/configuracoes.ts:131; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-d7e0cc88,api,apps/api/src/dominio/gestao/acoes/configuracoes.ts,16,27,jsdoc,13,"/**
  * Server Actions de Preferências ├ Configurações gerais.
  *
@@ -2281,15 +2281,15 @@ api-comment-d7e0cc88,api,apps/api/src/dominio/gestao/acoes/configuracoes.ts,16,2
  *
  * Cada uma faz só o que é da tela — ler os campos e validar. A conversa com o Postgres e o log de auditoria moram em
  * `lib/configuracoes.ts`.
- */",,,,,,
+ */",translate,"`Configurações gerais` preference Server Actions operate one CARD at a time. In source Blip General Settings, ""não há um botão Salvar da tela — cada cartão tem o seu"" (`blip-telas-cadastro.md` §1 and §3). Thus three actions are independent: an error in the survey card does not undo a saved identity card. These actions only read fields and validate; Postgres writes and audit logging live in `lib/configuracoes.ts`.",meta-blip,apps/api/src/dominio/gestao/acoes/configuracoes.ts:16; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-5a2cb3e4,api,apps/api/src/dominio/gestao/acoes/configuracoes.ts,35,41,jsdoc,6,"/**
  * O fuso, na grafia canônica do runtime, ou `null` se o IANA não conhece.
  *
  * A validação é o próprio `Intl`, o mesmo que
  * `packages/core/src/sla/expediente.ts` usa para converter instante em hora
  * local: fuso que passa aqui é fuso que o cálculo de SLA vai aceitar.
- */",,,,,,
-api-comment-a03455f0,api,apps/api/src/dominio/gestao/acoes/configuracoes.ts,78,78,line,2,"// O fuso é o ""hoje"" de todo cartão e de todo relatório: uma tela só não basta.",,,,,,
+ */",translate,"Return the runtime's canonical IANA time-zone spelling, or `null` if unknown. Use `Intl` for validation, just as `packages/core/src/sla/expediente.ts` does when converting instants to local time; a zone accepted here will work in SLA calculations.",architecture,apps/api/src/dominio/gestao/acoes/configuracoes.ts:35; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a03455f0,api,apps/api/src/dominio/gestao/acoes/configuracoes.ts,78,78,line,2,"// O fuso é o ""hoje"" de todo cartão e de todo relatório: uma tela só não basta.",translate,"The time zone defines ""today"" for every card and report; changing only one screen is insufficient.",architecture,apps/api/src/dominio/gestao/acoes/configuracoes.ts:78; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-08281892,api,apps/api/src/dominio/gestao/acoes/configuracoes.ts,84,91,jsdoc,8,"/**
  * A pesquisa de satisfação — §6 da spec de métricas.
  *
@@ -2297,9 +2297,9 @@ api-comment-08281892,api,apps/api/src/dominio/gestao/acoes/configuracoes.ts,84,9
  * ""CSAT de 0 a 10"" que nenhum relatório sabe classificar. Como
  * `resposta_pesquisa` guarda a escala junto de cada resposta, mudar aqui não
  * reclassifica o passado.
- */",,,,,,
-api-comment-48c81230,api,apps/api/src/dominio/gestao/acoes/regras.ts,11,11,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",,,,,,
-api-comment-b345e509,api,apps/api/src/dominio/gestao/acoes/regras.ts,147,147,line,2,"// Faixas que se sobrepõem o core mescla sozinho (`faixasDoDia`), então",,,,,,
+ */",translate,"Satisfaction survey, section 6 of the metrics spec. The scale is derived from the survey type, not submitted in the form; this prevents a ""CSAT de 0 a 10"" that no report can classify. `resposta_pesquisa` stores the scale with each response, so changing this setting does not reclassify history.",architecture,apps/api/src/dominio/gestao/acoes/configuracoes.ts:84; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-48c81230,api,apps/api/src/dominio/gestao/acoes/regras.ts,11,11,jsdoc,3,"/** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */",translate,"The transaction already has its tenant fixed; `consultar` only names the block, as in Management.",security,apps/api/src/dominio/gestao/acoes/regras.ts:11; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-b345e509,api,apps/api/src/dominio/gestao/acoes/regras.ts,147,147,line,2,"// Faixas que se sobrepõem o core mescla sozinho (`faixasDoDia`), então",translate,"`faixasDoDia` merges overlapping ranges itself, so",architecture,apps/api/src/dominio/gestao/acoes/regras.ts:147; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-63427efb,api,apps/api/src/dominio/gestao/acoes/regras.ts,148,148,line,2,// sobreposição não é erro. Faixa idêntica é: só polui a lista.,,,,,,
 api-comment-5b64697a,api,apps/api/src/dominio/gestao/acoes/regras.ts,15,27,jsdoc,16,"/**
  * Server Actions de Regras — horário de atendimento, suas faixas e exceções.
