@@ -3,7 +3,7 @@ import type { CanActivate, ExecutionContext } from '@nestjs/common';
 import type { Reflector } from '@nestjs/core';
 import { sql } from 'drizzle-orm';
 import type { Request } from 'express';
-import { NOME_DO_COOKIE, hashDoToken, resolveSession } from '@pipe/authentication';
+import { hashDoToken, resolveSession } from '@pipe/authentication';
 import type { SessionActive } from '@pipe/authentication';
 import type { TransactionPipe } from '@pipe/db';
 import { databaseOwner } from './database.js';
@@ -24,6 +24,11 @@ import { PipeError } from './errors.js';
  */
 
 export const KEY_SESSION = 'pipe:sessao';
+export const SESSION_COOKIE_NAME = 'pipe_session';
+
+export function sessionCookie(header: string): string {
+  return `${SESSION_COOKIE_NAME}${header.slice(header.indexOf('='))}`;
+}
 
 /** Marca a rota como exigindo sessão de navegador. */
 export const WithSession = () => SetMetadata(KEY_SESSION, true);
@@ -94,7 +99,7 @@ export function lerCookies(cabecalho: string | undefined, nome: string): string[
 }
 
 export function tokenOfSession(requisicao: Request): string | undefined {
-  return lerCookie(requisicao.header('cookie'), NOME_DO_COOKIE);
+  return lerCookie(requisicao.header('cookie'), SESSION_COOKIE_NAME);
 }
 
 /**

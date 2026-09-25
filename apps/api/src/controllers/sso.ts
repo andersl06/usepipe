@@ -9,7 +9,7 @@ import {
   urlOfAuthorizationOidc,
 } from '@pipe/authentication';
 import { databaseApp, databaseOwner, noTenant } from '../database.js';
-import { WithSession, exigirPermission, sessionOf } from '../session.js';
+import { WithSession, exigirPermission, sessionCookie, sessionOf } from '../session.js';
 import type { RequestWithSession } from '../session.js';
 import {
   codigoDaRecusa,
@@ -184,7 +184,7 @@ export class SsoLoginController {
       );
       resposta.setHeader('set-cookie', [
         apagarDesafio,
-        cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie()),
+        sessionCookie(cookieOfSession(inbound.token, inbound.expiraEm, optionsOfCookie())),
       ]);
       resposta.redirect(302, destinationAbsolute(desafio.destination, desafio.origem));
     } catch (error) {

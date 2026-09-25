@@ -6,7 +6,7 @@ import { hashDoToken, origemPermitida, origensPermitidas, resolveSession } from 
 import { ASSUNTOS } from '@pipe/contracts';
 import type { Assunto, EventoDoServidor, Subscription, QuadroDeControle } from '@pipe/contracts';
 import { databaseOwner } from './database.js';
-import { lerCookie } from './session.js';
+import { lerCookie, SESSION_COOKIE_NAME } from './session.js';
 import { registrar } from './realtime.js';
 import type { Conexao } from './realtime.js';
 
@@ -81,7 +81,7 @@ export function connectChannelOfEvents(servidor: Server): ChannelOfEvents {
           return recusar(socket, 403, 'Forbidden');
         }
 
-        const token = lerCookie(request.headers.cookie, 'pipe_sessao');
+        const token = lerCookie(request.headers.cookie, SESSION_COOKIE_NAME);
         if (!token) return recusar(socket, 401, 'Unauthorized');
         const session = await resolveSession(databaseOwner(), hashDoToken(token));
         if (!session) return recusar(socket, 401, 'Unauthorized');
