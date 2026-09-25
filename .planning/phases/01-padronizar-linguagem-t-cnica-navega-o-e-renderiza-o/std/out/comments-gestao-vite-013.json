@@ -195,7 +195,7 @@
     {
       "id": "gestao-vite-comment-26354295",
       "action": "translate",
-      "new_text": "// BOM by character code, not literal in the source: Excel only recognizes UTF-8",
+      "new_text": "BOM by character code, not literal in the source: Excel only recognizes UTF-8",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:88",
       "notes": "pre-triage D-40"
@@ -203,7 +203,7 @@
     {
       "id": "gestao-vite-comment-0bc3b305",
       "action": "translate",
-      "new_text": "// in a CSV with the BOM up front, and a directly pasted character is \"irregular whitespace\"",
+      "new_text": "in a CSV with the BOM up front, and a directly pasted character is \"irregular whitespace\"",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/operacao/relatorios-atendimento.tsx:89",
       "notes": "pre-triage D-40"
@@ -603,7 +603,7 @@
     {
       "id": "gestao-vite-comment-7c45ae96",
       "action": "translate",
-      "new_text": "// First drag, complete — a real step in the history.",
+      "new_text": "First drag, complete — a real step in the history.",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/tests/builder-editor.test.ts:101",
       "notes": "pre-triage D-40"
@@ -611,7 +611,7 @@
     {
       "id": "gestao-vite-comment-f8d5bc50",
       "action": "translate",
-      "new_text": "// Second drag in progress — Ctrl+Z in the middle of it does nothing.",
+      "new_text": "Second drag in progress — Ctrl+Z in the middle of it does nothing.",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/tests/builder-editor.test.ts:109",
       "notes": "pre-triage D-40"
@@ -619,7 +619,7 @@
     {
       "id": "gestao-vite-comment-7ddf2069",
       "action": "translate",
-      "new_text": "// without the guard, the map here would snap back to (0,0) with a corrupted past.",
+      "new_text": "without the guard, the map here would snap back to (0,0) with a corrupted past.",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/tests/builder-editor.test.ts:118",
       "notes": "pre-triage D-40"
@@ -667,7 +667,7 @@
     {
       "id": "gestao-vite-comment-0a2970b0",
       "action": "translate",
-      "new_text": "// Channel disconnected but linked to the bot: the page offers to reconnect, it doesn't pretend to be connected.",
+      "new_text": "Channel disconnected but linked to the bot: the page offers to reconnect, it doesn't pretend to be connected.",
       "sensitivity": "integration",
       "evidence": "apps/gestao-vite/tests/canal-do-fluxo.test.ts:56",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -707,7 +707,7 @@
     {
       "id": "gestao-vite-comment-acf856f1",
       "action": "translate",
-      "new_text": "// Browser that doesn't declare the .pfx's type: fall back to the extension.",
+      "new_text": "Browser that doesn't declare the .pfx's type: fall back to the extension.",
       "sensitivity": "security",
       "evidence": "apps/gestao-vite/tests/certificados.test.ts:57",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -715,7 +715,7 @@
     {
       "id": "gestao-vite-comment-0afd96be",
       "action": "translate",
-      "new_text": "// Text and absence of a header don't consume a slot.",
+      "new_text": "Text and absence of a header don't consume a slot.",
       "sensitivity": "integration",
       "evidence": "apps/gestao-vite/tests/comunicacao.test.ts:25",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -763,7 +763,7 @@
     {
       "id": "gestao-vite-comment-f22d31a2",
       "action": "translate",
-      "new_text": "// Reading members doesn't grant the card that requires WRITING members (their `e` check).",
+      "new_text": "Reading members doesn't grant the card that requires WRITING members (their `e` check).",
       "sensitivity": "security",
       "evidence": "apps/gestao-vite/tests/contrato.test.ts:40",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -771,7 +771,7 @@
     {
       "id": "gestao-vite-comment-2484647c",
       "action": "translate",
-      "new_text": "// And it's still just a mockup: the card that has no route yet still shows \"em breve\" (coming soon).",
+      "new_text": "And it's still just a mockup: the card that has no route yet still shows \"em breve\" (coming soon).",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/tests/contrato.test.ts:49",
       "notes": "pre-triage D-40"
@@ -779,7 +779,7 @@
     {
       "id": "gestao-vite-comment-814b884a",
       "action": "translate",
-      "new_text": "// `toString` exists on every object; it must not pass as a role.",
+      "new_text": "`toString` exists on every object; it must not pass as a role.",
       "sensitivity": "security",
       "evidence": "apps/gestao-vite/tests/contrato.test.ts:70",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -795,7 +795,7 @@
     {
       "id": "gestao-vite-comment-0e105f91",
       "action": "translate",
-      "new_text": "// A prefix that doesn't exist, no prefix, an empty id, and just whitespace: none of it gets through.",
+      "new_text": "A prefix that doesn't exist, no prefix, an empty id, and just whitespace: none of it gets through.",
       "sensitivity": "security",
       "evidence": "apps/gestao-vite/tests/contrato.test.ts:87",
       "notes": "pre-triage D-40; needs slice-time confirmation"

@@ -11,7 +11,7 @@
     {
       "id": "gestao-vite-comment-278d0871",
       "action": "translate",
-      "new_text": "// Body changed: variable examples that disappeared no longer serve any purpose once stored.",
+      "new_text": "Body changed: variable examples that disappeared no longer serve any purpose once stored.",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/cadastros/comunicacao-modelos-formulario.tsx:105-105",
       "notes": "pre-triage D-40"
@@ -195,7 +195,7 @@
     {
       "id": "gestao-vite-comment-a9f5b993",
       "action": "translate",
-      "new_text": "// A blank row isn't included — same filter as `salvarRegraFila` (create action).",
+      "new_text": "A blank row isn't included — same filter as `salvarRegraFila` (create action).",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:117-117",
       "notes": "pre-triage D-40"
@@ -235,7 +235,7 @@
     {
       "id": "gestao-vite-comment-a06f8e7b",
       "action": "translate",
-      "new_text": "// The extra field goes to the server with the prefix the engine reads.",
+      "new_text": "The extra field goes to the server with the prefix the engine reads.",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:183-183",
       "notes": "pre-triage D-40"
@@ -243,7 +243,7 @@
     {
       "id": "gestao-vite-comment-b5047f76",
       "action": "translate",
-      "new_text": "// the three parallel lists ending up with different lengths.",
+      "new_text": "the three parallel lists ending up with different lengths.",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento-formulario.tsx:185-185",
       "notes": "pre-triage D-40"
@@ -275,7 +275,7 @@
     {
       "id": "gestao-vite-comment-c99f0da0",
       "action": "translate",
-      "new_text": "// `regras` already comes sorted by `ordem`/id (the same order that `ordenarRegras`",
+      "new_text": "`regras` already comes sorted by `ordem`/id (the same order that `ordenarRegras`",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:112-112",
       "notes": "pre-triage D-40"
@@ -283,7 +283,7 @@
     {
       "id": "gestao-vite-comment-f33351ec",
       "action": "translate",
-      "new_text": "// applies to the engine) — moving position in the list means moving position of",
+      "new_text": "applies to the engine) — moving position in the list means moving position of",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:113-113",
       "notes": "pre-triage D-40"
@@ -291,7 +291,7 @@
     {
       "id": "gestao-vite-comment-6eeeb248",
       "action": "translate",
-      "new_text": "// evaluation. Renumbers sequentially instead of just swapping `ordem` between the",
+      "new_text": "evaluation. Renumbers sequentially instead of just swapping `ordem` between the",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:114-114",
       "notes": "pre-triage D-40"
@@ -299,7 +299,7 @@
     {
       "id": "gestao-vite-comment-e05387ae",
       "action": "translate",
-      "new_text": "// two: if both tie (every new rule's default is `ordem: 0`),",
+      "new_text": "two: if both tie (every new rule's default is `ordem: 0`),",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:115-115",
       "notes": "pre-triage D-40"
@@ -307,7 +307,7 @@
     {
       "id": "gestao-vite-comment-cd7c57b0",
       "action": "translate",
-      "new_text": "// swapping equal values moves nothing.",
+      "new_text": "swapping equal values moves nothing.",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-atendimento.tsx:116-116",
       "notes": "pre-triage D-40"
@@ -355,7 +355,7 @@
     {
       "id": "gestao-vite-comment-bbb3861e",
       "action": "translate",
-      "new_text": "// The card's status is USAGE, not a toggle: a schedule with no queue at",
+      "new_text": "The card's status is USAGE, not a toggle: a schedule with no queue at",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx:54-54",
       "notes": "pre-triage D-40"
@@ -363,7 +363,7 @@
     {
       "id": "gestao-vite-comment-a9a1e339",
       "action": "translate",
-      "new_text": "// all isn't a data error, it's unfinished work — registered and",
+      "new_text": "all isn't a data error, it's unfinished work — registered and",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx:55-55",
       "notes": "pre-triage D-40"
@@ -371,7 +371,7 @@
     {
       "id": "gestao-vite-comment-f9fce64e",
       "action": "translate",
-      "new_text": "// never turned on. It shows as an alert tag, which is already what the list knows",
+      "new_text": "never turned on. It shows as an alert tag, which is already what the list knows",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-horarios.tsx:56-56",
       "notes": "pre-triage D-40"
@@ -387,7 +387,7 @@
     {
       "id": "gestao-vite-comment-add450aa",
       "action": "translate",
-      "new_text": "// Editing doesn't send scope — see \"Decisão Pipe\" at the top of the file.",
+      "new_text": "Editing doesn't send scope — see \"Decisão Pipe\" at the top of the file.",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/cadastros/regras-sla-formulario.tsx:42-42",
       "notes": "pre-triage D-40"
@@ -627,7 +627,7 @@
     {
       "id": "gestao-vite-comment-6398a488",
       "action": "translate",
-      "new_text": "// \"If the certificate ends up without a host, the hosts modal closes and the list",
+      "new_text": "\"If the certificate ends up without a host, the hosts modal closes and the list",
       "sensitivity": "architecture",
       "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:160-160",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -635,7 +635,7 @@
     {
       "id": "gestao-vite-comment-df699cda",
       "action": "translate",
-      "new_text": "// reloads after 1s\" — the domain's `excluirHostDoCertificado` already",
+      "new_text": "reloads after 1s\" — the domain's `excluirHostDoCertificado` already",
       "sensitivity": "architecture",
       "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:161-161",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -643,7 +643,7 @@
     {
       "id": "gestao-vite-comment-2bab6ed6",
       "action": "translate",
-      "new_text": "// deletes the certificate too when it was the last one; here we only close the",
+      "new_text": "deletes the certificate too when it was the last one; here we only close the",
       "sensitivity": "architecture",
       "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:162-162",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -651,7 +651,7 @@
     {
       "id": "gestao-vite-comment-4fe5a08d",
       "action": "translate",
-      "new_text": "// hosts window if it no longer exists in the reloaded list.",
+      "new_text": "hosts window if it no longer exists in the reloaded list.",
       "sensitivity": "architecture",
       "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:163-163",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -755,7 +755,7 @@
     {
       "id": "gestao-vite-comment-2efc42ea",
       "action": "translate",
-      "new_text": "// Success: form cleared, back to step 1, and closes — failure: the source",
+      "new_text": "Success: form cleared, back to step 1, and closes — failure: the source",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:525-525",
       "notes": "pre-triage D-40"
@@ -763,7 +763,7 @@
     {
       "id": "gestao-vite-comment-2d419f57",
       "action": "translate",
-      "new_text": "// shows the toast and leaves the window open (`aoAvisar` already handled the toast).",
+      "new_text": "shows the toast and leaves the window open (`aoAvisar` already handled the toast).",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/contrato/certificados/tela.tsx:526-526",
       "notes": "pre-triage D-40"

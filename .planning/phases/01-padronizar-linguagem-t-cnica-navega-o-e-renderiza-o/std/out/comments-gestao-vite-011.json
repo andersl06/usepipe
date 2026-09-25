@@ -59,7 +59,7 @@
     {
       "id": "gestao-vite-comment-be7a9ca9",
       "action": "translate",
-      "new_text": "// ponytail: no dedicated column for \"test user\" in the",
+      "new_text": "ponytail: no dedicated column for \"test user\" in the",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx:110-110; two-line comment split by scanner, continues at 20862f57; verified against current source, still unwired",
       "notes": "pre-triage D-40"
@@ -67,7 +67,7 @@
     {
       "id": "gestao-vite-comment-20862f57",
       "action": "translate",
-      "new_text": "// contact schema; the checkbox stays visual, as before, until there's somewhere to store it.",
+      "new_text": "contact schema; the checkbox stays visual, as before, until there's somewhere to store it.",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/fluxo/contatos/detalhe/editar.tsx:111-111; continuation of be7a9ca9",
       "notes": "pre-triage D-40"
