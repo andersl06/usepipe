@@ -555,7 +555,7 @@
   {
    "id": "api-comment-35319888",
    "action": "translate",
-   "new_text": "The trailing slash is removed: otherwise the link would become \"…//object/person/…\".",
+   "new_text": "The trailing slash is removed: otherwise the link would become `…//object/person/…`.",
    "sensitivity": "integration",
    "evidence": "apps/api/tests/twenty.test.ts:209; pre-triage D-40; needs slice-time confirmation",
    "notes": "pre-triage D-40; needs slice-time confirmation"
