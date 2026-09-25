@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { escolherAgent } from '@pipe/core';
 import type { AgentDisponivel, EscolhaDistribution, StateAgent } from '@pipe/core';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { emitir } from '../webhooks-saida.js';
 import { registrarEvento } from './eventos.js';
 
@@ -54,7 +54,7 @@ export async function candidatosOfQueue(
     id: linha.id,
     estado: linha.state,
     filas: [filaId],
-    limiteSimultaneo: Number(linha.limite),
+    limiteSimultaneo: Number(linha.limit),
     ativas: Number(linha.ativas),
     aguardandoAtendente: Number(linha.aguardandoAgent),
     semPrimeiraResposta: Number(linha.withoutFirstResponse),
@@ -107,7 +107,7 @@ export async function queuesOfAgent(
     id: linha.id,
     estado: linha.state,
     filas: [linha.queueId],
-    limiteSimultaneo: Number(linha.limite),
+    limiteSimultaneo: Number(linha.limit),
     ativas: Number(linha.ativas),
     aguardandoAtendente: Number(linha.aguardandoAgent),
     semPrimeiraResposta: Number(linha.withoutFirstResponse),
@@ -168,9 +168,9 @@ export async function distribuirConversation(
     tenantId,
     conversationId,
     type: 'atribuida',
-    em,
+    at: em,
     userId: agentId,
-    queueId,
+    queueId: filaId,
   });
   await emitir(tx, tenantId, 'conversa.atribuida', {
     conversa_id: conversationId,

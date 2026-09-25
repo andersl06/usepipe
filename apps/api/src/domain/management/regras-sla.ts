@@ -1,7 +1,7 @@
 import { and, eq, ne } from 'drizzle-orm';
 import { queue, regraSla, slaConversa as slaConversation, ALVOS_SLA } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 import { RULE_MANAGE } from './registrations.js';
@@ -173,16 +173,16 @@ export async function createRuleSla(
 
   const [criada] = await tx
     .insert(regraSla)
-    .values({ tenantId: tid, nome, alvo, prazoSeg, alertaSeg, escopoTipo, escopoId, active })
+    .values({ tenantId: tid, nome, alvo, prazoSeg, alertaSeg, escopoTipo: scopeType, escopoId: scopeId, active })
     .returning({ id: regraSla.id });
   if (!criada) throw PipeError.request('rule_not_created', 'Não consegui gravar a regra de SLA.');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: userId },
+    ator: { type: 'usuario', id: userId },
     acao: 'criou',
     objetoTipo: 'regra_sla',
     objetoId: criada.id,
-    depois: { nome, alvo, prazoSeg, alertaSeg, escopoTipo, escopoId, active },
+    depois: { nome, alvo, prazoSeg, alertaSeg, escopoTipo: scopeType, escopoId: scopeId, active },
   });
   return { id: criada.id };
 }
@@ -260,7 +260,7 @@ export async function editarRegraSla(
   if (!gravada) throw PipeError.naoEncontrado('regra de SLA');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'regra_sla',
     objetoId: id,
@@ -279,7 +279,7 @@ export async function excluirRegraSla(tx: TransactionPipe, tid: string, usuarioI
   const [inProgress] = await tx
     .select({ id: slaConversation.id })
     .from(slaConversation)
-    .where(and(eq(slaConversation.regraId, id), eq(slaConversation.state, 'correndo')))
+    .where(and(eq(slaConversation.regraId, id), eq(slaConversation.estado, 'correndo')))
     .limit(1);
   if (inProgress) {
     throw PipeError.conflito(
@@ -291,7 +291,7 @@ export async function excluirRegraSla(tx: TransactionPipe, tid: string, usuarioI
   await tx.delete(regraSla).where(and(eq(regraSla.tenantId, tid), eq(regraSla.id, id)));
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'excluiu',
     objetoTipo: 'regra_sla',
     objetoId: id,

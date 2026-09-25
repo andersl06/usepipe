@@ -86,7 +86,7 @@ function comoVisivel(perfil: PerfilDoNumero, numero: Record<string, unknown>): P
     description: perfil.description ?? '',
     email: perfil.email ?? '',
     sites: perfil.websites ?? [],
-    categoria: perfil.vertical ?? '',
+    category: perfil.vertical ?? '',
     fotoUrl: perfil.profile_picture_url ?? null,
     nome: {
       display: texto(numero['verified_name']),
@@ -207,7 +207,7 @@ export async function writeProfileOfChannel(
 
   await noTenant(tenantId, (tx) =>
     registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: userId },
+      ator: { type: 'usuario', id: userId },
       acao: 'alterou',
       objetoTipo: 'canal',
       objetoId: canal.id,

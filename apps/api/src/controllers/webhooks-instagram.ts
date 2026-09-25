@@ -1,6 +1,6 @@
 import { Controller, Get, HttpCode, Param, Post, Query, Req, Res } from '@nestjs/common';
 import type { Response } from 'express';
-import { segredoConfere as secretConfere } from '@pipe/db';
+import { secretConfere as secretConfere } from '@pipe/db';
 import { resolveChannel } from '../database.js';
 import type { ChannelResolved } from '../database.js';
 import { PipeError } from '../errors.js';

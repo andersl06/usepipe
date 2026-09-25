@@ -27,7 +27,7 @@ import {
   type RecordOfEvaluation,
   type ApplicationOfQualityReview,
 } from '../domain/management/quality-review.js';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { registrarAuditoria } from '@pipe/db';
 import { closeConversation, transferConversation } from '../domain/conversation.js';
 import { exigirPermission } from '../session.js';
@@ -195,7 +195,7 @@ export class ManagementOperationsController {
         { conversationId: id, forQueueId: corpo?.forQueueId ?? null, forAgentId: corpo?.forAgentId ?? null, reason: null },
       );
       await registrarAuditoria(tx, sessao.tenantId, {
-        ator: { tipo: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
+        ator: { type: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
         depois: { acao: 'transferiu_no_monitoramento', para: resultado.forConversationId },
       });
       return { para_conversa_id: resultado.forConversationId };
@@ -216,10 +216,10 @@ export class ManagementOperationsController {
       await exigirPermission(tx, sessao.userId, 'conversa.encerrar');
       const resultado = await closeConversation(
         { tenantId: sessao.tenantId, agentId: sessao.userId, exigirAssignment: false },
-        { conversationId: id, etiquetaIds: corpo?.etiqueta_ids, etiquetaId: corpo?.etiqueta_id },
+        { conversationId: id, etiquetaIds: corpo?.etiqueta_ids, etiquetaIds: corpo?.etiqueta_id },
       );
       await registrarAuditoria(tx, sessao.tenantId, {
-        ator: { tipo: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
+        ator: { type: 'usuario', id: sessao.userId }, acao: 'alterou', objetoTipo: 'conversa', objetoId: id,
         depois: { acao: 'finalizou_no_monitoramento' },
       });
       return { estado: resultado.state };

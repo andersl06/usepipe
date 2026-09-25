@@ -1,7 +1,7 @@
 import type { Campos, Resultado } from './campos.js';
 import { and, eq } from 'drizzle-orm';
-import { CATEGORIAS_TEMPLATE, channel, templateMensagem as templateMessage } from '@pipe/db/schema';
-import type { TransacaoPipe as TransactionPipe, Ator } from '@pipe/db';
+import { CATEGORIAS_TEMPLATE, channel, templateMessage as templateMessage } from '@pipe/db/schema';
+import type { TransactionPipe as TransactionPipe, Ator } from '@pipe/db';
 import { PipeError } from '../../../errors.js';
 import { CABECALHOS_TEMPLATE, createResponseReady } from '../communication.js';
 
@@ -55,9 +55,9 @@ export async function salvarRespostaPronta(
   return comoResultado(async () => {
     await createResponseReady(tx, tid, ator.id ?? '', {
       shortcut: String(data.get('atalho') ?? ''),
-      titulo: String(data.get('titulo') ?? ''),
-      corpo: String(data.get('corpo') ?? ''),
-      categoria: data.get('categoria'),
+      title: String(data.get('titulo') ?? ''),
+      body: String(data.get('corpo') ?? ''),
+      category: data.get('categoria'),
     });
     recarregar();
   });

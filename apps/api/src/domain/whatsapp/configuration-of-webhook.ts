@@ -81,7 +81,7 @@ export async function configurarWebhook(
   const lerSaude = async (): Promise<SaudeDoNumero> => {
     if (saude) return saude;
     try {
-      saude = await buscarSaude({ tokenAccess: token, numeroId, wabaId });
+      saude = await buscarSaude({ tokenAccess: token, numberId: numeroId, wabaId });
     } catch (erro) {
       // Sem saúde, a decisão conservadora do original: não registrar.
       console.error(`[whatsapp] a checagem de saúde falhou: ${asError(erro).message}`);

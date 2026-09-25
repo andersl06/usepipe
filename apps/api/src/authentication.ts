@@ -241,7 +241,7 @@ export async function autenticar(cabecalho: string | undefined): Promise<Context
     tenantId: linha.tenant_id,
     keyId: linha.id,
     escopos: linha.scopes ?? [],
-    flowId: linha.fluxo_id,
+    flowId: linha.flowId,
   };
 }
 

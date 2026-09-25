@@ -27,7 +27,7 @@ import type {
   Saida,
   ServicosDoMotor,
 } from '@pipe/core';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
 import { emitir } from '../webhooks-saida.js';
 import { distribuirConversation } from './distribution.js';
@@ -112,7 +112,7 @@ export async function flowPublishedOfChannel(
      limit 1
   `);
   const linha = rows[0];
-  return linha ? { flowId: linha.fluxo_id, versaoId: linha.versao_id } : null;
+  return linha ? { flowId: linha.flowId, versaoId: linha.versao_id } : null;
 }
 
 type LineBlock = { id: string; code: string; content: Record<string, unknown> };
@@ -161,15 +161,15 @@ export async function loadFlow(
   }
 
   const states = blocos.map((b) => {
-    const state: Record<string, unknown> = { ...b.conteudo };
+    const state: Record<string, unknown> = { ...b.content };
     // `original` é o estado do editor guardado na importação; o motor não o lê.
     delete state['original'];
-    return { ...state, id: b.codigo, outputs: saidas.get(b.id) ?? [] } as State;
+    return { ...state, id: b.code, outputs: saidas.get(b.id) ?? [] } as State;
   });
   const global = versions[0]?.global ?? {};
   return {
     flow: { ...global, id: publicado.flowId, states } as FlowBlip,
-    blockByCode: new Map(blocos.map((b) => [b.codigo, b.id])),
+    blockByCode: new Map(blocos.map((b) => [b.code, b.id])),
   };
 }
 
@@ -255,7 +255,7 @@ export async function rodarFlowInInbound(
   }
 
   const roteador = publicado.router ?? null;
-  if (execution && execution.fluxo_id !== publicado.flowId) {
+  if (execution && execution.flowId !== publicado.flowId) {
     // O roteador mandou o contato para outro serviço: a execução do anterior termina aqui.
     await tx.execute(sql`
       update execucao_fluxo set estado = 'concluida', encerrada_em = now() where id = ${execution.id}
@@ -598,23 +598,23 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
       update process_http_execucao set resposta = ${JSON.stringify(resposta)}::jsonb,
              estado = 'respondida', atualizado_em = now() where id = ${processoId}
     `);
-    const publicado = await flowPublishedOfChannel(tx, p.canal_id, p.contato_id);
+    const publicado = await flowPublishedOfChannel(tx, p.channelId, p.contactId);
     if (!publicado) return;
     const retomada = await rodarFlowInInbound(tx, publicado, {
       tenantId: encontrado.tenant_id,
       conversation: {
-        id: p.conversationId, nova: false, queueId: p.fila_id,
-        agentId: p.atendente_id, queueDefaultId: p.fila_padrao_id,
+        id: p.conversationId, nova: false, queueId: p.queueId,
+        agentId: p.agentId, queueDefaultId: p.queueDefaultId,
       },
-      contactId: p.contato_id,
+      contactId: p.contactId,
       message: {
         id: typeof p.entrada['id'] === 'string' ? p.entrada['id'] : null,
         idProvedor: String(p.entrada['id_provedor'] ?? ''),
         type: String(p.entrada['tipo'] ?? 'texto'),
-        conteudo: typeof p.entrada['conteudo'] === 'string' ? p.entrada['conteudo'] : null,
+        content: typeof p.entrada['conteudo'] === 'string' ? p.entrada['conteudo'] : null,
       },
     }, {
-      executionId: p.execucao_id,
+      executionId: p.executionId,
       cursor: { lista: p.lista, estadoId: p.bloco_codigo || null, indice: p.indice, resposta },
       resposta,
     });
@@ -628,7 +628,7 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
        where m.conversa_id = ${p.conversationId} and m.direcao = 'entrada'
          and not exists (
            select 1 from execucao_passo ep
-            where ep.execucao_id = ${p.execucao_id}
+            where ep.execucao_id = ${p.executionId}
               and ep.entrada ->> 'id_provedor' = m.id_provedor
          )
        order by m.criada_em, m.id
@@ -638,14 +638,14 @@ export async function executarProcessHttp(processoId: string): Promise<string[]>
         tenantId: encontrado.tenant_id,
         conversation: {
           id: p.conversationId, nova: false, queueId: null,
-          agentId: null, queueDefaultId: p.fila_padrao_id,
+          agentId: null, queueDefaultId: p.queueDefaultId,
         },
-        contactId: p.contato_id,
+        contactId: p.contactId,
         message: {
           id: mensagem.id,
-          idProvedor: mensagem.id_provedor,
-          type: mensagem.tipo,
-          conteudo: mensagem.conteudo,
+          idProvedor: mensagem.idProvider,
+          type: mensagem.type,
+          content: mensagem.content,
         },
       });
       if (atual.processHttpId) novosProcessos.push(atual.processHttpId);
@@ -769,7 +769,7 @@ async function transbordar(
     tenantId: e.tenantId,
     conversationId: e.conversation.id,
     type: 'criada',
-    em,
+    at: em,
     queueId,
     data,
   });
@@ -777,7 +777,7 @@ async function transbordar(
     tenantId: e.tenantId,
     conversationId: e.conversation.id,
     type: 'enfileirada',
-    em,
+    at: em,
     queueId,
     data,
   });
@@ -858,7 +858,7 @@ async function gravarRespostaDoBot(
      where id = ${conversationId}
   `);
   // `usuarioId` nulo é o que separa, na métrica, a saída do bot da do atendente.
-  await registrarEvento(tx, { tenantId, conversationId, type: 'mensagem_saida', em });
+  await registrarEvento(tx, { tenantId, conversationId, type: 'mensagem_saida', at: em });
   await emitir(tx, tenantId, 'mensagem.criada', {
     mensagem_id: messageId,
     conversa_id: conversationId,
@@ -932,8 +932,8 @@ async function loadContact(
   return c
     ? {
         identity: contactId,
-        name: c.nome,
-        phoneNumber: c.telefone_e164,
+        name: c.name,
+        phoneNumber: c.phoneE164,
         email: c.email,
         extras: c.atributos ?? {},
       }
@@ -1118,7 +1118,7 @@ export async function importFlowOfBlip(
   return {
     flowId,
     versaoId,
-    versao,
+    versaoId: versao,
     publicado: pedido.publicar,
     report: importReport(flow),
     errorOfValidation,

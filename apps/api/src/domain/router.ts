@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import type { FlowPublished } from './flow.js';
 
 /**
@@ -112,7 +112,7 @@ export async function serviceOfRouter(
       compartilhaContext: escolhido.usesContext,
       contexto: position?.context ?? {},
       reiniciar: atual !== undefined && position!.reiniciar,
-      blockInicial: atual !== undefined ? position!.bloco_inicial : null,
+      blockInicial: atual !== undefined ? position!.blockInicial : null,
     },
   };
 }

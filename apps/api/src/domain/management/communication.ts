@@ -1,8 +1,8 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
-import { channel, flow, respostaPronta, templateMensagem as templateMessage } from '@pipe/db/schema';
+import { channel, flow, respostaPronta, templateMessage as templateMessage } from '@pipe/db/schema';
 import type { CATEGORIAS_TEMPLATE } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 
@@ -33,7 +33,7 @@ export type CategoriaTemplate = (typeof CATEGORIAS_TEMPLATE)[number];
 export const ROTULO_CATEGORIA_TEMPLATE: Record<CategoriaTemplate, string> = {
   utilidade: 'Utilidade',
   marketing: 'Marketing',
-  authentication: 'Autenticação',
+  autenticacao: 'Autenticação',
 };
 
 export const ROTULO_STATUS_META: Record<string, string> = {
@@ -49,7 +49,7 @@ export type CabecalhoTemplate = (typeof CABECALHOS_TEMPLATE)[number];
 export const ROTULO_CABECALHO: Record<CabecalhoTemplate, string> = {
   nenhum: 'Sem cabeçalho',
   texto: 'Texto',
-  image: 'Imagem',
+  imagem: 'Imagem',
   video: 'Vídeo',
   document: 'Documento',
 };
@@ -89,10 +89,10 @@ export async function carregarRespostasProntas(
         titulo: respostaPronta.titulo,
         corpo: respostaPronta.corpo,
         categoria: respostaPronta.categoria,
-        ativa: respostaPronta.ativa,
+        ativa: respostaPronta.active,
       })
       .from(respostaPronta)
-      .where(eq(respostaPronta.escopo, 'empresa'))
+      .where(eq(respostaPronta.scope, 'empresa'))
       .orderBy(asc(respostaPronta.titulo));
   });
 }
@@ -238,7 +238,7 @@ async function atalhoEmUso(
     .where(
       and(
         eq(respostaPronta.tenantId, tid),
-        eq(respostaPronta.escopo, 'empresa'),
+        eq(respostaPronta.scope, 'empresa'),
         eq(respostaPronta.atalho, atalho),
         excetoId ? ne(respostaPronta.id, excetoId) : undefined,
       ),
@@ -259,13 +259,13 @@ async function respostaProntaViva(
       titulo: respostaPronta.titulo,
       corpo: respostaPronta.corpo,
       categoria: respostaPronta.categoria,
-      ativa: respostaPronta.ativa,
+      ativa: respostaPronta.active,
     })
     .from(respostaPronta)
     .where(
       and(
         eq(respostaPronta.tenantId, tid),
-        eq(respostaPronta.escopo, 'empresa'),
+        eq(respostaPronta.scope, 'empresa'),
         eq(respostaPronta.id, id),
       ),
     )
@@ -303,7 +303,7 @@ export async function createResponseReady(
   if (!criada) throw PipeError.request('response_not_created', 'Não consegui gravar a resposta.');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: userId },
+    ator: { type: 'usuario', id: userId },
     acao: 'criou',
     objetoTipo: 'resposta_pronta',
     objetoId: criada.id,
@@ -354,7 +354,7 @@ export async function editarRespostaPronta(
       titulo: depois.title,
       corpo: depois.body,
       categoria: depois.category,
-      ativa: depois.ativa,
+      active: depois.ativa,
       atualizadoEm: new Date(),
     })
     .where(and(eq(respostaPronta.tenantId, tid), eq(respostaPronta.id, id)))
@@ -364,12 +364,12 @@ export async function editarRespostaPronta(
       titulo: respostaPronta.titulo,
       corpo: respostaPronta.corpo,
       categoria: respostaPronta.categoria,
-      ativa: respostaPronta.ativa,
+      ativa: respostaPronta.active,
     });
   if (!gravada) throw PipeError.naoEncontrado('resposta pronta');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'resposta_pronta',
     objetoId: id,
@@ -391,7 +391,7 @@ export async function excluirRespostaPronta(
   await tx.delete(respostaPronta).where(and(eq(respostaPronta.tenantId, tid), eq(respostaPronta.id, id)));
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'excluiu',
     objetoTipo: 'resposta_pronta',
     objetoId: id,

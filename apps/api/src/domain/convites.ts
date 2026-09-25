@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { InboundRefused, createToken, hashDoToken } from '@pipe/authentication';
 import type { PessoaDoGoogle } from '@pipe/authentication';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { enviarEmailSemDerrubar } from './email.js';
@@ -234,7 +234,7 @@ export async function resendInvitation(
     const alvo = rows[0];
     if (!alvo) throw PipeError.naoEncontrado('Convite');
     return {
-      convite: await emitirInvitation(tx, tenantId, { email: alvo.email, role: alvo.papel, createdBy }),
+      convite: await emitirInvitation(tx, tenantId, { email: alvo.email, role: alvo.role, createdBy }),
       tenantNome: await nomeDoTenant(tx),
     };
   });

@@ -59,7 +59,7 @@ export async function executarConfigurationManual(pedido: {
     const religado = await reautorizar({
       tenantId: pedido.tenantId,
       channelId: pedido.channelId,
-      numeroId: previa.numberId,
+      numberId: previa.numberId,
       wabaId: previa.wabaId,
       token: pedido.token ?? '',
       info: {
@@ -102,7 +102,7 @@ export async function executarConfigurationManual(pedido: {
     },
     token: pedido.token ?? '',
     origin: 'manual_setup_v2',
-    nome: pedido.name?.trim() || previa.nomeSugerido,
+    name: pedido.name?.trim() || previa.nomeSugerido,
     appSecret: pedido.appSecret,
     appId: previa.appId,
   });

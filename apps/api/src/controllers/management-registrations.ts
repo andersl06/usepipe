@@ -10,7 +10,7 @@ import {
   Query,
   Req,
 } from '@nestjs/common';
-import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { WithSession, sessionOf } from '../session.js';
@@ -586,7 +586,7 @@ export class ManagementRegistrationsController {
     const sessao = sessionOf(requisicao);
     const acao = Object.hasOwn(ACTIONS, nome) ? ACTIONS[nome] : undefined;
     if (!acao) throw PipeError.naoEncontrado('ação');
-    const ator: Ator = { tipo: 'usuario', id: sessao.userId };
+    const ator: Ator = { type: 'usuario', id: sessao.userId };
     const campos = new Campos(corpo?.campos ?? {});
     return noTenant(sessao.tenantId, (tx) => acao(tx, sessao.tenantId, ator, campos));
   }

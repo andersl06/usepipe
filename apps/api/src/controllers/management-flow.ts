@@ -162,7 +162,7 @@ export class ManagementFlowController {
       return await noTenant(session.tenantId, (tx) =>
         createFlow(tx, session.tenantId, session.userId, {
           name: String(corpo.name ?? ''),
-          tipo: corpo.type === 'roteador' ? 'roteador' : 'fluxo',
+          type: corpo.type === 'roteador' ? 'roteador' : 'fluxo',
           image: corpo.image ?? null,
         }),
       );

@@ -1,7 +1,7 @@
 import { and, count, eq, gte, isNotNull, lt } from 'drizzle-orm';
 import { compararIdentificador, mediaPonderadaDePares, taxaDeResposta } from '@pipe/core';
 import { conversa as conversation, pesquisa, respostaPesquisa } from '@pipe/db/schema';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
@@ -137,13 +137,13 @@ export async function loadSatisfaction(
           escalaMin: l.escalaMin,
           escalaMax: l.escalaMax,
           enviadas: 0,
-          respostas: 0,
+          responses: 0,
           pares: new Map(),
           classes: new Map(),
         } satisfies Acumulador);
       g.enviadas += 1;
       if (l.nota !== null) {
-        g.respostas += 1;
+        g.responses += 1;
         const par = g.pares.get(l.pesquisaId) ?? { soma: 0, contagem: 0 };
         par.soma += l.nota;
         par.contagem += 1;

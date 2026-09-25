@@ -1,9 +1,9 @@
 import { randomBytes } from 'node:crypto';
 import { and, desc, eq, isNull, sql } from 'drizzle-orm';
 import { cifrar, diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
 import { keyApi, user, webhookSaida } from '@pipe/db/schema';
-import { TIPOS_AUTENTICACAO_WEBHOOK as TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
+import { TYPES_AUTHENTICATION_WEBHOOK as TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 import { hashOfSecret } from '../../authentication.js';
@@ -50,7 +50,7 @@ import { EDITAR_FLOW } from './cycle-of-lifetime-of-flow.js';
 export const MANAGE_KEY = 'chave_api.gerenciar';
 export const MANAGE_INTEGRATION = 'automacao.integracao.gerenciar';
 
-const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
+const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
 
 async function flowExists(tx: TransactionPipe, tenantId: string, fluxoId: string): Promise<void> {
   const { rows } = await tx.execute<{ id: string }>(sql`
@@ -116,7 +116,7 @@ function asKey(linha: LineKey): KeyOfFlow {
   return {
     id: linha.id,
     name: linha.name,
-    prefixo: linha.prefix,
+    prefix: linha.prefix,
     escopos: linha.scopes ?? [],
     criadaEm: linha.criadoEm.toISOString(),
     ultimoUsoEm: linha.ultimoUsoEm?.toISOString() ?? null,
@@ -362,7 +362,7 @@ function comoWebhook(linha: LinhaWebhook): WebhookDeSaida {
     id: linha.id,
     url: linha.url,
     eventos: linha.eventos ?? [],
-    ativo: linha.active,
+    active: linha.active,
     criadoEm: linha.criadoEm.toISOString(),
     authentication: {
       type: linha.typeAuthentication as TypeAuthenticationWebhook,
@@ -381,9 +381,9 @@ const COLUNAS_WEBHOOK = {
   eventos: webhookSaida.eventos,
   ativo: webhookSaida.ativo,
   criadoEm: webhookSaida.criadoEm,
-  tipoAutenticacao: webhookSaida.tipoAutenticacao,
-  autenticacaoUsuario: webhookSaida.autenticacaoUsuario,
-  oauth2UrlAutorizacao: webhookSaida.oauth2UrlAutorizacao,
+  tipoAutenticacao: webhookSaida.typeAuthentication,
+  autenticacaoUsuario: webhookSaida.authenticationUser,
+  oauth2UrlAutorizacao: webhookSaida.oauth2UrlAuthorization,
   oauth2ClientId: webhookSaida.oauth2ClientId,
   cabecalhos: webhookSaida.cabecalhos,
 };
@@ -493,7 +493,7 @@ function authenticationChecked(valor: unknown): AuthenticationWebhookInbound {
       );
     }
     confirmarUrlSegura(urlAuthorization);
-    return { type: 'oauth2_client_credentials', urlAuthorization, clientId, clientSecret };
+    return { type: 'oauth2_client_credentials', urlAutorizacao: urlAuthorization, clientId, clientSecret };
   }
 
   return { type: 'nenhuma' };
@@ -597,7 +597,7 @@ export async function createWebhook(
     },
   });
 
-  return { ...comoWebhook(criado), secret };
+  return { ...comoWebhook(criado), secret: segredo };
 }
 
 /** Linha completa, com os segredos — só para entrega/teste (`testarWebhook`) e edição/exclusão. */
@@ -615,8 +615,8 @@ async function webhookVivo(
   const [atual] = await tx
     .select({
       ...COLUNAS_WEBHOOK,
-      segredo: webhookSaida.segredo,
-      autenticacaoSenha: webhookSaida.autenticacaoSenha,
+      segredo: webhookSaida.secret,
+      autenticacaoSenha: webhookSaida.authenticationPassword,
       oauth2ClientSecret: webhookSaida.oauth2ClientSecret,
     })
     .from(webhookSaida)
@@ -879,7 +879,7 @@ async function montarConexao(
     .limit(1);
 
   return {
-    flowId,
+    flowId: fluxoId,
     endpoint: `${(process.env['PIPE_API_URL_PUBLICA'] ?? 'https://api.pipe.app').replace(/\/$/, '')}/v1`,
     keyPrefix: key?.prefixo ?? null,
     urlMessages: await urlDoWebhookPara(tx, tenantId, EVENTS_MESSAGES),

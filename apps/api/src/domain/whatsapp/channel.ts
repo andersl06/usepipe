@@ -107,7 +107,7 @@ export async function atualizarChannel(
     ...canal,
     config,
     wabaId: colunas.wabaId ?? canal.wabaId,
-    numeroId: colunas.numberId ?? canal.numberId,
+    numberId: colunas.numberId ?? canal.numberId,
   };
 }
 

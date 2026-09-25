@@ -11,7 +11,7 @@ import {
   regraSla,
   tenant,
 } from '@pipe/db/schema';
-import type { TransacaoPipe as TransactionPipe, Ator } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe, Ator } from '@pipe/db';
 import { exigirPermission } from '../../session.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
@@ -149,12 +149,12 @@ export async function loadData(tx: TransactionPipe): Promise<{
         id: etiqueta.id,
         nome: etiqueta.nome,
         escopo: etiqueta.escopo,
-        obrigatoriaNoEncerramento: etiqueta.obrigatoriaNoEncerramento,
+        obrigatoriaNoEncerramento: etiqueta.requiredInClosure,
         usos: count(conversationLabel.conversaId),
       })
       .from(etiqueta)
       .leftJoin(conversationLabel, eq(conversationLabel.etiquetaId, etiqueta.id))
-      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.escopo, etiqueta.obrigatoriaNoEncerramento)
+      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.escopo, etiqueta.requiredInClosure)
       .orderBy(asc(etiqueta.nome));
 
     const channels = await tx
@@ -208,16 +208,16 @@ export async function loadChannels(tx: TransactionPipe): Promise<ChannelDetailed
        conexão perde a variável de sessão do RLS. */
     const caixas = await tx
       .select({
-        canalId: inbox.canalId,
+        canalId: inbox.channelId,
         id: inbox.id,
         nome: inbox.nome,
         filaPadrao: queue.nome,
         abertas: count(conversation.id),
       })
       .from(inbox)
-      .leftJoin(queue, eq(queue.id, inbox.filaPadraoId))
+      .leftJoin(queue, eq(queue.id, inbox.queueDefaultId))
       .leftJoin(conversation, and(eq(conversation.inboxId, inbox.id), isNull(conversation.encerradaEm)))
-      .groupBy(inbox.canalId, inbox.id, inbox.nome, queue.nome)
+      .groupBy(inbox.channelId, inbox.id, inbox.nome, queue.nome)
       .orderBy(asc(inbox.nome));
 
     return canais.map((c) => ({
@@ -302,12 +302,12 @@ export async function loadGeneral(tx: TransactionPipe): Promise<SettingsGeneral>
       .select({
         id: etiqueta.id,
         nome: etiqueta.nome,
-        obrigatoria: etiqueta.obrigatoriaNoEncerramento,
+        obrigatoria: etiqueta.requiredInClosure,
         usos: count(conversationLabel.conversaId),
       })
       .from(etiqueta)
       .leftJoin(conversationLabel, eq(conversationLabel.etiquetaId, etiqueta.id))
-      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.obrigatoriaNoEncerramento)
+      .groupBy(etiqueta.id, etiqueta.nome, etiqueta.requiredInClosure)
       .orderBy(asc(etiqueta.nome));
 
     const first = pesquisas[0];
@@ -361,7 +361,7 @@ export async function writeIdentity(
   ator: Ator,
   inbound: IdentityForWrite,
 ): Promise<Recording> {
-  if (ator.tipo === 'usuario' && ator.id) {
+  if (ator.type === 'usuario' && ator.id) {
     await exigirPermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
   }
   return consultar(tx, async (tx) => {
@@ -405,7 +405,7 @@ export async function gravarPesquisa(
   ator: Ator,
   entrada: PesquisaParaGravar,
 ): Promise<Recording> {
-  if (ator.tipo === 'usuario' && ator.id) {
+  if (ator.type === 'usuario' && ator.id) {
     await exigirPermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
   }
   const { id, ...values } = entrada;
@@ -471,14 +471,14 @@ export async function writeLabelsOfClosure(
   ator: Ator,
   escolhidas: readonly string[],
 ): Promise<Recording> {
-  if (ator.tipo === 'usuario' && ator.id) {
+  if (ator.type === 'usuario' && ator.id) {
     await exigirPermission(tx, ator.id, SETTINGS_GENERAL_MANAGE);
   }
   return consultar(tx, async (tx) => {
     const antes = await tx
       .select({ nome: etiqueta.nome })
       .from(etiqueta)
-      .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.obrigatoriaNoEncerramento, true)));
+      .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.requiredInClosure, true)));
 
     if (escolhidas.length > 0) {
       const validas = await tx
@@ -491,24 +491,24 @@ export async function writeLabelsOfClosure(
 
       await tx
         .update(etiqueta)
-        .set({ obrigatoriaNoEncerramento: true })
+        .set({ requiredInClosure: true })
         .where(and(eq(etiqueta.tenantId, tid), inArray(etiqueta.id, [...escolhidas])));
 
       await tx
         .update(etiqueta)
-        .set({ obrigatoriaNoEncerramento: false })
+        .set({ requiredInClosure: false })
         .where(and(eq(etiqueta.tenantId, tid), notInArray(etiqueta.id, [...escolhidas])));
     } else {
       await tx
         .update(etiqueta)
-        .set({ obrigatoriaNoEncerramento: false })
+        .set({ requiredInClosure: false })
         .where(eq(etiqueta.tenantId, tid));
     }
 
     const depois = await tx
       .select({ nome: etiqueta.nome })
       .from(etiqueta)
-      .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.obrigatoriaNoEncerramento, true)));
+      .where(and(eq(etiqueta.tenantId, tid), eq(etiqueta.requiredInClosure, true)));
 
     await registrarAuditoria(tx, tid, {
       ator: ator,

@@ -233,8 +233,8 @@ export class ConversationsController {
     const ator = atorDe(requisicao);
     const enfileirada = await sendMessage({
       tenantId: ator.tenantId,
-      conversaId: id,
-      atendenteId: ator.viaSession ? ator.userId : (corpo.atendente_id ?? null),
+      conversationId: id,
+      agentId: ator.viaSession ? ator.userId : (corpo.atendente_id ?? null),
       exigirAtribuicao: ator.viaSession,
       ...(corpo.type ? { tipo: corpo.type } : {}),
       texto: corpo.texto ?? null,
@@ -310,7 +310,7 @@ export class ConversationsController {
         agentId: ator.userId,
         exigirAssignment: ator.viaSession,
       },
-      { conversationId: id, etiquetaIds: corpo.etiqueta_ids, etiquetaId: corpo.etiqueta_id },
+      { conversationId: id, etiquetaIds: corpo.etiqueta_ids, etiquetaIds: corpo.etiqueta_id },
     );
     return { estado: r.state, reasonClosure: r.reason };
   }

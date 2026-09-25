@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { codigoDoPostgres } from './dominios.js';
@@ -101,13 +101,13 @@ export async function createLinkTracked(
       if (!linha) throw new Error('não criou o link');
       return {
         id: linha.id,
-        flowId,
+        flowId: fluxoId,
         nome,
         destinationUrl: pedido.destination,
         codigo,
         urlCurta: urlCurtaDe(codigo),
         cliques: 0,
-        criadoEm: new Date(linha.criado_em).toISOString(),
+        criadoEm: new Date(linha.createdAt).toISOString(),
       };
     } catch (error) {
       if (codigoDoPostgres(error) === '23505') continue;
@@ -147,12 +147,12 @@ export async function listarLinksRastreados(
   return rows.map((linha) => ({
     id: linha.id,
     flowId,
-    nome: linha.nome,
-    destinoUrl: linha.destino_url,
-    codigo: linha.codigo,
-    urlCurta: urlCurtaDe(linha.codigo),
+    nome: linha.name,
+    destinoUrl: linha.destinationUrl,
+    codigo: linha.code,
+    urlCurta: urlCurtaDe(linha.code),
     cliques: Number(linha.cliques),
-    criadoEm: new Date(linha.criado_em).toISOString(),
+    criadoEm: new Date(linha.createdAt).toISOString(),
   }));
 }
 
@@ -208,5 +208,5 @@ export async function redirecionarClique(
     `),
   );
 
-  return link.destino_url;
+  return link.destinationUrl;
 }

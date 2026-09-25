@@ -267,7 +267,7 @@ export class ManagementAnalyticsController {
           direction: direction && (DIRECTIONS_MESSAGE as readonly string[]).includes(direction)
             ? direction
             : undefined,
-          tipo: tipo && (TYPES_MESSAGE as readonly string[]).includes(tipo) ? tipo : undefined,
+          type: tipo && (TYPES_MESSAGE as readonly string[]).includes(tipo) ? tipo : undefined,
         },
         cursor,
         limite,

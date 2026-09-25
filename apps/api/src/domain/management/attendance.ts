@@ -23,7 +23,7 @@ import {
   inbox,
   user,
 } from '@pipe/db/schema';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
@@ -164,7 +164,7 @@ export async function loadAttendance(
       gte(conversation.encerradaEm, window.start),
       lt(conversation.encerradaEm, window.end),
       filter.queueId ? eq(conversation.filaId, filter.queueId) : undefined,
-      filter.agentId ? eq(conversation.agentId, filter.agentId) : undefined,
+      filter.agentId ? eq(conversation.atendenteId, filter.agentId) : undefined,
     ].filter((c) => c !== undefined);
 
     // Duas consultas em SÉRIE: dentro do `comTenant` nada roda em paralelo, sob
@@ -178,7 +178,7 @@ export async function loadAttendance(
       })
       .from(conversation)
       .leftJoin(queue, eq(queue.id, conversation.filaId))
-      .leftJoin(user, eq(user.id, conversation.agentId))
+      .leftJoin(user, eq(user.id, conversation.atendenteId))
       .innerJoin(inbox, eq(inbox.id, conversation.inboxId))
       .where(and(...recorte));
 

@@ -229,11 +229,11 @@ export async function enqueueDownloadMedia(job: JobMedia): Promise<void> {
       // Um por anexo: o empurrão de agora e o da varredura, se se cruzarem, viram UM
       // job — `baixarMidiaDoAnexo` também é idempotente por conta própria (`bytes = 0`
       // na condição do `select`), então isto é só para não gastar chamada à toa.
-      jobId: `midia-${job.attachmentId}`,
+      jobId: `midia-${job.anexoId}`,
       attempts: 1,
     });
   } catch (erro) {
-    console.error(`[midia] não enfileirou ${job.attachmentId}: ${(erro as Error).message}`);
+    console.error(`[midia] não enfileirou ${job.anexoId}: ${(erro as Error).message}`);
   }
 }
 
@@ -259,7 +259,7 @@ export function consumeDownloadMedia(): void {
         return pendentes.length;
       }
       const dados = job.data as JobMedia;
-      const r = await baixarMediaOfAttachment(dados.tenantId, dados.attachmentId);
+      const r = await baixarMediaOfAttachment(dados.tenantId, dados.anexoId);
       return r.state;
     },
     {
@@ -289,7 +289,7 @@ export async function scheduleSweepDownloadMedia(): Promise<void> {
       rodando = true;
       void (async () => {
         try {
-          for (const p of await midiasPendentes()) await baixarMediaOfAttachment(p.tenantId, p.attachmentId);
+          for (const p of await midiasPendentes()) await baixarMediaOfAttachment(p.tenantId, p.anexoId);
         } catch (erro) {
           console.error(`[midia] varredura em memória falhou: ${(erro as Error).message}`);
         } finally {

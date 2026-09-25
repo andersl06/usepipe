@@ -96,7 +96,7 @@ export async function buildAccountOfLogin(pessoa: {
   const cliente = await provisionCustomer({
     name: nome,
     slug: await slugLivre(enderecoOfAccount(email)),
-    plano: 'essencial',
+    plan: 'essencial',
     admin: email,
     // E-mail pessoal não reivindica domínio; corporativo também não, aqui:
     // domínio é o que dá entrada a TODO mundo daquele endereço, e isso se pede
@@ -188,7 +188,7 @@ export async function buildAccount(pedido: RequestOfAccount): Promise<AccountCre
   const cliente = await provisionCustomer({
     name: nome,
     slug: slugOfAccount(nome, email),
-    plano: 'essencial',
+    plan: 'essencial',
     admin: email,
   });
 

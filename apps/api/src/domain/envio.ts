@@ -128,13 +128,13 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
     // Atendente responde no que é dele. Conversa na fila (sem dono) também é recusada:
     // pegar a conversa é uma ação com evento próprio (`atribuida`), e deixar o envio
     // atribuir por tabela faria o relatório de TMR perder o marco.
-    if (pedido.exigirAtribuicao && conversation.atendente_id !== pedido.agentId) {
+    if (pedido.exigirAtribuicao && conversation.agentId !== pedido.agentId) {
       throw new PipeError(
         403,
         'conversation_of_other_agent',
         // O texto segue o da Blip ("Contato sendo atendido por outra pessoa. Para
         // atender, solicite a transferência a…"): diz o que houve e o que fazer.
-        conversation.atendente_id
+        conversation.agentId
           ? 'Contato sendo atendido por outra pessoa. Para atender, solicite a transferência.'
           : 'Esta conversa não está atribuída a você. Assuma a conversa antes de responder.',
       );
@@ -252,7 +252,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
       tenantId: pedido.tenantId,
       conversationId: conversation.id,
       type: 'mensagem_saida',
-      em: agora,
+      at: agora,
       userId: pedido.agentId ?? null,
       queueId: conversation.queueId,
     });
@@ -261,7 +261,7 @@ export async function sendMessage(pedido: PedidoDeEnvio): Promise<MessageQueued>
         tenantId: pedido.tenantId,
         conversationId: conversation.id,
         type: 'primeira_resposta',
-        em: agora,
+        at: agora,
         userId: pedido.agentId ?? null,
         queueId: conversation.queueId,
       });
@@ -393,8 +393,8 @@ export async function sendAttachments(pedido: RequestOfLoteOfAttachments): Promi
       await sendMessage({
         tenantId: pedido.tenantId,
         conversationId: pedido.conversationId,
-        atendenteId: pedido.agentId ?? null,
-        tipo: tipoDoMime(attachment.mime),
+        agentId: pedido.agentId ?? null,
+        type: tipoDoMime(attachment.mime),
         attachmentId: attachment.id,
         texto: i === 0 ? (pedido.texto ?? null) : null,
         exigirAtribuicao: pedido.exigirAssignment ?? false,

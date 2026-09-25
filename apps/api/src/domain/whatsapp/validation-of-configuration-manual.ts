@@ -101,7 +101,7 @@ export async function validateConfigurationManual(data: {
                 and (${eu}::uuid is null or id <> ${eu}::uuid)
            ) as id
   `);
-  if (rows[0]?.numero) throw recusa('Este número de WhatsApp já está conectado a outra caixa de entrada.');
+  if (rows[0]?.number) throw recusa('Este número de WhatsApp já está conectado a outra caixa de entrada.');
   if (rows[0]?.id) throw recusa('Este Phone Number ID já é usado por outra caixa de entrada do WhatsApp.');
 
   // `verify_template_access!`
@@ -142,7 +142,7 @@ export async function validateConfigurationManual(data: {
       : null;
   return {
     nomeVerificado,
-    numero,
+    number: numero,
     numeroId: String(achado.id),
     wabaId: String(wabaId),
     accessToTemplates: true,

@@ -56,9 +56,9 @@ export async function syncContact(
 
     const contact: ContactForEspelhar = {
       id: linha.id,
-      name: linha.nome,
+      name: linha.name,
       email: linha.email,
-      telefoneE164: linha.telefone_e164,
+      telefoneE164: linha.phoneE164,
       twentyPessoaId: linha.twenty_pessoa_id,
       empresaTwentyId: linha.empresa_twenty_id,
     };

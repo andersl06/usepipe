@@ -413,7 +413,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     telefone: string | null,
     email: string | null,
     atributos: Record<string, string>,
-  ): Pessoa => ({ id: randomUUID(), nome, telefone, email, atributos });
+  ): Pessoa => ({ id: randomUUID(), name: nome, telefone, email, atributos });
 
   const marcelo = pessoa('Marcelo Tavares', '+5531994714471', 'marcelo.tavares@exemplo.com.br', {
     Origem: 'Anúncio Meta',
@@ -451,8 +451,8 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
     pessoas.map((p) => ({
       id: p.id,
       tenantId,
-      nome: p.nome,
-      telefoneE164: p.telefone,
+      nome: p.name,
+      telefoneE164: p.phone,
       email: p.email,
       atributos: p.atributos,
     })),
@@ -589,7 +589,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       ultimaMensagemDe: c.lastMessageOf,
       janelaExpiraEm:
         c.lastOfContactAtras === null ? null : atras(c.lastOfContactAtras - 24 * HORA),
-      ...(c.emEsperaDesde ? { emEsperaDesde: atras(c.emEsperaDesde) } : {}),
+      ...(c.inWaitSince ? { emEsperaDesde: atras(c.inWaitSince) } : {}),
       ...(c.encerradaAtras
         ? { encerradaEm: atras(c.encerradaAtras), encerradaPor: anaId, motivoEncerramento: 'resolvido' }
         : {}),
@@ -700,7 +700,7 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
         'Bom dia. Segue em anexo o comprovante da transferência da mensalidade de setembro. ' +
         'Podem dar baixa, por favor?',
       atras: 40 * MIN,
-      tipo: 'documento',
+      type: 'documento',
     },
     // Diego — widget do site.
     {
@@ -764,16 +764,16 @@ export async function seedDemo(db: DatabasePipe): Promise<ResultSeedDemo> {
       direcao: f.de === 'contato' ? ('entrada' as const) : ('saida' as const),
       autorTipo: f.de,
       autorId: f.de === 'agent' ? anaId : null,
-      tipo: f.tipo ?? 'texto',
+      tipo: f.type ?? 'texto',
       conteudo: f.texto,
-      estadoEntrega: f.de === 'agent' ? (f.estado ?? 'enviada') : null,
+      estadoEntrega: f.de === 'agent' ? (f.state ?? 'enviada') : null,
       erroCodigo: f.errorCode ?? null,
       erroTexto: f.errorText ?? null,
-      respostaProntaId: f.respostaProntaId ?? null,
+      respostaProntaId: f.responseReadyId ?? null,
       criadaEm: atras(f.atras),
       entregueEm:
-        f.de === 'agent' && f.estado !== 'falhou' ? atras(f.atras - 20_000) : null,
-      lidaEm: f.estado === 'lida' ? atras(f.atras - 60_000) : null,
+        f.de === 'agent' && f.state !== 'falhou' ? atras(f.atras - 20_000) : null,
+      lidaEm: f.state === 'lida' ? atras(f.atras - 60_000) : null,
       dentroDaJanela: f.de === 'agent' ? (f.insideOfWindow ?? true) : null,
       categoriaCobranca: f.de === 'agent' ? ('livre' as const) : null,
     })),

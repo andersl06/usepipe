@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { exigirPermission } from '../session.js';
@@ -55,10 +55,10 @@ export async function listarEtiquetasDoTenant(
   `);
   return rows.map((r) => ({
     id: r.id,
-    nome: r.nome,
-    cor: r.cor,
-    escopo: r.escopo,
-    obrigatoriaNoEncerramento: r.obrigatoria_no_encerramento,
+    nome: r.name,
+    cor: r.color,
+    escopo: r.scope,
+    obrigatoriaNoEncerramento: r.requiredInClosure,
   }));
 }
 
@@ -76,12 +76,12 @@ async function carregarEtiqueta(
   );
   const etiqueta = rows[0];
   if (!etiqueta) throw PipeError.naoEncontrado('Etiqueta');
-  if (etiqueta.escopo !== alvo && etiqueta.escopo !== 'ambos') {
+  if (etiqueta.scope !== alvo && etiqueta.scope !== 'ambos') {
     throw PipeError.request(
       'label_of_other_scope',
       alvo === 'conversation'
-        ? `A etiqueta "${etiqueta.nome}" é de contato, não de conversa.`
-        : `A etiqueta "${etiqueta.nome}" é de conversa, não de contato.`,
+        ? `A etiqueta "${etiqueta.name}" é de contato, não de conversa.`
+        : `A etiqueta "${etiqueta.name}" é de conversa, não de contato.`,
     );
   }
   return etiqueta;
@@ -193,7 +193,7 @@ export async function unlabelConversation(
         acao: 'excluiu',
         objetoTipo: 'conversa_etiqueta',
         objetoId: conversa.id,
-        antes: { etiqueta_id: etiquetaId, etiqueta: rows[0]!.nome },
+        antes: { etiqueta_id: etiquetaId, etiqueta: rows[0]!.name },
       });
     }
     return { removida };
@@ -303,7 +303,7 @@ export async function unlabelContact(
         acao: 'excluiu',
         objetoTipo: 'contato_etiqueta',
         objetoId: contato.id,
-        antes: { etiqueta_id: etiquetaId, etiqueta: rows[0]!.nome },
+        antes: { etiqueta_id: etiquetaId, etiqueta: rows[0]!.name },
       });
     }
     return { removida };

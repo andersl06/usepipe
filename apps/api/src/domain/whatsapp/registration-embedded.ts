@@ -73,7 +73,7 @@ export async function executarRegistrationEmbedded(
       ? await reautorizar({
           tenantId: pedido.tenantId,
           channelId: pedido.channelId,
-          numeroId: pedido.numberId,
+          numberId: pedido.numberId,
           wabaId,
           token,
           info,
@@ -101,7 +101,7 @@ async function conferirSaude(channel: ChannelWhatsApp): Promise<void> {
   try {
     const saude = await buscarSaude({
       tokenAccess: texto(channel.config['tokenAcesso']),
-      numeroId: texto(channel.config['phoneNumberId']),
+      numberId: texto(channel.config['phoneNumberId']),
       wabaId: channel.wabaId,
     });
     if (numeroPendente(saude)) await pedirReauthorization(channel);

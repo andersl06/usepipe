@@ -9,7 +9,7 @@ import {
 } from '@pipe/core';
 import type { State, ExportDoEditor, FlowBlip, Saida } from '@pipe/core';
 import { registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
 import type {
   BuilderOfFlow,
   DesenhoDoBuilder,
@@ -73,7 +73,7 @@ import { exigirPermissionInFlow } from './team-of-flow.js';
 
 export const PUBLISH_FLOW = 'automacao.fluxo.publicar';
 
-const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
+const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
 
 /* ------------------------------------------------------------- O fluxo */
 
@@ -101,7 +101,7 @@ async function flowOfBuilder(
   // sendo permissão de conta: a origem não tem linha de publicação no mapa por bot.
   if (permission === EDITAR_FLOW) await exigirPermissionInFlow(tx, usuarioId, id, 'builder.escrever');
   else await exigirPermission(tx, usuarioId, permission);
-  if (atual.tipo === 'roteador') {
+  if (atual.type === 'roteador') {
     throw PipeError.conflito(
       'router_without_builder',
       'Roteador não tem Builder: ele só distribui a conversa entre os serviços. Edite o desenho no fluxo de cada serviço.',
@@ -253,11 +253,11 @@ async function desenhoDaVersao(tx: TransactionPipe, versaoId: string): Promise<D
 
   const flow: Record<string, unknown> = {};
   for (const block of blocos) {
-    const original = block.conteudo?.['original'];
-    flow[block.codigo] =
+    const original = block.content?.['original'];
+    flow[block.code] =
       original && typeof original === 'object'
         ? original
-        : stateForOEditor(block.codigo, block.conteudo ?? {}, saidas.get(block.id) ?? []);
+        : stateForOEditor(block.code, block.content ?? {}, saidas.get(block.id) ?? []);
   }
 
   const global = versions[0]?.global ?? {};
@@ -325,7 +325,7 @@ function compilar(desenho: unknown, fluxoId: string): Compilado {
   }
   return {
     flow: compilado,
-    desenho: { flow, globals },
+    desenho: { flow: fluxo, globals: globais },
     errors: flowErrors(compilado).map((e) => ({ bloco: e.stateId, mensagem: e.message })),
     naoSuportado: importReport(compilado).naoSuportado,
   };
@@ -458,7 +458,7 @@ export async function carregarBuilder(
   const desenho = carregada ? await desenhoDaVersao(tx, carregada.id) : DESENHO_PADRAO;
   const compilado = compilar(desenho, fluxoId);
   return {
-    flowId,
+    flowId: fluxoId,
     origem: rascunho ? 'rascunho' : publicada ? 'publicada' : 'padrao',
     versao: carregada,
     publicada,
@@ -504,7 +504,7 @@ export async function publicarRascunho(
   // onde mora a saída para um bloco que não existe, que `gravarBlocos` não grava)
   // e o que está em `bloco`/`transicao`, remontado como o motor vai remontar.
   const errors: BlockError[] = compilar(await desenhoDaVersao(tx, rascunho.id), fluxoId).errors;
-  const { flow } = await loadFlow(tx, { flowId, versaoId: rascunho.id });
+  const { flow } = await loadFlow(tx, { flowId: fluxoId, versaoId: rascunho.id });
   for (const e of flowErrors(flow)) {
     if (!errors.some((x) => x.block === e.stateId && x.mensagem === e.message)) {
       errors.push({ block: e.stateId, mensagem: e.message });

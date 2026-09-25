@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { noTenant } from '../../database.js';
 import type { ChannelResolved } from '../../database.js';
 import { emitir } from '../../webhooks-saida.js';
@@ -132,7 +132,7 @@ export async function aplicarEventsOfTemplate(channel: ChannelResolved, payload:
         `);
         for (const { id } of rows) {
           await registrarAuditoria(tx, channel.tenantId, {
-            ator: { tipo: 'sistema' },
+            ator: { type: 'sistema' },
             acao: 'alterou',
             objetoTipo: 'template_mensagem',
             objetoId: id,
@@ -165,7 +165,7 @@ export async function aplicarEventsOfTemplate(channel: ChannelResolved, payload:
       for (const { id } of rows) {
         const anterior = CATEGORIA[value?.previous_category ?? ''] ?? null;
         await registrarAuditoria(tx, channel.tenantId, {
-          ator: { tipo: 'sistema' },
+          ator: { type: 'sistema' },
           acao: 'alterou',
           objetoTipo: 'template_mensagem',
           objetoId: id,

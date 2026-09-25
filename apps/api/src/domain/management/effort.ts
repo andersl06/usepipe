@@ -7,7 +7,7 @@ import {
   type MessageEffort,
 } from '@pipe/core';
 import { attachment, conversa as conversation, message, user } from '@pipe/db/schema';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
@@ -71,7 +71,7 @@ export async function loadEffort(
         templateId: message.templateId,
         duracaoSeg: attachment.durationSeg,
         bytes: attachment.bytes,
-        atendenteId: conversation.agentId,
+        atendenteId: conversation.atendenteId,
       })
       .from(message)
       .innerJoin(conversation, eq(conversation.id, message.conversationId))

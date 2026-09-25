@@ -97,7 +97,7 @@ export class ContactsController {
     });
 
     const pagina = assemblePage(linhas, limite, (l) => ({
-      value: iso(l.criado_em) ?? '',
+      value: iso(l.createdAt) ?? '',
       id: l.id,
     }));
     return { data: pagina.data.map(asContact), page_info: pagina.page_info };
@@ -207,7 +207,7 @@ export class ContactsController {
       const atual = current[0];
       if (!atual) throw PipeError.naoEncontrado('Contato');
 
-      if (typeof telefone === 'string' && telefone && telefone !== atual.telefone_e164) {
+      if (typeof telefone === 'string' && telefone && telefone !== atual.phoneE164) {
         const { rows: conflitos } = await tx.execute<{ id: string }>(sql`
           select id from contato
            where tenant_id = ${session.tenantId}::uuid and telefone_e164 = ${telefone}
@@ -240,21 +240,21 @@ export class ContactsController {
 
       const mudanca = diferenca(
         {
-          nome: atual.nome,
+          nome: atual.name,
           email: atual.email,
-          telefone_e164: atual.telefone_e164,
+          telefone_e164: atual.phoneE164,
           documento: atual.document,
         },
         {
-          nome: gravado.nome,
+          nome: gravado.name,
           email: gravado.email,
-          telefone_e164: gravado.telefone_e164,
+          telefone_e164: gravado.phoneE164,
           documento: gravado.document,
         },
       );
       if (Object.keys(mudanca.depois).length > 0 || atributos !== undefined) {
         await registrarAuditoria(tx, session.tenantId, {
-          ator: { tipo: 'usuario', id: session.userId },
+          ator: { type: 'usuario', id: session.userId },
           acao: 'alterou',
           objetoTipo: 'contato',
           objetoId: id,
@@ -313,12 +313,12 @@ export class QueuesController {
       return rows;
     });
 
-    const page = assemblePage(linhas, limite, (l) => ({ value: l.nome, id: l.id }));
+    const page = assemblePage(linhas, limite, (l) => ({ value: l.name, id: l.id }));
     return {
       data: page.data.map((l) => ({
         id: l.id,
-        nome: l.nome,
-        cor: l.cor,
+        nome: l.name,
+        cor: l.color,
         ordem: l.order,
         ativa: l.active,
         capacidade_padrao: l.capacityDefault,
@@ -415,14 +415,14 @@ export class AgentsController {
       return rows;
     });
 
-    const pagina = assemblePage(linhas, limite, (l) => ({ value: l.nome, id: l.id }));
+    const pagina = assemblePage(linhas, limite, (l) => ({ value: l.name, id: l.id }));
     return {
       data: pagina.data.map((l) => ({
         id: l.id,
-        nome: l.nome,
+        nome: l.name,
         email: l.email,
-        estado: l.estado,
-        desde: iso(l.desde),
+        estado: l.state,
+        desde: iso(l.since),
         conversationsActive: Number(l.ativas),
       })),
       page_info: pagina.page_info,

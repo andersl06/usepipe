@@ -1,7 +1,7 @@
 import { and, asc, eq } from 'drizzle-orm';
 import { avaliarSla, alvoFulfillment, inicioDoAlvo, type AlvoSla, type Marcos } from '@pipe/core';
 import { regraSla } from '@pipe/db/schema';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 
 /**
  * Coluna SLA do monitoramento detalhado.

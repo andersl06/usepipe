@@ -106,7 +106,7 @@ export class ChannelsController {
       userId: sessao.userId,
       code: corpo.code,
       wabaId: corpo.waba_id,
-      numeroId: corpo.phone_number_id,
+      numberId: corpo.phone_number_id,
       coexistencia: corpo.coexistencia === true,
       channelId: corpo.canal_id,
     });
@@ -156,7 +156,7 @@ export class ChannelsController {
       tenantId: session.tenantId,
       userId: session.userId,
       wabaId: corpo.waba_id?.trim(),
-      numeroId: corpo.phone_number_id?.trim(),
+      numberId: corpo.phone_number_id?.trim(),
       token: corpo.access_token?.trim(),
       appSecret: corpo.app_secret?.trim(),
       nome: corpo.name,

@@ -2,7 +2,7 @@ import { and, eq, isNull, sql } from 'drizzle-orm';
 import { motivoInelegivel } from '@pipe/core';
 import type { MotivoInelegivel } from '@pipe/core';
 import { notaInterna, pausa, statusAgent } from '@pipe/db/schema';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import type { StateAgent } from '@pipe/contracts';
 import type { Campos, Resultado } from '../management/actions/campos.js';
 import { registrarEvento } from '../eventos.js';
@@ -60,7 +60,7 @@ export async function definirStatus(
       .values({ usuarioId: atendenteId, tenantId, state, desde: new Date() })
       .onConflictDoUpdate({
         target: statusAgent.usuarioId,
-        set: { state, desde: new Date() },
+        set: { estado: state, desde: new Date() },
       });
 
     // Sai da pausa anterior antes de abrir outra: pausa aberta em duplicidade conta
@@ -272,7 +272,7 @@ export async function atender(
       tenantId,
       conversationId: puxada.id,
       type: 'atribuida',
-      em,
+      at: em,
       userId: atendenteId,
       queueId: puxada.queueId,
     });
@@ -306,7 +306,7 @@ export async function transferInBulk(
   for (const conversationId of ids) {
     try {
       await transferConversation(
-        { tenantId, agentId, exigirAssignment: true },
+        { tenantId, agentId: atendenteId, exigirAssignment: true },
         { conversationId, forQueueId, forAgentId, reason: 'Transferência em massa' },
       );
       transferidas += 1;

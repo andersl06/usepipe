@@ -54,8 +54,8 @@ export class ClienteGraphMessengerDuble extends ClienteGraphMessenger {
   constructor(private readonly token = '') { super(); }
   fetchPage(): Promise<PageMessenger> { ClienteGraphMessengerDuble.chamadas.push({ acao: 'buscar_pagina' }); if (!this.token || this.token.startsWith('invalido')) return Promise.reject(new PipeError(502, 'meta_refused', 'Token inválido.')); const id = ClienteGraphMessengerDuble.idOfPage(this.token); return Promise.resolve({ id, name: 'Página de Ensaio' }); }
   checkSecretOfApp(segredo: string): Promise<boolean> { ClienteGraphMessengerDuble.chamadas.push({ acao: 'conferir_segredo' }); return Promise.resolve(!segredo.startsWith('bad')); }
-  assinarWebhook(paginaId: string): Promise<unknown> { ClienteGraphMessengerDuble.chamadas.push({ acao: 'assinar', pageId }); return Promise.resolve({ success: true }); }
-  desassinarWebhook(paginaId: string): Promise<unknown> { ClienteGraphMessengerDuble.chamadas.push({ acao: 'desassinar', pageId }); return Promise.resolve({ success: true }); }
+  assinarWebhook(paginaId: string): Promise<unknown> { ClienteGraphMessengerDuble.chamadas.push({ acao: 'assinar', pageId: paginaId }); return Promise.resolve({ success: true }); }
+  desassinarWebhook(paginaId: string): Promise<unknown> { ClienteGraphMessengerDuble.chamadas.push({ acao: 'desassinar', pageId: paginaId }); return Promise.resolve({ success: true }); }
   configurarPerfil(perfil: Record<string, unknown>): Promise<unknown> { ClienteGraphMessengerDuble.chamadas.push({ acao: 'perfil', perfil }); return Promise.resolve({ result: 'success' }); }
 }
 let fabrica: ((token?: string) => ClienteGraphMessenger) | null = null;

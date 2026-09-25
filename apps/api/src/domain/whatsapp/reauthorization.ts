@@ -46,7 +46,7 @@ export async function reautorizar(pedido: RequestOfReauthorization): Promise<Cha
   const atualizado = await atualizarChannel(
     channel,
     { tokenAcesso: pedido.token, phoneNumberId: numeroId, origem: 'embedded_signup' },
-    { wabaId: pedido.wabaId, numeroId },
+    { wabaId: pedido.wabaId, numberId: numeroId },
   );
 
   // "Update inbox name if business name changed", e o religamento do Pipe.

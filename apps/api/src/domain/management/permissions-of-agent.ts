@@ -1,13 +1,13 @@
 import { and, asc, eq, inArray, sql } from 'drizzle-orm';
 import {
   rolePermission,
-  permissao as permission,
+  permission as permission,
   user,
   userRole,
   userPermission,
 } from '@pipe/db/schema';
 import { registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 
@@ -64,7 +64,7 @@ const ROTULO_DA_ORIGEM: Record<string, string> = {
   "contato.editar": "Editar dados do contato",
 };
 
-const ator = (userId: string): Ator => ({ tipo: 'usuario', id: userId });
+const ator = (userId: string): Ator => ({ type: 'usuario', id: userId });
 
 export interface LineOfPermission {
   code: string;

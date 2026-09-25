@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, Get, HttpCode, Param, Post, Req } from '@nestjs/common';
 import { sql } from 'drizzle-orm';
-import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import { PipeError } from '../errors.js';
 import { WithSession, sessionOf } from '../session.js';
@@ -44,7 +44,7 @@ async function permissionsOf(tx: TransactionPipe, userId: string): Promise<strin
      where up.usuario_id = ${userId}::uuid
      order by 1
   `);
-  return rows.map((p) => p.codigo);
+  return rows.map((p) => p.code);
 }
 
 const READ_MEMBERS = 'conta.membros.ler';
@@ -115,7 +115,7 @@ export class ManagementAccountController {
       if (!permissions.includes(ESCREVER_MEMBERS)) {
         return falha('Você não tem permissão para gerenciar os membros deste contrato.');
       }
-      const ator: Ator = { tipo: 'usuario', id: session.userId };
+      const ator: Ator = { type: 'usuario', id: session.userId };
       for (const alvo of alvos) {
         const r = checkRecording(
           alvo.type === 'convite'
@@ -148,7 +148,7 @@ export class ManagementAccountController {
       if (!permissoes.includes(ESCREVER_MEMBERS)) {
         return falha('Você não tem permissão para gerenciar os membros deste contrato.');
       }
-      const ator: Ator = { tipo: 'usuario', id: sessao.userId };
+      const ator: Ator = { type: 'usuario', id: sessao.userId };
       for (const alvo of alvos) {
         const r = checkRecording(
           alvo.type === 'convite'
@@ -195,7 +195,7 @@ export class ManagementAccountController {
     return noTenant(sessao.tenantId, async (tx) => {
       const permissoes = await permissionsOf(tx, sessao.userId);
       if (!permissoes.includes(ESCREVER_MEMBERS)) throw PipeError.withoutPermission(ESCREVER_MEMBERS);
-      const ator: Ator = { tipo: 'usuario', id: sessao.userId };
+      const ator: Ator = { type: 'usuario', id: sessao.userId };
       return createCertificate(tx, sessao.tenantId, ator, corpo);
     });
   }
@@ -213,7 +213,7 @@ export class ManagementAccountController {
       if (!permissoes.includes(ESCREVER_MEMBERS)) {
         return falha('Você não tem permissão para gerenciar os certificados deste contrato.');
       }
-      const ator: Ator = { tipo: 'usuario', id: sessao.userId };
+      const ator: Ator = { type: 'usuario', id: sessao.userId };
       return checkRecording(await excluirCertificado(tx, sessao.tenantId, ator, id));
     });
   }
@@ -232,7 +232,7 @@ export class ManagementAccountController {
       if (!permissoes.includes(ESCREVER_MEMBERS)) {
         return falha('Você não tem permissão para gerenciar os certificados deste contrato.');
       }
-      const ator: Ator = { tipo: 'usuario', id: sessao.userId };
+      const ator: Ator = { type: 'usuario', id: sessao.userId };
       return checkRecording(await excluirHostDoCertificado(tx, sessao.tenantId, ator, id, hostId));
     });
   }

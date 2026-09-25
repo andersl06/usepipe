@@ -1,6 +1,6 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
 import { registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
 import { channel, flow } from '@pipe/db/schema';
 import type { ChannelOfFlow, ChannelOfFlowInScreen } from '@pipe/contracts';
 import { PipeError } from '../../errors.js';
@@ -37,7 +37,7 @@ import { exigirPermissionInFlow } from './team-of-flow.js';
 
 const CONNECT_CHANNEL = 'channels.escrever';
 
-const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
+const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
 
 /** O contato vivo do tenant, ou 404 — o `fetch_inbox` de `ciclo-de-vida-do-fluxo.ts`. */
 async function flowVivo(tx: TransactionPipe, tenantId: string, fluxoId: string) {
@@ -182,7 +182,7 @@ export async function connectChannelToFlow(
 
   await tx
     .update(flow)
-    .set({ canalId: alvo.id, atualizadoEm: new Date() })
+    .set({ channelId: alvo.id, atualizadoEm: new Date() })
     .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)));
 
   await registrarAuditoria(tx, tenantId, {
@@ -218,7 +218,7 @@ export async function disconnectChannelOfFlow(
 
   await tx
     .update(flow)
-    .set({ canalId: null, atualizadoEm: new Date() })
+    .set({ channelId: null, atualizadoEm: new Date() })
     .where(and(eq(flow.tenantId, tenantId), eq(flow.id, atual.id)));
 
   await registrarAuditoria(tx, tenantId, {

@@ -154,7 +154,7 @@ export async function checkDomain(
   });
 
   if (!linha?.tokenVerification) throw PipeError.naoEncontrado('Domínio');
-  const esperado = registroOfVerification(linha.dominio, linha.tokenVerification);
+  const esperado = registroOfVerification(linha.domain, linha.tokenVerification);
 
   let registros: string[][];
   try {
@@ -185,7 +185,7 @@ export async function checkDomain(
     // aparecer na primeira tela que formatar a data.
     return {
       id: linha.id,
-      dominio: linha.dominio,
+      dominio: linha.domain,
       verificadoEm: new Date(rows[0]!.verificado_em),
     };
   });

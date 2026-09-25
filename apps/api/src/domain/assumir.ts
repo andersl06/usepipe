@@ -50,18 +50,18 @@ export async function assumeConversation(
     await tx.execute(sql`
       insert into atribuicao (tenant_id, conversa_id, para_usuario_id, de_fila_id, motivo, por_usuario_id, em)
       values (${ator.tenantId}::uuid, ${conversationId}::uuid, ${ator.agentId}::uuid,
-              ${conversation.fila_id}, 'assumida_pelo_atendente', ${ator.agentId}::uuid, ${em})
+              ${conversation.queueId}, 'assumida_pelo_atendente', ${ator.agentId}::uuid, ${em})
     `);
 
     await registrarEvento(tx, {
       tenantId: ator.tenantId,
       conversationId,
       type: 'atribuida',
-      em,
+      at: em,
       userId: ator.agentId,
-      queueId: conversation.fila_id,
+      queueId: conversation.queueId,
     });
 
-    return { conversationId, filaId: conversation.fila_id };
+    return { conversationId, filaId: conversation.queueId };
   });
 }

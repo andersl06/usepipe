@@ -97,7 +97,7 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
     {
       id: 'access',
       title: 'Primeiro acesso do administrador',
-      estado: s.adminEntrou ? 'done' : 'pending',
+      state: s.adminEntrou ? 'done' : 'pending',
       resumo: s.adminEntrou
         ? 'O administrador já entrou pelo Google.'
         : 'Nenhum administrador entrou ainda. Ele entra pelo Google, com o e-mail provisionado.',
@@ -106,7 +106,7 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
     {
       id: 'whatsapp',
       title: 'Conectar o WhatsApp',
-      estado: temWhatsApp ? 'done' : s.channelsPending > 0 ? 'progress' : 'pending',
+      state: temWhatsApp ? 'done' : s.channelsPending > 0 ? 'progress' : 'pending',
       resumo: temWhatsApp
         ? `${quantos(s.channelsConectados, 'número conectado', 'números conectados')}.`
         : s.channelsPending > 0
@@ -119,7 +119,7 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
     {
       id: 'equipe',
       title: 'Convidar a equipe',
-      estado: s.members > 1 ? 'done' : s.convites > 0 ? 'progress' : 'pending',
+      state: s.members > 1 ? 'done' : s.convites > 0 ? 'progress' : 'pending',
       resumo:
         s.members > 1
           ? `${quantos(s.members, 'pessoa', 'pessoas')} com acesso.`
@@ -131,7 +131,7 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
     {
       id: 'queue',
       title: 'Criar a primeira fila com atendente',
-      estado: s.queuesWithAgent > 0 ? 'done' : 'pending',
+      state: s.queuesWithAgent > 0 ? 'done' : 'pending',
       resumo:
         s.queuesWithAgent > 0
           ? `${quantos(s.queuesWithAgent, 'fila', 'filas')} com atendente habilitado.`
@@ -149,7 +149,7 @@ export function montarPassos(s: SignalsOfDeployment, urlDoDesk: string): PassoOf
     {
       id: 'conversation',
       title: 'Atender a conversa de teste',
-      estado: s.conversationAtendida ? 'done' : 'pending',
+      state: s.conversationAtendida ? 'done' : 'pending',
       resumo: s.conversationAtendida
         ? 'Uma conversa já foi respondida pelo Desk.'
         : temWhatsApp

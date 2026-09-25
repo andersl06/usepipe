@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { tenant } from '@pipe/db/schema';
 
 /** Um intervalo em instantes, já no fuso da conta — o `Janela` de `lib/banco.ts` da Gestão. */
@@ -27,7 +27,7 @@ export async function windowOfToday(tx: TransactionPipe, fuso: string): Promise<
   );
   const linha = r.rows[0];
   if (!linha) throw new Error('não consegui calcular a janela de hoje');
-  return { inicio: new Date(linha.inicio), fim: new Date(linha.fim) };
+  return { inicio: new Date(linha.start), fim: new Date(linha.end) };
 }
 
 /** Do começo de `de` ao fim de `ate` (inclusivo), dias de calendário no fuso da conta. */
@@ -43,7 +43,7 @@ export async function windowOfDatas(
   );
   const linha = r.rows[0];
   if (!linha) throw new Error('período inválido');
-  return { inicio: new Date(linha.inicio), fim: new Date(linha.fim) };
+  return { inicio: new Date(linha.start), fim: new Date(linha.end) };
 }
 
 /** `AAAA-MM-DD` de um instante, no fuso da conta. */

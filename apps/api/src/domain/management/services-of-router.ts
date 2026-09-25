@@ -1,7 +1,7 @@
 import { and, asc, eq, ne } from 'drizzle-orm';
 import { alias } from 'drizzle-orm/pg-core';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
 import { flow, routerService } from '@pipe/db/schema';
 import type {
   DataOfServices,
@@ -45,7 +45,7 @@ export const NAME_OF_SERVICE_MAX = 60;
 export const EXPIRATION_MAX_MIN = 525_600;
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
-const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
+const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
 
 const colunasDoChatbot = {
   id: flow.id,
@@ -159,7 +159,7 @@ function conferido(pedido: Partial<RequestOfService>): Formulario {
     }
     expirationMin = n;
   }
-  return { name: nome, chatbotId, principal, persistente, expirationMin };
+  return { name: nome, chatbotId, principal, persistente, expiracaoMin: expirationMin };
 }
 
 /** Os conflitos do formulário com os outros serviços do mesmo roteador. */
@@ -325,7 +325,7 @@ export async function editarService(
     .update(routerService)
     .set({
       nome: f.name,
-      servicoId: f.chatbotId,
+      serviceId: f.chatbotId,
       principal: f.principal,
       persistente: f.persistente,
       expiracaoMin: f.expiracaoMin,

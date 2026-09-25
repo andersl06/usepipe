@@ -22,7 +22,7 @@ import {
   user,
 } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransacaoPipe as TransactionPipe, Ator } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe, Ator } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 import { corValida } from './colors-of-queue.js';
@@ -42,7 +42,7 @@ export const SCHEDULE_MANAGE = 'horario.gerenciar';
 /** Novo — migração 0030: nenhuma permissão do catálogo cobria motivo de pausa. */
 export const PAUSE_MANAGE = 'pausa.gerenciar';
 
-const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
+const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
 
 /**
  * Leitura das três telas de cadastro: filas, motivos de pausa e horários.
@@ -137,7 +137,7 @@ export async function loadQueues(tx: TransactionPipe): Promise<{
       const agent: AgentOfQueue = {
         id: m.usuarioId,
         name: m.nome,
-        estado: m.estado,
+        state: m.estado,
         capacity: m.override ?? padrao,
         temOverride: m.override !== null,
       };
@@ -199,8 +199,8 @@ export async function carregarPausas(tx: TransactionPipe, dias = 30): Promise<Us
       .select({
         id: motivoPausa.id,
         nome: motivoPausa.nome,
-        duracaoSugeridaMin: motivoPausa.duracaoSugeridaMin,
-        contaComoProdutivo: motivoPausa.contaComoProdutivo,
+        duracaoSugeridaMin: motivoPausa.durationSuggestedMin,
+        contaComoProdutivo: motivoPausa.accountAsProductive,
         ativo: motivoPausa.ativo,
       })
       .from(motivoPausa)
@@ -744,7 +744,7 @@ export async function loadRulesOfQueue(tx: TransactionPipe): Promise<{
     const caixas = await tx
       .select({ inbox: inbox.nome, fila: queue.nome })
       .from(inbox)
-      .leftJoin(queue, eq(queue.id, inbox.filaPadraoId))
+      .leftJoin(queue, eq(queue.id, inbox.queueDefaultId))
       .orderBy(asc(inbox.nome));
 
     return {
@@ -800,7 +800,7 @@ export async function writeRuleQueue(
   quemGrava: Ator,
   inbound: NewRuleOfQueue,
 ): Promise<Recording> {
-  if (quemGrava.tipo === 'usuario' && quemGrava.id) await exigirPermission(tx, quemGrava.id, RULE_MANAGE);
+  if (quemGrava.type === 'usuario' && quemGrava.id) await exigirPermission(tx, quemGrava.id, RULE_MANAGE);
   return consultar(tx, async (tx) => {
     // `regra_fila` não tem índice único de nome; a unicidade é regra desta
     // tela. Duas "Cobrança" fazem o gestor editar a que não está valendo.
@@ -854,7 +854,7 @@ export async function toggleActiveOfRuleQueue(
   quemAlterna: Ator,
   id: string,
 ): Promise<Recording> {
-  if (quemAlterna.tipo === 'usuario' && quemAlterna.id) await exigirPermission(tx, quemAlterna.id, RULE_MANAGE);
+  if (quemAlterna.type === 'usuario' && quemAlterna.id) await exigirPermission(tx, quemAlterna.id, RULE_MANAGE);
   return consultar(tx, async (tx) => {
     const [atual] = await tx
       .select({ nome: ruleQueue.nome, ativa: ruleQueue.active })
@@ -863,7 +863,7 @@ export async function toggleActiveOfRuleQueue(
       .limit(1);
     if (!atual) return { ok: false, erro: 'Regra não encontrada.' };
 
-    await tx.update(ruleQueue).set({ ativa: !atual.ativa }).where(eq(ruleQueue.id, id));
+    await tx.update(ruleQueue).set({ active: !atual.ativa }).where(eq(ruleQueue.id, id));
 
     await registrarAuditoria(tx, tid, {
       ator: quemAlterna,
@@ -1027,7 +1027,7 @@ export async function editarRuleQueue(
       .update(ruleQueue)
       .set({
         nome: depois.nome,
-        ordem: depois.ordem,
+        order: depois.ordem,
         combinador: depois.combinador,
         filaDestinoId: depois.filaDestinoId,
         atualizadoEm: new Date(),
@@ -1357,7 +1357,7 @@ export async function editarQueue(
       nome: depois.nome,
       cor: depois.cor,
       horarioId: depois.horarioId,
-      capacidadePadrao: depois.capacidadePadrao,
+      capacityDefault: depois.capacidadePadrao,
       ordem: depois.ordem,
       ativa: depois.ativa,
       atualizadoEm: new Date(),
@@ -1415,7 +1415,7 @@ export async function deleteQueue(
   const [comoPadrao] = await tx
     .select({ nome: inbox.nome })
     .from(inbox)
-    .where(and(eq(inbox.tenantId, tid), eq(inbox.filaPadraoId, id)))
+    .where(and(eq(inbox.tenantId, tid), eq(inbox.queueDefaultId, id)))
     .limit(1);
   if (comoPadrao) {
     throw PipeError.conflito(
@@ -1478,7 +1478,7 @@ export async function vincularAgentInQueue(
     .values({ tenantId: tid, queueId, usuarioId: agentId, capacidadeOverride: override })
     .onConflictDoUpdate({
       target: [queueAgent.queueId, queueAgent.userId],
-      set: { capacidadeOverride: override },
+      set: { capacityOverride: override },
     });
 
   // `Acao` de `@pipe/db` é fechado ('criou'/'alterou'/'excluiu'/'ativou'/'desativou');
@@ -1606,8 +1606,8 @@ async function motivoVivo(tx: TransactionPipe, tid: string, id: string) {
     .select({
       id: motivoPausa.id,
       nome: motivoPausa.nome,
-      duracaoSugeridaMin: motivoPausa.duracaoSugeridaMin,
-      contaComoProdutivo: motivoPausa.contaComoProdutivo,
+      duracaoSugeridaMin: motivoPausa.durationSuggestedMin,
+      contaComoProdutivo: motivoPausa.accountAsProductive,
       ativo: motivoPausa.ativo,
     })
     .from(motivoPausa)
@@ -1682,7 +1682,7 @@ export async function editarMotivoPausa(
     .update(motivoPausa)
     .set({
       nome: depois.nome,
-      duracaoSugeridaMin: depois.duracaoSugeridaMin,
+      durationSuggestedMin: depois.duracaoSugeridaMin,
       contaComoProdutivo: depois.contaComoProdutivo,
       ativo: depois.ativo,
     })
@@ -1690,8 +1690,8 @@ export async function editarMotivoPausa(
     .returning({
       id: motivoPausa.id,
       nome: motivoPausa.nome,
-      duracaoSugeridaMin: motivoPausa.duracaoSugeridaMin,
-      contaComoProdutivo: motivoPausa.contaComoProdutivo,
+      duracaoSugeridaMin: motivoPausa.durationSuggestedMin,
+      contaComoProdutivo: motivoPausa.accountAsProductive,
       ativo: motivoPausa.ativo,
     });
   if (!gravado) throw PipeError.naoEncontrado('motivo de pausa');

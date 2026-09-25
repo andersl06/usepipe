@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { cifrar, registrarAuditoria } from '@pipe/db';
-import type { TransacaoPipe as TransactionPipe, Ator } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe, Ator } from '@pipe/db';
 import { keyring } from '../../database.js';
 import { PipeError } from '../../errors.js';
 import { esquecerCertificadosMtls } from '../mtls.js';
@@ -196,11 +196,11 @@ export async function listarCertificados(
     descricao: c.description,
     expiraEm: new Date(c.expira_em).toISOString(),
     impressaoDigital: c.impressao_digital,
-    emissor: c.emissor,
-    sujeito: c.sujeito,
+    emissor: c.issuer,
+    sujeito: c.subject,
     status: statusDe(c),
     hosts: hostsByCertificate.get(c.id) ?? [],
-    criadoEm: new Date(c.criado_em).toISOString(),
+    criadoEm: new Date(c.createdAt).toISOString(),
   }));
 }
 
@@ -280,7 +280,7 @@ export async function createCertificate(
     sujeito: read.sujeito,
     status: novo.expirado ? 'expirado' : 'valido',
     hosts: hostsGravados,
-    criadoEm: new Date(novo.criado_em).toISOString(),
+    criadoEm: new Date(novo.createdAt).toISOString(),
   };
 }
 
@@ -308,7 +308,7 @@ export async function excluirCertificado(
     acao: 'excluiu',
     objetoTipo: 'certificado_mtls',
     objetoId: certificadoId,
-    antes: { descricao: alvo.descricao },
+    antes: { descricao: alvo.description },
   });
   esquecerCertificadosMtls(tenantId, certificadoId);
   return OK;

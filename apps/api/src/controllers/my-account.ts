@@ -117,7 +117,7 @@ function forContract(linha: LineAccount): AccountInForce {
     id: linha.id,
     name: linha.name,
     slug: linha.slug,
-    plano: linha.plan,
+    plan: linha.plan,
     site: linha.site,
     funcionarios: linha.employees,
     cidade: linha.city,
@@ -283,12 +283,12 @@ export class MyAccountController {
 
     return rows.map((linha) => ({
       tenantId: linha.tenant_id,
-      nome: linha.nome,
+      nome: linha.name,
       slug: linha.slug,
-      plano: linha.plano,
+      plano: linha.plan,
       inForce: linha.tenant_id === sessao.tenantId,
       onboardingCompleted: linha.onboarding_concluido_em !== null,
-      pessoal: linha.pessoal,
+      pessoal: linha.personal,
     }));
   }
 

@@ -49,7 +49,7 @@ async function carregar(
   `);
   const conversa = rows[0];
   if (!conversa) throw PipeError.naoEncontrado('Conversa');
-  if (ator.exigirAssignment && conversa.atendente_id !== ator.agentId) {
+  if (ator.exigirAssignment && conversa.agentId !== ator.agentId) {
     if (ator.agentId && permissionOfSupervisor) {
       await exigirPermission(tx, ator.agentId, permissionOfSupervisor);
       return conversa;
@@ -57,7 +57,7 @@ async function carregar(
     throw new PipeError(
       403,
       'conversation_of_other_agent',
-      conversa.atendente_id
+      conversa.agentId
         ? 'Esta conversa está com outro atendente.'
         : 'Esta conversa não está atribuída a você.',
     );
@@ -122,7 +122,7 @@ export async function closeConversation(
         on conflict do nothing
       `);
     }
-    const motivo = etiquetas.map((etiqueta) => etiqueta.nome).join(', ');
+    const motivo = etiquetas.map((etiqueta) => etiqueta.name).join(', ');
 
     // Uma conversa encerrada em espera tem de fechar a espera antes, senão o intervalo
     // pausado fica aberto para sempre e some do relatório de esforço.
@@ -144,7 +144,7 @@ export async function closeConversation(
         tenantId: ator.tenantId,
         conversationId: conversa.id,
         type: 'espera_encerrada',
-        em: agora,
+        at: agora,
         userId: ator.agentId,
         queueId: conversa.queueId,
         data: { motivo: 'encerramento', pausado_seg: pausadoSeg },
@@ -155,14 +155,14 @@ export async function closeConversation(
       tenantId: ator.tenantId,
       conversationId: conversa.id,
       type: 'encerrada',
-      em: agora,
+      at: agora,
       userId: ator.agentId,
       queueId: conversa.queueId,
       // `encerradaPor` do `@pipe/core` é QUEM tirou da tela, não o id de quem clicou.
       data: {
         encerrada_por: ator.agentId ? 'atendente' : 'transferencia',
-        ...(etiquetas.length === 1 ? { etiqueta: etiquetas[0]!.nome } : {}),
-        etiquetas: etiquetas.map((etiqueta) => etiqueta.nome),
+        ...(etiquetas.length === 1 ? { etiqueta: etiquetas[0]!.name } : {}),
+        etiquetas: etiquetas.map((etiqueta) => etiqueta.name),
       },
     });
 
@@ -214,7 +214,7 @@ export async function alternarEspera(
         tenantId: ator.tenantId,
         conversationId: conversation.id,
         type: 'espera_iniciada',
-        em: agora,
+        at: agora,
         userId: ator.agentId,
         queueId: conversation.queueId,
       });
@@ -236,7 +236,7 @@ export async function alternarEspera(
       tenantId: ator.tenantId,
       conversationId: conversation.id,
       type: 'espera_encerrada',
-      em: agora,
+      at: agora,
       userId: ator.agentId,
       queueId: conversation.queueId,
       data: { pausado_seg: pausadoSeg },
@@ -331,7 +331,7 @@ export async function transferConversation(
     `);
     const conversa = rows[0];
     if (!conversa) throw PipeError.naoEncontrado('Conversa');
-    if (conversa.estado === 'encerrada') {
+    if (conversa.state === 'encerrada') {
       throw PipeError.conflito('conversation_closed', 'A conversa já está encerrada.');
     }
 
@@ -339,7 +339,7 @@ export async function transferConversation(
     // permissão `conversa.transferir` existe (modelo de dados §64). Quem transfere a
     // própria não precisa dela — como no Desk da Blip, onde o ícone fica no cabeçalho
     // do ticket do próprio atendente.
-    const ehDono = conversa.atendente_id === ator.agentId && ator.agentId !== null;
+    const ehDono = conversa.agentId === ator.agentId && ator.agentId !== null;
     if (ator.exigirAssignment && !ehDono) {
       if (!ator.agentId) throw PipeError.naoAutorizado();
       await exigirPermission(tx, ator.agentId, 'conversa.transferir');
@@ -350,7 +350,7 @@ export async function transferConversation(
         sql`select id from fila where id = ${forQueue}::uuid and ativa limit 1`,
       );
       if (!f[0]) throw PipeError.naoEncontrado('Fila');
-      if (forQueue === conversa.queueId && !conversa.atendente_id) {
+      if (forQueue === conversa.queueId && !conversa.agentId) {
         throw PipeError.conflito('same_destination', 'A conversa já está nesta fila.');
       }
     } else {
@@ -358,14 +358,14 @@ export async function transferConversation(
         sql`select id from usuario where id = ${forAgent}::uuid and ativo limit 1`,
       );
       if (!u[0]) throw PipeError.naoEncontrado('Atendente');
-      if (forAgent === conversa.atendente_id) {
+      if (forAgent === conversa.agentId) {
         throw PipeError.conflito('same_destination', 'A conversa já está com este atendente.');
       }
     }
 
     // Espera em aberto fecha ANTES do encerramento, senão o intervalo pausado fica
     // aberto para sempre e some do relatório de esforço.
-    const pausaEmAberto = conversa.estado === 'em_espera' && conversa.em_espera_desde !== null;
+    const pausaEmAberto = conversa.state === 'em_espera' && conversa.em_espera_desde !== null;
     const pausadoSeg = pausaEmAberto
       ? Math.round((agora.getTime() - comoData(conversa.em_espera_desde)!.getTime()) / 1000)
       : 0;
@@ -374,7 +374,7 @@ export async function transferConversation(
         tenantId: ator.tenantId,
         conversationId: conversa.id,
         type: 'espera_encerrada',
-        em: agora,
+        at: agora,
         userId: ator.agentId,
         queueId: conversa.queueId,
         data: { motivo: 'transferencia', pausado_seg: pausadoSeg },
@@ -392,7 +392,7 @@ export async function transferConversation(
       tenantId: ator.tenantId,
       conversationId: conversa.id,
       type: 'encerrada',
-      em: agora,
+      at: agora,
       userId: ator.agentId,
       queueId: conversa.queueId,
       // `encerrada_por = transferencia` é o que separa, no relatório, a conversa que
@@ -424,7 +424,7 @@ export async function transferConversation(
       tenantId: ator.tenantId,
       conversationId: novaId,
       type: 'criada',
-      em: agora,
+      at: agora,
       userId: ator.agentId,
       queueId: queueDestination,
     });
@@ -433,7 +433,7 @@ export async function transferConversation(
       conversationId: novaId,
       // Para fila é `transferida_fila`; para pessoa a conversa nasce já atribuída.
       type: forAgent ? 'atribuida' : 'transferida_fila',
-      em: agora,
+      at: agora,
       userId: forAgent ?? ator.agentId,
       queueId: queueDestination,
       data: { de_conversa_id: conversa.id },
@@ -446,7 +446,7 @@ export async function transferConversation(
         tenant_id, conversa_id, de_usuario_id, para_usuario_id,
         de_fila_id, para_fila_id, motivo, por_usuario_id, em
       ) values (
-        ${ator.tenantId}, ${conversa.id}, ${conversa.atendente_id}, ${forAgent},
+        ${ator.tenantId}, ${conversa.id}, ${conversa.agentId}, ${forAgent},
         ${conversa.queueId}, ${forQueue}, ${pedido.reason ?? null}, ${ator.agentId}, ${agora}
       )
     `);

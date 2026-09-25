@@ -10,7 +10,7 @@ import {
   type TipoEvento,
 } from '@pipe/core';
 import {
-  contato as contact,
+  contact as contact,
   conversa as conversation,
   conversationLabel,
   etiqueta,
@@ -18,7 +18,7 @@ import {
   queue,
   user,
 } from '@pipe/db/schema';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 import { ticketDe } from './monitoring.js';
 
@@ -85,7 +85,7 @@ export async function loadHistory(
   return consultar(tx, async (tx) => {
     const recorte = [
       filter.queueId ? eq(conversation.filaId, filter.queueId) : undefined,
-      filter.agentId ? eq(conversation.agentId, filter.agentId) : undefined,
+      filter.agentId ? eq(conversation.atendenteId, filter.agentId) : undefined,
     ].filter((c) => c !== undefined);
 
     const base = tx
@@ -98,7 +98,7 @@ export async function loadHistory(
       })
       .from(conversation)
       .leftJoin(queue, eq(queue.id, conversation.filaId))
-      .leftJoin(user, eq(user.id, conversation.agentId))
+      .leftJoin(user, eq(user.id, conversation.atendenteId))
       .leftJoin(contact, eq(contact.id, conversation.contatoId));
 
     const comEtiqueta = filter.labelId

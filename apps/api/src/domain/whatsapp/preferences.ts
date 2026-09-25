@@ -96,7 +96,7 @@ export async function writePreferences(
   await atualizarChannel(channel, { preferencias: depois });
   await noTenant(tenantId, (tx) =>
     registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: userId },
+      ator: { type: 'usuario', id: userId },
       acao: 'alterou',
       objetoTipo: 'canal',
       objetoId: channel.id,

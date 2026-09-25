@@ -94,13 +94,13 @@ export async function listChannelsWhatsApp(tenantId: string): Promise<ChannelWha
     try {
       const saude = await buscarSaude({
         tokenAccess: token,
-        numeroId: linha.numero_id,
+        numberId: linha.numero_id,
         wabaId: linha.waba_id,
       });
       saida.push({
         ...base,
         state: 'conectado',
-        numero: saude.display_phone_number || base.numeroId,
+        numeroId: saude.display_phone_number || base.numeroId,
         displayName: saude.verified_name || base.displayName,
         quality: saude.quality_rating ?? null,
         limite: saude.messaging_limit_tier ?? null,
@@ -159,7 +159,7 @@ export async function desconectarWhatsApp(
     const gravado = rows[0];
     if (!gravado) throw PipeError.naoEncontrado('Canal');
     await registrarAuditoria(tx, tenantId, {
-      ator: { tipo: 'usuario', id: userId },
+      ator: { type: 'usuario', id: userId },
       acao: 'desativou',
       objetoTipo: 'canal',
       objetoId: canalId,

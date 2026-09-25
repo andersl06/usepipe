@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import type { TipoEvento } from '@pipe/core';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 
 /**
  * `evento_atendimento` é a fonte de toda métrica (modelo de dados §4) e é imutável.

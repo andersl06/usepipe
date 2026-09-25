@@ -1,6 +1,6 @@
 import { and, asc, eq, ne, sql } from 'drizzle-orm';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
 import { flow, flowMember, user } from '@pipe/db/schema';
 import type {
   TeamOfFlow,
@@ -247,7 +247,7 @@ export async function canInFlow(
 
 /* ------------------------------------------------------------------ Gestos */
 
-const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
+const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
 
 /** O contato vivo do tenant, ou 404 — o mesmo `fetch_inbox` de `ciclo-de-vida-do-fluxo.ts`. */
 async function flowVivo(tx: TransactionPipe, tenantId: string, fluxoId: string): Promise<string> {
@@ -470,7 +470,7 @@ export async function editarMember(
 
   await tx
     .update(flowMember)
-    .set({ papelNoFluxo, permissoes, atualizadoEm: new Date() })
+    .set({ roleInFlow: papelNoFluxo, permissoes, atualizadoEm: new Date() })
     .where(and(eq(flowMember.flowId, fluxoId), eq(flowMember.userId, alvoId)));
 
   await registrarAuditoria(tx, tenantId, {
@@ -482,7 +482,7 @@ export async function editarMember(
     depois: mudanca.depois,
   });
 
-  return forContract({ ...atual, papelNoFluxo, permissoes });
+  return forContract({ ...atual, roleInFlow: papelNoFluxo, permissoes });
 }
 
 /** `removeUser()` — e a trava do último administrador, que a origem não precisa ter. */

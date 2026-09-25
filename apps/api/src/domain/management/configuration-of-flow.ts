@@ -1,6 +1,6 @@
 import { and, eq, ne } from 'drizzle-orm';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
 import { flow } from '@pipe/db/schema';
 import type { ConfigurationOfWelcome, ConfigurationOfMenuPersistent } from '@pipe/contracts';
 import { PipeError } from '../../errors.js';
@@ -33,7 +33,7 @@ interface ConfigurationStored {
   menuPersistente?: { itens?: unknown };
 }
 
-const ator = (usuarioId: string): Ator => ({ tipo: 'usuario', id: usuarioId });
+const ator = (usuarioId: string): Ator => ({ type: 'usuario', id: usuarioId });
 
 /** O fluxo vivo desta conta, com a configuração bruta — ou 404. */
 async function flowVivo(
@@ -58,7 +58,7 @@ async function writeConfiguration(
 ): Promise<void> {
   await tx
     .update(flow)
-    .set({ configuracao, atualizadoEm: new Date() })
+    .set({ configuration: configuracao, atualizadoEm: new Date() })
     .where(and(eq(flow.tenantId, tid), eq(flow.id, id)));
 }
 

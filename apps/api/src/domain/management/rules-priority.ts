@@ -2,7 +2,7 @@ import { and, asc, eq, ne } from 'drizzle-orm';
 import { NIVEIS_ATRIBUIVEIS } from '@pipe/core/conversa';
 import { rulePriority, queue } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
 import { RULE_MANAGE } from './registrations.js';
@@ -201,16 +201,16 @@ export async function createRulePriority(
 
   const [criada] = await tx
     .insert(rulePriority)
-    .values({ tenantId: tid, nome, nivel, escopoTipo, escopoId, condition, active })
+    .values({ tenantId: tid, nome, nivel, escopoTipo: scopeType, escopoId: scopeId, condition, active })
     .returning({ id: rulePriority.id });
   if (!criada) throw PipeError.request('rule_not_created', 'Não consegui gravar a regra de prioridade.');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: userId },
+    ator: { type: 'usuario', id: userId },
     acao: 'criou',
     objetoTipo: 'regra_prioridade',
     objetoId: criada.id,
-    depois: { nome, nivel, escopoTipo, escopoId, active },
+    depois: { nome, nivel, escopoTipo: scopeType, escopoId: scopeId, active },
   });
   return { id: criada.id };
 }
@@ -255,7 +255,7 @@ export async function editarRulePriority(
     .set({
       nome: depois.name,
       nivel: depois.level,
-      escopoTipo: depois.scopeType,
+      scopeType: depois.scopeType,
       escopoId: depois.scopeId,
       condicao: depois.condition,
       ativa: depois.ativa,
@@ -274,7 +274,7 @@ export async function editarRulePriority(
   if (!gravada) throw PipeError.naoEncontrado('regra de prioridade');
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'regra_prioridade',
     objetoId: id,
@@ -291,7 +291,7 @@ export async function deleteRulePriority(tx: TransactionPipe, tid: string, usuar
   await tx.delete(rulePriority).where(and(eq(rulePriority.tenantId, tid), eq(rulePriority.id, id)));
 
   await registrarAuditoria(tx, tid, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'excluiu',
     objetoTipo: 'regra_prioridade',
     objetoId: id,

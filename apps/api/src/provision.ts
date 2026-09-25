@@ -291,7 +291,7 @@ if (executadoDiretamente) {
     provisionCustomer({
       name: values.nome ?? '',
       slug: values.slug ?? '',
-      plano: values.plano ?? 'essencial',
+      plan: values.plano ?? 'essencial',
       admin: values.admin ?? '',
       dominio: values.dominio,
       verificar: values.verificar,

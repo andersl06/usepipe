@@ -1,6 +1,6 @@
 import { sql } from 'drizzle-orm';
 import { createDatabase, comTenant, keyringOfAmbiente, decifrarConfig } from '@pipe/db';
-import type { DatabasePipe, Keyring, TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { DatabasePipe, Keyring, TransactionPipe as TransactionPipe } from '@pipe/db';
 
 /**
  * Dois pools, dois papéis — a mesma divisão do Desk e dos workers.
@@ -86,8 +86,8 @@ export async function resolveChannel(canalId: string): Promise<ChannelResolved |
   const channel: ChannelResolved = {
     id: linha.id,
     tenantId: linha.tenant_id,
-    type: linha.tipo,
-    ativo: linha.ativo,
+    type: linha.type,
+    active: linha.active,
     // Decifrado UMA vez, aqui, e o resto do código continua lendo
     // `config.tokenAcesso` como sempre leu. O segredo vive cifrado no banco e em
     // texto só na memória de quem precisa dele — ver `packages/db/src/segredo.ts`.
@@ -136,8 +136,8 @@ export async function resolveChannelByIdentifier(
   return {
     id: linha.id,
     tenantId: linha.tenant_id,
-    tipo: linha.tipo,
-    ativo: linha.ativo,
+    tipo: linha.type,
+    ativo: linha.active,
     config: decifrarConfig(linha.config ?? {}, keyring()),
   };
 }

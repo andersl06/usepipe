@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import type { SignalsOfDeployment } from './passos-of-deployment.js';
 
 /** A transação já vem com o tenant fixado; `consultar` só nomeia o bloco, como na Gestão. */
@@ -99,8 +99,8 @@ export async function loadDeployment(tx: TransactionPipe): Promise<Deployment> {
     return {
       sinais: {
         adminEntrou: access.v === true,
-        canaisConectados: channels.filter((c) => c.ativo && c.numero_id && !c.reauthorization).length,
-        canaisPendentes: channels.filter((c) => c.ativo && c.reauthorization).length,
+        canaisConectados: channels.filter((c) => c.active && c.numero_id && !c.reauthorization).length,
+        canaisPendentes: channels.filter((c) => c.active && c.reauthorization).length,
         convites: Number(pessoas.convites),
         membros: Number(pessoas.members),
         filasAtivas: Number(queues.ativas),
@@ -109,7 +109,7 @@ export async function loadDeployment(tx: TransactionPipe): Promise<Deployment> {
           ? {
               id: ultima.id,
               estado: ultima.state,
-              aceitos: Number(ultima.aceitos),
+              aceitos: Number(ultima.accepted),
               rejeitados: Number(ultima.rejeitados),
               temFalhas: ultima.tem_falhas === true,
             }
@@ -118,9 +118,9 @@ export async function loadDeployment(tx: TransactionPipe): Promise<Deployment> {
       },
       canais: channels.map((c) => ({
         id: c.id,
-        nome: c.nome,
-        ativo: c.ativo,
-        numero: c.numero,
+        nome: c.name,
+        ativo: c.active,
+        numero: c.number,
         reautorizacaoPendente: c.reauthorization === true,
       })),
     };

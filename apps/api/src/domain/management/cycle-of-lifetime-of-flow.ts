@@ -1,6 +1,6 @@
 import { and, eq, ne } from 'drizzle-orm';
 import { diferenca, registrarAuditoria } from '@pipe/db';
-import type { Ator, TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { Ator, TransactionPipe as TransactionPipe } from '@pipe/db';
 import { DESCRIPTION_FLOW_MAX, flow } from '@pipe/db/schema';
 import { PipeError } from '../../errors.js';
 import { exigirPermission } from '../../session.js';
@@ -182,7 +182,7 @@ function conflitoDeNome(): PipeError {
   );
 }
 
-const ator = (userId: string): Ator => ({ tipo: 'usuario', id: userId });
+const ator = (userId: string): Ator => ({ type: 'usuario', id: userId });
 
 /* ------------------------------------------------------------- Gestos */
 

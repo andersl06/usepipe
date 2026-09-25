@@ -1,4 +1,4 @@
-import type { TransacaoPipe as TransactionPipe, Ator } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe, Ator } from '@pipe/db';
 import type { Campos, Resultado } from './campos.js';
 import { PipeError } from '../../../errors.js';
 import {
@@ -29,7 +29,7 @@ import {
 const OK: Resultado = { ok: true };
 
 function falha(erro: string): Resultado {
-  return { ok: false, error };
+  return { ok: false, error: erro };
 }
 
 /**
@@ -115,8 +115,8 @@ export async function salvarPesquisa(
       escalaMin: escala.min,
       escalaMax: escala.max,
       pergunta,
-      disparo,
-      active,
+      trigger: disparo,
+      ativa: active,
     });
     if (!gravado.ok) return falha(gravado.error);
   } catch (error) {

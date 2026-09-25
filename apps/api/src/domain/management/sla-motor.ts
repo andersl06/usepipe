@@ -8,7 +8,7 @@ import {
   type NivelPriority,
 } from '@pipe/core';
 import { conversa as conversation, slaConversa as slaConversation } from '@pipe/db/schema';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { databaseOwner, noTenant } from '../../database.js';
 import { registrarEvento } from '../eventos.js';
 import { emitir } from '../../webhooks-saida.js';
@@ -262,7 +262,7 @@ async function processarRegra(
       tenantId,
       conversationId: c.id,
       type: 'sla_alertado',
-      em: alertadoEm!,
+      at: alertadoEm!,
       queueId: c.queueId,
       data: { regra_id: regra.id, regra_nome: regra.name, alvo: regra.target },
     });
@@ -273,7 +273,7 @@ async function processarRegra(
       tenantId,
       conversationId: c.id,
       type: 'sla_estourado',
-      em: estouradoEm!,
+      at: estouradoEm!,
       queueId: c.queueId,
       data: { regra_id: regra.id, regra_nome: regra.name, alvo: regra.target },
     });
@@ -298,13 +298,13 @@ export async function checarSlaOfConversation(
       .select({
         id: conversation.id,
         filaId: conversation.filaId,
-        prioridade: conversation.priority,
+        prioridade: conversation.prioridade,
         criadaEm: conversation.criadaEm,
         atribuidaEm: conversation.atribuidaEm,
-        primeiraRespostaEm: conversation.firstResponseAt,
+        primeiraRespostaEm: conversation.primeiraRespostaEm,
         encerradaEm: conversation.encerradaEm,
-        ultimaMensagemEm: conversation.lastMessageAt,
-        ultimaMensagemDe: conversation.lastMessageOf,
+        ultimaMensagemEm: conversation.ultimaMensagemEm,
+        ultimaMensagemDe: conversation.ultimaMensagemDe,
       })
       .from(conversation)
       .where(eq(conversation.id, conversationId))
@@ -322,7 +322,7 @@ export async function checarSlaOfConversation(
       .select({
         id: slaConversation.id,
         regraId: slaConversation.regraId,
-        estado: slaConversation.state,
+        estado: slaConversation.estado,
         alertadoEm: slaConversation.alertadoEm,
         estouradoEm: slaConversation.estouradoEm,
       })

@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import type {
   Colega,
   ConversationOpen,
@@ -109,18 +109,18 @@ export async function listConversations(
   `);
   return rows.map((r) => ({
     id: r.id,
-    estado: r.estado,
-    prioridade: r.prioridade,
+    estado: r.state,
+    prioridade: r.priority,
     criadaEm: iso(r.criada_em),
     primeiraRespostaEm: isoOuNulo(r.primeira_resposta_em),
     ultimaMensagemEm: isoOuNulo(r.ultima_mensagem_em),
     ultimaMensagemDe: r.lastMessageOf,
-    janelaExpiraEm: isoOuNulo(r.janela_expira_em),
+    janelaExpiraEm: isoOuNulo(r.windowExpiresAt),
     emEsperaDesde: isoOuNulo(r.em_espera_desde),
     contatoNome: r.contato_nome,
     contatoTelefone: r.contactPhone,
     filaNome: r.fila_nome,
-    canalTipo: r.canal_tipo,
+    canalTipo: r.channelType,
     ultimaMensagem: r.lastMessage,
     ultimaMensagemTipo: r.lastMessageType,
     fixadaEm: isoOuNulo(r.fixada_em),
@@ -184,11 +184,11 @@ export async function loadConversation(
     channelType: r.channelType,
     contactId: r.contactId,
     contactName: r.contactName,
-    contactPhone: r.telefone_e164,
+    contactPhone: r.phoneE164,
     contactEmail: r.email,
     contactDocument: r.document,
     contactAtributos: r.atributos ?? {},
-    resumo: r.resumo,
+    resumo: r.summary,
     resumoEm: isoOuNulo(r.resumo_em),
     summaryTemplate: r.summaryTemplate,
   };
@@ -238,22 +238,22 @@ export async function listItemsOfConversation(
       id: m.id,
       criadaEm: iso(m.criada_em),
       direction: m.direction === 'entrada' ? 'entrada' : 'saida',
-      tipo: m.tipo,
-      conteudo: m.conteudo,
+      tipo: m.type,
+      conteudo: m.content,
       stateDelivery: m.stateDelivery,
       errorCode: m.errorCode,
       errorText: m.errorText,
-      lidaEm: isoOuNulo(m.lida_em),
-      entregueEm: isoOuNulo(m.entregue_em),
+      lidaEm: isoOuNulo(m.lidaAt),
+      entregueEm: isoOuNulo(m.entregueAt),
       deRespostaPronta: m.resposta_pronta_id !== null,
       deTemplate: m.template_id !== null,
     })),
     ...notas.rows.map((n): ItemOfConversation => ({
       genero: 'nota',
       id: n.id,
-      criadaEm: iso(n.em),
-      corpo: n.corpo,
-      autor: n.autor,
+      criadaEm: iso(n.at),
+      corpo: n.body,
+      autor: n.author,
     })),
   ];
   // ISO em UTC ordena como texto: mesmo comprimento, mesmo fuso, sem `Date` no meio.
@@ -302,8 +302,8 @@ export async function listarEtiquetas(tx: TransactionPipe): Promise<EtiquetaDoDe
   `);
   return rows.map((r) => ({
     id: r.id,
-    nome: r.nome,
-    cor: r.cor,
+    nome: r.name,
+    cor: r.color,
     obrigatoriaNoEncerramento: r.requiredInClosure,
   }));
 }
@@ -335,7 +335,7 @@ export async function listarMotivosDePausa(tx: TransactionPipe): Promise<MotivoD
   `);
   return rows.map((r) => ({
     id: r.id,
-    nome: r.nome,
+    nome: r.name,
     duracaoSugeridaMin: r.durationSuggestedMin,
   }));
 }
@@ -359,7 +359,7 @@ export async function carregarStatus(
   const r = rows[0];
   // Sem linha de status, o atendente ainda não entrou: o padrão da spec é Invisível.
   if (!r) return { estado: 'invisivel', desde: new Date().toISOString(), motivoPausa: null };
-  return { estado: r.estado, desde: iso(r.desde), motivoPausa: r.motivo };
+  return { estado: r.state, desde: iso(r.since), motivoPausa: r.reason };
 }
 
 export async function listarColegas(tx: TransactionPipe, atendenteId: string): Promise<Colega[]> {
@@ -396,7 +396,7 @@ export async function listHistoryOfContact(
     id: r.id,
     criadaEm: iso(r.criada_em),
     encerradaEm: isoOuNulo(r.encerrada_em),
-    estado: r.estado,
+    estado: r.state,
     filaNome: r.fila_nome,
   }));
 }
@@ -456,19 +456,19 @@ export async function carregarTicketAntigo(
   if (!r) return null;
   return {
     id: r.id,
-    estado: r.estado,
-    prioridade: r.prioridade,
+    estado: r.state,
+    prioridade: r.priority,
     criadaEm: iso(r.criada_em),
     primeiraRespostaEm: isoOuNulo(r.primeira_resposta_em),
     lastMessageAt: isoOuNulo(r.lastMessageAt),
     encerradaEm: isoOuNulo(r.encerrada_em),
     reasonClosure: r.reasonClosure,
-    pausadoSeg: Number(r.pausado_seg ?? 0),
+    pausadoSeg: Number(r.pausadoSeg ?? 0),
     filaNome: r.fila_nome,
-    canalTipo: r.canal_tipo,
-    contactId: r.contato_id,
+    canalTipo: r.channelType,
+    contactId: r.contactId,
     contatoNome: r.contato_nome,
-    contatoTelefone: r.telefone_e164,
+    contatoTelefone: r.phoneE164,
     agentName: r.agentName,
     agentEmail: r.agentEmail,
     closedByName: r.closedByName,
@@ -540,10 +540,10 @@ export async function listContacts(tx: TransactionPipe, search: string): Promise
   `);
   return rows.map((r) => ({
     id: r.id,
-    nome: r.nome,
-    telefone: r.telefone,
+    nome: r.name,
+    telefone: r.phone,
     email: r.email,
-    ultimaInteracaoEm: isoOuNulo(r.ultima_interacao_em),
+    ultimaInteracaoEm: isoOuNulo(r.lastInteractionAt),
   }));
 }
 
@@ -577,10 +577,10 @@ export async function loadContact(
   if (!r) return null;
   return {
     id: r.id,
-    nome: r.nome,
-    telefone: r.telefone,
+    nome: r.name,
+    telefone: r.phone,
     email: r.email,
-    documento: r.documento,
+    documento: r.document,
     atributos: r.atributos ?? {},
   };
 }

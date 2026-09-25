@@ -16,7 +16,7 @@ import {
   type TipoEvento,
 } from '@pipe/core';
 import {
-  contato as contact,
+  contact as contact,
   conversa as conversation,
   conversationLabel,
   etiqueta,
@@ -28,7 +28,7 @@ import {
   statusAgent,
   user,
 } from '@pipe/db/schema';
-import { registrarAuditoria, type TransacaoPipe as TransactionPipe } from '@pipe/db';
+import { registrarAuditoria, type TransactionPipe as TransactionPipe } from '@pipe/db';
 import { exigirPermission } from '../../session.js';
 import { PipeError } from '../../errors.js';
 import {
@@ -213,9 +213,9 @@ export async function loadPreviaOfConversation(
   return {
     id: conversationOpen.id,
     ticket: ticketDe(conversationOpen.id),
-    contactName: conversationOpen.contato_nome ?? 'Contato sem nome',
-    queueName: conversationOpen.fila_nome,
-    agentName: conversationOpen.atendente_nome,
+    contactName: conversationOpen.contactName ?? 'Contato sem nome',
+    queueName: conversationOpen.queueName,
+    agentName: conversationOpen.agentName,
     itens: itens.rows.map(({ direction, ...item }) => ({ ...item, ...(direction ? { direction } : {}) })),
   };
 }
@@ -240,7 +240,7 @@ export async function falarWithAgentInMonitoring(
     values (${tenantId}, ${conversaId}::uuid, ${usuarioId}::uuid, ${corpo})
   `);
   await registrarAuditoria(tx, tenantId, {
-    ator: { tipo: 'usuario', id: usuarioId },
+    ator: { type: 'usuario', id: usuarioId },
     acao: 'alterou',
     objetoTipo: 'conversa',
     objetoId: conversaId,
@@ -308,7 +308,7 @@ function agruparEventos(linhas: readonly LinhaEvento[]): Map<string, Conversatio
 
 function marcosVazios(conversaId: string): Marcos {
   return {
-    conversationId,
+    conversationId: conversaId,
     criadaEm: null,
     atribuidaEm: null,
     firstRespostaIn: null,
@@ -385,26 +385,26 @@ export async function loadMonitoring(
     // para os cartões e a tabela nunca discordarem sobre o que está sendo olhado.
     const recorte = [
       filter.queueIds?.length ? inArray(conversation.filaId, filter.queueIds) : filter.queueId ? eq(conversation.filaId, filter.queueId) : undefined,
-      filter.agentIds?.length ? inArray(conversation.agentId, filter.agentIds) : filter.agentId ? eq(conversation.agentId, filter.agentId) : undefined,
+      filter.agentIds?.length ? inArray(conversation.atendenteId, filter.agentIds) : filter.agentId ? eq(conversation.atendenteId, filter.agentId) : undefined,
     ].filter((c) => c !== undefined);
 
     // ---- 1. conversas ainda abertas -------------------------------------
     const abertasCru = await tx
       .select({
         id: conversation.id,
-        estado: conversation.state,
-        prioridade: conversation.priority,
+        estado: conversation.estado,
+        prioridade: conversation.prioridade,
         filaId: conversation.filaId,
         filaNome: queue.nome,
-        atendenteId: conversation.agentId,
+        atendenteId: conversation.atendenteId,
         atendenteNome: user.nome,
         contatoNome: contact.nome,
         emEsperaDesde: conversation.emEsperaDesde,
-        ultimaMensagemDe: conversation.lastMessageOf,
+        ultimaMensagemDe: conversation.ultimaMensagemDe,
       })
       .from(conversation)
       .leftJoin(queue, eq(queue.id, conversation.filaId))
-      .leftJoin(user, eq(user.id, conversation.agentId))
+      .leftJoin(user, eq(user.id, conversation.atendenteId))
       .leftJoin(contact, eq(contact.id, conversation.contatoId))
       .where(and(isNull(conversation.encerradaEm), ...recorte))
       .orderBy(asc(conversation.criadaEm));
@@ -508,7 +508,7 @@ export async function loadMonitoring(
 
     // Pausa aberta que já passou da duração sugerida pelo motivo.
     const pausasAbertas = await tx
-      .select({ iniciadaEm: pausa.iniciadaEm, sugeridaMin: motivoPausa.duracaoSugeridaMin })
+      .select({ iniciadaEm: pausa.iniciadaEm, sugeridaMin: motivoPausa.durationSuggestedMin })
       .from(pausa)
       .leftJoin(motivoPausa, eq(motivoPausa.id, pausa.motivoId))
       .where(isNull(pausa.encerradaEm));

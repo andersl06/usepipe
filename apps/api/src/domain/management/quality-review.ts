@@ -3,7 +3,7 @@ import { resultado, resultEmpty, type ResultadoMetrica } from '@pipe/core';
 import {
   evaluation,
   classificacaoConversa as classificationConversation,
-  contato as contact,
+  contact as contact,
   conversa as conversation,
   criterio,
   queue,
@@ -13,7 +13,7 @@ import {
   responseEvaluation,
   user,
 } from '@pipe/db/schema';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import type { Window } from './window.js';
 import { uuidOuNada } from './format.js';
 import { fatalReprovado } from './note-evaluation.js';
@@ -167,7 +167,7 @@ export async function loadQualityReview(
         estado: evaluation.state,
         avaliadaEm: evaluation.avaliadaEm,
         categoria: classificationConversation.categoria,
-        sentimento: classificationConversation.sentiment,
+        sentimento: classificationConversation.sentimento,
       })
       .from(evaluation)
       .innerJoin(formEvaluation, eq(formEvaluation.id, evaluation.formularioId))
@@ -299,9 +299,9 @@ export async function carregarFicha(
         estado: evaluation.state,
         avaliadaEm: evaluation.avaliadaEm,
         categoria: classificationConversation.categoria,
-        sentimento: classificationConversation.sentiment,
+        sentimento: classificationConversation.sentimento,
         resumo: classificationConversation.resumo,
-        modeloClassificacao: classificationConversation.template,
+        modeloClassificacao: classificationConversation.modelo,
       })
       .from(evaluation)
       .innerJoin(formEvaluation, eq(formEvaluation.id, evaluation.formularioId))
@@ -326,7 +326,7 @@ export async function carregarFicha(
         grupoOrdem: grupoCriterio.ordem,
         criterioId: criterio.id,
         criterioNome: criterio.nome,
-        descricao: criterio.descricao,
+        descricao: criterio.description,
         tipo: criterio.tipo,
         fatal: criterio.fatal,
         peso: criterio.peso,
@@ -371,7 +371,7 @@ export async function carregarFicha(
       }
       const citada = l.evidenciaId ? byMessage.get(l.evidenciaId) : undefined;
       grupo.criterios.push({
-        criterioId: l.criterioId,
+        criterionId: l.criterioId,
         criterio: l.criterioNome,
         description: l.descricao,
         tipo: l.tipo,

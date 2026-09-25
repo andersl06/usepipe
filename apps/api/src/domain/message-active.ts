@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import type { ChannelResolved } from '../database.js';
 import { PipeError } from '../errors.js';
@@ -177,8 +177,8 @@ async function aDestination(
     const enfileirada = await sendMessage({
       tenantId: pedido.tenantId,
       conversationId: preparo.conversationId!,
-      atendenteId: pedido.agentId ?? null,
-      tipo: 'template',
+      agentId: pedido.agentId ?? null,
+      type: 'template',
       templateId: pedido.templateId,
       parametros: destino.parametros ?? pedido.parametros ?? [],
     });
@@ -218,7 +218,7 @@ async function findOrCreateByPhone(
     select contato_id from contato_identidade
      where canal_tipo = ${canal.type} and identificador = ${identificador} limit 1
   `);
-  const existente = rows[0]?.contato_id;
+  const existente = rows[0]?.contactId;
   if (existente) return existente;
 
   const { rows: criado } = await tx.execute<{ id: string }>(sql`
@@ -284,16 +284,16 @@ async function openConversationOfTrigger(
     tenantId: canal.tenantId,
     conversationId,
     type: 'criada',
-    em: agora,
+    at: agora,
     userId: agent,
     queueId: inbox.queueDefaultId,
     data: { origem: 'mensagem_ativa' },
   });
   await registrarEvento(tx, {
     tenantId: canal.tenantId,
-    conversationId,
+    conversationId: conversaId,
     type: agent ? 'atribuida' : 'enfileirada',
-    em: agora,
+    at: agora,
     userId: agent,
     queueId: inbox.queueDefaultId,
   });
@@ -355,13 +355,13 @@ export async function applicationOfActive(
     `);
     return rows.map((l) => ({
       mensagemId: l.id,
-      conversaId: l.conversa_id,
-      contatoId: l.contato_id,
-      contatoNome: l.contato_nome,
-      telefone: l.telefone_e164,
-      templateNome: l.template_nome,
-      estadoEntrega: l.estado_entrega,
-      erroCodigo: l.erro_codigo,
+      conversaId: l.conversationId,
+      contatoId: l.contactId,
+      contatoNome: l.contactName,
+      telefone: l.phoneE164,
+      templateNome: l.templateName,
+      estadoEntrega: l.stateDelivery,
+      erroCodigo: l.errorCode,
       criadaEm: l.criada_em instanceof Date ? l.criada_em.toISOString() : String(l.criada_em),
     }));
   });

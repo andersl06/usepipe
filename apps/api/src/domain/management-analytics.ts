@@ -1,5 +1,5 @@
 import { sql } from 'drizzle-orm';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import {
   NAME_OF_CHANNEL,
   diasDoIntervalo,
@@ -40,7 +40,7 @@ export async function windowOfDatas(
   );
   const linha = r.rows[0];
   if (!linha) throw new Error('período inválido');
-  return { inicio: new Date(linha.inicio), fim: new Date(linha.fim) };
+  return { inicio: new Date(linha.start), fim: new Date(linha.end) };
 }
 
 /**
@@ -168,9 +168,9 @@ export async function carregarDashboard(
        limit 10
     `);
 
-    const channel = contact[0].canal;
+    const channel = contact[0].channel;
     return {
-      router: contact[0].tipo === 'roteador',
+      router: contact[0].type === 'roteador',
       channel: channel ? (NAME_OF_CHANNEL[channel] ?? channel) : null,
       contacts: {
         withInteraction: par((m) => m.soma?.withInteraction),
@@ -193,9 +193,9 @@ export async function carregarDashboard(
       recorrencia: {
         contacts: par((m) => m.soma?.recorrentes),
         maisRecorrentes: topo.map((t) => ({
-          nome: t.nome ?? t.id,
+          nome: t.name ?? t.id,
           recorrencia: t.recorrencia,
-          telefone: t.telefone,
+          telefone: t.phone,
         })),
       },
       flow: {
@@ -241,7 +241,7 @@ export async function loadListOfContacts(
        order by max(m.criada_em) desc
        limit 1000
     `);
-    return rows.map((r) => r.nome);
+    return rows.map((r) => r.name);
   }
 }
 
@@ -514,12 +514,12 @@ export async function loadLogOfMessages(
     data: page.data.map((linha) => ({
       id: linha.id,
       criadaEm: new Date(linha.criada_em).toISOString(),
-      direcao: linha.direcao,
-      tipo: linha.tipo,
-      conteudo: linha.conteudo,
+      direcao: linha.direction,
+      tipo: linha.type,
+      conteudo: linha.content,
       metadata: linha.metadata,
-      de: linha.direcao === 'entrada' ? linha.contact : linha.channel,
-      para: linha.direcao === 'entrada' ? linha.channel : linha.contact,
+      de: linha.direction === 'entrada' ? linha.contact : linha.channel,
+      para: linha.direction === 'entrada' ? linha.channel : linha.contact,
     })),
   };
 }

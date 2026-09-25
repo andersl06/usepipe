@@ -6,7 +6,7 @@ import {
   transitionDeliveryAllowed,
 } from '@pipe/core';
 import type { StateDelivery } from '@pipe/core';
-import type { TransacaoPipe as TransactionPipe } from '@pipe/db';
+import type { TransactionPipe as TransactionPipe } from '@pipe/db';
 import { noTenant } from '../database.js';
 import type { ChannelResolved } from '../database.js';
 import { contar } from '../metrics.js';
@@ -163,7 +163,7 @@ export async function processarPayload(
         // download fala com a Meta, e isso não pode acontecer com uma conexão do
         // pool de banco presa numa transação. Ver `dominio/midia.ts`.
         if (recebida.attachmentId) {
-          await enqueueDownloadMedia({ tenantId: channel.tenantId, attachmentId: recebida.attachmentId });
+          await enqueueDownloadMedia({ tenantId: channel.tenantId, anexoId: recebida.attachmentId });
         }
       } else resumo.ignorados += 1;
     }
@@ -280,7 +280,7 @@ async function receiveMessage(
       tenantId: canal.tenantId,
       conversationId: conversation.id,
       type: 'mensagem_entrada',
-      em,
+      at: em,
       queueId: conversation.queueId,
     });
 
@@ -304,7 +304,7 @@ async function receiveMessage(
         queueDefaultId: inbox.queueDefaultId,
       },
       contactId,
-      message: { id: messageId, idProvedor, type: tipo, conteudo },
+      message: { id: messageId, idProvedor, type: tipo, content: conteudo },
     });
 
     // Conversa parada na fila é candidata a distribuição a cada mensagem nova: se o
@@ -375,7 +375,7 @@ async function aplicarStatus(canal: ChannelResolved, status: StatusDaMeta): Prom
 
     await emitir(tx, canal.tenantId, 'mensagem.estado_entrega_alterado', {
       mensagem_id: message.id,
-      conversa_id: message.conversa_id,
+      conversa_id: message.conversationId,
       estado_anterior: atual,
       estado_novo: alvo,
     });
@@ -394,7 +394,7 @@ async function aplicarStatus(canal: ChannelResolved, status: StatusDaMeta): Prom
       });
     }
 
-    return message.conversa_id;
+    return message.conversationId;
   });
 }
 
@@ -411,7 +411,7 @@ async function acharInbox(tx: TransactionPipe, channelId: string): Promise<Inbox
   );
   const linha = rows[0];
   if (!linha) throw new Error(`canal ${channelId} não tem inbox: a mensagem não tem onde cair.`);
-  return { id: linha.id, queueDefaultId: linha.fila_padrao_id };
+  return { id: linha.id, queueDefaultId: linha.queueDefaultId };
 }
 
 async function findOrCreateContact(
@@ -498,9 +498,9 @@ async function findOrOpenConversation(
   if (aberta) {
     return {
       id: aberta.id,
-      state: aberta.estado,
-      agentId: aberta.atendente_id,
-      queueId: aberta.fila_id,
+      state: aberta.state,
+      agentId: aberta.agentId,
+      queueId: aberta.queueId,
       nova: false,
     };
   }
@@ -522,14 +522,14 @@ async function findOrOpenConversation(
       tenantId: canal.tenantId,
       conversationId,
       type: 'criada',
-      em,
+      at: em,
       queueId,
     });
     await registrarEvento(tx, {
       tenantId: canal.tenantId,
       conversationId,
       type: 'enfileirada',
-      em,
+      at: em,
       queueId,
     });
     // A conversa acabou de entrar na fila — é o único momento em que

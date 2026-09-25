@@ -419,7 +419,7 @@ export class MeController {
          order by 1
       `);
 
-      return { user, permissoes: permissions.map((p) => p.codigo) };
+      return { user, permissoes: permissions.map((p) => p.code) };
     });
 
     // Sessão viva apontando para usuário que sumiu ou foi desativado entre um
@@ -430,7 +430,7 @@ export class MeController {
     return {
       user: {
         id: user.id,
-        nome: user.nome,
+        nome: user.name,
         email: user.email,
         avatarUrl: user.avatar_url,
       },
@@ -438,10 +438,10 @@ export class MeController {
         id: user.tenant_id,
         nome: user.tenant_nome,
         slug: user.slug,
-        plano: user.plano as Plano,
+        plano: user.plan as Plano,
         onboardingConcluido: user.onboarding_concluido_em !== null,
       },
-      permissions,
+      permissions: permissoes,
       origem: session.origem as OriginOfSession,
     };
   }
