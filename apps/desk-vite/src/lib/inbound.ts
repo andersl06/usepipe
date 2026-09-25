@@ -2,7 +2,7 @@ import type { RespostaDaDescoberta } from '@pipe/contracts';
 import { urlDaApi } from './api';
 
 /**
- * Por onde se entra — copiado de `apps/gestao-vite/src/lib/entrada.ts`; só o
+ * Por onde se entra — copiado de `apps/management-vite/src/lib/entrada.ts`; só o
  * destino padrão muda (o Desk abre em `/`, os Atendimentos). É a parte que continua
  * valendo com o front no navegador. Sem cookie lido à mão: a sessão é o cookie
  * HttpOnly que a `api` emite, e o navegador o carrega sozinho.

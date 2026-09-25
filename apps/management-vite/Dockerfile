@@ -1,5 +1,5 @@
 # Imagem do Gestão (Vite + React, SPA estática). Construir a partir da RAIZ do monorepo:
-#   docker build -f apps/gestao-vite/Dockerfile -t ghcr.io/pipe/gestao-vite:<versao> .
+#   docker build -f apps/management-vite/Dockerfile -t ghcr.io/pipe/management-vite:<versao> .
 #
 # node:22-alpine só no estágio de build: o `engines` da raiz exige `>=22` e o
 # pnpm recusa instalar fora do intervalo. A imagem final não tem Node nenhum —
@@ -22,10 +22,10 @@ FROM base AS manifestos
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/api/package.json apps/api/
 COPY apps/workers/package.json apps/workers/
-COPY apps/gestao-vite/package.json apps/gestao-vite/
+COPY apps/management-vite/package.json apps/management-vite/
 COPY apps/crm/package.json apps/crm/
 COPY packages/ai/package.json packages/ai/
-COPY packages/autenticacao/package.json packages/autenticacao/
+COPY packages/authentication/package.json packages/authentication/
 COPY packages/contracts/package.json packages/contracts/
 COPY packages/core/package.json packages/core/
 COPY packages/db/package.json packages/db/
@@ -43,7 +43,7 @@ COPY tsconfig.base.json ./
 # muda e uma lista aqui envelheceria em silêncio. O peso de verdade — os
 # aplicativos irmãos — segue de fora.
 COPY packages packages
-COPY apps/gestao-vite apps/gestao-vite
+COPY apps/management-vite apps/management-vite
 # As URLs para o Desk e para a `api` são ASSADAS no pacote do navegador: o Vite
 # só expõe em `import.meta.env` o que existir no ambiente NA HORA do build, e
 # nunca lê variável de execução depois — sem estes dois `ARG` a imagem de
@@ -61,8 +61,8 @@ RUN pnpm --filter "@pipe/management-vite..." build
 # precisa — HTML, JS e CSS com hash — e nada do resto (pnpm, TypeScript, `src/`)
 # entra na imagem.
 FROM nginx:1.27-alpine AS runtime
-COPY apps/gestao-vite/nginx.conf /etc/nginx/conf.d/default.conf
-COPY --from=build /app/apps/gestao-vite/dist /usr/share/nginx/html
+COPY apps/management-vite/nginx.conf /etc/nginx/conf.d/default.conf
+COPY --from=build /app/apps/management-vite/dist /usr/share/nginx/html
 
 EXPOSE 80
 

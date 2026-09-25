@@ -5,7 +5,7 @@ import { caminhoInterno, descobrirInbound, inboundWithGoogleUrl, urlNaApi } from
 import { FundoPipe } from './fundo-pipe';
 
 /**
- * A tela de entrada do Desk — copiada de `apps/gestao-vite/src/paginas/entrar.tsx`
+ * A tela de entrada do Desk — copiada de `apps/management-vite/src/paginas/entrar.tsx`
  * (a tela de entrada é a da Gestão; só o título muda: "Entrar no Pipe Desk").
  * A descoberta é feita do navegador (o Vite faz o proxy em desenvolvimento; em
  * produção a origem deste app está em `PIPE_ORIGENS`).

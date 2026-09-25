@@ -3,7 +3,7 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react-swc';
 
 /**
- * Pipe Desk como SPA — o mesmo arranjo de `apps/gestao-vite/vite.config.ts`:
+ * Pipe Desk como SPA — o mesmo arranjo de `apps/management-vite/vite.config.ts`:
  * Vite com SWC, front estático, e a `api` NestJS como a única porta para o banco.
  *
  * Em desenvolvimento o `/v1` é proxy para a `api` (3010), para o cookie

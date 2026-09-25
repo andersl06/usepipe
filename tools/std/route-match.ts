@@ -594,7 +594,7 @@ function main(): void {
   fs.mkdirSync(path.dirname(emitFile), { recursive: true });
   fs.writeFileSync(emitFile, `${JSON.stringify(routes, null, 2)}\n`);
 
-  const consumerApps = new Set(['desk-vite', 'gestao-vite', 'crm', 'ponte', 'workers']);
+  const consumerApps = new Set(['desk-vite', 'management-vite', 'crm', 'bridge', 'workers']);
   const consumerFiles = trackedFiles.filter((file) => {
     if (!/\.tsx?$/.test(file)) return false;
     const parts = file.split('/');

@@ -9,7 +9,7 @@ export interface Resultado {
 
 /**
  * Uma ação de formulário do Desk, na `api` — o mesmo `acaoRemota` de
- * `apps/gestao-vite/src/lib/acoes.ts`, apontado para `POST /v1/desk/acoes/:nome`.
+ * `apps/management-vite/src/lib/acoes.ts`, apontado para `POST /v1/desk/acoes/:nome`.
  *
  * O `FormData` vira JSON (chave repetida vira lista, como o `getAll` espera), o
  * `Resultado` volta, e, dando certo, as leituras em cache são invalidadas.

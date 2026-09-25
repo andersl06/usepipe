@@ -102,7 +102,7 @@ export interface ShellOfContact {
 }
 
 /**
- * O que a tela de criar manda (`apps/gestao-vite/src/paginas/criar/gravar.ts`).
+ * O que a tela de criar manda (`apps/management-vite/src/paginas/criar/gravar.ts`).
  *
  * Os `recados` vêm da tela porque são a ÚNICA parte da regra que muda entre
  * criar fluxo e criar roteador: a frase da origem é escrita com "fluxo" e a

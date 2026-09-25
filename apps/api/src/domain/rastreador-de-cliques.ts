@@ -10,7 +10,7 @@ import { confirmarUrlSegura } from './management/integrations.js';
  * Rastreador de cliques (Growth › Click Tracker): um link curto por fluxo, e o
  * clique público que ele registra.
  *
- * A tela `growth/clicktracker` que já existe (`apps/gestao-vite/.../clicktracker.tsx`)
+ * A tela `growth/clicktracker` que já existe (`apps/management-vite/.../clicktracker.tsx`)
  * é a MEDIÇÃO da Blip de anúncios Click-to-WhatsApp da Meta (atribuição de conversas a
  * campanha de anúncio) — outra coisa, sem link nenhum para cadastrar
  * (`referencias-blip/pesquisa/blip-produtos-novos.md` linha 12). O que esta tarefa pede — cadastrar

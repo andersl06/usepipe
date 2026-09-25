@@ -2,7 +2,7 @@ import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { useSession } from '../context/session';
 
 /**
- * O portão das telas do Desk — o mesmo de `apps/gestao-vite`, sem o desvio para
+ * O portão das telas do Desk — o mesmo de `apps/management-vite`, sem o desvio para
  * `/bem-vindo`: o onboarding da conta é assunto da Gestão, e o atendente que
  * chega aqui já tem conta pronta.
  *

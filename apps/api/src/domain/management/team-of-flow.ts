@@ -68,7 +68,7 @@ const EDITAR_FLOW = 'automacao.fluxo.editar';
  * (`modules.application.detail.permissions.*.title`).
  *
  * Fora daqui ficam `iaModel`/`iaEnhancement`/`iaProviders` — o item de IA foi
- * removido do catálogo do menu (`apps/gestao-vite/src/paginas/fluxo/itens.ts`)
+ * removido do catálogo do menu (`apps/management-vite/src/paginas/fluxo/itens.ts`)
  * — e `scheduler`, que aparece no template sem título no pacote de tradução.
  * `team` não está no template, mas está no pacote (`permissions.team.title`) e
  * é o recurso que governa esta própria tela.

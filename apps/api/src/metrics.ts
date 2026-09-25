@@ -5,7 +5,7 @@ import { migrationsPendentes } from './saude.js';
 /**
  * Métricas em formato Prometheus, escritas à mão.
  *
- * Sem `prom-client` de propósito: o que os alertas de `infra/observabilidade/alertas.yml`
+ * Sem `prom-client` de propósito: o que os alertas de `infra/observability/alertas.yml`
  * pedem são dois contadores, um histograma e três medidores. O formato de exposição é
  * texto de uma linha por série — cabe no arquivo, e uma dependência a menos é uma
  * dependência a menos para atualizar, auditar e carregar na imagem.

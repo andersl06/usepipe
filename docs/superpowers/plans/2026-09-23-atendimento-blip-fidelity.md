@@ -21,11 +21,11 @@
 ### Task 1: Filtros rápidos e estados de Monitoramento
 
 **Files:**
-- Modify: `apps/gestao-vite/src/componentes/filtros-rapidos.tsx`
-- Modify: `apps/gestao-vite/src/lib/filtros-monitoramento.ts`
-- Modify: `apps/gestao-vite/src/paginas/operacao/monitoramento.tsx`
-- Modify: `apps/gestao-vite/src/paginas/operacao/atendimento.css`
-- Test: `apps/gestao-vite/tests/filtros-monitoramento.test.ts`
+- Modify: `apps/management-vite/src/componentes/filtros-rapidos.tsx`
+- Modify: `apps/management-vite/src/lib/filtros-monitoramento.ts`
+- Modify: `apps/management-vite/src/paginas/operacao/monitoramento.tsx`
+- Modify: `apps/management-vite/src/paginas/operacao/atendimento.css`
+- Test: `apps/management-vite/tests/filtros-monitoramento.test.ts`
 
 **Interfaces:**
 - Consumes: `Busca`, catálogos de filas/atendentes e query string existentes.
@@ -51,14 +51,14 @@ Expected: PASS.
 ### Task 2: Coerência funcional e visual do Histórico
 
 **Files:**
-- Modify: `apps/gestao-vite/src/paginas/operacao/historico.tsx`
-- Modify: `apps/gestao-vite/src/componentes/lista-historico.tsx`
-- Modify: `apps/gestao-vite/src/lib/historico.ts`
-- Modify: `apps/gestao-vite/src/paginas/operacao/atendimento.css`
+- Modify: `apps/management-vite/src/paginas/operacao/historico.tsx`
+- Modify: `apps/management-vite/src/componentes/lista-historico.tsx`
+- Modify: `apps/management-vite/src/lib/historico.ts`
+- Modify: `apps/management-vite/src/paginas/operacao/atendimento.css`
 - Modify: `apps/api/src/controladores/gestao-operacao.ts`
 - Test: `apps/api/tests/historico.test.ts`
-- Test: `apps/gestao-vite/tests/historico.test.ts`
-- Test: `apps/gestao-vite/tests/csv-historico.test.ts`
+- Test: `apps/management-vite/tests/historico.test.ts`
+- Test: `apps/management-vite/tests/csv-historico.test.ts`
 
 **Interfaces:**
 - Consumes: consulta existente, `CartaoHistorico`, `montarCsv` e filtros da URL.

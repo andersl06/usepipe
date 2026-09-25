@@ -23,10 +23,10 @@ FROM base AS manifestos
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
 COPY apps/api/package.json apps/api/
 COPY apps/workers/package.json apps/workers/
-COPY apps/gestao-vite/package.json apps/gestao-vite/
+COPY apps/management-vite/package.json apps/management-vite/
 COPY apps/crm/package.json apps/crm/
 COPY packages/ai/package.json packages/ai/
-COPY packages/autenticacao/package.json packages/autenticacao/
+COPY packages/authentication/package.json packages/authentication/
 COPY packages/contracts/package.json packages/contracts/
 COPY packages/core/package.json packages/core/
 COPY packages/db/package.json packages/db/

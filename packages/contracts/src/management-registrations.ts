@@ -7,7 +7,7 @@
  * lá, entra ou sai daqui, e o `tsc` do front acusa. Só as formas de
  * REQUISIÇÃO e de RESPOSTA moram aqui — a leitura (`FilaCadastrada`,
  * `UsoDePausas`, `RespostaProntaListada`) continua duplicada à mão em
- * `apps/gestao-vite/src/lib/*`, como já era antes desta tarefa.
+ * `apps/management-vite/src/lib/*`, como já era antes desta tarefa.
  */
 
 /* ------------------------------------------------------------------- filas */

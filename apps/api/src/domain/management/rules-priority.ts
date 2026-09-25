@@ -10,7 +10,7 @@ import { RULE_MANAGE } from './registrations.js';
 /**
  * CRUD básico de `regra_prioridade` — item 4 da tarefa de cadastros do
  * Atendimento. "Sem tela nova": este arquivo só existe para a rota REST
- * ficar completa (leitura + escrita), sem página em `apps/gestao-vite`.
+ * ficar completa (leitura + escrita), sem página em `apps/management-vite`.
  *
  * **ATUALIZAÇÃO — o motor nasceu.** As duas decisões abaixo (sem motor, sem
  * ordem) valiam quando só existia o CRUD. Numa tarefa seguinte ("fazer

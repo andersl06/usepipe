@@ -1,6 +1,6 @@
 -- `fluxo.configuracao`: guarda "Tela de Boas-vindas" e "Menu Persistente" —
 -- as duas telas de `/configurations/welcome` e `/configurations/persistentMenu`
--- que hoje só existem no front (`apps/gestao-vite/src/paginas/fluxo/configuracoes/
+-- que hoje só existem no front (`apps/management-vite/src/paginas/fluxo/configuracoes/
 -- {boasvindas,menu-persistente}/`) e não gravam nada.
 --
 -- Uma coluna jsonb, não uma tabela: são poucos campos, de UMA tela cada, sem

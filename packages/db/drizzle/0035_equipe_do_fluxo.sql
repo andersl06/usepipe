@@ -4,7 +4,7 @@
 -- `guest`/`member`/`admin`): quem entrava na conta enxergava todos os fluxos dela. A origem
 -- decide o contrário, e `referencias-blip/pesquisa/blip-identidade-tenant-permissao.md` §3 mede isso no
 -- objeto real: "a permissão não é do tenant, é do bot" — o mesmo usuário é quase admin num
--- bot e quase nada em outro, dentro da mesma empresa. `apps/gestao-vite/src/paginas/fluxo/
+-- bot e quase nada em outro, dentro da mesma empresa. `apps/management-vite/src/paginas/fluxo/
 -- itens.ts` já registrava a dívida ("até existir RBAC por fluxo"); esta tabela é ela paga.
 --
 -- ## `papel_no_fluxo` — o traço de "Permissão" dos dois modais

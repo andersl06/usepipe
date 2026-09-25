@@ -1,5 +1,5 @@
-# Contexto de build da imagem do gestao-vite. O BuildKit usa este arquivo NO
-# LUGAR do .dockerignore da raiz quando o -f aponta para apps/gestao-vite/Dockerfile,
+# Contexto de build da imagem do management-vite. O BuildKit usa este arquivo NO
+# LUGAR do .dockerignore da raiz quando o -f aponta para apps/management-vite/Dockerfile,
 # então ele precisa ser completo — não é um complemento daquele.
 #
 # O que ele acrescenta ao da raiz: os aplicativos irmãos ficam de fora do

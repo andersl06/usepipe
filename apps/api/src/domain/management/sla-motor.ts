@@ -95,7 +95,7 @@ function nivelElevado(atual: string): NivelPriority | null {
 /**
  * Executa a ação configurada (`regra_sla.acao_alerta`/`acao_estouro`, formato
  * `{ tipo: 'notificar_supervisor' | 'elevar_prioridade' }` — é o que
- * `packages/db`/`apps/gestao-vite` semeiam hoje).
+ * `packages/db`/`apps/management-vite` semeiam hoje).
  *
  * O EVENTO (`sla_alertado`/`sla_estourado` em `evento_atendimento`) já foi
  * gravado por quem chama, incondicionalmente — é o dado bruto de onde

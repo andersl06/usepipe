@@ -26,7 +26,7 @@
 
 :root {
   /* O trilho é escuro nos dois temas, como a barra da Gestão (`--g-barra-*`
-     em `apps/gestao-vite`): cromo que inverte junto com o conteúdo deixa de
+     em `apps/management-vite`): cromo que inverte junto com o conteúdo deixa de
      ser cromo. `--d-trilho-tinta` é o conteúdo claro; a passagem do cursor e o
      item em vigor são a tinta clara a 8%, que é o que a cópia mede
      (`.menu-selected` → rgba(255,255,255,.08) no tema escuro). */
@@ -2499,7 +2499,7 @@ button {
 /* ======================================================= tela de entrada
 
    A ÚNICA tela pública do aplicativo: `/entrar` e `/convite/<token>`.
-   Copiada de `apps/gestao-vite/src/estilos/globais.css` — a tela de entrada do
+   Copiada de `apps/management-vite/src/estilos/globais.css` — a tela de entrada do
    Desk é a da Gestão, só o título muda.
 
    Esta seção é a ENTREGA do desenho da tela de entrada, medida por medida:

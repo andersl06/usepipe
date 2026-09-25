@@ -259,7 +259,7 @@ export const QUEUES_EXAMPLE = [
  * exatamente um" da migração 0021, aplicada a quem nasceu depois dela.
  *
  * O backfill da 0021 só cobriu quem já existia; as sementes de operação
- * (`semente-demo.ts`, `apps/gestao-vite/semente/semente-gestao.ts`) criam
+ * (`semente-demo.ts`, `apps/management-vite/semente/semente-gestao.ts`) criam
  * usuários só com papel de atendimento, e a tela de Membros do contrato — que
  * lista pelo papel de CONTA — ficava vazia. A regra de qual papel é a MESMA da
  * 0021, para o resultado não depender de quem rodou primeiro: `administrador` ou

@@ -65,7 +65,7 @@ async function flowExists(tx: TransactionPipe, tenantId: string, fluxoId: string
 
 /**
  * `MAX_TOKENS = 3` na origem (`referencias-blip/pesquisa/blip-configuracoes-api-e-chaves.md`,
- * espelhado em `apps/gestao-vite/.../configuracoes/regras.ts`). Conferido aqui
+ * espelhado em `apps/management-vite/.../configuracoes/regras.ts`). Conferido aqui
  * também: a regra do front não segura quem chama a `api` direto.
  */
 export const LIMITE_DE_CHAVES = 3;
