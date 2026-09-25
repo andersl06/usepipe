@@ -27,7 +27,7 @@
     {
       "id": "gestao-vite-comment-a22f96b7",
       "action": "translate",
-      "new_text": "/* ------------------------------------------------ home card data */",
+      "new_text": "------------------------------------------------ home card data",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/fluxo/itens.ts:169-169",
       "notes": "pre-triage D-40"
@@ -411,7 +411,7 @@
     {
       "id": "gestao-vite-comment-c0de7105",
       "action": "translate",
-      "new_text": "/* --------------------------------------------------- content */",
+      "new_text": "--------------------------------------------------- content",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/minha-conta/page.tsx:140-140",
       "notes": "pre-triage D-40"
@@ -427,7 +427,7 @@
     {
       "id": "gestao-vite-comment-72199fec",
       "action": "translate",
-      "new_text": "/* ------------------------------------- tab: preferences */",
+      "new_text": "------------------------------------- tab: preferences",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/minha-conta/page.tsx:275-275",
       "notes": "pre-triage D-40"

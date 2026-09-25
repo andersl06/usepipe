@@ -315,7 +315,7 @@
     {
       "id": "gestao-vite-comment-2a3f1be5",
       "action": "translate",
-      "new_text": "/* ------------------------------------------------------------- preferences */",
+      "new_text": "------------------------------------------------------------- preferences",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:222-222",
       "notes": "pre-triage D-40"
@@ -331,7 +331,7 @@
     {
       "id": "gestao-vite-comment-b7db5df2",
       "action": "translate",
-      "new_text": "/* ---------------------------------------------------------------- metrics */",
+      "new_text": "---------------------------------------------------------------- metrics",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:255-255",
       "notes": "pre-triage D-40"
@@ -363,7 +363,7 @@
     {
       "id": "gestao-vite-comment-c3176212",
       "action": "translate",
-      "new_text": "/* --------------------------------------------------------------- extensions */",
+      "new_text": "--------------------------------------------------------------- extensions",
       "sensitivity": "other",
       "evidence": "apps/gestao-vite/src/paginas/fluxo/cartoes.tsx:56-56",
       "notes": "pre-triage D-40"
