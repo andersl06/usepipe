@@ -58,6 +58,7 @@ export function loadWorkspaceProject(root: string): ProjectType {
       moduleResolution: ModuleResolutionKind.Bundler,
       jsx: ts.JsxEmit.ReactJSX,
       allowImportingTsExtensions: true,
+      allowJs: true,
       noEmit: true,
       experimentalDecorators: true,
       emitDecoratorMetadata: true,
@@ -70,8 +71,12 @@ export function loadWorkspaceProject(root: string): ProjectType {
     path.join(resolvedRoot, 'apps/*/src/**/*.{ts,tsx}'),
     path.join(resolvedRoot, 'apps/*/tests/**/*.{ts,tsx}'),
     path.join(resolvedRoot, 'apps/*/semente/**/*.{ts,tsx}'),
+    path.join(resolvedRoot, 'apps/*/assets/**/*.js'),
     path.join(resolvedRoot, 'packages/*/src/**/*.{ts,tsx}'),
     path.join(resolvedRoot, 'packages/*/tests/**/*.{ts,tsx}'),
+    path.join(resolvedRoot, 'packages/*/*.mjs'),
+    path.join(resolvedRoot, 'scripts/**/*.mjs'),
+    path.join(resolvedRoot, 'tools/**/*.ts'),
   ]);
   return project;
 }
