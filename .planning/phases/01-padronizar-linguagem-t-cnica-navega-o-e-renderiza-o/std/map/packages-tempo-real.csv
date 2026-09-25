@@ -1,35 +1,35 @@
 id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
-packages-tempo-real-dir-2ca346ea,packages-tempo-real,1,dir,packages/tempo-real/tests,packages/time-real/tests,packages/tempo-real/tests,0,no,,,proposed,codex1,
-packages-tempo-real-dir-732260a2,packages-tempo-real,1,dir,packages/tempo-real/src,packages/time-real/src,packages/tempo-real/src,0,no,,,proposed,codex1,
-packages-tempo-real-dir-a73abb1c,packages-tempo-real,1,dir,packages/tempo-real,packages/time-real,packages/tempo-real,0,no,,,proposed,codex1,
-packages-tempo-real-file-403647e2,packages-tempo-real,1,file,tempo-real.test.ts,time-real.test.ts,packages/tempo-real/tests/tempo-real.test.ts,0,no,,,proposed,codex1,
-packages-tempo-real-literal-value-3c1bee82,packages-tempo-real,1,literal-value,caiu,fell,packages/tempo-real/src/index.ts:55,23,no,,D-11,proposed,codex1,
-packages-tempo-real-literal-value-4196b501,packages-tempo-real,1,literal-value,ligado,connected,packages/tempo-real/src/index.ts:55,137,no,,D-11,proposed,codex1,
-packages-tempo-real-literal-value-dccd6b9f,packages-tempo-real,1,literal-value,ligando,connecting,packages/tempo-real/src/index.ts:55,8,no,,D-11,proposed,codex1,
-packages-tempo-real-package-35c97f1c,packages-tempo-real,4,package,@pipe/tempo-real,@pipe/time-real,packages/tempo-real/package.json:1,0,no,,,proposed,codex1,
-packages-tempo-real-symbol-0e9b91fb,packages-tempo-real,1,symbol,criar,create,packages/tempo-real/src/index.ts:106,235,no,,,proposed,codex1,
-packages-tempo-real-symbol-2d3accde,packages-tempo-real,1,symbol,ligacao,connection,packages/tempo-real/tests/tempo-real.test.ts:116,23,no,,,proposed,codex1,
-packages-tempo-real-symbol-5cabca03,packages-tempo-real,1,symbol,padraoCriarSocket,defaultCreateSocket,packages/tempo-real/src/index.ts:238,2,no,,,proposed,codex1,
-packages-tempo-real-symbol-6188c91b,packages-tempo-real,1,symbol,primeiro,first,packages/tempo-real/tests/tempo-real.test.ts:202,258,no,,,proposed,codex1,
-packages-tempo-real-symbol-6ed84022,packages-tempo-real,1,symbol,urlDoCanal,urlOfChannel,packages/tempo-real/src/index.ts:88,5,no,,,proposed,codex1,
-packages-tempo-real-symbol-7d904b9f,packages-tempo-real,1,symbol,estado,state,packages/tempo-real/src/index.ts:111,1269,no,,,proposed,codex1,
-packages-tempo-real-symbol-a1589d65,packages-tempo-real,1,symbol,criarSocket,createSocket,packages/tempo-real/tests/tempo-real.test.ts:39,14,no,,,proposed,codex1,
-packages-tempo-real-symbol-ba121382,packages-tempo-real,1,symbol,mudarEstado,changeState,packages/tempo-real/src/index.ts:115,4,no,,,proposed,codex1,
-packages-tempo-real-symbol-d6feca25,packages-tempo-real,1,symbol,OpcoesDaLigacao,OptionsOfConnection,packages/tempo-real/src/index.ts:67,2,no,,,proposed,codex1,
-packages-tempo-real-symbol-da410acb,packages-tempo-real,1,symbol,Ligacao,Connection,packages/tempo-real/src/index.ts:82,2,no,,,proposed,codex1,
-packages-tempo-real-symbol-e6e243d7,packages-tempo-real,1,symbol,inscricao,subscription,packages/tempo-real/src/index.ts:164,2,no,,,proposed,codex1,
-packages-tempo-real-symbol-e71ff9d3,packages-tempo-real,1,symbol,EstadoDaLigacao,StateOfConnection,packages/tempo-real/src/index.ts:55,5,no,,,proposed,codex1,
-packages-tempo-real-test-title-01503ff3,packages-tempo-real,1,test-title,entrega evento e IGNORA quadro de controle,delivery event and IGNORA board of control,packages/tempo-real/tests/tempo-real.test.ts:96,0,no,,,proposed,codex1,
-packages-tempo-real-test-title-0cc4efa9,packages-tempo-real,1,test-title,ligação,connection,packages/tempo-real/tests/tempo-real.test.ts:81,36,no,,,proposed,codex1,
-packages-tempo-real-test-title-11fa66a7,packages-tempo-real,1,test-title,"avisa a tela do estado, para ela poder dizer ""reconectando""","warns a screen of state, for it poder dizer ""reconnecting""",packages/tempo-real/tests/tempo-real.test.ts:248,0,no,,,proposed,codex1,
-packages-tempo-real-test-title-2eb5bfe6,packages-tempo-real,1,test-title,zera o backoff depois de uma ligação que deu certo,resets o backoff after of uma connection that gave correct,packages/tempo-real/tests/tempo-real.test.ts:174,0,no,,,proposed,codex1,
-packages-tempo-real-test-title-a94205f6,packages-tempo-real,1,test-title,a URL do canal,a URL of channel,packages/tempo-real/tests/tempo-real.test.ts:54,0,no,,,proposed,codex1,
-packages-tempo-real-test-title-ccecc033,packages-tempo-real,1,test-title,manda a inscrição assim que abre,sends a subscription assim that opens,packages/tempo-real/tests/tempo-real.test.ts:82,0,no,,,proposed,codex1,
-packages-tempo-real-test-title-d5722a93,packages-tempo-real,1,test-title,troca http por ws e https por wss,swap http by ws and https by wss,packages/tempo-real/tests/tempo-real.test.ts:55,0,no,,,proposed,codex1,
-packages-tempo-real-test-title-f478f7d8,packages-tempo-real,1,test-title,reconecta depois da queda e REENVIA a inscrição,reconnects after of drop and resends a subscription,packages/tempo-real/tests/tempo-real.test.ts:131,0,no,,,proposed,codex1,
-packages-tempo-real-ts-local-10bf6b43,packages-tempo-real,1,ts-local,mensagem,message,packages/tempo-real/src/index.ts:169,1267,no,,,proposed,codex1,
-packages-tempo-real-ts-local-5a4ce6d6,packages-tempo-real,1,ts-local,opcoes,options,packages/tempo-real/src/index.ts:104,157,no,,,proposed,codex1,
-packages-tempo-real-ts-local-beb874bb,packages-tempo-real,1,ts-local,estado,state,packages/tempo-real/src/index.ts:77,1269,no,,,proposed,codex1,
-packages-tempo-real-ts-prop-1bcef260,packages-tempo-real,1,ts-prop,aoEstado,toState,packages/tempo-real/src/index.ts:77,3,no,,,proposed,codex1,
-packages-tempo-real-ts-prop-57788449,packages-tempo-real,1,ts-prop,estado,state,packages/tempo-real/src/index.ts:85,1269,no,,,proposed,codex1,
-packages-tempo-real-ts-prop-5a6f3ff9,packages-tempo-real,1,ts-prop,criarSocket,createSocket,packages/tempo-real/src/index.ts:79,14,no,,,proposed,codex1,
+packages-tempo-real-dir-2ca346ea,packages-tempo-real,1,dir,packages/tempo-real/tests,packages/realtime/tests,packages/tempo-real/tests,0,no,,,approved,codex1,"GLOSSARY.md: tempo-real -> realtime (was time-real, token-level engine missed the compound entry)"
+packages-tempo-real-dir-732260a2,packages-tempo-real,1,dir,packages/tempo-real/src,packages/realtime/src,packages/tempo-real/src,0,no,,,approved,codex1,"GLOSSARY.md: tempo-real -> realtime (was time-real, token-level engine missed the compound entry)"
+packages-tempo-real-dir-a73abb1c,packages-tempo-real,1,dir,packages/tempo-real,packages/realtime,packages/tempo-real,0,no,,,approved,codex1,"GLOSSARY.md: tempo-real -> realtime (was time-real, token-level engine missed the compound entry)"
+packages-tempo-real-file-403647e2,packages-tempo-real,1,file,tempo-real.test.ts,realtime.test.ts,packages/tempo-real/tests/tempo-real.test.ts,0,no,,,approved,codex1,"GLOSSARY.md: tempo-real -> realtime (was time-real, token-level engine missed the compound entry)"
+packages-tempo-real-literal-value-3c1bee82,packages-tempo-real,1,literal-value,caiu,fell,packages/tempo-real/src/index.ts:55,23,no,,D-11,approved,codex1,
+packages-tempo-real-literal-value-4196b501,packages-tempo-real,1,literal-value,ligado,connected,packages/tempo-real/src/index.ts:55,137,no,,D-11,approved,codex1,
+packages-tempo-real-literal-value-dccd6b9f,packages-tempo-real,1,literal-value,ligando,connecting,packages/tempo-real/src/index.ts:55,8,no,,D-11,approved,codex1,
+packages-tempo-real-package-35c97f1c,packages-tempo-real,4,package,@pipe/tempo-real,@pipe/realtime,packages/tempo-real/package.json:1,0,no,,,approved,codex1,"GLOSSARY.md: tempo-real -> realtime; aligned to infra-package-new-realtime (was time-real, token-level engine missed the compound entry)"
+packages-tempo-real-symbol-0e9b91fb,packages-tempo-real,1,symbol,criar,create,packages/tempo-real/src/index.ts:106,235,no,,,approved,codex1,
+packages-tempo-real-symbol-2d3accde,packages-tempo-real,1,symbol,ligacao,connection,packages/tempo-real/tests/tempo-real.test.ts:116,23,no,,,approved,codex1,
+packages-tempo-real-symbol-5cabca03,packages-tempo-real,1,symbol,padraoCriarSocket,defaultCreateSocket,packages/tempo-real/src/index.ts:238,2,no,,,approved,codex1,
+packages-tempo-real-symbol-6188c91b,packages-tempo-real,1,symbol,primeiro,first,packages/tempo-real/tests/tempo-real.test.ts:202,258,no,,,approved,codex1,
+packages-tempo-real-symbol-6ed84022,packages-tempo-real,1,symbol,urlDoCanal,urlOfChannel,packages/tempo-real/src/index.ts:88,5,no,,,approved,codex1,
+packages-tempo-real-symbol-7d904b9f,packages-tempo-real,1,symbol,estado,state,packages/tempo-real/src/index.ts:111,1269,no,,,approved,codex1,
+packages-tempo-real-symbol-a1589d65,packages-tempo-real,1,symbol,criarSocket,createSocket,packages/tempo-real/tests/tempo-real.test.ts:39,14,no,,,approved,codex1,
+packages-tempo-real-symbol-ba121382,packages-tempo-real,1,symbol,mudarEstado,changeState,packages/tempo-real/src/index.ts:115,4,no,,,approved,codex1,
+packages-tempo-real-symbol-d6feca25,packages-tempo-real,1,symbol,OpcoesDaLigacao,OptionsOfConnection,packages/tempo-real/src/index.ts:67,2,no,,,approved,codex1,
+packages-tempo-real-symbol-da410acb,packages-tempo-real,1,symbol,Ligacao,Connection,packages/tempo-real/src/index.ts:82,2,no,,,approved,codex1,
+packages-tempo-real-symbol-e6e243d7,packages-tempo-real,1,symbol,inscricao,subscription,packages/tempo-real/src/index.ts:164,2,no,,,approved,codex1,
+packages-tempo-real-symbol-e71ff9d3,packages-tempo-real,1,symbol,EstadoDaLigacao,StateOfConnection,packages/tempo-real/src/index.ts:55,5,no,,,approved,codex1,
+packages-tempo-real-test-title-01503ff3,packages-tempo-real,1,test-title,entrega evento e IGNORA quadro de controle,Deliver event frames and ignore control frames,packages/tempo-real/tests/tempo-real.test.ts:96,0,no,,,approved,codex1,D-47 retranslated
+packages-tempo-real-test-title-0cc4efa9,packages-tempo-real,1,test-title,ligação,Manage the real-time connection,packages/tempo-real/tests/tempo-real.test.ts:81,36,no,,,approved,codex1,D-47 retranslated
+packages-tempo-real-test-title-11fa66a7,packages-tempo-real,1,test-title,"avisa a tela do estado, para ela poder dizer ""reconectando""",Notify the screen when the connection state changes,packages/tempo-real/tests/tempo-real.test.ts:248,0,no,,,approved,codex1,D-47 retranslated
+packages-tempo-real-test-title-2eb5bfe6,packages-tempo-real,1,test-title,zera o backoff depois de uma ligação que deu certo,Reset reconnect backoff after a successful connection,packages/tempo-real/tests/tempo-real.test.ts:174,0,no,,,approved,codex1,D-47 retranslated
+packages-tempo-real-test-title-a94205f6,packages-tempo-real,1,test-title,a URL do canal,Build the WebSocket channel URL,packages/tempo-real/tests/tempo-real.test.ts:54,0,no,,,approved,codex1,D-47 retranslated
+packages-tempo-real-test-title-ccecc033,packages-tempo-real,1,test-title,manda a inscrição assim que abre,Subscribe to topics as soon as the socket opens,packages/tempo-real/tests/tempo-real.test.ts:82,0,no,,,approved,codex1,D-47 retranslated
+packages-tempo-real-test-title-d5722a93,packages-tempo-real,1,test-title,troca http por ws e https por wss,Convert HTTP URLs to `ws` and HTTPS URLs to `wss`,packages/tempo-real/tests/tempo-real.test.ts:55,0,no,,,approved,codex1,D-47 retranslated
+packages-tempo-real-test-title-f478f7d8,packages-tempo-real,1,test-title,reconecta depois da queda e REENVIA a inscrição,Reconnect after a drop and send the subscription again,packages/tempo-real/tests/tempo-real.test.ts:131,0,no,,,approved,codex1,D-47 retranslated
+packages-tempo-real-ts-local-10bf6b43,packages-tempo-real,1,ts-local,mensagem,message,packages/tempo-real/src/index.ts:169,1267,no,,,approved,codex1,
+packages-tempo-real-ts-local-5a4ce6d6,packages-tempo-real,1,ts-local,opcoes,options,packages/tempo-real/src/index.ts:104,157,no,,,approved,codex1,
+packages-tempo-real-ts-local-beb874bb,packages-tempo-real,1,ts-local,estado,state,packages/tempo-real/src/index.ts:77,1269,no,,,approved,codex1,
+packages-tempo-real-ts-prop-1bcef260,packages-tempo-real,1,ts-prop,aoEstado,toState,packages/tempo-real/src/index.ts:77,3,no,,,approved,codex1,
+packages-tempo-real-ts-prop-57788449,packages-tempo-real,1,ts-prop,estado,state,packages/tempo-real/src/index.ts:85,1269,no,,,approved,codex1,
+packages-tempo-real-ts-prop-5a6f3ff9,packages-tempo-real,1,ts-prop,criarSocket,createSocket,packages/tempo-real/src/index.ts:79,14,no,,,approved,codex1,

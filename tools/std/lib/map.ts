@@ -86,7 +86,15 @@ export function resolvePath(oldPath: string, rows: MapRow[]): string {
   for (let pass = 0; pass <= applied.length; pass += 1) {
     const before = current;
     for (const row of dirs) current = replacePathPrefix(current, row.old, row.new) ?? current;
-    for (const row of files) if (current === row.old.replaceAll('\\', '/')) current = row.new.replaceAll('\\', '/');
+    for (const row of files) {
+      const declaredAt = row.declared_at.replaceAll('\\', '/');
+      if (current === declaredAt) {
+        // `new`'s directory portion is inconsistent across scopes/generators
+        // (see move-files.ts rowMove) - only its basename is trustworthy.
+        const newBasename = row.new.replaceAll('\\', '/').split('/').pop() ?? row.new;
+        current = `${declaredAt.slice(0, declaredAt.lastIndexOf('/'))}/${newBasename}`;
+      }
+    }
     if (before === current) break;
   }
   return current;

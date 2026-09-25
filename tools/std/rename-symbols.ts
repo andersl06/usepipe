@@ -51,7 +51,7 @@ export function renameSymbols(options: RenameSymbolsOptions): RenameSymbolsResul
   const allRows = readMap(options.mapDir);
   const rows = allRows.filter((row) =>
     kinds.includes(row.kind) && statuses.includes(row.status) &&
-    (!options.scopes || options.scopes.includes(row.scope)) &&
+    (!options.scopes || options.scopes.includes('all') || options.scopes.includes(row.scope)) &&
     (!options.ids || options.ids.includes(row.id)));
   const project = loadWorkspaceProject(root);
   const missingIds: string[] = [];

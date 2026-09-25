@@ -1,6 +1,6 @@
 # Contrato de navegação e renderização (STD-04/05/12)
 
-Status: PROPOSED (owner approval at gate 2, plan 01-12).
+Status: APPROVED 2026-09-25 (D-47, gate 2, plan 01-12). D-29 (Gestão contact detail), D-31 (wizard step) and D-34 (deep-link table names) decided per the recommendations below; the 251 `NEEDS VALIDATION` rows in the per-screen table stay open for live validation per screen during slice execution (D-47) — this does not block the route/param name renames, already proven applicable and approved.
 
 A tradução do nome de uma rota e a escolha de onde seu estado mora são decisões separadas (D-26). A tabela abaixo registra o estado atual, a proposta e o grau de confirmação; `NEEDS VALIDATION` nunca autoriza inferir um deep link funcional a partir de uma rota declarada ou de uma captura de URL. A evidência da Blip foi lida no arquivo e linha citados; quando ela só prova que uma tela existe, deep link e F5 continuam sem validação. A leitura de código capturado não substitui teste ao vivo.
 
@@ -235,11 +235,11 @@ As páginas são pastas de `apps/crm/src/app`; uma tradução de pasta muda a UR
 | gestao-vite | /fluxo/:id/atendimento/atendentes/gestao/permissoes | /fluxo/:id/atendimento/atendentes/gestao/permissoes | ?atendentes= | query | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /contrato/membros | /contrato/membros | ?erro= | query | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /contrato | /contrato | ?demo= | query | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
-| gestao-vite | /criar/fluxo | /criar/fluxo | ?passo= | query | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | referencias-blip/portal/INDICE.md:15-17 | D-31 | OWNER DECIDES AT GATE 2 |
+| gestao-vite | /criar/fluxo | /criar/fluxo | ?passo= | query | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | referencias-blip/portal/INDICE.md:15-17 | D-31 | DECIDED |
 | gestao-vite | /criar/fluxo | /criar/fluxo | ?erro= | query | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /criar/fluxo | /criar/fluxo | ?nome= | query | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /criar/fluxo | /criar/fluxo | ?template= | query | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
-| gestao-vite | /criar/roteador | /criar/roteador | ?passo= | query | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | referencias-blip/portal/INDICE.md:15-17 | D-31 | OWNER DECIDES AT GATE 2 |
+| gestao-vite | /criar/roteador | /criar/roteador | ?passo= | query | path | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | referencias-blip/portal/INDICE.md:15-17 | D-31 | DECIDED |
 | gestao-vite | /criar/roteador | /criar/roteador | ?erro= | query | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /criar/roteador | /criar/roteador | ?nome= | query | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /entrar | /entrar | ?destino= | query | query | yes | yes | NEEDS VALIDATION | NEEDS VALIDATION | D-14 | DECIDED |
@@ -259,7 +259,7 @@ As páginas são pastas de `apps/crm/src/app`; uma tradução de pasta muda a UR
 | gestao-vite | /fluxo/:id/analise/mensagens-ativas | /fluxo/:id/analise/mensagens-ativas | ?template= | query | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /fluxo/:id/analise/visao-geral | /fluxo/:id/analise/visao-geral | ?de= | query | react-state | no | yes | NEEDS VALIDATION | NEEDS VALIDATION | D-30 | DECIDED |
 | gestao-vite | /fluxo/:id/analise/visao-geral | /fluxo/:id/analise/visao-geral | ?ate= | query | react-state | no | yes | NEEDS VALIDATION | NEEDS VALIDATION | D-30 | DECIDED |
-| gestao-vite | /fluxo/:id/contatos/:contatoId | /fluxo/:id/contatos/:contatoId | ?ticketId= | query | query | yes | yes | fechar painel; D-32 NEEDS VALIDATION | referencias-blip/atendimento/attendance-history-40967cbb-061c-40ba-877e/supernova.blip.ai/portal.js:247685-247686 | D-29/D-34 | OWNER DECIDES AT GATE 2 |
+| gestao-vite | /fluxo/:id/contatos/:contatoId | /fluxo/:id/contatos/:contatoId | ?ticketId= | query | query | yes | yes | fechar painel; D-32 NEEDS VALIDATION | referencias-blip/atendimento/attendance-history-40967cbb-061c-40ba-877e/supernova.blip.ai/portal.js:247685-247686 | D-29/D-34 | DECIDED |
 | gestao-vite | /fluxo/:id/log | /fluxo/:id/log | ?busca= | query | react-state | no | yes | NEEDS VALIDATION | NEEDS VALIDATION | D-30 | DECIDED |
 | gestao-vite | /fluxo/:id/log | /fluxo/:id/log | ?de= | query | react-state | no | yes | NEEDS VALIDATION | NEEDS VALIDATION | D-30 | DECIDED |
 | gestao-vite | /fluxo/:id/log | /fluxo/:id/log | ?ate= | query | react-state | no | yes | NEEDS VALIDATION | NEEDS VALIDATION | D-30 | DECIDED |
@@ -324,7 +324,7 @@ As páginas são pastas de `apps/crm/src/app`; uma tradução de pasta muda a UR
 | gestao-vite | /roteador/:id/analise/mensagens-ativas | /roteador/:id/analise/mensagens-ativas | ?template= | query | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | NEEDS VALIDATION | D-34 | NEEDS VALIDATION |
 | gestao-vite | /roteador/:id/analise/visao-geral | /roteador/:id/analise/visao-geral | ?de= | query | react-state | no | yes | NEEDS VALIDATION | NEEDS VALIDATION | D-30 | DECIDED |
 | gestao-vite | /roteador/:id/analise/visao-geral | /roteador/:id/analise/visao-geral | ?ate= | query | react-state | no | yes | NEEDS VALIDATION | NEEDS VALIDATION | D-30 | DECIDED |
-| gestao-vite | /roteador/:id/contatos/:contatoId | /roteador/:id/contatos/:contatoId | ?ticketId= | query | query | yes | yes | fechar painel; D-32 NEEDS VALIDATION | referencias-blip/atendimento/attendance-history-40967cbb-061c-40ba-877e/supernova.blip.ai/portal.js:247685-247686 | D-29/D-34 | OWNER DECIDES AT GATE 2 |
+| gestao-vite | /roteador/:id/contatos/:contatoId | /roteador/:id/contatos/:contatoId | ?ticketId= | query | query | yes | yes | fechar painel; D-32 NEEDS VALIDATION | referencias-blip/atendimento/attendance-history-40967cbb-061c-40ba-877e/supernova.blip.ai/portal.js:247685-247686 | D-29/D-34 | DECIDED |
 | gestao-vite | /roteador/:id/log | /roteador/:id/log | ?busca= | query | react-state | no | yes | NEEDS VALIDATION | NEEDS VALIDATION | D-30 | DECIDED |
 | gestao-vite | /roteador/:id/log | /roteador/:id/log | ?de= | query | react-state | no | yes | NEEDS VALIDATION | NEEDS VALIDATION | D-30 | DECIDED |
 | gestao-vite | /roteador/:id/log | /roteador/:id/log | ?ate= | query | react-state | no | yes | NEEDS VALIDATION | NEEDS VALIDATION | D-30 | DECIDED |
@@ -376,4 +376,4 @@ Decisão: **coordinated cut** de v1, **no /v2**. Fronts, API, workers, packages,
 - URLs assinadas de anexos já emitidas expiram em 15 minutos e quebram no corte; quebra aceita. O cookie de sessão renomeado desloga todos (D-38). Filas antigas são drenadas antes de subir nomes novos: parar produtores, esvaziar filas antigas, subir API/workers/fronts juntos; o `outbox_mensagem` conserva a fonte de verdade (D-10).
 - Redirect de login `?destino=` conserva o guard de caminho interno em cada front (`caminhoInterno`) e na API (`destinoAbsoluto`); só os identificadores de rota são traduzidos. `//host`, URL absoluta e caminhos com separadores Windows não viram destinos externos. A mesma validação vale para CRM; a presença do cookie no middleware não substitui autenticação da API.
 
-O plano 01-12 decide as recomendações marcadas `OWNER DECIDES AT GATE 2` e valida ao vivo os casos `NEEDS VALIDATION` antes do mapa old→new dos planos 01-10/01-11 ser aplicado.
+O plano 01-12 decidiu (D-47, gate 2) as recomendações que antes ficavam marcadas para o dono decidir no portão 2 (D-29, D-31, D-34 — ver o cabeçalho deste documento); os casos `NEEDS VALIDATION` restantes na tabela por tela são validados ao vivo, tela por tela, durante a execução de cada fatia, sem bloquear o mapa old→new dos planos 01-10/01-11.

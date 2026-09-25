@@ -7,6 +7,7 @@ import { readMap, writeMap, type MapRow } from './lib/map.ts';
 
 const { Project, SyntaxKind, ts } = tsMorph;
 const ALLOWED_KINDS = new Set(['file', 'dir', 'package', 'app']);
+const SPECIAL_VALUES = new Set(['KEEP', 'REMOVE', 'STATE']);
 
 export interface MoveFilesOptions {
   root?: string;
@@ -67,6 +68,16 @@ function rowMove(row: MapRow): Move {
     };
   if (row.kind === 'app')
     return { row, oldPath: normalize(`apps/${row.old}`), newPath: normalize(`apps/${row.new}`) };
+  // file rows carry a bare basename in `old` (inventory convention) - the real
+  // source path is `declared_at`; dir rows already carry a full path in `old`.
+  // `new`'s directory portion (when present) is inconsistent across scopes/
+  // generators (some full-path, some app-relative, some bare basename) - only
+  // its basename is trustworthy; the directory always comes from `declared_at`
+  // so mapPath's dir-move chaining translates it the same way as every other kind.
+  if (row.kind === 'file') {
+    const newValue = `${path.posix.dirname(normalize(row.declared_at))}/${path.posix.basename(row.new)}`;
+    return { row, oldPath: normalize(row.declared_at), newPath: normalize(newValue) };
+  }
   return { row, oldPath: normalize(row.old), newPath: normalize(row.new) };
 }
 
@@ -336,7 +347,8 @@ export function moveFiles(options: MoveFilesOptions): MoveFilesResult {
     (row) =>
       kinds.includes(row.kind) &&
       statuses.includes(row.status) &&
-      (!options.scopes || options.scopes.includes(row.scope)) &&
+      !SPECIAL_VALUES.has(row.new) &&
+      (!options.scopes || options.scopes.includes('all') || options.scopes.includes(row.scope)) &&
       (!options.ids || options.ids.includes(row.id)),
   );
   const moves = rows.map(rowMove).sort((a, b) => {
