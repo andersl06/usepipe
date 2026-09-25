@@ -1,4 +1,4 @@
-import { LoadingNotice, EsqueletoDeTabela } from '../../componentes/esqueleto';
+import { LoadingNotice, EsqueletoDeTabela } from '../../components/esqueleto';
 
 /**
  * O que aparece enquanto a lista carrega. O cabeçalho da página é o mesmo da

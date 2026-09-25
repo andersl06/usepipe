@@ -11,7 +11,7 @@ process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { montarCenario } = await import('./ajuda.js');
-const { esquecerChannel } = await import('../src/banco.js');
+const { esquecerChannel } = await import('../src/database.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 type ApiNoAr = Awaited<ReturnType<typeof upApi>>;

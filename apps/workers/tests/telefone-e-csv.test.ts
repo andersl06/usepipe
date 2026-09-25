@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { NormalizadorBrasil, candidatosDoTelefone, paraE164 } from '@pipe/core';
 import { CsvMalformado, escreverCsv, lerCsv } from '../src/csv.js';
-import { keyOfColumn } from '../src/importacao-de-contatos.js';
+import { keyOfColumn } from '../src/import-of-contacts.js';
 
 /**
  * O normalizador de telefone (porte do Chatwoot) e o leitor de CSV, sem banco.

@@ -1,45 +1,45 @@
 import { Module } from '@nestjs/common';
 import { APP_GUARD, Reflector } from '@nestjs/core';
-import { ApiKeyGuard } from './autenticacao.js';
-import { SessionGuard } from './sessao.js';
-import { AttachmentsController } from './controladores/anexos.js';
-import { ChannelsController } from './controladores/canais.js';
-import { ConversationsController } from './controladores/conversas.js';
-import { CrmController } from './controladores/crm.js';
-import { DeskController } from './controladores/desk.js';
+import { ApiKeyGuard } from './authentication.js';
+import { SessionGuard } from './session.js';
+import { AttachmentsController } from './controllers/attachments.js';
+import { ChannelsController } from './controllers/channels.js';
+import { ConversationsController } from './controllers/conversations.js';
+import { CrmController } from './controllers/crm.js';
+import { DeskController } from './controllers/desk.js';
 import {
   AgentsController,
   ContactsController,
   QueuesController,
-} from './controladores/catalogo.js';
-import { InvitationsController, DomainsController } from './controladores/convites.js';
-import { LoginController, MeController } from './controladores/entrar.js';
+} from './controllers/catalogo.js';
+import { InvitationsController, DomainsController } from './controllers/convites.js';
+import { LoginController, MeController } from './controllers/login.js';
 import {
   LabelsController,
   ConversationLabelsController,
   ContactLabelsController,
-} from './controladores/etiquetas.js';
-import { ManagementAnalyticsController } from './controladores/gestao-analise.js';
-import { ManagementBuilderController } from './controladores/gestao-builder.js';
-import { ManagementRegistrationsController } from './controladores/gestao-cadastros.js';
-import { ManagementAccountController } from './controladores/gestao-conta.js';
-import { ManagementTeamController } from './controladores/gestao-equipe.js';
-import { ManagementFlowController } from './controladores/gestao-fluxo.js';
-import { ManagementIntegrationsController } from './controladores/gestao-integracoes.js';
-import { ManagementOperationsController } from './controladores/gestao-operacao.js';
-import { MyAccountController } from './controladores/minha-conta.js';
-import { ContactImportsController } from './controladores/importacoes.js';
-import { AccountsController } from './controladores/contas.js';
-import { ActiveMessagesController } from './controladores/mensagens-ativas.js';
-import { TrackedLinksController } from './controladores/rastreador-de-cliques.js';
-import { RedirectController } from './controladores/redirecionamento.js';
-import { OperationsController } from './controladores/operacao.js';
-import { SsoConnectionController, SsoLoginController } from './controladores/sso.js';
-import { WhatsAppWebhookController } from './controladores/webhooks-whatsapp.js';
-import { InstagramWebhookController } from './controladores/webhooks-instagram.js';
-import { InstagramChannelsController } from './controladores/canais-instagram.js';
-import { MessengerChannelsController } from './controladores/canais-messenger.js';
-import { MessengerWebhookController } from './controladores/webhooks-messenger.js';
+} from './controllers/etiquetas.js';
+import { ManagementAnalyticsController } from './controllers/management-analytics.js';
+import { ManagementBuilderController } from './controllers/management-builder.js';
+import { ManagementRegistrationsController } from './controllers/management-registrations.js';
+import { ManagementAccountController } from './controllers/management-account.js';
+import { ManagementTeamController } from './controllers/management-team.js';
+import { ManagementFlowController } from './controllers/management-flow.js';
+import { ManagementIntegrationsController } from './controllers/management-integrations.js';
+import { ManagementOperationsController } from './controllers/management-operations.js';
+import { MyAccountController } from './controllers/my-account.js';
+import { ContactImportsController } from './controllers/imports.js';
+import { AccountsController } from './controllers/accounts.js';
+import { ActiveMessagesController } from './controllers/messages-active.js';
+import { TrackedLinksController } from './controllers/rastreador-de-cliques.js';
+import { RedirectController } from './controllers/redirect.js';
+import { OperationsController } from './controllers/operations.js';
+import { SsoConnectionController, SsoLoginController } from './controllers/sso.js';
+import { WhatsAppWebhookController } from './controllers/webhooks-whatsapp.js';
+import { InstagramWebhookController } from './controllers/webhooks-instagram.js';
+import { InstagramChannelsController } from './controllers/channels-instagram.js';
+import { MessengerChannelsController } from './controllers/channels-messenger.js';
+import { MessengerWebhookController } from './controllers/webhooks-messenger.js';
 
 /**
  * Módulo raiz.

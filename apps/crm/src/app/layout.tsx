@@ -1,11 +1,11 @@
 import type { Metadata } from 'next';
-import { StructureCrm } from '../componentes/estrutura-crm';
-import { euAtual } from '../lib/banco';
-import { KEY_TEMA } from '../lib/configuracoes-comum';
+import { StructureCrm } from '../components/structure-crm';
+import { euAtual } from '../lib/database';
+import { KEY_TEMA } from '../lib/settings-comum';
 // A ordem importa: o token e a base do design system entram antes da folha do
 // aplicativo, para que a folha local sobrescreva a base e nunca o contrário.
 import '@pipe/ui/estilos.css';
-import './globais.css';
+import './global.css';
 
 export const metadata: Metadata = {
   title: 'Pipe CRM',

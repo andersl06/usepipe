@@ -17,9 +17,9 @@ const {
   linkDaPessoa,
   partirNome,
   partirTelefone,
-} = await import('../src/dominio/twenty.js');
-const { syncContact } = await import('../src/dominio/espelho-crm.js');
-const { noTenant } = await import('../src/banco.js');
+} = await import('../src/domain/twenty.js');
+const { syncContact } = await import('../src/domain/mirror-crm.js');
+const { noTenant } = await import('../src/database.js');
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;

@@ -29,8 +29,8 @@ export type Registro = Record<string, unknown>;
  */
 export async function gerarRegistros(): Promise<Map<string, Registro[]>> {
   const { upApi } = await import('../src/servidor.js');
-  const { noTenant } = await import('../src/banco.js');
-  const { importFlowOfBlip } = await import('../src/dominio/fluxo.js');
+  const { noTenant } = await import('../src/database.js');
+  const { importFlowOfBlip } = await import('../src/domain/flow.js');
   const { emitir } = await import('../src/webhooks-saida.js');
 
   const arquivos = new Map<string, Registro[]>();

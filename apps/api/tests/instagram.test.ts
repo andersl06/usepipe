@@ -14,16 +14,16 @@ process.env['PIPE_URL_API'] = 'https://api.teste';
 
 const { createDatabasecriarBancocreateDatabase, estaCifrado, closeDatabasefecharBancocloseDatabase, migratemigrarmigrate, seedsemearseed } = await import('@pipe/db');
 const { dubleInstagram, processarOutbox } = await import('@pipe/workers');
-const { esquecerChannel } = await import('../src/banco.js');
+const { esquecerChannel } = await import('../src/database.js');
 const { upApi } = await import('../src/servidor.js');
-const { sendMessage } = await import('../src/dominio/envio.js');
+const { sendMessage } = await import('../src/domain/envio.js');
 const { ClienteGraphInstagramDuble, ClienteGraphInstagramReal, definirFabricaGraphInstagram } = await import(
-  '../src/dominio/instagram/cliente-graph.js'
+  '../src/domain/instagram/cliente-graph.js'
 );
-const { atualizarConfigInstagram, readChannelInstagram } = await import('../src/dominio/instagram/canal.js');
-const { renovarTokenOfChannel } = await import('../src/dominio/instagram/renovacao.js');
-const { InstagramChannelsController } = await import('../src/controladores/canais-instagram.js');
-import type { RequestWithSession } from '../src/sessao.js';
+const { atualizarConfigInstagram, readChannelInstagram } = await import('../src/domain/instagram/channel.js');
+const { renovarTokenOfChannel } = await import('../src/domain/instagram/renewal.js');
+const { InstagramChannelsController } = await import('../src/controllers/channels-instagram.js');
+import type { RequestWithSession } from '../src/session.js';
 
 /**
  * O canal do Instagram (Direct) pelo caminho manual, com banco de verdade e sem tocar

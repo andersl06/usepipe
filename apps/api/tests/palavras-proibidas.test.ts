@@ -14,7 +14,7 @@ process.env['PIPE_COOKIE_DOMINIO'] = '';
 const { NOME_DO_COOKIE, createTokencriarTokencreateToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
 const { encontrarPalavrasProibidas, normalizarTermo } = await import(
-  '../src/dominio/gestao/palavras-proibidas.js'
+  '../src/domain/management/palavras-proibidas.js'
 );
 const { montarCenario } = await import('./ajuda.js');
 

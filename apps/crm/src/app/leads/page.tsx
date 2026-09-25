@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { Campo, Seletor } from '@pipe/ui';
-import { Filter } from '../../componentes/filtros';
-import { ListaDeLeads } from '../../componentes/lista-de-leads';
-import { ViewsSalvas } from '../../componentes/visoes-salvas';
-import { fusoDoTenant } from '../../lib/banco';
+import { Filter } from '../../components/filters';
+import { ListaDeLeads } from '../../components/lista-de-leads';
+import { ViewsSalvas } from '../../components/views-salvas';
+import { fusoDoTenant } from '../../lib/database';
 import {
   ABAS,
   abaValida,
@@ -20,7 +20,7 @@ import {
   orderValid,
   type SFilter,
 } from '../../lib/leads';
-import { numero } from '../../lib/formato';
+import { numero } from '../../lib/format';
 
 export const dynamic = 'force-dynamic';
 

@@ -1,17 +1,17 @@
 import { Route, Routes } from 'react-router-dom';
 import { ClosureNotice } from '@pipe/ui';
-import { ExigirSession } from './componentes/exigir-sessao';
-import { Shell } from './componentes/casca';
-import { useRegistrarNavigation } from './lib/navegacao';
-import { PageLogin } from './paginas/entrar';
-import { PageInvitation } from './paginas/convite';
-import { PageAttendances } from './paginas/atendimentos/page';
-import { PageContacts } from './paginas/contatos/page';
-import { PageMetrics } from './paginas/analytics/page';
-import { PageActiveMessage } from './paginas/mensagem-ativa/page';
-import { PageBulkActions } from './paginas/acoes-em-massa/page';
-import { PagePreferences } from './paginas/preferencias/page';
-import { NaoEncontrado } from './paginas/nao-encontrado';
+import { ExigirSession } from './components/exigir-session';
+import { Shell } from './components/shell';
+import { useRegistrarNavigation } from './lib/navigation';
+import { PageLogin } from './pages/login';
+import { PageInvitation } from './pages/invitation';
+import { PageAttendances } from './pages/attendances/page';
+import { PageContacts } from './pages/contacts/page';
+import { PageMetrics } from './pages/analytics/page';
+import { PageActiveMessage } from './pages/active-message/page';
+import { PageBulkActions } from './pages/bulk-actions/page';
+import { PagePreferences } from './pages/preferences/page';
+import { NaoEncontrado } from './pages/nao-encontrado';
 
 /**
  * As rotas do Desk — os MESMOS caminhos da referência (`~/desk-clone/README.md`,

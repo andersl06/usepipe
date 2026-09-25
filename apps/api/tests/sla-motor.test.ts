@@ -10,9 +10,9 @@ process.env['DATABASE_URL_APP'] ??= 'postgres://pipe_app:pipe_app@localhost:5433
 
 const { montarCenario } = await import('./ajuda.js');
 const { checarSlaOfConversation, rulesWinningByTarget } = await import(
-  '../src/dominio/gestao/sla-motor.js'
+  '../src/domain/management/sla-motor.js'
 );
-const { ordenarQueueOfWait } = await import('../src/dominio/gestao/monitoramento.js');
+const { ordenarQueueOfWait } = await import('../src/domain/management/monitoring.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 

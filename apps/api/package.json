@@ -12,31 +12,31 @@
       "default": "./dist/index.js"
     },
     "./domain/flow": {
-      "types": "./dist/dominio/fluxo.d.ts",
-      "default": "./dist/dominio/fluxo.js"
+      "types": "./dist/domain/flow.d.ts",
+      "default": "./dist/domain/flow.js"
     },
     "./domain/management/flow-builder": {
-      "types": "./dist/dominio/gestao/builder-do-fluxo.d.ts",
-      "default": "./dist/dominio/gestao/builder-do-fluxo.js"
+      "types": "./dist/domain/management/builder-do-fluxo.d.ts",
+      "default": "./dist/domain/management/builder-do-fluxo.js"
     },
     "./domain/conversation": {
-      "types": "./dist/dominio/conversa.d.ts",
-      "default": "./dist/dominio/conversa.js"
+      "types": "./dist/domain/conversation.d.ts",
+      "default": "./dist/domain/conversation.js"
     },
     "./domain/sending": {
-      "types": "./dist/dominio/envio.d.ts",
-      "default": "./dist/dominio/envio.js"
+      "types": "./dist/domain/envio.d.ts",
+      "default": "./dist/domain/envio.js"
     },
     "./domain/assume": {
-      "types": "./dist/dominio/assumir.d.ts",
-      "default": "./dist/dominio/assumir.js"
+      "types": "./dist/domain/assumir.d.ts",
+      "default": "./dist/domain/assumir.js"
     }
   },
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "dev": "tsx watch src/main.ts",
-    "provision": "tsx src/provisionar.ts",
-    "import:flow": "tsx src/importar-fluxo.ts",
+    "provision": "tsx src/provision.ts",
+    "import:flow": "tsx src/import-flow.ts",
     "start": "node dist/main.js",
     "typecheck": "tsc -p tsconfig.test.json --noEmit",
     "lint": "eslint src tests",

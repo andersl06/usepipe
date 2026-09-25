@@ -1,7 +1,7 @@
 import { sql } from 'drizzle-orm';
 import { createDatabase, closeDatabase } from '../src/cliente.js';
 import type { DatabasePipe } from '../src/cliente.js';
-import { migrate } from '../src/migrar.js';
+import { migrate } from '../src/migrate.js';
 
 export const URL_DONO =
   process.env['DATABASE_URL'] ?? 'postgres://pipe:pipe@localhost:5433/pipe';

@@ -12,12 +12,12 @@ process.env['PIPE_CHAVE_SEGREDO_ATUAL'] ??= 'teste';
 process.env['PIPE_URL_APP'] = 'http://telas.teste';
 
 const { RemetenteDuble, RemetenteHttp, definirRemetente, enviarEmailSemDerrubar, remetente } =
-  await import('../src/dominio/email.js');
-const { createInvitation, resendInvitation } = await import('../src/dominio/convites.js');
-const { aplicarEventsOfTemplate } = await import('../src/dominio/whatsapp/eventos-de-modelo.js');
-const { esquecerChannel, fecharBancos, resolveChannel } = await import('../src/banco.js');
+  await import('../src/domain/email.js');
+const { createInvitation, resendInvitation } = await import('../src/domain/convites.js');
+const { aplicarEventsOfTemplate } = await import('../src/domain/whatsapp/events-of-template.js');
+const { esquecerChannel, fecharBancos, resolveChannel } = await import('../src/database.js');
 const { montarCenario } = await import('./ajuda.js');
-import type { Email, RemetenteDeEmail } from '../src/dominio/email.js';
+import type { Email, RemetenteDeEmail } from '../src/domain/email.js';
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 

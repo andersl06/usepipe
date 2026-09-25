@@ -5,7 +5,7 @@ import { ClienteWhatsAppReal } from './real.js';
 export * from './cliente.js';
 export * from './duble.js';
 export * from './interativo.js';
-export * from './midia.js';
+export * from './media.js';
 export * from './real.js';
 export * from './template.js';
 

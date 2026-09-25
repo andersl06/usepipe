@@ -13,7 +13,7 @@ import { PROMPT_RESUMO_ABERTURA, PROMPT_SUMMARY_CLOSURE } from '../prompts/resum
 import type { InboundSummary } from '../prompts/resumo.js';
 import type { Prompt } from '../prompts/tipos.js';
 import { identificador } from '../prompts/tipos.js';
-import type { Transcription } from '../transcricao/transcricao.js';
+import type { Transcription } from '../transcription/transcription.js';
 
 const EsquemaResumo = z.object({
   resumo: z.string().min(1),

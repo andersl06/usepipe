@@ -16,7 +16,7 @@ import { zodOutputFormat } from '@anthropic-ai/sdk/helpers/zod';
 import type { z } from 'zod';
 
 import { TEMPLATE_DEFAULT, consumoDe, type Consumo } from '../consumo/index.js';
-import { CallIaError, FormatIaError } from './erros.js';
+import { CallIaError, FormatIaError } from './errors.js';
 
 /** Níveis de esforço aceitos pela API (`output_config.effort`). */
 export type Effort = 'low' | 'medium' | 'high' | 'xhigh' | 'max';

@@ -49,7 +49,7 @@ process.env['PIPE_PROCESS_HTTP_VARREDURA_MS'] ??= '3600000';
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
-import { redigir } from './redacao.js';
+import { redigir } from './drafting.js';
 
 const RAIZ = fileURLToPath(new URL('../../', import.meta.url));
 const FIXTURES = `${RAIZ}apps/api/tests/fixtures/jsonb/`;

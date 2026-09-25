@@ -1,23 +1,23 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { Etiqueta } from '@pipe/ui';
-import { CelulaInline } from '../../../componentes/celula-inline';
+import { CelulaInline } from '../../../components/celula-inline';
 import {
   AbasDaFicha,
   Campo,
   Destaque,
   Section,
   SectionAtributos,
-} from '../../../componentes/ficha';
-import { TimeLinha } from '../../../componentes/linha-do-tempo';
-import { fusoDoTenant } from '../../../lib/banco';
+} from '../../../components/ficha';
+import { TimeLinha } from '../../../components/linha-of-time';
+import { fusoDoTenant } from '../../../lib/database';
 import {
   carregarFicha,
   listarProprietarios,
   ROTULO_STATUS,
   type Ficha,
 } from '../../../lib/leads';
-import { data, dataHora, desde, document, numero, pontos } from '../../../lib/formato';
+import { data, dataHora, desde, document, numero, pontos } from '../../../lib/format';
 
 export const dynamic = 'force-dynamic';
 

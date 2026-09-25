@@ -26,8 +26,8 @@ export type { Tema, StateName } from './tema';
 export { Icone, Simbolo } from './icones';
 export type { NomeDeIcone, PropsDeIcone } from './icones';
 
-export { Illustration } from './ilustracoes';
-export type { IllustrationName, IllustrationProps } from './ilustracoes';
+export { Illustration } from './illustrations';
+export type { IllustrationName, IllustrationProps } from './illustrations';
 
 export {
   Botao,
@@ -41,7 +41,7 @@ export {
   Avatar,
   Card,
   initials,
-} from './componentes/primitivos';
+} from './components/primitivos';
 export type {
   PropsDeBotao,
   PropsDeBotaoDeIcone,
@@ -49,7 +49,7 @@ export type {
   PropsDeEtiqueta,
   TomDeEtiqueta,
   Aba,
-} from './componentes/primitivos';
+} from './components/primitivos';
 
 export {
   Marca,
@@ -59,13 +59,13 @@ export {
   Application,
   AreaSettings,
   estaAtivo,
-} from './componentes/estrutura';
-export type { NavigationItem, LinkComponent } from './componentes/estrutura';
+} from './components/structure';
+export type { NavigationItem, LinkComponent } from './components/structure';
 
-export { Tabela } from './componentes/tabela';
-export type { Column } from './componentes/tabela';
+export { Tabela } from './components/tabela';
+export type { Column } from './components/tabela';
 
-export { CardClosureTicket } from './componentes/encerramento-ticket';
-export { ClosureNotice, avisarTicketFinalizado } from './componentes/aviso-encerramento';
-export { closureCanConfirm } from './regras-encerramento';
-export type { ClosureTag } from './regras-encerramento';
+export { CardClosureTicket } from './components/closure-ticket';
+export { ClosureNotice, avisarTicketFinalizado } from './components/notice-closure';
+export { closureCanConfirm } from './rules-closure';
+export type { ClosureTag } from './rules-closure';

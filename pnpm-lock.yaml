@@ -50,12 +50,9 @@ importers:
       '@nestjs/platform-express':
         specifier: ^11.1.6
         version: 11.2.3(@nestjs/common@11.2.3(reflect-metadata@0.2.2)(rxjs@7.8.2))(@nestjs/core@11.2.3)
-      '@pipe/armazenamento':
+      '@pipe/authentication':
         specifier: workspace:*
-        version: link:../../packages/armazenamento
-      '@pipe/autenticacao':
-        specifier: workspace:*
-        version: link:../../packages/autenticacao
+        version: link:../../packages/authentication
       '@pipe/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
@@ -65,6 +62,9 @@ importers:
       '@pipe/db':
         specifier: workspace:*
         version: link:../../packages/db
+      '@pipe/storage':
+        specifier: workspace:*
+        version: link:../../packages/storage
       '@pipe/workers':
         specifier: workspace:*
         version: link:../workers
@@ -105,6 +105,40 @@ importers:
       pg:
         specifier: ^8.16.3
         version: 8.23.0
+      tsx:
+        specifier: ^4.20.6
+        version: 4.23.13
+      typescript:
+        specifier: ^5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@22.20.1)(tsx@4.23.13)
+
+  apps/bridge:
+    dependencies:
+      '@pipe/api':
+        specifier: workspace:*
+        version: link:../api
+      '@pipe/core':
+        specifier: workspace:*
+        version: link:../../packages/core
+      '@pipe/db':
+        specifier: workspace:*
+        version: link:../../packages/db
+      drizzle-orm:
+        specifier: ^0.44.6
+        version: 0.44.7(@types/pg@8.23.1)(pg@8.23.0)
+      express:
+        specifier: ^5.1.0
+        version: 5.2.1
+    devDependencies:
+      '@types/express':
+        specifier: ^5.0.3
+        version: 5.0.6
+      '@types/node':
+        specifier: ^22.10.2
+        version: 22.20.1
       tsx:
         specifier: ^4.20.6
         version: 4.23.13
@@ -204,7 +238,7 @@ importers:
         specifier: ^7.1.7
         version: 7.3.6(@types/node@24.13.5)(tsx@4.23.13)
 
-  apps/gestao-vite:
+  apps/management-vite:
     dependencies:
       '@pipe/contracts':
         specifier: workspace:*
@@ -259,40 +293,6 @@ importers:
         specifier: ^7.1.7
         version: 7.3.6(@types/node@24.13.5)(tsx@4.23.13)
 
-  apps/ponte:
-    dependencies:
-      '@pipe/api':
-        specifier: workspace:*
-        version: link:../api
-      '@pipe/core':
-        specifier: workspace:*
-        version: link:../../packages/core
-      '@pipe/db':
-        specifier: workspace:*
-        version: link:../../packages/db
-      drizzle-orm:
-        specifier: ^0.44.6
-        version: 0.44.7(@types/pg@8.23.1)(pg@8.23.0)
-      express:
-        specifier: ^5.1.0
-        version: 5.2.1
-    devDependencies:
-      '@types/express':
-        specifier: ^5.0.3
-        version: 5.0.6
-      '@types/node':
-        specifier: ^22.10.2
-        version: 22.20.1
-      tsx:
-        specifier: ^4.20.6
-        version: 4.23.13
-      typescript:
-        specifier: ^5.9.3
-        version: 5.9.3
-      vitest:
-        specifier: ^3.2.4
-        version: 3.2.7(@types/node@22.20.1)(tsx@4.23.13)
-
   apps/workers:
     dependencies:
       '@pipe/core':
@@ -340,13 +340,7 @@ importers:
         specifier: ^3.2.4
         version: 3.2.7(@types/node@24.13.5)(tsx@4.23.13)
 
-  packages/armazenamento:
-    devDependencies:
-      vitest:
-        specifier: ^3.2.4
-        version: 3.2.7(@types/node@24.13.5)(tsx@4.23.13)
-
-  packages/autenticacao:
+  packages/authentication:
     dependencies:
       '@pipe/db':
         specifier: workspace:*
@@ -403,11 +397,17 @@ importers:
 
   packages/mcp: {}
 
-  packages/tempo-real:
+  packages/realtime:
     dependencies:
       '@pipe/contracts':
         specifier: workspace:*
         version: link:../contracts
+    devDependencies:
+      vitest:
+        specifier: ^3.2.4
+        version: 3.2.7(@types/node@24.13.5)(tsx@4.23.13)
+
+  packages/storage:
     devDependencies:
       vitest:
         specifier: ^3.2.4
@@ -3853,6 +3853,14 @@ snapshots:
     optionalDependencies:
       vite: 7.3.6(@types/node@22.20.1)(tsx@4.23.13)
 
+  '@vitest/mocker@3.2.7(vite@7.3.6(@types/node@24.13.5)(tsx@4.23.13))':
+    dependencies:
+      '@vitest/spy': 3.2.7
+      estree-walker: 3.0.3
+      magic-string: 0.30.21
+    optionalDependencies:
+      vite: 7.3.6(@types/node@24.13.5)(tsx@4.23.13)
+
   '@vitest/pretty-format@3.2.7':
     dependencies:
       tinyrainbow: 2.0.0
@@ -5157,7 +5165,7 @@ snapshots:
     dependencies:
       '@types/chai': 5.2.3
       '@vitest/expect': 3.2.7
-      '@vitest/mocker': 3.2.7(vite@7.3.6(@types/node@22.20.1)(tsx@4.23.13))
+      '@vitest/mocker': 3.2.7(vite@7.3.6(@types/node@24.13.5)(tsx@4.23.13))
       '@vitest/pretty-format': 3.2.7
       '@vitest/runner': 3.2.7
       '@vitest/snapshot': 3.2.7

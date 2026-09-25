@@ -1,4 +1,4 @@
-import { LoadingNotice, EsqueletoDeCampos } from '../../../componentes/esqueleto';
+import { LoadingNotice, EsqueletoDeCampos } from '../../../components/esqueleto';
 
 /**
  * O esqueleto da ficha, na mesma grade de duas colunas da tela pronta: a lateral

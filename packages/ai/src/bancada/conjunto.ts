@@ -9,7 +9,7 @@ import { readFile } from 'node:fs/promises';
 
 import { z } from 'zod';
 
-import { FormatIaError } from '../cliente/erros.js';
+import { FormatIaError } from '../cliente/errors.js';
 import type { CasoReferencia } from './bancada.js';
 
 const EsquemaAttachment = z.object({

@@ -1,7 +1,7 @@
 import { asc, desc, eq, sql } from 'drizzle-orm';
 import type { Expressao } from '@pipe/core';
 import { faixaScore, queue, regraScore, scoreLead } from '@pipe/db/schema';
-import { consultar } from './banco';
+import { consultar } from './database';
 
 /**
  * Regras de score, em leitura.

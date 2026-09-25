@@ -1,11 +1,11 @@
 import { Queue, Worker } from 'bullmq';
 import IORedis from 'ioredis';
-import { agregarDiaAnterior } from './agregacao.js';
-import { fecharBancos } from './banco.js';
-import { processarOutbox } from './entrega.js';
-import { QUEUE_AGGREGATION, QUEUE_DELIVERY, QUEUE_IMPORT, conexaoRedis } from './filas.js';
-import type { JobDelivery, JobImport } from './filas.js';
-import { processarImport } from './importacao-de-contatos.js';
+import { agregarDiaAnterior } from './aggregation.js';
+import { fecharBancos } from './database.js';
+import { processarOutbox } from './delivery.js';
+import { QUEUE_AGGREGATION, QUEUE_DELIVERY, QUEUE_IMPORT, conexaoRedis } from './queues.js';
+import type { JobDelivery, JobImport } from './queues.js';
+import { processarImport } from './import-of-contacts.js';
 import { clienteWhatsApp } from './whatsapp/index.js';
 
 /**

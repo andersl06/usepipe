@@ -4,10 +4,10 @@
  * `contato.conta_id` → CRM) e por isso nascem na migration 0003, fora do schema.
  */
 export * from './comum.js';
-export * from './identidade.js';
-export * from './conversas.js';
-export * from './gestao.js';
+export * from './identity.js';
+export * from './conversations.js';
+export * from './management.js';
 export * from './crm.js';
-export * from './monitoria.js';
-export * from './automacao.js';
-export * from './implantacao.js';
+export * from './quality-review.js';
+export * from './automation.js';
+export * from './deployment.js';

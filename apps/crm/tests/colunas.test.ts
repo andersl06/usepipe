@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { arranjar, moverVisivel, type Config } from '../src/componentes/colunas.tsx';
+import { arranjar, moverVisivel, type Config } from '../src/components/colunas.tsx';
 
 /**
  * A régua do arranjo de colunas.

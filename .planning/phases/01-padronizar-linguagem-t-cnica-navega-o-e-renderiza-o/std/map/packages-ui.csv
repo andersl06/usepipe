@@ -1,11 +1,11 @@
 id,scope,slice,kind,old,new,declared_at,consumers,persisted,category,decision_ref,status,owner,notes
-packages-ui-dir-121c05f0,packages-ui,1,dir,packages/ui/src/componentes,packages/ui/src/components,packages/ui/src/componentes,0,no,,,approved,codex2,
-packages-ui-file-652dc3e4,packages-ui,1,file,ilustracoes.tsx,packages/ui/src/illustrations.tsx,packages/ui/src/ilustracoes.tsx,2,no,,,approved,codex2,
-packages-ui-file-a8bd7f83,packages-ui,1,file,encerramento-sleepy.svg,packages/ui/src/assets/closure-sleepy.svg,packages/ui/src/assets/encerramento-sleepy.svg,1,no,,,approved,codex2,
-packages-ui-file-c7692ffa,packages-ui,1,file,aviso-encerramento.tsx,packages/ui/src/components/notice-closure.tsx,packages/ui/src/componentes/aviso-encerramento.tsx,3,no,,,approved,codex2,
-packages-ui-file-d4e749c7,packages-ui,1,file,encerramento-ticket.tsx,packages/ui/src/components/closure-ticket.tsx,packages/ui/src/componentes/encerramento-ticket.tsx,3,no,,,approved,codex2,
-packages-ui-file-eb5b5e31,packages-ui,1,file,regras-encerramento.ts,packages/ui/src/rules-closure.ts,packages/ui/src/regras-encerramento.ts,0,no,,,approved,codex2,
-packages-ui-file-fac4f6ec,packages-ui,1,file,estrutura.tsx,packages/ui/src/components/structure.tsx,packages/ui/src/componentes/estrutura.tsx,2,no,,,approved,codex2,
+packages-ui-dir-121c05f0,packages-ui,1,dir,packages/ui/src/componentes,packages/ui/src/components,packages/ui/src/componentes,0,no,,,applied,codex2,
+packages-ui-file-652dc3e4,packages-ui,1,file,ilustracoes.tsx,packages/ui/src/illustrations.tsx,packages/ui/src/ilustracoes.tsx,2,no,,,applied,codex2,
+packages-ui-file-a8bd7f83,packages-ui,1,file,encerramento-sleepy.svg,packages/ui/src/assets/closure-sleepy.svg,packages/ui/src/assets/encerramento-sleepy.svg,1,no,,,applied,codex2,
+packages-ui-file-c7692ffa,packages-ui,1,file,aviso-encerramento.tsx,packages/ui/src/components/notice-closure.tsx,packages/ui/src/componentes/aviso-encerramento.tsx,3,no,,,applied,codex2,
+packages-ui-file-d4e749c7,packages-ui,1,file,encerramento-ticket.tsx,packages/ui/src/components/closure-ticket.tsx,packages/ui/src/componentes/encerramento-ticket.tsx,3,no,,,applied,codex2,
+packages-ui-file-eb5b5e31,packages-ui,1,file,regras-encerramento.ts,packages/ui/src/rules-closure.ts,packages/ui/src/regras-encerramento.ts,0,no,,,applied,codex2,
+packages-ui-file-fac4f6ec,packages-ui,1,file,estrutura.tsx,packages/ui/src/components/structure.tsx,packages/ui/src/componentes/estrutura.tsx,2,no,,,applied,codex2,
 packages-ui-literal-value-5e09a977,packages-ui,1,literal-value,erro,KEEP,packages/ui/src/componentes/primitivos.tsx:90,1478,no,,D-11,approved,codex2,"glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
 packages-ui-literal-value-6e970524,packages-ui,1,literal-value,concluido,KEEP,packages/ui/src/ilustracoes.tsx:27,17,no,,D-11,approved,codex2,"glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"
 packages-ui-literal-value-89d10714,packages-ui,1,literal-value,busca,KEEP,packages/ui/src/ilustracoes.tsx:27,420,no,,D-11,approved,codex2,"glossary-exception: persisted classification unresolved (01-08), deferred to STD-06"

@@ -1,4 +1,4 @@
-import { logAuditoria } from './schema/identidade.js';
+import { logAuditoria } from './schema/identity.js';
 import type { TransactionPipe } from './tenant.js';
 
 /**

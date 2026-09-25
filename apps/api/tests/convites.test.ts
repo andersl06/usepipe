@@ -16,12 +16,12 @@ process.env['GOOGLE_URL_RETORNO'] = 'http://127.0.0.1:3100/v1/auth/google/callba
 
 const { NOME_DO_COOKIE, createTokencriarTokencreateToken, hashDoToken } = await import('@pipe/authentication');
 const { upApi } = await import('../src/servidor.js');
-const { aceitarInvitation, createInvitation, readInvitation } = await import('../src/dominio/convites.js');
+const { aceitarInvitation, createInvitation, readInvitation } = await import('../src/domain/convites.js');
 const { normalizeDomain, logDomain, checkDomain } =
-  await import('../src/dominio/dominios.js');
-const { asLogin, provisionCustomer } = await import('../src/provisionar.js');
-const { codigoDaRecusa } = await import('../src/controladores/entrar.js');
-const { PipeError } = await import('../src/erros.js');
+  await import('../src/domain/dominios.js');
+const { asLogin, provisionCustomer } = await import('../src/provision.js');
+const { codigoDaRecusa } = await import('../src/controllers/login.js');
+const { PipeError } = await import('../src/errors.js');
 const { montarCenario } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;

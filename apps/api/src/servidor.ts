@@ -7,10 +7,10 @@ import type { Server } from 'node:http';
 import { origemPermitida, origensPermitidas } from '@pipe/authentication';
 import { AppModulo } from './app.modulo.js';
 import { MAX_BYTES_BY_FILE } from '@pipe/storage';
-import { fecharBancos } from './banco.js';
-import { ErrorFilter } from './erros.js';
+import { fecharBancos } from './database.js';
+import { ErrorFilter } from './errors.js';
 import { connectChannelOfEvents } from './eventos-ws.js';
-import { closeTimeReal } from './tempo-real.js';
+import { closeTimeReal } from './realtime.js';
 import {
   scheduleRenewalInstagram,
   scheduleSweepDictionaryCrm,
@@ -26,8 +26,8 @@ import {
   consumirProcessHttp,
   consumeMirrorCrm,
   closeQueues,
-} from './filas.js';
-import { medirRequest } from './metricas.js';
+} from './queues.js';
+import { medirRequest } from './metrics.js';
 
 /**
  * Sobe a aplicação Nest.

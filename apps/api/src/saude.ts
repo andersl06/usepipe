@@ -2,8 +2,8 @@ import { readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { sql } from 'drizzle-orm';
 import { PASTA_MIGRATIONS } from '@pipe/db';
-import { databaseApp, databaseOwner } from './banco.js';
-import { pingRedis } from './filas.js';
+import { databaseApp, databaseOwner } from './database.js';
+import { pingRedis } from './queues.js';
 
 /**
  * `GET /saude` e as sondas que ele usa.

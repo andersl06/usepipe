@@ -1,4 +1,4 @@
-import { LoadingNotice, EsqueletoDeTabela } from '../componentes/esqueleto';
+import { LoadingNotice, EsqueletoDeTabela } from '../components/esqueleto';
 
 /**
  * O carregamento padrão do CRM. Vale para toda rota que não declara um seu —

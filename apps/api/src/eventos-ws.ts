@@ -5,10 +5,10 @@ import type { WebSocket } from 'ws';
 import { hashDoToken, origemPermitida, origensPermitidas, resolveSession } from '@pipe/authentication';
 import { ASSUNTOS } from '@pipe/contracts';
 import type { Assunto, EventoDoServidor, Subscription, QuadroDeControle } from '@pipe/contracts';
-import { databaseOwner } from './banco.js';
-import { lerCookie } from './sessao.js';
-import { registrar } from './tempo-real.js';
-import type { Conexao } from './tempo-real.js';
+import { databaseOwner } from './database.js';
+import { lerCookie } from './session.js';
+import { registrar } from './realtime.js';
+import type { Conexao } from './realtime.js';
 
 /**
  * O canal de tempo real do navegador — `GET /v1/eventos` com `Upgrade: websocket`.

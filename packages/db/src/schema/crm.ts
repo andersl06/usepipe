@@ -13,8 +13,8 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core';
 import { carimbos, money, id, listaCheck, moment } from './comum.js';
-import { refTenant, user } from './identidade.js';
-import { contact, conversation, queue } from './conversas.js';
+import { refTenant, user } from './identity.js';
+import { contact, conversation, queue } from './conversations.js';
 
 /**
  * Módulo 2 — CRM. As duas decisões que sustentam o módulo: pergunta de formulário é

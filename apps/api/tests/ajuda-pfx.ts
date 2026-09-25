@@ -8,7 +8,7 @@ import {
   sign,
 } from 'node:crypto';
 import type { KeyObject } from 'node:crypto';
-import { derivarKeyPkcs12 } from '../src/dominio/gestao/pfx.js';
+import { derivarKeyPkcs12 } from '../src/domain/management/pfx.js';
 
 /**
  * Um `.pfx` (PKCS#12) de verdade, montado no teste — sem arquivo binário no

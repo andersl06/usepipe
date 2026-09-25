@@ -7,10 +7,10 @@
  *
  * Nada aqui importa banco, HTTP ou React. É contrato, não implementação.
  */
-export * from './sessao.js';
+export * from './session.js';
 export * from './eventos.js';
-export * from './gestao-fluxo.js';
-export * from './gestao-equipe.js';
-export * from './gestao-cadastros.js';
+export * from './management-flow.js';
+export * from './management-team.js';
+export * from './management-registrations.js';
 export * from './desk.js';
-export * from './encerramento.js';
+export * from './closure.js';

@@ -19,9 +19,9 @@ const {
   marcarTestada,
   salvarConexao,
   tenantBySlug,
-} = await import('../src/dominio/sso.js');
+} = await import('../src/domain/sso.js');
 const { montarCenario } = await import('./ajuda.js');
-const { fecharBancos } = await import('../src/banco.js');
+const { fecharBancos } = await import('../src/database.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;
 

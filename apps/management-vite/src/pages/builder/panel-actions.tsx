@@ -1,0 +1,626 @@
+import { useLayoutEffect, useRef, useState } from 'react';
+import { Campo, Etiqueta, Icone } from '@pipe/ui';
+import { IconeManagement } from '../../components/icones-management';
+import { IconePortal } from '../../components/icones-portal';
+import { CabecalhoInfo } from './cabecalho-info';
+import type { AcaoDoEditor, Block } from './model';
+import { ehAttendance } from './model';
+import {
+  CATALOGO_OF_ACTIONS,
+  ROTULOS_OF_ACTIONS,
+  acaoDoSistema,
+  acaoSemSuporte,
+  adicionarAcao,
+  cabecalhosDoCampo,
+  comCabecalhos,
+  comCampo,
+  comCampoJson,
+  colarActions,
+  withConditions,
+  comTitulo,
+  actionErrors,
+  moverAcao,
+  novaAcao,
+  removerAcao,
+  rotuloDaAcao,
+  substituirAcao,
+  tipoDeAcao,
+  fieldValue,
+} from './actions-of-block';
+import type { ActionsLista } from './actions-of-block';
+import { ConditionsEditor } from './condition';
+
+let actionsCopied: AcaoDoEditor[] = [];
+
+/**
+ * A aba "Ações" do editor: as duas listas — "Ações de Entrada" ("Inclua ações
+ * que serão executadas antes do envio do primeiro conteúdo") e "Ações de
+ * Saída" ("…após o envio do último conteúdo ou resposta do usuário") — cada
+ * uma com o botão "Adicionar ação de entrada/saída" que abre o menu
+ * "ADICIONAR FERRAMENTAS" agrupado (Executar, Manipular), e cada ação como um
+ * cartão que se expande para editar: "Nome da ação", os campos do tipo e a
+ * "Condição para executar a ação".
+ *
+ * No bloco de atendimento a aba só mostra o aviso do editor: "o bot não deve
+ * interferir nas ações de entrada e saída".
+ */
+
+export function ActionsPanel({
+  block,
+  onMudar,
+  onAviso,
+}: {
+  block: Block;
+  onMudar: (block: Block) => void;
+  onAviso: (texto: string) => void;
+}) {
+  const [copiadas, setCopiadas] = useState(actionsCopied);
+  function copiar(actions: AcaoDoEditor[]): void {
+    actionsCopied = structuredClone(actions);
+    setCopiadas(actionsCopied);
+  }
+  if (ehAttendance(block.id)) {
+    return (
+      <div className="bl-aba-corpo">
+        <p className="sub">{ROTULOS_OF_ACTIONS.atendimento}</p>
+      </div>
+    );
+  }
+  return (
+    <div className="bl-aba-corpo">
+      {block.root ? (
+        <section className="bl-secao">
+          <CabecalhoInfo titulo={ROTULOS_OF_ACTIONS.entrada} aberto>
+            <p>
+              Este bloco é usado para marcar pontos especiais do fluxo a serem tratados pela
+              plataforma, portanto{' '}
+              <strong>não é possível criar ações de entrada específicas.</strong>
+            </p>
+            <a
+              href="https://help.blip.ai/hc/en-us/articles/360057492594-Como-criar-blocos-no-Builder"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Entenda como os blocos funcionam
+            </a>
+          </CabecalhoInfo>
+        </section>
+      ) : (
+        <ListaOfActionsOfBlock
+          block={block}
+          lista="$enteringCustomActions"
+          titulo={ROTULOS_OF_ACTIONS.entrada}
+          description={ROTULOS_OF_ACTIONS.entradaDescricao}
+          rotuloAdicionar={ROTULOS_OF_ACTIONS.adicionarEntrada}
+          onMudar={onMudar}
+          onAviso={onAviso}
+          copiadas={copiadas}
+          onCopiar={copiar}
+        />
+      )}
+      <ListaOfActionsOfBlock
+        block={block}
+        lista="$leavingCustomActions"
+        titulo={ROTULOS_OF_ACTIONS.saida}
+        description={ROTULOS_OF_ACTIONS.saidaDescricao}
+        rotuloAdicionar={ROTULOS_OF_ACTIONS.adicionarSaida}
+        onMudar={onMudar}
+        onAviso={onAviso}
+        copiadas={copiadas}
+        onCopiar={copiar}
+      />
+    </div>
+  );
+}
+
+function ListaOfActionsOfBlock({
+  block,
+  lista,
+  titulo,
+  description,
+  rotuloAdicionar,
+  onMudar,
+  onAviso,
+  copiadas,
+  onCopiar,
+}: {
+  block: Block;
+  lista: ActionsLista;
+  titulo: string;
+  description: string;
+  rotuloAdicionar: string;
+  onMudar: (block: Block) => void;
+  onAviso: (texto: string) => void;
+  copiadas: AcaoDoEditor[];
+  onCopiar: (actions: AcaoDoEditor[]) => void;
+}) {
+  const actions = block[lista] ?? [];
+  const [menuAberto, setMenuAberto] = useState(false);
+  const [positionMenu, setPositionMenu] = useState({ top: 16, right: 484 });
+  const [aberta, setAberta] = useState<number | null>(null);
+  const [selecionadas, setSelecionadas] = useState<number[]>([]);
+  const arrastada = useRef<number | null>(null);
+
+  function colar(): void {
+    const resultado = colarActions(block, lista, copiadas);
+    if (resultado.ok) onMudar(resultado.block);
+    else onAviso(resultado.error);
+  }
+
+  function adicionar(tipo: string): void {
+    const r = adicionarAcao(block, lista, novaAcao(tipo));
+    setMenuAberto(false);
+    if (!r.ok) {
+      onAviso(r.error);
+      return;
+    }
+    onMudar(r.block);
+    setAberta(actions.length);
+  }
+
+  const groups = ['Executar', 'Manipular'] as const;
+
+  return (
+    <section className="bl-secao bl-lista-de-acoes">
+      <CabecalhoInfo titulo={titulo} contador={`${actions.length}/15`} aberto={actions.length === 0}>
+        <p>{description}</p>
+      </CabecalhoInfo>
+      <div className="bl-acoes-selecao">
+        <label>
+          <input
+            type="checkbox"
+            disabled={!actions.length}
+            checked={actions.length > 0 && selecionadas.length === actions.length}
+            onChange={(e) => setSelecionadas(e.target.checked ? actions.map((_, i) => i) : [])}
+          />
+          Selecionar todos
+        </label>
+        <button
+          type="button"
+          className="bl-botao-contorno"
+          disabled={!selecionadas.length && !copiadas.length}
+          onClick={() =>
+            selecionadas.length
+              ? onCopiar(actions.filter((_, i) => selecionadas.includes(i)))
+              : colar()
+          }
+        >
+          {selecionadas.length ? 'Copiar ações' : 'Colar ação'}
+        </button>
+      </div>
+
+      {actions.map((acao, i) => (
+        <ActionCard
+          key={acao.$id ?? i}
+          acao={acao}
+          onArrastar={() => {
+            arrastada.current = i;
+          }}
+          onSoltar={() => {
+            if (arrastada.current !== null) {
+              onMudar(moverAcao(block, lista, arrastada.current, i));
+              setSelecionadas([]);
+              setAberta(null);
+            }
+            arrastada.current = null;
+          }}
+          onTerminarArrasto={() => {
+            arrastada.current = null;
+          }}
+          selecionada={selecionadas.includes(i)}
+          onSelecionar={() =>
+            setSelecionadas(
+              selecionadas.includes(i) ? selecionadas.filter((s) => s !== i) : [...selecionadas, i],
+            )
+          }
+          onCopiar={() => onCopiar([acao])}
+          aberta={aberta === i}
+          first={i === 0}
+          ultima={i === actions.length - 1}
+          onAbrir={() => setAberta(aberta === i ? null : i)}
+          onMudar={(nova) => onMudar(substituirAcao(block, lista, i, nova))}
+          onStart={() => onMudar(moverAcao(block, lista, i, i - 1))}
+          onLower={() => onMudar(moverAcao(block, lista, i, i + 1))}
+          onRemover={() => {
+            setAberta(null);
+            setSelecionadas([]);
+            onMudar(removerAcao(block, lista, i));
+          }}
+        />
+      ))}
+
+      <div className="bl-adicionar-acao">
+        <button
+          type="button"
+          className="bl-mais"
+          onClick={(e) => {
+            const rect = e.currentTarget.closest('aside')!.getBoundingClientRect();
+            setPositionMenu({ top: rect.top, right: window.innerWidth - rect.left + 8 });
+            setMenuAberto((v) => !v);
+          }}
+        >
+          {rotuloAdicionar}
+        </button>
+        {menuAberto ? (
+          <div className="bl-menu-acoes bl-ferramentas" role="menu" style={positionMenu}>
+            <header>
+              <b>{rotuloAdicionar.toUpperCase()}</b>
+              <button
+                type="button"
+                className="iconbtn"
+                aria-label="Fechar"
+                onClick={() => setMenuAberto(false)}
+              >
+                <Icone nome="x" tamanho={16} />
+              </button>
+            </header>
+            {groups.map((grupo) => (
+              <div key={grupo} className="bl-menu-acoes-grupo">
+                <span className="sub">{grupo}</span>
+                {CATALOGO_OF_ACTIONS.filter((t) => t.grupo === grupo).map((t) => (
+                  <button
+                    key={t.tipo}
+                    type="button"
+                    role="menuitem"
+                    onClick={() => adicionar(t.tipo)}
+                  >
+                    {t.rotulo}
+                  </button>
+                ))}
+              </div>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    </section>
+  );
+}
+
+/** Exportado: o painel de Ações Globais (`painel-configuracao.tsx`) reaproveita o mesmo cartão. */
+export function ActionCard({
+  acao,
+  aberta,
+  first,
+  ultima,
+  onAbrir,
+  onMudar,
+  onStart,
+  onLower,
+  onRemover,
+  onCopiar,
+  selecionada,
+  onSelecionar,
+  onArrastar,
+  onSoltar,
+  onTerminarArrasto,
+}: {
+  acao: AcaoDoEditor;
+  aberta: boolean;
+  first: boolean;
+  ultima: boolean;
+  onAbrir: () => void;
+  onMudar: (acao: AcaoDoEditor) => void;
+  onStart: () => void;
+  onLower: () => void;
+  onRemover: () => void;
+  onCopiar?: () => void;
+  selecionada?: boolean;
+  onSelecionar?: () => void;
+  onArrastar?: () => void;
+  onSoltar?: () => void;
+  onTerminarArrasto?: () => void;
+}) {
+  const [menu, setMenu] = useState(false);
+  const detalhe = useRef<HTMLDivElement>(null);
+  const flutuante = !!onCopiar;
+  useLayoutEffect(() => {
+    if (aberta && flutuante) detalhe.current?.closest('.bl-painel-corpo')?.scrollTo(0, 0);
+  }, [aberta, flutuante]);
+  const tipo = tipoDeAcao(acao.type);
+  const semSuporte = acaoSemSuporte(acao);
+  const doSistema = acaoDoSistema(acao);
+  const errors = actionErrors(acao);
+  const editavel = !!tipo && !doSistema;
+  return (
+    <article
+      className={`bl-acao${errors.length > 0 ? ' bl-acao--erro' : ''}${aberta ? ' bl-acao--aberta' : ''}`}
+      onDragOver={onSoltar ? (e) => e.preventDefault() : undefined}
+      onDrop={
+        onSoltar
+          ? (e) => {
+              e.preventDefault();
+              onSoltar();
+            }
+          : undefined
+      }
+    >
+      <header className="bl-acao-cabecalho">
+        {onArrastar ? (
+          <button
+            type="button"
+            className="bl-acao-arrastar"
+            draggable
+            aria-label="Reordenar ação. Use as setas para cima ou para baixo."
+            onDragStart={(e) => {
+              e.dataTransfer.effectAllowed = 'move';
+              e.dataTransfer.setData('text/plain', acao.$id ?? 'acao');
+              onArrastar();
+            }}
+            onDragEnd={onTerminarArrasto}
+            onKeyDown={(e) => {
+              if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (e.key === 'ArrowUp' && !first) onStart();
+                if (e.key === 'ArrowDown' && !ultima) onLower();
+              }
+            }}
+          >
+            <svg width="16" height="24" viewBox="0 0 16 24" fill="currentColor" aria-hidden="true">
+              <circle cx="5" cy="7" r="1.5" />
+              <circle cx="11" cy="7" r="1.5" />
+              <circle cx="5" cy="12" r="1.5" />
+              <circle cx="11" cy="12" r="1.5" />
+              <circle cx="5" cy="17" r="1.5" />
+              <circle cx="11" cy="17" r="1.5" />
+            </svg>
+          </button>
+        ) : null}
+        {onSelecionar ? (
+          <input
+            type="checkbox"
+            aria-label={`Selecionar ${acao.$title || rotuloDaAcao(acao.type)}`}
+            checked={selecionada}
+            onChange={onSelecionar}
+          />
+        ) : null}
+        <button type="button" className="bl-acao-abrir" onClick={onAbrir} aria-expanded={aberta}>
+          <span className="bl-acao-tipo">{acao.$title || rotuloDaAcao(acao.type)}</span>
+        </button>
+        {semSuporte ? <Etiqueta tom="alert">{ROTULOS_OF_ACTIONS.naoExecutada}</Etiqueta> : null}
+        {doSistema ? <Etiqueta>{ROTULOS_OF_ACTIONS.doSistema}</Etiqueta> : null}
+        {errors.length > 0 ? (
+          <Etiqueta tom="erro" redonda>
+            {errors.length}
+          </Etiqueta>
+        ) : null}
+        <span className="bl-saida-ordem">
+          <button
+            type="button"
+            className="iconbtn"
+            title="Subir"
+            aria-label="Subir"
+            disabled={first}
+            onClick={onStart}
+          >
+            <Icone nome="cima" tamanho={16} />
+          </button>
+          <button
+            type="button"
+            className="iconbtn"
+            title="Descer"
+            aria-label="Descer"
+            disabled={ultima}
+            onClick={onLower}
+          >
+            <Icone nome="baixo" tamanho={16} />
+          </button>
+          {!doSistema ? (
+            <button
+              type="button"
+              className="iconbtn"
+              title={ROTULOS_OF_ACTIONS.excluir}
+              aria-label={ROTULOS_OF_ACTIONS.excluir}
+              onClick={onRemover}
+            >
+              <IconeManagement nome="lixeira" tamanho={18} />
+            </button>
+          ) : null}
+        </span>
+        {onCopiar ? (
+          <div className="bl-acao-menu">
+            <button
+              type="button"
+              className="iconbtn"
+              aria-label="Opções da ação"
+              aria-expanded={menu}
+              onClick={() => setMenu(!menu)}
+            >
+              <svg
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="5" r="1.5" />
+                <circle cx="12" cy="12" r="1.5" />
+                <circle cx="12" cy="19" r="1.5" />
+              </svg>
+            </button>
+            {menu ? (
+              <div className="bl-menu-acoes">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenu(false);
+                    onAbrir();
+                  }}
+                >
+                  Detalhes da ação
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMenu(false);
+                    onCopiar();
+                  }}
+                >
+                  Copiar ação
+                </button>
+                <button type="button" onClick={onRemover}>
+                  Excluir ação
+                </button>
+              </div>
+            ) : null}
+          </div>
+        ) : null}
+      </header>
+
+      {aberta ? (
+        <div ref={detalhe} className={`bl-acao-corpo${onCopiar ? ' bl-detalhe' : ''}`}>
+          {onCopiar ? (
+            <header className="bl-detalhe-cabecalho">
+              <button
+                type="button"
+                className="iconbtn"
+                aria-label="Voltar para ações"
+                onClick={onAbrir}
+              >
+                <IconePortal nome="voltar" tamanho={24} />
+              </button>
+              <input
+                aria-label={ROTULOS_OF_ACTIONS.nome}
+                value={acao.$title || ''}
+                placeholder={tipo?.titulo ?? acao.type}
+                onChange={(e) => onMudar(comTitulo(acao, e.target.value))}
+              />
+              <button
+                type="button"
+                className="iconbtn"
+                aria-label="Editar nome da ação"
+                onClick={(e) => e.currentTarget.parentElement?.querySelector('input')?.focus()}
+              >
+                <IconePortal nome="editar" tamanho={24} />
+              </button>
+            </header>
+          ) : null}
+          {tipo?.info ? <p className="sub">{tipo.info}</p> : null}
+          {editavel ? (
+            <>
+              {!onCopiar ? (
+                <label className="bl-campo">
+                  <span className="sub">{ROTULOS_OF_ACTIONS.nome}</span>
+                  <Campo
+                    value={acao.$title ?? ''}
+                    onChange={(e) => onMudar(comTitulo(acao, e.target.value))}
+                  />
+                </label>
+              ) : null}
+              {tipo!.campos.map((campo) => (
+                <label
+                  key={campo.key}
+                  className={`bl-campo${onCopiar ? ' bl-campo--interno' : ''}`}
+                >
+                  <span className="sub">
+                    {campo.rotulo}
+                    {campo.obrigatorio ? ' *' : ''}
+                  </span>
+                  {campo.tipo === 'cabecalhos' ? (
+                    <EditorDeCabecalhos
+                      cabecalhos={cabecalhosDoCampo(acao, campo.key)}
+                      onMudar={(cabecalhos) => onMudar(comCabecalhos(acao, campo.key, cabecalhos))}
+                    />
+                  ) : campo.options ? (
+                    <select
+                      className="campo"
+                      value={fieldValue(acao, campo.key)}
+                      onChange={(e) => onMudar(comCampo(acao, campo.key, e.target.value))}
+                    >
+                      {campo.options.map((option) => (
+                        <option key={option} value={option}>
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                  ) : campo.tipo === 'longo' || campo.tipo === 'json' ? (
+                    <textarea
+                      className="campo bl-campo-longo"
+                      rows={3}
+                      value={fieldValue(acao, campo.key)}
+                      onChange={(e) =>
+                        onMudar(
+                          campo.tipo === 'json'
+                            ? comCampoJson(acao, campo.key, e.target.value)
+                            : comCampo(acao, campo.key, e.target.value),
+                        )
+                      }
+                    />
+                  ) : (
+                    <Campo
+                      value={fieldValue(acao, campo.key)}
+                      onChange={(e) => onMudar(comCampo(acao, campo.key, e.target.value))}
+                    />
+                  )}
+                  {campo.ajuda ? <span className="bl-ajuda">{campo.ajuda}</span> : null}
+                </label>
+              ))}
+              <h5 className="bl-secao-subtitulo">{ROTULOS_OF_ACTIONS.condicao}</h5>
+              <ConditionsEditor
+                conditions={acao.conditions ?? []}
+                onMudar={(conditions) => onMudar(withConditions(acao, conditions))}
+                rotuloAdicionar={ROTULOS_OF_ACTIONS.adicionarCondicao}
+              />
+            </>
+          ) : (
+            <pre className="bl-acao-bruta">{JSON.stringify(acao.settings ?? {}, null, 2)}</pre>
+          )}
+          {errors.length > 0 ? (
+            <ul className="bl-erros">
+              {errors.map((e) => (
+                <li key={e}>{e}</li>
+              ))}
+            </ul>
+          ) : null}
+        </div>
+      ) : null}
+    </article>
+  );
+}
+
+function EditorDeCabecalhos({
+  cabecalhos,
+  onMudar,
+}: {
+  cabecalhos: { key: string; value: string }[];
+  onMudar: (cabecalhos: { key: string; value: string }[]) => void;
+}) {
+  return (
+    <div className="bl-cabecalhos">
+      {cabecalhos.map((cabecalho, indice) => (
+        <div className="bl-cabecalho-fileira" key={`${cabecalho.key}-${indice}`}>
+          <Campo
+            value={cabecalho.key}
+            placeholder="Chave"
+            aria-label={`Chave do cabeçalho ${indice + 1}`}
+            onChange={(e) =>
+              onMudar(cabecalhos.map((c, i) => (i === indice ? { ...c, key: e.target.value } : c)))
+            }
+          />
+          <Campo
+            value={cabecalho.value}
+            placeholder="Valor"
+            aria-label={`Valor do cabeçalho ${indice + 1}`}
+            onChange={(e) =>
+              onMudar(cabecalhos.map((c, i) => (i === indice ? { ...c, value: e.target.value } : c)))
+            }
+          />
+          <button
+            type="button"
+            className="iconbtn"
+            aria-label="Remover cabeçalho"
+            onClick={() => onMudar(cabecalhos.filter((_, i) => i !== indice))}
+          >
+            <IconeManagement nome="lixeira" tamanho={18} />
+          </button>
+        </div>
+      ))}
+      <button
+        type="button"
+        className="bl-adicionar-cabecalho"
+        onClick={() => onMudar([...cabecalhos, { key: '', value: '' }])}
+      >
+        + Adicionar cabeçalho
+      </button>
+    </div>
+  );
+}

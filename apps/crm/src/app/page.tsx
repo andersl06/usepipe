@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { Etiqueta } from '@pipe/ui';
-import { fusoDoTenant, mesWindow } from '../lib/banco';
-import { carregarIndicadores, leadsByFase, leadsByOrigem } from '../lib/painel';
+import { fusoDoTenant, mesWindow } from '../lib/database';
+import { carregarIndicadores, leadsByFase, leadsByOrigem } from '../lib/panel';
 import { carregarFunil } from '../lib/funil';
-import { money, moneyCurto, numero, percentual } from '../lib/formato';
+import { money, moneyCurto, numero, percentual } from '../lib/format';
 
 export const dynamic = 'force-dynamic';
 

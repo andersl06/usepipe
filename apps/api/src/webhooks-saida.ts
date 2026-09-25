@@ -3,8 +3,8 @@ import { sql } from 'drizzle-orm';
 import { decifrar, estaCifrado } from '@pipe/db';
 import type { TransactionPipe } from '@pipe/db';
 import type { TYPES_AUTHENTICATION_WEBHOOK } from '@pipe/db/schema';
-import { keyring, noTenant } from './banco.js';
-import { chamarComMtls } from './dominio/mtls.js';
+import { keyring, noTenant } from './database.js';
+import { chamarComMtls } from './domain/mtls.js';
 
 /**
  * Webhooks de saída — `apis.md` §5.5.

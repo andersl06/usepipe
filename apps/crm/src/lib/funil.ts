@@ -1,6 +1,6 @@
 import { and, asc, desc, eq, isNotNull, isNull, sql } from 'drizzle-orm';
 import { account, lead, opportunity, user } from '@pipe/db/schema';
-import { consultar, paraData, paraNumero } from './banco';
+import { consultar, paraData, paraNumero } from './database';
 import { timeCarregarLinha, type TimeItemLinha } from './leads';
 
 /**

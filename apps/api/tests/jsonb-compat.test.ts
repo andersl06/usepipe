@@ -45,8 +45,8 @@ import { dubleWhatsApp, processarOutbox } from '@pipe/workers';
 
 const { montarCenario } = await import('./ajuda.js');
 const { upApi } = await import('../src/servidor.js');
-const { noTenant } = await import('../src/banco.js');
-const { loadFlow } = await import('../src/dominio/fluxo.js');
+const { noTenant } = await import('../src/database.js');
+const { loadFlow } = await import('../src/domain/flow.js');
 const { entregarPendentes } = await import('../src/webhooks-saida.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;

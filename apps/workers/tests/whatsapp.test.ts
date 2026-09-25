@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { POLICY_MEDIA_DEFAULT, validateMedia } from '../src/whatsapp/midia.js';
+import { POLICY_MEDIA_DEFAULT, validateMedia } from '../src/whatsapp/media.js';
 import {
   ParametroMissingError,
   assembleComponents,
   positionOfVariable,
   positionsOfBody,
 } from '../src/whatsapp/template.js';
-import { esperaMs } from '../src/entrega.js';
+import { esperaMs } from '../src/delivery.js';
 
 const MB = 1024 * 1024;
 

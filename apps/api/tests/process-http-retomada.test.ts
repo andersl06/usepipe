@@ -16,8 +16,8 @@ process.env['PIPE_COOKIE_SEGURO'] = 'false';
 process.env['PIPE_COOKIE_DOMINIO'] = '';
 
 const { upApi } = await import('../src/servidor.js');
-const { noTenant } = await import('../src/banco.js');
-const { importFlowOfBlip, executarProcessHttp } = await import('../src/dominio/fluxo.js');
+const { noTenant } = await import('../src/database.js');
+const { importFlowOfBlip, executarProcessHttp } = await import('../src/domain/flow.js');
 const { assinar, montarCenario, payloadOfMessage } = await import('./ajuda.js');
 
 type Cenario = Awaited<ReturnType<typeof montarCenario>>;

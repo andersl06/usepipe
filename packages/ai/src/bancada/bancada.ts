@@ -18,14 +18,14 @@
  * A saída por critério tem o mesmo formato de `calibracao_item.desvio_por_criterio`.
  */
 
-import type { ResultEvaluation } from '../avaliacao/index.js';
-import { avaliarConversation, calcularNota, criteriosDoFormulario } from '../avaliacao/index.js';
-import type { Formulario } from '../avaliacao/tipos.js';
+import type { ResultEvaluation } from '../evaluation/index.js';
+import { avaliarConversation, calcularNota, criteriosDoFormulario } from '../evaluation/index.js';
+import type { Formulario } from '../evaluation/tipos.js';
 import type { ChamadaEstruturada } from '../cliente/cliente.js';
 import type { Consumo } from '../consumo/index.js';
 import { somarConsumo } from '../consumo/index.js';
-import type { MessageTranscription, OptionsTranscription } from '../transcricao/index.js';
-import { montarTranscription } from '../transcricao/index.js';
+import type { MessageTranscription, OptionsTranscription } from '../transcription/index.js';
+import { montarTranscription } from '../transcription/index.js';
 
 /** Uma conversa do conjunto de referência, com a avaliação feita por humano. */
 export interface CasoReferencia {

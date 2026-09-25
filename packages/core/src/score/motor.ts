@@ -11,7 +11,7 @@
  * ordem em que o banco devolveu as linhas.
  */
 
-import { compararIdentificador } from '../comum/tempo.js';
+import { compararIdentificador } from '../comum/time.js';
 
 export type Operador =
   | 'igual'

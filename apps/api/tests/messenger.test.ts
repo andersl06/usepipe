@@ -12,13 +12,13 @@ process.env['PIPE_URL_API'] = 'https://api.teste';
 const { createDatabasecriarBancocreateDatabase, estaCifrado, closeDatabasefecharBancocloseDatabase, migratemigrarmigrate, seedsemearseed } = await import('@pipe/db');
 const { dubleMessenger, processarOutbox } = await import('@pipe/workers');
 const { upApi } = await import('../src/servidor.js');
-const { sendMessage } = await import('../src/dominio/envio.js');
-const { MessengerChannelsController } = await import('../src/controladores/canais-messenger.js');
-const { aplicarPerfilMessenger, readChannelMessenger } = await import('../src/dominio/messenger/canal.js');
-import type { RequestWithSession } from '../src/sessao.js';
+const { sendMessage } = await import('../src/domain/envio.js');
+const { MessengerChannelsController } = await import('../src/controllers/channels-messenger.js');
+const { aplicarPerfilMessenger, readChannelMessenger } = await import('../src/domain/messenger/channel.js');
+import type { RequestWithSession } from '../src/session.js';
 process.env['PIPE_WHATSAPP_CONEXAO'] = 'duble';
-const { ClienteGraphMessengerDuble, clienteGraphMessenger, definirFabricaGraphMessenger } = await import('../src/dominio/messenger/cliente-graph.js');
-const { payloadDoMessenger, valuesOfMessenger } = await import('../src/dominio/messenger/entrada.js');
+const { ClienteGraphMessengerDuble, clienteGraphMessenger, definirFabricaGraphMessenger } = await import('../src/domain/messenger/cliente-graph.js');
+const { payloadDoMessenger, valuesOfMessenger } = await import('../src/domain/messenger/inbound.js');
 
 describe('Messenger', () => {
   beforeEach(() => { definirFabricaGraphMessenger(null); ClienteGraphMessengerDuble.reiniciar(); });

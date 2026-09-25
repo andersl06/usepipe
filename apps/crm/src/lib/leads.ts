@@ -21,7 +21,7 @@ import {
   user,
 } from '@pipe/db/schema';
 import { diferenca, registrarAuditoria, type TransactionPipe } from '@pipe/db';
-import { atorDoCrm, consultar, paraData, paraNumero, tenantId } from './banco';
+import { atorDoCrm, consultar, paraData, paraNumero, tenantId } from './database';
 // Só o tipo, e de um arquivo sem banco: é o mesmo catálogo que a célula inline
 // lê no navegador, e é ele que fecha a lista de colunas graváveis.
 import type { KeyField } from './campos-editaveis';
