@@ -3379,42 +3379,57 @@ css-comment-e90d8f46,css,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/
 css-comment-b4810273,css,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css,251,252,css,1,"/* O `chart type=""list""`: a tabela do Google, cabeçalho em
    `--color-content-default` (`.active-message-chart-list thead tr th`). */",translate,"The `chart type=""list""`: Google's table, header in `--color-content-default` (`.active-message-chart-list thead tr th`).",meta-blip,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css:251-252; Google Charts capture cited by the file's header; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-bf30deb2,css,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css,51,52,css,2,"/* `#dashboard-filters.bp-c-rooftop.flex.justify-between.z-5.relative`, e o
-   `.picker-view.mr2` do seletor: `flex: 1`, alinhado à direita, 5 à direita. */",,,,,,
+   `.picker-view.mr2` do seletor: `flex: 1`, alinhado à direita, 5 à direita. */",translate,"`#dashboard-filters.bp-c-rooftop.flex.justify-between.z-5.relative`, and the
+   `.picker-view.mr2` selector: `flex: 1`, right-aligned, 5 to the right.",other,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css:51-52,,proposed
 css-comment-da5bda28,css,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css,78,80,css,2,"/* `.card.z-2.ma0.pa4.flex1.mt4.mr2.ml2.card-content`: 20 em cima, 5 dos lados,
    recheio 20, e `#general-dashboard .card-content` em coluna com
-   `space-between`. `.flex1` é `flex: 1.5`; `.flex3`, `flex: 3`. */",,,,,,
+   `space-between`. `.flex1` é `flex: 1.5`; `.flex3`, `flex: 3`. */",translate,"`.card.z-2.ma0.pa4.flex1.mt4.mr2.ml2.card-content`: 20 on top, 5 on the sides,
+   20 padding, and `#general-dashboard .card-content` in a column with
+   `space-between`. `.flex1` is `flex: 1.5`; `.flex3`, `flex: 3`.",other,apps/gestao-vite/src/paginas/fluxo/analise/visao-geral/visao-geral.css:78-80,,proposed
 css-comment-d2bd93c9,css,apps/gestao-vite/src/paginas/fluxo/canais/canais.css,1,3,css,2,"/* `auth.application.detail.channels`, captura 8: cabeçalho é o `page-header`
    padrão (`ph-cabecalho`, de Integrações — a mesma `.full-initial-section` do
-   `portal.css`, sem faixa branca própria) seguido da grade de cards. */",,,,,,
-css-comment-be015c22,css,apps/gestao-vite/src/paginas/fluxo/canais/canais.css,104,104,css,2,"/* `button-hub`: rodapé de 64px, sem borda lateral e cheio quando conectado. */",,,,,,
-css-comment-da8fffa3,css,apps/gestao-vite/src/paginas/fluxo/canais/canais.css,21,21,css,1,/* `New.svg` fica acima do card e balança quando o card sobe. */,,,,,,
-css-comment-458587ee,css,apps/gestao-vite/src/paginas/fluxo/canais/canais.css,60,60,css,1,/* `card--with-hover` com `ng-click`: o cartão inteiro é o link. */,,,,,,
+   `portal.css`, sem faixa branca própria) seguido da grade de cards. */",translate,"`auth.application.detail.channels`, capture 8: header is the standard
+   `page-header` (`ph-cabecalho`, from Integrations — the same
+   `.full-initial-section` as `portal.css`, with no white band of its own)
+   followed by the card grid.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/canais.css:1-3; cites Blip's portal.css as layout evidence; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-be015c22,css,apps/gestao-vite/src/paginas/fluxo/canais/canais.css,104,104,css,2,"/* `button-hub`: rodapé de 64px, sem borda lateral e cheio quando conectado. */",translate,"`button-hub`: 64px footer, no side border and full when connected.",other,apps/gestao-vite/src/paginas/fluxo/canais/canais.css:104,,proposed
+css-comment-da8fffa3,css,apps/gestao-vite/src/paginas/fluxo/canais/canais.css,21,21,css,1,/* `New.svg` fica acima do card e balança quando o card sobe. */,translate,`New.svg` sits above the card and sways when the card lifts.,other,apps/gestao-vite/src/paginas/fluxo/canais/canais.css:21,,proposed
+css-comment-458587ee,css,apps/gestao-vite/src/paginas/fluxo/canais/canais.css,60,60,css,1,/* `card--with-hover` com `ng-click`: o cartão inteiro é o link. */,translate,`card--with-hover` with `ng-click`: the whole card is the link.,other,apps/gestao-vite/src/paginas/fluxo/canais/canais.css:60,,proposed
 css-comment-9c805114,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,1,5,css,3,"/* A página de UM canal dentro do bot — templates 79961 (WhatsApp) e 230473
    (Instagram) de `portal.js`, e os parciais `WhatsApp*.html`
    (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1.3 e §2).
    O papel, as abas e a tipografia vêm de `integracoes.css` (`ig-*`, o mesmo
-   `bds-paper`/`bds-tabs`); aqui fica só o que é desta página. */",,,,,,
-css-comment-0ca253d5,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,116,116,css,1,"/* `bds-grid align-items=""flex-end"" direction=""row-reverse""`: o botão à direita. */",,,,,,
-css-comment-17c60dd0,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,134,134,css,0,"/* `WhatsAppFacebookConnectionStep.html`: duas colunas (`xxs=""5""` de texto, `xxs=""3""` de ilustração), centradas, `margin=""y-4""`. */",,,,,,
-css-comment-5b0fba17,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,159,159,css,3,"/* `bds-button variant=""facebook"" icon-left=""facebook""`: é a cor do Facebook, não a da Pipe. */",,,,,,
-css-comment-fde73791,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,174,174,css,1,"/* `bds-chip-clickable size=""tall"" color=""success""` com avatar: o número em verde. */",,,,,,
-css-comment-96ee1981,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,207,207,css,1,"/* `WhatsAppSelectedNumber.html`: o select `w-30` sobre fundo branco e o ""Não encontrou seu número?"" em fs-12. */",,,,,,
-css-comment-b646f40a,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,223,223,css,2,"/* O `<a ng-click>` ""Volte e cadastre agora."" dentro do fs-12: um botão que parece link. */",,,,,,
-css-comment-471eadf9,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,234,234,css,2,"/* `bds-illustration type=""blip-solid"" name=""sad""` e os estados vazios: a Pipe usa a própria ilustração. */",,,,,,
+   `bds-paper`/`bds-tabs`); aqui fica só o que é desta página. */",translate,"The page for ONE channel inside the bot — templates 79961 (WhatsApp) and 230473
+   (Instagram) from `portal.js`, and the `WhatsApp*.html` partials
+   (`referencias-blip/fichas/FICHA-conectar-canal-no-bot.md` §1.3 and §2).
+   The paper, tabs and typography come from `integracoes.css` (`ig-*`, the same
+   `bds-paper`/`bds-tabs`); only what's specific to this page lives here.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:1-5; cites Blip portal.js templates and referencias-blip FICHA doc; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-0ca253d5,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,116,116,css,1,"/* `bds-grid align-items=""flex-end"" direction=""row-reverse""`: o botão à direita. */",translate,"`bds-grid align-items=""flex-end"" direction=""row-reverse""`: the button on the right.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:116; cites Blip Design System bds-grid; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-17c60dd0,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,134,134,css,0,"/* `WhatsAppFacebookConnectionStep.html`: duas colunas (`xxs=""5""` de texto, `xxs=""3""` de ilustração), centradas, `margin=""y-4""`. */",translate,"`WhatsAppFacebookConnectionStep.html`: two columns (`xxs=""5""` text, `xxs=""3""` illustration), centered, `margin=""y-4""`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:134; cites Blip source template WhatsAppFacebookConnectionStep.html; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-5b0fba17,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,159,159,css,3,"/* `bds-button variant=""facebook"" icon-left=""facebook""`: é a cor do Facebook, não a da Pipe. */",translate,"`bds-button variant=""facebook"" icon-left=""facebook""`: it's Facebook's color, not Pipe's.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:159; cites Blip Design System bds-button; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-fde73791,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,174,174,css,1,"/* `bds-chip-clickable size=""tall"" color=""success""` com avatar: o número em verde. */",translate,"`bds-chip-clickable size=""tall"" color=""success""` with avatar: the number in green.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:174; cites Blip Design System bds-chip-clickable; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-96ee1981,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,207,207,css,1,"/* `WhatsAppSelectedNumber.html`: o select `w-30` sobre fundo branco e o ""Não encontrou seu número?"" em fs-12. */",translate,"`WhatsAppSelectedNumber.html`: the `w-30` select on a white background and ""Não encontrou seu número?"" in fs-12.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:207; cites Blip source template, keeps literal Portuguese product copy; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-b646f40a,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,223,223,css,2,"/* O `<a ng-click>` ""Volte e cadastre agora."" dentro do fs-12: um botão que parece link. */",translate,"The `<a ng-click>` ""Volte e cadastre agora."" inside fs-12: a button that looks like a link.",other,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:223; keeps literal Portuguese product copy,,proposed
+css-comment-471eadf9,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,234,234,css,2,"/* `bds-illustration type=""blip-solid"" name=""sad""` e os estados vazios: a Pipe usa a própria ilustração. */",translate,"`bds-illustration type=""blip-solid"" name=""sad""` and the empty states: Pipe uses its own illustration.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:234; cites Blip Design System bds-illustration type=""blip-solid""; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-5b33715b,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,24,25,css,7,"/* A aba que a Pipe ainda não tem por dentro (""Ambiente de testes""): sem link,
-   com o selo — o mesmo desenho de `.an-aba--obra` da Análise. */",,,,,,
-css-comment-e36cf1ca,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,244,244,css,0,"/* O modal de desconexão (Instagram/Messenger da origem, `class H`): motivo + concordância. */",,,,,,
-css-comment-4cd1f957,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,32,32,css,0,"/* `bds-typo tag=""span""` ""Documentação"" + `bds-icon name=""external-file"" size=""x-small""`. */",,,,,,
-css-comment-0896f639,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,43,43,css,0,"/* `bds-tab-panel class=""mt4 w-100""`: `.mt4` do blip é 20px. */",,,,,,
+   com o selo — o mesmo desenho de `.an-aba--obra` da Análise. */",translate,"The tab Pipe doesn't have internally yet (""Ambiente de testes""): no link,
+   with the badge — the same design as `.an-aba--obra` from Analytics.",other,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:24-25; keeps literal Portuguese tab label,,proposed
+css-comment-e36cf1ca,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,244,244,css,0,"/* O modal de desconexão (Instagram/Messenger da origem, `class H`): motivo + concordância. */",translate,"The disconnect modal (Instagram/Messenger from the source, `class H`): reason + agreement.",other,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:244,,proposed
+css-comment-4cd1f957,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,32,32,css,0,"/* `bds-typo tag=""span""` ""Documentação"" + `bds-icon name=""external-file"" size=""x-small""`. */",translate,"`bds-typo tag=""span""` ""Documentação"" + `bds-icon name=""external-file"" size=""x-small""`.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:32; cites Blip Design System bds-typo/bds-icon, keeps literal Portuguese label; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-0896f639,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,43,43,css,0,"/* `bds-tab-panel class=""mt4 w-100""`: `.mt4` do blip é 20px. */",translate,"`bds-tab-panel class=""mt4 w-100""`: blip's `.mt4` is 20px.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:43; explicit Blip reference and bds-tab-panel; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-68458385,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,49,50,css,3,"/* `WhatsAppStart.html`/`InstagramOverview*.html`: `.flex` com a coluna do
-   ícone (`.icon-column.channel-column`) e a coluna do texto (`.channel-column.w-100`). */",,,,,,
+   ícone (`.icon-column.channel-column`) e a coluna do texto (`.channel-column.w-100`). */",translate,"`WhatsAppStart.html`/`InstagramOverview*.html`: `.flex` with the icon column
+   (`.icon-column.channel-column`) and the text column (`.channel-column.w-100`).",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:49-50; cites Blip source templates; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-4768e306,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,7,8,css,2,"/* `bds-grid direction=""row""` com as abas em `xxs=""10""` e ""Documentação"" em
-   `xxs=""2""` alinhada à direita. */",,,,,,
-css-comment-324aaafe,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,72,72,css,0,"/* `bds-typo variant=""fs-16""` e as duas gorduras de título usadas nos parciais. */",,,,,,
+   `xxs=""2""` alinhada à direita. */",translate,"`bds-grid direction=""row""` with the tabs at `xxs=""10""` and ""Documentação"" at
+   `xxs=""2""` right-aligned.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:7-8; cites Blip Design System bds-grid, keeps literal Portuguese label; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-324aaafe,css,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css,72,72,css,0,"/* `bds-typo variant=""fs-16""` e as duas gorduras de título usadas nos parciais. */",translate,"`bds-typo variant=""fs-16""` and the two title weights used in the partials.",meta-blip,apps/gestao-vite/src/paginas/fluxo/canais/canal-do-bot.css:72; cites Blip Design System bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-21e7da20,css,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/canal-whatsapp.css,1,3,css,2,"/* O WhatsApp por dentro do bot — as abas ""Perfil da empresa"", ""Configurações""
    e ""Configurações de alerta"" (`FICHA-canal-whatsapp.md` §2–§4). A moldura
-   (cabeçalho, papel, abas) é a de `../canal-do-bot.css`. */",,,,,,
-css-comment-f1dc1f26,css,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/canal-whatsapp.css,100,100,css,0,/* --------------------------------------------------------- Configurações */,,,,,,
+   (cabeçalho, papel, abas) é a de `../canal-do-bot.css`. */",translate,"WhatsApp inside the bot — the tabs ""Perfil da empresa"", ""Configurações""
+   and ""Configurações de alerta"" (`FICHA-canal-whatsapp.md` §2–§4). The frame
+   (header, paper, tabs) is `../canal-do-bot.css`'s.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/canal-whatsapp.css:1-3; cites referencias-blip FICHA doc, keeps literal Portuguese tab labels; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-f1dc1f26,css,apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/canal-whatsapp.css,100,100,css,0,/* --------------------------------------------------------- Configurações */,translate,--------------------------------------------------------- Configurações,other,"apps/gestao-vite/src/paginas/fluxo/canais/whatsapp/canal-whatsapp.css:100; kept as literal Portuguese tab-name evidence, matching the quoted product copy in the preceding row",,proposed
 css-comment-4a00a1c4,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.css,1,9,css,7,"/**
  * `/configurations/basic`: título de seção, os dois campos com contador (cima
  * do `cf-campo*` de `configuracoes.css`) e a área de imagem — o resto (botão,
@@ -3423,34 +3438,57 @@ css-comment-4a00a1c4,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/basica
  * `#applicationForm` na origem: `<div class=""row""><div class=""twelve columns"">`
  * — os campos são `u-full-width`, sem coluna estreita. O form ocupa a largura
  * toda do `.cf-container` (776px no desktop); não há `max-width` na origem.
- */",,,,,,
+ */",translate,"`/configurations/basic`: section title, the two fields with counter (above
+   `cf-campo*` from `configuracoes.css`) and the image area — the rest (button,
+   notice, footer) already comes from `configuracoes.css`.
+
+   `#applicationForm` in the source: `<div class=""row""><div class=""twelve columns"">`
+   — the fields are `u-full-width`, no narrow column. The form takes the full
+   width of `.cf-container` (776px on desktop); there's no `max-width` in the source.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.css:1-9,,proposed
 css-comment-3c0abd20,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.css,10,11,css,3,"/* `h4.color-neutral-dark-rooftop`: 18px, sem negrito. A estrutura vem da
-   origem; a cor permanece na paleta neutra do Pipe. */",,,,,,
+   origem; a cor permanece na paleta neutra do Pipe. */",translate,"`h4.color-neutral-dark-rooftop`: 18px, not bold. The structure comes from the
+   source; the color stays in Pipe's neutral palette.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.css:10-11,,proposed
 css-comment-4414abd8,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.css,114,115,css,3,"/* `<a class=""text""><i class=""icon layout-top layout-right""></i></a>`: ícone
-   solto, sem chip nem sombra atrás — só posicionado no canto. */",,,,,,
+   solto, sem chip nem sombra atrás — só posicionado no canto. */",translate,"`<a class=""text""><i class=""icon layout-top layout-right""></i></a>`: a loose
+   icon, no chip or shadow behind it — just positioned in the corner.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.css:114-115,,proposed
 css-comment-f7901db9,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.css,134,135,css,4,"/* `.cf-basicas-sucesso` mudou para `configuracoes.css` — deixou de ser só
-   desta tela quando Boas-vindas e Menu Persistente passaram a salvar também. */",,,,,,
+   desta tela quando Boas-vindas e Menu Persistente passaram a salvar também. */",translate,"`.cf-basicas-sucesso` moved to `configuracoes.css` — it stopped being only for
+   this screen once Welcome and Persistent Menu started saving too.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.css:134-135,,proposed
 css-comment-555acba6,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.css,137,138,css,2,"/* A caixa ""Estou ciente…"" do modal de exclusão (`deleteChatBotModalCheck`):
-   é ela que destrava o botão. */",,,,,,
+   é ela que destrava o botão. */",translate,"The ""Estou ciente…"" checkbox in the delete modal (`deleteChatBotModalCheck`):
+   it's what unlocks the button.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.css:137-138; keeps literal Portuguese product copy,,proposed
 css-comment-f7d40eed,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.css,23,28,css,9,"/* `<material-input>` (""Nome do fluxo"", ""Descrição""): campo de LINHA, não a
    caixa com borda de `.cf-campo` — a única tela de Configurações que ainda
    usa esse padrão antigo (AngularJS), em vez de `<bds-input>`. Rótulo sobe
    pra cima (12px, apagado) só quando há valor; vazio, ele mesmo faz de
    placeholder. Sublinhado sob a linha toda; o contador fica na ponta
-   direita da MESMA linha do sublinhado, não no canto de um rótulo interno. */",,,,,,
+   direita da MESMA linha do sublinhado, não no canto de um rótulo interno. */",translate,"`<material-input>` (""Nome do fluxo"", ""Descrição""): a LINE field, not the
+   bordered box of `.cf-campo` — the only Settings screen still using that old
+   (AngularJS) pattern instead of `<bds-input>`. The label floats up (12px,
+   muted) only when there's a value; empty, it acts as its own placeholder.
+   Underline spans the full row; the counter sits at the right end of that
+   SAME underline row, not tucked in a label's corner.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/basicas/basicas.css:23-28; contrasts with Blip Design System bds-input; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f0ecfea9,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,117,118,css,1,"/* `.nav_main_text`: coluna com `gap: 2px`; título `fs-14` semi-bold (22px de
-   linha) e subtítulo `fs-12` (22px de linha, 2 linhas = 44px). */",,,,,,
+   linha) e subtítulo `fs-12` (22px de linha, 2 linhas = 44px). */",translate,"`.nav_main_text`: column with `gap: 2px`; title `fs-14` semi-bold (22px line
+   height) and subtitle `fs-12` (22px line height, 2 lines = 44px).",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:117-118,,proposed
 css-comment-d2a9c8ba,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,146,148,css,1,"/* `#main-content-area.main-detail-content`: `flex-direction: column`,
    `background-color: var(--color-surface-2)`, `box-shadow: -2px 6px 6px 0
-   rgba(226,231,236,.96)`, `overflow: hidden`. `.blip-ui-content` é a coluna. */",,,,,,
+   rgba(226,231,236,.96)`, `overflow: hidden`. `.blip-ui-content` é a coluna. */",translate,"`#main-content-area.main-detail-content`: `flex-direction: column`,
+   `background-color: var(--color-surface-2)`, `box-shadow: -2px 6px 6px 0
+   rgba(226,231,236,.96)`, `overflow: hidden`. `.blip-ui-content` is the column.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:146-148; cites the .blip-ui-content class; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-7f4ac5dc,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,24,28,css,8,"/* ==================== a casca: `#main-section.pa0` é `display:flex` com a
    `<aside class=""detail-aside fl"">` (309px) e o `#main-content-area` lado a
    lado, na largura toda. A `fx-coluna` do casco compartilhado centra em 80%
    (90% entre 550 e 749, 100% com 20px de recuo abaixo): aqui se desfaz esse
-   recuo com o mesmo degrau, sem tocar o casco. */",,,,,,
-css-comment-8df969c0,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,263,263,css,2,"/* `<div class=""flex"">` com o texto (`.w-100`) e o `<switch>` à direita. */",,,,,,
+   recuo com o mesmo degrau, sem tocar o casco. */",translate,"-------------------- the shell: `#main-section.pa0` is `display:flex` with the
+   `<aside class=""detail-aside fl"">` (309px) and `#main-content-area` side by
+   side, at full width. The shared shell's `fx-coluna` centers at 80% (90%
+   between 550 and 749, 100% with a 20px indent below): here that indent is
+   undone with the same step, without touching the shell.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:24-28,,proposed
+css-comment-8df969c0,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,263,263,css,2,"/* `<div class=""flex"">` com o texto (`.w-100`) e o `<switch>` à direita. */",translate,"`<div class=""flex"">` with the text (`.w-100`) and the `<switch>` on the right.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:263,,proposed
 css-comment-42f0215b,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,276,277,css,1,"/* `<switch>`: `label` 43×26, raio 36, fundo #cfcfcf, bolinha 22×22 em (2,2);
-   `margin-bottom: -3px`. Ligado: fundo da marca, bolinha à direita. */",,,,,,
+   `margin-bottom: -3px`. Ligado: fundo da marca, bolinha à direita. */",translate,"`<switch>`: `label` 43×26, radius 36, background #cfcfcf, knob 22×22 at (2,2);
+   `margin-bottom: -3px`. On: brand background, knob on the right.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:276-277,,proposed
 css-comment-17792a36,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,3,22,css,4,"/* ============================== Configurações do contato
 
    Cópia de `auth.application.detail.configurations.*` do portal deles, medida
@@ -3470,67 +3508,114 @@ css-comment-17792a36,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/config
      #bebebe (1px dotted entre itens da lateral)         → `--p-linha-forte`
      `--color-primary` (botão, cópia)                   → musgo do Pipe
      #fff → #f2fcff (degradê da lateral)                 → superfície 0 → info-fundo
-     0 2px 8px -2px rgba(0,0,0,.16) (bds-paper)          → `--g-sombra-cartao` */",,,,,,
-css-comment-0b162cc6,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,30,30,css,1,"/* Estrutura da Blip, identidade do Pipe: a marca musgo é herdada do tema. */",,,,,,
+     0 2px 8px -2px rgba(0,0,0,.16) (bds-paper)          → `--g-sombra-cartao` */",translate,"============================== Contact settings
+
+   Copy of `auth.application.detail.configurations.*` from their portal, measured
+   on the copy's rendered DOM (1280×780 window, `docs/capturas/regua.md`) and
+   checked against `portal.css` / blip-ds (`bds-nav-tree`, `bds-paper`,
+   `bds-input`, `bds-button`, `bds-button-icon`). Each block carries the source
+   selector and the measured number.
+
+   ═══ THE PAINT IS OURS ═══ (the mappings `fluxo.css` already fixed)
+     #ededed `--color-surface-2` (core floor)              → `--ground`
+     #f6f6f6 `--color-surface-1` (bds-paper)                → `--p-superficie-0`
+     #e0e0e0 `--color-surface-2` (input-clipboard)          → `--p-superficie-2`
+     #cfcfcf `--color-surface-3` (divider, switch off)      → `--p-superficie-3`
+     #282828 `--color-content-default`                       → `--p-conteudo`
+     #738192 (title's `<small>`)                             → `--p-conteudo-fantasma`
+     rgba(0,0,0,.2) `--color-border-1` (bds-input)          → `--p-linha-media`
+     #bebebe (1px dotted between sidebar items)              → `--p-linha-forte`
+     `--color-primary` (button, copy)                       → Pipe's moss
+     #fff → #f2fcff (sidebar gradient)                      → surface 0 → info background
+     0 2px 8px -2px rgba(0,0,0,.16) (bds-paper)             → `--g-sombra-cartao`",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:3-22; cites Blip's portal.css and blip-ds measurements; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-0b162cc6,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,30,30,css,1,"/* Estrutura da Blip, identidade do Pipe: a marca musgo é herdada do tema. */",translate,"Blip's structure, Pipe's identity: the moss brand color is inherited from the theme.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:30; explicit Blip mention; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-be65826a,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,329,330,css,2,"/* `<div class=""flex""> <div class=""mr6 w-50"">…`: duas colunas de 50% com
-   `margin-right: 5rem` (80px); `.mt4` empilha o segundo campo a 20px. */",,,,,,
+   `margin-right: 5rem` (80px); `.mt4` empilha o segundo campo a 20px. */",translate,"`<div class=""flex""> <div class=""mr6 w-50"">…`: two 50% columns with
+   `margin-right: 5rem` (80px); `.mt4` stacks the second field 20px below.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:329-330,,proposed
 css-comment-b7b36e17,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,350,352,css,0,"/* `.input-clipboard-container`: pílula (`border-radius: 100px`) de superfície 2,
    `padding: 5px 20px`, 14px, cor da marca; `input` transparente, 700, 85% de
-   largura, `margin-right: 10px`; `.icon-copy` 16px. Mede 32px de altura. */",,,,,,
+   largura, `margin-right: 10px`; `.icon-copy` 16px. Mede 32px de altura. */",translate,"`.input-clipboard-container`: pill (`border-radius: 100px`) on surface 2,
+   `padding: 5px 20px`, 14px, brand color; transparent `input`, 700 weight, 85%
+   width, `margin-right: 10px`; `.icon-copy` 16px. Measures 32px tall.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:350-352,,proposed
 css-comment-22242d62,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,410,412,css,0,"/* `<bds-input>` › `.input.input--label`: `display:flex; align-items:center;
    gap:8px; padding: 7px 4px 8px 12px; border: 1px solid rgba(0,0,0,.2);
-   border-radius: 8px`. Rótulo `fs-12` 700 (18px) + 2px + campo de 36px. */",,,,,,
+   border-radius: 8px`. Rótulo `fs-12` 700 (18px) + 2px + campo de 36px. */",translate,"`<bds-input>` › `.input.input--label`: `display:flex; align-items:center;
+   gap:8px; padding: 7px 4px 8px 12px; border: 1px solid rgba(0,0,0,.2);
+   border-radius: 8px`. Label `fs-12` 700 (18px) + 2px + 36px field.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:410-412; cites Blip Design System bds-input; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-5ba8c20d,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,445,446,css,4,"/* `<span counter-for>` (`material-input`): caracteres que ainda cabem
-   (`maxLength - valor.length`), não os já digitados. */",,,,,,
-css-comment-2e4cfdd8,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,477,477,css,2,"/* `bds-textarea`: a mesma caixa, com altura livre em vez do input de 36px. */",,,,,,
+   (`maxLength - valor.length`), não os já digitados. */",translate,"`<span counter-for>` (`material-input`): characters still available
+   (`maxLength - valor.length`), not the ones already typed.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:445-446,,proposed
+css-comment-2e4cfdd8,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,477,477,css,2,"/* `bds-textarea`: a mesma caixa, com altura livre em vez do input de 36px. */",translate,"`bds-textarea`: the same box, with free height instead of the 36px input.",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:477; cites Blip Design System bds-textarea; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8cba3e3c,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,496,497,css,2,"/* O mesmo campo, com um `<select>` nativo dentro em vez de `input`/`textarea`
-   — o seletor de papel do editar linha a linha da Equipe. */",,,,,,
+   — o seletor de papel do editar linha a linha da Equipe. */",translate,"The same field, with a native `<select>` inside instead of `input`/`textarea`
+   — the role selector from the Team page's row-by-row edit.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:496-497,,proposed
 css-comment-5cd348b5,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,566,567,css,1,"/* `.row.mt4` + `.three.columns.offset-by-nine` + `.bp-btn.fr`: `margin: 20px 0
-   9px`, botão encostado à direita. */",,,,,,
+   9px`, botão encostado à direita. */",translate,"`.row.mt4` + `.three.columns.offset-by-nine` + `.bp-btn.fr`: `margin: 20px 0
+   9px`, button flush right.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:566-567,,proposed
 css-comment-0025430b,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,65,66,css,0,"/* `.detail-aside`: `background-image: linear-gradient(180deg,#fff,#f2fcff)`,
-   `width: auto` — na prática 309px = 12 + 285 + 12 (`<bds-grid padding=""2"">`). */",,,,,,
-css-comment-1c80def3,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,712,712,css,1,"/* `<img src=""/assets/img/ballons.svg"">`: 111×139 à direita. */",,,,,,
+   `width: auto` — na prática 309px = 12 + 285 + 12 (`<bds-grid padding=""2"">`). */",translate,"`.detail-aside`: `background-image: linear-gradient(180deg,#fff,#f2fcff)`,
+   `width: auto` — in practice 309px = 12 + 285 + 12 (`<bds-grid padding=""2"">`).",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:65-66; cites Blip Design System bds-grid; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-1c80def3,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,712,712,css,1,"/* `<img src=""/assets/img/ballons.svg"">`: 111×139 à direita. */",translate,"`<img src=""/assets/img/ballons.svg"">`: 111×139 on the right.",other,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:712,,proposed
 css-comment-9ce51779,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,79,81,css,1,"/* `bds-nav-tree` › `.nav_main`: `display:flex; gap:8px; align-items:center;
    padding:8px; border-radius:8px; border:1px solid transparent` — 277×86.
-   `:hover` pinta 8% de conteúdo e a borda `--color-pressed` (16%). */",,,,,,
+   `:hover` pinta 8% de conteúdo e a borda `--color-pressed` (16%). */",translate,"`bds-nav-tree` › `.nav_main`: `display:flex; gap:8px; align-items:center;
+   padding:8px; border-radius:8px; border:1px solid transparent` — 277×86.
+   `:hover` tints 8% of content and the border `--color-pressed` (16%).",meta-blip,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:79-81; cites Blip Design System bds-nav-tree; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-96ff32fd,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,871,873,css,2,"/* ""Configuração salva com sucesso."" — o toast de sucesso deles, mesma medida
    do `.cf-aviso`, tinta de sucesso. Era só de `basicas/`; agora é de toda
-   `configuracoes/` (boas-vindas e menu persistente também salvam). */",,,,,,
-css-comment-c1624a2d,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,881,881,css,0,/* O modal de confirmação (`ModalService.showModal`). */,,,,,,
+   `configuracoes/` (boas-vindas e menu persistente também salvam). */",translate,"""Configuração salva com sucesso."" — their success toast, same size as
+   `.cf-aviso`, success color. Used to be only in `basicas/`; now it's for all of
+   `configuracoes/` (Welcome and Persistent Menu save too now).",meta-blip,"apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:871-873; cites Blip's toast copy as parity evidence, kept in the original language; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-c1624a2d,css,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css,881,881,css,0,/* O modal de confirmação (`ModalService.showModal`). */,translate,The confirmation modal (`ModalService.showModal`).,other,apps/gestao-vite/src/paginas/fluxo/configuracoes/configuracoes.css:881,,proposed
 css-comment-c876012e,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,1,4,css,3,"/* Contatos — disposição copiada do portal.css da origem (`#users-content-view`,
    `.static-sidebar`, `.card--mini-card.user-card`, `.details-container`,
    `#user-detail-sidebar`) e conferida na cópia com a régua (janela 1280×780,
-   topo de 136px). Toda cor sai dos tokens `--p-*` / `--g-*` do Pipe. */",,,,,,
-css-comment-7517d873,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,129,129,css,0,/* O `bds-tooltip` da origem ocupa 130px e centraliza o botão de 40px. */,,,,,,
-css-comment-749b9e41,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,16,16,css,0,"/* `.static-sidebar.absolute.w-25.min-h-100`: sombra 0 0 24px, superfície 1. */",,,,,,
+   topo de 136px). Toda cor sai dos tokens `--p-*` / `--g-*` do Pipe. */",translate,"Contacts — layout copied from the source's `portal.css` (`#users-content-view`,
+   `.static-sidebar`, `.card--mini-card.user-card`, `.details-container`,
+   `#user-detail-sidebar`) and checked against the copy with the ruler (1280×780
+   window, 136px top). Every color comes from Pipe's `--p-*` / `--g-*` tokens.",meta-blip,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:1-4; cites Blip's portal.css layout; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-7517d873,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,129,129,css,0,/* O `bds-tooltip` da origem ocupa 130px e centraliza o botão de 40px. */,translate,The source's `bds-tooltip` takes up 130px and centers the 40px button.,meta-blip,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:129; cites Blip Design System bds-tooltip; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-749b9e41,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,16,16,css,0,"/* `.static-sidebar.absolute.w-25.min-h-100`: sombra 0 0 24px, superfície 1. */",translate,"`.static-sidebar.absolute.w-25.min-h-100`: shadow 0 0 24px, surface 1.",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:16,,proposed
 css-comment-22fdc380,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,178,179,css,1,"/* `.bp-daterange-inputs`: 384×38, borda de 1px, raio 8px, padding 0 6px;
-   ícone em caixa de 25px com raio 5px; duas caixas de 160×36 e o `~`. */",,,,,,
+   ícone em caixa de 25px com raio 5px; duas caixas de 160×36 e o `~`. */",translate,"`.bp-daterange-inputs`: 384×38, 1px border, 8px radius, padding 0 6px;
+   icon in a 25px box with 5px radius; two 160×36 boxes and the `~`.",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:178-179,,proposed
 css-comment-a7ad0bb5,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,223,224,css,0,"/* `card.card--mini-card.user-card`: 20px 50px 20px 60px, margem inferior 10px,
-   superfície 1, raio 8px; `.card-content` em fileira centrada, 14px/16px. */",,,,,,
-css-comment-cb64fdd9,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,252,252,css,1,/* `bds-avatar` padrão: círculo de 56px com ícone de pessoa. */,,,,,,
+   superfície 1, raio 8px; `.card-content` em fileira centrada, 14px/16px. */",translate,"`card.card--mini-card.user-card`: 20px 50px 20px 60px, 10px bottom margin,
+   surface 1, 8px radius; `.card-content` in a centered row, 14px/16px.",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:223-224,,proposed
+css-comment-cb64fdd9,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,252,252,css,1,/* `bds-avatar` padrão: círculo de 56px com ícone de pessoa. */,translate,Standard `bds-avatar`: a 56px circle with a person icon.,meta-blip,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:252; cites Blip Design System bds-avatar; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-c31650e8,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,29,30,css,0,"/* `.static-sidebar__header`: fundo escuro, padding 20px 30px; título fs-20 e
-   botão primário de 40px na largura toda (medido 260×40 em 320 de lateral). */",,,,,,
-css-comment-f2b9a946,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,316,316,css,1,/* `.newtab-icon`: só aparece com o cursor sobre o cartão. */,,,,,,
+   botão primário de 40px na largura toda (medido 260×40 em 320 de lateral). */",translate,"`.static-sidebar__header`: dark background, padding 20px 30px; fs-20 title and
+   a full-width 40px primary button (measured 260×40 at 320 sidebar width).",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:29-30,,proposed
+css-comment-f2b9a946,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,316,316,css,1,/* `.newtab-icon`: só aparece com o cursor sobre o cartão. */,translate,`.newtab-icon`: only appears with the cursor over the card.,other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:316,,proposed
 css-comment-4b098851,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,432,433,css,3,"/* `card.ph4.w-40.mr3.user-info-card` e `.tickets-history.ph4.w-60.mr3`: os
-   40/60 são do espaço que sobra depois das margens de 24px. */",,,,,,
-css-comment-af26d1dd,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,500,500,css,1,/* `bp-fs-6` = 14px; `f4` = 12.5px — a origem mistura os dois no mesmo cartão. */,,,,,,
-css-comment-3304c665,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,564,564,css,0,"/* `.user-info input`: borda e texto fantasma, largura máxima 60%. */",,,,,,
+   40/60 são do espaço que sobra depois das margens de 24px. */",translate,"`card.ph4.w-40.mr3.user-info-card` and `.tickets-history.ph4.w-60.mr3`: the
+   40/60 comes from the space left over after the 24px margins.",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:432-433,,proposed
+css-comment-af26d1dd,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,500,500,css,1,/* `bp-fs-6` = 14px; `f4` = 12.5px — a origem mistura os dois no mesmo cartão. */,translate,`bp-fs-6` = 14px; `f4` = 12.5px — the source mixes both in the same card.,other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:500,,proposed
+css-comment-3304c665,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,564,564,css,0,"/* `.user-info input`: borda e texto fantasma, largura máxima 60%. */",translate,"`.user-info input`: ghost border and text, 60% max width.",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:564,,proposed
 css-comment-f6ce2143,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,596,597,css,2,"/* `.tickets-header`: fs-16 negrito, `bds-typo` em linha — só a margem
-   horizontal de 15px conta; a lista começa 24px abaixo do topo do cartão. */",,,,,,
-css-comment-2a4796f1,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,605,605,css,0,"/* `expandable-item`: superfície 3 nas ímpares, 1 nas pares. */",,,,,,
+   horizontal de 15px conta; a lista começa 24px abaixo do topo do cartão. */",translate,"`.tickets-header`: bold fs-16, `bds-typo` inline — only the 15px horizontal
+   margin counts; the list starts 24px below the card's top.",meta-blip,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:596-597; cites Blip Design System bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-2a4796f1,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,605,605,css,0,"/* `expandable-item`: superfície 3 nas ímpares, 1 nas pares. */",translate,"`expandable-item`: surface 3 on odd ones, 1 on even.",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:605,,proposed
 css-comment-769c73b9,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,644,646,css,9,"/* `width: 70%` da origem parte de um cartão mais largo; aqui isso não sobra
    espaço para data + hora + id sem colar. `flex: 1` toma o espaço livre da
-   fileira e o `wrap` evita a data grudar no id quando ainda não bastar. */",,,,,,
-css-comment-9013f2ba,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,670,670,css,0,"/* `.item-body`: superfície 3; `li` 6px 0, rótulo `pl6 ml3 w-40 fw5`, valor `pl5 w-50`. */",,,,,,
+   fileira e o `wrap` evita a data grudar no id quando ainda não bastar. */",translate,"The source's `width: 70%` starts from a wider card; here that leaves no room
+   for date + time + id without touching. `flex: 1` takes the row's free space
+   and `wrap` keeps the date from sticking to the id when there still isn't
+   enough.",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:644-646,,proposed
+css-comment-9013f2ba,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,670,670,css,0,"/* `.item-body`: superfície 3; `li` 6px 0, rótulo `pl6 ml3 w-40 fw5`, valor `pl5 w-50`. */",translate,"`.item-body`: surface 3; `li` 6px 0, label `pl6 ml3 w-40 fw5`, value `pl5 w-50`.",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:670,,proposed
 css-comment-9c87b62d,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,70,71,css,0,"/* `.bp-btn--dashed.h3-1.w-90.ml3.mb4`: 60px de altura, 90% de largura,
-   tracejado de 2px na cor primária, raio 3px, 14px/600. */",,,,,,
-css-comment-5d5c138b,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,708,708,css,1,"/* `#user-detail-sidebar`: fixo à direita, 445px, superfície 2. */",,,,,,
+   tracejado de 2px na cor primária, raio 3px, 14px/600. */",translate,"`.bp-btn--dashed.h3-1.w-90.ml3.mb4`: 60px tall, 90% wide, 2px dashed in the
+   primary color, 3px radius, 14px/600.",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:70-71,,proposed
+css-comment-5d5c138b,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,708,708,css,1,"/* `#user-detail-sidebar`: fixo à direita, 445px, superfície 2. */",translate,"`#user-detail-sidebar`: fixed to the right, 445px, surface 2.",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:708,,proposed
 css-comment-b4ad3ea6,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,732,733,css,3,"/* `.messages`: 8px 50px 0, rolagem própria; a coluna invertida deixa a
-   mensagem mais recente visível ao abrir, como o `goToMostRecentMessage`. */",,,,,,
+   mensagem mais recente visível ao abrir, como o `goToMostRecentMessage`. */",translate,"`.messages`: 8px 50px 0, its own scroll; the reversed column keeps the most
+   recent message visible on open, like `goToMostRecentMessage`.",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:732-733,,proposed
 css-comment-bb6c0d14,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,772,773,css,2,"/* `.bubble`: 10px 16px, 16px/20px, borda de 1px fantasma, raio 13px com o
-   canto de 2px virado para quem falou. */",,,,,,
+   canto de 2px virado para quem falou. */",translate,"`.bubble`: 10px 16px, 16px/20px, 1px ghost border, 13px radius with a 2px
+   corner turned toward whoever spoke.",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:772-773,,proposed
 css-comment-2b71f5f6,css,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css,97,98,css,2,"/* `page-header`: `.container` com margem 0 5%, `.full-initial-section` com
-   margem e padding de 15px e linha inferior, conteúdo de 42px, h1 fs-24. */",,,,,,
+   margem e padding de 15px e linha inferior, conteúdo de 42px, h1 fs-24. */",translate,"`page-header`: `.container` with 0 5% margin, `.full-initial-section` with
+   15px margin and padding and a bottom line, 42px content, h1 fs-24.",other,apps/gestao-vite/src/paginas/fluxo/contatos/contatos.css:97-98,,proposed
 css-comment-7f60e215,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,1,25,css,4,"/* ============================== Conteúdos › Modelos de mensagem
 
    Cópia de `auth.application.detail.contents.messageTemplate`, medida no DOM
@@ -3555,37 +3640,79 @@ css-comment-7f60e215,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.
      #d2dfe6 (borda de textarea/input do mt-card)       → `--p-linha-media`
      #3f7de8 / `--color-primary`                        → `--p-marca`
      `--color-error` #fabebe (fechar)                   → `--p-erro-fundo`
-     warning/error/success dos ícones do menu           → alerta/erro/sucesso-conteudo */",,,,,,
+     warning/error/success dos ícones do menu           → alerta/erro/sucesso-conteudo */",translate,"============================== Content › Message templates
+
+   Copy of `auth.application.detail.contents.messageTemplate`, measured on the DOM
+   rendered from the copy (1280×780) and checked against `portal.css`
+   (`.sidebar-container`, `#whatsapp-message-templates-header`,
+   `#message-template__main-content-area`, `.oMqGKMhaPBQyYam4JMQb`
+   (unavailable-warning), `.no-content-found-mini-*`, `.message-template__
+   paper-container`, `#create-message-template-sidebar`, `.menu-list_new`,
+   `.mt-card*`, `.menu-buttons-list`, `.crete-template-buttons*`).
+
+   ═══ THE PAINT IS OURS ═══
+     #ededed `--color-surface-2` (floor)                    → `--ground`
+     #fff `--color-surface-0` (sidebar, menu-list)          → `--p-superficie-0`
+     #f6f6f6 `--color-surface-1` (sidebar header,
+             menu-paper, mt-card)                            → `--p-superficie-1`
+     #e3e3e3 `--color-surface-3` (menu-list borders)        → `--p-superficie-3`
+     rgba(41,41,41,.05) (sidebar active card)                → `--g-tinta-hover`
+     #282828 `--color-content-default`                       → `--p-conteudo`
+     #595959 `--color-content-disable`                       → `--p-conteudo-desabilitado`
+     #8c8c8c/#8ca0b3/#94a3ab (ghosts)                        → `--p-conteudo-fantasma`
+     #D2DFE6 (unavailable WhatsApp bubble)                   → `--p-superficie-3`
+     #d2dfe6 (mt-card textarea/input border)                → `--p-linha-media`
+     #3f7de8 / `--color-primary`                             → `--p-marca`
+     `--color-error` #fabebe (close)                         → `--p-erro-fundo`
+     warning/error/success from menu icons                   → alert/error/success-content",meta-blip,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:1-25; cites Blip's portal.css measurements; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-c03b4424,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,192,193,css,1,"/* `<bds-button>`: 40px, raio 8, `padding: 0 16px`, 14px/700, `gap: 4px`.
-   `variant=""outline"" color=""content""` tem borda de conteúdo; `primary` é a marca. */",,,,,,
+   `variant=""outline"" color=""content""` tem borda de conteúdo; `primary` é a marca. */",translate,"`<bds-button>`: 40px, 8 radius, `padding: 0 16px`, 14px/700, `gap: 4px`.
+   `variant=""outline"" color=""content""` has a content-colored border; `primary`
+   is the brand color.",meta-blip,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:192-193; cites Blip Design System bds-button; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-4b46e041,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,250,253,css,2,"/* ==================== `unavailable-warning` (`.oMqGKMhaPBQyYam4JMQb`):
    `padding-top: 1.875rem; text-align: center`; `img { display: inline-block;
    margin-bottom: 1.5625rem }`; título `fs-20` bold; descrição `max-width: 670px`
-   com `p, span { color: #94a3ab; font-size: 1rem }`. Mede 324px. */",,,,,,
-css-comment-1366f0d0,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,280,280,css,2,"/* `<a><bds-typo class=""color-primary"" bold>` — sem destino aqui (ponytail). */",,,,,,
+   com `p, span { color: #94a3ab; font-size: 1rem }`. Mede 324px. */",translate,"==================== `unavailable-warning` (`.oMqGKMhaPBQyYam4JMQb`):
+   `padding-top: 1.875rem; text-align: center`; `img { display: inline-block;
+   margin-bottom: 1.5625rem }`; bold fs-20 title; `max-width: 670px` description
+   with `p, span { color: #94a3ab; font-size: 1rem }`. Measures 324px.",other,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:250-253,,proposed
+css-comment-1366f0d0,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,280,280,css,2,"/* `<a><bds-typo class=""color-primary"" bold>` — sem destino aqui (ponytail). */",translate,"`<a><bds-typo class=""color-primary"" bold>` — no destination here (ponytail).",meta-blip,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:280; cites Blip Design System bds-typo; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-fcbb1041,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,309,310,css,1,"/* ==================== a lista: `bds-paper.message-template__paper-container { padding: 2rem }`
-   e `message-template-item`: `.w-40` + 4 × `.w-15`, rótulo `bold fs-14 .db.mb3`. */",,,,,,
+   e `message-template-item`: `.w-40` + 4 × `.w-15`, rótulo `bold fs-14 .db.mb3`. */",translate,"==================== the list: `bds-paper.message-template__paper-container { padding: 2rem }`
+   and `message-template-item`: `.w-40` + 4 × `.w-15`, label `bold fs-14 .db.mb3`.",meta-blip,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:309-310; cites Blip Design System bds-paper; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-0e5eb679,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,446,447,css,3,"/* Exemplos de variável (`ExemplosDeVariavel`) — sem equivalente na origem,
-   é o mínimo para a Meta aceitar o envio (ver comentário do componente). */",,,,,,
+   é o mínimo para a Meta aceitar o envio (ver comentário do componente). */",translate,"Variable examples (`ExemplosDeVariavel`) — no equivalent in the source, it's
+   the minimum for Meta to accept the send (see the component's comment).",integration,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:446-447; Meta/WhatsApp template-approval platform constraint; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-088e3123,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,455,458,css,1,"/* `blip-input-dpr` / `blip-select` (`.bp-input-wrapper`): 2.9375rem (47px),
    `border: 1px solid`, raio .5rem, `padding: .3125rem .625rem`; `.bp-label`
    12px/600 de 16px; `input` 14px de 19px com `margin-top: .125rem`. No sidebar,
-   `label` é fantasma e `input` é conteúdo desabilitado. */",,,,,,
-css-comment-1347989d,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,49,49,css,0,/* `.detail-aside` de Conteúdos: 397px = 24 + 349 + 24. */,,,,,,
+   `label` é fantasma e `input` é conteúdo desabilitado. */",translate,"`blip-input-dpr` / `blip-select` (`.bp-input-wrapper`): 2.9375rem (47px),
+   `border: 1px solid`, .5rem radius, `padding: .3125rem .625rem`; `.bp-label`
+   12px/600 of 16px; `input` 14px of 19px with `margin-top: .125rem`. In the
+   sidebar, `label` is ghost and `input` is disabled content.",meta-blip,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:455-458; cites blip-input-dpr/blip-select classes; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-1347989d,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,49,49,css,0,/* `.detail-aside` de Conteúdos: 397px = 24 + 349 + 24. */,translate,Content's `.detail-aside`: 397px = 24 + 349 + 24.,other,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:49,,proposed
 css-comment-d4097352,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,562,565,css,4,"/* `bds-paper elevation=""none"" .mt4.mb4.bg-color-surface-1` com a dica `.pa3`
    e as linhas `.menu-list_new`: `border: 1px solid surface-3; border-radius:
    .5rem; display: flex; justify-content: space-around; margin: .625rem`
-   (a segunda sem margem em cima). */",,,,,,
+   (a segunda sem margem em cima). */",translate,"`bds-paper elevation=""none"" .mt4.mb4.bg-color-surface-1` with the `.pa3` hint
+   and the `.menu-list_new` rows: `border: 1px solid surface-3; border-radius:
+   .5rem; display: flex; justify-content: space-around; margin: .625rem`
+   (the second one with no top margin).",meta-blip,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:562-565; cites Blip Design System bds-paper; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-2f5e5c86,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,685,687,css,2,"/* `.mt-card__btn`: 28px redondo, `position: absolute; top: -13px`; `__close`
    à direita 50px (fundo `--color-error`), `__confirm`/`__edit` a 17px (primária).
-   O editar só aparece no `:hover` do cartão. */",,,,,,
-css-comment-26bcd0e1,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,858,858,css,0,"/* `.bp-btn.bp-btn--bot.bp-btn--dashed.h3.w-80` — ""Adicionar outro botão"". */",,,,,,
+   O editar só aparece no `:hover` do cartão. */",translate,"`.mt-card__btn`: 28px round, `position: absolute; top: -13px`; `__close`
+   on the right at 50px (background `--color-error`), `__confirm`/`__edit` at
+   17px (primary). Edit only appears on the card's `:hover`.",other,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:685-687,,proposed
+css-comment-26bcd0e1,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,858,858,css,0,"/* `.bp-btn.bp-btn--bot.bp-btn--dashed.h3.w-80` — ""Adicionar outro botão"". */",translate,"`.bp-btn.bp-btn--bot.bp-btn--dashed.h3.w-80` — ""Adicionar outro botão"".",other,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:858; keeps literal Portuguese button copy,,proposed
 css-comment-21f24a20,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,882,884,css,0,"/* `.mt-card__attachtment { width: 25vw }`; área do anexo (`__document`):
    fundo surface-2, `border-radius: 12px 12px 0 0`, `min-height: 140px`;
-   `__title span { color: #607b99; font-size: 1rem; font-weight: 700 }`. */",,,,,,
-css-comment-dc462307,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,89,89,css,0,/* `.sidebar-item-text { flex-grow: 1 }`: título `fs-14` bold (21px) e subtítulo `fs-12` (18px). */,,,,,,
-css-comment-3fe371d5,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,922,922,css,2,"/* `bds-button variant=""text"" icon-left=""sparkle-ai""` — ""Avaliar mensagem com IA"", à direita. */",,,,,,
-css-comment-4e7b0260,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,948,948,css,0,/* `bds-divider` entre traduções. */,,,,,,
+   `__title span { color: #607b99; font-size: 1rem; font-weight: 700 }`. */",translate,"`.mt-card__attachtment { width: 25vw }`; the attachment area (`__document`):
+   surface-2 background, `border-radius: 12px 12px 0 0`, `min-height: 140px`;
+   `__title span { color: #607b99; font-size: 1rem; font-weight: 700 }`.",other,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:882-884,,proposed
+css-comment-dc462307,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,89,89,css,0,/* `.sidebar-item-text { flex-grow: 1 }`: título `fs-14` bold (21px) e subtítulo `fs-12` (18px). */,translate,"`.sidebar-item-text { flex-grow: 1 }`: bold `fs-14` title (21px) and `fs-12`
+   subtitle (18px).",other,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:89,,proposed
+css-comment-3fe371d5,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,922,922,css,2,"/* `bds-button variant=""text"" icon-left=""sparkle-ai""` — ""Avaliar mensagem com IA"", à direita. */",translate,"`bds-button variant=""text"" icon-left=""sparkle-ai""` — ""Avaliar mensagem com IA"", on the right.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:922; cites Blip Design System bds-button, keeps literal Portuguese label; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-4e7b0260,css,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css,948,948,css,0,/* `bds-divider` entre traduções. */,translate,`bds-divider` between translations.,meta-blip,apps/gestao-vite/src/paginas/fluxo/conteudos/conteudos.css:948; cites Blip Design System bds-divider; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f1b009d6,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,1,20,css,5,"/**
  * `/team` do contato (fluxo e roteador). Medidas tiradas do DOM renderizado da
  * origem (`referencias-blip/canais/roteador/roteador-team__pagina.html` e o
@@ -3605,55 +3732,105 @@ css-comment-f1b009d6,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,1,
  *   `.tag-item`              90×26, raio de pílula, 14px negrito, centrado
  *   `.card-icons`            5%, 20px, space-evenly, filhos com margin-left 15
  *   `.no-content-found`      flex centrado, 20px/500, altura 31, padding 80 0
- */",,,,,,
+ */",translate,"`/team` for the contact (flow and router). Measurements taken from the source's
+   rendered DOM (`referencias-blip/canais/roteador/roteador-team__pagina.html`
+   and the `portal.css` from the same capture) — the header already comes from
+   `configuracoes.css`'s `cf-*` (`<page-header>`); what's left here is the
+   `custom-content` search, the `.row.team-cards` list and each member's
+   `card--mini-card`.
+
+   Source ruler, measured at 1280×780:
+     `.row.team-cards`        margin 3px 0 9px
+     `.card--mini-card`       1024×103, padding 20px 50px 20px 60px,
+                              margin 0 0 10px, radius 8, card surface
+     `.card-content`          flex, space-between, 914×63, 14px/25.6
+     `.card-section label`    block 12px/500, line-height 25.6, padding-bottom 6
+     `.card-section span`     14px/400, line-height 22.4
+     `.divider`               1×40, margin 0 15px
+     `.tag-item`              90×26, pill radius, 14px bold, centered
+     `.card-icons`            5%, 20px, space-evenly, children with margin-left 15
+     `.no-content-found`      centered flex, 20px/500, height 31, padding 80 0",meta-blip,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:1-20; cites referencias-blip capture and portal.css measurements; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-f3c41eb1,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,151,152,css,4,"/* Dois nomes de classe para passar por cima dos 26px do `.avatar` de
-   `@pipe/ui`, que tem a mesma especificidade. */",,,,,,
+   `@pipe/ui`, que tem a mesma especificidade. */",translate,"Two class names to override `@pipe/ui`'s `.avatar` 26px, which has the same specificity.",other,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:151-152,,proposed
 css-comment-6ea64dee,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,168,172,css,8,"/* `bds-typo.tag-item` — o selo do papel: 90×26, raio de pílula, 14 negrito e
    centrado. Na origem o texto é sempre ""Admin"", que cabe nos 90px da seção de
    10%; o Pipe tem três papéis e ""Pode visualizar"" não cabe — por isso a seção
    do selo cresce com o texto (os 10% viram piso) e o selo ganha 12px de
-   respiro dos lados. É a única medida desta linha que o nosso dado move. */",,,,,,
+   respiro dos lados. É a única medida desta linha que o nosso dado move. */",translate,"`bds-typo.tag-item` — the role badge: 90×26, pill radius, 14 bold and
+   centered. In the source the text is always ""Admin"", which fits the section's
+   90px at 10%; Pipe has three roles and ""Pode visualizar"" doesn't fit — so the
+   badge's section grows with the text (the 10% becomes a floor) and the badge
+   gets 12px of breathing room on the sides. It's the only measurement in this
+   row that our data moves.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:168-172; cites Blip Design System bds-typo, keeps literal role-label examples; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-256b0417,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,191,192,css,2,"/* `.card-icons.card-icons--hidden`: só aparecem com o ponteiro (ou com o foco
-   do teclado) em cima do cartão. */",,,,,,
+   do teclado) em cima do cartão. */",translate,"`.card-icons.card-icons--hidden`: only appear with the pointer (or keyboard
+   focus) over the card.",other,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:191-192,,proposed
 css-comment-5fcdb67f,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,238,241,css,2,"/* ==================== O `add-user-modal`, capturado aberto em
    `referencias-blip/equipe/equipe-adicionar-modal__pagina.html`: cabeça
    centrada, e-mail editável em traço, ""Permissão"" + `rzslider` e rodapé
-   centrado. A edição é a página estilizada no fim deste arquivo. */",,,,,,
-css-comment-2b952fbc,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,247,247,css,0,"/* `.row.mh6.tc.mt3 > .mh6.mb4-1`: h1 e subtítulo centrados, só no adicionar. */",,,,,,
-css-comment-70eb2781,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,256,256,css,1,"/* `.modal-footer` — centrado, com `Cancelar` texto-só e `Salvar` `bp-btn--bot`. */",,,,,,
+   centrado. A edição é a página estilizada no fim deste arquivo. */",translate,"==================== The `add-user-modal`, captured open in
+   `referencias-blip/equipe/equipe-adicionar-modal__pagina.html`: centered head,
+   editable email in an underline, ""Permissão"" + `rzslider` and a centered
+   footer. The edit view is the styled page at the end of this file.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:238-241; cites referencias-blip capture, keeps literal Portuguese label; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-2b952fbc,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,247,247,css,0,"/* `.row.mh6.tc.mt3 > .mh6.mb4-1`: h1 e subtítulo centrados, só no adicionar. */",translate,"`.row.mh6.tc.mt3 > .mh6.mb4-1`: centered h1 and subtitle, add-only.",other,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:247,,proposed
+css-comment-70eb2781,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,256,256,css,1,"/* `.modal-footer` — centrado, com `Cancelar` texto-só e `Salvar` `bp-btn--bot`. */",translate,"`.modal-footer` — centered, with text-only `Cancelar` and `bp-btn--bot` `Salvar`.",other,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:256; keeps literal Portuguese button labels,,proposed
 css-comment-017d9d5e,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,279,280,css,2,"/* `<span class=""body bp-c-rooftop fw5"">` — o subtítulo abaixo do título.
-   Com `.cf-modal` na frente para passar por cima do `.cf-modal p`. */",,,,,,
+   Com `.cf-modal` na frente para passar por cima do `.cf-modal p`. */",translate,"`<span class=""body bp-c-rooftop fw5"">` — the subtitle below the title.
+   With `.cf-modal` in front to override `.cf-modal p`.",other,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:279-280,,proposed
 css-comment-9d00fb20,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,28,30,css,3,"/* `bds-input` do `.search-input-container`: 260×54, `padding: 8px 4px 8px 12px`,
    borda 1px e raio 8, com o ícone `avatar-user` de 24 à esquerda. O `mr3`
-   (16px) separa a busca do botão. */",,,,,,
+   (16px) separa a busca do botão. */",translate,"`bds-input` from `.search-input-container`: 260×54, `padding: 8px 4px 8px 12px`,
+   1px border and 8 radius, with the 24px `avatar-user` icon on the left. The
+   `mr3` (16px) separates the search from the button.",meta-blip,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:28-30; cites Blip Design System bds-input; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-3be9f588,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,287,290,css,5,"/* `material-input` do e-mail: rótulo pequeno em cima e traço embaixo, SEM
    caixa — diferente do `cf-campo` (caixa fechada) do resto do Pipe, porque a
    origem também não usa caixa aqui. Lá o input tem 35px, `padding: 8px 8px
-   8px 0` e o traço é `1px` na cor fantasma. */",,,,,,
+   8px 0` e o traço é `1px` na cor fantasma. */",translate,"The email's `material-input`: small label on top and underline below, NO
+   box — unlike the rest of Pipe's `cf-campo` (closed box), because the source
+   doesn't use a box here either. There the input is 35px, `padding: 8px 8px
+   8px 0` and the underline is `1px` in the ghost color.",other,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:287-290,,proposed
 css-comment-e2bc8409,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,317,318,css,1,"/* `material-input input[readonly]` da origem: `border-bottom: none`. É o
-   e-mail do EDITAR — dado, não campo; fica o rótulo pequeno e o valor. */",,,,,,
+   e-mail do EDITAR — dado, não campo; fica o rótulo pequeno e o valor. */",translate,"The source's `material-input input[readonly]`: `border-bottom: none`. It's
+   the EDIT view's email — data, not a field; only the small label and the
+   value remain.",other,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:317-318,,proposed
 css-comment-c154156a,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,327,330,css,1,"/* O `rzslider` ""Permissão"" do adicionar. A origem tem quatro paradas, como o
    RBAC por contato da migration 0035. Régua: 4px, `margin: 9px 0
    35px` dentro do `add-user-modal`, bolinha de 25px, legenda 14px em caixas
-   de 170px centradas na parada. */",,,,,,
+   de 170px centradas na parada. */",translate,"The add view's ""Permissão"" `rzslider`. The source has four stops, like the
+   per-contact RBAC from migration 0035. Ruler: 4px, `margin: 9px 0
+   35px` inside `add-user-modal`, 25px knob, 14px caption in 170px boxes
+   centered on each stop.",other,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:327-330; keeps literal Portuguese label,,proposed
 css-comment-54b015b1,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,369,375,css,10,"/* ==================== A lista de permissões granulares (só no EDITAR) —
    `PermissionsList.html` da origem dentro do `card` de ""Permissões"":
    cabeçalho ""Funcionalidades | Sem permissão | Visualizar | Ver e editar""
    com `info` em cada coluna, `<hr>`, e uma linha por recurso com três
    rádios (`.item-header` de 46px, `.w-70` para as colunas, `w-third` cada).
    Os rádios acompanham o nível do traço e não se mexem à mão — o porquê
-   está em `permissoes.ts`. */",,,,,,
+   está em `permissoes.ts`. */",translate,"==================== The granular permissions list (EDIT view only) —
+   the source's `PermissionsList.html` inside the ""Permissões"" card:
+   header ""Funcionalidades | Sem permissão | Visualizar | Ver e editar""
+   with an `info` in each column, `<hr>`, and one row per resource with three
+   radios (`.item-header` 46px, `.w-70` for the columns, `w-third` each).
+   The radios follow the underline's level and don't move by hand — the why
+   is in `permissoes.ts`.",meta-blip,"apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:369-375; cites Blip source template PermissionsList.html, keeps literal Portuguese labels; pre-triage D-40; needs slice-time confirmation",,proposed
 css-comment-a681e543,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,436,438,css,3,"/* `input[type=radio]` deles: 21px, aro de 1px na cor da marca, miolo
    pintado quando marcado (`background-clip: content-box`). Desabilitado
-   porque é espelho do nível — mas sem apagar, senão lê como ""quebrado"". */",,,,,,
+   porque é espelho do nível — mas sem apagar, senão lê como ""quebrado"". */",translate,"Their `input[type=radio]`: 21px, 1px ring in the brand color, filled center
+   when checked (`background-clip: content-box`). Disabled because it mirrors
+   the level — but without dimming it, or it reads as ""broken"".",other,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:436-438,,proposed
 css-comment-9278cb37,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,462,465,css,4,"/* O link do convite criado — a origem manda e-mail de verdade e fecha o
    modal (`$ctrl.addUser()`); o Pipe não manda e-mail (ver
    `contrato/membros/convidar.tsx`), então ""Salvar"" troca o formulário por
-   este link pra copiar e mandar à mão. */",,,,,,
+   este link pra copiar e mandar à mão. */",translate,"The invite link once created — the source sends a real email and closes the
+   modal (`$ctrl.addUser()`); Pipe doesn't send email (see
+   `contrato/membros/convidar.tsx`), so ""Salvar"" swaps the form for this link
+   to copy and send by hand.",other,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:462-465; keeps literal Portuguese button label,,proposed
 css-comment-bbfdd59f,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,485,486,css,0,"/* ==================== `/team/edit` — PÁGINA, conforme o template 36419 do
-   portal.js da Blip: voltar/Salvar no cabeçalho, pessoa e cartão de permissões. */",,,,,,
+   portal.js da Blip: voltar/Salvar no cabeçalho, pessoa e cartão de permissões. */",translate,"==================== `/team/edit` — PAGE, following template 36419 from the
+   Blip `portal.js`: back/Save in the header, person and permissions card.",meta-blip,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:485-486; explicit Blip portal.js template reference; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-415ea6d8,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,60,61,css,3,"/* `margin: 3px 0 9px` da origem, sem perder o `margin: 0 auto` do
-     `.cf-container` que centra a coluna. */",,,,,,
+     `.cf-container` que centra a coluna. */",translate,"The source's `margin: 3px 0 9px`, without losing `.cf-container`'s
+   `margin: 0 auto` that centers the column.",other,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css:60-61,,proposed
 css-comment-9e39e2f7,css,apps/gestao-vite/src/paginas/fluxo/equipe/equipe.css,65,65,css,1,"/* `<a class=""no-decoration"">` em volta do cartão inteiro (`editUser`). */",,,,,,
 css-comment-b6bc8811,css,apps/gestao-vite/src/paginas/fluxo/fluxo.css,1,46,css,17,"/* ============================== a tela do contato (`/fluxo/{id}`)
 
@@ -4622,23 +4799,36 @@ css-comment-461d2b89,css,apps/site/ferramentas/calculadora-de-taxas-do-ifood/ind
          transaction fee. Delivery is still the restaurant's.",other,apps/site/ferramentas/calculadora-de-taxas-do-ifood/index.html:687-688,,proposed
 css-comment-7575892d,css,apps/site/ferramentas/gerador-de-link-whatsapp/index.html,689,691,css,4,"/* Gerador de link do WhatsApp. Tudo no navegador: nenhum dado sai daqui.
    O link wa.me exige o número no formato internacional, só com dígitos, e a
-   mensagem codificada para URL. As duas conversões acontecem a cada tecla. */",,,,,,
+   mensagem codificada para URL. As duas conversões acontecem a cada tecla. */",translate,"WhatsApp link generator. Everything in the browser: no data leaves here.
+   The wa.me link requires the number in international format, digits only, and the
+   message URL-encoded. Both conversions happen on every keystroke.",other,apps/site/ferramentas/gerador-de-link-whatsapp/index.html:689-691,,proposed
 css-comment-0bb13541,css,apps/site/ferramentas/gerador-de-link-whatsapp/index.html,726,727,css,4,"/* Formata o número brasileiro enquanto a pessoa digita, para ela conferir o
-     que preencheu. Fora do Brasil o formato varia demais, então fica cru. */",,,,,,
+     que preencheu. Fora do Brasil o formato varia demais, então fica cru. */",translate,"Formats the Brazilian number as the person types, so they can check what
+     they entered. Outside Brazil the format varies too much, so it stays raw.",other,apps/site/ferramentas/gerador-de-link-whatsapp/index.html:726-727,,proposed
 css-comment-65ad30bf,css,apps/site/ferramentas/gerador-de-qr-code-whatsapp/index.html,576,578,css,5,"/* Gerador de QR code. O desenho é montado módulo a módulo a partir da matriz
    da biblioteca, o que dá o SVG (vetor, para impressão) e o PNG (canvas, no
-   tamanho escolhido) sem depender de serviço externo. */",,,,,,
+   tamanho escolhido) sem depender de serviço externo. */",translate,"QR code generator. The drawing is built module by module from the library's
+   matrix, which gives the SVG (vector, for printing) and the PNG (canvas, at the
+   chosen size) without depending on an external service.",other,apps/site/ferramentas/gerador-de-qr-code-whatsapp/index.html:576-578,,proposed
 css-comment-8f415463,css,packages/ui/src/estilos.css,1,6,css,3,"/*
  * Ponto único de entrada do estilo do Pipe.
  * Os três aplicativos importam este arquivo e mais nada de token.
  *
  * A ordem importa: token antes de base, porque base lê os token.
- */",,,,,,
+ */",translate,"
+ * Pipe's single style entry point.
+ * The three apps import this file and nothing else token-related.
+ *
+ * The order matters: tokens before base, because base reads the tokens.
+ ",architecture,packages/ui/src/estilos.css:1-6; import-order technical requirement; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ebcd7910,css,packages/ui/src/estilos.css,10,13,css,1,"/*
  * `.modal.close-modal` no portal da Blip: 656×432, ilustração na coluna
  * esquerda, texto e controle à direita, ações alinhadas ao canto inferior.
- */",,,,,,
-css-comment-99d1293d,css,packages/ui/src/estilos.css,20,20,css,2,/* Os paths do `sleepy` vêm do `blip-tokens@1.102.1` no ZIP local do Desk; só troquei a tinta pelo verde Pipe. */,,,,,,
+ */",translate,"
+ * `.modal.close-modal` in the Blip portal: 656×432, illustration in the left
+ * column, text and control on the right, actions aligned to the bottom corner.
+ ",meta-blip,packages/ui/src/estilos.css:10-13; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-99d1293d,css,packages/ui/src/estilos.css,20,20,css,2,/* Os paths do `sleepy` vêm do `blip-tokens@1.102.1` no ZIP local do Desk; só troquei a tinta pelo verde Pipe. */,translate,The `sleepy` paths come from `blip-tokens@1.102.1` in the Desk's local ZIP; I only swapped the ink for Pipe green.,meta-blip,packages/ui/src/estilos.css:20; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-8c01d38a,css,packages/ui/src/estilos/base.css,1,23,css,23,"/* ==========================================================================
    Pipe — base compartilhada dos três aplicativos.
 
@@ -4661,7 +4851,28 @@ css-comment-8c01d38a,css,packages/ui/src/estilos/base.css,1,23,css,23,"/* ======
    - Raio: 8px em tudo, 5px em controle pequeno, pílula em avatar e etiqueta
      redonda. Três valores, e os dois últimos são exceção com propósito.
    - Borda usa `--p-linha`, que é tinta translúcida. Ver o topo de tokens.css.
-   ========================================================================== */",,,,,,
+   ========================================================================== */",translate,"==========================================================================
+   Pipe — base shared by the three apps.
+
+   Before this sheet, `apps/desk`, `apps/gestao` and `apps/crm` each had their own
+   copy: 48.5 KB combined, with lines 1-688 of the CRM byte-for-byte identical to
+   Gestão's. Triplicated tokens drift apart — and they had.
+
+   What changes in behavior from those copies, and why:
+
+   - `th` stops being monospace. It becomes uppercase in the body family,
+     12px/600 — which is exactly what Salesforce does. Monospace stays in two
+     places, and only two: tabular numbers (`.num`) and section labels (`.lbl`).
+   - `.etiqueta` (the former `.pill`) is born NEUTRAL and is Pipe's only tag
+     component, with a clickable variant. Queue, channel, source and phase have
+     no color. Status color is `.etiqueta.erro` / `.alerta` / `.sucesso` /
+     `.info`, and only appears on what demands action.
+   - The body goes from 13px to 14px, and the whole scale to 16/14/12 (+10),
+     which is the measurement from Blip. The table row follows: 34px to 36px.
+   - Radius: 8px everywhere, 5px on small controls, pill on avatar and round
+     tag. Three values, and the last two are exceptions with a purpose.
+   - Border uses `--p-linha`, which is translucent ink. See the top of tokens.css.
+   ==========================================================================",meta-blip,packages/ui/src/estilos/base.css:1-23; cites Salesforce and Blip measurement parity; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b532fa9f,css,packages/ui/src/estilos/base.css,104,115,css,11,"/* A CAIXA QUE NÃO ROLA.
    Altura fixa e `overflow: hidden`: quem rola é a lateral e o conteúdo, cada um
    por si, e o topo fica onde está por LAYOUT, não por `position: sticky`.
@@ -4673,23 +4884,42 @@ css-comment-b532fa9f,css,packages/ui/src/estilos/base.css,104,115,css,11,"/* A C
    rolagem, e a lateral disputava a barra de rolagem da página.
 
    `100dvh` e não `100vh`: em navegador de celular a barra do navegador entra e
-   sai, e `vh` congela na altura maior, cortando o pé da tela. */",,,,,,
-css-comment-7f4eea56,css,packages/ui/src/estilos/base.css,160,160,css,0,"/* Navegação horizontal de módulos. Poucos itens, e todos funcionam. */",,,,,,
-css-comment-7745cb59,css,packages/ui/src/estilos/base.css,195,195,css,3,"/* Tudo daqui para a direita: ações da conta, não do trabalho. */",,,,,,
+   sai, e `vh` congela na altura maior, cortando o pé da tela. */",translate,"THE BOX THAT DOESN'T SCROLL.
+   Fixed height and `overflow: hidden`: the sidebar and the content scroll, each
+   on its own, and the top stays where it is by LAYOUT, not by `position: sticky`.
+
+   It's their shell's model, read from the Attendance module's package
+   (`referencias-blip/pesquisa/blip-gestao-medidas.md` §8.7.2): fixed-height outer
+   box, sidebar and content as siblings. Before this, the whole page scrolled and
+   the top was stuck — similar from afar, different up close: stuck chrome
+   repaints on scroll, and the sidebar fought the page's own scrollbar.
+
+   `100dvh` and not `100vh`: on a phone browser the address bar comes and goes,
+   and `vh` freezes at the taller height, cutting off the bottom of the screen.",meta-blip,packages/ui/src/estilos/base.css:104-115; cites referencias-blip/pesquisa/blip-gestao-medidas.md §8.7.2; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-7f4eea56,css,packages/ui/src/estilos/base.css,160,160,css,0,"/* Navegação horizontal de módulos. Poucos itens, e todos funcionam. */",translate,"Horizontal navigation of modules. Few items, and all of them work.",other,packages/ui/src/estilos/base.css:160,,proposed
+css-comment-7745cb59,css,packages/ui/src/estilos/base.css,195,195,css,3,"/* Tudo daqui para a direita: ações da conta, não do trabalho. */",translate,"Everything from here to the right: account actions, not work actions.",other,packages/ui/src/estilos/base.css:195,,proposed
 css-comment-f60f9a63,css,packages/ui/src/estilos/base.css,212,213,css,1,"/* Lateral CONTEXTUAL: só os itens do módulo aberto. Curta por regra —
-   se passar de meia dúzia de itens, o módulo está grande demais. */",,,,,,
+   se passar de meia dúzia de itens, o módulo está grande demais. */",translate,"CONTEXTUAL sidebar: only the items of the open module. Short by rule —
+   if it goes over half a dozen items, the module is too big.",other,packages/ui/src/estilos/base.css:212-213,,proposed
 css-comment-c4294845,css,packages/ui/src/estilos/base.css,220,223,css,8,"/* Rola por si. O `sticky` com `max-height` que estava aqui era a imitação do
      mesmo efeito enquanto a página inteira rolava; com a caixa de altura fixa
      ele virou enfeite, e enfeite que ninguém entende é o que sobra num arquivo
-     por anos. */",,,,,,
-css-comment-3c9c1275,css,packages/ui/src/estilos/base.css,251,251,css,1,"/* O ROLADOR. É este elemento, e só ele, que rola no corpo da aplicação. */",,,,,,
-css-comment-d85d335a,css,packages/ui/src/estilos/base.css,263,263,css,1,/* Cabeçalho de tela. Cada tela tem UMA coisa principal; este é o rótulo dela. */,,,,,,
+     por anos. */",translate,"Scrolls on its own. The `sticky` with `max-height` that used to be here was
+     imitating the same effect while the whole page scrolled; with the fixed-height
+     box it became decoration, and decoration nobody understands is what lingers
+     in a file for years.",architecture,packages/ui/src/estilos/base.css:220-223; stale sticky-positioning mechanism removed after the fixed-height box change; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-3c9c1275,css,packages/ui/src/estilos/base.css,251,251,css,1,"/* O ROLADOR. É este elemento, e só ele, que rola no corpo da aplicação. */",translate,"THE SCROLLER. This element, and only this one, scrolls in the application body.",architecture,packages/ui/src/estilos/base.css:251; single-scroll-owner invariant tied to the fixed-height shell; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-d85d335a,css,packages/ui/src/estilos/base.css,263,263,css,1,/* Cabeçalho de tela. Cada tela tem UMA coisa principal; este é o rótulo dela. */,translate,Screen header. Every screen has ONE main thing; this is its label.,other,packages/ui/src/estilos/base.css:263,,proposed
 css-comment-082f0759,css,packages/ui/src/estilos/base.css,338,342,css,3,"/* OBSOLETO: use `<Etiqueta aoClicar={...} ativa={...}>`.
    O recorte salvo de lista virou responsabilidade da etiqueta clicável, que é
    o componente único de etiqueta do produto. Duas formas de desenhar a mesma
    coisa é como o conjunto volta a ficar inconsistente.
-   Fica só enquanto os três aplicativos migram. */",,,,,,
-css-comment-8f712631,css,packages/ui/src/estilos/base.css,354,354,css,2,"/* Controle pequeno: raio de 5px, a primeira das duas exceções ao raio padrão. */",,,,,,
+   Fica só enquanto os três aplicativos migram. */",translate,"DEPRECATED: use `<Etiqueta aoClicar={...} ativa={...}>`.
+   The saved list filter chip became the responsibility of the clickable tag,
+   which is the product's single tag component. Two ways to draw the same
+   thing is how the set becomes inconsistent again.
+   Stays only while the three apps migrate.",architecture,"packages/ui/src/estilos/base.css:338-342; deprecation/migration note, component consolidation; pre-triage D-40; needs slice-time confirmation",,proposed
+css-comment-8f712631,css,packages/ui/src/estilos/base.css,354,354,css,2,"/* Controle pequeno: raio de 5px, a primeira das duas exceções ao raio padrão. */",translate,"Small control: 5px radius, the first of the two exceptions to the standard radius.",other,packages/ui/src/estilos/base.css:354,,proposed
 css-comment-8fdad25a,css,packages/ui/src/estilos/base.css,384,394,css,15,"/* ========================================================== etiqueta
    Componente de PRIMEIRA CLASSE, e o único do Pipe. Nem Chatwoot nem Twenty
    têm um genérico, e é por isso que cada tela reimplementa o seu e fica
@@ -4700,59 +4930,104 @@ css-comment-8fdad25a,css,packages/ui/src/estilos/base.css,384,394,css,15,"/* ===
    NASCE NEUTRA. Fila, canal, origem e fase não recebem cor: categoria não é
    estado, e quando tudo é colorido nada é. Cor só entra quando o que a
    etiqueta diz exige uma ação, e aí ela é um dos quatro estados — sempre o
-   PAR de fundo pastel com conteúdo escuro, nunca texto saturado solto. */",,,,,,
+   PAR de fundo pastel com conteúdo escuro, nunca texto saturado solto. */",translate,"========================================================== tag
+   A FIRST-CLASS component, and Pipe's only one. Neither Chatwoot nor Twenty
+   has a generic one, which is why every screen reimplements its own and ends
+   up inconsistent. Here a single one serves queue tags, score bands, SLA
+   status and review concepts. Shape reference: Blip's `bds-chip-clickable`,
+   which packages the tag together with its clickable version.
+
+   BORN NEUTRAL. Queue, channel, source and phase get no color: category isn't
+   status, and when everything is colored nothing is. Color only enters when
+   what the tag says demands an action, and then it's one of four states —
+   always the PAIR of a pastel background with dark content, never loose
+   saturated text.",meta-blip,packages/ui/src/estilos/base.css:384-394; cites Blip's bds-chip-clickable; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-26664c99,css,packages/ui/src/estilos/base.css,442,443,css,3,"/* Pílula. Só para contagem redonda e para o que acompanha avatar. O resto da
-   interface usa o raio de controle. */",,,,,,
+   interface usa o raio de controle. */",translate,"Pill. Only for round counts and for what accompanies an avatar. The rest of
+   the interface uses the control radius.",other,packages/ui/src/estilos/base.css:442-443,,proposed
 css-comment-a99af9eb,css,packages/ui/src/estilos/base.css,449,452,css,9,"/* Versão clicável: recorte salvo de lista, filtro que liga e desliga, valor
    que navega. É `<button>` de verdade, então já vem com teclado e foco. O
    estado ligado é o único lugar onde a cor de marca toca uma etiqueta, e ela
-   toca porque ali a etiqueta virou ação. */",,,,,,
+   toca porque ali a etiqueta virou ação. */",translate,"Clickable version: saved list filter, an on/off filter, a value that
+   navigates. It's a real `<button>`, so it already comes with keyboard and
+   focus support. The active state is the only place where the brand color
+   touches a tag, and it touches because there the tag became an action.",other,packages/ui/src/estilos/base.css:449-452,,proposed
 css-comment-83ead3bd,css,packages/ui/src/estilos/base.css,476,478,css,5,"/* As antigas variantes coloridas de fila/canal/informação passam a ser
    neutras. Os seletores continuam existindo para não quebrar marcação
-   espalhada; o que muda é que deixaram de pintar. */",,,,,,
+   espalhada; o que muda é que deixaram de pintar. */",translate,"The old colored queue/channel/info variants become neutral. The selectors
+   still exist so they don't break markup scattered elsewhere; what changes is
+   that they no longer paint.",architecture,packages/ui/src/estilos/base.css:476-478; backward-compatible selector preservation strategy; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-137c5b08,css,packages/ui/src/estilos/base.css,503,504,css,4,"/* A BORDA do campo em foco continua na marca — ela não é o anel, é o realce do
-   campo, e some sob o anel de `--p-foco` que a regra global desenha por cima. */",,,,,,
+   campo, e some sob o anel de `--p-foco` que a regra global desenha por cima. */",translate,"The focused field's BORDER stays in the brand color — it isn't the ring, it's
+   the field's highlight, and it disappears under the `--p-foco` ring that the
+   global rule draws on top.",other,packages/ui/src/estilos/base.css:503-504,,proposed
 css-comment-b11b5e78,css,packages/ui/src/estilos/base.css,51,52,css,1,"/* O anel de foco usa `--p-foco`, e NUNCA `--p-marca`. Ver o comentário do token:
-   anel na cor da marca faz o teclado e o mouse dizerem a mesma coisa. */",,,,,,
-css-comment-e4011216,css,packages/ui/src/estilos/base.css,510,510,css,0,/* ---------------------------------------------------------------- cartão */,,,,,,
-css-comment-c2394387,css,packages/ui/src/estilos/base.css,527,527,css,1,/* Número de destaque. Monoespaçada porque é número. */,,,,,,
-css-comment-c2b728ba,css,packages/ui/src/estilos/base.css,549,549,css,0,/* O denominador ao lado de toda média — decisão da spec de métricas. */,,,,,,
+   anel na cor da marca faz o teclado e o mouse dizerem a mesma coisa. */",translate,"The focus ring uses `--p-foco`, and NEVER `--p-marca`. See the token's comment:
+   a ring in the brand color makes the keyboard and the mouse say the same thing.",architecture,packages/ui/src/estilos/base.css:51-52; keyboard/mouse focus-signal distinctness rationale; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-e4011216,css,packages/ui/src/estilos/base.css,510,510,css,0,/* ---------------------------------------------------------------- cartão */,translate,---------------------------------------------------------------- card,other,packages/ui/src/estilos/base.css:510,,proposed
+css-comment-c2394387,css,packages/ui/src/estilos/base.css,527,527,css,1,/* Número de destaque. Monoespaçada porque é número. */,translate,Highlight number. Monospace because it's a number.,other,packages/ui/src/estilos/base.css:527,,proposed
+css-comment-c2b728ba,css,packages/ui/src/estilos/base.css,549,549,css,0,/* O denominador ao lado de toda média — decisão da spec de métricas. */,translate,The denominator next to every average — a decision from the metrics spec.,other,packages/ui/src/estilos/base.css:549,,proposed
 css-comment-df1d1d45,css,packages/ui/src/estilos/base.css,556,557,css,2,"/* Um número só fica colorido quando pede ação. `accent` some de propósito:
-   número não é lugar de cor de marca. */",,,,,,
+   número não é lugar de cor de marca. */",translate,"A number is only colored when it calls for action. `accent` disappears on
+   purpose: a number isn't a place for brand color.",other,packages/ui/src/estilos/base.css:556-557,,proposed
 css-comment-ac7bb5cb,css,packages/ui/src/estilos/base.css,648,649,css,2,"/* Cabeçalho de coluna: caixa alta na família do CORPO, não monoespaçada.
-   São muitos por tela; mono em todos foi parte do ruído. Ver `.lbl`. */",,,,,,
-css-comment-fea7561d,css,packages/ui/src/estilos/base.css,692,692,css,1,"/* Severidade na linha inteira, não só no texto. */",,,,,,
+   São muitos por tela; mono em todos foi parte do ruído. Ver `.lbl`. */",translate,"Column header: uppercase in the BODY family, not monospace. There are many
+   per screen; mono on all of them was part of the noise. See `.lbl`.",other,packages/ui/src/estilos/base.css:648-649,,proposed
+css-comment-fea7561d,css,packages/ui/src/estilos/base.css,692,692,css,1,"/* Severidade na linha inteira, não só no texto. */",translate,"Severity on the whole row, not just the text.",other,packages/ui/src/estilos/base.css:692,,proposed
 css-comment-6a35a414,css,packages/ui/src/estilos/base.css,70,71,css,2,"/* Número. Tabular, para coluna alinhar. Primeiro dos DOIS papéis da
-   monoespaçada, e o principal. */",,,,,,
+   monoespaçada, e o principal. */",translate,"Number. Tabular, so columns align. First of the monospace's TWO roles, and
+   the main one.",other,packages/ui/src/estilos/base.css:70-71,,proposed
 css-comment-7286f2af,css,packages/ui/src/estilos/base.css,701,703,css,4,"/* ---------------------------------------------------------- estado vazio
    Ilustração desenhada, nunca foto. É o que a Blip empacota como
-   `bds-illustration`: um componente, não uma imagem solta. */",,,,,,
+   `bds-illustration`: um componente, não uma imagem solta. */",translate,"---------------------------------------------------------- empty state
+   A drawn illustration, never a photo. It's what Blip packages as
+   `bds-illustration`: a component, not a loose image.",meta-blip,packages/ui/src/estilos/base.css:701-703; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-2fbdf827,css,packages/ui/src/estilos/base.css,722,723,css,2,"/* A ilustração herda `currentColor` no traço neutro e usa a paleta estendida
-   no acento — é o outro lugar, além do gráfico, onde ela pode aparecer. */",,,,,,
+   no acento — é o outro lugar, além do gráfico, onde ela pode aparecer. */",translate,"The illustration inherits `currentColor` in its neutral stroke and uses the
+   extended palette in the accent — it's the other place, besides the chart,
+   where it's allowed to appear.",other,packages/ui/src/estilos/base.css:722-723,,proposed
 css-comment-9c668464,css,packages/ui/src/estilos/base.css,746,747,css,1,"/* ------------------------------------------------------------------ barra
-   Barra de dado. Usa `--p-dado`, o matiz cercado: gráfico pode, cromo não. */",,,,,,
+   Barra de dado. Usa `--p-dado`, o matiz cercado: gráfico pode, cromo não. */",translate,"------------------------------------------------------------------ bar
+   Data bar. Uses `--p-dado`, the walled-off hue: charts may, chrome may not.",other,packages/ui/src/estilos/base.css:746-747,,proposed
 css-comment-e5e09031,css,packages/ui/src/estilos/base.css,772,773,css,1,"/* ----------------------------------------------------------------- avatar
-   Pílula: a segunda e última exceção ao raio padrão. */",,,,,,
+   Pílula: a segunda e última exceção ao raio padrão. */",translate,"----------------------------------------------------------------- avatar
+   Pill: the second and last exception to the standard radius.",other,packages/ui/src/estilos/base.css:772-773,,proposed
 css-comment-e718aec8,css,packages/ui/src/estilos/base.css,78,82,css,5,"/* Rótulo de SEÇÃO — o segundo papel da monoespaçada, e o último. São poucos
    por tela: o título miúdo que abre um grupo. Nunca nome de fase, de fila, de
    origem nem de campo; esses são texto corrente na família do corpo.
    Cabeçalho de coluna (`th`) fica de fora de propósito: são muitos por tela,
-   e mono em todos foi parte do ruído que o dono reprovou. */",,,,,,
+   e mono em todos foi parte do ruído que o dono reprovou. */",translate,"SECTION label — the monospace's second role, and its last. There are few
+   per screen: the small title that opens a group. Never a phase name, queue
+   name, source or field; those are running text in the body family.
+   Column header (`th`) is deliberately excluded: there are many per screen,
+   and mono on all of them was part of the noise the owner rejected.",other,packages/ui/src/estilos/base.css:78-82,,proposed
 css-comment-c8c40e3b,css,packages/ui/src/estilos/base.css,804,808,css,4,"/* =========================================================== configurações
    Tela própria, atrás da engrenagem. No Salesforce a configuração troca de
    DOMÍNIO, corta a navegação de topo de 7 itens para 3 e só então cria um
    lateral. Aqui: rota própria, lateral própria, e um caminho de volta claro.
-   ========================================================================= */",,,,,,
+   ========================================================================= */",translate,"=========================================================== settings
+   Its own screen, behind the gear icon. In Salesforce, settings switches
+   DOMAIN, cuts the 7-item top navigation down to 3 and only then creates a
+   sidebar. Here: its own route, its own sidebar, and a clear way back.
+   =========================================================================",integration,packages/ui/src/estilos/base.css:804-808; cites Salesforce's settings-domain navigation pattern; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-40e0426b,css,packages/ui/src/estilos/base.css,848,851,css,9,"/* No estreito a lateral vira uma fileira em cima do conteúdo, e aí a caixa de
      altura fixa atrapalha: duas áreas de rolagem empilhadas dentro de uma tela
      de celular deixam cada uma com meia tela. Volta a rolagem de PÁGINA, que é
-     o que se espera no telefone. */",,,,,,
+     o que se espera no telefone. */",translate,"On narrow screens the sidebar becomes a row above the content, and that's
+     where the fixed-height box gets in the way: two stacked scroll areas inside
+     a phone screen leave each with half a screen. PAGE scrolling comes back,
+     which is what's expected on a phone.",architecture,packages/ui/src/estilos/base.css:848-851; responsive fallback for the fixed-height shell mechanism; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-7f4ee544,css,packages/ui/src/estilos/base.css,97,102,css,7,"/* ================================================================ estrutura
    Navegação de módulo no TOPO, horizontal. Lateral só com o contexto do
    módulo aberto, e curta. É o que Salesforce e Blip fazem: no Salesforce a
    tela de lista não tem lateral nenhuma (medido: zero elementos encostados à
    esquerda com mais de 300px de altura).
-   ========================================================================= */",,,,,,
+   ========================================================================= */",translate,"================================================================ structure
+   Module navigation at the TOP, horizontal. Sidebar only with the open
+   module's context, and short. It's what Salesforce and Blip do: in
+   Salesforce the list screen has no sidebar at all (measured: zero elements
+   flush to the left taller than 300px).
+   =========================================================================",meta-blip,packages/ui/src/estilos/base.css:97-102; cites Salesforce and Blip as shared-pattern evidence; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-83d1524a,css,packages/ui/src/estilos/tokens.css,1,36,css,22,"/* ==========================================================================
    Pipe — camada de token. Fonte única dos três aplicativos.
 
@@ -4788,48 +5063,107 @@ css-comment-83d1524a,css,packages/ui/src/estilos/tokens.css,1,36,css,22,"/* ====
    Borda é TINTA TRANSLÚCIDA, não hex opaco. Uma borda opaca escolhe um fundo
    e briga com todos os outros: sobre uma linha de severidade, uma grade opaca
    cruza a cor do estado.
-   ========================================================================== */",,,,,,
+   ========================================================================== */",translate,"==========================================================================
+   Pipe — token layer. Single source for the three apps.
+
+   Adapted from twenty-ui (MIT) — https://github.com/twentyhq/twenty/blob/main/packages/twenty-ui/src/theme/constants/ThemeLight.ts
+   What came from there is the theme architecture: constant role, value
+   swapped per theme block, and no component knowing a theme exists. The
+   values are Pipe's own (docs/marca/MARCA.md).
+
+   Token structure copied from Blip's method, measured in Blip Desk's real
+   bundle (referencias-blip/pesquisa/blip-design-system.md): 31 color tokens
+   across the whole application, organized by ROLE and never by hue.
+
+   Five rules this file exists to enforce:
+
+   1. FIVE SURFACES and FOUR CONTENT STEPS. The background is white and gray;
+      the text is black and gray. The entire screen comes from here.
+
+   2. ONE BRAND COLOR (moss). It paints the primary action and the active
+      state, and nothing else. Spreading green, terracotta, ochre and blue at
+      once across tags, numbers, borders and bars is what made the screen
+      look like a carousel.
+
+   3. STATUS IS A PAIR: pastel background with dark content on top. Never
+      saturated color in running text. Four states, and only four.
+
+   4. THE EXTENDED PALETTE IS FENCED. Terracotta, ochre, blue and sage live in
+      `--p-grafico-*` and may only appear in charts and illustrations. No
+      chrome, no tag, no border, no icon.
+
+   5. TYPE SCALE IN PX, never rem. A lesson recorded in blip-dash: a font
+      token in rem depends on the root's `font-size`, and anchoring the root
+      shrinks all the spacing along with it.
+
+   Border is TRANSLUCENT INK, not opaque hex. An opaque border picks one
+   background and fights every other one: over a severity line, an opaque
+   grid crosses the status color.
+   ==========================================================================",meta-blip,packages/ui/src/estilos/tokens.css:1-36; cites twenty-ui (MIT source) and Blip Desk bundle measurements; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-a1f330a1,css,packages/ui/src/estilos/tokens.css,114,118,css,10,"/* Tinta de estado para CROMO ESCURO — a barra da Gestão é escura nos dois
      temas, e a tinta de estado do tema claro (verde e terracota fechados) não
      se lê ali. Nenhuma cor nova: são os mesmos valores do tema escuro, porque
      o caso é o mesmo, conteúdo claro sobre fundo escuro. No tema escuro o par
-     aponta para a própria tinta de estado, que já é este valor. */",,,,,,
+     aponta para a própria tinta de estado, que já é este valor. */",translate,"Status ink for DARK CHROME — Gestão's bar is dark in both themes, and the
+     light theme's status ink (closed green and terracotta) doesn't read there.
+     No new color: they're the same dark-theme values, because it's the same
+     case, light content over dark background. In dark mode the pair points to
+     the status ink itself, which is already this value.",architecture,packages/ui/src/estilos/tokens.css:114-118; cross-theme token-reference resolution rationale; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-ebd02c2d,css,packages/ui/src/estilos/tokens.css,122,126,css,4,"/* ================================================= paleta estendida
      EXCLUSIVA DE GRÁFICO E ILUSTRAÇÃO. Nenhuma destas entra em cromo,
      etiqueta, borda, ícone ou texto de interface. É a `extended` da Blip:
      existe, mas vive cercada.
-     A ordem é a ordem das séries de um gráfico. */",,,,,,
+     A ordem é a ordem das séries de um gráfico. */",translate,"================================================= extended palette
+     CHART AND ILLUSTRATION EXCLUSIVE. None of these enter chrome, tags,
+     borders, icons or interface text. It's Blip's `extended`: it exists, but
+     lives fenced in.
+     The order is the order of a chart's series.",meta-blip,packages/ui/src/estilos/tokens.css:122-126; cites Blip's extended palette; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-b5dbabe0,css,packages/ui/src/estilos/tokens.css,134,137,css,2,"/* ======================================================= tipografia
      Uma família no corpo. A monoespaçada é recurso de NÚMERO — tabular,
      alinha coluna — e de rótulo de seção. Nunca de nome de fase, fila,
-     origem ou campo. */",,,,,,
+     origem ou campo. */",translate,"======================================================= typography
+     One family in the body. Monospace is a NUMBER resource — tabular,
+     aligns columns — and a section-label resource. Never a phase, queue,
+     source or field name.",other,packages/ui/src/estilos/tokens.css:134-137,,proposed
 css-comment-d11e5a09,css,packages/ui/src/estilos/tokens.css,141,143,css,3,"/* TRÊS degraus carregam a aplicação inteira: 16, 14 e 12. É a régua medida
      na Blip, onde os três somam 109 das 117 ocorrências de tamanho. O de 10
-     serve só ao verdadeiramente secundário. Em px, nunca em rem. */",,,,,,
-css-comment-d17a3b64,css,packages/ui/src/estilos/tokens.css,144,144,css,0,"/* corpo destacado, título de cartão */",,,,,,
-css-comment-76d8e890,css,packages/ui/src/estilos/tokens.css,145,145,css,0,"/* corpo, tabela, campo, botão */",,,,,,
-css-comment-80da6867,css,packages/ui/src/estilos/tokens.css,146,146,css,0,"/* rótulo, apoio, etiqueta */",,,,,,
-css-comment-5fe34355,css,packages/ui/src/estilos/tokens.css,147,147,css,1,"/* verdadeiramente secundário, e nada mais */",,,,,,
+     serve só ao verdadeiramente secundário. Em px, nunca em rem. */",translate,"THREE steps carry the entire application: 16, 14 and 12. It's the scale
+     measured in Blip, where the three add up to 109 of 117 size occurrences.
+     The 10 serves only what's truly secondary. In px, never in rem.",meta-blip,packages/ui/src/estilos/tokens.css:141-143; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-d17a3b64,css,packages/ui/src/estilos/tokens.css,144,144,css,0,"/* corpo destacado, título de cartão */",translate,"highlighted body, card title",other,packages/ui/src/estilos/tokens.css:144,,proposed
+css-comment-76d8e890,css,packages/ui/src/estilos/tokens.css,145,145,css,0,"/* corpo, tabela, campo, botão */",translate,"body, table, field, button",other,packages/ui/src/estilos/tokens.css:145,,proposed
+css-comment-80da6867,css,packages/ui/src/estilos/tokens.css,146,146,css,0,"/* rótulo, apoio, etiqueta */",translate,"label, support, tag",other,packages/ui/src/estilos/tokens.css:146,,proposed
+css-comment-5fe34355,css,packages/ui/src/estilos/tokens.css,147,147,css,1,"/* verdadeiramente secundário, e nada mais */",translate,"truly secondary, and nothing else",other,packages/ui/src/estilos/tokens.css:147,,proposed
 css-comment-33b46521,css,packages/ui/src/estilos/tokens.css,149,150,css,7,"/* Duas exceções contadas a dedo, nomeadas pelo papel para que continuem
-     sendo exceção e não virem dois degraus a mais na régua. */",,,,,,
-css-comment-320c6270,css,packages/ui/src/estilos/tokens.css,152,152,css,0,"/* métrica de cartão, em monoespaçada tabular */",,,,,,
-css-comment-4e0899da,css,packages/ui/src/estilos/tokens.css,161,161,css,0,"/* Rótulo de seção e cabeçalho de coluna: caixa alta, 12px/600. */",,,,,,
+     sendo exceção e não virem dois degraus a mais na régua. */",translate,"Two exceptions, counted on one hand, named by role so they stay exceptions
+     and don't become two more steps on the scale.",other,packages/ui/src/estilos/tokens.css:149-150,,proposed
+css-comment-320c6270,css,packages/ui/src/estilos/tokens.css,152,152,css,0,"/* métrica de cartão, em monoespaçada tabular */",translate,"card metric, in tabular monospace",other,packages/ui/src/estilos/tokens.css:152,,proposed
+css-comment-4e0899da,css,packages/ui/src/estilos/tokens.css,161,161,css,0,"/* Rótulo de seção e cabeçalho de coluna: caixa alta, 12px/600. */",translate,"Section label and column header: uppercase, 12px/600.",other,packages/ui/src/estilos/tokens.css:161,,proposed
 css-comment-79f5c28c,css,packages/ui/src/estilos/tokens.css,166,167,css,0,"/* ================================================ espaço (base 4px)
-     Múltiplo de 4, no formato do `spacing()` do twenty-ui. */",,,,,,
+     Múltiplo de 4, no formato do `spacing()` do twenty-ui. */",translate,"================================================ space (4px base)
+     Multiple of 4, in the shape of twenty-ui's `spacing()`.",integration,packages/ui/src/estilos/tokens.css:166-167; cites twenty-ui's spacing() function; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-e35eeb70,css,packages/ui/src/estilos/tokens.css,177,179,css,3,"/* ============================================================== raio
      Um raio domina e as outras duas são exceção com propósito. Na Blip o de
-     8px aparece 48 vezes, o de 5px 26 e a pílula 22. */",,,,,,
-css-comment-53acaa01,css,packages/ui/src/estilos/tokens.css,180,180,css,0,"/* padrão: cartão, caixa, botão, campo, tabela */",,,,,,
-css-comment-5dc03095,css,packages/ui/src/estilos/tokens.css,181,181,css,0,"/* controle pequeno: botão de ícone, caixa de seleção */",,,,,,
+     8px aparece 48 vezes, o de 5px 26 e a pílula 22. */",translate,"============================================================== radius
+   One radius dominates and the other two are exceptions with a purpose. In
+   Blip the 8px one appears 48 times, the 5px one 26, and the pill 22.",meta-blip,packages/ui/src/estilos/tokens.css:177-179; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-53acaa01,css,packages/ui/src/estilos/tokens.css,180,180,css,0,"/* padrão: cartão, caixa, botão, campo, tabela */",translate,"default: card, box, button, field, table",other,packages/ui/src/estilos/tokens.css:180,,proposed
+css-comment-5dc03095,css,packages/ui/src/estilos/tokens.css,181,181,css,0,"/* controle pequeno: botão de ícone, caixa de seleção */",translate,"small control: icon button, checkbox",other,packages/ui/src/estilos/tokens.css:181,,proposed
 css-comment-39b46476,css,packages/ui/src/estilos/tokens.css,184,185,css,0,"/* ============================================================ sombra
-     Duas elevações. Tinta translúcida, como nas três referências. */",,,,,,
-css-comment-57bcf83e,css,packages/ui/src/estilos/tokens.css,189,189,css,0,/* ========================================================= transição */,,,,,,
+     Duas elevações. Tinta translúcida, como nas três referências. */",translate,"============================================================ shadow
+     Two elevations. Translucent ink, like in the three references.",other,packages/ui/src/estilos/tokens.css:184-185,,proposed
+css-comment-57bcf83e,css,packages/ui/src/estilos/tokens.css,189,189,css,0,/* ========================================================= transição */,translate,========================================================= transition,other,packages/ui/src/estilos/tokens.css:189,,proposed
 css-comment-4d5b0901,css,packages/ui/src/estilos/tokens.css,194,199,css,10,"/* ========================================================= densidade
      Variável de layout com nome de papel, não número solto no CSS — é o que
      a Blip faz com `--sidenav-header-min-height`. Valor que aparece em dois
      lugares vira token, senão vira dois valores diferentes.
      Com corpo de 14px a linha de tabela passa de 34px para 36px: 14 × 1,4 de
-     entrelinha mais 8px de folga em cima e embaixo. */",,,,,,
+     entrelinha mais 8px de folga em cima e embaixo. */",translate,"========================================================= density
+     A layout variable named by role, not a loose number in CSS — it's what
+     Blip does with `--sidenav-header-min-height`. A value that appears in two
+     places becomes a token, or it becomes two different values.
+     With a 14px body the table row goes from 34px to 36px: 14 × 1.4 line
+     height plus 8px of breathing room on top and bottom.",meta-blip,packages/ui/src/estilos/tokens.css:194-199; cites Blip's --sidenav-header-min-height; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-60eaf334,css,packages/ui/src/estilos/tokens.css,212,219,css,6,"/* ==========================================================================
    Tema escuro. Os PAPÉIS não mudam — só o degrau para onde apontam. Nenhum
    componente sabe que tema existe.
@@ -4837,10 +5171,18 @@ css-comment-60eaf334,css,packages/ui/src/estilos/tokens.css,212,219,css,6,"/* ==
    Os dois blocos abaixo são idênticos de propósito: o primeiro atende quem
    nunca escolheu (preferência do sistema), o segundo atende a escolha
    explícita. Sem os dois, o alternador só funciona num sentido.
-   ========================================================================== */",,,,,,
-css-comment-49719d01,css,packages/ui/src/estilos/tokens.css,262,262,css,0,"/* Violeta clara: o mesmo papel único, agora legível sobre fundo escuro. */",,,,,,
+   ========================================================================== */",translate,"==========================================================================
+   Dark theme. ROLES don't change — only the step they point to changes. No
+   component knows a theme exists.
+
+   The two blocks below are identical on purpose: the first serves whoever
+   never chose (system preference), the second serves an explicit choice.
+   Without both, the toggle only works one way.
+   ==========================================================================",other,packages/ui/src/estilos/tokens.css:212-219,,proposed
+css-comment-49719d01,css,packages/ui/src/estilos/tokens.css,262,262,css,0,"/* Violeta clara: o mesmo papel único, agora legível sobre fundo escuro. */",translate,"Light violet: the same single role, now legible over a dark background.",other,packages/ui/src/estilos/tokens.css:262,,proposed
 css-comment-6cbbd3ed,css,packages/ui/src/estilos/tokens.css,265,266,css,2,"/* No escuro é a própria tinta de estado: mesmo valor, dito de novo para o
-       verificador enxergar o par. */",,,,,,
+       verificador enxergar o par. */",translate,"In dark mode it's the status ink itself: same value, stated again so the
+         checker sees the pair.",other,packages/ui/src/estilos/tokens.css:265-266,,proposed
 css-comment-96a9d2b2,css,packages/ui/src/estilos/tokens.css,338,347,css,6,"/* ==========================================================================
    PONTE DE MIGRAÇÃO — nomes antigos, apontando para os novos.
 
@@ -4850,35 +5192,59 @@ css-comment-96a9d2b2,css,packages/ui/src/estilos/tokens.css,338,347,css,6,"/* ==
 
    Apague este bloco inteiro quando `grep -r -- '--p-tinta\|--p-fundo\|--p-destaque\|--p-dado' apps/`
    não devolver nada. Nenhum código novo deve usar os nomes daqui.
-   ========================================================================== */",,,,,,
+   ========================================================================== */",translate,"==========================================================================
+   MIGRATION BRIDGE — old names, pointing to the new ones.
+
+   Exists only while `apps/desk`, `apps/gestao` and `apps/crm` still write the
+   names from the package's first version. The rename table is in
+   `docs/specs/2026-09-05-design-system.md`, section 6.
+
+   Delete this whole block when `grep -r -- '--p-tinta\|--p-fundo\|--p-destaque\|--p-dado' apps/`
+   returns nothing. No new code should use the names in here.
+   ==========================================================================",architecture,packages/ui/src/estilos/tokens.css:338-347; migration-bridge deletion criterion for renamed tokens; pre-triage D-40; needs slice-time confirmation,,proposed
 css-comment-7e3d8b15,css,packages/ui/src/estilos/tokens.css,41,45,css,4,"/* ======================================================== superfície
      Cinco degraus, do claro ao escuro, na mesma ordem da Blip
      (surface-0..4). O creme da marca é o degrau 1, o fundo da aplicação;
      cartão é branco, para que a cor que aparecer em cima seja lida como
-     informação. */",,,,,,
-css-comment-f9564975,css,packages/ui/src/estilos/tokens.css,46,46,css,0,"/* cartão, campo, tabela */",,,,,,
-css-comment-4969ff09,css,packages/ui/src/estilos/tokens.css,47,47,css,0,/* fundo da aplicação (creme da marca) */,,,,,,
-css-comment-ff8f4c27,css,packages/ui/src/estilos/tokens.css,49,49,css,0,"/* pressionado, trilho, divisória sólida */",,,,,,
-css-comment-bd8abc89,css,packages/ui/src/estilos/tokens.css,50,50,css,0,"/* superfície contrastante: dica, sobreposição */",,,,,,
+     informação. */",translate,"======================================================== surface
+     Five steps, from light to dark, in the same order as Blip
+     (surface-0..4). The brand's cream is step 1, the application background;
+     the card is white, so that any color appearing on top of it reads as
+     information.",meta-blip,packages/ui/src/estilos/tokens.css:41-45; cites Blip's surface-0..4 order; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-f9564975,css,packages/ui/src/estilos/tokens.css,46,46,css,0,"/* cartão, campo, tabela */",translate,"card, field, table",other,packages/ui/src/estilos/tokens.css:46,,proposed
+css-comment-4969ff09,css,packages/ui/src/estilos/tokens.css,47,47,css,0,/* fundo da aplicação (creme da marca) */,translate,application background (brand cream),other,packages/ui/src/estilos/tokens.css:47,,proposed
+css-comment-ff8f4c27,css,packages/ui/src/estilos/tokens.css,49,49,css,0,"/* pressionado, trilho, divisória sólida */",translate,"pressed, rail, solid divider",other,packages/ui/src/estilos/tokens.css:49,,proposed
+css-comment-bd8abc89,css,packages/ui/src/estilos/tokens.css,50,50,css,0,"/* superfície contrastante: dica, sobreposição */",translate,"contrasting surface: tooltip, overlay",other,packages/ui/src/estilos/tokens.css:50,,proposed
 css-comment-de62bc69,css,packages/ui/src/estilos/tokens.css,52,54,css,3,"/* ========================================================== conteúdo
      Quatro degraus, na ordem da Blip (default / disable / ghost / bright).
-     Mais do que quatro não se distingue em texto de 14px. */",,,,,,
-css-comment-295e0f69,css,packages/ui/src/estilos/tokens.css,55,55,css,0,"/* texto corrente, título */",,,,,,
-css-comment-d22587fe,css,packages/ui/src/estilos/tokens.css,56,56,css,1,"/* apoio, controle sem ação disponível */",,,,,,
-css-comment-547138c5,css,packages/ui/src/estilos/tokens.css,57,57,css,0,"/* rótulo, marca d'água, texto de dica */",,,,,,
-css-comment-8937e2e0,css,packages/ui/src/estilos/tokens.css,58,58,css,1,/* texto sobre a superfície 4 */,,,,,,
+     Mais do que quatro não se distingue em texto de 14px. */",translate,"========================================================== content
+     Four steps, in Blip's order (default / disable / ghost / bright). More
+     than four isn't distinguishable in 14px text.",meta-blip,packages/ui/src/estilos/tokens.css:52-54; cites Blip's default/disable/ghost/bright order; pre-triage D-40; needs slice-time confirmation,,proposed
+css-comment-295e0f69,css,packages/ui/src/estilos/tokens.css,55,55,css,0,"/* texto corrente, título */",translate,"running text, title",other,packages/ui/src/estilos/tokens.css:55,,proposed
+css-comment-d22587fe,css,packages/ui/src/estilos/tokens.css,56,56,css,1,"/* apoio, controle sem ação disponível */",translate,"support, control with no action available",other,packages/ui/src/estilos/tokens.css:56,,proposed
+css-comment-547138c5,css,packages/ui/src/estilos/tokens.css,57,57,css,0,"/* rótulo, marca d'água, texto de dica */",translate,"label, watermark, tooltip text",other,packages/ui/src/estilos/tokens.css:57,,proposed
+css-comment-8937e2e0,css,packages/ui/src/estilos/tokens.css,58,58,css,1,/* texto sobre a superfície 4 */,translate,text over surface 4,other,packages/ui/src/estilos/tokens.css:58,,proposed
 css-comment-ad7542e2,css,packages/ui/src/estilos/tokens.css,60,61,css,1,"/* ============================================================= linha
-     Tinta translúcida em três forças. Ver a nota do topo. */",,,,,,
+     Tinta translúcida em três forças. Ver a nota do topo. */",translate,"============================================================= line
+     Translucent ink in three strengths. See the note at the top.",other,packages/ui/src/estilos/tokens.css:60-61,,proposed
 css-comment-72ddaabc,css,packages/ui/src/estilos/tokens.css,66,70,css,3,"/* ============================================================= marca
      UMA cor. Quatro papéis do mesmo matiz, não quatro matizes.
      Pode: ação primária, estado ativo de navegação, anel de foco, borda de
      campo em foco. Não pode: rótulo, número, título, barra de gráfico,
-     etiqueta de fila, canal, origem ou fase, ícone decorativo. */",,,,,,
+     etiqueta de fila, canal, origem ou fase, ícone decorativo. */",translate,"============================================================= brand
+     ONE color. Four roles of the same hue, not four hues.
+     May: primary action, active navigation state, focus ring, focused field
+     border. May not: label, number, title, chart bar, queue/channel/source/
+     phase tag, decorative icon.",other,packages/ui/src/estilos/tokens.css:66-70,,proposed
 css-comment-0eee8938,css,packages/ui/src/estilos/tokens.css,77,81,css,5,"/* ============================================================ estado
      Cada estado é um PAR de fundo pastel com conteúdo escuro, mais a linha
      que os une. As três variáveis viajam juntas, senão viram duas cores
      diferentes em dois arquivos.
-     Reservados ao que exige AÇÃO. Meta de ocupação: ~1% da tela. */",,,,,,
+     Reservados ao que exige AÇÃO. Meta de ocupação: ~1% da tela. */",translate,"============================================================ status
+     Each status is a PAIR of a pastel background with dark content, plus the
+     line that ties them together. The three variables travel together, or
+     they become two different colors in two different files.
+     Reserved for what demands ACTION. Occupancy target: ~1% of the screen.",other,packages/ui/src/estilos/tokens.css:77-81,,proposed
 css-comment-5e92cfcb,css,packages/ui/src/estilos/tokens.css,98,111,css,24,"/* ============================================================== foco
      UMA cor, com UM papel, e é o único token da folha que não pode ser
      reaproveitado para mais nada.
@@ -4892,4 +5258,17 @@ css-comment-5e92cfcb,css,packages/ui/src/estilos/tokens.css,98,111,css,24,"/* ==
      Foco de teclado não pode dividir cor com nada, senão para de ser sinal.
      É a única cor do design system da Blip com papel único, e pela mesma
      razão. Violeta porque nenhum outro papel do Pipe usa violeta — nem a
-     marca, nem os quatro estados, nem a paleta de gráfico. */",,,,,,
+     marca, nem os quatro estados, nem a paleta de gráfico. */",translate,"============================================================== focus
+   ONE color, with ONE role, and it's the only token in this sheet that can't
+   be reused for anything else.
+
+   It exists because the focus ring used to be `--p-marca` — the same color as
+   the active navigation item, the focused field border and the primary
+   action. That made the keyboard and the mouse say the same thing: whoever
+   tabbed through the sidebar saw the ring in the color that already marked
+   where they were, and lost track of which of the two was which.
+
+   Keyboard focus can't share a color with anything else, or it stops being a
+   signal. It's Blip's design system's only color with a single role, for the
+   same reason. Violet because no other Pipe role uses violet — not the
+   brand, not the four states, not the chart palette.",meta-blip,packages/ui/src/estilos/tokens.css:98-111; cites Blip's design system single-role focus color; pre-triage D-40; needs slice-time confirmation,,proposed
