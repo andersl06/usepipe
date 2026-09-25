@@ -159,13 +159,13 @@ export class SsoLoginController {
       if (desafio.test) {
         await marcarTestada(desafio.tenantId);
         resposta.status(200).json({
-          resultado: 'ok',
+          result: 'ok',
           issuer: pessoa.emissor,
           subject: pessoa.sujeito,
           email: pessoa.email,
           emailVerified: pessoa.emailVerificado,
           name: pessoa.nome ?? null,
-          casaComUsuario: await userWithEmail(desafio.tenantId, pessoa.email),
+          matchesUser: await userWithEmail(desafio.tenantId, pessoa.email),
           // O aviso que evita o chamado de segunda-feira: sem e-mail verificado
           // o login real recusa, mesmo com o teste "passando".
           aviso: pessoa.emailVerificado
@@ -193,7 +193,7 @@ export class SsoLoginController {
       resposta.setHeader('set-cookie', apagarDesafio);
       // No teste o admin precisa do motivo; no login de verdade, não.
       if (desafio.test) {
-        resposta.status(200).json({ resultado: 'falhou', codigo, motivo: message(error) });
+        resposta.status(200).json({ result: 'falhou', codigo, motivo: message(error) });
         return;
       }
       resposta.redirect(302, urlOfError(codigo, desafio.origem));
@@ -253,9 +253,9 @@ function paraJson(conexao: Awaited<ReturnType<typeof lerConexao>>): Record<strin
     clienteId: conexao.clienteId,
     estado: conexao.estado,
     politica: conexao.politica,
-    testadaEm: conexao.testadaEm?.toISOString() ?? null,
-    ativadaEm: conexao.ativadaEm?.toISOString() ?? null,
-    urlDeRetorno: conexao.callbackUrl,
+    testedAt: conexao.testadaEm?.toISOString() ?? null,
+    activatedAt: conexao.ativadaEm?.toISOString() ?? null,
+    callbackUrl: conexao.callbackUrl,
   };
 }
 

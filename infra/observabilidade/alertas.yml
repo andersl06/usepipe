@@ -22,9 +22,9 @@ groups:
         # (§8 da spec). 20% em 10 minutos é falha de credencial ou de número
         # bloqueado, não azar.
         expr: |
-          sum by (canal) (rate(pipe_mensagem_entrega_total{resultado="falha"}[10m]))
+          sum by (canal) (rate(pipe_message_delivery_total{resultado="falha"}[10m]))
             /
-          sum by (canal) (rate(pipe_mensagem_entrega_total[10m])) > 0.2
+          sum by (canal) (rate(pipe_message_delivery_total[10m])) > 0.2
         for: 10m
         labels: { severidade: acorda }
         annotations:
@@ -33,7 +33,7 @@ groups:
       - alert: FilaParada
         # Profundidade sozinha engana: fila grande escoando é hora cheia normal.
         # O que dói é o item mais velho não sair.
-        expr: pipe_fila_idade_item_mais_velho_segundos > 900
+        expr: pipe_queue_oldest_item_age_seconds > 900
         for: 5m
         labels: { severidade: acorda }
         annotations:
@@ -95,7 +95,7 @@ groups:
           resumo: 'No ritmo atual, o disco acaba em uma semana'
 
       - alert: MigrationPendente
-        expr: pipe_migration_pendente > 0
+        expr: pipe_migration_pending > 0
         for: 15m
         labels: { severidade: ticket }
 

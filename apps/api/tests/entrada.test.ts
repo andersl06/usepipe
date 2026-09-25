@@ -201,7 +201,7 @@ describe('GET /v1/auth/google', () => {
     expect(destination.searchParams.get('state')).toBeTruthy();
 
     const cookie = resposta.headers.get('set-cookie') ?? '';
-    expect(cookie).toContain('pipe_desafio=');
+    expect(cookie).toContain('pipe_challenge=');
     expect(cookie).toContain('HttpOnly');
     expect(cookie).toContain('Max-Age=300');
     expect(cookie).toContain('Path=/v1/auth');
@@ -236,7 +236,7 @@ describe('GET /v1/auth/google/callback', () => {
   it('Treat a corrupt challenge cookie as a login refusal', async () => {
     const resposta = await fetch(`${api.url}/v1/auth/google/callback?code=x`, {
       redirect: 'manual',
-      headers: { cookie: 'pipe_desafio=nao-e-base64-de-json' },
+      headers: { cookie: 'pipe_challenge=nao-e-base64-de-json' },
     });
     expect(resposta.status).toBe(302);
     expect(resposta.headers.get('location')).toContain('erro=falha_no_provedor');
@@ -321,7 +321,7 @@ describe('GET /metrics', () => {
     expect(resposta.headers.get('content-type')).toContain('text/plain');
 
     const texto = await resposta.text();
-    expect(texto).toContain('# TYPE pipe_http_requisicoes_total counter');
+    expect(texto).toContain('# TYPE pipe_http_requests_total counter');
     expect(texto).toContain('# TYPE http_request_duration_seconds histogram');
     expect(texto).toContain('http_request_duration_seconds_bucket{');
     expect(texto).toContain('le="+Inf"');
@@ -341,7 +341,7 @@ function lerDesafioDoCookie(cabecalho: string): {
   destination: string;
   origin?: string;
 } {
-  const value = /pipe_desafio=([^;]*)/.exec(cabecalho)?.[1] ?? '';
+  const value = /pipe_challenge=([^;]*)/.exec(cabecalho)?.[1] ?? '';
   return JSON.parse(Buffer.from(value, 'base64url').toString('utf8')) as {
     state: string;
     destino: string;

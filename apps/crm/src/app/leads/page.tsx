@@ -27,7 +27,7 @@ export const dynamic = 'force-dynamic';
 interface Search {
   aba?: string;
   q?: string;
-  agrupar?: string;
+  groupBy?: string;
   order?: string;
   dir?: string;
   /** Os `f.*` do filtro por coluna. `lerFiltros` decide quais valem. */
@@ -49,7 +49,7 @@ export default async function PageLeads({ searchParams }: { searchParams: Promis
   const params = await searchParams;
   const aba = abaValida(typeof params.aba === 'string' ? params.aba : undefined);
   const search = typeof params.q === 'string' ? params.q : '';
-  const by = groupingValid(typeof params.agrupar === 'string' ? params.agrupar : undefined);
+  const by = groupingValid(typeof params.groupBy === 'string' ? params.groupBy : undefined);
   const order = orderValid(typeof params.order === 'string' ? params.order : undefined);
   const direction = directionValid(typeof params.dir === 'string' ? params.dir : undefined);
   const filters = readFilters(params);
@@ -62,9 +62,9 @@ export default async function PageLeads({ searchParams }: { searchParams: Promis
 
   const query = (extra: Record<string, string> = {}, withFilters: SFilter = filters) => {
     const p = new URLSearchParams({ tab, ...(search ? { q: search } : {}), ...extra });
-    if (by !== 'nenhum' && !('agrupar' in extra)) p.set('agrupar', by);
+    if (by !== 'nenhum' && !('groupBy' in extra)) p.set('groupBy', by);
     if (order !== 'nenhuma') {
-      p.set('ordem', order);
+      p.set('order', order);
       p.set('dir', direction);
     }
     // O filtro entra por último, e por isso a visão salva o guarda: `consulta()`
@@ -103,7 +103,7 @@ export default async function PageLeads({ searchParams }: { searchParams: Promis
           <input type="hidden" name="aba" value={aba} />
           {order !== 'nenhuma' ? (
             <>
-              <input type="hidden" name="ordem" value={order} />
+              <input type="hidden" name="order" value={order} />
               <input type="hidden" name="dir" value={direction} />
             </>
           ) : null}
@@ -122,7 +122,7 @@ export default async function PageLeads({ searchParams }: { searchParams: Promis
           />
           <label className="agrupador">
             Agrupar por
-            <Seletor name="agrupar" defaultValue={by} aria-label="Agrupar por">
+            <Seletor name="groupBy" defaultValue={by} aria-label="Agrupar por">
               {GROUPINGS.map((a) => (
                 <option key={a.chave} value={a.chave}>
                   {a.rotulo}

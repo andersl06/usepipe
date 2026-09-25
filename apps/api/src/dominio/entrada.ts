@@ -388,7 +388,7 @@ async function aplicarStatus(canal: ChannelResolved, status: StatusDaMeta): Prom
     // Se a base passar de alguns milhares de canais, trocar por `canal.tipo` e
     // deixar o detalhe para o log.
     if (alvo === 'falhou' || alvo === 'entregue') {
-      contar('pipe_mensagem_entrega_total', {
+      contar('pipe_message_delivery_total', {
         canal: canal.id,
         resultado: alvo === 'falhou' ? 'falha' : 'sucesso',
       });

@@ -36,9 +36,9 @@ export class ActiveMessagesController {
   @KeyOrSession('mensagens:ler')
   limites(): Record<string, unknown> {
     return {
-      max_contatos_por_disparo: MAX_CONTACTS_BY_TRIGGER,
+      maxContactsByTrigger: MAX_CONTACTS_BY_TRIGGER,
       // 0 desliga, como o `ActiveMessageLimitCount` deles.
-      limite_diario_por_contato: DAILY_LIMIT_BY_CONTACT,
+      dailyLimitByContact: DAILY_LIMIT_BY_CONTACT,
     };
   }
 
@@ -53,7 +53,7 @@ export class ActiveMessagesController {
     const window = Math.min(Math.max(Number(horas ?? 72) || 72, 1), 720);
     const linhas = await applicationOfActive(ator.tenantId, window);
     return {
-      janela_horas: window,
+      windowHours: window,
       data: linhas.map((l) => ({
         id: l.messageId,
         conversa_id: l.conversationId,

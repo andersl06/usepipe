@@ -53,7 +53,7 @@ export class AttachmentsController {
       bytes: attachment.bytes,
       tipo: attachment.tipo,
       link: attachment.link,
-      max_por_mensagem: MAX_FILES_BY_MESSAGE,
+      maxByMessage: MAX_FILES_BY_MESSAGE,
     };
   }
 

@@ -18,8 +18,8 @@ alerting:
 scrape_configs:
   - job_name: pipe-api
     # `/metrics` existe (apps/api/src/controladores/operacao.ts) e é daqui que saem
-    # `pipe_fila_profundidade`, `pipe_fila_idade_item_mais_velho_segundos`,
-    # `pipe_mensagem_entrega_total`, `pipe_migration_pendente` e o histograma
+    # `pipe_queue_depth`, `pipe_queue_oldest_item_age_seconds`,
+    # `pipe_message_delivery_total`, `pipe_migration_pending` e o histograma
     # `http_request_duration_seconds` — ou seja, quase todos os alertas.
     #
     # A coleta é por dentro da rede, de um IP privado, e é por isso que ela passa

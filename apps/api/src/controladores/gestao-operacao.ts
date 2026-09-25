@@ -330,7 +330,7 @@ export class ManagementOperationsController {
   async ficha(
     @Req() requisicao: RequestWithSession,
     @Param('id') id: string,
-  ): Promise<{ fuso: string; ficha: RecordOfEvaluation }> {
+  ): Promise<{ fuso: string; record: RecordOfEvaluation }> {
     const sessao = sessionOf(requisicao);
     if (!UUID.test(id)) throw PipeError.naoEncontrado('avaliação');
     const resposta = await noTenant(sessao.tenantId, async (tx) => {

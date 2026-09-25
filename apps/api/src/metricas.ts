@@ -14,12 +14,12 @@ import { migrationsPendentes } from './saude.js';
  *
  * - `http_request_duration_seconds` (histograma) — o nome é o padrão porque o alerta
  *   `LatenciaDaApiAlta` usa exatamente `http_request_duration_seconds_bucket`.
- * - `pipe_http_requisicoes_total{rota,metodo,status}` — volume e taxa de erro por rota.
- * - `pipe_mensagem_entrega_total{canal,resultado}` — o alerta `EntregaFalhando`.
- * - `pipe_fila_profundidade{fila}` e `pipe_fila_idade_item_mais_velho_segundos{fila}` —
+ * - `pipe_http_requests_total{rota,metodo,status}` — volume e taxa de erro por rota.
+ * - `pipe_message_delivery_total{canal,resultado}` — o alerta `EntregaFalhando`.
+ * - `pipe_queue_depth{fila}` e `pipe_queue_oldest_item_age_seconds{fila}` —
  *   o alerta `FilaParada` olha a idade, não a profundidade: fila grande escoando é
  *   hora cheia; item velho parado é fila travada.
- * - `pipe_migration_pendente` — o alerta `MigrationPendente`.
+ * - `pipe_migration_pending` — o alerta `MigrationPendente`.
  *
  * Cardinalidade: o rótulo `rota` é o PADRÃO da rota (`/v1/conversas/:id/mensagens`),
  * nunca o caminho com o uuid dentro. Caminho cru vira uma série por conversa e mata
@@ -48,11 +48,11 @@ interface Histograma {
 
 const AJUDA: Record<string, string> = {
   http_request_duration_seconds: 'Duração da requisição HTTP, em segundos',
-  pipe_http_requisicoes_total: 'Requisições HTTP concluídas, por rota, método e status',
-  pipe_mensagem_entrega_total: 'Desfechos de entrega recebidos do provedor, por canal',
-  pipe_fila_profundidade: 'Jobs esperando ou adiados na fila',
-  pipe_fila_idade_item_mais_velho_segundos: 'Idade do job mais antigo ainda esperando',
-  pipe_migration_pendente: 'Migrations no repositório que ainda não foram aplicadas',
+  pipe_http_requests_total: 'Requisições HTTP concluídas, por rota, método e status',
+  pipe_message_delivery_total: 'Desfechos de entrega recebidos do provedor, por canal',
+  pipe_queue_depth: 'Jobs esperando ou adiados na fila',
+  pipe_queue_oldest_item_age_seconds: 'Idade do job mais antigo ainda esperando',
+  pipe_migration_pending: 'Migrations no repositório que ainda não foram aplicadas',
 };
 
 const contadores = new Map<string, Contador>();
@@ -104,7 +104,7 @@ export function medirRequest(
   resposta.on('finish', () => {
     const segundos = Number(process.hrtime.bigint() - inicio) / 1e9;
     const rota = rotaDe(requisicao);
-    contar('pipe_http_requisicoes_total', {
+    contar('pipe_http_requests_total', {
       rota,
       metodo: requisicao.method,
       status: String(resposta.statusCode),
@@ -141,18 +141,18 @@ async function medidores(): Promise<string> {
 
   const queues = await stateOfQueues();
   if (queues.length > 0) {
-    texto += cabecalho('pipe_fila_profundidade', 'gauge');
-    for (const f of queues) texto += serie('pipe_fila_profundidade', { fila: f.queue }, f.depth);
-    texto += cabecalho('pipe_fila_idade_item_mais_velho_segundos', 'gauge');
+    texto += cabecalho('pipe_queue_depth', 'gauge');
+    for (const f of queues) texto += serie('pipe_queue_depth', { fila: f.queue }, f.depth);
+    texto += cabecalho('pipe_queue_oldest_item_age_seconds', 'gauge');
     for (const f of queues) {
-      texto += serie('pipe_fila_idade_item_mais_velho_segundos', { fila: f.queue }, f.ageSeconds);
+      texto += serie('pipe_queue_oldest_item_age_seconds', { fila: f.queue }, f.ageSeconds);
     }
   }
 
   const pendentes = await migrationsPendentes();
   if (pendentes !== null) {
-    texto += cabecalho('pipe_migration_pendente', 'gauge');
-    texto += serie('pipe_migration_pendente', {}, pendentes);
+    texto += cabecalho('pipe_migration_pending', 'gauge');
+    texto += serie('pipe_migration_pending', {}, pendentes);
   }
 
   return texto;

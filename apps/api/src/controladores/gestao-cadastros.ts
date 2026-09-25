@@ -119,7 +119,7 @@ export class ManagementRegistrationsController {
     /* Em série: as duas consultas dividem a mesma conexão. */
     return noTenant(sessao.tenantId, async (tx) => ({
       modelos: await comunicacao.carregarModelos(tx),
-      canais: await comunicacao.loadChannelsWhatsapp(tx),
+      channels: await comunicacao.loadChannelsWhatsapp(tx),
     }));
   }
 

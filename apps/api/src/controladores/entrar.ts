@@ -44,7 +44,7 @@ import type { RequestWithSession } from '../sessao.js';
  */
 
 /** Onde o desafio espera a volta do Google. Cinco minutos é a vida útil de um login. */
-export const COOKIE_DESAFIO = 'pipe_desafio';
+export const COOKIE_DESAFIO = 'pipe_challenge';
 const DESAFIO_SEGUNDOS = 300;
 
 /** `Path` do desafio: ele só serve às duas rotas de `/v1/auth`, e não sai delas. */
@@ -439,7 +439,7 @@ export class MeController {
         nome: user.tenant_nome,
         slug: user.slug,
         plano: user.plano as Plano,
-        onboardingConcluido: user.onboarding_concluido_em !== null,
+        onboardingCompleted: user.onboarding_concluido_em !== null,
       },
       permissions,
       origem: session.origem as OriginOfSession,

@@ -81,7 +81,7 @@ export class DeskController {
       status: await consultas.carregarStatus(tx, sessao.userId),
       motivos: await consultas.listarMotivosDePausa(tx),
       etiquetas: await consultas.listarEtiquetas(tx),
-      colegas: await consultas.listarColegas(tx, sessao.userId),
+      colleagues: await consultas.listarColegas(tx, sessao.userId),
       respostas: await consultas.listarRespostasProntas(tx, sessao.userId),
     }));
   }
@@ -103,8 +103,8 @@ export class DeskController {
           itens: await consultas.listItemsOfConversation(tx, conversa.id),
           templates: await consultas.listarTemplatesAprovados(tx, conversa.channelId),
           etiquetasDaConversa: await consultas.listLabelsOfConversation(tx, conversa.id),
-          etiquetasDoContato: await listLabelsOfContact(tx, conversa.contactId),
-          historico: await consultas.listHistoryOfContact(tx, conversa.contactId, conversa.id),
+          labelsOfContact: await listLabelsOfContact(tx, conversa.contactId),
+          history: await consultas.listHistoryOfContact(tx, conversa.contactId, conversa.id),
         },
       };
     });
@@ -144,7 +144,7 @@ export class DeskController {
     return noTenant(sessao.tenantId, async (tx) => {
       const contato = await consultas.loadContact(tx, id);
       if (!contato) throw PipeError.naoEncontrado('contato');
-      return { contato, historico: await consultas.listHistoryOfContact(tx, id, null) };
+      return { contato, history: await consultas.listHistoryOfContact(tx, id, null) };
     });
   }
 
@@ -156,7 +156,7 @@ export class DeskController {
   ): Promise<{ channels: Awaited<ReturnType<typeof consultas.listChannelsWithTemplates>> }> {
     const sessao = sessionOf(requisicao);
     return noTenant(sessao.tenantId, async (tx) => ({
-      canais: await consultas.listChannelsWithTemplates(tx),
+      channels: await consultas.listChannelsWithTemplates(tx),
     }));
   }
 
@@ -205,7 +205,7 @@ export class DeskController {
     const de = inicio;
     const ate = fim;
     return noTenant(sessao.tenantId, async (tx) => ({
-      metricas: await loadMetrics(tx, sessao.userId, de, ate),
+      metrics: await loadMetrics(tx, sessao.userId, de, ate),
       status: await consultas.carregarStatus(tx, sessao.userId),
     }));
   }

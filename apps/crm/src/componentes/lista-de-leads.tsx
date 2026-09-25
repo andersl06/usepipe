@@ -383,9 +383,9 @@ export function ListaDeLeads({
   function endereco(extra: Record<string, string | null>, withFilters: SFilter = filters) {
     const p = new URLSearchParams({ tab });
     if (search) p.set('q', search);
-    if (by !== 'nenhum') p.set('agrupar', by);
+    if (by !== 'nenhum') p.set('groupBy', by);
     if (order !== 'nenhuma') {
-      p.set('ordem', order);
+      p.set('order', order);
       p.set('dir', direction);
     }
     // O filtro acompanha: 'Limpar a busca' que apagasse o filtro junto mandaria

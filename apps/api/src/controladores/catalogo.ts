@@ -323,7 +323,7 @@ export class QueuesController {
         ativa: l.active,
         capacidade_padrao: l.capacityDefault,
         aguardando: Number(l.aguardando),
-        em_atendimento: Number(l.inAttendance),
+        inAttendance: Number(l.inAttendance),
       })),
       page_info: page.page_info,
     };
@@ -423,7 +423,7 @@ export class AgentsController {
         email: l.email,
         estado: l.estado,
         desde: iso(l.desde),
-        conversas_ativas: Number(l.ativas),
+        conversationsActive: Number(l.ativas),
       })),
       page_info: pagina.page_info,
     };

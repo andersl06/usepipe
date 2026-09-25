@@ -393,7 +393,7 @@ describe('Carry an invitation through GET /v1/auth/google?invitation=', () => {
     expect(resposta.status).toBe(302);
 
     const cookie = resposta.headers.get('set-cookie') ?? '';
-    const value = /pipe_desafio=([^;]*)/.exec(cookie)?.[1] ?? '';
+    const value = /pipe_challenge=([^;]*)/.exec(cookie)?.[1] ?? '';
     const desafio = JSON.parse(Buffer.from(value, 'base64url').toString('utf8')) as {
       invitation?: string;
     };
@@ -405,7 +405,7 @@ describe('Carry an invitation through GET /v1/auth/google?invitation=', () => {
 
   it('Omit the invitation field from ordinary domain login challenges', async () => {
     const resposta = await fetch(`${api.url}/v1/auth/google`, { redirect: 'manual' });
-    const valor = /pipe_desafio=([^;]*)/.exec(resposta.headers.get('set-cookie') ?? '')?.[1] ?? '';
+    const valor = /pipe_challenge=([^;]*)/.exec(resposta.headers.get('set-cookie') ?? '')?.[1] ?? '';
     const desafio = JSON.parse(Buffer.from(valor, 'base64url').toString('utf8')) as {
       convite?: string;
     };

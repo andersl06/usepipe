@@ -247,7 +247,7 @@ export class ConversationsController {
     return {
       id: enfileirada.id,
       estado_entrega: enfileirada.estadoEntrega,
-      dentro_da_janela: enfileirada.insideOfWindow,
+      insideOfWindow: enfileirada.insideOfWindow,
       categoria_cobranca: enfileirada.categoriaCobranca,
       conteudo: enfileirada.conteudo,
     };
@@ -286,7 +286,7 @@ export class ConversationsController {
       messages: enviadas.map((m) => ({
         id: m.id,
         estado_entrega: m.estadoEntrega,
-        dentro_da_janela: m.insideOfWindow,
+        insideOfWindow: m.insideOfWindow,
         categoria_cobranca: m.categoriaCobranca,
         conteudo: m.conteudo,
       })),
@@ -312,7 +312,7 @@ export class ConversationsController {
       },
       { conversaId: id, etiquetaIds: corpo.etiqueta_ids, etiquetaId: corpo.etiqueta_id },
     );
-    return { estado: r.estado, motivo_encerramento: r.motivo };
+    return { estado: r.estado, reasonClosure: r.motivo };
   }
 
   /**
@@ -362,7 +362,7 @@ export class ConversationsController {
       },
     );
     return {
-      de_conversa_id: r.ofConversationId,
+      ofConversationId: r.ofConversationId,
       para_conversa_id: r.forConversationId,
       estado: r.estado,
     };
@@ -431,11 +431,11 @@ function asConversation(linha: LineConversation): Record<string, unknown> {
     primeira_resposta_em: iso(linha.firstResponseAt),
     encerrada_em: iso(linha.encerrada_em),
     ultima_mensagem_em: iso(linha.lastMessageAt),
-    ultima_mensagem_de: linha.lastMessageOf,
+    lastMessageOf: linha.lastMessageOf,
     janela_expira_em: iso(linha.windowExpiresAt),
     canal_tipo: linha.channelType,
-    fila: linha.queueId ? { id: linha.queueId, name: linha.queueName } : null,
-    atendente: linha.atendente_id ? { id: linha.atendente_id, name: linha.agentName } : null,
+    queue: linha.queueId ? { id: linha.queueId, name: linha.queueName } : null,
+    agent: linha.atendente_id ? { id: linha.atendente_id, name: linha.agentName } : null,
     contato: {
       id: linha.contactId,
       name: linha.contactName,
@@ -455,11 +455,11 @@ function asMessage(linha: LineMessage): Record<string, unknown> {
     conteudo: linha.conteudo,
     estado_entrega: linha.stateDelivery,
     erro_codigo: linha.errorCode,
-    erro_texto: linha.errorText,
+    errorText: linha.errorText,
     id_provedor: linha.id_provedor,
     entregue_em: iso(linha.entregue_em),
     lida_em: iso(linha.lida_em),
-    dentro_da_janela: linha.insideOfWindow,
+    insideOfWindow: linha.insideOfWindow,
     categoria_cobranca: linha.categoria_cobranca,
   };
 }

@@ -25,7 +25,7 @@ import { Req } from '@nestjs/common';
 
 export interface FichaDoCrm {
   /** `null` quando o contato ainda não tem espelho, ou o tenant não tem CRM. */
-  ficha: {
+  record: {
     name: string;
     email: string | null;
     empresa: string | null;
@@ -83,13 +83,13 @@ export class CrmController {
     // Sem CRM, sem espelho ou contato de outro tenant: a MESMA resposta. Não é erro,
     // e distinguir os casos aqui contaria a quem perguntou se o id existe em outro
     // cliente.
-    if (!preparo) return { ficha: null };
+    if (!preparo) return { record: null };
 
     try {
       const ficha = await lerFicha(preparo.config, preparo.pessoaId);
-      if (!ficha) return { ficha: null };
+      if (!ficha) return { record: null };
       return {
-        ficha: {
+        record: {
           nome: ficha.nome,
           email: ficha.email,
           empresa: ficha.empresa,
@@ -101,7 +101,7 @@ export class CrmController {
       // valendo, porque ele é montado do nosso lado.
       console.error(`[crm] ficha de ${contactId} falhou: ${(error as Error).message}`);
       return {
-        ficha: {
+        record: {
           nome: '',
           email: null,
           empresa: null,

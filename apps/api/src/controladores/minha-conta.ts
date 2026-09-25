@@ -140,8 +140,8 @@ export interface AccountInList {
   slug: string;
   plan: string;
   /** A conta desta sessão. É a que o seletor marca. */
-  emVigor: boolean;
-  onboardingConcluido: boolean;
+  inForce: boolean;
+  onboardingCompleted: boolean;
   /**
    * Conta PESSOAL: a que nasceu no login e não provou domínio nenhum.
    *
@@ -286,8 +286,8 @@ export class MyAccountController {
       nome: linha.nome,
       slug: linha.slug,
       plano: linha.plano,
-      emVigor: linha.tenant_id === sessao.tenantId,
-      onboardingConcluido: linha.onboarding_concluido_em !== null,
+      inForce: linha.tenant_id === sessao.tenantId,
+      onboardingCompleted: linha.onboarding_concluido_em !== null,
       pessoal: linha.pessoal,
     }));
   }
