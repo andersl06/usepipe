@@ -1,12 +1,12 @@
 /** Repair rename-map mismatches at TypeScript diagnostic positions. */
 import fs from 'node:fs';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 import ts from 'typescript';
 import { readMap } from './lib/map.ts';
 
 const root = path.resolve(process.argv[2] ?? '.');
 const mapDir = path.resolve(process.argv[3] ?? path.join(root, '.planning/phases/01-padronizar-linguagem-t-cnica-navega-o-e-renderiza-o/std/map'));
+const projectConfig = path.resolve(root, process.argv[4] ?? 'apps/api/tsconfig.json');
 const dryRun = process.argv.includes('--dry-run');
 const rows = readMap(mapDir).filter(r =>
   ['approved', 'applied', 'verified'].includes(r.status) &&
@@ -22,9 +22,9 @@ for (const row of rows) {
   replacements.add(row.new);
   newByOld.set(row.old, replacements);
 }
-const configFile = ts.readConfigFile(path.join(root, 'apps/api/tsconfig.json'), ts.sys.readFile);
+const configFile = ts.readConfigFile(projectConfig, ts.sys.readFile);
 if (configFile.error) throw new Error(ts.flattenDiagnosticMessageText(configFile.error.messageText, '\n'));
-const config = ts.parseJsonConfigFileContent(configFile.config, ts.sys, path.join(root, 'apps/api'));
+const config = ts.parseJsonConfigFileContent(configFile.config, ts.sys, path.dirname(projectConfig));
 const program = ts.createProgram(config.fileNames, config.options);
 const checker = program.getTypeChecker();
 const diagnostics = ts.getPreEmitDiagnostics(program).filter(d => d.file && d.start !== undefined);
@@ -66,6 +66,12 @@ function targetType(id: ts.Identifier): ts.Type | undefined {
   }
   return undefined;
 }
+function existingLocal(id: ts.Identifier): string | undefined {
+  const candidates = [...(oldByNew.get(id.text) ?? []), ...(newByOld.get(id.text) ?? [])];
+  const available = checker.getSymbolsInScope(id, ts.SymbolFlags.Value);
+  const matches = candidates.filter(name => available.some(symbol => symbol.name === name));
+  return matches.length === 1 ? matches[0] : undefined;
+}
 for (const d of diagnostics) {
   const file = d.file!;
   const start = d.start!;
@@ -73,12 +79,21 @@ for (const d of diagnostics) {
   const msg = ts.flattenDiagnosticMessageText(d.messageText, ' ');
   const where = `${path.relative(root, file.fileName).replaceAll('\\', '/')}:${file.getLineAndCharacterOfPosition(start).line + 1}`;
   if (!id) continue;
-  if (d.code === 2551 || d.code === 2724) {
-    const suggested = /Did you mean ['"]([^'"]+)['"]\?/.exec(msg)?.[1];
+  if (d.code === 2551 || d.code === 2724 || d.code === 2561) {
+    const suggested = /Did you mean (?:to write )?['"]([^'"]+)['"]\?/.exec(msg)?.[1];
     if (suggested) {
       const replacement = d.code === 2724 && ts.isImportSpecifier(id.parent) && id.parent.name === id
-        ? `${suggested} as ${id.text}` : suggested;
+        ? `${suggested} as ${id.text}`
+        : d.code === 2561 && ts.isShorthandPropertyAssignment(id.parent) ? `${suggested}: ${id.text}`
+        : suggested;
       add(file, id.getStart(), id.getEnd(), replacement, `TS${d.code}`);
+      continue;
+    }
+  }
+  if (d.code === 18004 && ts.isShorthandPropertyAssignment(id.parent)) {
+    const local = existingLocal(id);
+    if (local) {
+      add(file, id.getStart(), id.getEnd(), `${id.text}: ${local}`, `TS${d.code}`);
       continue;
     }
   }
