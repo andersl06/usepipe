@@ -11,7 +11,7 @@
     {
       "id": "api-comment-773608e2",
       "action": "translate",
-      "new_text": "`PATCH /v1/contatos/:id`: missing fields are unchanged; null clears a field, except `atributos`, which merges.",
+      "new_text": "`PATCH /v1/contatos/:id`: missing fields are unchanged; `null` clears a field, except `atributos`, which merges.",
       "sensitivity": "other",
       "evidence": "apps/api/src/controladores/catalogo.ts:56-63",
       "notes": ""

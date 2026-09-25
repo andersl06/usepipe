@@ -179,7 +179,7 @@
     {
       "id": "api-comment-acbf88b0",
       "action": "translate",
-      "new_text": "The \"Editar\" action in `fluxo/contatos/detalhe/editar.tsx` uses a session, not an API key: a team member edits, and `contato.editar` exists only for an actor with `usuarioId`. Missing `nome`, `email`, `telefone_e164` or `documento` leaves the field unchanged; null clears it. `atributos` merges with `||`, changing only submitted keys such as `city` and `gender` while keeping other contact extras.",
+      "new_text": "The \"Editar\" action in `fluxo/contatos/detalhe/editar.tsx` uses a session, not an API key: a team member edits, and `contato.editar` exists only for an actor with `usuarioId`. Missing `nome`, `email`, `telefone_e164` or `documento` leaves the field unchanged; `null` clears it. `atributos` merges with `||`, changing only submitted keys such as `city` and `gender` while keeping other contact extras.",
       "sensitivity": "security",
       "evidence": "apps/api/src/controladores/catalogo.ts:165-171; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"

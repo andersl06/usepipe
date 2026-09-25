@@ -1,0 +1,204 @@
+{
+  "items": [
+    {
+      "id": "api-comment-86fb5807",
+      "action": "translate",
+      "new_text": "The channel bot: a published router takes precedence over a directly connected flow (one bot per number) and resolves the contact's service. That is why the contact enters here.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:87; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cc951f3e",
+      "action": "translate",
+      "new_text": "Represent a `select` menu as a structured question so the worker can send buttons or a list (`interativo.ts` in `@pipe/workers/whatsapp`). Numbered `textoParaOCanal` remains the stored content and fallback.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/fluxo.ts:872; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c9cf2141",
+      "action": "translate",
+      "new_text": "Use Blip `Contact` vocabulary because the imported flow expects it.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:927; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-1f7881b8",
+      "action": "translate",
+      "new_text": "The contact's last closed attendance session, like the `Ticket` Blip sends to the bot.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:939; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-9f3757b8",
+      "action": "translate",
+      "new_text": "A timestamp that only moves forward: reply order follows `criada_em`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:963; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-65ff4e35",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/fluxo.ts:972",
+      "notes": "redundant divider"
+    },
+    {
+      "id": "api-comment-afc8c4c5",
+      "action": "translate",
+      "new_text": "The flow was stored, but the engine would refuse to run it; do not publish.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/fluxo.ts:980; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d66f0736",
+      "action": "translate",
+      "new_text": "Pipe block type. Blip has no block type; this label serves only the screen and report, and the engine does not read it.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/fluxo.ts:984; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-bf6c5449",
+      "action": "translate",
+      "new_text": "`rollup` returns the total row even without messages. Empty days are missing, though the source chart labels every day.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao-analise.ts:127; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-b5d8e6e6",
+      "action": "translate",
+      "new_text": "The \"Número de Contatos\" sidebar (`uw`) lists those who interacted or did not respond during the period, following source `/metrics/contacts/engaged` and `/metrics/sidebar/ContactsRejection`. Display the name, or phone if absent (`name ?? identity` there). The source fetches 20 at a time while scrolling; here the 1,000 most recent arrive at once, matching the \"Exportar lista\" hint.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao-analise.ts:212; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-2e948482",
+      "action": "translate",
+      "new_text": "Read contact ANALYSIS (`/fluxo/:id/analise/**`) from the database. These queries moved from `apps/gestao/src/lib/analise.ts` and `analise-portal.ts` with query logic intact; the caller supplies a transaction with tenant fixed. Pure period, formatting, and type logic stays in `@pipe/core/analise`.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao-analise.ts:23; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-de9a6705",
+      "action": "translate",
+      "new_text": "Active messages for this contact have no Pipe equivalent today. In the source, the BOT sends them more than 24 hours after the customer's last message. Pipe's bot only replies (`gravarRespostaDoBot` always stores `dentro_da_janela = true`), and campaign template sends have no flow attribution. Return the source's empty response so the screen shows zeros. Once template sends have `fluxo_id` or the bot can send templates, group `mensagem` rows with `tipo = 'template'` by day, using `entregue_em`, `lida_em`, `estado_entrega = 'falhou'`/`erro_codigo`, and replies linked by `disparo_id`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao-analise.ts:248; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-d13848b4",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao-analise.ts:271",
+      "notes": "redundant divider"
+    },
+    {
+      "id": "api-comment-4f6c407d",
+      "action": "translate",
+      "new_text": "The source \"chatbot\" is the contact. Count messages from conversations where any version of this flow ran (`execucao_fluxo`). Include human attendance as the source does: `metrics.overviewHelp.info1` states that the report includes contact and message traffic during human attendance. Internal notes are excluded because they are not traffic. Source wording: \"contabiliza todos os contatos e mensagens trafegadas, incluindo interações durante o atendimento humano\".",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao-analise.ts:275; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-a95f28f0",
+      "action": "translate",
+      "new_text": "An interval of instants already in the account time zone; see `janelaDeDatas` in banco.ts.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao-analise.ts:30; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-db1fc4f8",
+      "action": "remove",
+      "new_text": "",
+      "sensitivity": "other",
+      "evidence": "apps/api/src/dominio/gestao-analise.ts:356",
+      "notes": "redundant divider"
+    },
+    {
+      "id": "api-comment-cc05c996",
+      "action": "translate",
+      "new_text": "Custom reports are always empty: Pipe has no report table or chart editor. The screen stops at \"Nenhum relatório encontrado :(\". To implement this, add a `relatorio` table (name, owner, private flag, `modificado_em`) with its charts, and read public reports plus the person's private reports as source `getReports()` does.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao-analise.ts:358; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-063951f7",
+      "action": "translate",
+      "new_text": "Build journey edges from each execution's path in `execucao_passo`: step `n` connects block `n` to `n+1`, and the final block connects to \"Saída\". Preserve the stage in brackets on node names, as source `getNodeNameWithoutInstance()` removes it; otherwise the same block in different stages can form a false cycle. The source has an \"Outros\" node (`#others`) for low-volume blocks. Here every branch is drawn; for very large flows, keep the top N per stage and sum the rest into an edge with `tipo: 'outros'`.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao-analise.ts:371; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-70377cda",
+      "action": "translate",
+      "new_text": "Message Log follows source `MessagesController`/`MessageService.getMessages`. Source period, direction, and type labels become real filters, with cursor pagination instead of fixed `take: 30` (`apis.md` §5.3; see `controladores/conversas.ts#mensagens`). Scope to bot-channel conversations (`fluxo.canal_id` to `inbox.canal_id`), as in `carregarLogsDoFluxo`, rather than `execucao_fluxo`: the Log includes human attendance after handoff. `mensagem` has no direct `canal_id` index, so Postgres scans channel conversations through `conversa_inbox_idx` (migration 0040), then messages through `mensagem_conversa_idx`. This suits a small channel but costs more with hundreds of thousands of closed conversations. If needed, fill a denormalized `canal_id` on `mensagem` during writes.",
+      "sensitivity": "integration",
+      "evidence": "apps/api/src/dominio/gestao-analise.ts:440; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-aff99aa5",
+      "action": "update",
+      "new_text": "The contact Dashboard comes from the database. `api/src/dominio/fluxo.ts` writes an `execucao_fluxo` for each bot conversation, bot messages, and handoff (`enfileirada` with `dados.origem = 'fluxo'`). Contacts, messages, recurrence, retention, and handoff count conversations where this flow ran, including human attendance messages as the source Data Dictionary states. `excecao`, `blocosExcecao`, and `blocosTransbordo` stay empty: Pipe has no exception block, and `execucao_passo` does not mark the handoff block. Once it does, `group by bloco_id`. The router now routes contacts through services (`apps/api/src/dominio/roteador.ts`), but this Dashboard still does not aggregate service flows as the source does; its SQL filters one `fluxoId`. Source wording: \"Inclui, também, mensagens trafegadas no Desk\".",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao-analise.ts:87-123; apps/api/src/dominio/roteador.ts:64-110; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-4501c06d",
+      "action": "translate",
+      "new_text": "One `rollup` per day yields daily rows plus a row with null `dia` for the whole period; the period `count(distinct)` is not the sum of daily counts.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao-analise.ts:77; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-c4b371cb",
+      "action": "translate",
+      "new_text": "Read contact-facing flow screens (`/fluxo/:id/**` in Management). These queries moved from `apps/gestao/src/lib/*` as planned in the README: the caller supplies a tenant-scoped transaction, and the `api` controller owns session handling. This module knows no HTTP or screen; it returns what the UI renders, with types derived from the query (`Awaited<ReturnType<…>>`) rather than copied manually.",
+      "sensitivity": "architecture",
+      "evidence": "apps/api/src/dominio/gestao-fluxo.ts:19; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-cfb3b583",
+      "action": "translate",
+      "new_text": "The channel identifier shown as \"the number\": WhatsApp `config.numero`, Instagram `config.username`, or Messenger Page ID (`numero_id`). These are not secrets and are readable in encrypted `config` (`dominio/canais.ts`, `visivel`).",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao-fluxo.ts:29; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-762c1a56",
+      "action": "translate",
+      "new_text": "The source lists campaigns, but Pipe does not yet persist campaigns or audiences. Read real template messages from the past 72 hours, the API panel and source screen window. Each row is a message, not a campaign. Once a campaign entity exists, group by `disparo_id`; do not infer campaigns from time or model.",
+      "sensitivity": "meta-blip",
+      "evidence": "apps/api/src/dominio/gestao-fluxo.ts:298; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    },
+    {
+      "id": "api-comment-89e1aac5",
+      "action": "translate",
+      "new_text": "Run queries serially: in parallel the driver contends for one connection and the tenant `set_config` is lost.",
+      "sensitivity": "security",
+      "evidence": "apps/api/src/dominio/gestao-fluxo.ts:307; pre-triage D-40; needs slice-time confirmation",
+      "notes": "pre-triage D-40; needs slice-time confirmation"
+    }
+  ]
+}

@@ -91,7 +91,7 @@
     {
       "id": "api-comment-141e35c5",
       "action": "translate",
-      "new_text": "Null when the contact has no mirror yet or the tenant has no CRM.",
+      "new_text": "`null` when the contact has no mirror yet or the tenant has no CRM.",
       "sensitivity": "other",
       "evidence": "apps/api/src/controladores/crm.ts:26-34",
       "notes": ""

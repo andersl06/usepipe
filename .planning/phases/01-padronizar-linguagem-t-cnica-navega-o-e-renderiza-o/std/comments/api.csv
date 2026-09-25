@@ -19,7 +19,7 @@ api-comment-a4716516,api,apps/api/src/autenticacao.ts,115,122,jsdoc,9,"/**
  * Lê o PADRÃO da rota (`req.route.path`), não a URL: é o padrão que diz qual
  * segmento é o fluxo. Ler a URL casaria `/v1/conversas/<uuid>` por acidente se
  * alguém um dia nomeasse uma conversa com o id de um fluxo.
- */",translate,"When a route names a flow, use its `:fluxoId` parameter or the parameter immediately after `/fluxos/`, as in `/v1/gestao/fluxos/:id/...`. Inspect the route pattern (`req.route.path`), not the URL: the pattern identifies which segment represents the flow. Looking at the URL could accidentally match `/v1/conversas/<uuid>` if a conversation ID ever equaled a flow ID.",security,apps/api/src/autenticacao.ts:123-128; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ */",translate,"When a route names a flow, use its `:fluxoId` parameter or `:id` (or another parameter name) immediately after `/fluxos/`, as in `/v1/gestao/fluxos/:id/...`. Inspect the route pattern (`req.route.path`), not the URL: the pattern identifies which segment represents the flow. Looking at the URL could accidentally match `/v1/conversas/<uuid>` if a conversation ID ever equaled a flow ID.",security,apps/api/src/autenticacao.ts:123-128; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-91c56642,api,apps/api/src/autenticacao.ts,12,21,jsdoc,10,"/**
  * Autenticação por `chave_api`, no formato recomendado em `apis.md` §5.2:
  * `Authorization: Bearer <token>`, token **opaco** (não JWT auto-contido) para poder
@@ -59,7 +59,7 @@ api-comment-3d38e3d7,api,apps/api/src/autenticacao.ts,41,45,jsdoc,2,"/**
    * O fluxo dono da chave (`chave_api.fluxo_id`, migração 0032), ou `null` na
    * chave de CONTA. É a cerca que `conferirFluxoDaChave` aplica: chave de fluxo
    * só age no fluxo dela.
-   */",translate,"The flow owning this key (`chave_api.fluxo_id`, migration 0032), or null for an account key. `conferirFluxoDaChave` enforces that a flow key acts only on its own flow.",security,apps/api/src/autenticacao.ts:37-46; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+   */",translate,"The flow owning this key (`chave_api.fluxo_id`, migration 0032), or `null` for an account key. `conferirFluxoDaChave` enforces that a flow key acts only on its own flow.",security,apps/api/src/autenticacao.ts:37-46; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-70cf3d05,api,apps/api/src/autenticacao.ts,49,49,jsdoc,1,/** A requisição autenticada carrega o contexto; o controlador nunca lê header. */,translate,The authenticated request carries the context; controllers never read the header.,security,apps/api/src/autenticacao.ts:49-50; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-98c6c379,api,apps/api/src/autenticacao.ts,54,54,jsdoc,3,"/** Marca o escopo exigido por rota. Sem a marca, a rota é pública (webhook). */",translate,"Marks the scope required by a route. Without the marker, the route is public (for example, the webhook).",security,apps/api/src/autenticacao.ts:54-55; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-e538f546,api,apps/api/src/autenticacao.ts,57,64,jsdoc,4,"/**
@@ -89,7 +89,7 @@ api-comment-854c1ad0,api,apps/api/src/banco.ts,100,111,jsdoc,11,"/**
  * Devolve `null` quando não casa, e quem chama DESCARTA. Evento sem dono é de
  * outro aplicativo ou de canal removido; processar no melhor palpite é como se
  * entrega o dado de um cliente a outro.
- */",update,"Resolve the channel from the payload for the umbrella route. Meta template and account events all arrive at one address because they do not support a customer-specific URL. Resolve the tenant by `phone_number_id` first; if it does not identify a channel, use the WABA. A number identifies one channel, while a WABA may have several. Return null when neither identifies a channel, and let the caller discard the event. An unowned event may belong to another app or a removed channel; guessing could expose one customer's data to another.",integration,apps/api/src/banco.ts:112-139; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ */",update,"Resolve the channel from the payload for the umbrella route. Meta template and account events all arrive at one address because they do not support a customer-specific URL. Resolve the tenant by `phone_number_id` first; if it does not identify a channel, use the WABA. A number identifies one channel, while a WABA may have several. Return `null` when neither identifies a channel, and let the caller discard the event. An unowned event may belong to another app or a removed channel; guessing could expose one customer's data to another.",integration,apps/api/src/banco.ts:112-139; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-c1930b60,api,apps/api/src/banco.ts,36,41,jsdoc,4,"/**
  * Roda o trabalho com `pipe.tenant_id` fixado.
  *
@@ -108,7 +108,7 @@ api-comment-67e2c6b0,api,apps/api/src/banco.ts,5,17,jsdoc,18,"/**
  *
  * As duas devolvem só o `tenant_id` e o mínimo para autorizar. Nenhuma outra
  * consulta roda com o papel dono; a lacuna está registrada na migration `0001_rls`.
- */",translate,"Two pools and roles, as in the Desk and workers. Business data goes through `noTenant`, with `pipe.tenant_id` set and RLS active. The owner role handles only two lookups that must happen before a tenant exists and therefore cannot use that policy: resolving a Meta webhook channel's tenant from URL `:canalId`, and finding an API key by prefix to identify the Bearer token's tenant. Both return only `tenant_id` and the minimum data needed to authorize. No other query uses the owner role; migration `0001_rls` records this gap.",security,apps/api/src/banco.ts:5-17; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+ */",translate,"Two pools and roles, as in the Desk and workers. Business data goes through `noTenant`, with `pipe.tenant_id` set and RLS active. The owner role handles only two lookups that must happen before a tenant exists and therefore cannot use that policy: resolving a Meta webhook channel's tenant from URL `:canalId`, and finding an API key by prefix to identify the `Bearer` token's tenant. Both return only `tenant_id` and the minimum data needed to authorize. No other query uses the owner role; migration `0001_rls` records this gap.",security,apps/api/src/banco.ts:5-17; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-46ab9c1f,api,apps/api/src/banco.ts,56,60,jsdoc,5,"/**
  * O chaveiro é lido do ambiente uma vez e guardado. Ler a cada evento da Meta
  * seria trabalho repetido, e uma chave que muda em tempo de execução é reinício
@@ -198,7 +198,7 @@ api-comment-acbf88b0,api,apps/api/src/controladores/catalogo.ts,165,171,jsdoc,5,
    * `usuarioId`. `nome`/`email`/`telefone_e164`/`documento` ausentes não mexem, `null`
    * apaga; `atributos` é MESCLA (`||`) — só as chaves enviadas (`city`, `gender`) mudam,
    * as outras extras do contato continuam como estavam.
-   */",translate,"The ""Editar"" action in `fluxo/contatos/detalhe/editar.tsx` uses a session, not an API key: a team member edits, and `contato.editar` exists only for an actor with `usuarioId`. Missing `nome`, `email`, `telefone_e164` or `documento` leaves the field unchanged; null clears it. `atributos` merges with `||`, changing only submitted keys such as `city` and `gender` while keeping other contact extras.",security,apps/api/src/controladores/catalogo.ts:165-171; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+   */",translate,"The ""Editar"" action in `fluxo/contatos/detalhe/editar.tsx` uses a session, not an API key: a team member edits, and `contato.editar` exists only for an actor with `usuarioId`. Missing `nome`, `email`, `telefone_e164` or `documento` leaves the field unchanged; `null` clears it. `atributos` merges with `||`, changing only submitted keys such as `city` and `gender` while keeping other contact extras.",security,apps/api/src/controladores/catalogo.ts:165-171; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-0990644b,api,apps/api/src/controladores/catalogo.ts,26,26,jsdoc,1,"/** Bem básico de propósito: recusa o óbvio errado, não tenta validar RFC 5322 inteiro. */",translate,Intentionally basic: rejects clearly invalid addresses without attempting full RFC 5322 validation.,other,apps/api/src/controladores/catalogo.ts:26-27,codex3,reviewed
 api-comment-70d1d45b,api,apps/api/src/controladores/catalogo.ts,29,35,jsdoc,4,"/**
  * Contatos, filas e atendentes.
@@ -211,7 +211,7 @@ api-comment-73d40875,api,apps/api/src/controladores/catalogo.ts,335,338,jsdoc,3,
    * Muda o status de presença. Sem `usuario_id` é o próprio; com ele é supervisão
    * (a Gestão desconectando quem ficou inativo), e aí exige permissão.
    */",translate,"Change presence status. Without `usuario_id`, this changes the caller's own status. Supplying it is a supervisor action (for example, Management disconnecting an inactive attendant) and requires permission.",security,apps/api/src/controladores/catalogo.ts:335-350; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
-api-comment-773608e2,api,apps/api/src/controladores/catalogo.ts,56,56,jsdoc,2,"/** `PATCH /v1/contatos/:id`. Ausente não mexe; `null` apaga (menos `atributos`, que mescla). */",translate,"`PATCH /v1/contatos/:id`: missing fields are unchanged; null clears a field, except `atributos`, which merges.",other,apps/api/src/controladores/catalogo.ts:56-63,codex3,reviewed
+api-comment-773608e2,api,apps/api/src/controladores/catalogo.ts,56,56,jsdoc,2,"/** `PATCH /v1/contatos/:id`. Ausente não mexe; `null` apaga (menos `atributos`, que mescla). */",translate,"`PATCH /v1/contatos/:id`: missing fields are unchanged; `null` clears a field, except `atributos`, which merges.",other,apps/api/src/controladores/catalogo.ts:56-63,codex3,reviewed
 api-comment-875ba0f1,api,apps/api/src/controladores/conexao-no-fluxo.ts,10,20,jsdoc,10,"/**
  * O `fluxo_id` opcional das conexões de canal (`POST /v1/canais/{whatsapp,
  * instagram,messenger}[/manual]`): a conexão feita DE DENTRO do bot, como na
@@ -356,7 +356,7 @@ api-comment-ad553a3d,api,apps/api/src/controladores/crm.ts,12,24,jsdoc,15,"/**
  * de um contato de outro cliente trocando o id na URL: o `contatoId` é resolvido
  * dentro do `comTenant` da sessão e, se não for daquele tenant, não retorna linha.
  */",translate,"`/v1/crm` exposes what Twenty knows about a contact. It is Pipe's sole gateway to Twenty: the Desk calls the `api`, not the CRM directly. It is read-only because writes from the Desk would require an audit log, the same unresolved requirement blocking contact editing there. The tenant comes from the session, never the request. `contatoId` is resolved inside the session's `comTenant`; another tenant's contact yields no row even if someone changes the URL ID.",architecture,apps/api/src/controladores/crm.ts:12-24; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
-api-comment-141e35c5,api,apps/api/src/controladores/crm.ts,27,27,jsdoc,4,"/** `null` quando o contato ainda não tem espelho, ou o tenant não tem CRM. */",translate,Null when the contact has no mirror yet or the tenant has no CRM.,other,apps/api/src/controladores/crm.ts:26-34,codex3,reviewed
+api-comment-141e35c5,api,apps/api/src/controladores/crm.ts,27,27,jsdoc,4,"/** `null` quando o contato ainda não tem espelho, ou o tenant não tem CRM. */",translate,`null` when the contact has no mirror yet or the tenant has no CRM.,other,apps/api/src/controladores/crm.ts:26-34,codex3,reviewed
 api-comment-62ba8b41,api,apps/api/src/controladores/crm.ts,38,42,jsdoc,4,"/**
    * O dicionário de dados do CRM do tenant da sessão: objetos e campos, no formato dos
    * metadados do Twenty. É o que o builder de fluxo e a IA consomem. Lido do nosso banco,
@@ -2065,23 +2065,23 @@ api-comment-15e19b61,api,apps/api/src/dominio/fluxo.ts,867,871,jsdoc,8,"/**
 api-comment-86fb5807,api,apps/api/src/dominio/fluxo.ts,87,90,jsdoc,1,"/**
  * O bot do canal. Roteador publicado ganha do fluxo ligado direto (um bot por número), e
  * resolve o serviço do contato — por isso o contato entra aqui.
- */",,,,,,
+ */",translate,The channel bot: a published router takes precedence over a directly connected flow (one bot per number) and resolves the contact's service. That is why the contact enters here.,architecture,apps/api/src/dominio/fluxo.ts:87; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-cc951f3e,api,apps/api/src/dominio/fluxo.ts,872,876,jsdoc,1,"/**
  * O menu (`select`) como pergunta estruturada, para o worker poder mandar em
  * botões ou lista (`interativo.ts` de `@pipe/workers/whatsapp`). O texto numerado
  * de `textoParaOCanal` continua sendo o conteúdo gravado e o plano B.
- */",,,,,,
-api-comment-c9cf2141,api,apps/api/src/dominio/fluxo.ts,927,927,line,2,"// O vocabulário é o do `Contact` da Blip, que é o que o fluxo importado usa.",,,,,,
-api-comment-1f7881b8,api,apps/api/src/dominio/fluxo.ts,939,939,jsdoc,2,"/** O último atendimento encerrado do contato, como o `Ticket` que a Blip manda ao bot. */",,,,,,
-api-comment-9f3757b8,api,apps/api/src/dominio/fluxo.ts,963,963,jsdoc,6,/** Horário que só anda para a frente: a ordem das respostas é a ordem de `criada_em`. */,,,,,,
-api-comment-65ff4e35,api,apps/api/src/dominio/fluxo.ts,972,972,line,0,// --- importação ---,,,,,,
-api-comment-afc8c4c5,api,apps/api/src/dominio/fluxo.ts,980,980,jsdoc,2,"/** O fluxo foi gravado, mas o motor recusaria rodar: por isso não publica. */",,,,,,
+ */",translate,Represent a `select` menu as a structured question so the worker can send buttons or a list (`interativo.ts` in `@pipe/workers/whatsapp`). Numbered `textoParaOCanal` remains the stored content and fallback.,integration,apps/api/src/dominio/fluxo.ts:872; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-c9cf2141,api,apps/api/src/dominio/fluxo.ts,927,927,line,2,"// O vocabulário é o do `Contact` da Blip, que é o que o fluxo importado usa.",translate,Use Blip `Contact` vocabulary because the imported flow expects it.,meta-blip,apps/api/src/dominio/fluxo.ts:927; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-1f7881b8,api,apps/api/src/dominio/fluxo.ts,939,939,jsdoc,2,"/** O último atendimento encerrado do contato, como o `Ticket` que a Blip manda ao bot. */",translate,"The contact's last closed attendance session, like the `Ticket` Blip sends to the bot.",meta-blip,apps/api/src/dominio/fluxo.ts:939; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-9f3757b8,api,apps/api/src/dominio/fluxo.ts,963,963,jsdoc,6,/** Horário que só anda para a frente: a ordem das respostas é a ordem de `criada_em`. */,translate,A timestamp that only moves forward: reply order follows `criada_em`.,architecture,apps/api/src/dominio/fluxo.ts:963; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-65ff4e35,api,apps/api/src/dominio/fluxo.ts,972,972,line,0,// --- importação ---,remove,,other,apps/api/src/dominio/fluxo.ts:972,codex3,reviewed
+api-comment-afc8c4c5,api,apps/api/src/dominio/fluxo.ts,980,980,jsdoc,2,"/** O fluxo foi gravado, mas o motor recusaria rodar: por isso não publica. */",translate,"The flow was stored, but the engine would refuse to run it; do not publish.",architecture,apps/api/src/dominio/fluxo.ts:980; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-d66f0736,api,apps/api/src/dominio/fluxo.ts,984,987,jsdoc,5,"/**
  * O tipo do bloco no Pipe. A Blip não tem tipo de bloco; este rótulo é só para a tela
  * e o relatório — o motor não o lê.
- */",,,,,,
+ */",translate,"Pipe block type. Blip has no block type; this label serves only the screen and report, and the engine does not read it.",meta-blip,apps/api/src/dominio/fluxo.ts:984; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-bf6c5449,api,apps/api/src/dominio/gestao-analise.ts,127,128,block,4,"/* O `rollup` devolve a linha do total mesmo sem mensagem nenhuma; o que
-         falta são os dias vazios, e o gráfico da origem tem um rótulo por dia. */",,,,,,
+         falta são os dias vazios, e o gráfico da origem tem um rótulo por dia. */",translate,"`rollup` returns the total row even without messages. Empty days are missing, though the source chart labels every day.",architecture,apps/api/src/dominio/gestao-analise.ts:127; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-b5d8e6e6,api,apps/api/src/dominio/gestao-analise.ts,212,220,jsdoc,8,"/**
  * A barra lateral ""Número de Contatos"" (`uw`): quem interagiu, ou quem não
  * respondeu, no período — `/metrics/contacts/engaged` e
@@ -2090,13 +2090,13 @@ api-comment-b5d8e6e6,api,apps/api/src/dominio/gestao-analise.ts,212,220,jsdoc,8,
  *
  * ponytail: a origem pede de 20 em 20 conforme rola; aqui vêm os 1000 mais
  * recentes de uma vez — o mesmo teto que a dica do ""Exportar lista"" anuncia.
- */",,,,,,
+ */",translate,"The ""Número de Contatos"" sidebar (`uw`) lists those who interacted or did not respond during the period, following source `/metrics/contacts/engaged` and `/metrics/sidebar/ContactsRejection`. Display the name, or phone if absent (`name ?? identity` there). The source fetches 20 at a time while scrolling; here the 1,000 most recent arrive at once, matching the ""Exportar lista"" hint.",meta-blip,apps/api/src/dominio/gestao-analise.ts:212; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-2e948482,api,apps/api/src/dominio/gestao-analise.ts,23,28,jsdoc,6,"/**
  * As leituras da ANÁLISE do contato (`/fluxo/:id/analise/**`), movidas de
  * `apps/gestao/src/lib/analise.ts` e `analise-portal.ts` — a consulta é a
  * mesma; a transação vem de fora, já com o tenant fixado. A parte pura
  * (período, formatação, tipos) mora em `@pipe/core/analise`.
- */",,,,,,
+ */",translate,"Read contact ANALYSIS (`/fluxo/:id/analise/**`) from the database. These queries moved from `apps/gestao/src/lib/analise.ts` and `analise-portal.ts` with query logic intact; the caller supplies a transaction with tenant fixed. Pure period, formatting, and type logic stays in `@pipe/core/analise`.",architecture,apps/api/src/dominio/gestao-analise.ts:23; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-de9a6705,api,apps/api/src/dominio/gestao-analise.ts,248,261,jsdoc,14,"/**
  * Mensagens ativas do contato — sem equivalente no Pipe hoje.
  *
@@ -2110,8 +2110,8 @@ api-comment-de9a6705,api,apps/api/src/dominio/gestao-analise.ts,248,261,jsdoc,14
  * template), é `mensagem` com `tipo = 'template'` agrupada por dia, com
  * `entregue_em`, `lida_em`, `estado_entrega = 'falhou'`/`erro_codigo`, e a
  * resposta amarrada por `disparo_id`.
- */",,,,,,
-api-comment-d13848b4,api,apps/api/src/dominio/gestao-analise.ts,271,271,block,0,"/* ═══════════════════════════════════ Visão geral, relatórios, jornada ═══ */",,,,,,
+ */",translate,"Active messages for this contact have no Pipe equivalent today. In the source, the BOT sends them more than 24 hours after the customer's last message. Pipe's bot only replies (`gravarRespostaDoBot` always stores `dentro_da_janela = true`), and campaign template sends have no flow attribution. Return the source's empty response so the screen shows zeros. Once template sends have `fluxo_id` or the bot can send templates, group `mensagem` rows with `tipo = 'template'` by day, using `entregue_em`, `lida_em`, `estado_entrega = 'falhou'`/`erro_codigo`, and replies linked by `disparo_id`.",meta-blip,apps/api/src/dominio/gestao-analise.ts:248; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-d13848b4,api,apps/api/src/dominio/gestao-analise.ts,271,271,block,0,"/* ═══════════════════════════════════ Visão geral, relatórios, jornada ═══ */",remove,,other,apps/api/src/dominio/gestao-analise.ts:271,codex3,reviewed
 api-comment-4f6c407d,api,apps/api/src/dominio/gestao-analise.ts,275,282,jsdoc,4,"/**
  * O ""chatbot"" da origem é o contato; as mensagens DELE, aqui, são as das
  * conversas por onde alguma versão deste fluxo passou (`execucao_fluxo`).
@@ -2119,16 +2119,16 @@ api-comment-4f6c407d,api,apps/api/src/dominio/gestao-analise.ts,275,282,jsdoc,4,
  * que o relatório ""contabiliza todos os contatos e mensagens trafegadas,
  * incluindo interações durante o atendimento humano"". Nota interna não é
  * mensagem trafegada e fica fora.
- */",,,,,,
-api-comment-a95f28f0,api,apps/api/src/dominio/gestao-analise.ts,30,30,jsdoc,1,"/** Um intervalo em instantes, já no fuso da conta — `janelaDeDatas` do banco.ts. */",,,,,,
-api-comment-db1fc4f8,api,apps/api/src/dominio/gestao-analise.ts,356,356,block,0,/* ------------------------------------------------ Relatórios Personalizados */,,,,,,
+ */",translate,"The source ""chatbot"" is the contact. Count messages from conversations where any version of this flow ran (`execucao_fluxo`). Include human attendance as the source does: `metrics.overviewHelp.info1` states that the report includes contact and message traffic during human attendance. Internal notes are excluded because they are not traffic. Source wording: ""contabiliza todos os contatos e mensagens trafegadas, incluindo interações durante o atendimento humano"".",meta-blip,apps/api/src/dominio/gestao-analise.ts:275; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-a95f28f0,api,apps/api/src/dominio/gestao-analise.ts,30,30,jsdoc,1,"/** Um intervalo em instantes, já no fuso da conta — `janelaDeDatas` do banco.ts. */",translate,An interval of instants already in the account time zone; see `janelaDeDatas` in banco.ts.,architecture,apps/api/src/dominio/gestao-analise.ts:30; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
+api-comment-db1fc4f8,api,apps/api/src/dominio/gestao-analise.ts,356,356,block,0,/* ------------------------------------------------ Relatórios Personalizados */,remove,,other,apps/api/src/dominio/gestao-analise.ts:356,codex3,reviewed
 api-comment-cc05c996,api,apps/api/src/dominio/gestao-analise.ts,358,364,jsdoc,6,"/**
  * ponytail: sempre vazia. O Pipe não tem relatório personalizado — nem tabela,
  * nem editor de gráfico. Teto: a tela fica no estado ""Nenhum relatório
  * encontrado :("". Caminho: uma tabela `relatorio` (nome, dono, privado,
  * modificado_em) com os gráficos dela, e esta função lendo os públicos mais os
  * privados da pessoa — o mesmo filtro do `getReports()` da origem.
- */",,,,,,
+ */",translate,"Custom reports are always empty: Pipe has no report table or chart editor. The screen stops at ""Nenhum relatório encontrado :("". To implement this, add a `relatorio` table (name, owner, private flag, `modificado_em`) with its charts, and read public reports plus the person's private reports as source `getReports()` does.",meta-blip,apps/api/src/dominio/gestao-analise.ts:358; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-063951f7,api,apps/api/src/dominio/gestao-analise.ts,371,381,jsdoc,7,"/**
  * As arestas da jornada, tiradas do caminho de cada execução em
  * `execucao_passo`: o passo `n` liga o bloco `n` ao bloco `n+1`, e o último
@@ -2139,7 +2139,7 @@ api-comment-063951f7,api,apps/api/src/dominio/gestao-analise.ts,371,381,jsdoc,7,
  * ponytail: sem o nó ""Outros"" (`#others`), que na origem junta os blocos de
  * pouco volume. Teto: fluxo com muitos ramos desenha todos. Caminho: cortar
  * por etapa os N maiores e somar o resto numa aresta `tipo: 'outros'`.
- */",,,,,,
+ */",translate,"Build journey edges from each execution's path in `execucao_passo`: step `n` connects block `n` to `n+1`, and the final block connects to ""Saída"". Preserve the stage in brackets on node names, as source `getNodeNameWithoutInstance()` removes it; otherwise the same block in different stages can form a false cycle. The source has an ""Outros"" node (`#others`) for low-volume blocks. Here every branch is drawn; for very large flows, keep the top N per stage and sum the rest into an edge with `tipo: 'outros'`.",meta-blip,apps/api/src/dominio/gestao-analise.ts:371; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-70377cda,api,apps/api/src/dominio/gestao-analise.ts,440,459,jsdoc,19,"/**
  * O Log de mensagens (`MessagesController`/`MessageService.getMessages` da
  * origem), com o que a origem tinha só como texto fixo do template — período,
@@ -2159,7 +2159,7 @@ api-comment-70377cda,api,apps/api/src/dominio/gestao-analise.ts,440,459,jsdoc,19
  * caro num canal com um histórico enorme de conversas encerradas. Teto: bot
  * com centenas de milhares de conversas. Caminho, se doer: coluna
  * `canal_id` desnormalizada em `mensagem`, preenchida na escrita.
- */",,,,,,
+ */",translate,"Message Log follows source `MessagesController`/`MessageService.getMessages`. Source period, direction, and type labels become real filters, with cursor pagination instead of fixed `take: 30` (`apis.md` §5.3; see `controladores/conversas.ts#mensagens`). Scope to bot-channel conversations (`fluxo.canal_id` to `inbox.canal_id`), as in `carregarLogsDoFluxo`, rather than `execucao_fluxo`: the Log includes human attendance after handoff. `mensagem` has no direct `canal_id` index, so Postgres scans channel conversations through `conversa_inbox_idx` (migration 0040), then messages through `mensagem_conversa_idx`. This suits a small channel but costs more with hundreds of thousands of closed conversations. If needed, fill a denormalized `canal_id` on `mensagem` during writes.",integration,apps/api/src/dominio/gestao-analise.ts:440; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-aff99aa5,api,apps/api/src/dominio/gestao-analise.ts,46,62,jsdoc,14,"/**
  * O Dashboard de um contato, lido do banco.
  *
@@ -2176,9 +2176,9 @@ api-comment-aff99aa5,api,apps/api/src/dominio/gestao-analise.ts,46,62,jsdoc,14,"
  * transbordo aconteceu; quando marcar, é um `group by bloco_id` aqui.
  * ponytail: o roteador não agrega os fluxos que ele chama (na origem agrega
  * ""todos os chatbots conectados"") — o motor do Pipe ainda não roteia.
- */",,,,,,
+ */",update,"The contact Dashboard comes from the database. `api/src/dominio/fluxo.ts` writes an `execucao_fluxo` for each bot conversation, bot messages, and handoff (`enfileirada` with `dados.origem = 'fluxo'`). Contacts, messages, recurrence, retention, and handoff count conversations where this flow ran, including human attendance messages as the source Data Dictionary states. `excecao`, `blocosExcecao`, and `blocosTransbordo` stay empty: Pipe has no exception block, and `execucao_passo` does not mark the handoff block. Once it does, `group by bloco_id`. The router now routes contacts through services (`apps/api/src/dominio/roteador.ts`), but this Dashboard still does not aggregate service flows as the source does; its SQL filters one `fluxoId`. Source wording: ""Inclui, também, mensagens trafegadas no Desk"".",architecture,apps/api/src/dominio/gestao-analise.ts:87-123; apps/api/src/dominio/roteador.ts:64-110; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-4501c06d,api,apps/api/src/dominio/gestao-analise.ts,77,78,block,3,"/* Um `rollup` por dia: as linhas de cada dia e, com `dia` nulo, o período
-         inteiro — onde o `count(distinct)` não é soma dos dias. */",,,,,,
+         inteiro — onde o `count(distinct)` não é soma dos dias. */",translate,One `rollup` per day yields daily rows plus a row with null `dia` for the whole period; the period `count(distinct)` is not the sum of daily counts.,architecture,apps/api/src/dominio/gestao-analise.ts:77; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-c4b371cb,api,apps/api/src/dominio/gestao-fluxo.ts,19,27,jsdoc,13,"/**
  * As leituras das telas DO CONTATO (`/fluxo/:id/**` na Gestão), movidas de
  * `apps/gestao/src/lib/*` para cá, como o README previu (""virar endpoint na
@@ -2187,22 +2187,22 @@ api-comment-c4b371cb,api,apps/api/src/dominio/gestao-fluxo.ts,19,27,jsdoc,13,"/*
  *
  * Nada aqui sabe de HTTP nem de tela. O que sai é o que a tela desenha, e o
  * tipo é derivado da consulta (`Awaited<ReturnType<…>>`), não copiado à mão.
- */",,,,,,
+ */",translate,"Read contact-facing flow screens (`/fluxo/:id/**` in Management). These queries moved from `apps/gestao/src/lib/*` as planned in the README: the caller supplies a tenant-scoped transaction, and the `api` controller owns session handling. This module knows no HTTP or screen; it returns what the UI renders, with types derived from the query (`Awaited<ReturnType<…>>`) rather than copied manually.",architecture,apps/api/src/dominio/gestao-fluxo.ts:19; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-cfb3b583,api,apps/api/src/dominio/gestao-fluxo.ts,29,34,jsdoc,3,"/**
  * O que a tela mostra como ""o número"" do canal: `config.numero` no WhatsApp,
  * `config.username` no Instagram, o id da Página (`numero_id`) no Messenger.
  * Nenhum dos três é segredo — ficam legíveis no `config` cifrado
  * (`dominio/canais.ts`, `visivel`).
- */",,,,,,
+ */",translate,"The channel identifier shown as ""the number"": WhatsApp `config.numero`, Instagram `config.username`, or Messenger Page ID (`numero_id`). These are not secrets and are readable in encrypted `config` (`dominio/canais.ts`, `visivel`).",security,apps/api/src/dominio/gestao-fluxo.ts:29; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-762c1a56,api,apps/api/src/dominio/gestao-fluxo.ts,298,304,jsdoc,11,"/**
  * A origem lista campanhas; o Pipe ainda não persiste campanha nem audiência.
  * A leitura usa mensagens de template reais das últimas 72h, janela do painel da
  * API e do rastro da tela de origem. ponytail: cada linha é uma mensagem, não uma
  * campanha; quando houver entidade campanha, agrupar por disparo_id sem inferir
  * campanhas a partir de horário ou modelo.
- */",,,,,,
+ */",translate,"The source lists campaigns, but Pipe does not yet persist campaigns or audiences. Read real template messages from the past 72 hours, the API panel and source screen window. Each row is a message, not a campaign. Once a campaign entity exists, group by `disparo_id`; do not infer campaigns from time or model.",meta-blip,apps/api/src/dominio/gestao-fluxo.ts:298; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-89e1aac5,api,apps/api/src/dominio/gestao-fluxo.ts,307,308,block,1,"/* As consultas vão em série: em paralelo o driver disputa a mesma conexão
-     e o `set_config` do tenant se perde. */",,,,,,
+     e o `set_config` do tenant se perde. */",translate,Run queries serially: in parallel the driver contends for one connection and the tenant `set_config` is lost.,security,apps/api/src/dominio/gestao-fluxo.ts:307; pre-triage D-40; needs slice-time confirmation,codex3,reviewed
 api-comment-720b26a8,api,apps/api/src/dominio/gestao-fluxo.ts,388,388,block,0,/* ------------------------------------------------------------ Conteúdos */,,,,,,
 api-comment-33aca499,api,apps/api/src/dominio/gestao-fluxo.ts,403,403,jsdoc,4,/** `variaveis` é `jsonb` sem `check`: uma linha corrompida não pode derrubar a lista inteira. */,,,,,,
 api-comment-68d6340a,api,apps/api/src/dominio/gestao-fluxo.ts,448,452,jsdoc,9,"/**

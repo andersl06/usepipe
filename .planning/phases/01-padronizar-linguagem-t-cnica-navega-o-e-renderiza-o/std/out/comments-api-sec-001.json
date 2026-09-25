@@ -11,7 +11,7 @@
     {
       "id": "api-comment-a4716516",
       "action": "translate",
-      "new_text": "When a route names a flow, use its `:fluxoId` parameter or the parameter immediately after `/fluxos/`, as in `/v1/gestao/fluxos/:id/...`. Inspect the route pattern (`req.route.path`), not the URL: the pattern identifies which segment represents the flow. Looking at the URL could accidentally match `/v1/conversas/<uuid>` if a conversation ID ever equaled a flow ID.",
+      "new_text": "When a route names a flow, use its `:fluxoId` parameter or `:id` (or another parameter name) immediately after `/fluxos/`, as in `/v1/gestao/fluxos/:id/...`. Inspect the route pattern (`req.route.path`), not the URL: the pattern identifies which segment represents the flow. Looking at the URL could accidentally match `/v1/conversas/<uuid>` if a conversation ID ever equaled a flow ID.",
       "sensitivity": "security",
       "evidence": "apps/api/src/autenticacao.ts:123-128; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -99,7 +99,7 @@
     {
       "id": "api-comment-3d38e3d7",
       "action": "translate",
-      "new_text": "The flow owning this key (`chave_api.fluxo_id`, migration 0032), or null for an account key. `conferirFluxoDaChave` enforces that a flow key acts only on its own flow.",
+      "new_text": "The flow owning this key (`chave_api.fluxo_id`, migration 0032), or `null` for an account key. `conferirFluxoDaChave` enforces that a flow key acts only on its own flow.",
       "sensitivity": "security",
       "evidence": "apps/api/src/autenticacao.ts:37-46; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -147,7 +147,7 @@
     {
       "id": "api-comment-854c1ad0",
       "action": "update",
-      "new_text": "Resolve the channel from the payload for the umbrella route. Meta template and account events all arrive at one address because they do not support a customer-specific URL. Resolve the tenant by `phone_number_id` first; if it does not identify a channel, use the WABA. A number identifies one channel, while a WABA may have several. Return null when neither identifies a channel, and let the caller discard the event. An unowned event may belong to another app or a removed channel; guessing could expose one customer's data to another.",
+      "new_text": "Resolve the channel from the payload for the umbrella route. Meta template and account events all arrive at one address because they do not support a customer-specific URL. Resolve the tenant by `phone_number_id` first; if it does not identify a channel, use the WABA. A number identifies one channel, while a WABA may have several. Return `null` when neither identifies a channel, and let the caller discard the event. An unowned event may belong to another app or a removed channel; guessing could expose one customer's data to another.",
       "sensitivity": "integration",
       "evidence": "apps/api/src/banco.ts:112-139; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
@@ -163,7 +163,7 @@
     {
       "id": "api-comment-67e2c6b0",
       "action": "translate",
-      "new_text": "Two pools and roles, as in the Desk and workers. Business data goes through `noTenant`, with `pipe.tenant_id` set and RLS active. The owner role handles only two lookups that must happen before a tenant exists and therefore cannot use that policy: resolving a Meta webhook channel's tenant from URL `:canalId`, and finding an API key by prefix to identify the Bearer token's tenant. Both return only `tenant_id` and the minimum data needed to authorize. No other query uses the owner role; migration `0001_rls` records this gap.",
+      "new_text": "Two pools and roles, as in the Desk and workers. Business data goes through `noTenant`, with `pipe.tenant_id` set and RLS active. The owner role handles only two lookups that must happen before a tenant exists and therefore cannot use that policy: resolving a Meta webhook channel's tenant from URL `:canalId`, and finding an API key by prefix to identify the `Bearer` token's tenant. Both return only `tenant_id` and the minimum data needed to authorize. No other query uses the owner role; migration `0001_rls` records this gap.",
       "sensitivity": "security",
       "evidence": "apps/api/src/banco.ts:5-17; pre-triage D-40; needs slice-time confirmation",
       "notes": "pre-triage D-40; needs slice-time confirmation"
