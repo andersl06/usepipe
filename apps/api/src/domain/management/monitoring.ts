@@ -417,12 +417,12 @@ export async function loadMonitoring(
         : agruparEventos(
             await tx
               .select({
-                conversaId: eventAttendance.conversaId,
-                tipo: eventAttendance.tipo,
-                em: eventAttendance.em,
-                usuarioId: eventAttendance.usuarioId,
-                filaId: eventAttendance.queueId,
-                dados: eventAttendance.data,
+                conversationId: eventAttendance.conversaId,
+                type: eventAttendance.tipo,
+                at: eventAttendance.em,
+                userId: eventAttendance.usuarioId,
+                queueId: eventAttendance.queueId,
+                data: eventAttendance.data,
               })
               .from(eventAttendance)
               .where(
@@ -461,23 +461,23 @@ export async function loadMonitoring(
       return {
         id: c.id,
         ticket: ticketDe(c.id),
-        contatoNome: c.contatoNome ?? 'Contato sem nome',
-        filaId: c.filaId,
-        filaNome: c.filaNome,
-        atendenteId: c.atendenteId,
-        atendenteNome: c.atendenteNome,
-        estado: c.estado,
-        prioridade: c.prioridade,
+        contactName: c.contatoNome ?? 'Contato sem nome',
+        queueId: c.filaId,
+        queueName: c.filaNome,
+        agentId: c.atendenteId,
+        agentName: c.atendenteNome,
+        state: c.estado,
+        priority: c.prioridade,
         marcos,
         inQueueSeg,
-        filaCorrendo: marcos.atribuidaEm === null,
+        queueRunning: marcos.atribuidaEm === null,
         firstResponseSeg,
-        primeiraRespostaCorrendo: marcos.firstRespostaIn === null && marcos.atribuidaEm !== null,
-        atendimentoSeg: entre(marcos.firstRespostaIn, agora),
+        firstResponseRunning: marcos.firstRespostaIn === null && marcos.atribuidaEm !== null,
+        attendanceSeg: entre(marcos.firstRespostaIn, agora),
         emEspera: c.emEsperaDesde !== null,
         aguardandoAtendente: c.ultimaMensagemDe === 'contato' || marcos.firstRespostaIn === null,
         sla: avaliarSlaOfConversation(regras, marcos, c.filaId, agora),
-        etiquetas: labelsByConversation.get(c.id) ?? [],
+        labels: labelsByConversation.get(c.id) ?? [],
       };
     });
 
@@ -592,10 +592,10 @@ export async function loadMonitoring(
         };
         return {
           id: s.usuarioId,
-          nome: s.nome,
-          estado: disponivel.state,
+          name: s.nome,
+          state: disponivel.state,
           ativas: minhas.length,
-          aguardandoAtendente: aguardando,
+          aguardandoAgent: aguardando,
           limite,
           carga: cargaPonderada(disponivel),
           // O teto da barra: o limite todo ocupado por conversa que aguarda o atendente.
@@ -604,11 +604,11 @@ export async function loadMonitoring(
             ativas: limite,
             aguardandoAgent: limite,
           }),
-          tempoMedioRespostaSeg: medias?.tempoMedioPrimeiraRespostaSeg ?? null,
-          tempoMedioAtendimentoSeg: medias?.tempoMedioAtendimentoSeg ?? null,
+          timeMediumResponseSeg: medias?.tempoMedioPrimeiraRespostaSeg ?? null,
+          timeMediumAttendanceSeg: medias?.tempoMedioAtendimentoSeg ?? null,
         };
       })
-      .sort((a, b) => b.carga - a.carga || a.nome.localeCompare(b.nome, 'pt-BR'));
+      .sort((a, b) => b.carga - a.carga || a.name.localeCompare(b.name, 'pt-BR'));
 
     // ---- 6. resumos por fila e por etiqueta ------------------------------
     const allQueues = await tx
@@ -629,14 +629,14 @@ export async function loadMonitoring(
       const medias = byQueue.get(f.nome);
       return {
         id: f.id,
-        nome: f.nome,
-        naFila: ofQueue.filter((c) => c.marcos.atribuidaEm === null).length,
+        name: f.nome,
+        inQueue: ofQueue.filter((c) => c.marcos.atribuidaEm === null).length,
         emAtendimento: ofQueue.filter((c) => c.agentId !== null).length,
         maiorEsperaSeg: maiorDe(
           ofQueue.filter((c) => c.marcos.atribuidaEm === null).map((c) => c.inQueueSeg),
         ),
         atendentesOnline: onlineByQueue.get(f.id) ?? 0,
-        tempoMedioNaFilaSeg: medias?.tempoMedioNaFilaSeg ?? null,
+        timeMediumInQueueSeg: medias?.tempoMedioNaFilaSeg ?? null,
         tempoMedioRespostaSeg: medias?.tempoMedioPrimeiraRespostaSeg ?? null,
         tempoMedioAtendimentoSeg: medias?.tempoMedioAtendimentoSeg ?? null,
       };
@@ -657,8 +657,8 @@ export async function loadMonitoring(
       const medias = byLabel.get(e.nome);
       return {
         id: e.id,
-        nome: e.nome,
-        cor: e.cor,
+        name: e.nome,
+        color: e.cor,
         abertas: countLabel.get(e.nome) ?? 0,
         finalizadas: medias?.conversasFinalizadas ?? 0,
         tempoMedioAtendimentoSeg: medias?.tempoMedioAtendimentoSeg ?? null,
@@ -667,7 +667,7 @@ export async function loadMonitoring(
 
     const horaLocal = sql<number>`extract(hour from ${conversation.criadaEm} at time zone ${fuso})::int`;
     const byHourRaw = await tx
-      .select({ hora: horaLocal, total: sql<number>`count(*)::int` })
+      .select({ hour: horaLocal, total: sql<number>`count(*)::int` })
       .from(conversation)
       .where(and(gte(conversation.criadaEm, window.start), lt(conversation.criadaEm, window.end), ...recorte))
       // A expressão usa um parâmetro para o fuso; referenciá-la pela posição
@@ -677,19 +677,19 @@ export async function loadMonitoring(
     const ticketsOpenByHour = normalizeTicketsByHour(byHourRaw);
 
     const listAgents = status
-      .map((s) => ({ id: s.usuarioId, nome: s.nome }))
-      .sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+      .map((s) => ({ id: s.usuarioId, name: s.nome }))
+      .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'));
 
     return {
       agora,
       fuso,
       timeReal,
-      atendentes: cardAgents,
+      agents: cardAgents,
       hoje,
       abertas,
       carga,
-      filas,
-      etiquetas,
+      queues: filas,
+      labels: etiquetas,
       ticketsOpenByHour,
       listAgents,
     };
